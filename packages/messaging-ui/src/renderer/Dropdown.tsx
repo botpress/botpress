@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react'
 import Select from 'react-select'
 import Creatable from 'react-select/Creatable'
 import * as Keyboard from '../Keyboard'
-import { Renderer } from '../typings'
 import { renderUnsafeHTML } from '../utils'
 
 export const Dropdown = (props: Renderer.Dropdown) => {

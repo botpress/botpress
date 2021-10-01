@@ -1,13 +1,12 @@
 import React, { createRef } from 'react'
-import Slider from 'react-slick'
+import Slider, { Settings } from 'react-slick'
 
 // Added those manually to remove the font dependencies which keeps showing 404 not found
 // import './slick/slick-theme.css'
 // import './slick/slick.css'
-import { Renderer } from '../typings'
-import { CardPayload, MessageRendererProps } from './render'
+import { CardButton, CardPayload, MessageConfig, MessageRendererProps } from '../typings'
 
-export class Carousel extends React.Component<ICarouselProps, ICarouselState> {
+export class Carousel extends React.Component<MessageRendererProps<'carousel'>, ICarouselState> {
   private ref = createRef<HTMLDivElement>()
 
   public state = {
@@ -19,13 +18,13 @@ export class Carousel extends React.Component<ICarouselProps, ICarouselState> {
   }
 
   renderCarousel() {
-    const carousel = this.props.carousel
+    const carousel = this.props.payload.carousel
     const elements = carousel.elements || []
 
     // Breakpoints must be adjusted since the carousel is based on the page width, and not its parent component
-    const adjustBreakpoint = (size: number) => size - this.state.adjustedWidth
+    const adjustBreakpoint = (size: number): number => size - this.state.adjustedWidth
 
-    const defaultSettings = {
+    const defaultSettings: Settings = {
       dots: false,
       infinite: false,
       responsive: [
@@ -46,7 +45,7 @@ export class Carousel extends React.Component<ICarouselProps, ICarouselState> {
     return (
       <Slider {...settings}>
         {elements.map((el, idx) => (
-          <Card element={el} key={idx} onSendData={this.props.onSendData} />
+          <Card {...el} key={idx} onSendData={this.props.config.onSendData} />
         ))}
       </Slider>
     )
@@ -54,16 +53,16 @@ export class Carousel extends React.Component<ICarouselProps, ICarouselState> {
 
   render() {
     return (
-      <div ref={this.ref} style={{ width: '100%', ...this.props.style }}>
+      <div ref={this.ref} style={{ width: '100%', ...this.props.payload.style }}>
         {this.state.adjustedWidth && this.renderCarousel()}
       </div>
     )
   }
 }
 
-export const Card = (props: CardPayload) => {
-  const { picture, title, subtitle, buttons } = props
+type CardProps = CardPayload & Pick<MessageConfig, 'onSendData'>
 
+export const Card = ({ picture, title, subtitle, buttons, onSendData = async () => {} }: CardProps) => {
   return (
     <div className={'bpw-card-container'}>
       {picture && <div className={'bpw-card-picture'} style={{ backgroundImage: `url("${picture}")` }} />}
@@ -73,7 +72,7 @@ export const Card = (props: CardPayload) => {
           {subtitle && <div className={'bpw-card-subtitle'}>{subtitle}</div>}
         </div>
         <div className={'bpw-card-buttons'}>
-          {buttons.map((btn: Renderer.CardButton) => {
+          {buttons.map((btn: CardButton) => {
             if (btn.url) {
               return (
                 <a
@@ -89,7 +88,9 @@ export const Card = (props: CardPayload) => {
             } else if (btn.type === 'postback' || btn.payload) {
               return (
                 <a
-                  onClick={props.onSendData?.bind(this, { type: 'postback', payload: btn.payload })}
+                  onClick={async () => {
+                    await onSendData({ type: 'postback', payload: btn.payload })
+                  }}
                   key={`2-${btn.title}`}
                   className={'bpw-card-action'}
                 >
@@ -99,7 +100,9 @@ export const Card = (props: CardPayload) => {
             } else if (btn.type === 'say_something' || btn.text) {
               return (
                 <a
-                  onClick={props.onSendData?.bind(this, { type: 'say_something', text: btn.text })}
+                  onClick={async () => {
+                    await onSendData({ type: 'say_something', text: btn.text })
+                  }}
                   key={`2-${btn.title}`}
                   className={'bpw-card-action'}
                 >
@@ -119,12 +122,6 @@ export const Card = (props: CardPayload) => {
       </div>
     </div>
   )
-}
-
-interface ICarouselProps {
-  carousel: Renderer.Carousel
-  onSendData: any
-  style?: object
 }
 
 interface ICarouselState {

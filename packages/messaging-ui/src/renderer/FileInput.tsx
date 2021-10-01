@@ -1,13 +1,11 @@
 import React from 'react'
 
-import { Renderer } from '../typings'
-
-export class FileInput extends React.Component<Renderer.FileInput> {
+export class FileInput extends React.Component<any> {
   state = {
     value: ''
   }
 
-  handleFileChanged = (e: React.BaseSyntheticEvent) => {
+  handleFileChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
     this.setState({ value: e.target.value.split(/(\\|\/)/g).pop() })
     this.props.onFileChanged && this.props.onFileChanged(e)
   }

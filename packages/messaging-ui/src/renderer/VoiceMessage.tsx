@@ -2,11 +2,7 @@ import mimeTypes from 'mime/lite'
 import path from 'path'
 import React, { FC, useRef, useEffect } from 'react'
 
-import { Renderer } from '../typings'
-
-type Props = Renderer.VoiceMessage
-
-export const VoiceMessage: FC<Props> = (props: Props) => {
+export const VoiceMessage: FC<any> = (props: any) => {
   const audioRef = useRef<HTMLAudioElement>(null)
 
   useEffect(() => {

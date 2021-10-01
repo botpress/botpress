@@ -1,7 +1,5 @@
 import React, { Component } from 'react'
 
-import { HTMLInputEvent, Renderer } from '../typings'
-
 import { FileInput } from './FileInput'
 
 /**
@@ -11,7 +9,7 @@ import { FileInput } from './FileInput'
  * @param {function} onButtonClicked Called when the button is clicked with the label and the payload
  * @param {function} onFileUpload This is called when a file is uploaded
  */
-export class Button extends Component<Renderer.Button> {
+export class Button extends Component<any> {
   constructor(props) {
     super(props)
   }
@@ -24,7 +22,7 @@ export class Button extends Component<Renderer.Button> {
     this.props.onButtonClick?.(this.props.label, this.props.payload)
   }
 
-  handleFileUpload = (event: HTMLInputEvent) => {
+  handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (!event.target.files) {
       return
     }

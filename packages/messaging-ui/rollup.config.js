@@ -2,7 +2,7 @@ import typescript from "rollup-plugin-typescript2";
 import css from "rollup-plugin-import-css";
 import pkg from "./package.json";
 
-const extensions = [".js", ".jsx", ".ts", ".tsx"];
+const extensions = [".js", ".jsx", ".ts", ".tsx", ".d.ts"];
 const input = "src/index.tsx";
 
 const external = [

@@ -3,7 +3,7 @@ import { defaults } from 'jest-config'
 
 const config: Config.InitialOptions = {
   bail: true,
-  moduleFileExtensions: [...defaults.moduleFileExtensions, 'ts', 'tsx'],
+  moduleFileExtensions: [...defaults.moduleFileExtensions, 'ts', 'tsx', 'css', 'd.ts'],
   roots: ['.'],
   transform: {
     '^.+\\.tsx?$': 'ts-jest',

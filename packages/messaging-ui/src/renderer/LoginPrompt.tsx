@@ -1,9 +1,7 @@
 import React, { Component } from 'react'
 import { InjectedIntlProps, injectIntl } from 'react-intl'
 
-import { Renderer } from '../typings'
-
-class LoginPromptClass extends Component<Renderer.Message & InjectedIntlProps> {
+class LoginPromptClass extends Component<any & InjectedIntlProps> {
   state = {
     username: '',
     password: ''

@@ -1,7 +1,6 @@
 import React, { Component } from 'react'
 
 import * as Keyboard from '../Keyboard'
-import { Renderer } from '../typings'
 
 import { Button } from './Button'
 
@@ -14,7 +13,7 @@ import { Button } from './Button'
  *
  * @return onSendData is called with the reply
  */
-export class QuickReplies extends Component<Renderer.QuickReply> {
+export class QuickReplies extends Component<any> {
   componentDidMount() {
     this.props.isLastGroup &&
       this.props.isLastOfGroup &&
@@ -35,7 +34,7 @@ export class QuickReplies extends Component<Renderer.QuickReply> {
     this.props.store?.composer?.setLocked(false)
   }
 
-  renderKeyboard(buttons: Renderer.QuickReplyButton[]) {
+  renderKeyboard(buttons: any[]) {
     return buttons.map((btn, idx) => {
       if (Array.isArray(btn)) {
         return <div>{this.renderKeyboard(btn)}</div>

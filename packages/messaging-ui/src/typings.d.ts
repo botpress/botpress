@@ -1,147 +1,25 @@
-import { SyntheticEvent } from 'react'
-import { InjectedIntl } from 'react-intl'
+import { Settings as CarouselSettings } from 'react-slick'
+import { messageTypes } from './utils'
 
-// copy pasted from channel-web/src/lite/typings.d.ts and modifed
 export type uuid = string
-
-export namespace Renderer {
-  export interface Config {
-    isEmulator: boolean
-    showTimestamp: boolean
-  }
-  export interface MinimalRootStore {
-    intl: InjectedIntl
-    escapeHTML: boolean
-    config: Config
-    composer: any
-    bp?: StudioConnector
-  }
-  export interface Message {
-    type: string
-    className?: string
-    payload: any
-    store?: MinimalRootStore
-    bp?: StudioConnector
-    fromLabel?: string
-    messageId?: uuid
-    /** When true, the message isn't wrapped by its bubble */
-    noBubble?: boolean
-    keyboard?: any
-    eventId?: string
-    escapeHTML: boolean
-    isHighlighted?: boolean
-    isLastGroup?: boolean
-    isLastOfGroup?: boolean
-    isBotMessage?: boolean
-    isLastMessage?: boolean
-    sentOn?: Date
-    inlineFeedback?: any
-
-    onSendData?: (data: any) => Promise<void>
-    onFileUpload?: (label: string, payload: any, file: File) => Promise<void>
-    onMessageClicked?: (messageId?: uuid) => void
-  }
-
-  export type Button = {
-    label: string
-    payload: any
-    preventDoubleClick: boolean
-    onButtonClick: (title: any, payload: any) => void
-  } & Pick<Message, 'onFileUpload'>
-
-  export interface Text {
-    text: string
-    markdown: boolean
-    escapeHTML: boolean
-    intl?: any
-    maxLength?: number
-  }
-
-  export interface Option {
-    label: string
-    value: string
-  }
-
-  export type Dropdown = {
-    options: Option[]
-    buttonText?: string
-    escapeHTML: boolean
-    allowCreation?: boolean
-    placeholderText?: string
-    allowMultiple?: boolean
-    width?: number
-    markdown: boolean
-    message: string
-    displayInKeyboard?: boolean
-  } & Message
-
-  export type QuickReply = {
-    buttons: any
-    quick_replies: any
-    disableFreeText: boolean
-  } & Message
-
-  export type QuickReplyButton = {
-    allowMultipleClick: boolean
-    title: string
-  } & Button
-
-  export interface FileMessage {
-    file: {
-      url: string
-      title: string
-      storage: string
-      text: string
-    }
-    escapeTextHTML: boolean
-  }
-
-  export interface VoiceMessage {
-    file: {
-      type: string
-      audio: string
-      autoPlay?: boolean
-    }
-
-    shouldPlay: boolean
-    onAudioEnded: () => void
-  }
-
-  export interface FileInput {
-    onFileChanged: (event: HTMLInputEvent) => void
-    name: string
-    className: string
-    accept: string
-    placeholder: string
-    disabled?: boolean
-  }
-
-  export interface Carousel {
-    elements: Card[]
-    settings: any
-  }
-
-  export interface Card {
-    picture: string
-    title: string
-    subtitle: string
-    buttons: CardButton[]
-  }
-
-  export interface CardButton {
-    url: string
-    title: string
-    type: string
-    payload: any
-    text: string
+declare global {
+  export interface Window {
+    botpress?: StudioConnector
   }
 }
 
-export interface HTMLInputEvent extends Event {
-  target: HTMLInputElement & EventTarget
+export interface MessageConfig {
+  escapeHTML: boolean
+  isInEmulator: boolean
+  intl: InjectedIntl
+  showTimestamp: boolean
+  noMessageBubble: boolean
+  bp?: StudioConnector
+  onSendData: (data: any) => Promise<void>
+  onFileUpload: (label: string, payload: any, file: File) => Promise<void>
+  onMessageClicked: (messageId?: uuid) => void
 }
 
-/** These are the functions exposed by the studio to the modules */
 export interface StudioConnector {
   /** Event emitter */
   events: any
@@ -150,3 +28,78 @@ export interface StudioConnector {
   getModuleInjector: any
   loadModuleView: any
 }
+
+type MessageTypeTuple = typeof messageTypes
+
+export type MessageType = MessageTypeTuple[number]
+
+export interface Message<T extends MessageType> {
+  type: T
+  payload: Payload<T>
+  config: MessageConfig
+}
+interface FilePayload {
+  file: {
+    url: string
+    title?: string
+    storage?: 'local' | string
+    text?: string
+  }
+}
+
+export interface TextMessagePayload {
+  text: string
+  markdown: boolean
+  trimLength?: number
+}
+
+export interface CardPayload {
+  picture: string
+  title: string
+  subtitle: string
+  buttons: CardButton[]
+}
+
+export interface CardButton {
+  url?: string
+  title: string
+  type?: 'postback' | 'say_something' | string
+  payload?: any
+  text?: string
+}
+
+export interface CarouselPayload {
+  carousel: {
+    elements: CardPayload[]
+    settings?: CarouselSettings
+  }
+  style?: { [key: string]: any }
+}
+
+export type Payload<T extends MessageType> = T extends 'text'
+  ? TextMessagePayload
+  : T extends 'file'
+  ? FilePayload
+  : T extends 'audio'
+  ? FilePayload
+  : T extends 'video'
+  ? FilePayload
+  : T extends 'carousel'
+  ? CarouselPayload
+  : T extends 'login_prompt'
+  ? {}
+  : T extends 'quick_reply'
+  ? {}
+  : T extends 'visit'
+  ? {}
+  : T extends 'voice'
+  ? {}
+  : T extends 'typing'
+  ? {}
+  : T extends 'dropdown'
+  ? {}
+  : T extends 'custom'
+  ? {}
+  : never
+
+export type MessageRendererProps<T extends MessageType> = Pick<Message<T>, 'payload' | 'config'>

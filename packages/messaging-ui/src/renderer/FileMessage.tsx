@@ -1,6 +1,6 @@
 import mimeTypes from 'mime/lite'
 import React from 'react'
-import { MessageRendererProps } from './render'
+import { MessageRendererProps } from '../typings'
 
 import { Text } from './Text'
 

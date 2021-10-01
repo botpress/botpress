@@ -1,8 +1,8 @@
 import truncate from 'html-truncate'
 import React, { useState } from 'react'
 import Linkify from 'react-linkify'
+import { MessageRendererProps } from '../typings'
 import { renderUnsafeHTML } from '../utils'
-import { Message, MessageRendererProps } from './render'
 
 /**
  * A simple text element with optional markdown
