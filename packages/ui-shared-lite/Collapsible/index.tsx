@@ -20,7 +20,7 @@ const Collapsible: FC<CollapsibleProps> = ({ opened, hidden, toggleExpand, name,
   const handleToggle = () => {
     const newValue = !isOpen
     setOpen(newValue)
-    toggleExpand(newValue)
+    toggleExpand && toggleExpand(newValue)
   }
 
   return (
