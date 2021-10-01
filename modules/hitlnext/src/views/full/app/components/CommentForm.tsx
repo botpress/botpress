@@ -22,7 +22,7 @@ const CommentForm: FC<Props> = ({ onSubmit }) => {
 
   function submit(e?: React.MouseEvent) {
     e?.preventDefault()
-    onSubmit(content).then(() => setContent(''))
+    void onSubmit(content).then(() => setContent(''))
   }
 
   function textAreaKeyDown(e: React.KeyboardEvent) {

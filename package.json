@@ -29,6 +29,7 @@
     "test": "cross-env NATIVE_EXTENSIONS_DIR=build/native-extensions cross-env jest -i --detectOpenHandles -c jest.config.js",
     "reference": "yarn cmd build:reference",
     "itest": "yarn workspace botpress itest",
+    "eslint": "node_modules/.bin/eslint packages/bp/src modules --ext .ts,.tsx",
     "commitmsg": "commitlint -e $GIT_PARAMS",
     "bpd": "node build/downloader/out/index.js"
   },
@@ -99,8 +100,8 @@
     "@types/tmp": "^0.0.33",
     "@types/universal-analytics": "^0.4.2",
     "@types/verror": "^1.10.3",
-    "@typescript-eslint/eslint-plugin": "^4.15.0",
-    "@typescript-eslint/parser": "^4.15.0",
+    "@typescript-eslint/eslint-plugin": "^4.32.0",
+    "@typescript-eslint/parser": "^4.32.0",
     "cheerio": "^1.0.0-rc.2",
     "cross-env": "^5.2.0",
     "eslint": "^7.19.0",

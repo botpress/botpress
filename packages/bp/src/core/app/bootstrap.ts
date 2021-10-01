@@ -143,6 +143,7 @@ async function start() {
 
   const resolver = new ModuleResolver(logger)
 
+  // eslint-disable-next-line prefer-const
   let { loadedModules, erroredModules } = await resolveModules(enabledModules, resolver)
 
   // These channels were removed on 12.24.0.
