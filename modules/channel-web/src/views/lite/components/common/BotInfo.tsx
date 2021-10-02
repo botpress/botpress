@@ -45,9 +45,11 @@ class BotInfoPage extends React.Component<BotInfoProps> {
     const { botInfo, botName, avatarUrl } = this.props
     const onDismiss = this.props.isConversationStarted ? this.props.toggleBotInfo : this.props.startConversation
     return (
-      <div className={classnames('bpw-botinfo-container', {
-        'bpw-rtl': this.props.rtl
-      })}>
+      <div
+        className={classnames('bpw-botinfo-container', {
+          'bpw-rtl': this.props.rtl
+        })}
+      >
         <CoverPicture botInfo={botInfo} />
         <div className={'bpw-botinfo-summary'}>
           <Avatar name={botName} avatarUrl={avatarUrl} height={64} width={64} />

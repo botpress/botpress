@@ -1,3 +1,30 @@
+## [12.26.4](https://github.com/botpress/botpress/compare/v12.26.3...v12.26.4) (2021-09-28)
+
+
+### Bug Fixes
+
+* **channel-web:** avatar won`t crash if there is no name ([#5472](https://github.com/botpress/botpress/issues/5472)) ([c52592e](https://github.com/botpress/botpress/commit/c52592e))
+* **channel-web:** fix display of image, file, audio and video content-elements ([#5488](https://github.com/botpress/botpress/issues/5488)) ([6321d23](https://github.com/botpress/botpress/commit/6321d23))
+* **channel-web:** prevent sending proactive messages on webchatLoaded ([#5469](https://github.com/botpress/botpress/issues/5469)) ([e3878bb](https://github.com/botpress/botpress/commit/e3878bb))
+* **core:** fix unhandled rejections ([#5489](https://github.com/botpress/botpress/issues/5489)) ([e9a6d41](https://github.com/botpress/botpress/commit/e9a6d41))
+* **dev:** fix warnings with logger ([#5483](https://github.com/botpress/botpress/issues/5483)) ([3e1dac5](https://github.com/botpress/botpress/commit/3e1dac5))
+* **misunderstood:** fix remove duplicated preview and add scroll for chats ([#5458](https://github.com/botpress/botpress/issues/5458)) ([ecf0d62](https://github.com/botpress/botpress/commit/ecf0d62))
+
+
+
+## [12.26.3](https://github.com/botpress/botpress/compare/v12.26.2...v12.26.3) (2021-09-17)
+
+
+### Bug Fixes
+
+* **channel-web:** down mig drop all msg_ tables ([#5452](https://github.com/botpress/botpress/issues/5452)) ([6f03d1c](https://github.com/botpress/botpress/commit/6f03d1c))
+* **channel-web:** fix useSessionStorage config option ([#5118](https://github.com/botpress/botpress/issues/5118)) ([edac7c6](https://github.com/botpress/botpress/commit/edac7c6)), closes [#5405](https://github.com/botpress/botpress/issues/5405)
+* **core:** add small safeguards ([#5459](https://github.com/botpress/botpress/issues/5459)) ([a1a83c8](https://github.com/botpress/botpress/commit/a1a83c8))
+* **core:** bigger frontend timeout ([#5455](https://github.com/botpress/botpress/issues/5455)) ([f976538](https://github.com/botpress/botpress/commit/f976538))
+* **hitl:** use renderPayload from ui-shared-lite to fix undefined ([#5454](https://github.com/botpress/botpress/issues/5454)) ([56a020c](https://github.com/botpress/botpress/commit/56a020c))
+
+
+
 ## [12.26.2](https://github.com/botpress/botpress/compare/v12.26.1...v12.26.2) (2021-09-14)
 
 ### Bug Fixes

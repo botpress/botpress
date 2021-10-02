@@ -37,9 +37,11 @@ const ResolvedEventsList = ({ events, resetEvent }: Props) =>
             </td>
             <td>{event.updatedAt}</td>
             <td>
-              {resetEvent && (<Button onClick={() => resetEvent(event.id)} small icon="refresh" intent={Intent.PRIMARY}>
-                {lang.tr('module.misunderstood.reset')}
-              </Button>)}
+              {resetEvent && (
+                <Button onClick={() => resetEvent(event.id)} small icon="refresh" intent={Intent.PRIMARY}>
+                  {lang.tr('module.misunderstood.reset')}
+                </Button>
+              )}
             </td>
           </tr>
         ))}

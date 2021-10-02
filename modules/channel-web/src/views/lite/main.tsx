@@ -51,7 +51,7 @@ class Web extends React.Component<MainProps> {
       }
     })
 
-    await this.initialize()
+    await this.load()
     await this.initializeIfChatDisplayed()
 
     this.props.setLoadingCompleted()
@@ -85,7 +85,7 @@ class Web extends React.Component<MainProps> {
     }
   }
 
-  async initialize() {
+  async load() {
     this.config = this.extractConfig()
 
     if (this.config.exposeStore) {
