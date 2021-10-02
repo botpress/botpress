@@ -12,9 +12,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@master
 
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
-          node-version: '12.13.0'
+          node-version: '12.18.1'
+          cache: 'yarn'
 
       - name: Configure SSH Key
         uses: botpress/gh-actions/set_ssh_key@master
@@ -28,8 +29,7 @@ jobs:
           architecture: 'x64'
 
       - name: Install Tools
-        run: |
-          pip install awscli
+        run: pip install awscli
 
       - name: Build Project
         run: |
