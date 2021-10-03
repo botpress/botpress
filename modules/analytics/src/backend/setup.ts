@@ -9,6 +9,8 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
   const removeExt = (name: string) => name?.replace(/\.flow\.json$/i, '')
 
   process.BOTPRESS_EVENTS.on('bp_core_send_content', ({ channel, botId, source, details }) => {
+    console.log('incoming event...', details)
+
     if (source === 'qna') {
       db.incrementMetric(botId, channel, 'msg_sent_qna_count', details)
     }
@@ -79,14 +81,23 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
     }
 
     // misunderstood messages
-    const intentName = event?.nlu?.intent?.name
+    const intentName = event.nlu?.intent?.name
     if (intentName === 'none' || event?.nlu?.ambiguous) {
       if (!event?.state?.session?.lastMessages?.length) {
         db.incrementMetric(event.botId, event.channel, 'sessions_start_nlu_none')
       }
     }
+
     if (!!intentName?.length) {
+      // TODO: Add (dimension, measure) to metrics increment
       db.incrementMetric(event.botId, event.channel, 'msg_nlu_intent', event.nlu?.intent?.name)
+      db.incrementRatioMetric(
+        event.botId,
+        event.channel,
+        'msg_nlu_intent!confidence',
+        intentName,
+        event.nlu?.intent?.confidence
+      )
     }
 
     const language = event.nlu?.language
