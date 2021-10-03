@@ -161,6 +161,13 @@ const Analytics: FC<any> = ({ bp }) => {
   })
 
   useEffect(() => {
+    const botId = 'tmp-bot'
+    // console.log(bp.events)
+    // const [events] = bp.events.findEvents({ botId }).then(data => console.log(data))
+    // bp.events.findEvents({ botId }).then(data => console.log(data))
+
+    // console.log('events: ', 'events')
+
     void axios.get(`${window.origin + window['API_PATH']}/modules`).then(({ data }) => {
       const channels = data
         .map(x => x.name)
@@ -313,6 +320,10 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const getMisunderStoodData = () => {
+    const tmp = getMetric('msg_nlu_intent!confidence')
+
+    console.log(state.metrics)
+    console.log('msg_nlu_intent!confidence', tmp)
     const totalMisunderstood = getMetricCount('msg_nlu_intent', 'none')
     const totalMisunderstoodInside =
       ((totalMisunderstood - getMetricCount('sessions_start_nlu_none')) / totalMisunderstood) * 100
@@ -436,7 +447,7 @@ const Analytics: FC<any> = ({ bp }) => {
     )
   }
 
-  const renderInteractions = async () => {
+  const renderInteractions = () => {
     return (
       <div className={cx(style.metricsContainer, style.fullWidth)}>
         <ItemsList
@@ -573,13 +584,6 @@ const Analytics: FC<any> = ({ bp }) => {
                 itemLimit={3}
                 className={style.list}
               />
-              {/* <ItemsList
-                name={lang.tr('module.analytics.mostFailedQuestions')}
-                items={getTopItems('feedback_negative_qna', 'qna')}
-                itemLimit={3}
-                hasTooltip
-                className={style.list}
-              /> */}
             </div>
             <RadialMetric
               name={lang.tr('module.analytics.successfulWorkflowCompletions', {

@@ -5,6 +5,7 @@ import moment from 'moment'
 import ms from 'ms'
 
 export const TABLE_NAME = 'bot_analytics'
+export const TABLE_MEASURE_NAME = 'bot_analytics_measures'
 
 const Metric = <const>[
   'sessions_count',
@@ -15,6 +16,7 @@ const Metric = <const>[
   'top_msg_nlu_none',
   'enter_flow_count',
   'msg_nlu_intent',
+  'msg_nlu_intent!confidence',
   'msg_nlu_language',
 
   'workflow_started_count',
@@ -63,7 +65,7 @@ export default class Database {
         .notNullable()
         .defaultTo('')
       table
-        .integer('value')
+        .float('value')
         .notNullable()
         .defaultTo(0)
       table.primary(['botId', 'date', 'channel', 'metric', 'subMetric'])
@@ -78,6 +80,25 @@ export default class Database {
   incrementMetric(botId: string, channel: string, metric: MetricTypes, subMetric?: string) {
     const key = this.getCacheKey(botId, channel, metric, subMetric)
     this.cache_entries[key] = (this.cache_entries[key] || 0) + 1
+  }
+
+  async incrementRatioMetric(botId: string, channel: string, metric: MetricTypes, subMetric?: string, step?: number) {
+    const key = this.getCacheKey(botId, channel, metric, subMetric)
+    const date = moment().format('YYYY-MM-DD')
+    // get base metric
+    const [baseMetric, dimension] = metric.split('!')
+    const baseMetricKey = this.getCacheKey(botId, channel, baseMetric, subMetric)
+
+    const rows = this.knex(TABLE_NAME).where({ date, channel, botId, metric: baseMetric, subMetric })
+    console.log('rows-incrementRatioMetric', rows)
+
+    // get current value
+    this.cache_entries[key] = (this.cache_entries[key] || 0) + step
+
+    if (subMetric === 'ticket_creation') {
+      console.log('rationMetric-Submetric', subMetric, 'step: ', step)
+      console.log('ratioMetric', this.cache_entries)
+    }
   }
 
   private async flushMetrics() {
@@ -101,6 +122,7 @@ export default class Database {
         .map(key => {
           const [date, botId, channel, metric, subMetric] = key.split('|')
           const value = original[key]
+
           return this.knex
             .raw('(:date:, :botId, :channel, :metric, :subMetric, :value)', {
               date: this.knex.raw(`date('${date}')`),
