@@ -79,7 +79,7 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
     }
 
     // misunderstood messages
-    const intentName = event.nlu?.intent?.name
+    const intentName = event?.nlu?.intent?.name
     if (intentName === 'none' || event?.nlu?.ambiguous) {
       if (!event?.state?.session?.lastMessages?.length) {
         db.incrementMetric(event.botId, event.channel, 'sessions_start_nlu_none')

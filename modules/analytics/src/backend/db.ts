@@ -5,7 +5,6 @@ import moment from 'moment'
 import ms from 'ms'
 
 export const TABLE_NAME = 'bot_analytics'
-export const TABLE_MEASURE_NAME = 'bot_analytics_measures'
 
 const Metric = <const>[
   'sessions_count',
