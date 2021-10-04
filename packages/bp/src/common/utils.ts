@@ -17,3 +17,15 @@ export const sanitizeName = (text: string) =>
     .replace(/\s|\t|\n/g, '-')
     .toLowerCase()
     .replace(/[^a-z0-9-_.]/g, '')
+
+export const getErrorMessage = (error: Error | string | unknown): string => {
+  if (typeof error === 'string') {
+    return error
+  }
+
+  if (error instanceof Error) {
+    return error.message
+  }
+
+  return ''
+}

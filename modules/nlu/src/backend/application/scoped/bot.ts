@@ -1,3 +1,4 @@
+import { TrainInput } from '@botpress/nlu-client'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import { IStanEngine } from 'src/backend/stan'
@@ -7,7 +8,6 @@ import { Predictor, ProgressCallback, Trainable, I } from '../typings'
 
 import { IDefinitionsService } from './definitions-service'
 import { ScopedPredictionHandler } from './prediction-handler'
-import { TrainInput } from '@botpress/nlu-client'
 
 interface BotDefinition {
   botId: string
