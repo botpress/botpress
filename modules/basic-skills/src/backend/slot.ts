@@ -129,10 +129,12 @@ const createNodes = data => {
           name: 'builtin/setVariable {"type":"temp","name":"alreadyExtracted","value":"true"}'
         }
       ],
-      onReceive: [{
-        type: sdk.NodeActionType.RunAction,
-        name: `${data.validationAction} {}`
-      }],
+      onReceive: [
+        {
+          type: sdk.NodeActionType.RunAction,
+          name: `${data.validationAction} {}`
+        }
+      ],
       next: [
         {
           condition: 'true',
