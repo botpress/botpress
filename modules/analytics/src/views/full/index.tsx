@@ -456,6 +456,7 @@ const Analytics: FC<any> = ({ bp }) => {
           itemLimit={10}
           className={cx(style.genericMetric, style.quarter, style.list)}
         />
+        // todo: to be updated with real intent/confidence values
         <ItemsList
           name={lang.tr('module.analytics.topIntents')}
           items={state.topQnaQuestions.map(q => ({

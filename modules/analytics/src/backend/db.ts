@@ -92,7 +92,7 @@ export default class Database {
     const rows = this.knex(TABLE_NAME).where({ date, channel, botId, metric: baseMetric, subMetric })
     console.log('rows-incrementRatioMetric', rows)
 
-    // get current value
+    // TODO: Which formula do we use there ?
     this.cache_entries[key] = (this.cache_entries[key] || 0) + step
 
     if (subMetric === 'ticket_creation') {
@@ -139,10 +139,12 @@ export default class Database {
       const query = this.knex
         .raw(
           // careful if changing this query, make sure it works in both SQLite and Postgres
-          `insert into ${TABLE_NAME}
-(date, "botId", channel, metric, "subMetric", value) values ${values}
-  on conflict(date, "botId", channel, metric, "subMetric")
-  do update set value = ${TABLE_NAME}.value + EXCLUDED.value`
+          `
+            insert into ${TABLE_NAME}
+            (date, "botId", channel, metric, "subMetric", value) values ${values}
+            on conflict(date, "botId", channel, metric, "subMetric")
+            do update set value = ${TABLE_NAME}.value + EXCLUDED.value
+          `
         )
         .toQuery()
 

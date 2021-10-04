@@ -9,8 +9,6 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
   const removeExt = (name: string) => name?.replace(/\.flow\.json$/i, '')
 
   process.BOTPRESS_EVENTS.on('bp_core_send_content', ({ channel, botId, source, details }) => {
-    console.log('incoming event...', details)
-
     if (source === 'qna') {
       db.incrementMetric(botId, channel, 'msg_sent_qna_count', details)
     }
@@ -89,7 +87,6 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
     }
 
     if (!!intentName?.length) {
-      // TODO: Add (dimension, measure) to metrics increment
       db.incrementMetric(event.botId, event.channel, 'msg_nlu_intent', event.nlu?.intent?.name)
       db.incrementRatioMetric(
         event.botId,
