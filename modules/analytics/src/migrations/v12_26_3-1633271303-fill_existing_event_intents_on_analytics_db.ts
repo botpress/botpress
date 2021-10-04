@@ -94,22 +94,29 @@ const migration: sdk.ModuleMigration = {
       }
     }
 
+    const promises = []
     bots.forEach(async ({ id: botId }) => {
-      const storedEvents = await bp.events.findEvents({ botId })
-      storedEvents.forEach(storedEvent => {
-        const event = storedEvent.event as sdk.IO.IncomingEvent
-        const intentName = event.nlu?.intent?.name
+      promises.push(bp.events.findEvents({ botId }))
+    })
 
-        if (!!intentName?.length) {
-          const key = getCacheKey(
-            botId,
-            event.channel,
-            'msg_nlu_intent!confidence',
-            intentName,
-            moment(storedEvent.createdOn).format(EVENT_DATE_FORMAT)
-          )
-          cache_entries[key] = (cache_entries[key] || 0) + (event.nlu?.intent?.confidence || 0)
-        }
+    Promise.all(promises).then(allStoredEvents => {
+      allStoredEvents.forEach(storedEvents => {
+        storedEvents.forEach(storedEvent => {
+          const event = storedEvent.event as sdk.IO.IncomingEvent
+          const intentName = event.nlu?.intent?.name
+
+          if (!!intentName?.length) {
+            const key = getCacheKey(
+              event.botId,
+              event.channel,
+              'msg_nlu_intent!confidence',
+              intentName,
+              moment(storedEvent.createdOn).format(EVENT_DATE_FORMAT)
+            )
+            // TODO: Which formula for the average condidence ?
+            cache_entries[key] = (cache_entries[key] || 0) + (event.nlu?.intent?.confidence || 0)
+          }
+        })
       })
     })
 
