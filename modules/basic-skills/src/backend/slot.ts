@@ -137,8 +137,12 @@ const createNodes = data => {
       ],
       next: [
         {
-          condition: 'true',
+          condition: ' (temp.valid === undefined || temp.valid == "true")',
           node: '#'
+        },
+        {
+          condition: 'true',
+          node: 'not-extracted'
         }
       ]
     }
