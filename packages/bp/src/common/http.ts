@@ -2,6 +2,7 @@ import { Logger, StrategyUser } from 'botpress/sdk'
 import { NextFunction, Request, Response } from 'express'
 
 import { TokenUser } from './typings'
+import { getErrorMessage } from './utils'
 
 // This method is only used for basic escaping of error messages, do not use for page display
 const escapeHtmlSimple = (str: string) => {
@@ -87,8 +88,8 @@ export class ResponseError extends Error {
  * A standard error, which doesn't print stack traces, but return an error message to the user
  */
 export class StandardError extends ResponseError {
-  constructor(message: string, detailedMessage?: string) {
-    super(`${message}: ${detailedMessage}`, 400)
+  constructor(message: string, detailedMessage?: unknown) {
+    super(`${message}: ${getErrorMessage(detailedMessage)}`, 400)
     this.skipLogging = true
   }
 
@@ -96,8 +97,8 @@ export class StandardError extends ResponseError {
 }
 
 export class UnexpectedError extends ResponseError {
-  constructor(message: string, detailedMessage?: string) {
-    super(`${message}: ${detailedMessage}`, 400)
+  constructor(message: string, detailedMessage?: unknown) {
+    super(`${message}: ${getErrorMessage(detailedMessage)}`, 400)
   }
 
   type = 'UnexpectedError'

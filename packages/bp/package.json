@@ -18,7 +18,6 @@
     "watch": "yarn cmd watch",
     "package": "yarn cmd package",
     "itest": "cross-env NATIVE_EXTENSIONS_DIR=../../build/native-extensions cross-env jest -i --detectOpenHandles -c jest.e2e.config.js all",
-    "eslint": "node_modules/.bin/eslint src modules --ext .ts,.tsx",
     "commitmsg": "commitlint -e $GIT_PARAMS",
     "bpd": "node build/downloader/out/index.js"
   },
