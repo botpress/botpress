@@ -84,21 +84,8 @@ export default class Database {
 
   async incrementRatioMetric(botId: string, channel: string, metric: MetricTypes, subMetric?: string, step?: number) {
     const key = this.getCacheKey(botId, channel, metric, subMetric)
-    const date = moment().format('YYYY-MM-DD')
-    // get base metric
-    const [baseMetric, dimension] = metric.split('!')
-    const baseMetricKey = this.getCacheKey(botId, channel, baseMetric, subMetric)
-
-    const rows = this.knex(TABLE_NAME).where({ date, channel, botId, metric: baseMetric, subMetric })
-    console.log('rows-incrementRatioMetric', rows)
-
     // TODO: Which formula do we use there ?
     this.cache_entries[key] = (this.cache_entries[key] || 0) + step
-
-    if (subMetric === 'ticket_creation') {
-      console.log('rationMetric-Submetric', subMetric, 'step: ', step)
-      console.log('ratioMetric', this.cache_entries)
-    }
   }
 
   private async flushMetrics() {
