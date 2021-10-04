@@ -130,7 +130,7 @@ const createNodes = data => {
         }
       ],
       onReceive: [
-        {
+        data.validationAction && {
           type: sdk.NodeActionType.RunAction,
           name: `${data.validationAction} {}`
         }
