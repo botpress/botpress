@@ -138,8 +138,6 @@ declare module 'botpress/sdk' {
     /** An array of available bot templates when creating a new bot */
     botTemplates?: BotTemplate[]
     translations?: { [lang: string]: object }
-    /** List of new conditions that the module can register */
-    dialogConditions?: Condition[]
     /** Called once the core is initialized. Usually for middlewares / database init */
     onServerStarted?: (bp: typeof import('botpress/sdk')) => Promise<void>
     /** This is called once all modules are initialized, usually for routing and logic */
@@ -256,7 +254,6 @@ declare module 'botpress/sdk' {
 
   export interface FlowGeneratorMetadata {
     botId: string
-    isOneFlow?: boolean
   }
 
   export interface ModulePluginEntry {
@@ -1061,68 +1058,9 @@ declare module 'botpress/sdk' {
     timeout?: { name: string; flow: string; node: string }[]
   }
 
-  export interface DecisionTriggerCondition {
-    id: string
-    params?: { [key: string]: any }
-  }
-
-  export interface Condition {
-    id: string
-    /** String displayed in the dropdown */
-    label: string
-    /** The description holds placeholders for param values so they can be displayed in the view */
-    description?: string
-    /** The definition of all parameters used by this condition */
-    params?: { [paramName: string]: ConditionParam }
-    /** In which order the conditions will be displayed in the dropdown menu. 0 is the first item */
-    displayOrder?: number
-    /** This callback url is called when the condition is deleted or pasted in the flow */
-    callback?: string
-    /** The editor will use the LiteEditor component to provide the requested parameters */
-    useLiteEditor?: boolean
-    evaluate: (event: IO.IncomingEvent, params: any) => number
-  }
-
-  export interface ConditionParam {
-    label: string
-    /** Each type provides a different kind of editor */
-    type: 'string' | 'number' | 'boolean' | 'list' | 'radio' | 'array' | 'content'
-    /** Different components can be used to display certain types (eg: boolean/list) */
-    subType?: 'switch' | 'radio'
-    required?: boolean
-    defaultValue?: any
-    /** Number of rows (for types which supports it, ex: string, array) */
-    rows?: number
-    /** When type is list, this variable must be configured */
-    list?: ConditionListOptions
-  }
-
-  export interface ConditionListOptions {
-    /** List of options displayed in the dropdown menu */
-    items?: Option[]
-    /** Alternatively, set an endpoint where the list will be queried (eg: intents) */
-    endpoint?: string
-    /** The path to the list of elements (eg: language.available) */
-    path?: string
-    /** Name of the field which will be used as the value. Default to value */
-    valueField?: string
-    /** Friendly name displayed in the dropdown menu. Default to label */
-    labelField?: string
-  }
-
   export interface Option {
     value: string
     label: string
-  }
-
-  export interface Topic {
-    name: string
-    description: string
-  }
-
-  export interface Library {
-    elementPath: string
-    elementId: string
   }
 
   /**
@@ -1147,16 +1085,7 @@ declare module 'botpress/sdk' {
    */
   export type SkillFlow = Partial<Flow> & Pick<Required<Flow>, 'nodes'>
 
-  export type FlowNodeType =
-    | 'standard'
-    | 'skill-call'
-    | 'listen'
-    | 'say_something'
-    | 'success'
-    | 'failure'
-    | 'execute'
-    | 'router'
-    | 'action'
+  export type FlowNodeType = 'standard' | 'skill-call' | 'listen' | 'say_something' | 'execute' | 'router' | 'action'
 
   export type FlowNode = {
     id?: string
@@ -1869,11 +1798,6 @@ declare module 'botpress/sdk' {
       flowName: string,
       nodeName?: string
     ): Promise<void>
-
-    /**
-     * Returns the list of conditions that can be used in an NLU Trigger node
-     */
-    export function getConditions(): Condition[]
   }
 
   export namespace config {
