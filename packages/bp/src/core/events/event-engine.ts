@@ -43,7 +43,6 @@ const eventSchema = {
   incomingEventId: joi.string().optional(),
   activeProcessing: joi.object().optional(),
   processing: joi.object().optional(),
-  ndu: joi.any().optional(),
   nlu: joi
     .object({
       intent: joi.object().optional(),

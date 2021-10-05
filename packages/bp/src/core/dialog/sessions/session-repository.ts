@@ -11,7 +11,7 @@ export class DialogSession {
     public id: string,
     public context: sdk.IO.DialogContext = {},
     public temp_data: any = {},
-    public session_data: sdk.IO.CurrentSession = { lastMessages: [], workflows: {} }
+    public session_data: sdk.IO.CurrentSession = { lastMessages: [] }
   ) {}
 
   // Timestamps are optional because they have default values in the database
@@ -30,7 +30,7 @@ export class SessionRepository {
   async getOrCreateSession(sessionId: string, trx?: Knex.Transaction): Promise<DialogSession> {
     const session = await this.get(sessionId)
     if (!session) {
-      const session = new DialogSession(sessionId, {}, {}, { lastMessages: [], workflows: {} })
+      const session = new DialogSession(sessionId, {}, {}, { lastMessages: [] })
       const { botId, channel } = SessionIdFactory.extractDestinationFromId(sessionId)
       BOTPRESS_CORE_EVENT('bp_core_session_created', { botId, channel })
       return this.insert(session, trx)
