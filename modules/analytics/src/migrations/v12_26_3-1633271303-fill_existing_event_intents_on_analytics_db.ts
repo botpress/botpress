@@ -71,10 +71,9 @@ const migration: sdk.ModuleMigration = {
             // careful if changing this query, make sure it works in both SQLite and Postgres
             `
               insert into ${TABLE_NAME}
-                (date, "botId", channel, metric, "subMetric", value)
+              (date, "botId", channel, metric, "subMetric", value)
               values ${values} on conflict(date, "botId", channel, metric, "subMetric")
-              do
-              update set value = ${TABLE_NAME}.value + EXCLUDED.value
+              do update set value = ${TABLE_NAME}.value + EXCLUDED.value
             `
           )
           .toQuery()
@@ -125,6 +124,9 @@ const migration: sdk.ModuleMigration = {
     if (!cache_entries) {
       return { success: true, message: `${computed_entries} Events intents saved to analytics database successfully` }
     }
+  },
+  down: async (): Promise<sdk.MigrationResult> => {
+    return { success: true, message: 'Skipping migration...' }
   }
 }
 
