@@ -83,7 +83,6 @@ export default class Database {
 
   async incrementRatioMetric(botId: string, channel: string, metric: MetricTypes, subMetric?: string, step?: number) {
     const key = this.getCacheKey(botId, channel, metric, subMetric)
-    // TODO: Which formula do we use there ?
     this.cache_entries[key] = (this.cache_entries[key] || 0) + step
   }
 
@@ -182,6 +181,7 @@ export default class Database {
 
     try {
       const metrics = await queryMetrics
+
       const newUsersCount = await queryNewUsers.select(
         'createdOn as date',
         'channel',

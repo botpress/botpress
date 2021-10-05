@@ -25,7 +25,7 @@
   "messagesReceived": "Messages Received",
   "misunderstoodMessages": "misunderstood messages",
   "mostAskedQuestions": "10 Most Asked Questions",
-  "topIntents": "10 Top Intents",
+  "top10Intents": "10 Top Intents",
   "mostFailedQuestions": "Most Failed Questions",
   "mostFailedWorkflows": "Most Failed Workflows",
   "mostUsedWorkflows": "Most Used Workflows",
