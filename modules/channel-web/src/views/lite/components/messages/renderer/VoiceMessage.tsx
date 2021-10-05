@@ -18,7 +18,7 @@ export const VoiceMessage: FC<Props> = (props: Props) => {
   useEffect(() => {
     // Simulate an autoplay by playing every voice messages of a single message group one after the other
     if (props.file.autoPlay && props.shouldPlay) {
-      audioRef.current.play()
+      void audioRef.current.play()
     }
   }, [props.file.autoPlay, props.shouldPlay])
 

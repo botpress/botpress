@@ -1,3 +1,5 @@
+@import 'variables';
+
 @mixin padded {
   padding: 1rem;
 }
@@ -51,7 +53,7 @@
 .sideList {
   display: flex;
   flex-direction: column;
-  height: calc(100% - 10px );
+  height: calc(100% - 10px);
 }
 
 .sideListList {
@@ -124,7 +126,6 @@
 
 .mainView {
   height: 100%;
-  overflow-y: auto;
 
   & > h3 {
     margin-top: 0;
@@ -152,8 +153,7 @@
 }
 
 .withStickyActionBar {
-  // Height of the sticky action bar
-  padding-bottom: 50px;
+  padding-bottom: $stickyBarHeight;
 }
 
 .stickyActionBar {

@@ -14,10 +14,15 @@ const cases = [
   ['cookie', null]
 ]
 
+jest.useFakeTimers()
 describe('Storage', () => {
-  afterEach(() => {
+  afterEach(done => {
     storage.del(KEY)
     window.USE_SESSION_STORAGE = false
+
+    jest.runAllTimers()
+
+    done()
   })
 
   describe('Get', () => {
@@ -42,21 +47,23 @@ describe('Storage', () => {
         expect(undefinedValue).toBeUndefined()
       })
 
-      it('Returns the value parsed if it exists', () => {
+      it('Returns the value parsed if it exists', done => {
         storage.set(KEY, VALUE)
 
         const result = storage.get<typeof VALUE>(KEY)
 
         expect(result).toEqual(VALUE)
+        done()
       })
 
-      it('Returns all kind of stored values', () => {
+      it('Returns all kind of stored values', done => {
         for (const val of VALUES) {
           storage.set(KEY, val)
 
           const result = storage.get<typeof val>(KEY)
 
           expect(result).toEqual(val)
+          done()
         }
       })
     })
@@ -122,7 +129,7 @@ describe('Storage', () => {
         window.USE_SESSION_STORAGE = useSessionStorage as boolean
       })
 
-      it('Removes the value from its storage', () => {
+      it('Removes the value from its storage', done => {
         storage.set(KEY, VALUE)
 
         let result = storage.get<typeof VALUE>(KEY)
@@ -132,6 +139,8 @@ describe('Storage', () => {
 
         result = storage.get<typeof VALUE>(KEY)
         expect(result).toBeUndefined()
+
+        done()
       })
 
       it('Does nothing if the key does not exist', () => {

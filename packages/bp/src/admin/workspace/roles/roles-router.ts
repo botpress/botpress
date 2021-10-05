@@ -1,7 +1,7 @@
 import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
-import { sendSuccess } from 'core/routers'
 import { CHAT_USER_ROLE } from 'common/defaults'
+import { sendSuccess } from 'core/routers'
 
 import _ from 'lodash'
 
