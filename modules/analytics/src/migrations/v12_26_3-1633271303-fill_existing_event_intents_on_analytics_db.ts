@@ -113,7 +113,7 @@ const migration: sdk.ModuleMigration = {
               intentName,
               moment(storedEvent.createdOn).format(EVENT_DATE_FORMAT)
             )
-            // TODO: Which formula for the average condidence ?
+
             cache_entries[key] = (cache_entries[key] || 0) + (event.nlu?.intent?.confidence || 0)
           }
         })
@@ -122,7 +122,9 @@ const migration: sdk.ModuleMigration = {
 
     setInterval(() => flushMetrics(), ms('10s'))
 
-    return { success: true, message: `${computed_entries} Events intents saved to analytics database successfully` }
+    if (!cache_entries) {
+      return { success: true, message: `${computed_entries} Events intents saved to analytics database successfully` }
+    }
   }
 }
 
