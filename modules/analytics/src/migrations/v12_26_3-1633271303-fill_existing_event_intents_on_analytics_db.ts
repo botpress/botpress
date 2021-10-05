@@ -100,7 +100,7 @@ const migration: sdk.ModuleMigration = {
       promises.push(bp.events.findEvents({ botId }))
     })
 
-    Promise.all(promises).then(allStoredEvents => {
+    void Promise.all(promises).then(allStoredEvents => {
       allStoredEvents.forEach(storedEvents => {
         storedEvents.forEach(storedEvent => {
           const event = storedEvent.event as sdk.IO.IncomingEvent
