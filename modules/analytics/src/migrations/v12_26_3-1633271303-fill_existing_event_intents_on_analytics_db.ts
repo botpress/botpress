@@ -32,7 +32,6 @@ const migration: sdk.ModuleMigration = {
     }
 
     const flushMetrics = async () => {
-      // :( Copied / pasted from modules/analytics/src/backend/db.ts
       // the lock ensures only one instance of this function can run at any given point
       if (flush_lock) {
         return
