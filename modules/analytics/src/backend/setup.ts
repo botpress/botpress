@@ -88,7 +88,7 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
 
     if (!!intentName?.length) {
       db.incrementMetric(event.botId, event.channel, 'msg_nlu_intent', event.nlu?.intent?.name)
-      db.incrementRatioMetric(
+      void db.incrementRatioMetric(
         event.botId,
         event.channel,
         'msg_nlu_intent!confidence',

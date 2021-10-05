@@ -1,7 +1,7 @@
 import * as sdk from 'botpress/sdk'
+import Knex from 'knex'
 import { mergeWith, omit, take } from 'lodash'
 import moment from 'moment'
-import Knex from 'knex'
 import ms from 'ms'
 
 const migration: sdk.ModuleMigration = {
@@ -72,9 +72,10 @@ const migration: sdk.ModuleMigration = {
             // careful if changing this query, make sure it works in both SQLite and Postgres
             `
               insert into ${TABLE_NAME}
-              (date, "botId", channel, metric, "subMetric", value) values ${values}
-              on conflict(date, "botId", channel, metric, "subMetric")
-              do update set value = ${TABLE_NAME}.value + EXCLUDED.value
+                (date, "botId", channel, metric, "subMetric", value)
+              values ${values} on conflict(date, "botId", channel, metric, "subMetric")
+              do
+              update set value = ${TABLE_NAME}.value + EXCLUDED.value
             `
           )
           .toQuery()
