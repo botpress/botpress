@@ -58,7 +58,9 @@ export class ScopedPredictionHandler {
     }
 
     if (this.isEmpty(nluResults)) {
-      throw new Error(`No model found for the following languages: ${languagesToTry}`)
+      throw new Error(
+        `No model found for the following languages: [${languagesToTry.join(', ')}]. Please train your chatbot.`
+      )
     }
 
     return { ...nluResults, detectedLanguage }
