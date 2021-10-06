@@ -16,7 +16,7 @@ jobs:
           yarn --frozen-lockfile
       - name: Run Prettier
         run: |
-          ./node_modules/prettier/bin-prettier.js --check '{src,modules}/**/*.{ts,tsx}' '!**/*.d.ts'
+          yarn prettier
   eslint:
     name: Run ESLint on codebase
     runs-on: ubuntu-latest

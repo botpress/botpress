@@ -1,16 +1,15 @@
-import * as sdk from 'botpress/sdk'
-
-import _ from 'lodash'
-import crypto from 'crypto'
 import { Client } from '@botpress/nlu-client'
+import * as sdk from 'botpress/sdk'
+import _ from 'lodash'
 import { LanguageSource } from 'src/config'
+
+import { NLUCloudClient } from '../cloud/client'
 import { IStanEngine, StanEngine } from '../stan'
 import pickSeed from './pick-seed'
 import { Bot, IBot } from './scoped/bot'
 import { ScopedDefinitionsService, IDefinitionsService } from './scoped/definitions-service'
 import { IDefinitionsRepository } from './scoped/infrastructure/definitions-repository'
 import { BotDefinition, BotConfig, I } from './typings'
-import { NLUCloudClient } from '../cloud/client'
 
 export interface ScopedServices {
   bot: IBot

@@ -39,7 +39,7 @@ const ConversationHistory: FC<Props> = ({ api, bp, conversationId }) => {
   }, [conversationId])
 
   useEffect(() => {
-    api.getMessages(conversationId, 'id', true, state.config.messageCount).then(evts => {
+    void api.getMessages(conversationId, 'id', true, state.config.messageCount).then(evts => {
       setEvents(evts)
       setLoading(false)
     })
