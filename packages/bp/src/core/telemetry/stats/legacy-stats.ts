@@ -184,4 +184,3 @@ export class LegacyStats extends TelemetryStats {
     return (await this.authService.getAllUsers()).length
   }
 }
-

@@ -35,15 +35,16 @@ jobs:
           echo ::set-output name=tags::"${TAGS[*]}"
           echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
       - name: Setup Node.js
-        uses: actions/setup-node@v1
+        uses: actions/setup-node@v2
         with:
-          node-version: '12.13.0'
+          node-version: '12.18.1'
+          cache: 'yarn'
       - name: Build
         run: |
           export npm_config_target_platform=linux
           export EDITION=pro
           git submodule update --init
-          yarn --force --ignore-engines
+          yarn --force --ignore-engines --frozen-lockfile
           yarn run build --linux --prod --verbose
           yarn run package --linux
           cp build/docker/Dockerfile packages/bp/binaries/

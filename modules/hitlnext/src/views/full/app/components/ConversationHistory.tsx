@@ -22,13 +22,16 @@ const ConversationHistory: FC<Props> = ({ api, bp, conversationId }) => {
   const [loading, setLoading] = useState(true)
   const [events, setEvents] = useState<IO.StoredEvent[]>([])
 
-  const handleMessage = useCallback((message: ISocketMessage) => {
-    if (message.resource === 'event' && message.type === 'create') {
-      if (message.payload.threadId === conversationId) {
-        setEvents(evts => [...evts, message.payload])
+  const handleMessage = useCallback(
+    (message: ISocketMessage) => {
+      if (message.resource === 'event' && message.type === 'create') {
+        if (message.payload.threadId === conversationId) {
+          setEvents(evts => [...evts, message.payload])
+        }
       }
-    }
-  }, [conversationId])
+    },
+    [conversationId]
+  )
 
   useEffect(() => {
     bp.events.on(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
@@ -36,7 +39,7 @@ const ConversationHistory: FC<Props> = ({ api, bp, conversationId }) => {
   }, [conversationId])
 
   useEffect(() => {
-    api.getMessages(conversationId, 'id', true, state.config.messageCount).then(evts => {
+    void api.getMessages(conversationId, 'id', true, state.config.messageCount).then(evts => {
       setEvents(evts)
       setLoading(false)
     })

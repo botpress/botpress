@@ -10,9 +10,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@master
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
-          node-version: '12.13.0'
+          node-version: '12.18.1'
+          cache: 'yarn'
       - name: Install python3
         uses: actions/setup-python@v1
         with:
@@ -23,7 +24,7 @@ jobs:
           pip install awscli
       - name: Build reference
         run: |
-          yarn
+          yarn --frozen-lockfile
           export PACKAGE_VERSION=$(./build/docs/source_version.sh)
           yarn cmd build:reference
       - name: Publish docs

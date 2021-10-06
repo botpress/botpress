@@ -28,9 +28,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@master
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
-          node-version: '12.13.0'
+          node-version: '12.18.1'
+          cache: 'yarn'
       - name: Fetch Node Packages
         run: |
           yarn add -W @actions/core @actions/github aws-sdk
