@@ -15,7 +15,7 @@ import { RootStore, StoreDef } from './store'
 import CodeEditorApi from './store/api'
 import { EditorStore } from './store/editor'
 import style from './style.scss'
-import { wrapper } from './utils/wrapper'
+import { getContentZone, wrapper } from './utils/wrapper'
 
 export type FileWithMetadata = EditableFile & {
   uri: monaco.Uri
@@ -39,7 +39,12 @@ class Editor extends React.Component<Props> {
   }
 
   componentWillUnmount() {
-    this.editor && this.editor.dispose()
+    this.editor?.dispose()
+  }
+
+  getEditableZone() {
+    const lines = this.editor.getValue().split('\n')
+    return getContentZone(lines)
   }
 
   setupEditor() {
@@ -52,7 +57,7 @@ class Editor extends React.Component<Props> {
     })
 
     monaco.languages.registerDocumentFormattingEditProvider('typescript', {
-      async provideDocumentFormattingEdits(model, options, token) {
+      async provideDocumentFormattingEdits(model, _options, _token) {
         const text = prettier.format(model.getValue(), {
           parser: 'babel',
           plugins: [babylon],
@@ -74,61 +79,65 @@ class Editor extends React.Component<Props> {
     })
 
     this.editor = monaco.editor.create(this.editorContainer, { theme: 'vs-light', automaticLayout: true })
+
+    const preventBackspace = this.editor.createContextKey('preventBackspace', false)
+    const preventDelete = this.editor.createContextKey('preventDelete', false)
+
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_S, () => this.saveChanges())
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Alt | monaco.KeyCode.KEY_N, this.props.createNewAction)
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyMod.Shift | monaco.KeyCode.KEY_P, () =>
       this.editor.trigger('', 'editor.action.quickCommand', '')
     )
 
-    this.editor.onDidChangeModelContent(this.handleContentChanged)
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_A, () => {
+      const { startLine, endLine } = this.getEditableZone()
+      this.editor.setSelection({ startLineNumber: startLine, startColumn: 0, endLineNumber: endLine, endColumn: 1000 })
+    })
+
+    this.editor.addCommand(monaco.KeyCode.Delete, () => {}, 'preventDelete')
+    this.editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.Delete, () => {}, 'preventDelete')
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Delete, () => {}, 'preventDelete')
+
+    this.editor.addCommand(monaco.KeyCode.Backspace, () => {}, 'preventBackspace')
+    this.editor.addCommand(monaco.KeyMod.Shift | monaco.KeyCode.Backspace, () => {}, 'preventBackspace')
+    this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Backspace, () => {}, 'preventBackspace')
+
+    this.editor.onDidPaste(({ range }) => {
+      const content = this.editor.getModel().getValueInRange(range)
+      const unwrapped = wrapper.remove(content, 'execute')
+
+      this.editor.executeEdits('paste', [{ range, text: unwrapped }])
+    })
+
+    const updateReadonlyZone = () => {
+      const { startLineNumber: lineNumber, startColumn: column } = this.editor.getSelection()
+      const lineLastColumn = this.editor.getModel().getLineMaxColumn(lineNumber)
+      const { startLine, endLine } = this.getEditableZone()
+
+      preventBackspace.set(lineNumber === startLine && column === 1)
+      preventDelete.set(lineNumber === endLine && column === lineLastColumn)
+    }
+
+    this.editor.onDidChangeCursorPosition(e => {
+      const { lineNumber } = e.position
+      const { startLine, endLine } = this.getEditableZone()
+
+      if (lineNumber < startLine) {
+        this.editor.setPosition({ lineNumber: startLine, column: 1 })
+        updateReadonlyZone()
+      } else if (lineNumber > endLine) {
+        this.editor.setPosition({ lineNumber: endLine, column: 1 })
+        updateReadonlyZone()
+      }
+    })
+
+    this.editor.onDidChangeModelContent(() => {
+      updateReadonlyZone()
+      this.handleContentChanged()
+    })
     this.editor.onDidChangeModelDecorations(this.handleDecorationChanged)
 
     this.props.store.editor.setMonacoEditor(this.editor)
-  }
-
-  setupReadonlySection = () => {
-    const content = this.editor.getValue()
-    let lineCount = this.editor.getModel().getLineCount()
-
-    const contentBeginning = wrapper.beginning(content)
-    const beginningRange = contentBeginning
-
-    const contentEnd = wrapper.end(content)
-    const endRange = lineCount - contentEnd
-
-    const beginningReadonlyRange = new monaco.Range(1, 0, beginningRange, 0)
-
-    this.editor.onKeyDown(e => {
-      lineCount = this.editor.getModel().getLineCount()
-
-      const endReadonlyRange = new monaco.Range(lineCount - endRange, 0, lineCount, 0)
-
-      const beginningContains = this.editor
-        .getSelections()
-        .findIndex(range => beginningReadonlyRange.intersectRanges(range))
-      const endContains = this.editor.getSelections().findIndex(range => endReadonlyRange.intersectRanges(range))
-
-      if (beginningContains !== -1 || endContains !== -1) {
-        e.stopPropagation()
-        e.preventDefault()
-      }
-    })
-
-    this.editor.onDidChangeCursorPosition(e => {
-      lineCount = this.editor.getModel().getLineCount()
-
-      if (e.position.lineNumber <= contentBeginning + 1) {
-        this.editor.setPosition({
-          lineNumber: contentBeginning + 1,
-          column: 1
-        })
-      } else if (e.position.lineNumber >= lineCount - endRange - 1) {
-        this.editor.setPosition({
-          lineNumber: lineCount - endRange - 1,
-          column: 1
-        })
-      }
-    })
   }
 
   tabChanged = () => {
@@ -151,7 +160,8 @@ class Editor extends React.Component<Props> {
     this.editor.updateOptions({ readOnly: readOnly || !this.props.editor.canSaveFile })
     this.editor.focus()
 
-    this.setupReadonlySection()
+    const { startLine } = this.getEditableZone()
+    this.editor.setPosition(new monaco.Position(startLine, 1))
   }
 
   saveChanges = async (uri?: monaco.Uri) => {
@@ -199,7 +209,7 @@ class Editor extends React.Component<Props> {
 
   setSchemas = (typings: any) => {
     const schemas = _.reduce(
-      _.pickBy(typings, (content, name) => name.includes('.schema.')),
+      _.pickBy(typings, (_content, name) => name.includes('.schema.')),
       (result, content, name) => {
         result.push({
           uri: 'bp://types/' + name,

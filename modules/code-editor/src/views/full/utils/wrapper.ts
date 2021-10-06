@@ -15,15 +15,15 @@ const wrapper = {
     const { type, hookType, botId } = file
 
     if (type === 'action_legacy') {
-      return `${ACTION_LEGACY_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}\n`
+      return `${ACTION_LEGACY_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
     } else if (type === 'action_http') {
-      return `${ACTION_HTTP_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}\n`
+      return `${ACTION_HTTP_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
     } else if (type === 'hook' && HOOK_SIGNATURES[hookType]) {
       let signature = HOOK_SIGNATURES[hookType]
       if (signature.includes('\n')) {
         signature = `${signature.substring(0, signature.length - 1)}\n)`
       }
-      return `${signature} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}\n`
+      return `${signature} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
     } else if (type === 'bot_config') {
       return content.replace('../../bot.config.schema.json', 'bp://types/bot.config.schema.json')
     } else if (type === 'main_config') {
@@ -82,4 +82,25 @@ const wrapper = {
   }
 }
 
-export { wrapper }
+const findLastIndex = <T>(array: Array<T>, predicate: (value: T, index: number, obj: T[]) => boolean): number => {
+  let i = array.length
+  while (i--) {
+    if (predicate(array[i], i, array)) {
+      return i
+    }
+  }
+  return -1
+}
+
+const getContentZone = (lines: string[]) => {
+  let startLine = lines.findIndex(x => x.includes(START_COMMENT))
+  if (startLine !== -1) {
+    startLine += 2
+  }
+
+  const endLine = findLastIndex(lines, x => x.includes(END_COMMENT))
+
+  return { startLine, endLine }
+}
+
+export { wrapper, getContentZone }
