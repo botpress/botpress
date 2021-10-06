@@ -201,7 +201,11 @@ export class EventEngine {
     }
   }
 
-  async replyToEvent(eventDestination: sdk.IO.EventDestination, payloads: any[], incomingEventId?: string) {
+  async replyToEvent(
+    eventDestination: sdk.IO.EventDestination,
+    payloads: any[],
+    incomingEventId?: string
+  ): Promise<void> {
     // prettier-ignore
     const keys: (keyof sdk.IO.EventDestination)[] = ['botId', 'channel', 'target', 'threadId']
 

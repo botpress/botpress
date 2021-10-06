@@ -32,6 +32,8 @@ module.exports = {
   rules: {
     '@typescript-eslint/array-type': 'error',
     '@typescript-eslint/no-non-null-asserted-optional-chain': 'error',
+    '@typescript-eslint/no-non-null-asserted-nullish-coalescing': 'error',
+    '@typescript-eslint/await-thenable': 'error',
     '@typescript-eslint/consistent-type-definitions': 'error',
     '@typescript-eslint/member-delimiter-style': [
       'error',

@@ -185,7 +185,7 @@ export class ModuleResourceLoader {
   private async _copyFiles(src, dest) {
     const files = await Promise.fromCallback<string[]>(cb => glob('**/*', { cwd: src, nodir: true }, cb))
     for (const file of files) {
-      const resourceContent = await fse.readFileSync(path.join(src, file), 'utf8')
+      const resourceContent = await fse.readFile(path.join(src, file), 'utf8')
       await this.ghost.global().upsertFile('/', path.join(dest, file), resourceContent, { recordRevision: false })
     }
   }
@@ -251,7 +251,7 @@ export class ModuleResourceLoader {
 
   private resourceHasChanged = async (resourceFilePath: string, destinationFilePath: string) => {
     try {
-      const resourceContent = await fse.readFileSync(resourceFilePath, 'utf8')
+      const resourceContent = await fse.readFile(resourceFilePath, 'utf8')
       const destinationContent = await this.ghost.global().readFileAsString('/', destinationFilePath)
       const lines = destinationContent.split(os.EOL)
       const firstLine = lines[0]
@@ -288,7 +288,7 @@ export class ModuleResourceLoader {
    * @param filename
    */
   private _getResourceContentWithHash = async resourceFilePath => {
-    const resourceContent = await fse.readFileSync(resourceFilePath, 'utf8')
+    const resourceContent = await fse.readFile(resourceFilePath, 'utf8')
     const hash = this._calculateHash(resourceContent)
     return `${CHECKSUM}${hash}${os.EOL}${resourceContent}`
   }
