@@ -23,7 +23,20 @@ export interface ProcessedRelease {
   downloadUrl: string
 }
 
-export const sanitizeBranch = (branch: string) => branch?.replace(/[\W_]+/g, '_')
+interface S3Response {
+  ListBucketResult: {
+    Contents: [
+      {
+        Key: string[]
+        ETag: string[]
+        Size: string[]
+      }
+    ]
+  }
+}
+
+const DEV_BIN_URL = 'https://botpress-dev-bins.s3.amazonaws.com/'
+export const sanitizeBranch = (branch: string) => branch.replace(/[\W_]+/g, '_')
 
 export const getBinaries = async (toolName: string, platform: string, version?: string) => {
   const releases = await getReleasedFiles(toolName, platform)
@@ -37,13 +50,13 @@ export const getDevBins = async (toolName: string, platform: string, branch: str
   const platformMatch = new RegExp(`.*-(${platform.replace('win32', 'win')})-x64`)
 
   try {
-    const { data } = await axios.get(`https://botpress-dev-bins.s3.amazonaws.com/?prefix=${prefix}`)
+    const { data } = await axios.get(`${DEV_BIN_URL}?prefix=${prefix}`)
     const parser = new xml2js.Parser()
-    const result = await Promise.fromCallback<any>(cb => parser.parseString(data, cb))
+    const result = await Promise.fromCallback<S3Response>((cb) => parser.parseString(data, cb))
     const files = result.ListBucketResult.Contents || []
 
     return files
-      .map(file => {
+      .map((file) => {
         const fileName = file.Key[0].replace(prefix, '')
         const [_type, branch, _platform] = fileName.split('-')
 
@@ -52,10 +65,10 @@ export const getDevBins = async (toolName: string, platform: string, branch: str
           version: branch,
           fileName,
           fileSize: Number(file.Size[0]),
-          downloadUrl: `https://botpress-dev-bins.s3.amazonaws.com/${file.Key}`
+          downloadUrl: `${DEV_BIN_URL}${file.Key}`
         }
       })
-      .filter(x => platformMatch.test(x.fileName))
+      .filter((x) => platformMatch.test(x.fileName))
   } catch (err) {
     logger.error(err)
     return []
@@ -67,8 +80,8 @@ export const getReleasedFiles = async (toolName: string, platform: string): Prom
     const platformMatch = new RegExp(`.*-(${platform.replace('win32', 'win')})-x64`)
 
     const { data } = await axios.get<GithubRelease[]>(toolsList[toolName].url)
-    const files = data.map(x => {
-      const platformFile = x.assets.find(asset => platformMatch.test(asset.name))
+    const files = data.map((x) => {
+      const platformFile = x.assets.find((asset) => platformMatch.test(asset.name))
 
       return {
         fileId: platformFile?.id || '',
@@ -79,7 +92,7 @@ export const getReleasedFiles = async (toolName: string, platform: string): Prom
       }
     })
 
-    return files.filter(x => x.fileName)
+    return files.filter((x) => x.fileName)
   } catch (err) {
     logger.error(err)
     return []
