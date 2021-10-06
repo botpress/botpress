@@ -68,7 +68,7 @@ export const initProject = async (packageLocation: string, common: CommonArgs) =
     }
 
     if (!binaryInfo) {
-      logger.info("Version not found on the tool's release page")
+      logger.info("Specified version not found on the tool's release page. Using existing binary.")
       continue
     }
 
