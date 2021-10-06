@@ -1,0 +1,18 @@
+$text-color: #333333;
+
+.wrapper {
+  width: 100%;
+  display: flex;
+}
+
+.input {
+  width: 75%;
+  background-color: #aaeeaa;
+  color: $text-color;
+}
+
+.btn {
+  width: 25%;
+  background-color: #aaaaaa;
+  color: $text-color;
+}
