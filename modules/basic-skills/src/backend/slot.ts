@@ -22,10 +22,14 @@ const createTransitions = (): sdk.NodeTransition[] => {
 }
 
 const createNodes = data => {
-  const runValidationActions = data.validationAction ? [{
-    type: sdk.NodeActionType.RunAction,
-    name: `${data.validationAction} {}`
-  }] : []
+  const runValidationActions = data.validationAction
+    ? [
+        {
+          type: sdk.NodeActionType.RunAction,
+          name: `${data.validationAction} {}`
+        }
+      ]
+    : []
 
   const slotExtractOnReceive = [
     {
