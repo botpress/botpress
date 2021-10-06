@@ -262,7 +262,7 @@
           "category": "Bot Category",
           "create": "Create Bot",
           "id": "Bot Id",
-          "idHelper": "This ID cannot be changed, so choose wisely. It will be displayed in the URL and your visitors can see it. Special characters are not allowed. Minimum length: 4",
+          "idHelper": "This ID cannot be changed, so choose wisely. It will be displayed in the URL and your visitors can see it. Special characters are not allowed. Length: between 3 and 50",
           "idPlaceholder": "The ID of your bot (must be unique)",
           "name": "Bot Name",
           "nameHelper": "It will be displayed to your visitors. You can change it anytime.",

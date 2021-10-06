@@ -68,7 +68,7 @@ const alterReference = async () => {
   })
 
   const fixedContentPaths = $.html()
-    .replace('../assets/', 'assets/')
+    .replace(/\.\.\/assets/g, 'assets')
     .replace(/\.\.\/globals.html/g, 'globals.html')
   fs.writeFileSync(path.join(__dirname, '../docs/reference/public/index.html'), fixedContentPaths)
 }
