@@ -269,7 +269,7 @@ export class DialogEngine {
 
     await this._loadFlows(botId)
 
-    const currentFlow = this._findFlow(botId, event.state.context?.currentFlow!)
+    const currentFlow = this._findFlow(botId, event.state.context?.currentFlow)
     const currentNode = this.findNodeWithoutError(botId, currentFlow, event.state.context?.currentNode)
 
     // Check for a timeout property in the current node
@@ -313,7 +313,7 @@ export class DialogEngine {
   }
 
   public shouldRunConvEnd(event: IO.IncomingEvent): boolean {
-    const { name } = this._findFlow(event.botId, event.state.context?.currentFlow!)
+    const { name } = this._findFlow(event.botId, event.state.context?.currentFlow)
 
     if (name === 'timeout.flow.json') {
       this.cleanState(event)
@@ -342,7 +342,7 @@ export class DialogEngine {
     this._debug(event.botId, event.target, 'processing conversation end flow')
     const { botId, threadId } = event
 
-    const currentFlow = this._findFlow(botId, event.state.context?.currentFlow!)
+    const currentFlow = this._findFlow(botId, event.state.context?.currentFlow)
     const currentNode = this.findNodeWithoutError(botId, currentFlow, event.state.context?.currentNode)
     const conversationEndFlow = this.findFlowWithoutError(botId, 'conversation_end.flow.json')
 
@@ -567,9 +567,9 @@ export class DialogEngine {
     throw new FlowError(`Infinite loop detected. (${recurringPath.join(' --> ')})`, botId, loop[0].flow, loop[0].node)
   }
 
-  private _findFlow(botId: string, flowName: string) {
+  private _findFlow(botId: string, flowName?: string) {
     const flows = this._flowsByBot.get(botId)
-    if (!flows) {
+    if (!flows || !flowName) {
       throw new FlowError('Could not find any flow.', botId, flowName)
     }
 
