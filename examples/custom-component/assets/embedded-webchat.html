@@ -10,12 +10,11 @@
 
   <script>
     window.botpressWebChat.init({
-      host: 'http://localhost:3000',
+      host: window.location.origin || 'http://localhost:3000',
       botId: 'welcome-bot',
       //There are only two possible overrides for the moment.
       overrides: {
         // For now, the composer is the only component which is editable. It represents the zone where the user is typing
-        // is this true still?
         composer: [
           {
             // Name of the module, as declared in its package.json file
