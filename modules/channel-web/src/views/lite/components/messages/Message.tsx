@@ -159,8 +159,8 @@ class Message extends Component<MessageProps> {
     )
   }
 
-  onMessageClicked() {
-    this.props.store.loadEventInDebugger(this.props.messageId, true)
+  async onMessageClicked() {
+    await this.props.store.loadEventInDebugger(this.props.messageId, true)
   }
 
   render() {

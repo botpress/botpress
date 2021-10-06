@@ -16,12 +16,12 @@ export class InjectedBelow extends React.Component {
     // Return null if you just want to interact with the chat.
     return null
 
-    // Or you can add special content
-    return (
-      <div style={{ align: 'center' }}>
-        <small>Injected below chat</small>
-      </div>
-    )
+    // Or you can add special content like:
+    // return (
+    //   <div style={{ align: 'center' }}>
+    //     <small>Injected below chat</small>
+    //   </div>
+    // )
   }
 }
 

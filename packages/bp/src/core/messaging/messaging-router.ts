@@ -20,26 +20,26 @@ export class MessagingRouter extends CustomRouter {
     this.router.post(
       '/receive',
       this.asyncMiddleware(async (req, res, next) => {
-        if (!this.messaging.isExternal && req.headers.password !== process.INTERNAL_PASSWORD) {
-          return next?.(new UnauthorizedError('Password is missing or invalid'))
-        } else if (
-          this.messaging.isExternal &&
-          req.headers['x-webhook-token'] !== this.messaging.getWebhookToken(req?.body?.client?.id)
-        ) {
-          return next?.(new UnauthorizedError('Invalid webhook token'))
-        }
-
-        if (req.body?.type !== 'message.new') {
-          return res.sendStatus(200)
-        }
-
+        let msg: ReceiveRequest
         try {
-          await joi.validate(req.body, ReceiveSchema)
+          msg = await joi.validate<ReceiveRequest>(req.body, ReceiveSchema)
         } catch (err) {
           throw new StandardError('Invalid payload', err)
         }
 
-        const msg = req.body as ReceiveRequest
+        if (!this.messaging.isExternal && req.headers.password !== process.INTERNAL_PASSWORD) {
+          return next?.(new UnauthorizedError('Password is missing or invalid'))
+        } else if (
+          this.messaging.isExternal &&
+          (!req.headers['x-webhook-token'] ||
+            req.headers['x-webhook-token'] !== this.messaging.getWebhookToken(msg.data.clientId))
+        ) {
+          return next?.(new UnauthorizedError('Invalid webhook token'))
+        }
+
+        if (msg.type !== 'message.new') {
+          return res.sendStatus(200)
+        }
 
         await this.messaging.receive({
           clientId: msg.data.clientId,

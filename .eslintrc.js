@@ -4,7 +4,7 @@ module.exports = {
     es6: true,
     node: true
   },
-  extends: ['prettier', 'prettier/@typescript-eslint'],
+  extends: ['prettier'],
   parser: '@typescript-eslint/parser',
   parserOptions: {
     project: [
@@ -18,9 +18,20 @@ module.exports = {
     tsconfigRootDir: __dirname,
     sourceType: 'module'
   },
-  ignorePatterns: ['**/index.d.ts', '**/global.d.ts', '**/*.scss.d.ts', '**/*.test.ts', '*.js'],
+  ignorePatterns: [
+    '**/index.d.ts',
+    '**/global.d.ts',
+    '**/knex.d.ts',
+    '**/*.scss.d.ts',
+    '**/*.test.ts',
+    '*.js',
+    '**/node_modules/**',
+    '**/dist/**'
+  ],
   plugins: ['eslint-plugin-import', 'eslint-plugin-jsdoc', '@typescript-eslint'],
   rules: {
+    '@typescript-eslint/array-type': 'error',
+    '@typescript-eslint/no-non-null-asserted-optional-chain': 'error',
     '@typescript-eslint/consistent-type-definitions': 'error',
     '@typescript-eslint/member-delimiter-style': [
       'error',

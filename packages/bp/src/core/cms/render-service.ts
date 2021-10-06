@@ -137,7 +137,7 @@ export class RenderService {
   }
 
   getPipeline(lang: string, context: any): sdk.RenderPipeline {
-    const wrap = <T extends Array<any>, U>(fn: (...args: T) => U) => {
+    const wrap = <T extends any[], U>(fn: (...args: T) => U) => {
       return (...args: T): U => {
         const content = fn(...args)
         const translated = this.renderTranslated(<any>content, lang)
