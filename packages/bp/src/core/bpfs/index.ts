@@ -22,7 +22,7 @@ export interface FileRevision {
 }
 
 export interface PendingRevisions {
-  [rootFolder: string]: Array<FileRevision>
+  [rootFolder: string]: FileRevision[]
 }
 
 export interface ServerWidePendingRevisions {

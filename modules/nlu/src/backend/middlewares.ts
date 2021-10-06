@@ -45,6 +45,7 @@ export const registerMiddlewares = async (bp: typeof sdk, app: NLUApplication) =
     name: PREDICT_MW,
     direction: 'incoming',
     order: 100,
+    timeout: '6s',
     description:
       'Process natural language in the form of text. Structured data with an action and parameters for that action is injected in the incoming message event.',
     handler: async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
