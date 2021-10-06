@@ -82,7 +82,7 @@ const wrapper = {
   }
 }
 
-const findLastIndex = <T>(array: Array<T>, predicate: (value: T, index: number, obj: T[]) => boolean): number => {
+const findLastIndex = <T>(array: T[], predicate: (value: T, index: number, array: T[]) => boolean): number => {
   let i = array.length
   while (i--) {
     if (predicate(array[i], i, array)) {
