@@ -8,6 +8,13 @@ export const Composer = props => {
   const [input, setInput] = useState('')
   const [isDisabled, setIsDisabled] = useState(true)
 
+  useEffect(() => {
+    // Calculate whether the component input state value is now an empty string (has length of 0)
+    // If it's an empty string, we disable sending that value as a chat message
+    // If it's not, we enable sending that value as a chat message
+    setIsDisabled(input.length === 0)
+  }, [input])
+
   /**
    * In this onChange example we're setting the value of the component input state as well as switching the toggle for enabling message sending on or off
    * It's a simple function, but yours could potentially be more complex.
@@ -18,14 +25,6 @@ export const Composer = props => {
     e.preventDefault()
     // Proceed to set our component `input` state with the value received from the HTML input element
     setInput(e.target.value)
-    // Calculate whether the component input state value is now an empty string (has length of 0)
-    if (input.length === 0) {
-      // If it's an empty string, we disable sending that value as a chat message
-      setIsDisabled(true)
-    } else {
-      // If it's not, we enable sending that value as a chat message
-      setIsDisabled(false)
-    }
   }
 
   /**
@@ -47,8 +46,6 @@ export const Composer = props => {
     await props.store.sendMessage()
     // Then set the component input value to an empty string
     setInput('')
-    // Then disable sending messages, since the value of the component input is an empty string
-    setIsDisabled(true)
   }
 
   return (
@@ -60,7 +57,7 @@ export const Composer = props => {
         onChange={handleChange}
         value={input}
       />
-      <button className={style.btn} type="button" onClick={handleOnClick}>
+      <button className={style.btn} type="button" onClick={handleOnClick} disabled={isDisabled}>
         send
       </button>
     </div>
