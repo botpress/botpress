@@ -11,6 +11,7 @@ export const isValidBotId = (botId: string): boolean => BOTID_REGEX.test(botId)
 export const BotCreationSchema = Joi.object().keys({
   id: Joi.string()
     .regex(BOTID_REGEX)
+    .max(50)
     .required(),
   name: Joi.string()
     .max(50)
