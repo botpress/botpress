@@ -44,11 +44,11 @@ class CollaboratorsRouter extends CustomAdminRouter {
         const filterAuthStrategies = (await this.workspaceService.findWorkspace(req.workspace!)).authStrategies || []
 
         // Get all users from other workspaces
-        let workspaceUsers: Array<WorkspaceUser | WorkspaceUserWithAttributes> = []
+        let workspaceUsers: WorkspaceUser[] | WorkspaceUserWithAttributes[] = []
         for (const w of await this.workspaceService.getWorkspaces()) {
           if (w.id !== req.workspace) {
             const users = await this.workspaceService.getWorkspaceUsers(w.id)
-            workspaceUsers = workspaceUsers.concat(users)
+            workspaceUsers = [...workspaceUsers, ...users]
           }
         }
 
