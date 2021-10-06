@@ -16,7 +16,7 @@ export const sanitizeBotId = (text: string) =>
     .toLowerCase()
     .replace(/\s/g, '-')
     .replace(/[^a-z0-9_-]/g, '')
-    .substring(0, 50) // Only keep the first 50 characters
+    .substring(0, 50)
 
 interface SelectOption<T> {
   label: string
