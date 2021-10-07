@@ -1834,7 +1834,11 @@ declare module 'botpress/sdk' {
      * @param eventDestination - The destination to identify the target
      * @param payloads - One or multiple payloads to send
      */
-    export function replyToEvent(eventDestination: IO.EventDestination, payloads: any[], incomingEventId?: string): void
+    export function replyToEvent(
+      eventDestination: IO.EventDestination,
+      payloads: any[],
+      incomingEventId?: string
+    ): Promise<void>
 
     /**
      * Return the state of the incoming queue. True if there are any events(messages)

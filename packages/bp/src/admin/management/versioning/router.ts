@@ -83,7 +83,7 @@ class VersioningRouter extends CustomAdminRouter {
 
   extractArchiveFromRequest = async (request, folder) => {
     const dataFolder = path.join(folder, 'data')
-    await mkdirp.sync(dataFolder)
+    mkdirp.sync(dataFolder)
 
     const buffer: Buffer[] = []
     request.on('data', chunk => buffer.push(chunk))

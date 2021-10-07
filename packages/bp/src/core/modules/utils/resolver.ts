@@ -58,7 +58,7 @@ export class ModuleResolver {
 
     const files: string[] = []
     for (const folder of moduleFolder) {
-      for (const file of await fs.readdirSync(folder)) {
+      for (const file of fs.readdirSync(folder)) {
         if (fs.lstatSync(path.resolve(folder, file)).isDirectory() && !file.startsWith('.')) {
           files.push(file)
         } else if (file.endsWith('.tgz')) {

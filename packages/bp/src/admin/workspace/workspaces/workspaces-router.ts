@@ -116,11 +116,11 @@ class WorkspacesRouter extends CustomAdminRouter {
 
         const workspace = await this.workspaceService.findWorkspace(workspaceId)
 
-        await this.logger.info(`Deleting workspace ${workspaceId}`)
+        this.logger.info(`Deleting workspace ${workspaceId}`)
         await this.workspaceService.deleteWorkspace(workspaceId)
 
         if (workspace.bots.length) {
-          await this.logger.info(`Deleting associated bots: ${workspace.bots.join(', ')}`)
+          this.logger.info(`Deleting associated bots: ${workspace.bots.join(', ')}`)
 
           for (const bot of workspace.bots) {
             await this.botService.deleteBot(bot)

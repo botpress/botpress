@@ -8,7 +8,7 @@ export default async (bp: typeof sdk, testByBot: TestByBot) => {
 
   router.get('/scenarios', async (req, res) => {
     const scenarios = await testByBot[req.params.botId].getScenarios()
-    const status = await testByBot[req.params.botId].getStatus()
+    const status = testByBot[req.params.botId].getStatus()
 
     res.send({ scenarios, status })
   })
@@ -37,7 +37,7 @@ export default async (bp: typeof sdk, testByBot: TestByBot) => {
   })
 
   router.get('/stopRecording', async (req, res) => {
-    res.send(await testByBot[req.params.botId].endRecording())
+    res.send(testByBot[req.params.botId].endRecording())
   })
 
   router.post('/saveScenario', async (req, res) => {
