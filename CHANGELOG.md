@@ -1,3 +1,19 @@
+## [12.26.5](https://github.com/botpress/botpress/compare/v12.26.3...v12.26.5) (2021-10-07)
+
+
+### Bug Fixes
+
+* **admin:** added form validation on bot id and name ([#5524](https://github.com/botpress/botpress/issues/5524)) ([4e5c6ca](https://github.com/botpress/botpress/commit/4e5c6ca))
+* **basic-skills:** run validation on already extracted in slot filling ([#5531](https://github.com/botpress/botpress/issues/5531)) ([0b61c1c](https://github.com/botpress/botpress/commit/0b61c1c))
+* **channel-web:** filter out empty text payload messages ([#5502](https://github.com/botpress/botpress/issues/5502)) ([bec2fde](https://github.com/botpress/botpress/commit/bec2fde))
+* **channel-web:** messagelist now updates scroll position on update ([#5520](https://github.com/botpress/botpress/issues/5520)) ([a235fd4](https://github.com/botpress/botpress/commit/a235fd4))
+* **messaging:** fix webhook url validation ([#5528](https://github.com/botpress/botpress/issues/5528)) ([429bea3](https://github.com/botpress/botpress/commit/429bea3))
+* **nlu:** better error logging when no model found. ([#5541](https://github.com/botpress/botpress/issues/5541)) ([9d31f17](https://github.com/botpress/botpress/commit/9d31f17))
+* **nlu:** made null assertion in extractElectedIntentSlot more robust ([#5497](https://github.com/botpress/botpress/issues/5497)) ([c167ea0](https://github.com/botpress/botpress/commit/c167ea0))
+* **ui-shared:** add null check in collapsible ([#5525](https://github.com/botpress/botpress/issues/5525)) ([49e7973](https://github.com/botpress/botpress/commit/49e7973))
+
+
+
 ## [12.26.4](https://github.com/botpress/botpress/compare/v12.26.3...v12.26.4) (2021-09-28)
 
 
