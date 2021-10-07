@@ -20,7 +20,7 @@ const onServerStarted = async (bp: typeof sdk) => {
 }
 
 const onServerReady = async (bp: typeof sdk) => {
-  await api(bp, db)
+  api(bp, db)
 }
 
 const onModuleUnmount = async (bp: typeof sdk) => {

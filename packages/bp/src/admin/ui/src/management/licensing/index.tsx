@@ -56,7 +56,7 @@ class LicenseStatus extends React.Component<Props> {
 
   refreshKey = async () => {
     await api.getSecured().post('/admin/management/licensing/refresh')
-    await this.props.fetchLicensing()
+    this.props.fetchLicensing()
   }
 
   rebootServer = async () => {

@@ -22,19 +22,22 @@ const createTransitions = (): sdk.NodeTransition[] => {
 }
 
 const createNodes = data => {
+  const runValidationActions = data.validationAction
+    ? [
+        {
+          type: sdk.NodeActionType.RunAction,
+          name: `${data.validationAction} {}`
+        }
+      ]
+    : []
+
   const slotExtractOnReceive = [
     {
       type: sdk.NodeActionType.RunAction,
       name: `basic-skills/slot_fill {"slotName":"${data.slotName}","entities":"${data.entities}", "turnExpiry":${data.turnExpiry}}`
-    }
+    },
+    ...runValidationActions
   ]
-
-  if (data.validationAction) {
-    slotExtractOnReceive.push({
-      type: sdk.NodeActionType.RunAction,
-      name: `${data.validationAction} {}`
-    })
-  }
 
   return [
     {
@@ -129,11 +132,15 @@ const createNodes = data => {
           name: 'builtin/setVariable {"type":"temp","name":"alreadyExtracted","value":"true"}'
         }
       ],
-      onReceive: undefined,
+      onReceive: runValidationActions,
       next: [
         {
-          condition: 'true',
+          condition: ' (temp.valid === undefined || temp.valid == "true")',
           node: '#'
+        },
+        {
+          condition: 'true',
+          node: 'not-extracted'
         }
       ]
     }

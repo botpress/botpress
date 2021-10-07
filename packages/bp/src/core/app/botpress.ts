@@ -395,7 +395,7 @@ export class Botpress {
     await this.workspaceService.initialize()
     await this.cmsService.initialize()
     await this.eventCollector.initialize(this.database)
-    await this.qnaService.initialize()
+    this.qnaService.initialize()
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.stateManager.restore(event)
@@ -490,7 +490,7 @@ export class Botpress {
 
     await this.dataRetentionService.initialize()
 
-    await this.stateManager.initialize()
+    this.stateManager.initialize()
     await this.logJanitor.start()
     await this.dialogJanitor.start()
     await this.monitoringService.start()
