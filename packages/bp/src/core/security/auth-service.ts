@@ -155,6 +155,10 @@ export class AuthService {
       attributes: { ...(user.attributes || {}), created_at: new Date() }
     })
 
+    for (const workspace of await this._getWorkspacesForStrategy(strategy)) {
+      await this.workspaceService.addUserToWorkspace(user.email, strategy, workspace)
+    }
+
     if (_.get(await this.getStrategy(strategy), 'type') === 'basic') {
       return this.strategyBasic.resetPassword(user.email, strategy)
     }
@@ -252,6 +256,19 @@ export class AuthService {
     }
 
     return false
+  }
+
+  private async _getWorkspacesForStrategy(strategy: string): Promise<string[]> {
+    const workspaces = await this.workspaceService.getWorkspaces()
+
+    const list: string[] = []
+    for (const workspace of workspaces) {
+      if (workspace.authStrategies.includes(strategy)) {
+        list.push(workspace.id)
+      }
+    }
+
+    return list
   }
 
   private async _createFirstUser(user: Partial<StrategyUser>, strategy: string): Promise<StrategyUser> {
