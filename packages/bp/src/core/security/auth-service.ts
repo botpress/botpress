@@ -154,16 +154,19 @@ export class AuthService {
       tokenVersion: 1,
       attributes: { ...(user.attributes || {}), created_at: new Date() }
     })
+    const strategyUser = createdUser.result
 
-    for (const workspace of await this._getWorkspacesForStrategy(strategy)) {
-      await this.workspaceService.addUserToWorkspace(user.email, strategy, workspace)
-    }
+    const workspaces = await this._getWorkspacesForStrategy(strategy)
+    const promises = workspaces.map(workspace =>
+      this.workspaceService.addUserToWorkspace(strategyUser.email, strategyUser.strategy, workspace)
+    )
+    await Promise.all(promises)
 
     if (_.get(await this.getStrategy(strategy), 'type') === 'basic') {
       return this.strategyBasic.resetPassword(user.email, strategy)
     }
 
-    return createdUser.result
+    return strategyUser
   }
 
   async resetPassword(email: string, strategy: string): Promise<string> {
