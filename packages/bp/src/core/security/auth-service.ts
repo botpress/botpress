@@ -157,10 +157,9 @@ export class AuthService {
     const strategyUser = createdUser.result
 
     const workspaces = await this._getWorkspacesForStrategy(strategy)
-    const promises = workspaces.map(workspace =>
+    await Promise.map(workspaces, workspace =>
       this.workspaceService.addUserToWorkspace(strategyUser.email, strategyUser.strategy, workspace)
     )
-    await Promise.all(promises)
 
     if (_.get(await this.getStrategy(strategy), 'type') === 'basic') {
       return this.strategyBasic.resetPassword(user.email, strategy)
