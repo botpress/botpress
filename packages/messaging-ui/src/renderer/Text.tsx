@@ -1,6 +1,6 @@
 import truncate from 'html-truncate'
 import React, { useState } from 'react'
-import Linkify from 'react-linkify'
+import ReactTextFormat from 'react-text-format'
 import { MessageRendererProps } from '../typings'
 import { renderUnsafeHTML } from '../utils'
 
@@ -33,7 +33,7 @@ export const Text = ({ payload, config }: MessageRendererProps<'text'>) => {
   }
 
   return (
-    <Linkify properties={{ target: '_blank' }}>
+    <ReactTextFormat linkTarget={'_blank'}>
       <div>{message}</div>
 
       {hasShowMore && (
@@ -50,8 +50,6 @@ export const Text = ({ payload, config }: MessageRendererProps<'text'>) => {
             })}
         </button>
       )}
-    </Linkify>
+    </ReactTextFormat>
   )
 }
-
-export default Text

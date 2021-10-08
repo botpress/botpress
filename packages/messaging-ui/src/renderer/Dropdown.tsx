@@ -1,26 +1,27 @@
 import React, { useEffect, useState } from 'react'
 import Select from 'react-select'
-import Creatable from 'react-select/Creatable'
+import Creatable from 'react-select/creatable'
+import { DropdownOption, MessageRendererProps } from 'typings'
 import * as Keyboard from '../Keyboard'
 import { renderUnsafeHTML } from '../utils'
 
-export const Dropdown = (props: Renderer.Dropdown) => {
-  const [options, setOptions] = useState<Renderer.Option[]>([])
+export const Dropdown = ({ payload, config }: MessageRendererProps<'dropdown'>) => {
+  const [options, setOptions] = useState<DropdownOption[]>([])
   const [selectedOption, setSelectedOption] = useState<any>()
 
   useEffect(() => {
-    if (props.options) {
-      setOptions(props.options.map(x => ({ value: x.value || x.label, label: x.label })))
+    if (payload.options.length) {
+      setOptions(payload.options.map(x => ({ value: x.value || x.label, label: x.label })))
     }
   }, [])
 
   useEffect(() => {
-    if (!props.buttonText) {
-      sendChoice()
+    if (!payload.buttonText) {
+      sendChoice().catch(console.error)
     }
   }, [selectedOption])
 
-  const sendChoice = () => {
+  const sendChoice = async () => {
     if (!selectedOption) {
       return
     }
@@ -28,24 +29,24 @@ export const Dropdown = (props: Renderer.Dropdown) => {
     let { label, value } = selectedOption
 
     if (selectedOption.length) {
-      label = selectedOption.map(x => x.label).join(',')
-      value = selectedOption.map(x => x.value || x.label).join(',')
+      label = selectedOption.map((x: any) => x.label).join(',')
+      value = selectedOption.map((x: any) => x.value || x.label).join(',')
     }
 
-    props.onSendData && props.onSendData({ type: 'quick_reply', text: label, payload: value || label })
+    await config.onSendData({ type: 'quick_reply', text: label, payload: value || label })
   }
 
-  const renderSelect = inKeyboard => {
+  const renderSelect = (inKeyboard: boolean) => {
     return (
-      <div className={inKeyboard && 'bpw-keyboard-quick_reply-dropdown'}>
-        <div style={{ width: props.width || '100%', display: 'inline-block' }}>
-          {props.allowCreation ? (
+      <div className={inKeyboard ? 'bpw-keyboard-quick_reply-dropdown' : ''}>
+        <div style={{ width: payload.width || '100%', display: 'inline-block' }}>
+          {payload.allowCreation ? (
             <Creatable
               value={selectedOption}
               onChange={setSelectedOption}
               options={options}
-              placeholder={props.placeholderText}
-              isMulti={props.allowMultiple}
+              placeholder={payload.placeholderText}
+              isMulti={payload.allowMultiple}
               menuPlacement={'top'}
             />
           ) : (
@@ -53,33 +54,33 @@ export const Dropdown = (props: Renderer.Dropdown) => {
               value={selectedOption}
               onChange={setSelectedOption}
               options={options}
-              placeholder={props.placeholderText}
-              isMulti={props.allowMultiple}
+              placeholder={payload.placeholderText}
+              isMulti={payload.allowMultiple}
               menuPlacement={'top'}
             />
           )}
         </div>
 
-        {props.buttonText && (
+        {payload.buttonText && (
           <button className="bpw-button" onClick={sendChoice}>
-            {props.buttonText}
+            {payload.buttonText}
           </button>
         )}
       </div>
     )
   }
 
-  const shouldDisplay = props.isLastGroup && props.isLastOfGroup
+  const shouldDisplay = config.isLastGroup && config.isLastOfGroup
   let message: React.ReactElement
 
-  if (props.markdown) {
-    const html = renderUnsafeHTML(props.message, props.escapeHTML)
+  if (payload.markdown) {
+    const html = renderUnsafeHTML(payload.message, payload.escapeHTML)
     message = <div dangerouslySetInnerHTML={{ __html: html }} />
   } else {
-    message = <p>{props.message}</p>
+    message = <p>{payload.message}</p>
   }
 
-  if (props.displayInKeyboard && Keyboard.Default.isReady()) {
+  if (payload.displayInKeyboard && Keyboard.Default.isReady()) {
     return (
       <Keyboard.Prepend keyboard={renderSelect(true)} visible={shouldDisplay}>
         {message}

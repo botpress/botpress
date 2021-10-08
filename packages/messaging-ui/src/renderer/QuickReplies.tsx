@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-
 import * as Keyboard from '../Keyboard'
+import { MessageRendererProps, QuickReply } from '../typings'
 
 import { Button } from './Button'
 
@@ -13,40 +13,38 @@ import { Button } from './Button'
  *
  * @return onSendData is called with the reply
  */
-export class QuickReplies extends Component<any> {
+export class QuickReplies extends Component<MessageRendererProps<'quick_reply'>> {
   componentDidMount() {
-    this.props.isLastGroup &&
-      this.props.isLastOfGroup &&
-      this.props.store?.composer?.setLocked(this.props.disableFreeText)
+    this.props.config.isLastGroup &&
+      this.props.config.isLastOfGroup &&
+      this.props.config.store?.composer?.setLocked(!!this.props.payload.disableFreeText)
   }
 
   componentWillUnmount() {
-    this.props.store?.composer?.setLocked(false)
+    this.props.config.store?.composer?.setLocked(false)
   }
 
-  handleButtonClicked = (title, payload) => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.props.onSendData?.({
+  handleButtonClicked = (title: string, payload: any) => {
+    this.props.config.onSendData?.({
       type: 'quick_reply',
       text: title,
       payload
     })
-    this.props.store?.composer?.setLocked(false)
+    this.props.config.store?.composer?.setLocked(false)
   }
 
-  renderKeyboard(buttons: any[]) {
-    return buttons.map((btn, idx) => {
-      if (Array.isArray(btn)) {
-        return <div>{this.renderKeyboard(btn)}</div>
+  renderKeyboard(replies: QuickReply[]) {
+    return replies.map((reply, idx) => {
+      if (Array.isArray(reply)) {
+        return <div>{this.renderKeyboard(reply)}</div>
       } else {
         return (
           <Button
             key={idx}
-            label={btn.label || btn.title}
-            payload={btn.payload}
-            preventDoubleClick={!btn.allowMultipleClick}
+            label={reply.title}
+            payload={reply.payload}
             onButtonClick={this.handleButtonClicked}
-            onFileUpload={this.props.onFileUpload}
+            onFileUpload={this.props.config.onFileUpload}
           />
         )
       }
@@ -54,11 +52,11 @@ export class QuickReplies extends Component<any> {
   }
 
   render() {
-    const buttons = this.props.buttons || this.props.quick_replies
-    const kbd = <div className={'bpw-keyboard-quick_reply'}>{buttons && this.renderKeyboard(buttons)}</div>
+    const buttons = this.props.payload.quick_replies
+    const keyboard = <div className={'bpw-keyboard-quick_reply'}>{buttons && this.renderKeyboard(buttons)}</div>
 
     return (
-      <Keyboard.Prepend keyboard={kbd} visible={this.props.isLastGroup && this.props.isLastOfGroup}>
+      <Keyboard.Prepend keyboard={keyboard} visible={this.props.config.isLastGroup && this.props.config.isLastOfGroup}>
         {this.props.children}
       </Keyboard.Prepend>
     )

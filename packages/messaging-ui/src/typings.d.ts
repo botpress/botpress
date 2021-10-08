@@ -1,22 +1,37 @@
 import { Settings as CarouselSettings } from 'react-slick'
 import { messageTypes } from './utils'
 
-export type uuid = string
 declare global {
   export interface Window {
     botpress?: StudioConnector
   }
 }
 
+export type uuid = string
+
+export type FileUploadHandler = (label: string, payload: any, file: File) => Promise<void>
+
+export interface LiteStore {
+  composer: {
+    setLocked: (locked: boolean) => void
+  }
+}
 export interface MessageConfig {
+  messageId: uuid
+  authorId?: uuid
+  sentOn: Date
   escapeHTML: boolean
   isInEmulator: boolean
   intl: InjectedIntl
   showTimestamp: boolean
   noMessageBubble: boolean
+  isLastGroup: boolean
+  isLastOfGroup: boolean
+  isBotMessage: boolean
   bp?: StudioConnector
+  store?: LiteStore
   onSendData: (data: any) => Promise<void>
-  onFileUpload: (label: string, payload: any, file: File) => Promise<void>
+  onFileUpload: FileUploadHandler
   onMessageClicked: (messageId?: uuid) => void
 }
 
@@ -76,6 +91,54 @@ export interface CarouselPayload {
   style?: { [key: string]: any }
 }
 
+export interface DropdownOption {
+  label: string
+  value: string
+}
+export interface DropdownPayload {
+  options: DropdownOption[]
+  buttonText?: string
+  escapeHTML: boolean
+  allowCreation?: boolean
+  placeholderText?: string
+  allowMultiple?: boolean
+  width?: number
+  markdown: boolean
+  message: string
+  displayInKeyboard?: boolean
+}
+
+interface QuickReply {
+  title: string
+  payload: string
+}
+export interface QuickReplyPayload extends TextMessagePayload {
+  quick_replies: QuickReply[]
+  disableFreeText?: boolean
+}
+
+export interface LoginPromptPayload {}
+
+export interface CustomComponentPayload
+  extends Optional<
+    Pick<
+      MessageConfig,
+      | 'messageId'
+      | 'isLastGroup'
+      | 'isLastOfGroup'
+      | 'isBotMessage'
+      | 'onSendData'
+      | 'onFileUpload'
+      | 'sentOn'
+      | 'store'
+      | 'intl'
+    >
+  > {
+  module: string
+  component: string
+  wrapped?: any
+}
+
 export type Payload<T extends MessageType> = T extends 'text'
   ? TextMessagePayload
   : T extends 'file'
@@ -87,9 +150,9 @@ export type Payload<T extends MessageType> = T extends 'text'
   : T extends 'carousel'
   ? CarouselPayload
   : T extends 'login_prompt'
-  ? {}
+  ? LoginPromptPayload
   : T extends 'quick_reply'
-  ? {}
+  ? QuickReplyPayload
   : T extends 'visit'
   ? {}
   : T extends 'voice'
@@ -97,9 +160,9 @@ export type Payload<T extends MessageType> = T extends 'text'
   : T extends 'typing'
   ? {}
   : T extends 'dropdown'
-  ? {}
+  ? DropdownPayload
   : T extends 'custom'
-  ? {}
+  ? CustomComponentPayload
   : never
 
 export type MessageRendererProps<T extends MessageType> = Pick<Message<T>, 'payload' | 'config'>

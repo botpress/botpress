@@ -1,8 +1,9 @@
 import React, { ReactElement } from 'react'
 import ReactDOM from 'react-dom'
+import { Dropdown } from 'renderer/Dropdown'
 import { Message, MessageConfig, MessageType } from 'typings'
-import { isSupportedMessageType, FallthroughIntl } from 'utils'
-import { Carousel, File, Text } from './renderer'
+import { FallthroughIntl } from 'utils'
+import { Carousel, File, LoginPrompt, QuickReplies, Text } from './renderer'
 
 export const defaultMessageConfig: MessageConfig = {
   escapeHTML: true,
@@ -16,6 +17,9 @@ export const defaultMessageConfig: MessageConfig = {
   onMessageClicked: messageId => {
     return
   },
+  isLastGroup: true,
+  isLastOfGroup: true,
+  isBotMessage: true,
   noMessageBubble: false,
   intl: new FallthroughIntl(),
   showTimestamp: false,
@@ -34,20 +38,20 @@ export function renderMessage(message: Message<MessageType>): ReactElement | nul
       return <File {...(message as Message<'file'>)} />
     case 'file':
       return <File {...(message as Message<'file'>)} />
-    // case 'dropdown':
-    //   return <Dropdown {...payload} {...config} />
-    // case 'visit':
-    //   return null
+    case 'dropdown':
+      return <Dropdown {...(message as Message<'dropdown'>)} />
+    case 'visit':
+      return null
     // case 'voice':
     //   return <VoiceMessage {...payload} {...config} />
     // case 'typing':
     //   return null
     case 'carousel':
       return <Carousel {...(message as Message<'carousel'>)} />
-    // case 'login_prompt':
-    //   return <LoginPrompt {...payload} {...config} />
-    // case 'quick_reply':
-    //   return <QuickReplies {...payload} {...config} />
+    case 'login_prompt':
+      return <LoginPrompt {...(message as Message<'login_prompt'>)} />
+    case 'quick_reply':
+      return <QuickReplies {...(message as Message<'quick_reply'>)} />
     // case 'session_reset':
     //   return null
     // case 'custom':

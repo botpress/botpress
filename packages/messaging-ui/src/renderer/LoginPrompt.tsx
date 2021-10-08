@@ -1,17 +1,26 @@
 import React, { Component } from 'react'
-import { InjectedIntlProps, injectIntl } from 'react-intl'
+import { MessageRendererProps } from '../typings'
 
-class LoginPromptClass extends Component<any & InjectedIntlProps> {
+interface IState {
+  username: string
+  password: string
+}
+
+export class LoginPrompt extends Component<MessageRendererProps<'login_prompt'>, IState> {
   state = {
     username: '',
     password: ''
   }
 
-  handleInputChanged = event => this.setState({ [event.target.name]: event.target.value })
+  handleInputChanged = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value } = event.target
+    if (name === 'username' || name === 'password') {
+      this.setState({ ...this.state, [name]: value })
+    }
+  }
 
-  handleFormSubmit = event => {
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.props.onSendData?.({
+  handleFormSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+    await this.props.config.onSendData?.({
       type: 'login_prompt',
       text: 'Provided login information',
       username: this.state.username,
@@ -23,17 +32,17 @@ class LoginPromptClass extends Component<any & InjectedIntlProps> {
   }
 
   render_bot_active() {
-    const userName = this.props.intl.formatMessage({
+    const userName = this.props.config.intl.formatMessage({
       id: 'loginForm.userName',
       defaultMessage: 'Username'
     })
 
-    const password = this.props.intl.formatMessage({
+    const password = this.props.config.intl.formatMessage({
       id: 'loginForm.password',
       defaultMessage: 'Password'
     })
 
-    const submit = this.props.intl.formatMessage({
+    const submit = this.props.config.intl.formatMessage({
       id: 'loginForm.submit',
       defaultMessage: 'Submit'
     })
@@ -65,7 +74,7 @@ class LoginPromptClass extends Component<any & InjectedIntlProps> {
   }
 
   render_bot_past() {
-    const formTitle = this.props.intl.formatMessage({
+    const formTitle = this.props.config.intl.formatMessage({
       id: 'loginForm.formTitle',
       defaultMessage: 'Login form'
     })
@@ -78,7 +87,7 @@ class LoginPromptClass extends Component<any & InjectedIntlProps> {
   }
 
   render_user() {
-    const providedCredentials = this.props.intl.formatMessage({
+    const providedCredentials = this.props.config.intl.formatMessage({
       id: 'loginForm.providedCredentials',
       defaultMessage: 'Login form'
     })
@@ -91,16 +100,14 @@ class LoginPromptClass extends Component<any & InjectedIntlProps> {
   }
 
   render() {
-    if (!this.props.isBotMessage) {
+    if (!this.props.config.isBotMessage) {
       return this.render_user()
     }
 
-    if (this.props.isLastMessage) {
+    if (this.props.config.isLastGroup && this.props.config.isLastOfGroup) {
       return this.render_bot_active()
     }
 
     return this.render_bot_past()
   }
 }
-
-export const LoginPrompt = injectIntl(LoginPromptClass)

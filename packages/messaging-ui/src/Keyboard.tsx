@@ -4,16 +4,16 @@ import * as ReactDOM from 'react-dom'
 class KeyboardElements extends React.Component<KeyboardElementsProps> {
   private container: HTMLElement
 
-  constructor(props) {
+  constructor(props: KeyboardElementsProps) {
     super(props)
     this.container = document.createElement('div')
   }
 
-  insertChildAt(child, index = 0, parent) {
-    if (index >= parent.children.length) {
-      parent.appendChild(child)
+  insertChildAt(child: HTMLElement, index = 0, parent: HTMLElement | null) {
+    if (index >= (parent?.children.length || -1)) {
+      parent?.appendChild(child)
     } else {
-      parent.insertBefore(child, parent.children[index])
+      parent?.insertBefore(child, parent.children[index])
     }
   }
 

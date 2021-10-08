@@ -34,35 +34,32 @@ export const File = ({ payload, config }: MessageRendererProps<'file'>) => {
     )
   }
 
-  if (!mime) {
-    return (
-      <div>
-        <span>File: </span>
-        <a href={url} target={'_blank'}>
-          {title || url}
-        </a>
-      </div>
-    )
-  }
-
-  if (mime.includes('image/')) {
+  if (mime?.includes('image/')) {
     return (
       <a href={url} target={'_blank'}>
         <img src={url} title={title} />
       </a>
     )
-  } else if (mime.includes('audio/')) {
+  } else if (mime?.includes('audio/')) {
     return (
       <audio controls>
         <source src={url} type={mime} />
       </audio>
     )
-  } else if (mime.includes('video/')) {
+  } else if (mime?.includes('video/')) {
     return (
       <video controls>
         <source src={url} type={mime} />
       </video>
     )
   }
-  return null
+
+  return (
+    <div>
+      <span>File: </span>
+      <a href={url} target={'_blank'}>
+        {title || url}
+      </a>
+    </div>
+  )
 }

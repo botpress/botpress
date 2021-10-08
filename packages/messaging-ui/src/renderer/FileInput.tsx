@@ -1,6 +1,18 @@
 import React from 'react'
 
-export class FileInput extends React.Component<any> {
+interface Props {
+  name: string
+  className?: string
+  placeholder?: string
+  disabled?: boolean
+  accept?: string
+  onFileChanged?: (event: React.ChangeEvent<HTMLInputElement>) => void
+}
+
+interface State {
+  value?: string
+}
+export class FileInput extends React.Component<Props, State> {
   state = {
     value: ''
   }

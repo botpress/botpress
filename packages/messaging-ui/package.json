@@ -13,10 +13,11 @@
     "react-dom": "^16.8.6",
     "react-intl": "^2.8.0",
     "react-linkify": "^0.2.2",
-    "react-select": "^2.4.2",
+    "react-select": "^5.1.0",
     "react-slick": "^0.24.0",
+    "react-text-format": "^2.0.28",
     "rollup-plugin-import-css": "^3.0.1",
-    "snarkdown": "^1.2.2"
+    "snarkdown": "^2.0.0"
   },
   "scripts": {
     "test": "jest",
@@ -39,7 +40,6 @@
     "@types/mime": "^2.0.3",
     "@types/react": "^17.0.22",
     "@types/react-intl": "^2.3.18",
-    "@types/react-select": "^4.0.17",
     "@types/react-slick": "^0.23.5",
     "babel-jest": "^27.2.1",
     "jest": "^27.2.1",
