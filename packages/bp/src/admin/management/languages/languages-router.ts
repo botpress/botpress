@@ -15,7 +15,7 @@ class LanguagesRouter extends CustomAdminRouter {
 
   async getSourceClient() {
     const { nlu: nluConfig } = await this.configProvider.getBotpressConfig()
-    const source = nluConfig.languageSources[0]
+    const source = nluConfig.nluServer.languageSources[0]
 
     const headers = {
       timeout: 20000,
@@ -71,7 +71,7 @@ class LanguagesRouter extends CustomAdminRouter {
       this.asyncMiddleware(async (req, res) => {
         const { nlu: nluConfig } = await this.configProvider.getBotpressConfig()
         res.send({
-          languageSources: nluConfig.languageSources
+          languageSources: nluConfig.nluServer.languageSources
         })
       })
     )
@@ -139,7 +139,7 @@ class LanguagesRouter extends CustomAdminRouter {
         } catch (e) {
           try {
             const { nlu: nluConfig } = await this.configProvider.getBotpressConfig()
-            const { languageSources } = nluConfig
+            const { languageSources } = nluConfig.nluServer
             if (languageSources.length && languageSources[0].endpoint) {
               this.logger.warn("Please remove the languageSources from nlu.json if you don't want to use it")
             }
