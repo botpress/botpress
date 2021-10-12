@@ -119,14 +119,13 @@ const migration: Migration = {
   up: async ({ bp, configProvider }: MigrationOpts): Promise<sdk.MigrationResult> => {
     try {
       const ghost = bp.ghost.forGlobal()
+      const nluJsonExists = await ghost.fileExists('config', 'nlu.json')
 
       const botpressConfig = await configProvider.getBotpressConfig()
       if (!!botpressConfig.nlu) {
-        await ghost.deleteFile('config', 'nlu.json')
+        nluJsonExists && (await ghost.deleteFile('config', 'nlu.json'))
         return { success: true, message: 'Migration not needed.' }
       }
-
-      const nluJsonExists = await ghost.fileExists('config', 'nlu.json')
 
       let nluCoreConfig: NLUCoreConfig
       if (!nluJsonExists) {
