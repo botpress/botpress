@@ -1,5 +1,5 @@
-import * as React from 'react'
-import * as ReactDOM from 'react-dom'
+import React from 'react'
+import ReactDOM from 'react-dom'
 
 class KeyboardElements extends React.Component<KeyboardElementsProps> {
   private container: HTMLElement
@@ -19,17 +19,17 @@ class KeyboardElements extends React.Component<KeyboardElementsProps> {
 
   componentDidMount() {
     if (this.props.append) {
-      this.insertChildAt(this.container, this.props.index, Default.appendRef.current)
+      this.insertChildAt(this.container, this.props.index, Keyboard.appendRef.current)
     } else {
-      this.insertChildAt(this.container, this.props.index, Default.prependRef.current)
+      this.insertChildAt(this.container, this.props.index, Keyboard.prependRef.current)
     }
   }
 
   componentWillUnmount() {
     if (this.props.append) {
-      Default.appendRef.current?.removeChild(this.container)
+      Keyboard.appendRef.current?.removeChild(this.container)
     } else {
-      Default.prependRef.current?.removeChild(this.container)
+      Keyboard.prependRef.current?.removeChild(this.container)
     }
   }
 
@@ -60,17 +60,17 @@ export class Append extends React.Component<Partial<KeyboardElementsProps>> {
   }
 }
 
-export class Default extends React.Component<Partial<KeyboardElementsProps>> {
+export default class Keyboard extends React.Component<Partial<KeyboardElementsProps>> {
   static prependRef: React.RefObject<HTMLDivElement> = React.createRef()
   static appendRef: React.RefObject<HTMLDivElement> = React.createRef()
-  static isReady = () => Default.appendRef.current !== null
+  static isReady = () => Keyboard.appendRef.current !== null
 
   render() {
     return (
       <div className={'bpw-keyboard'}>
-        <div ref={Default.prependRef} />
+        <div ref={Keyboard.prependRef} />
         {this.props.children}
-        <div ref={Default.appendRef} />
+        <div ref={Keyboard.appendRef} />
       </div>
     )
   }

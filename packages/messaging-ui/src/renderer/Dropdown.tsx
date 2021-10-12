@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import Select from 'react-select'
 import Creatable from 'react-select/creatable'
-import { DropdownOption, MessageRendererProps } from 'typings'
-import * as Keyboard from '../Keyboard'
+import { DropdownOption, Message } from 'typings'
+import Keyboard, { Prepend } from '../Keyboard'
 import { renderUnsafeHTML } from '../utils'
 
-export const Dropdown = ({ payload, config }: MessageRendererProps<'dropdown'>) => {
+export const Dropdown = ({ payload, config }: Message<'dropdown'>) => {
   const [options, setOptions] = useState<DropdownOption[]>([])
   const [selectedOption, setSelectedOption] = useState<any>()
 
@@ -80,11 +80,11 @@ export const Dropdown = ({ payload, config }: MessageRendererProps<'dropdown'>) 
     message = <p>{payload.message}</p>
   }
 
-  if (payload.displayInKeyboard && Keyboard.Default.isReady()) {
+  if (payload.displayInKeyboard && Keyboard.isReady()) {
     return (
-      <Keyboard.Prepend keyboard={renderSelect(true)} visible={shouldDisplay}>
+      <Prepend keyboard={renderSelect(true)} visible={shouldDisplay}>
         {message}
-      </Keyboard.Prepend>
+      </Prepend>
     )
   }
 

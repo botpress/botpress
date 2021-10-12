@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import * as Keyboard from '../Keyboard'
-import { MessageRendererProps, QuickReply } from '../typings'
+import { Message, QuickReply } from '../typings'
 
 import { Button } from './Button'
 
@@ -13,7 +13,7 @@ import { Button } from './Button'
  *
  * @return onSendData is called with the reply
  */
-export class QuickReplies extends Component<MessageRendererProps<'quick_reply'>> {
+export class QuickReplies extends Component<Message<'quick_reply'>> {
   componentDidMount() {
     this.props.config.isLastGroup &&
       this.props.config.isLastOfGroup &&

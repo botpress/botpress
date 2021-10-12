@@ -1,12 +1,12 @@
 import React, { Component } from 'react'
-import { MessageRendererProps } from '../typings'
+import { Message } from '../typings'
 
 interface IState {
   username: string
   password: string
 }
 
-export class LoginPrompt extends Component<MessageRendererProps<'login_prompt'>, IState> {
+export class LoginPrompt extends Component<Message<'login_prompt'>, IState> {
   state = {
     username: '',
     password: ''

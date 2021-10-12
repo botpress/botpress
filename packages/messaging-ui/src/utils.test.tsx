@@ -1,14 +1,24 @@
 /**
  * @jest-environment jsdom
  */
-import { MessageType } from 'typings'
-import { isSupportedMessageType, messageTypes } from './utils'
+import { pick } from './utils'
 
-test('isSupportedMessageType', () => {
-  expect(messageTypes).toBeTruthy()
-  for (const type in messageTypes) {
-    expect(isSupportedMessageType(type as string)).toBe(true)
-    expect(isSupportedMessageType(type as MessageType)).toBe(true)
-  }
-  expect(isSupportedMessageType('foo')).toBe(false)
+describe('pick', () => {
+  test('all existant keys', () => {
+    const obj = { a: 1, b: 2, c: 3 }
+    const picked = pick(obj, ['a', 'c'])
+    expect(picked).toEqual({ a: 1, c: 3 })
+  })
+
+  test('some missing keys', () => {
+    const obj = { a: 1, c: 3 }
+    const picked = pick<any>(obj, ['a', 'b'])
+    expect(picked).toEqual({ a: 1 })
+  })
+
+  test('all missing keys', () => {
+    const obj = { a: 1, c: 3 }
+    const picked = pick<any>(obj, ['f', 'x'])
+    expect(picked).toEqual({})
+  })
 })

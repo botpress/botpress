@@ -1,10 +1,10 @@
 import mimeTypes from 'mime/lite'
 import React from 'react'
-import { MessageRendererProps } from '../typings'
+import { Message } from '../typings'
 
 import { Text } from './Text'
 
-export const File = ({ payload, config }: MessageRendererProps<'file'>) => {
+export const File = ({ payload, config }: Message<'file'>) => {
   if (!payload.file) {
     return null
   }

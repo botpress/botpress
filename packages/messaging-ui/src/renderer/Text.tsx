@@ -1,7 +1,7 @@
 import truncate from 'html-truncate'
 import React, { useState } from 'react'
 import ReactTextFormat from 'react-text-format'
-import { MessageRendererProps } from '../typings'
+import { Message } from '../typings'
 import { renderUnsafeHTML } from '../utils'
 
 /**
@@ -10,7 +10,7 @@ import { renderUnsafeHTML } from '../utils'
  * @param {string} payload.text The text to display
  * @param {number} payload.trimLength Enables show more button when text overflows limit
  */
-export const Text = ({ payload, config }: MessageRendererProps<'text'>) => {
+export const Text = ({ payload, config }: Message<'text'>) => {
   const [showMore, setShowMore] = useState(false)
   const { trimLength, markdown, text } = payload
   const { intl, escapeHTML } = config

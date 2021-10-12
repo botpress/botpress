@@ -1,6 +1,5 @@
 import { InjectedIntl } from 'react-intl'
 import snarkdown from 'snarkdown'
-import { MessageType } from 'typings'
 
 export const messageTypes = [
   'text',
@@ -17,10 +16,6 @@ export const messageTypes = [
   'session_reset',
   'custom'
 ] as const
-
-export const isSupportedMessageType = (type: string | MessageType): boolean => {
-  return (type as string) in messageTypes
-}
 
 export const renderUnsafeHTML = (message: string = '', escaped: boolean): string => {
   if (escaped) {
@@ -73,4 +68,13 @@ export class FallthroughIntl implements InjectedIntl {
   onError(error: string): void {
     throw new Error('Method not implemented.')
   }
+}
+
+export function pick<T>(obj: T, keys: Partial<keyof T>[]): Partial<T> {
+  return keys
+    .filter(key => key in obj)
+    .reduce((acc, key) => {
+      acc[key] = obj[key]
+      return acc
+    }, {} as Partial<T>)
 }
