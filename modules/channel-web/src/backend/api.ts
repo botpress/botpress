@@ -305,9 +305,13 @@ export default async (bp: typeof sdk, db: Database) => {
       const conversation = await req.messaging.conversations.get(conversationId)
       const messages = await req.messaging.messages.list(conversationId, config.maxMessagesHistory)
 
-      const filteredMessages = messages.filter(m => m.payload.type !== 'visit')
+      // this function scope can (and probably will) expand to other types as well with a switch case on the type
+      // we do something similar in the cms to determine weather there are translated fields or not
+      const notEmptyPayload = payload => (payload.type === 'text' ? !!payload.text : true)
 
-      return res.send({ ...conversation, messages: filteredMessages })
+      const displayableMessages = messages.filter(({ payload }) => payload.type !== 'visit' && notEmptyPayload(payload))
+
+      return res.send({ ...conversation, messages: displayableMessages })
     })
   )
 

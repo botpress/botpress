@@ -7,7 +7,7 @@ import style from '../../style.scss'
 
 import UserName from './UserName'
 
-const UserProfile: FC<IUser> = (user) => {
+const UserProfile: FC<IUser> = user => {
   const [expanded, setExpanded] = useState(true)
 
   return (
