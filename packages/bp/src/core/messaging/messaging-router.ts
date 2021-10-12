@@ -69,7 +69,7 @@ export interface MessageNewEventData {
 }
 
 interface MessagingEvent {
-  type: string
+  type: 'message.new' | 'user.new'
   data: any
 }
 
