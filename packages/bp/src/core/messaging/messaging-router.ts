@@ -1,17 +1,18 @@
 import { Message } from '@botpress/messaging-client'
 import * as sdk from 'botpress/sdk'
-import { StandardError, UnauthorizedError } from 'common/http'
+import { UnauthorizedError } from 'common/http'
 import { HTTPServer } from 'core/app/server'
 import { CustomRouter } from 'core/routers/customRouter'
 import { Router } from 'express'
 import joi from 'joi'
 import { MessagingLegacy } from './legacy'
 import { MessagingService } from './messaging-service'
+import { NextFunction, Request, Response } from 'express'
 
 export class MessagingRouter extends CustomRouter {
   private legacy: MessagingLegacy
 
-  constructor(private logger: sdk.Logger, private messaging: MessagingService, private http: HTTPServer) {
+  constructor(logger: sdk.Logger, private messaging: MessagingService, http: HTTPServer) {
     super('Messaging', logger, Router({ mergeParams: true }))
     this.legacy = new MessagingLegacy(logger, http)
   }
@@ -19,57 +20,57 @@ export class MessagingRouter extends CustomRouter {
   public setupRoutes(): void {
     this.router.post(
       '/receive',
-      this.asyncMiddleware(async (req, res, next) => {
-        if (req.body.type !== 'message.new') {
-          return res.sendStatus(200)
+      this.validateRequest,
+      this.asyncMiddleware(async (req, res) => {
+        const event: MessagingEvent = req.body
+
+        if (event.type === 'message.new') {
+          const { error } = MessageNewEventSchema.validate(req.body)
+          if (error) {
+            return res.status(400).send(error.message)
+          }
+
+          await this.messaging.receive(req.body as MessageNewEventData)
+        } else if (event.type === 'user.new') {
+          this.messaging.incrementNewUsersCount()
         }
 
-        let msg: ReceiveRequest
-        try {
-          msg = await joi.validate<ReceiveRequest>(req.body, ReceiveSchema)
-        } catch (err) {
-          throw new StandardError('Invalid payload', err)
-        }
-
-        if (!this.messaging.isExternal && req.headers.password !== process.INTERNAL_PASSWORD) {
-          return next?.(new UnauthorizedError('Password is missing or invalid'))
-        } else if (
-          this.messaging.isExternal &&
-          (!req.headers['x-webhook-token'] ||
-            req.headers['x-webhook-token'] !== this.messaging.getWebhookToken(msg.data.clientId))
-        ) {
-          return next?.(new UnauthorizedError('Invalid webhook token'))
-        }
-
-        await this.messaging.receive({
-          clientId: msg.data.clientId,
-          channel: msg.data.channel,
-          userId: msg.data.userId,
-          conversationId: msg.data.conversationId,
-          messageId: msg.data.message.id,
-          payload: msg.data.message.payload
-        })
-
-        res.sendStatus(200)
+        return res.sendStatus(200)
       })
     )
 
     this.legacy.setup()
   }
-}
 
-interface ReceiveRequest {
-  type: string
-  data: {
-    clientId: string
-    userId: string
-    conversationId: string
-    channel: string
-    message: Message
+  private validateRequest(req: Request, res: Response, next: NextFunction | undefined) {
+    if (this.messaging.isExternal) {
+      if (req.headers.password !== process.INTERNAL_PASSWORD) {
+        return next?.(new UnauthorizedError('Password is missing or invalid'))
+      }
+    } else {
+      const token = req.headers['x-webhook-token']
+
+      if (!token || token !== this.messaging.getWebhookToken(req.body?.clientId)) {
+        return next?.(new UnauthorizedError('Invalid webhook token'))
+      }
+    }
   }
 }
 
-const ReceiveSchema = {
+export interface MessageNewEventData {
+  clientId: string
+  userId: string
+  conversationId: string
+  channel: string
+  message: Message
+}
+
+interface MessagingEvent {
+  type: string
+  data: any
+}
+
+const MessageNewEventSchema = joi.object({
   type: joi.string().required(),
   data: joi
     .object({
@@ -88,4 +89,4 @@ const ReceiveSchema = {
         .required()
     })
     .required()
-}
+})

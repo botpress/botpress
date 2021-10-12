@@ -6,6 +6,7 @@ import { EventEngine, Event } from 'core/events'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
+import { MessageNewEventData } from './messaging-router'
 
 const DEFAULT_TYPING_DELAY = 500
 
@@ -119,24 +120,17 @@ export class MessagingService {
     })
   }
 
-  async receive(args: {
-    clientId: string
-    channel: string
-    userId: string
-    conversationId: string
-    messageId: string
-    payload: any
-  }) {
+  async receive(event: MessageNewEventData) {
     return this.eventEngine.sendEvent(
       Event({
         direction: 'incoming',
-        type: args.payload.type,
-        payload: args.payload,
-        channel: args.channel,
-        threadId: args.conversationId,
-        target: args.userId,
-        messageId: args.messageId,
-        botId: this.botsByClientId[args.clientId]
+        type: event.message.payload.type,
+        payload: event.message.payload,
+        channel: event.channel,
+        threadId: event.conversationId,
+        target: event.userId,
+        messageId: event.message.id,
+        botId: this.botsByClientId[event.clientId]
       })
     )
   }
