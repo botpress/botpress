@@ -153,11 +153,6 @@ export class MessagingService {
     )
     event.messageId = message.id
 
-    if (event.payload.typing === true || event.payload.type === 'typing') {
-      const value = (event.payload.type === 'typing' ? event.payload.value : undefined) || DEFAULT_TYPING_DELAY
-      await new Promise(resolve => setTimeout(resolve, value))
-    }
-
     return next(undefined, true, false)
   }
 
