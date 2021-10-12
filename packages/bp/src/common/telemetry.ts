@@ -18,6 +18,7 @@ export interface TelemetryEntry {
 }
 
 export interface ServerStats {
+  isProduction: boolean
   externalUrl: string
   botpressVersion: string
   clusterEnabled: boolean

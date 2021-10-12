@@ -183,6 +183,7 @@ class ImportBotModal extends Component<Props, State> {
                 placeholder={lang.tr('admin.workspace.bots.create.idPlaceholder')}
                 intent={Intent.PRIMARY}
                 minLength={3}
+                maxLength={50}
                 value={this.state.botId}
                 onChange={this.handleBotIdChanged}
                 autoFocus={true}

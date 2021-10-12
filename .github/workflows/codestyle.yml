@@ -7,27 +7,28 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@master
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
-          node-version: '12.13.0'
+          node-version: '12.18.1'
+          cache: 'yarn'
       - name: Install Dependencies
         run: |
-          yarn
+          yarn --frozen-lockfile
       - name: Run Prettier
         run: |
-          ./node_modules/prettier/bin-prettier.js --check '{src,modules}/**/*.ts' '!**/*.d.ts'
+          yarn prettier
   eslint:
     name: Run ESLint on codebase
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@master
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
-          node-version: '12.13.0'
+          node-version: '12.18.1'
       - name: Install Dependencies
         run: |
-          yarn
+          yarn --frozen-lockfile
       - name: Run ESLint
         run: |
           yarn run eslint

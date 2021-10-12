@@ -11,12 +11,14 @@ const { Debug } = require('./debug')
 const metadataContent = require('./metadata.json')
 
 const printPlainError = err => {
-  /* eslint-disable no-console */
-  console.log('Error starting botpress')
-  console.log(err)
-  console.log(err.message)
-  console.log('---STACK---')
-  console.log(err.stack)
+  console.error('Error starting botpress')
+  console.error(err)
+
+  if (err instanceof Error) {
+    console.error(err.message)
+    console.error('---STACK---')
+    console.error(err.stack)
+  }
 }
 
 global.DEBUG = Debug
@@ -59,9 +61,6 @@ process.stderr.write = stripDeprecationWrite
 
 process.on('unhandledRejection', err => {
   global.printErrorDefault(err)
-  if (!process.IS_FAILSAFE) {
-    process.exit(1)
-  }
 })
 
 process.on('uncaughtException', err => {

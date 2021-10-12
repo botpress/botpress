@@ -123,15 +123,6 @@ class NewEventView extends React.Component<Props, State> {
             </StickyActionBar>
           </>
         )}
-
-        {event && (
-          <h4 className={style.newEventPreview}>
-            {lang.tr('module.misunderstood.showMisunderstoodMessage', {
-              preview: <span className={style.newEventPreviewMessage}>{event.preview}</span>
-            })}
-          </h4>
-        )}
-
         {isAmending && (
           <AmendForm
             language={language}

@@ -31,7 +31,7 @@ class ComposerStore {
     this.rootStore = rootStore
 
     if (window.BP_STORAGE) {
-      this._sentHistory = JSON.parse(window.BP_STORAGE.get(SENT_HISTORY_KEY) || '[]')
+      this._sentHistory = window.BP_STORAGE.get<string[]>(SENT_HISTORY_KEY) || []
     }
   }
 
@@ -52,10 +52,7 @@ class ComposerStore {
       this._sentHistoryIndex = 0
 
       if (this.rootStore.config.enablePersistHistory) {
-        window.BP_STORAGE?.set(
-          SENT_HISTORY_KEY,
-          JSON.stringify(takeRight(this._sentHistory, constants.SENT_HISTORY_SIZE))
-        )
+        window.BP_STORAGE?.set(SENT_HISTORY_KEY, takeRight(this._sentHistory, constants.SENT_HISTORY_SIZE))
       }
     }
   }

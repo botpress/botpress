@@ -259,15 +259,6 @@ export class CMSService implements IDisposeOnExit {
       .then(row => (row && Number(row.count)) || 0)
   }
 
-  async countContentElementsForContentType(botId: string, contentType: string): Promise<number> {
-    return this.memDb(this.contentTable)
-      .where({ botId })
-      .andWhere({ contentType })
-      .count('* as count')
-      .first()
-      .then(row => (row && Number(row.count)) || 0)
-  }
-
   async deleteContentElements(botId: string, ids: string[]): Promise<void> {
     const elements = await this.getContentElements(botId, ids)
     await Promise.map(elements, el => this.moduleLoader.onElementChanged(botId, 'delete', el))
@@ -317,15 +308,6 @@ export class CMSService implements IDisposeOnExit {
       throw new Error(`Content type "${contentTypeId}" is not a valid registered content type ID`)
     }
     return type
-  }
-
-  async getRandomContentElement(contentTypeId: string): Promise<ContentElement> {
-    return this.memDb(this.contentTable)
-      .where('contentType', contentTypeId)
-      .orderByRaw('random()')
-      .limit(1)
-      .first()
-      .then()
   }
 
   private _generateElementId(contentTypeId: string): string {
@@ -672,11 +654,6 @@ export class CMSService implements IDisposeOnExit {
     }
 
     return payloads
-  }
-
-  public renderForChannel(content: any, channel: string): any[] {
-    const type = this.contentTypes.find(x => x.id.includes(content.type))!
-    return type.renderElement({ ...content, ...this._getAdditionalData() }, channel)
   }
 
   /**

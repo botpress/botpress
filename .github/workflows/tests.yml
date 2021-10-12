@@ -5,16 +5,53 @@ jobs:
     name: Unit
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:9.6.10
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
     steps:
       - name: Checkout code
         uses: actions/checkout@master
-      - name: Build
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12.18.1'
+          cache: 'yarn'
+      - name: Fetch Node Packages
         run: |
-          cp -r build/tests/* .
-          docker-compose build
+          yarn --frozen-lockfile
+      - name: Fetch Node Packages for module NLU
+        working-directory: ./modules/nlu
+        run: |
+          yarn --frozen-lockfile
       - name: Run tests
         run: |
-          docker-compose up --exit-code-from botpress
+          yarn test
+        env:
+          PG_DB: postgres
+          PG_USER: postgres
+          PG_PASSWORD: postgres
+          PG_PORT: 5432
 
   e2e:
     name: e2e
@@ -23,12 +60,13 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@master
-      - uses: actions/setup-node@v1
+      - uses: actions/setup-node@v2
         with:
-          node-version: '12.13.0'
+          node-version: '12.18.1'
+          cache: 'yarn'
       - name: Fetch Node Packages
         run: |
-          yarn
+          yarn --frozen-lockfile
       - name: Build core, UI and modules
         run: |
           NODE_OPTIONS="--max-old-space-size=6000" yarn build

@@ -84,7 +84,7 @@ export default {
   getSecured({
     token = undefined,
     toastErrors = true,
-    timeout = 10000,
+    timeout = 20000,
     useV1 = false,
     appendPath = ''
   }: SecuredApi = {}) {

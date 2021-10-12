@@ -2,7 +2,7 @@ import fse from 'fs-extra'
 import os from 'os'
 import path from 'path'
 import yargs from 'yargs'
-import { cleanFiles, initProject, installFile, listFiles, useFile } from './cli'
+import { cleanFiles, cleanOutdatedBinaries, initProject, installFile, listFiles, useFile } from './cli'
 import { getAppDataPath } from './utils'
 import { getManager } from './workspace-manager'
 
@@ -50,6 +50,7 @@ yargs
       }
     },
     async (argv: any) => {
+      await cleanOutdatedBinaries(getCommonArgv(argv))
       await initProject(argv.config, getCommonArgv(argv))
     }
   )

@@ -12,10 +12,9 @@ export const TOKEN_KEY = 'bp/token'
 const MIN_MS_LEFT_BEFORE_REFRESH = ms('5m')
 
 export const getToken = (onlyToken: boolean = true): StoredToken | string | undefined => {
-  const token = storage.get(TOKEN_KEY)
-  const parsed = token && JSON.parse(token)
+  const parsedToken = storage.get<StoredToken>(TOKEN_KEY)
 
-  return onlyToken ? parsed && parsed.token : parsed
+  return onlyToken ? parsedToken && parsedToken.token : parsedToken
 }
 
 export const setToken = (token: Partial<TokenResponse>): void => {
@@ -29,7 +28,7 @@ export const setToken = (token: Partial<TokenResponse>): void => {
     storedToken = { token: token.jwt, expiresAt: tokenUser.exp, issuedAt: tokenUser.iat! }
   }
 
-  storage.set(TOKEN_KEY, JSON.stringify(storedToken))
+  storage.set(TOKEN_KEY, storedToken)
 }
 
 export const isTokenValid = (): boolean => {

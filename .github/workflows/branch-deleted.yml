@@ -1,0 +1,31 @@
+name: Branch deleted
+on: delete
+
+jobs:
+  remove:
+    if: github.event.ref_type == 'branch'
+    name: Delete Branch Binaries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Install python3
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.x'
+          architecture: 'x64'
+
+      - name: Install Tools
+        run: |
+          pip install awscli
+
+      - name: Extract Informations
+        id: info
+        uses: botpress/gh-actions/extract_info@master
+        with:
+          branch: ${{ github.event.ref }}
+
+      - name: Delete Binaries
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 rm --recursive s3://botpress-dev-bins/botpress/${{ steps.info.outputs.branch_sanitized }}

@@ -60,6 +60,10 @@ class MessageList extends React.Component<MessageListProps, State> {
     this.divSizeObserver.disconnect()
   }
 
+  componentDidUpdate() {
+    this.tryScrollToBottom()
+  }
+
   tryScrollToBottom(delayed?: boolean) {
     setTimeout(
       () => {

@@ -6,7 +6,7 @@ declare namespace NodeJS {
   }
 
   export interface Global {
-    printErrorDefault(err: Error): void
+    printErrorDefault(err: unknown): void
     DEBUG: IDebug
     BOTPRESS_CORE_EVENT: IEmitCoreEvent
     BOTPRESS_CORE_EVENT_TYPES: BotpressCoreEvents

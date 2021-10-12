@@ -2,6 +2,7 @@ import { Button, Classes, Dialog, FormGroup, InputGroup, Intent, Callout } from 
 import { BotConfig, BotTemplate } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
+import ms from 'ms'
 import React, { Component } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import Select from 'react-select'
@@ -15,6 +16,7 @@ export const sanitizeBotId = (text: string) =>
     .toLowerCase()
     .replace(/\s/g, '-')
     .replace(/[^a-z0-9_-]/g, '')
+    .substring(0, 50)
 
 interface SelectOption<T> {
   label: string
@@ -119,7 +121,7 @@ class CreateBotModal extends Component<Props, State> {
     }
 
     try {
-      await api.getSecured().post('/admin/workspace/bots', newBot)
+      await api.getSecured({ timeout: ms('2m') }).post('/admin/workspace/bots', newBot)
       this.props.onCreateBotSuccess()
       this.toggleDialog()
     } catch (error) {
@@ -164,6 +166,7 @@ class CreateBotModal extends Component<Props, State> {
                 tabIndex={1}
                 placeholder={lang.tr('admin.workspace.bots.create.namePlaceholder')}
                 minLength={3}
+                maxLength={50}
                 required
                 value={this.state.botName}
                 onChange={this.handleNameChanged}
@@ -182,6 +185,7 @@ class CreateBotModal extends Component<Props, State> {
                 tabIndex={2}
                 placeholder={lang.tr('admin.workspace.bots.create.idPlaceholder')}
                 minLength={3}
+                maxLength={50}
                 required
                 value={this.state.botId}
                 onChange={this.handleBotIdChanged}

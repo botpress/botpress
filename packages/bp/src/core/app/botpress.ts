@@ -395,7 +395,7 @@ export class Botpress {
     await this.workspaceService.initialize()
     await this.cmsService.initialize()
     await this.eventCollector.initialize(this.database)
-    await this.qnaService.initialize()
+    this.qnaService.initialize()
 
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.stateManager.restore(event)
@@ -441,9 +441,6 @@ export class Botpress {
       this.eventCollector.storeEvent(event)
       await this.hookService.executeHook(new Hooks.BeforeOutgoingMiddleware(this.api, event))
     }
-
-    // Todo : remove this when channel renderers for builtin types are no longer needed
-    this.eventEngine.renderForChannel = this.cmsService.renderForChannel.bind(this.cmsService)
 
     this.decisionEngine.onBeforeSuggestionsElection = async (
       sessionId: string,
@@ -493,7 +490,7 @@ export class Botpress {
 
     await this.dataRetentionService.initialize()
 
-    await this.stateManager.initialize()
+    this.stateManager.initialize()
     await this.logJanitor.start()
     await this.dialogJanitor.start()
     await this.monitoringService.start()

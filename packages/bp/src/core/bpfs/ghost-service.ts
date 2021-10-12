@@ -491,7 +491,11 @@ export class ScopedGhostService {
       return
     }
 
-    const localFiles = await this.diskDriver.directoryListing(this.baseDir, { includeDotFiles: true })
+    const localFiles = await this.diskDriver.directoryListing(this.baseDir, {
+      includeDotFiles: true,
+      excludes: ['**/node_modules/**']
+    })
+
     const diskRevs = await this.diskDriver.listRevisions(this.baseDir)
     const dbRevs = await this.dbDriver.listRevisions(this.baseDir)
     const syncedRevs = _.intersectionBy(diskRevs, dbRevs, x => `${x.path} | ${x.revision}`)

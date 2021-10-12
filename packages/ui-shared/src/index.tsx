@@ -9,7 +9,7 @@ import { renderPayload } from '../../ui-shared-lite/Payloads'
 import style from '../../ui-shared-lite/style.scss'
 import Tabs from '../../ui-shared-lite/Tabs'
 import ToolTip from '../../ui-shared-lite/ToolTip'
-import * as storage from '../../ui-shared-lite/utils/storage'
+import storage from '../../ui-shared-lite/utils/storage'
 
 import { isOperationAllowed } from './AccessControl'
 import { Commander } from './Commander'

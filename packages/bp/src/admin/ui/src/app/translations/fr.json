@@ -259,7 +259,7 @@
           "category": "Catégorie de bot",
           "create": "Créer un bot",
           "id": "Id du bot",
-          "idHelper": "Cet ID ne peut pas être modifié, alors choisissez judicieusement. Il sera affiché dans l'URL et vos visiteurs pourront le voir. Les caractères spéciaux ne sont pas autorisés. Longueur minimum: 4",
+          "idHelper": "Cet ID ne peut pas être modifié, alors choisissez judicieusement. Il sera affiché dans l'URL et vos visiteurs pourront le voir. Les caractères spéciaux ne sont pas autorisés. Longueur: entre 3 et 50",
           "idPlaceholder": "L'identifiant de votre bot (doit être unique)",
           "name": "Nom du bot",
           "nameHelper": "Il sera affiché à vos visiteurs. Vous pouvez le modifier à tout moment.",
