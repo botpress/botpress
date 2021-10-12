@@ -3,11 +3,10 @@ import * as sdk from 'botpress/sdk'
 import { UnauthorizedError } from 'common/http'
 import { HTTPServer } from 'core/app/server'
 import { CustomRouter } from 'core/routers/customRouter'
-import { Router } from 'express'
+import { Router, NextFunction, Request, Response } from 'express'
 import joi from 'joi'
 import { MessagingLegacy } from './legacy'
 import { MessagingService } from './messaging-service'
-import { NextFunction, Request, Response } from 'express'
 
 export class MessagingRouter extends CustomRouter {
   private legacy: MessagingLegacy
