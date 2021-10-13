@@ -17,8 +17,9 @@ export class NLUClientProvider {
     return this._clientPerBot[botId]
   }
 
-  public async initialize() {
-    this._baseClient = new NLUClient({ endpoint: process.NLU_ENDPOINT })
+  public async initialize(nluEndpoint: string) {
+    this._endpoint = nluEndpoint
+    this._baseClient = new NLUClient({ endpoint: nluEndpoint })
   }
 
   public async mountBot(botId: string) {

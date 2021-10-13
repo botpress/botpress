@@ -189,8 +189,8 @@ export class Botpress {
     const { nluServer } = nluConfig
     const { modelCacheSize, languageSources, ducklingURL, ducklingEnabled, maxTraining } = nluServer
 
-    if (process.env.NLU_ENDPOINT) {
-      process.NLU_ENDPOINT = process.env.NLU_ENDPOINT
+    if (process.core_env.NLU_ENDPOINT) {
+      process.NLU_ENDPOINT = process.core_env.NLU_ENDPOINT
       AppLifecycle.setDone(AppLifecycleEvents.NLU_ENDPOINT_KNOWN)
       return
     }

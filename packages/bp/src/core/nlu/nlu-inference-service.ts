@@ -49,7 +49,7 @@ export class NLUInferenceService {
   @postConstruct()
   public async initialize() {
     await AppLifecycle.waitFor(AppLifecycleEvents.NLU_ENDPOINT_KNOWN)
-    await this.nluClientProvider.initialize()
+    await this.nluClientProvider.initialize(process.NLU_ENDPOINT)
 
     this.eventEngine.register({
       name: PREDICT_MW,
