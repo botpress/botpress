@@ -6,6 +6,7 @@ import { EventEngine, Event } from 'core/events'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
+import { MessageNewEventData } from './messaging-router'
 
 const DEFAULT_TYPING_DELAY = 500
 
@@ -16,6 +17,7 @@ export class MessagingService {
   private botsByClientId: { [clientId: string]: string } = {}
   private webhookTokenByClientId: { [botId: string]: string } = {}
   private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
+  private newUsers: number = 0
 
   public isExternal: boolean
   public internalPassword: string | undefined
@@ -118,24 +120,17 @@ export class MessagingService {
     })
   }
 
-  async receive(args: {
-    clientId: string
-    channel: string
-    userId: string
-    conversationId: string
-    messageId: string
-    payload: any
-  }) {
+  async receive(event: MessageNewEventData) {
     return this.eventEngine.sendEvent(
       Event({
         direction: 'incoming',
-        type: args.payload.type,
-        payload: args.payload,
-        channel: args.channel,
-        threadId: args.conversationId,
-        target: args.userId,
-        messageId: args.messageId,
-        botId: this.botsByClientId[args.clientId]
+        type: event.message.payload.type,
+        payload: event.message.payload,
+        channel: event.channel,
+        threadId: event.conversationId,
+        target: event.userId,
+        messageId: event.message.id,
+        botId: this.botsByClientId[event.clientId]
       })
     )
   }
@@ -189,5 +184,17 @@ export class MessagingService {
 
   public getWebhookToken(clientId: string) {
     return this.webhookTokenByClientId[clientId]
+  }
+
+  public getNewUsersCount({ resetCount }: { resetCount: boolean }) {
+    const count = this.newUsers
+    if (resetCount) {
+      this.newUsers = 0
+    }
+    return count
+  }
+
+  public incrementNewUsersCount() {
+    this.newUsers++
   }
 }
