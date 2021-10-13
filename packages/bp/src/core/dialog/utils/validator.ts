@@ -2,7 +2,6 @@ import { Flow } from 'botpress/sdk'
 import _ from 'lodash'
 
 export function validateFlowSchema(flow: Flow) {
-  // const errorPrefix = `[Flow] Invalid flow "${flow && flow.location}"`
   const errorPrefix = `[Flow] Invalid flow "${flow}"`
 
   if (!flow || !_.isObjectLike(flow)) {
