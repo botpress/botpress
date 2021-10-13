@@ -19,7 +19,7 @@ export interface NLUServerOptions {
   apmEnabled?: boolean
   apmSampleRate?: number
   maxTraining: number
-  languageSources: LanguageSource[] // when passed by env variable, there can be more than one lang server
+  languageSources: LanguageSource[]
   ducklingURL: string
   ducklingEnabled: boolean
   legacyElection: boolean
