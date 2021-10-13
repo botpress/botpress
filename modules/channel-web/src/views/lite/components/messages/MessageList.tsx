@@ -61,6 +61,9 @@ class MessageList extends React.Component<MessageListProps, State> {
   }
 
   componentDidUpdate() {
+    if (this.state.manualScroll) {
+      return
+    }
     this.tryScrollToBottom()
   }
 
