@@ -462,7 +462,7 @@
     padding: 0px;
     margin: 10px 0;
     text-align: left;
-    width: 100%;
+    width: 230px; /* Magic number so that it fits properly in the emulator */
   }
 
   .bpw-bubble-file {
