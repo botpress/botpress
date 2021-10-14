@@ -15,8 +15,7 @@ export const messageTypes = [
   'quick_reply',
   'session_reset',
   'custom',
-  'custom_type',
-  'unsupported'
+  'unsupported' // This is a special type that is used as fallback for unsupported message types at runtime
 ] as const
 
 export const renderUnsafeHTML = (message: string = '', escaped: boolean): string => {

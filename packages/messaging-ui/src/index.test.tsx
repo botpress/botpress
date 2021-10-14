@@ -4,6 +4,7 @@
 import { render, screen } from '@testing-library/react'
 import React from 'react'
 import { Message } from 'typings'
+import { messageTypes } from 'utils'
 import defaultRenderer, { defaultMessageConfig, defaultTypesRenderers, Renderer, renderMessage } from './'
 
 describe('Unsupported type renderer', () => {})
@@ -12,7 +13,7 @@ describe('Renderer', () => {
   test('it can override a type handler and render it', () => {
     const customRenderer = new Renderer()
     customRenderer.register(defaultTypesRenderers)
-    customRenderer.add('custom', ({ payload }) => (
+    customRenderer.set('custom', ({ payload }) => (
       <div>
         Custom {payload.module} {payload.component}
       </div>
@@ -53,27 +54,9 @@ describe('Renderer', () => {
     expect(screen.getByText(`Unsupported message type: ${nonExistantType}`)).toBeInTheDocument()
   })
 
-  test('it can render custom types', () => {
-    const customRenderer = new Renderer()
-
-    customRenderer.register(defaultTypesRenderers)
-
-    customRenderer.add<'custom_type'>('custom_type', ({ payload }) => <div>Your emoji: {payload.emoji}</div>)
-
-    const message = '🐳'
-    const component = renderMessage(
-      {
-        type: 'custom_type',
-        payload: {
-          emoji: message
-        },
-        config: defaultMessageConfig
-      },
-      customRenderer
-    )
-
-    expect(component).toBeTruthy()
-    render(component)
-    expect(screen.getByText(`Your emoji: ${message}`)).toBeInTheDocument()
+  test.each(messageTypes)('type "%s" has an assigned default renderer', type => {
+    if (type !== 'unsupported') {
+      expect(defaultTypesRenderers[type]).toBeTruthy()
+    }
   })
 })

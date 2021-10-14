@@ -1,9 +1,10 @@
 import React, { ReactElement } from 'react'
 import ReactDOM from 'react-dom'
+import { CustomComponent } from 'renderer/Custom'
 import { Dropdown } from 'renderer/Dropdown'
 import { Message, MessageConfig, MessageType, MessageTypeHandlerProps } from 'typings'
 import { FallthroughIntl } from 'utils'
-import { Carousel, File, LoginPrompt, QuickReplies, Text } from './renderer'
+import { Carousel, File, LoginPrompt, QuickReplies, Text, VoiceMessage } from './renderer'
 
 export const defaultMessageConfig: MessageConfig = {
   escapeHTML: true,
@@ -43,16 +44,16 @@ export class Renderer {
   private handlers: Partial<Record<MessageType, MessageTypeHandler<MessageType>>> = {}
 
   constructor() {
-    this.add('unsupported', ({ type }) => <div>Unsupported message type: {type}</div>)
+    this.set('unsupported', ({ type }) => <div>Unsupported message type: {type}</div>)
   }
 
-  public add<T extends MessageType>(type: T, handler: MessageTypeHandler<T>) {
+  public set<T extends MessageType>(type: T, handler: MessageTypeHandler<T>) {
     this.handlers[type as MessageType] = handler as MessageTypeHandler<MessageType>
   }
 
   public register(handlers: Partial<{ [key in MessageType]: MessageTypeHandler<key> }>) {
     for (const type in handlers) {
-      this.add(type as MessageType, handlers[type])
+      this.set(type as MessageType, handlers[type])
     }
   }
 
@@ -74,7 +75,7 @@ export class Renderer {
   }
 
   public registerFallbackHandler(handler: MessageTypeHandler<MessageType>) {
-    this.add('unsupported', handler)
+    this.set('unsupported', handler)
   }
 }
 
@@ -86,7 +87,13 @@ export const defaultTypesRenderers = {
   file: File,
   video: File,
   audio: File,
-  dropdown: Dropdown
+  image: File,
+  dropdown: Dropdown,
+  voice: VoiceMessage,
+  visit: () => null,
+  typing: () => null,
+  session_reset: () => null,
+  custom: CustomComponent
 }
 
 const defaultRenderer = new Renderer()

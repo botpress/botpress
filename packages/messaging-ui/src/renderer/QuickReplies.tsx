@@ -6,12 +6,6 @@ import { Button } from './Button'
 
 /**
  * Displays an array of button, and handle when they are clicked
- *
- * @param {object} buttons The list of buttons to display (object with a label and a payload)
- * @param {function} onSendData Called with the required payload to answer the quick reply
- * @param {function} onFileUpload This is called when a file is uploaded
- *
- * @return onSendData is called with the reply
  */
 export class QuickReplies extends Component<MessageTypeHandlerProps<'quick_reply'>> {
   componentDidMount() {

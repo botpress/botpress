@@ -2,7 +2,6 @@
  * @jest-environment jsdom
  */
 import { render } from '@testing-library/react'
-import { ReactElement } from 'react'
 import { Message } from 'typings'
 import { defaultMessageConfig, renderMessage } from '../'
 
@@ -17,7 +16,7 @@ describe('File renderer', () => {
 
     expect(component).toBeTruthy()
 
-    const { container } = render(component as ReactElement)
+    const { container } = render(component)
     const linkElement = container.querySelector('a')
     expect(linkElement).toBeTruthy()
     expect(linkElement?.href).toBe(url)
@@ -33,7 +32,7 @@ describe('File renderer', () => {
 
     expect(component).toBeTruthy()
 
-    const { container } = render(component as ReactElement)
+    const { container } = render(component)
     const linkElement = container.querySelector('a')
     expect(linkElement).toBeTruthy()
     expect(linkElement?.href).toBe(url)
@@ -48,7 +47,7 @@ describe('File renderer', () => {
     })
 
     expect(component).toBeTruthy()
-    const { container } = render(component as ReactElement)
+    const { container } = render(component)
 
     const el = container.querySelector('video')
     const src = container.querySelector('video source')
@@ -73,7 +72,7 @@ describe('File renderer', () => {
     })
 
     expect(component).toBeTruthy()
-    const { container } = render(component as ReactElement)
+    const { container } = render(component)
 
     const el = container.querySelector('img')
 
@@ -92,7 +91,7 @@ describe('File renderer', () => {
     const component = renderMessage(messageData)
 
     expect(component).toBeTruthy()
-    const { container } = render(component as ReactElement)
+    const { container } = render(component)
 
     const el = container.querySelector('video')
     const src = container.querySelector('video source')

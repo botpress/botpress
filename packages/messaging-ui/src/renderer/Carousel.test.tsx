@@ -37,7 +37,7 @@ describe('Carousel & Card renderer', () => {
 
     expect(component).toBeTruthy()
 
-    const { container } = render(component as ReactElement)
+    const { container } = render(component)
 
     expect(container.querySelector('.slick-slider')).toBeInTheDocument()
     expect(container.querySelector('.bpw-card-picture')).toHaveStyle(`background-image: url(${card.picture})`)
@@ -54,7 +54,7 @@ describe('Carousel & Card renderer', () => {
     const mockOnSendData = jest.fn()
     const component = renderMessage({ ...messageData, config: { ...defaultMessageConfig, onSendData: mockOnSendData } })
 
-    const { container } = render(component as ReactElement)
+    const { container } = render(component)
 
     const btnEl = container.querySelector('.bpw-card-action')
 
@@ -86,7 +86,7 @@ describe('Carousel & Card renderer', () => {
     }
     const component = renderMessage(urlBtnMessageData)
 
-    const { container } = render(component as ReactElement)
+    const { container } = render(component)
 
     const btnEl = container.querySelector('.bpw-card-action')
 

@@ -2,9 +2,7 @@
  * @jest-environment jsdom
  */
 import { render, screen } from '@testing-library/react'
-import { ReactElement } from 'react'
 import { defaultMessageConfig, renderMessage } from '../'
-import { Message } from '../typings'
 
 describe('Text renderer', () => {
   test('it renders a simple text message', () => {
@@ -16,9 +14,9 @@ describe('Text renderer', () => {
         markdown: false
       },
       config: defaultMessageConfig
-    } as Message<'text'>)
+    })
     expect(messageComponent).toBeTruthy()
-    render(messageComponent as ReactElement)
+    render(messageComponent)
     expect(screen.getByText(text)).toBeInTheDocument()
   })
 
@@ -31,9 +29,9 @@ describe('Text renderer', () => {
         markdown: false
       },
       config: defaultMessageConfig
-    } as Message<'text'>)
+    })
     expect(messageComponent).toBeTruthy()
-    render(messageComponent as ReactElement)
+    render(messageComponent)
     const anchor = screen.getByText('botpress.com')
     expect(anchor.tagName).toBe('A')
     expect(anchor.getAttribute('href')).toBe('http://botpress.com')
@@ -50,10 +48,10 @@ describe('Text renderer', () => {
         markdown: true
       },
       config: defaultMessageConfig
-    } as Message<'text'>)
+    })
 
     expect(component).toBeTruthy()
-    render(component as ReactElement)
+    render(component)
 
     const italicElement = screen.getByText('World')
     const boldElement = screen.getByText('Hello')

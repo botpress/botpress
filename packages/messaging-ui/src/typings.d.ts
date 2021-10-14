@@ -33,6 +33,7 @@ export interface MessageConfig {
   onSendData: (data: any) => Promise<void>
   onFileUpload: FileUploadHandler
   onMessageClicked: (messageId?: uuid) => void
+  onAudioEnded?: React.EventHandler<HTMLMediaElementEventMap['ended']>
 }
 
 export interface StudioConnector {
@@ -119,6 +120,14 @@ export interface QuickReplyPayload extends TextMessagePayload {
 
 export interface LoginPromptPayload {}
 
+export interface VoiceMessagePayload {
+  shouldPlay: boolean
+  file: {
+    audio: string
+    autoPlay: boolean
+  }
+}
+
 export interface CustomComponentPayload
   extends Optional<
     Pick<
@@ -156,15 +165,13 @@ export type Payload<T extends MessageType> = T extends 'text'
   : T extends 'visit'
   ? {}
   : T extends 'voice'
-  ? {}
+  ? VoiceMessagePayload
   : T extends 'typing'
   ? {}
   : T extends 'dropdown'
   ? DropdownPayload
   : T extends 'custom'
   ? CustomComponentPayload
-  : T extends 'custom_type'
-  ? any
   : T extends 'unsupported'
   ? any
   : never

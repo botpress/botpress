@@ -1,37 +1,40 @@
 import mimeTypes from 'mime/lite'
 import path from 'path'
 import React, { FC, useRef, useEffect } from 'react'
+import { MessageTypeHandlerProps } from 'typings'
 
-export const VoiceMessage: FC<any> = (props: any) => {
+export const VoiceMessage: FC<MessageTypeHandlerProps<'voice'>> = ({ payload, config }) => {
   const audioRef = useRef<HTMLAudioElement>(null)
 
   useEffect(() => {
-    audioRef.current?.addEventListener('ended', props.onAudioEnded)
+    if (config.onAudioEnded) {
+      audioRef.current?.addEventListener('ended', config.onAudioEnded)
 
-    return () => audioRef.current?.removeEventListener('ended', props.onAudioEnded)
-  }, [])
+      return () => audioRef.current?.removeEventListener('ended', config.onAudioEnded!)
+    }
+  }, [config.onAudioEnded])
 
   useEffect(() => {
     // Simulate an autoplay by playing every voice messages of a single message group one after the other
-    if (props.file.autoPlay && props.shouldPlay) {
-      // TODO: handle this appropriately
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      audioRef.current?.play()
+    if (payload.file.autoPlay && payload.shouldPlay) {
+      audioRef.current?.play().catch((err: Error) => {
+        console.error(`An error occured while playing the voice message: ${err.message}`)
+      })
     }
-  }, [props.file.autoPlay, props.shouldPlay])
+  }, [payload.file.autoPlay, payload.shouldPlay])
 
-  if (!props.file) {
+  if (!payload.file) {
     return null
   }
 
-  const { audio } = props.file
+  const { audio } = payload.file
 
   const extension = path.extname(audio)
   const mime = mimeTypes.getType(extension)
 
   return (
     <audio controls ref={audioRef}>
-      <source src={audio} type={mime || 'audio/mp3'} />
+      <source src={audio} type={mime || 'audio/mpeg'} />
     </audio>
   )
 }
