@@ -10,7 +10,9 @@ let db: WebchatDatabase
 const onServerStarted = async (bp: typeof sdk) => {
   db = new WebchatDatabase(bp)
   await db.initialize()
+}
 
+const onServerReady = async (bp: typeof sdk) => {
   await api(bp, db)
   await socket(bp, db)
 }
@@ -26,6 +28,7 @@ const onBotUnmount = async (bp: typeof sdk, botId: string) => {
 
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
+  onServerReady,
   onModuleUnmount,
   onBotUnmount,
   definition: {
