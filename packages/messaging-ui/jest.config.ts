@@ -7,7 +7,7 @@ const config: Config.InitialOptions = {
   roots: ['.'],
   transform: {
     '^.+\\.tsx?$': 'ts-jest',
-    ".+\\.(css|styl|less|sass|scss)$": "jest-transform-css"
+    ".+\\.(css|styl|less|sass|scss)$": "jest-css-modules-transform"
   },
   testPathIgnorePatterns: ['<rootDir>/node_modules', '<rootDir>/dist'],
   setupFilesAfterEnv: ['<rootDir>/jest.setup.ts'],
