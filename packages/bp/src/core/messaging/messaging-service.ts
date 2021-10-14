@@ -8,8 +8,6 @@ import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import { MessageNewEventData } from './messaging-router'
 
-const DEFAULT_TYPING_DELAY = 500
-
 @injectable()
 export class MessagingService {
   private clientSync!: MessagingClient
