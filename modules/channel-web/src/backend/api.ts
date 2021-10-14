@@ -119,45 +119,53 @@ export default async (bp: typeof sdk, db: Database) => {
 
   const assertUserInfo = (options: { convoIdRequired?: boolean } = {}) => async (
     req: ChatRequest,
-    _res: Response,
+    res: Response,
     next: NextFunction
   ) => {
-    const { botId } = req.params
-    const { conversationId, webSessionId } = req.body || {}
+    try {
+      const { botId } = req.params
+      const { conversationId, webSessionId } = req.body || {}
 
-    req.visitorId = await bp.realtime.getVisitorIdFromGuestSocketId(webSessionId)
-    if (!req.visitorId) {
-      return next(ERR_BAD_USER_SESSION_ID)
-    }
-
-    if (!userIdIsValid(req.visitorId)) {
-      return next(ERR_USER_ID_INVALID)
-    }
-
-    req.messaging = await db.getMessagingClient(botId)
-    const userId = await db.mapVisitor(botId, req.visitorId, req.messaging)
-
-    if (conversationId) {
-      let conversation: Conversation
-      try {
-        conversation = await req.messaging.conversations.get(conversationId)
-      } catch {}
-
-      if (!conversation || !userId || conversation.userId !== userId) {
-        return next(ERR_BAD_CONV_ID)
+      req.visitorId = await bp.realtime.getVisitorIdFromGuestSocketId(webSessionId)
+      if (!req.visitorId) {
+        return next(ERR_BAD_USER_SESSION_ID)
       }
 
-      req.conversationId = conversationId
+      if (!userIdIsValid(req.visitorId)) {
+        return next(ERR_USER_ID_INVALID)
+      }
+
+      req.messaging = await db.getMessagingClient(botId)
+      if (!req.messaging) {
+        return res.sendStatus(404)
+      }
+
+      const userId = await db.mapVisitor(botId, req.visitorId, req.messaging)
+
+      if (conversationId) {
+        let conversation: Conversation
+        try {
+          conversation = await req.messaging.conversations.get(conversationId)
+        } catch {}
+
+        if (!conversation || !userId || conversation.userId !== userId) {
+          return next(ERR_BAD_CONV_ID)
+        }
+
+        req.conversationId = conversationId
+      }
+
+      if (options.convoIdRequired && req.conversationId === undefined) {
+        return next(ERR_CONV_ID_REQ)
+      }
+
+      req.botId = botId
+      req.userId = userId
+
+      next()
+    } catch (e) {
+      return res.sendStatus(500)
     }
-
-    if (options.convoIdRequired && req.conversationId === undefined) {
-      return next(ERR_CONV_ID_REQ)
-    }
-
-    req.botId = botId
-    req.userId = userId
-
-    next()
   }
 
   router.get(

@@ -112,14 +112,17 @@ export default class WebchatDb {
       return client
     }
 
-    const { messaging } = await this.bp.bots.getBotById(botId)
+    const botConfig = await this.bp.bots.getBotById(botId)
+    if (!botConfig) {
+      return undefined
+    }
 
     const botClient = new MessagingClient({
       url: process.core_env.MESSAGING_ENDPOINT
         ? process.core_env.MESSAGING_ENDPOINT
         : `http://localhost:${process.MESSAGING_PORT}`,
       password: process.INTERNAL_PASSWORD,
-      auth: { clientId: messaging.id, clientToken: messaging.token }
+      auth: { clientId: botConfig.messaging.id, clientToken: botConfig.messaging.token }
     })
     this.messagingClients[botId] = botClient
 
