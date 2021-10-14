@@ -1,10 +1,10 @@
 import mimeTypes from 'mime/lite'
 import React from 'react'
-import { Message } from '../typings'
+import { MessageTypeHandlerProps } from '../typings'
 
 import { Text } from './Text'
 
-export const File = ({ payload, config }: Message<'file'>) => {
+export const File = ({ payload, config }: MessageTypeHandlerProps<'file' | 'video' | 'audio'>) => {
   if (!payload.file) {
     return null
   }
@@ -23,7 +23,7 @@ export const File = ({ payload, config }: Message<'file'>) => {
   const mime = mimeTypes.getType(extension)
 
   if (text) {
-    return <Text payload={{ text, markdown: false }} config={config} />
+    return <Text type={'text'} payload={{ text, markdown: false }} config={config} />
   }
 
   if (storage === 'local') {

@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react'
 import Select from 'react-select'
 import Creatable from 'react-select/creatable'
-import { DropdownOption, Message } from 'typings'
+import { DropdownOption, MessageTypeHandlerProps } from 'typings'
 import Keyboard, { Prepend } from '../Keyboard'
 import { renderUnsafeHTML } from '../utils'
 
-export const Dropdown = ({ payload, config }: Message<'dropdown'>) => {
+export const Dropdown = ({ payload, config }: MessageTypeHandlerProps<'dropdown'>) => {
   const [options, setOptions] = useState<DropdownOption[]>([])
   const [selectedOption, setSelectedOption] = useState<any>()
 

@@ -13,7 +13,7 @@ describe('File renderer', () => {
       type: 'file',
       payload: { file: { url } },
       config: defaultMessageConfig
-    } as Message<'file'>)
+    })
 
     expect(component).toBeTruthy()
 
@@ -29,7 +29,7 @@ describe('File renderer', () => {
       type: 'file',
       payload: { file: { url } },
       config: defaultMessageConfig
-    } as Message<'file'>)
+    })
 
     expect(component).toBeTruthy()
 
@@ -45,7 +45,7 @@ describe('File renderer', () => {
       type: 'file',
       payload: { file: { url } },
       config: defaultMessageConfig
-    } as Message<'file'>)
+    })
 
     expect(component).toBeTruthy()
     const { container } = render(component as ReactElement)
@@ -64,9 +64,13 @@ describe('File renderer', () => {
     const url = 'https://upload.wikimedia.org/wikipedia/commons/9/90/Touched_by_His_Noodly_Appendage_HD.jpg'
     const component = renderMessage({
       type: 'file',
-      payload: { file: { url } },
+      payload: {
+        file: {
+          url
+        }
+      },
       config: defaultMessageConfig
-    } as Message<'file'>)
+    })
 
     expect(component).toBeTruthy()
     const { container } = render(component as ReactElement)

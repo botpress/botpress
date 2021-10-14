@@ -1,7 +1,7 @@
 import React, { ReactElement } from 'react'
 import ReactDOM from 'react-dom'
 import { Dropdown } from 'renderer/Dropdown'
-import { Message, MessageConfig, MessageType, MessageTypeTuple, Payload } from 'typings'
+import { Message, MessageConfig, MessageType, MessageTypeHandlerProps } from 'typings'
 import { FallthroughIntl } from 'utils'
 import { Carousel, File, LoginPrompt, QuickReplies, Text } from './renderer'
 
@@ -28,47 +28,52 @@ export const defaultMessageConfig: MessageConfig = {
   sentOn: new Date(Date.now())
 }
 
-export function renderMessage(message: Message<MessageType>, renderer: Renderer = defaultRenderer): ReactElement {
+export function renderMessage<T extends MessageType>(
+  message: Message<T>,
+  renderer: Renderer = defaultRenderer
+): ReactElement {
   return renderer.render(message)
 }
 
-type MessageTypeHandler<T extends MessageType> = React.FC<Message<T>>
+type MessageTypeHandler<T extends MessageType> =
+  | React.ComponentType<MessageTypeHandlerProps<T>>
+  | React.FC<MessageTypeHandlerProps<T>>
 
 export class Renderer {
-  private handlers: Map<string, MessageTypeHandler<MessageType>> = new Map()
+  private handlers: Partial<Record<MessageType, MessageTypeHandler<MessageType>>> = {}
 
   constructor() {
-    this.add('unsupported', (message: Message<'unsupported'>) => <div>Unsupported message type: {message.type}</div>)
+    this.add('unsupported', ({ type }) => <div>Unsupported message type: {type}</div>)
   }
 
   public add<T extends MessageType>(type: T, handler: MessageTypeHandler<T>) {
-    this.handlers.set(type, handler)
+    this.handlers[type as MessageType] = handler as MessageTypeHandler<MessageType>
   }
 
   public register(handlers: Partial<{ [key in MessageType]: MessageTypeHandler<key> }>) {
     for (const type in handlers) {
-      this.add(type as MessageType, handlers[type]!)
+      this.add(type as MessageType, handlers[type])
     }
   }
 
-  public get<T extends MessageType>(type: T): MessageTypeHandler<T | 'unsupported'> {
-    const handler = this.handlers.get(type) || null
+  public get<T extends MessageType>(type: T): MessageTypeHandler<T> {
+    const handler = this.handlers[type] || null
     if (!handler) {
-      return this.get('unsupported')
+      return this.get('unsupported') as MessageTypeHandler<T>
     }
-    return handler
+    return handler as MessageTypeHandler<T>
   }
 
   public has(type: MessageType): boolean {
-    return !!this.handlers.has(type)
+    return !!this.handlers[type]
   }
 
-  public render(message: Message<MessageType>): ReactElement {
+  public render(message: Message<MessageType>): ReactElement<Message<MessageType>> {
     const Handler = this.get(message.type)
     return <Handler {...message} />
   }
 
-  public registerFallbackHandler(handler: MessageTypeHandler<'unsupported'>) {
+  public registerFallbackHandler(handler: MessageTypeHandler<MessageType>) {
     this.add('unsupported', handler)
   }
 }

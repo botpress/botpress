@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react'
 import { pick } from 'utils'
 import Keyboard from '../Keyboard'
-import { CustomComponentPayload, Message } from '../typings'
+import { CustomComponentPayload, MessageTypeHandlerProps } from '../typings'
 
 const checkError = (moduleInjector: Function, payload: CustomComponentPayload): Error | null => {
   const errorPrepend = 'Custom component error: '
@@ -17,7 +17,7 @@ const checkError = (moduleInjector: Function, payload: CustomComponentPayload): 
   return null
 }
 
-export const CustomComponent: React.FC<Message<'custom'>> = ({ config, payload }) => {
+export const CustomComponent: React.FC<MessageTypeHandlerProps<'custom'>> = ({ config, payload }) => {
   const InjectedModuleView = config.bp?.getModuleInjector()
   const error = useMemo(() => checkError(InjectedModuleView, payload), [InjectedModuleView, payload])
   if (error) {

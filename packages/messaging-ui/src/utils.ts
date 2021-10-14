@@ -14,7 +14,9 @@ export const messageTypes = [
   'login_prompt',
   'quick_reply',
   'session_reset',
-  'custom'
+  'custom',
+  'custom_type',
+  'unsupported'
 ] as const
 
 export const renderUnsafeHTML = (message: string = '', escaped: boolean): string => {

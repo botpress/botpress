@@ -46,7 +46,7 @@ export interface StudioConnector {
 
 type MessageTypeTuple = typeof messageTypes
 
-export type MessageType = MessageTypeTuple[number] | string
+export type MessageType = MessageTypeTuple[number]
 
 export interface Message<T extends MessageType> {
   type: T
@@ -163,6 +163,12 @@ export type Payload<T extends MessageType> = T extends 'text'
   ? DropdownPayload
   : T extends 'custom'
   ? CustomComponentPayload
-  : T extends string
+  : T extends 'custom_type'
+  ? any
+  : T extends 'unsupported'
   ? any
   : never
+
+export type MessageTypeHandlerProps<T extends MessageType> = Message<T> & {
+  type?: T
+}
