@@ -23,7 +23,7 @@ export const File = ({ payload, config }: MessageTypeHandlerProps<'file' | 'vide
   const mime = mimeTypes.getType(extension)
 
   if (text) {
-    return <Text type={'text'} payload={{ text, markdown: false }} config={config} />
+    return <Text payload={{ text, markdown: false }} config={config} />
   }
 
   if (storage === 'local') {

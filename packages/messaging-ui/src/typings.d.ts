@@ -176,6 +176,6 @@ export type Payload<T extends MessageType> = T extends 'text'
   ? any
   : never
 
-export type MessageTypeHandlerProps<T extends MessageType> = Message<T> & {
-  type?: T
+export type MessageTypeHandlerProps<T extends MessageType> = Omit<Message<T>, 'type'> & {
+  type?: T // makes passing type prop to Components optional
 }

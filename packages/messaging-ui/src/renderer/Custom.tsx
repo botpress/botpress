@@ -42,7 +42,7 @@ export const CustomComponent: React.FC<MessageTypeHandlerProps<'custom'>> = ({ c
     ...sanitizedProps,
     messageDataProps: { ...payload },
     keyboard: Keyboard,
-    children: payload.wrapped && <CustomComponent type={'custom'} config={config} payload={payload.wrapped} />
+    children: payload.wrapped && <CustomComponent config={config} payload={payload.wrapped} />
   }
 
   return (
