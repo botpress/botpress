@@ -34,6 +34,17 @@ const DEFAULT_NLU_CORE_CONFIG: NLUCoreConfig = {
   }
 }
 
+const DEFAULT_NLU_MOD_CONFIG: NLUModConfig = {
+  nluServer: { autoStart: true },
+  legacyElection: false,
+  queueTrainingOnBotMount: false,
+  modelCacheSize: '850mb',
+  maxTrainingPerInstance: 1,
+  ducklingEnabled: true,
+  ducklingURL: 'https://duckling.botpress.io',
+  languageSources: [{ endpoint: 'https://lang-01.botpress.io' }]
+}
+
 const mapModConfigToCore = (modConfig: NLUModConfig): NLUCoreConfig => {
   const {
     ducklingEnabled,
@@ -59,7 +70,8 @@ const mapModConfigToCore = (modConfig: NLUModConfig): NLUCoreConfig => {
 const mapCoreConfigToMod = (coreConfig: NLUCoreConfig): NLUModConfig => {
   const { queueTrainingOnBotMount, nluServer } = coreConfig
 
-  const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize, maxTraining } = nluServer
+  const nluServerConfig = { ...DEFAULT_NLU_MOD_CONFIG, ...(nluServer ?? {}) }
+  const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize, maxTraining } = nluServerConfig
 
   return {
     nluServer: {

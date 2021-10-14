@@ -184,16 +184,14 @@ export class Botpress {
   }
 
   private async maybeStartLocalSTAN() {
-    const { nlu: nluConfig } = await this.configProvider.getBotpressConfig()
-
-    const { nluServer } = nluConfig
-    const { modelCacheSize, languageSources, ducklingURL, ducklingEnabled, maxTraining } = nluServer
-
     if (process.core_env.NLU_ENDPOINT) {
       process.NLU_ENDPOINT = process.core_env.NLU_ENDPOINT
       AppLifecycle.setDone(AppLifecycleEvents.NLU_ENDPOINT_KNOWN)
       return
     }
+
+    const { nlu: nluConfig } = await this.configProvider.getBotpressConfig()
+    const { nluServer: nluServerConfig } = nluConfig
 
     const debugScopes = getDebugScopes()
     const nluDebugScopes = Object.entries(debugScopes)
@@ -206,15 +204,11 @@ export class Botpress {
     const logFilter = nluDebugScopes.length ? nluDebugScopes : undefined
 
     startLocalNLUServer({
-      languageSources,
-      ducklingEnabled,
-      ducklingURL,
       dbURL: process.core_env.BPFS_STORAGE === 'database' ? process.core_env.DATABASE_URL : undefined,
       modelDir: process.cwd(),
-      modelCacheSize,
-      logFilter,
       verbose,
-      maxTraining
+      logFilter,
+      ...(nluServerConfig ?? {})
     })
   }
 

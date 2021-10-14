@@ -1,9 +1,11 @@
 import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
-import axios from 'axios'
+import axios, { AxiosInstance } from 'axios'
 import { StandardError, UnexpectedError } from 'common/http'
 import Joi from 'joi'
 import _ from 'lodash'
+
+const NO_LANG_SOURCES_MSG = 'Your Botpress config has no defined language sources.'
 
 class LanguagesRouter extends CustomAdminRouter {
   private readonly resource = 'admin.languages'
@@ -13,9 +15,19 @@ class LanguagesRouter extends CustomAdminRouter {
     this.setupRoutes()
   }
 
-  async getSourceClient() {
+  private async _getSourceClient(): Promise<AxiosInstance | undefined> {
     const { nlu: nluConfig } = await this.configProvider.getBotpressConfig()
-    const source = nluConfig.nluServer.languageSources[0]
+
+    const { nluServer: nluServerConfig } = nluConfig
+    if (!nluServerConfig) {
+      return
+    }
+    const { languageSources } = nluServerConfig
+    if (!languageSources) {
+      return
+    }
+
+    const source = languageSources[0]
 
     const headers = {
       timeout: 20000,
@@ -52,7 +64,12 @@ class LanguagesRouter extends CustomAdminRouter {
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         try {
-          const client = await this.getSourceClient()
+          const client = await this._getSourceClient()
+          if (!client) {
+            this.logger.warn(NO_LANG_SOURCES_MSG)
+            return res.status(404).send(NO_LANG_SOURCES_MSG)
+          }
+
           const { data } = await client.get('/languages')
 
           res.send({
@@ -70,8 +87,14 @@ class LanguagesRouter extends CustomAdminRouter {
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const { nlu: nluConfig } = await this.configProvider.getBotpressConfig()
+        const { nluServer: nluServerConfig } = nluConfig
+        if (!nluServerConfig) {
+          this.logger.warn(NO_LANG_SOURCES_MSG)
+          return res.status(404).send(NO_LANG_SOURCES_MSG)
+        }
+
         res.send({
-          languageSources: nluConfig.nluServer.languageSources
+          languageSources: nluServerConfig.languageSources
         })
       })
     )
@@ -81,7 +104,12 @@ class LanguagesRouter extends CustomAdminRouter {
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         try {
-          const client = await this.getSourceClient()
+          const client = await this._getSourceClient()
+          if (!client) {
+            this.logger.warn(NO_LANG_SOURCES_MSG)
+            return res.status(404).send(NO_LANG_SOURCES_MSG)
+          }
+
           await client.get('/info').then(({ data }) => res.send(data))
         } catch (err) {
           throw new StandardError('Could not get language info', err)
@@ -94,7 +122,12 @@ class LanguagesRouter extends CustomAdminRouter {
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         try {
-          const client = await this.getSourceClient()
+          const client = await this._getSourceClient()
+          if (!client) {
+            this.logger.warn(NO_LANG_SOURCES_MSG)
+            return res.status(404).send(NO_LANG_SOURCES_MSG)
+          }
+
           await client.post('/languages/' + req.params.lang).then(({ data }) => res.send(data))
         } catch (err) {
           throw new StandardError('Could not add language', err)
@@ -107,7 +140,12 @@ class LanguagesRouter extends CustomAdminRouter {
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         try {
-          const client = await this.getSourceClient()
+          const client = await this._getSourceClient()
+          if (!client) {
+            this.logger.warn(NO_LANG_SOURCES_MSG)
+            return res.status(404).send(NO_LANG_SOURCES_MSG)
+          }
+
           await client.post(`/languages/${req.params.lang}/load`).then(({ data }) => res.send(data))
         } catch (err) {
           throw new StandardError('Could not load language', err)
@@ -120,7 +158,12 @@ class LanguagesRouter extends CustomAdminRouter {
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         try {
-          const client = await this.getSourceClient()
+          const client = await this._getSourceClient()
+          if (!client) {
+            this.logger.warn(NO_LANG_SOURCES_MSG)
+            return res.status(404).send(NO_LANG_SOURCES_MSG)
+          }
+
           await client.post(`/languages/${req.params.lang}/delete`).then(({ data }) => res.send(data))
         } catch (err) {
           throw new StandardError('Could not delete language', err)
@@ -133,19 +176,16 @@ class LanguagesRouter extends CustomAdminRouter {
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
         let languagesData: any = { installed: [], available: [] }
+        const client = await this._getSourceClient()
+        if (!client) {
+          this.logger.warn(NO_LANG_SOURCES_MSG)
+          return res.status(404).send(NO_LANG_SOURCES_MSG)
+        }
+
         try {
-          const client = await this.getSourceClient()
           languagesData = (await client.get('/languages')).data
         } catch (e) {
-          try {
-            const { nlu: nluConfig } = await this.configProvider.getBotpressConfig()
-            const { languageSources } = nluConfig.nluServer
-            if (languageSources.length && languageSources[0].endpoint) {
-              this.logger.warn("Please remove the languageSources from nlu.json if you don't want to use it")
-            }
-          } catch (e) {
-            this.logger.warn('NLU module is disabled')
-          }
+          this.logger.warn('Language server is unreachable.')
         }
 
         const languages = [

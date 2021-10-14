@@ -363,11 +363,10 @@ export interface BotpressConfig {
   nlu: {
     /**
      * Whether or not to train bots on mount
-     * @optional
+     * @default false
      */
     queueTrainingOnBotMount?: boolean
-
-    nluServer: NLUServerConfig
+    nluServer?: Partial<NLUServerConfig>
   }
 }
 
@@ -394,9 +393,9 @@ export interface NLUServerConfig {
 
   /**
    * Maximum allowed model cache size
-   * @default 850mb
+   * @optional
    */
-  modelCacheSize: string
+  modelCacheSize?: string
 
   /**
    * Maximum number of concurrent trainings for the NLU Server instance
