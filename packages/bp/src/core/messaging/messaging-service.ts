@@ -16,7 +16,7 @@ export class MessagingService {
   private clientsByBotId: { [botId: string]: MessagingClient } = {}
   private botsByClientId: { [clientId: string]: string } = {}
   private webhookTokenByClientId: { [botId: string]: string } = {}
-  private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
+  private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage', 'messaging']
   private newUsers: number = 0
 
   public isExternal: boolean
