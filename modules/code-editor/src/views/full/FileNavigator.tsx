@@ -41,6 +41,7 @@ class FileNavigator extends React.Component<Props, State> {
 
   componentDidMount() {
     observe(this.props.filters, 'filename', this.refreshNodes, true)
+    observe(this.props.keyStates, 'action', this.fireBooks, true)
     observe(this.props.editor, 'fileChangeStatus', this.refreshNodes, true)
   }
 
@@ -48,12 +49,14 @@ class FileNavigator extends React.Component<Props, State> {
     if (this.props.files && prevProps.files !== this.props.files) {
       this.refreshNodes()
     }
+
     if (this.props.selectedNode !== prevProps.selectedNode) {
       const { nodes } = this.state
       const selectedNode = this.props.selectedNode.replace(`${this.props.id}/`, '')
       this.traverseTree(nodes, n => (n.isSelected = selectedNode === n.id))
       this.setState({ nodes })
     }
+
     if (this.props.isMultipleCutActive !== prevProps.isMultipleCutActive && !this.props.isMultipleCutActive) {
       this.setState((prevState: State) => {
         const { nodes } = prevState
@@ -65,6 +68,10 @@ class FileNavigator extends React.Component<Props, State> {
         }
       })
     }
+  }
+
+  fireBooks = () => {
+    console.log('props.filter', this.props.keyStates.action)
   }
 
   refreshNodes = () => {
@@ -119,6 +126,7 @@ class FileNavigator extends React.Component<Props, State> {
 
   private handleNodeClick = async (node: ITreeNode) => {
     if (this.props.isMultipleCutActive) {
+
       this.handleMultipleSelectClick(node)
     } else {
       await this.handleSingleNodeSelectedClick(node)
@@ -382,6 +390,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   store,
   editor: store.editor,
   filters: store.filters,
+  keyStates: store.keyStates,
   deleteFile: store.deleteFile,
   renameFile: store.renameFile,
   enableFile: store.enableFile,
@@ -403,7 +412,7 @@ type Props = {
   moveFile?: (file: any) => void
   expandedNodes: object
   selectedNode: string
-} & Pick<StoreDef, 'filters' | 'deleteFile' | 'renameFile' | 'disableFile' | 'enableFile' | 'duplicateFile'>
+} & Pick<StoreDef, 'keyStates' | 'filters' | 'deleteFile' | 'renameFile' | 'disableFile' | 'enableFile' | 'duplicateFile'>
 
 interface State {
   nodes: ITreeNode[]

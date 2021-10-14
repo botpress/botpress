@@ -64,7 +64,9 @@
     "editorDesc": "Editor de código le permite crear y editar acciones sin salir de smartbots studio. Cuenta con mecanografías y finalización inteligente del código. Para editar archivos globales y contenido generado por módulos, debe habilitarlo editando el archivo de configuración code-editor.json.",
     "newFile": "Nuevo archivo",
     "rawEditorDesc": "El editor de archivos sin procesar no tiene medidas de seguridad y puede meterse fácilmente archivos importantes. ¡Manéjalo con cuidado! Puede editar cualquier archivo contenido en la carpeta de datos, crear nuevos archivos y mover los archivos existentes.",
-    "saveFile": "Guardar archivo"
+    "saveFile": "Guardar archivo",
+    "selectMultipleFiles": "Sélectionner plusieurs fichiers",
+    "selectInBetweenFiles": "Enregistrer le fichier"
   },
   "store": {
     "alreadyExists": "Ya existe un archivo con ese nombre",

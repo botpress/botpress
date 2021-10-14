@@ -25,6 +25,8 @@ export default ({ hasRawPermissions, isAdvanced, setAdvanced }) => (
     <KeyboardShortcut label={lang.tr('module.code-editor.splash.saveFile')} keys={['ACTION', 's']} />
     <KeyboardShortcut label={lang.tr('module.code-editor.splash.newFile')} keys={['ACTION', 'alt', 'n']} />
     <KeyboardShortcut label={lang.tr('module.code-editor.splash.commandPalette')} keys={['ACTION', 'shift', 'p']} />
+    <KeyboardShortcut label={lang.tr('module.code-editor.splash.selectMultipleFiles')} keys={['click', 'ACTION']} />
+    <KeyboardShortcut label={lang.tr('module.code-editor.splash.selectInBetweenFiles')} keys={['click', 'shift']} />
     <br />
     {hasRawPermissions && (
       <div>

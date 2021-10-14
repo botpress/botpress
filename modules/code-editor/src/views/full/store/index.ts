@@ -3,7 +3,7 @@ import { action, observable, runInAction } from 'mobx'
 import path from 'path'
 
 import { EditableFile, FilePermissions, FilesDS, FileType } from '../../../backend/typings'
-import { FileFilters } from '../typings'
+import { ActionPosition, ActionPositionType, FileFilters, KeyStates } from '../typings'
 import { FILENAME_REGEX } from '../utils'
 import { baseHook, httpAction, legacyAction } from '../utils/templates'
 
@@ -36,12 +36,18 @@ class RootStore {
   @observable
   public fileFilter: string
 
+  @observable
+  public keyStates: KeyStates
+
   constructor({ bp }) {
     this.api = new CodeEditorApi(bp.axios)
     this.editor = new EditorStore(this)
     // Object required for the observer to be useful.
     this.filters = {
       filename: ''
+    }
+    this.keyStates = {
+      action: ActionPosition.DOWN
     }
   }
 
@@ -133,6 +139,12 @@ class RootStore {
   createNewAction() {
     // This is called by the code editor & the shortcut, so it's the default create
     return this.createFilePrompt('action_http', false)
+  }
+
+  @action.bound
+  updateKeyActionState(actionState: ActionPositionType) {
+    // This is called by the code editor & the shortcut, so it's the default create
+    this.keyStates.action = actionState
   }
 
   @action.bound

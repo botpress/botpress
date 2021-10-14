@@ -13,7 +13,6 @@ import {
   Tooltip
 } from '@blueprintjs/core'
 import cx from 'classnames'
-import _ from 'lodash'
 import React, { FC, useState, useEffect } from 'react'
 import { HotKeys } from 'react-hotkeys'
 import SplitPane from 'react-split-pane'

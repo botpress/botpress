@@ -64,7 +64,9 @@
     "editorDesc": "L'éditeur de code vous permet de créer et de modifier des actions sans quitter le studio. Il comporte des typages et une complétion de code intelligente. Pour afficher les fichiers globaux et le contenu généré par les modules, vous devez activer la fonctionnalité en modifiant le fichier de configuration code-editor.json.",
     "newFile": "Nouveau fichier",
     "rawEditorDesc": "L'éditeur de fichiers bruts n'a aucune protection et vous pouvez facilement corrompre les fichiers importants. Manipulez avec soin! Vous pouvez modifier n'importe quel fichier contenu dans le dossier 'data', créer de nouveaux fichier et déplacer des fichiers existants.",
-    "saveFile": "Enregistrer le fichier"
+    "saveFile": "Enregistrer le fichier",
+    "selectMultipleFiles": "Seleccionar varios archivos",
+    "selectInBetweenFiles": "Seleccionar archivos de un rango"
   },
   "store": {
     "alreadyExists": "Un fichier portant ce nom existe déjà",
