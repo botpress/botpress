@@ -12,7 +12,7 @@ Botpress is the standard developer stack to build, run and improve Conversationa
 - Conversation Studio to design a conversation, manage content, code custom integration
 - Easy integration with messaging channels (Messenger, WhatsApp, Slack, Teams, Webchat, Telegram, SMS & more)
 - Natural Language Understanding
-- Complete list features and specs [here](https://botpress.com/docs/features)
+- Complete list of features and specs [here](https://botpress.com/docs/features)
 
 ## Getting Started
 
