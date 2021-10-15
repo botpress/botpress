@@ -6,6 +6,7 @@ import { connect, ConnectedProps } from 'react-redux'
 import api from '~/app/api'
 import PageContainer from '~/app/common/PageContainer'
 import { AppState } from '~/app/rootReducer'
+import { LanguageSource } from '../languages/typings'
 import { DiagReport } from './DiagReport'
 import Item from './Item'
 import { fetchServerConfig } from './reducer'
@@ -53,7 +54,7 @@ const Container = props => {
 }
 
 export const Checklist: FC<Props> = props => {
-  const [langSource, setLangSource] = useState<any>()
+  const [langSource, setLangSource] = useState<LanguageSource[] | undefined>()
   const [hasAuditTrail, setAuditTrail] = useState(false)
   const [stickyEnabled, setStickyEnabled] = useState(false)
 
@@ -66,8 +67,10 @@ export const Checklist: FC<Props> = props => {
   }, [])
 
   const loadData = async () => {
-    const { data: sources } = await api.getSecured().get('/admin/management/languages/sources')
-    setLangSource(sources.languageSources)
+    const { data: sources, status } = await api.getSecured().get('/admin/management/languages/sources', {
+      validateStatus: (s: number) => (s >= 200 && s < 300) || s === 404
+    })
+    status !== 404 && setLangSource(sources.languageSources)
 
     await checkAuditTrail()
     await checkStickySessions()
@@ -108,7 +111,7 @@ export const Checklist: FC<Props> = props => {
   const getConfig = (path: string): any => getDisplayValue(_.get(props.serverConfig!.config, path))
   const getLive = (path: string): any => getDisplayValue(_.get(props.serverConfig!.live, path))
 
-  const languageEndpoint = _.get(langSource, '[0].endpoint', '')
+  const languageEndpoint = langSource ? langSource[0].endpoint : ''
 
   return (
     <Container>
@@ -230,16 +233,19 @@ export const Checklist: FC<Props> = props => {
           be configured beforehand. Please refer to the documentation before enabling this feature.
         </Item>
 
-        <Item
-          title="Host your own language server"
-          docs="https://botpress.com/docs/advanced/hosting/#language-server"
-          status={languageEndpoint.includes('botpress.io') ? 'warning' : 'success'}
-          source={[{ type: 'config', key: 'nlu.json: languageSources', value: languageEndpoint }]}
-        >
-          The default language server configured with Botpress is a public server, which has request limitations and
-          should not be relied upon when serving customers. Please follow the instructions in our documentation to setup
-          your own, then change the server URL in the configuration file <strong>global/data/config/nlu.json</strong>
-        </Item>
+        {languageEndpoint && (
+          <Item
+            title="Host your own language server"
+            docs="https://botpress.com/docs/advanced/hosting/#language-server"
+            status={languageEndpoint.includes('botpress.io') ? 'warning' : 'success'}
+            source={[{ type: 'config', key: 'nlu.json: languageSources', value: languageEndpoint }]}
+          >
+            The default language server configured with Botpress is a public server, which has request limitations and
+            should not be relied upon when serving customers. Please follow the instructions in our documentation to
+            setup your own, then change the server URL in the configuration file{' '}
+            <strong>global/data/config/nlu.json</strong>
+          </Item>
+        )}
 
         <Item
           title="Securing your server with HTTPS"

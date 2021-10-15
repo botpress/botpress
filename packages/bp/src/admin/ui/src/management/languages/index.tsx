@@ -91,7 +91,7 @@ export default () => {
       ) : loading ? (
         <div>{lang.tr('admin.languages.loading')}</div>
       ) : (
-        <div>{lang.tr('admin.languages.notManageable')}</div>
+        <Callout intent="warning">{lang.tr('admin.languages.notManageable')}</Callout>
       )}
     </PageContainer>
   )
