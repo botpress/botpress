@@ -543,7 +543,7 @@ export class BotService {
       const scopedGhost = this.ghostService.forBot(botConfig.id)
       const files = this._loadBotTemplateFiles(templatePath)
       if (fse.existsSync(templateConfigPath)) {
-        const templateConfig = JSON.parse(await fse.readFileSync(templateConfigPath, 'utf-8'))
+        const templateConfig = JSON.parse(await fse.readFile(templateConfigPath, 'utf-8'))
         const mergedConfigs = {
           ...DEFAULT_BOT_CONFIGS,
           ...templateConfig,

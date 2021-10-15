@@ -72,8 +72,8 @@ export const onWebWorkerExit = (code, signal, logger, exitedAfterDisconnect) => 
     signal,
     logger,
     exitedAfterDisconnect,
-    restartMethod: async () => {
-      await spawnWebWorker()
+    restartMethod: () => {
+      spawnWebWorker()
     }
   })
 }
