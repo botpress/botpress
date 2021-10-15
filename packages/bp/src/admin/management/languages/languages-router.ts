@@ -83,6 +83,19 @@ class LanguagesRouter extends CustomAdminRouter {
     )
 
     router.get(
+      '/nlu-sources',
+      this.needPermissions('read', this.resource),
+      this.asyncMiddleware(async (req, res) => {
+        const nluEndpoint = process.NLU_ENDPOINT
+        const isExternal = !!process.core_env.NLU_ENDPOINT
+        res.send({
+          nluEndpoint,
+          isExternal
+        })
+      })
+    )
+
+    router.get(
       '/sources',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
@@ -92,9 +105,14 @@ class LanguagesRouter extends CustomAdminRouter {
           this.logger.warn(NO_LANG_SOURCES_MSG)
           return res.status(404).send(NO_LANG_SOURCES_MSG)
         }
+        const { languageSources } = nluServerConfig
+        if (!languageSources) {
+          this.logger.warn(NO_LANG_SOURCES_MSG)
+          return res.status(404).send(NO_LANG_SOURCES_MSG)
+        }
 
         res.send({
-          languageSources: nluServerConfig.languageSources
+          languageSources
         })
       })
     )
