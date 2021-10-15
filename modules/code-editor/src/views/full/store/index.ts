@@ -3,7 +3,7 @@ import { action, observable, runInAction } from 'mobx'
 import path from 'path'
 
 import { EditableFile, FilePermissions, FilesDS, FileType } from '../../../backend/typings'
-import { ActionPosition, ActionPositionType, FileFilters, KeyStates } from '../typings'
+import { KeyPosition, ActionPositionType, FileFilters, KeyStates } from '../typings'
 import { FILENAME_REGEX } from '../utils'
 import { baseHook, httpAction, legacyAction } from '../utils/templates'
 
@@ -47,7 +47,8 @@ class RootStore {
       filename: ''
     }
     this.keyStates = {
-      action: ActionPosition.DOWN
+      action: KeyPosition.UP,
+      shift: KeyPosition.UP
     }
   }
 
@@ -191,15 +192,54 @@ class RootStore {
     }
   }
 
+  getOriginalFolderName(folderName: string): string {
+    return folderName === 'Data' ? '/' : folderName
+  }
+
   @action.bound
-  async bulkRenameFiles(files: EditableFile[], folderName: string) {
+  async bulkCutPasteFiles(files: EditableFile[], folderName: string) {
+    folderName = this.getOriginalFolderName(folderName)
     const promises = files.map(file => this.api.renameFile(file, `${folderName}/${file.name}`))
+
     try {
       await Promise.all(promises)
     } catch (err) {
       console.error('Error while renaming files', err)
       toast.failure(lang.tr('module.code-editor.store.fileMovedError'))
     }
+
+    toast.success('Succes: Update message!')
+    await this.fetchFiles()
+  }
+
+  @action.bound
+  async bulkCopyPasteFiles(files: EditableFile[], folderName: string) {
+    folderName = this.getOriginalFolderName(folderName)
+
+    const promises = files.map(async (file: EditableFile) => {
+      const fileLocation = `${folderName}/${file.name}`
+      const fileExt = path.extname(fileLocation)
+
+      const duplicate = {
+        ...file,
+        content: file.content || (await this.api.readFile(file)),
+        location: fileLocation.replace(fileExt, '_copy' + fileExt)
+      }
+
+      return this.api.saveFile(duplicate)
+    })
+
+    try {
+      await Promise.all(promises)
+    } catch (err) {
+      console.error('Bulk copy error: ', err)
+      toast.failure(lang.tr('module.code-editor.store.fileMovedError'))
+
+      await this.fetchFiles()
+      return
+    }
+
+    toast.success('Succes: Update message!')
     await this.fetchFiles()
   }
 

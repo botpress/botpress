@@ -6,7 +6,7 @@ import React from 'react'
 import Editor from './Editor'
 import SidePanel from './SidePanel'
 import { RootStore } from './store'
-import { ActionPosition } from './typings'
+import { KeyPosition } from './typings'
 
 configure({ enforceActions: 'observed' })
 const { Container } = ModuleUI
@@ -35,10 +35,10 @@ export default class CodeEditor extends React.Component<{ bp: any }> {
 
     const keyHandlers = {
       newFile: this.store.createNewAction,
-      cmdDown: () => this.store.updateKeyActionState(ActionPosition.DOWN),
-      ctrlDown: () => this.store.updateKeyActionState(ActionPosition.DOWN),
-      cmdUp: () =>this.store.updateKeyActionState(ActionPosition.UP),
-      ctrlUp: () => this.store.updateKeyActionState(ActionPosition.UP),
+      cmdDown: () => this.store.updateKeyActionState(KeyPosition.DOWN),
+      ctrlDown: () => this.store.updateKeyActionState(KeyPosition.DOWN),
+      cmdUp: () =>this.store.updateKeyActionState(KeyPosition.UP),
+      ctrlUp: () => this.store.updateKeyActionState(KeyPosition.UP),
     }
 
     return (

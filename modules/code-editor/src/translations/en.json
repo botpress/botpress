@@ -32,7 +32,9 @@
     "isReadOnly": "This file is read only",
     "noFilesFound": "No files found in this category",
     "renameMove": "Rename / Move",
-    "paste": "Paste"
+    "paste": "Paste",
+    "copy": "Copy",
+    "cutOrMove": "Cut / Move"
   },
   "newFileModal": {
     "createForCurrent": "Create for the current bot",

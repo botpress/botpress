@@ -11,15 +11,17 @@ export interface FileFilters {
   filename?: string
 }
 
-export declare const ActionPosition: {
-  DOWN: 'down'
-  UP: 'up'
+export const enum KeyPosition {
+  DOWN = 'down',
+  UP = 'up'
 }
 
 export type ActionPositionType = 'down' | 'up'
+export type BulkAction = 'copy' | 'cut'
 
 export interface KeyStates {
   action: ActionPositionType
+  shift: ActionPositionType
 }
 
 declare global {

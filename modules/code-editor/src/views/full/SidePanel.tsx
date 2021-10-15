@@ -16,6 +16,7 @@ import FileNavigator from './FileNavigator'
 import { RootStore, StoreDef } from './store'
 import { EditorStore } from './store/editor'
 import { EXAMPLE_FOLDER_LABEL } from './utils/tree'
+import { BulkAction } from './typings'
 
 const { SearchBar, SidePanel, SidePanelSection } = ModuleUI
 
@@ -34,7 +35,6 @@ class PanelContent extends React.Component<Props, State> {
     isMoveModalOpen: false,
     isCreateModalOpen: false,
     isUploadModalOpen: false,
-    isMultipleCutActive: false,
     fileType: undefined,
     hookType: undefined
   }
@@ -120,11 +120,13 @@ class PanelContent extends React.Component<Props, State> {
     return !isGlobalApp || (isGlobalApp && canWriteGlobal)
   }
 
-  bulkRenameAndDisableAction = async (files: EditableFile[], folderName: string): Promise<void> => {
-    await this.props.store.bulkRenameFiles(files, folderName)
-    this.setState({
-      isMultipleCutActive: false
-    })
+  executeBulkAction = async (action: BulkAction, files: EditableFile[], folderName: string): Promise<void> => {
+    if (action === 'copy') {
+      await this.props.store.bulkCopyPasteFiles(files, folderName)
+      return
+    }
+
+    await this.props.store.bulkCutPasteFiles(files, folderName)
   }
 
   renderSectionModuleConfig() {
@@ -268,18 +270,6 @@ class PanelContent extends React.Component<Props, State> {
         label={lang.tr('module.code-editor.sidePanel.rawFileEditor')}
         actions={[
           {
-            id: 'btn-cut-multiple',
-            icon: <Icon icon="cut" color={this.state.isMultipleCutActive ? 'blue' : null} />,
-            key: 'multi-select',
-            onClick: () =>
-              this.setState(prevState => {
-                return {
-                  selectedFile: undefined,
-                  isMultipleCutActive: !prevState.isMultipleCutActive
-                }
-              })
-          },
-          {
             id: 'btn-upload',
             icon: <Icon icon="upload" />,
             key: 'upload',
@@ -300,8 +290,7 @@ class PanelContent extends React.Component<Props, State> {
           selectedNode={this.state.selectedNode}
           onNodeStateExpanded={this.updateNodeExpanded}
           onNodeStateSelected={this.updateNodeSelected}
-          bulkMoveFiles={this.bulkRenameAndDisableAction}
-          isMultipleCutActive={this.state.isMultipleCutActive}
+          executeBulkAction={this.executeBulkAction}
           moveFile={file => this.setState({ selectedFile: file, isMoveModalOpen: true })}
         />
         <NameModal
@@ -454,7 +443,6 @@ interface State {
   isMoveModalOpen: boolean
   isCreateModalOpen: boolean
   isUploadModalOpen: boolean
-  isMultipleCutActive: boolean
   fileType: string
   hookType?: string
 }
