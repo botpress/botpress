@@ -86,6 +86,10 @@ const createNodes = data => {
         {
           type: sdk.NodeActionType.RenderElement,
           name: `#!${data.notFoundElement}`
+        },
+        {
+          type: sdk.NodeActionType.RunAction,
+          name: 'builtin/setVariable {"type":"temp","name":"valid","value": "true"}'
         }
       ],
       onReceive: slotExtractOnReceive,
@@ -130,9 +134,14 @@ const createNodes = data => {
         {
           type: sdk.NodeActionType.RunAction,
           name: 'builtin/setVariable {"type":"temp","name":"alreadyExtracted","value":"true"}'
-        }
+        },
+        {
+          type: sdk.NodeActionType.RunAction,
+          name: 'builtin/setVariable {"type":"temp","name":"valid","value": "true"}'
+        },
+        ...runValidationActions
       ],
-      onReceive: runValidationActions,
+      onReceive: undefined,
       next: [
         {
           condition: ' (temp.valid === undefined || temp.valid == "true")',
@@ -140,7 +149,7 @@ const createNodes = data => {
         },
         {
           condition: 'true',
-          node: 'not-extracted'
+          node: 'slot-extract'
         }
       ]
     }
