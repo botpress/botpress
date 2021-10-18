@@ -22,9 +22,16 @@ There are a few ways to get started with botpress :
 - Use the official [Docker image](https://hub.docker.com/r/botpress/server) and follow the [hosting docs](https://botpress.com/docs/infrastructure/Docker)
 - Run from sources, follow [build docs](https://botpress.com/docs/infrastructure/deploying)
 - Deploy it in the cloud using these shortlinks:
+
   <center>
-      <a href="https://marketplace.digitalocean.com/apps/botpress" class="btn btn-default btn-lg">Digital Ocean</a>  &nbsp;
-      <a href="https://raw.githubusercontent.com/botpress/botpress/master/examples/docker-compose/docker-compose.yml" class="btn btn-default btn-lg">Play-with-docker</a> &nbsp;
+      <hr/>
+      <a href="https://marketplace.digitalocean.com/apps/botpress" class="btn btn-default btn-lg">
+              <img src=".github/do_button.svg">
+      </a>  &nbsp;
+      <a href="https://raw.githubusercontent.com/botpress/botpress/master/examples/docker-compose/docker-compose.yml" class="btn btn-default btn-lg">
+        <img src="https://cdn.jsdelivr.net/gh/play-with-docker/stacks@cff22438/assets/images/button.png">
+      </a> &nbsp;
+
   </center>
 
 ## Documentation
