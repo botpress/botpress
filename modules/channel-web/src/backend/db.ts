@@ -137,7 +137,8 @@ export default class WebchatDb {
       url: process.core_env.MESSAGING_ENDPOINT
         ? process.core_env.MESSAGING_ENDPOINT
         : `http://localhost:${process.MESSAGING_PORT}`,
-      auth: { clientId: messaging.id, clientToken: messaging.token }
+      auth: { clientId: messaging.id, clientToken: messaging.token },
+      password: process.INTERNAL_PASSWORD
     })
     this.messagingClients[botId] = botClient
 

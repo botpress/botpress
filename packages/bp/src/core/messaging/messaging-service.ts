@@ -42,7 +42,8 @@ export class MessagingService {
 
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
-    this.clientSync = new MessagingClient({ url: this.getMessagingUrl() })
+    this.internalPassword = this.isExternal ? undefined : process.INTERNAL_PASSWORD
+    this.clientSync = new MessagingClient({ url: this.getMessagingUrl(), password: this.internalPassword })
   }
 
   async loadMessagingForBot(botId: string) {
@@ -93,6 +94,7 @@ export class MessagingService {
 
     const botClient = new MessagingClient({
       url: this.getMessagingUrl(),
+      password: this.internalPassword,
       auth: { clientId: messaging.id!, clientToken: messaging.token! }
     })
     this.clientsByBotId[botId] = botClient
