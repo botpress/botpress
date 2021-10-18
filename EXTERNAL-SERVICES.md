@@ -19,7 +19,7 @@ NLU server can both share the same database as Botpress (this is the default beh
 
 All your NLU Server instances must then be handled by a load balancer.
 
-Here's a summary of all possible and valid NLU Server configuration:
+Here's a summary of all possible and valid NLU Server configurations:
 
 <img src="./nlu-server-setup.png"/>
 
