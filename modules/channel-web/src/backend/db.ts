@@ -1,4 +1,5 @@
 import { MessagingClient } from '@botpress/messaging-client'
+import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
@@ -114,12 +115,13 @@ export default class WebchatDb {
 
     const { messaging } = await this.bp.bots.getBotById(botId)
 
+    const axiosInstance = axios.create({ headers: { password: process.INTERNAL_PASSWORD }, proxy: false })
     const botClient = new MessagingClient({
       url: process.core_env.MESSAGING_ENDPOINT
         ? process.core_env.MESSAGING_ENDPOINT
         : `http://localhost:${process.MESSAGING_PORT}`,
-      password: process.INTERNAL_PASSWORD,
-      auth: { clientId: messaging.id, clientToken: messaging.token }
+      auth: { clientId: messaging.id, clientToken: messaging.token },
+      client: axiosInstance
     })
     this.messagingClients[botId] = botClient
 

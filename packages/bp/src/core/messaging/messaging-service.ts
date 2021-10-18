@@ -1,4 +1,5 @@
 import { MessagingClient } from '@botpress/messaging-client'
+import axios, { AxiosRequestConfig } from 'axios'
 import { IO, Logger, MessagingConfig } from 'botpress/sdk'
 import { formatUrl, isBpUrl } from 'common/url'
 import { ConfigProvider } from 'core/config'
@@ -20,7 +21,6 @@ export class MessagingService {
   private newUsers: number = 0
 
   public isExternal: boolean
-  public internalPassword: string | undefined
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
@@ -42,8 +42,8 @@ export class MessagingService {
 
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
-    this.internalPassword = this.isExternal ? undefined : process.INTERNAL_PASSWORD
-    this.clientSync = new MessagingClient({ url: this.getMessagingUrl(), password: this.internalPassword })
+    const axiosInstance = this.createAxiosInstance()
+    this.clientSync = new MessagingClient({ url: this.getMessagingUrl(), client: axiosInstance })
   }
 
   async loadMessagingForBot(botId: string) {
@@ -92,10 +92,11 @@ export class MessagingService {
       await this.configProvider.mergeBotConfig(botId, { messaging })
     }
 
+    const axiosInstance = this.createAxiosInstance()
     const botClient = new MessagingClient({
       url: this.getMessagingUrl(),
-      password: this.internalPassword,
-      auth: { clientId: messaging.id!, clientToken: messaging.token! }
+      auth: { clientId: messaging.id!, clientToken: messaging.token! },
+      client: axiosInstance
     })
     this.clientsByBotId[botId] = botClient
     this.botsByClientId[id] = botId
@@ -196,5 +197,20 @@ export class MessagingService {
 
   public incrementNewUsersCount() {
     this.newUsers++
+  }
+
+  private createAxiosInstance() {
+    const internalPassword = this.isExternal ? undefined : process.INTERNAL_PASSWORD
+    const config: AxiosRequestConfig = {}
+
+    if (internalPassword) {
+      config.headers.password = internalPassword
+    }
+
+    if (!this.isExternal) {
+      config.proxy = false
+    }
+
+    return axios.create(config)
   }
 }
