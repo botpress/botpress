@@ -13,7 +13,7 @@ Instructions on how to use Botpress with external services
 
 If you plan on training many bots simultaneously or if you plan on receiving a high volume of requests, you can host your NLU Server in a multi-node fashion.
 
-To do so, launch multiple nlu-server instances using the CLI argument `--dbURL postgres://YOUR_USER:YOUR_PASSWORD@YOUR_HOST:YOUR_PORT/YOUR_DATABASE`.
+To do so, launch multiple NLU server instances using the CLI argument `--dbURL postgres://YOUR_USER:YOUR_PASSWORD@YOUR_HOST:YOUR_PORT/YOUR_DATABASE`.
 
 NLU server can both share the same database as Botpress (this is the default behavior), or use a separate dedicated database to store models and training information.
 
