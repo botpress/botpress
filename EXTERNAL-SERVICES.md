@@ -11,7 +11,7 @@ Instructions on how to use Botpress with external services
 
 ### Clustering the NLU Server
 
-If you plan on training many bots simultanuously or if you plan on receiving a high volume of requests, you can host your NLU Server in a multi-node fashion.
+If you plan on training many bots simultaneously or if you plan on receiving a high volume of requests, you can host your NLU Server in a multi-node fashion.
 
 To do so, launch multiple nlu-server instances using the CLI argument `--dbURL postgres://YOUR_USER:YOUR_PASSWORD@YOUR_HOST:YOUR_PORT/YOUR_DATABASE`.
 
