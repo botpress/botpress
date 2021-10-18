@@ -7,7 +7,7 @@ Instructions on how to use Botpress with external services
 
    **Important ⚠️** Make sure your NLU server is not accessible publicly.
 
-3. Launch Botpress using environment variable `NLU_ENDPOINT` pointing to your local nlu server.
+3. Launch Botpress using environment variable `NLU_ENDPOINT` pointing to your local NLU server.
 
 ### Clustering the NLU Server
 
