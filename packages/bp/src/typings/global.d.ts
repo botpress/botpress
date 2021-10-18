@@ -287,7 +287,7 @@ declare interface BotpressEnvironmentVariables {
   /**
    * Overwrites the modules that are enabled by default.
    * Has to be formatted as JSON,
-   * ex: ['nlu', 'nlu-testing']
+   * ex: ['nlu', 'misunderstood']
    */
   readonly BP_ENABLED_MODULES?: string
 
