@@ -9,7 +9,7 @@ Instructions on how to use Botpress with external services
 
 3. Launch Botpress using environment variable `NLU_ENDPOINT` pointing to your local nlu server.
 
-### CLustering the NLU Server
+### Clustering the NLU Server
 
 If you plan on training many bots simultanuously or if you plan on receiving a high volume of requests, you can host your NLU Server in a multi-node fashion.
 
