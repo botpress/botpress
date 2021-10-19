@@ -434,6 +434,9 @@ export class Botpress {
         this.eventCollector.storeEvent(event)
       }
 
+      await this.messagingService.informProcessingDone(event)
+
+      // TODO: can we remove this?
       await converseApiEvents.emitAsync(`done.${buildUserKey(event.botId, event.target)}`, event)
     }
 

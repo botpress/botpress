@@ -149,6 +149,33 @@ export class MessagingService {
     return next(undefined, true, false)
   }
 
+  public async informProcessingDone(event: IO.IncomingEvent) {
+    // This code is copy pasted from converse service
+
+    // We need to wait for an empty and not locked outgoing queue in order to have all responses
+    await new Promise((resolve, reject) => {
+      const resolveOnEmptyQueue = () => {
+        this.eventEngine.isOutgoingQueueEmpty(event) && !this.eventEngine.isOutgoingQueueLocked(event)
+          ? resolve()
+          : setTimeout(resolveOnEmptyQueue, 50)
+      }
+      resolveOnEmptyQueue()
+    })
+
+    /*
+    let bufferDelay = _.get(await this.configProvider.getBotConfig(botId), 'converse.bufferDelayMs')
+
+    if (!bufferDelay) {
+      bufferDelay = _.get(await this.configProvider.getBotpressConfig(), 'converse.bufferDelayMs', 250)
+    }
+    */
+
+    // TODO: what was this delay about?
+    await Promise.delay(250)
+
+    await this.clientsByBotId[event.botId].authHttp.post(`/messages/turn/${event.messageId}`)
+  }
+
   private convertToAbsoluteUrls(payload: any) {
     if (typeof payload !== 'object' || payload === null) {
       if (typeof payload === 'string') {
