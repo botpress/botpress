@@ -20,6 +20,7 @@ const updateContexts = async intentName => {
   temp.tryFillSlotCount = 1
   temp.extracted = false
   temp.notExtracted = false
+  temp.valid = undefined
   temp.alreadyExtracted = false
 }
 
