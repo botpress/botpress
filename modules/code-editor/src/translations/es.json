@@ -67,8 +67,8 @@
     "newFile": "Nuevo archivo",
     "rawEditorDesc": "El editor de archivos sin procesar no tiene medidas de seguridad y puede meterse fácilmente archivos importantes. ¡Manéjalo con cuidado! Puede editar cualquier archivo contenido en la carpeta de datos, crear nuevos archivos y mover los archivos existentes.",
     "saveFile": "Guardar archivo",
-    "selectMultipleFiles": "Sélectionner plusieurs fichiers",
-    "selectInBetweenFiles": "Enregistrer le fichier"
+    "selectMultipleFiles": "Seleccionar varios archivos",
+    "selectInBetweenFiles": "Seleccionar archivos de un rango"
   },
   "store": {
     "alreadyExists": "Ya existe un archivo con ese nombre",

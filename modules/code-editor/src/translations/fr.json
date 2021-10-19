@@ -67,8 +67,8 @@
     "newFile": "Nouveau fichier",
     "rawEditorDesc": "L'éditeur de fichiers bruts n'a aucune protection et vous pouvez facilement corrompre les fichiers importants. Manipulez avec soin! Vous pouvez modifier n'importe quel fichier contenu dans le dossier 'data', créer de nouveaux fichier et déplacer des fichiers existants.",
     "saveFile": "Enregistrer le fichier",
-    "selectMultipleFiles": "Seleccionar varios archivos",
-    "selectInBetweenFiles": "Seleccionar archivos de un rango"
+    "selectMultipleFiles": "Sélectionner plusieurs fichiers",
+    "selectInBetweenFiles": "Sélectionner un intervalle de fichiers"
   },
   "store": {
     "alreadyExists": "Un fichier portant ce nom existe déjà",
