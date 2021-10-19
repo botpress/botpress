@@ -28,7 +28,7 @@ There are a few ways to get started with botpress :
       <a href="https://marketplace.digitalocean.com/apps/botpress" class="btn btn-default btn-lg">
               <img src=".github/do_button.svg">
       </a>  &nbsp;
-      <a href="https://raw.githubusercontent.com/botpress/botpress/master/examples/docker-compose/docker-compose.yml" class="btn btn-default btn-lg">
+      <a href="https://labs.play-with-docker.com?stack=https://raw.githubusercontent.com/botpress/botpress/master/examples/docker-compose/docker-compose.yml" class="btn btn-default btn-lg">
         <img src="https://cdn.jsdelivr.net/gh/play-with-docker/stacks@cff22438/assets/images/button.png">
       </a> &nbsp;
   </center>
