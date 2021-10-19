@@ -6,6 +6,8 @@ import { EventEngine, Event } from 'core/events'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
+import LRUCache from 'lru-cache'
+import ms from 'ms'
 import { MessageNewEventData } from './messaging-router'
 
 @injectable()
@@ -16,6 +18,7 @@ export class MessagingService {
   private webhookTokenByClientId: { [botId: string]: string } = {}
   private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage', 'messaging']
   private newUsers: number = 0
+  private eventIdToMessageIdCache: LRUCache<string, string>
 
   public isExternal: boolean
   public internalPassword: string | undefined
@@ -26,6 +29,7 @@ export class MessagingService {
     @inject(TYPES.Logger) private logger: Logger
   ) {
     this.isExternal = Boolean(process.core_env.MESSAGING_ENDPOINT)
+    this.eventIdToMessageIdCache = new LRUCache<string, string>({ max: 5000, maxAge: ms('5m') })
   }
 
   @postConstruct()
@@ -118,19 +122,21 @@ export class MessagingService {
     })
   }
 
-  async receive(event: MessageNewEventData) {
-    return this.eventEngine.sendEvent(
-      Event({
-        direction: 'incoming',
-        type: event.message.payload.type,
-        payload: event.message.payload,
-        channel: event.channel,
-        threadId: event.conversationId,
-        target: event.userId,
-        messageId: event.message.id,
-        botId: this.botsByClientId[event.clientId]
-      })
-    )
+  async receive(msg: MessageNewEventData) {
+    const event = Event({
+      direction: 'incoming',
+      type: msg.message.payload.type,
+      payload: msg.message.payload,
+      channel: msg.channel,
+      threadId: msg.conversationId,
+      target: msg.userId,
+      messageId: msg.message.id,
+      botId: this.botsByClientId[msg.clientId]
+    })
+
+    this.eventIdToMessageIdCache.set(event.id, msg.message.id)
+
+    return this.eventEngine.sendEvent(event)
   }
 
   private async handleOutgoingEvent(event: IO.OutgoingEvent, next: IO.MiddlewareNextCallback) {
@@ -139,41 +145,40 @@ export class MessagingService {
     }
 
     const payloadAbsoluteUrl = this.convertToAbsoluteUrls(event.payload)
-    const message = await this.clientsByBotId[event.botId].messages.create(
-      event.threadId!,
-      undefined,
-      payloadAbsoluteUrl
-    )
-    event.messageId = message.id
+
+    // TODO: add this to the messaging client
+    const message = await this.clientsByBotId[event.botId].authHttp.post('/messages', {
+      conversationId: event.threadId!,
+      authorId: undefined,
+      payload: payloadAbsoluteUrl,
+      incomingId: this.eventIdToMessageIdCache.get(event.incomingEventId!)
+    })
+
+    event.messageId = message.data.id
 
     return next(undefined, true, false)
   }
 
   public async informProcessingDone(event: IO.IncomingEvent) {
-    // This code is copy pasted from converse service
+    try {
+      // We need to wait for an empty and not locked outgoing queue in order to have all responses
 
-    // We need to wait for an empty and not locked outgoing queue in order to have all responses
-    await new Promise((resolve, reject) => {
-      const resolveOnEmptyQueue = () => {
-        this.eventEngine.isOutgoingQueueEmpty(event) && !this.eventEngine.isOutgoingQueueLocked(event)
-          ? resolve()
-          : setTimeout(resolveOnEmptyQueue, 50)
-      }
-      resolveOnEmptyQueue()
-    })
+      // TODO: could create a promise in the event engine that gets resolve when queue count is 0
+      await new Promise((resolve, reject) => {
+        const resolveOnEmptyQueue = () => {
+          this.eventEngine.isOutgoingQueueEmpty(event) && !this.eventEngine.isOutgoingQueueLocked(event)
+            ? resolve()
+            : setTimeout(resolveOnEmptyQueue, 50)
+        }
+        resolveOnEmptyQueue()
+      })
 
-    /*
-    let bufferDelay = _.get(await this.configProvider.getBotConfig(botId), 'converse.bufferDelayMs')
+      // TODO: was the delay necessary?
 
-    if (!bufferDelay) {
-      bufferDelay = _.get(await this.configProvider.getBotpressConfig(), 'converse.bufferDelayMs', 250)
+      await this.clientsByBotId[event.botId].authHttp.post(`/messages/turn/${event.messageId}`)
+    } catch (e) {
+      // TODO: do something here
     }
-    */
-
-    // TODO: what was this delay about?
-    await Promise.delay(250)
-
-    await this.clientsByBotId[event.botId].authHttp.post(`/messages/turn/${event.messageId}`)
   }
 
   private convertToAbsoluteUrls(payload: any) {
