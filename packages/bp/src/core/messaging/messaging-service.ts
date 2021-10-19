@@ -42,7 +42,7 @@ export class MessagingService {
 
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
-    this.clientSync = new MessagingClient({ url: this.getMessagingUrl(), client: this.createAxiosInstance() })
+    this.clientSync = new MessagingClient({ url: this.getMessagingUrl(), config: this.getAxiosConfig() })
   }
 
   async loadMessagingForBot(botId: string) {
@@ -52,7 +52,7 @@ export class MessagingService {
     let messaging = (config.messaging || {}) as Partial<MessagingConfig>
 
     const messagingId = messaging.id || ''
-    // ClientId is already used by another botId, we will generate new ones for this bot
+    // ClientId is already used by another botId, we will generate new credentials for this bot
     if (this.botsByClientId[messagingId] && this.botsByClientId[messagingId] !== botId) {
       this.logger.warn(
         `ClientId ${messagingId} already in use by bot ${this.botsByClientId[messagingId]}. Removing channels configuration and generating new credentials for bot ${botId}`
@@ -94,7 +94,7 @@ export class MessagingService {
     const botClient = new MessagingClient({
       url: this.getMessagingUrl(),
       auth: { clientId: messaging.id!, clientToken: messaging.token! },
-      client: this.createAxiosInstance()
+      config: this.getAxiosConfig()
     })
     this.clientsByBotId[botId] = botClient
     this.botsByClientId[id] = botId
@@ -197,18 +197,14 @@ export class MessagingService {
     this.newUsers++
   }
 
-  private createAxiosInstance() {
-    const internalPassword = this.isExternal ? undefined : process.INTERNAL_PASSWORD
+  private getAxiosConfig(): AxiosRequestConfig {
     const config: AxiosRequestConfig = {}
-
-    if (internalPassword) {
-      config.headers = { password: internalPassword }
-    }
 
     if (!this.isExternal) {
       config.proxy = false
+      config.headers = { password: process.INTERNAL_PASSWORD }
     }
 
-    return axios.create(config)
+    return config
   }
 }
