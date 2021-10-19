@@ -42,8 +42,7 @@ export class MessagingService {
 
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
-    const axiosInstance = this.createAxiosInstance()
-    this.clientSync = new MessagingClient({ url: this.getMessagingUrl(), client: axiosInstance })
+    this.clientSync = new MessagingClient({ url: this.getMessagingUrl(), client: this.createAxiosInstance() })
   }
 
   async loadMessagingForBot(botId: string) {
@@ -92,11 +91,10 @@ export class MessagingService {
       await this.configProvider.mergeBotConfig(botId, { messaging })
     }
 
-    const axiosInstance = this.createAxiosInstance()
     const botClient = new MessagingClient({
       url: this.getMessagingUrl(),
       auth: { clientId: messaging.id!, clientToken: messaging.token! },
-      client: axiosInstance
+      client: this.createAxiosInstance()
     })
     this.clientsByBotId[botId] = botClient
     this.botsByClientId[id] = botId
@@ -204,7 +202,7 @@ export class MessagingService {
     const config: AxiosRequestConfig = {}
 
     if (internalPassword) {
-      config.headers.password = internalPassword
+      config.headers = { password: internalPassword }
     }
 
     if (!this.isExternal) {

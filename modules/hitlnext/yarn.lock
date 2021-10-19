@@ -34,11 +34,17 @@
     classnames "^2.2"
     tslib "~1.13.0"
 
-"@botpress/messaging-client@0.0.4":
-  version "0.0.4"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-0.0.4.tgz#8782b6c0f94623195c3fc2f1b6aba2fc8083ba3e"
-  integrity sha512-UUzbzSj6VhH7p24G443GdzGtJbfff0lu1CFV031uyRFEdYQuYn0maQmHSrGITQhOD5vHBOLlbEQJc7z8Kf3r1w==
+"@botpress/messaging-base@0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-0.0.1.tgz#1e1347262e4c5f70d73ba62b8a62b9d9576e3c16"
+  integrity sha512-J52YtTu0OxElZUJwtfx8NSVFlTGyZVXGppWgdgckHRa6mAf+8DY3gCkDpG34Elic9Uygz3L0+3HebvgSk6Y3CA==
+
+"@botpress/messaging-client@0.0.5":
+  version "0.0.5"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-0.0.5.tgz#ae4e7563d0245f5b07699012b03a903f45574c1b"
+  integrity sha512-LrmL0oECFmfZYKONmOo2e7OWTdczuoGDHMqAQdAf15GOo8PzUZE1Rx+BnlqWtwPVUHqXslKROtst/eHf3Gn2hA==
   dependencies:
+    "@botpress/messaging-base" "0.0.1"
     axios "^0.21.1"
 
 "@hapi/hoek@^9.0.0":
