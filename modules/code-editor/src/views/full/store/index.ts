@@ -143,9 +143,8 @@ class RootStore {
   }
 
   @action.bound
-  updateKeyActionState(actionState: ActionPositionType) {
-    // This is called by the code editor & the shortcut, so it's the default create
-    this.keyStates.action = actionState
+  updateKeyActionState(key: 'action' | 'shift', actionState: ActionPositionType) {
+    this.keyStates[key] = actionState
   }
 
   @action.bound

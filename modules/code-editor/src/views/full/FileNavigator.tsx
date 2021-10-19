@@ -27,11 +27,11 @@ import { BulkAction, KeyPosition } from './typings'
 import { buildTree, EXAMPLE_FOLDER_LABEL, FOLDER_EXAMPLE, FOLDER_ICON } from './utils/tree'
 
 class FileNavigator extends React.Component<Props, State> {
-  state = {
+  state: State = {
     files: undefined,
     nodes: [],
     action: undefined,
-    selectedFilesList: {},
+    selectedFiles: {},
     clipboard: {},
   }
 
@@ -113,13 +113,33 @@ class FileNavigator extends React.Component<Props, State> {
     this.setState((prevState: State) => {
       return {
         action,
-        clipboard: prevState.selectedFilesList
+        clipboard: prevState.selectedFiles
       }
     })
   }
 
   private get selectedFilesCount(): number {
-    return Object.keys(this.state.selectedFilesList).length
+    return Object.keys(this.state.selectedFiles).length
+  }
+
+  private getNodeParent(node: ITreeNode): ITreeNode {
+    let nodeParentId: string = 'Data'
+    let nodeParent: ITreeNode
+    const chunks = (node.id as string).split('/')
+
+    if (chunks && chunks.length > 1){
+      nodeParentId = chunks.slice(0, -1).join('/')
+    }
+
+    this.traverseTree(this.state.nodes, n => {
+      if (!node.nodeData || n.id !== nodeParentId) {
+        return
+      }
+
+      nodeParent = n
+    })
+
+    return nodeParent
   }
 
   private handleNodeClick = async (node: ITreeNode) => {
@@ -127,34 +147,146 @@ class FileNavigator extends React.Component<Props, State> {
     // if ctrl is up -> stop
     // if shift is down -> select interval
     // if (this.props.isMultipleCutActive) {
-    if (this.props.keyStates.action === KeyPosition.DOWN) {
-      this.handleMultipleSelectClick(node)
+
+    if (node.nodeData && this.props.keyStates.action === KeyPosition.DOWN) {
+      this.handleActionClick(node)
+      return
+    }
+
+    if (node.nodeData && this.props.keyStates.shift === KeyPosition.DOWN) {
+      this.handleShiftClick(node)
+      return
+    }
+
+    await this.handleSingleNodeSelectedClick(node)
+  }
+
+  private handleShiftClick(node: ITreeNode<{}>) {
+    const sameLevelNodes: ITreeNode[] = this.getNodeParent(node).childNodes
+    let traversedCurrentNode: boolean = false
+
+    if (!this.selectedFilesCount){
+      sameLevelNodes.forEach((n: ITreeNode) => {
+        if (!n.nodeData || traversedCurrentNode){
+          return
+        }
+
+        // n.isSelected = true
+
+        // if (!this.state.selectedFiles[n.id]) {
+        const { selectedFiles } = this.state
+
+        n.isSelected = true
+        selectedFiles[n.id] = n.nodeData as EditableFile
+
+        this.setState({
+          selectedFiles
+        })
+        // }
+
+        if (n.id === node.id){
+          traversedCurrentNode = true
+        }
+      })
     } else {
-      await this.handleSingleNodeSelectedClick(node)
+    //  unselect nodes
+      this.traverseTree(this.state.nodes, (n: ITreeNode) => {
+        if (!n.nodeData || !this.state.selectedFiles[n.id]) {
+          return
+        }
+
+        n.isSelected = false
+      })
+
+    //  new logic
+
+      const firstNodeId = Object.keys(this.state.selectedFiles)[0]
+      const firstLevelNode = sameLevelNodes.find((node: ITreeNode) => node.nodeData)
+      let traversedFirstNode: boolean = false
+
+      this.setState({
+        selectedFiles: {}
+      })
+
+      if (firstNodeId === firstLevelNode.id){
+        firstLevelNode.isSelected = true
+        traversedFirstNode = true
+
+        this.setState({
+          selectedFiles: {
+            [firstLevelNode.id]: node.nodeData as EditableFile
+          }
+        })
+      }
+
+      console.log(firstLevelNode)
+      console.log('firstNode', firstNodeId)
+
+      sameLevelNodes.forEach((n: ITreeNode) => {
+        console.log(!n.nodeData || !traversedFirstNode)
+        if (!n.nodeData || !traversedFirstNode){ // || traversedCurrentNode){
+          return
+        }
+
+        console.log('traversedFirstNode', traversedFirstNode)
+        console.log('traversedCurrentNode', traversedCurrentNode)
+
+        // n.isSelected = true
+
+        // if (!this.state.selectedFiles[n.id]) {
+        const { selectedFiles } = this.state
+
+        n.isSelected = true
+        selectedFiles[n.id] = n.nodeData as EditableFile
+
+        this.setState({
+          selectedFiles
+        })
+
+        console.log(n.id)
+        // }
+
+        if (n.id === firstNodeId){
+          traversedFirstNode = true
+        }
+
+        if (n.id === node.id){
+          traversedCurrentNode = true
+        }
+      })
+
+
+    }
+
+    this.forceUpdate()
+
+    if (!node.nodeData) {
+      this.handleNodeExpand(node, !node.isExpanded)
     }
   }
 
-  private handleMultipleSelectClick(node: ITreeNode<{}>) {
+  private handleActionClick(node: ITreeNode<{}>) {
     this.traverseTree(this.state.nodes, n => {
       if (!node.nodeData || n.id !== node.id) {
         return
       }
 
-      if (!this.state.selectedFilesList[n.id]) {
-        const { selectedFilesList } = this.state
+      if (!this.state.selectedFiles[n.id]) {
+        const { selectedFiles } = this.state
+
         n.isSelected = true
-        selectedFilesList[n.id] = n.nodeData
+        selectedFiles[n.id] = n.nodeData as EditableFile
 
         this.setState({
-          selectedFilesList
+          selectedFiles
         })
       } else {
         n.isSelected = false
         this.setState((prevState: State) => {
           return {
             ...prevState,
-            selectedFilesList: {
-              ...prevState.selectedFilesList,
+            selectedFiles: {
+              ...prevState.selectedFiles,
               [n.id]: undefined
             }
           }
@@ -175,12 +307,12 @@ class FileNavigator extends React.Component<Props, State> {
     this.traverseTree(this.state.nodes, n => (n.isSelected = n.id === node.id))
 
     if (node.nodeData) {
-      const selectedFilesList = {
+      const selectedFiles = {
         [node.id]: node.nodeData
       } as { [key: string]: EditableFile }
 
       this.setState({
-        selectedFilesList,
+        selectedFiles,
         action: undefined
       })
 
@@ -231,7 +363,7 @@ class FileNavigator extends React.Component<Props, State> {
     }
 
     // if multiple file selected and on selected file
-    if (this.selectedFilesCount > 1 && this.state.selectedFilesList[node.id]){
+    if (this.selectedFilesCount > 1 && this.state.selectedFiles[node.id]){
       ContextMenu.show(
         <Menu>
           {bulkMenuItems()}
@@ -243,7 +375,7 @@ class FileNavigator extends React.Component<Props, State> {
 
     // if multiple file selected and folder
     if (!node.nodeData || this.props.disableContextMenu) {
-      const { selectedFilesList, action } = this.state
+      const { selectedFiles, action } = this.state
 
       if (this.selectedFilesCount && action) {
         ContextMenu.show(
@@ -252,7 +384,7 @@ class FileNavigator extends React.Component<Props, State> {
               id="btn-paste"
               icon="clipboard"
               text={lang.tr('module.code-editor.navigator.paste')}
-              onClick={() => this.props.executeBulkAction(action, Object.values(selectedFilesList), node.id as string)}
+              onClick={() => this.props.executeBulkAction(action, Object.values(selectedFiles), node.id as string)}
             />
           </Menu>,
           { left: e.clientX, top: e.clientY }
@@ -334,7 +466,7 @@ class FileNavigator extends React.Component<Props, State> {
 
     const isDisabled = file.name.startsWith('.')
     const canMove = this.props.store.editor.isAdvanced && this.props.moveFile
-    const canSupportBulkActions = this.state.selectedFilesList[node.id]
+    const canSupportBulkActions = this.state.selectedFiles[node.id]
 
     ContextMenu.show(
       <Menu>
@@ -465,9 +597,10 @@ type Props = {
 } & Pick<StoreDef, 'keyStates' | 'filters' | 'deleteFile' | 'renameFile' | 'disableFile' | 'enableFile' | 'duplicateFile'>
 
 interface State {
+  files: any
   nodes: ITreeNode[]
   action: BulkAction
-  selectedFilesList: { [key: string]: EditableFile }
+  selectedFiles: { [key: string]: EditableFile }
   clipboard: { [key: string]: EditableFile }
 }
 
