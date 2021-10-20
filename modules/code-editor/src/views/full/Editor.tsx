@@ -91,7 +91,12 @@ class Editor extends React.Component<Props> {
 
     this.editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.KEY_A, () => {
       const { startLine, endLine } = this.getEditableZone()
-      this.editor.setSelection({ startLineNumber: startLine, startColumn: 0, endLineNumber: endLine, endColumn: 1000 })
+      this.editor.setSelection({
+        startLineNumber: startLine + 1,
+        startColumn: 0,
+        endLineNumber: endLine,
+        endColumn: 1000
+      })
     })
 
     this.editor.addCommand(monaco.KeyCode.Delete, () => {}, 'preventDelete')
@@ -110,9 +115,16 @@ class Editor extends React.Component<Props> {
     })
 
     const updateReadonlyZone = () => {
+      const { startLine, endLine, noContent } = this.getEditableZone()
+      if (startLine < 0 || endLine < 0) {
+        preventBackspace.set(false)
+        preventDelete.set(false)
+
+        return
+      }
+
       const { startLineNumber: lineNumber, startColumn: column } = this.editor.getSelection()
       const lineLastColumn = this.editor.getModel().getLineMaxColumn(lineNumber)
-      const { startLine, endLine, noContent } = this.getEditableZone()
 
       preventBackspace.set(noContent || (lineNumber === startLine && column === 1))
       preventDelete.set(noContent || (lineNumber === endLine && column === lineLastColumn))
@@ -121,6 +133,10 @@ class Editor extends React.Component<Props> {
     this.editor.onDidChangeCursorPosition(e => {
       const { lineNumber } = e.position
       const { startLine, endLine } = this.getEditableZone()
+
+      if (startLine < 0 || endLine < 0) {
+        return
+      }
 
       if (lineNumber <= startLine) {
         this.editor.setPosition({ lineNumber: startLine, column: 1 })
