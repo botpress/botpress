@@ -75,12 +75,10 @@ export class EventRepository {
     const storedEvent = events[0]
     const incomingEvent = storedEvent.event as sdk.IO.IncomingEvent
 
-    const details = incomingEvent.decision?.sourceDetails
-
-    await this.updateEvent(storedEvent.id!, { feedback })
-
     if (type) {
+      const details = incomingEvent.decision?.sourceDetails
       const metric = feedback === 1 ? 'bp_core_feedback_positive' : 'bp_core_feedback_negative'
+
       BOTPRESS_CORE_EVENT(metric, {
         botId: storedEvent.botId,
         channel: storedEvent.channel,

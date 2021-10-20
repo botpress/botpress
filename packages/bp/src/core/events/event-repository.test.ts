@@ -27,7 +27,7 @@ describe('Event Repository', () => {
 
     const incomingEvent: sdk.IO.IncomingEvent = {
       id: '34',
-      state: (null as unknown) as sdk.IO.EventState,
+      state: (undefined as unknown) as sdk.IO.EventState,
       type: 'text',
       direction: 'incoming',
       payload: 'empty',
