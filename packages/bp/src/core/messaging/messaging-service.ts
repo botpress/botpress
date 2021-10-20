@@ -1,4 +1,5 @@
 import { MessagingClient } from '@botpress/messaging-client'
+import { AxiosRequestConfig } from 'axios'
 import { IO, Logger, MessagingConfig } from 'botpress/sdk'
 import { formatUrl, isBpUrl } from 'common/url'
 import { ConfigProvider } from 'core/config'
@@ -7,8 +8,6 @@ import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import { MessageNewEventData } from './messaging-router'
-
-const DEFAULT_TYPING_DELAY = 500
 
 @injectable()
 export class MessagingService {
@@ -20,7 +19,6 @@ export class MessagingService {
   private newUsers: number = 0
 
   public isExternal: boolean
-  public internalPassword: string | undefined
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
@@ -42,8 +40,7 @@ export class MessagingService {
 
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
-    this.internalPassword = this.isExternal ? undefined : process.INTERNAL_PASSWORD
-    this.clientSync = new MessagingClient({ url: this.getMessagingUrl(), password: this.internalPassword })
+    this.clientSync = new MessagingClient({ url: this.getMessagingUrl(), config: this.getAxiosConfig() })
   }
 
   async loadMessagingForBot(botId: string) {
@@ -94,8 +91,8 @@ export class MessagingService {
 
     const botClient = new MessagingClient({
       url: this.getMessagingUrl(),
-      password: this.internalPassword,
-      auth: { clientId: messaging.id!, clientToken: messaging.token! }
+      auth: { clientId: messaging.id!, clientToken: messaging.token! },
+      config: this.getAxiosConfig()
     })
     this.clientsByBotId[botId] = botClient
     this.botsByClientId[id] = botId
@@ -196,5 +193,15 @@ export class MessagingService {
 
   public incrementNewUsersCount() {
     this.newUsers++
+  }
+
+  private getAxiosConfig(): AxiosRequestConfig {
+    const config: AxiosRequestConfig = {}
+
+    if (!this.isExternal) {
+      config.headers = { password: process.INTERNAL_PASSWORD }
+    }
+
+    return config
   }
 }
