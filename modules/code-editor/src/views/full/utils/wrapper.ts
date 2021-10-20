@@ -99,8 +99,9 @@ const getContentZone = (lines: string[]) => {
   }
 
   const endLine = findLastIndex(lines, x => x.includes(END_COMMENT))
+  const noContent = startLine > endLine
 
-  return { startLine, endLine }
+  return { startLine, endLine, noContent }
 }
 
 export { wrapper, getContentZone }

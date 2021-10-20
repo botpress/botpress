@@ -112,23 +112,23 @@ class Editor extends React.Component<Props> {
     const updateReadonlyZone = () => {
       const { startLineNumber: lineNumber, startColumn: column } = this.editor.getSelection()
       const lineLastColumn = this.editor.getModel().getLineMaxColumn(lineNumber)
-      const { startLine, endLine } = this.getEditableZone()
+      const { startLine, endLine, noContent } = this.getEditableZone()
 
-      preventBackspace.set(lineNumber === startLine && column === 1)
-      preventDelete.set(lineNumber === endLine && column === lineLastColumn)
+      preventBackspace.set(noContent || (lineNumber === startLine && column === 1))
+      preventDelete.set(noContent || (lineNumber === endLine && column === lineLastColumn))
     }
 
     this.editor.onDidChangeCursorPosition(e => {
       const { lineNumber } = e.position
       const { startLine, endLine } = this.getEditableZone()
 
-      if (lineNumber < startLine) {
+      if (lineNumber <= startLine) {
         this.editor.setPosition({ lineNumber: startLine, column: 1 })
-        updateReadonlyZone()
       } else if (lineNumber > endLine) {
         this.editor.setPosition({ lineNumber: endLine, column: 1 })
-        updateReadonlyZone()
       }
+
+      updateReadonlyZone()
     })
 
     this.editor.onDidChangeModelContent(() => {
