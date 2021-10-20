@@ -434,9 +434,10 @@ export class Botpress {
         this.eventCollector.storeEvent(event)
       }
 
-      void this.messagingService.informProcessingDone(event)
+      // We don't want the waiting for the queue to be empty to freeze other messages
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.messagingService.informProcessingDone(event)
 
-      // TODO: can we remove this?
       await converseApiEvents.emitAsync(`done.${buildUserKey(event.botId, event.target)}`, event)
     }
 

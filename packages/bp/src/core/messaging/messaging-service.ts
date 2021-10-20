@@ -173,8 +173,6 @@ export class MessagingService {
         resolveOnEmptyQueue()
       })
 
-      // TODO: was the delay necessary?
-
       await this.clientsByBotId[event.botId].authHttp.post(`/messages/turn/${event.messageId}`)
     } catch (e) {
       // TODO: do something here
