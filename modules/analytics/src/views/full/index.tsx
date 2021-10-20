@@ -228,7 +228,7 @@ const Analytics: FC<any> = ({ bp }) => {
 
     const metrics = orderMetrics(getMetric('msg_sent_qna_count').filter(metric => metric.subMetric)).slice(0, 10)
 
-    const countVotes = (metric: string, id: string) => votes[metric].find(m => m.subMetric === id)?.value
+    const countVotes = (metric: MetricTypes, id: string) => votes[metric].find(m => m.subMetric === id)?.value
 
     const topQnaQuestions = await Promise.all(
       metrics.map(async ({ name: id, count }) => {
