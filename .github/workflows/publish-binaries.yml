@@ -1,8 +1,7 @@
 name: Release Binaries
 on:
-  push:
-    branches:
-      - '**'
+  pull_request:
+    types: [review_requested]
 
 jobs:
   pre_release_bin:
