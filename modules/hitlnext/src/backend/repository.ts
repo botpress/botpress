@@ -596,8 +596,8 @@ export default class Repository {
       url: process.core_env.MESSAGING_ENDPOINT
         ? process.core_env.MESSAGING_ENDPOINT
         : `http://localhost:${process.MESSAGING_PORT}`,
-      password: process.INTERNAL_PASSWORD,
-      auth: { clientId: messaging.id, clientToken: messaging.token }
+      auth: { clientId: messaging.id, clientToken: messaging.token },
+      config: { headers: { password: process.INTERNAL_PASSWORD } }
     })
     this.messagingClients[botId] = botClient
 

@@ -29,14 +29,22 @@ export default class WebchatDb {
 
   async mapVisitor(botId: string, visitorId: string, messaging: MessagingClient) {
     const userMapping = await this.getMappingFromVisitor(botId, visitorId)
+    let userId = userMapping?.userId
 
-    let userId: string
-
-    if (!userMapping) {
+    const createUserAndMapping = async () => {
       userId = (await messaging.users.create()).id
       await this.createUserMapping(botId, visitorId, userId)
+    }
+
+    if (!userMapping) {
+      await createUserAndMapping()
     } else {
-      userId = userMapping.userId
+      // Prevents issues when switching between different Messaging servers
+      // TODO: Remove this check once the 'web_user_map' table is removed
+      if (!(await this.checkUserExist(userMapping.userId, messaging))) {
+        await this.deleteMappingFromVisitor(botId, visitorId)
+        await createUserAndMapping()
+      }
     }
 
     return userId
@@ -60,6 +68,17 @@ export default class WebchatDb {
       this.bp.logger.error('An error occurred while fetching a visitor mapping.', err)
 
       return undefined
+    }
+  }
+
+  async deleteMappingFromVisitor(botId: string, visitorId: string): Promise<void> {
+    try {
+      this.cacheByVisitor.del(`${botId}_${visitorId}`)
+      await this.knex('web_user_map')
+        .where({ botId, visitorId })
+        .delete()
+    } catch (err) {
+      this.bp.logger.error('An error occurred while deleting a visitor mapping.', err)
     }
   }
 
@@ -118,8 +137,8 @@ export default class WebchatDb {
       url: process.core_env.MESSAGING_ENDPOINT
         ? process.core_env.MESSAGING_ENDPOINT
         : `http://localhost:${process.MESSAGING_PORT}`,
-      password: process.INTERNAL_PASSWORD,
-      auth: { clientId: messaging.id, clientToken: messaging.token }
+      auth: { clientId: messaging.id, clientToken: messaging.token },
+      config: { headers: { password: process.INTERNAL_PASSWORD } }
     })
     this.messagingClients[botId] = botClient
 
@@ -128,6 +147,12 @@ export default class WebchatDb {
 
   removeMessagingClient(botId: string) {
     this.messagingClients[botId] = undefined
+  }
+
+  private async checkUserExist(userId: string, messaging: MessagingClient): Promise<boolean> {
+    const user = await messaging.users.get(userId)
+
+    return user?.id === userId
   }
 }
 
