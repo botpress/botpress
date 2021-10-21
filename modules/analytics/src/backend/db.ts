@@ -1,9 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import Knex from 'knex'
-import { mergeWith, omit, take } from 'lodash'
+import { mergeWith, omit, take, Dictionary } from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
-import { Dictionary } from 'lodash'
 
 export const TABLE_NAME = 'bot_analytics'
 
