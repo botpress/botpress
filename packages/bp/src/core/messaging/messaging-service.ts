@@ -1,5 +1,5 @@
 import { MessagingClient } from '@botpress/messaging-client'
-import axios, { AxiosRequestConfig } from 'axios'
+import { AxiosRequestConfig } from 'axios'
 import { IO, Logger, MessagingConfig } from 'botpress/sdk'
 import { formatUrl, isBpUrl } from 'common/url'
 import { ConfigProvider } from 'core/config'
@@ -8,8 +8,6 @@ import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import { MessageNewEventData } from './messaging-router'
-
-const DEFAULT_TYPING_DELAY = 500
 
 @injectable()
 export class MessagingService {
