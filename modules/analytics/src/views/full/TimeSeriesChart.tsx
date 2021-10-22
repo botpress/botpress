@@ -1,6 +1,5 @@
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
-import _ from 'lodash'
 import moment from 'moment'
 import React, { FC } from 'react'
 import { Area, AreaChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts'

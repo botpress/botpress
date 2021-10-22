@@ -34,7 +34,7 @@ const mergeEntries = (a: Dic<number>, b: Dic<number>): Dic<number> => {
 
 export default class Database {
   knex: Knex & sdk.KnexExtension
-  private flusher: ReturnType<typeof setInterval>
+  private readonly flusher: ReturnType<typeof setInterval>
 
   private cache_entries: Dic<number> = {}
   private flush_lock: boolean

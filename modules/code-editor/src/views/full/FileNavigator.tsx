@@ -143,11 +143,6 @@ class FileNavigator extends React.Component<Props, State> {
   }
 
   private handleNodeClick = async (node: ITreeNode) => {
-    // if ctrl is down -> multiple
-    // if ctrl is up -> stop
-    // if shift is down -> select interval
-    // if (this.props.isMultipleCutActive) {
-
     if (node.nodeData && this.props.keyStates.action === KeyPosition.DOWN) {
       this.handleActionClick(node)
       return
@@ -171,9 +166,6 @@ class FileNavigator extends React.Component<Props, State> {
           return
         }
 
-        // n.isSelected = true
-
-        // if (!this.state.selectedFiles[n.id]) {
         const { selectedFiles } = this.state
 
         n.isSelected = true
@@ -182,14 +174,15 @@ class FileNavigator extends React.Component<Props, State> {
         this.setState({
           selectedFiles
         })
-        // }
 
         if (n.id === node.id){
           traversedCurrentNode = true
         }
       })
     } else {
-    //  unselect nodes
+      const firstSelectedNodeId = Object.keys(this.state.selectedFiles)[0]
+      const selectedFiles = {}
+
       this.traverseTree(this.state.nodes, (n: ITreeNode) => {
         if (!n.nodeData || !this.state.selectedFiles[n.id]) {
           return
@@ -198,70 +191,17 @@ class FileNavigator extends React.Component<Props, State> {
         n.isSelected = false
       })
 
-    //  new logic
-
-      const firstNodeId = Object.keys(this.state.selectedFiles)[0]
-      const firstLevelNode = sameLevelNodes.find((node: ITreeNode) => node.nodeData)
-      let traversedFirstNode: boolean = false
-
-      this.setState({
-        selectedFiles: {}
-      })
-
-      if (firstNodeId === firstLevelNode.id){
-        firstLevelNode.isSelected = true
-        traversedFirstNode = true
-
-        this.setState({
-          selectedFiles: {
-            [firstLevelNode.id]: node.nodeData as EditableFile
-          }
-        })
-      }
-
-      console.log(firstLevelNode)
-      console.log('firstNode', firstNodeId)
-
       sameLevelNodes.forEach((n: ITreeNode) => {
-        console.log(!n.nodeData || !traversedFirstNode)
-        if (!n.nodeData || !traversedFirstNode){ // || traversedCurrentNode){
+        if(!n.nodeData || n.id < firstSelectedNodeId || n.id > node.id){
           return
         }
 
-        console.log('traversedFirstNode', traversedFirstNode)
-        console.log('traversedCurrentNode', traversedCurrentNode)
-
-        // n.isSelected = true
-
-        // if (!this.state.selectedFiles[n.id]) {
-        const { selectedFiles } = this.state
-
         n.isSelected = true
-        selectedFiles[n.id] = n.nodeData as EditableFile
-
-        this.setState({
-          selectedFiles
-        })
-
-        console.log(n.id)
-        // }
-
-        if (n.id === firstNodeId){
-          traversedFirstNode = true
-        }
-
-        if (n.id === node.id){
-          traversedCurrentNode = true
-        }
+        selectedFiles[n.id] = n
       })
 
-
-    }
-
-    this.forceUpdate()
-
-    if (!node.nodeData) {
-      this.handleNodeExpand(node, !node.isExpanded)
+      this.setState(selectedFiles)
+      this.forceUpdate()
     }
   }
 
