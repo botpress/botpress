@@ -50,7 +50,7 @@ export class MessagingService {
     let messaging = (config.messaging || {}) as Partial<MessagingConfig>
 
     const messagingId = messaging.id || ''
-    // ClientId is already used by another botId, we will generate new ones for this bot
+    // ClientId is already used by another botId, we will generate new credentials for this bot
     if (this.botsByClientId[messagingId] && this.botsByClientId[messagingId] !== botId) {
       this.logger.warn(
         `ClientId ${messagingId} already in use by bot ${this.botsByClientId[messagingId]}. Removing channels configuration and generating new credentials for bot ${botId}`
@@ -199,6 +199,7 @@ export class MessagingService {
     const config: AxiosRequestConfig = {}
 
     if (!this.isExternal) {
+      config.proxy = false
       config.headers = { password: process.INTERNAL_PASSWORD }
     }
 

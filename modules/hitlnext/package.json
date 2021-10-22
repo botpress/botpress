@@ -17,7 +17,7 @@
     "@blueprintjs/core": "^3.36.0",
     "@botpress/messaging-client": "0.0.7",
     "@webscopeio/react-textarea-autocomplete": "^4.7.2",
-    "axios": "^0.21.0",
+    "axios": "^0.21.1",
     "bluebird": "^3.5",
     "classnames": "^2.2.6",
     "flat": "^5.0.2",
