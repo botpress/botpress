@@ -1,6 +1,5 @@
 import { clickOn, fillField, expectMatchElement } from '../expectPuppeteer'
 import {
-  autoAnswerDialog,
   clickOnTreeNode,
   CONFIRM_DIALOG,
   expectBotApiCallSuccess,
@@ -11,6 +10,27 @@ import {
 
 const waitForFilesToLoad = async () =>
   page.waitForFunction('document.querySelectorAll(".bp3-icon-document").length > 0')
+
+const createTmpFiles = async () => {
+  const fileName = '0a_test_file_code_editor.js'
+
+  await clickOn('#btn-add-action')
+  await fillField('#input-name', fileName)
+  await clickOn('#btn-submit')
+
+  await page.focus('#monaco-editor')
+  await page.mouse.click(469, 297)
+  await page.waitFor(500) // Required so the editor is correctly focused at the right place
+  await page.keyboard.type("const lol = 'hi' //")
+
+  await triggerKeyboardShortcut('KeyS', true)
+
+  await waitForFilesToLoad()
+  await clickOnTreeNode(fileName, 'right')
+  await clickOn('#btn-duplicate')
+
+  return [fileName, `${fileName}_copy.js`]
+}
 
 describe('Module - Code Editor', () => {
   beforeAll(async () => {
@@ -52,13 +72,17 @@ describe('Module - Code Editor', () => {
   it('Bulk cut & paste', async () => {
     await waitForFilesToLoad()
     await page.waitFor(500)
-    await clickOn('#btn-cut-multiple')
-    await clickOnTreeNode('hello.js')
+    await page.keyboard.down('Control')
 
+    const [firstFile, secondFile] = await createTmpFiles()
+
+    await clickOnTreeNode(firstFile)
+    await clickOnTreeNode(secondFile)
+    await page.keyboard.up('Control')
+
+    await clickOnTreeNode(secondFile, 'right')
+    await clickOn('#btn-cut')
     await clickOnTreeNode('assets', 'right')
-    await clickOn('#btn-paste')
-
-    await expectBotApiCallSuccess('mod/code-editor/save', 'POST')
 
     await Promise.all([
       expectBotApiCallSuccess('mod/code-editor/save', 'POST'),

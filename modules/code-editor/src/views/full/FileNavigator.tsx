@@ -156,33 +156,23 @@ class FileNavigator extends React.Component<Props, State> {
     await this.handleSingleNodeSelectedClick(node)
   }
 
+  private static isNodeIdInRange(currentNodeId: string, firstNodeId: string, lastNodeId: string): boolean{
+    let tempId: string
+    if (firstNodeId >= lastNodeId){
+      tempId = lastNodeId
+      lastNodeId = firstNodeId
+      firstNodeId = tempId
+    }
+
+    return currentNodeId >= firstNodeId && currentNodeId <= lastNodeId
+  }
+
   private handleShiftClick(node: ITreeNode<{}>) {
-    const sameLevelNodes: ITreeNode[] = this.getNodeParent(node).childNodes
-    let traversedCurrentNode: boolean = false
+    const selectedFiles = {}
+    const sameLevelNodes: ITreeNode[] = this.getNodeParent(node)?.childNodes
+    const firstSelectedNodeId = this.selectedFilesCount ? Object.keys(this.state.selectedFiles)[0] : null
 
-    if (!this.selectedFilesCount){
-      sameLevelNodes.forEach((n: ITreeNode) => {
-        if (!n.nodeData || traversedCurrentNode){
-          return
-        }
-
-        const { selectedFiles } = this.state
-
-        n.isSelected = true
-        selectedFiles[n.id] = n.nodeData as EditableFile
-
-        this.setState({
-          selectedFiles
-        })
-
-        if (n.id === node.id){
-          traversedCurrentNode = true
-        }
-      })
-    } else {
-      const firstSelectedNodeId = Object.keys(this.state.selectedFiles)[0]
-      const selectedFiles = {}
-
+    if (this.selectedFilesCount){
       this.traverseTree(this.state.nodes, (n: ITreeNode) => {
         if (!n.nodeData || !this.state.selectedFiles[n.id]) {
           return
@@ -190,19 +180,19 @@ class FileNavigator extends React.Component<Props, State> {
 
         n.isSelected = false
       })
-
-      sameLevelNodes.forEach((n: ITreeNode) => {
-        if(!n.nodeData || n.id < firstSelectedNodeId || n.id > node.id){
-          return
-        }
-
-        n.isSelected = true
-        selectedFiles[n.id] = n
-      })
-
-      this.setState(selectedFiles)
-      this.forceUpdate()
     }
+
+    sameLevelNodes.forEach((n: ITreeNode) => {
+      if(!n.nodeData || !FileNavigator.isNodeIdInRange(n.id as string, firstSelectedNodeId, node.id as string)){
+        return
+      }
+
+      n.isSelected = true
+      selectedFiles[n.id] = n
+    })
+
+    this.setState({ selectedFiles })
+    this.forceUpdate()
   }
 
   private handleActionClick(node: ITreeNode<{}>) {
@@ -245,22 +235,22 @@ class FileNavigator extends React.Component<Props, State> {
 
   private async handleSingleNodeSelectedClick(node: ITreeNode) {
     this.traverseTree(this.state.nodes, n => (n.isSelected = n.id === node.id))
+    this.forceUpdate()
 
+    // If nodeData is set, it's a file, otherwise a folder
     if (node.nodeData) {
-      const selectedFiles = {
-        [node.id]: node.nodeData
-      } as { [key: string]: EditableFile }
+      await this.props.editor.openFile(node.nodeData as EditableFile)
 
       this.setState({
-        selectedFiles,
+        selectedFiles: {
+          [node.id]: node.nodeData
+        } as { [key: string]: EditableFile },
         action: undefined
       })
-
-      this.forceUpdate()
-      await this.props.editor.openFile(node.nodeData as EditableFile)
     } else {
       this.handleNodeExpand(node, !node.isExpanded)
     }
+
     this.props.onNodeStateSelected(this.props.id + '/' + node.id)
   }
 
@@ -303,6 +293,7 @@ class FileNavigator extends React.Component<Props, State> {
     }
 
     // if multiple file selected and on selected file
+    console.log(this.selectedFilesCount, this.state.selectedFiles)
     if (this.selectedFilesCount > 1 && this.state.selectedFiles[node.id]){
       ContextMenu.show(
         <Menu>
