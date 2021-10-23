@@ -69,7 +69,7 @@
     "rawEditorDesc": "The raw file editor has no safeguards and you can easily mess important files. Handle with care! You can edit any file contained in the data folder, create new files and move existing files around.",
     "saveFile": "Save file",
     "selectMultipleFiles": "Select multiple files",
-    "selectInBetweenFiles": "Select files in a range"
+    "selectFilesInRange": "Select files in a range"
   },
   "store": {
     "alreadyExists": "A file with that name already exists",
