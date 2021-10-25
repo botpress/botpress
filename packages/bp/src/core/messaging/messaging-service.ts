@@ -158,18 +158,7 @@ export class MessagingService {
 
   public async informProcessingDone(event: IO.IncomingEvent) {
     try {
-      // We need to wait for an empty and not locked outgoing queue in order to have all responses
-
-      // TODO: could create a promise in the event engine that gets resolve when queue count is 0
-      await new Promise((resolve, reject) => {
-        const resolveOnEmptyQueue = () => {
-          this.eventEngine.isOutgoingQueueEmpty(event) && !this.eventEngine.isOutgoingQueueLocked(event)
-            ? resolve()
-            : setTimeout(resolveOnEmptyQueue, 50)
-        }
-        resolveOnEmptyQueue()
-      })
-
+      await this.eventEngine.waitOutgoingQueueEmpty(event)
       await this.clientsByBotId[event.botId].messages.turn(event.messageId!)
     } catch (e) {
       this.logger.attachError(e).error('Failed to inform messaging of completed processing')
