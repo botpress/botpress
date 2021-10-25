@@ -2,6 +2,8 @@ name: Release Binaries
 on:
   pull_request:
     types: [review_requested]
+  release:
+    types: [created]
 
 jobs:
   pre_release_bin:
@@ -42,6 +44,7 @@ jobs:
         run: yarn cmd archive
 
       - name: Rename Binary Files
+        if: ${{ github.event_name == 'pull_request' && github.event.action == 'review_requested' }}
         uses: botpress/gh-actions/rename_binaries@master
         with:
           path: ./packages/bp/archives
@@ -50,9 +53,18 @@ jobs:
         id: info
         uses: botpress/gh-actions/extract_info@master
 
-      - name: Publish Binaries
+      - name: Publish Dev Binaries
+        if: ${{ github.event_name == 'pull_request' && github.event.action == 'review_requested' }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           aws s3 sync packages/bp/archives s3://botpress-dev-bins/botpress/${{ steps.info.outputs.branch_sanitized }}
+
+      - name: Publish Prod Binaries
+        if: ${{ github.event_name == 'release' && github.event.action == 'created' }}
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 sync packages/bp/archives s3://botpress-binaries/

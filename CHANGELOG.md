@@ -1,3 +1,30 @@
+## [12.26.6](https://github.com/botpress/botpress/compare/v12.26.3...v12.26.6) (2021-10-22)
+
+
+### Bug Fixes
+
+* **auth:** allow first user to register with pro strategies ([#5564](https://github.com/botpress/botpress/issues/5564)) ([cf93a16](https://github.com/botpress/botpress/commit/cf93a16))
+* **basic-skills:** slot filling issues if using validation function  ([#5573](https://github.com/botpress/botpress/issues/5573)) ([1d8a232](https://github.com/botpress/botpress/commit/1d8a232))
+* **bp:** attach error in logger.error in action strategy ([#5588](https://github.com/botpress/botpress/issues/5588)) ([b2a555b](https://github.com/botpress/botpress/commit/b2a555b))
+* **channel-web:** fix display of carousels in emulator ([#5558](https://github.com/botpress/botpress/issues/5558)) ([2827cde](https://github.com/botpress/botpress/commit/2827cde))
+* **channel-web:** fix display of carousels on wide screens ([#5563](https://github.com/botpress/botpress/issues/5563)) ([6005917](https://github.com/botpress/botpress/commit/6005917))
+* **channel-web:** fix user creation when user mapping exists ([#5566](https://github.com/botpress/botpress/issues/5566)) ([eaec03a](https://github.com/botpress/botpress/commit/eaec03a))
+* **channel-web:** init api when ready ([#5570](https://github.com/botpress/botpress/issues/5570)) ([154f4c7](https://github.com/botpress/botpress/commit/154f4c7))
+* **code-editor:** actions and hooks comment wrapper is now readonly ([#5510](https://github.com/botpress/botpress/issues/5510)) ([3814267](https://github.com/botpress/botpress/commit/3814267))
+* **core:** give user access to workspaces on signup ([#5550](https://github.com/botpress/botpress/issues/5550)) ([292a0c0](https://github.com/botpress/botpress/commit/292a0c0))
+* **emulator:** manual scroll doesnt auto scroll to bottom ([#5561](https://github.com/botpress/botpress/issues/5561)) ([29640ac](https://github.com/botpress/botpress/commit/29640ac))
+* **hitlnext:** flatten user object information ([#5554](https://github.com/botpress/botpress/issues/5554)) ([6e084d0](https://github.com/botpress/botpress/commit/6e084d0))
+* **messaging:** fix receiving health events through webhook ([#5551](https://github.com/botpress/botpress/issues/5551)) ([26b27bf](https://github.com/botpress/botpress/commit/26b27bf))
+* **studio:** communication behind proxy ([#5579](https://github.com/botpress/botpress/issues/5579)) ([7cf46fb](https://github.com/botpress/botpress/commit/7cf46fb)), closes [#5581](https://github.com/botpress/botpress/issues/5581)
+
+
+### Features
+
+* **analytics:** add details to qna-analytics feedback ([#5485](https://github.com/botpress/botpress/issues/5485)) ([1f28468](https://github.com/botpress/botpress/commit/1f28468))
+* **telemetry:** new user stats ([#5420](https://github.com/botpress/botpress/issues/5420)) ([7dfb241](https://github.com/botpress/botpress/commit/7dfb241))
+
+
+
 ## [12.26.5](https://github.com/botpress/botpress/compare/v12.26.3...v12.26.5) (2021-10-07)
 
 
