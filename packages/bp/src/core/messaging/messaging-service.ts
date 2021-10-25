@@ -20,6 +20,7 @@ export class MessagingService {
   private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage', 'messaging']
   private newUsers: number = 0
   private eventIdToMessageIdCache: LRUCache<string, string>
+  private collectingForMessageCache: LRUCache<string, boolean>
 
   public isExternal: boolean
 
@@ -30,6 +31,7 @@ export class MessagingService {
   ) {
     this.isExternal = Boolean(process.core_env.MESSAGING_ENDPOINT)
     this.eventIdToMessageIdCache = new LRUCache<string, string>({ max: 5000, maxAge: ms('5m') })
+    this.collectingForMessageCache = new LRUCache<string, boolean>({ max: 5000, maxAge: ms('5m') })
   }
 
   @postConstruct()
@@ -134,6 +136,9 @@ export class MessagingService {
     })
 
     this.eventIdToMessageIdCache.set(event.id, msg.message.id)
+    if (msg.collect) {
+      this.collectingForMessageCache.set(msg.message.id, true)
+    }
 
     return this.eventEngine.sendEvent(event)
   }
@@ -156,7 +161,15 @@ export class MessagingService {
     return next(undefined, true, false)
   }
 
-  public async informProcessingDone(event: IO.IncomingEvent) {
+  public informProcessingDone(event: IO.IncomingEvent) {
+    if (this.collectingForMessageCache.get(event.messageId!)) {
+      // We don't want the waiting for the queue to be empty to freeze other messages
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.sendProcessingDone(event)
+    }
+  }
+
+  private async sendProcessingDone(event: IO.IncomingEvent) {
     try {
       await this.eventEngine.waitOutgoingQueueEmpty(event)
       await this.clientsByBotId[event.botId].messages.turn(event.messageId!)
