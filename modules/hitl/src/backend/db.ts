@@ -268,11 +268,11 @@ export default class HitlDb {
       .then(s => s && toBool(s.paused))
   }
 
-  getAllSessions(
+  async getAllSessions(
     onlyPaused: boolean,
     botId: string,
     sessionIds?: string[]
-  ): { total: number; sessions: HitlSessionOverview[] } {
+  ): Promise<{ total: number; sessions: HitlSessionOverview[] }> {
     const knex2 = this.knex
 
     let query = this.knex

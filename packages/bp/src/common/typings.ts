@@ -61,7 +61,7 @@ export interface AuthRole {
   id: string
   name: string
   description: string
-  rules: Array<AuthRule>
+  rules: AuthRule[]
 }
 
 export interface TokenUser {

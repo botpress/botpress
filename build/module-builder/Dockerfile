@@ -1,4 +1,4 @@
-FROM node:12-alpine as builder
+FROM node:12.18.1-alpine as builder
 # git is required to resolve `git+` dependencies
 RUN apk add --no-cache git
 WORKDIR /botpress
@@ -8,10 +8,10 @@ COPY . .
 # alternatively RUN git clone https://github.com/botpress/botpress.git .
 
 # fully build once
-RUN yarn && yarn build
+RUN yarn --frozen-lockfile && yarn build
 
 
-FROM node:12-alpine
+FROM node:12.18.1-alpine
 
 WORKDIR /botpress
 
@@ -22,7 +22,6 @@ COPY --from=builder ./botpress/modules/tsconfig_view.shared.json ./modules/tscon
 COPY --from=builder ./botpress/modules/tsconfig.shared.json ./modules/tsconfig.shared.json
 
 COPY --from=builder ./botpress/node_modules ./node_modules
-
 COPY --from=builder ./botpress/packages ./packages
 
 CMD [ "echo", "-e", "Which module would you like to build?\nUse sh -c 'cd modules/your-module && yarn && yarn build && yarn package'" ]

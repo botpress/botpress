@@ -168,7 +168,7 @@ export interface BotpressConfig {
   converse: ConverseConfig
   dialog: DialogConfig
   logs: LogsConfig
-  modules: Array<ModuleConfigEntry>
+  modules: ModuleConfigEntry[]
   pro: {
     /**
      * These strategies are allowed to log on the Admin UI.

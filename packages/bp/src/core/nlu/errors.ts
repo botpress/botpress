@@ -6,7 +6,7 @@ export class BotNotMountedError extends Error {
 
 export class BotNotTrainedInLanguageError extends Error {
   constructor(botId: string, languages: string[]) {
-    super(`Bot "${botId}" was not trained in languages [${languages.join(', ')}]. No model found.`)
+    super(`Bot "${botId}" was not trained in languages [${languages.join(', ')}]. Please train your chatbot.`)
   }
 }
 

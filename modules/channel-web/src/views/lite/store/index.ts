@@ -313,7 +313,7 @@ class RootStore {
   @action.bound
   async startConversation(): Promise<void> {
     await this.sendData({ type: 'request_start_conversation' })
-    await this.view.toggleBotInfo()
+    this.view.toggleBotInfo()
   }
 
   /** Creates a new conversation and switches to it */

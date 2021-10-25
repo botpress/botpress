@@ -119,8 +119,13 @@ const migration: Migration = {
   up: async ({ bp, configProvider }: MigrationOpts): Promise<sdk.MigrationResult> => {
     try {
       const ghost = bp.ghost.forGlobal()
-
       const nluJsonExists = await ghost.fileExists('config', 'nlu.json')
+
+      const botpressConfig = await configProvider.getBotpressConfig()
+      if (!!botpressConfig.nlu) {
+        nluJsonExists && (await ghost.deleteFile('config', 'nlu.json'))
+        return { success: true, message: 'Migration not needed.' }
+      }
 
       let nluCoreConfig: NLUCoreConfig
       if (!nluJsonExists) {
@@ -137,11 +142,11 @@ const migration: Migration = {
       return { success: false, message: `The following error occured when running the migration ${err.message}.` }
     }
   },
-  down: async ({ bp }: MigrationOpts): Promise<sdk.MigrationResult> => {
+  down: async ({ bp, configProvider }: MigrationOpts): Promise<sdk.MigrationResult> => {
     try {
       const ghost = bp.ghost.forGlobal()
 
-      const currentBotpressConfig = await ghost.readFileAsObject<BotpressConfig>('.', 'botpress.config.json')
+      const currentBotpressConfig = await configProvider.getBotpressConfig()
       const { nlu: coreNluConfig } = currentBotpressConfig
       const modNluConfig = { ...DEFAULT_NLU_MOD_CONFIG, ...mapCoreConfigToMod(coreNluConfig) }
 

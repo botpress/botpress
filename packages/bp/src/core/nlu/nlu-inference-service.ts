@@ -63,6 +63,7 @@ export class NLUInferenceService {
         'Process natural language in the form of text. Structured data with an action and parameters for that action is injected in the incoming message event.',
       order: 100,
       direction: 'incoming',
+      timeout: '6s',
       handler: this.handleIncomingEvent.bind(this)
     })
   }

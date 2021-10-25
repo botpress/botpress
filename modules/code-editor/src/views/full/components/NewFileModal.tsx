@@ -12,7 +12,7 @@ import { httpAction, legacyAction } from '../utils/templates'
 interface Props {
   isOpen: boolean
   toggle: () => void
-  openFile: (args: any) => void
+  openFile: (args: any) => Promise<void>
   files?: FilesDS
   selectedType: string
   selectedHookType: string

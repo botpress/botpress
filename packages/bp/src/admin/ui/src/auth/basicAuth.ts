@@ -93,7 +93,7 @@ export default class BasicAuthentication {
   }
 
   logout = async () => {
-    await auth.logout(() => api.getSecured())
+    auth.logout(() => api.getSecured())
   }
 
   isAuthenticated() {

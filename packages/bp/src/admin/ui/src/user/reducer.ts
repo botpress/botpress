@@ -69,7 +69,7 @@ export const fetchProfile = (): AppThunk => {
       const { data } = await api.getSecured().get('/admin/user/profile')
       dispatch({ type: MY_PROFILE_RECEIVED, profile: data.payload })
     } catch (err) {
-      await auth.logout(() => api.getSecured())
+      auth.logout(() => api.getSecured())
     }
   }
 }
@@ -84,8 +84,8 @@ export const fetchMyWorkspaces = (): AppThunk => {
 export const switchWorkspace = (workspaceId: string): AppThunk => {
   return async dispatch => {
     setActiveWorkspace(workspaceId)
-    await dispatch(fetchProfile())
-    await dispatch(fetchLicensing())
+    dispatch(fetchProfile())
+    dispatch(fetchLicensing())
 
     dispatch({ type: CURRENT_WORKSPACE_CHANGED, currentWorkspace: workspaceId })
   }
