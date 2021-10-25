@@ -52,7 +52,6 @@ export const extractEventCommonArgs = (
     user: incomingEvent.state.user ?? {},
     session: incomingEvent.state.session ?? ({} as IO.CurrentSession),
     temp: incomingEvent.state.temp ?? {},
-    bot: incomingEvent.state.bot ?? {},
-    workflow: incomingEvent.state.workflow ?? ({} as IO.WorkflowHistory)
+    bot: incomingEvent.state.bot ?? {}
   }
 }

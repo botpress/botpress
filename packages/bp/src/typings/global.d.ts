@@ -343,9 +343,6 @@ declare interface Dic<T> {
 declare interface BotpressCoreEvents {
   bp_core_session_created: { botId: string; channel: string }
   bp_core_send_content: { botId: string; channel: string; source: string; details: string }
-  bp_core_workflow_started: { botId: string; channel: string; wfName: string }
-  bp_core_workflow_completed: { botId: string; channel: string; wfName: string }
-  bp_core_workflow_failed: { botId: string; channel: string; wfName: string }
   bp_core_enter_flow: { botId: string; channel: string; flowName: string }
   bp_core_feedback_positive: { botId: string; channel: string; type: string; eventId?: string }
   bp_core_feedback_negative: { botId: string; channel: string; type: string; eventId?: string }

@@ -23,7 +23,6 @@ export interface BotConfig {
   languages: string[]
   locked: boolean
   pipeline_status: BotPipelineStatus
-  oneflow?: boolean
   qna: {
     disabled: boolean
   }

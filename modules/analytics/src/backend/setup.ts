@@ -22,18 +22,6 @@ export default async (bp: typeof sdk, db: Database, interactionsToTrack: string[
     db.incrementMetric(botId, channel, 'enter_flow_count', removeExt(flowName))
   })
 
-  process.BOTPRESS_EVENTS.on('bp_core_workflow_started', ({ channel, botId, wfName }) => {
-    db.incrementMetric(botId, channel, 'workflow_started_count', removeExt(wfName))
-  })
-
-  process.BOTPRESS_EVENTS.on('bp_core_workflow_completed', ({ channel, botId, wfName }) => {
-    db.incrementMetric(botId, channel, 'workflow_completed_count', removeExt(wfName))
-  })
-
-  process.BOTPRESS_EVENTS.on('bp_core_workflow_failed', ({ channel, botId, wfName }) => {
-    db.incrementMetric(botId, channel, 'workflow_failed_count', removeExt(wfName))
-  })
-
   process.BOTPRESS_EVENTS.on('bp_core_feedback_positive', ({ channel, botId, type }) => {
     if (type === 'qna') {
       db.incrementMetric(botId, channel, 'feedback_positive_qna')
