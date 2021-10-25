@@ -145,15 +145,13 @@ export class MessagingService {
 
     const payloadAbsoluteUrl = this.convertToAbsoluteUrls(event.payload)
 
-    // TODO: add this to the messaging client
-    const message = await this.clientsByBotId[event.botId].authHttp.post('/messages', {
-      conversationId: event.threadId!,
-      authorId: undefined,
-      payload: payloadAbsoluteUrl,
-      incomingId: this.eventIdToMessageIdCache.get(event.incomingEventId!)
-    })
-
-    event.messageId = message.data.id
+    const message = await this.clientsByBotId[event.botId].messages.create(
+      event.threadId!,
+      undefined,
+      payloadAbsoluteUrl,
+      { incomingId: this.eventIdToMessageIdCache.get(event.incomingEventId!)! }
+    )
+    event.messageId = message.id
 
     return next(undefined, true, false)
   }
@@ -172,9 +170,9 @@ export class MessagingService {
         resolveOnEmptyQueue()
       })
 
-      await this.clientsByBotId[event.botId].authHttp.post(`/messages/turn/${event.messageId}`)
+      await this.clientsByBotId[event.botId].messages.turn(event.messageId!)
     } catch (e) {
-      // TODO: do something here
+      this.logger.attachError(e).error('Failed to inform messaging of completed processing')
     }
   }
 
