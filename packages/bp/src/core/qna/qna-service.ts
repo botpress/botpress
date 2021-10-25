@@ -89,26 +89,6 @@ export class QnaService {
     }
   }
 
-  getIntentActions = async (intentName: string, event: sdk.IO.IncomingEvent): Promise<sdk.NDU.Actions[]> => {
-    const actions: any = []
-
-    const { defaultLang } = await this._getBotConfig(event.botId)
-    const qnaEntry = await this.getQuestionForIntent(intentName, event.botId)
-
-    if (qnaEntry?.enabled) {
-      if (qnaEntry.action.includes('text')) {
-        const payloads = await this._getQnaEntryPayloads(qnaEntry, event, TEXT_RENDERER, defaultLang)
-        actions.push({ action: 'send', data: { payloads, source: 'qna', sourceDetails: intentName } })
-      }
-
-      if (qnaEntry.action.includes('redirect')) {
-        actions.push({ action: 'redirect', data: { flow: qnaEntry.redirectFlow, node: qnaEntry.redirectNode } })
-      }
-    }
-
-    return actions
-  }
-
   private _getBotConfig = async (botId: string) => {
     if (this.loadedBots[botId]) {
       return this.loadedBots[botId]
@@ -126,7 +106,7 @@ export class QnaService {
   }
 
   private _processEvent = async (event: sdk.IO.IncomingEvent, defaultLang: string) => {
-    if (!event.nlu || !event.nlu.intents || event.ndu) {
+    if (!event.nlu || !event.nlu.intents) {
       return
     }
 

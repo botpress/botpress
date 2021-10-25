@@ -78,7 +78,6 @@ const navigateToElement = (name: string, type: string) => () => {
   }
   window.postMessage({ action: 'navigate-url', payload: url }, '*')
 }
-const isNDU = window['USE_ONEFLOW']
 
 const fetchReducer = (state: State, action): State => {
   if (action.type === 'datesSuccess') {
@@ -404,13 +403,6 @@ const Analytics: FC<any> = ({ bp }) => {
           value={getAvgMsgPerSessions()}
           iconBottom="chat"
         />
-        {isNDU && (
-          <NumberMetric
-            name={lang.tr('module.analytics.workflowsInitiated')}
-            value={getMetricCount('workflow_started_count')}
-            className={style.half}
-          />
-        )}
         <NumberMetric
           name={lang.tr('module.analytics.questionsAsked')}
           value={getMetricCount('msg_sent_qna_count')}
@@ -537,34 +529,6 @@ const Analytics: FC<any> = ({ bp }) => {
             />
           </div>
         </div>
-        {isNDU && (
-          <Fragment>
-            <div className={cx(style.genericMetric, style.quarter, style.list, style.multiple)}>
-              <ItemsList
-                name={lang.tr('module.analytics.mostFailedWorkflows')}
-                items={getTopItems('workflow_failed_count', 'workflow')}
-                itemLimit={3}
-                className={style.list}
-              />
-              {/* <ItemsList
-                name={lang.tr('module.analytics.mostFailedQuestions')}
-                items={getTopItems('feedback_negative_qna', 'qna')}
-                itemLimit={3}
-                hasTooltip
-                className={style.list}
-              /> */}
-            </div>
-            <RadialMetric
-              name={lang.tr('module.analytics.successfulWorkflowCompletions', {
-                nb: getMetricCount('workflow_completed_count')
-              })}
-              value={Math.round(
-                (getMetricCount('workflow_completed_count') / getMetricCount('workflow_started_count')) * 100
-              )}
-              className={style.quarter}
-            />
-          </Fragment>
-        )}
       </div>
     )
   }

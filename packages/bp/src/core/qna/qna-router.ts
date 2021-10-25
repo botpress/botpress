@@ -26,22 +26,6 @@ export class QnaRouter extends CustomRouter {
   private setupRoutes(): void {
     const router = this.router
 
-    router.post(
-      '/intentActions',
-      this.checkTokenHeader,
-      this.needPermissions('read', 'module.qna'),
-      this.asyncMiddleware(async (req, res) => {
-        const { intentName, event } = req.body
-
-        try {
-          res.send(await this.qnaService.getIntentActions(intentName, event))
-        } catch (err) {
-          this.logger.attachError(err).error(err.message)
-          res.status(200).send([])
-        }
-      })
-    )
-
     router.get(
       '/questions',
       this.checkTokenHeader,

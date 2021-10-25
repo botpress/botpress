@@ -138,8 +138,6 @@ declare module 'botpress/sdk' {
     /** An array of available bot templates when creating a new bot */
     botTemplates?: BotTemplate[]
     translations?: { [lang: string]: object }
-    /** List of new conditions that the module can register */
-    dialogConditions?: Condition[]
     /** Called once the core is initialized. Usually for middlewares / database init */
     onServerStarted?: (bp: typeof import('botpress/sdk')) => Promise<void>
     /** This is called once all modules are initialized, usually for routing and logic */
@@ -256,7 +254,6 @@ declare module 'botpress/sdk' {
 
   export interface FlowGeneratorMetadata {
     botId: string
-    isOneFlow?: boolean
   }
 
   export interface ModulePluginEntry {
@@ -389,57 +386,6 @@ declare module 'botpress/sdk' {
         extractor: string
       }[]
     }
-  }
-
-  export namespace NDU {
-    interface GenericTrigger {
-      conditions: DecisionTriggerCondition[]
-    }
-
-    export interface WorkflowTrigger extends GenericTrigger {
-      type: 'workflow'
-      workflowId: string
-      nodeId: string
-      /** When true, the user must be inside the specified workflow for the trigger to be active */
-      activeWorkflow?: boolean
-    }
-
-    export interface FaqTrigger extends GenericTrigger {
-      type: 'faq'
-      faqId: string
-      topicName: string
-    }
-
-    export interface NodeTrigger extends GenericTrigger {
-      type: 'node'
-      workflowId: string
-      nodeId: string
-    }
-
-    export type Trigger = NodeTrigger | FaqTrigger | WorkflowTrigger
-
-    export interface DialogUnderstanding {
-      triggers: {
-        [triggerId: string]: {
-          result: Dic<number>
-          trigger: Trigger
-        }
-      }
-      actions: Actions[]
-      predictions: { [key: string]: { triggerId: string; confidence: number } }
-    }
-
-    export interface Actions {
-      action: 'send' | 'startWorkflow' | 'redirect' | 'continue' | 'goToNode'
-      data?: SendContent | FlowRedirect
-    }
-
-    export interface FlowRedirect {
-      flow: string
-      node: string
-    }
-
-    export type SendContent = Pick<IO.Suggestion, 'confidence' | 'payloads' | 'source' | 'sourceDetails'>
   }
 
   export namespace IO {
@@ -583,7 +529,6 @@ declare module 'botpress/sdk' {
       readonly decision?: Suggestion
       /* HITL module has possibility to pause conversation */
       readonly isPause?: boolean
-      readonly ndu?: NDU.DialogUnderstanding
     }
 
     export interface OutgoingEvent extends Event {
@@ -626,8 +571,6 @@ declare module 'botpress/sdk' {
       bot: any
       /** Used internally by Botpress to keep the user's current location and upcoming instructions */
       context?: DialogContext
-      /** This variable points to the currently active workflow */
-      workflow: WorkflowHistory
       /**
        * EXPERIMENTAL
        * This includes all the flow/nodes which were traversed for the current event
@@ -681,21 +624,8 @@ declare module 'botpress/sdk' {
     export interface CurrentSession {
       lastMessages: DialogTurnHistory[]
       nluContexts?: NluContext[]
-      nduContext?: NduContext
-      workflows: {
-        [name: string]: WorkflowHistory
-      }
-      currentWorkflow?: string
       // Prevent warnings when using the code editor with custom properties
       [anyKey: string]: any
-    }
-
-    export interface WorkflowHistory {
-      eventId: string
-      parent?: string
-      /** Only one workflow can be active at a time, when a child workflow is active, the parent will be pending */
-      status: 'active' | 'pending' | 'completed'
-      success?: boolean
     }
 
     export type StoredEvent = {
@@ -726,14 +656,6 @@ declare module 'botpress/sdk' {
       context: string
       /** Represent the number of turns before the context is removed from the session */
       ttl: number
-    }
-
-    export interface NduContext {
-      last_turn_action_name: string
-      last_turn_highest_ranking_trigger_id: string
-      last_turn_node_id: string
-      last_turn_ts: number
-      last_topic: string
     }
 
     export interface DialogTurnHistory {
@@ -930,7 +852,6 @@ declare module 'botpress/sdk' {
     languages: string[]
     locked: boolean
     pipeline_status: BotPipelineStatus
-    oneflow?: boolean
 
     /**
      * constant number used to seed nlu random number generators
@@ -1137,68 +1058,9 @@ declare module 'botpress/sdk' {
     timeout?: { name: string; flow: string; node: string }[]
   }
 
-  export interface DecisionTriggerCondition {
-    id: string
-    params?: { [key: string]: any }
-  }
-
-  export interface Condition {
-    id: string
-    /** String displayed in the dropdown */
-    label: string
-    /** The description holds placeholders for param values so they can be displayed in the view */
-    description?: string
-    /** The definition of all parameters used by this condition */
-    params?: { [paramName: string]: ConditionParam }
-    /** In which order the conditions will be displayed in the dropdown menu. 0 is the first item */
-    displayOrder?: number
-    /** This callback url is called when the condition is deleted or pasted in the flow */
-    callback?: string
-    /** The editor will use the LiteEditor component to provide the requested parameters */
-    useLiteEditor?: boolean
-    evaluate: (event: IO.IncomingEvent, params: any) => number
-  }
-
-  export interface ConditionParam {
-    label: string
-    /** Each type provides a different kind of editor */
-    type: 'string' | 'number' | 'boolean' | 'list' | 'radio' | 'array' | 'content'
-    /** Different components can be used to display certain types (eg: boolean/list) */
-    subType?: 'switch' | 'radio'
-    required?: boolean
-    defaultValue?: any
-    /** Number of rows (for types which supports it, ex: string, array) */
-    rows?: number
-    /** When type is list, this variable must be configured */
-    list?: ConditionListOptions
-  }
-
-  export interface ConditionListOptions {
-    /** List of options displayed in the dropdown menu */
-    items?: Option[]
-    /** Alternatively, set an endpoint where the list will be queried (eg: intents) */
-    endpoint?: string
-    /** The path to the list of elements (eg: language.available) */
-    path?: string
-    /** Name of the field which will be used as the value. Default to value */
-    valueField?: string
-    /** Friendly name displayed in the dropdown menu. Default to label */
-    labelField?: string
-  }
-
   export interface Option {
     value: string
     label: string
-  }
-
-  export interface Topic {
-    name: string
-    description: string
-  }
-
-  export interface Library {
-    elementPath: string
-    elementId: string
   }
 
   /**
@@ -1223,17 +1085,7 @@ declare module 'botpress/sdk' {
    */
   export type SkillFlow = Partial<Flow> & Pick<Required<Flow>, 'nodes'>
 
-  export type FlowNodeType =
-    | 'standard'
-    | 'skill-call'
-    | 'listen'
-    | 'say_something'
-    | 'success'
-    | 'failure'
-    | 'trigger'
-    | 'execute'
-    | 'router'
-    | 'action'
+  export type FlowNodeType = 'standard' | 'skill-call' | 'listen' | 'say_something' | 'execute' | 'router' | 'action'
 
   export type FlowNode = {
     id?: string
@@ -1244,17 +1096,6 @@ declare module 'botpress/sdk' {
     /** Used internally by the flow editor */
     readonly lastModified?: Date
   } & NodeActions
-
-  export type TriggerNode = FlowNode & {
-    conditions: DecisionTriggerCondition[]
-    activeWorkflow?: boolean
-  }
-
-  export type ListenNode = FlowNode & {
-    triggers: { conditions: DecisionTriggerCondition[] }[]
-  }
-
-  export type SkillFlowNode = Partial<ListenNode> & Pick<Required<ListenNode>, 'name'> & Partial<TriggerNode>
 
   /**
    * Node Transitions are all the possible outcomes when a user's interaction on a node is completed. The possible destinations
@@ -1961,11 +1802,6 @@ declare module 'botpress/sdk' {
       flowName: string,
       nodeName?: string
     ): Promise<void>
-
-    /**
-     * Returns the list of conditions that can be used in an NLU Trigger node
-     */
-    export function getConditions(): Condition[]
   }
 
   export namespace config {

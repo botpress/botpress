@@ -17,10 +17,6 @@ const Metric = <const>[
   'msg_nlu_intent',
   'msg_nlu_language',
 
-  'workflow_started_count',
-  'workflow_completed_count',
-  'workflow_failed_count',
-
   'feedback_positive_qna',
   'feedback_negative_qna',
   'feedback_positive_workflow',

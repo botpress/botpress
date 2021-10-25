@@ -217,7 +217,6 @@ export interface EventCommonArgs {
   temp: { [property: string]: any }
   bot: { [property: string]: any }
   session: IO.CurrentSession
-  workflow: IO.WorkflowHistory
   // Any other additional property
   [property: string]: any
 }
