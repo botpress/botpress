@@ -14,7 +14,8 @@
     "version": "1.0.0-rc.2"
   },
   "studio": {
-    "version": "v0.0.38-next.1"
+    "version": "0.0.40",
+    "devBranch": "next"
   },
   "messaging": {
     "version": "0.1.13"

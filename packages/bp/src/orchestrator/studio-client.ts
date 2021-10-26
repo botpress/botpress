@@ -1,5 +1,5 @@
 import axios, { AxiosInstance } from 'axios'
-import sdk from 'botpress/sdk'
+import sdk, { BotConfig } from 'botpress/sdk'
 import { ChildProcess, fork, spawn } from 'child_process'
 import { forceForwardSlashes } from 'core/misc/utils'
 import fse from 'fs-extra'
@@ -57,6 +57,9 @@ export const studioActions = {
     try {
       await studioClient?.post('/setDebugScopes', { scopes })
     } catch {}
+  },
+  createBot: async (bot: Partial<BotConfig>, template: string) => {
+    await studioClient?.post('/createBot', { bot, template })
   }
 }
 
