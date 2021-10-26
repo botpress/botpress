@@ -1,6 +1,6 @@
 import { bpConfig } from '../../jest-puppeteer.config'
 import { clickOn, fillField } from '../expectPuppeteer'
-import { expectCallSuccess, getResponse } from '../utils'
+import { expectAdminApiCallSuccess, getResponse } from '../utils'
 
 describe('Admin - Init', () => {
   it('Load Login page', async () => {
@@ -39,10 +39,7 @@ describe('Admin - Init', () => {
       await fillField('#select-bot-templates', 'Welcome Bot')
       await page.keyboard.press('Enter')
 
-      await Promise.all([
-        expectCallSuccess(`${bpConfig.apiHost}/studio/manage/bots/create`, 'POST'),
-        clickOn('#btn-modal-create-bot')
-      ])
+      await Promise.all([expectAdminApiCallSuccess('workspace/bots', 'POST'), clickOn('#btn-modal-create-bot')])
     })
   }
 })

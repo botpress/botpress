@@ -145,7 +145,7 @@ export class BotService {
     return workspace?.botPrefix ? `${workspace.botPrefix}__${botId}` : botId
   }
 
-  async onBotCreation(botId: string) {
+  async afterBotCreated(botId: string) {
     this.stats.track('bot', 'create')
 
     this._invalidateBotIds()

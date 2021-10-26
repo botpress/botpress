@@ -6,6 +6,7 @@ import { ConflictError, ForbiddenError, sendSuccess } from 'core/routers'
 import { assertSuperAdmin, assertWorkspace } from 'core/security'
 import Joi from 'joi'
 import _ from 'lodash'
+import { studioActions } from 'orchestrator'
 import yn from 'yn'
 
 const chatUserBotFields = [
@@ -48,6 +49,49 @@ class BotsRouter extends CustomAdminRouter {
           bots: isBotAdmin ? bots : bots.map(b => _.pick(b, chatUserBotFields)),
           workspace: _.pick(workspace, ['name', 'pipeline', 'botPrefix'])
         })
+      })
+    )
+
+    router.post(
+      '/',
+      this.checkTokenHeader,
+      this.needPermissions('write', 'admin.bots'),
+      this.asyncMiddleware(async (req, res) => {
+        const bot = <BotConfig>_.pick(req.body, ['id', 'name', 'category', 'defaultLanguage'])
+
+        const botExists = (await this.botService.getBotsIds()).includes(bot.id)
+        const botLinked = (await this.workspaceService.getBotRefs()).includes(bot.id)
+
+        bot.id = await this.botService.makeBotId(bot.id, req.workspace!)
+
+        if (botExists && botLinked) {
+          throw new Error(`Bot "${bot.id}" already exists and is already linked in workspace`)
+        }
+
+        if (botExists) {
+          this.logger.warn(`Bot "${bot.id}" already exists. Linking to workspace`)
+        } else {
+          const pipeline = await this.workspaceService.getPipeline(req.workspace!)
+
+          bot.pipeline_status = {
+            current_stage: {
+              id: pipeline![0].id,
+              promoted_on: new Date(),
+              promoted_by: req.tokenUser!.email
+            }
+          }
+
+          await studioActions.createBot(bot, req.body.template)
+          await this.botService.afterBotCreated(bot.id)
+        }
+
+        if (botLinked) {
+          this.logger.warn(`Bot "${bot.id}" already linked in workspace. See workspaces.json for more details`)
+        } else {
+          await this.workspaceService.addBotRef(bot.id, req.workspace!)
+        }
+
+        res.send({ botId: bot.id })
       })
     )
 

@@ -1,6 +1,5 @@
 import {
   BotTemplate,
-  Condition,
   ContentElement,
   ElementChangedAction,
   Flow,
@@ -43,7 +42,6 @@ const MODULE_SCHEMA = joi.object().keys({
   skills: joi.array().optional(),
   translations: joi.object().optional(),
   botTemplates: joi.array().optional(),
-  dialogConditions: joi.array().optional(),
   definition: joi.object().keys({
     name: joi.string().required(),
     fullName: joi.string().optional(),
@@ -339,16 +337,6 @@ export class ModuleLoader {
       })
 
     return _.flatten(templates)
-  }
-
-  public getDialogConditions(): Condition[] {
-    const modules = Array.from(this.entryPoints.values())
-    const conditions = _.flatMap(
-      modules.filter(module => module.dialogConditions),
-      x => x.dialogConditions
-    ) as Condition[]
-
-    return _.orderBy(conditions, x => x?.displayOrder)
   }
 
   public getLoadedModules(): ModuleDefinition[] {

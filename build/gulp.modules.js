@@ -102,7 +102,7 @@ const buildModules = () => {
   if (command === '--m') {
     moduleFilter = m => moduleArgs.includes(m)
   } else if (command === '--a') {
-    // if command="--a nlu" we match nlu, nlu-testing and nlu-extras
+    // if command="--a nlu" we match nlu and nlu-extras
     moduleFilter = m => moduleArgs.some(arg => !!m.match(new RegExp(`${arg}`)))
   }
 
@@ -136,7 +136,7 @@ const packageModules = () => {
   if (command === '--m') {
     moduleFilter = m => moduleArgs.includes(m)
   } else if (command === '--a') {
-    // if command="--a nlu" we match nlu, nlu-testing and nlu-extras
+    // if command="--a nlu" we match nlu and nlu-extras
     moduleFilter = m => moduleArgs.some(arg => !!m.match(new RegExp(`${arg}`)))
   }
 

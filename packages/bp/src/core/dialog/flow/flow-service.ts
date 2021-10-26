@@ -124,14 +124,6 @@ export class ScopedFlowService {
     } else if (this.cache.get(key)) {
       this.cache.remove(key)
     }
-
-    // parent flows are only used by the NDU
-    if (this._isOneFlow()) {
-      const flows = this.cache.values()
-      const flowsWithParents = this.addParentsToFlows(flows)
-
-      this.cache.initialize(flowsWithParents)
-    }
   }
 
   public async handleInvalidatedCache(flowName: string, isFromFile: boolean) {
@@ -171,17 +163,8 @@ export class ScopedFlowService {
         return this.parseFlow(flowPath)
       })
 
-      // parent flows are only used by the NDU
-      if (this._isOneFlow()) {
-        const flowsWithParents = this.addParentsToFlows(flows)
-        this.cache.initialize(flowsWithParents)
-
-        return flowsWithParents
-      } else {
-        this.cache.initialize(flows)
-
-        return flows
-      }
+      this.cache.initialize(flows)
+      return flows
     } catch (err) {
       this.logger
         .forBot(this.botId)
@@ -191,34 +174,9 @@ export class ScopedFlowService {
     }
   }
 
-  @Memoize()
-  private async _isOneFlow(): Promise<boolean> {
-    const botConfig = await this.botService.findBotById(this.botId)
-    return !!botConfig?.oneflow
-  }
-
-  private addParentsToFlows(flows: FlowView[]): FlowView[] {
-    const tree = new TreeSearch(PATH_SEPARATOR)
-
-    flows.forEach(f => {
-      const filename = f.name.replace('.flow.json', '')
-      // the value we are looking for is the parent filename
-      tree.insert(filename, filename)
-    })
-
-    return flows.map(f => {
-      const filename = f.name.replace('.flow.json', '')
-
-      return {
-        ...f,
-        parent: tree.getParent(filename)
-      }
-    })
-  }
-
   private async parseFlow(flowPath: string): Promise<FlowView> {
     const flow = await this.ghost.readFileAsObject<Flow>(FLOW_DIR, flowPath)
-    const schemaError = validateFlowSchema(flow, await this._isOneFlow())
+    const schemaError = validateFlowSchema(flow)
 
     if (!flow || schemaError) {
       throw new Error(`Invalid schema for "${flowPath}". ${schemaError} `)

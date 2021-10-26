@@ -94,7 +94,7 @@ export class EventCollector {
     this.enabled = true
   }
 
-  public storeEvent(event: sdk.IO.OutgoingEvent | sdk.IO.IncomingEvent, activeWorkflow?: sdk.IO.WorkflowHistory) {
+  public storeEvent(event: sdk.IO.OutgoingEvent | sdk.IO.IncomingEvent) {
     if (!this.enabled || this.ignoredTypes.includes(event.type)) {
       return
     }
@@ -120,8 +120,6 @@ export class EventCollector {
       sessionId,
       direction,
       type,
-      workflowId: activeWorkflow?.eventId,
-      success: activeWorkflow?.success,
       incomingEventId: event.direction === 'outgoing' ? incomingEventId : id,
       event: ignoredProps.length ? (_.omit(event, ignoredProps) as sdk.IO.Event) : event,
       createdOn: this.knex.date.now()
