@@ -26,7 +26,7 @@ export type IScopedServicesFactory = I<ScopedServicesFactory>
 
 export class ScopedServicesFactory {
   constructor(
-    private _languageSource: LanguageSource & { isExternal: boolean },
+    private _languageSource: LanguageSource & { isLocal: boolean },
     private _logger: sdk.Logger,
     private _makeDefRepo: DefinitionRepositoryFactory
   ) {}

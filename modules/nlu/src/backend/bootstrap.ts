@@ -3,6 +3,7 @@ import * as sdk from 'botpress/sdk'
 import { makeNLUPassword } from 'common/nlu-token'
 import _ from 'lodash'
 
+import url from 'url'
 import { Config, LanguageSource } from '../config'
 
 import { getWebsocket } from './api'
@@ -16,12 +17,17 @@ import { BotDefinition } from './application/typings'
 import { NLUClientNoProxy } from './no-proxy-client'
 import { StanEngine } from './stan'
 
-const getNLUServerConfig = (config: Config['nluServer']): LanguageSource & { isExternal: boolean } => {
+export const isLocalHost = (endpoint: string) => {
+  const { hostname } = new url.URL(endpoint)
+  return ['localhost', '127.0.0.1', '0.0.0.0'].includes(hostname)
+}
+
+const getNLUServerConfig = (config: Config['nluServer']): LanguageSource & { isLocal: boolean } => {
   if (config.autoStart) {
     return {
       endpoint: `http://localhost:${process.NLU_PORT}`,
       authToken: makeNLUPassword(),
-      isExternal: false
+      isLocal: true
     }
   }
 
@@ -29,7 +35,7 @@ const getNLUServerConfig = (config: Config['nluServer']): LanguageSource & { isE
   return {
     endpoint,
     authToken,
-    isExternal: true
+    isLocal: isLocalHost(endpoint)
   }
 }
 
