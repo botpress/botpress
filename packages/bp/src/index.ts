@@ -2,6 +2,9 @@ import { EventEmitter } from 'events'
 
 global['NativePromise'] = global.Promise
 
+// eslint-disable-next-line no-console
+console.log('This is a test, do not merge this PR')
+
 const fs = require('fs')
 const path = require('path')
 const yn = require('yn')
