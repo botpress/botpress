@@ -28,12 +28,9 @@
     "lru-cache": "^6.0.0",
     "moment": "^2.24",
     "react-avatar": "^3.10.0",
-    "serialize-javascript": "^5.0.1",
     "yn": "^4.0.0"
   },
-  "devDependencies": {
-    "@types/serialize-javascript": "^5.0.1"
-  },
+  "devDependencies": {},
   "resolutions": {
     "fstream": ">=1.0.12",
     "lodash": ">=4.17.21"
