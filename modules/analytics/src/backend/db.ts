@@ -1,6 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import Knex from 'knex'
-import { mergeWith, omit, take } from 'lodash'
+import { mergeWith, omit, take, Dictionary } from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
@@ -26,17 +26,17 @@ const Metric = <const>[
   'feedback_positive_workflow',
   'feedback_negative_workflow'
 ]
-type MetricTypes = typeof Metric[number]
+export type MetricTypes = typeof Metric[number]
 
-const mergeEntries = (a: Dic<number>, b: Dic<number>): Dic<number> => {
+const mergeEntries = (a: Dictionary<number>, b: Dictionary<number>): Dictionary<number> => {
   return mergeWith(a, b, (v1, v2) => (v1 || 0) + (v2 || 0))
 }
 
 export default class Database {
   knex: Knex & sdk.KnexExtension
-  private flusher: ReturnType<typeof setInterval>
+  private readonly flusher: ReturnType<typeof setInterval>
 
-  private cache_entries: Dic<number> = {}
+  private cache_entries: Dictionary<number> = {}
   private flush_lock: boolean
 
   constructor(private bp: typeof sdk) {

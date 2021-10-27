@@ -143,7 +143,7 @@ export class ActionStrategy implements InstructionStrategy {
 
       await service.runAction({ actionName, incomingEvent: event, actionArgs: args, actionServer })
     } catch (err) {
-      this.logger.error(err.message)
+      this.logger.attachError(err).error(err.message)
       const { currentNode, currentFlow } = _.get(event, 'state.context', {})
       addErrorToEvent(
         {

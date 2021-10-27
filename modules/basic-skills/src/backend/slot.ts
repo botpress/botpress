@@ -39,6 +39,11 @@ const createNodes = data => {
     ...runValidationActions
   ]
 
+  const resetValid = {
+    type: sdk.NodeActionType.RunAction,
+    name: 'builtin/setVariable {"type":"temp","name":"valid","value": "true"}'
+  }
+
   return [
     {
       name: 'slot-extract',
@@ -86,7 +91,8 @@ const createNodes = data => {
         {
           type: sdk.NodeActionType.RenderElement,
           name: `#!${data.notFoundElement}`
-        }
+        },
+        resetValid
       ],
       onReceive: slotExtractOnReceive,
       next: [
@@ -130,9 +136,11 @@ const createNodes = data => {
         {
           type: sdk.NodeActionType.RunAction,
           name: 'builtin/setVariable {"type":"temp","name":"alreadyExtracted","value":"true"}'
-        }
+        },
+        resetValid,
+        ...runValidationActions
       ],
-      onReceive: runValidationActions,
+      onReceive: undefined,
       next: [
         {
           condition: ' (temp.valid === undefined || temp.valid == "true")',
@@ -140,7 +148,7 @@ const createNodes = data => {
         },
         {
           condition: 'true',
-          node: 'not-extracted'
+          node: 'slot-extract'
         }
       ]
     }
