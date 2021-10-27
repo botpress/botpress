@@ -172,7 +172,7 @@ export class MessagingService {
   private async sendProcessingDone(event: IO.IncomingEvent) {
     try {
       await this.eventEngine.waitOutgoingQueueEmpty(event)
-      await this.clientsByBotId[event.botId].messages.turn(event.messageId!)
+      await this.clientsByBotId[event.botId].messages.endTurn(event.messageId!)
     } catch (e) {
       this.logger.attachError(e).error('Failed to inform messaging of completed processing')
     }
