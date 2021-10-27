@@ -1,6 +1,6 @@
 {
   "name": "bp_main",
-  "version": "12.26.5",
+  "version": "12.26.6",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": "^12"
@@ -14,11 +14,11 @@
     "version": "1.0.0-rc.2"
   },
   "studio": {
-    "version": "0.0.40",
+    "version": "0.0.41",
     "devBranch": "next"
   },
   "messaging": {
-    "version": "0.1.13"
+    "version": "0.1.15"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
@@ -39,8 +39,8 @@
     "@apidevtools/json-schema-ref-parser": "^9.0.6",
     "@babel/parser": "^7.11.2",
     "@babel/traverse": "^7.11.0",
-    "@botpress/messaging-client": "0.0.3",
     "@botpress/nlu-client": "1.0.0-rc.2",
+    "@botpress/messaging-client": "0.0.7",
     "archiver": "^5.3.0",
     "axios": "^0.21.1",
     "bluebird-global": "^1.0.1",

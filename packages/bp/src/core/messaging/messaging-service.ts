@@ -1,4 +1,5 @@
 import { MessagingClient } from '@botpress/messaging-client'
+import { AxiosRequestConfig } from 'axios'
 import { IO, Logger, MessagingConfig } from 'botpress/sdk'
 import { formatUrl, isBpUrl } from 'common/url'
 import { ConfigProvider } from 'core/config'
@@ -6,8 +7,7 @@ import { EventEngine, Event } from 'core/events'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
-
-const DEFAULT_TYPING_DELAY = 500
+import { MessageNewEventData } from './messaging-router'
 
 @injectable()
 export class MessagingService {
@@ -16,9 +16,9 @@ export class MessagingService {
   private botsByClientId: { [clientId: string]: string } = {}
   private webhookTokenByClientId: { [botId: string]: string } = {}
   private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
+  private newUsers: number = 0
 
   public isExternal: boolean
-  public internalPassword: string | undefined
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
@@ -40,8 +40,7 @@ export class MessagingService {
 
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
-    this.internalPassword = this.isExternal ? undefined : process.INTERNAL_PASSWORD
-    this.clientSync = new MessagingClient({ url: this.getMessagingUrl(), password: this.internalPassword })
+    this.clientSync = new MessagingClient({ url: this.getMessagingUrl(), config: this.getAxiosConfig() })
   }
 
   async loadMessagingForBot(botId: string) {
@@ -51,7 +50,7 @@ export class MessagingService {
     let messaging = (config.messaging || {}) as Partial<MessagingConfig>
 
     const messagingId = messaging.id || ''
-    // ClientId is already used by another botId, we will generate new ones for this bot
+    // ClientId is already used by another botId, we will generate new credentials for this bot
     if (this.botsByClientId[messagingId] && this.botsByClientId[messagingId] !== botId) {
       this.logger.warn(
         `ClientId ${messagingId} already in use by bot ${this.botsByClientId[messagingId]}. Removing channels configuration and generating new credentials for bot ${botId}`
@@ -92,8 +91,8 @@ export class MessagingService {
 
     const botClient = new MessagingClient({
       url: this.getMessagingUrl(),
-      password: this.internalPassword,
-      auth: { clientId: messaging.id!, clientToken: messaging.token! }
+      auth: { clientId: messaging.id!, clientToken: messaging.token! },
+      config: this.getAxiosConfig()
     })
     this.clientsByBotId[botId] = botClient
     this.botsByClientId[id] = botId
@@ -118,24 +117,17 @@ export class MessagingService {
     })
   }
 
-  async receive(args: {
-    clientId: string
-    channel: string
-    userId: string
-    conversationId: string
-    messageId: string
-    payload: any
-  }) {
+  async receive(event: MessageNewEventData) {
     return this.eventEngine.sendEvent(
       Event({
         direction: 'incoming',
-        type: args.payload.type,
-        payload: args.payload,
-        channel: args.channel,
-        threadId: args.conversationId,
-        target: args.userId,
-        messageId: args.messageId,
-        botId: this.botsByClientId[args.clientId]
+        type: event.message.payload.type,
+        payload: event.message.payload,
+        channel: event.channel,
+        threadId: event.conversationId,
+        target: event.userId,
+        messageId: event.message.id,
+        botId: this.botsByClientId[event.clientId]
       })
     )
   }
@@ -152,11 +144,6 @@ export class MessagingService {
       payloadAbsoluteUrl
     )
     event.messageId = message.id
-
-    if (event.payload.typing === true || event.payload.type === 'typing') {
-      const value = (event.payload.type === 'typing' ? event.payload.value : undefined) || DEFAULT_TYPING_DELAY
-      await new Promise(resolve => setTimeout(resolve, value))
-    }
 
     return next(undefined, true, false)
   }
@@ -194,5 +181,28 @@ export class MessagingService {
 
   public getWebhookToken(clientId: string) {
     return this.webhookTokenByClientId[clientId]
+  }
+
+  public getNewUsersCount({ resetCount }: { resetCount: boolean }) {
+    const count = this.newUsers
+    if (resetCount) {
+      this.newUsers = 0
+    }
+    return count
+  }
+
+  public incrementNewUsersCount() {
+    this.newUsers++
+  }
+
+  private getAxiosConfig(): AxiosRequestConfig {
+    const config: AxiosRequestConfig = {}
+
+    if (!this.isExternal) {
+      config.proxy = false
+      config.headers = { password: process.INTERNAL_PASSWORD }
+    }
+
+    return config
   }
 }

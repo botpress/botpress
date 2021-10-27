@@ -65,6 +65,7 @@ export const studioActions = {
 
 export const initStudioClient = () => {
   studioClient = axios.create({
+    proxy: false,
     headers: { authorization: process.INTERNAL_PASSWORD },
     baseURL: `http://localhost:${process.STUDIO_PORT}/api/internal`
   })

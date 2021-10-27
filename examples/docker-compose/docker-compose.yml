@@ -1,0 +1,7 @@
+version: '3'
+
+services:
+  botpress:
+    image: botpress/server
+    ports:
+      - 3000:3000

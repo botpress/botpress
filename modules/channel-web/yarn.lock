@@ -45,11 +45,17 @@
     "@babel/helper-validator-identifier" "^7.14.9"
     to-fast-properties "^2.0.0"
 
-"@botpress/messaging-client@0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-0.0.3.tgz#871c0672e7ac488c60fcf6ca57549aac73c0b958"
-  integrity sha512-Aq1EB06jM2uND1GXrZfZ3JAd9wvl4a632exNxI5c2l7AC8iCyCmg5qZtZAiKJKiddO7KyAjbCVhRbi2UTjEhNg==
+"@botpress/messaging-base@0.0.1":
+  version "0.0.1"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-0.0.1.tgz#1e1347262e4c5f70d73ba62b8a62b9d9576e3c16"
+  integrity sha512-J52YtTu0OxElZUJwtfx8NSVFlTGyZVXGppWgdgckHRa6mAf+8DY3gCkDpG34Elic9Uygz3L0+3HebvgSk6Y3CA==
+
+"@botpress/messaging-client@0.0.7":
+  version "0.0.7"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-0.0.7.tgz#697374e857ba4344ecb997977f3278fd292bd091"
+  integrity sha512-PCHZl8semVaAtSl/KxQPPDnFU6ZhMi7YmmgNtoQQPIE/d28OSPDUuost7dfwoNllVxHqQqsdIKmLQqRORxhX4w==
   dependencies:
+    "@botpress/messaging-base" "0.0.1"
     axios "^0.21.1"
 
 "@emotion/babel-utils@^0.6.4":
