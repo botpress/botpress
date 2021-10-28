@@ -2,15 +2,19 @@ import { WorkspaceUser } from 'botpress/sdk'
 import { auth } from 'botpress/shared'
 import { AuthRule, UserProfile } from 'common/typings'
 
-import { AppThunk } from '~/app/rootReducer'
+import { AppState, AppThunk } from '~/app/rootReducer'
+import { setActiveWorkspace } from '~/auth/basicAuth'
 import { fetchLicensing } from '~/management/licensing/reducer'
 import api from '../app/api'
-import { setActiveWorkspace } from '../auth/basicAuth'
+import { connect } from 'react-redux'
+import { fetchBotHealth, fetchBotsByWorkspace } from '~/workspace/bots/reducer'
+import { withRouter } from 'react-router'
 
 const MY_PROFILE_REQUESTED = 'user/MY_PROFILE_REQUESTED'
 const MY_PROFILE_RECEIVED = 'user/MY_PROFILE_RECEIVED'
 const MY_WORKSPACES_RECEIVED = 'user/MY_WORKSPACES_RECEIVED'
 const CURRENT_WORKSPACE_CHANGED = 'user/CURRENT_WORKSPACE_CHANGED'
+const NPS_DISPLAY_CHANGED = 'user/NPS_DISPLAY_CHANGED'
 
 interface UserState {
   loading: boolean
@@ -18,6 +22,7 @@ interface UserState {
   permissions?: AuthRule[]
   profile?: UserProfile
   currentWorkspace?: string
+  displayNps?: boolean
 }
 
 const initialState: UserState = {
@@ -25,7 +30,8 @@ const initialState: UserState = {
   profile: undefined,
   permissions: undefined,
   workspaces: undefined,
-  currentWorkspace: undefined
+  currentWorkspace: undefined,
+  displayNps: false
 }
 
 export default (state = initialState, action): UserState => {
@@ -54,6 +60,12 @@ export default (state = initialState, action): UserState => {
       return {
         ...state,
         currentWorkspace: action.currentWorkspace
+      }
+
+    case NPS_DISPLAY_CHANGED:
+      return {
+        ...state,
+        displayNps: action.displayNps
       }
 
     default:
@@ -88,5 +100,14 @@ export const switchWorkspace = (workspaceId: string): AppThunk => {
     dispatch(fetchLicensing())
 
     dispatch({ type: CURRENT_WORKSPACE_CHANGED, currentWorkspace: workspaceId })
+  }
+}
+
+export const changeDisplayNps = (displayNps: boolean): AppThunk => {
+  return async dispatch => {
+    // setActiveWorkspace(workspaceId)
+    // dispatch(fetchProfile())
+    // dispatch(fetchLicensing())
+    dispatch({ type: NPS_DISPLAY_CHANGED, displayNps })
   }
 }

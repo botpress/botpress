@@ -1,46 +1,56 @@
 import NPS from '@kazukinagata/react-nps-typescript'
 import React, { FC, useState } from 'react'
+import store from '~/app/store'
 import { Redirect, Route } from 'react-router-dom'
+import { changeDisplayNps, switchWorkspace } from '~/user/reducer'
 import BasicAuthentication from '~/auth/basicAuth'
 import '@kazukinagata/react-nps-typescript/dist/index.css'
 import './npsCustom.css'
+import { AppState } from '~/app/rootReducer'
+import { connect } from 'react-redux'
+import { fetchBotHealth, fetchBotsByWorkspace } from '~/workspace/bots/reducer'
+import { withRouter } from 'react-router'
 
 interface Props {
   path: string
   component: any
   auth: BasicAuthentication
   children: React.ReactNode
+  changeDisplayNps: any
+  displayNps?: boolean
 }
 
-const PrivateRoute: FC<Props> = ({ component: Component, auth, children, ...rest }) => {
+const PrivateRoute: FC<Props> = ({ component: Component, auth, changeDisplayNps, displayNps, children, ...rest }) => {
   const [npsScore, setNpsScore] = useState<number | null>(null)
   const [npsDismissed, setNpsDismissed] = useState(false)
 
-  const onNpsSubmit = ({ score }) => {
-    console.log(`clicked ${score}`)
-    setNpsScore(score)
-  }
-
-  const setStorageItem = (key: string, value: any) =>{
+  const setStorageItem = (key: string, value: any) => {
     localStorage.setItem(key, JSON.stringify(value))
   }
 
-  const isNpsConfigured = localStorage.getItem('bp/nps/config/isSet')
+  const onNpsSubmit = async (score) => {
+    setNpsScore(score)
+    setTimeout(() => changeDisplayNps(false), 1000)
 
-  if (!isNpsConfigured){
-    // setStorageItem('bp/nps/config/isSet', false)
-    // setStorageItem('bp/nps/config/isComplete', false)
-    // setStorageItem('bp/nps/config/connections', 5)
-    // setStorageItem('bp/nps/config/sessionInMinutes', 3)
-    //
-    // setStorageItem('bp/nps/tracking/connections', 0)
-    // setStorageItem('bp/nps/tracking/hasCancelled', false)
-    // setStorageItem('bp/nps/tracking/score', null)
+    setStorageItem('bp/nps/tracking/isComplete', true)
+    setStorageItem('bp/nps/tracking/score', score)
+    // defined when cancelled or score set!
+    setStorageItem('bp/nps/tracking/dateComplete', new Date())
+    // console.log(`clicked ${score}`)
+    // console.log('displayNps: ', displayNps)
   }
 
-  setTimeout(() => console.log('3000'), 2000)
+  const onNpsDismiss = async () => {
+    setNpsDismissed(true)
+    setTimeout(() => changeDisplayNps(false), 1000)
 
-  console.log('reloaded!', auth.isAuthenticated())
+    setStorageItem('bp/nps/tracking/hasCancelled', true)
+    setStorageItem('bp/nps/tracking/isComplete', true)
+    setStorageItem('bp/nps/tracking/dateComplete', new Date())
+  }
+
+  console.log('store.displayNps: ', store.getState().user.displayNps)
+  console.log('displayNps: ', displayNps)
 
   return (
     <Route
@@ -48,12 +58,14 @@ const PrivateRoute: FC<Props> = ({ component: Component, auth, children, ...rest
       render={props =>
         auth.isAuthenticated() ? (
           <Component {...props} auth={auth}>
-            <NPS
-              score={npsScore}
-              dismissed={npsDismissed}
-              onSubmit={(score: number) => onNpsSubmit({score})}
-              onDismissed={() => setNpsDismissed(true)}
-            />
+            {displayNps && (
+              <NPS
+                score={npsScore}
+                dismissed={npsDismissed}
+                onSubmit={(score: number) => onNpsSubmit(score)}
+                onDismissed={() => onNpsDismiss()}
+              />
+            )}
             {children}
           </Component>
         ) : (
@@ -64,4 +76,14 @@ const PrivateRoute: FC<Props> = ({ component: Component, auth, children, ...rest
   )
 }
 
-export default PrivateRoute
+// export default PrivateRoute
+
+
+
+const mapStateToProps = (state: AppState) => ({
+  displayNps: state.user.displayNps
+})
+
+const connector = connect(mapStateToProps, { changeDisplayNps })
+
+export default connector(PrivateRoute)

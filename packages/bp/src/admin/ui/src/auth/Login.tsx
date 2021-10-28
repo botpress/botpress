@@ -2,12 +2,15 @@ import { lang } from 'botpress/shared'
 import { AuthStrategyConfig } from 'common/typings'
 import { get } from 'lodash'
 import React, { FC, useEffect, useState } from 'react'
+import { connect } from 'react-redux'
 import { RouteComponentProps } from 'react-router'
 
 import api from '~/app/api'
 import { ExtendedHistory } from '~/app/history'
+import { AppState } from '~/app/rootReducer'
 import BasicAuthentication, { setActiveWorkspace, setChatUserAuth } from '~/auth/basicAuth'
 
+import { changeDisplayNps } from '~/user/reducer'
 import { AuthMethodPicker } from './AuthMethodPicker'
 import LoginContainer from './LoginContainer'
 import { LoginForm } from './LoginForm'
@@ -18,7 +21,13 @@ type RouterProps = RouteComponentProps<
   { registerUrl?: string; from?: string; email?: string; password?: string; loginUrl?: string }
 >
 
-type Props = { auth: BasicAuthentication } & RouterProps & ExtendedHistory
+interface NpsProps {
+  displayNps?: boolean
+  changeDisplayNps?: (value: boolean) => void
+  // changeDisplayNps: (value: boolean) => void
+}
+
+type Props = { auth: BasicAuthentication } & RouterProps & ExtendedHistory & NpsProps
 
 interface AuthConfigResponse {
   payload: {
@@ -113,10 +122,62 @@ const Login: FC<Props> = props => {
     }
   }
 
+  const setStorageItem = (key: string, value: any) => {
+    localStorage.setItem(key, JSON.stringify(value))
+  }
+
+  const incrementStorageItem = (key: string): number => {
+    const currentValue: number = parseInt(localStorage.getItem(key) || '0') + 1
+    setStorageItem(key, currentValue)
+
+    return currentValue
+  }
+
+  const setupNpsTracking = () => {
+    setStorageItem('bp/nps/config/hasSetup', true)
+    setStorageItem('bp/nps/config/connections', 5)
+    setStorageItem('bp/nps/config/sessionInMinutes', 3)
+
+    setStorageItem('bp/nps/tracking/isComplete', false)
+    setStorageItem('bp/nps/tracking/connections', 0)
+    setStorageItem('bp/nps/tracking/hasCancelled', false)
+    setStorageItem('bp/nps/tracking/score', null)
+    // defined when cancelled or score set!
+    setStorageItem('bp/nps/tracking/dateComplete', null)
+  }
+
+  const shouldDisplayNps = () => {
+    const connectionKey = 'bp/nps/tracking/connections'
+    const connectionTargetKey = 'bp/nps/config/connections'
+    const isCompleteKey = 'bp/nps/tracking/isComplete'
+
+    const connectionTarget: number = parseInt(localStorage.getItem(connectionTargetKey) || '0')
+    const isComplete: boolean = JSON.parse(localStorage.getItem(isCompleteKey) || 'false')
+
+    return incrementStorageItem(connectionKey) >= connectionTarget && !isComplete
+  }
+
+  const updateNpsTracking = () => {
+    if (!localStorage.getItem('bp/nps/config/hasSetup')){
+      setupNpsTracking()
+    }
+
+    if(shouldDisplayNps()){
+      const minutes = parseInt(localStorage.getItem('bp/nps/config/sessionInMinutes') || '0')
+      const timeOut = 1000*10
+
+      setTimeout(() => {
+        console.log('timeout set!')
+        props.changeDisplayNps && props.changeDisplayNps(true)
+      }, timeOut)
+    }
+  }
+
   const loginUser = async (email: string, password: string) => {
     try {
       setError(undefined)
       await props.auth.login({ email, password }, loginUrl, redirectTo)
+      updateNpsTracking()
     } catch (err) {
       if (err.type === 'PasswordExpiredError') {
         props.history.push({ pathname: '/changePassword', state: { email, password, loginUrl } })
@@ -141,4 +202,12 @@ const Login: FC<Props> = props => {
   )
 }
 
-export default Login
+// export default Login
+
+const mapStateToProps = (state: AppState) => ({
+  displayNps: state.user.displayNps
+})
+
+const connector = connect(mapStateToProps, { changeDisplayNps })
+
+export default connector(Login)
