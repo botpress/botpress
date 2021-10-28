@@ -40,6 +40,8 @@
     "languages": {
       "addLanguages": "Add Languages",
       "cannotBeEdited": "Languages cannot be edited as Language Server is read only",
+      "externalNLUServer": "Your are using an external NLU Server. Please make sure your NLU Server is actually using the Language Server you are currently seing.",
+      "notManageable": "Language Server is not Manageable. Make sure to indicate language sources in your Botpress Configuration file.",
       "confirmDelete": "Are you sure that you want to delete {language} from the server?",
       "inDocumentation": "in the documentation",
       "installedLanguages": "Installed Languages",

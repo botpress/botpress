@@ -25,7 +25,9 @@ export const DEFAULT_NLU_SERVER_OPTIONS: NLUServerOptions = {
   verbose: 3, // info
   doc: false,
   logFilter: undefined,
-  legacyElection: false
+  legacyElection: false,
+  maxTraining: 2,
+  limitWindow: '1h'
 }
 
 export const getNluBinaryPath = () => {

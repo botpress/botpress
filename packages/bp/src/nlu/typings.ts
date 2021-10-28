@@ -6,23 +6,21 @@ export interface LanguageSource {
 export interface NLUServerOptions {
   host: string
   port: number
-
-  verbose: number
-  doc: boolean
-  logFilter: string[] | undefined // if undefined, all logs are displayed
-
-  limitWindow?: string
+  limitWindow: string
   limit: number
   bodySize: string
   batchSize: number
+  modelCacheSize: string
   dbURL?: string
   modelDir?: string
-
-  // engine options
+  verbose: number
+  doc: boolean
+  logFilter?: string[]
+  apmEnabled?: boolean
+  apmSampleRate?: number
+  maxTraining: number
   languageSources: LanguageSource[]
   ducklingURL: string
   ducklingEnabled: boolean
-  modelCacheSize: string
-
   legacyElection: boolean
 }

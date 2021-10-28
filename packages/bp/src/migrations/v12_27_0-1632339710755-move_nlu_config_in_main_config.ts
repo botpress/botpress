@@ -1,5 +1,5 @@
 import * as sdk from 'botpress/sdk'
-import { BotpressConfig, NLUConfig as NLUCoreConfig } from 'core/config'
+import { BotpressConfig } from 'core/config'
 import { Migration, MigrationOpts } from 'core/migration'
 import _ from 'lodash'
 
@@ -19,91 +19,68 @@ interface NLUModConfig {
   legacyElection: boolean
 }
 
+type NLUCoreConfig = BotpressConfig['nlu']
+
 type PreviousBotpressConfig = Omit<BotpressConfig, 'nlu'> & { nlu?: undefined }
 
 const DEFAULT_NLU_CORE_CONFIG: NLUCoreConfig = {
-  // queueTrainingOnBotMount: undefined,
-  // legacyElection: undefined,
-  // modelCacheSize: undefined,
-  // maxTrainingPerInstance: undefined,
-  autoStartNLUServer: true,
-  nluServerEndpoint: '',
-  ducklingEnabled: true,
-  ducklingURL: 'https://duckling.botpress.io',
-  languageSources: [{ endpoint: 'https://lang-01.botpress.io' }]
+  queueTrainingOnBotMount: false,
+  nluServer: {
+    modelCacheSize: '850mb',
+    maxTraining: 2,
+    ducklingEnabled: true,
+    ducklingURL: 'https://duckling.botpress.io',
+    languageSources: [{ endpoint: 'https://lang-01.botpress.io' }]
+  }
 }
 
 const DEFAULT_NLU_MOD_CONFIG: NLUModConfig = {
   nluServer: { autoStart: true },
-  queueTrainingOnBotMount: false,
   legacyElection: false,
+  queueTrainingOnBotMount: false,
   modelCacheSize: '850mb',
-  maxTrainingPerInstance: 2,
+  maxTrainingPerInstance: 1,
   ducklingEnabled: true,
   ducklingURL: 'https://duckling.botpress.io',
   languageSources: [{ endpoint: 'https://lang-01.botpress.io' }]
 }
 
-const mapModConfigToCore = (modConfig: Partial<NLUModConfig>): Partial<NLUCoreConfig> => {
+const mapModConfigToCore = (modConfig: NLUModConfig): NLUCoreConfig => {
   const {
     ducklingEnabled,
     ducklingURL,
     languageSources,
     modelCacheSize,
     maxTrainingPerInstance,
-    queueTrainingOnBotMount,
-    legacyElection,
-    nluServer
+    queueTrainingOnBotMount
   } = modConfig
 
-  let autoStartNLUServer: boolean | undefined
-  let nluServerEndpoint: string | undefined
-  if (nluServer && nluServer.autoStart) {
-    autoStartNLUServer = true
-  } else if (nluServer && !nluServer.autoStart) {
-    autoStartNLUServer = false
-    nluServerEndpoint = nluServer.endpoint
-  }
-
   return {
-    autoStartNLUServer,
-    nluServerEndpoint,
-    legacyElection,
     queueTrainingOnBotMount,
-    maxTrainingPerInstance,
-    modelCacheSize,
-    languageSources,
-    ducklingURL,
-    ducklingEnabled
+    nluServer: {
+      maxTraining: maxTrainingPerInstance,
+      modelCacheSize,
+      languageSources,
+      ducklingURL,
+      ducklingEnabled
+    }
   }
 }
 
-const mapCoreConfigToMod = (coreConfig: Partial<NLUCoreConfig>): Partial<NLUModConfig> => {
-  const {
-    ducklingEnabled,
-    ducklingURL,
-    languageSources,
-    modelCacheSize,
-    maxTrainingPerInstance,
-    queueTrainingOnBotMount,
-    legacyElection,
-    autoStartNLUServer,
-    nluServerEndpoint
-  } = coreConfig
+const mapCoreConfigToMod = (coreConfig: NLUCoreConfig): NLUModConfig => {
+  const { queueTrainingOnBotMount, nluServer } = coreConfig
 
-  let nluServer: { autoStart: true } | ({ autoStart: false } & LanguageSource) | undefined
-  if (autoStartNLUServer) {
-    nluServer = { autoStart: true }
-  } else if (nluServerEndpoint) {
-    nluServer = { autoStart: false, endpoint: nluServerEndpoint }
-  }
+  const nluServerConfig = { ...DEFAULT_NLU_MOD_CONFIG, ...(nluServer ?? {}) }
+  const { ducklingEnabled, ducklingURL, languageSources, modelCacheSize, maxTraining } = nluServerConfig
 
   return {
-    nluServer,
-    legacyElection: legacyElection ?? false,
+    nluServer: {
+      autoStart: true
+    },
+    legacyElection: false,
     queueTrainingOnBotMount,
-    maxTrainingPerInstance,
-    modelCacheSize: modelCacheSize ?? '850mb',
+    maxTrainingPerInstance: maxTraining,
+    modelCacheSize,
     languageSources,
     ducklingURL,
     ducklingEnabled
@@ -133,7 +110,7 @@ const migration: Migration = {
       } else {
         const nluModConfig = await ghost.readFileAsObject<NLUModConfig>('config', 'nlu.json')
         await ghost.deleteFile('config', 'nlu.json')
-        nluCoreConfig = { ...DEFAULT_NLU_CORE_CONFIG, ...mapModConfigToCore(nluModConfig) }
+        nluCoreConfig = mapModConfigToCore(nluModConfig)
       }
 
       await configProvider.mergeBotpressConfig({ nlu: nluCoreConfig })
@@ -148,7 +125,7 @@ const migration: Migration = {
 
       const currentBotpressConfig = await configProvider.getBotpressConfig()
       const { nlu: coreNluConfig } = currentBotpressConfig
-      const modNluConfig = { ...DEFAULT_NLU_MOD_CONFIG, ...mapCoreConfigToMod(coreNluConfig) }
+      const modNluConfig = mapCoreConfigToMod(coreNluConfig)
 
       await ghost.upsertFile('config', 'nlu.json', JSON.stringify(modNluConfig, null, 2))
 

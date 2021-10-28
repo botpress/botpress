@@ -7,7 +7,6 @@ import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import yn from 'yn'
-import legacyElection from './election/legacy-election'
 import naturalElection from './election/natural-election'
 import pickSpellChecked from './election/spellcheck-handler'
 import { BotNotMountedError } from './errors'
@@ -36,7 +35,6 @@ interface PredictionArgs {
  */
 @injectable()
 export class NLUInferenceService {
-  private legacyElection!: boolean
   private nluClientProvider: NLUClientProvider
   private predictors: { [botId: string]: Predictor } = {}
 
@@ -51,11 +49,7 @@ export class NLUInferenceService {
   @postConstruct()
   public async initialize() {
     await AppLifecycle.waitFor(AppLifecycleEvents.NLU_ENDPOINT_KNOWN)
-    await this.nluClientProvider.initialize()
-    const { nlu: nluConfig } = await this.configProvider.getBotpressConfig()
-
-    const { legacyElection } = nluConfig
-    this.legacyElection = legacyElection ?? false
+    await this.nluClientProvider.initialize(process.NLU_ENDPOINT)
 
     this.eventEngine.register({
       name: PREDICT_MW,
@@ -111,7 +105,7 @@ export class NLUInferenceService {
     }
 
     const electionInput = appendTime(nluResults)
-    return this.legacyElection ? legacyElection(electionInput) : naturalElection(electionInput)
+    return naturalElection(electionInput)
   }
 
   private _modelIdGetter = (botId: string) => async (): Promise<Dic<string>> => {

@@ -17,13 +17,9 @@ export class NLUClientProvider {
     return this._clientPerBot[botId]
   }
 
-  public async initialize() {
-    const { nlu: nluConfig } = await this.configProvider.getBotpressConfig()
-    const { autoStartNLUServer, nluServerEndpoint } = nluConfig
-
-    const defaultEndpoint = process.NLU_ENDPOINT
-    this._endpoint = autoStartNLUServer ? defaultEndpoint : nluServerEndpoint
-    this._baseClient = new NLUClient({ endpoint: this._endpoint })
+  public async initialize(nluEndpoint: string) {
+    this._endpoint = nluEndpoint
+    this._baseClient = new NLUClient({ endpoint: nluEndpoint })
   }
 
   public async mountBot(botId: string) {

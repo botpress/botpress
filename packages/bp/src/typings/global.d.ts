@@ -91,6 +91,9 @@ declare interface BotpressEnvironmentVariables {
   /** The URL used to reach an external Messaging server */
   readonly MESSAGING_ENDPOINT?: string
 
+  /** The URL used to reach an external NLU server */
+  readonly NLU_ENDPOINT?: string
+
   /** Use this to override the hostname that botpress will listen on (by default it's localhost) - replaces httpServer.host */
   readonly BP_HOST?: string
 
