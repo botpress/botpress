@@ -19,5 +19,6 @@ declare global {
     botpress: {
       [moduleName: string]: any
     }
+    UUID: string
   }
 }
