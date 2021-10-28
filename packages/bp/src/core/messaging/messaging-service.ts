@@ -1,4 +1,4 @@
-import { MessagingClient } from '@botpress/messaging-client'
+import { MessagingClient, uuid } from '@botpress/messaging-client'
 import { AxiosRequestConfig } from 'axios'
 import { IO, Logger, MessagingConfig } from 'botpress/sdk'
 import { formatUrl, isBpUrl } from 'common/url'
@@ -19,8 +19,7 @@ export class MessagingService {
   private webhookTokenByClientId: { [botId: string]: string } = {}
   private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage', 'messaging']
   private newUsers: number = 0
-  private eventIdToMessageIdCache: LRUCache<string, string>
-  private collectingForMessageCache: LRUCache<string, boolean>
+  private collectingCache: LRUCache<string, uuid>
 
   public isExternal: boolean
 
@@ -30,8 +29,7 @@ export class MessagingService {
     @inject(TYPES.Logger) private logger: Logger
   ) {
     this.isExternal = Boolean(process.core_env.MESSAGING_ENDPOINT)
-    this.eventIdToMessageIdCache = new LRUCache<string, string>({ max: 5000, maxAge: ms('5m') })
-    this.collectingForMessageCache = new LRUCache<string, boolean>({ max: 5000, maxAge: ms('5m') })
+    this.collectingCache = new LRUCache<string, uuid>({ max: 5000, maxAge: ms('5m') })
   }
 
   @postConstruct()
@@ -135,9 +133,8 @@ export class MessagingService {
       botId: this.botsByClientId[msg.clientId]
     })
 
-    this.eventIdToMessageIdCache.set(event.id, msg.message.id)
     if (msg.collect) {
-      this.collectingForMessageCache.set(msg.message.id, true)
+      this.collectingCache.set(msg.message.id, msg.message.id)
     }
 
     return this.eventEngine.sendEvent(event)
@@ -150,11 +147,12 @@ export class MessagingService {
 
     const payloadAbsoluteUrl = this.convertToAbsoluteUrls(event.payload)
 
+    const collecting = event.incomingEventId && this.collectingCache.get(event.incomingEventId)
     const message = await this.clientsByBotId[event.botId].messages.create(
       event.threadId!,
       undefined,
       payloadAbsoluteUrl,
-      { incomingId: this.eventIdToMessageIdCache.get(event.incomingEventId!)! }
+      collecting ? { incomingId: collecting } : undefined
     )
     event.messageId = message.id
 
@@ -162,7 +160,7 @@ export class MessagingService {
   }
 
   public informProcessingDone(event: IO.IncomingEvent) {
-    if (this.collectingForMessageCache.get(event.messageId!)) {
+    if (this.collectingCache.get(event.messageId!)) {
       // We don't want the waiting for the queue to be empty to freeze other messages
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.sendProcessingDone(event)
@@ -173,6 +171,7 @@ export class MessagingService {
     try {
       await this.eventEngine.waitOutgoingQueueEmpty(event)
       await this.clientsByBotId[event.botId].messages.endTurn(event.messageId!)
+      this.collectingCache.del(event.messageId!)
     } catch (e) {
       this.logger.attachError(e).error('Failed to inform messaging of completed processing')
     }
