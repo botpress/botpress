@@ -1,8 +1,8 @@
-import React from 'react'
-import { connect } from 'react-redux'
 import segmentPlugin from '@analytics/segment'
 import Analytics from 'analytics'
 import hash from 'hash.js'
+import React from 'react'
+import { connect } from 'react-redux'
 import { UserState } from '~/user/reducer'
 
 const APP_NAME = 'ADMIN_ANALYTICS' // for reference, in case of second account
@@ -50,7 +50,7 @@ const handleNewUserState = (user: UserState): void => {
 function SegmentHandler(props) {
   if (window.SEND_USAGE_STATS) {
     React.useEffect(() => {
-      ;(async () => {
+      void (async () => {
         if (!analytics) {
           await initSegmentAnalytics()
         }
