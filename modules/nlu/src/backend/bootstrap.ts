@@ -1,9 +1,9 @@
-import { Client } from '@botpress/nlu-client'
 import * as sdk from 'botpress/sdk'
 
 import { makeNLUPassword } from 'common/nlu-token'
 import _ from 'lodash'
 
+import url from 'url'
 import { Config, LanguageSource } from '../config'
 
 import { getWebsocket } from './api'
@@ -14,20 +14,28 @@ import { NonBlockingNluApplication } from './application/non-blocking-app'
 import { ScopedDefinitionsRepository } from './application/scoped/infrastructure/definitions-repository'
 import { TrainingRepository } from './application/training-repo'
 import { BotDefinition } from './application/typings'
+import { NLUClientNoProxy } from './no-proxy-client'
 import { StanEngine } from './stan'
 
-const getNLUServerConfig = (config: Config['nluServer']): LanguageSource => {
+export const isLocalHost = (endpoint: string) => {
+  const { hostname } = new url.URL(endpoint)
+  return ['localhost', '127.0.0.1', '0.0.0.0'].includes(hostname)
+}
+
+const getNLUServerConfig = (config: Config['nluServer']): LanguageSource & { isLocal: boolean } => {
   if (config.autoStart) {
     return {
       endpoint: `http://localhost:${process.NLU_PORT}`,
-      authToken: makeNLUPassword()
+      authToken: makeNLUPassword(),
+      isLocal: true
     }
   }
 
   const { endpoint, authToken } = config
   return {
     endpoint,
-    authToken
+    authToken,
+    isLocal: isLocalHost(endpoint)
   }
 }
 
@@ -42,7 +50,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
   }
 
   const nluServerConnectionInfo = getNLUServerConfig(globalConfig.nluServer)
-  const stanClient = new Client(nluServerConnectionInfo.endpoint, nluServerConnectionInfo.authToken)
+  const stanClient = new NLUClientNoProxy(nluServerConnectionInfo)
   const engine = new StanEngine(stanClient, '') // No need for password as Stan is protected by an auth token
 
   const socket = getWebsocket(bp)
