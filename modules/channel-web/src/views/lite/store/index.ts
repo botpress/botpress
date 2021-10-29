@@ -356,6 +356,10 @@ class RootStore {
   async extractFeedback(messages: Message[]): Promise<void> {
     const feedbackMessageIds = messages.filter(x => x.payload && x.payload.collectFeedback).map(x => x.id)
 
+    if (!feedbackMessageIds.length) {
+      return
+    }
+
     const feedbackInfo = await this.api.getMessageIdsFeedbackInfo(feedbackMessageIds)
     runInAction('-> setFeedbackInfo', () => {
       this.messageFeedbacks = feedbackInfo
@@ -419,7 +423,7 @@ class RootStore {
 
     if (!this.api) {
       this.bp = bp
-      this.api = new WebchatApi('', bp.axios)
+      this.api = new WebchatApi(bp.axios)
     }
 
     this._applyConfig()
