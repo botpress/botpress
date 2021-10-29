@@ -11,7 +11,7 @@
   "license": "AGPL-3.0",
   "private": true,
   "nlu": {
-    "version": "0.1.8"
+    "version": "0.1.9"
   },
   "studio": {
     "version": "0.0.41"
