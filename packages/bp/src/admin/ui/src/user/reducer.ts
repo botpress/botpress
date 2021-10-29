@@ -2,13 +2,10 @@ import { WorkspaceUser } from 'botpress/sdk'
 import { auth } from 'botpress/shared'
 import { AuthRule, UserProfile } from 'common/typings'
 
-import { AppState, AppThunk } from '~/app/rootReducer'
+import { AppThunk } from '~/app/rootReducer'
 import { setActiveWorkspace } from '~/auth/basicAuth'
 import { fetchLicensing } from '~/management/licensing/reducer'
 import api from '../app/api'
-import { connect } from 'react-redux'
-import { fetchBotHealth, fetchBotsByWorkspace } from '~/workspace/bots/reducer'
-import { withRouter } from 'react-router'
 
 const MY_PROFILE_REQUESTED = 'user/MY_PROFILE_REQUESTED'
 const MY_PROFILE_RECEIVED = 'user/MY_PROFILE_RECEIVED'
@@ -105,9 +102,6 @@ export const switchWorkspace = (workspaceId: string): AppThunk => {
 
 export const changeDisplayNps = (displayNps: boolean): AppThunk => {
   return async dispatch => {
-    // setActiveWorkspace(workspaceId)
-    // dispatch(fetchProfile())
-    // dispatch(fetchLicensing())
     dispatch({ type: NPS_DISPLAY_CHANGED, displayNps })
   }
 }

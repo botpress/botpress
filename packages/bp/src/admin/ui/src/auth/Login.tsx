@@ -164,10 +164,9 @@ const Login: FC<Props> = props => {
 
     if(shouldDisplayNps()){
       const minutes = parseInt(localStorage.getItem('bp/nps/config/sessionInMinutes') || '0')
-      const timeOut = 1000*10
+      const timeOut = 60 * minutes * 1000
 
       setTimeout(() => {
-        console.log('timeout set!')
         props.changeDisplayNps && props.changeDisplayNps(true)
       }, timeOut)
     }
@@ -201,8 +200,6 @@ const Login: FC<Props> = props => {
     </LoginContainer>
   )
 }
-
-// export default Login
 
 const mapStateToProps = (state: AppState) => ({
   displayNps: state.user.displayNps

@@ -1,15 +1,12 @@
 import NPS from '@kazukinagata/react-nps-typescript'
 import React, { FC, useState } from 'react'
-import store from '~/app/store'
+import { connect } from 'react-redux'
 import { Redirect, Route } from 'react-router-dom'
-import { changeDisplayNps, switchWorkspace } from '~/user/reducer'
+import { AppState } from '~/app/rootReducer'
 import BasicAuthentication from '~/auth/basicAuth'
+import { changeDisplayNps } from '~/user/reducer'
 import '@kazukinagata/react-nps-typescript/dist/index.css'
 import './npsCustom.css'
-import { AppState } from '~/app/rootReducer'
-import { connect } from 'react-redux'
-import { fetchBotHealth, fetchBotsByWorkspace } from '~/workspace/bots/reducer'
-import { withRouter } from 'react-router'
 
 interface Props {
   path: string
@@ -36,8 +33,6 @@ const PrivateRoute: FC<Props> = ({ component: Component, auth, changeDisplayNps,
     setStorageItem('bp/nps/tracking/score', score)
     // defined when cancelled or score set!
     setStorageItem('bp/nps/tracking/dateComplete', new Date())
-    // console.log(`clicked ${score}`)
-    // console.log('displayNps: ', displayNps)
   }
 
   const onNpsDismiss = async () => {
@@ -48,9 +43,6 @@ const PrivateRoute: FC<Props> = ({ component: Component, auth, changeDisplayNps,
     setStorageItem('bp/nps/tracking/isComplete', true)
     setStorageItem('bp/nps/tracking/dateComplete', new Date())
   }
-
-  console.log('store.displayNps: ', store.getState().user.displayNps)
-  console.log('displayNps: ', displayNps)
 
   return (
     <Route
@@ -75,10 +67,6 @@ const PrivateRoute: FC<Props> = ({ component: Component, auth, changeDisplayNps,
     />
   )
 }
-
-// export default PrivateRoute
-
-
 
 const mapStateToProps = (state: AppState) => ({
   displayNps: state.user.displayNps
