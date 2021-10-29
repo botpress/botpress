@@ -134,7 +134,7 @@ export class MessagingService {
     })
 
     if (msg.collect) {
-      this.collectingCache.set(msg.message.id, msg.message.id)
+      this.collectingCache.set(event.id, msg.message.id)
     }
 
     return this.eventEngine.sendEvent(event)
