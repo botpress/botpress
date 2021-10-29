@@ -35,7 +35,7 @@ const mergeEntries = (a: Dic<number>, b: Dic<number>): Dic<number> => {
 
 export default class Database {
   knex: Knex & sdk.KnexExtension
-  private flusher: ReturnType<typeof setInterval>
+  private readonly flusher: ReturnType<typeof setInterval>
 
   private cache_entries: Dic<number> = {}
   private flush_lock: boolean
@@ -71,19 +71,19 @@ export default class Database {
     })
   }
 
-  private getCacheKey(botId: string, channel: string, metric: string, subMetric?: string) {
+  private static getCacheKey(botId: string, channel: string, metric: string, subMetric?: string) {
     const today = moment().format('YYYY-MM-DD')
     return `${today}|${botId}|${channel}|${metric}|${subMetric || ''}`
   }
 
   incrementMetric(botId: string, channel: string, metric: MetricTypes, subMetric?: string) {
-    const key = this.getCacheKey(botId, channel, metric, subMetric)
+    const key = Database.getCacheKey(botId, channel, metric, subMetric)
     this.cache_entries[key] = (this.cache_entries[key] || 0) + 1
   }
 
   async incrementRatioMetric(botId: string, channel: string, metric: MetricTypes, subMetric?: string, step?: number) {
-    const key = this.getCacheKey(botId, channel, metric, subMetric)
-    this.cache_entries[key] = (this.cache_entries[key] || 0) + step
+    const key = Database.getCacheKey(botId, channel, metric, subMetric)
+    this.cache_entries[key] = (this.cache_entries[key] || 0) + (step || 0)
   }
 
   private async flushMetrics() {
