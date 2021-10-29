@@ -9,6 +9,7 @@ import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import LRUCache from 'lru-cache'
 import ms from 'ms'
+import yn from 'yn'
 import { MessageNewEventData } from './messaging-router'
 
 @injectable()
@@ -17,7 +18,7 @@ export class MessagingService {
   private clientsByBotId: { [botId: string]: MessagingClient } = {}
   private botsByClientId: { [clientId: string]: string } = {}
   private webhookTokenByClientId: { [botId: string]: string } = {}
-  private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage', 'messaging']
+  private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
   private newUsers: number = 0
   private collectingCache: LRUCache<string, uuid>
 
@@ -30,6 +31,11 @@ export class MessagingService {
   ) {
     this.isExternal = Boolean(process.core_env.MESSAGING_ENDPOINT)
     this.collectingCache = new LRUCache<string, uuid>({ max: 5000, maxAge: ms('5m') })
+
+    // use this to test converse from messaging
+    if (yn(process.env.ENABLE_EXPERIMENTAL_CONVERSE)) {
+      this.channelNames.push('messaging')
+    }
   }
 
   @postConstruct()
@@ -160,7 +166,7 @@ export class MessagingService {
   }
 
   public informProcessingDone(event: IO.IncomingEvent) {
-    if (this.collectingCache.get(event.messageId!)) {
+    if (this.collectingCache.get(event.id!)) {
       // We don't want the waiting for the queue to be empty to freeze other messages
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.sendProcessingDone(event)
@@ -171,7 +177,7 @@ export class MessagingService {
     try {
       await this.eventEngine.waitOutgoingQueueEmpty(event)
       await this.clientsByBotId[event.botId].messages.endTurn(event.messageId!)
-      this.collectingCache.del(event.messageId!)
+      this.collectingCache.del(event.id!)
     } catch (e) {
       this.logger.attachError(e).error('Failed to inform messaging of completed processing')
     }
