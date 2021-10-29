@@ -53,7 +53,6 @@ export default class WebchatApi {
   }
 
   async setCustomUserId(userId: string) {
-    q
     try {
       await this.axios.post('/users/customId', { ...this.baseUserPayload, customId: userId }, this.axiosConfig)
     } catch (err) {
