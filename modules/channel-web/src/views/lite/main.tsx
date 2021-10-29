@@ -137,12 +137,13 @@ class Web extends React.Component<MainProps> {
     this.socket.onMessage = this.handleNewMessage
     this.socket.onTyping = this.handleTyping
     this.socket.onData = this.handleDataMessage
-    this.socket.onUserIdChanged = this.props.setUserId
-
-    this.config.userId && this.socket.changeUserId(this.config.userId)
 
     this.socket.setup()
     await this.socket.waitForUserId()
+
+    if (this.config.userId) {
+      await this.props.setCustomUserId(this.config.userId)
+    }
   }
 
   loadOverrides(overrides: Overrides) {
@@ -157,14 +158,11 @@ class Web extends React.Component<MainProps> {
 
   setupObserver() {
     observe(this.props.config, 'userId', async data => {
-      if (!data.oldValue || data.oldValue === data.newValue) {
+      if (data.oldValue === data.newValue) {
         return
       }
 
-      this.socket.changeUserId(data.newValue)
-      this.socket.setup()
-      await this.socket.waitForUserId()
-      await this.props.initializeChat()
+      await this.props.setCustomUserId(data.newValue)
     })
 
     observe(this.props.config, 'overrides', data => {
@@ -192,7 +190,7 @@ class Web extends React.Component<MainProps> {
     } else if (action === 'sendPayload') {
       await this.props.sendData(payload)
     } else if (action === 'change-user-id') {
-      this.props.store.setUserId(payload)
+      await this.props.setCustomUserId(payload)
     } else if (action === 'event') {
       const { type, text } = payload
 
@@ -374,7 +372,6 @@ export default inject(({ store }: { store: RootStore }) => ({
   mergeConfig: store.mergeConfig,
   addEventToConversation: store.addEventToConversation,
   clearMessages: store.clearMessages,
-  setUserId: store.setUserId,
   updateTyping: store.updateTyping,
   sendMessage: store.sendMessage,
   setReference: store.setReference,
@@ -395,7 +392,8 @@ export default inject(({ store }: { store: RootStore }) => ({
   widgetTransition: store.view.widgetTransition,
   displayWidgetView: store.view.displayWidgetView,
   setLoadingCompleted: store.view.setLoadingCompleted,
-  sendFeedback: store.sendFeedback
+  sendFeedback: store.sendFeedback,
+  setCustomUserId: store.setCustomUserId
 }))(injectIntl(observer(Web)))
 
 type MainProps = { store: RootStore } & Pick<
@@ -406,7 +404,6 @@ type MainProps = { store: RootStore } & Pick<
   | 'botInfo'
   | 'fetchBotInfo'
   | 'sendMessage'
-  | 'setUserId'
   | 'sendData'
   | 'intl'
   | 'isEmulator'
@@ -432,4 +429,5 @@ type MainProps = { store: RootStore } & Pick<
   | 'resetUnread'
   | 'setLoadingCompleted'
   | 'dimensions'
+  | 'setCustomUserId'
 >

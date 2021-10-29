@@ -272,7 +272,7 @@ class RootStore {
     }
 
     const conversation: CurrentConversation = await this.api.fetchConversation(convoId || this._getCurrentConvoId())
-    if (conversation?.messages) {
+    if (conversation?.messages.length) {
       conversation.messages = conversation.messages.sort(
         (a, b) => new Date(a.sentOn).getTime() - new Date(b.sentOn).getTime()
       )
@@ -434,7 +434,6 @@ class RootStore {
     document.title = this.config.botName || 'Botpress Webchat'
 
     this.api.updateAxiosConfig({ botId: this.config.botId, externalAuthToken: this.config.externalAuthToken })
-    this.api.updateUserId(this.config.userId)
 
     if (!this.isInitialized) {
       window.USE_SESSION_STORAGE = this.config.useSessionStorage
@@ -449,13 +448,9 @@ class RootStore {
     this.publishConfigChanged()
   }
 
-  /** When this method is used, the user ID is changed in the configuration, then the socket is updated */
   @action.bound
-  setUserId(userId: string): void {
-    this.config.userId = userId
-    this.resetConversation()
-    this.api.updateUserId(userId)
-    this.publishConfigChanged()
+  async setCustomUserId(userId: string): Promise<void> {
+    return this.api.setCustomUserId(userId)
   }
 
   @action.bound

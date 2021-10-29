@@ -9,7 +9,7 @@ export default class BpSocket {
   public onMessage: (event: any) => void
   public onTyping: (event: any) => void
   public onData: (event: any) => void
-  public onUserIdChanged: (userId: string) => void
+  public onUserIdChanged?: (userId: string) => void
 
   constructor(bp: StudioConnector, config: Config) {
     this.events = bp?.events
@@ -53,7 +53,7 @@ export default class BpSocket {
           clearInterval(interval)
 
           const userId = window.__BP_VISITOR_ID
-          this.onUserIdChanged(userId)
+          this.onUserIdChanged?.(userId)
           this.postToParent('', { userId })
 
           resolve()

@@ -188,6 +188,31 @@ export default async (bp: typeof sdk, db: Database) => {
   )
 
   router.post(
+    '/users/customId',
+    bp.http.extractExternalToken,
+    assertUserInfo(),
+    asyncMiddleware(async (req: ChatRequest, res: Response) => {
+      const KEY = 'webchatCustomId'
+
+      const { botId, userId } = req
+      const { customId } = req.body
+
+      if (!customId) {
+        return res.sendStatus(400)
+      }
+
+      const user = await bp.users.getOrCreateUser('web', userId, botId)
+      const attributes: { [key: string]: any } = user.result.attributes || {}
+
+      attributes[KEY] = customId
+
+      await bp.users.setAttributes('web', userId, attributes)
+
+      res.sendStatus(200)
+    })
+  )
+
+  router.post(
     '/messages',
     bp.http.extractExternalToken,
     assertUserInfo(),
