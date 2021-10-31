@@ -13,7 +13,7 @@ const migrateLite = async (db: sdk.KnexExtended, trx: Knex.Transaction, isUp: bo
     table.string('botId')
     table.date('date')
     table.string('channel')
-    isUp ? table.float('value') : table.integer('value')
+    isUp ? table.decimal(COLUMN) : table.integer(COLUMN)
     table.string('metric')
     table.string('subMetric')
   })
@@ -27,7 +27,7 @@ const migrateLite = async (db: sdk.KnexExtended, trx: Knex.Transaction, isUp: bo
 }
 
 const migratePG = async (db: sdk.KnexExtended, isUp: boolean) => {
-  const query = `ALTER TABLE ${TABLE_NAME} ALTER COLUMN ${COLUMN} TYPE ${isUp ? 'float' : 'integer'};`
+  const query = `ALTER TABLE ${TABLE_NAME} ALTER COLUMN ${COLUMN} TYPE ${isUp ? 'decimal' : 'integer'};`
   return db.raw(query)
 }
 
@@ -42,18 +42,18 @@ const migrate = async (bp, database, isUp): Promise<sdk.MigrationResult> => {
     } else {
       await migratePG(db, isUp)
     }
-    return { success: true, message: `Successfully altered ${COLUMN} column to ${isUp ? 'float' : 'integer'}` }
+    return { success: true, message: `Successfully altered ${COLUMN} column to ${isUp ? 'decimal' : 'integer'}` }
   } catch (error) {
     bp.logger
       .attachError(error)
-      .error(`Could not alter ${COLUMN} column on ${TABLE_NAME} to ${isUp ? 'float' : 'integer'}`)
+      .error(`Could not alter ${COLUMN} column on ${TABLE_NAME} to ${isUp ? 'decimal' : 'integer'}`)
     return { success: false, message: error.message }
   }
 }
 
 const migration: sdk.ModuleMigration = {
   info: {
-    description: `Switches ${COLUMN} column from integer to float to save intent confidences`,
+    description: `Switches ${COLUMN} column from integer to decimal to save intent confidences`,
     type: 'database',
     target: 'bot'
   },

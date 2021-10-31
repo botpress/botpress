@@ -64,7 +64,7 @@ export default class Database {
         .notNullable()
         .defaultTo('')
       table
-        .float('value')
+        .decimal('value')
         .notNullable()
         .defaultTo(0)
       table.primary(['botId', 'date', 'channel', 'metric', 'subMetric'])
