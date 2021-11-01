@@ -40,8 +40,12 @@ module.exports = {
     if (!formData.video) {
       return
     }
+    let videoUrl = formData.video
+    if (utils.isBpUrl(videoUrl)) {
+      videoUrl = '/' + videoUrl
+    }
 
-    const link = utils.formatURL(formData.BOT_URL, formData.video)
+    const link = utils.formatURL(formData.BOT_URL, videoUrl)
     const title = formData.title ? ' | ' + formData.title : ''
 
     if (utils.isUrl(link)) {

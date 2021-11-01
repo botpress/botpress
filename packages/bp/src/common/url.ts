@@ -1,5 +1,5 @@
 export const isBpUrl = (str: string): boolean => {
-  const re = /^\/api\/.*\/bots\/.*\/media\/.*/g
+  const re = /^api\/.*\/bots\/.*\/media\/.*/g
 
   return re.test(str)
 }

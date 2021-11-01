@@ -50,9 +50,9 @@ export class GhostMediaService implements MediaService {
     // make sure the file name is a valid URI
     fileName = encodeURIComponent(fileName)
     if (this.botId) {
-      return `/api/v1/bots/${this.botId}/media/${fileName}`
+      return `api/v1/bots/${this.botId}/media/${fileName}`
     } else {
-      return `/api/v1/media/${fileName}`
+      return `api/v1/media/${fileName}`
     }
   }
 }
