@@ -173,8 +173,6 @@ export default async (bp: typeof sdk, db: Database) => {
         return res.sendStatus(404)
       }
 
-      console.log(config.extraStylesheet)
-
       res.send({
         showBotInfoPage: (config.infoPage && config.infoPage.enabled) || config.showBotInfoPage,
         name: botInfo.name,

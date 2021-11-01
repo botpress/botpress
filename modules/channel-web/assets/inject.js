@@ -102,12 +102,6 @@ function init(config, targetSelector) {
 
   const iframeRef = document.querySelector('#' + containerId + ' #' + iframeId).contentWindow
   chatRefs[chatId] = iframeRef
-
-  const iFrameElement = document.querySelector(`#${iframeId}`)
-  iFrameElement.addEventListener('load', e => {
-    e.preventDefault()
-    iFrameElement.setAttribute('class', DEFAULT_IFRAME_CLASS)
-  })
 }
 
 window.botpressWebChat = {

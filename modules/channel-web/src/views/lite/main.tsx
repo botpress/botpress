@@ -352,8 +352,8 @@ class Web extends React.Component<MainProps> {
     const { isEmulator, stylesheet, extraStylesheet } = this.props.config
     return (
       <React.Fragment>
-        {!!stylesheet?.length && <Stylesheet href={stylesheet} />}
         {!isIE && <Stylesheet href={'assets/studio/ui/public/external/font-roboto.css'} />}
+        {!!stylesheet?.length && <Stylesheet href={stylesheet} />}
         {!stylesheet && <Stylesheet href={`assets/modules/channel-web/default${isEmulator ? '-emulator' : ''}.css`} />}
         {!!extraStylesheet?.length && <Stylesheet href={extraStylesheet} />}
       </React.Fragment>
