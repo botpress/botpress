@@ -141,7 +141,6 @@ class EditorStore {
 
     runInAction('-> openFile', () => {
       const uri = getFileUri(file)
-      console.log({ uri })
       const existingFile = this.openedFiles.find(x => x.uri.path === uri.path)
 
       if (existingFile) {
