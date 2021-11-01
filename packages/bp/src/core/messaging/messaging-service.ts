@@ -118,6 +118,10 @@ export class MessagingService {
   }
 
   async receive(event: MessageNewEventData) {
+    if(!this.channelNames.includes(event.channel)) {
+      return
+    }
+
     return this.eventEngine.sendEvent(
       Event({
         direction: 'incoming',
