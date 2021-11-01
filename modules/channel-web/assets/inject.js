@@ -2,6 +2,7 @@
 const DEFAULT_CHAT_ID = 'bp-web-widget'
 const DEFAULT_IFRAME_ID = 'bp-widget'
 const DEFAULT_IFRAME_CLASS = 'bp-widget-web'
+const DEFAULT_IFRAME_HIDDEN = 'bp-widget-hidden'
 
 function _getContainerId(chatId) {
   return chatId ? chatId + '-container' : DEFAULT_CHAT_ID
@@ -41,6 +42,8 @@ function _generateIFrameHTML(host, config) {
     iframeSrc +
     '" class="' +
     DEFAULT_IFRAME_CLASS +
+    ' ' +
+    DEFAULT_IFRAME_HIDDEN +
     '"/>'
   )
 }
