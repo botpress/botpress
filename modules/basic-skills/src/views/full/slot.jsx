@@ -294,7 +294,7 @@ export class Slot extends React.Component {
               id="retryAttempts"
               name="retryAttempts"
               type="number"
-              min="0"
+              min="-1"
               max={MAX_RETRIES}
               value={this.state.maxRetryAttempts}
               onChange={this.handleMaxRetryAttemptsChange}
