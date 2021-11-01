@@ -223,8 +223,8 @@ This is a fatal error, process will exit.`
   logger.info(`=`.repeat(75))
   logger.info(``)
 
-  logger.info(chalk.green`Botpress is ready`)
-  logger.info(chalk.bold`Botpress is listening at ${process.LOCAL_URL}`)
+  logger.info(chalk.bold`Botpress is ready.. open the Studio in your favorite browser.`)
+  logger.info(chalk.bold`Botpress is listening at ${process.LOCAL_URL} (browser)`)
   logger.info(chalk.bold`Botpress is exposed at ${process.EXTERNAL_URL}`)
 }
 
