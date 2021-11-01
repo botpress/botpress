@@ -2,7 +2,7 @@ const URL = require('url').URL
 const path = require('path')
 
 function isBpUrl(str) {
-  const re = /^\/api\/.*\/bots\/.*\/media\/.*/
+  const re = /^api\/.*\/bots\/.*\/media\/.*/
 
   return re.test(str)
 }
@@ -17,7 +17,7 @@ function isUrl(str) {
 }
 
 function formatURL(baseUrl, url) {
-  if (isBpUrl(url)) {
+  if (!url.startsWith('http')) {
     return `${baseUrl}${url}`
   } else {
     return url
@@ -55,6 +55,7 @@ function extractPayload(type, data) {
 module.exports = {
   formatURL: formatURL,
   isUrl: isUrl,
+  isBpUrl: isBpUrl,
   extractPayload: extractPayload,
   extractFileName: extractFileName
 }
