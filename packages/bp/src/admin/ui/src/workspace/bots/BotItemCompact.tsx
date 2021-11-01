@@ -158,7 +158,9 @@ const BotItemCompact: FC<Props> = props => {
           This is a temp fix but won't be useful after we bring back training on bot mount.
           */}
         <AccessControl resource="module.nlu" operation="write">
-          {nluModuleEnabled && <NeedsTrainingWarning bot={props.bot.id} languages={props.bot.languages} />}
+          {nluModuleEnabled && !props.bot.disabled && (
+            <NeedsTrainingWarning bot={props.bot.id} languages={props.bot.languages} />
+          )}
         </AccessControl>
 
         {botHasUninstalledNLULanguages && (
