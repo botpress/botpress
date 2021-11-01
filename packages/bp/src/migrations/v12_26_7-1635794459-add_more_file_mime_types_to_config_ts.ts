@@ -3,23 +3,9 @@ import { Migration, MigrationOpts } from 'core/migration'
 import _ from 'lodash'
 
 // Most default were taken here : https://developer.mozilla.org/fr/docs/Web/HTTP/Basics_of_HTTP/MIME_types
-const DEFAULT_MIME_TYPES = [
-  'image/jpeg',
-  'image/png',
-  'image/gif',
-  'image/bmp',
-  'image/webp',
-
-  'audio/mpeg',
-  'audio/webm',
-  'audio/ogg',
-  'audio/wav',
-
-  'video/mp4',
-  'video/webm',
-  'video/ogg'
-]
-const WANTED_MIME_TYPES = DEFAULT_MIME_TYPES.concat(['application/pdf'])
+const DEFAULT_MIME_TYPES = ['image/jpeg', 'image/png', 'image/gif', 'audio/mpeg', 'video/mp4', 'application/pdf']
+const NEW_MIME_TYPES = ['image/bmp', 'image/webp', 'audio/webm', 'audio/ogg', 'audio/wav', 'video/webm', 'video/ogg']
+const WANTED_MIME_TYPES = DEFAULT_MIME_TYPES.concat(NEW_MIME_TYPES).sort()
 
 const migration: Migration = {
   info: {
