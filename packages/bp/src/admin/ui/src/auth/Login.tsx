@@ -24,8 +24,29 @@ type RouterProps = RouteComponentProps<
 interface NpsProps {
   displayNps?: boolean
   changeDisplayNps?: (value: boolean) => void
-  // changeDisplayNps: (value: boolean) => void
 }
+
+
+interface NpsConfig {
+  minConnections: number
+  minSessionDuration: number
+  isSet: boolean
+}
+
+interface NpsTracking {
+  connections: number
+  isCanceled: boolean
+  isSet: boolean
+  score: number | null
+  date: string | null
+}
+
+interface Nps {
+  config: NpsConfig
+  tracking: NpsTracking
+}
+
+const NPS_KEY = 'bp/nps'
 
 type Props = { auth: BasicAuthentication } & RouterProps & ExtendedHistory & NpsProps
 
@@ -122,6 +143,45 @@ const Login: FC<Props> = props => {
     }
   }
 
+  const updateNpsTracking = (value: Partial<NpsTracking>) => {
+    const nps: Nps = window.BP_STORAGE.get(NPS_KEY) || {} as Nps
+
+    console.log('before', nps)
+
+    if (!nps){
+      return
+    }
+
+    nps.tracking = {
+      ...nps.tracking,
+      ...value,
+      date: new Date().toUTCString()
+    }
+
+    window.BP_STORAGE.set(NPS_KEY, nps)
+
+    console.log(window.BP_STORAGE.get(NPS_KEY))
+  }
+
+  const updateNpsConfig = (value: Partial<NpsConfig>) => {
+    const nps: Nps = window.BP_STORAGE.get(NPS_KEY) || {} as Nps
+
+    console.log('before', nps)
+
+    if (!nps){
+      return
+    }
+
+    nps.config = {
+      ...nps.config,
+      ...value
+    }
+
+    window.BP_STORAGE.set(NPS_KEY, nps)
+
+    console.log(window.BP_STORAGE.get(NPS_KEY))
+  }
+
   const setStorageItem = (key: string, value: any) => {
     localStorage.setItem(key, JSON.stringify(value))
   }
@@ -134,16 +194,29 @@ const Login: FC<Props> = props => {
   }
 
   const setupNpsTracking = () => {
-    setStorageItem('bp/nps/config/hasSetup', true)
-    setStorageItem('bp/nps/config/connections', 5)
-    setStorageItem('bp/nps/config/sessionInMinutes', 3)
+    updateNpsConfig({
+      isSet: true,
+      minConnections: 5,
+      minSessionDuration: 3 * 60 * 1000
+    })
 
-    setStorageItem('bp/nps/tracking/isComplete', false)
-    setStorageItem('bp/nps/tracking/connections', 0)
-    setStorageItem('bp/nps/tracking/hasCancelled', false)
-    setStorageItem('bp/nps/tracking/score', null)
-    // defined when cancelled or score set!
-    setStorageItem('bp/nps/tracking/dateComplete', null)
+    updateNpsTracking({
+      isSet: false,
+      connections: 0,
+      isCanceled: false,
+      score: null,
+      date: null
+    })
+    // setStorageItem('bp/nps/config/hasSetup', true)
+    // setStorageItem('bp/nps/config/connections', 5)
+    // setStorageItem('bp/nps/config/sessionInMinutes', 3)
+
+    // setStorageItem('bp/nps/tracking/isComplete', false)
+    // setStorageItem('bp/nps/tracking/connections', 0)
+    // setStorageItem('bp/nps/tracking/hasCancelled', false)
+    // setStorageItem('bp/nps/tracking/score', null)
+    // // defined when cancelled or score set!
+    // setStorageItem('bp/nps/tracking/dateComplete', null)
   }
 
   const shouldDisplayNps = () => {
@@ -157,8 +230,9 @@ const Login: FC<Props> = props => {
     return incrementStorageItem(connectionKey) >= connectionTarget && !isComplete
   }
 
-  const updateNpsTracking = () => {
-    if (!localStorage.getItem('bp/nps/config/hasSetup')){
+  const updateNps = () => {
+    const nps: Nps = window.BP_STORAGE.get(NPS_KEY) || {} as Nps
+    if (!nps?.config.isSet){
       setupNpsTracking()
     }
 
@@ -176,7 +250,7 @@ const Login: FC<Props> = props => {
     try {
       setError(undefined)
       await props.auth.login({ email, password }, loginUrl, redirectTo)
-      updateNpsTracking()
+      updateNps()
     } catch (err) {
       if (err.type === 'PasswordExpiredError') {
         props.history.push({ pathname: '/changePassword', state: { email, password, loginUrl } })
