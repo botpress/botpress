@@ -7,12 +7,14 @@ import { IncidentRule } from '../health/alerting-service'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
 
-export interface ModuleConfigEntry {
+export interface ModuleConfigEntry
+{
   location: string
   enabled: boolean
 }
 
-export interface DialogConfig {
+export interface DialogConfig
+{
   /**
    * Interval between executions of the janitor that checks for stale contexts and sessions.
    * @default 10s
@@ -33,7 +35,8 @@ export interface DialogConfig {
   sessionTimeoutInterval: string
 }
 
-export interface LogsConfig {
+export interface LogsConfig
+{
   /**
    * The database output will not record Debug logs.
    */
@@ -75,7 +78,8 @@ export interface LogsConfig {
  * We use the library "ms", so head over to this page to see supported formats: https://www.npmjs.com/package/ms
  */
 
-export interface BotpressConfig {
+export interface BotpressConfig
+{
   version: string
   appSecret: string
   httpServer: {
@@ -281,7 +285,7 @@ export interface BotpressConfig {
     maxFileSize: string
     /**
      * The list of allowed extensions for media file uploads
-     * @default ["image/jpeg","image/png","image/gif","audio/mpeg","video/mp4","application/pdf"]
+     * @default ["image/jpeg","image/png","image/gif","audio/mpeg","video/mp4","application/pdf","audio/ogg","audio/webm"]
      */
     allowedMimeTypes: string[]
   }
@@ -361,7 +365,8 @@ export interface BotpressConfig {
   }
 }
 
-export interface ExternalAuthConfig {
+export interface ExternalAuthConfig
+{
   /** Set to true to enable external authentication
    * @default false
    */
@@ -407,7 +412,8 @@ export interface ExternalAuthConfig {
   }
 }
 
-export interface DataRetentionConfig {
+export interface DataRetentionConfig
+{
   /**
    * The janitor will check for expired fields at the set interval (second, minute, hour, day)
    * @default 10m
@@ -420,13 +426,15 @@ export interface DataRetentionConfig {
  * @example "profile.email": "30d"
  * @default {}
  */
-export interface RetentionPolicy {
+export interface RetentionPolicy
+{
   [key: string]: string
 }
 
 export type AuthStrategyType = 'basic' | 'saml' | 'ldap' | 'oauth2'
 
-export interface AuthStrategy {
+export interface AuthStrategy
+{
   readonly id?: string
   /**
    * Defines which authentication strategy to use. When the strategy is changed, accounts created before may no longer log in.
@@ -459,7 +467,8 @@ export interface AuthStrategy {
   hidden: boolean
 }
 
-export interface AuthStrategyBasic {
+export interface AuthStrategyBasic
+{
   /**
    * The maximum number of wrong passwords the user can enter before his account is locked out.
    * Set it to 0 for unlimited tries
@@ -495,7 +504,8 @@ export interface AuthStrategyBasic {
  *  SAML Options, identical to the "passeport-saml" NPM library
  *  @see https://github.com/bergie/passport-saml
  */
-export interface AuthStrategySaml {
+export interface AuthStrategySaml
+{
   /**
    * This is the page of the external SAML IdP where users will login
    */
@@ -529,7 +539,8 @@ export interface AuthStrategySaml {
   acceptedClockSkewMs: number
 }
 
-export interface AuthStrategyOauth2 {
+export interface AuthStrategyOauth2
+{
   authorizationURL: string
   tokenURL: string
   clientID: string
@@ -569,7 +580,8 @@ export interface AuthStrategyOauth2 {
   }
 }
 
-export interface AuthStrategyLdap {
+export interface AuthStrategyLdap
+{
   serverUrl: string
   /**
    * @example cn=read-only-admin,dc=example,dc=com
@@ -593,11 +605,13 @@ export interface AuthStrategyLdap {
   certificates: string[]
 }
 
-export interface FieldMapping {
+export interface FieldMapping
+{
   [bpAttribute: string]: string
 }
 
-export interface MonitoringConfig {
+export interface MonitoringConfig
+{
   /**
    * To enable server monitoring, you need to enable the Pro version and configure your Redis server.
    * @default false
@@ -621,7 +635,8 @@ export interface MonitoringConfig {
   janitorInterval: string
 }
 
-export interface AlertingConfig {
+export interface AlertingConfig
+{
   /**
    * To enable the alerting service, you need to enable the monitoring first.
    * @default false
@@ -650,7 +665,8 @@ export interface AlertingConfig {
   rules: IncidentRule[]
 }
 
-export interface BotMonitoringConfig {
+export interface BotMonitoringConfig
+{
   /**
    * This must be enabled for the hook OnBotError to work properly.
    * @default true
@@ -664,7 +680,8 @@ export interface BotMonitoringConfig {
   interval: string
 }
 
-export interface EventCollectorConfig {
+export interface EventCollectorConfig
+{
   /**
    * When enabled, incoming and outgoing events will be saved on the database.
    * It is required for some modules to work properly (eg: history, testing, developer tools on channel web)
@@ -700,7 +717,8 @@ export interface EventCollectorConfig {
   debuggerProperties: string[]
 }
 
-interface ActionServersConfig {
+interface ActionServersConfig
+{
   local: {
     /**
      * Port on which the local Action Server listens
