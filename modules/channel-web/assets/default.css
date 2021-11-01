@@ -120,6 +120,10 @@ body {
   align-items: flex-start;
 }
 
+.bpw-file-button {
+  padding: 0;
+}
+
 .bpw-button-alt {
   background-color: var(--main-bg-color);
   font-size: 1rem;
