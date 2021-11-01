@@ -65,7 +65,8 @@ const eventSchema = {
         .items(joi.string())
         .optional(),
       ms: joi.number().optional(),
-      spellChecked: joi.string().optional()
+      spellChecked: joi.string().optional(),
+      modelId: joi.string().optional()
     })
     .optional()
     .default({})
