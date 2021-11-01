@@ -57,7 +57,7 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
     }
   }
 
-  handleMessageChanged = e => this.props.updateMessage(e.target.value)
+  handleMessageChanged = e => this.props.updateMessage((e.target.value as string).substr(0, this.props.composerMaxTextLength))
 
   isLastMessageFromBot = (): boolean => {
     return this.props.currentConversation?.messages?.slice(-1)?.pop()?.authorId === undefined
@@ -162,6 +162,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   composerLocked: store.composer.locked,
   composerHidden: store.composer.hidden,
   composerPlaceholder: store.composer.composerPlaceholder,
+  composerMaxTextLength: store.composer.composerMaxTextLength,
   updateMessage: store.composer.updateMessage,
   recallHistory: store.composer.recallHistory,
   intl: store.intl,
@@ -207,4 +208,5 @@ type ComposerProps = {
     | 'enableVoiceComposer'
     | 'currentConversation'
     | 'preferredLanguage'
+    | 'composerMaxTextLength'
   >
