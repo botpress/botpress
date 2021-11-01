@@ -17,7 +17,7 @@ const DEFAULT_MIME_TYPES = [
 
   'video/mp4',
   'video/webm',
-  'video/ogg',
+  'video/ogg'
 ]
 const WANTED_MIME_TYPES = DEFAULT_MIME_TYPES.concat(['application/pdf'])
 
@@ -27,13 +27,11 @@ const migration: Migration = {
     target: 'core',
     type: 'config'
   },
-  up: async ({ configProvider }: MigrationOpts): Promise<sdk.MigrationResult> =>
-  {
+  up: async ({ configProvider }: MigrationOpts): Promise<sdk.MigrationResult> => {
     const config = await configProvider.getBotpressConfig()
 
     // We only do the migration if the settings are at default
-    if (_.difference(config.fileUpload.allowedMimeTypes, DEFAULT_MIME_TYPES).length > 0)
-    {
+    if (_.difference(config.fileUpload.allowedMimeTypes, DEFAULT_MIME_TYPES).length > 0) {
       return { success: true, message: 'Skipping migration for non-default settings' }
     }
 
@@ -45,13 +43,11 @@ const migration: Migration = {
 
     return { success: true, message: 'Configuration updated successfully' }
   },
-  down: async ({ configProvider }: MigrationOpts): Promise<sdk.MigrationResult> =>
-  {
+  down: async ({ configProvider }: MigrationOpts): Promise<sdk.MigrationResult> => {
     const config = await configProvider.getBotpressConfig()
 
     // We only do the migration if the settings are at default
-    if (_.difference(config.fileUpload.allowedMimeTypes, WANTED_MIME_TYPES).length > 0)
-    {
+    if (_.difference(config.fileUpload.allowedMimeTypes, WANTED_MIME_TYPES).length > 0) {
       return { success: true, message: 'Skipping migration for non-default settings' }
     }
 
