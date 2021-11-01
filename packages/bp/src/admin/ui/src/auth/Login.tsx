@@ -232,6 +232,8 @@ const Login: FC<Props> = props => {
 
   const updateNps = () => {
     const nps: Nps = window.BP_STORAGE.get(NPS_KEY) || {} as Nps
+    alert('900')
+    console.log('nps: ', nps, !nps?.config.isSet)
     if (!nps?.config.isSet){
       setupNpsTracking()
     }
