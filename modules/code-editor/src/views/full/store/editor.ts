@@ -134,7 +134,6 @@ class EditorStore {
     if (!file.content) {
       file = {
         ...file,
-        location: file.location.replace(/global\/|local\//, ''),
         content: await this.rootStore.api.readFile(file)
       }
     }
