@@ -17,6 +17,7 @@ export function fakeEventUnderstanding(x?: Partial<EventUnderstanding>): EventUn
     predictions: { ...x?.predictions },
     slots: { ...x?.slots },
     spellChecked: 'spellChecked',
+    modelId: 'testing',
     ...x
   }
 }
