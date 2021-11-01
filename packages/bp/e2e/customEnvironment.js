@@ -1,4 +1,5 @@
 const PuppeteerEnvironment = require('jest-environment-puppeteer')
+const path = require('path')
 
 class CustomEnvironment extends PuppeteerEnvironment {
   savePath = path.join(__dirname, '../../../', 'build/tests/e2e/screenshots')
