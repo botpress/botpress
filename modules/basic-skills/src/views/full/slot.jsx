@@ -32,6 +32,10 @@ export class Slot extends React.Component {
     const data = this.props.initialData
 
     if (data) {
+      const turnExpiry = Number(data.turnExpiry) || -1
+      const maxRetryAttempts = Number(data.retryAttempts) || 3
+
+      this.validateTurnExpiryAndRetryAttempts(turnExpiry, maxRetryAttempts)
       this.validateIntentExists(data.intent)
       this.validateSlotExists(data.intent, data.slotName)
 
@@ -41,8 +45,8 @@ export class Slot extends React.Component {
         selectedActionOption: data.validationAction && { value: data.validationAction, label: data.validationAction },
         contentElement: data.contentElement,
         notFoundElement: data.notFoundElement,
-        maxRetryAttempts: Number(data.retryAttempts) || 3,
-        turnExpiry: Number(data.turnExpiry) || -1
+        maxRetryAttempts,
+        turnExpiry
       })
     }
   }
@@ -98,12 +102,32 @@ export class Slot extends React.Component {
   }
 
   isFormValid() {
+    const isTurnExpiryAndRetryAttemptsValid = this.isTurnExpiryAndRetryAttemptsValid(
+      this.state.turnExpiry,
+      this.state.maxRetryAttempts
+    )
+
     return (
+      isTurnExpiryAndRetryAttemptsValid &&
       this.state.selectedIntentOption &&
       this.state.selectedSlotOption &&
       this.state.contentElement &&
       this.state.notFoundElement
     )
+  }
+
+  isTurnExpiryAndRetryAttemptsValid(turnExpiry, retryAttempts) {
+    return turnExpiry !== 0 || retryAttempts !== 0
+  }
+
+  validateTurnExpiryAndRetryAttempts(turnExpiry, retryAttempts) {
+    const valid = this.isTurnExpiryAndRetryAttemptsValid(turnExpiry, retryAttempts)
+
+    if (!valid) {
+      this.setState({ error: 'Invalid settings: both expires after and retry attempts cannot be set a 0!' })
+    }
+
+    return valid
   }
 
   validateIntentExists = intentName => {
@@ -147,16 +171,29 @@ export class Slot extends React.Component {
   }
 
   handleMaxRetryAttemptsChange = event => {
-    const value = Number(event.target.value)
-    if (value > MAX_RETRIES) {
+    const maxRetryAttempts = Number(event.target.value)
+    const valid = this.validateTurnExpiryAndRetryAttempts(this.state.turnExpiry, maxRetryAttempts)
+
+    if (!valid) {
+      return
+    }
+
+    if (maxRetryAttempts > MAX_RETRIES) {
       this.setState({ error: `Too many retry attempts: Choose a number less than or equal to ${MAX_RETRIES}` })
     } else {
-      this.setState({ maxRetryAttempts: value })
+      this.setState({ maxRetryAttempts })
     }
   }
 
   handleTurnExpiryChange = event => {
-    this.setState({ turnExpiry: Number(event.target.value) })
+    const turnExpiry = Number(event.target.value)
+    const valid = this.validateTurnExpiryAndRetryAttempts(turnExpiry, this.state.maxRetryAttempts)
+
+    if (!valid) {
+      return
+    }
+
+    this.setState({ turnExpiry })
   }
 
   handleActionChange = selectedActionOption => {
