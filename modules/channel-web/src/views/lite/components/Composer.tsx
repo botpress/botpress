@@ -27,7 +27,9 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
   }
 
   handleKeyPress = async e => {
-    if (this.props.enableResetSessionShortcut && e.ctrlKey && e.key === 'Enter') {
+    const ENTER_CHAR_CODE = 13
+
+    if (this.props.enableResetSessionShortcut && e.ctrlKey && e.charCode === ENTER_CHAR_CODE) {
       e.preventDefault()
       await this.props.resetSession()
       await this.props.sendMessage()
