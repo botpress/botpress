@@ -14,12 +14,23 @@ import UploadArchive from './UploadArchive'
 const MIN_UUID_LENGTH = 50
 
 const DisplayCommand = ({ command }) => {
+  /**Probably a real copy to clipboard button will be better. Only the first part of the text is can copy the command*/
+
+  /**Show only the first part of the text */
+  const displayText = `${command.split('authToken')[0]}authToken`
+  return <code>{displayText}</code>
+}
+
+const ShowToken = ({ command }) => {
+  /** Show the token but the display will not copy into the clipboard.
+   * The problem came from the CopyToClipboard. It take only one Component. So the button was part of that component
+   */
   const [visible, setVisible] = useState(false)
-  const text = visible ? command : `${command.split('authToken')[0]}authToken `
+  const text = visible ? `  ${command.split('authToken')[1]}` : ''
 
   return (
     <code>
-      {text}{' '}
+      {text}
       <Button
         small
         onClick={() => setVisible(!visible)}
@@ -82,6 +93,7 @@ const Versioning: FC<Props> = props => {
             </div>
           </CopyToClipboard>
         </Tooltip>
+        <ShowToken command={pullCommand}></ShowToken>
         <br /> <br />
         {isSuperAdmin && <DownloadArchive />}
       </Callout>
@@ -113,6 +125,7 @@ const Versioning: FC<Props> = props => {
               </div>
             </CopyToClipboard>
           </Tooltip>
+          <ShowToken command={pushCommand}></ShowToken>
           <br /> <br />
           {isSuperAdmin && <UploadArchive />}
         </Callout>
