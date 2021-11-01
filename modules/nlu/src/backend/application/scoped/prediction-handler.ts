@@ -76,7 +76,7 @@ export class ScopedPredictionHandler {
       const rawOriginalOutput = await this._engine.predict(this._botId, textInput, modelId)
       const originalOutput = mapPredictOutput(rawOriginalOutput)
       const { spellChecked } = originalOutput
-      return { ...originalOutput, spellChecked, errored: false, language, modelId: modelId }
+      return { ...originalOutput, spellChecked, errored: false, language, modelId }
     } catch (err) {
       const msg = `An error occured when predicting for input "${textInput}" with model ${modelId}`
       this._logger.attachError(err).error(msg)
