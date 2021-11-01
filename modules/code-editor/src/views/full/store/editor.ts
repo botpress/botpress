@@ -16,8 +16,8 @@ const NO_EDIT_EXTENSIONS = ['.tgz', '.sqlite', '.png', '.gif', '.jpg']
 const getFileUri = (file: EditableFile): monaco.Uri => {
   const { location } = file
   const fileType = location.endsWith('.json') ? 'json' : 'typescript'
-  const filepath = fileType === 'json' ? location : location.replace(/\.js$/i, '.ts')
-
+  const fileName = fileType === 'json' ? location : location.replace(/\.js$/i, '.ts')
+  const filepath = `${file.botId ? 'local' : 'global'}/${file.type}/${fileName}`
   return monaco.Uri.parse(`bp://files/${filepath}`)
 }
 
@@ -134,6 +134,7 @@ class EditorStore {
     if (!file.content) {
       file = {
         ...file,
+        location: file.location.replace(/global\/|local\//, ''),
         content: await this.rootStore.api.readFile(file)
       }
     }
