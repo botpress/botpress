@@ -25,6 +25,7 @@ class Web extends React.Component<MainProps> {
   private hasBeenInitialized: boolean = false
   private audio: HTMLAudioElement
   private lastMessageId: uuid
+  private hasFontCss: boolean = false
 
   constructor(props) {
     super(props)
@@ -62,6 +63,22 @@ class Web extends React.Component<MainProps> {
   }
 
   componentDidUpdate() {
+    const app = document.querySelector('#app')
+    const div = app?.firstChild?.firstChild
+    if (div) {
+      div.childNodes.forEach(child => {
+        const href = child['attributes']?.href
+        if (href) {
+          const value = href?.value
+          if (value && typeof value === 'string') {
+            const foundFontCss = value.match(/font-roboto.css/)?.length > 0
+            setTimeout(() => {
+              this.hasFontCss = foundFontCss
+            }, 500)
+          }
+        }
+      })
+    }
     if (this.config) {
       // eslint-disable-next-line @typescript-eslint/no-floating-promises
       this.initializeIfChatDisplayed()
@@ -336,8 +353,8 @@ class Web extends React.Component<MainProps> {
     return (
       <React.Fragment>
         {!!stylesheet?.length && <Stylesheet href={stylesheet} />}
+        {!isIE && <Stylesheet href={'assets/studio/ui/public/external/font-roboto.css'} />}
         {!stylesheet && <Stylesheet href={`assets/modules/channel-web/default${isEmulator ? '-emulator' : ''}.css`} />}
-        {!isIE && <Stylesheet href={'assets/modules/channel-web/font.css'} />}
         {!!extraStylesheet?.length && <Stylesheet href={extraStylesheet} />}
       </React.Fragment>
     )
@@ -347,16 +364,19 @@ class Web extends React.Component<MainProps> {
     if (!this.props.isWebchatReady) {
       return null
     }
-
     return (
       <div onFocus={this.handleResetUnreadCount}>
         {this.applyAndRenderStyle()}
-        <h1 id="tchat-label" className="sr-only" tabIndex={-1}>
-          {this.props.intl.formatMessage({
-            id: 'widget.title',
-            defaultMessage: 'Chat window'
-          })}
-        </h1>
+
+        {this.hasFontCss && (
+          <h1 id="tchat-label" className="sr-only" tabIndex={-1}>
+            {this.props.intl.formatMessage({
+              id: 'widget.title',
+              defaultMessage: 'Chat window'
+            })}
+          </h1>
+        )}
+
         {this.props.displayWidgetView ? this.renderWidget() : <Container />}
       </div>
     )
