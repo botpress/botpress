@@ -14,8 +14,7 @@
     "version": "0.1.8"
   },
   "studio": {
-    "version": "0.0.41",
-    "devBranch": "shake_your_botpress"
+    "version": "0.0.41"
   },
   "messaging": {
     "version": "0.1.15"
