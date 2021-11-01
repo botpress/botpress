@@ -41,7 +41,7 @@ class ComposerStore {
   }
 
   @computed
-  get composerMaxTextLength() : number {
+  get composerMaxTextLength(): number {
     return this.rootStore.botInfo?.maxMessageLength
   }
 
