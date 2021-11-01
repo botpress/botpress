@@ -26,8 +26,9 @@ export class FileInput extends React.Component<Renderer.FileInput> {
             top: 0,
             left: 0,
             opacity: 0,
+            padding: 0,
             width: '100%',
-            zIndex: 1
+            zIndex: 100
           }}
         />
         <input
@@ -38,7 +39,13 @@ export class FileInput extends React.Component<Renderer.FileInput> {
           onChange={() => {}}
           placeholder={this.props.placeholder}
           disabled={this.props.disabled}
-          style={{ position: 'relative', zIndex: -1 }}
+          style={{
+            position: 'absolute',
+            zIndex: -1,
+            width: '100%',
+            top: 0,
+            left: 0
+          }}
         />
       </div>
     )
