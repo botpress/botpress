@@ -17,8 +17,6 @@ import {
   RAW_TYPE
 } from './utils'
 
-export const FILENAME_REGEX = /^[0-9a-zA-Z_\-.]+$/
-
 const RAW_FILES_FILTERS = ['**/*.map', 'modules/.cache/**/*', 'modules/*.cache', 'modules/*.temp_cache']
 
 export default class Editor {
@@ -161,9 +159,7 @@ export default class Editor {
   }
 
   async renameFile(file: EditableFile, newName: string): Promise<void> {
-    if (file.type !== RAW_TYPE) {
-      assertValidFilename(newName)
-    }
+    assertValidFilename(newName)
 
     const { folder, filename } = getFileLocation(file)
     const newFilename = filename.replace(filename, newName)

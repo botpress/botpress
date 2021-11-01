@@ -1,9 +1,9 @@
 import { BUILTIN_MODULES } from 'common/defaults'
+import { isValid } from 'common/utils'
 import jsonlintMod from 'jsonlint-mod'
 import _ from 'lodash'
 
 import { FileDefinition, FileTypes } from './definitions'
-import { FILENAME_REGEX } from './editor'
 import { EditorError } from './editorError'
 import { EditableFile, FilePermissions, FileType } from './typings'
 
@@ -37,7 +37,7 @@ export const assertValidJson = (content: string): boolean => {
 }
 
 export const assertValidFilename = (filename: string) => {
-  if (!FILENAME_REGEX.test(filename)) {
+  if (!isValid(filename, 'path')) {
     throw new EditorError('Filename has invalid characters')
   }
 }
@@ -95,10 +95,7 @@ export const validateFilePayload = async (
     throw new EditorError(`Invalid file name. Must match ${def.filenames}`)
   }
 
-  // Skip standard validation for raw, since you can set a complete folder path
-  if (type !== RAW_TYPE) {
-    assertValidFilename(name)
-  }
+  assertValidFilename(name)
 }
 
 export const buildRestrictedProcessVars = () => {
