@@ -275,7 +275,7 @@ class Editor extends React.Component<Props> {
             {this.props.editor.openedFiles.map(({ uri, hasChanges, location, name }) => {
               const isActive = uri === this.props.editor.currentFile?.uri
               return (
-                <div className={cx(style.tab, { [style.active]: isActive })} key={name} id={name}>
+                <div className={cx(style.tab, { [style.active]: isActive })} key={uri.path} id={name}>
                   <span onClick={() => this.props.editor.switchTab(uri)}>{location}</span>
 
                   <div>
