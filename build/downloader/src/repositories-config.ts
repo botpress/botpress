@@ -7,10 +7,6 @@ export interface RepositoriesConfig {
       location: string
       content: string
     }
-    jsonFile?: {
-      location: string
-      content: any
-    }
   }
 }
 
