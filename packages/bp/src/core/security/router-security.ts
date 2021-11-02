@@ -51,7 +51,7 @@ export const checkTokenHeader = (authService: AuthService, audience?: string) =>
   }
 
   try {
-    const csrfToken = req.headers[CSRF_TOKEN_HEADER_LC] as string
+    const csrfToken = (req.headers[CSRF_TOKEN_HEADER_LC] || req.cookies[CSRF_TOKEN_HEADER_LC]) as string
     const tokenUser = await authService.checkToken(token, csrfToken, audience)
 
     if (!tokenUser) {

@@ -282,6 +282,7 @@ export class HTTPServer {
     await this.sdkApiRouter.initialize()
 
     process.USE_JWT_COOKIES = yn(botpressConfig.jwtToken.useCookieStorage)
+    process.ALLOW_CSRF_COOKIES = yn(botpressConfig.jwtToken.allowCSRFCookieStorage)
 
     this.setupMessagingProxy()
 

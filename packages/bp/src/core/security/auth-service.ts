@@ -1,5 +1,5 @@
 import { Logger, StrategyUser } from 'botpress/sdk'
-import { JWT_COOKIE_NAME } from 'common/auth'
+import { JWT_COOKIE_NAME, CSRF_TOKEN_HEADER_LC } from 'common/auth'
 import { AuthPayload, AuthStrategyConfig, ChatUserAuth, TokenUser, TokenResponse } from 'common/typings'
 import { TYPES } from 'core/app/types'
 import { AuthStrategy, ConfigProvider } from 'core/config'
@@ -20,6 +20,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 import { studioActions } from 'orchestrator'
+import yn from 'yn'
 
 export const TOKEN_AUDIENCE = 'collaborators'
 export const CHAT_USERS_AUDIENCE = 'chat_users'
@@ -371,6 +372,10 @@ export class AuthService {
 
     const config = await this.configProvider.getBotpressConfig()
     const cookieOptions = config.jwtToken.cookieOptions
+
+    if (yn(process.ALLOW_CSRF_COOKIES)) {
+      res.cookie(CSRF_TOKEN_HEADER_LC, token.csrf, { maxAge: token.exp, httpOnly: true, ...cookieOptions })
+    }
 
     res.cookie(JWT_COOKIE_NAME, token.jwt, { maxAge: token.exp, httpOnly: true, ...cookieOptions })
     return true

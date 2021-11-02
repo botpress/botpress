@@ -302,6 +302,11 @@ export interface BotpressConfig {
      */
     useCookieStorage: boolean
     /**
+     * Allow appending the CSRF token to cookies (Only valid when using JWT Cookies)
+     * @default false
+     */
+    allowCSRFCookieStorage: boolean
+    /**
      * Configure the options of the cookie sent to the user, for example the domain
      * @default {}
      */
