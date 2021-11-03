@@ -56,4 +56,16 @@ describe('Admin - UI', () => {
       clickOn('#btn-submit')
     ])
   })
+
+  it('Revert password', async () => {
+    await clickOn('#btn-menu')
+    await clickOn('#btn-changepass')
+    await fillField('#input-password', bpConfig.newPassword)
+    await fillField('#input-newPassword', bpConfig.initialPassword)
+    await fillField('#input-confirmPassword', bpConfig.initialPassword)
+    await Promise.all([
+      expectCallSuccess(`${bpConfig.host}/api/v2/admin/auth/login/basic/default`, 'POST'),
+      clickOn('#btn-submit')
+    ])
+  })
 })
