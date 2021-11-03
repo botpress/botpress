@@ -52,6 +52,7 @@ export namespace CacheInvalidators {
         path.join(process.PROJECT_LOCATION, 'data', 'global')
       ]
 
+      // Supports dumb deployments by allow disabling file listerners
       if (!yn(process.env.CORE_DISABLE_FILE_LISTENERS)) {
         const watcher = chokidar.watch(foldersToWatch, {
           ignoreInitial: true,
