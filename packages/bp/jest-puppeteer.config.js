@@ -17,7 +17,8 @@ module.exports = {
   bpConfig: {
     windowSize,
     email: 'admin',
-    password: '123456',
+    initialPassword: '123456',
+    newPassword: '654321',
     botId: 'test-bot',
     host: 'http://localhost:3000',
     licenseKey: process.env.BP_LICENSE_KEY, // add license key to env variables
