@@ -5,6 +5,7 @@ import { TYPES } from 'core/app/types'
 import { forceForwardSlashes } from 'core/misc/utils'
 import { inject, injectable, tagged } from 'inversify'
 import path from 'path'
+import yn from 'yn'
 
 export namespace CacheInvalidators {
   enum ChangeEventAction {
@@ -51,16 +52,18 @@ export namespace CacheInvalidators {
         path.join(process.PROJECT_LOCATION, 'data', 'global')
       ]
 
-      const watcher = chokidar.watch(foldersToWatch, {
-        ignoreInitial: true,
-        ignorePermissionErrors: true,
-        ignored: path => path.includes('node_modules')
-      })
+      if (!yn(process.env.CORE_DISABLE_FILE_LISTENERS)) {
+        const watcher = chokidar.watch(foldersToWatch, {
+          ignoreInitial: true,
+          ignorePermissionErrors: true,
+          ignored: path => path.includes('node_modules')
+        })
 
-      watcher.on('add', this.handle)
-      watcher.on('change', this.handle)
-      watcher.on('unlink', this.handle)
-      watcher.on('error', err => this.logger.attachError(err).error('Watcher error'))
+        watcher.on('add', this.handle)
+        watcher.on('change', this.handle)
+        watcher.on('unlink', this.handle)
+        watcher.on('error', err => this.logger.attachError(err).error('Watcher error'))
+      }
     }
 
     async stop() {
