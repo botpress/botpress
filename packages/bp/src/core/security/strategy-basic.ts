@@ -98,6 +98,10 @@ export class StrategyBasic {
     const strategyOptions = _.get(await this.authService.getStrategy(strategy), 'options') as AuthStrategyBasic
 
     if (newPassword) {
+      if (password === newPassword) {
+        throw new WeakPasswordError('New password should not match old password')
+      }
+
       this._validatePassword(newPassword, strategyOptions)
       const hash = saltHashPassword(newPassword)
 
