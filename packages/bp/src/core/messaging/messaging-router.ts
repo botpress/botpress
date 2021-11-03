@@ -66,6 +66,7 @@ export interface MessageNewEventData {
   conversationId: string
   channel: string
   message: Message
+  collect: boolean
 }
 
 interface MessagingEvent {
@@ -79,6 +80,7 @@ const MessageNewEventSchema = joi
     userId: joi.string().required(),
     conversationId: joi.string().required(),
     channel: joi.string().required(),
+    collect: joi.boolean().optional(),
     message: joi
       .object({
         id: joi.string().required(),

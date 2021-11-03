@@ -20,6 +20,7 @@ export interface Queue<E extends IO.Event> {
   isEmpty(): boolean
   isEmptyForJob(job: E): boolean
   isQueueLockedForJob(job: E): boolean
+  waitEmpty(job: E): Promise<void>
   enqueue(job: E, retries: number, isPriority: boolean): Promise<void>
   dequeue(): Promise<JobWrapper<E> | undefined>
   cancelAll(job: E): Promise<void>
