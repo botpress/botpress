@@ -20,5 +20,6 @@ declare global {
       [moduleName: string]: any
     }
     UUID: string
+    SEGMENT_WRITE_KEY: string
   }
 }

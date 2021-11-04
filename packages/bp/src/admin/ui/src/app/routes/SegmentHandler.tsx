@@ -6,7 +6,6 @@ import { connect } from 'react-redux'
 import { UserState } from '~/user/reducer'
 
 const APP_NAME = 'ADMIN_ANALYTICS' // for reference, in case of second account
-const WRITE_KEY = 'zE0mct7hGOZRtCyImjX9vT1NJ2TpfyGF' // taken from Segment UI
 
 let analytics: AnalyticsInstance
 let loggedIn: boolean = false
@@ -25,7 +24,7 @@ const initSegmentAnalytics = async () => {
     app: APP_NAME,
     plugins: [
       segmentPlugin({
-        writeKey: WRITE_KEY
+        writeKey: window.SEGMENT_WRITE_KEY
       })
     ]
   })

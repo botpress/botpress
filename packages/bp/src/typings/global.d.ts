@@ -305,6 +305,11 @@ declare interface BotpressEnvironmentVariables {
    * The complete path to the dist/ folder of the messaging repo
    */
   readonly DEV_MESSAGING_PATH?: string
+
+  /**
+   * For testing remote Analytics locally 
+   */
+   readonly BP_DEBUG_SEGMENT?: boolean
 }
 
 interface IDebug {
