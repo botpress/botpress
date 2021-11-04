@@ -305,6 +305,11 @@ declare interface BotpressEnvironmentVariables {
    * The complete path to the dist/ folder of the messaging repo
    */
   readonly DEV_MESSAGING_PATH?: string
+
+  /**
+   * Supports dumb deployments by allowing disabling file listeners
+   */
+  readonly CORE_DISABLE_FILE_LISTENERS?: boolean
 }
 
 interface IDebug {
