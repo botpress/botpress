@@ -47,24 +47,26 @@ export namespace CacheInvalidators {
     install(objectCache: ObjectCache) {
       this.cache = objectCache
 
+      // Supports dumb deployments by allow disabling file listerners
+      if (yn(process.env.CORE_DISABLE_FILE_LISTENERS)) {
+        return
+      }
+
       const foldersToWatch = [
         path.join(process.PROJECT_LOCATION, 'data', 'bots'),
         path.join(process.PROJECT_LOCATION, 'data', 'global')
       ]
 
-      // Supports dumb deployments by allow disabling file listerners
-      if (!yn(process.env.CORE_DISABLE_FILE_LISTENERS)) {
-        const watcher = chokidar.watch(foldersToWatch, {
-          ignoreInitial: true,
-          ignorePermissionErrors: true,
-          ignored: path => path.includes('node_modules')
-        })
+      const watcher = chokidar.watch(foldersToWatch, {
+        ignoreInitial: true,
+        ignorePermissionErrors: true,
+        ignored: path => path.includes('node_modules')
+      })
 
-        watcher.on('add', this.handle)
-        watcher.on('change', this.handle)
-        watcher.on('unlink', this.handle)
-        watcher.on('error', err => this.logger.attachError(err).error('Watcher error'))
-      }
+      watcher.on('add', this.handle)
+      watcher.on('change', this.handle)
+      watcher.on('unlink', this.handle)
+      watcher.on('error', err => this.logger.attachError(err).error('Watcher error'))
     }
 
     async stop() {
