@@ -47,7 +47,7 @@ export namespace CacheInvalidators {
     install(objectCache: ObjectCache) {
       this.cache = objectCache
 
-      // Supports dumb deployments by allow disabling file listerners
+      // Supports dumb deployments by allowing disabling file listeners
       if (yn(process.env.CORE_DISABLE_FILE_LISTENERS)) {
         return
       }
