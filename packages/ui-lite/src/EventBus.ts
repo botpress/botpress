@@ -6,15 +6,15 @@ import storage from '../../ui-shared-lite/utils/storage'
 
 export const authEvents = new EventEmitter2()
 
-const setVisitorId = (userId: string, userIdScope?: string) => {
-  if (typeof userId === 'string' && userId !== 'undefined') {
-    storage.set(userIdScope ? `bp/socket/${userIdScope}/user` : 'bp/socket/user', userId)
-    window.__BP_VISITOR_ID = userId
-  }
+const getStorageKey = (userIdScope?: string) => (userIdScope ? `bp/socket/${userIdScope}/user` : 'bp/socket/user')
+
+const unsetVisitorId = (userIdScope?: string) => {
+  storage.del(getStorageKey(userIdScope))
+  window.__BP_VISITOR_ID = undefined
 }
 
 const getUniqueVisitorId = (userIdScope?: string): string => {
-  const key = userIdScope ? `bp/socket/${userIdScope}/user` : 'bp/socket/user'
+  const key = getStorageKey(userIdScope)
 
   let userId = storage.get(key)
   if (typeof userId !== 'string' || userId === 'undefined') {
@@ -53,8 +53,8 @@ class EventBus extends EventEmitter2 {
     socket && socket.emit('event', { name, data })
   }
 
-  updateVisitorId = (newId: string, userIdScope?: string) => {
-    setVisitorId(newId, userIdScope)
+  deleteVisitorId = (userIdScope?: string) => {
+    unsetVisitorId(userIdScope)
   }
 
   private updateVisitorSocketId() {

@@ -192,7 +192,12 @@ class Web extends React.Component<MainProps> {
     } else if (action === 'change-user-id') {
       await this.props.setCustomUserId(payload)
     } else if (action === 'new-session') {
-      await this.props.newSession()
+      // To create a new session, we change the socket user and re-initialize
+      // the connection like if it was the first time using the webchat
+      this.socket.newUserId()
+
+      await this.socket.waitForUserId()
+      await this.props.initializeChat()
     } else if (action === 'event') {
       const { type, text } = payload
 
@@ -395,8 +400,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   displayWidgetView: store.view.displayWidgetView,
   setLoadingCompleted: store.view.setLoadingCompleted,
   sendFeedback: store.sendFeedback,
-  setCustomUserId: store.setCustomUserId,
-  newSession: store.newSession
+  setCustomUserId: store.setCustomUserId
 }))(injectIntl(observer(Web)))
 
 type MainProps = { store: RootStore } & Pick<
@@ -433,5 +437,4 @@ type MainProps = { store: RootStore } & Pick<
   | 'setLoadingCompleted'
   | 'dimensions'
   | 'setCustomUserId'
-  | 'newSession'
 >

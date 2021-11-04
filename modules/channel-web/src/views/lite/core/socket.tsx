@@ -39,10 +39,10 @@ export default class BpSocket {
     window.parent?.postMessage({ ...payload, chatId: this.chatId }, '*')
   }
 
-  public changeUserId(newId: string) {
-    if (typeof newId === 'string' && newId !== 'undefined') {
-      this.events.updateVisitorId(newId, this.userIdScope)
-    }
+  public newUserId() {
+    this.events.deleteVisitorId(this.userIdScope)
+
+    this.setup()
   }
 
   /** Waits until the VISITOR ID and VISITOR SOCKET ID is set  */

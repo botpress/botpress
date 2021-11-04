@@ -36,6 +36,8 @@ const SUPPORTED_MESSAGES = [
   'voice'
 ]
 
+const WEBCHAT_CUSTOM_ID_KEY = 'webchatCustomId'
+
 type ChatRequest = BPRequest & {
   visitorId: string
   userId: string
@@ -192,8 +194,6 @@ export default async (bp: typeof sdk, db: Database) => {
     bp.http.extractExternalToken,
     assertUserInfo(),
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
-      const KEY = 'webchatCustomId'
-
       const { botId, userId } = req
       const { customId } = req.body
 
@@ -201,12 +201,8 @@ export default async (bp: typeof sdk, db: Database) => {
         return res.sendStatus(400)
       }
 
-      const user = await bp.users.getOrCreateUser('web', userId, botId)
-      const attributes: { [key: string]: any } = user.result.attributes || {}
-
-      attributes[KEY] = customId
-
-      await bp.users.setAttributes('web', userId, attributes)
+      await bp.users.getOrCreateUser('web', userId, botId)
+      await bp.users.updateAttributes('web', userId, { [WEBCHAT_CUSTOM_ID_KEY]: customId })
 
       res.sendStatus(200)
     })
