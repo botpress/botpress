@@ -1,3 +1,4 @@
+import { Health } from '@botpress/nlu-client'
 import _ from 'lodash'
 import yn from 'yn'
 
@@ -34,7 +35,7 @@ export class NLUApplication {
     return this._trainingQueue.teardown()
   }
 
-  public async getHealth() {
+  public async getHealth(): Promise<Health | undefined> {
     try {
       const { health } = await this._engine.getInfo()
       return health
