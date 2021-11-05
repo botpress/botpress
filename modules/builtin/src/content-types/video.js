@@ -42,7 +42,7 @@ module.exports = {
     }
     let videoUrl = formData.video
     if (utils.isBpUrl(videoUrl)) {
-      videoUrl = '/' + videoUrl
+      videoUrl = `/${videoUrl}`
     }
 
     const link = utils.formatURL(formData.BOT_URL, videoUrl)

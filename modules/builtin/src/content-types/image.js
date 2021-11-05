@@ -43,7 +43,7 @@ module.exports = {
 
     let imageUrl = formData.image
     if (utils.isBpUrl(imageUrl)) {
-      imageUrl = '/' + imageUrl
+      imageUrl = `/${imageUrl}`
     }
     const link = utils.formatURL(formData.BOT_URL, imageUrl)
     const title = formData.title ? ' | ' + formData.title : ''

@@ -43,7 +43,7 @@ module.exports = {
 
     let audioUrl = formData.audio
     if (utils.isBpUrl(audioUrl)) {
-      audioUrl = '/' + audioUrl
+      audioUrl = `/${audioUrl}`
     }
     const link = utils.formatURL(formData.BOT_URL, audioUrl)
     const title = formData.title ? ' | ' + formData.title : ''
