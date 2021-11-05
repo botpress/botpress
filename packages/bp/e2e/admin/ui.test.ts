@@ -4,6 +4,8 @@ import { bpConfig } from '../../jest-puppeteer.config'
 import { clickOn, expectMatch, fillField, uploadFile } from '../expectPuppeteer'
 import { closeToaster, expectAdminApiCallSuccess, expectCallSuccess, getResponse } from '../utils'
 
+const NEW_PASSWORD = '654321'
+
 describe('Admin - UI', () => {
   it('Load code editor page', async () => {
     await clickOn('#btn-menu-code-editor')
@@ -49,6 +51,18 @@ describe('Admin - UI', () => {
     await clickOn('#btn-menu')
     await clickOn('#btn-changepass')
     await fillField('#input-password', bpConfig.password)
+    await fillField('#input-newPassword', NEW_PASSWORD)
+    await fillField('#input-confirmPassword', NEW_PASSWORD)
+    await Promise.all([
+      expectCallSuccess(`${bpConfig.host}/api/v2/admin/auth/login/basic/default`, 'POST'),
+      clickOn('#btn-submit')
+    ])
+  })
+
+  it('Revert password', async () => {
+    await clickOn('#btn-menu')
+    await clickOn('#btn-changepass')
+    await fillField('#input-password', NEW_PASSWORD)
     await fillField('#input-newPassword', bpConfig.password)
     await fillField('#input-confirmPassword', bpConfig.password)
     await Promise.all([

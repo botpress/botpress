@@ -1,4 +1,4 @@
-import axios, { AxiosInstance } from 'axios'
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
 import * as sdk from 'botpress/sdk'
 
 export type NLUApi = ReturnType<typeof makeApi>
@@ -9,7 +9,9 @@ export const makeApi = (bp: { axios: AxiosInstance }) => ({
 })
 
 export const createApi = async (bp: typeof sdk, botId: string) => {
-  const axiosForBot = axios.create(await bp.http.getAxiosConfigForBot(botId, { localUrl: true }))
+  const config: AxiosRequestConfig = await bp.http.getAxiosConfigForBot(botId, { localUrl: true })
+  config.proxy = false // always false as this client queries localhost
+  const axiosForBot = axios.create(config)
   const api = makeApi({ axios: axiosForBot })
   return api
 }

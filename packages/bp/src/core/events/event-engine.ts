@@ -234,6 +234,10 @@ export class EventEngine {
     return this.outgoingQueue.isQueueLockedForJob(event)
   }
 
+  async waitOutgoingQueueEmpty(event: sdk.IO.IncomingEvent) {
+    return this.outgoingQueue.waitEmpty(event)
+  }
+
   private async getMiddlewareChains() {
     const incoming = new MiddlewareChain()
     const outgoing = new MiddlewareChain()
