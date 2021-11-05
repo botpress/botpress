@@ -41,7 +41,11 @@ module.exports = {
       return
     }
 
-    const link = utils.formatURL(formData.BOT_URL, formData.file)
+    let fileUrl = formData.file
+    if (utils.isBpUrl(fileUrl)) {
+      fileUrl = `/${fileUrl}`
+    }
+    const link = utils.formatURL(formData.BOT_URL, fileUrl)
     const title = formData.title ? ' | ' + formData.title : ''
 
     if (utils.isUrl(link)) {
