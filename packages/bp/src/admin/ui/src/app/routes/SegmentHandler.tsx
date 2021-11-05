@@ -8,7 +8,7 @@ import { UserState } from '~/user/reducer'
 const APP_NAME = 'ADMIN_ANALYTICS' // for reference, in case of second account
 
 let analytics: AnalyticsInstance
-let loggedIn: boolean = false
+let userIdentified: boolean = false
 
 const extractUserHashFromUser = (user: UserState): string | undefined => {
   if (user?.profile?.email) {
@@ -34,31 +34,36 @@ const initSegmentAnalytics = async () => {
   return analytics
 }
 
-const handleNewUserState = (user: UserState): void => {
+const handleNewUserState = async (user: UserState): Promise<void> => {
   const userEmailHash = extractUserHashFromUser(user)
 
-  if (!loggedIn && userEmailHash) {
-    loggedIn = true
-    // @ts-ignore
-    void analytics.identify(null, {
-      userEmailHash,
-      machineUUID: window.UUID
-    })
+  if (userIdentified || !userEmailHash) {
+    return
   }
+
+  userIdentified = true
+
+  // @ts-ignore
+  // ts-ignore because analytics doesn't accept a non-string userId, but analytics-segment does.
+  await analytics.identify(null, {
+    userEmailHash,
+    machineUUID: window.UUID
+  })
+  return
 }
 
-function SegmentHandler(props) {
-  if (window.SEND_USAGE_STATS) {
-    React.useEffect(() => {
+const SegmentHandler = props => {
+  React.useEffect(() => {
+    if (window.SEND_USAGE_STATS) {
       void (async () => {
         if (!analytics) {
           await initSegmentAnalytics()
         }
 
-        handleNewUserState(props.user)
+        await handleNewUserState(props.user)
       })()
-    }, [props.user])
-  }
+    }
+  }, [props.user])
   return props.children
 }
 
@@ -70,16 +75,14 @@ const mapDispatchToProps = {}
 
 export default connect(mapStateToProps, mapDispatchToProps)(SegmentHandler)
 
-function trackEvent(eventName: string, payload?: any, options?: any, callback?: (...params: any[]) => any) {
+const trackEvent = (eventName: string, payload?: any, options?: any, callback?: (...params: any[]) => any) => {
   if (analytics) {
-    // analytics only defined if window.SEND_USAGE_STATS is true
     return analytics.track(eventName, payload, options, callback)
   }
 }
 
-function trackPage(data?: PageData, options?: any, callback?: (...params: any[]) => any) {
+const trackPage = (data?: PageData, options?: any, callback?: (...params: any[]) => any) => {
   if (analytics) {
-    // analytics only defined if window.SEND_USAGE_STATS is true
     return analytics.page(data, options, callback)
   }
 }
