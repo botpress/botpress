@@ -1,5 +1,4 @@
 import { MessagingClient } from '@botpress/messaging-client'
-import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import LRUCache from 'lru-cache'
@@ -7,13 +6,11 @@ import ms from 'ms'
 
 export default class WebchatDb {
   private knex: sdk.KnexExtended
-  private users: typeof sdk.users
   private cacheByVisitor: LRUCache<string, UserMapping>
   private cacheByUser: LRUCache<string, UserMapping>
   private messagingClients: { [botId: string]: MessagingClient } = {}
 
   constructor(private bp: typeof sdk) {
-    this.users = bp.users
     this.knex = bp.database
     this.cacheByVisitor = new LRUCache({ max: 10000, maxAge: ms('5min') })
     this.cacheByUser = new LRUCache({ max: 10000, maxAge: ms('5min') })
@@ -27,6 +24,12 @@ export default class WebchatDb {
       table.primary(['botId', 'visitorId'])
     })
   }
+
+  //===================================
+  // This section was copied in the
+  // HITLNext module. Please make sure
+  // to add your changes there too.
+  //===================================
 
   async mapVisitor(botId: string, visitorId: string, messaging: MessagingClient) {
     const userMapping = await this.getMappingFromVisitor(botId, visitorId)
@@ -155,6 +158,10 @@ export default class WebchatDb {
 
     return user?.id === userId
   }
+
+  //===================================
+  // End of copied section
+  //===================================
 }
 
 export interface UserMapping {
