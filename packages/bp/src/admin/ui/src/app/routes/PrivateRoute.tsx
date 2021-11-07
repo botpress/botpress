@@ -26,7 +26,7 @@ const PrivateRoute: FC<Props> = ({ component: Component, auth, changeDisplayNps,
   const [npsScore, setNpsScore] = useState<number | null>(null)
   const [npsDismissed, setNpsDismissed] = useState(false)
 
-  const onNpsSubmit = async (score) => {
+  const onNpsSubmit = async (score: number): Promise<void> => {
     setNpsScore(score)
     nps.tracking = {
       ...nps.tracking,
