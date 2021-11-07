@@ -91,11 +91,10 @@ class MessageGroup extends React.Component<Props> {
             {sortBy(messages, ['sent_on', 'eventId']).map((message, i) => {
               let payload = this.convertPayloadFromOldFormat(message)
 
-              if (payload?.wrapped) {
+              if (payload.wrapped) {
                 payload = { ...payload, wrapped: renderPayload(payload.wrapped) }
               } else {
                 payload = renderPayload(payload)
-
               }
 
               const showInlineFeedback =
