@@ -11,7 +11,7 @@ import { AppState } from '~/app/rootReducer'
 import BasicAuthentication, { setActiveWorkspace, setChatUserAuth } from '~/auth/basicAuth'
 
 import { saveNps } from '~/helpers'
-import { Nps, NpsConfig, NpsTracking } from '~/typings'
+import { Nps } from '~/typings'
 import { changeDisplayNps } from '~/user/reducer'
 import { AuthMethodPicker } from './AuthMethodPicker'
 import LoginContainer from './LoginContainer'

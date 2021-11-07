@@ -1,13 +1,13 @@
 // TODO: remove when at least one typing is exported from this file
 export interface test {}
 
-export interface NpsConfig {
+interface NpsConfig {
   minConnections: number
   minSessionDuration: number
   isSet: boolean
 }
 
-export interface NpsTracking {
+interface NpsTracking {
   connections: number
   isCanceled: boolean
   isSet: boolean

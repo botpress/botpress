@@ -4,10 +4,13 @@ import { connect } from 'react-redux'
 import { Redirect, Route } from 'react-router-dom'
 import { AppState } from '~/app/rootReducer'
 import BasicAuthentication from '~/auth/basicAuth'
+import { saveNps } from '~/helpers'
+import { Nps } from '~/typings'
 import { changeDisplayNps } from '~/user/reducer'
 import '@kazukinagata/react-nps-typescript/dist/index.css'
 import './npsCustom.scss'
-import { saveNps } from '~/helpers'
+
+const NPS_KEY = 'bp/nps'
 
 interface Props {
   path: string
@@ -17,27 +20,6 @@ interface Props {
   changeDisplayNps: (boolean) => void
   displayNps?: boolean
 }
-
-interface NpsConfig {
-  minConnections: number
-  minSessionDuration: number
-  isSet: boolean
-}
-
-interface NpsTracking {
-  connections: number
-  isCanceled: boolean
-  isSet: boolean
-  score: number | null
-  date: string | null
-}
-
-interface Nps {
-  config: NpsConfig
-  tracking: NpsTracking
-}
-
-const NPS_KEY = 'bp/nps'
 
 const PrivateRoute: FC<Props> = ({ component: Component, auth, changeDisplayNps, displayNps, children, ...rest }) => {
   const nps: Nps = window.BP_STORAGE.get(NPS_KEY) || {} as Nps
