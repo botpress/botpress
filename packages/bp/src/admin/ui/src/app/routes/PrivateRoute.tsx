@@ -7,6 +7,7 @@ import BasicAuthentication from '~/auth/basicAuth'
 import { changeDisplayNps } from '~/user/reducer'
 import '@kazukinagata/react-nps-typescript/dist/index.css'
 import './npsCustom.scss'
+import { saveNps } from '~/helpers'
 
 interface Props {
   path: string
@@ -27,8 +28,8 @@ interface NpsTracking {
   connections: number
   isCanceled: boolean
   isSet: boolean
-  score: number
-  date: string
+  score: number | null
+  date: string | null
 }
 
 interface Nps {
@@ -39,40 +40,33 @@ interface Nps {
 const NPS_KEY = 'bp/nps'
 
 const PrivateRoute: FC<Props> = ({ component: Component, auth, changeDisplayNps, displayNps, children, ...rest }) => {
+  const nps: Nps = window.BP_STORAGE.get(NPS_KEY) || {} as Nps
   const [npsScore, setNpsScore] = useState<number | null>(null)
   const [npsDismissed, setNpsDismissed] = useState(false)
 
-  const updateNpsTracking = (value: Partial<NpsTracking>) => {
-    const nps: Nps = window.BP_STORAGE.get(NPS_KEY) || {} as Nps
-
-    console.log('before', nps)
-
-    if (!nps){
-      return
-    }
-
+  const onNpsSubmit = async (score) => {
+    setNpsScore(score)
     nps.tracking = {
       ...nps.tracking,
-      ...value,
+      isSet: true,
+      score,
       date: new Date().toUTCString()
     }
 
-    window.BP_STORAGE.set(NPS_KEY, nps)
-
-    console.log(window.BP_STORAGE.get(NPS_KEY))
-  }
-
-  const onNpsSubmit = async (score) => {
-    setNpsScore(score)
-    updateNpsTracking({ isSet: true, score })
-
+    saveNps(nps)
     setTimeout(() => changeDisplayNps(false), 1000)
   }
 
   const onNpsDismiss = async () => {
     setNpsDismissed(true)
-    updateNpsTracking({ isCanceled: true, isSet: true })
+    nps.tracking = {
+      ...nps.tracking,
+      isSet: true,
+      isCanceled: true,
+      date: new Date().toUTCString()
+    }
 
+    saveNps(nps)
     setTimeout(() => changeDisplayNps(false), 1000)
   }
 

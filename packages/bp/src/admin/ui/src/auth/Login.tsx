@@ -10,6 +10,8 @@ import { ExtendedHistory } from '~/app/history'
 import { AppState } from '~/app/rootReducer'
 import BasicAuthentication, { setActiveWorkspace, setChatUserAuth } from '~/auth/basicAuth'
 
+import { saveNps } from '~/helpers'
+import { Nps, NpsConfig, NpsTracking } from '~/typings'
 import { changeDisplayNps } from '~/user/reducer'
 import { AuthMethodPicker } from './AuthMethodPicker'
 import LoginContainer from './LoginContainer'
@@ -24,26 +26,6 @@ type RouterProps = RouteComponentProps<
 interface NpsProps {
   displayNps?: boolean
   changeDisplayNps?: (value: boolean) => void
-}
-
-
-interface NpsConfig {
-  minConnections: number
-  minSessionDuration: number
-  isSet: boolean
-}
-
-interface NpsTracking {
-  connections: number
-  isCanceled: boolean
-  isSet: boolean
-  score: number | null
-  date: string | null
-}
-
-interface Nps {
-  config: NpsConfig
-  tracking: NpsTracking
 }
 
 const NPS_KEY = 'bp/nps'
@@ -143,108 +125,43 @@ const Login: FC<Props> = props => {
     }
   }
 
-  const updateNpsTracking = (value: Partial<NpsTracking>) => {
-    const nps: Nps = window.BP_STORAGE.get(NPS_KEY) || {} as Nps
-
-    console.log('before', nps)
-
-    if (!nps){
-      return
-    }
-
-    nps.tracking = {
-      ...nps.tracking,
-      ...value,
-      date: new Date().toUTCString()
-    }
-
-    window.BP_STORAGE.set(NPS_KEY, nps)
-
-    console.log(window.BP_STORAGE.get(NPS_KEY))
-  }
-
-  const updateNpsConfig = (value: Partial<NpsConfig>) => {
-    const nps: Nps = window.BP_STORAGE.get(NPS_KEY) || {} as Nps
-
-    console.log('before', nps)
-
-    if (!nps){
-      return
-    }
-
-    nps.config = {
-      ...nps.config,
-      ...value
-    }
-
-    window.BP_STORAGE.set(NPS_KEY, nps)
-
-    console.log(window.BP_STORAGE.get(NPS_KEY))
-  }
-
-  const setStorageItem = (key: string, value: any) => {
-    localStorage.setItem(key, JSON.stringify(value))
-  }
-
-  const incrementStorageItem = (key: string): number => {
-    const currentValue: number = parseInt(localStorage.getItem(key) || '0') + 1
-    setStorageItem(key, currentValue)
-
-    return currentValue
-  }
-
   const setupNpsTracking = () => {
-    updateNpsConfig({
-      isSet: true,
-      minConnections: 5,
-      minSessionDuration: 3 * 60 * 1000
-    })
+    const nps: Nps = {
+      config: {
+        isSet: true,
+        minConnections: 5,
+        minSessionDuration: 3 * 60 * 1000
+      },
+      tracking: {
+        isSet: false,
+        connections: 0,
+        isCanceled: false,
+        score: null,
+        date: null
+      }
+    }
 
-    updateNpsTracking({
-      isSet: false,
-      connections: 0,
-      isCanceled: false,
-      score: null,
-      date: null
-    })
-    // setStorageItem('bp/nps/config/hasSetup', true)
-    // setStorageItem('bp/nps/config/connections', 5)
-    // setStorageItem('bp/nps/config/sessionInMinutes', 3)
-
-    // setStorageItem('bp/nps/tracking/isComplete', false)
-    // setStorageItem('bp/nps/tracking/connections', 0)
-    // setStorageItem('bp/nps/tracking/hasCancelled', false)
-    // setStorageItem('bp/nps/tracking/score', null)
-    // // defined when cancelled or score set!
-    // setStorageItem('bp/nps/tracking/dateComplete', null)
+    saveNps(nps)
   }
 
-  const shouldDisplayNps = () => {
-    const connectionKey = 'bp/nps/tracking/connections'
-    const connectionTargetKey = 'bp/nps/config/connections'
-    const isCompleteKey = 'bp/nps/tracking/isComplete'
-
-    const connectionTarget: number = parseInt(localStorage.getItem(connectionTargetKey) || '0')
-    const isComplete: boolean = JSON.parse(localStorage.getItem(isCompleteKey) || 'false')
-
-    return incrementStorageItem(connectionKey) >= connectionTarget && !isComplete
+  const shouldDisplayNps = (nps: Nps) => {
+    return nps.tracking.connections >= nps.config.minConnections && !nps.tracking.isSet
   }
 
   const updateNps = () => {
     const nps: Nps = window.BP_STORAGE.get(NPS_KEY) || {} as Nps
-    alert('900')
-    console.log('nps: ', nps, !nps?.config.isSet)
-    if (!nps?.config.isSet){
+
+    if (!nps?.config?.isSet){
       setupNpsTracking()
     }
 
-    if(shouldDisplayNps()){
-      const minutes = parseInt(localStorage.getItem('bp/nps/config/sessionInMinutes') || '0')
-      const timeOut = 60 * minutes * 1000
+    nps.tracking.connections += 1
+    saveNps(nps)
 
+    if(shouldDisplayNps(nps)){
       setTimeout(() => {
         props.changeDisplayNps && props.changeDisplayNps(true)
-      }, timeOut)
+      }, nps.config.minSessionDuration)
     }
   }
 
