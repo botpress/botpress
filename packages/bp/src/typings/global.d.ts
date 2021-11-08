@@ -306,10 +306,14 @@ declare interface BotpressEnvironmentVariables {
    */
   readonly DEV_MESSAGING_PATH?: string
 
-  /**
-   * For testing remote Analytics locally 
+  /** For testing remote Analytics locally
    */
-   readonly BP_DEBUG_SEGMENT?: boolean
+  readonly BP_DEBUG_SEGMENT?: boolean
+
+  /**
+   * Supports dumb deployments by allowing disabling file listeners
+   */
+  readonly CORE_DISABLE_FILE_LISTENERS?: boolean
 }
 
 interface IDebug {
