@@ -80,6 +80,7 @@ const navigateToElement = (name: string, type: string) => () => {
   window.postMessage({ action: 'navigate-url', payload: url }, '*')
 }
 const isNDU = window['USE_ONEFLOW']
+const QNA_IDENTIFIER = '__qna__'
 
 const fetchReducer = (state: State, action): State => {
   if (action.type === 'datesSuccess') {
@@ -341,7 +342,55 @@ const Analytics: FC<any> = ({ bp }) => {
     return getNotNaN(percent, '%')
   }
 
-  const getMetric = metricName => state.metrics.filter(x => x.metric === metricName)
+  const formatConfidence = (confidence: number) => parseFloat((+confidence * 100).toFixed(2))
+
+  const isQnaItem = (name: string) => {
+    return name.startsWith(QNA_IDENTIFIER)
+  }
+
+  const navigateToIntentDefinition = (intent: string, isQna: boolean) => () => {
+    intent = isQna ? intent.replace(QNA_IDENTIFIER, '') : intent
+    let url
+    if (isQna) {
+      url = `/qna?id=${intent}`
+    } else {
+      url = intent === 'none' ? '/nlu' : `/nlu?type=intent&id=${intent}`
+    }
+    window.postMessage({ action: 'navigate-url', payload: url }, '*')
+  }
+
+  const getIntentsConfidencePercent = () => {
+    const getTotalMetricCount = (metrics: MetricEntry[]) => {
+      const dictionary = {}
+
+      metrics.forEach((m: MetricEntry) => {
+        if (!dictionary[m.subMetric]) {
+          dictionary[m.subMetric] = 0
+        }
+
+        dictionary[m.subMetric] += m.value
+      })
+
+      return dictionary
+    }
+
+    const intentsConfidences: { name: string; averageConfidence: number }[] = []
+    const rawIntentsConfidence = getTotalMetricCount(getMetric('msg_nlu_intent!confidence'))
+    const intents = getTotalMetricCount(getMetric('msg_nlu_intent'))
+
+    Object.keys(rawIntentsConfidence).forEach(name => {
+      const averageRatio = rawIntentsConfidence[name] / (intents[name] || 1)
+
+      intentsConfidences.push({
+        name,
+        averageConfidence: formatConfidence(averageRatio)
+      })
+    })
+
+    return _.orderBy(intentsConfidences, e => e.averageConfidence, 'desc')
+  }
+
+  const getMetric = (metricName: string) => state.metrics.filter(x => x.metric === metricName)
 
   const getTopItems = (
     metricName: string,
@@ -437,8 +486,6 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const renderInteractions = () => {
-    // todo: to be updated with real intent/confidence values
-
     return (
       <div className={cx(style.metricsContainer, style.fullWidth)}>
         <ItemsList
@@ -448,13 +495,12 @@ const Analytics: FC<any> = ({ bp }) => {
           className={cx(style.genericMetric, style.quarter, style.list)}
         />
         <ItemsList
-          name={lang.tr('module.analytics.topIntents')}
-          items={state.topQnaQuestions.map(q => ({
-            count: q.count,
-            upVoteCount: q.upVoteCount,
-            downVoteCount: q.downVoteCount,
-            label: q.question || renderDeletedQna(q.id),
-            onClick: q.question ? navigateToElement(q.id, 'qna') : undefined
+          name={lang.tr('module.analytics.top10Intents')}
+          unit="%"
+          items={_.take(getIntentsConfidencePercent(), 10).map(({ name, averageConfidence }) => ({
+            count: averageConfidence,
+            label: name,
+            onClick: navigateToIntentDefinition(name, isQnaItem(name))
           }))}
           className={cx(style.genericMetric, style.threeQuarter, style.list)}
         />

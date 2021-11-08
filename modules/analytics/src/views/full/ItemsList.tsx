@@ -7,14 +7,23 @@ import style from './style.scss'
 
 interface Props {
   name: string
+  unit?: string
   items: { label: string; count: number; upVoteCount?: number; downVoteCount?: number; onClick?: () => void }[]
   className: string
   itemLimit?: number
 }
 
 const ItemsList: FC<Props> = props => {
-  const { name, className, itemLimit } = props
+  const { name, className, itemLimit, unit } = props
   let { items } = props
+
+  const formatValue = (value: number, unit?: string) => {
+    if (unit && unit.length) {
+      return `${value} ${unit}`
+    }
+
+    return `${value}`
+  }
 
   if (itemLimit) {
     items = items.slice(0, itemLimit)
@@ -32,7 +41,7 @@ const ItemsList: FC<Props> = props => {
             <a onClick={item.onClick} className={cx({ [style.disabled]: !item.onClick })}>
               <span>{item.label}</span>
               <span>
-                ({(item.upVoteCount || item.downVoteCount) && 'Total '} {item.count}
+                ({(item.upVoteCount || item.downVoteCount) && 'Total '} {formatValue(item.count, unit)}
                 {item.upVoteCount && (
                   <>
                     {' '}
