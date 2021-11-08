@@ -17,6 +17,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
+import { MetricTypes } from '../../backend/db'
 import { MetricEntry } from '../../backend/typings'
 
 import {
@@ -39,7 +40,6 @@ import RadialMetric from './RadialMetric'
 import style from './style.scss'
 import TimeSeriesChart from './TimeSeriesChart'
 import { fillMissingValues, getNotNaN } from './utils'
-import { MetricTypes } from '../../backend/db'
 
 interface State {
   previousRangeMetrics: MetricEntry[]
