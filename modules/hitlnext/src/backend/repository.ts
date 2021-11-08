@@ -539,14 +539,22 @@ export default class Repository {
 
   async mapVisitor(botId: string, visitorId: string, messaging: MessagingClient) {
     const userMapping = await this.getMappingFromVisitor(botId, visitorId)
+    let userId = userMapping?.userId
 
-    let userId: string
-
-    if (!userMapping) {
+    const createUserAndMapping = async () => {
       userId = (await messaging.users.create()).id
       await this.createUserMapping(botId, visitorId, userId)
+    }
+
+    if (!userMapping) {
+      await createUserAndMapping()
     } else {
-      userId = userMapping.userId
+      // Prevents issues when switching between different Messaging servers
+      // TODO: Remove this check once the 'web_user_map' table is removed
+      if (!(await this.checkUserExist(userMapping.userId, messaging))) {
+        await this.deleteMappingFromVisitor(botId, visitorId)
+        await createUserAndMapping()
+      }
     }
 
     return userId
@@ -558,15 +566,31 @@ export default class Repository {
       return cached
     }
 
-    const rows = await this.bp.database('web_user_map').where({ botId, visitorId })
+    try {
+      const rows = await this.bp.database('web_user_map').where({ botId, visitorId })
 
-    if (rows?.length) {
-      const mapping = rows[0] as UserMapping
-      this.cacheByVisitor.set(`${botId}_${visitorId}`, mapping)
-      return mapping
+      if (rows?.length) {
+        const mapping = rows[0] as UserMapping
+        this.cacheByVisitor.set(`${botId}_${visitorId}`, mapping)
+        return mapping
+      }
+    } catch (err) {
+      this.bp.logger.error('An error occurred while fetching a visitor mapping.', err)
+
+      return undefined
     }
+  }
 
-    return undefined
+  async deleteMappingFromVisitor(botId: string, visitorId: string): Promise<void> {
+    try {
+      this.cacheByVisitor.del(`${botId}_${visitorId}`)
+      await this.bp
+        .database('web_user_map')
+        .where({ botId, visitorId })
+        .delete()
+    } catch (err) {
+      this.bp.logger.error('An error occurred while deleting a visitor mapping.', err)
+    }
   }
 
   async createUserMapping(botId: string, visitorId: string, userId: string): Promise<UserMapping> {
@@ -606,6 +630,12 @@ export default class Repository {
 
   removeMessagingClient(botId: string) {
     this.messagingClients[botId] = undefined
+  }
+
+  private async checkUserExist(userId: string, messaging: MessagingClient): Promise<boolean> {
+    const user = await messaging.users.get(userId)
+
+    return user?.id === userId
   }
 
   //===================================

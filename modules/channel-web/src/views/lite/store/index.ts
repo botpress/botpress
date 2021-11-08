@@ -343,13 +343,6 @@ class RootStore {
   }
 
   @action.bound
-  async newSession(): Promise<void> {
-    this.resetConversation()
-
-    await this.createConversation()
-  }
-
-  @action.bound
   async sendUserVisit(): Promise<void> {
     await this.sendData({
       type: 'visit',
