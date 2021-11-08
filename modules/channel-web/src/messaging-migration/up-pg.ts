@@ -130,23 +130,6 @@ export class MessagingPostgresUpMigrator extends MessagingUpMigrator {
       AND "web_conversations"."botId" = "temp_visitor_ids"."botId")
     INNER JOIN "msg_users" ON "temp_visitor_ids"."userId" = "msg_users"."id"
     INNER JOIN "temp_client_ids" ON "web_conversations"."botId" = "temp_client_ids"."botId"`)
-
-    await this.trx.raw(`
-    UPDATE "dialog_sessions" SET "id" = CONCAT(first_name,' ',last_name)
-      "id",
-      "clientId",
-      "userId",
-      "createdOn")
-    SELECT "temp_new_convo_ids"."newId",
-      "temp_client_ids"."clientId",
-      "temp_visitor_ids"."userId",
-      COALESCE("web_conversations"."created_on", CURRENT_TIMESTAMP)
-    FROM "web_conversations"
-    INNER JOIN "temp_new_convo_ids" ON "web_conversations"."id" = "temp_new_convo_ids"."oldId"
-    INNER JOIN "temp_visitor_ids" ON ("web_conversations"."userId" = "temp_visitor_ids"."visitorId" 
-      AND "web_conversations"."botId" = "temp_visitor_ids"."botId")
-    INNER JOIN "msg_users" ON "temp_visitor_ids"."userId" = "msg_users"."id"
-    INNER JOIN "temp_client_ids" ON "web_conversations"."botId" = "temp_client_ids"."botId"`)
   }
 
   private async migrateMessages() {
