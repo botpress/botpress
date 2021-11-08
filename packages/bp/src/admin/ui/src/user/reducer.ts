@@ -12,7 +12,7 @@ const MY_PROFILE_RECEIVED = 'user/MY_PROFILE_RECEIVED'
 const MY_WORKSPACES_RECEIVED = 'user/MY_WORKSPACES_RECEIVED'
 const CURRENT_WORKSPACE_CHANGED = 'user/CURRENT_WORKSPACE_CHANGED'
 
-interface UserState {
+export interface UserState {
   loading: boolean
   workspaces?: WorkspaceUser[]
   permissions?: AuthRule[]
