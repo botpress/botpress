@@ -308,15 +308,27 @@ export class AuthService {
   }
 
   private async _getChatAuthExpiry(channel: string, botId: string): Promise<Date | undefined> {
+    let authDuration: string | undefined
+
     try {
-      const config = await this.moduleLoader.configReader.getForBot(`channel-${channel}`, botId)
-      const authDuration = ms(_.get(config, 'chatUserAuthDuration', DEFAULT_CHAT_USER_AUTH_DURATION))
-      return moment()
-        .add(authDuration)
-        .toDate()
+      const config = await this.configProvider.getBotConfig(botId)
+      const channelConfig = config.messaging?.channels?.[channel]
+
+      if (channelConfig) {
+        authDuration = channelConfig.chatUserAuthDuration
+      } else {
+        const config = await this.moduleLoader.configReader.getForBot(`channel-${channel}`, botId)
+        authDuration = config?.chatUserAuthDuration
+      }
     } catch (err) {
-      this.logger.attachError(err).error(`Could not get auth duration for channel ${channel} and bot ${botId}`)
+      this.logger
+        .attachError(err)
+        .error(`Could not get auth duration for channel ${channel} and bot ${botId}. Using default value`)
     }
+
+    return moment()
+      .add(ms(authDuration ?? DEFAULT_CHAT_USER_AUTH_DURATION))
+      .toDate()
   }
 
   public async authChatUser(chatUserAuth: ChatUserAuth, identity: TokenUser): Promise<void> {
