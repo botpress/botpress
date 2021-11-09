@@ -9,6 +9,14 @@ import { BotpressTooltip } from 'botpress/tooltip'
 
 const MAX_RETRIES = 10
 
+const parseNumberValue = (value, fallback) => {
+  const ret = Number(value)
+  if (!ret && ret !== 0) {
+    return fallback
+  }
+  return ret
+}
+
 export class Slot extends React.Component {
   state = {
     selectedActionOption: undefined,
@@ -32,8 +40,8 @@ export class Slot extends React.Component {
     const data = this.props.initialData
 
     if (data) {
-      const turnExpiry = Number(data.turnExpiry) || -1
-      const maxRetryAttempts = Number(data.retryAttempts) || 3
+      const turnExpiry = parseNumberValue(data.turnExpiry, -1)
+      const maxRetryAttempts = parseNumberValue(data.retryAttempts, 3)
 
       this.validateTurnExpiryAndRetryAttempts(turnExpiry, maxRetryAttempts)
       this.validateIntentExists(data.intent)
