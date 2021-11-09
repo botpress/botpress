@@ -36,7 +36,7 @@ const getUniqueVisitorId = (userIdScope?: string): string => {
 class EventBus extends EventEmitter2 {
   private adminSocket!: SocketIOClient.Socket
   private guestSocket!: SocketIOClient.Socket
-  static default
+  static default: EventBus
 
   constructor() {
     super({ wildcard: true, maxListeners: 100 })

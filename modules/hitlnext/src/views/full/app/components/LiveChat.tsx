@@ -15,7 +15,7 @@ const INJECTION_ID = 'bp-channel-web-injection'
 const INJECTION_URL = 'assets/modules/channel-web/inject.js'
 const WEBCHAT_ID = 'hitl-webchat'
 const WRAPPER_ID = `${WEBCHAT_ID}-wrapper`
-let intervalId
+let intervalId: ReturnType<typeof setInterval>
 
 const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
   const [webchatLoaded, setWebchatLoaded] = useState(false)
@@ -71,7 +71,7 @@ const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
       botId: window.BOT_ID,
       userId: currentAgent.agentId,
       userIdScope: 'hitlnext',
-      conversationId: handoff.agentThreadId, // parseint ?
+      conversationId: handoff.agentThreadId,
       showConversationsButton: false,
       enableReset: false,
       chatId: WEBCHAT_ID,
