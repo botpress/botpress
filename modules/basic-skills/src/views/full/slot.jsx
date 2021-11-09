@@ -197,11 +197,9 @@ export class Slot extends React.Component {
     const turnExpiry = Number(event.target.value)
     const valid = this.validateTurnExpiryAndRetryAttempts(turnExpiry, this.state.maxRetryAttempts)
 
-    if (!valid) {
-      return
+    if (valid) {
+      this.setState({ turnExpiry })
     }
-
-    this.setState({ turnExpiry })
   }
 
   handleActionChange = selectedActionOption => {
