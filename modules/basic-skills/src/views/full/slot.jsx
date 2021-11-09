@@ -124,7 +124,7 @@ export class Slot extends React.Component {
     const valid = this.isTurnExpiryAndRetryAttemptsValid(turnExpiry, retryAttempts)
 
     if (!valid) {
-      this.setState({ error: 'Invalid settings: both expires after and retry attempts cannot be set a 0!' })
+      this.setState({ error: 'Invalid settings: both expires after and retry attempts cannot be set at 0!' })
     }
 
     return valid
