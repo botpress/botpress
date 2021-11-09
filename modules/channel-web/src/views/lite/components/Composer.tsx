@@ -8,6 +8,8 @@ import { RootStore, StoreDef } from '../store'
 
 import VoiceRecorder from './VoiceRecorder'
 
+const ENTER_CHAR_CODE = 13
+
 class Composer extends React.Component<ComposerProps, { isRecording: boolean }> {
   private textInput: React.RefObject<HTMLTextAreaElement>
   constructor(props) {
@@ -27,8 +29,6 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
   }
 
   handleKeyPress = async e => {
-    const ENTER_CHAR_CODE = 13
-
     if (this.props.enableResetSessionShortcut && e.ctrlKey && e.charCode === ENTER_CHAR_CODE) {
       e.preventDefault()
       await this.props.resetSession()
