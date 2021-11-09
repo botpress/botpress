@@ -310,9 +310,8 @@ export class AuthService {
   private async _getChatAuthExpiry(channel: string, botId: string): Promise<Date | undefined> {
     try {
       const config = await this.configProvider.getBotConfig(botId)
-      const authDuration = ms(
-        _.get(config.messaging?.channels[channel], 'chatUserAuthDuration', DEFAULT_CHAT_USER_AUTH_DURATION)
-      )
+      const channelConfig = config.messaging?.channels?.[channel]
+      const authDuration = ms(_.get(channelConfig, 'chatUserAuthDuration', DEFAULT_CHAT_USER_AUTH_DURATION))
       return moment()
         .add(authDuration)
         .toDate()
