@@ -141,7 +141,7 @@ export class ChannelUserRepository {
       .then(res => {
         return {
           id: res.id,
-          attributes: res.attributes,
+          attributes: this.database.knex.json.get(res.attributes),
           channel: res.channel,
           createdOn: res['created_at'],
           updatedOn: res['updated_at']
