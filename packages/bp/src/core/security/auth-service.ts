@@ -311,12 +311,14 @@ export class AuthService {
     let authDuration: string | undefined
 
     try {
-      if (channel === 'web') {
+      const config = await this.configProvider.getBotConfig(botId)
+      const channelConfig = config.messaging?.channels?.[channel]
+
+      if (channelConfig) {
+        authDuration = channelConfig.chatUserAuthDuration
+      } else {
         const config = await this.moduleLoader.configReader.getForBot(`channel-${channel}`, botId)
         authDuration = config?.chatUserAuthDuration
-      } else {
-        const config = await this.configProvider.getBotConfig(botId)
-        authDuration = config.messaging?.channels?.[channel]?.chatUserAuthDuration
       }
     } catch (err) {
       this.logger
