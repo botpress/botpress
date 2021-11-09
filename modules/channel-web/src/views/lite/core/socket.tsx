@@ -16,9 +16,14 @@ export default class BpSocket {
     this.chatId = config.chatId
   }
 
-  public setup() {
+  public setup(userId?: string) {
     if (!this.events) {
       return
+    }
+
+    // Requires userId to be long enough so it can't be guessed
+    if (userId?.length >= 24) {
+      this.events.updateVisitorId(userId, this.userIdScope)
     }
 
     // Connect the Botpress Web Socket to the server

@@ -13,6 +13,13 @@ const unsetVisitorId = (userIdScope?: string) => {
   window.__BP_VISITOR_ID = undefined
 }
 
+const setVisitorId = (userId: string, userIdScope?: string) => {
+  if (typeof userId === 'string' && userId !== 'undefined') {
+    storage.set(getStorageKey(userIdScope), userId)
+    window.__BP_VISITOR_ID = userId
+  }
+}
+
 const getUniqueVisitorId = (userIdScope?: string): string => {
   const key = getStorageKey(userIdScope)
 
@@ -55,6 +62,10 @@ class EventBus extends EventEmitter2 {
 
   deleteVisitorId = (userIdScope?: string) => {
     unsetVisitorId(userIdScope)
+  }
+
+  updateVisitorId = (userId: string, userIdScope?: string) => {
+    setVisitorId(userId, userIdScope)
   }
 
   private updateVisitorSocketId() {

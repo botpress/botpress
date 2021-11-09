@@ -70,6 +70,7 @@ const LiveChat: React.FC<Props> = ({ handoff, currentAgent }) => {
       host: window.ROOT_PATH,
       botId: window.BOT_ID,
       userId: currentAgent.agentId,
+      userIdScope: 'hitlnext',
       conversationId: handoff.agentThreadId, // parseint ?
       showConversationsButton: false,
       enableReset: false,

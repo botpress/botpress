@@ -138,7 +138,7 @@ class Web extends React.Component<MainProps> {
     this.socket.onTyping = this.handleTyping
     this.socket.onData = this.handleDataMessage
 
-    this.socket.setup()
+    this.socket.setup(this.config.userId)
     await this.socket.waitForUserId()
 
     if (this.config.userId) {
