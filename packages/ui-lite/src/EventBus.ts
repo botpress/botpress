@@ -72,6 +72,10 @@ class EventBus extends EventEmitter2 {
     window.__BP_VISITOR_SOCKET_ID = this.guestSocket.id
   }
 
+  private deleteVisitorSocketId() {
+    window.__BP_VISITOR_SOCKET_ID = undefined
+  }
+
   setup = (userIdScope?: string) => {
     const query = {
       visitorId: getUniqueVisitorId(userIdScope)
@@ -91,6 +95,8 @@ class EventBus extends EventEmitter2 {
       this.guestSocket.off('event', this.dispatchSocketEvent)
       this.guestSocket.off('connect', this.updateVisitorSocketId)
       this.guestSocket.disconnect()
+
+      this.deleteVisitorSocketId()
     }
 
     const socketUrl = window['BP_SOCKET_URL'] || window.location.origin

@@ -194,10 +194,11 @@ class Web extends React.Component<MainProps> {
     } else if (action === 'new-session') {
       // To create a new session, we change the socket user and re-initialize
       // the connection like if it was the first time using the webchat
+      this.props.resetConversation()
+
       this.socket.newUserId()
       await this.socket.waitForUserId()
 
-      this.props.resetConversation()
       await this.props.initializeChat()
     } else if (action === 'event') {
       const { type, text } = payload
