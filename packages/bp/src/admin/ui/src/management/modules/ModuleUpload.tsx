@@ -51,7 +51,7 @@ export const ImportModal: FC<Props> = props => {
       form.append('file', file)
 
       const { data } = await api
-        .getSecured({ timeout: 50000, toastErrors: false })
+        .getSecured({ timeout: 300000, toastErrors: false })
         .post('/admin/management/modules/upload', form, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
