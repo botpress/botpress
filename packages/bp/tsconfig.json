@@ -16,6 +16,7 @@
     "typeRoots": ["./src/typings", "../../node_modules/@types", "./src/common"],
     "types": ["reflect-metadata", "jest"]
   },
+  "references": [{ "path": "../typings/" }],
   "exclude": [
     "e2e/**",
     "**/*.__test__.(ts|js)",

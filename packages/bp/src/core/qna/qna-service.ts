@@ -1,5 +1,5 @@
+import { QnaEntry, QnaItem } from '@botpress/typings/qna'
 import * as sdk from 'botpress/sdk'
-import { QnaEntry, QnaItem } from 'common/typings'
 import { BotService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
 import { CMSService } from 'core/cms'
