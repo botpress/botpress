@@ -88,7 +88,7 @@ class MessageGroup extends React.Component<Props> {
             <span data-from={fromLabel} className="from hidden" aria-hidden="true">
               {fromLabel}
             </span>
-            {sortBy(messages, ['sent_on', 'eventId']).map((message, i, messages) => {
+            {sortBy(messages, ['sentOn', 'eventId']).map((message, i, messages) => {
               const isLastMsg = i === messages.length - 1
               let payload = this.convertPayloadFromOldFormat(message)
               if (payload?.wrapped) {

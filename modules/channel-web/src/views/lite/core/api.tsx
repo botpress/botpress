@@ -7,11 +7,9 @@ import { uuid } from '../typings'
 export default class WebchatApi {
   private axios: AxiosInstance
   private axiosConfig: AxiosRequestConfig
-  private userId: string
   private botId: string
 
-  constructor(userId: string, axiosInstance: AxiosInstance) {
-    this.userId = userId
+  constructor(axiosInstance: AxiosInstance) {
     this.axios = axiosInstance
     this.axios.interceptors.request.use(
       config => {
@@ -35,10 +33,6 @@ export default class WebchatApi {
     }
   }
 
-  updateUserId(userId: string) {
-    this.userId = userId
-  }
-
   updateAxiosConfig({ botId = undefined, externalAuthToken = undefined } = {}) {
     this.botId = botId
     this.axiosConfig = botId
@@ -53,6 +47,14 @@ export default class WebchatApi {
           'X-BP-ExternalAuth': `Bearer ${externalAuthToken}`
         }
       }
+    }
+  }
+
+  async setCustomUserId(userId: string) {
+    try {
+      await this.axios.post('/users/customId', { ...this.baseUserPayload, customId: userId }, this.axiosConfig)
+    } catch (err) {
+      console.error('Error while setting a custom user id', err)
     }
   }
 
@@ -164,7 +166,7 @@ export default class WebchatApi {
 
   async sendFeedback(feedback: number, messageId: uuid): Promise<void> {
     try {
-      return this.axios.post('/saveFeedback', { messageId, target: this.userId, feedback }, this.axiosConfig)
+      return this.axios.post('/saveFeedback', { messageId, target: window.__BP_VISITOR_ID, feedback }, this.axiosConfig)
     } catch (err) {
       await this.handleApiError(err)
     }
@@ -172,7 +174,11 @@ export default class WebchatApi {
 
   async getMessageIdsFeedbackInfo(messageIds: uuid[]): Promise<EventFeedback[]> {
     try {
-      const { data } = await this.axios.post('/feedbackInfo', { messageIds, target: this.userId }, this.axiosConfig)
+      const { data } = await this.axios.post(
+        '/feedbackInfo',
+        { messageIds, target: window.__BP_VISITOR_ID },
+        this.axiosConfig
+      )
       return data
     } catch (err) {
       await this.handleApiError(err)
