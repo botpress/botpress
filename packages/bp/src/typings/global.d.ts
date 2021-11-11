@@ -339,6 +339,10 @@ declare interface OSDistribution {
   release: string
 }
 
+declare interface Dic<T> {
+  [Key: string]: T
+}
+
 declare interface BotpressCoreEvents {
   bp_core_session_created: { botId: string; channel: string }
   bp_core_send_content: { botId: string; channel: string; source: string; details: string }
