@@ -25,6 +25,7 @@ class Web extends React.Component<MainProps> {
   private hasBeenInitialized: boolean = false
   private audio: HTMLAudioElement
   private lastMessageId: uuid
+  private cssLoaded: boolean = false
 
   constructor(props) {
     super(props)
@@ -343,7 +344,12 @@ class Web extends React.Component<MainProps> {
     return (
       <React.Fragment>
         {!!stylesheet?.length && <Stylesheet href={stylesheet} />}
-        {!stylesheet && <Stylesheet href={`assets/modules/channel-web/default${isEmulator ? '-emulator' : ''}.css`} />}
+        {!stylesheet && (
+          <Stylesheet
+            href={`assets/modules/channel-web/default${isEmulator ? '-emulator' : ''}.css`}
+            onLoad={() => (this.cssLoaded = true)}
+          />
+        )}
         {!isIE && <Stylesheet href={'assets/modules/channel-web/font.css'} />}
         {!!extraStylesheet?.length && <Stylesheet href={extraStylesheet} />}
       </React.Fragment>
@@ -358,12 +364,16 @@ class Web extends React.Component<MainProps> {
     return (
       <div onFocus={this.handleResetUnreadCount}>
         {this.applyAndRenderStyle()}
-        <h1 id="tchat-label" className="sr-only" tabIndex={-1}>
-          {this.props.intl.formatMessage({
-            id: 'widget.title',
-            defaultMessage: 'Chat window'
-          })}
-        </h1>
+
+        {this.cssLoaded && (
+          <h1 id="tchat-label" className="sr-only" tabIndex={-1}>
+            {this.props.intl.formatMessage({
+              id: 'widget.title',
+              defaultMessage: 'Chat window'
+            })}
+          </h1>
+        )}
+
         {this.props.displayWidgetView ? this.renderWidget() : <Container />}
       </div>
     )

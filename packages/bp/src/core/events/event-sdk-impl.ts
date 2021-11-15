@@ -58,6 +58,7 @@ export class IOEvent implements sdk.IO.Event {
       errored: false,
       includedContexts: ['global'],
       ms: 0,
+      modelId: undefined,
       ...args.nlu
     }
   }
