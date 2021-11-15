@@ -96,32 +96,28 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
     return (
       <div role="region" className={'bpw-composer'}>
         <div className={'bpw-composer-inner'}>
-          <textarea
-            ref={this.textInput}
-            id="input-message"
-            onFocus={this.props.setFocus.bind(this, 'input')}
-            placeholder={placeholder}
-            onChange={this.handleMessageChanged}
-            value={this.props.message}
-            onKeyPress={this.handleKeyPress}
-            onKeyDown={this.handleKeyDown}
-            aria-label={this.props.intl.formatMessage({
-              id: 'composer.message',
-              defaultMessage: 'Message to send'
-            })}
-            disabled={this.props.composerLocked}
-          />
-          <label htmlFor="input-message" style={{ display: 'none' }}>
-            {placeholder}
-          </label>
+          <div className={'bpw-composer-textarea'}>
+            <textarea
+              ref={this.textInput}
+              id="input-message"
+              onFocus={this.props.setFocus.bind(this, 'input')}
+              placeholder={placeholder}
+              onChange={this.handleMessageChanged}
+              value={this.props.message}
+              onKeyPress={this.handleKeyPress}
+              onKeyDown={this.handleKeyDown}
+              aria-label={this.props.intl.formatMessage({
+                id: 'composer.message',
+                defaultMessage: 'Message to send'
+              })}
+              disabled={this.props.composerLocked}
+            />
+            <label htmlFor="input-message" style={{ display: 'none' }}>
+              {placeholder}
+            </label>
+          </div>
+
           <div className={'bpw-send-buttons'}>
-            {this.props.enableVoiceComposer && (
-              <VoiceRecorder
-                onStart={this.onVoiceStart}
-                onDone={this.onVoiceEnd}
-                onNotAvailable={this.onVoiceNotAvailable}
-              />
-            )}
             <ToolTip
               childId="btn-send"
               content={
@@ -149,6 +145,13 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
                 <FormattedMessage id={'composer.send'} />
               </button>
             </ToolTip>
+            {this.props.enableVoiceComposer && (
+              <VoiceRecorder
+                onStart={this.onVoiceStart}
+                onDone={this.onVoiceEnd}
+                onNotAvailable={this.onVoiceNotAvailable}
+              />
+            )}
           </div>
         </div>
       </div>

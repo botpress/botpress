@@ -1,9 +1,9 @@
+import { Icon } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC } from 'react'
 
 import style from './style.scss'
-import { Icon } from '@blueprintjs/core'
 
 interface Props {
   name: string
