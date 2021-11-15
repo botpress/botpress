@@ -6,15 +6,22 @@ import storage from '../../ui-shared-lite/utils/storage'
 
 export const authEvents = new EventEmitter2()
 
+const getStorageKey = (userIdScope?: string) => (userIdScope ? `bp/socket/${userIdScope}/user` : 'bp/socket/user')
+
+const unsetVisitorId = (userIdScope?: string) => {
+  storage.del(getStorageKey(userIdScope))
+  window.__BP_VISITOR_ID = undefined
+}
+
 const setVisitorId = (userId: string, userIdScope?: string) => {
   if (typeof userId === 'string' && userId !== 'undefined') {
-    storage.set(userIdScope ? `bp/socket/${userIdScope}/user` : 'bp/socket/user', userId)
+    storage.set(getStorageKey(userIdScope), userId)
     window.__BP_VISITOR_ID = userId
   }
 }
 
 const getUniqueVisitorId = (userIdScope?: string): string => {
-  const key = userIdScope ? `bp/socket/${userIdScope}/user` : 'bp/socket/user'
+  const key = getStorageKey(userIdScope)
 
   let userId = storage.get(key)
   if (typeof userId !== 'string' || userId === 'undefined') {
@@ -29,7 +36,7 @@ const getUniqueVisitorId = (userIdScope?: string): string => {
 class EventBus extends EventEmitter2 {
   private adminSocket!: SocketIOClient.Socket
   private guestSocket!: SocketIOClient.Socket
-  static default
+  static default: EventBus
 
   constructor() {
     super({ wildcard: true, maxListeners: 100 })
@@ -53,12 +60,20 @@ class EventBus extends EventEmitter2 {
     socket && socket.emit('event', { name, data })
   }
 
-  updateVisitorId = (newId: string, userIdScope?: string) => {
-    setVisitorId(newId, userIdScope)
+  deleteVisitorId = (userIdScope?: string) => {
+    unsetVisitorId(userIdScope)
+  }
+
+  updateVisitorId = (userId: string, userIdScope?: string) => {
+    setVisitorId(userId, userIdScope)
   }
 
   private updateVisitorSocketId() {
     window.__BP_VISITOR_SOCKET_ID = this.guestSocket.id
+  }
+
+  private deleteVisitorSocketId() {
+    window.__BP_VISITOR_SOCKET_ID = undefined
   }
 
   setup = (userIdScope?: string) => {
@@ -80,6 +95,8 @@ class EventBus extends EventEmitter2 {
       this.guestSocket.off('event', this.dispatchSocketEvent)
       this.guestSocket.off('connect', this.updateVisitorSocketId)
       this.guestSocket.disconnect()
+
+      this.deleteVisitorSocketId()
     }
 
     const socketUrl = window['BP_SOCKET_URL'] || window.location.origin

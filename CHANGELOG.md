@@ -1,3 +1,25 @@
+## [12.26.7](https://github.com/botpress/botpress/compare/v12.26.3...v12.26.7) (2021-11-10)
+
+
+### Bug Fixes
+
+* **channel-web:** fix custom user id in events ([#5591](https://github.com/botpress/botpress/issues/5591)) ([dbe9e2e](https://github.com/botpress/botpress/commit/dbe9e2e)), closes [#5658](https://github.com/botpress/botpress/issues/5658)
+* **core:** fix chat auth expiry with messaging ([#5679](https://github.com/botpress/botpress/issues/5679)) ([63f15d5](https://github.com/botpress/botpress/commit/63f15d5))
+* **e2e:** change pwd test does not reuse same pwd ([#5665](https://github.com/botpress/botpress/issues/5665)) ([7d5dc75](https://github.com/botpress/botpress/commit/7d5dc75))
+* **hitlnext:** use common storage deserialisation ([#5600](https://github.com/botpress/botpress/issues/5600)) ([d2dc154](https://github.com/botpress/botpress/commit/d2dc154))
+* **nlu:** nlu client set proxy false when querying localhost ([#5598](https://github.com/botpress/botpress/issues/5598)) ([7ba42dc](https://github.com/botpress/botpress/commit/7ba42dc))
+* **nlu:** nlu module returns 404 when nlu server is unreachable ([#5622](https://github.com/botpress/botpress/issues/5622)) ([256ae57](https://github.com/botpress/botpress/commit/256ae57))
+* **strategy-basic:** disallow reusing previous password ([#5619](https://github.com/botpress/botpress/issues/5619)) ([544320e](https://github.com/botpress/botpress/commit/544320e))
+* small eslint warnings ([7ba6bbf](https://github.com/botpress/botpress/commit/7ba6bbf))
+
+
+### Features
+
+* **core:** allow disabling file listeners for dumb deployments ([#5664](https://github.com/botpress/botpress/issues/5664)) ([b81c761](https://github.com/botpress/botpress/commit/b81c761))
+* adds Segment integration ([#5608](https://github.com/botpress/botpress/issues/5608)) ([24d7ad5](https://github.com/botpress/botpress/commit/24d7ad5))
+
+
+
 ## [12.26.6](https://github.com/botpress/botpress/compare/v12.26.3...v12.26.6) (2021-10-22)
 
 
