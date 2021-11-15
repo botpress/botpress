@@ -19,6 +19,7 @@ const debug = DEBUG('realtime')
 
 type Transports = ('websocket' | 'polling')[]
 const ALLOWED_TRANSPORTS: Transports = ['websocket', 'polling']
+const VISITOR_ID_PREFIX = 'visitor:'
 
 export const getSocketTransports = (config: BotpressConfig): Transports => {
   // Just to be sure there is at least one valid transport configured
@@ -64,11 +65,11 @@ export class RealtimeService {
   }
 
   private makeVisitorRoomId(visitorId: string): string {
-    return `visitor:${visitorId}`
+    return `${VISITOR_ID_PREFIX}${visitorId}`
   }
 
   private unmakeVisitorId(roomId: string): string {
-    return roomId.split(':')[1]
+    return roomId.replace(`${VISITOR_ID_PREFIX}`, '')
   }
 
   sendToSocket(payload: RealTimePayload) {
@@ -108,25 +109,17 @@ export class RealtimeService {
     return roomId ? this.unmakeVisitorId(roomId) : undefined
   }
 
-  private async findRemoteSocketRooms(adapter: RedisAdapter, socketId: string): Promise<Set<string>> {
-    const rooms = new Set<string>()
-    const allRooms = await adapter.allRooms()
+  private async findRemoteSocketRooms(adapter: RedisAdapter, socketId: string): Promise<Set<string> | undefined> {
+    const sockets: Pick<Socket.Socket, 'id' | 'handshake' | 'rooms' | 'data'>[] = await adapter.fetchSockets({
+      rooms: new Set([socketId]), // socketId is part of the socket own list of rooms
+      except: new Set() // Required event if the typings says otherwise
+    })
 
-    let found = false
-    // Values look like so [socketId, roomId, socketId, roomId, ...]
-    for (const room of allRooms.values()) {
-      if (found) {
-        rooms.add(room)
-        break
-      }
-
-      if (room === socketId) {
-        rooms.add(room)
-        found = true
-      }
+    if (!sockets.length) {
+      return
     }
 
-    return rooms
+    return new Set(sockets[0].rooms)
   }
 
   async installOnHttpServer(server: Server) {
@@ -136,8 +129,7 @@ export class RealtimeService {
       path: `${process.ROOT_PATH}/socket.io`,
       cors: { origin: '*' },
       serveClient: false,
-      transports,
-      allowEIO3: true // TODO: Remove this once clients are all migrated to SocketIO Engine v4
+      transports
     })
 
     if (this.useRedis) {
