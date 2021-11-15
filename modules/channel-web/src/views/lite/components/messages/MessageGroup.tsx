@@ -88,17 +88,17 @@ class MessageGroup extends React.Component<Props> {
             <span data-from={fromLabel} className="from hidden" aria-hidden="true">
               {fromLabel}
             </span>
-            {sortBy(messages, ['sent_on', 'eventId']).map((message, i, messages) => {
-              const isLastMsg = i === messages.length - 1
+            {sortBy(messages, ['sentOn', 'eventId']).map((message, i, messages) => {
               let payload = this.convertPayloadFromOldFormat(message)
-              if (payload?.wrapped) {
+
+              if (payload.wrapped) {
                 payload = { ...payload, wrapped: renderPayload(payload.wrapped) }
               } else {
                 payload = renderPayload(payload)
               }
 
               const showInlineFeedback =
-                isBot && isLastMsg && (payload.wrapped ? payload.wrapped.collectFeedback : payload.collectFeedback)
+                isBot && (payload.wrapped ? payload.wrapped.collectFeedback : payload.collectFeedback)
 
               return (
                 <Message
