@@ -120,16 +120,16 @@ const VoiceRecorder: FC<Props> = (props: Props) => {
   }
 
   return (
-    <Fragment>
+    <div className={'bpw-voice-recorder'}>
+      <button className={cx('bpw-send-button', props.className)} onClick={isRecording ? stopRecording : startRecording}>
+        <Microphone fill={isRecording ? '#f1f1f1' : 'black'} />
+      </button>
       {isRecording && (
         <button className={cx('bpw-send-button', props.className)} onClick={cancelRecording}>
           <Cancel fill="#ff0000" />
         </button>
       )}
-      <button className={cx('bpw-send-button', props.className)} onClick={isRecording ? stopRecording : startRecording}>
-        <Microphone fill={isRecording ? '#f1f1f1' : 'black'} />
-      </button>
-    </Fragment>
+    </div>
   )
 }
 
