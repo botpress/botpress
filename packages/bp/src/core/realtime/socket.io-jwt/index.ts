@@ -22,93 +22,12 @@ export class UnauthorizedError extends Error {
 }
 
 interface Options {
-  callback?: false | number
   secret: string
-  handshake?: boolean
-  required?: boolean
-  timeout?: number
 }
 
-const DEFAULT_AUTHENTICATION_TIMEOUT = 5000
 const DECODED_PROPERTY_NAME = 'decoded_token'
 
-const noQsMethod = (options: Options) => {
-  options = { required: true, ...options }
-
-  return (socket: Socket.Socket) => {
-    const server: Socket.Server = socket['server']
-    let authTimeout: ReturnType<typeof setTimeout>
-
-    if (options.required) {
-      authTimeout = setTimeout(() => {
-        socket.disconnect()
-      }, options.timeout || DEFAULT_AUTHENTICATION_TIMEOUT)
-    }
-
-    socket.on('authenticate', (data: any) => {
-      if (options.required) {
-        clearTimeout(authTimeout)
-      }
-
-      const onError = function(code: string, err: string) {
-        if (err) {
-          const error = new UnauthorizedError(code || 'unknown', err)
-          let callbackTimeout: ReturnType<typeof setTimeout>
-
-          // If callback explicitly set to false, start timeout to disconnect socket
-          if (options.callback === false || typeof options.callback === 'number') {
-            if (typeof options.callback === 'number') {
-              if (options.callback < 0) {
-                // If callback is negative(invalid value), make it positive
-                options.callback = Math.abs(options.callback)
-              }
-            }
-
-            callbackTimeout = setTimeout(
-              () => {
-                socket.disconnect()
-              },
-              options.callback === false ? 0 : options.callback
-            )
-          }
-
-          socket.emit('unauthorized', error, () => {
-            if (typeof options.callback === 'number') {
-              clearTimeout(callbackTimeout)
-            }
-            socket.disconnect()
-          })
-
-          return
-        }
-      }
-
-      if (!data || typeof data.token !== 'string') {
-        return onError('invalid_token', 'invalid token datatype')
-      }
-
-      try {
-        const decoded = jwt.verify(data.token, options.secret)
-
-        socket[DECODED_PROPERTY_NAME] = decoded
-        socket.emit('authenticated')
-
-        // Try getting the current namespace otherwise fallback to all sockets.
-        const namespace: Socket.Namespace = server._nsps?.[socket.nsp?.name] || server.sockets
-
-        namespace.emit('authenticated', socket)
-      } catch (err) {
-        return onError('invalid_token', (err as VerifyErrors).message)
-      }
-    })
-  }
-}
-
 function authorize(options: Options): (socket: Socket.Socket, fn: (err?: any) => void) => void {
-  if (!options.handshake) {
-    return noQsMethod(options)
-  }
-
   return (socket, next) => {
     const req = socket.request
     const authorizationHeader = req.headers.authorization

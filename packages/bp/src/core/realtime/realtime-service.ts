@@ -199,7 +199,7 @@ export class RealtimeService {
     if (process.USE_JWT_COOKIES) {
       admin.use(this.checkCookieToken)
     } else {
-      admin.use(socketioJwt.authorize({ secret: process.APP_SECRET, handshake: true }))
+      admin.use(socketioJwt.authorize({ secret: process.APP_SECRET }))
     }
 
     admin.on('connection', (socket: Socket.Socket) => {
