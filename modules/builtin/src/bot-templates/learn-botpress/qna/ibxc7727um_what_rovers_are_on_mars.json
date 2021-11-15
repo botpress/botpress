@@ -1,0 +1,26 @@
+{
+  "id": "ibxc7727um_what_rovers_are_on_mars",
+  "data": {
+    "action": "text",
+    "contexts": [
+      "global"
+    ],
+    "enabled": true,
+    "answers": {
+      "en": [
+        "Seven bots have managed to land on Mars. Currently able to get images from Opportunity, Spirit and Curiosity."
+      ]
+    },
+    "questions": {
+      "en": [
+        "What rovers are on Mars?",
+        "Which Rovers have reached Mars",
+        "How many Mars rovers are there?",
+        "What is the number of the mars rovers?",
+        "Please let me know the amount of mars rovers on the planet mars. "
+      ]
+    },
+    "redirectFlow": "",
+    "redirectNode": ""
+  }
+}

@@ -1,0 +1,25 @@
+[
+  {
+    "id": "builtin_single-choice-3TrCWM",
+    "formData": {
+      "dropdownPlaceholder$en": "Select...",
+      "choices$en": [
+        {
+          "title": "Yes, show me pictures",
+          "value": "Yes, show me pictures"
+        },
+        {
+          "title": "No, test out the NLU first",
+          "value": "No, test out the NLU first"
+        }
+      ],
+      "markdown$en": true,
+      "disableFreeText$en": true,
+      "typing$en": true,
+      "text$en": "Would you like to look at pictures from rovers?"
+    },
+    "createdBy": "admin",
+    "createdOn": "2021-09-21T15:29:20.914Z",
+    "modifiedOn": "2021-09-21T15:29:20.914Z"
+  }
+]

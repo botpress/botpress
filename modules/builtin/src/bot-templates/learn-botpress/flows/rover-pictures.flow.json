@@ -1,0 +1,100 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "Grab_date",
+  "description": "",
+  "nodes": [
+    {
+      "id": "skill-ca1965",
+      "type": "skill-call",
+      "skill": "Slot",
+      "name": "Grab_date",
+      "flow": "skills/Slot-ca1965.flow.json",
+      "next": [
+        {
+          "caption": "On extracted",
+          "condition": "temp.extracted == \"true\"",
+          "node": "Check_day"
+        },
+        {
+          "caption": "On not found",
+          "condition": "temp.notExtracted  == \"true\"",
+          "node": "fallback-redirect.flow.json"
+        },
+        {
+          "caption": "On already extracted",
+          "condition": "temp.alreadyExtracted == \"true\"",
+          "node": "Check_day"
+        }
+      ],
+      "onEnter": null,
+      "onReceive": null
+    },
+    {
+      "id": "bebb7ffc06",
+      "name": "Check_day",
+      "next": [
+        {
+          "condition": "temp.roverImageUrl === null",
+          "node": "No_pics_on_that_day"
+        },
+        {
+          "condition": "true",
+          "node": "Display_image"
+        }
+      ],
+      "onEnter": [
+        "get-rover-images {\"earthDate\":\"{{session.slots.earthDate.value}}\"}",
+        "basic-skills/slot_reset {\"slotName\":\"earthDate\"}"
+      ],
+      "onReceive": null,
+      "type": "standard"
+    },
+    {
+      "id": "1dff58665b",
+      "name": "No_pics_on_that_day",
+      "next": [
+        {
+          "condition": "true",
+          "node": "Grab_date"
+        }
+      ],
+      "onEnter": [
+        "say #!builtin_text-hKKZUd"
+      ],
+      "onReceive": null,
+      "type": "standard"
+    },
+    {
+      "id": "cfae1fcd9a",
+      "name": "Display_image",
+      "next": [
+        {
+          "condition": "true",
+          "node": "Back_to_main"
+        }
+      ],
+      "onEnter": [
+        "say #!builtin_image-QfbmGN"
+      ],
+      "onReceive": null,
+      "type": "standard"
+    },
+    {
+      "id": "0771c595ed",
+      "name": "Back_to_main",
+      "next": [
+        {
+          "condition": "true",
+          "node": "main.flow.json"
+        }
+      ],
+      "onEnter": [
+        "say #!builtin_text-Un0j09",
+        "builtin/wait {\"delay\":\"2000\"}"
+      ],
+      "onReceive": null,
+      "type": "standard"
+    }
+  ]
+}
