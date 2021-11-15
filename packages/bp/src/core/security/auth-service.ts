@@ -139,7 +139,7 @@ export class AuthService {
     return this.users.findUser(email, strategy) as Promise<StrategyUser>
   }
 
-  async createUser(user: Partial<StrategyUser>, strategy: string, role?: string): Promise<StrategyUser | string> {
+  async createUser(user: Partial<StrategyUser>, strategy: string): Promise<StrategyUser | string> {
     if (!user.email || !strategy) {
       throw new Error('Email and strategy are required.')
     }

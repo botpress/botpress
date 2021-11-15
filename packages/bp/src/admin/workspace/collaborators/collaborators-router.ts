@@ -143,7 +143,8 @@ class CollaboratorsRouter extends CustomAdminRouter {
           throw new ConflictError(`User "${email}" is already taken`)
         }
 
-        const result = await this.authService.createUser({ email, strategy }, strategy, role)
+        const result = await this.authService.createUser({ email, strategy }, strategy)
+        await this.workspaceService.addUserToWorkspace(email, strategy, req.workspace!, { role })
 
         return sendSuccess(res, 'User created successfully', {
           email,
