@@ -55,10 +55,7 @@ class FileNavigator extends React.Component<Props, State> {
   }
 
   refreshNodes = () => {
-    if (this.state.nodes.length > 0 && this.props.filters && this.props.filters.filename === '') {
-      // If the state contains the tree and the filter options is not use.
-      // I just do nothing.
-      // Before it was really annoying because the tree on the left always change.
+    if (!this.props.files) {
       return
     }
 
@@ -93,7 +90,7 @@ class FileNavigator extends React.Component<Props, State> {
       label: dir.label === EXAMPLE_FOLDER_LABEL ? exampleLabel : dir.label,
       icon: dir.label === EXAMPLE_FOLDER_LABEL ? FOLDER_EXAMPLE : FOLDER_ICON,
       hasCaret: true,
-      isExpanded: false,
+      isExpanded: true,
       childNodes: buildTree(dir.files, this.props.expandedNodes, this.props.editor.openedFiles, filter, icons)
     }))
 

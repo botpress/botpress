@@ -14,8 +14,7 @@
     "version": "0.1.8"
   },
   "studio": {
-    "version": "0.0.41",
-    "devBranch": "sp_fix_1956"
+    "version": "0.0.41"
   },
   "messaging": {
     "version": "0.1.15"
