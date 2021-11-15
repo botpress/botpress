@@ -9,6 +9,7 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
   private convoBatch = []
   private convoNewIdsBatch = []
   private messageBatch = []
+  private sessionBatch: { oldId: string; newId: string }[] = []
   private userCache = new LRUCache<string, string>({ max: 10000 })
 
   protected async start() {
@@ -107,6 +108,16 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
       this.convoBatch.push(newConvo)
       this.convoNewIdsBatch.push({ oldId: convo.id, newId: newConvo.id })
 
+      const oldSessionId = `${convo.botId}::web::${convo.userId}::${convo.id}`
+      if (
+        await this.trx('dialog_sessions')
+          .where({ id: oldSessionId })
+          .first()
+      ) {
+        const newSessionId = `${convo.botId}::web::${newConvo.userId}::${newConvo.id}`
+        this.sessionBatch.push({ oldId: oldSessionId, newId: newSessionId })
+      }
+
       const messages = await this.trx('web_messages')
         .select('*')
         .where({ conversationId: convo.id })
@@ -128,10 +139,15 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
       if (this.convoBatch.length > maxBatchSize) {
         await this.emptyConvoBatch()
       }
+
+      if (this.sessionBatch.length > maxBatchSize) {
+        await this.emptySessionBatch()
+      }
     }
 
     await this.emptyConvoBatch()
     await this.emptyMessageBatch()
+    await this.emptySessionBatch()
   }
 
   private async getUserId(botId: string, visitorId: string, clientId: string) {
@@ -197,6 +213,18 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
     if (this.messageBatch.length > 0) {
       await this.trx('msg_messages').insert(this.messageBatch)
       this.messageBatch = []
+    }
+  }
+
+  private async emptySessionBatch() {
+    if (this.sessionBatch.length > 0) {
+      for (const session of this.sessionBatch) {
+        await this.trx('dialog_sessions')
+          .update({ id: session.newId })
+          .where({ id: session.oldId })
+      }
+
+      this.sessionBatch = []
     }
   }
 }

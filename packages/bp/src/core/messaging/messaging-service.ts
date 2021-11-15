@@ -128,6 +128,10 @@ export class MessagingService {
   }
 
   async receive(msg: MessageNewEventData) {
+    if (!this.channelNames.includes(msg.channel)) {
+      return
+    }
+
     const event = Event({
       direction: 'incoming',
       type: msg.message.payload.type,

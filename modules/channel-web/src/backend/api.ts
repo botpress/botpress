@@ -36,6 +36,8 @@ const SUPPORTED_MESSAGES = [
   'voice'
 ]
 
+const WEBCHAT_CUSTOM_ID_KEY = 'webchatCustomId'
+
 type ChatRequest = BPRequest & {
   visitorId: string
   userId: string
@@ -184,6 +186,25 @@ export default async (bp: typeof sdk, db: Database) => {
         security,
         lazySocket: config.lazySocket
       })
+    })
+  )
+
+  router.post(
+    '/users/customId',
+    bp.http.extractExternalToken,
+    assertUserInfo(),
+    asyncMiddleware(async (req: ChatRequest, res: Response) => {
+      const { botId, userId } = req
+      const { customId } = req.body
+
+      if (!customId) {
+        return res.sendStatus(400)
+      }
+
+      await bp.users.getOrCreateUser('web', userId, botId)
+      await bp.users.updateAttributes('web', userId, { [WEBCHAT_CUSTOM_ID_KEY]: customId })
+
+      res.sendStatus(200)
     })
   )
 
