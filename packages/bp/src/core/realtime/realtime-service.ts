@@ -82,8 +82,13 @@ export class RealtimeService {
       if (this.useRedis) {
         const adapter = (this.guest?.adapter as unknown) as RedisAdapter
         rooms = adapter.socketRooms(socketId)
+
+        // If the rooms weren't found locally, try to ask all other nodes
+        if (!rooms) {
+          rooms = await this.findRemoteSocketRooms(adapter, socketId)
+        }
       } else {
-        rooms = new Set(this.guest?.adapter.sids.get(socketId))
+        rooms = this.guest?.adapter.sids.get(socketId)
       }
     } catch (err) {
       return
@@ -96,10 +101,32 @@ export class RealtimeService {
     // rooms here contains one being socketId and all rooms in which user is connected
     // in the "guest" case it's a single room being the webchat and corresponds to the visitor id
     // resulting to something like ["/guest:lijasdioajwero", "visitor:kas9d2109das0"]
+    rooms = new Set(rooms)
     rooms.delete(socketId)
     const [roomId] = rooms
 
     return roomId ? this.unmakeVisitorId(roomId) : undefined
+  }
+
+  private async findRemoteSocketRooms(adapter: RedisAdapter, socketId: string): Promise<Set<string>> {
+    const rooms = new Set<string>()
+    const allRooms = await adapter.allRooms()
+
+    let found = false
+    // Values look like so [socketId, roomId, socketId, roomId, ...]
+    for (const room of allRooms.values()) {
+      if (found) {
+        rooms.add(room)
+        break
+      }
+
+      if (room === socketId) {
+        rooms.add(room)
+        found = true
+      }
+    }
+
+    return rooms
   }
 
   async installOnHttpServer(server: Server) {
