@@ -6,8 +6,11 @@ import Select from 'react-select'
 import style from './style.scss'
 import { Alert } from 'react-bootstrap'
 import { BotpressTooltip } from 'botpress/tooltip'
+import _ from 'lodash'
 
 const MAX_RETRIES = 10
+const DEFAULT_RETRY_ATTEMPTS = 3
+const DEFAULT_TURN_EXP = -1
 
 export class Slot extends React.Component {
   state = {
@@ -18,9 +21,10 @@ export class Slot extends React.Component {
     notFoundElement: undefined,
     intents: [],
     actions: [],
-    maxRetryAttempts: 3,
+    maxRetryAttempts: DEFAULT_RETRY_ATTEMPTS,
     error: undefined,
-    turnExpiry: -1
+    errorField: undefined,
+    turnExpiry: DEFAULT_TURN_EXP
   }
 
   componentDidMount() {
@@ -32,6 +36,11 @@ export class Slot extends React.Component {
     const data = this.props.initialData
 
     if (data) {
+      const turnExpiry = this.isTurnExpiryValid(data.turnExpiry) ? data.turnExpiry : DEFAULT_TURN_EXP
+      const maxRetryAttempts = this.isRetryAttemptsValid(data.retryAttempts)
+        ? data.retryAttempts
+        : DEFAULT_RETRY_ATTEMPTS
+
       this.validateIntentExists(data.intent)
       this.validateSlotExists(data.intent, data.slotName)
 
@@ -41,8 +50,8 @@ export class Slot extends React.Component {
         selectedActionOption: data.validationAction && { value: data.validationAction, label: data.validationAction },
         contentElement: data.contentElement,
         notFoundElement: data.notFoundElement,
-        maxRetryAttempts: Number(data.retryAttempts) || 3,
-        turnExpiry: Number(data.turnExpiry) || -1
+        maxRetryAttempts,
+        turnExpiry
       })
     }
   }
@@ -106,6 +115,14 @@ export class Slot extends React.Component {
     )
   }
 
+  isTurnExpiryValid(turnExpiry) {
+    return _.isNumber(turnExpiry) && (turnExpiry === -1 || turnExpiry > 0)
+  }
+
+  isRetryAttemptsValid(retryAttempts) {
+    return _.isNumber(retryAttempts) && _.inRange(retryAttempts, 0, MAX_RETRIES + 1)
+  }
+
   validateIntentExists = intentName => {
     if (!intentName) {
       return
@@ -113,8 +130,16 @@ export class Slot extends React.Component {
 
     const exists = this.state.intents.find(x => x.name === intentName)
     if (!exists) {
-      this.setState({ error: 'Missing intent: This intent does not exist anymore!' })
+      this.setState({ error: 'Missing intent: This intent does not exist anymore!', errorField: 'intent' })
     }
+
+    if (exists && this.state.errorField === 'intent') {
+      this.clearError()
+    }
+  }
+
+  clearError() {
+    this.setState({ error: undefined, errorField: undefined })
   }
 
   validateSlotExists = (intentName, slotName) => {
@@ -147,16 +172,35 @@ export class Slot extends React.Component {
   }
 
   handleMaxRetryAttemptsChange = event => {
-    const value = Number(event.target.value)
-    if (value > MAX_RETRIES) {
-      this.setState({ error: `Too many retry attempts: Choose a number less than or equal to ${MAX_RETRIES}` })
-    } else {
-      this.setState({ maxRetryAttempts: value })
+    const maxRetryAttempts = event.target.valueAsNumber
+    this.setState({ maxRetryAttempts })
+
+    if (!this.isRetryAttemptsValid(maxRetryAttempts)) {
+      return this.setState({
+        error: `Invalid settings: retry attempts should be between 0 and ${MAX_RETRIES}`,
+        errorField: 'maxRetry'
+      })
+    }
+
+    if (this.state.error && this.state.errorField === 'maxRetry') {
+      this.clearError()
     }
   }
 
   handleTurnExpiryChange = event => {
-    this.setState({ turnExpiry: Number(event.target.value) })
+    const turnExpiry = event.target.valueAsNumber
+    this.setState({ turnExpiry })
+
+    if (!this.isTurnExpiryValid(turnExpiry)) {
+      return this.setState({
+        error: 'Invalid settings: turn expiry should be a number greater than 0 or -1',
+        errorField: 'turnExp'
+      })
+    }
+
+    if (this.state.error && this.state.errorField === 'turnExp') {
+      this.clearError()
+    }
   }
 
   handleActionChange = selectedActionOption => {
