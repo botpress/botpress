@@ -58,8 +58,13 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
     }
   }
 
-  handleMessageChanged = e =>
-    this.props.updateMessage((e.target.value as string).substr(0, this.props.composerMaxTextLength))
+  handleMessageChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { updateMessage, composerMaxTextLength } = this.props
+
+    const msg = e.target.value.slice(0, composerMaxTextLength)
+
+    updateMessage(msg)
+  }
 
   isLastMessageFromBot = (): boolean => {
     return this.props.currentConversation?.messages?.slice(-1)?.pop()?.authorId === undefined
