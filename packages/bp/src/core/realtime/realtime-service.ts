@@ -178,7 +178,7 @@ export class RealtimeService {
 
       if (jwtToken && csrfToken) {
         await this.authService.checkToken(jwtToken, csrfToken)
-        next()
+        return next()
       }
 
       next(new Error('Mandatory parameters are missing'))
