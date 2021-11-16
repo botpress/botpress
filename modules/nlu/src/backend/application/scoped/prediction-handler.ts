@@ -67,21 +67,21 @@ export class ScopedPredictionHandler {
   }
 
   private async tryPredictInLanguage(textInput: string, language: string): Promise<RawEventUnderstanding | undefined> {
-    if (!this._modelsByLang[language]) {
+    const modelId = this._modelsByLang[language]
+    if (!modelId) {
       return
     }
 
     try {
-      const rawOriginalOutput = await this._engine.predict(this._botId, textInput, this._modelsByLang[language])
+      const rawOriginalOutput = await this._engine.predict(this._botId, textInput, modelId)
       const originalOutput = mapPredictOutput(rawOriginalOutput)
       const { spellChecked } = originalOutput
-      return { ...originalOutput, spellChecked, errored: false, language }
+      return { ...originalOutput, spellChecked, errored: false, language, modelId }
     } catch (err) {
-      const modelId = this._modelsByLang[language]
       const msg = `An error occured when predicting for input "${textInput}" with model ${modelId}`
       this._logger.attachError(err).error(msg)
 
-      return { errored: true, language }
+      return { errored: true, language, modelId: undefined }
     }
   }
 
