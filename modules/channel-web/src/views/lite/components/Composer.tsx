@@ -58,7 +58,7 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
     }
   }
 
-  handleMessageChanged = (e: React.ChangeEvent<HTMLInputElement>) => {
+  handleMessageChanged = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { updateMessage, composerMaxTextLength } = this.props
 
     const msg = e.target.value.slice(0, composerMaxTextLength)
