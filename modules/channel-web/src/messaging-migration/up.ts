@@ -54,8 +54,14 @@ export abstract class MessagingUpMigrator {
     const userCount = this.getCount(await this.trx('msg_users').count())
     const newMessageCount = this.getCount(await this.trx('msg_messages').count())
     const newConversationCount = this.getCount(await this.trx('msg_conversations').count())
+    const updatedSessionCount = this.getCount(
+      await this.trx('dialog_sessions')
+        .where('id', 'like', '%::web::%')
+        .count()
+    )
 
     let message = `\nUsers created: ${userCount}`
+    message += `\nSessions updated : ${updatedSessionCount}`
     message += `\nConversations migrated: ${this.conversationCount} -> ${newConversationCount}`
     message += `\nMessages migrated : ${this.messageCount} -> ${newMessageCount}`
     message += `\nMessages that were pointing to deleted conversations: ${this.orphanMessageCount}`
@@ -198,7 +204,7 @@ export abstract class MessagingUpMigrator {
       table.index(['conversationId', 'sentOn'])
     })
 
-    // We need to create this here because sometimes the migration is ran before the module is initalized
+    // We need to create this here because sometimes the migration is ran before the module is initialized
     await this.trx.schema.createTable('web_user_map', table => {
       table.string('botId')
       table.string('visitorId')

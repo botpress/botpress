@@ -36,6 +36,8 @@ const SUPPORTED_MESSAGES = [
   'voice'
 ]
 
+const WEBCHAT_CUSTOM_ID_KEY = 'webchatCustomId'
+
 type ChatRequest = BPRequest & {
   visitorId: string
   userId: string
@@ -184,6 +186,25 @@ export default async (bp: typeof sdk, db: Database) => {
         security,
         lazySocket: config.lazySocket
       })
+    })
+  )
+
+  router.post(
+    '/users/customId',
+    bp.http.extractExternalToken,
+    assertUserInfo(),
+    asyncMiddleware(async (req: ChatRequest, res: Response) => {
+      const { botId, userId } = req
+      const { customId } = req.body
+
+      if (!customId) {
+        return res.sendStatus(400)
+      }
+
+      await bp.users.getOrCreateUser('web', userId, botId)
+      await bp.users.updateAttributes('web', userId, { [WEBCHAT_CUSTOM_ID_KEY]: customId })
+
+      res.sendStatus(200)
     })
   )
 
@@ -629,19 +650,19 @@ export default async (bp: typeof sdk, db: Database) => {
 
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.clear', { conversationId }))
 
-      await req.messaging.messages.delete({ conversationId })
+      await req.messaging.messages.deleteByConversation(conversationId)
 
       res.sendStatus(204)
     })
   )
 
-  // NOTE: this is a temporary route and allows an agent to delete a channel web user's coversation messages
-  // until today this was completed by calling channel web api directly but it's api has been secured with a temporary sessionId (see ln#554)
+  // NOTE: this is a temporary route and allows an agent to delete a channel web user's conversation messages
+  // until today this was completed by calling channel web api directly but it's api has been secured with a temporary sessionId
   // soon enough, once channel-web's implementation moves to messaging api we'll be able to remove this and use messaging directly
   // usage of a private router because authentication is handled for us
   const privateRouter = bp.http.createRouterForBot('channel-web-private')
 
-  // NOTE : this uses duplicated code taken from public route (ln#559 - ln#563) so it's easy to remove once we can (see prev note)
+  // NOTE : this uses duplicated code taken from public route (ln#624 - ln#636) so it's easy to remove once we can (see prev note)
   privateRouter.post(
     '/conversations/:id/messages/delete',
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
@@ -658,7 +679,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const { visitorId } = await db.getMappingFromUser(userId)
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.clear', { conversationId }))
 
-      await messaging.messages.delete(conversationId)
+      await messaging.messages.deleteByConversation(conversationId)
       res.sendStatus(204)
     })
   )

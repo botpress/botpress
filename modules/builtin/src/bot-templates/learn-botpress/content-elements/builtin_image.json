@@ -1,0 +1,13 @@
+[
+  {
+    "id": "builtin_image-QfbmGN",
+    "formData": {
+      "typing$en": true,
+      "title$en": "Image from Curiosity Mars Rover",
+      "image$en": "{{{temp.roverImageUrl}}}"
+    },
+    "createdBy": "admin",
+    "createdOn": "2021-09-21T16:19:03.034Z",
+    "modifiedOn": "2021-09-21T16:19:03.034Z"
+  }
+]

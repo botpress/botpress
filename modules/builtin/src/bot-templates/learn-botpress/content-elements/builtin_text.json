@@ -1,0 +1,127 @@
+[
+  {
+    "id": "builtin_text-0xvGfV",
+    "formData": {
+      "text$en": "Hi",
+      "markdown$en": true,
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2021-09-21T15:19:25.522Z",
+    "modifiedOn": "2021-09-21T15:19:25.522Z"
+  },
+  {
+    "id": "builtin_text-RvPCjo",
+    "formData": {
+      "text$en": "I'm a Mars Rover Photography Bot meant to showcase features you'll need to build your first bot!",
+      "markdown$en": true,
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2021-09-21T15:20:22.463Z",
+    "modifiedOn": "2021-09-21T15:20:22.463Z"
+  },
+  {
+    "id": "builtin_text-5qjreV",
+    "formData": {
+      "text$en": "Woops, looks like you fell out of bounds!",
+      "markdown$en": true,
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2021-09-21T15:31:13.636Z",
+    "modifiedOn": "2021-09-21T15:31:13.636Z"
+  },
+  {
+    "id": "builtin_text-MgRwhE",
+    "formData": {
+      "text$en": "Bringing you back to a safe place",
+      "markdown$en": true,
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2021-09-21T15:31:33.824Z",
+    "modifiedOn": "2021-09-21T15:31:33.824Z"
+  },
+  {
+    "id": "builtin_text-2sVPOP",
+    "formData": {
+      "text$en": "Great, try writing something like “Show me Mars rover pictures from 5 Feb 2018\"",
+      "markdown$en": true,
+      "typing$en": true,
+      "variations$en": [
+        "Great, try writing something like “Show me Mars rover pictures from April first 2016\"",
+        "Great, try writing something like “Show me Mars rover pictures from 2014-10-02\""
+      ]
+    },
+    "createdBy": "admin",
+    "createdOn": "2021-09-21T15:35:50.335Z",
+    "modifiedOn": "2021-09-21T15:35:50.335Z"
+  },
+  {
+    "id": "builtin_text-eOp9PY",
+    "formData": {
+      "text$en": "I'm sorry, I didn't get that",
+      "markdown$en": true,
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2021-09-21T15:41:05.132Z",
+    "modifiedOn": "2021-09-21T15:41:05.132Z"
+  },
+  {
+    "id": "builtin_text-g69lJz",
+    "formData": {
+      "text$en": "Which day would you like to get pictures from (try a date between 2013 and 2020)",
+      "markdown$en": true,
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2021-09-21T15:54:29.598Z",
+    "modifiedOn": "2021-09-21T15:54:29.598Z"
+  },
+  {
+    "id": "builtin_text-Cmiv8o",
+    "formData": {
+      "text$en": "Not sure I got that. Maybe try YYYY-MM-DD, like 2015-09-09",
+      "markdown$en": true,
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2021-09-21T15:55:12.290Z",
+    "modifiedOn": "2021-09-21T15:55:12.290Z"
+  },
+  {
+    "id": "builtin_text-hKKZUd",
+    "formData": {
+      "text$en": "No pics on that day! Hint : try March 3rd 2014.",
+      "markdown$en": true,
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2021-09-21T16:07:46.599Z",
+    "modifiedOn": "2021-09-21T16:07:46.599Z"
+  },
+  {
+    "id": "builtin_text-Un0j09",
+    "formData": {
+      "text$en": "There you go. Cheers from Mars!",
+      "markdown$en": true,
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2021-09-21T16:19:29.816Z",
+    "modifiedOn": "2021-09-21T16:19:29.816Z"
+  },
+  {
+    "id": "builtin_text-CAyqet",
+    "formData": {
+      "text$en": "**Pro tip** : See how I'm made, or build me yourself using our step by step tutorial at [botpress.com/mars-rover-tutorials](https://botpress.com/mars-rover-tutorials)!",
+      "markdown$en": true,
+      "typing$en": true
+    },
+    "createdBy": "admin",
+    "createdOn": "2021-10-06T17:57:46.622Z",
+    "modifiedOn": "2021-10-06T18:44:18.556Z"
+  }
+]

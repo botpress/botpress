@@ -1,0 +1,21 @@
+{
+  "$schema": "../../bot.config.schema.json",
+  "description": "A bot with a simple workflow made for learning Botpress.",
+  "active": true,
+  "version": "12.26.3",
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0",
+  "imports": {
+    "modules": [],
+    "incomingMiddleware": [],
+    "outgoingMiddleware": []
+  },
+  "dialog": {
+    "timeoutInterval": "5m"
+  },
+  "logs": {
+    "expiration": "1 week"
+  },
+  "defaultLanguage": "en",
+  "languages": ["en"]
+}

@@ -434,6 +434,7 @@ export class Botpress {
         this.eventCollector.storeEvent(event)
       }
 
+      this.messagingService.informProcessingDone(event)
       await converseApiEvents.emitAsync(`done.${buildUserKey(event.botId, event.target)}`, event)
     }
 
