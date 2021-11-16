@@ -16,16 +16,22 @@ const MIN_UUID_LENGTH = 50
 const DisplayCommand = ({ command }) => {
   const [visible, setVisible] = useState(false)
   const text = visible ? command : `${command.split('authToken')[0]}authToken `
+  const toastCopiedClipboard = () => toast.info('Copied to clipboard')
 
   return (
-    <code>
-      {text}{' '}
+    <div>
+      <code>{text}</code>
+      <br />
       <Button
         small
         onClick={() => setVisible(!visible)}
         text={lang.tr(visible ? 'admin.hideToken' : 'admin.showToken')}
-      ></Button>
-    </code>
+      />
+      &nbsp;
+      <CopyToClipboard text={command} onCopy={toastCopiedClipboard}>
+        <Button small text="Copy to clipboard" icon="clipboard" />
+      </CopyToClipboard>
+    </div>
   )
 }
 
@@ -69,19 +75,12 @@ const Versioning: FC<Props> = props => {
   }
 
   const isSuperAdmin = props.profile && props.profile.isSuperAdmin
-  const toastCopiedClipboard = () => toast.info('Copied to clipboard')
 
   return (
     <PageContainer title={lang.tr('admin.versioning.sourceControl')} superAdmin={true}>
       <Callout title={lang.tr('admin.versioning.pullToFileSystem')}>
         <p>{lang.tr('admin.versioning.useThisCommand')}</p>
-        <Tooltip content={lang.tr('admin.versioning.clickToCopy')} position={Position.BOTTOM}>
-          <CopyToClipboard text={pullCommand} onCopy={toastCopiedClipboard}>
-            <div style={{ cursor: 'pointer', outline: 'none' }}>
-              <DisplayCommand command={pullCommand}></DisplayCommand>
-            </div>
-          </CopyToClipboard>
-        </Tooltip>
+        <DisplayCommand command={pullCommand}></DisplayCommand>
         <br /> <br />
         {isSuperAdmin && <DownloadArchive />}
       </Callout>
@@ -106,13 +105,7 @@ const Versioning: FC<Props> = props => {
       {isPushAvailable && (
         <Callout title={lang.tr('admin.versioning.pushLocal')}>
           <p>{lang.tr('admin.versioning.youCanPushWithThisCommand')}</p>
-          <Tooltip content={lang.tr('admin.versioning.clickToCopy')} position={Position.BOTTOM}>
-            <CopyToClipboard text={pushCommand} onCopy={toastCopiedClipboard}>
-              <div style={{ cursor: 'pointer', outline: 'none' }}>
-                <DisplayCommand command={pushCommand}></DisplayCommand>
-              </div>
-            </CopyToClipboard>
-          </Tooltip>
+          <DisplayCommand command={pushCommand}></DisplayCommand>
           <br /> <br />
           {isSuperAdmin && <UploadArchive />}
         </Callout>

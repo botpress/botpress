@@ -59,7 +59,7 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
     }
   }
 
-  handleMessageChanged = e => this.props.updateMessage(e.target.value)
+  handleMessageChanged = e => this.props.updateMessage((e.target.value as string).substr(0, this.props.composerMaxTextLength))
 
   isLastMessageFromBot = (): boolean => {
     return this.props.currentConversation?.messages?.slice(-1)?.pop()?.authorId === undefined
@@ -103,32 +103,28 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
     return (
       <div role="region" className={classNames('bpw-composer', direction)}>
         <div className={'bpw-composer-inner'}>
-          <textarea
-            ref={this.textInput}
-            id="input-message"
-            onFocus={this.props.setFocus.bind(this, 'input')}
-            placeholder={placeholder}
-            onChange={this.handleMessageChanged}
-            value={this.props.message}
-            onKeyPress={this.handleKeyPress}
-            onKeyDown={this.handleKeyDown}
-            aria-label={this.props.intl.formatMessage({
-              id: 'composer.message',
-              defaultMessage: 'Message to send'
-            })}
-            disabled={this.props.composerLocked}
-          />
-          <label htmlFor="input-message" style={{ display: 'none' }}>
-            {placeholder}
-          </label>
+          <div className={'bpw-composer-textarea'}>
+            <textarea
+              ref={this.textInput}
+              id="input-message"
+              onFocus={this.props.setFocus.bind(this, 'input')}
+              placeholder={placeholder}
+              onChange={this.handleMessageChanged}
+              value={this.props.message}
+              onKeyPress={this.handleKeyPress}
+              onKeyDown={this.handleKeyDown}
+              aria-label={this.props.intl.formatMessage({
+                id: 'composer.message',
+                defaultMessage: 'Message to send'
+              })}
+              disabled={this.props.composerLocked}
+            />
+            <label htmlFor="input-message" style={{ display: 'none' }}>
+              {placeholder}
+            </label>
+          </div>
+
           <div className={'bpw-send-buttons'}>
-            {this.props.enableVoiceComposer && (
-              <VoiceRecorder
-                onStart={this.onVoiceStart}
-                onDone={this.onVoiceEnd}
-                onNotAvailable={this.onVoiceNotAvailable}
-              />
-            )}
             <ToolTip
               childId="btn-send"
               content={
@@ -156,6 +152,13 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
                 <FormattedMessage id={'composer.send'} />
               </button>
             </ToolTip>
+            {this.props.enableVoiceComposer && (
+              <VoiceRecorder
+                onStart={this.onVoiceStart}
+                onDone={this.onVoiceEnd}
+                onNotAvailable={this.onVoiceNotAvailable}
+              />
+            )}
           </div>
         </div>
       </div>
@@ -169,6 +172,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   composerLocked: store.composer.locked,
   composerHidden: store.composer.hidden,
   composerPlaceholder: store.composer.composerPlaceholder,
+  composerMaxTextLength: store.composer.composerMaxTextLength,
   updateMessage: store.composer.updateMessage,
   recallHistory: store.composer.recallHistory,
   intl: store.intl,
@@ -214,4 +218,5 @@ type ComposerProps = {
     | 'enableVoiceComposer'
     | 'currentConversation'
     | 'preferredLanguage'
+    | 'composerMaxTextLength'
   >

@@ -702,7 +702,7 @@
   .bpw-composer {
     position: relative;
     outline: none;
-    padding: var(--spacing-x-large) 50px var(--spacing-x-large) var(--spacing-large);
+    padding: var(--spacing-x-large) var(--spacing-large) var(--spacing-x-large) var(--spacing-large);
   }
 
   .bpw-send-button:disabled {
@@ -713,6 +713,14 @@
   .bpw-composer-inner {
     line-height: 0;
     position: relative;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .bpw-composer-textarea {
+    flex-grow: 2;
   }
 
   .bpw-composer textarea {
@@ -753,15 +761,16 @@
     padding: 2px 5px 2px 0;
   }
 
+  .bpw-send-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
   .bpw-send-button {
-    position: absolute;
-    right: -45px;
-    top: 50%;
-    transform: translate(0, -50%);
     border: none;
     border-radius: 5px;
     background: #fff;
-    padding: 5px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
@@ -775,6 +784,12 @@
   .bpw-send-button:not(:disabled):hover path,
   .bpw-send-button:not(:disabled):focus path {
     fill: var(--ocean);
+  }
+
+  .bpw-voice-recorder {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
   }
 
   /** HEADER STUFF */
@@ -1202,6 +1217,15 @@
 
 .bpw-rtl .bpw-composer textarea {
   direction: rtl;
+}
+
+.bpw-rtl .bpw-send-button {
+  border: none;
+  border-radius: 5px;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
 }
 
 .bpw-rtl.bpw-botinfo-container .bpw-botinfo-terms {

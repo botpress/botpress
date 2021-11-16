@@ -639,6 +639,10 @@ body {
   padding: 5px;
 }
 
+.bpw-composer-textarea {
+  flex-grow: 2;
+}
+
 .bpw-composer textarea {
   font: inherit;
   background-color: transparent;
@@ -660,7 +664,7 @@ body {
 
 .bpw-send-buttons {
   display: flex;
-  align-items: center;
+  flex-direction: row;
 }
 
 .bpw-send-button {
