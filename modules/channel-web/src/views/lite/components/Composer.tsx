@@ -8,6 +8,7 @@ import { RootStore, StoreDef } from '../store'
 
 import VoiceRecorder from './VoiceRecorder'
 
+const ENTER_CHAR_CODE = 13
 class Composer extends React.Component<ComposerProps, { isRecording: boolean }> {
   private textInput: React.RefObject<HTMLTextAreaElement>
   constructor(props) {
@@ -27,7 +28,7 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
   }
 
   handleKeyPress = async e => {
-    if (this.props.enableResetSessionShortcut && e.ctrlKey && e.key === 'Enter') {
+    if (this.props.enableResetSessionShortcut && e.ctrlKey && e.charCode === ENTER_CHAR_CODE) {
       e.preventDefault()
       await this.props.resetSession()
       await this.props.sendMessage()
@@ -57,7 +58,13 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
     }
   }
 
-  handleMessageChanged = e => this.props.updateMessage(e.target.value)
+  handleMessageChanged = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const { updateMessage, composerMaxTextLength } = this.props
+
+    const msg = e.target.value.slice(0, composerMaxTextLength)
+
+    updateMessage(msg)
+  }
 
   isLastMessageFromBot = (): boolean => {
     return this.props.currentConversation?.messages?.slice(-1)?.pop()?.authorId === undefined
@@ -165,6 +172,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   composerLocked: store.composer.locked,
   composerHidden: store.composer.hidden,
   composerPlaceholder: store.composer.composerPlaceholder,
+  composerMaxTextLength: store.composer.composerMaxTextLength,
   updateMessage: store.composer.updateMessage,
   recallHistory: store.composer.recallHistory,
   intl: store.intl,
@@ -210,4 +218,5 @@ type ComposerProps = {
     | 'enableVoiceComposer'
     | 'currentConversation'
     | 'preferredLanguage'
+    | 'composerMaxTextLength'
   >
