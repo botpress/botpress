@@ -28,6 +28,9 @@ export class FileInput extends React.Component<Renderer.FileInput> {
             opacity: 0,
             padding: 0,
             width: '100%',
+            height: '40px',
+            fontSize: '0px',
+            cursor: 'pointer',
             zIndex: 100
           }}
         />
