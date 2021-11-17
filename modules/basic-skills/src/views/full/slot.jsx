@@ -1,11 +1,12 @@
 import React from 'react'
-import { Row, Col, Label, Input } from 'reactstrap'
+import { Row, Col, Label } from 'reactstrap'
 import ContentPickerWidget from 'botpress/content-picker'
 import SelectActionDropdown from 'botpress/select-action-dropdown'
 import Select from 'react-select'
 import style from './style.scss'
 import { Alert } from 'react-bootstrap'
 import { BotpressTooltip } from 'botpress/tooltip'
+import { NumericInput } from '@blueprintjs/core'
 import _ from 'lodash'
 
 const MAX_RETRIES = 10
@@ -57,24 +58,27 @@ export class Slot extends React.Component {
   }
 
   componentDidUpdate() {
-    if (this.isFormValid()) {
-      const intent = this.getSelectedIntent()
-      const slot = this.getSelectedSlot(intent)
-
-      const data = {
-        retryAttempts: this.state.maxRetryAttempts,
-        contentElement: this.state.contentElement,
-        notFoundElement: this.state.notFoundElement,
-        turnExpiry: this.state.turnExpiry,
-        validationAction: this.state.selectedActionOption && this.state.selectedActionOption.value,
-        intent: intent && intent.name,
-        slotName: slot && slot.name,
-        entities: slot && slot.entities
-      }
-
-      this.props.onDataChanged && this.props.onDataChanged(data)
-      this.props.onValidChanged && this.props.onValidChanged(true)
+    const { onValidChanged, onDataChanged } = this.props
+    if (!this.isFormValid()) {
+      return onValidChanged && onValidChanged(false)
     }
+
+    const intent = this.getSelectedIntent()
+    const slot = this.getSelectedSlot(intent)
+
+    const data = {
+      retryAttempts: this.state.maxRetryAttempts,
+      contentElement: this.state.contentElement,
+      notFoundElement: this.state.notFoundElement,
+      turnExpiry: this.state.turnExpiry,
+      validationAction: this.state.selectedActionOption && this.state.selectedActionOption.value,
+      intent: intent && intent.name,
+      slotName: slot && slot.name,
+      entities: slot && slot.entities
+    }
+
+    onDataChanged && onDataChanged(data)
+    onValidChanged && onValidChanged(true)
   }
 
   fetchIntents = () => {
@@ -108,6 +112,9 @@ export class Slot extends React.Component {
 
   isFormValid() {
     return (
+      this.isTurnExpiryValid(this.state.turnExpiry) &&
+      this.isRetryAttemptsValid(this.state.maxRetryAttempts) &&
+      !this.state.errorField &&
       this.state.selectedIntentOption &&
       this.state.selectedSlotOption &&
       this.state.contentElement &&
@@ -171,10 +178,7 @@ export class Slot extends React.Component {
     this.setState({ notFoundElement: item.id })
   }
 
-  handleMaxRetryAttemptsChange = event => {
-    const maxRetryAttempts = event.target.valueAsNumber
-    this.setState({ maxRetryAttempts })
-
+  handleMaxRetryAttemptsChange = maxRetryAttempts => {
     if (!this.isRetryAttemptsValid(maxRetryAttempts)) {
       return this.setState({
         error: `Invalid settings: retry attempts should be between 0 and ${MAX_RETRIES}`,
@@ -185,12 +189,10 @@ export class Slot extends React.Component {
     if (this.state.error && this.state.errorField === 'maxRetry') {
       this.clearError()
     }
+    this.setState({ maxRetryAttempts })
   }
 
-  handleTurnExpiryChange = event => {
-    const turnExpiry = event.target.valueAsNumber
-    this.setState({ turnExpiry })
-
+  handleTurnExpiryChange = turnExpiry => {
     if (!this.isTurnExpiryValid(turnExpiry)) {
       return this.setState({
         error: 'Invalid settings: turn expiry should be a number greater than 0 or -1',
@@ -201,6 +203,7 @@ export class Slot extends React.Component {
     if (this.state.error && this.state.errorField === 'turnExp') {
       this.clearError()
     }
+    this.setState({ turnExpiry })
   }
 
   handleActionChange = selectedActionOption => {
@@ -222,8 +225,7 @@ export class Slot extends React.Component {
     const slotOptions = this.getSlotOptionsForIntent(intent)
 
     return (
-      <div className={style.modalContent}>
-        {this.state.error && <Alert bsStyle="danger">{this.state.error}</Alert>}
+      <React.Fragment>
         <Row style={{ marginBottom: 10 }}>
           <Col md={5}>
             <Label>Choose an intent</Label>
@@ -255,13 +257,17 @@ export class Slot extends React.Component {
             <Label for="turnExpiry">Expires after X turns</Label>
             &nbsp;
             <BotpressTooltip message="The information stored in the slot will be deleted after this number of turns. Set to -1 to never expire." />
-            <Input
+            <NumericInput
               id="turnExpiry"
               name="turnExpiry"
-              type="number"
+              defaultValue={DEFAULT_TURN_EXP}
+              selectAllOnFocus
+              clampValueOnBlur
+              majorStepSize={1}
+              minorStepSize={1}
               min={-1}
-              value={this.state.turnExpiry}
-              onChange={this.handleTurnExpiryChange}
+              stepSize={1}
+              onValueChange={this.handleTurnExpiryChange}
             />
           </Col>
         </Row>
@@ -297,14 +303,18 @@ export class Slot extends React.Component {
             <Label for="retryAttempts">Max retry attempts</Label>
             &nbsp;
             <BotpressTooltip message="This is the maximum number of times the bot will try to extract the slot. When the limit is reached, the bot will execute the 'On not found' transition." />
-            <Input
+            <NumericInput
               id="retryAttempts"
               name="retryAttempts"
-              type="number"
-              min="0"
+              defaultValue={DEFAULT_RETRY_ATTEMPTS}
+              selectAllOnFocus
+              clampValueOnBlur
+              majorStepSize={1}
+              minorStepSize={1}
+              stepSize={1}
+              min={0}
               max={MAX_RETRIES}
-              value={this.state.maxRetryAttempts}
-              onChange={this.handleMaxRetryAttemptsChange}
+              onValueChange={this.handleMaxRetryAttemptsChange}
             />
           </Col>
         </Row>
@@ -324,7 +334,12 @@ export class Slot extends React.Component {
             />
           </Col>
         </Row>
-      </div>
+        <Row>
+          <Col className={style.errorContainer} md={12}>
+            {this.state.error && <Alert bsStyle="danger">{this.state.error}</Alert>}
+          </Col>
+        </Row>
+      </React.Fragment>
     )
   }
 }
