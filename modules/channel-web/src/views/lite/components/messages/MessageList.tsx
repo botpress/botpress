@@ -45,8 +45,7 @@ class MessageList extends React.Component<MessageListProps, State> {
     // this should account for keyboard rendering as it triggers a resize of the messagesDiv
     this.divSizeObserver = new ResizeObserver(
       debounce(
-        ([divResizeEntry]) => {
-          // we don't need to do anything with the resize entry
+        ([_divResizeEntry]) => {
           this.tryScrollToBottom()
         },
         200,
@@ -58,6 +57,13 @@ class MessageList extends React.Component<MessageListProps, State> {
 
   componentWillUnmount() {
     this.divSizeObserver.disconnect()
+  }
+
+  componentDidUpdate() {
+    if (this.state.manualScroll) {
+      return
+    }
+    this.tryScrollToBottom()
   }
 
   tryScrollToBottom(delayed?: boolean) {
@@ -198,7 +204,7 @@ class MessageList extends React.Component<MessageListProps, State> {
 
   handleScroll = debounce(e => {
     const scroll = this.messagesDiv.scrollHeight - this.messagesDiv.scrollTop - this.messagesDiv.clientHeight
-    const manualScroll = scroll >= 150
+    const manualScroll = scroll > 0
     const showNewMessageIndicator = this.state.showNewMessageIndicator && manualScroll
 
     this.setState({ manualScroll, showNewMessageIndicator })

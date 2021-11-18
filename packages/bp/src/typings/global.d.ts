@@ -6,7 +6,7 @@ declare namespace NodeJS {
   }
 
   export interface Global {
-    printErrorDefault(err: Error): void
+    printErrorDefault(err: unknown): void
     DEBUG: IDebug
     BOTPRESS_CORE_EVENT: IEmitCoreEvent
     BOTPRESS_CORE_EVENT_TYPES: BotpressCoreEvents
@@ -305,6 +305,15 @@ declare interface BotpressEnvironmentVariables {
    * The complete path to the dist/ folder of the messaging repo
    */
   readonly DEV_MESSAGING_PATH?: string
+
+  /** For testing remote Analytics locally
+   */
+  readonly BP_DEBUG_SEGMENT?: boolean
+
+  /**
+   * Supports dumb deployments by allowing disabling file listeners
+   */
+  readonly CORE_DISABLE_FILE_LISTENERS?: boolean
 }
 
 interface IDebug {
@@ -347,8 +356,8 @@ declare interface BotpressCoreEvents {
   bp_core_workflow_completed: { botId: string; channel: string; wfName: string }
   bp_core_workflow_failed: { botId: string; channel: string; wfName: string }
   bp_core_enter_flow: { botId: string; channel: string; flowName: string }
-  bp_core_feedback_positive: { botId: string; channel: string; type: string; eventId?: string }
-  bp_core_feedback_negative: { botId: string; channel: string; type: string; eventId?: string }
+  bp_core_feedback_positive: { botId: string; channel: string; type: string; details?: string; eventId?: string }
+  bp_core_feedback_negative: { botId: string; channel: string; type: string; details?: string; eventId?: string }
 }
 
 interface IEmitCoreEvent {

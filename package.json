@@ -1,6 +1,6 @@
 {
   "name": "bp_main",
-  "version": "12.26.4",
+  "version": "12.26.7",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": "^12"
@@ -11,13 +11,13 @@
   "license": "AGPL-3.0",
   "private": true,
   "nlu": {
-    "version": "0.1.6"
+    "version": "0.1.9"
   },
   "studio": {
-    "version": "0.0.38"
+    "version": "0.0.42"
   },
   "messaging": {
-    "version": "0.1.13"
+    "version": "0.1.17"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
@@ -29,6 +29,8 @@
     "test": "cross-env NATIVE_EXTENSIONS_DIR=build/native-extensions cross-env jest -i --detectOpenHandles -c jest.config.ts",
     "reference": "yarn cmd build:reference",
     "itest": "cross-env NATIVE_EXTENSIONS_DIR=build/native-extensions cross-env jest -i --detectOpenHandles -c jest.e2e.config.ts all",
+    "eslint": "cross-env eslint packages/bp/src modules --ext .ts,.tsx",
+    "prettier": "cross-env prettier --check packages/bp/**/*.ts modules/**/*.ts !**/*.d.ts",
     "commitmsg": "commitlint -e $GIT_PARAMS",
     "bpd": "node build/downloader/out/index.js"
   },
@@ -36,7 +38,7 @@
     "@apidevtools/json-schema-ref-parser": "^9.0.6",
     "@babel/parser": "^7.11.2",
     "@babel/traverse": "^7.11.0",
-    "@botpress/messaging-client": "0.0.3",
+    "@botpress/messaging-client": "0.0.9",
     "archiver": "^5.3.0",
     "axios": "^0.21.1",
     "bluebird-global": "^1.0.1",
@@ -98,15 +100,15 @@
     "@types/tar": "^4.0.4",
     "@types/tmp": "^0.0.33",
     "@types/universal-analytics": "^0.4.2",
-    "@types/verror": "^1.10.3",
-    "@typescript-eslint/eslint-plugin": "^4.15.0",
-    "@typescript-eslint/parser": "^4.15.0",
+    "@types/verror": "^1.10.5",
+    "@typescript-eslint/eslint-plugin": "^4.32.0",
+    "@typescript-eslint/parser": "^4.32.0",
     "cheerio": "^1.0.0-rc.2",
     "cross-env": "^5.2.0",
-    "eslint": "^7.19.0",
-    "eslint-config-prettier": "^7.2.0",
-    "eslint-plugin-import": "^2.22.1",
-    "eslint-plugin-jsdoc": "^31.6.1",
+    "eslint": "^7.32.0",
+    "eslint-config-prettier": "^8.3.0",
+    "eslint-plugin-import": "^2.24.2",
+    "eslint-plugin-jsdoc": "^36.1.0",
     "expect-puppeteer": "^6.0.0",
     "gulp": "^4.0.0",
     "gulp-cli": "^2.0.1",

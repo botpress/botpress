@@ -98,4 +98,63 @@ describe('Migration Service', () => {
       }
     })
   })
+
+  describe('getDbVersion', () => {
+    const OLD_ENV = process.env
+    const OLD_CORE_ENV = process.core_env
+    const OLD_BOTPRESS_VERSION = process.BOTPRESS_VERSION
+
+    const mock_BOTPRESS_VERSION = 'mocked_version'
+
+    beforeEach(() => {
+      jest.resetModules()
+      process.env = { ...OLD_ENV }
+      process.core_env = { ...OLD_CORE_ENV }
+      process.BOTPRESS_VERSION = mock_BOTPRESS_VERSION
+    })
+
+    afterEach(() => {
+      process.env = OLD_ENV
+      process.core_env = OLD_CORE_ENV
+      process.BOTPRESS_VERSION = OLD_BOTPRESS_VERSION
+    })
+
+    it('Returns TESTMIG_DB_VERSION if set', async () => {
+      const dbVersion = 'something'
+      process.env.TESTMIG_DB_VERSION = dbVersion
+
+      expect(await migration.getDbVersion()).toEqual(dbVersion)
+    })
+
+    const testcases: [any, any, string][] = [
+      ['anything', undefined, '12.0.0'],
+      [undefined, 'anything', '12.0.0'],
+      [undefined, 'false', '12.0.0'],
+      [undefined, 'no', '12.0.0'],
+      [undefined, '0', '12.0.0'],
+      [undefined, 'true', mock_BOTPRESS_VERSION],
+      [undefined, '1', mock_BOTPRESS_VERSION]
+    ]
+
+    test.each(testcases)(
+      'TESTMIG_ALL: %s TESTMIG_NEW: %s expected: %s',
+      async (TESTMIG_ALL: any, TESTMIG_NEW: any, expected: string) => {
+        // @ts-ignore
+        process.core_env.TESTMIG_ALL = TESTMIG_ALL
+        // @ts-ignore
+        process.core_env.TESTMIG_NEW = TESTMIG_NEW
+
+        expect(await migration.getDbVersion()).toEqual(expected)
+      }
+    )
+
+    it('Returns version from database otherwise', async () => {
+      const dbVersion = 'something'
+      let spy = jest.spyOn(migration, 'getCurrentDbVersion').mockImplementation(async () => dbVersion)
+
+      expect(await migration.getDbVersion()).toEqual(dbVersion)
+
+      spy.mockRestore()
+    })
+  })
 })

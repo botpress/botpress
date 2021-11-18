@@ -255,6 +255,7 @@ export interface BotInfo {
     escapeHTML: boolean
   }
   lazySocket: boolean
+  maxMessageLength: number
 }
 
 export type uuid = string

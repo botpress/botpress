@@ -40,15 +40,25 @@ class CollaboratorsRouter extends CustomAdminRouter {
       '/listAvailableUsers',
       this.needPermissions('read', this.resource),
       this.asyncMiddleware(async (req, res) => {
-        const filterRoles = (req.query.roles && req.query.roles.split(',')) || []
+        const filterRoles = req.query.roles?.split(',') || []
         const filterAuthStrategies = (await this.workspaceService.findWorkspace(req.workspace!)).authStrategies || []
 
+        // When adding a collaborator, we do not use the roles filter since the user may not be in any workspace yet
+        if (!filterRoles.length) {
+          const allUsers = await this.authService.getAllUsers()
+          const allUsersMatchingStrategy = allUsers.filter(x => filterAuthStrategies.includes(x.strategy))
+          const workspaceUsers = await this.workspaceService.getWorkspaceUsers(req.workspace!)
+          const available = _.filter(allUsersMatchingStrategy, x => !_.find(workspaceUsers, x)) as WorkspaceUser[]
+
+          return sendSuccess(res, 'Retrieved available users', available)
+        }
+
         // Get all users from other workspaces
-        let workspaceUsers: Array<WorkspaceUser | WorkspaceUserWithAttributes> = []
+        let workspaceUsers: WorkspaceUser[] | WorkspaceUserWithAttributes[] = []
         for (const w of await this.workspaceService.getWorkspaces()) {
           if (w.id !== req.workspace) {
             const users = await this.workspaceService.getWorkspaceUsers(w.id)
-            workspaceUsers = workspaceUsers.concat(users)
+            workspaceUsers = [...workspaceUsers, ...users]
           }
         }
 

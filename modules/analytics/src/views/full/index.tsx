@@ -17,6 +17,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import React, { FC, Fragment, useEffect, useRef, useState } from 'react'
 
+import { MetricTypes } from '../../backend/db'
 import { MetricEntry } from '../../backend/typings'
 
 import {
@@ -49,7 +50,7 @@ interface State {
   selectedChannel: string
   shownSection: string
   disableAnalyticsFetching?: boolean
-  topQnaQuestions: { id: string; question?: string; count: number }[]
+  topQnaQuestions: { id: string; question?: string; count: number; upVoteCount?: number; downVoteCount?: number }[]
 }
 
 interface ExportPeriod {
@@ -221,7 +222,14 @@ const Analytics: FC<any> = ({ bp }) => {
   }
 
   const fetchQnaQuestions = async () => {
+    const votes = {
+      feedback_positive_qna: getMetric('feedback_positive_qna'),
+      feedback_negative_qna: getMetric('feedback_negative_qna')
+    }
+
     const metrics = orderMetrics(getMetric('msg_sent_qna_count').filter(metric => metric.subMetric)).slice(0, 10)
+
+    const countVotes = (metric: MetricTypes, id: string) => votes[metric].find(m => m.subMetric === id)?.value
 
     const topQnaQuestions = await Promise.all(
       metrics.map(async ({ name: id, count }) => {
@@ -234,6 +242,7 @@ const Analytics: FC<any> = ({ bp }) => {
         }
 
         let response
+
         try {
           response = await fetchQnaQuestion(id.replace('__qna__', ''))
         } catch (e) {
@@ -248,7 +257,14 @@ const Analytics: FC<any> = ({ bp }) => {
           questions[lang.defaultLocale] ||
           Object.values(questions)[0])[0]
         qnaQuestionsCache.found[id] = question
-        return { count, id, question }
+
+        return {
+          count,
+          id,
+          question,
+          upVoteCount: countVotes('feedback_positive_qna', id),
+          downVoteCount: countVotes('feedback_negative_qna', id)
+        }
       })
     )
 
@@ -433,6 +449,8 @@ const Analytics: FC<any> = ({ bp }) => {
           name={lang.tr('module.analytics.mostAskedQuestions')}
           items={state.topQnaQuestions.map(q => ({
             count: q.count,
+            upVoteCount: q.upVoteCount,
+            downVoteCount: q.downVoteCount,
             label: q.question || renderDeletedQna(q.id),
             onClick: q.question ? navigateToElement(q.id, 'qna') : undefined
           }))}

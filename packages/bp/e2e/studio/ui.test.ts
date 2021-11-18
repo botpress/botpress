@@ -9,6 +9,7 @@ describe('Studio - UI', () => {
 
   it('Emulator window toggle properly with shortcut', async () => {
     await page.waitFor(1000)
+    await page.keyboard.press('Escape')
     await page.focus('#mainLayout')
     await page.type('#mainLayout', 'e')
     await page.keyboard.type('Much automated!')

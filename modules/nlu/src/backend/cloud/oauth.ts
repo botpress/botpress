@@ -1,6 +1,6 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios'
-import { cache } from './cache'
 import qs from 'querystring'
+import { cache } from './cache'
 
 interface OauthTokenClientProps {
   oauthUrl: string

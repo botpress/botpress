@@ -17,7 +17,7 @@
     "build": "yarn cmd build:core",
     "watch": "yarn cmd watch",
     "package": "yarn cmd package",
-    "eslint": "node_modules/.bin/eslint src modules --ext .ts,.tsx",
+    "itest": "cross-env NATIVE_EXTENSIONS_DIR=../../build/native-extensions cross-env jest -i --detectOpenHandles -c jest.e2e.config.js all",
     "commitmsg": "commitlint -e $GIT_PARAMS",
     "bpd": "node build/downloader/out/index.js"
   },
@@ -103,7 +103,7 @@
     "universal-analytics": "^0.4.20",
     "unzipper": "^0.10.3",
     "verror": "^1.10.0",
-    "vm2": "^3.9.2",
+    "vm2": "^3.9.5",
     "yargs": "^16.0.3",
     "yn": "^2.0.0"
   },

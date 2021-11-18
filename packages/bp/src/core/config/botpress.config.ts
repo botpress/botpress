@@ -168,7 +168,7 @@ export interface BotpressConfig {
   converse: ConverseConfig
   dialog: DialogConfig
   logs: LogsConfig
-  modules: Array<ModuleConfigEntry>
+  modules: ModuleConfigEntry[]
   pro: {
     /**
      * These strategies are allowed to log on the Admin UI.
@@ -281,7 +281,7 @@ export interface BotpressConfig {
     maxFileSize: string
     /**
      * The list of allowed extensions for media file uploads
-     * @default ["image/jpeg","image/png","image/gif","audio/mpeg","video/mp4","application/pdf"]
+     * @default ["image/jpeg","image/png","image/gif","image/bmp","image/webp","audio/mpeg","audio/webm","audio/ogg","audio/wav","video/mp4","video/webm","video/ogg","application/pdf"]
      */
     allowedMimeTypes: string[]
   }

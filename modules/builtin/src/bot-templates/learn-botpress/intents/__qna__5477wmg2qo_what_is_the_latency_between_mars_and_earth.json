@@ -1,0 +1,17 @@
+{
+  "name": "__qna__5477wmg2qo_what_is_the_latency_between_mars_and_earth",
+  "entities": [],
+  "contexts": [
+    "global"
+  ],
+  "utterances": {
+    "en": [
+      "What is the latency between Mars and Earth?",
+      "How much time does it take for light to travel between Mars and Earth?",
+      "If I send a signal to Mars now, how much time will it take to reach it?",
+      "What's the time difference between Mars and Earth?",
+      "At the speed of light, how much time does it take to reach Mars?"
+    ]
+  },
+  "slots": []
+}

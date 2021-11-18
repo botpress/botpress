@@ -543,7 +543,7 @@ export class BotService {
       const scopedGhost = this.ghostService.forBot(botConfig.id)
       const files = this._loadBotTemplateFiles(templatePath)
       if (fse.existsSync(templateConfigPath)) {
-        const templateConfig = JSON.parse(await fse.readFileSync(templateConfigPath, 'utf-8'))
+        const templateConfig = JSON.parse(await fse.readFile(templateConfigPath, 'utf-8'))
         const mergedConfigs = {
           ...DEFAULT_BOT_CONFIGS,
           ...templateConfig,
@@ -627,9 +627,6 @@ export class BotService {
   // Do not use directly use the public version instead due to broadcasting
   private async _localMount(botId: string): Promise<boolean> {
     const startTime = Date.now()
-    if (this.isBotMounted(botId)) {
-      return true
-    }
 
     if (!(await this.ghostService.forBot(botId).fileExists('/', 'bot.config.json'))) {
       this.logger

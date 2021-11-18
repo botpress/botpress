@@ -1,3 +1,68 @@
+## [12.26.7](https://github.com/botpress/botpress/compare/v12.26.3...v12.26.7) (2021-11-10)
+
+
+### Bug Fixes
+
+* **channel-web:** fix custom user id in events ([#5591](https://github.com/botpress/botpress/issues/5591)) ([dbe9e2e](https://github.com/botpress/botpress/commit/dbe9e2e)), closes [#5658](https://github.com/botpress/botpress/issues/5658)
+* **core:** fix chat auth expiry with messaging ([#5679](https://github.com/botpress/botpress/issues/5679)) ([63f15d5](https://github.com/botpress/botpress/commit/63f15d5))
+* **e2e:** change pwd test does not reuse same pwd ([#5665](https://github.com/botpress/botpress/issues/5665)) ([7d5dc75](https://github.com/botpress/botpress/commit/7d5dc75))
+* **hitlnext:** use common storage deserialisation ([#5600](https://github.com/botpress/botpress/issues/5600)) ([d2dc154](https://github.com/botpress/botpress/commit/d2dc154))
+* **nlu:** nlu client set proxy false when querying localhost ([#5598](https://github.com/botpress/botpress/issues/5598)) ([7ba42dc](https://github.com/botpress/botpress/commit/7ba42dc))
+* **nlu:** nlu module returns 404 when nlu server is unreachable ([#5622](https://github.com/botpress/botpress/issues/5622)) ([256ae57](https://github.com/botpress/botpress/commit/256ae57))
+* **strategy-basic:** disallow reusing previous password ([#5619](https://github.com/botpress/botpress/issues/5619)) ([544320e](https://github.com/botpress/botpress/commit/544320e))
+* small eslint warnings ([7ba6bbf](https://github.com/botpress/botpress/commit/7ba6bbf))
+
+
+### Features
+
+* **core:** allow disabling file listeners for dumb deployments ([#5664](https://github.com/botpress/botpress/issues/5664)) ([b81c761](https://github.com/botpress/botpress/commit/b81c761))
+* adds Segment integration ([#5608](https://github.com/botpress/botpress/issues/5608)) ([24d7ad5](https://github.com/botpress/botpress/commit/24d7ad5))
+
+
+
+## [12.26.6](https://github.com/botpress/botpress/compare/v12.26.3...v12.26.6) (2021-10-22)
+
+
+### Bug Fixes
+
+* **auth:** allow first user to register with pro strategies ([#5564](https://github.com/botpress/botpress/issues/5564)) ([cf93a16](https://github.com/botpress/botpress/commit/cf93a16))
+* **basic-skills:** slot filling issues if using validation function  ([#5573](https://github.com/botpress/botpress/issues/5573)) ([1d8a232](https://github.com/botpress/botpress/commit/1d8a232))
+* **bp:** attach error in logger.error in action strategy ([#5588](https://github.com/botpress/botpress/issues/5588)) ([b2a555b](https://github.com/botpress/botpress/commit/b2a555b))
+* **channel-web:** fix display of carousels in emulator ([#5558](https://github.com/botpress/botpress/issues/5558)) ([2827cde](https://github.com/botpress/botpress/commit/2827cde))
+* **channel-web:** fix display of carousels on wide screens ([#5563](https://github.com/botpress/botpress/issues/5563)) ([6005917](https://github.com/botpress/botpress/commit/6005917))
+* **channel-web:** fix user creation when user mapping exists ([#5566](https://github.com/botpress/botpress/issues/5566)) ([eaec03a](https://github.com/botpress/botpress/commit/eaec03a))
+* **channel-web:** init api when ready ([#5570](https://github.com/botpress/botpress/issues/5570)) ([154f4c7](https://github.com/botpress/botpress/commit/154f4c7))
+* **code-editor:** actions and hooks comment wrapper is now readonly ([#5510](https://github.com/botpress/botpress/issues/5510)) ([3814267](https://github.com/botpress/botpress/commit/3814267))
+* **core:** give user access to workspaces on signup ([#5550](https://github.com/botpress/botpress/issues/5550)) ([292a0c0](https://github.com/botpress/botpress/commit/292a0c0))
+* **emulator:** manual scroll doesnt auto scroll to bottom ([#5561](https://github.com/botpress/botpress/issues/5561)) ([29640ac](https://github.com/botpress/botpress/commit/29640ac))
+* **hitlnext:** flatten user object information ([#5554](https://github.com/botpress/botpress/issues/5554)) ([6e084d0](https://github.com/botpress/botpress/commit/6e084d0))
+* **messaging:** fix receiving health events through webhook ([#5551](https://github.com/botpress/botpress/issues/5551)) ([26b27bf](https://github.com/botpress/botpress/commit/26b27bf))
+* **studio:** communication behind proxy ([#5579](https://github.com/botpress/botpress/issues/5579)) ([7cf46fb](https://github.com/botpress/botpress/commit/7cf46fb)), closes [#5581](https://github.com/botpress/botpress/issues/5581)
+
+
+### Features
+
+* **analytics:** add details to qna-analytics feedback ([#5485](https://github.com/botpress/botpress/issues/5485)) ([1f28468](https://github.com/botpress/botpress/commit/1f28468))
+* **telemetry:** new user stats ([#5420](https://github.com/botpress/botpress/issues/5420)) ([7dfb241](https://github.com/botpress/botpress/commit/7dfb241))
+
+
+
+## [12.26.5](https://github.com/botpress/botpress/compare/v12.26.3...v12.26.5) (2021-10-07)
+
+
+### Bug Fixes
+
+* **admin:** added form validation on bot id and name ([#5524](https://github.com/botpress/botpress/issues/5524)) ([4e5c6ca](https://github.com/botpress/botpress/commit/4e5c6ca))
+* **basic-skills:** run validation on already extracted in slot filling ([#5531](https://github.com/botpress/botpress/issues/5531)) ([0b61c1c](https://github.com/botpress/botpress/commit/0b61c1c))
+* **channel-web:** filter out empty text payload messages ([#5502](https://github.com/botpress/botpress/issues/5502)) ([bec2fde](https://github.com/botpress/botpress/commit/bec2fde))
+* **channel-web:** messagelist now updates scroll position on update ([#5520](https://github.com/botpress/botpress/issues/5520)) ([a235fd4](https://github.com/botpress/botpress/commit/a235fd4))
+* **messaging:** fix webhook url validation ([#5528](https://github.com/botpress/botpress/issues/5528)) ([429bea3](https://github.com/botpress/botpress/commit/429bea3))
+* **nlu:** better error logging when no model found. ([#5541](https://github.com/botpress/botpress/issues/5541)) ([9d31f17](https://github.com/botpress/botpress/commit/9d31f17))
+* **nlu:** made null assertion in extractElectedIntentSlot more robust ([#5497](https://github.com/botpress/botpress/issues/5497)) ([c167ea0](https://github.com/botpress/botpress/commit/c167ea0))
+* **ui-shared:** add null check in collapsible ([#5525](https://github.com/botpress/botpress/issues/5525)) ([49e7973](https://github.com/botpress/botpress/commit/49e7973))
+
+
+
 ## [12.26.4](https://github.com/botpress/botpress/compare/v12.26.3...v12.26.4) (2021-09-28)
 
 

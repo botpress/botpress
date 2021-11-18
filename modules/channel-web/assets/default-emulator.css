@@ -230,6 +230,10 @@
     transition: border 0.3s, background 0.3s, color 0.3s;
   }
 
+  .bpw-file-button {
+    padding: 0 10px;
+  }
+
   .bpw-button-alt {
     background-color: var(--main-bg-color);
     font-size: 1rem;
@@ -462,7 +466,7 @@
     padding: 0px;
     margin: 10px 0;
     text-align: left;
-    width: 100%;
+    width: 230px; /* Magic number so that it fits properly in the emulator */
   }
 
   .bpw-bubble-file {
@@ -702,7 +706,7 @@
   .bpw-composer {
     position: relative;
     outline: none;
-    padding: var(--spacing-x-large) 50px var(--spacing-x-large) var(--spacing-large);
+    padding: var(--spacing-x-large) var(--spacing-large) var(--spacing-x-large) var(--spacing-large);
   }
 
   .bpw-send-button:disabled {
@@ -713,6 +717,14 @@
   .bpw-composer-inner {
     line-height: 0;
     position: relative;
+
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .bpw-composer-textarea {
+    flex-grow: 2;
   }
 
   .bpw-composer textarea {
@@ -745,15 +757,16 @@
     padding: 2px 5px 2px 0;
   }
 
+  .bpw-send-buttons {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+  }
+
   .bpw-send-button {
-    position: absolute;
-    right: -45px;
-    top: 50%;
-    transform: translate(0, -50%);
     border: none;
     border-radius: 5px;
     background: #fff;
-    padding: 5px;
     font-size: 14px;
     font-weight: 500;
     cursor: pointer;
@@ -767,6 +780,12 @@
   .bpw-send-button:not(:disabled):hover path,
   .bpw-send-button:not(:disabled):focus path {
     fill: var(--ocean);
+  }
+
+  .bpw-voice-recorder {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
   }
 
   /** HEADER STUFF */
@@ -1196,7 +1215,7 @@
   direction: rtl;
 }
 .bpw-rtl .bpw-composer {
-  padding: var(--spacing-x-large) var(--spacing-large) var(--spacing-x-large) 50px;
+  padding: var(--spacing-x-large) var(--spacing-large) var(--spacing-x-large) var(--spacing-large);
 }
 
 .bpw-rtl .bpw-composer textarea {
@@ -1204,14 +1223,9 @@
 }
 
 .bpw-rtl .bpw-send-button {
-  position: absolute;
-  left: -45px;
-  top: 50%;
-  transform: translate(0, -50%);
   border: none;
   border-radius: 5px;
   background: #fff;
-  padding: 5px;
   font-size: 14px;
   font-weight: 500;
   cursor: pointer;

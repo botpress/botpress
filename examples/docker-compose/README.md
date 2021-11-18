@@ -5,8 +5,10 @@ There are 4 different setups:
 
 - Community (you can access all services on designed ports)
 - Community with nginx (you can only access the bot via nginx, port 80)
+- Community with nginx and https (you can only access the bot via nginx, 443)
 - Pro
 - Pro with nginx
+- Basic installation of botpress with docker.
 
 The nginx configuration doesn't include settings for SSL termination, but those are available in the documentation.
 

@@ -25,6 +25,7 @@ class Web extends React.Component<MainProps> {
   private hasBeenInitialized: boolean = false
   private audio: HTMLAudioElement
   private lastMessageId: uuid
+  private cssLoaded: boolean = false
 
   constructor(props) {
     super(props)
@@ -137,12 +138,13 @@ class Web extends React.Component<MainProps> {
     this.socket.onMessage = this.handleNewMessage
     this.socket.onTyping = this.handleTyping
     this.socket.onData = this.handleDataMessage
-    this.socket.onUserIdChanged = this.props.setUserId
 
-    this.config.userId && this.socket.changeUserId(this.config.userId)
-
-    this.socket.setup()
+    this.socket.setup(this.config.userId)
     await this.socket.waitForUserId()
+
+    if (this.config.userId) {
+      await this.props.setCustomUserId(this.config.userId)
+    }
   }
 
   loadOverrides(overrides: Overrides) {
@@ -157,14 +159,11 @@ class Web extends React.Component<MainProps> {
 
   setupObserver() {
     observe(this.props.config, 'userId', async data => {
-      if (!data.oldValue || data.oldValue === data.newValue) {
+      if (data.oldValue === data.newValue) {
         return
       }
 
-      this.socket.changeUserId(data.newValue)
-      this.socket.setup()
-      await this.socket.waitForUserId()
-      await this.props.initializeChat()
+      await this.props.setCustomUserId(data.newValue)
     })
 
     observe(this.props.config, 'overrides', data => {
@@ -192,7 +191,16 @@ class Web extends React.Component<MainProps> {
     } else if (action === 'sendPayload') {
       await this.props.sendData(payload)
     } else if (action === 'change-user-id') {
-      this.props.store.setUserId(payload)
+      await this.props.setCustomUserId(payload)
+    } else if (action === 'new-session') {
+      // To create a new session, we change the socket user and re-initialize
+      // the connection like if it was the first time using the webchat
+      this.props.resetConversation()
+
+      this.socket.newUserId()
+      await this.socket.waitForUserId()
+
+      await this.props.initializeChat()
     } else if (action === 'event') {
       const { type, text } = payload
 
@@ -336,7 +344,12 @@ class Web extends React.Component<MainProps> {
     return (
       <React.Fragment>
         {!!stylesheet?.length && <Stylesheet href={stylesheet} />}
-        {!stylesheet && <Stylesheet href={`assets/modules/channel-web/default${isEmulator ? '-emulator' : ''}.css`} />}
+        {!stylesheet && (
+          <Stylesheet
+            href={`assets/modules/channel-web/default${isEmulator ? '-emulator' : ''}.css`}
+            onLoad={() => (this.cssLoaded = true)}
+          />
+        )}
         {!isIE && <Stylesheet href={'assets/modules/channel-web/font.css'} />}
         {!!extraStylesheet?.length && <Stylesheet href={extraStylesheet} />}
       </React.Fragment>
@@ -351,12 +364,16 @@ class Web extends React.Component<MainProps> {
     return (
       <div onFocus={this.handleResetUnreadCount}>
         {this.applyAndRenderStyle()}
-        <h1 id="tchat-label" className="sr-only" tabIndex={-1}>
-          {this.props.intl.formatMessage({
-            id: 'widget.title',
-            defaultMessage: 'Chat window'
-          })}
-        </h1>
+
+        {this.cssLoaded && (
+          <h1 id="tchat-label" className="sr-only" tabIndex={-1}>
+            {this.props.intl.formatMessage({
+              id: 'widget.title',
+              defaultMessage: 'Chat window'
+            })}
+          </h1>
+        )}
+
         {this.props.displayWidgetView ? this.renderWidget() : <Container />}
       </div>
     )
@@ -374,7 +391,6 @@ export default inject(({ store }: { store: RootStore }) => ({
   mergeConfig: store.mergeConfig,
   addEventToConversation: store.addEventToConversation,
   clearMessages: store.clearMessages,
-  setUserId: store.setUserId,
   updateTyping: store.updateTyping,
   sendMessage: store.sendMessage,
   setReference: store.setReference,
@@ -395,7 +411,9 @@ export default inject(({ store }: { store: RootStore }) => ({
   widgetTransition: store.view.widgetTransition,
   displayWidgetView: store.view.displayWidgetView,
   setLoadingCompleted: store.view.setLoadingCompleted,
-  sendFeedback: store.sendFeedback
+  sendFeedback: store.sendFeedback,
+  setCustomUserId: store.setCustomUserId,
+  resetConversation: store.resetConversation
 }))(injectIntl(observer(Web)))
 
 type MainProps = { store: RootStore } & Pick<
@@ -406,7 +424,6 @@ type MainProps = { store: RootStore } & Pick<
   | 'botInfo'
   | 'fetchBotInfo'
   | 'sendMessage'
-  | 'setUserId'
   | 'sendData'
   | 'intl'
   | 'isEmulator'
@@ -432,4 +449,6 @@ type MainProps = { store: RootStore } & Pick<
   | 'resetUnread'
   | 'setLoadingCompleted'
   | 'dimensions'
+  | 'setCustomUserId'
+  | 'resetConversation'
 >

@@ -1,4 +1,5 @@
 import { Collapsible, lang } from 'botpress/shared'
+import flatten from 'flat'
 import _ from 'lodash'
 import React, { FC, useState } from 'react'
 
@@ -7,7 +8,7 @@ import style from '../../style.scss'
 
 import UserName from './UserName'
 
-const UserProfile: FC<IUser> = (user) => {
+const UserProfile: FC<IUser> = user => {
   const [expanded, setExpanded] = useState(true)
 
   return (
@@ -34,7 +35,7 @@ const UserProfile: FC<IUser> = (user) => {
               {Object.entries(user.attributes).map((entry, index) => (
                 <tr key={index}>
                   <td>{entry[0]}</td>
-                  <td>{_.isObject(entry[1]) ? JSON.stringify(entry[1]) : entry[1]}</td>
+                  <td>{_.isObject(entry[1]) ? flatten(entry[1]) : entry[1]}</td>
                 </tr>
               ))}
             </tbody>
