@@ -14,6 +14,7 @@ export class MemoryQueue<E extends IO.Event> implements Queue<E> {
   private _subscribers: Function[] = []
   private _lock: { [queueId: string]: boolean } = {}
   private _drain: NodeJS.Timer
+  private _waiters: { [queueId: string]: () => void } = {}
 
   constructor(
     public name: string,
@@ -57,6 +58,18 @@ export class MemoryQueue<E extends IO.Event> implements Queue<E> {
     return this._lock[this.getQueueId(job)]
   }
 
+  async waitEmpty(job: E) {
+    if (this.isEmptyForJob(job) && !this.isQueueLockedForJob(job)) {
+      return
+    }
+
+    const queueId = this.getQueueId(job)
+
+    return new Promise<void>((resolve, reject) => {
+      this._waiters[queueId] = resolve
+    })
+  }
+
   getQueueId(job: E): string {
     const event = job
     return `${event.botId}::${event.channel}::${event.target}`
@@ -73,12 +86,17 @@ export class MemoryQueue<E extends IO.Event> implements Queue<E> {
   }
 
   async dequeue() {
-    return this._queue.shift()
+    const job = this._queue.shift()
+    if (job) {
+      this.checkEmptyQueue(job.job)
+    }
+    return job
   }
 
   async cancelAll(job: E) {
     const jobQueueId = this.getQueueId(job)
     this._queue = this._queue.filter(item => this.getQueueId(item.job) !== jobQueueId)
+    this.checkEmptyQueue(job)
   }
 
   async peek(job: E) {
@@ -112,9 +130,24 @@ export class MemoryQueue<E extends IO.Event> implements Queue<E> {
       }
     } finally {
       delete this._lock[queueId]
+      this.checkEmptyQueue(job)
+
       if (this._queue.length) {
         setImmediate(() => this.tick())
       }
+    }
+  }
+
+  private checkEmptyQueue(job: E) {
+    const queueId = this.getQueueId(job)
+
+    if (!this._waiters[queueId]) {
+      return
+    }
+
+    if (this.isEmptyForJob(job) && !this.isQueueLockedForJob(job)) {
+      this._waiters[queueId]()
+      delete this._waiters[queueId]
     }
   }
 

@@ -75,11 +75,11 @@ export class Predictor {
     try {
       const response = await this._nluClient.predict(this._botId, textInput, modelId)
       const originalOutput = mapPredictOutput(response)
-      return { ...originalOutput, errored: false, language }
+      return { ...originalOutput, errored: false, language, modelId }
     } catch (err) {
       const msg = `An error occured when predicting for input "${textInput}" with model ${modelId}`
       this._logger.attachError(err).error(msg)
-      return { errored: true, language }
+      return { errored: true, language, modelId }
     }
   }
 

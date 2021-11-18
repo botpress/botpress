@@ -34,10 +34,16 @@ export abstract class MessagingDownMigrator {
   private async compareMetrics() {
     const newMessageCount = this.getCount(await this.trx('web_messages').count())
     const newConversationCount = this.getCount(await this.trx('web_conversations').count())
+    const updatedSessionCount = this.getCount(
+      await this.trx('dialog_sessions')
+        .where('id', 'like', '%::web::%')
+        .count()
+    )
 
     const message =
       `\nConversations migrated: ${this.conversationCount} -> ${newConversationCount}` +
-      `\nMessages migrated : ${this.messageCount} -> ${newMessageCount}`
+      `\nMessages migrated : ${this.messageCount} -> ${newMessageCount}` +
+      `\nSessions updated : ${updatedSessionCount}`
 
     return message
   }
