@@ -124,11 +124,12 @@ export class EventCollector {
       success: activeWorkflow?.success,
       incomingEventId: event.direction === 'outgoing' ? incomingEventId : id,
       event: ignoredProps.length ? (_.omit(event, ignoredProps) as sdk.IO.Event) : event,
-      createdOn: this.knex.date.now()
+      createdOn: this.knex.date.format(new Date())
     }
 
     const existingIndex = this.batch.findIndex(x => x.id === id)
     if (existingIndex !== -1) {
+      entry.createdOn = this.batch[existingIndex].createdOn
       this.batch.splice(existingIndex, 1, entry)
     } else {
       this.batch.push(entry)

@@ -230,6 +230,10 @@
     transition: border 0.3s, background 0.3s, color 0.3s;
   }
 
+  .bpw-file-button {
+    padding: 0 10px;
+  }
+
   .bpw-button-alt {
     background-color: var(--main-bg-color);
     font-size: 1rem;
