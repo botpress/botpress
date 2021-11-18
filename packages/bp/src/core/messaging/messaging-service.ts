@@ -41,6 +41,14 @@ export class MessagingService {
   @postConstruct()
   async init() {
     this.eventEngine.register({
+      name: 'messaging.fixUrl',
+      description: 'Fix payload url before sending them',
+      order: 99,
+      direction: 'outgoing',
+      handler: this.fixOutgoingUrls.bind(this)
+    })
+
+    this.eventEngine.register({
       name: 'messaging.sendOut',
       description: 'Sends outgoing messages to external messaging',
       order: 20000,
@@ -150,18 +158,21 @@ export class MessagingService {
     return this.eventEngine.sendEvent(event)
   }
 
+  private async fixOutgoingUrls(event: IO.OutgoingEvent, next: IO.MiddlewareNextCallback) {
+    this.fixPayloadUrls(event.payload)
+    next()
+  }
+
   private async handleOutgoingEvent(event: IO.OutgoingEvent, next: IO.MiddlewareNextCallback) {
     if (!this.channelNames.includes(event.channel)) {
       return next(undefined, false, true)
     }
 
-    const payloadAbsoluteUrl = this.convertToAbsoluteUrls(event.payload)
-
     const collecting = event.incomingEventId && this.collectingCache.get(event.incomingEventId)
     const message = await this.clientsByBotId[event.botId].messages.create(
       event.threadId!,
       undefined,
-      payloadAbsoluteUrl,
+      event.payload,
       collecting ? { incomingId: collecting } : undefined
     )
     event.messageId = message.id
@@ -188,14 +199,14 @@ export class MessagingService {
     }
   }
 
-  private convertToAbsoluteUrls(payload: any) {
+  private fixPayloadUrls(payload: any) {
     if (typeof payload !== 'object' || payload === null) {
       if (typeof payload === 'string') {
         payload = payload.replace('BOT_URL', process.EXTERNAL_URL)
       }
 
       if (isBpUrl(payload)) {
-        return formatUrl(process.EXTERNAL_URL, payload)
+        payload = formatUrl(process.EXTERNAL_URL, payload)
       }
       return payload
     }
@@ -203,10 +214,10 @@ export class MessagingService {
     for (const [key, value] of Object.entries(payload)) {
       if (Array.isArray(value)) {
         for (let i = 0; i < value.length; i++) {
-          value[i] = this.convertToAbsoluteUrls(value[i])
+          value[i] = this.fixPayloadUrls(value[i])
         }
       } else {
-        payload[key] = this.convertToAbsoluteUrls(value)
+        payload[key] = this.fixPayloadUrls(value)
       }
     }
 

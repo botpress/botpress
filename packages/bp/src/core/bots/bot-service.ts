@@ -627,9 +627,6 @@ export class BotService {
   // Do not use directly use the public version instead due to broadcasting
   private async _localMount(botId: string): Promise<boolean> {
     const startTime = Date.now()
-    if (this.isBotMounted(botId)) {
-      return true
-    }
 
     if (!(await this.ghostService.forBot(botId).fileExists('/', 'bot.config.json'))) {
       this.logger

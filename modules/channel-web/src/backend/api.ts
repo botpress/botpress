@@ -184,7 +184,8 @@ export default async (bp: typeof sdk, db: Database) => {
         extraStylesheet: config.extraStylesheet,
         disableNotificationSound: config.disableNotificationSound,
         security,
-        lazySocket: config.lazySocket
+        lazySocket: config.lazySocket,
+        maxMessageLength: config.maxMessageLength
       })
     })
   )
@@ -259,7 +260,7 @@ export default async (bp: typeof sdk, db: Database) => {
       await bp.users.getOrCreateUser('web', userId, botId) // Just to create the user if it doesn't exist
 
       const payload = {
-        text: `Uploaded a file [${req.file.originalname}]`,
+        text: `Uploaded a file **${req.file.originalname}**`,
         type: 'file',
         storage: req.file.location ? 's3' : 'local',
         url: req.file.location || req.file.path || undefined,
