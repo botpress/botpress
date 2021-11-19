@@ -260,7 +260,7 @@ export class Slot extends React.Component {
             <NumericInput
               id="turnExpiry"
               name="turnExpiry"
-              defaultValue={DEFAULT_TURN_EXP}
+              defaultValue={_.get(this.props, 'initialData.turnExpiry', DEFAULT_TURN_EXP)}
               selectAllOnFocus
               clampValueOnBlur
               majorStepSize={1}
@@ -306,7 +306,7 @@ export class Slot extends React.Component {
             <NumericInput
               id="retryAttempts"
               name="retryAttempts"
-              defaultValue={DEFAULT_RETRY_ATTEMPTS}
+              defaultValue={_.get(this.props, 'initialData.retryAttempts', DEFAULT_RETRY_ATTEMPTS)}
               selectAllOnFocus
               clampValueOnBlur
               majorStepSize={1}
