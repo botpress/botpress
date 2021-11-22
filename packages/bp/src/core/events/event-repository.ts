@@ -75,6 +75,8 @@ export class EventRepository {
     const storedEvent = events[0]
     const incomingEvent = storedEvent.event as sdk.IO.IncomingEvent
 
+    await this.updateEvent(storedEvent.id, {feedback})
+
     if (type) {
       const details = incomingEvent.decision?.sourceDetails
       const metric = feedback === 1 ? 'bp_core_feedback_positive' : 'bp_core_feedback_negative'

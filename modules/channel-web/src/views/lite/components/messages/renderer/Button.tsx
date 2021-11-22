@@ -35,8 +35,7 @@ export class Button extends Component<Renderer.Button> {
 
   renderFileUpload(accept) {
     return (
-      <button className={'bpw-button'}>
-        <span>{this.props.label}</span>
+      <button className={'bpw-button bpw-file-button'}>
         <FileInput
           name={'uploadField'}
           accept={accept}
@@ -44,6 +43,7 @@ export class Button extends Component<Renderer.Button> {
           placeholder={this.props.label}
           onFileChanged={this.handleFileUpload}
         />
+        <span>{this.props.label}</span>
       </button>
     )
   }

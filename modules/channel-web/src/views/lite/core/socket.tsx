@@ -9,7 +9,6 @@ export default class BpSocket {
   public onMessage: (event: any) => void
   public onTyping: (event: any) => void
   public onData: (event: any) => void
-  public onUserIdChanged: (userId: string) => void
 
   constructor(bp: StudioConnector, config: Config) {
     this.events = bp?.events
@@ -17,9 +16,14 @@ export default class BpSocket {
     this.chatId = config.chatId
   }
 
-  public setup() {
+  public setup(userId?: string) {
     if (!this.events) {
       return
+    }
+
+    // Requires userId to be long enough so it can't be guessed
+    if (userId?.length >= 24) {
+      this.events.updateVisitorId(userId, this.userIdScope)
     }
 
     // Connect the Botpress Web Socket to the server
@@ -39,10 +43,10 @@ export default class BpSocket {
     window.parent?.postMessage({ ...payload, chatId: this.chatId }, '*')
   }
 
-  public changeUserId(newId: string) {
-    if (typeof newId === 'string' && newId !== 'undefined') {
-      this.events.updateVisitorId(newId, this.userIdScope)
-    }
+  public newUserId() {
+    this.events.deleteVisitorId(this.userIdScope)
+
+    this.setup()
   }
 
   /** Waits until the VISITOR ID and VISITOR SOCKET ID is set  */
@@ -53,7 +57,6 @@ export default class BpSocket {
           clearInterval(interval)
 
           const userId = window.__BP_VISITOR_ID
-          this.onUserIdChanged(userId)
           this.postToParent('', { userId })
 
           resolve()

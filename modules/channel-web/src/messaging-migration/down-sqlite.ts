@@ -6,6 +6,7 @@ export class MessagingSqliteDownMigrator extends MessagingDownMigrator {
   private convoBatch = []
   private convoNewIdsBatch = []
   private messageBatch = []
+  private sessionBatch: { oldId: string; newId: string }[] = []
   private cacheVisitorIds = new LRUCache<string, string>({ max: 10000 })
   private cacheBotIds = new LRUCache<string, string>({ max: 10000 })
   private convoIndex = 0
@@ -95,6 +96,16 @@ export class MessagingSqliteDownMigrator extends MessagingDownMigrator {
       this.convoBatch.push(newConvo)
       this.convoNewIdsBatch.push({ oldId: convo.id, newid: newConvo.id })
 
+      const oldSessionId = `${botId}::web::${convo.userId}::${convo.id}`
+      if (
+        await this.trx('dialog_sessions')
+          .where({ id: oldSessionId })
+          .first()
+      ) {
+        const newSessionId = `${botId}::web::${newConvo.userId}::${newConvo.id}`
+        this.sessionBatch.push({ oldId: oldSessionId, newId: newSessionId })
+      }
+
       const messages = await this.trx('msg_messages')
         .select('*')
         .where({ conversationId: convo.id })
@@ -120,10 +131,15 @@ export class MessagingSqliteDownMigrator extends MessagingDownMigrator {
       if (this.convoBatch.length > maxBatchSize) {
         await this.emptyConvoBatch()
       }
+
+      if (this.sessionBatch.length > maxBatchSize) {
+        await this.emptySessionBatch()
+      }
     }
 
     await this.emptyConvoBatch()
     await this.emptyMessageBatch()
+    await this.emptySessionBatch()
   }
 
   private async getVisitorId(userId: string) {
@@ -175,6 +191,18 @@ export class MessagingSqliteDownMigrator extends MessagingDownMigrator {
     if (this.messageBatch.length > 0) {
       await this.trx('web_messages').insert(this.messageBatch)
       this.messageBatch = []
+    }
+  }
+
+  private async emptySessionBatch() {
+    if (this.sessionBatch.length > 0) {
+      for (const session of this.sessionBatch) {
+        await this.trx('dialog_sessions')
+          .update({ id: session.newId })
+          .where({ id: session.oldId })
+      }
+
+      this.sessionBatch = []
     }
   }
 }

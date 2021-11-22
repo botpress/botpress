@@ -1,9 +1,9 @@
-import { Client } from '@botpress/nlu-client'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 import { LanguageSource } from 'src/config'
 
 import { NLUCloudClient } from '../cloud/client'
+import { NLUClientNoProxy } from '../no-proxy-client'
 import { IStanEngine, StanEngine } from '../stan'
 import pickSeed from './pick-seed'
 import { Bot, IBot } from './scoped/bot'
@@ -26,7 +26,7 @@ export type IScopedServicesFactory = I<ScopedServicesFactory>
 
 export class ScopedServicesFactory {
   constructor(
-    private _languageSource: LanguageSource,
+    private _languageSource: LanguageSource & { isLocal: boolean },
     private _logger: sdk.Logger,
     private _makeDefRepo: DefinitionRepositoryFactory
   ) {}
@@ -36,7 +36,7 @@ export class ScopedServicesFactory {
 
     const stanClient = cloud
       ? new NLUCloudClient({ ...cloud, endpoint: this._languageSource.endpoint })
-      : new Client(this._languageSource.endpoint, this._languageSource.authToken)
+      : new NLUClientNoProxy(this._languageSource)
 
     return new StanEngine(stanClient, this._languageSource.authToken ?? '')
   }

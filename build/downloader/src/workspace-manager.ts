@@ -2,8 +2,10 @@ import 'bluebird-global'
 import chalk from 'chalk'
 import { exec } from 'child_process'
 import fse from 'fs-extra'
+import _ from 'lodash'
 import mkdirp from 'mkdirp'
 import path from 'path'
+import { getConfig, RepositoriesConfig } from './repositories-config'
 
 interface RunCommand {
   repo: string
@@ -71,14 +73,14 @@ export class WorkspaceManager {
       process.exit(0)
     }
 
-    await mkdirp.sync(this.rootFolder)
-    await fse.writeFile(path.join(this.rootFolder, '.workspace'), '')
+    mkdirp.sync(this.rootFolder)
+    const config = getConfig(this.rootFolder)
 
-    for (const repo of repositories) {
+    for (const repo of Object.keys(config)) {
       await this.setupRepository(repo, { cloneRepo: true, buildAsPro: repo === 'botpress' && usePro })
     }
 
-    await this.createDotEnv()
+    await this.createCodeWorkspace(config)
   }
 
   /**
@@ -164,41 +166,25 @@ export class WorkspaceManager {
     }
   }
 
-  async createDotEnv() {
-    const dotEnvDir = path.resolve(this.rootFolder, 'botpress/packages/bp/dist/')
-    const fileContent = `### Linked Repositories
-DEV_STUDIO_PATH=${this.rootFolder}/studio/packages/studio-be/out
-DEV_NLU_PATH=${this.rootFolder}/nlu/packages/nlu-cli/dist
-DEV_MESSAGING_PATH=${this.rootFolder}/messaging/packages/server/dist
+  async createCodeWorkspace(config: RepositoriesConfig) {
+    const fileContent = {
+      folders: Object.keys(config).map(name => ({ path: path.join(this.rootFolder, name) })),
+      settings: {
+        ['favorites.resources']: _.flatMap(Object.values(config), x => x.favorites).filter(x => x !== undefined)
+      }
+    }
 
-### Connections
-# DATABASE_URL=postgres://user:pw@localhost:5432/dbname
-# BPFS_STORAGE=database
-# CLUSTER_ENABLED=true
-# REDIS_URL=redis://localhost:6379
-# BP_REDIS_SCOPE=
+    const workspaceLocation = path.join(this.rootFolder, `${path.basename(this.rootFolder)}.code-workspace`)
+    await fse.writeJSON(workspaceLocation, fileContent, { spaces: 2 })
 
-### Server Setup
-# BP_PRODUCTION=true
-# PRO_ENABLED=true
-# EXTERNAL_URL=http://localhost:3000
-# BP_CONFIG_HTTPSERVER_PORT=3000
-# BP_CONFIG_PRO_LICENSEKEY=your_license
-# DEBUG=bp:*
+    for (const { dotEnvFile } of Object.values(config)) {
+      if (dotEnvFile) {
+        mkdirp.sync(dotEnvFile.location)
+        await fse.writeFile(path.resolve(dotEnvFile.location, '.env'), dotEnvFile.content, 'utf-8')
+      }
+    }
 
-### Migrations
-# AUTO_MIGRATE=true
-# TESTMIG_ALL=true
-# TESTMIG_NEW=true
-
-### Sandbox
-# DISABLE_GLOBAL_SANDBOX=true
-# DISABLE_BOT_SANDBOX=true
-# DISABLE_TRANSITION_SANDBOX=true
-# DISABLE_CONTENT_SANDBOX=true`
-
-    mkdirp.sync(dotEnvDir)
-    await fse.writeFile(path.resolve(dotEnvDir, '.env'), fileContent, 'utf-8')
+    console.info(`Workspace created: ${workspaceLocation}`)
   }
 
   async runCommand({ repo, label, cmd, env, cwd }: RunCommand) {

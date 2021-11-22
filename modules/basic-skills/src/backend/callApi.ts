@@ -3,7 +3,7 @@ import _ from 'lodash'
 
 const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
   return {
-    transitions: createTransitions(),
+    transitions: createTransitions(data),
     flow: {
       nodes: createNodes(data),
       catchAll: {
@@ -22,6 +22,7 @@ const createNodes = data => {
           type: sdk.NodeActionType.RunAction,
           name: 'basic-skills/call_api',
           args: {
+            randomId: data.randomId,
             url: data.url,
             method: data.method,
             body: data.body,
@@ -37,10 +38,12 @@ const createNodes = data => {
   return nodes
 }
 
-const createTransitions = (): sdk.NodeTransition[] => {
+const createTransitions = (data): sdk.NodeTransition[] => {
+  const keySuffix = data.randomId ? `_${data.randomId}` : ''
+
   return [
-    { caption: 'On success', condition: 'temp.valid', node: '' },
-    { caption: 'On failure', condition: '!temp.valid', node: '' }
+    { caption: 'On success', condition: `temp.valid${keySuffix}`, node: '' },
+    { caption: 'On failure', condition: `!temp.valid${keySuffix}`, node: '' }
   ]
 }
 

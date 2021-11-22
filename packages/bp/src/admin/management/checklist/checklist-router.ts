@@ -33,7 +33,9 @@ class ChecklistRouter extends CustomAdminRouter {
             'BP_PRODUCTION',
             'CLUSTER_ENABLED',
             'AUTO_MIGRATE',
-            'BP_LICENSE_KEY'
+            'BP_LICENSE_KEY',
+            'BP_CONFIG_PRO_ENABLED',
+            'BP_CONFIG_PRO_LICENSEKEY'
           ])
         }
         res.send(serverConfig)
