@@ -1,0 +1,17 @@
+{
+  "name": "botpress",
+  "version": "12.26.3",
+  "description": "The world's most powerful conversational engine",
+  "main": "index.js",
+  "bin": "index.js",
+  "private": true,
+  "pkg": {
+    "targets": ["node12-win32-x64", "node12-linux-x64", "node12-macos-x64"],
+    "scripts": ["./runtime/**/*.js", "./*.js", "./common/**/*.js", "./migrations/**/*.js"],
+    "assets": [
+      "../../../node_modules/vm2/lib/*.js",
+      "../../../node_modules/xml-encryption/lib/templates/*.tpl.xml",
+      "./runtime/config/schemas/**"
+    ]
+  }
+}
