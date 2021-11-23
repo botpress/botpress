@@ -1,2 +1,2 @@
 import '@botpress/typings/sdk/botpress'
-import '@botpress/typings/sdk/knex'
+import '@botpress/typings/misc/knex'

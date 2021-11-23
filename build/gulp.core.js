@@ -6,13 +6,19 @@ const gulpif = require('gulp-if')
 const run = require('gulp-run')
 const file = require('gulp-file')
 const buildJsonSchemas = require('./jsonschemas')
+const fs = require('fs')
 const { exec, spawn } = require('child_process')
 const gulpRimraf = require('gulp-rimraf')
 const rimraf = require('rimraf')
 require('bluebird-global')
 
-const fetchDependencies = () => {
-  return gulp.src('./').pipe(run('git submodule update --init', { verbosity: 2 }))
+const maybeFetchPro = () => {
+  const isProBuild = process.env.EDITION === 'pro' || fs.existsSync('pro')
+  return gulp.src('./').pipe(gulpif(isProBuild, run('git submodule update --init', { verbosity: 2 })))
+}
+
+const initTypings = () => {
+  return gulp.src('./').pipe(run('git submodule update --init packages/typings', { verbosity: 2 }))
 }
 
 const writeMetadata = async () => {
@@ -115,7 +121,7 @@ const initDownloader = cb => {
 const build = () => {
   return gulp.series([
     clearMigrations,
-    fetchDependencies,
+    maybeFetchPro,
     writeMetadata,
     compileTypescript,
     buildSchemas,
@@ -137,6 +143,7 @@ const cleanup = async () => {
 module.exports = {
   build,
   watch,
+  initTypings,
   checkTranslations,
   buildDownloader,
   initDownloader,
