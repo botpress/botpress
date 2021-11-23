@@ -69,7 +69,10 @@ jobs:
           yarn --frozen-lockfile
       - name: Build core, UI and modules
         run: |
-          NODE_OPTIONS="--max-old-space-size=6000" yarn build
+          yarn build
+        env:
+          NODE_OPTIONS: --max-old-space-size=6000
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Run Tests
         run: |
           yarn start & sleep 5s &&
