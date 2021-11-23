@@ -1,11 +1,12 @@
 import { Client, Health, PredictOutput, Specifications } from '@botpress/nlu-client'
-import { AxiosInstance } from 'axios'
+import { AxiosInstance, AxiosRequestConfig } from 'axios'
 import { CloudConfig } from 'botpress/sdk'
 import _ from 'lodash'
 import { CloudClient } from './cloud/client'
 
 interface Options {
   endpoint: string
+  isLocal: boolean
   cloud?: CloudConfig
 }
 
@@ -13,12 +14,20 @@ export class NLUClient {
   private _client: Client | CloudClient
 
   constructor(options: Options) {
-    this._client = options.cloud
-      ? new CloudClient({
-          endpoint: options.endpoint,
-          ...options.cloud
-        })
-      : new Client({ baseURL: options.endpoint, validateStatus: () => true })
+    if (options.cloud) {
+      this._client = new CloudClient({
+        endpoint: options.endpoint,
+        ...options.cloud
+      })
+      return
+    }
+
+    const config: AxiosRequestConfig = { baseURL: options.endpoint, validateStatus: () => true }
+    if (options.isLocal) {
+      config.proxy = false // allows to reach localhost when HTTP_PROXY env variable is defined
+    }
+
+    this._client = new Client(config)
   }
 
   public get axios(): AxiosInstance {

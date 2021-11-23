@@ -1,2 +1,1 @@
-export * from './client'
-export * from './provider'
+export { NLUClient } from './client'
