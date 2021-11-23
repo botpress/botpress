@@ -3,4 +3,4 @@
 	url = git@github.com:botpress/botpress-pro.git
 [submodule "packages/typings"]
 	path = packages/typings
-	url = git@github.com:botpress/typings.git
+	url = https://github.com/botpress/typings.git
