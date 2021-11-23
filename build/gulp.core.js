@@ -18,7 +18,7 @@ const maybeFetchPro = () => {
 }
 
 const initTypings = () => {
-  return gulp.src('./').pipe(run('git submodule update --init packages/typings', { verbosity: 2 }))
+  return gulp.src('./').pipe(run('git submodule update --init packages/typings', { verbosity: 3 }))
 }
 
 const writeMetadata = async () => {
