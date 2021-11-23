@@ -67,12 +67,13 @@ jobs:
       - name: Fetch Node Packages
         run: |
           yarn --frozen-lockfile
+      - name: Configure SSH Key
+        uses: botpress/gh-actions/set_ssh_key@master
+        with:
+          ssh_key: ${{ secrets.BP_PRO_SSH }}
       - name: Build core, UI and modules
         run: |
-          yarn build
-        env:
-          NODE_OPTIONS: --max-old-space-size=6000
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          NODE_OPTIONS="--max-old-space-size=6000" yarn build
       - name: Run Tests
         run: |
           yarn start & sleep 5s &&
