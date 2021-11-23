@@ -322,10 +322,10 @@
   resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-0.0.1.tgz#1e1347262e4c5f70d73ba62b8a62b9d9576e3c16"
   integrity sha512-J52YtTu0OxElZUJwtfx8NSVFlTGyZVXGppWgdgckHRa6mAf+8DY3gCkDpG34Elic9Uygz3L0+3HebvgSk6Y3CA==
 
-"@botpress/messaging-client@0.0.7":
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-0.0.7.tgz#697374e857ba4344ecb997977f3278fd292bd091"
-  integrity sha512-PCHZl8semVaAtSl/KxQPPDnFU6ZhMi7YmmgNtoQQPIE/d28OSPDUuost7dfwoNllVxHqQqsdIKmLQqRORxhX4w==
+"@botpress/messaging-client@0.0.9":
+  version "0.0.9"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-0.0.9.tgz#46e4ce068a0de71ca8f79a366e2a7bee1bc748fd"
+  integrity sha512-G4/nJ/gI73KiA7tN+EDAglY2pnliZuv6/QQy/DmcyKZGGgv/VACnpzU4+t2L7jo+08vRrJOF6+fLL3VjNpKYDA==
   dependencies:
     "@botpress/messaging-base" "0.0.1"
     axios "^0.21.1"
@@ -15647,10 +15647,10 @@ vm-browserify@^1.0.1:
   resolved "https://registry.npmjs.org/vm-browserify/-/vm-browserify-1.1.2.tgz#78641c488b8e6ca91a75f511e7a3b32a86e5dda0"
   integrity sha512-2ham8XPWTONajOR0ohOKOHXkm3+gaBmGut3SRuu75xLd/RRaY6vqgh8NBYYk7+RW3u5AtzPQZG8F10LHkl0lAQ==
 
-vm2@^3.9.2:
-  version "3.9.2"
-  resolved "https://registry.yarnpkg.com/vm2/-/vm2-3.9.2.tgz#a4085d2d88a808a1b3c06d5478c2db3222a9cc30"
-  integrity sha512-nzyFmHdy2FMg7mYraRytc2jr4QBaUY3TEGe3q3bK8EgS9WC98wxn2jrPxS/ruWm+JGzrEIIeufKweQzVoQEd+Q==
+vm2@^3.9.5:
+  version "3.9.5"
+  resolved "https://registry.npmjs.org/vm2/-/vm2-3.9.5.tgz#5288044860b4bbace443101fcd3bddb2a0aa2496"
+  integrity sha512-LuCAHZN75H9tdrAiLFf030oW7nJV5xwNMuk1ymOZwopmuK3d2H4L1Kv4+GFHgarKiLfXXLFU+7LDABHnwOkWng==
 
 w3c-hr-time@^1.0.1:
   version "1.0.1"

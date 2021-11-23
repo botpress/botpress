@@ -1,3 +1,5 @@
 import React from 'react'
 
-export default ({ href }) => <link rel="stylesheet" type="text/css" href={href} />
+export default ({ href, onLoad }: { href: string; onLoad?: () => void }) => (
+  <link rel="stylesheet" type="text/css" href={href} onLoad={onLoad} />
+)

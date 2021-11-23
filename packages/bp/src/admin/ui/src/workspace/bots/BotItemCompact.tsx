@@ -154,7 +154,7 @@ const BotItemCompact: FC<Props> = props => {
         )}
 
         <AccessControl resource="module.nlu" operation="write">
-          {<NeedsTrainingWarning bot={props.bot.id} languages={props.bot.languages} />}
+          {!props.bot.disabled && <NeedsTrainingWarning bot={props.bot.id} languages={props.bot.languages} />}
         </AccessControl>
 
         {botHasUninstalledNLULanguages && (

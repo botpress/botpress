@@ -19,5 +19,7 @@ declare global {
     botpress: {
       [moduleName: string]: any
     }
+    UUID: string
+    SEGMENT_WRITE_KEY: string
   }
 }
