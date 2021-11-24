@@ -3,7 +3,7 @@ import { FlowView } from 'common/typings'
 import { createForGlobalHooks } from 'core/app/api'
 import { TYPES } from 'core/app/types'
 import { buildUserKey, converseApiEvents } from 'core/converse'
-import { FlowService } from 'core/dialog'
+import { FlowService, StateManager, WellKnownFlags } from 'core/dialog'
 import { addErrorToEvent } from 'core/events'
 import { Hooks, HookService } from 'core/user-code'
 import { inject, injectable, tagged } from 'inversify'
@@ -29,7 +29,8 @@ export class DialogEngine {
     private logger: Logger,
     @inject(TYPES.FlowService) private flowService: FlowService,
     @inject(TYPES.HookService) private hookService: HookService,
-    @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor
+    @inject(TYPES.InstructionProcessor) private instructionProcessor: InstructionProcessor,
+    @inject(TYPES.StateManager) private stateManager: StateManager
   ) {}
 
   public async processEvent(sessionId: string, event: IO.IncomingEvent): Promise<IO.IncomingEvent> {
@@ -303,6 +304,10 @@ export class DialogEngine {
     }
 
     this.fillContextForTransition(event, { currentFlow, currentNode, nextFlow: timeoutFlow, nextNode: timeoutNode })
+
+    if (event.hasFlag(WellKnownFlags.FORCE_PERSIST_STATE)) {
+      await this.stateManager.persist(event, false)
+    }
 
     return this.processEvent(sessionId, event)
   }
