@@ -1,1 +1,1 @@
-/// <reference path="../packages/bp/src/typings/knex.d.ts" /> #
+/// <reference path="../packages/typings/misc/knex.d.ts" /> #

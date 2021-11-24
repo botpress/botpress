@@ -13,7 +13,7 @@
     "types": ["jest", "bluebird-global"],
     "paths": {
       "botpress/shared": ["../../../../packages/ui-shared/src/typings.d.ts"],
-      "botpress/sdk": ["../../../../packages/bp/src/sdk/botpress.d.ts"],
+      "botpress/sdk": ["../../../../packages/typings/sdk/botpress.d.ts"],
       "common/*": ["../../../../packages/bp/src/common/*"],
       "@blueprintjs/core": ["../../../../packages/ui-shared/node_modules/@blueprintjs/core"],
       "@blueprintjs/select": ["../../../../packages/ui-shared/node_modules/@blueprintjs/select"],

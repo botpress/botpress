@@ -19,7 +19,7 @@
     "baseUrl": "./src",
     "paths": {
       "~/*": ["*"],
-      "botpress/sdk": ["../../bp/src/sdk/botpress.d.ts"],
+      "botpress/sdk": ["../../typings/sdk/botpress.d.ts"],
       "common/*": ["../../bp/src/common/*"]
     }
   },
