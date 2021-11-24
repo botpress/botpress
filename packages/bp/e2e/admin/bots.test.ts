@@ -13,10 +13,11 @@ import {
   triggerKeyboardShortcut
 } from '../utils'
 
-describe('Admin - Bot Management', () => {
+describe.only('Admin - Bot Management', () => {
   const tempBotId = 'lol-bot'
   const importBotId = 'import-bot'
   const workspaceId = 'default'
+  const apiKey = '1234567890'
 
   const clickButtonForBot = async (buttonId: string, botId: string) => {
     const botRow = await expectMatchElement('.bp_table-row', { text: botId })
@@ -62,12 +63,15 @@ describe('Admin - Bot Management', () => {
 
   it('Create temporary bot', async () => {
     await clickOn('#btn-create-bot')
-    await page.waitFor(100)
+    await page.waitForSelector('#btn-new-bot')
     await clickOn('#btn-new-bot')
 
     await fillField('#input-bot-name', tempBotId)
     await fillField('#select-bot-templates', 'Welcome Bot') // Using fill instead of select because options are created dynamically
     await page.keyboard.press('Enter')
+
+    await clickOn('#checkbox-bot-cloud')
+    await fillField('#bot-api-key', apiKey)
 
     await Promise.all([expectAdminApiCallSuccess('workspace/bots', 'POST'), clickOn('#btn-modal-create-bot')])
   })
