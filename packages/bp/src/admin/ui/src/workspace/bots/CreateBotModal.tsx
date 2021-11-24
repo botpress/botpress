@@ -163,7 +163,7 @@ class CreateBotModal extends Component<Props, State> {
           <div className={Classes.DIALOG_BODY}>
             <FormGroup
               label={lang.tr('admin.workspace.bots.create.name')}
-              labelFor="bot-name"
+              labelFor="input-bot-name"
               labelInfo="*"
               helperText={lang.tr('admin.workspace.bots.create.nameHelper')}
             >
@@ -223,11 +223,13 @@ class CreateBotModal extends Component<Props, State> {
             )}
             <FormGroup
               label={lang.tr('admin.workspace.bots.create.cloud')}
+              labelFor="checkbox-bot-cloud"
               helperText={lang.tr('admin.workspace.bots.create.cloudHelper', {
                 a: (str: string) => <a href={'/#' /* TODO: Replace with link to Alpha Release Signup */}>{str}</a>
               })}
             >
               <Checkbox
+                id="checkbox-bot-cloud"
                 label={lang.tr('admin.workspace.bots.create.cloudCheckbox')}
                 checked={this.state.isCloudBot}
                 onChange={e => this.setState({ isCloudBot: e.target.checked })}
@@ -236,6 +238,7 @@ class CreateBotModal extends Component<Props, State> {
             {this.state.isCloudBot && (
               <FormGroup
                 label={lang.tr('admin.workspace.bots.create.api')}
+                labelFor="bot-api-key"
                 helperText={lang.tr('admin.workspace.bots.create.apiHelper', {
                   a: (str: string) => (
                     <a href={'/#' /* TODO: Replace with link to Botpress Cloud Deployment manager */}>{str}</a>
@@ -243,7 +246,7 @@ class CreateBotModal extends Component<Props, State> {
                 })}
               >
                 <InputGroup
-                  id="botapikey"
+                  id="bot-api-key"
                   tabIndex={2}
                   placeholder={lang.tr('admin.workspace.bots.create.apiPlaceholder')}
                   value={this.state.bpCloudApiKey}
