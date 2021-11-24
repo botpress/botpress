@@ -18,10 +18,19 @@ process.on('uncaughtException', err => {
 if (yn(process.env.GULP_PARALLEL)) {
   gulp.task(
     'build',
-    gulp.series([ui.buildSharedLite(), core.build(), ui.buildShared(), gulp.parallel(modules.build(), ui.build())])
+    gulp.series([
+      core.initTypings,
+      ui.buildSharedLite(),
+      core.build(),
+      ui.buildShared(),
+      gulp.parallel(modules.build(), ui.build())
+    ])
   )
 } else {
-  gulp.task('build', gulp.series([ui.buildSharedLite(), core.build(), ui.buildShared(), modules.build(), ui.build()]))
+  gulp.task(
+    'build',
+    gulp.series([core.initTypings, ui.buildSharedLite(), core.build(), ui.buildShared(), modules.build(), ui.build()])
+  )
 }
 
 gulp.task('default', cb => {

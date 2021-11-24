@@ -16,7 +16,7 @@
     "types": ["reflect-metadata", "bluebird-global"],
     "paths": {
       "common/*": ["../../packages/bp/src/common/*"],
-      "botpress/sdk": ["../../packages/bp/src/sdk/botpress.d.ts"]
+      "botpress/sdk": ["../../packages/typings/sdk/botpress.d.ts"]
     }
   },
   "exclude": ["**/*.test.ts", "**/views/**"],

@@ -32,7 +32,7 @@ if (process.env.PRO_ENABLED) {
   admin.push(test.admin.users)
 }
 
-const studio = [test.studio.ui, test.studio.flows, test.studio.cms, test.studio.nlu, test.studio.component]
+const studio = [test.studio.ui, test.studio.flows, test.studio.cms, test.studio.nlu /*, test.studio.component*/]
 const modules = [/*test.mod.qna*,*/ test.mod.editor, test.mod.testing, test.mod.webchat]
 
 /** Define test pipelines below */

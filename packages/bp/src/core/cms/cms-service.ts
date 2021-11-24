@@ -695,7 +695,7 @@ export class CMSService implements IDisposeOnExit {
       payloads = [payloads]
     }
 
-    return payloads
+    return payloads as object[]
   }
 
   /**
