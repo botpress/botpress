@@ -1,6 +1,6 @@
 import { Button, Classes, Dialog, FormGroup, InputGroup, Intent, Callout } from '@blueprintjs/core'
 import { BotConfig, BotTemplate } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
+import { Checkbox, lang } from 'botpress/shared'
 import _ from 'lodash'
 import ms from 'ms'
 import React, { Component } from 'react'
@@ -44,16 +44,20 @@ interface State {
 
   selectedTemplate?: BotTemplate
   selectedCategory?: SelectOption<string>
+  isCloudBot: boolean
+  bpCloudApiKey: string
 }
 
-const defaultState = {
+const defaultState: Omit<State, 'templates' | 'categories'> = {
   botId: '',
   botName: '',
   selectedCategory: undefined,
   selectedTemplate: undefined,
   error: undefined,
   isProcessing: false,
-  generateId: true
+  generateId: true,
+  isCloudBot: false,
+  bpCloudApiKey: ''
 }
 
 class CreateBotModal extends Component<Props, State> {
@@ -117,7 +121,9 @@ class CreateBotModal extends Component<Props, State> {
       id: this.state.botId,
       name: this.state.botName,
       template: _.pick(this.state.selectedTemplate, ['id', 'moduleId']),
-      category: this.state.selectedCategory && this.state.selectedCategory.value
+      category: this.state.selectedCategory && this.state.selectedCategory.value,
+      isCloudBot: this.state.isCloudBot,
+      bpCloudApiKey: this.state.bpCloudApiKey
     }
 
     try {
@@ -212,6 +218,36 @@ class CreateBotModal extends Component<Props, State> {
                   options={this.state.categories}
                   value={this.state.selectedCategory}
                   onChange={selectedCategory => this.setState({ selectedCategory: selectedCategory as any })}
+                />
+              </FormGroup>
+            )}
+            <FormGroup
+              label={lang.tr('admin.workspace.bots.create.cloud')}
+              helperText={lang.tr('admin.workspace.bots.create.cloudHelper', {
+                a: (str: string) => <a href={'/#' /* TODO: Replace with link to Alpha Release Signup */}>{str}</a>
+              })}
+            >
+              <Checkbox
+                label={lang.tr('admin.workspace.bots.create.cloudCheckbox')}
+                checked={this.state.isCloudBot}
+                onChange={e => this.setState({ isCloudBot: e.target.checked })}
+              />
+            </FormGroup>
+            {this.state.isCloudBot && (
+              <FormGroup
+                label={lang.tr('admin.workspace.bots.create.api')}
+                helperText={lang.tr('admin.workspace.bots.create.apiHelper', {
+                  a: (str: string) => (
+                    <a href={'/#' /* TODO: Replace with link to Botpress Cloud Deployment manager */}>{str}</a>
+                  )
+                })}
+              >
+                <InputGroup
+                  id="botapikey"
+                  tabIndex={2}
+                  placeholder={lang.tr('admin.workspace.bots.create.apiPlaceholder')}
+                  value={this.state.bpCloudApiKey}
+                  onChange={e => this.setState({ bpCloudApiKey: e.target.value })}
                 />
               </FormGroup>
             )}
