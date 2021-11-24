@@ -1,9 +1,10 @@
+import classNames from 'classnames'
 import truncate from 'html-truncate'
 import React, { useState } from 'react'
 import Linkify from 'react-linkify'
 
 import { Renderer } from '../../../typings'
-import { renderUnsafeHTML } from '../../../utils'
+import { renderUnsafeHTML, isRTLText } from '../../../utils'
 
 /**
  * A simple text element with optional markdown
@@ -33,9 +34,11 @@ export const Text = (props: Renderer.Text) => {
     message = <p>{truncateIfRequired(text)}</p>
   }
 
+  const rtl = isRTLText.test(text)
+
   return (
     <Linkify properties={{ target: '_blank' }}>
-      <div>{message}</div>
+      <div className={classNames({ rtl })}>{message}</div>
 
       {hasShowMore && (
         <button type="button" onClick={e => setShowMore(!showMore)} className="bpw-message-read-more">
