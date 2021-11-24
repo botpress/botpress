@@ -742,6 +742,14 @@
     width: 100%;
   }
 
+  .bpw-composer.rtl .bpw-composer-inner textarea {
+    direction: rtl;
+  }
+
+  .bpw-composer.ltr .bpw-composer-inner textarea {
+    direction: ltr;
+  }
+
   .bpw-send-button:not(:disabled):hover path,
   .bpw-send-button:not(:disabled):focus path {
     fill: var(--ocean);
@@ -1211,13 +1219,6 @@
   zoom: 0.8; /* This feature is non-standard */
 }
 
-.bpw-rtl .bpw-chat-bubble {
-  direction: rtl;
-}
-.bpw-rtl .bpw-composer {
-  padding: var(--spacing-x-large) var(--spacing-large) var(--spacing-x-large) var(--spacing-large);
-}
-
 .bpw-rtl .bpw-composer textarea {
   direction: rtl;
 }
@@ -1245,6 +1246,10 @@
 }
 
 .bpw-rtl .bpw-keyboard-quick_reply-dropdown {
+  direction: rtl;
+}
+
+.bpw-chat-bubble-content .rtl {
   direction: rtl;
 }
 
