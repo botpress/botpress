@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
     "noImplicitAny": false,
+    "useUnknownInCatchVariables": false,
     "baseUrl": "./",
     "paths": {
       "~/*": ["src/*"],

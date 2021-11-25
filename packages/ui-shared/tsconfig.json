@@ -12,6 +12,7 @@
     "target": "es5",
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,
+    "useUnknownInCatchVariables": false,
     "strict": true,
     "forceConsistentCasingInFileNames": true,
     "isolatedModules": true,
