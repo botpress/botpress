@@ -133,3 +133,20 @@ export const isRTLLocale = (locale: string | undefined | null): boolean => {
 
   return rtlLocales.includes(matches[1])
 }
+
+export const isRTLText = new RegExp(
+  '[' +
+    [
+      '\u0600-\u06FF', // Arabic
+      '\u0750-\u077F', // Arabic Supplement
+      '\u08A0-\u08FF', // Arabic Extended-A
+      '\u0870-\u089F', // Arabic Extended-B
+      '\uFB50-\uFDFF', // Arabic Pres. Forms-A
+      '\uFE70-\uFEFF', // Arabic Pres. Forms-B
+      '\u0780-\u07BF', // Thaana (Dhivehi)
+      '\u0590-\u05FF', // Hebrew
+      '\uFB1D-\uFB4F', // Hebrew Presentation Forms
+      '\u07C0-\u07FF' // N'Ko
+    ].join('') +
+    ']'
+)
