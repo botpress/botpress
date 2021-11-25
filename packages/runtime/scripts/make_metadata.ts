@@ -1,8 +1,7 @@
-const path = require('path')
-const fs = require('fs')
-const { exec } = require('child_process')
-
-require('bluebird-global')
+import 'bluebird-global'
+import { exec } from 'child_process'
+import fs from 'fs'
+import path from 'path'
 
 const writeMetadata = async () => {
   const metadata = {
@@ -12,13 +11,13 @@ const writeMetadata = async () => {
   }
 
   try {
-    const currentBranch = await Promise.fromCallback(cb => exec('git rev-parse --abbrev-ref HEAD', cb))
+    const currentBranch: string = await Promise.fromCallback(cb => exec('git rev-parse --abbrev-ref HEAD', cb))
     metadata.branch = currentBranch.replace('\n', '')
   } catch (err) {
-    console.error(`Couldn't get active branch`, err)
+    console.error("Couldn't get active branch", err)
   }
 
   fs.writeFileSync('./dist/metadata.json', JSON.stringify(metadata, null, 2))
 }
 
-writeMetadata()
+void writeMetadata()

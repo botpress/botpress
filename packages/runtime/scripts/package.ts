@@ -1,6 +1,6 @@
 import 'bluebird-global'
 import archiver from 'archiver'
-import { exec } from 'child_process'
+import { exec, ExecException } from 'child_process'
 import fse from 'fs-extra'
 import mkdirp from 'mkdirp'
 import path from 'path'
@@ -72,7 +72,10 @@ const packageAll = async () => {
       cwd: path.resolve(__dirname, '../dist')
     })
   } catch (err) {
-    console.error('Error running: ', err.cmd, '\nMessage: ', err.stderr, err)
+    if (err instanceof Error) {
+      const error = err as ExecException
+      console.error('Error running: ', error.cmd, '\nMessage: ', error['stderr'], err)
+    }
   } finally {
     tempPackage.remove()
   }

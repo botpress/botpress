@@ -18,14 +18,9 @@
   },
   "references": [{ "path": "../typings/" }],
   "exclude": [
-    "e2e/**",
+    "scripts/",
     "**/*.__test__.(ts|js)",
     "dist",
-    "out",
-    "**/node_modules/**/*.(ts|js)",
-    "**/static/**/*.(js|ts)",
-    "**/ui-shared/**/*",
-    "src/admin/ui/**/*",
-    "src/ui-lite/**/*"
+    "**/node_modules/**/*.(ts|js)"
   ]
 }
