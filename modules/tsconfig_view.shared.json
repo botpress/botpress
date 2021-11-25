@@ -4,6 +4,7 @@
     "esModuleInterop": true,
     "resolveJsonModule": true,
     "experimentalDecorators": true,
+    "useUnknownInCatchVariables": false,
     "module": "commonjs",
     "moduleResolution": "node",
     "target": "es5",
