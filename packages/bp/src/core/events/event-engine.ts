@@ -65,7 +65,8 @@ const eventSchema = {
         .items(joi.string())
         .optional(),
       ms: joi.number().optional(),
-      spellChecked: joi.string().optional()
+      spellChecked: joi.string().optional(),
+      modelId: joi.string().optional()
     })
     .optional()
     .default({})
@@ -184,10 +185,8 @@ export class EventEngine {
   async sendEvent(event: sdk.IO.Event): Promise<void> {
     this.validateEvent(event)
 
-    if (event.debugger) {
-      addStepToEvent(event, StepScopes.Received)
-      this.eventCollector.storeEvent(event)
-    }
+    addStepToEvent(event, StepScopes.Received)
+    this.eventCollector.storeEvent(event)
 
     const isIncoming = (event: sdk.IO.Event): event is sdk.IO.IncomingEvent => event.direction === 'incoming'
     if (isIncoming(event)) {

@@ -5,6 +5,7 @@ import Select from 'react-select'
 import style from './style.scss'
 import { BotpressTooltip } from 'botpress/tooltip'
 import { LinkDocumentationProvider } from 'botpress/documentation'
+import nanoid from 'nanoid/generate'
 
 const methodOptions = [
   { label: 'Get', value: 'get' },
@@ -37,6 +38,7 @@ export class CallAPI extends React.Component {
     selectedMemory: memoryOptions[0],
     variable: 'response',
     body: undefined,
+    randomId: nanoid('abcdefghijklmnopqrstuvwxyz0123456789', 10),
     headers: undefined,
     url: undefined,
     invalidJson: false
@@ -51,6 +53,7 @@ export class CallAPI extends React.Component {
       this.setState({
         selectedMethod: this.createSelectOption(this.getInitialDataProps('method')) || this.state.selectedMethod,
         selectedMemory: this.createSelectOption(this.getInitialDataProps('memory')) || this.state.selectedMemory,
+        randomId: this.getOrDefault('randomId', 'randomId'),
         headers: stringify(this.getInitialDataProps('headers')) || this.state.headers,
         variable: this.getOrDefault('variable', 'variable'),
         body: this.getOrDefault('body', 'body'),
@@ -65,6 +68,7 @@ export class CallAPI extends React.Component {
       const data = {
         method: selectedMethod.value,
         memory: selectedMemory.value,
+        randomId: this.state.randomId,
         body,
         headers: headers ? JSON.parse(headers) : undefined,
         url,

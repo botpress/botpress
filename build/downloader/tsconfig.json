@@ -13,6 +13,7 @@
     "baseUrl": "./src",
     "outDir": "./out",
     "typeRoots": ["../../node_modules/@types"],
-    "types": []
+    "types": [],
+    "useUnknownInCatchVariables": false
   }
 }

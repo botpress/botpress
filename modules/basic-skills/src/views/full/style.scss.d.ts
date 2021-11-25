@@ -6,6 +6,7 @@ interface CssExports {
   'callApiSection': string;
   'callApiWarning': string;
   'contentPicker': string;
+  'errorContainer': string;
   'intentSelect': string;
   'keywords': string;
   'modalContent': string;

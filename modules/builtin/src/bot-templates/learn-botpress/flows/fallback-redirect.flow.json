@@ -1,0 +1,26 @@
+{
+  "version": "0.0.1",
+  "catchAll": {},
+  "startNode": "Fallback_redirect",
+  "triggers": [],
+  "description": "",
+  "nodes": [
+    {
+      "id": "48bcabd99e",
+      "name": "Fallback_redirect",
+      "onEnter": [
+        "say #!builtin_text-5qjreV",
+        "say #!builtin_text-MgRwhE",
+        "builtin/wait {\"delay\":\"2000\"}"
+      ],
+      "onReceive": null,
+      "next": [
+        {
+          "condition": "true",
+          "node": "main.flow.json"
+        }
+      ],
+      "type": "standard"
+    }
+  ]
+}

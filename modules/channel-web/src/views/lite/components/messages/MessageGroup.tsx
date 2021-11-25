@@ -89,16 +89,16 @@ class MessageGroup extends React.Component<Props> {
               {fromLabel}
             </span>
             {sortBy(messages, ['sentOn', 'eventId']).map((message, i, messages) => {
-              const isLastMsg = i === messages.length - 1
               let payload = this.convertPayloadFromOldFormat(message)
-              if (payload?.wrapped) {
+
+              if (payload.wrapped) {
                 payload = { ...payload, wrapped: renderPayload(payload.wrapped) }
               } else {
                 payload = renderPayload(payload)
               }
 
               const showInlineFeedback =
-                isBot && isLastMsg && (payload.wrapped ? payload.wrapped.collectFeedback : payload.collectFeedback)
+                isBot && (payload.wrapped ? payload.wrapped.collectFeedback : payload.collectFeedback)
 
               return (
                 <Message
