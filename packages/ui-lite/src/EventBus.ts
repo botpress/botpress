@@ -1,7 +1,6 @@
 import { EventEmitter2 } from 'eventemitter2'
 import nanoid from 'nanoid'
 import { Socket, io } from 'socket.io-client'
-import { getToken } from '../../ui-shared-lite/auth'
 import storage from '../../ui-shared-lite/utils/storage'
 
 export const authEvents = new EventEmitter2()
@@ -34,7 +33,6 @@ const getUniqueVisitorId = (userIdScope?: string): string => {
 }
 
 class EventBus extends EventEmitter2 {
-  private adminSocket!: Socket
   private guestSocket!: Socket
   static default: EventBus
 
@@ -56,7 +54,7 @@ class EventBus extends EventEmitter2 {
       return
     }
 
-    const socket = name.startsWith('guest.') ? this.guestSocket : this.adminSocket
+    const socket = this.guestSocket
     socket && socket.emit('event', { name, data })
   }
 
@@ -81,12 +79,6 @@ class EventBus extends EventEmitter2 {
       visitorId: getUniqueVisitorId(userIdScope)
     }
 
-    if (this.adminSocket) {
-      this.adminSocket.off('event', this.dispatchSocketEvent)
-
-      this.adminSocket.disconnect()
-    }
-
     if (this.guestSocket) {
       this.guestSocket.off('event', this.dispatchSocketEvent)
       this.guestSocket.off('connect', this.updateVisitorSocketId)
@@ -98,16 +90,6 @@ class EventBus extends EventEmitter2 {
 
     const socketUrl = window['BP_SOCKET_URL'] || window.location.origin
     const transports = window.SOCKET_TRANSPORTS
-    const token = getToken()
-
-    this.adminSocket = io(`${socketUrl}/admin`, {
-      auth: { token },
-      query,
-      transports,
-      path: `${window['ROOT_PATH']}/socket.io`
-    })
-
-    this.adminSocket.on('event', this.dispatchSocketEvent)
 
     this.guestSocket = io(`${socketUrl}/guest`, { query, transports, path: `${window['ROOT_PATH']}/socket.io` })
 

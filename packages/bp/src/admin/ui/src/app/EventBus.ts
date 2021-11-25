@@ -5,7 +5,6 @@ import { Socket, io } from 'socket.io-client'
 // Copied mostly as-is from ui-studio
 class EventBus extends EventEmitter2 {
   private adminSocket!: Socket
-  private guestSocket!: Socket
   static default: EventBus
 
   constructor() {
@@ -24,12 +23,8 @@ class EventBus extends EventEmitter2 {
       return
     }
 
-    const socket = name.startsWith('guest.') ? this.guestSocket : this.adminSocket
+    const socket = this.adminSocket
     socket && socket.emit('event', { name, data })
-  }
-
-  private updateVisitorSocketId() {
-    window.__BP_VISITOR_SOCKET_ID = this.guestSocket.id
   }
 
   setup = (customVisitorId?: string) => {
@@ -40,12 +35,6 @@ class EventBus extends EventEmitter2 {
     if (this.adminSocket) {
       this.adminSocket.off('event', this.dispatchSocketEvent)
       this.adminSocket.disconnect()
-    }
-
-    if (this.guestSocket) {
-      this.guestSocket.off('event', this.dispatchSocketEvent)
-      this.guestSocket.off('connect', this.updateVisitorSocketId)
-      this.guestSocket.disconnect()
     }
 
     const socketUrl = window['BP_SOCKET_URL'] || window.location.origin
@@ -59,11 +48,6 @@ class EventBus extends EventEmitter2 {
       path: `${window['ROOT_PATH']}/socket.io`
     })
     this.adminSocket.on('event', this.dispatchSocketEvent)
-
-    this.guestSocket = io(`${socketUrl}/guest`, { query, transports, path: `${window['ROOT_PATH']}/socket.io` })
-
-    this.guestSocket.on('connect', this.updateVisitorSocketId.bind(this))
-    this.guestSocket.on('event', this.dispatchSocketEvent)
   }
 }
 
