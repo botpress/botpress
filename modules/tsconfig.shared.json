@@ -8,6 +8,7 @@
     "resolveJsonModule": true,
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "useUnknownInCatchVariables": false,
     "noEmit": true,
     "module": "commonjs",
     "moduleResolution": "node",
