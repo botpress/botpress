@@ -29,7 +29,7 @@
     "google-auth-library": "^5.4.1",
     "googleapis": "^43.0.0",
     "gtoken": "^4.1.0",
-    "https-proxy-agent": "^2.2.1",
+    "https-proxy-agent": "^2.2.3",
     "joi": "^13.6.0",
     "jszip": "^3.2.2",
     "lodash": "^4.17.19",
