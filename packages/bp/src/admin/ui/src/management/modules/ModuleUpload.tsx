@@ -1,6 +1,7 @@
 import { Button, FileInput, FormGroup, Intent } from '@blueprintjs/core'
 import { Dialog, lang, toast } from 'botpress/shared'
 import _ from 'lodash'
+import ms from 'ms'
 import React, { FC } from 'react'
 import api from '~/app/api'
 
@@ -51,7 +52,7 @@ export const ImportModal: FC<Props> = props => {
       form.append('file', file)
 
       const { data } = await api
-        .getSecured({ timeout: 50000, toastErrors: false })
+        .getSecured({ timeout: ms('2m'), toastErrors: false })
         .post('/admin/management/modules/upload', form, {
           headers: { 'Content-Type': 'multipart/form-data' }
         })
