@@ -1,10 +1,11 @@
-require('bluebird-global')
-const exec = require('child_process').exec
-const path = require('path')
-const fse = require('fs-extra')
-const mkdirp = require('mkdirp')
-const archiver = require('archiver')
-const promisify = require('util').promisify
+import 'bluebird-global'
+import archiver from 'archiver'
+import { exec } from 'child_process'
+import fse from 'fs-extra'
+import mkdirp from 'mkdirp'
+import path from 'path'
+import { promisify } from 'util'
+
 const execAsync = promisify(exec)
 
 const systems = [
@@ -39,7 +40,7 @@ const zipArchive = async ({ osName, binding, tempBin, binaryName }) => {
   const endFileName = `runtime-v${version}-${osName}-x64.zip`
   const output = fse.createWriteStream(path.resolve(`${basePath}/archives/${endFileName}`))
 
-  console.log(basePath, path.resolve(`${basePath}/archives/${endFileName}`))
+  console.info(basePath, path.resolve(`${basePath}/archives/${endFileName}`))
 
   const archive = archiver('zip')
   archive.pipe(output)
@@ -53,7 +54,7 @@ const zipArchive = async ({ osName, binding, tempBin, binaryName }) => {
 const makeTempPackage = () => {
   const additionalPackageJson = require(path.resolve(__dirname, './package.pkg.json'))
   const realPackageJson = require(path.resolve(__dirname, '../package.json'))
-  const tempPkgPath = path.resolve(__dirname, '../packages/runtime/dist/package.json')
+  const tempPkgPath = path.resolve(__dirname, '../dist/package.json')
 
   const packageJson = Object.assign(realPackageJson, additionalPackageJson)
   fse.writeJsonSync(tempPkgPath, packageJson, { spaces: 2 })
@@ -67,8 +68,8 @@ const packageAll = async () => {
   const tempPackage = makeTempPackage()
 
   try {
-    await execAsync(`cross-env pkg --options max_old_space_size=16384 --output ../binaries/runtime ./package.json`, {
-      cwd: path.resolve(__dirname, '../packages/runtime/dist')
+    await execAsync('cross-env pkg --options max_old_space_size=16384 --output ../binaries/runtime ./package.json', {
+      cwd: path.resolve(__dirname, '../dist')
     })
   } catch (err) {
     console.error('Error running: ', err.cmd, '\nMessage: ', err.stderr, err)
@@ -79,4 +80,5 @@ const packageAll = async () => {
   await Promise.map(systems, x => zipArchive(x))
 }
 
+// eslint-disable-next-line @typescript-eslint/no-floating-promises
 packageAll()

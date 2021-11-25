@@ -105,6 +105,8 @@ export class Botpress {
 
   @WrapErrorsWith('Error while discovering bots')
   async discoverBots(botsToMount: string[]): Promise<void> {
+    this.logger.info(`Mounting ${botsToMount.length} bots...`)
+
     const maxConcurrentMount = parseInt(process.env.MAX_CONCURRENT_MOUNT || '5')
     await Promise.map(botsToMount, botId => this.botService.mountBot(botId), { concurrency: maxConcurrentMount })
   }

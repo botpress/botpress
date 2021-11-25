@@ -7,11 +7,11 @@ import { EventEngine } from 'runtime/events'
 import { AppLifecycle, AppLifecycleEvents } from 'runtime/lifecycle'
 import { TYPES } from 'runtime/types'
 import yn from 'yn'
-import legacyElection from './election/legacy-election'
 import naturalElection from './election/natural-election'
 import pickSpellChecked from './election/spellcheck-handler'
 import { BotNotMountedError } from './errors'
-import { NLUClientProvider } from './nlu-client'
+import { NLUClient } from './nlu-client'
+import { isLocalHost } from './nlu-client/localhost'
 import { Predictor } from './predictor'
 
 const EVENTS_TO_IGNORE = ['session_reference', 'session_reset', 'bp_dialog_timeout', 'visit', 'say_something', '']
@@ -37,29 +37,24 @@ interface PredictionArgs {
 @injectable()
 export class NLUInferenceService {
   private nluEnabled: boolean = false
-  private legacyElection!: boolean
-  private nluClientProvider: NLUClientProvider
+  private _nluEndpoint!: string
+  private _clientPerBot: Dic<NLUClient> = {}
   private predictors: { [botId: string]: Predictor } = {}
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Logger) private logger: Logger
-  ) {
-    this.nluClientProvider = new NLUClientProvider(configProvider)
-  }
+  ) {}
 
+  @postConstruct()
   public async initialize() {
-    if (!process.core_env.NLU_ENDPOINT) {
-      this.logger.warn('Missing NLU_ENDPOINT environment variable, NLU features disabled')
+    if (!process.NLU_ENDPOINT) {
+      this.logger.warn('No NLU endpoint provided, some features will not work as expected.')
       return
     }
 
-    await this.nluClientProvider.initialize()
-    const { nlu: nluConfig } = await this.configProvider.getRuntimeConfig()
-
-    const { legacyElection } = nluConfig
-    this.legacyElection = legacyElection ?? false
+    this._nluEndpoint = process.NLU_ENDPOINT
 
     this.eventEngine.register({
       name: PREDICT_MW,
@@ -84,11 +79,15 @@ export class NLUInferenceService {
       return
     }
 
-    await this.nluClientProvider.mountBot(botId)
     const botConfig = await this.configProvider.getBotConfig(botId)
+
+    const endpoint = this._nluEndpoint
+    const isLocal = isLocalHost(endpoint)
+    const client = new NLUClient({ endpoint, isLocal, cloud: botConfig.cloud })
+    this._clientPerBot[botId] = client
+
     const modelIdGetter = this._modelIdGetter(botId)
 
-    const client = this.nluClientProvider.getClientForBot(botId)!
     const predictor = new Predictor(botId, botConfig.defaultLanguage, client, modelIdGetter, this.logger)
     this.predictors[botId] = predictor
   }
@@ -98,7 +97,7 @@ export class NLUInferenceService {
       return
     }
 
-    this.nluClientProvider.unmountBot(botId)
+    delete this._clientPerBot[botId]
     delete this.predictors[botId]
   }
 
@@ -124,7 +123,7 @@ export class NLUInferenceService {
     }
 
     const electionInput = appendTime(nluResults)
-    return this.legacyElection ? legacyElection(electionInput) : naturalElection(electionInput)
+    return naturalElection(electionInput)
   }
 
   private _modelIdGetter = (botId: string) => async (): Promise<Dic<string>> => {
@@ -152,7 +151,8 @@ export class NLUInferenceService {
 
       _.merge(incomingEvent, { nlu })
       this.removeSensitiveText(incomingEvent)
-    } catch (err) {
+    } catch (thrown) {
+      const err = thrown instanceof Error ? thrown : new Error(`${thrown}`)
       this.logger.warn(`Error extracting metadata for incoming text: ${err.message}`)
     } finally {
       next()
@@ -170,7 +170,8 @@ export class NLUInferenceService {
         const stars = '*'.repeat(entity.data.value.length)
         event.payload.text = event.payload.text.replace(entity.data.value, stars)
       }
-    } catch (err) {
+    } catch (thrown) {
+      const err = thrown instanceof Error ? thrown : new Error(`${thrown}`)
       this.logger.warn(`Error removing sensitive information: ${err.message}`)
     }
   }

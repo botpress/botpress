@@ -47,11 +47,13 @@ declare namespace NodeJS {
     DISABLE_BOT_SANDBOX: boolean
     DISABLE_TRANSITION_SANDBOX: boolean
     DISABLE_CONTENT_SANDBOX: boolean
-    WEB_WORKER: number
-    // Used when the runtime is started by the bp server
-    MESSAGING_PORT: number
+
     // The internal password is used for inter-process communication
     INTERNAL_PASSWORD: string
+
+    /** These two endpoints may either be provided as environment variables (when standalone) or from the main process */
+    NLU_ENDPOINT?: string
+    MESSAGING_ENDPOINT?: string
   }
 }
 

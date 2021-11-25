@@ -73,3 +73,6 @@ modules/*/assets/config.schema.json
 **/out/**
 **/dist/**
 tsconfig.tsbuildinfo
+
+binaries
+archives

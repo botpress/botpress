@@ -1,0 +1,29 @@
+
+### Import a bot
+POST http://localhost:3000/manage/test-bot/import
+X-Api-Key: abc123
+Content-Type: application/tar+gzip
+
+< ./samples/test-bot.tgz
+
+### Delete bot
+POST http://localhost:3000/manage/test-bot/delete
+X-Api-Key: abc123
+Content-Type: application/json
+
+{
+  "type": "text",
+  "text": "text"
+}
+
+
+### Delete bot
+POST http://localhost:3000/converse/test-bot/yo
+X-Api-Key: abc123
+Content-Type: application/json
+
+{
+  "type": "text",
+  "text": "tell joke"
+}
+

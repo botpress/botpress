@@ -46,6 +46,11 @@ export class MessagingService {
       handler: this.fixOutgoingUrls.bind(this)
     })
 
+    if (!process.MESSAGING_ENDPOINT) {
+      this.logger.warn('No messaging endpoint provided, some features will not work as expected.')
+      return
+    }
+
     this.eventEngine.register({
       name: 'messaging.sendOut',
       description: 'Sends outgoing messages to external messaging',
@@ -54,11 +59,15 @@ export class MessagingService {
       handler: this.handleOutgoingEvent.bind(this)
     })
 
-    this.clientSync = new MessagingClient({ url: this.getMessagingUrl(), config: this.getAxiosConfig() })
-    this.logger.info(`Using Messaging server at ${this.getMessagingUrl()}`)
+    this.clientSync = new MessagingClient({ url: process.MESSAGING_ENDPOINT!, config: this.getAxiosConfig() })
+    this.logger.info(`Using Messaging server at ${process.MESSAGING_ENDPOINT}`)
   }
 
   async loadMessagingForBot(botId: string) {
+    if (!process.MESSAGING_ENDPOINT) {
+      return
+    }
+
     const config = await this.configProvider.getBotConfig(botId)
     const messaging = (config.messaging || {}) as Partial<MessagingConfig>
 
@@ -93,7 +102,7 @@ export class MessagingService {
     }
 
     const botClient = new MessagingClient({
-      url: this.getMessagingUrl(),
+      url: process.MESSAGING_ENDPOINT!,
       auth: { clientId: messaging.id!, clientToken: messaging.token! },
       config: this.getAxiosConfig()
     })
@@ -205,12 +214,6 @@ export class MessagingService {
     }
 
     return payload
-  }
-
-  public getMessagingUrl() {
-    return process.core_env.MESSAGING_ENDPOINT
-      ? process.core_env.MESSAGING_ENDPOINT
-      : `http://localhost:${process.MESSAGING_PORT}`
   }
 
   public getWebhookToken(clientId: string) {
