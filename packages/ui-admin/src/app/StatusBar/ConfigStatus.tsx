@@ -1,6 +1,6 @@
 import { Button, Colors, Icon, Intent } from '@blueprintjs/core'
 import { toast, Dialog } from 'botpress/shared'
-import { Fragment, useEffect, useState } from 'react'
+import React, { Fragment, useEffect, useState } from 'react'
 
 import api from '../api'
 import EventBus from '../EventBus'

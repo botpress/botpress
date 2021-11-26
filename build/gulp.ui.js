@@ -7,7 +7,7 @@ const verbose = process.argv.includes('--verbose')
 
 const build = () => {
   gulp.task('build:shared', gulp.series([cleanShared, sharedBuild]))
-  gulp.task('build:admin', gulp.series([buildAdmin, cleanAdmin, copyAdmin]))
+  gulp.task('build:admin', buildAdmin)
   gulp.task('build:lite', gulp.series([buildLite, cleanLite, copyLite]))
 
   if (yn(process.env.GULP_PARALLEL)) {
@@ -37,10 +37,6 @@ const buildAdmin = cb => {
   admin.stderr.pipe(process.stderr)
 }
 
-const copyAdmin = () => {
-  return gulp.src('./packages/bp/src/admin/ui/build/**/*').pipe(gulp.dest('./packages/bp/dist/admin/ui/public'))
-}
-
 const buildLite = cb => {
   const prod = process.argv.includes('--prod') ? '--nomap --prod' : ''
 
@@ -55,10 +51,6 @@ const cleanLite = () => {
 
 const copyLite = () => {
   return gulp.src('./packages/ui-lite/public/**/*').pipe(gulp.dest('./packages/bp/dist/ui-lite/public'))
-}
-
-const cleanAdmin = () => {
-  return gulp.src('./packages/bp/dist/admin/ui/public', { allowEmpty: true }).pipe(rimraf())
 }
 
 const watchAdmin = cb => {
