@@ -21,7 +21,7 @@ module.exports = {
       new FileManagerPlugin({
         events: {
           onStart: {
-            delete: ['build']
+            delete: ['dist']
           },
           onEnd: [
             {
@@ -30,7 +30,7 @@ module.exports = {
             {
               copy: [
                 {
-                  source: 'build',
+                  source: 'dist',
                   destination: path.resolve(__dirname, '../bp/dist/admin/ui/public')
                 }
               ]
