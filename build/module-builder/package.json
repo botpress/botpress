@@ -1,5 +1,5 @@
 {
-  "name": "module-builder",
+  "name": "@botpress/module-builder",
   "version": "1.0.0",
   "bin": "bin/entry.js",
   "description": "A module that facilitates creation and development of Botpress modules",
@@ -34,6 +34,7 @@
     "mkdirp": "^0.5.1",
     "node-sass": "^4.14.1",
     "raw-loader": "^0.5.1",
+    "lodash": "^4.17.19",
     "rimraf": "^2.6.2",
     "sass-loader": "^7.1.0",
     "style-loader": "^0.23.0",
@@ -46,10 +47,11 @@
     "yargs": "^12.0.2"
   },
   "devDependencies": {
-    "@types/babel__core": "^7.0.1",
+    "@types/babel__core": "^7.1.16",
     "@types/chokidar": "^1.7.5",
     "@types/glob": "^7.1.0",
     "@types/mkdirp": "^0.5.2",
+    "@types/node": "^12.18.1",
     "@types/rimraf": "^2.0.2",
     "babel-plugin-search-and-replace": "^0.3.0",
     "clean-webpack-plugin": "^2.0.1",

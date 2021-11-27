@@ -12,7 +12,6 @@
     "useUnknownInCatchVariables": false,
     "baseUrl": ".",
     "outDir": "bin",
-    "typeRoots": ["./node_modules"],
     "types": ["reflect-metadata"]
   },
   "include": ["src/**/*"],
