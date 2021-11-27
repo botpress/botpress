@@ -72,3 +72,6 @@ modules/*/assets/web/*
 modules/*/assets/config.schema.json
 **/out/**
 **/dist/**
+
+# Ignore old admin ui location
+packages/bp/src/admin/ui
