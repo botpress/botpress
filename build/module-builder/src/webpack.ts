@@ -104,7 +104,7 @@ export function config(projectPath) {
   }
 
   if (process.argv.find(x => x.toLowerCase() === '--analyze-full')) {
-    full.plugins.push(new BundleAnalyzerPlugin())
+    full.plugins!.push(new BundleAnalyzerPlugin())
   }
 
   if (packageJson.webpack) {
@@ -128,7 +128,7 @@ export function config(projectPath) {
   })
 
   if (process.argv.find(x => x.toLowerCase() === '--analyze-lite')) {
-    lite.plugins.push(new BundleAnalyzerPlugin())
+    lite.plugins!.push(new BundleAnalyzerPlugin())
   }
 
   const webpackFile = path.join(projectPath, 'webpack.frontend.js')

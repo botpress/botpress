@@ -8,10 +8,10 @@ import { watch as webpackWatch } from './webpack'
 export default async (argv: any) => {
   const modulePath = path.resolve(argv.path || process.cwd())
 
-  let promise: null | Promise<void> = buildBackend(modulePath)
+  let promise: undefined | Promise<void> = buildBackend(modulePath)
 
   const rebuild = () => {
-    if (!promise.isPending) {
+    if (!promise) {
       debug('Backend files changed')
       promise = buildBackend(modulePath)
     }

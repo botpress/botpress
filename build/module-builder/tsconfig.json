@@ -1,4 +1,20 @@
 {
-  "extends": "../../packages/bp/tsconfig.json",
-  "include": ["src/*.ts"]
-}
+  "compilerOptions": {
+    "strict": true,
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "target": "es2019",
+    "noImplicitAny": false,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "useUnknownInCatchVariables": false,
+    "baseUrl": ".",
+    "outDir": "bin",
+    "typeRoots": ["./node_modules"],
+    "types": ["reflect-metadata"]
+  },
+  "include": ["src/**/*"],
+  "exclude": ["**/node_modules/**/*"]
+} 
