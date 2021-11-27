@@ -67,7 +67,6 @@ build/tests/e2e/screenshots/*
 
 # tests output
 cache
-build
 
 modules/*/assets/web/*
 modules/*/assets/config.schema.json
