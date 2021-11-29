@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import { Migration, MigrationOpts } from 'core/migration'
+import { runMessagingMigration } from 'orchestrator/messaging-server'
 
 const migration: Migration = {
   info: {
@@ -8,12 +9,12 @@ const migration: Migration = {
     type: 'database'
   },
 
-  up: async ({}: MigrationOpts): Promise<sdk.MigrationResult> => {
-    return { success: true, message: 'Configuration updated successfully' }
+  up: async ({ metadata }: MigrationOpts): Promise<sdk.MigrationResult> => {
+    return runMessagingMigration('up', '0.1.19', metadata.isDryRun)
   },
 
-  down: async ({}: MigrationOpts): Promise<sdk.MigrationResult> => {
-    return { success: true, message: 'Configuration updated successfully' }
+  down: async ({ metadata }: MigrationOpts): Promise<sdk.MigrationResult> => {
+    return runMessagingMigration('down', '0.1.18', metadata.isDryRun)
   }
 }
 
