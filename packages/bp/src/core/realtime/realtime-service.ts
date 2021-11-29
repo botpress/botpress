@@ -1,3 +1,4 @@
+import { createAdapter, RedisAdapter } from '@socket.io/redis-adapter'
 import { Logger } from 'botpress/sdk'
 import cookie from 'cookie'
 import { TYPES } from 'core/app/types'
@@ -9,30 +10,31 @@ import { EventEmitter2 } from 'eventemitter2'
 import { Server } from 'http'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import socketio, { Adapter } from 'socket.io'
-import redisAdapter from 'socket.io-redis'
-import socketioJwt from 'socketio-jwt'
+import Socket from 'socket.io'
+import { ExtendedError } from 'socket.io/dist/namespace'
 import { RealTimePayload } from './payload-sdk-impl'
+import socketioJwt from './socket.io-jwt'
 
 const debug = DEBUG('realtime')
 
-export const getSocketTransports = (config: BotpressConfig): string[] => {
-  // Just to be sure there is at least one valid transport configured
-  const transports = _.filter(config.httpServer.socketTransports, t => ['websocket', 'polling'].includes(t))
-  return transports && transports.length ? transports : ['websocket', 'polling']
-}
+type Transports = ('websocket' | 'polling')[]
+const ALLOWED_TRANSPORTS: Transports = ['websocket', 'polling']
+const VISITOR_ID_PREFIX = 'visitor:'
 
-interface RedisAdapter extends Adapter {
-  remoteJoin: (socketId: string, roomId: string, callback: (err: any) => void) => void
-  allRooms: (callback: (err: Error, rooms: string[]) => void) => void
-  clientRooms: (socketId: string, callback: (err: Error, rooms: string[]) => void) => void
+export const getSocketTransports = (config: BotpressConfig): Transports => {
+  // Just to be sure there is at least one valid transport configured
+  const transports = _.filter(config.httpServer.socketTransports, (t: any) =>
+    ALLOWED_TRANSPORTS.includes(t)
+  ) as Transports
+
+  return transports?.length ? transports : ALLOWED_TRANSPORTS
 }
 
 @injectable()
 export class RealtimeService {
   private readonly ee: EventEmitter2
   private useRedis: boolean
-  private guest?: socketio.Namespace
+  private guest?: Socket.Namespace
 
   constructor(
     @inject(TYPES.Logger)
@@ -63,11 +65,11 @@ export class RealtimeService {
   }
 
   private makeVisitorRoomId(visitorId: string): string {
-    return `visitor:${visitorId}`
+    return `${VISITOR_ID_PREFIX}${visitorId}`
   }
 
   private unmakeVisitorId(roomId: string): string {
-    return roomId.split(':')[1]
+    return roomId.replace(`${VISITOR_ID_PREFIX}`, '')
   }
 
   sendToSocket(payload: RealTimePayload) {
@@ -76,40 +78,65 @@ export class RealtimeService {
   }
 
   async getVisitorIdFromSocketId(socketId: string): Promise<undefined | string> {
-    let rooms: string[]
+    let rooms: Set<string> | undefined
     try {
       if (this.useRedis) {
-        const adapter = this.guest?.adapter as RedisAdapter
-        rooms = await Promise.fromCallback(cb => adapter.clientRooms(socketId, cb))
+        const adapter = (this.guest?.adapter as unknown) as RedisAdapter
+        rooms = adapter.socketRooms(socketId)
+
+        // If the rooms weren't found locally, try to ask all other nodes
+        if (!rooms) {
+          rooms = await this.findRemoteSocketRooms(adapter, socketId)
+        }
       } else {
-        rooms = Object.keys(this.guest?.adapter.sids[socketId] ?? {})
+        rooms = this.guest?.adapter.sids.get(socketId)
       }
     } catch (err) {
-      rooms = []
+      return
+    }
+
+    if (!rooms?.size) {
+      return
     }
 
     // rooms here contains one being socketId and all rooms in which user is connected
     // in the "guest" case it's a single room being the webchat and corresponds to the visitor id
-    // resulting wo something like ["/guest:lijasdioajwero", "visitor:kas9d2109das0"]
-    const roomId = rooms.filter(x => x !== socketId)[0]
+    // resulting to something like ["/guest:lijasdioajwero", "visitor:kas9d2109das0"]
+    rooms = new Set(rooms)
+    rooms.delete(socketId)
+    const [roomId] = rooms
+
     return roomId ? this.unmakeVisitorId(roomId) : undefined
+  }
+
+  private async findRemoteSocketRooms(adapter: RedisAdapter, socketId: string): Promise<Set<string> | undefined> {
+    const sockets: Pick<Socket.Socket, 'id' | 'handshake' | 'rooms' | 'data'>[] = await adapter.fetchSockets({
+      rooms: new Set([socketId]), // socketId is part of the socket own list of rooms
+      except: new Set() // Required event if the typings says otherwise
+    })
+
+    if (!sockets.length) {
+      return
+    }
+
+    return new Set(sockets[0].rooms)
   }
 
   async installOnHttpServer(server: Server) {
     const transports = getSocketTransports(await this.configProvider.getBotpressConfig())
 
-    const io: socketio.Server = socketio(server, {
-      transports,
+    const io = new Socket.Server(server, {
       path: `${process.ROOT_PATH}/socket.io`,
-      origins: '*:*',
-      serveClient: false
+      cors: { origin: '*' },
+      serveClient: false,
+      transports
     })
 
     if (this.useRedis) {
       const redisFactory = this.monitoringService.getRedisFactory()
 
       if (redisFactory) {
-        io.adapter(redisAdapter({ pubClient: redisFactory('commands'), subClient: redisFactory('socket') }))
+        io.adapter(createAdapter(redisFactory('commands'), redisFactory('socket')))
       }
     }
 
@@ -139,38 +166,43 @@ export class RealtimeService {
     })
   }
 
-  checkCookieToken = async (socket: socketio.Socket, fn: (err?) => any) => {
+  checkCookieToken = async (socket: Socket.Socket, next: (err?: ExtendedError | undefined) => void) => {
     try {
-      const csrfToken = socket.handshake.query.token
-      const { jwtToken } = cookie.parse(socket.handshake.headers.cookie)
+      const handshake = socket.handshake
+      const csrfToken = handshake.auth.token as string
+      let jwtToken = ''
+
+      if (handshake.headers.cookie) {
+        jwtToken = cookie.parse(handshake.headers.cookie).jwtToken
+      }
 
       if (jwtToken && csrfToken) {
         await this.authService.checkToken(jwtToken, csrfToken)
-        fn(undefined)
+        return next()
       }
 
-      fn('Mandatory parameters are missing')
+      next(new Error('Mandatory parameters are missing'))
     } catch (err) {
-      fn(err)
+      next(err as Error)
     }
   }
 
-  setupAdminSocket(admin: socketio.Namespace): void {
+  setupAdminSocket(admin: Socket.Namespace): void {
     if (process.USE_JWT_COOKIES) {
       admin.use(this.checkCookieToken)
     } else {
-      admin.use(socketioJwt.authorize({ secret: process.APP_SECRET, handshake: true }))
+      admin.use(socketioJwt.authorize({ secret: process.APP_SECRET }))
     }
 
-    admin.on('connection', socket => {
-      const visitorId = _.get(socket, 'handshake.query.visitorId')
+    admin.on('connection', (socket: Socket.Socket) => {
+      const visitorId = socket.handshake.query.visitorId as string
 
       socket.on('event', event => {
-        try {
-          if (!event || !event.name) {
-            return
-          }
+        if (!event?.name) {
+          return
+        }
 
+        try {
           this.ee.emit(event.name, event.data, 'client', {
             visitorId,
             socketId: socket.id,
@@ -184,33 +216,36 @@ export class RealtimeService {
     })
   }
 
-  setupGuestSocket(guest: socketio.Namespace): void {
+  setupGuestSocket(guest: Socket.Namespace): void {
     this.guest = guest
-    guest.on('connection', socket => {
-      const visitorId = _.get(socket, 'handshake.query.visitorId')
 
-      if (visitorId && visitorId.length > 0) {
+    guest.on('connection', async (socket: Socket.Socket) => {
+      const visitorId = socket.handshake.query.visitorId as string
+
+      if (visitorId?.length > 0) {
         const roomId = this.makeVisitorRoomId(visitorId)
+
         if (this.useRedis) {
-          const adapter = guest.adapter as RedisAdapter
-          adapter.remoteJoin(socket.id, roomId, err => {
-            if (err) {
-              return this.logger
-                .attachError(err)
-                .error(`socket "${socket.id}" for visitor "${visitorId}" can't join the socket.io redis room`)
-            }
-          })
+          const adapter = (guest.adapter as unknown) as RedisAdapter
+
+          try {
+            await adapter.remoteJoin(socket.id, roomId)
+          } catch (err) {
+            return this.logger
+              .attachError(err)
+              .error(`socket "${socket.id}" for visitor "${visitorId}" can't join the socket.io redis room`)
+          }
         } else {
-          socket.join(roomId)
+          await socket.join(roomId)
         }
       }
 
       socket.on('event', event => {
-        try {
-          if (!event || !event.name) {
-            return
-          }
+        if (!event?.name) {
+          return
+        }
 
+        try {
           this.ee.emit(event.name, event.data, 'client', {
             socketId: socket.id,
             visitorId,
