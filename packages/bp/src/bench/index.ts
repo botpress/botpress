@@ -4,7 +4,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 import nanoid from 'nanoid'
-import io from 'socket.io-client'
+import { Socket, io } from 'socket.io-client'
 
 import { Stats } from './stats'
 
@@ -46,7 +46,7 @@ class Bench {
    */
   private userIds: { [index: number]: string } = {}
 
-  private webUserSockets: { [userId: string]: SocketIOClient.Socket } = {}
+  private webUserSockets: { [userId: string]: Socket } = {}
 
   constructor(args) {
     this.url = args.url.replace(/\/+$/, '')
@@ -177,7 +177,7 @@ class Bench {
       path: '/socket.io'
     })
 
-    await Promise.fromCallback(cb => socket.on('connect', cb))
+    await Promise.fromCallback(cb => socket.on('connect', () => cb(undefined)))
 
     this.webUserSockets[userId] = socket
 
