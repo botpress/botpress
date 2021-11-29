@@ -8,7 +8,7 @@ const verbose = process.argv.includes('--verbose')
 const build = () => {
   gulp.task('build:shared', gulp.series([cleanShared, sharedBuild]))
   gulp.task('build:admin', gulp.series([buildAdmin, cleanAdmin, copyAdmin]))
-  gulp.task('build:lite', gulp.series([buildLite, cleanLite, copyLite]))
+  gulp.task('build:lite', buildLite)
 
   if (yn(process.env.GULP_PARALLEL)) {
     return gulp.series(['build:shared', gulp.parallel(['build:admin', 'build:lite'])])
@@ -47,14 +47,6 @@ const buildLite = cb => {
   const admin = exec(`yarn && yarn build ${prod}`, { cwd: 'packages/ui-lite' }, err => cb(err))
   verbose && admin.stdout.pipe(process.stdout)
   admin.stderr.pipe(process.stderr)
-}
-
-const cleanLite = () => {
-  return gulp.src('./packages/bp/dist/ui-lite/public', { allowEmpty: true }).pipe(rimraf())
-}
-
-const copyLite = () => {
-  return gulp.src('./packages/ui-lite/public/**/*').pipe(gulp.dest('./packages/bp/dist/ui-lite/public'))
 }
 
 const cleanAdmin = () => {

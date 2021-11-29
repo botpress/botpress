@@ -14,7 +14,7 @@
     "version": "0.1.9"
   },
   "studio": {
-    "version": "0.0.42"
+    "version": "0.0.43"
   },
   "messaging": {
     "version": "0.1.17"
@@ -95,8 +95,6 @@
     "@types/redlock": "^4.0.0",
     "@types/seedrandom": "^2.4.28",
     "@types/semver": "^7.3.8",
-    "@types/socket.io": "^2.1.2",
-    "@types/socket.io-client": "^1.4.36",
     "@types/tar": "^4.0.4",
     "@types/tmp": "^0.0.33",
     "@types/universal-analytics": "^0.4.2",
