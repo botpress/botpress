@@ -12,7 +12,6 @@ import { fetchServerConfig } from './reducer'
 import style from './style.scss'
 
 const NOT_SET = 'Not set'
-const NB_PING_FOR_STICKY_SESSIONS = 3
 
 const getDisplayValue = (val: any) => {
   if (val === undefined || val === null) {
@@ -55,7 +54,6 @@ const Container = props => {
 export const Checklist: FC<Props> = props => {
   const [langSource, setLangSource] = useState<any>()
   const [hasAuditTrail, setAuditTrail] = useState(false)
-  const [stickyEnabled, setStickyEnabled] = useState(false)
 
   useEffect(() => {
     if (!props.serverConfigLoaded) {
@@ -70,7 +68,6 @@ export const Checklist: FC<Props> = props => {
     setLangSource(sources.languageSources)
 
     await checkAuditTrail()
-    await checkStickySessions()
   }
 
   const checkAuditTrail = async () => {
@@ -80,17 +77,6 @@ export const Checklist: FC<Props> = props => {
       .map(x => debug[x])
 
     setAuditTrail(_.some(audit, Boolean))
-  }
-
-  const checkStickySessions = async () => {
-    const results: string[] = await Promise.all(
-      _.times(NB_PING_FOR_STICKY_SESSIONS, async () => {
-        const { data } = await api.getSecured().get('/admin/ping')
-        return data.payload.serverId
-      })
-    )
-
-    setStickyEnabled(_.every(results, res => res === results[0]))
   }
 
   if (!props.serverConfig) {
@@ -259,19 +245,21 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Enable Sticky Sessions"
-          docs="https://botpress.com/docs/next/tutorials/cluster-digital-ocean#instructions"
-          status={stickyEnabled ? 'success' : 'warning'}
+          docs="https://botpress.com/docs/tutorials/cluster-digital-ocean#instructions"
+          status="none"
           source={[
             { type: 'config', key: 'httpServer.socketTransports', value: getConfig('httpServer.socketTransports') }
           ]}
         >
-          When running Botpress in Cluster mode with multiple servers, it is recommended to enable sticky sessions so
-          users are being served from the same server. When using "Websocket" as a primary socket transport, it is
-          mandatory to enable it, otherwise the handshake will never complete. A green check indicates that either
-          sticky is enabled, or you only have one server.
+          When using "Polling" as a primary or secondary socket transport, it is mandatory to enable sticky sessions,
+          otherwise the handshake may never complete. If you decide to use "Websocket" as the only transport, which is a
+          valid option nowadays, you don't need to enable sticky sessions.
           <br />
           <br />
-          <strong>This setting must be enabled on your load balancer.</strong>
+          See this documentation for more details:{' '}
+          <a href="https://socket.io/docs/v4/using-multiple-nodes/#why-is-sticky-session-required" target="_blank">
+            https://socket.io/docs/v4/using-multiple-nodes/#why-is-sticky-session-required
+          </a>
           <br />
           <br />
           Here is your current socket transports configuration:
