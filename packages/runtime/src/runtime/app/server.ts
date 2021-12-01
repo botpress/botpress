@@ -57,6 +57,22 @@ export class HTTPServer {
     }
   }
 
+  public setupRoutes(app: express.Express) {
+    app.get('/status', async (req, res, next) => {
+      res.send({ botpress: 'up' })
+    })
+
+    app.get('/version', async (req, res) => {
+      res.send(process.BOTPRESS_VERSION)
+    })
+
+    const manageRouter = new ManageRouter(this.logger, this.botService, this)
+    app.use('/manage', manageRouter.router)
+
+    const messagingRouter = new MessagingRouter(this.logger, this.messaging)
+    app.use('/api/v1/chat', messagingRouter.router)
+  }
+
   async start() {
     const app = express()
     app.use('/', this.app)
@@ -105,19 +121,7 @@ export class HTTPServer {
       )
     }
 
-    this.app.get('/status', async (req, res, next) => {
-      res.send({ botpress: 'up' })
-    })
-
-    this.app.get('/version', async (req, res) => {
-      res.send(process.BOTPRESS_VERSION)
-    })
-
-    const manageRouter = new ManageRouter(this.logger, this.botService, this)
-    this.app.use('/manage', manageRouter.router)
-
-    const messagingRouter = new MessagingRouter(this.logger, this.messaging)
-    this.app.use('/api/v1/chat', messagingRouter.router)
+    this.setupRoutes(this.app)
 
     this.app.use(function handleUnexpectedError(err, req, res, next) {
       const statusCode = err.statusCode || 400

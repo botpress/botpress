@@ -4,6 +4,7 @@ import { inject, injectable } from 'inversify'
 import { Redis } from 'ioredis'
 import _ from 'lodash'
 import nanoid from 'nanoid'
+import Redlock from 'redlock'
 import { TYPES } from 'runtime/app/types'
 import { JobService } from 'runtime/distributed'
 import { AppLifecycle, AppLifecycleEvents } from 'runtime/lifecycle'
@@ -28,6 +29,7 @@ interface Job {
 }
 
 const debug = DEBUG('services:jobs')
+const getLockName = (resource: string) => makeRedisKey(`lock_${resource}`)
 
 @injectable()
 export class RedisJobService implements JobService, IInitializeFromConfig {
@@ -37,34 +39,41 @@ export class RedisJobService implements JobService, IInitializeFromConfig {
   private _redisClientId!: string
   private _setRedisAvailable!: Function
   private _jobsList: Job[] = []
+  private _redlock!: Redlock
 
   constructor(@inject(TYPES.Logger) private logger: Logger) {}
-  acquireLock(resource: string, duration: number): Promise<RedisLock | undefined> {
-    throw new Error('Method not implemented.')
+
+  async acquireLock(resource: string, duration: number): Promise<RedisLock | undefined> {
+    const lock = this._redlock.lock(getLockName(resource), duration).catch(() => undefined) as unknown
+    return lock as RedisLock // Custom typings for the SDK
   }
-  clearLock(resource: string): Promise<boolean> {
-    throw new Error('Method not implemented.')
+
+  async clearLock(resource: string): Promise<boolean> {
+    return !!(await this._redisPub.del(getLockName(resource)))
   }
-  getRedisClient(): Redis | undefined {
-    throw new Error('Method not implemented.')
+
+  getRedisClient(): Redis {
+    return this._redisPub
   }
 
   initializeFromConfig() {
-    if (process.CLUSTER_ENABLED) {
-      this._redisClientId = nanoid()
-      this.logger.debug('ClientId:', this._redisClientId)
-
-      this._redisSub = redisFactory('subscriber', process.env.REDIS_URL!)
-      this._redisPub = redisFactory('commands', process.env.REDIS_URL!)
-
-      // Each new broadcasted job require an additional listener
-      this._redisSub.setMaxListeners(15)
-
-      this._redisSub.on('message', this._onMessageReceived.bind(this))
-
-      this._redisSub.subscribe(JobStartChannel, JobDoneChannel)
-      this._setRedisAvailable()
+    if (!process.CLUSTER_ENABLED) {
+      return
     }
+
+    this._redisClientId = nanoid()
+    this.logger.debug('ClientId:', this._redisClientId)
+
+    this._redisSub = redisFactory('subscriber', process.env.REDIS_URL!)
+    this._redisPub = redisFactory('commands', process.env.REDIS_URL!)
+
+    // Each new broadcasted job require an additional listener
+    this._redisSub.setMaxListeners(15)
+
+    this._redisSub.on('message', this._onMessageReceived.bind(this))
+
+    this._redisSub.subscribe(JobStartChannel, JobDoneChannel)
+    this._setRedisAvailable()
   }
 
   async broadcast<T>(fn: Function): Promise<Function> {

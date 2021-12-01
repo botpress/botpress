@@ -1,6 +1,5 @@
-import { Message } from '@botpress/messaging-client'
+import { Message, UnauthorizedError } from '@botpress/messaging-client'
 import * as sdk from 'botpress/runtime-sdk'
-
 import { Router, NextFunction, Request, Response } from 'express'
 import joi from 'joi'
 import { CustomRouter } from 'runtime/app/server-utils'
@@ -27,6 +26,8 @@ export class MessagingRouter extends CustomRouter {
           }
 
           await this.messaging.receive(event.data as MessageNewEventData)
+        } else if (event.type === 'user.new') {
+          this.messaging.incrementNewUsersCount()
         }
 
         return res.sendStatus(200)
@@ -35,12 +36,20 @@ export class MessagingRouter extends CustomRouter {
   }
 
   private validateRequest(req: Request, res: Response, next: NextFunction) {
-    const token = req.headers['x-webhook-token']
+    if (this.messaging.isExternal) {
+      const token = req.headers['x-webhook-token']
 
-    if (!token || token !== this.messaging.getWebhookToken(req.body?.data?.clientId)) {
-      return next(new Error('Invalid webhook token'))
+      if (!token || token !== this.messaging.getWebhookToken(req.body?.data?.clientId)) {
+        return next(new UnauthorizedError('Invalid webhook token'))
+      } else {
+        return next(undefined)
+      }
     } else {
-      return next(undefined)
+      if (req.headers.password !== process.INTERNAL_PASSWORD) {
+        return next(new UnauthorizedError('Password is missing or invalid'))
+      } else {
+        return next(undefined)
+      }
     }
   }
 }

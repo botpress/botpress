@@ -69,7 +69,7 @@ export class MessagingService {
     }
 
     const config = await this.configProvider.getBotConfig(botId)
-    const messaging = (config.messaging || {}) as Partial<MessagingConfig>
+    let messaging = (config.messaging || {}) as Partial<MessagingConfig>
 
     const messagingId = messaging.id || ''
     // ClientId is already used by another botId, we will generate new credentials for this bot
@@ -99,6 +99,16 @@ export class MessagingService {
           this.webhookTokenByClientId[id] = webhook.token!
         }
       }
+    }
+
+    if (id && id !== messaging.id) {
+      messaging = {
+        ...messaging,
+        id,
+        token
+      }
+
+      await this.configProvider.mergeBotConfig(botId, { messaging })
     }
 
     const botClient = new MessagingClient({

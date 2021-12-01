@@ -47,7 +47,6 @@ export class NLUInferenceService {
     @inject(TYPES.Logger) private logger: Logger
   ) {}
 
-  @postConstruct()
   public async initialize() {
     if (!process.NLU_ENDPOINT) {
       this.logger.warn('No NLU endpoint provided, some features will not work as expected.')
@@ -67,7 +66,7 @@ export class NLUInferenceService {
     })
 
     this.nluEnabled = true
-    this.logger.info(`Using NLU server at ${process.core_env.NLU_ENDPOINT}`)
+    this.logger.info(`Using NLU server at ${process.NLU_ENDPOINT}`)
   }
 
   public async teardown() {
