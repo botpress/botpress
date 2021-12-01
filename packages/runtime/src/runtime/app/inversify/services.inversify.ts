@@ -14,7 +14,7 @@ import { NLUInferenceService } from 'runtime/nlu'
 import { QnaService } from 'runtime/qna'
 
 import { HookService, ActionService } from 'runtime/user-code'
-import { DataRetentionService } from 'runtime/users/data-retention/data-retention-service'
+import { DataRetentionService } from 'runtime/users'
 
 import { TYPES } from '../types'
 

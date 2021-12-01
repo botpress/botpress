@@ -5,6 +5,7 @@ import { ConfigProvider } from 'runtime/config'
 import { EventCollector } from 'runtime/events'
 import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, PersistedConsoleLogger } from 'runtime/logger'
 import { MigrationService } from 'runtime/migration'
+import { DataRetentionJanitor } from 'runtime/users'
 import { BotpressRuntimeAPIProvider } from '../api'
 import { HTTPServer } from '../server'
 
@@ -77,6 +78,11 @@ container
 container
   .bind<EventCollector>(TYPES.EventCollector)
   .to(EventCollector)
+  .inSingletonScope()
+
+container
+  .bind<DataRetentionJanitor>(TYPES.DataRetentionJanitor)
+  .to(DataRetentionJanitor)
   .inSingletonScope()
 
 container
