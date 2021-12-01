@@ -6,9 +6,9 @@ const path = require('path')
 const { BundleAnalyzerPlugin } = require('webpack-bundle-analyzer')
 const TerserPlugin = require('terser-webpack-plugin')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const CleanWebpackPlugin = require('clean-webpack-plugin')
 const isProduction = process.env.NODE_ENV === 'production'
 const moment = require('moment')
+const FileManagerPlugin = require('filemanager-webpack-plugin')
 
 const config = {
   cache: false,
@@ -62,7 +62,24 @@ const config = {
       filename: '../index.html'
     }),
     new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
-    new CleanWebpackPlugin(['public'])
+    new FileManagerPlugin({
+      onStart: {
+        delete: ['public']
+      },
+      onEnd: [
+        {
+          delete: [path.resolve(__dirname, '../bp/dist/ui-lite/public')]
+        },
+        {
+          copy: [
+            {
+              source: 'public',
+              destination: path.resolve(__dirname, '../bp/dist/ui-lite/public')
+            }
+          ]
+        }
+      ]
+    })
   ],
   module: {
     rules: [
@@ -86,7 +103,9 @@ const config = {
         include: [
           path.resolve(__dirname, 'src'),
           // Common files must be transpiled to avoid issues with IE11
-          path.resolve(__dirname, '../bp/dist/common')
+          path.resolve(__dirname, '../bp/dist/common'),
+          // Ensure that all dependencies of ui-lite are polyfilled
+          path.resolve(__dirname, '../../node_modules/')
         ],
         use: [
           {
@@ -109,7 +128,8 @@ const config = {
               ],
               plugins: [
                 require.resolve('babel-plugin-transform-class-properties'),
-                require.resolve('babel-plugin-transform-es2015-arrow-functions')
+                require.resolve('babel-plugin-transform-es2015-arrow-functions'),
+                require.resolve('babel-plugin-transform-object-rest-spread')
               ],
               compact: true,
               babelrc: false,
