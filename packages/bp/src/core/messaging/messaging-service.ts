@@ -165,7 +165,7 @@ export class MessagingService {
 
     const event = Event({
       direction: 'incoming',
-      type: 'visit',
+      type: 'proactive-trigger',
       payload: {},
       channel: msg.channel,
       threadId: msg.conversationId,
