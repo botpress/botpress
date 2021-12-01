@@ -13,16 +13,14 @@ import { BotService, BotsRouter } from 'core/bots'
 import { GhostService, MemoryObjectCache } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { ExternalAuthConfig, ConfigProvider } from 'core/config'
-import { ConverseService } from 'core/converse'
 import { FlowService, SkillService } from 'core/dialog'
 import { JobService } from 'core/distributed'
 import { EventRepository } from 'core/events'
 import { AlertingService, MonitoringService } from 'core/health'
 import { LogsRepository } from 'core/logger'
 import { MediaServiceProvider, MediaRouter } from 'core/media'
-import { MessagingRouter, MessagingService } from 'core/messaging'
+import { MessagingRouter } from 'core/messaging'
 import { ModuleLoader, ModulesRouter } from 'core/modules'
-import { NLUInferenceService } from 'core/nlu'
 import { QnaService } from 'core/qna'
 import { getSocketTransports, RealtimeService } from 'core/realtime'
 import { InvalidExternalToken, PaymentRequiredError, monitoringMiddleware } from 'core/routers'
@@ -37,7 +35,7 @@ import {
   TOKEN_AUDIENCE
 } from 'core/security'
 import { TelemetryRouter, TelemetryRepository } from 'core/telemetry'
-import { ActionService, ActionServersService, HintsService } from 'core/user-code'
+import { ActionService, ActionServersService } from 'core/user-code'
 import { WorkspaceService } from 'core/users'
 import cors from 'cors'
 import errorHandler from 'errorhandler'
@@ -112,9 +110,7 @@ export class HTTPServer {
     @inject(TYPES.MediaServiceProvider) mediaServiceProvider: MediaServiceProvider,
     @inject(TYPES.SkillService) skillService: SkillService,
     @inject(TYPES.GhostService) private ghostService: GhostService,
-    @inject(TYPES.HintsService) hintsService: HintsService,
     @inject(TYPES.LicensingService) licenseService: LicensingService,
-    @inject(TYPES.ConverseService) converseService: ConverseService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.AuthStrategies) authStrategies: AuthStrategies,
@@ -125,8 +121,6 @@ export class HTTPServer {
     @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository,
     @inject(TYPES.RealtimeService) private realtime: RealtimeService,
     @inject(TYPES.QnaService) private qnaService: QnaService,
-    @inject(TYPES.NLUInferenceService) private nluInferenceService: NLUInferenceService,
-    @inject(TYPES.MessagingService) private messagingService: MessagingService,
     @inject(TYPES.ObjectCache) private objectCache: MemoryObjectCache,
     @inject(TYPES.EventRepository) private eventRepo: EventRepository
   ) {
@@ -178,12 +172,10 @@ export class HTTPServer {
       configProvider,
       authService,
       workspaceService,
-      converseService,
       this.logger,
       mediaServiceProvider,
       eventRepo,
       qnaService,
-      nluInferenceService,
       this
     )
     this.sdkApiRouter = new SdkApiRouter(this.logger)
@@ -206,7 +198,7 @@ export class HTTPServer {
       this
     )
 
-    this.messagingRouter = new MessagingRouter(this.logger, messagingService, this)
+    this.messagingRouter = new MessagingRouter(this.logger, this)
 
     this._needPermissions = needPermissions(this.workspaceService)
     this._hasPermissions = hasPermissions(this.workspaceService)

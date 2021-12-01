@@ -1,10 +1,7 @@
 import { QnaEntry, QnaItem } from '@botpress/typings/qna'
 import * as sdk from 'botpress/sdk'
-import { BotService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
 import { CMSService } from 'core/cms'
-import { WellKnownFlags } from 'core/dialog'
-import { EventEngine } from 'core/events'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
@@ -19,46 +16,12 @@ const getAlternativeAnswer = (qnaEntry: QnaEntry, lang: string): string => {
 
 @injectable()
 export class QnaService {
-  private loadedBots: {
-    [botId: string]: {
-      defaultLang: string
-      qnaDisabled: boolean
-    }
-  } = {}
-
   constructor(
-    @inject(TYPES.EventEngine)
-    private eventEngine: EventEngine,
     @inject(TYPES.GhostService)
     private bpfs: GhostService,
     @inject(TYPES.CMSService)
-    private cmsService: CMSService,
-    @inject(TYPES.BotService)
-    private botService: BotService
+    private cmsService: CMSService
   ) {}
-
-  initialize() {
-    this.eventEngine.register({
-      name: 'qna.incoming',
-      direction: 'incoming',
-      handler: async (event: any, next) => {
-        if (!event.hasFlag(WellKnownFlags.SKIP_QNA_PROCESSING)) {
-          try {
-            const { defaultLang, qnaDisabled } = await this._getBotConfig(event.botId)
-            if (defaultLang && !qnaDisabled) {
-              await this._processEvent(event, defaultLang)
-            }
-
-            next()
-          } catch (err) {
-            next(err)
-          }
-        }
-      },
-      order: 130, // must be after the NLU middleware and before the dialog middleware
-      description: 'Listen for predefined questions and send canned responses.'
-    })
-  }
 
   getQuestionForIntent = async (intentName: string, botId: string) => {
     if (intentName && intentName.startsWith(NLU_PREFIX)) {
@@ -85,37 +48,6 @@ export class QnaService {
       return {
         items: items.slice(offset, offset + limit),
         count: items.length
-      }
-    }
-  }
-
-  private _getBotConfig = async (botId: string) => {
-    if (this.loadedBots[botId]) {
-      return this.loadedBots[botId]
-    } else {
-      const botInfo = await this.botService.findBotById(botId)
-      if (!botInfo) {
-        throw new Error('Unknown bot ID')
-      }
-
-      return (this.loadedBots[botId] = {
-        defaultLang: botInfo.defaultLanguage,
-        qnaDisabled: botInfo.qna?.disabled ?? false
-      })
-    }
-  }
-
-  private _processEvent = async (event: sdk.IO.IncomingEvent, defaultLang: string) => {
-    if (!event.nlu || !event.nlu.intents) {
-      return
-    }
-
-    for (const intent of event.nlu.intents) {
-      const qnaEntry = await this.getQuestionForIntent(intent.name, event.botId)
-      if (qnaEntry && qnaEntry.enabled) {
-        event.suggestions?.push(
-          await this._buildSuggestions(event, qnaEntry, intent.confidence, intent.name, defaultLang)
-        )
       }
     }
   }
@@ -203,30 +135,5 @@ export class QnaService {
       target: event.target,
       threadId: event.threadId
     })
-  }
-
-  private _buildSuggestions = async (
-    event: sdk.IO.IncomingEvent,
-    qnaEntry: QnaEntry,
-    confidence,
-    intent,
-    defaultLang
-  ): Promise<sdk.IO.Suggestion> => {
-    const payloads: any = []
-
-    if (qnaEntry.action.includes('text')) {
-      payloads.push(...(await this._getQnaEntryPayloads(qnaEntry, event, TEXT_RENDERER, defaultLang)))
-    }
-
-    if (qnaEntry.action.includes('redirect')) {
-      payloads.push({ type: 'redirect', flow: qnaEntry.redirectFlow, node: qnaEntry.redirectNode })
-    }
-
-    return <sdk.IO.Suggestion>{
-      confidence,
-      payloads,
-      source: 'qna',
-      sourceDetails: intent
-    }
   }
 }

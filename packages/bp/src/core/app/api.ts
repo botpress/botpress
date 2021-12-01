@@ -1,3 +1,4 @@
+import { runtime } from '@botpress/runtime'
 import * as sdk from 'botpress/sdk'
 import { container } from 'core/app/inversify/app.inversify'
 import { TYPES } from 'core/app/types'
@@ -7,7 +8,7 @@ import { CMSService, renderRecursive, RenderService } from 'core/cms'
 import * as renderEnums from 'core/cms/enums'
 import { ConfigProvider } from 'core/config'
 import Database from 'core/database'
-import { StateManager, DialogEngine, WellKnownFlags } from 'core/dialog'
+import { WellKnownFlags } from 'core/dialog'
 import * as dialogEnums from 'core/dialog/enums'
 import { SessionIdFactory } from 'core/dialog/sessions'
 import { JobService } from 'core/distributed'
@@ -20,7 +21,7 @@ import { ModuleLoader } from 'core/modules'
 import { RealtimeService, RealTimePayload } from 'core/realtime'
 import { getMessageSignature } from 'core/security'
 import { HookService } from 'core/user-code'
-import { ChannelUserRepository, WorkspaceService } from 'core/users'
+import { WorkspaceService } from 'core/users'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
@@ -51,25 +52,25 @@ const http = (httpServer: HTTPServer) => (identity: string): typeof sdk.http => 
 
 const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk.events => {
   return {
-    registerMiddleware(middleware: sdk.IO.MiddlewareDefinition) {
-      eventEngine.register(middleware)
-    },
+    registerMiddleware: eventEngine.register.bind(eventEngine),
     removeMiddleware: eventEngine.removeMiddleware.bind(eventEngine),
     sendEvent: eventEngine.sendEvent.bind(eventEngine),
-    replyToEvent: eventEngine.replyToEvent.bind(eventEngine),
-    isIncomingQueueEmpty: eventEngine.isIncomingQueueEmpty.bind(eventEngine),
+    replyToEvent: (eventDestination: sdk.IO.EventDestination, payloads: any[], incomingEventId?: string) =>
+      runtime.events.replyToEvent(eventDestination, payloads, incomingEventId),
+    isIncomingQueueEmpty: (event: sdk.IO.IncomingEvent) => runtime.events.isIncomingQueueEmpty(event),
     findEvents: eventRepo.findEvents.bind(eventRepo),
     updateEvent: eventRepo.updateEvent.bind(eventRepo),
     saveUserFeedback: eventRepo.saveUserFeedback.bind(eventRepo)
   }
 }
 
-const dialog = (dialogEngine: DialogEngine, stateManager: StateManager): typeof sdk.dialog => {
+const dialog = (): typeof sdk.dialog => {
   return {
     createId: SessionIdFactory.createIdFromEvent.bind(SessionIdFactory),
-    processEvent: dialogEngine.processEvent.bind(dialogEngine),
-    deleteSession: stateManager.deleteDialogSession.bind(stateManager),
-    jumpTo: dialogEngine.jumpTo.bind(dialogEngine)
+    deleteSession: (sessionId: string, botId: string) => runtime.dialog.deleteSession(sessionId, botId),
+    processEvent: (sessionId: string, event: sdk.IO.IncomingEvent) => runtime.dialog.processEvent(sessionId, event),
+    jumpTo: (sessionId: string, event: sdk.IO.IncomingEvent, flowName: string, nodeName?: string) =>
+      runtime.dialog.jumpTo(sessionId, event, flowName, nodeName)
   }
 }
 
@@ -94,14 +95,17 @@ const bots = (botService: BotService): typeof sdk.bots => {
   }
 }
 
-const users = (userRepo: ChannelUserRepository): typeof sdk.users => {
+const users = (): typeof sdk.users => {
   return {
-    getOrCreateUser: userRepo.getOrCreate.bind(userRepo),
-    updateAttributes: userRepo.updateAttributes.bind(userRepo),
-    getAttributes: userRepo.getAttributes.bind(userRepo),
-    setAttributes: userRepo.setAttributes.bind(userRepo),
-    getAllUsers: userRepo.getAllUsers.bind(userRepo),
-    getUserCount: userRepo.getUserCount.bind(userRepo)
+    getOrCreateUser: (channel: string, userId: string, botId?: string) =>
+      runtime.users.getOrCreateUser(channel, userId, botId),
+    updateAttributes: (channel: string, userId: string, attributes: string) =>
+      runtime.users.updateAttributes(channel, userId, attributes),
+    getAttributes: (channel: string, userId: string) => runtime.users.getAttributes(channel, userId),
+    setAttributes: (channel: string, userId: string, attributes: string) =>
+      runtime.users.setAttributes(channel, userId, attributes),
+    getAllUsers: (paging?: sdk.Paging) => runtime.users.getAllUsers(paging),
+    getUserCount: () => runtime.users.getUserCount()
   }
 }
 
@@ -239,13 +243,11 @@ export class BotpressAPIProvider {
   distributed: typeof sdk.distributed
 
   constructor(
-    @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
     @inject(TYPES.Database) db: Database,
     @inject(TYPES.EventEngine) eventEngine: EventEngine,
     @inject(TYPES.ModuleLoader) moduleLoader: ModuleLoader,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.HTTPServer) httpServer: HTTPServer,
-    @inject(TYPES.UserRepository) userRepo: ChannelUserRepository,
     @inject(TYPES.RealtimeService) realtimeService: RealtimeService,
     @inject(TYPES.KeyValueStore) keyValueStore: KeyValueStore,
     @inject(TYPES.BotService) botService: BotService,
@@ -257,16 +259,15 @@ export class BotpressAPIProvider {
     @inject(TYPES.EventRepository) eventRepo: EventRepository,
     @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService,
     @inject(TYPES.JobService) jobService: JobService,
-    @inject(TYPES.StateManager) stateManager: StateManager,
     @inject(TYPES.RenderService) renderService: RenderService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
-    this.dialog = dialog(dialogEngine, stateManager)
+    this.dialog = dialog()
     this.config = config(moduleLoader, configProvider)
     this.realtime = realtime(realtimeService)
     this.database = db.knex
-    this.users = users(userRepo)
+    this.users = users()
     this.kvs = kvs(keyValueStore)
     this.bots = bots(botService)
     this.ghost = ghost(ghostService)

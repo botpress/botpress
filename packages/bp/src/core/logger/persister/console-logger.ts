@@ -3,7 +3,6 @@ import { IO, Logger, LoggerEntry, LoggerLevel, LoggerListener, LogLevel } from '
 import chalk from 'chalk'
 import { Metric } from 'common/monitoring'
 import { BotService } from 'core/bots'
-import { addLogToEvent } from 'core/events'
 import { incrementMetric } from 'core/health'
 import { IDisposable } from 'core/misc/disposable'
 import { TYPES } from 'core/types'
@@ -210,10 +209,6 @@ export class PersistedConsoleLogger implements Logger {
     } else {
       // We reset it right away to prevent race conditions (since the persister might log a new message asynchronously)
       this.willPersistMessage = true
-    }
-
-    if (this.event) {
-      addLogToEvent(`[${level}] ${indentedMessage}`, this.event)
     }
 
     if (this.displayLevel >= this.currentMessageLevel!) {

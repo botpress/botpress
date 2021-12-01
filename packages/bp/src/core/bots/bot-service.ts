@@ -1,3 +1,4 @@
+import { runtime } from '@botpress/runtime'
 import { BotConfig, Logger, Stage, WorkspaceUserWithAttributes } from 'botpress/sdk'
 import cluster from 'cluster'
 import { BotHealth, ServerHealth } from 'common/typings'
@@ -8,12 +9,8 @@ import { GhostService, ReplaceContent } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { ConfigProvider } from 'core/config'
 import { JobService, makeRedisKey } from 'core/distributed'
-import { MessagingService } from 'core/messaging'
-import { MigrationService } from 'core/migration'
 import { extractArchive } from 'core/misc/archive'
 import { ModuleLoader } from 'core/modules'
-import { NLUInferenceService } from 'core/nlu'
-import { RealtimeService } from 'core/realtime'
 import { InvalidOperationError } from 'core/routers'
 import { AnalyticsService } from 'core/telemetry'
 import { Hooks, HookService } from 'core/user-code'
@@ -69,11 +66,7 @@ export class BotService {
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.Statistics) private stats: AnalyticsService,
-    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
-    @inject(TYPES.RealtimeService) private realtimeService: RealtimeService,
-    @inject(TYPES.MigrationService) private migrationService: MigrationService,
-    @inject(TYPES.MessagingService) private messagingService: MessagingService,
-    @inject(TYPES.NLUInferenceService) private nluInferenceService: NLUInferenceService
+    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService
   ) {
     this._botIds = undefined
     this.componentService = new ComponentService(this.logger, this.ghostService, this.cms)
@@ -567,21 +560,13 @@ export class BotService {
         throw new Error('Supported languages must include the default language of the bot')
       }
 
-      await this.messagingService.loadMessagingForBot(botId)
-
       await this.cms.loadContentTypesFromFiles(botId)
-      await this.componentService.extractBotComponents(botId)
-
       await this.cms.loadElementsForBot(botId)
+
       await this.moduleLoader.loadModulesForBot(botId)
 
-      await this.nluInferenceService.mountBot(botId)
+      await runtime.bots.mount(botId)
 
-      await this._extractLibsToDisk(botId)
-      await this._extractBotNodeModules(botId)
-
-      const api = await createForGlobalHooks()
-      await this.hookService.executeHook(new Hooks.AfterBotMount(api, botId))
       BotService._mountedBots.set(botId, true)
       await studioActions.setBotMountStatus(botId, true)
 
@@ -612,11 +597,8 @@ export class BotService {
 
     await this.cms.clearElementsFromCache(botId)
     await this.moduleLoader.unloadModulesForBot(botId)
-    await this.messagingService.unloadMessagingForBot(botId)
-    await this.nluInferenceService.unmountBot(botId)
 
-    const api = await createForGlobalHooks()
-    await this.hookService.executeHook(new Hooks.AfterBotUnmount(api, botId))
+    await runtime.bots.unmount(botId)
 
     BotService._mountedBots.set(botId, false)
     await studioActions.setBotMountStatus(botId, false)

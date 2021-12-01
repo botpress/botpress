@@ -1,9 +1,9 @@
+import { runtime } from '@botpress/runtime'
 import LicensingService from 'common/licensing-service'
 import { buildSchema } from 'common/telemetry'
 import { GhostService } from 'core/bpfs'
 import Database from 'core/database'
 import { JobService } from 'core/distributed'
-import { MessagingService } from 'core/messaging'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
@@ -23,8 +23,7 @@ export class UserStats extends TelemetryStats {
     @inject(TYPES.Database) database: Database,
     @inject(TYPES.LicensingService) licenseService: LicensingService,
     @inject(TYPES.JobService) jobService: JobService,
-    @inject(TYPES.TelemetryRepository) telemetryRepo: TelemetryRepository,
-    @inject(TYPES.MessagingService) private messagingService: MessagingService
+    @inject(TYPES.TelemetryRepository) telemetryRepo: TelemetryRepository
   ) {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = process.TELEMETRY_URL
@@ -33,7 +32,7 @@ export class UserStats extends TelemetryStats {
   }
 
   protected async getStats() {
-    const newUsers = this.messagingService.getNewUsersCount({ resetCount: true })
+    const newUsers = runtime.telemetry.getNewUsersCount({ resetCount: true })
 
     return {
       ...buildSchema(await this.getServerStats(), 'server'),

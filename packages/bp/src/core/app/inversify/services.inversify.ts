@@ -1,23 +1,19 @@
-import { IO } from 'botpress/sdk'
 import LicensingService from 'common/licensing-service'
-import { BotMonitoringService, BotService } from 'core/bots'
+import { BotService } from 'core/bots'
 import { GhostContainerModule } from 'core/bpfs'
 import { CMSService, RenderService } from 'core/cms'
-import { ConverseService } from 'core/converse'
 import { DialogContainerModule, SkillService } from 'core/dialog'
 import { CEJobService, JobService } from 'core/distributed'
-import { EventEngine, Queue, MemoryQueue } from 'core/events'
+import { EventEngine } from 'core/events'
 import { CEMonitoringService, MonitoringService, AlertingService, CEAlertingService } from 'core/health'
 import { KeyValueStore } from 'core/kvs'
 import { LogsJanitor } from 'core/logger'
 import { MediaServiceProvider } from 'core/media'
-import { MessagingService } from 'core/messaging'
-import { NLUInferenceService } from 'core/nlu'
 import { QnaService } from 'core/qna'
 import { RealtimeService } from 'core/realtime'
 import { AuthService, AuthStrategies, CEAuthStrategies } from 'core/security'
 import { StatsService } from 'core/telemetry'
-import { HookService, ActionService, ActionServersService, HintsService } from 'core/user-code'
+import { HookService, ActionService, ActionServersService } from 'core/user-code'
 import { ContainerModule, interfaces } from 'inversify'
 
 import CELicensingService from '../../services/licensing'
@@ -60,29 +56,13 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
     .inSingletonScope()
     .when(() => !process.CLUSTER_ENABLED || !process.IS_PRO_ENABLED)
 
-  bind<BotMonitoringService>(TYPES.BotMonitoringService)
-    .to(BotMonitoringService)
-    .inSingletonScope()
-
   bind<AuthStrategies>(TYPES.AuthStrategies)
     .to(CEAuthStrategies)
     .inSingletonScope()
     .when(() => !process.IS_PRO_ENABLED)
 
-  bind<Queue<IO.IncomingEvent>>(TYPES.IncomingQueue).toDynamicValue((context: interfaces.Context) => {
-    return new MemoryQueue('Incoming', context.container.getTagged(TYPES.Logger, 'name', 'IQueue'))
-  })
-
-  bind<Queue<IO.OutgoingEvent>>(TYPES.OutgoingQueue).toDynamicValue((context: interfaces.Context) => {
-    return new MemoryQueue('Outgoing', context.container.getTagged(TYPES.Logger, 'name', 'OQueue'))
-  })
-
   bind<HookService>(TYPES.HookService)
     .to(HookService)
-    .inSingletonScope()
-
-  bind<HintsService>(TYPES.HintsService)
-    .to(HintsService)
     .inSingletonScope()
 
   bind<EventEngine>(TYPES.EventEngine)
@@ -109,10 +89,6 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
     .to(SkillService)
     .inSingletonScope()
 
-  bind<ConverseService>(TYPES.ConverseService)
-    .to(ConverseService)
-    .inSingletonScope()
-
   bind<BotService>(TYPES.BotService)
     .to(BotService)
     .inSingletonScope()
@@ -127,14 +103,6 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<QnaService>(TYPES.QnaService)
     .to(QnaService)
-    .inSingletonScope()
-
-  bind<MessagingService>(TYPES.MessagingService)
-    .to(MessagingService)
-    .inSingletonScope()
-
-  bind<NLUInferenceService>(TYPES.NLUInferenceService)
-    .to(NLUInferenceService)
     .inSingletonScope()
 })
 

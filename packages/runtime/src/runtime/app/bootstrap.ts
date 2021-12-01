@@ -2,6 +2,7 @@ import 'bluebird-global'
 // eslint-disable-next-line import/order
 import '../../sdk/rewire'
 import sdk from 'botpress/runtime-sdk'
+import { RuntimeSetup } from 'embedded'
 import { BotpressApp, createApp, createLoggerProvider } from 'runtime/app/core-loader'
 import { LoggerProvider } from 'runtime/logger'
 
@@ -50,7 +51,7 @@ async function setupDebugLogger(provider: LoggerProvider) {
   }
 }
 
-export async function start() {
+export async function start(config?: RuntimeSetup) {
   await setupDebugLogger(createLoggerProvider())
   const app = createApp()
 
@@ -58,9 +59,14 @@ export async function start() {
 
   const logger = await getLogger(app.logger, 'Launcher')
 
+  // Starts the embedded version
+  if (config) {
+    return app.botpress.start(config)
+  }
+
   showBanner({ title: 'Botpress Runtime', version: sdk.version, logScopeLength: 9, bannerWidth: 75, logger })
 
-  await app.botpress.start().catch(err => {
+  await app.botpress.start(config).catch(err => {
     logger.attachError(err).error('Error starting Botpress')
 
     if (!process.IS_FAILSAFE) {

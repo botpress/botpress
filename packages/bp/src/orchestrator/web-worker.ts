@@ -32,9 +32,15 @@ export const setupWebWorker = () => {
       return
     }
 
+    const checkEndpoints = () => {
+      if (process.NLU_ENDPOINT && process.MESSAGING_ENDPOINT) {
+        AppLifecycle.setDone(AppLifecycleEvents.ENDPOINTS_KNOWN)
+      }
+    }
+
     switch (processType) {
       case 'web':
-        await AppLifecycle.waitFor(AppLifecycleEvents.NLU_ENDPOINT_KNOWN)
+        await AppLifecycle.waitFor(AppLifecycleEvents.ENDPOINTS_KNOWN)
         // Once the web worker is registered, we have all we need to start the studio
         const params: StudioParams = {
           EXTERNAL_URL: process.EXTERNAL_URL,
@@ -55,11 +61,14 @@ export const setupWebWorker = () => {
         initStudioClient()
         break
       case 'messaging':
+        process.MESSAGING_ENDPOINT = `http://localhost:${port}`
         process.MESSAGING_PORT = port
+
+        checkEndpoints()
         break
       case 'nlu':
         process.NLU_ENDPOINT = `http://localhost:${port}`
-        AppLifecycle.setDone(AppLifecycleEvents.NLU_ENDPOINT_KNOWN)
+        checkEndpoints()
         break
     }
   })

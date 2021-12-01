@@ -1,4 +1,4 @@
-import { Table } from 'core/database/interfaces'
+import { Table } from 'runtime/database/interfaces'
 
 export class BotUsersTable extends Table {
   name: string = 'bot_chat_users'

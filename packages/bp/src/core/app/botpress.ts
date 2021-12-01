@@ -1,27 +1,28 @@
+import { initRuntime, runtime } from '@botpress/runtime'
 import * as sdk from 'botpress/sdk'
 import lang from 'common/lang'
-import { createForGlobalHooks } from 'core/app/api'
-import { BotService, BotMonitoringService } from 'core/bots'
+import { createForAction, createForGlobalHooks } from 'core/app/api'
+import { BotService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
 import { CMSService } from 'core/cms'
 import { BotpressConfig, ConfigProvider } from 'core/config'
-import { buildUserKey, converseApiEvents } from 'core/converse'
 import Database from 'core/database'
-import { StateManager, DecisionEngine, DialogEngine, DialogJanitor, WellKnownFlags } from 'core/dialog'
-import { SessionIdFactory } from 'core/dialog/sessions'
-import { addStepToEvent, EventCollector, StepScopes, StepStatus, EventEngine, Event } from 'core/events'
 import { AlertingService, MonitoringService } from 'core/health'
-import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, LogsJanitor } from 'core/logger'
-import { MessagingService } from 'core/messaging'
+import {
+  LoggerDbPersister,
+  LoggerFilePersister,
+  LoggerProvider,
+  LogsJanitor,
+  PersistedConsoleLogger
+} from 'core/logger'
 import { MigrationService } from 'core/migration'
 import { copyDir } from 'core/misc/pkg-fs'
 import { ModuleLoader } from 'core/modules'
-import { QnaService } from 'core/qna'
 import { RealtimeService } from 'core/realtime'
 import { AuthService } from 'core/security'
 import { StatsService, AnalyticsService } from 'core/telemetry'
-import { ActionServersConfigSchema, Hooks, HookService, HintsService } from 'core/user-code'
-import { DataRetentionJanitor, DataRetentionService, WorkspaceService } from 'core/users'
+import { ActionServersConfigSchema, Hooks, HookService } from 'core/user-code'
+import { WorkspaceService } from 'core/users'
 import { WrapErrorsWith } from 'errors'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
@@ -63,31 +64,19 @@ export class Botpress {
     @inject(TYPES.HTTPServer) private httpServer: HTTPServer,
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.HookService) private hookService: HookService,
-    @inject(TYPES.HintsService) private hintsService: HintsService,
     @inject(TYPES.RealtimeService) private realtimeService: RealtimeService,
-    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.CMSService) private cmsService: CMSService,
-    @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
-    @inject(TYPES.DecisionEngine) private decisionEngine: DecisionEngine,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
-    @inject(TYPES.DialogJanitorRunner) private dialogJanitor: DialogJanitor,
     @inject(TYPES.LogJanitorRunner) private logJanitor: LogsJanitor,
     @inject(TYPES.LoggerDbPersister) private loggerDbPersister: LoggerDbPersister,
     @inject(TYPES.LoggerFilePersister) private loggerFilePersister: LoggerFilePersister,
-    @inject(TYPES.StateManager) private stateManager: StateManager,
-    @inject(TYPES.DataRetentionJanitor) private dataRetentionJanitor: DataRetentionJanitor,
-    @inject(TYPES.DataRetentionService) private dataRetentionService: DataRetentionService,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.MonitoringService) private monitoringService: MonitoringService,
     @inject(TYPES.AlertingService) private alertingService: AlertingService,
-    @inject(TYPES.EventCollector) private eventCollector: EventCollector,
     @inject(TYPES.AuthService) private authService: AuthService,
     @inject(TYPES.MigrationService) private migrationService: MigrationService,
-    @inject(TYPES.StatsService) private statsService: StatsService,
-    @inject(TYPES.BotMonitoringService) private botMonitor: BotMonitoringService,
-    @inject(TYPES.QnaService) private qnaService: QnaService,
-    @inject(TYPES.MessagingService) private messagingService: MessagingService
+    @inject(TYPES.StatsService) private statsService: StatsService
   ) {
     this.botpressPath = path.join(process.cwd(), 'dist')
     this.configLocation = path.join(this.botpressPath, '/config')
@@ -125,6 +114,8 @@ export class Botpress {
     await this.loadModules(options.modules)
     await this.migrationService.initialize()
     await this.cleanDisabledModules()
+    await this.initRuntime()
+
     await this.initializeServices()
     await this.checkEditionRequirements()
     await this.deployAssets()
@@ -132,6 +123,10 @@ export class Botpress {
     await this.startRealtime()
     await this.startServer()
     await this.maybeStartLocalMessagingServer()
+
+    await AppLifecycle.waitFor(AppLifecycleEvents.ENDPOINTS_KNOWN)
+    await runtime.initExternalServices()
+
     await this.discoverBots()
     await this.maybeStartLocalActionServer()
 
@@ -143,6 +138,35 @@ export class Botpress {
 
     this.api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.AfterServerStart(this.api))
+  }
+
+  async initRuntime() {
+    const runtimeConfig = _.pick(this.config, [
+      'converse',
+      'dialog',
+      'logs',
+      'dataRetention',
+      'eventCollector',
+      'botMonitoring',
+      'noRepeatPolicy'
+    ]) as any
+
+    const overrideApi = api =>
+      _.pick(api, ['http', 'config', 'realtime', 'ghost', 'bots', 'cms', 'experimental', 'workspaces', 'distributed'])
+
+    const options = {
+      config: runtimeConfig,
+      dataFolder: process.PROJECT_LOCATION,
+      api: {
+        hooks: overrideApi(await createForGlobalHooks()),
+        actions: overrideApi(await createForAction())
+      },
+      logStreamEmitter: PersistedConsoleLogger.LogStreamEmitter,
+      httpServer: this.httpServer.app
+    }
+
+    await initRuntime(options)
+    AppLifecycle.setDone(AppLifecycleEvents.RUNTIME_INITIALIZED)
   }
 
   async restoreDebugScope() {
@@ -188,7 +212,6 @@ export class Botpress {
   private async maybeStartLocalSTAN() {
     if (process.core_env.NLU_ENDPOINT) {
       process.NLU_ENDPOINT = process.core_env.NLU_ENDPOINT
-      AppLifecycle.setDone(AppLifecycleEvents.NLU_ENDPOINT_KNOWN)
       return
     }
 
@@ -376,80 +399,12 @@ export class Botpress {
     await this.authService.initialize()
     await this.workspaceService.initialize()
     await this.cmsService.initialize()
-    await this.eventCollector.initialize(this.database)
-    this.qnaService.initialize()
 
-    this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
-      await this.stateManager.restore(event)
-      addStepToEvent(event, StepScopes.StateLoaded)
-      await this.hookService.executeHook(new Hooks.BeforeIncomingMiddleware(this.api, event))
-    }
-
-    this.eventEngine.onAfterIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
-      if (event.isPause) {
-        this.eventCollector.storeEvent(event)
-        return
-      }
-
-      await this.hookService.executeHook(new Hooks.AfterIncomingMiddleware(this.api, event))
-      const sessionId = SessionIdFactory.createIdFromEvent(event)
-
-      if (event.debugger) {
-        addStepToEvent(event, StepScopes.Dialog, StepStatus.Started)
-        this.eventCollector.storeEvent(event)
-      }
-
-      await this.decisionEngine.processEvent(sessionId, event)
-
-      if (event.debugger) {
-        addStepToEvent(event, StepScopes.EndProcessing)
-        this.eventCollector.storeEvent(event)
-      }
-
-      this.messagingService.informProcessingDone(event)
-      await converseApiEvents.emitAsync(`done.${buildUserKey(event.botId, event.target)}`, event)
-    }
-
-    this.eventEngine.onBeforeOutgoingMiddleware = async (event: sdk.IO.OutgoingEvent) => {
-      this.eventCollector.storeEvent(event)
-      await this.hookService.executeHook(new Hooks.BeforeOutgoingMiddleware(this.api, event))
-    }
-
-    this.decisionEngine.onBeforeSuggestionsElection = async (
-      sessionId: string,
-      event: sdk.IO.IncomingEvent,
-      suggestions: sdk.IO.Suggestion[]
-    ) => {
-      await this.hookService.executeHook(new Hooks.BeforeSuggestionsElection(this.api, sessionId, event, suggestions))
-    }
-
-    this.decisionEngine.onAfterEventProcessed = async (event: sdk.IO.IncomingEvent) => {
-      this.eventCollector.storeEvent(event)
-      return this.hookService.executeHook(new Hooks.AfterEventProcessed(this.api, event))
-    }
-
-    this.botMonitor.onBotError = async (botId: string, events: sdk.LoggerEntry[]) => {
-      await this.hookService.executeHook(new Hooks.OnBotError(this.api, botId, events))
-    }
-
-    await this.dataRetentionService.initialize()
-
-    this.stateManager.initialize()
     await this.logJanitor.start()
-    await this.dialogJanitor.start()
     await this.monitoringService.start()
     this.alertingService.start()
-    this.eventCollector.start()
-    await this.botMonitor.start()
-
-    if (this.config!.dataRetention) {
-      await this.dataRetentionJanitor.start()
-    }
 
     lang.init(await this.moduleLoader.getTranslations())
-
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    this.hintsService.refreshAll()
 
     AppLifecycle.setDone(AppLifecycleEvents.SERVICES_READY)
   }

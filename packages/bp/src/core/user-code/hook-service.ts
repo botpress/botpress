@@ -2,7 +2,7 @@ import * as sdk from 'botpress/sdk'
 import { ObjectCache } from 'common/object-cache'
 import { ActionScope } from 'common/typings'
 import { GhostService } from 'core/bpfs'
-import { addErrorToEvent, addStepToEvent, StepScopes, StepStatus } from 'core/events'
+import { addStepToEvent, StepScopes, StepStatus } from 'core/events'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
 import { clearRequireCache, requireAtPaths } from 'core/modules'
@@ -46,60 +46,6 @@ export namespace Hooks {
     }
   }
 
-  export class AfterBotMount extends BaseHook {
-    constructor(private bp: typeof sdk, botId: string) {
-      super('after_bot_mount', { bp, botId })
-    }
-  }
-
-  export class AfterBotUnmount extends BaseHook {
-    constructor(private bp: typeof sdk, botId: string) {
-      super('after_bot_unmount', { bp, botId })
-    }
-  }
-
-  export class BeforeIncomingMiddleware extends BaseHook {
-    constructor(bp: typeof sdk, event: sdk.IO.Event) {
-      super('before_incoming_middleware', { bp, event })
-    }
-  }
-
-  export class AfterIncomingMiddleware extends BaseHook {
-    constructor(bp: typeof sdk, event: sdk.IO.Event) {
-      super('after_incoming_middleware', { bp, event })
-    }
-  }
-
-  export class BeforeOutgoingMiddleware extends BaseHook {
-    constructor(bp: typeof sdk, event: sdk.IO.Event) {
-      super('before_outgoing_middleware', { bp, event })
-    }
-  }
-
-  export class AfterEventProcessed extends BaseHook {
-    constructor(bp: typeof sdk, event: sdk.IO.Event) {
-      super('after_event_processed', { bp, event })
-    }
-  }
-
-  export class BeforeSessionTimeout extends BaseHook {
-    constructor(bp: typeof sdk, event: sdk.IO.Event) {
-      super('before_session_timeout', { bp, event })
-    }
-  }
-
-  export class BeforeConversationEnd extends BaseHook {
-    constructor(bp: typeof sdk, event: sdk.IO.Event) {
-      super('before_conversation_end', { bp, event })
-    }
-  }
-
-  export class BeforeSuggestionsElection extends BaseHook {
-    constructor(bp: typeof sdk, sessionId: string, event: sdk.IO.Event, suggestions: sdk.IO.Suggestion[]) {
-      super('before_suggestions_election', { bp, sessionId, event, suggestions })
-    }
-  }
-
   export class OnIncidentStatusChanged extends BaseHook {
     constructor(bp: typeof sdk, incident: sdk.Incident) {
       super('on_incident_status_changed', { bp, incident })
@@ -109,12 +55,6 @@ export namespace Hooks {
   export class BeforeBotImport extends BaseHook {
     constructor(bp: typeof sdk, botId: string, tmpFolder: string, hookResult: object) {
       super('before_bot_import', { bp, botId, tmpFolder, hookResult })
-    }
-  }
-
-  export class OnBotError extends BaseHook {
-    constructor(bp: typeof sdk, botId: string, events: sdk.LoggerEntry[]) {
-      super('on_bot_error', { bp, botId, events })
     }
   }
 
@@ -279,26 +219,6 @@ export class HookService {
     hook.debug.forBot(botId, 'after execute')
   }
 
-  private addEventStep = (hookName: string, status: string, hook: Hooks.BaseHook, error?: any) => {
-    if (!hook.args?.event) {
-      return
-    }
-
-    const event = hook.args.event as sdk.IO.Event
-    if (error) {
-      addErrorToEvent(
-        {
-          type: 'hook-execution',
-          stacktrace: error.stacktrace || error.stack,
-          actionArgs: _.omit(hook.args, ['bp', 'event'])
-        },
-        event
-      )
-    }
-
-    addStepToEvent(event, StepScopes.Hook, hookName, status)
-  }
-
   private async runWithoutVm(hookScript: HookScript, hook: Hooks.BaseHook, botId: string, _require: Function) {
     const args = {
       ...hook.args,
@@ -310,10 +230,9 @@ export class HookService {
     try {
       const fn = new Function(...Object.keys(args), hookScript.code)
       await fn(...Object.values(args))
-      this.addEventStep(hookScript.name, StepStatus.Completed, hook)
+
       return
     } catch (err) {
-      this.addEventStep(hookScript.name, StepStatus.Error, hook, err)
       this.logScriptError(err, botId, hookScript.path, hook.folder)
     }
   }
@@ -343,17 +262,13 @@ export class HookService {
 
     const vmRunner = new VmRunner()
 
-    await vmRunner
-      .runInVm(vm, hookScript.code, hookScript.path)
-      .then(() => this.addEventStep(hookScript.name, 'completed', hook))
-      .catch(err => {
-        this.addEventStep(hookScript.name, 'error', hook, err)
-        this.logScriptError(err, botId, hookScript.path, hook.folder)
+    await vmRunner.runInVm(vm, hookScript.code, hookScript.path).catch(err => {
+      this.logScriptError(err, botId, hookScript.path, hook.folder)
 
-        if (hook.options.throwOnError) {
-          throw err
-        }
-      })
+      if (hook.options.throwOnError) {
+        throw err
+      }
+    })
   }
 
   private logScriptError(err: Error, botId: string, path: string, folder: string) {

@@ -3,13 +3,12 @@ import { BotpressAPIProvider } from 'core/app/api'
 import { Botpress } from 'core/app/botpress'
 import { HTTPServer } from 'core/app/server'
 import { ConfigProvider } from 'core/config'
-import { EventCollector } from 'core/events'
 import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, PersistedConsoleLogger } from 'core/logger'
 import { MigrationService } from 'core/migration'
 import { ModuleLoader } from 'core/modules'
 import { TelemetryContainerModules, AnalyticsService } from 'core/telemetry'
 import { LocalActionServer } from 'core/user-code'
-import { DataRetentionJanitor, DataRetentionService, WorkspaceService } from 'core/users'
+import { WorkspaceService } from 'core/users'
 import { Container } from 'inversify'
 
 import { TYPES } from '../types'
@@ -89,23 +88,8 @@ container
   .inSingletonScope()
 
 container
-  .bind<DataRetentionJanitor>(TYPES.DataRetentionJanitor)
-  .to(DataRetentionJanitor)
-  .inSingletonScope()
-
-container
-  .bind<DataRetentionService>(TYPES.DataRetentionService)
-  .to(DataRetentionService)
-  .inSingletonScope()
-
-container
   .bind<WorkspaceService>(TYPES.WorkspaceService)
   .to(WorkspaceService)
-  .inSingletonScope()
-
-container
-  .bind<EventCollector>(TYPES.EventCollector)
-  .to(EventCollector)
   .inSingletonScope()
 
 container

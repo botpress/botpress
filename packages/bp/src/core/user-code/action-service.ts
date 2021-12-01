@@ -1,36 +1,29 @@
-import axios from 'axios'
 import { IO, Logger } from 'botpress/sdk'
 import { extractEventCommonArgs } from 'common/action'
 import { ObjectCache } from 'common/object-cache'
-import { ActionScope, ActionServer, LocalActionDefinition } from 'common/typings'
+import { ActionScope, LocalActionDefinition } from 'common/typings'
 import { createForAction } from 'core/app/api'
 import { BotService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
-import { ActionExecutionError } from 'core/dialog/errors'
-import { addErrorToEvent, addStepToEvent, StepScopes, StepStatus } from 'core/events'
 import { UntrustedSandbox } from 'core/misc/code-sandbox'
 import { printObject } from 'core/misc/print'
 import { clearRequireCache, requireFromString } from 'core/modules'
 import { NotFoundError } from 'core/routers/errors'
-import { ACTION_SERVER_AUDIENCE } from 'core/routers/sdk/utils'
 import { TYPES } from 'core/types'
 import { WorkspaceService } from 'core/users'
 import { inject, injectable, tagged } from 'inversify'
 import joi from 'joi'
-import jsonwebtoken from 'jsonwebtoken'
 import _ from 'lodash'
 import ms from 'ms'
 import path from 'path'
 import { NodeVM } from 'vm2'
 import yn from 'yn'
 
-import { TasksRepository } from './action-server/tasks-repository'
 import { extractMetadata } from './metadata'
 import {
   enabled,
   extractRequiredFiles,
   getBaseLookupPaths,
-  isTrustedAction,
   prepareRequire,
   prepareRequireTester,
   runOutsideVm
@@ -61,7 +54,6 @@ export class ActionService {
   constructor(
     @inject(TYPES.GhostService) private ghost: GhostService,
     @inject(TYPES.ObjectCache) private cache: ObjectCache,
-    @inject(TYPES.TasksRepository) private tasksRepository: TasksRepository,
     @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.Logger)
@@ -82,8 +74,7 @@ export class ActionService {
         throw new NotFoundError('This bot does not exist')
       }
 
-      const workspaceId = await this.workspaceService.getBotWorkspaceId(botId)
-      cb(new ScopedActionService(this.ghost, this.logger, botId, this.cache, this.tasksRepository, workspaceId))
+      cb(new ScopedActionService(this.ghost, this.logger, botId, this.cache))
     })
 
     this._scopedActions.set(botId, service)
@@ -121,14 +112,7 @@ export class ScopedActionService {
   // Keeps a quick index of files which have already been required
   private _validScripts: { [filename: string]: boolean } = {}
 
-  constructor(
-    private ghost: GhostService,
-    private logger: Logger,
-    private botId: string,
-    private cache: ObjectCache,
-    private tasksRepository: TasksRepository,
-    private workspaceId: string
-  ) {
+  constructor(private ghost: GhostService, private logger: Logger, private botId: string, private cache: ObjectCache) {
     this._listenForCacheInvalidation()
   }
 
@@ -137,11 +121,6 @@ export class ScopedActionService {
     const localActions = await this.listLocalActions()
 
     return [...localActions, ...globalActions]
-  }
-
-  async hasAction(actionName: string): Promise<boolean> {
-    const actions = await this.listActions()
-    return !!actions.find(x => x.name === actionName)
   }
 
   public async listLocalActions() {
@@ -158,47 +137,6 @@ export class ScopedActionService {
     return actions
   }
 
-  async runAction(props: RunActionProps & { actionServer?: ActionServer }): Promise<void> {
-    const { actionName, actionArgs, actionServer, incomingEvent } = props
-    process.ASSERT_LICENSED?.()
-
-    debug.forBot(incomingEvent.botId, 'run action', { actionName, incomingEvent, actionArgs })
-
-    try {
-      if (actionServer) {
-        await this._runInActionServer({ ...props, actionServer })
-      } else {
-        await this.runLocalAction({
-          actionName,
-          actionArgs,
-          incomingEvent,
-          runType: isTrustedAction(actionName) ? 'trusted' : 'legacy'
-        })
-      }
-
-      debug.forBot(incomingEvent.botId, 'done running', { actionName, actionArgs })
-      addStepToEvent(incomingEvent, StepScopes.Action, actionName, StepStatus.Completed)
-    } catch (err) {
-      this.logger
-        .forBot(this.botId)
-        .attachError(err)
-        .error(`An error occurred while executing the action "${actionName}`)
-
-      addErrorToEvent(
-        {
-          type: 'action-execution',
-          stacktrace: err.stacktrace || err.stack,
-          actionName,
-          actionArgs: _.omit(actionArgs, ['event'])
-        },
-        incomingEvent
-      )
-      const name = actionName ?? incomingEvent.state.context?.currentNode ?? ''
-      addStepToEvent(incomingEvent, StepScopes.Action, name, StepStatus.Error)
-      throw new ActionExecutionError(err.message, name, err.stack)
-    }
-  }
-
   private async _listGlobalActions() {
     if (this._globalActionsCache) {
       return this._globalActionsCache
@@ -209,85 +147,6 @@ export class ScopedActionService {
 
     this._globalActionsCache = actions
     return actions
-  }
-
-  private async _runInActionServer(props: RunActionProps & { actionServer: ActionServer }): Promise<void> {
-    const { actionName, actionArgs, actionServer, incomingEvent } = props
-    const botId = incomingEvent.botId
-
-    const token = jsonwebtoken.sign({ botId, scopes: ['*'], workspaceId: this.workspaceId }, process.APP_SECRET, {
-      expiresIn: '5m',
-      audience: ACTION_SERVER_AUDIENCE
-    })
-
-    const taskInfo: any = {
-      eventId: incomingEvent.id,
-      actionName,
-      actionArgs,
-      actionServerId: actionServer.id,
-      startedAt: new Date()
-    }
-
-    let response
-    try {
-      response = await axios({
-        method: 'post',
-        url: `${actionServer.baseUrl}/action/run`,
-        timeout: ms('5s'),
-        data: { token, botId, ..._.omit(props, ['actionServer']) },
-        // I override validateStatus in order for axios to not throw the Action Server returns a 500 error.
-        // See https://github.com/axios/axios/issues/1143#issuecomment-340331822
-        validateStatus: status => {
-          return true
-        }
-      })
-    } catch (e) {
-      if (e.isAxiosError) {
-        this.tasksRepository.createTask({
-          ...taskInfo,
-          endedAt: new Date(),
-          status: 'failed',
-          failureReason: `http:${e.code}`
-        })
-      }
-
-      throw e
-    }
-
-    const statusCode = response.status
-    taskInfo.endedAt = new Date()
-    taskInfo.statusCode = statusCode
-
-    if (statusCode !== 200) {
-      this.tasksRepository.createTask({
-        ...taskInfo,
-        status: 'failed',
-        failureReason: 'http:bad_status_code'
-      })
-      return
-    }
-
-    const { error } = joi.validate(response.data, ACTION_SERVER_RESPONSE_SCHEMA)
-    if (error) {
-      this.tasksRepository.createTask({
-        ...taskInfo,
-        status: 'failed',
-        failureReason: `validation:${error.name}`
-      })
-
-      throw error
-    }
-
-    const { temp, user, session } = (response.data as ActionServerResponse).event.state
-
-    incomingEvent.state.temp = { responseStatusCode: statusCode, ...temp }
-    incomingEvent.state.user = user
-    incomingEvent.state.session = session
-
-    this.tasksRepository.createTask({
-      ...taskInfo,
-      status: 'completed'
-    })
   }
 
   public async runLocalAction(

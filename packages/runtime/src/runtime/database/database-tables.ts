@@ -8,14 +8,14 @@ import { LogsTable } from 'runtime/logger/logs-table'
 import { ServerMetadataTable } from 'runtime/migration/metadata-table'
 import { MigrationsTable } from 'runtime/migration/migrations-table'
 import { TasksTable } from 'runtime/user-code/action-server/tasks-table'
-import { ChannelUsersTable, DataRetentionTable } from 'runtime/users/tables'
+import { ChannelUsersTable, BotUsersTable, DataRetentionTable } from 'runtime/users/tables'
 
 import { Table } from './interfaces'
 
 const tables: typeof Table[] = [
   ChannelUsersTable,
   LogsTable,
-  ChannelUsersTable,
+  BotUsersTable,
   DialogSessionTable,
   GhostFilesTable,
   GhostRevisionsTable,

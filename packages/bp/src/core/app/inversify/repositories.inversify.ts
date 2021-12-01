@@ -1,8 +1,6 @@
-import { SessionRepository } from 'core/dialog/sessions'
 import { EventRepository } from 'core/events'
 import { LogsRepository } from 'core/logger'
 import { TelemetryRepository } from 'core/telemetry'
-import { TasksRepository } from 'core/user-code'
 import {
   ChannelUserRepository,
   StrategyUsersRepository,
@@ -13,10 +11,6 @@ import { ContainerModule, interfaces } from 'inversify'
 import { TYPES } from '../types'
 
 const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
-  bind<SessionRepository>(TYPES.SessionRepository)
-    .to(SessionRepository)
-    .inSingletonScope()
-
   bind<ChannelUserRepository>(TYPES.UserRepository)
     .to(ChannelUserRepository)
     .inSingletonScope()
@@ -43,10 +37,6 @@ const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) 
 
   bind<WorkspaceInviteCodesRepository>(TYPES.WorkspaceInviteCodesRepository)
     .to(WorkspaceInviteCodesRepository)
-    .inSingletonScope()
-
-  bind<TasksRepository>(TYPES.TasksRepository)
-    .to(TasksRepository)
     .inSingletonScope()
 })
 
