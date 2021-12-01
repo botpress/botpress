@@ -2,7 +2,7 @@
   "name": "@botpress/downloader",
   "version": "1.0.0",
   "description": "Utility to download various tools required by Botpress",
-  "main": "out/index.js",
+  "main": "dist/index.js",
   "license": "MIT",
   "dependencies": {
     "cli-progress": "^3.8.2"
