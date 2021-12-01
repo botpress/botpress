@@ -19,6 +19,7 @@ import { MigrationService } from 'runtime/migration'
 import { NLUInferenceService } from 'runtime/nlu'
 import { QnaService } from 'runtime/qna'
 import { Hooks, HookService } from 'runtime/user-code'
+import { DataRetentionJanitor } from 'runtime/users'
 
 import { setDebugScopes } from '../../debug'
 import { createForGlobalHooks } from './api'
@@ -48,6 +49,7 @@ export class Botpress {
     @inject(TYPES.LogJanitorRunner) private logJanitor: LogsJanitor,
     @inject(TYPES.LoggerDbPersister) private loggerDbPersister: LoggerDbPersister,
     @inject(TYPES.LoggerFilePersister) private loggerFilePersister: LoggerFilePersister,
+    @inject(TYPES.DataRetentionJanitor) private dataRetentionJanitor: DataRetentionJanitor,
     @inject(TYPES.StateManager) private stateManager: StateManager,
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.EventCollector) private eventCollector: EventCollector,
@@ -123,6 +125,19 @@ export class Botpress {
     await this.nluInferenceService.initialize()
     await this.messagingService.initialize()
 
+    await this.registerHooks()
+
+    if (this.config!.dataRetention) {
+      await this.dataRetentionJanitor.start()
+    }
+
+    this.stateManager.initialize()
+    await this.logJanitor.start()
+    await this.dialogJanitor.start()
+    this.eventCollector.start()
+  }
+
+  async registerHooks() {
     this.eventEngine.onBeforeIncomingMiddleware = async (event: sdk.IO.IncomingEvent) => {
       await this.stateManager.restore(event)
       addStepToEvent(event, StepScopes.StateLoaded)
@@ -175,10 +190,5 @@ export class Botpress {
     this.botMonitor.onBotError = async (botId: string, events: sdk.LoggerEntry[]) => {
       await this.hookService.executeHook(new Hooks.OnBotError(this.api, botId, events))
     }
-
-    this.stateManager.initialize()
-    await this.logJanitor.start()
-    await this.dialogJanitor.start()
-    this.eventCollector.start()
   }
 }
