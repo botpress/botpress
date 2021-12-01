@@ -32,7 +32,7 @@ const buildShared = () => {
 const buildAdmin = cb => {
   const prod = process.argv.includes('--prod') ? '--nomap --prod' : ''
 
-  const admin = exec(`yarn && yarn build ${prod}`, { cwd: 'packages/bp/src/admin/ui' }, err => cb(err))
+  const admin = exec(`yarn && yarn build ${prod}`, { cwd: 'packages/ui-admin' }, err => cb(err))
   verbose && admin.stdout.pipe(process.stdout)
   admin.stderr.pipe(process.stderr)
 }
@@ -46,7 +46,7 @@ const buildLite = cb => {
 }
 
 const watchAdmin = cb => {
-  const admin = exec('yarn && yarn start', { cwd: 'packages/bp/src/admin/ui' }, err => cb(err))
+  const admin = exec('yarn && yarn start', { cwd: 'packages/ui-admin' }, err => cb(err))
   admin.stdout.pipe(process.stdout)
   admin.stderr.pipe(process.stderr)
 }
