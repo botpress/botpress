@@ -32,6 +32,8 @@ export class MessagingRouter extends CustomRouter {
           await this.messaging.receive(event.data as MessageNewEventData)
         } else if (event.type === 'user.new') {
           this.messaging.incrementNewUsersCount()
+        } else if (event.type === 'conversation.started') {
+          await this.messaging.conversationStarted(event.data as ConversationStartedEventData)
         }
 
         return res.sendStatus(200)
@@ -67,6 +69,13 @@ export interface MessageNewEventData {
   channel: string
   message: Message
   collect: boolean
+}
+
+export interface ConversationStartedEventData {
+  clientId: string
+  userId: string
+  conversationId: string
+  channel: string
 }
 
 interface MessagingEvent {
