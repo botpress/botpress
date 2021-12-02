@@ -1,3 +1,5 @@
+import { Content, MessageType } from '@botpress/messaging-components'
+
 export enum FLAGGED_MESSAGE_STATUS {
   new = 'new',
   applied = 'applied',
@@ -38,6 +40,8 @@ export type DbFlaggedEvent = FlaggedEvent & {
 }
 
 export interface ContextMessage {
+  payload: Content<MessageType>
+  type: MessageType
   direction: 'incoming' | 'outgoing'
   preview: string
   payloadMessage: string

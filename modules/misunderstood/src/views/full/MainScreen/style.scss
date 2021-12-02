@@ -48,9 +48,16 @@
 }
 
 .chatPreviewText {
+  width: 100%;
   padding: 5px;
-  border-radius: 1px;
+  border-radius: 15px;
+  text-align: center;
+  padding: 8px;
   border: 1px solid #ccc;
+
+  p {
+    margin: 0;
+  }
 }
 
 .chatPreviewMessage_Incoming {
