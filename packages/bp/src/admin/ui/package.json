@@ -46,6 +46,7 @@
     "redux": "^4.0.5",
     "redux-thunk": "^2.3.0",
     "snarkdown": "^1.2.2",
+    "socket.io-client": "^4.3.2",
     "ui-shared": "link:../../../ui-shared"
   },
   "devDependencies": {

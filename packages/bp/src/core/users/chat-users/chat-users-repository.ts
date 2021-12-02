@@ -183,7 +183,7 @@ export class ChannelUserRepository {
 
     await req
 
-    this.broadcastDeleteUserCache(this.getCacheKey(channel, user_id))
+    await this.broadcastDeleteUserCache(this.getCacheKey(channel, user_id))
   }
 
   async updateAttributes(channel: string, user_id: string, attributes: any): Promise<void> {
@@ -197,7 +197,7 @@ export class ChannelUserRepository {
       .update({ attributes: this.database.knex.json.set({ ...originalAttributes, ...attributes }) })
       .where({ channel, user_id })
 
-    this.broadcastDeleteUserCache(this.getCacheKey(channel, user_id))
+    await this.broadcastDeleteUserCache(this.getCacheKey(channel, user_id))
   }
 
   private async _dataRetentionUpdate(channel: string, user_id: string, attributes: any) {

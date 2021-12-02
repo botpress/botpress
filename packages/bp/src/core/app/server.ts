@@ -233,6 +233,9 @@ export class HTTPServer {
     await AppLifecycle.waitFor(AppLifecycleEvents.CONFIGURATION_LOADED)
     await this.setupRootPath()
 
+    const botpressConfig = await this.configProvider.getBotpressConfig()
+    process.USE_JWT_COOKIES = yn(botpressConfig.jwtToken.useCookieStorage)
+
     const app = express()
     app.use(process.ROOT_PATH, this.app)
     this.httpServer = createServer(app)
@@ -280,8 +283,6 @@ export class HTTPServer {
     const botpressConfig = await this.configProvider.getBotpressConfig()
     const config = botpressConfig.httpServer
     await this.sdkApiRouter.initialize()
-
-    process.USE_JWT_COOKIES = yn(botpressConfig.jwtToken.useCookieStorage)
 
     this.setupMessagingProxy()
 
