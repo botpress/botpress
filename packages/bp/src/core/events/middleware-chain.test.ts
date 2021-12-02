@@ -142,7 +142,8 @@ describe('Middleware', () => {
   })
 
   it('if should let mw set a custom timeout value', async () => {
-    const extraTime = 10
+    // Avoid a small number, bluebird overhead sometimes makes the test fail
+    const extraTime = 50
     const mock = jest.fn(async (_event: IO.Event) => {
       await Promise.delay(defaultTimeout + extraTime)
     })
