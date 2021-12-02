@@ -109,7 +109,7 @@ export const getDateShortcuts = (): IDateRangeShortcut[] => {
 export const DATE_FORMAT = 'YYYY-MM-DD HH:mm:ss'
 
 export const getRangeLabel = (dateRange?: DateRange) => {
-  if (!dateRange) {
+  if (!dateRange || !dateRange[0] || !dateRange[1]) {
     return
   }
 
