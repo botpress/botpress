@@ -3,7 +3,7 @@ on:
   pull_request:
     types: [review_requested]
   release:
-    types: [created]
+    types: [published]
 
 jobs:
   pre_release_bin:
@@ -62,7 +62,7 @@ jobs:
           aws s3 sync packages/bp/archives s3://botpress-dev-bins/botpress/${{ steps.info.outputs.branch_sanitized }}
 
       - name: Publish Prod Binaries
-        if: ${{ github.event_name == 'release' && github.event.action == 'created' }}
+        if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
