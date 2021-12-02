@@ -1,8 +1,8 @@
-import { VisibilityProperty } from 'csstype'
+import { Property } from 'csstype'
 import React, { FC, useEffect, useState } from 'react'
 
 export const Avatar: FC<{ url: string; className: string }> = props => {
-  const [visibility, setVisibility] = useState<VisibilityProperty>('visible')
+  const [visibility, setVisibility] = useState<Property.BackfaceVisibility>('visible')
 
   useEffect(() => {
     setVisibility(!props.url ? 'hidden' : 'visible')

@@ -243,7 +243,7 @@
 }
 
 .bph-chat-bubble {
-  max-width: 60%;
+  max-width: 50%;
 
   border: 1px solid #f1f1f1;
   background-color: rgba(255, 255, 255, 0.9);
