@@ -48,16 +48,30 @@
 }
 
 .chatPreviewText {
-  width: 100%;
+  flex: 1;
+  max-width: 360px;
   padding: 5px;
   border-radius: 15px;
-  text-align: center;
+  text-align: left;
+  overflow-wrap: break-word;
   padding: 8px;
   border: 1px solid #ccc;
 
   p {
     margin: 0;
   }
+  img,
+  audio,
+  video {
+    max-width: 100%;
+  }
+}
+
+.chatPreviewMessage_System {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  color: #444444;
 }
 
 .chatPreviewMessage_Incoming {
@@ -75,7 +89,6 @@
 }
 
 .chatPreviewMessage_Outgoing {
-  align-self: flex-start;
   .chatPreviewAvatar {
     order: 1;
     margin-right: 5px;
@@ -92,7 +105,6 @@
     position: relative;
     background: #db3737;
     border: 1px solid #db3737;
-
     &:before {
       position: absolute;
       content: '';
