@@ -8,6 +8,7 @@ import yn from 'yn'
 import { setDebugScopes } from '../debug'
 import { registerActionServerMainHandler } from './action-server'
 import { registerMessagingServerMainHandler } from './messaging-server'
+import { runMigrator } from './migrator'
 import { registerNluServerMainHandler } from './nlu-server'
 import { registerStudioMainHandler } from './studio-client'
 import { spawnWebWorker, onWebWorkerExit } from './web-worker'
@@ -178,6 +179,10 @@ export const setupMasterNode = (logger: sdk.Logger) => {
       logger.attachError(err).error(`Error while processing worker message ${message.type}`)
     }
   })
+
+  if (process.MIGRATE_CMD) {
+    return runMigrator()
+  }
 
   spawnWebWorker()
 }

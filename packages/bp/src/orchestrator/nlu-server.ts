@@ -7,13 +7,14 @@ import portFinder from 'portfinder'
 
 import { NLUServerOptions } from '../nlu/typings'
 import { MessageType, onProcessExit, registerProcess, registerMsgHandler } from './master'
+import { getMigrationArgs } from './migrator'
 
-let initialParams: Partial<NLUServerOptions>
+let initialParams: Partial<NLUServerOptions> | undefined
 
 export const registerNluServerMainHandler = (logger: sdk.Logger) => {
   registerMsgHandler(MessageType.StartNluServer, async (message: Partial<NLUServerOptions>) => {
     initialParams = message
-    await startNluServer(message, logger)
+    await startNluServer(logger, message)
   })
 }
 
@@ -27,7 +28,7 @@ export const killNluProcess = () => {
   nluServerProcess?.kill('SIGKILL')
 }
 
-export const startNluServer = async (opts: Partial<NLUServerOptions>, logger: sdk.Logger) => {
+export const startNluServer = async (logger: sdk.Logger, opts?: Partial<NLUServerOptions>, onExit?: (err?) => void) => {
   const options = { ...DEFAULT_NLU_SERVER_OPTIONS, ...opts }
   const port = await portFinder.getPortPromise({ port: options.port })
 
@@ -37,7 +38,8 @@ export const startNluServer = async (opts: Partial<NLUServerOptions>, logger: sd
     ...process.env,
     // some vscode NODE_OPTIONS seem to break the nlu binary
     NODE_OPTIONS: '',
-    NLU_SERVER_CONFIG: JSON.stringify({ ...options, port })
+    NLU_SERVER_CONFIG: JSON.stringify({ ...options, port }),
+    ...getMigrationArgs('nlu')
   }
 
   if (!process.core_env.DEV_NLU_PATH) {
@@ -48,13 +50,17 @@ export const startNluServer = async (opts: Partial<NLUServerOptions>, logger: sd
   }
 
   nluServerProcess?.on('exit', (code, signal) => {
+    if (onExit) {
+      return onExit()
+    }
+
     onProcessExit({
       processType: 'nlu',
       code,
       signal,
       logger,
       restartMethod: async () => {
-        await startNluServer(initialParams, logger)
+        await startNluServer(logger, initialParams)
       }
     })
   })

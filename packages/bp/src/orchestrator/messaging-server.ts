@@ -5,6 +5,7 @@ import path from 'path'
 import portFinder from 'portfinder'
 
 import { MessageType, onProcessExit, registerProcess, registerMsgHandler } from './master'
+import { getMigrationArgs } from './migrator'
 
 export interface MessagingServerOptions {
   host: string
@@ -24,12 +25,12 @@ export const getMessagingBinaryPath = () => {
   return path.resolve(basePath, `bin/messaging${process.distro.os === 'win32' ? '.exe' : ''}`)
 }
 
-let initialParams: Partial<MessagingServerOptions>
+let initialParams: Partial<MessagingServerOptions> | undefined
 
 export const registerMessagingServerMainHandler = (logger: sdk.Logger) => {
   registerMsgHandler(MessageType.StartMessagingServer, async (message: Partial<MessagingServerOptions>) => {
     initialParams = message
-    await startMessagingServer(message, logger)
+    await startMessagingServer(logger, message)
   })
 }
 
@@ -43,7 +44,11 @@ export const startLocalMessagingServer = (message: Partial<MessagingServerOption
   process.send!({ type: MessageType.StartMessagingServer, ...message })
 }
 
-export const startMessagingServer = async (opts: Partial<MessagingServerOptions>, logger: sdk.Logger) => {
+export const startMessagingServer = async (
+  logger: sdk.Logger,
+  opts?: Partial<MessagingServerOptions>,
+  onExit?: (err?) => void
+) => {
   const options = _.merge(DEFAULT_MESSAGING_OPTIONS, opts)
   const port = await portFinder.getPortPromise({ port: options.port })
 
@@ -53,7 +58,7 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     NODE_ENV: process.env.NODE_ENV,
     NODE_OPTIONS: '',
     PORT: port.toString(),
-    EXTERNAL_URL: `${opts.EXTERNAL_URL}/api/v1/messaging`,
+    EXTERNAL_URL: `${opts?.EXTERNAL_URL}/api/v1/messaging`,
     INTERNAL_PASSWORD: process.INTERNAL_PASSWORD,
     ENCRYPTION_KEY: '', // we disable encryption for now,
     DATABASE_URL: process.core_env.DATABASE_URL || `${process.PROJECT_LOCATION}/data/storage/core.sqlite`,
@@ -66,10 +71,11 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     SKIP_LOAD_ENV: 'true',
     SKIP_LOAD_CONFIG: 'true',
     SPINNED: 'true',
-    SPINNED_URL: `http://localhost:${opts.CORE_PORT}/api/v1/chat/receive`,
+    SPINNED_URL: `http://localhost:${opts?.CORE_PORT}/api/v1/chat/receive`,
     NO_LAZY_LOADING: 'true',
     // Needed for legacy twilio validation
-    MASTER_URL: opts.EXTERNAL_URL
+    MASTER_URL: opts?.EXTERNAL_URL,
+    ...getMigrationArgs('messaging')
   }
 
   if (!process.core_env.DEV_MESSAGING_PATH) {
@@ -80,13 +86,17 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
   }
 
   messagingServerProcess?.on('exit', (code, signal) => {
+    if (onExit) {
+      return onExit()
+    }
+
     onProcessExit({
       processType: 'messaging',
       code,
       signal,
       logger,
       restartMethod: async () => {
-        await startMessagingServer(initialParams, logger)
+        await startMessagingServer(logger, initialParams)
       }
     })
   })

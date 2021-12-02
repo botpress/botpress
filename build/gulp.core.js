@@ -7,6 +7,7 @@ const run = require('gulp-run')
 const file = require('gulp-file')
 const buildJsonSchemas = require('./jsonschemas')
 const fs = require('fs')
+const fse = require('fs-extra')
 const mkdirp = require('mkdirp')
 const { exec, spawn } = require('child_process')
 const gulpRimraf = require('gulp-rimraf')
@@ -35,6 +36,23 @@ const writeMetadata = async () => {
   return file('./packages/bp/dist/metadata.json', JSON.stringify(metadata, null, 2), { src: true }).pipe(
     gulp.dest('./')
   )
+}
+
+const checkVersions = async () => {
+  const jsonPath = path.join(__dirname, '../packages/bp/src/core/migration/versions.json')
+  const pkg = require(path.join(__dirname, '../package.json'))
+  const versions = await fse.readJSON(jsonPath)
+
+  versions[pkg.version] = {
+    studio: pkg.studio.version,
+    messaging: pkg.messaging.version,
+    nlu: pkg.nlu.version
+  }
+
+  await fse.writeJson(jsonPath, versions, { spaces: 2 })
+
+  // For some reason typescript doesn't automatically add the file to the dist folder
+  await fse.writeJson(path.join(__dirname, '../packages/bp/dist/core/migration/versions.json'), versions, { spaces: 2 })
 }
 
 const clearMigrations = () => {
@@ -117,6 +135,7 @@ const initDownloader = cb => {
 
 const build = () => {
   return gulp.series([
+    checkVersions,
     clearMigrations,
     maybeFetchPro,
     writeMetadata,

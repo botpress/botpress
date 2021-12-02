@@ -7,6 +7,7 @@ import _ from 'lodash'
 import path from 'path'
 import portFinder from 'portfinder'
 import { onProcessExit, registerProcess, processes, registerMsgHandler, MessageType } from './master'
+import { getMigrationArgs } from './migrator'
 
 export interface WebWorkerParams {
   EXTERNAL_URL: string
@@ -14,7 +15,7 @@ export interface WebWorkerParams {
   ROOT_PATH: string
 }
 
-let initialParams: WebWorkerParams
+let initialParams: WebWorkerParams | undefined
 
 const debug = DEBUG('orchestrator:studio')
 
@@ -73,7 +74,7 @@ export const registerStudioMainHandler = (logger: sdk.Logger) => {
   })
 }
 
-export const startStudio = async (logger: sdk.Logger, params: WebWorkerParams) => {
+export const startStudio = async (logger: sdk.Logger, params?: WebWorkerParams, onExit?: (err?) => void) => {
   const studioPort = await portFinder.getPortPromise({ port: 3000 + 1000 })
   registerProcess('studio', studioPort)
 
@@ -97,17 +98,18 @@ export const startStudio = async (logger: sdk.Logger, params: WebWorkerParams) =
     PROJECT_LOCATION: process.PROJECT_LOCATION,
     APP_DATA_PATH: process.APP_DATA_PATH,
     PRO_ENABLED: process.IS_PRO_ENABLED?.toString(),
-    STUDIO_PORT: processes.studio.port.toString(),
-    CORE_PORT: processes.web.port.toString(),
+    STUDIO_PORT: processes.studio?.port.toString(),
+    CORE_PORT: processes.web?.port.toString(),
     INTERNAL_PASSWORD: process.INTERNAL_PASSWORD,
     BP_DATA_FOLDER: path.join(process.PROJECT_LOCATION, 'data'),
     BP_MODULES_PATH: fixModulesPath(),
     // These params are processed by the web worker
-    EXTERNAL_URL: params.EXTERNAL_URL,
-    APP_SECRET: params.APP_SECRET,
-    ROOT_PATH: params.ROOT_PATH,
+    EXTERNAL_URL: params?.EXTERNAL_URL,
+    APP_SECRET: params?.APP_SECRET,
+    ROOT_PATH: params?.ROOT_PATH,
     SERVER_ID: process.SERVER_ID,
-    BOTPRESS_VERSION: process.BOTPRESS_VERSION
+    BOTPRESS_VERSION: process.BOTPRESS_VERSION,
+    ...getMigrationArgs('studio')
   }
 
   // We store the dynamic params so we can reuse them when auto-restarting the studio process
@@ -130,6 +132,10 @@ export const startStudio = async (logger: sdk.Logger, params: WebWorkerParams) =
 
   studioHandle.on('exit', async (code: number, signal: string) => {
     debug('Studio exiting %o', { code, signal })
+
+    if (onExit) {
+      return onExit()
+    }
 
     onProcessExit({
       processType: 'studio',

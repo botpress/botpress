@@ -62,6 +62,11 @@ export const setupWebWorker = () => {
 }
 
 export const onWebWorkerExit = (code, signal, logger, exitedAfterDisconnect) => {
+  // When migrating, no sub processes are started
+  if (process.MIGRATE_CMD !== undefined) {
+    return
+  }
+
   killNluProcess()
   killStudioProcess()
   killMessagingProcess()
