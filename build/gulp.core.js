@@ -135,11 +135,11 @@ const initDownloader = cb => {
 
 const build = () => {
   return gulp.series([
-    checkVersions,
     clearMigrations,
     maybeFetchPro,
     writeMetadata,
     compileTypescript,
+    checkVersions,
     buildSchemas,
     createOutputDirs,
     copyBinaries,
