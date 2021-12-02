@@ -20,9 +20,6 @@ module.exports = {
     config.plugins.push(
       new FileManagerPlugin({
         events: {
-          onStart: {
-            delete: ['dist']
-          },
           onEnd: [
             {
               delete: [{ source: path.resolve(__dirname, '../bp/dist/admin/ui/public'), options: { force: true } }]
