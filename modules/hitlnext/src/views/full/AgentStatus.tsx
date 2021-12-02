@@ -42,7 +42,7 @@ const AgentStatus: FC<Props> = ({ bp }) => {
 
   useEffect(() => {
     bp.events.on(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
-    return () => bp.events.off(`hitlnext:${window.BOT_ID}`, handleMessage)
+    return () => bp.events.off(`${WEBSOCKET_TOPIC}:${window.BOT_ID}`, handleMessage)
   }, [])
 
   return <AgentIcon online={state.currentAgent?.online} />
