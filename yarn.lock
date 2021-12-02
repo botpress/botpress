@@ -14335,7 +14335,7 @@ klona@^2.0.4:
   resolved "https://registry.npmjs.org/klona/-/klona-2.0.5.tgz#d166574d90076395d9963aa7a928fabb8d76afbc"
   integrity sha512-pJiBpiXMbt7dkzXe8Ghj/u4FfXOOa98fPW+bihOJ4SjnoijweJrNThJfd3ifXpXhREjpoF2mZVH1GfS9LV3kHQ==
 
-knex@0.20.1, knex@^0.20.1:
+knex@^0.20.1:
   version "0.20.1"
   resolved "https://registry.yarnpkg.com/knex/-/knex-0.20.1.tgz#e2765492a810b3ae6b4c1b49a7bc4719c83f5c12"
   integrity sha512-vQvlzsCw4kkqWLmUFVhPX8H4KrfSLVSVGbMJVo4fhJ8N5fN+CH0LzgAmQBh0iwbJY7x8Sk3T4pEjnUlUKjnCPw==
@@ -22278,7 +22278,7 @@ typescript@^4.2.3:
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-4.2.4.tgz#8610b59747de028fda898a8aef0e103f156d0961"
   integrity sha512-V+evlYHZnQkaz8TRBuxTA92yZBPotr5H+WhQ7bD3hZUndx5tGOa1fuCgeSjxAzM1RiN5IzvadIXTVefuuwZCRg==
 
-typescript@^4.2.4, typescript@^4.4.4:
+typescript@^4.4.4:
   version "4.5.2"
   resolved "https://registry.npmjs.org/typescript/-/typescript-4.5.2.tgz#8ac1fba9f52256fdb06fb89e4122fa6a346c2998"
   integrity sha512-5BlMof9H1yGt0P8/WF+wPNw6GfctgGjXp5hkblpyT+8rkASSmkUKMXrxR0Xg8ThVCi/JnHQiKXeBaEwCeQwMFw==
