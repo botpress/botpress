@@ -35,6 +35,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onModuleUnmount,
   translations: { en, fr, es },
   definition: {
+    noInterface: true,
     name: 'analytics',
     fullName: 'Analytics',
     homepage: 'https://botpress.com',
