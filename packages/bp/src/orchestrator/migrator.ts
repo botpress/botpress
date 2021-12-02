@@ -27,10 +27,6 @@ export const runMigrator = async () => {
 }
 
 export const getMigrationArgs = (processName: string) => {
-  if (!process.MIGRATE_CMD) {
-    return undefined
-  }
-
   return {
     MIGRATE_CMD: process.MIGRATE_CMD,
     MIGRATE_TARGET: versions[process.BOTPRESS_VERSION]?.[processName],
