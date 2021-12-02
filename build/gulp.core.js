@@ -105,6 +105,12 @@ const checkTranslations = cb => {
   })
 }
 
+const buildRuntime = cb => {
+  const child = exec('yarn && yarn build', { cwd: 'packages/runtime' }, err => cb(err))
+  child.stdout.pipe(process.stdout)
+  child.stderr.pipe(process.stderr)
+}
+
 const buildDownloader = cb => {
   const child = exec('yarn && yarn build', { cwd: 'build/downloader' }, err => cb(err))
   child.stdout.pipe(process.stdout)
@@ -123,6 +129,7 @@ const build = () => {
     clearMigrations,
     maybeFetchPro,
     writeMetadata,
+    buildRuntime,
     compileTypescript,
     buildSchemas,
     createOutputDirs,
