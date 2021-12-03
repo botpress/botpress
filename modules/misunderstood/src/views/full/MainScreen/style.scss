@@ -29,7 +29,7 @@
 .chatPreviewMessage {
   display: flex;
   flex-direction: row;
-  max-width: 80%;
+  max-width: 60%;
   padding: 10px;
   margin-bottom: 10px;
 }
@@ -48,14 +48,17 @@
 }
 
 .chatPreviewText {
-  flex: 1;
-  max-width: 360px;
-  padding: 5px;
+  max-width: 60%;
   border-radius: 15px;
-  text-align: left;
+  text-align: center;
   overflow-wrap: break-word;
   padding: 8px;
   border: 1px solid #ccc;
+
+  /* Hack to make cards use full width */
+  &.card {
+    flex: 1;
+  }
 
   p {
     margin: 0;

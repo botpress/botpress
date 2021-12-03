@@ -37,7 +37,11 @@ const ChatPreview = ({ messages }: { messages: ContextMessage[] }) => (
           })}
         >
           <div className={style.chatPreviewAvatar}>{message.direction === 'incoming' ? 'U' : 'B'}</div>
-          <div className={style.chatPreviewText}>
+          <div
+            className={classnames(style.chatPreviewText, {
+              [style.card]: message.payload.type === 'card' // Hack to make cards use full width
+            })}
+          >
             <ReactMessageRenderer content={fixPayload(message.payload)} config={defaultMessageConfig} />
           </div>
         </div>
