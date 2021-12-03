@@ -1,3 +1,4 @@
+import 'bluebird-global'
 import chokidar from 'chokidar'
 import path from 'path'
 
@@ -8,10 +9,10 @@ import { watch as webpackWatch } from './webpack'
 export default async (argv: any) => {
   const modulePath = path.resolve(argv.path || process.cwd())
 
-  let promise: undefined | Promise<void> = buildBackend(modulePath)
+  let promise: Promise<void> = buildBackend(modulePath)
 
   const rebuild = () => {
-    if (!promise) {
+    if (!promise.isPending) {
       debug('Backend files changed')
       promise = buildBackend(modulePath)
     }
