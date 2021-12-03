@@ -1,5 +1,5 @@
 {
-  "name": "ui-shared",
+  "name": "@botpress/ui-shared",
   "version": "0.0.1",
   "private": true,
   "publisher": "botpress",
@@ -32,8 +32,8 @@
     "react-dotdotdot": "^1.3.1",
     "react-hotkeys": "^1.1.4",
     "react-intl": "^3.12.1",
-    "react-split-pane": "^0.1.89",
     "react-router-dom": "4.3.1",
+    "react-split-pane": "^0.1.89",
     "sass-loader": "^6.0.6",
     "script-loader": "^0.7.0",
     "snarkdown": "^1.2.2",
@@ -48,7 +48,10 @@
     "dist"
   ],
   "dependencies": {
+    "classnames": "^2.2.6",
     "js-cookie": "^2.2.1",
+    "ms": "^2.1.1",
+    "lodash": "^4.17.19",
     "react-command-palette": "^0.12.0-0",
     "react-router": "4.3.1"
   }
