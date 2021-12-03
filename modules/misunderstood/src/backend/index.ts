@@ -49,6 +49,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   translations: { en, fr, es },
   definition: {
     experimental: false,
+    noInterface: true,
     name: 'misunderstood',
     menuIcon: 'icon.svg',
     menuText: 'Misunderstood',
