@@ -11,6 +11,7 @@
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
+    "useUnknownInCatchVariables": false,
     "baseUrl": "./src",
     "outDir": "dist",
     "typeRoots": ["./src/typings", "../../node_modules/@types", "./src/common"],

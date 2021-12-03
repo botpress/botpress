@@ -1,6 +1,6 @@
 {
   "name": "bp_main",
-  "version": "12.26.7",
+  "version": "12.26.8",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": "^12"
@@ -14,10 +14,10 @@
     "version": "0.1.9"
   },
   "studio": {
-    "version": "0.0.42"
+    "version": "0.0.44"
   },
   "messaging": {
-    "version": "0.1.17"
+    "version": "0.1.18"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
@@ -95,8 +95,6 @@
     "@types/redlock": "^4.0.0",
     "@types/seedrandom": "^2.4.28",
     "@types/semver": "^7.3.8",
-    "@types/socket.io": "^2.1.2",
-    "@types/socket.io-client": "^1.4.36",
     "@types/tar": "^4.0.4",
     "@types/tmp": "^0.0.33",
     "@types/universal-analytics": "^0.4.2",
@@ -139,7 +137,7 @@
     "ts-jest": "^27.0.5",
     "ts-node": "^10.2.1",
     "typedoc": "^0.13.0",
-    "typescript": "^4.2.4",
+    "typescript": "^4.4.4",
     "typescript-json-schema": "^0.50.0"
   },
   "optionalDependencies": {
