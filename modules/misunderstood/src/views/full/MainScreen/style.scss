@@ -55,9 +55,8 @@
   padding: 8px;
   border: 1px solid #ccc;
 
-  /* Hack to make cards use full width */
   &.card {
-    flex: 1;
+    min-width: 60%;
   }
 
   p {
@@ -71,10 +70,8 @@
 }
 
 .chatPreviewMessage_System {
-  justify-content: center;
-  align-items: center;
   text-align: center;
-  color: #444444;
+  color: #676767;
 }
 
 .chatPreviewMessage_Incoming {
