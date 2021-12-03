@@ -18,10 +18,10 @@ process.on('uncaughtException', err => {
 if (yn(process.env.GULP_PARALLEL)) {
   gulp.task(
     'build',
-    gulp.series([ui.buildSharedLite(), core.build(), ui.buildShared(), gulp.parallel(modules.build(), ui.build())])
+    gulp.series([ui.buildSharedLite(), core.build, ui.buildShared(), gulp.parallel(modules.build(), ui.build())])
   )
 } else {
-  gulp.task('build', gulp.series([ui.buildSharedLite(), core.build(), ui.buildShared(), modules.build(), ui.build()]))
+  gulp.task('build', gulp.series([ui.buildSharedLite(), core.build, ui.buildShared(), modules.build(), ui.build()]))
 }
 
 gulp.task('default', cb => {
@@ -47,17 +47,17 @@ gulp.task('default', cb => {
 })
 
 gulp.task('build:ui', ui.build())
-gulp.task('build:core', core.build())
+gulp.task('build:core', core.build)
 gulp.task('build:sharedLite', ui.buildSharedLite())
 gulp.task('build:shared', ui.buildShared())
 gulp.task('build:modules', gulp.series([modules.build()]))
 
-gulp.task('postinstall', gulp.series([core.buildDownloader, core.initDownloader]))
+gulp.task('postinstall', gulp.series([core.buildDownloader, core.initDownloader, core.maybeFetchPro]))
 gulp.task('build:reference', docs.buildReference())
 
-gulp.task('package:core', package.packageCore())
+gulp.task('package:core', package.packageApp)
 gulp.task('package:modules', modules.packageModules())
-gulp.task('package', gulp.series([package.packageApp, modules.packageModules(), package.copyNativeExtensions]))
+gulp.task('package', gulp.series([package.packageApp, modules.packageModules()]))
 gulp.task('archive', gulp.series([modules.packageModules(), package.packageAll]))
 
 gulp.task('watch', gulp.parallel([core.watch, ui.watchAll]))

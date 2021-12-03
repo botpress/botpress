@@ -1,8 +1,5 @@
 const tsjPreset = require('ts-jest/presets')
 
-// Required in order for the Jest VS Code Extension to work properly
-process.env.NATIVE_EXTENSIONS_DIR = 'build/native-extensions'
-
 module.exports = {
   projects: [
     {

@@ -1,0 +1,10 @@
+{
+  "name": "@botpress/native-extensions",
+  "version": "0.0.1",
+  "private": true,
+  "publisher": "botpress",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc"
+  }
+}
