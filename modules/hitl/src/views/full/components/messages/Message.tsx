@@ -14,7 +14,7 @@ export default class Message extends React.Component<{ message: HitlMessage }> {
     // TODO: Remove this hack and use a native solution instead
     // We have to convert single-choices, quick replies and dropdowns into text messages
     // So that we render the user's response as a text message
-    if (payload.type === 'single-choice' || payload.type === 'quick_reply') {
+    if (!payload.type || payload.type === 'single-choice' || payload.type === 'quick_reply') {
       payload = { ...payload, type: 'text' }
     } else if (payload.type === 'dropdown') {
       payload = { ...payload, type: 'text', text: payload.message }
@@ -64,7 +64,7 @@ export default class Message extends React.Component<{ message: HitlMessage }> {
       >
         {messageFrom === 'user' && avatar}
         <div className="bph-message-container">
-          <div className="bph-chat-bubble">{this.renderContent()}</div>
+          <div className={classnames('bph-chat-bubble', { ['card']: type === 'card' })}>{this.renderContent()}</div>
         </div>
         {messageFrom !== 'user' && avatar}
       </div>

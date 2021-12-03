@@ -254,6 +254,14 @@
   word-break: break-word;
 }
 
+.bph-chat-bubble.card {
+  min-width: 50%;
+}
+
+.bph-chat-bubble p {
+  margin: 0px;
+}
+
 .bph-chat-bubble img {
   max-height: 240px;
   max-width: 100%;
