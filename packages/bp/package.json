@@ -12,14 +12,10 @@
   "private": true,
   "scripts": {
     "start": "cd dist && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=./data/modules/:../../../modules:../../../internal-modules STAN_DEV_MODE=true node index.js",
-    "cmd": "yarn run gulp",
-    "ebuild": "yarn cmd build",
-    "build": "yarn cmd build:core",
-    "watch": "yarn cmd watch",
+    "build": "tsc --build",
+    "watch": "tsc --build --watch",
     "package": "yarn cmd package",
-    "itest": "cross-env NATIVE_EXTENSIONS_DIR=../../build/native-extensions cross-env jest -i --detectOpenHandles -c jest.e2e.config.js all",
-    "commitmsg": "commitlint -e $GIT_PARAMS",
-    "bpd": "node build/downloader/out/index.js"
+    "itest": "cross-env NATIVE_EXTENSIONS_DIR=../../build/native-extensions cross-env jest -i --detectOpenHandles -c jest.e2e.config.js all"
   },
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^9.0.6",
