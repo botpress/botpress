@@ -10,17 +10,24 @@ import SVGIcon from '../SVGIcon'
 export default class Message extends React.Component<{ message: HitlMessage }> {
   renderContent() {
     let { raw_message: payload } = this.props.message
+    const { ts, source } = this.props.message
 
-    // TODO: Remove this hack and use a native solution instead
-    // We have to convert single-choices, quick replies and dropdowns into text messages
-    // So that we render the user's response as a text message
-    if (!payload.type || payload.type === 'single-choice' || payload.type === 'quick_reply') {
+    if (!payload.type) {
       payload = { ...payload, type: 'text' }
-    } else if (payload.type === 'dropdown') {
-      payload = { ...payload, type: 'text', text: payload.message }
     }
 
-    return <ReactMessageRenderer content={payload} config={defaultMessageConfig} />
+    return (
+      <ReactMessageRenderer
+        content={payload}
+        config={{
+          ...defaultMessageConfig,
+          isBotMessage: source !== 'user',
+          isLastGroup: false,
+          isLastOfGroup: false,
+          sentOn: ts
+        }}
+      />
+    )
   }
 
   renderMessage() {
