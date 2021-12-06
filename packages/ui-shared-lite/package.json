@@ -1,5 +1,5 @@
 {
-  "name": "ui-shared-lite",
+  "name": "@botpress/ui-shared-lite",
   "version": "1.0.0",
   "author": "Botpress",
   "dependencies": {

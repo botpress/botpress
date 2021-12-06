@@ -7,7 +7,7 @@
     "resolveJsonModule": true,
     "allowJs": true,
     "target": "es2019",
-    "jsx": "react-jsx",
+    "jsx": "react",
     "types": [],
     "skipLibCheck": true,
     "allowSyntheticDefaultImports": true,

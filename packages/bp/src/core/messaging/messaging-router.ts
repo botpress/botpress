@@ -30,6 +30,13 @@ export class MessagingRouter extends CustomRouter {
           }
 
           await this.messaging.receive(event.data as MessageNewEventData)
+        } else if (event.type === 'conversation.started') {
+          const { error } = ConversationStartedEventSchema.validate(event.data)
+          if (error) {
+            return res.status(400).send(error.message)
+          }
+
+          await this.messaging.conversationStarted(event.data as ConversationStartedEventData)
         } else if (event.type === 'user.new') {
           this.messaging.incrementNewUsersCount()
         }
@@ -69,8 +76,15 @@ export interface MessageNewEventData {
   collect: boolean
 }
 
+export interface ConversationStartedEventData {
+  clientId: string
+  userId: string
+  conversationId: string
+  channel: string
+}
+
 interface MessagingEvent {
-  type: 'message.new' | 'user.new'
+  type: 'message.new' | 'conversation.started' | 'user.new'
   data: any
 }
 
@@ -90,5 +104,14 @@ const MessageNewEventSchema = joi
         payload: joi.object().required()
       })
       .required()
+  })
+  .required()
+
+const ConversationStartedEventSchema = joi
+  .object({
+    clientId: joi.string().required(),
+    userId: joi.string().required(),
+    conversationId: joi.string().required(),
+    channel: joi.string().required()
   })
   .required()
