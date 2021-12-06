@@ -157,7 +157,15 @@ class CreateBotModal extends Component<Props, State> {
       !botId ||
       !botName ||
       (this.props.existingBots && this.props.existingBots.some(bot => bot.name === botName || bot.id === botId))
-    return isNameOrIdInvalid || isProcessing || !selectedTemplate || !this._form || !this._form.checkValidity()
+    const isCloudConfigInvalid = this.state.isCloudBot && (!this.state.cloudClientId || !this.state.cloudClientSecret)
+    return (
+      isNameOrIdInvalid ||
+      isCloudConfigInvalid ||
+      isProcessing ||
+      !selectedTemplate ||
+      !this._form ||
+      !this._form.checkValidity()
+    )
   }
 
   render() {
@@ -255,6 +263,8 @@ class CreateBotModal extends Component<Props, State> {
                   placeholder={lang.tr('admin.workspace.bots.create.clientIdPlaceholder')}
                   value={this.state.cloudClientId}
                   className={style.clientId}
+                  pattern="\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b"
+                  required={this.state.isCloudBot}
                   onChange={e =>
                     this.setState({
                       cloudClientId: e.target.value
@@ -266,6 +276,8 @@ class CreateBotModal extends Component<Props, State> {
                   placeholder={lang.tr('admin.workspace.bots.create.clientSecretPlaceholder')}
                   value={this.state.cloudClientSecret}
                   type="password"
+                  pattern="\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b"
+                  required={this.state.isCloudBot}
                   onChange={e =>
                     this.setState({
                       cloudClientSecret: e.target.value
