@@ -57,7 +57,7 @@ class BotsRouter extends CustomAdminRouter {
       this.checkTokenHeader,
       this.needPermissions('write', 'admin.bots'),
       this.asyncMiddleware(async (req, res) => {
-        const bot = <BotConfig>_.pick(req.body, ['id', 'name', 'category', 'defaultLanguage'])
+        const bot = <BotConfig>_.pick(req.body, ['id', 'name', 'category', 'defaultLanguage', 'isCloudBot', 'cloud'])
 
         const botExists = (await this.botService.getBotsIds()).includes(bot.id)
         const botLinked = (await this.workspaceService.getBotRefs()).includes(bot.id)

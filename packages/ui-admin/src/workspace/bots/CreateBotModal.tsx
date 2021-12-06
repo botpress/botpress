@@ -1,6 +1,6 @@
 import { Button, Classes, Dialog, FormGroup, InputGroup, Intent, Callout } from '@blueprintjs/core'
 import { BotConfig, BotTemplate } from 'botpress/sdk'
-import { lang } from 'botpress/shared'
+import { Checkbox, lang } from 'botpress/shared'
 import _ from 'lodash'
 import ms from 'ms'
 import React, { Component } from 'react'
@@ -10,6 +10,7 @@ import Select from 'react-select'
 import api from '~/app/api'
 import { AppState } from '~/app/rootReducer'
 import { fetchBotCategories, fetchBotTemplates } from './reducer'
+import style from './style.scss'
 
 export const sanitizeBotId = (text: string) =>
   text
@@ -44,16 +45,23 @@ interface State {
 
   selectedTemplate?: BotTemplate
   selectedCategory?: SelectOption<string>
+
+  isCloudBot: boolean
+  cloudClientId: string
+  cloudClientSecret: string
 }
 
-const defaultState = {
+const defaultState: Omit<State, 'templates' | 'categories'> = {
   botId: '',
   botName: '',
   selectedCategory: undefined,
   selectedTemplate: undefined,
   error: undefined,
   isProcessing: false,
-  generateId: true
+  generateId: true,
+  isCloudBot: false,
+  cloudClientId: '',
+  cloudClientSecret: ''
 }
 
 class CreateBotModal extends Component<Props, State> {
@@ -113,11 +121,20 @@ class CreateBotModal extends Component<Props, State> {
     }
     this.setState({ isProcessing: true })
 
-    const newBot = {
+    const newBot: Partial<BotConfig> & { template: Partial<BotTemplate> } = {
       id: this.state.botId,
       name: this.state.botName,
       template: _.pick(this.state.selectedTemplate, ['id', 'moduleId']),
       category: this.state.selectedCategory && this.state.selectedCategory.value
+    }
+
+    if (this.state.isCloudBot) {
+      newBot.isCloudBot = this.state.isCloudBot
+      newBot.cloud = {
+        clientId: this.state.cloudClientId,
+        clientSecret: this.state.cloudClientSecret,
+        oauthUrl: 'https://oauth.botpress.dev/oauth2/token'
+      }
     }
 
     try {
@@ -157,13 +174,12 @@ class CreateBotModal extends Component<Props, State> {
           <div className={Classes.DIALOG_BODY}>
             <FormGroup
               label={lang.tr('admin.workspace.bots.create.name')}
-              labelFor="bot-name"
+              labelFor="input-bot-name"
               labelInfo="*"
               helperText={lang.tr('admin.workspace.bots.create.nameHelper')}
             >
               <InputGroup
                 id="input-bot-name"
-                tabIndex={1}
                 placeholder={lang.tr('admin.workspace.bots.create.namePlaceholder')}
                 minLength={3}
                 maxLength={50}
@@ -182,7 +198,6 @@ class CreateBotModal extends Component<Props, State> {
             >
               <InputGroup
                 id="botid"
-                tabIndex={2}
                 placeholder={lang.tr('admin.workspace.bots.create.idPlaceholder')}
                 minLength={3}
                 maxLength={50}
@@ -196,7 +211,6 @@ class CreateBotModal extends Component<Props, State> {
               <FormGroup label={lang.tr('admin.workspace.bots.create.template')} labelFor="template">
                 <Select
                   id="select-bot-templates"
-                  tabIndex="3"
                   options={this.state.templates}
                   value={this.state.selectedTemplate}
                   onChange={selectedTemplate => this.setState({ selectedTemplate: selectedTemplate as any })}
@@ -208,10 +222,55 @@ class CreateBotModal extends Component<Props, State> {
             {this.state.categories.length > 0 && (
               <FormGroup label={lang.tr('admin.workspace.bots.create.category')}>
                 <Select
-                  tabIndex="4"
                   options={this.state.categories}
                   value={this.state.selectedCategory}
                   onChange={selectedCategory => this.setState({ selectedCategory: selectedCategory as any })}
+                />
+              </FormGroup>
+            )}
+            <FormGroup
+              label={lang.tr('admin.workspace.bots.create.cloud')}
+              labelFor="checkbox-bot-cloud"
+              helperText={lang.tr('admin.workspace.bots.create.cloudHelper')}
+            >
+              <Checkbox
+                id="checkbox-bot-cloud"
+                label={lang.tr('admin.workspace.bots.create.cloudCheckbox')}
+                checked={this.state.isCloudBot}
+                onChange={e =>
+                  this.setState({
+                    isCloudBot: e.target.checked
+                  })
+                }
+              />
+            </FormGroup>
+            {this.state.isCloudBot && (
+              <FormGroup
+                label={lang.tr('admin.workspace.bots.create.cloudConfiguration')}
+                labelFor="cloud-client-id"
+                helperText={lang.tr('admin.workspace.bots.create.cloudConfigurationHelper')}
+              >
+                <InputGroup
+                  id="cloud-client-id"
+                  placeholder={lang.tr('admin.workspace.bots.create.clientIdPlaceholder')}
+                  value={this.state.cloudClientId}
+                  className={style.clientId}
+                  onChange={e =>
+                    this.setState({
+                      cloudClientId: e.target.value
+                    })
+                  }
+                />
+                <InputGroup
+                  id="cloud-client-secret"
+                  placeholder={lang.tr('admin.workspace.bots.create.clientSecretPlaceholder')}
+                  value={this.state.cloudClientSecret}
+                  type="password"
+                  onChange={e =>
+                    this.setState({
+                      cloudClientSecret: e.target.value
+                    })
+                  }
                 />
               </FormGroup>
             )}

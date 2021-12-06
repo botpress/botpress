@@ -64,12 +64,18 @@ describe('Admin - Bot Management', () => {
 
   it('Create temporary bot', async () => {
     await clickOn('#btn-create-bot')
-    await page.waitFor(100)
+    await page.waitForSelector('#btn-new-bot')
     await clickOn('#btn-new-bot')
 
     await fillField('#input-bot-name', tempBotId)
     await fillField('#select-bot-templates', 'Welcome Bot') // Using fill instead of select because options are created dynamically
     await page.keyboard.press('Enter')
+
+    // Test cloud bot interface
+    await clickOn('#checkbox-bot-cloud')
+    await fillField('#cloud-client-id', 'abc')
+    await fillField('#cloud-client-secret', '123')
+    await clickOn('#checkbox-bot-cloud')
 
     await Promise.all([expectAdminApiCallSuccess('workspace/bots', 'POST'), clickOn('#btn-modal-create-bot')])
   })

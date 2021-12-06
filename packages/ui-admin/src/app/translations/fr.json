@@ -265,7 +265,14 @@
           "nameHelper": "Il sera affiché à vos visiteurs. Vous pouvez le modifier à tout moment.",
           "namePlaceholder": "Le nom de votre bot",
           "newBot": "Créer un nouveau bot",
-          "template": "Modèle de bot"
+          "template": "Modèle de bot",
+          "cloud": "Botpress Cloud Deployment",
+          "cloudCheckbox": "Create a Botpress cloud-ready bot",
+          "cloudHelper": "This bot can then be exported using the Export option in the upper right section of the Studio. Once exported on disk, it should be imported via the Botpress Cloud Deployment manager for cloud deployment. Sign up here for the Alpha release.",
+          "cloudConfiguration": "Cloud Configuration",
+          "cloudConfigurationHelper": "You can get your Client Key and Secret from the Botpress Cloud Deployment manager.",
+          "clientIdPlaceholder": "Client Key",
+          "clientSecretPlaceholder": "Client Secret"
         },
         "createBot": "Créer un bot",
         "createYourFirstBot": "Créez votre premier bot pour commencer à construire.",
