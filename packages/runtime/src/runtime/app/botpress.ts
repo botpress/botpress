@@ -93,6 +93,8 @@ export class Botpress {
 
     return {
       initExternalServices: async () => {
+        this.httpServer.setupRoutes(config?.httpServer)
+
         await this.nluInferenceService.initialize()
         await this.messagingService.initialize()
       },
@@ -140,8 +142,6 @@ export class Botpress {
 
     this.api = await createForGlobalHooks(options.api?.hooks)
     await createForAction(options.api?.hooks)
-
-    this.httpServer.setupRoutes(options.httpServer)
 
     await this.restoreDebugScope()
     await this.migrationService.initialize()

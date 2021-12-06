@@ -1,10 +1,9 @@
 import { Message, UnauthorizedError } from '@botpress/messaging-client'
 import * as sdk from 'botpress/sdk'
 
-import { HTTPServer } from 'runtime/app/server'
-import { CustomRouter } from 'runtime/app/server-utils'
 import { Router, NextFunction, Request, Response } from 'express'
 import joi from 'joi'
+import { CustomRouter } from 'runtime/app/server-utils'
 
 import { MessagingService } from './messaging-service'
 
