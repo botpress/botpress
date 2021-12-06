@@ -1,6 +1,7 @@
 import { runtime } from '@botpress/runtime'
 import { BotConfig, Logger, Stage, WorkspaceUserWithAttributes } from 'botpress/sdk'
 import cluster from 'cluster'
+import { ObjectCache } from 'common/object-cache'
 import { BotHealth, ServerHealth } from 'common/typings'
 import { BotEditSchema, isValidBotId } from 'common/validation'
 import { createForGlobalHooks } from 'core/app/api'
@@ -66,10 +67,30 @@ export class BotService {
     @inject(TYPES.ModuleLoader) private moduleLoader: ModuleLoader,
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.Statistics) private stats: AnalyticsService,
-    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService
+    @inject(TYPES.WorkspaceService) private workspaceService: WorkspaceService,
+    @inject(TYPES.ObjectCache) private cache: ObjectCache
   ) {
     this._botIds = undefined
     this.componentService = new ComponentService(this.logger, this.ghostService, this.cms)
+    this._listenForCacheInvalidation()
+  }
+
+  // TODO: See if we can optimize this..
+  private _listenForCacheInvalidation() {
+    this.cache.events.on('invalidation', async key => {
+      try {
+        const matches = key.match(/^([A-Z0-9-_]+)::data\/bots\/([A-Z0-9-_]+)\//i)
+
+        if (matches?.length >= 2) {
+          const [key, type, botId] = matches
+          if (type === 'file' || type === 'object') {
+            await runtime.bots.refresh(botId)
+          }
+        }
+      } catch (err) {
+        this.logger.error('Error invalidating bot files: ' + err.message)
+      }
+    })
   }
 
   @postConstruct()

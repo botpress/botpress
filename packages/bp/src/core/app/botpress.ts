@@ -127,7 +127,9 @@ export class Botpress {
     await AppLifecycle.waitFor(AppLifecycleEvents.ENDPOINTS_KNOWN)
     await runtime.initExternalServices()
 
+    await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
     await this.discoverBots()
+
     await this.maybeStartLocalActionServer()
 
     if (this.config.sendUsageStats) {
