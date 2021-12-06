@@ -51,8 +51,6 @@ describe('Studio - Flows', () => {
   })
 
   it('Open node properties', async () => {
-    const element = await expectMatchElement('.srd-node--selected', { text: /node-[0-9]*/ })
-    await clickOn('div', {}, element)
     await page.waitForSelector('#btn-add-element')
     await clickOn('#btn-add-element')
     await clickOn('.bp3-dialog-close-button')

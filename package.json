@@ -1,6 +1,6 @@
 {
   "name": "bp_main",
-  "version": "12.26.7",
+  "version": "12.26.8",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": "^12"
@@ -14,11 +14,11 @@
     "version": "1.0.0-rc.2"
   },
   "studio": {
-    "version": "0.0.43",
+    "version": "0.0.44",
     "devBranch": "next"
   },
   "messaging": {
-    "version": "0.1.17"
+    "version": "0.1.18"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
@@ -33,7 +33,7 @@
     "eslint": "cross-env eslint packages/bp/src packages/runtime/src modules --ext .ts,.tsx",
     "prettier": "cross-env prettier --check packages/bp/**/*.ts packages/runtime/**/*.ts modules/**/*.ts !**/*.d.ts",
     "commitmsg": "commitlint -e $GIT_PARAMS",
-    "bpd": "node build/downloader/out/index.js"
+    "bpd": "node build/downloader/dist/index.js"
   },
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^9.0.6",
@@ -154,6 +154,7 @@
   },
   "workspaces": [
     "packages/*",
-    "build/downloader"
+    "build/downloader",
+    "build/module-builder"
   ]
 }

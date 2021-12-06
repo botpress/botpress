@@ -1,5 +1,5 @@
 {
-  "name": "ui-lite",
+  "name": "@botpress/ui-lite",
   "version": "0.0.1",
   "private": true,
   "publisher": "botpress",

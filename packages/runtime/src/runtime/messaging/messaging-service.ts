@@ -9,7 +9,8 @@ import { ConfigProvider } from 'runtime/config'
 import { EventEngine, Event } from 'runtime/events'
 import { TYPES } from 'runtime/types'
 import yn from 'yn'
-import { MessageNewEventData } from './messaging-router'
+
+import { MessageNewEventData, ConversationStartedEventData } from './messaging-router'
 
 @injectable()
 export class MessagingService {
@@ -156,6 +157,24 @@ export class MessagingService {
     if (msg.collect) {
       this.collectingCache.set(event.id, msg.message.id)
     }
+
+    return this.eventEngine.sendEvent(event)
+  }
+
+  async conversationStarted(msg: ConversationStartedEventData) {
+    if (!this.channelNames.includes(msg.channel)) {
+      return
+    }
+
+    const event = Event({
+      direction: 'incoming',
+      type: 'proactive-trigger',
+      payload: {},
+      channel: msg.channel,
+      threadId: msg.conversationId,
+      target: msg.userId,
+      botId: this.botsByClientId[msg.clientId]
+    })
 
     return this.eventEngine.sendEvent(event)
   }
