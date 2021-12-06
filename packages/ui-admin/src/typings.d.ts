@@ -1,3 +1,5 @@
+import '@botpress/typings/sdk/botpress'
+
 // TODO: remove when at least one typing is exported from this file
 export interface test {}
 

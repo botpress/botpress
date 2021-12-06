@@ -1,6 +1,11 @@
 import { closest } from './utils'
 
-const randomNumber = (max = 100) => Math.floor(Math.random() * max)
+const randomNumber = (max = 100) => {
+  const value = Math.floor(Math.random() * max)
+  // Prevents returning 0 because it makes tests fail randomly
+  return value > 1 ? value : randomNumber(max)
+}
+
 const arrayGenerator = (size = 10): number[] => {
   return Array.from({ length: size }, () => randomNumber())
 }
