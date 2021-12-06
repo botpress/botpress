@@ -51,10 +51,10 @@
     classnames "^2.2"
     tslib "~1.13.0"
 
-"@botpress/messaging-components@0.0.7":
-  version "0.0.7"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-components/-/messaging-components-0.0.7.tgz#4e92b45e679c90f5754cbd422fefbb25a9705c15"
-  integrity sha512-Jnm6DcEJ6pVZA+Y+db0P80dS0+MnQ/yIprrMnUgh+rZ60OSyCobZapDonV3kl/EhjiN/Pob5P42K2BY7AUYE5w==
+"@botpress/messaging-components@0.0.8":
+  version "0.0.8"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-components/-/messaging-components-0.0.8.tgz#6d34d0c556632e9605bced4a00232c35c620c934"
+  integrity sha512-CJFVZmcm6jvRRIpElmeC9VbsupnXz2h4GzMYDI3gDgwtlY5SvP3BQ/Dctj629rLPz/OfuJd2Gt8QdBt+uGEa+g==
   dependencies:
     html-truncate "^1.2.2"
     mime "^2.5.2"
