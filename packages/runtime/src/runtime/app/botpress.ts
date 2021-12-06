@@ -34,7 +34,7 @@ import { createForAction, createForGlobalHooks } from './api'
 import { HTTPServer } from './server'
 import { TYPES } from './types'
 
-const DEBOUNCE_DELAY = ms('2s')
+const DEBOUNCE_DELAY = ms('5s')
 
 @injectable()
 export class Botpress {
@@ -74,6 +74,10 @@ export class Botpress {
   ) {}
 
   private _refreshBot = async (botId: string) => {
+    if (!this.botService.isBotMounted(botId)) {
+      return
+    }
+
     await this.ghostService.forBot(botId).clearCache()
 
     await this.cmsService.refreshElements(botId)
@@ -114,6 +118,8 @@ export class Botpress {
   }
 
   private async initStandalone() {
+    setDebugScopes(process.core_env.DEBUG || (process.IS_PRODUCTION ? '' : 'bp:dialog'))
+
     this.config = await this.configProvider.getRuntimeConfig()
     const bots = await this.botService.getBotsIds()
 
@@ -143,14 +149,11 @@ export class Botpress {
     this.api = await createForGlobalHooks(options.api?.hooks)
     await createForAction(options.api?.hooks)
 
-    await this.restoreDebugScope()
     await this.migrationService.initialize()
     await this.initializeServices()
   }
 
   private async initialize(options?: RuntimeSetup) {
-    setDebugScopes(process.core_env.DEBUG || (process.IS_PRODUCTION ? '' : 'bp:dialog'))
-
     if (options) {
       await this.initEmbedded(options)
     } else {
