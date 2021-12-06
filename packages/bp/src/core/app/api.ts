@@ -12,7 +12,7 @@ import { WellKnownFlags } from 'core/dialog'
 import * as dialogEnums from 'core/dialog/enums'
 import { SessionIdFactory } from 'core/dialog/sessions'
 import { JobService } from 'core/distributed'
-import { EventEngine, EventRepository, Event } from 'core/events'
+import { EventEngine, Event } from 'core/events'
 import { KeyValueStore } from 'core/kvs'
 import { LoggerProvider } from 'core/logger'
 import * as logEnums from 'core/logger/enums'
@@ -50,7 +50,7 @@ const http = (httpServer: HTTPServer) => (identity: string): typeof sdk.http => 
   }
 }
 
-const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk.events => {
+const event = (eventEngine: EventEngine): typeof sdk.events => {
   return {
     registerMiddleware: eventEngine.register.bind(eventEngine),
     removeMiddleware: eventEngine.removeMiddleware.bind(eventEngine),
@@ -58,9 +58,11 @@ const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk
     replyToEvent: (eventDestination: sdk.IO.EventDestination, payloads: any[], incomingEventId?: string) =>
       runtime.events.replyToEvent(eventDestination, payloads, incomingEventId),
     isIncomingQueueEmpty: (event: sdk.IO.IncomingEvent) => runtime.events.isIncomingQueueEmpty(event),
-    findEvents: eventRepo.findEvents.bind(eventRepo),
-    updateEvent: eventRepo.updateEvent.bind(eventRepo),
-    saveUserFeedback: eventRepo.saveUserFeedback.bind(eventRepo)
+    findEvents: (fields: Partial<sdk.IO.StoredEvent>, searchParams?: sdk.EventSearchParams) =>
+      runtime.events.findEvents(fields, searchParams),
+    updateEvent: (id: string, fields: Partial<sdk.IO.StoredEvent>) => runtime.events.updateEvent(id, fields),
+    saveUserFeedback: (incomingEventId: string, target: string, feedback: number, type?: string) =>
+      runtime.events.saveUserFeedback(incomingEventId, target, feedback, type)
   }
 }
 
@@ -256,13 +258,12 @@ export class BotpressAPIProvider {
     @inject(TYPES.ConfigProvider) configProvider: ConfigProvider,
     @inject(TYPES.MediaServiceProvider) mediaServiceProvider: MediaServiceProvider,
     @inject(TYPES.HookService) hookService: HookService,
-    @inject(TYPES.EventRepository) eventRepo: EventRepository,
     @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService,
     @inject(TYPES.JobService) jobService: JobService,
     @inject(TYPES.RenderService) renderService: RenderService
   ) {
     this.http = http(httpServer)
-    this.events = event(eventEngine, eventRepo)
+    this.events = event(eventEngine)
     this.dialog = dialog()
     this.config = config(moduleLoader, configProvider)
     this.realtime = realtime(realtimeService)

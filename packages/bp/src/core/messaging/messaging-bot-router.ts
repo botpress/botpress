@@ -1,5 +1,5 @@
+import { runtime } from '@botpress/runtime'
 import * as sdk from 'botpress/sdk'
-import { EventRepository } from 'core/events'
 import { CustomRouter } from 'core/routers/customRouter'
 import { AuthService, checkTokenHeader, TOKEN_AUDIENCE } from 'core/security'
 import { RequestHandler, Router } from 'express'
@@ -7,7 +7,7 @@ import { RequestHandler, Router } from 'express'
 export class MessagingBotRouter extends CustomRouter {
   protected readonly checkTokenHeader: RequestHandler
 
-  constructor(logger: sdk.Logger, private auth: AuthService, private eventRepo: EventRepository) {
+  constructor(logger: sdk.Logger, private auth: AuthService) {
     super('Messaging', logger, Router({ mergeParams: true }))
     this.checkTokenHeader = checkTokenHeader(auth, TOKEN_AUDIENCE)
     this.setupRoutes()
@@ -18,7 +18,7 @@ export class MessagingBotRouter extends CustomRouter {
       '/message-to-event/:messageId',
       this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
-        const [messageEvent] = await this.eventRepo.findEvents({
+        const [messageEvent] = await runtime.events.findEvents({
           messageId: req.params.messageId,
           botId: req.params.botId
         })
@@ -27,7 +27,7 @@ export class MessagingBotRouter extends CustomRouter {
           return res.sendStatus(404)
         }
 
-        const [incomingEvent] = await this.eventRepo.findEvents({
+        const [incomingEvent] = await runtime.events.findEvents({
           incomingEventId: messageEvent.incomingEventId,
           direction: 'incoming',
           botId: req.params.botId
@@ -73,7 +73,7 @@ export class MessagingBotRouter extends CustomRouter {
     const DELAY_BETWEEN_CALLS = 500
     const allowedRetryCount = 6
 
-    const events = await this.eventRepo.findEvents(fields)
+    const events = await runtime.events.findEvents(fields)
     if (events?.length) {
       return events
     } else if (retryCount < allowedRetryCount) {

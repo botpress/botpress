@@ -1,9 +1,9 @@
+import { runtime } from '@botpress/runtime'
 import { Logger, RouterOptions } from 'botpress/sdk'
 import { HTTPServer } from 'core/app/server'
 import { BotService } from 'core/bots'
 import { ConfigProvider } from 'core/config'
 import { ConverseRouter } from 'core/converse'
-import { EventRepository } from 'core/events'
 import { MediaServiceProvider } from 'core/media'
 import { MessagingBotRouter } from 'core/messaging'
 import { QnaRouter, QnaService } from 'core/qna'
@@ -22,7 +22,6 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import path from 'path'
 import { URL } from 'url'
-
 import { CustomRouter } from '../routers/customRouter'
 
 export class BotsRouter extends CustomRouter {
@@ -40,7 +39,6 @@ export class BotsRouter extends CustomRouter {
     private workspaceService: WorkspaceService,
     private logger: Logger,
     private mediaServiceProvider: MediaServiceProvider,
-    private eventRepo: EventRepository,
     private qnaService: QnaService,
     private httpServer: HTTPServer
   ) {
@@ -51,7 +49,7 @@ export class BotsRouter extends CustomRouter {
     this.checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
 
     this.converseRouter = new ConverseRouter(this.logger, this.authService, this.httpServer, this.configProvider)
-    this.messagingRouter = new MessagingBotRouter(this.logger, this.authService, this.eventRepo)
+    this.messagingRouter = new MessagingBotRouter(this.logger, this.authService)
     this.qnaRouter = new QnaRouter(this.logger, this.authService, this.workspaceService, this.qnaService)
   }
 
@@ -120,7 +118,7 @@ export class BotsRouter extends CustomRouter {
       '/events/:eventId',
       this.checkTokenHeader,
       this.asyncMiddleware(async (req, res) => {
-        const storedEvents = await this.eventRepo.findEvents({
+        const storedEvents = await runtime.events.findEvents({
           incomingEventId: req.params.eventId,
           direction: 'incoming',
           botId: req.params.botId

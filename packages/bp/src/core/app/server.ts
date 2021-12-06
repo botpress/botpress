@@ -15,7 +15,6 @@ import { CMSService } from 'core/cms'
 import { ExternalAuthConfig, ConfigProvider } from 'core/config'
 import { FlowService, SkillService } from 'core/dialog'
 import { JobService } from 'core/distributed'
-import { EventRepository } from 'core/events'
 import { AlertingService, MonitoringService } from 'core/health'
 import { LogsRepository } from 'core/logger'
 import { MediaServiceProvider, MediaRouter } from 'core/media'
@@ -121,8 +120,7 @@ export class HTTPServer {
     @inject(TYPES.TelemetryRepository) private telemetryRepo: TelemetryRepository,
     @inject(TYPES.RealtimeService) private realtime: RealtimeService,
     @inject(TYPES.QnaService) private qnaService: QnaService,
-    @inject(TYPES.ObjectCache) private objectCache: MemoryObjectCache,
-    @inject(TYPES.EventRepository) private eventRepo: EventRepository
+    @inject(TYPES.ObjectCache) private objectCache: MemoryObjectCache
   ) {
     this.app = express()
 
@@ -174,7 +172,6 @@ export class HTTPServer {
       workspaceService,
       this.logger,
       mediaServiceProvider,
-      eventRepo,
       qnaService,
       this
     )

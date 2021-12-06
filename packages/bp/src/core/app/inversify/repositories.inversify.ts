@@ -1,4 +1,3 @@
-import { EventRepository } from 'core/events'
 import { LogsRepository } from 'core/logger'
 import { TelemetryRepository } from 'core/telemetry'
 import {
@@ -17,10 +16,6 @@ const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) 
 
   bind<LogsRepository>(TYPES.LogsRepository)
     .to(LogsRepository)
-    .inSingletonScope()
-
-  bind<EventRepository>(TYPES.EventRepository)
-    .to(EventRepository)
     .inSingletonScope()
 
   bind<StrategyUsersRepository>(TYPES.StrategyUsersRepository)
