@@ -50,7 +50,7 @@ jobs:
       - name: Build Runtime
         working-directory: ./packages/runtime
         run: |
-          git submodule update --init ./packages/typings
+          git submodule update --init
           yarn --frozen-lockfile
           yarn build
 
