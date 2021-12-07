@@ -47,6 +47,11 @@ jobs:
         run: |
           yarn --frozen-lockfile
 
+      - name: Configure SSH Key
+        uses: botpress/gh-actions/set_ssh_key@master
+        with:
+          ssh_key: ${{ secrets.BP_PRO_SSH }}
+
       - name: Build Runtime
         working-directory: ./packages/runtime
         run: |
