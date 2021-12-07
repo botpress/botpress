@@ -53,6 +53,9 @@ jobs:
           git submodule update --init
           yarn --frozen-lockfile
           yarn build
+        env:
+          EDITION: pro
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Run tests
         run: |
