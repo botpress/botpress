@@ -1,5 +1,6 @@
 import { GhostFilesTable } from 'core/bpfs/ghost_files-table'
 import { GhostRevisionsTable } from 'core/bpfs/ghost_revisions-table'
+import { EventsTable } from 'core/events/event-table'
 import { KeyValueStoreTable } from 'core/kvs/kvs-table'
 import { LogsTable } from 'core/logger/logs-table'
 import { ServerMetadataTable } from 'core/migration/metadata-table'
@@ -17,6 +18,7 @@ const tables: typeof Table[] = [
   WorkspaceInviteCodesTable,
   LogsTable,
   GhostFilesTable,
+  EventsTable,
   GhostRevisionsTable,
   TelemetryTable,
   MigrationsTable
