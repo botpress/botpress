@@ -37,13 +37,22 @@ jobs:
         with:
           node-version: '12.18.1'
           cache: 'yarn'
+
       - name: Fetch Node Packages
         run: |
           yarn --frozen-lockfile
+
       - name: Fetch Node Packages for module NLU
         working-directory: ./modules/nlu
         run: |
           yarn --frozen-lockfile
+
+      - name: Build Runtime
+        working-directory: ./packages/runtime
+        run: |
+          yarn --frozen-lockfile
+          yarn build
+
       - name: Run tests
         run: |
           yarn test
