@@ -1,8 +1,9 @@
 import * as sdk from 'botpress/runtime-sdk'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
-import Database from 'runtime/database'
-import { TYPES } from 'runtime/types'
+
+import Database from '../database'
+import { TYPES } from '../types'
 
 export const DefaultSearchParams: sdk.EventSearchParams = {
   sortOrder: [{ column: 'createdOn' }],

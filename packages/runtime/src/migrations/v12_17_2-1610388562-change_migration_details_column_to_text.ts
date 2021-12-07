@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/runtime-sdk'
-import { Migration, MigrationOpts, MigrationResult } from 'runtime/migration'
+
+import { Migration, MigrationOpts, MigrationResult } from '../runtime/migration'
 
 const TABLE_NAME = 'srv_migrations'
 

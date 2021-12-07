@@ -4,10 +4,12 @@ import Knex from 'knex'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
-import { ConfigProvider } from 'runtime/config'
-import Database from 'runtime/database'
-import { SessionIdFactory } from 'runtime/dialog/sessions'
-import { TYPES } from 'runtime/types'
+
+import { ConfigProvider } from '../config'
+import Database from '../database'
+import { SessionIdFactory } from '../dialog/sessions'
+import { TYPES } from '../types'
+
 import { EventRepository } from './event-repository'
 
 type BatchEvent = sdk.IO.StoredEvent & { retry?: number }

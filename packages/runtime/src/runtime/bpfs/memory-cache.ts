@@ -1,9 +1,10 @@
-import { ObjectCache } from 'common/object-cache'
 import { EventEmitter } from 'events'
 import { inject, injectable } from 'inversify'
 import LRU from 'lru-cache'
-import { TYPES } from 'runtime/app/types'
-import { asBytes } from 'runtime/misc/utils'
+
+import { ObjectCache } from '../../common/object-cache'
+import { TYPES } from '../app/types'
+import { asBytes } from '../misc/utils'
 
 import { CacheInvalidators } from './cache-invalidators'
 

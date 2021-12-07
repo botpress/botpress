@@ -5,7 +5,8 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 import path from 'path'
-import { RuntimeConfig } from 'runtime/config'
+
+import { RuntimeConfig } from '../../config'
 
 @injectable()
 export class LoggerFilePersister {

@@ -1,12 +1,13 @@
 import { IO, Logger } from 'botpress/runtime-sdk'
-import { extractEventCommonArgs, parseActionInstruction } from 'common/action'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import { TYPES } from 'runtime/app/types'
-import { CMSService, renderTemplate } from 'runtime/cms'
-import { EventEngine, addErrorToEvent } from 'runtime/events'
-import { ActionService, VmRunner } from 'runtime/user-code'
 import { NodeVM } from 'vm2'
+
+import { extractEventCommonArgs, parseActionInstruction } from '../../../common/action'
+import { CMSService, renderTemplate } from '../../cms'
+import { EventEngine, addErrorToEvent } from '../../events'
+import { TYPES } from '../../types'
+import { ActionService, VmRunner } from '../../user-code'
 
 import { Instruction, ProcessingResult } from '.'
 

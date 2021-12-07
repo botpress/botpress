@@ -1,7 +1,8 @@
 import * as sdk from 'botpress/runtime-sdk'
-import * as renderEnums from 'runtime/cms/enums'
-import * as dialogEnums from 'runtime/dialog/enums'
-import * as logEnums from 'runtime/logger/enums'
+
+import * as renderEnums from '../cms/enums'
+import * as dialogEnums from '../dialog/enums'
+import * as logEnums from '../logger/enums'
 
 const impl = <typeof sdk>{
   version: process.BOTPRESS_VERSION,

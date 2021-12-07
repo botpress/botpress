@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/runtime-sdk'
 import _ from 'lodash'
-import { Migration, MigrationOpts, MigrationResult } from 'runtime/migration'
+
+import { Migration, MigrationOpts, MigrationResult } from '../runtime/migration'
 
 const TABLE_NAME = 'events'
 const TEMP_TABLE_NAME = 'events_temp'

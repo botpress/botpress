@@ -4,10 +4,10 @@ import Knex from 'knex'
 import _ from 'lodash'
 import LRU from 'lru-cache'
 import ms from 'ms'
-import { TYPES } from 'runtime/app/types'
-import Database from 'runtime/database'
-import { JobService } from 'runtime/distributed'
 
+import Database from '../../database'
+import { JobService } from '../../distributed'
+import { TYPES } from '../../types'
 import { DataRetentionService } from '../data-retention/data-retention-service'
 
 interface Row {

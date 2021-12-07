@@ -1,5 +1,6 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+
 import { mapPredictOutput } from './api-mapper'
 import { BotNotTrainedInLanguageError } from './errors'
 import { NLUClient } from './nlu-client'

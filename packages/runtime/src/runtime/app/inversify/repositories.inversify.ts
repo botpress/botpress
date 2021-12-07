@@ -1,10 +1,10 @@
 import { ContainerModule, interfaces } from 'inversify'
-import { SessionRepository } from 'runtime/dialog/sessions'
-import { EventRepository } from 'runtime/events'
-import { LogsRepository } from 'runtime/logger'
-import { TasksRepository } from 'runtime/user-code/action-server/tasks-repository'
 
-import { ChannelUserRepository } from 'runtime/users'
+import { SessionRepository } from '../../dialog/sessions'
+import { EventRepository } from '../../events'
+import { LogsRepository } from '../../logger'
+import { TasksRepository } from '../../user-code/action-server/tasks-repository'
+import { ChannelUserRepository } from '../../users'
 import { TYPES } from '../types'
 
 const RepositoriesContainerModule = new ContainerModule((bind: interfaces.Bind) => {

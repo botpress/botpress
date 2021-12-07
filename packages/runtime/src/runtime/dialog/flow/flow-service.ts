@@ -3,9 +3,9 @@ import { ArrayCache } from 'common/array-cache'
 import { FlowView, NodeView } from 'common/typings'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import { TYPES } from 'runtime/app/types'
-import { GhostService, ScopedGhostService } from 'runtime/bpfs'
 
+import { GhostService, ScopedGhostService } from '../../bpfs'
+import { TYPES } from '../../types'
 import { validateFlowSchema } from '../utils/validator'
 
 const PLACING_STEP = 250

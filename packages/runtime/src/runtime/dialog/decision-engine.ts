@@ -3,11 +3,12 @@ import { inject, injectable, postConstruct, tagged } from 'inversify'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
-import { TYPES } from 'runtime/app/types'
-import { ConfigProvider } from 'runtime/config'
-import { StateManager, WellKnownFlags } from 'runtime/dialog'
-import { EventEngine } from 'runtime/events'
-import { AppLifecycle, AppLifecycleEvents } from 'runtime/lifecycle'
+
+import { ConfigProvider } from '../config'
+import { StateManager, WellKnownFlags } from '../dialog'
+import { EventEngine } from '../events'
+import { AppLifecycle, AppLifecycleEvents } from '../lifecycle'
+import { TYPES } from '../types'
 
 import { DialogEngine } from './dialog-engine'
 

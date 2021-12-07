@@ -4,7 +4,7 @@ import { inject, injectable, optional, tagged } from 'inversify'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 
-import { getErrorMessage } from 'runtime/misc/utils'
+import { getErrorMessage } from '../../misc/utils'
 import { TYPES } from '../../types'
 
 import { defaultOptions, JobWrapper, Queue, QueueConsumer, QueueOptions } from '.'

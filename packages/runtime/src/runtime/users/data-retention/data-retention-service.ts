@@ -3,9 +3,10 @@ import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
-import { RetentionPolicy, ConfigProvider } from 'runtime/config'
-import Database from 'runtime/database'
-import { TYPES } from 'runtime/types'
+
+import { RetentionPolicy, ConfigProvider } from '../../config'
+import Database from '../../database'
+import { TYPES } from '../../types'
 
 import { getPaths } from './util'
 

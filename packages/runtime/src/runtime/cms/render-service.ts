@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/runtime-sdk'
 import { injectable } from 'inversify'
-import { renderRecursive } from 'runtime/cms/templating'
+
+import { renderRecursive } from '../cms/templating'
 
 @injectable()
 export class RenderService {

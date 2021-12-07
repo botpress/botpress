@@ -10,15 +10,15 @@ import {
 import { inject, injectable, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
-import nanoid from 'nanoid'
 import path from 'path'
-import { GhostService } from 'runtime/bpfs'
-import { ConfigProvider } from 'runtime/config'
-import { LoggerProvider } from 'runtime/logger'
-import { TYPES } from 'runtime/types'
 import { VError } from 'verror'
 
 import { IDisposeOnExit } from '../../common/typings'
+import { GhostService } from '../bpfs'
+import { ConfigProvider } from '../config'
+import { LoggerProvider } from '../logger'
+import { TYPES } from '../types'
+
 import { CodeFile, SafeCodeSandbox } from './code-sandbox'
 import { renderRecursive, renderTemplate } from './templating'
 

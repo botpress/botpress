@@ -1,6 +1,7 @@
 import { Container, interfaces } from 'inversify'
-import { ConfigProvider } from 'runtime/config'
-import { AppLifecycle, AppLifecycleEvents } from 'runtime/lifecycle'
+
+import { ConfigProvider } from '../../config'
+import { AppLifecycle, AppLifecycleEvents } from '../../lifecycle'
 
 import { TYPES } from '../types'
 

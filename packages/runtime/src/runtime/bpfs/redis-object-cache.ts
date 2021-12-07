@@ -3,9 +3,9 @@ import { IInitializeFromConfig } from 'common/typings'
 import { EventEmitter } from 'events'
 import { inject, injectable } from 'inversify'
 import { Redis } from 'ioredis'
-import { CacheInvalidators, MemoryObjectCache } from 'runtime/bpfs'
-import { makeRedisKey, getOrCreate as redisFactory } from 'runtime/distributed'
-import { TYPES } from 'runtime/types'
+import { CacheInvalidators, MemoryObjectCache } from '../bpfs'
+import { makeRedisKey, getOrCreate as redisFactory } from '../distributed'
+import { TYPES } from '../types'
 
 const REDIS_INVALIDATE_STARTING_WITH = makeRedisKey('object-cache/invalidate-starting-with')
 const REDIS_INVALIDATE = makeRedisKey('object-cache/invalidate')

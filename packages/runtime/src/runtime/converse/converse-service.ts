@@ -1,14 +1,15 @@
 import { IO } from 'botpress/runtime-sdk'
-import { InvalidParameterError } from 'errors'
 import { EventEmitter2 } from 'eventemitter2'
 import { inject, injectable, postConstruct } from 'inversify'
 import _ from 'lodash'
 import ms from 'ms'
-import { ConfigProvider } from 'runtime/config'
-import { EventEngine, Event } from 'runtime/events'
-import { AppLifecycle, AppLifecycleEvents } from 'runtime/lifecycle'
-import { TYPES } from 'runtime/types'
-import { ChannelUserRepository } from 'runtime/users'
+
+import { InvalidParameterError } from '../../errors'
+import { ConfigProvider } from '../config'
+import { EventEngine, Event } from '../events'
+import { AppLifecycle, AppLifecycleEvents } from '../lifecycle'
+import { TYPES } from '../types'
+import { ChannelUserRepository } from '../users'
 
 export const converseApiEvents = new EventEmitter2()
 

@@ -1,12 +1,13 @@
 import { Logger } from 'botpress/runtime-sdk'
-import { extractArchive } from 'common/archive'
 import fse from 'fs-extra'
 import _ from 'lodash'
 import mkdirp from 'mkdirp'
 import path from 'path'
-import { GhostService } from 'runtime/bpfs'
-import { CMSService } from 'runtime/cms'
 import tmp from 'tmp'
+
+import { extractArchive } from '../../common/archive'
+import { GhostService } from '../bpfs'
+import { CMSService } from '../cms'
 
 export class ComponentService {
   private _botTranslations: { [botId: string]: any } = {}

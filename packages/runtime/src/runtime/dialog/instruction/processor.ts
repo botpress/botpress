@@ -1,5 +1,6 @@
 import { inject, injectable } from 'inversify'
-import { TYPES } from 'runtime/app/types'
+
+import { TYPES } from '../../types'
 
 import { ProcessingResult } from '.'
 import { ActionStrategy, TransitionStrategy } from './strategy'

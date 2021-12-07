@@ -4,7 +4,8 @@ import { inject, injectable, tagged } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
 import path from 'path'
-import { TYPES } from 'runtime/types'
+
+import { TYPES } from '../types'
 
 import AllTables from './database-tables'
 import { patchKnex } from './helpers'

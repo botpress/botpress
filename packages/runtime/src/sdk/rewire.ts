@@ -81,7 +81,7 @@ addToNodePath(syspath.resolve(__dirname, '../')) // 'bp/' directory
 
 const rewire = function(this: NodeRequireFunction, mod: string) {
   if (mod === 'botpress/sdk' || mod === 'botpress/runtime-sdk') {
-    return originalRequire.apply(this, ['runtime/app/sdk_impl'])
+    return originalRequire.apply(this, [syspath.resolve(__dirname, '../runtime/app/sdk_impl')])
   }
 
   if (mod.endsWith('.node')) {

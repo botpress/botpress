@@ -2,8 +2,10 @@ import * as sdk from 'botpress/runtime-sdk'
 import { inject, injectable } from 'inversify'
 import Knex from 'knex'
 import _ from 'lodash'
-import { TYPES } from 'runtime/app/types'
-import Database from 'runtime/database'
+
+import Database from '../../database'
+import { TYPES } from '../../types'
+
 import { SessionIdFactory } from './session-id-factory'
 
 export class DialogSession {
