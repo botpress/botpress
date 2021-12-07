@@ -4,10 +4,11 @@ import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 import moment from 'moment'
 import ms from 'ms'
-import { BotService } from 'runtime/bots'
-import { RuntimeConfig, ConfigProvider } from 'runtime/config'
-import { Janitor } from 'runtime/services/janitor'
-import { TYPES } from 'runtime/types'
+
+import { BotService } from '../bots'
+import { RuntimeConfig, ConfigProvider } from '../config'
+import { Janitor } from '../services/janitor'
+import { TYPES } from '../types'
 
 import { LogsRepository } from './logs-repository'
 

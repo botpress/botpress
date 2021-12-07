@@ -1,8 +1,9 @@
 import { Logger } from 'botpress/runtime-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import ms from 'ms'
-import Database from 'runtime/database'
-import { TYPES } from 'runtime/types'
+
+import Database from '../../database'
+import { TYPES } from '../../types'
 
 export type TaskInfoStatus = 'completed' | 'failed'
 

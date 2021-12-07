@@ -1,8 +1,9 @@
 import 'bluebird-global'
 import { EventDirection, IO } from 'botpress/runtime-sdk'
-import { createSpyObject, MockObject } from 'runtime/misc/utils'
 import 'jest-extended'
 import 'reflect-metadata'
+
+import { createSpyObject, MockObject } from '../misc/utils'
 
 import { MiddlewareChain } from './middleware-chain'
 import { StepScopes, StepStatus } from './utils'

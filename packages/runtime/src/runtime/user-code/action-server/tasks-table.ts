@@ -1,4 +1,4 @@
-import { Table } from 'runtime/database/interfaces'
+import { Table } from '../../database/interfaces'
 
 export class TasksTable extends Table {
   name: string = 'tasks'

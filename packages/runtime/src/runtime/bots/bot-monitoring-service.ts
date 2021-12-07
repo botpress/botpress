@@ -6,10 +6,11 @@ import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 import Redlock from 'redlock'
-import { ConfigProvider } from 'runtime/config'
-import { JobService, makeRedisKey } from 'runtime/distributed'
-import { LogsRepository } from 'runtime/logger'
-import { TYPES } from 'runtime/types'
+
+import { ConfigProvider } from '../config'
+import { JobService, makeRedisKey } from '../distributed'
+import { LogsRepository } from '../logger'
+import { TYPES } from '../types'
 
 @injectable()
 export class BotMonitoringService {

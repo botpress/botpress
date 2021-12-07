@@ -1,9 +1,6 @@
-// import { Request } from 'express-serve-static-core'
 import * as sdk from 'botpress/runtime-sdk'
 import { NextFunction, Request, Response, Router } from 'express'
-import fs from 'fs'
 import _ from 'lodash'
-import path from 'path'
 
 const debug = DEBUG('api')
 const debugRequest = debug.sub('request')

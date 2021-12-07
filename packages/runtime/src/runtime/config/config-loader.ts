@@ -1,18 +1,17 @@
 import { BotConfig, Logger } from 'botpress/runtime-sdk'
-import { ObjectCache } from 'common/object-cache'
-import { FatalError } from 'errors'
 import fs from 'fs'
-import { Runtime } from 'inspector'
 import { inject, injectable } from 'inversify'
 import defaultJsonBuilder from 'json-schema-defaults'
 import _, { PartialDeep } from 'lodash'
 import path from 'path'
-import { GhostService } from 'runtime/bpfs'
 
-import { RuntimeConfig } from 'runtime/config'
-import { calculateHash, stringify } from 'runtime/misc/utils'
-import { TYPES } from 'runtime/types'
-import { getValidJsonSchemaProperties, getValueFromEnvKey, SchemaNode } from './config-utils'
+import { ObjectCache } from '../../common/object-cache'
+import { FatalError } from '../../errors'
+import { GhostService } from '../bpfs'
+import { RuntimeConfig } from '../config'
+import { stringify } from '../misc/utils'
+import { TYPES } from '../types'
+
 /**
  * These properties should not be considered when calculating the config hash
  * They are always read from the configuration file and can be dynamically changed

@@ -1,12 +1,13 @@
 import 'bluebird-global'
-import { FatalError } from 'errors'
-import { Botpress as Core } from 'runtime/app/botpress'
-import { container } from 'runtime/app/inversify/app.inversify'
-import { GhostService } from 'runtime/bpfs'
-import { ConfigProvider } from 'runtime/config'
-import Database from 'runtime/database'
-import { LoggerProvider } from 'runtime/logger'
 import 'reflect-metadata'
+
+import { FatalError } from '../../errors'
+import { Botpress as Core } from '../app/botpress'
+import { container } from '../app/inversify/app.inversify'
+import { GhostService } from '../bpfs'
+import { ConfigProvider } from '../config'
+import Database from '../database'
+import { LoggerProvider } from '../logger'
 
 import { TYPES } from './types'
 

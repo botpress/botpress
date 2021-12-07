@@ -1,13 +1,14 @@
 import { Logger, RedisLock } from 'botpress/runtime-sdk'
-import { IInitializeFromConfig } from 'common/typings'
 import { inject, injectable } from 'inversify'
 import { Redis } from 'ioredis'
 import _ from 'lodash'
 import nanoid from 'nanoid'
 import Redlock from 'redlock'
-import { TYPES } from 'runtime/app/types'
-import { JobService } from 'runtime/distributed'
-import { AppLifecycle, AppLifecycleEvents } from 'runtime/lifecycle'
+
+import { IInitializeFromConfig } from '../../common/typings'
+import { JobService } from '../distributed'
+import { AppLifecycle, AppLifecycleEvents } from '../lifecycle'
+import { TYPES } from '../types'
 
 import { getOrCreate as redisFactory, makeRedisKey } from './async-redis'
 

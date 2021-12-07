@@ -1,4 +1,4 @@
-import { Table } from 'runtime/database/interfaces'
+import { Table } from '../../database/interfaces'
 
 export class DataRetentionTable extends Table {
   name: string = 'data_retention'

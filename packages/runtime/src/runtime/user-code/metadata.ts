@@ -1,7 +1,8 @@
-import { LocalActionDefinition } from 'common/typings'
 import doctrine from 'doctrine'
 import _ from 'lodash'
 import yn from 'yn'
+
+import { LocalActionDefinition } from '../../common/typings'
 
 // Credit: https://stackoverflow.com/questions/35905181/regex-for-jsdoc-comments
 const JSDocCommentRegex = /\/\*\*\s*\n([^\*]|(\*(?!\/)))*\*\//gi

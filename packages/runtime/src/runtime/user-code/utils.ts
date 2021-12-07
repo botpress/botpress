@@ -1,7 +1,8 @@
-import { BUILTIN_MODULES } from 'common/defaults'
-import { ActionScope } from 'common/typings'
 import path from 'path'
-import { requireAtPaths } from 'runtime/modules/utils/require'
+
+import { BUILTIN_MODULES } from '../../common/defaults'
+import { ActionScope } from '../../common/typings'
+import { requireAtPaths } from '../modules/utils/require'
 
 export const getBaseLookupPaths = (fullPath: string, lastPathPart: string, botId?: string) => {
   const actionLocation = path.dirname(fullPath)

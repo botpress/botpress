@@ -2,10 +2,11 @@ import { Logger } from 'botpress/runtime-sdk'
 import fse from 'fs-extra'
 import _ from 'lodash'
 import path from 'path'
-import { prepareRequire } from 'runtime/user-code/utils'
 import tmp from 'tmp'
 import { VError } from 'verror'
 import { NodeVM } from 'vm2'
+
+import { prepareRequire } from '../user-code/utils'
 
 export interface CodeFile {
   relativePath: string

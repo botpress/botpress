@@ -5,17 +5,17 @@ import glob from 'glob'
 import { Container, inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import path from 'path'
-import { BotpressRuntimeAPIProvider } from 'runtime/app/api'
-import { container } from 'runtime/app/inversify/app.inversify'
-import { TYPES } from 'runtime/app/types'
-import { GhostService } from 'runtime/bpfs'
-import { ConfigProvider } from 'runtime/config'
-import Database from 'runtime/database'
-import { PersistedConsoleLogger, centerText } from 'runtime/logger'
-
 import semver from 'semver'
 import stripAnsi from 'strip-ansi'
 import yn from 'yn'
+
+import { BotpressRuntimeAPIProvider } from '../app/api'
+import { container } from '../app/inversify/app.inversify'
+import { TYPES } from '../app/types'
+import { GhostService } from '../bpfs'
+import { ConfigProvider } from '../config'
+import Database from '../database'
+import { PersistedConsoleLogger, centerText } from '../logger'
 
 const debug = DEBUG('migration')
 

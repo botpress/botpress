@@ -1,4 +1,4 @@
-import { Table } from 'runtime/database/interfaces'
+import { Table } from '../database/interfaces'
 
 export class ServerMetadataTable extends Table {
   name: string = 'srv_metadata'

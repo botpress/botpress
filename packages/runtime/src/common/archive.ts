@@ -3,12 +3,13 @@ import fse from 'fs-extra'
 import glob from 'glob'
 import mkdirp from 'mkdirp'
 import path from 'path'
-import { forceForwardSlashes } from 'runtime/misc/utils'
 import stream from 'stream'
 import tar from 'tar'
 import tmp from 'tmp'
 import unzipper from 'unzipper'
 import { VError } from 'verror'
+
+import { forceForwardSlashes } from '../runtime/misc/utils'
 
 // Source: https://github.com/kevva/is-zip
 const isZip = buf => {

@@ -1,5 +1,6 @@
-import { Flow, FlowNode, IO, StageRequestApprovers } from 'botpress/runtime-sdk'
-import { RuntimeConfig } from 'runtime/config'
+import { Flow, FlowNode, IO } from 'botpress/runtime-sdk'
+
+import { RuntimeConfig } from '../runtime/config'
 
 export interface IDisposeOnExit {
   disposeOnExit(): void

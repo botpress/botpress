@@ -1,6 +1,7 @@
-import { ObjectCache } from 'common/object-cache'
 import { ContainerModule, interfaces } from 'inversify'
-import { TYPES } from 'runtime/app/types'
+
+import { ObjectCache } from '../../common/object-cache'
+import { TYPES } from '../app/types'
 
 import { CacheInvalidators } from '.'
 import { DBStorageDriver } from './drivers/db-driver'

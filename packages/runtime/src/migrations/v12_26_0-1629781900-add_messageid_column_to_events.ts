@@ -1,4 +1,4 @@
-import { MigrationResult, Migration, MigrationOpts } from 'runtime/migration'
+import { MigrationResult, Migration, MigrationOpts } from '../runtime/migration'
 
 const migration: Migration = {
   info: {

@@ -10,17 +10,18 @@ import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import ms from 'ms'
 import portFinder from 'portfinder'
-import { TYPES } from 'runtime/app/types'
-import { BotService } from 'runtime/bots'
-import { ConfigProvider } from 'runtime/config'
-import { ConverseService } from 'runtime/converse'
-import { EventEngine, EventRepository } from 'runtime/events'
-import { AppLifecycle, AppLifecycleEvents } from 'runtime/lifecycle'
-import { MessagingRouter, MessagingService } from 'runtime/messaging'
 import yn from 'yn'
+
+import { BotService } from '../bots'
+import { ConfigProvider } from '../config'
+import { ConverseService } from '../converse'
+import { EventEngine, EventRepository } from '../events'
+import { AppLifecycle, AppLifecycleEvents } from '../lifecycle'
+import { MessagingRouter, MessagingService } from '../messaging'
 
 import { ManageRouter } from './manage-router'
 import { debugRequestMw } from './server-utils'
+import { TYPES } from './types'
 
 @injectable()
 export class HTTPServer {

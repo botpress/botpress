@@ -1,6 +1,7 @@
 import { FlowNode } from 'botpress/runtime-sdk'
-import { FlowView } from 'common/typings'
 import _ from 'lodash'
+
+import { FlowView } from '../../common/typings'
 
 import { Instruction } from './instruction'
 import { InstructionFactory } from './instruction/factory'

@@ -51,33 +51,16 @@ const zipArchive = async ({ osName, binding, tempBin, binaryName }) => {
   console.info(`${endFileName}: ${archive.pointer()} bytes`)
 }
 
-const makeTempPackage = () => {
-  const additionalPackageJson = require(path.resolve(__dirname, '../scripts/package.pkg.json'))
-  const realPackageJson = require(path.resolve(__dirname, '../package.json'))
-  const tempPkgPath = path.resolve(__dirname, '../dist/package.json')
-
-  const packageJson = Object.assign(realPackageJson, additionalPackageJson)
-  fse.writeJsonSync(tempPkgPath, packageJson, { spaces: 2 })
-
-  return {
-    remove: () => fse.unlinkSync(tempPkgPath)
-  }
-}
-
 const packageAll = async () => {
-  const tempPackage = makeTempPackage()
-
   try {
-    await execAsync('cross-env pkg --options max_old_space_size=16384 --output ../binaries/runtime ./package.json', {
-      cwd: path.resolve(__dirname, '../dist')
+    await execAsync('cross-env pkg --options max_old_space_size=16384 --output ./binaries/runtime ./package.json', {
+      cwd: path.resolve(__dirname, '..')
     })
   } catch (err) {
     if (err instanceof Error) {
       const error = err as ExecException
       console.error('Error running: ', error.cmd, '\nMessage: ', error['stderr'], err)
     }
-  } finally {
-    tempPackage.remove()
   }
 
   await Promise.map(systems, x => zipArchive(x))

@@ -3,9 +3,10 @@ import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
-import Database from 'runtime/database'
-import { safeStringify } from 'runtime/misc/utils'
-import { TYPES } from 'runtime/types'
+
+import Database from '../database'
+import { safeStringify } from '../misc/utils'
+import { TYPES } from '../types'
 
 const GLOBAL = '__global__'
 const TABLE_NAME = 'srv_kvs'

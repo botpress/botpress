@@ -18,10 +18,6 @@
     "types": ["reflect-metadata", "jest"]
   },
   "references": [{ "path": "../typings/" }],
-  "exclude": [
-    "scripts/",
-    "**/*.__test__.(ts|js)",
-    "dist",
-    "**/node_modules/**/*.(ts|js)"
-  ]
+  "include": ["src/**/*"],
+  "exclude": ["scripts/", "**/*.__test__.(ts|js)", "dist", "**/node_modules/**/*.(ts|js)"]
 }

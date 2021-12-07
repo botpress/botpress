@@ -6,6 +6,7 @@
     "node": "^12"
   },
   "main": "dist/index.js",
+  "bin": "dist/index.js",
   "repository": "https://github.com/botpress/botpress.git",
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0",
@@ -15,7 +16,22 @@
     "build": "yarn tsc --build",
     "watch": "yarn tsc --build --watch",
     "package": "ts-node --dir ./scripts package",
-    "start": "cd dist && cross-env NODE_PATH=./ cross-env BP_MODULES_PATH=./data/modules/:../../../modules:../../../internal-modules node index.js"
+    "start": "cd dist && cross-env BP_MODULES_PATH=./data/modules/:../../../modules:../../../internal-modules node index.js"
+  },
+  "pkg": {
+    "targets": [
+      "node12-win32-x64",
+      "node12-linux-x64",
+      "node12-macos-x64"
+    ],
+    "scripts": [
+      "./dist/**/*.js",
+      "./dist/**/*.json"
+    ],
+    "assets": [
+      "../../node_modules/vm2/lib/*.js",
+      "../../node_modules/xml-encryption/lib/templates/*.tpl.xml"
+    ]
   },
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^9.0.6",

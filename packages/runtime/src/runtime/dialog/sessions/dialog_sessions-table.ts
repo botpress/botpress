@@ -1,4 +1,4 @@
-import { Table } from 'runtime/database/interfaces'
+import { Table } from '../../database/interfaces'
 
 export class DialogSessionTable extends Table {
   name: string = 'dialog_sessions'

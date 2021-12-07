@@ -2,7 +2,8 @@ import { BotConfig } from 'botpress/runtime-sdk'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
-import { RuntimeConfig } from 'runtime/config'
+
+import { RuntimeConfig } from '../../config'
 
 export interface DialogExpiry {
   context: Date

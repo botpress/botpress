@@ -1,14 +1,15 @@
 import { MessagingClient, uuid } from '@botpress/messaging-client'
 import { AxiosRequestConfig } from 'axios'
 import { IO, Logger, MessagingConfig } from 'botpress/runtime-sdk'
-import { formatUrl, isBpUrl } from 'common/url'
-import { inject, injectable, postConstruct } from 'inversify'
+import { inject, injectable } from 'inversify'
 import LRUCache from 'lru-cache'
 import ms from 'ms'
-import { ConfigProvider } from 'runtime/config'
-import { EventEngine, Event } from 'runtime/events'
-import { TYPES } from 'runtime/types'
 import yn from 'yn'
+
+import { formatUrl, isBpUrl } from '../../common/url'
+import { ConfigProvider } from '../config'
+import { EventEngine, Event } from '../events'
+import { TYPES } from '../types'
 
 import { MessageNewEventData, ConversationStartedEventData } from './messaging-router'
 

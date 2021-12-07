@@ -2,10 +2,11 @@ import { Logger } from 'botpress/runtime-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
-import { RuntimeConfig, ConfigProvider } from 'runtime/config'
-import { Janitor } from 'runtime/services/janitor'
-import { TYPES } from 'runtime/types'
-import { ChannelUserRepository } from 'runtime/users'
+
+import { RuntimeConfig, ConfigProvider } from '../../config'
+import { Janitor } from '../../services/janitor'
+import { TYPES } from '../../types'
+import { ChannelUserRepository } from '../../users'
 
 import { DataRetentionService } from './data-retention-service'
 

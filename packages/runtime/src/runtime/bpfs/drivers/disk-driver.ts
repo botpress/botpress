@@ -1,5 +1,4 @@
 import { DirectoryListingOptions } from 'botpress/runtime-sdk'
-import { WrapErrorsWith } from 'errors'
 import fse from 'fs-extra'
 import glob from 'glob'
 import { injectable, postConstruct } from 'inversify'
@@ -7,11 +6,12 @@ import _ from 'lodash'
 import ms from 'ms'
 import path from 'path'
 import lockfile from 'proper-lockfile'
-import { BPError } from 'runtime/dialog/errors'
-import { calculateHash, forceForwardSlashes } from 'runtime/misc/utils'
 import { VError } from 'verror'
 
 import { FileRevision, StorageDriver } from '../'
+import { WrapErrorsWith } from '../../../errors'
+import { BPError } from '../../dialog/errors'
+import { calculateHash, forceForwardSlashes } from '../../misc/utils'
 
 @injectable()
 export class DiskStorageDriver implements StorageDriver {

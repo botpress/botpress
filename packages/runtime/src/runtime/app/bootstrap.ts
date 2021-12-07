@@ -2,8 +2,9 @@ import 'bluebird-global'
 // eslint-disable-next-line import/order
 import '../../sdk/rewire'
 import sdk from 'botpress/runtime-sdk'
-import { BotpressApp, createApp, createLoggerProvider } from 'runtime/app/core-loader'
-import { LoggerProvider } from 'runtime/logger'
+
+import { BotpressApp, createApp, createLoggerProvider } from '../app/core-loader'
+import { LoggerProvider } from '../logger'
 
 import { showBanner } from './banner'
 

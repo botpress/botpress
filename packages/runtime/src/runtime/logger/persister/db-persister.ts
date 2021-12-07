@@ -2,7 +2,8 @@ import { KnexExtended, Logger, LoggerEntry } from 'botpress/runtime-sdk'
 import { injectable } from 'inversify'
 import _ from 'lodash'
 import ms from 'ms'
-import Database from 'runtime/database'
+
+import Database from '../../database'
 
 @injectable()
 export class LoggerDbPersister {

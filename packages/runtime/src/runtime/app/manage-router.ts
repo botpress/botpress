@@ -1,10 +1,10 @@
 import * as sdk from 'botpress/runtime-sdk'
-
 import { Router } from 'express'
-import joi from 'joi'
-import { HTTPServer } from 'runtime/app/server'
-import { CustomRouter } from 'runtime/app/server-utils'
-import { BotService } from 'runtime/bots'
+
+import { BotService } from '../bots'
+
+import { HTTPServer } from './server'
+import { CustomRouter } from './server-utils'
 
 export class ManageRouter extends CustomRouter {
   constructor(private logger: sdk.Logger, private botService: BotService, private http: HTTPServer) {
