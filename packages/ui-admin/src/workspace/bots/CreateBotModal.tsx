@@ -276,7 +276,7 @@ class CreateBotModal extends Component<Props, State> {
                   placeholder={lang.tr('admin.workspace.bots.create.clientSecretPlaceholder')}
                   value={this.state.cloudClientSecret}
                   type="password"
-                  pattern="\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b"
+                  pattern=".+"
                   required={this.state.isCloudBot}
                   onChange={e =>
                     this.setState({
