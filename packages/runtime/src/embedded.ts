@@ -1,4 +1,4 @@
-import sdk, { IO } from 'botpress/sdk'
+import sdk from 'botpress/sdk'
 import { RuntimeConfig } from './runtime/config/runtime.config'
 
 export interface BotpressRuntime {
@@ -35,6 +35,10 @@ export interface BotpressRuntime {
 export interface RuntimeSetup {
   config: RuntimeConfig
   dataFolder: string
+  clients?: {
+    /** Use an already configured client (avoids doubling the number of clients/pools) */
+    knex?: sdk.KnexExtended
+  }
   // For now, only via process env var...
   // endpoints?: {
   //   nlu: string

@@ -1,11 +1,11 @@
 import * as sdk from 'botpress/runtime-sdk'
 
-import { RuntimeSetup, BotpressRuntime } from 'index'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
 
+import { RuntimeSetup, BotpressRuntime } from '../..'
 import { setDebugScopes } from '../../debug'
 import { WrapErrorsWith } from '../../errors'
 import { BotService, BotMonitoringService } from '../bots'

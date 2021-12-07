@@ -10,8 +10,6 @@ import { LoggerProvider } from '../logger'
 import { showBanner } from './banner'
 
 async function setupEnv(app: BotpressApp) {
-  await app.database.initialize()
-
   const useDbDriver = process.BPFS_STORAGE === 'database'
   await app.ghost.initialize(useDbDriver)
 }
@@ -62,6 +60,12 @@ export async function start(config?: RuntimeSetup) {
 
   // Starts the embedded version
   if (config) {
+    if (config.clients?.knex) {
+      app.database.knex = config.clients.knex
+    } else {
+      await app.database.initialize()
+    }
+
     return app.botpress.start(config)
   }
 

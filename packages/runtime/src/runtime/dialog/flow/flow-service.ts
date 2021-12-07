@@ -1,9 +1,9 @@
 import { Flow, Logger } from 'botpress/runtime-sdk'
-import { ArrayCache } from 'common/array-cache'
-import { FlowView, NodeView } from 'common/typings'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
+import { ArrayCache } from '../../../common/array-cache'
+import { FlowView, NodeView } from '../../../common/typings'
 import { GhostService, ScopedGhostService } from '../../bpfs'
 import { TYPES } from '../../types'
 import { validateFlowSchema } from '../utils/validator'
