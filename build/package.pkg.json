@@ -24,7 +24,7 @@
       "./migrations/**/*.js"
     ],
     "assets": [
-      "../../../node_modules/@botpress/native-extensions/**/*",
+      "../../native-extensions/**/*",
       "../../../node_modules/vm2/lib/*.js",
       "../../../node_modules/xml-encryption/lib/templates/*.tpl.xml",
       "./admin/ui/**",
