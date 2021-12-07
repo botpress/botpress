@@ -2,6 +2,7 @@ import 'reflect-metadata'
 import 'bluebird-global'
 
 jest.mock('fs-extra')
+jest.mock('@botpress/runtime')
 
 import { GhostService } from 'core/bpfs'
 import { ConfigProvider } from 'core/config'
