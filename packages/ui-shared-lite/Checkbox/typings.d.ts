@@ -1,6 +1,6 @@
-import { CheckboxProps as BlueprintCheckboxProps } from '@blueprintjs/core'
+// @ts-nocheck
 import { ChangeEvent } from 'react'
-export interface CheckboxProps extends BlueprintCheckboxProps {
+export interface CheckboxProps {
   fieldKey?: string
   className?: string
   label: string | JSX.Element

@@ -1,6 +1,7 @@
-import { Button, Classes, Dialog, FormGroup, InputGroup, Intent, Callout } from '@blueprintjs/core'
+import { Button, Classes, Dialog, FormGroup, InputGroup, Intent, Callout, Checkbox } from '@blueprintjs/core'
 import { BotConfig, BotTemplate } from 'botpress/sdk'
-import { Checkbox, lang } from 'botpress/shared'
+import { lang } from 'botpress/shared'
+import { defaultOauthUrl } from 'common/defaults'
 import _ from 'lodash'
 import ms from 'ms'
 import React, { Component } from 'react'
@@ -133,7 +134,7 @@ class CreateBotModal extends Component<Props, State> {
       newBot.cloud = {
         clientId: this.state.cloudClientId,
         clientSecret: this.state.cloudClientSecret,
-        oauthUrl: 'https://oauth.botpress.dev/oauth2/token'
+        oauthUrl: defaultOauthUrl
       }
     }
 
@@ -157,15 +158,7 @@ class CreateBotModal extends Component<Props, State> {
       !botId ||
       !botName ||
       (this.props.existingBots && this.props.existingBots.some(bot => bot.name === botName || bot.id === botId))
-    const isCloudConfigInvalid = this.state.isCloudBot && (!this.state.cloudClientId || !this.state.cloudClientSecret)
-    return (
-      isNameOrIdInvalid ||
-      isCloudConfigInvalid ||
-      isProcessing ||
-      !selectedTemplate ||
-      !this._form ||
-      !this._form.checkValidity()
-    )
+    return isNameOrIdInvalid || isProcessing || !selectedTemplate || !this._form || !this._form.checkValidity()
   }
 
   render() {
@@ -247,7 +240,7 @@ class CreateBotModal extends Component<Props, State> {
                 checked={this.state.isCloudBot}
                 onChange={e =>
                   this.setState({
-                    isCloudBot: e.target.checked
+                    isCloudBot: e.currentTarget.checked
                   })
                 }
               />
@@ -263,8 +256,6 @@ class CreateBotModal extends Component<Props, State> {
                   placeholder={lang.tr('admin.workspace.bots.create.clientIdPlaceholder')}
                   value={this.state.cloudClientId}
                   className={style.clientId}
-                  pattern="\b[0-9a-f]{8}\b-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-\b[0-9a-f]{12}\b"
-                  required={this.state.isCloudBot}
                   onChange={e =>
                     this.setState({
                       cloudClientId: e.target.value
@@ -276,8 +267,6 @@ class CreateBotModal extends Component<Props, State> {
                   placeholder={lang.tr('admin.workspace.bots.create.clientSecretPlaceholder')}
                   value={this.state.cloudClientSecret}
                   type="password"
-                  pattern=".+"
-                  required={this.state.isCloudBot}
                   onChange={e =>
                     this.setState({
                       cloudClientSecret: e.target.value
