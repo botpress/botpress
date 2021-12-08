@@ -48,7 +48,7 @@ export namespace CacheInvalidators {
     install(objectCache: ObjectCache) {
       this.cache = objectCache
 
-      if (yn(process.core_env.CORE_DISABLE_FILE_LISTENERS)) {
+      if (yn(process.runtime_env.CORE_DISABLE_FILE_LISTENERS)) {
         return
       }
 

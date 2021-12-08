@@ -343,7 +343,7 @@ export class ScopedActionService {
   }
 
   public async loadLocalAction(actionName: string) {
-    if (yn(process.core_env.BP_EXPERIMENTAL_REQUIRE_BPFS)) {
+    if (yn(process.runtime_env.BP_EXPERIMENTAL_REQUIRE_BPFS)) {
       await this._checkActionRequires(actionName)
     }
 

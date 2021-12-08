@@ -33,7 +33,7 @@ declare namespace NodeJS {
     CLUSTER_ENABLED: boolean
     ASSERT_LICENSED?: Function
     BOTPRESS_VERSION: string
-    core_env: BotpressEnvironmentVariables
+    runtime_env: RuntimeEnvironmentVariables
     distro: OSDistribution
     BOTPRESS_EVENTS: any
     AUTO_MIGRATE: boolean
@@ -63,7 +63,7 @@ declare var global: NodeJS.Global
 /**
  * This is a copy of process.env to add typing and documentation to variables
  */
-declare interface BotpressEnvironmentVariables {
+declare interface RuntimeEnvironmentVariables {
   /** Replace the path of the NodeJS Native Extensions for external OS-specific libraries such as fastText and CRFSuite */
   readonly NATIVE_EXTENSIONS_DIR?: string
 

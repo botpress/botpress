@@ -6,4 +6,4 @@
  * The atandalone server spins its own express server and just needs
  */
 
-require('./standalone')
+require('./startup/standalone')

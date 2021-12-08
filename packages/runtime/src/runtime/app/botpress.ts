@@ -74,7 +74,7 @@ export class Botpress {
 
     await this.startServer()
 
-    setDebugScopes(process.core_env.DEBUG || (process.IS_PRODUCTION ? '' : 'bp:dialog'))
+    setDebugScopes(process.runtime_env.DEBUG || (process.IS_PRODUCTION ? '' : 'bp:dialog'))
 
     AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
