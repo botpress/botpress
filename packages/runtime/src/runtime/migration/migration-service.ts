@@ -139,12 +139,12 @@ export class MigrationService {
     this.configVersion = process.env.TESTMIG_CONFIG_VERSION || (await this.configProvider.getRuntimeConfig()).version
     this.dbVersion = process.env.TESTMIG_DB_VERSION || (await this._getCurrentDbVersion())
 
-    if (process.core_env.TESTMIG_ALL || process.core_env.TESTMIG_NEW) {
+    if (process.runtime_env.TESTMIG_ALL || process.runtime_env.TESTMIG_NEW) {
       const versions = migrations.map(x => x.version).sort(semver.compare)
 
       this.targetVersion = _.last(versions)!
-      this.configVersion = yn(process.core_env.TESTMIG_NEW) ? process.BOTPRESS_VERSION : '12.0.0'
-      this.dbVersion = yn(process.core_env.TESTMIG_NEW) ? process.BOTPRESS_VERSION : '12.0.0'
+      this.configVersion = yn(process.runtime_env.TESTMIG_NEW) ? process.BOTPRESS_VERSION : '12.0.0'
+      this.dbVersion = yn(process.runtime_env.TESTMIG_NEW) ? process.BOTPRESS_VERSION : '12.0.0'
     }
 
     debug('Migration Check: %o', { config: this.configVersion, db: this.dbVersion, target: this.targetVersion })

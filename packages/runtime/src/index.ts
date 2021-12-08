@@ -7,7 +7,7 @@ import { BotpressRuntime, RuntimeSetup } from './embedded'
  */
 
 if (!module.parent) {
-  require('./standalone')
+  require('./startup/standalone')
 }
 
 export let runtime: BotpressRuntime

@@ -114,7 +114,7 @@ export class Botpress {
   }
 
   private async initStandalone() {
-    setDebugScopes(process.core_env.DEBUG || (process.IS_PRODUCTION ? '' : 'bp:dialog'))
+    setDebugScopes(process.runtime_env.DEBUG || (process.IS_PRODUCTION ? '' : 'bp:dialog'))
 
     this.config = await this.configProvider.getRuntimeConfig()
     const bots = await this.botService.getBotsIds()

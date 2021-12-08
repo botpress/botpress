@@ -30,7 +30,7 @@ export class MessagingService {
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Logger) private logger: Logger
   ) {
-    this.isExternal = Boolean(process.core_env.MESSAGING_ENDPOINT)
+    this.isExternal = Boolean(process.runtime_env.MESSAGING_ENDPOINT)
     this.collectingCache = new LRUCache<string, uuid>({ max: 5000, maxAge: ms('5m') })
 
     // use this to test converse from messaging

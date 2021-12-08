@@ -46,14 +46,14 @@ export class HTTPServer {
       this.app.use(errorHandler())
     }
 
-    if (process.core_env.REVERSE_PROXY) {
-      const boolVal = yn(process.core_env.REVERSE_PROXY)
-      this.app.set('trust proxy', boolVal === null ? process.core_env.REVERSE_PROXY : boolVal)
+    if (process.runtime_env.REVERSE_PROXY) {
+      const boolVal = yn(process.runtime_env.REVERSE_PROXY)
+      this.app.set('trust proxy', boolVal === null ? process.runtime_env.REVERSE_PROXY : boolVal)
     }
 
     this.app.use(debugRequestMw)
 
-    if (!yn(process.core_env.BP_HTTP_DISABLE_GZIP)) {
+    if (!yn(process.runtime_env.BP_HTTP_DISABLE_GZIP)) {
       this.app.use(compression())
     }
   }

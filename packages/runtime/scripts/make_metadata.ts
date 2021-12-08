@@ -17,7 +17,7 @@ const writeMetadata = async () => {
     console.error("Couldn't get active branch", err)
   }
 
-  fs.writeFileSync('./dist/metadata.json', JSON.stringify(metadata, null, 2))
+  fs.writeFileSync('./src/metadata.json', JSON.stringify(metadata, null, 2))
 }
 
 void writeMetadata()

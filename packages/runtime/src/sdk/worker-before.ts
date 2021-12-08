@@ -16,17 +16,17 @@ if (processData) {
 
 if (workerData?.processEnv) {
   Object.assign(process.env, workerData.processEnv)
-  process.core_env = process.env as BotpressEnvironmentVariables
+  process.runtime_env = process.env as RuntimeEnvironmentVariables
 }
 
-if (!process.core_env) {
+if (!process.runtime_env) {
   process.LOADED_MODULES = {}
   process.PROJECT_LOCATION =
     process.pkg || process.env.pkg
       ? path.dirname(process.execPath) // We point at the binary path
       : __dirname // e.g. /dist/..
 
-  process.core_env = process.env as BotpressEnvironmentVariables
+  process.runtime_env = process.env as RuntimeEnvironmentVariables
 }
 
 if (!process.BOTPRESS_EVENTS) {

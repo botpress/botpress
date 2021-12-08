@@ -29,7 +29,7 @@ export class Distro implements OSDistribution {
 }
 
 export default async function(): Promise<typeof process.distro> {
-  if (process.core_env.BP_IS_DOCKER) {
+  if (process.runtime_env.BP_IS_DOCKER) {
     return new Distro({
       os: 'linux',
       codename: 'beaver',
