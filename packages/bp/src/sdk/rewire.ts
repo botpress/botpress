@@ -96,6 +96,7 @@ const rewire = function(this: NodeRequireFunction, mod: string) {
         try {
           return originalRequire.apply(this, [newPath])
         } catch (err) {
+          console.error('NEXT', err)
           /* Swallow error, try next one */
         }
       }
