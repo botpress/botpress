@@ -172,6 +172,6 @@ const package = modules => {
 module.exports = {
   packageCore,
   packageApp,
-  copyNativeExtensions,
-  packageAll
+  packageAll,
+  copyNativeExtensions
 }
