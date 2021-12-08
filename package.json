@@ -15,7 +15,7 @@
   },
   "studio": {
     "version": "0.0.44",
-    "devBranch": "refs_pull_120_merge"
+    "devBranch": "next"
   },
   "messaging": {
     "version": "0.1.18"
