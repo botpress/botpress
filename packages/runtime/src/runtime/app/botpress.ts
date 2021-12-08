@@ -135,8 +135,12 @@ export class Botpress {
   }
 
   private async initEmbedded(options: RuntimeSetup) {
-    this.configProvider.setRuntimeConfig(options.config)
-    this.config = options.config
+    if (options.config) {
+      this.configProvider.setRuntimeConfig(options.config)
+      this.config = options.config
+    } else {
+      this.config = await this.configProvider.getRuntimeConfig()
+    }
 
     AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 

@@ -29,7 +29,7 @@ module.exports = {
       verbose: true,
       modulePaths: ['<rootDir>/packages/bp/src/', '<rootDir>/packages/runtime/src/'],
       moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx', 'd.ts'],
-      modulePathIgnorePatterns: ['out'],
+      modulePathIgnorePatterns: ['dist'],
       transform: {
         '^.+\\.(ts|tsx|js)$': 'ts-jest'
       },

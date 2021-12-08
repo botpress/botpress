@@ -72,8 +72,8 @@ export class ConverseService {
     botId: string,
     userId: string,
     payload: any,
-    credentials: any,
-    includedContexts: string[]
+    credentials?: any,
+    includedContexts?: string[]
   ): Promise<any> {
     if (!payload.type) {
       payload.type = 'text'
@@ -103,7 +103,7 @@ export class ConverseService {
       botId,
       credentials,
       nlu: {
-        includedContexts
+        includedContexts: includedContexts || ['global']
       }
     })
 
