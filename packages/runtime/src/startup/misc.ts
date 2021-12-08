@@ -86,4 +86,5 @@ export const setupProcess = async () => {
   loadEnvVars()
 
   process.distro = await getos()
+  process.VERBOSITY_LEVEL = 2
 }

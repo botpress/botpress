@@ -1,19 +1,12 @@
 import 'bluebird-global'
 // eslint-disable-next-line import/order
 import '../../sdk/rewire'
-import sdk from 'botpress/runtime-sdk'
 
+import { RuntimeSetup } from '../../startup/embedded'
 import { BotpressApp, createApp, createLoggerProvider } from '../app/core-loader'
-import { LoggerProvider } from '../logger'
+import { LoggerProvider, LogLevel } from '../logger'
 
 import { showBanner } from './banner'
-
-async function setupEnv(app: BotpressApp) {
-  await app.database.initialize()
-
-  const useDbDriver = process.BPFS_STORAGE === 'database'
-  await app.ghost.initialize(useDbDriver)
-}
 
 async function getLogger(provider: LoggerProvider, loggerName: string) {
   const logger = await provider(loggerName)
@@ -33,7 +26,7 @@ async function setupDebugLogger(provider: LoggerProvider) {
     const rest = args.slice(1)
 
     logger
-      .level(sdk.LogLevel.DEBUG)
+      .level(LogLevel.DEBUG)
       .persist(false)
       .forBot(botId)
       .debug(message.trim(), rest)
@@ -44,22 +37,44 @@ async function setupDebugLogger(provider: LoggerProvider) {
     const rest = args.slice(1)
 
     logger
-      .level(sdk.LogLevel.DEBUG)
+      .level(LogLevel.DEBUG)
       .persist(false)
       .noEmit() // We don't want to emit global debugs to the studio (ex: audit, configurations)
       .debug(message.trim(), rest)
   }
 }
 
-export async function start() {
-  await setupDebugLogger(createLoggerProvider())
-  const app = createApp()
+const setupEmbedded = async (app: BotpressApp, config: RuntimeSetup) => {
+  if (config.clients?.knex) {
+    app.database.knex = config.clients.knex
+    await app.database.bootstrap()
+  } else {
+    await app.database.initialize()
+  }
 
-  await setupEnv(app)
+  if (config.rootDir) {
+    process.PROJECT_LOCATION = config.rootDir
+  }
 
+  if (config.endpoints) {
+    process.NLU_ENDPOINT = config.endpoints.nlu
+    process.MESSAGING_ENDPOINT = config.endpoints.messaging
+  }
+
+  return app.botpress.start(config)
+}
+
+const setupStandalone = async (app: BotpressApp) => {
   const logger = await getLogger(app.logger, 'Launcher')
+  await app.database.initialize()
 
-  showBanner({ title: 'Botpress Runtime', version: sdk.version, logScopeLength: 9, bannerWidth: 75, logger })
+  showBanner({
+    title: 'Botpress Runtime',
+    version: process.BOTPRESS_VERSION,
+    logScopeLength: 9,
+    bannerWidth: 75,
+    logger
+  })
 
   await app.botpress.start().catch(err => {
     logger.attachError(err).error('Error starting Botpress')
@@ -71,4 +86,14 @@ export async function start() {
 
   logger.info(`Botpress is listening at: ${process.LOCAL_URL}`)
   logger.info(`Botpress is exposed at: ${process.EXTERNAL_URL}`)
+}
+
+export async function start(config?: RuntimeSetup) {
+  await setupDebugLogger(createLoggerProvider())
+  const app = createApp()
+
+  const useDbDriver = process.BPFS_STORAGE === 'database'
+  await app.ghost.initialize(useDbDriver)
+
+  return config ? setupEmbedded(app, config) : setupStandalone(app)
 }

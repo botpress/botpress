@@ -1,8 +1,11 @@
 import * as sdk from 'botpress/runtime-sdk'
+
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import moment from 'moment'
+import ms from 'ms'
 
+import { RuntimeSetup, BotpressRuntime } from '../..'
 import { setDebugScopes } from '../../debug'
 import { WrapErrorsWith } from '../../errors'
 import { BotService, BotMonitoringService } from '../bots'
@@ -11,21 +14,23 @@ import { CMSService } from '../cms'
 import { RuntimeConfig, ConfigProvider } from '../config'
 import { buildUserKey, converseApiEvents, ConverseService } from '../converse'
 import Database from '../database'
-import { StateManager, DecisionEngine, DialogJanitor, WellKnownFlags, FlowService } from '../dialog'
+import { StateManager, DecisionEngine, DialogJanitor, FlowService, DialogEngine } from '../dialog'
 import { SessionIdFactory } from '../dialog/sessions'
-import { addStepToEvent, EventCollector, StepScopes, StepStatus, EventEngine, Event } from '../events'
+import { addStepToEvent, EventCollector, StepScopes, StepStatus, EventEngine } from '../events'
 import { AppLifecycle, AppLifecycleEvents } from '../lifecycle'
-import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, LogsJanitor } from '../logger'
+import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, LogsJanitor, PersistedConsoleLogger } from '../logger'
 import { MessagingService } from '../messaging'
 import { MigrationService } from '../migration'
 import { NLUInferenceService } from '../nlu'
 import { QnaService } from '../qna'
-import { Hooks, HookService } from '../user-code'
+import { Hooks, HookService, ActionService } from '../user-code'
 import { DataRetentionJanitor } from '../users'
 
-import { createForGlobalHooks } from './api'
+import { createForAction, createForGlobalHooks } from './api'
 import { HTTPServer } from './server'
 import { TYPES } from './types'
+
+const DEBOUNCE_DELAY = ms('5s')
 
 @injectable()
 export class Botpress {
@@ -58,23 +63,65 @@ export class Botpress {
     @inject(TYPES.QnaService) private qnaService: QnaService,
     @inject(TYPES.MigrationService) private migrationService: MigrationService,
     @inject(TYPES.MessagingService) private messagingService: MessagingService,
-    @inject(TYPES.NLUInferenceService) private nluInferenceService: NLUInferenceService
+    @inject(TYPES.NLUInferenceService) private nluInferenceService: NLUInferenceService,
+    @inject(TYPES.FlowService) private flowService: FlowService,
+    @inject(TYPES.ActionService) private actionService: ActionService,
+    @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine
   ) {}
 
-  async start() {
-    const beforeDt = moment()
-    await this.initialize()
-    const bootTime = moment().diff(beforeDt, 'milliseconds')
-    this.logger.info(`Ready in ${bootTime}ms`)
+  private _refreshBot = async (botId: string) => {
+    if (!this.botService.isBotMounted(botId)) {
+      return
+    }
+
+    await this.ghostService.forBot(botId).clearCache()
+
+    await this.cmsService.refreshElements(botId)
+    await this.flowService.forBot(botId).reloadFlows()
+
+    this.hookService.clearRequireCache()
+    this.actionService.forBot(botId).clearRequireCache()
   }
 
-  private async initialize() {
+  private _refreshDebounced = _.debounce(this._refreshBot, DEBOUNCE_DELAY, { leading: true, trailing: false })
+
+  async start(config?: RuntimeSetup): Promise<BotpressRuntime> {
+    const beforeDt = moment()
+    await this.initialize(config)
+    const bootTime = moment().diff(beforeDt, 'milliseconds')
+    this.logger.info(`Ready in ${bootTime}ms`)
+
+    return {
+      initExternalServices: async () => {
+        if (config?.httpServer) {
+          this.httpServer.setupRoutes(config?.httpServer)
+        }
+
+        await this.nluInferenceService.initialize()
+        await this.messagingService.initialize()
+      },
+      bots: {
+        mount: this.botService.mountBot.bind(this.botService),
+        unmount: this.botService.unmountBot.bind(this.botService),
+        refresh: this._refreshDebounced
+      },
+      telemetry: {
+        getNewUsersCount: this.messagingService.getNewUsersCount.bind(this.messagingService)
+      },
+      sendConverseMessage: this.converseService.sendMessage.bind(this.converseService),
+      events: this.api.events,
+      dialog: this.api.dialog,
+      users: this.api.users
+    }
+  }
+
+  private async initStandalone() {
+    setDebugScopes(process.runtime_env.DEBUG || (process.IS_PRODUCTION ? '' : 'bp:dialog'))
+
     this.config = await this.configProvider.getRuntimeConfig()
     const bots = await this.botService.getBotsIds()
 
-    await this.startServer()
-
-    setDebugScopes(process.runtime_env.DEBUG || (process.IS_PRODUCTION ? '' : 'bp:dialog'))
+    await this.httpServer.start()
 
     AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
@@ -84,9 +131,35 @@ export class Botpress {
 
     await this.discoverBots(bots)
 
+    this.api = await createForGlobalHooks()
+  }
+
+  private async initEmbedded(options: RuntimeSetup) {
+    this.configProvider.setRuntimeConfig(options.config)
+    this.config = options.config
+
+    AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
+
+    if (options.logger?.emitter) {
+      PersistedConsoleLogger.LogStreamEmitter = options.logger.emitter
+    }
+
+    this.api = await createForGlobalHooks(options.apiExtension)
+    await createForAction(options.apiExtension)
+
+    await this.migrationService.initialize()
+    await this.initializeServices()
+  }
+
+  private async initialize(options?: RuntimeSetup) {
+    if (options) {
+      await this.initEmbedded(options)
+    } else {
+      await this.initStandalone()
+    }
+
     AppLifecycle.setDone(AppLifecycleEvents.BOTPRESS_READY)
 
-    this.api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.AfterServerStart(this.api))
   }
 
@@ -99,11 +172,6 @@ export class Botpress {
         this.logger.attachError(err).error("Couldn't load debug scopes. Check the syntax of debug.json")
       }
     }
-  }
-
-  private async startServer() {
-    await this.httpServer.start()
-    AppLifecycle.setDone(AppLifecycleEvents.HTTP_SERVER_READY)
   }
 
   @WrapErrorsWith('Error while discovering bots')
@@ -123,8 +191,6 @@ export class Botpress {
     await this.cmsService.initialize()
     await this.eventCollector.initialize(this.database)
     this.qnaService.initialize()
-    await this.nluInferenceService.initialize()
-    await this.messagingService.initialize()
 
     await this.registerHooks()
 

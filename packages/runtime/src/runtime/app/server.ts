@@ -34,28 +34,10 @@ export class HTTPServer {
     @inject(TYPES.Logger)
     @tagged('name', 'HTTP')
     private logger: Logger,
-    @inject(TYPES.EventEngine) private eventEngine: EventEngine,
-    @inject(TYPES.EventRepository) private eventRepo: EventRepository,
-    @inject(TYPES.ConverseService) private converseService: ConverseService,
     @inject(TYPES.MessagingService) private messaging: MessagingService,
     @inject(TYPES.BotService) private botService: BotService
   ) {
     this.app = express()
-
-    if (!process.IS_PRODUCTION) {
-      this.app.use(errorHandler())
-    }
-
-    if (process.runtime_env.REVERSE_PROXY) {
-      const boolVal = yn(process.runtime_env.REVERSE_PROXY)
-      this.app.set('trust proxy', boolVal === null ? process.runtime_env.REVERSE_PROXY : boolVal)
-    }
-
-    this.app.use(debugRequestMw)
-
-    if (!yn(process.runtime_env.BP_HTTP_DISABLE_GZIP)) {
-      this.app.use(compression())
-    }
   }
 
   public setupRoutes(app: express.Express) {
@@ -75,6 +57,21 @@ export class HTTPServer {
   }
 
   async start() {
+    if (!process.IS_PRODUCTION) {
+      this.app.use(errorHandler())
+    }
+
+    if (process.runtime_env.REVERSE_PROXY) {
+      const boolVal = yn(process.runtime_env.REVERSE_PROXY)
+      this.app.set('trust proxy', boolVal === null ? process.runtime_env.REVERSE_PROXY : boolVal)
+    }
+
+    this.app.use(debugRequestMw)
+
+    if (!yn(process.runtime_env.BP_HTTP_DISABLE_GZIP)) {
+      this.app.use(compression())
+    }
+
     const app = express()
     app.use('/', this.app)
     this.httpServer = createServer(app)

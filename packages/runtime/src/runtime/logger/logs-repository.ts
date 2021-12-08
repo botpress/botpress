@@ -1,8 +1,9 @@
-import { LoggerEntry, LoggerLevel } from 'botpress/runtime-sdk'
+import { LoggerEntry } from 'botpress/runtime-sdk'
 import { inject, injectable } from 'inversify'
 
 import Database from '../database'
 import { TYPES } from '../types'
+import { LoggerLevel } from '.'
 
 interface LogSearchParams {
   fromDate?: Date

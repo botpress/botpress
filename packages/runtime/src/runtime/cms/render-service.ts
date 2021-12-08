@@ -2,6 +2,7 @@ import * as sdk from 'botpress/runtime-sdk'
 import { injectable } from 'inversify'
 
 import { renderRecursive } from '../cms/templating'
+import { ButtonAction } from './enums'
 
 @injectable()
 export class RenderService {
@@ -84,7 +85,7 @@ export class RenderService {
 
   renderButtonSay(title: string, text: string | sdk.MultiLangText): sdk.ActionSaySomething {
     return {
-      action: sdk.ButtonAction.SaySomething,
+      action: ButtonAction.SaySomething,
       title,
       text
     }
@@ -92,7 +93,7 @@ export class RenderService {
 
   renderButtonUrl(title: string, url: string): sdk.ActionOpenURL {
     return {
-      action: sdk.ButtonAction.OpenUrl,
+      action: ButtonAction.OpenUrl,
       title,
       url
     }

@@ -1,8 +1,9 @@
-import { ObjectCache } from 'common/object-cache'
-import { IInitializeFromConfig } from 'common/typings'
 import { EventEmitter } from 'events'
 import { inject, injectable } from 'inversify'
 import { Redis } from 'ioredis'
+
+import { ObjectCache } from '../../common/object-cache'
+import { IInitializeFromConfig } from '../../common/typings'
 import { CacheInvalidators, MemoryObjectCache } from '../bpfs'
 import { makeRedisKey, getOrCreate as redisFactory } from '../distributed'
 import { TYPES } from '../types'
