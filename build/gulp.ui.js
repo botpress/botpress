@@ -7,8 +7,8 @@ const verbose = process.argv.includes('--verbose')
 
 const build = () => {
   gulp.task('build:shared', gulp.series([cleanShared, sharedBuild]))
-  gulp.task('build:admin', gulp.series([buildAdmin, cleanAdmin, copyAdmin]))
-  gulp.task('build:lite', gulp.series([buildLite, cleanLite, copyLite]))
+  gulp.task('build:admin', buildAdmin)
+  gulp.task('build:lite', buildLite)
 
   if (yn(process.env.GULP_PARALLEL)) {
     return gulp.series(['build:shared', gulp.parallel(['build:admin', 'build:lite'])])
@@ -32,13 +32,9 @@ const buildShared = () => {
 const buildAdmin = cb => {
   const prod = process.argv.includes('--prod') ? '--nomap --prod' : ''
 
-  const admin = exec(`yarn && yarn build ${prod}`, { cwd: 'packages/bp/src/admin/ui' }, err => cb(err))
+  const admin = exec(`yarn && yarn build ${prod}`, { cwd: 'packages/ui-admin' }, err => cb(err))
   verbose && admin.stdout.pipe(process.stdout)
   admin.stderr.pipe(process.stderr)
-}
-
-const copyAdmin = () => {
-  return gulp.src('./packages/bp/src/admin/ui/build/**/*').pipe(gulp.dest('./packages/bp/dist/admin/ui/public'))
 }
 
 const buildLite = cb => {
@@ -49,20 +45,8 @@ const buildLite = cb => {
   admin.stderr.pipe(process.stderr)
 }
 
-const cleanLite = () => {
-  return gulp.src('./packages/bp/dist/ui-lite/public', { allowEmpty: true }).pipe(rimraf())
-}
-
-const copyLite = () => {
-  return gulp.src('./packages/ui-lite/public/**/*').pipe(gulp.dest('./packages/bp/dist/ui-lite/public'))
-}
-
-const cleanAdmin = () => {
-  return gulp.src('./packages/bp/dist/admin/ui/public', { allowEmpty: true }).pipe(rimraf())
-}
-
 const watchAdmin = cb => {
-  const admin = exec('yarn && yarn start', { cwd: 'packages/bp/src/admin/ui' }, err => cb(err))
+  const admin = exec('yarn && yarn start', { cwd: 'packages/ui-admin' }, err => cb(err))
   admin.stdout.pipe(process.stdout)
   admin.stderr.pipe(process.stderr)
 }

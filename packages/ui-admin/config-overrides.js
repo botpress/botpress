@@ -1,16 +1,41 @@
 const path = require('path')
 const ModuleScopePlugin = require('react-dev-utils/ModuleScopePlugin')
 const HardSourceWebpackPlugin = require('hard-source-webpack-plugin')
-const isProductionBuild = process.argv.includes('--prod')
+const FileManagerPlugin = require('filemanager-webpack-plugin')
 const { createProxyMiddleware } = require('http-proxy-middleware')
+
+const isProductionBuild = process.argv.includes('--prod')
+const noMap = process.argv.find(x => x.toLowerCase() === '--nomap')
 
 module.exports = {
   webpack: (config, env) => {
-    config.resolve.alias['common'] = path.join(__dirname, '../../../dist/common')
+    config.resolve.alias['common'] = path.join(__dirname, '../bp/dist/common')
     config.resolve.alias['~'] = path.join(__dirname, './src')
-    config.resolve.alias['botpress/shared'] = 'ui-shared'
+    config.resolve.alias['botpress/shared'] = '@botpress/ui-shared'
     config.resolve.plugins = config.resolve.plugins.filter(p => !p instanceof ModuleScopePlugin)
-    config.devtool = process.argv.find(x => x.toLowerCase() === '--nomap') ? false : 'source-map'
+    config.devtool = isProductionBuild || noMap ? false : 'source-map'
+
+    config.infrastructureLogging = { level: 'error' }
+
+    config.plugins.push(
+      new FileManagerPlugin({
+        events: {
+          onEnd: [
+            {
+              delete: [{ source: path.resolve(__dirname, '../bp/dist/admin/ui/public'), options: { force: true } }]
+            },
+            {
+              copy: [
+                {
+                  source: 'dist',
+                  destination: path.resolve(__dirname, '../bp/dist/admin/ui/public')
+                }
+              ]
+            }
+          ]
+        }
+      })
+    )
 
     const oneOfConfigIdx = config.module.rules.findIndex(x => x.oneOf)
 
@@ -60,7 +85,7 @@ module.exports = {
         }
       },
       {
-        test: require.resolve('ui-shared'),
+        test: require.resolve('@botpress/ui-shared'),
         loader: 'expose-loader',
         options: {
           exposes: ['BotpressShared']

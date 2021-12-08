@@ -23,7 +23,7 @@ export default async (argv: any) => {
   normal('Build completed')
 }
 
-export async function buildBackend(modulePath: string) {
+export async function buildBackend(modulePath: string): Promise<void> {
   const start = Date.now()
 
   let babelConfig: babel.TransformOptions = {
@@ -115,7 +115,7 @@ const compileBackend = (modulePath: string, babelConfig) => {
   })
 
   const copyWithoutTransform = ['actions', 'hooks', 'examples', 'content-types', 'bot-templates']
-  const outputFiles = []
+  const outputFiles: string[] = []
 
   for (const file of files) {
     const dest = file.replace(/^src\//i, 'dist/').replace(/\.ts$/i, '.js')
@@ -130,6 +130,10 @@ const compileBackend = (modulePath: string, babelConfig) => {
       const dBefore = Date.now()
       const result = babel.transformFileSync(file, babelConfig)
       const destMap = `${dest}.map`
+
+      if (!result?.map) {
+        return
+      }
 
       fs.writeFileSync(dest, `${result.code}${os.EOL}//# sourceMappingURL=${path.basename(destMap)}`)
       result.map.sources = [path.relative(babelConfig.sourceRoot, file)]
@@ -182,7 +186,7 @@ const getTsConfig = (rootFolder: string): ts.ParsedCommandLine => {
   }
 
   const configFileName = ts.findConfigFile(rootFolder, ts.sys.fileExists, 'tsconfig.json')
-  const { config } = ts.readConfigFile(configFileName, ts.sys.readFile)
+  const { config } = ts.readConfigFile(configFileName!, ts.sys.readFile)
 
   // These 3 objects are identical for all modules, but can't be in tsconfig.shared because the root folder is not processed correctly
   const fixedModuleConfig = {

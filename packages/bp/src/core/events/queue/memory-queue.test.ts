@@ -93,7 +93,7 @@ describe('Lite Queues', () => {
       await Promise.delay(5)
     }
 
-    await Promise.delay(5)
+    await Promise.delay(20)
     expect(logger.warn).toHaveBeenCalled() // Failed
     expect(logger.error).not.toHaveBeenCalled() // But not dropped
     expect(order.length).toEqual(1)
@@ -115,7 +115,7 @@ describe('Lite Queues', () => {
     while (!queue.isEmpty()) {
       await Promise.delay(5)
     }
-    await Promise.delay(5)
+    await Promise.delay(20)
 
     expect(logger.warn).toHaveBeenCalled() // Failed
     expect(logger.error).toHaveBeenCalled() // Also dropped
@@ -139,7 +139,7 @@ describe('Lite Queues', () => {
       await Promise.delay(5)
     }
 
-    await Promise.delay(5)
+    await Promise.delay(20)
     expect(order).toHaveLength(3)
     expect(order).toEqual([1, 2, 3].map(x => x.toString()))
   })

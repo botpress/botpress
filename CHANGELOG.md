@@ -1,3 +1,48 @@
+## [12.26.8](https://github.com/botpress/botpress/compare/v12.26.3...v12.26.8) (2021-12-02)
+
+
+### Bug Fixes
+
+* **1002:** make embed chat icon less weird in iframe ([#5640](https://github.com/botpress/botpress/issues/5640)) ([99b1a9b](https://github.com/botpress/botpress/commit/99b1a9b))
+* **admin:** DEV-1238: Hide/Show Button admin panel ([#5634](https://github.com/botpress/botpress/issues/5634)) ([9ed29d3](https://github.com/botpress/botpress/commit/9ed29d3))
+* **admin:** fix user management ([#5623](https://github.com/botpress/botpress/issues/5623)) ([eda1c43](https://github.com/botpress/botpress/commit/eda1c43))
+* **admin:** increase module upload timeout ([#5684](https://github.com/botpress/botpress/issues/5684)) ([b44b45c](https://github.com/botpress/botpress/commit/b44b45c))
+* **auth:** remove add to ws in user creation ([#5686](https://github.com/botpress/botpress/issues/5686)) ([6ed8f6d](https://github.com/botpress/botpress/commit/6ed8f6d))
+* **basic-skills:** added some form validation ([28e5609](https://github.com/botpress/botpress/commit/28e5609))
+* **basic-skills:** added some form validation ([c0f6392](https://github.com/botpress/botpress/commit/c0f6392))
+* **channel-web:** disable autoscroll when user scroll manually ([#5694](https://github.com/botpress/botpress/issues/5694)) ([391ef90](https://github.com/botpress/botpress/commit/391ef90))
+* **channel-web:** display feedback actions on all q&a answers ([#5662](https://github.com/botpress/botpress/issues/5662)) ([7d342f9](https://github.com/botpress/botpress/commit/7d342f9))
+* **channel-web:** fix image path when using custom url ([#5689](https://github.com/botpress/botpress/issues/5689)) ([8c29b47](https://github.com/botpress/botpress/commit/8c29b47))
+* **channel-web:** fix migrating large number of conversations: ([#5712](https://github.com/botpress/botpress/issues/5712)) ([9d922fe](https://github.com/botpress/botpress/commit/9d922fe))
+* **channel-web:** handle RTL text direction ([6642d74](https://github.com/botpress/botpress/commit/6642d74))
+* **channel-web:** resent on enter ([8bb3480](https://github.com/botpress/botpress/commit/8bb3480))
+* **channel-web:** reset on ctrl enter ([3cb2f3f](https://github.com/botpress/botpress/commit/3cb2f3f))
+* **code-editor:** allow folder in file names ([#5620](https://github.com/botpress/botpress/issues/5620)) ([0bc6b1a](https://github.com/botpress/botpress/commit/0bc6b1a))
+* **code-editor:** DEV-1964: DX improvement. Have the same behavior as VSCODE ([#5642](https://github.com/botpress/botpress/issues/5642)) ([be5eae0](https://github.com/botpress/botpress/commit/be5eae0))
+* **core:** fix auth service for channels ([#5637](https://github.com/botpress/botpress/issues/5637)) ([68eda02](https://github.com/botpress/botpress/commit/68eda02))
+* **core:** fix createdOn save order ([#5629](https://github.com/botpress/botpress/issues/5629)) ([b8b86a2](https://github.com/botpress/botpress/commit/b8b86a2))
+* **core:** partial fix for bp push ([#5652](https://github.com/botpress/botpress/issues/5652)) ([b24bc3f](https://github.com/botpress/botpress/commit/b24bc3f))
+* **core:** wait for cache invaliation after update/set attributes ([#5711](https://github.com/botpress/botpress/issues/5711)) ([472cd2d](https://github.com/botpress/botpress/commit/472cd2d))
+* **dx:** fix e2e tests ([#5697](https://github.com/botpress/botpress/issues/5697)) ([a472ac4](https://github.com/botpress/botpress/commit/a472ac4))
+* **emulator:** implicitly handle text direction ([d23e7a1](https://github.com/botpress/botpress/commit/d23e7a1))
+* **launch:** added instructions for newbies ([#5653](https://github.com/botpress/botpress/issues/5653)) ([b949540](https://github.com/botpress/botpress/commit/b949540))
+* **migrations:** fix TESTMIG_ALL ([#5631](https://github.com/botpress/botpress/issues/5631)) ([fb6cfcf](https://github.com/botpress/botpress/commit/fb6cfcf))
+* **nlu:** adding modelId to output ([#5650](https://github.com/botpress/botpress/issues/5650)) ([6c00bc6](https://github.com/botpress/botpress/commit/6c00bc6))
+* **realtime:** allow to use websocket without sticky sessions ([#5688](https://github.com/botpress/botpress/issues/5688)) ([5181340](https://github.com/botpress/botpress/commit/5181340)), closes [#5693](https://github.com/botpress/botpress/issues/5693)
+* **skills:** dialog overflow on too many params, fixes [#149](https://github.com/botpress/botpress/issues/149) ([#5614](https://github.com/botpress/botpress/issues/5614)) ([817e21c](https://github.com/botpress/botpress/commit/817e21c))
+* **skills:** fix subsequent call api ([#5628](https://github.com/botpress/botpress/issues/5628)) ([4f53ce8](https://github.com/botpress/botpress/commit/4f53ce8))
+* **webchat:** fixed bug of allowing user to send more than the max utterance length ([#5633](https://github.com/botpress/botpress/issues/5633)) ([1f18201](https://github.com/botpress/botpress/commit/1f18201))
+* add env variables to list ([#5625](https://github.com/botpress/botpress/issues/5625)) ([4b1ca70](https://github.com/botpress/botpress/commit/4b1ca70))
+* **admin:** error "BP_0044" when there is disabled bots in the bot list ([#5618](https://github.com/botpress/botpress/issues/5618)) ([a04c5d4](https://github.com/botpress/botpress/commit/a04c5d4))
+* **code-editor:** bug selecting file of same name ([#5632](https://github.com/botpress/botpress/issues/5632)) ([88175a4](https://github.com/botpress/botpress/commit/88175a4))
+* **webchat:** mic icon overlaid on button ([#5626](https://github.com/botpress/botpress/issues/5626)) ([b3955fe](https://github.com/botpress/botpress/commit/b3955fe))
+
+
+### Features
+
+
+
+
 ## [12.26.7](https://github.com/botpress/botpress/compare/v12.26.3...v12.26.7) (2021-11-10)
 
 

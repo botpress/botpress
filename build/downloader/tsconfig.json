@@ -11,8 +11,7 @@
     "moduleResolution": "node",
     "experimentalDecorators": true,
     "baseUrl": "./src",
-    "outDir": "./out",
-    "typeRoots": ["../../node_modules/@types"],
+    "outDir": "./dist",
     "types": [],
     "useUnknownInCatchVariables": false
   }

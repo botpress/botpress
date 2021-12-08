@@ -1,7 +1,6 @@
 import { EventEmitter2 } from 'eventemitter2'
 import nanoid from 'nanoid'
-import io from 'socket.io-client'
-import { getToken } from '../../ui-shared-lite/auth'
+import { Socket, io } from 'socket.io-client'
 import storage from '../../ui-shared-lite/utils/storage'
 
 export const authEvents = new EventEmitter2()
@@ -34,8 +33,7 @@ const getUniqueVisitorId = (userIdScope?: string): string => {
 }
 
 class EventBus extends EventEmitter2 {
-  private adminSocket!: SocketIOClient.Socket
-  private guestSocket!: SocketIOClient.Socket
+  private guestSocket!: Socket
   static default: EventBus
 
   constructor() {
@@ -50,13 +48,13 @@ class EventBus extends EventEmitter2 {
     this.emit(event.name, event.data, 'server')
   }
 
-  dispatchClientEvent = (name, data, from) => {
+  dispatchClientEvent = (name: string, data: any, from: string) => {
     if (from === 'server') {
       // we sent this event ourselves
       return
     }
 
-    const socket = name.startsWith('guest.') ? this.guestSocket : this.adminSocket
+    const socket = this.guestSocket
     socket && socket.emit('event', { name, data })
   }
 
@@ -81,19 +79,10 @@ class EventBus extends EventEmitter2 {
       visitorId: getUniqueVisitorId(userIdScope)
     }
 
-    const token = getToken()
-    if (token) {
-      Object.assign(query, { token })
-    }
-
-    if (this.adminSocket) {
-      this.adminSocket.off('event', this.dispatchSocketEvent)
-      this.adminSocket.disconnect()
-    }
-
     if (this.guestSocket) {
       this.guestSocket.off('event', this.dispatchSocketEvent)
       this.guestSocket.off('connect', this.updateVisitorSocketId)
+
       this.guestSocket.disconnect()
 
       this.deleteVisitorSocketId()
@@ -101,13 +90,6 @@ class EventBus extends EventEmitter2 {
 
     const socketUrl = window['BP_SOCKET_URL'] || window.location.origin
     const transports = window.SOCKET_TRANSPORTS
-
-    this.adminSocket = io(`${socketUrl}/admin`, {
-      query,
-      transports,
-      path: `${window['ROOT_PATH']}/socket.io`
-    })
-    this.adminSocket.on('event', this.dispatchSocketEvent)
 
     this.guestSocket = io(`${socketUrl}/guest`, { query, transports, path: `${window['ROOT_PATH']}/socket.io` })
 
