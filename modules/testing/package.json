@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "classnames": "^2.2.6",
+    "nanoid": "^2.0.1",
     "react-icons": "^3.8.0"
   },
   "resolutions": {
