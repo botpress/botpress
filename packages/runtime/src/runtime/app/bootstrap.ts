@@ -8,11 +8,6 @@ import { LoggerProvider, LogLevel } from '../logger'
 
 import { showBanner } from './banner'
 
-async function setupEnv(app: BotpressApp) {
-  const useDbDriver = process.BPFS_STORAGE === 'database'
-  await app.ghost.initialize(useDbDriver)
-}
-
 async function getLogger(provider: LoggerProvider, loggerName: string) {
   const logger = await provider(loggerName)
 

@@ -14,9 +14,9 @@ import { CMSService } from '../cms'
 import { RuntimeConfig, ConfigProvider } from '../config'
 import { buildUserKey, converseApiEvents, ConverseService } from '../converse'
 import Database from '../database'
-import { StateManager, DecisionEngine, DialogJanitor, WellKnownFlags, FlowService, DialogEngine } from '../dialog'
+import { StateManager, DecisionEngine, DialogJanitor, FlowService, DialogEngine } from '../dialog'
 import { SessionIdFactory } from '../dialog/sessions'
-import { addStepToEvent, EventCollector, StepScopes, StepStatus, EventEngine, Event } from '../events'
+import { addStepToEvent, EventCollector, StepScopes, StepStatus, EventEngine } from '../events'
 import { AppLifecycle, AppLifecycleEvents } from '../lifecycle'
 import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, LogsJanitor, PersistedConsoleLogger } from '../logger'
 import { MessagingService } from '../messaging'
@@ -135,8 +135,12 @@ export class Botpress {
   }
 
   private async initEmbedded(options: RuntimeSetup) {
-    this.configProvider.setRuntimeConfig(options.config)
-    this.config = options.config
+    if (options.config) {
+      this.configProvider.setRuntimeConfig(options.config)
+      this.config = options.config
+    } else {
+      this.config = await this.configProvider.getRuntimeConfig()
+    }
 
     AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 

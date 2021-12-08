@@ -18,8 +18,8 @@ export interface BotpressRuntime {
     botId: string,
     userId: string,
     payload: any,
-    credentials: any,
-    includedContexts: string[]
+    credentials?: any,
+    includedContexts?: string[]
   ) => Promise<any>
 
   /** This is only to feed telemetry messaging... temporary */
@@ -34,9 +34,10 @@ export interface BotpressRuntime {
 }
 
 export interface RuntimeSetup {
-  config: RuntimeConfig
   /** The directory where the data folder is located */
   rootDir: string
+  /** If no configuration is provided, it will try to load botpress.config.json from the root directory */
+  config?: RuntimeConfig
   clients?: {
     /** Use an already configured client (avoids doubling the number of clients/pools) */
     knex?: sdk.KnexExtended

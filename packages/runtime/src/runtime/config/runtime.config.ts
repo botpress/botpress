@@ -1,4 +1,4 @@
-import { ConverseConfig } from 'botpress/sdk'
+import { ConverseConfig } from 'botpress/runtime-sdk'
 
 export type BotpressCondition = '$isProduction' | '$isDevelopment'
 
