@@ -65,6 +65,9 @@
       "request": "launch",
       "name": "Debug Jest Tests",
       "cwd": "${workspaceFolder}",
+      "env": {
+        "NATIVE_EXTENSIONS_DIR": "./build/native-extensions"
+      },
       "args": [
         "--inspect-brk",
         "${workspaceFolder}/node_modules/.bin/jest",
@@ -105,6 +108,7 @@
       "name": "Debug Jest Integration Tests",
       "cwd": "${workspaceFolder}",
       "env": {
+        "NATIVE_EXTENSIONS_DIR": "./build/native-extensions",
         "JEST_TIMEOUT": "30000"
       },
       "args": [

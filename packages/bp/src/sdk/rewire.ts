@@ -10,11 +10,10 @@ const nativeBindingsPaths: string[] = []
 
 const nativeExBaseFolder =
   (process.core_env.NATIVE_EXTENSIONS_DIR && syspath.resolve(process.env.NATIVE_EXTENSIONS_DIR!)) ||
-  syspath.resolve(require.resolve('@botpress/native-extensions'), '../../bin')
+  (process.pkg
+    ? syspath.resolve(syspath.dirname(process.execPath), 'bindings')
+    : syspath.resolve(process.PROJECT_LOCATION, '../../../build/native-extensions'))
 
-console.log(nativeExBaseFolder)
-console.log(sysfs.readdirSync(nativeExBaseFolder))
-console.log(sysfs.readdirSync(syspath.join(nativeExBaseFolder, 'windows/all')))
 if (process.distro.os === 'linux') {
   platformFolders.push('linux/default')
 
@@ -96,7 +95,6 @@ const rewire = function(this: NodeRequireFunction, mod: string) {
         try {
           return originalRequire.apply(this, [newPath])
         } catch (err) {
-          console.error('NEXT', err)
           /* Swallow error, try next one */
         }
       }

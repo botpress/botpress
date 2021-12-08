@@ -65,6 +65,7 @@ const zipArchive = async ({ osName, binding, tempBin, binaryName }) => {
   const archive = archiver('zip')
   archive.pipe(output)
   archive.directory(`${basePath}/binaries/${osName}/bin`, 'bin')
+  archive.directory(`build/native-extensions/${binding}`, `bindings/${binding}`)
   archive.file(`${basePath}/binaries/${tempBin}`, { name: binaryName })
 
   for (const file of glob.sync(`${basePath}/binaries/modules/*.tgz`)) {
@@ -135,6 +136,31 @@ const packageApp = async () => {
   }
 }
 
+const copyNativeExtensions = async () => {
+  const files = [
+    ...glob.sync('./build/native-extensions/*.node'),
+    ...glob.sync('./node_modules/**/node-v64-*/*.node'),
+    ...glob.sync(`./build/native-extensions/${getTargetOSName()}/**/*.node`)
+  ]
+
+  mkdirp.sync('./packages/bp/binaries/bindings/')
+
+  for (const file of files) {
+    if (file.indexOf(path.join('native-extensions', getTargetOSName()).replace('\\', '/')) > 0) {
+      const dist = path.basename(path.dirname(file))
+      const targetDir = `./packages/bp/binaries/bindings/${getTargetOSName()}/${dist}`
+      mkdirp.sync(path.resolve(targetDir))
+      fs.copyFileSync(path.resolve(file), path.resolve(targetDir, path.basename(file)))
+    } else {
+      fs.copyFileSync(path.resolve(file), path.resolve('./packages/bp/binaries/bindings/', path.basename(file)))
+    }
+  }
+}
+
+const packageCore = () => {
+  return gulp.series([copyNativeExtensions, packageApp])
+}
+
 const package = modules => {
   return gulp.series([
     package.packageApp,
@@ -144,6 +170,8 @@ const package = modules => {
 }
 
 module.exports = {
+  packageCore,
   packageApp,
+  copyNativeExtensions,
   packageAll
 }
