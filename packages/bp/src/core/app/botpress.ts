@@ -158,15 +158,14 @@ export class Botpress {
 
     const options = {
       config: runtimeConfig,
-      dataFolder: process.PROJECT_LOCATION,
+      rootDir: process.PROJECT_LOCATION,
       clients: {
         knex: this.database.knex
       },
-      api: {
-        hooks: overrideApi(await createForGlobalHooks()),
-        actions: overrideApi(await createForAction())
+      apiExtension: overrideApi(await createForGlobalHooks()),
+      logger: {
+        emitter: PersistedConsoleLogger.LogStreamEmitter
       },
-      logStreamEmitter: PersistedConsoleLogger.LogStreamEmitter,
       httpServer: this.httpServer.app
     }
 

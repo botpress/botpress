@@ -1,4 +1,5 @@
-import { BotpressRuntime, RuntimeSetup } from './embedded'
+import { BotpressRuntime, RuntimeSetup } from './startup/embedded'
+import { setupProcess } from './startup/misc'
 
 /**
  * There are two different startups possible for the runtime:
@@ -7,12 +8,15 @@ import { BotpressRuntime, RuntimeSetup } from './embedded'
  */
 
 if (!module.parent) {
+  process.IS_STANDALONE = true
   require('./startup/standalone')
 }
 
 export let runtime: BotpressRuntime
 
 export const initRuntime = async (config?: RuntimeSetup) => {
+  process.runtime_env = process.env as RuntimeEnvironmentVariables
+
   if (!config) {
     console.error('Configuration is missing. Cannot initialize runtime.')
     return
@@ -22,4 +26,4 @@ export const initRuntime = async (config?: RuntimeSetup) => {
   runtime = await start(config)
 }
 
-export { BotpressRuntime, RuntimeSetup }
+export { BotpressRuntime, RuntimeSetup, setupProcess }

@@ -6,6 +6,7 @@ import { VError } from 'verror'
 import yn from 'yn'
 
 import { WellKnownFlags } from '../dialog'
+import { LogLevel } from '../logger'
 import { TimedPerfCounter } from '../misc/timed-perf'
 import { TYPES } from '../types'
 
@@ -144,12 +145,12 @@ export class EventEngine {
 
     this._incomingPerf.subscribe(metric => {
       totalIn += metric
-      this.logger.level(sdk.LogLevel.PRODUCTION).debug(`(perf) IN <- ${metric}/s | total = ${totalIn}`)
+      this.logger.level(LogLevel.PRODUCTION).debug(`(perf) IN <- ${metric}/s | total = ${totalIn}`)
     })
 
     this._outgoingPerf.subscribe(metric => {
       totalOut += metric
-      this.logger.level(sdk.LogLevel.PRODUCTION).debug(`(perf) OUT -> ${metric}/s | total = ${totalOut}`)
+      this.logger.level(LogLevel.PRODUCTION).debug(`(perf) OUT -> ${metric}/s | total = ${totalOut}`)
     })
   }
 

@@ -93,7 +93,9 @@ export class Botpress {
 
     return {
       initExternalServices: async () => {
-        this.httpServer.setupRoutes(config?.httpServer)
+        if (config?.httpServer) {
+          this.httpServer.setupRoutes(config?.httpServer)
+        }
 
         await this.nluInferenceService.initialize()
         await this.messagingService.initialize()
@@ -119,7 +121,7 @@ export class Botpress {
     this.config = await this.configProvider.getRuntimeConfig()
     const bots = await this.botService.getBotsIds()
 
-    await this.startServer()
+    await this.httpServer.start()
 
     AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
@@ -138,12 +140,12 @@ export class Botpress {
 
     AppLifecycle.setDone(AppLifecycleEvents.CONFIGURATION_LOADED)
 
-    if (options.logStreamEmitter) {
-      PersistedConsoleLogger.LogStreamEmitter = options.logStreamEmitter
+    if (options.logger?.emitter) {
+      PersistedConsoleLogger.LogStreamEmitter = options.logger.emitter
     }
 
-    this.api = await createForGlobalHooks(options.api?.hooks)
-    await createForAction(options.api?.hooks)
+    this.api = await createForGlobalHooks(options.apiExtension)
+    await createForAction(options.apiExtension)
 
     await this.migrationService.initialize()
     await this.initializeServices()
@@ -170,11 +172,6 @@ export class Botpress {
         this.logger.attachError(err).error("Couldn't load debug scopes. Check the syntax of debug.json")
       }
     }
-  }
-
-  private async startServer() {
-    await this.httpServer.start()
-    AppLifecycle.setDone(AppLifecycleEvents.HTTP_SERVER_READY)
   }
 
   @WrapErrorsWith('Error while discovering bots')

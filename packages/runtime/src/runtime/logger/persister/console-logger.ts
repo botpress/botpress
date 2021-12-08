@@ -1,5 +1,5 @@
 import { AxiosError } from 'axios'
-import { IO, Logger, LoggerEntry, LoggerLevel, LoggerListener, LogLevel } from 'botpress/runtime-sdk'
+import { IO, Logger, LoggerEntry, LoggerListener } from 'botpress/runtime-sdk'
 import chalk from 'chalk'
 import { EventEmitter2 } from 'eventemitter2'
 import { inject, injectable } from 'inversify'
@@ -9,6 +9,7 @@ import os from 'os'
 import stripAnsi from 'strip-ansi'
 import util from 'util'
 
+import { LoggerLevel, LogLevel } from '..'
 import { InvalidParameterError } from '../../../errors'
 import { BotService } from '../../bots'
 import { addLogToEvent } from '../../events'
@@ -170,7 +171,7 @@ export class PersistedConsoleLogger implements Logger {
     const timeFormat = 'L HH:mm:ss.SSS'
     const time = moment().format(timeFormat)
 
-    const prefix = `[Runtime] ${this.name}`
+    const prefix = process.IS_STANDALONE ? this.name : `[Runtime] ${this.name}`
     const displayName = process.env.INDENT_LOGS ? this.name.substr(0, 15).padEnd(15, ' ') : prefix
     const newLineIndent = `${chalk.dim(' '.repeat(`${timeFormat} ${displayName}`.length))} `
     let indentedMessage =

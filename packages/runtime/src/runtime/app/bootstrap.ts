@@ -1,11 +1,10 @@
 import 'bluebird-global'
 // eslint-disable-next-line import/order
 import '../../sdk/rewire'
-import sdk from 'botpress/runtime-sdk'
 
-import { RuntimeSetup } from '../../embedded'
+import { RuntimeSetup } from '../../startup/embedded'
 import { BotpressApp, createApp, createLoggerProvider } from '../app/core-loader'
-import { LoggerProvider } from '../logger'
+import { LoggerProvider, LogLevel } from '../logger'
 
 import { showBanner } from './banner'
 
@@ -32,7 +31,7 @@ async function setupDebugLogger(provider: LoggerProvider) {
     const rest = args.slice(1)
 
     logger
-      .level(sdk.LogLevel.DEBUG)
+      .level(LogLevel.DEBUG)
       .persist(false)
       .forBot(botId)
       .debug(message.trim(), rest)
@@ -43,7 +42,7 @@ async function setupDebugLogger(provider: LoggerProvider) {
     const rest = args.slice(1)
 
     logger
-      .level(sdk.LogLevel.DEBUG)
+      .level(LogLevel.DEBUG)
       .persist(false)
       .noEmit() // We don't want to emit global debugs to the studio (ex: audit, configurations)
       .debug(message.trim(), rest)
@@ -58,6 +57,15 @@ const setupEmbedded = async (app: BotpressApp, config: RuntimeSetup) => {
     await app.database.initialize()
   }
 
+  if (config.rootDir) {
+    process.PROJECT_LOCATION = config.rootDir
+  }
+
+  if (config.endpoints) {
+    process.NLU_ENDPOINT = config.endpoints.nlu
+    process.MESSAGING_ENDPOINT = config.endpoints.messaging
+  }
+
   return app.botpress.start(config)
 }
 
@@ -65,7 +73,13 @@ const setupStandalone = async (app: BotpressApp) => {
   const logger = await getLogger(app.logger, 'Launcher')
   await app.database.initialize()
 
-  showBanner({ title: 'Botpress Runtime', version: sdk.version, logScopeLength: 9, bannerWidth: 75, logger })
+  showBanner({
+    title: 'Botpress Runtime',
+    version: process.BOTPRESS_VERSION,
+    logScopeLength: 9,
+    bannerWidth: 75,
+    logger
+  })
 
   await app.botpress.start().catch(err => {
     logger.attachError(err).error('Error starting Botpress')
