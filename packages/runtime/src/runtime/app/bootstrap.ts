@@ -50,28 +50,24 @@ async function setupDebugLogger(provider: LoggerProvider) {
   }
 }
 
-export async function start(config?: RuntimeSetup) {
-  await setupDebugLogger(createLoggerProvider())
-  const app = createApp()
-
-  await setupEnv(app)
-
-  const logger = await getLogger(app.logger, 'Launcher')
-
-  // Starts the embedded version
-  if (config) {
-    if (config.clients?.knex) {
-      app.database.knex = config.clients.knex
-    } else {
-      await app.database.initialize()
-    }
-
-    return app.botpress.start(config)
+const setupEmbedded = async (app: BotpressApp, config: RuntimeSetup) => {
+  if (config.clients?.knex) {
+    app.database.knex = config.clients.knex
+    await app.database.bootstrap()
+  } else {
+    await app.database.initialize()
   }
+
+  return app.botpress.start(config)
+}
+
+const setupStandalone = async (app: BotpressApp) => {
+  const logger = await getLogger(app.logger, 'Launcher')
+  await app.database.initialize()
 
   showBanner({ title: 'Botpress Runtime', version: sdk.version, logScopeLength: 9, bannerWidth: 75, logger })
 
-  await app.botpress.start(config).catch(err => {
+  await app.botpress.start().catch(err => {
     logger.attachError(err).error('Error starting Botpress')
 
     if (!process.IS_FAILSAFE) {
@@ -81,4 +77,14 @@ export async function start(config?: RuntimeSetup) {
 
   logger.info(`Botpress is listening at: ${process.LOCAL_URL}`)
   logger.info(`Botpress is exposed at: ${process.EXTERNAL_URL}`)
+}
+
+export async function start(config?: RuntimeSetup) {
+  await setupDebugLogger(createLoggerProvider())
+  const app = createApp()
+
+  const useDbDriver = process.BPFS_STORAGE === 'database'
+  await app.ghost.initialize(useDbDriver)
+
+  return config ? setupEmbedded(app, config) : setupStandalone(app)
 }
