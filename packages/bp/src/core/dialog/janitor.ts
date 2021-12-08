@@ -3,6 +3,7 @@ import { TYPES } from 'core/app/types'
 import { BotService } from 'core/bots'
 import { BotpressConfig, ConfigProvider } from 'core/config'
 import { SessionRepository, createExpiry, SessionIdFactory } from 'core/dialog/sessions'
+import { StateManager } from 'core/dialog/state-manager'
 import { Event } from 'core/events'
 import { Janitor } from 'core/services/janitor'
 import { ChannelUserRepository } from 'core/users'
@@ -26,7 +27,8 @@ export class DialogJanitor extends Janitor {
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository,
-    @inject(TYPES.UserRepository) private userRepo: ChannelUserRepository
+    @inject(TYPES.UserRepository) private userRepo: ChannelUserRepository,
+    @inject(TYPES.StateManager) private stateManager: StateManager
   ) {
     super(logger)
   }
@@ -91,6 +93,8 @@ export class DialogJanitor extends Janitor {
       fakeEvent.state.temp = session.temp_data
 
       const after = await this.dialogEngine.processTimeout(botId, sessionId, fakeEvent)
+      await this.stateManager.persist(after, true)
+
       if (_.get(after, 'state.context.queue.instructions.length', 0) > 0) {
         // if after processing the timeout handling we still have instructions queued, we're not clearing the context
         resetSession = false
