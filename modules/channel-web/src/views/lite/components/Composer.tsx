@@ -1,3 +1,4 @@
+import classNames from 'classnames'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
@@ -5,6 +6,7 @@ import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl'
 
 import ToolTip from '../../../../../../packages/ui-shared-lite/ToolTip'
 import { RootStore, StoreDef } from '../store'
+import { isRTLText } from '../utils'
 
 import VoiceRecorder from './VoiceRecorder'
 
@@ -91,6 +93,11 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
       return null
     }
 
+    let direction
+    if (this.props.message) {
+      direction = isRTLText.test(this.props.message) ? 'rtl' : 'ltr'
+    }
+
     const placeholder =
       this.props.composerPlaceholder ||
       this.props.intl.formatMessage(
@@ -101,7 +108,7 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
       )
 
     return (
-      <div role="region" className={'bpw-composer'}>
+      <div role="region" className={classNames('bpw-composer', direction)}>
         <div className={'bpw-composer-inner'}>
           <div className={'bpw-composer-textarea'}>
             <textarea

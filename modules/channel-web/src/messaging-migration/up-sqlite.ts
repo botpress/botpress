@@ -45,6 +45,7 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
         .select('*')
         .offset(i)
         .limit(batchSize)
+        .orderBy('id')
 
       // We migrate batchSize conversations at a time
       await this.migrateConvos(convos)

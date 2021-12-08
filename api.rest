@@ -8,7 +8,7 @@ Content-Type: application/x-www-form-urlencoded
 email={{email}}&password={{password}}
 
 ###
-@authToken = {{login.response.body.payload.token}}
+@authToken = {{login.response.body.payload.jwt}}
 
 ### List All Bots (need to login first)
 GET {{baseUrl}}/api/v1/admin/bots
