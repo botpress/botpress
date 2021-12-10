@@ -11,6 +11,7 @@ interface CssExports {
   'chatPreviewMessage_Current': string;
   'chatPreviewMessage_Incoming': string;
   'chatPreviewMessage_Outgoing': string;
+  'chatPreviewMessage_System': string;
   'chatPreviewText': string;
   'filter': string;
   'messageTypeBtnGroup': string;

@@ -1,4 +1,4 @@
-import { Button, ButtonGroup, Intent } from '@blueprintjs/core'
+import { Button, Intent } from '@blueprintjs/core'
 import { AxiosStatic } from 'axios'
 import { lang, ModuleUI } from 'botpress/shared'
 import pick from 'lodash/pick'
@@ -9,7 +9,6 @@ import StickyActionBar from '../StickyActionBar'
 
 import AmendForm from './AmendForm'
 import ChatPreview from './ChatPreview'
-import style from './style.scss'
 
 interface Props {
   axios: AxiosStatic
