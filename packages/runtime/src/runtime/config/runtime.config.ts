@@ -139,6 +139,11 @@ export interface RuntimeConfig {
   dialog: DialogConfig
   logs: LogsConfig
   /**
+   * When enabled, Botpress collects anonymous data about the bot's usage
+   * @default true
+   */
+  sendUsageStats: boolean
+  /**
    * When this feature is enabled, fields saved as user attributes will be automatically erased when they expires. The timer is reset each time the value is modified
    * Setting a policy called "email": "30d" means that once an email is set, it will be removed in 30 days, unless it is changed in that timespan
    */
@@ -153,6 +158,13 @@ export interface RuntimeConfig {
    * @default false
    */
   noRepeatPolicy: boolean
+  telemetry: {
+    /**
+     * The number of entries stored in the telemetry database
+     * @default 1000
+     */
+    entriesLimit: number
+  }
   nlu: NLUConfig
 }
 

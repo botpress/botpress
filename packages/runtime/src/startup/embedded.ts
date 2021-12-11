@@ -22,11 +22,6 @@ export interface BotpressRuntime {
     includedContexts?: string[]
   ) => Promise<any>
 
-  /** This is only to feed telemetry messaging... temporary */
-  telemetry: {
-    getNewUsersCount: ({ resetCount }: { resetCount: boolean }) => number
-  }
-
   /** These namespaces are provided as-is to be used by the server */
   events: typeof sdk.events
   dialog: typeof sdk.dialog
