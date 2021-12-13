@@ -8,7 +8,7 @@ import ReactDOM from 'react-dom'
 window['BlueprintJsCore'] = BlueprintJsCore
 window['BlueprintJsSelect'] = BlueprintJsSelect
 
-import 'ui-shared/dist/theme.css'
+import '@botpress/ui-shared/dist/theme.css'
 import './style.scss'
 
 import { makeMainRoutes } from '~/app/routes'

@@ -32,7 +32,7 @@
     "eslint": "cross-env eslint packages/bp/src modules --ext .ts,.tsx",
     "prettier": "cross-env prettier --check packages/bp/**/*.ts modules/**/*.ts !**/*.d.ts",
     "commitmsg": "commitlint -e $GIT_PARAMS",
-    "bpd": "node build/downloader/out/index.js"
+    "bpd": "node build/downloader/dist/index.js"
   },
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^9.0.6",
@@ -151,6 +151,7 @@
   },
   "workspaces": [
     "packages/*",
-    "build/downloader"
+    "build/downloader",
+    "build/module-builder"
   ]
 }
