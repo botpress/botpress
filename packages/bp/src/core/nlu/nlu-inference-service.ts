@@ -24,6 +24,8 @@ interface PredictionArgs {
   language?: string
 }
 
+const CLOUD_NLU_ENDPOINT = process.env.CLOUD_NLU_ENDPOINT || 'https://nlu.botpress.dev'
+
 /**
  * This service takes care of the nlu inferences (predictions)
  *
@@ -74,10 +76,11 @@ export class NLUInferenceService {
     }
 
     const botConfig = await this.configProvider.getBotConfig(botId)
+    const { cloud } = botConfig
 
-    const endpoint = this._nluEndpoint
+    const endpoint = cloud ? CLOUD_NLU_ENDPOINT : this._nluEndpoint
     const isLocal = isLocalHost(endpoint)
-    const client = new NLUClient({ endpoint, isLocal, cloud: botConfig.cloud })
+    const client = new NLUClient({ endpoint, isLocal, cloud })
     this._clientPerBot[botId] = client
 
     const modelIdGetter = this._modelIdGetter(botId)
