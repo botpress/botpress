@@ -110,7 +110,8 @@ export class DialogEngine {
         context.queue = undefined
 
         try {
-          await this._transition(sessionId, event, destination)
+          const incommingEvent = await this._transition(sessionId, event, destination)
+          return incommingEvent
         } catch (err) {
           {
             addErrorToEvent(
