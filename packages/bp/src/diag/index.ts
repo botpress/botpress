@@ -113,6 +113,7 @@ const printGeneralInfos = async () => {
   printRow('Node Version', process.version.substr(1))
   printRow('NLU Version', await getToolVersion('nlu'))
   printRow('Studio Version', await getToolVersion('studio'))
+  printRow('Messaging Version', await getToolVersion('messaging'))
   printRow('Running Binary', process.pkg ? 'Yes' : 'No')
   printRow('Enterprise', process.IS_PRO_AVAILABLE ? (process.IS_PRO_ENABLED ? 'Enabled' : 'Available') : 'Unavailable')
   printRow('Hostname', os.hostname())
