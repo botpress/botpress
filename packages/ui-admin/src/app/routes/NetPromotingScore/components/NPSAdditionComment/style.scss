@@ -1,0 +1,7 @@
+.flexBox {
+  display: flex;
+}
+
+.flexBox > * {
+  flex: 1 1 auto;
+}
