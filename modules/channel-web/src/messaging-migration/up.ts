@@ -154,7 +154,7 @@ export abstract class MessagingUpMigrator {
         .references('id')
         .inTable('msg_providers')
         .unique()
-        .notNullable()
+        .nullable()
       table
         .string('token')
         .unique()
