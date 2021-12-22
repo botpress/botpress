@@ -39,7 +39,7 @@ describe('Admin - Users', () => {
 
   it('Reset user password', async () => {
     await clickOn('#div-role-dev')
-    await page.waitFor(500) // Delay for the collapse animation
+    await page.waitForSelector('#btn-resetPassword')
 
     await Promise.all([
       expectAdminApiCallSuccess(`workspace/collaborators/reset/default/${testUserEmail}`, 'GET'),
@@ -54,8 +54,9 @@ describe('Admin - Users', () => {
   })
 
   it('Change role to administrator', async () => {
-    await page.waitFor(500)
+    await page.waitForSelector('#btn-changeRole')
     await clickButtonForUser('#btn-changeRole', testUserEmail)
+
     await Promise.all([
       expectAdminApiCallSuccess('workspace/collaborators/workspace/update_role', 'POST'),
       clickOn('#btn-role-admin')
@@ -64,7 +65,8 @@ describe('Admin - Users', () => {
 
   it('Delete created user', async () => {
     await clickOn('#div-role-admin')
-    await page.waitFor(500)
+
+    await page.waitForSelector('#btn-deleteUser')
 
     await Promise.all([
       expectAdminApiCallSuccess(`workspace/collaborators/default/${testUserEmail}/delete`, 'POST'),

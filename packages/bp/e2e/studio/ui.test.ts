@@ -1,6 +1,6 @@
 import { bpConfig } from '../assets/config'
-import { clickOn, expectMatch } from '../utils/expectPuppeteer'
-import { expectBotApiCallSuccess, gotoAndExpect, loginIfNeeded, triggerKeyboardShortcut } from '../utils'
+import { clickOn } from '../utils/expectPuppeteer'
+import { expectBotApiCallSuccess, gotoAndExpect, triggerKeyboardShortcut } from '../utils'
 
 describe('Studio - UI', () => {
   it('Open Studio', async () => {

@@ -1,7 +1,7 @@
 import { Page } from 'puppeteer'
 
 import { bpConfig } from './assets/config'
-import { getPage } from './utils'
+import { getPage, waitForHost } from './utils'
 
 const test = {
   auth: './admin/auth.test',
@@ -46,6 +46,8 @@ describe('Integration Tests', () => {
   let page: Page
 
   beforeAll(async () => {
+    await waitForHost(bpConfig.host)
+
     page = await getPage()
     await page.goto(bpConfig.host)
     await page.evaluate(() => {
@@ -53,6 +55,7 @@ describe('Integration Tests', () => {
     })
   })
 
+  // TODO: Change me. For test purpose only
   // Change this to test a different pipeline
-  customTest.map(x => require(x))
+  adminTests.map(x => require(x))
 })

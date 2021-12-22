@@ -62,7 +62,9 @@
   "resolutions": {
     "fstream": ">=1.0.12",
     "lodash": ">=4.17.21",
-    "@jest/types": ">=27.4.2"
+    "@jest/types": ">=27.4.2",
+    "@types/jest": ">=27.0.3",
+    "@types/puppeteer": ">=5.4.4"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.2.1",

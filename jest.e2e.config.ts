@@ -1,14 +1,11 @@
 import type { Config } from '@jest/types'
 import { defaults as tsjPreset } from 'ts-jest/presets'
 
+process.env.JEST_PUPPETEER_CONFIG = "packages/bp/e2e/jest-puppeteer.config.js"
+
 const config: Config.InitialOptions = {
   rootDir: 'packages/bp/e2e',
   preset: 'jest-puppeteer',
-  globals: {
-    'ts-jest': {
-      tsconfig: '<rootDir>../tsconfig.test.json'
-    }
-  },
   transform: {
     ...tsjPreset.transform
   },

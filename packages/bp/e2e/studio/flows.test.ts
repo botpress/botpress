@@ -1,16 +1,9 @@
-import { clickOn, fillField, expectMatchElement, expectMatch } from '../utils/expectPuppeteer'
-import {
-  clickOnTreeNode,
-  CONFIRM_DIALOG,
-  expectBotApiCallSuccess,
-  expectStudioApiCallSuccess,
-  gotoStudio,
-  loginIfNeeded
-} from '../utils'
+import { clickOn, fillField, expectMatch } from '../utils/expectPuppeteer'
+import { clickOnTreeNode, CONFIRM_DIALOG, expectStudioApiCallSuccess, gotoStudio, loginOrRegister } from '../utils'
 
 describe('Studio - Flows', () => {
   beforeAll(async () => {
-    await loginIfNeeded()
+    await loginOrRegister()
     if (!page.url().includes('studio')) {
       await gotoStudio()
     }

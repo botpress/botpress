@@ -3,7 +3,6 @@ import path from 'path'
 import { clickOn, expectMatch, expectMatchElement, fillField, uploadFile } from '../utils/expectPuppeteer'
 import {
   CONFIRM_DIALOG,
-  expectBotApiCallSuccess,
   expectStudioApiCallSuccess,
   getElementCenter,
   gotoStudio,

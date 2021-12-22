@@ -1,7 +1,7 @@
-import expectp from 'expect-puppeteer'
+import expectp, { setDefaultOptions } from 'expect-puppeteer'
 import { ElementHandle, Page } from 'puppeteer'
 
-expectp.setDefaultOptions({ timeout: 5000 })
+setDefaultOptions({ timeout: 5000 })
 
 /**
  * Shortcuts to avoid repeating the same stuff each time (95% of the time we use the "page" instance)
@@ -9,12 +9,12 @@ expectp.setDefaultOptions({ timeout: 5000 })
  */
 
 interface ExpectMatchOptions {
-  polling?: string | number
+  polling?: number | 'mutation' | 'raf'
   timeout?: number
 }
 
 interface ExpectMatchElementOptions {
-  polling?: string | number
+  polling?: number | 'mutation' | 'raf'
   timeout?: number
   text?: string | RegExp
   visible?: boolean
@@ -35,7 +35,7 @@ export const expectMatch = async (
   options?: ExpectMatchOptions,
   instance: Page | ElementHandle = page
 ) => {
-  return expectp(instance).toMatch(matcher as any, options as any)
+  return expectp(instance).toMatch(matcher as string, options)
 }
 
 export const expectMatchElement = async (
@@ -43,7 +43,7 @@ export const expectMatchElement = async (
   options?: ExpectMatchElementOptions,
   instance: Page | ElementHandle = page
 ): Promise<ElementHandle> => {
-  return (expectp(instance).toMatchElement(selector, options as any) as Promise<unknown>) as Promise<ElementHandle>
+  return (expectp(instance).toMatchElement(selector, options) as Promise<unknown>) as Promise<ElementHandle>
 }
 
 export const clickOn = async (

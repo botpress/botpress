@@ -1,9 +1,9 @@
 import { clickOn, fillField, expectMatch } from '../utils/expectPuppeteer'
-import { expectStudioApiCallSuccess, gotoStudio, loginIfNeeded } from '../utils'
+import { expectStudioApiCallSuccess, gotoStudio, loginOrRegister } from '../utils'
 
 describe('Studio - NLU', () => {
   beforeAll(async () => {
-    await loginIfNeeded()
+    await loginOrRegister()
     if (!page.url().includes('studio')) {
       await gotoStudio()
     }
