@@ -1,7 +1,8 @@
-import type { InitialOptionsTsJest } from 'ts-jest/dist/types'
+import type { Config } from '@jest/types'
 import { defaults as tsjPreset } from 'ts-jest/presets'
 
-const config: InitialOptionsTsJest = {
+const config: Config.InitialOptions = {
+  rootDir: 'packages/bp/e2e',
   preset: 'jest-puppeteer',
   globals: {
     'ts-jest': {
@@ -20,7 +21,6 @@ const config: InitialOptionsTsJest = {
   moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx'],
   testMatch: ['**/*.test.(ts|js)'],
   testPathIgnorePatterns: ['out', 'build', 'node_modules', 'src/bp'],
-  rootDir: 'packages/bp/e2e',
   testEnvironment: '<rootDir>/jest.environment.ts',
   testResultsProcessor: '<rootDir>/../../../node_modules/jest-html-reporter',
   testRunner: 'jest-circus/runner'

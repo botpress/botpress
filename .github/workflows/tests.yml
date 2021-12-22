@@ -4,10 +4,31 @@ jobs:
   unit:
     name: Unit
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12.18.1'
+          cache: 'yarn'
+      - name: Fetch Node Packages
+        run: |
+          yarn --frozen-lockfile
+      - name: Fetch Node Packages for module NLU
+        working-directory: ./modules/nlu
+        run: |
+          yarn --frozen-lockfile
+      - name: Run tests
+        run: |
+          yarn test:unit
+
+  integration:
+    name: Integration
+    runs-on: ubuntu-latest
 
     services:
       postgres:
-        image: postgres:9.6.10
+        image: postgres:12.9
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -46,7 +67,7 @@ jobs:
           yarn --frozen-lockfile
       - name: Run tests
         run: |
-          yarn test
+          yarn test:int
         env:
           PG_DB: postgres
           PG_USER: postgres
@@ -73,7 +94,7 @@ jobs:
       - name: Run Tests
         run: |
           yarn start & sleep 5s &&
-          HEADLESS=true BP_LICENSE_KEY=${{ secrets.BP_LICENSE_KEY }} JEST_TIMEOUT=30000 yarn itest
+          HEADLESS=true BP_LICENSE_KEY=${{ secrets.BP_LICENSE_KEY }} JEST_TIMEOUT=30000 yarn test:e2e
       - name: Upload Screenshots
         uses: actions/upload-artifact@master
         if: failure()
