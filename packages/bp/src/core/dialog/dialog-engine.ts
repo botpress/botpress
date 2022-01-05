@@ -573,7 +573,7 @@ export class DialogEngine {
       throw new FlowError('Could not find any flow.', botId, flowName)
     }
 
-    const fileName = flowName.endsWith('.flow.json') ? flowName : `${flowName || ''}.flow.json`
+    const fileName = flowName.endsWith('.flow.json') ? flowName : `${flowName}.flow.json`
 
     const flow = flows.find(x => x.name.toLowerCase() === fileName.toLowerCase())
     if (!flow) {
