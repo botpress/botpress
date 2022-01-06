@@ -12,7 +12,7 @@ const config: Config.InitialOptions = {
       displayName: { name: 'botpress', color: 'green' },
       globals: {
         'ts-jest': {
-          tsconfig: '<rootDir>../tsconfig.test.json'
+          tsconfig: '<rootDir>../tsconfig.json'
         }
       },
       transform: {
