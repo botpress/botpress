@@ -52,7 +52,8 @@ export const logout = async () => {
 export const gotoStudio = async (section?: string) => {
   const resource = section ? `/${section}` : ''
   await gotoAndExpect(`${bpConfig.host}/studio/${bpConfig.botId}${resource}`)
-  return page.waitFor(200)
+
+  return page.waitForNavigation()
 }
 
 /** Opens a new URL and makes sure the resulting url matches */
@@ -113,6 +114,11 @@ export const doesElementExist = async (selector: string): Promise<boolean> => {
 
 export const waitForBotApiResponse = async (endOfUrl: string, method?: HttpMethod): Promise<any> => {
   const response = await getResponse(`${bpConfig.apiHost}/api/v1/bots/${bpConfig.botId}/${endOfUrl}`, method)
+  return response.json()
+}
+
+export const waitForStudioApiResponse = async (endOfUrl: string, method?: HttpMethod): Promise<any> => {
+  const response = await getResponse(`${bpConfig.apiHost}/api/v1/studio/${bpConfig.botId}/${endOfUrl}`, method)
   return response.json()
 }
 

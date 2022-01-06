@@ -14,9 +14,13 @@ describe('Studio - Flows', () => {
   })
 
   it('Create new flow', async () => {
+    await page.waitForSelector('#btn-add-flow')
+
     await clickOn('#btn-add-flow')
     await fillField('#input-flow-name', 'test_flow')
-    await Promise.all([expectStudioApiCallSuccess('flows'), clickOn('#btn-submit')])
+
+    await clickOn('#btn-submit')
+    await expectStudioApiCallSuccess('flows')
   })
 
   it('Create new Node', async () => {
@@ -62,17 +66,15 @@ describe('Studio - Flows', () => {
     await clickOn('#btn-rename')
     await fillField('#input-flow-name', 'test_flow_renamed')
 
-    await Promise.all([expectStudioApiCallSuccess('flows/test_flow_renamed.flow.json', 'POST'), clickOn('#btn-submit')])
+    await clickOn('#btn-submit')
+    await expectStudioApiCallSuccess('flows/test_flow_renamed.flow.json', 'POST')
   })
 
   it('Delete flow', async () => {
     await clickOnTreeNode('test_flow_renamed', 'right')
-
-    await Promise.all([
-      expectStudioApiCallSuccess('flows/test_flow_renamed.flow.json/delete', 'POST'),
-      clickOn('#btn-delete'),
-      clickOn(CONFIRM_DIALOG.ACCEPT)
-    ])
+    await clickOn('#btn-delete')
+    await clickOn(CONFIRM_DIALOG.ACCEPT)
+    await expectStudioApiCallSuccess('flows/test_flow_renamed.flow.json/delete', 'POST')
   })
 
   it('Duplicate flow', async () => {
@@ -80,7 +82,7 @@ describe('Studio - Flows', () => {
     await clickOn('#btn-duplicate')
     await fillField('#input-flow-name', 'new_duplicated_flow')
 
-    await Promise.all([expectStudioApiCallSuccess('flows', 'POST'), clickOn('#btn-submit')])
-    await page.waitFor(3000)
+    await clickOn('#btn-submit')
+    await expectStudioApiCallSuccess('flows', 'POST')
   })
 })

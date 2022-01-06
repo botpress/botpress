@@ -8,12 +8,17 @@ describe('Studio - UI', () => {
   })
 
   it('Emulator window toggle properly with shortcut', async () => {
+    //await page.waitForNavigation()
     await page.waitFor(1000)
     await page.keyboard.press('Escape')
+
     await page.focus('#mainLayout')
     await page.type('#mainLayout', 'e')
+
     await page.keyboard.type('Much automated!')
-    await Promise.all([expectBotApiCallSuccess('mod/channel-web/messages'), page.keyboard.press('Enter')])
+    await page.keyboard.press('Enter')
+    await expectBotApiCallSuccess('mod/channel-web/messages')
+
     await page.keyboard.press('Escape')
   })
 
@@ -26,6 +31,7 @@ describe('Studio - UI', () => {
       await page.focus('#mainLayout')
       await triggerKeyboardShortcut('KeyJ', true)
       const bottomPanel = await page.$('div[data-tab-id="debugger"]')
+
       expect(await bottomPanel?.isIntersectingViewport()).toBe(true)
       await triggerKeyboardShortcut('KeyJ', true)
     })
@@ -34,8 +40,10 @@ describe('Studio - UI', () => {
   it('Toggles bottom panel using click toolbar menu', async () => {
     await page.focus('#mainLayout')
     await clickOn('#toggle-bottom-panel')
+
     const bottomPanel = await page.$('div[data-tab-id="debugger"]')
     expect(await bottomPanel?.isIntersectingViewport()).toBe(true)
+
     await clickOn('#toggle-bottom-panel')
   })
 

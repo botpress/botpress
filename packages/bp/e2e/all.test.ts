@@ -42,7 +42,7 @@ const adminTests = [test.login, ...admin, test.logout]
 // Custom pipeline when testing a  specific part
 const customTest = [test.auth, test.login, ...admin, test.logout]
 
-describe('Integration Tests', () => {
+describe('E2E Tests', () => {
   let page: Page
 
   beforeAll(async () => {
@@ -57,5 +57,5 @@ describe('Integration Tests', () => {
 
   // TODO: Change me. For test purpose only
   // Change this to test a different pipeline
-  adminTests.map(x => require(x))
+  studioTests.map(x => require(x))
 })

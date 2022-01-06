@@ -18,7 +18,8 @@ describe('Studio - NLU', () => {
     await clickOn('#btn-create')
     await fillField('#input-intent-name', 'hello_there')
 
-    await Promise.all([expectStudioApiCallSuccess('nlu/intents', 'POST'), clickOn('#btn-submit')])
+    await clickOn('#btn-submit')
+    await expectStudioApiCallSuccess('nlu/intents', 'POST')
   })
 
   it('Create new entity', async () => {
@@ -26,12 +27,16 @@ describe('Studio - NLU', () => {
     await clickOn('#btn-create')
     await fillField('input[name="name"]', 'cars')
 
-    await Promise.all([expectStudioApiCallSuccess('nlu/entities', 'POST'), clickOn('#entity-submit')])
+    await clickOn('#entity-submit')
+    await expectStudioApiCallSuccess('nlu/entities', 'POST')
   })
 
   it('Train Chatbot', async () => {
     await clickOn('button', { text: 'Train Chatbot' })
     await expectMatch('Training')
+
+    // TODO: Find something better
     await page.waitFor(7000) // Awaits for a while to give botpress time to train
-  })
+    await expectMatch('Ready')
+  }, 15000)
 })
