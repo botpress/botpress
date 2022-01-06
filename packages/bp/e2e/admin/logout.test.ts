@@ -39,5 +39,7 @@ describe('Admin - Logout', () => {
     }
 
     expect(profileStatus).toBe(401)
+
+    await page.waitForNavigation()
   })
 })

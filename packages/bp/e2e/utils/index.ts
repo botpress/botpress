@@ -181,10 +181,10 @@ export const closeToaster = async () => {
 }
 
 const shouldLogRequest = (url: string) => {
-  const ignoredExt = ['.js', '.mp3', '.png', '.svg', '.css']
-  const ignoredWords = ['image/', 'google-analytics', 'css', 'public/js', 'static/js']
+  const ignoredExt = ['.js', '.mp3', '.png', '.svg', '.css', '.woff', '.ttf']
+  const ignoredWords = ['image/', 'google-analytics', 'googletagmanager', 'segment', 'css', 'public/js', 'static/js']
 
-  return !ignoredExt.find(x => url.endsWith(x)) && !ignoredWords.find(x => url.includes(x))
+  return !ignoredExt.find(x => url.includes(x)) && !ignoredWords.find(x => url.includes(x)) && !page.isClosed()
 }
 
 page.on('request', req => {
