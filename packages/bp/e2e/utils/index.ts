@@ -172,6 +172,16 @@ export const clickButtonForBot = async (buttonId: string, botId: string = bpConf
   await clickOn(buttonId)
 }
 
+export const clickButtonForUser = async (buttonId: string, userId: string) => {
+  await page.waitForSelector('#btn-menu')
+
+  const userRow = await expectMatchElement('.bp_table-row', { text: userId })
+  await clickOn('#btn-menu', undefined, userRow)
+
+  await expectMatchElement(buttonId)
+  await clickOn(buttonId)
+}
+
 export const closeToaster = async () => {
   await clickOn("svg[data-icon='cross']")
   await page.waitForFunction(() => {

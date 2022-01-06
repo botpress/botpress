@@ -64,7 +64,7 @@ describe('Admin - Bot Management', () => {
     await fillField('#input-bot-name', tempBotId)
 
     await clickOn('#select-bot-templates')
-    await fillField('#select-bot-templates', 'Welcome Bot') // Using fill instead of select because options are created dynamically
+    await page.type('#select-bot-templates', 'Welcome Bot')
     await page.keyboard.press('Enter')
 
     await clickOn('#btn-modal-create-bot')

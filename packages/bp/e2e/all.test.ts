@@ -2,6 +2,7 @@ import { Page } from 'puppeteer'
 
 import { bpConfig } from './assets/config'
 import { getPage, waitForHost } from './utils'
+import yn from 'yn'
 
 const test = {
   auth: './admin/auth.test',
@@ -27,7 +28,7 @@ const test = {
 }
 
 const admin = [test.admin.ui, test.admin.bots]
-if (process.env.PRO_ENABLED) {
+if (yn(process.env.BP_CONFIG_PRO_ENABLED)) {
   admin.push(test.admin.users)
 }
 
@@ -42,7 +43,7 @@ const adminTests = [test.login, ...admin, test.logout]
 // Custom pipeline when testing a  specific part
 const customTest = [test.auth, test.login, ...admin, test.logout]
 
-describe('Integration Tests', () => {
+describe('E2E Tests', () => {
   let page: Page
 
   beforeAll(async () => {
