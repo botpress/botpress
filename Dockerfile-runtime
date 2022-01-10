@@ -3,7 +3,7 @@ FROM ubuntu:20.04 as build
 RUN apt-get update && apt-get -y install curl git dirmngr apt-transport-https lsb-release ca-certificates bash unzip
 RUN curl -sL https://deb.nodesource.com/setup_12.x | bash -
 RUN apt-get -y install nodejs gcc g++ make 
-RUN npm install --global yarn typescript ts-node
+RUN npm install --global yarn
 
 WORKDIR /app
 COPY . /app
