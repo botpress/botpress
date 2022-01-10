@@ -51,5 +51,6 @@ export const clickOn = async (
   options?: ExpectClickOptions,
   instance: Page | ElementHandle = page
 ): Promise<void> => {
+  await page.waitForSelector(selector)
   return expectp(instance).toClick(selector, options)
 }

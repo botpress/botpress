@@ -16,8 +16,6 @@ export const getPage = async (): Promise<Page> => {
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3419.0 Safari/537.36'
   )
 
-  // TODO: Fix me
-  //global.page = page
   return page
 }
 
@@ -145,9 +143,7 @@ export const getElementCenter = async (element: ElementHandle): Promise<{ x: num
 }
 
 export const triggerKeyboardShortcut = async (key: KeyInput, holdCtrl?: boolean) => {
-  //not supported yet by puppetter
-  // const ctrlKey = process.platform == 'darwin' ? 'Meta' : 'Control'
-  const ctrlKey: KeyInput = 'Control'
+  const ctrlKey = process.platform === 'darwin' ? 'Meta' : 'Control'
   if (holdCtrl) {
     await page.keyboard.down(ctrlKey)
     await page.keyboard.press(key)
@@ -187,31 +183,14 @@ export const closeToaster = async () => {
   await page.waitForFunction(() => {
     return document.querySelector('.bp3-overlay')?.childElementCount === 0
   })
-  await page.waitFor(500)
 }
 
-const shouldLogRequest = (url: string) => {
+export const shouldLogRequest = (url: string) => {
   const ignoredExt = ['.js', '.mp3', '.png', '.svg', '.css', '.woff', '.ttf']
   const ignoredWords = ['image/', 'google-analytics', 'googletagmanager', 'segment', 'css', 'public/js', 'static/js']
 
   return !ignoredExt.find(x => url.includes(x)) && !ignoredWords.find(x => url.includes(x)) && !page.isClosed()
 }
-
-page.on('request', req => {
-  if (shouldLogRequest(req.url())) {
-    console.info(`${getTime()} > REQUEST: ${req.method()} ${req.url()}`)
-  }
-})
-
-page.on('response', resp => {
-  if (shouldLogRequest(resp.url())) {
-    console.info(`${getTime()} < RESPONSE: ${resp.request().method()} ${resp.url()} (${resp.status()})`)
-  }
-})
-
-page.on('framenavigated', frame => {
-  console.info(`${getTime()} FRAME NAVIGATED: ${frame.url()}`)
-})
 
 export const getTime = () => {
   const timeFormat = 'HH:mm:ss.SSS'

@@ -1,7 +1,7 @@
-import { Page } from 'puppeteer'
+import { Frame, HTTPRequest, HTTPResponse, Page } from 'puppeteer'
 
 import { bpConfig } from './assets/config'
-import { getPage, waitForHost } from './utils'
+import { getPage, waitForHost, shouldLogRequest, getTime } from './utils'
 import yn from 'yn'
 
 const test = {
@@ -43,6 +43,22 @@ const adminTests = [test.login, ...admin, test.logout]
 // Custom pipeline when testing a  specific part
 const customTest = [test.auth, test.login, ...admin, test.logout]
 
+const requestHandler = (req: HTTPRequest) => {
+  if (shouldLogRequest(req.url())) {
+    console.info(`${getTime()} > REQUEST: ${req.method()} ${req.url()}`)
+  }
+}
+
+const responseHandler = (resp: HTTPResponse) => {
+  if (shouldLogRequest(resp.url())) {
+    console.info(`${getTime()} < RESPONSE: ${resp.request().method()} ${resp.url()} (${resp.status()})`)
+  }
+}
+
+const frameNavigatedHandler = (frame: Frame) => {
+  console.info(`${getTime()} FRAME NAVIGATED: ${frame.url()}`)
+}
+
 describe('E2E Tests', () => {
   let page: Page
 
@@ -54,6 +70,16 @@ describe('E2E Tests', () => {
     await page.evaluate(() => {
       window.localStorage.setItem('guidedTour11_9_0', 'true')
     })
+
+    page.on('request', requestHandler)
+    page.on('response', responseHandler)
+    page.on('framenavigated', frameNavigatedHandler)
+  })
+
+  afterAll(() => {
+    page.off('request', requestHandler)
+    page.off('response', responseHandler)
+    page.off('framenavigated', frameNavigatedHandler)
   })
 
   // TODO: Change me. For test purpose only
