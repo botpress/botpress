@@ -28,10 +28,10 @@ import Roles from '~/workspace/roles'
 import Workspaces from '~/workspace/workspaces'
 
 import AppLoader from '../InjectedModuleView/AppLoader'
+import SegmentHandler from '../NetPromoterScore/NetPromotingScore/SegmentHandler'
+import Nps from '../NetPromoterScore/promotingScore'
 import { extractCookie } from './cookies'
-import SegmentHandler from './NetPromotingScore/SegmentHandler'
 import PrivateRoute from './PrivateRoute'
-import Nps from './promotingScore'
 
 const setupBranding = () => {
   window.document.title = window.APP_NAME || 'Botpress Admin Panel'

@@ -6,9 +6,9 @@ import { trackEvent } from './NetPromotingScore/SegmentHandler'
 const NPS_KEY = 'bp/nps_after'
 
 const npsDisplayRequirements = {
-  initialDelayMs: ms('1d'),
-  scoredDelayMs: ms('1m'),
-  promptedDelayMs: ms('2d')
+  initialDelayMs: ms('1s'),
+  scoredDelayMs: ms('2s'),
+  promptedDelayMs: ms('10s')
 }
 
 const setCuttoff = delayTime => {
