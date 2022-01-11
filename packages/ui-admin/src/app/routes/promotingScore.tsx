@@ -1,17 +1,14 @@
+import ms from 'ms'
 import React, { Component } from 'react'
 import NPS from './NetPromotingScore'
 import NPSAdditionComment from './NetPromotingScore/components/NPSAdditionComment'
 import { trackEvent } from './NetPromotingScore/SegmentHandler'
-
 const NPS_KEY = 'bp/nps_after'
 
 const npsDisplayRequirements = {
-  // initialDelayMs: 1000 * 5, // five seconds FOR TESTING
-  // scoredDelayMs: 1000 * 15, // 15 seconds FOR TESTING
-  // promptedDelayMs: 1000 * 15 // 1 second FOR TESTING
-  initialDelayMs: 1000 * 60 * 60 * 24 * 1, // one day
-  scoredDelayMs: 1000 * 60 * 60 * 24 * 14, // 1 Month
-  promptedDelayMs: 1000 * 60 * 60 * 24 * 14 // two days, delay before re-asking
+  initialDelayMs: ms('1d'),
+  scoredDelayMs: ms('1m'),
+  promptedDelayMs: ms('2d')
 }
 
 const setCuttoff = delayTime => {
