@@ -1,5 +1,5 @@
 import { clickOn, fillField, expectMatch } from '../utils/expectPuppeteer'
-import { expectStudioApiCallSuccess, gotoStudio, loginOrRegister } from '../utils'
+import { DEFAULT_TIMEOUT, expectStudioApiCallSuccess, gotoStudio, loginOrRegister } from '../utils'
 
 describe('Studio - NLU', () => {
   beforeAll(async () => {
@@ -35,10 +35,11 @@ describe('Studio - NLU', () => {
     const client = page['_client']
 
     const waitForTraining = new Promise((resolve, reject) => {
+      const timeout = DEFAULT_TIMEOUT - 1000
       const timeoutHandle = setTimeout(() => {
         client.off('Network.webSocketFrameReceived', onWebSocketFrameReceived)
-        reject(new Error('Failed to train chatbot in under 7 seconds'))
-      }, 7000)
+        reject(new Error(`Failed to train chatbot in under ${timeout / 1000} seconds`))
+      }, timeout)
 
       const onWebSocketFrameReceived = ({ response }) => {
         // E.g. 42/admin,["event",{"name":"statusbar.event","data":{"type":"nlu","botId":"test-bot","trainSession":{"key":"training:test-bot:en","language":"en","status":"done","progress":1}}}]
