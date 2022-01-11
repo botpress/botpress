@@ -56,14 +56,14 @@ describe('Auth UI', () => {
   })
 
   it('Enter credentials and submit', async () => {
-    await loginOrRegister()
-
     let url: string
     if (page.url().includes('/register')) {
       url = `${bpConfig.apiHost}/api/v2/admin/auth/register/basic/default`
     } else {
       url = `${bpConfig.apiHost}/api/v2/admin/auth/login/basic/default`
     }
+
+    await loginOrRegister()
 
     jwt = await extractTokenFromUrlResponse(url)
   })
@@ -99,7 +99,7 @@ describe('Auth UI', () => {
     expect(saveFileResp.status).toEqual(200)
 
     // Redirect to avoid frontend errors during server reboot
-    await page.goto('https://google.com')
+    await page.goto('https://botpress.com/')
 
     // Reboot is required after adding auth strategies
     const rebootResp = await axios.post(`${bpConfig.apiHost}/api/v2/admin/management/rebootServer`, undefined, headers)
