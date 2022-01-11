@@ -87,7 +87,7 @@ describe('Admin - Bot Management', () => {
 
   it('Rollback revision', async () => {
     // FIXME: Super Hack to make sure the revision is 'ready'
-    await page.waitFor(500)
+    await page.waitForTimeout(500)
 
     await clickButtonForBot('#btn-rollbackRevision', tempBotId)
     await expectMatchElement('#select-revisions')
@@ -120,7 +120,7 @@ describe('Admin - Bot Management', () => {
 
     await page.focus('#monaco-editor')
     await page.mouse.click(500, 100)
-    await page.waitFor(500) // Required so the editor is correctly focused at the right place
+    await page.waitForTimeout(500) // Required so the editor is correctly focused at the right place
     await triggerKeyboardShortcut('End', false)
 
     await page.keyboard.type('"converse": {"enableUnsecuredEndpoint": false},') // Edit bot config
