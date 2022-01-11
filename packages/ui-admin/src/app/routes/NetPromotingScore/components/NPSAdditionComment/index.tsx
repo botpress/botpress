@@ -1,4 +1,5 @@
 import { Button } from '@blueprintjs/core'
+import { lang } from 'botpress/shared'
 import React, { FC, useState } from 'react'
 import NPSModal from './NPSModal'
 
@@ -16,9 +17,9 @@ const NPSAdditionComment: FC = () => {
 
   return (
     <div className={style.flexBox}>
-      <p>Thanks for your feedback!</p>
+      <p>{lang.tr('admin.netPromoting.feedback')}</p>
       <Button intent="primary" onClick={openModal}>
-        Provide additional comments
+        {lang.tr('admin.netPromoting.moreContent')}
       </Button>
       {showForm && <NPSModal modalValue={showForm} onChange={handleChange} />}
     </div>

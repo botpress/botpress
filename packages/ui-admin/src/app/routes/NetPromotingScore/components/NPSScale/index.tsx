@@ -1,3 +1,4 @@
+import { lang } from 'botpress/shared'
 import React from 'react'
 import styles from './style.scss'
 
@@ -12,16 +13,16 @@ interface Props {
 }
 export default function NPSScale({
   score,
-  worstLabel = 'Not at all likely',
-  bestLabel = 'Extremely likely',
+  worstLabel = lang.tr('admin.netPromotingScore.worstLabel'),
+  bestLabel = lang.tr('admin.netPromoting.bestLabel'),
   onSubmit
 }: Props) {
-  const [value, setValue] = React.useState<number | null>(score)
+  const [npsScore, setNpsScore] = React.useState<number | null>(score)
   const handleMouseEnter = (value: number) => {
-    setValue(value)
+    setNpsScore(value)
   }
   const handleMouseLeave = () => {
-    setValue(null)
+    setNpsScore(null)
   }
   const handleClick = (value: number) => {
     onSubmit && onSubmit(value)
@@ -32,7 +33,7 @@ export default function NPSScale({
         {range(MIN, MAX).map(i => (
           <div
             key={i}
-            className={`${styles.value} ${value !== null && value >= i ? styles.selected : ''}`}
+            className={`${styles.value} ${npsScore !== null && npsScore >= i ? styles.selected : ''}`}
             onMouseEnter={() => handleMouseEnter(i)}
             onMouseLeave={handleMouseLeave}
             onClick={() => handleClick(i)}

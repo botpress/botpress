@@ -175,10 +175,15 @@
       "youAreAboutToRestart": "You are about to restart the Botpress server hosted on"
     },
     "netPromotingScore": {
-      "title": "Add feedback to botpress",
-      "modalTitle": "Comment",
+      "bestLabel": "Extremely likely",
       "button": "Submit Comment",
-      "helper": "Please give us more info about botpress"
+      "feedback": "Thank you for your feedback!",
+      "helper": "Please give us more info about botpress",
+      "modalTitle": "Comment",
+      "moreContent": "Provide additional comments",
+      "question": "How likely are you to recommend us to your friends and colleagues?",
+      "title": "Add feedback to botpress",
+      "worstLabel": "Not at all likely"
     },
     "newPassword": "New Password",
     "pageRestrictedToAdmins": "This page is restricted to Super Admins",

@@ -1,6 +1,8 @@
+import { lang } from 'botpress/shared'
 import React, { ReactNode } from 'react'
 import NPSScale from './components/NPSScale'
 import styles from './style.scss'
+
 interface Props {
   animated?: boolean
   dismissed?: boolean
@@ -14,14 +16,14 @@ interface Props {
 }
 export function NPS({
   animated = true,
-  question = 'How likely are you to recommend us to your friends and colleagues?',
+  question = lang.tr('admin.netPromotingScore.question'),
   dismissed,
   score = null,
   scaleWorstLabel,
   scaleBestLabel,
   onSubmit,
   onDismissed,
-  children = <p>Thank you for your feedback!</p>
+  children = <p>{lang.tr('admin.netPromotingScore.feedback')}</p>
 }: Props) {
   const handleDismiss = () => {
     onDismissed && onDismissed()
