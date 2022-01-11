@@ -33,8 +33,6 @@ export const loginOrRegister = async () => {
   } else {
     await clickOn('#btn-signin')
   }
-
-  await page.waitForNavigation()
 }
 
 export const logout = async () => {

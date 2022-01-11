@@ -84,5 +84,5 @@ describe('E2E Tests', () => {
 
   // TODO: Change me. For test purpose only
   // Change this to test a different pipeline
-  adminTests.map(x => require(x))
+  customTest.map(x => require(x))
 })
