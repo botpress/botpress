@@ -32,9 +32,12 @@ export default class Nps extends Component {
   }
 
   onSubmit = score => {
-    void trackEvent('nps_scored', { npsScore: score })
-    this.setState({ score })
-    setCuttoff(npsDisplayRequirements.scoredDelayMs)
+    trackEvent('nps_scored', { npsScore: score })
+      .then(value => {
+        this.setState({ score })
+        setCuttoff(npsDisplayRequirements.scoredDelayMs)
+      })
+      .catch(e => {})
   }
 
   onDismissed = () => {
@@ -50,8 +53,8 @@ export default class Nps extends Component {
         dismissed={this.state.dismissed}
         onSubmit={this.onSubmit}
         onDismissed={this.onDismissed}
-        children={<NPSAdditionComment />}
-      ></NPS>
+        children={<NPSAdditionComment onDismissed={this.onDismissed} />}
+      />
     )
   }
 }

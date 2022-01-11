@@ -175,8 +175,10 @@
       "youAreAboutToRestart": "You are about to restart the Botpress server hosted on"
     },
     "netPromotingScore": {
+      "addComment": "Added Comment",
       "bestLabel": "Extremely likely",
       "button": "Submit Comment",
+      "error": "Could not sent the comment to botpress",
       "feedback": "Thank you for your feedback!",
       "helper": "Please give us more info about botpress",
       "modalTitle": "Comment",

@@ -14,7 +14,7 @@ interface Props {
 export default function NPSScale({
   score,
   worstLabel = lang.tr('admin.netPromotingScore.worstLabel'),
-  bestLabel = lang.tr('admin.netPromoting.bestLabel'),
+  bestLabel = lang.tr('admin.netPromotingScore.bestLabel'),
   onSubmit
 }: Props) {
   const [npsScore, setNpsScore] = React.useState<number | null>(score)

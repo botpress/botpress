@@ -5,21 +5,28 @@ import NPSModal from './NPSModal'
 
 import style from './style.scss'
 
-const NPSAdditionComment: FC = () => {
+interface Props {
+  onDismissed?: () => void
+}
+const NPSAdditionComment: FC<Props> = props => {
   const [showForm, setShowForm] = useState(false)
   const openModal = e => {
     e.preventDefault()
     setShowForm(!showForm)
   }
+  const handleDismiss = () => {
+    props.onDismissed && props.onDismissed()
+  }
   const handleChange = e => {
     setShowForm(!e.target.value)
+    handleDismiss()
   }
 
   return (
     <div className={style.flexBox}>
-      <p>{lang.tr('admin.netPromoting.feedback')}</p>
+      <p>{lang.tr('admin.netPromotingScore.feedback')}</p>
       <Button intent="primary" onClick={openModal}>
-        {lang.tr('admin.netPromoting.moreContent')}
+        {lang.tr('admin.netPromotingScore.moreContent')}
       </Button>
       {showForm && <NPSModal modalValue={showForm} onChange={handleChange} />}
     </div>
