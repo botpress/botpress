@@ -1,3 +1,4 @@
 import 'expect-puppeteer'
+import { DEFAULT_TIMEOUT } from './utils'
 
-jest.setTimeout(Number(process.env.JEST_TIMEOUT || 10000))
+jest.setTimeout(DEFAULT_TIMEOUT)

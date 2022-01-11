@@ -27,8 +27,22 @@ interface ExpectClickOptions {
   text?: string
 }
 
-export const uploadFile = expectp(page).toUploadFile
-export const fillField = expectp(page).toFill
+type ExpectPolling = number | 'mutation' | 'raf'
+
+interface ExpectTimingActions {
+  delay?: number | undefined
+  polling?: ExpectPolling | undefined
+  timeout?: number | undefined
+}
+
+export const uploadFile = async (selector: string, filePath: string, options?: ExpectTimingActions | undefined) => {
+  await page.waitForSelector(selector)
+  return expectp(page).toUploadFile(selector, filePath, options)
+}
+export const fillField = async (selector: string, value: string, options?: ExpectTimingActions | undefined) => {
+  await page.waitForSelector(selector)
+  return expectp(page).toFill(selector, value, options)
+}
 
 export const expectMatch = async (
   matcher: string | RegExp,
@@ -43,6 +57,7 @@ export const expectMatchElement = async (
   options?: ExpectMatchElementOptions,
   instance: Page | ElementHandle = page
 ): Promise<ElementHandle> => {
+  await page.waitForSelector(selector)
   return (expectp(instance).toMatchElement(selector, options) as Promise<unknown>) as Promise<ElementHandle>
 }
 
@@ -51,5 +66,6 @@ export const clickOn = async (
   options?: ExpectClickOptions,
   instance: Page | ElementHandle = page
 ): Promise<void> => {
+  await page.waitForSelector(selector)
   return expectp(instance).toClick(selector, options)
 }

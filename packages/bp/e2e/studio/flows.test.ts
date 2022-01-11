@@ -14,8 +14,6 @@ describe('Studio - Flows', () => {
   })
 
   it('Create new flow', async () => {
-    await page.waitForSelector('#btn-add-flow')
-
     await clickOn('#btn-add-flow')
     await fillField('#input-flow-name', 'test_flow')
 
@@ -26,6 +24,7 @@ describe('Studio - Flows', () => {
   it('Create new Node', async () => {
     await page.mouse.click(500, 150)
     await page.mouse.click(500, 150, { button: 'right' })
+
     await page.waitForSelector('li > .bp3-menu-item > .bp3-text-overflow-ellipsis')
     await page.click('li > .bp3-menu-item > .bp3-text-overflow-ellipsis', { button: 'left' })
   })
@@ -48,13 +47,11 @@ describe('Studio - Flows', () => {
   })
 
   it('Open node properties', async () => {
-    await page.waitForSelector('#btn-add-element')
     await clickOn('#btn-add-element')
     await clickOn('.bp3-dialog-close-button')
   })
 
   it('Check default transition', async () => {
-    await page.waitForSelector('#node-props-modal-standard-node-tabs-tab-transitions')
     await clickOn('#node-props-modal-standard-node-tabs-tab-transitions')
     await page.hover('#node-props-modal-standard-node-tabs-pane-transitions > div')
     await clickOn('#node-props-modal-standard-node-tabs-pane-transitions a', { clickCount: 1, text: 'Edit' })

@@ -50,9 +50,6 @@ describe('Studio - QNA', () => {
   })
 
   it('Filter by name', async () => {
-    await page.waitForSelector('#input-search')
-    //await page.waitFor(300) // Required because the create action clears the filter after it loads new qna
-
     await fillField('#input-search', 'are you working')
     await expectStudioApiCallSuccess('qna/questions', 'GET')
 
@@ -60,9 +57,6 @@ describe('Studio - QNA', () => {
   })
 
   it('Delete entry', async () => {
-    await page.waitForSelector('div[role="entry"]')
-    //await page.waitFor(500)
-
     const element = await expectMatchElement('div[role="entry"]', { text: 'are you working' })
     const { x, y } = await getElementCenter(element)
     await page.mouse.move(x, y) // This makes the delete icon visible for the next step

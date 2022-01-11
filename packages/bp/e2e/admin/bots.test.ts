@@ -24,10 +24,8 @@ describe('Admin - Bot Management', () => {
   })
 
   it('Import bot from archive', async () => {
-    await page.waitForSelector('#btn-create-bot')
     await clickOn('#btn-create-bot')
 
-    await page.waitForSelector('#btn-import-bot')
     await clickOn('#btn-import-bot')
 
     await fillField('#input-botId', importBotId)
@@ -48,23 +46,20 @@ describe('Admin - Bot Management', () => {
   it('Delete imported bot', async () => {
     await clickButtonForBot('#btn-delete', importBotId)
 
-    await page.waitForSelector(CONFIRM_DIALOG.ACCEPT)
     await clickOn(CONFIRM_DIALOG.ACCEPT)
 
     await expectAdminApiCallSuccess(`workspace/bots/${importBotId}/delete`, 'POST')
   })
 
   it('Create temporary bot', async () => {
-    await page.waitForSelector('#btn-create-bot')
     await clickOn('#btn-create-bot')
 
-    await page.waitForSelector('#btn-new-bot')
     await clickOn('#btn-new-bot')
 
     await fillField('#input-bot-name', tempBotId)
 
     await clickOn('#select-bot-templates')
-    await fillField('#select-bot-templates', 'Welcome Bot') // Using fill instead of select because options are created dynamically
+    await page.type('#select-bot-templates', 'Small Talk')
     await page.keyboard.press('Enter')
 
     await clickOn('#btn-modal-create-bot')
@@ -91,7 +86,7 @@ describe('Admin - Bot Management', () => {
   })
 
   it('Rollback revision', async () => {
-    // Super Hack to make sure the revision is 'ready'
+    // FIXME: Super Hack to make sure the revision is 'ready'
     await page.waitFor(500)
 
     await clickButtonForBot('#btn-rollbackRevision', tempBotId)
@@ -108,7 +103,6 @@ describe('Admin - Bot Management', () => {
   it('Delete temporary bot', async () => {
     await clickButtonForBot('#btn-delete', tempBotId)
 
-    await page.waitForSelector(CONFIRM_DIALOG.ACCEPT)
     await clickOn(CONFIRM_DIALOG.ACCEPT)
 
     await expectAdminApiCallSuccess(`workspace/bots/${tempBotId}/delete`, 'POST')
@@ -120,7 +114,6 @@ describe('Admin - Bot Management', () => {
     await page.waitForSelector('svg[data-icon="code"]') // Wait for code editor to display
     await clickOn('span.bp3-button-text', { text: 'Advanced Editor' }) // Display raw editor
 
-    await page.waitForSelector('span.bp3-tree-node-label')
     await clickOn('span.bp3-tree-node-label', { text: 'bots' })
     await clickOn('span.bp3-tree-node-label', { text: bpConfig.botId })
     await clickOn('span.bp3-tree-node-label', { text: 'bot.config.json' })

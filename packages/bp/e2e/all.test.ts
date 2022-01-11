@@ -1,7 +1,8 @@
-import { Page } from 'puppeteer'
+import { Frame, HTTPRequest, HTTPResponse, Page } from 'puppeteer'
 
 import { bpConfig } from './assets/config'
-import { getPage, waitForHost } from './utils'
+import { getPage, waitForHost, shouldLogRequest, getTime, DEFAULT_TIMEOUT } from './utils'
+import yn from 'yn'
 
 const test = {
   auth: './admin/auth.test',
@@ -27,7 +28,7 @@ const test = {
 }
 
 const admin = [test.admin.ui, test.admin.bots]
-if (process.env.PRO_ENABLED) {
+if (yn(process.env.BP_CONFIG_PRO_ENABLED)) {
   admin.push(test.admin.users)
 }
 
@@ -40,19 +41,47 @@ const studioTests = [test.login, ...studio, test.logout]
 const adminTests = [test.login, ...admin, test.logout]
 
 // Custom pipeline when testing a  specific part
-const customTest = [test.auth, test.login, ...admin, test.logout]
+const customTest = [test.auth, test.login, ...admin, ...studio, test.logout]
+
+const requestHandler = (req: HTTPRequest) => {
+  if (shouldLogRequest(req.url())) {
+    console.info(`${getTime()} > REQUEST: ${req.method()} ${req.url()}`)
+  }
+}
+
+const responseHandler = (resp: HTTPResponse) => {
+  if (shouldLogRequest(resp.url())) {
+    console.info(`${getTime()} < RESPONSE: ${resp.request().method()} ${resp.url()} (${resp.status()})`)
+  }
+}
+
+const frameNavigatedHandler = (frame: Frame) => {
+  console.info(`${getTime()} FRAME NAVIGATED: ${frame.url()}`)
+}
 
 describe('E2E Tests', () => {
   let page: Page
 
   beforeAll(async () => {
-    await waitForHost(bpConfig.host)
+    // Make sure the timeout value is lower than the JEST_TIMEOUT so that
+    // it prints the underlying error not a timeout exceeded error.
+    await waitForHost(bpConfig.host, { timeout: DEFAULT_TIMEOUT - 1000 })
 
     page = await getPage()
     await page.goto(bpConfig.host)
     await page.evaluate(() => {
       window.localStorage.setItem('guidedTour11_9_0', 'true')
     })
+
+    page.on('request', requestHandler)
+    page.on('response', responseHandler)
+    page.on('framenavigated', frameNavigatedHandler)
+  })
+
+  afterAll(() => {
+    page?.off('request', requestHandler)
+    page?.off('response', responseHandler)
+    page?.off('framenavigated', frameNavigatedHandler)
   })
 
   // TODO: Change me. For test purpose only

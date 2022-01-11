@@ -32,11 +32,32 @@ describe('Studio - NLU', () => {
   })
 
   it('Train Chatbot', async () => {
+    const client = page['_client']
+
+    const waitForTraining = new Promise((resolve, reject) => {
+      const timeoutHandle = setTimeout(() => {
+        client.off('Network.webSocketFrameReceived', onWebSocketFrameReceived)
+        reject(new Error('Failed to train chatbot in under 7 seconds'))
+      }, 7000)
+
+      const onWebSocketFrameReceived = ({ response }) => {
+        // E.g. 42/admin,["event",{"name":"statusbar.event","data":{"type":"nlu","botId":"test-bot","trainSession":{"key":"training:test-bot:en","language":"en","status":"done","progress":1}}}]
+        const data = response.payloadData as string
+        if (data.includes('"status":"done"')) {
+          clearTimeout(timeoutHandle)
+          client.off('Network.webSocketFrameReceived', onWebSocketFrameReceived)
+
+          resolve(undefined)
+        }
+      }
+      client.on('Network.webSocketFrameReceived', onWebSocketFrameReceived)
+    })
+
     await clickOn('button', { text: 'Train Chatbot' })
     await expectMatch('Training')
 
-    // TODO: Find something better
-    await page.waitFor(7000) // Awaits for a while to give botpress time to train
+    await waitForTraining
+
     await expectMatch('Ready')
-  }, 15000)
+  })
 })

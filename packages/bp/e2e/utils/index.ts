@@ -8,6 +8,8 @@ import { clickOn, expectMatchElement, fillField } from './expectPuppeteer'
 
 type HttpMethod = 'POST' | 'GET' | 'PATCH' | 'PUT' | 'DELETE' | 'OPTIONS'
 
+export const DEFAULT_TIMEOUT = Number(process.env.JEST_TIMEOUT || 10000)
+
 export const getPage = async (): Promise<Page> => {
   await page.setViewport(windowSize)
   await page.setExtraHTTPHeaders({ 'Accept-Language': 'en-US,en;q=0.9' })
@@ -16,8 +18,6 @@ export const getPage = async (): Promise<Page> => {
     'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/68.0.3419.0 Safari/537.36'
   )
 
-  // TODO: Fix me
-  //global.page = page
   return page
 }
 
@@ -151,9 +151,7 @@ export const getElementCenter = async (element: ElementHandle): Promise<{ x: num
 }
 
 export const triggerKeyboardShortcut = async (key: KeyInput, holdCtrl?: boolean) => {
-  //not supported yet by puppetter
-  // const ctrlKey = process.platform == 'darwin' ? 'Meta' : 'Control'
-  const ctrlKey: KeyInput = 'Control'
+  const ctrlKey = process.platform === 'darwin' ? 'Meta' : 'Control'
   if (holdCtrl) {
     await page.keyboard.down(ctrlKey)
     await page.keyboard.press(key)
@@ -178,36 +176,38 @@ export const clickButtonForBot = async (buttonId: string, botId: string = bpConf
   await clickOn(buttonId)
 }
 
+export const clickButtonForUser = async (buttonId: string, userId: string) => {
+  await page.waitForSelector('#btn-menu')
+
+  const userRow = await expectMatchElement('.bp_table-row', { text: userId })
+  await clickOn('#btn-menu', undefined, userRow)
+
+  await expectMatchElement(buttonId)
+  await clickOn(buttonId)
+}
+
 export const closeToaster = async () => {
   await clickOn("svg[data-icon='cross']")
   await page.waitForFunction(() => {
     return document.querySelector('.bp3-overlay')?.childElementCount === 0
   })
-  await page.waitFor(500)
 }
 
-const shouldLogRequest = (url: string) => {
+export const shouldLogRequest = (url: string) => {
   const ignoredExt = ['.js', '.mp3', '.png', '.svg', '.css', '.woff', '.ttf']
-  const ignoredWords = ['image/', 'google-analytics', 'googletagmanager', 'segment', 'css', 'public/js', 'static/js']
+  const ignoredWords = [
+    'image/',
+    'google-analytics',
+    'googletagmanager',
+    'doubleclick',
+    'segment',
+    'css',
+    'public/js',
+    'static/js'
+  ]
 
   return !ignoredExt.find(x => url.includes(x)) && !ignoredWords.find(x => url.includes(x)) && !page.isClosed()
 }
-
-page.on('request', req => {
-  if (shouldLogRequest(req.url())) {
-    console.info(`${getTime()} > REQUEST: ${req.method()} ${req.url()}`)
-  }
-})
-
-page.on('response', resp => {
-  if (shouldLogRequest(resp.url())) {
-    console.info(`${getTime()} < RESPONSE: ${resp.request().method()} ${resp.url()} (${resp.status()})`)
-  }
-})
-
-page.on('framenavigated', frame => {
-  console.info(`${getTime()} FRAME NAVIGATED: ${frame.url()}`)
-})
 
 export const getTime = () => {
   const timeFormat = 'HH:mm:ss.SSS'
@@ -215,18 +215,33 @@ export const getTime = () => {
   return time
 }
 
-export const waitForHost = async (host: string) => {
-  return new Promise(async resolve => {
-    const timeout = 1000
-    let timeoutHandle: ReturnType<typeof setTimeout>
+interface WaitOptions {
+  timeout: number
+}
+
+export const waitForHost = async (host: string, options?: WaitOptions) => {
+  return new Promise(async (resolve, reject) => {
+    const waitTime = 1000
+    let waitHandle: ReturnType<typeof setTimeout>
+    let timeoutHandle: ReturnType<typeof setTimeout> | undefined
 
     const loop = async () => {
+      if (options?.timeout) {
+        timeoutHandle = setTimeout(() => {
+          clearTimeout(waitHandle)
+
+          reject(new Error(`Botpress is unreachable after trying for ${options.timeout / 1000} seconds`))
+        }, options.timeout)
+      }
+
       // Should be Okay since jest uses an internal timeout
-      while (true) {
+      for (let i = 0; i < 10; i++) {
         axios
-          .options(host, { timeout })
+          .options(host, { timeout: waitTime })
           .then(() => {
-            clearTimeout(timeoutHandle)
+            clearTimeout(waitHandle)
+            timeoutHandle && clearTimeout(timeoutHandle)
+
             return resolve(undefined)
           })
           .catch(() => {
@@ -235,7 +250,7 @@ export const waitForHost = async (host: string) => {
 
         // wait 1 second between calls
         await new Promise(resolve => {
-          timeoutHandle = setTimeout(resolve, timeout)
+          waitHandle = setTimeout(resolve, waitTime)
         })
       }
     }

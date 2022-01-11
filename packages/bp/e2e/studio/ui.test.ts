@@ -8,12 +8,24 @@ describe('Studio - UI', () => {
   })
 
   it('Emulator window toggle properly with shortcut', async () => {
-    //await page.waitForNavigation()
-    await page.waitFor(1000)
+    const webchatOpen = '#bp-widget.bp-widget-web.bp-widget-side.emulator'
+    const webchatClosed = '#bp-widget.bp-widget-web.bp-widget-widget.emulator.bp-widget-hidden'
+
+    await page.waitForSelector(webchatOpen)
+    await page.focus(webchatOpen)
     await page.keyboard.press('Escape')
+    await page.waitForSelector(webchatClosed)
 
     await page.focus('#mainLayout')
     await page.type('#mainLayout', 'e')
+    await page.waitForSelector(webchatOpen)
+
+    const frames = page.frames()
+    const iframe = frames.find(f => f.url().includes('/lite'))
+    if (!iframe) {
+      throw new Error('Webchat iframe not found!')
+    }
+    await iframe.waitForSelector('#input-message')
 
     await page.keyboard.type('Much automated!')
     await page.keyboard.press('Enter')
@@ -22,20 +34,14 @@ describe('Studio - UI', () => {
     await page.keyboard.press('Escape')
   })
 
-  if (process.platform === 'darwin') {
-    // TODO (1): Skip this test using native Jest features once https://github.com/facebook/jest/issues/8604 is resolved
-    // TODO (2): Activate this test once Puppeteer supports native shortcuts (e.g. `⌘ J`) on OS X
-    it.skip('Toggle Bottom using shortcut (SKIPPED ON MAC)', async () => {})
-  } else {
-    it('Toggle Bottom Panel using shortcut', async () => {
-      await page.focus('#mainLayout')
-      await triggerKeyboardShortcut('KeyJ', true)
-      const bottomPanel = await page.$('div[data-tab-id="debugger"]')
+  it('Toggle Bottom Panel using shortcut', async () => {
+    await page.focus('#mainLayout')
+    await triggerKeyboardShortcut('KeyJ', true)
+    const bottomPanel = await page.$('div[data-tab-id="debugger"]')
 
-      expect(await bottomPanel?.isIntersectingViewport()).toBe(true)
-      await triggerKeyboardShortcut('KeyJ', true)
-    })
-  }
+    expect(await bottomPanel?.isIntersectingViewport()).toBe(true)
+    await triggerKeyboardShortcut('KeyJ', true)
+  })
 
   it('Toggles bottom panel using click toolbar menu', async () => {
     await page.focus('#mainLayout')

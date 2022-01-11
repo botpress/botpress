@@ -91,12 +91,9 @@ describe('Studio - CMS', () => {
   })
 
   it('Search element', async () => {
-    await page.waitForSelector('#input-search')
-
     await fillField('#input-search', 'hey')
 
     const response = await waitForStudioApiResponse('cms/elements')
-    console.log('[Search element] - Response', response)
     expect(response.length).toBe(1)
   })
 
