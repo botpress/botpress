@@ -1,0 +1,27 @@
+on:   
+  discussion:
+    types: [created]  
+name: Slack Notification Demo
+jobs:
+  slackNotification:
+    name: Slack Notification
+    runs-on: ubuntu-latest
+    steps:
+      - name: fetch the json value
+        run: |
+             githubjson=`cat $GITHUB_EVENT_PATH`
+             echo $githubjson
+             number=`echo $(jq -r '.number' <<< "$githubjson")`
+             PRTitle=`echo $(jq -r '.pull_request.title' <<< "$githubjson")`
+             PRUrl=`echo $(jq -r '.pull_request.html_url' <<< "$githubjson")`
+             PRBody=`echo $(jq -r '.pull_request.body' <<< "$githubjson")`
+        
+      - name: Send custom JSON data to Slack workflow
+        id: slack
+        uses: slackapi/slack-github-action@v1.16.0
+        if: ${{ github.event.discussion.category.name  == 'Community Support' }}
+        with:
+          payload: '{"blocks": [{"type": "section","text": {"type": "mrkdwn","text": "*There is a new post to the Botpress Forums!*"}},{"type": "divider"},{"type": "section","text": {"type": "mrkdwn","text": "> *${{ github.event.discussion.title }}* \n> ${{ github.event.discussion.html_url }}"}}]}'
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
