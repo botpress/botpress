@@ -20,9 +20,11 @@ describe('Admin - Users', () => {
 
     await page.keyboard.press('Enter')
 
-    await clickOn('#btn-submit')
-    await expectAdminApiCallSuccess('workspace/collaborators', 'POST')
-    await expectAdminApiCallSuccess('workspace/collaborators?roles=admin,dev,editor,agent,chatuser', 'GET')
+    await Promise.all([
+      clickOn('#btn-submit'),
+      expectAdminApiCallSuccess('workspace/collaborators', 'POST'),
+      expectAdminApiCallSuccess('workspace/collaborators?roles=admin,dev,editor,agent,chatuser', 'GET')
+    ])
 
     await clickOn('button[aria-label="Close"]')
   })
