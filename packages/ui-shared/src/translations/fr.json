@@ -98,11 +98,11 @@
       "nativeName": "العربية"
     },
     "nl": {
-      "name": "Néerlandaise",
+      "name": "Néerlandais",
       "nativeName": "Nederlands, Vlaams"
     },
     "en": {
-      "name": "Anglaise",
+      "name": "Anglais",
       "nativeName": "English"
     },
     "fr": {
@@ -110,19 +110,19 @@
       "nativeName": "Français"
     },
     "de": {
-      "name": "Allemande",
+      "name": "Allemand",
       "nativeName": "Deutsch"
     },
     "he": {
-      "name": "Hébreue",
+      "name": "Hébreu",
       "nativeName": "עברית"
     },
     "it": {
-      "name": "Italienne",
+      "name": "Italien",
       "nativeName": "Italiano"
     },
     "ja": {
-      "name": "Japonaise",
+      "name": "Japonais",
       "nativeName": "日本語 (にほんご／にっぽんご)"
     },
     "pl": {
@@ -138,11 +138,11 @@
       "nativeName": "русский язык"
     },
     "es": {
-      "name": "Espagnole",
+      "name": "Espagnol",
       "nativeName": "español"
     },
     "n/a": {
-      "name": "Inconnue",
+      "name": "Inconnu",
       "nativeName": "Inconnue"
     }
   },
