@@ -8,6 +8,7 @@ import { KeyValueStoreTable } from '../kvs/kvs-table'
 import { LogsTable } from '../logger/logs-table'
 import { ServerMetadataTable } from '../migration/metadata-table'
 import { MigrationsTable } from '../migration/migrations-table'
+import { TelemetryTable } from '../telemetry/telemetry-table'
 import { TasksTable } from '../user-code/action-server/tasks-table'
 import { ChannelUsersTable, BotUsersTable, DataRetentionTable } from '../users/tables'
 
@@ -25,6 +26,7 @@ const tables: typeof Table[] = [
   EventsTable,
   ServerMetadataTable,
   MigrationsTable,
+  TelemetryTable,
   TasksTable
 ]
 

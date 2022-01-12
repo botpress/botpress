@@ -1,4 +1,4 @@
-import * as sdk from 'botpress/sdk'
+import * as sdk from 'botpress/runtime-sdk'
 
 export class IOEvent implements sdk.IO.Event {
   public readonly id: string
@@ -31,7 +31,7 @@ export class IOEvent implements sdk.IO.Event {
     this.threadId = args.threadId ? args.threadId.toString() : undefined
     this.id = this.makeId()
     this.preview = args.preview || this.constructPreview()
-    this.flags = {}
+    this.flags = args.flags || {}
     this.state = { __stacktrace: [] }
     this.debugger = args.debugger
     this.messageId = args.messageId

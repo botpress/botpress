@@ -1,4 +1,4 @@
-import * as sdk from 'botpress/sdk'
+import * as sdk from 'botpress/runtime-sdk'
 import _ from 'lodash'
 
 import { mapPredictOutput } from './api-mapper'

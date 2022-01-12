@@ -23,6 +23,7 @@ import { MessagingService } from '../messaging'
 import { MigrationService } from '../migration'
 import { NLUInferenceService } from '../nlu'
 import { QnaService } from '../qna'
+import { StatsService } from '../telemetry'
 import { Hooks, HookService, ActionService } from '../user-code'
 import { DataRetentionJanitor } from '../users'
 
@@ -62,6 +63,7 @@ export class Botpress {
     @inject(TYPES.BotMonitoringService) private botMonitor: BotMonitoringService,
     @inject(TYPES.QnaService) private qnaService: QnaService,
     @inject(TYPES.MigrationService) private migrationService: MigrationService,
+    @inject(TYPES.StatsService) private statsService: StatsService,
     @inject(TYPES.MessagingService) private messagingService: MessagingService,
     @inject(TYPES.NLUInferenceService) private nluInferenceService: NLUInferenceService,
     @inject(TYPES.FlowService) private flowService: FlowService,
@@ -104,9 +106,6 @@ export class Botpress {
         mount: this.botService.mountBot.bind(this.botService),
         unmount: this.botService.unmountBot.bind(this.botService),
         refresh: this._refreshDebounced
-      },
-      telemetry: {
-        getNewUsersCount: this.messagingService.getNewUsersCount.bind(this.messagingService)
       },
       sendConverseMessage: this.converseService.sendMessage.bind(this.converseService),
       events: this.api.events,
@@ -160,6 +159,10 @@ export class Botpress {
       await this.initEmbedded(options)
     } else {
       await this.initStandalone()
+    }
+
+    if (this.config?.sendUsageStats) {
+      await this.statsService.start()
     }
 
     AppLifecycle.setDone(AppLifecycleEvents.BOTPRESS_READY)

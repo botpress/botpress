@@ -49,7 +49,7 @@ export class CloudClient extends Client {
     const { oauthUrl, clientId, clientSecret } = oauthTokenClientProps
     const res = await axios.post(
       oauthUrl,
-      qs.stringify({ client_id: clientId, client_secret: clientSecret, grant_type: 'client_credentials' })
+      qs.stringify({ client_id: clientId, client_secret: clientSecret, grant_type: 'client_credentials', scope: 'nlu' })
     )
 
     return res.data as OauthResponse
