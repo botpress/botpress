@@ -93,8 +93,10 @@ jobs:
           NODE_OPTIONS="--max-old-space-size=6000" yarn build
       - name: Run Tests
         run: |
-          yarn start & sleep 5s &&
-          HEADLESS=true BP_LICENSE_KEY=${{ secrets.BP_LICENSE_KEY }} JEST_TIMEOUT=30000 yarn test:e2e
+          yarn start & HEADLESS=true JEST_TIMEOUT=30000 yarn test:e2e
+        env:
+          BP_LICENSE_KEY: ${{ secrets.BP_LICENSE_KEY }}
+          BP_CONFIG_PRO_ENABLED: true
       - name: Upload Screenshots
         uses: actions/upload-artifact@master
         if: failure()
