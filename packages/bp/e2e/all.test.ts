@@ -56,7 +56,9 @@ const responseHandler = (resp: HTTPResponse) => {
 }
 
 const frameNavigatedHandler = (frame: Frame) => {
-  console.info(`${getTime()} FRAME NAVIGATED: ${frame.url()}`)
+  if (shouldLogRequest(frame.url())) {
+    console.info(`${getTime()} FRAME NAVIGATED: ${frame.url()}`)
+  }
 }
 
 describe('E2E Tests', () => {
