@@ -49,9 +49,7 @@ export const logout = async () => {
 
 export const gotoStudio = async (section?: string) => {
   const resource = section ? `/${section}` : ''
-  await gotoAndExpect(`${bpConfig.host}/studio/${bpConfig.botId}${resource}`)
-
-  return page.waitForNavigation()
+  return gotoAndExpect(`${bpConfig.host}/studio/${bpConfig.botId}${resource}`)
 }
 
 /** Opens a new URL and makes sure the resulting url matches */
@@ -63,7 +61,9 @@ export const gotoAndExpect = async (url: string, matchUrl?: string) => {
 export const getResponse = async (url: string, method?: HttpMethod): Promise<HTTPResponse> => {
   return page.waitForResponse(res => {
     const resUrl = res.url()
-    console.info(`url: ${url}, resUrl: ${resUrl}`)
+    if (shouldLogRequest(url) && shouldLogRequest(resUrl)) {
+      console.info(`url: ${url}, resUrl: ${resUrl}`)
+    }
     return resUrl.includes(url) && (method ? res.request().method() === method : true)
   })
 }
@@ -123,19 +123,6 @@ export const waitForStudioApiResponse = async (endOfUrl: string, method?: HttpMe
 export enum CONFIRM_DIALOG {
   ACCEPT = '#confirm-dialog-accept',
   DECLINE = '#confirm-dialog-decline'
-}
-
-export const autoAnswerDialog = (promptText?: string, repeat?: boolean) => {
-  const dialog = async (dialog: Dialog) => dialog.accept(promptText)
-
-  if (!repeat) {
-    page.once('dialog', dialog)
-  } else {
-    page.on('dialog', dialog)
-    return () => {
-      page.off('dialog', dialog)
-    }
-  }
 }
 
 export const getElementCenter = async (element: ElementHandle): Promise<{ x: number; y: number }> => {

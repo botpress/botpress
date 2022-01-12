@@ -33,12 +33,13 @@ if (yn(process.env.BP_CONFIG_PRO_ENABLED)) {
 }
 
 const studio = [test.studio.ui, test.studio.flows, test.studio.cms, test.studio.nlu]
-const modules = [/*test.mod.qna*,*/ test.mod.editor, test.mod.testing, test.mod.webchat]
+const modules = [test.mod.editor, test.mod.testing, test.mod.webchat]
 
 /** Define test pipelines below */
 const allTests = [test.auth, test.login, ...admin, ...studio, ...modules, test.logout]
 const studioTests = [test.login, ...studio, test.logout]
 const adminTests = [test.login, ...admin, test.logout]
+const modulesTests = [test.login, ...modules, test.logout]
 
 // Custom pipeline when testing a  specific part
 const customTest = [test.auth, test.login, ...admin, ...studio, test.logout]
@@ -87,5 +88,5 @@ describe('E2E Tests', () => {
   })
 
   // Change this to test a different pipeline
-  customTest.map(x => require(x))
+  allTests.map(x => require(x))
 })
