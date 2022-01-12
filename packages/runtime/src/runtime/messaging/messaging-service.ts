@@ -6,7 +6,7 @@ import LRUCache from 'lru-cache'
 import ms from 'ms'
 import yn from 'yn'
 
-import { formatUrl, isBpUrl } from '../../common/url'
+import { formatUrl } from '../../common/url'
 import { ConfigProvider } from '../config'
 import { EventEngine, Event } from '../events'
 import { TYPES } from '../types'
@@ -227,10 +227,7 @@ export class MessagingService {
         payload = payload.replace('BOT_URL', process.EXTERNAL_URL)
       }
 
-      if (isBpUrl(payload)) {
-        payload = formatUrl(process.EXTERNAL_URL, payload)
-      }
-      return payload
+      return formatUrl(process.EXTERNAL_URL, payload, process.env.MEDIA_URL)
     }
 
     for (const [key, value] of Object.entries(payload)) {

@@ -73,6 +73,9 @@ declare interface RuntimeEnvironmentVariables {
   /** The URL exposed by Botpress to external users (eg: when displaying links) */
   readonly EXTERNAL_URL?: string
 
+  /** A custom URL where bot medias will be served. Format: MEDIA_URL/botId/assetName */
+  readonly MEDIA_URL?: string
+
   /** The URL used to reach an external Messaging server */
   readonly MESSAGING_ENDPOINT?: string
 
