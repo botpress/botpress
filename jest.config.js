@@ -27,15 +27,16 @@ module.exports = {
       ],
       resetModules: true,
       verbose: true,
-      modulePaths: ['<rootDir>/packages/bp/src/'],
+      modulePaths: ['<rootDir>/packages/bp/src/', '<rootDir>/packages/runtime/src/'],
       moduleFileExtensions: ['js', 'json', 'jsx', 'ts', 'tsx', 'd.ts'],
-      modulePathIgnorePatterns: ['out'],
+      modulePathIgnorePatterns: ['dist'],
       transform: {
         '^.+\\.(ts|tsx|js)$': 'ts-jest'
       },
       resolver: '<rootDir>/packages/bp/src/jest-resolver.js',
       moduleNameMapper: {
-        '^botpress/sdk$': '<rootDir>/packages/bp/src/core/app/sdk_impl'
+        '^botpress/sdk$': '<rootDir>/packages/bp/src/core/app/sdk_impl',
+        '^botpress/runtime-sdk$': '<rootDir>/packages/runtime/src/runtime/app/sdk_impl'
       },
       testMatch: ['**/(src|test)/**/*.test.(ts|js)'],
       testPathIgnorePatterns: [

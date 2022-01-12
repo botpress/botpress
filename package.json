@@ -30,8 +30,8 @@
     "test": "cross-env NATIVE_EXTENSIONS_DIR=build/native-extensions cross-env jest -i --detectOpenHandles -c jest.config.js",
     "reference": "yarn cmd build:reference",
     "itest": "yarn workspace botpress itest",
-    "eslint": "cross-env eslint packages/bp/src modules --ext .ts,.tsx",
-    "prettier": "cross-env prettier --check packages/bp/**/*.ts modules/**/*.ts !**/*.d.ts",
+    "eslint": "cross-env eslint packages/bp/src packages/runtime/src modules --ext .ts,.tsx",
+    "prettier": "cross-env prettier --check packages/bp/**/*.ts packages/runtime/**/*.ts modules/**/*.ts !**/*.d.ts",
     "commitmsg": "commitlint -e $GIT_PARAMS",
     "bpd": "node build/downloader/dist/index.js"
   },

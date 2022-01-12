@@ -70,3 +70,23 @@ jobs:
             org.opencontainers.image.source=${{ github.event.repository.html_url }}
             org.opencontainers.image.created=${{ steps.prep.outputs.created }}
             org.opencontainers.image.revision=${{ github.sha }}
+  runtime:
+    name: Build and push Runtime Docker image
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          submodules: true
+          token: ${{ secrets.BOTPRESSOPS_PAT }}
+      - uses: actions/checkout@v2
+        with:
+          repository: botpress/actions
+          token: ${{ secrets.BOTPRESSOPS_PAT }}
+          path: "@actions"
+      - uses: ./@actions/build/docker
+        with:
+          dockerfile: Dockerfile-runtime
+          repository: runtime
+          aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}

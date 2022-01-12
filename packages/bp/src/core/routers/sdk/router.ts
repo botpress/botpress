@@ -45,7 +45,7 @@ export class SdkApiRouter extends CustomRouter {
           return res.status(400).send('contentId or payloads must be set')
         }
 
-        await this.api.events.replyToEvent(event, payloads, (event as sdk.IO.IncomingEvent).id)
+        this.api.events.replyToEvent(event, payloads, (event as sdk.IO.IncomingEvent).id)
         res.sendStatus(200)
       })
     )

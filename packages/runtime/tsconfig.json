@@ -1,0 +1,23 @@
+{
+  "compilerOptions": {
+    "declaration": true,
+    "sourceMap": true,
+    "strict": true,
+    "module": "commonjs",
+    "esModuleInterop": true,
+    "resolveJsonModule": true,
+    "target": "es2019",
+    "noImplicitAny": false,
+    "moduleResolution": "node",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "useUnknownInCatchVariables": false,
+    "baseUrl": "./",
+    "outDir": "dist",
+    "typeRoots": ["./src/typings", "../../node_modules/@types", "./src/common"],
+    "types": ["reflect-metadata", "jest"]
+  },
+  "references": [{ "path": "../typings/" }],
+  "include": ["src/**/*"],
+  "exclude": ["scripts/", "**/*.__test__.(ts|js)", "dist", "**/node_modules/**/*.(ts|js)"]
+}
