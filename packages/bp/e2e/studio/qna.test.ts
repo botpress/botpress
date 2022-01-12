@@ -43,10 +43,12 @@ describe('Studio - QNA', () => {
     await page.keyboard.press('Tab')
     await page.keyboard.type('I sure am!')
     await page.keyboard.press('Enter')
-    await clickOn('#btn-submit')
 
-    await expectStudioApiCallSuccess('qna/questions', 'POST')
-    await expectStudioApiCallSuccess('qna/questions', 'GET')
+    await Promise.all([
+      clickOn('#btn-submit'),
+      expectStudioApiCallSuccess('qna/questions', 'POST'),
+      expectStudioApiCallSuccess('qna/questions', 'GET')
+    ])
   })
 
   it('Filter by name', async () => {
@@ -80,9 +82,13 @@ describe('Studio - QNA', () => {
     await expectStudioApiCallSuccess('qna/analyzeImport', 'POST')
 
     await clickOn('#radio-clearInsert')
-    await clickOn('#btn-submit')
-    await expectStudioApiCallSuccess('qna/import', 'POST')
-    await expectStudioApiCallSuccess('qna/questions', 'GET')
+
+    await Promise.all([
+      clickOn('#btn-submit'),
+      expectStudioApiCallSuccess('qna/import', 'POST'),
+      expectStudioApiCallSuccess('qna/questions', 'GET')
+    ])
+
     await page.focus('body') // Sets back the focus to the page when the modal is closed
   })
 })

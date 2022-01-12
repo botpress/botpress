@@ -30,9 +30,9 @@ interface ExpectClickOptions {
 type ExpectPolling = number | 'mutation' | 'raf'
 
 interface ExpectTimingActions {
-  delay?: number | undefined
-  polling?: ExpectPolling | undefined
-  timeout?: number | undefined
+  delay?: number
+  polling?: ExpectPolling
+  timeout?: number
 }
 
 export const uploadFile = async (selector: string, filePath: string, options?: ExpectTimingActions | undefined) => {

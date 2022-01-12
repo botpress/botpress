@@ -5,6 +5,8 @@ import { clickOn, expectMatch, fillField, uploadFile } from '../utils/expectPupp
 import { closeToaster, expectAdminApiCallSuccess, expectCallSuccess, getResponse } from '../utils'
 
 const NEW_PASSWORD = '654321'
+const FIRST_NAME = 'Bob'
+const LAST_NAME = 'Lalancette'
 
 describe('Admin - UI', () => {
   it('Load code editor page', async () => {
@@ -26,17 +28,18 @@ describe('Admin - UI', () => {
 
   it('Load languages page', async () => {
     await clickOn('#btn-menu-language')
+    await expectAdminApiCallSuccess('management/languages', 'GET')
+
     await expectMatch('Using lang server at')
     await expectMatch('Installed Languages')
-    await expectAdminApiCallSuccess('management/languages', 'GET')
   })
 
   it('Change user profile', async () => {
     await clickOn('#btn-menu')
     await clickOn('#btn-profile')
 
-    await fillField('#input-firstname', 'Bob')
-    await fillField('#input-lastname', 'Lalancette')
+    await fillField('#input-firstname', FIRST_NAME)
+    await fillField('#input-lastname', LAST_NAME)
 
     // Delete existing image if necessary
     const trashButtonSelector = 'span > button > .bp3-icon-trash'
@@ -54,7 +57,7 @@ describe('Admin - UI', () => {
     expect(src?.includes(url)).toBeTruthy()
 
     await clickOn('#btn-menu')
-    await expectMatch('Signed in as Bob Lalancette')
+    await expectMatch(`Signed in as ${FIRST_NAME} ${LAST_NAME}`)
     await clickOn('#btn-menu')
   })
 

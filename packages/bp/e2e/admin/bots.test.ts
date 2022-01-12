@@ -30,8 +30,8 @@ describe('Admin - Bot Management', () => {
 
     await fillField('#input-botId', importBotId)
     await uploadFile('input[type="file"]', path.join(__dirname, '../assets/bot-import-test.tgz'))
-    await clickOn('#btn-upload')
 
+    await clickOn('#btn-upload')
     await expectAdminApiCallSuccess(`workspace/bots/${importBotId}/import`, 'POST')
   })
 
@@ -40,20 +40,19 @@ describe('Admin - Bot Management', () => {
 
     await clickOn('#btn-menu-analytics')
     await expectModuleApiCallSuccess('analytics', importBotId, 'channel/all', 'GET')
-    await gotoAndExpect(`${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
   })
 
   it('Delete imported bot', async () => {
+    await gotoAndExpect(`${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
+
     await clickButtonForBot('#btn-delete', importBotId)
 
     await clickOn(CONFIRM_DIALOG.ACCEPT)
-
     await expectAdminApiCallSuccess(`workspace/bots/${importBotId}/delete`, 'POST')
   })
 
   it('Create temporary bot', async () => {
     await clickOn('#btn-create-bot')
-
     await clickOn('#btn-new-bot')
 
     await fillField('#input-bot-name', tempBotId)
@@ -81,7 +80,6 @@ describe('Admin - Bot Management', () => {
 
   it('Create revision', async () => {
     await clickButtonForBot('#btn-createRevision', tempBotId)
-
     await expectAdminApiCallSuccess(`workspace/bots/${tempBotId}/revisions`, 'POST')
   })
 
@@ -104,7 +102,6 @@ describe('Admin - Bot Management', () => {
     await clickButtonForBot('#btn-delete', tempBotId)
 
     await clickOn(CONFIRM_DIALOG.ACCEPT)
-
     await expectAdminApiCallSuccess(`workspace/bots/${tempBotId}/delete`, 'POST')
   })
 

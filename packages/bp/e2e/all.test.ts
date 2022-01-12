@@ -57,7 +57,9 @@ const responseHandler = (resp: HTTPResponse) => {
 }
 
 const frameNavigatedHandler = (frame: Frame) => {
-  console.info(`${getTime()} FRAME NAVIGATED: ${frame.url()}`)
+  if (shouldLogRequest(frame.url())) {
+    console.info(`${getTime()} FRAME NAVIGATED: ${frame.url()}`)
+  }
 }
 
 describe('E2E Tests', () => {
@@ -85,7 +87,6 @@ describe('E2E Tests', () => {
     page?.off('framenavigated', frameNavigatedHandler)
   })
 
-  // TODO: Change me. For test purpose only
   // Change this to test a different pipeline
   allTests.map(x => require(x))
 })
