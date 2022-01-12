@@ -32,6 +32,7 @@ declare namespace NodeJS {
     IS_LICENSED?: boolean
     CLUSTER_ENABLED: boolean
     ASSERT_LICENSED?: Function
+    TELEMETRY_URL: string
     BOTPRESS_VERSION: string
     runtime_env: RuntimeEnvironmentVariables
     distro: OSDistribution

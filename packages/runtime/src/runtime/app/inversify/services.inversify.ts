@@ -13,6 +13,7 @@ import { LogsJanitor } from '../../logger'
 import { MessagingService } from '../../messaging'
 import { NLUInferenceService } from '../../nlu'
 import { QnaService } from '../../qna'
+import { StatsService } from '../../telemetry'
 import { HookService, ActionService } from '../../user-code'
 import { DataRetentionService } from '../../users'
 import { TYPES } from '../types'
@@ -74,6 +75,10 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<BotService>(TYPES.BotService)
     .to(BotService)
+    .inSingletonScope()
+
+  bind<StatsService>(TYPES.StatsService)
+    .to(StatsService)
     .inSingletonScope()
 
   bind<RenderService>(TYPES.RenderService)

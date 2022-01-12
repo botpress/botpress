@@ -23,4 +23,4 @@ const writeSchema = (typeName, jsonFile) => {
 }
 
 writeSchema('RuntimeConfig', 'runtime.config.schema.json')
-// writeSchema('BotConfig', 'bot.config.schema.json')
+writeSchema('BotConfig', 'bot.config.schema.json')

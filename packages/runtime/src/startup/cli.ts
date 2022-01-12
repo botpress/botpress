@@ -31,6 +31,7 @@ yargs
       process.AUTO_MIGRATE =
         process.env.AUTO_MIGRATE === undefined ? yn(argv.autoMigrate) : yn(process.env.AUTO_MIGRATE)
 
+      process.TELEMETRY_URL = process.env.TELEMETRY_URL || 'https://telemetry.botpress.cloud/ingest'
       process.VERBOSITY_LEVEL = argv.verbose ? Number(argv.verbose) : defaultVerbosity
       process.distro = await getos()
 

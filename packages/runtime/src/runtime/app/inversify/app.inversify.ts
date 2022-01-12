@@ -5,6 +5,7 @@ import { ConfigProvider } from '../../config'
 import { EventCollector } from '../../events'
 import { LoggerDbPersister, LoggerFilePersister, LoggerProvider, PersistedConsoleLogger } from '../../logger'
 import { MigrationService } from '../../migration'
+import { TelemetryContainerModules, AnalyticsService } from '../../telemetry'
 import { DataRetentionJanitor } from '../../users'
 import { BotpressRuntimeAPIProvider } from '../api'
 import { Botpress } from '../botpress'
@@ -77,6 +78,11 @@ container
   .inSingletonScope()
 
 container
+  .bind<AnalyticsService>(TYPES.Statistics)
+  .to(AnalyticsService)
+  .inSingletonScope()
+
+container
   .bind<EventCollector>(TYPES.EventCollector)
   .to(EventCollector)
   .inSingletonScope()
@@ -98,6 +104,7 @@ container.bind<boolean>(TYPES.IsPackaged).toConstantValue(isPackaged)
 container.load(...DatabaseContainerModules)
 container.load(...RepositoriesContainerModules)
 container.load(...ServicesContainerModules)
+container.load(...TelemetryContainerModules)
 
 applyDisposeOnExit(container)
 applyInitializeFromConfig(container)
