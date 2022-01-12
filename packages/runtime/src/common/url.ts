@@ -10,7 +10,7 @@ interface MediaUrlElements {
   isBotpressUrl: boolean
 }
 
-const parseBotpressMediaUrl = (url: string): MediaUrlElements => {
+export const parseBotpressMediaUrl = (url: string): MediaUrlElements => {
   const bpUrlRegex = /^\/api\/.*\/bots\/(.*)\/media\/(.*)/g
   const parts = bpUrlRegex.exec(url)
 
@@ -21,12 +21,12 @@ const parseBotpressMediaUrl = (url: string): MediaUrlElements => {
   return { isBotpressUrl: false }
 }
 
-export const formatUrl = (baseUrl: string, url: string): string => {
+export const formatUrl = (baseUrl: string, url: string, mediaUrl?: string): string => {
   const item = parseBotpressMediaUrl(url)
 
   if (!item.isBotpressUrl) {
     return url
   }
 
-  return process.env.MEDIA_URL ? `${process.env.MEDIA_URL}/${item.botId}/${item.mediaId}` : `${baseUrl}${url}`
+  return mediaUrl ? `${mediaUrl}/${item.botId}/${item.mediaId}` : `${baseUrl}${url}`
 }
