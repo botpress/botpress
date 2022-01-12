@@ -125,19 +125,6 @@ export enum CONFIRM_DIALOG {
   DECLINE = '#confirm-dialog-decline'
 }
 
-export const autoAnswerDialog = (promptText?: string, repeat?: boolean) => {
-  const dialog = async (dialog: Dialog) => dialog.accept(promptText)
-
-  if (!repeat) {
-    page.once('dialog', dialog)
-  } else {
-    page.on('dialog', dialog)
-    return () => {
-      page.off('dialog', dialog)
-    }
-  }
-}
-
 export const getElementCenter = async (element: ElementHandle): Promise<{ x: number; y: number }> => {
   const box = await element.boundingBox()
 
