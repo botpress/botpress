@@ -8,6 +8,8 @@ import { clickOn, expectMatchElement, fillField } from './expectPuppeteer'
 
 type HttpMethod = 'POST' | 'GET' | 'PATCH' | 'PUT' | 'DELETE' | 'OPTIONS'
 
+export const DEFAULT_TIMEOUT = Number(process.env.JEST_TIMEOUT || 10000)
+
 export const getPage = async (): Promise<Page> => {
   await page.setViewport(windowSize)
   await page.setExtraHTTPHeaders({ 'Accept-Language': 'en-US,en;q=0.9' })
@@ -47,8 +49,7 @@ export const logout = async () => {
 
 export const gotoStudio = async (section?: string) => {
   const resource = section ? `/${section}` : ''
-  await gotoAndExpect(`${bpConfig.host}/studio/${bpConfig.botId}${resource}`)
-  return page.waitFor(200)
+  return gotoAndExpect(`${bpConfig.host}/studio/${bpConfig.botId}${resource}`)
 }
 
 /** Opens a new URL and makes sure the resulting url matches */
@@ -60,7 +61,9 @@ export const gotoAndExpect = async (url: string, matchUrl?: string) => {
 export const getResponse = async (url: string, method?: HttpMethod): Promise<HTTPResponse> => {
   return page.waitForResponse(res => {
     const resUrl = res.url()
-    console.info(`url: ${url}, resUrl: ${resUrl}`)
+    if (shouldLogRequest(url) && shouldLogRequest(resUrl)) {
+      console.info(`url: ${url}, resUrl: ${resUrl}`)
+    }
     return resUrl.includes(url) && (method ? res.request().method() === method : true)
   })
 }
@@ -112,22 +115,14 @@ export const waitForBotApiResponse = async (endOfUrl: string, method?: HttpMetho
   return response.json()
 }
 
+export const waitForStudioApiResponse = async (endOfUrl: string, method?: HttpMethod): Promise<any> => {
+  const response = await getResponse(`${bpConfig.apiHost}/api/v1/studio/${bpConfig.botId}/${endOfUrl}`, method)
+  return response.json()
+}
+
 export enum CONFIRM_DIALOG {
   ACCEPT = '#confirm-dialog-accept',
   DECLINE = '#confirm-dialog-decline'
-}
-
-export const autoAnswerDialog = (promptText?: string, repeat?: boolean) => {
-  const dialog = async (dialog: Dialog) => dialog.accept(promptText)
-
-  if (!repeat) {
-    page.once('dialog', dialog)
-  } else {
-    page.on('dialog', dialog)
-    return () => {
-      page.off('dialog', dialog)
-    }
-  }
 }
 
 export const getElementCenter = async (element: ElementHandle): Promise<{ x: number; y: number }> => {
@@ -185,7 +180,16 @@ export const closeToaster = async () => {
 
 export const shouldLogRequest = (url: string) => {
   const ignoredExt = ['.js', '.mp3', '.png', '.svg', '.css', '.woff', '.ttf']
-  const ignoredWords = ['image/', 'google-analytics', 'googletagmanager', 'segment', 'css', 'public/js', 'static/js']
+  const ignoredWords = [
+    'image/',
+    'google-analytics',
+    'googletagmanager',
+    'doubleclick',
+    'segment',
+    'css',
+    'public/js',
+    'static/js'
+  ]
 
   return !ignoredExt.find(x => url.includes(x)) && !ignoredWords.find(x => url.includes(x)) && !page.isClosed()
 }
@@ -196,18 +200,33 @@ export const getTime = () => {
   return time
 }
 
-export const waitForHost = async (host: string) => {
-  return new Promise(async resolve => {
-    const timeout = 1000
-    let timeoutHandle: ReturnType<typeof setTimeout>
+interface WaitOptions {
+  timeout: number
+}
+
+export const waitForHost = async (host: string, options?: WaitOptions) => {
+  return new Promise(async (resolve, reject) => {
+    const waitTime = 1000
+    let waitHandle: ReturnType<typeof setTimeout>
+    let timeoutHandle: ReturnType<typeof setTimeout> | undefined
 
     const loop = async () => {
+      if (options?.timeout) {
+        timeoutHandle = setTimeout(() => {
+          clearTimeout(waitHandle)
+
+          reject(new Error(`Botpress is unreachable after trying for ${options.timeout / 1000} seconds`))
+        }, options.timeout)
+      }
+
       // Should be Okay since jest uses an internal timeout
-      while (true) {
+      for (let i = 0; i < 10; i++) {
         axios
-          .options(host, { timeout })
+          .options(host, { timeout: waitTime })
           .then(() => {
-            clearTimeout(timeoutHandle)
+            clearTimeout(waitHandle)
+            timeoutHandle && clearTimeout(timeoutHandle)
+
             return resolve(undefined)
           })
           .catch(() => {
@@ -216,7 +235,7 @@ export const waitForHost = async (host: string) => {
 
         // wait 1 second between calls
         await new Promise(resolve => {
-          timeoutHandle = setTimeout(resolve, timeout)
+          waitHandle = setTimeout(resolve, waitTime)
         })
       }
     }
