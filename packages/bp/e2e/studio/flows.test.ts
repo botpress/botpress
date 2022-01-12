@@ -25,8 +25,7 @@ describe('Studio - Flows', () => {
     await page.mouse.click(500, 150)
     await page.mouse.click(500, 150, { button: 'right' })
 
-    await page.waitForSelector('li > .bp3-menu-item > .bp3-text-overflow-ellipsis')
-    await page.click('li > .bp3-menu-item > .bp3-text-overflow-ellipsis', { button: 'left' })
+    await clickOn('li > .bp3-menu-item > .bp3-text-overflow-ellipsis', { button: 'left' })
   })
 
   it('Rename Node', async () => {

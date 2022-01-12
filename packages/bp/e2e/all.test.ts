@@ -84,7 +84,6 @@ describe('E2E Tests', () => {
     page?.off('framenavigated', frameNavigatedHandler)
   })
 
-  // TODO: Change me. For test purpose only
   // Change this to test a different pipeline
   customTest.map(x => require(x))
 })

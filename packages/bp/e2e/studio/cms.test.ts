@@ -18,6 +18,8 @@ const getElementCount = async (all: boolean = false): Promise<number> => {
   return (await page.$$('.icon-edit')).length
 }
 
+const BLUEPRINTJS_TEXT_ELEMENT = '.DraftEditor-root'
+
 describe('Studio - CMS', () => {
   beforeAll(async () => {
     await loginOrRegister()
@@ -49,8 +51,9 @@ describe('Studio - CMS', () => {
     await uploadFile('input[type="file"]', path.join(__dirname, '../assets/alien.png'))
     await expectStudioApiCallSuccess('media', 'POST')
 
-    await clickOn('.DraftEditor-root')
+    await clickOn(BLUEPRINTJS_TEXT_ELEMENT)
     await page.keyboard.type('I am a martian')
+
     await clickOn('button[type="submit"]')
     await expectStudioApiCallSuccess('cms/builtin_image/elements', 'POST')
 
@@ -63,11 +66,13 @@ describe('Studio - CMS', () => {
 
     await page.hover('#btn-filter-builtin_file')
     await clickOn('#btn-list-create-builtin_file')
+
     await uploadFile('input[type="file"]', path.join(__dirname, '../assets/README.pdf'))
     await expectStudioApiCallSuccess('media', 'POST')
 
-    await clickOn('.style__textarea___2P8hT')
+    await clickOn(BLUEPRINTJS_TEXT_ELEMENT)
     await page.keyboard.type('Botpress README')
+
     await clickOn('button[type="submit"]')
     await expectStudioApiCallSuccess('cms/builtin_file/elements', 'POST')
 
@@ -81,8 +86,9 @@ describe('Studio - CMS', () => {
     await page.hover('#btn-filter-builtin_text')
     await clickOn('#btn-list-create-builtin_text')
 
-    await clickOn('.style__textarea___2P8hT')
+    await clickOn(BLUEPRINTJS_TEXT_ELEMENT)
     await page.keyboard.type('hey!')
+
     await clickOn('button[type="submit"]')
     await expectStudioApiCallSuccess('cms/builtin_text/element', 'POST')
 
