@@ -26,7 +26,7 @@ jobs:
         id: bump
         run: |
           yarn version --new-version ${{ github.event.inputs.version }} --no-git-tag-version
-          node build/update_pkg_version.js
+          yarn version --cwd ./build --new-version ${{ github.event.inputs.version }} --no-git-tag-version
           echo ::set-output name=new_version::$(node -p "require('./package.json').version")
 
       - name: Get Release Details
