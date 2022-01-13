@@ -26,7 +26,7 @@ const migration: Migration = {
         return
       }
 
-      await configProvider.mergeBotConfig(botId, { messaging: { id: parts[1] } })
+      await configProvider.mergeBotConfig(botId, { messaging: { token: parts[1] } })
     }
 
     if (metadata.botId) {
