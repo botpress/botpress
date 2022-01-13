@@ -16,10 +16,10 @@ const migration: Migration = {
         return
       }
 
-      // new to format is : idOfToken.secretOfToken
+      // new token format is : idOfToken.secretOfToken
       // so here we want to check that the token is the new format by doing a split with "."
       // the id and token are not allowed to have "." so this works
-      const parts = botConfig.messaging.id.split('.')
+      const parts = botConfig.messaging.token.split('.')
 
       if (parts.length !== 2) {
         // then the token is still the old format so we don't need to change it
