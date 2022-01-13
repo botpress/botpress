@@ -150,7 +150,9 @@ export class Botpress {
       'dataRetention',
       'eventCollector',
       'botMonitoring',
-      'noRepeatPolicy'
+      'noRepeatPolicy',
+      'telemetry',
+      'sendUsageStats'
     ]) as any
 
     const overrideApi = api =>
