@@ -92,14 +92,18 @@ jobs:
         run: |
           yarn --frozen-lockfile
       - name: Build core, UI and modules
-        run: |
-          NODE_OPTIONS="--max-old-space-size=6000" yarn build
+        run: yarn build
+        env:
+          NODE_OPTIONS: '--max-old-space-size=6000'
       - name: Run Tests
         run: |
-          yarn start & HEADLESS=true JEST_TIMEOUT=30000 yarn test:e2e
+          yarn start & 
+          yarn test:e2e
         env:
           BP_LICENSE_KEY: ${{ secrets.BP_LICENSE_KEY }}
           BP_CONFIG_PRO_ENABLED: true
+          HEADLESS: true
+          JEST_TIMEOUT: 30000
       - name: Upload Screenshots
         uses: actions/upload-artifact@master
         if: failure()
