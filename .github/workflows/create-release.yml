@@ -4,7 +4,9 @@ on:
     inputs:
       version:
         required: true
-        description: Version to release (e.g. 1.2.3)
+        description: Type of release
+        options: ['patch', 'minor', 'major']
+        default: 'patch'
 
 jobs:
   create_pull_request:
@@ -21,7 +23,11 @@ jobs:
           cache: 'yarn'
 
       - name: Bump version
-        run: yarn version --new-version  ${{ github.event.inputs.version }} --no-git-tag-version
+        id: bump
+        run: |
+          yarn version --new-version ${{ github.event.inputs.version }} --no-git-tag-version
+          node build/update_pkg_version.js
+          echo ::set-output name=new_version::$(node -p "require('./package.json').version")
 
       - name: Get Release Details
         id: release_details
@@ -30,7 +36,7 @@ jobs:
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         with:
-          title: 'chore(server): release v${{ github.event.inputs.version }}'
-          commit-message: 'chore(server): release v${{ github.event.inputs.version }}'
-          branch: 'release/v${{ github.event.inputs.version }}'
+          title: 'chore(server): release v${{ steps.bump.outputs.new_version }}'
+          commit-message: 'chore(server): release v${{ steps.bump.outputs.new_version }}'
+          branch: 'release/v${{ steps.bump.outputs.new_version }}'
           body: ${{ steps.release_details.outputs.changelog }}
