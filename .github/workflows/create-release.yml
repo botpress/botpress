@@ -1,0 +1,36 @@
+name: Create Release Pull Request
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        description: Version to release (e.g. 1.2.3)
+
+jobs:
+  create_pull_request:
+    name: Create Pull Request
+    runs-on: 'ubuntu-latest'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12.18.1'
+          cache: 'yarn'
+
+      - name: Bump version
+        run: yarn version --new-version  ${{ github.event.inputs.version }} --no-git-tag-version
+
+      - name: Get Release Details
+        id: release_details
+        uses: botpress/gh-actions/get_release_details@next
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          title: 'chore(server): release v${{ github.event.inputs.version }}'
+          commit-message: 'chore(server): release v${{ github.event.inputs.version }}'
+          branch: 'release/v${{ github.event.inputs.version }}'
+          body: ${{ steps.release_details.outputs.changelog }}
