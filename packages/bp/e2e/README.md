@@ -1,4 +1,4 @@
-## Botpress E2E tests suite
+## Botpress E2E tests
 
 ### Prerequisites
 
@@ -27,7 +27,7 @@ yarn test:e2e
 To execute **all** the tests:
 
 ```sh
-// Includes the tests made against the Pro version
+# Includes the tests made against the Pro version
 BP_CONFIG_PRO_ENABLED=true yarn test:e2e
 ```
 
@@ -48,6 +48,6 @@ HEADLESS=true yarn test:e2e
 To increase Jest timeout:
 
 ```sh
-// Increases timeout for each tests to 30 seconds
+# Increases timeout for each tests to 30 seconds
 JEST_TIMEOUT=30000 yarn test:e2e
 ```
