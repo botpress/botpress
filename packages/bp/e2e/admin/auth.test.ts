@@ -3,7 +3,7 @@ import axios from 'axios'
 import authConfig from '../assets/auth-config'
 import { bpConfig } from '../assets/config'
 import { clickOn, fillField } from '../utils/expectPuppeteer'
-import { getResponse, doesElementExist, waitForHost, loginOrRegister, logout } from '../utils'
+import { getResponse, doesElementExist, waitForHost, loginOrRegister, logout, waitForHostDown } from '../utils'
 import { BotpressConfig } from '../../src/core/config/botpress.config'
 
 const getHeaders = (token: string) => ({
@@ -104,6 +104,9 @@ describe('Auth UI', () => {
     // Reboot is required after adding auth strategies
     const rebootResp = await axios.post(`${bpConfig.apiHost}/api/v2/admin/management/rebootServer`, undefined, headers)
     expect(rebootResp.status).toEqual(200)
+
+    // Wait for host to be down before checking it is up
+    await waitForHostDown(bpConfig.apiHost)
 
     await waitForHost(bpConfig.apiHost)
     await page.goto(`${bpConfig.host}`)

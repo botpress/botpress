@@ -9,6 +9,8 @@
 
 Go to `assets/config.ts` and make sure that the config fits your needs. You can also edit `Puppeteer` configurations in this file: `jest-puppeteer.config.js` if needed.
 
+It is highly recommended to use a `.env` file for your environment variables as it will allow you to easily restart your server and delete the `data` folder without loosing your Botpress configurations.
+
 The entrypoint to the tests is the `all.test.ts` file. Edit this file to only run certain tests.
 
 ### What to do when some tests fail
@@ -27,7 +29,7 @@ yarn test:e2e
 To execute **all** the tests:
 
 ```sh
-# Includes the tests made against the Pro version
+# Includes tests made against the Pro version
 BP_CONFIG_PRO_ENABLED=true yarn test:e2e
 ```
 

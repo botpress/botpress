@@ -1,5 +1,5 @@
 import { clickOn, fillField, expectMatch } from '../utils/expectPuppeteer'
-import { DEFAULT_TIMEOUT, expectStudioApiCallSuccess, gotoStudio, loginOrRegister, NLU_TRAIN_TIMEOUT } from '../utils'
+import { expectStudioApiCallSuccess, gotoStudio, loginOrRegister, NLU_TRAIN_TIMEOUT } from '../utils'
 
 describe('Studio - NLU', () => {
   beforeAll(async () => {

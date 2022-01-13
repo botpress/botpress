@@ -221,7 +221,7 @@ export const waitForHost = async (host: string, options?: WaitOptions) => {
       }
 
       // Should be Okay since jest uses an internal timeout
-      for (let i = 0; i < 10; i++) {
+      while (true) {
         axios
           .options(host, { timeout: waitTime })
           .then(() => {
@@ -235,6 +235,31 @@ export const waitForHost = async (host: string, options?: WaitOptions) => {
           })
 
         // wait 1 second between calls
+        await new Promise(resolve => {
+          waitHandle = setTimeout(resolve, waitTime)
+        })
+      }
+    }
+
+    await loop()
+  })
+}
+
+export const waitForHostDown = async (host: string) => {
+  return new Promise(async resolve => {
+    const waitTime = 100
+    let waitHandle: ReturnType<typeof setTimeout>
+
+    const loop = async () => {
+      // Should be Okay since jest uses an internal timeout
+      while (true) {
+        axios.options(host, { timeout: waitTime }).catch(err => {
+          clearTimeout(waitHandle)
+
+          return resolve(undefined)
+        })
+
+        // wait 100ms between calls
         await new Promise(resolve => {
           waitHandle = setTimeout(resolve, waitTime)
         })
