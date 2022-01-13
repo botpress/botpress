@@ -29,8 +29,7 @@ describe('Admin - Init', () => {
       await fillField('#select-bot-templates', 'Welcome Bot')
       await page.keyboard.press('Enter')
 
-      await clickOn('#btn-modal-create-bot')
-      await expectAdminApiCallSuccess('workspace/bots', 'POST')
+      await Promise.all([clickOn('#btn-modal-create-bot'), expectAdminApiCallSuccess('workspace/bots', 'POST')])
     })
   }
 })

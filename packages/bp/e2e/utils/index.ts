@@ -9,6 +9,7 @@ import { clickOn, expectMatchElement, fillField } from './expectPuppeteer'
 type HttpMethod = 'POST' | 'GET' | 'PATCH' | 'PUT' | 'DELETE' | 'OPTIONS'
 
 export const DEFAULT_TIMEOUT = Number(process.env.JEST_TIMEOUT || 10000)
+export const NLU_TRAIN_TIMEOUT = Number(process.env.JEST_TIMEOUT || 15000)
 
 export const getPage = async (): Promise<Page> => {
   await page.setViewport(windowSize)

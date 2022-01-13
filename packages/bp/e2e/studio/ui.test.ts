@@ -28,8 +28,8 @@ describe('Studio - UI', () => {
     await iframe.waitForSelector('#input-message')
 
     await page.keyboard.type('Much automated!')
-    await page.keyboard.press('Enter')
-    await expectBotApiCallSuccess('mod/channel-web/messages')
+
+    await Promise.all([page.keyboard.press('Enter'), expectBotApiCallSuccess('mod/channel-web/messages')])
 
     await page.keyboard.press('Escape')
   })

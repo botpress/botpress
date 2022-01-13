@@ -14,7 +14,7 @@ const getElementCount = async (all: boolean = false): Promise<number> => {
     await page.select('.select-wrap.-pageSizeOptions select', '100')
     await clickOn('#btn-filter-all')
   }
-  await page.waitForFunction('document.querySelectorAll(".icon-edit").length > 0')
+  await page.waitForFunction('document.querySelectorAll(".icon-edit").length > 1')
   return (await page.$$('.icon-edit')).length
 }
 
