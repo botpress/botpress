@@ -34,6 +34,10 @@ const systems = [
   }
 ]
 
+const output = './packages/bp/binaries'
+const outputBp = `${output}/bp`
+const options = 'max_old_space_size=16384'
+
 const getTargetOSNodeVersion = () => {
   if (process.argv.find(x => x.toLowerCase() === '--win32')) {
     return 'node12-win32-x64'
@@ -76,84 +80,58 @@ const zipArchive = async ({ osName, binding, tempBin, binaryName }) => {
   console.info(`${endFileName}: ${archive.pointer()} bytes`)
 }
 
-const makeTempPackage = () => {
-  const additionalPackageJson = require(path.resolve(__dirname, './package.json'))
-  const realPackageJson = require(path.resolve(__dirname, '../package.json'))
-  const tempPkgPath = path.resolve(__dirname, '../packages/bp/dist/package.json')
-
-  const packageJson = Object.assign(realPackageJson, additionalPackageJson)
-  fse.writeJsonSync(tempPkgPath, packageJson, { spaces: 2 })
-
-  return {
-    remove: () => fse.unlinkSync(tempPkgPath)
-  }
-}
-
 const fetchExternalBinaries = () => {
-  const binOut = path.resolve(__dirname, '../packages/bp/binaries')
-
   systems.forEach(({ osName, platform }) =>
-    execAsync(`yarn bpd init --output ${path.resolve(binOut, osName)} --platform ${platform}`)
+    execAsync(`yarn bpd init --output ${path.resolve(output, osName)} --platform ${platform}`)
   )
 }
 
 const packageAll = async () => {
-  const tempPackage = makeTempPackage()
-
   try {
     fetchExternalBinaries()
 
-    await execAsync(`cross-env pkg --options max_old_space_size=16384 --output ../binaries/bp ./package.json`, {
-      cwd: path.resolve(__dirname, '../packages/bp/dist')
-    })
+    await execAsync(`cross-env pkg --options ${options} --output ${outputBp} package.json`)
   } catch (err) {
     console.error('Error running: ', err.cmd, '\nMessage: ', err.stderr, err)
-  } finally {
-    tempPackage.remove()
   }
 
   await Promise.map(systems, x => zipArchive(x))
 }
 
 const packageApp = async () => {
-  const tempPackage = makeTempPackage()
-
-  const cwd = path.resolve(__dirname, '../packages/bp/dist')
-  const binOut = path.resolve(__dirname, '../packages/bp/binaries')
+  const target = getTargetOSNodeVersion()
+  const platform = getTargetOSName().replace('windows', 'win32')
 
   try {
-    await execAsync(`yarn bpd init --output ${binOut} --platform ${getTargetOSName().replace('windows', 'win32')}`)
-    await execAsync(
-      `cross-env pkg --targets ${getTargetOSNodeVersion()} --options max_old_space_size=16384 --output ../binaries/bp ./package.json`,
-      {
-        cwd
-      }
-    )
+    await execAsync(`yarn bpd init --output ${output} --platform ${platform}`)
+    await execAsync(`cross-env pkg --targets ${target} --options ${options} --output ${outputBp} package.json`)
   } catch (err) {
     console.error('Error running: ', err.cmd, '\nMessage: ', err.stderr, err)
-  } finally {
-    tempPackage.remove()
   }
 }
 
 const copyNativeExtensions = async () => {
+  const outputBindings = `${output}/bindings`
+  const osName = getTargetOSName()
   const files = [
     ...glob.sync('./build/native-extensions/*.node'),
     ...glob.sync('./node_modules/**/node-v64-*/*.node'),
-    ...glob.sync(`./build/native-extensions/${getTargetOSName()}/**/*.node`)
+    ...glob.sync(`./build/native-extensions/${osName}/**/*.node`)
   ]
+  const isNativeExtension = file => file.indexOf(path.join('native-extensions', osName).replace('\\', '/')) > 0
 
-  mkdirp.sync('./packages/bp/binaries/bindings/')
+  mkdirp.sync(outputBindings)
 
   for (const file of files) {
-    if (file.indexOf(path.join('native-extensions', getTargetOSName()).replace('\\', '/')) > 0) {
+    let targetDir = outputBindings
+    if (isNativeExtension(file)) {
       const dist = path.basename(path.dirname(file))
-      const targetDir = `./packages/bp/binaries/bindings/${getTargetOSName()}/${dist}`
+      targetDir = `${outputBindings}/${osName}/${dist}`
+
       mkdirp.sync(path.resolve(targetDir))
-      fs.copyFileSync(path.resolve(file), path.resolve(targetDir, path.basename(file)))
-    } else {
-      fs.copyFileSync(path.resolve(file), path.resolve('./packages/bp/binaries/bindings/', path.basename(file)))
     }
+
+    fs.copyFileSync(path.resolve(file), path.resolve(targetDir, path.basename(file)))
   }
 }
 

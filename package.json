@@ -19,6 +19,21 @@
   "messaging": {
     "version": "0.1.18"
   },
+  "bin": "./packages/bp/dist/index.js",
+  "pkg": {
+    "targets": [
+      "node12-win32-x64",
+      "node12-linux-x64",
+      "node12-macos-x64"
+    ],
+    "scripts": "./packages/bp/dist/**/*.js",
+    "assets": [
+      "./node_modules/vm2/lib/*.js",
+      "./node_modules/xml-encryption/lib/templates/*.tpl.xml",
+      "./packages/bp/dist/core/config/schemas/*.json"
+    ],
+    "output": "./packages/bp/binaries/bp"
+  },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
     "start": "yarn workspace botpress start",
