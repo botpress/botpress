@@ -1,6 +1,6 @@
 import axios from 'axios'
 import moment from 'moment'
-import { Dialog, ElementHandle, HTTPResponse, KeyInput, MouseButton, Page } from 'puppeteer'
+import { ElementHandle, HTTPResponse, KeyInput, MouseButton, Page } from 'puppeteer'
 
 import { bpConfig } from '../assets/config'
 import { windowSize } from '../jest-puppeteer.config'

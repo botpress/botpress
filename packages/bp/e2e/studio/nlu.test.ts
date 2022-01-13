@@ -60,5 +60,5 @@ describe('Studio - NLU', () => {
     await waitForTraining
 
     await expectMatch('Ready')
-  })
+  }, 15000)
 })
