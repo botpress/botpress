@@ -5,7 +5,7 @@ const fs = require('fs')
 const chalk = require('chalk')
 
 const defaultLangCode = 'en'
-const locations = ['modules/**/translations/*.json', 'packages/bp/src/**/translations/*.json']
+const locations = ['modules/**/translations/*.json', 'packages/**/translations/*.json']
 
 const start = () => {
   const reorder = process.argv.find(x => x.toLowerCase() === '--reorder')
