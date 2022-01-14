@@ -36,7 +36,7 @@ describe('Module - Code Editor', () => {
     await Promise.all([
       expectBotApiCallSuccess('mod/code-editor/save', 'POST'),
       expectBotApiCallSuccess('mod/code-editor/files', 'GET'),
-      triggerKeyboardShortcut('KeyS', true)
+      triggerKeyboardShortcut('s', true)
     ])
   })
 

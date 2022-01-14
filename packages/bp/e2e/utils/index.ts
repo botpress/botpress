@@ -136,8 +136,8 @@ export const getElementCenter = async (element: ElementHandle): Promise<{ x: num
   return { x: box.x + box.width / 2, y: box.y + box.height / 2 }
 }
 
-export const triggerKeyboardShortcut = async (key: KeyInput, holdCtrl?: boolean) => {
-  const ctrlKey = process.platform === 'darwin' ? 'Meta' : 'Control'
+export const triggerKeyboardShortcut = async (key: KeyInput, holdCtrl?: boolean, useMetaOnMac?: boolean) => {
+  const ctrlKey: KeyInput = useMetaOnMac && process.platform === 'darwin' ? 'Meta' : 'ControlLeft'
   if (holdCtrl) {
     await page.keyboard.down(ctrlKey)
     await page.keyboard.press(key)

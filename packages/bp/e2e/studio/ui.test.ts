@@ -36,11 +36,11 @@ describe('Studio - UI', () => {
 
   it('Toggle Bottom Panel using shortcut', async () => {
     await page.focus('#mainLayout')
-    await triggerKeyboardShortcut('KeyJ', true)
+    await triggerKeyboardShortcut('j', true, true)
     const bottomPanel = await page.$('div[data-tab-id="debugger"]')
 
     expect(await bottomPanel?.isIntersectingViewport()).toBe(true)
-    await triggerKeyboardShortcut('KeyJ', true)
+    await triggerKeyboardShortcut('j', true, true)
   })
 
   it('Toggles bottom panel using click toolbar menu', async () => {
