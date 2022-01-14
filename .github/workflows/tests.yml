@@ -75,11 +75,76 @@ jobs:
           PG_PORT: 5432
 
   e2e:
-    name: e2e
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [macos-latest, windows-latest, ubuntu-latest]
+    name: e2e (ubuntu-latest)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12.18.1'
+          cache: 'yarn'
+      - name: Fetch Node Packages
+        run: |
+          yarn --frozen-lockfile
+      - name: Build core, UI and modules
+        run: yarn build
+        env:
+          NODE_OPTIONS: '--max-old-space-size=6000'
+      - name: Run Tests
+        run: |
+          yarn start & 
+          yarn test:e2e
+        env:
+          BP_LICENSE_KEY: ${{ secrets.BP_LICENSE_KEY }}
+          BP_CONFIG_PRO_ENABLED: true
+          HEADLESS: true
+          JEST_TIMEOUT: 30000
+      - name: Upload Screenshots
+        uses: actions/upload-artifact@master
+        if: failure()
+        with:
+          name: screenshots
+          path: build/tests/e2e/screenshots
+
+  e2e-windows:
+    name: e2e (windows-latest)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12.18.1'
+          cache: 'yarn'
+      - name: Fetch Node Packages
+        run: |
+          yarn --frozen-lockfile
+      - name: Build core, UI and modules
+        run: yarn build
+        env:
+          NODE_OPTIONS: '--max-old-space-size=6000'
+      - name: Run Tests
+        run: |
+          yarn start & 
+          yarn test:e2e
+        env:
+          BP_LICENSE_KEY: ${{ secrets.BP_LICENSE_KEY }}
+          BP_CONFIG_PRO_ENABLED: true
+          HEADLESS: true
+          JEST_TIMEOUT: 30000
+      - name: Upload Screenshots
+        uses: actions/upload-artifact@master
+        if: failure()
+        with:
+          name: screenshots
+          path: build/tests/e2e/screenshots
+
+  e2e-macos:
+    name: e2e (macos-latest)
+    runs-on: macos-latest
 
     steps:
       - name: Checkout code

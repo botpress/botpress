@@ -22,7 +22,7 @@
     "classnames": "^2.2.6",
     "flat": "^5.0.2",
     "haikunator": "^2.1.2",
-    "immer": "^8",
+    "immer": "^9.0.12",
     "joi": "^17",
     "lodash": ">=4.17",
     "lru-cache": "^6.0.0",
