@@ -1,4 +1,4 @@
-import { MessagingClient, uuid } from '@botpress/messaging-client'
+import { MessagingAdminClient, MessagingClient, uuid } from '@botpress/messaging-client'
 import { AxiosRequestConfig } from 'axios'
 import { IO, Logger, MessagingConfig } from 'botpress/sdk'
 import { formatUrl, isBpUrl } from 'common/url'
@@ -14,7 +14,7 @@ import { MessageNewEventData, ConversationStartedEventData } from './messaging-r
 
 @injectable()
 export class MessagingService {
-  private clientSync!: MessagingClient
+  private clientSync!: MessagingAdminClient
   private clientsByBotId: { [botId: string]: MessagingClient } = {}
   private botsByClientId: { [clientId: string]: string } = {}
   private webhookTokenByClientId: { [botId: string]: string } = {}
@@ -58,7 +58,7 @@ export class MessagingService {
 
     await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
 
-    this.clientSync = new MessagingClient({ url: this.getMessagingUrl(), config: this.getAxiosConfig() })
+    this.clientSync = new MessagingAdminClient({ url: this.getMessagingUrl(), config: this.getAxiosConfig() })
   }
 
   async loadMessagingForBot(botId: string) {
@@ -87,7 +87,7 @@ export class MessagingService {
       webhooks: this.isExternal ? [{ url: webhookUrl }] : []
     }
 
-    const { id, token, webhooks } = await this.clientSync.syncs.sync(setupConfig)
+    const { id, token, webhooks } = await this.clientSync.sync(setupConfig)
 
     if (webhooks?.length) {
       for (const webhook of webhooks) {
@@ -109,7 +109,7 @@ export class MessagingService {
 
     const botClient = new MessagingClient({
       url: this.getMessagingUrl(),
-      auth: { clientId: messaging.id!, clientToken: messaging.token! },
+      creds: { clientId: messaging.id!, clientToken: messaging.token! },
       config: this.getAxiosConfig()
     })
     this.clientsByBotId[botId] = botClient
@@ -126,7 +126,7 @@ export class MessagingService {
 
     delete this.botsByClientId[config.messaging.id]
 
-    await this.clientSync.syncs.sync({
+    await this.clientSync.sync({
       id: config.messaging.id,
       token: config.messaging.token,
       name: botId,
@@ -187,7 +187,7 @@ export class MessagingService {
     }
 
     const collecting = event.incomingEventId && this.collectingCache.get(event.incomingEventId)
-    const message = await this.clientsByBotId[event.botId].messages.create(
+    const message = await this.clientsByBotId[event.botId].createMessage(
       event.threadId!,
       undefined,
       event.payload,
@@ -209,7 +209,7 @@ export class MessagingService {
   private async sendProcessingDone(event: IO.IncomingEvent) {
     try {
       await this.eventEngine.waitOutgoingQueueEmpty(event)
-      await this.clientsByBotId[event.botId].messages.endTurn(event.messageId!)
+      await this.clientsByBotId[event.botId].endTurn(event.messageId!)
     } catch (e) {
       this.logger.attachError(e).error('Failed to inform messaging of completed processing')
     } finally {
