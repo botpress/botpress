@@ -75,7 +75,7 @@ jobs:
           PG_PORT: 5432
 
   e2e:
-    name: e2e (ubuntu-latest)
+    name: e2e
     runs-on: ubuntu-latest
 
     steps:
