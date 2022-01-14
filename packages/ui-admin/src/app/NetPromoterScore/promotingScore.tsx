@@ -6,7 +6,7 @@ import { trackEvent } from './NetPromotingScore/SegmentHandler'
 const NPS_KEY = 'bp/nps_after'
 
 const npsDisplayRequirements = {
-  initialDelayMs: ms('1d'),
+  initialDelayMs: ms('5d'),
   scoredDelayMs: ms('30d'),
   promptedDelayMs: ms('2d')
 }
