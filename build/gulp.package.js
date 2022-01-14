@@ -77,7 +77,7 @@ const zipArchive = async ({ osName, binding, tempBin, binaryName }) => {
 }
 
 const makeTempPackage = () => {
-  const additionalPackageJson = require(path.resolve(__dirname, './package.pkg.json'))
+  const additionalPackageJson = require(path.resolve(__dirname, './package.json'))
   const realPackageJson = require(path.resolve(__dirname, '../package.json'))
   const tempPkgPath = path.resolve(__dirname, '../packages/bp/dist/package.json')
 
