@@ -55,15 +55,9 @@ export class MessagingService {
     })
 
     this.messaging = new MessagingChannel({ url: this.getMessagingUrl(), config: this.getAxiosConfig() })
-    this.messaging.on('user', ({ clientId, data }) => {
-      this.handleNewUserEvent()
-    })
-    this.messaging.on('started', async ({ clientId, data }) => {
-      await this.handleConversationStartedEvent(clientId, data)
-    })
-    this.messaging.on('message', async ({ clientId, data }) => {
-      await this.handleNewMessageEvent(clientId, data)
-    })
+    this.messaging.on('user', this.handleUserNewEvent.bind(this))
+    this.messaging.on('started', this.handleConversationStartedEvent.bind(this))
+    this.messaging.on('message', this.handleMessageNewEvent.bind(this))
   }
 
   async loadMessagingForBot(botId: string) {
@@ -154,7 +148,7 @@ export class MessagingService {
     return count
   }
 
-  private handleNewUserEvent() {
+  private handleUserNewEvent() {
     this.newUsers++
   }
 
@@ -176,7 +170,7 @@ export class MessagingService {
     return this.eventEngine.sendEvent(event)
   }
 
-  private async handleNewMessageEvent(clientId: uuid, data: MessageNewEvent) {
+  private async handleMessageNewEvent(clientId: uuid, data: MessageNewEvent) {
     if (!this.channelNames.includes(data.channel)) {
       return
     }
