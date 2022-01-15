@@ -197,6 +197,7 @@ export class Botpress {
 
     await this.cmsService.initialize()
     await this.eventCollector.initialize(this.database)
+    await this.messagingService.initialize()
     this.qnaService.initialize()
 
     await this.registerHooks()
