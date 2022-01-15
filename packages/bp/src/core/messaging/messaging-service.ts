@@ -1,4 +1,4 @@
-import { ConversationStartedEventData, MessageNewEventData, MessagingChannel, uuid } from '@botpress/messaging-client'
+import { ConversationStartedEvent, MessageNewEvent, MessagingChannel, uuid } from '@botpress/messaging-client'
 import { AxiosRequestConfig } from 'axios'
 import { IO, Logger, MessagingConfig } from 'botpress/sdk'
 import { formatUrl, isBpUrl } from 'common/url'
@@ -158,7 +158,7 @@ export class MessagingService {
     this.newUsers++
   }
 
-  private async handleConversationStartedEvent(clientId: uuid, data: ConversationStartedEventData) {
+  private async handleConversationStartedEvent(clientId: uuid, data: ConversationStartedEvent) {
     if (!this.channelNames.includes(data.channel)) {
       return
     }
@@ -176,7 +176,7 @@ export class MessagingService {
     return this.eventEngine.sendEvent(event)
   }
 
-  private async handleNewMessageEvent(clientId: uuid, data: MessageNewEventData) {
+  private async handleNewMessageEvent(clientId: uuid, data: MessageNewEvent) {
     if (!this.channelNames.includes(data.channel)) {
       return
     }
