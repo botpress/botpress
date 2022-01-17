@@ -6,16 +6,7 @@ jobs:
   slackNotification:
     name: Slack Notification
     runs-on: ubuntu-latest
-    steps:
-      - name: fetch the json value
-        run: |
-             githubjson=`cat $GITHUB_EVENT_PATH`
-             echo $githubjson
-             number=`echo $(jq -r '.number' <<< "$githubjson")`
-             PRTitle=`echo $(jq -r '.pull_request.title' <<< "$githubjson")`
-             PRUrl=`echo $(jq -r '.pull_request.html_url' <<< "$githubjson")`
-             PRBody=`echo $(jq -r '.pull_request.body' <<< "$githubjson")`
-        
+    steps:      
       - name: Send custom JSON data to Slack workflow
         id: slack
         uses: slackapi/slack-github-action@v1.16.0
