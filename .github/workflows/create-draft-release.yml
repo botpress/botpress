@@ -1,11 +1,11 @@
-name: Pre-Release
+name: Draft-Release
 on:
   push:
     branches:
       - master
 jobs:
   release_bin:
-    name: Create Pre-Release
+    name: Create Draft-Release
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -27,8 +27,8 @@ jobs:
         if: ${{ steps.release_details.outputs.is_new_release == 'true' }}
         uses: softprops/action-gh-release@v1
         with:
-          prerelease: true
-          draft: false
+          prerelease: false
+          draft: true
           body: ${{ steps.release_details.outputs.changelog }}
           name: v${{ steps.release_details.outputs.version }}
           tag_name: v${{ steps.release_details.outputs.version }}
