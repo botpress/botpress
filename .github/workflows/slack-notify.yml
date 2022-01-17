@@ -12,7 +12,28 @@ jobs:
         uses: slackapi/slack-github-action@v1.16.0
         if: ${{ github.event.discussion.category.name  == 'Community Support' }}
         with:
-          payload: '{"blocks": [{"type": "section","text": {"type": "mrkdwn","text": "*There is a new post to the Botpress Forums!*"}},{"type": "divider"},{"type": "section","text": {"type": "mrkdwn","text": "> *${{ github.event.discussion.title }}* \n> ${{ github.event.discussion.html_url }}"}}]}'
+          payload: |
+              {
+                "blocks": [
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "*There is a new post to the Botpress Forums!*"
+                    }
+                  },
+                  {
+                    "type": "divider"
+                  },
+                  {
+                    "type": "section",
+                    "text": {
+                      "type": "mrkdwn",
+                      "text": "> *${{ github.event.discussion.title }}* \n> ${{ github.event.discussion.html_url }}"
+                    }
+                  }
+                ]
+              }
         env:
           SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK }}
           SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK
