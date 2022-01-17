@@ -19,7 +19,7 @@ jobs:
 
       - name: Extract Informations
         id: info
-        uses: botpress/gh-actions/extract_info@master
+        uses: botpress/gh-actions/extract_info@v1
         with:
           branch: ${{ github.event.ref }}
 
