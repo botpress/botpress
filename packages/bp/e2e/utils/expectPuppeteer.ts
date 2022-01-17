@@ -1,8 +1,7 @@
-import expectp from 'expect-puppeteer'
+import expectp, { setDefaultOptions } from 'expect-puppeteer'
 import { ElementHandle, Page } from 'puppeteer'
 
-// @ts-ignore Typings doesn't include that method, but we want to leave enough time to process queries
-expectp.setDefaultOptions({ timeout: 5000 })
+setDefaultOptions({ timeout: 5000 })
 
 /**
  * Shortcuts to avoid repeating the same stuff each time (95% of the time we use the "page" instance)
@@ -10,12 +9,12 @@ expectp.setDefaultOptions({ timeout: 5000 })
  */
 
 interface ExpectMatchOptions {
-  polling?: string | number
+  polling?: number | 'mutation' | 'raf'
   timeout?: number
 }
 
 interface ExpectMatchElementOptions {
-  polling?: string | number
+  polling?: number | 'mutation' | 'raf'
   timeout?: number
   text?: string | RegExp
   visible?: boolean
@@ -28,15 +27,29 @@ interface ExpectClickOptions {
   text?: string
 }
 
-export const uploadFile = expectp(page).toUploadFile
-export const fillField = expectp(page).toFill
+type ExpectPolling = number | 'mutation' | 'raf'
+
+interface ExpectTimingActions {
+  delay?: number
+  polling?: ExpectPolling
+  timeout?: number
+}
+
+export const uploadFile = async (selector: string, filePath: string, options?: ExpectTimingActions | undefined) => {
+  await page.waitForSelector(selector)
+  return expectp(page).toUploadFile(selector, filePath, options)
+}
+export const fillField = async (selector: string, value: string, options?: ExpectTimingActions | undefined) => {
+  await page.waitForSelector(selector)
+  return expectp(page).toFill(selector, value, options)
+}
 
 export const expectMatch = async (
   matcher: string | RegExp,
   options?: ExpectMatchOptions,
   instance: Page | ElementHandle = page
 ) => {
-  return expectp(instance).toMatch(matcher as any, options as any)
+  return expectp(instance).toMatch(matcher as string, options)
 }
 
 export const expectMatchElement = async (
@@ -44,7 +57,8 @@ export const expectMatchElement = async (
   options?: ExpectMatchElementOptions,
   instance: Page | ElementHandle = page
 ): Promise<ElementHandle> => {
-  return (expectp(instance).toMatchElement(selector, options as any) as Promise<unknown>) as Promise<ElementHandle>
+  await page.waitForSelector(selector)
+  return (expectp(instance).toMatchElement(selector, options) as Promise<unknown>) as Promise<ElementHandle>
 }
 
 export const clickOn = async (
@@ -52,5 +66,6 @@ export const clickOn = async (
   options?: ExpectClickOptions,
   instance: Page | ElementHandle = page
 ): Promise<void> => {
+  await page.waitForSelector(selector)
   return expectp(instance).toClick(selector, options)
 }

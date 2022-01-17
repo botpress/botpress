@@ -1,26 +1,12 @@
-import { Page } from 'puppeteer'
+import { bpConfig } from '../assets/config'
+import { clickOn, expectMatch, fillField } from '../utils/expectPuppeteer'
+import { gotoAndExpect } from '../utils'
 
-import { bpConfig } from '../../jest-puppeteer.config'
-import { clickOn, expectMatch, fillField } from '../expectPuppeteer'
-import { getPage, gotoAndExpect } from '../utils'
-
-const getMessageCount = async (page: Page): Promise<number> => {
+const getMessageCount = async (): Promise<number> => {
   return (await page.$$('.bpw-chat-bubble')).length
 }
 
-const getLastMessage = async (page: Page): Promise<string> => {
-  const messages = await page.$$('.bpw-chat-bubble >div:last-child')
-  const jsHandle = await messages[0].getProperty('innerText')
-  return jsHandle.jsonValue()
-}
-
 describe('Module - Channel Web', () => {
-  let page: Page
-
-  beforeAll(async () => {
-    page = await getPage()
-  })
-
   it('Open chat window with shortlink', async () => {
     await gotoAndExpect(`${bpConfig.host}/s/${bpConfig.botId}`, `${bpConfig.host}/lite/${bpConfig.botId}/`)
   })
@@ -28,7 +14,6 @@ describe('Module - Channel Web', () => {
   it('Start conversation', async () => {
     await fillField('#input-message', 'Much automated!')
     await clickOn('#btn-send')
-    await page.waitFor(3000) // Deliberate wait in case the model needs to be trained (or qna/nlu tests in progress)
   })
 
   it('Testing Context discussion and Dropdown', async () => {
@@ -63,10 +48,9 @@ describe('Module - Channel Web', () => {
   })
 
   it('Create new conversation', async () => {
-    await page.waitFor(1000)
     await clickOn('#btn-conversations')
     await clickOn('#btn-convo-add')
-    await expect(await getMessageCount(page)).toBe(0)
+    await expect(getMessageCount()).resolves.toBe(0)
   })
 
   // puppetter doesn`t have a way of testing sound playback from javascript objects
