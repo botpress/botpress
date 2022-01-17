@@ -7,7 +7,7 @@ const NPS_KEY = 'bp/nps_after'
 
 const npsDisplayRequirements = {
   initialDelayMs: ms('5d'),
-  scoredDelayMs: ms('30d'),
+  scoredDelayMs: ms('90d'),
   promptedDelayMs: ms('2d')
 }
 
