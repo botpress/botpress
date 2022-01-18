@@ -14,7 +14,7 @@
     "version": "0.1.9"
   },
   "studio": {
-    "version": "dv_allow_disabling_file_listeners"
+    "devBranch": "refs_pull_242_merge"
   },
   "messaging": {
     "version": "0.1.18"
