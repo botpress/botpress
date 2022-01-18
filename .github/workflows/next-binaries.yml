@@ -17,7 +17,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@next
+        uses: actions/checkout@master
+        with:
+          path: next
 
       - uses: actions/setup-node@v2
         with:
@@ -48,10 +50,6 @@ jobs:
 
       - name: Create Archives
         run: yarn cmd archive
-
-      - name: Extract Informations
-        id: info
-        uses: botpress/gh-actions/extract_info@v1
 
       - name: Get current date
         id: date
