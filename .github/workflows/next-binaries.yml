@@ -1,7 +1,7 @@
-name: Release Binaries
+name: Publish Nightly Next Binaries
 on:
   schedule:
-    - cron: '0 23 * * *'
+    - cron: '0 22 * * *'
   workflow_dispatch:
     name:
       description: 'Name of the ouput file'
@@ -57,7 +57,7 @@ jobs:
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
 
-      - name: Publish Dev Binaries
+      - name: Publish
         env:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
