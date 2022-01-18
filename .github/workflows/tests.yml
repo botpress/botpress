@@ -4,10 +4,31 @@ jobs:
   unit:
     name: Unit
     runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12.18.1'
+          cache: 'yarn'
+      - name: Fetch Node Packages
+        run: |
+          yarn --frozen-lockfile
+      - name: Fetch Node Packages for module NLU
+        working-directory: ./modules/nlu
+        run: |
+          yarn --frozen-lockfile
+      - name: Run tests
+        run: |
+          yarn test:unit
+
+  integration:
+    name: Integration
+    runs-on: ubuntu-latest
 
     services:
       postgres:
-        image: postgres:9.6.10
+        image: postgres:12.9
         env:
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
@@ -46,7 +67,7 @@ jobs:
           yarn --frozen-lockfile
       - name: Run tests
         run: |
-          yarn test
+          yarn test:int
         env:
           PG_DB: postgres
           PG_USER: postgres
@@ -68,15 +89,89 @@ jobs:
         run: |
           yarn --frozen-lockfile
       - name: Build core, UI and modules
-        run: |
-          NODE_OPTIONS="--max-old-space-size=6000" yarn build
+        run: yarn build
+        env:
+          NODE_OPTIONS: '--max-old-space-size=6000'
       - name: Run Tests
         run: |
-          yarn start & sleep 5s &&
-          HEADLESS=true BP_LICENSE_KEY=${{ secrets.BP_LICENSE_KEY }} JEST_TIMEOUT=30000 yarn itest
+          yarn start & 
+          yarn test:e2e
+        env:
+          BP_LICENSE_KEY: ${{ secrets.BP_LICENSE_KEY }}
+          BP_CONFIG_PRO_ENABLED: true
+          HEADLESS: true
+          JEST_TIMEOUT: 30000
       - name: Upload Screenshots
         uses: actions/upload-artifact@master
         if: failure()
         with:
           name: screenshots
           path: build/tests/e2e/screenshots
+
+  e2e-windows:
+    name: e2e (windows-latest)
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+      - uses: actions/setup-node@v2
+        with:
+          node-version: '12.18.1'
+          cache: 'yarn'
+      - name: Fetch Node Packages
+        run: |
+          yarn --frozen-lockfile
+      - name: Build core, UI and modules
+        run: yarn build
+        env:
+          NODE_OPTIONS: '--max-old-space-size=6000'
+      - name: Run Tests
+        run: |
+          yarn start & 
+          yarn test:e2e
+        env:
+          BP_LICENSE_KEY: ${{ secrets.BP_LICENSE_KEY }}
+          BP_CONFIG_PRO_ENABLED: true
+          HEADLESS: true
+          JEST_TIMEOUT: 30000
+      - name: Upload Screenshots
+        uses: actions/upload-artifact@master
+        if: failure()
+        with:
+          name: screenshots
+          path: build/tests/e2e/screenshots
+# TODO: Fix the E2E tests on macos
+#  e2e-macos:
+#    name: e2e (macos-latest)
+#    runs-on: macos-latest
+#
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@master
+#      - uses: actions/setup-node@v2
+#        with:
+#          node-version: '12.18.1'
+#          cache: 'yarn'
+#      - name: Fetch Node Packages
+#        run: |
+#          yarn --frozen-lockfile
+#      - name: Build core, UI and modules
+#        run: yarn build
+#        env:
+#          NODE_OPTIONS: '--max-old-space-size=6000'
+#      - name: Run Tests
+#        run: |
+#          yarn start &
+#          yarn test:e2e
+#        env:
+#          BP_LICENSE_KEY: ${{ secrets.BP_LICENSE_KEY }}
+#          BP_CONFIG_PRO_ENABLED: true
+#          HEADLESS: true
+#          JEST_TIMEOUT: 30000
+#      - name: Upload Screenshots
+#        uses: actions/upload-artifact@master
+#        if: failure()
+#        with:
+#          name: screenshots
+#          path: build/tests/e2e/screenshots
