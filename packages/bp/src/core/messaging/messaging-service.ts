@@ -77,27 +77,8 @@ export class MessagingService {
       delete messaging.channels
     }
 
-    const webhookUrl = `${process.EXTERNAL_URL}/api/v1/chat/receive`
-    const setupConfig = {
-      name: botId,
-      ...messaging,
-      // We use the SPINNED_URL env var to force the messaging server to make its webhook
-      // requests to the process that started it when using a local Messaging server
-      webhooks: this.isExternal ? [{ url: webhookUrl }] : [{ url: 'local' }]
-    }
-
-    const { id, token, webhooks } = await this.messaging.sync(setupConfig)
-
-    let webhookToken: string | undefined = undefined
-    if (webhooks?.length) {
-      for (const webhook of webhooks) {
-        if (webhook.url === webhookUrl) {
-          webhookToken = webhook.token!
-        }
-      }
-    }
-
-    if (id && id !== messaging.id) {
+    const { id, token } = await this.messaging.syncClient({ name: botId, id: messaging.id, token: messaging.token })
+    if (id !== messaging.id || token !== messaging.token) {
       messaging = {
         ...messaging,
         id,
@@ -109,6 +90,27 @@ export class MessagingService {
 
     this.clientIdToBotId[id] = botId
     this.botIdToClientId[botId] = id
+    this.messaging.start(messaging.id!, { clientToken: messaging.token })
+
+    const webhookUrl = `${process.EXTERNAL_URL}/api/v1/chat/receive`
+    const setupConfig = {
+      channels: messaging.channels,
+      // We use the SPINNED_URL env var to force the messaging server to make its webhook
+      // requests to the process that started it when using a local Messaging server
+      webhooks: this.isExternal ? [{ url: webhookUrl }] : [{ url: 'local' }]
+    }
+
+    const { webhooks } = await this.messaging.sync(messaging.id!, setupConfig)
+
+    let webhookToken: string | undefined = undefined
+    if (webhooks?.length) {
+      for (const webhook of webhooks) {
+        if (webhook.url === webhookUrl) {
+          webhookToken = webhook.token!
+        }
+      }
+    }
+
     this.messaging.start(messaging.id!, { clientToken: messaging.token, webhookToken })
   }
 
@@ -123,13 +125,7 @@ export class MessagingService {
     delete this.clientIdToBotId[config.messaging.id]
     delete this.botIdToClientId[botId]
 
-    await this.messaging.sync({
-      id: config.messaging.id,
-      token: config.messaging.token,
-      name: botId,
-      channels: {},
-      webhooks: []
-    })
+    await this.messaging.sync(config.messaging.id, {})
   }
 
   informProcessingDone(event: IO.IncomingEvent) {
