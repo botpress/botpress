@@ -143,7 +143,7 @@ export default class WebchatDb {
         : `http://localhost:${process.MESSAGING_PORT}`,
       clientId: messaging.id,
       clientToken: messaging.token,
-      config: { headers: { password: process.INTERNAL_PASSWORD }, proxy: false }
+      axios: { headers: { password: process.INTERNAL_PASSWORD }, proxy: false }
     })
     this.messagingClients[botId] = botClient
 

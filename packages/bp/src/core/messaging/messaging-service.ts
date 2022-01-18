@@ -54,7 +54,11 @@ export class MessagingService {
       handler: this.handleOutgoingEvent.bind(this)
     })
 
-    this.messaging = new MessagingChannel({ url: this.getMessagingUrl(), config: this.getAxiosConfig() })
+    this.messaging = new MessagingChannel({
+      url: this.getMessagingUrl(),
+      adminKey: process.env.INTERNAL_PASSWORD,
+      axios: this.getAxiosConfig()
+    })
     this.messaging.on('user', this.handleUserNewEvent.bind(this))
     this.messaging.on('started', this.handleConversationStartedEvent.bind(this))
     this.messaging.on('message', this.handleMessageNewEvent.bind(this))
