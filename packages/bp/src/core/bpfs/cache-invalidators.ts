@@ -48,6 +48,7 @@ export namespace CacheInvalidators {
       this.cache = objectCache
 
       if (yn(process.core_env.CORE_DISABLE_FILE_LISTENERS)) {
+        console.log('-----------------------------------, Will not use file listerner for core')
         return
       }
 
