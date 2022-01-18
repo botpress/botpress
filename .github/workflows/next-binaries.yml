@@ -1,7 +1,7 @@
 name: Publish Nightly Next Binaries
 on:
   schedule:
-    - cron: '0 22 * * *'
+    - cron: '10 3 * * *'
   workflow_dispatch:
     name:
       description: 'Name of the ouput file'
