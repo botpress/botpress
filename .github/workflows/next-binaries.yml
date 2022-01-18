@@ -3,10 +3,11 @@ on:
   schedule:
     - cron: '10 3 * * *'
   workflow_dispatch:
-    name:
-      description: 'Name of the ouput file'
-      required: false
-      default: ''
+    inputs:
+      name:
+        description: 'Name of the ouput file'
+        required: false
+        default: ''
 
 # This workflow is mostly a copy of publish binaries
 # This is by choice as the next branch will eventually be merged in the master
