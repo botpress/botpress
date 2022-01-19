@@ -542,7 +542,7 @@ export default class Repository {
     let userId = userMapping?.userId
 
     const createUserAndMapping = async () => {
-      userId = (await messaging.users.create()).id
+      userId = (await messaging.createUser()).id
       await this.createUserMapping(botId, visitorId, userId)
     }
 
@@ -620,8 +620,9 @@ export default class Repository {
       url: process.core_env.MESSAGING_ENDPOINT
         ? process.core_env.MESSAGING_ENDPOINT
         : `http://localhost:${process.MESSAGING_PORT}`,
-      auth: { clientId: messaging.id, clientToken: messaging.token },
-      config: { headers: { password: process.INTERNAL_PASSWORD }, proxy: false }
+      clientId: messaging.id,
+      clientToken: messaging.token,
+      axios: { headers: { password: process.INTERNAL_PASSWORD }, proxy: false }
     })
     this.messagingClients[botId] = botClient
 
@@ -633,7 +634,7 @@ export default class Repository {
   }
 
   private async checkUserExist(userId: string, messaging: MessagingClient): Promise<boolean> {
-    const user = await messaging.users.get(userId)
+    const user = await messaging.getUser(userId)
 
     return user?.id === userId
   }

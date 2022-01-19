@@ -22,8 +22,7 @@
     "@blueprintjs/datetime": "^3.17.0",
     "bluebird": "^3.4.6",
     "bluebird-retry": "^0.8.0",
-    "dateformat": "^1.0.12",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "moment": "^2.16.0"
   },
   "resolutions": {

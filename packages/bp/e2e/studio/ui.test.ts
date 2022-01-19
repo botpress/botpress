@@ -1,6 +1,6 @@
-import { bpConfig } from '../../jest-puppeteer.config'
-import { clickOn, expectMatch } from '../expectPuppeteer'
-import { expectBotApiCallSuccess, gotoAndExpect, loginIfNeeded, triggerKeyboardShortcut } from '../utils'
+import { bpConfig } from '../assets/config'
+import { clickOn } from '../utils/expectPuppeteer'
+import { expectBotApiCallSuccess, gotoAndExpect, triggerKeyboardShortcut } from '../utils'
 
 describe('Studio - UI', () => {
   it('Open Studio', async () => {
@@ -8,34 +8,48 @@ describe('Studio - UI', () => {
   })
 
   it('Emulator window toggle properly with shortcut', async () => {
-    await page.waitFor(1000)
+    const webchatOpen = '#bp-widget.bp-widget-web.bp-widget-side.emulator'
+    const webchatClosed = '#bp-widget.bp-widget-web.bp-widget-widget.emulator.bp-widget-hidden'
+
+    await page.waitForSelector(webchatOpen)
+    await page.focus(webchatOpen)
     await page.keyboard.press('Escape')
+    await page.waitForSelector(webchatClosed)
+
     await page.focus('#mainLayout')
     await page.type('#mainLayout', 'e')
+    await page.waitForSelector(webchatOpen)
+
+    const frames = page.frames()
+    const iframe = frames.find(f => f.url().includes('/lite'))
+    if (!iframe) {
+      throw new Error('Webchat iframe not found!')
+    }
+    await iframe.waitForSelector('#input-message')
+
     await page.keyboard.type('Much automated!')
-    await Promise.all([expectBotApiCallSuccess('mod/channel-web/messages'), page.keyboard.press('Enter')])
+
+    await Promise.all([page.keyboard.press('Enter'), expectBotApiCallSuccess('mod/channel-web/messages')])
+
     await page.keyboard.press('Escape')
   })
 
-  if (process.platform === 'darwin') {
-    // TODO (1): Skip this test using native Jest features once https://github.com/facebook/jest/issues/8604 is resolved
-    // TODO (2): Activate this test once Puppeteer supports native shortcuts (e.g. `⌘ J`) on OS X
-    it.skip('Toggle Bottom using shortcut (SKIPPED ON MAC)', async () => {})
-  } else {
-    it('Toggle Bottom Panel using shortcut', async () => {
-      await page.focus('#mainLayout')
-      await triggerKeyboardShortcut('KeyJ', true)
-      const bottomPanel = await page.$('div[data-tab-id="debugger"]')
-      expect(await bottomPanel.isIntersectingViewport()).toBe(true)
-      await triggerKeyboardShortcut('KeyJ', true)
-    })
-  }
+  it('Toggle Bottom Panel using shortcut', async () => {
+    await page.focus('#mainLayout')
+    await triggerKeyboardShortcut('j', true, true)
+    const bottomPanel = await page.$('div[data-tab-id="debugger"]')
+
+    expect(await bottomPanel?.isIntersectingViewport()).toBe(true)
+    await triggerKeyboardShortcut('j', true, true)
+  })
 
   it('Toggles bottom panel using click toolbar menu', async () => {
     await page.focus('#mainLayout')
     await clickOn('#toggle-bottom-panel')
+
     const bottomPanel = await page.$('div[data-tab-id="debugger"]')
-    expect(await bottomPanel.isIntersectingViewport()).toBe(true)
+    expect(await bottomPanel?.isIntersectingViewport()).toBe(true)
+
     await clickOn('#toggle-bottom-panel')
   })
 
