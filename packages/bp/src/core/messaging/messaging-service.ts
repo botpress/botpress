@@ -62,6 +62,9 @@ export class MessagingService {
     this.messaging.on('user', this.handleUserNewEvent.bind(this))
     this.messaging.on('started', this.handleConversationStartedEvent.bind(this))
     this.messaging.on('message', this.handleMessageNewEvent.bind(this))
+
+    await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    this.messaging.url = this.getMessagingUrl()
   }
 
   async loadMessagingForBot(botId: string) {
@@ -101,7 +104,10 @@ export class MessagingService {
       channels: messaging.channels,
       // We use the SPINNED_URL env var to force the messaging server to make its webhook
       // requests to the process that started it when using a local Messaging server
-      webhooks: this.isExternal ? [{ url: webhookUrl }] : [{ url: 'local' }]
+      webhooks: this.isExternal
+        ? [{ url: webhookUrl }]
+        : // We pass a dummy url to get back a webhook token. When SPINNED_URL is set, that url will be used instead of this dummy one
+          [{ url: 'http://dummy.com' }]
     }
 
     const { webhooks } = await this.messaging.sync(messaging.id!, setupConfig)
