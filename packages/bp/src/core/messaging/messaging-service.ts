@@ -1,4 +1,4 @@
-import { MessagingClient, uuid } from '@botpress/messaging-client'
+import { ConversationStartedEvent, MessageNewEvent, MessagingChannel, uuid } from '@botpress/messaging-client'
 import { AxiosRequestConfig } from 'axios'
 import { IO, Logger, MessagingConfig } from 'botpress/sdk'
 import { formatUrl, isBpUrl } from 'common/url'
@@ -10,14 +10,12 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import LRUCache from 'lru-cache'
 import ms from 'ms'
 import yn from 'yn'
-import { MessageNewEventData, ConversationStartedEventData } from './messaging-router'
 
 @injectable()
 export class MessagingService {
-  private clientSync!: MessagingClient
-  private clientsByBotId: { [botId: string]: MessagingClient } = {}
-  private botsByClientId: { [clientId: string]: string } = {}
-  private webhookTokenByClientId: { [botId: string]: string } = {}
+  public messaging!: MessagingChannel
+  private botIdToClientId: { [botId: string]: uuid } = {}
+  private clientIdToBotId: { [clientId: uuid]: string } = {}
   private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
   private newUsers: number = 0
   private collectingCache: LRUCache<string, uuid>
@@ -56,9 +54,17 @@ export class MessagingService {
       handler: this.handleOutgoingEvent.bind(this)
     })
 
-    await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    this.messaging = new MessagingChannel({
+      url: this.getMessagingUrl(),
+      adminKey: process.env.INTERNAL_PASSWORD,
+      axios: this.getAxiosConfig()
+    })
+    this.messaging.on('user', this.handleUserNewEvent.bind(this))
+    this.messaging.on('started', this.handleConversationStartedEvent.bind(this))
+    this.messaging.on('message', this.handleMessageNewEvent.bind(this))
 
-    this.clientSync = new MessagingClient({ url: this.getMessagingUrl(), config: this.getAxiosConfig() })
+    await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    this.messaging.url = this.getMessagingUrl()
   }
 
   async loadMessagingForBot(botId: string) {
@@ -69,35 +75,17 @@ export class MessagingService {
 
     const messagingId = messaging.id || ''
     // ClientId is already used by another botId, we will generate new credentials for this bot
-    if (this.botsByClientId[messagingId] && this.botsByClientId[messagingId] !== botId) {
+    if (this.clientIdToBotId[messagingId] && this.clientIdToBotId[messagingId] !== botId) {
       this.logger.warn(
-        `ClientId ${messagingId} already in use by bot ${this.botsByClientId[messagingId]}. Removing channels configuration and generating new credentials for bot ${botId}`
+        `ClientId ${messagingId} already in use by bot ${this.clientIdToBotId[messagingId]}. Removing channels configuration and generating new credentials for bot ${botId}`
       )
       delete messaging.id
       delete messaging.token
       delete messaging.channels
     }
 
-    const webhookUrl = `${process.EXTERNAL_URL}/api/v1/chat/receive`
-    const setupConfig = {
-      name: botId,
-      ...messaging,
-      // We use the SPINNED_URL env var to force the messaging server to make its webhook
-      // requests to the process that started it when using a local Messaging server
-      webhooks: this.isExternal ? [{ url: webhookUrl }] : []
-    }
-
-    const { id, token, webhooks } = await this.clientSync.syncs.sync(setupConfig)
-
-    if (webhooks?.length) {
-      for (const webhook of webhooks) {
-        if (webhook.url === webhookUrl) {
-          this.webhookTokenByClientId[id] = webhook.token!
-        }
-      }
-    }
-
-    if (id && id !== messaging.id) {
+    const { id, token } = await this.messaging.syncClient({ name: botId, id: messaging.id, token: messaging.token })
+    if (id !== messaging.id || token !== messaging.token) {
       messaging = {
         ...messaging,
         id,
@@ -107,13 +95,31 @@ export class MessagingService {
       await this.configProvider.mergeBotConfig(botId, { messaging })
     }
 
-    const botClient = new MessagingClient({
-      url: this.getMessagingUrl(),
-      auth: { clientId: messaging.id!, clientToken: messaging.token! },
-      config: this.getAxiosConfig()
-    })
-    this.clientsByBotId[botId] = botClient
-    this.botsByClientId[id] = botId
+    this.clientIdToBotId[id] = botId
+    this.botIdToClientId[botId] = id
+    this.messaging.start(messaging.id!, { clientToken: messaging.token })
+
+    const webhookUrl = this.isExternal
+      ? `${process.EXTERNAL_URL}/api/v1/chat/receive`
+      : // We set a dummy webhook to get back a webhook token. The actual url that will be called is SPINNED_URL
+        'http://dummy.com'
+    const setupConfig = {
+      channels: messaging.channels,
+      webhooks: [{ url: webhookUrl }]
+    }
+
+    const { webhooks } = await this.messaging.sync(messaging.id!, setupConfig)
+
+    let webhookToken: string | undefined = undefined
+    if (webhooks?.length) {
+      for (const webhook of webhooks) {
+        if (webhook.url === webhookUrl) {
+          webhookToken = webhook.token!
+        }
+      }
+    }
+
+    this.messaging.start(messaging.id!, { clientToken: messaging.token, webhookToken })
   }
 
   async unloadMessagingForBot(botId: string) {
@@ -124,42 +130,34 @@ export class MessagingService {
       return
     }
 
-    delete this.botsByClientId[config.messaging.id]
+    delete this.clientIdToBotId[config.messaging.id]
+    delete this.botIdToClientId[botId]
 
-    await this.clientSync.syncs.sync({
-      id: config.messaging.id,
-      token: config.messaging.token,
-      name: botId,
-      channels: {},
-      webhooks: []
-    })
+    await this.messaging.sync(config.messaging.id, {})
   }
 
-  async receive(msg: MessageNewEventData) {
-    if (!this.channelNames.includes(msg.channel)) {
-      return
+  informProcessingDone(event: IO.IncomingEvent) {
+    if (this.collectingCache.get(event.id!)) {
+      // We don't want the waiting for the queue to be empty to freeze other messages
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.sendProcessingDone(event)
     }
-
-    const event = Event({
-      direction: 'incoming',
-      type: msg.message.payload.type,
-      payload: msg.message.payload,
-      channel: msg.channel,
-      threadId: msg.conversationId,
-      target: msg.userId,
-      messageId: msg.message.id,
-      botId: this.botsByClientId[msg.clientId]
-    })
-
-    if (msg.collect) {
-      this.collectingCache.set(event.id, msg.message.id)
-    }
-
-    return this.eventEngine.sendEvent(event)
   }
 
-  async conversationStarted(msg: ConversationStartedEventData) {
-    if (!this.channelNames.includes(msg.channel)) {
+  getNewUsersCount({ resetCount }: { resetCount: boolean }) {
+    const count = this.newUsers
+    if (resetCount) {
+      this.newUsers = 0
+    }
+    return count
+  }
+
+  private handleUserNewEvent() {
+    this.newUsers++
+  }
+
+  private async handleConversationStartedEvent(clientId: uuid, data: ConversationStartedEvent) {
+    if (!this.channelNames.includes(data.channel)) {
       return
     }
 
@@ -167,11 +165,34 @@ export class MessagingService {
       direction: 'incoming',
       type: 'proactive-trigger',
       payload: {},
-      channel: msg.channel,
-      threadId: msg.conversationId,
-      target: msg.userId,
-      botId: this.botsByClientId[msg.clientId]
+      channel: data.channel,
+      threadId: data.conversationId,
+      target: data.userId,
+      botId: this.clientIdToBotId[clientId]
     })
+
+    return this.eventEngine.sendEvent(event)
+  }
+
+  private async handleMessageNewEvent(clientId: uuid, data: MessageNewEvent) {
+    if (!this.channelNames.includes(data.channel)) {
+      return
+    }
+
+    const event = Event({
+      direction: 'incoming',
+      type: data.message.payload.type,
+      payload: data.message.payload,
+      channel: data.channel,
+      threadId: data.conversationId,
+      target: data.userId,
+      messageId: data.message.id,
+      botId: this.clientIdToBotId[clientId]
+    })
+
+    if (data.collect) {
+      this.collectingCache.set(event.id, data.message.id)
+    }
 
     return this.eventEngine.sendEvent(event)
   }
@@ -187,7 +208,8 @@ export class MessagingService {
     }
 
     const collecting = event.incomingEventId && this.collectingCache.get(event.incomingEventId)
-    const message = await this.clientsByBotId[event.botId].messages.create(
+    const message = await this.messaging.createMessage(
+      this.botIdToClientId[event.botId],
       event.threadId!,
       undefined,
       event.payload,
@@ -198,18 +220,10 @@ export class MessagingService {
     return next(undefined, true, false)
   }
 
-  public informProcessingDone(event: IO.IncomingEvent) {
-    if (this.collectingCache.get(event.id!)) {
-      // We don't want the waiting for the queue to be empty to freeze other messages
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.sendProcessingDone(event)
-    }
-  }
-
   private async sendProcessingDone(event: IO.IncomingEvent) {
     try {
       await this.eventEngine.waitOutgoingQueueEmpty(event)
-      await this.clientsByBotId[event.botId].messages.endTurn(event.messageId!)
+      await this.messaging.endTurn(this.botIdToClientId[event.botId], event.messageId!)
     } catch (e) {
       this.logger.attachError(e).error('Failed to inform messaging of completed processing')
     } finally {
@@ -242,34 +256,18 @@ export class MessagingService {
     return payload
   }
 
-  public getMessagingUrl() {
+  private getMessagingUrl() {
     return process.core_env.MESSAGING_ENDPOINT
       ? process.core_env.MESSAGING_ENDPOINT
       : `http://localhost:${process.MESSAGING_PORT}`
   }
 
-  public getWebhookToken(clientId: string) {
-    return this.webhookTokenByClientId[clientId]
-  }
-
-  public getNewUsersCount({ resetCount }: { resetCount: boolean }) {
-    const count = this.newUsers
-    if (resetCount) {
-      this.newUsers = 0
-    }
-    return count
-  }
-
-  public incrementNewUsersCount() {
-    this.newUsers++
-  }
-
-  private getAxiosConfig(): AxiosRequestConfig {
+  public getAxiosConfig(): AxiosRequestConfig {
     const config: AxiosRequestConfig = {}
 
     if (!this.isExternal) {
       config.proxy = false
-      config.headers = { password: process.INTERNAL_PASSWORD }
+      config.headers = { password: process.env.INTERNAL_PASSWORD }
     }
 
     return config

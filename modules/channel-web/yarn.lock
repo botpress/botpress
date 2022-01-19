@@ -45,18 +45,19 @@
     "@babel/helper-validator-identifier" "^7.14.9"
     to-fast-properties "^2.0.0"
 
-"@botpress/messaging-base@0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-0.0.1.tgz#1e1347262e4c5f70d73ba62b8a62b9d9576e3c16"
-  integrity sha512-J52YtTu0OxElZUJwtfx8NSVFlTGyZVXGppWgdgckHRa6mAf+8DY3gCkDpG34Elic9Uygz3L0+3HebvgSk6Y3CA==
+"@botpress/messaging-base@0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-0.0.2.tgz#3e8129130f326894f1615305ddf36357f90478a2"
+  integrity sha512-YZwHLMqJtsv/4v6Ss+h+pBJm9gjCvu737lDv8JGfD2gWVT/PCfh32YAaN11CSyuVW0vD4tA1NPXaHRKOmbD28Q==
 
-"@botpress/messaging-client@0.0.9":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-0.0.9.tgz#46e4ce068a0de71ca8f79a366e2a7bee1bc748fd"
-  integrity sha512-G4/nJ/gI73KiA7tN+EDAglY2pnliZuv6/QQy/DmcyKZGGgv/VACnpzU4+t2L7jo+08vRrJOF6+fLL3VjNpKYDA==
+"@botpress/messaging-client@^0.0.14":
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-0.0.14.tgz#deb3675af1e0760e240b63ea9b54aea460133e0d"
+  integrity sha512-oXvvBZU0+aAnSHnar8d4PVOxY3cauWNmt74LKtZGDuHTZb3appIyuzj/Y5z4srDAG/nubuR9mc7W/5xZsQCzaQ==
   dependencies:
-    "@botpress/messaging-base" "0.0.1"
-    axios "^0.21.1"
+    "@botpress/messaging-base" "0.0.2"
+    axios "^0.21.4"
+    joi "^17.5.0"
 
 "@emotion/babel-utils@^0.6.4":
   version "0.6.10"
@@ -105,10 +106,39 @@
   resolved "https://registry.npmjs.org/@emotion/utils/-/utils-0.8.2.tgz#576ff7fb1230185b619a75d258cbc98f0867a8dc"
   integrity sha512-rLu3wcBWH4P5q1CGoSSH/i9hrXs7SlbRLkoq9IGuoPYNGQvDJ3pt/wmOM+XgYjIDRMVIdkUWt0RsfzF50JfnCw==
 
+"@hapi/hoek@^9.0.0":
+  version "9.2.1"
+  resolved "https://registry.yarnpkg.com/@hapi/hoek/-/hoek-9.2.1.tgz#9551142a1980503752536b5050fd99f4a7f13b17"
+  integrity sha512-gfta+H8aziZsm8pZa0vj04KO6biEiisppNgA1kbJvFrrWu9Vm7eaUEy76DIxsuTaWvti5fkJVhllWc6ZTE+Mdw==
+
+"@hapi/topo@^5.0.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@hapi/topo/-/topo-5.1.0.tgz#dc448e332c6c6e37a4dc02fd84ba8d44b9afb012"
+  integrity sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==
+  dependencies:
+    "@hapi/hoek" "^9.0.0"
+
 "@juggle/resize-observer@^3.0.2":
   version "3.0.2"
   resolved "https://registry.yarnpkg.com/@juggle/resize-observer/-/resize-observer-3.0.2.tgz#f4f326806826c0da5221411374e4c54902c327bb"
   integrity sha512-9fEfZIxZ1qTahMSX50pigfSJ/1N6X2oABhmgd4Dt2SsPkZi0lTlvoHu5V2yrGZ6m+oALfS4tJrpx9nbVIxwOYQ==
+
+"@sideway/address@^4.1.3":
+  version "4.1.3"
+  resolved "https://registry.yarnpkg.com/@sideway/address/-/address-4.1.3.tgz#d93cce5d45c5daec92ad76db492cc2ee3c64ab27"
+  integrity sha512-8ncEUtmnTsMmL7z1YPB47kPUq7LpKWJNFPsRzHiIajGC5uXlWGn+AmkYPcHNl8S4tcEGx+cnORnNYaw2wvL+LQ==
+  dependencies:
+    "@hapi/hoek" "^9.0.0"
+
+"@sideway/formula@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@sideway/formula/-/formula-3.0.0.tgz#fe158aee32e6bd5de85044be615bc08478a0a13c"
+  integrity sha512-vHe7wZ4NOXVfkoRb8T5otiENVlT7a3IAiw7H5M2+GO+9CDgcVUUsX1zalAztCmwyOr2RUTGJdgB+ZvSVqmdHmg==
+
+"@sideway/pinpoint@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@sideway/pinpoint/-/pinpoint-2.0.0.tgz#cff8ffadc372ad29fd3f78277aeb29e632cc70df"
+  integrity sha512-RNiOoTPkptFtSVzQevY/yWtZwf/RxyVnPy/OcA9HBM3MlGDnBEYL5B41H0MTn0Uec8Hi+2qUtTfG2WWZBmMejQ==
 
 "@types/apicache@^1.2.2":
   version "1.2.2"
@@ -296,6 +326,13 @@ axios@^0.21.1:
   integrity sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
   dependencies:
     follow-redirects "^1.10.0"
+
+axios@^0.21.4:
+  version "0.21.4"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
+  integrity sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==
+  dependencies:
+    follow-redirects "^1.14.0"
 
 babel-plugin-emotion@^9.2.11:
   version "9.2.11"
@@ -558,7 +595,7 @@ find-root@^1.1.0:
   resolved "https://registry.npmjs.org/find-root/-/find-root-1.1.0.tgz#abcfc8ba76f708c42a97b3d685b7e9450bfb9ce4"
   integrity sha512-NKfW6bec6GfKc0SGx1e07QZY9PE99u0Bft/0rzSD5k3sO/vwkVUpDUKVm5Gpp5Ue3YfShPFTX2070tDs5kB9Ng==
 
-follow-redirects@^1.10.0:
+follow-redirects@^1.10.0, follow-redirects@^1.14.0:
   version "1.14.7"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.7.tgz#2004c02eb9436eee9a21446a6477debf17e81685"
   integrity sha512-+hbxoLbFMbRKDwohX8GkTataGqO6Jb7jGwpAlwgy2bIz25XtRm7KEzJM76R1WiNT5SwZkX4Y75SwBolkpmE7iQ==
@@ -738,6 +775,17 @@ jmespath@0.15.0:
   version "0.15.0"
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
   integrity sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=
+
+joi@^17.5.0:
+  version "17.5.0"
+  resolved "https://registry.yarnpkg.com/joi/-/joi-17.5.0.tgz#7e66d0004b5045d971cf416a55fb61d33ac6e011"
+  integrity sha512-R7hR50COp7StzLnDi4ywOXHrBrgNXuUUfJWIR5lPY5Bm/pOD3jZaTwpluUXVLRWcoWZxkrHBBJ5hLxgnlehbdw==
+  dependencies:
+    "@hapi/hoek" "^9.0.0"
+    "@hapi/topo" "^5.0.0"
+    "@sideway/address" "^4.1.3"
+    "@sideway/formula" "^3.0.0"
+    "@sideway/pinpoint" "^2.0.0"
 
 "js-tokens@^3.0.0 || ^4.0.0", js-tokens@^4.0.0:
   version "4.0.0"
