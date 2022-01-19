@@ -59,7 +59,7 @@ describe('Admin - Bot Management', () => {
     await fillField('#input-bot-name', tempBotId)
 
     await clickOn('#select-bot-templates')
-    await page.type('#select-bot-templates', 'Small Talk')
+    await page.keyboard.type('Small Talk')
     await page.keyboard.press('Enter')
 
     await clickOn('#btn-modal-create-bot')

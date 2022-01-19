@@ -26,7 +26,7 @@ describe('Admin - Init', () => {
       await fillField('#input-bot-name', bpConfig.botId)
 
       await clickOn('#select-bot-templates')
-      await fillField('#select-bot-templates', 'Welcome Bot')
+      await page.keyboard.type('Welcome Bot')
       await page.keyboard.press('Enter')
 
       await Promise.all([clickOn('#btn-modal-create-bot'), expectAdminApiCallSuccess('workspace/bots', 'POST')])
