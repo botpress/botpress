@@ -34,18 +34,19 @@
     classnames "^2.2"
     tslib "~1.13.0"
 
-"@botpress/messaging-base@0.0.1":
-  version "0.0.1"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-0.0.1.tgz#1e1347262e4c5f70d73ba62b8a62b9d9576e3c16"
-  integrity sha512-J52YtTu0OxElZUJwtfx8NSVFlTGyZVXGppWgdgckHRa6mAf+8DY3gCkDpG34Elic9Uygz3L0+3HebvgSk6Y3CA==
+"@botpress/messaging-base@0.0.2":
+  version "0.0.2"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-0.0.2.tgz#3e8129130f326894f1615305ddf36357f90478a2"
+  integrity sha512-YZwHLMqJtsv/4v6Ss+h+pBJm9gjCvu737lDv8JGfD2gWVT/PCfh32YAaN11CSyuVW0vD4tA1NPXaHRKOmbD28Q==
 
-"@botpress/messaging-client@0.0.9":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-0.0.9.tgz#46e4ce068a0de71ca8f79a366e2a7bee1bc748fd"
-  integrity sha512-G4/nJ/gI73KiA7tN+EDAglY2pnliZuv6/QQy/DmcyKZGGgv/VACnpzU4+t2L7jo+08vRrJOF6+fLL3VjNpKYDA==
+"@botpress/messaging-client@^0.0.14":
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-0.0.14.tgz#deb3675af1e0760e240b63ea9b54aea460133e0d"
+  integrity sha512-oXvvBZU0+aAnSHnar8d4PVOxY3cauWNmt74LKtZGDuHTZb3appIyuzj/Y5z4srDAG/nubuR9mc7W/5xZsQCzaQ==
   dependencies:
-    "@botpress/messaging-base" "0.0.1"
-    axios "^0.21.1"
+    "@botpress/messaging-base" "0.0.2"
+    axios "^0.21.4"
+    joi "^17.5.0"
 
 "@hapi/hoek@^9.0.0":
   version "9.1.1"
@@ -63,6 +64,13 @@
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/@sideway/address/-/address-4.1.0.tgz#0b301ada10ac4e0e3fa525c90615e0b61a72b78d"
   integrity sha512-wAH/JYRXeIFQRsxerIuLjgUu2Xszam+O5xKeatJ4oudShOOirfmsQ1D6LL54XOU2tizpCYku+s1wmU0SYdpoSA==
+  dependencies:
+    "@hapi/hoek" "^9.0.0"
+
+"@sideway/address@^4.1.3":
+  version "4.1.3"
+  resolved "https://registry.yarnpkg.com/@sideway/address/-/address-4.1.3.tgz#d93cce5d45c5daec92ad76db492cc2ee3c64ab27"
+  integrity sha512-8ncEUtmnTsMmL7z1YPB47kPUq7LpKWJNFPsRzHiIajGC5uXlWGn+AmkYPcHNl8S4tcEGx+cnORnNYaw2wvL+LQ==
   dependencies:
     "@hapi/hoek" "^9.0.0"
 
@@ -94,7 +102,7 @@
     custom-event "^1.0.1"
     textarea-caret "3.0.2"
 
-axios@^0.21.1:
+axios@^0.21.1, axios@^0.21.4:
   version "0.21.4"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
   integrity sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==
@@ -371,6 +379,17 @@ joi@^17:
     "@hapi/hoek" "^9.0.0"
     "@hapi/topo" "^5.0.0"
     "@sideway/address" "^4.1.0"
+    "@sideway/formula" "^3.0.0"
+    "@sideway/pinpoint" "^2.0.0"
+
+joi@^17.5.0:
+  version "17.5.0"
+  resolved "https://registry.yarnpkg.com/joi/-/joi-17.5.0.tgz#7e66d0004b5045d971cf416a55fb61d33ac6e011"
+  integrity sha512-R7hR50COp7StzLnDi4ywOXHrBrgNXuUUfJWIR5lPY5Bm/pOD3jZaTwpluUXVLRWcoWZxkrHBBJ5hLxgnlehbdw==
+  dependencies:
+    "@hapi/hoek" "^9.0.0"
+    "@hapi/topo" "^5.0.0"
+    "@sideway/address" "^4.1.3"
     "@sideway/formula" "^3.0.0"
     "@sideway/pinpoint" "^2.0.0"
 

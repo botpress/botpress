@@ -30,7 +30,15 @@ export default async (bp: typeof sdk, db: Database) => {
       return next()
     }
     const { visitorId } = mapping
-    const conversationId = event.threadId || (await messaging.conversations.getRecent(userId)).id
+    let conversationId = event.threadId
+    if (!conversationId) {
+      const convs = await messaging.listConversations(userId, 1)
+      if (convs?.length) {
+        conversationId = convs[0].id
+      } else {
+        conversationId = (await messaging.createConversation(userId)).id
+      }
+    }
 
     if (!event.payload.type) {
       event.payload.type = messageType
@@ -48,7 +56,7 @@ export default async (bp: typeof sdk, db: Database) => {
       }
 
       if (event.payload.type !== 'typing') {
-        const message = await messaging.messages.create(conversationId, undefined, event.payload)
+        const message = await messaging.createMessage(conversationId, undefined, event.payload)
         event.messageId = message.id
         bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.message', message))
       }
