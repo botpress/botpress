@@ -99,15 +99,13 @@ export class MessagingService {
     this.botIdToClientId[botId] = id
     this.messaging.start(messaging.id!, { clientToken: messaging.token })
 
-    const webhookUrl = `${process.EXTERNAL_URL}/api/v1/chat/receive`
+    const webhookUrl = this.isExternal
+      ? `${process.EXTERNAL_URL}/api/v1/chat/receive`
+      : // We set a dummy webhook to get back a webhook token. The actual url that will be called is SPINNED_URL
+        'http://dummy.com'
     const setupConfig = {
       channels: messaging.channels,
-      // We use the SPINNED_URL env var to force the messaging server to make its webhook
-      // requests to the process that started it when using a local Messaging server
-      webhooks: this.isExternal
-        ? [{ url: webhookUrl }]
-        : // We pass a dummy url to get back a webhook token. When SPINNED_URL is set, that url will be used instead of this dummy one
-          [{ url: 'http://dummy.com' }]
+      webhooks: [{ url: webhookUrl }]
     }
 
     const { webhooks } = await this.messaging.sync(messaging.id!, setupConfig)
