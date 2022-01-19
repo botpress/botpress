@@ -39,10 +39,10 @@
   resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-0.0.2.tgz#3e8129130f326894f1615305ddf36357f90478a2"
   integrity sha512-YZwHLMqJtsv/4v6Ss+h+pBJm9gjCvu737lDv8JGfD2gWVT/PCfh32YAaN11CSyuVW0vD4tA1NPXaHRKOmbD28Q==
 
-"@botpress/messaging-client@^0.0.13":
-  version "0.0.13"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-0.0.13.tgz#ae1aa1847712f00f7b2a30e3f66153a9247ac809"
-  integrity sha512-qJfjkvl/sVNx74SK4RviKAcadhux+fVyCJDPnJvKnEp0BLEgqnROXcZkxJSb/lFtRVOa1aCqZQCZG02LaDKTuA==
+"@botpress/messaging-client@^0.0.14":
+  version "0.0.14"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-0.0.14.tgz#deb3675af1e0760e240b63ea9b54aea460133e0d"
+  integrity sha512-oXvvBZU0+aAnSHnar8d4PVOxY3cauWNmt74LKtZGDuHTZb3appIyuzj/Y5z4srDAG/nubuR9mc7W/5xZsQCzaQ==
   dependencies:
     "@botpress/messaging-base" "0.0.2"
     axios "^0.21.4"
