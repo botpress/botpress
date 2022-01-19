@@ -103,7 +103,9 @@
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.21"
+    "lodash": ">=4.17.21",
+    "@types/joi": "^13.4.5",
+    "joi": "^13.6.0"
   },
   "devDependencies": {},
   "optionalDependencies": {

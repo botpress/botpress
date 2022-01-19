@@ -66,9 +66,7 @@
     "@jest/types": ">=27.4.2",
     "@types/jest": ">=27.4.0",
     "@types/puppeteer": ">=5.4.4",
-    "jest-circus": ">=27.4.6",
-    "@types/joi": "^13.4.5",
-    "joi": "^13.6.0"
+    "jest-circus": ">=27.4.6"
   },
   "devDependencies": {
     "@commitlint/cli": "^7.2.1",
