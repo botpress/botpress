@@ -478,7 +478,7 @@ export class ScopedGhostService {
       await this._assertBotUnlocked(rootFolder)
     }
 
-    await Promise.all(content.map(c => this.upsertFile(rootFolder, c.name, c.content)))
+    await Promise.all(content.map(c => this.upsertFile(rootFolder, c.name, c.content, options)))
   }
 
   /**

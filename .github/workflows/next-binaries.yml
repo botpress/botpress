@@ -3,10 +3,11 @@ on:
   schedule:
     - cron: '10 3 * * *'
   workflow_dispatch:
-    name:
-      description: 'Name of the ouput file'
-      required: false
-      default: ''
+    inputs:
+      name:
+        description: 'Name of the ouput file'
+        required: false
+        default: ''
 
 # This workflow is mostly a copy of publish binaries
 # This is by choice as the next branch will eventually be merged in the master
@@ -17,7 +18,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@next
+        uses: actions/checkout@master
+        with:
+          ref: next
 
       - uses: actions/setup-node@v2
         with:
@@ -49,10 +52,6 @@ jobs:
       - name: Create Archives
         run: yarn cmd archive
 
-      - name: Extract Informations
-        id: info
-        uses: botpress/gh-actions/extract_info@v1
-
       - name: Get current date
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
@@ -62,4 +61,4 @@ jobs:
           AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
-          aws s3 sync packages/bp/archives s3://botpress-next-bins/${{ github.event.inputs.name || "nightly-" + steps.date.outputs.date }}
+          aws s3 sync packages/bp/archives s3://botpress-next-bins/${{ github.event.inputs.name ||  format('nightly-{0}', steps.date.outputs.date) }}

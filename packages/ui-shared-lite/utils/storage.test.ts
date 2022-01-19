@@ -8,7 +8,7 @@ const NULL_VALUES = [null, undefined]
 let CIRCULAR_OBJ = {}
 CIRCULAR_OBJ['CIRCULAR_OBJ'] = CIRCULAR_OBJ
 
-const cases = [
+const cases: (string | boolean | null)[][] = [
   ['sessionStorage', true],
   ['localStorage', false],
   ['cookie', null]
@@ -47,23 +47,21 @@ describe('Storage', () => {
         expect(undefinedValue).toBeUndefined()
       })
 
-      it('Returns the value parsed if it exists', done => {
+      it('Returns the value parsed if it exists', () => {
         storage.set(KEY, VALUE)
 
         const result = storage.get<typeof VALUE>(KEY)
 
         expect(result).toEqual(VALUE)
-        done()
       })
 
-      it('Returns all kind of stored values', done => {
+      it('Returns all kind of stored values', () => {
         for (const val of VALUES) {
           storage.set(KEY, val)
 
           const result = storage.get<typeof val>(KEY)
 
           expect(result).toEqual(val)
-          done()
         }
       })
     })
@@ -129,7 +127,7 @@ describe('Storage', () => {
         window.USE_SESSION_STORAGE = useSessionStorage as boolean
       })
 
-      it('Removes the value from its storage', done => {
+      it('Removes the value from its storage', () => {
         storage.set(KEY, VALUE)
 
         let result = storage.get<typeof VALUE>(KEY)
@@ -139,8 +137,6 @@ describe('Storage', () => {
 
         result = storage.get<typeof VALUE>(KEY)
         expect(result).toBeUndefined()
-
-        done()
       })
 
       it('Does nothing if the key does not exist', () => {
