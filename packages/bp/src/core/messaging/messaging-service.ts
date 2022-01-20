@@ -56,19 +56,23 @@ export class MessagingService {
 
     this.messaging = new MessagingChannel({
       url: this.getMessagingUrl(),
-      adminKey: process.env.INTERNAL_PASSWORD,
-      axios: this.getAxiosConfig()
+      axios: this.getAxiosConfig(),
+      adminKey: this.isExternal ? process.env.MESSAGING_ADMIN_KEY : process.env.INTERNAL_PASSWORD
     })
     this.messaging.on('user', this.handleUserNewEvent.bind(this))
     this.messaging.on('started', this.handleConversationStartedEvent.bind(this))
     this.messaging.on('message', this.handleMessageNewEvent.bind(this))
 
-    await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    if (!this.isExternal) {
+      await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    }
     this.messaging.url = this.getMessagingUrl()
   }
 
   async loadMessagingForBot(botId: string) {
-    await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    if (!this.isExternal) {
+      await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    }
 
     const config = await this.configProvider.getBotConfig(botId)
     let messaging = (config.messaging || {}) as Partial<MessagingConfig>
@@ -123,7 +127,9 @@ export class MessagingService {
   }
 
   async unloadMessagingForBot(botId: string) {
-    await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    if (!this.isExternal) {
+      await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
+    }
 
     const config = await this.configProvider.getBotConfig(botId)
     if (!config.messaging?.id) {
@@ -262,7 +268,7 @@ export class MessagingService {
       : `http://localhost:${process.MESSAGING_PORT}`
   }
 
-  public getAxiosConfig(): AxiosRequestConfig {
+  private getAxiosConfig(): AxiosRequestConfig {
     const config: AxiosRequestConfig = {}
 
     if (!this.isExternal) {
