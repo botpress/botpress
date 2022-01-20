@@ -65,9 +65,15 @@ export class MessagingService {
     const config = await this.configProvider.getBotConfig(botId)
     const messaging = (config.messaging || {}) as Partial<MessagingConfig>
 
+    this.messaging.start(messaging.id!, { clientToken: messaging.token })
+    const { webhooks } = await this.messaging.sync(messaging.id!, {
+      channels: messaging.channels,
+      webhooks: [{ url: `${process.EXTERNAL_URL}/api/v1/chat/receive` }]
+    })
+
     this.clientIdToBotId[messaging.id!] = botId
     this.botIdToClientId[botId] = messaging.id!
-    this.messaging.start(messaging.id!, { clientToken: messaging.token, webhookToken: messaging.webhookToken })
+    this.messaging.start(messaging.id!, { clientToken: messaging.token, webhookToken: webhooks[0].token })
   }
 
   async unloadMessagingForBot(botId: string) {
