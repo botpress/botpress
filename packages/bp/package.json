@@ -53,7 +53,6 @@
     "https-proxy-agent": "^2.2.3",
     "intl-messageformat": "^2.2.0",
     "inversify": "^4.13.0",
-    "joi": "^13.6.0",
     "json-schema-defaults": "^0.4.0",
     "jsonlint-mod": "^1.7.5",
     "jsonwebtoken": "^8.5.1",
@@ -104,7 +103,9 @@
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.21"
+    "lodash": ">=4.17.21",
+    "@types/joi": "^13.4.5",
+    "joi": "^13.6.0"
   },
   "devDependencies": {},
   "optionalDependencies": {
