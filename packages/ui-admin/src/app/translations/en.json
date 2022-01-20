@@ -180,7 +180,7 @@
       "button": "Submit Comment",
       "error": "Could not sent the comment to botpress",
       "feedback": "Thank you for your feedback!",
-      "helper": "Tell us all the detail",
+      "helper": "Tell us all the details.",
       "modalTitle": "Type your comment:",
       "moreContent": "Provide Additional Feedback",
       "question": "How likely are you to recommend us to your friends and colleagues?",
