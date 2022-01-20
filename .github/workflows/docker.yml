@@ -81,10 +81,9 @@ jobs:
           token: ${{ secrets.BOTPRESSOPS_PAT }}
       - uses: actions/checkout@v2
         with:
-          repository: botpress/actions
-          token: ${{ secrets.BOTPRESSOPS_PAT }}
-          path: "@actions"
-      - uses: ./@actions/build/docker
+          repository: botpress/gh-actions
+          path: "@gh-actions"
+      - uses: ./@gh-actions/build/docker
         with:
           dockerfile: Dockerfile-runtime
           repository: runtime
