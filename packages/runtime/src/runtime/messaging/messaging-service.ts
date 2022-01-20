@@ -1,5 +1,4 @@
-import { MessagingClient, uuid } from '@botpress/messaging-client'
-import { AxiosRequestConfig } from 'axios'
+import { ConversationStartedEvent, MessageNewEvent, MessagingChannel, uuid } from '@botpress/messaging-client'
 import { IO, Logger, MessagingConfig } from 'botpress/runtime-sdk'
 import { inject, injectable } from 'inversify'
 import LRUCache from 'lru-cache'
@@ -11,28 +10,24 @@ import { ConfigProvider } from '../config'
 import { EventEngine, Event } from '../events'
 import { TYPES } from '../types'
 
-import { MessageNewEventData, ConversationStartedEventData } from './messaging-router'
-
 @injectable()
 export class MessagingService {
-  private clientSync!: MessagingClient
-  private clientsByBotId: { [botId: string]: MessagingClient } = {}
-  private botsByClientId: { [clientId: string]: string } = {}
-  private webhookTokenByClientId: { [botId: string]: string } = {}
-  private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage', 'messaging']
+  public messaging!: MessagingChannel
+  private botIdToClientId: { [botId: string]: uuid } = {}
+  private clientIdToBotId: { [clientId: uuid]: string } = {}
+  private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
   private newUsers: number = 0
   private collectingCache: LRUCache<string, uuid>
-
-  public isExternal: boolean
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Logger) private logger: Logger
   ) {
-    this.isExternal = Boolean(process.runtime_env.MESSAGING_ENDPOINT)
     this.collectingCache = new LRUCache<string, uuid>({ max: 5000, maxAge: ms('5m') })
-
+    this.messaging = new MessagingChannel({
+      url: process.MESSAGING_ENDPOINT!
+    })
     // use this to test converse from messaging
     if (yn(process.env.ENABLE_EXPERIMENTAL_CONVERSE)) {
       this.channelNames.push('messaging')
@@ -61,65 +56,18 @@ export class MessagingService {
       handler: this.handleOutgoingEvent.bind(this)
     })
 
-    this.clientSync = new MessagingClient({ url: process.MESSAGING_ENDPOINT!, config: this.getAxiosConfig() })
-    this.logger.info(`Using Messaging server at ${process.MESSAGING_ENDPOINT}`)
+    this.messaging.on('user', this.handleUserNewEvent.bind(this))
+    this.messaging.on('started', this.handleConversationStartedEvent.bind(this))
+    this.messaging.on('message', this.handleMessageNewEvent.bind(this))
   }
 
   async loadMessagingForBot(botId: string) {
-    if (!process.MESSAGING_ENDPOINT) {
-      return
-    }
-
     const config = await this.configProvider.getBotConfig(botId)
-    let messaging = (config.messaging || {}) as Partial<MessagingConfig>
+    const messaging = (config.messaging || {}) as Partial<MessagingConfig>
 
-    const messagingId = messaging.id || ''
-    // ClientId is already used by another botId, we will generate new credentials for this bot
-    if (this.botsByClientId[messagingId] && this.botsByClientId[messagingId] !== botId) {
-      this.logger.warn(
-        `ClientId ${messagingId} already in use by bot ${this.botsByClientId[messagingId]}. Removing channels configuration and generating new credentials for bot ${botId}`
-      )
-      delete messaging.id
-      delete messaging.token
-      delete messaging.channels
-    }
-
-    const webhookUrl = `${process.EXTERNAL_URL}/api/v1/chat/receive`
-    const setupConfig = {
-      name: botId,
-      ...messaging,
-      // We use the SPINNED_URL env var to force the messaging server to make its webhook
-      // requests to the process that started it when using a local Messaging server
-      webhooks: this.isExternal ? [{ url: webhookUrl }] : []
-    }
-
-    const { id, token, webhooks } = await this.clientSync.syncs.sync(setupConfig)
-
-    if (webhooks?.length) {
-      for (const webhook of webhooks) {
-        if (webhook.url === webhookUrl) {
-          this.webhookTokenByClientId[id] = webhook.token!
-        }
-      }
-    }
-
-    if (id && id !== messaging.id) {
-      messaging = {
-        ...messaging,
-        id,
-        token
-      }
-
-      await this.configProvider.mergeBotConfig(botId, { messaging })
-    }
-
-    const botClient = new MessagingClient({
-      url: process.MESSAGING_ENDPOINT!,
-      auth: { clientId: messaging.id!, clientToken: messaging.token! },
-      config: this.getAxiosConfig()
-    })
-    this.clientsByBotId[botId] = botClient
-    this.botsByClientId[id] = botId
+    this.clientIdToBotId[messaging.id!] = botId
+    this.botIdToClientId[botId] = messaging.id!
+    this.messaging.start(messaging.id!, { clientToken: messaging.token, webhookToken: messaging.webhookToken })
   }
 
   async unloadMessagingForBot(botId: string) {
@@ -128,42 +76,32 @@ export class MessagingService {
       return
     }
 
-    delete this.botsByClientId[config.messaging.id]
-
-    await this.clientSync.syncs.sync({
-      id: config.messaging.id,
-      token: config.messaging.token,
-      name: botId,
-      channels: {},
-      webhooks: []
-    })
+    delete this.clientIdToBotId[config.messaging.id]
+    delete this.botIdToClientId[botId]
   }
 
-  async receive(msg: MessageNewEventData) {
-    if (!this.channelNames.includes(msg.channel)) {
-      return
+  informProcessingDone(event: IO.IncomingEvent) {
+    if (this.collectingCache.get(event.id!)) {
+      // We don't want the waiting for the queue to be empty to freeze other messages
+      // eslint-disable-next-line @typescript-eslint/no-floating-promises
+      this.sendProcessingDone(event)
     }
-
-    const event = Event({
-      direction: 'incoming',
-      type: msg.message.payload.type,
-      payload: msg.message.payload,
-      channel: msg.channel,
-      threadId: msg.conversationId,
-      target: msg.userId,
-      messageId: msg.message.id,
-      botId: this.botsByClientId[msg.clientId]
-    })
-
-    if (msg.collect) {
-      this.collectingCache.set(event.id, msg.message.id)
-    }
-
-    return this.eventEngine.sendEvent(event)
   }
 
-  async conversationStarted(msg: ConversationStartedEventData) {
-    if (!this.channelNames.includes(msg.channel)) {
+  getNewUsersCount({ resetCount }: { resetCount: boolean }) {
+    const count = this.newUsers
+    if (resetCount) {
+      this.newUsers = 0
+    }
+    return count
+  }
+
+  private handleUserNewEvent() {
+    this.newUsers++
+  }
+
+  private async handleConversationStartedEvent(clientId: uuid, data: ConversationStartedEvent) {
+    if (!this.channelNames.includes(data.channel)) {
       return
     }
 
@@ -171,11 +109,34 @@ export class MessagingService {
       direction: 'incoming',
       type: 'proactive-trigger',
       payload: {},
-      channel: msg.channel,
-      threadId: msg.conversationId,
-      target: msg.userId,
-      botId: this.botsByClientId[msg.clientId]
+      channel: data.channel,
+      threadId: data.conversationId,
+      target: data.userId,
+      botId: this.clientIdToBotId[clientId]
     })
+
+    return this.eventEngine.sendEvent(event)
+  }
+
+  private async handleMessageNewEvent(clientId: uuid, data: MessageNewEvent) {
+    if (!this.channelNames.includes(data.channel)) {
+      return
+    }
+
+    const event = Event({
+      direction: 'incoming',
+      type: data.message.payload.type,
+      payload: data.message.payload,
+      channel: data.channel,
+      threadId: data.conversationId,
+      target: data.userId,
+      messageId: data.message.id,
+      botId: this.clientIdToBotId[clientId]
+    })
+
+    if (data.collect) {
+      this.collectingCache.set(event.id, data.message.id)
+    }
 
     return this.eventEngine.sendEvent(event)
   }
@@ -191,7 +152,8 @@ export class MessagingService {
     }
 
     const collecting = event.incomingEventId && this.collectingCache.get(event.incomingEventId)
-    const message = await this.clientsByBotId[event.botId].messages.create(
+    const message = await this.messaging.createMessage(
+      this.botIdToClientId[event.botId],
       event.threadId!,
       undefined,
       event.payload,
@@ -202,18 +164,10 @@ export class MessagingService {
     return next(undefined, true, false)
   }
 
-  public informProcessingDone(event: IO.IncomingEvent) {
-    if (this.collectingCache.get(event.id!)) {
-      // We don't want the waiting for the queue to be empty to freeze other messages
-      // eslint-disable-next-line @typescript-eslint/no-floating-promises
-      this.sendProcessingDone(event)
-    }
-  }
-
   private async sendProcessingDone(event: IO.IncomingEvent) {
     try {
       await this.eventEngine.waitOutgoingQueueEmpty(event)
-      await this.clientsByBotId[event.botId].messages.endTurn(event.messageId!)
+      await this.messaging.endTurn(this.botIdToClientId[event.botId], event.messageId!)
     } catch (e) {
       this.logger.attachError(e).error('Failed to inform messaging of completed processing')
     } finally {
@@ -241,32 +195,5 @@ export class MessagingService {
     }
 
     return payload
-  }
-
-  public getWebhookToken(clientId: string) {
-    return this.webhookTokenByClientId[clientId]
-  }
-
-  public getNewUsersCount({ resetCount }: { resetCount: boolean }) {
-    const count = this.newUsers
-    if (resetCount) {
-      this.newUsers = 0
-    }
-    return count
-  }
-
-  public incrementNewUsersCount() {
-    this.newUsers++
-  }
-
-  private getAxiosConfig(): AxiosRequestConfig {
-    const config: AxiosRequestConfig = {}
-
-    if (!this.isExternal) {
-      config.proxy = false
-      config.headers = { password: process.INTERNAL_PASSWORD }
-    }
-
-    return config
   }
 }
