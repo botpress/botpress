@@ -2437,14 +2437,6 @@
   resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-0.0.2.tgz#3e8129130f326894f1615305ddf36357f90478a2"
   integrity sha512-YZwHLMqJtsv/4v6Ss+h+pBJm9gjCvu737lDv8JGfD2gWVT/PCfh32YAaN11CSyuVW0vD4tA1NPXaHRKOmbD28Q==
 
-"@botpress/messaging-client@0.0.9":
-  version "0.0.9"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-0.0.9.tgz#46e4ce068a0de71ca8f79a366e2a7bee1bc748fd"
-  integrity sha512-G4/nJ/gI73KiA7tN+EDAglY2pnliZuv6/QQy/DmcyKZGGgv/VACnpzU4+t2L7jo+08vRrJOF6+fLL3VjNpKYDA==
-  dependencies:
-    "@botpress/messaging-base" "0.0.1"
-    axios "^0.21.1"
-
 "@botpress/messaging-client@^0.0.14":
   version "0.0.14"
   resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-0.0.14.tgz#deb3675af1e0760e240b63ea9b54aea460133e0d"

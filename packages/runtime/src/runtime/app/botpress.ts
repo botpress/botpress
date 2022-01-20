@@ -127,6 +127,8 @@ export class Botpress {
     await this.restoreDebugScope()
     await this.migrationService.initialize()
     await this.initializeServices()
+    await this.nluInferenceService.initialize()
+    await this.messagingService.initialize()
 
     await this.discoverBots(bots)
 
