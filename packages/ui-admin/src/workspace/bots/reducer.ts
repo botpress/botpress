@@ -161,11 +161,11 @@ export const fetchBotHealth = (): AppThunk => {
 
 export const fetchBotNLULanguages = (): AppThunk => {
   return async dispatch => {
-    const { data } = await api.getSecured({ useV1: true }).get(`/studio/${ALL_BOTS}/nlu/health`)
-    if (!data || !data.validLanguages) {
+    const { data } = await api.getSecured({ useV1: true }).get(`/studio/${ALL_BOTS}/nlu/info`)
+    if (!data || !data.languages) {
       return
     }
-    dispatch({ type: FETCH_BOT_NLU_LANGUAGES_RECEIVED, languages: data.validLanguages })
+    dispatch({ type: FETCH_BOT_NLU_LANGUAGES_RECEIVED, languages: data.languages })
   }
 }
 
