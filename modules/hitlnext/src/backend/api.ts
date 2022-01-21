@@ -228,7 +228,7 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
 
       const messaging = await repository.getMessagingClient(botId)
       const userId = await repository.mapVisitor(botId, agentId, messaging)
-      const conversation = await messaging.conversations.create(userId)
+      const conversation = await messaging.createConversation(userId)
 
       const agentThreadId = conversation.id
       const payload: Pick<IHandoff, 'agentId' | 'agentThreadId' | 'assignedAt' | 'status'> = {
