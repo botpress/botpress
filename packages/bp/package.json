@@ -71,7 +71,7 @@
     "ms": "^2.1.1",
     "multer": "^1.4.1",
     "mustache": "^3.0.1",
-    "nanoid": "^2.0.1",
+    "nanoid": "^3.1.31",
     "node-machine-id": "^1.1.10",
     "numeric": "^1.2.6",
     "object-sizeof": "^1.5.2",
