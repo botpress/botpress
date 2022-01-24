@@ -1,5 +1,14 @@
 name: Tests
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'yarn.lock'
+      - 'packages/**'
+      - 'modules/**'
+      - 'build/**'
+      - 'jest.*.config.ts'
+
 jobs:
   unit:
     name: Unit
@@ -28,7 +37,6 @@ jobs:
   integration:
     name: Integration
     runs-on: ubuntu-latest
-
     services:
       postgres:
         image: postgres:12.9
@@ -81,9 +89,8 @@ jobs:
           PG_PORT: 5432
 
   e2e:
-    name: e2e
+    name: E2E (ubuntu-latest)
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@master
@@ -115,9 +122,8 @@ jobs:
           path: build/tests/e2e/screenshots
 
   e2e-windows:
-    name: e2e (windows-latest)
+    name: E2E (windows-latest)
     runs-on: windows-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@master
@@ -149,9 +155,8 @@ jobs:
           path: build/tests/e2e/screenshots
 # TODO: Fix the E2E tests on macos
 #  e2e-macos:
-#    name: e2e (macos-latest)
+#    name: E2E (macos-latest)
 #    runs-on: macos-latest
-#
 #    steps:
 #      - name: Checkout code
 #        uses: actions/checkout@master
