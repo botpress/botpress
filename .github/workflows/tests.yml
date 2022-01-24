@@ -1,5 +1,14 @@
 name: Tests
-on: [pull_request]
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'yarn.lock'
+      - 'packages/**'
+      - 'modules/**'
+      - 'build/**'
+      - 'jest.*.config.ts'
+
 jobs:
   unit:
     name: Unit
@@ -75,7 +84,7 @@ jobs:
           PG_PORT: 5432
 
   e2e:
-    name: e2e
+    name: E2E (linux-latest)
     runs-on: ubuntu-latest
 
     steps:
@@ -109,7 +118,7 @@ jobs:
           path: build/tests/e2e/screenshots
 
   e2e-windows:
-    name: e2e (windows-latest)
+    name: E2E (windows-latest)
     runs-on: windows-latest
 
     steps:
@@ -143,7 +152,7 @@ jobs:
           path: build/tests/e2e/screenshots
 # TODO: Fix the E2E tests on macos
 #  e2e-macos:
-#    name: e2e (macos-latest)
+#    name: E2E (macos-latest)
 #    runs-on: macos-latest
 #
 #    steps:
