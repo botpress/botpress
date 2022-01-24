@@ -1,12 +1,12 @@
 import { ScopedGhostService } from 'botpress/sdk'
 import { GhostService } from 'core/bpfs'
 import { sanitize } from 'core/misc/utils'
-import nanoid from 'nanoid/generate'
+import { customAlphabet } from 'nanoid'
 import path from 'path'
 
 import { MediaService } from '../media-service-interface'
 
-const safeId = (length = 10) => nanoid('1234567890abcdefghijklmnopqrsuvwxyz', length)
+const safeId = (length = 10) => customAlphabet('1234567890abcdefghijklmnopqrsuvwxyz', length)()
 
 const debug = DEBUG('media')
 

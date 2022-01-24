@@ -2,7 +2,7 @@ import { IO, Logger } from 'botpress/sdk'
 import { getErrorMessage } from 'common/utils'
 import { inject, injectable, optional, tagged } from 'inversify'
 import _ from 'lodash'
-import nanoid from 'nanoid'
+import { nanoid } from 'nanoid'
 
 import { TYPES } from '../../types'
 import { defaultOptions, JobWrapper, Queue, QueueConsumer, QueueOptions } from '.'

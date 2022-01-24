@@ -6,7 +6,7 @@ import { Request, Router, Response } from 'express'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
-import nanoid from 'nanoid'
+import { nanoid } from 'nanoid'
 import { charsets, PasswordPolicy } from 'password-sheriff'
 
 import { InvalidCredentialsError, LockedOutError, PasswordExpiredError, WeakPasswordError } from './auth-errors'
