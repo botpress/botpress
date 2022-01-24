@@ -3,7 +3,7 @@ import fse from 'fs-extra'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
-import nanoid from 'nanoid'
+import { nanoid } from 'nanoid'
 import { Socket, io } from 'socket.io-client'
 
 import { Stats } from './stats'

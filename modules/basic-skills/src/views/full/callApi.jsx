@@ -5,7 +5,7 @@ import Select from 'react-select'
 import style from './style.scss'
 import { BotpressTooltip } from 'botpress/tooltip'
 import { LinkDocumentationProvider } from 'botpress/documentation'
-import nanoid from 'nanoid/generate'
+import { nanoid } from 'nanoid'
 
 const methodOptions = [
   { label: 'Get', value: 'get' },

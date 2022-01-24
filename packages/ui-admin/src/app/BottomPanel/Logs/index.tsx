@@ -4,7 +4,7 @@ import { lang, ToolTip } from 'botpress/shared'
 import cn from 'classnames'
 import _ from 'lodash'
 import moment from 'moment'
-import nanoid from 'nanoid'
+import { nanoid } from 'nanoid'
 import React, { Fragment } from 'react'
 import { connect } from 'react-redux'
 
