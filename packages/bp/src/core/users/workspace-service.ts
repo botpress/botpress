@@ -22,7 +22,7 @@ import {
 } from 'core/users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-import nanoid from 'nanoid/generate'
+import { customAlphabet } from 'nanoid'
 
 export const ROLLOUT_STRATEGIES: RolloutStrategy[] = [
   'anonymous',
@@ -221,7 +221,7 @@ export class WorkspaceService {
   }
 
   async resetInviteCode(workspaceId: string, allowedUsages: number = UNLIMITED): Promise<WorkspaceInviteCode> {
-    const inviteCode = `INV-${nanoid('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ', 10)}`
+    const inviteCode = `INV-${customAlphabet('1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ', 10)()}`
     const newEntry = { workspaceId, inviteCode, allowedUsages }
 
     if (await this.inviteCodesRepo.getWorkspaceCode(workspaceId)) {

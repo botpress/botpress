@@ -2,7 +2,7 @@ import { Logger, RedisLock } from 'botpress/runtime-sdk'
 import { inject, injectable } from 'inversify'
 import { Redis } from 'ioredis'
 import _ from 'lodash'
-import nanoid from 'nanoid'
+import { nanoid } from 'nanoid'
 import Redlock from 'redlock'
 
 import { IInitializeFromConfig } from '../../common/typings'
