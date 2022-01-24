@@ -1,17 +1,15 @@
 name: Tests
-on: [pull_request]
-jobs:
-  pre_job:
-    # continue-on-error: true # Uncomment once integration is finished
-    runs-on: ubuntu-latest
-    outputs:
-      should_skip: ${{ steps.skip_check.outputs.should_skip }}
-    steps:
-      - id: skip_check
-        uses: fkirc/skip-duplicate-actions@v3
-        with:
-          paths: '["package.json", "yarn.lock", "packages/**", "modules/**", "build/**", "jest.*.config.ts"]'
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'yarn.lock'
+      - 'packages/**'
+      - 'modules/**'
+      - 'build/**'
+      - 'jest.*.config.ts'
 
+jobs:
   unit:
     needs: pre_job
     if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
