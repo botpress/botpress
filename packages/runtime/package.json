@@ -72,7 +72,7 @@
     "moment": "^2.24.0",
     "ms": "^2.1.1",
     "mustache": "^3.0.1",
-    "nanoid": "^2.0.1",
+    "nanoid": "^3.1.31",
     "nodemailer": "^6.3.0",
     "object-sizeof": "^1.5.2",
     "pg": "^7.8.0",
