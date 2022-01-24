@@ -8,9 +8,6 @@ on:
       - 'modules/**'
       - 'build/**'
       - 'jest.*.config.ts'
-  push:
-    branches:
-      - 'release/**'
 
 jobs:
   unit:

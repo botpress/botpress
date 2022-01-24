@@ -8,8 +8,6 @@ on:
       - 'modules/**'
       - 'build/**'
       - 'jest.*.config.ts'
-    branches-ignore:
-      - 'release/**'
 
 jobs:
   unit:
