@@ -1,13 +1,5 @@
 name: Tests
-on:
-  pull_request:
-    paths:
-      - 'package.json'
-      - 'yarn.lock'
-      - 'packages/**'
-      - 'modules/**'
-      - 'build/**'
-      - 'jest.*.config.ts'
+on: [pull_request]
 
 jobs:
   unit:
