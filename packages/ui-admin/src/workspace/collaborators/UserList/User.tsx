@@ -18,7 +18,7 @@ interface Props {
 
 const User: FC<Props> = ({ user, showPicture, currentUserEmail, onUserUpdated, onPasswordReset }) => {
   return (
-    <div className={cx(style.tableRow, style.list)} key={`user-${user.email}`}>
+    <div className={cx(style.tableRow, style.list, 'bp_table-row')} key={`user-${user.email}`}>
       <div style={{ display: 'flex' }}>
         {showPicture && (
           <div className={style.picture}>

@@ -1,9 +1,8 @@
 import path from 'path'
 
-import { clickOn, expectMatch, expectMatchElement, fillField, uploadFile } from '../expectPuppeteer'
+import { clickOn, expectMatch, expectMatchElement, fillField, uploadFile } from '../utils/expectPuppeteer'
 import {
   CONFIRM_DIALOG,
-  expectBotApiCallSuccess,
   expectStudioApiCallSuccess,
   getElementCenter,
   gotoStudio,
@@ -27,12 +26,11 @@ describe('Studio - QNA', () => {
   it('Filter by category', async () => {
     await fillField('#select-context', 'monkeys')
 
-    await Promise.all([
-      expectStudioApiCallSuccess('qna/questions?question=&filteredContexts[]=monkeys', 'GET'),
-      page.keyboard.press('Enter')
-    ])
+    await page.keyboard.press('Enter')
+    await expectStudioApiCallSuccess('qna/questions?question=&filteredContexts[]=monkeys', 'GET')
 
     expect(await getQnaCount()).toBe(2)
+
     await page.keyboard.press('Delete')
     await clickOn("[class^='bp3-tag-remove']")
   })
@@ -40,26 +38,27 @@ describe('Studio - QNA', () => {
   it('Create new entry', async () => {
     await clickOn('#btn-create-qna')
     await expectMatch('Create a new')
+
     await fillField('#input-questions', 'are you working?')
     await page.keyboard.press('Tab')
     await page.keyboard.type('I sure am!')
     await page.keyboard.press('Enter')
-    await clickOn('#btn-submit')
-    await expectStudioApiCallSuccess('qna/questions', 'POST')
-    await expectStudioApiCallSuccess('qna/questions', 'GET')
+
+    await Promise.all([
+      clickOn('#btn-submit'),
+      expectStudioApiCallSuccess('qna/questions', 'POST'),
+      expectStudioApiCallSuccess('qna/questions', 'GET')
+    ])
   })
 
   it('Filter by name', async () => {
-    await page.waitFor(300) // Required because the create action clears the filter after it loads new qna
-    await Promise.all([
-      expectStudioApiCallSuccess('qna/questions', 'GET'),
-      fillField('#input-search', 'are you working')
-    ])
+    await fillField('#input-search', 'are you working')
+    await expectStudioApiCallSuccess('qna/questions', 'GET')
+
     expect(await getQnaCount()).toBe(1)
   })
 
   it('Delete entry', async () => {
-    await page.waitFor(500)
     const element = await expectMatchElement('div[role="entry"]', { text: 'are you working' })
     const { x, y } = await getElementCenter(element)
     await page.mouse.move(x, y) // This makes the delete icon visible for the next step
@@ -83,10 +82,13 @@ describe('Studio - QNA', () => {
     await expectStudioApiCallSuccess('qna/analyzeImport', 'POST')
 
     await clickOn('#radio-clearInsert')
-    await clickOn('#btn-submit')
-    await expectStudioApiCallSuccess('qna/import', 'POST')
-    await expectStudioApiCallSuccess('qna/questions', 'GET')
+
+    await Promise.all([
+      clickOn('#btn-submit'),
+      expectStudioApiCallSuccess('qna/import', 'POST'),
+      expectStudioApiCallSuccess('qna/questions', 'GET')
+    ])
+
     await page.focus('body') // Sets back the focus to the page when the modal is closed
-    await page.waitFor(300)
   })
 })
