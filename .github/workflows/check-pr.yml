@@ -1,7 +1,6 @@
 name: 'Check PR'
-on:
-  pull_request:
-    types: [edited, review_requested, ready_for_review]
+on: [pull_request]
+
 jobs:
   check-pr:
     name: Asserts PR is in shape
