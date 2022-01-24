@@ -34,7 +34,6 @@ jobs:
   integration:
     name: Integration
     runs-on: ubuntu-latest
-
     services:
       postgres:
         image: postgres:12.9
@@ -84,9 +83,8 @@ jobs:
           PG_PORT: 5432
 
   e2e:
-    name: E2E (linux-latest)
+    name: E2E (ubuntu-latest)
     runs-on: ubuntu-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@master
@@ -120,7 +118,6 @@ jobs:
   e2e-windows:
     name: E2E (windows-latest)
     runs-on: windows-latest
-
     steps:
       - name: Checkout code
         uses: actions/checkout@master
@@ -154,7 +151,6 @@ jobs:
 #  e2e-macos:
 #    name: E2E (macos-latest)
 #    runs-on: macos-latest
-#
 #    steps:
 #      - name: Checkout code
 #        uses: actions/checkout@master
