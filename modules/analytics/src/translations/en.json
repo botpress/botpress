@@ -20,7 +20,7 @@
   "fullName": "Analytics",
   "handlingAndUnderstanding": "Handling and Understanding",
   "interval": "{startDate} to {endDate}",
-  "messageExchanged": "Message Exchanged",
+  "messageExchanged": "Messages Exchanged",
   "messagesByLanguage": "Messages by Language",
   "messagesReceived": "Messages Received",
   "misunderstoodMessages": "misunderstood messages",

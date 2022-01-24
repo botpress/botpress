@@ -1,4 +1,4 @@
-import { clickOn } from '../expectPuppeteer'
+import { clickOn } from '../utils/expectPuppeteer'
 import { expectBotApiCallSuccess, gotoStudio } from '../utils'
 
 describe('Module - Testing', () => {
