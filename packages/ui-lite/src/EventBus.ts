@@ -1,5 +1,5 @@
 import { EventEmitter2 } from 'eventemitter2'
-import nanoid from 'nanoid'
+import { nanoid } from 'nanoid'
 import { Socket, io } from 'socket.io-client'
 import storage from '../../ui-shared-lite/utils/storage'
 

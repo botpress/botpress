@@ -1,8 +1,7 @@
 import sdk from 'botpress/sdk'
 import cluster, { Worker } from 'cluster'
 import _ from 'lodash'
-import nanoid from 'nanoid'
-import nanoidGenerate from 'nanoid/generate'
+import { customAlphabet, nanoid } from 'nanoid'
 import yn from 'yn'
 
 import { setDebugScopes } from '../debug'
@@ -128,7 +127,7 @@ export const onProcessExit = ({
 }
 
 export const setupMasterNode = (logger: sdk.Logger) => {
-  process.SERVER_ID = process.env.SERVER_ID || nanoidGenerate('1234567890abcdefghijklmnopqrstuvwxyz', 10)
+  process.SERVER_ID = process.env.SERVER_ID || customAlphabet('1234567890abcdefghijklmnopqrstuvwxyz', 10)()
   process.INTERNAL_PASSWORD = nanoid(75)
 
   // Fix an issue with pkg when passing custom options for v8
