@@ -1,0 +1,41 @@
+name: Tests
+on:
+  pull_request:
+    paths-ignore:
+      - 'package.json'
+      - 'yarn.lock'
+      - 'packages/**'
+      - 'modules/**'
+      - 'build/**'
+      - 'jest.*.config.ts'
+
+jobs:
+  unit:
+    name: Unit
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "Unit tests skipped" '
+
+  integration:
+    name: Integration
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "Integration tests skipped" '
+
+  e2e:
+    name: E2E (ubuntu-latest)
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "E2E (linux) tests skipped" '
+
+  e2e-windows:
+    name: E2E (windows-latest)
+    runs-on: ubuntu-latest
+    steps:
+      - run: 'echo "E2E (windows) tests skipped" '
+# TODO: Fix the E2E tests on macos
+#  e2e-macos:
+#    name: E2E (macos-latest)
+#    runs-on: ubuntu-latest
+#    steps:
+#      - run: 'echo "E2E (macos) tests skipped" '
