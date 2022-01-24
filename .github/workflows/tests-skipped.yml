@@ -1,13 +1,14 @@
 name: Tests
 on:
   pull_request:
-    paths-ignore:
-      - 'package.json'
-      - 'yarn.lock'
-      - 'packages/**'
-      - 'modules/**'
-      - 'build/**'
-      - 'jest.*.config.ts'
+    paths:
+      - '!package.json'
+      - '!yarn.lock'
+      - '!packages/**'
+      - '!modules/**'
+      - '!build/**'
+      - '!jest.*.config.ts'
+      - '**'
 
 jobs:
   unit:
