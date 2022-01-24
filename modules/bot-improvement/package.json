@@ -17,11 +17,11 @@
     "@types/jest": "^25.1.1"
   },
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "bluebird": "^3.5.3",
     "classnames": "^2.2.6",
     "joi": "^13.6.0",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "mime": "^2.4.4",
     "moment": "^2.24.0"
   },

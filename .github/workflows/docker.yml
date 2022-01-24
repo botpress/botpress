@@ -82,7 +82,7 @@ jobs:
       - uses: actions/checkout@v2
         with:
           repository: botpress/gh-actions
-          path: "@gh-actions"
+          path: '@gh-actions'
       - uses: ./@gh-actions/build/docker
         with:
           dockerfile: Dockerfile-runtime

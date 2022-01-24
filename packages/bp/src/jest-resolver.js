@@ -1,5 +1,3 @@
-const { default: defaultResolver } = require('jest-resolve/build/defaultResolver')
-
 const nativeExtensions = ['node_sqlite3.node', 'fse.node']
 
 module.exports = (name, options) => {
@@ -9,9 +7,9 @@ module.exports = (name, options) => {
     try {
       return global.rewire(name)
     } catch (err) {
-      return defaultResolver(name, options)
+      return options.defaultResolver(name, options)
     }
   }
 
-  return defaultResolver(name, options)
+  return options.defaultResolver(name, options)
 }

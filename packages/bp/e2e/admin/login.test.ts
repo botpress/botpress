@@ -1,6 +1,6 @@
-import { bpConfig } from '../../jest-puppeteer.config'
-import { clickOn, fillField } from '../expectPuppeteer'
-import { expectAdminApiCallSuccess, getResponse } from '../utils'
+import { bpConfig } from '../assets/config'
+import { clickOn, fillField } from '../utils/expectPuppeteer'
+import { expectAdminApiCallSuccess, loginOrRegister } from '../utils'
 
 describe('Admin - Init', () => {
   it('Load Login page', async () => {
@@ -8,26 +8,14 @@ describe('Admin - Init', () => {
   })
 
   it('Enter credentials and submit', async () => {
-    await fillField('#email', bpConfig.email)
-    await fillField('#password', bpConfig.password)
-
-    if (page.url().includes('/register')) {
-      await fillField('#confirmPassword', bpConfig.password)
-      await clickOn('#btn-register')
-
-      const response = await getResponse(`${bpConfig.apiHost}/api/v2/admin/auth/register/basic/default`, 'POST')
-      bpConfig.jwtToken = (await response.json()).payload.jwt
-    } else {
-      await clickOn('#btn-signin')
-      const response = await getResponse(`${bpConfig.apiHost}/api/v2/admin/auth/login/basic/default`, 'POST')
-      bpConfig.jwtToken = (await response.json()).payload.jwt
-    }
+    await loginOrRegister()
   })
 
   it('Load workspaces', async () => {
-    //  await page.waitForNavigation()
-    await page.waitFor(200)
-    await expect(page.url()).toMatch(`${bpConfig.host}/admin/workspace/default/bots`)
+    await page.waitForNavigation()
+    await page.waitForSelector('#btn-create-bot')
+
+    expect(page.url()).toMatch(`${bpConfig.host}/admin/workspace/default/bots`)
   })
 
   if (bpConfig.recreateBot) {
@@ -36,10 +24,12 @@ describe('Admin - Init', () => {
       await clickOn('#btn-new-bot')
 
       await fillField('#input-bot-name', bpConfig.botId)
-      await fillField('#select-bot-templates', 'Welcome Bot')
+
+      await clickOn('#select-bot-templates')
+      await page.keyboard.type('Welcome Bot')
       await page.keyboard.press('Enter')
 
-      await Promise.all([expectAdminApiCallSuccess('workspace/bots', 'POST'), clickOn('#btn-modal-create-bot')])
+      await Promise.all([clickOn('#btn-modal-create-bot'), expectAdminApiCallSuccess('workspace/bots', 'POST')])
     })
   }
 })

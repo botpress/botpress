@@ -1,3 +1,25 @@
+## [12.26.9](https://github.com/botpress/botpress/compare/v12.26.8...v12.26.9) (2022-01-17)
+
+
+### Bug Fixes
+
+* **admin:** create bot from template is fast again ([#11218](https://github.com/botpress/botpress/issues/11218)) ([3ed45c1](https://github.com/botpress/botpress/commit/3ed45c1))
+* **channel-web:** fix messaging tables schema in channel-web migration ([#5760](https://github.com/botpress/botpress/issues/5760)) ([f52411e](https://github.com/botpress/botpress/commit/f52411e))
+* **channel-web:** fix switching user language ([#5753](https://github.com/botpress/botpress/issues/5753)) ([5ccebcf](https://github.com/botpress/botpress/commit/5ccebcf))
+* **dialog:** find flow now case insensitive ([#5771](https://github.com/botpress/botpress/issues/5771)) ([dae17aa](https://github.com/botpress/botpress/commit/dae17aa))
+* **dx:** fix failing tests ([#5739](https://github.com/botpress/botpress/issues/5739)) ([84a0bf5](https://github.com/botpress/botpress/commit/84a0bf5))
+* **hitl:** add support for all types of messages ([#5736](https://github.com/botpress/botpress/issues/5736)) ([dac5e3e](https://github.com/botpress/botpress/commit/dac5e3e))
+* **misunderstood:** strip slots for amend screen ([#11214](https://github.com/botpress/botpress/issues/11214)) ([bcf4bbd](https://github.com/botpress/botpress/commit/bcf4bbd))
+* **ui:** fix typos in ui ([#11206](https://github.com/botpress/botpress/issues/11206)) ([32daa69](https://github.com/botpress/botpress/commit/32daa69))
+
+
+### Features
+
+* **messaging:** support receiving proactive messages ([#5728](https://github.com/botpress/botpress/issues/5728)) ([57c20f3](https://github.com/botpress/botpress/commit/57c20f3))
+* **misunderstood:** add support for all types of messages  ([#5731](https://github.com/botpress/botpress/issues/5731)) ([8c6adff](https://github.com/botpress/botpress/commit/8c6adff)), closes [#5734](https://github.com/botpress/botpress/issues/5734)
+
+
+
 ## [12.26.8](https://github.com/botpress/botpress/compare/v12.26.3...v12.26.8) (2021-12-02)
 
 
