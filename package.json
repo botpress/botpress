@@ -14,7 +14,7 @@
     "version": "0.1.9"
   },
   "studio": {
-    "devBranch": "refs_pull_242_merge"
+    "devBranch": "refs_pull_242_merge",
     "version": "0.0.46"
   },
   "messaging": {
