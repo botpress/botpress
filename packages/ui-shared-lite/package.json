@@ -9,8 +9,7 @@
     "nanoid": "^3.1.31"
   },
   "devDependencies": {
-    "@types/js-cookie": "^2.2.7",
-    "@types/nanoid": "^3.0.0"
+    "@types/js-cookie": "^2.2.7"
   },
   "resolutions": {
     "fstream": ">=1.0.12",

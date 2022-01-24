@@ -6,7 +6,7 @@ import { filterByGlobs, forceForwardSlashes } from 'core/misc/utils'
 import { WrapErrorsWith } from 'errors'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
-import nanoid from 'nanoid'
+import { nanoid } from 'nanoid'
 import path from 'path'
 import { VError } from 'verror'
 

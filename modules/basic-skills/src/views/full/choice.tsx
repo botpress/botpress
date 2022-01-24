@@ -14,7 +14,7 @@ import {
 // @ts-ignore
 import ContentPickerWidget from 'botpress/content-picker'
 import _ from 'lodash'
-import nanoid from 'nanoid/generate'
+import { nanoid } from 'nanoid'
 import React from 'react'
 
 import style from './style.scss'
