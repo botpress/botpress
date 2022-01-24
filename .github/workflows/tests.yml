@@ -11,8 +11,6 @@ on:
 
 jobs:
   unit:
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     name: Unit
     runs-on: ubuntu-latest
     steps:
@@ -34,8 +32,6 @@ jobs:
           yarn test:unit
 
   integration:
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     name: Integration
     runs-on: ubuntu-latest
 
@@ -88,8 +84,6 @@ jobs:
           PG_PORT: 5432
 
   e2e:
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     name: e2e
     runs-on: ubuntu-latest
 
@@ -124,8 +118,6 @@ jobs:
           path: build/tests/e2e/screenshots
 
   e2e-windows:
-    needs: pre_job
-    if: ${{ needs.pre_job.outputs.should_skip != 'true' }}
     name: e2e (windows-latest)
     runs-on: windows-latest
 
