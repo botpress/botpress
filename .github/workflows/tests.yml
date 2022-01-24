@@ -69,6 +69,9 @@ jobs:
         with:
           node-version: '12.18.1'
           cache: 'yarn'
+      - name: Fetch typings submodule
+        run: |
+          git submodule update --init ./packages/typings
       - name: Fetch Node Packages
         run: |
           yarn --frozen-lockfile
