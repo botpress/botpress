@@ -173,6 +173,8 @@ export default class Db {
         const eventObj = typeof event === 'string' ? JSON.parse(event) : event
         return {
           direction: eventObj.direction,
+          type: eventObj.type,
+          payload: eventObj.payload,
           preview: (eventObj.preview || '').replace(/<[^>]*>?/gm, ''),
           payloadMessage: get(eventObj, 'payload.message'),
           isCurrent: id === messageId
