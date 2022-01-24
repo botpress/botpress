@@ -60,21 +60,11 @@ export class MessagingSqliteUpMigrator extends MessagingUpMigrator {
 
       // We delete these tables in case the migration crashed halfway.
       await this.trx.schema.dropTableIfExists('web_user_map')
-      await this.trx.schema.dropTableIfExists('msg_messages')
-      await this.trx.schema.dropTableIfExists('msg_conversations')
-      await this.trx.schema.dropTableIfExists('msg_users')
-      await this.trx.schema.dropTableIfExists('msg_clients')
-      await this.trx.schema.dropTableIfExists('msg_providers')
 
       await this.trx.raw('PRAGMA foreign_keys = ON;')
     } else {
       // We delete these tables in case the migration crashed halfway.
       await this.trx.raw('DROP TABLE IF EXISTS web_user_map CASCADE')
-      await this.trx.raw('DROP TABLE IF EXISTS msg_messages CASCADE')
-      await this.trx.raw('DROP TABLE IF EXISTS msg_conversations CASCADE')
-      await this.trx.raw('DROP TABLE IF EXISTS msg_users CASCADE')
-      await this.trx.raw('DROP TABLE IF EXISTS msg_clients CASCADE')
-      await this.trx.raw('DROP TABLE IF EXISTS msg_providers CASCADE')
     }
 
     await super.createTables()

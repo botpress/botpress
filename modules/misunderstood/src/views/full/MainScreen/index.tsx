@@ -1,4 +1,3 @@
-import { AxiosStatic } from 'axios'
 import { lang } from 'botpress/shared'
 import React from 'react'
 

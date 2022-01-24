@@ -1,0 +1,60 @@
+@import '../../ui-shared/src/style/variables.scss';
+
+:root {
+  --c-dark-background-hover: #212121;
+  --c-neutral--dark-2: #000;
+  --c-neutral--dark-1: #4a4a4a;
+  --c-neutral: #9b9b9b;
+  --c-neutral--light-1: #ddd;
+  --c-neutral--light-2: #f2f1f1;
+  --c-neutral--light-3: #fff;
+
+  --c-background--light-3: #dddddd;
+  --c-background--light-2: #9b9b9b;
+  --c-background--light-1: #626262;
+  --c-background: #555556;
+  --c-background--dark-1: #353535;
+  --c-background--dark-2: #1a1e22;
+  --c-background--dark-3: #000;
+
+  --c-text--light-gray: #5c7080;
+
+  --header-height: 50px;
+  --statusbar-height: 28px;
+  --container-height: calc(100vh - var(--header-height) - var(--statusbar-height));
+  --sa-page-header-height: 35px;
+  --page-header-height: 108px;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Roboto !important;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #212529;
+  text-align: left;
+  background-color: #fff;
+}
+
+.link {
+  color: var(--blue) !important;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 0.8;
+  }
+}
+
+code {
+  font-size: 87.5%;
+  color: #e83e8c;
+  word-break: break-word;
+}
+a > code {
+  color: inherit;
+}
+
+:global(.bp3-tooltip .bp3-popover-content) {
+  padding: 2px 4px !important;
+}

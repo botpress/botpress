@@ -1,6 +1,0 @@
-/bin
-/node_modules
-/node_production_modules
-/dist
-botpress.d.ts
-global.d.ts
