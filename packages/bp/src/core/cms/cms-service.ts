@@ -10,7 +10,7 @@ import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
-import nanoid from 'nanoid'
+import { nanoid } from 'nanoid'
 import path from 'path'
 import { VError } from 'verror'
 
