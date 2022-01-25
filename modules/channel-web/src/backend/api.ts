@@ -357,8 +357,16 @@ export default async (bp: typeof sdk, db: Database) => {
       const conversations = await req.messaging.listConversations(userId, MAX_MESSAGE_HISTORY)
       const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
+      const convsWithLastMessage: (Conversation & { lastMessage?: Message })[] = []
+      for (const conversation of conversations) {
+        convsWithLastMessage.push({
+          ...conversation,
+          lastMessage: (await req.messaging.listMessages(conversation.id, 1))[0]
+        })
+      }
+
       return res.send({
-        conversations: [...conversations],
+        conversations: convsWithLastMessage,
         startNewConvoOnTimeout: config.startNewConvoOnTimeout,
         recentConversationLifetime: config.recentConversationLifetime
       })
