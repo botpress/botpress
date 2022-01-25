@@ -17,7 +17,7 @@
     "version": "0.0.46"
   },
   "messaging": {
-    "version": "0.1.23"
+    "version": "1.0.0"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
@@ -39,7 +39,7 @@
     "@apidevtools/json-schema-ref-parser": "^9.0.6",
     "@babel/parser": "^7.11.2",
     "@babel/traverse": "^7.11.0",
-    "@botpress/messaging-client": "^0.0.14",
+    "@botpress/messaging-client": "^1.0.0",
     "archiver": "^5.3.0",
     "axios": "^0.21.1",
     "bluebird-global": "^1.0.1",
