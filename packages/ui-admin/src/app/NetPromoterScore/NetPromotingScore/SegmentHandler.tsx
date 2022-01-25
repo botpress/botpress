@@ -79,12 +79,14 @@ const trackEvent = (eventName: string, payload?: any, options?: any, callback?: 
   if (analytics) {
     return analytics.track(eventName, payload, options, callback)
   }
+  return Promise.reject(new Error('No analytics found'))
 }
 
 const trackPage = (data?: PageData, options?: any, callback?: (...params: any[]) => any) => {
   if (analytics) {
     return analytics.page(data, options, callback)
   }
+  return Promise.reject(new Error('No analytics found'))
 }
 
 export { trackEvent, trackPage }
