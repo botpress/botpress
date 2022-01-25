@@ -171,6 +171,17 @@
       "serverControl": "Contrôle du serveur",
       "youAreAboutToRestart": "Vous êtes sur le point de redémarrer le serveur Botpress hébergé sur"
     },
+    "netPromotingScore": {
+      "bestLabel": "Extrêmement probable",
+      "button": "Envoyer Commentaire",
+      "feedback": "Merci pour votre avis!",
+      "helper": "Veuillez ajouter vos commentaires sur l'utilisation de botpress",
+      "modalTitle": "Commentaire",
+      "moreContent": "Fournir des commentaires supplémentaires",
+      "question": "Quelle est la probabilité que vous nous recommandiez à vos amis et collègues?",
+      "title": "Ajouter vos commentaires sur botpress",
+      "worstLabel": "Pas du tout probable"
+    },
     "newPassword": "Nouveau mot de passe",
     "pageRestrictedToAdmins": "Cette page est réservée aux super-administrateurs",
     "password": "Mot de passe",
