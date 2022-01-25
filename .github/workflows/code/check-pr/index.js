@@ -12,7 +12,7 @@ async function run() {
         'Title should be a conventionnal commit. Please refer to specification: https://www.conventionalcommits.org/en/v1.0.0/'
       )
     }
-    if (!pull_request.body.toString().trim()) {
+    if (!pull_request.body || !pull_request.body.toString().trim()) {
       core.setFailed(
         'Please set a proper description to your Pull Request. Describe why, how and what. Those are mandatory for the review process.'
       )
