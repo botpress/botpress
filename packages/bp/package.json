@@ -85,7 +85,7 @@
     "portfinder": "^1.0.20",
     "proper-lockfile": "^4.1.2",
     "querystring": "^0.2.0",
-    "redlock": "^3.1.2",
+    "redlock": "^4.2.0",
     "reflect-metadata": "^0.1.13",
     "replace-in-file": "^4.1.1",
     "seedrandom": "^3.0.5",
