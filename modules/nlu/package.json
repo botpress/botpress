@@ -27,7 +27,7 @@
   },
   "dependencies": {
     "@botpress/nlu-client": "0.1.4",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "bluebird": "^3.5.3",
     "bluebird-global": "^1.0.1",
     "bluebird-retry": "^0.11.0",
