@@ -14,7 +14,7 @@
     "package": "node ../../build/module-builder/bin/entry package"
   },
   "dependencies": {
-    "axios": "^0.21.0",
+    "axios": "^0.21.2",
     "fs-extra": "^9.0.1",
     "mkdirp": "^1.0.4",
     "npm": "^6.14.8",
