@@ -8,13 +8,19 @@ on:
 jobs:
   pre_release_bin:
     # Do not publish dependabot branches
-    if: (startsWith(github.head_ref , 'dependabot/')) == true
+    #if: startsWith(github.head_ref, 'dependabot/') == true
 
     name: Build and Publish Binaries
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
         uses: actions/checkout@master
+
+      - name: Echo PR info
+        run: |
+          echo "Event name ${{ github.event_name }}"
+          echo "Head ref ${{ github.head_ref }}"
+          echo "PR head ref ${{ github.event.pull_request.head.ref }}"
 
       - uses: actions/setup-node@v2
         with:
