@@ -2,7 +2,7 @@ name: Docker
 on:
   push:
     branches-ignore:
-      - 'dependabot/*'
+      - 'dependabot/**'
 
 jobs:
   build_and_push:
