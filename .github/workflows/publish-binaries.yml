@@ -2,13 +2,13 @@ name: Release Binaries
 on:
   pull_request:
     types: [review_requested]
-    branches-ignore:
-      - 'dependabot/*'
   release:
     types: [published]
 
 jobs:
   pre_release_bin:
+    if: (startsWith(github.head_ref , 'dependabot/')) != true
+
     name: Build and Publish Binaries
     runs-on: ubuntu-latest
     steps:
