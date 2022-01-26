@@ -1,5 +1,9 @@
 name: Docker
-on: [push]
+on:
+  push:
+    branches-ignore:
+      - 'dependabot/*'
+
 jobs:
   build_and_push:
     name: Build and push Docker image to GitHub Packages

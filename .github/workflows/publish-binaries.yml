@@ -2,6 +2,8 @@ name: Release Binaries
 on:
   pull_request:
     types: [review_requested]
+    branches-ignore:
+      - 'dependabot/*'
   release:
     types: [published]
 
