@@ -129,6 +129,7 @@ export class DialogEngine {
                * as risk of another infinite loop is too high.
                * This is major problem and can't be handled softly.
                */
+              this.cleanState(event)
               throw err
             }
 
