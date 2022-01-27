@@ -121,7 +121,7 @@
     "gulp-exec": "^3.0.2",
     "gulp-file": "^0.4.0",
     "gulp-if": "^2.0.2",
-    "gulp-ignore": "^2.0.2",
+    "gulp-ignore": "^3.0.0",
     "gulp-print": "^5.0.0",
     "gulp-rimraf": "^0.2.2",
     "gulp-run": "^1.7.1",
