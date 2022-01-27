@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v2.1.0
+        uses: actions/checkout@master
         with:
           token: ${{ secrets.PAT_DOCKER }}
           submodules: true
