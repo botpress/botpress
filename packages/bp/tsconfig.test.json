@@ -1,0 +1,11 @@
+{
+  "extends": "./tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "src",
+    "rootDir": ".",
+    "paths": {
+      "@botpress/runtime": ["../../runtime/src/index.ts"]
+    }
+  },
+  "include": ["src/**/*", "../runtime/src/typings"]
+}

@@ -6,6 +6,8 @@
     "node": "^12"
   },
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "source": "src/index.ts",
   "bin": "dist/index.js",
   "repository": "https://github.com/botpress/botpress.git",
   "author": "Botpress, Inc.",

@@ -12,12 +12,13 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "useUnknownInCatchVariables": false,
-    "baseUrl": "./",
+    "composite": true,
+    "baseUrl": "src",
+    "rootDir": "src",
     "outDir": "dist",
-    "typeRoots": ["./src/typings", "../../node_modules/@types", "./src/common"],
+    "typeRoots": ["src/typings", "../../node_modules/@types", "src/common"],
     "types": ["reflect-metadata", "jest"]
   },
-  "references": [{ "path": "../typings/" }],
-  "include": ["src/**/*"],
-  "exclude": ["scripts/", "**/*.__test__.(ts|js)", "dist", "**/node_modules/**/*.(ts|js)"]
+  "references": [{ "path": "../typings" }],
+  "include": ["src"]
 }

@@ -12,21 +12,12 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "useUnknownInCatchVariables": false,
-    "baseUrl": "./src",
+    "composite": true,
+    "baseUrl": "src",
+    "rootDir": "src",
     "outDir": "dist",
-    "typeRoots": ["./src/typings", "../../node_modules/@types", "./src/common"],
-    "types": ["reflect-metadata", "jest"]
+    "typeRoots": ["src/typings", "../../node_modules/@types", "src/common"]
   },
-  "references": [{ "path": "../typings/" }],
-  "exclude": [
-    "e2e/**",
-    "**/*.__test__.(ts|js)",
-    "dist",
-    "out",
-    "**/node_modules/**/*.(ts|js)",
-    "**/static/**/*.(js|ts)",
-    "**/ui-shared/**/*",
-    "src/admin/ui/**/*",
-    "src/ui-lite/**/*"
-  ]
+  "references": [{ "path": "../typings" }, { "path": "../runtime" }],
+  "include": ["src"]
 }

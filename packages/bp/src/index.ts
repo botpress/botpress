@@ -26,6 +26,8 @@ global.printErrorDefault = printPlainError
 
 const originalWrite = process.stdout.write
 
+const aa: RuntimeEnvironmentVariables = {}
+
 const shouldDiscardError = message =>
   !![
     '[DEP0005]' // Buffer() deprecation warning
