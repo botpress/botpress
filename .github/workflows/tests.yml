@@ -106,40 +106,42 @@ jobs:
         with:
           name: screenshots
           path: build/tests/e2e/screenshots
-
-  e2e-windows:
-    name: E2E (windows-latest)
-    runs-on: windows-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@master
-      - uses: actions/setup-node@v2
-        with:
-          node-version: '12.18.1'
-          cache: 'yarn'
-      - name: Fetch Node Packages
-        run: |
-          yarn --frozen-lockfile
-      - name: Build core, UI and modules
-        run: yarn build
-        env:
-          NODE_OPTIONS: '--max-old-space-size=6000'
-      - name: Run Tests
-        run: |
-          yarn start & 
-          yarn test:e2e
-        env:
-          BP_LICENSE_KEY: ${{ secrets.BP_LICENSE_KEY }}
-          BP_CONFIG_PRO_ENABLED: true
-          HEADLESS: true
-          JEST_TIMEOUT: 30000
-      - name: Upload Screenshots
-        uses: actions/upload-artifact@master
-        if: failure()
-        with:
-          name: screenshots
-          path: build/tests/e2e/screenshots
-# TODO: Fix the E2E tests on macos
+#
+# TODO: windows and macos tests are disabled for now since tests
+# on windows often fails for network reasons and are flaky on macos
+#  e2e-windows:
+#    name: E2E (windows-latest)
+#    runs-on: windows-latest
+#    steps:
+#      - name: Checkout code
+#        uses: actions/checkout@master
+#      - uses: actions/setup-node@v2
+#        with:
+#          node-version: '12.18.1'
+#          cache: 'yarn'
+#      - name: Fetch Node Packages
+#        run: |
+#          yarn --frozen-lockfile
+#      - name: Build core, UI and modules
+#        run: yarn build
+#        env:
+#          NODE_OPTIONS: '--max-old-space-size=6000'
+#      - name: Run Tests
+#        run: |
+#          yarn start &
+#          yarn test:e2e
+#        env:
+#          BP_LICENSE_KEY: ${{ secrets.BP_LICENSE_KEY }}
+#          BP_CONFIG_PRO_ENABLED: true
+#          HEADLESS: true
+#          JEST_TIMEOUT: 30000
+#      - name: Upload Screenshots
+#        uses: actions/upload-artifact@master
+#        if: failure()
+#        with:
+#          name: screenshots
+#          path: build/tests/e2e/screenshots
+#
 #  e2e-macos:
 #    name: E2E (macos-latest)
 #    runs-on: macos-latest
