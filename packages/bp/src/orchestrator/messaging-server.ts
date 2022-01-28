@@ -63,6 +63,7 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     REDIS_URL: process.core_env.REDIS_URL,
     REDIS_SCOPE: process.core_env.BP_REDIS_SCOPE,
     REDIS_OPTIONS: process.env.REDIS_OPTIONS,
+    AUTO_MIGRATE: process.env.AUTO_MIGRATE,
     LOGGING_ENABLED: 'false',
     SKIP_LOAD_ENV: 'true',
     SKIP_LOAD_CONFIG: 'true',
