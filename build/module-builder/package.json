@@ -55,7 +55,7 @@
     "@types/node": "^12.18.1",
     "@types/rimraf": "^2.0.2",
     "babel-plugin-search-and-replace": "^0.3.0",
-    "clean-webpack-plugin": "^2.0.1",
+    "clean-webpack-plugin": "^4.0.0",
     "webpack-bundle-analyzer": "^3.6.1"
   },
   "resolutions": {
