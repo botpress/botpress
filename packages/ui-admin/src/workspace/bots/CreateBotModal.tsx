@@ -124,7 +124,7 @@ class CreateBotModal extends Component<Props, State> {
 
   createBot = async e => {
     e.preventDefault()
-    if (this.state.isFormValid) {
+    if (!this.state.isFormValid) {
       return
     }
     this.setState({ isProcessing: true })
