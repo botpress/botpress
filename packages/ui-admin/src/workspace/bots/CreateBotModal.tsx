@@ -38,6 +38,7 @@ interface State {
   botName: string
   isProcessing: boolean
   generateId: boolean
+  isFormValid: boolean
 
   error: any
 
@@ -62,7 +63,8 @@ const defaultState: Omit<State, 'templates' | 'categories'> = {
   generateId: true,
   isCloudBot: false,
   cloudClientId: '',
-  cloudClientSecret: ''
+  cloudClientSecret: '',
+  isFormValid: false
 }
 
 class CreateBotModal extends Component<Props, State> {
@@ -79,12 +81,17 @@ class CreateBotModal extends Component<Props, State> {
     this.loadTemplates()
   }
 
-  componentDidUpdate(prevProps: Props) {
+  componentDidUpdate(prevProps: Props, prevState: State) {
     if (!prevProps.botTemplatesFetched && this.props.botTemplatesFetched) {
       this.loadTemplates()
     }
     if (!prevProps.botCategoriesFetched && this.props.botCategoriesFetched) {
       this.loadCategories()
+    }
+
+    const isFormValid = this.isFormValid()
+    if (this.props.isOpen && prevState.isFormValid !== isFormValid) {
+      this.setState({ isFormValid })
     }
   }
 
@@ -117,7 +124,7 @@ class CreateBotModal extends Component<Props, State> {
 
   createBot = async e => {
     e.preventDefault()
-    if (this.isButtonDisabled) {
+    if (this.state.isFormValid) {
       return
     }
     this.setState({ isProcessing: true })
@@ -152,13 +159,21 @@ class CreateBotModal extends Component<Props, State> {
     this.props.toggle()
   }
 
-  get isButtonDisabled() {
+  isFormValid = (): boolean => {
     const { isProcessing, botId, botName, selectedTemplate } = this.state
-    const isNameOrIdInvalid =
-      !botId ||
-      !botName ||
-      (this.props.existingBots && this.props.existingBots.some(bot => bot.name === botName || bot.id === botId))
-    return isNameOrIdInvalid || isProcessing || !selectedTemplate || !this._form || !this._form.checkValidity()
+
+    const nameAndIdValid =
+      !!botId && !!botName && !this.props.existingBots?.some(bot => bot.name === botName || bot.id === botId)
+
+    const validCloudOptions = !this.state.isCloudBot || (!!this.state.cloudClientId && !!this.state.cloudClientSecret)
+
+    return (
+      !isProcessing &&
+      nameAndIdValid &&
+      !!selectedTemplate &&
+      validCloudOptions &&
+      (this._form?.checkValidity() ?? false)
+    )
   }
 
   render() {
@@ -238,11 +253,7 @@ class CreateBotModal extends Component<Props, State> {
                 id="checkbox-bot-cloud"
                 label={lang.tr('admin.workspace.bots.create.cloudCheckbox')}
                 checked={this.state.isCloudBot}
-                onChange={e =>
-                  this.setState({
-                    isCloudBot: e.currentTarget.checked
-                  })
-                }
+                onChange={e => this.setState({ isCloudBot: e.currentTarget.checked })}
               />
             </FormGroup>
             {this.state.isCloudBot && (
@@ -284,7 +295,7 @@ class CreateBotModal extends Component<Props, State> {
                 type="submit"
                 text={this.state.isProcessing ? lang.tr('pleaseWait') : lang.tr('admin.workspace.bots.create.create')}
                 onClick={this.createBot}
-                disabled={this.isButtonDisabled}
+                disabled={!this.state.isFormValid}
                 intent={Intent.PRIMARY}
               />
             </div>
