@@ -11,14 +11,14 @@
   "license": "AGPL-3.0",
   "private": true,
   "nlu": {
-    "version": "1.0.0-rc.4"
+    "version": "1.0.0-rc.5"
   },
   "studio": {
     "version": "0.0.46",
     "devBranch": "next"
   },
   "messaging": {
-    "version": "0.1.23"
+    "version": "1.0.1"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
@@ -41,7 +41,7 @@
     "@babel/parser": "^7.11.2",
     "@babel/traverse": "^7.11.0",
     "@botpress/nlu-client": "1.0.0-rc.2",
-    "@botpress/messaging-client": "^0.0.14",
+    "@botpress/messaging-client": "^1.0.0",
     "archiver": "^5.3.0",
     "axios": "^0.21.1",
     "bluebird-global": "^1.0.1",
@@ -49,6 +49,7 @@
     "chokidar": "^2.1.5",
     "fs-extra": "^9.1.0",
     "glob": "^7.1.6",
+    "joi": "^13.6.0",
     "lodash": "^4.17.19",
     "mkdirp": "^1.0.4",
     "moment": "^2.24.0",
@@ -60,8 +61,7 @@
     "tmp": "^0.0.33",
     "yargs": "^16.0.3",
     "yn": "^2.0.0",
-    "lock": "^1.1.0",
-    "joi": "^13.6.0"
+    "lock": "^1.1.0"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
@@ -124,7 +124,7 @@
     "gulp-exec": "^3.0.2",
     "gulp-file": "^0.4.0",
     "gulp-if": "^2.0.2",
-    "gulp-ignore": "^2.0.2",
+    "gulp-ignore": "^3.0.0",
     "gulp-print": "^5.0.0",
     "gulp-rimraf": "^0.2.2",
     "gulp-run": "^1.7.1",
