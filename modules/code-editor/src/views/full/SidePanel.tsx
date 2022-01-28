@@ -140,7 +140,7 @@ class PanelContent extends React.Component<Props> {
   }
 
   renderSectionConfig() {
-    if (!this.hasPermission('global.main_config') || !this.hasPermission('bot.bot_config')) {
+    if (!this.hasPermission('global.main_config') && !this.hasPermission('bot.bot_config')) {
       return null
     }
 
