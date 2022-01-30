@@ -84,7 +84,7 @@ const NameModal: FC<Props> = props => {
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button
               type="submit"
-              id="btn-submit"
+              id="btn-submit-name"
               text={lang.tr('submit')}
               intent={Intent.PRIMARY}
               onClick={submit}

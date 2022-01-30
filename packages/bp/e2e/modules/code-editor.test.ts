@@ -26,7 +26,7 @@ describe('Module - Code Editor', () => {
   it('Create new action', async () => {
     await clickOn('#btn-add-action')
     await fillField('#input-name', 'hello.js', { delay: 100 })
-    await clickOn('#btn-submit')
+    await clickOn('#btn-submit-new-file')
 
     await page.focus('#monaco-editor')
     await page.mouse.click(469, 297)
@@ -63,7 +63,7 @@ describe('Module - Code Editor', () => {
   it('Delete file', async () => {
     await waitForFilesToLoad()
     await clickOnTreeNode('.hello_copy.js', 'right')
-    await clickOn('#btn-delete')
+    await clickOn('#btn-delete-file')
     await clickOn(CONFIRM_DIALOG.ACCEPT)
 
     await expectBotApiCallSuccess('mod/code-editor/remove', 'POST')

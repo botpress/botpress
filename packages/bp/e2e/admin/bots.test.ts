@@ -31,7 +31,7 @@ describe('Admin - Bot Management', () => {
     await fillField('#input-botId', importBotId)
     await uploadFile('input[type="file"]', path.join(__dirname, '../assets/bot-import-test.tgz'))
 
-    await clickOn('#btn-upload')
+    await clickOn('#btn-import-bot')
     await expectAdminApiCallSuccess(`workspace/bots/${importBotId}/import`, 'POST')
   })
 
@@ -45,7 +45,7 @@ describe('Admin - Bot Management', () => {
   it('Delete imported bot', async () => {
     await gotoAndExpect(`${bpConfig.host}/admin/workspace/${workspaceId}/bots`)
 
-    await clickButtonForBot('#btn-delete', importBotId)
+    await clickButtonForBot('#btn-delete-bot-item', importBotId)
 
     await clickOn(CONFIRM_DIALOG.ACCEPT)
     await expectAdminApiCallSuccess(`workspace/bots/${importBotId}/delete`, 'POST')
@@ -70,7 +70,7 @@ describe('Admin - Bot Management', () => {
   })
 
   it('Export bot', async () => {
-    await clickButtonForBot('#btn-export', tempBotId)
+    await clickButtonForBot('#btn-export-bot-item', tempBotId)
 
     const response = await expectAdminApiCallSuccess(`workspace/bots/${tempBotId}/export`, 'GET')
 
@@ -79,7 +79,7 @@ describe('Admin - Bot Management', () => {
   })
 
   it('Create revision', async () => {
-    await clickButtonForBot('#btn-createRevision', tempBotId)
+    await clickButtonForBot('#btn-createRevision-bot-item', tempBotId)
     await expectAdminApiCallSuccess(`workspace/bots/${tempBotId}/revisions`, 'POST')
   })
 
@@ -87,19 +87,19 @@ describe('Admin - Bot Management', () => {
     // FIXME: Super Hack to make sure the revision is 'ready'
     await page.waitForTimeout(500)
 
-    await clickButtonForBot('#btn-rollbackRevision', tempBotId)
+    await clickButtonForBot('#btn-rollbackRevision-bot-item', tempBotId)
     await expectMatchElement('#select-revisions')
 
     await page.keyboard.press('ArrowDown')
     await page.keyboard.press('Enter')
     await clickOn('#chk-confirm')
 
-    await clickOn('#btn-submit')
+    await clickOn('#btn-submit-rollback')
     await expectAdminApiCallSuccess(`workspace/bots/${tempBotId}/rollback`, 'POST')
   })
 
   it('Delete temporary bot', async () => {
-    await clickButtonForBot('#btn-delete', tempBotId)
+    await clickButtonForBot('#btn-delete-bot-item', tempBotId)
 
     await clickOn(CONFIRM_DIALOG.ACCEPT)
     await expectAdminApiCallSuccess(`workspace/bots/${tempBotId}/delete`, 'POST')

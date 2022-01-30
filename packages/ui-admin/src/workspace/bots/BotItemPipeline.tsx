@@ -77,7 +77,7 @@ const BotItemPipeline: FC<Props> = ({
       <div className={style.actions}>
         <AccessControl resource="admin.bots.*" operation="read">
           <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
-            <Button id="btn-menu" icon={<Icon icon="menu" />} minimal />
+            <Button id="btn-menu-pipeline" icon={<Icon icon="menu" />} minimal />
             <Menu>
               <WorkspaceAppItems loadedModules={loadedModules} botId={bot.id} />
 
@@ -132,13 +132,13 @@ const BotItemPipeline: FC<Props> = ({
                 <MenuItem
                   text={lang.tr('admin.workspace.bots.item.createRevision')}
                   icon="cloud-upload"
-                  id="btn-createRevision"
+                  id="btn-createRevision-pipeline"
                   onClick={createRevision}
                 />
                 <MenuItem
                   text={lang.tr('admin.workspace.bots.item.rollback')}
                   icon="undo"
-                  id="btn-rollbackRevision"
+                  id="btn-rollbackRevision-pipepline"
                   onClick={rollback}
                 />
               </AccessControl>
@@ -146,7 +146,7 @@ const BotItemPipeline: FC<Props> = ({
                 <MenuItem
                   text={lang.tr('admin.workspace.bots.item.export')}
                   icon="export"
-                  id="btn-export"
+                  id="btn-export-pipeline"
                   onClick={exportBot}
                 />
               </AccessControl>
@@ -154,7 +154,7 @@ const BotItemPipeline: FC<Props> = ({
                 <MenuItem
                   text={lang.tr('admin.workspace.bots.item.delete')}
                   icon="trash"
-                  id="btn-delete"
+                  id="btn-delete-pipeline"
                   onClick={deleteBot}
                 />
                 {hasError && (

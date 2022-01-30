@@ -98,7 +98,7 @@ const UploadLibrary: FC<Props> = props => {
       />
 
       <Button
-        id="btn-submit"
+        id="btn-submit-upload-library"
         text={isLoading ? lang.tr('pleaseWait') : lang.tr('submit')}
         disabled={isLoading || hasError || !filePath}
         onClick={submitChanges}

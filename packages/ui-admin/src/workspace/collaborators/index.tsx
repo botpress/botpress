@@ -68,7 +68,7 @@ const List: FC<Props> = props => {
         sideMenu={
           <div>
             <Button
-              id="btn-create"
+              id="btn-create-collaborator"
               style={{ width: 160 }}
               text={lang.tr('admin.workspace.users.collaborators.add')}
               icon="add"

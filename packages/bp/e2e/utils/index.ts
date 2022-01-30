@@ -27,8 +27,14 @@ export const loginOrRegister = async () => {
     return
   }
 
-  await fillField('#email', bpConfig.email)
-  await fillField('#password', bpConfig.password)
+  // check if btn exists
+  const btn = await page.$('button#btn-default-signin')
+  if (btn) {
+    await clickOn('button#btn-default-signin')
+  }
+
+  await fillField('#email-login', bpConfig.email)
+  await fillField('#password-login', bpConfig.password)
 
   if (page.url().includes('/register')) {
     await fillField('#confirmPassword', bpConfig.password)
@@ -39,13 +45,17 @@ export const loginOrRegister = async () => {
 }
 
 export const logout = async () => {
-  await clickOn('#btn-menu')
-  await clickOn('#btn-logout')
+  await clickOn('#btn-menu-user-dropdown')
+  // let response
+  await Promise.all([
+    // async () => {
+    //   response = await getResponse('/api/v2/admin/auth/logout', 'POST')
+    // },
+    page.waitForNavigation(),
+    clickOn('#btn-logout')
+  ])
 
-  const response = await getResponse('/api/v2/admin/auth/logout', 'POST')
-  expect(response.status()).toBe(200)
-
-  await page.waitForNavigation()
+  // expect(response.status()).toBe(200)
 }
 
 export const gotoStudio = async (section?: string) => {
@@ -63,7 +73,7 @@ export const getResponse = async (url: string, method?: HttpMethod): Promise<HTT
   return page.waitForResponse(res => {
     const resUrl = res.url()
     if (shouldLogRequest(url) && shouldLogRequest(resUrl)) {
-      console.info(`url: ${url}, resUrl: ${resUrl}`)
+      // console.info(`url: ${url}, resUrl: ${resUrl}`)
     }
     return resUrl.includes(url) && (method ? res.request().method() === method : true)
   })
@@ -153,20 +163,20 @@ export const clickOnTreeNode = async (searchText: string, button: MouseButton = 
 }
 
 export const clickButtonForBot = async (buttonId: string, botId: string = bpConfig.botId) => {
-  await page.waitForSelector('#btn-menu')
+  await page.waitForSelector('.btn-menu-bot-item')
 
   const botRow = await expectMatchElement('.bp_table-row', { text: botId })
-  await clickOn('#btn-menu', undefined, botRow)
+  await clickOn('.btn-menu-bot-item', undefined, botRow)
 
   await expectMatchElement(buttonId)
   await clickOn(buttonId)
 }
 
 export const clickButtonForUser = async (buttonId: string, userId: string) => {
-  await page.waitForSelector('#btn-menu')
+  await page.waitForSelector('#btn-menu-collaborators')
 
   const userRow = await expectMatchElement('.bp_table-row', { text: userId })
-  await clickOn('#btn-menu', undefined, userRow)
+  await clickOn('#btn-menu-user-dropdown', undefined, userRow)
 
   await expectMatchElement(buttonId)
   await clickOn(buttonId)

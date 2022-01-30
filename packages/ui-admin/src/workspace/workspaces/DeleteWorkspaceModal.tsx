@@ -67,7 +67,7 @@ const DeleteWorkspaceModal: FC<Props> = props => {
       <div className={Classes.DIALOG_FOOTER}>
         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
           <Button
-            id="btn-submit"
+            id="btn-submit-delete-workspace"
             intent={Intent.DANGER}
             text="Delete"
             tabIndex={2}
