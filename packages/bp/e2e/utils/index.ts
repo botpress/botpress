@@ -27,12 +27,6 @@ export const loginOrRegister = async () => {
     return
   }
 
-  // check if btn exists
-  const btn = await page.$('button#btn-default-signin')
-  if (btn) {
-    await clickOn('button#btn-default-signin')
-  }
-
   await fillField('#email-login', bpConfig.email)
   await fillField('#password-login', bpConfig.password)
 
@@ -46,16 +40,12 @@ export const loginOrRegister = async () => {
 
 export const logout = async () => {
   await clickOn('#btn-menu-user-dropdown')
-  // let response
-  await Promise.all([
-    // async () => {
-    //   response = await getResponse('/api/v2/admin/auth/logout', 'POST')
-    // },
-    page.waitForNavigation(),
-    clickOn('#btn-logout')
-  ])
+  await clickOn('#btn-logout')
 
-  // expect(response.status()).toBe(200)
+  const response = await getResponse('/api/v2/admin/auth/logout', 'POST')
+  expect(response.status()).toBe(200)
+
+  await page.waitForNavigation()
 }
 
 export const gotoStudio = async (section?: string) => {
