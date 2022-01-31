@@ -64,7 +64,7 @@ export const getResponse = async (url: string, method?: HttpMethod): Promise<HTT
   return page.waitForResponse(res => {
     const resUrl = res.url()
     if (shouldLogRequest(url) && shouldLogRequest(resUrl)) {
-      // console.info(`url: ${url}, resUrl: ${resUrl}`)
+      console.info(`url: ${url}, resUrl: ${resUrl}`)
     }
     return resUrl.includes(url) && (method ? res.request().method() === method : true)
   })

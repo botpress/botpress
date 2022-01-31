@@ -46,19 +46,19 @@ const customTest = [test.auth, test.login, ...admin, ...studio, test.logout]
 
 const requestHandler = (req: HTTPRequest) => {
   if (shouldLogRequest(req.url())) {
-    // console.info(`${getTime()} > REQUEST: ${req.method()} ${req.url()}`)
+    console.info(`${getTime()} > REQUEST: ${req.method()} ${req.url()}`)
   }
 }
 
 const responseHandler = (resp: HTTPResponse) => {
   if (shouldLogRequest(resp.url())) {
-    // console.info(`${getTime()} < RESPONSE: ${resp.request().method()} ${resp.url()} (${resp.status()})`)
+    console.info(`${getTime()} < RESPONSE: ${resp.request().method()} ${resp.url()} (${resp.status()})`)
   }
 }
 
 const frameNavigatedHandler = (frame: Frame) => {
   if (shouldLogRequest(frame.url())) {
-    // console.info(`${getTime()} FRAME NAVIGATED: ${frame.url()}`)
+    console.info(`${getTime()} FRAME NAVIGATED: ${frame.url()}`)
   }
 }
 
