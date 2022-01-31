@@ -167,7 +167,7 @@ export const clickButtonForUser = async (buttonId: string, userId: string) => {
   await page.waitForSelector('#btn-menu-collaborators')
 
   const userRow = await expectMatchElement('.bp_table-row', { text: userId })
-  await clickOn('#btn-menu-user-dropdown', undefined, userRow)
+  await clickOn('#btn-menu-collaborators', undefined, userRow)
 
   await expectMatchElement(buttonId)
   await clickOn(buttonId)
