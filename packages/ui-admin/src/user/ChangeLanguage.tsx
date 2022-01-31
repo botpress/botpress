@@ -41,7 +41,13 @@ const ChangeLanguage: FC<Props> = props => {
         </FormGroup>
       </Dialog.Body>
       <Dialog.Footer>
-        <Button id="btn-submit" type="submit" text={lang.tr('save')} tabIndex={4} intent={Intent.PRIMARY} />
+        <Button
+          id="btn-submit-change-language"
+          type="submit"
+          text={lang.tr('save')}
+          tabIndex={4}
+          intent={Intent.PRIMARY}
+        />
       </Dialog.Footer>
     </Dialog.Wrapper>
   )

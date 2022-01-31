@@ -113,7 +113,7 @@ export const CreateUserModal: FC<Props> = props => {
       </Dialog.Body>
       <Dialog.Footer>
         <Button
-          id="btn-submit"
+          id="btn-submit-create-user"
           type="submit"
           text={
             isCreating

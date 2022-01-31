@@ -77,7 +77,7 @@ const BotItemCompact: FC<Props> = props => {
 
         <AccessControl resource="admin.bots.*" operation="read">
           <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
-            <Button id="btn-menu" icon={<Icon icon="menu" />} minimal />
+            <Button className="btn-menu-bot-item" icon={<Icon icon="menu" />} minimal />
 
             <Menu>
               <WorkspaceAppItems loadedModules={props.loadedModules} botId={props.bot.id} />
@@ -108,13 +108,13 @@ const BotItemCompact: FC<Props> = props => {
                 <MenuItem
                   text={lang.tr('admin.workspace.bots.item.createRevision')}
                   icon="cloud-upload"
-                  id="btn-createRevision"
+                  id="btn-createRevision-bot-item"
                   onClick={props.createRevision}
                 />
                 <MenuItem
                   text={lang.tr('admin.workspace.bots.item.rollback')}
                   icon="undo"
-                  id="btn-rollbackRevision"
+                  id="btn-rollbackRevision-bot-item"
                   onClick={props.rollback}
                 />
               </AccessControl>
@@ -122,7 +122,7 @@ const BotItemCompact: FC<Props> = props => {
                 <MenuItem
                   text={lang.tr('admin.workspace.bots.item.export')}
                   icon="export"
-                  id="btn-export"
+                  id="btn-export-bot-item"
                   onClick={props.exportBot}
                 />
               </AccessControl>
@@ -130,7 +130,7 @@ const BotItemCompact: FC<Props> = props => {
                 <MenuItem
                   text={lang.tr('admin.workspace.bots.item.delete')}
                   icon="trash"
-                  id="btn-delete"
+                  id="btn-delete-bot-item"
                   onClick={props.deleteBot}
                 />
               </AccessControl>
