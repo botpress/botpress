@@ -1,6 +1,6 @@
 .mainLayout {
   align-items: flex-start;
-  height: calc(100vh - var(--statusbar-height) - 1px);
+  height: calc(100vh - var(--statusbar-height));
   display: flex;
   flex-wrap: wrap;
 }

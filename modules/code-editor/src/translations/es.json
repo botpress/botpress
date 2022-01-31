@@ -1,0 +1,90 @@
+{
+  "error": {
+    "cannotOpenFile": "Extensión del archivo no válido",
+    "cannotSaveFile": "No se pudo guardar el archivo",
+    "cannotUploadFile": "No se puede cargar su archivo",
+    "fileUploadDisabled": "Carga de archivos inhabilitada por una variable de entorno.",
+    "invalidJson": "JSON no válido: {details}",
+    "lackUploadPermissions": "No tienes permisos suficientes para subir archivos",
+    "missingParameters": "Faltan parámetros"
+  },
+  "fileStatus": {
+    "fileInformation": "Información de archivo",
+    "fixThem": "Por favor, asegúrese de {count, plural, one {arreglarlo} other {arreglarlos}} antes de guardar.",
+    "thereAreErrors": "Hay {count} {count, plural, one {error} other {errores}} en su archivo.",
+    "viewDetails": "Ver detalles"
+  },
+  "fullName": "Editor de código",
+  "nameModal": {
+    "chooseNameForFile": "Elija un nombre para el archivo",
+    "createNewFile": "Crear nuevo archivo",
+    "fileName": "Nombre de archivo (incluido cualquier directorio)",
+    "nameAlreadyExists": "Ya existe un archivo con ese nombre. Por favor, elija otro o elimínelo antes.",
+    "renameOrMoveFile": "Renombrar o mover archivo"
+  },
+  "navigator": {
+    "cannotBeEdited": "No se pueden editar directamente",
+    "codeSamples": "Esos son ejemplos de código que puede copiar",
+    "codeSamples2": "para agregar nuevas características a sus bots.",
+    "copyExample": "Copiar ejemplo a mi bot",
+    "copyExampleToHooks": "Copiar ejemplo a ganchos globales",
+    "duplicateToCurrent": "Duplicar al bot actual",
+    "isReadOnly": "Este archivo es de sólo lectura",
+    "noFilesFound": "No se han encontrado archivos en esta categoría",
+    "renameMove": "Renombrar / Mover"
+  },
+  "newFileModal": {
+    "createForCurrent": "Crear para el bot actual",
+    "createNew": "Crear un nuevo{name}",
+    "fileName": "Nombre de archivo",
+    "fileNameHelp": "No se permiten caracteres especiales. Debe terminar en .js"
+  },
+  "sidePanel": {
+    "actions": "Acciones",
+    "bot": "Bot {name}",
+    "botHooks": "Bot Hooks",
+    "conf": "Configuraciones",
+    "currentBot": "Bot actual",
+    "eventHooks": "Hooks de eventos",
+    "filterFiles": "Filtrar archivos",
+    "generalHooks": " Hooks Generales",
+    "global": "Global",
+    "hooks": "Hooks",
+    "moduleConf": "Configuraciones de módulos",
+    "pipelineHooks": " Hooks de Pipeline",
+    "rawFileEditor": "Editor de archivos sin procesar"
+  },
+  "splash": {
+    "advancedEditor": "Editor avanzado",
+    "basicEditor": "Editor Básico",
+    "bigWarning": "WARNING",
+    "codeEditor": "Editor de código",
+    "commandPalette": "Paleta de comandos",
+    "editorDesc": "Editor de código le permite crear y editar acciones sin salir de smartbots studio. Cuenta con mecanografías y finalización inteligente del código. Para editar archivos globales y contenido generado por módulos, debe habilitarlo editando el archivo de configuración code-editor.json.",
+    "newFile": "Nuevo archivo",
+    "rawEditorDesc": "El editor de archivos sin procesar no tiene medidas de seguridad y puede meterse fácilmente archivos importantes. ¡Manéjalo con cuidado! Puede editar cualquier archivo contenido en la carpeta de datos, crear nuevos archivos y mover los archivos existentes.",
+    "saveFile": "Guardar archivo"
+  },
+  "store": {
+    "alreadyExists": "Ya existe un archivo con ese nombre",
+    "chooseName": "Elija el nombre de su {type}. Sin caracteres especiales.",
+    "confirmDeleteFile": "¿Está seguro de que desea eliminar el archivo nombrado {file}?",
+    "confirmSaveFile": "¿Desea guardar los cambios realizados en{file}?",
+    "fileDeleted": "Archivo eliminado correctamente!",
+    "fileDisabled": "Archivo desactivado correctamente!",
+    "fileDuplicated": "Archivo duplicado con éxito!",
+    "fileEnabled": "¡Archivo habilitado correctamente!",
+    "fileRenamed": "Archivo renombrado correctamente!",
+    "fileSaved": "Archivo guardado correctamente!",
+    "fileUploaded": "¡El archivo ha subido correctamente!",
+    "invalidFilename": "Nombre de archivo no válido",
+    "onlySuperAdmins": "Solo los superadministradores pueden usar el editor de archivos sin procesar"
+  },
+  "uploadModal": {
+    "completeFilePath": "Ruta de archivo completa",
+    "filePathHelp": "Escriba la ruta completa al archivo, incluida la extensión, relativa a / data",
+    "overwrite": "Sobrescribir el archivo existente",
+    "selectFile": "Seleccione su archivo",
+    "uploadFile": "Subir archivo"
+  }
+}

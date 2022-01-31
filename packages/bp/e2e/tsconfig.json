@@ -4,5 +4,6 @@
     "allowJs": true,
     "types": ["jest", "puppeteer", "jest-environment-puppeteer", "expect-puppeteer"]
   },
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts"],
+  "exclude": []
 }

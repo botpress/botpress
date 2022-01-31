@@ -103,7 +103,7 @@ const RollbackBotModal: FC<Props> = props => {
       <div className={Classes.DIALOG_FOOTER}>
         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
           <Button
-            id="btn-submit"
+            id="btn-submit-rollback"
             text={isProcessing ? lang.tr('pleaseWait') : lang.tr('admin.workspace.bots.rollback.rollback')}
             tabIndex={3}
             onClick={submit}

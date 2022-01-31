@@ -1,0 +1,79 @@
+.status {
+  padding: 10px;
+}
+
+.editor {
+  flex-grow: 1;
+  color: #b1b1b1;
+  height: calc(100% - 35px);
+}
+
+.hidden {
+  display: none;
+}
+
+.editorContainer {
+  width: 100%;
+
+  .btn {
+    cursor: pointer;
+    color: #b1b1b1;
+    vertical-align: middle;
+    float: right;
+
+    &:hover {
+      color: #000;
+    }
+  }
+}
+
+.tabsContainer {
+  display: flex;
+  height: 30px;
+  padding-left: 0px;
+}
+
+.tab {
+  background: #fff;
+  width: fit-content;
+  color: #333;
+  height: 30px;
+  display: flex;
+  padding: 8px 10px 0px 10px;
+  border-right: 2px solid var(--seashell);
+  border-bottom: 1px solid var(--seashell);
+
+  span {
+    cursor: pointer;
+    font-size: 0.8em;
+    margin-right: 5px;
+  }
+}
+
+.active {
+  border-bottom: 0px !important;
+
+  span {
+    font-weight: bold;
+  }
+}
+
+.sidePanel {
+  width: 400px;
+}
+
+.padding {
+  padding: 2px 10px;
+}
+
+.warning {
+  font-weight: bold;
+  color: red;
+}
+
+.floatingButtons {
+  position: absolute;
+  bottom: 10px;
+  left: 10px;
+  z-index: 10;
+}

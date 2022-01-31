@@ -26,7 +26,7 @@ export const AuthMethodPicker: FC<Props> = props => {
         return (
           <Button
             key={strategyId}
-            id={`btn-${strategyId}`}
+            id={`btn-${strategyId}-signin`}
             text={label ? lang.tr('admin.signInWithLabel', { label }) : defaultLabel}
             onClick={() => props.onStrategySelected(strategyId)}
           />

@@ -1,0 +1,90 @@
+{
+  "error": {
+    "cannotOpenFile": "Impossible d'ouvrir ce type de fichier",
+    "cannotSaveFile": "Impossible de sauvegarder le fichier",
+    "cannotUploadFile": "Impossible de téléverser votre fichier",
+    "fileUploadDisabled": "L'envoi de fichier a été désactivé via une variable d'environnement.",
+    "invalidJson": "Fichier JSON invalide: {details}",
+    "lackUploadPermissions": "Vous n'avez pas suffisament de permissions pour envoyer un fichier.",
+    "missingParameters": "Paramètres manquants"
+  },
+  "fileStatus": {
+    "fileInformation": "Informations sur le fichier",
+    "fixThem": "Veuillez vous assurer de {count, plural, one {le} other {les}} corriger avant d'enregistrer.",
+    "thereAreErrors": "Il y a {count} {count, plural, one {erreur} other {erreurs}} dans votre fichier.",
+    "viewDetails": "Voir les détails"
+  },
+  "fullName": "Éditeur de code",
+  "nameModal": {
+    "chooseNameForFile": "Choisissez un nom pour le fichier",
+    "createNewFile": "Créer un nouveau fichier",
+    "fileName": "Nom de fichier (y compris les répertoires)",
+    "nameAlreadyExists": "Un fichier portant ce nom existe déjà. Veuillez en choisir un autre.",
+    "renameOrMoveFile": "Renommer ou déplacer un fichier"
+  },
+  "navigator": {
+    "cannotBeEdited": "Ils ne peuvent pas être modifiés directement",
+    "codeSamples": "Ce sont des exemples de code que vous pouvez copier",
+    "codeSamples2": "pour ajouter de nouvelles fonctionnalités à vos bots.",
+    "copyExample": "Copier l'exemple sur mon bot",
+    "copyExampleToHooks": "Copier l'exemple dans les hooks globaux",
+    "duplicateToCurrent": "Dupliquer sur le bot actuel",
+    "isReadOnly": "Ce fichier est en lecture seule",
+    "noFilesFound": "Aucun fichier trouvé dans cette catégorie",
+    "renameMove": "Renommer / Déplacer"
+  },
+  "newFileModal": {
+    "createForCurrent": "Créer pour le bot actuel",
+    "createNew": "Créez un nouveau {name}",
+    "fileName": "Nom du fichier",
+    "fileNameHelp": "Aucun caractère spécial n'est autorisé. Il doit se terminer par .js"
+  },
+  "sidePanel": {
+    "actions": "Actions",
+    "bot": "Bot {name}",
+    "botHooks": "Hooks de bots",
+    "conf": "Configuration globales",
+    "currentBot": "Bot actuel",
+    "eventHooks": "Hooks d'événement",
+    "filterFiles": "Filtrer les fichiers",
+    "generalHooks": "Hooks généraux",
+    "global": "Global",
+    "hooks": "Hooks",
+    "moduleConf": "Configuration des modules",
+    "pipelineHooks": "Hooks de pipeline",
+    "rawFileEditor": "Éditeur de fichiers bruts"
+  },
+  "splash": {
+    "advancedEditor": "Éditeur avancé",
+    "basicEditor": "Éditeur de base",
+    "bigWarning": "ATTENTION",
+    "codeEditor": "Éditeur de code",
+    "commandPalette": "Palette de commandes",
+    "editorDesc": "L'éditeur de code vous permet de créer et de modifier des actions sans quitter le studio. Il comporte des typages et une complétion de code intelligente. Pour afficher les fichiers globaux et le contenu généré par les modules, vous devez activer la fonctionnalité en modifiant le fichier de configuration code-editor.json.",
+    "newFile": "Nouveau fichier",
+    "rawEditorDesc": "L'éditeur de fichiers bruts n'a aucune protection et vous pouvez facilement corrompre les fichiers importants. Manipulez avec soin! Vous pouvez modifier n'importe quel fichier contenu dans le dossier 'data', créer de nouveaux fichier et déplacer des fichiers existants.",
+    "saveFile": "Enregistrer le fichier"
+  },
+  "store": {
+    "alreadyExists": "Un fichier portant ce nom existe déjà",
+    "chooseName": "Choisissez le nom de votre {type}. Aucun caractères spéciaux. Utilisez le camel case",
+    "confirmDeleteFile": "Voulez-vous vraiment supprimer le fichier nommé {file}?",
+    "confirmSaveFile": "Voulez-vous enregistrer les modifications que vous avez apportées à {fichier}?",
+    "fileDeleted": "Fichier supprimé avec succès!",
+    "fileDisabled": "Fichier désactivé avec succès!",
+    "fileDuplicated": "Fichier dupliqué avec succès!",
+    "fileEnabled": "Fichier activé avec succès!",
+    "fileRenamed": "Fichier renommé avec succès!",
+    "fileSaved": "Fichier enregistré avec succès!",
+    "fileUploaded": "Fichier envoyé avec succès!",
+    "invalidFilename": "Nom de fichier non valide",
+    "onlySuperAdmins": "Seuls les super administrateurs peuvent utiliser l'éditeur de fichiers avancé"
+  },
+  "uploadModal": {
+    "completeFilePath": "Chemin complet du fichier",
+    "filePathHelp": "Tapez le chemin complet, incluant les dossier ainsi que l'extension. Chemin relatif à /data",
+    "overwrite": "Écraser le fichier existant",
+    "selectFile": "Sélectionnez votre fichier",
+    "uploadFile": "Téléverser un fichier"
+  }
+}
