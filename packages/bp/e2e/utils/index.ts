@@ -27,13 +27,14 @@ export const loginOrRegister = async () => {
     return
   }
 
-  await fillField('#email-login', bpConfig.email)
-  await fillField('#password-login', bpConfig.password)
-
   if (page.url().includes('/register')) {
+    await fillField('#email-register', bpConfig.email)
+    await fillField('#password-register', bpConfig.password)
     await fillField('#confirmPassword', bpConfig.password)
     await clickOn('#btn-register')
   } else {
+    await fillField('#email-login', bpConfig.email)
+    await fillField('#password-login', bpConfig.password)
     await clickOn('#btn-signin')
   }
 }
