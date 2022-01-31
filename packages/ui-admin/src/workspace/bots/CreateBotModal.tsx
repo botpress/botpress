@@ -38,7 +38,6 @@ interface State {
   botName: string
   isProcessing: boolean
   generateId: boolean
-  isFormValid: boolean
 
   error: any
 
@@ -63,8 +62,7 @@ const defaultState: Omit<State, 'templates' | 'categories'> = {
   generateId: true,
   isCloudBot: false,
   cloudClientId: '',
-  cloudClientSecret: '',
-  isFormValid: false
+  cloudClientSecret: ''
 }
 
 class CreateBotModal extends Component<Props, State> {
@@ -87,11 +85,6 @@ class CreateBotModal extends Component<Props, State> {
     }
     if (!prevProps.botCategoriesFetched && this.props.botCategoriesFetched) {
       this.loadCategories()
-    }
-
-    const isFormValid = this.isFormValid()
-    if (this.props.isOpen && prevState.isFormValid !== isFormValid) {
-      this.setState({ isFormValid })
     }
   }
 
@@ -124,7 +117,7 @@ class CreateBotModal extends Component<Props, State> {
 
   createBot = async e => {
     e.preventDefault()
-    if (!this.state.isFormValid) {
+    if (!this.isFormValid()) {
       return
     }
     this.setState({ isProcessing: true })
@@ -295,7 +288,7 @@ class CreateBotModal extends Component<Props, State> {
                 type="submit"
                 text={this.state.isProcessing ? lang.tr('pleaseWait') : lang.tr('admin.workspace.bots.create.create')}
                 onClick={this.createBot}
-                disabled={!this.state.isFormValid}
+                disabled={!this.isFormValid()}
                 intent={Intent.PRIMARY}
               />
             </div>
