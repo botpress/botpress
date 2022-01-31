@@ -38,7 +38,7 @@
     "debug": "4.1.1",
     "deep-diff": "^1.0.2",
     "diff": "^4.0.1",
-    "doctrine": "^2.1.0",
+    "doctrine": "^3.0.0",
     "dotenv": "^7.0.0",
     "errorhandler": "^1.5.0",
     "eventemitter2": "^5.0.1",
