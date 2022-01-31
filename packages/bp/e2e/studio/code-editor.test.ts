@@ -2,10 +2,10 @@ import { clickOn, fillField, expectMatchElement } from '../utils/expectPuppeteer
 import {
   clickOnTreeNode,
   CONFIRM_DIALOG,
-  expectBotApiCallSuccess,
+  expectStudioApiCallSuccess,
   gotoStudio,
   triggerKeyboardShortcut,
-  waitForBotApiResponse
+  waitForStudioApiResponse
 } from '../utils'
 
 const waitForFilesToLoad = async () =>
@@ -20,7 +20,7 @@ describe('Module - Code Editor', () => {
 
   it('Load Code Editor', async () => {
     await clickOn('#bp-menu_code-editor')
-    await expectBotApiCallSuccess('mod/code-editor/files')
+    await expectStudioApiCallSuccess('code-editor/files')
   })
 
   it('Create new action', async () => {
@@ -34,8 +34,8 @@ describe('Module - Code Editor', () => {
     await page.keyboard.type("const lol = 'hi' //")
 
     await Promise.all([
-      expectBotApiCallSuccess('mod/code-editor/save', 'POST'),
-      expectBotApiCallSuccess('mod/code-editor/files', 'GET'),
+      expectStudioApiCallSuccess('code-editor/save', 'POST'),
+      expectStudioApiCallSuccess('code-editor/files', 'GET'),
       triggerKeyboardShortcut('s', true)
     ])
   })
@@ -45,7 +45,7 @@ describe('Module - Code Editor', () => {
     await clickOnTreeNode('hello.js', 'right')
     await clickOn('#btn-duplicate')
 
-    await expectBotApiCallSuccess('mod/code-editor/save', 'POST')
+    await expectStudioApiCallSuccess('code-editor/save', 'POST')
   })
 
   it('Disable file', async () => {
@@ -53,11 +53,23 @@ describe('Module - Code Editor', () => {
     await clickOnTreeNode('hello_copy.js', 'right')
     await clickOn('#btn-disable')
 
-    await expectBotApiCallSuccess('mod/code-editor/rename', 'POST')
+    await expectStudioApiCallSuccess('code-editor/rename', 'POST')
 
-    const response = await waitForBotApiResponse('mod/code-editor/files')
+    const response = await waitForStudioApiResponse('code-editor/files')
     const disabledFile = response['bot.actions'].find((x: { name: string }) => x.name === '.hello_copy.js')
     expect(disabledFile).toBeDefined()
+  })
+
+  it('Open two tabs', async () => {
+    await waitForFilesToLoad()
+
+    await clickOnTreeNode('bot.config.json', 'left')
+    await expectStudioApiCallSuccess('code-editor/readFile', 'POST')
+    await expectMatchElement('div[id="bot.config.json"]', { text: 'bot.config.json' })
+
+    await clickOnTreeNode('hello.js', 'left')
+    await expectStudioApiCallSuccess('code-editor/readFile', 'POST')
+    await expectMatchElement('div[id="hello.js"]', { text: 'hello.js' })
   })
 
   it('Delete file', async () => {
@@ -66,21 +78,9 @@ describe('Module - Code Editor', () => {
     await clickOn('#btn-delete')
     await clickOn(CONFIRM_DIALOG.ACCEPT)
 
-    await expectBotApiCallSuccess('mod/code-editor/remove', 'POST')
+    await expectStudioApiCallSuccess('code-editor/remove', 'POST')
 
-    const response = await waitForBotApiResponse('mod/code-editor/files')
+    const response = await waitForStudioApiResponse('code-editor/files')
     expect(response['bot.actions'].find((x: { name: string }) => x.name === '.hello_copy.js')).toBeUndefined()
-  })
-
-  it('Open two tabs', async () => {
-    await waitForFilesToLoad()
-
-    await clickOnTreeNode('bot.config.json', 'left')
-    await expectBotApiCallSuccess('mod/code-editor/readFile', 'POST')
-    await expectMatchElement('div[id="bot.config.json"]', { text: 'bot.config.json' })
-
-    await clickOnTreeNode('channel-web.json', 'left')
-    await expectBotApiCallSuccess('mod/code-editor/readFile', 'POST')
-    await expectMatchElement('div[id="channel-web.json"]', { text: 'channel-web.json' })
   })
 })

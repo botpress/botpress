@@ -65,7 +65,7 @@ const BotItemCompact: FC<Props> = props => {
           />
         </AccessControl>
 
-        {!props.bot.disabled && !props.hasError && (
+        {!props.bot.disabled && !props.hasError && !props.bot.isCloudBot && (
           <AnchorButton
             text={lang.tr('admin.workspace.bots.item.openChat')}
             icon="chat"

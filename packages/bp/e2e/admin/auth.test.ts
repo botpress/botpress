@@ -22,10 +22,10 @@ const getBody = (content: string) => {
     hasChanges: false,
     uri: {
       $mid: 1,
-      external: 'bp://files/botpress.config.json',
-      path: '/botpress.config.json',
-      scheme: 'bp',
-      authority: 'files'
+      authority: 'files',
+      external: 'bp://files/global/main_config/botpress.config.json',
+      path: '/global/main_config/botpress.config.json',
+      scheme: 'bp'
     },
     lastSaveVersion: 1
   }

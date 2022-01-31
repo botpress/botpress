@@ -80,7 +80,7 @@ const BotItemPipeline: FC<Props> = ({
             <Menu>
               <WorkspaceAppItems loadedModules={loadedModules} botId={bot.id} />
 
-              {!bot.disabled && !hasError && (
+              {!bot.disabled && !hasError && !bot.isCloudBot && (
                 <Fragment>
                   <MenuItem icon="chat" text={lang.tr('admin.workspace.bots.item.openChat')} href={botShortLink} />
                   {hasStudioAccess && (

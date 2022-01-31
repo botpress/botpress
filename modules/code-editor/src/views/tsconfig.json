@@ -1,0 +1,6 @@
+{
+  "extends": "../../../tsconfig_view.shared.json",
+  "compilerOptions": {
+    "baseUrl": "./"
+  }
+}
