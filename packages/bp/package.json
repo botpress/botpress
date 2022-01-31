@@ -77,7 +77,7 @@
     "object-sizeof": "^1.5.2",
     "on-headers": "^1.0.2",
     "passport": "^0.4.0",
-    "passport-oauth2": "^1.5.0",
+    "passport-oauth2": "^1.6.1",
     "passport-saml": "^3.2.1",
     "password-sheriff": "^1.1.0",
     "pg": "^7.8.0",
