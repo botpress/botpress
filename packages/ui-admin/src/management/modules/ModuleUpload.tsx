@@ -112,7 +112,7 @@ export const ImportModal: FC<Props> = props => {
         </Dialog.Body>
         <Dialog.Footer>
           <Button
-            id="btn-submit"
+            id="btn-submit-module-upload"
             text={isLoading ? lang.tr('pleaseWait') : lang.tr('submit')}
             disabled={isLoading}
             onClick={submitChanges}

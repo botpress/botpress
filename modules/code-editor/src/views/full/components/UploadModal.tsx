@@ -171,7 +171,7 @@ export const UploadModal: FC<Props> = props => {
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button
-              id="btn-submit"
+              id="btn-submit-upload"
               text={isLoading ? lang.tr('pleaseWait') : lang.tr('submit')}
               disabled={isLoading || hasError || (alreadyExists && !overwrite)}
               onClick={submitChanges}

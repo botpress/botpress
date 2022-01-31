@@ -84,7 +84,7 @@ const ChangePipelineModal: FC<Props> = props => {
 
       <div className={Classes.DIALOG_FOOTER}>
         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-          <Button id="btn-submit" text="Submit" onClick={submit} />
+          <Button id="btn-submit-change-pipeline" text="Submit" onClick={submit} />
         </div>
       </div>
     </Dialog>

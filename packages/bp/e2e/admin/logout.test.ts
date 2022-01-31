@@ -11,14 +11,14 @@ describe('Admin - Logout', () => {
 
   if (bpConfig.recreateBot) {
     it('Delete test bot', async () => {
-      await clickButtonForBot('#btn-delete')
+      await clickButtonForBot('#btn-delete-bot-item')
       await clickOn(CONFIRM_DIALOG.ACCEPT)
       await expectAdminApiCallSuccess(`workspace/bots/${bpConfig.botId}/delete`, 'POST')
     })
   }
 
   it('Ensure that the previous token is invalid', async () => {
-    await clickOn('#btn-menu')
+    await clickOn('#btn-menu-user-dropdown')
     await clickOn('#btn-logout')
 
     const response = await getResponse('/api/v2/admin/auth/logout', 'POST')

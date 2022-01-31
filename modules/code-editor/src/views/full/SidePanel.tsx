@@ -260,7 +260,7 @@ class PanelContent extends React.Component<Props> {
         label={lang.tr('module.code-editor.sidePanel.rawFileEditor')}
         actions={[
           {
-            id: 'btn-upload',
+            id: 'btn-upload-sidepanel',
             icon: <Icon icon="upload" />,
             key: 'upload',
             onClick: () => this.setState({ selectedFile: undefined, isUploadModalOpen: true })
