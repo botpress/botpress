@@ -67,6 +67,7 @@ const zipArchive = async ({ osName, binding, tempBin, binaryName }) => {
   archive.directory(`${basePath}/binaries/${osName}/bin`, 'bin')
   archive.directory(`build/native-extensions/${binding}`, `bindings/${binding}`)
   archive.file(`${basePath}/binaries/${tempBin}`, { name: binaryName })
+  archive.file('build/sorry.macos.txt', { name: 'sorry.txt' })
 
   for (const file of glob.sync(`${basePath}/binaries/modules/*.tgz`)) {
     archive.file(file, { name: `modules/${path.basename(file)}` })

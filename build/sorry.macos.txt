@@ -1,0 +1,15 @@
+I’m so sorry you have to read this! We’re aware of the bad experience you’re about to face. Trust me, we’re working on fixing it.
+
+To get Botpress running on macOS for the 1st time, you need to open the System Preferences > Security & Privacy > General and keep that screen open for the next steps.
+
+0 - control + click the binary, choose open
+1 - An alert will pop on your face, "macOS cannot verify that this app is free from malware". Click Cancel
+2 - A message will appear in your Security & Privacy > General screen
+3 - Click Allow Anyway
+4 - Kill the process
+5 - Double click the binary
+6 - A new alert will pop up "By opening this app, you will be overriding system Security .... ". Click Open
+7 - Repeat steps 1 - 6 until "Botpress is exposed at http://localhost:3000" in the terminal
+
+You'll see, this is worth it.
+Sorry again!
