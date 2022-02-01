@@ -7,7 +7,7 @@
  * @author Botpress, Inc.
  * @param {string} type - Pick between: user, session, temp, bot
  * @param {string} name - The name of the variable
- * @param {any} value - Set the value of the variable. Type 'null' or leave empty to erase it.
+ * @param {any} value - Set the value of the variable.
  */
 const setVariable = async (type, name, value) => {
   if (type === 'bot') {

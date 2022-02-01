@@ -27,19 +27,20 @@ export const loginOrRegister = async () => {
     return
   }
 
-  await fillField('#email', bpConfig.email)
-  await fillField('#password', bpConfig.password)
-
   if (page.url().includes('/register')) {
+    await fillField('#email-register', bpConfig.email)
+    await fillField('#password-register', bpConfig.password)
     await fillField('#confirmPassword', bpConfig.password)
     await clickOn('#btn-register')
   } else {
+    await fillField('#email-login', bpConfig.email)
+    await fillField('#password-login', bpConfig.password)
     await clickOn('#btn-signin')
   }
 }
 
 export const logout = async () => {
-  await clickOn('#btn-menu')
+  await clickOn('#btn-menu-user-dropdown')
   await clickOn('#btn-logout')
 
   const response = await getResponse('/api/v2/admin/auth/logout', 'POST')
@@ -153,20 +154,20 @@ export const clickOnTreeNode = async (searchText: string, button: MouseButton = 
 }
 
 export const clickButtonForBot = async (buttonId: string, botId: string = bpConfig.botId) => {
-  await page.waitForSelector('#btn-menu')
+  await page.waitForSelector('.btn-menu-bot-item')
 
   const botRow = await expectMatchElement('.bp_table-row', { text: botId })
-  await clickOn('#btn-menu', undefined, botRow)
+  await clickOn('.btn-menu-bot-item', undefined, botRow)
 
   await expectMatchElement(buttonId)
   await clickOn(buttonId)
 }
 
 export const clickButtonForUser = async (buttonId: string, userId: string) => {
-  await page.waitForSelector('#btn-menu')
+  await page.waitForSelector('#btn-menu-collaborators')
 
   const userRow = await expectMatchElement('.bp_table-row', { text: userId })
-  await clickOn('#btn-menu', undefined, userRow)
+  await clickOn('#btn-menu-collaborators', undefined, userRow)
 
   await expectMatchElement(buttonId)
   await clickOn(buttonId)

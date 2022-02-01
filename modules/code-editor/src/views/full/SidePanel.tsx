@@ -140,7 +140,7 @@ class PanelContent extends React.Component<Props> {
   }
 
   renderSectionConfig() {
-    if (!this.hasPermission('global.main_config') || !this.hasPermission('bot.bot_config')) {
+    if (!this.hasPermission('global.main_config') && !this.hasPermission('bot.bot_config')) {
       return null
     }
 
@@ -260,7 +260,7 @@ class PanelContent extends React.Component<Props> {
         label={lang.tr('module.code-editor.sidePanel.rawFileEditor')}
         actions={[
           {
-            id: 'btn-upload',
+            id: 'btn-upload-sidepanel',
             icon: <Icon icon="upload" />,
             key: 'upload',
             onClick: () => this.setState({ selectedFile: undefined, isUploadModalOpen: true })

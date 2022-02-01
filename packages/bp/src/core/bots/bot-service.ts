@@ -25,16 +25,15 @@ import glob from 'glob'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import Joi from 'joi'
 import _ from 'lodash'
-import mkdirp from 'mkdirp'
 import moment from 'moment'
 import ms from 'ms'
 import { studioActions } from 'orchestrator'
 import os from 'os'
 import path from 'path'
 import replace from 'replace-in-file'
-import semver from 'semver'
 import tmp from 'tmp'
 import { VError } from 'verror'
+import { findDeletedFiles } from './utils'
 
 const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
 const BOT_CONFIG_FILENAME = 'bot.config.json'
@@ -289,9 +288,24 @@ export class BotService {
         })
 
         const folder = await this._validateBotArchive(tmpDir.name)
-        await this.ghostService.forBot(botId).importFromDirectory(folder)
-        const originalConfig = await this.configProvider.getBotConfig(botId)
 
+        // Check for deleted file upon overwriting
+        if (allowOverwrite) {
+          const files = await this.ghostService.forBot(botId).directoryListing('/')
+          const deletedFiles = await findDeletedFiles(files, folder)
+
+          for (const file of deletedFiles) {
+            await this.ghostService.forBot(botId).deleteFile('/', file)
+          }
+        }
+
+        if (await this.botExists(botId)) {
+          await this.unmountBot(botId)
+        }
+
+        await this.ghostService.forBot(botId).importFromDirectory(folder)
+
+        const originalConfig = await this.configProvider.getBotConfig(botId)
         const newConfigs = <Partial<BotConfig>>{
           id: botId,
           name: botId === originalConfig.name ? originalConfig.name : `${originalConfig.name} (${botId})`,
@@ -303,10 +317,6 @@ export class BotService {
             }
           }
         }
-        if (await this.botExists(botId)) {
-          await this.unmountBot(botId)
-        }
-
         await this.configProvider.mergeBotConfig(botId, newConfigs, true)
 
         await this.workspaceService.addBotRef(botId, workspaceId)

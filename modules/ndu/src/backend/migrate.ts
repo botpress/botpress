@@ -1,12 +1,12 @@
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import generate from 'nanoid/generate'
+import { customAlphabet } from 'nanoid'
 
 import { bots as mountedBots, conditions } from '.'
 import { DEFAULT_MIN_CONFIDENCE, UnderstandingEngine } from './ndu-engine'
 
-const prettyId = (length = 10) => generate('1234567890abcdef', length)
+const prettyId = (length = 10) => customAlphabet('1234567890abcdef', length)()
 const debug = DEBUG('ndu').sub('migrate')
 
 interface TemplateFile {

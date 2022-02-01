@@ -117,15 +117,15 @@ describe('Auth UI', () => {
   it('Preview non-hidden auth strategies', async () => {
     await page.goto(`${bpConfig.host}/admin/login`)
 
-    expect(await doesElementExist('#btn-default')).toBeTruthy()
-    expect(await doesElementExist('#btn-botpress')).toBeTruthy()
+    expect(await doesElementExist('#btn-default-signin')).toBeTruthy()
+    expect(await doesElementExist('#btn-botpress-signin')).toBeTruthy()
     expect(await doesElementExist('#btn-botpress2')).toBeFalsy()
   })
 
   it('Revert config', async () => {
-    await clickOn('#btn-default')
-    await fillField('#email', bpConfig.email)
-    await fillField('#password', bpConfig.password)
+    await clickOn('#btn-default-signin')
+    await fillField('#email-login', bpConfig.email)
+    await fillField('#password-login', bpConfig.password)
     await clickOn('#btn-signin')
 
     const token = await extractTokenFromUrlResponse(`${bpConfig.apiHost}/api/v2/admin/auth/login/basic/default`)
