@@ -2,33 +2,33 @@
 # yarn lockfile v1
 
 
-"@analytics/cookie-utils@^0.2.7":
-  version "0.2.7"
-  resolved "https://registry.npmjs.org/@analytics/cookie-utils/-/cookie-utils-0.2.7.tgz#10eec7e54f0adb7e07e1232c349da07bdf6d79c7"
-  integrity sha512-PgrcemqWDfVgk1itFo8phUsWJlOsTp2088NV89/p1utwbySkS2FcCX4Xz7ZezsBqK7wZdgzHosg6LKyzDkUxrg==
+"@analytics/cookie-utils@^0.2.8":
+  version "0.2.8"
+  resolved "https://registry.yarnpkg.com/@analytics/cookie-utils/-/cookie-utils-0.2.8.tgz#271ab9142352f104497e9fd1e9cf1577f4cede7a"
+  integrity sha512-m6AaitiTKxiUgsux9/g0sD4MfDpzWbYnCb3dYos4mBMzlN1WFzQo0Ox1QmGFvtydl8Nb5Zwj5uIdVPUbFNSWXw==
   dependencies:
-    "@analytics/global-storage-utils" "^0.1.2"
+    "@analytics/global-storage-utils" "^0.1.3"
 
-"@analytics/core@^0.10.18":
-  version "0.10.18"
-  resolved "https://registry.npmjs.org/@analytics/core/-/core-0.10.18.tgz#6b90a53de50c49beabcc8b24cf7264b0c14c661b"
-  integrity sha512-0bbhXDRdDrqjLOY+AoFYlh947yxvzn5T4jplZ7pUFCGG+P/rJQ+0SkmlchK9Z5evFWnMR6qXx2dllk5yIUKzew==
+"@analytics/core@^0.10.21":
+  version "0.10.21"
+  resolved "https://registry.yarnpkg.com/@analytics/core/-/core-0.10.21.tgz#027d2798ab8f9c1bd0f0319b3b2825fd21aa1f62"
+  integrity sha512-qdnqci07+c/4wU1amVVpDTS4qeMBT04qaYNLa6lr+QgMiWh6RkxNpDyialDYzjFgxBrUa/1IuQEj9N53qtd/Pw==
   dependencies:
-    "@analytics/global-storage-utils" "^0.1.2"
-    "@analytics/type-utils" "^0.5.0"
-    analytics-utils "^1.0.5"
+    "@analytics/global-storage-utils" "^0.1.3"
+    "@analytics/type-utils" "^0.5.3"
+    analytics-utils "^1.0.8"
 
-"@analytics/global-storage-utils@^0.1.2":
-  version "0.1.2"
-  resolved "https://registry.npmjs.org/@analytics/global-storage-utils/-/global-storage-utils-0.1.2.tgz#f20c4ce485a6e01fef2601ac96aab7887153d7e2"
-  integrity sha512-y4AXZAB+ZKmg1eEu8jLT/tuLG9Owl7uVU0uvI18mlRUd1fGS+DQ8x84ZKmkS5wSdrBIUjGX5Lqkg5o7EjQ5lDA==
+"@analytics/global-storage-utils@^0.1.3":
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/@analytics/global-storage-utils/-/global-storage-utils-0.1.3.tgz#f4b9ea4efb77c4d8481046df6948409b1ce16e0c"
+  integrity sha512-0XXWFxguiU0S4MyLScbgIRjXlrw6XpzhTFaTd5NCxOP1ZzUEONbiDEbFCtoUIqIQXaeXDvKBF9Aro3M/ITN75Q==
 
-"@analytics/localstorage-utils@^0.1.5":
-  version "0.1.5"
-  resolved "https://registry.npmjs.org/@analytics/localstorage-utils/-/localstorage-utils-0.1.5.tgz#65d07bc2d2124a2f2667b2f35d855071dd6c16d8"
-  integrity sha512-hEZYoZuO9GbLNCAdWAgsd7afteKOAAa7X8LKEW4CgkGGyEgonmL1MyYK0XJNvrINdCfdIwBDCWsK8vFk1vL4lg==
+"@analytics/localstorage-utils@^0.1.6":
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/@analytics/localstorage-utils/-/localstorage-utils-0.1.6.tgz#2bb707ff9cb90936b2b5ebaf77da74be559735cf"
+  integrity sha512-SdlXnqmaF6FRMeuLnuHqxGjl5AcHez/ORvIrYN0v2kdDVik/oWlnwlZYexBCk8pCZReLnL21KJ6zz9bfQ7fPKw==
   dependencies:
-    "@analytics/global-storage-utils" "^0.1.2"
+    "@analytics/global-storage-utils" "^0.1.3"
 
 "@analytics/segment@^1.1.1":
   version "1.1.2"
@@ -37,20 +37,20 @@
   dependencies:
     analytics-node "^3.5.0"
 
-"@analytics/storage-utils@^0.2.14":
-  version "0.2.14"
-  resolved "https://registry.npmjs.org/@analytics/storage-utils/-/storage-utils-0.2.14.tgz#7af47c8e6320726433275b35bf16cf289f0ff061"
-  integrity sha512-Uf5JpDxj9XwOBDeIReCA8rq7qLW0E8bTxZGSCgt1LRxl9LYdU8haOSO6RZ54jZPHriayGlDAZdn8bJxXHMHUzw==
+"@analytics/storage-utils@^0.2.17":
+  version "0.2.17"
+  resolved "https://registry.yarnpkg.com/@analytics/storage-utils/-/storage-utils-0.2.17.tgz#479f5ef1251632a275abb6e0106a57d22bab7a03"
+  integrity sha512-eJvyvqqeQh/YMOGkPzW8YC79H73ADKKU32ocZTREgkaUWv2Hd9vpt5MYErCWXeMMcWCy5DtzNTke062AGboq1w==
   dependencies:
-    "@analytics/cookie-utils" "^0.2.7"
-    "@analytics/global-storage-utils" "^0.1.2"
-    "@analytics/localstorage-utils" "^0.1.5"
-    "@analytics/type-utils" "^0.5.0"
+    "@analytics/cookie-utils" "^0.2.8"
+    "@analytics/global-storage-utils" "^0.1.3"
+    "@analytics/localstorage-utils" "^0.1.6"
+    "@analytics/type-utils" "^0.5.3"
 
-"@analytics/type-utils@^0.5.0":
-  version "0.5.0"
-  resolved "https://registry.npmjs.org/@analytics/type-utils/-/type-utils-0.5.0.tgz#1322273df48f63c75ff73e5ad77056e6b5720ee0"
-  integrity sha512-y7fM2Wkia5Y2xv0zctdNOlqv8Co70kt4WxmuqJi4Y/ZySZjZEDrF/toUESicIQsNfaMsKDdTzCgbO1ioPL6mXw==
+"@analytics/type-utils@^0.5.3":
+  version "0.5.3"
+  resolved "https://registry.yarnpkg.com/@analytics/type-utils/-/type-utils-0.5.3.tgz#77d8542e0f8ae9f0524acf9e760c3e029ea89342"
+  integrity sha512-45IYy7vqh8W3p07MGGGVDdRTd1codcAJZ8USWA63IfS3EEAmL33fI7AI4SvNN7wVdIFdJv17ZbFBmDT6H+rt8g==
 
 "@apidevtools/json-schema-ref-parser@^9.0.6":
   version "9.0.6"
@@ -5058,21 +5058,21 @@ analytics-node@^3.5.0:
     remove-trailing-slash "^0.1.0"
     uuid "^3.2.1"
 
-analytics-utils@^1.0.5:
-  version "1.0.5"
-  resolved "https://registry.npmjs.org/analytics-utils/-/analytics-utils-1.0.5.tgz#b99c1581794a00fee2072fd5530f4127468348e6"
-  integrity sha512-iKqEbSFQ/Pb3Mbl2B6F6YkiRcQdEyxoO87wHy/s5jsKyxywMreWZEDkPlS+xcOU0ep5pgjRrt7vKr3KmF8O8PQ==
+analytics-utils@^1.0.8:
+  version "1.0.8"
+  resolved "https://registry.yarnpkg.com/analytics-utils/-/analytics-utils-1.0.8.tgz#bcebe9ac86c7e5ba7da5dbc6feac4842833a0205"
+  integrity sha512-N+bYSDzJ8smu7vkcG/HV7wI042Vf/ORDUpCCzW3D2PAkDtpIvCVe4QXMNh9OXXi4EZjDPd6zP3JNcOC9RAvBJA==
   dependencies:
-    "@analytics/type-utils" "^0.5.0"
+    "@analytics/type-utils" "^0.5.3"
     dlv "^1.1.3"
 
-analytics@^0.7.17:
-  version "0.7.18"
-  resolved "https://registry.npmjs.org/analytics/-/analytics-0.7.18.tgz#13eae10a4949a507997d2aac954e837b28c054b8"
-  integrity sha512-6Ff16HjBpG8D7MLvzmiqzAxSixrPPi6cR+q94YaSfmC/tOKQFxMm6lUUF5XiksGLsvYbFbVSYS5I3Od5EPtk9A==
+analytics@^0.7.21:
+  version "0.7.21"
+  resolved "https://registry.yarnpkg.com/analytics/-/analytics-0.7.21.tgz#42ab9de9f27aec9a3343887c6cdcc2a99769adc9"
+  integrity sha512-3WS0IFaHgYkvSVebrg3i2IBh8rP41b4VHr/4suWweRA3FGYJu+BSGTnkiF+qBBzrfbX1+2rkTYygZyRb3wsUQA==
   dependencies:
-    "@analytics/core" "^0.10.18"
-    "@analytics/storage-utils" "^0.2.14"
+    "@analytics/core" "^0.10.21"
+    "@analytics/storage-utils" "^0.2.17"
 
 anser@^1.4.8:
   version "1.4.10"

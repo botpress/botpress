@@ -19,7 +19,7 @@
     "@blueprintjs/select": "^3.11.2",
     "@blueprintjs/icons": "^3.27.0",
     "@botpress/ui-shared": "*",
-    "analytics": "^0.7.17",
+    "analytics": "^0.7.21",
     "anser": "^1.4.8",
     "axios": "^0.21.1",
     "bluebird": "^3.5.5",
