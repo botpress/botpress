@@ -209,7 +209,7 @@ class ImportBotModal extends Component<Props, State> {
             {!!this.state.error && <Callout intent={Intent.DANGER}>{this.state.error}</Callout>}
             <div className={Classes.DIALOG_FOOTER_ACTIONS}>
               <Button
-                id="btn-upload"
+                id="btn-import-bot"
                 tabIndex={3}
                 type="submit"
                 text={buttonText}

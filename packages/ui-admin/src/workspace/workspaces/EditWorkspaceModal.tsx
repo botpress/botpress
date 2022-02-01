@@ -89,7 +89,7 @@ const EditWorkspaceModal: FC<Props> = props => {
 
       <div className={Classes.DIALOG_FOOTER}>
         <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-          <Button id="btn-submit" text="Save" tabIndex={3} onClick={submit} />
+          <Button id="btn-submit-edit-workspace" text="Save" tabIndex={3} onClick={submit} />
         </div>
       </div>
     </Dialog>

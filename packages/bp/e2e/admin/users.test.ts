@@ -10,7 +10,7 @@ describe('Admin - Users', () => {
   })
 
   it('Create a new collaborator', async () => {
-    await clickOn('#btn-create')
+    await clickOn('#btn-create-collaborator')
     await clickOn('#select-email')
     await page.type('#select-email', testUserEmail)
     await page.keyboard.press('Enter')
@@ -21,9 +21,9 @@ describe('Admin - Users', () => {
     await page.keyboard.press('Enter')
 
     await Promise.all([
-      clickOn('#btn-submit'),
       expectAdminApiCallSuccess('workspace/collaborators', 'POST'),
-      expectAdminApiCallSuccess('workspace/collaborators?roles=admin,dev,editor,agent,chatuser', 'GET')
+      expectAdminApiCallSuccess('workspace/collaborators?roles=admin,dev,editor,agent,chatuser', 'GET'),
+      clickOn('#btn-submit-create-user')
     ])
 
     await clickOn('button[aria-label="Close"]')

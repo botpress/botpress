@@ -7,6 +7,9 @@ on:
 
 jobs:
   pre_release_bin:
+    # Do not publish dependabot branches
+    if: startsWith(github.head_ref, 'dependabot/') != true
+
     name: Build and Publish Binaries
     runs-on: ubuntu-latest
     steps:

@@ -191,7 +191,7 @@ const UploadArchive = () => {
                 style={{ margin: '3px 20px 0 20px' }}
               />
               <Button
-                id="btn-upload"
+                id="btn-upload-archive"
                 text={isLoading ? lang.tr('admin.versioning.pleaseWait') : lang.tr('upload')}
                 disabled={!useForce || isLoading}
                 onClick={uploadArchive}

@@ -68,7 +68,7 @@ const List: FC<Props> = props => {
         sideMenu={
           <div>
             <Button
-              id="btn-create"
+              id="btn-create-chat-user"
               style={{ width: 160 }}
               text={lang.tr('admin.workspace.users.addChatUser')}
               icon="add"
@@ -77,7 +77,7 @@ const List: FC<Props> = props => {
             <br />
             <br />
             <Button
-              id="btn-rollout"
+              id="btn-rollout-chat-user"
               style={{ width: 160 }}
               text={lang.tr('admin.workspace.users.configureRollout')}
               icon="send-to-graph"

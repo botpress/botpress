@@ -11,14 +11,14 @@
   "license": "AGPL-3.0",
   "private": true,
   "nlu": {
-    "version": "1.0.0-rc.4"
+    "version": "1.0.0-rc.5"
   },
   "studio": {
     "version": "0.0.46",
     "devBranch": "next"
   },
   "messaging": {
-    "version": "0.1.23"
+    "version": "1.0.1"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
@@ -41,14 +41,15 @@
     "@babel/parser": "^7.11.2",
     "@babel/traverse": "^7.11.0",
     "@botpress/nlu-client": "1.0.0-rc.2",
-    "@botpress/messaging-client": "^0.0.14",
+    "@botpress/messaging-client": "^1.0.0",
     "archiver": "^5.3.0",
     "axios": "^0.21.1",
     "bluebird-global": "^1.0.1",
     "chalk": "^2.4.2",
     "chokidar": "^2.1.5",
-    "fs-extra": "^9.1.0",
+    "fs-extra": "^10.0.0",
     "glob": "^7.1.6",
+    "joi": "^13.6.0",
     "lodash": "^4.17.19",
     "mkdirp": "^1.0.4",
     "moment": "^2.24.0",
@@ -60,8 +61,7 @@
     "tmp": "^0.0.33",
     "yargs": "^16.0.3",
     "yn": "^2.0.0",
-    "lock": "^1.1.0",
-    "joi": "^13.6.0"
+    "lock": "^1.1.0"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
@@ -85,7 +85,7 @@
     "@types/fs-extra": "^5.0.4",
     "@types/ioredis": "^4.0.10",
     "@types/jest": "^27.4.0",
-    "@types/jest-environment-puppeteer": "^4.4.1",
+    "@types/jest-environment-puppeteer": "^5.0.0",
     "@types/joi": "^13.4.5",
     "@types/jsonwebtoken": "^8.3.7",
     "@types/lodash": "^4.14.116",
@@ -97,7 +97,7 @@
     "@types/mustache": "^0.8.31",
     "@types/node": "^10.10.3",
     "@types/numeric": "^1.2.1",
-    "@types/passport": "^1.0.0",
+    "@types/passport": "^1.0.7",
     "@types/proper-lockfile": "^4.1.2",
     "@types/puppeteer": "^5.4.4",
     "@types/redis": "^2.8.10",
@@ -109,7 +109,7 @@
     "@types/universal-analytics": "^0.4.2",
     "@types/verror": "^1.10.5",
     "@typescript-eslint/eslint-plugin": "^4.32.0",
-    "@typescript-eslint/parser": "^4.32.0",
+    "@typescript-eslint/parser": "^4.33.0",
     "cheerio": "^1.0.0-rc.2",
     "cross-env": "^5.2.0",
     "eslint": "^7.32.0",
@@ -124,7 +124,7 @@
     "gulp-exec": "^3.0.2",
     "gulp-file": "^0.4.0",
     "gulp-if": "^2.0.2",
-    "gulp-ignore": "^2.0.2",
+    "gulp-ignore": "^3.0.0",
     "gulp-print": "^5.0.0",
     "gulp-rimraf": "^0.2.2",
     "gulp-run": "^1.7.1",
@@ -134,16 +134,16 @@
     "husky": "^4.2.5",
     "jest": "^27.4.7",
     "jest-circus": "^27.4.6",
-    "jest-extended": "^1.2.0",
+    "jest-extended": "^2.0.0",
     "jest-html-reporter": "^3.4.2",
     "jest-puppeteer": "^6.0.3",
     "lint-staged": "^10.2.11",
     "pkg": "^4.3.7",
     "prettier": "^1.19.1",
-    "puppeteer": "^13.0.1",
+    "puppeteer": "^13.1.3",
     "rimraf": "^2.6.2",
     "showdown": "^1.9.1",
-    "ts-jest": "^27.1.2",
+    "ts-jest": "^27.1.3",
     "ts-node": "^10.2.1",
     "typedoc": "^0.13.0",
     "typescript": "^4.4.4",

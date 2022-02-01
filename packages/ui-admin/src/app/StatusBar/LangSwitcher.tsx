@@ -53,7 +53,7 @@ const LangSwitcher: FC<Props> = props => {
   return (
     <Popover minimal position={Position.TOP} interactionKind={PopoverInteractionKind.CLICK}>
       <Button
-        id="btn-menu"
+        id="btn-menu-lang"
         icon={<img src={requireFlag(props.contentLang)} alt={props.contentLang} className={style.flag} />}
         text={props.contentLang?.toUpperCase()}
         style={{ color: Colors.GRAY1 }}
