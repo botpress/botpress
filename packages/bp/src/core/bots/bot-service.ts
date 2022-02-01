@@ -33,6 +33,7 @@ import path from 'path'
 import replace from 'replace-in-file'
 import tmp from 'tmp'
 import { VError } from 'verror'
+import { findDeletedFiles } from './utils'
 
 const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
 const BOT_CONFIG_FILENAME = 'bot.config.json'
@@ -287,6 +288,16 @@ export class BotService {
         })
 
         const folder = await this._validateBotArchive(tmpDir.name)
+
+        // Check for deleted file upon overwriting
+        if (allowOverwrite) {
+          const files = await this.ghostService.forBot(botId).directoryListing('/')
+          const deletedFiles = await findDeletedFiles(files, folder)
+
+          for (const file of deletedFiles) {
+            await this.ghostService.forBot(botId).deleteFile('/', file)
+          }
+        }
 
         if (await this.botExists(botId)) {
           await this.unmountBot(botId)
