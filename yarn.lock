@@ -2446,15 +2446,6 @@
     axios "^0.21.4"
     joi "^17.5.0"
 
-"@botpress/messaging-client@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-1.0.1.tgz#09ec5422b456542f38a46ffd5688647d4b6730d1"
-  integrity sha512-rTEUHk2uEDicTMmBrmKsCnQv1RnCdMChwC72FfRPZrqzwHyurXAQBET2xm0aAcPwQPZEXbKVo0kn/yg2WJBhRQ==
-  dependencies:
-    "@botpress/messaging-base" "1.0.0"
-    axios "^0.21.4"
-    joi "^17.5.0"
-
 "@botpress/nlu-client@1.0.0-rc.2":
   version "1.0.0-rc.2"
   resolved "https://registry.yarnpkg.com/@botpress/nlu-client/-/nlu-client-1.0.0-rc.2.tgz#f741807f6453200e8689c86aa9de115dce14a4a2"
@@ -10760,7 +10751,7 @@ express-urlrewrite@^1.2.0:
     debug "*"
     path-to-regexp "^1.0.3"
 
-express@^4.16.3, express@^4.17.1, express@^4.17.2:
+express@^4.16.3, express@^4.16.4, express@^4.17.1, express@^4.17.2:
   version "4.17.2"
   resolved "https://registry.yarnpkg.com/express/-/express-4.17.2.tgz#c18369f265297319beed4e5558753cc8c1364cb3"
   integrity sha512-oxlxJxcQlYwqPWKVJJtvQiwHgosH/LrLSPA+H4UxpyvSS6jC5aH+5MoHFM+KABgTOt0APue4w66Ha8jCUo9QGg==
