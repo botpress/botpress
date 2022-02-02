@@ -41,7 +41,7 @@
     "doctrine": "^3.0.0",
     "dotenv": "^7.0.0",
     "errorhandler": "^1.5.0",
-    "eventemitter2": "^5.0.1",
+    "eventemitter2": "^6.4.5",
     "express": "^4.17.2",
     "express-rate-limit": "^3.5.1",
     "express-urlrewrite": "^1.2.0",
