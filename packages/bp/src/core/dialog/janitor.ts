@@ -16,6 +16,11 @@ import { TimeoutNodeNotFound } from './errors'
 const debug = DEBUG('janitor')
 const dialogDebug = debug.sub('dialog')
 
+interface updateArgs {
+  resetSession: boolean
+  event?: IO.IncomingEvent
+}
+
 @injectable()
 export class DialogJanitor extends Janitor {
   constructor(
@@ -66,7 +71,7 @@ export class DialogJanitor extends Janitor {
 
   private async _processSessionTimeout(sessionId: string, botId: string, botConfig: BotConfig) {
     dialogDebug.forBot(botId, 'Processing timeout', sessionId)
-    let resetSession = true
+    const update: updateArgs = { resetSession: true }
 
     try {
       const { channel, target, threadId } = SessionIdFactory.extractDestinationFromId(sessionId)
@@ -90,15 +95,16 @@ export class DialogJanitor extends Janitor {
       fakeEvent.state.user = user.attributes
       fakeEvent.state.temp = session.temp_data
 
-      const after = await this.dialogEngine.processTimeout(botId, sessionId, fakeEvent)
-      if (_.get(after, 'state.context.queue.instructions.length', 0) > 0) {
+      update.event = await this.dialogEngine.processTimeout(botId, sessionId, fakeEvent)
+
+      if (_.get(update.event, 'state.context.queue.instructions.length', 0) > 0) {
         // if after processing the timeout handling we still have instructions queued, we're not clearing the context
-        resetSession = false
+        update.resetSession = false
       }
     } catch (error) {
       this._handleError(error, botId)
     } finally {
-      await this._resetContext(botId, botConfig, sessionId, resetSession)
+      await this._updateState(botId, botConfig, sessionId, update)
     }
   }
 
@@ -110,18 +116,19 @@ export class DialogJanitor extends Janitor {
     }
   }
 
-  private async _resetContext(botId: string, botConfig: BotConfig, sessionId: string, resetContext: boolean) {
+  private async _updateState(botId: string, botConfig: BotConfig, sessionId: string, update: updateArgs) {
     const botpressConfig = await this.getBotpressConfig()
     const expiry = createExpiry(botConfig!, botpressConfig)
     const session = await this.sessionRepo.get(sessionId)
 
-    if (resetContext) {
+    if (update.resetSession) {
       session.context = {}
       session.temp_data = {}
     }
 
     session.context_expiry = expiry.context
     session.session_expiry = expiry.session
+    session.session_data = update.event?.state.session || session.session_data
 
     await this.sessionRepo.update(session)
 
