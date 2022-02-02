@@ -32,6 +32,7 @@ import replace from 'replace-in-file'
 import tmp from 'tmp'
 import { VError } from 'verror'
 import { ComponentService } from './component-service'
+import { findDeletedFiles } from './utils'
 
 const BOT_CONFIG_FILENAME = 'bot.config.json'
 const REVISIONS_DIR = './revisions'
@@ -276,9 +277,24 @@ export class BotService {
         })
 
         const folder = await this._validateBotArchive(tmpDir.name)
-        await this.ghostService.forBot(botId).importFromDirectory(folder)
-        const originalConfig = await this.configProvider.getBotConfig(botId)
 
+        // Check for deleted file upon overwriting
+        if (allowOverwrite) {
+          const files = await this.ghostService.forBot(botId).directoryListing('/')
+          const deletedFiles = await findDeletedFiles(files, folder)
+
+          for (const file of deletedFiles) {
+            await this.ghostService.forBot(botId).deleteFile('/', file)
+          }
+        }
+
+        if (await this.botExists(botId)) {
+          await this.unmountBot(botId)
+        }
+
+        await this.ghostService.forBot(botId).importFromDirectory(folder)
+
+        const originalConfig = await this.configProvider.getBotConfig(botId)
         const newConfigs = <Partial<BotConfig>>{
           id: botId,
           name: botId === originalConfig.name ? originalConfig.name : `${originalConfig.name} (${botId})`,
@@ -290,10 +306,6 @@ export class BotService {
             }
           }
         }
-        if (await this.botExists(botId)) {
-          await this.unmountBot(botId)
-        }
-
         await this.configProvider.mergeBotConfig(botId, newConfigs, true)
 
         await this.workspaceService.addBotRef(botId, workspaceId)
