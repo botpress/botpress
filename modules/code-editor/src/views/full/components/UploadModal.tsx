@@ -11,7 +11,6 @@ interface Props {
   isOpen: boolean
   toggle: () => void
   uploadFile: any
-  isComponent?: boolean
 }
 
 interface State {
@@ -92,17 +91,12 @@ export const UploadModal: FC<Props> = props => {
       return
     }
 
-    let fullPath = state.fullPath.length ? state.fullPath : files[0].name
-    if (props.isComponent) {
-      fullPath = `bots/${window.BOT_ID}/components/${files[0].name}`
-    }
-
     dispatch({
       type: 'receivedFile',
       data: {
         file: files[0],
         filePath: files[0].name,
-        fullPath
+        fullPath: state.fullPath.length ? state.fullPath : files[0].name
       }
     })
   }
@@ -158,7 +152,6 @@ export const UploadModal: FC<Props> = props => {
               tabIndex={1}
               placeholder="global/actions/my-file.js"
               value={fullPath}
-              disabled={props.isComponent}
               onChange={e => updateLocation(e.currentTarget.value)}
               required
               autoFocus
@@ -178,7 +171,7 @@ export const UploadModal: FC<Props> = props => {
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
             <Button
-              id="btn-submit"
+              id="btn-submit-upload"
               text={isLoading ? lang.tr('pleaseWait') : lang.tr('submit')}
               disabled={isLoading || hasError || (alreadyExists && !overwrite)}
               onClick={submitChanges}

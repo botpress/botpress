@@ -75,7 +75,13 @@ const UpdateUserProfile: FC<Props> = props => {
 
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            <Button id="btn-submit" type="submit" text={lang.tr('save')} tabIndex={3} intent={Intent.PRIMARY} />
+            <Button
+              id="btn-submit-update-user"
+              type="submit"
+              text={lang.tr('save')}
+              tabIndex={3}
+              intent={Intent.PRIMARY}
+            />
           </div>
         </div>
       </form>

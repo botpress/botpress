@@ -25,7 +25,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
     name: 'code-editor',
     menuIcon: 'code',
     menuText: 'Code Editor',
-    noInterface: false,
+    noInterface: true,
     fullName: 'Code Editor',
     homepage: 'https://botpress.com',
     workspaceApp: { global: true }

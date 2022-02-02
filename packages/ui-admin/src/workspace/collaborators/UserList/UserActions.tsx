@@ -127,7 +127,11 @@ const UserActions: FC<Props> = props => {
 
   return (
     <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
-      <Button id="btn-menu" rightIcon="caret-down" text={lang.tr('admin.workspace.users.collaborators.action')} />
+      <Button
+        id="btn-menu-collaborators"
+        rightIcon="caret-down"
+        text={lang.tr('admin.workspace.users.collaborators.action')}
+      />
       <Menu>
         {canChangePassword && (
           <MenuItem

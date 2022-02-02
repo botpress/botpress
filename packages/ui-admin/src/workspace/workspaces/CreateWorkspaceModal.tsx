@@ -150,9 +150,9 @@ const CreateWorkspaceModal: FC<Props> = props => {
 
         <div className={Classes.DIALOG_FOOTER}>
           <div className={Classes.DIALOG_FOOTER_ACTIONS}>
-            {step > 1 && <Button id="btn-next" text="Previous" onClick={() => setStep(step - 1)} />}
+            {step > 1 && <Button id="btn-prev" text="Previous" onClick={() => setStep(step - 1)} />}
             {step < 3 && <Button id="btn-next" text="Next" onClick={() => setStep(step + 1)} />}
-            {step === 3 && <Button id="btn-submit" text="Submit" onClick={submit} />}
+            {step === 3 && <Button id="btn-submit-create-workspace" text="Submit" onClick={submit} />}
           </div>
         </div>
       </Dialog>
