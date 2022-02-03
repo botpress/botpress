@@ -15,7 +15,7 @@
   "license": "AGPL-3.0-only",
   "dependencies": {
     "@blueprintjs/core": "^3.36.0",
-    "@botpress/messaging-client": "^1.0.0",
+    "@botpress/messaging-client": "^1.0.1",
     "@webscopeio/react-textarea-autocomplete": "^4.7.2",
     "axios": "^0.21.1",
     "bluebird": "^3.5",

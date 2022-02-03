@@ -25,7 +25,7 @@
     "@types/react-intl": "^2.3.17"
   },
   "dependencies": {
-    "@botpress/messaging-client": "^1.0.0",
+    "@botpress/messaging-client": "^1.0.1",
     "@juggle/resize-observer": "^3.0.2",
     "apicache": "^1.6.2",
     "aws-sdk": "^2.905.0",

@@ -1,5 +1,6 @@
 import { BotConfig, Logger, Stage, WorkspaceUserWithAttributes } from 'botpress/sdk'
 import cluster from 'cluster'
+import { findDeletedFiles } from 'common/fs'
 import { BotHealth, ServerHealth } from 'common/typings'
 import { BotEditSchema, isValidBotId } from 'common/validation'
 import { createForGlobalHooks } from 'core/app/api'
@@ -276,9 +277,24 @@ export class BotService {
         })
 
         const folder = await this._validateBotArchive(tmpDir.name)
-        await this.ghostService.forBot(botId).importFromDirectory(folder)
-        const originalConfig = await this.configProvider.getBotConfig(botId)
 
+        // Check for deleted file upon overwriting
+        if (allowOverwrite) {
+          const files = await this.ghostService.forBot(botId).directoryListing('/')
+          const deletedFiles = await findDeletedFiles(files, folder)
+
+          for (const file of deletedFiles) {
+            await this.ghostService.forBot(botId).deleteFile('/', file)
+          }
+        }
+
+        if (await this.botExists(botId)) {
+          await this.unmountBot(botId)
+        }
+
+        await this.ghostService.forBot(botId).importFromDirectory(folder)
+
+        const originalConfig = await this.configProvider.getBotConfig(botId)
         const newConfigs = <Partial<BotConfig>>{
           id: botId,
           name: botId === originalConfig.name ? originalConfig.name : `${originalConfig.name} (${botId})`,
@@ -290,10 +306,6 @@ export class BotService {
             }
           }
         }
-        if (await this.botExists(botId)) {
-          await this.unmountBot(botId)
-        }
-
         await this.configProvider.mergeBotConfig(botId, newConfigs, true)
 
         await this.workspaceService.addBotRef(botId, workspaceId)
@@ -386,18 +398,12 @@ export class BotService {
     await this._executeStageChangeHooks(botConfig, newConfig)
   }
 
-  async duplicateBot(sourceBotId: string, destBotId: string, overwriteDest: boolean = false) {
+  async duplicateBot(sourceBotId: string, destBotId: string) {
     if (!(await this.botExists(sourceBotId))) {
       throw new Error('Source bot does not exist')
     }
     if (sourceBotId === destBotId) {
       throw new Error('New bot id needs to differ from original bot')
-    }
-    if (!overwriteDest && (await this.botExists(destBotId))) {
-      this.logger
-        .forBot(destBotId)
-        .warn('Tried to duplicate a bot to existing destination id without allowing to overwrite')
-      return
     }
 
     const sourceGhost = this.ghostService.forBot(sourceBotId)
@@ -408,7 +414,6 @@ export class BotService {
     )
     const workspaceId = await this.workspaceService.getBotWorkspaceId(sourceBotId)
     await this.workspaceService.addBotRef(destBotId, workspaceId)
-    await this.mountBot(destBotId)
   }
 
   public async botExists(botId: string, ignoreCache?: boolean): Promise<boolean> {
@@ -470,7 +475,10 @@ export class BotService {
     }
 
     await this.configProvider.setBotConfig(bot.id, finalBot)
-    await this.duplicateBot(bot.id, finalBot.id, true)
+    await this.duplicateBot(bot.id, finalBot.id)
+
+    await this.mountBot(finalBot.id)
+
     await this.deleteBot(bot.id)
   }
 
@@ -487,8 +495,10 @@ export class BotService {
     delete newBot.pipeline_status.stage_request
 
     try {
-      await this.duplicateBot(initialBot.id, newBot.id, true)
+      await this.duplicateBot(initialBot.id, newBot.id)
+
       await this.configProvider.setBotConfig(newBot.id, newBot)
+      await this.mountBot(newBot.id)
 
       delete initialBot.pipeline_status.stage_request
       return this.configProvider.setBotConfig(initialBot.id, initialBot)
