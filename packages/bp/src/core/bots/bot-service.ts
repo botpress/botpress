@@ -1,5 +1,6 @@
 import { BotConfig, BotTemplate, Logger, Stage, WorkspaceUserWithAttributes } from 'botpress/sdk'
 import cluster from 'cluster'
+import { findDeletedFiles } from 'common/fs'
 import { BotHealth, ServerHealth } from 'common/typings'
 import { BotCreationSchema, BotEditSchema, isValidBotId } from 'common/validation'
 import { createForGlobalHooks } from 'core/app/api'
@@ -31,7 +32,6 @@ import path from 'path'
 import replace from 'replace-in-file'
 import tmp from 'tmp'
 import { VError } from 'verror'
-import { findDeletedFiles } from './utils'
 
 const BOT_DIRECTORIES = ['actions', 'flows', 'entities', 'content-elements', 'intents', 'qna']
 const BOT_CONFIG_FILENAME = 'bot.config.json'
