@@ -39,7 +39,7 @@
     "snarkdown": "^1.2.2",
     "style-loader": "^0.13.1",
     "terser-webpack-plugin": "^2.2.2",
-    "ts-loader": "^6.0.2",
+    "ts-loader": "^9.2.1",
     "webpack": "4.12",
     "webpack-bundle-analyzer": "^3.5.2",
     "webpack-node-externals": "^1.7.2"
