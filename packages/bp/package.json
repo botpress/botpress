@@ -83,7 +83,7 @@
     "plur": "^3.0.1",
     "portfinder": "^1.0.20",
     "proper-lockfile": "^4.1.2",
-    "querystring": "^0.2.0",
+    "querystring": "^0.2.1",
     "redlock": "^3.1.2",
     "reflect-metadata": "^0.1.13",
     "replace-in-file": "^4.1.1",
