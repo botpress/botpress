@@ -10727,10 +10727,10 @@ express-rate-limit@^3.5.1:
   dependencies:
     defaults "^1.0.3"
 
-express-urlrewrite@^1.2.0:
-  version "1.2.0"
-  resolved "https://registry.yarnpkg.com/express-urlrewrite/-/express-urlrewrite-1.2.0.tgz#8e667b7761ff1c7ffdb0efa05d64035387c823eb"
-  integrity sha1-jmZ7d2H/HH/9sO+gXWQDU4fII+s=
+express-urlrewrite@^1.4.0:
+  version "1.4.0"
+  resolved "https://registry.yarnpkg.com/express-urlrewrite/-/express-urlrewrite-1.4.0.tgz#985ee022773bac7ed32126f1cf9ec8ee48e1290a"
+  integrity sha512-PI5h8JuzoweS26vFizwQl6UTF25CAHSggNv0J25Dn/IKZscJHWZzPrI5z2Y2jgOzIaw2qh8l6+/jUcig23Z2SA==
   dependencies:
     debug "*"
     path-to-regexp "^1.0.3"
