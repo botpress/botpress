@@ -68,7 +68,7 @@ const renderChoicePayload = (content: sdk.ChoiceContent & ExtraChoiceProperties)
       module: 'extensions',
       component: 'Dropdown',
       message: content.text,
-      buttonText: '',
+      buttonText: (content.buttonText) ? content.buttonText : '',
       displayInKeyboard: true,
       options: content.choices.map(c => ({ label: c.title, value: c.value.toUpperCase() })),
       width: 300,
