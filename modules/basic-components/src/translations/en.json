@@ -1,0 +1,7 @@
+{
+  "apiCall": "api-call",
+  "fallback": "fallback",
+  "feedback": "feedback",
+  "greeting": "greeting",
+  "polarAnswer": "yes/no"
+}

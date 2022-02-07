@@ -1,0 +1,7 @@
+{
+  "apiCall": "appel d'API",
+  "fallback": "scénario de repli",
+  "feedback": "rétroaction",
+  "greeting": "salutation",
+  "polarAnswer": "oui/non"
+}

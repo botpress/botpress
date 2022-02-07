@@ -1036,7 +1036,7 @@ declare module 'botpress/sdk' {
     bufferDelayMs: number
     /**
      * Whether or not you want to expose public converse API. See docs here https://botpress.com/docs/channels/converse#public-api
-     * @default ture
+     * @default true
      */
     enableUnsecuredEndpoint: boolean
   }

@@ -1,0 +1,31 @@
+{
+  "name": "basic-components",
+  "fullName": "Basic Components",
+  "version": "12.6.10",
+  "status": "stable",
+  "description": "Provides easy-to-use components",
+  "private": true,
+  "main": "dist/backend/index.js",
+  "webpack": {},
+  "scripts": {
+    "build": "node ../../build/module-builder/bin/entry build",
+    "watch": "node ../../build/module-builder/bin/entry watch",
+    "package": "node ../../build/module-builder/bin/entry package"
+  },
+  "author": "Botpress Team",
+  "license": "AGPL-3.0-only",
+  "devDependencies": {
+    "@babel/helpers": "^7.4.3",
+    "@types/nodemailer": "^6.2.1",
+    "@types/react-bootstrap": "^0.32.20",
+    "@types/reactstrap": "^8.4.1"
+  },
+  "dependencies": {
+    "lodash": "^4.17.19",
+    "nanoid": "^3.3.0"
+  },
+  "resolutions": {
+    "fstream": ">=1.0.12",
+    "lodash": ">=4.17.21"
+  }
+}
