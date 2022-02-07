@@ -35,7 +35,7 @@
     "query-string": "^5.0.1",
     "react": "16.13.1",
     "react-checkbox-tree": "^1.7.2",
-    "react-copy-to-clipboard": "^5.0.2",
+    "react-copy-to-clipboard": "^5.0.4",
     "react-dom": "16.13.1",
     "react-icons": "^3.8.0",
     "react-intl": "^3.12.1",
