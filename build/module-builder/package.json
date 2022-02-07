@@ -53,7 +53,7 @@
     "@types/glob": "^7.1.0",
     "@types/mkdirp": "^0.5.2",
     "@types/node": "^12.18.1",
-    "@types/rimraf": "^2.0.2",
+    "@types/rimraf": "^3.0.2",
     "babel-plugin-search-and-replace": "^0.3.0",
     "clean-webpack-plugin": "^2.0.1",
     "webpack-bundle-analyzer": "^3.6.1"
