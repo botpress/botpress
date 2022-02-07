@@ -80,7 +80,7 @@ const BotItemCompact: FC<Props> = props => {
             <Button className="btn-menu-bot-item" icon={<Icon icon="menu" />} minimal />
 
             <Menu>
-              <WorkspaceAppItems loadedModules={props.loadedModules} botId={props.bot.id} />
+              {!props.bot.isCloudBot && <WorkspaceAppItems loadedModules={props.loadedModules} botId={props.bot.id} />}
 
               {!props.bot.disabled && !props.hasError && hasStudioAccess && (
                 <MenuItem

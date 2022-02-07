@@ -14,11 +14,11 @@
     "version": "1.0.0-rc.5"
   },
   "studio": {
-    "version": "0.0.46",
+    "version": "0.0.47",
     "devBranch": "next"
   },
   "messaging": {
-    "version": "1.0.1"
+    "version": "1.0.4"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
@@ -41,7 +41,7 @@
     "@babel/parser": "^7.11.2",
     "@babel/traverse": "^7.11.0",
     "@botpress/nlu-client": "1.0.0-rc.2",
-    "@botpress/messaging-client": "^1.0.0",
+    "@botpress/messaging-client": "^1.0.1",
     "archiver": "^5.3.0",
     "axios": "^0.21.1",
     "bluebird-global": "^1.0.1",
@@ -111,13 +111,13 @@
     "@typescript-eslint/eslint-plugin": "^4.32.0",
     "@typescript-eslint/parser": "^4.33.0",
     "cheerio": "^1.0.0-rc.2",
-    "cross-env": "^5.2.0",
+    "cross-env": "^7.0.3",
     "eslint": "^7.32.0",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-jsdoc": "^36.1.0",
     "expect-puppeteer": "^6.0.2",
-    "gulp": "^4.0.0",
+    "gulp": "^4.0.2",
     "gulp-cli": "^2.0.1",
     "gulp-conventional-changelog": "^2.0.9",
     "gulp-copy": "^4.0.0",

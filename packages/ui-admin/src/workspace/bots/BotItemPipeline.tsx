@@ -78,8 +78,7 @@ const BotItemPipeline: FC<Props> = ({
           <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
             <Button id="btn-menu-pipeline" icon={<Icon icon="menu" />} minimal />
             <Menu>
-              <WorkspaceAppItems loadedModules={loadedModules} botId={bot.id} />
-
+              {!bot.isCloudBot && <WorkspaceAppItems loadedModules={loadedModules} botId={bot.id} />}
               {!bot.disabled && !hasError && !bot.isCloudBot && (
                 <Fragment>
                   <MenuItem icon="chat" text={lang.tr('admin.workspace.bots.item.openChat')} href={botShortLink} />
