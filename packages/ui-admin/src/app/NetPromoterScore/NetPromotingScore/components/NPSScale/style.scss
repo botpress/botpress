@@ -1,0 +1,48 @@
+.root {
+  width: auto;
+  max-width: 418px;
+  margin: 0px auto;
+}
+.value {
+  padding: 0px 3px;
+  display: inline-block;
+}
+
+.value div {
+  background: #f2f5fd;
+  width: 32px;
+  height: 32px;
+  line-height: 32px;
+  border-radius: 32px;
+  cursor: pointer;
+  transition: 0.15s ease all;
+  color: #999;
+}
+.selected div {
+  background: #3884ff;
+  color: #fff;
+}
+.selected div {
+  background: #3884ff;
+  color: #fff;
+}
+.value:hover div {
+  transform: scale(1.25);
+}
+
+.legend {
+  display: flex;
+  margin-top: 12px;
+}
+
+.label {
+  flex: 1;
+  color: #999;
+  font-size: 12px;
+}
+.left {
+  text-align: left;
+}
+.right {
+  text-align: right;
+}

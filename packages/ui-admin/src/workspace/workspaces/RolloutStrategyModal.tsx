@@ -118,7 +118,7 @@ const RolloutStrategyModal: FC<Props> = props => {
         )}
       </Dialog.Body>
       <Dialog.Footer>
-        <Button id="btn-submit" text="Submit" onClick={submit} />
+        <Button id="btn-submit-rollout-strategy" text="Submit" onClick={submit} />
       </Dialog.Footer>
     </Dialog.Wrapper>
   )

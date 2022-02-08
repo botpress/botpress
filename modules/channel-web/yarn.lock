@@ -45,17 +45,17 @@
     "@babel/helper-validator-identifier" "^7.14.9"
     to-fast-properties "^2.0.0"
 
-"@botpress/messaging-base@0.0.2":
-  version "0.0.2"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-0.0.2.tgz#3e8129130f326894f1615305ddf36357f90478a2"
-  integrity sha512-YZwHLMqJtsv/4v6Ss+h+pBJm9gjCvu737lDv8JGfD2gWVT/PCfh32YAaN11CSyuVW0vD4tA1NPXaHRKOmbD28Q==
+"@botpress/messaging-base@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-1.0.0.tgz#7bf70d26ceb8b9128a517e03ff6ae6931e193373"
+  integrity sha512-q8GKsoGIM2X+eMa8mGugaMerCv8P133OLR/3wEWdkk3R2MvVGh7on7lwVa+TuSaQhwqUawy7LM/9fcVawG6imQ==
 
-"@botpress/messaging-client@^0.0.14":
-  version "0.0.14"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-0.0.14.tgz#deb3675af1e0760e240b63ea9b54aea460133e0d"
-  integrity sha512-oXvvBZU0+aAnSHnar8d4PVOxY3cauWNmt74LKtZGDuHTZb3appIyuzj/Y5z4srDAG/nubuR9mc7W/5xZsQCzaQ==
+"@botpress/messaging-client@^1.0.1":
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-1.0.1.tgz#09ec5422b456542f38a46ffd5688647d4b6730d1"
+  integrity sha512-rTEUHk2uEDicTMmBrmKsCnQv1RnCdMChwC72FfRPZrqzwHyurXAQBET2xm0aAcPwQPZEXbKVo0kn/yg2WJBhRQ==
   dependencies:
-    "@botpress/messaging-base" "0.0.2"
+    "@botpress/messaging-base" "1.0.0"
     axios "^0.21.4"
     joi "^17.5.0"
 
@@ -320,12 +320,12 @@ aws-sdk@^2.37.0, aws-sdk@^2.905.0:
     uuid "3.3.2"
     xml2js "0.4.19"
 
-axios@^0.21.1:
-  version "0.21.1"
-  resolved "https://registry.npmjs.org/axios/-/axios-0.21.1.tgz#22563481962f4d6bde9a76d516ef0e5d3c09b2b8"
-  integrity sha512-dKQiRHxGD9PPRIUNIWvZhPTPpl1rf/OxTYKsqKUDjBwYylTvV7SjSHJb9ratfyzM6wCdLCOYLzs73qpg5c4iGA==
+axios@^0.21.2:
+  version "0.21.2"
+  resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.2.tgz#21297d5084b2aeeb422f5d38e7be4fbb82239017"
+  integrity sha512-87otirqUw3e8CzHTMO+/9kh/FSgXt/eVDvipijwDtEuwbkySWZ9SBm6VEubmJ/kLKEoLQV/POhxXFb66bfekfg==
   dependencies:
-    follow-redirects "^1.10.0"
+    follow-redirects "^1.14.0"
 
 axios@^0.21.4:
   version "0.21.4"
@@ -595,7 +595,7 @@ find-root@^1.1.0:
   resolved "https://registry.npmjs.org/find-root/-/find-root-1.1.0.tgz#abcfc8ba76f708c42a97b3d685b7e9450bfb9ce4"
   integrity sha512-NKfW6bec6GfKc0SGx1e07QZY9PE99u0Bft/0rzSD5k3sO/vwkVUpDUKVm5Gpp5Ue3YfShPFTX2070tDs5kB9Ng==
 
-follow-redirects@^1.10.0, follow-redirects@^1.14.0:
+follow-redirects@^1.14.0:
   version "1.14.7"
   resolved "https://registry.yarnpkg.com/follow-redirects/-/follow-redirects-1.14.7.tgz#2004c02eb9436eee9a21446a6477debf17e81685"
   integrity sha512-+hbxoLbFMbRKDwohX8GkTataGqO6Jb7jGwpAlwgy2bIz25XtRm7KEzJM76R1WiNT5SwZkX4Y75SwBolkpmE7iQ==
