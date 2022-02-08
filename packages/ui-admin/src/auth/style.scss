@@ -3,9 +3,10 @@
   position: absolute;
   height: 100%;
   width: 100%;
-  background-color: black;
+  background-color: #f5f6f8;
 
   .middle {
+    position: relative;
     display: table-cell;
     vertical-align: middle;
   }
@@ -18,8 +19,6 @@
   }
 
   .logo {
-    display: block;
-    width: 90%;
     margin: auto;
     margin-bottom: 40px;
   }
@@ -50,7 +49,14 @@
   }
 }
 
+@mixin shadow-md {
+  --tw-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+  --tw-shadow-colored: 0 4px 6px -1px var(--tw-shadow-color), 0 2px 4px -2px var(--tw-shadow-color);
+  box-shadow: var(--tw-ring-offset-shadow, 0 0 #0000), var(--tw-ring-shadow, 0 0 #0000), var(--tw-shadow);
+}
+
 .card {
+  @include shadow-md();
   position: relative;
   display: -webkit-flex;
   display: flex;
@@ -60,14 +66,13 @@
   word-wrap: break-word;
   background-color: #fff;
   background-clip: border-box;
-  border: 1px solid rgba(0, 0, 0, 0.125);
-  border-radius: 0.25rem;
+  border-radius: 0.375rem;
 }
 
 .card_body {
   -webkit-flex: 1 1 auto;
   flex: 1 1 auto;
-  padding: 1.25rem;
+  padding: 2rem;
 }
 
 .card_title {
@@ -87,4 +92,24 @@
     color: #999;
   }
   margin-top: 1rem;
+}
+
+.chat_bubble_background {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+
+  svg {
+    position: absolute;
+  }
+
+  path {
+    fill: rgb(216, 216, 216);
+  }
+}
+
+.error {
+  margin-bottom: 0.5rem;
 }
