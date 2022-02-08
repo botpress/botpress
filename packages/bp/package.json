@@ -78,7 +78,7 @@
     "passport-oauth2": "^1.6.1",
     "passport-saml": "^3.2.1",
     "password-sheriff": "^1.1.0",
-    "pg": "^7.8.0",
+    "pg": "^8.7.3",
     "plur": "^3.0.1",
     "portfinder": "^1.0.20",
     "proper-lockfile": "^4.1.2",
