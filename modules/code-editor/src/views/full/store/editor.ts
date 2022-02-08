@@ -138,7 +138,6 @@ class EditorStore {
       }
     }
 
-    // Prevent opening an empty file containing "undefined"
     if (file.content === undefined) {
       return
     }
