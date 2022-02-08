@@ -138,6 +138,11 @@ class EditorStore {
       }
     }
 
+    // Prevent opening an empty file containing "undefined"
+    if (file.content === undefined) {
+      return
+    }
+
     runInAction('-> openFile', () => {
       const uri = getFileUri(file)
       const existingFile = this.openedFiles.find(x => x.uri.path === uri.path)
