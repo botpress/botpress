@@ -1,3 +1,21 @@
+## <small>12.26.10 (2022-02-08)</small>
+
+* fix(admin): fix admin debug pane not working (#11421) ([ada9d1f55343e1b161d0d52bb016c8be54a183dd](https://github.com/botpress/botpress/commit/ada9d1f55343e1b161d0d52bb016c8be54a183dd))
+* fix(admin): update branding assets (#11248) ([73d60c4d2db5dc6061368ae64d8c6133a896eec3](https://github.com/botpress/botpress/commit/73d60c4d2db5dc6061368ae64d8c6133a896eec3))
+* fix(bot): fix unmounting bot before writing files when overwriting (#11370) ([ea97ccbaaee9e9fab914d282e5728fb2c1c22109](https://github.com/botpress/botpress/commit/ea97ccbaaee9e9fab914d282e5728fb2c1c22109))
+* fix(bot): we now delete old file when overwriting a bot (#11371) ([b0bf68ee9ba4ab0eb7b8de2bcfa5b53064d7dcf5](https://github.com/botpress/botpress/commit/b0bf68ee9ba4ab0eb7b8de2bcfa5b53064d7dcf5)), closes [#5754](https://github.com/botpress/botpress/issues/5754)
+* fix(builtin): added removeVariable action (#11364) ([bb3e132a5b90099719bdb0a91f2604126d8e16ea](https://github.com/botpress/botpress/commit/bb3e132a5b90099719bdb0a91f2604126d8e16ea))
+* fix(channel-web): fetch last message for each convo (#11288) ([822a8cdad7558fb566e24637924e0319df1acd6a](https://github.com/botpress/botpress/commit/822a8cdad7558fb566e24637924e0319df1acd6a))
+* fix(code-editor): admin should be able to edit bot config (#11339) ([248cec7eee5b0bdd1de70f0d8e454dd443f031f3](https://github.com/botpress/botpress/commit/248cec7eee5b0bdd1de70f0d8e454dd443f031f3))
+* fix(core): session state not persisted during before_session_timeout hook (#5702) ([28221d2798e27f0a5f295a90fbb545b440269ace](https://github.com/botpress/botpress/commit/28221d2798e27f0a5f295a90fbb545b440269ace))
+* fix(id): unique ids for all elements (#11346) ([d8602aa81f8d3af170b299e0ab82814b831b4597](https://github.com/botpress/botpress/commit/d8602aa81f8d3af170b299e0ab82814b831b4597))
+* fix(module): we now delete old files when overwriting an existing module (#11384) ([41c432e78b086718ce320664a139243aff968ef8](https://github.com/botpress/botpress/commit/41c432e78b086718ce320664a139243aff968ef8)), closes [#5755](https://github.com/botpress/botpress/issues/5755)
+* fix(pipeline): fix copying copying bot in pipeline (#11391) ([868af5de28a7718c6fc038f52a317977a73985a9](https://github.com/botpress/botpress/commit/868af5de28a7718c6fc038f52a317977a73985a9))
+* fix(ui): fix 1px of whitespace issue (#11353) ([2b0df4df882a47b60083dbe6421730c130fae7e4](https://github.com/botpress/botpress/commit/2b0df4df882a47b60083dbe6421730c130fae7e4))
+* feat(admin): added net promoter score in botpress (#11202) ([fbbf064eb561f7a92504c1f7cadd898a53bcaeb5](https://github.com/botpress/botpress/commit/fbbf064eb561f7a92504c1f7cadd898a53bcaeb5))
+
+
+
 ## [12.26.9](https://github.com/botpress/botpress/compare/v12.26.8...v12.26.9) (2022-01-17)
 
 
