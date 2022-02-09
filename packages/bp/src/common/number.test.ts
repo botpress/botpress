@@ -4,9 +4,7 @@ const randomNumber = (max = 100) => {
   const number = Math.floor(Math.random() * max)
 
   // When we get 0, the test fails
-  if (number === 0) {
-    return randomNumber(max)
-  }
+  return number > 0 ? number : randomNumber(max)
 }
 
 const arrayGenerator = (size = 10): number[] => {
