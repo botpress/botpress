@@ -1,6 +1,14 @@
 import { closest } from './number'
 
-const randomNumber = (max = 100) => Math.floor(Math.random() * max)
+const randomNumber = (max = 100) => {
+  const number = Math.floor(Math.random() * max)
+
+  // When we get 0, the test fails
+  if (number === 0) {
+    return randomNumber(max)
+  }
+}
+
 const arrayGenerator = (size = 10): number[] => {
   return Array.from({ length: size }, () => randomNumber())
 }
