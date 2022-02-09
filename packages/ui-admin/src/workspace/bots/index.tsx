@@ -14,11 +14,11 @@ import {
 import { BotConfig } from 'botpress/sdk'
 import { confirmDialog, lang, telemetry, toast } from 'botpress/shared'
 import cx from 'classnames'
+import { BUILTIN_MODULES } from 'common/defaults'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { generatePath, RouteComponentProps } from 'react-router'
-
 import api from '~/app/api'
 import { Downloader } from '~/app/common/Downloader'
 import LoadingSection from '~/app/common/LoadingSection'
@@ -28,7 +28,7 @@ import { AppState } from '~/app/rootReducer'
 import AccessControl from '~/auth/AccessControl'
 import { getActiveWorkspace } from '~/auth/basicAuth'
 import { fetchLicensing } from '~/management/licensing/reducer'
-import { fetchModules } from '~/management/modules/reducer'
+import { fetchModules, fetchLoadedModules } from '~/management/modules/reducer'
 import { fetchBotHealth, fetchBots, fetchBotNLULanguages } from '~/workspace/bots/reducer'
 import { filterList } from '~/workspace/util'
 
@@ -63,6 +63,7 @@ class Bots extends Component<Props> {
     this.props.fetchBots()
     this.props.fetchBotHealth()
     this.props.fetchBotNLULanguages()
+    this.props.fetchLoadedModules()
 
     if (!this.props.loadedModules.length && this.props.profile && this.props.profile.isSuperAdmin) {
       this.props.fetchModules()
@@ -373,6 +374,19 @@ class Bots extends Component<Props> {
     )
   }
 
+  renderDeprCallout() {
+    return (
+      <Callout intent={Intent.WARNING} title={lang.tr('admin.alerting.deprWarning')} className={style.filterCallout}>
+        We will end support for custom modules in Botpress 13. A migration guide will be provided for skills and Webchat
+        Custom Components. For other extension points, use standalone hooks and actions.
+      </Callout>
+    )
+  }
+
+  get findDeprModules() {
+    return !this.props.loadedModules.every(m => BUILTIN_MODULES.includes(m.name))
+  }
+
   get isPipelineView() {
     return this.props.workspace && this.props.workspace.pipeline && this.props.workspace.pipeline.length > 1
   }
@@ -387,6 +401,7 @@ class Bots extends Component<Props> {
         <SplitPage sideMenu={!this.isPipelineView && this.renderCreateNewBotButton()}>
           <Fragment>
             <Downloader url={this.state.archiveUrl} filename={this.state.archiveName} />
+            {this.findDeprModules ? this.renderDeprCallout() : null}
             {this.renderBots()}
 
             <AccessControl resource="admin.bots.*" operation="write">
@@ -438,7 +453,8 @@ const mapDispatchToProps = {
   fetchLicensing,
   fetchBotHealth,
   fetchModules,
-  fetchBotNLULanguages
+  fetchBotNLULanguages,
+  fetchLoadedModules
 }
 
 const connector = connect(mapStateToProps, mapDispatchToProps)

@@ -12,7 +12,8 @@
       "resolvedIncidents": "Resolved Incidents",
       "timeFrame": "Time Frame",
       "timespanHour": "1 hour",
-      "timespanHours": "{nb} hours"
+      "timespanHours": "{nb} hours",
+      "deprWarning": "Deprecation Warning"
     },
     "authenticationFailed": "Authentication failed",
     "botpressIsNotLicensed": "Botpress is currently not licensed. Please update your license to re-enable all features.",

@@ -12,7 +12,8 @@
       "resolvedIncidents": "Incidents résolus",
       "timeFrame": "Plage de temps",
       "timespanHour": "1 heure",
-      "timespanHours": "{nb} heures"
+      "timespanHours": "{nb} heures",
+      "deprWarning": "Avertissement d'obsolescence"
     },
     "authenticationFailed": "Authentification échouée",
     "botpressIsNotLicensed": "La licence ne semble pas valide. Veuillez mettre à jour votre licence pour réactiver toutes les fonctionnalités.",
