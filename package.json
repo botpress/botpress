@@ -135,7 +135,7 @@
     "jest-puppeteer": "^6.0.3",
     "lint-staged": "^10.2.11",
     "pkg": "^4.3.7",
-    "prettier": "^1.19.1",
+    "prettier": "^2.5.1",
     "puppeteer": "^13.1.3",
     "rimraf": "^2.6.2",
     "showdown": "^1.9.1",
