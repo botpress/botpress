@@ -6,6 +6,8 @@ interface CssExports {
   'card_text': string;
   'card_title': string;
   'centered_container': string;
+  'chat_bubble_background': string;
+  'error': string;
   'homepage': string;
   'inner': string;
   'login_box': string;
