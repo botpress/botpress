@@ -112,7 +112,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-jsdoc": "^36.1.0",
-    "expect-puppeteer": "^6.0.2",
+    "expect-puppeteer": "^6.1.0",
     "gulp": "^4.0.2",
     "gulp-cli": "^2.0.1",
     "gulp-conventional-changelog": "^2.0.9",
