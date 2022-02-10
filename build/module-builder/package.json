@@ -37,7 +37,7 @@
     "node-sass": "^6.0.1",
     "raw-loader": "^0.5.1",
     "rimraf": "^2.6.2",
-    "sass-loader": "^10",
+    "sass-loader": "^7",
     "style-loader": "^0.23.0",
     "tar": "^4.4.19",
     "ts-loader": "^6.0.0",

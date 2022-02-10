@@ -34,7 +34,7 @@
     "react-intl": "^3.12.1",
     "react-router-dom": "4.3.1",
     "react-split-pane": "^0.1.89",
-    "sass-loader": "^6.0.6",
+    "sass-loader": "^7.3.1",
     "script-loader": "^0.7.0",
     "snarkdown": "^1.2.2",
     "style-loader": "^0.13.1",
