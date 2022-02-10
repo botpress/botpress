@@ -14,7 +14,7 @@
     "version": "1.0.0-rc.5"
   },
   "studio": {
-    "version": "0.0.47",
+    "version": "0.0.48",
     "devBranch": "next"
   },
   "messaging": {
@@ -94,7 +94,6 @@
     "@types/mkdirp": "^1.0.1",
     "@types/ms": "^0.7.30",
     "@types/multer": "^1.4.5",
-    "@types/mustache": "^0.8.31",
     "@types/node": "^10.10.3",
     "@types/numeric": "^1.2.1",
     "@types/passport": "^1.0.7",
@@ -116,7 +115,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-jsdoc": "^36.1.0",
-    "expect-puppeteer": "^6.0.2",
+    "expect-puppeteer": "^6.1.0",
     "gulp": "^4.0.2",
     "gulp-cli": "^2.0.1",
     "gulp-conventional-changelog": "^2.0.9",

@@ -39,7 +39,7 @@
     "deep-diff": "^1.0.2",
     "doctrine": "^3.0.0",
     "dotenv": "^7.0.0",
-    "errorhandler": "^1.5.0",
+    "errorhandler": "^1.5.1",
     "eventemitter2": "^5.0.1",
     "express": "^4.17.2",
     "express-rate-limit": "^3.5.1",
@@ -68,7 +68,7 @@
     "moment": "^2.24.0",
     "ms": "^2.1.1",
     "multer": "^1.4.1",
-    "mustache": "^3.0.1",
+    "mustache": "^4.2.0",
     "nanoid": "^3.1.31",
     "nodemailer": "^6.3.0",
     "node-machine-id": "^1.1.10",
@@ -79,7 +79,7 @@
     "passport-oauth2": "^1.6.1",
     "passport-saml": "^3.2.1",
     "password-sheriff": "^1.1.0",
-    "pg": "^7.8.0",
+    "pg": "^8.7.3",
     "plur": "^3.0.1",
     "portfinder": "^1.0.20",
     "proper-lockfile": "^4.1.2",
@@ -106,7 +106,9 @@
     "@types/joi": "^13.4.5",
     "joi": "^13.6.0"
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/mustache": "^4.1.2"
+  },
   "optionalDependencies": {
     "ioredis": "^4.14.1",
     "sqlite3": "4.2.0"
