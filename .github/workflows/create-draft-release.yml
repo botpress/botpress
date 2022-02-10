@@ -4,7 +4,7 @@ on:
     branches:
       - master
 jobs:
-  release_bin:
+  create_draft_release:
     name: Create Draft-Release
     runs-on: ubuntu-latest
     steps:
@@ -24,7 +24,7 @@ jobs:
       - name: Display Release Details
         id: changelog
         run: |
-          echo "Changelog: ${{ steps.release_details.outputs.changelog }}${{ steps.fetch_dependencies_changelogs.outputs.changelog }}"
+          echo "Changelog: ${{ steps.release_details.outputs.changelog }}${{ steps.fetch_dependencies_changelogs.outputs.changelogs }}"
           echo "Is new release?: ${{ steps.release_details.outputs.is_new_release }}"
           echo "Version: ${{ steps.release_details.outputs.version }}"
           echo "Latest Tag: ${{ steps.release_details.outputs.latest_tag }}"
@@ -35,7 +35,7 @@ jobs:
         with:
           prerelease: false
           draft: true
-          body: ${{ steps.release_details.outputs.changelog }}${{ steps.fetch_dependencies_changelogs.outputs.changelog }}
+          body: ${{ steps.release_details.outputs.changelog }}${{ steps.fetch_dependencies_changelogs.outputs.changelogs }}
           name: v${{ steps.release_details.outputs.version }}
           tag_name: v${{ steps.release_details.outputs.version }}
         env:
