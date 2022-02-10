@@ -45,12 +45,12 @@ describe('Studio - UI', () => {
 
   it('Toggles bottom panel using click toolbar menu', async () => {
     await page.focus('#mainLayout')
-    await clickOn('#toggle-bottom-panel')
+    await clickOn('#botpress-tooltip-2-trigger')
 
     const bottomPanel = await page.$('div[data-tab-id="debugger"]')
     expect(await bottomPanel?.isIntersectingViewport()).toBe(true)
 
-    await clickOn('#toggle-bottom-panel')
+    await clickOn('#botpress-tooltip-2-trigger')
   })
 
   // Uncomment once the analytics v2 is enabled by default
