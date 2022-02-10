@@ -1,4 +1,4 @@
-name: Release Binaries
+name: Close Issues
 on:
   release:
     types: [published]
