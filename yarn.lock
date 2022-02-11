@@ -12041,14 +12041,6 @@ gulp-copy@^4.0.0:
     plugin-error "^0.1.2"
     through2 "^2.0.3"
 
-gulp-exec@^5.0.0:
-  version "5.0.0"
-  resolved "https://registry.yarnpkg.com/gulp-exec/-/gulp-exec-5.0.0.tgz#14f04ddc8d5a5e75c2d082b3216aa36459840823"
-  integrity sha512-XFW5GJr5gpdRc7nAS6fNK2cqtLDjNnIKLbcVGIA6XAWCx7E4aVn/pzEJm6NvjtIU9VMsl4igkkSAo8Le8L1Lww==
-  dependencies:
-    plugin-error "^1.0.1"
-    through2 "^3.0.1"
-
 gulp-file@^0.4.0:
   version "0.4.0"
   resolved "https://registry.yarnpkg.com/gulp-file/-/gulp-file-0.4.0.tgz#451356a2ac5089c6db91a0444252a0543657006b"
