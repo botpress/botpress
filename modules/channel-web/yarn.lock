@@ -50,14 +50,14 @@
   resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-1.0.0.tgz#7bf70d26ceb8b9128a517e03ff6ae6931e193373"
   integrity sha512-q8GKsoGIM2X+eMa8mGugaMerCv8P133OLR/3wEWdkk3R2MvVGh7on7lwVa+TuSaQhwqUawy7LM/9fcVawG6imQ==
 
-"@botpress/messaging-client@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-1.0.1.tgz#09ec5422b456542f38a46ffd5688647d4b6730d1"
-  integrity sha512-rTEUHk2uEDicTMmBrmKsCnQv1RnCdMChwC72FfRPZrqzwHyurXAQBET2xm0aAcPwQPZEXbKVo0kn/yg2WJBhRQ==
+"@botpress/messaging-client@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-1.0.3.tgz#a113a4299661256eb51404d68af27947fee3dc3a"
+  integrity sha512-gJxKdXmPHJ1sokFzq18bOexd4Dm6h85wcvqqjE2Ve+KdbiPICaqmsddB/QuguXHJxD2Xe9ESFYbwFSSA+t7FrA==
   dependencies:
     "@botpress/messaging-base" "1.0.0"
     axios "^0.21.4"
-    joi "^17.5.0"
+    joi "^17.6.0"
 
 "@emotion/babel-utils@^0.6.4":
   version "0.6.10"
@@ -776,10 +776,10 @@ jmespath@0.15.0:
   resolved "https://registry.yarnpkg.com/jmespath/-/jmespath-0.15.0.tgz#a3f222a9aae9f966f5d27c796510e28091764217"
   integrity sha1-o/Iiqarp+Wb10nx5ZRDigJF2Qhc=
 
-joi@^17.5.0:
-  version "17.5.0"
-  resolved "https://registry.yarnpkg.com/joi/-/joi-17.5.0.tgz#7e66d0004b5045d971cf416a55fb61d33ac6e011"
-  integrity sha512-R7hR50COp7StzLnDi4ywOXHrBrgNXuUUfJWIR5lPY5Bm/pOD3jZaTwpluUXVLRWcoWZxkrHBBJ5hLxgnlehbdw==
+joi@^17.6.0:
+  version "17.6.0"
+  resolved "https://registry.yarnpkg.com/joi/-/joi-17.6.0.tgz#0bb54f2f006c09a96e75ce687957bd04290054b2"
+  integrity sha512-OX5dG6DTbcr/kbMFj0KGYxuew69HPcAE3K/sZpEV2nP6e/j/C0HV+HNiBPCASxdx5T7DMoa0s8UeHWMnb6n2zw==
   dependencies:
     "@hapi/hoek" "^9.0.0"
     "@hapi/topo" "^5.0.0"
