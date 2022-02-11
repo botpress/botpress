@@ -2,33 +2,35 @@
 # yarn lockfile v1
 
 
-"@analytics/cookie-utils@^0.2.8":
-  version "0.2.8"
-  resolved "https://registry.yarnpkg.com/@analytics/cookie-utils/-/cookie-utils-0.2.8.tgz#271ab9142352f104497e9fd1e9cf1577f4cede7a"
-  integrity sha512-m6AaitiTKxiUgsux9/g0sD4MfDpzWbYnCb3dYos4mBMzlN1WFzQo0Ox1QmGFvtydl8Nb5Zwj5uIdVPUbFNSWXw==
+"@analytics/cookie-utils@^0.2.9":
+  version "0.2.9"
+  resolved "https://registry.yarnpkg.com/@analytics/cookie-utils/-/cookie-utils-0.2.9.tgz#ec506dbd9dd79c17a56c6b7903206b90b2384fca"
+  integrity sha512-n864WRTvO/vFXbKkPaHgCh3LXL0Xbesc6bnhbgcE4LDLJIvDX/wIblzHvLr47ePaaFJvOljqQyeY4TZBWWdaWA==
   dependencies:
-    "@analytics/global-storage-utils" "^0.1.3"
+    "@analytics/global-storage-utils" "^0.1.4"
 
-"@analytics/core@^0.10.21":
-  version "0.10.21"
-  resolved "https://registry.yarnpkg.com/@analytics/core/-/core-0.10.21.tgz#027d2798ab8f9c1bd0f0319b3b2825fd21aa1f62"
-  integrity sha512-qdnqci07+c/4wU1amVVpDTS4qeMBT04qaYNLa6lr+QgMiWh6RkxNpDyialDYzjFgxBrUa/1IuQEj9N53qtd/Pw==
+"@analytics/core@^0.11.0":
+  version "0.11.0"
+  resolved "https://registry.yarnpkg.com/@analytics/core/-/core-0.11.0.tgz#a564a29976db56b64188e00cf236d9a64c59fea5"
+  integrity sha512-5Waj+Ca8bvCwqI/4/BKi/9hwV8FuQAW9PGgFUQcDbdWcEzmXp0SzzhTuP2mpO9oR4RquxqqGkU3d9zgulZa4Hg==
   dependencies:
-    "@analytics/global-storage-utils" "^0.1.3"
-    "@analytics/type-utils" "^0.5.3"
-    analytics-utils "^1.0.8"
+    "@analytics/global-storage-utils" "^0.1.4"
+    "@analytics/type-utils" "^0.5.4"
+    analytics-utils "^1.0.9"
 
-"@analytics/global-storage-utils@^0.1.3":
-  version "0.1.3"
-  resolved "https://registry.yarnpkg.com/@analytics/global-storage-utils/-/global-storage-utils-0.1.3.tgz#f4b9ea4efb77c4d8481046df6948409b1ce16e0c"
-  integrity sha512-0XXWFxguiU0S4MyLScbgIRjXlrw6XpzhTFaTd5NCxOP1ZzUEONbiDEbFCtoUIqIQXaeXDvKBF9Aro3M/ITN75Q==
-
-"@analytics/localstorage-utils@^0.1.6":
-  version "0.1.6"
-  resolved "https://registry.yarnpkg.com/@analytics/localstorage-utils/-/localstorage-utils-0.1.6.tgz#2bb707ff9cb90936b2b5ebaf77da74be559735cf"
-  integrity sha512-SdlXnqmaF6FRMeuLnuHqxGjl5AcHez/ORvIrYN0v2kdDVik/oWlnwlZYexBCk8pCZReLnL21KJ6zz9bfQ7fPKw==
+"@analytics/global-storage-utils@^0.1.4":
+  version "0.1.4"
+  resolved "https://registry.yarnpkg.com/@analytics/global-storage-utils/-/global-storage-utils-0.1.4.tgz#69ca586fcea4b717063e865d126d6561cc3adc05"
+  integrity sha512-9qd2OOvhL8kN5oUpVZ6tdCveYT9s+iXwkkQFOHjO+5ezFeVtrsfbaBHQe4sPquEroH0KmfY8PBMWIDCcc8FVvg==
   dependencies:
-    "@analytics/global-storage-utils" "^0.1.3"
+    "@analytics/type-utils" "^0.5.4"
+
+"@analytics/localstorage-utils@^0.1.7":
+  version "0.1.7"
+  resolved "https://registry.yarnpkg.com/@analytics/localstorage-utils/-/localstorage-utils-0.1.7.tgz#1723e43cd8286007bc47940f8a7c79a241a3f54c"
+  integrity sha512-1nji7Bxb0nA9T5S+fCPigsBzFKkCnJAMN08APKtcdzgn+QaDFpmZg2dA15LERc7dhK3qTI7HXj4s1VhJeBGikQ==
+  dependencies:
+    "@analytics/global-storage-utils" "^0.1.4"
 
 "@analytics/segment@^1.1.1":
   version "1.1.2"
@@ -37,20 +39,28 @@
   dependencies:
     analytics-node "^3.5.0"
 
-"@analytics/storage-utils@^0.2.17":
-  version "0.2.17"
-  resolved "https://registry.yarnpkg.com/@analytics/storage-utils/-/storage-utils-0.2.17.tgz#479f5ef1251632a275abb6e0106a57d22bab7a03"
-  integrity sha512-eJvyvqqeQh/YMOGkPzW8YC79H73ADKKU32ocZTREgkaUWv2Hd9vpt5MYErCWXeMMcWCy5DtzNTke062AGboq1w==
+"@analytics/session-storage-utils@^0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@analytics/session-storage-utils/-/session-storage-utils-0.0.4.tgz#6aefe0eb012038f3722433c411485a2b7f540a15"
+  integrity sha512-HPVIUMpL9ua8uBj5kLsTOLbxUNP0GVYQowC9AwX1S/T39Eg8RKwbV/GYaDAqeCjEi8BGYOEguqI9kFGqxIt1iA==
   dependencies:
-    "@analytics/cookie-utils" "^0.2.8"
-    "@analytics/global-storage-utils" "^0.1.3"
-    "@analytics/localstorage-utils" "^0.1.6"
-    "@analytics/type-utils" "^0.5.3"
+    "@analytics/global-storage-utils" "^0.1.4"
 
-"@analytics/type-utils@^0.5.3":
-  version "0.5.3"
-  resolved "https://registry.yarnpkg.com/@analytics/type-utils/-/type-utils-0.5.3.tgz#77d8542e0f8ae9f0524acf9e760c3e029ea89342"
-  integrity sha512-45IYy7vqh8W3p07MGGGVDdRTd1codcAJZ8USWA63IfS3EEAmL33fI7AI4SvNN7wVdIFdJv17ZbFBmDT6H+rt8g==
+"@analytics/storage-utils@^0.3.0":
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/@analytics/storage-utils/-/storage-utils-0.3.0.tgz#7a9795af6b73e13194edb03eb27402c4877d9d96"
+  integrity sha512-uxOz5wdZkuxc7RaWlNsj/7iFr0GkkFqmxyIYY4oFk91E3/hyosny59lb8DEC/MpdUUAoNI+clU+I/PYcv3p1WA==
+  dependencies:
+    "@analytics/cookie-utils" "^0.2.9"
+    "@analytics/global-storage-utils" "^0.1.4"
+    "@analytics/localstorage-utils" "^0.1.7"
+    "@analytics/session-storage-utils" "^0.0.4"
+    "@analytics/type-utils" "^0.5.4"
+
+"@analytics/type-utils@^0.5.4":
+  version "0.5.4"
+  resolved "https://registry.yarnpkg.com/@analytics/type-utils/-/type-utils-0.5.4.tgz#1fcaa6d1d557c0377d1fbd8615624ac918d1727d"
+  integrity sha512-2CT5YTsvif3gYPYp5hPIhh66mUo/Cu+k5OiHbX3k5p+YsZ5Bggcp/wLEFnrdKG4tKgGn5SOKkEtL63VYhGXX7g==
 
 "@apidevtools/json-schema-ref-parser@^9.0.6":
   version "9.0.6"
@@ -2381,14 +2391,14 @@
   resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-1.0.0.tgz#7bf70d26ceb8b9128a517e03ff6ae6931e193373"
   integrity sha512-q8GKsoGIM2X+eMa8mGugaMerCv8P133OLR/3wEWdkk3R2MvVGh7on7lwVa+TuSaQhwqUawy7LM/9fcVawG6imQ==
 
-"@botpress/messaging-client@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-1.0.1.tgz#09ec5422b456542f38a46ffd5688647d4b6730d1"
-  integrity sha512-rTEUHk2uEDicTMmBrmKsCnQv1RnCdMChwC72FfRPZrqzwHyurXAQBET2xm0aAcPwQPZEXbKVo0kn/yg2WJBhRQ==
+"@botpress/messaging-client@^1.0.3":
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-1.0.3.tgz#a113a4299661256eb51404d68af27947fee3dc3a"
+  integrity sha512-gJxKdXmPHJ1sokFzq18bOexd4Dm6h85wcvqqjE2Ve+KdbiPICaqmsddB/QuguXHJxD2Xe9ESFYbwFSSA+t7FrA==
   dependencies:
     "@botpress/messaging-base" "1.0.0"
     axios "^0.21.4"
-    joi "^17.5.0"
+    joi "^17.6.0"
 
 "@cnakazawa/watch@^1.0.3":
   version "1.0.3"
@@ -3788,10 +3798,17 @@
     "@types/express-serve-static-core" "*"
     "@types/serve-static" "*"
 
-"@types/fs-extra@^5.0.3", "@types/fs-extra@^5.0.4":
+"@types/fs-extra@^5.0.3":
   version "5.0.5"
   resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-5.0.5.tgz#080d90a792f3fa2c5559eb44bd8ef840aae9104b"
   integrity sha512-w7iqhDH9mN8eLClQOYTkhdYUOSpp25eXxfc6VbFOGtzxW34JcvctH2bKjj4jD4++z4R5iO5D+pg48W2e03I65A==
+  dependencies:
+    "@types/node" "*"
+
+"@types/fs-extra@^5.0.4":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@types/fs-extra/-/fs-extra-5.1.0.tgz#2a325ef97901504a3828718c390d34b8426a10a1"
+  integrity sha512-AInn5+UBFIK9FK5xc9yP5e3TQSPNNgjHByqYcj9g5elVBnDQcQL7PlO1CIRy2gWlbwK7UPYqi7vRvFA44dCmYQ==
   dependencies:
     "@types/node" "*"
 
@@ -4887,7 +4904,7 @@ abbrev@1:
   resolved "https://registry.yarnpkg.com/abbrev/-/abbrev-1.1.1.tgz#f8f2c887ad10bf67f634f005b6987fed3179aac8"
   integrity sha512-nne9/IiQ/hzIhY6pdDnbBtz7DjPTKrY00P/zvPSm5pOFkl6xuGrGnXn/VtTNNfNtAfZ9/1RtehkszU9qcTii0Q==
 
-accepts@~1.3.3, accepts@~1.3.4, accepts@~1.3.5, accepts@~1.3.7:
+accepts@~1.3.4, accepts@~1.3.5, accepts@~1.3.7:
   version "1.3.7"
   resolved "https://registry.npmjs.org/accepts/-/accepts-1.3.7.tgz#531bc726517a3b2b41f850021c6cc15eaab507cd"
   integrity sha512-Il80Qs2WjYlJIBNzNkK6KYqlVMTbZLXgHx2oT0pU/fjRHyEp+PEfEPY0R3WCwAGVOtauxh1hOxNgIf5bv7dQpA==
@@ -5059,21 +5076,21 @@ analytics-node@^3.5.0:
     remove-trailing-slash "^0.1.0"
     uuid "^3.2.1"
 
-analytics-utils@^1.0.8:
-  version "1.0.8"
-  resolved "https://registry.yarnpkg.com/analytics-utils/-/analytics-utils-1.0.8.tgz#bcebe9ac86c7e5ba7da5dbc6feac4842833a0205"
-  integrity sha512-N+bYSDzJ8smu7vkcG/HV7wI042Vf/ORDUpCCzW3D2PAkDtpIvCVe4QXMNh9OXXi4EZjDPd6zP3JNcOC9RAvBJA==
+analytics-utils@^1.0.9:
+  version "1.0.9"
+  resolved "https://registry.yarnpkg.com/analytics-utils/-/analytics-utils-1.0.9.tgz#e37667321f53ac0d346777d3c31a4df1124ef2d4"
+  integrity sha512-X1Vy4/iWer8ebdJ4p6rAAyFxa2NOgRI7wvge2x3K2gj++Ubb1YucfYC4pWVlPWLA2KZD8KVTHqPvoHOi2QjhWg==
   dependencies:
-    "@analytics/type-utils" "^0.5.3"
+    "@analytics/type-utils" "^0.5.4"
     dlv "^1.1.3"
 
-analytics@^0.7.21:
-  version "0.7.21"
-  resolved "https://registry.yarnpkg.com/analytics/-/analytics-0.7.21.tgz#42ab9de9f27aec9a3343887c6cdcc2a99769adc9"
-  integrity sha512-3WS0IFaHgYkvSVebrg3i2IBh8rP41b4VHr/4suWweRA3FGYJu+BSGTnkiF+qBBzrfbX1+2rkTYygZyRb3wsUQA==
+analytics@^0.8.0:
+  version "0.8.0"
+  resolved "https://registry.yarnpkg.com/analytics/-/analytics-0.8.0.tgz#b47c5e5b6a11652cb865232bbee77e19b3d2f472"
+  integrity sha512-ycDNi0xrlFOxi9mtFIsP3QAOfWZ6hzuetL82Dhfq4MGOqJMPkoWG0mDEEHYbbFlLsu3WQRlcLF2VU3K/qZP3Zw==
   dependencies:
-    "@analytics/core" "^0.10.21"
-    "@analytics/storage-utils" "^0.2.17"
+    "@analytics/core" "^0.11.0"
+    "@analytics/storage-utils" "^0.3.0"
 
 anser@^1.4.8:
   version "1.4.10"
@@ -9996,12 +10013,12 @@ error-stack-parser@^2.0.6:
   dependencies:
     stackframe "^1.1.1"
 
-errorhandler@^1.5.0:
-  version "1.5.0"
-  resolved "https://registry.yarnpkg.com/errorhandler/-/errorhandler-1.5.0.tgz#eaba64ca5d542a311ac945f582defc336165d9f4"
-  integrity sha1-6rpkyl1UKjEayUX1gt78M2Fl2fQ=
+errorhandler@^1.5.1:
+  version "1.5.1"
+  resolved "https://registry.yarnpkg.com/errorhandler/-/errorhandler-1.5.1.tgz#b9ba5d17cf90744cd1e851357a6e75bf806a9a91"
+  integrity sha512-rcOwbfvP1WTViVoUjcfZicVzjhjTuhSMntHh6mW3IrEiyE6mJyXvsToJUJGlGlw/2xU9P5whlWNGlIDVeCiT4A==
   dependencies:
-    accepts "~1.3.3"
+    accepts "~1.3.7"
     escape-html "~1.0.3"
 
 es-abstract@^1.17.2, es-abstract@^1.19.1:
@@ -10699,10 +10716,10 @@ expand-tilde@^2.0.0, expand-tilde@^2.0.2:
   dependencies:
     homedir-polyfill "^1.0.1"
 
-expect-puppeteer@^6.0.2:
-  version "6.0.2"
-  resolved "https://registry.yarnpkg.com/expect-puppeteer/-/expect-puppeteer-6.0.2.tgz#3da28c89234ddbf56774454155572488c2303843"
-  integrity sha512-Xlor321I2MrrgW9BWei0Lq4C9meU7qmyycwQMjprKh+tLG9MalptqdDPse16+1Ffq+hvM/kAlZcEchcteGWhzw==
+expect-puppeteer@^6.0.2, expect-puppeteer@^6.1.0:
+  version "6.1.0"
+  resolved "https://registry.yarnpkg.com/expect-puppeteer/-/expect-puppeteer-6.1.0.tgz#507bf3488e656c2f11fb1306ecaccc108a4bbaa5"
+  integrity sha512-5yk64xOe+yTRLeZTg1uuGYmUw5bMsI/YX7Q9tXsovYFBq8bvagJH4XMYLQ7/nU+1dJawLH0KJehuJULD33oU+w==
 
 expect@^26.6.2:
   version "26.6.2"
@@ -11389,15 +11406,6 @@ fs-exists-sync@^0.1.0:
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/fs-exists-sync/-/fs-exists-sync-0.1.0.tgz#982d6893af918e72d08dec9e8673ff2b5a8d6add"
   integrity sha1-mC1ok6+RjnLQjeyehnP/K1qNat0=
-
-fs-extra@^10.0.0:
-  version "10.0.0"
-  resolved "https://registry.yarnpkg.com/fs-extra/-/fs-extra-10.0.0.tgz#9ff61b655dde53fb34a82df84bb214ce802e17c1"
-  integrity sha512-C5owb14u9eJwizKGdchcDUQeFtlSHHthBk8pbX9Vc1PFZrLombudjDnNns88aYslCyF6IY5SUw3Roz6xShcEIQ==
-  dependencies:
-    graceful-fs "^4.2.0"
-    jsonfile "^6.0.1"
-    universalify "^2.0.0"
 
 fs-extra@^7.0.0:
   version "7.0.1"
@@ -14864,7 +14872,7 @@ joi@^13.6.0:
     isemail "3.x.x"
     topo "3.x.x"
 
-joi@^17.4.0, joi@^17.5.0:
+joi@^17.4.0, joi@^17.6.0:
   version "17.6.0"
   resolved "https://registry.yarnpkg.com/joi/-/joi-17.6.0.tgz#0bb54f2f006c09a96e75ce687957bd04290054b2"
   integrity sha512-OX5dG6DTbcr/kbMFj0KGYxuew69HPcAE3K/sZpEV2nP6e/j/C0HV+HNiBPCASxdx5T7DMoa0s8UeHWMnb6n2zw==
