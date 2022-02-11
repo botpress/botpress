@@ -12041,14 +12041,13 @@ gulp-copy@^4.0.0:
     plugin-error "^0.1.2"
     through2 "^2.0.3"
 
-gulp-exec@^3.0.2:
-  version "3.0.2"
-  resolved "https://registry.yarnpkg.com/gulp-exec/-/gulp-exec-3.0.2.tgz#6e461646221dd6c47f5803d7f69b399bde20e214"
-  integrity sha512-74sde0n+pQo/Jbe5qsk0sPC4afjnB7VHDUZd4BrRTLt6lsNU451N+kSvCOoSn6q0iqS9ztT1uy8ZE/FRqmXKeQ==
+gulp-exec@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/gulp-exec/-/gulp-exec-5.0.0.tgz#14f04ddc8d5a5e75c2d082b3216aa36459840823"
+  integrity sha512-XFW5GJr5gpdRc7nAS6fNK2cqtLDjNnIKLbcVGIA6XAWCx7E4aVn/pzEJm6NvjtIU9VMsl4igkkSAo8Le8L1Lww==
   dependencies:
-    lodash.template "^4.4.0"
-    plugin-error "^0.1.2"
-    through2 "^2.0.3"
+    plugin-error "^1.0.1"
+    through2 "^3.0.1"
 
 gulp-file@^0.4.0:
   version "0.4.0"
@@ -15778,7 +15777,7 @@ lodash.template@^3.0.0:
     lodash.restparam "^3.0.0"
     lodash.templatesettings "^3.0.0"
 
-lodash.template@^4.0.2, lodash.template@^4.4.0:
+lodash.template@^4.0.2:
   version "4.4.0"
   resolved "https://registry.yarnpkg.com/lodash.template/-/lodash.template-4.4.0.tgz#e73a0385c8355591746e020b99679c690e68fba0"
   integrity sha1-5zoDhcg1VZF0bgILmWecaQ5o+6A=
