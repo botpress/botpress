@@ -131,7 +131,7 @@
     "jest-circus": "^27.4.6",
     "jest-extended": "^2.0.0",
     "jest-html-reporter": "^3.4.2",
-    "jest-puppeteer": "^6.0.3",
+    "jest-puppeteer": "^6.1.0",
     "lint-staged": "^10.2.11",
     "pkg": "^4.3.7",
     "prettier": "^1.19.1",
