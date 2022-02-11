@@ -180,3 +180,16 @@
   height: 18px;
   padding-right: 10px;
 }
+
+.deprCallout {
+  margin-bottom: 10px;
+  position: relative;
+
+  .exitCallout {
+    cursor: pointer;
+    position: absolute;
+    padding: 4px;
+    top: 0px;
+    right: 0px;
+  }
+}

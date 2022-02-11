@@ -12,7 +12,7 @@ import {
   Position
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
-import { confirmDialog, lang, telemetry, toast } from 'botpress/shared'
+import { confirmDialog, lang, telemetry, toast, utils } from 'botpress/shared'
 import cx from 'classnames'
 import { BUILTIN_MODULES } from 'common/defaults'
 import _ from 'lodash'
@@ -40,6 +40,7 @@ import ImportBotModal from './ImportBotModal'
 import RollbackBotModal from './RollbackBotModal'
 import style from './style.scss'
 
+const DEPR_WARNING_ACK_KEY = 'DEPR_WARNING_ACK_CUSTOM_MODULES' // change key when changing the warning msg
 const botFilterFields = ['name', 'id', 'description']
 
 type Props = ConnectedProps<typeof connector> & RouteComponentProps
@@ -56,7 +57,8 @@ class Bots extends Component<Props> {
     archiveName: '',
     filter: '',
     showFilters: false,
-    needApprovalFilter: false
+    needApprovalFilter: false,
+    showDeprWarning: false
   }
 
   componentDidMount() {
@@ -75,6 +77,13 @@ class Bots extends Component<Props> {
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     telemetry.startFallback(api.getSecured({ useV1: true })).catch()
+
+    if (
+      !utils.storage.get<boolean>(DEPR_WARNING_ACK_KEY) &&
+      !this.props.loadedModules.every(m => BUILTIN_MODULES.includes(m.name))
+    ) {
+      this.setState({ showDeprWarning: true })
+    }
   }
 
   toggleCreateBotModal = () => {
@@ -374,17 +383,24 @@ class Bots extends Component<Props> {
     )
   }
 
-  renderDeprCallout() {
-    return (
-      <Callout intent={Intent.WARNING} title={lang.tr('admin.alerting.deprWarning')} className={style.filterCallout}>
-        We will end support for custom modules in Botpress 13. A migration guide will be provided for skills and Webchat
-        Custom Components. For other extension points, use standalone hooks and actions.
-      </Callout>
-    )
+  closeDeprWarning() {
+    utils.storage.set(DEPR_WARNING_ACK_KEY, true)
+    this.setState({ showDeprWarning: false })
   }
 
-  get findDeprModules() {
-    return !this.props.loadedModules.every(m => BUILTIN_MODULES.includes(m.name))
+  renderDeprCallout() {
+    return (
+      <Callout
+        intent={Intent.WARNING}
+        title={lang.tr('admin.alerting.deprWarning.title')}
+        className={style.deprCallout}
+      >
+        <div onClick={this.closeDeprWarning.bind(this)} className={style.exitCallout}>
+          <Icon icon="cross" />
+        </div>
+        {lang.tr('admin.alerting.deprWarning.msg')}
+      </Callout>
+    )
   }
 
   get isPipelineView() {
@@ -401,7 +417,7 @@ class Bots extends Component<Props> {
         <SplitPage sideMenu={!this.isPipelineView && this.renderCreateNewBotButton()}>
           <Fragment>
             <Downloader url={this.state.archiveUrl} filename={this.state.archiveName} />
-            {this.findDeprModules ? this.renderDeprCallout() : null}
+            {this.state.showDeprWarning ? this.renderDeprCallout() : null}
             {this.renderBots()}
 
             <AccessControl resource="admin.bots.*" operation="write">
