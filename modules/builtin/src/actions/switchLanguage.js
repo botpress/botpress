@@ -19,4 +19,4 @@ const switchLanguage = async language => {
   await event.setFlag(bp.IO.WellKnownFlags.FORCE_PERSIST_STATE, true)
 }
 
-return switchLanguage(args.lang)
+return switchLanguage(args.lang.toLowerCase())

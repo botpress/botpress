@@ -57,7 +57,15 @@ export class MessagingService {
     this.messaging = new MessagingChannel({
       url: this.getMessagingUrl(),
       axios: this.getAxiosConfig(),
-      adminKey: this.isExternal ? process.env.MESSAGING_ADMIN_KEY : process.env.INTERNAL_PASSWORD
+      adminKey: this.isExternal ? process.env.MESSAGING_ADMIN_KEY : process.env.INTERNAL_PASSWORD,
+      logger: {
+        info: this.logger.info.bind(this.logger),
+        debug: this.logger.debug.bind(this.logger),
+        warn: this.logger.warn.bind(this.logger),
+        error: (e, msg, data) => {
+          this.logger.attachError(e).error(msg || '', data)
+        }
+      }
     })
     this.messaging.on('user', this.handleUserNewEvent.bind(this))
     this.messaging.on('started', this.handleConversationStartedEvent.bind(this))
