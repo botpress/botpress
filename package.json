@@ -117,7 +117,6 @@
     "gulp-cli": "^2.0.1",
     "gulp-conventional-changelog": "^2.0.9",
     "gulp-copy": "^4.0.0",
-    "gulp-exec": "^3.0.2",
     "gulp-file": "^0.4.0",
     "gulp-if": "^2.0.2",
     "gulp-ignore": "^3.0.0",
