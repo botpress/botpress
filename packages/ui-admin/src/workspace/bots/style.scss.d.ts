@@ -10,6 +10,8 @@ interface CssExports {
   'create': string;
   'createbot_btn': string;
   'customIcon': string;
+  'deprCallout': string;
+  'exitCallout': string;
   'extraFilters': string;
   'filterCallout': string;
   'filterField': string;

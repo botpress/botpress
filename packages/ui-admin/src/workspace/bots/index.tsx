@@ -12,13 +12,13 @@ import {
   Position
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
-import { confirmDialog, lang, telemetry, toast } from 'botpress/shared'
+import { confirmDialog, lang, telemetry, toast, utils } from 'botpress/shared'
 import cx from 'classnames'
+import { BUILTIN_MODULES } from 'common/defaults'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { generatePath, RouteComponentProps } from 'react-router'
-
 import api from '~/app/api'
 import { Downloader } from '~/app/common/Downloader'
 import LoadingSection from '~/app/common/LoadingSection'
@@ -28,7 +28,7 @@ import { AppState } from '~/app/rootReducer'
 import AccessControl from '~/auth/AccessControl'
 import { getActiveWorkspace } from '~/auth/basicAuth'
 import { fetchLicensing } from '~/management/licensing/reducer'
-import { fetchModules } from '~/management/modules/reducer'
+import { fetchModules, fetchLoadedModules } from '~/management/modules/reducer'
 import { fetchBotHealth, fetchBots, fetchBotNLULanguages } from '~/workspace/bots/reducer'
 import { filterList } from '~/workspace/util'
 
@@ -40,6 +40,7 @@ import ImportBotModal from './ImportBotModal'
 import RollbackBotModal from './RollbackBotModal'
 import style from './style.scss'
 
+const DEPR_WARNING_ACK_KEY = 'DEPR_WARNING_ACK_CUSTOM_MODULES' // change key when changing the warning msg
 const botFilterFields = ['name', 'id', 'description']
 
 type Props = ConnectedProps<typeof connector> & RouteComponentProps
@@ -56,13 +57,15 @@ class Bots extends Component<Props> {
     archiveName: '',
     filter: '',
     showFilters: false,
-    needApprovalFilter: false
+    needApprovalFilter: false,
+    showDeprWarning: false
   }
 
   componentDidMount() {
     this.props.fetchBots()
     this.props.fetchBotHealth()
     this.props.fetchBotNLULanguages()
+    this.props.fetchLoadedModules()
 
     if (!this.props.loadedModules.length && this.props.profile && this.props.profile.isSuperAdmin) {
       this.props.fetchModules()
@@ -74,6 +77,13 @@ class Bots extends Component<Props> {
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     telemetry.startFallback(api.getSecured({ useV1: true })).catch()
+
+    if (
+      !utils.storage.get<boolean>(DEPR_WARNING_ACK_KEY) &&
+      !this.props.loadedModules.every(m => BUILTIN_MODULES.includes(m.name))
+    ) {
+      this.setState({ showDeprWarning: true })
+    }
   }
 
   toggleCreateBotModal = () => {
@@ -373,6 +383,26 @@ class Bots extends Component<Props> {
     )
   }
 
+  closeDeprWarning() {
+    utils.storage.set(DEPR_WARNING_ACK_KEY, true)
+    this.setState({ showDeprWarning: false })
+  }
+
+  renderDeprCallout() {
+    return (
+      <Callout
+        intent={Intent.WARNING}
+        title={lang.tr('admin.alerting.deprWarning.title')}
+        className={style.deprCallout}
+      >
+        <div onClick={this.closeDeprWarning.bind(this)} className={style.exitCallout}>
+          <Icon icon="cross" />
+        </div>
+        {lang.tr('admin.alerting.deprWarning.msg')}
+      </Callout>
+    )
+  }
+
   get isPipelineView() {
     return this.props.workspace && this.props.workspace.pipeline && this.props.workspace.pipeline.length > 1
   }
@@ -387,6 +417,7 @@ class Bots extends Component<Props> {
         <SplitPage sideMenu={!this.isPipelineView && this.renderCreateNewBotButton()}>
           <Fragment>
             <Downloader url={this.state.archiveUrl} filename={this.state.archiveName} />
+            {this.state.showDeprWarning ? this.renderDeprCallout() : null}
             {this.renderBots()}
 
             <AccessControl resource="admin.bots.*" operation="write">
@@ -438,7 +469,8 @@ const mapDispatchToProps = {
   fetchLicensing,
   fetchBotHealth,
   fetchModules,
-  fetchBotNLULanguages
+  fetchBotNLULanguages,
+  fetchLoadedModules
 }
 
 const connector = connect(mapStateToProps, mapDispatchToProps)
