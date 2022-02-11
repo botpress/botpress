@@ -11,7 +11,11 @@
       "resolvedIncidents": "Incidentes resueltos",
       "timeFrame": "Periodo de tiempo",
       "timespanHour": "1 hora",
-      "timespanHours": "{nb} horas"
+      "timespanHours": "{nb} horas",
+      "deprWarning": {
+        "title": "Advertencia de obsolescencia",
+        "msg": "Dejaremos de admitir módulos personalizados en Botpress 13. Se proporcionará una guía de migración para las habilidades y los componentes personalizados de Webchat. Para otros puntos de extensión, use ganchos y acciones independientes."
+      }
     },
     "authenticationFailed": "Error de autenticación",
     "botpressIsNotLicensed": "Actualmente, Botpress no tiene licencia. Actualice su licencia para volver a habilitar todas las funciones.",
