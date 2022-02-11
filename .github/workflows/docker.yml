@@ -3,6 +3,8 @@ on:
   push:
     branches-ignore:
       - 'dependabot/**'
+  release:
+    types: [published]
 
 jobs:
   build_and_push:
@@ -14,11 +16,11 @@ jobs:
         with:
           token: ${{ secrets.PAT_DOCKER }}
           submodules: true
-      # Create an array of version to push to the Dockerhub registery
+      # Create an array of version to push to the Dockerhub registry
       - name: Prepare
         id: prep
         run: |
-          TAG=$(echo $(git describe ${{github.sha}} --tags)) ## Get the tags from the SHA hash
+          TAG=$(echo $(git describe ${{ github.sha }} --tags)) ## Get the tags from the SHA hash
           VALID_TAG="^v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"  ## Will match Tags in the following format v123.231.123 or v1.2.3 will discard the following format v1.2.4-<revision>
           DOCKER_IMAGE=botpress/server
           VERSION=()
