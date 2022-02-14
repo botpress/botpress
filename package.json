@@ -88,7 +88,7 @@
     "@types/lodash": "^4.14.116",
     "@types/lru-cache": "^5.1.0",
     "@types/mime-types": "^2.1.0",
-    "@types/mkdirp": "^1.0.1",
+    "@types/mkdirp": "^1.0.2",
     "@types/ms": "^0.7.30",
     "@types/multer": "^1.4.5",
     "@types/node": "^10.10.3",
