@@ -27,7 +27,7 @@
     "filemanager-webpack-plugin": "2.0.5",
     "prop-types": "^15.8.1",
     "script-loader": "^0.7.0",
-    "style-loader": "^0.13.1",
+    "style-loader": "^2.0.0",
     "terser-webpack-plugin": "^2.2.2",
     "thread-loader": "^1.1.5",
     "ts-loader": "^6.0.2",

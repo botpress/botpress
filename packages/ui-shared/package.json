@@ -37,7 +37,7 @@
     "sass-loader": "^6.0.6",
     "script-loader": "^0.7.0",
     "snarkdown": "^1.2.2",
-    "style-loader": "^0.13.1",
+    "style-loader": "^2.0.0",
     "terser-webpack-plugin": "^2.2.2",
     "ts-loader": "^6.0.2",
     "webpack": "4.12",
