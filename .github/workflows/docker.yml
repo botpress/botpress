@@ -6,7 +6,7 @@ on:
 
 jobs:
   build_and_push_docker:
-    name: Build and push Docker image to GitHub Packages
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
     steps:
       - uses: tibdex/github-app-token@v1

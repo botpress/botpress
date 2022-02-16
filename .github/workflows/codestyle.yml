@@ -2,7 +2,7 @@ name: Code Style
 on: [pull_request]
 jobs:
   prettier:
-    name: Run Prettier on codebase
+    name: Prettier
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
@@ -18,7 +18,7 @@ jobs:
         run: |
           yarn prettier
   eslint:
-    name: Run ESLint on codebase
+    name: ESLint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
