@@ -52,7 +52,7 @@
     "intl-messageformat": "^2.2.0",
     "inversify": "^4.13.0",
     "json-schema-defaults": "^0.4.0",
-    "jsonlint-mod": "^1.7.5",
+    "jsonlint-mod": "^1.7.6",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.8.0",
     "knex": "^0.20.1",
