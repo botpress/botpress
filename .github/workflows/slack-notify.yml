@@ -1,6 +1,7 @@
 on:
   discussion:
     types: [created]
+
 name: Slack Notification Demo
 jobs:
   slack_notification:

@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       name:
-        description: 'Name of the ouput file'
+        description: 'Name of the output file'
         required: false
         default: ''
 
