@@ -1,7 +1,7 @@
-name: Codestyle
+name: Code Style
 on: [pull_request]
 jobs:
-  run_prettier:
+  prettier:
     name: Run Prettier on codebase
     runs-on: ubuntu-latest
     steps:

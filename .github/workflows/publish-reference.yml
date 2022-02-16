@@ -4,7 +4,7 @@ on:
     branches:
       - master
 jobs:
-  publish-reference:
+  publish_reference:
     name: Publish Reference
     runs-on: ubuntu-latest
     steps:

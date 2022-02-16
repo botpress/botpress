@@ -13,8 +13,8 @@ on:
 # This is by choice as the next branch will eventually be merged in the master
 # It makes it easy to remove when the time comes
 jobs:
-  pre_release_bin:
-    name: Build and Publish Binaries
+  release_next_bin:
+    name: Build and Publish Next Binaries
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code

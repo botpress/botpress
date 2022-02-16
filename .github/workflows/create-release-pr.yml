@@ -9,8 +9,8 @@ on:
         default: 'patch'
 
 jobs:
-  create_pull_request:
-    name: Create Pull Request
+  create_release_pull_request:
+    name: Create Release Pull Request
     runs-on: 'ubuntu-latest'
 
     steps:
