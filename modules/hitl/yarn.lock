@@ -9,10 +9,10 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@botpress/messaging-components@^0.1.0":
-  version "0.1.0"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-components/-/messaging-components-0.1.0.tgz#667e4d636d003e025561f47cbe08bd789e0c25af"
-  integrity sha512-Wjj3UkwMFWCQ72US+Cwxl17vFd8KbAERzt1SERiHQ3xJgxCsWScb8EYu8NTpaXVwimHud/6saw3/DFwZv6e7UQ==
+"@botpress/messaging-components@0.2.0":
+  version "0.2.0"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-components/-/messaging-components-0.2.0.tgz#0eed7b7e91567aa37dc3d95b906703cc1304868e"
+  integrity sha512-C/W8MWQs4oSw+6Utax54UXBPy4kTnoaOiUMQsujR09OCxrl+L50eOsVxQ6sWs3Nev1UxBWFNQgFwtORUfdy24w==
   dependencies:
     html-truncate "^1.2.2"
     mime "^2.5.2"
