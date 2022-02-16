@@ -1,8 +1,6 @@
 name: Docker
 on:
   push:
-    branches-ignore:
-      - 'dependabot/**'
   release:
     types: [published]
 
@@ -11,10 +9,16 @@ jobs:
     name: Build and push Docker image to GitHub Packages
     runs-on: ubuntu-latest
     steps:
+      - uses: tibdex/github-app-token@v1
+        id: generate-token
+        with:
+          app_id: ${{ secrets.BOTPRESS_BOT_APP_ID }}
+          private_key: ${{ secrets.BOTPRESS_BOT_APP_PRIVATE_KEY }}
+
       - name: Checkout code
         uses: actions/checkout@master
         with:
-          token: ${{ secrets.PAT_DOCKER }}
+          token: ${{ steps.generate-token.outputs.token }}
           submodules: true
       # Create an array of version to push to the Dockerhub registry
       - name: Prepare
@@ -65,7 +69,7 @@ jobs:
         with:
           registry: ghcr.io
           username: ${{ github.repository_owner }}
-          password: ${{ secrets.GITHUB_TOKEN }}
+          password: ${{ steps.generate-token.outputs.token }}
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
