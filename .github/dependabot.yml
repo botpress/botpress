@@ -8,4 +8,4 @@ updates:
       timezone: 'America/Montreal'
     # Disable rebasing for npm pull requests
     rebase-strategy: 'disabled'
-    open-pull-requests-limit: 3
+    open-pull-requests-limit: 0
