@@ -9,7 +9,7 @@
   dependencies:
     regenerator-runtime "^0.13.4"
 
-"@botpress/messaging-components@^0.1.0":
+"@botpress/messaging-components@0.1.0":
   version "0.1.0"
   resolved "https://registry.yarnpkg.com/@botpress/messaging-components/-/messaging-components-0.1.0.tgz#667e4d636d003e025561f47cbe08bd789e0c25af"
   integrity sha512-Wjj3UkwMFWCQ72US+Cwxl17vFd8KbAERzt1SERiHQ3xJgxCsWScb8EYu8NTpaXVwimHud/6saw3/DFwZv6e7UQ==
