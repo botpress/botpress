@@ -10,7 +10,7 @@ jobs:
         uses: actions/checkout@master
       - uses: actions/setup-node@v2
         with:
-          node-version: '12.18.1'
+          node-version-file: '.nvmrc'
           cache: 'yarn'
       - name: Fetch Node Packages
         run: |
@@ -56,7 +56,7 @@ jobs:
         uses: actions/checkout@master
       - uses: actions/setup-node@v2
         with:
-          node-version: '12.18.1'
+          node-version-file: '.nvmrc'
           cache: 'yarn'
       - name: Fetch Node Packages
         run: |
@@ -78,19 +78,29 @@ jobs:
     name: E2E (ubuntu-latest)
     runs-on: ubuntu-latest
     steps:
+      - uses: tibdex/github-app-token@v1
+        id: generate-token
+        with:
+          app_id: ${{ secrets.BOTPRESS_BOT_APP_ID }}
+          private_key: ${{ secrets.BOTPRESS_BOT_APP_PRIVATE_KEY }}
+
       - name: Checkout code
         uses: actions/checkout@master
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          submodules: true
       - uses: actions/setup-node@v2
         with:
-          node-version: '12.18.1'
+          node-version-file: '.nvmrc'
           cache: 'yarn'
       - name: Fetch Node Packages
         run: |
           yarn --frozen-lockfile
       - name: Build core, UI and modules
-        run: yarn build
+        run: yarn build --prod --linux
         env:
           NODE_OPTIONS: '--max-old-space-size=6000'
+          EDITION: pro
       - name: Run Tests
         run: |
           yarn start & 
@@ -117,7 +127,7 @@ jobs:
 #        uses: actions/checkout@master
 #      - uses: actions/setup-node@v2
 #        with:
-#          node-version: '12.18.1'
+#          node-version-file: '.nvmrc'
 #          cache: 'yarn'
 #      - name: Fetch Node Packages
 #        run: |
@@ -150,7 +160,7 @@ jobs:
 #        uses: actions/checkout@master
 #      - uses: actions/setup-node@v2
 #        with:
-#          node-version: '12.18.1'
+#          node-version-file: '.nvmrc'
 #          cache: 'yarn'
 #      - name: Fetch Node Packages
 #        run: |
