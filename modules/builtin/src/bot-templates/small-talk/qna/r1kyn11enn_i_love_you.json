@@ -29,13 +29,19 @@
       ]
     },
     "answers": {
-      "en": ["People tell me all the time that I'm a lovable little bot :-)"],
-      "fr": ["S'il vous plait, continuez à me dire que je un petit robot aimable!"]
+      "en": [
+        "People tell me all the time that I'm a lovable little bot :-)"
+      ],
+      "fr": [
+        "S'il vous plait, continuez à me dire que je un petit robot aimable!"
+      ]
     },
     "redirectFlow": "main.flow.json",
     "redirectNode": "node-1fe2",
     "action": "text",
-    "category": "global",
-    "enabled": true
+    "enabled": true,
+    "contexts": [
+      "global"
+    ]
   }
 }
