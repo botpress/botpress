@@ -9,8 +9,8 @@ on:
         default: 'patch'
 
 jobs:
-  create_pull_request:
-    name: Create Pull Request
+  create_release_pull_request:
+    name: Create Release Pull Request
     runs-on: 'ubuntu-latest'
 
     steps:
@@ -19,7 +19,7 @@ jobs:
 
       - uses: actions/setup-node@v2
         with:
-          node-version: '12.18.1'
+          node-version-file: '.nvmrc'
           cache: 'yarn'
 
       - name: Bump version
@@ -33,9 +33,16 @@ jobs:
         id: release_details
         uses: botpress/gh-actions/get_release_details@next
 
+      - uses: tibdex/github-app-token@v1
+        id: generate-token
+        with:
+          app_id: ${{ secrets.BOTPRESS_BOT_APP_ID }}
+          private_key: ${{ secrets.BOTPRESS_BOT_APP_PRIVATE_KEY }}
+
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v3
         with:
+          token: ${{ steps.generate-token.outputs.token }}
           title: 'chore(server): release v${{ steps.bump.outputs.new_version }}'
           commit-message: 'chore(server): release v${{ steps.bump.outputs.new_version }}'
           branch: 'release/v${{ steps.bump.outputs.new_version }}'

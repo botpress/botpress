@@ -2,7 +2,7 @@ name: Branch deleted
 on: delete
 
 jobs:
-  remove:
+  delete_branch_binaries:
     if: github.event.ref_type == 'branch'
     name: Delete Branch Binaries
     runs-on: ubuntu-latest
