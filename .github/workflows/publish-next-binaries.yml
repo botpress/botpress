@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
     inputs:
       name:
-        description: 'Name of the ouput file'
+        description: 'Name of the output file'
         required: false
         default: ''
 
@@ -13,8 +13,8 @@ on:
 # This is by choice as the next branch will eventually be merged in the master
 # It makes it easy to remove when the time comes
 jobs:
-  pre_release_bin:
-    name: Build and Publish Binaries
+  release_next_bin:
+    name: Build and Publish Next Binaries
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -24,7 +24,7 @@ jobs:
 
       - uses: actions/setup-node@v2
         with:
-          node-version: '12.18.1'
+          node-version-file: '.nvmrc'
           cache: 'yarn'
 
       - name: Configure SSH Key

@@ -52,7 +52,6 @@ describe('Admin - UI', () => {
 
     await clickOn('#btn-submit-update-user')
     await expectCallSuccess(`${bpConfig.host}/api/v2/admin/user/profile`, 'POST')
-    await closeToaster()
 
     const src = await page.$eval('img.dropdown-picture', img => img.getAttribute('src'))
     expect(src?.includes(url)).toBeTruthy()

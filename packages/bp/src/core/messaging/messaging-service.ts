@@ -1,9 +1,15 @@
-import { ConversationStartedEvent, MessageNewEvent, MessagingChannel, uuid } from '@botpress/messaging-client'
+import {
+  ConversationStartedEvent,
+  MessageFeedbackEvent,
+  MessageNewEvent,
+  MessagingChannel,
+  uuid
+} from '@botpress/messaging-client'
 import { AxiosRequestConfig } from 'axios'
 import { IO, Logger, MessagingConfig } from 'botpress/sdk'
 import { formatUrl, isBpUrl } from 'common/url'
 import { ConfigProvider } from 'core/config'
-import { EventEngine, Event } from 'core/events'
+import { EventEngine, Event, EventRepository } from 'core/events'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -24,6 +30,7 @@ export class MessagingService {
 
   constructor(
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
+    @inject(TYPES.EventRepository) private eventRepo: EventRepository,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
     @inject(TYPES.Logger) private logger: Logger
   ) {
@@ -57,11 +64,20 @@ export class MessagingService {
     this.messaging = new MessagingChannel({
       url: this.getMessagingUrl(),
       axios: this.getAxiosConfig(),
-      adminKey: this.isExternal ? process.env.MESSAGING_ADMIN_KEY : process.env.INTERNAL_PASSWORD
+      adminKey: this.isExternal ? process.env.MESSAGING_ADMIN_KEY : process.env.INTERNAL_PASSWORD,
+      logger: {
+        info: this.logger.info.bind(this.logger),
+        debug: this.logger.debug.bind(this.logger),
+        warn: this.logger.warn.bind(this.logger),
+        error: (e, msg, data) => {
+          this.logger.attachError(e).error(msg || '', data)
+        }
+      }
     })
     this.messaging.on('user', this.handleUserNewEvent.bind(this))
     this.messaging.on('started', this.handleConversationStartedEvent.bind(this))
     this.messaging.on('message', this.handleMessageNewEvent.bind(this))
+    this.messaging.on('feedback', this.handleMessageFeedback.bind(this))
 
     if (!this.isExternal) {
       await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
@@ -201,6 +217,15 @@ export class MessagingService {
     }
 
     return this.eventEngine.sendEvent(event)
+  }
+
+  private async handleMessageFeedback(clientId: uuid, data: MessageFeedbackEvent) {
+    const botId = this.clientIdToBotId[clientId]
+    const [event] = await this.eventRepo.findEvents({ botId, messageId: data.messageId })
+
+    if (event?.incomingEventId) {
+      await this.eventRepo.saveUserFeedback(event.incomingEventId, data.userId, data.feedback, 'qna')
+    }
   }
 
   private async fixOutgoingUrls(event: IO.OutgoingEvent, next: IO.MiddlewareNextCallback) {

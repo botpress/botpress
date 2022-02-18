@@ -1,6 +1,6 @@
 {
   "name": "bp_main",
-  "version": "12.26.9",
+  "version": "12.26.10",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": "^12"
@@ -14,11 +14,11 @@
     "version": "1.0.0-rc.5"
   },
   "studio": {
-    "version": "0.0.47",
+    "version": "0.0.48",
     "devBranch": "next"
   },
   "messaging": {
-    "version": "1.0.4"
+    "version": "1.1.2"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
@@ -41,13 +41,13 @@
     "@babel/parser": "^7.11.2",
     "@babel/traverse": "^7.11.0",
     "@botpress/nlu-client": "1.0.0-rc.2",
-    "@botpress/messaging-client": "^1.0.1",
+    "@botpress/messaging-client": "1.1.1",
     "archiver": "^5.3.0",
     "axios": "^0.21.1",
     "bluebird-global": "^1.0.1",
     "chalk": "^2.4.2",
     "chokidar": "^2.1.5",
-    "fs-extra": "^10.0.0",
+    "fs-extra": "^9.1.0",
     "glob": "^7.1.6",
     "joi": "^13.6.0",
     "lodash": "^4.17.19",
@@ -87,14 +87,13 @@
     "@types/jest": "^27.4.0",
     "@types/jest-environment-puppeteer": "^5.0.0",
     "@types/joi": "^13.4.5",
-    "@types/jsonwebtoken": "^8.3.7",
+    "@types/jsonwebtoken": "^8.5.8",
     "@types/lodash": "^4.14.116",
     "@types/lru-cache": "^5.1.0",
     "@types/mime-types": "^2.1.0",
-    "@types/mkdirp": "^1.0.1",
+    "@types/mkdirp": "^1.0.2",
     "@types/ms": "^0.7.30",
     "@types/multer": "^1.4.5",
-    "@types/mustache": "^0.8.31",
     "@types/node": "^10.10.3",
     "@types/numeric": "^1.2.1",
     "@types/passport": "^1.0.7",
@@ -116,12 +115,11 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-import": "^2.24.2",
     "eslint-plugin-jsdoc": "^36.1.0",
-    "expect-puppeteer": "^6.0.2",
+    "expect-puppeteer": "^6.1.0",
     "gulp": "^4.0.2",
     "gulp-cli": "^2.0.1",
     "gulp-conventional-changelog": "^2.0.9",
     "gulp-copy": "^4.0.0",
-    "gulp-exec": "^3.0.2",
     "gulp-file": "^0.4.0",
     "gulp-if": "^2.0.2",
     "gulp-ignore": "^3.0.0",
@@ -136,7 +134,7 @@
     "jest-circus": "^27.4.6",
     "jest-extended": "^2.0.0",
     "jest-html-reporter": "^3.4.2",
-    "jest-puppeteer": "^6.0.3",
+    "jest-puppeteer": "^6.1.0",
     "lint-staged": "^10.2.11",
     "pkg": "^4.3.7",
     "prettier": "^1.19.1",

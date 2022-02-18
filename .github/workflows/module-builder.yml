@@ -4,7 +4,7 @@ on:
     branches:
       - master
 jobs:
-  build_and_push:
+  test_module_builder:
     name: Test Module Builder Image
     runs-on: ubuntu-latest
     steps:

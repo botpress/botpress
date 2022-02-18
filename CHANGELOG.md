@@ -1,3 +1,32 @@
+## [12.26.10](https://github.com/botpress/botpress/compare/v12.26.9...v12.26.10) (2022-02-09)
+
+
+### Bug Fixes
+
+* **admin:** fix admin debug pane not working ([#11421](https://github.com/botpress/botpress/issues/11421)) ([ada9d1f](https://github.com/botpress/botpress/commit/ada9d1f55343e1b161d0d52bb016c8be54a183dd)), closes [#11343](https://github.com/botpress/botpress/issues/11343)
+* **admin:** update branding assets ([#11248](https://github.com/botpress/botpress/issues/11248)) ([73d60c4](https://github.com/botpress/botpress/commit/73d60c4d2db5dc6061368ae64d8c6133a896eec3))
+* **bot:** fix unmounting bot before writing files when overwriting ([#11370](https://github.com/botpress/botpress/issues/11370)) ([ea97ccb](https://github.com/botpress/botpress/commit/ea97ccbaaee9e9fab914d282e5728fb2c1c22109))
+* **bot:** we now delete old file when overwriting a bot ([#11371](https://github.com/botpress/botpress/issues/11371)) ([b0bf68e](https://github.com/botpress/botpress/commit/b0bf68ee9ba4ab0eb7b8de2bcfa5b53064d7dcf5)), closes [#5754](https://github.com/botpress/botpress/issues/5754)
+* **builtin:** added removeVariable action ([#11364](https://github.com/botpress/botpress/issues/11364)) ([bb3e132](https://github.com/botpress/botpress/commit/bb3e132a5b90099719bdb0a91f2604126d8e16ea))
+* **channel-web:** fetch last message for each convo ([#11288](https://github.com/botpress/botpress/issues/11288)) ([822a8cd](https://github.com/botpress/botpress/commit/822a8cdad7558fb566e24637924e0319df1acd6a))
+* **code-editor:** admin should be able to edit bot config ([#11339](https://github.com/botpress/botpress/issues/11339)) ([248cec7](https://github.com/botpress/botpress/commit/248cec7eee5b0bdd1de70f0d8e454dd443f031f3))
+* **code-editor:** prevent "undefined" content in files ([#11435](https://github.com/botpress/botpress/issues/11435)) ([ba22305](https://github.com/botpress/botpress/commit/ba22305d4330bcd74cd238bbe6167ca5b3cb302c))
+* **core:** session state not persisted during before_session_timeout hook ([#5702](https://github.com/botpress/botpress/issues/5702)) ([28221d2](https://github.com/botpress/botpress/commit/28221d2798e27f0a5f295a90fbb545b440269ace))
+* **core:** show correct status ([#11449](https://github.com/botpress/botpress/issues/11449)) ([030c21a](https://github.com/botpress/botpress/commit/030c21ab27050f95636e0391dd7ffd3d4df3d1da))
+* **id:** unique ids for all elements ([#11346](https://github.com/botpress/botpress/issues/11346)) ([d8602aa](https://github.com/botpress/botpress/commit/d8602aa81f8d3af170b299e0ab82814b831b4597))
+* **module:** we now delete old files when overwriting an existing module ([#11384](https://github.com/botpress/botpress/issues/11384)) ([41c432e](https://github.com/botpress/botpress/commit/41c432e78b086718ce320664a139243aff968ef8)), closes [#5755](https://github.com/botpress/botpress/issues/5755)
+* **pipeline:** fix copying copying bot in pipeline ([#11391](https://github.com/botpress/botpress/issues/11391)) ([868af5d](https://github.com/botpress/botpress/commit/868af5de28a7718c6fc038f52a317977a73985a9))
+* **tests:** fix flaky number test ([#11443](https://github.com/botpress/botpress/issues/11443)) ([9c12f7b](https://github.com/botpress/botpress/commit/9c12f7b22aa35f64229b1b308aa664eacfc75c89))
+* **ui:** fix 1px of whitespace issue ([#11353](https://github.com/botpress/botpress/issues/11353)) ([2b0df4d](https://github.com/botpress/botpress/commit/2b0df4df882a47b60083dbe6421730c130fae7e4))
+* **webchat:** changing language also updates ui ([#11442](https://github.com/botpress/botpress/issues/11442)) ([29cc38a](https://github.com/botpress/botpress/commit/29cc38a5f5a1221a714a849fab036e5b06376d3c))
+
+
+### Features
+
+* **admin:** added net promoter score in botpress ([#11202](https://github.com/botpress/botpress/issues/11202)) ([fbbf064](https://github.com/botpress/botpress/commit/fbbf064eb561f7a92504c1f7cadd898a53bcaeb5))
+
+
+
 ## [12.26.9](https://github.com/botpress/botpress/compare/v12.26.8...v12.26.9) (2022-01-17)
 
 

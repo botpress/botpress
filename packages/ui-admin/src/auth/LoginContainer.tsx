@@ -2,8 +2,9 @@ import { Callout, Intent } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import React, { FC } from 'react'
+import { ChatBubbleBackground } from './ChatBubbleBackground'
+import logo from './media/bg-logo-black.svg'
 
-import logo from './media/bp-logo-white.png'
 import style from './style.scss'
 
 interface Props {
@@ -17,10 +18,11 @@ interface Props {
 const LoginContainer: FC<Props> = props => {
   return (
     <div className={cx('centered-container', style.centered_container)}>
+      <ChatBubbleBackground />
       <div className={cx('middle', style.middle)}>
         <div className={cx('inner', style.inner)}>
           <img className={cx('logo', style.logo)} src={logo} alt="loading" />
-          <div className={cx('card', 'card_body', style.card, style.card_body)}>
+          <div className={cx('card', style.card)}>
             <div className={cx('card_body', 'login_box', style.card_body, style.login_box)}>
               <div>
                 <div className={cx('card_title', style.card_title)}>
@@ -29,7 +31,11 @@ const LoginContainer: FC<Props> = props => {
 
                 <div className={cx('card_text', style.card_text)}>{props.subtitle || ''}</div>
 
-                {props.error && <Callout intent={Intent.DANGER}>{props.error}</Callout>}
+                {props.error && (
+                  <Callout intent={Intent.DANGER} className={style.error}>
+                    {props.error}
+                  </Callout>
+                )}
                 {props.children}
               </div>
             </div>

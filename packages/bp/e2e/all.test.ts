@@ -19,7 +19,6 @@ const test = {
     cms: './studio/cms.test',
     nlu: './studio/nlu.test',
     editor: './studio/code-editor.test',
-    qna: './studio/qna.test',
     configuration: './studio/configuration.test'
   },
   mod: {
