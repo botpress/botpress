@@ -286,7 +286,7 @@
           "cloudHelper": "Ce chatbot pourra ėtre envoyé sur Botpress Cloud en utilisant le bouton dans le coins supérieur droit du studio.",
           "cloudConfiguration": "Configurations Botpress Cloud",
           "cloudConfigurationHelper": "Vous pouvez obtenir ces clés en vous conectant sur Botpress Cloud",
-          "clientIdPlaceholder": "Clé API ",
+          "clientIdPlaceholder": "Clé d'API ",
           "clientSecretPlaceholder": "Secret d'API"
         },
         "createBot": "Créer un bot",
