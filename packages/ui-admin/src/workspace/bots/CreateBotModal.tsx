@@ -83,14 +83,12 @@ class CreateBotModal extends Component<Props, State> {
   }
 
   loadServerConfigs() {
-    debugger
     if (!this.props.serverConfig) {
       this.props.fetchServerConfig()
     }
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
-    debugger
     if (!prevProps.botTemplatesFetched && this.props.botTemplatesFetched) {
       this.loadTemplates()
     }
