@@ -39,7 +39,9 @@
     "redirectFlow": "",
     "redirectNode": "",
     "action": "text",
-    "category": "global",
-    "enabled": true
+    "enabled": true,
+    "contexts": [
+      "global"
+    ]
   }
 }
