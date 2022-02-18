@@ -287,7 +287,7 @@
           "cloudConfiguration": "Configurations Botpress Cloud",
           "cloudConfigurationHelper": "Vous pouvez obtenir ces clés en vous conectant sur Botpress Cloud",
           "clientIdPlaceholder": "Clé API ",
-          "clientSecretPlaceholder": "Secret API"
+          "clientSecretPlaceholder": "Secret d'API"
         },
         "createBot": "Créer un bot",
         "createYourFirstBot": "Créez votre premier bot pour commencer à construire.",
