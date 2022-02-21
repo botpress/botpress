@@ -245,11 +245,9 @@ export class ConfigProvider {
       content = content.replace('"$isDevelopment"', process.IS_PRODUCTION ? 'false' : 'true')
 
       const vars = content.match(/%([a-zA-Z0-9_]+)%/gim)
-      if (vars) {
-        vars.forEach(varName => {
-          content = content.replace(varName, getValueFromEnvKey(varName.replace(/%/g, '')))
-        })
-      }
+      vars?.forEach(varName => {
+        content = content.replace(varName, getValueFromEnvKey(varName.replace(/%/g, '')))
+      })
 
       return <T>JSON.parse(content)
     } catch (e) {
