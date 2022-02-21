@@ -7,9 +7,11 @@ import ms from 'ms'
 import React, { Component } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import Select from 'react-select'
+import yn from 'yn'
 
 import api from '~/app/api'
 import { AppState } from '~/app/rootReducer'
+import { fetchServerConfig } from '~/management/checklist/reducer'
 import { fetchBotCategories, fetchBotTemplates } from './reducer'
 import style from './style.scss'
 
@@ -77,6 +79,13 @@ class CreateBotModal extends Component<Props, State> {
   componentDidMount() {
     this.loadCategories()
     this.loadTemplates()
+    this.loadServerConfigs()
+  }
+
+  loadServerConfigs() {
+    if (!this.props.serverConfig) {
+      this.props.fetchServerConfig()
+    }
   }
 
   componentDidUpdate(prevProps: Props, prevState: State) {
@@ -169,6 +178,10 @@ class CreateBotModal extends Component<Props, State> {
     )
   }
 
+  isPro = (): boolean => {
+    return yn(this.props.serverConfig?.config.pro.enabled) || yn(this.props.serverConfig?.env.PRO_ENABLED)
+  }
+
   render() {
     return (
       <Dialog
@@ -237,18 +250,20 @@ class CreateBotModal extends Component<Props, State> {
                 />
               </FormGroup>
             )}
-            <FormGroup
-              label={lang.tr('admin.workspace.bots.create.cloud')}
-              labelFor="checkbox-bot-cloud"
-              helperText={lang.tr('admin.workspace.bots.create.cloudHelper')}
-            >
-              <Checkbox
-                id="checkbox-bot-cloud"
-                label={lang.tr('admin.workspace.bots.create.cloudCheckbox')}
-                checked={this.state.isCloudBot}
-                onChange={e => this.setState({ isCloudBot: e.currentTarget.checked })}
-              />
-            </FormGroup>
+            {!this.isPro() && (
+              <FormGroup
+                label={lang.tr('admin.workspace.bots.create.cloud')}
+                labelFor="checkbox-bot-cloud"
+                helperText={lang.tr('admin.workspace.bots.create.cloudHelper')}
+              >
+                <Checkbox
+                  id="checkbox-bot-cloud"
+                  label={lang.tr('admin.workspace.bots.create.cloudCheckbox')}
+                  checked={this.state.isCloudBot}
+                  onChange={e => this.setState({ isCloudBot: e.currentTarget.checked })}
+                />
+              </FormGroup>
+            )}
             {this.state.isCloudBot && (
               <FormGroup
                 label={lang.tr('admin.workspace.bots.create.cloudConfiguration')}
@@ -299,7 +314,10 @@ class CreateBotModal extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState) => state.bots
-const connector = connect(mapStateToProps, { fetchBotTemplates, fetchBotCategories })
+const mapStateToProps = (state: AppState) => ({
+  ...state.bots,
+  serverConfig: state.checklist.serverConfig
+})
+const connector = connect(mapStateToProps, { fetchBotTemplates, fetchBotCategories, fetchServerConfig })
 
 export default connector(CreateBotModal)
