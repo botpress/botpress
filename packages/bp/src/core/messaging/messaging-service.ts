@@ -131,7 +131,11 @@ export class MessagingService {
         const { channels } = messaging as any // @ts-hack, channels will exist because of conditional above
         newChannels[chKey] = Object.keys(channels[chKey]).reduce((channel, key) => {
           const value: string = channels[chKey][key]
-          channel[key] = value.match(/^%.*%$/) ? process.env[value.replace(/%/g, '')] || value : value
+          if (typeof value === 'string') {
+            channel[key] = value.match(/^%.*%$/) ? process.env[value.replace(/%/g, '')] || value : value
+          } else {
+            channel[key] = value
+          }
           return channel
         }, {})
         return newChannels
