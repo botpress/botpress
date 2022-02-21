@@ -123,6 +123,21 @@ export class MessagingService {
       ? `${process.EXTERNAL_URL}/api/v1/chat/receive`
       : // We set a dummy webhook to get back a webhook token. The actual url that will be called is SPINNED_URL
         'http://dummy.com'
+
+    // Fill env variables into bot messages.channels using template:
+    // %MY_ENV_VAR%
+    if (messaging.channels) {
+      messaging.channels = Object.keys(messaging.channels).reduce((newChannels, chKey) => {
+        const { channels } = messaging as any // @ts-hack, channels will exist because of conditional above
+        newChannels[chKey] = Object.keys(channels[chKey]).reduce((channel, key) => {
+          const value: string = channels[chKey][key]
+          channel[key] = value.match(/^%.*%$/) ? process.env[value.replace(/%/g, '')] || value : value
+          return channel
+        }, {})
+        return newChannels
+      }, {})
+    }
+
     const setupConfig = {
       channels: messaging.channels,
       webhooks: [{ url: webhookUrl }]
