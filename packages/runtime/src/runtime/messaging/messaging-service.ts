@@ -7,6 +7,7 @@ import yn from 'yn'
 
 import { formatUrl } from '../../common/url'
 import { ConfigProvider } from '../config'
+import { WellKnownFlags } from '../dialog'
 import { EventEngine, Event } from '../events'
 import { TYPES } from '../types'
 
@@ -128,6 +129,7 @@ export class MessagingService {
       target: data.userId,
       botId: this.clientIdToBotId[clientId]
     })
+    event.setFlag(WellKnownFlags.SKIP_DIALOG_ENGINE, true)
 
     return this.eventEngine.sendEvent(event)
   }
