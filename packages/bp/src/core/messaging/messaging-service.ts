@@ -9,6 +9,7 @@ import { AxiosRequestConfig } from 'axios'
 import { IO, Logger, MessagingConfig } from 'botpress/sdk'
 import { formatUrl, isBpUrl } from 'common/url'
 import { ConfigProvider } from 'core/config'
+import { WellKnownFlags } from 'core/dialog'
 import { EventEngine, Event, EventRepository } from 'core/events'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct } from 'inversify'
@@ -211,6 +212,7 @@ export class MessagingService {
       target: data.userId,
       botId: this.clientIdToBotId[clientId]
     })
+    event.setFlag(WellKnownFlags.SKIP_DIALOG_ENGINE, true)
 
     return this.eventEngine.sendEvent(event)
   }
