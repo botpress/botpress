@@ -72,7 +72,9 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     ENABLE_LEGACY_CHANNELS: 'true',
     DISABLE_SOCKETS: 'true',
     // Needed for legacy twilio validation
-    MASTER_URL: opts.EXTERNAL_URL
+    MASTER_URL: opts.EXTERNAL_URL,
+    // Fallback if there is a mismatch between botpress version and messaging version
+    AUTO_MIGRATE: 'true'
   }
   const proc = await spawnMessagingProcess(env)
 
