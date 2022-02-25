@@ -41,6 +41,14 @@ interface Options {
   monitor?: boolean
 }
 
+interface BpProcesses {
+  label: string
+  endpoint?: string
+  port?: number
+  page: string
+  headers?: any
+}
+
 export const OBFUSCATED = '***obfuscated***'
 export const SECRET_KEYS = ['secret', 'pw', 'password', 'token', 'key', 'cert']
 export const ENV_VARS = [
@@ -233,22 +241,26 @@ const testProcessConnexions = async () => {
 
   const hosts = ['localhost', '127.0.0.1', os.hostname(), new url.URL(process.EXTERNAL_URL).hostname]
 
-  const processes = [
-    { label: 'Studio', port: process.STUDIO_PORT, page: 'status' },
-    {
+  const processes: BpProcesses[] = [{ label: 'Studio', port: process.STUDIO_PORT, page: 'status' }]
+
+  if (process.MESSAGING_PORT || process.core_env.MESSAGING_ENDPOINT) {
+    processes.push({
       label: 'Messaging',
       port: process.MESSAGING_PORT,
       endpoint: process.core_env.MESSAGING_ENDPOINT,
       page: 'status'
-    },
-    {
+    })
+  }
+
+  if (process.NLU_PORT || process.NLU_ENDPOINT) {
+    processes.push({
       label: 'NLU',
       port: process.NLU_PORT,
       endpoint: process.NLU_ENDPOINT,
       page: 'info',
       headers: { Authorization: `Bearer ${makeNLUPassword()}` }
-    }
-  ]
+    })
+  }
 
   for (const { label, port, endpoint, page, headers } of processes) {
     const urls = endpoint
