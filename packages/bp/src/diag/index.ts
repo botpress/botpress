@@ -233,11 +233,13 @@ const testNetworkConnections = async () => {
   await Promise.map(hosts, host => testWebsiteAccess(host.label, host.url))
 }
 
-const testProcessConnexions = async () => {
+const testServiceConnections = async () => {
   // This test only works when the server is running
   if (!process.STUDIO_PORT) {
     return
   }
+
+  printHeader('Connection to Services')
 
   const hosts = ['localhost', '127.0.0.1', os.hostname(), new url.URL(process.EXTERNAL_URL).hostname]
 
@@ -376,7 +378,7 @@ export default async function(options: Options) {
   } catch (err) {}
 
   await testNetworkConnections()
-  await testProcessConnexions()
+  await testServiceConnections()
 
   if (options.config || yn(process.env.BP_DIAG_CONFIG)) {
     await printConfig()
