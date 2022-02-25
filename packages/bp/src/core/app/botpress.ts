@@ -203,6 +203,7 @@ export class Botpress {
       } else {
         const { endpoint } = config.nluServer
         this.logger.info(`NLU server manually handled at: ${endpoint}`)
+        process.NLU_ENDPOINT = endpoint
       }
 
       return

@@ -227,25 +227,33 @@ const testNetworkConnections = async () => {
 
 const testProcessConnexions = async () => {
   // This test only works when the server is running
-  if (!process.STUDIO_PORT && !process.MESSAGING_PORT && !process.NLU_PORT) {
+  if (!process.STUDIO_PORT) {
     return
   }
 
   const hosts = ['localhost', '127.0.0.1', os.hostname(), new url.URL(process.EXTERNAL_URL).hostname]
 
   const processes = [
-    { label: 'Studio', port: process.STUDIO_PORT, endpoint: 'status' },
-    { label: 'Messaging', port: process.MESSAGING_PORT, endpoint: 'status' },
+    { label: 'Studio', port: process.STUDIO_PORT, page: 'status' },
+    {
+      label: 'Messaging',
+      port: process.MESSAGING_PORT,
+      endpoint: process.core_env.MESSAGING_ENDPOINT,
+      page: 'status'
+    },
     {
       label: 'NLU',
       port: process.NLU_PORT,
-      endpoint: 'info',
+      endpoint: process.NLU_ENDPOINT,
+      page: 'info',
       headers: { Authorization: `Bearer ${makeNLUPassword()}` }
     }
   ]
 
-  for (const { label, port, endpoint, headers } of processes) {
-    const urls = [...hosts.map(x => `${x.startsWith('http') ? x : `http://${x}`}:${port}/${endpoint}`)]
+  for (const { label, port, endpoint, page, headers } of processes) {
+    const urls = endpoint
+      ? [`${endpoint}/${page}`]
+      : [...hosts.map(x => `${x.startsWith('http') ? x : `http://${x}`}:${port}/${page}`)]
 
     const results = await Promise.mapSeries(urls, url => queryWebsite(url, headers))
     const parsed = results
@@ -256,7 +264,7 @@ const testProcessConnexions = async () => {
       })
       .join(', ')
 
-    printRow(`${label} (port ${port})`, parsed)
+    printRow(`${label} ${endpoint ? `(${endpoint})` : `(port ${port})`}`, parsed)
   }
 }
 
