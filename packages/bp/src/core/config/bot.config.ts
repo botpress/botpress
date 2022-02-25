@@ -65,7 +65,7 @@ export interface BotDialogConfig {
   /**
    * The interval until the context of the session expires.
    * This clears the position of the user in the flow and triggers the before_session_timeout hook
-   * @default 5m
+   * @default 25m
    */
   timeoutInterval: string
   /**
