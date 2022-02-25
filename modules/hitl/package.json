@@ -26,11 +26,11 @@
     "@types/react-bootstrap": "^0.32.19"
   },
   "dependencies": {
-    "@botpress/messaging-components": "^0.0.8",
+    "@botpress/messaging-components": "0.1.0",
     "bluebird": "^3.5.3",
     "classnames": "^2.2.6",
     "csstype": "^2.2.0",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "moment": "^2.24.0"
   },
   "resolutions": {

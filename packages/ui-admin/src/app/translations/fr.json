@@ -12,7 +12,11 @@
       "resolvedIncidents": "Incidents résolus",
       "timeFrame": "Plage de temps",
       "timespanHour": "1 heure",
-      "timespanHours": "{nb} heures"
+      "timespanHours": "{nb} heures",
+      "deprWarning": {
+        "title": "Avertissement d'obsolescence",
+        "msg": "Nous mettrons fin à la prise en charge des modules personnalisés dans Botpress 13. Un guide de migration sera fourni pour les compétences et les composants personnalisés Webchat. Pour les autres points d'extension, utilisez des hooks et des actions autonomes."
+      }
     },
     "authenticationFailed": "Authentification échouée",
     "botpressIsNotLicensed": "La licence ne semble pas valide. Veuillez mettre à jour votre licence pour réactiver toutes les fonctionnalités.",
@@ -171,6 +175,17 @@
       "serverControl": "Contrôle du serveur",
       "youAreAboutToRestart": "Vous êtes sur le point de redémarrer le serveur Botpress hébergé sur"
     },
+    "netPromotingScore": {
+      "bestLabel": "Extrêmement probable",
+      "button": "Envoyer Commentaire",
+      "feedback": "Merci pour votre avis!",
+      "helper": "Veuillez ajouter vos commentaires sur l'utilisation de botpress",
+      "modalTitle": "Commentaire",
+      "moreContent": "Fournir des commentaires supplémentaires",
+      "question": "Quelle est la probabilité que vous nous recommandiez à vos amis et collègues?",
+      "title": "Ajouter vos commentaires sur botpress",
+      "worstLabel": "Pas du tout probable"
+    },
     "newPassword": "Nouveau mot de passe",
     "pageRestrictedToAdmins": "Cette page est réservée aux super-administrateurs",
     "password": "Mot de passe",
@@ -266,13 +281,13 @@
           "namePlaceholder": "Le nom de votre bot",
           "newBot": "Créer un nouveau bot",
           "template": "Modèle de bot",
-          "cloud": "Botpress Cloud Deployment",
-          "cloudCheckbox": "Create a Botpress cloud-ready bot",
-          "cloudHelper": "This bot can then be exported using the Export option in the upper right section of the Studio. Once exported on disk, it should be imported via the Botpress Cloud Deployment manager for cloud deployment. Sign up here for the Alpha release.",
-          "cloudConfiguration": "Cloud Configuration",
-          "cloudConfigurationHelper": "You can get your Client Key and Secret from the Botpress Cloud Deployment manager.",
-          "clientIdPlaceholder": "Client Key",
-          "clientSecretPlaceholder": "Client Secret"
+          "cloud": "Botpress Cloud",
+          "cloudCheckbox": "Activer Botpress Cloud",
+          "cloudHelper": "Ce chatbot pourra ėtre envoyé sur Botpress Cloud en utilisant le bouton dans le coins supérieur droit du studio.",
+          "cloudConfiguration": "Configurations Botpress Cloud",
+          "cloudConfigurationHelper": "Vous pouvez obtenir ces clés en vous conectant sur Botpress Cloud",
+          "clientIdPlaceholder": "Clé d'API ",
+          "clientSecretPlaceholder": "Secret d'API"
         },
         "createBot": "Créer un bot",
         "createYourFirstBot": "Créez votre premier bot pour commencer à construire.",

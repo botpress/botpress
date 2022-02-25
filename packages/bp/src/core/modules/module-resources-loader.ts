@@ -1,4 +1,5 @@
 import { Logger } from 'botpress/sdk'
+import { findDeletedFiles } from 'common/fs'
 import { GhostService } from 'core/bpfs'
 import crypto from 'crypto'
 import { WrapErrorsWith } from 'errors'
@@ -42,6 +43,7 @@ export class ModuleResourceLoader {
   private exportPaths: ResourceExportPath[] = []
   private globalPaths: string[]
   private hookMatcher: RegExp
+  private moduleHooksPath: string
 
   private get modulePath(): string {
     return process.LOADED_MODULES[this.moduleName]
@@ -49,7 +51,8 @@ export class ModuleResourceLoader {
 
   constructor(private logger: Logger, private moduleName: string, private ghost: GhostService) {
     this.globalPaths = [`/actions/${this.moduleName}/`, `/content-types/${this.moduleName}/`]
-    this.hookMatcher = new RegExp(`^[a-z_]+?\/${this.moduleName}/`)
+    this.hookMatcher = new RegExp(`^[a-z_]+?\/${this.moduleName}`)
+    this.moduleHooksPath = `${this.modulePath}/dist/hooks/`
   }
 
   async runMigrations() {
@@ -64,7 +67,9 @@ export class ModuleResourceLoader {
       {
         src: `${this.modulePath}/dist/actions`,
         dest: `/actions/${this.moduleName}`,
-        ghosted: true
+        ghosted: true,
+        copyAll: true,
+        clearDestination: true
       },
       {
         src: `${this.modulePath}/assets`,
@@ -86,6 +91,10 @@ export class ModuleResourceLoader {
       ...(await this._getHooksPaths())
     ]
 
+    // Deletes dangling hooks that may have been removed upon module updates.
+    // Note: We cannot use the clearDestination property as we do with actions
+    // since hooks are found in many different folders (one folder per hook type)
+    await this._deleteDanglingHooks()
     await this._loadModuleResources()
   }
 
@@ -149,17 +158,60 @@ export class ModuleResourceLoader {
     return path.resolve(`${this.modulePath}/dist/bot-templates/${templateName}`)
   }
 
+  private async _deleteDanglingHooks() {
+    const hooks = await this.ghost.global().directoryListing('/hooks')
+
+    // Only keep hooks from the current module
+    let moduleHooks = hooks.filter(h => this.hookMatcher.test(path.dirname(h)))
+    if (!moduleHooks.length) {
+      return
+    }
+
+    // Remove the module name from the paths since that how hooks are stored in the module archive
+    // e.g. dist/hooks/after_bot_mount/index.js not dist/hooks/<MODULE_NAME>/after_bot_mount/index.js
+    moduleHooks = moduleHooks.map(this._removeModuleNameFromHookPath.bind(this))
+
+    let deletedFiles = await findDeletedFiles(moduleHooks, this.moduleHooksPath)
+
+    // Add the module name back into the paths so that we can delete the file on the disk
+    deletedFiles = deletedFiles.map(this._addModuleNameToHookPath.bind(this))
+
+    for (const filePath of deletedFiles) {
+      await this.ghost.global().deleteFile(`/hooks/${path.dirname(filePath)}`, path.basename(filePath))
+    }
+  }
+
+  /**
+   *
+   * Converts a hook path from "hook_type/module_name/hook_name" to "hook_type/hook_name"
+   * @param hookPath A path of this format "hook_type/module_name/hook_name"
+   * @returns A path of this format "hook_type/hook_name"
+   */
+  private _removeModuleNameFromHookPath(hookPath: string): string {
+    return hookPath.replace(`${this.moduleName}/`, '')
+  }
+
+  /**
+   * Converts a hook path from "hook_type/hook_name" to "hook_type/module_name/hook_name"
+   * @param hookPath A path of this format "hook type/hook_name"
+   * @returns A path of this format "hook_type/module_name/hook_name"
+   */
+  private _addModuleNameToHookPath(hookPath: string): string {
+    const [hookType, hookName] = hookPath.split('/')
+
+    return `${hookType}/${this.moduleName}/${hookName}`
+  }
+
   private async _getHooksPaths(): Promise<ResourceExportPath[]> {
     const hooks: ResourceExportPath[] = []
 
-    const moduleHooks = `${this.modulePath}/dist/hooks/`
-    if (!fse.pathExistsSync(moduleHooks)) {
-      return hooks
+    if (!fse.pathExistsSync(this.moduleHooksPath)) {
+      return []
     }
 
-    for (const hookType of await fse.readdir(moduleHooks)) {
+    for (const hookType of await fse.readdir(this.moduleHooksPath)) {
       hooks.push({
-        src: `${this.modulePath}/dist/hooks/${hookType}`,
+        src: `${this.moduleHooksPath}${hookType}`,
         dest: `/hooks/${hookType}/${this.moduleName}`,
         ghosted: true
       })

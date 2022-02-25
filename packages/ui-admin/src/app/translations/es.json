@@ -12,7 +12,11 @@
       "resolvedIncidents": "Incidentes resueltos",
       "timeFrame": "Periodo de tiempo",
       "timespanHour": "1 hora",
-      "timespanHours": "{nb} horas"
+      "timespanHours": "{nb} horas",
+      "deprWarning": {
+        "title": "Advertencia de obsolescencia",
+        "msg": "Dejaremos de admitir módulos personalizados en Botpress 13. Se proporcionará una guía de migración para las habilidades y los componentes personalizados de Webchat. Para otros puntos de extensión, use ganchos y acciones independientes."
+      }
     },
     "authenticationFailed": "Error de autenticación",
     "botpressIsNotLicensed": "Actualmente, Botpress no tiene licencia. Actualice su licencia para volver a habilitar todas las funciones.",
@@ -266,16 +270,16 @@
           "namePlaceholder": "El nombre de tu bot",
           "newBot": "Crea un nuevo bot",
           "template": "Plantilla de bot",
-          "cloud": "Botpress Cloud Deployment",
-          "cloudCheckbox": "Create a Botpress cloud-ready bot",
-          "cloudHelper": "This bot can then be exported using the Export option in the upper right section of the Studio. Once exported on disk, it should be imported via the Botpress Cloud Deployment manager for cloud deployment. Sign up here for the Alpha release.",
-          "cloudConfiguration": "Cloud Configuration",
-          "cloudConfigurationHelper": "You can get your Client Key and Secret from the Botpress Cloud Deployment manager.",
-          "clientIdPlaceholder": "Client Key",
-          "clientSecretPlaceholder": "Client Secret"
+          "cloud": "Botpress Cloud",
+          "cloudCheckbox": "Activar Botpress Cloud",
+          "cloudHelper": "Los chatbots de Botpress Cloud pueden desplegarse mediante el botón de despliegue situado en la parte superior derecha de Studio.",
+          "cloudConfiguration": "Configuración Botpress cloud",
+          "cloudConfigurationHelper": "Puedes obtener tu API Key y secreto iniciando sesión en Botpress Cloud",
+          "clientIdPlaceholder": "API key",
+          "clientSecretPlaceholder": "API secreto"
         },
-        "createBot": "Create Bot",
-        "createYourFirstBot": "Crea tu primer bot para comenzar a construir.",
+        "createBot": "Crear un chatbot",
+        "createYourFirstBot": "Crea tu primer chatbot para comenzar a construir.",
         "edit": {
           "approvalOrder": "Approval Order",
           "approvalsRequired": "Número de aprobaciones necesarias",

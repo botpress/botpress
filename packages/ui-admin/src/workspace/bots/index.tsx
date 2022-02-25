@@ -12,13 +12,13 @@ import {
   Position
 } from '@blueprintjs/core'
 import { BotConfig } from 'botpress/sdk'
-import { confirmDialog, lang, telemetry, toast } from 'botpress/shared'
+import { confirmDialog, lang, telemetry, toast, utils } from 'botpress/shared'
 import cx from 'classnames'
+import { BUILTIN_MODULES } from 'common/defaults'
 import _ from 'lodash'
 import React, { Component, Fragment } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import { generatePath, RouteComponentProps } from 'react-router'
-
 import api from '~/app/api'
 import { Downloader } from '~/app/common/Downloader'
 import LoadingSection from '~/app/common/LoadingSection'
@@ -28,7 +28,7 @@ import { AppState } from '~/app/rootReducer'
 import AccessControl from '~/auth/AccessControl'
 import { getActiveWorkspace } from '~/auth/basicAuth'
 import { fetchLicensing } from '~/management/licensing/reducer'
-import { fetchModules } from '~/management/modules/reducer'
+import { fetchModules, fetchLoadedModules } from '~/management/modules/reducer'
 import { fetchBotHealth, fetchBots, fetchBotNLULanguages } from '~/workspace/bots/reducer'
 import { filterList } from '~/workspace/util'
 
@@ -63,6 +63,7 @@ class Bots extends Component<Props> {
     this.props.fetchBots()
     this.props.fetchBotHealth()
     this.props.fetchBotNLULanguages()
+    this.props.fetchLoadedModules()
 
     if (!this.props.loadedModules.length && this.props.profile && this.props.profile.isSuperAdmin) {
       this.props.fetchModules()
@@ -438,7 +439,8 @@ const mapDispatchToProps = {
   fetchLicensing,
   fetchBotHealth,
   fetchModules,
-  fetchBotNLULanguages
+  fetchBotNLULanguages,
+  fetchLoadedModules
 }
 
 const connector = connect(mapStateToProps, mapDispatchToProps)

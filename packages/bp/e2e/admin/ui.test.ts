@@ -11,6 +11,7 @@ const LAST_NAME = 'Lalancette'
 describe('Admin - UI', () => {
   it('Load code editor page', async () => {
     await clickOn('#btn-menu-code-editor')
+
     const response = await getResponse(`${bpConfig.apiHost}/api/v1/bots/___/mod/code-editor/files`, 'GET')
     expect(response.status()).toBe(200)
   })
@@ -35,7 +36,7 @@ describe('Admin - UI', () => {
   })
 
   it('Change user profile', async () => {
-    await clickOn('#btn-menu')
+    await clickOn('#btn-menu-user-dropdown')
     await clickOn('#btn-profile')
 
     await fillField('#input-firstname', FIRST_NAME)
@@ -49,37 +50,36 @@ describe('Admin - UI', () => {
     await uploadFile('input[type="file"]', path.join(__dirname, '../assets/alien.png'))
     const { url } = await expectCallSuccess(`${bpConfig.host}/api/v1/media`, 'POST')
 
-    await clickOn('#btn-submit')
+    await clickOn('#btn-submit-update-user')
     await expectCallSuccess(`${bpConfig.host}/api/v2/admin/user/profile`, 'POST')
-    await closeToaster()
 
     const src = await page.$eval('img.dropdown-picture', img => img.getAttribute('src'))
     expect(src?.includes(url)).toBeTruthy()
 
-    await clickOn('#btn-menu')
+    await clickOn('#btn-menu-user-dropdown')
     await expectMatch(`Signed in as ${FIRST_NAME} ${LAST_NAME}`)
-    await clickOn('#btn-menu')
+    await clickOn('#btn-menu-user-dropdown')
   })
 
   it('Update password', async () => {
-    await clickOn('#btn-menu')
+    await clickOn('#btn-menu-user-dropdown')
     await clickOn('#btn-changepass')
     await fillField('#input-password', bpConfig.password)
     await fillField('#input-newPassword', NEW_PASSWORD)
     await fillField('#input-confirmPassword', NEW_PASSWORD)
 
-    await clickOn('#btn-submit')
+    await clickOn('#btn-submit-update-password')
     await expectCallSuccess(`${bpConfig.host}/api/v2/admin/auth/login/basic/default`, 'POST')
   })
 
   it('Revert password', async () => {
-    await clickOn('#btn-menu')
+    await clickOn('#btn-menu-user-dropdown')
     await clickOn('#btn-changepass')
     await fillField('#input-password', NEW_PASSWORD)
     await fillField('#input-newPassword', bpConfig.password)
     await fillField('#input-confirmPassword', bpConfig.password)
 
-    await clickOn('#btn-submit')
+    await clickOn('#btn-submit-update-password')
     await expectCallSuccess(`${bpConfig.host}/api/v2/admin/auth/login/basic/default`, 'POST')
   })
 })

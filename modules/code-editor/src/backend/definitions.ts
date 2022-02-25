@@ -111,13 +111,6 @@ export const FileTypes: { [type: string]: FileDefinition } = {
     },
     canDelete: (file: EditableFile) => !!file.botId
   },
-  components: {
-    allowScoped: true,
-    permission: 'components',
-    ghost: {
-      baseDir: '/components'
-    }
-  },
   raw: {
     allowRoot: true,
     onlySuperAdmin: true,

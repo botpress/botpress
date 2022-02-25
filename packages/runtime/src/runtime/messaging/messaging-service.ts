@@ -7,6 +7,7 @@ import yn from 'yn'
 
 import { formatUrl } from '../../common/url'
 import { ConfigProvider } from '../config'
+import { WellKnownFlags } from '../dialog'
 import { EventEngine, Event } from '../events'
 import { TYPES } from '../types'
 
@@ -26,7 +27,15 @@ export class MessagingService {
   ) {
     this.collectingCache = new LRUCache<string, uuid>({ max: 5000, maxAge: ms('5m') })
     this.messaging = new MessagingChannel({
-      url: process.MESSAGING_ENDPOINT!
+      url: process.MESSAGING_ENDPOINT!,
+      logger: {
+        info: this.logger.info.bind(this.logger),
+        debug: this.logger.debug.bind(this.logger),
+        warn: this.logger.warn.bind(this.logger),
+        error: (e, msg, data) => {
+          this.logger.attachError(e).error(msg || '', data)
+        }
+      }
     })
     // use this to test converse from messaging
     if (yn(process.env.ENABLE_EXPERIMENTAL_CONVERSE)) {
@@ -120,6 +129,7 @@ export class MessagingService {
       target: data.userId,
       botId: this.clientIdToBotId[clientId]
     })
+    event.setFlag(WellKnownFlags.SKIP_DIALOG_ENGINE, true)
 
     return this.eventEngine.sendEvent(event)
   }

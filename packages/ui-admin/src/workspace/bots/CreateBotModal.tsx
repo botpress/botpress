@@ -7,9 +7,11 @@ import ms from 'ms'
 import React, { Component } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
 import Select from 'react-select'
+import yn from 'yn'
 
 import api from '~/app/api'
 import { AppState } from '~/app/rootReducer'
+import { fetchServerConfig } from '~/management/checklist/reducer'
 import { fetchBotCategories, fetchBotTemplates } from './reducer'
 import style from './style.scss'
 
@@ -77,9 +79,16 @@ class CreateBotModal extends Component<Props, State> {
   componentDidMount() {
     this.loadCategories()
     this.loadTemplates()
+    this.loadServerConfigs()
   }
 
-  componentDidUpdate(prevProps: Props) {
+  loadServerConfigs() {
+    if (!this.props.serverConfig) {
+      this.props.fetchServerConfig()
+    }
+  }
+
+  componentDidUpdate(prevProps: Props, prevState: State) {
     if (!prevProps.botTemplatesFetched && this.props.botTemplatesFetched) {
       this.loadTemplates()
     }
@@ -117,7 +126,7 @@ class CreateBotModal extends Component<Props, State> {
 
   createBot = async e => {
     e.preventDefault()
-    if (this.isButtonDisabled) {
+    if (!this.isFormValid()) {
       return
     }
     this.setState({ isProcessing: true })
@@ -152,13 +161,25 @@ class CreateBotModal extends Component<Props, State> {
     this.props.toggle()
   }
 
-  get isButtonDisabled() {
+  isFormValid = (): boolean => {
     const { isProcessing, botId, botName, selectedTemplate } = this.state
-    const isNameOrIdInvalid =
-      !botId ||
-      !botName ||
-      (this.props.existingBots && this.props.existingBots.some(bot => bot.name === botName || bot.id === botId))
-    return isNameOrIdInvalid || isProcessing || !selectedTemplate || !this._form || !this._form.checkValidity()
+
+    const nameAndIdValid =
+      !!botId && !!botName && !this.props.existingBots?.some(bot => bot.name === botName || bot.id === botId)
+
+    const validCloudOptions = !this.state.isCloudBot || (!!this.state.cloudClientId && !!this.state.cloudClientSecret)
+
+    return (
+      !isProcessing &&
+      nameAndIdValid &&
+      !!selectedTemplate &&
+      validCloudOptions &&
+      (this._form?.checkValidity() ?? false)
+    )
+  }
+
+  isPro = (): boolean => {
+    return yn(this.props.serverConfig?.config.pro.enabled) || yn(this.props.serverConfig?.env.PRO_ENABLED)
   }
 
   render() {
@@ -229,22 +250,20 @@ class CreateBotModal extends Component<Props, State> {
                 />
               </FormGroup>
             )}
-            <FormGroup
-              label={lang.tr('admin.workspace.bots.create.cloud')}
-              labelFor="checkbox-bot-cloud"
-              helperText={lang.tr('admin.workspace.bots.create.cloudHelper')}
-            >
-              <Checkbox
-                id="checkbox-bot-cloud"
-                label={lang.tr('admin.workspace.bots.create.cloudCheckbox')}
-                checked={this.state.isCloudBot}
-                onChange={e =>
-                  this.setState({
-                    isCloudBot: e.currentTarget.checked
-                  })
-                }
-              />
-            </FormGroup>
+            {!this.isPro() && (
+              <FormGroup
+                label={lang.tr('admin.workspace.bots.create.cloud')}
+                labelFor="checkbox-bot-cloud"
+                helperText={lang.tr('admin.workspace.bots.create.cloudHelper')}
+              >
+                <Checkbox
+                  id="checkbox-bot-cloud"
+                  label={lang.tr('admin.workspace.bots.create.cloudCheckbox')}
+                  checked={this.state.isCloudBot}
+                  onChange={e => this.setState({ isCloudBot: e.currentTarget.checked })}
+                />
+              </FormGroup>
+            )}
             {this.state.isCloudBot && (
               <FormGroup
                 label={lang.tr('admin.workspace.bots.create.cloudConfiguration')}
@@ -284,7 +303,7 @@ class CreateBotModal extends Component<Props, State> {
                 type="submit"
                 text={this.state.isProcessing ? lang.tr('pleaseWait') : lang.tr('admin.workspace.bots.create.create')}
                 onClick={this.createBot}
-                disabled={this.isButtonDisabled}
+                disabled={!this.isFormValid()}
                 intent={Intent.PRIMARY}
               />
             </div>
@@ -295,7 +314,10 @@ class CreateBotModal extends Component<Props, State> {
   }
 }
 
-const mapStateToProps = (state: AppState) => state.bots
-const connector = connect(mapStateToProps, { fetchBotTemplates, fetchBotCategories })
+const mapStateToProps = (state: AppState) => ({
+  ...state.bots,
+  serverConfig: state.checklist.serverConfig
+})
+const connector = connect(mapStateToProps, { fetchBotTemplates, fetchBotCategories, fetchServerConfig })
 
 export default connector(CreateBotModal)

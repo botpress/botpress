@@ -18,11 +18,10 @@ const test = {
     flows: './studio/flows.test',
     cms: './studio/cms.test',
     nlu: './studio/nlu.test',
-    qna: './studio/qna.test',
-    component: './studio/component.test'
+    editor: './studio/code-editor.test',
+    configuration: './studio/configuration.test'
   },
   mod: {
-    editor: './modules/code-editor.test',
     testing: './modules/testing.test',
     webchat: './modules/webchat.test'
   }
@@ -33,8 +32,8 @@ if (yn(process.env.BP_CONFIG_PRO_ENABLED)) {
   admin.push(test.admin.users)
 }
 
-const studio = [test.studio.ui, test.studio.flows, test.studio.cms, test.studio.nlu]
-const modules = [test.mod.editor, test.mod.testing, test.mod.webchat]
+const studio = [test.studio.ui, test.studio.flows, test.studio.cms, test.studio.nlu, test.studio.editor]
+const modules = [test.mod.testing, test.mod.webchat]
 
 /** Define test pipelines below */
 const allTests = [test.auth, test.login, ...admin, ...studio, ...modules, test.logout]

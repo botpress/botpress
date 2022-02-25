@@ -35,7 +35,7 @@
   },
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^9.0.6",
-    "@botpress/messaging-client": "^0.0.14",
+    "@botpress/messaging-client": "1.1.1",
     "@botpress/nlu-client": "1.0.0-rc.2",
     "axios": "^0.21.1",
     "bluebird-global": "^1.0.1",
@@ -86,7 +86,7 @@
     "tmp": "^0.0.33",
     "unzipper": "^0.10.3",
     "verror": "^1.10.0",
-    "vm2": "^3.9.5",
+    "vm2": "^3.9.6",
     "yargs": "^16.0.3",
     "yn": "^2.0.0"
   },

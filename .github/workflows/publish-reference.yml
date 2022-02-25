@@ -1,10 +1,10 @@
 name: Publish Reference
 on:
-  push:
-    branches:
-      - master
+  release:
+    types: [published]
+
 jobs:
-  publish-reference:
+  publish_reference:
     name: Publish Reference
     runs-on: ubuntu-latest
     steps:
@@ -12,7 +12,7 @@ jobs:
         uses: actions/checkout@master
       - uses: actions/setup-node@v2
         with:
-          node-version: '12.18.1'
+          node-version-file: '.nvmrc'
           cache: 'yarn'
       - name: Install python3
         uses: actions/setup-python@v1

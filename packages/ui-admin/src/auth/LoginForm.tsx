@@ -23,7 +23,7 @@ export const LoginForm: FC<Props> = props => {
           value={email}
           onChange={e => setEmail(e.target.value)}
           type="text"
-          id="email"
+          id="email-login"
           autoFocus={true}
         />
       </FormGroup>
@@ -34,7 +34,7 @@ export const LoginForm: FC<Props> = props => {
           value={password}
           onChange={e => setPassword(e.target.value)}
           type="password"
-          id="password"
+          id="password-login"
         />
       </FormGroup>
 

@@ -69,7 +69,7 @@ const Workspaces: FC<Props> = props => {
             <div className={style.tableRow} key={workspace.id}>
               <div className={style.actions}>
                 <Popover minimal position={Position.BOTTOM} interactionKind={PopoverInteractionKind.HOVER}>
-                  <Button id="btn-menu" icon={<Icon icon="menu" />} minimal={true} />
+                  <Button id="btn-menu-workspaces" icon={<Icon icon="menu" />} minimal={true} />
                   <Menu>
                     <MenuItem
                       id="btn-edit"
@@ -78,7 +78,7 @@ const Workspaces: FC<Props> = props => {
                       onClick={() => editWorkspace(workspace)}
                     />
                     <MenuItem
-                      id="btn-rollout"
+                      id="btn-rollout-configure"
                       icon="send-to-graph"
                       text="Configure Rollout"
                       onClick={() => editRollout(workspace)}
@@ -91,7 +91,7 @@ const Workspaces: FC<Props> = props => {
                     />
                     <MenuDivider />
                     <MenuItem
-                      id="btn-delete"
+                      id="btn-delete-workspace"
                       icon="trash"
                       text="Delete Workspace"
                       onClick={() => deleteWorkspace(workspace)}
