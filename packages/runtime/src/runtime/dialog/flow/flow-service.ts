@@ -1,8 +1,9 @@
 import { Flow, Logger } from 'botpress/runtime-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-
 import { ArrayCache } from '../../../common/array-cache'
+import { ObjectCache } from '../../../common/object-cache'
+
 import { FlowView, NodeView } from '../../../common/typings'
 import { GhostService, ScopedGhostService } from '../../bpfs'
 import { TYPES } from '../../types'
@@ -20,8 +21,11 @@ export class FlowService {
     @inject(TYPES.Logger)
     @tagged('name', 'FlowService')
     private logger: Logger,
-    @inject(TYPES.GhostService) private ghost: GhostService
-  ) {}
+    @inject(TYPES.GhostService) private ghost: GhostService,
+    @inject(TYPES.ObjectCache) private cache: ObjectCache
+  ) {
+    this.listenCacheInvalidations()
+  }
 
   public forBot(botId: string): ScopedFlowService {
     let scope = this.scopes[botId]
@@ -33,6 +37,23 @@ export class FlowService {
 
     return scope
   }
+
+  private listenCacheInvalidations() {
+    this.cache.events.on('invalidation', async key => {
+      try {
+        const matches = key.match(/^([A-Z0-9-_]+)::data\/bots\/([A-Z0-9-_]+)\/flows\/([\s\S]+(flow)\.json)/i)
+
+        if (matches && matches.length >= 2) {
+          const [key, type, botId, flowName] = matches
+          if (type === 'file' || type === 'object') {
+            await this.forBot(botId).handleInvalidatedCache()
+          }
+        }
+      } catch (err) {
+        this.logger.error('Error Invalidating flow cache: ' + err.message)
+      }
+    })
+  }
 }
 
 export class ScopedFlowService {
@@ -43,6 +64,10 @@ export class ScopedFlowService {
       x => x.name,
       (x, prevKey, newKey) => ({ ...x, name: newKey, location: newKey })
     )
+  }
+
+  public async handleInvalidatedCache() {
+    this.cache.reset()
   }
 
   public reloadFlows() {
