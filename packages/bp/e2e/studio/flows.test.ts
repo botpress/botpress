@@ -1,12 +1,5 @@
 import { clickOn, fillField, expectMatch } from '../utils/expectPuppeteer'
-import {
-  clickOnTreeNode,
-  CONFIRM_DIALOG,
-  expectStudioApiCallSuccess,
-  gotoStudio,
-  loginOrRegister,
-  triggerKeyboardShortcut
-} from '../utils'
+import { clickOnTreeNode, CONFIRM_DIALOG, expectStudioApiCallSuccess, gotoStudio, loginOrRegister } from '../utils'
 
 describe('Studio - Flows', () => {
   beforeAll(async () => {
@@ -18,10 +11,6 @@ describe('Studio - Flows', () => {
 
   it('Load Flows', async () => {
     await clickOn('#bp-menu_flows')
-
-    // Opens left pane
-    await page.focus('#diagramContainer')
-    await triggerKeyboardShortcut('b', true, true)
   })
 
   it('Create new flow', async () => {
