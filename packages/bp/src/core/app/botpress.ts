@@ -240,7 +240,8 @@ export class Botpress {
 
     startLocalMessagingServer({
       CORE_PORT: process.PORT.toString(),
-      EXTERNAL_URL: process.EXTERNAL_URL
+      EXTERNAL_URL: process.EXTERNAL_URL,
+      ROOT_PATH: process.ROOT_PATH
     })
   }
 
