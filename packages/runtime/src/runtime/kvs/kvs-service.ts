@@ -38,42 +38,6 @@ export class KeyValueStore {
     this.services[botId] = newService
     return newService
   }
-
-  // All these are deprecated in sdk. Should be removed.
-
-  get = async (botId: string, key: string, path?: string) => {
-    this.logger.warn('bp.kvs.get is deprecated, use bp.kvs.global().get or bp.kvs.forBot(botId).get')
-    return this.forBot(botId).get(key, path)
-  }
-
-  set = (botId: string, key: string, value, path?: string) => {
-    this.logger.warn('bp.kvs.set is deprecated, use bp.kvs.global().set or bp.kvs.forBot(botId).set')
-    return this.forBot(botId).set(key, value, path)
-  }
-
-  setStorageWithExpiry = async (botId: string, key: string, value, expiry?: string) => {
-    return this.forBot(botId).setStorageWithExpiry(key, value, expiry)
-  }
-
-  getStorageWithExpiry = async (botId: string, key: string) => {
-    return this.forBot(botId).getStorageWithExpiry(key)
-  }
-
-  removeStorageKeysStartingWith = async key => {
-    return this.globalKvs.removeStorageKeysStartingWith(key)
-  }
-
-  getConversationStorageKey = (sessionId, variable) => {
-    return this.globalKvs.getConversationStorageKey(sessionId, variable)
-  }
-
-  getUserStorageKey = (userId, variable) => {
-    return this.globalKvs.getUserStorageKey(userId, variable)
-  }
-
-  getGlobalStorageKey = variable => {
-    return this.globalKvs.getGlobalStorageKey(variable)
-  }
 }
 
 export class KvsService implements sdk.KvsService {
