@@ -2,6 +2,26 @@
  * This is the Runtime SDk. Some methods are no longer available
  */
 declare module 'botpress/runtime-sdk' {
+  import Knex from 'knex'
+  export interface KnexExtension {
+    isLite: boolean
+    location: string
+    createTableIfNotExists(tableName: string, cb: Knex.KnexCallback): Promise<boolean>
+    date: Knex.Date
+    bool: Knex.Bool
+    json: Knex.Json
+    binary: Knex.Binary
+    insertAndRetrieve<T>(
+      tableName: string,
+      data: {},
+      returnColumns?: string | string[],
+      idColumnName?: string,
+      trx?: Knex.Transaction
+    ): Promise<T>
+  }
+
+  export type KnexExtended = Knex & KnexExtension
+
   /**
    * Returns the current version of Botpress
    */

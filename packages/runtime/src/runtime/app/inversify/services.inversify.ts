@@ -3,7 +3,7 @@ import { ContainerModule, interfaces } from 'inversify'
 
 import { BotMonitoringService, BotService } from '../../bots'
 import { GhostContainerModule } from '../../bpfs'
-import { CMSService, RenderService } from '../../cms'
+import { CMSService } from '../../cms'
 import { ConverseService } from '../../converse'
 import { DialogContainerModule } from '../../dialog'
 import { LocalJobService, JobService, RedisJobService } from '../../distributed'
@@ -79,10 +79,6 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
 
   bind<StatsService>(TYPES.StatsService)
     .to(StatsService)
-    .inSingletonScope()
-
-  bind<RenderService>(TYPES.RenderService)
-    .to(RenderService)
     .inSingletonScope()
 
   bind<QnaService>(TYPES.QnaService)
