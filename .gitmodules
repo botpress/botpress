@@ -1,6 +1,3 @@
 [submodule "pro"]
 	path = packages/bp/src/pro
 	url = git@github.com:botpress/botpress-pro.git
-[submodule "packages/typings"]
-	path = packages/typings
-	url = https://github.com/botpress/typings.git

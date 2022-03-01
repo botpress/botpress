@@ -17,10 +17,6 @@ const maybeFetchPro = () => {
   return gulp.src('./').pipe(gulpif(isProBuild, run('git submodule update --init', { verbosity: 2 })))
 }
 
-const initTypings = () => {
-  return gulp.src('./').pipe(run('git submodule update --init packages/typings', { verbosity: 3 }))
-}
-
 const writeMetadata = async () => {
   const metadata = {
     version: require(path.join(__dirname, '../package.json')).version,
@@ -143,7 +139,6 @@ const cleanup = async () => {
 module.exports = {
   build,
   watch,
-  initTypings,
   checkTranslations,
   buildDownloader,
   initDownloader,
