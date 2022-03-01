@@ -1,25 +1,20 @@
 import * as sdk from 'botpress/runtime-sdk'
 import { inject, injectable } from 'inversify'
-import Knex from 'knex'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
 
 import { BotService } from '../bots'
 import { GhostService, ScopedGhostService } from '../bpfs'
-import { CMSService, renderRecursive, RenderService } from '../cms'
+import { CMSService, renderRecursive } from '../cms'
 import * as renderEnums from '../cms/enums'
-import { ConfigProvider } from '../config'
-import Database from '../database'
 import { StateManager, DialogEngine, WellKnownFlags } from '../dialog'
 import * as dialogEnums from '../dialog/enums'
 import { SessionIdFactory } from '../dialog/sessions'
-import { JobService } from '../distributed'
 import { EventEngine, EventRepository, Event } from '../events'
 import { KeyValueStore } from '../kvs'
 import { LoggerProvider } from '../logger'
 import * as logEnums from '../logger/enums'
 import { getMessageSignature } from '../security'
-import { HookService } from '../user-code'
 import { ChannelUserRepository } from '../users'
 
 import { container } from './inversify/app.inversify'
@@ -28,7 +23,7 @@ import { TYPES } from './types'
 const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk.events => {
   return {
     registerMiddleware(middleware: sdk.IO.MiddlewareDefinition) {
-      eventEngine.register(middleware)
+      eventEngine.register(middleware) // TODO: Should be scopes to a bot ID
     },
     removeMiddleware: eventEngine.removeMiddleware.bind(eventEngine),
     sendEvent: eventEngine.sendEvent.bind(eventEngine),
@@ -49,15 +44,8 @@ const dialog = (dialogEngine: DialogEngine, stateManager: StateManager): typeof 
   }
 }
 
-const config = (configProvider: ConfigProvider): typeof sdk.config => {
-  return {
-    getBotpressConfig: configProvider.getRuntimeConfig.bind(configProvider)
-  }
-}
-
 const bots = (botService: BotService): typeof sdk.bots => {
   return {
-    getAllBots: botService.getBots.bind(botService),
     getBotById: botService.findBotById.bind(botService)
   }
 }
@@ -75,16 +63,7 @@ const users = (userRepo: ChannelUserRepository): typeof sdk.users => {
 
 const kvs = (kvs: KeyValueStore): typeof sdk.kvs => {
   return {
-    forBot: kvs.forBot.bind(kvs),
-    global: kvs.global.bind(kvs),
-    get: kvs.get.bind(kvs),
-    set: kvs.set.bind(kvs),
-    getStorageWithExpiry: kvs.getStorageWithExpiry.bind(kvs),
-    setStorageWithExpiry: kvs.setStorageWithExpiry.bind(kvs),
-    removeStorageKeysStartingWith: kvs.removeStorageKeysStartingWith.bind(kvs),
-    getConversationStorageKey: kvs.getConversationStorageKey.bind(kvs),
-    getUserStorageKey: kvs.getUserStorageKey.bind(kvs),
-    getGlobalStorageKey: kvs.getGlobalStorageKey.bind(kvs)
+    forBot: kvs.forBot.bind(kvs)
   }
 }
 
@@ -100,17 +79,13 @@ const scopedGhost = (scopedGhost: ScopedGhostService): sdk.ScopedGhostService =>
     readFileAsString: scopedGhost.readFileAsString.bind(scopedGhost),
     readFileAsObject: scopedGhost.readFileAsObject.bind(scopedGhost),
     directoryListing: scopedGhost.directoryListing.bind(scopedGhost),
-    onFileChanged: scopedGhost.onFileChanged.bind(scopedGhost),
     fileExists: scopedGhost.fileExists.bind(scopedGhost)
   }
 }
 
 const ghost = (ghostService: GhostService): typeof sdk.ghost => {
   return {
-    forBot: (botId: string) => scopedGhost(ghostService.forBot(botId)),
-    forBots: () => scopedGhost(ghostService.bots()),
-    forGlobal: () => scopedGhost(ghostService.global()),
-    forRoot: () => scopedGhost(ghostService.root())
+    forBot: (botId: string) => scopedGhost(ghostService.forBot(botId))
   }
 }
 
@@ -131,58 +106,19 @@ const cms = (cmsService: CMSService): typeof sdk.cms => {
   }
 }
 
-const distributed = (jobService: JobService): typeof sdk.distributed => {
-  return {
-    broadcast: jobService.broadcast.bind(jobService),
-    acquireLock: jobService.acquireLock.bind(jobService),
-    clearLock: jobService.clearLock.bind(jobService)
-  }
-}
-
-const experimental = (renderService: RenderService): typeof sdk.experimental => {
-  return {
-    render: render(renderService)
-  }
-}
-
-const render = (renderService: RenderService): typeof sdk.experimental.render => {
-  return {
-    text: renderService.renderText.bind(renderService),
-    image: renderService.renderImage.bind(renderService),
-    audio: renderService.renderAudio.bind(renderService),
-    video: renderService.renderVideo.bind(renderService),
-    location: renderService.renderLocation.bind(renderService),
-    card: renderService.renderCard.bind(renderService),
-    carousel: renderService.renderCarousel.bind(renderService),
-    choice: renderService.renderChoice.bind(renderService),
-    buttonSay: renderService.renderButtonSay.bind(renderService),
-    buttonUrl: renderService.renderButtonUrl.bind(renderService),
-    buttonPostback: renderService.renderButtonPostback.bind(renderService),
-    option: renderService.renderOption.bind(renderService),
-    translate: renderService.renderTranslated.bind(renderService),
-    template: renderService.renderTemplate.bind(renderService),
-    pipeline: renderService.getPipeline.bind(renderService)
-  }
-}
-
 @injectable()
 export class BotpressRuntimeAPIProvider {
   events: typeof sdk.events
   dialog: typeof sdk.dialog
-  config: typeof sdk.config
-  database: Knex & sdk.KnexExtension
   users: typeof sdk.users
   kvs: typeof sdk.kvs
   bots: typeof sdk.bots
   ghost: typeof sdk.ghost
   cms: typeof sdk.cms
-  experimental: typeof sdk.experimental
   security: typeof sdk.security
-  distributed: typeof sdk.distributed
 
   constructor(
     @inject(TYPES.DialogEngine) dialogEngine: DialogEngine,
-    @inject(TYPES.Database) db: Database,
     @inject(TYPES.EventEngine) eventEngine: EventEngine,
     @inject(TYPES.LoggerProvider) private loggerProvider: LoggerProvider,
     @inject(TYPES.UserRepository) userRepo: ChannelUserRepository,
@@ -190,25 +126,17 @@ export class BotpressRuntimeAPIProvider {
     @inject(TYPES.BotService) botService: BotService,
     @inject(TYPES.GhostService) ghostService: GhostService,
     @inject(TYPES.CMSService) cmsService: CMSService,
-    @inject(TYPES.ConfigProvider) configProvider: ConfigProvider,
-    @inject(TYPES.HookService) hookService: HookService,
     @inject(TYPES.EventRepository) eventRepo: EventRepository,
-    @inject(TYPES.JobService) jobService: JobService,
-    @inject(TYPES.StateManager) stateManager: StateManager,
-    @inject(TYPES.RenderService) renderService: RenderService
+    @inject(TYPES.StateManager) stateManager: StateManager
   ) {
     this.events = event(eventEngine, eventRepo)
     this.dialog = dialog(dialogEngine, stateManager)
-    this.config = config(configProvider)
-    this.database = db.knex
     this.users = users(userRepo)
     this.kvs = kvs(keyValueStore)
     this.bots = bots(botService)
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService)
     this.security = security()
-    this.distributed = distributed(jobService)
-    this.experimental = experimental(renderService)
   }
 
   @Memoize()
@@ -225,16 +153,12 @@ export class BotpressRuntimeAPIProvider {
       dialog: this.dialog,
       events: this.events,
       logger: await this.loggerProvider(loggerName),
-      config: this.config,
-      database: this.database,
       users: this.users,
       kvs: this.kvs,
       ghost: this.ghost,
       bots: this.bots,
       cms: this.cms,
       security: this.security,
-      distributed: this.distributed,
-      experimental: this.experimental,
       ButtonAction: renderEnums.ButtonAction
     }
 
