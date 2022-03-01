@@ -23,7 +23,7 @@ import { TYPES } from './types'
 const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk.events => {
   return {
     registerMiddleware(middleware: sdk.IO.MiddlewareDefinition) {
-      eventEngine.register(middleware) // TODO: Should be scopes to a bot ID
+      eventEngine.register(middleware)
     },
     removeMiddleware: eventEngine.removeMiddleware.bind(eventEngine),
     sendEvent: eventEngine.sendEvent.bind(eventEngine),
