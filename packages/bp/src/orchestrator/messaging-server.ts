@@ -10,6 +10,7 @@ export interface MessagingServerOptions {
   host: string
   port: number
   EXTERNAL_URL?: string
+  ROOT_PATH?: string
   CORE_PORT?: string
 }
 
@@ -67,7 +68,7 @@ export const startMessagingServer = async (opts: Partial<MessagingServerOptions>
     SKIP_LOAD_ENV: 'true',
     SKIP_LOAD_CONFIG: 'true',
     SPINNED: 'true',
-    SPINNED_URL: `http://localhost:${opts.CORE_PORT}/api/v1/chat/receive`,
+    SPINNED_URL: `http://localhost:${opts.CORE_PORT}${opts.ROOT_PATH || ''}/api/v1/chat/receive`,
     NO_LAZY_LOADING: 'true',
     ENABLE_LEGACY_CHANNELS: 'true',
     DISABLE_SOCKETS: 'true',

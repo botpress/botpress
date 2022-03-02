@@ -9,10 +9,8 @@ import semver from 'semver'
 import stripAnsi from 'strip-ansi'
 import yn from 'yn'
 
-import { BotpressRuntimeAPIProvider } from '../app/api'
 import { container } from '../app/inversify/app.inversify'
 import { TYPES } from '../app/types'
-import { GhostService } from '../bpfs'
 import { ConfigProvider } from '../config'
 import Database from '../database'
 import { PersistedConsoleLogger, centerText } from '../logger'
@@ -55,8 +53,7 @@ export class MigrationService {
     @inject(TYPES.Logger)
     private logger: sdk.Logger,
     @inject(TYPES.Database) private database: Database,
-    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.GhostService) private bpfs: GhostService
+    @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider
   ) {
     this.targetVersion = process.MIGRATE_TARGET || process.env.TESTMIG_BP_VERSION || process.BOTPRESS_VERSION
   }
@@ -275,15 +272,14 @@ ${_.repeat(' ', 9)}========================================`)
 
   public async getMigrationOpts() {
     return {
-      bp: await container.get<BotpressRuntimeAPIProvider>(TYPES.BotpressAPIProvider).create('Migration', 'core'),
       configProvider: this.configProvider,
-      database: this.database,
+      database: this.database.knex,
       inversify: container
     }
   }
 
   public getAllMigrations(): MigrationFile[] {
-    const migrations = this._getMigrations(path.join(__dirname, '../../migrations'), true)
+    const migrations = this._getMigrations(path.join(__dirname, '../../migrations'))
 
     migrations.map(file => {
       if (!this.loadedMigrations[file.filename]) {
@@ -305,9 +301,9 @@ ${_.repeat(' ', 9)}========================================`)
     return query?.server_version || this.configVersion
   }
 
-  private _getMigrations(rootPath: string, assertExists = false): MigrationFile[] {
-    if (assertExists && !fse.existsSync(rootPath)) {
-      throw new Error(`The migration directory '${rootPath}' does not exists`)
+  private _getMigrations(rootPath: string): MigrationFile[] {
+    if (!fse.existsSync(rootPath)) {
+      return []
     }
 
     return _.orderBy(
@@ -362,9 +358,8 @@ export interface MigrationFile {
 }
 
 export interface MigrationOpts {
-  bp: typeof sdk
   configProvider: ConfigProvider
-  database: Database
+  database: sdk.KnexExtended
   inversify: Container
 }
 

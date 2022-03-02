@@ -1,0 +1,22 @@
+{
+  "name": "@botpress/typings",
+  "version": "12.22.2",
+  "private": false,
+  "engines": {
+    "node": "^12"
+  },
+  "author": "Botpress, Inc.",
+  "license": "AGPL-3.0",
+  "main": "index.js",
+  "repository": "https://github.com/botpress/typings.git",
+  "scripts": {
+    "build": "yarn tsc"
+  },
+  "dependencies": {
+    "express": "^4.16.4",
+    "knex": "0.20.1"
+  },
+  "devDependencies": {
+    "typescript": "^4.2.4"
+  }
+}

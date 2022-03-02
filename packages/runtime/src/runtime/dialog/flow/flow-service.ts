@@ -1,8 +1,8 @@
 import { Flow, Logger } from 'botpress/runtime-sdk'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
-
 import { ArrayCache } from '../../../common/array-cache'
+
 import { FlowView, NodeView } from '../../../common/typings'
 import { GhostService, ScopedGhostService } from '../../bpfs'
 import { TYPES } from '../../types'
@@ -43,6 +43,10 @@ export class ScopedFlowService {
       x => x.name,
       (x, prevKey, newKey) => ({ ...x, name: newKey, location: newKey })
     )
+  }
+
+  public async handleInvalidatedCache() {
+    this.cache.reset()
   }
 
   public reloadFlows() {

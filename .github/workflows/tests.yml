@@ -12,9 +12,6 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: 'yarn'
-      - name: Fetch typings submodule
-        run: |
-          git submodule update --init ./packages/typings
       - name: Fetch Node Packages
         run: |
           yarn --frozen-lockfile
@@ -61,9 +58,6 @@ jobs:
         with:
           node-version-file: '.nvmrc'
           cache: 'yarn'
-      - name: Fetch typings submodule
-        run: |
-          git submodule update --init ./packages/typings
       - name: Fetch Node Packages
         run: |
           yarn --frozen-lockfile
