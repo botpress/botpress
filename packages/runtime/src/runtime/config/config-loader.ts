@@ -1,22 +1,15 @@
-import { BotConfig, Logger } from 'botpress/runtime-sdk'
+import { BotConfig } from 'botpress/runtime-sdk'
 import fs from 'fs'
 import { inject, injectable } from 'inversify'
 import defaultJsonBuilder from 'json-schema-defaults'
 import _, { PartialDeep } from 'lodash'
 import path from 'path'
 
-import { ObjectCache } from '../../common/object-cache'
 import { FatalError } from '../../errors'
 import { GhostService } from '../bpfs'
 import { RuntimeConfig } from '../config'
 import { stringify } from '../misc/utils'
 import { TYPES } from '../types'
-
-/**
- * These properties should not be considered when calculating the config hash
- * They are always read from the configuration file and can be dynamically changed
- */
-const removeDynamicProps = config => _.omit(config, ['superAdmins'])
 
 @injectable()
 export class ConfigProvider {
@@ -25,13 +18,8 @@ export class ConfigProvider {
   private _botpressConfigCache: RuntimeConfig | undefined
   public initialConfigHash: string | undefined
   public currentConfigHash!: string
-  private _deprecateEnvVarWarned = false
 
-  constructor(
-    @inject(TYPES.GhostService) private ghostService: GhostService,
-    @inject(TYPES.Logger) private logger: Logger,
-    @inject(TYPES.ObjectCache) private cache: ObjectCache
-  ) {}
+  constructor(@inject(TYPES.GhostService) private ghostService: GhostService) {}
 
   setRuntimeConfig(config: RuntimeConfig) {
     this._botpressConfigCache = config

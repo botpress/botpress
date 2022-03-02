@@ -20,7 +20,6 @@ import { JobService, makeRedisKey } from '../distributed'
 import { MessagingService } from '../messaging'
 import { NLUInferenceService } from '../nlu'
 import { Hooks, HookService } from '../user-code'
-import { ComponentService } from './component-service'
 
 const BOT_CONFIG_FILENAME = 'bot.config.json'
 const BOT_ID_PLACEHOLDER = '/bots/BOT_ID_PLACEHOLDER/'
@@ -33,6 +32,7 @@ const debug = DEBUG('services:bots')
 
 @injectable()
 export class BotService {
+  public onBotImported?: (botId: string) => Promise<void>
   private _botIds: string[] | undefined
   private static _mountedBots: Map<string, boolean> = new Map()
   private static _botHealth: { [botId: string]: BotHealth } = {}
@@ -194,6 +194,7 @@ export class BotService {
           BotService.setBotStatus(botId, 'disabled')
         }
 
+        await this.onBotImported!(botId)
         this.logger.forBot(botId).info(`Import of bot ${botId} successful`)
       } else {
         this.logger.forBot(botId).info(`Import of bot ${botId} was denied by hook validation`)

@@ -9,8 +9,6 @@ export interface BotpressRuntime {
   bots: {
     mount: (botId: string) => Promise<boolean>
     unmount: (botId: string) => Promise<void>
-    /** Invalidates all caches so they are fetched fresh from the disk */
-    refresh: (botId: string) => Promise<void>
   }
 
   /** Messaging has a new converse, but this is to keep the previous feature working like before */
