@@ -16,11 +16,10 @@ import { TYPES } from '../app/types'
 import { GhostService } from '../bpfs'
 import { CMSService } from '../cms'
 import { ConfigProvider } from '../config'
-import { FlowService } from '../dialog'
 import { JobService, makeRedisKey } from '../distributed'
 import { MessagingService } from '../messaging'
 import { NLUInferenceService } from '../nlu'
-import { ActionService, Hooks, HookService } from '../user-code'
+import { Hooks, HookService } from '../user-code'
 
 const BOT_CONFIG_FILENAME = 'bot.config.json'
 const BOT_ID_PLACEHOLDER = '/bots/BOT_ID_PLACEHOLDER/'
@@ -33,6 +32,7 @@ const debug = DEBUG('services:bots')
 
 @injectable()
 export class BotService {
+  public botImported?: (botId: string) => void
   private _botIds: string[] | undefined
   private static _mountedBots: Map<string, boolean> = new Map()
   private static _botHealth: { [botId: string]: BotHealth } = {}
@@ -48,9 +48,7 @@ export class BotService {
     @inject(TYPES.HookService) private hookService: HookService,
     @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.MessagingService) private messagingService: MessagingService,
-    @inject(TYPES.NLUInferenceService) private nluInferenceService: NLUInferenceService,
-    @inject(TYPES.FlowService) private flowService: FlowService,
-    @inject(TYPES.ActionService) private actionService: ActionService
+    @inject(TYPES.NLUInferenceService) private nluInferenceService: NLUInferenceService
   ) {
     this._botIds = undefined
   }
@@ -196,8 +194,7 @@ export class BotService {
           BotService.setBotStatus(botId, 'disabled')
         }
 
-        await this._clearCache(botId)
-
+        this.botImported?.(botId)
         this.logger.forBot(botId).info(`Import of bot ${botId} successful`)
       } else {
         this.logger.forBot(botId).info(`Import of bot ${botId} was denied by hook validation`)
@@ -207,16 +204,6 @@ export class BotService {
       tmpDir.removeCallback()
       debug.forBot(botId, `Bot import took ${Date.now() - startTime}ms`)
     }
-  }
-
-  private async _clearCache(botId: string) {
-    await this.ghostService.forBot(botId).clearCache()
-
-    await this.cms.refreshElements(botId)
-    await this.flowService.forBot(botId).reloadFlows()
-
-    this.hookService.clearRequireCache()
-    this.actionService.forBot(botId).clearRequireCache()
   }
 
   private async _validateBotArchive(directory: string): Promise<string> {

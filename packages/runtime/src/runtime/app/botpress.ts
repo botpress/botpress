@@ -71,22 +71,6 @@ export class Botpress {
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine
   ) {}
 
-  private _refreshBot = async (botId: string) => {
-    if (!this.botService.isBotMounted(botId)) {
-      return
-    }
-
-    await this.ghostService.forBot(botId).clearCache()
-
-    await this.cmsService.refreshElements(botId)
-    await this.flowService.forBot(botId).reloadFlows()
-
-    this.hookService.clearRequireCache()
-    this.actionService.forBot(botId).clearRequireCache()
-  }
-
-  private _refreshDebounced = _.debounce(this._refreshBot, DEBOUNCE_DELAY, { leading: true, trailing: false })
-
   async start(config?: RuntimeSetup): Promise<BotpressRuntime> {
     const beforeDt = moment()
     await this.initialize(config)
@@ -104,8 +88,7 @@ export class Botpress {
       },
       bots: {
         mount: this.botService.mountBot.bind(this.botService),
-        unmount: this.botService.unmountBot.bind(this.botService),
-        refresh: this._refreshDebounced
+        unmount: this.botService.unmountBot.bind(this.botService)
       },
       sendConverseMessage: this.converseService.sendMessage.bind(this.converseService),
       events: this.api.events,
@@ -211,6 +194,18 @@ export class Botpress {
     await this.logJanitor.start()
     await this.dialogJanitor.start()
     this.eventCollector.start()
+
+    this.botService.botImported = this.wipeCache.bind(this)
+  }
+
+  private async wipeCache(botId: string) {
+    await this.ghostService.forBot(botId).clearCache()
+
+    await this.cmsService.refreshElements(botId)
+    await this.flowService.forBot(botId).reloadFlows()
+
+    this.hookService.clearRequireCache()
+    this.actionService.forBot(botId).clearRequireCache()
   }
 
   async registerHooks() {
