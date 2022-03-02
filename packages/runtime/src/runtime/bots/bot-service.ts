@@ -32,7 +32,7 @@ const debug = DEBUG('services:bots')
 
 @injectable()
 export class BotService {
-  public botImported?: (botId: string) => void
+  public onBotImported?: (botId: string) => Promise<void>
   private _botIds: string[] | undefined
   private static _mountedBots: Map<string, boolean> = new Map()
   private static _botHealth: { [botId: string]: BotHealth } = {}
@@ -194,7 +194,7 @@ export class BotService {
           BotService.setBotStatus(botId, 'disabled')
         }
 
-        this.botImported?.(botId)
+        await this.onBotImported!(botId)
         this.logger.forBot(botId).info(`Import of bot ${botId} successful`)
       } else {
         this.logger.forBot(botId).info(`Import of bot ${botId} was denied by hook validation`)

@@ -195,7 +195,7 @@ export class Botpress {
     await this.dialogJanitor.start()
     this.eventCollector.start()
 
-    this.botService.botImported = this.wipeCache.bind(this)
+    this.botService.onBotImported = this.wipeCache.bind(this)
   }
 
   private async wipeCache(botId: string) {
