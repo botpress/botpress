@@ -28,6 +28,7 @@ export class MessagingService {
     this.collectingCache = new LRUCache<string, uuid>({ max: 5000, maxAge: ms('5m') })
     this.messaging = new MessagingChannel({
       url: process.MESSAGING_ENDPOINT!,
+      sessionCookieName: process.MESSAGING_SESSION_COOKIE_NAME,
       logger: {
         info: this.logger.info.bind(this.logger),
         debug: this.logger.debug.bind(this.logger),
