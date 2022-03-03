@@ -163,6 +163,12 @@ class Message extends Component<MessageProps> {
     await this.props.store.loadEventInDebugger(this.props.messageId, true)
   }
 
+  componentDidMount() {
+    this.props.isLastGroup &&
+      this.props.isLastOfGroup &&
+      this.props.store.composer.setLocked(this.props.payload.disableFreeText)
+  }
+
   render() {
     if (this.state.hasError) {
       return '* Cannot display message *'

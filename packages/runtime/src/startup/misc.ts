@@ -78,6 +78,7 @@ export const loadEnvVars = () => {
   process.CLUSTER_ENABLED = yn(process.runtime_env.CLUSTER_ENABLED)
   process.NLU_ENDPOINT = process.runtime_env.NLU_ENDPOINT
   process.MESSAGING_ENDPOINT = process.runtime_env.MESSAGING_ENDPOINT
+  process.MESSAGING_SESSION_COOKIE_NAME = process.runtime_env.MESSAGING_SESSION_COOKIE_NAME
 }
 
 export const setupProcess = async () => {
