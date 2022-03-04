@@ -1,7 +1,7 @@
 export const HOOK_SIGNATURES = {
   before_incoming_middleware: 'function hook(bp: typeof sdk, event: sdk.IO.IncomingEvent)',
   after_incoming_middleware: 'function hook(bp: typeof sdk, event: sdk.IO.IncomingEvent)',
-  before_outgoing_middleware: 'function hook(bp: typeof sdk, event: sdk.IO.IncomingEvent)',
+  before_outgoing_middleware: 'function hook(bp: typeof sdk, event: sdk.IO.OutgoingEvent)',
   after_event_processed: 'function hook(bp: typeof sdk, event: sdk.IO.IncomingEvent)',
   before_suggestions_election: `function hook(
   bp: typeof sdk,
