@@ -30,6 +30,7 @@
     ],
     "assets": [
       "../../node_modules/vm2/lib/*.js",
+      "./node_modules/vm2/lib/*.js",
       "../../node_modules/xml-encryption/lib/templates/*.tpl.xml"
     ]
   },
@@ -86,7 +87,7 @@
     "tmp": "^0.0.33",
     "unzipper": "^0.10.3",
     "verror": "^1.10.0",
-    "vm2": "^3.9.6",
+    "vm2": "^3.9.5",
     "yargs": "^16.0.3",
     "yn": "^2.0.0"
   },
