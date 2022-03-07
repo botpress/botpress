@@ -244,6 +244,11 @@ export class ConfigProvider {
       content = content.replace('"$isProduction"', process.IS_PRODUCTION ? 'true' : 'false')
       content = content.replace('"$isDevelopment"', process.IS_PRODUCTION ? 'false' : 'true')
 
+      const vars = content.match(/%([a-zA-Z0-9_]+)%/gim)
+      vars?.forEach(varName => {
+        content = content.replace(varName, getValueFromEnvKey(varName.replace(/%/g, '')))
+      })
+
       return <T>JSON.parse(content)
     } catch (e) {
       throw new FatalError(e, `Error reading configuration file "${fileName}"`)
