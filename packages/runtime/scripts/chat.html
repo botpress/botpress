@@ -1,0 +1,46 @@
+
+<!DOCTYPE html>
+<html>
+  <head lang="en">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+  </head>
+  <body>
+    <h1>Runtime Tester</h1>
+ 
+    <p>
+      There are a couple of ways to use it:
+      
+      <ol>
+        <li>With the bot ID: open <b>http://localhost:5000/my-bot-id</b> (this will handle client/token creation if necessary)</li>
+        <li>With the client ID: open <b>http://localhost:5000/?clientId=my-client-id</b></li>
+        <li>With a custom messaging: open <b>http://localhost:5000/?clientId=my-client-id&messagingEndpoint=https://messaging.botpress.dev</b></li>
+      </ol>
+    </p>
+  </body>
+
+  <script src="https://cdn.botpress.dev/webchat/v0/inject.js"></script>
+  <script>
+    function parseQuery(queryString) {
+      const query = {}
+      const pairs = (queryString[0] === '?' ? queryString.substr(1) : queryString).split('&')
+      for (let i = 0; i < pairs.length; i++) {
+        const pair = pairs[i].split('=')
+        query[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1] || '')
+      }
+      return query
+    }
+
+    const params = parseQuery(window.location && window.location.search)
+    const clientId = (params && params.clientId) || 'CLIENT_ID'
+    const messagingEndpoint = (params && params.messagingEndpoint) || 'MESSAGING_ENDPOINT_URL'
+
+    window.botpressWebChat.init({
+      hostUrl: 'https://cdn.botpress.dev/webchat/v0',
+      messagingUrl: messagingEndpoint,
+      clientId: clientId,
+      enableConversationDeletion: true,
+      enableReset: true
+    })
+  </script>
+</html>
