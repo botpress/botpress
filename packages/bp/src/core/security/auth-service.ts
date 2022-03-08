@@ -1,6 +1,14 @@
 import { Logger, StrategyUser } from 'botpress/sdk'
 import { JWT_COOKIE_NAME } from 'common/auth'
-import { AuthPayload, AuthStrategyConfig, ChatUserAuth, TokenUser, TokenResponse } from 'common/typings'
+import {
+  AuthPayload,
+  AuthStrategyConfig,
+  ChatUserAuth,
+  TokenUser,
+  TokenResponse,
+  RequestWithUser,
+  LogoutCallback
+} from 'common/typings'
 import { TYPES } from 'core/app/types'
 import { AuthStrategy, ConfigProvider } from 'core/config'
 import Database from 'core/database'
@@ -28,7 +36,7 @@ export const EXTERNAL_AUTH_HEADER = 'x-bp-externalauth'
 export const SERVER_USER = 'server::modules'
 const DEFAULT_CHAT_USER_AUTH_DURATION = '24h'
 
-const getUserKey = (email, strategy) => `${email}_${strategy}`
+const getUserKey = (email: string, strategy: string) => `${email}_${strategy}`
 
 @injectable()
 export class AuthService {
@@ -36,6 +44,7 @@ export class AuthService {
   private tokenVersions: Dic<number> = {}
   private broadcastTokenChange: Function = this.local__tokenVersionChange
   public jobService!: JobService
+  private logoutCallbacks: { [strategy: string]: LogoutCallback } = {}
 
   constructor(
     @inject(TYPES.Logger)
@@ -368,6 +377,20 @@ export class AuthService {
 
     res.cookie(JWT_COOKIE_NAME, token.jwt, { maxAge: token.exp, httpOnly: true, ...cookieOptions })
     return true
+  }
+
+  public addLogoutCallback(strategy: string, callback: LogoutCallback) {
+    this.logoutCallbacks[strategy] = callback
+  }
+
+  public async logout(strategy: string, req: RequestWithUser, res: Response) {
+    const callback = this.logoutCallbacks[strategy]
+
+    if (!callback) {
+      return res.sendStatus(200)
+    }
+
+    return callback(strategy, req, res)
   }
 }
 

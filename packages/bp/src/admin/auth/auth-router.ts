@@ -78,12 +78,12 @@ class AuthRouter extends CustomAdminRouter {
       })
     )
 
-    router.post(
+    router.get(
       '/logout',
       this.checkTokenHeader,
       this.asyncMiddleware(async (req: RequestWithUser, res) => {
         await this.authService.invalidateToken(req.tokenUser!)
-        res.sendStatus(200)
+        return this.authService.logout(req.tokenUser!.strategy, req, res)
       })
     )
 
