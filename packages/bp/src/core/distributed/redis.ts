@@ -1,3 +1,4 @@
+import { printRow } from 'diag/utils'
 import RedisIo, { Cluster, ClusterNode, ClusterOptions, Redis, RedisOptions } from 'ioredis'
 import _ from 'lodash'
 
@@ -82,8 +83,9 @@ const parseLine = (client: string): ClientEntry => {
 }
 
 export const getClientsList = async (redis: Redis): Promise<ClientEntry[]> => {
+  let clients
   try {
-    const clients = await redis.client('list')
+    clients = await redis.client('list')
 
     // We don't want to get clients which issues commands
     const subscribers = clients
@@ -93,7 +95,8 @@ export const getClientsList = async (redis: Redis): Promise<ClientEntry[]> => {
 
     return _.uniqBy(subscribers, x => x.parsed.name)
   } catch (err) {
-    console.error('error parsing clients', err)
+    printRow('Error parsing redis clients', err)
+    printRow('Clients returned:', clients)
   }
 
   return []
