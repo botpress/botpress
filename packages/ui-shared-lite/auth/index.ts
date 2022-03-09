@@ -58,8 +58,7 @@ export const logout = async (getAxiosClient: () => AxiosInstance) => {
   } catch {
     // Silently fails
   } finally {
-    // Clear access token and ID token from local storage
-    localStorage.removeItem(TOKEN_KEY)
+    storage.del(TOKEN_KEY)
 
     if (url) {
       // If /logout gave us a URL, manually redirect to this URL
