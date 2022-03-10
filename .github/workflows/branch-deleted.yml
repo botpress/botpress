@@ -2,7 +2,7 @@ name: Branch deleted
 on: delete
 
 jobs:
-  remove:
+  delete_branch_binaries:
     if: github.event.ref_type == 'branch'
     name: Delete Branch Binaries
     runs-on: ubuntu-latest
@@ -19,7 +19,7 @@ jobs:
 
       - name: Extract Informations
         id: info
-        uses: botpress/gh-actions/extract_info@master
+        uses: botpress/gh-actions/extract_info@v1
         with:
           branch: ${{ github.event.ref }}
 

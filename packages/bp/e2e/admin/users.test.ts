@@ -1,24 +1,18 @@
-import { bpConfig } from '../../jest-puppeteer.config'
-import { clickOn, expectMatch, expectMatchElement, fillField } from '../expectPuppeteer'
-import { closeToaster, CONFIRM_DIALOG, expectAdminApiCallSuccess, gotoAndExpect } from '../utils'
+import { bpConfig } from '../assets/config'
+import { clickOn, expectMatch, fillField } from '../utils/expectPuppeteer'
+import { closeToaster, CONFIRM_DIALOG, expectAdminApiCallSuccess, gotoAndExpect, clickButtonForUser } from '../utils'
 
 describe('Admin - Users', () => {
   const testUserEmail = 'someguy@me.com'
 
   beforeAll(async () => {
-    await gotoAndExpect(`${bpConfig.host}/admin/workspace/users`)
+    await gotoAndExpect(`${bpConfig.host}/admin/workspace/default/users`)
   })
 
-  const clickButtonForUser = async (buttonId: string, userId: string) => {
-    const botRow = await expectMatchElement('.bp_table-row', { text: userId })
-    await clickOn('#btn-menu', undefined, botRow)
-    await clickOn(buttonId)
-  }
-
   it('Create a new collaborator', async () => {
-    await clickOn('#tab-collaborators')
-    await clickOn('#btn-create')
-    await fillField('#select-email', testUserEmail)
+    await clickOn('#btn-create-collaborator')
+    await clickOn('#select-email')
+    await page.type('#select-email', testUserEmail)
     await page.keyboard.press('Enter')
 
     await clickOn('#select-role')
@@ -28,24 +22,19 @@ describe('Admin - Users', () => {
 
     await Promise.all([
       expectAdminApiCallSuccess('workspace/collaborators', 'POST'),
-      expectAdminApiCallSuccess('workspace/collaborators', 'GET'),
-      clickOn('#btn-submit')
+      expectAdminApiCallSuccess('workspace/collaborators?roles=admin,dev,editor,agent,chatuser', 'GET'),
+      clickOn('#btn-submit-create-user')
     ])
-
-    await expectMatch('Account Created')
 
     await clickOn('button[aria-label="Close"]')
   })
 
   it('Reset user password', async () => {
     await clickOn('#div-role-dev')
-    await page.waitFor(500) // Delay for the collapse animation
 
-    await Promise.all([
-      expectAdminApiCallSuccess(`workspace/collaborators/reset/default/${testUserEmail}`, 'GET'),
-      clickButtonForUser('#btn-resetPassword', testUserEmail),
-      clickOn(CONFIRM_DIALOG.ACCEPT)
-    ])
+    await clickButtonForUser('#btn-resetPassword', testUserEmail)
+    await clickOn(CONFIRM_DIALOG.ACCEPT)
+    await expectAdminApiCallSuccess(`workspace/collaborators/reset/default/${testUserEmail}`, 'GET')
 
     await expectMatch('Your password has been reset')
     await closeToaster()
@@ -54,22 +43,17 @@ describe('Admin - Users', () => {
   })
 
   it('Change role to administrator', async () => {
-    await page.waitFor(500)
     await clickButtonForUser('#btn-changeRole', testUserEmail)
-    await Promise.all([
-      expectAdminApiCallSuccess('workspace/collaborators/workspace/update_role', 'POST'),
-      clickOn('#btn-role-admin')
-    ])
+
+    await clickOn('#btn-role-admin')
+    await expectAdminApiCallSuccess('workspace/collaborators/workspace/update_role', 'POST')
   })
 
   it('Delete created user', async () => {
     await clickOn('#div-role-admin')
-    await page.waitFor(500)
 
-    await Promise.all([
-      expectAdminApiCallSuccess(`workspace/collaborators/default/${testUserEmail}/delete`, 'POST'),
-      clickButtonForUser('#btn-deleteUser', testUserEmail),
-      clickOn(CONFIRM_DIALOG.ACCEPT)
-    ])
+    await clickButtonForUser('#btn-deleteUser', testUserEmail)
+    await clickOn(CONFIRM_DIALOG.ACCEPT)
+    await expectAdminApiCallSuccess(`workspace/collaborators/default/${testUserEmail}/delete`, 'POST')
   })
 })

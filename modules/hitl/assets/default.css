@@ -243,7 +243,7 @@
 }
 
 .bph-chat-bubble {
-  max-width: 60%;
+  max-width: 50%;
 
   border: 1px solid #f1f1f1;
   background-color: rgba(255, 255, 255, 0.9);
@@ -252,6 +252,14 @@
   padding: 0.75rem 1rem;
   white-space: pre-wrap;
   word-break: break-word;
+}
+
+.bph-chat-bubble.card {
+  min-width: 50%;
+}
+
+.bph-chat-bubble p {
+  margin: 0px;
 }
 
 .bph-chat-bubble img {

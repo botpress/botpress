@@ -469,6 +469,7 @@ class RootStore {
 
   @action.bound
   async updatePreferredLanguage(lang: string): Promise<void> {
+    this.updateBotUILanguage(lang)
     this.preferredLanguage = lang
     await this.api.updateUserPreferredLanguage(lang)
   }

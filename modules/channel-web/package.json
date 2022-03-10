@@ -25,11 +25,11 @@
     "@types/react-intl": "^2.3.17"
   },
   "dependencies": {
-    "@botpress/messaging-client": "0.0.9",
+    "@botpress/messaging-client": "1.1.1",
     "@juggle/resize-observer": "^3.0.2",
     "apicache": "^1.6.2",
     "aws-sdk": "^2.905.0",
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.5.3",
     "bluebird-global": "^1.0.1",

@@ -30,6 +30,7 @@ declare namespace NodeJS {
     PORT: number
     STUDIO_PORT: number
     MESSAGING_PORT: number
+    NLU_ENDPOINT?: string
     NLU_PORT: number
     PROXY?: string
     EXTERNAL_URL: string
@@ -90,6 +91,9 @@ declare interface BotpressEnvironmentVariables {
 
   /** The URL used to reach an external Messaging server */
   readonly MESSAGING_ENDPOINT?: string
+
+  /** Admin key of the messaging server to make calls to admin routes */
+  readonly MESSAGING_ADMIN_KEY?: string
 
   /** Use this to override the hostname that botpress will listen on (by default it's localhost) - replaces httpServer.host */
   readonly BP_HOST?: string

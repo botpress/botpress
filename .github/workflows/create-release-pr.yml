@@ -1,0 +1,49 @@
+name: Create Release Pull Request
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        required: true
+        description: Type of release
+        options: ['patch', 'minor', 'major']
+        default: 'patch'
+
+jobs:
+  create_release_pull_request:
+    name: Create Release Pull Request
+    runs-on: 'ubuntu-latest'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      - name: Bump version
+        id: bump
+        run: |
+          yarn version --new-version ${{ github.event.inputs.version }} --no-git-tag-version
+          yarn version --cwd ./build --new-version ${{ github.event.inputs.version }} --no-git-tag-version
+          echo ::set-output name=new_version::$(node -p "require('./package.json').version")
+
+      - name: Get Release Details
+        id: release_details
+        uses: botpress/gh-actions/get_release_details@next
+
+      - uses: tibdex/github-app-token@v1
+        id: generate-token
+        with:
+          app_id: ${{ secrets.BOTPRESS_BOT_APP_ID }}
+          private_key: ${{ secrets.BOTPRESS_BOT_APP_PRIVATE_KEY }}
+
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v3
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
+          title: 'chore(server): release v${{ steps.bump.outputs.new_version }}'
+          commit-message: 'chore(server): release v${{ steps.bump.outputs.new_version }}'
+          branch: 'release/v${{ steps.bump.outputs.new_version }}'
+          body: ${{ steps.release_details.outputs.changelog }}

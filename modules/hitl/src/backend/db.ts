@@ -159,42 +159,6 @@ export default class HitlDb {
         }
   }
 
-  formatMessage = event => {
-    // Convert messenger payloads to HITL-compatible format
-    if (event.channel === 'messenger' && event.payload.quick_replies) {
-      return {
-        type: 'custom',
-        raw_message: {
-          type: 'custom',
-          module: 'channel-messenger',
-          component: 'QuickReplies',
-          quick_replies: event.payload.quick_replies,
-          wrapped: { type: 'text', ..._.omit(event.payload, 'quick_replies') }
-        }
-      }
-    } else if (event.channel === 'messenger' && _.get(event.payload, 'attachment.payload.elements')) {
-      return {
-        type: 'carousel',
-        raw_message: {
-          text: ' ',
-          type: 'carousel',
-          elements: _.get(event.payload, 'attachment.payload.elements').map(card => ({
-            title: card.title,
-            picture: card.image_url,
-            subtitle: card.subtitle,
-            buttons: card.buttons.map(a => ({
-              ...a,
-              type: a.type === 'web_url' ? 'open_url' : a.type
-            }))
-          })),
-          fromMessenger: true
-        }
-      }
-    }
-
-    return { type: event.type, raw_message: event.payload }
-  }
-
   async appendMessageToSession(event: sdk.IO.Event, sessionId: string, direction: string) {
     const payload = event.payload || {}
     const text = event.preview || payload.text || (payload.wrapped && payload.wrapped.text)
@@ -213,10 +177,6 @@ export default class HitlDb {
       direction,
       ts: new Date()
     }
-
-    const { type, raw_message } = this.formatMessage(event)
-    message.type = type
-    message.raw_message = raw_message
 
     return Bluebird.join(
       this.knex(TABLE_NAME_MESSAGES).insert({

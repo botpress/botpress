@@ -17,10 +17,11 @@
   },
   "dependencies": {
     "@blueprintjs/datetime": "3.15.2",
-    "axios": "^0.21.1",
+    "@botpress/messaging-components": "0.1.0",
+    "axios": "^0.21.2",
     "bluebird": "^3.7.0",
     "classnames": "^2.2.6",
-    "lodash": "^4.17.19"
+    "lodash": "^4.17.21"
   },
   "resolutions": {
     "fstream": ">=1.0.12",

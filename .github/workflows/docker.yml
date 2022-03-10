@@ -1,20 +1,30 @@
 name: Docker
-on: [push]
+on:
+  push:
+  release:
+    types: [published]
+
 jobs:
-  build_and_push:
-    name: Build and push Docker image to GitHub Packages
+  build_and_push_docker:
+    name: Build and Push Docker Image
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2.1.0
+      - uses: tibdex/github-app-token@v1
+        id: generate-token
         with:
-          token: ${{ secrets.PAT_DOCKER }}
+          app_id: ${{ secrets.BOTPRESS_BOT_APP_ID }}
+          private_key: ${{ secrets.BOTPRESS_BOT_APP_PRIVATE_KEY }}
+
+      - name: Checkout code
+        uses: actions/checkout@master
+        with:
+          token: ${{ steps.generate-token.outputs.token }}
           submodules: true
-      # Create an array of version to push to the Dockerhub registery
+      # Create an array of version to push to the Dockerhub registry
       - name: Prepare
         id: prep
         run: |
-          TAG=$(echo $(git describe ${{github.sha}} --tags)) ## Get the tags from the SHA hash
+          TAG=$(echo $(git describe ${{ github.sha }} --tags)) ## Get the tags from the SHA hash
           VALID_TAG="^v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"  ## Will match Tags in the following format v123.231.123 or v1.2.3 will discard the following format v1.2.4-<revision>
           DOCKER_IMAGE=botpress/server
           VERSION=()
@@ -37,7 +47,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '12.18.1'
+          node-version-file: '.nvmrc'
           cache: 'yarn'
       - name: Build
         run: |
@@ -58,7 +68,7 @@ jobs:
         uses: docker/login-action@v1
         with:
           registry: ghcr.io
-          username: ${{ github.repository_owner }}
+          username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Build and push
         uses: docker/build-push-action@v2

@@ -9,7 +9,7 @@ import { Hooks, HookService } from 'core/user-code'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 
-import { FlowError, TimeoutNodeNotFound } from './errors'
+import { FlowError, InfiniteLoopError, TimeoutNodeNotFound } from './errors'
 import { Instruction } from './instruction'
 import { InstructionProcessor } from './instruction/processor'
 import { InstructionQueue } from './instruction/queue'
@@ -109,22 +109,38 @@ export class DialogEngine {
         // This way the queue will be rebuilt from the next node.
         context.queue = undefined
 
-        return this._transition(sessionId, event, destination).catch(err => {
-          addErrorToEvent(
-            {
-              type: 'dialog-transition',
-              stacktrace: err.stacktrace || err.stack,
-              destination
-            },
-            event
-          )
+        try {
+          const incommingEvent = await this._transition(sessionId, event, destination)
+          return incommingEvent
+        } catch (err) {
+          {
+            addErrorToEvent(
+              {
+                type: 'dialog-transition',
+                stacktrace: err.stacktrace || err.stack,
+                destination
+              },
+              event
+            )
 
-          const { onErrorFlowTo } = event.state.temp
-          const errorFlow =
-            typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
+            if (err instanceof InfiniteLoopError) {
+              /**
+               * In that case we don't even want to transition to error handling flow
+               * as risk of another infinite loop is too high.
+               * This is major problem and can't be handled softly.
+               */
+              this.cleanState(event)
+              throw err
+            }
 
-          return this._transition(sessionId, event, errorFlow)
-        })
+            const { onErrorFlowTo } = event.state.temp
+            const errorFlow =
+              typeof onErrorFlowTo === 'string' && onErrorFlowTo.length ? onErrorFlowTo : 'error.flow.json'
+
+            const incommingEvent = await this._transition(sessionId, event, errorFlow)
+            return incommingEvent
+          }
+        }
       }
     } catch (err) {
       this._reportProcessingError(botId, err, event, instruction)
@@ -395,9 +411,7 @@ export class DialogEngine {
 
   protected async _transition(sessionId: string, event: IO.IncomingEvent, transitionTo: string) {
     let context: IO.DialogContext = event.state.context || {}
-    if (!event.activeProcessing?.errors?.length) {
-      this._detectInfiniteLoop(event.state.__stacktrace, event.botId)
-    }
+    this._detectInfiniteLoop(event.state.__stacktrace, event.botId)
 
     context.jumpPoints = context.jumpPoints?.filter(x => !x.used)
 
@@ -564,7 +578,7 @@ export class DialogEngine {
       }
     }
 
-    throw new FlowError(`Infinite loop detected. (${recurringPath.join(' --> ')})`, botId, loop[0].flow, loop[0].node)
+    throw new InfiniteLoopError(recurringPath, botId, loop[0].flow, loop[0].node)
   }
 
   private _findFlow(botId: string, flowName?: string) {
@@ -573,9 +587,9 @@ export class DialogEngine {
       throw new FlowError('Could not find any flow.', botId, flowName)
     }
 
-    flowName = flowName.endsWith('.flow.json') ? flowName : `${flowName.toLowerCase()}.flow.json`
+    const fileName = flowName.endsWith('.flow.json') ? flowName : `${flowName}.flow.json`
 
-    const flow = flows.find(x => x.name === flowName)
+    const flow = flows.find(x => x.name.toLowerCase() === fileName.toLowerCase())
     if (!flow) {
       throw new FlowError(`Flow not found: ${flowName}`, botId, flowName)
     }

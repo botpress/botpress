@@ -1,15 +1,15 @@
-name: Codestyle
+name: Code Style
 on: [pull_request]
 jobs:
-  run_prettier:
-    name: Run Prettier on codebase
+  prettier:
+    name: Prettier
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@master
       - uses: actions/setup-node@v2
         with:
-          node-version: '12.18.1'
+          node-version-file: '.nvmrc'
           cache: 'yarn'
       - name: Install Dependencies
         run: |
@@ -18,14 +18,14 @@ jobs:
         run: |
           yarn prettier
   eslint:
-    name: Run ESLint on codebase
+    name: ESLint
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
         uses: actions/checkout@master
       - uses: actions/setup-node@v2
         with:
-          node-version: '12.18.1'
+          node-version-file: '.nvmrc'
       - name: Install Dependencies
         run: |
           yarn --frozen-lockfile

@@ -31,8 +31,8 @@
     "bluebird": "^3.5.3",
     "bluebird-global": "^1.0.1",
     "lodash": "^4.17.19",
-    "nanoid": "^2.1.6",
-    "nodemailer": "^6.3.0",
+    "nanoid": "^3.1.31",
+    "nodemailer": "^6.6.1",
     "yn": "^3.1.0"
   },
   "resolutions": {

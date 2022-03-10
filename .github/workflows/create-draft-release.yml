@@ -1,0 +1,42 @@
+name: Draft-Release
+on:
+  push:
+    branches:
+      - master
+jobs:
+  create_draft_release:
+    name: Create Draft-Release
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@master
+
+      - name: Get Release Details
+        id: release_details
+        uses: botpress/gh-actions/get_release_details@next
+
+      - name: Fetch Dependencies Changelogs
+        id: fetch_dependencies_changelogs
+        uses: botpress/gh-actions/fetch_release_changelogs@next
+        with:
+          repos: '[ "studio", "messaging", "nlu" ]'
+
+      - name: Display Release Details
+        id: changelog
+        run: |
+          echo "Changelog: ${{ steps.release_details.outputs.changelog }}${{ steps.fetch_dependencies_changelogs.outputs.changelogs }}"
+          echo "Is new release?: ${{ steps.release_details.outputs.is_new_release }}"
+          echo "Version: ${{ steps.release_details.outputs.version }}"
+          echo "Latest Tag: ${{ steps.release_details.outputs.latest_tag }}"
+
+      - name: Release
+        if: ${{ steps.release_details.outputs.is_new_release == 'true' }}
+        uses: softprops/action-gh-release@v1
+        with:
+          prerelease: false
+          draft: true
+          body: ${{ steps.release_details.outputs.changelog }}${{ steps.fetch_dependencies_changelogs.outputs.changelogs }}
+          name: v${{ steps.release_details.outputs.version }}
+          tag_name: v${{ steps.release_details.outputs.version }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

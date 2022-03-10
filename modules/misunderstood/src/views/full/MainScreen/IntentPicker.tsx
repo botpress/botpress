@@ -3,6 +3,7 @@ import { MultiSelect } from '@blueprintjs/select'
 import { AxiosStatic } from 'axios'
 import { lang } from 'botpress/shared'
 import classnames from 'classnames'
+import { parseUtterance } from 'common/utterance-parser'
 import without from 'lodash/without'
 import React from 'react'
 
@@ -171,7 +172,7 @@ class IntentPicker extends React.Component<Props, State> {
 
     const { language } = this.props
 
-    const utterances = intent.utterances[language] || []
+    const utterances = (intent.utterances[language] || []).map(u => parseUtterance(u).utterance)
 
     return (
       <Card

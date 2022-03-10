@@ -26,12 +26,12 @@
     "@types/react-bootstrap": "^0.32.19"
   },
   "dependencies": {
+    "@botpress/messaging-components": "0.1.0",
     "bluebird": "^3.5.3",
     "classnames": "^2.2.6",
-    "lodash": "^4.17.19",
-    "mime": "^2.4.4",
-    "moment": "^2.24.0",
-    "react-audio-player": "^0.11.0"
+    "csstype": "^2.2.0",
+    "lodash": "^4.17.21",
+    "moment": "^2.24.0"
   },
   "resolutions": {
     "fstream": ">=1.0.12",

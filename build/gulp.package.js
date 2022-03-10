@@ -67,6 +67,9 @@ const zipArchive = async ({ osName, binding, tempBin, binaryName }) => {
   archive.directory(`${basePath}/binaries/${osName}/bin`, 'bin')
   archive.directory(`build/native-extensions/${binding}`, `bindings/${binding}`)
   archive.file(`${basePath}/binaries/${tempBin}`, { name: binaryName })
+  if (osName === 'darwin') {
+    archive.file('build/sorry.macos.txt', { name: 'sorry.txt' })
+  }
 
   for (const file of glob.sync(`${basePath}/binaries/modules/*.tgz`)) {
     archive.file(file, { name: `modules/${path.basename(file)}` })
@@ -77,7 +80,7 @@ const zipArchive = async ({ osName, binding, tempBin, binaryName }) => {
 }
 
 const makeTempPackage = () => {
-  const additionalPackageJson = require(path.resolve(__dirname, './package.pkg.json'))
+  const additionalPackageJson = require(path.resolve(__dirname, './package.json'))
   const realPackageJson = require(path.resolve(__dirname, '../package.json'))
   const tempPkgPath = path.resolve(__dirname, '../packages/bp/dist/package.json')
 

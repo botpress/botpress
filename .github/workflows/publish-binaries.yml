@@ -6,7 +6,10 @@ on:
     types: [published]
 
 jobs:
-  pre_release_bin:
+  release_bin:
+    # Do not publish dependabot branches
+    if: startsWith(github.head_ref, 'dependabot/') != true
+
     name: Build and Publish Binaries
     runs-on: ubuntu-latest
     steps:
@@ -15,11 +18,11 @@ jobs:
 
       - uses: actions/setup-node@v2
         with:
-          node-version: '12.18.1'
+          node-version-file: '.nvmrc'
           cache: 'yarn'
 
       - name: Configure SSH Key
-        uses: botpress/gh-actions/set_ssh_key@master
+        uses: botpress/gh-actions/set_ssh_key@v1
         with:
           ssh_key: ${{ secrets.BP_PRO_SSH }}
 
@@ -45,13 +48,13 @@ jobs:
 
       - name: Rename Binary Files
         if: ${{ github.event_name == 'pull_request' && github.event.action == 'review_requested' }}
-        uses: botpress/gh-actions/rename_binaries@master
+        uses: botpress/gh-actions/rename_binaries@v1
         with:
           path: ./packages/bp/archives
 
       - name: Extract Informations
         id: info
-        uses: botpress/gh-actions/extract_info@master
+        uses: botpress/gh-actions/extract_info@v1
 
       - name: Publish Dev Binaries
         if: ${{ github.event_name == 'pull_request' && github.event.action == 'review_requested' }}

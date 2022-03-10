@@ -142,7 +142,7 @@ export default async (bp: typeof sdk, db: Database) => {
     if (conversationId) {
       let conversation: Conversation
       try {
-        conversation = await req.messaging.conversations.get(conversationId)
+        conversation = await req.messaging.getConversation(conversationId)
       } catch {}
 
       if (!conversation || !userId || conversation.userId !== userId) {
@@ -160,6 +160,15 @@ export default async (bp: typeof sdk, db: Database) => {
     req.userId = userId
 
     next()
+  }
+
+  const getRecent = async (messaging: MessagingClient, userId: string) => {
+    const convs = await messaging.listConversations(userId, 1)
+    if (convs?.length) {
+      return convs[0]
+    }
+
+    return messaging.createConversation(userId)
   }
 
   router.get(
@@ -239,7 +248,7 @@ export default async (bp: typeof sdk, db: Database) => {
       }
 
       if (!req.conversationId) {
-        req.conversationId = (await req.messaging.conversations.getRecent(userId)).id
+        req.conversationId = (await getRecent(req.messaging, userId)).id
       }
 
       await sendNewMessage(req, payload, !!req.headers.authorization)
@@ -324,8 +333,8 @@ export default async (bp: typeof sdk, db: Database) => {
       const { conversationId, botId } = req
 
       const config = (await bp.config.getModuleConfigForBot('channel-web', botId)) as Config
-      const conversation = await req.messaging.conversations.get(conversationId)
-      const messages = await req.messaging.messages.list(conversationId, config.maxMessagesHistory)
+      const conversation = await req.messaging.getConversation(conversationId)
+      const messages = await req.messaging.listMessages(conversationId, config.maxMessagesHistory)
 
       // this function scope can (and probably will) expand to other types as well with a switch case on the type
       // we do something similar in the cms to determine weather there are translated fields or not
@@ -345,11 +354,19 @@ export default async (bp: typeof sdk, db: Database) => {
 
       await bp.users.getOrCreateUser('web', userId, botId)
 
-      const conversations = await req.messaging.conversations.list(userId, MAX_MESSAGE_HISTORY)
+      const conversations = await req.messaging.listConversations(userId, MAX_MESSAGE_HISTORY)
       const config = await bp.config.getModuleConfigForBot('channel-web', botId)
 
+      const convsWithLastMessage: (Conversation & { lastMessage?: Message })[] = []
+      for (const conversation of conversations) {
+        convsWithLastMessage.push({
+          ...conversation,
+          lastMessage: (await req.messaging.listMessages(conversation.id, 1))[0]
+        })
+      }
+
       return res.send({
-        conversations: [...conversations],
+        conversations: convsWithLastMessage,
         startNewConvoOnTimeout: config.startNewConvoOnTimeout,
         recentConversationLifetime: config.recentConversationLifetime
       })
@@ -376,7 +393,7 @@ export default async (bp: typeof sdk, db: Database) => {
       sanitizedPayload = _.omit(payload, [...sensitive, 'sensitive'])
     }
 
-    const message = await req.messaging.messages.create(req.conversationId, req.userId, sanitizedPayload)
+    const message = await req.messaging.createMessage(req.conversationId, req.userId, sanitizedPayload)
     const event = bp.IO.Event({
       messageId: message.id,
       botId: req.botId,
@@ -411,7 +428,7 @@ export default async (bp: typeof sdk, db: Database) => {
       await bp.users.getOrCreateUser('web', userId, botId)
 
       if (!conversationId) {
-        conversationId = (await req.messaging.conversations.getRecent(userId)).id
+        conversationId = (await getRecent(req.messaging, userId)).id
       }
 
       const event = bp.IO.Event({
@@ -502,7 +519,7 @@ export default async (bp: typeof sdk, db: Database) => {
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { userId } = req
 
-      const conversation = await req.messaging.conversations.create(userId)
+      const conversation = await req.messaging.createConversation(userId)
 
       res.send({ convoId: conversation.id })
     })
@@ -524,7 +541,7 @@ export default async (bp: typeof sdk, db: Database) => {
         }
 
         if (!conversationId) {
-          conversationId = (await req.messaging.conversations.getRecent(userId)).id
+          conversationId = (await getRecent(req.messaging, userId)).id
         }
 
         const message = reference.slice(0, reference.lastIndexOf('='))
@@ -634,8 +651,8 @@ export default async (bp: typeof sdk, db: Database) => {
       const { conversationId, botId } = req
 
       const config = (await bp.config.getModuleConfigForBot('channel-web', botId)) as Config
-      const conversation = await req.messaging.conversations.get(conversationId)
-      const messages = await req.messaging.messages.list(conversationId, config.maxMessagesHistory)
+      const conversation = await req.messaging.getConversation(conversationId)
+      const messages = await req.messaging.listMessages(conversationId, config.maxMessagesHistory)
 
       const txt = await convertToTxtFile(botId, { ...conversation, messages })
 
@@ -651,7 +668,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.clear', { conversationId }))
 
-      await req.messaging.messages.deleteByConversation(conversationId)
+      await req.messaging.deleteMessagesByConversation(conversationId)
 
       res.sendStatus(204)
     })
@@ -672,7 +689,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const { userId } = req.body
 
       const messaging = await db.getMessagingClient(botId)
-      const conversation = await messaging.conversations.get(conversationId)
+      const conversation = await messaging.getConversation(conversationId)
       if (!userId || conversation?.userId !== userId) {
         return res.status(400).send(ERR_BAD_CONV_ID)
       }
@@ -680,7 +697,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const { visitorId } = await db.getMappingFromUser(userId)
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.clear', { conversationId }))
 
-      await messaging.messages.deleteByConversation(conversationId)
+      await messaging.deleteMessagesByConversation(conversationId)
       res.sendStatus(204)
     })
   )

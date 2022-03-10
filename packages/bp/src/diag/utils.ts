@@ -75,6 +75,31 @@ export const testWebsiteAccess = async (label: string, url: string) => {
   print(` - ${url} (${ip})\n`)
 }
 
+export const queryWebsite = async (url: string, headers?: any) => {
+  const start = Date.now()
+  try {
+    await axios.get(url, { headers })
+    return { url, success: true, delay: Date.now() - start }
+  } catch (err) {
+    return { url, success: false, delay: Date.now() - start, message: err.message, status: err.response?.status }
+  }
+}
+
+export const testProcessAccess = async (label: string, url: string) => {
+  const start = Date.now()
+  let ip
+  try {
+    ip = await dnsLookup(new URL(url).hostname)
+    await axios.get(url)
+
+    printRow(label, `${chalk.green('success')} (${Date.now() - start}ms)`)
+  } catch (err) {
+    printRow(label, `${chalk.red(`failure: ${err.message}`)} (${Date.now() - start}ms)`)
+  }
+
+  print(` - ${url} (${ip})\n`)
+}
+
 export const wrapMethodCall = async (label: string, method: any) => {
   const start = Date.now()
   try {

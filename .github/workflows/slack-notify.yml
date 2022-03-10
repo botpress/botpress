@@ -1,0 +1,40 @@
+on:
+  discussion:
+    types: [created]
+
+name: Slack Notification Demo
+jobs:
+  slack_notification:
+    name: Slack Notification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Send custom JSON data to Slack workflow
+        id: slack
+        uses: slackapi/slack-github-action@v1.16.0
+        if: ${{ github.event.discussion.category.name  == 'Community Support' }}
+        with:
+          payload: |
+            {
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*There is a new post to the Botpress Forums!*"
+                  }
+                },
+                {
+                  "type": "divider"
+                },
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "> *${{ github.event.discussion.title }}* \n> ${{ github.event.discussion.html_url }}"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.DISCUSSIONS_SLACK_WEBHOOK }}
+          SLACK_WEBHOOK_TYPE: INCOMING_WEBHOOK

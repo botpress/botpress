@@ -1,0 +1,64 @@
+name: Publish Nightly Next Binaries
+on:
+  schedule:
+    - cron: '10 3 * * *'
+  workflow_dispatch:
+    inputs:
+      name:
+        description: 'Name of the output file'
+        required: false
+        default: ''
+
+# This workflow is mostly a copy of publish binaries
+# This is by choice as the next branch will eventually be merged in the master
+# It makes it easy to remove when the time comes
+jobs:
+  release_next_bin:
+    name: Build and Publish Next Binaries
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@master
+        with:
+          ref: next
+
+      - uses: actions/setup-node@v2
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'yarn'
+
+      - name: Configure SSH Key
+        uses: botpress/gh-actions/set_ssh_key@v1
+        with:
+          ssh_key: ${{ secrets.BP_PRO_SSH }}
+
+      - name: Install python3
+        uses: actions/setup-python@v1
+        with:
+          python-version: '3.x'
+          architecture: 'x64'
+
+      - name: Install Tools
+        run: pip install awscli
+
+      - name: Build Project
+        run: |
+          yarn
+          yarn build --prod
+        env:
+          EDITION: pro
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Archives
+        run: yarn cmd archive
+
+      - name: Get current date
+        id: date
+        run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
+
+      - name: Publish
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        run: |
+          aws s3 sync packages/bp/archives s3://botpress-next-bins/${{ github.event.inputs.name ||  format('nightly-{0}', steps.date.outputs.date) }}

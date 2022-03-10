@@ -14,13 +14,13 @@
     "package": "node ../../build/module-builder/bin/entry package"
   },
   "dependencies": {
-    "axios": "^0.21.1",
+    "axios": "^0.21.2",
     "classnames": "^2.2.6",
     "joi": "^13.6.0",
-    "lodash": "^4.17.19",
+    "lodash": "^4.17.21",
     "moment": "^2.24.0",
     "ms": "^2.1.2",
-    "nanoid": "^2.1.11",
+    "nanoid": "^3.1.31",
     "@botpress/node-svm": "0.0.3",
     "seedrandom": "^3.0.5",
     "numeric": "^1.2.6"

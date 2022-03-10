@@ -1,0 +1,13 @@
+{
+  "compilerOptions": {
+    "noImplicitAny": false,
+    "useUnknownInCatchVariables": false,
+    "baseUrl": "./",
+    "paths": {
+      "~/*": ["src/*"],
+      "botpress/sdk": ["../bp/src/sdk/botpress.d.ts"],
+      "botpress/shared": ["../ui-shared/src/typings.d.ts"],
+      "common/*": ["../bp/src/common/*"]
+    }
+  }
+}

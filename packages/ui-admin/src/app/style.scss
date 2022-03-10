@@ -1,0 +1,90 @@
+.mainLayout {
+  align-items: flex-start;
+  height: calc(100vh - var(--statusbar-height));
+  display: flex;
+  flex-wrap: wrap;
+}
+
+.container {
+  height: 100%;
+  flex-grow: 1;
+  position: relative;
+}
+
+.main {
+  overflow-y: auto;
+  width: 100%;
+}
+
+.unlicensed {
+  background-color: red;
+  color: var(--c-neutral--light-3);
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  padding-top: 9px;
+  height: 35px;
+
+  svg {
+    margin-right: 10px;
+    margin-top: -2px;
+    width: 15px;
+  }
+
+  a {
+    color: var(--c-neutral--light-3);
+    margin: 0;
+  }
+}
+
+.mainSplitPaneWToolbar {
+  height: auto !important;
+  min-height: 0 !important;
+  top: var(--header-height) !important;
+}
+
+.container :global(.Resizer.horizontal) {
+  height: 2px;
+  margin: 0 -5px;
+  border-top: 2px solid rgba(200, 200, 200, 0.4);
+  border-bottom: 2px solid rgba(200, 200, 200, 0.4);
+  box-sizing: border-box;
+  background: transparent;
+  opacity: 0.5;
+  z-index: 1;
+  background-clip: padding-box;
+  cursor: row-resize;
+
+  &:hover {
+    -webkit-transition: all 2s ease;
+    transition: all 2s ease;
+    border-top: 2px solid rgba(0, 0, 0, 0.2);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.2);
+  }
+}
+
+.mainSplitPaneWToolbar {
+  height: auto !important;
+  min-height: 0 !important;
+  top: var(--header-height) !important;
+}
+
+.container :global(.Resizer.horizontal) {
+  height: 2px;
+  margin: 0 -5px;
+  border-top: 2px solid rgba(200, 200, 200, 0.4);
+  border-bottom: 2px solid rgba(200, 200, 200, 0.4);
+  box-sizing: border-box;
+  background: transparent;
+  opacity: 0.5;
+  z-index: 1;
+  background-clip: padding-box;
+  cursor: row-resize;
+
+  &:hover {
+    -webkit-transition: all 2s ease;
+    transition: all 2s ease;
+    border-top: 2px solid rgba(0, 0, 0, 0.2);
+    border-bottom: 2px solid rgba(0, 0, 0, 0.2);
+  }
+}

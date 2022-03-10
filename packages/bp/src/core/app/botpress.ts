@@ -30,7 +30,7 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import moment from 'moment'
 import ms from 'ms'
-import nanoid from 'nanoid'
+import { nanoid } from 'nanoid'
 import { startLocalActionServer, startLocalNLUServer } from 'orchestrator'
 import { startLocalMessagingServer } from 'orchestrator/messaging-server'
 import path from 'path'
@@ -203,6 +203,7 @@ export class Botpress {
       } else {
         const { endpoint } = config.nluServer
         this.logger.info(`NLU server manually handled at: ${endpoint}`)
+        process.NLU_ENDPOINT = endpoint
       }
 
       return
@@ -240,7 +241,8 @@ export class Botpress {
 
     startLocalMessagingServer({
       CORE_PORT: process.PORT.toString(),
-      EXTERNAL_URL: process.EXTERNAL_URL
+      EXTERNAL_URL: process.EXTERNAL_URL,
+      ROOT_PATH: process.ROOT_PATH
     })
   }
 

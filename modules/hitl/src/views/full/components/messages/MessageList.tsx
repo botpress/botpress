@@ -1,7 +1,6 @@
 import _ from 'lodash'
 import moment from 'moment'
 import React, { FC } from 'react'
-import { renderPayload } from '../../../../../../../packages/ui-shared-lite/Payloads'
 
 import { Message as HitlMessage } from '../../../../backend/typings'
 
@@ -26,7 +25,7 @@ class MessageWrapper extends React.Component<{ message: any }> {
       return <p className="bph-chat-error">* Cannot display message *</p>
     }
 
-    return <Message message={{ ...this.props.message, raw_message: renderPayload(this.props.message.raw_message) }} />
+    return <Message message={this.props.message} />
   }
 }
 

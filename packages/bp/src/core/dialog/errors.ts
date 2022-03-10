@@ -39,6 +39,17 @@ export class FlowError extends Error {
   }
 }
 
+export class InfiniteLoopError extends FlowError {
+  constructor(
+    public recurringPath: string[],
+    public readonly botId: string,
+    public readonly flowName?: string,
+    public readonly nodeName?: string
+  ) {
+    super(`Infinite loop detected. (${recurringPath.join(' --> ')})`, botId, flowName, nodeName)
+  }
+}
+
 export class TimeoutNodeNotFound extends Error {
   constructor(message: string) {
     super(message)

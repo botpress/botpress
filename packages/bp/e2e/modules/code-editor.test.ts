@@ -1,6 +1,5 @@
-import { clickOn, fillField, expectMatchElement } from '../expectPuppeteer'
+import { clickOn, fillField, expectMatchElement } from '../utils/expectPuppeteer'
 import {
-  autoAnswerDialog,
   clickOnTreeNode,
   CONFIRM_DIALOG,
   expectBotApiCallSuccess,
@@ -26,18 +25,18 @@ describe('Module - Code Editor', () => {
 
   it('Create new action', async () => {
     await clickOn('#btn-add-action')
-    await fillField('#input-name', 'hello')
-    await clickOn('#btn-submit')
+    await fillField('#input-name', 'hello.js', { delay: 100 })
+    await clickOn('#btn-submit-new-file')
 
     await page.focus('#monaco-editor')
     await page.mouse.click(469, 297)
-    await page.waitFor(500) // Required so the editor is correctly focused at the right place
+    await page.waitForTimeout(500) // Required so the editor is correctly focused at the right place
     await page.keyboard.type("const lol = 'hi' //")
 
     await Promise.all([
       expectBotApiCallSuccess('mod/code-editor/save', 'POST'),
       expectBotApiCallSuccess('mod/code-editor/files', 'GET'),
-      triggerKeyboardShortcut('KeyS', true)
+      triggerKeyboardShortcut('s', true)
     ])
   })
 
@@ -55,20 +54,22 @@ describe('Module - Code Editor', () => {
     await clickOn('#btn-disable')
 
     await expectBotApiCallSuccess('mod/code-editor/rename', 'POST')
+
     const response = await waitForBotApiResponse('mod/code-editor/files')
-    const disabledFile = response['bot.actions'].find(x => x.name === '.hello_copy.js')
+    const disabledFile = response['bot.actions'].find((x: { name: string }) => x.name === '.hello_copy.js')
     expect(disabledFile).toBeDefined()
   })
 
   it('Delete file', async () => {
     await waitForFilesToLoad()
     await clickOnTreeNode('.hello_copy.js', 'right')
-    await clickOn('#btn-delete')
+    await clickOn('#btn-delete-file')
     await clickOn(CONFIRM_DIALOG.ACCEPT)
 
     await expectBotApiCallSuccess('mod/code-editor/remove', 'POST')
+
     const response = await waitForBotApiResponse('mod/code-editor/files')
-    expect(response['bot.actions'].find(x => x.name === '.hello_copy.js')).toBeUndefined()
+    expect(response['bot.actions'].find((x: { name: string }) => x.name === '.hello_copy.js')).toBeUndefined()
   })
 
   it('Open two tabs', async () => {

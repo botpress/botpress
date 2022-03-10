@@ -101,7 +101,7 @@ class Header extends React.Component<HeaderProps> {
       <button
         type="button"
         tabIndex={-1}
-        id="btn-delete"
+        id="btn-delete-conversation"
         ref={el => (this.btnEls[0] = el)}
         className={'bpw-header-icon bpw-header-icon-delete'}
         onClick={this.handleDeleteConversation}

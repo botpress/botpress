@@ -154,7 +154,8 @@ These instructions assume a parent directory `bar` and we will be adding two chi
    bar $ cd botpress
 
    # Setup the dev environment
-   bar/botpress $ yarn run bootstrap
+   bar/botpress $ yarn install
+   bar/botpress $ yarn build
 
    # Start the botpress server
    bar/botpress $ yarn start
