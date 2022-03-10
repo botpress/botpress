@@ -8,7 +8,7 @@ require('dotenv').config({ path: path.resolve('./dist/.env') })
 
 const messagingEndpoint = process.env.MESSAGING_ENDPOINT || 'https://messaging.botpress.dev'
 
-const fixMessagingHtml = (clientId?: string) => {
+const injectMesagingInfos = (clientId: string) => {
   const html = fse.readFileSync('./scripts/chat.html').toString()
   return html.replace('MESSAGING_ENDPOINT_URL', messagingEndpoint).replace('CLIENT_ID', clientId || '')
 }
@@ -34,7 +34,7 @@ const getClientId = async (botId: string) => {
 
   const { id, token } = config.messaging
   if (await isRegistered(id, token)) {
-    console.info(`Client ${id} is properly registered`)
+    console.info(`Using client ${id}`)
     return id
   } else {
     console.info(`Client ${id} is not properly registered, creating a new id/token pair...`)
@@ -47,7 +47,7 @@ const getClientId = async (botId: string) => {
   }
 }
 
-const isRegistered = async (clientId: string, token: string) => {
+const areCredentialsValid = async (clientId: string, token: string) => {
   try {
     await axios.get(`${messagingEndpoint}/api/v1/health`, {
       headers: { 'x-bp-messaging-client-id': clientId, 'x-bp-messaging-client-token': token }
@@ -58,7 +58,7 @@ const isRegistered = async (clientId: string, token: string) => {
   }
 }
 
-const createMessagingId = async (clientId?: string): Promise<{ id: string; token: string }> => {
+const createMessagingClient = async (clientId?: string): Promise<{ id: string; token: string }> => {
   const { data } = await axios.post(`${messagingEndpoint}/api/v1/admin/clients`, { id: clientId })
   return data
 }
