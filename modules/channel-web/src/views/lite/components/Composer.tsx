@@ -20,7 +20,7 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
   }
 
   componentDidMount() {
-    focus()
+    this.focus()
 
     observe(this.props.focusedArea, focus => {
       focus.newValue === 'input' && this.textInput.current.focus()
@@ -30,7 +30,7 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
   componentWillReceiveProps(newProps: Readonly<ComposerProps>) {
     // Focus on the composer when it's unlocked
     if (this.props.composerLocked === true && newProps.composerLocked === false) {
-      focus()
+      this.focus()
     }
   }
 
