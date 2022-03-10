@@ -9,7 +9,7 @@ require('dotenv').config({ path: path.resolve('./dist/.env') })
 const messagingEndpoint = process.env.MESSAGING_ENDPOINT || 'https://messaging.botpress.dev'
 
 const injectMesagingInfos = (clientId: string) => {
-  const html = fse.readFileSync('./scripts/chat.html').toString()
+  const html = fse.readFileSync('./scripts/assets/chat.html').toString()
   return html.replace('MESSAGING_ENDPOINT_URL', messagingEndpoint).replace('CLIENT_ID', clientId || '')
 }
 
@@ -27,19 +27,19 @@ const getClientId = async (botId: string) => {
 
   if (!config.messaging) {
     console.info('No messaging configuration found, creating a new one... ')
-    config.messaging = await createMessagingId()
+    config.messaging = await createMessagingClient()
 
     return fse.writeJsonSync(configPath, config)
   }
 
   const { id, token } = config.messaging
-  if (await isRegistered(id, token)) {
+  if (await areCredentialsValid(id, token)) {
     console.info(`Using client ${id}`)
     return id
   } else {
-    console.info(`Client ${id} is not properly registered, creating a new id/token pair...`)
+    console.info(`Client ${id} doesn't exist, creating a new one...`)
 
-    config.messaging = await createMessagingId()
+    config.messaging = await createMessagingClient()
     console.info(`Created client ${config.messaging.id}`)
 
     fse.writeJsonSync(configPath, config)
@@ -67,7 +67,7 @@ const app = express()
 
 app.get('/:botId?', async (req, res) => {
   const clientId = await getClientId(req.params.botId)
-  const html = fixMessagingHtml(clientId)
+  const html = injectMesagingInfos(clientId)
 
   res.setHeader('Content-Type', 'text/html')
   res.send(html)

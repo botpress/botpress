@@ -9,6 +9,7 @@ The botpress runtime is a lightweight version of botpress that runs on the cloud
 ```js
 ENABLE_EXPERIMENTAL_CONVERSE=true
 MESSAGING_ENDPOINT=http://localhost:3100
+ENABLE_EXPERIMENTAL_SOCKET=true
 ```
 
 2. Restart the server
@@ -17,7 +18,7 @@ MESSAGING_ENDPOINT=http://localhost:3100
 5. To fix the messaging config of your bot, open the page `http://localhost:5000/id-of-bot` (if you use the sample, then `test-bot`)
 6. Restart the server (if the bot couldn't mount properly)
 
-You can also load a specific client id directly using `http://localhost:5000?clientId=my-id` or even use the official messaging server using `&messagingEndpoint=https://messaging.botpress.dev`
+You can also load a specific client id directly using `http://localhost:5000?clientId=my-id` or even use the staging messaging server using `&messagingEndpoint=https://messaging.botpress.dev`
 
 ## SDK
 
