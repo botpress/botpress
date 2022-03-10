@@ -5,6 +5,7 @@ import { IStanEngine } from 'src/backend/stan'
 import pickSpellChecked from '../../election/spellcheck-handler'
 import { mapPredictOutput } from '../../stan/api-mapper'
 import { EventUnderstanding } from '../typings'
+import { getLanguageOrder } from './lang-order'
 
 interface BotDefinition {
   botId: string
@@ -42,11 +43,11 @@ export class ScopedPredictionHandler {
 
     let nluResults: RawEventUnderstanding | undefined
 
-    const isDefined = _.negate(_.isUndefined)
-    const languagesToTry = _([detectedLanguage, anticipatedLanguage, defaultLanguage])
-      .filter(isDefined)
-      .uniq()
-      .value()
+    const languagesToTry = getLanguageOrder({
+      predictedLanguage: detectedLanguage,
+      anticipatedLanguage,
+      defaultLanguage
+    })
 
     for (const lang of languagesToTry) {
       const res = await this.tryPredictInLanguage(textInput, lang)
