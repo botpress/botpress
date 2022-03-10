@@ -43,11 +43,14 @@ export class ScopedPredictionHandler {
 
     let nluResults: RawEventUnderstanding | undefined
 
-    const languagesToTry = getLanguageOrder({
-      predictedLanguage: detectedLanguage,
-      anticipatedLanguage,
-      defaultLanguage
-    })
+    const languagesToTry = getLanguageOrder(
+      {
+        predictedLanguage: detectedLanguage,
+        anticipatedLanguage,
+        defaultLanguage
+      },
+      process.env.NLU_LANGUAGE_ORDER || 'pad'
+    )
 
     for (const lang of languagesToTry) {
       const res = await this.tryPredictInLanguage(textInput, lang)
