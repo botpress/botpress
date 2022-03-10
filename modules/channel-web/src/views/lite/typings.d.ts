@@ -223,10 +223,10 @@ export interface Config {
   chatId?: string
   /** CSS class to be applied to iframe */
   className?: string
-  /** Force the display to use a specific mode (fullscreen or Embedded)
+  /** Force the display to use a specific mode (Fullscreen or Embedded)
    * Defaults to 'Embedded'
    */
-  viewMode?: 'Embedded' | string
+  viewMode?: 'Embedded' | 'Fullscreen'
 }
 
 type OverridableComponents = 'below_conversation' | 'before_container' | 'composer'
