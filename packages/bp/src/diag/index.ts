@@ -6,7 +6,6 @@ import '../sdk/rewire'
 import { BotConfig } from 'botpress/sdk'
 
 import chalk from 'chalk'
-import { makeNLUPassword } from 'common/nlu-token'
 import { Workspace } from 'common/typings'
 import { BotpressApp, createApp } from 'core/app/core-loader'
 import { getClientsList, getOrCreate as redisFactory, makeRedisKey } from 'core/distributed'
@@ -254,14 +253,8 @@ const testServiceConnections = async () => {
     })
   }
 
-  if (process.NLU_PORT || process.NLU_ENDPOINT) {
-    processes.push({
-      label: 'NLU',
-      port: process.NLU_PORT,
-      endpoint: process.NLU_ENDPOINT,
-      page: 'info',
-      headers: { Authorization: `Bearer ${makeNLUPassword()}` }
-    })
+  if (process.NLU_ENDPOINT) {
+    processes.push({ label: 'NLU', endpoint: process.NLU_ENDPOINT, page: 'info' })
   }
 
   for (const { label, port, endpoint, page, headers } of processes) {
