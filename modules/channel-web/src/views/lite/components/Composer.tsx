@@ -20,13 +20,24 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
   }
 
   componentDidMount() {
-    setTimeout(() => {
-      this.textInput.current.focus()
-    }, 50)
+    this.focus()
 
     observe(this.props.focusedArea, focus => {
       focus.newValue === 'input' && this.textInput.current.focus()
     })
+  }
+
+  componentWillReceiveProps(newProps: Readonly<ComposerProps>) {
+    // Focus on the composer when it's unlocked
+    if (this.props.composerLocked === true && newProps.composerLocked === false) {
+      this.focus()
+    }
+  }
+
+  focus = () => {
+    setTimeout(() => {
+      this.textInput.current.focus()
+    }, 50)
   }
 
   handleKeyPress = async e => {
