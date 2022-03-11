@@ -44,7 +44,18 @@ describe('getGoalFromEvent', () => {
         user: {},
         temp: {},
         bot: {},
-        session: { lastMessages: [], lastGoals: [] },
+        session: {
+          lastMessages: [],
+          lastGoals: [],
+          workflows: {
+            user: {},
+            temp: {},
+            bot: {},
+            session: { lastMessages: [], lastGoals: [], workflows: {} },
+            context: {},
+            __stacktrace: []
+          }
+        },
         context: {},
         __stacktrace: []
       }

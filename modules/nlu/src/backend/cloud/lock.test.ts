@@ -15,7 +15,7 @@ describe('getLock', () => {
     expect(fn).not.toHaveBeenCalled()
   })
 
-  it('should wait for lock before updating value', async done => {
+  it('should wait for lock before updating value', async () => {
     const lock = Locker()
 
     let value = ''
@@ -35,9 +35,11 @@ describe('getLock', () => {
     value = 'expected'
     expect(value).toEqual('expected')
 
-    setTimeout(() => {
-      expect(value).toEqual('expected')
-      done!()
-    }, 200)
+    await new Promise(resolve => {
+      setTimeout(() => {
+        expect(value).toEqual('expected')
+        resolve()
+      }, 200)
+    })
   })
 })
