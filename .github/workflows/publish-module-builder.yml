@@ -27,7 +27,7 @@ jobs:
             echo ::set-output name=release::"true"
             TAGS+=("${VERSION[@]/#/${DOCKER_IMAGE}:}")
             echo "Will publish tags $TAGS"
-          el 
+          else
             echo "Invalid tag format, use module-builder-vXXX.XXX.XXX"
           fi
           GITHUB_REGISTRY="ghcr.io/${{ github.repository_owner }}/${DOCKER_IMAGE}"
