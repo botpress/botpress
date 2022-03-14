@@ -22,7 +22,7 @@ jobs:
           TAGS=()
           if [[ $TAG =~ $VALID_TAG ]]; then
             echo "Tag is valid"
-            VERSION+=($(echo ${TAG} | sed -r 's/v//')) # transform v12.23.0 to 12.23.0
+            VERSION+=($(echo ${TAG} | sed -r 's/module-builder-v//')) # transform module-builder-v12.23.0 to 12.23.0
             VERSION+=('latest')
             VERSION+=($(echo ${TAG} | sed -r 's/\./_/g')) # Transform v12.13.0 to v12_13_0 ## Added backward compatibility
             echo ::set-output name=release::"true"
