@@ -2,7 +2,7 @@ name: Publish and release module builder
 on:
   push:
     tags:
-      - "module-builder-v*" # Push events to matching bpib-v*
+      - "module-builder-v*" # Push events to matching module-builder-v*
 
 jobs:
   test_module_builder:
@@ -15,18 +15,20 @@ jobs:
         id: prep
         run: |
           TAG=$(echo $(git describe ${{ github.sha }} --tags)) ## Get the tags from the SHA hash
-          echo "Build with tag $TAG"
+          echo "Building with origin tag $TAG"
           VALID_TAG="^module-builder-v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"  ## Will match Tags in the following format v123.231.123 or v1.2.3 will discard the following format v1.2.4-<revision>
           DOCKER_IMAGE=botpress/module-builder
           VERSION=()
           TAGS=()
           if [[ $TAG =~ $VALID_TAG ]]; then
-            echo "Tag is valid"
             VERSION+=($(echo ${TAG} | sed -r 's/module-builder-v//')) # transform module-builder-v12.23.0 to 12.23.0
             VERSION+=('latest')
             VERSION+=($(echo ${TAG} | sed -r 's/\./_/g')) # Transform v12.13.0 to v12_13_0 ## Added backward compatibility
             echo ::set-output name=release::"true"
             TAGS+=("${VERSION[@]/#/${DOCKER_IMAGE}:}")
+            echo "Will publish tags $TAGS"
+          el 
+            echo "Invalid tag format, use module-builder-vXXX.XXX.XXX"
           fi
           GITHUB_REGISTRY="ghcr.io/${{ github.repository_owner }}/${DOCKER_IMAGE}"
           TAGS+=("${VERSION[@]/#/${GITHUB_REGISTRY}:}")
