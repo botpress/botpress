@@ -26,12 +26,12 @@ jobs:
             VERSION+=($(echo ${TAG} | sed -r 's/\./_/g')) # Transform v12.13.0 to v12_13_0 ## Added backward compatibility
             echo ::set-output name=release::"true"
             TAGS+=("${VERSION[@]/#/${DOCKER_IMAGE}:}")
-            echo "Will publish tags $TAGS"
           else
             echo "Invalid tag format, use module-builder-vXXX.XXX.XXX"
           fi
           GITHUB_REGISTRY="ghcr.io/${{ github.repository_owner }}/${DOCKER_IMAGE}"
           TAGS+=("${VERSION[@]/#/${GITHUB_REGISTRY}:}")
+          echo "Will publish tags $TAGS"
           IFS=,
           echo ::set-output name=version::${VERSION[*]}
           echo ::set-output name=tags::"${TAGS[*]}"
