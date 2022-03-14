@@ -11,15 +11,6 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v2.1.0
-      - name: Build
-        run: |
-          docker build -t module-builder-test -f build/module-builder/Dockerfile .
-      - name: Build has failed
-        if: ${{ failure() }}
-        uses: rtCamp/action-slack-notify@v2
-        env:
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK_GH_ACTIONS }}
-          SLACK_COLOR: ${{ job.status }}
       - name: Prepare
         id: prep
         run: |
