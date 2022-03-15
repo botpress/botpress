@@ -37,19 +37,17 @@ const NewFileModal: FC<Props> = props => {
   const submit = async e => {
     e.preventDefault()
 
-    const finalName = name.endsWith('.js') || name.endsWith('.json') ? name : `${name}.js`
+    const isJs = name.endsWith('.js')
+    const isJson = name.endsWith('.json')
+    const finalName = isJs || isJson ? name : `${name}.js`
 
-    let content
-    switch (props.selectedType) {
-      case 'action_legacy':
-        content = legacyAction
-        break
-      case 'action_http':
-        content = httpAction
-        break
-      default:
-        content = ' '
-        break
+    let content = ' '
+    if (props.selectedType === 'action_legacy' && isJs) {
+      content = legacyAction
+    } else if (props.selectedType === 'action_http' && isJs) {
+      content = httpAction
+    } else if (isJson) {
+      content = '{\n\t\n}'
     }
 
     await props.openFile({
