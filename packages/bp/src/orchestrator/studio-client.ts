@@ -56,6 +56,9 @@ export const studioActions = {
     try {
       await studioClient?.post('/setDebugScopes', { scopes })
     } catch {}
+  },
+  invalidateCmsForBot: async (botId: string) => {
+    await studioClient?.post('/invalidateCmsForBot', { botId })
   }
 }
 
