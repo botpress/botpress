@@ -1,7 +1,7 @@
 name: Publish and release module builder
 on:
   pull_request:
-    types: - edited
+    types: [edited]
 jobs:
   publish_module_builder:
     name: Build and publish module builder
