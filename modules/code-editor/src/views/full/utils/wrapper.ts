@@ -1,3 +1,5 @@
+import path from 'path'
+
 import { EditableFile } from '../../../backend/typings'
 import { HOOK_SIGNATURES } from '../../../typings/hooks'
 
@@ -12,13 +14,14 @@ const ACTION_LEGACY_SIGNATURE =
 
 const wrapper = {
   add: (file: EditableFile, content: string) => {
-    const { type, hookType, botId } = file
+    const { type, hookType, name } = file
+    const isJs = path.extname(name) === '.js'
 
-    if (type === 'action_legacy') {
+    if (type === 'action_legacy' && isJs) {
       return `${ACTION_LEGACY_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
-    } else if (type === 'action_http') {
+    } else if (type === 'action_http' && isJs) {
       return `${ACTION_HTTP_SIGNATURE} {\n  ${START_COMMENT}\n\n${content}\n\n  ${END_COMMENT}\n}`
-    } else if (type === 'hook' && HOOK_SIGNATURES[hookType]) {
+    } else if (type === 'hook' && HOOK_SIGNATURES[hookType] && isJs) {
       let signature = HOOK_SIGNATURES[hookType]
       if (signature.includes('\n')) {
         signature = `${signature.substring(0, signature.length - 1)}\n)`
@@ -98,8 +101,13 @@ const getContentZone = (lines: string[]) => {
     startLine += 2
   }
 
-  const endLine = findLastIndex(lines, x => x.includes(END_COMMENT))
+  let endLine = findLastIndex(lines, x => x.includes(END_COMMENT))
   const noContent = startLine > endLine
+
+  // Fix for files which doesn't have wrappers
+  if (endLine === -1) {
+    endLine = lines.length
+  }
 
   return { startLine, endLine, noContent }
 }
