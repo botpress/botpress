@@ -4,7 +4,7 @@ on:
     types: [edited]
 jobs:
   publish_module_builder:
-    if: ${{ github.base_ref == 'module-builder-release/v0.0.3' }}
+    #if: ${{ github.base_ref == 'module-builder-release/v0.0.3' }}
     name: Build and publish module builder
     runs-on: ubuntu-latest
     steps:
@@ -15,6 +15,7 @@ jobs:
         run: |
           BRANCH_NAME="$GITHUB_HEAD_REF"
           echo "Building with origin Branch name $BRANCH_NAME"
+          echo "This is base ref: ${{ github.base_ref }}"
           VALID_BRANCH_NAME="^module-builder-release/v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"  ## Will match Tags in the following format v123.231.123 or v1.2.3 will discard the following format v1.2.4-<revision>
           DOCKER_IMAGE=botpress/module-builder
           if [[ $BRANCH_NAME =~ $VALID_BRANCH_NAME ]]; then
