@@ -30,6 +30,30 @@ const config: Config.InitialOptions = {
       testEnvironment: 'node'
     },
     {
+      rootDir: '.',
+      displayName: { name: 'modules', color: 'red' },
+      globals: {
+        'ts-jest': {
+          tsconfig: '<rootDir>/packages/bp/tsconfig.json',
+          diagnostics: false
+        }
+      },
+      transform: {
+        ...tsjPreset.transform
+      },
+      setupFiles: ['<rootDir>/packages/bp/src/jest-before.ts'],
+      globalSetup: '<rootDir>/packages/bp/src/jest-rewire.ts',
+      resolver: '<rootDir>/packages/bp/src/jest-resolver.js',
+      resetModules: true,
+      moduleNameMapper: {
+        '^botpress/sdk$': '<rootDir>/packages/bp/src/core/app/sdk_impl'
+      },
+      testMatch: ['<rootDir>/modules/**/(src|test)/**/*.test.(ts|js)'],
+      testPathIgnorePatterns: ['.*(integration|mock)\\.test\\.(?:ts|js)', '.*\\.u\\.test\\.(?:ts|js)'],
+      modulePaths: ['<rootDir>/packages/bp/src/'],
+      testEnvironment: 'node'
+    },
+    {
       rootDir: './packages/ui-shared-lite',
       displayName: { name: 'ui-shared-lite', color: 'yellow' },
       clearMocks: true,

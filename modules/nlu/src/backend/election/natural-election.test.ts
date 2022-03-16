@@ -1,4 +1,4 @@
-import '../../../../../packages/bp/src/sdk/botpress'
+import 'botpress/sdk'
 import { extractElectedIntentSlot } from './natural-election'
 import { fakeEventUnderstanding } from '../../test/types'
 
