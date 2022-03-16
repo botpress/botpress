@@ -7,7 +7,7 @@ on:
 jobs:
   publish_module_builder:
     name: Build and publish module builder
-    if: github.event.pull_request.merged == true
+    if: ${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref,'module-builder-release/v') }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
