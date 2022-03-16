@@ -2,7 +2,7 @@ name: Publish and release module builder
 on:
   pull_request:
     types: [edited]
-  branches:
+    branches:
     - 'module-builder-release/v*'
 jobs:
   publish_module_builder:
