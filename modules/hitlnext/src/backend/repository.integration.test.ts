@@ -1,3 +1,5 @@
+;(global as any).DEBUG = () => () => {}
+
 import Repository from './repository'
 import Database from '../../../../packages/bp/src/core/database'
 
