@@ -2,9 +2,6 @@ name: Publish and release module builder
 on:
   pull_request:
     types: - edited
-    #branches:
-    #  - 'module-builder-release/v*' # Pull Request events with branch names matching module-builder-release/v*
-
 jobs:
   publish_module_builder:
     name: Build and publish module builder
