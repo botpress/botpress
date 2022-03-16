@@ -2,6 +2,8 @@ name: Publish and release module builder
 on:
   pull_request:
     types: [edited]
+  branches:
+    - 'module-builder-release/v*'
 jobs:
   publish_module_builder:
     name: Build and publish module builder
@@ -13,8 +15,8 @@ jobs:
         id: prep
         run: |
           BRANCH_NAME=${GITHUB_REF##*/}
-          echo "Building with origin Branch name $BRANCH_NAME | $GITHUB_REF"
-          VALID_BRANCH_NAME="^module-builder-v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"  ## Will match Tags in the following format v123.231.123 or v1.2.3 will discard the following format v1.2.4-<revision>
+          echo "Building with origin Branch name $BRANCH_NAME"
+          VALID_BRANCH_NAME="^module-builder-release/v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"  ## Will match Tags in the following format v123.231.123 or v1.2.3 will discard the following format v1.2.4-<revision>
           DOCKER_IMAGE=botpress/module-builder
           if [[ $BRANCH_NAME =~ $VALID_BRANCH_NAME ]]; then
             VERSION=($(echo ${BRANCH_NAME} | sed -r 's/module-builder-release/v//')) # transform module-builder-release/v0.0.0 to 0.0.0
