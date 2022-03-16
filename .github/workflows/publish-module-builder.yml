@@ -1,7 +1,7 @@
 name: Publish and release module builder
 on:
   pull_request:
-    types: [edited]
+    types: [closed]
 jobs:
   publish_module_builder:
     name: Build and publish module builder
@@ -15,6 +15,7 @@ jobs:
           BRANCH_NAME="$GITHUB_HEAD_REF"
           echo "Building with origin Branch name $BRANCH_NAME"
           echo "This is base ref: ${{ github.base_ref }}"
+          echo "Is merged ?? ${{ github.event.pull_request.merged }}"
           VALID_BRANCH_NAME="^module-builder-release/v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"  ## Will match Tags in the following format v123.231.123 or v1.2.3 will discard the following format v1.2.4-<revision>
           DOCKER_IMAGE=botpress/module-builder
           if [[ $BRANCH_NAME =~ $VALID_BRANCH_NAME ]]; then
