@@ -13,7 +13,7 @@ jobs:
         id: prep
         run: |
           BRANCH_NAME=${GITHUB_REF##*/}
-          echo "Building with origin Branch name $BRANCH"
+          echo "Building with origin Branch name $BRANCH_NAME | $GITHUB_REF"
           VALID_BRANCH_NAME="^module-builder-v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"  ## Will match Tags in the following format v123.231.123 or v1.2.3 will discard the following format v1.2.4-<revision>
           DOCKER_IMAGE=botpress/module-builder
           if [[ $BRANCH_NAME =~ $VALID_BRANCH_NAME ]]; then
