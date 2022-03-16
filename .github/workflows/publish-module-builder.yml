@@ -1,7 +1,9 @@
 name: Publish and release module builder
+
 on:
   pull_request:
-    types: [closed]
+    types: [ closed ]
+
 jobs:
   publish_module_builder:
     name: Build and publish module builder
