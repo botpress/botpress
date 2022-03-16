@@ -3,10 +3,10 @@ on:
   pull_request:
     types: [ edited ]
     branches:
-      - "module-builder-release/v**" # Pull Request events with branch names matching module-builder-release/v*
+      - 'module-builder-release/v*' # Pull Request events with branch names matching module-builder-release/v*
 
 jobs:
-  test_module_builder:
+  publish_module_builder:
     name: Build and publish module builder
     runs-on: ubuntu-latest
     steps:
