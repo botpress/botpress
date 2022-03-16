@@ -4,7 +4,6 @@ on:
     types: [edited]
 jobs:
   publish_module_builder:
-    #if: ${{ github.base_ref == 'module-builder-release/v0.0.3' }}
     name: Build and publish module builder
     runs-on: ubuntu-latest
     steps:
