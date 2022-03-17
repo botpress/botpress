@@ -12,6 +12,8 @@ import { ConfigProvider } from 'core/config'
 import { WellKnownFlags } from 'core/dialog'
 import { EventEngine, Event, EventRepository } from 'core/events'
 import { TYPES } from 'core/types'
+import express from 'express'
+import { createProxyMiddleware } from 'http-proxy-middleware'
 import { inject, injectable, postConstruct } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import LRUCache from 'lru-cache'
@@ -86,6 +88,30 @@ export class MessagingService {
     this.messaging.url = this.getMessagingUrl()
   }
 
+  async setupProxy(app: express.Express, baseApiPath: string) {
+    app.use(
+      `${baseApiPath}/messaging`,
+      createProxyMiddleware({
+        pathRewrite: path => {
+          const shortPath = path.replace(`${baseApiPath}/messaging`, '')
+          const botIdAndChannelPath = shortPath
+            .replace('/webhooks', '')
+            .replace('/v1', '')
+            .substring(1)
+          const scopeId = botIdAndChannelPath.substring(0, botIdAndChannelPath.indexOf('/'))
+          const clientId = this.clientIdToBotId[scopeId] ? scopeId : this.botIdToClientId[scopeId]
+
+          return shortPath.replace(scopeId, clientId)
+        },
+        router: () => {
+          return `http://localhost:${process.MESSAGING_PORT}`
+        },
+        changeOrigin: false,
+        logLevel: 'silent'
+      })
+    )
+  }
+
   async loadMessagingForBot(botId: string) {
     if (!this.isExternal) {
       await AppLifecycle.waitFor(AppLifecycleEvents.STUDIO_READY)
@@ -105,8 +131,14 @@ export class MessagingService {
       delete messaging.channels
     }
 
-    const { id, token } = await this.messaging.syncClient({ name: botId, id: messaging.id, token: messaging.token })
-    if (id !== messaging.id || token !== messaging.token) {
+    let clientIdExists = false
+    if (messaging.id?.length && messaging.token?.length) {
+      this.messaging.start(messaging.id, { clientToken: messaging.token })
+      clientIdExists = await this.messaging.getClient(messaging.id)
+    }
+
+    if (!clientIdExists) {
+      const { id, token } = await this.messaging.createClient()
       messaging = {
         ...messaging,
         id,
@@ -116,31 +148,16 @@ export class MessagingService {
       await this.configProvider.mergeBotConfig(botId, { messaging })
     }
 
-    this.clientIdToBotId[id] = botId
-    this.botIdToClientId[botId] = id
+    this.clientIdToBotId[messaging.id!] = botId
+    this.botIdToClientId[botId] = messaging.id!
+
     this.messaging.start(messaging.id!, { clientToken: messaging.token })
-
-    const webhookUrl = this.isExternal
-      ? `${process.EXTERNAL_URL}/api/v1/chat/receive`
-      : // We set a dummy webhook to get back a webhook token. The actual url that will be called is SPINNED_URL
-        'http://dummy.com'
-
-    const setupConfig = {
+    const { webhooks } = await this.messaging.sync(messaging.id!, {
       channels: messaging.channels,
-      webhooks: [{ url: webhookUrl }]
-    }
+      webhooks: [{ url: this.isExternal ? `${process.EXTERNAL_URL}/api/v1/chat/receive` : 'http://dummy.com' }]
+    })
 
-    const { webhooks } = await this.messaging.sync(messaging.id!, setupConfig)
-
-    let webhookToken: string | undefined = undefined
-    if (webhooks?.length) {
-      for (const webhook of webhooks) {
-        if (webhook.url === webhookUrl) {
-          webhookToken = webhook.token!
-        }
-      }
-    }
-
+    const webhookToken = webhooks[0].token
     this.messaging.start(messaging.id!, { clientToken: messaging.token, webhookToken })
   }
 
