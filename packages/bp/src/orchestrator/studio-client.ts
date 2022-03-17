@@ -60,6 +60,9 @@ export const studioActions = {
   },
   createBot: async (bot: Partial<BotConfig>, template: string) => {
     await studioClient?.post('/createBot', { bot, template })
+  },
+  invalidateCmsForBot: async (botId: string) => {
+    await studioClient?.post('/invalidateCmsForBot', { botId })
   }
 }
 
