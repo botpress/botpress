@@ -1,3 +1,28 @@
+## [12.26.11](https://github.com/botpress/botpress/compare/v12.26.10...v12.26.11) (2022-03-17)
+
+
+### Bug Fixes
+
+* **builtin:** smalltalk qnas have no contexts ([#11533](https://github.com/botpress/botpress/issues/11533)) ([cc398ad](https://github.com/botpress/botpress/commit/cc398ad81ca4e21a67496e2e94d93e3cfe4a5a8b))
+* **channel-web:** focus on composer when it gets unlocked ([#11616](https://github.com/botpress/botpress/issues/11616)) ([94bc6df](https://github.com/botpress/botpress/commit/94bc6df1c019b7656c848679cb942ca83d694789))
+* **code-editor:** minor ux issues ([#11598](https://github.com/botpress/botpress/issues/11598)) ([bcaefe5](https://github.com/botpress/botpress/commit/bcaefe55a6b02e03cf10e123e171655ce463ba78))
+* **core:** add version to connection name ([#11573](https://github.com/botpress/botpress/issues/11573)) ([e28ebb4](https://github.com/botpress/botpress/commit/e28ebb4e83cc2e88c10aee84bfd1c1dd10166baa))
+* **core:** change default timeout ([#11562](https://github.com/botpress/botpress/issues/11562)) ([7d7f84f](https://github.com/botpress/botpress/commit/7d7f84f833b810f05941671610e7dbcd839bc82c))
+* **core:** fix caching issue in CMS between studio and bp ([#11631](https://github.com/botpress/botpress/issues/11631)) ([e3c0c54](https://github.com/botpress/botpress/commit/e3c0c5441f3d1576210581a75ba4fae5153ec4a0)), closes [#5769](https://github.com/botpress/botpress/issues/5769)
+* **core:** revert vm2 ([#11581](https://github.com/botpress/botpress/issues/11581)) ([6b488fe](https://github.com/botpress/botpress/commit/6b488fe1b4b71c4a3f85e7c95287a6be8d09e48f))
+* **core:** small changes to diagnostics ([#11563](https://github.com/botpress/botpress/issues/11563)) ([a34619a](https://github.com/botpress/botpress/commit/a34619a1c90624405599556113b9552c765d7e11))
+* **core:** variable in config ([#11548](https://github.com/botpress/botpress/issues/11548)) ([5052058](https://github.com/botpress/botpress/commit/5052058fe81f4b2a0845dcaad069ab351cc1e23a))
+* **messaging:** conversation.started skip dialog engine ([#11551](https://github.com/botpress/botpress/issues/11551)) ([2a65649](https://github.com/botpress/botpress/commit/2a6564968147acf6aa531e8a1cdee98d20a06d93))
+* **messaging:** fix issue with path on external url ([#11574](https://github.com/botpress/botpress/issues/11574)) ([884d164](https://github.com/botpress/botpress/commit/884d164f6b5efcb171f3596ddffd863586dac450))
+
+
+### Features
+
+* **auth:** implement SAML SLO ([#11599](https://github.com/botpress/botpress/issues/11599)) ([368addd](https://github.com/botpress/botpress/commit/368addd3e6c9db5ebc23d1ffa023eaf3de15a9ba))
+* **web:** allow fullscreen mode with embedded ([#11607](https://github.com/botpress/botpress/issues/11607)) ([3f656ec](https://github.com/botpress/botpress/commit/3f656ec29bd9ea1c8273c261ebcc4dcaef9ec8cd))
+
+
+
 ## [12.26.10](https://github.com/botpress/botpress/compare/v12.26.9...v12.26.10) (2022-02-09)
 
 
