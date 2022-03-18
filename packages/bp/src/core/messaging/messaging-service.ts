@@ -96,15 +96,7 @@ export class MessagingService {
       `${baseApiPath}/messaging`,
       createProxyMiddleware({
         pathRewrite: path => {
-          const shortPath = path.replace(`${baseApiPath}/messaging`, '')
-          const botIdAndChannelPath = shortPath
-            .replace('/webhooks', '')
-            .replace('/v1', '')
-            .substring(1)
-          const scopeId = botIdAndChannelPath.substring(0, botIdAndChannelPath.indexOf('/'))
-          const clientId = this.clientIdToBotId[scopeId] ? scopeId : this.botIdToClientId[scopeId]
-
-          return shortPath.replace(scopeId, clientId)
+          return path.replace(`${baseApiPath}/messaging`, '')
         },
         router: () => {
           return `http://localhost:${process.MESSAGING_PORT}`
@@ -151,6 +143,7 @@ export class MessagingService {
       await this.configProvider.mergeBotConfig(botId, { messaging })
     }
 
+    await this.messaging.renameClient(messaging.id!, botId)
     this.clientIdToBotId[messaging.id!] = botId
     this.botIdToClientId[botId] = messaging.id!
 
