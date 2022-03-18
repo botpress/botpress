@@ -13,6 +13,7 @@ import ChatAuthResult from '~/auth/ChatAuthResult'
 import LoginPage from '~/auth/Login'
 import LoginContainer from '~/auth/LoginContainer'
 import RegisterPage from '~/auth/Register'
+import Channels from '~/channels'
 import Alerting from '~/health/alerting'
 import Monitoring from '~/health/monitoring'
 import Checklist from '~/management/checklist'
@@ -100,6 +101,7 @@ export const makeMainRoutes = () => {
                 <Route path="/server/languages" component={Languages} />
                 <Route path="/server/license" component={LicenseStatus} />
                 <Route path="/server/alerting" component={Alerting} />
+                <Route path="/channels" component={Channels} />
                 <Route path="/workspace/:workspaceId?/bots" component={Bots} />
                 <Route path="/workspace/:workspaceId?/users" component={Collaborators} />
                 <Route path="/workspace/:workspaceId?/roles" component={Roles} />
