@@ -7,6 +7,7 @@ import {
 } from '@botpress/messaging-client'
 import { AxiosRequestConfig } from 'axios'
 import { IO, Logger, MessagingConfig } from 'botpress/sdk'
+import chalk from 'chalk'
 import { formatUrl, isBpUrl } from 'common/url'
 import { ConfigProvider } from 'core/config'
 import { WellKnownFlags } from 'core/dialog'
@@ -14,7 +15,7 @@ import { EventEngine, Event, EventRepository } from 'core/events'
 import { TYPES } from 'core/types'
 import express from 'express'
 import { createProxyMiddleware } from 'http-proxy-middleware'
-import { inject, injectable, postConstruct } from 'inversify'
+import { inject, injectable, postConstruct, tagged } from 'inversify'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import LRUCache from 'lru-cache'
 import ms from 'ms'
@@ -35,7 +36,9 @@ export class MessagingService {
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.EventRepository) private eventRepo: EventRepository,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
-    @inject(TYPES.Logger) private logger: Logger
+    @inject(TYPES.Logger)
+    @tagged('name', 'Messaging')
+    private logger: Logger
   ) {
     this.isExternal = Boolean(process.core_env.MESSAGING_ENDPOINT)
     this.collectingCache = new LRUCache<string, uuid>({ max: 5000, maxAge: ms('5m') })
@@ -159,6 +162,8 @@ export class MessagingService {
 
     const webhookToken = webhooks[0].token
     this.messaging.start(messaging.id!, { clientToken: messaging.token, webhookToken })
+
+    this.printWebhooks(botId, messaging.channels)
   }
 
   async unloadMessagingForBot(botId: string) {
@@ -191,6 +196,20 @@ export class MessagingService {
       this.newUsers = 0
     }
     return count
+  }
+
+  private printWebhooks(botId: string, channels: any) {
+    for (const key in channels) {
+      this.logger
+        .forBot(botId)
+        .info(
+          `[${botId}] ${chalk.bold(key.charAt(0).toUpperCase() + key.slice(1))} webhook ${chalk.dim(
+            `${process.EXTERNAL_URL}/api/v1/messaging/webhooks${
+              channels[key].version === '1.0.0' ? '/v1' : ''
+            }/${botId}/${key}`
+          )}`
+        )
+    }
   }
 
   private handleUserNewEvent() {
