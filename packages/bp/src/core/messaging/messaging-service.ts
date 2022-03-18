@@ -192,16 +192,24 @@ export class MessagingService {
   }
 
   private printWebhooks(botId: string, channels: any) {
-    for (const key in channels) {
-      this.logger
-        .forBot(botId)
-        .info(
-          `[${botId}] ${chalk.bold(key.charAt(0).toUpperCase() + key.slice(1))} webhook ${chalk.dim(
-            `${process.EXTERNAL_URL}/api/v1/messaging/webhooks${
-              channels[key].version === '1.0.0' ? '/v1' : ''
-            }/${botId}/${key}`
-          )}`
-        )
+    const webhooksSpecialCases = { slack: ['interactive', 'events'], vonage: ['inbound', 'status'] }
+
+    for (const [key, config] of Object.entries<any>(channels)) {
+      const webhooks = config.version === '1.0.0' ? undefined : webhooksSpecialCases[key]
+
+      for (const webhook of webhooks || [undefined]) {
+        this.logger
+          .forBot(botId)
+          .info(
+            `[${botId}] ${chalk.bold(key.charAt(0).toUpperCase() + key.slice(1))} ${
+              webhook ? `${webhook} ` : ''
+            }webhook ${chalk.dim(
+              `${process.EXTERNAL_URL}/api/v1/messaging/webhooks${
+                channels[key].version === '1.0.0' ? '/v1' : ''
+              }/${botId}/${key}${webhook ? `/${webhook}` : ''}`
+            )}`
+          )
+      }
     }
   }
 
