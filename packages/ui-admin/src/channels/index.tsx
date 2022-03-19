@@ -1,17 +1,16 @@
-import cx from 'classnames'
 import React, { FC, Fragment } from 'react'
 import { connect, ConnectedProps } from 'react-redux'
-import { generatePath } from 'react-router'
-import { Link } from 'react-router-dom'
 import PageContainer from '../app/common/PageContainer'
 import { AppState } from '../app/rootReducer'
+import { Item } from './Item'
 import style from './style.scss'
 
 type Props = ConnectedProps<typeof connector>
 
 const data = [
   {
-    id: 'brobro',
+    botId: 'brobro',
+    clientId: '756a26ac-a96b-4e43-8c89-d764f398ef74',
     channels: {
       telegram: {
         botToken: 'sdsds'
@@ -19,7 +18,8 @@ const data = [
     }
   },
   {
-    id: 'gggg',
+    botId: 'gggg',
+    clientId: 'd1c45555-be08-44bf-9338-c23d37d8e810',
     channels: {
       telegram: {
         botToken: 'dfdfdf'
@@ -31,14 +31,10 @@ const data = [
 const Channels: FC<Props> = props => {
   return (
     <PageContainer title={'Channels'}>
-      <div className={cx(style.table)}>
+      <div className={style.checklist}>
         {data.map(bot => (
-          <Fragment key={bot.id}>
-            <div className={cx('bp_table-row', style.tableRow)} key={bot.id}>
-              <Link to={generatePath(`/channels/${bot.id}`)}>
-                <span>{bot.id}</span>
-              </Link>
-            </div>
+          <Fragment key={bot.botId}>
+            <Item botId={bot.botId} clientId={bot.clientId}></Item>
           </Fragment>
         ))}
       </div>

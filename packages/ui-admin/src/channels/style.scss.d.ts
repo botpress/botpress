@@ -2,6 +2,13 @@
 // Please do not change this file!
 interface CssExports {
   'actions': string;
+  'bp3-tab': string;
+  'channels': string;
+  'checklist': string;
+  'formChannel': string;
+  'formChannelInput': string;
+  'header': string;
+  'item': string;
   'spaced': string;
   'table': string;
   'tableRow': string;
