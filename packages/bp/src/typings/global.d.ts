@@ -93,7 +93,7 @@ declare interface BotpressEnvironmentVariables {
 
   /** Admin key of the messaging server to make calls to admin routes */
   readonly MESSAGING_ADMIN_KEY?: string
-  
+
   /** The URL used to reach an external NLU server */
   readonly NLU_ENDPOINT?: string
 

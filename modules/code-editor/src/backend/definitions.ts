@@ -86,7 +86,7 @@ export const FileTypes: { [type: string]: FileDefinition } = {
       shouldSyncToDisk: true
     },
     canDelete: file => {
-      return !file.name.endsWith('.json')
+      return !['package.json', 'package-lock.json'].includes(file.name)
     }
   },
   main_config: {

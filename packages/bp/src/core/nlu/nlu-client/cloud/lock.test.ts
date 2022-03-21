@@ -38,7 +38,7 @@ describe('getLock', () => {
     await new Promise(resolve => {
       setTimeout(() => {
         expect(value).toEqual('expected')
-        resolve(undefined)
+        resolve()
       }, 200)
     })
   })
