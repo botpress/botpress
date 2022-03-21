@@ -1,3 +1,12 @@
+## [12.26.12](https://github.com/botpress/botpress/compare/v12.26.11...v12.26.12) (2022-03-21)
+
+
+### Bug Fixes
+
+* **pro:** point to proper commit ([#11651](https://github.com/botpress/botpress/issues/11651)) ([0554099](https://github.com/botpress/botpress/commit/055409952b21d6cb31f96b2d479de614f22f3d23))
+
+
+
 ## [12.26.11](https://github.com/botpress/botpress/compare/v12.26.10...v12.26.11) (2022-03-17)
 
 
