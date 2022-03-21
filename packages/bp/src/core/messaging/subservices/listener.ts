@@ -9,11 +9,11 @@ export class MessagingListener {
   private newUsers: number = 0
 
   constructor(
+    private eventEngine: EventEngine,
+    private eventRepo: EventRepository,
     private interactor: MessagingInteractor,
     private lifetime: MessagingLifetime,
-    private collector: MessagingCollector,
-    private eventEngine: EventEngine,
-    private eventRepo: EventRepository
+    private collector: MessagingCollector
   ) {}
 
   async setup() {

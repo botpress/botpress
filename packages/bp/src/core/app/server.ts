@@ -285,7 +285,7 @@ export class HTTPServer {
     const config = botpressConfig.httpServer
     await this.sdkApiRouter.initialize()
 
-    await this.messagingService.setupProxy(this.app, BASE_API_PATH)
+    await this.messagingService.proxy.setup(this.app, BASE_API_PATH)
 
     /**
      * The loading of language models can take some time, access to Botpress is disabled until it is completed

@@ -3,8 +3,6 @@ import { ConfigProvider } from 'core/config'
 import Database from 'core/database'
 import { EventEngine, EventRepository } from 'core/events'
 import { TYPES } from 'core/types'
-import express from 'express'
-import { createProxyMiddleware } from 'http-proxy-middleware'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
 import { MessagingChannels } from './subservices/channels'
 import { MessagingCollector } from './subservices/collector'
@@ -12,15 +10,17 @@ import { MessagingInteractor } from './subservices/interactor'
 import { MessagingLifetime } from './subservices/lifetime'
 import { MessagingListener } from './subservices/listener'
 import { MessagingMiddleware } from './subservices/middleware'
+import { MessagingProxy } from './subservices/proxy'
 
 @injectable()
 export class MessagingService {
+  public readonly channels: MessagingChannels
   public readonly interactor: MessagingInteractor
   public readonly lifetime: MessagingLifetime
   public readonly collector: MessagingCollector
   public readonly listener: MessagingListener
-  public readonly channels: MessagingChannels
   public readonly middleware: MessagingMiddleware
+  public readonly proxy: MessagingProxy
 
   constructor(
     @inject(TYPES.Database) private database: Database,
@@ -31,18 +31,19 @@ export class MessagingService {
     @tagged('name', 'Messaging')
     private logger: Logger
   ) {
+    this.channels = new MessagingChannels(this.database)
     this.interactor = new MessagingInteractor(this.logger)
-    this.lifetime = new MessagingLifetime(this.logger, this.interactor, this.configProvider)
-    this.collector = new MessagingCollector(this.logger, this.interactor, this.lifetime, this.eventEngine)
+    this.lifetime = new MessagingLifetime(this.logger, this.configProvider, this.interactor)
+    this.collector = new MessagingCollector(this.logger, this.eventEngine, this.interactor, this.lifetime)
     this.listener = new MessagingListener(
+      this.eventEngine,
+      this.eventRepo,
       this.interactor,
       this.lifetime,
-      this.collector,
-      this.eventEngine,
-      this.eventRepo
+      this.collector
     )
-    this.channels = new MessagingChannels(this.database)
-    this.middleware = new MessagingMiddleware(this.interactor, this.lifetime, this.collector, this.eventEngine)
+    this.middleware = new MessagingMiddleware(this.eventEngine, this.interactor, this.lifetime, this.collector)
+    this.proxy = new MessagingProxy()
   }
 
   @postConstruct()
@@ -51,21 +52,5 @@ export class MessagingService {
     await this.listener.setup()
     await this.middleware.setup()
     await this.interactor.postSetup()
-  }
-
-  async setupProxy(app: express.Express, baseApiPath: string) {
-    app.use(
-      `${baseApiPath}/messaging`,
-      createProxyMiddleware({
-        pathRewrite: path => {
-          return path.replace(`${baseApiPath}/messaging`, '')
-        },
-        router: () => {
-          return `http://localhost:${process.MESSAGING_PORT}`
-        },
-        changeOrigin: false,
-        logLevel: 'silent'
-      })
-    )
   }
 }

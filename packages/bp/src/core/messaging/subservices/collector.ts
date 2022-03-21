@@ -11,9 +11,9 @@ export class MessagingCollector {
 
   constructor(
     private logger: Logger,
+    private eventEngine: EventEngine,
     private interactor: MessagingInteractor,
-    private lifetime: MessagingLifetime,
-    private eventEngine: EventEngine
+    private lifetime: MessagingLifetime
   ) {
     this.collectingCache = new LRUCache<string, uuid>({ max: 5000, maxAge: ms('5m') })
   }

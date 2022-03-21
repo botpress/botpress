@@ -10,11 +10,9 @@ export class MessagingLifetime {
 
   constructor(
     private logger: Logger,
-    private interactor: MessagingInteractor,
-    private configProvider: ConfigProvider
+    private configProvider: ConfigProvider,
+    private interactor: MessagingInteractor
   ) {}
-
-  async setup() {}
 
   getClientId(botId: string) {
     return this.botIdToClientId[botId]

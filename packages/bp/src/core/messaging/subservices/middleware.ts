@@ -7,10 +7,10 @@ import { MessagingLifetime } from './lifetime'
 
 export class MessagingMiddleware {
   constructor(
+    private eventEngine: EventEngine,
     private interactor: MessagingInteractor,
     private lifetime: MessagingLifetime,
-    private collector: MessagingCollector,
-    private eventEngine: EventEngine
+    private collector: MessagingCollector
   ) {}
 
   async setup() {
