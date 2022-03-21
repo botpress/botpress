@@ -56,6 +56,9 @@ export const studioActions = {
     try {
       await studioClient?.post('/setDebugScopes', { scopes })
     } catch {}
+  },
+  invalidateCmsForBot: async (botId: string) => {
+    await studioClient?.post('/invalidateCmsForBot', { botId })
   }
 }
 
@@ -107,7 +110,8 @@ export const startStudio = async (logger: sdk.Logger, params: WebWorkerParams) =
     APP_SECRET: params.APP_SECRET,
     ROOT_PATH: params.ROOT_PATH,
     SERVER_ID: process.SERVER_ID,
-    BOTPRESS_VERSION: process.BOTPRESS_VERSION
+    BOTPRESS_VERSION: process.BOTPRESS_VERSION,
+    CORE_DISABLE_FILE_LISTENERS: process.core_env.CORE_DISABLE_FILE_LISTENERS?.toString()
   }
 
   // We store the dynamic params so we can reuse them when auto-restarting the studio process

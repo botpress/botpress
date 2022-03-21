@@ -419,6 +419,7 @@ export class BotService {
     await Promise.all(
       botContent.map(async file => destGhost.upsertFile('/', file, await sourceGhost.readFileAsBuffer('/', file)))
     )
+    await studioActions.invalidateCmsForBot(destBotId)
     const workspaceId = await this.workspaceService.getBotWorkspaceId(sourceBotId)
     await this.workspaceService.addBotRef(destBotId, workspaceId)
   }

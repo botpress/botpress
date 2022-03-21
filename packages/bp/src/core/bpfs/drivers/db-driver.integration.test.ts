@@ -132,7 +132,7 @@ createDatabaseSuite('GhostDB Driver', function(database: Database) {
         expect(revisions[0].revision).toHaveLength(8)
         expect(revisions[0].created_by).toBe('admin')
         expect(revisions[0].created_on).toBeDefined()
-        expect(revisions[0].created_on.getTime()).toBeGreaterThan(now.getTime())
+        expect(revisions[0].created_on.getTime()).toBeGreaterThanOrEqual(now.getTime())
       })
 
       it('no prefix', async () => {

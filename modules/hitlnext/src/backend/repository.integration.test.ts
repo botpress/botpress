@@ -1,3 +1,5 @@
+;(global as any).DEBUG = () => () => {}
+
 import Repository from './repository'
 import Database from '../../../../packages/bp/src/core/database'
 
@@ -10,7 +12,7 @@ import migrate from './migrate'
 const logger: MockObject<PersistedConsoleLogger> = createSpyObject<PersistedConsoleLogger>()
 
 createDatabaseSuite('HITLNext - Repository', (database: Database) => {
-  let repo
+  let repo: Repository
   beforeAll(async () => {
     repo = new Repository({ database: database.knex, logger }, {})
     await migrate({ database: database.knex })
@@ -26,8 +28,8 @@ createDatabaseSuite('HITLNext - Repository', (database: Database) => {
 
   describe('getHandoffs', () => {
     it('Returns no handoffs when table is empty', async () => {
-      const handoff = repo.getHandoff(123456)
-      expect(handoff.fulfillmentValue).toBe(undefined)
+      const handoff = await repo.getHandoff('123456')
+      expect(handoff?.fulfillmentValue).toBe(undefined)
     })
   })
 })

@@ -21,7 +21,7 @@ describe('Admin - Logout', () => {
     await clickOn('#btn-menu-user-dropdown')
     await clickOn('#btn-logout')
 
-    const response = await getResponse('/api/v2/admin/auth/logout', 'POST')
+    const response = await getResponse('/api/v2/admin/auth/logout', 'GET')
     const headers = response.request().headers()
 
     let profileStatus: number
