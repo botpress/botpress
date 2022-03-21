@@ -6,12 +6,12 @@ import { TYPES } from 'core/types'
 import express from 'express'
 import { createProxyMiddleware } from 'http-proxy-middleware'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
-import { MessagingChannels } from './channels'
-import { MessagingCollector } from './collector'
-import { MessagingInteractor } from './interactor'
-import { MessagingLifetime } from './lifetime'
-import { MessagingListener } from './listener'
-import { MessagingMiddleware } from './middleware'
+import { MessagingChannels } from './subservices/channels'
+import { MessagingCollector } from './subservices/collector'
+import { MessagingInteractor } from './subservices/interactor'
+import { MessagingLifetime } from './subservices/lifetime'
+import { MessagingListener } from './subservices/listener'
+import { MessagingMiddleware } from './subservices/middleware'
 
 @injectable()
 export class MessagingService {
