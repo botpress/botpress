@@ -13,6 +13,7 @@ class ChannelsRouter extends CustomAdminRouter {
     this.router.get(
       '/clients',
       this.asyncMiddleware(async (req, res) => {
+        const clients = await this.messagingService.channels.listClients()
         res.send(CLIENTS)
       })
     )

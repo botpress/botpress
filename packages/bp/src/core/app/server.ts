@@ -169,6 +169,7 @@ export class HTTPServer {
       jobService,
       logsRepo,
       authStrategies,
+      messagingService,
       this
     )
 

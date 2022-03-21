@@ -646,7 +646,7 @@ export class BotService {
         throw new Error('Supported languages must include the default language of the bot')
       }
 
-      await this.messagingService.loadMessagingForBot(botId)
+      await this.messagingService.lifetime.loadMessagingForBot(botId)
       await this.cms.loadElementsForBot(botId)
       await this.moduleLoader.loadModulesForBot(botId)
 
@@ -685,7 +685,7 @@ export class BotService {
 
     await this.cms.clearElementsFromCache(botId)
     await this.moduleLoader.unloadModulesForBot(botId)
-    await this.messagingService.unloadMessagingForBot(botId)
+    await this.messagingService.lifetime.unloadMessagingForBot(botId)
 
     const api = await createForGlobalHooks()
     await this.hookService.executeHook(new Hooks.AfterBotUnmount(api, botId))
