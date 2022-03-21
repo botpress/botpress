@@ -194,7 +194,7 @@ export class MessagingService {
   private printWebhooks(botId: string, channels: any) {
     const webhooksSpecialCases = { slack: ['interactive', 'events'], vonage: ['inbound', 'status'] }
 
-    for (const [key, config] of Object.entries<any>(channels)) {
+    for (const [key, config] of Object.entries<any>(channels || {})) {
       const webhooks = config.version === '1.0.0' ? undefined : webhooksSpecialCases[key]
 
       for (const webhook of webhooks || [undefined]) {
