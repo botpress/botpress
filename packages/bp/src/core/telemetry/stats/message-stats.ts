@@ -12,7 +12,7 @@ import { TelemetryRepository } from '../telemetry-repository'
 import { TelemetryStats } from './telemetry-stats'
 
 @injectable()
-export class UserStats extends TelemetryStats {
+export class MessageStats extends TelemetryStats {
   protected interval: number
   protected url: string
   protected lock: string
@@ -27,19 +27,19 @@ export class UserStats extends TelemetryStats {
   ) {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = process.TELEMETRY_URL
-    this.lock = 'botpress:telemetry-new-users'
+    this.lock = 'botpress:telemetry-new-messages'
     this.interval = ms('5m')
   }
 
   protected async getStats() {
-    const newUsers = this.messagingService.getNewUsersCount({ resetCount: true })
+    const newMessages = this.messagingService.getNewMessagesCount({ resetCount: true })
 
     return {
       ...buildSchema(await this.getServerStats(), 'server'),
-      event_type: 'new_users',
+      event_type: 'chat_messages',
       event_data: {
         schema: '1.0.0',
-        newUsers
+        newMessages
       }
     }
   }
