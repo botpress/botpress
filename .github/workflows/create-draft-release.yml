@@ -13,11 +13,11 @@ jobs:
 
       - name: Get Release Details
         id: release_details
-        uses: botpress/gh-actions/get_release_details@next
+        uses: botpress/gh-actions/get_release_details@v2
 
       - name: Fetch Dependencies Changelogs
         id: fetch_dependencies_changelogs
-        uses: botpress/gh-actions/fetch_release_changelogs@next
+        uses: botpress/gh-actions/fetch_release_changelogs@v2
         with:
           repos: '[ "studio", "messaging", "nlu" ]'
 
