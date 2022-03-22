@@ -72,7 +72,7 @@ type ChannelMeta = {
   [version in ChannelVersion]?: ChannelVersionMeta
 }
 
-interface ChannelVersionMeta {
+export interface ChannelVersionMeta {
   fields: string[]
   webhooks?: string[]
 }

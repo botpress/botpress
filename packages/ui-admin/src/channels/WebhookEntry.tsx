@@ -14,7 +14,7 @@ export const WebhookEntry: FC<Props> = ({ clientId, botId, channel, webhook }: P
   const url = `${window.EXTERNAL_URL}/api/v1/messaging/webhooks/${botId}/${channel}${webhook ? `/${webhook}` : ''}`
 
   return (
-    <ControlGroup key={`${clientId}.${webhook}`} className={style.formChannelInput}>
+    <ControlGroup className={style.formChannelInput}>
       <Label>webhook{webhook ? ` (${webhook})` : ''}</Label>
       <div>
         <a
@@ -24,7 +24,6 @@ export const WebhookEntry: FC<Props> = ({ clientId, botId, channel, webhook }: P
               return toast.success('The URL has been copied to your clipboard!')
             })
           }}
-          key={`${clientId}.${webhook}`}
         >
           {url}
         </a>

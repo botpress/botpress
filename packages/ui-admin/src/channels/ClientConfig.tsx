@@ -1,10 +1,10 @@
-import { Button, Collapse, ControlGroup, FormGroup, Icon, InputGroup, Label, Tab, Tabs } from '@blueprintjs/core'
+import { Collapse, Icon, Tab, Tabs } from '@blueprintjs/core'
 import { toast } from 'botpress/shared'
 import React, { FC, useEffect, useState } from 'react'
 import api from '~/app/api'
+import { ChannelConfig } from './ChannelConfig'
 import { CHANNELS } from './channels'
 import style from './style.scss'
-import { WebhookEntry } from './WebhookEntry'
 
 interface Props {
   botId: string
@@ -28,22 +28,6 @@ export const ClientConfig: FC<Props> = ({ botId, clientId }) => {
 
     void fetch()
   }, [])
-
-  const postConfig = async () => {
-    try {
-      await api.getSecured().post(`/admin/management/channels/clients/${clientId}`, config)
-      toast.success('Channel config updated')
-    } catch (err) {
-      toast.failure(err.message)
-    }
-  }
-
-  const updateValue = async (field: string, value: string) => {
-    if (!config[currentChannel]) {
-      config[currentChannel] = {}
-    }
-    config[currentChannel][field] = value
-  }
 
   return (
     <div>
@@ -69,31 +53,13 @@ export const ClientConfig: FC<Props> = ({ botId, clientId }) => {
             ))}
           </Tabs>
 
-          <div className={style.channels}>
-            <FormGroup className={style.formChannel} inline>
-              {(CHANNELS[currentChannel]?.v0?.webhooks || [undefined]).map(webhook => (
-                <WebhookEntry
-                  key={`${clientId}.${webhook}`}
-                  clientId={clientId}
-                  botId={botId}
-                  channel={currentChannel}
-                  webhook={webhook}
-                />
-              ))}
-              {CHANNELS[currentChannel]?.v0?.fields.map(field => (
-                <ControlGroup key={`${clientId}.${field}`} className={style.formChannelInput}>
-                  <Label>{field}</Label>
-                  <InputGroup
-                    id={field}
-                    defaultValue={config[currentChannel]?.[field]}
-                    onChange={x => updateValue(field, x.target.value)}
-                  />
-                </ControlGroup>
-              ))}
-            </FormGroup>
-
-            <Button onClick={postConfig} className="bp3-intent-primary" id="btn-save" text={'Save'} />
-          </div>
+          <ChannelConfig
+            clientId={clientId}
+            botId={botId}
+            channelName={currentChannel}
+            channelMeta={CHANNELS[currentChannel].v0!}
+            config={config}
+          />
         </div>
       </Collapse>
     </div>
