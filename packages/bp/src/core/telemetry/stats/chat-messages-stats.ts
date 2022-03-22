@@ -33,7 +33,7 @@ export class ChatMessagesStats extends TelemetryStats {
   }
 
   protected async getStats() {
-    const chatMessages = this.messagingService.getChatMessageCount({ resetCount: true })
+    const chatMessages = this.messagingService.getChatMessagesCount({ resetCount: true })
 
     return {
       ...buildSchema(await this.getServerStats(), 'server'),

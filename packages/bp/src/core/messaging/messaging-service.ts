@@ -200,7 +200,7 @@ export class MessagingService {
     return this.eventEngine.sendEvent(event)
   }
 
-  getChatMessageCount({ resetCount }: { resetCount: boolean }) {
+  getChatMessagesCount({ resetCount }: { resetCount: boolean }) {
     const count = this.chatMessages
     if (resetCount) {
       this.chatMessages = 0
