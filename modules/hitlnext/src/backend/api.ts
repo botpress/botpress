@@ -226,9 +226,8 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
 
       let handoff = await repository.findHandoff(req.params.botId, req.params.id)
 
-      const messaging = await repository.getMessagingClient(botId)
-      const userId = await repository.mapVisitor(botId, agentId, messaging)
-      const conversation = await messaging.createConversation(userId)
+      const userId = await repository.mapVisitor(botId, agentId)
+      const conversation = await bp.messaging.forBot(botId).createConversation(userId)
 
       const agentThreadId = conversation.id
       const payload: Pick<IHandoff, 'agentId' | 'agentThreadId' | 'assignedAt' | 'status'> = {

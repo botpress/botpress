@@ -22,15 +22,10 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   bp.http.deleteRouterForBot('channel-web')
 }
 
-const onBotUnmount = async (bp: typeof sdk, botId: string) => {
-  db.removeMessagingClient(botId)
-}
-
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   onModuleUnmount,
-  onBotUnmount,
   definition: {
     name: 'channel-web',
     fullName: 'Web Chat',

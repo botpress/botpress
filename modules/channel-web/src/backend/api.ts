@@ -1,8 +1,8 @@
-import { Conversation, Message, MessagingClient } from '@botpress/messaging-client'
 import apicache from 'apicache'
 import aws from 'aws-sdk'
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
+import { Conversation, Message, MessagingClient } from 'botpress/sdk'
 import { asyncMiddleware as asyncMw, BPRequest } from 'common/http'
 import { Request, Response, NextFunction } from 'express'
 import FormData from 'form-data'
@@ -136,8 +136,8 @@ export default async (bp: typeof sdk, db: Database) => {
       return next(ERR_USER_ID_INVALID)
     }
 
-    req.messaging = await db.getMessagingClient(botId)
-    const userId = await db.mapVisitor(botId, req.visitorId, req.messaging)
+    req.messaging = bp.messaging.forBot(botId)
+    const userId = await db.mapVisitor(botId, req.visitorId)
 
     if (conversationId) {
       let conversation: Conversation
@@ -688,8 +688,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const conversationId = req.params.id
       const { userId } = req.body
 
-      const messaging = await db.getMessagingClient(botId)
-      const conversation = await messaging.getConversation(conversationId)
+      const conversation = await bp.messaging.forBot(botId).getConversation(conversationId)
       if (!userId || conversation?.userId !== userId) {
         return res.status(400).send(ERR_BAD_CONV_ID)
       }
@@ -697,7 +696,7 @@ export default async (bp: typeof sdk, db: Database) => {
       const { visitorId } = await db.getMappingFromUser(userId)
       bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.clear', { conversationId }))
 
-      await messaging.deleteMessagesByConversation(conversationId)
+      await bp.messaging.forBot(botId).deleteMessagesByConversation(conversationId)
       res.sendStatus(204)
     })
   )
