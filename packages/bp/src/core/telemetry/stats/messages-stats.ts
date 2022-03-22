@@ -12,7 +12,7 @@ import { TelemetryRepository } from '../telemetry-repository'
 import { TelemetryStats } from './telemetry-stats'
 
 @injectable()
-export class ChatMessagesStats extends TelemetryStats {
+export class MessageStats extends TelemetryStats {
   protected interval: number
   protected url: string
   protected lock: string
@@ -32,7 +32,7 @@ export class ChatMessagesStats extends TelemetryStats {
   }
 
   protected async getStats() {
-    const newMessages = this.messagingService.getMessagesCount({ resetCount: true })
+    const newMessages = this.messagingService.getNewMessagesCount({ resetCount: true })
 
     return {
       ...buildSchema(await this.getServerStats(), 'server'),

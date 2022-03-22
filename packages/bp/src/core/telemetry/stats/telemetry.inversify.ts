@@ -2,10 +2,10 @@ import { TYPES } from 'core/types'
 import { ContainerModule, interfaces } from 'inversify'
 
 import { ActionsStats } from './actions-stats'
-import { ChatMessagesStats } from './messages-stats'
 import { ConfigsStats } from './configs-stats'
 import { HooksStats } from './hooks-stats'
 import { LegacyStats } from './legacy-stats'
+import { MessageStats } from './messages-stats'
 import { RolesStats } from './roles-stats'
 import { SDKStats } from './sdk-stats'
 import { UserStats } from './user-stats'
@@ -39,8 +39,8 @@ const ServicesContainerModule = new ContainerModule((bind: interfaces.Bind) => {
     .to(UserStats)
     .inSingletonScope()
 
-  bind<ChatMessagesStats>(TYPES.ChatMessagesStats)
-    .to(ChatMessagesStats)
+  bind<MessageStats>(TYPES.MessageStats)
+    .to(MessageStats)
     .inSingletonScope()
 })
 
