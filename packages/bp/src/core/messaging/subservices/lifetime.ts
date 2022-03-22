@@ -91,6 +91,10 @@ export class MessagingLifetime {
     await this.interactor.client.sync(entry.clientId, {})
   }
 
+  async reloadMessagingForBot(botId: string) {
+    return this.loadMessagingForBot(botId)
+  }
+
   private printWebhooks(botId: string, channels: any) {
     const webhooksSpecialCases = { slack: ['interactive', 'events'], vonage: ['inbound', 'status'] }
 

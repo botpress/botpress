@@ -30,8 +30,7 @@ class ChannelsRouter extends CustomAdminRouter {
         await this.messagingService.entries.update(req.params.clientId, req.body)
 
         const entry = await this.messagingService.entries.get(req.params.clientId)
-        await this.messagingService.lifetime.unloadMessagingForBot(entry!.botId)
-        await this.messagingService.lifetime.loadMessagingForBot(entry!.botId)
+        await this.messagingService.lifetime.reloadMessagingForBot(entry!.botId)
 
         res.sendStatus(200)
       })
