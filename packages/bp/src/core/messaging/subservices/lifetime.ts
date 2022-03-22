@@ -31,7 +31,10 @@ export class MessagingLifetime {
 
   async loadMessagingForBot(botId: string, failsafe: boolean = true) {
     await this.interactor.waitReady()
-    const { clientId, clientToken, config: channels } = await this.loadMessagingEntry(botId)
+    const { clientId, clientToken, config } = await this.loadMessagingEntry(botId)
+
+    const botConfig = await this.configProvider.getBotConfig(botId)
+    const channels = { ...config, ...botConfig.messaging?.channels }
 
     await this.interactor.client.renameClient(clientId, botId)
     this.clientIdToBotId[clientId] = botId
@@ -96,7 +99,9 @@ export class MessagingLifetime {
   }
 
   async reloadMessagingForBot(botId: string) {
-    return this.loadMessagingForBot(botId, false)
+    this.logger.forBot(botId).info(`[${botId}] Reloading channels`)
+    await this.loadMessagingForBot(botId, false)
+    this.logger.forBot(botId).info(`[${botId}] Channels reloaded!`)
   }
 
   private printWebhooks(botId: string, channels: any) {
