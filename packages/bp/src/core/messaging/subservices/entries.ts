@@ -57,7 +57,9 @@ export class MessagingEntries {
   }
 
   public async list(): Promise<{ clientId: string; botId: string }[]> {
-    const res = await this.query().select('clientId', 'botId')
+    const res = await this.query()
+      .select('clientId', 'botId')
+      .orderBy('botId')
     console.log('list entries', res)
     return res
   }
