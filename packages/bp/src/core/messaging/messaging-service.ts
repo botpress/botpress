@@ -25,6 +25,7 @@ export class MessagingService {
   private clientIdToBotId: { [clientId: uuid]: string } = {}
   private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
   private newUsers: number = 0
+  private chatMessages: number = 0
   private collectingCache: LRUCache<string, uuid>
 
   public isExternal: boolean
@@ -199,6 +200,14 @@ export class MessagingService {
     return this.eventEngine.sendEvent(event)
   }
 
+  getChatMessageCount({ resetCount }: { resetCount: boolean }) {
+    const count = this.chatMessages
+    if (resetCount) {
+      this.chatMessages = 0
+    }
+    return count
+  }
+
   private async handleMessageNewEvent(clientId: uuid, data: MessageNewEvent) {
     if (!this.channelNames.includes(data.channel)) {
       return
@@ -218,6 +227,8 @@ export class MessagingService {
     if (data.collect) {
       this.collectingCache.set(event.id, data.message.id)
     }
+
+    this.chatMessages++
 
     return this.eventEngine.sendEvent(event)
   }
