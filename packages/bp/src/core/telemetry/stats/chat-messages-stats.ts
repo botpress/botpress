@@ -6,7 +6,6 @@ import { JobService } from 'core/distributed'
 import { MessagingService } from 'core/messaging'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
-import _ from 'lodash'
 import ms from 'ms'
 
 import { TelemetryRepository } from '../telemetry-repository'
