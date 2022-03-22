@@ -29,7 +29,7 @@ export class MessagingLifetime {
     return this.httpClients[botId]
   }
 
-  async loadMessagingForBot(botId: string) {
+  async loadMessagingForBot(botId: string, failsafe: boolean = true) {
     await this.interactor.waitReady()
     const { clientId, clientToken, config: channels } = await this.loadMessagingEntry(botId)
 
@@ -51,6 +51,10 @@ export class MessagingLifetime {
       this.httpClients[botId] = this.interactor.createHttpClientForBot(clientId, clientToken, webhookToken)
     } catch (e) {
       this.logger.attachError(e).error('Failed to configure channels')
+
+      if (!failsafe) {
+        throw e
+      }
     }
 
     this.printWebhooks(botId, channels)
@@ -92,7 +96,7 @@ export class MessagingLifetime {
   }
 
   async reloadMessagingForBot(botId: string) {
-    return this.loadMessagingForBot(botId)
+    return this.loadMessagingForBot(botId, false)
   }
 
   private printWebhooks(botId: string, channels: any) {
