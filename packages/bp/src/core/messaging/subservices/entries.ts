@@ -13,8 +13,6 @@ export class MessagingEntries {
       config: {}
     }
 
-    console.log('create entry', entry)
-
     await this.query().insert(this.serialize(entry))
 
     return entry
@@ -27,8 +25,6 @@ export class MessagingEntries {
   }
 
   public async delete(clientId: string): Promise<void> {
-    console.log('delete entry', clientId)
-
     await this.query()
       .where({ clientId })
       .del()
@@ -37,9 +33,7 @@ export class MessagingEntries {
   public async get(clientId: string): Promise<MessagingEntry | undefined> {
     const [entry] = await this.query().where({ clientId })
     if (entry) {
-      const s = this.deserialize(entry)
-      console.log('get entry', s)
-      return s
+      return this.deserialize(entry)
     } else {
       return undefined
     }
@@ -48,20 +42,16 @@ export class MessagingEntries {
   public async getByBotId(botId: string): Promise<MessagingEntry | undefined> {
     const [entry] = await this.query().where({ botId })
     if (entry) {
-      const s = this.deserialize(entry)
-      console.log('get entry by bot', s)
-      return s
+      return this.deserialize(entry)
     } else {
       return undefined
     }
   }
 
   public async list(): Promise<{ clientId: string; botId: string }[]> {
-    const res = await this.query()
+    return this.query()
       .select('clientId', 'botId')
       .orderBy('botId')
-    console.log('list entries', res)
-    return res
   }
 
   private query() {
