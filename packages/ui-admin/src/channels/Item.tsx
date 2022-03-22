@@ -4,6 +4,7 @@ import React, { FC, useEffect, useState } from 'react'
 import api from '~/app/api'
 import { CHANNELS } from './channels'
 import style from './style.scss'
+import { WebhookEntry } from './webhook'
 
 interface Props {
   botId: string
@@ -70,6 +71,14 @@ export const Item: FC<Props> = props => {
 
           <div className={style.channels}>
             <FormGroup className={style.formChannel} inline>
+              {(CHANNELS[currentChannel]?.v0?.webhooks || [undefined]).map(webhook => (
+                <WebhookEntry
+                  clientId={props.clientId}
+                  botId={props.botId}
+                  channel={currentChannel}
+                  webhook={webhook}
+                />
+              ))}
               {CHANNELS[currentChannel]?.v0?.fields.map(field => (
                 <ControlGroup key={`${props.clientId}.${field}`} className={style.formChannelInput}>
                   <Label>{field}</Label>

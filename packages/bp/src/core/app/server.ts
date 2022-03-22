@@ -255,6 +255,7 @@ export class HTTPServer {
     return `
     window.API_PATH = "${process.ROOT_PATH}/api/v1";
     window.TELEMETRY_URL = "${process.TELEMETRY_URL}";
+    window.EXTERNAL_URL = "${process.EXTERNAL_URL}";
     window.SEND_USAGE_STATS = ${config!.sendUsageStats};
     window.USE_JWT_COOKIES = ${process.USE_JWT_COOKIES};
     window.EXPERIMENTAL = ${config.experimental};
