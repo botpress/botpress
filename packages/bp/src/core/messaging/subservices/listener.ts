@@ -7,6 +7,7 @@ import { MessagingLifetime } from './lifetime'
 
 export class MessagingListener {
   private newUsers: number = 0
+  private newMessages: number = 0
 
   constructor(
     private eventEngine: EventEngine,
@@ -21,6 +22,14 @@ export class MessagingListener {
     this.interactor.client.on('started', this.handleConversationStartedEvent.bind(this))
     this.interactor.client.on('message', this.handleMessageNewEvent.bind(this))
     this.interactor.client.on('feedback', this.handleMessageFeedback.bind(this))
+  }
+
+  getNewMessagesCount({ resetCount }: { resetCount: boolean }) {
+    const count = this.newMessages
+    if (resetCount) {
+      this.newMessages = 0
+    }
+    return count
   }
 
   getNewUsersCount({ resetCount }: { resetCount: boolean }) {
@@ -73,6 +82,8 @@ export class MessagingListener {
     if (data.collect) {
       this.collector.set(event.id, data.message.id)
     }
+
+    this.newMessages++
 
     return this.eventEngine.sendEvent(event)
   }
