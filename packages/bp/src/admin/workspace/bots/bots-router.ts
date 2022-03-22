@@ -2,7 +2,7 @@ import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
 import { BotConfig } from 'botpress/sdk'
 import { UnexpectedError } from 'common/http'
-import { ConflictError, ForbiddenError, sendSuccess } from 'core/routers'
+import { BadRequestError, ConflictError, ForbiddenError, sendSuccess } from 'core/routers'
 import { assertSuperAdmin, assertWorkspace } from 'core/security'
 import Joi from 'joi'
 import _ from 'lodash'
@@ -60,11 +60,25 @@ class BotsRouter extends CustomAdminRouter {
         const bot = <BotConfig>_.pick(req.body, ['id', 'name', 'category', 'defaultLanguage', 'isCloudBot', 'cloud'])
 
         const botExists = (await this.botService.getBotsIds()).includes(bot.id)
-        const botLinked = (await this.workspaceService.getBotRefs()).includes(bot.id)
+        const botLinkedToWorkspace = (await this.workspaceService.getBotRefs()).includes(bot.id)
 
         bot.id = await this.botService.makeBotId(bot.id, req.workspace!)
 
-        if (botExists && botLinked) {
+        if (bot.isCloudBot) {
+          if (!bot.cloud) {
+            throw new BadRequestError('Cloud enabled bots require cloud configuration')
+          }
+          const localBotMatching = await this.botService.findBotFromCloudConfigs(bot.cloud)
+          if (localBotMatching) {
+            throw new ConflictError(`Bot ${localBotMatching.id} is already using provided cloud api key pair`)
+          }
+        }
+
+        if (!(await this.botService.botExistOnCloud(bot.cloud!))) {
+          throw new BadRequestError('Provided cloud api key pair are invalid')
+        }
+
+        if (botExists && botLinkedToWorkspace) {
           throw new Error(`Bot "${bot.id}" already exists and is already linked in workspace`)
         }
 
@@ -85,7 +99,7 @@ class BotsRouter extends CustomAdminRouter {
           await this.botService.afterBotCreated(bot.id)
         }
 
-        if (botLinked) {
+        if (botLinkedToWorkspace) {
           this.logger.warn(`Bot "${bot.id}" already linked in workspace. See workspaces.json for more details`)
         } else {
           await this.workspaceService.addBotRef(bot.id, req.workspace!)
