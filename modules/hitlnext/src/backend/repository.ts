@@ -614,14 +614,14 @@ export default class Repository {
       return client
     }
 
-    const { messaging } = await this.bp.bots.getBotById(botId)
+    const messaging = this.bp.messaging.forBot(botId)
 
     const botClient = new MessagingClient({
       url: process.core_env.MESSAGING_ENDPOINT
         ? process.core_env.MESSAGING_ENDPOINT
         : `http://localhost:${process.MESSAGING_PORT}`,
-      clientId: messaging.id,
-      clientToken: messaging.token,
+      clientId: messaging.clientId,
+      clientToken: messaging.clientToken,
       axios: { headers: { password: process.INTERNAL_PASSWORD }, proxy: false }
     })
     this.messagingClients[botId] = botClient

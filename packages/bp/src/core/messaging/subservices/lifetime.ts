@@ -1,4 +1,4 @@
-import { uuid } from '@botpress/messaging-client'
+import { MessagingClient, uuid } from '@botpress/messaging-client'
 import { Logger } from 'botpress/sdk'
 import chalk from 'chalk'
 import { ConfigProvider } from 'core/config'
@@ -8,6 +8,7 @@ import { MessagingInteractor } from './interactor'
 export class MessagingLifetime {
   private botIdToClientId: { [botId: string]: uuid } = {}
   private clientIdToBotId: { [clientId: uuid]: string } = {}
+  private httpClients: { [botId: string]: MessagingClient } = {}
 
   constructor(
     private logger: Logger,
@@ -22,6 +23,10 @@ export class MessagingLifetime {
 
   getBotId(clientId: uuid) {
     return this.clientIdToBotId[clientId]
+  }
+
+  getHttpClient(botId: string): MessagingClient {
+    return this.httpClients[botId]
   }
 
   async loadMessagingForBot(botId: string) {
@@ -41,8 +46,9 @@ export class MessagingLifetime {
         ]
       })
 
-      const webhookToken = webhooks[0].token
+      const webhookToken = webhooks[0].token!
       this.interactor.client.start(clientId, { clientToken, webhookToken })
+      this.httpClients[botId] = this.interactor.createHttpClientForBot(clientId, clientToken, webhookToken)
     } catch (e) {
       this.logger.attachError(e).error('Failed to configure channels')
     }
@@ -80,6 +86,7 @@ export class MessagingLifetime {
 
     delete this.clientIdToBotId[entry.clientId]
     delete this.botIdToClientId[entry.botId]
+    delete this.httpClients[entry.botId]
 
     await this.interactor.client.sync(entry.clientId, {})
   }

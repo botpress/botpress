@@ -16,6 +16,7 @@ import { KeyValueStore } from 'core/kvs'
 import { LoggerProvider } from 'core/logger'
 import * as logEnums from 'core/logger/enums'
 import { MediaServiceProvider } from 'core/media'
+import { MessagingService } from 'core/messaging'
 import { ModuleLoader } from 'core/modules'
 import { RealtimeService, RealTimePayload } from 'core/realtime'
 import { getMessageSignature } from 'core/security'
@@ -123,6 +124,12 @@ const kvs = (kvs: KeyValueStore): typeof sdk.kvs => {
     getConversationStorageKey: kvs.getConversationStorageKey.bind(kvs),
     getUserStorageKey: kvs.getUserStorageKey.bind(kvs),
     getGlobalStorageKey: kvs.getGlobalStorageKey.bind(kvs)
+  }
+}
+
+const messaging = (messagingService: MessagingService): typeof sdk.messaging => {
+  return {
+    forBot: botId => messagingService.lifetime.getHttpClient(botId)
   }
 }
 
@@ -240,6 +247,7 @@ export class BotpressAPIProvider {
   ghost: typeof sdk.ghost
   cms: typeof sdk.cms
   experimental: typeof sdk.experimental
+  messaging: typeof sdk.messaging
   security: typeof sdk.security
   workspaces: typeof sdk.workspaces
   distributed: typeof sdk.distributed
@@ -264,7 +272,8 @@ export class BotpressAPIProvider {
     @inject(TYPES.WorkspaceService) workspaceService: WorkspaceService,
     @inject(TYPES.JobService) jobService: JobService,
     @inject(TYPES.StateManager) stateManager: StateManager,
-    @inject(TYPES.RenderService) renderService: RenderService
+    @inject(TYPES.RenderService) renderService: RenderService,
+    @inject(TYPES.MessagingService) messagingService: MessagingService
   ) {
     this.http = http(httpServer)
     this.events = event(eventEngine, eventRepo)
@@ -278,6 +287,7 @@ export class BotpressAPIProvider {
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService, mediaServiceProvider)
     this.experimental = experimental(hookService, renderService)
+    this.messaging = messaging(messagingService)
     this.security = security()
     this.workspaces = workspaces(workspaceService)
     this.distributed = distributed(jobService)
@@ -308,6 +318,7 @@ export class BotpressAPIProvider {
       bots: this.bots,
       cms: this.cms,
       security: this.security,
+      messaging: this.messaging,
       experimental: this.experimental,
       workspaces: this.workspaces,
       distributed: this.distributed,

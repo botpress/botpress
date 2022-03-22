@@ -1,4 +1,4 @@
-import { MessagingChannel } from '@botpress/messaging-client'
+import { MessagingChannel, MessagingClient } from '@botpress/messaging-client'
 import { AxiosRequestConfig } from 'axios'
 import { Logger } from 'botpress/sdk'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
@@ -16,19 +16,7 @@ export class MessagingInteractor {
   }
 
   public async setup() {
-    this.client.options = {
-      url: this.getMessagingUrl(),
-      axios: this.getAxiosConfig(),
-      adminKey: this.isExternal ? process.env.MESSAGING_ADMIN_KEY : process.env.INTERNAL_PASSWORD,
-      logger: {
-        info: this.logger.info.bind(this.logger),
-        debug: this.logger.debug.bind(this.logger),
-        warn: this.logger.warn.bind(this.logger),
-        error: (e, msg, data) => {
-          this.logger.attachError(e).error(msg || '', data)
-        }
-      }
-    }
+    this.client.options = this.getOptions()
 
     // use this to test converse from messaging
     if (yn(process.env.ENABLE_EXPERIMENTAL_CONVERSE)) {
@@ -49,6 +37,31 @@ export class MessagingInteractor {
 
   public shouldSkipChannel(channel: string) {
     return !this.channelNames.includes(channel)
+  }
+
+  public createHttpClientForBot(clientId: string, clientToken: string, webhookToken: string) {
+    return new MessagingClient({
+      ...this.getOptions(),
+      clientId,
+      clientToken,
+      webhookToken
+    })
+  }
+
+  private getOptions() {
+    return {
+      url: this.getMessagingUrl(),
+      axios: this.getAxiosConfig(),
+      adminKey: this.isExternal ? process.env.MESSAGING_ADMIN_KEY : process.env.INTERNAL_PASSWORD,
+      logger: {
+        info: this.logger.info.bind(this.logger),
+        debug: this.logger.debug.bind(this.logger),
+        warn: this.logger.warn.bind(this.logger),
+        error: (e, msg, data) => {
+          this.logger.attachError(e).error(msg || '', data)
+        }
+      }
+    }
   }
 
   private getAxiosConfig(): AxiosRequestConfig {
