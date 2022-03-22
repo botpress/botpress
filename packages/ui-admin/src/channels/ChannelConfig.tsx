@@ -25,10 +25,19 @@ export const ChannelConfig: FC<Props> = ({ clientId, botId, channelName, channel
   }
 
   const updateValue = async (field: string, value: string) => {
-    if (!config[channelName]) {
-      config[channelName] = {}
+    if (value.length === 0) {
+      delete config[channelName]
+
+      if (config[channelName] && Object.keys(config[channelName]).length === 0) {
+        delete config[channelName]
+      }
+    } else {
+      if (!config[channelName]) {
+        config[channelName] = {}
+      }
+
+      config[channelName][field] = value
     }
-    config[channelName][field] = value
   }
 
   return (
@@ -49,7 +58,7 @@ export const ChannelConfig: FC<Props> = ({ clientId, botId, channelName, channel
             <InputGroup
               id={field}
               defaultValue={config[channelName]?.[field]}
-              onChange={x => updateValue(field, x.target.value)}
+              onChange={x => updateValue(field, x.target.value.trim())}
             />
           </ControlGroup>
         ))}
