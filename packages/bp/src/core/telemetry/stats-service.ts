@@ -4,7 +4,7 @@ import { inject, injectable } from 'inversify'
 import ms from 'ms'
 
 import { ActionsStats } from './stats/actions-stats'
-import { ChatMessagesStats } from './stats/chat-messages-stats'
+import { ChatMessagesStats } from './stats/messages-stats'
 import { ConfigsStats } from './stats/configs-stats'
 import { HooksStats } from './stats/hooks-stats'
 import { LegacyStats } from './stats/legacy-stats'

@@ -27,19 +27,19 @@ export class ChatMessagesStats extends TelemetryStats {
   ) {
     super(ghostService, database, licenseService, jobService, telemetryRepo)
     this.url = process.TELEMETRY_URL
-    this.lock = 'botpress:telemetry-new-chat-messages'
+    this.lock = 'botpress:telemetry-new-messages'
     this.interval = ms('5m')
   }
 
   protected async getStats() {
-    const chatMessages = this.messagingService.getChatMessagesCount({ resetCount: true })
+    const newMessages = this.messagingService.getMessagesCount({ resetCount: true })
 
     return {
       ...buildSchema(await this.getServerStats(), 'server'),
       event_type: 'chat_messages',
       event_data: {
         schema: '1.0.0',
-        chatMessages
+        newMessages
       }
     }
   }

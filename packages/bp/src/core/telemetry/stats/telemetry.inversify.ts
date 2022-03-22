@@ -2,7 +2,7 @@ import { TYPES } from 'core/types'
 import { ContainerModule, interfaces } from 'inversify'
 
 import { ActionsStats } from './actions-stats'
-import { ChatMessagesStats } from './chat-messages-stats'
+import { ChatMessagesStats } from './messages-stats'
 import { ConfigsStats } from './configs-stats'
 import { HooksStats } from './hooks-stats'
 import { LegacyStats } from './legacy-stats'

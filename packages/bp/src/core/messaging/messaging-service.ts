@@ -25,7 +25,7 @@ export class MessagingService {
   private clientIdToBotId: { [clientId: uuid]: string } = {}
   private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
   private newUsers: number = 0
-  private chatMessages: number = 0
+  private newMessages: number = 0
   private collectingCache: LRUCache<string, uuid>
 
   public isExternal: boolean
@@ -200,10 +200,10 @@ export class MessagingService {
     return this.eventEngine.sendEvent(event)
   }
 
-  getChatMessagesCount({ resetCount }: { resetCount: boolean }) {
-    const count = this.chatMessages
+  getMessagesCount({ resetCount }: { resetCount: boolean }) {
+    const count = this.newMessages
     if (resetCount) {
-      this.chatMessages = 0
+      this.newMessages = 0
     }
     return count
   }
@@ -228,7 +228,7 @@ export class MessagingService {
       this.collectingCache.set(event.id, data.message.id)
     }
 
-    this.chatMessages++
+    this.newMessages++
 
     return this.eventEngine.sendEvent(event)
   }
