@@ -4,8 +4,8 @@ import Database from 'core/database'
 import { EventEngine, EventRepository } from 'core/events'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
-import { MessagingChannels } from './subservices/channels'
 import { MessagingCollector } from './subservices/collector'
+import { MessagingEntries } from './subservices/entries'
 import { MessagingInteractor } from './subservices/interactor'
 import { MessagingLifetime } from './subservices/lifetime'
 import { MessagingListener } from './subservices/listener'
@@ -14,7 +14,7 @@ import { MessagingProxy } from './subservices/proxy'
 
 @injectable()
 export class MessagingService {
-  public readonly channels: MessagingChannels
+  public readonly entries: MessagingEntries
   public readonly interactor: MessagingInteractor
   public readonly lifetime: MessagingLifetime
   public readonly collector: MessagingCollector
@@ -31,9 +31,9 @@ export class MessagingService {
     @tagged('name', 'Messaging')
     private logger: Logger
   ) {
-    this.channels = new MessagingChannels(this.database)
+    this.entries = new MessagingEntries(this.database)
     this.interactor = new MessagingInteractor(this.logger)
-    this.lifetime = new MessagingLifetime(this.logger, this.configProvider, this.interactor)
+    this.lifetime = new MessagingLifetime(this.logger, this.configProvider, this.entries, this.interactor)
     this.collector = new MessagingCollector(this.logger, this.eventEngine, this.interactor, this.lifetime)
     this.listener = new MessagingListener(
       this.eventEngine,

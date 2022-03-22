@@ -1,7 +1,8 @@
 import { uuid } from '@botpress/messaging-client'
-import { Logger, MessagingConfig } from 'botpress/sdk'
+import { Logger } from 'botpress/sdk'
 import chalk from 'chalk'
 import { ConfigProvider } from 'core/config'
+import { MessagingEntries, MessagingEntry } from './entries'
 import { MessagingInteractor } from './interactor'
 
 export class MessagingLifetime {
@@ -11,6 +12,7 @@ export class MessagingLifetime {
   constructor(
     private logger: Logger,
     private configProvider: ConfigProvider,
+    private entries: MessagingEntries,
     private interactor: MessagingInteractor
   ) {}
 
@@ -24,68 +26,62 @@ export class MessagingLifetime {
 
   async loadMessagingForBot(botId: string) {
     await this.interactor.waitReady()
+    const { clientId, clientToken, config: channels } = await this.loadMessagingEntry(botId)
 
-    const config = await this.configProvider.getBotConfig(botId)
-    let messaging = (config.messaging || {}) as Partial<MessagingConfig>
+    await this.interactor.client.renameClient(clientId, botId)
+    this.clientIdToBotId[clientId] = botId
+    this.botIdToClientId[botId] = clientId
 
-    const messagingId = messaging.id || ''
-    // ClientId is already used by another botId, we will generate new credentials for this bot
-    if (this.clientIdToBotId[messagingId] && this.clientIdToBotId[messagingId] !== botId) {
-      this.logger.warn(
-        `ClientId ${messagingId} already in use by bot ${this.clientIdToBotId[messagingId]}. Removing channels configuration and generating new credentials for bot ${botId}`
-      )
-      delete messaging.id
-      delete messaging.token
-      delete messaging.channels
+    try {
+      this.interactor.client.start(clientId, { clientToken })
+      const { webhooks } = await this.interactor.client.sync(clientId, {
+        channels,
+        webhooks: [
+          { url: this.interactor.isExternal ? `${process.EXTERNAL_URL}/api/v1/chat/receive` : 'http://dummy.com' }
+        ]
+      })
+
+      const webhookToken = webhooks[0].token
+      this.interactor.client.start(clientId, { clientToken, webhookToken })
+    } catch (e) {
+      this.logger.attachError(e).error('Failed to configure channels')
     }
 
-    let clientIdExists = false
-    if (messaging.id?.length && messaging.token?.length) {
-      this.interactor.client.start(messaging.id, { clientToken: messaging.token })
-      clientIdExists = await this.interactor.client.getClient(messaging.id)
-    }
+    this.printWebhooks(botId, channels)
+  }
+  private async loadMessagingEntry(botId: string): Promise<MessagingEntry> {
+    const entry = await this.entries.getByBotId(botId)
+    if (entry) {
+      this.interactor.client.start(entry.clientId, { clientToken: entry.clientToken })
+      const reachable = await this.interactor.client.getClient(entry.clientId)
 
-    if (!clientIdExists) {
-      const { id, token } = await this.interactor.client.createClient()
-      messaging = {
-        ...messaging,
-        id,
-        token
+      if (reachable) {
+        return entry
+      } else {
+        await this.entries.delete(entry.clientId)
+        return this.createMessagingEntry(botId)
       }
-
-      await this.configProvider.mergeBotConfig(botId, { messaging })
+    } else {
+      return this.createMessagingEntry(botId)
     }
-
-    await this.interactor.client.renameClient(messaging.id!, botId)
-    this.clientIdToBotId[messaging.id!] = botId
-    this.botIdToClientId[botId] = messaging.id!
-
-    this.interactor.client.start(messaging.id!, { clientToken: messaging.token })
-    const { webhooks } = await this.interactor.client.sync(messaging.id!, {
-      channels: messaging.channels,
-      webhooks: [
-        { url: this.interactor.isExternal ? `${process.EXTERNAL_URL}/api/v1/chat/receive` : 'http://dummy.com' }
-      ]
-    })
-
-    const webhookToken = webhooks[0].token
-    this.interactor.client.start(messaging.id!, { clientToken: messaging.token, webhookToken })
-
-    this.printWebhooks(botId, messaging.channels)
+  }
+  private async createMessagingEntry(botId: string): Promise<MessagingEntry> {
+    const { id, token } = await this.interactor.client.createClient()
+    return this.entries.create(botId, id, token)
   }
 
   async unloadMessagingForBot(botId: string) {
     await this.interactor.waitReady()
 
-    const config = await this.configProvider.getBotConfig(botId)
-    if (!config.messaging?.id) {
+    const entry = await this.entries.getByBotId(botId)
+    if (!entry) {
       return
     }
 
-    delete this.clientIdToBotId[config.messaging.id]
-    delete this.botIdToClientId[botId]
+    delete this.clientIdToBotId[entry.clientId]
+    delete this.botIdToClientId[entry.botId]
 
-    await this.interactor.client.sync(config.messaging.id, {})
+    await this.interactor.client.sync(entry.clientId, {})
   }
 
   private printWebhooks(botId: string, channels: any) {
