@@ -50,13 +50,14 @@
   resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-1.1.0.tgz#0a266f8748f45afdcb93e158e72c03dc5d7c3035"
   integrity sha512-mIQ90leVlYw+DuYixPa1pGWt/Sc/EU/r8k6IjS/BUl0XalvlgmeWIJsZ8xTh9B2H6f6xidlJO63tsgiPcimf7Q==
 
-"@botpress/messaging-client@1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-1.1.1.tgz#ccc9441d421b1641d825074f590ecbde9680519d"
-  integrity sha512-Rflsn282f/VyRBgtbi5mB/UcJEOesom9GNLlqx7LGF2Lf71mBwMEnxvLEuUA6BdkG4SsUZPBQvjY3RYaXUgIpg==
+"@botpress/messaging-client@1.1.6":
+  version "1.1.6"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-1.1.6.tgz#3a4a4a8b0536e303221b0f4874d5dc3a918b8523"
+  integrity sha512-uzOG8i62Di3lV9o6zVU8kRdbYXe1yZu9ndb1KdTuq98F7kG0GYwqj5rYAMWwIgl8fIPBzi6o1BT4WaVRq1cwxQ==
   dependencies:
     "@botpress/messaging-base" "1.1.0"
     axios "^0.21.4"
+    cookie "^0.4.2"
     joi "^17.6.0"
 
 "@emotion/babel-utils@^0.6.4":
@@ -485,6 +486,11 @@ convert-source-map@^1.5.0, convert-source-map@^1.5.1:
   integrity sha512-+OQdjP49zViI/6i7nIJpA8rAl4sV/JdPfU9nZs3VqOwGIgizICvuN2ru6fMd+4llL0tar18UYJXfZ/TWtmhUjA==
   dependencies:
     safe-buffer "~5.1.1"
+
+cookie@^0.4.2:
+  version "0.4.2"
+  resolved "https://registry.yarnpkg.com/cookie/-/cookie-0.4.2.tgz#0e41f24de5ecf317947c82fc789e06a884824432"
+  integrity sha512-aSWTXFzaKWkvHO1Ny/s+ePFpvKsPnjc551iI41v3ny/ow6tBG5Vd+FuqGNhh1LxOmVzOlGUriIlOaokOvhaStA==
 
 core-util-is@~1.0.0:
   version "1.0.2"
