@@ -4,14 +4,14 @@ import React, { FC, useEffect, useState } from 'react'
 import api from '~/app/api'
 import { CHANNELS } from './channels'
 import style from './style.scss'
-import { WebhookEntry } from './webhook'
+import { WebhookEntry } from './WebhookEntry'
 
 interface Props {
   botId: string
   clientId: string
 }
 
-export const Item: FC<Props> = props => {
+export const ClientConfig: FC<Props> = ({ botId, clientId }) => {
   const [config, setConfig] = useState({})
   const [isOpen, setOpen] = useState(false)
   const [currentChannel, setCurrentChannel] = useState(Object.keys(CHANNELS)[0])
@@ -19,7 +19,7 @@ export const Item: FC<Props> = props => {
   useEffect(() => {
     const fetch = async () => {
       try {
-        const { data } = await api.getSecured().get(`/admin/management/channels/clients/${props.clientId}`)
+        const { data } = await api.getSecured().get(`/admin/management/channels/clients/${clientId}`)
         setConfig(data)
       } catch (err) {
         toast.failure(err.message)
@@ -31,7 +31,7 @@ export const Item: FC<Props> = props => {
 
   const postConfig = async () => {
     try {
-      await api.getSecured().post(`/admin/management/channels/clients/${props.clientId}`, config)
+      await api.getSecured().post(`/admin/management/channels/clients/${clientId}`, config)
       toast.success('Channel config updated')
     } catch (err) {
       toast.failure(err.message)
@@ -50,8 +50,8 @@ export const Item: FC<Props> = props => {
       <div onClick={() => setOpen(!isOpen)} className={style.header}>
         <div>
           <span className={style.title}>
-            <b>{`${props.botId} `}</b>
-            <span className="bp3-text-disabled">{props.clientId}</span>
+            <b>{`${botId} `}</b>
+            <span className="bp3-text-disabled">{clientId}</span>
           </span>
         </div>
         <Icon icon={isOpen ? 'caret-down' : 'caret-left'} />
@@ -65,7 +65,7 @@ export const Item: FC<Props> = props => {
             onChange={newChannel => setCurrentChannel(newChannel.toString())}
           >
             {Object.keys(CHANNELS).map(channel => (
-              <Tab key={`${props.clientId}.${channel}`} id={channel} title={channel} />
+              <Tab key={`${clientId}.${channel}`} id={channel} title={channel} />
             ))}
           </Tabs>
 
@@ -73,14 +73,15 @@ export const Item: FC<Props> = props => {
             <FormGroup className={style.formChannel} inline>
               {(CHANNELS[currentChannel]?.v0?.webhooks || [undefined]).map(webhook => (
                 <WebhookEntry
-                  clientId={props.clientId}
-                  botId={props.botId}
+                  key={`${clientId}.${webhook}`}
+                  clientId={clientId}
+                  botId={botId}
                   channel={currentChannel}
                   webhook={webhook}
                 />
               ))}
               {CHANNELS[currentChannel]?.v0?.fields.map(field => (
-                <ControlGroup key={`${props.clientId}.${field}`} className={style.formChannelInput}>
+                <ControlGroup key={`${clientId}.${field}`} className={style.formChannelInput}>
                   <Label>{field}</Label>
                   <InputGroup
                     id={field}

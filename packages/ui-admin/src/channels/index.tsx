@@ -1,15 +1,11 @@
 import { toast } from 'botpress/shared'
-import React, { FC, Fragment, useEffect, useState } from 'react'
-import { connect, ConnectedProps } from 'react-redux'
+import React, { FC, useEffect, useState } from 'react'
 import api from '~/app/api'
 import PageContainer from '../app/common/PageContainer'
-import { AppState } from '../app/rootReducer'
-import { Item } from './Item'
+import { ClientConfig } from './ClientConfig'
 import style from './style.scss'
 
-type Props = ConnectedProps<typeof connector>
-
-const Channels: FC<Props> = props => {
+const Channels: FC = () => {
   const [clients, setClients] = useState<{ clientId: string; botId: string }[]>([])
 
   useEffect(() => {
@@ -28,17 +24,12 @@ const Channels: FC<Props> = props => {
   return (
     <PageContainer title={'Channels'}>
       <div className={style.checklist}>
-        {clients.map(bot => (
-          <Fragment key={bot.botId}>
-            <Item botId={bot.botId} clientId={bot.clientId}></Item>
-          </Fragment>
+        {clients.map(client => (
+          <ClientConfig key={client.botId} botId={client.botId} clientId={client.clientId} />
         ))}
       </div>
     </PageContainer>
   )
 }
 
-const mapStateToProps = (state: AppState) => ({})
-
-const connector = connect(mapStateToProps)
-export default connector(Channels)
+export default Channels
