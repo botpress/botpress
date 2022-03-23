@@ -97,11 +97,6 @@ declare interface BotpressEnvironmentVariables {
    */
   readonly MESSAGING_LOGGING_ENABLED?: boolean
 
-  /** Messaging server should suppress logging
-   * @default true
-   */
-  readonly MESSAGING_SUPPRESS_LOGGING?: boolean
-
   /** Admin key of the messaging server to make calls to admin routes */
   readonly MESSAGING_ADMIN_KEY?: string
 
