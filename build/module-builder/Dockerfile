@@ -1,4 +1,4 @@
-FROM node:12.18.1-alpine as builder
+FROM node:12.22.10-alpine as builder
 # git is required to resolve `git+` dependencies
 RUN apk add --no-cache git
 WORKDIR /botpress
@@ -11,7 +11,7 @@ COPY . .
 RUN yarn --frozen-lockfile && yarn build
 
 
-FROM node:12.18.1-alpine
+FROM node:12.22.10-alpine
 
 WORKDIR /botpress
 
