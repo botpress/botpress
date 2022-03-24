@@ -64,18 +64,19 @@ class BotsRouter extends CustomAdminRouter {
 
         bot.id = await this.botService.makeBotId(bot.id, req.workspace!)
 
-        if (bot.isCloudBot) {
+        if (!!bot.isCloudBot) {
           if (!bot.cloud) {
             throw new BadRequestError('Cloud enabled bots require cloud configuration')
           }
+
           const localBotMatching = await this.botService.findBotFromCloudConfigs(bot.cloud)
           if (localBotMatching) {
             throw new ConflictError(`Bot ${localBotMatching.id} is already using provided cloud api key pair`)
           }
-        }
 
-        if (!(await this.botService.botExistOnCloud(bot.cloud!))) {
-          throw new BadRequestError('Provided cloud api key pair are invalid')
+          if (!(await this.botService.botExistOnCloud(bot.cloud!))) {
+            throw new BadRequestError('Provided cloud api key pair are invalid')
+          }
         }
 
         if (botExists && botLinkedToWorkspace) {
