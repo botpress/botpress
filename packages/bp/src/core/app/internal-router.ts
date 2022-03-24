@@ -68,6 +68,28 @@ export class InternalRouter extends CustomRouter {
     )
 
     router.post(
+      '/unmountBot',
+      this.asyncMiddleware(async (req, res) => {
+        const { botId } = req.body
+
+        await this.botService.unmountBot(botId)
+
+        res.sendStatus(200)
+      })
+    )
+
+    router.post(
+      '/mountBot',
+      this.asyncMiddleware(async (req, res) => {
+        const { botId } = req.body
+
+        await this.botService.mountBot(botId)
+
+        res.sendStatus(200)
+      })
+    )
+
+    router.post(
       '/invalidateCmsForBot',
       this.asyncMiddleware(async (req, res) => {
         const { botId } = req.body
