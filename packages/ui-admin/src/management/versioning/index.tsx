@@ -94,7 +94,10 @@ const Versioning: FC<Props> = props => {
             <br />
             <br />
             {lang.tr('admin.versioning.checkOutThe')}{' '}
-            <a href="https://botpress.com/docs/next/advanced/versions/" target="_blank">
+            <a
+              href="https://botpress.com/docs/going-to-production/development-lifecycle/versioning#push"
+              target="_blank"
+            >
               <b>{lang.tr('admin.versioning.documentation')}</b>
             </a>{' '}
             {lang.tr('admin.versioning.forMorInfo')}
