@@ -1753,10 +1753,12 @@ declare module 'botpress/sdk' {
   }
 
   export interface Endpoint {
-    channel: {
-      name: string
-      version: string
-    }
+    channel:
+      | {
+          name: string
+          version: string
+        }
+      | string
     identity: string
     sender: string
     thread: string
