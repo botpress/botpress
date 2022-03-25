@@ -41,7 +41,7 @@ const migration: Migration = {
       } catch (e) {
         bp.logger
           .attachError(e)
-          .error(`[${botId}] Failed to move messaging credentials to srv_channels. New credentials willl be generated`)
+          .error(`[${botId}] Failed to move messaging credentials to srv_channels. New credentials will be generated`)
       }
 
       if (botConfig.messaging) {
