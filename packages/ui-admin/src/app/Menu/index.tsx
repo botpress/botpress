@@ -125,7 +125,6 @@ const Menu: FC<Props> = props => {
           resource="user.bots.*"
           operation="read"
         />
-        <MenuItem id="btn-menu-channels" text={lang.tr('admin.sideMenu.channels')} icon={<MdChat />} url="/channels" />
 
         <MenuItem
           id="btn-menu-users"

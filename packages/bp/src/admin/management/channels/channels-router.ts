@@ -1,5 +1,6 @@
 import { AdminServices } from 'admin/admin-router'
 import { CustomAdminRouter } from 'admin/utils/customAdminRouter'
+import { assertSuperAdmin } from 'core/security'
 
 class ChannelsRouter extends CustomAdminRouter {
   constructor(services: AdminServices) {
@@ -10,6 +11,7 @@ class ChannelsRouter extends CustomAdminRouter {
   private setupRoutes() {
     this.router.get(
       '/clients',
+      assertSuperAdmin,
       this.asyncMiddleware(async (req, res) => {
         const entries = await this.messagingService.entries.list()
         res.send(entries)
@@ -18,6 +20,7 @@ class ChannelsRouter extends CustomAdminRouter {
 
     this.router.get(
       '/clients/:clientId',
+      assertSuperAdmin,
       this.asyncMiddleware(async (req, res) => {
         const entry = await this.messagingService.entries.get(req.params.clientId)
         res.send(entry?.config || {})
@@ -26,6 +29,7 @@ class ChannelsRouter extends CustomAdminRouter {
 
     this.router.post(
       '/clients/:clientId',
+      assertSuperAdmin,
       this.asyncMiddleware(async (req, res) => {
         await this.messagingService.entries.update(req.params.clientId, req.body)
 
