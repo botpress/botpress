@@ -2416,17 +2416,17 @@
     classnames "^2.2"
     tslib "~1.13.0"
 
-"@botpress/messaging-base@1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-1.1.0.tgz#0a266f8748f45afdcb93e158e72c03dc5d7c3035"
-  integrity sha512-mIQ90leVlYw+DuYixPa1pGWt/Sc/EU/r8k6IjS/BUl0XalvlgmeWIJsZ8xTh9B2H6f6xidlJO63tsgiPcimf7Q==
+"@botpress/messaging-base@1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-1.1.1.tgz#8e599c5bcd61b44f62b89952439294b14268e1ba"
+  integrity sha512-b6GNEILgn236RNX3HCJykfwkLiFr74gpwmMwBgwAmizH6oYi2h7yAI4sN4w3deXNiCcxi3RoDInhV+QiWtIK6Q==
 
-"@botpress/messaging-client@1.1.6":
-  version "1.1.6"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-1.1.6.tgz#3a4a4a8b0536e303221b0f4874d5dc3a918b8523"
-  integrity sha512-uzOG8i62Di3lV9o6zVU8kRdbYXe1yZu9ndb1KdTuq98F7kG0GYwqj5rYAMWwIgl8fIPBzi6o1BT4WaVRq1cwxQ==
+"@botpress/messaging-client@1.1.8":
+  version "1.1.8"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-1.1.8.tgz#6ec5047a2aa7c0d63ef117285644e13bc83d41a8"
+  integrity sha512-AEfwywicaiF/b2NbZNDaGQ+3tBGpJhzUhqvUoAP9rDEglT+e03QYm1k2nlyZ8alAbxlvc0hYjMYiRTqGJKm3Qw==
   dependencies:
-    "@botpress/messaging-base" "1.1.0"
+    "@botpress/messaging-base" "1.1.1"
     axios "^0.21.4"
     cookie "^0.4.2"
     joi "^17.6.0"

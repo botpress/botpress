@@ -64,7 +64,7 @@ export class MessagingListener {
   }
 
   private async handleMessageNewEvent(clientId: uuid, data: MessageNewEvent) {
-    if (this.interactor.shouldSkipChannel(data.channel)) {
+    if (this.interactor.shouldSkipChannel(data.channel) || !data.message.authorId) {
       return
     }
 
