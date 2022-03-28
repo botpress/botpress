@@ -65,6 +65,8 @@ declare namespace NodeJS {
     USE_JWT_COOKIES: boolean
     // The internal password is used for inter-process communication
     INTERNAL_PASSWORD: string
+    // The Botpress cloud access point.
+    CONTROLLERAPI_ENDPOINT: string
   }
 }
 

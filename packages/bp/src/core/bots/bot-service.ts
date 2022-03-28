@@ -1,4 +1,5 @@
-import { BotConfig, Logger, Stage, WorkspaceUserWithAttributes } from 'botpress/sdk'
+import axios from 'axios'
+import { BotConfig, CloudConfig, Logger, Stage, WorkspaceUserWithAttributes } from 'botpress/sdk'
 import cluster from 'cluster'
 import { findDeletedFiles } from 'common/fs'
 import { BotHealth, ServerHealth } from 'common/typings'
@@ -29,6 +30,7 @@ import ms from 'ms'
 import { studioActions } from 'orchestrator'
 import os from 'os'
 import path from 'path'
+import qs from 'querystring'
 import replace from 'replace-in-file'
 import tmp from 'tmp'
 import { VError } from 'verror'
@@ -88,6 +90,57 @@ export class BotService {
 
     if (!cluster.isMaster) {
       setInterval(() => this._updateBotHealthDebounce(), STATUS_REFRESH_INTERVAL)
+    }
+  }
+
+  private async getCloudBearerTokenFromConfig(cloudConfig: CloudConfig): Promise<string> {
+    const { oauthUrl, clientId, clientSecret } = cloudConfig
+    return axios
+      .post(
+        oauthUrl,
+        qs.stringify({
+          client_id: clientId,
+          client_secret: clientSecret,
+          grant_type: 'client_credentials'
+        })
+      )
+      .then(res => `Bearer ${res.data?.access_token}`)
+  }
+
+  private async introspectBotOnCloud(
+    bearerToken: string
+  ): Promise<{ userId: string; runtimeName: string; botName: string; botId: string }> {
+    return axios
+      .get(`${process.CONTROLLERAPI_ENDPOINT}/v1/introspect`, {
+        headers: {
+          Authorization: bearerToken
+        }
+      })
+      .then(res => res.data)
+  }
+
+  async botExistOnCloud(cloudConfig: CloudConfig) {
+    try {
+      const bearerToken = await this.getCloudBearerTokenFromConfig(cloudConfig)
+      await this.introspectBotOnCloud(bearerToken)
+      return true
+    } catch (error) {
+      return false
+    }
+  }
+
+  async findBotFromCloudConfigs(cloudConfig: CloudConfig): Promise<BotConfig | undefined> {
+    const allBots = Array.from((await this.getBots()).values())
+
+    for (const botConfig of allBots.values()) {
+      const configMatches =
+        botConfig.isCloudBot &&
+        (botConfig.cloud?.clientId === cloudConfig.clientId ||
+          botConfig.cloud?.clientSecret === cloudConfig.clientSecret)
+
+      if (configMatches) {
+        return botConfig
+      }
     }
   }
 

@@ -88,6 +88,7 @@ try {
   process.ASSERT_LICENSED = () => {}
   process.BOTPRESS_VERSION = metadataContent.version
   process.BPFS_STORAGE = process.core_env.BPFS_STORAGE || 'disk'
+  process.CONTROLLERAPI_ENDPOINT = process.env.CONTROLLERAPI_ENDPOINT || 'https://controllerapi.botpress.dev'
 
   const configPath = path.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')
 
