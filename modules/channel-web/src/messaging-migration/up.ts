@@ -180,7 +180,7 @@ export abstract class MessagingUpMigrator {
     if (exists && !this.isDryRun) {
       try {
         await this.bp.config.mergeBotConfig(botId, {
-          messaging: { id: client.id, token, channels: {} }
+          messaging: { id: client.id, token, channels: {} } as any
         })
       } catch {
         // fails when no bot.config.json is present.

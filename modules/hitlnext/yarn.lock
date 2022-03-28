@@ -34,20 +34,6 @@
     classnames "^2.2"
     tslib "~1.13.0"
 
-"@botpress/messaging-base@1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-1.1.0.tgz#0a266f8748f45afdcb93e158e72c03dc5d7c3035"
-  integrity sha512-mIQ90leVlYw+DuYixPa1pGWt/Sc/EU/r8k6IjS/BUl0XalvlgmeWIJsZ8xTh9B2H6f6xidlJO63tsgiPcimf7Q==
-
-"@botpress/messaging-client@1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-1.1.1.tgz#ccc9441d421b1641d825074f590ecbde9680519d"
-  integrity sha512-Rflsn282f/VyRBgtbi5mB/UcJEOesom9GNLlqx7LGF2Lf71mBwMEnxvLEuUA6BdkG4SsUZPBQvjY3RYaXUgIpg==
-  dependencies:
-    "@botpress/messaging-base" "1.1.0"
-    axios "^0.21.4"
-    joi "^17.6.0"
-
 "@hapi/hoek@^9.0.0":
   version "9.1.1"
   resolved "https://registry.yarnpkg.com/@hapi/hoek/-/hoek-9.1.1.tgz#9daf5745156fd84b8e9889a2dc721f0c58e894aa"
@@ -64,13 +50,6 @@
   version "4.1.0"
   resolved "https://registry.yarnpkg.com/@sideway/address/-/address-4.1.0.tgz#0b301ada10ac4e0e3fa525c90615e0b61a72b78d"
   integrity sha512-wAH/JYRXeIFQRsxerIuLjgUu2Xszam+O5xKeatJ4oudShOOirfmsQ1D6LL54XOU2tizpCYku+s1wmU0SYdpoSA==
-  dependencies:
-    "@hapi/hoek" "^9.0.0"
-
-"@sideway/address@^4.1.3":
-  version "4.1.3"
-  resolved "https://registry.yarnpkg.com/@sideway/address/-/address-4.1.3.tgz#d93cce5d45c5daec92ad76db492cc2ee3c64ab27"
-  integrity sha512-8ncEUtmnTsMmL7z1YPB47kPUq7LpKWJNFPsRzHiIajGC5uXlWGn+AmkYPcHNl8S4tcEGx+cnORnNYaw2wvL+LQ==
   dependencies:
     "@hapi/hoek" "^9.0.0"
 
@@ -102,7 +81,7 @@
     custom-event "^1.0.1"
     textarea-caret "3.0.2"
 
-axios@^0.21.1, axios@^0.21.4:
+axios@^0.21.1:
   version "0.21.4"
   resolved "https://registry.yarnpkg.com/axios/-/axios-0.21.4.tgz#c67b90dc0568e5c1cf2b0b858c43ba28e2eda575"
   integrity sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==
@@ -379,17 +358,6 @@ joi@^17:
     "@hapi/hoek" "^9.0.0"
     "@hapi/topo" "^5.0.0"
     "@sideway/address" "^4.1.0"
-    "@sideway/formula" "^3.0.0"
-    "@sideway/pinpoint" "^2.0.0"
-
-joi@^17.6.0:
-  version "17.6.0"
-  resolved "https://registry.yarnpkg.com/joi/-/joi-17.6.0.tgz#0bb54f2f006c09a96e75ce687957bd04290054b2"
-  integrity sha512-OX5dG6DTbcr/kbMFj0KGYxuew69HPcAE3K/sZpEV2nP6e/j/C0HV+HNiBPCASxdx5T7DMoa0s8UeHWMnb6n2zw==
-  dependencies:
-    "@hapi/hoek" "^9.0.0"
-    "@hapi/topo" "^5.0.0"
-    "@sideway/address" "^4.1.3"
     "@sideway/formula" "^3.0.0"
     "@sideway/pinpoint" "^2.0.0"
 

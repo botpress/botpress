@@ -11,7 +11,7 @@ const migration: Migration = {
     return { success: true, hasChanges: false, message: 'Migration skipped' }
   },
   down: async ({ bp, metadata, configProvider }: MigrationOpts): Promise<sdk.MigrationResult> => {
-    const fixBotToken = async (botId: string, botConfig: sdk.BotConfig) => {
+    const fixBotToken = async (botId: string, botConfig: any) => {
       if (!botConfig.messaging?.id) {
         return
       }
@@ -26,7 +26,7 @@ const migration: Migration = {
         return
       }
 
-      await configProvider.mergeBotConfig(botId, { messaging: { token: parts[1] } })
+      await configProvider.mergeBotConfig(botId, { messaging: { token: parts[1] } as any })
     }
 
     if (metadata.botId) {

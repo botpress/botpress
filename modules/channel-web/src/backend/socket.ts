@@ -21,7 +21,7 @@ export default async (bp: typeof sdk, db: Database) => {
       return next()
     }
 
-    const messaging = await db.getMessagingClient(event.botId)
+    const messaging = bp.messaging.forBot(event.botId)
     const messageType = event.type === 'default' ? 'text' : event.type
     const userId = event.target
     const mapping = await db.getMappingFromUser(userId)
