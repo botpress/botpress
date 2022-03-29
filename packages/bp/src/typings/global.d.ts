@@ -67,6 +67,8 @@ declare namespace NodeJS {
     INTERNAL_PASSWORD: string
     // The Botpress cloud access point.
     CLOUD_CONTROLLER_ENDPOINT: string
+    // The Botpress cloud oauth endpoint point.
+    CLOUD_OAUTH_ENDPOINT: string
   }
 }
 

@@ -155,5 +155,3 @@ export const BUILTIN_MODULES = [
   'testing',
   'uipath'
 ]
-
-export const defaultOauthUrl = 'https://oauth.botpress.dev/oauth2/token'
