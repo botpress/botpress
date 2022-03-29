@@ -3,6 +3,7 @@ import { createServer } from 'http'
 import fse from 'fs-extra'
 import path from 'path'
 import axios from 'axios'
+import portFinder from 'portfinder'
 
 require('dotenv').config({ path: path.resolve('./dist/.env') })
 
@@ -73,7 +74,13 @@ app.get('/:botId?', async (req, res) => {
   res.send(html)
 })
 
-const httpServer = createServer(app)
-httpServer.listen(5000, undefined)
+const init = async () => {
+  const port = await portFinder.getPortPromise({ port: 5000 })
 
-console.info('Listening on http://localhost:5000')
+  const httpServer = createServer(app)
+  httpServer.listen(port, undefined)
+
+  console.info(`Listening on http://localhost:${port}`)
+}
+
+init()
