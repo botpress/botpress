@@ -1,7 +1,6 @@
 import { Button, Classes, Dialog, FormGroup, InputGroup, Intent, Callout, Checkbox } from '@blueprintjs/core'
 import { BotConfig, BotTemplate } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
-import { defaultOauthUrl } from 'common/defaults'
 import _ from 'lodash'
 import ms from 'ms'
 import React, { Component } from 'react'
@@ -143,7 +142,7 @@ class CreateBotModal extends Component<Props, State> {
       newBot.cloud = {
         clientId: this.state.cloudClientId,
         clientSecret: this.state.cloudClientSecret,
-        oauthUrl: defaultOauthUrl
+        oauthUrl: window.CLOUD_OAUTH_ENDPOINT
       }
     }
 

@@ -66,7 +66,9 @@ declare namespace NodeJS {
     // The internal password is used for inter-process communication
     INTERNAL_PASSWORD: string
     // The Botpress cloud access point.
-    CONTROLLERAPI_ENDPOINT: string
+    CLOUD_CONTROLLER_ENDPOINT: string
+    // The Botpress cloud oauth endpoint point.
+    CLOUD_OAUTH_ENDPOINT: string
   }
 }
 

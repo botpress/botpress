@@ -111,7 +111,7 @@ export class BotService {
     bearerToken: string
   ): Promise<{ userId: string; runtimeName: string; botName: string; botId: string }> {
     return axios
-      .get(`${process.CONTROLLERAPI_ENDPOINT}/v1/introspect`, {
+      .get(`${process.CLOUD_CONTROLLER_ENDPOINT}/v1/introspect`, {
         headers: {
           Authorization: bearerToken
         }
