@@ -48,10 +48,20 @@ export class WorkspaceService {
   ) {}
 
   async initialize(): Promise<void> {
-    await this.getWorkspaces().catch(async () => {
+    try {
+      const workspaces = await this.getWorkspaces()
+
+      for (const workspace of workspaces) {
+        if ((workspace.authStrategies || []).length === 0) {
+          this.logger.warn(
+            `Workspace [${workspace.name}] does not contain any Authentication Strategies ('authStrategies'). This can result in unwanted behavior.`
+          )
+        }
+      }
+    } catch {
       await this.save([defaultWorkspace])
       this.logger.info('Created workspace')
-    })
+    }
   }
 
   async getWorkspaces(): Promise<Workspace[]> {
