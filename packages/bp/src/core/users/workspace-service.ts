@@ -52,7 +52,7 @@ export class WorkspaceService {
       const workspaces = await this.getWorkspaces()
 
       for (const workspace of workspaces) {
-        if (workspace.authStrategies.length === 0) {
+        if ((workspace.authStrategies || []).length === 0) {
           this.logger.warn(
             `Workspace [${workspace.name}] does not contain any Authentication Strategies ('authStrategies'). This can result in unwanted behavior.`
           )
