@@ -647,7 +647,7 @@ export class BotService {
       }
 
       const botpressConfig = await this.configProvider.getBotpressConfig()
-      if (botpressConfig.dialog.sessionTimeoutInterval < (config.dialog?.timeoutInterval || 0)) {
+      if (ms(botpressConfig.dialog.sessionTimeoutInterval) < ms(config.dialog?.timeoutInterval || '0s')) {
         this.logger
           .forBot(botId)
           .warn(
