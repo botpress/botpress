@@ -76,6 +76,7 @@ export const loadEnvVars = () => {
   process.ASSERT_LICENSED = () => {}
   process.BPFS_STORAGE = process.runtime_env.BPFS_STORAGE || 'disk'
   process.CLUSTER_ENABLED = yn(process.runtime_env.CLUSTER_ENABLED)
+  process.OAUTH_ENDPOINT = process.runtime_env.OAUTH_ENDPOINT
   process.NLU_ENDPOINT = process.runtime_env.NLU_ENDPOINT
   process.MESSAGING_ENDPOINT = process.runtime_env.MESSAGING_ENDPOINT
   process.MESSAGING_SESSION_COOKIE_NAME = process.runtime_env.MESSAGING_SESSION_COOKIE_NAME

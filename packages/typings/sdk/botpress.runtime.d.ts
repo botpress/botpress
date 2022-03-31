@@ -672,7 +672,6 @@ declare module 'botpress/runtime-sdk' {
   }
 
   export interface CloudConfig {
-    oauthUrl: string
     clientId: string
     clientSecret: string
   }

@@ -1,5 +1,5 @@
 import { MessagingChannel, MessagingChannelOptions, uuid } from '@botpress/messaging-client'
-import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
+import axios, { AxiosRequestConfig } from 'axios'
 import { CloudConfig } from 'botpress/runtime-sdk'
 import { VError } from 'verror'
 import { cache } from './cache'
@@ -50,10 +50,9 @@ const getClientIdFromRequestConfig = (config: AxiosRequestConfig) => {
 const getToken = async (clientId: uuid, clientIdToCloudConfig: ClientIdToCloudConfig) => {
   let auth = authByMessagingClientId[clientId]
   if (!auth) {
-    const { oauthUrl, clientId: oauthClientId, clientSecret } = clientIdToCloudConfig[clientId]
+    const { clientId: oauthClientId, clientSecret } = clientIdToCloudConfig[clientId]
     auth = cache(
       createOauthTokenClient(axios.create(), {
-        oauthUrl,
         clientId: oauthClientId,
         clientSecret,
         scopes: ['messaging']
