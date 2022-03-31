@@ -79,6 +79,7 @@ export const loadEnvVars = () => {
   process.NLU_ENDPOINT = process.runtime_env.NLU_ENDPOINT
   process.MESSAGING_ENDPOINT = process.runtime_env.MESSAGING_ENDPOINT
   process.MESSAGING_SESSION_COOKIE_NAME = process.runtime_env.MESSAGING_SESSION_COOKIE_NAME
+  process.SDK_RATE_LIMIT = process.runtime_env.SDK_RATE_LIMIT
 }
 
 export const setupProcess = async () => {

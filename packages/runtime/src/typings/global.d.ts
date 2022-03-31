@@ -56,6 +56,7 @@ declare namespace NodeJS {
     NLU_ENDPOINT?: string
     MESSAGING_ENDPOINT?: string
     MESSAGING_SESSION_COOKIE_NAME?: string
+    SDK_RATE_LIMIT?: string
   }
 }
 
@@ -83,6 +84,9 @@ declare interface RuntimeEnvironmentVariables {
 
   /** Name of the cookie for sticky sessions on messaging */
   readonly MESSAGING_SESSION_COOKIE_NAME?: string
+
+  /** Options for sdk rate limiting (JSON) */
+  readonly SDK_RATE_LIMIT?: string
 
   /** The URL used to reach an external NLU server */
   readonly NLU_ENDPOINT?: string

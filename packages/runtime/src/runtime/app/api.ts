@@ -22,8 +22,13 @@ import { container } from './inversify/app.inversify'
 import { TYPES } from './types'
 
 const limit = <T extends (...args: any[]) => any>(func: T): T => {
-  const limiter = new Bottleneck({ minTime: 333, maxConcurrent: 1 })
-  return limiter.wrap(func) as any
+  if (process.SDK_RATE_LIMIT?.length) {
+    const options = JSON.parse(process.SDK_RATE_LIMIT)
+    const limiter = new Bottleneck(options)
+    return limiter.wrap(func) as any
+  } else {
+    return func
+  }
 }
 
 const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk.events => {
