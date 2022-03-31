@@ -1,11 +1,14 @@
 import { MessagingChannel, MessagingClient } from '@botpress/messaging-client'
 import { Logger } from 'botpress/sdk'
+import { CloudMessagingChannel } from 'src/runtime/cloud/messaging'
 
 export class MessagingInteractor {
   public readonly client: MessagingChannel
 
   constructor(private logger: Logger) {
-    this.client = new MessagingChannel(this.getOptions())
+    this.client = process.OAUTH_ENDPOINT
+      ? new CloudMessagingChannel(this.getOptions())
+      : new MessagingChannel(this.getOptions())
   }
 
   async setup() {

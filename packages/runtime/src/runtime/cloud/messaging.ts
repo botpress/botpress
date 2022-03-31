@@ -3,21 +3,17 @@ import axios, { AxiosRequestConfig } from 'axios'
 import { CloudConfig } from 'botpress/runtime-sdk'
 import { VError } from 'verror'
 import { cache } from './cache'
-import { createOauthTokenClient, errorInterceptor, ErrorRetrier, requestInterceptor } from './oauth'
+import { createOauthTokenClient, errorInterceptor, requestInterceptor } from './oauth'
 
 export interface ClientIdToCloudConfig {
   [clientId: uuid]: CloudConfig
 }
 
-type Props = MessagingChannelOptions & {
-  clientIdToCloudConfig: ClientIdToCloudConfig
-}
-
 export class CloudMessagingChannel extends MessagingChannel {
-  constructor(props: Props) {
-    super(props)
+  private clientIdToCloudConfig: ClientIdToCloudConfig = {}
 
-    const { clientIdToCloudConfig } = props
+  constructor(props: MessagingChannelOptions) {
+    super(props)
 
     const axiosInstance = this.http
     axiosInstance.interceptors.request.use(
@@ -28,16 +24,24 @@ export class CloudMessagingChannel extends MessagingChannel {
             `could not find messagingClientId in axios request, config: ${JSON.stringify(requestConfig)}`
           )
         }
-        return getToken(messagingClientId, clientIdToCloudConfig)
+        return getToken(messagingClientId, this.clientIdToCloudConfig)
       })
     )
     axiosInstance.interceptors.response.use(
       undefined,
       errorInterceptor(axiosInstance, async requestConfig => {
         const messagingClientId = getClientIdFromRequestConfig(requestConfig)
-        return getToken(messagingClientId, clientIdToCloudConfig)
+        return getToken(messagingClientId, this.clientIdToCloudConfig)
       })
     )
+  }
+
+  addCloudConfig(clientId: uuid, config: CloudConfig) {
+    this.clientIdToCloudConfig[clientId] = config
+  }
+
+  removeCloudConfig(clientId: uuid) {
+    delete this.clientIdToCloudConfig[clientId]
   }
 }
 
