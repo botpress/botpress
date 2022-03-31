@@ -7,7 +7,6 @@ The botpress runtime is a lightweight version of botpress that runs on the cloud
 1. Edit the file `dist/.env` and configure the following elements:
 
 ```js
-ENABLE_EXPERIMENTAL_CONVERSE=true
 MESSAGING_ENDPOINT=http://localhost:3100
 ```
 

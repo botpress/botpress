@@ -268,7 +268,7 @@ export class BotService {
         throw new Error('Supported languages must include the default language of the bot')
       }
 
-      await this.messagingService.loadMessagingForBot(botId)
+      await this.messagingService.lifetime.loadMessagingForBot(botId)
       await this.cms.loadContentTypesFromFiles(botId)
 
       await this.cms.loadElementsForBot(botId)
@@ -309,7 +309,7 @@ export class BotService {
     }
 
     await this.cms.clearElementsFromCache(botId)
-    await this.messagingService.unloadMessagingForBot(botId)
+    await this.messagingService.lifetime.unloadMessagingForBot(botId)
     await this.nluInferenceService.unmountBot(botId)
 
     const api = await createForGlobalHooks()
