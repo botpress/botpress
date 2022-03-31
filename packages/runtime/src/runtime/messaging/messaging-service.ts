@@ -3,9 +3,11 @@ import { IO, Logger, MessagingConfig } from 'botpress/runtime-sdk'
 import { inject, injectable } from 'inversify'
 import LRUCache from 'lru-cache'
 import ms from 'ms'
+import { VError } from 'verror'
 import yn from 'yn'
 
 import { formatUrl } from '../../common/url'
+import { ClientIdToCloudConfig, CloudMessagingChannel } from '../cloud/messaging'
 import { ConfigProvider } from '../config'
 import { WellKnownFlags } from '../dialog'
 import { EventEngine, Event } from '../events'
@@ -16,6 +18,7 @@ export class MessagingService {
   public messaging!: MessagingChannel
   private botIdToClientId: { [botId: string]: uuid } = {}
   private clientIdToBotId: { [clientId: uuid]: string } = {}
+  private clientIdToCloudConfig: ClientIdToCloudConfig = {}
   private channelNames = ['messenger', 'slack', 'smooch', 'teams', 'telegram', 'twilio', 'vonage']
   private newUsers: number = 0
   private collectingCache: LRUCache<string, uuid>
@@ -26,8 +29,14 @@ export class MessagingService {
     @inject(TYPES.Logger) private logger: Logger
   ) {
     this.collectingCache = new LRUCache<string, uuid>({ max: 5000, maxAge: ms('5m') })
-    this.messaging = new MessagingChannel({
-      url: process.MESSAGING_ENDPOINT!,
+
+    const messagingUrl = process.MESSAGING_ENDPOINT
+    if (!messagingUrl) {
+      throw new VError('messagingUrl must be defined')
+    }
+
+    this.messaging = new CloudMessagingChannel({
+      url: messagingUrl,
       sessionCookieName: process.MESSAGING_SESSION_COOKIE_NAME,
       logger: {
         info: this.logger.info.bind(this.logger),
@@ -36,7 +45,8 @@ export class MessagingService {
         error: (e, msg, data) => {
           this.logger.attachError(e).error(msg || '', data)
         }
-      }
+      },
+      clientIdToCloudConfig: this.clientIdToCloudConfig
     })
     // use this to test converse from messaging
     if (yn(process.env.ENABLE_EXPERIMENTAL_CONVERSE)) {
@@ -73,17 +83,27 @@ export class MessagingService {
 
   async loadMessagingForBot(botId: string) {
     const config = await this.configProvider.getBotConfig(botId)
-    const messaging = (config.messaging || {}) as Partial<MessagingConfig>
+    const cloud = config.cloud
+    if (!cloud) {
+      throw new VError(`cloud config undefined for bot ${botId}`)
+    }
 
-    this.messaging.start(messaging.id!, { clientToken: messaging.token })
-    const { webhooks } = await this.messaging.sync(messaging.id!, {
+    const messaging = (config.messaging || {}) as Partial<MessagingConfig>
+    const messagingId = messaging.id
+    if (!messagingId) {
+      throw new VError(`could not find messaging id in botConfig for bot: ${botId}`)
+    }
+
+    this.clientIdToBotId[messagingId] = botId
+    this.botIdToClientId[botId] = messagingId
+    this.clientIdToCloudConfig[messagingId] = cloud
+
+    this.messaging.start(messagingId, { clientToken: messaging.token })
+    const { webhooks } = await this.messaging.sync(messagingId, {
       channels: messaging.channels,
       webhooks: [{ url: `${process.EXTERNAL_URL}/api/v1/chat/receive` }]
     })
-
-    this.clientIdToBotId[messaging.id!] = botId
-    this.botIdToClientId[botId] = messaging.id!
-    this.messaging.start(messaging.id!, { clientToken: messaging.token, webhookToken: webhooks[0].token })
+    this.messaging.start(messagingId, { clientToken: messaging.token, webhookToken: webhooks[0].token })
   }
 
   async unloadMessagingForBot(botId: string) {
