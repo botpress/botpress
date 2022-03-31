@@ -2,7 +2,7 @@ import { Client, Health, PredictOutput, Specifications } from '@botpress/nlu-cli
 import { AxiosInstance, AxiosRequestConfig } from 'axios'
 import { CloudConfig } from 'botpress/runtime-sdk'
 import _ from 'lodash'
-import { CloudClient } from './cloud/client'
+import { CloudNluClient } from '../../cloud/nlu'
 
 interface Options {
   endpoint: string
@@ -22,12 +22,12 @@ interface NLUError {
 }
 
 export class NLUClient {
-  private _client: Client | CloudClient
+  private _client: Client | CloudNluClient
 
   constructor(options: Options) {
     if (options.cloud) {
-      this._client = new CloudClient({
-        endpoint: options.endpoint,
+      this._client = new CloudNluClient({
+        baseURL: options.endpoint,
         ...options.cloud
       })
       return
