@@ -23,7 +23,7 @@ export class MessagingCollector {
   }
 
   get(eventId: string) {
-    return this.collectingCache[eventId]
+    return this.collectingCache.get(eventId)
   }
 
   informProcessingDone(event: IO.IncomingEvent) {
