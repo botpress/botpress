@@ -14,7 +14,8 @@
     "version": "0.1.10"
   },
   "studio": {
-    "version": "0.0.50"
+    "version": "0.0.50",
+    "devBranch": "dev-2245-bug-how-data-is-showed-in-botpress"
   },
   "messaging": {
     "version": "1.1.7"
