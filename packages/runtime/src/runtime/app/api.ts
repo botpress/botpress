@@ -28,13 +28,13 @@ const limit = <T extends (...args: any[]) => any>(func: T): T => {
 
 const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk.events => {
   return {
-    registerMiddleware: limit((middleware: sdk.IO.MiddlewareDefinition) => {
+    registerMiddleware: (middleware: sdk.IO.MiddlewareDefinition) => {
       eventEngine.register(middleware)
-    }),
-    removeMiddleware: limit(eventEngine.removeMiddleware.bind(eventEngine)),
+    },
+    removeMiddleware: eventEngine.removeMiddleware.bind(eventEngine),
     sendEvent: limit(eventEngine.sendEvent.bind(eventEngine)),
     replyToEvent: limit(eventEngine.replyToEvent.bind(eventEngine)),
-    isIncomingQueueEmpty: limit(eventEngine.isIncomingQueueEmpty.bind(eventEngine)),
+    isIncomingQueueEmpty: eventEngine.isIncomingQueueEmpty.bind(eventEngine),
     findEvents: limit(eventRepo.findEvents.bind(eventRepo)),
     updateEvent: limit(eventRepo.updateEvent.bind(eventRepo)),
     saveUserFeedback: limit(eventRepo.saveUserFeedback.bind(eventRepo))
@@ -43,7 +43,7 @@ const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk
 
 const dialog = (dialogEngine: DialogEngine, stateManager: StateManager): typeof sdk.dialog => {
   return {
-    createId: limit(SessionIdFactory.createIdFromEvent.bind(SessionIdFactory)),
+    createId: SessionIdFactory.createIdFromEvent.bind(SessionIdFactory),
     processEvent: limit(dialogEngine.processEvent.bind(dialogEngine)),
     deleteSession: limit(stateManager.deleteDialogSession.bind(stateManager)),
     jumpTo: limit(dialogEngine.jumpTo.bind(dialogEngine))
@@ -76,9 +76,9 @@ const scopedKvs = (scopedKvs: KvsService): sdk.KvsService => {
     setStorageWithExpiry: limit(scopedKvs.setStorageWithExpiry.bind(scopedKvs)),
     getStorageWithExpiry: limit(scopedKvs.getStorageWithExpiry.bind(scopedKvs)),
     removeStorageKeysStartingWith: limit(scopedKvs.removeStorageKeysStartingWith.bind(scopedKvs)),
-    getConversationStorageKey: limit(scopedKvs.getConversationStorageKey.bind(scopedKvs)),
-    getUserStorageKey: limit(scopedKvs.getUserStorageKey.bind(scopedKvs)),
-    getGlobalStorageKey: limit(scopedKvs.getGlobalStorageKey.bind(scopedKvs))
+    getConversationStorageKey: scopedKvs.getConversationStorageKey.bind(scopedKvs),
+    getUserStorageKey: scopedKvs.getUserStorageKey.bind(scopedKvs),
+    getGlobalStorageKey: scopedKvs.getGlobalStorageKey.bind(scopedKvs)
   }
 }
 
@@ -125,11 +125,9 @@ const cms = (cmsService: CMSService): typeof sdk.cms => {
         return cmsService.renderElement(contentId, args, eventDestination)
       }
     ),
-    renderTemplate: limit(
-      (templateItem: sdk.cms.TemplateItem, context): sdk.cms.TemplateItem => {
-        return renderRecursive(templateItem, context)
-      }
-    )
+    renderTemplate: (templateItem: sdk.cms.TemplateItem, context): sdk.cms.TemplateItem => {
+      return renderRecursive(templateItem, context)
+    }
   }
 }
 
