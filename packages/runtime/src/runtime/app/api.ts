@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/runtime-sdk'
+import Bottleneck from 'bottleneck'
 import { inject, injectable } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
@@ -11,7 +12,7 @@ import { StateManager, DialogEngine, WellKnownFlags } from '../dialog'
 import * as dialogEnums from '../dialog/enums'
 import { SessionIdFactory } from '../dialog/sessions'
 import { EventEngine, EventRepository, Event } from '../events'
-import { KeyValueStore } from '../kvs'
+import { KeyValueStore, KvsService } from '../kvs'
 import { LoggerProvider } from '../logger'
 import * as logEnums from '../logger/enums'
 import { getMessageSignature } from '../security'
@@ -20,50 +21,75 @@ import { ChannelUserRepository } from '../users'
 import { container } from './inversify/app.inversify'
 import { TYPES } from './types'
 
+const limit = <T extends (...args: any[]) => any>(func: T): T => {
+  if (process.SDK_RATE_LIMIT?.length) {
+    const options = JSON.parse(process.SDK_RATE_LIMIT)
+    const limiter = new Bottleneck(options)
+    return limiter.wrap(func) as any
+  } else {
+    return func
+  }
+}
+
 const event = (eventEngine: EventEngine, eventRepo: EventRepository): typeof sdk.events => {
   return {
-    registerMiddleware(middleware: sdk.IO.MiddlewareDefinition) {
+    registerMiddleware: (middleware: sdk.IO.MiddlewareDefinition) => {
       eventEngine.register(middleware)
     },
     removeMiddleware: eventEngine.removeMiddleware.bind(eventEngine),
-    sendEvent: eventEngine.sendEvent.bind(eventEngine),
-    replyToEvent: eventEngine.replyToEvent.bind(eventEngine),
+    sendEvent: limit(eventEngine.sendEvent.bind(eventEngine)),
+    replyToEvent: limit(eventEngine.replyToEvent.bind(eventEngine)),
     isIncomingQueueEmpty: eventEngine.isIncomingQueueEmpty.bind(eventEngine),
-    findEvents: eventRepo.findEvents.bind(eventRepo),
-    updateEvent: eventRepo.updateEvent.bind(eventRepo),
-    saveUserFeedback: eventRepo.saveUserFeedback.bind(eventRepo)
+    findEvents: limit(eventRepo.findEvents.bind(eventRepo)),
+    updateEvent: limit(eventRepo.updateEvent.bind(eventRepo)),
+    saveUserFeedback: limit(eventRepo.saveUserFeedback.bind(eventRepo))
   }
 }
 
 const dialog = (dialogEngine: DialogEngine, stateManager: StateManager): typeof sdk.dialog => {
   return {
     createId: SessionIdFactory.createIdFromEvent.bind(SessionIdFactory),
-    processEvent: dialogEngine.processEvent.bind(dialogEngine),
-    deleteSession: stateManager.deleteDialogSession.bind(stateManager),
-    jumpTo: dialogEngine.jumpTo.bind(dialogEngine)
+    processEvent: limit(dialogEngine.processEvent.bind(dialogEngine)),
+    deleteSession: limit(stateManager.deleteDialogSession.bind(stateManager)),
+    jumpTo: limit(dialogEngine.jumpTo.bind(dialogEngine))
   }
 }
 
 const bots = (botService: BotService): typeof sdk.bots => {
   return {
-    getBotById: botService.findBotById.bind(botService)
+    getBotById: limit(botService.findBotById.bind(botService))
   }
 }
 
 const users = (userRepo: ChannelUserRepository): typeof sdk.users => {
   return {
-    getOrCreateUser: userRepo.getOrCreate.bind(userRepo),
-    updateAttributes: userRepo.updateAttributes.bind(userRepo),
-    getAttributes: userRepo.getAttributes.bind(userRepo),
-    setAttributes: userRepo.setAttributes.bind(userRepo),
-    getAllUsers: userRepo.getAllUsers.bind(userRepo),
-    getUserCount: userRepo.getUserCount.bind(userRepo)
+    getOrCreateUser: limit(userRepo.getOrCreate.bind(userRepo)),
+    updateAttributes: limit(userRepo.updateAttributes.bind(userRepo)),
+    getAttributes: limit(userRepo.getAttributes.bind(userRepo)),
+    setAttributes: limit(userRepo.setAttributes.bind(userRepo)),
+    getAllUsers: limit(userRepo.getAllUsers.bind(userRepo)),
+    getUserCount: limit(userRepo.getUserCount.bind(userRepo))
+  }
+}
+
+const scopedKvs = (scopedKvs: KvsService): sdk.KvsService => {
+  return {
+    get: limit(scopedKvs.get.bind(scopedKvs)),
+    set: limit(scopedKvs.set.bind(scopedKvs)),
+    delete: limit(scopedKvs.delete.bind(scopedKvs)),
+    exists: limit(scopedKvs.exists.bind(scopedKvs)),
+    setStorageWithExpiry: limit(scopedKvs.setStorageWithExpiry.bind(scopedKvs)),
+    getStorageWithExpiry: limit(scopedKvs.getStorageWithExpiry.bind(scopedKvs)),
+    removeStorageKeysStartingWith: limit(scopedKvs.removeStorageKeysStartingWith.bind(scopedKvs)),
+    getConversationStorageKey: scopedKvs.getConversationStorageKey.bind(scopedKvs),
+    getUserStorageKey: scopedKvs.getUserStorageKey.bind(scopedKvs),
+    getGlobalStorageKey: scopedKvs.getGlobalStorageKey.bind(scopedKvs)
   }
 }
 
 const kvs = (kvs: KeyValueStore): typeof sdk.kvs => {
   return {
-    forBot: kvs.forBot.bind(kvs)
+    forBot: (botId: string) => scopedKvs(kvs.forBot(botId))
   }
 }
 
@@ -75,11 +101,11 @@ const security = (): typeof sdk.security => {
 
 const scopedGhost = (scopedGhost: ScopedGhostService): sdk.ScopedGhostService => {
   return {
-    readFileAsBuffer: scopedGhost.readFileAsBuffer.bind(scopedGhost),
-    readFileAsString: scopedGhost.readFileAsString.bind(scopedGhost),
-    readFileAsObject: scopedGhost.readFileAsObject.bind(scopedGhost),
-    directoryListing: scopedGhost.directoryListing.bind(scopedGhost),
-    fileExists: scopedGhost.fileExists.bind(scopedGhost)
+    readFileAsBuffer: limit(scopedGhost.readFileAsBuffer.bind(scopedGhost)),
+    readFileAsString: limit(scopedGhost.readFileAsString.bind(scopedGhost)),
+    readFileAsObject: limit(scopedGhost.readFileAsObject.bind(scopedGhost)),
+    directoryListing: limit(scopedGhost.directoryListing.bind(scopedGhost)),
+    fileExists: limit(scopedGhost.fileExists.bind(scopedGhost))
   }
 }
 
@@ -91,16 +117,20 @@ const ghost = (ghostService: GhostService): typeof sdk.ghost => {
 
 const cms = (cmsService: CMSService): typeof sdk.cms => {
   return {
-    getContentElement: cmsService.getContentElement.bind(cmsService),
-    getContentElements: cmsService.getContentElements.bind(cmsService),
-    listContentElements: cmsService.listContentElements.bind(cmsService),
-    getAllContentTypes(botId: string): Promise<any[]> {
-      return cmsService.getAllContentTypes(botId)
-    },
-    renderElement(contentId: string, args: any, eventDestination: sdk.IO.EventDestination): Promise<any> {
-      return cmsService.renderElement(contentId, args, eventDestination)
-    },
-    renderTemplate(templateItem: sdk.cms.TemplateItem, context): sdk.cms.TemplateItem {
+    getContentElement: limit(cmsService.getContentElement.bind(cmsService)),
+    getContentElements: limit(cmsService.getContentElements.bind(cmsService)),
+    listContentElements: limit(cmsService.listContentElements.bind(cmsService)),
+    getAllContentTypes: limit(
+      (botId: string): Promise<any[]> => {
+        return cmsService.getAllContentTypes(botId)
+      }
+    ),
+    renderElement: limit(
+      (contentId: string, args: any, eventDestination: sdk.IO.EventDestination): Promise<any> => {
+        return cmsService.renderElement(contentId, args, eventDestination)
+      }
+    ),
+    renderTemplate: (templateItem: sdk.cms.TemplateItem, context): sdk.cms.TemplateItem => {
       return renderRecursive(templateItem, context)
     }
   }
