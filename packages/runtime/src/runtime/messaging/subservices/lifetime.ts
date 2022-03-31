@@ -1,6 +1,6 @@
 import { MessagingClient, uuid } from '@botpress/messaging-client'
 import { BotConfig } from 'botpress/runtime-sdk'
-import { CloudMessagingChannel } from 'src/runtime/cloud/messaging'
+import { CloudMessagingChannel } from '../../cloud/messaging'
 import { ConfigProvider } from '../../config'
 import { MessagingInteractor } from './interactor'
 
