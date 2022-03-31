@@ -5,6 +5,7 @@ on:
       - master
 jobs:
   create_draft_release:
+    if: "${{ startsWith(github.event.head_commit.message, 'chore(server): release v') == true }}"
     name: Create Draft-Release
     runs-on: ubuntu-latest
     steps:
@@ -30,7 +31,6 @@ jobs:
           echo "Latest Tag: ${{ steps.release_details.outputs.latest_tag }}"
 
       - name: Release
-        if: ${{ steps.release_details.outputs.is_new_release == 'true' }}
         uses: softprops/action-gh-release@v1
         with:
           prerelease: false

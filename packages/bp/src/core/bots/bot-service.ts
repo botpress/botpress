@@ -631,6 +631,15 @@ export class BotService {
         throw new Error('Supported languages must include the default language of the bot')
       }
 
+      const botpressConfig = await this.configProvider.getBotpressConfig()
+      if (ms(botpressConfig.dialog.sessionTimeoutInterval) < ms(config.dialog?.timeoutInterval || '0s')) {
+        this.logger
+          .forBot(botId)
+          .warn(
+            `[${botId}] Your timeout interval (source: bot.config) is greater than your session timeout (source: botpress.config). This will prevent 'before_session_timeout' hooks and Timeout flows from being executed.`
+          )
+      }
+
       await this.messagingService.lifetime.loadMessagingForBot(botId)
 
       await this.cms.loadContentTypesFromFiles(botId)
