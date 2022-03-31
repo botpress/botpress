@@ -11,7 +11,7 @@ import { StateManager, DialogEngine, WellKnownFlags } from '../dialog'
 import * as dialogEnums from '../dialog/enums'
 import { SessionIdFactory } from '../dialog/sessions'
 import { EventEngine, EventRepository, Event } from '../events'
-import { KeyValueStore } from '../kvs'
+import { KeyValueStore, KvsService } from '../kvs'
 import { LoggerProvider } from '../logger'
 import * as logEnums from '../logger/enums'
 import { getMessageSignature } from '../security'
@@ -61,9 +61,24 @@ const users = (userRepo: ChannelUserRepository): typeof sdk.users => {
   }
 }
 
+const scopedKvs = (scopedKvs: KvsService): sdk.KvsService => {
+  return {
+    get: scopedKvs.get.bind(scopedKvs),
+    set: scopedKvs.set.bind(scopedKvs),
+    delete: scopedKvs.delete.bind(scopedKvs),
+    exists: scopedKvs.exists.bind(scopedKvs),
+    setStorageWithExpiry: scopedKvs.setStorageWithExpiry.bind(scopedKvs),
+    getStorageWithExpiry: scopedKvs.getStorageWithExpiry.bind(scopedKvs),
+    removeStorageKeysStartingWith: scopedKvs.removeStorageKeysStartingWith.bind(scopedKvs),
+    getConversationStorageKey: scopedKvs.getConversationStorageKey.bind(scopedKvs),
+    getUserStorageKey: scopedKvs.getUserStorageKey.bind(scopedKvs),
+    getGlobalStorageKey: scopedKvs.getGlobalStorageKey.bind(scopedKvs)
+  }
+}
+
 const kvs = (kvs: KeyValueStore): typeof sdk.kvs => {
   return {
-    forBot: kvs.forBot.bind(kvs)
+    forBot: (botId: string) => scopedKvs(kvs.forBot(botId))
   }
 }
 
