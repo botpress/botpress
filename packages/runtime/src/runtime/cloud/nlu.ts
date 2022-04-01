@@ -8,8 +8,8 @@ export class CloudNluClient extends Client {
   constructor(props: Props) {
     super({ ...props, validateStatus: () => true })
 
-    const { oauthUrl, clientId, clientSecret } = props
+    const { clientId, clientSecret } = props
 
-    authenticateOAuth({ axiosInstance: this.axios, oauthUrl, clientId, clientSecret, scopes: ['nlu'] })
+    authenticateOAuth({ axiosInstance: this.axios, clientId, clientSecret, scopes: ['nlu'] })
   }
 }

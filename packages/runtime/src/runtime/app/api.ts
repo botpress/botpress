@@ -15,6 +15,7 @@ import { EventEngine, EventRepository, Event } from '../events'
 import { KeyValueStore, KvsService } from '../kvs'
 import { LoggerProvider } from '../logger'
 import * as logEnums from '../logger/enums'
+import { MessagingService } from '../messaging'
 import { getMessageSignature } from '../security'
 import { ChannelUserRepository } from '../users'
 
@@ -93,6 +94,12 @@ const kvs = (kvs: KeyValueStore): typeof sdk.kvs => {
   }
 }
 
+const messaging = (messagingService: MessagingService): typeof sdk.messaging => {
+  return {
+    forBot: botId => messagingService.lifetime.getHttpClient(botId)
+  }
+}
+
 const security = (): typeof sdk.security => {
   return {
     getMessageSignature
@@ -145,6 +152,7 @@ export class BotpressRuntimeAPIProvider {
   bots: typeof sdk.bots
   ghost: typeof sdk.ghost
   cms: typeof sdk.cms
+  messaging: typeof sdk.messaging
   security: typeof sdk.security
 
   constructor(
@@ -157,7 +165,8 @@ export class BotpressRuntimeAPIProvider {
     @inject(TYPES.GhostService) ghostService: GhostService,
     @inject(TYPES.CMSService) cmsService: CMSService,
     @inject(TYPES.EventRepository) eventRepo: EventRepository,
-    @inject(TYPES.StateManager) stateManager: StateManager
+    @inject(TYPES.StateManager) stateManager: StateManager,
+    @inject(TYPES.MessagingService) messagingService: MessagingService
   ) {
     this.events = event(eventEngine, eventRepo)
     this.dialog = dialog(dialogEngine, stateManager)
@@ -166,6 +175,7 @@ export class BotpressRuntimeAPIProvider {
     this.bots = bots(botService)
     this.ghost = ghost(ghostService)
     this.cms = cms(cmsService)
+    this.messaging = messaging(messagingService)
     this.security = security()
   }
 
@@ -188,6 +198,7 @@ export class BotpressRuntimeAPIProvider {
       ghost: this.ghost,
       bots: this.bots,
       cms: this.cms,
+      messaging: this.messaging,
       security: this.security,
       ButtonAction: renderEnums.ButtonAction
     }

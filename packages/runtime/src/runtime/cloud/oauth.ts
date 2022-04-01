@@ -1,11 +1,11 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios'
 import qs from 'querystring'
+import VError from 'verror'
 import { cache } from './cache'
 
 type Scope = 'messaging' | 'nlu'
 
 export interface CloudClientProps {
-  oauthUrl: string
   clientId: string
   clientSecret: string
 }
@@ -28,10 +28,9 @@ export const authenticateOAuth = (
     axiosInstance: AxiosInstance
   } & OauthTokenClientProps
 ) => {
-  const { axiosInstance, oauthUrl, clientId, clientSecret, scopes } = props
+  const { axiosInstance, clientId, clientSecret, scopes } = props
 
   const oauthTokenClient = createOauthTokenClient(axios.create(), {
-    oauthUrl,
     clientId,
     clientSecret,
     scopes
@@ -50,9 +49,14 @@ export const createOauthTokenClient = (
   axios: AxiosInstance,
   oauthTokenClientProps: OauthTokenClientProps
 ) => async () => {
-  const { oauthUrl, clientId, clientSecret, scopes } = oauthTokenClientProps
+  const { clientId, clientSecret, scopes } = oauthTokenClientProps
+
+  if (!process.OAUTH_ENDPOINT) {
+    throw new VError('OAUTH_ENDPOINT must be defined')
+  }
+
   const res = await axios.post(
-    oauthUrl,
+    process.OAUTH_ENDPOINT,
     qs.stringify({
       client_id: clientId,
       client_secret: clientSecret,
