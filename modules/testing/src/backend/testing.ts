@@ -1,31 +1,26 @@
 import * as sdk from 'botpress/sdk'
-import _ from 'lodash'
 import { nanoid } from 'nanoid'
 import path from 'path'
 
 import { Recorder } from './recorder'
-import { SenarioRunner } from './runner'
+import { ScenarioRunner } from './runner'
 import { Scenario } from './typings'
 import { buildScenarioFromEvents } from './utils'
 
 const SCENARIO_FOLDER = 'scenarios'
 
 export class Testing {
-  private bp: typeof sdk
-  private botId: string
   private _recorder: Recorder
-  private _runner: SenarioRunner
+  private _runner: ScenarioRunner
   private _scenarios: Scenario[]
-  private _interval: any
+  private _interval?: NodeJS.Timeout
 
-  constructor(bp: typeof sdk, botId: string) {
-    this.bp = bp
-    this.botId = botId
-    this._recorder = new Recorder()
-    this._runner = new SenarioRunner(bp)
+  constructor(private bp: typeof sdk, private _botId: string) {
+    this._recorder = new Recorder(bp)
+    this._runner = new ScenarioRunner(bp)
   }
 
-  async startRecording(chatUserId) {
+  async startRecording(chatUserId: string) {
     await this._ensureHooksEnabled()
     this._recorder.startRecording(chatUserId)
   }
@@ -55,13 +50,13 @@ export class Testing {
     })
   }
 
-  processIncomingEvent(event: sdk.IO.IncomingEvent): sdk.IO.EventState | void {
-    this._recorder.processIncoming(event)
-    return this._runner.processIncoming(event)
+  async processIncomingEvent(event: sdk.IO.IncomingEvent): Promise<sdk.IO.EventState | void> {
+    await this._recorder.processIncoming(event)
+    this._runner.processIncoming(event)
   }
 
-  processCompletedEvent(event: sdk.IO.IncomingEvent): void {
-    this._recorder.processCompleted(event)
+  async processCompletedEvent(event: sdk.IO.IncomingEvent): Promise<void> {
+    await this._recorder.processCompleted(event)
     this._runner.processCompleted(event)
   }
 
@@ -77,22 +72,22 @@ export class Testing {
     return buildScenarioFromEvents(events)
   }
 
-  async saveScenario(name, scenario) {
+  async saveScenario(name: string, scenario: Scenario) {
     await this.bp.ghost
-      .forBot(this.botId)
+      .forBot(this._botId)
       .upsertFile(SCENARIO_FOLDER, `${name}.json`, JSON.stringify(scenario, undefined, 2))
 
     await this._loadScenarios()
   }
 
-  async deleteScenario(name) {
-    const exists = await this.bp.ghost.forBot(this.botId).fileExists(SCENARIO_FOLDER, `${name}.json`)
+  async deleteScenario(name: string) {
+    const exists = await this.bp.ghost.forBot(this._botId).fileExists(SCENARIO_FOLDER, `${name}.json`)
 
     if (!exists) {
       return
     }
 
-    await this.bp.ghost.forBot(this.botId).deleteFile(SCENARIO_FOLDER, `${name}.json`)
+    await this.bp.ghost.forBot(this._botId).deleteFile(SCENARIO_FOLDER, `${name}.json`)
     await this._loadScenarios()
   }
 
@@ -106,27 +101,16 @@ export class Testing {
     )
   }
 
-  private _executeScenario(scenario: Scenario) {
-    const eventDestination: sdk.IO.EventDestination = {
-      channel: 'web',
-      botId: this.botId,
-      threadId: undefined,
-      target: `test_${nanoid()}`
-    }
-
-    this._runner.runScenario({ ...scenario }, eventDestination)
-  }
-
   async executeSingle(liteScenario: Partial<Scenario>) {
     await this._ensureHooksEnabled()
     this._runner.startReplay()
 
     // TODO perform scenario validation here
     const scenario: Scenario = await this.bp.ghost
-      .forBot(this.botId)
+      .forBot(this._botId)
       .readFileAsObject(SCENARIO_FOLDER, `${liteScenario.name}.json`)
 
-    this._executeScenario({ ...liteScenario, ...scenario })
+    return this._executeScenario({ ...liteScenario, ...scenario })
   }
 
   async executeAll() {
@@ -134,9 +118,9 @@ export class Testing {
     const scenarios = await this._loadScenarios()
     this._runner.startReplay()
 
-    scenarios.forEach(scenario => {
+    for (const scenario of scenarios) {
       this._executeScenario(scenario)
-    })
+    }
   }
 
   private async _ensureHooksEnabled() {
@@ -158,13 +142,23 @@ export class Testing {
     }
   }
 
+  private _executeScenario(scenario: Scenario) {
+    const eventDestination: sdk.IO.EventDestination = {
+      channel: 'testing',
+      botId: this._botId,
+      target: `test_${nanoid()}`
+    }
+
+    this._runner.runScenario({ ...scenario }, eventDestination)
+  }
+
   private async _loadScenarios() {
-    const files = await this.bp.ghost.forBot(this.botId).directoryListing(SCENARIO_FOLDER, '*.json')
+    const files = await this.bp.ghost.forBot(this._botId).directoryListing(SCENARIO_FOLDER, '*.json')
 
     this._scenarios = await Promise.map(files, async file => {
       const name = path.basename(file as string, '.json')
       const scenarioSteps = (await this.bp.ghost
-        .forBot(this.botId)
+        .forBot(this._botId)
         .readFileAsObject(SCENARIO_FOLDER, file)) as Scenario[]
 
       return { name, ...scenarioSteps }

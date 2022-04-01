@@ -2,31 +2,33 @@ import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
 import { Scenario } from './typings'
-import { convertLastMessages } from './utils'
+import { convertLastMessages, getMappingFromVisitor } from './utils'
 
 export class Recorder {
-  private _lastEvent: sdk.IO.IncomingEvent
+  private _lastEvent?: sdk.IO.IncomingEvent
   private _scenario?: Scenario
-  private _specificTarget?: string
+  private _target!: string
 
-  constructor() {}
+  constructor(private bp: typeof sdk) {}
 
-  processIncoming(event: sdk.IO.IncomingEvent) {
-    if (!this._scenario || this._scenario.initialState) {
+  async processIncoming(event: sdk.IO.IncomingEvent) {
+    if (!this.isRecording() || this._scenario.initialState) {
       return
     }
 
-    if (!this._specificTarget || this._specificTarget === event.target) {
+    const target = await getMappingFromVisitor(this.bp, event.botId, this._target)
+    if (target === event.target) {
       this._scenario.initialState = event.state
     }
   }
 
-  processCompleted(event: sdk.IO.IncomingEvent) {
-    if (!this._scenario) {
+  async processCompleted(event: sdk.IO.IncomingEvent) {
+    if (!this.isRecording()) {
       return
     }
 
-    if (this._specificTarget && this._specificTarget !== event.target) {
+    const target = await getMappingFromVisitor(this.bp, event.botId, this._target)
+    if (target !== event.target) {
       return
     }
 
@@ -45,7 +47,7 @@ export class Recorder {
       steps: []
     }
 
-    this._specificTarget = chatUserId.length > 0 && chatUserId
+    this._target = chatUserId
   }
 
   stopRecording(): Partial<Scenario> | void {
