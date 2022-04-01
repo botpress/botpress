@@ -41,6 +41,17 @@ export interface DialogStep {
 }
 
 export interface BotReply {
-  botResponse: string
+  // TODO: Figure out what typing the response can be in case of QnAs
+  botResponse: string | { text: string }
   replySource: string
+}
+
+export interface Preview {
+  id: string
+  preview: string
+}
+
+export interface State {
+  recording: boolean
+  running: boolean
 }

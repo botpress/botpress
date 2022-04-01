@@ -7,12 +7,12 @@ import { convertLastMessages, getMappingFromVisitor } from './utils'
 export class Recorder {
   private _lastEvent?: sdk.IO.IncomingEvent
   private _scenario?: Scenario
-  private _target!: string
+  private _target?: string
 
   constructor(private bp: typeof sdk) {}
 
-  async processIncoming(event: sdk.IO.IncomingEvent) {
-    if (!this.isRecording() || this._scenario.initialState) {
+  async processIncoming(event: sdk.IO.IncomingEvent): Promise<void> {
+    if (!this.isRecording() || this._scenario.initialState || !this._target) {
       return
     }
 
@@ -22,8 +22,8 @@ export class Recorder {
     }
   }
 
-  async processCompleted(event: sdk.IO.IncomingEvent) {
-    if (!this.isRecording()) {
+  async processCompleted(event: sdk.IO.IncomingEvent): Promise<void> {
+    if (!this.isRecording() || !this._target) {
       return
     }
 
@@ -50,7 +50,7 @@ export class Recorder {
     this._target = chatUserId
   }
 
-  stopRecording(): Partial<Scenario> | void {
+  stopRecording(): Scenario | undefined {
     if (!this._scenario || !this._lastEvent) {
       return
     }
@@ -60,6 +60,7 @@ export class Recorder {
       finalState: this._lastEvent.state
     }
 
+    this._target = undefined
     this._scenario = undefined
 
     return _.omit(finalScenario, [
