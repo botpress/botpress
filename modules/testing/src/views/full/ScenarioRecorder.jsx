@@ -3,7 +3,6 @@ import { MdExpandLess, MdExpandMore } from 'react-icons/md'
 import { Button, FormControl, Row, Col, Alert, Form, Collapse } from 'react-bootstrap'
 
 import style from './style.scss'
-import Interaction from './Interaction'
 
 const DEFAULT_STATE = {
   recordedScenario: null,
@@ -15,18 +14,18 @@ class ScenarioRecorder extends React.Component {
   state = { ...DEFAULT_STATE }
 
   componentDidMount() {
-    const userId = localStorage.getItem(`bp/socket/studio/user`)
+    const userId = window.BP_STORAGE.get('bp/socket/studio/user')
     this.setState({ chatUserId: userId || window.__BP_VISITOR_ID })
   }
 
   startRecording = async () => {
     this.setState({ recordView: true, isRecording: true })
-    await this.props.bp.axios.get('/mod/testing/startRecording/' + this.state.chatUserId)
+    await this.props.bp.axios.post('/mod/testing/startRecording', { userId: this.state.chatUserId })
   }
 
   stopRecording = async () => {
     window.botpressWebChat.sendEvent({ type: 'hide' })
-    const { data } = await this.props.bp.axios.get('/mod/testing/stopRecording')
+    const { data } = await this.props.bp.axios.post('/mod/testing/stopRecording')
     this.setState({ recordedScenario: JSON.stringify(data, null, 2) })
   }
 

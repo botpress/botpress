@@ -10,7 +10,7 @@ async function processIncoming() {
       event.state = _.merge(event.state, data)
     }
   } catch (err) {
-    console.log('Error processing', err.message)
+    console.error('Error processing', err.message)
   }
 }
 

@@ -18,11 +18,14 @@ export type RunningScenario = {
   completedSteps?: DialogStep[]
 } & Scenario
 
+export interface Status {
+  status?: 'pass' | 'fail' | 'pending'
+  mismatch?: ScenarioMismatch
+  completedSteps?: number
+}
+
 export interface ScenarioStatus {
-  [scenarioName: string]: {
-    status?: 'pass' | 'fail' | 'pending'
-    mismatch?: ScenarioMismatch
-  }
+  [scenarioName: string]: Status
 }
 
 export interface ScenarioMismatch {

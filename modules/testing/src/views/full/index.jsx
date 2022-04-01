@@ -22,6 +22,9 @@ export default class Testing extends React.Component {
   }
 
   init = async () => {
+    const userId = window.BP_STORAGE.get('bp/socket/studio/user')
+    this.setState({ chatUserId: userId || window.__BP_VISITOR_ID })
+
     await this.loadScenarios()
     this.loadPreviews()
   }
@@ -29,8 +32,7 @@ export default class Testing extends React.Component {
   startRecording = () => {
     this.setState({ isRecording: true })
 
-    const userId = localStorage.getItem(`bp/socket/studio/user`)
-    this.props.bp.axios.get('/mod/testing/startRecording/' + userId || window.__BP_VISITOR_ID)
+    this.props.bp.axios.post('/mod/testing/startRecording', { userId: this.state.chatUserId })
 
     setTimeout(window.botpressWebChat.sendEvent({ type: 'show' }), 1500)
   }

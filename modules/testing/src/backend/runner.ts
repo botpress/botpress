@@ -1,15 +1,15 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { DialogStep, RunningScenario, Scenario, ScenarioMismatch, ScenarioStatus } from './typings'
+import { DialogStep, RunningScenario, Scenario, ScenarioMismatch, ScenarioStatus, Status } from './typings'
 import { convertLastMessages } from './utils'
 
 const TIMEOUT = 3000
 
-export class SenarioRunner {
+export class ScenarioRunner {
   private _active: RunningScenario[]
   private _status: ScenarioStatus
-  private _interval: any
+  private _interval: NodeJS.Timeout
 
   constructor(private bp: typeof sdk) {
     this._active = []
@@ -143,20 +143,18 @@ export class SenarioRunner {
     this._active = this._active.filter(x => x.name !== name)
   }
 
-  private _updateStatus(scenario, obj) {
+  private _updateStatus(scenario: string, obj: Partial<Status>) {
     this._status[scenario] = { ...(this._status[scenario] || {}), ...obj }
   }
 
   private _sendMessage = (message: string, eventDestination: sdk.IO.EventDestination) => {
-    setTimeout(async () => {
-      const event = this.bp.IO.Event({
-        ...eventDestination,
-        direction: 'incoming',
-        payload: { type: 'text', text: message },
-        type: 'text'
-      })
+    const event = this.bp.IO.Event({
+      ...eventDestination,
+      direction: 'incoming',
+      payload: { type: 'text', text: message },
+      type: 'text'
+    })
 
-      await this.bp.events.sendEvent(event)
-    }, 1000)
+    this.bp.events.sendEvent(event)
   }
 }

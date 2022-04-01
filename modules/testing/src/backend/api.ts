@@ -31,12 +31,15 @@ export default async (bp: typeof sdk, testByBot: TestByBot) => {
     res.sendStatus(200)
   })
 
-  router.get('/startRecording/:userId?', async (req, res) => {
-    await testByBot[req.params.botId].startRecording(req.params.userId || '')
+  router.post('/startRecording', async (req, res) => {
+    if (!req.body.userId) {
+      return res.sendStatus(400)
+    }
+    await testByBot[req.params.botId].startRecording(req.body.userId)
     res.sendStatus(200)
   })
 
-  router.get('/stopRecording', async (req, res) => {
+  router.post('/stopRecording', async (req, res) => {
     res.send(testByBot[req.params.botId].endRecording())
   })
 
@@ -63,14 +66,16 @@ export default async (bp: typeof sdk, testByBot: TestByBot) => {
     return res.sendStatus(200)
   })
 
-  router.post('/incomingEvent', (req, res) => {
+  router.post('/incomingEvent', async (req, res) => {
     const event = req.body as sdk.IO.IncomingEvent
-    res.send(testByBot[req.params.botId].processIncomingEvent(event))
+    const data = await testByBot[req.params.botId].processIncomingEvent(event)
+    res.send(data)
   })
 
-  router.post('/processedEvent', (req, res) => {
+  router.post('/processedEvent', async (req, res) => {
     const event = req.body as sdk.IO.IncomingEvent
-    res.send(testByBot[req.params.botId].processCompletedEvent(event))
+    const data = await testByBot[req.params.botId].processCompletedEvent(event)
+    res.send(data)
   })
 
   router.post('/fetchPreviews', async (req, res) => {
