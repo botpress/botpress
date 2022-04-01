@@ -1,5 +1,6 @@
 import axios, { AxiosError, AxiosInstance, AxiosRequestConfig } from 'axios'
 import qs from 'querystring'
+import VError from 'verror'
 import { cache } from './cache'
 
 type Scope = 'messaging' | 'nlu'
@@ -49,8 +50,13 @@ export const createOauthTokenClient = (
   oauthTokenClientProps: OauthTokenClientProps
 ) => async () => {
   const { clientId, clientSecret, scopes } = oauthTokenClientProps
+
+  if (!process.OAUTH_ENDPOINT) {
+    throw new VError('OAUTH_ENDPOINT must be defined')
+  }
+
   const res = await axios.post(
-    process.OAUTH_ENDPOINT!,
+    process.OAUTH_ENDPOINT,
     qs.stringify({
       client_id: clientId,
       client_secret: clientSecret,

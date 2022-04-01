@@ -1,5 +1,6 @@
 import { MessagingClient, uuid } from '@botpress/messaging-client'
 import { BotConfig } from 'botpress/runtime-sdk'
+import { VError } from 'verror'
 import { CloudMessagingChannel } from '../../cloud/messaging'
 import { ConfigProvider } from '../../config'
 import { MessagingInteractor } from './interactor'
@@ -34,7 +35,7 @@ export class MessagingLifetime {
   }
   private loadClientId(botId: string, config: BotConfig) {
     if (!config.messaging) {
-      throw new Error(`Bot ${botId} does not have a messaging config`)
+      throw new VError(`Bot ${botId} does not have a messaging config`)
     }
 
     const { clientId, clientToken, webhookToken } = config.messaging
@@ -47,7 +48,7 @@ export class MessagingLifetime {
   private loadOAuth(botId: string, config: BotConfig) {
     const cloud = config.cloud
     if (!cloud) {
-      throw new Error(`Bot ${botId} does not have a cloud config`)
+      throw new VError(`Bot ${botId} does not have a cloud config`)
     }
 
     const cloudMessaging = this.interactor.client as CloudMessagingChannel
