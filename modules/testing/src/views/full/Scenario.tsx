@@ -1,20 +1,34 @@
+import { Icon } from '@blueprintjs/core'
+import { IconNames } from '@blueprintjs/icons'
+import * as sdk from 'botpress/sdk'
+import { confirmDialog } from 'botpress/shared'
 import React from 'react'
 
 import { Panel, Label, Button } from 'react-bootstrap'
-import { Icon } from '@blueprintjs/core'
-import { confirmDialog } from 'botpress/shared'
-import { IconNames } from '@blueprintjs/icons'
 
-import style from './style.scss'
-import Interaction from './Interaction'
+import { Status, Scenario } from '../../backend/typings'
 import FailureReport from './FailureReport'
+import Interaction from './Interaction'
+import style from './style.scss'
 
-class Scenario extends React.Component {
-  state = {
+interface Props {
+  scenario: Scenario & Status
+  isRunning: boolean
+  previews: { [id: string]: string }
+  run: (scenario: Scenario) => void
+  delete: (scenario: Scenario) => void
+}
+
+interface State {
+  expanded: boolean
+}
+
+class ScenarioComponent extends React.Component<Props, State> {
+  state: State = {
     expanded: false
   }
 
-  renderStatusLabel = status => {
+  renderStatusLabel = (status: Status['status']) => {
     if (!status) {
       return
     }
@@ -32,22 +46,21 @@ class Scenario extends React.Component {
     )
   }
 
-  toggleExpanded = expanded => {
+  toggleExpanded = (expanded: boolean) => {
     this.setState({ expanded })
   }
 
-  handleDeleteClick = async e => {
-    e.stopPropagation()
+  handleDeleteClick = async () => {
     const shouldDelete = await confirmDialog('Are you sure you want to delete this scenario?', {
       acceptLabel: 'Delete'
     })
+
     if (shouldDelete) {
       this.props.delete(this.props.scenario)
     }
   }
 
-  handleRunClick = e => {
-    e.stopPropagation()
+  handleRunClick = () => {
     this.props.run(this.props.scenario)
   }
 
@@ -70,17 +83,17 @@ class Scenario extends React.Component {
           </Panel.Title>
           <div className={style.scenarioStatus}>
             {this.renderStatusLabel(scenario.status)}
-            <Button bsSize="small" variant="danger" className={'btn-danger'} onClick={this.handleDeleteClick}>
-              <Icon size={11} icon={IconNames.TRASH} />
+            <Button bsSize="small" bsStyle="danger" className={'btn-danger'} onClick={this.handleDeleteClick}>
+              <Icon iconSize={11} icon={IconNames.TRASH} />
             </Button>
             <Button
               bsSize="small"
-              variant="success"
+              bsStyle="success"
               className={'btn-success'}
               disabled={isRunning}
               onClick={this.handleRunClick}
             >
-              <Icon size={13} icon={IconNames.PLAY} />
+              <Icon iconSize={13} icon={IconNames.PLAY} />
             </Button>
           </div>
         </Panel.Heading>
@@ -101,7 +114,6 @@ class Scenario extends React.Component {
                   skipped={skipped}
                   maxChars={50}
                   mismatchIdx={scenario.mismatch ? scenario.mismatch.index : null}
-                  style={{ borderBottom: 'solid 1px #eee' }}
                 />
               )
             })}
@@ -113,7 +125,6 @@ class Scenario extends React.Component {
                 failureIdx={scenario.completedSteps + 1}
                 skipped={scenario.steps.length - scenario.completedSteps - 1}
                 previews={this.props.previews}
-                bp={this.props.bp}
               />
             </Panel.Footer>
           )}
@@ -123,4 +134,4 @@ class Scenario extends React.Component {
   }
 }
 
-export default Scenario
+export default ScenarioComponent

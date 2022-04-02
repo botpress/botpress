@@ -1,10 +1,32 @@
+import classnames from 'classnames'
+import _ from 'lodash'
 import React from 'react'
 
-import classnames from 'classnames'
 import { MdCheck, MdClose, MdRemove } from 'react-icons/md'
+import { BotReply } from '../../backend/typings'
 import style from './style.scss'
 
-const Interaction = ({ userMessage, success, failure, skipped, botReplies, mismatchIdx, previews, maxChars }) => {
+interface Props {
+  userMessage: string
+  success?: boolean
+  failure?: boolean
+  skipped?: boolean
+  botReplies: BotReply[]
+  mismatchIdx: number
+  previews: { [id: string]: string }
+  maxChars?: number
+}
+
+const Interaction = ({
+  userMessage,
+  success,
+  failure,
+  skipped,
+  botReplies,
+  mismatchIdx,
+  previews,
+  maxChars
+}: Props) => {
   return (
     <div className={style.interaction}>
       <p className={skipped ? 'text-muted' : ''}>
@@ -29,11 +51,11 @@ const Interaction = ({ userMessage, success, failure, skipped, botReplies, misma
               textClass = 'text-success'
             }
 
-            let element
+            let element: string
             if (_.isString(reply.botResponse)) {
               element = previews[reply.botResponse]
             } else if (_.isObject(reply.botResponse) && reply.replySource.startsWith('qna')) {
-              // temporary hack to render qnas
+              // TODO: temporary hack to render QnAs
               element = previews[reply.replySource]
             }
 

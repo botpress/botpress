@@ -4,10 +4,11 @@ import path from 'path'
 
 import { Recorder } from './recorder'
 import { ScenarioRunner } from './runner'
-import { Scenario } from './typings'
+import { Preview, Scenario, State, Status } from './typings'
 import { buildScenarioFromEvents } from './utils'
 
 const SCENARIO_FOLDER = 'scenarios'
+const TEST_COMPLETION_TIMEOUT = 2000
 
 export class Testing {
   private _recorder: Recorder
@@ -20,23 +21,24 @@ export class Testing {
     this._runner = new ScenarioRunner(bp)
   }
 
-  async startRecording(chatUserId: string) {
+  async startRecording(chatUserId: string): Promise<void> {
     await this._ensureHooksEnabled()
+
     this._recorder.startRecording(chatUserId)
   }
 
-  endRecording() {
+  endRecording(): Scenario | undefined {
     return this._recorder.stopRecording()
   }
 
-  getStatus() {
+  getState(): State {
     return {
       recording: this._recorder.isRecording(),
       running: this._runner.isRunning()
     }
   }
 
-  async getScenarios() {
+  async getScenarios(): Promise<(Scenario & Status)[]> {
     if (!this._scenarios) {
       await this._loadScenarios()
     }
@@ -45,19 +47,21 @@ export class Testing {
       return {
         name,
         steps,
-        ...this._runner.getStatus(name)
+        ...(this._runner.getStatus(name) || {})
       }
     })
   }
 
-  async processIncomingEvent(event: sdk.IO.IncomingEvent): Promise<sdk.IO.EventState | void> {
+  async processIncomingEvent(event: sdk.IO.IncomingEvent): Promise<sdk.IO.EventState> {
     await this._recorder.processIncoming(event)
-    this._runner.processIncoming(event)
+
+    return this._runner.processIncoming(event)
   }
 
   async processCompletedEvent(event: sdk.IO.IncomingEvent): Promise<void> {
     await this._recorder.processCompleted(event)
-    this._runner.processCompleted(event)
+
+    return this._runner.processCompleted(event)
   }
 
   async buildScenario(eventIds: string[]) {
@@ -72,7 +76,7 @@ export class Testing {
     return buildScenarioFromEvents(events)
   }
 
-  async saveScenario(name: string, scenario: Scenario) {
+  async saveScenario(name: string, scenario: Scenario): Promise<void> {
     await this.bp.ghost
       .forBot(this._botId)
       .upsertFile(SCENARIO_FOLDER, `${name}.json`, JSON.stringify(scenario, undefined, 2))
@@ -80,7 +84,7 @@ export class Testing {
     await this._loadScenarios()
   }
 
-  async deleteScenario(name: string) {
+  async deleteScenario(name: string): Promise<void> {
     const exists = await this.bp.ghost.forBot(this._botId).fileExists(SCENARIO_FOLDER, `${name}.json`)
 
     if (!exists) {
@@ -91,7 +95,7 @@ export class Testing {
     await this._loadScenarios()
   }
 
-  async deleteAllScenarios() {
+  async deleteAllScenarios(): Promise<void[]> {
     const scenarios = await this.getScenarios()
 
     return Promise.all(
@@ -101,11 +105,10 @@ export class Testing {
     )
   }
 
-  async executeSingle(liteScenario: Partial<Scenario>) {
+  async executeSingle(liteScenario: Partial<Scenario>): Promise<void> {
     await this._ensureHooksEnabled()
     this._runner.startReplay()
 
-    // TODO perform scenario validation here
     const scenario: Scenario = await this.bp.ghost
       .forBot(this._botId)
       .readFileAsObject(SCENARIO_FOLDER, `${liteScenario.name}.json`)
@@ -113,7 +116,7 @@ export class Testing {
     return this._executeScenario({ ...liteScenario, ...scenario })
   }
 
-  async executeAll() {
+  async executeAll(): Promise<void> {
     await this._ensureHooksEnabled()
     const scenarios = await this._loadScenarios()
     this._runner.startReplay()
@@ -123,16 +126,30 @@ export class Testing {
     }
   }
 
-  private async _ensureHooksEnabled() {
+  async fetchPreviews(elementIds: string[]): Promise<Preview[]> {
+    const elements = await this.bp.cms.getContentElements(
+      this._botId,
+      elementIds.map(x => x.replace('#!', ''))
+    )
+
+    return elements.map(element => {
+      return {
+        id: `#!${element.id}`,
+        preview: element.previews['en'] // TODO: Use the bot's default language instead of hardcoded english
+      }
+    })
+  }
+
+  private async _ensureHooksEnabled(): Promise<void> {
     if (!this._interval) {
-      this._interval = setInterval(this._waitTestCompletion.bind(this), 2000)
+      this._interval = setInterval(this._waitTestCompletion.bind(this), TEST_COMPLETION_TIMEOUT)
     }
 
     await this.bp.experimental.enableHook('00_recorder', 'before_incoming_middleware', 'testing')
     await this.bp.experimental.enableHook('00_recorder', 'after_event_processed', 'testing')
   }
 
-  private async _waitTestCompletion() {
+  private async _waitTestCompletion(): Promise<void> {
     if (!this._runner.isRunning() && !this._recorder.isRecording()) {
       await this.bp.experimental.disableHook('00_recorder', 'before_incoming_middleware', 'testing')
       await this.bp.experimental.disableHook('00_recorder', 'after_event_processed', 'testing')
@@ -152,7 +169,7 @@ export class Testing {
     this._runner.runScenario({ ...scenario }, eventDestination)
   }
 
-  private async _loadScenarios() {
+  private async _loadScenarios(): Promise<Scenario[]> {
     const files = await this.bp.ghost.forBot(this._botId).directoryListing(SCENARIO_FOLDER, '*.json')
 
     this._scenarios = await Promise.map(files, async file => {

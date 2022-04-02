@@ -1,7 +1,8 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
+import { DialogStep, Scenario } from './typings'
 
-export const convertLastMessages = (lastMessages: sdk.IO.DialogTurnHistory[], eventId: string) => {
+export const convertLastMessages = (lastMessages: sdk.IO.DialogTurnHistory[], eventId: string): DialogStep => {
   if (!lastMessages) {
     return
   }
@@ -22,27 +23,24 @@ export const convertLastMessages = (lastMessages: sdk.IO.DialogTurnHistory[], ev
   }
 }
 
-export const buildScenarioFromEvents = (storedEvents: sdk.IO.StoredEvent[]) => {
-  const scenario = {
+export const buildScenarioFromEvents = (events: sdk.IO.StoredEvent[]): Scenario => {
+  const scenario: Partial<Scenario> = {
     steps: [],
     // Since we don't have the real initial state (beforeIncomingMiddleware), we force a new one
-    initialState: {},
-    finalState: (_.last(storedEvents).event as sdk.IO.IncomingEvent).state
+    initialState: undefined,
+    finalState: (_.last(events).event as sdk.IO.IncomingEvent).state
   }
 
-  for (const storedEvent of storedEvents) {
-    const incoming = storedEvent.event as sdk.IO.IncomingEvent
+  for (const event of events) {
+    const incoming = event.event as sdk.IO.IncomingEvent
 
-    const interactions = convertLastMessages(incoming.state.session.lastMessages, storedEvent.incomingEventId)
+    const interactions = convertLastMessages(incoming.state.session.lastMessages, event.incomingEventId)
     if (interactions) {
       scenario.steps.push(interactions)
     }
   }
 
   return _.omit(scenario, [
-    'initialState.session.lastMessages',
-    'initialState.context.jumpPoints',
-    'initialState.context.queue',
     'finalState.session.lastMessages',
     'finalState.context.jumpPoints',
     'finalState.context.queue'

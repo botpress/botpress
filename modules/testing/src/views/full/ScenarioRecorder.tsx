@@ -1,31 +1,48 @@
+import { AxiosStatic } from 'axios'
 import React from 'react'
-import { MdExpandLess, MdExpandMore } from 'react-icons/md'
 import { Button, FormControl, Row, Col, Alert, Form, Collapse } from 'react-bootstrap'
+import { MdExpandLess, MdExpandMore } from 'react-icons/md'
 
 import style from './style.scss'
 
-const DEFAULT_STATE = {
-  recordedScenario: null,
-  scenarioName: '',
-  previewDisplyed: false
+interface Props {
+  bp: {
+    axios: AxiosStatic
+  }
+  isRecording: boolean
+  cancel: () => void
+  onSave: () => void
 }
 
-class ScenarioRecorder extends React.Component {
-  state = { ...DEFAULT_STATE }
+interface State {
+  recordedScenario?: string
+  scenarioName: string
+  previewDisplayed: boolean
+  recordView?: boolean
+  isRecording?: boolean
+}
 
-  componentDidMount() {
-    const userId = window.BP_STORAGE.get('bp/socket/studio/user')
-    this.setState({ chatUserId: userId || window.__BP_VISITOR_ID })
-  }
+const DEFAULT_STATE: State = {
+  recordedScenario: undefined,
+  scenarioName: '',
+  previewDisplayed: false
+}
+
+class ScenarioRecorder extends React.Component<Props, State> {
+  state: State = { ...DEFAULT_STATE }
 
   startRecording = async () => {
     this.setState({ recordView: true, isRecording: true })
-    await this.props.bp.axios.post('/mod/testing/startRecording', { userId: this.state.chatUserId })
+
+    const chatUserId = window.BP_STORAGE.get('bp/socket/studio/user') || window.__BP_VISITOR_ID
+    await this.props.bp.axios.post('/mod/testing/startRecording', { userId: chatUserId })
   }
 
   stopRecording = async () => {
     window.botpressWebChat.sendEvent({ type: 'hide' })
+
     const { data } = await this.props.bp.axios.post('/mod/testing/stopRecording')
+
     this.setState({ recordedScenario: JSON.stringify(data, null, 2) })
   }
 
@@ -41,6 +58,7 @@ class ScenarioRecorder extends React.Component {
       name: scenarioName,
       steps: JSON.parse(recordedScenario)
     })
+
     this.flush()
     this.props.onSave()
   }
@@ -71,7 +89,10 @@ class ScenarioRecorder extends React.Component {
                   value={this.state.scenarioName}
                   onKeyDown={e => e.key === 'Enter' && this.saveScenario()}
                   onChange={e => {
-                    this.setState({ scenarioName: e.target.value })
+                    this.setState({
+                      // Having questions about this typing hack? See: https://github.com/DefinitelyTyped/DefinitelyTyped/issues/16208
+                      scenarioName: ((e as unknown) as React.ChangeEvent<HTMLInputElement>).target.value
+                    })
                   }}
                 />
                 &nbsp;
@@ -84,14 +105,14 @@ class ScenarioRecorder extends React.Component {
               <div className={style.scenarioPreview}>
                 <span
                   onClick={() => {
-                    this.setState({ previewDisplyed: !this.state.previewDisplyed })
+                    this.setState({ previewDisplayed: !this.state.previewDisplayed })
                   }}
                 >
-                  {this.state.previewDisplyed && <MdExpandLess />}
-                  {!this.state.previewDisplyed && <MdExpandMore />}
+                  {this.state.previewDisplayed && <MdExpandLess />}
+                  {!this.state.previewDisplayed && <MdExpandMore />}
                   Show details
                 </span>
-                <Collapse in={this.state.previewDisplyed} timeout={100}>
+                <Collapse in={this.state.previewDisplayed} timeout={100}>
                   <FormControl
                     readOnly
                     componentClass="textarea"

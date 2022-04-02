@@ -1,15 +1,37 @@
-import React from 'react'
-import { Grid, Row, Col, Button } from 'react-bootstrap'
 import { Icon, Intent } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
-import style from './style.scss'
-import ScenarioRecorder from './ScenarioRecorder'
+import { AxiosStatic } from 'axios'
 import { confirmDialog } from 'botpress/shared'
+import _ from 'lodash'
+import React from 'react'
+import { Grid, Row, Col, Button } from 'react-bootstrap'
+import { Preview, Scenario, Status } from '../../backend/typings'
 import NoScenarios from './NoScenarios'
-import Scenario from './Scenario'
+import ScenarioComponent from './Scenario'
+import ScenarioRecorder from './ScenarioRecorder'
+import style from './style.scss'
 
-export default class Testing extends React.Component {
-  state = {
+interface Props {
+  bp: {
+    axios: AxiosStatic
+  }
+  isRecording: boolean
+  cancel: () => void
+  onSave: () => void
+}
+
+interface State {
+  scenarios: (Scenario & Status)[]
+  isRunning: boolean
+  isRecording: boolean
+  recordView: boolean
+  previews: {}
+}
+
+export default class Testing extends React.Component<Props, State> {
+  private interval: NodeJS.Timeout
+
+  state: State = {
     scenarios: [],
     isRunning: false,
     isRecording: false,
@@ -18,31 +40,36 @@ export default class Testing extends React.Component {
   }
 
   componentDidMount() {
+    // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.init()
   }
 
   init = async () => {
-    const userId = window.BP_STORAGE.get('bp/socket/studio/user')
-    this.setState({ chatUserId: userId || window.__BP_VISITOR_ID })
-
     await this.loadScenarios()
-    this.loadPreviews()
+    await this.loadPreviews()
   }
 
-  startRecording = () => {
+  startRecording = async () => {
     this.setState({ isRecording: true })
 
-    this.props.bp.axios.post('/mod/testing/startRecording', { userId: this.state.chatUserId })
+    const chatUserId = window.BP_STORAGE.get('bp/socket/studio/user') || window.__BP_VISITOR_ID
+    await this.props.bp.axios.post('/mod/testing/startRecording', { userId: chatUserId })
 
-    setTimeout(window.botpressWebChat.sendEvent({ type: 'show' }), 1500)
+    window.botpressWebChat.sendEvent({ type: 'show' })
   }
 
   loadScenarios = async () => {
-    const { data } = await this.props.bp.axios.get('/mod/testing/scenarios')
-    let newState = { scenarios: data.scenarios }
+    const { data } = await this.props.bp.axios.get<{ scenarios: Scenario[]; status: { running: boolean } }>(
+      '/mod/testing/scenarios'
+    )
+    const newState: Pick<State, 'scenarios' | 'isRunning'> = {
+      scenarios: data.scenarios,
+      isRunning: this.state.isRunning
+    }
 
     if (this.interval && data.status && !data.status.running) {
       newState.isRunning = false
+
       clearInterval(this.interval)
       this.interval = undefined
     }
@@ -54,6 +81,7 @@ export default class Testing extends React.Component {
     const shouldDelete = await confirmDialog('Are you sure you want to delete all of the scenarios?', {
       acceptLabel: 'Delete all'
     })
+
     if (shouldDelete) {
       await this.props.bp.axios.post('/mod/testing/deleteAllScenarios')
       await this.loadScenarios()
@@ -68,9 +96,9 @@ export default class Testing extends React.Component {
     this.setState({ previews: { ...elementPreviews, ...qnaPreviews } })
   }
 
-  longPoll = () => {
+  longPoll = async () => {
     if (!this.interval) {
-      this.loadScenarios()
+      await this.loadScenarios()
       this.interval = setInterval(this.loadScenarios, 1500)
     }
   }
@@ -81,46 +109,52 @@ export default class Testing extends React.Component {
     }
 
     this.setState({ isRunning: true })
+
     await this.props.bp.axios.post('/mod/testing/runAll')
 
-    this.longPoll()
+    await this.longPoll()
   }
 
-  runSingleScenario = async scenario => {
+  runSingleScenario = async (scenario: Scenario) => {
     if (this.state.isRunning) {
       return
     }
 
     this.setState({ isRunning: true })
+
     await this.props.bp.axios.post('/mod/testing/run', { scenario })
 
-    this.longPoll()
+    await this.longPoll()
   }
 
-  deleteSingleScenario = async scenario => {
+  deleteSingleScenario = async (scenario: Scenario) => {
     await this.props.bp.axios.post('/mod/testing/deleteScenario', { name: scenario.name })
+
     await this.loadScenarios()
   }
 
-  getQnaPreviews(scenarios) {
+  getQnaPreviews(scenarios: Scenario[]): { [id: string]: string } {
     return _.chain(scenarios)
       .flatMapDeep(scenario => scenario.steps.map(interaction => interaction.botReplies))
       .filter(reply => _.isObject(reply.botResponse) && reply.replySource.startsWith('qna'))
       .reduce((acc, next) => {
-        acc[next.replySource] = next.botResponse.text
+        if (typeof next.botResponse !== 'string') {
+          acc[next.replySource] = next.botResponse.text
+        }
+
         return acc
       }, {})
       .value()
   }
 
-  getElementPreviews = async scenarios => {
+  getElementPreviews = async (scenarios: Scenario[]): Promise<{ [id: string]: string }> => {
     const elementIds = _.chain(scenarios)
       .flatMapDeep(scenario => scenario.steps.map(interaction => interaction.botReplies.map(rep => rep.botResponse)))
       .filter(_.isString)
       .uniq()
       .value()
 
-    const { data } = await this.props.bp.axios.post('/mod/testing/fetchPreviews', { elementIds })
+    const { data } = await this.props.bp.axios.post<Preview[]>('/mod/testing/fetchPreviews', { elementIds })
 
     return data.reduce((acc, next) => {
       acc[next.id] = next.preview
@@ -143,7 +177,7 @@ export default class Testing extends React.Component {
 
     const total = this.state.scenarios.length
     const failCount = this.state.scenarios.filter(s => s.status === 'fail').length
-    const passCount = this.state.scenarios.filter(s => s.status === 'pass').length // we don't do a simple substraction in case some are pending
+    const passCount = this.state.scenarios.filter(s => s.status === 'pass').length // we don't do a simple subtraction in case some are pending
 
     return (
       <div className={style.summary}>
@@ -154,9 +188,9 @@ export default class Testing extends React.Component {
     )
   }
 
-  handleScenarioSaved = () => {
+  handleScenarioSaved = async () => {
     this.setState({ isRecording: false })
-    this.init()
+    await this.init()
   }
 
   render() {
@@ -172,7 +206,7 @@ export default class Testing extends React.Component {
               </Row>
               {!this.state.isRecording && (
                 <Row className={style['actions-container']}>
-                  <Button bsSize="small" variant="danger" className={'btn-danger'} onClick={this.deleteAllScenarios}>
+                  <Button bsSize="small" bsStyle="danger" className={'btn-danger'} onClick={this.deleteAllScenarios}>
                     <Icon icon={IconNames.TRASH} /> Delete all
                   </Button>
                   <Button bsSize="small" onClick={this.runAllScenarios} disabled={this.state.isRunning}>
@@ -199,13 +233,12 @@ export default class Testing extends React.Component {
               {!this.state.isRecording && this.hasScenarios && (
                 <div>
                   {this.state.scenarios.map(s => (
-                    <Scenario
+                    <ScenarioComponent
                       key={s.name}
                       scenario={s}
                       run={this.runSingleScenario.bind(this, s)}
                       delete={this.deleteSingleScenario.bind(this, s)}
                       previews={this.state.previews}
-                      bp={this.props.bp}
                       isRunning={this.state.isRunning}
                     />
                   ))}

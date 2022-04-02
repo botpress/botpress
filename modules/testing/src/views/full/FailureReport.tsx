@@ -1,11 +1,21 @@
 import React from 'react'
 
 import { Row, Col, Grid } from 'react-bootstrap'
+import { ScenarioMismatch } from '../../backend/typings'
 
-import style from './style.scss'
 import Interaction from './Interaction'
+import style from './style.scss'
 
-export default ({ failureIdx, skipped, mismatch, previews }) => (
+interface Props {
+  failureIdx: number
+  skipped: number
+  mismatch: ScenarioMismatch
+  previews: {
+    [id: string]: string
+  }
+}
+
+export default ({ failureIdx, skipped, mismatch, previews }: Props) => (
   <Grid fluid={true}>
     <Row>
       <h4>Failure report</h4>
