@@ -74,8 +74,6 @@ export default class Testing extends React.Component<Props, State> {
 
       await Promise.race([timeout, wait])
     }
-
-    window.botpressWebChat.sendEvent({ type: 'show' })
   }
 
   startRecording = async () => {
@@ -84,6 +82,8 @@ export default class Testing extends React.Component<Props, State> {
 
       const chatUserId = window.BP_STORAGE.get('bp/socket/studio/user') || window.__BP_VISITOR_ID
       await this.props.bp.axios.post('/mod/testing/startRecording', { userId: chatUserId })
+
+      window.botpressWebChat.sendEvent({ type: 'show' })
 
       this.setState({ isRecording: true })
     } catch (err) {
