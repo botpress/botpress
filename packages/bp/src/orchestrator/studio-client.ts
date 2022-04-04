@@ -115,7 +115,6 @@ export const startStudio = async (logger: sdk.Logger, params: StudioParams) => {
     APP_SECRET: params.APP_SECRET,
     ROOT_PATH: params.ROOT_PATH,
     NLU_ENDPOINT: params.NLU_ENDPOINT,
-    CLOUD_NLU_ENDPOINT: params.CLOUD_NLU_ENDPOINT,
     SERVER_ID: process.SERVER_ID,
     BOTPRESS_VERSION: process.BOTPRESS_VERSION,
     CORE_DISABLE_FILE_LISTENERS: process.core_env.CORE_DISABLE_FILE_LISTENERS?.toString()
