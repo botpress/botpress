@@ -40,7 +40,8 @@ export const setupWebWorker = () => {
           EXTERNAL_URL: process.EXTERNAL_URL,
           ROOT_PATH: process.ROOT_PATH,
           APP_SECRET: process.APP_SECRET,
-          NLU_ENDPOINT: process.NLU_ENDPOINT
+          NLU_ENDPOINT: process.NLU_ENDPOINT,
+          CLOUD_NLU_ENDPOINT: process.CLOUD_NLU_ENDPOINT
         }
         process.send!({
           type: MessageType.StartStudio,

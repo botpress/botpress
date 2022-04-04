@@ -901,7 +901,6 @@ declare module 'botpress/sdk' {
   }
 
   export interface CloudConfig {
-    oauthUrl: string
     clientId: string
     clientSecret: string
   }

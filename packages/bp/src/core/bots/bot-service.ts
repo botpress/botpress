@@ -94,10 +94,10 @@ export class BotService {
   }
 
   private async getCloudBearerTokenFromConfig(cloudConfig: CloudConfig): Promise<string> {
-    const { oauthUrl, clientId, clientSecret } = cloudConfig
+    const { clientId, clientSecret } = cloudConfig
     return axios
       .post(
-        oauthUrl,
+        process.CLOUD_OAUTH_ENDPOINT,
         qs.stringify({
           client_id: clientId,
           client_secret: clientSecret,

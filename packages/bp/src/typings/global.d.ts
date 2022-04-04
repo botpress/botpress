@@ -69,6 +69,8 @@ declare namespace NodeJS {
     CLOUD_CONTROLLER_ENDPOINT: string
     // The Botpress cloud oauth endpoint point.
     CLOUD_OAUTH_ENDPOINT: string
+    // Cloud nlu to use for cloud enabled bots
+    CLOUD_NLU_ENDPOINT: string
   }
 }
 

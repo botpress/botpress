@@ -13,6 +13,7 @@ export interface StudioParams {
   APP_SECRET: string
   ROOT_PATH: string
   NLU_ENDPOINT: string
+  CLOUD_NLU_ENDPOINT: string
 }
 
 let initialParams: StudioParams
