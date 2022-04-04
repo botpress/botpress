@@ -4,7 +4,6 @@ import qs from 'querystring'
 import { cache } from './cache'
 
 interface OauthTokenClientProps {
-  oauthUrl: string
   clientId: string
   clientSecret: string
 }
@@ -26,9 +25,8 @@ export class CloudClient extends Client {
   constructor(options: OauthClientProps) {
     super({ baseURL: options.endpoint, validateStatus: () => true })
 
-    const { oauthUrl, clientId, clientSecret } = options
+    const { clientId, clientSecret } = options
     const oauthTokenClient = this._createOauthTokenClient(axios.create(), {
-      oauthUrl,
       clientId,
       clientSecret
     })
@@ -46,9 +44,9 @@ export class CloudClient extends Client {
     axios: AxiosInstance,
     oauthTokenClientProps: OauthTokenClientProps
   ) => async () => {
-    const { oauthUrl, clientId, clientSecret } = oauthTokenClientProps
+    const { clientId, clientSecret } = oauthTokenClientProps
     const res = await axios.post(
-      oauthUrl,
+      process.CLOUD_OAUTH_ENDPOINT,
       qs.stringify({ client_id: clientId, client_secret: clientSecret, grant_type: 'client_credentials', scope: 'nlu' })
     )
 

@@ -141,8 +141,7 @@ class CreateBotModal extends Component<Props, State> {
       newBot.isCloudBot = this.state.isCloudBot
       newBot.cloud = {
         clientId: this.state.cloudClientId,
-        clientSecret: this.state.cloudClientSecret,
-        oauthUrl: window.CLOUD_OAUTH_ENDPOINT
+        clientSecret: this.state.cloudClientSecret
       }
     }
 

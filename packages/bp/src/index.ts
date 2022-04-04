@@ -90,6 +90,7 @@ try {
   process.BPFS_STORAGE = process.core_env.BPFS_STORAGE || 'disk'
   process.CLOUD_CONTROLLER_ENDPOINT = process.env.CLOUD_CONTROLLER_ENDPOINT || 'https://controllerapi.botpress.dev'
   process.CLOUD_OAUTH_ENDPOINT = process.env.CLOUD_OAUTH_ENDPOINT || 'https://oauth.botpress.dev/oauth2/token'
+  process.CLOUD_NLU_ENDPOINT = process.env.CLOUD_NLU_ENDPOINT || 'https://nlu.botpress.dev'
 
   const configPath = path.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')
 
