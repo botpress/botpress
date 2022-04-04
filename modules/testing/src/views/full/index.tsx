@@ -1,15 +1,18 @@
 import { Icon, Intent } from '@blueprintjs/core'
 import { IconNames } from '@blueprintjs/icons'
 import { AxiosStatic } from 'axios'
-import { confirmDialog } from 'botpress/shared'
+import { confirmDialog, toast } from 'botpress/shared'
 import _ from 'lodash'
 import React from 'react'
 import { Grid, Row, Col, Button } from 'react-bootstrap'
+
 import { Preview, Scenario, Status } from '../../backend/typings'
 import NoScenarios from './NoScenarios'
 import ScenarioComponent from './Scenario'
 import ScenarioRecorder from './ScenarioRecorder'
 import style from './style.scss'
+
+const WEBCHAT_READY_TIMEOUT = 10000
 
 interface Props {
   bp: {
@@ -49,13 +52,43 @@ export default class Testing extends React.Component<Props, State> {
     await this.loadPreviews()
   }
 
+  resetWebchatSession = async () => {
+    // Fetches the emulator content window
+    const win: Window = document.querySelector('#bp-widget')?.['contentWindow']
+    if (win) {
+      const timeout = new Promise((_, reject) => {
+        setTimeout(() => reject('Timeout reached while waiting for the webchat to be ready'), WEBCHAT_READY_TIMEOUT)
+      })
+
+      // Wait for the webchat to be ready
+      const wait = new Promise(resolve => {
+        window.addEventListener('message', event => {
+          if (event.data && event.data.name === 'webchatReady') {
+            resolve()
+          }
+        })
+      })
+
+      // Sends a request to the emulator to create a new session (new user, new socket connection, and new conversation)
+      win.postMessage({ action: 'new-session' }, '*')
+
+      await Promise.race([timeout, wait])
+    }
+  }
+
   startRecording = async () => {
-    this.setState({ isRecording: true })
+    try {
+      await this.resetWebchatSession()
 
-    const chatUserId = window.BP_STORAGE.get('bp/socket/studio/user') || window.__BP_VISITOR_ID
-    await this.props.bp.axios.post('/mod/testing/startRecording', { userId: chatUserId })
+      const chatUserId = window.BP_STORAGE.get('bp/socket/studio/user') || window.__BP_VISITOR_ID
+      await this.props.bp.axios.post('/mod/testing/startRecording', { userId: chatUserId })
 
-    window.botpressWebChat.sendEvent({ type: 'show' })
+      window.botpressWebChat.sendEvent({ type: 'show' })
+
+      this.setState({ isRecording: true })
+    } catch (err) {
+      toast.failure(`An error occurred while trying to record a new scenario: ${err}`, undefined, { timeout: 'medium' })
+    }
   }
 
   loadScenarios = async () => {
