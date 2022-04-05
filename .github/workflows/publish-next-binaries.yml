@@ -62,3 +62,4 @@ jobs:
           AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         run: |
           aws s3 sync packages/bp/archives s3://botpress-next-bins/${{ github.event.inputs.name ||  format('nightly-{0}', steps.date.outputs.date) }}
+          aws s3 sync packages/bp/archives s3://botpress-next-bins/latest
