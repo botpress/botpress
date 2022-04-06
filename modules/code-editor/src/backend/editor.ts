@@ -75,9 +75,9 @@ export default class Editor {
 
   async saveFile(file: EditableFile): Promise<void> {
     const shouldSyncToDisk = FileTypes[file.type].ghost.shouldSyncToDisk
-    const { folder } = getFileLocation(file)
+    const { folder, filename } = getFileLocation(file)
 
-    return this._getGhost(file).upsertFile(folder, file.location, file.content, {
+    return this._getGhost(file).upsertFile(folder, filename, file.content, {
       syncDbToDisk: shouldSyncToDisk
     })
   }
