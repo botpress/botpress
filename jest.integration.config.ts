@@ -21,6 +21,25 @@ const config: Config.InitialOptions = {
       },
       testMatch: ['**/(src|test)/**/*.integration.test.(ts|js)'],
       testEnvironment: 'node'
+    },
+    {
+      rootDir: 'modules',
+      displayName: { name: 'modules', color: 'red' },
+      globals: {
+        'ts-jest': {
+          tsconfig: '<rootDir>../packages/bp/tsconfig.json',
+          diagnostics: false
+        }
+      },
+      modulePaths: ['<rootDir>/../packages/bp/src'],
+      transform: {
+        ...tsjPreset.transform
+      },
+      moduleNameMapper: {
+        '^botpress/sdk$': '<rootDir>/../packages/bp/src/core/app/sdk_impl'
+      },
+      testMatch: ['**/(src|test)/**/*.integration.test.(ts|js)'],
+      testEnvironment: 'node'
     }
   ]
 }

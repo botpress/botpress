@@ -1,4 +1,5 @@
-import { BotConfig, Logger, Stage, WorkspaceUserWithAttributes } from 'botpress/sdk'
+import axios from 'axios'
+import { BotConfig, CloudConfig, Logger, Stage, WorkspaceUserWithAttributes } from 'botpress/sdk'
 import cluster from 'cluster'
 import { findDeletedFiles } from 'common/fs'
 import { BotHealth, ServerHealth } from 'common/typings'
@@ -29,6 +30,7 @@ import ms from 'ms'
 import { studioActions } from 'orchestrator'
 import os from 'os'
 import path from 'path'
+import qs from 'querystring'
 import replace from 'replace-in-file'
 import tmp from 'tmp'
 import { VError } from 'verror'
@@ -88,6 +90,57 @@ export class BotService {
 
     if (!cluster.isMaster) {
       setInterval(() => this._updateBotHealthDebounce(), STATUS_REFRESH_INTERVAL)
+    }
+  }
+
+  private async getCloudBearerTokenFromConfig(cloudConfig: CloudConfig): Promise<string> {
+    const { clientId, clientSecret } = cloudConfig
+    return axios
+      .post(
+        process.CLOUD_OAUTH_ENDPOINT,
+        qs.stringify({
+          client_id: clientId,
+          client_secret: clientSecret,
+          grant_type: 'client_credentials'
+        })
+      )
+      .then(res => `Bearer ${res.data?.access_token}`)
+  }
+
+  private async introspectBotOnCloud(
+    bearerToken: string
+  ): Promise<{ userId: string; runtimeName: string; botName: string; botId: string }> {
+    return axios
+      .get(`${process.CLOUD_CONTROLLER_ENDPOINT}/v1/introspect`, {
+        headers: {
+          Authorization: bearerToken
+        }
+      })
+      .then(res => res.data)
+  }
+
+  async botExistOnCloud(cloudConfig: CloudConfig) {
+    try {
+      const bearerToken = await this.getCloudBearerTokenFromConfig(cloudConfig)
+      await this.introspectBotOnCloud(bearerToken)
+      return true
+    } catch (error) {
+      return false
+    }
+  }
+
+  async findBotFromCloudConfigs(cloudConfig: CloudConfig): Promise<BotConfig | undefined> {
+    const allBots = Array.from((await this.getBots()).values())
+
+    for (const botConfig of allBots.values()) {
+      const configMatches =
+        botConfig.isCloudBot &&
+        (botConfig.cloud?.clientId === cloudConfig.clientId ||
+          botConfig.cloud?.clientSecret === cloudConfig.clientSecret)
+
+      if (configMatches) {
+        return botConfig
+      }
     }
   }
 
@@ -412,6 +465,7 @@ export class BotService {
     await Promise.all(
       botContent.map(async file => destGhost.upsertFile('/', file, await sourceGhost.readFileAsBuffer('/', file)))
     )
+    await studioActions.invalidateCmsForBot(destBotId)
     const workspaceId = await this.workspaceService.getBotWorkspaceId(sourceBotId)
     await this.workspaceService.addBotRef(destBotId, workspaceId)
   }
@@ -577,7 +631,16 @@ export class BotService {
         throw new Error('Supported languages must include the default language of the bot')
       }
 
-      await this.messagingService.loadMessagingForBot(botId)
+      const botpressConfig = await this.configProvider.getBotpressConfig()
+      if (ms(botpressConfig.dialog.sessionTimeoutInterval) < ms(config.dialog?.timeoutInterval || '0s')) {
+        this.logger
+          .forBot(botId)
+          .warn(
+            `[${botId}] Your timeout interval (source: bot.config) is greater than your session timeout (source: botpress.config). This will prevent 'before_session_timeout' hooks and Timeout flows from being executed.`
+          )
+      }
+
+      await this.messagingService.lifetime.loadMessagingForBot(botId)
 
       await this.cms.loadContentTypesFromFiles(botId)
       await this.componentService.extractBotComponents(botId)
@@ -622,7 +685,7 @@ export class BotService {
 
     await this.cms.clearElementsFromCache(botId)
     await this.moduleLoader.unloadModulesForBot(botId)
-    await this.messagingService.unloadMessagingForBot(botId)
+    await this.messagingService.lifetime.unloadMessagingForBot(botId)
     await this.nluInferenceService.unmountBot(botId)
 
     const api = await createForGlobalHooks()

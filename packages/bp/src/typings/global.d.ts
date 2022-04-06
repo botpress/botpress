@@ -65,6 +65,12 @@ declare namespace NodeJS {
     USE_JWT_COOKIES: boolean
     // The internal password is used for inter-process communication
     INTERNAL_PASSWORD: string
+    // The Botpress cloud access point.
+    CLOUD_CONTROLLER_ENDPOINT: string
+    // The Botpress cloud oauth endpoint point.
+    CLOUD_OAUTH_ENDPOINT: string
+    // Cloud nlu to use for cloud enabled bots
+    CLOUD_NLU_ENDPOINT: string
   }
 }
 
@@ -91,9 +97,14 @@ declare interface BotpressEnvironmentVariables {
   /** The URL used to reach an external Messaging server */
   readonly MESSAGING_ENDPOINT?: string
 
+  /** Messaging server should start with logging enabled
+   * @default false
+   */
+  readonly MESSAGING_LOGGING_ENABLED?: boolean
+
   /** Admin key of the messaging server to make calls to admin routes */
   readonly MESSAGING_ADMIN_KEY?: string
-  
+
   /** The URL used to reach an external NLU server */
   readonly NLU_ENDPOINT?: string
 

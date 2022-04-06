@@ -1,5 +1,5 @@
 import { BotDetails, Flow, FlowNode, IO, RolloutStrategy, StageRequestApprovers, StrategyUser } from 'botpress/sdk'
-import { Request } from 'express'
+import { Request, Response } from 'express'
 import { BotpressConfig } from '../core/config/botpress.config'
 import { LicenseInfo, LicenseStatus } from './licensing-service'
 
@@ -91,6 +91,8 @@ export type RequestWithUser = Request & {
   authUser?: StrategyUser
   workspace?: string
 }
+
+export type LogoutCallback = (strategy: string, req: RequestWithUser, res: Response) => Promise<void>
 
 export interface Bot {
   id: string

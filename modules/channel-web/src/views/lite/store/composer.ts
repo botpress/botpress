@@ -82,7 +82,7 @@ class ComposerStore {
 
   @action.bound
   setLocked(locked: boolean) {
-    this.locked = locked
+    this.locked = !!locked
   }
 
   @action.bound

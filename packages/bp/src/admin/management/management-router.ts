@@ -4,6 +4,7 @@ import { assertSuperAdmin } from 'core/security'
 import _ from 'lodash'
 import { MessageType } from 'orchestrator'
 import os from 'os'
+import ChannelsRouter from './channels/channels-router'
 
 import ChecklistRouter from './checklist/checklist-router'
 import LanguagesRouter from './languages/languages-router'
@@ -17,6 +18,7 @@ class ManagementRouter extends CustomAdminRouter {
   private checklistRouter: ChecklistRouter
   private languagesRouter: LanguagesRouter
   private licensingRouter: LicensingRouter
+  private channelsRouter: ChannelsRouter
   private _rebootServer!: Function
 
   constructor(services: AdminServices) {
@@ -26,12 +28,14 @@ class ManagementRouter extends CustomAdminRouter {
     this.checklistRouter = new ChecklistRouter(services)
     this.languagesRouter = new LanguagesRouter(services)
     this.licensingRouter = new LicensingRouter(services)
+    this.channelsRouter = new ChannelsRouter(services)
 
     this.router.use('/languages', this.languagesRouter.router)
     this.router.use('/versioning', assertSuperAdmin, this.versioningRouter.router)
     this.router.use('/modules', assertSuperAdmin, this.modulesRouter.router)
     this.router.use('/checklist', assertSuperAdmin, this.checklistRouter.router)
     this.router.use('/licensing', this.licensingRouter.router)
+    this.router.use('/channels', this.channelsRouter.router)
 
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.setupRoutes()

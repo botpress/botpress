@@ -10,6 +10,6 @@ export class MessagingRouter extends CustomRouter {
   }
 
   public setupRoutes() {
-    this.messagingService.messaging.setup(this.router, '/receive')
+    this.messagingService.interactor.client.setup(this.router, '/receive')
   }
 }

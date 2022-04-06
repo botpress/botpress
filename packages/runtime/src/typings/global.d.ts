@@ -52,10 +52,12 @@ declare namespace NodeJS {
     // The internal password is used for inter-process communication
     INTERNAL_PASSWORD: string
 
+    OAUTH_ENDPOINT?: string
     /** These two endpoints may either be provided as environment variables (when standalone) or from the main process */
     NLU_ENDPOINT?: string
     MESSAGING_ENDPOINT?: string
     MESSAGING_SESSION_COOKIE_NAME?: string
+    SDK_RATE_LIMIT?: string
   }
 }
 
@@ -78,11 +80,17 @@ declare interface RuntimeEnvironmentVariables {
   /** A custom URL where bot medias will be served. Format: MEDIA_URL/botId/assetName */
   readonly MEDIA_URL?: string
 
+  /** The URL used to reach OAuth */
+  readonly OAUTH_ENDPOINT?: string
+
   /** The URL used to reach an external Messaging server */
   readonly MESSAGING_ENDPOINT?: string
 
   /** Name of the cookie for sticky sessions on messaging */
   readonly MESSAGING_SESSION_COOKIE_NAME?: string
+
+  /** Options for sdk rate limiting (JSON) */
+  readonly SDK_RATE_LIMIT?: string
 
   /** The URL used to reach an external NLU server */
   readonly NLU_ENDPOINT?: string

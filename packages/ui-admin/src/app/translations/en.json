@@ -12,11 +12,7 @@
       "resolvedIncidents": "Resolved Incidents",
       "timeFrame": "Time Frame",
       "timespanHour": "1 hour",
-      "timespanHours": "{nb} hours",
-      "deprWarning": {
-        "title": "Deprecation Warning",
-        "msg": "We will end support for custom modules in Botpress 13. A migration guide will be provided for skills and Webchat Custom Components. For other extension points, use standalone hooks and actions."
-      }
+      "timespanHours": "{nb} hours"
     },
     "authenticationFailed": "Authentication failed",
     "botpressIsNotLicensed": "Botpress is currently not licensed. Please update your license to re-enable all features.",

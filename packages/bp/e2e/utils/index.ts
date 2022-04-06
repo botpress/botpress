@@ -43,8 +43,9 @@ export const logout = async () => {
   await clickOn('#btn-menu-user-dropdown')
   await clickOn('#btn-logout')
 
-  const response = await getResponse('/api/v2/admin/auth/logout', 'POST')
-  expect(response.status()).toBe(200)
+  const response = await getResponse('/api/v2/admin/auth/logout', 'GET')
+  expect(response.status()).toBeGreaterThanOrEqual(200)
+  expect(response.status()).toBeLessThan(400)
 
   await page.waitForNavigation()
 }

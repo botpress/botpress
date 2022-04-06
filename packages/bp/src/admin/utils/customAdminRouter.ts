@@ -9,6 +9,7 @@ import { ConfigProvider } from 'core/config/config-loader'
 import { JobService } from 'core/distributed'
 import { AlertingService, MonitoringService } from 'core/health'
 import { LogsRepository } from 'core/logger'
+import { MessagingService } from 'core/messaging'
 import { ModuleLoader } from 'core/modules'
 import { loadUser } from 'core/routers'
 import {
@@ -38,6 +39,7 @@ export abstract class CustomAdminRouter {
   protected alertingService: AlertingService
   protected jobService: JobService
   protected authStrategies: AuthStrategies
+  protected messagingService: MessagingService
 
   protected readonly needPermissions: (operation: string, resource: string) => RequestHandler
   protected readonly asyncMiddleware: AsyncMiddleware
@@ -71,5 +73,6 @@ export abstract class CustomAdminRouter {
     this.alertingService = services.alertingService
     this.jobService = services.jobService
     this.authStrategies = services.authStrategies
+    this.messagingService = services.messagingService
   }
 }

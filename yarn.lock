@@ -2416,26 +2416,17 @@
     classnames "^2.2"
     tslib "~1.13.0"
 
-"@botpress/messaging-base@1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-1.1.0.tgz#0a266f8748f45afdcb93e158e72c03dc5d7c3035"
-  integrity sha512-mIQ90leVlYw+DuYixPa1pGWt/Sc/EU/r8k6IjS/BUl0XalvlgmeWIJsZ8xTh9B2H6f6xidlJO63tsgiPcimf7Q==
+"@botpress/messaging-base@1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-base/-/messaging-base-1.2.0.tgz#1d5134c58e3db7516fab152ffcb6e848cb007380"
+  integrity sha512-7cjHeD1Ti4cvDmyUV2D2CFKR1kPYv+eFPgXaJOksvrEoNZ1SrqXbHR9l26ndaAz0TuoX3Wc9l4Q7i5sBoHE44Q==
 
-"@botpress/messaging-client@1.1.1":
-  version "1.1.1"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-1.1.1.tgz#ccc9441d421b1641d825074f590ecbde9680519d"
-  integrity sha512-Rflsn282f/VyRBgtbi5mB/UcJEOesom9GNLlqx7LGF2Lf71mBwMEnxvLEuUA6BdkG4SsUZPBQvjY3RYaXUgIpg==
+"@botpress/messaging-client@1.2.0":
+  version "1.2.0"
+  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-1.2.0.tgz#a8f8f7d9638f2169e2c8f1e27e27e2d3e101b7e8"
+  integrity sha512-f/DmqYRschzfrGnElg81KW5dvWsaxbmgjmlVldkCqICFgLzaVvnoLFgogeAJNFqUenJIvgC23p8XtKzXZusFhQ==
   dependencies:
-    "@botpress/messaging-base" "1.1.0"
-    axios "^0.21.4"
-    joi "^17.6.0"
-
-"@botpress/messaging-client@1.1.5":
-  version "1.1.5"
-  resolved "https://registry.yarnpkg.com/@botpress/messaging-client/-/messaging-client-1.1.5.tgz#f5dd7264833831a826cfdce48e4865fb52228f9b"
-  integrity sha512-nKnEl3bNPa0ipYuihy3/2C3XsGRjA01FWTAZrjTiAt0Ex2pvb0ZLtU+egvKGXmEoEUAwKyUQlpg9+2/1VGpBlw==
-  dependencies:
-    "@botpress/messaging-base" "1.1.0"
+    "@botpress/messaging-base" "1.2.0"
     axios "^0.21.4"
     cookie "^0.4.2"
     joi "^17.6.0"
@@ -6759,6 +6750,11 @@ boom@7.x.x:
   integrity sha512-Swpoyi2t5+GhOEGw8rEsKvTxFLIDiiKoUc2gsoV6Lyr43LHBIzch3k2MvYUs8RTROrIkVJ3Al0TkaOGjnb+B6A==
   dependencies:
     hoek "6.x.x"
+
+bottleneck@^2.19.5:
+  version "2.19.5"
+  resolved "https://registry.yarnpkg.com/bottleneck/-/bottleneck-2.19.5.tgz#5df0b90f59fd47656ebe63c78a98419205cadd91"
+  integrity sha512-VHiNCbI1lKdl44tGrhNfU3lup0Tj/ZBMJB5/2ZbNXRCPuRCO7ed2mgcK4r17y+KB2EfuYuRaVlwNbAeaWGSpbw==
 
 bounce@1.x.x:
   version "1.2.3"

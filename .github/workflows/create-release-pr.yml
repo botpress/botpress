@@ -31,7 +31,7 @@ jobs:
 
       - name: Get Release Details
         id: release_details
-        uses: botpress/gh-actions/get_release_details@next
+        uses: botpress/gh-actions/get_release_details@v2
 
       - uses: tibdex/github-app-token@v1
         id: generate-token
