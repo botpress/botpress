@@ -5,7 +5,7 @@ async function execute() {
     const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
     await axios.post('/mod/testing/processedEvent', event, axiosConfig)
   } catch (err) {
-    console.log('Error processing', err.message)
+    console.error('Error processing', err.message)
   }
 }
 

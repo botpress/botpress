@@ -1,5 +1,4 @@
 import * as sdk from 'botpress/sdk'
-import _ from 'lodash'
 
 import en from '../translations/en.json'
 import fr from '../translations/fr.json'

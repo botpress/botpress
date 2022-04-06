@@ -1,15 +1,16 @@
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
 
-import { DialogStep, RunningScenario, Scenario, ScenarioMismatch, ScenarioStatus } from './typings'
+import { DialogStep, RunningScenario, Scenario, ScenarioMismatch, ScenarioStatus, State, Status } from './typings'
 import { convertLastMessages } from './utils'
 
-const TIMEOUT = 3000
+const SCENARIO_TIMEOUT = 3000
+const CHECK_SCENARIO_TIMEOUT_INTERVAL = 5000
 
-export class SenarioRunner {
+export class ScenarioRunner {
   private _active: RunningScenario[]
   private _status: ScenarioStatus
-  private _interval: any
+  private _interval: NodeJS.Timeout
 
   constructor(private bp: typeof sdk) {
     this._active = []
@@ -18,10 +19,10 @@ export class SenarioRunner {
   startReplay() {
     this._status = {}
     this._active = []
-    this._interval = setInterval(this._checkScenarioTimeout.bind(this), 5000)
+    this._interval = setInterval(this._checkScenarioTimeout.bind(this), CHECK_SCENARIO_TIMEOUT_INTERVAL)
   }
 
-  processIncoming(event: sdk.IO.IncomingEvent): sdk.IO.EventState | void {
+  processIncoming(event: sdk.IO.IncomingEvent): sdk.IO.EventState | undefined {
     if (!this._active.length) {
       return
     }
@@ -78,15 +79,15 @@ export class SenarioRunner {
     this._updateStatus(scenario.name, { status: 'pending', completedSteps: 0 })
   }
 
-  getStatus(scenarioName: string) {
-    return (this._status && this._status[scenarioName]) || {}
+  getStatus(scenarioName: string): Status | undefined {
+    return this._status?.[scenarioName]
   }
 
-  isRunning() {
+  isRunning(): boolean {
     return !!this._active.length
   }
 
-  private _findMismatch(expected: DialogStep, received: DialogStep): ScenarioMismatch | void {
+  private _findMismatch(expected: DialogStep, received: DialogStep): ScenarioMismatch | undefined {
     let mismatch = undefined
 
     // This shouldn't happen
@@ -129,7 +130,7 @@ export class SenarioRunner {
     const now = +new Date()
     const mismatch = { reason: 'The scenario timed out' }
     this._active
-      .filter(s => s.lastEventTs !== undefined && now - s.lastEventTs > TIMEOUT)
+      .filter(s => s.lastEventTs !== undefined && now - s.lastEventTs > SCENARIO_TIMEOUT)
       .map(x => this._failScenario(x.name, mismatch))
   }
 
@@ -143,20 +144,18 @@ export class SenarioRunner {
     this._active = this._active.filter(x => x.name !== name)
   }
 
-  private _updateStatus(scenario, obj) {
+  private _updateStatus(scenario: string, obj: Partial<Status>) {
     this._status[scenario] = { ...(this._status[scenario] || {}), ...obj }
   }
 
   private _sendMessage = (message: string, eventDestination: sdk.IO.EventDestination) => {
-    setTimeout(async () => {
-      const event = this.bp.IO.Event({
-        ...eventDestination,
-        direction: 'incoming',
-        payload: { type: 'text', text: message },
-        type: 'text'
-      })
+    const event = this.bp.IO.Event({
+      ...eventDestination,
+      direction: 'incoming',
+      payload: { type: 'text', text: message },
+      type: 'text'
+    })
 
-      await this.bp.events.sendEvent(event)
-    }, 1000)
+    this.bp.events.sendEvent(event)
   }
 }

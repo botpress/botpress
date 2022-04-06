@@ -18,11 +18,14 @@ export type RunningScenario = {
   completedSteps?: DialogStep[]
 } & Scenario
 
+export interface Status {
+  status?: 'pass' | 'fail' | 'pending'
+  mismatch?: ScenarioMismatch
+  completedSteps?: number
+}
+
 export interface ScenarioStatus {
-  [scenarioName: string]: {
-    status?: 'pass' | 'fail' | 'pending'
-    mismatch?: ScenarioMismatch
-  }
+  [scenarioName: string]: Status
 }
 
 export interface ScenarioMismatch {
@@ -38,6 +41,17 @@ export interface DialogStep {
 }
 
 export interface BotReply {
-  botResponse: string
+  // TODO: Figure out what typing the response can be in case of QnAs
+  botResponse: string | { text: string }
   replySource: string
+}
+
+export interface Preview {
+  id: string
+  preview: string
+}
+
+export interface State {
+  recording: boolean
+  running: boolean
 }
