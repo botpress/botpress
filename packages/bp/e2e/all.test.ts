@@ -19,10 +19,10 @@ const test = {
     cms: './studio/cms.test',
     nlu: './studio/nlu.test',
     editor: './studio/code-editor.test',
+    testing: './studio/testing.test',
     configuration: './studio/configuration.test'
   },
   mod: {
-    testing: './modules/testing.test',
     webchat: './modules/webchat.test'
   }
 }
@@ -32,8 +32,17 @@ if (yn(process.env.BP_CONFIG_PRO_ENABLED)) {
   admin.push(test.admin.users)
 }
 
-const studio = [test.studio.ui, test.studio.flows, test.studio.cms, test.studio.nlu, test.studio.editor]
-const modules = [test.mod.testing, test.mod.webchat]
+const studio = [
+  test.studio.ui,
+  test.studio.flows,
+  test.studio.cms,
+  test.studio.nlu,
+  test.studio.editor,
+  test.studio.testing
+  // FIXME: This test does not work
+  //test.studio.configuration
+]
+const modules = [test.mod.webchat]
 
 /** Define test pipelines below */
 const allTests = [test.auth, test.login, ...admin, ...studio, ...modules, test.logout]
