@@ -188,7 +188,6 @@ export class ConfigProvider {
       'analytics',
       'channel-web',
       'code-editor',
-      'testing',
       'examples',
       'misunderstood',
       'hitlnext'

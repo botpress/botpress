@@ -1,7 +1,7 @@
 import { clickOn } from '../utils/expectPuppeteer'
-import { expectBotApiCallSuccess, gotoStudio } from '../utils'
+import { expectBotApiCallSuccess, expectStudioApiCallSuccess, gotoStudio } from '../utils'
 
-describe('Module - Testing', () => {
+describe('Studio - Testing', () => {
   beforeAll(async () => {
     if (!page.url().includes('studio')) {
       await gotoStudio()
@@ -10,6 +10,6 @@ describe('Module - Testing', () => {
 
   it('Load Testing', async () => {
     await clickOn('#bp-menu_testing')
-    await expectBotApiCallSuccess('mod/testing/scenarios', 'GET')
+    await expectStudioApiCallSuccess('testing/scenarios', 'GET')
   })
 })
