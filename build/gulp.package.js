@@ -121,7 +121,8 @@ const packageAll = async () => {
     })
   } catch (err) {
     // We don´t want to create an archive if there was something wrong in the steps above
-    return console.error('Error running:', err.cmd, '\nMessage:', err.stderr)
+    console.error('Error running:', err.cmd, '\nMessage:', err.stderr)
+    process.exit(1)
   } finally {
     tempPackage.remove()
   }
