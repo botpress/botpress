@@ -1,5 +1,9 @@
+import axios from 'axios'
+import * as sdk from 'botpress/sdk'
 import { Metric, MonitoringMetrics } from 'common/monitoring'
-import { injectable } from 'inversify'
+import { MessagingService } from 'core/messaging'
+import { TYPES } from 'core/types'
+import { inject, injectable, tagged } from 'inversify'
 import { Redis } from 'ioredis'
 import _ from 'lodash'
 /**
@@ -62,6 +66,7 @@ export interface Status {
   botpress: string
   redis?: string
   database?: string
+  messaging?: string
 }
 
 export interface MonitoringService {
@@ -74,14 +79,33 @@ export interface MonitoringService {
 
 @injectable()
 export class CEMonitoringService implements MonitoringService {
+  constructor(
+    @inject(TYPES.Logger)
+    @tagged('name', 'Monitoring')
+    private logger: sdk.Logger,
+    @inject(TYPES.MessagingService) private messagingService: MessagingService
+  ) {}
+
   async start(): Promise<void> {}
+
   stop(): void {}
+
   async getStats(_dateFrom: number, _dateTo: number): Promise<string[]> {
     return []
   }
+
   async getStatus(): Promise<Status> {
-    return { botpress: 'up' }
+    let messaging = 'n/a'
+    try {
+      await axios.get(`${this.messagingService.interactor.client.url}/status`)
+      messaging = 'up'
+    } catch (err) {
+      messaging = 'down'
+    }
+
+    return { botpress: 'up', messaging }
   }
+
   getRedisFactory() {
     return () => undefined
   }
