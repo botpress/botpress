@@ -14,11 +14,11 @@
     "version": "1.0.0-rc.5"
   },
   "studio": {
-    "version": "0.0.50",
+    "version": "0.0.51",
     "devBranch": "next"
   },
   "messaging": {
-    "version": "1.1.7"
+    "version": "1.2.0"
   },
   "scripts": {
     "postinstall": "yarn cmd postinstall",
