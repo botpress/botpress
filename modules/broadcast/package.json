@@ -23,7 +23,7 @@
     "bluebird": "^3.4.6",
     "bluebird-retry": "^0.8.0",
     "lodash": "^4.17.21",
-    "moment": "^2.16.0"
+    "moment": "^2.29.2"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
