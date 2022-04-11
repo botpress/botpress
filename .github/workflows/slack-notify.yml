@@ -3,8 +3,13 @@ on:
     types: [created]
 
 name: Slack Notification Demo
+permissions:
+  contents: read
+
 jobs:
   slack_notification:
+    permissions:
+      contents: none
     name: Slack Notification
     runs-on: ubuntu-latest
     steps:

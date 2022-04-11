@@ -4,6 +4,9 @@ on:
   pull_request:
     types: [ closed ]
 
+permissions:
+  contents: read
+
 jobs:
   publish_module_builder:
     name: Build and publish module builder

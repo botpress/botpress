@@ -1,6 +1,9 @@
 name: Tests
 on: [pull_request]
 
+permissions:
+  contents: read
+
 jobs:
   unit:
     name: Unit
@@ -75,6 +78,8 @@ jobs:
           PG_PORT: 5432
 
   e2e:
+    permissions:
+      contents: none
     name: E2E (ubuntu-latest)
     runs-on: ubuntu-latest
     steps:
