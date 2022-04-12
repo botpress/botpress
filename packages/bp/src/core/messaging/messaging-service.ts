@@ -1,6 +1,7 @@
 import { Logger } from 'botpress/sdk'
 import { ConfigProvider } from 'core/config'
 import Database from 'core/database'
+import { JobService } from 'core/distributed'
 import { EventEngine, EventRepository } from 'core/events'
 import { TYPES } from 'core/types'
 import { inject, injectable, postConstruct, tagged } from 'inversify'
@@ -27,13 +28,20 @@ export class MessagingService {
     @inject(TYPES.EventEngine) private eventEngine: EventEngine,
     @inject(TYPES.EventRepository) private eventRepo: EventRepository,
     @inject(TYPES.ConfigProvider) private configProvider: ConfigProvider,
+    @inject(TYPES.JobService) private jobService: JobService,
     @inject(TYPES.Logger)
     @tagged('name', 'Messaging')
     private logger: Logger
   ) {
     this.entries = new MessagingEntries(this.database)
     this.interactor = new MessagingInteractor(this.logger)
-    this.lifetime = new MessagingLifetime(this.logger, this.configProvider, this.entries, this.interactor)
+    this.lifetime = new MessagingLifetime(
+      this.logger,
+      this.configProvider,
+      this.jobService,
+      this.entries,
+      this.interactor
+    )
     this.collector = new MessagingCollector(this.logger, this.eventEngine, this.interactor, this.lifetime)
     this.listener = new MessagingListener(
       this.eventEngine,
