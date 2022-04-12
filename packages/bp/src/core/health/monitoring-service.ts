@@ -1,6 +1,7 @@
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import { Metric, MonitoringMetrics } from 'common/monitoring'
+import { makeNLUPassword } from 'common/nlu-token'
 import { MessagingService } from 'core/messaging'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
@@ -67,6 +68,7 @@ export interface Status {
   redis?: string
   database?: string
   messaging?: string
+  nlu?: string
 }
 
 export interface MonitoringService {
@@ -103,7 +105,20 @@ export class CEMonitoringService implements MonitoringService {
       messaging = 'down'
     }
 
-    return { botpress: 'up', messaging }
+    let nlu = 'n/a'
+    try {
+      const nluEndpoint = process.NLU_ENDPOINT || `http://localhost:${process.NLU_PORT}`
+
+      await axios.get(`${nluEndpoint}/info`, {
+        headers: { Authorization: `Bearer ${makeNLUPassword()}` }
+      })
+
+      nlu = 'up'
+    } catch (err) {
+      nlu = 'down'
+    }
+
+    return { botpress: 'up', messaging, nlu }
   }
 
   getRedisFactory() {
