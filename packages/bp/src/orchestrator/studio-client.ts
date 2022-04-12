@@ -117,7 +117,10 @@ export const startStudio = async (logger: sdk.Logger, params: StudioParams) => {
     NLU_ENDPOINT: params.NLU_ENDPOINT,
     SERVER_ID: process.SERVER_ID,
     BOTPRESS_VERSION: process.BOTPRESS_VERSION,
-    CORE_DISABLE_FILE_LISTENERS: process.core_env.CORE_DISABLE_FILE_LISTENERS?.toString()
+    CORE_DISABLE_FILE_LISTENERS: process.core_env.CORE_DISABLE_FILE_LISTENERS?.toString(),
+    CLOUD_CONTROLLER_ENDPOINT: process.CLOUD_CONTROLLER_ENDPOINT,
+    CLOUD_OAUTH_ENDPOINT: process.CLOUD_OAUTH_ENDPOINT,
+    CLOUD_NLU_ENDPOINT: process.CLOUD_NLU_ENDPOINT
   }
 
   // We store the dynamic params so we can reuse them when auto-restarting the studio process
