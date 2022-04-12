@@ -1,7 +1,10 @@
 import { MessagingClient, uuid } from '@botpress/messaging-client'
-import { Logger } from 'botpress/sdk'
+import { Logger, RedisLock } from 'botpress/sdk'
 import chalk from 'chalk'
 import { ConfigProvider } from 'core/config'
+import { JobService } from 'core/distributed'
+import ms from 'ms'
+import { VError } from 'verror'
 import { MessagingEntries, MessagingEntry } from './entries'
 import { MessagingInteractor } from './interactor'
 
@@ -13,6 +16,7 @@ export class MessagingLifetime {
   constructor(
     private logger: Logger,
     private configProvider: ConfigProvider,
+    private jobService: JobService,
     private entries: MessagingEntries,
     private interactor: MessagingInteractor
   ) {}
@@ -31,7 +35,10 @@ export class MessagingLifetime {
 
   async loadMessagingForBot(botId: string, failsafe: boolean = true) {
     await this.interactor.waitReady()
+
+    const lock = await this.lockMessaging(botId)
     const { clientId, clientToken, config } = await this.loadMessagingEntry(botId)
+    await lock.unlock()
 
     const botConfig = await this.configProvider.getBotConfig(botId)
     const channels = { ...config, ...botConfig.messaging?.channels }
@@ -62,6 +69,15 @@ export class MessagingLifetime {
 
     this.printWebhooks(botId, channels)
   }
+  private async lockMessaging(botId: string) {
+    let lock: RedisLock | undefined
+    do {
+      lock = await this.jobService.acquireLock(`load_messaging_${botId}`, ms('5s'))
+      await Promise.delay(ms('50ms'))
+    } while (!lock)
+
+    return lock
+  }
   private async loadMessagingEntry(botId: string): Promise<MessagingEntry> {
     const entry = await this.entries.getByBotId(botId)
     if (entry) {
@@ -71,6 +87,7 @@ export class MessagingLifetime {
       if (reachable) {
         return entry
       } else {
+        // if the clientId was deleted on remote messaging for some reason, we create a new one
         await this.entries.delete(entry.clientId)
         return this.createMessagingEntry(botId)
       }
