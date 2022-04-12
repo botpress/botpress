@@ -87,6 +87,7 @@ export class MessagingLifetime {
       if (reachable) {
         return entry
       } else {
+        // if the clientId was deleted on remote messaging for some reason, we create a new one
         await this.entries.delete(entry.clientId)
         return this.createMessagingEntry(botId)
       }
