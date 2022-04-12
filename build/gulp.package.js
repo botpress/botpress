@@ -92,25 +92,37 @@ const makeTempPackage = () => {
   }
 }
 
-const fetchExternalBinaries = () => {
+const fetchExternalBinaries = async () => {
   const binOut = path.resolve(__dirname, '../packages/bp/binaries')
 
-  systems.forEach(({ osName, platform }) =>
-    execAsync(`yarn bpd init --output ${path.resolve(binOut, osName)} --platform ${platform}`)
-  )
+  for (const { osName, platform } of systems) {
+    // Since bpd does not exit when there is an error, we must read stderr to know if something went wrong
+    const command = `yarn bpd init --output ${path.resolve(binOut, osName)} --platform ${platform}`
+    const { stderr } = await execAsync(command)
+
+    if (stderr) {
+      const err = new Error()
+      err.cmd = command
+      err.stderr = stderr
+
+      throw err
+    }
+  }
 }
 
 const packageAll = async () => {
   const tempPackage = makeTempPackage()
 
   try {
-    fetchExternalBinaries()
+    await fetchExternalBinaries()
 
     await execAsync(`cross-env pkg --options max_old_space_size=16384 --output ../binaries/bp ./package.json`, {
       cwd: path.resolve(__dirname, '../packages/bp/dist')
     })
   } catch (err) {
-    console.error('Error running: ', err.cmd, '\nMessage: ', err.stderr, err)
+    // We don´t want to create an archive if there was something wrong in the steps above
+    console.error('Error running:', err.cmd, '\nMessage:', err.stderr)
+    process.exit(1)
   } finally {
     tempPackage.remove()
   }
