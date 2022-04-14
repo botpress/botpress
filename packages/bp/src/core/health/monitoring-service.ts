@@ -1,5 +1,10 @@
+import axios from 'axios'
+import * as sdk from 'botpress/sdk'
 import { Metric, MonitoringMetrics } from 'common/monitoring'
-import { injectable } from 'inversify'
+import { makeNLUPassword } from 'common/nlu-token'
+import { MessagingService } from 'core/messaging'
+import { TYPES } from 'core/types'
+import { inject, injectable, tagged } from 'inversify'
 import { Redis } from 'ioredis'
 import _ from 'lodash'
 /**
@@ -62,6 +67,8 @@ export interface Status {
   botpress: string
   redis?: string
   database?: string
+  messaging?: string
+  nlu?: string
 }
 
 export interface MonitoringService {
@@ -74,14 +81,46 @@ export interface MonitoringService {
 
 @injectable()
 export class CEMonitoringService implements MonitoringService {
+  constructor(
+    @inject(TYPES.Logger)
+    @tagged('name', 'Monitoring')
+    private logger: sdk.Logger,
+    @inject(TYPES.MessagingService) private messagingService: MessagingService
+  ) {}
+
   async start(): Promise<void> {}
+
   stop(): void {}
+
   async getStats(_dateFrom: number, _dateTo: number): Promise<string[]> {
     return []
   }
+
   async getStatus(): Promise<Status> {
-    return { botpress: 'up' }
+    let messaging = 'n/a'
+    try {
+      await axios.get(`${this.messagingService.interactor.client.url}/status`)
+      messaging = 'up'
+    } catch (err) {
+      messaging = 'down'
+    }
+
+    let nlu = 'n/a'
+    try {
+      const nluEndpoint = process.NLU_ENDPOINT || `http://localhost:${process.NLU_PORT}`
+
+      await axios.get(`${nluEndpoint}/info`, {
+        headers: { Authorization: `Bearer ${makeNLUPassword()}` }
+      })
+
+      nlu = 'up'
+    } catch (err) {
+      nlu = 'down'
+    }
+
+    return { botpress: 'up', messaging, nlu }
   }
+
   getRedisFactory() {
     return () => undefined
   }
