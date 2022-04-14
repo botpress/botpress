@@ -286,7 +286,7 @@
           "template": "Bot Template",
           "cloud": "Botpress Cloud",
           "cloudCheckbox": "Enable Botpress Cloud",
-          "cloudHelper": "Cloud chatbots can then be deployed using the deploy button in the upper right section of the Studio.",
+          "cloudHelper": "Cloud chatbots are slightly different from traditional chatbots. Learn more here: https://www.botpress.com/docs/overview/cloud/try-the-beta",
           "cloudConfiguration": "Botpress Cloud Configuration",
           "cloudConfigurationHelper": "You can get your API Key and Secret by login into Botpress Cloud.",
           "clientIdPlaceholder": "API Key",
