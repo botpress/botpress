@@ -1,12 +1,5 @@
 name: Create Release Pull Request
-on:
-  workflow_dispatch:
-    inputs:
-      version:
-        required: true
-        description: Type of release
-        options: ['patch', 'minor', 'major']
-        default: 'patch'
+on: [workflow_dispatch]
 
 jobs:
   create_release_pull_request:
@@ -22,12 +15,10 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
 
-      - name: Bump version
-        id: bump
+      - name: Fetch version
+        id: details
         run: |
-          yarn version --new-version ${{ github.event.inputs.version }} --no-git-tag-version
-          yarn version --cwd ./build --new-version ${{ github.event.inputs.version }} --no-git-tag-version
-          echo ::set-output name=new_version::$(node -p "require('./package.json').version")
+          echo ::set-output name=version::$(node -p "require('./package.json').version")
 
       - name: Get Release Details
         id: release_details
@@ -43,7 +34,7 @@ jobs:
         uses: peter-evans/create-pull-request@v3
         with:
           token: ${{ steps.generate-token.outputs.token }}
-          title: 'chore(server): release v${{ steps.bump.outputs.new_version }}'
-          commit-message: 'chore(server): release v${{ steps.bump.outputs.new_version }}'
-          branch: 'release/v${{ steps.bump.outputs.new_version }}'
+          title: 'chore(server): release v${{ steps.details.outputs.version }}'
+          commit-message: 'chore(server): release v${{ steps.details.outputs.version }}'
+          branch: 'release/v${{ steps.details.outputs.version }}'
           body: ${{ steps.release_details.outputs.changelog }}

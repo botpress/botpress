@@ -36,21 +36,24 @@ describe('Studio - UI', () => {
 
   it('Toggle Bottom Panel using shortcut', async () => {
     await page.focus('#mainLayout')
-    await triggerKeyboardShortcut('j', true, true)
     const bottomPanel = await page.$('div[data-tab-id="debugger"]')
 
-    expect(await bottomPanel?.isIntersectingViewport()).toBe(true)
     await triggerKeyboardShortcut('j', true, true)
+    expect(await bottomPanel?.isIntersectingViewport()).toBe(true)
+
+    await triggerKeyboardShortcut('j', true, true)
+    expect(await bottomPanel?.isIntersectingViewport()).toBe(false)
   })
 
   it('Toggles bottom panel using click toolbar menu', async () => {
     await page.focus('#mainLayout')
-    await clickOn('#botpress-tooltip-2-trigger')
-
     const bottomPanel = await page.$('div[data-tab-id="debugger"]')
+
+    await clickOn('#botpress-tooltip-2-trigger')
     expect(await bottomPanel?.isIntersectingViewport()).toBe(true)
 
     await clickOn('#botpress-tooltip-2-trigger')
+    expect(await bottomPanel?.isIntersectingViewport()).toBe(false)
   })
 
   // Uncomment once the analytics v2 is enabled by default

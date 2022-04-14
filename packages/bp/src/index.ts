@@ -97,7 +97,7 @@ try {
     process.env.CLOUD_OAUTH_ENDPOINT ||
     (localCloud ? 'http://localhost:4444/oauth2/token' : 'https://oauth.botpress.dev/oauth2/token')
   process.CLOUD_NLU_ENDPOINT =
-    process.env.CLOUD_NLU_ENDPOINT || (localCloud ? 'http://localhost:3200' : 'https://nlu.botpress.dev')
+    process.env.CLOUD_NLU_ENDPOINT || (localCloud ? 'http://localhost:3200' : 'https://nlu-builder.botpress.dev')
 
   const configPath = path.join(process.PROJECT_LOCATION, '/data/global/botpress.config.json')
 

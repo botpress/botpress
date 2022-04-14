@@ -1,4 +1,5 @@
 import { IO } from 'botpress/sdk'
+import { formatUrl } from '../../../common/url'
 import { EventEngine } from '../../events'
 import { MessagingCollector } from './collector'
 import { MessagingInteractor } from './interactor'
@@ -55,7 +56,7 @@ export class MessagingMiddleware {
         payload = payload.replace('BOT_URL', process.EXTERNAL_URL)
       }
 
-      return payload
+      return formatUrl(process.EXTERNAL_URL, payload, process.env.MEDIA_URL)
     }
 
     for (const [key, value] of Object.entries(payload)) {

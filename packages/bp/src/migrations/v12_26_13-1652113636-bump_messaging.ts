@@ -4,13 +4,13 @@ import { runMessagingMigration } from 'orchestrator/messaging-server'
 
 const migration: Migration = {
   info: {
-    description: 'Migrates the messaging database from 1.1.3 to 1.1.7',
+    description: 'Migrates the messaging database from 1.1.3 to 1.2.0',
     target: 'core',
     type: 'database'
   },
 
   up: async ({ metadata }: MigrationOpts): Promise<sdk.MigrationResult> => {
-    return runMessagingMigration('up', '1.1.7', metadata.isDryRun)
+    return runMessagingMigration('up', '1.2.0', metadata.isDryRun)
   },
 
   down: async ({ metadata }: MigrationOpts): Promise<sdk.MigrationResult> => {
