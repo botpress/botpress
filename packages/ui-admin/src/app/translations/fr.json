@@ -279,7 +279,7 @@
           "template": "Modèle de bot",
           "cloud": "Botpress Cloud",
           "cloudCheckbox": "Activer Botpress Cloud",
-          "cloudHelper": "Ce chatbot pourra ėtre envoyé sur Botpress Cloud en utilisant le bouton dans le coins supérieur droit du studio.",
+          "cloudHelper": "Les chatbots Botpress Cloud sont légèrement différents des chatbots traditionnels. Pour en savoir plus: https://www.botpress.com/docs/overview/cloud/try-the-beta",
           "cloudConfiguration": "Configurations Botpress Cloud",
           "cloudConfigurationHelper": "Vous pouvez obtenir ces clés en vous conectant sur Botpress Cloud",
           "clientIdPlaceholder": "Clé d'API ",
