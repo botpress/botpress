@@ -1,5 +1,8 @@
 name: Code Style
 on: [pull_request]
+permissions:
+  contents: read
+
 jobs:
   prettier:
     name: Prettier

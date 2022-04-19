@@ -3,6 +3,8 @@ on:
   push:
   release:
     types: [published]
+permissions:
+  contents: read
 
 jobs:
   build_and_push_docker:
