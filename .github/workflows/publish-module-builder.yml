@@ -5,12 +5,13 @@ on:
     types: [closed]
 permissions:
   contents: read
-  packages: write
 
 jobs:
   publish_module_builder:
     name: Build and publish module builder
     if: ${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref,'module-builder-release/v') }}
+    permissions:
+      packages: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

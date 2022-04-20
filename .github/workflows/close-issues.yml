@@ -2,13 +2,9 @@ name: Close Issues
 on:
   release:
     types: [published]
-permissions:
-  contents: read
 
 jobs:
   close_issues:
-    permissions:
-      issues: write
     name: Close issues mentioned in pull requests
     runs-on: ubuntu-latest
     steps:
