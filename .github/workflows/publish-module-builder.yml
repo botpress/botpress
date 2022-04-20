@@ -2,7 +2,10 @@ name: Publish and release module builder
 
 on:
   pull_request:
-    types: [ closed ]
+    types: [closed]
+permissions:
+  contents: read
+  packages: write
 
 jobs:
   publish_module_builder:
