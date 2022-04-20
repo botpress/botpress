@@ -10,7 +10,9 @@ const generateFlow = async (): Promise<any> => {
       nodes: createNodes(),
       catchAll: {
         next: []
-      }
+      },
+      version: '0.0.1',
+      startNode: 'entry'
     },
     skills: skillsFlow()
   }

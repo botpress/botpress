@@ -10,7 +10,9 @@ const generateFlow = async (): Promise<sdk.FlowGenerationResult> => {
       catchAll: {
         onReceive: [],
         next: []
-      }
+      },
+      version: '0.0.1',
+      startNode: 'entry'
     }
   }
 }

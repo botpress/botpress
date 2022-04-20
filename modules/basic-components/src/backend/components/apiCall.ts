@@ -13,7 +13,9 @@ const generateFlow = async (): Promise<any> => {
       catchAll: {
         onReceive: [],
         next: []
-      }
+      },
+      version: '0.0.1',
+      startNode: 'entry'
     },
     skills: skillsFlow()
   }
