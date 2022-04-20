@@ -2,8 +2,10 @@ import * as sdk from 'botpress/sdk'
 import { uniqueId } from 'lodash'
 import { prettyId } from './utils'
 
-const SKILL_NODE_FLOW_NAME = `show_output_${prettyId()}.flow.json`
+let SKILL_NODE_FLOW_NAME = ''
 const generateFlow = async (): Promise<any> => {
+  SKILL_NODE_FLOW_NAME = `show_output_${prettyId()}.flow.json`
+
   return {
     transitions: createTransitions(),
     flow: {

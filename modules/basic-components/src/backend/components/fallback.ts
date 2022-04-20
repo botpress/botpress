@@ -2,8 +2,9 @@ import * as sdk from 'botpress/sdk'
 import { uniqueId } from 'lodash'
 import { prettyId } from './utils'
 
-const FLOW_CHOICE_NAME = `choice_multi_${prettyId()}.flow.json`
+let FLOW_CHOICE_NAME = ''
 const generateFlow = async (): Promise<any> => {
+  FLOW_CHOICE_NAME = `choice_multi_${prettyId()}.flow.json`
   return {
     transitions: createTransitions(),
     flow: {
@@ -66,8 +67,8 @@ const createNodes = () => {
       id: 'skill-b8edc4',
       type: 'skill-call',
       skill: 'choice',
-      name: 'choice-b8edc4',
-      flow: 'skills/choice-b8edc4.flow.json',
+      name: 'multiple_choice',
+      flow: `skills/${FLOW_CHOICE_NAME}`,
       next: [
         {
           caption: 'User picked [option_1]',

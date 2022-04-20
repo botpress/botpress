@@ -2,9 +2,12 @@ import * as sdk from 'botpress/sdk'
 import { uniqueId } from 'lodash'
 import { prettyId } from './utils'
 
-const FLOW_API_NAME = `call_from_previous_answer_${prettyId()}.flow.json`
-const FLOW_CHOICE_NAME = `show_output_api_${prettyId()}.flow.json`
+let FLOW_API_NAME = ''
+let FLOW_CHOICE_NAME = ''
+
 const generateFlow = async (): Promise<any> => {
+  FLOW_API_NAME = `call_from_previous_answer_${prettyId()}.flow.json`
+  FLOW_CHOICE_NAME = `show_output_api_${prettyId()}.flow.json`
   // Return normal flow and skill flow. I need to do this. Because skills need to be created
   return {
     transitions: createTransitions(),
