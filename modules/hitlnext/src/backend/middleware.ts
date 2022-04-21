@@ -14,6 +14,15 @@ import Socket from './socket'
 
 const debug = DEBUG(MODULE_NAME)
 
+const updateHitlStatus = event => {
+  if (event.type === 'hitlnext' && event.payload) {
+    const { exitType, agentName } = event.payload
+
+    _.set(event, 'state.temp.agentName', agentName)
+    _.set(event, `state.temp.hitlnext-${exitType}`, true)
+  }
+}
+
 const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   const handoffCache = new LRU<string, string>({ max: 1000, maxAge: ms('1 day') })
   const repository = new Repository(bp, state.timeouts)
@@ -103,6 +112,8 @@ const registerMiddleware = async (bp: typeof sdk, state: StateType) => {
   }
 
   const incomingHandler = async (event: sdk.IO.IncomingEvent, next: sdk.IO.MiddlewareNextCallback) => {
+    updateHitlStatus(event)
+
     // TODO we might want to handle other types
     if (event.type !== 'text') {
       return next(undefined, false, true)

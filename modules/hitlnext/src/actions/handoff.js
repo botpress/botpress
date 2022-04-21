@@ -8,17 +8,18 @@ const axios = require('axios')
  * @description Transfers control of the conversation to an agent
  * @author Botpress, Inc.
  */
-const escalate = async event => {
+const escalate = async (event, timeoutDelay) => {
   const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
   await axios.post(
     '/mod/hitlnext/handoffs',
     {
       userThreadId: event.threadId,
       userId: event.target,
-      userChannel: event.channel
+      userChannel: event.channel,
+      timeoutDelay
     },
     axiosConfig
   )
 }
 
-return escalate(event)
+return escalate(event, args.timeoutDelay)
