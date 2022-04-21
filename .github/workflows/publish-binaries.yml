@@ -4,6 +4,8 @@ on:
     types: [review_requested]
   release:
     types: [published]
+permissions:
+  contents: read
 
 jobs:
   release_bin:
@@ -52,7 +54,7 @@ jobs:
         with:
           path: ./packages/bp/archives
 
-      - name: Extract Informations
+      - name: Extract Information
         id: info
         uses: botpress/gh-actions/extract_info@v1
 

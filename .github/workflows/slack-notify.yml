@@ -1,10 +1,14 @@
+name: Slack Notification Demo
 on:
   discussion:
     types: [created]
+permissions:
+  contents: read
 
-name: Slack Notification Demo
 jobs:
   slack_notification:
+    permissions:
+      contents: none
     name: Slack Notification
     runs-on: ubuntu-latest
     steps:
