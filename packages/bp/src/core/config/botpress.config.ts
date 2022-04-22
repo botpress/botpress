@@ -528,7 +528,7 @@ export interface AuthStrategySaml {
    */
   acceptedClockSkewMs: number
   /**
-   * Logout URL fro SAML SLO provided by the IDP.
+   * Logout URL for SAML SLO provided by the IDP.
    */
   logoutUrl: string
   /**
