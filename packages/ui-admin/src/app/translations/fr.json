@@ -24,7 +24,7 @@
     "changeYourPassword": "Changez votre mot de passe",
     "confirmPassword": "Confirmez le mot de passe",
     "createAccount": "Créer un compte",
-    "createMasterAdminAccount": "C'est la première fois que vous exécutez Botpress. Veuillez créer le compte administrateur principal.",
+    "createMasterAdminAccount": "C'est la première fois que vous exécutez Botpress. Veuillez créer un compte pour sécuriser le développement de vos chatbots.",
     "currentPassword": "Mot de passe actuel",
     "debug": {
       "confUpdated": "La configuration de débogage a été mise à jour avec succès!",
