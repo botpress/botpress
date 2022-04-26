@@ -24,7 +24,7 @@
     "changeYourPassword": "Cambiar contraseña",
     "confirmPassword": "Confirmar contraseña",
     "createAccount": "Crear una cuenta",
-    "createMasterAdminAccount": "Esta es la primera vez que ejecuta Botpress. Cree la cuenta de administrador principal.",
+    "createMasterAdminAccount": "Esta es la primera vez que inicia sesión en Botpress, deberá crear una cuenta para mantener seguro el desarrollo de su chatbot.",
     "currentPassword": "Contraseña actual",
     "debug": {
       "confUpdated": "¡Configuración de depuración actualizada correctamente!",

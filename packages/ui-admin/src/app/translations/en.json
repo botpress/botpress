@@ -24,7 +24,7 @@
     "changeYourPassword": "Change your password",
     "confirmPassword": "Confirm Password",
     "createAccount": "Create Account",
-    "createMasterAdminAccount": "This is the first time you run Botpress. Please create the master admin account.",
+    "createMasterAdminAccount": "Since this is the first time you're logging into Botpress, you'll need to create an account to keep your chatbot development secure.",
     "currentPassword": "Current password",
     "debug": {
       "confUpdated": "Debug configuration updated successfully!",
