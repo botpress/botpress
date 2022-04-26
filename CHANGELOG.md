@@ -1,3 +1,25 @@
+# [12.27.0](https://github.com/botpress/botpress/compare/v12.26.12...v12.27.0) (2022-04-26)
+
+
+### Bug Fixes
+
+* **admin:** fix wrong doc links ([#11668](https://github.com/botpress/botpress/issues/11668)) ([50cf119](https://github.com/botpress/botpress/commit/50cf119ab0a757d6ba950436c4f25fc9bd454489))
+* **code-editor:** allow creating hooks with hook type as name ([#11698](https://github.com/botpress/botpress/issues/11698)) ([fd96a81](https://github.com/botpress/botpress/commit/fd96a81a87a5a98c7d0dddc3ec6d4ebaf6291295)), closes [#5768](https://github.com/botpress/botpress/issues/5768)
+* **core:** fix SAML SLO config as environment variables ([#11757](https://github.com/botpress/botpress/issues/11757)) ([ba75d9f](https://github.com/botpress/botpress/commit/ba75d9f5fd0c1b1f6ef77f655cff5a0a5ac5f0ec))
+* **messaging-service:** add lock ([#11733](https://github.com/botpress/botpress/issues/11733)) ([7946c9d](https://github.com/botpress/botpress/commit/7946c9d117925f2713d54f692cbe94932c3c8f1e))
+* **testing:** create new session before recording ([#11693](https://github.com/botpress/botpress/issues/11693)) ([05e0a86](https://github.com/botpress/botpress/commit/05e0a868c332236d66cf1f2e09fd718922e01238)), closes [#3880](https://github.com/botpress/botpress/issues/3880)
+* **testing:** fix testing module not working ([#11687](https://github.com/botpress/botpress/issues/11687)) ([5804000](https://github.com/botpress/botpress/commit/5804000edfac78db93c81584880c9f3c901d7f08)), closes [#11541](https://github.com/botpress/botpress/issues/11541)
+* **workspaces:** display warning if workspace has no authStrategies ([#11679](https://github.com/botpress/botpress/issues/11679)) ([52c4e95](https://github.com/botpress/botpress/commit/52c4e95d386a0cdcba5f7e35f54a2cecb3451e37)), closes [#11536](https://github.com/botpress/botpress/issues/11536)
+
+
+### Features
+
+* **channels:** add channel configuration page ([#11646](https://github.com/botpress/botpress/issues/11646)) ([e85bb34](https://github.com/botpress/botpress/commit/e85bb341d7bf6e66434819c62ac4b9dd0079c415))
+* **messaging:** expose LOGGING_ENABLED ([#11656](https://github.com/botpress/botpress/issues/11656)) ([e30b90d](https://github.com/botpress/botpress/commit/e30b90d34ba75343a4d4b82336a50e767e851ab1))
+* **monitoring:** report status of messaging and nlu ([#11716](https://github.com/botpress/botpress/issues/11716)) ([a7b6b86](https://github.com/botpress/botpress/commit/a7b6b868e17501f2eff5f64604d71add24c93d1c)), closes [#11658](https://github.com/botpress/botpress/issues/11658)
+
+
+
 ## [12.26.12](https://github.com/botpress/botpress/compare/v12.26.11...v12.26.12) (2022-03-21)
 
 
