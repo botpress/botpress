@@ -92,6 +92,11 @@ declare interface BotpressEnvironmentVariables {
   /** The URL used to reach an external Messaging server */
   readonly MESSAGING_ENDPOINT?: string
 
+  /** Messaging server should start with logging enabled
+   * @default false
+   */
+  readonly MESSAGING_LOGGING_ENABLED?: boolean
+
   /** Admin key of the messaging server to make calls to admin routes */
   readonly MESSAGING_ADMIN_KEY?: string
 

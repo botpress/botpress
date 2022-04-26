@@ -4,6 +4,7 @@ import { DialogSessionTable } from 'core/dialog/sessions/dialog_sessions-table'
 import { EventsTable } from 'core/events/event-table'
 import { KeyValueStoreTable } from 'core/kvs/kvs-table'
 import { LogsTable } from 'core/logger/logs-table'
+import { ChannelsTable } from 'core/messaging/channels-table'
 import { ServerMetadataTable } from 'core/migration/metadata-table'
 import { MigrationsTable } from 'core/migration/migrations-table'
 import { TelemetryTable } from 'core/telemetry/telemetry-table'
@@ -35,7 +36,8 @@ const tables: typeof Table[] = [
   EventsTable,
   TasksTable,
   BotUsersTable,
-  MigrationsTable
+  MigrationsTable,
+  ChannelsTable
 ]
 
 export default <(new (knex: Knex) => Table)[]>tables

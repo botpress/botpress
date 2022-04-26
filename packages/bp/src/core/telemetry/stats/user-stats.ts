@@ -6,7 +6,6 @@ import { JobService } from 'core/distributed'
 import { MessagingService } from 'core/messaging'
 import { TYPES } from 'core/types'
 import { inject, injectable } from 'inversify'
-import _ from 'lodash'
 import ms from 'ms'
 
 import { TelemetryRepository } from '../telemetry-repository'
@@ -33,7 +32,7 @@ export class UserStats extends TelemetryStats {
   }
 
   protected async getStats() {
-    const newUsers = this.messagingService.getNewUsersCount({ resetCount: true })
+    const newUsers = this.messagingService.listener.getNewUsersCount({ resetCount: true })
 
     return {
       ...buildSchema(await this.getServerStats(), 'server'),

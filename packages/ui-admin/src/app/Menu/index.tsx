@@ -4,7 +4,7 @@ import { lang } from 'botpress/shared'
 import cx from 'classnames'
 import _ from 'lodash'
 import React, { FC, useEffect, Fragment } from 'react'
-import { MdAndroid, MdCopyright } from 'react-icons/md'
+import { MdAndroid, MdChat, MdCopyright } from 'react-icons/md'
 import { connect, ConnectedProps } from 'react-redux'
 import { generatePath, RouteComponentProps, withRouter } from 'react-router'
 import { matchPath, Link } from 'react-router-dom'
@@ -125,6 +125,7 @@ const Menu: FC<Props> = props => {
           resource="user.bots.*"
           operation="read"
         />
+
         <MenuItem
           id="btn-menu-users"
           text={lang.tr('admin.sideMenu.collaborators')}

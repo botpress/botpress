@@ -1,4 +1,3 @@
-import { MessagingClient } from '@botpress/messaging-client'
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import { BPRequest } from 'common/http'
@@ -58,7 +57,6 @@ const userColumnsPrefixed = userColumns.map(s => userPrefix.concat(':', s))
 export default class Repository {
   private agentCache: Dic<Omit<IAgent, 'online'>> = {}
   private cacheByVisitor: LRUCache<string, UserMapping>
-  private messagingClients: { [botId: string]: MessagingClient } = {}
 
   /**
    *
@@ -537,12 +535,12 @@ export default class Repository {
   // Copy pasted from channel-web db.ts
   //===================================
 
-  async mapVisitor(botId: string, visitorId: string, messaging: MessagingClient) {
+  async mapVisitor(botId: string, visitorId: string) {
     const userMapping = await this.getMappingFromVisitor(botId, visitorId)
     let userId = userMapping?.userId
 
     const createUserAndMapping = async () => {
-      userId = (await messaging.createUser()).id
+      userId = (await this.bp.messaging.forBot(botId).createUser()).id
       await this.createUserMapping(botId, visitorId, userId)
     }
 
@@ -551,7 +549,7 @@ export default class Repository {
     } else {
       // Prevents issues when switching between different Messaging servers
       // TODO: Remove this check once the 'web_user_map' table is removed
-      if (!(await this.checkUserExist(userMapping.userId, messaging))) {
+      if (!(await this.checkUserExist(botId, userMapping.userId))) {
         await this.deleteMappingFromVisitor(botId, visitorId)
         await createUserAndMapping()
       }
@@ -608,33 +606,8 @@ export default class Repository {
     }
   }
 
-  async getMessagingClient(botId: string) {
-    const client = this.messagingClients[botId]
-    if (client) {
-      return client
-    }
-
-    const { messaging } = await this.bp.bots.getBotById(botId)
-
-    const botClient = new MessagingClient({
-      url: process.core_env.MESSAGING_ENDPOINT
-        ? process.core_env.MESSAGING_ENDPOINT
-        : `http://localhost:${process.MESSAGING_PORT}`,
-      clientId: messaging.id,
-      clientToken: messaging.token,
-      axios: { headers: { password: process.INTERNAL_PASSWORD }, proxy: false }
-    })
-    this.messagingClients[botId] = botClient
-
-    return botClient
-  }
-
-  removeMessagingClient(botId: string) {
-    this.messagingClients[botId] = undefined
-  }
-
-  private async checkUserExist(userId: string, messaging: MessagingClient): Promise<boolean> {
-    const user = await messaging.getUser(userId)
+  private async checkUserExist(botId: string, userId: string): Promise<boolean> {
+    const user = await this.bp.messaging.forBot(botId).getUser(userId)
 
     return user?.id === userId
   }

@@ -1009,14 +1009,6 @@ declare module 'botpress/sdk' {
 
   export interface MessagingConfig {
     /**
-     * Client id used to identify the bot on the messaging server
-     */
-    id: string
-    /**
-     * Client token used to authenticate requests made to the messaging server
-     */
-    token: string
-    /**
      * Configurations of channels to be sent to the messaging server
      * You can find more about channel configurations here : https://botpress.com/docs/channels/faq
      */
@@ -1738,6 +1730,145 @@ declare module 'botpress/sdk' {
     content: string | Buffer
   }
 
+  export type uuid = string
+
+  export interface Conversation {
+    id: uuid
+    clientId: uuid
+    userId: uuid
+    createdOn: Date
+  }
+
+  export interface MessagingUser {
+    id: uuid
+    clientId: uuid
+  }
+
+  export interface Message {
+    id: uuid
+    conversationId: uuid
+    authorId: uuid | undefined
+    sentOn: Date
+    payload: any
+  }
+
+  export interface Endpoint {
+    channel:
+      | {
+          name: string
+          version: string
+        }
+      | string
+    identity: string
+    sender: string
+    thread: string
+  }
+
+  export interface MessagingClient {
+    /** Client id configured for this instance */
+    readonly clientId: uuid
+
+    /** Client token of to authenticate requests made with the client id */
+    readonly clientToken: string | undefined
+
+    /** Webhook token to validate webhook events that are received */
+    readonly webhookToken: string | undefined
+
+    /**
+     * Creates a new messaging user
+     * @returns info of the newly created user
+     */
+    createUser(): Promise<MessagingUser>
+
+    /**
+     * Fetches a messaging user
+     * @param id id of the user to fetch
+     * @returns info of the user or `undefined` if not found
+     */
+    getUser(id: uuid): Promise<MessagingUser | undefined>
+
+    /**
+     * Creates a new messaging conversation
+     * @param userId id of the user that starts this conversation
+     * @returns info of the newly created conversation
+     */
+    createConversation(userId: uuid): Promise<Conversation>
+    /**
+     * Fetches a messaging conversation
+     * @param id id of the conversation to fetch
+     * @returns info of the conversation or `undefined` if not found
+     */
+    getConversation(id: uuid): Promise<Conversation | undefined>
+
+    /**
+     * Lists the conversations that a user participates in
+     * @param userId id of the user that participates in the conversations
+     * @param limit max amount of conversations to list (default 20)
+     * @returns an array of conversations
+     */
+    listConversations(userId: uuid, limit?: number): Promise<Conversation[]>
+
+    /**
+     * Sends a message to the messaging server
+     * @param conversationId id of the conversation to post the message to
+     * @param authorId id of the message autor. `undefined` if bot
+     * @param payload content of the message
+     * @param flags message flags
+     * @returns info of the created message
+     */
+    createMessage(
+      conversationId: uuid,
+      authorId: uuid | undefined,
+      payload: any,
+      flags?: {
+        incomingId: uuid
+      }
+    ): Promise<Message>
+    /**
+     * Fetches a message
+     * @param id id of the message to fetch
+     * @returns info of the message or `undefined` if not found
+     */
+    getMessage(id: uuid): Promise<Message | undefined>
+
+    /**
+     * Lists the messages of a conversation
+     * @param conversationId id of the conversation that owns the messages
+     * @param limit max amount of messages to list (default 20)
+     * @returns an array of conversations
+     */
+    listMessages(conversationId: uuid, limit?: number): Promise<Message[]>
+
+    /**
+     * Deletes a message
+     * @param id id of the message to delete
+     * @returns `true` if a message was deleted
+     */
+    deleteMessage(id: uuid): Promise<boolean>
+
+    /**
+     * Deletes all messages of a conversation
+     * @param conversationId id of the conversation that owns the messages
+     * @returns amount of messages deleted
+     */
+    deleteMessagesByConversation(conversationId: uuid): Promise<number>
+
+    /**
+     * Maps an endpoint to a conversation id. Calling this function with the
+     * same endpoint always returns the same conversation id
+     * @param endpoint endpoint to be mapped
+     * @returns a conversation id associated to the endpoint
+     */
+    mapEndpoint(endpoint: Endpoint): Promise<uuid>
+
+    /**
+     * Lists the endpoints associated to a conversation
+     * @param conversationId id of the conversation that is associated with the endpoints
+     * @returns an array of endpoints that are linked to the provided conversation
+     */
+    listEndpoints(conversationId: uuid): Promise<Endpoint[]>
+  }
+
   export namespace http {
     /**
      * Create a shortlink to any destination
@@ -2258,6 +2389,10 @@ declare module 'botpress/sdk' {
      * @param context Variables to use for the template rendering
      */
     export function renderTemplate(item: TemplateItem, context): TemplateItem
+  }
+
+  export namespace messaging {
+    export function forBot(botId: string): MessagingClient
   }
 
   /**

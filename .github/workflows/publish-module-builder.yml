@@ -1,0 +1,62 @@
+name: Publish and release module builder
+
+on:
+  pull_request:
+    types: [closed]
+permissions:
+  contents: read
+
+jobs:
+  publish_module_builder:
+    name: Build and publish module builder
+    if: ${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref,'module-builder-release/v') }}
+    permissions:
+      packages: write
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2.1.0
+      - name: Prepare
+        id: prep
+        run: |
+          BRANCH_NAME="$GITHUB_HEAD_REF"
+          echo "Building with origin Branch name $BRANCH_NAME"
+          VALID_BRANCH_NAME="^module-builder-release/v[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}$"  ## Will match Tags in the following format v123.231.123 or v1.2.3 will discard the following format v1.2.4-<revision>
+          DOCKER_IMAGE=botpress/module-builder
+          if [[ $BRANCH_NAME =~ $VALID_BRANCH_NAME ]]; then
+            VERSION=($(echo ${BRANCH_NAME} | sed -r 's/module-builder-release\/v//')) # transform module-builder-release/v0.0.0 to 0.0.0
+            GITHUB_REGISTRY="ghcr.io/${{ github.repository_owner }}/${DOCKER_IMAGE}"
+            TAGS=("${VERSION[@]/#/${GITHUB_REGISTRY}:}")
+            echo "Will publish tag $TAGS"
+            IFS=,
+            echo ::set-output name=release::"true"
+            echo ::set-output name=version::${VERSION[*]}
+            echo ::set-output name=tags::"${TAGS[*]}"
+            echo ::set-output name=created::$(date -u +'%Y-%m-%dT%H:%M:%SZ')
+          else
+            echo "Invalid Branch Name format, use module-builder-release/vXXX.XXX.XXX"
+            exit 1
+          fi
+      - name: DockerHub Authentication
+        uses: docker/login-action@v1
+        if: ${{ steps.prep.outputs.release }}
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: ./
+          file: build/module-builder/Dockerfile
+          push: true
+          tags: ${{ steps.prep.outputs.tags }}
+          labels: |
+            org.opencontainers.image.source=${{ github.event.repository.html_url }}
+            org.opencontainers.image.created=${{ steps.prep.outputs.created }}
+            org.opencontainers.image.revision=${{ github.sha }}

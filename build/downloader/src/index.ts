@@ -65,7 +65,7 @@ yargs
           type: 'string'
         })
         .positional('toolVersion', {
-          describe: 'When ommitted, the latest version is installed',
+          describe: 'When omitted, the latest version is installed',
           type: 'string'
         })
 

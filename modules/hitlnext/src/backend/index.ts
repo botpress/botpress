@@ -36,15 +36,10 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   await unregisterMiddleware(bp)
 }
 
-const onBotUnmount = async (bp: typeof sdk, botId: string) => {
-  repository.removeMessagingClient(botId)
-}
-
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   onModuleUnmount,
-  onBotUnmount,
   translations: { en, fr },
   definition: {
     name: MODULE_NAME,

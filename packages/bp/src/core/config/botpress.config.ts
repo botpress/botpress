@@ -527,6 +527,15 @@ export interface AuthStrategySaml {
    * @default 5000
    */
   acceptedClockSkewMs: number
+  /**
+   * Logout URL for SAML SLO provided by the IDP.
+   */
+  logoutUrl: string
+  /**
+   * The logout callback URL for SAML SLO. The path provided here is absolute.
+   * For example, http://localhost:3000/api/v1/auth/logout-callback/saml/saml
+   */
+  logoutCallbackUrl: string
 }
 
 export interface AuthStrategyOauth2 {

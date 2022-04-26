@@ -3,9 +3,14 @@ on:
   push:
   release:
     types: [published]
+permissions:
+  contents: read
 
 jobs:
   build_and_push_docker:
+    permissions:
+      packages: write
+      contents: none
     name: Build and Push Docker Image
     runs-on: ubuntu-latest
     steps:

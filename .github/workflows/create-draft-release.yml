@@ -3,8 +3,10 @@ on:
   push:
     branches:
       - master
+
 jobs:
   create_draft_release:
+    if: "${{ startsWith(github.event.head_commit.message, 'chore(server): release v') == true }}"
     name: Create Draft-Release
     runs-on: ubuntu-latest
     steps:
@@ -13,11 +15,11 @@ jobs:
 
       - name: Get Release Details
         id: release_details
-        uses: botpress/gh-actions/get_release_details@next
+        uses: botpress/gh-actions/get_release_details@v2
 
       - name: Fetch Dependencies Changelogs
         id: fetch_dependencies_changelogs
-        uses: botpress/gh-actions/fetch_release_changelogs@next
+        uses: botpress/gh-actions/fetch_release_changelogs@v2
         with:
           repos: '[ "studio", "messaging", "nlu" ]'
 
@@ -30,7 +32,6 @@ jobs:
           echo "Latest Tag: ${{ steps.release_details.outputs.latest_tag }}"
 
       - name: Release
-        if: ${{ steps.release_details.outputs.is_new_release == 'true' }}
         uses: softprops/action-gh-release@v1
         with:
           prerelease: false

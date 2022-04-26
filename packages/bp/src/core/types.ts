@@ -88,6 +88,7 @@ const TYPES = {
   HooksStats: Symbol.for('HooksStats'),
   ConfigsStats: Symbol.for('ConfigsStats'),
   UserStats: Symbol.for('UserStats'),
+  MessageStats: Symbol.for('MessageStats'),
   RenderService: Symbol.for('RenderService'),
   QnaService: Symbol.for('QnaService'),
   MessagingService: Symbol.for('MessagingService')

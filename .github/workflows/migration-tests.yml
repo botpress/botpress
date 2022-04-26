@@ -3,6 +3,8 @@ on:
   pull_request:
     paths:
       - '**/migrations/*'
+permissions:
+  contents: read
 
 jobs:
   migration:

@@ -117,7 +117,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Use a Postgres database"
-          docs="https://botpress.com/docs/tutorials/database/#how-to-switch-from-sqlite-to-postgres"
+          docs="https://botpress.com/docs/building-chatbots/developers/database#how-to-switch-from-sqlite-to-postgressql"
           status={getEnv('DATABASE_URL').startsWith('postgres') ? 'success' : 'warning'}
           source={[{ type: 'env', key: 'DATABASE_URL', value: getEnv('DATABASE_URL') }]}
         >
@@ -127,7 +127,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Use the database BPFS storage"
-          docs="https://botpress.com/docs/advanced/hosting/#overview"
+          docs="https://botpress.com/docs/enterprise/server-and-cicd-management/production-checklist#use-the-database-bpfs-storage"
           status={getEnv('BPFS_STORAGE') === 'database' ? 'success' : 'warning'}
           source={[{ type: 'env', key: 'BPFS_STORAGE', value: getEnv('BPFS_STORAGE') }]}
         >
@@ -138,6 +138,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Run Botpress in production mode"
+          docs="https://botpress.com/docs/enterprise/server-and-cicd-management/production-checklist#run-botpress-in-production-mode"
           status={getEnv('BP_PRODUCTION') === 'true' ? 'success' : 'warning'}
           source={[{ type: 'env', key: 'BP_PRODUCTION', value: getEnv('BP_PRODUCTION') }]}
         >
@@ -152,7 +153,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Configure the external server URL"
-          docs="https://botpress.com/docs/advanced/configuration/#exposing-your-bot-on-the-internet"
+          docs="https://botpress.com/docs/enterprise/server-and-cicd-management/production-checklist#configure-the-external-server-url"
           status={isSet(getEnv('EXTERNAL_URL')) || isSet(getConfig('httpServer.externalUrl')) ? 'success' : 'warning'}
           source={[
             { type: 'env', key: 'EXTERNAL_URL', value: getEnv('EXTERNAL_URL') },
@@ -200,7 +201,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Enable Cookie storage for the JWT Token"
-          docs="https://botpress.com/docs/advanced/authentication/#storage-of-the-user-token"
+          docs="https://botpress.com/docs/enterprise/server-and-cicd-management/production-checklist#enable-cookie-storage-for-the-jwt-token"
           status={getConfig('jwtToken.useCookieStorage') === 'true' ? 'success' : 'warning'}
           source={[
             { type: 'config', key: 'jwtToken.useCookieStorage', value: getConfig('jwtToken.useCookieStorage') },
@@ -214,7 +215,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Host your own language server"
-          docs="https://botpress.com/docs/advanced/hosting/#language-server"
+          docs="https://botpress.com/docs/enterprise/server-and-cicd-management/production-checklist#host-your-own-language-server"
           status={languageEndpoint.includes('botpress.io') ? 'warning' : 'success'}
           source={[{ type: 'config', key: 'nlu.json: languageSources', value: languageEndpoint }]}
         >
@@ -225,7 +226,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Securing your server with HTTPS"
-          docs="https://botpress.com/docs/advanced/hosting/#secure-configuration-for-the-nginx-server"
+          docs="https://botpress.com/docs/enterprise/server-and-cicd-management/production-checklist#securing-your-server-with-https"
           status={protocol === 'https' ? 'success' : 'warning'}
           source={[{ key: 'Detected protocol', value: protocol }]}
         >
@@ -235,7 +236,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Enable audit trail"
-          docs="https://botpress.com/docs/advanced/configuration/#advanced-logging"
+          docs="https://botpress.com/docs/enterprise/server-and-cicd-management/production-checklist#enable-audit-trail"
           status={hasAuditTrail ? 'success' : 'warning'}
         >
           You can enable a special debug scope that tracks every requests sent to the server (and the corresponding
@@ -245,7 +246,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Enable Sticky Sessions"
-          docs="https://botpress.com/docs/tutorials/cluster-digital-ocean#instructions"
+          docs="https://botpress.com/docs/enterprise/server-and-cicd-management/production-checklist#enable-sticky-sessions"
           status="none"
           source={[
             { type: 'config', key: 'httpServer.socketTransports', value: getConfig('httpServer.socketTransports') }
@@ -267,7 +268,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Output logs to the filesystem"
-          docs="https://botpress.com/docs/advanced/configuration/#logs-configuration"
+          docs="https://botpress.com/docs/enterprise/server-and-cicd-management/production-checklist#output-logs-to-the-filesystem"
           status={getConfig('logs.fileOutput.enabled') === 'true' ? 'success' : 'none'}
           source={[{ type: 'config', key: 'logs.fileOutput.enabled', value: getConfig('logs.fileOutput.enabled') }]}
         >
@@ -277,7 +278,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Change Botpress base path"
-          docs="https://botpress.com/docs/advanced/configuration/#changing-the-base-url-of-your-bot"
+          docs="https://botpress.com/docs/enterprise/server-and-cicd-management/production-checklist#change-botpress-base-path"
           status={isSet(getLive('ROOT_PATH')) ? 'success' : 'none'}
           source={[{ key: 'Current base path', value: !isSet(getLive('ROOT_PATH')) ? '/' : getLive('ROOT_PATH') }]}
         >
@@ -288,7 +289,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Create custom roles and review permissions"
-          docs="https://botpress.com/docs/pro/rbac/#adding-a-new-role"
+          docs="https://botpress.com/docs/enterprise/server-and-cicd-management/production-checklist#create-custom-roles-and-review-permissions"
           status="none"
         >
           There is a default set of role and permissions when you create a workspace. It is recommended to review and
@@ -297,7 +298,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Enable other authentication mechanism"
-          docs="https://botpress.com/docs/advanced/authentication/#docsNav"
+          docs="https://botpress.com/docs/enterprise/server-and-cicd-management/production-checklist#enable-other-authentication-mechanism"
           status="none"
         >
           The default authentication method is a username/password, but you can enable additional authentication
@@ -306,7 +307,7 @@ export const Checklist: FC<Props> = props => {
 
         <Item
           title="Configure your Reverse Proxy and Load Balancing"
-          docs="https://botpress.com/docs/advanced/hosting/#setting-up-nginx"
+          docs="https://botpress.com/docs/enterprise/server-and-cicd-management/production-checklist#configure-your-reverse-proxy-and-load-balancing"
           status="none"
         >
           Check the documentation for more information
