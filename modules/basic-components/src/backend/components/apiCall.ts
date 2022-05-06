@@ -59,7 +59,11 @@ const createNodes = () => {
       onEnter: <any>[
         {
           contentType: 'builtin_text',
-          formData: { text$en: '{{temp.flavor}}', markdown$en: true, typing$en: true }
+          formData: {
+            text$en: 'This value was store in the **temp.flavor** {{temp.flavor}}',
+            markdown$en: true,
+            typing$en: true
+          }
         }
       ],
       onReceive: null,
@@ -135,7 +139,7 @@ const skillsFlow = () => {
         memory: 'temp',
         // @ts-ignore
         body: '{"value": "{{temp.flavor}}"}',
-        url: 'localhost:8080',
+        url: 'http://localhost:8080',
         variable: 'response',
         invalidJson: false
       }

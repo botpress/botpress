@@ -115,6 +115,30 @@ const skillsFlow = () => {
       location: `skills/${FLOW_CHOICE_NAME}`,
       skill: 'choice',
       name: 'choice-multi',
+      contentType: {
+        contentType: 'builtin_single-choice',
+        formData: {
+          dropdownPlaceholder$en: 'Select...',
+          choices$en: [
+            {
+              title: 'Option 1',
+              value: 'option_1'
+            },
+            {
+              title: 'Option 2',
+              value: 'option_2'
+            },
+            {
+              title: 'Option 3',
+              value: 'option_3'
+            }
+          ],
+          markdown$en: true,
+          disableFreeText$en: false,
+          typing$en: true,
+          text$en: 'Pick Options below'
+        }
+      },
       skillData: {
         randomId: prettyId(),
         invalidContentId: '',

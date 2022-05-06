@@ -109,6 +109,26 @@ const skillsFlow = () => {
       flow: `${SKILL_NODE_FLOW_NAME}`,
       name: 'show_output',
       location: `skills/${SKILL_NODE_FLOW_NAME}`,
+      contentType: {
+        contentType: 'builtin_single-choice',
+        formData: {
+          dropdownPlaceholder$en: 'Select...',
+          choices$en: [
+            {
+              title: 'Yes',
+              value: 'yes'
+            },
+            {
+              title: 'No',
+              value: 'no'
+            }
+          ],
+          markdown$en: true,
+          disableFreeText$en: false,
+          typing$en: true,
+          text$en: 'Yes/no Question'
+        }
+      },
       skillData: {
         randomId: 'show_output',
         invalidContentId: '',
