@@ -21,7 +21,7 @@ const createNodes = () => {
   const nodes: any[] = [
     {
       id: prettyId(),
-      name: 'entry',
+      name: 'check-greeting',
       next: [
         {
           condition: 'event.state.session.greeted',
@@ -60,11 +60,11 @@ const createNodes = () => {
           node: ''
         }
       ],
-      onEnter: [
+      onEnter: <any>[
         {
           contentType: 'builtin_text',
           formData: {
-            text$en: "Hello I'm your conversation A.I. I was built to say hello to you.  one time",
+            text$en: "Hello I'm your conversation A.I. I was built to say hello to you one time!",
             markdown$en: true,
             typing$en: true
           }
@@ -75,7 +75,7 @@ const createNodes = () => {
     },
     {
       id: prettyId(),
-      name: 'your_next_node',
+      name: 'your-next-node',
       next: [
         {
           condition: 'true',
