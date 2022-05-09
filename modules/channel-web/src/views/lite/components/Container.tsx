@@ -8,6 +8,7 @@ import { RootStore, StoreDef } from '../store'
 import BotInfo from './common/BotInfo'
 import Composer from './Composer'
 import ConversationList from './ConversationList'
+import Footer from './Footer'
 import Header from './Header'
 import * as Keyboard from './Keyboard'
 import MessageList from './messages/MessageList'
@@ -38,6 +39,7 @@ class Container extends React.Component<ContainerProps> {
           <MessageList />
           <Keyboard.Default>
             <OverridableComponent name={'composer'} original={Composer} />
+            {this.props.isPoweredByDisplayed && <Footer />}
           </Keyboard.Default>
         </div>
       )
