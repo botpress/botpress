@@ -48,8 +48,6 @@ edition.json
 packages/bp/binaries/
 packages/bp/archives
 
-!packages/bp/dist/data
-
 # Reorg
 packages/bp/src/pro
 packages/bp/src/ml
