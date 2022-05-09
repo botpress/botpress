@@ -39,7 +39,6 @@ class Container extends React.Component<ContainerProps> {
           <MessageList />
           <Keyboard.Default>
             <OverridableComponent name={'composer'} original={Composer} />
-            {this.props.isPoweredByDisplayed && <Footer />}
           </Keyboard.Default>
         </div>
       )
@@ -59,6 +58,7 @@ class Container extends React.Component<ContainerProps> {
           <Header />
           {this.renderBody()}
           <OverridableComponent name={'below_conversation'} original={null} />
+          {this.props.isPoweredByDisplayed && <Footer />}
         </div>
       </React.Fragment>
     )
