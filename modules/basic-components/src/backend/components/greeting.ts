@@ -75,7 +75,7 @@ const createNodes = () => {
     },
     {
       id: prettyId(),
-      name: 'your-next-node',
+      name: 'your_next_node',
       next: [
         {
           condition: 'true',
