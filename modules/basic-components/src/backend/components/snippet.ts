@@ -1,5 +1,5 @@
 /**
- * Component Snippet is piece of flow you can integrate into your Flow.
+ * Component Snippet is a piece of flow you can integrate into your flow.
  */
 export default interface ComponentSnippet {
   /** An identifier for the skill. Use only a-z_- characters. */
