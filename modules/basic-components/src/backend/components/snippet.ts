@@ -6,11 +6,5 @@ export default interface ComponentSnippet {
   id: string
   /** The name that will be displayed in the toolbar for the skill */
   name: string
-  /**
-   * cat main.flow.json | jq '.nodes | .[] | select(has("skill") | not)'
-   * cat main.flow.json | jq ".nodes[].name"
-   * cat main.flow.json | jq ".nodes[].skill"
-   * cat skills/* | jq ".skillData"
-   */
   flowGenerator: () => Promise<any>
 }
