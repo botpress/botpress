@@ -8,7 +8,6 @@ import api from './api'
 
 import * as component from './components'
 
-// At this point, you would likely setup the API route of your module.
 const onServerReady = async (bp: typeof sdk) => {
   await api(bp)
 }

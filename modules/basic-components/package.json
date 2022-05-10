@@ -1,7 +1,7 @@
 {
   "name": "basic-components",
   "fullName": "Basic Components",
-  "version": "12.6.10",
+  "version": "1.0.0",
   "status": "stable",
   "description": "Provides easy-to-use components",
   "private": true,
@@ -21,7 +21,6 @@
     "@types/reactstrap": "^8.4.1"
   },
   "dependencies": {
-    "lodash": "^4.17.19",
     "nanoid": "^3.3.0"
   },
   "resolutions": {
