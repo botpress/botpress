@@ -3,16 +3,28 @@ import _ from 'lodash'
 
 import { Config } from '../config'
 import { MODULE_NAME } from '../constants'
-import { ExitTypes, IHandoff } from '../types'
+import { ExitTypes, IHandoff, ISocketMessage } from '../types'
 import { StateType } from '.'
 import Repository from './repository'
 
-export const toBpDestination = (botId: string, handoff: Pick<IHandoff, 'userId' | 'userThreadId' | 'userChannel'>) => {
+export const toEventDestination = (
+  botId: string,
+  handoff: Pick<IHandoff, 'userId' | 'userThreadId' | 'userChannel'>
+): sdk.IO.EventDestination => {
   return { botId, target: handoff.userId, threadId: handoff.userThreadId, channel: handoff.userChannel }
 }
 
+interface Realtime {
+  sendPayload: (botId: string, message: ISocketMessage) => void
+}
+
 class Service {
-  constructor(private bp: typeof sdk, private state: StateType, private repository: Repository, private realtime) {}
+  constructor(
+    private bp: typeof sdk,
+    private state: StateType,
+    private repository: Repository,
+    private realtime: Realtime
+  ) {}
 
   async createHandoff(
     botId: string,
@@ -20,7 +32,7 @@ class Service {
     timeoutDelay: number
   ) {
     const config: Config = await this.bp.config.getModuleConfigForBot(MODULE_NAME, botId)
-    const eventDestination = toBpDestination(botId, dest)
+    const eventDestination = toEventDestination(botId, dest)
     const attributes = await this.bp.users.getAttributes(dest.userChannel, dest.userId)
     const language = attributes.language
 
@@ -50,7 +62,7 @@ class Service {
   }
 
   async resolveHandoff(handoff: IHandoff, botId: string, payload) {
-    const eventDestination = toBpDestination(botId, handoff)
+    const eventDestination = toEventDestination(botId, handoff)
     const updated = await this.updateHandoff(handoff, botId, payload)
     await this.transferToBot(eventDestination, 'handoffResolved')
 

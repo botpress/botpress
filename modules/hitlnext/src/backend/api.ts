@@ -15,7 +15,7 @@ import { HandoffStatus, IAgent, IComment, IHandoff } from './../types'
 import { UnprocessableEntityError } from './errors'
 import { extendAgentSession, formatValidationError, makeAgentId } from './helpers'
 import Repository, { CollectionConditions } from './repository'
-import Service, { toBpDestination } from './service'
+import Service, { toEventDestination } from './service'
 import Socket from './socket'
 import {
   AgentOnlineValidation,
@@ -231,7 +231,7 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
         const attributes = await bp.users.getAttributes(handoff.userChannel, handoff.userId)
         const language = attributes.language
 
-        const eventDestination = toBpDestination(req.params.botId, handoff)
+        const eventDestination = toEventDestination(req.params.botId, handoff)
 
         await service.sendMessageToUser(configs.assignMessage, eventDestination, language, {
           agentName: agentName(agent)

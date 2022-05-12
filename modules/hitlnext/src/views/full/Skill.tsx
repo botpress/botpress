@@ -37,7 +37,7 @@ const Skill: FC<SkillProps<SkillData>> = ({ onDataChanged, onValidChanged, initi
 
       <FormGroup>
         <Checkbox
-          label="Send user to another node if no agents are online"
+          label="Send user to another node if no agent is online"
           checked={redirectNoAgent}
           onChange={e => setRedirectNoAgent(e.currentTarget.checked)}
         ></Checkbox>
