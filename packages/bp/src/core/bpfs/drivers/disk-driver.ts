@@ -138,7 +138,8 @@ export class DiskStorageDriver implements StorageDriver {
     const ghostIgnorePatterns = await this._getGhostIgnorePatterns(this.resolvePath('data/.ghostignore'))
     const globOptions: glob.IOptions = {
       cwd: this.resolvePath(folder),
-      dot: options.includeDotFiles
+      dot: options.includeDotFiles,
+      nodir: true
     }
 
     // options.excludes can either be a string or an array of strings or undefined

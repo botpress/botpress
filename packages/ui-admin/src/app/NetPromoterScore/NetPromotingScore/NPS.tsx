@@ -33,7 +33,7 @@ export function NPS({
   }
 
   return dismissed ? null : (
-    <div className={`${styles.root} ${animated ? styles.animated : ''}`}>
+    <div id="botpressNPS" className={`${styles.root} ${animated ? styles.animated : ''}`}>
       <button className={styles.close} onClick={handleDismiss}>
         ✕
       </button>

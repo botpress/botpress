@@ -8,6 +8,8 @@ on:
         description: 'Name of the output file'
         required: false
         default: ''
+permissions:
+  contents: read
 
 # This workflow is mostly a copy of publish binaries
 # This is by choice as the next branch will eventually be merged in the master
