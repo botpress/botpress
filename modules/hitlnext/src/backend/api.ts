@@ -15,6 +15,7 @@ import { HandoffStatus, IAgent, IComment, IHandoff } from './../types'
 import { UnprocessableEntityError } from './errors'
 import { extendAgentSession, formatValidationError, makeAgentId } from './helpers'
 import Repository, { CollectionConditions } from './repository'
+import Service, { toEventDestination } from './service'
 import Socket from './socket'
 import {
   AgentOnlineValidation,
@@ -29,6 +30,7 @@ import {
 export default async (bp: typeof sdk, state: StateType, repository: Repository) => {
   const router = bp.http.createRouterForBot(MODULE_NAME)
   const realtime = Socket(bp)
+  const service = new Service(bp, state, repository, realtime)
 
   // Enforces for an agent to be 'online' before executing an action
   const agentOnlineMiddleware = async (req: BPRequest, res: Response, next) => {
@@ -158,33 +160,7 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
         return res.sendStatus(200)
       }
 
-      const configs: Config = await bp.config.getModuleConfigForBot(MODULE_NAME, req.params.botId)
-
-      const handoff = await repository.createHandoff(req.params.botId, payload).then(handoff => {
-        state.cacheHandoff(req.params.botId, handoff.userThreadId, handoff)
-        return handoff
-      })
-
-      const eventDestination = {
-        botId: req.params.botId,
-        target: handoff.userId,
-        threadId: handoff.userThreadId,
-        channel: handoff.userChannel
-      }
-
-      if (configs.transferMessage) {
-        bp.events.replyToEvent(
-          eventDestination,
-          await bp.cms.renderElement('@builtin_text', { type: 'text', text: configs.transferMessage }, eventDestination)
-        )
-      }
-
-      realtime.sendPayload(req.params.botId, {
-        resource: 'handoff',
-        type: 'create',
-        id: handoff.id,
-        payload: handoff
-      })
+      const handoff = await service.createHandoff(req.params.botId, payload, req.body.timeoutDelay)
 
       res.status(201).send(handoff)
     })
@@ -252,20 +228,14 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
       const configs: Config = await bp.config.getModuleConfigForBot(MODULE_NAME, req.params.botId)
 
       if (configs.assignMessage) {
-        const eventDestination = {
-          botId: req.params.botId,
-          target: handoff.userId,
-          threadId: handoff.userThreadId,
-          channel: handoff.userChannel
-        }
+        const attributes = await bp.users.getAttributes(handoff.userChannel, handoff.userId)
+        const language = attributes.language
 
-        // TODO replace this by render service
-        const assignedPayload = await bp.cms.renderElement(
-          '@builtin_text',
-          { type: 'text', text: configs.assignMessage, agentName: agentName(agent) },
-          eventDestination
-        )
-        bp.events.replyToEvent(eventDestination, assignedPayload)
+        const eventDestination = toEventDestination(req.params.botId, handoff)
+
+        await service.sendMessageToUser(configs.assignMessage, eventDestination, language, {
+          agentName: agentName(agent)
+        })
       }
 
       // TODO replace this by messaging api once all channels have been ported
@@ -325,8 +295,7 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
 
       const agentId = makeAgentId(strategy, email)
 
-      let handoff
-      handoff = await repository.findHandoff(req.params.botId, req.params.id)
+      const handoff = await repository.findHandoff(req.params.botId, req.params.id)
 
       const payload: Pick<IHandoff, 'status' | 'resolvedAt'> = {
         status: 'resolved',
@@ -341,21 +310,10 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
         throw new UnprocessableEntityError(formatValidationError(e))
       }
 
-      handoff = await repository.updateHandoff(req.params.botId, req.params.id, payload).then(handoff => {
-        state.expireHandoff(req.params.botId, handoff.userThreadId)
-        return handoff
-      })
-
+      const updated = await service.resolveHandoff(handoff, req.params.botId, payload)
       await extendAgentSession(repository, realtime, req.params.botId, agentId)
 
-      realtime.sendPayload(req.params.botId, {
-        resource: 'handoff',
-        type: 'update',
-        id: handoff.id,
-        payload: handoff
-      })
-
-      res.send(handoff)
+      res.send(updated)
     })
   )
 

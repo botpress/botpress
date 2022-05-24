@@ -3,6 +3,7 @@ on:
   push:
     branches:
       - master
+
 jobs:
   create_draft_release:
     if: "${{ startsWith(github.event.head_commit.message, 'chore(server): release v') == true }}"
