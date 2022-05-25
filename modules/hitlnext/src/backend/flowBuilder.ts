@@ -4,7 +4,7 @@ import { ExitTypes, SkillData } from 'src/types'
 const makeExit = (exitType: ExitTypes) => `temp['hitlnext-${exitType}'] === true`
 
 const generateFlow = async (data: SkillData): Promise<sdk.FlowGenerationResult> => {
-  const nodes: sdk.SkillFlowNode[] = []
+  const nodes: any[] = []
 
   if (data.redirectNoAgent) {
     nodes.push({
