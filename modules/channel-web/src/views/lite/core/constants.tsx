@@ -22,6 +22,7 @@ export default {
     enableTranscriptDownload: true,
     enableArrowNavigation: false,
     showConversationsButton: true,
+    showResizeLayoutHeightButton: true,
     useSessionStorage: false,
     showUserName: false,
     showUserAvatar: false,

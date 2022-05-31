@@ -9,6 +9,8 @@ import Delete from '../icons/Delete'
 import Download from '../icons/Download'
 import Information from '../icons/Information'
 import List from '../icons/List'
+import Maximize from '../icons/Maximize'
+import Minimize from '../icons/Minimize'
 import Reload from '../icons/Reload'
 import { RootStore, StoreDef } from '../store'
 
@@ -181,6 +183,23 @@ class Header extends React.Component<HeaderProps> {
     )
   }
 
+  renderResizeButton() {
+    return (
+      <button
+        type="button"
+        tabIndex={-1}
+        id="btn-resize"
+        ref={el => (this.btnEls[5] = el)}
+        className={'bpw-header-icon bpw-header-icon-resize'}
+        onClick={this.props.resizeChat}
+        onKeyDown={this.handleKeyDown.bind(this, this.props.resizeChat)}
+        onBlur={this.onBlur}
+      >
+        {this.props.isLayoutFullHeight ? <Minimize /> : <Maximize />}
+      </button>
+    )
+  }
+
   renderCloseButton() {
     return (
       <button
@@ -190,7 +209,7 @@ class Header extends React.Component<HeaderProps> {
           id: 'header.hideChatWindow',
           defaultMessage: 'Hide the chat window'
         })}
-        ref={el => (this.btnEls[5] = el)}
+        ref={el => (this.btnEls[6] = el)}
         className={'bpw-header-icon bpw-header-icon-close'}
         onClick={this.props.hideChat}
         onKeyDown={this.handleKeyDown.bind(this, this.props.hideChat)}
@@ -300,6 +319,7 @@ class Header extends React.Component<HeaderProps> {
         {this.props.showDownloadButton && this.renderDownloadButton()}
         {this.props.showConversationsButton && this.renderConvoButton()}
         {this.props.showBotInfoButton && this.renderBotInfoButton()}
+        {this.props.showResizeButton && this.renderResizeButton()}
         {this.props.showCloseButton && this.renderCloseButton()}
       </div>
     )
@@ -314,6 +334,7 @@ export default inject(({ store }: { store: RootStore }) => ({
   showBotInfoButton: store.view.showBotInfoButton,
   showConversationsButton: store.view.showConversationsButton,
   showResetButton: store.view.showResetButton,
+  showResizeButton: store.view.showResizeButton,
   showCloseButton: store.view.showCloseButton,
   hasUnreadMessages: store.view.hasUnreadMessages,
   unreadCount: store.view.unreadCount,
@@ -321,6 +342,8 @@ export default inject(({ store }: { store: RootStore }) => ({
   focusNext: store.view.focusNext,
   focusedArea: store.view.focusedArea,
   hideChat: store.view.hideChat,
+  isLayoutFullHeight: store.view.isLayoutFullHeight,
+  resizeChat: store.view.resizeChat,
   toggleConversations: store.view.toggleConversations,
   toggleBotInfo: store.view.toggleBotInfo,
   customButtons: store.view.customButtons,
@@ -354,6 +377,8 @@ type HeaderProps = Pick<
   | 'downloadConversation'
   | 'toggleConversations'
   | 'hideChat'
+  | 'isLayoutFullHeight'
+  | 'resizeChat'
   | 'toggleBotInfo'
   | 'botAvatarUrl'
   | 'showResetButton'
@@ -361,6 +386,7 @@ type HeaderProps = Pick<
   | 'showDownloadButton'
   | 'showConversationsButton'
   | 'showBotInfoButton'
+  | 'showResizeButton'
   | 'showCloseButton'
   | 'enableArrowNavigation'
   | 'botConvoDescription'
