@@ -175,6 +175,8 @@ export interface Config {
   isEmulator?: boolean
   extraStylesheet: string
   showConversationsButton: boolean
+  /** 레이아웃 높이 조절하는 버튼 활성화 유무  */
+  showResizeLayoutHeightButton: boolean
   showUserName: boolean
   showUserAvatar: boolean
   showTimestamp: boolean

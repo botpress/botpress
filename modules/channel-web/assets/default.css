@@ -79,7 +79,7 @@ body {
   position: fixed;
   bottom: 0;
   right: 0;
-  height: 100%;
+  height: 60%;
   border-left: 1px solid #ccc;
   -webkit-box-orient: vertical;
   -ms-flex-direction: column;
@@ -91,6 +91,10 @@ body {
 
 .bpw-layout-fullscreen {
   visibility: visible;
+}
+
+.bpw-layout-fullheight {
+  height: 100%;
 }
 
 .bpw-bot-avatar {

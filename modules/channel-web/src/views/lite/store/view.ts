@@ -53,6 +53,10 @@ class ViewStore {
   @observable
   public highlightedMessages = []
 
+  /** 레이아웃 높이 조절할 용도로 사용 */
+  @observable
+  public isLayoutFullHeight = false
+
   constructor(rootStore: RootStore, fullscreen: boolean) {
     this.rootStore = rootStore
     this.isFullscreen = fullscreen
@@ -89,6 +93,11 @@ class ViewStore {
   @computed
   get showResetButton() {
     return !this.isConversationsDisplayed && !this.isBotInfoDisplayed && this.rootStore.config?.enableReset
+  }
+
+  @computed
+  get showResizeButton() {
+    return this.rootStore.config?.showResizeLayoutHeightButton
   }
 
   @computed
@@ -244,6 +253,16 @@ class ViewStore {
     this.highlightedMessages = ids
   }
 
+  @action.bound
+  minimizeLayoutHeight() {
+    this.isLayoutFullHeight = false
+  }
+
+  @action.bound
+  maximizeLayoutHeight() {
+    this.isLayoutFullHeight = true
+  }
+
   /** Updates one or multiple properties of a specific button */
   @action.bound
   updateHeaderButton(buttonId: string, newProps: Partial<CustomButton>) {
@@ -298,6 +317,11 @@ class ViewStore {
     this._endAnimation('widget')
 
     this.rootStore.postMessage('webchatClosed')
+  }
+
+  @action.bound
+  resizeChat() {
+    this.isLayoutFullHeight ? this.minimizeLayoutHeight() : this.maximizeLayoutHeight()
   }
 
   @action.bound
