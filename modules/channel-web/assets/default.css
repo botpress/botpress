@@ -87,6 +87,7 @@ body {
   display: -webkit-box;
   display: -ms-flexbox;
   display: flex;
+  transition: height 0.3s;
 }
 
 .bpw-layout-fullscreen {
