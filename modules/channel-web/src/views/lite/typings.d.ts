@@ -198,6 +198,8 @@ export interface Config {
   overrides?: Overrides
   /** When true, the widget button is hidden */
   hideWidget: boolean
+  /** 닫기 버튼 활성화 유무 */
+  showCloseWidget: boolean
   /** Disable the slide in / out animations of the webchat */
   disableAnimations: boolean
   /** When true, sets ctrl+Enter as shortcut for reset session then send */

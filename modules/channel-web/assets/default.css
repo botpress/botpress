@@ -52,6 +52,15 @@ body {
   background-color: #000000;
 }
 
+.bpw-widget-btn-close {
+  position: fixed;
+  top: auto;
+  left: auto;
+  bottom: 0;
+  width: 76px !important;
+  height: 76px !important;
+}
+
 .bpw-message-read-more {
   color: #00f;
   cursor: pointer;
@@ -865,6 +874,10 @@ body {
   box-shadow: 0 0 4px 0 rgba(0, 0, 0, 0.4);
 }
 
+.bpw-floating-button.bpw-floating-button-close {
+  border-radius: 50%;
+}
+
 /** BOT INFORMATION PAGE - START */
 
 .bpw-botinfo-container {
@@ -1063,6 +1076,53 @@ body {
   100% {
     visibility: hidden;
     transform: translateX(100%);
+  }
+}
+
+.bpw-anim-vertical-fadeIn {
+  animation-name: slideInTop;
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+  animation-iteration-count: 1;
+}
+
+@keyframes slideInTop {
+  0% {
+    visibility: visible;
+    transform: translateY(100%);
+  }
+  100% {
+    transform: translateY(0);
+    visibility: visible;
+  }
+}
+
+.bpw-anim-vertical-fadeOut {
+  animation-name: slideOutBottom;
+  animation-duration: 0.3s;
+  animation-fill-mode: both;
+  animation-iteration-count: 1;
+}
+
+@-webkit-keyframes slideOutBottom {
+  0% {
+    transform: translateY(0);
+    visibility: visible;
+  }
+  100% {
+    visibility: hidden;
+    transform: translateY(100%);
+  }
+}
+
+@keyframes slideOutBottom {
+  0% {
+    transform: translateY(0);
+    visibility: visible;
+  }
+  100% {
+    visibility: hidden;
+    transform: translateY(100%);
   }
 }
 
