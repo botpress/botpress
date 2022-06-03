@@ -94,7 +94,7 @@ body {
 }
 
 .bpw-layout-fullheight {
-  height: 100%;
+  height: calc(100% - 4.75rem - 42px);
 }
 
 .bpw-bot-avatar {
