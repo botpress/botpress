@@ -6,7 +6,6 @@ import '../sdk/rewire'
 import { BotConfig } from 'botpress/sdk'
 
 import chalk from 'chalk'
-import { makeNLUPassword } from 'common/nlu-token'
 import { Workspace } from 'common/typings'
 import { BotpressApp, createApp } from 'core/app/core-loader'
 import { getClientsList, getOrCreate as redisFactory, makeRedisKey } from 'core/distributed'
@@ -259,8 +258,7 @@ const testServiceConnections = async () => {
       label: 'NLU',
       port: process.NLU_PORT,
       endpoint: process.NLU_ENDPOINT,
-      page: 'info',
-      headers: { Authorization: `Bearer ${makeNLUPassword()}` }
+      page: 'info'
     })
   }
 
