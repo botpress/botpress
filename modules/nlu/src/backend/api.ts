@@ -76,7 +76,7 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
     const { botId } = req.params
     const bot = app.getBot(botId)
     for (const l of bot.languages) {
-      const ts = await bot.getTraining(l)
+      const ts = await bot.syncAndGetState(l)
       await webSocket({ ...ts, botId, language: l })
     }
     res.sendStatus(200)
@@ -92,7 +92,7 @@ export const registerRouter = async (bp: typeof sdk, app: NLUApplication) => {
     const { language: lang, botId } = req.params
 
     try {
-      const state = await app.getBot(botId).getTraining(lang)
+      const state = await app.getBot(botId).syncAndGetState(lang)
       const ts = mapTrainSession({ botId, language: lang, ...state })
       res.send(ts)
     } catch (error) {

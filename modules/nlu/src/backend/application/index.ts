@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { Bot } from './bot'
 import { BotFactory } from './bot-factory'
 import { BotNotMountedError } from './errors'
-import { NLUClientWrapper } from './nlu-client'
+import { NLUClient } from './nlu-client'
 import { BotConfig } from './typings'
 
 interface Config {
@@ -15,7 +15,7 @@ export class NLUApplication {
   private _bots: _.Dictionary<Bot> = {}
 
   constructor(
-    private _nluClient: NLUClientWrapper,
+    private _nluClient: NLUClient,
     private _botFactory: BotFactory,
     private _config: Partial<Config>,
     protected _logger: Logger
@@ -75,8 +75,7 @@ export class NLUApplication {
     }
 
     // the Bot class will report progress and handle errors
-    // eslint-disable-next-line @typescript-eslint/no-floating-promises
-    bot
+    void bot
       .train(language)
       .then(_.identity)
       .catch(_.identity)

@@ -1,8 +1,8 @@
 import Bluebird from 'bluebird'
 import * as sdk from 'botpress/sdk'
 import _ from 'lodash'
-import { ModelStateService } from '../model-state'
-import { NLUClientWrapper } from '../nlu-client'
+import { ModelEntryService } from '../model-entry'
+import { NLUClient } from '../nlu-client'
 import { mapPredictOutput } from '../nlu-client/api-mapper'
 import { BotDefinition } from '../typings'
 
@@ -17,8 +17,8 @@ export class Predictor {
 
   constructor(
     bot: BotDefinition,
-    private _nluClient: NLUClientWrapper,
-    private _modelStateService: ModelStateService,
+    private _nluClient: NLUClient,
+    private _modelEntryService: ModelEntryService,
     private _logger: sdk.Logger
   ) {
     this._botId = bot.botId
@@ -28,7 +28,7 @@ export class Predictor {
 
   public predict = async (textInput: string, anticipatedLanguage?: string): Promise<EventUnderstanding> => {
     const allModels = await Bluebird.map(this._languages, l =>
-      this._modelStateService.get({ botId: this._botId, language: l, statusType: 'ready' })
+      this._modelEntryService.get({ botId: this._botId, language: l })
     )
 
     const models = allModels.filter(isDefined)
@@ -59,22 +59,22 @@ export class Predictor {
         continue
       }
 
-      const res = await this.tryPredictInLanguage(textInput, lang, modelId)
+      const res = await this._tryPredictInLanguage(textInput, lang, modelId)
       nluResults = res && { ...res }
 
-      if (!this.isEmpty(nluResults) && !this.isError(nluResults)) {
+      if (!this._isEmpty(nluResults) && !this._isError(nluResults)) {
         break
       }
     }
 
-    if (this.isEmpty(nluResults)) {
+    if (this._isEmpty(nluResults)) {
       throw new Error(`No model found for the following languages: ${languagesToTry}`)
     }
 
     return { ...nluResults, detectedLanguage }
   }
 
-  private async tryPredictInLanguage(
+  private async _tryPredictInLanguage(
     textInput: string,
     language: string,
     modelId: string
@@ -90,11 +90,11 @@ export class Predictor {
     }
   }
 
-  private isEmpty(nluResults: Omit<EventUnderstanding, 'detectedLanguage'> | undefined): nluResults is undefined {
+  private _isEmpty(nluResults: Omit<EventUnderstanding, 'detectedLanguage'> | undefined): nluResults is undefined {
     return !nluResults
   }
 
-  private isError(nluResults: Omit<EventUnderstanding, 'detectedLanguage'>): boolean {
+  private _isError(nluResults: Omit<EventUnderstanding, 'detectedLanguage'>): boolean {
     return !nluResults || nluResults.errored
   }
 }

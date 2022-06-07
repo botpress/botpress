@@ -1,4 +1,4 @@
-import { IO, NLU as SDKNLU } from 'botpress/sdk'
+import { NLU as SDKNLU } from 'botpress/sdk'
 
 export interface BotConfig {
   id: string
@@ -21,9 +21,15 @@ export interface BotDefinition {
   seed: number
 }
 
+export interface TrainingError {
+  type: string
+  message: string
+}
+
 export interface TrainingState {
   status: SDKNLU.TrainingStatus
   progress: number
+  error?: TrainingError
 }
 
 export interface TrainingId {

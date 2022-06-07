@@ -5,33 +5,9 @@ export type TrainListener = (
   tp: TrainingState | undefined
 ) => Promise<{ keepListening: true } | { keepListening: false; err?: Error }>
 
-const TRAIN_POLLING_MS = 500
-
-export class NLUClientWrapper {
+/** Wrapper over actual nlu-client to map errors */
+export class NLUClient {
   constructor(private _client: Client) {}
-
-  public listenForTraining(botId: string, modelId: string, l: TrainListener) {
-    return new Promise<void>((resolve, reject) => {
-      const interval = setInterval(async () => {
-        try {
-          const tp = await this.getTraining(botId, modelId)
-          if (!tp) {
-            return
-          }
-          const ret = await l(tp)
-          if (!ret.keepListening) {
-            clearInterval(interval)
-            if (!ret.err) {
-              return resolve()
-            }
-            return reject(ret.err)
-          }
-        } catch (err) {
-          reject(err)
-        }
-      }, TRAIN_POLLING_MS)
-    })
-  }
 
   public async getInfo(): Promise<{
     health: Health
@@ -47,6 +23,14 @@ export class NLUClientWrapper {
 
   public async pruneModels(appId: string): Promise<string[]> {
     const response = await this._client.pruneModels(appId)
+    if (!response.success) {
+      return this._throwError(response.error)
+    }
+    return response.models
+  }
+
+  public async listModels(appId: string): Promise<string[]> {
+    const response = await this._client.listModels(appId)
     if (!response.success) {
       return this._throwError(response.error)
     }

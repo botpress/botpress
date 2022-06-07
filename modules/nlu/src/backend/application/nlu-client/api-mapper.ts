@@ -62,7 +62,7 @@ const makeIntentMapper = (lang: string) => (intent: BpIntentDefinition): StanInt
 }
 
 const mapList = (listDef: BpEntityDefinition): ListEntityDefinition => {
-  const { name, fuzzy, occurrences, examples } = listDef
+  const { name, fuzzy, occurrences } = listDef
 
   return {
     name,

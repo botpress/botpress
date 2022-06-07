@@ -9,9 +9,8 @@ import { Config } from '../config'
 import { getWebsocket } from './api'
 import { BotFactory } from './application/bot-factory'
 import { DefinitionsRepository } from './application/definitions-repository'
-import { ModelStateService } from './application/model-state'
-import { DbModelStateRepository } from './application/model-state/model-state-repo'
-import { NLUClientWrapper } from './application/nlu-client'
+import { ModelEntryRepository } from './application/model-entry'
+import { NLUClient } from './application/nlu-client'
 import { NonBlockingNluApplication } from './application/non-blocking-app'
 
 const getNLUServerConfig = (config: Config['nluServer']): { endpoint: string } => {
@@ -38,16 +37,15 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
   const { endpoint: nluEndpoint } = getNLUServerConfig(globalConfig.nluServer)
   const nluClient = new Client({ baseURL: nluEndpoint })
 
-  const clientWrapper = new NLUClientWrapper(nluClient)
+  const clientWrapper = new NLUClient(nluClient)
 
   const socket = getWebsocket(bp)
 
-  const modelRepo = new DbModelStateRepository(bp.database)
+  const modelRepo = new ModelEntryRepository(bp.database)
   await modelRepo.initialize()
-  const modelStateService = new ModelStateService(modelRepo)
 
   const defRepo = new DefinitionsRepository(bp)
-  const botFactory = new BotFactory(nluEndpoint, bp.logger, defRepo, modelStateService, socket)
+  const botFactory = new BotFactory(nluEndpoint, bp.logger, defRepo, modelRepo, socket)
   const application = new NonBlockingNluApplication(
     clientWrapper,
     botFactory,
