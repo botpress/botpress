@@ -1,4 +1,3 @@
-import { Client } from '@botpress/nlu-client'
 import * as sdk from 'botpress/sdk'
 
 import _ from 'lodash'
@@ -35,9 +34,7 @@ export async function bootStrap(bp: typeof sdk): Promise<NonBlockingNluApplicati
   }
 
   const { endpoint: nluEndpoint } = getNLUServerConfig(globalConfig.nluServer)
-  const nluClient = new Client({ baseURL: nluEndpoint })
-
-  const clientWrapper = new NLUClient(nluClient)
+  const clientWrapper = new NLUClient(nluEndpoint)
 
   const socket = getWebsocket(bp)
 

@@ -1,8 +1,6 @@
-import { Client } from '@botpress/nlu-client'
 import * as sdk from 'botpress/sdk'
 
 import _ from 'lodash'
-import { NLUCloudClient } from '../cloud/client'
 import { Bot } from './bot'
 import { DefinitionsRepository } from './definitions-repository'
 import { ModelEntryRepository, ModelEntryService, TrainingEntryService } from './model-entry'
@@ -24,18 +22,10 @@ export class BotFactory {
     private _webSocket: (ts: TrainingSession) => void
   ) {}
 
-  private makeClient(botConfig: BotConfig): NLUClient {
-    const { cloud } = botConfig
-    const nluClient = cloud
-      ? new NLUCloudClient({ ...cloud, endpoint: this._endpoint })
-      : new Client({ baseURL: this._endpoint })
-    return new NLUClient(nluClient)
-  }
-
   public makeBot = async (botConfig: BotConfig): Promise<Bot> => {
     const { id: botId } = botConfig
 
-    const client = this.makeClient(botConfig)
+    const client = new NLUClient(this._endpoint)
 
     const { defaultLanguage } = botConfig
     const { languages: engineLanguages } = await client.getInfo()

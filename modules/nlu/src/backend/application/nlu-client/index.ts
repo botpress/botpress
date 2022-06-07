@@ -7,7 +7,11 @@ export type TrainListener = (
 
 /** Wrapper over actual nlu-client to map errors */
 export class NLUClient {
-  constructor(private _client: Client) {}
+  private _client: Client
+
+  constructor(endpoint: string) {
+    this._client = new Client({ baseURL: endpoint, validateStatus: () => true })
+  }
 
   public async getInfo(): Promise<{
     health: Health
