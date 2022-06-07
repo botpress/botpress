@@ -28,7 +28,7 @@ export class ModelEntryRepository {
   }
 
   public async initialize() {
-    await this._db.createTableIfNotExists(this._tableName, (table) => {
+    await this._db.createTableIfNotExists(this._tableName, table => {
       table.string('botId').notNullable()
       table.string('language').notNullable()
       table.string('status').notNullable()
@@ -39,7 +39,10 @@ export class ModelEntryRepository {
   }
 
   public async get(key: ModelEntryPrimaryKey): Promise<ModelEntryRow | undefined> {
-    return this.table.where(key).select('*').first()
+    return this.table
+      .where(key)
+      .select('*')
+      .first()
   }
 
   public async set(model: ModelEntryRow) {
