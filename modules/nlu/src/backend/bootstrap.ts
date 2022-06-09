@@ -1,6 +1,7 @@
 import * as sdk from 'botpress/sdk'
 
 import _ from 'lodash'
+import url from 'url'
 import yn from 'yn'
 
 import { Config } from '../config'
@@ -11,6 +12,11 @@ import { DefinitionsRepository } from './application/definitions-repository'
 import { ModelEntryRepository } from './application/model-entry'
 import { NLUClient } from './application/nlu-client'
 import { NonBlockingNluApplication } from './application/non-blocking-app'
+
+export const isLocalHost = (endpoint: string) => {
+  const { hostname } = new url.URL(endpoint)
+  return ['localhost', '127.0.0.1', '0.0.0.0'].includes(hostname)
+}
 
 const getNLUServerConfig = (config: Config['nluServer']): { endpoint: string } => {
   if (config.autoStart) {
