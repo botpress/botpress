@@ -16,7 +16,7 @@ export default function naturalElectionPipeline(input: sdk.IO.EventUnderstanding
   return step
 }
 
-function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
+export function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
   if (!input.predictions) {
     return input
   }
@@ -45,18 +45,22 @@ function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstandin
   }
 }
 
-function extractElectedIntentSlot(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
+export function extractElectedIntentSlot(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
   if (!input.predictions) {
     return input
   }
 
-  const elected = input.intent!
-
-  if (!elected) {
+  const elected = input.intent
+  if (_.isNil(elected)) {
     return input
   }
 
-  const electedIntent = input.predictions[elected.context].intents.find(i => i.label === elected.name)
+  const electedContext = input.predictions[elected.context]
+  if (_.isNil(electedContext)) {
+    return input
+  }
+
+  const electedIntent = electedContext.intents.find(i => i.label === elected.name)
   if (!electedIntent) {
     return { ...input, slots: {} }
   }
