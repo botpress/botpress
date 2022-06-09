@@ -1,5 +1,7 @@
 import { Client, Health, PredictOutput, Specifications, TrainingState, TrainInput } from '@botpress/nlu-client'
+import { AxiosRequestConfig } from 'axios'
 import _ from 'lodash'
+import { isLocalHost } from './is-localhost'
 
 export type TrainListener = (
   tp: TrainingState | undefined
@@ -10,7 +12,11 @@ export class NLUClient {
   private _client: Client
 
   constructor(endpoint: string) {
-    this._client = new Client({ baseURL: endpoint, validateStatus: () => true })
+    const config: AxiosRequestConfig = { baseURL: endpoint, validateStatus: () => true }
+    if (isLocalHost(endpoint)) {
+      config.proxy = false
+    }
+    this._client = new Client(config)
   }
 
   public async getInfo(): Promise<{
