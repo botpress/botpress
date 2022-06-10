@@ -78,7 +78,7 @@ export class Predictor {
     textInput: string,
     language: string,
     modelId: string
-  ): Promise<Omit<EventUnderstanding, 'detectedLanguage'> | undefined> {
+  ): Promise<Omit<EventUnderstanding, 'detectedLanguage'>> {
     try {
       const response = await this._nluClient.predict(this._botId, textInput, modelId)
       const originalOutput = mapPredictOutput(response)
