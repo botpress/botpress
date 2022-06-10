@@ -62,12 +62,12 @@ export class Predictor {
       const res = await this._tryPredictInLanguage(textInput, lang, modelId)
       nluResults = res && { ...res }
 
-      if (!this._isEmpty(nluResults) && !this._isError(nluResults)) {
+      if (!this._isError(nluResults)) {
         break
       }
     }
 
-    if (this._isEmpty(nluResults)) {
+    if (!nluResults) {
       throw new Error(`No model found for the following languages: ${languagesToTry}`)
     }
 
@@ -88,10 +88,6 @@ export class Predictor {
       this._logger.attachError(err).error(msg)
       return { errored: true, modelId, language }
     }
-  }
-
-  private _isEmpty(nluResults: Omit<EventUnderstanding, 'detectedLanguage'> | undefined): nluResults is undefined {
-    return !nluResults
   }
 
   private _isError(nluResults: Omit<EventUnderstanding, 'detectedLanguage'>): boolean {
