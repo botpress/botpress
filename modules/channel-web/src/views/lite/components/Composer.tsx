@@ -1,4 +1,5 @@
 import classNames from 'classnames'
+import debounce from 'lodash/debounce'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
@@ -7,16 +8,17 @@ import { FormattedMessage, InjectedIntlProps, injectIntl } from 'react-intl'
 import ToolTip from '../../../../../../packages/ui-shared-lite/ToolTip'
 import { RootStore, StoreDef } from '../store'
 import { isRTLText } from '../utils'
+import SuggestionList from './SuggestionList'
 
 import VoiceRecorder from './VoiceRecorder'
 
 const ENTER_CHAR_CODE = 13
-class Composer extends React.Component<ComposerProps, { isRecording: boolean }> {
+class Composer extends React.Component<ComposerProps, StateProps> {
   private textInput: React.RefObject<HTMLTextAreaElement>
   constructor(props) {
     super(props)
     this.textInput = React.createRef()
-    this.state = { isRecording: false }
+    this.state = { isRecording: false, isLoading: false, suggestions: [] }
   }
 
   componentDidMount() {
@@ -71,11 +73,35 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
     }
   }
 
+  fetchSuggestions = debounce(msg => {
+    // TODO: API 콜로 변경하기
+    if (msg.includes('오류')) {
+      this.setState({
+        suggestions: ['오류 파드 보여줘', '오류 리소스 보여줘', '오류 영구 볼륨 클레임 보여줘']
+      })
+    }
+    if (msg.includes('사전')) {
+      this.setState({
+        suggestions: ['k8s 용어 사전']
+      })
+    }
+    this.setState({ isLoading: false })
+  }, 500)
+
   handleMessageChanged = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     const { updateMessage, composerMaxTextLength } = this.props
 
     const msg = e.target.value.slice(0, composerMaxTextLength)
 
+    this.setState({ isLoading: true, suggestions: [] })
+    updateMessage(msg)
+    this.fetchSuggestions(msg)
+  }
+
+  handleSuggestionClicked = (event: React.MouseEvent<HTMLElement>, value: string) => {
+    const { updateMessage, composerMaxTextLength } = this.props
+    this.setState({ suggestions: [] })
+    const msg = value.slice(0, composerMaxTextLength)
     updateMessage(msg)
   }
 
@@ -119,67 +145,74 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
       )
 
     return (
-      <div role="region" className={classNames('bpw-composer', direction)}>
-        <div className={'bpw-composer-inner'}>
-          <div className={'bpw-composer-textarea'}>
-            <textarea
-              ref={this.textInput}
-              id="input-message"
-              onFocus={this.props.setFocus.bind(this, 'input')}
-              placeholder={placeholder}
-              onChange={this.handleMessageChanged}
-              value={this.props.message}
-              onKeyPress={this.handleKeyPress}
-              onKeyDown={this.handleKeyDown}
-              aria-label={this.props.intl.formatMessage({
-                id: 'composer.message',
-                defaultMessage: 'Message to send'
-              })}
-              disabled={this.props.composerLocked}
-            />
-            <label htmlFor="input-message" style={{ display: 'none' }}>
-              {placeholder}
-            </label>
-          </div>
-
-          <div className={'bpw-send-buttons'}>
-            <ToolTip
-              childId="btn-send"
-              content={
-                this.props.isEmulator
-                  ? this.props.intl.formatMessage({
-                      id: 'composer.interact',
-                      defaultMessage: 'Interact with your chatbot'
-                    })
-                  : this.props.intl.formatMessage({
-                      id: 'composer.sendMessage',
-                      defaultMessage: 'Send Message'
-                    })
-              }
-            >
-              <button
-                className={'bpw-send-button'}
-                disabled={!this.props.message.length || this.props.composerLocked || this.state.isRecording}
-                onClick={this.props.sendMessage.bind(this, undefined)}
+      <>
+        <SuggestionList
+          isLoading={this.state.isLoading}
+          suggestions={this.state.suggestions}
+          onItemClick={this.handleSuggestionClicked}
+        />
+        <div role="region" className={classNames('bpw-composer', direction)}>
+          <div className={'bpw-composer-inner'}>
+            <div className={'bpw-composer-textarea'}>
+              <textarea
+                ref={this.textInput}
+                id="input-message"
+                onFocus={this.props.setFocus.bind(this, 'input')}
+                placeholder={placeholder}
+                onChange={this.handleMessageChanged}
+                value={this.props.message}
+                onKeyPress={this.handleKeyPress}
+                onKeyDown={this.handleKeyDown}
                 aria-label={this.props.intl.formatMessage({
-                  id: 'composer.send',
-                  defaultMessage: 'Send'
+                  id: 'composer.message',
+                  defaultMessage: 'Message to send'
                 })}
-                id="btn-send"
-              >
-                <FormattedMessage id={'composer.send'} />
-              </button>
-            </ToolTip>
-            {this.props.enableVoiceComposer && (
-              <VoiceRecorder
-                onStart={this.onVoiceStart}
-                onDone={this.onVoiceEnd}
-                onNotAvailable={this.onVoiceNotAvailable}
+                disabled={this.props.composerLocked}
               />
-            )}
+              <label htmlFor="input-message" style={{ display: 'none' }}>
+                {placeholder}
+              </label>
+            </div>
+
+            <div className={'bpw-send-buttons'}>
+              <ToolTip
+                childId="btn-send"
+                content={
+                  this.props.isEmulator
+                    ? this.props.intl.formatMessage({
+                        id: 'composer.interact',
+                        defaultMessage: 'Interact with your chatbot'
+                      })
+                    : this.props.intl.formatMessage({
+                        id: 'composer.sendMessage',
+                        defaultMessage: 'Send Message'
+                      })
+                }
+              >
+                <button
+                  className={'bpw-send-button'}
+                  disabled={!this.props.message.length || this.props.composerLocked || this.state.isRecording}
+                  onClick={this.props.sendMessage.bind(this, undefined)}
+                  aria-label={this.props.intl.formatMessage({
+                    id: 'composer.send',
+                    defaultMessage: 'Send'
+                  })}
+                  id="btn-send"
+                >
+                  <FormattedMessage id={'composer.send'} />
+                </button>
+              </ToolTip>
+              {this.props.enableVoiceComposer && (
+                <VoiceRecorder
+                  onStart={this.onVoiceStart}
+                  onDone={this.onVoiceEnd}
+                  onNotAvailable={this.onVoiceNotAvailable}
+                />
+              )}
+            </div>
           </div>
         </div>
-      </div>
+      </>
     )
   }
 }
@@ -238,3 +271,9 @@ type ComposerProps = {
     | 'preferredLanguage'
     | 'composerMaxTextLength'
   >
+
+interface StateProps {
+  isRecording: boolean
+  isLoading: boolean
+  suggestions: string[]
+}

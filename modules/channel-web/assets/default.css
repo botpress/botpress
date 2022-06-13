@@ -700,6 +700,30 @@ body {
   background: #d8d8d8;
 }
 
+.bpw-suggestion-loading {
+  display: flex;
+  justify-content: center;
+  height: 40px;
+  background-color: #fbfbfb;
+  border-top: 1px solid #aaaaaa;
+}
+
+.bpw-suggestion-list {
+  background-color: #fbfbfb;
+  border-top: 1px solid #aaaaaa;
+}
+
+.bpw-suggestion-item {
+  color: #1a1e22;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.bpw-suggestion-item:hover {
+  background-color: #cad7f5;
+}
+
 /** HEADER STUFF */
 
 .bpw-header-container {
