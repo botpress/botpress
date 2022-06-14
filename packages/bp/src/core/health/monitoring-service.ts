@@ -1,7 +1,6 @@
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import { Metric, MonitoringMetrics } from 'common/monitoring'
-import { makeNLUPassword } from 'common/nlu-token'
 import { MessagingService } from 'core/messaging'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
@@ -109,9 +108,7 @@ export class CEMonitoringService implements MonitoringService {
     try {
       const nluEndpoint = process.NLU_ENDPOINT || `http://localhost:${process.NLU_PORT}`
 
-      await axios.get(`${nluEndpoint}/info`, {
-        headers: { Authorization: `Bearer ${makeNLUPassword()}` }
-      })
+      await axios.get(`${nluEndpoint}/info`)
 
       nlu = 'up'
     } catch (err) {

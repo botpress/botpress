@@ -1,4 +1,4 @@
-import { isLocalHost } from './bootstrap'
+import { isLocalHost } from './is-localhost'
 
 const testcases: [string, boolean][] = [
   ['http://localhost:3200', true],

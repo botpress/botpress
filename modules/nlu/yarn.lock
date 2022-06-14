@@ -2,13 +2,43 @@
 # yarn lockfile v1
 
 
-"@botpress/nlu-client@0.1.4":
-  version "0.1.4"
-  resolved "https://registry.yarnpkg.com/@botpress/nlu-client/-/nlu-client-0.1.4.tgz#9aa8fb4cb3481532fd67f5ea00a969b1a25aadf9"
-  integrity sha512-oNrtZ1irfxv3PxMmfAUQA5yxKQF+S2LFeVGrXH95oxzELjj4CLyJeBOYmxT7aX5vR8PMLiaXiKsjS6wtRzIogg==
+"@botpress/nlu-client@1.0.0":
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/@botpress/nlu-client/-/nlu-client-1.0.0.tgz#76d23afab3f7645a23c272d2cdc66d2d82875ef0"
+  integrity sha512-zbYcugTxVVakvvRqDcmigyjEr2Xpn/e2OV8iPpD+dMrA9/RI0j/yQJIV81SATPRIHIiluKTVe/S4Nn8cpxVwbg==
   dependencies:
     axios "^0.21.1"
+    joi "^17.2.2"
     lodash "^4.17.19"
+
+"@hapi/hoek@^9.0.0":
+  version "9.3.0"
+  resolved "https://registry.yarnpkg.com/@hapi/hoek/-/hoek-9.3.0.tgz#8368869dcb735be2e7f5cb7647de78e167a251fb"
+  integrity sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==
+
+"@hapi/topo@^5.0.0":
+  version "5.1.0"
+  resolved "https://registry.yarnpkg.com/@hapi/topo/-/topo-5.1.0.tgz#dc448e332c6c6e37a4dc02fd84ba8d44b9afb012"
+  integrity sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==
+  dependencies:
+    "@hapi/hoek" "^9.0.0"
+
+"@sideway/address@^4.1.3":
+  version "4.1.4"
+  resolved "https://registry.yarnpkg.com/@sideway/address/-/address-4.1.4.tgz#03dccebc6ea47fdc226f7d3d1ad512955d4783f0"
+  integrity sha512-7vwq+rOHVWjyXxVlR76Agnvhy8I9rpzjosTESvmhNeXOXdZZB15Fl+TI9x1SiHZH5Jv2wTGduSxFDIaq0m3DUw==
+  dependencies:
+    "@hapi/hoek" "^9.0.0"
+
+"@sideway/formula@^3.0.0":
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/@sideway/formula/-/formula-3.0.0.tgz#fe158aee32e6bd5de85044be615bc08478a0a13c"
+  integrity sha512-vHe7wZ4NOXVfkoRb8T5otiENVlT7a3IAiw7H5M2+GO+9CDgcVUUsX1zalAztCmwyOr2RUTGJdgB+ZvSVqmdHmg==
+
+"@sideway/pinpoint@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@sideway/pinpoint/-/pinpoint-2.0.0.tgz#cff8ffadc372ad29fd3f78277aeb29e632cc70df"
+  integrity sha512-RNiOoTPkptFtSVzQevY/yWtZwf/RxyVnPy/OcA9HBM3MlGDnBEYL5B41H0MTn0Uec8Hi+2qUtTfG2WWZBmMejQ==
 
 "@types/bluebird-retry@^0.11.4":
   version "0.11.4"
@@ -532,6 +562,17 @@ joi@^13.6.0:
     hoek "5.x.x"
     isemail "3.x.x"
     topo "3.x.x"
+
+joi@^17.2.2:
+  version "17.6.0"
+  resolved "https://registry.yarnpkg.com/joi/-/joi-17.6.0.tgz#0bb54f2f006c09a96e75ce687957bd04290054b2"
+  integrity sha512-OX5dG6DTbcr/kbMFj0KGYxuew69HPcAE3K/sZpEV2nP6e/j/C0HV+HNiBPCASxdx5T7DMoa0s8UeHWMnb6n2zw==
+  dependencies:
+    "@hapi/hoek" "^9.0.0"
+    "@hapi/topo" "^5.0.0"
+    "@sideway/address" "^4.1.3"
+    "@sideway/formula" "^3.0.0"
+    "@sideway/pinpoint" "^2.0.0"
 
 "js-tokens@^3.0.0 || ^4.0.0":
   version "4.0.0"
