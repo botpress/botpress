@@ -9,6 +9,7 @@ import { NLUClient } from '../nlu-client'
 import { mapTrainSet } from '../nlu-client/api-mapper'
 
 import { BotDefinition } from '../typings'
+import { orderKeys } from './order-keys'
 
 export class BotState {
   private _botId: string
@@ -92,7 +93,12 @@ export class BotState {
   }
 
   private _hashTrainSet = (ts: StanTrainInput): string => {
-    const content = [...ts.entities, ...ts.intents]
+    const { entities, intents } = ts
+    const content = orderKeys({
+      entities: _.orderBy(entities, e => e.name),
+      intents: _.orderBy(intents, i => i.name)
+    })
+
     return crypto
       .createHash('sha1')
       .update(JSON.stringify(content))
