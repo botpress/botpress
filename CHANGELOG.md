@@ -1,3 +1,21 @@
+# [12.28.0](https://github.com/botpress/botpress/compare/v12.27.0...v12.28.0) (2022-06-16)
+
+
+### Bug Fixes
+
+* **admin:** add id to NPS, support white labeling ([#11770](https://github.com/botpress/botpress/issues/11770)) ([30815fe](https://github.com/botpress/botpress/commit/30815fefad6a378990f5a73b902216c43f2d2495))
+* **builtin:** fix action for storing files locally ([#11798](https://github.com/botpress/botpress/issues/11798)) ([a07ff53](https://github.com/botpress/botpress/commit/a07ff5304e9e5ab94696a9d9de025708863cc65f))
+* **core:** fix export with dotted folder ([#11780](https://github.com/botpress/botpress/issues/11780)) ([8e8f45a](https://github.com/botpress/botpress/commit/8e8f45ad0ac8d2d35e9ecb16fe30f619b8771596))
+* **nlu:** trainset hash is computed from sorted datastructure ([#11878](https://github.com/botpress/botpress/issues/11878)) ([c8a4566](https://github.com/botpress/botpress/commit/c8a4566d52a236fca40cc991d931f7329c69955f))
+* **redis:** improved error handling when redis is down ([#11885](https://github.com/botpress/botpress/issues/11885)) ([a83d345](https://github.com/botpress/botpress/commit/a83d3452b84effc93dfd3e7d4c599a8b9d4e6127)), closes [#11738](https://github.com/botpress/botpress/issues/11738)
+
+
+### Features
+
+* **hitlnext:** add skill, fix lang & expired handoff ([#11775](https://github.com/botpress/botpress/issues/11775)) ([a67bf73](https://github.com/botpress/botpress/commit/a67bf73abda1f364ef6b75618649904bf98eb7dd))
+
+
+
 # [12.27.0](https://github.com/botpress/botpress/compare/v12.26.12...v12.27.0) (2022-04-26)
 
 
