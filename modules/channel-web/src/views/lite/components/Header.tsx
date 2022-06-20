@@ -4,6 +4,7 @@ import React from 'react'
 
 import confirmDialog from '../../../../../../packages/ui-shared-lite/ConfirmDialog'
 import MoreOptions from '../../../../../../packages/ui-shared-lite/MoreOptions'
+import ToolTip from '../../../../../../packages/ui-shared-lite/ToolTip'
 import Close from '../icons/Close'
 import Delete from '../icons/Delete'
 import Download from '../icons/Download'
@@ -117,52 +118,70 @@ class Header extends React.Component<HeaderProps> {
 
   renderResetButton() {
     return (
-      <button
-        type="button"
-        tabIndex={-1}
-        id="btn-reset"
-        ref={el => (this.btnEls[1] = el)}
-        className={'bpw-header-icon bpw-header-icon-reset'}
-        onClick={this.props.resetSession}
-        onKeyDown={this.handleKeyDown.bind(this, this.props.resetSession)}
-        onBlur={this.onBlur}
-      >
-        <Reload />
-      </button>
+      <ToolTip childId="btn-reset" content={this.props.intl.formatMessage({ id: 'header.resetConversation' })}>
+        <button
+          type="button"
+          tabIndex={-1}
+          id="btn-reset"
+          aria-label={this.props.intl.formatMessage({
+            id: 'header.resetConversation',
+            defaultMessage: 'Reset the conversation'
+          })}
+          ref={el => (this.btnEls[1] = el)}
+          className={'bpw-header-icon bpw-header-icon-reset'}
+          onClick={this.props.resetSession}
+          onKeyDown={this.handleKeyDown.bind(this, this.props.resetSession)}
+          onBlur={this.onBlur}
+        >
+          <Reload />
+        </button>
+      </ToolTip>
     )
   }
 
   renderDownloadButton() {
     return (
-      <button
-        type="button"
-        tabIndex={-1}
-        id="btn-download"
-        ref={el => (this.btnEls[2] = el)}
-        className={'bpw-header-icon bpw-header-icon-download'}
-        onClick={this.props.downloadConversation}
-        onKeyDown={this.handleKeyDown.bind(this, this.props.downloadConversation)}
-        onBlur={this.onBlur}
-      >
-        <Download />
-      </button>
+      <ToolTip childId="btn-download" content={this.props.intl.formatMessage({ id: 'header.downloadConversation' })}>
+        <button
+          type="button"
+          tabIndex={-1}
+          id="btn-download"
+          aria-label={this.props.intl.formatMessage({
+            id: 'header.downloadConversation',
+            defaultMessage: 'Reset the conversation'
+          })}
+          ref={el => (this.btnEls[2] = el)}
+          className={'bpw-header-icon bpw-header-icon-download'}
+          onClick={this.props.downloadConversation}
+          onKeyDown={this.handleKeyDown.bind(this, this.props.downloadConversation)}
+          onBlur={this.onBlur}
+        >
+          <Download />
+        </button>
+      </ToolTip>
     )
   }
 
   renderConvoButton() {
     return (
-      <button
-        type="button"
-        tabIndex={-1}
-        id="btn-conversations"
-        ref={el => (this.btnEls[3] = el)}
-        className={'bpw-header-icon bpw-header-icon-convo'}
-        onClick={this.props.toggleConversations}
-        onKeyDown={this.handleKeyDown.bind(this, this.props.toggleConversations)}
-        onBlur={this.onBlur}
-      >
-        <List />
-      </button>
+      <ToolTip childId="btn-conversations" content={this.props.intl.formatMessage({ id: 'header.toggleConversation' })}>
+        <button
+          type="button"
+          tabIndex={-1}
+          id="btn-conversations"
+          aria-label={this.props.intl.formatMessage({
+            id: 'header.toggleConversation',
+            defaultMessage: 'Toggle the conversation'
+          })}
+          ref={el => (this.btnEls[3] = el)}
+          className={'bpw-header-icon bpw-header-icon-convo'}
+          onClick={this.props.toggleConversations}
+          onKeyDown={this.handleKeyDown.bind(this, this.props.toggleConversations)}
+          onBlur={this.onBlur}
+        >
+          <List />
+        </button>
+      </ToolTip>
     )
   }
 
@@ -185,18 +204,29 @@ class Header extends React.Component<HeaderProps> {
 
   renderResizeButton() {
     return (
-      <button
-        type="button"
-        tabIndex={-1}
-        id="btn-resize"
-        ref={el => (this.btnEls[5] = el)}
-        className={'bpw-header-icon bpw-header-icon-resize'}
-        onClick={this.props.resizeChat}
-        onKeyDown={this.handleKeyDown.bind(this, this.props.resizeChat)}
-        onBlur={this.onBlur}
+      <ToolTip
+        childId="btn-resize"
+        content={this.props.intl.formatMessage({
+          id: this.props.isLayoutFullHeight ? 'header.minimizeChatWindow' : 'header.maximizeChatWindow'
+        })}
       >
-        {this.props.isLayoutFullHeight ? <Minimize /> : <Maximize />}
-      </button>
+        <button
+          type="button"
+          tabIndex={-1}
+          id="btn-resize"
+          aria-label={this.props.intl.formatMessage({
+            id: this.props.isLayoutFullHeight ? 'header.minimizeChatWindow' : 'header.maximizeChatWindow',
+            defaultMessage: this.props.isLayoutFullHeight ? 'Minimize the chat window' : 'Maximize the chat window'
+          })}
+          ref={el => (this.btnEls[5] = el)}
+          className={'bpw-header-icon bpw-header-icon-resize'}
+          onClick={this.props.resizeChat}
+          onKeyDown={this.handleKeyDown.bind(this, this.props.resizeChat)}
+          onBlur={this.onBlur}
+        >
+          {this.props.isLayoutFullHeight ? <Minimize /> : <Maximize />}
+        </button>
+      </ToolTip>
     )
   }
 
