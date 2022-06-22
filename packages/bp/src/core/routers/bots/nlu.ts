@@ -45,7 +45,23 @@ export class NLURouter extends CustomRouter {
         res.send(intentDef)
       })
     )
+    
+    this.router.get(
+      '/utterances',
+      this._checkTokenHeader,
+      this._needPermissions('read', 'bot.content'),
+      this.asyncMiddleware(async (req, res) => {
+        const botId = req.params.botId
+        const intents = await this.nluService.intents.getIntents(botId)
+        const utter = _.chain(intents)
+          .flatMap(i => i.contexts)
+          .uniq()
+          .value()
 
+        res.send(utter)
+      })
+    )
+    
     this.router.get(
       '/contexts',
       this._checkTokenHeader,
