@@ -107,6 +107,9 @@ export class AuthService {
 
   async generateSecureToken(email: string, strategy: string) {
     const config = await this.configProvider.getBotpressConfig()
+    if (!config.pro.collaboratorsAuthStrategies || !config.pro.collaboratorsAuthStrategies.length) {
+      throw new Error('There must be at least one collaborator authentication strategy configured.')
+    }
     const isGlobalStrategy = config.pro.collaboratorsAuthStrategies.includes(strategy)
     const user = await this.users.findUser(email, strategy)
 
