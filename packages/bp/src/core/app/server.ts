@@ -169,7 +169,7 @@ export class HTTPServer {
       jobService,
       logsRepo,
       authStrategies,
-      messagingService,
+      messagingService,      
       this
     )
 
@@ -180,7 +180,7 @@ export class HTTPServer {
       authService,
       workspaceService,
       nluService,
-      converseService,
+      converseService,      
       this.logger,
       mediaServiceProvider,
       eventRepo,

@@ -1,4 +1,5 @@
 import * as sdk from 'botpress/sdk'
+import { BpfsScopedChange } from 'core/bpfs'
 import { CustomRouter } from 'core/routers/customRouter'
 import { AuthService, TOKEN_AUDIENCE, checkTokenHeader, needPermissions } from 'core/security'
 import { NLUService } from 'core/services/nlu/nlu-service'
@@ -7,17 +8,17 @@ import { RequestHandler, Router } from 'express'
 import _ from 'lodash'
 import yn from 'yn'
 
+
 export class NLURouter extends CustomRouter {
   private _checkTokenHeader: RequestHandler
-  private _needPermissions: (operation: string, resource: string) => RequestHandler
-
+  private _needPermissions: (operation: string, resource: string) => RequestHandler   
   constructor(
     private logger: sdk.Logger,
     private authService: AuthService,
     private workspaceService: WorkspaceService,
-    private nluService: NLUService
+    private nluService: NLUService    
   ) {
-    super('NLU', logger, Router({ mergeParams: true }))
+    super('NLU', logger, Router({ mergeParams: true }))    
     this._needPermissions = needPermissions(this.workspaceService)
     this._checkTokenHeader = checkTokenHeader(this.authService, TOKEN_AUDIENCE)
     this.setupRoutes()
@@ -44,24 +45,24 @@ export class NLURouter extends CustomRouter {
         const intentDef = await this.nluService.intents.getIntent(botId, intent)
         res.send(intentDef)
       })
-    )
+    )   
     
     this.router.get(
-      '/utterances',
-      this._checkTokenHeader,
-      this._needPermissions('read', 'bot.content'),
-      this.asyncMiddleware(async (req, res) => {
+      '/search/:msg',      
+      this.asyncMiddleware(async (req, res) => {        
+        const msg = req.params.msg
         const botId = req.params.botId
         const intents = await this.nluService.intents.getIntents(botId)
         const utter = _.chain(intents)
-          .flatMap(i => i.contexts)
+          .flatMap(i => i.utterances.ko)
           .uniq()
           .value()
-
-        res.send(utter)
+        
+        const searchs = await this.nluService.intents.findMatches(msg, utter)  
+        res.send(searchs)                
       })
     )
-    
+
     this.router.get(
       '/contexts',
       this._checkTokenHeader,

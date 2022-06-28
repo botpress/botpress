@@ -8,10 +8,10 @@ import { CustomRouter } from '../customRouter'
 import { TypedRequest } from '../util'
 
 import { validateSdkApiPayload } from './utils'
+import bpfs from 'bpfs'
 
 export class SdkApiRouter extends CustomRouter {
-  private api!: typeof sdk
-
+  private api!: typeof sdk  
   constructor(private logger: sdk.Logger) {
     super('SDK API Router', logger, Router({ mergeParams: true }))
     this.setupRoutes()
@@ -48,8 +48,8 @@ export class SdkApiRouter extends CustomRouter {
         await this.api.events.replyToEvent(event, payloads, (event as sdk.IO.IncomingEvent).id)
         res.sendStatus(200)
       })
-    )
-
+    )     
+    
     /**
      * Merge specified attributes to the user's existing attributes
      */

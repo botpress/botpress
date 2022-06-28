@@ -31,4 +31,11 @@ export class IntentService {
     }
     return this.ghostService.forBot(botId).readFileAsObject(INTENTS_DIR, `${intentName}.json`)
   }
+
+  public async findMatches(msg, utter) {
+    return utter.filter(matches => {
+      const regex = new RegExp(msg, 'gi')
+      return matches.match(regex)
+    })
+  }
 }

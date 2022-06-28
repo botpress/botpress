@@ -12,6 +12,7 @@
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
     "useUnknownInCatchVariables": false,
+    "strictPropertyInitialization": false,
     "baseUrl": "./src",
     "outDir": "dist",
     "typeRoots": ["./src/typings", "../../node_modules/@types", "./src/common"],

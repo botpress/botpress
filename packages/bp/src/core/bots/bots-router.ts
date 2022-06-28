@@ -23,7 +23,6 @@ import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import path from 'path'
 import { URL } from 'url'
-
 import { NLURouter } from '../routers/bots/nlu'
 import { CustomRouter } from '../routers/customRouter'
 
@@ -47,7 +46,7 @@ export class BotsRouter extends CustomRouter {
     private mediaServiceProvider: MediaServiceProvider,
     private eventRepo: EventRepository,
     private qnaService: QnaService,
-    private httpServer: HTTPServer
+    private httpServer: HTTPServer    
   ) {
     super('Bots', logger, Router({ mergeParams: true }))
 
