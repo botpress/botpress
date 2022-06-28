@@ -56,7 +56,7 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
     return (req: BPRequest, res: Response, next) => {
       Promise.resolve(fn(req as BPRequest, res, next)).catch(err => {
         if (err instanceof Joi.ValidationError) {
-          throw new UnprocessableEntityError(formatValidationError(err))
+          next(new UnprocessableEntityError(formatValidationError(err)))
         } else {
           next(err)
         }
