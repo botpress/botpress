@@ -9,7 +9,8 @@
     "unassigned": "Non-assigné",
     "assignedMe": "Assigné à moi",
     "assignedOther": "Assigné à d'autres",
-    "resolved": "Résolue"
+    "resolved": "Résolue",
+    "expired": "Expiré"
   },
   "sortBy": "Trier Par",
   "filterBy": "Filtrer Par",
@@ -30,7 +31,8 @@
     "status": {
       "pending": "en attente",
       "assigned": "assignée",
-      "resolved": "résolue"
+      "resolved": "résolue",
+      "expired": "expiré"
     },
     "assignedToAgent": "Vous avez été assigné à un agent",
     "assignedToYou": "La conversation vous a été assigné",

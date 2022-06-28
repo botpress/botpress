@@ -1,6 +1,5 @@
 import * as sdk from 'botpress/sdk'
 import lang from 'common/lang'
-import { makeNLUPassword } from 'common/nlu-token'
 import { createForGlobalHooks } from 'core/app/api'
 import { BotService, BotMonitoringService } from 'core/bots'
 import { GhostService } from 'core/bpfs'
@@ -227,7 +226,6 @@ export class Botpress {
       dbURL: process.core_env.BPFS_STORAGE === 'database' ? process.core_env.DATABASE_URL : undefined,
       modelDir: process.cwd(),
       modelCacheSize: config.modelCacheSize,
-      authToken: makeNLUPassword(),
       logFilter,
       verbose
     })

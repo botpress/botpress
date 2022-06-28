@@ -6,7 +6,6 @@ export interface LanguageSource {
 export interface NLUServerOptions {
   host: string
   port: number
-  authToken?: string
 
   verbose: number
   doc: boolean
@@ -18,6 +17,10 @@ export interface NLUServerOptions {
   batchSize: number
   dbURL?: string
   modelDir?: string
+
+  apmEnabled?: boolean
+  apmSampleRate?: number
+  maxTraining: number
 
   // engine options
   languageSources: LanguageSource[]

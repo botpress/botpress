@@ -1,53 +1,34 @@
 import * as sdk from 'botpress/sdk'
+
 import _ from 'lodash'
-import { LanguageSource } from 'src/config'
-
-import { NLUCloudClient } from '../cloud/client'
-import { NLUClientNoProxy } from '../no-proxy-client'
-import { IStanEngine, StanEngine } from '../stan'
+import { Bot } from './bot'
+import { DefinitionsRepository } from './definitions-repository'
+import { ModelEntryRepository, ModelEntryService, TrainingEntryService } from './model-entry'
+import { NLUClient } from './nlu-client'
 import pickSeed from './pick-seed'
-import { Bot, IBot } from './scoped/bot'
-import { ScopedDefinitionsService, IDefinitionsService } from './scoped/definitions-service'
-import { IDefinitionsRepository } from './scoped/infrastructure/definitions-repository'
-import { BotDefinition, BotConfig, I } from './typings'
 
-export interface ScopedServices {
-  bot: IBot
-  defService: IDefinitionsService
-}
-
-export type DefinitionRepositoryFactory = (botDef: BotDefinition) => IDefinitionsRepository
+import { BotDefinition, BotConfig, TrainingSession } from './typings'
 
 export interface ConfigResolver {
   getBotById(botId: string): Promise<BotConfig | undefined>
 }
 
-export type IScopedServicesFactory = I<ScopedServicesFactory>
-
-export class ScopedServicesFactory {
+export class BotFactory {
   constructor(
-    private _languageSource: LanguageSource & { isLocal: boolean },
+    private _endpoint: string,
     private _logger: sdk.Logger,
-    private _makeDefRepo: DefinitionRepositoryFactory
+    private _defRepo: DefinitionsRepository,
+    private _modelStateRepo: ModelEntryRepository,
+    private _webSocket: (ts: TrainingSession) => void
   ) {}
 
-  private makeEngine(botConfig: BotConfig): IStanEngine {
-    const { cloud } = botConfig
-
-    const stanClient = cloud
-      ? new NLUCloudClient({ ...cloud, endpoint: this._languageSource.endpoint })
-      : new NLUClientNoProxy(this._languageSource)
-
-    return new StanEngine(stanClient, this._languageSource.authToken ?? '')
-  }
-
-  public makeBot = async (botConfig: BotConfig): Promise<ScopedServices> => {
+  public makeBot = async (botConfig: BotConfig): Promise<Bot> => {
     const { id: botId } = botConfig
 
-    const engine = this.makeEngine(botConfig)
+    const client = new NLUClient(this._endpoint)
 
     const { defaultLanguage } = botConfig
-    const { languages: engineLanguages } = await engine.getInfo()
+    const { languages: engineLanguages } = await client.getInfo()
     const languages = _.intersection(botConfig.languages, engineLanguages)
     if (botConfig.languages.length !== languages.length) {
       const missingLangMsg = `Bot ${botId} has configured languages that are not supported by language sources. Configure a before incoming hook to call an external NLU provider for those languages.`
@@ -61,15 +42,8 @@ export class ScopedServicesFactory {
       seed: pickSeed(botConfig)
     }
 
-    const defRepo = this._makeDefRepo(botDefinition)
-
-    const defService = new ScopedDefinitionsService(botDefinition, defRepo)
-
-    const bot = new Bot(botDefinition, engine, defService, this._logger)
-
-    return {
-      defService,
-      bot
-    }
+    const modelService = new ModelEntryService(this._modelStateRepo)
+    const trainService = new TrainingEntryService(this._modelStateRepo)
+    return new Bot(botDefinition, client, this._defRepo, modelService, trainService, this._logger, this._webSocket)
   }
 }
