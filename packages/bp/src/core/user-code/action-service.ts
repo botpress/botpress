@@ -328,6 +328,7 @@ export class ScopedActionService {
   }
 
   private async _runInVm(code: string, dirPath: string, args: any, _require: Function) {
+    console.log('SPG RUNNING')
     const modRequire = new Proxy(
       {},
       {
@@ -337,12 +338,17 @@ export class ScopedActionService {
 
     const vm = new NodeVM({
       wrapper: 'none',
+      console: 'redirect',
       sandbox: args,
       require: {
         external: true,
         mock: modRequire
       },
       timeout: 5000
+    })
+
+    vm.on('console.log', (data) => {
+      console.log(`botid=${this.botId} ${data}`)
     })
 
     const runner = new VmRunner()
