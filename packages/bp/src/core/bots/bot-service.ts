@@ -108,12 +108,14 @@ export class BotService {
   }
 
   private async introspectBotOnCloud(
-    bearerToken: string
+    bearerToken: string,
+    clientId: string
   ): Promise<{ userId: string; runtimeName: string; botName: string; botId: string }> {
     return axios
       .get(`${process.CLOUD_CONTROLLER_ENDPOINT}/v1/introspect`, {
         headers: {
-          Authorization: bearerToken
+          Authorization: bearerToken,
+          'x-subject': clientId,
         }
       })
       .then(res => res.data)
@@ -122,7 +124,7 @@ export class BotService {
   async botExistOnCloud(cloudConfig: CloudConfig) {
     try {
       const bearerToken = await this.getCloudBearerTokenFromConfig(cloudConfig)
-      await this.introspectBotOnCloud(bearerToken)
+      await this.introspectBotOnCloud(bearerToken, cloudConfig.clientId)
       return true
     } catch (error) {
       return false
