@@ -1,8 +1,5 @@
 import React from 'react'
 
-import * as Keyboard from '../lite/components/Keyboard'
-import Message from '../lite/components/messages/Message'
-
 const INJECTION_ID = 'bp-channel-web-injection'
 const INJECTION_URL = 'assets/modules/channel-web/inject.js'
 const EMULATOR_WIDTH = 300
@@ -43,14 +40,3 @@ export class WebBotpressUIInjection extends React.Component {
     return null
   }
 }
-
-export {
-  Carousel,
-  QuickReplies,
-  LoginPrompt,
-  Text,
-  FileMessage,
-  FileInput,
-  Button
-} from '../lite/components/messages/renderer'
-export { Message, Keyboard }

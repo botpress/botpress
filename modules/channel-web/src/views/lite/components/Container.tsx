@@ -1,3 +1,4 @@
+import { Keyboard } from '@botpress/messaging-components'
 import classnames from 'classnames'
 import { inject, observer } from 'mobx-react'
 import React from 'react'
@@ -10,11 +11,9 @@ import Composer from './Composer'
 import ConversationList from './ConversationList'
 import Footer from './Footer'
 import Header from './Header'
-import * as Keyboard from './Keyboard'
 import MessageList from './messages/MessageList'
-import OverridableComponent from './OverridableComponent'
 
-class Container extends React.Component<ContainerProps> {
+class Container extends React.Component<ContainerProps, ContainerState> {
   renderBody() {
     if (!this.props.isInitialized) {
       return (
@@ -37,9 +36,9 @@ class Container extends React.Component<ContainerProps> {
           })}
         >
           <MessageList />
-          <Keyboard.Default>
-            <OverridableComponent name={'composer'} original={Composer} />
-          </Keyboard.Default>
+          <Keyboard>
+            <Composer />
+          </Keyboard>
         </div>
       )
     }
@@ -53,11 +52,9 @@ class Container extends React.Component<ContainerProps> {
 
     return (
       <React.Fragment>
-        <OverridableComponent name={'before_container'} original={null} />
         <div className={classNames} style={{ width: this.props.dimensions.layout }}>
           <Header />
           {this.renderBody()}
-          <OverridableComponent name={'below_conversation'} original={null} />
           {this.props.isPoweredByDisplayed && <Footer />}
         </div>
       </React.Fragment>
@@ -95,3 +92,7 @@ type ContainerProps = { store?: RootStore } & InjectedIntlProps &
     | 'isPoweredByDisplayed'
     | 'rtl'
   >
+
+interface ContainerState {
+  isKeyboardRendered: boolean
+}

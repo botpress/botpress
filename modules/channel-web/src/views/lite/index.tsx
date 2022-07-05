@@ -54,13 +54,3 @@ const Wrapper = observer(ExposedWebChat)
  */
 export { Embedded as embedded } from '.'
 export { Fullscreen as fullscreen } from '.'
-
-export {
-  Carousel,
-  QuickReplies,
-  LoginPrompt,
-  Text,
-  FileMessage,
-  FileInput,
-  Button
-} from './components/messages/renderer'

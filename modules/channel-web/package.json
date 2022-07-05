@@ -25,6 +25,7 @@
     "@types/react-intl": "^2.3.17"
   },
   "dependencies": {
+    "@botpress/messaging-components": "0.4.2",
     "@juggle/resize-observer": "^3.0.2",
     "apicache": "^1.6.2",
     "aws-sdk": "^2.905.0",
@@ -58,6 +59,7 @@
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.21"
+    "lodash": ">=4.17.21",
+    "@types/react": "16"
   }
 }

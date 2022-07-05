@@ -27,7 +27,7 @@ class ComposerStore {
   @observable
   private _sentHistoryIndex: number = 0
 
-  constructor(rootStore) {
+  constructor(rootStore: RootStore) {
     this.rootStore = rootStore
 
     if (window.BP_STORAGE) {
@@ -36,7 +36,7 @@ class ComposerStore {
   }
 
   @computed
-  get composerPlaceholder(): string {
+  get composerPlaceholder(): string | undefined {
     return this.rootStore.config?.composerPlaceholder
   }
 
@@ -57,7 +57,7 @@ class ComposerStore {
       this._sentHistoryIndex = 0
 
       if (this.rootStore.config.enablePersistHistory) {
-        window.BP_STORAGE?.set(SENT_HISTORY_KEY, takeRight(this._sentHistory, constants.SENT_HISTORY_SIZE))
+        window.BP_STORAGE.set(SENT_HISTORY_KEY, takeRight(this._sentHistory, constants.SENT_HISTORY_SIZE))
       }
     }
   }
@@ -82,11 +82,13 @@ class ComposerStore {
 
   @action.bound
   setLocked(locked: boolean) {
+    console.log('setLocked', locked)
     this.locked = !!locked
   }
 
   @action.bound
   setHidden(hidden: boolean) {
+    console.log('setHidden', hidden)
     this.hidden = hidden
   }
 }

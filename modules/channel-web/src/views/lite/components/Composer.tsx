@@ -210,10 +210,10 @@ export default inject(({ store }: { store: RootStore }) => ({
 }))(injectIntl(observer(Composer)))
 
 type ComposerProps = {
-  focused: boolean
-  composerPlaceholder: string
-  composerLocked: boolean
-  composerHidden: boolean
+  focused?: boolean
+  composerPlaceholder?: string
+  composerLocked?: boolean
+  composerHidden?: boolean
 } & InjectedIntlProps &
   Pick<
     StoreDef,

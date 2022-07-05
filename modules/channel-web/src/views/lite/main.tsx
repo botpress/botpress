@@ -8,7 +8,6 @@ import React from 'react'
 import { injectIntl } from 'react-intl'
 
 import Container from './components/Container'
-import Stylesheet from './components/Stylesheet'
 import constants from './core/constants'
 import BpSocket from './core/socket'
 import ChatIcon from './icons/Chat'
@@ -343,15 +342,17 @@ class Web extends React.Component<MainProps> {
     const { isEmulator, stylesheet, extraStylesheet } = this.props.config
     return (
       <React.Fragment>
-        {!!stylesheet?.length && <Stylesheet href={stylesheet} />}
+        {!!stylesheet?.length && <link rel="stylesheet" type="text/css" href={stylesheet} />}
         {!stylesheet && (
-          <Stylesheet
+          <link
+            rel="stylesheet"
+            type="text/css"
             href={`assets/modules/channel-web/default${isEmulator ? '-emulator' : ''}.css`}
             onLoad={() => (this.cssLoaded = true)}
           />
         )}
-        {!isIE && <Stylesheet href={'assets/modules/channel-web/font.css'} />}
-        {!!extraStylesheet?.length && <Stylesheet href={extraStylesheet} />}
+        {!isIE && <link rel="stylesheet" type="text/css" href={'assets/modules/channel-web/font.css'} />}
+        {!!extraStylesheet?.length && <link rel="stylesheet" type="text/css" href={extraStylesheet} />}
       </React.Fragment>
     )
   }

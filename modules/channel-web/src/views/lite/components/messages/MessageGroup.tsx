@@ -3,7 +3,6 @@ import sortBy from 'lodash/sortBy'
 import { inject } from 'mobx-react'
 import React from 'react'
 
-import { renderPayload } from '../../../../../../../packages/ui-shared-lite/Payloads'
 import { RootStore, StoreDef } from '../../store'
 import { Message as MessageDetails } from '../../typings'
 
@@ -18,39 +17,6 @@ class MessageGroup extends React.Component<Props> {
 
   static getDerivedStateFromError(_error: Error) {
     return { hasError: true }
-  }
-
-  /**
-   * @deprecated 12.0
-   * Here, we convert old format to the new format Botpress uses internally.
-   * - payload: all the data (raw, whatever) that is necessary to display the element
-   * - type: extracted from payload for easy sorting
-   */
-  convertPayloadFromOldFormat = data => {
-    let payload = data.payload || data.message_data || data.message_raw || { text: data.message_text }
-    if (!payload.type) {
-      payload.type = data.message_type || data.message_data?.type || 'text'
-    }
-
-    // Keeping compatibility with old schema for the quick reply
-    if (data.message_type === 'quick_reply' && !payload.text) {
-      payload.text = data.message_text
-    }
-
-    if (data.message_type === 'file' && !payload.url) {
-      payload.url = data.message_data?.url || data.message_raw?.url
-    }
-
-    if (this.props.messageWrapper && payload.type !== 'session_reset') {
-      payload = {
-        type: 'custom',
-        module: this.props.messageWrapper.module,
-        component: this.props.messageWrapper.component,
-        wrapped: payload
-      }
-    }
-
-    return payload
   }
 
   onAudioEnded = () => {
@@ -89,21 +55,14 @@ class MessageGroup extends React.Component<Props> {
               {fromLabel}
             </span>
             {sortBy(messages, ['sentOn', 'eventId']).map((message, i, messages) => {
-              let payload = this.convertPayloadFromOldFormat(message)
+              console.log('message', message)
+              const isLastMsg = i === messages.length - 1
+              const payload = message.payload
 
-              if (payload.wrapped) {
-                payload = { ...payload, wrapped: renderPayload(payload.wrapped) }
-              } else {
-                payload = renderPayload(payload)
-              }
-
-              const showInlineFeedback =
-                isBot && (payload.wrapped ? payload.wrapped.collectFeedback : payload.collectFeedback)
-
+              const showInlineFeedback = isBot && isLastMsg && payload.collectFeedback
               return (
                 <Message
-                  key={message.id}
-                  isHighlighted={this.props.highlightedMessages && this.props.highlightedMessages.includes(message.id)}
+                  key={`${message.id}-${message.payload.type}`}
                   inlineFeedback={
                     showInlineFeedback && (
                       <InlineFeedback
@@ -117,7 +76,7 @@ class MessageGroup extends React.Component<Props> {
                   messageId={message.id}
                   noBubble={!!payload.noBubble}
                   fromLabel={fromLabel}
-                  isLastOfGroup={i >= this.props.messages.length - 1}
+                  isLastOfGroup={i >= messages.length - 1}
                   isLastGroup={this.props.isLastGroup}
                   isBotMessage={!message.authorId}
                   payload={payload}
