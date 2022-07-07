@@ -73,3 +73,21 @@ export const actionServerIdRegex = /^[a-zA-Z0-9]*$/
 export const runOutsideVm = (scope: ActionScope): boolean => {
   return (process.DISABLE_GLOBAL_SANDBOX && scope === 'global') || (process.DISABLE_BOT_SANDBOX && scope !== 'global')
 }
+
+export const interceptConsole = (vm, botId: string) => {
+  const formatLine = (data: any) => `botid=${botId} ${data}`
+
+  vm.on('console.log', data => {
+    // eslint-disable-next-line no-console
+    console.log(formatLine(data))
+  })
+  vm.on('console.info', data => {
+    console.info(formatLine(data))
+  })
+  vm.on('console.warn', data => {
+    console.warn(formatLine(data))
+  })
+  vm.on('console.error', data => {
+    console.error(formatLine(data))
+  })
+}

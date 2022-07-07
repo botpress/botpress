@@ -13,7 +13,7 @@ import { printObject } from '../misc/print'
 import { clearRequireCache, requireAtPaths } from '../modules/utils/require'
 import { TYPES } from '../types'
 
-import { filterDisabled, getBaseLookupPaths, runOutsideVm } from './utils'
+import { filterDisabled, getBaseLookupPaths, runOutsideVm, interceptConsole } from './utils'
 import { VmRunner } from './vm'
 
 const debug = DEBUG('hooks')
@@ -120,7 +120,7 @@ class HookScript {
     public code: string,
     public name: string,
     public botId?: string
-  ) {}
+  ) { }
 }
 
 @injectable()
@@ -132,7 +132,7 @@ export class HookService {
     @tagged('name', 'HookService')
     private logger: sdk.Logger,
     @inject(TYPES.GhostService) private ghost: GhostService
-  ) {}
+  ) { }
 
   public clearRequireCache() {
     this._scriptsCache.clear()
@@ -200,7 +200,7 @@ export class HookService {
 
     const _require = this._prepareRequire(dirPath, hook.folder, hookScript.botId)
 
-    const botId = _.get(hook.args, 'event.botId')
+    const botId = _.get(hook.args, 'event.botId') || hookScript.botId
 
     hook.debug.forBot(botId, 'before execute %o', { path: hookScript.path, botId, args: _.omit(hook.args, ['bp']) })
     process.BOTPRESS_EVENTS.emit(hook.folder, hook.args)
@@ -263,7 +263,7 @@ export class HookService {
 
     const vm = new NodeVM({
       wrapper: 'none',
-      console: 'inherit',
+      console: 'redirect',
       sandbox: {
         ...hook.args,
         process: UntrustedSandbox.getSandboxProcessArgs(),
@@ -275,6 +275,8 @@ export class HookService {
         mock: modRequire
       }
     })
+
+    interceptConsole(vm, botId)
 
     const vmRunner = new VmRunner()
 
