@@ -337,17 +337,12 @@ export class ScopedActionService {
 
     const vm = new NodeVM({
       wrapper: 'none',
-      console: 'redirect',
       sandbox: args,
       require: {
         external: true,
         mock: modRequire
       },
       timeout: 5000
-    })
-
-    vm.on('console.log', (data) => {
-      console.log(`botid=${this.botId} ${data}`)
     })
 
     const runner = new VmRunner()
