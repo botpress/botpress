@@ -328,7 +328,6 @@ export class ScopedActionService {
   }
 
   private async _runInVm(code: string, dirPath: string, args: any, _require: Function) {
-    console.log('SPG RUNNING')
     const modRequire = new Proxy(
       {},
       {
