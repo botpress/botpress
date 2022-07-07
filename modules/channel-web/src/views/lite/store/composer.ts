@@ -82,13 +82,11 @@ class ComposerStore {
 
   @action.bound
   setLocked(locked: boolean) {
-    console.log('setLocked', locked)
     this.locked = !!locked
   }
 
   @action.bound
   setHidden(hidden: boolean) {
-    console.log('setHidden', hidden)
     this.hidden = hidden
   }
 }

@@ -55,7 +55,6 @@ class MessageGroup extends React.Component<Props> {
               {fromLabel}
             </span>
             {sortBy(messages, ['sentOn', 'eventId']).map((message, i, messages) => {
-              console.log('message', message)
               const isLastMsg = i === messages.length - 1
               const payload = message.payload
 

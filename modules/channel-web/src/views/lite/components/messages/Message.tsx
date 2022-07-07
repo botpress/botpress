@@ -15,7 +15,6 @@ class Message extends Component<MessageProps> {
   }
 
   static getDerivedStateFromError(_error: Error) {
-    console.log('Error rendering message', _error)
     return { hasError: true }
   }
 
@@ -51,8 +50,6 @@ class Message extends Component<MessageProps> {
       payload.text = this.props.store.intl.formatMessage({ id: 'store.resetSessionMessage' })
     }
 
-    console.log('this.props.isLastOfGroup', this.props.isLastOfGroup)
-    console.log('this.props.isLastGroup', this.props.isLastGroup)
     const rendered = (
       <ReactMessageRenderer
         key={this.props.messageId}
