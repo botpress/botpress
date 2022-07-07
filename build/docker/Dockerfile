@@ -18,8 +18,7 @@ RUN chmod +x duckling && \
 RUN groupadd -g 999 botpress && \
     useradd -m -r -u 999 -g botpress botpress
 
-RUN chgrp -R botpress /botpress && \
-	chmod -R g=u /botpress
+RUN chown -R botpress:botpress /botpress
 
 ENV BP_MODULE_NLU_DUCKLINGURL=http://localhost:8000
 ENV BP_IS_DOCKER=true
