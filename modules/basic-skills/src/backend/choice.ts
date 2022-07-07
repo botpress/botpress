@@ -90,10 +90,7 @@ const generateFlow = async (
       onEnter: [
         {
           type: sdk.NodeActionType.RunAction,
-          name: 'basic-skills/init_variables',
-          args: {
-            [`temp.skill-choice-invalid-count${keySuffix}`]: 0
-          }
+          name: `builtin/setVariable {"type":"temp","name":"skill-choice-invalid-count${keySuffix}","value": 0 }`
         },
         {
           type: sdk.NodeActionType.RenderElement,

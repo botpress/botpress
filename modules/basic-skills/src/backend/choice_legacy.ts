@@ -35,12 +35,15 @@ const generateFlowLegacy = async (data: ChoiceData): Promise<sdk.FlowGenerationR
       onEnter: [
         {
           type: sdk.NodeActionType.RunAction,
-          name: 'basic-skills/init_variables',
-          args: {
-            [`temp.skill-choice-invalid-count${keySuffix}`]: 0,
-            [`temp.skill-choice-valid${keySuffix}`]: null,
-            [`temp.skill-choice-ret${keySuffix}`]: null
-          }
+          name: `builtin/setVariable {"type":"temp","name":"skill-choice-invalid-count${keySuffix}","value": 0}`
+        },
+        {
+          type: sdk.NodeActionType.RunAction,
+          name: `builtin/setVariable {"type":"temp","name":"skill-choice-valid${keySuffix}","value": null}`
+        },
+        {
+          type: sdk.NodeActionType.RunAction,
+          name: `builtin/setVariable {"type":"temp","name":"skill-choice-ret${keySuffix}","value": null}`
         },
         {
           type: sdk.NodeActionType.RenderElement,
