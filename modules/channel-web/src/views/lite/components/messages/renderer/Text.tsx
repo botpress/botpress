@@ -26,14 +26,11 @@ export const Text = (props: Renderer.Text) => {
     return hasShowMore && !showMore ? truncate(message, maxLength) : message
   }
 
-  const escapeHtmlChars = (str: string) => {
-    return str.replace(/>/g, '&gt;').replace(/</g, '&lt;')
-  }
-
   let message
   if (markdown) {
-    const html = renderUnsafeHTML(text, escapeHTML)
-    message = <div dangerouslySetInnerHTML={{ __html: truncateIfRequired(escapeHtmlChars(html)) }} />
+    // we always escape user messages
+    const html = renderUnsafeHTML(text, props.isBotMessage ? escapeHTML : true)
+    message = <div dangerouslySetInnerHTML={{ __html: truncateIfRequired(html) }} />
   } else {
     message = <p>{truncateIfRequired(text)}</p>
   }
