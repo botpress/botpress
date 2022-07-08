@@ -26,6 +26,7 @@
     "createMasterAdminAccount": "Esta es la primera vez que ejecuta Botpress. Cree la cuenta de administrador principal.",
     "currentPassword": "Contraseña actual",
     "passwordStrength": {
+      "hint": "Se recomienda encarecidamente establecer una contraseña segura. Trate de usar todo tipo de caracteres.",
       "0": "Muy débil",
       "1": "Débil",
       "2": "Ok",

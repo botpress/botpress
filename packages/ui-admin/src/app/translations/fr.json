@@ -27,6 +27,7 @@
     "createMasterAdminAccount": "C'est la première fois que vous exécutez Botpress. Veuillez créer le compte administrateur principal.",
     "currentPassword": "Mot de passe actuel",
     "passwordStrength": {
+      "hint":"Il est fortement recommandé d'utilser un excellent mot de passe. Penser à utiliser toutes sortes de caractères"
       "0": "Terrible",
       "1": "Faible",
       "2": "Correct",

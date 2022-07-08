@@ -23,7 +23,7 @@ export const PasswordStrengthMeter = (props: Props) => {
         <LazyPogressBar pwdCandidate={props.pwdCandidate} onStrengthScoreChange={setStrengthScore} />
       </Suspense>
       <div className={style.strengthDetails}>
-        <p>It is highly recommended to set a strong password. This meter will guide you to choose wisely.</p>
+        <p>{lang.tr('admin.passwordStrength.hint')}</p>
         <div className={cx(style.strenghtLabel, style[`_${strengthScore}`])}>
           {lang.tr(`admin.passwordStrength.${strengthScore}`)}
         </div>
