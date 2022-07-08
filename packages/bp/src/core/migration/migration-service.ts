@@ -47,7 +47,7 @@ export class MigrationService {
   /** Version of the content of the data folder */
   private configVersion!: string
   /** The current version of the database tables */
-  private dbVersion!: string
+  private dbVersion: string | undefined
   public loadedMigrations: { [filename: string]: Migration | sdk.ModuleMigration } = {}
 
   constructor(
@@ -72,6 +72,8 @@ export class MigrationService {
 
     const migrationsToExecute = this.getMigrationsToExecute(allMigrations)
     if (!migrationsToExecute.length && process.MIGRATE_CMD === undefined) {
+      await this.persistServerMetadata()
+
       return
     }
 
@@ -154,8 +156,8 @@ export class MigrationService {
     debug('Migration Check: %o', { config: this.configVersion, db: this.dbVersion, target: this.targetVersion })
   }
 
-  public async getDbVersion(): Promise<string> {
-    let dbVersion: string
+  public async getDbVersion(): Promise<string | undefined> {
+    let dbVersion: string | undefined
 
     if (process.env.TESTMIG_DB_VERSION) {
       dbVersion = process.env.TESTMIG_DB_VERSION
@@ -185,6 +187,10 @@ export class MigrationService {
       this.logger.attachError(err).warn("Couldn't save logs to database")
     }
 
+    await this.persistServerMetadata()
+  }
+
+  async persistServerMetadata() {
     if (this.dbVersion !== this.targetVersion) {
       await this.database.knex('srv_metadata').insert({ server_version: this.targetVersion })
     }
@@ -317,7 +323,7 @@ ${_.repeat(' ', 9)}========================================`)
     return migrations
   }
 
-  public async getCurrentDbVersion(): Promise<string> {
+  public async getCurrentDbVersion(): Promise<string | undefined> {
     const query = await this.database
       .knex('srv_metadata')
       .select('server_version')
@@ -325,7 +331,7 @@ ${_.repeat(' ', 9)}========================================`)
       .then()
       .get(0)
 
-    return query?.server_version || this.configVersion
+    return query?.server_version
   }
 
   private _getMigrations(rootPath: string, assertExists = false): MigrationFile[] {
@@ -350,13 +356,17 @@ ${_.repeat(' ', 9)}========================================`)
 
   public filterMigrations = (
     files: MigrationFile[],
-    currentVersion: string,
+    currentVersion?: string,
     { isDown, type, target }: { isDown?: boolean; type?: MigrationType; target?: MigrationTarget } = {
       isDown: false,
       type: undefined,
       target: undefined
     }
   ) => {
+    if (!currentVersion) {
+      return []
+    }
+
     const comparator = isDown
       ? `>${this.targetVersion} <= ${currentVersion}`
       : `>${currentVersion} <= ${this.targetVersion}`
