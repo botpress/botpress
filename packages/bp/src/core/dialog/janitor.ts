@@ -10,6 +10,7 @@ import { ChannelUserRepository } from 'core/users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
+import ms from 'ms'
 
 import { DialogEngine } from './dialog-engine'
 import { TimeoutNodeNotFound } from './errors'
@@ -52,6 +53,8 @@ export class DialogJanitor extends Janitor {
    * Deletes the sessions that are expired and
    * reset the contexts of the sessions that are stale.
    * These actions are executed based on two expiries: session_expiry and context_expiry.
+   * NOTE: This task will run all botpress server nodes and we want only one node to process session timeouts,
+   * thus usage of jobService.aquireLock().
    */
   async runTask(): Promise<void> {
     dialogDebug('Running task')
@@ -66,18 +69,24 @@ export class DialogJanitor extends Janitor {
       dialogDebug('Found stale sessions', sessionsIds)
       for (const sessionId of sessionsIds) {
         const { botId } = SessionIdFactory.extractDestinationFromId(sessionId)
-        //arbitrary long lock in case Session Timeout take time
-        const lock = await this.jobService.acquireLock(`timeout.${sessionId}`, 5000)
-        if (lock) {
-          await this._processSessionTimeout(sessionId, botId, botsConfigs.get(botId)!)
-          await lock.unlock()
-        }
+        await this._processSessionTimeout(sessionId, botId, botsConfigs.get(botId)!)
       }
     }
   }
 
   private async _processSessionTimeout(sessionId: string, botId: string, botConfig: BotConfig) {
     dialogDebug.forBot(botId, 'Processing timeout', sessionId)
+    const bpConfig = await this.getBotpressConfig()
+    const jobTimeout = botConfig.dialog?.sessionTimeoutInterval || bpConfig.dialog.sessionTimeoutInterval
+    const lock = await this.jobService.acquireLock(`timeout.${sessionId}`, ms(jobTimeout))
+    if (!lock) {
+      dialogDebug.forBot(
+        botId,
+        `Processing timeout skipped for session ${sessionId}, another node is processing timeout`
+      )
+      return
+    }
+
     const update: updateArgs = { resetSession: true }
 
     try {
@@ -112,6 +121,7 @@ export class DialogJanitor extends Janitor {
       this._handleError(error, botId)
     } finally {
       await this._updateState(botId, botConfig, sessionId, update)
+      await lock.unlock()
     }
   }
 
