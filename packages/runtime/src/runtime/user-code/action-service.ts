@@ -30,7 +30,8 @@ import {
   isTrustedAction,
   prepareRequire,
   prepareRequireTester,
-  runOutsideVm
+  runOutsideVm,
+  interceptConsole
 } from './utils'
 import { VmRunner } from './vm'
 
@@ -61,7 +62,7 @@ export class ActionService {
     @inject(TYPES.Logger)
     @tagged('name', 'ActionService')
     private logger: Logger
-  ) {}
+  ) { }
 
   public forBot(botId: string): ScopedActionService {
     if (this._scopedActions.has(botId)) {
@@ -99,7 +100,7 @@ export class ScopedActionService {
     private botId: string,
     private tasksRepository: TasksRepository,
     private workspaceId: string
-  ) {}
+  ) { }
 
   public clearRequireCache() {
     this._scriptsCache.clear()
@@ -318,6 +319,7 @@ export class ScopedActionService {
     )
 
     const vm = new NodeVM({
+      console: 'redirect',
       wrapper: 'none',
       sandbox: args,
       require: {
@@ -326,6 +328,8 @@ export class ScopedActionService {
       },
       timeout: 5000
     })
+
+    interceptConsole(vm, this.botId)
 
     const runner = new VmRunner()
     return runner.runInVm(vm, code, dirPath)
