@@ -3,6 +3,7 @@ import { lang, toast } from 'botpress/shared'
 import { UserProfile } from 'common/typings'
 import React, { FC, useState } from 'react'
 import api from '~/app/api'
+import { PasswordStrengthMeter } from '~/auth/PasswordStrengthMeter/PasswordStrengthMeter'
 
 interface Props {
   isOpen: boolean
@@ -30,12 +31,19 @@ const UpdatePassword: FC<Props> = props => {
     }
   }
 
+  const clear = () => {
+    setPassword('')
+    setNewPassword('')
+    setConfirmPassword('')
+  }
+
   return (
     <Dialog
       title={lang.tr('admin.changeYourPassword')}
       icon="key"
       isOpen={props.isOpen}
       onClose={props.toggle}
+      onClosed={clear}
       transitionDuration={0}
       canOutsideClickClose={false}
     >
@@ -71,6 +79,7 @@ const UpdatePassword: FC<Props> = props => {
               tabIndex={3}
             />
           </FormGroup>
+          <PasswordStrengthMeter pwdCandidate={newPassword} />
         </div>
 
         <div className={Classes.DIALOG_FOOTER}>
