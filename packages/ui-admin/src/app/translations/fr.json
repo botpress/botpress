@@ -26,6 +26,14 @@
     "createAccount": "Créer un compte",
     "createMasterAdminAccount": "C'est la première fois que vous exécutez Botpress. Veuillez créer le compte administrateur principal.",
     "currentPassword": "Mot de passe actuel",
+    "passwordStrength": {
+      "hint": "Il est fortement recommandé d'utilser un excellent mot de passe. Penser à utiliser toutes sortes de caractères",
+      "0": "Terrible",
+      "1": "Faible",
+      "2": "Correct",
+      "3": "Bon",
+      "4": "Excellent"
+    },
     "debug": {
       "confUpdated": "La configuration de débogage a été mise à jour avec succès!",
       "configureDebug": "Configurer le débogage",
