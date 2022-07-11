@@ -3,6 +3,7 @@ import { TYPES } from 'core/app/types'
 import { BotService } from 'core/bots'
 import { BotpressConfig, ConfigProvider } from 'core/config'
 import { SessionRepository, createExpiry, SessionIdFactory } from 'core/dialog/sessions'
+import { JobService } from 'core/distributed'
 import { Event } from 'core/events'
 import { Janitor } from 'core/services/janitor'
 import { ChannelUserRepository } from 'core/users'
@@ -31,7 +32,8 @@ export class DialogJanitor extends Janitor {
     @inject(TYPES.DialogEngine) private dialogEngine: DialogEngine,
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository,
-    @inject(TYPES.UserRepository) private userRepo: ChannelUserRepository
+    @inject(TYPES.UserRepository) private userRepo: ChannelUserRepository,
+    @inject(TYPES.JobService) private jobService: JobService
   ) {
     super(logger)
   }
@@ -64,7 +66,12 @@ export class DialogJanitor extends Janitor {
       dialogDebug('Found stale sessions', sessionsIds)
       for (const sessionId of sessionsIds) {
         const { botId } = SessionIdFactory.extractDestinationFromId(sessionId)
-        await this._processSessionTimeout(sessionId, botId, botsConfigs.get(botId)!)
+        //arbitrary long lock in case Session Timeout take time
+        const lock = await this.jobService.acquireLock(`timeout.${sessionId}`, 5000)
+        if (lock) {
+          await this._processSessionTimeout(sessionId, botId, botsConfigs.get(botId)!)
+          await lock.unlock()
+        }
       }
     }
   }
