@@ -1,8 +1,4 @@
-<<<<<<<< HEAD:packages/runtime/src/runtime/nlu/nlu-client/localhost.test.ts
 import { isLocalHost } from './localhost'
-========
-import { isLocalHost } from './is-localhost'
->>>>>>>> 985cc8194651851f39259a8fac0276dc576596fe:modules/nlu/src/backend/application/nlu-client/is-localhost.test.ts
 
 const testcases: [string, boolean][] = [
   ['http://localhost:3200', true],
