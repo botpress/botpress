@@ -1,4 +1,4 @@
-dimport { createAdapter, RedisAdapter } from '@socket.io/redis-adapter'
+import { createAdapter, RedisAdapter } from '@socket.io/redis-adapter'
 import { Logger } from 'botpress/sdk'
 import cookie from 'cookie'
 import { TYPES } from 'core/app/types'
@@ -123,14 +123,16 @@ export class RealtimeService {
   }
 
   async installOnHttpServer(server: Server) {
-    const transports = getSocketTransports(await this.configProvider.getBotpressConfig())
+    const bpConfig = await this.configProvider.getBotpressConfig()
+    const transports = getSocketTransports(bpConfig)
+    const cors = bpConfig.httpServer.cors || { origin: '*' }
 
     const io = new Socket.Server(server, {
       path: `${process.ROOT_PATH}/socket.io`,
-      cors: { origin: '*' },
       serveClient: false,
       allowEIO3: true,
-      transports
+      transports,
+      cors
     })
 
     if (this.useRedis) {
