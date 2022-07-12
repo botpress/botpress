@@ -259,7 +259,7 @@ export class HTTPServer {
     window.SEND_USAGE_STATS = ${config!.sendUsageStats};
     window.USE_JWT_COOKIES = ${process.USE_JWT_COOKIES};
     window.EXPERIMENTAL = ${config.experimental};
-    window.SOCKET_TRANSPORTS = ["${getSocketTransports(config).join('","')}"];
+    window.SOCKET_TRANSPORTS = ${JSON.stringify(getSocketTransports(config))}
     window.SHOW_POWERED_BY = ${!!config.showPoweredBy};
     window.UUID = "${this.machineId}";
     window.SERVER_ID = "${process.SERVER_ID}";`
