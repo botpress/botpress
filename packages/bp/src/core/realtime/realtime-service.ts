@@ -123,13 +123,14 @@ export class RealtimeService {
   }
 
   async installOnHttpServer(server: Server) {
-    const transports = getSocketTransports(await this.configProvider.getBotpressConfig())
-
+    const bpConfig = await this.configProvider.getBotpressConfig()
+    const transports = getSocketTransports(bpConfig)
+    const cors = bpConfig.httpServer.cors || { origin: '*' }
     const io = new Socket.Server(server, {
       path: `${process.ROOT_PATH}/socket.io`,
-      cors: { origin: '*' },
       serveClient: false,
-      transports
+      transports,
+      cors
     })
 
     if (this.useRedis) {
