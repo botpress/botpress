@@ -126,9 +126,11 @@ export class RealtimeService {
     const bpConfig = await this.configProvider.getBotpressConfig()
     const transports = getSocketTransports(bpConfig)
     const cors = bpConfig.httpServer.cors || { origin: '*' }
+
     const io = new Socket.Server(server, {
       path: `${process.ROOT_PATH}/socket.io`,
       serveClient: false,
+      allowEIO3: true,
       transports,
       cors
     })
