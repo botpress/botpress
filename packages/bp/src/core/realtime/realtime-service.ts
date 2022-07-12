@@ -123,19 +123,30 @@ export class RealtimeService {
   }
 
   async installOnHttpServer(server: Server) {
-    const transports = getSocketTransports(await this.configProvider.getBotpressConfig())
-
+    const bpConfig = await this.configProvider.getBotpressConfig()
+    const transports = getSocketTransports(bpConfig)
+    const cors = bpConfig.httpServer.cors || { origin: '*' }
     const io = new Socket.Server(server, {
       path: `${process.ROOT_PATH}/socket.io`,
-      cors: { origin: '*' },
       serveClient: false,
-      transports
+      allowEIO3: true,
+      transports,
+      cors
     })
 
     if (this.useRedis) {
       const redisFactory = this.monitoringService.getRedisFactory()
-
-      if (redisFactory) {
+      if (redisFactory('commands')) {
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! NOTE !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        // If Redis is down for some amount of time while using the adapter, some command will reach
+        // the maximum number of retry (maxRetriesPerRequest) which will cause the redis client to throw
+        // an error. Since redis @socket.io/redis-adapter and socket.io doesn't seem to handle those errors,
+        // t's possible the we get an unhandledRejection error that is only catched at the process level!
+        // !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        //
+        // TODO: There's a conflict between the typings caused by some peer dependencies
+        // Related issue: https://github.com/socketio/socket.io-redis-adapter/issues/419
+        // @ts-ignore
         io.adapter(createAdapter(redisFactory('commands'), redisFactory('socket')))
       }
     }
