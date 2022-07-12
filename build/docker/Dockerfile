@@ -1,7 +1,12 @@
 FROM ubuntu:20.04
 
-ADD . /botpress
-WORKDIR /botpress
+ENV BP_WORKDIR=/botpress
+ENV BP_USER=botpress
+ENV BP_GROUP=botpress
+ENV BP_DATA_PATH $BP_WORKDIR/data
+
+ADD . $BP_WORKDIR
+WORKDIR $BP_WORKDIR
 
 RUN apt update && \
 	apt install -y wget ca-certificates && \
@@ -11,14 +16,16 @@ RUN apt update && \
 	ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
 	dpkg-reconfigure --frontend noninteractive tzdata
 
-RUN chmod +x duckling && \
-	chmod +x bp && \
-	./bp extract
+RUN chmod +x duckling && chmod +x bp
 
-RUN groupadd -g 999 botpress && \
-    useradd -m -r -u 999 -g botpress botpress
+RUN ./bp extract
 
-RUN chown -R botpress:botpress /botpress
+# Creates botpress user and group
+RUN groupadd -g 999 $BP_GROUP && \
+    useradd -m -r -u 999 -g $BP_GROUP $BP_USER
+
+# Sets ownership of the workdir to the botpress user
+RUN chown -R $BP_USER:$BP_GROUP $BP_WORKDIR
 
 ENV BP_MODULE_NLU_DUCKLINGURL=http://localhost:8000
 ENV BP_IS_DOCKER=true
@@ -26,6 +33,7 @@ ENV BP_IS_DOCKER=true
 ENV LANG=C.UTF-8
 EXPOSE 3000
 
-USER botpress
+COPY docker-entrypoint.sh /usr/local/bin/
+ENTRYPOINT ["docker-entrypoint.sh"]
 
-CMD ./duckling & ./bp
+CMD su - botpress -c "$BP_WORKDIR/duckling & $BP_WORKDIR/bp"
