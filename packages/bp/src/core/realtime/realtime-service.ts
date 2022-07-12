@@ -1,4 +1,4 @@
-import { createAdapter, RedisAdapter } from '@socket.io/redis-adapter'
+dimport { createAdapter, RedisAdapter } from '@socket.io/redis-adapter'
 import { Logger } from 'botpress/sdk'
 import cookie from 'cookie'
 import { TYPES } from 'core/app/types'
@@ -129,6 +129,7 @@ export class RealtimeService {
       path: `${process.ROOT_PATH}/socket.io`,
       cors: { origin: '*' },
       serveClient: false,
+      allowEIO3: true,
       transports
     })
 
