@@ -6,6 +6,7 @@ import { MODULE_NAME } from '../constants'
 import { ExitTypes, IHandoff, ISocketMessage } from '../types'
 import { StateType } from '.'
 import Repository from './repository'
+import WebHookService from './webhook'
 
 export const toEventDestination = (
   botId: string,
@@ -19,12 +20,15 @@ interface Realtime {
 }
 
 class Service {
+  webhook: WebHookService
   constructor(
     private bp: typeof sdk,
     private state: StateType,
     private repository: Repository,
     private realtime: Realtime
-  ) {}
+  ) {
+    this.webhook = new WebHookService(bp)
+  }
 
   async createHandoff(
     botId: string,
@@ -46,6 +50,7 @@ class Service {
     }
 
     this.realtime.sendPayload(botId, { resource: 'handoff', type: 'create', id: handoff.id, payload: handoff })
+    void this.webhook.send({ type: 'handoff', botId, payload: handoff })
 
     if (timeoutDelay !== undefined && timeoutDelay > 0) {
       setTimeout(async () => {
