@@ -88,3 +88,77 @@
   }
   margin-top: 1rem;
 }
+
+$very-weak: darkred;
+$weak: #cd4246;
+$ok: orange;
+$good: yellowgreen;
+$excellent: green;
+
+.strengthDetails {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 5px;
+
+  p {
+    color: #bbb;
+    font-size: 10px;
+    width: 70%;
+    text-align: left;
+    flex-grow: 1;
+  }
+
+  .strenghtLabel {
+    opacity: 1;
+    font-weight: bolder;
+    text-align: right;
+    width: 30%;
+    &._-1 {
+      opacity: 0;
+    }
+    &._0 {
+      color: $very-weak;
+    }
+    &._1 {
+      color: $weak;
+    }
+    &._2 {
+      color: $ok;
+    }
+    &._3 {
+      color: $good;
+    }
+    &._4 {
+      color: $excellent;
+    }
+  }
+}
+
+.strengthProgress {
+  height: 5px;
+  &._0 {
+    :global(.bp3-progress-meter) {
+      background-color: $very-weak;
+    }
+  }
+  &._1 {
+    :global(.bp3-progress-meter) {
+      background-color: $weak;
+    }
+  }
+  &._2 {
+    :global(.bp3-progress-meter) {
+      background-color: $ok;
+    }
+  }
+  &._3 {
+    :global(.bp3-progress-meter) {
+      background-color: $good;
+    }
+  }
+  &._4 {
+    :global(.bp3-progress-meter) {
+      background-color: $excellent;
+    }
+  }
+}

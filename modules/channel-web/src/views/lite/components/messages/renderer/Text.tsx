@@ -28,7 +28,10 @@ export const Text = (props: Renderer.Text) => {
 
   let message
   if (markdown) {
-    const html = renderUnsafeHTML(text, escapeHTML)
+    const isUserMessage = !props.isBotMessage
+    const shouldEscapeHTML = isUserMessage || escapeHTML
+    const html = renderUnsafeHTML(text, shouldEscapeHTML)
+
     message = <div dangerouslySetInnerHTML={{ __html: truncateIfRequired(html) }} />
   } else {
     message = <p>{truncateIfRequired(text)}</p>

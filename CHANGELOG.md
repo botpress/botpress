@@ -1,3 +1,25 @@
+## [12.28.1](https://github.com/botpress/botpress/compare/v12.28.0...v12.28.1) (2022-07-12)
+
+
+### Bug Fixes
+
+* **auth:** auth strategies ignore subpath ([#11917](https://github.com/botpress/botpress/issues/11917)) ([ce0f4c9](https://github.com/botpress/botpress/commit/ce0f4c9f4d0ae353b9410e1c907286e7b1e286ac)), closes [#11848](https://github.com/botpress/botpress/issues/11848)
+* **channel-web:** escape html chars from messages ([#11948](https://github.com/botpress/botpress/issues/11948)) ([4584679](https://github.com/botpress/botpress/commit/4584679d42550395375015a0a666babf5a3c2494))
+* **channel-web:** glitch animations opening/closing chat ([#11925](https://github.com/botpress/botpress/issues/11925)) ([1d64af7](https://github.com/botpress/botpress/commit/1d64af7accfea70a44d215de9e6f5775d186c315)), closes [#11819](https://github.com/botpress/botpress/issues/11819)
+* **core:** make sure 1 node times out sessions ([#11968](https://github.com/botpress/botpress/issues/11968)) ([a095f6d](https://github.com/botpress/botpress/commit/a095f6de0ff253fb8ade4b0e05599d0afc2ad315))
+* **core:** use same cors config as server for socket.io ([#11971](https://github.com/botpress/botpress/issues/11971)) ([3251e22](https://github.com/botpress/botpress/commit/3251e22bad92e5e29a35e47f18ebb25cae276099))
+* **debugger:** escape html chars from logs ([#11934](https://github.com/botpress/botpress/issues/11934)) ([62a4df7](https://github.com/botpress/botpress/commit/62a4df7268d10f1e4cd6492d295301c492565df3))
+* **hitlnext:** do not to create a handoff when event comes from converse ([#11922](https://github.com/botpress/botpress/issues/11922)) ([4085a2a](https://github.com/botpress/botpress/commit/4085a2ae404c5be06e25b20e141ac6c7b4a74d06))
+* **hitlnext:** fix error when creating handoff from converse ([#11921](https://github.com/botpress/botpress/issues/11921)) ([6ac9f47](https://github.com/botpress/botpress/commit/6ac9f4726cf78e1bae93c15f35b3a7255a701e55))
+
+
+### Features
+
+* **core:** adopt zxcvbn score as pwd policy ([#11939](https://github.com/botpress/botpress/issues/11939)) ([adf67e2](https://github.com/botpress/botpress/commit/adf67e272993ac192997397f44bf1f731b51163b))
+* **ui-admin:** password strength indicator ([#11957](https://github.com/botpress/botpress/issues/11957)) ([985cc81](https://github.com/botpress/botpress/commit/985cc8194651851f39259a8fac0276dc576596fe))
+
+
+
 # [12.28.0](https://github.com/botpress/botpress/compare/v12.27.0...v12.28.0) (2022-06-16)
 
 
