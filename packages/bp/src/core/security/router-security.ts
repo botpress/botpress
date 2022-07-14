@@ -178,14 +178,12 @@ const checkPermissions = (workspaceService: WorkspaceService) => (
     })
   }
 
-  const isBotIdValid = req.params.botId && req.params.botId !== ALL_BOTS
-
   if (!req.tokenUser) {
     audit(debugFailure, { email: 'n/a', reason: 'unauthenticated' })
     return new ForbiddenError('Unauthorized')
   }
 
-  if (!req.workspace && isBotIdValid) {
+  if (!req.workspace && req.params.botId) {
     req.workspace = await workspaceService.getBotWorkspaceId(req.params.botId)
   }
 
@@ -213,6 +211,7 @@ const checkPermissions = (workspaceService: WorkspaceService) => (
     return new ForbiddenError(`User "${email}" doesn't have access to workspace "${req.workspace}"`)
   }
 
+  const isBotIdValid = req.params.botId && req.params.botId !== ALL_BOTS
   if (isBotIdValid && !(await workspaceService.isBotInWorkspace(req.workspace, req.params.botId))) {
     return new NotFoundError(`Bot "${req.params.botId}" doesn't exist in workspace "${req.workspace}"`)
   }
