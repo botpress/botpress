@@ -178,12 +178,14 @@ const checkPermissions = (workspaceService: WorkspaceService) => (
     })
   }
 
+  const isBotIdValid = req.params.botId && req.params.botId !== ALL_BOTS
+
   if (!req.tokenUser) {
     audit(debugFailure, { email: 'n/a', reason: 'unauthenticated' })
     return new ForbiddenError('Unauthorized')
   }
 
-  if (!req.workspace && req.params.botId) {
+  if (!req.workspace && isBotIdValid) {
     req.workspace = await workspaceService.getBotWorkspaceId(req.params.botId)
   }
 
@@ -209,6 +211,10 @@ const checkPermissions = (workspaceService: WorkspaceService) => (
   if (!user) {
     audit(debugFailure, { reason: 'missing workspace access' })
     return new ForbiddenError(`User "${email}" doesn't have access to workspace "${req.workspace}"`)
+  }
+
+  if (isBotIdValid && !(await workspaceService.isBotInWorkspace(req.workspace, req.params.botId))) {
+    return new NotFoundError(`Bot "${req.params.botId}" doesn't exist in workspace "${req.workspace}"`)
   }
 
   const role = await workspaceService.getRoleForUser(email, strategy, req.workspace)
