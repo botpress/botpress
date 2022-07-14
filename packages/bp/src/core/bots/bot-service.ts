@@ -822,19 +822,27 @@ export class BotService {
     }
   }
 
-  public async getBotHealth(): Promise<ServerHealth[]> {
+  public async getBotHealth(workspaceId: string): Promise<ServerHealth[]> {
+    const botIdsFilter = await this.workspaceService.getBotRefs(workspaceId)
+    let serverHealth: ServerHealth[]
+
     const redis = this.jobService.getRedisClient()
-    if (!redis) {
-      return [{ serverId: process.SERVER_ID, hostname: os.hostname(), bots: BotService._botHealth }]
+    if (redis) {
+      const serverIds = await redis.keys(getBotStatusKey('*'))
+      if (!serverIds.length) {
+        return []
+      }
+
+      const servers = await redis.mget(...serverIds)
+      serverHealth = await Promise.mapSeries(servers, data => JSON.parse(data as string))
+    } else {
+      serverHealth = [{ serverId: process.SERVER_ID, hostname: os.hostname(), bots: BotService._botHealth }]
     }
 
-    const serverIds = await redis.keys(getBotStatusKey('*'))
-    if (!serverIds.length) {
-      return []
-    }
-
-    const servers = await redis.mget(...serverIds)
-    return Promise.mapSeries(servers, data => JSON.parse(data as string))
+    serverHealth.forEach(health => {
+      health.bots = _.pick(health.bots, botIdsFilter)
+    })
+    return serverHealth
   }
 
   public static incrementBotStats(botId: string, type: 'error' | 'warning' | 'critical') {
