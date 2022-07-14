@@ -14,19 +14,21 @@ interface Props {
 const UpdateUserProfile: FC<Props> = props => {
   const [firstname, setFirstname] = useState<string>()
   const [lastname, setLastname] = useState<string>()
+  const [personal_access_token, setPersonalAccessToken] = useState<string>()
   const [picture_url, setPictureUrl] = useState<string>()
 
   useEffect(() => {
     setFirstname(props.profile.firstname)
     setLastname(props.profile.lastname)
     setPictureUrl(props.profile.picture_url)
+    setPersonalAccessToken(props.profile.personal_access_token)
   }, [props.isOpen])
 
   const submit = async event => {
     event.preventDefault()
 
     try {
-      await api.getSecured().post('/admin/user/profile', { firstname, lastname, picture_url })
+      await api.getSecured().post('/admin/user/profile', { firstname, lastname, picture_url, personal_access_token })
 
       props.fetchProfile()
       props.toggle()
@@ -45,8 +47,8 @@ const UpdateUserProfile: FC<Props> = props => {
 
   return (
     <Dialog
-      title={lang.tr('admin.updateYourProfile')}
-      icon="user"
+      title={lang.tr('admin.settings')}
+      icon="cog"
       isOpen={props.isOpen}
       onClose={props.toggle}
       transitionDuration={0}
@@ -70,6 +72,15 @@ const UpdateUserProfile: FC<Props> = props => {
 
           <FormGroup label={lang.tr('admin.profilePicture')}>
             <FormFields.Upload axios={v1Client} onChange={uploadFieldChange} value={picture_url} type="image" />
+          </FormGroup>
+
+          <FormGroup label={lang.tr('admin.personalAccessToken')} labelFor="input-pat">
+            <InputGroup
+              id="input-pat"
+              value={personal_access_token}
+              onChange={e => setPersonalAccessToken(e.target.value)}
+              tabIndex={3}
+            />
           </FormGroup>
         </div>
 

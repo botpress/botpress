@@ -130,6 +130,7 @@ export interface UserProfile {
   firstname?: string
   lastname?: string
   picture_url?: string
+  personal_access_token?: string
   fullName: string
   permissions: AuthRule[] | undefined
 }
