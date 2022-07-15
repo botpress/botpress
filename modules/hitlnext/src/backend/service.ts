@@ -49,8 +49,7 @@ class Service {
       await this.sendMessageToUser(config.transferMessage, eventDestination, language)
     }
 
-    this.realtime.sendPayload(botId, { resource: 'handoff', type: 'create', id: handoff.id, payload: handoff })
-    void this.webhook.send({ type: 'handoff', botId, payload: handoff })
+    this.sendPayload(botId, { resource: 'handoff', type: 'create', id: handoff.id, payload: handoff })
 
     if (timeoutDelay !== undefined && timeoutDelay > 0) {
       setTimeout(async () => {
@@ -98,7 +97,7 @@ class Service {
   }
 
   updateRealtimeHandoff(botId: string, handoff: Partial<IHandoff>) {
-    return this.realtime.sendPayload(botId, { resource: 'handoff', type: 'update', id: handoff.id, payload: handoff })
+    return this.sendPayload(botId, { resource: 'handoff', type: 'update', id: handoff.id, payload: handoff })
   }
 
   async transferToBot(event: sdk.IO.EventDestination, exitType: ExitTypes, agentName?: string) {
@@ -111,6 +110,11 @@ class Service {
     })
 
     await this.bp.events.sendEvent(stateUpdate)
+  }
+
+  sendPayload(botId: string, data: { resource: string; type: string; id: string; payload: any }) {
+    this.realtime.sendPayload(botId, data)
+    void this.webhook.send({ botId, ...data })
   }
 }
 

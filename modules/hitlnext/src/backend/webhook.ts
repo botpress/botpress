@@ -1,22 +1,29 @@
 import axios, { AxiosError, AxiosRequestConfig } from 'axios'
 import * as sdk from 'botpress/sdk'
 import { backOff } from 'exponential-backoff'
+import { Webhook } from '../config'
 import { MODULE_NAME } from '../constants'
 
 const MAX_ATTEMPTS = 10
 
 class WebHookService {
-  constructor(private bp: typeof sdk) {}
-
-  public async send(data: { payload: any; botId: string; type: string }) {
-    const config = (await this.bp.config.getModuleConfig(MODULE_NAME)).eventsWebHook
-    if (config) {
-      const { url, headers } = config
-      void this.sendToUrl(url, data, headers)
-    }
+  private config: Webhook
+  private disabled = true
+  constructor(private bp: typeof sdk) {
+    void this.setup()
   }
 
-  public async sendToUrl(url: string, data: any, headers?: { [name: string]: string }) {
+  private async setup() {
+    this.config = (await this.bp.config.getModuleConfig(MODULE_NAME)).eventsWebHook
+    this.disabled = !this.config
+  }
+
+  public async send(data: { botId: string; type: string; resource: string; id: string; payload: any }) {
+    if (this.disabled) {
+      return
+    }
+
+    const { url, headers } = this.config
     const config: AxiosRequestConfig = {}
 
     if (headers) {
