@@ -102,6 +102,14 @@ class Header extends React.Component<HeaderProps> {
         type="button"
         tabIndex={-1}
         id="btn-delete-conversation"
+        aria-label={this.props.intl.formatMessage({
+          id: 'header.deleteConversationButton',
+          defaultMessage: 'Delete conversation'
+        })}
+        title={this.props.intl.formatMessage({
+          id: 'header.deleteConversationButton',
+          defaultMessage: 'Delete conversation'
+        })}
         ref={el => (this.btnEls[0] = el)}
         className={'bpw-header-icon bpw-header-icon-delete'}
         onClick={this.handleDeleteConversation}
@@ -119,6 +127,14 @@ class Header extends React.Component<HeaderProps> {
         type="button"
         tabIndex={-1}
         id="btn-reset"
+        aria-label={this.props.intl.formatMessage({
+          id: 'header.resetConversation',
+          defaultMessage: 'Reset conversation'
+        })}
+        title={this.props.intl.formatMessage({
+          id: 'header.resetConversation',
+          defaultMessage: 'Reset conversation'
+        })}
         ref={el => (this.btnEls[1] = el)}
         className={'bpw-header-icon bpw-header-icon-reset'}
         onClick={this.props.resetSession}
@@ -136,6 +152,14 @@ class Header extends React.Component<HeaderProps> {
         type="button"
         tabIndex={-1}
         id="btn-download"
+        aria-label={this.props.intl.formatMessage({
+          id: 'header.downloadConversation',
+          defaultMessage: 'Download conversation'
+        })}
+        title={this.props.intl.formatMessage({
+          id: 'header.downloadConversation',
+          defaultMessage: 'Download conversation'
+        })}
         ref={el => (this.btnEls[2] = el)}
         className={'bpw-header-icon bpw-header-icon-download'}
         onClick={this.props.downloadConversation}
@@ -153,6 +177,14 @@ class Header extends React.Component<HeaderProps> {
         type="button"
         tabIndex={-1}
         id="btn-conversations"
+        aria-label={this.props.intl.formatMessage({
+          id: 'header.conversations',
+          defaultMessage: 'Conversations'
+        })}
+        title={this.props.intl.formatMessage({
+          id: 'header.conversations',
+          defaultMessage: 'Conversations'
+        })}
         ref={el => (this.btnEls[3] = el)}
         className={'bpw-header-icon bpw-header-icon-convo'}
         onClick={this.props.toggleConversations}
@@ -170,6 +202,14 @@ class Header extends React.Component<HeaderProps> {
         type="button"
         tabIndex={-1}
         id="btn-botinfo"
+        aria-label={this.props.intl.formatMessage({
+          id: 'header.botInfo',
+          defaultMessage: 'Bot information'
+        })}
+        title={this.props.intl.formatMessage({
+          id: 'header.botInfo',
+          defaultMessage: 'Bot information'
+        })}
         ref={el => (this.btnEls[4] = el)}
         className={'bpw-header-icon bpw-header-icon-botinfo'}
         onClick={this.props.toggleBotInfo}
@@ -187,6 +227,10 @@ class Header extends React.Component<HeaderProps> {
         type="button"
         id="btn-close"
         aria-label={this.props.intl.formatMessage({
+          id: 'header.hideChatWindow',
+          defaultMessage: 'Hide the chat window'
+        })}
+        title={this.props.intl.formatMessage({
           id: 'header.hideChatWindow',
           defaultMessage: 'Hide the chat window'
         })}
@@ -212,6 +256,7 @@ class Header extends React.Component<HeaderProps> {
           tabIndex={-1}
           className={'bpw-header-icon'}
           onClick={btn.onClick.bind(this, btn.id, this)}
+          aria-label={btn.label || ''}
           title={btn.label || ''}
         >
           {typeof Icon === 'function' ? <Icon /> : Icon}
