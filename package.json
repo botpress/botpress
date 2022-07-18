@@ -99,7 +99,7 @@
     "@types/numeric": "^1.2.1",
     "@types/passport": "^1.0.7",
     "@types/proper-lockfile": "^4.1.2",
-    "@types/puppeteer": "^5.4.6",
+    "@types/puppeteer": "^5.4.4",
     "@types/redis": "^2.8.10",
     "@types/redlock": "^4.0.0",
     "@types/seedrandom": "^2.4.28",
