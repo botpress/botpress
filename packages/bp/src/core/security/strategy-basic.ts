@@ -172,14 +172,8 @@ export class StrategyBasic {
       debug('login failed; user does not exist %o', { email, ipAddress })
       throw new InvalidCredentialsError()
     }
-    const strategyOptions = _.get(await this.authService.getStrategy(strategy), 'options') as AuthStrategyBasic
-    if (!validateHash(password || '', user.password!, user.salt!)) {
-      debug('login failed; wrong password %o', { email, ipAddress })
-      // this.stats.track('auth', 'login', 'fail')
 
-      await this._incrementWrongPassword(user, strategyOptions)
-      throw new InvalidCredentialsError()
-    }
+    const strategyOptions = _.get(await this.authService.getStrategy(strategy), 'options') as AuthStrategyBasic
     const { locked_out, last_login_attempt, password_expiry_date, password_expired } = user.attributes
 
     if (locked_out) {
@@ -190,6 +184,14 @@ export class StrategyBasic {
         debug('login failed; user locked out %o', { email, ipAddress })
         throw new LockedOutError()
       }
+    }
+
+    if (!validateHash(password || '', user.password!, user.salt!)) {
+      debug('login failed; wrong password %o', { email, ipAddress })
+      // this.stats.track('auth', 'login', 'fail')
+
+      await this._incrementWrongPassword(user, strategyOptions)
+      throw new InvalidCredentialsError()
     }
 
     const isDateExpired = password_expiry_date && moment().isAfter(password_expiry_date)
