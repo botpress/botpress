@@ -116,7 +116,7 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
 
       const payload: Pick<IAgent, 'online'> = { online }
 
-      realtime.sendPayload(req.params.botId, {
+      service.sendPayload(req.params.botId, {
         resource: 'agent',
         type: 'update',
         id: agentId,
@@ -179,7 +179,7 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
       const handoff = await repository.updateHandoff(botId, id, payload)
       state.cacheHandoff(botId, handoff.userThreadId, handoff)
 
-      realtime.sendPayload(botId, {
+      service.sendPayload(botId, {
         resource: 'handoff',
         type: 'update',
         id: handoff.id,
@@ -276,7 +276,7 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
         } as sdk.IO.EventCtorArgs)
       )
 
-      realtime.sendPayload(req.params.botId, {
+      service.sendPayload(req.params.botId, {
         resource: 'handoff',
         type: 'update',
         id: handoff.id,
@@ -337,7 +337,7 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
       const comment = await repository.createComment(payload)
       handoff.comments = [...handoff.comments, comment]
 
-      realtime.sendPayload(req.params.botId, {
+      service.sendPayload(req.params.botId, {
         resource: 'handoff',
         type: 'update',
         id: handoff.id,

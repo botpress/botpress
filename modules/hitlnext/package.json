@@ -19,6 +19,7 @@
     "axios": "^0.21.1",
     "bluebird": "^3.5",
     "classnames": "^2.2.6",
+    "exponential-backoff": "^3.1.0",
     "flat": "^5.0.2",
     "haikunator": "^2.1.2",
     "immer": "^9.0.12",
