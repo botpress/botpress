@@ -27,19 +27,22 @@ import {
   validateHandoffStatusRule
 } from './validation'
 
+type HITLBPRequest = BPRequest & { agentId: string | undefined }
+
 export default async (bp: typeof sdk, state: StateType, repository: Repository) => {
   const router = bp.http.createRouterForBot(MODULE_NAME)
   const realtime = Socket(bp)
   const service = new Service(bp, state, repository, realtime)
 
   // Enforces for an agent to be 'online' before executing an action
-  const agentOnlineMiddleware = async (req: BPRequest, res: Response, next) => {
+  const agentOnlineMiddleware = async (req: HITLBPRequest, res: Response, next) => {
     const { email, strategy } = req.tokenUser!
     const agentId = makeAgentId(strategy, email)
     const online = await repository.getAgentOnline(req.params.botId, agentId)
 
     try {
       Joi.attempt({ online }, AgentOnlineValidation)
+      req.agentId = agentId
     } catch (err) {
       if (err instanceof Joi.ValidationError) {
         return next(new UnprocessableEntityError(formatValidationError(err)))
@@ -51,12 +54,26 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
     next()
   }
 
+  const hasPermissionOrAgentOnline = (type: string, actionType: 'read' | 'write') => async (
+    req: HITLBPRequest,
+    res: Response,
+    next
+  ) => {
+    const hasPermission = await bp.http.hasPermission(req, actionType, 'module.hitlnext.' + type, true)
+
+    if (hasPermission) {
+      return next()
+    } else {
+      return agentOnlineMiddleware(req, res, next)
+    }
+  }
+
   // Catches exceptions and handles those that are expected
   const errorMiddleware = fn => {
     return (req: BPRequest, res: Response, next) => {
       Promise.resolve(fn(req as BPRequest, res, next)).catch(err => {
         if (err instanceof Joi.ValidationError) {
-          next(new UnprocessableEntityError(formatValidationError(err)))
+          throw new UnprocessableEntityError(formatValidationError(err))
         } else {
           next(err)
         }
@@ -289,12 +306,8 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
 
   router.post(
     '/handoffs/:id/resolve',
-    agentOnlineMiddleware,
-    errorMiddleware(async (req: RequestWithUser, res: Response) => {
-      const { email, strategy } = req.tokenUser!
-
-      const agentId = makeAgentId(strategy, email)
-
+    hasPermissionOrAgentOnline('resolve', 'write'),
+    errorMiddleware(async (req: HITLBPRequest, res: Response) => {
       const handoff = await repository.findHandoff(req.params.botId, req.params.id)
 
       const payload: Pick<IHandoff, 'status' | 'resolvedAt'> = {
@@ -311,7 +324,7 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
       }
 
       const updated = await service.resolveHandoff(handoff, req.params.botId, payload)
-      await extendAgentSession(repository, realtime, req.params.botId, agentId)
+      req.agentId && (await extendAgentSession(repository, realtime, req.params.botId, req.agentId))
 
       res.send(updated)
     })
