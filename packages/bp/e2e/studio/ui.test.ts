@@ -51,6 +51,8 @@ describe('Studio - UI', () => {
     const bottomPanel = await page.$('div[data-tab-id="debugger"]')
     console.log('bottomPanel', bottomPanel)
 
+    const test = await page.$('#botpress-tooltip-2-trigger')
+    console.log('test', test)
     await clickOn('#botpress-tooltip-2-trigger')
     console.log('clicked #botpress-tooltip-2-trigger')
     expect(await bottomPanel?.isIntersectingViewport()).toBe(true)
