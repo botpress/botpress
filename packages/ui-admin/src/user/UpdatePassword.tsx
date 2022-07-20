@@ -1,8 +1,9 @@
 import { Button, Classes, Dialog, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
-import { lang, toast } from 'botpress/shared'
+import { lang, toast, auth } from 'botpress/shared'
 import { UserProfile } from 'common/typings'
 import React, { FC, useState } from 'react'
 import api from '~/app/api'
+import { PasswordStrengthMeter } from '~/auth/PasswordStrengthMeter/PasswordStrengthMeter'
 
 interface Props {
   isOpen: boolean
@@ -19,15 +20,32 @@ const UpdatePassword: FC<Props> = props => {
     event.preventDefault()
 
     const { strategyType, strategy, email } = props.profile
+    const client = api.getSecured()
 
     try {
-      await api.getSecured().post(`/admin/auth/login/${strategyType}/${strategy}`, { email, password, newPassword })
+      await client.post(`/admin/auth/login/${strategyType}/${strategy}`, { email, password, newPassword })
 
       props.toggle()
       toast.success(lang.tr('admin.passwordUpdatedSuccessfully'))
     } catch (err) {
-      toast.failure(lang.tr('admin.errorUpdatingPassword', { msg: err.message }))
+      const { errorCode, message } = err
+
+      toast.failure(lang.tr('admin.errorUpdatingPassword', { msg: message }))
+
+      // BP_0011 = LockedOutError
+      if (errorCode === 'BP_0011') {
+        // Let the user see the toast before logging him out
+        setTimeout(() => {
+          auth.logout(() => client)
+        }, 1000)
+      }
     }
+  }
+
+  const clear = () => {
+    setPassword('')
+    setNewPassword('')
+    setConfirmPassword('')
   }
 
   return (
@@ -36,6 +54,7 @@ const UpdatePassword: FC<Props> = props => {
       icon="key"
       isOpen={props.isOpen}
       onClose={props.toggle}
+      onClosed={clear}
       transitionDuration={0}
       canOutsideClickClose={false}
     >
@@ -71,6 +90,7 @@ const UpdatePassword: FC<Props> = props => {
               tabIndex={3}
             />
           </FormGroup>
+          <PasswordStrengthMeter pwdCandidate={newPassword} />
         </div>
 
         <div className={Classes.DIALOG_FOOTER}>

@@ -266,11 +266,11 @@ class ViewStore {
 
     this._updateTransitions({ widgetTransition: 'fadeOut' })
 
-    setTimeout(() => {
-      this._updateTransitions({ sideTransition: 'fadeIn' })
-    }, constants.ANIM_DURATION + 10)
-
-    this._endAnimation('side')
+    this._endAnimation('side', {
+      beforeViewChange: () => {
+        this._updateTransitions({ sideTransition: 'fadeIn' })
+      }
+    })
 
     this.rootStore.postMessage('webchatOpened')
   }
@@ -289,21 +289,24 @@ class ViewStore {
 
     this._updateTransitions({ sideTransition: 'fadeOut' })
 
-    if (!this.activeView || this.activeView === 'side') {
-      setTimeout(() => {
-        this._updateTransitions({ widgetTransition: 'fadeIn' })
-      }, constants.ANIM_DURATION + 10)
-    }
-
-    this._endAnimation('widget')
+    this._endAnimation('widget', {
+      beforeViewChange: () => {
+        if (!this.activeView || this.activeView === 'side') {
+          this._updateTransitions({ widgetTransition: 'fadeIn' })
+        }
+      }
+    })
 
     this.rootStore.postMessage('webchatClosed')
   }
 
   @action.bound
-  private _endAnimation(finalView) {
+  private _endAnimation(finalView, opts) {
+    opts = opts || {}
+
     setTimeout(() => {
       runInAction(() => {
+        opts.beforeViewChange && opts.beforeViewChange()
         this.activeView = finalView
       })
     }, constants.ANIM_DURATION)

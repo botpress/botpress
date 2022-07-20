@@ -6,6 +6,7 @@ import { MODULE_NAME } from '../constants'
 import { ExitTypes, IHandoff, ISocketMessage } from '../types'
 import { StateType } from '.'
 import Repository from './repository'
+import WebHookService from './webhook'
 
 export const toEventDestination = (
   botId: string,
@@ -19,12 +20,15 @@ interface Realtime {
 }
 
 class Service {
+  webhook: WebHookService
   constructor(
     private bp: typeof sdk,
     private state: StateType,
     private repository: Repository,
     private realtime: Realtime
-  ) {}
+  ) {
+    this.webhook = new WebHookService(bp)
+  }
 
   async createHandoff(
     botId: string,
@@ -45,7 +49,7 @@ class Service {
       await this.sendMessageToUser(config.transferMessage, eventDestination, language)
     }
 
-    this.realtime.sendPayload(botId, { resource: 'handoff', type: 'create', id: handoff.id, payload: handoff })
+    this.sendPayload(botId, { resource: 'handoff', type: 'create', id: handoff.id, payload: handoff })
 
     if (timeoutDelay !== undefined && timeoutDelay > 0) {
       setTimeout(async () => {
@@ -93,7 +97,7 @@ class Service {
   }
 
   updateRealtimeHandoff(botId: string, handoff: Partial<IHandoff>) {
-    return this.realtime.sendPayload(botId, { resource: 'handoff', type: 'update', id: handoff.id, payload: handoff })
+    return this.sendPayload(botId, { resource: 'handoff', type: 'update', id: handoff.id, payload: handoff })
   }
 
   async transferToBot(event: sdk.IO.EventDestination, exitType: ExitTypes, agentName?: string) {
@@ -106,6 +110,11 @@ class Service {
     })
 
     await this.bp.events.sendEvent(stateUpdate)
+  }
+
+  sendPayload(botId: string, data: { resource: string; type: string; id: string; payload: any }) {
+    this.realtime.sendPayload(botId, data)
+    void this.webhook.send({ botId, ...data })
   }
 }
 

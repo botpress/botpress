@@ -110,16 +110,12 @@ export const buildRestrictedProcessVars = () => {
   declare var process: RestrictedProcess;
   interface RestrictedProcess {
     ${root.map(x => {
-      return `/** Current value: ${x.value} */
-${x.name}: ${x.type}
-`
+      return `${x.name}: ${x.type}`
     })}
 
     env: {
       ${exposed.map(x => {
-        return `/** Current value: ${x.value} */
-${x.name}: ${x.type}
-`
+        return `${x.name}: ${x.type}`
       })}
     }
   }`
