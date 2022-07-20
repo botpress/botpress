@@ -47,8 +47,12 @@ export const AgentOnlineValidation = Joi.object({
 export const validateHandoffStatusRule = (original: string, value: string) => {
   let message: string
 
-  if (original !== 'resolved' && value === 'rejected') {
+  if (['pending', 'assigned'].includes(original) && value === 'rejected') {
     return
+  }
+
+  if (original === 'expired') {
+    message = `Status "${original}" can't transition to "${value}"`
   } else if (original === 'pending' && value !== 'assigned') {
     message = `Status "${original}" can only transition to "assigned"`
   } else if (original === 'assigned' && value !== 'resolved') {

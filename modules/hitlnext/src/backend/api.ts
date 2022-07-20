@@ -334,12 +334,12 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
     })
   )
 
+  // Resolving -> can only occur after being assigned
+  // Rejecting -> can only occur if pending or assigned
   router.post(
     '/handoffs/:id/reject',
     hasPermission('reject', 'write'),
     errorMiddleware(async (req: HITLBPRequest, res: Response) => {
-      // Rejecting a handoff is the same as resolving it
-      // But you can transition from almost any other status
       const handoff = await repository.findHandoff(req.params.botId, req.params.id)
 
       const payload: Pick<IHandoff, 'status' | 'resolvedAt'> = {
@@ -355,8 +355,9 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
         throw new UnprocessableEntityError(formatValidationError(e))
       }
 
+      // Rejecting a handoff is the same as resolving it
+      // But you can also transition from pending
       const updated = await service.resolveHandoff(handoff, req.params.botId, payload)
-      req.agentId && (await extendAgentSession(repository, realtime, req.params.botId, req.agentId))
 
       res.send(updated)
     })
