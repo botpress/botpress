@@ -59,7 +59,7 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
     res: Response,
     next
   ) => {
-    const hasPermission = await bp.http.hasPermission(req, actionType, 'module.hitlnext.' + type, true)
+    const hasPermission = await bp.http.hasPermission(req, actionType, `module.hitlnext.${type}`, true)
 
     if (hasPermission) {
       return next()
