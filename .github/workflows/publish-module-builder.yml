@@ -2,12 +2,16 @@ name: Publish and release module builder
 
 on:
   pull_request:
-    types: [ closed ]
+    types: [closed]
+permissions:
+  contents: read
 
 jobs:
   publish_module_builder:
     name: Build and publish module builder
     if: ${{ github.event.pull_request.merged == true && startsWith(github.event.pull_request.head.ref,'module-builder-release/v') }}
+    permissions:
+      packages: write
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

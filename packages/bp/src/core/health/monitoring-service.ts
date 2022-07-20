@@ -110,9 +110,7 @@ export class CEMonitoringService implements MonitoringService {
     try {
       const nluEndpoint = process.NLU_ENDPOINT || `http://localhost:${process.NLU_PORT}`
 
-      await axios.get(`${nluEndpoint}/info`, {
-        headers: { Authorization: `Bearer ${makeNLUPassword()}` }
-      })
+      await axios.get(`${nluEndpoint}/info`)
 
       nlu = 'up'
     } catch (err) {

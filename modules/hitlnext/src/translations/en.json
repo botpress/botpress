@@ -9,7 +9,8 @@
     "unassigned": "Unassigned",
     "assignedMe": "Assigned to Me",
     "assignedOther": "Assigned to Others",
-    "resolved": "Resolved"
+    "resolved": "Resolved",
+    "expired": "Expired"
   },
   "sortBy": "Sort By",
   "filterBy": "Filter By",
@@ -30,7 +31,8 @@
     "status": {
       "pending": "pending",
       "assigned": "assigned",
-      "resolved": "resolved"
+      "resolved": "resolved",
+      "expired": "expired"
     },
     "assignedToAgent": "You've been assigned to an agent",
     "assignedToYou": "Conversation Handed to You",

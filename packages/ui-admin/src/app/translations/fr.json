@@ -24,8 +24,16 @@
     "changeYourPassword": "Changez votre mot de passe",
     "confirmPassword": "Confirmez le mot de passe",
     "createAccount": "Créer un compte",
-    "createMasterAdminAccount": "C'est la première fois que vous exécutez Botpress. Veuillez créer le compte administrateur principal.",
+    "createMasterAdminAccount": "C'est la première fois que vous exécutez Botpress. Veuillez créer un compte pour sécuriser le développement de vos chatbots.",
     "currentPassword": "Mot de passe actuel",
+    "passwordStrength": {
+      "hint": "Il est fortement recommandé d'utilser un excellent mot de passe. Penser à utiliser toutes sortes de caractères",
+      "0": "Terrible",
+      "1": "Faible",
+      "2": "Correct",
+      "3": "Bon",
+      "4": "Excellent"
+    },
     "debug": {
       "confUpdated": "La configuration de débogage a été mise à jour avec succès!",
       "configureDebug": "Configurer le débogage",
@@ -279,7 +287,7 @@
           "template": "Modèle de bot",
           "cloud": "Botpress Cloud",
           "cloudCheckbox": "Activer Botpress Cloud",
-          "cloudHelper": "Ce chatbot pourra ėtre envoyé sur Botpress Cloud en utilisant le bouton dans le coins supérieur droit du studio.",
+          "cloudHelper": "Les chatbots Botpress Cloud sont légèrement différents des chatbots traditionnels. Pour en savoir plus: https://www.botpress.com/docs/overview/cloud/try-the-beta",
           "cloudConfiguration": "Configurations Botpress Cloud",
           "cloudConfigurationHelper": "Vous pouvez obtenir ces clés en vous conectant sur Botpress Cloud",
           "clientIdPlaceholder": "Clé d'API ",

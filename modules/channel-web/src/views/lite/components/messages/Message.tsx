@@ -33,6 +33,7 @@ class Message extends Component<MessageProps> {
         intl={this.props.intl}
         maxLength={this.props.payload.trimLength}
         escapeHTML={this.props.store.escapeHTML}
+        isBotMessage={this.props.isBotMessage}
       />
     )
   }

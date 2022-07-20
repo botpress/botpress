@@ -108,12 +108,14 @@ export class BotService {
   }
 
   private async introspectBotOnCloud(
-    bearerToken: string
+    bearerToken: string,
+    clientId: string
   ): Promise<{ userId: string; runtimeName: string; botName: string; botId: string }> {
     return axios
       .get(`${process.CLOUD_CONTROLLER_ENDPOINT}/v1/introspect`, {
         headers: {
-          Authorization: bearerToken
+          Authorization: bearerToken,
+          'x-subject': clientId,
         }
       })
       .then(res => res.data)
@@ -122,7 +124,7 @@ export class BotService {
   async botExistOnCloud(cloudConfig: CloudConfig) {
     try {
       const bearerToken = await this.getCloudBearerTokenFromConfig(cloudConfig)
-      await this.introspectBotOnCloud(bearerToken)
+      await this.introspectBotOnCloud(bearerToken, cloudConfig.clientId)
       return true
     } catch (error) {
       return false
@@ -814,19 +816,27 @@ export class BotService {
     }
   }
 
-  public async getBotHealth(): Promise<ServerHealth[]> {
+  public async getBotHealth(workspaceId: string): Promise<ServerHealth[]> {
+    const botIdsFilter = await this.workspaceService.getBotRefs(workspaceId)
+    let serverHealth: ServerHealth[]
+
     const redis = this.jobService.getRedisClient()
-    if (!redis) {
-      return [{ serverId: process.SERVER_ID, hostname: os.hostname(), bots: BotService._botHealth }]
+    if (redis) {
+      const serverIds = await redis.keys(getBotStatusKey('*'))
+      if (!serverIds.length) {
+        return []
+      }
+
+      const servers = await redis.mget(...serverIds)
+      serverHealth = await Promise.mapSeries(servers, data => JSON.parse(data as string))
+    } else {
+      serverHealth = [{ serverId: process.SERVER_ID, hostname: os.hostname(), bots: BotService._botHealth }]
     }
 
-    const serverIds = await redis.keys(getBotStatusKey('*'))
-    if (!serverIds.length) {
-      return []
-    }
-
-    const servers = await redis.mget(...serverIds)
-    return Promise.mapSeries(servers, data => JSON.parse(data as string))
+    serverHealth.forEach(health => {
+      health.bots = _.pick(health.bots, botIdsFilter)
+    })
+    return serverHealth
   }
 
   public static incrementBotStats(botId: string, type: 'error' | 'warning' | 'critical') {

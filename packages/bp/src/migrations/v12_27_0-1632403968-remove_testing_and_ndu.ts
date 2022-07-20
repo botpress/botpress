@@ -6,7 +6,7 @@ import { TYPES } from 'core/types'
 
 const migration: Migration = {
   info: {
-    description: 'Remove Built-in and Basic-Skills module entries',
+    description: 'Remove Testing and NDU module entries',
     target: 'core',
     type: 'config'
   },
@@ -14,7 +14,7 @@ const migration: Migration = {
     const ghost = inversify.get<GhostService>(TYPES.GhostService)
     const logger = inversify.get<sdk.Logger>(TYPES.Logger)
 
-    const modulesToRemove = ['builtin', 'basic-skills']
+    const modulesToRemove = ['testing', 'ndu']
     const config = await configProvider.getBotpressConfig()
 
     for (const mod of modulesToRemove) {
@@ -32,11 +32,11 @@ const migration: Migration = {
   down: async ({ configProvider }: MigrationOpts): Promise<sdk.MigrationResult> => {
     const moduleEntriesToRestore = [
       {
-        location: 'MODULES_ROOT/builtin',
+        location: 'MODULES_ROOT/testing',
         enabled: false
       },
       {
-        location: 'MODULES_ROOT/basic-skills',
+        location: 'MODULES_ROOT/ndu',
         enabled: false
       }
     ]

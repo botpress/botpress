@@ -4,7 +4,7 @@ import { ElementHandle, HTTPResponse, KeyInput, MouseButton, Page } from 'puppet
 
 import { bpConfig } from '../assets/config'
 import { windowSize } from '../jest-puppeteer.config'
-import { clickOn, expectMatchElement, fillField } from './expectPuppeteer'
+import { clickOn, ExpectClickOptions, expectMatchElement, fillField } from './expectPuppeteer'
 
 type HttpMethod = 'POST' | 'GET' | 'PATCH' | 'PUT' | 'DELETE' | 'OPTIONS'
 
@@ -149,7 +149,10 @@ export const triggerKeyboardShortcut = async (key: KeyInput, holdCtrl?: boolean,
   }
 }
 
-export const clickOnTreeNode = async (searchText: string, button: MouseButton = 'left'): Promise<void> => {
+export const clickOnTreeNode = async (
+  searchText: string,
+  button: ExpectClickOptions['button'] = 'left'
+): Promise<void> => {
   const element = await expectMatchElement('.bp3-tree-node-content', { text: searchText })
   await clickOn('.bp3-tree-node-label', { button }, element)
 }

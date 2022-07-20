@@ -1,10 +1,52 @@
-## [12.26.13](https://github.com/botpress/botpress/compare/v12.26.12...v12.26.13) (2022-04-07)
+## [12.28.1](https://github.com/botpress/botpress/compare/v12.28.0...v12.28.1) (2022-07-12)
+
+
+### Bug Fixes
+
+* **auth:** auth strategies ignore subpath ([#11917](https://github.com/botpress/botpress/issues/11917)) ([ce0f4c9](https://github.com/botpress/botpress/commit/ce0f4c9f4d0ae353b9410e1c907286e7b1e286ac)), closes [#11848](https://github.com/botpress/botpress/issues/11848)
+* **channel-web:** escape html chars from messages ([#11948](https://github.com/botpress/botpress/issues/11948)) ([4584679](https://github.com/botpress/botpress/commit/4584679d42550395375015a0a666babf5a3c2494))
+* **channel-web:** glitch animations opening/closing chat ([#11925](https://github.com/botpress/botpress/issues/11925)) ([1d64af7](https://github.com/botpress/botpress/commit/1d64af7accfea70a44d215de9e6f5775d186c315)), closes [#11819](https://github.com/botpress/botpress/issues/11819)
+* **core:** make sure 1 node times out sessions ([#11968](https://github.com/botpress/botpress/issues/11968)) ([a095f6d](https://github.com/botpress/botpress/commit/a095f6de0ff253fb8ade4b0e05599d0afc2ad315))
+* **core:** use same cors config as server for socket.io ([#11971](https://github.com/botpress/botpress/issues/11971)) ([3251e22](https://github.com/botpress/botpress/commit/3251e22bad92e5e29a35e47f18ebb25cae276099))
+* **debugger:** escape html chars from logs ([#11934](https://github.com/botpress/botpress/issues/11934)) ([62a4df7](https://github.com/botpress/botpress/commit/62a4df7268d10f1e4cd6492d295301c492565df3))
+* **hitlnext:** do not to create a handoff when event comes from converse ([#11922](https://github.com/botpress/botpress/issues/11922)) ([4085a2a](https://github.com/botpress/botpress/commit/4085a2ae404c5be06e25b20e141ac6c7b4a74d06))
+* **hitlnext:** fix error when creating handoff from converse ([#11921](https://github.com/botpress/botpress/issues/11921)) ([6ac9f47](https://github.com/botpress/botpress/commit/6ac9f4726cf78e1bae93c15f35b3a7255a701e55))
+
+
+### Features
+
+* **core:** adopt zxcvbn score as pwd policy ([#11939](https://github.com/botpress/botpress/issues/11939)) ([adf67e2](https://github.com/botpress/botpress/commit/adf67e272993ac192997397f44bf1f731b51163b))
+* **ui-admin:** password strength indicator ([#11957](https://github.com/botpress/botpress/issues/11957)) ([985cc81](https://github.com/botpress/botpress/commit/985cc8194651851f39259a8fac0276dc576596fe))
+
+
+
+# [12.28.0](https://github.com/botpress/botpress/compare/v12.27.0...v12.28.0) (2022-06-16)
+
+
+### Bug Fixes
+
+* **admin:** add id to NPS, support white labeling ([#11770](https://github.com/botpress/botpress/issues/11770)) ([30815fe](https://github.com/botpress/botpress/commit/30815fefad6a378990f5a73b902216c43f2d2495))
+* **builtin:** fix action for storing files locally ([#11798](https://github.com/botpress/botpress/issues/11798)) ([a07ff53](https://github.com/botpress/botpress/commit/a07ff5304e9e5ab94696a9d9de025708863cc65f))
+* **core:** fix export with dotted folder ([#11780](https://github.com/botpress/botpress/issues/11780)) ([8e8f45a](https://github.com/botpress/botpress/commit/8e8f45ad0ac8d2d35e9ecb16fe30f619b8771596))
+* **nlu:** trainset hash is computed from sorted datastructure ([#11878](https://github.com/botpress/botpress/issues/11878)) ([c8a4566](https://github.com/botpress/botpress/commit/c8a4566d52a236fca40cc991d931f7329c69955f))
+* **redis:** improved error handling when redis is down ([#11885](https://github.com/botpress/botpress/issues/11885)) ([a83d345](https://github.com/botpress/botpress/commit/a83d3452b84effc93dfd3e7d4c599a8b9d4e6127)), closes [#11738](https://github.com/botpress/botpress/issues/11738)
+
+
+### Features
+
+* **hitlnext:** add skill, fix lang & expired handoff ([#11775](https://github.com/botpress/botpress/issues/11775)) ([a67bf73](https://github.com/botpress/botpress/commit/a67bf73abda1f364ef6b75618649904bf98eb7dd))
+
+
+
+# [12.27.0](https://github.com/botpress/botpress/compare/v12.26.12...v12.27.0) (2022-04-26)
 
 
 ### Bug Fixes
 
 * **admin:** fix wrong doc links ([#11668](https://github.com/botpress/botpress/issues/11668)) ([50cf119](https://github.com/botpress/botpress/commit/50cf119ab0a757d6ba950436c4f25fc9bd454489))
 * **code-editor:** allow creating hooks with hook type as name ([#11698](https://github.com/botpress/botpress/issues/11698)) ([fd96a81](https://github.com/botpress/botpress/commit/fd96a81a87a5a98c7d0dddc3ec6d4ebaf6291295)), closes [#5768](https://github.com/botpress/botpress/issues/5768)
+* **core:** fix SAML SLO config as environment variables ([#11757](https://github.com/botpress/botpress/issues/11757)) ([ba75d9f](https://github.com/botpress/botpress/commit/ba75d9f5fd0c1b1f6ef77f655cff5a0a5ac5f0ec))
+* **messaging-service:** add lock ([#11733](https://github.com/botpress/botpress/issues/11733)) ([7946c9d](https://github.com/botpress/botpress/commit/7946c9d117925f2713d54f692cbe94932c3c8f1e))
 * **testing:** create new session before recording ([#11693](https://github.com/botpress/botpress/issues/11693)) ([05e0a86](https://github.com/botpress/botpress/commit/05e0a868c332236d66cf1f2e09fd718922e01238)), closes [#3880](https://github.com/botpress/botpress/issues/3880)
 * **testing:** fix testing module not working ([#11687](https://github.com/botpress/botpress/issues/11687)) ([5804000](https://github.com/botpress/botpress/commit/5804000edfac78db93c81584880c9f3c901d7f08)), closes [#11541](https://github.com/botpress/botpress/issues/11541)
 * **workspaces:** display warning if workspace has no authStrategies ([#11679](https://github.com/botpress/botpress/issues/11679)) ([52c4e95](https://github.com/botpress/botpress/commit/52c4e95d386a0cdcba5f7e35f54a2cecb3451e37)), closes [#11536](https://github.com/botpress/botpress/issues/11536)
@@ -14,6 +56,7 @@
 
 * **channels:** add channel configuration page ([#11646](https://github.com/botpress/botpress/issues/11646)) ([e85bb34](https://github.com/botpress/botpress/commit/e85bb341d7bf6e66434819c62ac4b9dd0079c415))
 * **messaging:** expose LOGGING_ENABLED ([#11656](https://github.com/botpress/botpress/issues/11656)) ([e30b90d](https://github.com/botpress/botpress/commit/e30b90d34ba75343a4d4b82336a50e767e851ab1))
+* **monitoring:** report status of messaging and nlu ([#11716](https://github.com/botpress/botpress/issues/11716)) ([a7b6b86](https://github.com/botpress/botpress/commit/a7b6b868e17501f2eff5f64604d71add24c93d1c)), closes [#11658](https://github.com/botpress/botpress/issues/11658)
 
 
 

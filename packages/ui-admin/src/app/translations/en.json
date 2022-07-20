@@ -24,8 +24,16 @@
     "changeYourPassword": "Change your password",
     "confirmPassword": "Confirm Password",
     "createAccount": "Create Account",
-    "createMasterAdminAccount": "This is the first time you run Botpress. Please create the master admin account.",
+    "createMasterAdminAccount": "Since this is the first time you're logging into Botpress, you'll need to create an account to keep your chatbot development secure.",
     "currentPassword": "Current password",
+    "passwordStrength": {
+      "hint": "It is highly recommended to set a strong password. Consider using all kinds of characters.",
+      "0": "Very weak",
+      "1": "Weak",
+      "2": "Ok",
+      "3": "Good",
+      "4": "Excellent"
+    },
     "debug": {
       "confUpdated": "Debug configuration updated successfully!",
       "configureDebug": "Configure Debug",
@@ -286,7 +294,7 @@
           "template": "Bot Template",
           "cloud": "Botpress Cloud",
           "cloudCheckbox": "Enable Botpress Cloud",
-          "cloudHelper": "Cloud chatbots can then be deployed using the deploy button in the upper right section of the Studio.",
+          "cloudHelper": "Cloud chatbots are slightly different from traditional chatbots. Learn more here: https://www.botpress.com/docs/overview/cloud/try-the-beta",
           "cloudConfiguration": "Botpress Cloud Configuration",
           "cloudConfigurationHelper": "You can get your API Key and Secret by login into Botpress Cloud.",
           "clientIdPlaceholder": "API Key",

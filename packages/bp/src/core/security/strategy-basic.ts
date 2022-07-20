@@ -12,6 +12,7 @@ import { charsets, PasswordPolicy } from 'password-sheriff'
 import { InvalidCredentialsError, LockedOutError, PasswordExpiredError, WeakPasswordError } from './auth-errors'
 import { AuthService, SERVER_USER } from './auth-service'
 import { saltHashPassword, validateHash } from './utils'
+import { ZXCVBNPolicy, ZXCVBNPolicyOptions } from './zxcvbn-password-policy'
 
 const debug = DEBUG('audit:users:basic')
 
@@ -221,15 +222,21 @@ export class StrategyBasic {
     }
 
     if (options.requireComplexPassword) {
-      rules.containsAtLeast = {
-        atLeast: 3,
+      rules.contains = {
         expressions: [charsets.lowerCase, charsets.upperCase, charsets.numbers, charsets.specialCharacters]
       }
     }
 
     try {
-      const policyChecker = new PasswordPolicy(rules)
-      policyChecker.assert(password)
+      const basicChecker = new PasswordPolicy(rules)
+      basicChecker.assert(password)
+      if (options.requireComplexPassword) {
+        const smartChecker = new PasswordPolicy(
+          { zxcvbn: <ZXCVBNPolicyOptions>{ minScore: 2, failWhenCommonWordIsDominant: true } },
+          { zxcvbn: new ZXCVBNPolicy() }
+        )
+        smartChecker.assert(password)
+      }
     } catch (err) {
       throw new WeakPasswordError()
     }

@@ -30,6 +30,8 @@ const test = {
 const admin = [test.admin.ui, test.admin.bots]
 if (yn(process.env.BP_CONFIG_PRO_ENABLED)) {
   admin.push(test.admin.users)
+} else {
+  console.warn('Running E2E tests requires a Pro license. Tests might not pass.')
 }
 
 const studio = [

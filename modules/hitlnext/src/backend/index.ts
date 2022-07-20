@@ -6,6 +6,7 @@ import en from '../translations/en.json'
 import fr from '../translations/fr.json'
 
 import api from './api'
+import flowBuilder from './flowBuilder'
 import { registerMiddleware, unregisterMiddleware } from './middleware'
 import migrate from './migrate'
 import Repository from './repository'
@@ -36,11 +37,21 @@ const onModuleUnmount = async (bp: typeof sdk) => {
   await unregisterMiddleware(bp)
 }
 
+const skills: sdk.Skill[] = [
+  {
+    id: 'HitlNext',
+    icon: 'person',
+    name: 'HITL',
+    flowGenerator: flowBuilder.generateFlow
+  }
+]
+
 const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   onModuleUnmount,
   translations: { en, fr },
+  skills,
   definition: {
     name: MODULE_NAME,
     menuIcon: 'headset',

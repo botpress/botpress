@@ -1,5 +1,7 @@
 name: Tests
 on: [pull_request]
+permissions:
+  contents: read
 
 jobs:
   unit:
@@ -13,10 +15,6 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
       - name: Fetch Node Packages
-        run: |
-          yarn --frozen-lockfile
-      - name: Fetch Node Packages for module NLU
-        working-directory: ./modules/nlu
         run: |
           yarn --frozen-lockfile
       - name: Run tests
@@ -61,10 +59,6 @@ jobs:
       - name: Fetch Node Packages
         run: |
           yarn --frozen-lockfile
-      - name: Fetch Node Packages for module NLU
-        working-directory: ./modules/nlu
-        run: |
-          yarn --frozen-lockfile
       - name: Run tests
         run: |
           yarn test:int
@@ -75,6 +69,8 @@ jobs:
           PG_PORT: 5432
 
   e2e:
+    permissions:
+      contents: none
     name: E2E (ubuntu-latest)
     runs-on: ubuntu-latest
     steps:
