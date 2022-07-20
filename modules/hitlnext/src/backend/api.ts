@@ -12,7 +12,7 @@ import { agentName } from '../helper'
 
 import { StateType } from './index'
 import { HandoffStatus, IAgent, IComment, IHandoff } from './../types'
-import { UnprocessableEntityError } from './errors'
+import { UnprocessableEntityError, UnauthorizedError } from './errors'
 import { extendAgentSession, formatValidationError, makeAgentId } from './helpers'
 import Repository, { CollectionConditions } from './repository'
 import Service, { toEventDestination } from './service'
@@ -54,7 +54,7 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
     next()
   }
 
-  const hasPermissionOrAgentOnline = (type: string, actionType: 'read' | 'write') => async (
+  const hasPermission = (type: string, actionType: 'read' | 'write') => async (
     req: HITLBPRequest,
     res: Response,
     next
@@ -63,9 +63,13 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
 
     if (hasPermission) {
       return next()
-    } else {
-      return agentOnlineMiddleware(req, res, next)
     }
+
+    return next(
+      new UnauthorizedError(
+        `user does not have sufficient permissions to "${actionType}" on resource "module.hitlnext.${type}"`
+      )
+    )
   }
 
   // Catches exceptions and handles those that are expected
@@ -306,12 +310,40 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
 
   router.post(
     '/handoffs/:id/resolve',
-    hasPermissionOrAgentOnline('resolve', 'write'),
+    agentOnlineMiddleware,
     errorMiddleware(async (req: HITLBPRequest, res: Response) => {
       const handoff = await repository.findHandoff(req.params.botId, req.params.id)
 
       const payload: Pick<IHandoff, 'status' | 'resolvedAt'> = {
         status: 'resolved',
+        resolvedAt: new Date()
+      }
+
+      Joi.attempt(payload, ResolveHandoffSchema)
+
+      try {
+        validateHandoffStatusRule(handoff.status, payload.status)
+      } catch (e) {
+        throw new UnprocessableEntityError(formatValidationError(e))
+      }
+
+      const updated = await service.resolveHandoff(handoff, req.params.botId, payload)
+      req.agentId && (await extendAgentSession(repository, realtime, req.params.botId, req.agentId))
+
+      res.send(updated)
+    })
+  )
+
+  router.post(
+    '/handoffs/:id/reject',
+    hasPermission('reject', 'write'),
+    errorMiddleware(async (req: HITLBPRequest, res: Response) => {
+      // Rejecting a handoff is the same as resolving it
+      // But you can transition from almost any other status
+      const handoff = await repository.findHandoff(req.params.botId, req.params.id)
+
+      const payload: Pick<IHandoff, 'status' | 'resolvedAt'> = {
+        status: 'rejected',
         resolvedAt: new Date()
       }
 

@@ -20,10 +20,6 @@ const ROLE_CONFIGURATION = [
         res: `module.${MODULE_NAME}`,
         op: '+r+w'
       },
-      {
-        res: `module.${MODULE_NAME}.resolve`,
-        op: '-r-w'
-      },
       { res: 'admin.collaborators.*', op: '-r' },
       { res: 'admin.logs.*', op: '-r' },
       { res: 'admin.roles.*', op: '-r' },
