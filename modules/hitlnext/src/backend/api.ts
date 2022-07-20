@@ -12,7 +12,7 @@ import { agentName } from '../helper'
 
 import { StateType } from './index'
 import { HandoffStatus, IAgent, IComment, IHandoff } from './../types'
-import { UnprocessableEntityError } from './errors'
+import { UnprocessableEntityError, UnauthorizedError } from './errors'
 import { extendAgentSession, formatValidationError, makeAgentId } from './helpers'
 import Repository, { CollectionConditions } from './repository'
 import Service, { toEventDestination } from './service'
@@ -27,19 +27,22 @@ import {
   validateHandoffStatusRule
 } from './validation'
 
+type HITLBPRequest = BPRequest & { agentId: string | undefined }
+
 export default async (bp: typeof sdk, state: StateType, repository: Repository) => {
   const router = bp.http.createRouterForBot(MODULE_NAME)
   const realtime = Socket(bp)
   const service = new Service(bp, state, repository, realtime)
 
   // Enforces for an agent to be 'online' before executing an action
-  const agentOnlineMiddleware = async (req: BPRequest, res: Response, next) => {
+  const agentOnlineMiddleware = async (req: HITLBPRequest, res: Response, next) => {
     const { email, strategy } = req.tokenUser!
     const agentId = makeAgentId(strategy, email)
     const online = await repository.getAgentOnline(req.params.botId, agentId)
 
     try {
       Joi.attempt({ online }, AgentOnlineValidation)
+      req.agentId = agentId
     } catch (err) {
       if (err instanceof Joi.ValidationError) {
         return next(new UnprocessableEntityError(formatValidationError(err)))
@@ -49,6 +52,24 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
     }
 
     next()
+  }
+
+  const hasPermission = (type: string, actionType: 'read' | 'write') => async (
+    req: HITLBPRequest,
+    res: Response,
+    next
+  ) => {
+    const hasPermission = await bp.http.hasPermission(req, actionType, `module.hitlnext.${type}`, true)
+
+    if (hasPermission) {
+      return next()
+    }
+
+    return next(
+      new UnauthorizedError(
+        `user does not have sufficient permissions to "${actionType}" on resource "module.hitlnext.${type}"`
+      )
+    )
   }
 
   // Catches exceptions and handles those that are expected
@@ -290,11 +311,7 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
   router.post(
     '/handoffs/:id/resolve',
     agentOnlineMiddleware,
-    errorMiddleware(async (req: RequestWithUser, res: Response) => {
-      const { email, strategy } = req.tokenUser!
-
-      const agentId = makeAgentId(strategy, email)
-
+    errorMiddleware(async (req: HITLBPRequest, res: Response) => {
       const handoff = await repository.findHandoff(req.params.botId, req.params.id)
 
       const payload: Pick<IHandoff, 'status' | 'resolvedAt'> = {
@@ -311,7 +328,36 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
       }
 
       const updated = await service.resolveHandoff(handoff, req.params.botId, payload)
-      await extendAgentSession(repository, realtime, req.params.botId, agentId)
+      req.agentId && (await extendAgentSession(repository, realtime, req.params.botId, req.agentId))
+
+      res.send(updated)
+    })
+  )
+
+  // Resolving -> can only occur after being assigned
+  // Rejecting -> can only occur if pending or assigned
+  router.post(
+    '/handoffs/:id/reject',
+    hasPermission('reject', 'write'),
+    errorMiddleware(async (req: HITLBPRequest, res: Response) => {
+      const handoff = await repository.findHandoff(req.params.botId, req.params.id)
+
+      const payload: Pick<IHandoff, 'status' | 'resolvedAt'> = {
+        status: 'rejected',
+        resolvedAt: new Date()
+      }
+
+      Joi.attempt(payload, ResolveHandoffSchema)
+
+      try {
+        validateHandoffStatusRule(handoff.status, payload.status)
+      } catch (e) {
+        throw new UnprocessableEntityError(formatValidationError(e))
+      }
+
+      // Rejecting a handoff is the same as resolving it
+      // But you can also transition from pending
+      const updated = await service.resolveHandoff(handoff, req.params.botId, payload)
 
       res.send(updated)
     })

@@ -10,6 +10,7 @@
     "assignedMe": "Assigné à moi",
     "assignedOther": "Assigné à d'autres",
     "resolved": "Résolue",
+    "rejected": "Rejeté",
     "expired": "Expiré"
   },
   "sortBy": "Trier Par",
@@ -32,6 +33,7 @@
       "pending": "en attente",
       "assigned": "assignée",
       "resolved": "résolue",
+      "rejected": "rejeté",
       "expired": "expiré"
     },
     "assignedToAgent": "Vous avez été assigné à un agent",
@@ -40,6 +42,7 @@
     "resolve": "Résoudre",
     "assigned": "L'escalation {id} a été assignée avec succès",
     "resolved": "L'escalation {id} a été résoulue avec succès",
+    "rejected": "L'escalation {id} a été rejeté avec succès",
     "noPreviousAgent": "Aucun agent précédent",
     "you": "Vous",
     "from": "Via {channel}"
