@@ -1,9 +1,8 @@
-export interface LanguageSource {
+interface LanguageSource {
   endpoint: string
-  authToken?: string
 }
 
-type StanConfig = { autoStart: true } | ({ autoStart: false } & LanguageSource)
+type StanConfig = { autoStart: true } | { autoStart: false; endpoint: string }
 
 export interface Config {
   /**

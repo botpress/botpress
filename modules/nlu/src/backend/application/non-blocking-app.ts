@@ -11,11 +11,11 @@ export class NonBlockingNluApplication extends NLUApplication {
   public async initialize() {
     await this._waitForStan()
     this._stanIsReady = true
+    this._logger.debug('Standalone NLU Server is ready.')
     while (this._waitingBots.length) {
       const bot = this._waitingBots.pop()!
       await super.mountBot(bot)
     }
-    await this.resumeTrainings()
   }
 
   public async mountBot(botConfig: BotConfig) {
@@ -28,7 +28,7 @@ export class NonBlockingNluApplication extends NLUApplication {
   private _waitForStan() {
     return new Promise(resolve => {
       const i = setInterval(async () => {
-        const health = await this.getHealth()
+        const health = await this.getHealth({ reportError: false })
         if (health?.isEnabled) {
           clearInterval(i)
           resolve()

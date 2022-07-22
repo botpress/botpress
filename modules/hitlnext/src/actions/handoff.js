@@ -8,17 +8,30 @@ const axios = require('axios')
  * @description Transfers control of the conversation to an agent
  * @author Botpress, Inc.
  */
-const escalate = async event => {
+const escalate = async (event, timeoutDelay) => {
+  // The HITLNext module is not compatible with the Converse API since the
+  // former is asynchronous and the latter is synchronous.
+  if (event.channel === 'api') {
+    bp.logger
+      .forBot(event.botId)
+      .warn(
+        "HITLNext: The event was created by the Converse API, it will be discarded (no handoff will be created) since it's incompatible with the module."
+      )
+
+    return
+  }
+
   const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
   await axios.post(
     '/mod/hitlnext/handoffs',
     {
       userThreadId: event.threadId,
       userId: event.target,
-      userChannel: event.channel
+      userChannel: event.channel,
+      timeoutDelay
     },
     axiosConfig
   )
 }
 
-return escalate(event)
+return escalate(event, args.timeoutDelay)

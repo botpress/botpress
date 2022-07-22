@@ -23,6 +23,21 @@ const extractFilenameFromHeader = headers => {
   return filename[1].replace(/"/g, '')
 }
 
+const extractFilenameFromURL = url => {
+  // Removes the query params if there are any
+  // E.g. https://blablabla.com/blabla/bla.mp4?bla=blablabla becomes https://blablabla.com/blabla/bla.mp4
+  const urlWithoutQueryParams = url.split('?')[0]
+  // Extract the last part of the URL
+  // E.g. https://blablabla.com/blabla/bla.mp4 becomes bla.mp4
+  const filename = urlWithoutQueryParams.substring(urlWithoutQueryParams.lastIndexOf('/') + 1)
+
+  if (!path.extname(filename)) {
+    return undefined
+  } else {
+    return filename
+  }
+}
+
 /**
  * Store File Locally
  *
@@ -60,7 +75,12 @@ const storeFileLocally = async () => {
 
     bp.logger.debug('[StoreFileLocally] - File downloaded successfully!')
 
-    let filename = extractFilenameFromHeader(resp.headers) || event.payload.title || event.payload.caption || uuidv4()
+    let filename =
+      extractFilenameFromURL(fileUrl) ||
+      extractFilenameFromHeader(resp.headers) ||
+      event.payload.title ||
+      event.payload.caption ||
+      uuidv4()
 
     // If the file does not have an extension, we imply that it's a binary file
     if (!path.extname(filename)) {
@@ -70,7 +90,7 @@ const storeFileLocally = async () => {
     const formData = new FormData()
     formData.append('file', Buffer.from(resp.data.buffer), filename)
 
-    const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
+    const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true, studioUrl: true })
     axiosConfig.headers['Content-Type'] = `multipart/form-data; boundary=${formData.getBoundary()}`
     axiosConfig.timeout = TIMEOUT
     axiosConfig.maxContentLength = Infinity

@@ -10,14 +10,13 @@ export default function naturalElectionPipeline(input: sdk.IO.EventUnderstanding
   if (!input.predictions) {
     return input
   }
-
   let step = electIntent(input)
   step = detectAmbiguity(step)
   step = extractElectedIntentSlot(step)
   return step
 }
 
-function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
+export function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
   if (!input.predictions) {
     return input
   }
@@ -47,7 +46,7 @@ function electIntent(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstandin
 }
 
 export function extractElectedIntentSlot(input: sdk.IO.EventUnderstanding): sdk.IO.EventUnderstanding {
-  if (_.isNil(input.predictions)) {
+  if (!input.predictions) {
     return input
   }
 
@@ -62,9 +61,8 @@ export function extractElectedIntentSlot(input: sdk.IO.EventUnderstanding): sdk.
   }
 
   const electedIntent = electedContext.intents.find(i => i.label === elected.name)
-  if (_.isNil(electedIntent)) {
+  if (!electedIntent) {
     return { ...input, slots: {} }
   }
-
   return { ...input, slots: electedIntent.slots }
 }

@@ -1,5 +1,6 @@
 name: Close Issues
 on:
+  workflow_dispatch:
   release:
     types: [published]
 
@@ -8,6 +9,10 @@ jobs:
     name: Close issues mentioned in pull requests
     runs-on: ubuntu-latest
     steps:
+      # Needed to fetch the tags
+      - name: Checkout code
+        uses: actions/checkout@master
+
       - name: Close PR Issues
         uses: botpress/gh-actions/close_pull_request_issues@v2
         with:

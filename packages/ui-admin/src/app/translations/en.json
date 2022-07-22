@@ -26,6 +26,14 @@
     "createAccount": "Create Account",
     "createMasterAdminAccount": "This is the first time you run Botpress. Please create the master admin account.",
     "currentPassword": "Current password",
+    "passwordStrength": {
+      "hint": "It is highly recommended to set a strong password. Consider using all kinds of characters.",
+      "0": "Very weak",
+      "1": "Weak",
+      "2": "Ok",
+      "3": "Good",
+      "4": "Excellent"
+    },
     "debug": {
       "confUpdated": "Debug configuration updated successfully!",
       "configureDebug": "Configure Debug",
