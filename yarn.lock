@@ -3908,6 +3908,11 @@
   dependencies:
     "@types/node" "*"
 
+"@types/is-elevated@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@types/is-elevated/-/is-elevated-2.0.0.tgz#783a70e7226241a4e4f4918d3450f0e404f33c63"
+  integrity sha512-vhf0oGLj1/oGs8YnqSrmUJ+BGpNtiJlnNUj4P2ywiBRCkkWL/wrSF+ineCbonKtSVDmIjEIu6amLY1hYmD3mYQ==
+
 "@types/istanbul-lib-coverage@*", "@types/istanbul-lib-coverage@^2.0.0":
   version "2.0.1"
   resolved "https://registry.yarnpkg.com/@types/istanbul-lib-coverage/-/istanbul-lib-coverage-2.0.1.tgz#42995b446db9a48a11a07ec083499a860e9138ff"
@@ -12885,6 +12890,13 @@ is-accessor-descriptor@^1.0.0:
   dependencies:
     kind-of "^6.0.0"
 
+is-admin@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/is-admin/-/is-admin-3.0.0.tgz#5c6077fd235e056c3dbc0b6f1bbd23ff96e97135"
+  integrity sha512-wOa3CXFJAu8BZ2BDtG9xYOOrsq6oiSvc2jFPy4X/HINx5bmJUcW8e+apItVbU2E7GIfBVaFVO7Zit4oAWtTJcw==
+  dependencies:
+    execa "^1.0.0"
+
 is-any-array@^0.0.3:
   version "0.0.3"
   resolved "https://registry.yarnpkg.com/is-any-array/-/is-any-array-0.0.3.tgz#cbdd8c7189d47b53b050969245f4ef7e55550b9b"
@@ -13042,6 +13054,14 @@ is-dotfile@^1.0.0:
   version "1.0.3"
   resolved "https://registry.npmjs.org/is-dotfile/-/is-dotfile-1.0.3.tgz#a6a2f32ffd2dfb04f5ca25ecd0f6b83cf798a1e1"
   integrity sha1-pqLzL/0t+wT1yiXs0Pa4PPeYoeE=
+
+is-elevated@^3.0.0:
+  version "3.0.0"
+  resolved "https://registry.yarnpkg.com/is-elevated/-/is-elevated-3.0.0.tgz#f0de684f89b5144179ae1729ba8af590b8e0cecb"
+  integrity sha512-wjcp6RkouU9jpg55zERl+BglvV5j4jx5c/EMvQ+d12j/+nIEenNWPu+qc0tCg3JkLodbKZMg1qhJzEwG4qjclg==
+  dependencies:
+    is-admin "^3.0.0"
+    is-root "^2.1.0"
 
 is-equal-shallow@^0.1.3:
   version "0.1.3"
@@ -13288,7 +13308,7 @@ is-retry-allowed@^2.2.0:
   resolved "https://registry.npmjs.org/is-retry-allowed/-/is-retry-allowed-2.2.0.tgz#88f34cbd236e043e71b6932d09b0c65fb7b4d71d"
   integrity sha512-XVm7LOeLpTW4jV19QSH38vkswxoLud8sQ57YwJVTPWdiaI9I8keEhGFpBlslyVsgdQy4Opg8QOLb8YRgsyZiQg==
 
-is-root@2.1.0:
+is-root@2.1.0, is-root@^2.1.0:
   version "2.1.0"
   resolved "https://registry.npmjs.org/is-root/-/is-root-2.1.0.tgz#809e18129cf1129644302a4f8544035d51984a9c"
   integrity sha512-AGOriNp96vNBd3HtU+RzFEc75FfR5ymiYv8E553I71SCeXBiMsVDUtdio1OEFvrPyLIQ9tVR5RxXIFe5PUFjMg==

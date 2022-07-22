@@ -54,6 +54,7 @@
     "https-proxy-agent": "^2.2.3",
     "intl-messageformat": "^2.2.0",
     "inversify": "^4.13.0",
+    "is-elevated": "^3.0.0",
     "json-schema-defaults": "^0.4.0",
     "jsonlint-mod": "^1.7.6",
     "jsonwebtoken": "^8.5.1",
@@ -109,6 +110,7 @@
     "joi": "^13.6.0"
   },
   "devDependencies": {
+    "@types/is-elevated": "^2.0.0",
     "@types/mustache": "^4.1.2"
   },
   "optionalDependencies": {
