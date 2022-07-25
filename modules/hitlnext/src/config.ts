@@ -62,7 +62,7 @@ export interface Config {
     [Key: string]: string
   }
 
-  eventsWebHook: Webhook
+  eventsWebHook?: Webhook
 }
 
 export interface IShortcut {
