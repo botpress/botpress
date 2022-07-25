@@ -1,6 +1,7 @@
 import { Button, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
 import { lang } from 'botpress/shared'
 import React, { FC, useState } from 'react'
+import { PasswordStrengthMeter } from './PasswordStrengthMeter/PasswordStrengthMeter'
 
 interface Props {
   onRegister: (email, password, confirmPassword) => void
@@ -50,6 +51,7 @@ export const RegisterForm: FC<Props> = props => {
           onChange={e => setConfirmPassword(e.target.value)}
         />
       </FormGroup>
+      <PasswordStrengthMeter pwdCandidate={password} />
 
       <Button
         tabIndex={4}

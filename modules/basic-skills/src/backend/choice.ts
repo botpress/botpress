@@ -57,6 +57,7 @@ const generateFlow = async (
 ): Promise<sdk.FlowGenerationResult> => {
   const { variableName } = data.config
   const randomId = variableName && variableName.length ? variableName : data.randomId
+  const keySuffix = randomId ? `-${randomId}` : ''
 
   const hardRetryLimit = 10
   const nbMaxRetries = Math.min(Number(data.config.nbMaxRetries), hardRetryLimit)
@@ -87,6 +88,10 @@ const generateFlow = async (
     {
       name: 'entry',
       onEnter: [
+        {
+          type: sdk.NodeActionType.RunAction,
+          name: `builtin/setVariable {"type":"temp","name":"skill-choice-invalid-count${keySuffix}","value": 0 }`
+        },
         {
           type: sdk.NodeActionType.RenderElement,
           name: `#!${data.contentId}`,

@@ -370,6 +370,15 @@ export class WorkspaceService {
     return !!pipeline && pipeline.length > 1
   }
 
+  async isBotInWorkspace(workspaceId: string, botId: string): Promise<boolean> {
+    try {
+      const workspace = await this.findWorkspace(workspaceId)
+      return workspace.bots.includes(botId)
+    } catch (err) {
+      return false
+    }
+  }
+
   // @deprecated
   async listUsers(workspaceId?: string): Promise<WorkspaceUser[]> {
     if (workspaceId) {
