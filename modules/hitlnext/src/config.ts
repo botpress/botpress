@@ -62,6 +62,10 @@ export interface Config {
     [Key: string]: string
   }
 
+  /**
+   * @param eventsWebHook
+   * @default {}
+   */
   eventsWebHook?: Webhook
 }
 
@@ -86,6 +90,14 @@ export interface IAutoComplete {
 }
 
 export interface Webhook {
-  url: string
-  headers: { [name: string]: string }
+  /**
+   * @param url
+   * @example "https://myapplicationserver.com/webhook-handler"
+   */
+  url?: string
+  /**
+   * @param headers
+   * @example { "authorization": "Baerer ..." }
+   */
+  headers?: { [name: string]: string }
 }
