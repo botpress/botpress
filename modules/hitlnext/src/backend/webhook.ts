@@ -15,7 +15,7 @@ class WebHookService {
 
   private async setup() {
     this.config = (await this.bp.config.getModuleConfig(MODULE_NAME)).eventsWebHook
-    this.disabled = !this.config
+    this.disabled = !this.config?.url
   }
 
   public async send(data: { botId: string; type: string; resource: string; id: string; payload: any }) {
