@@ -1,3 +1,25 @@
+# [12.29.0](https://github.com/botpress/botpress/compare/v12.28.1...v12.29.0) (2022-07-26)
+
+
+### Bug Fixes
+
+* **admin:** log the user out when account is locked out on pass change ([#11997](https://github.com/botpress/botpress/issues/11997)) ([5ba4d32](https://github.com/botpress/botpress/commit/5ba4d3260f3f4e547cf04f9e654a4e6931912744))
+* **basic-skills:** reused choice will not start with fresh variables ([#11949](https://github.com/botpress/botpress/issues/11949)) ([93b3fc0](https://github.com/botpress/botpress/commit/93b3fc09355906ea55e9c48dff669f1022719132))
+* **code-editor:** remove current value from env var typings ([#11990](https://github.com/botpress/botpress/issues/11990)) ([e4c0fdd](https://github.com/botpress/botpress/commit/e4c0fdd908d1857f8e2de26072130d902278b4cc))
+* **hitl-next:** prevent triggering webhook without a url ([#12033](https://github.com/botpress/botpress/issues/12033)) ([7aa347f](https://github.com/botpress/botpress/commit/7aa347f095d06e9aeb986b85fac2e9933e4bc43f))
+* **security:** validate bot access ([#11978](https://github.com/botpress/botpress/issues/11978)) ([4277f5c](https://github.com/botpress/botpress/commit/4277f5c79acc621cd24e0c83371a2ac0afd473b3))
+* **webchat:** add aria labels to header buttons for screen readers ([8c6ebb8](https://github.com/botpress/botpress/commit/8c6ebb8b65ad70417b68e66645b2b570d21774be))
+
+
+### Features
+
+* **docker:** configure botpress user for the docker image ([#11937](https://github.com/botpress/botpress/issues/11937)) ([b5b6492](https://github.com/botpress/botpress/commit/b5b649244e7109978aafb0f0ce2c8d60212dcbb7))
+* **google-speech:** support SSML ([#12031](https://github.com/botpress/botpress/issues/12031)) ([b53ddce](https://github.com/botpress/botpress/commit/b53ddce30e059cad73c8d2ba99c454236f5eb576))
+* **hitl-next:** create endpoint to reject handoffs ([#12002](https://github.com/botpress/botpress/issues/12002)) ([1f01d7f](https://github.com/botpress/botpress/commit/1f01d7f86502907391fe2db7405b71eebcaec7ec))
+* **hitl-next:** create webhook for hitlnext events ([#11976](https://github.com/botpress/botpress/issues/11976)) ([9ac31fb](https://github.com/botpress/botpress/commit/9ac31fbfcf81104b5b719d648b6f9c2d1ce37895))
+
+
+
 ## [12.28.1](https://github.com/botpress/botpress/compare/v12.28.0...v12.28.1) (2022-07-12)
 
 
