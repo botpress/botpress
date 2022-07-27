@@ -25,7 +25,7 @@ class UserRouter extends CustomAdminRouter {
         if (!user) {
           throw new NotFoundError(`User ${email || ''} not found`)
         }
-        const { firstname, lastname, picture_url, personal_access_token } = user.attributes
+        const { firstname, lastname, picture_url } = user.attributes
         const { type } = await this.authService.getStrategy(strategy)
 
         const permissions = await this.getUserPermissions(req.tokenUser!, req.workspace!)
@@ -35,7 +35,6 @@ class UserRouter extends CustomAdminRouter {
           lastname,
           email,
           picture_url,
-          personal_access_token,
           strategyType: type,
           strategy,
           isSuperAdmin,
@@ -68,10 +67,6 @@ class UserRouter extends CustomAdminRouter {
               .allow(''),
             picture_url: Joi.string()
               .uri({ allowRelative: true })
-              .allow(''),
-            personal_access_token: Joi.string()
-              .min(0)
-              .trim()
               .allow('')
           })
         )
@@ -79,8 +74,7 @@ class UserRouter extends CustomAdminRouter {
         await this.authService.updateAttributes(email, strategy, {
           firstname: req.body.firstname,
           lastname: req.body.lastname,
-          picture_url: req.body.picture_url,
-          personal_access_token: req.body.personal_access_token
+          picture_url: req.body.picture_url
         })
 
         return sendSuccess(res, 'Updated profile successfully')
