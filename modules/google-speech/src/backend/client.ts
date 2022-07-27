@@ -205,8 +205,10 @@ export class GoogleSpeechClient {
   ): Promise<Uint8Array | string | undefined> {
     debugTextToSpeech(`Received text to convert into audio: ${text}`)
 
+    const hasSSML = !!text.match(/<speak>.*<\/speak>/g).length
+
     const request: ISynthesizeSpeechRequest = {
-      input: { text },
+      input: hasSSML ? { ssml: text } : { text },
       voice: { languageCode: this.languageCode(language), ssmlGender: this.config.voiceSelection },
       audioConfig: { audioEncoding: 'MP3' } // Always return .mp3 files since it's one of the most recognized audio file type
     }

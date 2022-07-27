@@ -27,17 +27,19 @@ const HandoffList: FC<Props> = ({ tags, handoffs, loading }) => {
     assignedOther: false,
     expired: false,
     resolved: false,
+    rejected: false,
     tags: []
   })
   const [sortOption, setSortOption] = useState<SortType>('mostRecent')
 
   function filterBy(item: IHandoff): boolean {
     const conditions = {
-      unassigned: item.agentId == null && item.status !== 'expired',
+      unassigned: item.agentId == null && !['expired', 'rejected', 'resolved'].includes(item.status),
       assignedMe: item.status === 'assigned' && item.agentId === state.currentAgent?.agentId,
       assignedOther: item.status === 'assigned' && item.agentId !== state.currentAgent?.agentId,
       expired: item.status === 'expired',
-      resolved: item.status === 'resolved'
+      resolved: item.status === 'resolved',
+      rejected: item.status === 'rejected'
     }
 
     if (filterOptions.tags.length) {

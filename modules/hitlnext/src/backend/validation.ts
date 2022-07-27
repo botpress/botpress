@@ -34,7 +34,7 @@ export const AssignHandoffSchema = Joi.object({
 export const ResolveHandoffSchema = Joi.object({
   status: Joi.string()
     .required()
-    .valid('resolved'),
+    .valid('resolved', 'rejected'),
   resolvedAt: Joi.date().required()
 })
 
@@ -47,7 +47,13 @@ export const AgentOnlineValidation = Joi.object({
 export const validateHandoffStatusRule = (original: string, value: string) => {
   let message: string
 
-  if (original === 'pending' && value !== 'assigned') {
+  if (['pending', 'assigned'].includes(original) && value === 'rejected') {
+    return
+  }
+
+  if (original === 'expired') {
+    message = `Status "${original}" can't transition to "${value}"`
+  } else if (original === 'pending' && value !== 'assigned') {
     message = `Status "${original}" can only transition to "assigned"`
   } else if (original === 'assigned' && value !== 'resolved') {
     message = `Status "${original}" can only transition to "resolved"`

@@ -63,6 +63,7 @@ jobs:
           yarn run build --linux --prod --verbose
           yarn run package --linux
           cp build/docker/Dockerfile packages/bp/binaries/
+          cp build/docker/docker-entrypoint.sh packages/bp/binaries/
       - name: DockerHub Authentication
         uses: docker/login-action@v1
         if: ${{ steps.prep.outputs.release }}

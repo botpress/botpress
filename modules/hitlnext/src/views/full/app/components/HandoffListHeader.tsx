@@ -10,6 +10,7 @@ export interface FilterType {
   assignedMe: boolean
   assignedOther: boolean
   resolved: boolean
+  rejected: boolean
   expired: boolean
   tags: string[]
 }
@@ -67,6 +68,15 @@ const HandoffListHeader: FC<Props> = ({
           checked={filterOptions.resolved}
           label={lang.tr('module.hitlnext.filter.resolved')}
           onChange={() => setFilterOptions({ ...filterOptions, resolved: !filterOptions.resolved })}
+        />
+      )
+    },
+    {
+      content: (
+        <Checkbox
+          checked={filterOptions.rejected}
+          label={lang.tr('module.hitlnext.filter.rejected')}
+          onChange={() => setFilterOptions({ ...filterOptions, rejected: !filterOptions.rejected })}
         />
       )
     },
