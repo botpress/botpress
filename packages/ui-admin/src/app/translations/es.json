@@ -267,7 +267,6 @@
           "newBot": "Crea un nuevo bot",
           "template": "Plantilla de bot",
           "cloud": "Botpress Cloud",
-          "cloudCheckbox": "Activar Botpress Cloud",
           "cloudHelper": "Los Botpress Cloud chatbots son diferentes de los chatbots tradicionales. Aprende más aquí: https://www.botpress.com/docs/overview/cloud/try-the-beta",
           "cloudConfiguration": "Configuración Botpress cloud",
           "cloudConfigurationHelper": "Puedes obtener tu API Key y secreto iniciando sesión en Botpress Cloud",
