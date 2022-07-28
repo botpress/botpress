@@ -1,3 +1,65 @@
+# [12.29.0](https://github.com/botpress/botpress/compare/v12.28.1...v12.29.0) (2022-07-26)
+
+
+### Bug Fixes
+
+* **admin:** log the user out when account is locked out on pass change ([#11997](https://github.com/botpress/botpress/issues/11997)) ([5ba4d32](https://github.com/botpress/botpress/commit/5ba4d3260f3f4e547cf04f9e654a4e6931912744))
+* **basic-skills:** reused choice will not start with fresh variables ([#11949](https://github.com/botpress/botpress/issues/11949)) ([93b3fc0](https://github.com/botpress/botpress/commit/93b3fc09355906ea55e9c48dff669f1022719132))
+* **code-editor:** remove current value from env var typings ([#11990](https://github.com/botpress/botpress/issues/11990)) ([e4c0fdd](https://github.com/botpress/botpress/commit/e4c0fdd908d1857f8e2de26072130d902278b4cc))
+* **hitl-next:** prevent triggering webhook without a url ([#12033](https://github.com/botpress/botpress/issues/12033)) ([7aa347f](https://github.com/botpress/botpress/commit/7aa347f095d06e9aeb986b85fac2e9933e4bc43f))
+* **security:** validate bot access ([#11978](https://github.com/botpress/botpress/issues/11978)) ([4277f5c](https://github.com/botpress/botpress/commit/4277f5c79acc621cd24e0c83371a2ac0afd473b3))
+* **webchat:** add aria labels to header buttons for screen readers ([8c6ebb8](https://github.com/botpress/botpress/commit/8c6ebb8b65ad70417b68e66645b2b570d21774be))
+
+
+### Features
+
+* **docker:** configure botpress user for the docker image ([#11937](https://github.com/botpress/botpress/issues/11937)) ([b5b6492](https://github.com/botpress/botpress/commit/b5b649244e7109978aafb0f0ce2c8d60212dcbb7))
+* **google-speech:** support SSML ([#12031](https://github.com/botpress/botpress/issues/12031)) ([b53ddce](https://github.com/botpress/botpress/commit/b53ddce30e059cad73c8d2ba99c454236f5eb576))
+* **hitl-next:** create endpoint to reject handoffs ([#12002](https://github.com/botpress/botpress/issues/12002)) ([1f01d7f](https://github.com/botpress/botpress/commit/1f01d7f86502907391fe2db7405b71eebcaec7ec))
+* **hitl-next:** create webhook for hitlnext events ([#11976](https://github.com/botpress/botpress/issues/11976)) ([9ac31fb](https://github.com/botpress/botpress/commit/9ac31fbfcf81104b5b719d648b6f9c2d1ce37895))
+
+
+
+## [12.28.1](https://github.com/botpress/botpress/compare/v12.28.0...v12.28.1) (2022-07-12)
+
+
+### Bug Fixes
+
+* **auth:** auth strategies ignore subpath ([#11917](https://github.com/botpress/botpress/issues/11917)) ([ce0f4c9](https://github.com/botpress/botpress/commit/ce0f4c9f4d0ae353b9410e1c907286e7b1e286ac)), closes [#11848](https://github.com/botpress/botpress/issues/11848)
+* **channel-web:** escape html chars from messages ([#11948](https://github.com/botpress/botpress/issues/11948)) ([4584679](https://github.com/botpress/botpress/commit/4584679d42550395375015a0a666babf5a3c2494))
+* **channel-web:** glitch animations opening/closing chat ([#11925](https://github.com/botpress/botpress/issues/11925)) ([1d64af7](https://github.com/botpress/botpress/commit/1d64af7accfea70a44d215de9e6f5775d186c315)), closes [#11819](https://github.com/botpress/botpress/issues/11819)
+* **core:** make sure 1 node times out sessions ([#11968](https://github.com/botpress/botpress/issues/11968)) ([a095f6d](https://github.com/botpress/botpress/commit/a095f6de0ff253fb8ade4b0e05599d0afc2ad315))
+* **core:** use same cors config as server for socket.io ([#11971](https://github.com/botpress/botpress/issues/11971)) ([3251e22](https://github.com/botpress/botpress/commit/3251e22bad92e5e29a35e47f18ebb25cae276099))
+* **debugger:** escape html chars from logs ([#11934](https://github.com/botpress/botpress/issues/11934)) ([62a4df7](https://github.com/botpress/botpress/commit/62a4df7268d10f1e4cd6492d295301c492565df3))
+* **hitlnext:** do not to create a handoff when event comes from converse ([#11922](https://github.com/botpress/botpress/issues/11922)) ([4085a2a](https://github.com/botpress/botpress/commit/4085a2ae404c5be06e25b20e141ac6c7b4a74d06))
+* **hitlnext:** fix error when creating handoff from converse ([#11921](https://github.com/botpress/botpress/issues/11921)) ([6ac9f47](https://github.com/botpress/botpress/commit/6ac9f4726cf78e1bae93c15f35b3a7255a701e55))
+
+
+### Features
+
+* **core:** adopt zxcvbn score as pwd policy ([#11939](https://github.com/botpress/botpress/issues/11939)) ([adf67e2](https://github.com/botpress/botpress/commit/adf67e272993ac192997397f44bf1f731b51163b))
+* **ui-admin:** password strength indicator ([#11957](https://github.com/botpress/botpress/issues/11957)) ([985cc81](https://github.com/botpress/botpress/commit/985cc8194651851f39259a8fac0276dc576596fe))
+
+
+
+# [12.28.0](https://github.com/botpress/botpress/compare/v12.27.0...v12.28.0) (2022-06-16)
+
+
+### Bug Fixes
+
+* **admin:** add id to NPS, support white labeling ([#11770](https://github.com/botpress/botpress/issues/11770)) ([30815fe](https://github.com/botpress/botpress/commit/30815fefad6a378990f5a73b902216c43f2d2495))
+* **builtin:** fix action for storing files locally ([#11798](https://github.com/botpress/botpress/issues/11798)) ([a07ff53](https://github.com/botpress/botpress/commit/a07ff5304e9e5ab94696a9d9de025708863cc65f))
+* **core:** fix export with dotted folder ([#11780](https://github.com/botpress/botpress/issues/11780)) ([8e8f45a](https://github.com/botpress/botpress/commit/8e8f45ad0ac8d2d35e9ecb16fe30f619b8771596))
+* **nlu:** trainset hash is computed from sorted datastructure ([#11878](https://github.com/botpress/botpress/issues/11878)) ([c8a4566](https://github.com/botpress/botpress/commit/c8a4566d52a236fca40cc991d931f7329c69955f))
+* **redis:** improved error handling when redis is down ([#11885](https://github.com/botpress/botpress/issues/11885)) ([a83d345](https://github.com/botpress/botpress/commit/a83d3452b84effc93dfd3e7d4c599a8b9d4e6127)), closes [#11738](https://github.com/botpress/botpress/issues/11738)
+
+
+### Features
+
+* **hitlnext:** add skill, fix lang & expired handoff ([#11775](https://github.com/botpress/botpress/issues/11775)) ([a67bf73](https://github.com/botpress/botpress/commit/a67bf73abda1f364ef6b75618649904bf98eb7dd))
+
+
+
 # [12.27.0](https://github.com/botpress/botpress/compare/v12.26.12...v12.27.0) (2022-04-26)
 
 

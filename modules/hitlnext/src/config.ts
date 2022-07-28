@@ -61,6 +61,12 @@ export interface Config {
   assignMessage: {
     [Key: string]: string
   }
+
+  /**
+   * @param eventsWebHook
+   * @default {}
+   */
+  eventsWebHook?: Webhook
 }
 
 export interface IShortcut {
@@ -81,4 +87,17 @@ export interface IAutoComplete {
    * @example [{ "name": "hello", "value": "Hello friend!" }]
    */
   shortcuts: IShortcut[]
+}
+
+export interface Webhook {
+  /**
+   * @param url
+   * @example "https://myapplicationserver.com/webhook-handler"
+   */
+  url?: string
+  /**
+   * @param headers
+   * @example { "authorization": "Baerer ..." }
+   */
+  headers?: { [name: string]: string }
 }

@@ -12,6 +12,7 @@ import { charsets, PasswordPolicy } from 'password-sheriff'
 import { InvalidCredentialsError, LockedOutError, PasswordExpiredError, WeakPasswordError } from './auth-errors'
 import { AuthService, SERVER_USER } from './auth-service'
 import { saltHashPassword, validateHash } from './utils'
+import { ZXCVBNPolicy, ZXCVBNPolicyOptions } from './zxcvbn-password-policy'
 
 const debug = DEBUG('audit:users:basic')
 
@@ -171,14 +172,8 @@ export class StrategyBasic {
       debug('login failed; user does not exist %o', { email, ipAddress })
       throw new InvalidCredentialsError()
     }
-    const strategyOptions = _.get(await this.authService.getStrategy(strategy), 'options') as AuthStrategyBasic
-    if (!validateHash(password || '', user.password!, user.salt!)) {
-      debug('login failed; wrong password %o', { email, ipAddress })
-      // this.stats.track('auth', 'login', 'fail')
 
-      await this._incrementWrongPassword(user, strategyOptions)
-      throw new InvalidCredentialsError()
-    }
+    const strategyOptions = _.get(await this.authService.getStrategy(strategy), 'options') as AuthStrategyBasic
     const { locked_out, last_login_attempt, password_expiry_date, password_expired } = user.attributes
 
     if (locked_out) {
@@ -189,6 +184,14 @@ export class StrategyBasic {
         debug('login failed; user locked out %o', { email, ipAddress })
         throw new LockedOutError()
       }
+    }
+
+    if (!validateHash(password || '', user.password!, user.salt!)) {
+      debug('login failed; wrong password %o', { email, ipAddress })
+      // this.stats.track('auth', 'login', 'fail')
+
+      await this._incrementWrongPassword(user, strategyOptions)
+      throw new InvalidCredentialsError()
     }
 
     const isDateExpired = password_expiry_date && moment().isAfter(password_expiry_date)
@@ -221,15 +224,21 @@ export class StrategyBasic {
     }
 
     if (options.requireComplexPassword) {
-      rules.containsAtLeast = {
-        atLeast: 3,
+      rules.contains = {
         expressions: [charsets.lowerCase, charsets.upperCase, charsets.numbers, charsets.specialCharacters]
       }
     }
 
     try {
-      const policyChecker = new PasswordPolicy(rules)
-      policyChecker.assert(password)
+      const basicChecker = new PasswordPolicy(rules)
+      basicChecker.assert(password)
+      if (options.requireComplexPassword) {
+        const smartChecker = new PasswordPolicy(
+          { zxcvbn: <ZXCVBNPolicyOptions>{ minScore: 2, failWhenCommonWordIsDominant: true } },
+          { zxcvbn: new ZXCVBNPolicy() }
+        )
+        smartChecker.assert(password)
+      }
     } catch (err) {
       throw new WeakPasswordError()
     }

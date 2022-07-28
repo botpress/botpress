@@ -194,7 +194,7 @@ class ImportBotModal extends Component<Props, State> {
                 tabIndex={2}
                 text={this.state.filePath || lang.tr('chooseFile')}
                 onChange={event => this.handleFileChanged((event.target as HTMLInputElement).files)}
-                inputProps={{ accept: '.zip,.tgz' }}
+                inputProps={{ accept: '.zip,.tgz,.bot' }}
               />
             </FormGroup>
             {this.state.isIdTaken && (

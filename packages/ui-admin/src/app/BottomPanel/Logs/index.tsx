@@ -117,13 +117,17 @@ class BottomPanel extends React.Component<Props, State> {
   }
 
   renderEntry(log: LogEntry): JSX.Element {
+    const escapeHtmlChars = (str: string) => {
+      return str.replace(/>/g, '&gt;').replace(/</g, '&lt;')
+    }
+
     const time = moment(new Date(log.ts)).format('YYYY-MM-DD HH:mm:ss')
     return (
       <li className={cn(logStyle.entry, logStyle[`level-${log.level}`])} key={`log-entry-${log.id}`}>
         <span className={logStyle.time}>{time}</span>
         <span className={logStyle.level}>{log.level}</span>
-        <span className={logStyle.message} dangerouslySetInnerHTML={{ __html: log.message }} />
-        <span className={logStyle.message} dangerouslySetInnerHTML={{ __html: log.args || '' }} />
+        <span className={logStyle.message} dangerouslySetInnerHTML={{ __html: escapeHtmlChars(log.message) }} />
+        <span className={logStyle.message} dangerouslySetInnerHTML={{ __html: escapeHtmlChars(log.args || '') }} />
       </li>
     )
   }

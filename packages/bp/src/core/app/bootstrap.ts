@@ -9,6 +9,7 @@ import { ModuleConfigEntry } from 'core/config'
 import { LoggerProvider } from 'core/logger'
 import { ModuleLoader, ModuleResolver } from 'core/modules'
 import fs from 'fs'
+import isElevated from 'is-elevated'
 import { AppLifecycle, AppLifecycleEvents } from 'lifecycle'
 import _ from 'lodash'
 import { setupMasterNode, setupWebWorker, WorkerType } from 'orchestrator'
@@ -112,8 +113,16 @@ async function start() {
   const loggerProvider = createLoggerProvider()
   if (cluster.isMaster) {
     await setupDebugLogger(loggerProvider)
+    const logger = await getLogger(loggerProvider, 'Cluster')
+
+    if (await isElevated()) {
+      logger.warn(
+        'You are running Botpress as a privileged user. This is not recommended. Please consider running it as an unprivileged user.'
+      )
+    }
+
     // The master process only needs getos and rewire
-    return setupMasterNode(await getLogger(loggerProvider, 'Cluster'))
+    return setupMasterNode(logger)
   }
 
   await setupDebugLogger(loggerProvider)

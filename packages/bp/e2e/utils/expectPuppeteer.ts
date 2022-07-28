@@ -20,7 +20,7 @@ interface ExpectMatchElementOptions {
   visible?: boolean
 }
 
-interface ExpectClickOptions {
+export interface ExpectClickOptions {
   button?: 'left' | 'middle' | 'right'
   clickCount?: number
   delay?: number

@@ -17,10 +17,6 @@ jobs:
       - name: Fetch Node Packages
         run: |
           yarn --frozen-lockfile
-      - name: Fetch Node Packages for module NLU
-        working-directory: ./modules/nlu
-        run: |
-          yarn --frozen-lockfile
       - name: Run tests
         run: |
           yarn test:unit
@@ -61,10 +57,6 @@ jobs:
           node-version-file: '.nvmrc'
           cache: 'yarn'
       - name: Fetch Node Packages
-        run: |
-          yarn --frozen-lockfile
-      - name: Fetch Node Packages for module NLU
-        working-directory: ./modules/nlu
         run: |
           yarn --frozen-lockfile
       - name: Run tests

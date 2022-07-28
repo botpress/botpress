@@ -10,6 +10,7 @@
     "assignedMe": "Assigned to Me",
     "assignedOther": "Assigned to Others",
     "resolved": "Resolved",
+    "rejected": "Rejected",
     "expired": "Expired"
   },
   "sortBy": "Sort By",
@@ -32,6 +33,7 @@
       "pending": "pending",
       "assigned": "assigned",
       "resolved": "resolved",
+      "rejected": "rejected",
       "expired": "expired"
     },
     "assignedToAgent": "You've been assigned to an agent",
@@ -40,6 +42,7 @@
     "resolve": "Resolve",
     "assigned": "Handoff {id} successfully assigned",
     "resolved": "Handoff {id} successfully resolved",
+    "rejected": "Handoff {id} successfully rejected",
     "you": "You",
     "from": "From {channel}"
   },
