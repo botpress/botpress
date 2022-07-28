@@ -61,7 +61,7 @@ const UserDropdownMenu: FC<Props> = props => {
         <Button id="btn-menu-user-dropdown" icon={icon} minimal rightIcon={<Icon icon="caret-down" />} />
         <Menu>
           <MenuDivider title={lang.tr('admin.signedInAs', { name: fullName || email })} />
-          <MenuItem id="btn-profile" icon="cog" text={lang.tr('admin.settings')} onClick={toggleProfile} />
+          <MenuItem id="btn-profile" icon="user" text={lang.tr('admin.updateProfile')} onClick={toggleProfile} />
 
           {canChangePassword && (
             <MenuItem id="btn-changepass" icon="key" text={lang.tr('admin.changePassword')} onClick={togglePassword} />

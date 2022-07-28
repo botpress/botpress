@@ -244,9 +244,8 @@
     "successfullyAuthenticated": "Successfully authenticated. You can close this window.",
     "uiLanguage": "Language of the user interface",
     "uiLanguageHelper": "This settings only affects the user interface of Botpress and does not change the language of your bots.",
-    "settings": "Settings",
+    "updateProfile": "Update Profile",
     "updateYourProfile": "Update your profile",
-    "personalAccessToken": "Personal Access Token",
     "versioning": {
       "archiveReady": "Archive ready",
       "changesPushed": "Changes pushed successfully!",
