@@ -1,3 +1,7 @@
+## [12.29.1](https://github.com/botpress/botpress/compare/v12.29.0...v12.29.1) (2022-07-28)
+
+
+
 # [12.29.0](https://github.com/botpress/botpress/compare/v12.28.1...v12.29.0) (2022-07-26)
 
 
