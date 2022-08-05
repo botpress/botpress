@@ -31,4 +31,4 @@ const tr = (key: string, values?: { [variable: string]: any }) => {
   return lang.tr(key, values, locale || defaultLocale)
 }
 
-export default { tr, init, getUserLocale }
+export default { tr, init }
