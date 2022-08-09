@@ -1,8 +1,8 @@
 import lang from 'common/lang'
 
 import en from '../translations/en.json'
-import fr from '../translations/fr.json'
 import es from '../translations/es.json'
+import fr from '../translations/fr.json'
 
 const defaultLocale = 'en'
 const translations = { fr, en, es }
