@@ -16,7 +16,7 @@ import UserName from './UserName'
 
 const HandoffItem: FC<IHandoff> = ({ createdAt, id, status, agentId, userConversation, userChannel, user }) => {
   const { state, dispatch } = useContext(Context)
-
+  moment.locale(lang.getLocale())
   const [readStatus, setReadStatus] = useState(false)
   const [fromNow, setFromNow] = useState(moment(createdAt).fromNow())
 
