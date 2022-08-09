@@ -205,7 +205,7 @@ export class GoogleSpeechClient {
   ): Promise<Uint8Array | string | undefined> {
     debugTextToSpeech(`Received text to convert into audio: ${text}`)
 
-    const hasSSML = !!text.match(/<speak>.*<\/speak>/g).length
+    const hasSSML = !!text.match(/<speak>.*<\/speak>/g)?.length
 
     const request: ISynthesizeSpeechRequest = {
       input: hasSSML ? { ssml: text } : { text },
