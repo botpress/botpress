@@ -3,8 +3,8 @@ import { Dictionary } from 'lodash'
 
 import { MODULE_NAME } from '../constants'
 import en from '../translations/en.json'
-import fr from '../translations/fr.json'
 import es from '../translations/es.json'
+import fr from '../translations/fr.json'
 
 import api from './api'
 import flowBuilder from './flowBuilder'
