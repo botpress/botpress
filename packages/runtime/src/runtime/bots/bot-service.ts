@@ -134,7 +134,7 @@ export class BotService {
   async importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void> {
     const startTime = Date.now()
     if (!isValidBotId(botId)) {
-      throw new Error('Can\'t import bot; the bot ID contains invalid characters')
+      throw new Error("Can't import bot; the bot ID contains invalid characters")
     }
 
     if (await this.botExists(botId)) {
@@ -223,7 +223,7 @@ export class BotService {
     if (configFile.length > 1) {
       throw new Error('Bots must be imported in separate archives')
     } else if (configFile.length !== 1) {
-      throw new Error('The archive doesn\'t seem to contain a bot')
+      throw new Error("The archive doesn't seem to contain a bot")
     }
 
     return path.join(directory, path.dirname(configFile[0]))
