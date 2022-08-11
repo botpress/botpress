@@ -20,6 +20,7 @@ import { JobService, makeRedisKey } from '../distributed'
 import { MessagingService } from '../messaging'
 import { NLUInferenceService } from '../nlu'
 import { Hooks, HookService } from '../user-code'
+import { findDeletedFiles } from './utils'
 
 const BOT_CONFIG_FILENAME = 'bot.config.json'
 const BOT_ID_PLACEHOLDER = '/bots/BOT_ID_PLACEHOLDER/'
@@ -133,7 +134,7 @@ export class BotService {
   async importBot(botId: string, archive: Buffer, allowOverwrite?: boolean): Promise<void> {
     const startTime = Date.now()
     if (!isValidBotId(botId)) {
-      throw new Error("Can't import bot; the bot ID contains invalid characters")
+      throw new Error('Can\'t import bot; the bot ID contains invalid characters')
     }
 
     if (await this.botExists(botId)) {
@@ -166,17 +167,28 @@ export class BotService {
         })
 
         const folder = await this._validateBotArchive(tmpDir.name)
-        await this.ghostService.forBot(botId).importFromDirectory(folder)
-        const originalConfig = await this.configProvider.getBotConfig(botId)
 
-        const newConfigs = <Partial<BotConfig>>{
-          id: botId,
-          name: botId === originalConfig.name ? originalConfig.name : `${originalConfig.name} (${botId})`
+        // Check for deleted file upon overwriting
+        if (allowOverwrite) {
+          const files = await this.ghostService.forBot(botId).directoryListing('/')
+          const deletedFiles = await findDeletedFiles(files, folder)
+
+          for (const file of deletedFiles) {
+            await this.ghostService.forBot(botId).deleteFile('/', file)
+          }
         }
+
         if (await this.botExists(botId)) {
           await this.unmountBot(botId)
         }
 
+        await this.ghostService.forBot(botId).importFromDirectory(folder)
+
+        const originalConfig = await this.configProvider.getBotConfig(botId)
+        const newConfigs = <Partial<BotConfig>>{
+          id: botId,
+          name: botId === originalConfig.name ? originalConfig.name : `${originalConfig.name} (${botId})`
+        }
         await this.configProvider.mergeBotConfig(botId, newConfigs, true)
 
         // TODO-Runtime: Remove workspace service usage
@@ -211,7 +223,7 @@ export class BotService {
     if (configFile.length > 1) {
       throw new Error('Bots must be imported in separate archives')
     } else if (configFile.length !== 1) {
-      throw new Error("The archive doesn't seem to contain a bot")
+      throw new Error('The archive doesn\'t seem to contain a bot')
     }
 
     return path.join(directory, path.dirname(configFile[0]))
