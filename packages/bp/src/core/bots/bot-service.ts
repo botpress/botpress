@@ -131,21 +131,6 @@ export class BotService {
     }
   }
 
-  async findBotFromCloudConfigs(cloudConfig: CloudConfig): Promise<BotConfig | undefined> {
-    const allBots = Array.from((await this.getBots()).values())
-
-    for (const botConfig of allBots.values()) {
-      const configMatches =
-        botConfig.isCloudBot &&
-        (botConfig.cloud?.clientId === cloudConfig.clientId ||
-          botConfig.cloud?.clientSecret === cloudConfig.clientSecret)
-
-      if (configMatches) {
-        return botConfig
-      }
-    }
-  }
-
   async findBotById(botId: string): Promise<BotConfig | undefined> {
     if (!(await this.ghostService.forBot(botId).fileExists('/', 'bot.config.json'))) {
       this.logger.forBot(botId).warn(`Bot "${botId}" not found. Make sure it exists on your filesystem or database.`)

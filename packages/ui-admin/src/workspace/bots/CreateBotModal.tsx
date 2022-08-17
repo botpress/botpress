@@ -1,4 +1,4 @@
-import { Button, Classes, Dialog, FormGroup, InputGroup, Intent, Callout, Checkbox } from '@blueprintjs/core'
+import { Button, Classes, Dialog, FormGroup, InputGroup, Intent, Callout } from '@blueprintjs/core'
 import { BotConfig, BotTemplate } from 'botpress/sdk'
 import { lang } from 'botpress/shared'
 import _ from 'lodash'
@@ -12,7 +12,6 @@ import api from '~/app/api'
 import { AppState } from '~/app/rootReducer'
 import { fetchServerConfig } from '~/management/checklist/reducer'
 import { fetchBotCategories, fetchBotTemplates } from './reducer'
-import style from './style.scss'
 
 export const sanitizeBotId = (text: string) =>
   text
@@ -47,10 +46,6 @@ interface State {
 
   selectedTemplate?: BotTemplate
   selectedCategory?: SelectOption<string>
-
-  isCloudBot: boolean
-  cloudClientId: string
-  cloudClientSecret: string
 }
 
 const defaultState: Omit<State, 'templates' | 'categories'> = {
@@ -60,10 +55,7 @@ const defaultState: Omit<State, 'templates' | 'categories'> = {
   selectedTemplate: undefined,
   error: undefined,
   isProcessing: false,
-  generateId: true,
-  isCloudBot: false,
-  cloudClientId: '',
-  cloudClientSecret: ''
+  generateId: true
 }
 
 class CreateBotModal extends Component<Props, State> {
@@ -137,14 +129,6 @@ class CreateBotModal extends Component<Props, State> {
       category: this.state.selectedCategory && this.state.selectedCategory.value
     }
 
-    if (this.state.isCloudBot) {
-      newBot.isCloudBot = this.state.isCloudBot
-      newBot.cloud = {
-        clientId: this.state.cloudClientId,
-        clientSecret: this.state.cloudClientSecret
-      }
-    }
-
     try {
       await api.getSecured({ timeout: ms('2m') }).post('/admin/workspace/bots', newBot)
       this.props.onCreateBotSuccess()
@@ -165,15 +149,7 @@ class CreateBotModal extends Component<Props, State> {
     const nameAndIdValid =
       !!botId && !!botName && !this.props.existingBots?.some(bot => bot.name === botName || bot.id === botId)
 
-    const validCloudOptions = !this.state.isCloudBot || (!!this.state.cloudClientId && !!this.state.cloudClientSecret)
-
-    return (
-      !isProcessing &&
-      nameAndIdValid &&
-      !!selectedTemplate &&
-      validCloudOptions &&
-      (this._form?.checkValidity() ?? false)
-    )
+    return !isProcessing && nameAndIdValid && !!selectedTemplate && (this._form?.checkValidity() ?? false)
   }
 
   isPro = (): boolean => {
@@ -245,50 +221,6 @@ class CreateBotModal extends Component<Props, State> {
                   options={this.state.categories}
                   value={this.state.selectedCategory}
                   onChange={selectedCategory => this.setState({ selectedCategory: selectedCategory as any })}
-                />
-              </FormGroup>
-            )}
-            {!this.isPro() && (
-              <FormGroup
-                label={lang.tr('admin.workspace.bots.create.cloud')}
-                labelFor="checkbox-bot-cloud"
-                helperText={lang.tr('admin.workspace.bots.create.cloudHelper')}
-              >
-                <Checkbox
-                  id="checkbox-bot-cloud"
-                  label={lang.tr('admin.workspace.bots.create.cloudCheckbox')}
-                  checked={this.state.isCloudBot}
-                  onChange={e => this.setState({ isCloudBot: e.currentTarget.checked })}
-                />
-              </FormGroup>
-            )}
-            {this.state.isCloudBot && (
-              <FormGroup
-                label={lang.tr('admin.workspace.bots.create.cloudConfiguration')}
-                labelFor="cloud-client-id"
-                helperText={lang.tr('admin.workspace.bots.create.cloudConfigurationHelper')}
-              >
-                <InputGroup
-                  id="cloud-client-id"
-                  placeholder={lang.tr('admin.workspace.bots.create.clientIdPlaceholder')}
-                  value={this.state.cloudClientId}
-                  className={style.clientId}
-                  onChange={e =>
-                    this.setState({
-                      cloudClientId: e.target.value
-                    })
-                  }
-                />
-                <InputGroup
-                  id="cloud-client-secret"
-                  placeholder={lang.tr('admin.workspace.bots.create.clientSecretPlaceholder')}
-                  value={this.state.cloudClientSecret}
-                  type="password"
-                  onChange={e =>
-                    this.setState({
-                      cloudClientSecret: e.target.value
-                    })
-                  }
                 />
               </FormGroup>
             )}
