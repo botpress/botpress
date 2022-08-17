@@ -38,4 +38,4 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 
 # '-p' preserves the environment variables when login in the new shell.
 # That's why we need to re-define the HOME and PWD variables.
-CMD su -p botpress -c "HOME=/home/$BP_USER; PWD=/home/$BP_USER && $BP_WORKDIR/duckling & $BP_WORKDIR/bp"
+CMD su -p botpress -c "HOME=/home/$BP_USER; PWD=$BP_WORKDIR; $BP_WORKDIR/duckling & $BP_WORKDIR/bp"
