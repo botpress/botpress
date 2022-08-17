@@ -1,0 +1,95 @@
+{
+  "name": "hitlnext",
+  "fullName": "HITL Next",
+  "sort": {
+    "mostRecentlyCreated": "Mas Recientes",
+    "leastRecentlyCreated": "Menos Recientes"
+  },
+  "filter": {
+    "unassigned": "Pendientes",
+    "assignedMe": "Asignados a Mi",
+    "assignedOther": "Asignados a Otros",
+    "resolved": "Resuelto",
+    "rejected": "Rechazado",
+    "expired": "Expirado"
+  },
+  "sortBy": "Ordenar Por",
+  "filterBy": "Filtrar Por",
+  "newMessage": "Nuevo Mensaje",
+  "agent": {
+    "status": "Estado: {status}",
+    "name": "Nombre: {name}",
+    "online": "En linea",
+    "offline": "Desconectado",
+    "getOnline": "Conectarse",
+    "getOffline": "Desconectarse",
+    "onlineSuccess": "Se encuentra conectado",
+    "offlineSuccess": "Se encuentra desconectado"
+  },
+  "handoff": {
+    "created": "Creado {date}",
+    "contactDetails": "Detalles del Contacto",
+    "status": {
+      "pending": "pendiente",
+      "assigned": "assignado",
+      "resolved": "resuelto",
+      "rejected": "rechazado",
+      "expired": "expirado"
+    },
+    "assignedToAgent": "Se le ha asignado un agente.",
+    "assignedToYou": "Se le ha asignado la conversación.",
+    "assign": "Asignarme",
+    "resolve": "Resolver",
+    "assigned": "La conversación {id} fué asignada",
+    "resolved": "La conversación {id} fué resuelta",
+    "rejected": "La conversación {id} fué rechazada",
+    "you": "Tú",
+    "from": "Desde {channel}"
+  },
+  "user": {
+    "anonymous": "Usuario Anónimo",
+    "variables": {
+      "heading": "Datos de contacto",
+      "empty": "No hay datos",
+      "variable": "Dato",
+      "value": "Valor"
+    }
+  },
+  "commentForm": {
+    "addNote": "Agregar Nota",
+    "submit": "Agregar"
+  },
+  "comments": {
+    "heading": "Notas de agentes",
+    "empty": "Aún no hay comentarios."
+  },
+  "conversation": {
+    "delete": "Eliminar conversación",
+    "deleted": "La conversación fué eliminada",
+    "empty": "Seleccione una conversación pendinte para iteractuar con el usuario",
+    "tab": "Conversación",
+    "composerPlaceholder": "Responder al usuario",
+    "send": "Enviar"
+  },
+  "handoffs": {
+    "empty": "No hay conversaciones pendientes."
+  },
+  "sidebar": {
+    "tab": "Transferencias",
+    "access": "Acceso a Transferencias.",
+    "agents": {
+      "heading": "Agentes Conectados",
+      "empty": "No hay agentes conectados."
+    },
+    "handoffs": {
+      "heading": "Conversaciones recientes",
+      "empty": "No hay conversaciones pendientes."
+    }
+  },
+  "tags": {
+    "heading": "Etiquetas",
+    "empty": "Las etiquetas no están habilitadas para este bot.",
+    "placeholder": "Agregar o quitar etiquetas",
+    "noResults": "No hubo resultados."
+  }
+}

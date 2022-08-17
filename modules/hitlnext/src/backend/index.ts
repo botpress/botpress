@@ -3,6 +3,7 @@ import { Dictionary } from 'lodash'
 
 import { MODULE_NAME } from '../constants'
 import en from '../translations/en.json'
+import es from '../translations/es.json'
 import fr from '../translations/fr.json'
 
 import api from './api'
@@ -50,7 +51,7 @@ const entryPoint: sdk.ModuleEntryPoint = {
   onServerStarted,
   onServerReady,
   onModuleUnmount,
-  translations: { en, fr },
+  translations: { en, fr, es },
   skills,
   definition: {
     name: MODULE_NAME,

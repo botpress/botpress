@@ -8,8 +8,8 @@ import { IHandoff } from '../../../../types'
 import styles from '../../style.scss'
 
 const HandoffItem: FC<IHandoff> = props => {
+  moment.locale(lang.getLocale())
   const [fromNow, setFromNow] = useState(moment(props.createdAt).fromNow())
-
   useEffect(() => {
     const refreshRate = ms('1m')
 
