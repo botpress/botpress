@@ -29,10 +29,9 @@ import Roles from '~/workspace/roles'
 import Workspaces from '~/workspace/workspaces'
 
 import AppLoader from '../InjectedModuleView/AppLoader'
-import SegmentHandler from '../NetPromoterScore/NetPromotingScore/SegmentHandler'
-import Nps from '../NetPromoterScore/promotingScore'
 import { extractCookie } from './cookies'
 import PrivateRoute from './PrivateRoute'
+import SegmentHandler from './SegmentHandler'
 
 const setupBranding = () => {
   window.document.title = window.APP_NAME || 'Botpress Admin Panel'
@@ -111,7 +110,6 @@ export const makeMainRoutes = () => {
                 <Route path="/modules" component={Modules} />
                 <Route path="/" render={() => <Redirect from="/" to={`/workspace/${getActiveWorkspace()}/bots`} />} />
               </Switch>
-              <Nps />
             </PrivateRoute>
           </Switch>
         </ConnectedRouter>

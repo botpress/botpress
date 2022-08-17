@@ -9,7 +9,7 @@ import { Context } from '../Store'
 
 const Comment: FC<IComment> = props => {
   const { state } = useContext(Context)
-
+  moment.locale(lang.getLocale())
   function formatDate(str) {
     return moment(str).format('DD/MM/YYYY')
   }
