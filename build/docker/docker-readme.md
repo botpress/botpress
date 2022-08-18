@@ -50,7 +50,7 @@ docker exec --interactive --tty botpress bash
 
 Further documentation can be found on the botpress [website](https://botpress.com/docs/infrastructure/docker)
 
-### Changeleg
+### Changelog
 
 Full documentation resource is available on the [official website](https://botpress.com/docs/).
 [Changelog resides here](https://github.com/botpress/botpress/blob/master/CHANGELOG.md).

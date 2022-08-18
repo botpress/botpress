@@ -1,21 +1,31 @@
 FROM ubuntu:20.04
 
-ADD . /botpress
-WORKDIR /botpress
+ENV BP_WORKDIR=/botpress
+ENV BP_USER=botpress
+ENV BP_GROUP=botpress
+ENV BP_DATA_PATH $BP_WORKDIR/data
+
+ADD . $BP_WORKDIR
+WORKDIR $BP_WORKDIR
 
 RUN apt update && \
 	apt install -y wget ca-certificates && \
 	update-ca-certificates && \
 	wget -O duckling https://s3.amazonaws.com/botpress-binaries/duckling-example-exe && \
-	chmod +x duckling && \
-	chmod +x bp && \
-	chgrp -R 0 /botpress && \
-	chmod -R g=u /botpress && \
 	apt install -y tzdata && \
 	ln -fs /usr/share/zoneinfo/UTC /etc/localtime && \
-	dpkg-reconfigure --frontend noninteractive tzdata && \
-	./bp extract
+	dpkg-reconfigure --frontend noninteractive tzdata
 
+RUN chmod +x duckling && chmod +x bp
+
+RUN ./bp extract
+
+# Creates botpress user and group
+RUN groupadd -g 999 $BP_GROUP && \
+    useradd -m -r -u 999 -g $BP_GROUP $BP_USER
+
+# Sets ownership of the workdir to the botpress user
+RUN chown -R $BP_USER:$BP_GROUP $BP_WORKDIR
 
 ENV BP_MODULE_NLU_DUCKLINGURL=http://localhost:8000
 ENV BP_IS_DOCKER=true
@@ -23,4 +33,9 @@ ENV BP_IS_DOCKER=true
 ENV LANG=C.UTF-8
 EXPOSE 3000
 
-CMD ./duckling & ./bp
+COPY docker-entrypoint.sh /usr/local/bin/
+ENTRYPOINT ["docker-entrypoint.sh"]
+
+# '-p' preserves the environment variables when login in the new shell.
+# That's why we need to re-define the HOME and PWD variables.
+CMD su -p botpress -c "HOME=/home/$BP_USER; PWD=$BP_WORKDIR; $BP_WORKDIR/duckling & $BP_WORKDIR/bp"
