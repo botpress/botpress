@@ -29,7 +29,7 @@ describe('Studio - Flows', () => {
   })
 
   it('Rename Node', async () => {
-    await fillField('.bp3-heading + div > div > input', 'node-test')
+    await fillField('#node-name-input', 'node-test')
   })
 
   it('Copy Node', async () => {
@@ -51,9 +51,10 @@ describe('Studio - Flows', () => {
   })
 
   it('Check default transition', async () => {
-    await clickOn('#node-props-modal-standard-node-tabs-tab-transitions')
-    await page.hover('#node-props-modal-standard-node-tabs-pane-transitions > div')
-    await clickOn('#node-props-modal-standard-node-tabs-pane-transitions a', { clickCount: 1, text: 'Edit' })
+    await clickOn('#tab-transitions')
+    await page.waitForSelector('#transition-item-0')
+    await page.hover('#transition-item-0')
+    await clickOn('#transition-edit', { clickCount: 1, text: 'Edit' })
     await clickOn('.bp3-dialog-close-button')
   })
 
