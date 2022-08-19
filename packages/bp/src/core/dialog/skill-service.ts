@@ -21,7 +21,11 @@ export class SkillService {
     }
 
     // TODO change when studio is updated, since actual doesn't support catchall
-    return { flow: completeFlow, transitions: partialFlow.transitions }
+    return {
+      flow: completeFlow,
+      transitions: partialFlow.transitions,
+      ...(partialFlow.previewElements && { preview: partialFlow.previewElements })
+    }
   }
 
   private parseActionQuery(nodes): string[] | undefined {

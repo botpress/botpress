@@ -36,6 +36,7 @@ export const loginOrRegister = async () => {
     await fillField('#email-login', bpConfig.email)
     await fillField('#password-login', bpConfig.password)
     await clickOn('#btn-signin')
+    await page.waitForNavigation()
   }
 }
 
