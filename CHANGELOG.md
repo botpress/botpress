@@ -1,3 +1,18 @@
+## [12.29.2](https://github.com/botpress/botpress/compare/v12.29.1...v12.29.2) (2022-08-22)
+
+
+### Bug Fixes
+
+* **docker:** fix passing env vars to running shell ([#12051](https://github.com/botpress/botpress/issues/12051)) ([9e8f3a1](https://github.com/botpress/botpress/commit/9e8f3a1b5c3236e6831899b5e298a3e735f80eb4))
+* **google-speech:** error when detecting SSML ([#12070](https://github.com/botpress/botpress/issues/12070)) ([c08a86e](https://github.com/botpress/botpress/commit/c08a86e2f04d8c0cfd910f34dc9c6bd4a0f028ec))
+
+
+### Features
+
+* **hitlnext:** Adds spanish language support ([#12056](https://github.com/botpress/botpress/issues/12056)) ([a2dc4ec](https://github.com/botpress/botpress/commit/a2dc4ec3524c580a08a247db30078320c799a04d))
+
+
+
 ## [12.29.1](https://github.com/botpress/botpress/compare/v12.29.0...v12.29.1) (2022-08-01)
 
 
