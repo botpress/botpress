@@ -71,6 +71,7 @@ class ManagementRouter extends CustomAdminRouter {
 
     this.router.post(
       '/rebootServer',
+      assertSuperAdmin,
       this.asyncMiddleware(async (req, res) => {
         const user = req.tokenUser!.email
         const config = await this.configProvider.getBotpressConfig()
