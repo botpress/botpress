@@ -72,7 +72,8 @@ const renderChoicePayload = (content: sdk.ChoiceContent & ExtraChoiceProperties)
       displayInKeyboard: true,
       options: content.choices.map(c => ({ label: c.title, value: c.value.toUpperCase() })),
       width: 300,
-      placeholderText: content.dropdownPlaceholder
+      placeholderText: content.dropdownPlaceholder,
+      disableFreeText: content.disableFreeText
     }
   }
   return {
