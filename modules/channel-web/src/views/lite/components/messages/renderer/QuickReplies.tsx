@@ -16,13 +16,18 @@ import { Button } from './Button'
  */
 export class QuickReplies extends Component<Renderer.QuickReply> {
   handleButtonClicked = (title, payload) => {
+    this.props.store.view.setFocus('button')
+
     // eslint-disable-next-line @typescript-eslint/no-floating-promises
     this.props.onSendData?.({
       type: 'quick_reply',
       text: title,
       payload
     })
+
     this.props.store.composer.setLocked(false)
+    // Set focus back to composer input
+    this.props.store.view.setFocus('input')
   }
 
   renderKeyboard(buttons: Renderer.QuickReplyButton[]) {
