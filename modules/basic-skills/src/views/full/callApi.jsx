@@ -132,7 +132,7 @@ export class CallAPI extends React.Component {
             />
           </div>
         </div>
-        <Tabs id="requestOptionsTabs" animate={false} defaultSelectedTabId="body">
+        <Tabs id="requestOptionsTabs" animate={false} defaultSelectedTabId="body" className={style.callApiTabs}>
           <Tab
             id="body"
             title="Body"
@@ -191,7 +191,9 @@ export class CallAPI extends React.Component {
                 </Callout>
                 <div style={{ display: 'flex', justifyContent: 'space-between' }}>
                   <div style={{ flex: `${2 / 12}` }}>
-                    <Label htmlFor="storageSelect">Memory type</Label>
+                    <label htmlFor="storageSelect" className={style.tipLabel}>
+                      Memory type
+                    </label>
                     <Select
                       name="storageSelect"
                       id="storageSelect"

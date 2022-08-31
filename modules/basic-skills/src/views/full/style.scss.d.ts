@@ -3,6 +3,7 @@
 interface CssExports {
   'actionSelect': string;
   'callApiNote': string;
+  'callApiTabs': string;
   'callApiTextArea': string;
   'callApiWarning': string;
   'contentPicker': string;

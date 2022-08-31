@@ -50,6 +50,12 @@
   min-height: 120px;
 }
 
+.callApiTabs {
+  :global(.bp3-tab[aria-selected='true']) {
+    box-shadow: none;
+  }
+}
+
 .skillToolTipPopover {
   display: inline-block !important;
   margin: 0 !important;
