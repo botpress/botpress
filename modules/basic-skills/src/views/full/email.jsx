@@ -1,8 +1,10 @@
 import React from 'react'
-import { Row, Col, Label, Input } from 'reactstrap'
 import ContentPickerWidget from 'botpress/content-picker'
-import { BotpressTooltip } from 'botpress/tooltip'
+import { Classes } from '@blueprintjs/core'
+import classnames from 'classnames'
 import _ from 'lodash'
+import { TipLabel } from './TipLabel'
+import style from './style.scss'
 
 export class Email extends React.Component {
   state = {
@@ -59,13 +61,16 @@ export class Email extends React.Component {
 
   render() {
     return (
-      <div>
-        <Row>
-          <Col md={12}>
-            <Label for="fromAddress">From</Label>
-            &nbsp;
-            <BotpressTooltip message="The address from which the email will be sent" />
-            <Input
+      <>
+        <div className={style.skillSection}>
+          <div style={{ width: '45%' }}>
+            <TipLabel
+              htmlFor="fromAddress"
+              labelText="From"
+              tooltipText="The address from which the email will be sent"
+            />
+            <input
+              className={classnames(Classes.INPUT, Classes.FILL)}
               id="fromAddress"
               name="fromAddress"
               type="text"
@@ -73,14 +78,11 @@ export class Email extends React.Component {
               placeholder="your@email.com"
               onChange={event => this.setState({ fromAddress: event.target.value })}
             />
-          </Col>
-        </Row>
-        <Row>
-          <Col md={12}>
-            <Label for="toAddress">To</Label>
-            &nbsp;
-            <BotpressTooltip message="The address to which the email will be sent" />
-            <Input
+          </div>
+          <div style={{ width: '45%' }}>
+            <TipLabel htmlFor="toAddress" labelText="To" tooltipText="The address to which the email will be sent" />
+            <input
+              className={classnames(Classes.INPUT, Classes.FILL)}
               id="toAddress"
               name="toAddress"
               type="text"
@@ -88,14 +90,15 @@ export class Email extends React.Component {
               placeholder="your@email.com"
               onChange={event => this.setState({ toAddress: event.target.value })}
             />
-          </Col>
-        </Row>
-        <Row>
-          <Col md={6}>
-            <Label for="ccAddress">CC</Label>
-            &nbsp;
-            <BotpressTooltip message="CC the email to these email addresses. This field can be empty." />
-            <Input
+          </div>
+          <div style={{ width: '45%' }}>
+            <TipLabel
+              htmlFor="ccAddress"
+              labelText="CC"
+              tooltipText="CC the email to these email addresses. This field can be empty."
+            />
+            <input
+              className={classnames(Classes.INPUT, Classes.FILL)}
               id="ccAddress"
               name="ccAddress"
               type="text"
@@ -103,12 +106,15 @@ export class Email extends React.Component {
               placeholder="your@email.com"
               onChange={event => this.setState({ ccAddress: event.target.value })}
             />
-          </Col>
-          <Col md={6}>
-            <Label for="fromAddress">BCC</Label>
-            &nbsp;
-            <BotpressTooltip message="BCC the email to these email addresses. This field can be empty." />
-            <Input
+          </div>
+          <div style={{ width: '45%' }}>
+            <TipLabel
+              htmlFor="fromAddress"
+              labelText="BCC"
+              tooltipText="BCC the email to these email addresses. This field can be empty."
+            />
+            <input
+              className={classnames(Classes.INPUT, Classes.FILL)}
               id="bccAddress"
               name="bccAddress"
               type="text"
@@ -116,40 +122,39 @@ export class Email extends React.Component {
               placeholder="your@email.com"
               onChange={event => this.setState({ bccAddress: event.target.value })}
             />
-          </Col>
-        </Row>
-        <hr />
-        <Row>
-          <Col md={12}>
-            <Label for="subjectPicker">Subject Line</Label>
-            &nbsp;
-            <BotpressTooltip message="The email's subject line (pick a CMS element)" />
-            <ContentPickerWidget
-              style={{ zIndex: 0 }}
-              name="subjectPicker"
-              id="subjectPicker"
-              itemId={this.state.subjectElement}
-              onChange={this.handleSubjectChange}
-              placeholder="Pick Subject Line"
-            />
-          </Col>
-        </Row>
-        <Row>
-          <Col md={12}>
-            <Label for="contentPicker">Email Content</Label>
-            &nbsp;
-            <BotpressTooltip message="The email's actual content (pick a CMS element)" />
-            <ContentPickerWidget
-              style={{ zIndex: 0 }}
-              name="contentPicker"
-              id="contentPicker"
-              itemId={this.state.contentElement}
-              onChange={this.handleContentChange}
-              placeholder="Pick Email Content"
-            />
-          </Col>
-        </Row>
-      </div>
+          </div>
+        </div>
+        <div>
+          <TipLabel
+            htmlFor="subjectPicker"
+            labelText="Subject Line"
+            tooltipText="The email's subject line (pick a CMS element)"
+          />
+          <ContentPickerWidget
+            style={{ zIndex: 0 }}
+            name="subjectPicker"
+            id="subjectPicker"
+            itemId={this.state.subjectElement}
+            onChange={this.handleSubjectChange}
+            placeholder="Pick Subject Line"
+          />
+        </div>
+        <div>
+          <TipLabel
+            htmlFor="contentPicker"
+            labelText="Email Content"
+            tooltipText="The email's actual content (pick a CMS element)"
+          />
+          <ContentPickerWidget
+            style={{ zIndex: 0 }}
+            name="contentPicker"
+            id="contentPicker"
+            itemId={this.state.contentElement}
+            onChange={this.handleContentChange}
+            placeholder="Pick Email Content"
+          />
+        </div>
+      </>
     )
   }
 }

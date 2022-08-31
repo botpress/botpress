@@ -1,11 +1,11 @@
-import { NumericInput, Label, Tooltip, Callout, Position, Icon } from '@blueprintjs/core'
+import { NumericInput, Label, Callout } from '@blueprintjs/core'
 import ContentPickerWidget from 'botpress/content-picker'
 import SelectActionDropdown from 'botpress/select-action-dropdown'
 import _ from 'lodash'
 import React from 'react'
 import Select from 'react-select'
 import style from './style.scss'
-import { TipLabel } from './Tiplabel'
+import { TipLabel } from './TipLabel'
 
 const MAX_RETRIES = 10
 const DEFAULT_RETRY_ATTEMPTS = 3

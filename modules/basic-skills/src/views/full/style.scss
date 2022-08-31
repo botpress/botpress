@@ -34,6 +34,11 @@
   margin: 10px 0 10px 0;
 }
 
+.tipLabel {
+  margin-bottom: var(--spacing-small);
+  margin-top: var(--spacing-medium);
+}
+
 .skillSection {
   display: flex;
   flex-wrap: wrap;

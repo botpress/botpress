@@ -1,10 +1,10 @@
-import { Tab, Tabs, Callout, Label, Classes, TextArea, Tooltip, Icon, Position } from '@blueprintjs/core'
+import { Tab, Tabs, Callout, Label, Classes, TextArea, Icon } from '@blueprintjs/core'
 import classnames from 'classnames'
 import { nanoid } from 'nanoid'
 import React from 'react'
 import Select from 'react-select'
 
-import { TipLabel } from './Tiplabel'
+import { TipLabel } from './TipLabel'
 import style from './style.scss'
 
 const methodOptions = [

@@ -15,6 +15,7 @@ interface CssExports {
   'skillSection': string;
   'skillToolTipPopover': string;
   'slotSelect': string;
+  'tipLabel': string;
   'warning': string;
 }
 declare var cssExports: CssExports;
