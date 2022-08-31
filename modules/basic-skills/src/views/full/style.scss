@@ -35,7 +35,17 @@
 }
 
 .callApiSection {
-  margin-top: 10px;
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.callApiTextArea {
+  min-height: 120px;
+}
+
+.skillToolTipPopover {
+  margin: 0 !important;
 }
 
 .callApiWarning {
