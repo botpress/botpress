@@ -1,11 +1,11 @@
-import React from 'react'
-import { Input, Label } from 'reactstrap'
-import { Tabs, Tab, Row, Col, Alert } from 'react-bootstrap'
-import Select from 'react-select'
-import style from './style.scss'
-import { BotpressTooltip } from 'botpress/tooltip'
-import { LinkDocumentationProvider } from 'botpress/documentation'
+import { Tab, Tabs, Callout, Label, Classes, TextArea, Icon } from '@blueprintjs/core'
+import classnames from 'classnames'
 import { nanoid } from 'nanoid'
+import React from 'react'
+import Select from 'react-select'
+
+import { TipLabel } from './TipLabel'
+import style from './style.scss'
 
 const methodOptions = [
   { label: 'Get', value: 'get' },
@@ -107,12 +107,10 @@ export class CallAPI extends React.Component {
   }
 
   render() {
-    const paramsHelp = <LinkDocumentationProvider file="main/memory" />
-
     return (
       <div className={style.modalContent}>
-        <Row className={style.callApiSection}>
-          <Col md={2}>
+        <div className={style.skillSection}>
+          <div style={{ flex: `${2 / 12}` }}>
             <Select
               id="method"
               default
@@ -121,9 +119,10 @@ export class CallAPI extends React.Component {
               value={this.state.selectedMethod}
               onChange={this.handleMethodChange}
             />
-          </Col>
-          <Col md={10}>
-            <Input
+          </div>
+          <div style={{ flex: `${9.5 / 12}` }}>
+            <input
+              className={classnames(Classes.INPUT, Classes.FILL, Classes.LARGE)}
               id="url"
               name="url"
               type="text"
@@ -131,70 +130,97 @@ export class CallAPI extends React.Component {
               value={this.state.url}
               onChange={this.handleInputChange}
             />
-          </Col>
-        </Row>
-
-        <Row className={style.callApiSection}>
-          <Col md={12}>
-            <Tabs id="requestOptionsTabs" defaultActiveKey="body" animation={false}>
-              <Tab eventKey="body" title="Body">
-                <Alert className={style.callApiNote} bsStyle="info">
+          </div>
+        </div>
+        <Tabs id="requestOptionsTabs" animate={false} defaultSelectedTabId="body" className={style.callApiTabs}>
+          <Tab
+            id="body"
+            title="Body"
+            panel={
+              <div>
+                <Callout className={style.callApiNote}>
                   Send a request body. Enter the raw payload of the request. Make sure it has proper formatting based on
                   your Content-Type. E.g. application/json content type should respect the JSON format.
-                </Alert>
-                <Input
-                  type="textarea"
-                  rows="4"
+                </Callout>
+                <TextArea
+                  fill
+                  growVertically
                   id="body"
                   name="body"
+                  className={style.callApiTextArea}
                   value={this.state.body}
                   onChange={this.handleInputChange}
                 />
-              </Tab>
-              <Tab eventKey="headers" title="Headers">
-                <Alert className={style.callApiNote} bsStyle="info">
-                  Send request headers. Write in JSON format.
-                </Alert>
-                {this.state.invalidJson && (
-                  <div className={style.callApiWarning}>
-                    <i className="material-icons">warning</i>
-                    Invalid JSON format
-                  </div>
-                )}
-                <Input
-                  type="textarea"
-                  rows="5"
+              </div>
+            }
+          />
+          <Tab
+            id="headers"
+            title="Headers"
+            panel={
+              <div>
+                <Callout className={style.callApiNote}>Send request headers. Write in JSON format.</Callout>
+                <TextArea
+                  fill
+                  growVertically
                   id="headers"
+                  name="headers"
+                  className={style.callApiTextArea}
                   placeholder={headersPlaceholder}
                   value={this.state.headers}
                   onChange={this.handleHeadersChange}
                 />
-              </Tab>
-              <Tab eventKey="variable" title="Memory">
-                <Alert className={style.callApiNote} bsStyle="info">
+                {this.state.invalidJson && (
+                  <div className={style.callApiWarning}>
+                    <Icon icon="warning-sign" />
+                    Invalid JSON format
+                  </div>
+                )}
+              </div>
+            }
+          />
+          <Tab
+            id="variable"
+            title="Memory"
+            panel={
+              <div>
+                <Callout className={style.callApiNote}>
                   {
                     'Store the response body in {{temp.response}} by default. You can change the memory type and the variable here.'
                   }
-                </Alert>
-                <Col md={6}>
-                  <Label>Memory type</Label>
-                  {paramsHelp}
-                  <Select
-                    id="storageSelect"
-                    options={memoryOptions}
-                    value={this.state.selectedMemory}
-                    onChange={this.handleMemoryChange}
-                  />
-                </Col>
-                <Col md={6}>
-                  <Label>Variable</Label>
-                  <BotpressTooltip message="The response body will be assigned to this variable" />
-                  <Input type="text" name="variable" value={this.state.variable} onChange={this.handleInputChange} />
-                </Col>
-              </Tab>
-            </Tabs>
-          </Col>
-        </Row>
+                </Callout>
+                <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                  <div style={{ flex: `${2 / 12}` }}>
+                    <label htmlFor="storageSelect" className={style.tipLabel}>
+                      Memory type
+                    </label>
+                    <Select
+                      name="storageSelect"
+                      id="storageSelect"
+                      options={memoryOptions}
+                      value={this.state.selectedMemory}
+                      onChange={this.handleMemoryChange}
+                    />
+                  </div>
+                  <div style={{ flex: `${9.5 / 12}` }}>
+                    <TipLabel
+                      htmlFor="variable"
+                      labelText="Variable"
+                      tooltipText="The response body will be assigned to this variable"
+                    />
+                    <input
+                      type="text"
+                      className={classnames(Classes.INPUT, Classes.LARGE, Classes.FILL)}
+                      name="variable"
+                      value={this.state.variable}
+                      onChange={this.handleInputChange}
+                    />
+                  </div>
+                </div>
+              </div>
+            }
+          />
+        </Tabs>
       </div>
     )
   }

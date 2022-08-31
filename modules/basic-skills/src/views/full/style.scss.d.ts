@@ -3,7 +3,8 @@
 interface CssExports {
   'actionSelect': string;
   'callApiNote': string;
-  'callApiSection': string;
+  'callApiTabs': string;
+  'callApiTextArea': string;
   'callApiWarning': string;
   'contentPicker': string;
   'errorContainer': string;
@@ -12,7 +13,10 @@ interface CssExports {
   'modalContent': string;
   'notFoundSelect': string;
   'padded': string;
+  'skillSection': string;
+  'skillToolTipPopover': string;
   'slotSelect': string;
+  'tipLabel': string;
   'warning': string;
 }
 declare var cssExports: CssExports;

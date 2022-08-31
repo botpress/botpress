@@ -34,8 +34,31 @@
   margin: 10px 0 10px 0;
 }
 
-.callApiSection {
-  margin-top: 10px;
+.tipLabel {
+  margin-bottom: var(--spacing-small);
+  margin-top: var(--spacing-medium);
+}
+
+.skillSection {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.callApiTextArea {
+  min-height: 120px;
+}
+
+.callApiTabs {
+  :global(.bp3-tab[aria-selected='true']) {
+    box-shadow: none;
+  }
+}
+
+.skillToolTipPopover {
+  display: inline-block !important;
+  margin: 0 !important;
 }
 
 .callApiWarning {

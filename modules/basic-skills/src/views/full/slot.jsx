@@ -1,13 +1,11 @@
-import React from 'react'
-import { Row, Col, Label } from 'reactstrap'
+import { NumericInput, Label, Callout } from '@blueprintjs/core'
 import ContentPickerWidget from 'botpress/content-picker'
 import SelectActionDropdown from 'botpress/select-action-dropdown'
+import _ from 'lodash'
+import React from 'react'
 import Select from 'react-select'
 import style from './style.scss'
-import { Alert } from 'react-bootstrap'
-import { BotpressTooltip } from 'botpress/tooltip'
-import { NumericInput } from '@blueprintjs/core'
-import _ from 'lodash'
+import { TipLabel } from './TipLabel'
 
 const MAX_RETRIES = 10
 const DEFAULT_RETRY_ATTEMPTS = 3
@@ -24,10 +22,10 @@ export class Slot extends React.Component {
     actions: [],
     maxRetryAttempts: DEFAULT_RETRY_ATTEMPTS,
     error: undefined,
+
     errorField: undefined,
     turnExpiry: DEFAULT_TURN_EXP
   }
-
   componentDidMount() {
     this.fetchActions()
     this.fetchIntents().then(() => this.setStateFromProps())
@@ -89,7 +87,7 @@ export class Slot extends React.Component {
   }
 
   fetchActions = () => {
-    this.props.bp.axios.get(`/actions`, { baseURL: window.STUDIO_API_PATH }).then(({ data }) => {
+    this.props.bp.axios.get('/actions', { baseURL: window.STUDIO_API_PATH }).then(({ data }) => {
       this.setState({
         actions: data
           .filter(action => !action.hidden)
@@ -226,9 +224,9 @@ export class Slot extends React.Component {
 
     return (
       <React.Fragment>
-        <Row style={{ marginBottom: 10 }}>
-          <Col md={5}>
-            <Label>Choose an intent</Label>
+        <div className={style.skillSection}>
+          <div style={{ flex: 0.3 }}>
+            <Label htmlFor="intent">Choose an intent</Label>
             <Select
               id="intent"
               name="intent"
@@ -239,8 +237,8 @@ export class Slot extends React.Component {
               value={this.state.selectedIntentOption}
               options={intentsOptions}
             />
-          </Col>
-          <Col md={4}>
+          </div>
+          <div style={{ flex: 0.3 }}>
             <Label for="slot">Choose a slot to fill</Label>
             <Select
               id="slot"
@@ -252,14 +250,18 @@ export class Slot extends React.Component {
               value={this.state.selectedSlotOption}
               options={slotOptions}
             />
-          </Col>
-          <Col md={3}>
-            <Label for="turnExpiry">Expires after X turns</Label>
-            &nbsp;
-            <BotpressTooltip message="The information stored in the slot will be deleted after this number of turns. Set to -1 to never expire." />
+          </div>
+          <div style={{ flex: 0.3 }}>
+            <TipLabel
+              htmlFor="turnExpiry"
+              labelText="Expires after X turns"
+              tooltipText="The information stored in the slot will be deleted after this number of turns. Set to -1 to never expire."
+            />
             <NumericInput
               id="turnExpiry"
               name="turnExpiry"
+              fill
+              large
               defaultValue={_.get(this.props, 'initialData.turnExpiry', DEFAULT_TURN_EXP)}
               selectAllOnFocus
               clampValueOnBlur
@@ -269,13 +271,15 @@ export class Slot extends React.Component {
               stepSize={1}
               onValueChange={this.handleTurnExpiryChange}
             />
-          </Col>
-        </Row>
-        <Row>
-          <Col md={9}>
-            <Label for="contentPicker">Bot will ask...</Label>
-            &nbsp;
-            <BotpressTooltip message="The bot should ask a question specific about the slot to fill. (e.g. What is your email?)" />
+          </div>
+        </div>
+        <div className={style.skillSection}>
+          <div style={{ width: '66%' }}>
+            <TipLabel
+              htmlFor="contentPicker"
+              labelText="Bot will ask..."
+              tooltipText="The bot should ask a question specific about the slot to fill. (e.g. What is your email?)"
+            />
             <ContentPickerWidget
               style={{ zIndex: 0 }}
               name="contentPicker"
@@ -284,31 +288,36 @@ export class Slot extends React.Component {
               onChange={this.handleContentChange}
               placeholder="Pick content"
             />
-          </Col>
-        </Row>
-        <Row>
-          <Col md="9">
-            <Label>Message to send when user input is invalid</Label>
-            &nbsp;
-            <BotpressTooltip message="This message will appear to the user when the information he has given is invalid. (e.g. Your email is invalid)" />
+          </div>
+
+          <div style={{ width: '66%' }}>
+            <TipLabel
+              htmlFor="notFoundElement"
+              labelText="Message to send when user input is invalid"
+              tooltipText="This message will appear to the user when the information he has given is invalid. (e.g. Your email is invalid)"
+            />
             <ContentPickerWidget
               style={{ zIndex: 0 }}
               id="notFoundElement"
+              name="notFoundElement"
               itemId={this.state.notFoundElement}
               onChange={this.handleNotFoundChange}
               placeholder="Pick content to display when the slot is not found"
             />
-          </Col>
-          <Col md="3">
-            <Label for="retryAttempts">Max retry attempts</Label>
-            &nbsp;
-            <BotpressTooltip message="This is the maximum number of times the bot will try to extract the slot. When the limit is reached, the bot will execute the 'On not found' transition." />
+          </div>
+          <div style={{ width: '30%' }}>
+            <TipLabel
+              htmlfor="retryAttempts"
+              labelText="Max retry attempts"
+              tooltipText="This is the maximum number of times the bot will try to extract the slot. When the limit is reached, the bot will execute the 'On not found' transition."
+            />
             <NumericInput
               id="retryAttempts"
               name="retryAttempts"
               defaultValue={_.get(this.props, 'initialData.retryAttempts', DEFAULT_RETRY_ATTEMPTS)}
               selectAllOnFocus
               clampValueOnBlur
+              fill
               majorStepSize={1}
               minorStepSize={1}
               stepSize={1}
@@ -316,15 +325,13 @@ export class Slot extends React.Component {
               max={MAX_RETRIES}
               onValueChange={this.handleMaxRetryAttemptsChange}
             />
-          </Col>
-        </Row>
-        <Row>
-          <Col md={12}>
-            <Label for="validationCheck">
-              <small>Custom Input Validation (optional)</small>
-            </Label>
-            &nbsp;
-            <BotpressTooltip message="You can add custom validation for your slot with an action. It should assign a boolean value to the temp.valid variable." />
+          </div>
+          <div style={{ width: '100%' }}>
+            <TipLabel
+              htmlfor="validationCheck"
+              labelText="Custom Input Validation (optional)"
+              tooltipText="You can add custom validation for your slot with an action. It should assign a boolean value to the temp.valid variable."
+            />
             <SelectActionDropdown
               className={style.actionSelect}
               value={this.state.selectedActionOption}
@@ -332,13 +339,11 @@ export class Slot extends React.Component {
               onChange={this.handleActionChange}
               isClearable={true}
             />
-          </Col>
-        </Row>
-        <Row>
-          <Col className={style.errorContainer} md={12}>
-            {this.state.error && <Alert bsStyle="danger">{this.state.error}</Alert>}
-          </Col>
-        </Row>
+          </div>
+        </div>
+        <div className={style.errorContainer}>
+          {this.state.error && <Callout intent="danger">{this.state.error}</Callout>}
+        </div>
       </React.Fragment>
     )
   }
