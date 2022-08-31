@@ -3,6 +3,8 @@ import classnames from 'classnames'
 import { nanoid } from 'nanoid'
 import React from 'react'
 import Select from 'react-select'
+
+import { TipLabel } from './Tiplabel'
 import style from './style.scss'
 
 const methodOptions = [
@@ -107,7 +109,7 @@ export class CallAPI extends React.Component {
   render() {
     return (
       <div className={style.modalContent}>
-        <div className={style.callApiSection}>
+        <div className={style.skillSection}>
           <div style={{ flex: `${2 / 12}` }}>
             <Select
               id="method"
@@ -199,18 +201,11 @@ export class CallAPI extends React.Component {
                     />
                   </div>
                   <div style={{ flex: `${9.5 / 12}` }}>
-                    <Label htmlFor="variable">
-                      <Tooltip
-                        content="The response body will be assigned to this variable"
-                        position={Position.TOP_LEFT}
-                        className={style.skillToolTipPopover}
-                      >
-                        <span>
-                          Variable&nbsp;
-                          <Icon icon="info-sign" iconSize={14} />
-                        </span>
-                      </Tooltip>
-                    </Label>
+                    <TipLabel
+                      htmlFor="variable"
+                      labelText="Variable"
+                      tooltipText="The response body will be assigned to this variable"
+                    />
                     <input
                       type="text"
                       className={classnames(Classes.INPUT, Classes.LARGE, Classes.FILL)}

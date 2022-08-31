@@ -34,8 +34,9 @@
   margin: 10px 0 10px 0;
 }
 
-.callApiSection {
+.skillSection {
   display: flex;
+  flex-wrap: wrap;
   justify-content: space-between;
   margin-bottom: 20px;
 }
@@ -45,6 +46,7 @@
 }
 
 .skillToolTipPopover {
+  display: inline-block !important;
   margin: 0 !important;
 }
 
