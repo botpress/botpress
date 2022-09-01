@@ -1,3 +1,13 @@
+## [12.30.1](https://github.com/botpress/botpress/compare/v12.30.0...v12.30.1) (2022-09-01)
+
+
+### Bug Fixes
+
+* **channel-web:** focus composer when single choice btn is clicked ([#12111](https://github.com/botpress/botpress/issues/12111)) ([f07a7e9](https://github.com/botpress/botpress/commit/f07a7e9b5e82a65a7aa31a3dcfe007f5000581c3))
+* skills rendering ([#12113](https://github.com/botpress/botpress/issues/12113)) ([b2c4d4f](https://github.com/botpress/botpress/commit/b2c4d4fe3e562cb3733e34492fe7fc854b5dd300))
+
+
+
 # [12.30.0](https://github.com/botpress/botpress/compare/v12.29.1...v12.30.0) (2022-08-26)
 
 
