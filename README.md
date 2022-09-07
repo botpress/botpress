@@ -46,7 +46,7 @@ There are a few ways to get started with botpress :
 - [Issues](https://github.com/botpress/botpress/issues) - Report bug and file feature requests
 - [Blog](https://botpress.com/blog) - How to's, Case studies & Announcements
 - [Newsletter](https://botpress.activehosted.com/f/16) - Stay informed, subscribe to our news letter
-- [Contributring](/.github/CONTRIBUTING.md) - Start contributing to Botpress
+- [Contributing](/.github/CONTRIBUTING.md) - Start contributing to Botpress
 - [Partners](/.github/PARTNERS.md) - List of agencies who can help you with Botpress
 
 ## License
