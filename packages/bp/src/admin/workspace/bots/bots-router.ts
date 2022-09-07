@@ -81,7 +81,7 @@ class BotsRouter extends CustomAdminRouter {
       })
     )
 
-    const checkBotInWorkspace = async (botId: string, workspaceId?: string) => {
+    const assertBotInWorkspace = async (botId: string, workspaceId?: string) => {
       const botExists = (await this.botService.getBotsIds()).includes(botId)
       const isBotInCurrentWorkspace = (await this.workspaceService.getBotRefs(workspaceId)).includes(botId)
 
@@ -96,7 +96,7 @@ class BotsRouter extends CustomAdminRouter {
       this.asyncMiddleware(async (req, res) => {
         const bot = <BotConfig>_.pick(req.body, ['id', 'name', 'category', 'defaultLanguage'])
 
-        await checkBotInWorkspace(bot.id, req.workspace)
+        await assertBotInWorkspace(bot.id, req.workspace)
 
         const botExists = (await this.botService.getBotsIds()).includes(bot.id)
         const botLinked = (await this.workspaceService.getBotRefs()).includes(bot.id)
@@ -216,7 +216,7 @@ class BotsRouter extends CustomAdminRouter {
 
         const botId = await this.botService.makeBotId(req.params.botId, req.workspace!)
 
-        await checkBotInWorkspace(botId, req.workspace)
+        await assertBotInWorkspace(botId, req.workspace)
 
         const buffers: any[] = []
         req.on('data', chunk => buffers.push(chunk))
