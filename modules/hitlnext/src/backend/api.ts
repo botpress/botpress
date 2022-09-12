@@ -362,6 +362,34 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
       res.send(updated)
     })
   )
+  
+  router.post(
+    '/handoffs/:id/requeue',
+    agentOnlineMiddleware,
+    errorMiddleware(async (req: RequestWithUser, res: Response) => {
+      const { email, strategy } = req.tokenUser!
+
+      const agentId = makeAgentId(strategy, email)
+
+      const handoff = await repository.findHandoff(req.params.botId, req.params.id)
+
+      const payload: Pick<IHandoff, 'status' | 'agentId'> = {
+        status: 'pending',
+        agentId: null
+      }
+
+      try {
+        validateHandoffStatusRule(handoff.status, payload.status)
+      } catch (e) {
+        throw new UnprocessableEntityError(formatValidationError(e))
+      }
+
+      const updated = await service.updateHandoff(handoff, req.params.botId, payload)
+      await extendAgentSession(repository, realtime, req.params.botId, agentId)
+
+      res.send(updated)
+    })
+  )
 
   router.post(
     '/handoffs/:id/comments',

@@ -8,7 +8,7 @@ const axios = require('axios')
  * @description Transfers control of the conversation to an agent
  * @author Botpress, Inc.
  */
-const escalate = async (event, timeoutDelay) => {
+const escalate = async (event, timeoutDelay, selectedTags) => {
   // The HITLNext module is not compatible with the Converse API since the
   // former is asynchronous and the latter is synchronous.
   if (event.channel === 'api') {
@@ -22,7 +22,7 @@ const escalate = async (event, timeoutDelay) => {
   }
 
   const axiosConfig = await bp.http.getAxiosConfigForBot(event.botId, { localUrl: true })
-  await axios.post(
+  const { data: createdHandoff } = await axios.post(
     '/mod/hitlnext/handoffs',
     {
       userThreadId: event.threadId,
@@ -32,6 +32,16 @@ const escalate = async (event, timeoutDelay) => {
     },
     axiosConfig
   )
+
+  if (createdHandoff && createdHandoff.id && !_.isEmpty(selectedTags)) {
+    await axios.post(
+      `/mod/hitlnext/handoffs/${createdHandoff.id}`,
+      {
+        tags: selectedTags
+      },
+      axiosConfig
+    )
+  }
 }
 
-return escalate(event, args.timeoutDelay)
+return escalate(event, args.timeoutDelay, args.selectedTags)

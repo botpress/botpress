@@ -1,7 +1,7 @@
 import { Spinner } from '@blueprintjs/core'
 import { EmptyState, lang } from 'botpress/shared'
 import _ from 'lodash'
-import React, { FC, Fragment, useContext, useEffect, useState } from 'react'
+import React, { FC, Fragment, useContext, useEffect, useState, useRef } from 'react'
 
 import { IHandoff } from '../../../../types'
 import CasesIcon from '../../Icons/CasesIcon'
@@ -61,6 +61,36 @@ const HandoffList: FC<Props> = ({ tags, handoffs, loading }) => {
         return
     }
   }
+  // prevent the handoff from disappearing from the list when editing its tags
+  const useCustomEffect = (cb, [handoffs, ...rest]) => {
+    const omitTags = _.chain(_.values(handoffs))
+      .value()
+      .map(e => _.omit(e, 'tags'))
+
+    const deps = JSON.stringify([omitTags, ...rest])
+    const ref = useRef(deps)
+
+    if (deps !== ref.current) {
+      ref.current = deps
+    }
+
+    useEffect(cb, [ref.current])
+  }
+
+  // handoffs dependency must be index 0
+  useCustomEffect(() => {
+    const filtered = _.chain(_.values(handoffs))
+      .filter(filterBy)
+      .orderBy(...orderConditions())
+      .value()
+
+    // Unselect current handoff when excluded from list
+    if (!_.includes(_.map(filtered, 'id'), state.selectedHandoffId)) {
+      dispatch({ type: 'setSelectedHandoffId', payload: null })
+    }
+
+    setItems(filtered)
+  }, [handoffs, filterOptions, sortOption, loading])
 
   useEffect(() => {
     const filtered = _.chain(_.values(handoffs))

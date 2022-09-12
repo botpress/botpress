@@ -48,6 +48,7 @@ export interface HitlClient {
   getHandoffs: (column?: string, desc?: boolean, limit?: number) => Promise<IHandoff[]>
   assignHandoff: (id: string) => Promise<IHandoff>
   resolveHandoff: (id: string) => Promise<IHandoff>
+  requeueHandoff: (id: string) => Promise<IHandoff>
   updateHandoff: (id: string, data: Partial<IHandoff>) => Promise<IHandoff>
   deleteMessagesInChannelWeb: (id: string, userId: string) => Promise<void>
   getMessages: (id: string, column?: string, desc?: boolean, limit?: number) => Promise<IEvent[]>
@@ -95,6 +96,11 @@ export const makeClient = (bp: { axios: AxiosInstance }): HitlClient => {
         .post(`/handoffs/${id}/resolve`, null, config)
         .then(res => res.data)
         .then(data => castHandoff(data)),
+        requeueHandoff: async id =>
+          bp.axios
+            .post(`/handoffs/${id}/requeue`, null, config)
+            .then(res => res.data)
+            .then(data => castHandoff(data)),
     updateHandoff: async (id, payload) =>
       bp.axios
         .post(`/handoffs/${id}`, payload, config)
