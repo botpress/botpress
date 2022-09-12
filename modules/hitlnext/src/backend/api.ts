@@ -362,7 +362,7 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
       res.send(updated)
     })
   )
-  
+
   router.post(
     '/handoffs/:id/requeue',
     agentOnlineMiddleware,

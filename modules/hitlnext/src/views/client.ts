@@ -96,11 +96,11 @@ export const makeClient = (bp: { axios: AxiosInstance }): HitlClient => {
         .post(`/handoffs/${id}/resolve`, null, config)
         .then(res => res.data)
         .then(data => castHandoff(data)),
-        requeueHandoff: async id =>
-          bp.axios
-            .post(`/handoffs/${id}/requeue`, null, config)
-            .then(res => res.data)
-            .then(data => castHandoff(data)),
+    requeueHandoff: async id =>
+      bp.axios
+        .post(`/handoffs/${id}/requeue`, null, config)
+        .then(res => res.data)
+        .then(data => castHandoff(data)),
     updateHandoff: async (id, payload) =>
       bp.axios
         .post(`/handoffs/${id}`, payload, config)

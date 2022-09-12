@@ -66,6 +66,7 @@ const Skill: FC<SkillProps<SkillData>> = ({ bp, onDataChanged, onValidChanged, i
 
     setTimeoutDelay(initialData.timeoutDelay)
     setRedirectNoAgent(initialData.redirectNoAgent)
+    setSelectedTags(initialData.selectedTags)
   }, [])
 
   useEffect(() => {
@@ -79,11 +80,12 @@ const Skill: FC<SkillProps<SkillData>> = ({ bp, onDataChanged, onValidChanged, i
   useEffect(() => {
     onDataChanged({
       timeoutDelay,
-      redirectNoAgent
+      redirectNoAgent,	
+      selectedTags
     })
 
     onValidChanged(true)
-  }, [timeoutDelay, redirectNoAgent])
+  }, [timeoutDelay, redirectNoAgent, selectedTags])
 
   return (
     <div>
