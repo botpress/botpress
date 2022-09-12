@@ -73,10 +73,12 @@ export type ExitTypes = 'timedOutWaitingAgent' | 'handoffResolved' | 'noAgent'
 export interface SkillData {
   redirectNoAgent: boolean
   timeoutDelay: number
+  selectedTags: string[]
 }
 
 // These are properties provided by the studio
 export interface SkillProps<T> {
+  bp: any
   initialData: T
   onDataChanged: (data: T) => void
   onValidChanged: (canSubmit: boolean) => void

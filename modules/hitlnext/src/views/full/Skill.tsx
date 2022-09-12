@@ -8,7 +8,7 @@ import { SkillData, SkillProps } from '../../types'
 
 const TagMultiSelect = MultiSelect.ofType<string>()
 
-const Skill: FC<SkillProps<SkillData>> = ({ onDataChanged, onValidChanged, initialData }) => {
+const Skill: FC<SkillProps<SkillData>> = ({ bp, onDataChanged, onValidChanged, initialData }) => {
   const [tags, setTags] = useState([])
   const [selectedTags, setSelectedTags] = useState([])
   const [timeoutDelay, setTimeoutDelay] = useState(0)
@@ -69,7 +69,7 @@ const Skill: FC<SkillProps<SkillData>> = ({ onDataChanged, onValidChanged, initi
   }, [])
 
   useEffect(() => {
-    window.bp.axios.get('/mod/hitlnext/config').then(({ data: config }) => {
+    bp.axios.get('/mod/hitlnext/config').then(({ data: config }) => {
       if (config && config.tags) {
         setTags(config.tags)
       }
