@@ -81,11 +81,22 @@ class BotsRouter extends CustomAdminRouter {
       })
     )
 
+    const assertBotInWorkspace = async (botId: string, workspaceId?: string) => {
+      const botExists = (await this.botService.getBotsIds()).includes(botId)
+      const isBotInCurrentWorkspace = (await this.workspaceService.getBotRefs(workspaceId)).includes(botId)
+
+      if (botExists && !isBotInCurrentWorkspace) {
+        throw new ConflictError(`Bot "${botId}" already exists in another workspace. Bot ID are unique server-wide`)
+      }
+    }
+
     router.post(
       '/',
       this.needPermissions('write', this.resource),
       this.asyncMiddleware(async (req, res) => {
         const bot = <BotConfig>_.pick(req.body, ['id', 'name', 'category', 'defaultLanguage'])
+
+        await assertBotInWorkspace(bot.id, req.workspace)
 
         const botExists = (await this.botService.getBotsIds()).includes(bot.id)
         const botLinked = (await this.workspaceService.getBotRefs()).includes(bot.id)
@@ -204,6 +215,8 @@ class BotsRouter extends CustomAdminRouter {
         }
 
         const botId = await this.botService.makeBotId(req.params.botId, req.workspace!)
+
+        await assertBotInWorkspace(botId, req.workspace)
 
         const buffers: any[] = []
         req.on('data', chunk => buffers.push(chunk))
