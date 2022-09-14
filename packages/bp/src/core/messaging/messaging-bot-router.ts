@@ -78,7 +78,7 @@ export class MessagingBotRouter extends CustomRouter {
       return events
     } else if (retryCount < allowedRetryCount) {
       await Promise.delay(DELAY_BETWEEN_CALLS)
-      return this.loadEvents(fields, retryCount++)
+      return this.loadEvents(fields, ++retryCount)
     } else {
       return []
     }
