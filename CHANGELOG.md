@@ -1,3 +1,14 @@
+## [12.30.2](https://github.com/botpress/botpress/compare/v12.30.1...v12.30.2) (2022-09-14)
+
+
+### Bug Fixes
+
+* **admin:** fix bot workspace scoping ([#12123](https://github.com/botpress/botpress/issues/12123)) ([63bfa0d](https://github.com/botpress/botpress/commit/63bfa0d261e0b9642988f371ac04f6215819e85e))
+* **core:** prevent infinite recursive call ([#12133](https://github.com/botpress/botpress/issues/12133)) ([306e7ff](https://github.com/botpress/botpress/commit/306e7ffa473d07def4c6ef1097ac5ebe17b3f65f))
+* upgrade nlu to 1.0.2 ([#12127](https://github.com/botpress/botpress/issues/12127)) ([d13adc4](https://github.com/botpress/botpress/commit/d13adc43904d53b8ca3aba24c75ee5299d4e9163))
+
+
+
 ## [12.30.1](https://github.com/botpress/botpress/compare/v12.30.0...v12.30.1) (2022-09-01)
 
 
