@@ -183,7 +183,7 @@ const checkPermissions = (workspaceService: WorkspaceService) => (
     return new ForbiddenError('Unauthorized')
   }
 
-  if (!req.workspace && req.params.botId) {
+  if ((!req.workspace || req.workspace === 'undefined') && req.params.botId) {
     req.workspace = await workspaceService.getBotWorkspaceId(req.params.botId)
   }
 
