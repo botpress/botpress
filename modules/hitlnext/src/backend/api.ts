@@ -274,13 +274,13 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
       }
 
       await Promise.mapSeries(recentUserConversationEvents.reverse(), event => {
-        // @ts-ignore
-        const e = bp.IO.Event({
-          type: event.event.type,
-          payload: event.event.payload,
-          ...baseEvent
-        } as sdk.IO.EventCtorArgs)
-        return bp.events.sendEvent(e)
+        return bp.messaging
+          .forBot(handoff.botId)
+          .createMessage(
+            handoff.agentThreadId,
+            event.direction === 'incoming' ? undefined : event.target,
+            event.event.payload
+          )
       })
 
       await bp.events.sendEvent(
