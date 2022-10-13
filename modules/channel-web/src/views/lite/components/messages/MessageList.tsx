@@ -1,5 +1,6 @@
 import { ResizeObserver } from '@juggle/resize-observer'
 import differenceInMinutes from 'date-fns/difference_in_minutes'
+import _ from 'lodash'
 import debounce from 'lodash/debounce'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
@@ -173,7 +174,7 @@ class MessageList extends React.Component<MessageListProps, State> {
             !groups[i - 1] ||
             differenceInMinutes(new Date(groupDate), new Date(lastDate)) > constants.TIME_BETWEEN_DATES
 
-          const [{ authorId, payload }] = group
+          const { authorId, payload } = _.last(group)
 
           const avatar = authorId
             ? this.props.showUserAvatar &&
