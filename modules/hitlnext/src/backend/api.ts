@@ -1,4 +1,5 @@
 import Axios from 'axios'
+import Bluebird from 'bluebird'
 import * as sdk from 'botpress/sdk'
 import { BPRequest } from 'common/http'
 import { RequestWithUser } from 'common/typings'
@@ -273,14 +274,15 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
         threadId: handoff.agentThreadId
       }
 
-      await Promise.mapSeries(recentUserConversationEvents.reverse(), event => {
-        return bp.messaging
+      await Promise.mapSeries(recentUserConversationEvents.reverse(), async event => {
+        await bp.messaging
           .forBot(handoff.botId)
           .createMessage(
             handoff.agentThreadId,
             event.direction === 'incoming' ? undefined : event.target,
             event.event.payload
           )
+        await Bluebird.delay(5)
       })
 
       await bp.events.sendEvent(
