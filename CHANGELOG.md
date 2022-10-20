@@ -1,3 +1,15 @@
+## [12.30.3](https://github.com/botpress/botpress/compare/v12.30.2...v12.30.3) (2022-10-20)
+
+
+### Bug Fixes
+
+* **channel-web:** use avatar from last message ([#12178](https://github.com/botpress/botpress/issues/12178)) ([a71a6fb](https://github.com/botpress/botpress/commit/a71a6fb296389f2b63d365fdeb896f97b67260c4)), closes [#12049](https://github.com/botpress/botpress/issues/12049)
+* **core:** resolve 'undefined' workspace ([#12138](https://github.com/botpress/botpress/issues/12138)) ([f0b31d1](https://github.com/botpress/botpress/commit/f0b31d15ad6ba2bf118a8c40bc7a04f49f3d2dc5))
+* **google-speech:** allow multiline SSML content ([#12139](https://github.com/botpress/botpress/issues/12139)) ([c99521f](https://github.com/botpress/botpress/commit/c99521fe88fea3bee2d3e71c9adf113ec2df8310))
+* **hitlnext:** issue with history and re-queue ([#12150](https://github.com/botpress/botpress/issues/12150)) ([80b0179](https://github.com/botpress/botpress/commit/80b0179d967094df98f5ac55295ba458b18321cc))
+
+
+
 ## [12.30.2](https://github.com/botpress/botpress/compare/v12.30.1...v12.30.2) (2022-09-14)
 
 
