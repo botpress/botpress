@@ -211,11 +211,6 @@ const checkPermissions = (workspaceService: WorkspaceService) => (
     return new ForbiddenError(`User "${email}" doesn't have access to workspace "${req.workspace}"`)
   }
 
-  const isBotIdValid = req.params.botId && req.params.botId !== ALL_BOTS
-  if (isBotIdValid && !(await workspaceService.isBotInWorkspace(req.workspace, req.params.botId))) {
-    return new NotFoundError(`Bot "${req.params.botId}" doesn't exist in workspace "${req.workspace}"`)
-  }
-
   const role = await workspaceService.getRoleForUser(email, strategy, req.workspace)
 
   if (!role || !checkRule(role.rules, operation, resource)) {
