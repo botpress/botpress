@@ -50,14 +50,6 @@ describe('Studio - Flows', () => {
     await clickOn('.bp3-dialog-close-button')
   })
 
-  it('Check default transition', async () => {
-    await clickOn('#tab-transitions')
-    await page.waitForSelector('#transition-item-0')
-    await page.hover('#transition-item-0')
-    await clickOn('#transition-edit', { clickCount: 1, text: 'Edit' })
-    await clickOn('.bp3-dialog-close-button')
-  })
-
   it('Rename flow', async () => {
     await clickOnTreeNode('test_flow', 'right')
     await clickOn('#btn-rename')
