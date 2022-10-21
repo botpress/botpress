@@ -75,7 +75,13 @@ class Service {
 
   async updateHandoff(handoff: Partial<IHandoff>, botId: string, payload: any) {
     const updated = await this.repository.updateHandoff(botId, handoff.id, payload)
-    this.state.expireHandoff(botId, handoff.userThreadId)
+
+    if (updated.status !== 'pending') {
+      this.state.expireHandoff(botId, handoff.userThreadId)
+    } else {
+      this.state.cacheHandoff(botId, handoff.userThreadId, updated)
+    }
+
     this.updateRealtimeHandoff(botId, updated)
 
     return updated

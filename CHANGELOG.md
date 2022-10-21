@@ -1,3 +1,26 @@
+## [12.30.3](https://github.com/botpress/botpress/compare/v12.30.2...v12.30.3) (2022-10-20)
+
+
+### Bug Fixes
+
+* **channel-web:** use avatar from last message ([#12178](https://github.com/botpress/botpress/issues/12178)) ([a71a6fb](https://github.com/botpress/botpress/commit/a71a6fb296389f2b63d365fdeb896f97b67260c4)), closes [#12049](https://github.com/botpress/botpress/issues/12049)
+* **core:** resolve 'undefined' workspace ([#12138](https://github.com/botpress/botpress/issues/12138)) ([f0b31d1](https://github.com/botpress/botpress/commit/f0b31d15ad6ba2bf118a8c40bc7a04f49f3d2dc5))
+* **google-speech:** allow multiline SSML content ([#12139](https://github.com/botpress/botpress/issues/12139)) ([c99521f](https://github.com/botpress/botpress/commit/c99521fe88fea3bee2d3e71c9adf113ec2df8310))
+* **hitlnext:** issue with history and re-queue ([#12150](https://github.com/botpress/botpress/issues/12150)) ([80b0179](https://github.com/botpress/botpress/commit/80b0179d967094df98f5ac55295ba458b18321cc))
+
+
+
+## [12.30.2](https://github.com/botpress/botpress/compare/v12.30.1...v12.30.2) (2022-09-14)
+
+
+### Bug Fixes
+
+* **admin:** fix bot workspace scoping ([#12123](https://github.com/botpress/botpress/issues/12123)) ([63bfa0d](https://github.com/botpress/botpress/commit/63bfa0d261e0b9642988f371ac04f6215819e85e))
+* **core:** prevent infinite recursive call ([#12133](https://github.com/botpress/botpress/issues/12133)) ([306e7ff](https://github.com/botpress/botpress/commit/306e7ffa473d07def4c6ef1097ac5ebe17b3f65f))
+* upgrade nlu to 1.0.2 ([#12127](https://github.com/botpress/botpress/issues/12127)) ([d13adc4](https://github.com/botpress/botpress/commit/d13adc43904d53b8ca3aba24c75ee5299d4e9163))
+
+
+
 ## [12.30.1](https://github.com/botpress/botpress/compare/v12.30.0...v12.30.1) (2022-09-01)
 
 
