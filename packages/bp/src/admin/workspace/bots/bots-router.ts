@@ -214,15 +214,17 @@ class BotsRouter extends CustomAdminRouter {
           return res.status(400).send('Bot should be imported from archive')
         }
 
+        const overwrite = yn(req.query.overwrite)
         const botId = await this.botService.makeBotId(req.params.botId, req.workspace!)
 
-        await assertBotInWorkspace(botId, req.workspace)
+        if (overwrite) {
+          await assertBotInWorkspace(botId, req.workspace)
+        }
 
         const buffers: any[] = []
         req.on('data', chunk => buffers.push(chunk))
         await Promise.fromCallback(cb => req.on('end', cb))
 
-        const overwrite = yn(req.query.overwrite)
         await this.botService.importBot(botId, Buffer.concat(buffers), req.workspace!, overwrite)
         res.sendStatus(200)
       })
