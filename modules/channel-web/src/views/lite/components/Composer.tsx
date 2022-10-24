@@ -23,7 +23,7 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
     this.focus()
 
     observe(this.props.focusedArea, focus => {
-      focus.newValue === 'input' && this.textInput.current.focus()
+      focus.newValue === 'input' && this.textInput.current?.focus()
     })
   }
 
@@ -36,7 +36,7 @@ class Composer extends React.Component<ComposerProps, { isRecording: boolean }> 
 
   focus = () => {
     setTimeout(() => {
-      this.textInput.current.focus()
+      this.textInput.current?.focus()
     }, 50)
   }
 

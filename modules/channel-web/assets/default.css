@@ -278,14 +278,21 @@ body {
   min-height: 1px;
 }
 
-.bpw-msg-list {
+.bpw-msg-list-scroll-container {
   -webkit-box-flex: 1;
   -ms-flex: 1;
   flex: 1;
-  overflow-y: auto;
+  overflow-y: hidden;
   -ms-flex-positive: 1;
   flex-grow: 1;
+}
+
+.bpw-msg-list {
   padding: 0 0.5rem 0.5rem 0.5rem;
+}
+
+.bpw-msg-list-follow {
+  display: none;
 }
 
 .bpw-date-container {
