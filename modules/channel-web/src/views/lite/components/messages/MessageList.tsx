@@ -1,5 +1,5 @@
 import differenceInMinutes from 'date-fns/difference_in_minutes'
-import _ from 'lodash'
+import last from 'lodash/last'
 import { observe } from 'mobx'
 import { inject, observer } from 'mobx-react'
 import React, { useEffect, useState } from 'react'
@@ -161,7 +161,7 @@ const Content = observer(props => {
             !groups[i - 1] ||
             differenceInMinutes(new Date(groupDate), new Date(lastDate)) > constants.TIME_BETWEEN_DATES
 
-          const { authorId, payload } = _.last(group)
+          const { authorId, payload } = last(group)
 
           const avatar = authorId
             ? props.showUserAvatar && renderAvatar(payload.channel?.web?.userName, payload.channel?.web?.avatarUrl)
