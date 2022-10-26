@@ -14,9 +14,14 @@ async function getVisitorId(userId) {
  */
 const switchLanguage = async language => {
   event.state.user.language = language
+  await event.setFlag(bp.IO.WellKnownFlags.FORCE_PERSIST_STATE, true)
+
+  if (event.channel === 'api') {
+    return
+  }
+
   const visitorId = await getVisitorId(event.target)
   bp.realtime.sendPayload(bp.RealTimePayload.forVisitor(visitorId, 'webchat.data', { payload: { language } }))
-  await event.setFlag(bp.IO.WellKnownFlags.FORCE_PERSIST_STATE, true)
 }
 
 return switchLanguage(args.lang.toLowerCase())
