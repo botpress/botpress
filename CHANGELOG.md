@@ -1,3 +1,15 @@
+## [12.30.4](https://github.com/botpress/botpress/compare/v12.30.3...v12.30.4) (2022-10-26)
+
+
+### Bug Fixes
+
+* **admin:** rm bot exists chec in security mw ([#12192](https://github.com/botpress/botpress/issues/12192)) ([2e52b57](https://github.com/botpress/botpress/commit/2e52b57bf2cab4415fd3ec1454299139b69228c8))
+* **builtin:** fix crash on converse api ([#12205](https://github.com/botpress/botpress/issues/12205)) ([0c9450e](https://github.com/botpress/botpress/commit/0c9450e7ea9a6b3f96231733c8a6fccfc23a1a55))
+* **channel-web:** don't use full lodash ([#12204](https://github.com/botpress/botpress/issues/12204)) ([5e4ca8a](https://github.com/botpress/botpress/commit/5e4ca8a458bfd1ece4d46485e7aa48713926eb46))
+* **channel-web:** inconsistent scrolling behavior ([#12193](https://github.com/botpress/botpress/issues/12193)) ([c2f158c](https://github.com/botpress/botpress/commit/c2f158cc1cf8812118d5e42dc92cf2eb5b062f46)), closes [#12034](https://github.com/botpress/botpress/issues/12034)
+
+
+
 ## [12.30.3](https://github.com/botpress/botpress/compare/v12.30.2...v12.30.3) (2022-10-20)
 
 
