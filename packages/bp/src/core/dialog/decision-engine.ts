@@ -137,7 +137,7 @@ export class DecisionEngine {
       (!sendSuggestionResult || sendSuggestionResult!.executeFlows)
     ) {
       try {
-        if (!sendSuggestionResult?.executeFlows) {
+        if (!sendSuggestionResult?.executeFlows || !event?.decision) {
           Object.assign(event, {
             decision: <IO.Suggestion>{
               decision: { reason: 'no suggestion matched', status: 'elected' },
