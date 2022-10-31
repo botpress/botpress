@@ -51,10 +51,25 @@ export class QuickReplies extends Component<Renderer.QuickReply> {
 
   render() {
     const buttons = this.props.buttons || this.props.quick_replies
-    const kbd = <div className={'bpw-keyboard-quick_reply'}>{buttons && this.renderKeyboard(buttons)}</div>
+    const kbd = (
+      <div className={this.props.displayInMessage ? 'bpw-in-message-quick_reply' : 'bpw-keyboard-quick_reply'}>
+        {buttons && this.renderKeyboard(buttons)}
+      </div>
+    )
+
+    const visible = this.props.isLastGroup && this.props.isLastOfGroup
+
+    if (this.props.displayInMessage && visible) {
+      return (
+        <div>
+          {this.props.children}
+          {kbd}
+        </div>
+      )
+    }
 
     return (
-      <Keyboard.Prepend keyboard={kbd} visible={this.props.isLastGroup && this.props.isLastOfGroup}>
+      <Keyboard.Prepend keyboard={kbd} visible={visible}>
         {this.props.children}
       </Keyboard.Prepend>
     )

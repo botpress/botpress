@@ -5,6 +5,7 @@ interface ExtraChoiceProperties {
   isDropdown: boolean
   dropdownPlaceholder: string
   disableFreeText: boolean
+  displayInMessage: boolean
 }
 
 interface ExtraDropdownProperties {
@@ -73,7 +74,8 @@ const renderChoicePayload = (content: sdk.ChoiceContent & ExtraChoiceProperties)
       options: content.choices.map(c => ({ label: c.title, value: c.value.toUpperCase() })),
       width: 300,
       placeholderText: content.dropdownPlaceholder,
-      disableFreeText: content.disableFreeText
+      disableFreeText: content.disableFreeText,
+      displayInMessage: content.displayInMessage
     }
   }
   return {
@@ -88,7 +90,8 @@ const renderChoicePayload = (content: sdk.ChoiceContent & ExtraChoiceProperties)
     wrapped: {
       type: 'text',
       ...omit(content, 'choices', 'type')
-    }
+    },
+    displayInMessage: content.displayInMessage
   }
 }
 

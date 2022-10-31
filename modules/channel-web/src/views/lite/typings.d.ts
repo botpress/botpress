@@ -91,6 +91,7 @@ export namespace Renderer {
     buttons: any
     quick_replies: any
     disableFreeText: boolean
+    displayInMessage?: boolean
   } & Message
 
   export type QuickReplyButton = {

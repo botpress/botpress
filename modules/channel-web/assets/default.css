@@ -452,6 +452,14 @@ body {
   border-top: 1px solid #dcdcdc;
 }
 
+.bpw-in-message-quick_reply {
+  padding-top: 10px;
+}
+
+.bpw-in-message-quick_reply > button {
+  margin: 2px;
+}
+
 /* CAROUSEL  */
 .slick-arrow {
   background-color: #fff !important;
