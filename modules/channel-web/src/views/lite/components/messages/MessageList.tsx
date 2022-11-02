@@ -76,13 +76,13 @@ const Content = observer(props => {
   const [sticky] = useSticky()
 
   useEffect(() => {
-    const stateUpdate = { ...state, messagesLength: props.currentMessages.length }
-    if (!sticky && state.messagesLength !== props.currentMessages.length) {
+    const stateUpdate = { ...state, messagesLength: props.currentMessages?.length }
+    if (!sticky && state.messagesLength !== props.currentMessages?.length) {
       setState({ ...stateUpdate, showNewMessageIndicator: true })
     } else {
       setState({ ...stateUpdate, showNewMessageIndicator: false })
     }
-  }, [props.currentMessages.length, sticky])
+  }, [props.currentMessages?.length, sticky])
 
   const shouldDisplayMessage = (m: Message): boolean => {
     return m.payload.type !== 'postback'
@@ -191,7 +191,7 @@ const Content = observer(props => {
         <div className="bpw-new-messages-indicator" onClick={e => scrollToBottom()}>
           <span>
             {props.intl.formatMessage({
-              id: `messages.newMessage${props.currentMessages.length === 1 ? '' : 's'}`
+              id: `messages.newMessage${props.currentMessages?.length === 1 ? '' : 's'}`
             })}
           </span>
         </div>
