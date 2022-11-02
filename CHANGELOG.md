@@ -1,3 +1,12 @@
+## [12.30.5](https://github.com/botpress/botpress/compare/v12.30.4...v12.30.5) (2022-11-02)
+
+
+### Bug Fixes
+
+* **web-channel:** crash on empty message list ([#12225](https://github.com/botpress/botpress/issues/12225)) ([c175498](https://github.com/botpress/botpress/commit/c175498c3310d020bcad486e362bf4b5a8abc409))
+
+
+
 ## [12.30.4](https://github.com/botpress/botpress/compare/v12.30.3...v12.30.4) (2022-10-26)
 
 
