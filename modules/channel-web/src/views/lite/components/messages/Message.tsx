@@ -175,7 +175,23 @@ class Message extends Component<MessageProps> {
       return '* Cannot display message *'
     }
 
-    const type = this.props.type || (this.props.payload && this.props.payload.type)
+    let type = this.props.type || (this.props.payload && this.props.payload.type)
+
+    if (type === 'say_something') {
+      let text = (this.props.payload.text || this.props.payload.preview).slice(2)
+      if (text.startsWith('builtin_')) {
+        text = text.split('-')[0].replace('builtin_', '')
+        if (text === 'action') {
+          text = `${text}-button`
+        } else if (text === 'single') {
+          text = `${text}-choice`
+        }
+      } else if (text.startsWith('dropdown')) {
+        text = 'dropdown'
+      }
+      type = text
+    }
+
     const wrappedType = this.props.payload && this.props.payload.wrapped && this.props.payload.wrapped.type
     const renderer = (this[`render_${type}`] || this.render_unsupported).bind(this)
     const wrappedClass = `bpw-bubble-${wrappedType}`
