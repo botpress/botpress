@@ -1252,14 +1252,20 @@ declare module 'botpress/sdk' {
    * - END - End the current dialog
    * - node - Send the user to a specific node in the current flow
    */
-  export interface NodeTransition {
+
+   export type language =
+   'en' | 'de' | 'pt' | 'ar' | 'nl' | 'fr' | 'he' | 'it' | 'ja' | 'pl' | 'ru' | 'es'
+
+  type MultiLangCaption = { [key in language as `caption$${key}`]?: string; }
+
+  export type NodeTransition = {
     /** The text to display instead of the condition in the flow editor */
     caption?: string
     /** A JS expression that is evaluated to determine if it should send the user to the specified node */
     condition: string
     /** The destination node */
     node: string
-  }
+  } & MultiLangCaption
 
   export interface MultiLangText {
     [lang: string]: string
