@@ -23,8 +23,6 @@ module.exports = [
     type: 'category',
     label: 'Cloud',
     collapsible: true,
-    items: [
-      "overview/cloud/getting-started",
-    ]
+    items:[]
   }
 ]
