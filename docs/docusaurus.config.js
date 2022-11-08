@@ -44,8 +44,8 @@ const config = {
   themeConfig:
     ({
       announcementBar: {
-        id: 'announcementBar-2', // Increment on change
-        content: `Introducing Botpress 🧠 <a target="_blank" rel="noopener noreferrer" href="https://learn.botpress.com"> Learning Center</a> 🧠 – A New Place to Master Botpress, Chatbots, and Conversational AI`,
+        id: 'announcementBar-3', // Increment on change
+        content: `You can find the latest <b>Botpress Cloud</b> documentation through <a target="_blank" rel="noopener noreferrer" href="https://botpress.com/docs">this link</a>!`,
         backgroundColor: "#3276ea",
         textColor: "#fff"
       },
@@ -125,6 +125,10 @@ const config = {
             position: "right",
             dropdownItemsAfter: [
               {
+                label: "Botpress Cloud",
+                href: "https://botpress.com/docs"
+              },
+              {
                 href: "http://botpress-docs.s3-website-us-east-1.amazonaws.com/docs/installation/",
                 label: "v12.26.7",
               },
@@ -151,6 +155,10 @@ const config = {
           {
             title: "Docs",
             items: [
+              {
+                label: "Botpress Cloud Docs",
+                href: "https://botpress.com/docs",
+              },
               {
                 label: "Overview",
                 to: "/",
