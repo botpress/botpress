@@ -6,6 +6,7 @@ const config = {
   tagline: "Making Machines Understand Humans",
   url: "https://botpress.com",
   baseUrl: process.env.BASE_URL || "/",
+  noIndex: true,
   onBrokenLinks: "warn",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/BlackSymbol.svg",
