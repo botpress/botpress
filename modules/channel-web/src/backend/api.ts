@@ -194,7 +194,8 @@ export default async (bp: typeof sdk, db: Database) => {
         disableNotificationSound: config.disableNotificationSound,
         security,
         lazySocket: config.lazySocket,
-        maxMessageLength: config.maxMessageLength
+        maxMessageLength: config.maxMessageLength,
+        alwaysScrollDownOnMessages: config.alwaysScrollDownOnMessages
       })
     })
   )

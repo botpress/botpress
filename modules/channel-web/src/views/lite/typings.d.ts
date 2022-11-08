@@ -260,6 +260,7 @@ export interface BotInfo {
   }
   lazySocket: boolean
   maxMessageLength: number
+  alwaysScrollDownOnMessages: boolean
 }
 
 export type uuid = string

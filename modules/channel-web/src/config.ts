@@ -28,6 +28,12 @@ export interface Config {
    */
   recentConversationLifetime?: string
   /**
+   * In case of news messages, even if the scrollbar is not at the bottom,
+   * the chat will scroll down to show the new message
+   * @default false
+   */
+  alwaysScrollDownOnMessages?: boolean
+  /**
    * @default 360
    */
   maxMessageLength?: number

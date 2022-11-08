@@ -94,6 +94,11 @@ class RootStore {
   }
 
   @computed
+  get alwaysScrollDownOnMessages(): boolean {
+    return this.botInfo.alwaysScrollDownOnMessages || false
+  }
+
+  @computed
   get isEmulator(): boolean {
     return this.config?.isEmulator || false
   }
