@@ -276,7 +276,7 @@ function DocSearch({
 function SearchBar(): JSX.Element {
   const {siteConfig} = useDocusaurusContext()
 
-
+  return null;  // todo configure algolia search
   const props = {
     ...(siteConfig.themeConfig.algolia as any),
     baseUrl: siteConfig.baseUrl
