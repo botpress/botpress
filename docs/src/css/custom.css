@@ -1,0 +1,346 @@
+/**
+ * Any CSS included here will be global. The classic template
+ * bundles Infima by default. Infima is a CSS framework designed to
+ * work well for content-centric websites.
+ */
+
+/* You can override the default Infima variables here. */
+
+:root {
+  --font-family: "Roobert";
+  --ifm-color-primary: #0265d2;
+  --ifm-color-primary-dark: #165fdb;
+  --ifm-color-primary-darker: #124eb4;
+  --ifm-color-primary-darkest: #1046a4;
+  --ifm-color-primary-light: #4c87ed;
+  --ifm-color-primary-lighter: #5990ee;
+  --ifm-color-primary-lightest: #7faaf2;
+  --ifm-code-font-size: 95%;
+  --ifm-background-color: #ffffff;
+  --ifm-menu-background-color: #f9f9f9;
+  --ifm-menu-color-background-hover: #e2e8f7;
+  --ifm-menu-color-background-active: var(--ifm-menu-color-background-hover);
+  --ifm-hover-overlay: #cad7f5;
+  --ifm-color-white: #f5f6f8;
+  --ifm-color-black: #373b3f;
+  --ifm-font-family: "Roobert";
+  --ifm-font-family-monospace: "Roobert";
+  --ifm-font-family-base: "Roobert";
+  --collapse-button-bg-color-dark: #2e333a;
+  --ifm-alert-border-radius: 5px;
+  --ifm-menu-color-active: var(--ifm-color-black);
+  --ifm-navbar-background-color: #fff;
+  --ifm-footer-link-color: #707070;
+  --ifm-color-secondary: #000000;
+  --ifm-footer-title-color: #707070;
+  --ifm-hr-border-color: #f3f3f3;
+  --ifm-link-hover-decoration: none;
+}
+
+main p > a,
+main li > a {
+  color: #0265d2;
+}
+
+main p > a:hover,
+main li > a:hover {
+  border-bottom: 1px solid #0265d2;
+}
+
+.tabs__item--active {
+  border-bottom-color: var(--ifm-tabs-color-active-border);
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+  color: var(--ifm-tabs-color-active);
+  background: #cad7f5;
+}
+
+.menu {
+  background-color: var(--ifm-menu-background-color);
+}
+
+.hero {
+  align-items: center;
+  background-color: #000;
+  color: #f5f6f8;
+  display: flex;
+  padding: 4rem 2rem;
+}
+
+.footer {
+  --ifm-footer-background-color: #ffffff;
+  --ifm-footer-color: var(--ifm-footer-link-color);
+  --ifm-footer-link-color: var(--ifm-color-secondary);
+  border-top: 1px solid #e6e6e6;
+}
+
+.footer__copyright {
+  color: #aaaaaa;
+}
+
+.pagination-nav__label {
+  font-size: var(--ifm-h3-font-size);
+  font-weight: var(--ifm-heading-font-weight);
+  word-break: break-word;
+}
+
+.pagination-nav__link {
+  border: 2px solid #cad7f5;
+  border-radius: var(--ifm-pagination-nav-border-radius);
+  flex-grow: 1;
+  line-height: var(--ifm-heading-line-height);
+  padding: var(--ifm-global-spacing);
+  transition: border-color var(--ifm-transition-fast)
+    var(--ifm-transition-timing-default);
+}
+
+.pagination-nav__sublabel {
+  color: #7faaf2;
+  font-size: var(--ifm-h5-font-size);
+  font-weight: var(--ifm-font-weight-semibold);
+  margin-bottom: 0.25rem;
+}
+
+@font-face {
+  font-family: "Roobert";
+  src: url("/static/Roobert-Regular.otf");
+}
+
+/* SemiBold (600) Weight */
+@font-face {
+  font-family: "Roobert";
+  src: url("/static/Roobert-SemiBold.otf");
+  font-weight: 600;
+}
+
+.hero__title {
+  font-size: 3rem;
+  color: #f5f6f8;
+}
+
+html[data-theme="dark"] {
+  --ifm-color-scheme: dark;
+  --ifm-color-emphasis-0: var(--ifm-color-gray-1000);
+  --ifm-color-emphasis-100: var(--ifm-color-gray-900);
+  --ifm-color-emphasis-200: var(--ifm-color-gray-800);
+  --ifm-color-emphasis-300: var(--ifm-color-gray-700);
+  --ifm-color-emphasis-400: var(--ifm-color-gray-600);
+  --ifm-color-emphasis-500: var(--ifm-color-gray-500);
+  --ifm-color-emphasis-600: var(--ifm-color-gray-400);
+  --ifm-color-emphasis-700: var(--ifm-color-gray-300);
+  --ifm-color-emphasis-800: var(--ifm-color-gray-200);
+  --ifm-color-emphasis-900: var(--ifm-color-gray-100);
+  --ifm-color-emphasis-1000: var(--ifm-color-gray-0);
+  --ifm-background-color: #22282e;
+  --ifm-background-surface-color: #242526;
+  --ifm-hover-overlay: rgba(255, 255, 255, 0.05);
+  --ifm-color-content-secondary: rgba(255, 255, 255, 1);
+  --ifm-breadcrumb-separator-filter: invert(64%) sepia(11%) saturate(0%)
+    hue-rotate(149deg) brightness(99%) contrast(95%);
+  --ifm-code-background: rgb(51, 52, 55);
+  --ifm-scrollbar-track-background-color: #444444;
+  --ifm-scrollbar-thumb-background-color: #686868;
+  --ifm-scrollbar-thumb-hover-background-color: #7a7a7a;
+  --ifm-color-primary-contrast-background: rgb(16, 36, 69);
+  --ifm-color-primary-contrast-foreground: rgb(235, 242, 252);
+  --ifm-color-secondary-contrast-background: rgb(104, 104, 107);
+  --ifm-color-secondary-contrast-foreground: rgb(253, 253, 254);
+  --ifm-color-success-contrast-background: rgb(0, 112, 0);
+  --ifm-color-success-contrast-foreground: rgb(230, 246, 230);
+  --ifm-color-info-contrast-background: rgb(38, 92, 109);
+  --ifm-color-info-contrast-foreground: rgb(238, 249, 253);
+  --ifm-color-warning-contrast-background: rgba(204, 150, 0, 0.719);
+  --ifm-color-warning-contrast-foreground: rgb(247, 234, 203);
+  --ifm-color-danger-contrast-background: rgb(145, 36, 40);
+  --ifm-color-danger-contrast-foreground: rgb(255, 235, 236);
+  --ifm-h1-font-size: 2rem;
+  --ifm-h2-font-size: 1.5rem;
+  --ifm-h3-font-size: 1.25rem;
+  --ifm-h4-font-size: 1rem;
+  --ifm-h5-font-size: 0.875rem;
+  --ifm-h6-font-size: 0.85rem;
+}
+
+.markdown h1:first-child {
+  --ifm-h1-font-size: 2rem;
+  margin-bottom: calc(
+    var(--ifm-h1-vertical-rhythm-bottom) * var(--ifm-leading)
+  );
+  color: var(--ifm-color-black);
+}
+
+.markdown > h2 {
+  --ifm-h2-font-size: 1.5rem;
+  margin-bottom: calc(
+    var(--ifm-heading-vertical-rhythm-bottom) * var(--ifm-leading)
+  );
+  margin-top: calc(var(--ifm-h2-vertical-rhythm-top) * var(--ifm-leading));
+  color: var(--ifm-color-black);
+}
+
+.markdown > h3 {
+  --ifm-h2-font-size: 1.2rem;
+  margin-bottom: calc(
+    var(--ifm-heading-vertical-rhythm-bottom) * var(--ifm-leading)
+  );
+  margin-top: calc(var(--ifm-h3-vertical-rhythm-top) * var(--ifm-leading));
+  color: var(--ifm-color-black);
+}
+
+.markdown > h4 {
+  --ifm-h2-font-size: 1.1rem;
+  margin-bottom: calc(
+    var(--ifm-heading-vertical-rhythm-bottom) * var(--ifm-leading)
+  );
+  margin-top: calc(var(--ifm-h3-vertical-rhythm-top) * var(--ifm-leading));
+  color: var(--ifm-color-black);
+}
+
+.markdown > h5 {
+  --ifm-h3-font-size: 1rem;
+  margin-bottom: calc(
+    var(--ifm-heading-vertical-rhythm-bottom) * var(--ifm-leading)
+  );
+  margin-top: calc(var(--ifm-h3-vertical-rhythm-top) * var(--ifm-leading));
+  color: var(--ifm-color-black);
+}
+
+.button {
+  background-color: var(--ifm-button-background-color);
+  border-color: var(--ifm-button-border-color);
+  border-radius: var(--ifm-button-border-radius);
+  border-style: solid;
+  border-width: var(--ifm-button-border-width);
+  color: var(--ifm-button-color);
+  cursor: pointer;
+  display: inline-block;
+  font-size: calc(0.875rem * var(--ifm-button-size-multiplier));
+  font-weight: var(--ifm-button-font-weight);
+  line-height: 1.5;
+  padding: calc(
+      var(--ifm-button-padding-vertical) * var(--ifm-button-size-multiplier)
+    )
+    calc(
+      var(--ifm-button-padding-horizontal) * var(--ifm-button-size-multiplier)
+    );
+  text-align: center;
+  -webkit-user-select: none;
+  user-select: none;
+  vertical-align: middle;
+  white-space: nowrap;
+  transition-property: color, background, border-color;
+  transition-duration: var(--ifm-button-transition-duration);
+  transition-timing-function: var(--ifm-transition-timing-default);
+}
+
+.docusaurus-highlight-code-line {
+  background-color: rgba(0, 0, 0, 0.1);
+  display: block;
+  margin: 0 calc(-1 * var(--ifm-pre-padding));
+  padding: 0 var(--ifm-pre-padding);
+}
+
+html[data-theme="dark"] .docusaurus-highlight-code-line {
+  background-color: rgba(0, 0, 0, 0.3);
+}
+
+.alert {
+  --ifm-code-background: var(--ifm-alert-background-color-highlight);
+  --ifm-link-color: var(--ifm-alert-foreground-color);
+  --ifm-link-hover-color: var(--ifm-alert-foreground-color);
+  --ifm-link-decoration: underline;
+  --ifm-tabs-color: var(--ifm-alert-foreground-color);
+  --ifm-tabs-color-active: var(--ifm-alert-foreground-color);
+  --ifm-tabs-color-active-border: var(--ifm-alert-border-color);
+  background-color: var(--ifm-alert-background-color);
+  border-color: var(--ifm-alert-border-color);
+  border-style: solid;
+  border-width: var(--ifm-alert-border-width);
+  border-left-width: var(--ifm-alert-border-left-width);
+  border-radius: var(--ifm-alert-border-radius);
+  box-shadow: var(--ifm-alert-shadow);
+  color: var(--ifm-alert-foreground-color);
+  padding: var(--ifm-alert-padding-vertical) var(--ifm-alert-padding-horizontal);
+}
+
+.alert--secondary {
+  --ifm-alert-background-color: var(--ifm-color-secondary-contrast-background);
+  --ifm-alert-background-color-highlight: rgba(235, 237, 240, 0.15);
+  --ifm-alert-foreground-color: var(--ifm-color-secondary-contrast-foreground);
+  --ifm-alert-border-color: var(--ifm-color-secondary-dark);
+}
+/* 
+======================
+Navbar
+======================
+*/
+.navbar__link--active {
+  background: var(--ifm-menu-color-background-active);
+  color: var(--ifm-color-black);
+  border-radius: 5px;
+}
+
+.navbar__title {
+  flex: 1 1 auto;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 1.1rem;
+}
+
+.navbar__title::before {
+  display: inline-block;
+  color: var(--ifm-color-black) !important;
+  margin-right: 8px;
+  content: "|";
+}
+
+.navbar {
+  box-shadow: none;
+  border-bottom: 1px solid #e6e6e6;
+}
+
+/* 
+======================= 
+Side bar section titles
+======================= 
+*/
+
+.theme-doc-sidebar-item-category-level-1 > .menu__list-item-collapsible:hover {
+  background: transparent;
+}
+
+.theme-doc-sidebar-item-category-level-1
+  > .menu__list-item-collapsible
+  > .menu__link {
+  color: var(--ifm-color-black) !important;
+  font-weight: bolder;
+}
+
+.menu__link {
+  line-height: 1.15;
+}
+
+.menu__link:hover {
+  color: var(--ifm-color-black);
+}
+
+.theme-doc-sidebar-container > div {
+  max-height: none !important;
+}
+
+.alert {
+  box-shadow: none;
+  border-radius: 5px;
+  border: 1px solid #e6e6e6;
+}
+
+.alert--info {
+  background-color: var(--ifm-color-secondary-contrast-background);
+}
+
+.alert--info .admonition-heading,
+.alert--info .admonition-heading svg {
+  color: var(--ifm-color-primary-dark) !important;
+  fill: var(--ifm-color-primary-dark) !important;
+}

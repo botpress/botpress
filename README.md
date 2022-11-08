@@ -1,5 +1,7 @@
 # [Botpress](https://botpress.com/?utm_source=github&utm_medium=organic&utm_campaign=botpress_repo&utm_term=readme) — The building blocks for building chatbots
 
+IMPORTANT : With the launch of botpress Cloud, the documentation on botpress.com/docs now points to Botpress Cloud's docs. For Botpress 12, you can find the docs [here](https://botpress-12-docs.vercel.app/).
+
 ## What is Botpress ?
 
 Botpress is the standard developer stack to build, run and improve Conversational-AI applications. Powered by natural language understanding, a messaging API and a fully featured studio, Botpress allows developers around the globe to build remarkable chatbots without compromise.
@@ -35,7 +37,7 @@ There are a few ways to get started with botpress :
 
 ## Documentation
 
-- [Main Documentation](https://botpress.com/docs/introduction)
+- [Main Documentation](https://botpress-12-docs.vercel.app/)
 - [SDK Reference](https://botpress.com/reference/)
 - [Code Examples](https://github.com/botpress/botpress/tree/master/examples)
 - [Video Tutorials](https://www.youtube.com/c/botpress)
