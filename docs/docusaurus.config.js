@@ -26,7 +26,7 @@ const config = {
               label: "Latest",
             },
           },
-          editUrl: 'https://github.com/botpress/botpress/edit/main',
+          editUrl: 'https://github.com/botpress/botpress/edit/master/docs',
         },
         blog: {
           showReadingTime: true,
@@ -49,7 +49,11 @@ const config = {
         backgroundColor: "#3276ea",
         textColor: "#fff"
       },
-      metadata: [{ name: "botpress, chatbot", content: "documentation, docs" }, {name:"docsearch:docusaurus_tag", content:"docs-default-current"}],
+      metadata: [
+        { name: 'robots', content: 'noindex' },
+        { name: 'botpress, chatbot', content: 'documentation, docs' },
+        { name: 'docsearch:docusaurus_tag', content: 'docs-default-current' },
+      ],
       algolia: {
         apiKey: process.env.ALGOLIA_API_KEY || "empty",
         appId: process.env.ALGOLIA_APP_ID || "empty",

@@ -1,6 +1,6 @@
 # [Botpress](https://botpress.com/?utm_source=github&utm_medium=organic&utm_campaign=botpress_repo&utm_term=readme) — The building blocks for building chatbots
 
-IMPORTANT : With the launch of botpress Cloud, the documentation on botpress.com/docs now points to Botpress Cloud's docs. For Botpress 12, you can find the docs [here](https://botpress-12-docs.vercel.app/).
+IMPORTANT : With the launch of botpress Cloud, the documentation on botpress.com/docs now points to Botpress Cloud's docs. For Botpress 12, you can find the docs [here](https://v12.botpress.com/).
 
 ## What is Botpress ?
 
@@ -37,7 +37,7 @@ There are a few ways to get started with botpress :
 
 ## Documentation
 
-- [Main Documentation](https://botpress-12-docs.vercel.app/)
+- [Main Documentation](https://v12.botpress.com/)
 - [SDK Reference](https://botpress.com/reference/)
 - [Code Examples](https://github.com/botpress/botpress/tree/master/examples)
 - [Video Tutorials](https://www.youtube.com/c/botpress)
