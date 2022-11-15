@@ -137,15 +137,17 @@ export class DecisionEngine {
       (!sendSuggestionResult || sendSuggestionResult!.executeFlows)
     ) {
       try {
-        Object.assign(event, {
-          decision: <IO.Suggestion>{
-            decision: { reason: 'no suggestion matched', status: 'elected' },
-            confidence: 1,
-            payloads: [],
-            source: 'decisionEngine',
-            sourceDetails: 'execute default flow'
-          }
-        })
+        if (!sendSuggestionResult?.executeFlows || !event?.decision) {
+          Object.assign(event, {
+            decision: <IO.Suggestion>{
+              decision: { reason: 'no suggestion matched', status: 'elected' },
+              confidence: 1,
+              payloads: [],
+              source: 'decisionEngine',
+              sourceDetails: 'execute default flow'
+            }
+          })
+        }
         const processedEvent = await this.dialogEngine.processEvent(sessionId, event)
         // In case there are no unknown errors, remove skills/ flow from the stacktrace
         processedEvent.state.__stacktrace = processedEvent.state.__stacktrace.filter(x => !x.flow.startsWith('skills/'))
