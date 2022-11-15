@@ -71,7 +71,7 @@ const renderChoicePayload = (content: sdk.ChoiceContent & ExtraChoiceProperties)
       message: content.text,
       buttonText: '',
       displayInKeyboard: true,
-      options: content.choices.map(c => ({ label: c.title, value: c.value.toUpperCase() })),
+      options: content.choices.map(c => ({ label: c.title, value: c.value?.toUpperCase() })),
       width: 300,
       placeholderText: content.dropdownPlaceholder,
       disableFreeText: content.disableFreeText,
@@ -84,7 +84,7 @@ const renderChoicePayload = (content: sdk.ChoiceContent & ExtraChoiceProperties)
     component: 'QuickReplies',
     quick_replies: content.choices.map(c => ({
       title: c.title,
-      payload: c.value.toUpperCase()
+      payload: c.value?.toUpperCase()
     })),
     disableFreeText: content.disableFreeText,
     wrapped: {
