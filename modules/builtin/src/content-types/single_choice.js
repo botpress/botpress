@@ -56,6 +56,11 @@ module.exports = {
         title: 'module.builtin.disableFreeText',
         default: false
       },
+      displayInMessage: {
+        type: 'boolean',
+        title: 'module.builtin.types.singleChoice.displayInMessageTitle',
+        default: false
+      },
       ...base.typingIndicators
     }
   },

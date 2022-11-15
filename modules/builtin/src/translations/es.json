@@ -47,7 +47,8 @@
       "description": "Sugerir opciones al usuario con la intención de seleccionar solo una (con un mensaje opcional)",
       "itemTitle": "El título de la elección (esto es lo que se muestra al usuario)",
       "itemValue": "El valor que obtiene el bot cuando el usuario elige esta opción (normalmente oculto al usuario)",
-      "title": "Elección única"
+      "title": "Elección única",
+      "displayInMessageTitle": "Mostrar debajo del mensaje"
     },
     "text": {
       "alternatives": "Alternativas (opcional)",

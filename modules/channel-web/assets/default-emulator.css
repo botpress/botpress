@@ -526,6 +526,14 @@
     margin-bottom: 0;
   }
 
+  .bpw-in-message-quick_reply {
+    padding-top: 10px;
+  }
+
+  .bpw-in-message-quick_reply > button {
+    margin: 2px;
+  }
+
   .bpw-quick_reply-buttons-container {
     width: 100%;
     white-space: nowrap;
