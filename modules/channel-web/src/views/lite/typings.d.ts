@@ -21,6 +21,9 @@ declare global {
     botpress: {
       [moduleName: string]: any
     }
+    APP_NAME: string
+    APP_FAVICON: string
+    APP_CUSTOM_CSS: string
   }
 }
 
