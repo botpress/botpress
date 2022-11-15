@@ -67,7 +67,7 @@ class MessageList extends React.Component<MessageListProps, State> {
   }
 }
 
-const Content = observer(props => {
+const Content = observer((props: MessageListProps) => {
   const [state, setState] = useState<State>({
     showNewMessageIndicator: false,
     messagesLength: undefined
@@ -78,7 +78,8 @@ const Content = observer(props => {
   useEffect(() => {
     const stateUpdate = { ...state, messagesLength: props.currentMessages?.length }
     if (!sticky && state.messagesLength !== props.currentMessages?.length) {
-      setState({ ...stateUpdate, showNewMessageIndicator: true })
+      setState({ ...stateUpdate, showNewMessageIndicator: !props?.alwaysScrollDownOnMessages })
+      props?.alwaysScrollDownOnMessages && scrollToBottom()
     } else {
       setState({ ...stateUpdate, showNewMessageIndicator: false })
     }
@@ -213,7 +214,8 @@ export default inject(({ store }: { store: RootStore }) => ({
   focusedArea: store.view.focusedArea,
   showUserAvatar: store.config.showUserAvatar,
   enableArrowNavigation: store.config.enableArrowNavigation,
-  preferredLanguage: store.preferredLanguage
+  preferredLanguage: store.preferredLanguage,
+  alwaysScrollDownOnMessages: store.alwaysScrollDownOnMessages
 }))(injectIntl(observer(MessageList)))
 
 type MessageListProps = InjectedIntlProps &
@@ -231,4 +233,5 @@ type MessageListProps = InjectedIntlProps &
     | 'showUserAvatar'
     | 'currentMessages'
     | 'preferredLanguage'
+    | 'alwaysScrollDownOnMessages'
   >
