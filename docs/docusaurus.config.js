@@ -85,9 +85,9 @@ const config = {
         items: [
           {
             type: "doc",
-            docId: "overview/what-is-botpress",
+            docId: "overview/home",
             position: "left",
-            label: "Overview",
+            label: "Home",
           },
           {
             type: "doc",
