@@ -4,6 +4,7 @@ module.exports = [
     collapsible: false,
     label: "Getting Started",
     items: [
+      "overview/home",
       "overview/what-is-botpress",
       {
         type: "category",
