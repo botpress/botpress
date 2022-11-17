@@ -213,6 +213,10 @@ const config = {
                 label: "GitHub",
                 href: "https://github.com/botpress/botpress",
               },
+              {
+                label: "Solutions",
+                href: "https://github.com/botpress/solutions",
+              },
             ],
           },
         ],
