@@ -13,15 +13,6 @@ import Link from '@docusaurus/Link';
 
 const WebDevCards = [
   {
-    name: 'Botpress Support Portal',
-    url: {
-      page: 'https://support.botpress.com/support/login',
-      name: 'Go to Botpress Support Portal',
-    },
-    description:
-      'Engineer-to-engineer support directly from the Botpress team',
-  },
-  {
     name: 'Community Support',
     url: {
       page: 'https://github.com/botpress/botpress/discussions',
