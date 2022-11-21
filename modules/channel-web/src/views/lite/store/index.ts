@@ -450,6 +450,8 @@ class RootStore {
       document.head.appendChild(sheet)
     }
 
+    this.api.updateAxiosConfig({ botId: this.config.botId, externalAuthToken: this.config.externalAuthToken })
+
     if (!this.isInitialized) {
       window.USE_SESSION_STORAGE = this.config.useSessionStorage
     } else if (window.USE_SESSION_STORAGE !== this.config.useSessionStorage) {
