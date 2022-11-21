@@ -145,7 +145,7 @@
     "typescript-json-schema": "^0.50.0"
   },
   "optionalDependencies": {
-    "ioredis": "^4.14.1",
+    "ioredis": "^4.28.5",
     "sqlite3": "4.2.0"
   },
   "husky": {
