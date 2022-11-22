@@ -527,7 +527,7 @@ export default class Repository {
   listMessages = (botId: string, threadId: string, conditions: CollectionConditions = {}) => {
     return this.bp.events.findEvents(
       { botId, threadId },
-      { count: conditions.limit, sortOrder: [{ column: 'id', desc: true }] }
+      { count: conditions.limit, sortOrder: [{ column: 'createdOn', desc: true }] }
     )
   }
 
