@@ -161,6 +161,7 @@ module.exports = [
     collapsible: false,
     label: "Developers",
     items: [
+      "building-chatbots/developers/hooks/hooks",
       "building-chatbots/developers/database",
       "building-chatbots/developers/custom-modules",
       "building-chatbots/developers/inter-bot-communication-delegation"
