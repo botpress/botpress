@@ -22,7 +22,6 @@ module.exports = [
           id: "building-chatbots/flow-editor/flow-lifecycle/flow-lifecycle"
         },
         items: [
-          "building-chatbots/flow-editor/flow-lifecycle/nodes-lifecycle",
           "building-chatbots/flow-editor/flow-lifecycle/flow-wide-transitions"
         ]
       },
