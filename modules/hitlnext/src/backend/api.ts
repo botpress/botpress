@@ -198,8 +198,7 @@ export default async (bp: typeof sdk, state: StateType, repository: Repository) 
 
       Joi.attempt(payload, UpdateHandoffSchema)
 
-      const handoff = await repository.updateHandoff(botId, id, payload)
-      state.cacheHandoff(botId, handoff.userThreadId, handoff)
+      const handoff = await service.updateHandoff(id, botId, payload)
 
       service.sendPayload(botId, {
         resource: 'handoff',

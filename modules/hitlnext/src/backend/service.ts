@@ -56,7 +56,7 @@ class Service {
         const userHandoff = await this.repository.getHandoff(handoff.id)
 
         if (userHandoff.status === 'pending') {
-          await this.updateHandoff(userHandoff, botId, { status: 'expired' })
+          await this.updateHandoff(userHandoff.id, botId, { status: 'expired' })
           await this.transferToBot(eventDestination, 'timedOutWaitingAgent')
         }
       }, timeoutDelay * 1000)
@@ -67,19 +67,19 @@ class Service {
 
   async resolveHandoff(handoff: IHandoff, botId: string, payload) {
     const eventDestination = toEventDestination(botId, handoff)
-    const updated = await this.updateHandoff(handoff, botId, payload)
+    const updated = await this.updateHandoff(handoff.id, botId, payload)
     await this.transferToBot(eventDestination, 'handoffResolved')
 
     return updated
   }
 
-  async updateHandoff(handoff: Partial<IHandoff>, botId: string, payload: any) {
-    const updated = await this.repository.updateHandoff(botId, handoff.id, payload)
+  async updateHandoff(id: string, botId: string, payload: any) {
+    const updated = await this.repository.updateHandoff(botId, id, payload)
 
     if (updated.status !== 'pending') {
-      this.state.expireHandoff(botId, handoff.userThreadId)
+      this.state.expireHandoff(botId, updated.userThreadId)
     } else {
-      this.state.cacheHandoff(botId, handoff.userThreadId, updated)
+      this.state.cacheHandoff(botId, updated.userThreadId, updated)
     }
 
     this.updateRealtimeHandoff(botId, updated)
