@@ -440,7 +440,20 @@ class RootStore {
     this.view.disableAnimations = this.config.disableAnimations
     this.config.showPoweredBy ? this.view.showPoweredBy() : this.view.hidePoweredBy()
 
-    document.title = this.config.botName || 'Botpress Webchat'
+    document.title = this.config.botName || window.APP_NAME
+
+    if (window.APP_FAVICON) {
+      const link = document.querySelector('link[rel="icon"]')
+      link && link.setAttribute('href', window.APP_FAVICON)
+    }
+
+    if (window.APP_CUSTOM_CSS) {
+      const sheet = document.createElement('link')
+      sheet.rel = 'stylesheet'
+      sheet.href = window.APP_CUSTOM_CSS
+      sheet.type = 'text/css'
+      document.head.appendChild(sheet)
+    }
 
     this.api.updateAxiosConfig({ botId: this.config.botId, externalAuthToken: this.config.externalAuthToken })
 

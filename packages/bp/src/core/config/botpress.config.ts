@@ -243,6 +243,23 @@ export interface BotpressConfig {
          */
         customCss: string
       }
+      webchat: {
+        /**
+         * Change the name displayed in the title bar on the webchat
+         * @example "Botpress Webchat"
+         */
+        title?: string
+        /**
+         * Replace the default favicon
+         * @example "assets/ui-studio/public/img/favicon.png"
+         */
+        favicon?: string
+        /**
+         * Path to your custom stylesheet
+         * @example "assets/my-stylesheet.css"
+         */
+        customCss: string
+      }
     }
   }
   /**

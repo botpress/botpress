@@ -255,7 +255,7 @@ export class ConfigProvider {
     }
   }
 
-  public async getBrandingConfig(appName: 'admin' | 'studio') {
+  public async getBrandingConfig(appName: 'admin' | 'studio' | 'webchat') {
     const defaultConfig = {
       admin: {
         title: 'Botpress Admin Panel',
@@ -266,6 +266,11 @@ export class ConfigProvider {
         title: 'Botpress Studio',
         favicon: 'assets/studio/ui/public/img/favicon.png',
         customCss: ''
+      },
+      webchat: {
+        title: 'Botpress Webchat',
+        favicon: 'assets/studio/ui/public/img/favicon.png',
+        customCss: ''
       }
     }
 
@@ -274,7 +279,7 @@ export class ConfigProvider {
     }
 
     const config = await this.getBotpressConfig()
-    const { title, favicon, customCss } = config.pro?.branding?.[appName] ?? {}
+    const { title, favicon, customCss } = config.pro?.branding?.[appName] ?? defaultConfig[appName] ?? {}
 
     return {
       title: title || '',

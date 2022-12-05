@@ -253,16 +253,17 @@ export class HTTPServer {
     const config = await this.configProvider.getBotpressConfig()
 
     return `
-    window.API_PATH = "${process.ROOT_PATH}/api/v1";
-    window.TELEMETRY_URL = "${process.TELEMETRY_URL}";
-    window.EXTERNAL_URL = "${process.EXTERNAL_URL}";
-    window.SEND_USAGE_STATS = ${config!.sendUsageStats};
-    window.USE_JWT_COOKIES = ${process.USE_JWT_COOKIES};
-    window.EXPERIMENTAL = ${config.experimental};
-    window.SOCKET_TRANSPORTS = ${JSON.stringify(getSocketTransports(config))}
-    window.SHOW_POWERED_BY = ${!!config.showPoweredBy};
-    window.UUID = "${this.machineId}";
-    window.SERVER_ID = "${process.SERVER_ID}";`
+        window.API_PATH = "${process.ROOT_PATH}/api/v1";
+        window.TELEMETRY_URL = "${process.TELEMETRY_URL}";
+        window.EXTERNAL_URL = "${process.EXTERNAL_URL}";
+        window.SEND_USAGE_STATS = ${config!.sendUsageStats};
+        window.USE_JWT_COOKIES = ${process.USE_JWT_COOKIES};
+        window.EXPERIMENTAL = ${config.experimental};
+        window.SOCKET_TRANSPORTS = ${JSON.stringify(getSocketTransports(config))}
+        window.SHOW_POWERED_BY = ${!!config.showPoweredBy};
+        window.UUID = "${this.machineId}";
+        window.SERVER_ID = "${process.SERVER_ID}";
+    `
   }
 
   async setupStudioProxy() {
@@ -440,6 +441,7 @@ export class HTTPServer {
 
   private setupUILite(app) {
     app.get('/lite/:botId/env.js', async (req, res) => {
+      const branding = await this.configProvider.getBrandingConfig('webchat')
       const { botId } = req.params
 
       const bot = await this.botService.findBotById(botId)
@@ -451,6 +453,9 @@ export class HTTPServer {
       const totalEnv = `
           (function(window) {
               ${commonEnv}
+              window.APP_NAME = "${branding.title}";
+              window.APP_FAVICON = "${branding.favicon}";
+              window.APP_CUSTOM_CSS = "${branding.customCss}";
               window.BOT_API_PATH = "${process.ROOT_PATH}/api/v1/bots/${botId}";
             })(typeof window != 'undefined' ? window : {})
           `
