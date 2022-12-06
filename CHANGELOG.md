@@ -1,3 +1,21 @@
+## [12.30.6](https://github.com/botpress/botpress/compare/v12.30.5...v12.30.6) (2022-12-01)
+
+
+### Bug Fixes
+
+* **core:** qna with transitions source details ([#12216](https://github.com/botpress/botpress/issues/12216)) ([36f8d44](https://github.com/botpress/botpress/commit/36f8d441e6422a4fa1a57760d8695e390c4a998c)), closes [#11748](https://github.com/botpress/botpress/issues/11748)
+* **hitlnext:** expire cache while updating tags ([#12341](https://github.com/botpress/botpress/issues/12341)) ([cdc6ab6](https://github.com/botpress/botpress/commit/cdc6ab65ff5671889d19ed339d6e453011cc860a))
+* **web-channel:** prevent error on null choice ([#12228](https://github.com/botpress/botpress/issues/12228)) ([1a47643](https://github.com/botpress/botpress/commit/1a476435edff9a553e762e08851c85481169df2d))
+
+
+### Features
+
+* **channel-web:** allow choices below message ([#12224](https://github.com/botpress/botpress/issues/12224)) ([435b5c5](https://github.com/botpress/botpress/commit/435b5c55c959552c9aff49d07e11098fd65d35a0))
+* **studio:** multilingual captions for skill transitions ([#12240](https://github.com/botpress/botpress/issues/12240)) ([2b9c496](https://github.com/botpress/botpress/commit/2b9c4964137f12ced0376bb6534bf861fa09aff2))
+* **web:** allow to force scrolldown on messages ([#12247](https://github.com/botpress/botpress/issues/12247)) ([5f9e7a5](https://github.com/botpress/botpress/commit/5f9e7a5a200bf33c2cfdc72b889e01d061f75d8d))
+
+
+
 ## [12.30.5](https://github.com/botpress/botpress/compare/v12.30.4...v12.30.5) (2022-11-02)
 
 
