@@ -193,16 +193,16 @@ const config = {
             title: "Community",
             items: [
               {
+                label: "Botpress Community",
+                href: "https://community.botpress.com/",
+              },
+              {
                 label: "Stack Overflow",
                 href: "https://stackoverflow.com/questions/tagged/botpress",
               },
               {
                 label: "Twitter",
                 href: "https://twitter.com/getbotpress",
-              },
-              {
-                label: "Forum",
-                href: "https://github.com/botpress/botpress/discussions",
               },
             ],
           },
