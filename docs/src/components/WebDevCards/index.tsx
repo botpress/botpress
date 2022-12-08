@@ -123,15 +123,15 @@ function WebDevCardSingle({ name, url, description }: Props) {
       }}
     ><div className='row'>
     <div className="button-group button-group--block padding-horiz--md">
-      <Link to="https://s3.amazonaws.com/botpress-binaries/botpress-v12_30_5-darwin-x64.zip">
+      <Link to="https://s3.amazonaws.com/botpress-binaries/botpress-v12_30_6-darwin-x64.zip">
         Mac
       </Link>
     </div><div className="button-group button-group--block padding-horiz--md">
-      <Link to="https://s3.amazonaws.com/botpress-binaries/botpress-v12_30_5-win-x64.zip">
+      <Link to="https://s3.amazonaws.com/botpress-binaries/botpress-v12_30_6-win-x64.zip">
         Windows
       </Link>
     </div><div className="button-group button-group--block padding-horiz--md">
-      <Link to="https://s3.amazonaws.com/botpress-binaries/botpress-v12_30_5-linux-x64.zip">
+      <Link to="https://s3.amazonaws.com/botpress-binaries/botpress-v12_30_6-linux-x64.zip">
         Linux
       </Link>
     </div>
