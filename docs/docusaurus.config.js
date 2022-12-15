@@ -114,12 +114,6 @@ const config = {
             label: "Chatbot Management",
           },
           {
-            type: "doc",
-            docId: "enterprise/licensing/enterprise-licensing",
-            position: "left",
-            label: "Enterprise",
-          },
-          {
             href: "https://botpress.com/reference/",
             position: "right",
             label: "SDK",
@@ -182,10 +176,6 @@ const config = {
               {
                 label: "Chatbot Management",
                 to: "chatbot-management/language-understanding/misunderstood",
-              },
-              {
-                label: "Enterprise",
-                to: "enterprise/licensing/enterprise-licensing",
               },
             ],
           },
