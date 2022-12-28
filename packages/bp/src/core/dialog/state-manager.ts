@@ -164,12 +164,13 @@ export class StateManager {
     }
 
     const batchCount = this.batch.length >= BATCH_SIZE ? BATCH_SIZE : this.batch.length
-    const elements = this.batch.splice(0, batchCount)
+    const elements = this.batch.slice(0, batchCount)
 
     this.currentPromise = this.knex
       .transaction(async trx => {
         for (const { event, ignoreContext } of elements) {
           await this._saveState(event, ignoreContext, trx)
+          _.remove(this.batch, { event })
         }
       })
       .finally(() => {

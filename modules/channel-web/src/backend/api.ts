@@ -226,26 +226,10 @@ export default async (bp: typeof sdk, db: Database) => {
     asyncMiddleware(async (req: ChatRequest, res: Response) => {
       const { botId, userId } = req
 
-      const user = await bp.users.getOrCreateUser('web', userId, botId)
       const payload = req.body.payload || {}
 
       if (!SUPPORTED_MESSAGES.includes(payload.type)) {
         return res.status(400).send(ERR_MSG_TYPE)
-      }
-
-      if (payload.type === 'visit') {
-        const { timezone, language } = payload
-        const isValidTimezone = _.isNumber(timezone) && timezone >= -12 && timezone <= 14 && timezone % 0.5 === 0
-        const isValidLanguage = language.length < 4 && !_.get(user, 'result.attributes.language')
-
-        const newAttributes = {
-          ...(isValidTimezone && { timezone }),
-          ...(isValidLanguage && { language })
-        }
-
-        if (Object.getOwnPropertyNames(newAttributes).length) {
-          await bp.users.updateAttributes('web', userId, newAttributes)
-        }
       }
 
       if (!req.conversationId) {
