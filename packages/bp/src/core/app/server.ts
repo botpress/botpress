@@ -363,6 +363,7 @@ export class HTTPServer {
       for (const key of Object.keys(status)) {
         if (status[key] !== 'up') {
           res.status(503)
+          break
         }
       }
       res.send(status)
