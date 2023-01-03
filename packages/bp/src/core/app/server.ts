@@ -359,7 +359,13 @@ export class HTTPServer {
     }
 
     this.app.get('/status', async (req, res, next) => {
-      res.send(await this.monitoringService.getStatus())
+      const status = await this.monitoringService.getStatus()
+      for (const key of Object.keys(status)) {
+        if (status[key] !== 'up') {
+          res.status(503)
+        }
+      }
+      res.send(status)
     })
 
     this.app.get('/version', async (req, res) => {
