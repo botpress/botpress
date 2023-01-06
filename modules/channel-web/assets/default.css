@@ -400,8 +400,11 @@ body {
 
 .bpw-bubble-carousel {
   background: none;
+  border: 0px;
+  padding: 0px;
   margin: 10px 0;
-  width: 100%;
+  text-align: left;
+  width: 250px; /* Magic number so that it fits properly in the web */
 }
 
 .bpw-bubble-file {
