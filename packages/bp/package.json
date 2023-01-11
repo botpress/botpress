@@ -59,7 +59,7 @@
     "jsonlint-mod": "^1.7.6",
     "jsonwebtoken": "^8.5.1",
     "jwks-rsa": "^1.8.0",
-    "knex": "^0.20.1",
+    "knex": "^2.4.0",
     "ldapauth-fork": "^4.2.0",
     "lodash": "^4.17.19",
     "lodash-decorators": "^6.0.0",
