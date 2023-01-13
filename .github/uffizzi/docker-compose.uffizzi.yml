@@ -1,0 +1,25 @@
+version: "3.7"
+
+x-uffizzi:
+  ingress:
+    service: botpress
+    port: 3000
+    
+services:
+  botpress:
+    image: '${BOTPRESS_IMAGE}'
+    environment:
+      - DATABASE_URL=postgres://postgres:secretpw@localhost:5435/botpress_db
+      - EXTERNAL_URL=http://localhost:3000
+    deploy:
+      resources:
+        limits:
+          memory: 500M 
+
+  postgres:
+    image: postgres:11.2-alpine
+    environment:
+      PGPORT: 5435
+      POSTGRES_DB: botpress_db
+      POSTGRES_PASSWORD: secretpw
+      POSTGRES_USER: postgres
