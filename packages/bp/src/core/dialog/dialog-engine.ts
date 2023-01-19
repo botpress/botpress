@@ -314,12 +314,15 @@ export class DialogEngine {
       }
     }
 
-    if (!timeoutNode || !timeoutFlow) {
-      throw new TimeoutNodeNotFound(`Could not find any timeout node or flow for session "${sessionId}"`)
+    if (timeoutNode && timeoutFlow) {
+      // There is a timeout node and flow, we jump to it
+      this.fillContextForTransition(event, { currentFlow, currentNode, nextFlow: timeoutFlow, nextNode: timeoutNode })
+    } else if (!event.state.context?.hasJumped) {
+      // If there was no jump, we just return the event to have it's state changes persisted
+      return event
     }
 
-    this.fillContextForTransition(event, { currentFlow, currentNode, nextFlow: timeoutFlow, nextNode: timeoutNode })
-
+    // Process the event with the new context, return to persist state changes
     return this.processEvent(sessionId, event)
   }
 
