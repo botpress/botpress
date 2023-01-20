@@ -414,7 +414,7 @@ export class DialogEngine {
 
   protected async _transition(sessionId: string, event: IO.IncomingEvent, transitionTo: string) {
     let context: IO.DialogContext = event.state.context || {}
-    this._detectInfiniteLoop(event.state.__stacktrace, event.botId)
+    this.detectInfiniteLoop(event.state.__stacktrace, event.botId)
 
     context.jumpPoints = context.jumpPoints?.filter(x => !x.used)
 
@@ -556,7 +556,7 @@ export class DialogEngine {
     this._flowsByBot.set(botId, flows)
   }
 
-  private _detectInfiniteLoop(stacktrace: IO.JumpPoint[], botId: string) {
+  public detectInfiniteLoop(stacktrace: IO.JumpPoint[], botId: string) {
     // find the first node that gets repeated at least 3 times
     const loop = _.chain(stacktrace)
       .groupBy(x => `${x.flow}|${x.node}`)

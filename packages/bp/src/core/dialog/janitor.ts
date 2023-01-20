@@ -93,6 +93,8 @@ export class DialogJanitor extends Janitor {
       const { channel, target, threadId } = SessionIdFactory.extractDestinationFromId(sessionId)
       const session = await this.sessionRepo.get(sessionId)
 
+      this.dialogEngine.detectInfiniteLoop(session.context.jumpPoints || [], botId)
+
       // This event only exists so that processTimeout can call processEvent
       const fakeEvent = Event({
         type: 'timeout',
