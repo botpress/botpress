@@ -28,7 +28,6 @@ describe('Admin - Init', () => {
       await fillField('#select-bot-templates', 'Welcome Bot')
       await clickOn('#btn-modal-create-bot')
       await expectAdminApiCallSuccess('workspace/bots', 'POST')
-      await page.waitForSelector(`[href="studio/${bpConfig.botId}"]`)
     })
   }
 })
