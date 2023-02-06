@@ -24,12 +24,11 @@ describe('Admin - Init', () => {
       await clickOn('#btn-new-bot')
 
       await fillField('#input-bot-name', bpConfig.botId)
-
       await clickOn('#select-bot-templates')
       await fillField('#select-bot-templates', 'Welcome Bot')
-      await page.keyboard.press('Enter')
-
-      await Promise.all([clickOn('#btn-modal-create-bot'), expectAdminApiCallSuccess('workspace/bots', 'POST')])
+      await clickOn('#btn-modal-create-bot')
+      await expectAdminApiCallSuccess('workspace/bots', 'POST')
+      await page.waitForSelector(`[href="studio/${bpConfig.botId}"]`)
     })
   }
 })
