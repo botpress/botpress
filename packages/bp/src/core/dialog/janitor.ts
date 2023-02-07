@@ -93,6 +93,8 @@ export class DialogJanitor extends Janitor {
       const { channel, target, threadId } = SessionIdFactory.extractDestinationFromId(sessionId)
       const session = await this.sessionRepo.get(sessionId)
 
+      this.dialogEngine.detectInfiniteLoop(session.context.jumpPoints || [], botId)
+
       // This event only exists so that processTimeout can call processEvent
       const fakeEvent = Event({
         type: 'timeout',
@@ -106,7 +108,11 @@ export class DialogJanitor extends Janitor {
 
       const { result: user } = await this.userRepo.getOrCreate(channel, target, botId)
 
-      fakeEvent.state.context = session.context as IO.DialogContext
+      // We clean the queue because that processTimeout will return the same event context
+      // if there is no jump, so we don't want the timeout event to process the previous queue
+      // The reason to return the event is to persist any changes made to session state or context
+      // in the session timeout hook
+      fakeEvent.state.context = { ...session.context, queue: undefined } as IO.DialogContext
       fakeEvent.state.session = session.session_data as IO.CurrentSession
       fakeEvent.state.user = user.attributes
       fakeEvent.state.temp = session.temp_data
@@ -141,6 +147,9 @@ export class DialogJanitor extends Janitor {
     if (update.resetSession) {
       session.context = {}
       session.temp_data = {}
+    } else {
+      session.context = update.event?.state.context || session.context
+      session.temp_data = update.event?.state.temp
     }
 
     session.context_expiry = expiry.context
