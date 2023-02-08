@@ -6,6 +6,18 @@ import '../../../../../../assets/slick/slick-theme.css'
 import '../../../../../../assets/slick/slick.css'
 import { Renderer } from '../../../typings'
 
+const CarouselSkeleton = () => {
+  const common = { width: '100%', borderRadius: 5, padding: 10 }
+  const button = { height: 30, backgroundColor: '#ecebeb', marginTop: 10, ...common }
+  return (
+    <div className="bpw-carousel-skeleton" style={{ height: 380, backgroundColor: '#f3f3f3', ...common }}>
+      <div style={{ height: 280, backgroundColor: '#ecebeb', ...common }} />
+      <div style={button} />
+      <div style={button} />
+    </div>
+  )
+}
+
 export class Carousel extends React.Component<ICarouselProps, ICarouselState> {
   private ref
 
@@ -14,7 +26,8 @@ export class Carousel extends React.Component<ICarouselProps, ICarouselState> {
   }
 
   componentDidMount() {
-    this.setState({ adjustedWidth: this.ref.offsetWidth - window.innerWidth })
+    // Delay this to avoid incorrect values when closing-opening the webchat
+    setTimeout(() => this.setState({ adjustedWidth: this.ref.offsetWidth - window.innerWidth }), 300)
   }
 
   renderCarousel() {
@@ -51,7 +64,7 @@ export class Carousel extends React.Component<ICarouselProps, ICarouselState> {
   render() {
     return (
       <div ref={el => (this.ref = el)} style={{ width: '100%', ...this.props.style }}>
-        {this.state.adjustedWidth && this.renderCarousel()}
+        {(this.state.adjustedWidth && this.renderCarousel()) || <CarouselSkeleton />}
       </div>
     )
   }

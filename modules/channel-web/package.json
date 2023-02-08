@@ -52,7 +52,7 @@
     "react-linkify": "^0.2.2",
     "react-scroll-to-bottom": "^4.2.0",
     "react-select": "^2.4.2",
-    "react-slick": "^0.24.0",
+    "react-slick": "0.29.0",
     "slick-carousel": "^1.8.1",
     "snarkdown": "^1.2.2",
     "uuid": "^3.1.0"
