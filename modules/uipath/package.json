@@ -14,7 +14,7 @@
     "package": "node ../../build/module-builder/bin/entry package"
   },
   "dependencies": {
-    "jsonwebtoken": "^8.5.1"
+    "jsonwebtoken": "^9.0.0"
   },
   "resolutions": {
     "fstream": ">=1.0.12",
