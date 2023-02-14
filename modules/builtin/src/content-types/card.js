@@ -1,7 +1,8 @@
+const base = require('./_base')
 const ActionButton = require('./action_button')
 const utils = require('./_utils')
 
-module.exports = {
+const Card = {
   id: 'builtin_card',
   group: 'Built-in Messages',
   title: 'card',
@@ -29,7 +30,8 @@ module.exports = {
         type: 'array',
         title: 'module.builtin.actionButton',
         items: ActionButton.jsonSchema
-      }
+      },
+      ...base.useMarkdown
     }
   },
 
@@ -40,3 +42,7 @@ module.exports = {
     return utils.extractPayload('card', data)
   }
 }
+
+Card.jsonSchema.properties.markdown.default = false
+
+module.exports = Card

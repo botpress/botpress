@@ -5,6 +5,7 @@ import Slider from 'react-slick'
 import '../../../../../../assets/slick/slick-theme.css'
 import '../../../../../../assets/slick/slick.css'
 import { Renderer } from '../../../typings'
+import { ProcessedText } from '../../../utils'
 
 const CarouselSkeleton = () => {
   const common = { width: '100%', borderRadius: 5, padding: 10 }
@@ -55,7 +56,14 @@ export class Carousel extends React.Component<ICarouselProps, ICarouselState> {
     return (
       <Slider {...settings}>
         {elements.map((el, idx) => (
-          <Card element={el} key={idx} onSendData={this.props.onSendData} />
+          <Card
+            element={el}
+            key={idx}
+            onSendData={this.props.onSendData}
+            escapeHTML={this.props.escapeHTML}
+            isBotMessage={this.props.isBotMessage}
+            intl={this.props.intl}
+          />
         ))}
       </Slider>
     )
@@ -71,15 +79,39 @@ export class Carousel extends React.Component<ICarouselProps, ICarouselState> {
 }
 
 export const Card = props => {
-  const { picture, title, subtitle, buttons } = props.element as Renderer.Card
+  const { picture, title, subtitle, buttons, markdown } = props.element as Renderer.Card
+  const { escapeHTML, intl } = props
 
   return (
     <div className={'bpw-card-container'}>
       {picture && <div className={'bpw-card-picture'} style={{ backgroundImage: `url("${picture}")` }} />}
       <div>
         <div className={'bpw-card-header'}>
-          <div className={'bpw-card-title'}>{title}</div>
-          {subtitle && <div className={'bpw-card-subtitle'}>{subtitle}</div>}
+          <ProcessedText
+            wrapperProps={{
+              className: 'bpw-card-title',
+              tag: 'div'
+            }}
+            isBotMessage={props.isBotMessage}
+            markdown={markdown}
+            escapeHTML={escapeHTML}
+          >
+            {title}
+          </ProcessedText>
+          {subtitle && (
+            <ProcessedText
+              wrapperProps={{
+                className: 'bpw-card-subtitle',
+                tag: 'div'
+              }}
+              isBotMessage={props.isBotMessage}
+              markdown={markdown}
+              escapeHTML={escapeHTML}
+              intl={props.intl}
+            >
+              {subtitle}
+            </ProcessedText>
+          )}
         </div>
         <div className={'bpw-card-buttons'}>
           {buttons.map((btn: Renderer.CardButton) => {
@@ -134,6 +166,9 @@ interface ICarouselProps {
   carousel: Renderer.Carousel
   onSendData: any
   style?: object
+  escapeHTML: boolean
+  isBotMessage: boolean
+  intl: any
 }
 
 interface ICarouselState {

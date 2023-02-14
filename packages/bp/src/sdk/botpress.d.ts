@@ -1566,6 +1566,7 @@ declare module 'botpress/sdk' {
     subtitle?: string | MultiLangText
     image?: string
     actions: ActionButton[]
+    markdown?: boolean
   }
 
   export interface LocationContent extends Content {
