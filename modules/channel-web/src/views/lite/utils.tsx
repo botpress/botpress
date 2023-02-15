@@ -1,5 +1,6 @@
 import truncate from 'html-truncate'
 import React from 'react'
+import Children from 'react-children-utilities'
 import ReactGA from 'react-ga'
 import snarkdown from 'snarkdown'
 
@@ -179,7 +180,9 @@ export const ProcessedText = (props: {
   } = props
   const { tag, ...rest } = wrapperProps
 
-  if (intl && maxLength && children.length > maxLength) {
+  const text = Children.onlyText(children)
+
+  if (intl && maxLength && text.length > maxLength) {
     hasShowMore = true
   }
 
@@ -190,12 +193,12 @@ export const ProcessedText = (props: {
   if (markdown) {
     const isUserMessage = !isBotMessage
     const shouldEscapeHTML = isUserMessage || escapeHTML
-    const html = renderUnsafeHTML(children, shouldEscapeHTML)
+    const html = renderUnsafeHTML(text, shouldEscapeHTML)
     WrapperTag = tag || 'div'
     message = <WrapperTag {...rest} dangerouslySetInnerHTML={{ __html: truncateIfRequired(html) }} />
   } else {
     WrapperTag = tag || 'p'
-    message = <WrapperTag {...rest}>{truncateIfRequired(children)}</WrapperTag>
+    message = <WrapperTag {...rest}>{truncateIfRequired(text)}</WrapperTag>
   }
 
   return message
