@@ -1,28 +1,30 @@
 # [Botpress](https://botpress.com/?utm_source=github&utm_medium=organic&utm_campaign=botpress_repo&utm_term=readme) — The building blocks for building chatbots
 
-IMPORTANT : With the launch of botpress Cloud, the documentation on botpress.com/docs now points to Botpress Cloud's docs. For Botpress 12, you can find the docs [here](https://v12.botpress.com/).
+**IMPORTANT**: With the launch of Botpress Cloud, the documentation for Botpress v12 can now be found [here](https://v12.botpress.com/). 
 
-## What is Botpress ?
+## What is Botpress?
 
-Botpress is the standard developer stack to build, run and improve Conversational-AI applications. Powered by natural language understanding, a messaging API and a fully featured studio, Botpress allows developers around the globe to build remarkable chatbots without compromise.
+Botpress is the standard developer stack to build, run, and improve conversational AI applications. Powered by natural language understanding, a messaging API, and a fully featured studio, Botpress allows developers and conversation designers around the globe to build remarkable chatbots without compromise.
+
+The fastest & easiest way to get started with Botpress is by signing up for free to **[Botpress Cloud](https://sso.botpress.cloud/registration)**. Alternatively, continue reading for more information about Botpress v12.
 
 <a href='https://botpress.com/?utm_source=github&utm_medium=organic&utm_campaign=botpress_repo&utm_term=readme'><img src='.github/assets/studio.png'></a>
 
-**Out of the box, Botpress includes:**
+**Out of the box, Botpress v12 includes:**
 
 - Administration panel to orchestrate and monitor your chatbots
 - Conversation Studio to design a conversation, manage content, code custom integration
 - Easy integration with messaging channels (Messenger, WhatsApp, Slack, Teams, Webchat, Telegram, SMS & more)
 - Natural Language Understanding
-- Complete list of features and specs [here](https://botpress.com/docs/features)
+- Complete list of features and specs [here](https://v12.botpress.com/overview/features)
 
 ## Getting Started
 
-There are a few ways to get started with botpress :
+There are a few ways to get started with Botpress v12:
 
-- Download the latest binary for your OS [here](https://botpress.com/download?utm_source=github&utm_medium=organic&utm_campaign=botpress_repo&utm_term=readme) and follow the [installation docs](https://botpress.com/docs/installation).
-- Use the official [Docker image](https://hub.docker.com/r/botpress/server) and follow the [hosting docs](https://botpress.com/docs/infrastructure/Docker)
-- Run from sources, follow [build docs](https://botpress.com/docs/infrastructure/deploying)
+- Download the latest binary for your OS [here](https://v12.botpress.com/) and follow the [installation docs](https://v12.botpress.com/overview/quickstart/installation).
+- Use the official [Docker image](https://hub.docker.com/r/botpress/server) and follow the [hosting docs](https://v12.botpress.com/going-to-production/deploy/docker-compose)
+- Run from sources, follow [build docs](https://v12.botpress.com/going-to-production/deploy/)
 - Deploy it in the cloud using these shortlinks:
 
   <center>
@@ -44,11 +46,10 @@ There are a few ways to get started with botpress :
 
 ## Community
 
-- [Community Forum](https://forum.botpress.com/) - Get community support and discuss your challenges
-- [Issues](https://github.com/botpress/botpress/issues) - Report bug and file feature requests
-- [Blog](https://botpress.com/blog) - How to's, Case studies & Announcements
-- [Newsletter](https://botpress.activehosted.com/f/16) - Stay informed, subscribe to our news letter
-- [Contributring](/.github/CONTRIBUTING.md) - Start contributing to Botpress
+- [v12 Forum](https://github.com/botpress/botpress/discussions) - Get community support and find answers to your questions
+- [Issues](https://github.com/botpress/botpress/issues) - Report bugs and file feature requests
+- [Blog](https://botpress.com/blog) - How to's, case studies, and announcements
+- [Contributing](/.github/CONTRIBUTING.md) - Start contributing to Botpress
 - [Partners](/.github/PARTNERS.md) - List of agencies who can help you with Botpress
 
 ## License
