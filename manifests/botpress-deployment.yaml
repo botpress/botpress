@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: botpress
+  name: botpress
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: botpress
+  selector:
+    matchLabels:
+      app: botpress
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: botpress
+    spec:
+      containers:
+        - env:
+            - name: EXTERNAL_URL
+              value: http://0.0.0.0:3000
+          image: botpress/server
+          name: botpress-server
+          ports:
+            - containerPort: 3000
+          resources: {}
+          volumeMounts:
+            - mountPath: /botpress/data
+              name: botpress-data
+      volumes:
+        - name: botpress-data
+          persistentVolumeClaim:
+            claimName: botpress-data

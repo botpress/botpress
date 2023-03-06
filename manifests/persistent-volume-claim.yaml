@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: botpress
+  name: botpress-data
+spec:
+  accessModes:
+    - ReadWriteOnce
