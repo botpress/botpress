@@ -101,9 +101,7 @@ All of the above will help you create more natural and pleasurable conversations
 
 Such an intervention is necessary and crucial as it is common for a chatbot to misunderstand the data being fed to it by the user. For instance, a user may say something out of the chatbot's scope or may present a response in a way that the developer hasn't train the chatbot to recognize.
 
-#### Translation
 
-In most cases, a chatbot is built using a single language, for example, English. To reduce chatbot development times, Botpress offers multi-language support for users with a Pro license. This means that people who speak different languages can use the same chatbot employing in-built translation tools.
 
 ### Dialog Manager
 
