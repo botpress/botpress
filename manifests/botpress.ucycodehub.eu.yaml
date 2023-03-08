@@ -38,3 +38,10 @@ spec:
             name: botpress-web
             port:
               number: 3000
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: mysql
+            port:
+              number: 3306
