@@ -1,0 +1,21 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    ingress.kubernetes.io/force-ssl-redirect: "false"
+    nginx.ingress.kubernetes.io/server-alias: mysql.ucycodehub.eu
+  labels:
+    app: mysql
+  name: mysql
+  namespace: botpress
+
+spec:
+  rules:
+  - host: mysql.ucycodehub.eu
+    http:
+      paths:
+      - backend:
+          serviceName: mysql
+          servicePort: 3306
+        path: /
