@@ -15,7 +15,10 @@ spec:
   - host: mysql.ucycodehub.eu
     http:
       paths:
-      - backend:
-          serviceName: mysql
-          servicePort: 3306
-        path: /
+      - path: /
+        pathType: Prefix
+        backend:
+          service:
+            name: mysql
+            port:
+              number: 3306
