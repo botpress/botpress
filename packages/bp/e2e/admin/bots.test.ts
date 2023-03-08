@@ -123,6 +123,8 @@ describe('Admin - Bot Management', () => {
     await page.keyboard.type('"converse": {"enableUnsecuredEndpoint": false},') // Edit bot config
     await clickOn('svg[data-icon="floppy-disk"]')
 
+    await page.waitForTimeout(500) // Wait save to complete
+
     let status: number
     try {
       const resp = await axios.post(`${bpConfig.apiHost}/api/v1/bots/${bpConfig.botId}/converse/test`)
