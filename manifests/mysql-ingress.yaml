@@ -4,7 +4,7 @@ metadata:
   annotations:
     kubernetes.io/ingress.class: nginx
     ingress.kubernetes.io/force-ssl-redirect: "false"
-    nginx.ingress.kubernetes.io/server-alias: mysql.ucycodehub.eu
+    nginx.ingress.kubernetes.io/server-alias: botpress.ucycodehub.eu
   labels:
     app: mysql
   name: mysql
@@ -12,7 +12,7 @@ metadata:
 
 spec:
   rules:
-  - host: mysql.ucycodehub.eu
+  - host: botpress.ucycodehub.eu
     http:
       paths:
       - path: /
