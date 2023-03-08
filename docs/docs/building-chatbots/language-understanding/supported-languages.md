@@ -5,11 +5,7 @@ title: Supported Languages
 
 ---
 
-Normally, you only have one language for your chatbot. However, you can add other languages by translating your content.
-
-:::note
-With the Enterprise License, you can easily work with the built-in translation functionality.
-:::
+Normally, you only have one language for your chatbot.
 
 ## Supported Languages
 
@@ -25,20 +21,6 @@ With the Enterprise License, you can easily work with the built-in translation f
 - Portuguese
 - Russian
 - Spanish
-
-## Add a Language
-
-1. In the Admin section, click **Bots**.
-2. Click the **Config** button next to the selected bot.
-3. In the **General** section:
-   1. Under **Default language**, use the dropdown menu to select the desired default language which is gonna be used in the interface.
-   2. Under **Supported languages**, with the dropdown menu or by writing it in the box, choose the languages you need.
-      :::note
-      The **Supported languages** section appears only when you enable the [Enterprise Licensing](/enterprise/licensing/enterprise-licensing).
-      :::
-4. Click **Save Changes**.
-
-![Bot Config](/assets/i18n-configs.png)
 
 ## Change the Language
 
