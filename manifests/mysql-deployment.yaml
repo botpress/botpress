@@ -9,7 +9,7 @@ spec:
     targetPort: 3306
   selector:
     app: mysql
-  clusterIP: None
+  type: NodePort
 ---
 apiVersion: apps/v1
 kind: Deployment
