@@ -103,7 +103,7 @@ Such an intervention is necessary and crucial as it is common for a chatbot to m
 
 #### Translation
 
-In most cases, a chatbot is built using a single language, for example, English. To reduce chatbot development times, Botpress offers multi-language support for users with a Pro license. This means that people who speak different languages can use the same chatbot employing in-built translation tools.
+A chatbot is built using a single language, for example, English. You can create two hooks and connect your bot to a language translation software that will allow the bot to translate languages supported by that software for incoming and outgoing messages. Please refer to the [Third party translations solution](https://github.com/botpress/solutions/tree/master/custom%20solutions/Third%20party%20translations) in our [Solutions Repository](https://github.com/botpress/solutions).
 
 ### Dialog Manager
 
