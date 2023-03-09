@@ -30,7 +30,7 @@ This module uses the `channel-web` to display conversations, so make sure it's e
 ## Setup
 
 Turn on HITL-next on the module management page of your Botpress Admin.
-![Enable Module](/assets/enable-module.png)
+![Enable Module](https://user-images.githubusercontent.com/104075132/224081700-d507c3fb-ffad-49ff-a078-b783f954115c.png)
 
 You can also enable the module directly in your `botpress.config.json` file as shown [here](/enterprise/user-management-and-security/role-based-access-control/collaborators).
 
