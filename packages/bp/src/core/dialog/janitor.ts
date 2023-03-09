@@ -124,7 +124,7 @@ export class DialogJanitor extends Janitor {
       InternalEvent.state.user = user.attributes
       InternalEvent.state.temp = session.temp_data
 
-      update.event = await this.dialogEngine.processTimeout(botId, threadId || target, InternalEvent)
+      update.event = await this.dialogEngine.processTimeout(botId, sessionId, InternalEvent)
 
       if (_.get(update.event, 'state.context.queue.instructions.length', 0) > 0) {
         // if after processing the timeout handling we still have instructions queued, we're not clearing the context
