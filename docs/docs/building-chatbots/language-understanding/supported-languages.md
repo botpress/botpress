@@ -5,11 +5,7 @@ title: Supported Languages
 
 ---
 
-Normally, you only have one language for your chatbot. However, you can add other languages by translating your content.
-
-:::note
-With the Enterprise License, you can easily work with the built-in translation functionality.
-:::
+Normally, you only have one language for your chatbot. 
 
 ## Supported Languages
 
