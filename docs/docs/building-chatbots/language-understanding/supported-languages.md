@@ -5,8 +5,6 @@ title: Supported Languages
 
 ---
 
-Normally, you only have one language for your chatbot. 
-
 ## Supported Languages
 
 - Arabic
