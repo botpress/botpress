@@ -6,7 +6,8 @@ import { inject, injectable } from 'inversify'
 export const DefaultSearchParams: sdk.EventSearchParams = {
   sortOrder: [{ column: 'createdOn' }],
   from: 0,
-  count: 10
+  count: 10,
+  createdOn: undefined
 }
 
 const UNLIMITED_ELEMENTS = -1
@@ -29,6 +30,15 @@ export class EventRepository {
 
     let query = this.database.knex(this.TABLE_NAME)
     query = query.where(fields)
+
+    if (params.createdOn) {
+      if (params.createdOn.from) {
+        query = query.andWhere(this.database.knex.date.isAfterOrOn('createdOn', params.createdOn.from))
+      }
+      if (params.createdOn.to) {
+        query = query.andWhere(this.database.knex.date.isBeforeOrOn('createdOn', params.createdOn.to))
+      }
+    }
 
     sortOrder &&
       sortOrder.forEach(sort => {
