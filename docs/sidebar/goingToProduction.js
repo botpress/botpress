@@ -18,7 +18,6 @@ module.exports = [
           "going-to-production/deploy/aws",
           "going-to-production/deploy/digitalocean",
           "going-to-production/deploy/docker-compose",
-          "going-to-production/deploy/enterprise-scaling",
         ],
       },
       {
