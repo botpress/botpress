@@ -79,7 +79,7 @@ createDatabaseSuite('Misunderstood - DB', (database: Database) => {
     })
 
     it('Filters - by language', async () => {
-      for (const language of ['en', 'fr', 'fr']) {
+      for (const language of ['en', 'fr', 'es']) {
         await db.addEvent({
           ...props,
           language
