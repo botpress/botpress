@@ -100,22 +100,6 @@ export const Checklist: FC<Props> = props => {
     <Container>
       <div className={style.checklist}>
         <Item
-          title="Enable Botpress Professional"
-          docs="https://botpress.com/docs/pro/about-pro/"
-          status={
-            getEnv('BP_CONFIG_PRO_ENABLED') === 'true' || getConfig('pro.enabled') === 'true' ? 'success' : 'warning'
-          }
-          source={[
-            { type: 'env', key: 'BP_CONFIG_PRO_ENABLED', value: getEnv('BP_CONFIG_PRO_ENABLED') },
-            { type: 'env', key: 'BP_CONFIG_PRO_LICENSEKEY', value: getEnv('BP_CONFIG_PRO_LICENSEKEY') },
-            { type: 'config', key: 'pro.enabled', value: getConfig('pro.enabled') },
-            { type: 'config', key: 'pro.licenseKey', value: getConfig('pro.licenseKey') }
-          ]}
-        >
-          Botpress Pro provides multiple features ready to be used in an enterprise-grade solution.
-        </Item>
-
-        <Item
           title="Use a Postgres database"
           docs="https://botpress.com/docs/building-chatbots/developers/database#how-to-switch-from-sqlite-to-postgressql"
           status={getEnv('DATABASE_URL').startsWith('postgres') ? 'success' : 'warning'}
