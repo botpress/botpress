@@ -9,6 +9,7 @@ import AccessControl from '~/auth/AccessControl'
 import UserDropdownMenu from '~/user/UserDropdownMenu'
 import { AppState } from '../rootReducer'
 import { toggleBottomPanel } from '../uiReducer'
+import { HelpMenu } from './Help'
 import style from './style.scss'
 
 type Props = ConnectedProps<typeof connector>
@@ -31,6 +32,8 @@ const Header: FC<Props> = props => {
         </Navbar.Group>
         <Navbar.Group align={Alignment.RIGHT}>
           <WorkspaceSelect />
+          <Navbar.Divider />
+          <HelpMenu />
           <Navbar.Divider />
           <AccessControl resource="admin.logs" operation="read">
             <Tooltip content={<div className={style.tooltip}>{lang.tr('bottomPanel.label')}</div>}>
