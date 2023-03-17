@@ -172,7 +172,7 @@ export const ProcessedText = (props: {
     markdown = false,
     escapeHTML = false,
     isBotMessage = false,
-    maxLength = 255,
+    maxLength,
     intl = false,
     showMore = false,
     wrapperProps = {},
