@@ -133,7 +133,7 @@ const ConversationContainer: FC<Props> = ({ api, bp }) => {
     ].filter(Boolean)
 
   const content = shouldRenderLiveChat ? (
-    <LiveChat handoff={selectedHandoff} currentAgent={state.currentAgent} />
+    <LiveChat key={selectedHandoff.userThreadId} handoff={selectedHandoff} currentAgent={state.currentAgent} />
   ) : (
     <ConversationHistory bp={bp} api={api} conversationId={selectedHandoff.userThreadId} />
   )
