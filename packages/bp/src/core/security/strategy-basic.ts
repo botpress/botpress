@@ -32,7 +32,8 @@ export class StrategyBasic {
     router.post(
       '/login/basic/:strategy',
       this.asyncMiddleware(async (req: Request, res: Response) => {
-        const { email, password, newPassword, channel, target } = req.body
+        const { password, newPassword, channel, target } = req.body
+        const email = req.body.email.toLowerCase()
         const { strategy } = req.params
 
         // Random delay to prevent an attacker from determining if an account exists by the response time. Arbitrary numbers

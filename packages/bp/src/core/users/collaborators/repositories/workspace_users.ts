@@ -12,7 +12,7 @@ export class WorkspaceUsersRepository {
 
   async createEntry(workspaceUser: WorkspaceUser): Promise<void> {
     return this.database.knex(this.tableName).insert({
-      email: workspaceUser.email,
+      email: workspaceUser.email.toLowerCase(),
       strategy: workspaceUser.strategy,
       workspace: workspaceUser.workspace,
       role: workspaceUser.role

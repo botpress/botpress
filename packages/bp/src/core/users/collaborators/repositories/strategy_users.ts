@@ -18,7 +18,7 @@ export class StrategyUsersRepository {
       .insertAndRetrieve<StrategyUser>(
         this._getTableName(user.strategy),
         {
-          email: user.email,
+          email: user.email.toLowerCase(),
           strategy: user.strategy,
           password: user.password,
           salt: user.salt,
