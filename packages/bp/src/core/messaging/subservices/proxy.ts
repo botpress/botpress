@@ -10,11 +10,17 @@ export class MessagingProxy {
           return path.replace(`${baseApiPath}/messaging`, '')
         },
         router: () => {
-          return `http://localhost:${process.MESSAGING_PORT}`
+          return this.getMessagingUrl()
         },
         changeOrigin: false,
         logLevel: 'silent'
       })
     )
+  }
+
+  private getMessagingUrl() {
+    return process.core_env.MESSAGING_ENDPOINT
+      ? process.core_env.MESSAGING_ENDPOINT
+      : `http://localhost:${process.MESSAGING_PORT}`
   }
 }
