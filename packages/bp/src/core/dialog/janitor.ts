@@ -181,7 +181,7 @@ export class DialogJanitor extends Janitor {
       // We get the last 5 timeout events ( limiting the creation time by now - 2 * the timeout interval * 5 )
       const timeoutEvents = await this.eventRepository.findEvents(
         { botId, ...(threadId && { threadId }), target, type: 'timeout' },
-        { count: limit, sortOrder: [{ column: 'createdOn', desc: true }], createdOn: { from: from.toDate() } }
+        { count: limit, sortOrder: [{ column: 'createdOn', desc: true }], createdOn: { after: from.toDate() } }
       )
 
       // Not enough timeout events
@@ -194,7 +194,7 @@ export class DialogJanitor extends Janitor {
         { botId, ...(threadId && { threadId }), target },
         {
           sortOrder: [{ column: 'createdOn', desc: true }],
-          createdOn: { from: moment(timeoutEvents[limit - 1].createdOn).toDate() }
+          createdOn: { after: moment(timeoutEvents[limit - 1].createdOn).toDate() }
         }
       )
 

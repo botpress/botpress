@@ -32,11 +32,11 @@ export class EventRepository {
     query = query.where(fields)
 
     if (params.createdOn) {
-      if (params.createdOn.from) {
-        query = query.andWhere(this.database.knex.date.isAfterOrOn('createdOn', params.createdOn.from))
+      if (params.createdOn.after) {
+        query = query.andWhere(this.database.knex.date.isAfterOrOn('createdOn', params.createdOn.after))
       }
-      if (params.createdOn.to) {
-        query = query.andWhere(this.database.knex.date.isBeforeOrOn('createdOn', params.createdOn.to))
+      if (params.createdOn.before) {
+        query = query.andWhere(this.database.knex.date.isBeforeOrOn('createdOn', params.createdOn.before))
       }
     }
 
@@ -85,7 +85,7 @@ export class EventRepository {
     const storedEvent = events[0]
     const incomingEvent = storedEvent.event as sdk.IO.IncomingEvent
 
-    await this.updateEvent(storedEvent.id, {feedback})
+    await this.updateEvent(storedEvent.id, { feedback })
 
     if (type) {
       const details = incomingEvent.decision?.sourceDetails

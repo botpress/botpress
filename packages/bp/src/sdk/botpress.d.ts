@@ -1709,7 +1709,7 @@ declare module 'botpress/sdk' {
     count?: number
     /** An array of columns with direction to sort results */
     sortOrder?: SortOrder[]
-    createdOn?: { from?: Date; to?: Date }
+    createdOn?: { after?: Date; before?: Date }
   }
 
   export interface Filter {
