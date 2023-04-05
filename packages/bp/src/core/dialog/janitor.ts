@@ -184,7 +184,7 @@ export class DialogJanitor extends Janitor {
         { count: limit, sortOrder: [{ column: 'createdOn', desc: true }], createdOn: { from: from.toDate() } }
       )
 
-      // Not enought timeout events
+      // Not enough timeout events
       if (timeoutEvents.length < limit) {
         return
       }
