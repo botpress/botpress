@@ -7,8 +7,6 @@ const FORUM_LINK = 'https://github.com/botpress/botpress/discussions'
 const DOCS_LINK = 'https://v12.botpress.com/'
 
 export const HelpMenu = props => {
-  const [isHelpPopoverOpen, setHelpPopoverOpen] = useState(false)
-
   return (
     <div id="help_dropdown">
       <Popover
@@ -19,21 +17,20 @@ export const HelpMenu = props => {
           </Menu>
         }
         minimal
-        isOpen={isHelpPopoverOpen}
+        target={
+          <Tooltip content={<div className={style.tooltip}>{lang.tr('help')}</div>}>
+            <Button minimal>
+              <Icon color={Colors.BLACK} icon="help" iconSize={16} />
+            </Button>
+          </Tooltip>
+        }
         position={Position.TOP_RIGHT}
         canEscapeKeyClose
-        onClose={() => setHelpPopoverOpen(false)}
         fill
         modifiers={{
           preventOverflow: { enabled: true, boundariesElement: 'window' }
         }}
-      >
-        <Tooltip content={<div className={style.tooltip}>{lang.tr('help')}</div>}>
-          <Button onClick={() => setHelpPopoverOpen(!isHelpPopoverOpen)} minimal>
-            <Icon color={Colors.BLACK} icon="help" iconSize={16} />
-          </Button>
-        </Tooltip>
-      </Popover>
+      />
     </div>
   )
 }
