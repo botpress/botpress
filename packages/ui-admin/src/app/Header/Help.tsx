@@ -12,8 +12,8 @@ export const HelpMenu = props => {
       <Popover
         content={
           <Menu>
-            <MenuItem icon="people" text={lang.tr('forum')} onClick={() => window.open(FORUM_LINK)} />
-            <MenuItem icon="book" text={lang.tr('docs')} onClick={() => window.open(DOCS_LINK)} />
+            <MenuItem icon="people" text={lang.tr('forum')} onClick={() => window.open(FORUM_LINK, '_blank')} />
+            <MenuItem icon="book" text={lang.tr('docs')} onClick={() => window.open(DOCS_LINK, '_blank')} />
           </Menu>
         }
         minimal
