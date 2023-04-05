@@ -164,12 +164,14 @@ const Menu: FC<Props> = props => {
             icon="changes"
             url="/server/version"
           />
-          <MenuItem
-            id="btn-menu-license"
-            text={lang.tr('admin.sideMenu.serverLicense')}
-            icon={<MdCopyright />}
-            url="/server/license"
-          />
+          {props?.licensing?.isPro && (
+            <MenuItem
+              id="btn-menu-license"
+              text={lang.tr('admin.sideMenu.serverLicense')}
+              icon={<MdCopyright />}
+              url="/server/license"
+            />
+          )}
           <MenuItem
             text={lang.tr('admin.sideMenu.languages')}
             id="btn-menu-language"
@@ -183,18 +185,22 @@ const Menu: FC<Props> = props => {
             icon="endorsed"
             url="/checklist"
           />
-          <MenuItem
-            id="btn-menu-monitoring"
-            text={lang.tr('admin.sideMenu.monitoring')}
-            icon="timeline-line-chart"
-            url="/server/monitoring"
-          />
-          <MenuItem
-            id="btn-menu-alerting"
-            text={lang.tr('admin.sideMenu.alerting')}
-            icon="notifications"
-            url="/server/alerting"
-          />
+          {props?.licensing?.isPro && (
+            <MenuItem
+              id="btn-menu-monitoring"
+              text={lang.tr('admin.sideMenu.monitoring')}
+              icon="timeline-line-chart"
+              url="/server/monitoring"
+            />
+          )}
+          {props?.licensing?.isPro && (
+            <MenuItem
+              id="btn-menu-alerting"
+              text={lang.tr('admin.sideMenu.alerting')}
+              icon="notifications"
+              url="/server/alerting"
+            />
+          )}
         </AccessControl>
         <MenuItem
           text={lang.tr('admin.sideMenu.latestReleases')}
