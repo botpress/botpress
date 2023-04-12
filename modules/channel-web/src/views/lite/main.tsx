@@ -8,6 +8,7 @@ import React from 'react'
 import { injectIntl } from 'react-intl'
 
 import Container from './components/Container'
+import OverridableComponent from './components/OverridableComponent'
 import Stylesheet from './components/Stylesheet'
 import constants from './core/constants'
 import BpSocket from './core/socket'
@@ -315,16 +316,20 @@ class Web extends React.Component<MainProps> {
     }
 
     return (
-      <button
-        className={classnames('bpw-widget-btn', 'bpw-floating-button', {
-          [`bpw-anim-${this.props.widgetTransition}` || 'none']: true
-        })}
-        aria-label={this.props.intl.formatMessage({ id: 'widget.toggle' })}
-        onClick={this.props.showChat.bind(this)}
-      >
-        <ChatIcon />
-        {this.props.hasUnreadMessages && <span className={'bpw-floating-button-unread'}>{this.props.unreadCount}</span>}
-      </button>
+      <>
+        <button
+          className={classnames('bpw-widget-btn', 'bpw-floating-button', {
+            [`bpw-anim-${this.props.widgetTransition}` || 'none']: true
+          })}
+          aria-label={this.props.intl.formatMessage({ id: 'widget.toggle' })}
+          onClick={this.props.showChat.bind(this)}
+        >
+          <ChatIcon />
+          {this.props.hasUnreadMessages && (
+            <span className={'bpw-floating-button-unread'}>{this.props.unreadCount}</span>
+          )}
+        </button>
+      </>
     )
   }
 
@@ -373,7 +378,7 @@ class Web extends React.Component<MainProps> {
             })}
           </h1>
         )}
-
+        <OverridableComponent name={'before_widget'} original={null} />
         {this.props.displayWidgetView ? this.renderWidget() : <Container />}
       </div>
     )
