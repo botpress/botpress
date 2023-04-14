@@ -180,7 +180,8 @@ const renderCarouselPayload = (content: sdk.CarouselContent & CollectFeedback) =
         } else {
           throw new Error(`Webchat carousel does not support "${a.action}" action-buttons at the moment`)
         }
-      })
+      }),
+      markdown: card.markdown
     }))
   }
 }

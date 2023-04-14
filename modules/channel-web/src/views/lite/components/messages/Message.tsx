@@ -53,7 +53,15 @@ class Message extends Component<MessageProps> {
   }
 
   render_carousel() {
-    return <Carousel onSendData={this.props.onSendData} carousel={this.props.payload} />
+    return (
+      <Carousel
+        onSendData={this.props.onSendData}
+        carousel={this.props.payload}
+        escapeHTML={this.props.store.escapeHTML}
+        isBotMessage={this.props.isBotMessage}
+        intl={this.props.intl}
+      />
+    )
   }
 
   render_typing() {

@@ -142,6 +142,7 @@ export namespace Renderer {
     title: string
     subtitle: string
     buttons: CardButton[]
+    markdown: boolean
   }
 
   export interface CardButton {

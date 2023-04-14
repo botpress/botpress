@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import Linkify from 'react-linkify'
 
 import { Renderer } from '../../../typings'
-import { renderUnsafeHTML, isRTLText } from '../../../utils'
+import { isRTLText, ProcessedText } from '../../../utils'
 
 /**
  * A simple text element with optional markdown
@@ -22,26 +22,22 @@ export const Text = (props: Renderer.Text) => {
     hasShowMore = true
   }
 
-  const truncateIfRequired = message => {
-    return hasShowMore && !showMore ? truncate(message, maxLength) : message
-  }
-
-  let message
-  if (markdown) {
-    const isUserMessage = !props.isBotMessage
-    const shouldEscapeHTML = isUserMessage || escapeHTML
-    const html = renderUnsafeHTML(text, shouldEscapeHTML)
-
-    message = <div dangerouslySetInnerHTML={{ __html: truncateIfRequired(html) }} />
-  } else {
-    message = <p>{truncateIfRequired(text)}</p>
-  }
-
   const rtl = isRTLText.test(text)
 
   return (
     <Linkify properties={{ target: '_blank' }}>
-      <div className={classNames({ rtl })}>{message}</div>
+      <div className={classNames({ rtl })}>
+        <ProcessedText
+          isBotMessage={props.isBotMessage}
+          intl={intl}
+          maxLength={maxLength}
+          escapeHTML={escapeHTML}
+          markdown={markdown}
+          showMore={showMore}
+        >
+          {text}
+        </ProcessedText>
+      </div>
 
       {hasShowMore && (
         <button type="button" onClick={e => setShowMore(!showMore)} className="bpw-message-read-more">

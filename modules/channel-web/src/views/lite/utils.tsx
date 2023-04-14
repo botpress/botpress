@@ -1,3 +1,6 @@
+import truncate from 'html-truncate'
+import React from 'react'
+import Children from 'react-children-utilities'
 import ReactGA from 'react-ga'
 import snarkdown from 'snarkdown'
 
@@ -150,3 +153,53 @@ export const isRTLText = new RegExp(
     ].join('') +
     ']'
 )
+
+export const ProcessedText = (props: {
+  markdown?: boolean
+  escapeHTML?: boolean
+  isBotMessage: boolean
+  maxLength?: number
+  intl?: any
+  showMore?: boolean
+  wrapperProps?: any & { tag: string }
+  children?: string
+}) => {
+  let message
+  let hasShowMore
+  let WrapperTag
+
+  const {
+    markdown = false,
+    escapeHTML = false,
+    isBotMessage = false,
+    maxLength,
+    intl = false,
+    showMore = false,
+    wrapperProps = {},
+    children
+  } = props
+  const { tag, ...rest } = wrapperProps
+
+  const text = Children.onlyText(children)
+
+  if (intl && maxLength && text.length > maxLength) {
+    hasShowMore = true
+  }
+
+  const truncateIfRequired = message => {
+    return hasShowMore && !showMore ? truncate(message, maxLength) : message
+  }
+
+  if (markdown) {
+    const isUserMessage = !isBotMessage
+    const shouldEscapeHTML = isUserMessage || escapeHTML
+    const html = renderUnsafeHTML(text, shouldEscapeHTML)
+    WrapperTag = tag || 'div'
+    message = <WrapperTag {...rest} dangerouslySetInnerHTML={{ __html: truncateIfRequired(html) }} />
+  } else {
+    WrapperTag = tag || 'p'
+    message = <WrapperTag {...rest}>{truncateIfRequired(text)}</WrapperTag>
+  }
+
+  return message
+}
