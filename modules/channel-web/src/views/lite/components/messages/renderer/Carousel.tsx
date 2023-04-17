@@ -26,8 +26,13 @@ export class Carousel extends React.Component<ICarouselProps, ICarouselState> {
   }
 
   componentDidMount() {
-    // Delay this to avoid incorrect values when closing-opening the webchat
-    setTimeout(() => this.setState({ adjustedWidth: this.ref.offsetWidth - window.innerWidth }), 300)
+    this.setState({ adjustedWidth: this.ref.offsetWidth - window.innerWidth })
+    // Reset this to avoid incorrect values when closing-opening the webchat
+    setTimeout(() => {
+      this.setState({
+        adjustedWidth: this.ref.offsetWidth - window.innerWidth
+      })
+    }, 300)
   }
 
   renderCarousel() {
@@ -50,10 +55,10 @@ export class Carousel extends React.Component<ICarouselProps, ICarouselState> {
       arrows: elements.length > 1
     }
 
-    const settings = Object.assign({}, defaultSettings, carousel.settings)
+    const settings = Object.assign({}, defaultSettings, carousel?.settings)
 
     return (
-      <Slider {...settings}>
+      <Slider key={this.state.adjustedWidth} {...settings}>
         {elements.map((el, idx) => (
           <Card element={el} key={idx} onSendData={this.props.onSendData} />
         ))}
