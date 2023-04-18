@@ -8,6 +8,7 @@ import React from 'react'
 import { injectIntl } from 'react-intl'
 
 import Container from './components/Container'
+import OverridableComponent from './components/OverridableComponent'
 import Stylesheet from './components/Stylesheet'
 import constants from './core/constants'
 import BpSocket from './core/socket'
@@ -373,7 +374,7 @@ class Web extends React.Component<MainProps> {
             })}
           </h1>
         )}
-
+        <OverridableComponent name={'before_widget'} original={null} />
         {this.props.displayWidgetView ? this.renderWidget() : <Container />}
       </div>
     )
