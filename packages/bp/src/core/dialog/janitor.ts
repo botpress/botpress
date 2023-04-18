@@ -2,18 +2,20 @@ import { BotConfig, IO, Logger } from 'botpress/sdk'
 import { TYPES } from 'core/app/types'
 import { BotService } from 'core/bots'
 import { BotpressConfig, ConfigProvider } from 'core/config'
-import { SessionRepository, createExpiry, SessionIdFactory } from 'core/dialog/sessions'
+import { SessionRepository, createExpiry, SessionIdFactory, DialogSession } from 'core/dialog/sessions'
 import { JobService } from 'core/distributed'
-import { Event } from 'core/events'
+import { Event, EventRepository } from 'core/events'
+import { EventCollector } from 'core/events/event-collector'
 import { Janitor } from 'core/services/janitor'
 import { ChannelUserRepository } from 'core/users'
 import { inject, injectable, tagged } from 'inversify'
 import _ from 'lodash'
 import { Memoize } from 'lodash-decorators'
+import moment from 'moment'
 import ms from 'ms'
 
 import { DialogEngine } from './dialog-engine'
-import { TimeoutNodeNotFound } from './errors'
+import { TimeoutNodeNotFound, InfiniteLoopError } from './errors'
 
 const debug = DEBUG('janitor')
 const dialogDebug = debug.sub('dialog')
@@ -34,7 +36,9 @@ export class DialogJanitor extends Janitor {
     @inject(TYPES.BotService) private botService: BotService,
     @inject(TYPES.SessionRepository) private sessionRepo: SessionRepository,
     @inject(TYPES.UserRepository) private userRepo: ChannelUserRepository,
-    @inject(TYPES.JobService) private jobService: JobService
+    @inject(TYPES.JobService) private jobService: JobService,
+    @inject(TYPES.EventCollector) private eventCollector: EventCollector,
+    @inject(TYPES.EventRepository) private eventRepository: EventRepository
   ) {
     super(logger)
   }
@@ -93,18 +97,21 @@ export class DialogJanitor extends Janitor {
       const { channel, target, threadId } = SessionIdFactory.extractDestinationFromId(sessionId)
       const session = await this.sessionRepo.get(sessionId)
 
-      this.dialogEngine.detectInfiniteLoop(session.context.jumpPoints || [], botId)
+      await this.detectTimeoutInfiniteLoop(session, botId)
 
-      // This event only exists so that processTimeout can call processEvent
-      const fakeEvent = Event({
+      // Used to call processEvent and it's also saved for loop detection
+      const InternalEvent = Event({
         type: 'timeout',
         channel,
         target,
         threadId,
-        direction: 'incoming',
+        direction: 'internal',
         payload: '',
         botId
-      }) as IO.IncomingEvent
+      }) as IO.InternalEvent
+
+      // Store the timeout event so we can detect loops
+      this.eventCollector.storeEvent(InternalEvent)
 
       const { result: user } = await this.userRepo.getOrCreate(channel, target, botId)
 
@@ -112,12 +119,12 @@ export class DialogJanitor extends Janitor {
       // if there is no jump, so we don't want the timeout event to process the previous queue
       // The reason to return the event is to persist any changes made to session state or context
       // in the session timeout hook
-      fakeEvent.state.context = { ...session.context, queue: undefined } as IO.DialogContext
-      fakeEvent.state.session = session.session_data as IO.CurrentSession
-      fakeEvent.state.user = user.attributes
-      fakeEvent.state.temp = session.temp_data
+      InternalEvent.state.context = { ...session.context, queue: undefined } as IO.DialogContext
+      InternalEvent.state.session = session.session_data as IO.CurrentSession
+      InternalEvent.state.user = user.attributes
+      InternalEvent.state.temp = session.temp_data
 
-      update.event = await this.dialogEngine.processTimeout(botId, sessionId, fakeEvent)
+      update.event = await this.dialogEngine.processTimeout(botId, sessionId, InternalEvent)
 
       if (_.get(update.event, 'state.context.queue.instructions.length', 0) > 0) {
         // if after processing the timeout handling we still have instructions queued, we're not clearing the context
@@ -159,5 +166,57 @@ export class DialogJanitor extends Janitor {
     await this.sessionRepo.update(session)
 
     dialogDebug.forBot(botId, `New expiry set for ${session.context_expiry}`, sessionId)
+  }
+
+  public async detectTimeoutInfiniteLoop(session: DialogSession, botId: string) {
+    try {
+      const botpressConfig = await this.getBotpressConfig()
+      const botConfig = await this.configProvider.getBotConfig(botId)
+      const { threadId, target } = SessionIdFactory.extractDestinationFromId(session.id)
+
+      const limit = 5
+      const dialogTimeout = _.get(botConfig, 'dialog.timeoutInterval', botpressConfig.dialog.timeoutInterval) as string
+      const from = moment(moment().valueOf() - ms(dialogTimeout) * (limit * 2))
+
+      // We get the last 5 timeout events ( limiting the creation time by now - 2 * the timeout interval * 5 )
+      const timeoutEvents = await this.eventRepository.findEvents(
+        { botId, ...(threadId && { threadId }), target, type: 'timeout' },
+        { count: limit, sortOrder: [{ column: 'createdOn', desc: true }], createdOn: { after: from.toDate() } }
+      )
+
+      // Not enough timeout events
+      if (timeoutEvents.length < limit) {
+        return
+      }
+
+      // We get all the events that happened after in the oldest timeout event
+      const eventsAfterTimeout = await this.eventRepository.findEvents(
+        { botId, ...(threadId && { threadId }), target },
+        {
+          sortOrder: [{ column: 'createdOn', desc: true }],
+          createdOn: { after: moment(timeoutEvents[limit - 1].createdOn).toDate() }
+        }
+      )
+
+      // Even if we have enough timeout events, if there is an incoming event after the oldest timeout event
+      // Then there is no loop
+      if (!eventsAfterTimeout.find(item => item.direction === 'incoming')) {
+        const recurringPath: string[] = []
+        const stacktrace = session.context.jumpPoints || []
+
+        const { node, flow } = stacktrace[0]
+        for (const jump of stacktrace.slice(0, 16)) {
+          recurringPath.push(`${jump.flow} (${jump.node})`)
+        }
+
+        throw new InfiniteLoopError(recurringPath, botId, flow, node)
+      }
+    } catch (err) {
+      if (err instanceof InfiniteLoopError) {
+        throw err
+      } else {
+        this.logger.forBot(botId).error(`Error verifying infinite loop on dialog timeout. ${err.message}`)
+      }
+    }
   }
 }

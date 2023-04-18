@@ -253,7 +253,7 @@ export class DialogEngine {
       nextFlow,
       nextNode
     }: {
-      currentFlow: FlowWithParent
+      currentFlow?: FlowWithParent
       currentNode?: FlowNode
       nextFlow: FlowWithParent
       nextNode: FlowNode
@@ -264,13 +264,16 @@ export class DialogEngine {
       currentNode: nextNode.name,
       currentFlow: nextFlow.name,
       queue: undefined,
-      previousFlow: currentFlow.name,
+      previousFlow: currentFlow?.name ?? '',
       previousNode: currentNode?.name ?? '',
-      hasJumped: true,
-      jumpPoints: [
+      hasJumped: true
+    }
+
+    if (currentFlow) {
+      event.state.context.jumpPoints = [
         ...(event.state.context?.jumpPoints || []),
         {
-          flow: currentFlow.name,
+          flow: currentFlow?.name,
           node: currentNode?.name as string
         }
       ]
@@ -285,7 +288,7 @@ export class DialogEngine {
 
     await this._loadFlows(botId)
 
-    const currentFlow = this._findFlow(botId, event.state.context?.currentFlow)
+    const currentFlow = this.findFlowWithoutError(botId, event.state.context?.currentFlow)
     const currentNode = this.findNodeWithoutError(botId, currentFlow, event.state.context?.currentNode)
 
     // Check for a timeout property in the current node

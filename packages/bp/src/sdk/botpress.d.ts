@@ -443,7 +443,7 @@ declare module 'botpress/sdk' {
   }
 
   export namespace IO {
-    export type EventDirection = 'incoming' | 'outgoing'
+    export type EventDirection = 'incoming' | 'outgoing' | 'internal'
     export namespace WellKnownFlags {
       /** When this flag is active, the dialog engine will ignore those events */
       export const SKIP_DIALOG_ENGINE: symbol
@@ -585,6 +585,12 @@ declare module 'botpress/sdk' {
       /* HITL module has possibility to pause conversation */
       readonly isPause?: boolean
       readonly ndu?: NDU.DialogUnderstanding
+    }
+
+    export interface InternalEvent extends Event {
+      direction: 'internal'
+      /** Contains data related to the state of the event */
+      state: EventState
     }
 
     export interface OutgoingEvent extends Event {
@@ -806,7 +812,7 @@ declare module 'botpress/sdk' {
    * An outgoing event will register itself into the outgoing middleware chain.
    * @see MiddlewareDefinition to learn more about middleware.
    */
-  export type EventDirection = 'incoming' | 'outgoing'
+  export type EventDirection = 'incoming' | 'outgoing' | 'internal'
 
   export interface UpsertOptions {
     /** Whether or not to record a revision @default true */
@@ -1704,6 +1710,7 @@ declare module 'botpress/sdk' {
     count?: number
     /** An array of columns with direction to sort results */
     sortOrder?: SortOrder[]
+    createdOn?: { after?: Date; before?: Date }
   }
 
   export interface Filter {
