@@ -1,6 +1,6 @@
 {
   "name": "bp_main",
-  "version": "12.30.7",
+  "version": "12.30.8",
   "description": "The world's most powerful conversational engine",
   "engines": {
     "node": "^12"
@@ -14,7 +14,7 @@
     "version": "1.0.2"
   },
   "studio": {
-    "version": "0.0.65"
+    "version": "0.0.66"
   },
   "messaging": {
     "version": "1.2.7"
