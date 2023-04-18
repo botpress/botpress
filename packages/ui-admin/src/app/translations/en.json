@@ -450,5 +450,8 @@
         "confUpdated": "Debug configuration updated successfully!"
       }
     }
-  }
+  },
+  "docs": "Documentation",
+  "forum": "Forum",
+  "help": "Help"
 }

@@ -445,5 +445,8 @@
         "confUpdated": "La configuration de débogage a été mise à jour avec succès!"
       }
     }
-  }
+  },
+  "docs": "Documentation",
+  "forum": "Forum",
+  "help": "Aide"
 }

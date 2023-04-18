@@ -430,5 +430,8 @@
         "confUpdated": "¡Configuración de depuración actualizada correctamente!"
       }
     }
-  }
+  },
+  "docs": "Documentos",
+  "forum": "Foro",
+  "help": "Ayuda"
 }
