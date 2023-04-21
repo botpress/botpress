@@ -1,3 +1,19 @@
+## [12.30.8](https://github.com/botpress/botpress/compare/v12.30.7...v12.30.8) (2023-04-21)
+
+
+### Bug Fixes
+
+* **code-editor:** fix sdk intellisense ([#12516](https://github.com/botpress/botpress/issues/12516)) ([87c44c4](https://github.com/botpress/botpress/commit/87c44c44d193f4b487537f11e2cf3c07470c736a))
+* **core:** fix dialog timeout loop detection ([#12528](https://github.com/botpress/botpress/issues/12528)) ([b836482](https://github.com/botpress/botpress/commit/b836482cb656422e996c3480e7600f02737f2092))
+
+
+### Features
+
+* **web-channel:** before_widget overridable component ([#12585](https://github.com/botpress/botpress/issues/12585)) ([488a1bb](https://github.com/botpress/botpress/commit/488a1bb4e534bf1401af1487ed690a9313ab55c6))
+* **web-channel:** markdown on cards ([#12491](https://github.com/botpress/botpress/issues/12491)) ([a898a50](https://github.com/botpress/botpress/commit/a898a50cd2516a7b5e996106f5784537497c60ea))
+
+
+
 ## [12.30.7](https://github.com/botpress/botpress/compare/v12.30.6...v12.30.7) (2023-02-08)
 
 
