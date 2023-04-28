@@ -133,7 +133,7 @@
   {
     "id": "builtin_text-SKQxXN",
     "formData": {
-      "text$en": "Ask me something thats included in the choices. Let's try again.",
+      "text$en": "Ask me something that's included in the choices. Let's try again.",
       "typing$en": true
     },
     "createdBy": "admin",
