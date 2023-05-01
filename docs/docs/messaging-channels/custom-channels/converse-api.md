@@ -5,7 +5,7 @@ title: Converse API
 
 ---
 
-The Converse API skill helps you quickly call an API within your flow. You can then save and use the responses received from the external API in your chatbot's code and flows.
+The Converse API helps you quickly call an API within your flow. You can then save and use the responses received from the external API in your chatbot's code and flows.
 
 ## Request Options
 
