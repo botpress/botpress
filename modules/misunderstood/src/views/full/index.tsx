@@ -199,6 +199,9 @@ export default class MisunderstoodMainView extends React.Component<Props, State>
       FLAGGED_MESSAGE_STATUS.pending,
       resolutionData
     )
+
+    await this.setStateP({ checkedEventIds: [], selectAllChecked: false })
+
     return this.alterEventsList(
       FLAGGED_MESSAGE_STATUS.new,
       FLAGGED_MESSAGE_STATUS.pending,
