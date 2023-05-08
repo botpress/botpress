@@ -287,6 +287,7 @@ Some components can be replaced by your own. There are also some placeholders th
 | `below_conversation` | This component would be displayed just below the composer          |
 | `before_container`   | This is displayed before the chat container (the debugger uses it) |
 | `composer`           | This allows you to replace the zone where the user is typing       |
+| `before_widget`      | Displayed outside of the webchat, will persist when closed or open |
 
 How to configure them:
 
