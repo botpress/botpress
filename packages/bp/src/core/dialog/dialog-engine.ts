@@ -298,7 +298,7 @@ export class DialogEngine {
     // Check for a timeout node in the current flow
     if (!timeoutNode) {
       timeoutNode = this.findNodeWithoutError(botId, currentFlow, 'timeout')
-      if (!timeoutNode && currentFlow.name.startsWith('skills/') && event.state.context?.previousFlow) {
+      if (!timeoutNode && currentFlow?.name.startsWith('skills/') && event.state.context?.previousFlow) {
         const previousFlow = this.findFlowWithoutError(botId, event.state.context?.previousFlow)
         timeoutNode = this.findNodeWithoutError(botId, previousFlow, 'timeout')
         timeoutFlow = previousFlow
