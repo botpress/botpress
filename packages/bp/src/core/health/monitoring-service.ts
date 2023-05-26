@@ -1,6 +1,7 @@
 import axios from 'axios'
 import * as sdk from 'botpress/sdk'
 import { Metric, MonitoringMetrics } from 'common/monitoring'
+import Database from 'core/database'
 import { MessagingService } from 'core/messaging'
 import { TYPES } from 'core/types'
 import { inject, injectable, tagged } from 'inversify'
@@ -84,7 +85,8 @@ export class CEMonitoringService implements MonitoringService {
     @inject(TYPES.Logger)
     @tagged('name', 'Monitoring')
     private logger: sdk.Logger,
-    @inject(TYPES.MessagingService) private messagingService: MessagingService
+    @inject(TYPES.MessagingService) private messagingService: MessagingService,
+    @inject(TYPES.Database) private database: Database
   ) {}
 
   async start(): Promise<void> {}
@@ -104,6 +106,14 @@ export class CEMonitoringService implements MonitoringService {
       messaging = 'down'
     }
 
+    let database = 'n/a'
+    try {
+      database = (await this.database.knex.raw('select 1+1 as result')) !== undefined ? 'up' : 'down'
+    } catch (err) {
+      database = 'error'
+      this.logger.attachError(err).error('Error when checking the status of the database')
+    }
+
     let nlu = 'n/a'
     try {
       const nluEndpoint = process.NLU_ENDPOINT || `http://localhost:${process.NLU_PORT}`
@@ -115,7 +125,7 @@ export class CEMonitoringService implements MonitoringService {
       nlu = 'down'
     }
 
-    return { botpress: 'up', messaging, nlu }
+    return { botpress: 'up', database, messaging, nlu }
   }
 
   getRedisFactory() {
