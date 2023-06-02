@@ -22,6 +22,6 @@
   },
   "devDependencies": {
     "esbuild": "^0.16.12",
-    "@botpress/api": "link:/Users/francoislevasseur/Documents/code/skynet/packages/public-api"
+    "@botpress/api": "0.2.2"
   }
 }
