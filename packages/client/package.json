@@ -12,7 +12,8 @@
     "build:node": "esbuild --bundle --external:axios --external:browser-or-node --platform=node --minify --sourcemap --outfile=dist/index.cjs src/index.ts",
     "build:bundle": "esbuild --bundle --platform=node --minify --sourcemap --outfile=dist/bundle.cjs src/index.ts",
     "build": "pnpm build:type && pnpm build:node && pnpm build:browser && pnpm build:bundle",
-    "type-check": "tsc --noEmit --target es2019 --module commonjs --moduleResolution node --lib es2019"
+    "type-check": "tsc --noEmit --target es2019 --module commonjs --moduleResolution node --lib es2019",
+    "generate": "ts-node ./openapi.ts"
   },
   "dependencies": {
     "axios": "1.2.5",
@@ -20,6 +21,7 @@
     "type-fest": "^3.4.0"
   },
   "devDependencies": {
-    "esbuild": "^0.16.12"
+    "esbuild": "^0.16.12",
+    "@botpress/api": "link:/Users/francoislevasseur/Documents/code/skynet/packages/public-api"
   }
 }

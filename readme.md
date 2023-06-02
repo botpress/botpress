@@ -1,6 +1,15 @@
 # Botpress Cloud
 
-No description yet. Be patient.
+Better description incoming.
+
+### Prerequisites
+
+The development environment requires the following tools to be installed:
+
+- [`node`](https://nodejs.org/en/): Node.js® is a JavaScript runtime built on Chrome's V8 JavaScript engine.
+- [`pnpm`](https://pnpm.io/): Fast, disk space efficient package manager.
+- [`Tilt`](https://tilt.dev/): A toolkit for fixing the pains of microservice development.
+- [`docker`](https://www.docker.com/): Docker is an OCI container toolkit
 
 ## Licensing
 
