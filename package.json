@@ -2,14 +2,14 @@
   "name": "cloud",
   "private": true,
   "scripts": {
-    "type-check": "pnpm -r --stream type-check",
     "build": "pnpm -r --stream build",
-    "prettier": "prettier --check .",
-    "prettier:fix": "prettier --write .",
-    "lint": "eslint ./ --ext .ts --ext .tsx",
+    "type:check": "pnpm -r --stream type:check",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "lint:check": "eslint ./ --ext .ts --ext .tsx",
     "lint:fix": "eslint --fix ./ --ext .ts --ext .tsx",
-    "check": "pnpm prettier && pnpm lint",
-    "format:all": "pnpm prettier:fix && pnpm lint:fix"
+    "check": "pnpm format:check && pnpm lint:check && pnpm type:check",
+    "fix": "pnpm format:fix && pnpm lint:fix"
   },
   "dependencies": {
     "@botpress/cli": "workspace:*",

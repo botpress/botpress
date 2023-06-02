@@ -57,7 +57,7 @@ local_resource(
   name='build-client',
   allow_parallel=True,
   dir='packages/client',
-  cmd='pnpm generate && pnpm type-check && pnpm build',
+  cmd='pnpm generate && pnpm type:check && pnpm build',
   env={
     'OPENAPI_GENERATOR_ENDPOINT': 'http://localhost:%s' % openapi_generator_server_port,
   },
@@ -75,7 +75,7 @@ local_resource(
   name='build-sdk',
   allow_parallel=True,
   dir='packages/sdk',
-  cmd='pnpm type-check && pnpm build',
+  cmd='pnpm type:check && pnpm build',
   labels=['sdk'],
   resource_deps=['build-client']
 )
@@ -86,7 +86,7 @@ local_resource(
   name='build-cli',
   allow_parallel=True,
   dir='packages/cli',
-  cmd='pnpm type-check && pnpm build',
+  cmd='pnpm type:check && pnpm build',
   labels=['cli'],
   resource_deps=['build-sdk']
 )
