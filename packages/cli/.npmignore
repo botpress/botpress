@@ -1,0 +1,9 @@
+.ignore.me.*
+node_modules
+tsconfig.tsbuildinfo
+
+/src
+/tsconfig.json
+
+/templates/*/dist
+/templates/*/node_modules

@@ -1,0 +1,30 @@
+{
+  "name": "@botpress/sdk",
+  "version": "0.0.12",
+  "description": "Botpress SDK",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "scripts": {
+    "build:type": "tsc --emitDeclarationOnly --declaration --target es2019 --module commonjs --moduleResolution node --lib es2019",
+    "build:index": "ts-node -T build.ts",
+    "build": "pnpm build:type && pnpm build:index",
+    "type-check": "tsc --noEmit --target es2019 --module commonjs --moduleResolution node --lib es2019"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@botpress/client": "0.0.12",
+    "axios": "0.27.2",
+    "radash": "^9.5.0",
+    "zod": "^3.20.6",
+    "zod-to-json-schema": "^3.20.1"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.17",
+    "esbuild": "^0.16.10",
+    "ts-node": "^10.9.1",
+    "type-fest": "^3.4.0",
+    "typescript": "^4.9.4"
+  }
+}

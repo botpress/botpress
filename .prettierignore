@@ -1,0 +1,22 @@
+# based on https://gist.github.com/thinkricardo/74f37d82b686de371b0853a5d66d559c
+
+# ignore all files
+*
+
+# include all folders
+!**/
+
+# include files to format
+!*.ts
+!*.tsx
+!*.json
+!*.yaml
+!*.yml
+!*.md
+
+# exclusions
+# **/*.d.ts
+pnpm-lock.yaml
+gen
+dist
+.botpress
