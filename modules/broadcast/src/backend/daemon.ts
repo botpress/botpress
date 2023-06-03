@@ -35,7 +35,12 @@ export default async (botId: string, bp: typeof sdk, db: Database) => {
             bp.logger.warn('Filter returned something other ' + 'than a boolean (or a Promise of a boolean)')
           }
 
-          return typeof v !== 'undefined' && v !== null
+          if(typeof v == 'undefined' || v == null){
+            return true;
+            }
+          else {
+            return v;
+          }
         })
       })
     }
