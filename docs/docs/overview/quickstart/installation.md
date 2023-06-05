@@ -5,17 +5,17 @@ title: Installation
 
 ---
 
-Getting started with Botpress is easy. We build and distribute binaries of the latest stable version and nightly builds of the Github master branch and also have a Desktop app.
+Getting started with Botpress is easy. We build and distribute binaries of the latest stable version and nightly builds of the Github master branch. There is also a Desktop app.
 
 ## Quick Install
 
 Head over to the [**download page**](https://botpress.com/download) for the latest version, and download and install according to your OS.
-If you are using linux, you must use the `sudo snap install Botpress_VERSION_NUMBER.snap --force-dangerous` command. You can then load Botpress by searching for the app on your operating system.
+If you are using Linux, you must use the `sudo snap install Botpress_VERSION_NUMBER.snap --force-dangerous` command. You can then load Botpress by searching for the app on your operating system.
  
 
 ## Alternative - Download Binaries
 
-Binaries are useful if you want to run Botpress with special parameters, or if you want to run it from a server, or lightweight environment.
+Binaries are useful if you want to run Botpress with special parameters, or if you want to run it from a server, or a Lightweight Linux desktop environment.
 
 The latest stable binaries are available for download [**here**](https://botpress.com/download).  Alternatively, you may find all the versions and nightly builds in our public [**S3 Bucket**](https://s3.amazonaws.com/botpress-binaries/index.html).
 
@@ -31,9 +31,9 @@ To install Botpress, unzip the file you download somewhere on your computer. Mak
 
 ## Alternative - Starting Botpress Binaries
 
-To start Botpress, all you have to do is double-click on the `bp` file in the directory you extracted Botpress.
+To start Botpress, double-click on the `bp` file in the directory you extracted Botpress.
 
-Alternatively, you can also start it from the terminal using the command:
+You can also start it from the terminal using the command:
 
 ```bash
 ./bp
@@ -115,7 +115,7 @@ You may also start Botpress Server using the Command Line Interface (CLI). To se
 
 ## Learn More
 
-Here is a video tutorial to help you set up Botpress on your computer. You can slow it down a bit to follow along.
+Here is a video tutorial to help you set up Botpress. Slow the video down a bit to follow along.
 
 - [Setting up on Windows](https://youtu.be/xf246NQyMj4)
 - [Setting up on Mac](https://youtu.be/SBv0QOXyHL4)
