@@ -22,10 +22,10 @@ jobs:
           node-version: '18.x'
           check-latest: true
           cache: 'pnpm'
+      - run: pnpm i --frozen-lockfile
       - name: Install tilt
         run: curl -k -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash
-      - run: pnpm i --frozen-lockfile
-      - run: tilt ci -- --cmd generate
+      - run: tilt ci
       - run: pnpm run format:check
       - run: pnpm run lint:check
       - run: pnpm run type:check

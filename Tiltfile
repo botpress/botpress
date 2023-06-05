@@ -5,7 +5,7 @@
 READINESS_PORT = 9398
 OPENAPI_GENERATOR_SERVER_PORT = 8081
 
-## command definitions
+## commands
 
 GENERATE_RESSOURCES = ['pnpm-install', 'openapi-generator-server', 'readiness', 'generate-client']
 BUILD_RESSOURCES = GENERATE_RESSOURCES + ['build-client', 'build-sdk', 'build-cli']
@@ -98,7 +98,7 @@ local_resource(
   name='build-client',
   allow_parallel=True,
   dir='packages/client',
-  cmd='pnpm type:check && pnpm build',
+  cmd='pnpm build',
   labels=['client'],
   resource_deps=['generate-client']
 )
@@ -109,7 +109,7 @@ local_resource(
   name='build-sdk',
   allow_parallel=True,
   dir='packages/sdk',
-  cmd='pnpm type:check && pnpm build',
+  cmd='pnpm build',
   labels=['sdk'],
   resource_deps=['build-client']
 )
@@ -120,7 +120,7 @@ local_resource(
   name='build-cli',
   allow_parallel=True,
   dir='packages/cli',
-  cmd='pnpm type:check && pnpm build',
+  cmd='pnpm build',
   labels=['cli'],
   resource_deps=['build-sdk']
 )
