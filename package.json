@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@botpress/cli": "workspace:*",
+    "@bpinternal/readiness": "0.0.1",
     "@stoplight/spectral-cli": "^6.6.0",
     "@stoplight/spectral-core": "^1.16.1",
     "@tsconfig/node18-strictest": "^1.0.0",

@@ -1,3 +1,4 @@
 packages:
   - packages/*
   - local/*
+  - packages/cli/templates/*

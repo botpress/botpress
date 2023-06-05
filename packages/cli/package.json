@@ -3,12 +3,11 @@
   "version": "0.0.16",
   "description": "Botpress CLI",
   "scripts": {
-    "build": "pnpm run type:check && pnpm run bundle && pnpm run template:gen && pnpm run template:type:check",
+    "build": "pnpm run bundle && pnpm run template:gen",
     "dev": "ts-node -T src/index.ts",
     "start": "node dist/index.js",
     "type:check": "tsc --noEmit",
     "bundle": "ts-node -T build.ts",
-    "template:type:check": "pnpm -r --stream -F './**/templates/*' run type:check",
     "template:gen": "pnpm -r --stream -F './**/templates/*' exec bp gen"
   },
   "keywords": [],
