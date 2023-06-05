@@ -1,9 +1,8 @@
-import yargs from '@bpinternal/yargs-extra'
 import * as prompts from 'prompts'
 import * as semver from 'semver'
-import * as pkg from './package-json'
-import { currentVersions, dependencyTree, packagePaths } from './packages'
-import { TargetPackage, syncVersions } from './sync-versions'
+import { DEPENDENCY_TREE, PACKAGE_PATHS } from '../constants'
+import * as pkg from '../utils/package-json'
+import { TargetPackage, currentVersions, syncVersions } from './sync-versions'
 
 type VersionJump = 'major' | 'minor' | 'patch'
 
@@ -22,8 +21,8 @@ const promptJump = async (pkgName: TargetPackage): Promise<VersionJump> => {
   return promptedJump
 }
 
-const bumpVersion = async (targetPackage: TargetPackage, opt: { sync?: boolean } = {}) => {
-  const dependencies = dependencyTree[targetPackage]
+export const bumpVersion = async (targetPackage: TargetPackage, opt: { sync?: boolean } = {}) => {
+  const dependencies = DEPENDENCY_TREE[targetPackage]
   const targetPackages = [targetPackage, ...dependencies]
 
   const targetVersions = { ...currentVersions } satisfies Record<TargetPackage, string>
@@ -36,30 +35,10 @@ const bumpVersion = async (targetPackage: TargetPackage, opt: { sync?: boolean }
     }
 
     targetVersions[pkgName] = next
-    pkg.updatePackage(packagePaths[pkgName], { version: next })
+    pkg.updatePackage(PACKAGE_PATHS[pkgName], { version: next })
   }
 
   if (opt.sync) {
     syncVersions(targetVersions)
   }
 }
-
-yargs
-  .command(
-    '$0 <package>',
-    'Bump versions',
-    () =>
-      yargs
-        .positional('package', {
-          choices: ['client', 'sdk', 'cli'] as const,
-          demandOption: true,
-        })
-        .option('sync', {
-          type: 'boolean',
-          default: true,
-        }),
-    (argv) => {
-      void bumpVersion(`@botpress/${argv.package}`)
-    }
-  )
-  .parse()

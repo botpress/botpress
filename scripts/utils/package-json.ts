@@ -1,13 +1,17 @@
 import * as fs from 'fs'
 import * as pathlib from 'path'
 import * as prettier from 'prettier'
-import * as consts from './constants'
+import * as consts from '../constants'
 
 type Package = {
   name: string
   version: string
   dependencies: Record<string, string>
   devDependencies: Record<string, string>
+}
+
+namespace objects {
+  export const keys = <T extends object>(obj: T): (keyof T)[] => Object.keys(obj) as (keyof T)[]
 }
 
 const absPackageJson = (relativePath: string) => {
@@ -36,5 +40,14 @@ export const writePackage = (relativePath: string, pkg: Package) => {
 
 export const updatePackage = (relativePath: string, pkg: Partial<Package>) => {
   const currentPackage = readPackage(relativePath)
-  writePackage(relativePath, { ...currentPackage, ...pkg })
+
+  // this preserves the order of the keys
+  const newPackage = objects.keys(currentPackage).reduce((acc, key) => {
+    if (key in pkg) {
+      return { ...acc, [key]: pkg[key] }
+    }
+    return acc
+  }, currentPackage)
+
+  writePackage(relativePath, newPackage)
 }
