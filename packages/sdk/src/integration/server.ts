@@ -27,8 +27,6 @@ type OperationHandlerProps = {
   client: Client
 }
 
-const log = console
-
 export const serveIntegration = async (integration: Integration, port = 6853) => {
   await serve(integrationHandler(integration), port)
 }
@@ -39,10 +37,6 @@ export const integrationHandler =
   async (req: Request): Promise<Response | void> => {
     const ctx = extractContext(req.headers)
     const client = new Client({ botId: ctx.botId, integrationId: ctx.integrationId })
-
-    if (ctx.operation !== 'ping') {
-      log.debug('Received webhook request', { headers: req.headers, body: req.body })
-    }
 
     const props: OperationHandlerProps = {
       integration,
