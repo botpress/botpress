@@ -1,7 +1,7 @@
 {
   "name": "echo-bot",
   "scripts": {
-    "type-check": "tsc --noEmit"
+    "type:check": "tsc --noEmit"
   },
   "keywords": [],
   "private": true,

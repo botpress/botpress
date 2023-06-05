@@ -1,7 +1,7 @@
 {
   "name": "empty-integration",
   "scripts": {
-    "type-check": "tsc --noEmit"
+    "type:check": "tsc --noEmit"
   },
   "keywords": [],
   "private": true,

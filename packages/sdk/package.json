@@ -8,7 +8,7 @@
     "build:type": "tsc --emitDeclarationOnly --declaration --target es2019 --module commonjs --moduleResolution node --lib es2019",
     "build:index": "ts-node -T build.ts",
     "build": "pnpm build:type && pnpm build:index",
-    "type-check": "tsc --noEmit --target es2019 --module commonjs --moduleResolution node --lib es2019"
+    "type:check": "tsc --noEmit --target es2019 --module commonjs --moduleResolution node --lib es2019"
   },
   "keywords": [],
   "author": "",

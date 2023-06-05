@@ -9,7 +9,8 @@
     "noPropertyAccessFromIndexSignature": false,
     "noUnusedLocals": false,
     "importsNotUsedAsValues": "remove",
-    "noImplicitOverride": false
+    "noImplicitOverride": false,
+    "checkJs": false
   },
   "exclude": ["node_modules"]
 }
