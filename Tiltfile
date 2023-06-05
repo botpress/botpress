@@ -2,8 +2,8 @@
 
 ## ports
 
-READINESS_PORT = 9398
 OPENAPI_GENERATOR_SERVER_PORT = 8081
+READINESS_PORT = 8082
 
 ## commands
 
@@ -60,8 +60,7 @@ dc_resource(name='openapi-generator-server', labels=['utils'])
 local_resource(
   name="readiness",
   allow_parallel=True,
-  serve_dir='local/readiness',
-  serve_cmd='pnpm start',
+  serve_cmd='pnpm ready',
   serve_env={
     'PORT': '%s' % READINESS_PORT,
     'LOG_LEVEL': 'info',
@@ -74,8 +73,7 @@ local_resource(
   resource_deps=[
     'openapi-generator-server',
     'pnpm-install',
-  ],
-  deps=['local/readiness'],
+  ]
 )
 
 ## generate client
