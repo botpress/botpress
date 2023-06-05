@@ -21,7 +21,7 @@ export const syncVersions = (targetVersions: Record<TargetPackage, string> = cur
   const allPackages = globMatches.filter((ws) => pkg.isPackage(ws))
 
   for (const pkgPath of allPackages) {
-    const { dependencies, devDependencies, ...otherFields } = pkg.readPackage(pkgPath)
+    const { dependencies, devDependencies } = pkg.readPackage(pkgPath)
 
     for (const [name, version] of Object.entries(targetVersions)) {
       if (dependencies[name]) {
@@ -33,6 +33,6 @@ export const syncVersions = (targetVersions: Record<TargetPackage, string> = cur
       }
     }
 
-    pkg.writePackage(pkgPath, { dependencies, devDependencies, ...otherFields })
+    pkg.updatePackage(pkgPath, { dependencies, devDependencies })
   }
 }

@@ -1,6 +1,7 @@
 import yargs from '@bpinternal/yargs-extra'
 import { bumpVersion } from './commands/bump-versions'
 import { syncVersions } from './commands/sync-versions'
+import { logger } from './utils/logging'
 
 yargs
   .command(
@@ -14,10 +15,10 @@ yargs
         })
         .option('sync', {
           type: 'boolean',
-          default: false,
+          default: true,
         }),
     (argv) => {
-      void bumpVersion(`@botpress/${argv.package}`)
+      void bumpVersion(`@botpress/${argv.package}`, argv)
     }
   )
   .command(
@@ -26,6 +27,14 @@ yargs
     () => yargs,
     () => {
       void syncVersions()
+    }
+  )
+  .command(
+    'check',
+    'Check if all packages have the target version',
+    () => yargs,
+    () => {
+      logger.warn('Not implemented yet')
     }
   )
   .strict()

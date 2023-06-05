@@ -12,7 +12,7 @@ export const PACKAGE_PATHS = {
 } satisfies Record<TargetPackage, string>
 
 export const DEPENDENCY_TREE = {
-  '@botpress/client': [],
-  '@botpress/sdk': ['@botpress/client'],
-  '@botpress/cli': ['@botpress/sdk', '@botpress/client'],
+  '@botpress/client': ['@botpress/sdk', '@botpress/cli'],
+  '@botpress/sdk': ['@botpress/cli'],
+  '@botpress/cli': [],
 } satisfies Record<TargetPackage, TargetPackage[]>

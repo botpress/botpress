@@ -1,6 +1,7 @@
 import * as prompts from 'prompts'
 import * as semver from 'semver'
 import { DEPENDENCY_TREE, PACKAGE_PATHS } from '../constants'
+import { logger } from '../utils/logging'
 import * as pkg from '../utils/package-json'
 import { TargetPackage, currentVersions, syncVersions } from './sync-versions'
 
@@ -21,7 +22,7 @@ const promptJump = async (pkgName: TargetPackage): Promise<VersionJump> => {
   return promptedJump
 }
 
-export const bumpVersion = async (targetPackage: TargetPackage, opt: { sync?: boolean } = {}) => {
+export const bumpVersion = async (targetPackage: TargetPackage, opt: { sync: boolean }) => {
   const dependencies = DEPENDENCY_TREE[targetPackage]
   const targetPackages = [targetPackage, ...dependencies]
 
@@ -39,6 +40,7 @@ export const bumpVersion = async (targetPackage: TargetPackage, opt: { sync?: bo
   }
 
   if (opt.sync) {
+    logger.info('Syncing versions...')
     syncVersions(targetVersions)
   }
 }
