@@ -57,7 +57,7 @@ importers:
   packages/cli:
     specifiers:
       '@botpress/client': 0.0.13
-      '@botpress/sdk': 0.0.13
+      '@botpress/sdk': 0.0.14
       '@bpinternal/yargs-extra': ^0.0.3
       '@parcel/watcher': ^2.1.0
       '@types/bluebird': ^3.5.38
@@ -123,16 +123,16 @@ importers:
 
   packages/cli/templates/echo-bot:
     specifiers:
-      '@botpress/client': 0.0.11
-      '@botpress/sdk': 0.0.11
+      '@botpress/client': 0.0.13
+      '@botpress/sdk': 0.0.14
       '@tsconfig/node18-strictest': ^1.0.0
       '@types/node': ^18.11.17
       ts-node: ^10.9.1
       typescript: ^4.9.4
       zod: ^3.20.6
     dependencies:
-      '@botpress/client': 0.0.11
-      '@botpress/sdk': 0.0.11
+      '@botpress/client': link:../../../client
+      '@botpress/sdk': link:../../../sdk
       zod: 3.21.4
     devDependencies:
       '@tsconfig/node18-strictest': 1.0.0
@@ -142,16 +142,16 @@ importers:
 
   packages/cli/templates/empty-integration:
     specifiers:
-      '@botpress/client': 0.0.11
-      '@botpress/sdk': 0.0.11
+      '@botpress/client': 0.0.13
+      '@botpress/sdk': 0.0.14
       '@tsconfig/node18-strictest': ^1.0.0
       '@types/node': ^18.11.17
       ts-node: ^10.9.1
       typescript: ^4.9.4
       zod: ^3.20.6
     dependencies:
-      '@botpress/client': 0.0.11
-      '@botpress/sdk': 0.0.11
+      '@botpress/client': link:../../../client
+      '@botpress/sdk': link:../../../sdk
       zod: 3.21.4
     devDependencies:
       '@tsconfig/node18-strictest': 1.0.0
@@ -176,7 +176,7 @@ importers:
 
   packages/sdk:
     specifiers:
-      '@botpress/client': 0.0.12
+      '@botpress/client': 0.0.13
       '@types/node': ^18.11.17
       axios: 0.27.2
       esbuild: ^0.16.10
@@ -187,7 +187,7 @@ importers:
       zod: ^3.20.6
       zod-to-json-schema: ^3.20.1
     dependencies:
-      '@botpress/client': 0.0.12
+      '@botpress/client': link:../client
       axios: 0.27.2
       radash: 9.5.0
       zod: 3.21.4
@@ -235,38 +235,6 @@ packages:
     transitivePeerDependencies:
       - debug
     dev: true
-
-  /@botpress/client/0.0.11:
-    resolution: {integrity: sha512-x17juUv3q1SFZZmyB4eSTfQ4uYi5riRUfI8MAroWq6yEyRgzPWeKbvKnpRVB97vCJGxzG9Q0OT/QwhfOmFKbLQ==}
-    dependencies:
-      axios: 1.2.5
-      browser-or-node: 2.1.1
-      type-fest: 3.11.1
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /@botpress/client/0.0.12:
-    resolution: {integrity: sha512-3kbXLwK72LBPg8pkFDcBzLOytSf/uDXHgc34qgXg/qEK+DuMw4gwXz4D/a1zO7gk/8qehrLw0d0p1WRFl0kQMQ==}
-    dependencies:
-      axios: 1.2.5
-      browser-or-node: 2.1.1
-      type-fest: 3.11.1
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /@botpress/sdk/0.0.11:
-    resolution: {integrity: sha512-b+qgLpdsA1kYoWPLBcUq5wYrc/aYgRn8AtItvql66V5anaLY/IrA73HTnBZKWnB3CQ4NKMzX5krIJrrf4hA1Uw==}
-    dependencies:
-      '@botpress/client': 0.0.11
-      axios: 0.27.2
-      radash: 9.5.0
-      zod: 3.21.4
-      zod-to-json-schema: 3.21.1_zod@3.21.4
-    transitivePeerDependencies:
-      - debug
-    dev: false
 
   /@bpinternal/log4bot/0.0.4:
     resolution: {integrity: sha512-psjT4wxlMcKMnWu+acnxoMeVQaAjD5eRfTdpk1L2uymhy2hnukzxg53Z2cThbFDJsdEufFOneEGwSi2kfWXRwA==}
