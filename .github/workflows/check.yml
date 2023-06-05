@@ -23,4 +23,7 @@ jobs:
           check-latest: true
           cache: 'pnpm'
       - run: pnpm i --frozen-lockfile
-      - run: pnpm check
+      - run: tilt ci -- --cmd generate
+      - run: pnpm run format:check
+      - run: pnpm run lint:check
+      - run: pnpm run type:check
