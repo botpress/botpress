@@ -51,18 +51,18 @@ export type MessagePayload<P, M, C, U> = {
   type: string
 }
 
-type ActionDefinitions = {
+export type ActionDefinitions = {
   [actionType: string]: {
     input: any
     output: any
   }
 }
 
-type ChannelDefinitions = {
+export type ChannelDefinitions = {
   [channelName: string]: MessageDefinitions
 }
 
-type EventDefinitions = {
+export type EventDefinitions = {
   [eventName: string]: any
 }
 
@@ -113,18 +113,29 @@ export class IntegrationImplementation<
   Channels extends ChannelDefinitions = any,
   Events extends EventDefinitions = any
 > {
+  public readonly props: IntegrationImplementationProps<Configuration, Actions, Channels, Events>
   public readonly actions: IntegrationImplementationProps<Configuration, Actions, Channels, Events>['actions']
   public readonly channels: IntegrationImplementationProps<Configuration, Actions, Channels, Events>['channels']
   public readonly register: IntegrationImplementationProps<Configuration, Actions, Channels, Events>['register']
   public readonly unregister: IntegrationImplementationProps<Configuration, Actions, Channels, Events>['unregister']
+  public readonly createUser: IntegrationImplementationProps<Configuration, Actions, Channels, Events>['createUser']
+  public readonly createConversation: IntegrationImplementationProps<
+    Configuration,
+    Actions,
+    Channels,
+    Events
+  >['createConversation']
   public readonly handler: ReturnType<typeof integrationHandler>
   public readonly start: (port?: number) => Promise<Server>
 
   public constructor(props: IntegrationImplementationProps<Configuration, Actions, Channels, Events>) {
+    this.props = props
     this.actions = props.actions
     this.channels = props.channels
     this.register = props.register
     this.unregister = props.unregister
+    this.createUser = props.createUser
+    this.createConversation = props.createConversation
     this.handler = integrationHandler(props)
     this.start = (port?: number) => serve(this.handler, port)
   }

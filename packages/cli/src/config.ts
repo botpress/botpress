@@ -58,6 +58,8 @@ const integrationRef = {
   idx: 0,
 } satisfies CommandOption
 
+const sourceMap = { type: 'boolean', description: 'Generate sourcemaps', default: false } satisfies CommandOption
+
 // base schemas
 
 const globalSchema = {
@@ -110,10 +112,12 @@ const generateSchema = {
 
 const bundleSchema = {
   ...projectSchema,
+  sourceMap,
 } satisfies CommandSchema
 
 const buildSchema = {
   ...projectSchema,
+  sourceMap,
 } satisfies CommandSchema
 
 const serveSchema = {
@@ -129,6 +133,7 @@ const deploySchema = {
   botId: { type: 'string', description: 'The bot ID to deploy. Only used when deploying a bot' },
   noBuild,
   createNewBot: { type: 'boolean', description: 'Create a new bot when deploying. Only used when deploying a bot' },
+  sourceMap,
 } satisfies CommandSchema
 
 const devSchema = {
@@ -142,6 +147,7 @@ const devSchema = {
   },
   port,
   noBuild,
+  sourceMap,
 } satisfies CommandSchema
 
 const addSchema = {

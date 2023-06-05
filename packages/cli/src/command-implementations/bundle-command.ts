@@ -28,7 +28,15 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
 
     const outfile = abs.outFile // TODO: ensure dir exists
     line.debug(`Writing bundle to ${outfile}`)
-    await utils.esbuild.buildCode({ code, cwd: abs.workDir, outfile, logLevel, write: true })
+
+    await utils.esbuild.buildCode({
+      code,
+      cwd: abs.workDir,
+      outfile,
+      logLevel,
+      write: true,
+      sourcemap: this.argv.sourceMap,
+    })
 
     line.success(`Bundle available at ${chalk.grey(rel.outDir)}`)
   }
