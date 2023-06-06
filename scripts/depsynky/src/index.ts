@@ -7,10 +7,9 @@ import * as errors from './errors'
 import { logger } from './utils/logging'
 
 const onError = (thrown: unknown): never => {
-  const err = thrown instanceof Error ? thrown : new Error(`${thrown}`)
-
-  const displayStack = !(err instanceof errors.DepSynkyError) && !!err.stack
-  const message = displayStack ? `${err.message}\n${err.stack}` : err.message
+  const err: Error = thrown instanceof Error ? thrown : new Error(`${thrown}`)
+  const hideStack = err instanceof errors.DepSynkyError || !err.stack
+  const message = hideStack ? err.message : `${err.message}\n${err.stack}`
   logger.error(message)
   process.exit(1)
 }
