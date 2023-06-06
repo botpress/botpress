@@ -1,0 +1,28 @@
+{
+  "name": "depsynky",
+  "version": "0.0.1",
+  "private": true,
+  "description": "CLI to synchronize dependencies accross mono-repo",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "ts-node src/index.ts",
+    "type:check": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "AGPL-3.0",
+  "dependencies": {
+    "@bpinternal/yargs-extra": "^0.0.3",
+    "chalk": "^4.1.2",
+    "glob": "^9.3.4",
+    "prompts": "^2.4.2",
+    "semver": "^7.5.1",
+    "yaml": "^2.3.1",
+    "@types/node": "^18.11.18",
+    "@types/prompts": "^2.0.14",
+    "@types/semver": "^7.3.11",
+    "prettier": "^2.8.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
+  }
+}

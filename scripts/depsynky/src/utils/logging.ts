@@ -7,7 +7,7 @@ export type Logger = {
 }
 
 const { log } = console
-export const logger = {
+export const logger: Logger = {
   info: (...messages: string[]) => log(chalk.green('info'), ...messages),
   warn: (...messages: string[]) => log(chalk.yellow('warn'), ...messages),
   error: (...messages: string[]) => log(chalk.red('error'), ...messages),

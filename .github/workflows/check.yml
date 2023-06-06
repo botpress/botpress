@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 jobs:
-  lint:
+  check:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
