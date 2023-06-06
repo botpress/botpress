@@ -2,11 +2,16 @@ import yargs from '@bpinternal/yargs-extra'
 import { bumpVersion } from './commands/bump-versions'
 import { checkVersions } from './commands/check-versions'
 import { syncVersions } from './commands/sync-versions'
+import * as config from './config'
 import { logger } from './utils/logging'
 
 const onError = (thrown: unknown): never => {
   const err = thrown instanceof Error ? thrown : new Error(`${thrown}`)
-  logger.error(err.message)
+  if (!err.stack) {
+    logger.error(err.message)
+  } else {
+    logger.error(`${err.message}\n${err.stack}`)
+  }
   process.exit(1)
 }
 
@@ -27,30 +32,17 @@ void yargs
           choices: ['client', 'sdk', 'cli'] as const,
           demandOption: true,
         })
-        .option('sync', {
-          type: 'boolean',
-          default: true,
-        }),
+        .options(config.bumpSchema),
     (argv) => {
       void bumpVersion(`@botpress/${argv.package}`, argv)
     }
   )
-  .command(
-    'sync',
-    'Sync versions of all packages',
-    () => yargs,
-    () => {
-      void syncVersions()
-    }
-  )
-  .command(
-    'check',
-    'Check if all packages have the target version',
-    () => yargs,
-    () => {
-      void checkVersions()
-    }
-  )
+  .command('sync', 'Sync versions of all packages', config.syncSchema, (argv) => {
+    void syncVersions(argv)
+  })
+  .command('check', 'Check if all packages have the target version', config.checkSchema, (argv) => {
+    void checkVersions(argv)
+  })
   .strict()
   .help()
   .fail(yargsFail)
