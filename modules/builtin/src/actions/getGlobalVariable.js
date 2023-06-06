@@ -4,7 +4,7 @@
  * @category Storage
  * @author Botpress, Inc.
  * @param {string} name - The name of the variable
- * @param {string} output - The state variable to ouput to
+ * @param {string} output - The state variable to output to
  */
 const getGlobalVariable = async (name, output) => {
   const key = bp.kvs.getGlobalStorageKey(name)
