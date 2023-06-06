@@ -9,7 +9,7 @@
  * @title Remove Context
  * @category NLU
  * @author Botpress, Inc.
- * @param {string} contexts - Comma-separated list of contextss
+ * @param {string} contexts - Comma-separated list of contexts
  */
 const removeContext = contexts => {
   const existing = event.state.session.nluContexts || []
