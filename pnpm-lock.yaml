@@ -15,6 +15,7 @@ importers:
       '@types/semver': ^7.3.11
       '@typescript-eslint/eslint-plugin': ^5.47.0
       '@typescript-eslint/parser': ^5.47.0
+      chalk: ^4.1.2
       eslint: ^8.30.0
       eslint-config-prettier: ^8.5.0
       eslint-plugin-import: ^2.26.0
@@ -40,6 +41,7 @@ importers:
       '@types/semver': 7.5.0
       '@typescript-eslint/eslint-plugin': 5.59.8_rq7lqmsq2hhtq366qgvop5zziy
       '@typescript-eslint/parser': 5.59.8_5ujgynla27k2qkzlnkldjwsutm
+      chalk: 4.1.2
       eslint: 8.41.0
       eslint-config-prettier: 8.8.0_eslint@8.41.0
       eslint-plugin-import: 2.27.5_w6joeaz4pb46sjt54b6a4bjlz4

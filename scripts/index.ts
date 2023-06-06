@@ -3,7 +3,7 @@ import { bumpVersion } from './commands/bump-versions'
 import { syncVersions } from './commands/sync-versions'
 import { logger } from './utils/logging'
 
-yargs
+void yargs
   .command(
     'bump <package>',
     'Bump version of a package',
