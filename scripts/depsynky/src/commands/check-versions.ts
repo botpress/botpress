@@ -10,12 +10,7 @@ export type CheckVersionsOpts = {
 
 export const checkVersions = (argv: YargsConfig<typeof config.checkSchema>, opts: Partial<CheckVersionsOpts> = {}) => {
   const allPackages = utils.pnpm.searchWorkspaces(argv.rootDir)
-  const targetVersions =
-    opts.targetVersions ||
-    allPackages.reduce(
-      (acc, { content: { name, version } }) => ({ ...acc, [name]: version }),
-      {} as Record<string, string>
-    )
+  const targetVersions = opts.targetVersions ?? utils.pnpm.versions(allPackages)
 
   for (const { path: pkgPath } of allPackages) {
     const { dependencies, devDependencies } = utils.pkgjson.read(pkgPath)

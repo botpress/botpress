@@ -1,6 +1,6 @@
 import { YargsConfig } from '@bpinternal/yargs-extra'
 import * as config from '../config'
-import * as pkgjson from '../utils/package-json'
+import * as utils from '../utils'
 import { searchWorkspaces } from '../utils/pnpm'
 
 export type SyncVersionsOpts = {
@@ -9,17 +9,12 @@ export type SyncVersionsOpts = {
 
 export const syncVersions = (argv: YargsConfig<typeof config.syncSchema>, opts: Partial<SyncVersionsOpts> = {}) => {
   const allPackages = searchWorkspaces(argv.rootDir)
-  const targetVersions =
-    opts.targetVersions ||
-    allPackages.reduce(
-      (acc, { content: { name, version } }) => ({ ...acc, [name]: version }),
-      {} as Record<string, string>
-    )
+  const targetVersions = opts.targetVersions ?? utils.pnpm.versions(allPackages)
 
   for (const { path: pkgPath } of allPackages) {
-    const { dependencies, devDependencies } = pkgjson.read(pkgPath)
+    const { dependencies, devDependencies } = utils.pkgjson.read(pkgPath)
 
-    for (const [name, version] of Object.entries(targetVersions)) {
+    for (const [name, version] of utils.objects.entries(targetVersions)) {
       if (dependencies && dependencies[name]) {
         dependencies[name] = version
       }
@@ -29,6 +24,6 @@ export const syncVersions = (argv: YargsConfig<typeof config.syncSchema>, opts: 
       }
     }
 
-    pkgjson.update(pkgPath, { dependencies, devDependencies })
+    utils.pkgjson.update(pkgPath, { dependencies, devDependencies })
   }
 }

@@ -1,9 +1,6 @@
 import * as fs from 'fs'
 import * as prettier from 'prettier'
-
-namespace objects {
-  export const keys = <T extends object>(obj: T): (keyof T)[] => Object.keys(obj) as (keyof T)[]
-}
+import * as objects from './objects'
 
 export type PackageJson = {
   name: string

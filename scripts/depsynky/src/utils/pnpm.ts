@@ -2,7 +2,8 @@ import * as fs from 'fs'
 import * as glob from 'glob'
 import * as pathlib from 'path'
 import * as yaml from 'yaml'
-import * as pkgjson from './package-json'
+import * as objects from './objects'
+import * as pkgjson from './pkgjson'
 
 const abs = (rootDir: string) => (p: string) => pathlib.resolve(rootDir, p)
 
@@ -36,4 +37,8 @@ export const findReferences = (rootDir: string, pkgName: string) => {
   }
   const dependents = workspaces.filter((w) => w.content.dependencies?.[pkgName] || w.content.devDependencies?.[pkgName])
   return { dependency, dependents }
+}
+
+export const versions = (workspaces: PnpmWorkspace[]): Record<string, string> => {
+  return objects.fromEntries(workspaces.map(({ content: { name, version } }) => [name, version]))
 }

@@ -26,15 +26,12 @@ const promptJump = async (pkgName: string, pkgVersion: string): Promise<VersionJ
 
 export const bumpVersion = async (pkgName: string, argv: YargsConfig<typeof config.bumpSchema>) => {
   const { dependency, dependents } = utils.pnpm.findReferences(argv.rootDir, pkgName)
-  const targetWorkspaces = [dependency, ...dependents]
+  const targetPackages = [dependency, ...dependents]
 
-  const currentVersions = targetWorkspaces.reduce(
-    (acc, { content: { name, version } }) => ({ ...acc, [name]: version }),
-    {} as Record<string, string>
-  )
+  const currentVersions = utils.pnpm.versions(targetPackages)
   const targetVersions = { ...currentVersions }
 
-  for (const { path: pkgPath, content } of targetWorkspaces) {
+  for (const { path: pkgPath, content } of targetPackages) {
     if (content.private) {
       continue // no need to bump the version of private packages
     }
