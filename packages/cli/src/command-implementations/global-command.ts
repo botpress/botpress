@@ -4,6 +4,7 @@ import fs from 'fs'
 import latestVersion from 'latest-version'
 import _ from 'lodash'
 import * as pathlib from 'path'
+import semver from 'semver'
 import type { ApiClientFactory } from '../api-client'
 import type * as config from '../config'
 import * as consts from '../consts'
@@ -97,7 +98,8 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
   private _notifyUpdate = async (pkgJson: PackageJson): Promise<void> => {
     try {
       const latest = await latestVersion(pkgJson.name)
-      if (latest !== pkgJson.version) {
+      const isOutdated = semver.lt(pkgJson.version, latest)
+      if (isOutdated) {
         this.logger.box(UPDATE_MSG({ ...pkgJson, latest }))
       }
     } catch (thrown) {
