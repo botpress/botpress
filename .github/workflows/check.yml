@@ -29,3 +29,4 @@ jobs:
       - run: pnpm run format:check
       - run: pnpm run lint:check
       - run: pnpm run type:check
+      - run: pnpm run dep:check
