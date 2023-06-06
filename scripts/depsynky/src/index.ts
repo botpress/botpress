@@ -26,15 +26,9 @@ void yargs
   .command(
     'bump <package>',
     'Bump version of a package',
-    () =>
-      yargs
-        .positional('package', {
-          choices: ['client', 'sdk', 'cli'] as const,
-          demandOption: true,
-        })
-        .options(config.bumpSchema),
+    () => yargs.positional('package', { type: 'string', demandOption: true }).options(config.bumpSchema),
     (argv) => {
-      void bumpVersion(`@botpress/${argv.package}`, argv)
+      void bumpVersion(argv.package, argv)
     }
   )
   .command('sync', 'Sync versions of all packages', config.syncSchema, (argv) => {

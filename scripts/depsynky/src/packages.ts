@@ -2,37 +2,38 @@ import * as fs from 'fs'
 import * as glob from 'glob'
 import * as pathlib from 'path'
 import * as yaml from 'yaml'
-import * as objects from './utils/objects'
 import * as pkgjson from './utils/package-json'
-
-export type TargetPackage = '@botpress/client' | '@botpress/sdk' | '@botpress/cli'
-
-export const PACKAGE_PATHS = {
-  '@botpress/client': pathlib.join('packages', 'client'),
-  '@botpress/sdk': pathlib.join('packages', 'sdk'),
-  '@botpress/cli': pathlib.join('packages', 'cli'),
-} satisfies Record<TargetPackage, string>
-
-// this is a reverse dependency tree (i.e. the keys are the dependencies and the values are the dependents)
-export const DEPENDENCY_TREE = {
-  '@botpress/client': ['@botpress/sdk', '@botpress/cli'],
-  '@botpress/sdk': ['@botpress/cli'],
-  '@botpress/cli': [],
-} satisfies Record<TargetPackage, TargetPackage[]>
 
 const absolute = (rootDir: string) => (p: string) => pathlib.resolve(rootDir, p)
 
-export const readVersions = (rootDir: string): Record<TargetPackage, string> => {
-  const absPaths = objects.mapValues(PACKAGE_PATHS, absolute(rootDir))
-  const packages = objects.mapValues(absPaths, pkgjson.readPackage)
-  return objects.mapValues(packages, (p) => p.version)
+export type Workspace = {
+  path: string
+  content: pkgjson.PackageJson
 }
 
-export const findAllPackages = (rootDir: string): string[] => {
+export const searchWorkspaces = (rootDir: string): Workspace[] => {
   const pnpmWorkspacesFile = pathlib.join(rootDir, 'pnpm-workspace.yaml')
+  if (!fs.existsSync(pnpmWorkspacesFile)) {
+    throw new Error(`Could not find pnpm-workspace.yaml at "${rootDir}"`)
+  }
+
   const pnpmWorkspacesContent = fs.readFileSync(pnpmWorkspacesFile, 'utf-8')
   const pnpmWorkspaces: string[] = yaml.parse(pnpmWorkspacesContent).packages
   const globMatches = pnpmWorkspaces.flatMap((ws) => glob.globSync(ws, { absolute: false, cwd: rootDir }))
-  const actualPackages = globMatches.filter((ws) => pkgjson.isPackage(ws))
-  return actualPackages.map(absolute(rootDir))
+  const absGlobMatches = globMatches.map(absolute(rootDir))
+  const packageJsonPaths = absGlobMatches.map((p) => pathlib.join(p, 'package.json'))
+  const actualPackages = packageJsonPaths.filter(fs.existsSync)
+  const absolutePaths = actualPackages.map(absolute(rootDir))
+  return absolutePaths.map((p) => ({ path: p, content: pkgjson.read(p) }))
+}
+
+export const findReferences = (rootDir: string, pkgName: string) => {
+  const workspaces = searchWorkspaces(rootDir)
+  const dependency = workspaces.find((w) => w.content.name === pkgName)
+  if (!dependency) {
+    throw new Error(`Could not find package "${pkgName}"`)
+  }
+
+  const dependents = workspaces.filter((w) => w.content.dependencies?.[pkgName] || w.content.devDependencies?.[pkgName])
+  return { dependency, dependents }
 }

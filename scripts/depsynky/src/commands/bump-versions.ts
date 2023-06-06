@@ -2,12 +2,12 @@ import { YargsConfig } from '@bpinternal/yargs-extra'
 import * as prompts from 'prompts'
 import * as semver from 'semver'
 import * as config from '../config'
-import { DEPENDENCY_TREE, PACKAGE_PATHS, TargetPackage, readVersions } from '../packages'
+import { findReferences } from '../packages'
 import { logger } from '../utils/logging'
 import * as pkgjson from '../utils/package-json'
 import { syncVersions } from './sync-versions'
 
-type VersionJump = 'major' | 'minor' | 'patch'
+type VersionJump = 'major' | 'minor' | 'patch' | 'none'
 
 const promptJump = async (pkgName: string, pkgVersion: string): Promise<VersionJump> => {
   const { jump: promptedJump } = await prompts.prompt({
@@ -15,6 +15,7 @@ const promptJump = async (pkgName: string, pkgVersion: string): Promise<VersionJ
     name: 'jump',
     message: `Bump ${pkgName} version from ${pkgVersion}`,
     choices: [
+      { title: 'None', value: 'none' },
       { title: 'Patch', value: 'patch' },
       { title: 'Minor', value: 'minor' },
       { title: 'Major', value: 'major' },
@@ -23,24 +24,32 @@ const promptJump = async (pkgName: string, pkgVersion: string): Promise<VersionJ
   return promptedJump
 }
 
-export const bumpVersion = async (targetPackage: TargetPackage, argv: YargsConfig<typeof config.bumpSchema>) => {
-  const dependencies = DEPENDENCY_TREE[targetPackage]
-  const targetPackages = [targetPackage, ...dependencies]
+export const bumpVersion = async (packageName: string, argv: YargsConfig<typeof config.bumpSchema>) => {
+  const { dependency, dependents } = findReferences(argv.rootDir, packageName)
+  const targetWorkspaces = [dependency, ...dependents]
 
-  const currentVersions = readVersions(argv.rootDir)
+  const currentVersions = targetWorkspaces.reduce(
+    (acc, { content: { name, version } }) => ({ ...acc, [name]: version }),
+    {} as Record<string, string>
+  )
+  const targetVersions = { ...currentVersions }
 
-  const targetVersions = { ...currentVersions } satisfies Record<TargetPackage, string>
-  for (const pkgName of targetPackages) {
-    const pkgVersion = currentVersions[pkgName]
+  for (const {
+    path: pkgPath,
+    content: { name: pkgName, version: pkgVersion },
+  } of targetWorkspaces) {
     const jump = await promptJump(pkgName, pkgVersion)
-    const current = currentVersions[pkgName]
-    const next = semver.inc(current, jump)
+    if (jump === 'none') {
+      continue
+    }
+
+    const next = semver.inc(pkgVersion, jump)
     if (!next) {
-      throw new Error(`Invalid version jump: ${jump} from ${current}`)
+      throw new Error(`Invalid version jump: ${jump}`)
     }
 
     targetVersions[pkgName] = next
-    pkgjson.updatePackage(PACKAGE_PATHS[pkgName], { version: next })
+    pkgjson.update(pkgPath, { version: next })
   }
 
   if (argv.sync) {
