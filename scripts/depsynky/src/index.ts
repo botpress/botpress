@@ -7,11 +7,8 @@ import { logger } from './utils/logging'
 
 const onError = (thrown: unknown): never => {
   const err = thrown instanceof Error ? thrown : new Error(`${thrown}`)
-  if (!err.stack) {
-    logger.error(err.message)
-  } else {
-    logger.error(`${err.message}\n${err.stack}`)
-  }
+  const message = err.stack ? `${err.message}\n${err.stack}` : err.message
+  logger.error(message)
   process.exit(1)
 }
 

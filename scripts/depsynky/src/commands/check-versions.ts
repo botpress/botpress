@@ -1,15 +1,15 @@
 import { YargsConfig } from '@bpinternal/yargs-extra'
 import * as config from '../config'
-import { searchWorkspaces } from '../packages'
-import { logger } from '../utils/logging'
-import * as pkgjson from '../utils/package-json'
+import * as utils from '../utils'
+
+const { logger } = utils.logging
 
 export type CheckVersionsOpts = {
   targetVersions: Record<string, string>
 }
 
 export const checkVersions = (argv: YargsConfig<typeof config.checkSchema>, opts: Partial<CheckVersionsOpts> = {}) => {
-  const allPackages = searchWorkspaces(argv.rootDir)
+  const allPackages = utils.pnpm.searchWorkspaces(argv.rootDir)
   const targetVersions =
     opts.targetVersions ||
     allPackages.reduce(
@@ -18,7 +18,7 @@ export const checkVersions = (argv: YargsConfig<typeof config.checkSchema>, opts
     )
 
   for (const { path: pkgPath } of allPackages) {
-    const { dependencies, devDependencies } = pkgjson.read(pkgPath)
+    const { dependencies, devDependencies } = utils.pkgjson.read(pkgPath)
 
     for (const [name, version] of Object.entries(targetVersions)) {
       if (dependencies && dependencies[name] && dependencies[name] !== version) {

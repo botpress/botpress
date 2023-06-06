@@ -1,7 +1,7 @@
 import { YargsConfig } from '@bpinternal/yargs-extra'
 import * as config from '../config'
-import { searchWorkspaces } from '../packages'
 import * as pkgjson from '../utils/package-json'
+import { searchWorkspaces } from '../utils/pnpm'
 
 export type SyncVersionsOpts = {
   targetVersions: Record<string, string>

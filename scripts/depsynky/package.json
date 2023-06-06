@@ -1,6 +1,7 @@
 {
   "name": "depsynky",
   "version": "0.0.1",
+  "private": true,
   "description": "CLI to synchronize dependencies accross mono-repo",
   "main": "src/index.ts",
   "scripts": {

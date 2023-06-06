@@ -1,36 +1,40 @@
 import * as fs from 'fs'
 import * as prettier from 'prettier'
-import * as objects from './objects'
+
+namespace objects {
+  export const keys = <T extends object>(obj: T): (keyof T)[] => Object.keys(obj) as (keyof T)[]
+}
 
 export type PackageJson = {
   name: string
   version: string
+  private?: boolean
   dependencies?: Record<string, string>
   devDependencies?: Record<string, string>
 }
 
-export const read = (packageFilePath: string): PackageJson => {
-  const packageContent = fs.readFileSync(packageFilePath, 'utf-8')
-  const packageJson = JSON.parse(packageContent)
-  return packageJson
+export const read = (filePath: string): PackageJson => {
+  const strContent = fs.readFileSync(filePath, 'utf-8')
+  const content = JSON.parse(strContent)
+  return content
 }
 
-export const write = (packageFilePath: string, pkg: PackageJson) => {
-  let content = JSON.stringify(pkg, null, 2)
-  content = prettier.format(content, { parser: 'json' })
-  fs.writeFileSync(packageFilePath, content)
+export const write = (filePath: string, content: PackageJson) => {
+  let strContent = JSON.stringify(content, null, 2)
+  strContent = prettier.format(strContent, { parser: 'json' })
+  fs.writeFileSync(filePath, strContent)
 }
 
-export const update = (packageFilePath: string, pkg: Partial<PackageJson>) => {
-  const currentPackage = read(packageFilePath)
+export const update = (filePath: string, content: Partial<PackageJson>) => {
+  const currentPackage = read(filePath)
 
   // this preserves the order of the keys
   const newPackage = objects.keys(currentPackage).reduce((acc, key) => {
-    if (key in pkg) {
-      return { ...acc, [key]: pkg[key] }
+    if (key in content) {
+      return { ...acc, [key]: content[key] }
     }
     return acc
   }, currentPackage)
 
-  write(packageFilePath, newPackage)
+  write(filePath, newPackage)
 }
