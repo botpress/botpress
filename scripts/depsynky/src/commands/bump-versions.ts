@@ -2,6 +2,7 @@ import { YargsConfig } from '@bpinternal/yargs-extra'
 import * as prompts from 'prompts'
 import * as semver from 'semver'
 import * as config from '../config'
+import * as errors from '../errors'
 import * as utils from '../utils'
 import { syncVersions } from './sync-versions'
 
@@ -43,7 +44,7 @@ export const bumpVersion = async (pkgName: string, argv: YargsConfig<typeof conf
 
     const next = semver.inc(content.version, jump)
     if (!next) {
-      throw new Error(`Invalid version jump: ${jump}`)
+      throw new errors.DepSynkyError(`Invalid version jump: ${jump}`)
     }
 
     targetVersions[content.name] = next

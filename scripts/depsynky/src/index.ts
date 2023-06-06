@@ -3,11 +3,14 @@ import { bumpVersion } from './commands/bump-versions'
 import { checkVersions } from './commands/check-versions'
 import { syncVersions } from './commands/sync-versions'
 import * as config from './config'
+import * as errors from './errors'
 import { logger } from './utils/logging'
 
 const onError = (thrown: unknown): never => {
   const err = thrown instanceof Error ? thrown : new Error(`${thrown}`)
-  const message = err.stack ? `${err.message}\n${err.stack}` : err.message
+
+  const displayStack = !(err instanceof errors.DepSynkyError) && !!err.stack
+  const message = displayStack ? `${err.message}\n${err.stack}` : err.message
   logger.error(message)
   process.exit(1)
 }
