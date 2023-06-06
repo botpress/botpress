@@ -39,7 +39,7 @@ importers:
   packages/cli:
     specifiers:
       '@botpress/client': 0.0.13
-      '@botpress/sdk': 0.0.14
+      '@botpress/sdk': 0.0.15
       '@bpinternal/yargs-extra': ^0.0.3
       '@parcel/watcher': ^2.1.0
       '@types/bluebird': ^3.5.38
@@ -106,7 +106,7 @@ importers:
   packages/cli/templates/echo-bot:
     specifiers:
       '@botpress/client': 0.0.13
-      '@botpress/sdk': 0.0.14
+      '@botpress/sdk': 0.0.15
       '@tsconfig/node18-strictest': ^1.0.0
       '@types/node': ^18.11.17
       ts-node: ^10.9.1
@@ -125,7 +125,7 @@ importers:
   packages/cli/templates/empty-integration:
     specifiers:
       '@botpress/client': 0.0.13
-      '@botpress/sdk': 0.0.14
+      '@botpress/sdk': 0.0.15
       '@tsconfig/node18-strictest': ^1.0.0
       '@types/node': ^18.11.17
       ts-node: ^10.9.1
