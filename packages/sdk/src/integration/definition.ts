@@ -58,10 +58,12 @@ export const stateDefinitionSchema = z.object({
   schema: schemaSchema,
 })
 
+const PUBLIC_VERSION = '0.2.0' as const
+const PRIVATE_VERSION = '0.0.1' as const
+
 export const integrationDefinitionSchema = z.object({
   name: z.string(),
-  version: z.string(),
-  public: z.boolean().optional(),
+  version: z.enum([PRIVATE_VERSION, PUBLIC_VERSION]),
   title: z.string().optional(),
   description: z.string().optional(),
   icon: z.string().optional(),
@@ -104,18 +106,13 @@ type BaseAction = Record<string, Record<'input' | 'output', AnyZodObject>>
 type BaseChannel = Record<string, Record<string, AnyZodObject>>
 type BaseState = Record<string, AnyZodObject>
 
-const PUBLIC_VERSION = '0.2.0' as const
-const PRIVATE_VERSION = '0.0.1' as const
-
 // TODO: allow any versions
 type IntegrationDefinitionVersion =
   | {
-      public: true
       /** Only version 0.2.0 is supported for public integrations yet. This is temporary. */
       version: typeof PUBLIC_VERSION
     }
   | {
-      public: false
       /** Only version 0.0.1 is supported for private integrations yet. This is temporary. */
       version: typeof PRIVATE_VERSION
     }
@@ -233,18 +230,10 @@ export class IntegrationDefinition<
   public readonly channels: IntegrationDefinitionOutput['channels']
   public readonly states: IntegrationDefinitionOutput['states']
   public readonly user: IntegrationDefinitionOutput['user']
-  public readonly public: IntegrationDefinitionOutput['public']
   public readonly secrets: IntegrationDefinitionOutput['secrets']
   public constructor(props: IntegrationDefinitionProps<TConfig, TEvent, TAction, TChannel, TState>) {
     const integrationDefinitionInput = formatIntegrationDefinition(props)
     const parsed = integrationDefinitionSchema.parse(integrationDefinitionInput)
-
-    if (parsed.public && parsed.version !== PUBLIC_VERSION) {
-      throw new Error(`Public integrations must have version ${PUBLIC_VERSION}`)
-    }
-    if (!parsed.public && parsed.version !== PRIVATE_VERSION) {
-      throw new Error(`Private integrations must have version ${PRIVATE_VERSION}`)
-    }
 
     const {
       name,
@@ -260,7 +249,6 @@ export class IntegrationDefinition<
       channels,
       states,
       user,
-      public: isPublic,
       secrets,
     } = parsed
     this.name = name
@@ -276,7 +264,6 @@ export class IntegrationDefinition<
     this.channels = channels
     this.states = states
     this.user = user
-    this.public = isPublic
     this.secrets = secrets
   }
 }
