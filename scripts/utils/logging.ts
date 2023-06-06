@@ -1,14 +1,14 @@
 import chalk from 'chalk'
 
 export type Logger = {
-  info: (message: string) => void
-  warn: (message: string) => void
-  error: (message: string) => void
+  info: (...messages: string[]) => void
+  warn: (...messages: string[]) => void
+  error: (...messages: string[]) => void
 }
 
 const { log } = console
 export const logger = {
-  info: (message: string) => log(chalk.green('info'), message),
-  warn: (message: string) => log(chalk.yellow('warn'), message),
-  error: (message: string) => log(chalk.red('error'), message),
+  info: (...messages: string[]) => log(chalk.green('info'), ...messages),
+  warn: (...messages: string[]) => log(chalk.yellow('warn'), ...messages),
+  error: (...messages: string[]) => log(chalk.red('error'), ...messages),
 }

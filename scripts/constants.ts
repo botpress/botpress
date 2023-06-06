@@ -11,6 +11,7 @@ export const PACKAGE_PATHS = {
   '@botpress/cli': pathlib.join('packages', 'cli'),
 } satisfies Record<TargetPackage, string>
 
+// this is a reverse dependency tree (i.e. the keys are the dependencies and the values are the dependents)
 export const DEPENDENCY_TREE = {
   '@botpress/client': ['@botpress/sdk', '@botpress/cli'],
   '@botpress/sdk': ['@botpress/cli'],

@@ -7,8 +7,10 @@
     "format:fix": "prettier --write .",
     "lint:check": "eslint ./ --ext .ts --ext .tsx",
     "lint:fix": "eslint --fix ./ --ext .ts --ext .tsx",
-    "check": "pnpm format:check && pnpm lint:check && pnpm type:check",
-    "fix": "pnpm format:fix && pnpm lint:fix"
+    "dep:check": "ts-node ./scripts check",
+    "dep:fix": "ts-node ./scripts sync",
+    "check": "pnpm dep:check && pnpm format:check && pnpm lint:check && pnpm type:check",
+    "fix": "pnpm dep:fix && pnpm format:fix && pnpm lint:fix"
   },
   "dependencies": {
     "@botpress/cli": "workspace:*",
