@@ -1,6 +1,7 @@
 import yargs from '@bpinternal/yargs-extra'
 import { bumpVersion } from './commands/bump-versions'
 import { checkVersions } from './commands/check-versions'
+import { listVersions } from './commands/list-versions'
 import { syncVersions } from './commands/sync-versions'
 import * as config from './config'
 import * as errors from './errors'
@@ -35,6 +36,9 @@ void yargs
   })
   .command('check', 'Check if all packages have the target version', config.checkSchema, (argv) => {
     void checkVersions(argv)
+  })
+  .command('ls', 'List version of all public packages', config.checkSchema, (argv) => {
+    void listVersions(argv)
   })
   .strict()
   .help()

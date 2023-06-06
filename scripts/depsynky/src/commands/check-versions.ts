@@ -13,19 +13,22 @@ export const checkVersions = (argv: YargsConfig<typeof config.checkSchema>, opts
   const allPackages = utils.pnpm.searchWorkspaces(argv.rootDir)
   const targetVersions = opts.targetVersions ?? utils.pnpm.versions(allPackages)
 
-  for (const { path: pkgPath } of allPackages) {
+  for (const {
+    path: pkgPath,
+    content: { name: pkgName },
+  } of allPackages) {
     const { dependencies, devDependencies } = utils.pkgjson.read(pkgPath)
 
     for (const [name, version] of Object.entries(targetVersions)) {
       if (dependencies && dependencies[name] && dependencies[name] !== version) {
         throw new errors.DepSynkyError(
-          `Dependency ${name} is out of sync in ${pkgPath}: ${dependencies[name]} != ${version}`
+          `Dependency ${name} is out of sync in ${pkgName}: ${dependencies[name]} != ${version}`
         )
       }
 
       if (devDependencies && devDependencies[name] && devDependencies[name] !== version) {
         throw new errors.DepSynkyError(
-          `Dev dependency ${name} is out of sync in ${pkgPath}: ${devDependencies[name]} != ${version}`
+          `Dev dependency ${name} is out of sync in ${pkgName}: ${devDependencies[name]} != ${version}`
         )
       }
     }

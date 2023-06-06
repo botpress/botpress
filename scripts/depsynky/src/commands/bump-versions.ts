@@ -4,6 +4,7 @@ import * as semver from 'semver'
 import * as config from '../config'
 import * as errors from '../errors'
 import * as utils from '../utils'
+import { listVersions } from './list-versions'
 import { syncVersions } from './sync-versions'
 
 const { logger } = utils.logging
@@ -51,6 +52,7 @@ export const bumpVersion = async (pkgName: string, argv: YargsConfig<typeof conf
     utils.pkgjson.update(pkgPath, { version: next })
   }
 
+  listVersions(argv)
   if (argv.sync) {
     logger.info('Syncing versions...')
     syncVersions(argv, { targetVersions })

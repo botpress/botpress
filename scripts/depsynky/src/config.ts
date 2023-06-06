@@ -18,3 +18,5 @@ export const bumpSchema = {
 export const syncSchema = defaultOptions satisfies YargsSchema
 
 export const checkSchema = defaultOptions satisfies YargsSchema
+
+export const listSchema = defaultOptions satisfies YargsSchema
