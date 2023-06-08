@@ -23,7 +23,7 @@ runs:
         echo "local version: $local_version"
 
         package_ref="${{ inputs.name }}@$local_version"
-        if npm view $package_ref; then
+        if npm view $package_ref > /dev/null 2>&1 ; then
           echo "Package $package_ref already published"
           exit 0
         fi
