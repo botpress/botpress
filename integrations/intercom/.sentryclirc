@@ -1,0 +1,5 @@
+[defaults]
+project=integration-intercom
+
+[auth]
+dsn=https://02ea973384064af58cb07172edcb1334@o363631.ingest.sentry.io/4505274812203008

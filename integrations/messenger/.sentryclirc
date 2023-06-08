@@ -1,0 +1,5 @@
+[defaults]
+project=integration-messenger
+
+[auth]
+dsn=https://23b9556ffdac49abae0cd9f2c1302c42@o363631.ingest.sentry.io/4505274820853760

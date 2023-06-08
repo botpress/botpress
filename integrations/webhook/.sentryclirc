@@ -1,0 +1,5 @@
+[defaults]
+project=integration-webhook
+
+[auth]
+dsn=https://2b0e608a99074030b02eb2b5b1192219@o363631.ingest.sentry.io/4505274844708864

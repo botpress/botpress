@@ -1,0 +1,5 @@
+[defaults]
+project=integration-slack
+
+[auth]
+dsn=https://46c9c3a6245e44b38d5de5325735b839@o363631.ingest.sentry.io/4505274823344128

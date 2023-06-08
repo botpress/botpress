@@ -1,0 +1,5 @@
+[defaults]
+project=integration-vonage
+
+[auth]
+dsn=https://bb218009290c4604bda3a67474c4d2e2@o363631.ingest.sentry.io/4505274840514560

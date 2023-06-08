@@ -1,0 +1,5 @@
+[defaults]
+project=integration-webchat
+
+[auth]
+dsn=https://d45d0244ca4842a0913a5745579e7ec3@o363631.ingest.sentry.io/4505274842808320

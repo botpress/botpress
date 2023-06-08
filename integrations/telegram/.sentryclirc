@@ -1,0 +1,5 @@
+[defaults]
+project=integration-telegram
+
+[auth]
+dsn=https://34a176084b804ad1ba6f484a76da1479@o363631.ingest.sentry.io/4505274792673280

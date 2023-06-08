@@ -1,0 +1,39 @@
+{
+  "name": "@botpresshub/zapier",
+  "version": "0.1.0",
+  "description": "Zapier integration for Botpress",
+  "private": true,
+  "scripts": {
+    "start": "pnpm bp serve",
+    "build": "pnpm bp build",
+    "login": "pnpm bp login",
+    "deploy": "pnpm bp deploy",
+    "type:check": "tsc --noEmit",
+    "test": "jest"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "@botpress/integrations-testing": "workspace:*",
+    "@botpress/sdk-addons": "workspace:*",
+    "axios": "1.2.5",
+    "uuid": "^9.0.0",
+    "zod": "^3.20.6"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@sentry/cli": "^2.18.1",
+    "@types/jest": "^29.5.0",
+    "@types/node": "^18.15.11",
+    "@types/uuid": "^9.0.1",
+    "esbuild": "^0.15.18",
+    "jest": "^29.5.0",
+    "nodemon": "^2.0.22",
+    "ts-jest": "^29.1.0",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.5"
+  }
+}

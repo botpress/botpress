@@ -9,29 +9,40 @@ export type CheckVersionsOpts = {
   targetVersions: Record<string, string>
 }
 
+const LOCAL_VERSION = 'workspace:*'
+
+const checker =
+  (pkg: utils.pkgjson.PackageJson) => (current: Record<string, string>, target: Record<string, string>) => {
+    for (const [name, version] of utils.objects.entries(target)) {
+      const currentVersion = current[name]
+      if (!currentVersion) {
+        continue
+      }
+      const isLocal = currentVersion === LOCAL_VERSION
+      const isPublic = !pkg.private
+      if (isPublic && isLocal) {
+        throw new errors.DepSynkyError(
+          `Package ${pkg.name} is public and cannot depend on local package ${name}. To keep reference on local package, make ${pkg.name} private.`
+        )
+      }
+      if (!isLocal && currentVersion !== version) {
+        throw new errors.DepSynkyError(
+          `Dependency ${name} is out of sync in ${pkg.name}: ${currentVersion} != ${version}`
+        )
+      }
+    }
+  }
+
 export const checkVersions = (argv: YargsConfig<typeof config.checkSchema>, opts: Partial<CheckVersionsOpts> = {}) => {
   const allPackages = utils.pnpm.searchWorkspaces(argv.rootDir)
   const targetVersions = opts.targetVersions ?? utils.pnpm.versions(allPackages)
 
-  for (const {
-    path: pkgPath,
-    content: { name: pkgName },
-  } of allPackages) {
+  for (const { path: pkgPath, content } of allPackages) {
     const { dependencies, devDependencies } = utils.pkgjson.read(pkgPath)
 
-    for (const [name, version] of Object.entries(targetVersions)) {
-      if (dependencies && dependencies[name] && dependencies[name] !== version) {
-        throw new errors.DepSynkyError(
-          `Dependency ${name} is out of sync in ${pkgName}: ${dependencies[name]} != ${version}`
-        )
-      }
-
-      if (devDependencies && devDependencies[name] && devDependencies[name] !== version) {
-        throw new errors.DepSynkyError(
-          `Dev dependency ${name} is out of sync in ${pkgName}: ${devDependencies[name]} != ${version}`
-        )
-      }
-    }
+    const check = checker(content)
+    dependencies && check(dependencies, targetVersions)
+    devDependencies && check(devDependencies, targetVersions)
   }
 
   logger.info('All versions are in sync')

@@ -1,0 +1,5 @@
+[defaults]
+project=integration-instagram
+
+[auth]
+dsn=https://6ac4fbf6f0964bf5a5330534208f4af3@o363631.ingest.sentry.io/4505274809974784

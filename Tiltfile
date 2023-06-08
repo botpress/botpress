@@ -8,7 +8,7 @@ READINESS_PORT = 8082
 ## commands
 
 GENERATE_RESSOURCES = ['pnpm-install', 'openapi-generator-server', 'readiness', 'generate-client']
-BUILD_RESSOURCES = GENERATE_RESSOURCES + ['build-client', 'build-sdk', 'build-cli']
+BUILD_RESSOURCES = GENERATE_RESSOURCES + ['build-client', 'build-sdk', 'build-cli', 'build-integrations']
 COMMAND_RESSOURCES = {
   'generate': GENERATE_RESSOURCES,
   'build': BUILD_RESSOURCES
@@ -123,3 +123,12 @@ local_resource(
   resource_deps=['build-sdk']
 )
 
+## build integrations
+
+local_resource(
+  name='build-integrations',
+  allow_parallel=True,
+  cmd='pnpm -r --stream -F "@botpresshub/*" exec bp build --source-map',
+  labels=['integrations'],
+  resource_deps=['build-cli']
+)

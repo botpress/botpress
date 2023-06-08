@@ -1,0 +1,5 @@
+[defaults]
+project=integration-github
+
+[auth]
+dsn=https://532cd4b9c2824be2bfbc490074c54d3b@o363631.ingest.sentry.io/4505274800144384

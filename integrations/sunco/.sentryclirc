@@ -1,0 +1,5 @@
+[defaults]
+project=integration-sunco
+
+[auth]
+dsn=https://eb10b9ff00c242d18cbb9d6ef5adf539@o363631.ingest.sentry.io/4505274826162176
