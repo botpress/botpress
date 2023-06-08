@@ -41,7 +41,7 @@ local_resource(
 ## openapi-generator-server
 
 openapi_generator_resource = {
-  'image': 'openapitools/openapi-generator-online:v6.6.0',
+  'image': 'botpress/openapi-generator-online',
   'ports': ['%s:8080' % OPENAPI_GENERATOR_SERVER_PORT],
   'restart': 'always',
 }
