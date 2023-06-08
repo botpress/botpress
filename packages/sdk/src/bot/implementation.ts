@@ -23,10 +23,9 @@ export type EventReceivedBotPayload = {
   event: Event
 }
 
-export type BotDefinitionTags = {
-  messages?: string[]
-  conversations?: string[]
-  users?: string[]
+export type BotDefinitionTag = {
+  title?: string
+  description?: string
 }
 
 export type BotDefinitionStateType = 'conversation' | 'user' | 'bot'
@@ -58,8 +57,22 @@ export type BotDefinitionConfiguration = {
   schema: Record<string, any>
 }
 
+export type BotDefinitionUser = {
+  tags?: Record<string, BotDefinitionTag>
+}
+
+export type BotDefinitionConversation = {
+  tags?: Record<string, BotDefinitionTag>
+}
+
+export type BotDefinitionMessage = {
+  tags?: Record<string, BotDefinitionTag>
+}
+
 export type BotDefinition = {
-  tags?: BotDefinitionTags
+  user?: BotDefinitionUser
+  conversation?: BotDefinitionConversation
+  message?: BotDefinitionMessage
   states?: Record<string, BotDefinitionState>
   integrations?: IntegrationInstance[]
   configuration?: BotDefinitionConfiguration
@@ -76,20 +89,10 @@ export class Bot {
     stateExpiredHandlers: [],
   }
 
-  public readonly tags?: BotDefinitionTags
-  public readonly states?: Record<string, BotDefinitionState>
-  public readonly integrations?: IntegrationInstance[]
-  public readonly configuration?: BotDefinitionConfiguration
-  public readonly events?: Record<string, BotDefinitionEvent>
-  public readonly recurringEvents?: Record<string, BotDefinitionRecurringEvent>
+  public readonly definition: BotDefinition
 
   public constructor(def: BotDefinition = {}) {
-    this.tags = def.tags
-    this.states = def.states
-    this.integrations = def.integrations
-    this.configuration = def.configuration
-    this.events = def.events
-    this.recurringEvents = def.recurringEvents
+    this.definition = def
   }
 
   public register = (_handler: RegisterHandler): void => {}

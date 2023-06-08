@@ -104,7 +104,15 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const code = await fs.promises.readFile(outfile, 'utf-8')
     const { default: botImpl } = utils.require.requireJsFile<{ default: BotImpl }>(outfile)
 
-    const { tags, states, events, recurringEvents, configuration: botConfiguration } = botImpl
+    const {
+      states,
+      events,
+      recurringEvents,
+      configuration: botConfiguration,
+      user,
+      conversation,
+      message,
+    } = botImpl.definition
 
     let bot: bpclient.Bot
     if (argvBotId && argvCreateNew) {
@@ -139,7 +147,9 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         recurringEvents,
         configuration: botConfiguration,
         events,
-        tags,
+        user,
+        conversation,
+        message,
         integrations,
       })
       .catch((thrown) => {
