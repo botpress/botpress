@@ -52,57 +52,19 @@ const userIdIsValid = (userId: string): boolean => {
   return !hasBreakingConstraints && /[a-z0-9-_]+/i.test(userId)
 }
 
-export default async (bp: typeof sdk, db: Database) => {
-  const asyncMiddleware = asyncMw(bp.logger)
-  const globalConfig = (await bp.config.getModuleConfig('channel-web')) as Config
+const scopedUploadMiddlware = (bp: typeof sdk) => {
+  return async (req, res, next) => {
+    const { botId } = req.params
+    const config = (await bp.config.getModuleConfigForBot('channel-web', botId)) as Config
 
-  const diskStorage = multer.diskStorage({
-    destination: globalConfig.fileUploadPath,
-    // @ts-ignore typing indicates that limits isn't supported
-    limits: {
-      files: 1,
-      fileSize: 5242880 // 5MB
-    },
-    filename(req, file, cb) {
-      const userId = _.get(req, 'params.userId') || 'anonymous'
-      const ext = path.extname(file.originalname)
-
-      cb(undefined, `${userId}_${new Date().getTime()}${ext}`)
-    }
-  })
-
-  let upload = multer({ storage: diskStorage })
-
-  if (globalConfig.uploadsUseS3) {
-    /*
-      You can override AWS's default settings here. Example:
-      { region: 'us-east-1', apiVersion: '2014-10-01', credentials: {...} }
-     */
-    const awsConfig = {
-      region: globalConfig.uploadsS3Region,
-      credentials: {
-        accessKeyId: globalConfig.uploadsS3AWSAccessKey,
-        secretAccessKey: globalConfig.uploadsS3AWSAccessSecret
-      }
-    }
-
-    if (!awsConfig.credentials.accessKeyId && !awsConfig.credentials.secretAccessKey) {
-      delete awsConfig.credentials
-    }
-
-    if (!awsConfig.region) {
-      delete awsConfig.region
-    }
-
-    // TODO use media service with a 's3' backend
-    const s3 = new aws.S3(awsConfig)
-    const s3Storage = multers3({
-      s3,
-      bucket: globalConfig.uploadsS3Bucket || 'uploads',
-      contentType: multers3.AUTO_CONTENT_TYPE,
-      cacheControl: 'max-age=31536000', // one year caching
-      acl: 'public-read',
-      key(req, file, cb) {
+    const diskStorage = multer.diskStorage({
+      destination: config.fileUploadPath,
+      // @ts-ignore typing indicates that limits isn't supported
+      limits: {
+        files: 1,
+        fileSize: 5242880 // 5MB
+      },
+      filename(req, file, cb) {
         const userId = _.get(req, 'params.userId') || 'anonymous'
         const ext = path.extname(file.originalname)
 
@@ -110,8 +72,55 @@ export default async (bp: typeof sdk, db: Database) => {
       }
     })
 
-    upload = multer({ storage: s3Storage })
+    let upload = multer({ storage: diskStorage })
+
+    if (config.uploadsUseS3) {
+      /*
+        You can override AWS's default settings here. Example:
+        { region: 'us-east-1', apiVersion: '2014-10-01', credentials: {...} }
+      */
+      const awsConfig = {
+        region: config.uploadsS3Region,
+        credentials: {
+          accessKeyId: config.uploadsS3AWSAccessKey,
+          secretAccessKey: config.uploadsS3AWSAccessSecret
+        }
+      }
+
+      if (!awsConfig.credentials.accessKeyId && !awsConfig.credentials.secretAccessKey) {
+        delete awsConfig.credentials
+      }
+
+      if (!awsConfig.region) {
+        delete awsConfig.region
+      }
+
+      // TODO use media service with a 's3' backend
+      const s3 = new aws.S3(awsConfig)
+      const s3Storage = multers3({
+        s3,
+        bucket: config.uploadsS3Bucket || 'uploads',
+        contentType: multers3.AUTO_CONTENT_TYPE,
+        cacheControl: 'max-age=31536000', // one year caching
+        acl: 'public-read',
+        key(req, file, cb) {
+          const userId = _.get(req, 'params.userId') || 'anonymous'
+          const ext = path.extname(file.originalname)
+
+          cb(undefined, `${userId}_${new Date().getTime()}${ext}`)
+        }
+      })
+
+      upload = multer({ storage: s3Storage })
+    }
+
+    return upload.single('file')(req, res, next)
   }
+}
+
+export default async (bp: typeof sdk, db: Database) => {
+  const asyncMiddleware = asyncMw(bp.logger)
+  const scopedUpload = scopedUploadMiddlware(bp)
 
   const router = bp.http.createRouterForBot('channel-web', { checkAuthentication: false, enableJsonBodyParser: true })
   const perBotCache = apicache.options({
@@ -244,7 +253,7 @@ export default async (bp: typeof sdk, db: Database) => {
 
   router.post(
     '/messages/files',
-    upload.single('file'),
+    scopedUpload,
     bp.http.extractExternalToken,
     assertUserInfo({ convoIdRequired: true }),
     asyncMiddleware(async (req: ChatRequest & any, res: Response) => {
