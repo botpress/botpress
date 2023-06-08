@@ -30,6 +30,8 @@ const fileMessageSchema = z.object({
 const locationMessageSchema = z.object({
   latitude: z.number(),
   longitude: z.number(),
+  address: z.string().optional(),
+  title: z.string().optional(),
 })
 
 const cardSchema = z.object({
