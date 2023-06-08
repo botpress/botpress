@@ -10,22 +10,31 @@ inputs:
     description: 'Path to the package to publish'
     required: true
 
+  token:
+    description: 'NPM access token'
+    required: true
+
 runs:
   using: 'composite'
   steps:
     - name: Install JQ
+      shell: bash
       run: sudo apt-get install jq
+    - name: Login
+      shell: bash
+      run: |
+        echo "//registry.npmjs.org/:_authToken=${{ inputs.token }}" > ~/.npmrc
     - name: Publish
       shell: bash
       run: |
-        local_version=$(cat ${{ inputs.path }}/package.json | jq ".version")
-        echo 'local version: $local_version'
+        local_version=$(cat ${{ inputs.path }}/package.json | jq -r ".version")
+        echo "local version: $local_version"
 
         package_ref="${{ inputs.name }}@$local_version"
-        if npm view $package_ref; then
-          echo "Package $$package_ref already published"
+        if npm view $package_ref > /dev/null 2>&1 ; then
+          echo "Package $package_ref already published"
           exit 0
         fi
 
-        echo "Publishing version $local_version"
+        echo "Publishing version $package_ref"
         cd ${{ inputs.path }} && npm publish --access public
