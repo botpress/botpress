@@ -1,0 +1,44 @@
+name: Publish
+
+on: workflow_dispatch
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NODE_OPTIONS: '--max_old_space_size=8192'
+    steps:
+      - uses: actions/checkout@v2
+      - uses: pnpm/action-setup@v2.2.4
+        with:
+          version: 7
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          check-latest: true
+          cache: 'pnpm'
+      - run: pnpm i --frozen-lockfile
+      - name: Install tilt
+        run: curl -k -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash
+      - name: build all
+        run: tilt ci
+      - name: Publish Client
+        uses: ./.github/actions/publish-if-not-exists
+        with:
+          name: '@botpress/client'
+          path: './packages/client'
+      - name: Publish SDK
+        uses: ./.github/actions/publish-if-not-exists
+        with:
+          name: '@botpress/sdk'
+          path: './packages/sdk'
+      - name: Publish CLI
+        uses: ./.github/actions/publish-if-not-exists
+        with:
+          name: '@botpress/cli'
+          path: './packages/cli'
