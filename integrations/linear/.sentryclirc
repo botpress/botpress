@@ -1,0 +1,5 @@
+[defaults]
+project=integration-linear
+
+[auth]
+dsn=https://166dae5f279f4f21a84a22bb4f073fa5@o363631.ingest.sentry.io/4505274818428928

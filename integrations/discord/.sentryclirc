@@ -1,0 +1,5 @@
+[defaults]
+project=integration-discord
+
+[auth]
+dsn=https://f9e5b0d1f2d040599423e1916e5daab2@o363631.ingest.sentry.io/4505274795556864

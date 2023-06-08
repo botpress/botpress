@@ -2,3 +2,4 @@ packages:
   - packages/*
   - scripts/*
   - packages/cli/templates/*
+  - integrations/*

@@ -1,0 +1,5 @@
+[defaults]
+project=integration-teams
+
+[auth]
+dsn=https://0646152191534952a77c35baceb795c3@o363631.ingest.sentry.io/4505274828783616

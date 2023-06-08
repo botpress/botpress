@@ -9,6 +9,24 @@ export type CheckVersionsOpts = {
   targetVersions: Record<string, string>
 }
 
+const LOCAL_VERSION = 'workspace:*'
+
+type CheckReport = { name: string; currentVersion: string; targetVersion: string }
+const check = (current: Record<string, string>, target: Record<string, string>): CheckReport | undefined => {
+  for (const [name, version] of utils.objects.entries(target)) {
+    const currentVersion = current[name]
+    if (currentVersion && currentVersion !== LOCAL_VERSION && currentVersion !== version) {
+      return {
+        name,
+        currentVersion,
+        targetVersion: version,
+      }
+    }
+  }
+
+  return
+}
+
 export const checkVersions = (argv: YargsConfig<typeof config.checkSchema>, opts: Partial<CheckVersionsOpts> = {}) => {
   const allPackages = utils.pnpm.searchWorkspaces(argv.rootDir)
   const targetVersions = opts.targetVersions ?? utils.pnpm.versions(allPackages)
@@ -19,18 +37,18 @@ export const checkVersions = (argv: YargsConfig<typeof config.checkSchema>, opts
   } of allPackages) {
     const { dependencies, devDependencies } = utils.pkgjson.read(pkgPath)
 
-    for (const [name, version] of Object.entries(targetVersions)) {
-      if (dependencies && dependencies[name] && dependencies[name] !== version) {
-        throw new errors.DepSynkyError(
-          `Dependency ${name} is out of sync in ${pkgName}: ${dependencies[name]} != ${version}`
-        )
-      }
+    const depReport = dependencies && check(dependencies, targetVersions)
+    if (depReport) {
+      throw new errors.DepSynkyError(
+        `Dependency ${depReport.name} is out of sync in ${pkgName}: ${depReport.currentVersion} != ${depReport.targetVersion}`
+      )
+    }
 
-      if (devDependencies && devDependencies[name] && devDependencies[name] !== version) {
-        throw new errors.DepSynkyError(
-          `Dev dependency ${name} is out of sync in ${pkgName}: ${devDependencies[name]} != ${version}`
-        )
-      }
+    const devDepReport = devDependencies && check(devDependencies, targetVersions)
+    if (devDepReport) {
+      throw new errors.DepSynkyError(
+        `Dev dependency ${devDepReport.name} is out of sync in ${pkgName}: ${devDepReport.currentVersion} != ${devDepReport.targetVersion}`
+      )
     }
   }
 

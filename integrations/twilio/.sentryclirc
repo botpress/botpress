@@ -1,0 +1,5 @@
+[defaults]
+project=integration-twilio
+
+[auth]
+dsn=https://3b3f9635b7be4d67b455b2854bc04a3a@o363631.ingest.sentry.io/4505274835599360

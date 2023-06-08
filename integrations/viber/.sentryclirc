@@ -1,0 +1,5 @@
+[defaults]
+project=integration-viber
+
+[auth]
+dsn=https://3385f2e13e1f4ab397d5bea198086929@o363631.ingest.sentry.io/4505274837893120

@@ -1,0 +1,5 @@
+[defaults]
+project=integration-whatsapp
+
+[auth]
+dsn=https://1a0cf9b880644bed97ddfca4c57ca333@o363631.ingest.sentry.io/4505274847461376
