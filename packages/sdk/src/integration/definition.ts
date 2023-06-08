@@ -34,22 +34,28 @@ export const messageDefinitionSchema = z.object({
   schema: schemaSchema,
 })
 
-export const tagsDefinitionSchema = z.object({
-  conversations: z.array(z.string()).optional(),
-  users: z.array(z.string()).optional(),
-  messages: z.array(z.string()).optional(),
+export const tagDefinitionSchema = z.object({
+  title: z.string().optional(),
+  description: z.string().optional(),
 })
 
 export const channelDefinitionSchema = z.object({
-  tags: tagsDefinitionSchema.omit({ users: true }).optional(),
   messages: nonEmptyDict(messageDefinitionSchema).min(1),
+  message: z
+    .object({
+      tags: z.record(tagDefinitionSchema),
+    })
+    .partial()
+    .optional(),
   conversation: z
     .object({
+      tags: z.record(tagDefinitionSchema),
       creation: z.object({
         enabled: z.boolean(),
         requiredTags: z.array(z.string()),
       }),
     })
+    .partial()
     .optional(),
 })
 
@@ -68,7 +74,6 @@ export const integrationDefinitionSchema = z.object({
   description: z.string().optional(),
   icon: z.string().optional(),
   readme: z.string().optional(),
-  tags: tagsDefinitionSchema.pick({ users: true }).optional(),
   configuration: configurationDefinitionSchema.optional(),
   events: z.record(eventDefinitionSchema).optional(),
   actions: z.record(actionDefinitionSchema).optional(),
@@ -76,18 +81,19 @@ export const integrationDefinitionSchema = z.object({
   states: z.record(stateDefinitionSchema).optional(),
   user: z
     .object({
+      tags: z.record(tagDefinitionSchema),
       creation: z.object({
         enabled: z.boolean(),
         requiredTags: z.array(z.string()),
       }),
     })
+    .partial()
     .optional(),
   secrets: z.array(z.string()).optional(),
 })
 
 export type ConfigurationDefinition = z.infer<typeof configurationDefinitionSchema>
 export type EventDefinition = z.infer<typeof eventDefinitionSchema>
-export type TagDefinition = z.infer<typeof tagsDefinitionSchema>
 export type ChannelDefinition = z.infer<typeof channelDefinitionSchema>
 export type ActionDefinition = z.infer<typeof actionDefinitionSchema>
 export type MessageDefinition = z.infer<typeof messageDefinitionSchema>
@@ -223,7 +229,6 @@ export class IntegrationDefinition<
   public readonly readme: IntegrationDefinitionOutput['readme']
   public readonly title: IntegrationDefinitionOutput['title']
   public readonly description: IntegrationDefinitionOutput['description']
-  public readonly tags: IntegrationDefinitionOutput['tags']
   public readonly configuration: IntegrationDefinitionOutput['configuration']
   public readonly events: IntegrationDefinitionOutput['events']
   public readonly actions: IntegrationDefinitionOutput['actions']
@@ -242,7 +247,6 @@ export class IntegrationDefinition<
       readme,
       title,
       description,
-      tags,
       configuration,
       events,
       actions,
@@ -257,7 +261,6 @@ export class IntegrationDefinition<
     this.readme = readme
     this.title = title
     this.description = description
-    this.tags = tags
     this.configuration = configuration
     this.events = events
     this.actions = actions

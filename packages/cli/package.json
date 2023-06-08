@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cli",
-  "version": "0.0.20",
+  "version": "0.1.0",
   "description": "Botpress CLI",
   "scripts": {
     "build": "pnpm run bundle && pnpm run template:gen",
@@ -18,7 +18,7 @@
   },
   "main": "dist/index.js",
   "dependencies": {
-    "@botpress/client": "0.0.13",
+    "@botpress/client": "0.1.0",
     "@bpinternal/yargs-extra": "^0.0.3",
     "@parcel/watcher": "^2.1.0",
     "@types/lodash": "^4.14.191",
@@ -44,7 +44,7 @@
     "zod-to-json-schema": "^3.20.1"
   },
   "devDependencies": {
-    "@botpress/sdk": "0.0.16",
+    "@botpress/sdk": "0.1.0",
     "@types/bluebird": "^3.5.38",
     "@types/prompts": "^2.0.14",
     "@types/semver": "^7.3.11",

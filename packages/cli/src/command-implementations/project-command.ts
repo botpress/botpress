@@ -82,7 +82,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     botImpl: BotImpl,
     botInfo: bpclient.Bot
   ): Parameters<bpclient.Client['updateBot']>[0]['integrations'] {
-    const { integrations: integrationList } = botImpl
+    const { integrations: integrationList } = botImpl.definition
 
     const integrationsToUninstall = _(botInfo.integrations)
       .keys()
