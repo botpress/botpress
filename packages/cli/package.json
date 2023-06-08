@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cli",
-  "version": "0.0.19",
+  "version": "0.0.20",
   "description": "Botpress CLI",
   "scripts": {
     "build": "pnpm run bundle && pnpm run template:gen",
