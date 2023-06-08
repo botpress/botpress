@@ -44,7 +44,7 @@
     "zod-to-json-schema": "^3.20.1"
   },
   "devDependencies": {
-    "@botpress/sdk": "0.0.15",
+    "@botpress/sdk": "0.0.16",
     "@types/bluebird": "^3.5.38",
     "@types/prompts": "^2.0.14",
     "@types/semver": "^7.3.11",
