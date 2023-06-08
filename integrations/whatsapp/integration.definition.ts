@@ -19,14 +19,24 @@ export default new IntegrationDefinition({
   channels: {
     channel: {
       messages: messages.defaults,
-      tags: {
-        messages: ['id'],
-        conversations: ['userPhone', 'phoneNumberId'],
+      message: {
+        tags: {
+          id: {},
+        },
+      },
+      conversation: {
+        tags: {
+          userPhone: {},
+          phoneNumberId: {},
+        },
       },
     },
   },
-  tags: {
-    users: ['userId', 'name'],
+  user: {
+    tags: {
+      userId: {},
+      name: {},
+    },
   },
   actions: {},
   events: {},

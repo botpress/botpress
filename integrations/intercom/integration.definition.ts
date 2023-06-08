@@ -17,21 +17,25 @@ export default new IntegrationDefinition({
   },
   channels: {
     channel: {
-      messages: {
-        ...messages.defaults,
+      messages: messages.defaults,
+      message: {
+        tags: {
+          id: {},
+        },
       },
-      tags: {
-        messages: ['id'],
-        conversations: ['id'],
+      conversation: {
+        tags: {
+          id: {},
+        },
+        creation: { enabled: true, requiredTags: ['id'] },
       },
-      conversation: { creation: { enabled: true, requiredTags: ['id'] } },
     },
-  },
-  tags: {
-    users: ['id'],
   },
   actions: {},
   events: {},
-  user: { creation: { enabled: true, requiredTags: ['id'] } },
   secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  user: {
+    tags: { id: {} },
+    creation: { enabled: true, requiredTags: ['id'] },
+  },
 })

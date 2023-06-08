@@ -22,35 +22,55 @@ export default new IntegrationDefinition({
   events: {},
   channels: {
     pullRequest: {
-      tags: {
-        conversations: ['number'],
-        messages: ['id'],
+      message: {
+        tags: {
+          id: {},
+        },
+      },
+      conversation: {
+        tags: {
+          number: {},
+        },
       },
       messages: {
         text,
       },
     },
     discussion: {
-      tags: {
-        conversations: ['number'],
-        messages: ['id'],
+      message: {
+        tags: {
+          id: {},
+        },
+      },
+      conversation: {
+        tags: {
+          number: {},
+        },
       },
       messages: {
         text,
       },
     },
     issue: {
-      tags: {
-        conversations: ['number'],
-        messages: ['id'],
+      message: {
+        tags: {
+          id: {},
+        },
+      },
+      conversation: {
+        tags: {
+          number: {},
+        },
       },
       messages: {
         text,
       },
     },
   },
-  tags: {
-    users: ['id'],
+  user: {
+    tags: {
+      id: {},
+    },
   },
   states: {
     configuration: {

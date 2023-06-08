@@ -18,18 +18,27 @@ export default new IntegrationDefinition({
   channels: {
     channel: {
       messages: messages.defaults,
-      tags: {
-        messages: ['id'],
-        conversations: ['userPhone', 'activePhone'],
+      message: {
+        tags: {
+          id: {},
+        },
       },
-      conversation: { creation: { enabled: true, requiredTags: ['userPhone', 'activePhone'] } },
+      conversation: {
+        tags: {
+          userPhone: {},
+          activePhone: {},
+        },
+        creation: { enabled: true, requiredTags: ['userPhone', 'activePhone'] },
+      },
     },
-  },
-  tags: {
-    users: ['userPhone'],
   },
   actions: {},
   events: {},
-  user: { creation: { enabled: true, requiredTags: ['userPhone'] } },
   secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  user: {
+    tags: {
+      userPhone: {},
+    },
+    creation: { enabled: true, requiredTags: ['userPhone'] },
+  },
 })

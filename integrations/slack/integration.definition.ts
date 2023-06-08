@@ -18,15 +18,12 @@ export default new IntegrationDefinition({
   channels: {
     channel: {
       messages: messages.defaults,
-      tags: {
-        messages: ['ts'],
-        conversations: ['id'],
+      message: { tags: { ts: {} } },
+      conversation: {
+        tags: { id: {} },
+        creation: { enabled: true, requiredTags: ['id'] },
       },
-      conversation: { creation: { enabled: true, requiredTags: ['id'] } },
     },
-  },
-  tags: {
-    users: ['id'],
   },
   actions: {
     addReaction: {
@@ -43,6 +40,9 @@ export default new IntegrationDefinition({
     },
   },
   events: {},
-  user: { creation: { enabled: true, requiredTags: ['id'] } },
   secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  user: {
+    tags: { id: {} },
+    creation: { enabled: true, requiredTags: ['id'] },
+  },
 })

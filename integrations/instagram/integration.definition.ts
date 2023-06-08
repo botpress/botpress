@@ -21,18 +21,18 @@ export default new IntegrationDefinition({
   channels: {
     channel: {
       messages: messages.defaults,
-      tags: {
-        messages: ['messageId'],
-        conversations: ['id'],
+      message: { tags: { messageId: {} } },
+      conversation: {
+        tags: { id: {} },
+        creation: { enabled: true, requiredTags: ['id'] },
       },
-      conversation: { creation: { enabled: true, requiredTags: ['id'] } },
     },
-  },
-  tags: {
-    users: ['id'],
   },
   actions: {},
   events: {},
-  user: { creation: { enabled: true, requiredTags: ['id'] } },
   secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  user: {
+    tags: { id: {} },
+    creation: { enabled: true, requiredTags: ['id'] },
+  },
 })

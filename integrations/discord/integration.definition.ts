@@ -14,14 +14,22 @@ export default new IntegrationDefinition({
   channels: {
     channel: {
       messages: messages.defaults,
-      tags: {
-        messages: ['id'],
-        conversations: ['id'],
+      message: {
+        tags: {
+          id: {},
+        },
+      },
+      conversation: {
+        tags: {
+          id: {},
+        },
       },
     },
   },
-  tags: {
-    users: ['id'],
+  user: {
+    tags: {
+      id: {},
+    },
   },
   actions: {},
   events: {},

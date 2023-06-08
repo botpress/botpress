@@ -1,14 +1,13 @@
-import { Integration } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { secrets } from '.botpress'
+import * as botpress from '.botpress'
 
 sentryHelpers.init({
-  dsn: secrets.SENTRY_DSN,
-  environment: secrets.SENTRY_ENVIRONMENT,
-  release: secrets.SENTRY_RELEASE,
+  dsn: botpress.secrets.SENTRY_DSN,
+  environment: botpress.secrets.SENTRY_ENVIRONMENT,
+  release: botpress.secrets.SENTRY_RELEASE,
 })
 
-const integration = new Integration({
+const integration = new botpress.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {},

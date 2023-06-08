@@ -14,8 +14,10 @@ export default new IntegrationDefinition({
     schema: z.object({}),
   },
   channels: {},
-  tags: {
-    users: ['id'],
+  user: {
+    tags: {
+      id: {},
+    },
   },
   states: {
     [ZapierTriggersStateName]: {

@@ -20,18 +20,29 @@ export default new IntegrationDefinition({
   channels: {
     channel: {
       messages: messages.defaults,
-      tags: {
-        messages: ['id'],
-        conversations: ['userId', 'channelId', 'channel'],
+      message: {
+        tags: {
+          id: {},
+        },
       },
-      conversation: { creation: { enabled: true, requiredTags: ['userId', 'channelId', 'channel'] } },
+      conversation: {
+        tags: {
+          userId: {},
+          channel: {},
+          channelId: {},
+        },
+        creation: { enabled: true, requiredTags: ['userId', 'channelId', 'channel'] },
+      },
     },
-  },
-  tags: {
-    users: ['userId', 'channel'],
   },
   actions: {},
   events: {},
-  user: { creation: { enabled: true, requiredTags: ['userId', 'channel'] } },
+  user: {
+    tags: {
+      userId: {},
+      channel: {},
+    },
+    creation: { enabled: true, requiredTags: ['userId', 'channel'] },
+  },
   secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
 })
