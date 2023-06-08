@@ -16,6 +16,10 @@ runs:
     - name: Install JQ
       shell: bash
       run: sudo apt-get install jq
+    - name: Login
+      shell: bash
+      run: |
+        echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" > ~/.npmrc
     - name: Publish
       shell: bash
       run: |
