@@ -1,0 +1,31 @@
+name: Publish If Not Exists
+description: Publishes a local package if it doesn't already exist on NPM Registry
+
+inputs:
+  name:
+    description: 'Name of the package to publish'
+    required: true
+
+  path:
+    description: 'Path to the package to publish'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Install JQ
+      run: sudo apt-get install jq
+    - name: Publish
+      shell: bash
+      run: |
+        local_version=$(cat ${{ inputs.path }}/package.json | jq ".version")
+        echo 'local version: $local_version'
+
+        package_ref="${{ inputs.name }}@$local_version"
+        if npm view $package_ref; then
+          echo "Package $$package_ref already published"
+          exit 0
+        fi
+
+        echo "Publishing version $local_version"
+        cd ${{ inputs.path }} && npm publish --access public
