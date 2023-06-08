@@ -32,13 +32,16 @@ jobs:
         with:
           name: '@botpress/client'
           path: './packages/client'
+          token: '${{ secrets.NPM_ACCESS_TOKEN }}'
       - name: Publish SDK
         uses: ./.github/actions/publish-if-not-exists
         with:
           name: '@botpress/sdk'
           path: './packages/sdk'
+          token: '${{ secrets.NPM_ACCESS_TOKEN }}'
       - name: Publish CLI
         uses: ./.github/actions/publish-if-not-exists
         with:
           name: '@botpress/cli'
           path: './packages/cli'
+          token: '${{ secrets.NPM_ACCESS_TOKEN }}'

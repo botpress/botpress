@@ -10,6 +10,10 @@ inputs:
     description: 'Path to the package to publish'
     required: true
 
+  token:
+    description: 'NPM access token'
+    required: true
+
 runs:
   using: 'composite'
   steps:
@@ -19,7 +23,7 @@ runs:
     - name: Login
       shell: bash
       run: |
-        echo "//registry.npmjs.org/:_authToken=${{ secrets.NPM_ACCESS_TOKEN }}" > ~/.npmrc
+        echo "//registry.npmjs.org/:_authToken=${{ inputs.token }}" > ~/.npmrc
     - name: Publish
       shell: bash
       run: |
