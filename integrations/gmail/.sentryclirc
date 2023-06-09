@@ -1,0 +1,5 @@
+[defaults]
+project=integration-gmail
+
+[auth]
+dsn=https://9c142bbdec69455e84856e569ef30ef8@o363631.ingest.sentry.io/4505274805846016

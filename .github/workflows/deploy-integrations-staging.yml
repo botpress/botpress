@@ -25,3 +25,6 @@ jobs:
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}
+          gmail_client_id: ${{ secrets.STAGING_GMAIL_CLIENT_ID }}
+          gmail_client_secret: ${{ secrets.STAGING_GMAIL_CLIENT_SECRET }}
+          gmail_topic_name: ${{ secrets.STAGING_GMAIL_TOPIC_NAME }}

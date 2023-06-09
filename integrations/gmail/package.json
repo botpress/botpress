@@ -1,0 +1,38 @@
+{
+  "name": "@botpresshub/gmail",
+  "version": "0.2.0",
+  "description": "Gmail integration for Botpress",
+  "private": true,
+  "scripts": {
+    "start": "pnpm bp serve",
+    "build": "pnpm bp build",
+    "deploy": "ts-node -T ./scripts/replace.ts && pnpm bp deploy --noBuild",
+    "type-check": "tsc --noEmit",
+    "test": "echo \"Tests not implemented yet.\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk-addons": "workspace:*",
+    "cheerio": "1.0.0-rc.12",
+    "gmail-api-parse-message": "^2.1.2",
+    "googleapis": "^112.0.0",
+    "js-base64": "^3.7.5",
+    "nodemailer": "^6.7.2",
+    "query-string": "^6.14.1",
+    "zod": "^3.20.6"
+  },
+  "devDependencies": {
+    "@sentry/cli": "^2.18.1",
+    "@types/node": "^18.11.17",
+    "@types/nodemailer": "^6.4.4",
+    "esbuild": "^0.15.18",
+    "nodemon": "^2.0.20",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
+  }
+}
