@@ -662,8 +662,8 @@ importers:
 
   packages/cli:
     specifiers:
-      '@botpress/client': 0.1.0
-      '@botpress/sdk': 0.1.0
+      '@botpress/client': 0.1.1
+      '@botpress/sdk': 0.1.1
       '@bpinternal/yargs-extra': ^0.0.3
       '@parcel/watcher': ^2.1.0
       '@types/bluebird': ^3.5.38
@@ -729,8 +729,8 @@ importers:
 
   packages/cli/templates/echo-bot:
     specifiers:
-      '@botpress/client': 0.1.0
-      '@botpress/sdk': 0.1.0
+      '@botpress/client': 0.1.1
+      '@botpress/sdk': 0.1.1
       '@tsconfig/node18-strictest': ^1.0.0
       '@types/node': ^18.11.17
       ts-node: ^10.9.1
@@ -748,8 +748,8 @@ importers:
 
   packages/cli/templates/empty-integration:
     specifiers:
-      '@botpress/client': 0.1.0
-      '@botpress/sdk': 0.1.0
+      '@botpress/client': 0.1.1
+      '@botpress/sdk': 0.1.1
       '@tsconfig/node18-strictest': ^1.0.0
       '@types/node': ^18.11.17
       ts-node: ^10.9.1
@@ -767,7 +767,7 @@ importers:
 
   packages/client:
     specifiers:
-      '@botpress/api': 0.3.0
+      '@botpress/api': 0.3.1
       axios: 1.2.5
       browser-or-node: ^2.1.1
       esbuild: ^0.16.12
@@ -777,12 +777,12 @@ importers:
       browser-or-node: 2.1.1
       type-fest: 3.11.1
     devDependencies:
-      '@botpress/api': 0.3.0
+      '@botpress/api': 0.3.1
       esbuild: 0.16.17
 
   packages/sdk:
     specifiers:
-      '@botpress/client': 0.1.0
+      '@botpress/client': 0.1.1
       '@types/node': ^18.11.17
       axios: 0.27.2
       esbuild: ^0.16.10
@@ -1361,8 +1361,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api/0.3.0:
-    resolution: {integrity: sha512-mP+nHlU3pox13ZvWXow4mesV+ocXugNWh9LYn93EqUG+3/Lri//NmI6JkH1uhgkLbqetCRUk05bkiYQmr/kOTw==}
+  /@botpress/api/0.3.1:
+    resolution: {integrity: sha512-rMrE7+yeuEui0508eXzjBEgdWW0lFu8MWNXotvzOnDXvvuBHVtszcMKUhh8N/VGBJDnVyVhmScgNgBNcLp6bTg==}
     dependencies:
       '@bpinternal/opapi': 0.2.1
     transitivePeerDependencies:
