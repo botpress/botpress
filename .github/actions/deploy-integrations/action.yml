@@ -29,7 +29,7 @@ runs:
       shell: bash
       run: pnpm -r --stream --filter @botpresshub/* exec sentry-cli sourcemaps upload --release=${{ github.sha }} --url-prefix '~' .botpress/dist
       env:
-        SENTRY_AUTH_TOKEN: ${{ input.sentry_auth_token }}
+        SENTRY_AUTH_TOKEN: ${{ inputs.sentry_auth_token }}
         SENTRY_ORG: botpress-rm
         SENTRY_RELEASE: ${{ github.sha }}
     - name: Deploys Integrations
