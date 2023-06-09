@@ -18,5 +18,5 @@ jobs:
         with:
           environment: 'production'
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          token_cloud_ops_account: ${{ secrets.TOKEN_CLOUD_OPS_ACCOUNT }}
-          cloud_ops_workspace_id: ${{ secrets.CLOUD_OPS_WORKSPACE_ID }}
+          token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
+          cloud_ops_workspace_id: ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}

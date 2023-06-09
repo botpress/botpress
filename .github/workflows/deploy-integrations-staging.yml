@@ -23,5 +23,5 @@ jobs:
         with:
           environment: 'staging'
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
-          token_cloud_ops_account: ${{ secrets.TOKEN_CLOUD_OPS_ACCOUNT }}
-          cloud_ops_workspace_id: ${{ secrets.CLOUD_OPS_WORKSPACE_ID }}
+          token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
+          cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}
