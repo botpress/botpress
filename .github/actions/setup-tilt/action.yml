@@ -1,0 +1,34 @@
+name: Setup Tilt
+description: install dependencies and run tilt
+
+inputs:
+  tilt_cmd:
+    type: choice
+    description: 'The tilt command to run'
+    default: 'build-integrations'
+    options:
+      - 'generate-client'
+      - 'build-packages'
+      - 'build-integrations'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: pnpm/action-setup@v2.2.4
+        with:
+          version: 7
+      - uses: actions/setup-node@v3
+        with:
+          node-version: '18.x'
+          check-latest: true
+          cache: 'pnpm'
+      - name: Install dependencies
+        shell: bash
+        run: pnpm i --frozen-lockfile
+      - name: Install tilt
+        shell: bash
+        run: curl -k -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash
+      - name: Run Tilt
+        shell: bash
+        run: tilt ci -- --cmd ${{ inputs.tilt_cmd }}

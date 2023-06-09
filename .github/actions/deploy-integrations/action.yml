@@ -1,0 +1,46 @@
+name: Deploy Integrations
+description: Deploys integrations
+
+input:
+  environment:
+    type: choice
+    description: 'Environment to deploy to'
+    required: true
+    options:
+      - staging
+      - production
+  sentry_auth_token:
+    description: 'Sentry auth token'
+    required: true
+  token_cloud_ops_account:
+    description: 'Cloud Ops account token'
+    required: true
+  cloud_ops_workspace_id:
+    description: 'Cloud Ops workspace id'
+    required: true
+
+jobs:
+  deploy-integrations:
+    steps:
+      - name: Inject SourceMaps
+        shell: bash
+        run: pnpm -r --stream --filter @botpresshub/* exec sentry-cli sourcemaps inject .botpress/dist
+      - name: Upload SourceMaps
+        shell: bash
+        run: pnpm -r --stream --filter @botpresshub/* exec sentry-cli sourcemaps upload --release=${{ github.sha }} --url-prefix '~' .botpress/dist
+        env:
+          SENTRY_AUTH_TOKEN: ${{ input.sentry_auth_token }}
+          SENTRY_ORG: botpress-rm
+          SENTRY_RELEASE: ${{ github.sha }}
+      - name: Deploys Integrations
+        env:
+          ENVIRONMENT: ${{ inputs.environment }}
+          TOKEN_CLOUD_OPS_ACCOUNT: ${{ inputs.token_cloud_ops_account }}
+          CLOUD_OPS_WORKSPACE_ID: ${{ inputs.cloud_ops_workspace_id }}
+          SENTRY_RELEASE: ${{ github.sha }}
+          SENTRY_ENVIRONMENT: ${{ inputs.environment }}
+        shell: bash
+        run: |
+          pnpm bp login -y --host https://api.botpress.dev --workspaceId "$CLOUD_OPS_WORKSPACE_ID" --token "$TOKEN_CLOUD_OPS_ACCOUNT"
+          cd ../../
+          pnpm -r --stream --filter @botpresshub/* -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --host https://api.botpress.dev --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
