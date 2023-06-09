@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 jobs:
-  check:
+  deploy-staging:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
