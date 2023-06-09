@@ -7,11 +7,13 @@ READINESS_PORT = 8082
 
 ## commands
 
-GENERATE_RESSOURCES = ['pnpm-install', 'openapi-generator-server', 'readiness', 'generate-client']
-BUILD_RESSOURCES = GENERATE_RESSOURCES + ['build-client', 'build-sdk', 'build-cli', 'build-integrations']
+GENERATE_CLIENT_RESSOURCES = ['pnpm-install', 'openapi-generator-server', 'readiness', 'generate-client']
+BUILD_PACKAGES_RESSOURCES = GENERATE_CLIENT_RESSOURCES + ['build-client', 'build-sdk', 'build-cli']
+BUILD_INTEGRATIONS_RESSOURCES = BUILD_PACKAGES_RESSOURCES + ['build-integrations']
 COMMAND_RESSOURCES = {
-  'generate': GENERATE_RESSOURCES,
-  'build': BUILD_RESSOURCES
+  'generate-client': GENERATE_CLIENT_RESSOURCES,
+  'build-packages': BUILD_PACKAGES_RESSOURCES,
+  'build-integrations': BUILD_INTEGRATIONS_RESSOURCES
 }
 AVAILABLE_COMMANDS = [k for k in COMMAND_RESSOURCES.keys()]
 
@@ -19,7 +21,7 @@ AVAILABLE_COMMANDS = [k for k in COMMAND_RESSOURCES.keys()]
 
 config.define_string('cmd')
 cfg = config.parse()
-command = cfg.get('cmd', 'build')
+command = cfg.get('cmd', 'build-integrations')
 
 if command not in AVAILABLE_COMMANDS:
   fail('command must be one of %s' % AVAILABLE_COMMANDS)

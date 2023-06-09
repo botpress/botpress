@@ -1,0 +1,22 @@
+name: Deploy Integrations Production
+
+on: workflow_dispatch
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy-production:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Tilt
+        uses: ./.github/actions/setup-tilt
+      - name: Deploy Integrations
+        uses: ./.github/actions/deploy-integrations
+        with:
+          environment: 'production'
+          sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
+          token_cloud_ops_account: ${{ secrets.TOKEN_CLOUD_OPS_ACCOUNT }}
+          cloud_ops_workspace_id: ${{ secrets.CLOUD_OPS_WORKSPACE_ID }}
