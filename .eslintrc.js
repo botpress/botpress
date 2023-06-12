@@ -18,7 +18,36 @@ module.exports = {
     'eslint-plugin-prettier',
   ],
   rules: {
-    'no-console': ['error'],
+    'no-console': [
+      'warn',
+      {
+        allow: [
+          'warn',
+          'dir',
+          'time',
+          'timeEnd',
+          'timeLog',
+          'trace',
+          'assert',
+          'clear',
+          'count',
+          'countReset',
+          'group',
+          'groupEnd',
+          'table',
+          'debug',
+          'info',
+          'dirxml',
+          'error',
+          'groupCollapsed',
+          'Console',
+          'profile',
+          'profileEnd',
+          'timeStamp',
+          'context'
+        ]
+      }
+    ],
     complexity: ['error', 12],
     'no-cond-assign': 'error',
     'no-const-assign': 'error',
