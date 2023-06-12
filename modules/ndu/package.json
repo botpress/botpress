@@ -21,7 +21,7 @@
     "moment": "^2.24.0",
     "ms": "^2.1.2",
     "nanoid": "^3.1.31",
-    "@botpress/node-svm": "0.0.3",
+    "@botpress/node-svm": "0.0.4",
     "seedrandom": "^3.0.5",
     "numeric": "^1.2.6"
   },

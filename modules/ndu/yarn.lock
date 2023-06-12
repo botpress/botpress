@@ -2,13 +2,14 @@
 # yarn lockfile v1
 
 
-"@botpress/node-svm@0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@botpress/node-svm/-/node-svm-0.0.3.tgz#f116e71d7334d121df85d368b241986a4d3da1a4"
-  integrity sha512-65ZAiWrNMeuZRLbCqqXDBk0txxphYTBRx1554UTF3Y/frGEuA7Zs8XNPTlLeBfcz16XFdRw99WERTYQbexjLwA==
+"@botpress/node-svm@0.0.4":
+  version "0.0.4"
+  resolved "https://registry.yarnpkg.com/@botpress/node-svm/-/node-svm-0.0.4.tgz#483f6cd7f10a38ea6a4d9742d740794cf10a14ec"
+  integrity sha512-ItJIa6FWsGwV0WCZUxxY2HTuu414/6g6ZS4d8X0XWKFIoXhj/wapW6dDiGECnfFv1gXNDxW0Zp8zP4qeZcT4EQ==
   dependencies:
-    bluebird "^3.7.2"
     getos "^3.2.1"
+    lock "1.1.0"
+    yn "^4.0.0"
 
 async@^3.2.0:
   version "3.2.0"
@@ -26,11 +27,6 @@ balanced-match@^1.0.0:
   version "1.0.0"
   resolved "https://registry.yarnpkg.com/balanced-match/-/balanced-match-1.0.0.tgz#89b4d199ab2bee49de164ea02b89ce462d71b767"
   integrity sha1-ibTRmasr7kneFk6gK4nORi1xt2c=
-
-bluebird@^3.7.2:
-  version "3.7.2"
-  resolved "https://registry.yarnpkg.com/bluebird/-/bluebird-3.7.2.tgz#9f229c15be272454ffa973ace0dbee79a1b0c36f"
-  integrity sha512-XpNj6GDQzdfW+r2Wnn7xiSAd7TM3jzkxGXBGTtWKuSXv1xUV+azxAm8jdWZN06QTQk+2N2XB9jRDkvbmQmcRtg==
 
 brace-expansion@^1.1.7:
   version "1.1.11"
@@ -133,6 +129,11 @@ joi@^13.6.0:
     isemail "3.x.x"
     topo "3.x.x"
 
+lock@1.1.0:
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/lock/-/lock-1.1.0.tgz#53157499d1653b136ca66451071fca615703fa55"
+  integrity sha512-NZQIJJL5Rb9lMJ0Yl1JoVr9GSdo4HTPsUEWsSFzB8dE8DSoiLCVavWZPi7Rnlv/o73u6I24S/XYc/NmG4l8EKA==
+
 lodash@>=4.17.21, lodash@^4.17.21:
   version "4.17.21"
   resolved "https://registry.npmjs.org/lodash/-/lodash-4.17.21.tgz#679591c564c3bffaae8454cf0b3df370c3d6911c"
@@ -217,3 +218,8 @@ wrappy@1:
   version "1.0.2"
   resolved "https://registry.yarnpkg.com/wrappy/-/wrappy-1.0.2.tgz#b5243d8f3ec1aa35f1364605bc0d1036e30ab69f"
   integrity sha1-tSQ9jz7BqjXxNkYFvA0QNuMKtp8=
+
+yn@^4.0.0:
+  version "4.0.0"
+  resolved "https://registry.yarnpkg.com/yn/-/yn-4.0.0.tgz#611480051ea43b510da1dfdbe177ed159f00a979"
+  integrity sha512-huWiiCS4TxKc4SfgmTwW1K7JmXPPAmuXWYy4j9qjQo4+27Kni8mGhAAi1cloRWmBe2EqcLgt3IGqQoRL/MtPgg==
