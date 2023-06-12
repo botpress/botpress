@@ -130,7 +130,7 @@ local_resource(
 local_resource(
   name='build-integrations',
   allow_parallel=True,
-  cmd='pnpm -r --stream -F "@botpresshub/*" exec bp build --source-map',
+  cmd='pnpm -r --stream -F @botpresshub/* exec bp build --source-map',
   labels=['integrations'],
   resource_deps=['build-cli']
 )
