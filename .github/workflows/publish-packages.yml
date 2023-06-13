@@ -19,19 +19,19 @@ jobs:
         with:
           tilt_cmd: 'build-packages'
       - name: Publish Client
-        uses: ./.github/actions/publish-if-not-exists
+        uses: botpress/gh-actions/publish-if-not-exists@master
         with:
           name: '@botpress/client'
           path: './packages/client'
           token: '${{ secrets.NPM_ACCESS_TOKEN }}'
       - name: Publish SDK
-        uses: ./.github/actions/publish-if-not-exists
+        uses: botpress/gh-actions/publish-if-not-exists@master
         with:
           name: '@botpress/sdk'
           path: './packages/sdk'
           token: '${{ secrets.NPM_ACCESS_TOKEN }}'
       - name: Publish CLI
-        uses: ./.github/actions/publish-if-not-exists
+        uses: botpress/gh-actions/publish-if-not-exists@master
         with:
           name: '@botpress/cli'
           path: './packages/cli'
