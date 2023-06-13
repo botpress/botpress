@@ -21,18 +21,15 @@ jobs:
       - name: Publish Client
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:
-          name: '@botpress/client'
           path: './packages/client'
           token: '${{ secrets.NPM_ACCESS_TOKEN }}'
       - name: Publish SDK
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:
-          name: '@botpress/sdk'
           path: './packages/sdk'
           token: '${{ secrets.NPM_ACCESS_TOKEN }}'
       - name: Publish CLI
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:
-          name: '@botpress/cli'
           path: './packages/cli'
           token: '${{ secrets.NPM_ACCESS_TOKEN }}'
