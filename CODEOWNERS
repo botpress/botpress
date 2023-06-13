@@ -1,0 +1,4 @@
+# GitHub CODEOWNERS file for Cloud
+# https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/customizing-your-repository/about-code-owners
+
+*                         @botpress/cloud-services
