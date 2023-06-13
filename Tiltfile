@@ -125,7 +125,7 @@ local_resource(
   resource_deps=['build-sdk']
 )
 
-## build integrations
+## build integrations and bots
 
 local_resource(
   name='build-integrations',

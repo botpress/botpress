@@ -3,3 +3,4 @@ packages:
   - scripts/*
   - packages/cli/templates/*
   - integrations/*
+  - bots/*
