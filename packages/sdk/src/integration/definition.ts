@@ -18,10 +18,14 @@ export const configurationDefinitionSchema = z.object({
 })
 
 export const eventDefinitionSchema = z.object({
+  title: z.string().optional(),
+  description: z.string().optional(),
   schema: schemaSchema,
 })
 
 export const actionDefinitionSchema = z.object({
+  title: z.string().optional(),
+  description: z.string().optional(),
   input: z.object({
     schema: schemaSchema,
   }),
@@ -40,6 +44,8 @@ export const tagDefinitionSchema = z.object({
 })
 
 export const channelDefinitionSchema = z.object({
+  title: z.string().optional(),
+  description: z.string().optional(),
   messages: nonEmptyDict(messageDefinitionSchema).min(1),
   message: z
     .object({
