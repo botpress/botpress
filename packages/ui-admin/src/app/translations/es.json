@@ -22,6 +22,7 @@
     "hideToken": "Ocultar token",
     "changeYourPassword": "Cambiar contraseña",
     "confirmPassword": "Confirmar contraseña",
+    "invalidateActiveSessions": "Invalidar sesiones activas",
     "createAccount": "Crear una cuenta",
     "createMasterAdminAccount": "Esta es la primera vez que ejecuta Botpress. Cree la cuenta de administrador principal.",
     "currentPassword": "Contraseña actual",

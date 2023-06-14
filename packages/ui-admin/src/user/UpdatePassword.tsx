@@ -1,4 +1,4 @@
-import { Button, Classes, Dialog, FormGroup, InputGroup, Intent } from '@blueprintjs/core'
+import { Button, Classes, Dialog, FormGroup, InputGroup, Intent, Checkbox } from '@blueprintjs/core'
 import { lang, toast, auth } from 'botpress/shared'
 import { UserProfile } from 'common/typings'
 import React, { FC, useState } from 'react'
@@ -15,6 +15,7 @@ const UpdatePassword: FC<Props> = props => {
   const [password, setPassword] = useState<string>('')
   const [newPassword, setNewPassword] = useState<string>('')
   const [confirmPassword, setConfirmPassword] = useState<string>('')
+  const [invalidateActiveSessions, setInvalidateActiveSessions] = useState<boolean>(false)
 
   const submit = async event => {
     event.preventDefault()
@@ -23,7 +24,16 @@ const UpdatePassword: FC<Props> = props => {
     const client = api.getSecured()
 
     try {
-      await client.post(`/admin/auth/login/${strategyType}/${strategy}`, { email, password, newPassword })
+      const { data } = await client.post(`/admin/auth/login/${strategyType}/${strategy}`, {
+        email,
+        password,
+        newPassword,
+        invalidateActiveSessions
+      })
+
+      if (invalidateActiveSessions) {
+        auth.setToken(data.payload)
+      }
 
       props.toggle()
       toast.success(lang.tr('admin.passwordUpdatedSuccessfully'))
@@ -91,6 +101,17 @@ const UpdatePassword: FC<Props> = props => {
             />
           </FormGroup>
           <PasswordStrengthMeter pwdCandidate={newPassword} />
+
+          <FormGroup>
+            <Checkbox
+              checked={invalidateActiveSessions}
+              onChange={() => {
+                setInvalidateActiveSessions(!invalidateActiveSessions)
+              }}
+            >
+              {lang.tr('admin.invalidateActiveSessions')}
+            </Checkbox>
+          </FormGroup>
         </div>
 
         <div className={Classes.DIALOG_FOOTER}>

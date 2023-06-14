@@ -23,6 +23,7 @@
     "hideToken": "Cacher le jeton",
     "changeYourPassword": "Changez votre mot de passe",
     "confirmPassword": "Confirmez le mot de passe",
+    "invalidateActiveSessions": "Invalider les sessions actives",
     "createAccount": "Créer un compte",
     "createMasterAdminAccount": "C'est la première fois que vous exécutez Botpress. Veuillez créer le compte administrateur principal.",
     "currentPassword": "Mot de passe actuel",

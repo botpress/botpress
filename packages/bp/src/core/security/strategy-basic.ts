@@ -32,14 +32,14 @@ export class StrategyBasic {
     router.post(
       '/login/basic/:strategy',
       this.asyncMiddleware(async (req: Request, res: Response) => {
-        const { password, newPassword, channel, target } = req.body
+        const { password, newPassword, channel, target, invalidateActiveSessions } = req.body
         const email = req.body.email.toLowerCase()
         const { strategy } = req.params
 
         // Random delay to prevent an attacker from determining if an account exists by the response time. Arbitrary numbers
         await Promise.delay(_.random(15, 80))
 
-        await this._login(email, password, strategy, newPassword, req.ip)
+        await this._login(email, password, strategy, newPassword, req.ip, invalidateActiveSessions)
         let token: TokenResponse
 
         // If the channel & target is set, we consider that it's a chat user logging in (even if it's with admin credentials)
@@ -94,7 +94,8 @@ export class StrategyBasic {
     password: string,
     strategy: string,
     newPassword?: string,
-    ipAddress: string = ''
+    ipAddress: string = '',
+    invalidateToken: boolean = true
   ): Promise<void> {
     await this._checkUserAuth(email, strategy, password, newPassword, ipAddress)
     const strategyOptions = _.get(await this.authService.getStrategy(strategy), 'options') as AuthStrategyBasic
@@ -106,6 +107,10 @@ export class StrategyBasic {
 
       this._validatePassword(newPassword, strategyOptions)
       const hash = saltHashPassword(newPassword)
+
+      if (invalidateToken) {
+        await this.authService.incrementTokenVersion(email, strategy)
+      }
 
       await this.authService.updateUser(email, strategy, {
         password: hash.hash,
