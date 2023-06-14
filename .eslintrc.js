@@ -102,7 +102,7 @@ module.exports = {
     eqeqeq: ['error', 'smart'],
     '@typescript-eslint/no-shadow': 'error',
     'import/order': [
-      'error',
+      'warn',
       {
         groups: [['builtin', 'external'], 'parent', 'index', 'sibling'],
         // TODO: Eventually enable this in the future for consistency
