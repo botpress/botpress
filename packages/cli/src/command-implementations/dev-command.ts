@@ -11,30 +11,91 @@ import { BuildCommand } from './build-command'
 import { ProjectCommand } from './project-command'
 export type DevCommandDefinition = typeof commandDefinitions.dev
 export class DevCommand extends ProjectCommand<DevCommandDefinition> {
+  private _initialDef: IntegrationDefinition | undefined = undefined
+
   public async run(): Promise<void> {
     this.logger.warn('This command is experimental and subject to breaking changes without notice.')
 
-    if (!this.argv.noBuild) {
-      await this._runBuild() // This ensures the bundle is always synced with source code
-    }
-
     const api = await this.ensureLoginAndCreateClient(this.argv)
 
-    const integrationDef = await this.readIntegrationDefinitionFromFS()
+    this._initialDef = await this.readIntegrationDefinitionFromFS()
 
     let env: Record<string, string> = {
       BP_API_URL: api.host,
       BP_TOKEN: api.token,
     }
 
-    if (integrationDef) {
-      await this._deployDevIntegration(api, this.argv.url, integrationDef)
-      const secrets = await this.promptSecrets(integrationDef, this.argv)
+    if (this._initialDef) {
+      const secrets = await this.promptSecrets(this._initialDef, this.argv)
       env = { ...env, ...secrets }
+    }
+
+    await this._deploy(api)
+    await this._runBuild()
+    const worker = await this._spawnWorker(env)
+
+    try {
+      const watcher = await utils.filewatcher.FileWatcher.watch(
+        this.argv.workDir,
+        async (events) => {
+          const typescriptEvents = events.filter((e) => pathlib.extname(e.path) === '.ts')
+          if (typescriptEvents.length === 0) {
+            return
+          }
+
+          this.logger.log('Changes detected, rebuilding')
+          await this._restart(api, worker)
+        },
+        {
+          ignore: [this.projectPaths.abs.outDir],
+        }
+      )
+
+      await Promise.race([worker.wait(), watcher.wait()])
+      await watcher.close()
+    } catch (thrown) {
+      throw errors.BotpressCLIError.wrap(thrown, 'An error occurred while running the dev worker')
+    } finally {
+      if (worker.running) {
+        await worker.kill()
+      }
+    }
+  }
+
+  private _restart = async (api: ApiClient, worker: Worker) => {
+    await this._deploy(api)
+
+    try {
+      await this._runBuild()
+    } catch (thrown) {
+      const error = errors.BotpressCLIError.wrap(thrown, 'Build failed')
+      this.logger.error(error.message)
+      return
+    }
+
+    await worker.reload()
+  }
+
+  private _deploy = async (api: ApiClient) => {
+    const integrationDef = await this.readIntegrationDefinitionFromFS()
+    if (integrationDef) {
+      this._checkSecrets(integrationDef)
+      await this._deployDevIntegration(api, this.argv.url, integrationDef)
     } else {
       await this._deployDevBot(api, this.argv.url)
     }
+  }
 
+  private _checkSecrets(integrationDef: IntegrationDefinition) {
+    const initialSecrets = this._initialDef?.secrets ?? []
+    const currentSecrets = integrationDef.secrets ?? []
+    const newSecrets = currentSecrets.filter((s) => !initialSecrets.includes(s))
+    if (newSecrets.length > 0) {
+      throw new errors.BotpressCLIError('Secrets were added while the server was running. A restart is required.')
+    }
+  }
+
+  private _spawnWorker = async (env: Record<string, string>) => {
     const outfile = this.projectPaths.abs.outFile
     const importPath = utils.path.toUnix(outfile)
     const requireFrom = utils.path.rmExtension(importPath)
@@ -50,31 +111,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       throw errors.BotpressCLIError.wrap(thrown, 'Could not start dev worker')
     })
 
-    try {
-      const watcher = await utils.filewatcher.FileWatcher.watch(
-        this.argv.workDir,
-        async (events) => {
-          const typescriptEvents = events.filter((e) => pathlib.extname(e.path) === '.ts')
-          if (typescriptEvents.length === 0) {
-            return
-          }
-
-          this.logger.log('Changes detected, reloading...')
-          await this._runBuild()
-          await worker.reload()
-        },
-        { ignore: [this.projectPaths.abs.outDir] }
-      )
-
-      await Promise.race([worker.wait(), watcher.wait()])
-      await watcher.close()
-    } catch (thrown) {
-      throw errors.BotpressCLIError.wrap(thrown, 'An error occurred while running the dev worker')
-    } finally {
-      if (worker.running) {
-        await worker.kill()
-      }
-    }
+    return worker
   }
 
   private _runBuild() {
@@ -168,14 +205,14 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const integrations = this.prepareIntegrations(botImpl, bot)
 
     const updateLine = this.logger.line()
-    updateLine.started('Updating bot integrations...')
+    updateLine.started('Deploying dev bot...')
 
     const { bot: updatedBot } = await api.client
       .updateBot({ id: bot.id, integrations, url: externalUrl })
       .catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, 'Could not deploy dev bot')
       })
-    updateLine.success('Integrations installed successfully')
+    updateLine.success('Dev Bot deployed')
 
     this.displayWebhookUrls(updatedBot)
   }

@@ -146,7 +146,6 @@ const devSchema = {
     demandOption: true,
   },
   port,
-  noBuild,
   sourceMap,
 } satisfies CommandSchema
 

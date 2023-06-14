@@ -101,7 +101,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   protected displayWebhookUrls(bot: bpclient.Bot) {
     if (!_.keys(bot.integrations).length) {
-      this.logger.log('No integrations in bot')
+      this.logger.debug('No integrations in bot')
       return
     }
 
