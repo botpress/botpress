@@ -5,11 +5,11 @@ inputs:
   tilt_cmd:
     type: choice
     description: 'The tilt command to run'
-    default: 'build-integrations'
+    default: 'build-all'
     options:
       - 'generate-client'
       - 'build-packages'
-      - 'build-integrations'
+      - 'build-all'
 
 runs:
   using: 'composite'

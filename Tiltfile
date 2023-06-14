@@ -9,11 +9,12 @@ READINESS_PORT = 8082
 
 GENERATE_CLIENT_RESSOURCES = ['pnpm-install', 'openapi-generator-server', 'readiness', 'generate-client']
 BUILD_PACKAGES_RESSOURCES = GENERATE_CLIENT_RESSOURCES + ['build-client', 'build-sdk', 'build-cli']
-BUILD_INTEGRATIONS_RESSOURCES = BUILD_PACKAGES_RESSOURCES + ['build-integrations']
+BUILD_ALL_RESSOURCES = BUILD_PACKAGES_RESSOURCES + ['build-integrations', 'build-bots']
+
 COMMAND_RESSOURCES = {
   'generate-client': GENERATE_CLIENT_RESSOURCES,
   'build-packages': BUILD_PACKAGES_RESSOURCES,
-  'build-integrations': BUILD_INTEGRATIONS_RESSOURCES
+  'build-all': BUILD_ALL_RESSOURCES
 }
 AVAILABLE_COMMANDS = [k for k in COMMAND_RESSOURCES.keys()]
 
@@ -21,7 +22,7 @@ AVAILABLE_COMMANDS = [k for k in COMMAND_RESSOURCES.keys()]
 
 config.define_string('cmd')
 cfg = config.parse()
-command = cfg.get('cmd', 'build-integrations')
+command = cfg.get('cmd', 'build-all')
 
 if command not in AVAILABLE_COMMANDS:
   fail('command must be one of %s' % AVAILABLE_COMMANDS)
@@ -125,7 +126,7 @@ local_resource(
   resource_deps=['build-sdk']
 )
 
-## build integrations and bots
+## build integrations
 
 local_resource(
   name='build-integrations',
@@ -134,3 +135,14 @@ local_resource(
   labels=['integrations'],
   resource_deps=['build-cli']
 )
+
+## build bots
+
+local_resource(
+  name='build-bots',
+  allow_parallel=True,
+  cmd='pnpm -r --stream -F hello-world exec bp build --source-map',
+  labels=['bots'],
+  resource_deps=['build-integrations']
+)
+
