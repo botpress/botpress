@@ -79,6 +79,8 @@ export class IntegrationImplementationIndexModule extends Module {
     content += `export class Integration
       extends sdk.Integration<${configModule.name}.${configModule.exports}, ${actionsModule.name}.${actionsModule.exports}, ${channelsModule.name}.${channelsModule.exports}, ${eventsModule.name}.${eventsModule.exports}> {}\n`
 
+    content += `export type IntegrationProps = sdk.IntegrationProps<${configModule.name}.${configModule.exports}, ${actionsModule.name}.${actionsModule.exports}, ${channelsModule.name}.${channelsModule.exports}, ${eventsModule.name}.${eventsModule.exports}>;\n`
+
     return content
   }
 }

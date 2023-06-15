@@ -130,11 +130,11 @@ type IntegrationDefinitionVersion =
     }
 
 export type IntegrationDefinitionProps<
-  TConfig extends BaseConfig,
-  TEvent extends BaseEvent,
-  TAction extends BaseAction,
-  TChannel extends BaseChannel,
-  TState extends BaseState
+  TConfig extends BaseConfig = BaseConfig,
+  TEvent extends BaseEvent = BaseEvent,
+  TAction extends BaseAction = BaseAction,
+  TChannel extends BaseChannel = BaseChannel,
+  TState extends BaseState = BaseState
 > = Omit<
   IntegrationDefinitionOutput,
   'public' | 'version' | 'configuration' | 'events' | 'actions' | 'channels' | 'states'

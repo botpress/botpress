@@ -92,11 +92,16 @@ export type ChannelFunctions<Configuration, C extends ChannelDefinitions> = {
   }
 }
 
+type BaseConfig = any
+type BaseActions = ActionDefinitions
+type BaseChannels = ChannelDefinitions
+type BaseEvents = EventDefinitions
+
 export type IntegrationImplementationProps<
-  Configuration = any,
-  Actions extends ActionDefinitions = any,
-  Channels extends ChannelDefinitions = any,
-  _Events extends EventDefinitions = any
+  Configuration extends any = BaseConfig,
+  Actions extends ActionDefinitions = BaseActions,
+  Channels extends ChannelDefinitions = BaseChannels,
+  _Events extends EventDefinitions = BaseEvents
 > = {
   register: (props: IntegrationProps<Configuration> & RegisterPayload) => Promise<void>
   unregister: (props: IntegrationProps<Configuration> & UnregisterPayload) => Promise<void>
@@ -108,10 +113,10 @@ export type IntegrationImplementationProps<
 }
 
 export class IntegrationImplementation<
-  Configuration = any,
-  Actions extends ActionDefinitions = any,
-  Channels extends ChannelDefinitions = any,
-  Events extends EventDefinitions = any
+  Configuration extends any = BaseConfig,
+  Actions extends ActionDefinitions = BaseActions,
+  Channels extends ChannelDefinitions = BaseChannels,
+  Events extends EventDefinitions = BaseEvents
 > {
   public readonly props: IntegrationImplementationProps<Configuration, Actions, Channels, Events>
   public readonly actions: IntegrationImplementationProps<Configuration, Actions, Channels, Events>['actions']
@@ -136,7 +141,7 @@ export class IntegrationImplementation<
     this.unregister = props.unregister
     this.createUser = props.createUser
     this.createConversation = props.createConversation
-    this.handler = integrationHandler(props)
+    this.handler = integrationHandler(props as IntegrationImplementationProps)
     this.start = (port?: number) => serve(this.handler, port)
   }
 }

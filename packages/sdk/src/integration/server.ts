@@ -14,25 +14,25 @@ import type {
   ActionPayload,
   CreateConversationPayload,
   CreateUserPayload,
-  IntegrationImplementationProps as Integration,
+  IntegrationImplementationProps,
   RegisterPayload,
   UnregisterPayload,
   WebhookPayload,
 } from './implementation'
 
 type OperationHandlerProps = {
-  integration: Integration
+  integration: IntegrationImplementationProps
   ctx: IntegrationContext
   req: Request
   client: Client
 }
 
-export const serveIntegration = async (integration: Integration, port = 6853) => {
+export const serveIntegration = async (integration: IntegrationImplementationProps, port = 6853) => {
   await serve(integrationHandler(integration), port)
 }
 
 export const integrationHandler =
-  (integration: Integration) =>
+  (integration: IntegrationImplementationProps) =>
   // eslint-disable-next-line complexity
   async (req: Request): Promise<Response | void> => {
     const ctx = extractContext(req.headers)

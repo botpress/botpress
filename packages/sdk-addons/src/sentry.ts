@@ -27,7 +27,6 @@ export const wrapIntegration = <
 
   type Channels = typeof integration.props.channels
   const channelEntries: Entries<Channels> = Object.entries(integration.props.channels)
-
   const channels = channelEntries.reduce((acc, [channelName, channel]) => {
     type Messages = typeof channel.messages
     const messageEntries: Entries<Messages> = Object.entries(channel.messages)
@@ -39,7 +38,7 @@ export const wrapIntegration = <
     return acc
   }, {} as Channels)
 
-  const integrationProps: IntegrationProps = {
+  const integrationProps: IntegrationProps<Co, A, Ch, E> = {
     register: wrapFunction(integration.props.register),
     unregister: wrapFunction(integration.props.unregister),
     handler: wrapFunction(integration.props.handler),
