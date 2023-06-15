@@ -10,6 +10,10 @@ import * as utils from '../utils'
 import { BuildCommand } from './build-command'
 import { ProjectCommand } from './project-command'
 
+type CreateIntegrationBody = Parameters<bpclient.Client['createIntegration']>[0]
+type UpdateIntegrationBody = Parameters<bpclient.Client['updateIntegration']>[0]
+type UpdateBotBody = Parameters<bpclient.Client['updateBot']>[0]
+
 export type DeployCommandDefinition = typeof commandDefinitions.deploy
 export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   public async run(): Promise<void> {
@@ -64,7 +68,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       return
     }
 
-    const publishBody: Parameters<typeof api.client.createIntegration>[0] = {
+    const publishBody: CreateIntegrationBody = {
       ...integrationDef,
       icon: iconFileContent,
       readme: readmeFileContent,
@@ -74,7 +78,12 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying integration ${chalk.bold(integrationDef.name)} v${integrationDef.version}...`)
     if (integration) {
-      await api.client.updateIntegration({ id: integration.id, ...publishBody }).catch((thrown) => {
+      const publishUpdateBody: UpdateIntegrationBody = this._prepareUpdateIntegrationBody(integration, {
+        id: integration.id,
+        ...publishBody,
+      })
+
+      await api.client.updateIntegration(publishUpdateBody).catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, `Could not update integration "${integrationDef.name}"`)
       })
     } else {
@@ -84,6 +93,42 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
     line.success('Integration deployed')
   }
+
+  // all fields that were removed are replaced by null for the API to remove them
+  private _prepareUpdateIntegrationBody = (
+    integration: bpclient.Integration,
+    body: UpdateIntegrationBody
+  ): UpdateIntegrationBody => ({
+    ...body,
+    actions: utils.records.setOnNullMissingValues(body.actions, integration.actions),
+    events: utils.records.setOnNullMissingValues(body.events, integration.events),
+    states: utils.records.setOnNullMissingValues(body.states, integration.states),
+    user: {
+      ...body.user,
+      tags: utils.records.setOnNullMissingValues(body.user?.tags, integration.user?.tags),
+    },
+    channels: Object.entries(body.channels ?? {}).reduce((acc, [channelName, channelDef]) => {
+      const currentChannel = integration.channels[channelName]
+      return {
+        ...acc,
+        [channelName]: {
+          ...channelDef,
+          messages: utils.records.setOnNullMissingValues(channelDef.messages, currentChannel?.messages),
+          message: {
+            ...channelDef.message,
+            tags: utils.records.setOnNullMissingValues(channelDef.message?.tags, currentChannel?.message.tags),
+          },
+          conversation: {
+            ...channelDef.conversation,
+            tags: utils.records.setOnNullMissingValues(
+              channelDef.conversation?.tags,
+              currentChannel?.conversation.tags
+            ),
+          },
+        },
+      }
+    }, {} as UpdateIntegrationBody['channels']),
+  })
 
   private _readMediaFile = async (
     filePurpose: 'icon' | 'readme',
@@ -139,25 +184,46 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     const line = this.logger.line()
     line.started(`Deploying bot ${chalk.bold(bot.name)}...`)
-    const { bot: updatedBot } = await api.client
-      .updateBot({
-        id: bot.id,
-        code,
-        states,
-        recurringEvents,
-        configuration: botConfiguration,
-        events,
-        user,
-        conversation,
-        message,
-        integrations,
-      })
-      .catch((thrown) => {
-        throw errors.BotpressCLIError.wrap(thrown, `Could not update bot "${bot.name}"`)
-      })
+
+    const updateBotBody: UpdateBotBody = this._prepareUpdateBotBody(bot, {
+      id: bot.id,
+      code,
+      states,
+      recurringEvents,
+      configuration: botConfiguration,
+      events,
+      user,
+      conversation,
+      message,
+      integrations,
+    })
+
+    const { bot: updatedBot } = await api.client.updateBot(updateBotBody).catch((thrown) => {
+      throw errors.BotpressCLIError.wrap(thrown, `Could not update bot "${bot.name}"`)
+    })
     line.success('Bot deployed')
     this.displayWebhookUrls(updatedBot)
   }
+
+  // all fields that were removed are replaced by null for the API to remove them
+  private _prepareUpdateBotBody = (bot: bpclient.Bot, body: UpdateBotBody): UpdateBotBody => ({
+    ...body,
+    states: utils.records.setOnNullMissingValues(body.states, bot.states),
+    recurringEvents: utils.records.setOnNullMissingValues(body.recurringEvents, bot.recurringEvents),
+    events: utils.records.setOnNullMissingValues(body.events, bot.events),
+    user: {
+      ...body.user,
+      tags: utils.records.setOnNullMissingValues(body.user?.tags, bot.user?.tags),
+    },
+    conversation: {
+      ...body.conversation,
+      tags: utils.records.setOnNullMissingValues(body.conversation?.tags, bot.conversation?.tags),
+    },
+    message: {
+      ...body.message,
+      tags: utils.records.setOnNullMissingValues(body.message?.tags, bot.message?.tags),
+    },
+  })
 
   private async _createNewBot(api: ApiClient): Promise<bpclient.Bot> {
     const line = this.logger.line()
