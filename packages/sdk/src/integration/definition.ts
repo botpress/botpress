@@ -143,16 +143,12 @@ export type IntegrationDefinitionProps<
     configuration?: Merge<ConfigurationDefinition, SchemaDefinition<TConfig>>
     events?: { [K in keyof TEvent]: Merge<EventDefinition, SchemaDefinition<TEvent[K]>> }
 
-    /**
-     * TODO:
-     * - remove the need to cast
-     * - the type inference breaks when using keys "input" and "output" instead of keyof TAction[K]
-     */
     actions?: {
       [K in keyof TAction]: Merge<
         ActionDefinition,
         {
-          [L in keyof TAction[K]]: SchemaDefinition<Cast<TAction[K][L], AnyZodObject>>
+          ['input']: SchemaDefinition<Cast<TAction[K]['input'], AnyZodObject>>
+          ['output']: SchemaDefinition<Cast<TAction[K]['output'], AnyZodObject>>
         }
       >
     }
