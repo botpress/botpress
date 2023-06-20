@@ -54,6 +54,7 @@
   },
   "resolutions": {
     "fstream": ">=1.0.12",
-    "lodash": ">=4.17.21"
+    "lodash": ">=4.17.21",
+    "minipass": "<=2.9.0"
   }
 }
