@@ -183,6 +183,9 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
+      '@sentry/cli':
+        specifier: ^2.18.1
+        version: 2.18.1
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.16
@@ -376,12 +379,6 @@ importers:
 
   integrations/linear:
     dependencies:
-      '@botpress/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
-      '@botpress/client':
-        specifier: workspace:*
-        version: link:../../packages/client
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -397,25 +394,22 @@ importers:
       query-string:
         specifier: ^6.14.1
         version: 6.14.1
+      tsafe:
+        specifier: ^1.6.4
+        version: 1.6.4
       zod:
         specifier: ^3.20.6
         version: 3.21.4
     devDependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.16
-      esbuild:
-        specifier: ^0.15.18
-        version: 0.15.18
-      nodemon:
-        specifier: ^2.0.20
-        version: 2.0.22
-      ts-node:
-        specifier: ^10.9.1
-        version: 10.9.1(@types/node@18.16.16)(typescript@4.9.5)
       typescript:
         specifier: ^4.9.4
         version: 4.9.5
@@ -499,6 +493,9 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
+      '@sentry/cli':
+        specifier: ^2.18.1
+        version: 2.18.1
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.16
@@ -776,6 +773,9 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
+      '@sentry/cli':
+        specifier: ^2.18.1
+        version: 2.18.1
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.16
@@ -8876,6 +8876,10 @@ packages:
       typescript: 4.9.5
       v8-compile-cache-lib: 3.0.1
       yn: 3.1.1
+
+  /tsafe@1.6.4:
+    resolution: {integrity: sha512-l4Z54QFGHO8GF0gBpb3yPGHjkIkIirl8rwW+lMBmtEMzOJeRs8BdjkDEx6nU8Ak9PQVp/KNDtECxTja8MMIDoA==}
+    dev: false
 
   /tsconfig-paths@3.14.2:
     resolution: {integrity: sha512-o/9iXgCYc5L/JxCHPe3Hvh8Q/2xm5Z+p18PESBU6Ff33695QnCHBEjcytY2q19ua7Mbl/DavtBOLq+oG0RCL+g==}

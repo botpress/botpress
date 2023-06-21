@@ -1,7 +1,10 @@
 import type { Client } from '@botpress/client'
+import { Request } from '@botpress/sdk'
 import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
+import queryString from 'query-string'
 import { z } from 'zod'
+import { IntegrationCtx } from './types'
 import { secrets } from '.botpress'
 
 const linearEndpoint = 'https://api.linear.app'
@@ -75,4 +78,33 @@ export class LinearOauthClient {
 
     return new LinearClient(payload.accessToken)
   }
+}
+
+export const handleOauth = async (req: Request, client: Client, ctx: IntegrationCtx) => {
+  const linearOauthClient = new LinearOauthClient()
+
+  const query = queryString.parse(req.query)
+  const code = query.code
+
+  if (typeof code !== 'string') {
+    throw new Error('Handler received an empty code')
+  }
+
+  const { accessToken, expiresAt } = await linearOauthClient.getAccessToken(code)
+
+  await client.setState({
+    type: 'integration',
+    name: 'credentials',
+    id: ctx.integrationId,
+    payload: {
+      accessToken,
+      expiresAt,
+    },
+  })
+
+  const linearClient = new LinearClient({ accessToken })
+  const organization = await linearClient.organization
+  await client.configureIntegration({ identifier: organization.id })
+
+  return {}
 }
