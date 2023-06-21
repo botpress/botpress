@@ -28,3 +28,6 @@ jobs:
           gmail_client_id: ${{ secrets.STAGING_GMAIL_CLIENT_ID }}
           gmail_client_secret: ${{ secrets.STAGING_GMAIL_CLIENT_SECRET }}
           gmail_topic_name: ${{ secrets.STAGING_GMAIL_TOPIC_NAME }}
+          linear_client_id: ${{ secrets.STAGING_LINEAR_CLIENT_ID }}
+          linear_client_secret: ${{ secrets.STAGING_LINEAR_CLIENT_SECRET }}
+          linear_webhook_signing_secret: ${{ secrets.STAGING_LINEAR_WEBHOOK_SIGNING_SECRET }}

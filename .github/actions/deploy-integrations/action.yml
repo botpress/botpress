@@ -27,6 +27,15 @@ input:
   gmail_topic_name:
     description: 'Gmail topic name'
     required: true
+  linear_client_id:
+    description: 'Linear client id'
+    required: true
+  linear_client_secret:
+    description: 'Linear client secret'
+    required: true
+  linear_webhook_signing_secret:
+    description: 'Linear webhook signing secret'
+    required: true
 
 runs:
   using: 'composite'
@@ -50,15 +59,50 @@ runs:
         SENTRY_ENVIRONMENT: ${{ inputs.environment }}
       shell: bash
       run: |
-        api_url=${{ inputs.environment == 'staging' && 'https://api.botpress.dev' || 'https://api.botpress.cloud' }}
+        api_url="${{ inputs.environment == 'staging' && 'https://api.botpress.dev' || 'https://api.botpress.cloud' }}"
 
+        # login
+
+        echo "### Logging in to $api_url ###"
         pnpm bp login -y --api-url $api_url --workspaceId "$CLOUD_OPS_WORKSPACE_ID" --token "$TOKEN_CLOUD_OPS_ACCOUNT"
-        cd ../../
 
-        # deploy all integrations except gmail
-        pnpm -r --stream -F !gmail -F @botpresshub/* -c exec \
-          -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --api-url $api_url --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        # deploy
 
-        # deploy gmail
-        pnpm -r --stream -F gmail -c exec \
-          -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --api-url $api_url --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"' --secrets CLIENT_ID="${{ inputs.gmail_client_id }}" --secrets CLIENT_SECRET="${{ inputs.gmail_client_secret }}" --secrets TOPIC_NAME="${{ inputs.gmail_topic_name }}"
+        echo "### Deploying integration @botpresshub/discord ###"
+        pnpm -r --stream -F @botpresshub/discord -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        echo "### Deploying integration @botpresshub/github ###"
+        pnpm -r --stream -F @botpresshub/github -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        echo "### Deploying integration @botpresshub/gmail ###"
+        pnpm -r --stream -F @botpresshub/gmail -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"' --secrets CLIENT_ID="${{ inputs.gmail_client_id }}" --secrets CLIENT_SECRET="${{ inputs.gmail_client_secret }}" --secrets TOPIC_NAME="${{ inputs.gmail_topic_name }}"
+        echo "### Deploying integration @botpresshub/instagram ###"
+        pnpm -r --stream -F @botpresshub/instagram -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        echo "### Deploying integration @botpresshub/intercom ###"
+        pnpm -r --stream -F @botpresshub/intercom -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        echo "### Deploying integration @botpresshub/line ###"
+        pnpm -r --stream -F @botpresshub/line -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        echo "### Deploying integration @botpresshub/linear ###"
+        pnpm -r --stream -F @botpresshub/linear -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"' --secrets CLIENT_ID="${{ inputs.linear_client_id }}" --secrets CLIENT_SECRET="${{ inputs.linear_client_secret }}" --secrets WEBHOOK_SIGNING_SECRET="${{ inputs.linear_webhook_signing_secret }}"
+        echo "### Deploying integration @botpresshub/messenger ###"
+        pnpm -r --stream -F @botpresshub/messenger -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        echo "### Deploying integration @botpresshub/slack ###"
+        pnpm -r --stream -F @botpresshub/slack -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        echo "### Deploying integration @botpresshub/sunco ###"
+        pnpm -r --stream -F @botpresshub/sunco -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        echo "### Deploying integration @botpresshub/teams ###"
+        pnpm -r --stream -F @botpresshub/teams -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        echo "### Deploying integration @botpresshub/telegram ###"
+        pnpm -r --stream -F @botpresshub/telegram -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        echo "### Deploying integration @botpresshub/twilio ###"
+        pnpm -r --stream -F @botpresshub/twilio -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        echo "### Deploying integration @botpresshub/viber ###"
+        pnpm -r --stream -F @botpresshub/viber -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        echo "### Deploying integration @botpresshub/vonage ###"
+        pnpm -r --stream -F @botpresshub/vonage -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        echo "### Deploying integration @botpresshub/webchat ###"
+        pnpm -r --stream -F @botpresshub/webchat -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        echo "### Deploying integration @botpresshub/webhook ###"
+        pnpm -r --stream -F @botpresshub/webhook -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        echo "### Deploying integration @botpresshub/whatsapp ###"
+        pnpm -r --stream -F @botpresshub/whatsapp -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        echo "### Deploying integration @botpresshub/zapier ###"
+        pnpm -r --stream -F @botpresshub/zapier -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'

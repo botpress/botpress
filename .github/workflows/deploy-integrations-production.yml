@@ -23,3 +23,6 @@ jobs:
           gmail_client_id: ${{ secrets.PRODUCTION_GMAIL_CLIENT_ID }}
           gmail_client_secret: ${{ secrets.PRODUCTION_GMAIL_CLIENT_SECRET }}
           gmail_topic_name: ${{ secrets.PRODUCTION_GMAIL_TOPIC_NAME }}
+          linear_client_id: ${{ secrets.PRODUCTION_LINEAR_CLIENT_ID }}
+          linear_client_secret: ${{ secrets.PRODUCTION_LINEAR_CLIENT_SECRET }}
+          linear_webhook_signing_secret: ${{ secrets.PRODUCTION_LINEAR_WEBHOOK_SIGNING_SECRET }}
