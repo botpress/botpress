@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="utf-8">
+  <title>Botpress Text Input Example</title>
+  <script src="https://cdn.botpress.dev/webchat/v0/inject.js"></script>
+  
+</head>
+
+<body>
+  <div style="padding: 100px;">
+    <h1>Proactive Trigger Example</h1>
+    <input type="text" id="textInput" placeholder="Type something here">
+    <button onclick="sendPayload()">Trigger</button>
+  </div>
+  <script>
+    function sendPayload() {
+      var textInput = document.getElementById('textInput');
+      var text = textInput.value;
+      window.botpressWebChat.sendPayload({
+        type: "trigger",
+        payload: {
+          text: text,
+          currentUrl: window.location.href
+        }
+      });
+      textInput.value = ''; // Clear the input field
+    }
+  </script>
+</body>
+
+<script>
+  const botId = '9e470152-2d83-4cc6-a8cf-dadd55c77658'
+  
+  window.botpressWebChat.init({
+    botId,
+    clientId: botId,
+    hostUrl: "https://cdn.botpress.dev/webchat/v0",
+    messagingUrl: "https://messaging.botpress.dev",
+    showPoweredBy: true,
+    showCloseButton: true,
+    closeOnEscape: false,
+    // hideWidget: true,
+    userData: {
+      email: 'bob@botpress.com'
+    }
+  });
+  window.botpressWebChat.onEvent(
+    function() {
+      // window.botpressWebChat.sendEvent({
+      //   type: "show"
+      // });
+    },
+    ["LIFECYCLE.LOADED"]
+  );
+</script>
+
+</html>

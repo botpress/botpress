@@ -1,5 +1,8 @@
 import { z } from 'zod'
 
+export const triggerSchema = z.object({ type: z.literal('trigger'), payload: z.record(z.any()) })
+const messageSchema = z.object({ type: z.custom<Exclude<string, 'trigger'>>() }).passthrough()
+
 const newMessageSchema = z.object({
   userId: z.string().uuid(),
   conversationId: z.string().uuid(),
@@ -9,11 +12,12 @@ const newMessageSchema = z.object({
     conversationId: z.string().uuid(),
     authorId: z.string().uuid().optional(),
     sentOn: z.string(),
-    payload: z.object({ type: z.string() }).passthrough(),
+    payload: triggerSchema.or(messageSchema),
   }),
 })
 
 export type NewMessage = z.infer<typeof newMessageSchema>
+export type Trigger = z.infer<typeof triggerSchema>
 
 const newUserSchema = z.object({
   userId: z.string().uuid(),

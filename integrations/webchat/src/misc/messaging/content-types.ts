@@ -4,11 +4,13 @@ import { z } from 'zod'
  * Schemas as defined by the Messaging API
  */
 
-export const textSchema = z.object({ text: z.string(), markdown: z.boolean().optional() })
+export const baseSchema = z.object({ className: z.string().optional(), avatarUrl: z.string().url().optional() })
 
-export const imageSchema = z.object({ image: z.string() })
+export const textSchema = baseSchema.extend({ text: z.string(), markdown: z.boolean().optional() })
 
-export const cardSchema = z.object({
+export const imageSchema = baseSchema.extend({ image: z.string() })
+
+export const cardSchema = baseSchema.extend({
   title: z.string(),
   subtitle: z.string().optional(),
   image: z.string().optional(),
@@ -17,16 +19,16 @@ export const cardSchema = z.object({
     .optional(),
 })
 
-export const carouselSchame = z.object({ items: z.array(cardSchema) })
+export const carouselSchame = baseSchema.extend({ items: z.array(cardSchema) })
 
-export const locationSchema = z.object({
+export const locationSchema = baseSchema.extend({
   latitude: z.number(),
   longitude: z.number(),
   address: z.string().optional(),
   title: z.string().optional(),
 })
 
-export const dropdownSchema = z.object({
+export const dropdownSchema = baseSchema.extend({
   message: z.string(),
   options: z.array(z.object({ label: z.string(), value: z.string() })),
   allowCreation: z.boolean().optional(),
@@ -38,23 +40,23 @@ export const dropdownSchema = z.object({
   markdown: z.boolean().optional(),
 })
 
-export const singleChoiceSchema = z.object({
+export const singleChoiceSchema = baseSchema.extend({
   text: z.string(),
   disableFreeText: z.boolean().optional(),
   choices: z.array(z.object({ title: z.string(), value: z.string() })),
 })
 
-export const fileSchema = z.object({
+export const fileSchema = baseSchema.extend({
   file: z.string(),
   title: z.string().optional(),
 })
 
-export const videoSchema = z.object({
+export const videoSchema = baseSchema.extend({
   video: z.string(),
   title: z.string().optional(),
 })
 
-export const audioSchema = z.object({
+export const audioSchema = baseSchema.extend({
   audio: z.string(),
   title: z.string().optional(),
 })
