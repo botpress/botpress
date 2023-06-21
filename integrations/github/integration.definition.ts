@@ -1,86 +1,20 @@
-import { IntegrationDefinition, messages } from '@botpress/sdk'
+import { IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { z } from 'zod'
 
-const { text } = messages.defaults
+import { INTEGRATION_NAME } from './src/const'
+import { actions, events, configuration, channels, user, states } from './src/definitions'
 
 export default new IntegrationDefinition({
-  name: 'github',
+  name: INTEGRATION_NAME,
   title: 'GitHub',
-  description: 'This integration allows your bot to interact with GitHub.',
-  icon: 'icon.svg',
-  readme: 'readme.md',
   version: '0.2.0',
-  configuration: {
-    schema: z.object({
-      owner: z.string(),
-      repo: z.string(),
-      token: z.string(),
-    }),
-  },
-  actions: {},
-  events: {},
-  channels: {
-    pullRequest: {
-      message: {
-        tags: {
-          id: {},
-        },
-      },
-      conversation: {
-        tags: {
-          number: {},
-        },
-      },
-      messages: {
-        text,
-      },
-    },
-    discussion: {
-      message: {
-        tags: {
-          id: {},
-        },
-      },
-      conversation: {
-        tags: {
-          number: {},
-        },
-      },
-      messages: {
-        text,
-      },
-    },
-    issue: {
-      message: {
-        tags: {
-          id: {},
-        },
-      },
-      conversation: {
-        tags: {
-          number: {},
-        },
-      },
-      messages: {
-        text,
-      },
-    },
-  },
-  user: {
-    tags: {
-      id: {},
-    },
-  },
-  states: {
-    configuration: {
-      type: 'integration',
-      schema: z.object({
-        webhookSecret: z.string().optional(),
-        webhookId: z.number().optional(),
-        botUserId: z.number().optional(),
-      }),
-    },
-  },
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  icon: 'icon.svg',
+  description: 'Github integration for Botpress',
+  configuration,
+  actions,
+  events,
+  channels,
+  user,
+  states,
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
 })
