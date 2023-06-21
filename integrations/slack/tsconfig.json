@@ -4,7 +4,11 @@
     "target": "es2017",
     "baseUrl": ".",
     "outDir": "dist",
-    "checkJs": false
+    "checkJs": false,
+    "incremental": true,
+    "exactOptionalPropertyTypes": false,
+    "resolveJsonModule": true,
+    "noPropertyAccessFromIndexSignature": false
   },
-  "include": [".botpress/**/*", "src/**/*"]
+  "include": [".botpress/**/*", "src/**/*", "./*.ts", "./*.json"]
 }

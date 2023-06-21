@@ -1,48 +1,21 @@
-import { IntegrationDefinition, messages } from '@botpress/sdk'
+import { IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { z } from 'zod'
+
+import { INTEGRATION_NAME } from './src/const'
+import { actions, events, configuration, channels, states, user } from './src/definitions'
 
 export default new IntegrationDefinition({
-  name: 'slack',
-  version: '0.2.0',
+  name: INTEGRATION_NAME,
   title: 'Slack',
   description: 'This integration allows your bot to interact with Slack.',
+  version: '0.2.0',
   icon: 'icon.svg',
   readme: 'readme.md',
-  configuration: {
-    schema: z.object({
-      botToken: z.string(),
-      signingSecret: z.string(),
-    }),
-  },
-  channels: {
-    channel: {
-      messages: messages.defaults,
-      message: { tags: { ts: {} } },
-      conversation: {
-        tags: { id: {} },
-        creation: { enabled: true, requiredTags: ['id'] },
-      },
-    },
-  },
-  actions: {
-    addReaction: {
-      input: {
-        schema: z.object({
-          name: z.string(),
-          channel: z.string(),
-          timestamp: z.string(),
-        }),
-      },
-      output: {
-        schema: z.object({}),
-      },
-    },
-  },
-  events: {},
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
-  user: {
-    tags: { id: {} },
-    creation: { enabled: true, requiredTags: ['id'] },
-  },
+  configuration,
+  states,
+  channels,
+  actions,
+  events,
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  user,
 })
