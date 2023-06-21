@@ -33,7 +33,7 @@ const commands = tree.zipTree(commandDefinitions, commandImplementations)
 registerYargs(yargs, commands, { cliRootDir: CLI_ROOT_DIR })
 
 void yargs
-  .version(false)
+  .version()
   .scriptName('bp')
   .demandCommand(1, "You didn't provide any command. Use the --help flag to see the list of available commands.")
   .recommendCommands()

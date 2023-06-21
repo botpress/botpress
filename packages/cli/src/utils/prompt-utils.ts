@@ -10,6 +10,12 @@ export type CLIPromptsChoice<V extends string> = {
   value: V
 }
 
+export class NonInteractiveError extends Error {
+  constructor(message: string) {
+    super(`${message}:\n  Cannot prompt for input in non-interactive mode`)
+  }
+}
+
 export class CLIPrompt {
   constructor(private _props: CLIPromptsProps, private _logger: Logger) {}
 
@@ -33,6 +39,10 @@ export class CLIPrompt {
   }
 
   public async password(message: string, opts?: { initial?: string }): Promise<string | undefined> {
+    if (this._props.confirm) {
+      throw new NonInteractiveError(message)
+    }
+
     const { prompted } = await this._prompts({
       type: 'password',
       name: 'prompted',
@@ -47,6 +57,10 @@ export class CLIPrompt {
     message: string,
     opts?: { initial?: CLIPromptsChoice<V>; choices: CLIPromptsChoice<V>[] }
   ): Promise<V | undefined> {
+    if (this._props.confirm) {
+      throw new NonInteractiveError(message)
+    }
+
     const { prompted } = await this._prompts({
       type: 'autocomplete',
       name: 'prompted',
@@ -58,6 +72,10 @@ export class CLIPrompt {
   }
 
   public async text(message: string, opts?: { initial?: string }): Promise<string | undefined> {
+    if (this._props.confirm) {
+      throw new NonInteractiveError(message)
+    }
+
     const { prompted } = await this._prompts({
       type: 'text',
       name: 'prompted',
