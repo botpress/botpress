@@ -14,7 +14,7 @@ import * as utils from '../utils'
 import { BaseCommand } from './base-command'
 
 export type GlobalCommandDefinition = CommandDefinition<typeof config.schemas.global>
-export type GlobalCache = { host: string; token: string; workspaceId: string }
+export type GlobalCache = { apiUrl: string; token: string; workspaceId: string }
 
 export type ConfigurableGlobalPaths = { botpressHomeDir: string; cliRootDir: utils.path.AbsolutePath }
 export type ConstantGlobalPaths = typeof consts.fromHomeDir & typeof consts.fromCliRootDir
@@ -86,13 +86,13 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     const cache = this.globalCache
     const token = await cache.get('token')
     const workspaceId = credentials.workspaceId ?? (await cache.get('workspaceId'))
-    const host = credentials.host ?? (await cache.get('host'))
+    const apiUrl = credentials.apiUrl ?? (await cache.get('apiUrl'))
 
-    if (!(token && workspaceId && host)) {
+    if (!(token && workspaceId && apiUrl)) {
       throw new errors.NotLoggedInError()
     }
 
-    return this.api.newClient({ host, token, workspaceId }, this.logger)
+    return this.api.newClient({ apiUrl, token, workspaceId }, this.logger)
   }
 
   private _notifyUpdate = async (pkgJson: PackageJson): Promise<void> => {

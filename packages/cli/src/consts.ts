@@ -7,8 +7,8 @@ export const defaultBotpressHome = pathlib.join(os.homedir(), '.botpress')
 
 export const defaultOutputFolder = '.botpress'
 export const defaultEntrypoint = pathlib.join('src', 'index.ts')
-export const defaultBotpressApi = 'https://api.botpress.cloud'
-export const defaultBotpressApp = 'https://app.botpress.cloud'
+export const defaultBotpressApiUrl = 'https://api.botpress.cloud'
+export const defaultBotpressAppUrl = 'https://app.botpress.cloud'
 
 // not configurable
 

@@ -18,8 +18,8 @@ export type DeployCommandDefinition = typeof commandDefinitions.deploy
 export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   public async run(): Promise<void> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
-    if (api.host !== consts.defaultBotpressApi) {
-      this.logger.log(`Using custom host ${api.host}`)
+    if (api.url !== consts.defaultBotpressApiUrl) {
+      this.logger.log(`Using custom url ${api.url}`)
     }
 
     if (!this.argv.noBuild) {

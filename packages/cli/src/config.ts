@@ -20,7 +20,7 @@ const noBuild = {
   default: false,
 } satisfies CommandOption
 
-const host = {
+const apiUrl = {
   type: 'string',
   description: 'The URL of the Botpress server',
 } satisfies CommandOption
@@ -95,7 +95,7 @@ const projectSchema = {
 } satisfies CommandSchema
 
 const credentialsSchema = {
-  host,
+  apiUrl,
   workspaceId,
   token,
 } satisfies CommandSchema
@@ -159,7 +159,7 @@ const loginSchema = {
   ...globalSchema,
   token,
   workspaceId,
-  host: { ...host, default: consts.defaultBotpressApi },
+  apiUrl: { ...apiUrl, default: consts.defaultBotpressApiUrl },
 } satisfies CommandSchema
 
 const logoutSchema = {

@@ -18,7 +18,7 @@ export class LoginCommand extends GlobalCommand<LoginCommandDefinition> {
     })
 
     const promptedWorkspaceId = await this.globalCache.sync('workspaceId', this.argv.workspaceId, async (defaultId) => {
-      const tmpApi = this.api.newClient({ host: this.argv.host, token: promptedToken }, this.logger) // no workspaceId yet
+      const tmpApi = this.api.newClient({ apiUrl: this.argv.apiUrl, token: promptedToken }, this.logger) // no workspaceId yet
       const userWorkspaces = await tmpApi
         .listAllPages(tmpApi.client.listWorkspaces, (r) => r.workspaces)
         .catch((thrown) => {
@@ -43,10 +43,10 @@ export class LoginCommand extends GlobalCommand<LoginCommandDefinition> {
       return prompted
     })
 
-    await this.globalCache.set('host', this.argv.host)
+    await this.globalCache.set('apiUrl', this.argv.apiUrl)
 
     const api = this.api.newClient(
-      { host: this.argv.host, token: promptedToken, workspaceId: promptedWorkspaceId },
+      { apiUrl: this.argv.apiUrl, token: promptedToken, workspaceId: promptedWorkspaceId },
       this.logger
     )
 

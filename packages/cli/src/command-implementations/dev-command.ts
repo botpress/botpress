@@ -21,7 +21,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     this._initialDef = await this.readIntegrationDefinitionFromFS()
 
     let env: Record<string, string> = {
-      BP_API_URL: api.host,
+      BP_API_URL: api.url,
       BP_TOKEN: api.token,
     }
 

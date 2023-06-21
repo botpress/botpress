@@ -114,7 +114,7 @@ export class NoBundleFoundError extends BotpressCLIError {
 
 export class NoBotsFoundError extends BotpressCLIError {
   constructor() {
-    const message = `No Bot found in your Workspace. Please create one first at ${consts.defaultBotpressApp}.`
+    const message = `No Bot found in your Workspace. Please create one first at ${consts.defaultBotpressAppUrl}.`
     super(message)
   }
 }

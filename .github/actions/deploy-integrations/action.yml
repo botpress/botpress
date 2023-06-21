@@ -50,13 +50,15 @@ runs:
         SENTRY_ENVIRONMENT: ${{ inputs.environment }}
       shell: bash
       run: |
-        pnpm bp login -y --host https://api.botpress.dev --workspaceId "$CLOUD_OPS_WORKSPACE_ID" --token "$TOKEN_CLOUD_OPS_ACCOUNT"
+        api_url=${{ inputs.environment == "staging" && "https://api.botpress.dev" || "https://api.botpress.cloud" }}
+
+        pnpm bp login -y --api-url $api_url --workspaceId "$CLOUD_OPS_WORKSPACE_ID" --token "$TOKEN_CLOUD_OPS_ACCOUNT"
         cd ../../
 
         # deploy all integrations except gmail
         pnpm -r --stream -F !gmail -F @botpresshub/* -c exec \
-          -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --host https://api.botpress.dev --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+          -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --api-url $api_url --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
 
         # deploy gmail
         pnpm -r --stream -F gmail -c exec \
-          -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --host https://api.botpress.dev --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"' --secrets CLIENT_ID="${{ inputs.gmail_client_id }}" --secrets CLIENT_SECRET="${{ inputs.gmail_client_secret }}" --secrets TOPIC_NAME="${{ inputs.gmail_topic_name }}"
+          -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --api-url $api_url --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"' --secrets CLIENT_ID="${{ inputs.gmail_client_id }}" --secrets CLIENT_SECRET="${{ inputs.gmail_client_secret }}" --secrets TOPIC_NAME="${{ inputs.gmail_topic_name }}"

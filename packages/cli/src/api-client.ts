@@ -6,7 +6,7 @@ import type { Logger } from './logger'
 export type PageLister<R extends object> = (t: { nextToken?: string }) => Promise<R & { meta: { nextToken?: string } }>
 
 export type ApiClientProps = {
-  host: string
+  apiUrl: string
   token: string
   workspaceId?: string
 }
@@ -20,16 +20,16 @@ export type ApiClientFactory = {
  */
 export class ApiClient {
   public readonly client: Client
-  public readonly host: string
+  public readonly url: string
   public readonly token: string
   public readonly workspaceId?: string
 
   public static newClient = (props: ApiClientProps, logger: Logger) => new ApiClient(props, logger)
 
   public constructor(props: ApiClientProps, private _logger: Logger) {
-    const { host, token, workspaceId } = props
-    this.client = new Client({ host, token, workspaceId })
-    this.host = host
+    const { apiUrl, token, workspaceId } = props
+    this.client = new Client({ host: apiUrl, token, workspaceId })
+    this.url = apiUrl
     this.token = token
     this.workspaceId = workspaceId
   }

@@ -9,7 +9,7 @@ const workspaceIdEnvName = 'BP_WORKSPACE_ID'
 const tokenEnvName = 'BP_TOKEN'
 
 export type ClientProps = {
-  host?: string
+  host?: string // TODO: rename to url
   integrationId?: string
   workspaceId?: string
   botId?: string
@@ -18,7 +18,7 @@ export type ClientProps = {
 }
 
 export type ClientConfig = {
-  host: string
+  host: string // TODO: rename to url
   headers: Record<string, string>
   withCredentials: boolean
   timeout?: number
