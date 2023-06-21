@@ -50,7 +50,7 @@ runs:
         SENTRY_ENVIRONMENT: ${{ inputs.environment }}
       shell: bash
       run: |
-        api_url=${{ inputs.environment == "staging" && "https://api.botpress.dev" || "https://api.botpress.cloud" }}
+        api_url=${{ inputs.environment == 'staging' && 'https://api.botpress.dev' || 'https://api.botpress.cloud' }}
 
         pnpm bp login -y --api-url $api_url --workspaceId "$CLOUD_OPS_WORKSPACE_ID" --token "$TOKEN_CLOUD_OPS_ACCOUNT"
         cd ../../
