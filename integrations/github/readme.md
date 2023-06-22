@@ -1,5 +1,1 @@
-# Github
-
-## Description
-
-This integration allows your bot to interact with Github.
+Streamline your development workflow by seamlessly integrating GitHub with Botpress, the open-source conversational AI platform. This integration enables you to effortlessly manage and automate your GitHub repositories, issues, and pull requests directly from Botpress, empowering you to collaborate effectively, track progress, and ensure smooth development cycles. Take advantage of powerful features like real-time notifications, issue management, pull request merging, and more, all within the familiar Botpress environment. Boost productivity, streamline collaboration, and unleash the full potential of your conversational AI projects with the GitHub Integration for Botpress.

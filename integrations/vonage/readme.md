@@ -1,5 +1,1 @@
-# Vonage
-
-## Description
-
-This integration allows your bot to interact with Vonage.
+The Vonage integration enables seamless communication between your AI-powered chatbot and Vonage, a leading cloud communications platform. Connect your chatbot to Vonage and leverage a variety of communication channels, including SMS, voice calls, and messaging apps. With this integration, you can automate interactions, send notifications, handle inquiries, and provide customer support directly through Vonage. Utilize Vonage's robust features such as SMS delivery, voice call routing, messaging app integration, and more to create reliable and effective conversational experiences. Enhance your communication capabilities and engage with users effortlessly with the Vonage Integration for Botpress.

@@ -1,5 +1,1 @@
-# Telegram
-
-## Description
-
-This integration allows your bot to interact with Telegram.
+The Telegram integration allows your AI-powered chatbot to seamlessly interact with Telegram, a popular messaging platform with a large user base. Connect your chatbot to Telegram and engage with your audience in real-time conversations. With this integration, you can automate customer support, provide personalized recommendations, send notifications, and handle inquiries directly within Telegram. Leverage Telegram's rich features, including text messages, inline buttons, media files, and more, to create dynamic and interactive chatbot experiences. Empower your chatbot to deliver exceptional user experiences on Telegram with the Telegram Integration for Botpress.

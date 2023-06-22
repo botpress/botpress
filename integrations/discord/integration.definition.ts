@@ -5,6 +5,7 @@ import { z } from 'zod'
 export default new IntegrationDefinition({
   name: 'discord',
   version: '0.2.0',
+  readme: 'readme.md',
   configuration: {
     schema: z.object({
       apikey: z.string(),

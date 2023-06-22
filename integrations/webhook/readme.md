@@ -1,5 +1,1 @@
-# Webhook
-
-## Description
-
-This integration allows your bot to interact with Webhook.
+The Webhook integration allows your AI-powered chatbot to seamlessly connect with external systems and services using HTTP-based webhooks. With this integration, you can send and receive data from any system that supports webhooks, enabling your chatbot to interact with external APIs, databases, CRMs, and more. Customize your chatbot's behavior by triggering actions, retrieving information, and updating data through webhook interactions. Leverage the power of webhooks to integrate your chatbot with your existing infrastructure and external services, expanding its capabilities and enabling seamless integration with your preferred systems. Connect your chatbot to the world with the Webhook Integration for Botpress.

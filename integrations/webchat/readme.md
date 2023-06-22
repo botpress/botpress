@@ -1,12 +1,1 @@
-# Webchat
-
-## Description
-
-How to test:
-
-1. Open developer tools & go to network tab
-2. Open app.botpress.cloud
-3. Inspect the call https://controller.botpress.dev/v2/bots/xxxxx
-4. On preview tab, drill down on "integrations", then copy params under configuration in your bot's integration config
-5. Disable the official webchat integration
-6. Put those parameters to configure your webchat integration, then save
+The Webchat built by Botpress empowers you to create engaging and personalized chat experiences on your website or application. With this platform, you can leverage the power of Botpress, an AI-powered chatbot framework, to build and deploy chatbots that seamlessly integrate with your website or application. Customize the look and feel of the chat interface to match your brand, tailor the conversation flow to meet your specific requirements, and utilize advanced features such as natural language understanding, intent recognition, and dialog management. With the Webchat, you have full control over the chatbot's behavior and can provide exceptional conversational experiences to your users. Elevate your customer engagement and drive meaningful interactions with the Webchat for Botpress.

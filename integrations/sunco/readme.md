@@ -1,5 +1,1 @@
-# Sunco
-
-## Description
-
-This integration allows your bot to interact with Sunco.
+The Sunshine Conversations integration enables your AI-powered chatbot to seamlessly connect with Sunshine Conversations, a powerful omnichannel messaging platform. Integrate your chatbot with Sunshine Conversations to engage with your customers across various messaging channels, including WhatsApp, Facebook Messenger, SMS, and more. With this integration, you can automate customer interactions, provide personalized support, and deliver rich messaging experiences. Leverage Sunshine Conversations' features such as chat routing, message templates, conversation history, and analytics to optimize your customer engagement strategy. Take your chatbot's reach and capabilities to new heights with the Sunshine Conversations Integration for Botpress.

@@ -1,5 +1,1 @@
-# Line
-
-## Description
-
-This integration allows your bot to interact with Line.
+The Line integration enables your chatbot to seamlessly interact with Line, one of the leading messaging platforms. Connect your AI-powered chatbot to Line and unlock powerful communication capabilities to engage with your audience. With this integration, you can automate customer interactions, provide instant support, deliver personalized messages, and handle inquiries seamlessly within the Line messaging environment. Leverage Line's rich features such as text, images, stickers, and location sharing to create dynamic and engaging conversations. Elevate your chatbot's reach and impact by integrating it with Line using the Line Integration for Botpress.

@@ -1,5 +1,1 @@
-# Linear
-
-## Description
-
-This integration allows your bot to interact with Linear.
+The Linear integration brings powerful project management capabilities to your AI-powered chatbot. Seamlessly connect Botpress with Linear, a modern issue tracking and workflow management tool. With this integration, you can automate task creation, track progress, and collaborate on projects directly within your chatbot. Empower your chatbot to create, update, and retrieve Linear issues, assign tasks to team members, track due dates, and more. Streamline your project management processes and enhance team productivity with the Linear Integration for Botpress.

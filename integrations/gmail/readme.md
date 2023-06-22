@@ -1,5 +1,1 @@
-# Gmail
-
-## Description
-
-This integration allows your bot to interact with Gmail.
+Simplify your email communication and supercharge your chatbot with seamless integration between Botpress and Gmail. Experience the power of combining your AI-powered chatbot with the versatility of Gmail, empowering you to streamline workflows, automate tasks, and deliver exceptional customer experiences. Unlock a world of possibilities as your chatbot seamlessly interacts with your Gmail inbox, managing emails, composing messages, and executing actions with ease. Leverage Gmail's robust features, such as advanced search, labeling, and filtering, to efficiently organize and respond to emails. Elevate your chatbot's capabilities and revolutionize your email-based interactions with the Botpress and Gmail Integration.
