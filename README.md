@@ -1,6 +1,6 @@
 # [Botpress](https://botpress.com/?utm_source=github&utm_medium=organic&utm_campaign=botpress_repo&utm_term=readme) — The building blocks for building chatbots
 
-**IMPORTANT**: With the launch of Botpress Cloud, the documentation for Botpress v12 can now be found [here](https://v12.botpress.com/). 
+**IMPORTANT**: With the launch of Botpress Cloud, the documentation for Botpress v12 can now be found [here](https://v12.botpress.com/).
 
 ## What is Botpress?
 
@@ -32,7 +32,7 @@ There are a few ways to get started with Botpress v12:
       <a href="https://marketplace.digitalocean.com/apps/botpress" class="btn btn-default btn-lg">
               <img src=".github/do_button.svg">
       </a>  &nbsp;
-      <a href="https://labs.play-with-docker.com?stack=https://raw.githubusercontent.com/botpress/botpress/master/examples/docker-compose/docker-compose.yml" class="btn btn-default btn-lg">
+      <a href="https://labs.play-with-docker.com?stack=https://raw.githubusercontent.com/botpress/v12/master/examples/docker-compose/docker-compose.yml" class="btn btn-default btn-lg">
         <img src="https://cdn.jsdelivr.net/gh/play-with-docker/stacks@cff22438/assets/images/button.png">
       </a> &nbsp;
   </center>
@@ -41,13 +41,13 @@ There are a few ways to get started with Botpress v12:
 
 - [Main Documentation](https://v12.botpress.com/)
 - [SDK Reference](https://botpress.com/reference/)
-- [Code Examples](https://github.com/botpress/botpress/tree/master/examples)
+- [Code Examples](https://github.com/botpress/v12/tree/master/examples)
 - [Video Tutorials](https://www.youtube.com/c/botpress)
 
 ## Community
 
-- [v12 Forum](https://github.com/botpress/botpress/discussions) - Get community support and find answers to your questions
-- [Issues](https://github.com/botpress/botpress/issues) - Report bugs and file feature requests
+- [Discord](https://discord.gg/botpress) - Get community support and find answers to your questions
+- [Issues](https://github.com/botpress/v12/issues) - Report bugs and file feature requests
 - [Blog](https://botpress.com/blog) - How to's, case studies, and announcements
 - [Contributing](/.github/CONTRIBUTING.md) - Start contributing to Botpress
 - [Partners](/.github/PARTNERS.md) - List of agencies who can help you with Botpress

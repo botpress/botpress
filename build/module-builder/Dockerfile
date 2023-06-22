@@ -5,7 +5,7 @@ WORKDIR /botpress
 # this builder stage scope also includes additional files required for a full build, 
 # e.g.: docs, app.json, .eslintrc.js and .tool-versions
 COPY . .
-# alternatively RUN git clone https://github.com/botpress/botpress.git .
+# alternatively RUN git clone https://github.com/botpress/v12.git .
 
 # fully build once
 RUN yarn --frozen-lockfile && yarn build

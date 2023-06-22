@@ -3,7 +3,7 @@ id: language-understanding
 title: Language Understanding
 ---
 
---------------------
+---
 
 Natural Language Understanding (NLU) is a branch of artificial intelligence where computer understands and processes the content gathered from a user. In fact, it transforms a natural dialog into structured information that your chatbot can understand and use to return the best answer possible.
 
@@ -14,6 +14,7 @@ If you want your bot to understand a question and provide an answer automaticall
 :::
 
 **Advantages:**
+
 - fast speed (both at training and evaluation time);
 - tight security (doesn't relay messages to external services);
 - predictable (unit tests, and the model resides on your computer or server);
@@ -35,7 +36,7 @@ Slot tagging is needed to identify the necessary parameters to fulfill a given t
 
 ## Language Server
 
-The language server provides additional information about words. You don't have to teach your chatbot to understand synonyms. 
+The language server provides additional information about words. You don't have to teach your chatbot to understand synonyms.
 
 By default, your Botpress server queries one of our language servers, but you can host your server to keep it your premises.
 
@@ -44,5 +45,5 @@ By default, your Botpress server queries one of our language servers, but you ca
 If you want to use an external provider for some reason, you can do so by using hooks and calling the external NLU provider via API.
 
 :::note
-We don't support two-way synchronization [(see why)](https://github.com/botpress/botpress/pull/1170). You'll have to maintain this yourself.
+We don't support two-way synchronization [(see why)](https://github.com/botpress/v12/pull/1170). You'll have to maintain this yourself.
 :::

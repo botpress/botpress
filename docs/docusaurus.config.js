@@ -26,7 +26,7 @@ const config = {
               label: "Latest",
             },
           },
-          editUrl: 'https://github.com/botpress/botpress/edit/master/docs',
+          editUrl: 'https://github.com/botpress/v12/edit/master/docs',
         },
         blog: {
           showReadingTime: true,
@@ -201,7 +201,7 @@ const config = {
             items: [
               {
                 label: "GitHub",
-                href: "https://github.com/botpress/botpress",
+                href: "https://github.com/botpress/v12",
               },
               {
                 label: "Solutions",

@@ -45,7 +45,7 @@ The landing page shows all your **Bots**. If you just created the account, there
         - **Small Talk**: a chatbotbot that is essentially made of Q&As.
         - **Empty Bot**: a brand-new chatbot that you start from scratch.
         - **Learn Botpress Basics**: a complete chatbot that you can create while following [these instructions](https://botpress.com/mars-rover-tutorials) or analyze the content.
-        - **Weather Bot**: a chatbot that gives you the current weather in a given city. Follow [these instructions](https://github.com/botpress/botpress/tree/master/modules/examples#weatherbot) to make it work.
+        - **Weather Bot**: a chatbot that gives you the current weather in a given city. Follow [these instructions](https://github.com/botpress/v12/tree/master/modules/examples#weatherbot) to make it work.
     1. Click **Create Bot**.
 1. Now that your bot is created, you will be redirected to the **Bots** page.
 1. Click the name of your bot, and be creative!

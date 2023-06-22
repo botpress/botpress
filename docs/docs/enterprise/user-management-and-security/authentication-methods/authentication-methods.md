@@ -3,15 +3,16 @@ id: authentication-methods
 title: Authentication Methods
 ---
 
---------------------
+---
 
 There are three different types of authentication:
 
 1. **Collaborators**: Access the Admin Studio UI to manage and edit chatbots based on their roles.
-2. **Chat Users**:    Can speak to chatbots listed in the Admin UI.
+2. **Chat Users**: Can speak to chatbots listed in the Admin UI.
 3. **External Users**: The developer handles user authentication by providing a JWT token to identify the user.
 
 ## Authentication Overview
+
 Four authentication strategies are available, namely, Basic, SAML, OAuth2, and LDAP. You can implement these multiple times (for example, you could have two different OAuth2 configurations for different workspaces).
 ![Authentication Methods](/assets/auth-methods.png)
 Regardless of which authentication strategy you use, they are all stored in the database. When you add a new strategy in the `botpress.config.json` and restart your application, Botpress will create a new table called `strategy_STRATEGYID`.
@@ -22,7 +23,7 @@ Chatbots with more than one authentication strategy will exhibit a menu from whi
 
 Moreover, you can access a specific workspace by using `/admin/login?workspaceId=WORKSPACEID`
 
-You can find the definition for the various authentication strategies [here](https://github.com/botpress/botpress/blob/master/packages/bp/src/core/config/botpress.config.ts#L326).
+You can find the definition for the various authentication strategies [here](https://github.com/botpress/v12/blob/master/packages/bp/src/core/config/botpress.config.ts#L326).
 
 ## User Authentication
 
@@ -48,7 +49,7 @@ Here's a summary of the process:
 4. Edit the code of the embedded web chat to send the generated JWT token
 5. Enjoy!
 
-Here is an example configuration, [check the complete configuration for more details](https://github.com/botpress/botpress/blob/master/packages/bp/src/core/config/botpress.config.ts)
+Here is an example configuration, [check the complete configuration for more details](https://github.com/botpress/v12/blob/master/packages/bp/src/core/config/botpress.config.ts)
 
 ```js
 "externalAuth": {
@@ -85,9 +86,9 @@ Simply add the external token as an option to the `init` method:
 
 ```js
 window.botpressWebChat.init({
-  host: 'http://localhost:3000',
+  host: "http://localhost:3000",
   botId: botId,
-  externalAuthToken: 'my.jwt.token'
+  externalAuthToken: "my.jwt.token"
 })
 ```
 
@@ -96,7 +97,7 @@ window.botpressWebChat.init({
 Use the `configure` method to change the option:
 
 ```js
-window.botpressWebChat.configure({ externalAuthToken: 'my.jwt.token' })
+window.botpressWebChat.configure({ externalAuthToken: "my.jwt.token" })
 ```
 
 ### How to use the authenticated payload

@@ -130,7 +130,7 @@ const AddLibrary = props => {
         <div>
           <h5>{lang.tr('module.libraries.searchGithub')}</h5>
           <ControlGroup>
-            <InputGroup placeholder="botpress/botpress#master" onChange={e => setRepoName(e.currentTarget.value)} />
+            <InputGroup placeholder="botpress/v12#master" onChange={e => setRepoName(e.currentTarget.value)} />
             <Button
               onClick={addLib}
               disabled={processing}

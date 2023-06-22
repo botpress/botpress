@@ -3,17 +3,17 @@ id: deploy
 title: Deploy
 ---
 
---------------------
+---
 
-Botpress has added flexibility for developers who want access to the core codebase. You can clone Botpress from the source repository on Github, allowing you to test code, modules, and components more dynamically. 
+Botpress has added flexibility for developers who want access to the core codebase. You can clone Botpress from the source repository on Github, allowing you to test code, modules, and components more dynamically.
 
 ## Compiling From Source
 
-You can build Botpress from the [source repository](https://github.com/botpress/botpress) in a few simple steps. Doing this is useful when you need to create custom modules and components.
+You can build Botpress from the [source repository](https://github.com/botpress/v12) in a few simple steps. Doing this is useful when you need to create custom modules and components.
 
 ### Prerequisites
 
-Install node version 12.18.1 for [your operating system](https://nodejs.org/download/release/v12.18.1/). 
+Install node version 12.18.1 for [your operating system](https://nodejs.org/download/release/v12.18.1/).
 
 :::tip
 On Windows, download and use the `.msi` installer.
@@ -22,23 +22,25 @@ On Windows, download and use the `.msi` installer.
 Install [Yarn package manager](https://yarnpkg.com/).
 
 ### Installation
+
 While in the directory where you want to host your instance of Botpress, run the following commands in this sequence:
 
-1. `git clone git@github.com:botpress/botpress.git && cd botpress`
+1. `git clone git@github.com:botpress/v12.git && cd botpress`
 2. `yarn cache clean` (proceed to the next step if this command fails)
 3. `yarn`
 4. `yarn build`
 5. `yarn start`
 
 If you bumped into some errors during the execution of the `yarn build` command, you can try resetting your local repository:
-1. Go to the [Releases](https://github.com/botpress/botpress/releases) page.
+
+1. Go to the [Releases](https://github.com/botpress/v12/releases) page.
 1. Click the commit associated with the latest release to open the commit page.
 1. Copy the full commit hash.
 1. Run this command with the copied commit hash: `git reset <copied hash>`.
-1. Run `yarn build` again. 
+1. Run `yarn build` again.
 
 :::note
-If you are in a hurry and cannot wait for a fix release, [clone the commit](https://coderwall.com/p/xyuoza/git-cloning-specific-commits). Do not modify files one by one. 
+If you are in a hurry and cannot wait for a fix release, [clone the commit](https://coderwall.com/p/xyuoza/git-cloning-specific-commits). Do not modify files one by one.
 :::
 
 ## Ubuntu Systems
@@ -59,7 +61,7 @@ Error: Could not require NativeExtension "crfsuite.node" for OS "linux debian_10
 	...
 error Command failed with exit code 1.
 info Visit https://yarnpkg.com/en/docs/cli/run for documentation about this command.
-``` 
+```
 
 To avoid this error, you can build native extensions for Ubuntu using the docker file below:
 
@@ -90,13 +92,13 @@ RUN git submodule update --init && npm install && npm run-script build
 CMD ["bash"]
 ```
 
-Replicate this docker file using your distribution (such as Raspbian) and use it. After that, find the file with extension `*.node` for all libraries. 
+Replicate this docker file using your distribution (such as Raspbian) and use it. After that, find the file with extension `*.node` for all libraries.
 
 To acess this file (with extension `*.node`), start a docker container with the image you just built. Enter this container using the command:
 
 `docker run -it --rm --name <YOUR_IMG_NAME> bp-bindings`
 
-Inside each of `/build/node-fasttext/*`,` /build/node-crfsuite/*`,` /build/node-svm/*` and `/build/node-sentencepiece/*` there should be a `build/` or `release/` directory where you’ll find a file with extension `*.node`.
+Inside each of `/build/node-fasttext/*`,`/build/node-crfsuite/*`,`/build/node-svm/*` and `/build/node-sentencepiece/*` there should be a `build/` or `release/` directory where you’ll find a file with extension `*.node`.
 
 If you’re running Botpress from sources, the correct location would either be: `build/native-extensions/linux/default or create` the directory `build/native-extensions/linux/<your-distribution>`. You can look at the file `rewire.ts` if you want to see how the important processes occur.
 
@@ -112,7 +114,7 @@ Botpress uses `JSON` files for most configurations. Environment variables can al
 
 The Botpress global config file is the main file used to configure the Botpress server. Your instance of Botpress creates this file automatically if it is missing. Default values should work well when using Botpress, but we will show you other configurations you may need to change on this page.
 
-To get more information about each option, check out the [comments on the configuration schema](https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts)
+To get more information about each option, check out the [comments on the configuration schema](https://github.com/botpress/v12/blob/master/src/bp/core/config/botpress.config.ts)
 
 ## HTTP Server Configuration
 
@@ -120,11 +122,12 @@ By default, Botpress starts an HTTP server on localhost, listening to port 3000.
 
 ### Going to Production
 
-When going to production and publishing your chatbot, you will need to change some of the server settings. 
+When going to production and publishing your chatbot, you will need to change some of the server settings.
 
-The server doesn't support HTTPS connections, so you will need to set up a reverse proxy in front of it (for example: NGINX). In the main [repo](https://github.com/botpress/botpress), Botpress have created an example with a HTTPS with [docker-compose](https://github.com/botpress/botpress/blob/master/examples/docker-compose/docker-compose-community-nginx-https.yaml). 
+The server doesn't support HTTPS connections, so you will need to set up a reverse proxy in front of it (for example: NGINX). In the main [repo](https://github.com/botpress/v12), Botpress have created an example with a HTTPS with [docker-compose](https://github.com/botpress/v12/blob/master/examples/docker-compose/docker-compose-community-nginx-https.yaml).
 
 :::note Example
+
 ```
 $ docker-compose -f docker-compose-community-nginx-https.yaml up -d
 ```
@@ -138,7 +141,7 @@ At this point, Botpress doesn't know how to access the bot from the web. You nee
 
 ### Changing the Base URL of Your Bot
 
-By default, Botpress is accessible at your domain root (ex: https://bot.botpress.com/). You can change that to serve it from a different URL, for example `https://bot.botpress.com/botpress/somepath/`. To do so, set the External URL either in environment variable (`EXTERNAL_URL`) or via the `botpress.config.json` file. 
+By default, Botpress is accessible at your domain root (ex: https://bot.botpress.com/). You can change that to serve it from a different URL, for example `https://bot.botpress.com/botpress/somepath/`. To do so, set the External URL either in environment variable (`EXTERNAL_URL`) or via the `botpress.config.json` file.
 
 The new root path will be automatically extracted from that URL.
 
@@ -263,11 +266,11 @@ Alternatively, you can manually create a `config` folder (such as `data/bots/BOT
 
 These variables can be used to disable some sensitive features destined to Super Admins.
 
-| Environment Variable            | Description                                                                                                                                        | Default |
-| ------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `BP_CODE_EDITOR_DISABLE_ADVANCED` | The advanced editor lacks some safeguard and is only intended for experienced users. It can be disabled completely using this environment variable. | `false`   |
-| `BP_CODE_EDITOR_DISABLE_UPLOAD`   | Prevent users from uploading files when using the advanced editor.                                                                                  | `false`   |
-| `BP_DISABLE_SERVER_CONFIG`        | Prevent Super Admins from accessing the "Production Checklist" page on the Admin panel, since it may contain sensitive information.                | `false`   |
+| Environment Variable              | Description                                                                                                                                         | Default |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
+| `BP_CODE_EDITOR_DISABLE_ADVANCED` | The advanced editor lacks some safeguard and is only intended for experienced users. It can be disabled completely using this environment variable. | `false` |
+| `BP_CODE_EDITOR_DISABLE_UPLOAD`   | Prevent users from uploading files when using the advanced editor.                                                                                  | `false` |
+| `BP_DISABLE_SERVER_CONFIG`        | Prevent Super Admins from accessing the "Production Checklist" page on the Admin panel, since it may contain sensitive information.                 | `false` |
 
 ## More Information
 

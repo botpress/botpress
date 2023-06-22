@@ -3,7 +3,7 @@ import { lang } from 'botpress/shared'
 import React, { useState } from 'react'
 import style from './style.scss'
 
-const FORUM_LINK = 'https://github.com/botpress/botpress/discussions'
+const FORUM_LINK = 'https://discord.gg/botpress'
 const DOCS_LINK = 'https://v12.botpress.com/'
 
 export const HelpMenu = props => {

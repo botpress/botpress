@@ -3,11 +3,11 @@ id: inter-bot-communication-delegation
 title: Inter-bot Communication / Delegation
 ---
 
---------------------
+---
 
 A chatbot can "delegate" questions or tasks to other bots. We call this concept "inter-bot" communication.
 
-The code for this example is available in the [examples](https://github.com/botpress/botpress/tree/master/examples/interbot) directory of our GitHub repository (update `workspaces.json` with the three bots if you copied them).
+The code for this example is available in the [examples](https://github.com/botpress/v12/tree/master/examples/interbot) directory of our GitHub repository (update `workspaces.json` with the three bots if you copied them).
 
 ![Example](/assets/tutorials_interbot-example.png)
 
@@ -33,7 +33,7 @@ At this point, you should have three bots. Master doesn't do anything, while sub
 
 Now let's see how you can make the Master bot ask the questions to the slave bots. To do this, we are going to create an action called `delegate_to_bots` inside the `master` bot.
 
-The action you need to create [can be found here](https://github.com/botpress/botpress/tree/master/examples/interbot/bots/master/actions/delegate_to_bots.js). Just copy and paste this file in your `<data>/bots/master/actions` directory.
+The action you need to create [can be found here](https://github.com/botpress/v12/tree/master/examples/interbot/bots/master/actions/delegate_to_bots.js). Just copy and paste this file in your `<data>/bots/master/actions` directory.
 
 Next, you will need to create a flow that make use of that action. For the sake of simplicity of this tutorial, all the `master` bot will be able to do is delegate anything you tell him to the slave bots. Of course you could call the action at any time and even adapt the `delegate_to_bots` action to pass in more contexts etc.
 

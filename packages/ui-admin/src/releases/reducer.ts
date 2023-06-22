@@ -64,7 +64,7 @@ export const fetchLatestVersions = (): AppThunk => {
     }
 
     try {
-      const { data } = await axios.get('https://api.github.com/repos/botpress/botpress/releases')
+      const { data } = await axios.get('https://api.github.com/repos/botpress/v12/releases')
       const releases = _.take(data, 5).map((x: any) => ({
         version: x.name.startsWith('v') ? x.name.slice(1) : x.name,
         details: x.body,

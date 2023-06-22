@@ -21,7 +21,7 @@ After the import script above, you need to locate and use the chatbot by initial
 <script>
   window.botpressWebChat.init({
     host: "<your-url-here>",
-    botId: "<your-bot-id>",
+    botId: "<your-bot-id>"
   })
 </script>
 ```
@@ -77,7 +77,7 @@ You can trigger events by calling the `window.botpressWebChat.sendEvent()` funct
 The following function shows the chat window when you click the `show-bp` element.
 
 ```js
-document.getElementById("show-bp").addEventListener("click", function () {
+document.getElementById("show-bp").addEventListener("click", function() {
   window.botpressWebChat.sendEvent({ type: "show" })
 })
 ```
@@ -87,7 +87,7 @@ document.getElementById("show-bp").addEventListener("click", function () {
 The following function hides the chat window when you click the `hide-bp` element.
 
 ```js
-document.getElementById("hide-bp").addEventListener("click", function () {
+document.getElementById("hide-bp").addEventListener("click", function() {
   window.botpressWebChat.sendEvent({ type: "hide" })
 })
 ```
@@ -101,7 +101,7 @@ Most developers change the default webchat button which comes pre-packed in Botp
   window.botpressWebChat.init({
     host: "<your-url-here>",
     botId: "<your-bot-id>",
-    hideWidget: true,
+    hideWidget: true
   })
 </script>
 ```
@@ -125,7 +125,7 @@ You can then add a `click` event listener to any element on your web page (in mo
 The following function includes a ternary operator that toggles the chat to either be hidden or shown when you click the `toggle-bp` element.
 
 ```js
-document.getElementById("toggle-bp").addEventListener("click", function () {
+document.getElementById("toggle-bp").addEventListener("click", function() {
   window.botpressWebChat.sendEvent({ type: webchatOpen ? "hide" : "show" })
 })
 ```
@@ -137,7 +137,7 @@ The following function lets you programmatically send a message to the user when
 ```js
 document
   .getElementById("send-message-bp")
-  .addEventListener("click", function () {
+  .addEventListener("click", function() {
     window.botpressWebChat.sendEvent({ type: "message", text: "Hello!" })
   })
 ```
@@ -149,12 +149,10 @@ The method `window.botpressWebChat.configure` allows you to change the chat's co
 The example below shows how you can change the chatbot's language to French when you click `change-lang-bp` on your website.
 
 ```js
-document
-  .getElementById("change-lang-bp")
-  .addEventListener("click", function () {
-    lastConfig.locale = "fr"
-    window.botpressWebChat.configure(lastConfig)
-  })
+document.getElementById("change-lang-bp").addEventListener("click", function() {
+  lastConfig.locale = "fr"
+  window.botpressWebChat.configure(lastConfig)
+})
 ```
 
 ### Configuring a Custom User ID
@@ -187,8 +185,8 @@ All messages sent to a user consist of a `payload`. That payload has a `type` pr
 
 There are different ways to send that payload to the user:
 
-- Sending a content element via the Flow Editor [example here](https://github.com/botpress/botpress/blob/master/modules/builtin/src/content-types/image.js);
-- Sending an event via [hooks or actions](https://github.com/botpress/botpress/blob/master/examples/custom-component/src/hooks/after_incoming_middleware/sendoptions.js).
+- Sending a content element via the Flow Editor [example here](https://github.com/botpress/v12/blob/master/modules/builtin/src/content-types/image.js);
+- Sending an event via [hooks or actions](https://github.com/botpress/v12/blob/master/examples/custom-component/src/hooks/after_incoming_middleware/sendoptions.js).
 
 There are multiple types already built-in in Botpress (these are listed at the bottom of this page), but you can create them easily if you require more advanced components.
 
@@ -203,7 +201,7 @@ const payload = {
   type: "login_prompt",
   username: "someuser",
   password: "abc123",
-  sensitive: ["password"],
+  sensitive: ["password"]
 }
 
 // This is the information that will be persisted: { type: 'login_prompt', username: 'someuser' }
@@ -223,13 +221,13 @@ const payload = {
 
 ## Creating a Custom Component
 
-We already have an [example module](https://github.com/botpress/botpress/tree/master/examples/custom-component) showing how to create them. We will make a quick recap here. The debugger is implemented entirely as a custom component in the [extensions module](https://github.com/botpress/botpress/tree/master/modules/extensions/src/views/lite/components/debugger), so don't hesitate to take a look at how it was implemented there.
+We already have an [example module](https://github.com/botpress/v12/tree/master/examples/custom-component) showing how to create them. We will make a quick recap here. The debugger is implemented entirely as a custom component in the [extensions module](https://github.com/botpress/v12/tree/master/modules/extensions/src/views/lite/components/debugger), so don't hesitate to take a look at how it was implemented there.
 
 Custom components leverage the `custom` payload type, which allows you to inject any valid React component exported from a custom module.
 
-1. Create a module (we have [example templates here](https://github.com/botpress/botpress/tree/master/examples/module-templates)).
+1. Create a module (we have [example templates here](https://github.com/botpress/v12/tree/master/examples/module-templates)).
 2. Develop your component.
-3. Export your component in the `lite.jsx` file ([here's a couple of different ways to do it](https://github.com/botpress/botpress/blob/master/examples/custom-component/src/views/lite/index.jsx)).
+3. Export your component in the `lite.jsx` file ([here's a couple of different ways to do it](https://github.com/botpress/v12/blob/master/examples/custom-component/src/views/lite/index.jsx)).
 4. Send a custom payload to the user:
 
 ```js
@@ -266,7 +264,7 @@ A couple of properties are passed down to your custom component. These can be us
 
 ### The Store
 
-The store orchestrates everything happening on the webchat: whether those buttons are displayed, which page is currently displayed, how to handle configuration changes, etc. This means that your component has a lot of flexibility. Here's a sample of the methods that you can use ([click here to see all of them](https://github.com/botpress/botpress/tree/master/modules/channel-web/src/views/lite/store)):
+The store orchestrates everything happening on the webchat: whether those buttons are displayed, which page is currently displayed, how to handle configuration changes, etc. This means that your component has a lot of flexibility. Here's a sample of the methods that you can use ([click here to see all of them](https://github.com/botpress/v12/tree/master/modules/channel-web/src/views/lite/store)):
 
 - Hide or show the chat
 - Add or remove header buttons
@@ -307,7 +305,7 @@ window.botpressWebChat.init({
 
 ### Wrappers
 
-Wrappers allow you to transform a payload's content before passing it down to the renderer or another component. We have some [example components here](https://github.com/botpress/botpress/tree/master/examples/custom-component/src/views/lite/components/Advanced.jsx).
+Wrappers allow you to transform a payload's content before passing it down to the renderer or another component. We have some [example components here](https://github.com/botpress/v12/tree/master/examples/custom-component/src/views/lite/components/Advanced.jsx).
 
 Here's an example of a wrapped text message:
 
@@ -380,8 +378,8 @@ window.botpressWebChat.sendEvent({
   type: "proactive-trigger",
   channel: "web",
   payload: {
-    text: "fake message",
-  },
+    text: "fake message"
+  }
 })
 ```
 
@@ -439,15 +437,15 @@ Use this code in your `index.html`:
     // Change the `botId` with the Id of the bot that should respond to the chat
     window.botpressWebChat.init({
       host: "http://localhost:3000",
-      botId: "welcome-bot",
+      botId: "welcome-bot"
     })
 
-    window.addEventListener("message", function (event) {
+    window.addEventListener("message", function(event) {
       if (event.data.name === "webchatReady") {
         window.botpressWebChat.sendEvent({
           type: "proactive-trigger",
           channel: "web",
-          payload: { text: "fake message" },
+          payload: { text: "fake message" }
         })
       }
     })
@@ -477,15 +475,15 @@ Use this code in your `index.html`:
     // Change the `botId` with the Id of the bot that should respond to the chat
     window.botpressWebChat.init({
       host: "http://localhost:3000",
-      botId: "welcome-bot",
+      botId: "welcome-bot"
     })
 
-    window.addEventListener("message", function (event) {
+    window.addEventListener("message", function(event) {
       if (event.data.name === "webchatOpened") {
         window.botpressWebChat.sendEvent({
           type: "proactive-trigger",
           channel: "web",
-          payload: { text: "fake message" },
+          payload: { text: "fake message" }
         })
       }
     })
@@ -507,7 +505,7 @@ if (event.type === "proactive-trigger") {
     channel: event.channel,
     target: event.target,
     botId: event.botId,
-    threadId: event.threadId,
+    threadId: event.threadId
   }
 
   // Skip event processing
@@ -520,7 +518,7 @@ if (event.type === "proactive-trigger") {
       { text: "I'm so proactive!", typing: true },
       eventDestination
     )
-    .then((payloads) => {
+    .then(payloads => {
       bp.events.replyToEvent(event, payloads)
     })
 }

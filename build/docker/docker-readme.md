@@ -53,4 +53,4 @@ Further documentation can be found on the botpress [website](https://botpress.co
 ### Changelog
 
 Full documentation resource is available on the [official website](https://botpress.com/docs/).
-[Changelog resides here](https://github.com/botpress/botpress/blob/master/CHANGELOG.md).
+[Changelog resides here](https://github.com/botpress/v12/blob/master/CHANGELOG.md).
