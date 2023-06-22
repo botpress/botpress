@@ -3,7 +3,7 @@ id: monitoring
 title: Monitoring
 ---
 
---------------------
+---
 
 Monitoring is an essential part of any software deployment. Botpress includes, out of the box, a simple but intuitive dashboard
 designed to keep an eye on your servers. Key metrics are collected (like CPU and Memory usage), including a couple of botpress-related metrics.
@@ -23,11 +23,11 @@ This feature is only available to users of the Pro version.
 2. Set an environment variable named `CLUSTER_ENABLED` to `true`.
 3. Set another environment variable named `REDIS_URL` which should point to your server (example provided below).
 4. Start your Botpress Server.
-![Monitoring Interface](/assets/monitoring.png)
+   ![Monitoring Interface](/assets/monitoring.png)
 
 ### Configuration
 
-The default values should be good for most situations. They are described in details directly in the [Botpress Config Definition](https://github.com/botpress/botpress/blob/master/src/bp/core/config/botpress.config.ts)
+The default values should be good for most situations. They are described in details directly in the [Botpress Config Definition](https://github.com/botpress/v12/blob/master/src/bp/core/config/botpress.config.ts)
 
 #### Redis Configuration
 

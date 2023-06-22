@@ -434,7 +434,7 @@ export default class BroadcastModule extends React.Component {
               <a
                 target="_blank"
                 rel="noopener noreferrer"
-                href="https://github.com/botpress/botpress/blob/master/modules/broadcast/README.md#filtering"
+                href="https://github.com/botpress/v12/blob/master/modules/broadcast/README.md#filtering"
               >
                 <Icon icon="help" />
               </a>

@@ -53,4 +53,4 @@ From the project root, run `yarn build:reference`. This will copy the static ass
 
 ## Contribute
 
-Our goal is to make sure that Botpress SDK is always well documented. If you find things you can improve or clarify, feel free to contribute to the [Botpress SDK definition file](https://github.com/botpress/botpress/blob/master/src/bp/sdk/botpress.d.ts).
+Our goal is to make sure that Botpress SDK is always well documented. If you find things you can improve or clarify, feel free to contribute to the [Botpress SDK definition file](https://github.com/botpress/v12/blob/master/src/bp/sdk/botpress.d.ts).

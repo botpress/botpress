@@ -3,11 +3,11 @@ id: custom-modules
 title: Custom Modules
 ---
 
---------------------
+---
 
 ## Module Templates
 
-To help you get started, two templates are available: [Module Templates](https://github.com/botpress/botpress/tree/master/examples/module-templates).
+To help you get started, two templates are available: [Module Templates](https://github.com/botpress/v12/tree/master/examples/module-templates).
 
 1. Copy the template of your choice.
 1. Paste it in `modules/`.
@@ -68,7 +68,6 @@ Once your module is ready to be deployed, from your module's directory, run `yar
 
 It is possible to override webpack parameters by adding a "webpack" property to the `package.json` file of your module. When you override a property, you also remove the default settings that we've set, so we recommend adding them back when overriding. For example, if you want to add an additional external file:
 
-
 **Example:**
 
 ```js
@@ -93,27 +92,25 @@ If you want to add special files to that folder (for example, copy automatically
 
 Your file needs to export an array named `copyFiles` containing the paths to move. It keeps the same folder structure, only changing `src` for `dist`.
 
-
 **Example:**
 
 `build.extras.js`
 
 ```js
 module.exports = {
-  copyFiles: ['src/backend/somefolder/myfile_*', 'src/backend/binary/*']
+  copyFiles: ["src/backend/somefolder/myfile_*", "src/backend/binary/*"]
 }
 ```
 
 ## Module Entry Point
 
-This is where you define how Botpress will interact with your module. Your `index.ts` file must export an `sdk.ModuleEntryPoint` object. 
+This is where you define how Botpress will interact with your module. Your `index.ts` file must export an `sdk.ModuleEntryPoint` object.
 
 :::tip
-Keep your `index.ts` file small and split your module's logic in multiple files. 
+Keep your `index.ts` file small and split your module's logic in multiple files.
 :::
 
 We will explore each property below.
-
 
 **Example:**
 
@@ -127,11 +124,11 @@ const entryPoint: sdk.ModuleEntryPoint = {
   skills,
   botTemplates,
   definition: {
-    name: 'my-module',
-    menuIcon: 'some-icon',
-    menuText: '',
-    fullName: 'My Module',
-    homepage: 'https://botpress.com',
+    name: "my-module",
+    menuIcon: "some-icon",
+    menuText: "",
+    fullName: "My Module",
+    homepage: "https://botpress.com",
     noInterface: false,
     plugins: []
   }
@@ -188,7 +185,7 @@ const onBotUnmount = async (botId: string) => {
 
 ### onFlowChanged
 
-This method is called whenever a node is renamed in a flow. This allows you to update your module's data so you are up-to-date with the new changes. For more information on how to implement this method, please refer yourself to our implementation in the [QNA Module](https://github.com/botpress/botpress/blob/master/modules/qna/src/backend/index.ts)
+This method is called whenever a node is renamed in a flow. This allows you to update your module's data so you are up-to-date with the new changes. For more information on how to implement this method, please refer yourself to our implementation in the [QNA Module](https://github.com/botpress/v12/blob/master/modules/qna/src/backend/index.ts)
 
 **Example:**
 
@@ -207,8 +204,8 @@ When you create new skills, they need a way to generate the custom flow that wil
 ```js
 const skillsToRegister: sdk.Skill[] = [
   {
-    id: 'Choice', // This must be the name of the component exported in your module full view
-    name: 'Choice', // This is the value displayed to the user
+    id: "Choice", // This must be the name of the component exported in your module full view
+    name: "Choice", // This is the value displayed to the user
     flowGenerator: choice.generateFlow
   }
 ]
@@ -223,9 +220,9 @@ Templates allow you to create a new bot without starting from scratch. They can 
 ```js
 const botTemplates: sdk.BotTemplate[] = [
   {
-    id: 'welcome-bot',
-    name: 'Welcome Bot',
-    desc: 'This is a demonstration bot to showcase some capabilities'
+    id: "welcome-bot",
+    name: "Welcome Bot",
+    desc: "This is a demonstration bot to showcase some capabilities"
   }
 ]
 ```
@@ -250,10 +247,9 @@ All modules are isolated and receive their own instance of `bp`.
 
 The Botpress SDK exposes a method to get the axios headers for a request. It will automatically set the base URL for the request and the required headers to communicate with the specific bot. This method is `bp.http.getAxiosConfigForBot('bot123'): Promise<AxiosRequestConfig>`.
 
-The method also accepts a second parameter with additional options. Right now, the only available option is `localUrl`. When set to true, the module will communicate with the local URL instead of the external one. 
+The method also accepts a second parameter with additional options. Right now, the only available option is `localUrl`. When set to true, the module will communicate with the local URL instead of the external one.
 
-
-**Example:** 
+**Example:**
 
 `bp.http.getAxiosConfigForBot('bot123', { localUrl: true })`
 
@@ -281,7 +277,7 @@ const result = await this.props.bp.axios.get('/mod/my-module/query')
 
 ### Creating an API Endpoint
 
-Modules are global, as is the API, so they must be able to manage multiple bots. 
+Modules are global, as is the API, so they must be able to manage multiple bots.
 
 :::tip
 Set up the API route in the `onServerReady` method of your entry point.
@@ -292,13 +288,13 @@ The bot ID targeted by the request is always available via `req.params.botId`.
 Setting up an API is very easy:
 
 ```js
-const router = bp.http.createRouterForBot('dialog-sessions')
+const router = bp.http.createRouterForBot("dialog-sessions")
 
-router.get('/count', async (req, res) => {
+router.get("/count", async (req, res) => {
   const botId = req.params.botId
 
-  const { dialogSessions } = await knex('dialog_sessions')
-    .count('id as dialogSessions')
+  const { dialogSessions } = await knex("dialog_sessions")
+    .count("id as dialogSessions")
     .where({ botId })
     .first()
 
@@ -312,7 +308,7 @@ In the example above, we added a route handler that will be available via `/mod/
 
 Module configuration is handled automatically by Botpress (saving and loading). All you need to do is add a file named `config.ts` in your bot `src` folder. This file should be written in typescript (so your variables are correctly typed).
 
-Since an example is worth a thousand words, check out [existing modules configuration files](https://github.com/botpress/botpress/tree/master/modules) to get a better idea.
+Since an example is worth a thousand words, check out [existing modules configuration files](https://github.com/botpress/v12/tree/master/modules) to get a better idea.
 
 ## Database
 
@@ -325,7 +321,7 @@ Tables initialization should be done in the `onServerStarted` block of your `src
 `index.ts`
 
 ```js
-import Database from './db'
+import Database from "./db"
 
 let db = undefined
 
@@ -375,12 +371,12 @@ Usage: `bp.database.createTableIfNotExists(table_name, data_callback)`
 
 ```js
 bp.database
-  .createTableIfNotExists('my_module_table', function(table) {
-    table.increments('id').primary()
-    table.string('type')
-    table.string('text', 640)
-    table.jsonb('raw_message')
-    table.timestamp('ts')
+  .createTableIfNotExists("my_module_table", function(table) {
+    table.increments("id").primary()
+    table.string("type")
+    table.string("text", 640)
+    table.jsonb("raw_message")
+    table.timestamp("ts")
   })
   .then(async () => {
     // You may chain table creation
@@ -397,13 +393,13 @@ Usage: `bp.database.insertAndRetrieve(table_name, data, returnColumn?, idColumn?
 
 ```js
 const someObject = (await bp.database.insertAndRetrieve)(
-  'my_module_table',
+  "my_module_table",
   {
     botId: session.botId,
     important_data: bp.database.json.set(data || {}),
     created_on: bp.database.date.now()
   },
-  ['botId', 'important_data', 'created_on']
+  ["botId", "important_data", "created_on"]
 )
 ```
 
@@ -413,7 +409,7 @@ const someObject = (await bp.database.insertAndRetrieve)(
 
 There are two different type of views (or bundles) that your module can offer. A view can consist of multiple components. These components can be used by other modules, and your own module can also consume components of other modules.
 
-Check out the [Complete Module Example on GitHub](https://github.com/botpress/botpress/tree/master/examples) for more details on how you can implement views.
+Check out the [Complete Module Example on GitHub](https://github.com/botpress/v12/tree/master/examples) for more details on how you can implement views.
 
 ### Full View
 
@@ -470,7 +466,7 @@ The name of your component (in the below example, MyCustomSkill) needs to be the
 **Example:**
 
 ```jsx
-import React from 'react'
+import React from "react"
 
 export class MyCustomSkill extends React.Component {
   render() {
@@ -486,12 +482,15 @@ The flow generator will create all the transitions and conditions based on the d
 **Example:**
 
 ```js
-const generateFlow = async (data: any, metadata: sdk.FlowGeneratorMetadata): Promise<sdk.FlowGenerationResult> => {
+const generateFlow = async (
+  data: any,
+  metadata: sdk.FlowGeneratorMetadata
+): Promise<sdk.FlowGenerationResult> => {
   const nodes: sdk.SkillFlowNode[] = [
     {
-      name: 'entry',
+      name: "entry",
       onEnter: [],
-      next: [{ condition: 'true', node: '...' }]
+      next: [{ condition: "true", node: "..." }]
     }
   ]
 
@@ -524,8 +523,8 @@ This is how you would register it:
 // Note the array, you can register multiple skills that way
 const skillsToRegister: sdk.Skill[] = [
   {
-    id: 'MyCustomSkill', // Name of your exported component
-    name: 'My Magic Custom Skill', // Only used to display the skill in the list
+    id: "MyCustomSkill", // Name of your exported component
+    name: "My Magic Custom Skill", // Only used to display the skill in the list
     flowGenerator: generateFlow
   }
 ]

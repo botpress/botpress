@@ -6,7 +6,7 @@
     "node": "^12"
   },
   "main": "index.js",
-  "repository": "https://github.com/botpress/botpress.git",
+  "repository": "https://github.com/botpress/v12.git",
   "author": "Botpress, Inc.",
   "license": "AGPL-3.0",
   "private": true,

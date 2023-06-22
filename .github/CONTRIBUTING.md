@@ -24,7 +24,7 @@ If a maintainer asks you to "rebase" your PR, they're saying that a lot of code 
 
 ### Why become a contributor :robot:?
 
-We all have our motivation for doing what we do. For the core team at Botpress, it's our mission; **Making machines understand humans.** Building more intuitive applications using language is why we write lines of code in botpress/botpress.
+We all have our motivation for doing what we do. For the core team at Botpress, it's our mission; **Making machines understand humans.** Building more intuitive applications using language is why we write lines of code in botpress/v12.
 
 What's your motivation?
 
@@ -49,7 +49,7 @@ Those are all great contributions and will be welcomed as much as any other.
 
 ## Your First Contribution in Botpress
 
-If you're not sure where to start issues, we've labeled some issues with [`good first issue`](https://github.com/botpress/botpress/labels/good%20first%20issue), so these are a great place to start!
+If you're not sure where to start issues, we've labeled some issues with [`good first issue`](https://github.com/botpress/v12/labels/good%20first%20issue), so these are a great place to start!
 
 Start by checking out the [README](./README.md) and check out the introductory videos and get familiar with what Botpress does. Forum, documentation, and tutorials can also be a great starting point and needless to say that they are as essential to the community as any other feature or bug fix.
 
@@ -132,7 +132,7 @@ If you are interested in contributing to Botpress, you will need to create a loc
 
 These instructions assume a parent directory `bar` and we will be adding two child directories: `botpress` and `foobot`.
 
-1. Fork the [botpress repo](https://github.com/botpress/botpress) & copy the link. (If you are new to open-source, GitHub, or Git, check out the excellent egghead.io link in 'New to contributing to open-source?' for additional important Git commands, such as checking out a branch, setting your upstream repo, keeping your local copy in sync, and making your pull request).
+1. Fork the [botpress repo](https://github.com/botpress/v12) & copy the link. (If you are new to open-source, GitHub, or Git, check out the excellent egghead.io link in 'New to contributing to open-source?' for additional important Git commands, such as checking out a branch, setting your upstream repo, keeping your local copy in sync, and making your pull request).
 2. Open a new terminal/CLI tab, and run commands
 
    ```shell

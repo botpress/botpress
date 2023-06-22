@@ -3,18 +3,18 @@ id: custom-css
 title: Custom CSS
 ---
 
---------------------
+---
 
-The Botpress webchat interface is fully customizable. You can change any of the styling using CSS. This can be done in two steps. 
+The Botpress webchat interface is fully customizable. You can change any of the styling using CSS. This can be done in two steps.
 
 1. Firstly create your own cascading style sheet and name it anything you want. Then, paste your stylesheet in the `<botpress_dir>/data/assets/modules/channel-web` folder.
-2. Secondly, you need to reference your new style sheet to your integrated chatbot. You can easily do this by referencing your new stylesheet using the `extraStylesheet` property. 
+2. Secondly, you need to reference your new style sheet to your integrated chatbot. You can easily do this by referencing your new stylesheet using the `extraStylesheet` property.
 
 Let us go through these steps in more detail.
 
 ### Step 1 - Styling (CSS)
 
-Paste the following CSS file in the `<botpress_dir>/data/assets/modules/channel-web` folder. Feel free to change the style here. The original Botpress theme [can be found here](https://github.com/botpress/botpress/blob/master/modules/channel-web/assets/default.css).
+Paste the following CSS file in the `<botpress_dir>/data/assets/modules/channel-web` folder. Feel free to change the style here. The original Botpress theme [can be found here](https://github.com/botpress/v12/blob/master/modules/channel-web/assets/default.css).
 
 ```css
 .bpw-from-bot .bpw-chat-bubble {
@@ -105,13 +105,13 @@ const chatOptions = {
   config: {
     enableReset: true,
     enableTranscriptDownload: true,
-    extraStylesheet: '/assets/modules/channel-web/chat.css'
+    extraStylesheet: "/assets/modules/channel-web/chat.css"
   }
 }
 
 const params = {
-  m: 'channel-web',
-  v: 'Fullscreen',
+  m: "channel-web",
+  v: "Fullscreen",
   options: JSON.stringify(chatOptions)
 }
 
@@ -121,7 +121,11 @@ setTimeout(() => {
   } catch (e) {}
 
   // Chatbot will be available at $EXTERNAL_URL/s/$BOT_NAME
-  bp.http.createShortLink(botId, `${process.EXTERNAL_URL}/lite/${botId}/`, params)
+  bp.http.createShortLink(
+    botId,
+    `${process.EXTERNAL_URL}/lite/${botId}/`,
+    params
+  )
 }, 500)
 ```
 
@@ -129,6 +133,6 @@ Feel free to change the webchat config there. The critical line to keep is the `
 
 ### Result
 
-Restart Botpress Server, and now your chatbot's default webchat will use your custom CSS theme! 
+Restart Botpress Server, and now your chatbot's default webchat will use your custom CSS theme!
 
 ![WebChat Customization](/assets/webchat-customization.png)

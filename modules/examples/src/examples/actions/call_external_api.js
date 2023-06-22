@@ -7,7 +7,7 @@ const axios = require('axios')
  */
 const callApi = async () => {
   // Call the Github API and fetch the latest releases
-  const { data } = await axios.get('https://api.github.com/repos/botpress/botpress/releases')
+  const { data } = await axios.get('https://api.github.com/repos/botpress/v12/releases')
 
   // The first element returned is the most recent release
   const mostRecentRelease = data[0]

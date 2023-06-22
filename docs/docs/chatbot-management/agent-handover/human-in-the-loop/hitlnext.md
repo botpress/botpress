@@ -3,7 +3,7 @@ id: hitlnext
 title: HITL Next
 ---
 
---------------------
+---
 
 :::caution
 This module is **not** compatible with the Converse API
@@ -47,11 +47,12 @@ The Studio interface has three main sections:
 ## Agent Profile
 
 For an agent's name and avatar to display to users, they can configure their profile as follows:
+
 1. In the Admin, click the avatar icon at the top right corner.
 1. Select the **Update Profile** option. Then, fill in the boxes:
-  1. **First Name**
-  1. **Last Name**
-  1. **Profile Picture**.
+1. **First Name**
+1. **Last Name**
+1. **Profile Picture**.
 
 ![Agent profile](/assets/agent-profile.png)
 
@@ -67,7 +68,7 @@ Every time that node is triggered, the **Handoffs** section shows a new pending 
 
 ### Handoff Assignation and Resolution
 
-To pick a handoff and start conversing with the end-user, an agent first needs to set themselves *Online** at the top right corner of the Agent Interface. This simple feature allows agents or coordinators to oversee conversations while offline. It is also handy when your team implements any auto-assignation rule.
+To pick a handoff and start conversing with the end-user, an agent first needs to set themselves \*Online\*\* at the top right corner of the Agent Interface. This simple feature allows agents or coordinators to oversee conversations while offline. It is also handy when your team implements any auto-assignation rule.
 
 ![Online](/assets/online.gif)
 
@@ -97,7 +98,7 @@ A simple but powerful tool for collaboration over time, notes are associated wit
 
 ## Advanced Features and Customization
 
-Here are the most commonly used module configurations. You can check out the [module configuration file](https://github.com/botpress/botpress/blob/master/modules/hitlnext/src/config.ts) for all options.
+Here are the most commonly used module configurations. You can check out the [module configuration file](https://github.com/botpress/v12/blob/master/modules/hitlnext/src/config.ts) for all options.
 
 To set any of those configurations, you'll first need to open up the `hitlnext.json` in the **Code Editor** section of your Conversation Studio.
 
@@ -147,7 +148,7 @@ The same technique applies to **Assignation Message**. Note that you can optionn
 
 ### Message Templates
 
-If your team of agents often uses the same set of answers, the `autoComplete` configuration can store pre-written messages. They are a handy shortcut for agents, and you can add as many as you want. 
+If your team of agents often uses the same set of answers, the `autoComplete` configuration can store pre-written messages. They are a handy shortcut for agents, and you can add as many as you want.
 
 Here is how they show up in the Agent Interface:
 
@@ -177,12 +178,12 @@ Before adding a message template, choose a `trigger` character that will open up
 
 ### Handoff Labels
 
-Handoff labels are useful for agents to categorize handoffs before resolution so that in future handoffs, agents can quickly understand the last conversation with an agent. Labels are also useful when analyzing resolved handoffs, either for quality assurance or for reporting. 
+Handoff labels are useful for agents to categorize handoffs before resolution so that in future handoffs, agents can quickly understand the last conversation with an agent. Labels are also useful when analyzing resolved handoffs, either for quality assurance or for reporting.
 
 ![Labels](/assets/labels.png)
 
 :::info
-You can add as many as you want, but a good practice is to start with a small number of labels and add new ones when necessary. 
+You can add as many as you want, but a good practice is to start with a small number of labels and add new ones when necessary.
 :::
 
 **Example:**

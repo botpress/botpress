@@ -3,7 +3,7 @@ id: ldap
 title: LDAP
 ---
 
---------------------
+---
 
 ## Prerequisite
 
@@ -13,7 +13,7 @@ title: LDAP
 ## Quick Start
 
 1. Open `botpress.config.json` and set `pro.auth.strategy = 'ldap'`
-2. Configure the available options: [check the full configuration for more details](https://github.com/botpress/botpress/blob/master/packages/bp/src/core/config/botpress.config.ts)
+2. Configure the available options: [check the full configuration for more details](https://github.com/botpress/v12/blob/master/packages/bp/src/core/config/botpress.config.ts)
 
 ## Field Mapping
 
