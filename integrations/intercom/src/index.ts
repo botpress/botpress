@@ -42,6 +42,7 @@ const conversationSchema = z.object({
 
 const webhookNotificationSchema = z.object({
   type: z.literal('notification_event'),
+  topic: z.string(),
   data: z.object({
     item: conversationSchema,
   }),
@@ -179,6 +180,10 @@ const integration = new Integration({
     if (!parsedBody.success) {
       log.warn(`Handler received an invalid body: ${parsedBody.error}`)
       return
+    }
+
+    if (parsedBody.data.topic === 'conversation.admin.replied') {
+      return // ignore admin replies, since the bot is an admin we don't want to reply to ourselves
     }
 
     const {
