@@ -140,13 +140,13 @@ const devSchema = {
   ...projectSchema,
   ...credentialsSchema,
   ...secretsSchema,
-  url: {
-    type: 'string',
-    description: 'The publicly available URL of the bot or integration (often using ngrok)',
-    demandOption: true,
-  },
-  port,
   sourceMap,
+  port,
+  tunnelUrl: {
+    type: 'string',
+    description: 'The tunnel HTTP URL to use',
+    default: consts.defaultTunnelUrl,
+  },
 } satisfies CommandSchema
 
 const addSchema = {
