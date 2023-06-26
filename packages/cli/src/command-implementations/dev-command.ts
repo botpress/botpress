@@ -1,6 +1,6 @@
 import type * as bpclient from '@botpress/client'
 import type { Bot as BotImpl, IntegrationDefinition } from '@botpress/sdk'
-import { TunnelRequest, TunnelResponse, TunnelTail } from '@botpress/tunnel'
+import { TunnelRequest, TunnelResponse, TunnelTail } from '@bpinternal/tunnel'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import chalk from 'chalk'
 import * as pathlib from 'path'
