@@ -1,5 +1,6 @@
 import type { Conversation } from '@botpress/client'
 import type { IntegrationContext, AckFunction } from '@botpress/sdk'
+import { name } from 'integration.definition'
 import { WhatsAppAPI } from 'whatsapp-api-js'
 import type { Contacts } from 'whatsapp-api-js/types/messages/contacts'
 import type { Interactive } from 'whatsapp-api-js/types/messages/interactive'
@@ -38,14 +39,13 @@ export async function send({
 }) {
   const whatsapp = new WhatsAppAPI(ctx.configuration.accessToken)
   const phoneNumberId = ctx.configuration.phoneNumberId
-  const to = conversation.tags['whatsapp:userPhone']
+  const to = conversation.tags[`${name}:userPhone`]
 
   if (!to) {
-    log.error('No phone number found')
+    log.error("The phone number ID isn't configured yet.")
     return
   }
 
-  // Create a bot that can send messages
   const feedback = await whatsapp.sendMessage(phoneNumberId, to, message)
 
   if (feedback?.error) {
@@ -53,10 +53,12 @@ export async function send({
     return
   }
 
-  const messageId = feedback?.message?.[0]?.id
+  const messageId = feedback?.messages?.[0]?.id
 
   if (messageId) {
-    await ack({ tags: { 'whatsapp:id': messageId } })
+    await ack({ tags: { [`${name}:id`]: messageId } })
+  } else {
+    log.error(`Could not detect message ID. Whatsapp API response: ${JSON.stringify(feedback)}`)
   }
 }
 
