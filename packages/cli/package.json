@@ -19,8 +19,8 @@
   "main": "dist/index.js",
   "dependencies": {
     "@botpress/client": "0.1.1",
+    "@bpinternal/tunnel": "^0.0.2",
     "@bpinternal/yargs-extra": "^0.0.3",
-    "@bpinternal/tunnel": "^0.0.1",
     "@parcel/watcher": "^2.1.0",
     "@types/lodash": "^4.14.191",
     "@types/node": "^18.11.17",
