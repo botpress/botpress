@@ -938,6 +938,9 @@ importers:
       '@botpress/client':
         specifier: 0.1.1
         version: link:../client
+      '@bpinternal/tunnel':
+        specifier: ^0.0.1
+        version: 0.0.1
       '@bpinternal/yargs-extra':
         specifier: ^0.0.3
         version: 0.0.3
@@ -954,8 +957,8 @@ importers:
         specifier: ^1.10.6
         version: 1.10.6
       axios:
-        specifier: ^1.2.5
-        version: 1.2.5
+        specifier: ^1.4.0
+        version: 1.4.0
       bluebird:
         specifier: ^3.7.2
         version: 3.7.2
@@ -1747,6 +1750,18 @@ packages:
     transitivePeerDependencies:
       - pg-native
       - supports-color
+    dev: false
+
+  /@bpinternal/tunnel@0.0.1:
+    resolution: {integrity: sha512-M0TDT+uEdgTVKl4C4xnqZhxM4IxU+WxS4Ia9lJJH7yQLCsVjQda0Q1iSZ2SAOoH5vssbmy42PJUm0g5K2IUaSQ==}
+    dependencies:
+      browser-or-node: 2.1.1
+      isomorphic-ws: 5.0.0(ws@8.13.0)
+      ws: 8.13.0
+      zod: 3.21.4
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
     dev: false
 
   /@bpinternal/yargs-extra@0.0.3:
@@ -6361,6 +6376,14 @@ packages:
       - encoding
     dev: false
 
+  /isomorphic-ws@5.0.0(ws@8.13.0):
+    resolution: {integrity: sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==}
+    peerDependencies:
+      ws: '*'
+    dependencies:
+      ws: 8.13.0
+    dev: false
+
   /istanbul-lib-coverage@3.2.0:
     resolution: {integrity: sha512-eOeJ5BHCmHYvQK7xt9GkdHuzuCGS1Y6g9Gvnx3Ym33fz/HpLRYxiS0wHNr+m/MBC8B647Xt608vCDEvhl9c6Mw==}
     engines: {node: '>=8'}
@@ -9283,6 +9306,19 @@ packages:
     peerDependencies:
       bufferutil: ^4.0.1
       utf-8-validate: ^5.0.2
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+    dev: false
+
+  /ws@8.13.0:
+    resolution: {integrity: sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
     peerDependenciesMeta:
       bufferutil:
         optional: true
