@@ -1,4 +1,4 @@
-import { type Client } from '@botpress/client'
+import type { Client } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { name } from 'integration.definition'
 import queryString from 'query-string'
