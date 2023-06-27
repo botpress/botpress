@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cli",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "description": "Botpress CLI",
   "scripts": {
     "build": "pnpm run bundle && pnpm run template:gen",
@@ -19,12 +19,13 @@
   "main": "dist/index.js",
   "dependencies": {
     "@botpress/client": "0.1.1",
+    "@bpinternal/tunnel": "^0.0.2",
     "@bpinternal/yargs-extra": "^0.0.3",
     "@parcel/watcher": "^2.1.0",
     "@types/lodash": "^4.14.191",
     "@types/node": "^18.11.17",
     "@types/verror": "^1.10.6",
-    "axios": "^1.2.5",
+    "axios": "^1.4.0",
     "bluebird": "^3.7.2",
     "boxen": "5.1.2",
     "chalk": "^4.1.2",

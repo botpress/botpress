@@ -9,6 +9,7 @@ export const defaultOutputFolder = '.botpress'
 export const defaultEntrypoint = pathlib.join('src', 'index.ts')
 export const defaultBotpressApiUrl = 'https://api.botpress.cloud'
 export const defaultBotpressAppUrl = 'https://app.botpress.cloud'
+export const defaultTunnelUrl = 'https://tunnel.botpress.cloud'
 
 // not configurable
 

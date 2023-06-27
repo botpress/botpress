@@ -938,6 +938,9 @@ importers:
       '@botpress/client':
         specifier: 0.1.1
         version: link:../client
+      '@bpinternal/tunnel':
+        specifier: ^0.0.2
+        version: 0.0.2
       '@bpinternal/yargs-extra':
         specifier: ^0.0.3
         version: 0.0.3
@@ -954,8 +957,8 @@ importers:
         specifier: ^1.10.6
         version: 1.10.6
       axios:
-        specifier: ^1.2.5
-        version: 1.2.5
+        specifier: ^1.4.0
+        version: 1.4.0
       bluebird:
         specifier: ^3.7.2
         version: 3.7.2
@@ -1747,6 +1750,19 @@ packages:
     transitivePeerDependencies:
       - pg-native
       - supports-color
+    dev: false
+
+  /@bpinternal/tunnel@0.0.2:
+    resolution: {integrity: sha512-si143KyATVI8fW22rf/VSk8cbjMjSZioN8X674qkh30LQ6Ic2ks2KJXxrV3RSqjTleRwbKkPg6TTltU4ypoy+A==}
+    dependencies:
+      '@types/ws': 8.5.5
+      browser-or-node: 2.1.1
+      isomorphic-ws: 5.0.0(ws@8.13.0)
+      ws: 8.13.0
+      zod: 3.21.4
+    transitivePeerDependencies:
+      - bufferutil
+      - utf-8-validate
     dev: false
 
   /@bpinternal/yargs-extra@0.0.3:
@@ -3213,6 +3229,12 @@ packages:
 
   /@types/ws@7.4.7:
     resolution: {integrity: sha512-JQbbmxZTZehdc2iszGKs5oC3NFnjeay7mtAWrdt7qNtAVK0g19muApzAy4bm9byz79xa2ZnO/BOBC2R8RC5Lww==}
+    dependencies:
+      '@types/node': 18.16.16
+    dev: false
+
+  /@types/ws@8.5.5:
+    resolution: {integrity: sha512-lwhs8hktwxSjf9UaZ9tG5M03PGogvFaH8gUgLNbN9HKIg0dvv6q+gkSuJ8HN4/VbyxkuLzCjlN7GquQ0gUJfIg==}
     dependencies:
       '@types/node': 18.16.16
     dev: false
@@ -6361,6 +6383,14 @@ packages:
       - encoding
     dev: false
 
+  /isomorphic-ws@5.0.0(ws@8.13.0):
+    resolution: {integrity: sha512-muId7Zzn9ywDsyXgTIafTry2sV3nySZeUDe6YedVd1Hvuuep5AsIlqK+XefWpYTyJG5e503F2xIuT2lcU6rCSw==}
+    peerDependencies:
+      ws: '*'
+    dependencies:
+      ws: 8.13.0
+    dev: false
+
   /istanbul-lib-coverage@3.2.0:
     resolution: {integrity: sha512-eOeJ5BHCmHYvQK7xt9GkdHuzuCGS1Y6g9Gvnx3Ym33fz/HpLRYxiS0wHNr+m/MBC8B647Xt608vCDEvhl9c6Mw==}
     engines: {node: '>=8'}
@@ -9283,6 +9313,19 @@ packages:
     peerDependencies:
       bufferutil: ^4.0.1
       utf-8-validate: ^5.0.2
+    peerDependenciesMeta:
+      bufferutil:
+        optional: true
+      utf-8-validate:
+        optional: true
+    dev: false
+
+  /ws@8.13.0:
+    resolution: {integrity: sha512-x9vcZYTrFPC7aSIbj7sRCYo7L/Xb8Iy+pW0ng0wt2vCJv7M9HOMy0UoN3rr+IFC7hb7vXoqS+P9ktyLLLhO+LA==}
+    engines: {node: '>=10.0.0'}
+    peerDependencies:
+      bufferutil: ^4.0.1
+      utf-8-validate: '>=5.0.2'
     peerDependenciesMeta:
       bufferutil:
         optional: true
