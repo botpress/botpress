@@ -7,6 +7,7 @@ import { handleOauth } from './misc/linear'
 import { getUserAndConversation } from './misc/utils'
 import { secrets } from '.botpress'
 
+// eslint-disable-next-line complexity
 export const handler: IntegrationProps['handler'] = async ({ req, ctx, client }) => {
   if (req.path === '/oauth') {
     return handleOauth(req, client, ctx)
@@ -52,7 +53,8 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
 
   // ============ MESSAGES ==============
 
-  if (linearEvent.data.userId === payload.botUserId || linearEvent.data.user?.id === payload.botUserId) {
+  const linearUserId = linearEvent.data.userId ?? linearEvent.data.user?.id
+  if (!linearUserId || payload.botUserId === linearUserId) {
     // this means the message is actually coming from the bot itself, so we don't want to process it
     return
   }
