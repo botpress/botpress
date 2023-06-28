@@ -76,7 +76,7 @@ export class LinearOauthClient {
       id: integrationId,
     })
 
-    return new LinearClient(payload.accessToken)
+    return new LinearClient({ accessToken: payload.accessToken })
   }
 }
 
