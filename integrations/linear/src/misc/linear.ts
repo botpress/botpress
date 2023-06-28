@@ -83,6 +83,7 @@ export class LinearOauthClient {
 export const handleOauth = async (req: Request, client: Client, ctx: IntegrationCtx) => {
   const linearOauthClient = new LinearOauthClient()
 
+  console.log('oauth flow called', req.query)
   const query = queryString.parse(req.query)
   const code = query.code
 
@@ -90,7 +91,9 @@ export const handleOauth = async (req: Request, client: Client, ctx: Integration
     throw new Error('Handler received an empty code')
   }
 
+  console.log('before get access token', code)
   const { accessToken, expiresAt } = await linearOauthClient.getAccessToken(code)
+  console.log('after get access token', accessToken, expiresAt)
 
   await client.setState({
     type: 'integration',
@@ -102,9 +105,14 @@ export const handleOauth = async (req: Request, client: Client, ctx: Integration
     },
   })
 
+  console.log('set state done')
+
   const linearClient = new LinearClient({ accessToken })
+  console.log('linear client created')
   const organization = await linearClient.organization
+  console.log('org is ', organization)
   await client.configureIntegration({ identifier: organization.id })
+  console.log('configure integration done')
 
   return {}
 }
