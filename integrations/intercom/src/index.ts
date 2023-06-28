@@ -19,7 +19,6 @@ const log = console
 const integrationName = 'intercom'
 
 const conversationPartSchema = z.object({
-  type: z.literal('conversation_part'),
   id: z.string(),
   author: z.object({
     id: z.string(),
@@ -35,14 +34,7 @@ const conversationSchema = z.object({
     .nullable()
     .transform((val) => (val ? val.toString() : null)),
   id: z.string(),
-  source: z.object({
-    id: z.string(),
-    author: z.object({
-      id: z.string(),
-      type: z.string(),
-    }),
-    body: z.string(),
-  }),
+  source: conversationPartSchema,
   conversation_parts: z.object({
     conversation_parts: z.array(conversationPartSchema),
   }),
