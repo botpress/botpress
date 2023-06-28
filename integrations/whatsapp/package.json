@@ -1,7 +1,7 @@
 {
   "name": "@botpresshub/whatsapp",
   "version": "0.2.0",
-  "description": "Instagram integration for Botpress",
+  "description": "Whatsapp integration for Botpress",
   "private": true,
   "scripts": {
     "start": "pnpm bp serve",
@@ -19,7 +19,7 @@
     "@botpress/sdk-addons": "workspace:*",
     "query-string": "^6.14.1",
     "whatsapp-api-js": "^0.8.2",
-    "zod": "^3.20.6"
+    "zod": "^3.21.4"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

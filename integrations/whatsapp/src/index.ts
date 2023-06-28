@@ -1,8 +1,9 @@
 import type { Client } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { name } from 'integration.definition'
 import queryString from 'query-string'
-
 import { WhatsAppAPI, Types } from 'whatsapp-api-js'
+import { createConversation } from './conversation'
 import * as card from './message-types/card'
 import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
@@ -24,6 +25,7 @@ const integration = new Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {},
+  createConversation,
   channels: {
     channel: {
       messages: {
@@ -149,22 +151,22 @@ async function handleMessage(message: WhatsAppMessage, value: WhatsAppValue, cli
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        'whatsapp:userPhone': message.from,
-        'whatsapp:phoneNumberId': value.metadata.phone_number_id,
+        [`${name}:userPhone`]: message.from,
+        [`${name}:phoneNumberId`]: value.metadata.phone_number_id,
       },
     })
 
     if (value.contacts.length > 0) {
       const { user } = await client.getOrCreateUser({
         tags: {
-          'whatsapp:userId': value.contacts[0] ? value.contacts[0].wa_id : '',
-          'whatsapp:name': value.contacts[0] ? value.contacts[0]?.profile.name : '',
+          [`${name}:userId`]: value.contacts[0] ? value.contacts[0].wa_id : '',
+          [`${name}:name`]: value.contacts[0] ? value.contacts[0]?.profile.name : '',
         },
       })
 
       if (message.text) {
         await client.createMessage({
-          tags: { 'whatsapp:id': message.id },
+          tags: { [`${name}:id`]: message.id },
           type: 'text',
           payload: { text: message.text.body },
           userId: user.id,
@@ -173,7 +175,7 @@ async function handleMessage(message: WhatsAppMessage, value: WhatsAppValue, cli
       } else if (message.interactive) {
         if (message.interactive.type === 'button_reply') {
           await client.createMessage({
-            tags: { 'whatsapp:id': message.id },
+            tags: { [`${name}:id`]: message.id },
             type: 'text',
             payload: {
               text: message.interactive.button_reply?.id,
@@ -184,7 +186,7 @@ async function handleMessage(message: WhatsAppMessage, value: WhatsAppValue, cli
           })
         } else if (message.interactive.type === 'list_reply') {
           await client.createMessage({
-            tags: { 'whatsapp:id': message.id },
+            tags: { [`${name}:id'`]: message.id },
             type: 'text',
             payload: {
               text: message.interactive.list_reply?.id,

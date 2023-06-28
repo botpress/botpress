@@ -850,7 +850,7 @@ importers:
         specifier: ^0.8.2
         version: 0.8.2
       zod:
-        specifier: ^3.20.6
+        specifier: ^3.21.4
         version: 3.21.4
     devDependencies:
       '@botpress/cli':
