@@ -22,11 +22,16 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
   const linearEvent = JSON.parse(req.body)
   const {
     state: { payload },
-  } = await client.getState({
-    type: 'integration',
-    name: 'configuration',
-    id: ctx.integrationId,
-  })
+  } = await client
+    .getState({
+      type: 'integration',
+      name: 'configuration',
+      id: ctx.integrationId,
+    })
+    .catch(() => {
+      console.error('Could not get integration configuration')
+      return { state: { payload: { botUserId: undefined } } }
+    })
 
   const webhookSignatureHeader = req.headers[LINEAR_WEBHOOK_SIGNATURE_HEADER]
   if (!webhookSignatureHeader) {
