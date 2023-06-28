@@ -9,6 +9,8 @@ import { secrets } from '.botpress'
 
 // eslint-disable-next-line complexity
 export const handler: IntegrationProps['handler'] = async ({ req, ctx, client }) => {
+  console.log('linear handler called', req.path, req.body)
+
   if (req.path === '/oauth') {
     return handleOauth(req, client, ctx)
   }
