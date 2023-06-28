@@ -25,7 +25,7 @@ const conversationPartSchema = z.object({
     id: z.string(),
     type: z.string(),
   }),
-  body: z.string(),
+  body: z.string().nullable(),
 })
 
 const conversationSchema = z.object({
@@ -35,6 +35,14 @@ const conversationSchema = z.object({
     .nullable()
     .transform((val) => (val ? val.toString() : null)),
   id: z.string(),
+  source: z.object({
+    id: z.string(),
+    author: z.object({
+      id: z.string(),
+      type: z.string(),
+    }),
+    body: z.string(),
+  }),
   conversation_parts: z.object({
     conversation_parts: z.array(conversationPartSchema),
   }),
@@ -192,6 +200,7 @@ const integration = new Integration({
           id: conversationId,
           admin_assignee_id: adminAssigneeId,
           conversation_parts: { conversation_parts },
+          source: firstConversationPart,
         },
       },
     } = parsedBody.data
@@ -211,6 +220,10 @@ const integration = new Integration({
       },
     })
 
+    if (parsedBody.data.topic === 'conversation.user.created') {
+      conversation_parts.unshift(firstConversationPart) // important, intercom keeps the first message in a separate object
+    }
+
     for (const part of conversation_parts) {
       const {
         author: { id: authorId, type: authorType },
@@ -220,6 +233,10 @@ const integration = new Integration({
 
       if (!messageId) {
         throw new Error('Handler received an empty message id')
+      }
+
+      if (!body) {
+        return // ignore no body messages
       }
 
       if (authorType === 'bot') {
