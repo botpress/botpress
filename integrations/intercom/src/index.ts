@@ -19,6 +19,7 @@ const log = console
 const integrationName = 'intercom'
 
 const conversationPartSchema = z.object({
+  type: z.literal('conversation_part'),
   id: z.string(),
   author: z.object({
     id: z.string(),
@@ -27,6 +28,24 @@ const conversationPartSchema = z.object({
   body: z.string().nullable(),
 })
 
+const conversationSourceSchema = z.object({
+  id: z.string(),
+  author: z.object({
+    id: z.string(),
+    type: z.string(),
+  }),
+  body: z.string().nullable(),
+})
+
+type IntercomMessage = {
+  id: string
+  author: {
+    id: string
+    type: string
+  }
+  body: string | null
+}
+
 const conversationSchema = z.object({
   type: z.literal('conversation'),
   admin_assignee_id: z
@@ -34,7 +53,7 @@ const conversationSchema = z.object({
     .nullable()
     .transform((val) => (val ? val.toString() : null)),
   id: z.string(),
-  source: conversationPartSchema,
+  source: conversationSourceSchema,
   conversation_parts: z.object({
     conversation_parts: z.array(conversationPartSchema),
   }),
@@ -212,16 +231,12 @@ const integration = new Integration({
       },
     })
 
-    if (parsedBody.data.topic === 'conversation.user.created') {
-      conversation_parts.unshift(firstConversationPart) // important, intercom keeps the first message in a separate object
-    }
-
-    for (const part of conversation_parts) {
+    const createInBotpressBot = async (intercomMessage: IntercomMessage) => {
       const {
         author: { id: authorId, type: authorType },
         body,
         id: messageId,
-      } = part
+      } = intercomMessage
 
       if (!messageId) {
         throw new Error('Handler received an empty message id')
@@ -249,6 +264,14 @@ const integration = new Integration({
         conversationId: conversation.id,
         payload: { text: html.stripTags(body) },
       })
+    }
+
+    if (parsedBody.data.topic === 'conversation.user.created') {
+      await createInBotpressBot(firstConversationPart) // important, intercom keeps the first message in a separate object
+    }
+
+    for (const part of conversation_parts) {
+      await createInBotpressBot(part)
     }
     log.info('Handler finished processing request')
 
