@@ -7,7 +7,10 @@ export { states } from './states'
 export { UserProfile } from './schemas'
 
 export const configuration = {
-  schema: z.object({}),
+  schema: z.object({
+    displayName: z.string().optional(),
+    displayIconUrl: z.string().optional(),
+  }),
 } satisfies IntegrationDefinitionProps['configuration']
 
 export const channels = {

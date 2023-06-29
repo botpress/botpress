@@ -17,18 +17,6 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
     return
   }
 
-  console.log('linear event', ctx)
-
-  try {
-    const bot = await client.getUser({ id: ctx.botUserId })
-    console.log('bot', bot)
-
-    const webchat = await client.getBotWebchat({ id: ctx.botId, type: 'configurable' })
-    console.log('webchat', webchat)
-  } catch (err) {
-    console.log('error', err)
-  }
-
   const linearEvent = JSON.parse(req.body)
   const botUserId = await client
     .getState({
