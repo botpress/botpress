@@ -48,6 +48,7 @@ export class LinearOauthClient {
       {
         client_id: this.clientId,
         client_secret: this.clientSecret,
+        actor: 'application',
         redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
         code,
         grant_type: 'authorization_code',
