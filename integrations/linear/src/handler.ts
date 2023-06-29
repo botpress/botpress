@@ -17,6 +17,18 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
     return
   }
 
+  console.log('linear event', ctx)
+
+  try {
+    const bot = await client.getBot({ id: ctx.botId })
+    console.log('bot', bot)
+
+    const webchat = await client.getBotWebchat({ id: ctx.botId, type: 'configurable' })
+    console.log('webchat', webchat)
+  } catch (err) {
+    console.log('error', err)
+  }
+
   const linearEvent = JSON.parse(req.body)
   const botUserId = await client
     .getState({
@@ -53,13 +65,11 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
   // ============ MESSAGES ==============
 
   const linearUserId = linearEvent.data.userId ?? linearEvent.data.user?.id
-  if (!linearUserId || (botUserId && botUserId === linearUserId)) {
+  if (!linearUserId || (!!botUserId && botUserId === linearUserId)) {
     // this means the message is actually coming from the bot itself, so we don't want to process it
     return
   }
 
-  // TODO: We're assuming that the bot on Linear uses a dedicated account, not impersonating a real user
-  console.log('LINEAR EVENT', linearEvent)
   if (eventType === 'comment' && linearEvent.action === 'create') {
     const linearCommentId = linearEvent.data.id
     const userId = linearEvent.data.userId || linearEvent.data.user.id
@@ -79,8 +89,6 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
         client
       )),
     })
-
-    console.log('LINEAR COMMENT CREATED')
   }
 
   return
