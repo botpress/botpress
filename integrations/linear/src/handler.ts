@@ -78,26 +78,4 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
       )),
     })
   }
-
-  return
-
-  // //
-  // // ===== COMMENTS ===== //
-  // //
-
-  // if (!userId) {
-  //   throw new Error('Handler received an empty user id')
-  // }
-
-  // if (!conversationId) {
-  //   throw new Error('Handler received an empty issue id')
-  // }
-
-  // const messageId = linearEvent.data.id
-
-  // if (!messageId) {
-  //   throw new Error('Handler received an empty message id')
-  // }
-
-  // TODO: check and re-add this
 }
