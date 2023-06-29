@@ -59,6 +59,7 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
   }
 
   // TODO: We're assuming that the bot on Linear uses a dedicated account, not impersonating a real user
+  console.log('LINEAR EVENT', linearEvent)
   if (eventType === 'comment' && linearEvent.action === 'create') {
     const linearCommentId = linearEvent.data.id
     const userId = linearEvent.data.user.id
