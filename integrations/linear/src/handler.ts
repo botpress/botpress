@@ -1,6 +1,7 @@
 import { IntegrationProps } from '@botpress/sdk'
 import { LinearWebhooks, LINEAR_WEBHOOK_SIGNATURE_HEADER, LINEAR_WEBHOOK_TS_FIELD } from '@linear/sdk'
 
+import { getUser } from './actions/get-user'
 import { fireIssueCreated } from './events/issueCreated'
 import { fireIssueUpdated } from './events/issueUpdated'
 import { handleOauth } from './misc/linear'
@@ -52,22 +53,37 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
 
   if (eventType === 'comment' && linearEvent.action === 'create') {
     const linearCommentId = linearEvent.data.id
-    const userId = linearEvent.data.userId || linearEvent.data.user.id
     const issueConversationId = linearEvent.data.issueId || linearEvent.data.issue.id
     const content = linearEvent.data.body
-    // const channelType = 'issue' // TODO: check if replying in a thread
+
+    const { userId, conversationId } = await getUserAndConversation(
+      {
+        linearIssueId: issueConversationId,
+        linearUserId,
+      },
+      client
+    )
+
+    const linearUser = await getUser({
+      client,
+      ctx,
+      input: { linearUserId },
+      type: 'getUser',
+    })
+
+    await client.setState({
+      id: userId,
+      type: 'user',
+      name: 'profile',
+      payload: linearUser,
+    })
 
     await client.createMessage({
       tags: { id: linearCommentId },
       type: 'text',
       payload: { text: content },
-      ...(await getUserAndConversation(
-        {
-          linearIssueId: issueConversationId,
-          linearUserId: userId,
-        },
-        client
-      )),
+      conversationId,
+      userId,
     })
   }
 }
