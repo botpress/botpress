@@ -62,8 +62,8 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
   console.log('LINEAR EVENT', linearEvent)
   if (eventType === 'comment' && linearEvent.action === 'create') {
     const linearCommentId = linearEvent.data.id
-    const userId = linearEvent.data.user.id
-    const issueConversationId = linearEvent.data.issue.id
+    const userId = linearEvent.data.userId || linearEvent.data.user.id
+    const issueConversationId = linearEvent.data.issueId || linearEvent.data.issue.id
     const content = linearEvent.data.body
     // const channelType = 'issue' // TODO: check if replying in a thread
 
@@ -79,6 +79,8 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
         client
       )),
     })
+
+    console.log('LINEAR COMMENT CREATED')
   }
 
   return
