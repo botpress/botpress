@@ -9,7 +9,7 @@ export type ChildOutput = {
   signal: NodeJS.Signals | null
 }
 
-const SPAWN_SHELL_ENV = {
+const SPAWN_SHELL_ENV: Record<string, string> = {
   FORCE_COLOR: 'true', // well-known env var used by most shells to enable color output in child processes
 } as const
 
