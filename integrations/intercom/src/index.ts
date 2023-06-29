@@ -25,8 +25,26 @@ const conversationPartSchema = z.object({
     id: z.string(),
     type: z.string(),
   }),
-  body: z.string(),
+  body: z.string().nullable(),
 })
+
+const conversationSourceSchema = z.object({
+  id: z.string(),
+  author: z.object({
+    id: z.string(),
+    type: z.string(),
+  }),
+  body: z.string().nullable(),
+})
+
+type IntercomMessage = {
+  id: string
+  author: {
+    id: string
+    type: string
+  }
+  body: string | null
+}
 
 const conversationSchema = z.object({
   type: z.literal('conversation'),
@@ -35,6 +53,7 @@ const conversationSchema = z.object({
     .nullable()
     .transform((val) => (val ? val.toString() : null)),
   id: z.string(),
+  source: conversationSourceSchema,
   conversation_parts: z.object({
     conversation_parts: z.array(conversationPartSchema),
   }),
@@ -192,6 +211,7 @@ const integration = new Integration({
           id: conversationId,
           admin_assignee_id: adminAssigneeId,
           conversation_parts: { conversation_parts },
+          source: firstConversationPart,
         },
       },
     } = parsedBody.data
@@ -211,15 +231,20 @@ const integration = new Integration({
       },
     })
 
-    for (const part of conversation_parts) {
+    // this uses the message payload from intercom to create the message in the bot
+    const createMessage = async (intercomMessage: IntercomMessage) => {
       const {
         author: { id: authorId, type: authorType },
         body,
         id: messageId,
-      } = part
+      } = intercomMessage
 
       if (!messageId) {
         throw new Error('Handler received an empty message id')
+      }
+
+      if (!body) {
+        return // ignore no body messages
       }
 
       if (authorType === 'bot') {
@@ -240,6 +265,14 @@ const integration = new Integration({
         conversationId: conversation.id,
         payload: { text: html.stripTags(body) },
       })
+    }
+
+    if (parsedBody.data.topic === 'conversation.user.created') {
+      await createMessage(firstConversationPart) // important, intercom keeps the first message in a separate object
+    }
+
+    for (const part of conversation_parts) {
+      await createMessage(part)
     }
     log.info('Handler finished processing request')
 
