@@ -9,8 +9,6 @@ import { secrets } from '.botpress'
 
 // eslint-disable-next-line complexity
 export const handler: IntegrationProps['handler'] = async ({ req, ctx, client }) => {
-  console.log('linear handler called', req.path, req.body)
-
   if (req.path === '/oauth') {
     return handleOauth(req, client, ctx)
   }
@@ -20,18 +18,14 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
   }
 
   const linearEvent = JSON.parse(req.body)
-  const {
-    state: { payload },
-  } = await client
+  const botUserId = await client
     .getState({
       type: 'integration',
       name: 'configuration',
       id: ctx.integrationId,
     })
-    .catch(() => {
-      console.error('Could not get integration configuration')
-      return { state: { payload: { botUserId: undefined } } }
-    })
+    .then((result) => result.state?.payload?.botUserId)
+    .catch(() => undefined)
 
   const webhookSignatureHeader = req.headers[LINEAR_WEBHOOK_SIGNATURE_HEADER]
   if (!webhookSignatureHeader) {
@@ -42,8 +36,6 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
   const webhook = new LinearWebhooks(secrets.WEBHOOK_SIGNING_SECRET)
   // are we sure it throws? it returns a boolean , add char to test this
   webhook.verify(Buffer.from(req.body), webhookSignatureHeader, linearEvent[LINEAR_WEBHOOK_TS_FIELD])
-
-  console.info('linearEvent', linearEvent)
 
   const eventType = linearEvent.type.toLowerCase()
 
@@ -61,7 +53,7 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
   // ============ MESSAGES ==============
 
   const linearUserId = linearEvent.data.userId ?? linearEvent.data.user?.id
-  if (!linearUserId || payload.botUserId === linearUserId) {
+  if (!linearUserId || botUserId === linearUserId) {
     // this means the message is actually coming from the bot itself, so we don't want to process it
     return
   }
