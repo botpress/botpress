@@ -52,11 +52,11 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
 
   // ============ MESSAGES ==============
 
-  const linearUserId = linearEvent.data.userId ?? linearEvent.data.user?.id
-  if (!linearUserId || botUserId === linearUserId) {
-    // this means the message is actually coming from the bot itself, so we don't want to process it
-    return
-  }
+  // const linearUserId = linearEvent.data.userId ?? linearEvent.data.user?.id
+  // if (!linearUserId || botUserId === linearUserId) {
+  //   // this means the message is actually coming from the bot itself, so we don't want to process it
+  //   return
+  // }
 
   // TODO: We're assuming that the bot on Linear uses a dedicated account, not impersonating a real user
   console.log('LINEAR EVENT', linearEvent)
