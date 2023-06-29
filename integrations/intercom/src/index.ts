@@ -231,7 +231,8 @@ const integration = new Integration({
       },
     })
 
-    const createInBotpressBot = async (intercomMessage: IntercomMessage) => {
+    // this uses the message payload from intercom to create the message in the bot
+    const createMessage = async (intercomMessage: IntercomMessage) => {
       const {
         author: { id: authorId, type: authorType },
         body,
@@ -267,11 +268,11 @@ const integration = new Integration({
     }
 
     if (parsedBody.data.topic === 'conversation.user.created') {
-      await createInBotpressBot(firstConversationPart) // important, intercom keeps the first message in a separate object
+      await createMessage(firstConversationPart) // important, intercom keeps the first message in a separate object
     }
 
     for (const part of conversation_parts) {
-      await createInBotpressBot(part)
+      await createMessage(part)
     }
     log.info('Handler finished processing request')
 
