@@ -53,7 +53,7 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
   // ============ MESSAGES ==============
 
   const linearUserId = linearEvent.data.userId ?? linearEvent.data.user?.id
-  if (!linearUserId || (!!botUserId && botUserId === linearUserId)) {
+  if (!linearUserId) {
     // this means the message is actually coming from the bot itself, so we don't want to process it
     return
   }
