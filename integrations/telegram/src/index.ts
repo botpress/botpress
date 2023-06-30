@@ -1,5 +1,5 @@
 import type { Conversation } from '@botpress/client'
-import type { AckFunction } from '@botpress/sdk'
+import { AckFunction, Logger } from '@botpress/sdk'
 
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Context, Markup, Telegraf } from 'telegraf'
@@ -158,6 +158,9 @@ const integration = new Integration({
     if (!messageId) {
       throw new Error('Handler received an empty message id')
     }
+
+    // This is a message that will be displayed to the Bot builder
+    Logger.forBot().log('Received message', { messageId, userId, conversationId })
 
     await client.createMessage({
       tags: { 'telegram:id': `${messageId}` },

@@ -1,6 +1,7 @@
 import { Client } from '@botpress/client'
 import { botIdHeader, configurationHeader, operationHeader, typeHeader } from '../const'
 import { log } from '../log'
+import * as logger from '../logger'
 import type { Handler, Request, Response } from '../serve'
 import { BotContext, botOperationSchema } from './context'
 import type { EventReceivedBotPayload } from './implementation'
@@ -18,37 +19,39 @@ export const createBotHandler =
   async (req: Request): Promise<Response> => {
     const ctx = extractContext(req.headers)
 
-    if (ctx.operation !== 'ping') {
-      log.info(`Received ${ctx.operation} operation for bot ${ctx.botId} of type ${ctx.type}`)
-    }
+    return await logger.asyncLocalStorage.run({ botId: ctx.botId }, async () => {
+      if (ctx.operation !== 'ping') {
+        log.info(`Received ${ctx.operation} operation for bot ${ctx.botId} of type ${ctx.type}`)
+      }
 
-    const client = new Client({ botId: ctx.botId })
+      const client = new Client({ botId: ctx.botId })
 
-    const props: OperationHandlerProps = {
-      req,
-      botState,
-      ctx,
-      client,
-    }
+      const props: OperationHandlerProps = {
+        req,
+        botState,
+        ctx,
+        client,
+      }
 
-    switch (ctx.operation) {
-      case 'event_received':
-        await onEventReceived(props)
-        break
-      case 'register':
-        await onRegister(props)
-        break
-      case 'unregister':
-        await onUnregister(props)
-        break
-      case 'ping':
-        await onPing(props)
-        break
-      default:
-        throw new Error(`Unknown operation ${ctx.operation}`)
-    }
+      switch (ctx.operation) {
+        case 'event_received':
+          await onEventReceived(props)
+          break
+        case 'register':
+          await onRegister(props)
+          break
+        case 'unregister':
+          await onUnregister(props)
+          break
+        case 'ping':
+          await onPing(props)
+          break
+        default:
+          throw new Error(`Unknown operation ${ctx.operation}`)
+      }
 
-    return { status: 200 }
+      return { status: 200 }
+    })
   }
 
 function extractContext(headers: Record<string, string | undefined>): BotContext {
