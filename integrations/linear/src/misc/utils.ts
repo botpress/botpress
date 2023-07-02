@@ -56,7 +56,12 @@ export function toReturnedIssueLabel(issueLabel: IssueLabel) {
 export async function createComment({ ctx, client, conversation, ack, content }: any) {
   const linearClient = await getLinearClient(client, ctx.integrationId)
   const issueId = getIssueId(conversation)
-  const res = await linearClient.createComment({ issueId, body: content })
+  const res = await linearClient.createComment({
+    issueId,
+    body: content,
+    // displayIconUrl: '' // TODO: get the bot icon from config
+    // createAsUser: '' // TODO: get the bot name from config
+  })
   const comment = await res.comment
   if (!comment) {
     return
