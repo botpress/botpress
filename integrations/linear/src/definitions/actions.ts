@@ -74,6 +74,23 @@ const listIssues = {
   },
 }
 
+const listTeams = {
+  title: 'List Teams',
+  input: {
+    schema: z.object({}),
+  },
+  output: {
+    schema: z.object({
+      teams: z.array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+        })
+      ),
+    }),
+  },
+}
+
 const getUser = {
   title: 'Get User Profile',
   description: 'Get a user profile from Linear',
@@ -130,6 +147,7 @@ const updateIssue = {
 export const actions = {
   findTarget,
   listIssues,
+  listTeams,
   getIssue,
   getUser,
   updateIssue,
