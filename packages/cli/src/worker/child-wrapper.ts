@@ -9,6 +9,10 @@ export type ChildOutput = {
   signal: NodeJS.Signals | null
 }
 
+const SPAWN_SHELL_ENV: Record<string, string> = {
+  FORCE_COLOR: 'true', // well-known env var used by most shells to enable color output in child processes
+} as const
+
 const listenForChildSpawn = (child: childProcess.ChildProcess, logger: Logger) =>
   new Promise<void>((resolve, reject) => {
     child.on('spawn', () => {
@@ -68,6 +72,7 @@ export class ChildProcessWrapper {
     const child = childProcess.fork(ENTRY_POINT, [], {
       stdio: 'inherit',
       env: {
+        ...SPAWN_SHELL_ENV,
         [CHILD_ENV_KEY]: CHILD_ENV_VALUE,
         [CONFIG_ENV_KEY]: JSON.stringify(config),
         ...config.env,

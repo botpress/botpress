@@ -256,7 +256,12 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     updateLine.started('Deploying dev bot...')
 
     const { bot: updatedBot } = await api.client
-      .updateBot({ id: bot.id, integrations, url: externalUrl })
+      .updateBot({
+        ...botImpl.definition,
+        id: bot.id,
+        integrations,
+        url: externalUrl,
+      })
       .catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, 'Could not deploy dev bot')
       })
