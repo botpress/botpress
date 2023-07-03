@@ -12,16 +12,25 @@ export const listIssues: Implementation['actions']['listIssues'] = async ({
   const linearClient = await getLinearClient(client, ctx.integrationId)
 
   const query = await linearClient.issues({
-    orderBy: LinearDocument.PaginationOrderBy.CreatedAt,
+    orderBy: LinearDocument.PaginationOrderBy.UpdatedAt,
     first: count || 10,
     after: startCursor,
     filter: {
-      createdAt: startDate ? { gt: new Date(startDate) } : undefined,
+      updatedAt: startDate ? { gt: new Date(startDate) } : undefined,
       team: teamId ? { id: { eq: teamId } } : undefined,
     },
   })
 
-  const issues = query.nodes.map(getIssueFields)
+  const issues = query.nodes.map((issue) => ({
+    ...getIssueFields(issue),
+    linearIds: {
+      issueId: issue.id,
+      creatorId: issue['_creator']?.id,
+      teamId: issue['_team']?.id,
+      assigneeId: issue['_assignee']?.id,
+      projectId: issue['_project']?.id,
+    },
+  }))
 
   return {
     issues,
