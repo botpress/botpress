@@ -56,6 +56,24 @@ const getIssue = {
   },
 }
 
+const listIssues = {
+  title: 'List Issues',
+  input: {
+    schema: z.object({
+      count: z.number().optional().default(10).describe('The number of issues to return'),
+      startCursor: z.string().optional().describe('The cursor to start from'),
+      teamId: z.string().optional().describe('The team ID to filter by'),
+      startDate: z.string().optional().describe('Ignore issues created before this date'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      issues: z.array(issueSchema),
+      nextCursor: z.string().optional(),
+    }),
+  },
+}
+
 const getUser = {
   title: 'Get User Profile',
   description: 'Get a user profile from Linear',
@@ -111,6 +129,7 @@ const updateIssue = {
 
 export const actions = {
   findTarget,
+  listIssues,
   getIssue,
   getUser,
   updateIssue,
