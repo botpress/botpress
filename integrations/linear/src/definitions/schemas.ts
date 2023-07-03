@@ -46,10 +46,10 @@ export const UserProfile = z.object({
 
 export const LinearIds = z
   .object({
-    creatorId: z.string().describe('The internal Linear User ID of the user who created the issue'),
+    creatorId: z.string().optional().describe('The internal Linear User ID of the user who created the issue'),
     labelIds: z.array(z.string()).optional().describe('The internal Linear Label IDs associated with the issue'),
     issueId: z.string().describe('The internal Linear Issue ID'),
-    teamId: z.string().describe('The internal Linear Team ID'),
+    teamId: z.string().optional().describe('The internal Linear Team ID'),
     projectId: z.string().optional().describe('The internal Linear Project ID'),
     assigneeId: z.string().optional().describe('The internal Linear Assignee ID'),
     subscriberIds: z.array(z.string()).optional().describe('The internal Linear Subscriber User IDs'),
