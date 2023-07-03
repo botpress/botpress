@@ -91,6 +91,19 @@ const listTeams = {
   },
 }
 
+const markAsDuplicate = {
+  title: 'Mark Issue as Duplicate',
+  input: {
+    schema: z.object({
+      issueId: z.string().describe('The issue ID on Linear. Ex: {{event.payload.linearIds.issueId}}'),
+      relatedIssueId: z.string().describe('The ID of the existing issue on Linear'),
+    }),
+  },
+  output: {
+    schema: z.object({}),
+  },
+}
+
 const getUser = {
   title: 'Get User Profile',
   description: 'Get a user profile from Linear',
@@ -148,6 +161,7 @@ export const actions = {
   findTarget,
   listIssues,
   listTeams,
+  markAsDuplicate,
   getIssue,
   getUser,
   updateIssue,
