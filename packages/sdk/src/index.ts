@@ -1,8 +1,6 @@
 import { BotClient } from './bot'
 import { IntegrationClient } from './integration'
-import { logger, overrideConsole } from './logger'
-
-overrideConsole()
+import { logger } from './logger'
 
 export * as messages from './message'
 export const clients = { IntegrationClient, BotClient }

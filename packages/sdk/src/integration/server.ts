@@ -8,7 +8,6 @@ import {
   operationHeader,
   webhookIdHeader,
 } from '../const'
-import { asyncLocalStorage as loggerStorage } from '../logger'
 import { Request, Response, serve } from '../serve'
 import { IntegrationContext, integrationOperationSchema } from './context'
 import type {
@@ -34,59 +33,56 @@ export const serveIntegration = async (integration: IntegrationImplementationPro
 
 export const integrationHandler =
   (integration: IntegrationImplementationProps) =>
+  // eslint-disable-next-line complexity
   async (req: Request): Promise<Response | void> => {
     const ctx = extractContext(req.headers)
+    const client = new Client({ botId: ctx.botId, integrationId: ctx.integrationId })
 
-    // eslint-disable-next-line complexity
-    return await loggerStorage.run({ botId: ctx.botId, operation: ctx.operation }, async () => {
-      const client = new Client({ botId: ctx.botId, integrationId: ctx.integrationId })
+    const props: OperationHandlerProps = {
+      integration,
+      ctx,
+      req,
+      client,
+    }
 
-      const props: OperationHandlerProps = {
-        integration,
-        ctx,
-        req,
-        client,
+    try {
+      let response: Response | void
+      switch (ctx.operation) {
+        case 'webhook_received':
+          response = await onWebhook(props)
+          break
+        case 'register':
+          response = await onRegister(props)
+          break
+        case 'unregister':
+          response = await onUnregister(props)
+          break
+        case 'message_created':
+          response = await onMessageCreated(props)
+          break
+        case 'action_triggered':
+          response = await onActionTriggered(props)
+          break
+        case 'ping':
+          response = await onPing(props)
+          break
+        case 'create_user':
+          response = await onCreateUser(props)
+          break
+        case 'create_conversation':
+          response = await onCreateConversation(props)
+          break
+        default:
+          throw new Error(`Unknown operation ${ctx.operation}`)
       }
-
-      try {
-        let response: Response | void
-        switch (ctx.operation) {
-          case 'webhook_received':
-            response = await onWebhook(props)
-            break
-          case 'register':
-            response = await onRegister(props)
-            break
-          case 'unregister':
-            response = await onUnregister(props)
-            break
-          case 'message_created':
-            response = await onMessageCreated(props)
-            break
-          case 'action_triggered':
-            response = await onActionTriggered(props)
-            break
-          case 'ping':
-            response = await onPing(props)
-            break
-          case 'create_user':
-            response = await onCreateUser(props)
-            break
-          case 'create_conversation':
-            response = await onCreateConversation(props)
-            break
-          default:
-            throw new Error(`Unknown operation ${ctx.operation}`)
-        }
-        return response ? { ...response, status: response.status ?? 200 } : { status: 200 }
-      } catch (e) {
-        if (e instanceof RuntimeError) {
-          return { status: e.code, body: JSON.stringify(e.toJSON()) }
-        } else {
-          throw e
-        }
+      return response ? { ...response, status: response.status ?? 200 } : { status: 200 }
+    } catch (e) {
+      if (e instanceof RuntimeError) {
+        return { status: e.code, body: JSON.stringify(e.toJSON()) }
+      } else {
+        throw e
       }
-    })
+    }
   }
 
 function extractContext(headers: Record<string, string | undefined>): IntegrationContext {

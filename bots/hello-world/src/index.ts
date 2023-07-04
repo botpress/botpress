@@ -1,5 +1,5 @@
 import type { Client } from '@botpress/client'
-import { Bot, messages } from '@botpress/sdk'
+import { Bot, messages, Logger } from '@botpress/sdk'
 import type { z } from 'zod'
 
 type DefaultMessages = typeof messages.defaults
@@ -16,6 +16,7 @@ const bot = new Bot()
 
 bot.message('', async ({ message, client, ctx }) => {
   console.info('Received message', message)
+  Logger.forBot().error('this is an error')
 
   await client.createMessage({
     conversationId: message.conversationId,

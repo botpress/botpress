@@ -159,7 +159,7 @@ const integration = new Integration({
       throw new Error('Handler received an empty message id')
     }
 
-    // This is a message that will be displayed to the Bot builder
+    // This is a message that will be displayed to the Bot Builder
     Logger.forBot().log('Received message', { messageId, userId, conversationId })
 
     await client.createMessage({
