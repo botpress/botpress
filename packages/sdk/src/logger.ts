@@ -1,12 +1,17 @@
 /* eslint-disable no-console */
 import { AsyncLocalStorage } from 'async_hooks'
 import util from 'util'
+import { BotContext } from './bot'
+import { IntegrationContext } from './integration'
 
 const oldConsole = console
 
-type LoggingContext = {
-  botId: string
-}
+// We only extract the fields we need from the context.
+// We don't want to extract other fields as they can be calculated from the Bridge and API databases
+type PartialBotContext = Pick<BotContext, 'operation' | 'type'>
+type PartialIntegrationContext = Pick<IntegrationContext, 'operation' | 'botId'>
+
+type LoggingContext = PartialBotContext | PartialIntegrationContext
 
 const getContext = () => {
   const ctx = asyncLocalStorage.getStore()

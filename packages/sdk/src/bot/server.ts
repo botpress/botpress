@@ -19,7 +19,7 @@ export const createBotHandler =
   async (req: Request): Promise<Response> => {
     const ctx = extractContext(req.headers)
 
-    return await logger.asyncLocalStorage.run({ botId: ctx.botId }, async () => {
+    return await logger.asyncLocalStorage.run({ type: ctx.type, operation: ctx.operation }, async () => {
       if (ctx.operation !== 'ping') {
         log.info(`Received ${ctx.operation} operation for bot ${ctx.botId} of type ${ctx.type}`)
       }

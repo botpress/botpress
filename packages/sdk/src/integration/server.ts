@@ -38,7 +38,7 @@ export const integrationHandler =
     const ctx = extractContext(req.headers)
 
     // eslint-disable-next-line complexity
-    return await loggerStorage.run({ botId: ctx.botId }, async () => {
+    return await loggerStorage.run({ botId: ctx.botId, operation: ctx.operation }, async () => {
       const client = new Client({ botId: ctx.botId, integrationId: ctx.integrationId })
 
       const props: OperationHandlerProps = {
