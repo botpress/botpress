@@ -9,7 +9,7 @@ const oldConsole = console
 // We only extract the fields we need from the context.
 // We don't want to extract other fields as they can be calculated from the Bridge and API databases
 type PartialBotContext = Pick<BotContext, 'operation' | 'type'>
-type PartialIntegrationContext = Pick<IntegrationContext, 'operation' | 'botId'>
+type PartialIntegrationContext = Pick<IntegrationContext, 'operation' | 'botId'> & { availableToBotOwner?: boolean }
 
 type LoggingContext = PartialBotContext | PartialIntegrationContext
 
@@ -21,6 +21,8 @@ const getContext = () => {
 
   return ctx
 }
+
+const isIntegrationContext = (ctx: LoggingContext): ctx is PartialIntegrationContext => 'botId' in ctx
 
 const serializeMessage = (args: Parameters<typeof util.format>, ctx: LoggingContext) =>
   JSON.stringify({ msg: util.format(...args), ctx })
@@ -54,7 +56,6 @@ const newConsole = {
  * Override console methods to send custom-formatted messages to stdout
  */
 export const overrideConsole = () => {
-  oldConsole.log('overriding console')
   console = {
     ...oldConsole,
     ...newConsole,
@@ -62,7 +63,13 @@ export const overrideConsole = () => {
 }
 
 export const logger = {
-  forBot: () => newConsole,
+  forBot: () => {
+    const ctx = getContext()
+    if (isIntegrationContext(ctx)) {
+      ctx.availableToBotOwner = true
+    }
+    return newConsole
+  },
 }
 
 export const asyncLocalStorage = new AsyncLocalStorage<LoggingContext>()
