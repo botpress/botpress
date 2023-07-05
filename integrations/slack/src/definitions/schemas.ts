@@ -43,7 +43,7 @@ const selectSchema = z
 const actionsSchema = z
   .object({
     type: z.literal('actions'),
-    elements: z.array(z.discriminatedUnion('type', [imageSchema, selectSchema, buttonSchema])),
+    elements: z.array(z.discriminatedUnion('type', [buttonSchema, selectSchema])).max(5),
   })
   .strict()
   .describe('Display multiple elements in a group')
@@ -51,7 +51,7 @@ const actionsSchema = z
 const contextSchema = z
   .object({
     type: z.literal('context'),
-    elements: z.array(z.discriminatedUnion('type', [imageSchema, plainTextSchema, markdownSchema])),
+    elements: z.array(z.discriminatedUnion('type', [imageSchema, plainTextSchema, markdownSchema])).max(10),
   })
   .strict()
   .describe('Display multiple elements in a group')
@@ -114,12 +114,14 @@ const checkboxesSchema = z
 const overflowSchema = z
   .object({
     type: z.literal('overflow'),
-    options: z.array(
-      z.object({
-        text: markdownSchema,
-        value: z.string(),
-      })
-    ),
+    options: z
+      .array(
+        z.object({
+          text: plainTextSchema,
+          value: z.string(),
+        })
+      )
+      .max(5),
     action_id: z.string(),
   })
   .describe('An overflow block')
@@ -128,7 +130,7 @@ const datePickerSchema = z
   .object({
     type: z.literal('datepicker'),
     action_id: z.string(),
-    placeholder: markdownSchema.optional(),
+    placeholder: plainTextSchema.optional(),
     initial_date: z.string().optional(),
   })
   .describe('A date picker block')
@@ -137,7 +139,7 @@ const timePickerSchema = z
   .object({
     type: z.literal('timepicker'),
     action_id: z.string(),
-    placeholder: markdownSchema.optional(),
+    placeholder: plainTextSchema.optional(),
     initial_time: z.string().optional(),
   })
   .describe('A time picker block')
@@ -159,6 +161,9 @@ const multiSelectMenuSchema = z
     action_id: z.string(),
     options: z.array(optionSchema).optional(),
     option_groups: z.array(optionGroupSchema).optional(),
+  })
+  .refine((obj) => !!obj.options || !!obj.option_groups, {
+    message: 'At least one of options or option_groups must be provided',
   })
   .describe('A multi-select menu block')
 
@@ -232,7 +237,7 @@ const inputSchema = z
     label: plainTextSchema,
     element: z.discriminatedUnion('type', [
       selectSchema,
-      multiSelectMenuSchema,
+      multiSelectMenuSchema.innerType(),
       conversationsSelectMenuSchema,
       channelsSelectMenuSchema,
       usersSelectMenuSchema,
@@ -241,14 +246,11 @@ const inputSchema = z
       channelsMultiSelectMenuSchema,
       usersMultiSelectMenuSchema,
       externalMultiSelectMenuSchema,
-      buttonSchema,
-      overflowSchema,
       datePickerSchema,
       timePickerSchema,
-      checkboxesSchema,
       radioButtonsSchema,
-      plainTextSchema,
-      markdownSchema,
+      checkboxesSchema,
+      overflowSchema,
     ]),
     block_id: z.string().optional(),
   })
@@ -266,7 +268,6 @@ export const textSchema = z
         z.discriminatedUnion('type', [
           sectionSchema,
           imageSchema,
-          selectSchema,
           actionsSchema,
           contextSchema,
           dividerSchema,
@@ -278,7 +279,7 @@ export const textSchema = z
           overflowSchema,
           datePickerSchema,
           timePickerSchema,
-          multiSelectMenuSchema,
+          multiSelectMenuSchema.sourceType(),
           conversationsSelectMenuSchema,
           channelsSelectMenuSchema,
           usersSelectMenuSchema,
@@ -289,9 +290,14 @@ export const textSchema = z
           externalMultiSelectMenuSchema,
         ])
       )
+      .max(50)
       .optional()
       .describe(
         'Multiple blocks can be added to this array. If a block is provided, the text field is ignored and the text must be added as a block'
       ),
   })
   .strict()
+  .refine((data) => !(data.text && data.blocks), {
+    message: 'If blocks are provided, the text field is ignored and the text must be added as a block',
+    path: ['text'],
+  })
