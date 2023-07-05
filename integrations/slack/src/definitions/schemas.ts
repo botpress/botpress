@@ -56,18 +56,6 @@ const contextSchema = z
   .strict()
   .describe('Display multiple elements in a group')
 
-const sectionSchema = z
-  .object({
-    type: z.literal('section'),
-    text: z.object({
-      type: z.union([z.literal('mrkdwn'), z.literal('plain_text')]),
-      text: z.string(),
-    }),
-    accessory: z.discriminatedUnion('type', [imageSchema, buttonSchema, selectSchema]).optional(),
-  })
-  .strict()
-  .describe('Show a message using markdown')
-
 const dividerSchema = z.object({ type: z.literal('divider') }).describe('A simple divider block')
 
 const headerSchema = z
@@ -256,13 +244,35 @@ const inputSchema = z
   })
   .describe('An input block')
 
+const sectionSchema = z
+  .object({
+    type: z.literal('section'),
+    text: z.union([markdownSchema, plainTextSchema]),
+    accessory: z
+      .union([
+        buttonSchema,
+        checkboxesSchema,
+        datePickerSchema,
+        imageSchema,
+        multiSelectMenuSchema,
+        overflowSchema,
+        radioButtonsSchema,
+        selectSchema,
+        timePickerSchema,
+      ])
+      .optional(),
+  })
+  .strict()
+  .describe('Show a message using markdown')
+
 export const textSchema = z
   .object({
     text: z
       .string()
       .describe(
         'Field text must be defined but it is ignored if blocks are provided. In this situation, the text must be provided in the blocks array'
-      ),
+      )
+      .optional(),
     blocks: z
       .array(
         z.discriminatedUnion('type', [
@@ -296,8 +306,4 @@ export const textSchema = z
         'Multiple blocks can be added to this array. If a block is provided, the text field is ignored and the text must be added as a block'
       ),
   })
-  .strict()
-  .refine((data) => !(data.text && data.blocks), {
-    message: 'If blocks are provided, the text field is ignored and the text must be added as a block',
-    path: ['text'],
-  })
+  .strip()
