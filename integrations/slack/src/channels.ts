@@ -7,6 +7,8 @@ const defaultMessages: Channels['channel']['messages'] = {
     await sendSlackMessage(ctx.configuration.botToken, ack, {
       ...getSlackTarget(conversation),
       text: payload.text,
+      // @ts-ignore
+      blocks: payload.blocks,
     })
   },
   image: async ({ payload, ctx, conversation, ack }) => {
