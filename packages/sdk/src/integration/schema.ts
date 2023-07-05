@@ -29,7 +29,7 @@ export type SchemaDefinition<TSchema extends z.ZodObject<any>> = {
 export function schemaDefinitionToJsonSchema(
   definition: SchemaDefinition<z.ZodObject<any>>
 ): ReturnType<typeof zodToJsonSchema> {
-  const schema = zodToJsonSchema(definition.schema, { errorMessages: true })
+  const schema = zodToJsonSchema(definition.schema, { $refStrategy: 'none', errorMessages: true })
   if (!isObjectSchema(schema) || !definition.ui) {
     return schema
   }
