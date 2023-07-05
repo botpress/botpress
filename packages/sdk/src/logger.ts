@@ -3,7 +3,7 @@ import util from 'util'
 
 const serializeForBotMessage = (args: Parameters<typeof util.format>) => {
   if (process.env['BP_LOG_FORMAT'] === 'json') {
-    return JSON.stringify({ msg: util.format(...args), availableToBotOwner: true })
+    return JSON.stringify({ msg: util.format(...args), visible_to_bot_owner: true })
   } else {
     const [format, ...param] = args
     return util.format(`[For Bot Builder] ${format}`, ...param)
