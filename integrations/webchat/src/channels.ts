@@ -7,13 +7,14 @@ export default {
     messages: {
       text: async (params) => {
         const { payload } = params
-        await send({ ...params, message: { ...payload, type: 'text', text: payload.text, markdown: true } })
+        await send({ ...params, message: { ...payload, type: 'text', text: payload.text, markdown: true } }) // Text messages should support markdown by default.
       },
       image: async (params) => {
         const { payload } = params
         await send({ ...params, message: { ...payload, type: 'image', image: payload.imageUrl } })
       },
       markdown: async (params) => {
+        // This dedicated markdown message type is not used right now.
         const { payload } = params
         await send({ ...params, message: { ...payload, type: 'text', text: payload.markdown, markdown: true } })
       },
