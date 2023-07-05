@@ -14,7 +14,7 @@ export default {
         await send({ ...params, message: { ...payload, type: 'image', image: payload.imageUrl } })
       },
       markdown: async (params) => {
-        // This dedicated markdwon message type is not used right now.
+        // This dedicated markdown message type is not used right now.
         const { payload } = params
         await send({ ...params, message: { ...payload, type: 'text', text: payload.markdown, markdown: true } })
       },
