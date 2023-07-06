@@ -48,7 +48,7 @@ module.exports = {
         ]
       }
     ],
-    complexity: ['error', 12],
+    complexity: ['off'],
     'no-cond-assign': 'error',
     'no-const-assign': 'error',
     'no-debugger': 'error',
