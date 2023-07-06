@@ -1,5 +1,5 @@
 import type { Conversation } from '@botpress/client'
-import { AckFunction } from '@botpress/sdk'
+import type { AckFunction } from '@botpress/sdk'
 
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Context, Markup, Telegraf } from 'telegraf'
