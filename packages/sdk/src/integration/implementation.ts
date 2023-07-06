@@ -2,11 +2,13 @@ import type { Client, Conversation, Message, User } from '@botpress/client'
 import type { Server } from 'node:http'
 import { Request, Response, serve } from '../serve'
 import type { IntegrationContext } from './context'
+import { IntegrationLogger } from './logger'
 import { integrationHandler } from './server'
 
 type IntegrationProps<Configuration> = {
   ctx: IntegrationContext<Configuration>
   client: Client
+  logger: IntegrationLogger
 }
 
 export type RegisterPayload = {

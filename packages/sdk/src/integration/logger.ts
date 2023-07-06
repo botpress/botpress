@@ -6,13 +6,13 @@ const serializeForBotMessage = (args: Parameters<typeof util.format>) => {
     return JSON.stringify({ msg: util.format(...args), visible_to_bot_owner: true })
   } else {
     const [format, ...param] = args
-    return util.format(`[For Bot Builder] ${format}`, ...param)
+    return util.format(`[For Bot Owner] ${format}`, ...param)
   }
 }
 
-export const logger = {
+export const integrationLogger = {
   /**
-   * Use this function to log messages that will be displayed to the Bot Builder.
+   * Use this function to log messages that will be displayed to the Bot Owner.
    */
   forBot: () => {
     return {
@@ -34,3 +34,5 @@ export const logger = {
     }
   },
 }
+
+export type IntegrationLogger = typeof integrationLogger
