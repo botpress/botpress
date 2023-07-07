@@ -33,7 +33,7 @@ export const linearCreateIssueOutput = z.object({
     description: z.string().optional(),
     priority: z.number(),
     url: z.string(),
-    createdAt: z.date(),
-    updatedAt: z.date(),
+    createdAt: z.string(),
+    updatedAt: z.string(),
   }),
 })

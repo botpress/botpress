@@ -124,7 +124,7 @@ const createIssue = {
   },
   output: {
     schema: z.object({
-      issue: issueSchema.optional(),
+      issue: issueSchema,
     }),
   },
 } satisfies NonNullable<IntegrationDefinitionProps['actions']>[string]

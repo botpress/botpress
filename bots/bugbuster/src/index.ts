@@ -4,9 +4,6 @@ import type { z } from 'zod'
 import * as schemas from './schemas'
 import * as botpress from '.botpress' /** uncomment to get generated code */
 
-// oauth linear
-// https://linear.app/oauth/authorize?client_id=${config.linearClientId}&redirect_uri=${webhookPrefix}/oauth&response_type=code&prompt=consent&actor=application&state=${webhookId}&scope=read,write,issues:create,comments:create,admin
-
 const github = new botpress.Github({ enabled: false })
 const linear = new botpress.Linear({ enabled: false })
 
@@ -19,15 +16,24 @@ const bot = new Bot({
   events: {},
 })
 
-// eslint-disable-next-line unused-imports/no-unused-vars
-const createLinearIssue = async (client: Client, issue: z.infer<typeof schemas.linearCreateIssueInput>) => {
-  await client.callAction({
+const createLinearIssue = async (
+  client: Client,
+  issue: z.infer<typeof schemas.linearCreateIssueInput>
+): Promise<z.infer<typeof schemas.linearCreateIssueOutput>> => {
+  const { output } = await client.callAction({
     type: 'linear:createIssue',
     input: issue,
   })
+
+  const parseResult = schemas.linearCreateIssueOutput.safeParse(output)
+  if (!parseResult.success) {
+    throw new Error(`Invalid output: ${parseResult.error}`)
+  }
+
+  return parseResult.data
 }
 
-bot.event('', async ({ event, client }) => {
+bot.event('', async ({ event, client, ctx }) => {
   console.info('event', event)
 
   const { type, payload } = event
@@ -40,17 +46,32 @@ bot.event('', async ({ event, client }) => {
     throw new Error(`Invalid payload: ${parseResult.error}`)
   }
 
-  const { data: openedIssue } = parseResult
+  const { data: githubIssue } = parseResult
 
-  console.info('New issue opened', openedIssue)
-
-  await createLinearIssue(client, {
-    title: openedIssue.title,
-    description: openedIssue.content ?? 'No content...',
+  const { issue } = await createLinearIssue(client, {
+    title: githubIssue.title,
+    description: githubIssue.content ?? 'No content...',
     teamName: 'Cloud Services',
   })
 
-  // TODO: create a comment on the linear issue with the link to the github issue
+  const { conversation } = await client.getOrCreateConversation({
+    channel: 'issue',
+    tags: {
+      ['linear:id']: issue.id,
+    },
+    integrationName: 'linear',
+  })
+
+  const issueUrl = `https://github.com/${githubIssue.repositoryOwner}/${githubIssue.repositoryName}/issues/${githubIssue.number}`
+  await client.createMessage({
+    type: 'text',
+    conversationId: conversation.id,
+    userId: ctx.botId,
+    tags: {},
+    payload: {
+      text: `Automatically created from GitHub issue: ${issueUrl}`,
+    },
+  })
 })
 
 export default bot

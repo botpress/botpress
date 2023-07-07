@@ -1,3 +1,4 @@
+import { verify as verifyWebhook } from '@octokit/webhooks-methods'
 import type { WebhookEvent } from '@octokit/webhooks-types'
 
 import { GITHUB_SIGNATURE_HEADER } from './const'
@@ -15,24 +16,22 @@ import {
 
 import * as botpress from '.botpress'
 
-export const handler: botpress.IntegrationProps['handler'] = async ({ req, client }) => {
+export const handler: botpress.IntegrationProps['handler'] = async ({ req, client, ctx }) => {
   const signature = req.headers[GITHUB_SIGNATURE_HEADER]
   const { body } = req
   if (!(body && signature)) {
     return console.warn('Body or signature is missing')
   }
 
-  // TODO: uncomment webhook secret verification
+  const { state } = await client.getState({
+    type: 'integration',
+    name: 'configuration',
+    id: ctx.integrationId,
+  })
 
-  // const { state } = await client.getState({
-  //   type: 'integration',
-  //   name: 'configuration',
-  //   id: ctx.integrationId,
-  // })
-
-  // if (!(await verifyWebhook(state.payload.webhookSecret, body, signature))) {
-  //   return console.warn('Invalid webhook secret', state.payload.webhookSecret, signature)
-  // }
+  if (!(await verifyWebhook(state.payload.webhookSecret, body, signature))) {
+    return console.warn('Invalid webhook secret', state.payload.webhookSecret, signature)
+  }
 
   const rawEvent: WebhookEvent = JSON.parse(body)
   if (isPingEvent(rawEvent)) {

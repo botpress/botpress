@@ -27,6 +27,21 @@ export const createIssue: Implementation['actions']['createIssue'] = async ({
     projectId,
   })
 
-  const issue = await issueFetch
-  return issue ? { issue: getIssueFields(issue) } : {}
+  const fullIssue = await issueFetch
+  if (!fullIssue) {
+    throw new Error('Could not create issue')
+  }
+
+  const issue = getIssueFields(fullIssue)
+
+  await client.getOrCreateConversation({
+    channel: 'issue',
+    tags: {
+      id: fullIssue.id,
+    },
+  })
+
+  return {
+    issue,
+  }
 }
