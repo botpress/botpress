@@ -7,19 +7,29 @@ export const register: RegisterFunction = async ({ ctx, webhookUrl, client }) =>
   const octokit = new Octokit({ auth: token })
   const secret = `secret-${Math.random()}`
 
-  const webhook = await octokit.rest.repos.createWebhook({
-    owner,
-    repo,
-    config: { url: webhookUrl, secret, content_type: 'json' },
-    events: ['pull_request', 'issue_comment', 'issues', 'discussion', 'discussion_comment'],
-  })
+  const alreadyRegistered = (await octokit.rest.repos.listWebhooks({ owner, repo })).data.find(
+    (w) => w.config.url === webhookUrl
+  )
+
+  if (alreadyRegistered) {
+    await octokit.rest.repos.deleteWebhook({ owner, repo, hook_id: alreadyRegistered.id })
+  }
+
+  const webhook = (
+    await octokit.rest.repos.createWebhook({
+      owner,
+      repo,
+      config: { url: webhookUrl, secret, content_type: 'json' },
+      events: ['pull_request', 'issue_comment', 'issues', 'discussion', 'discussion_comment'],
+    })
+  ).data
 
   const botUserId = (await octokit.rest.users.getAuthenticated()).data.id
   await client.setState({
     type: 'integration',
     name: 'configuration',
     id: ctx.integrationId,
-    payload: { webhookSecret: secret, webhookId: webhook.data.id, botUserId },
+    payload: { webhookSecret: secret, webhookId: webhook.id, botUserId },
   })
 }
 
