@@ -113,8 +113,8 @@ const createIssue = {
   title: 'Create Issue',
   input: {
     schema: z.object({
-      title: z.string().min(2).max(1000),
-      description: z.string().max(100000).describe('The content of the issue'),
+      title: z.string().min(1),
+      description: z.string().describe('The content of the issue'),
       priority: z.number().optional().describe('0 = none, 1 = urgent, 2 = high, 3 = medium, 4 = low'),
       teamName: z.string().describe('Name of the team to assign the issue to'),
       labels: z.array(z.string()).optional().describe('One or multiple labels to assign to this issue'),
