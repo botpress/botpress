@@ -41,7 +41,6 @@ export const issueOpened = {
   description: 'Triggered when an issue is opened',
   schema: z
     .object({
-      type: z.literal(`${INTEGRATION_NAME}:issueOpened`).optional(),
       id: z.number(),
       issueUrl: z.string(),
       repoUrl: z.string(),

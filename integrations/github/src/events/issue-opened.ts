@@ -4,7 +4,6 @@ import { IssueOpened } from '../definitions/events'
 
 export const fireIssueOpened = async ({ githubEvent, client }: { githubEvent: IssuesOpenedEvent; client: Client }) => {
   const payload: IssueOpened = {
-    type: 'github:issueOpened',
     id: githubEvent.issue.id,
     number: githubEvent.issue.number,
     title: githubEvent.issue.title,
