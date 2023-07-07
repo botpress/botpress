@@ -8,6 +8,7 @@ export const targets = z.object({
 
 const plainTextSchema = z.object({ type: z.literal('plain_text'), text: z.string() })
 const markdownSchema = z.object({ type: z.literal('mrkdwn'), text: z.string() })
+const plainOrMarkdown = z.discriminatedUnion('type', [markdownSchema, plainTextSchema])
 
 const imageSchema = z
   .object({
@@ -246,7 +247,7 @@ const inputSchema = z
 const sectionSchema = z
   .object({
     type: z.literal('section'),
-    text: z.union([markdownSchema, plainTextSchema]),
+    text: plainOrMarkdown,
     accessory: z
       .discriminatedUnion('type', [
         buttonSchema,
