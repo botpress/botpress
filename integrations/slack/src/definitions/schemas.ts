@@ -27,18 +27,19 @@ const buttonSchema = z
   })
   .describe('Button Block. Display a button')
 
-const selectSchema = z.object({
-  type: z.literal('static_select'),
-  placeholder: plainTextSchema,
-  action_id: z.string(),
-  options: z.array(
-    z.object({
-      text: plainTextSchema,
-      value: z.string(),
-    })
-  ),
-})
-// .strict()
+const selectSchema = z
+  .object({
+    type: z.literal('static_select'),
+    placeholder: plainTextSchema,
+    action_id: z.string(),
+    options: z.array(
+      z.object({
+        text: plainTextSchema,
+        value: z.string(),
+      })
+    ),
+  })
+  .strict()
 
 const actionsSchema = z
   .object({
@@ -46,14 +47,14 @@ const actionsSchema = z
     elements: z.array(z.discriminatedUnion('type', [buttonSchema, selectSchema])).max(5),
   })
   .describe('Display multiple elements in a group')
-// .strict()
+  .strict()
 
 const contextSchema = z
   .object({
     type: z.literal('context'),
     elements: z.array(z.discriminatedUnion('type', [imageSchema, plainTextSchema, markdownSchema])).max(10),
   })
-  // .strict()
+  .strict()
   .describe('Display multiple elements in a group')
 
 const dividerSchema = z.object({ type: z.literal('divider') }).describe('A simple divider block')
@@ -262,7 +263,7 @@ const sectionSchema = z
       ])
       .optional(),
   })
-  // .strict()
+  .strict()
   .describe('Show a message using markdown')
 
 export const textSchema = z
