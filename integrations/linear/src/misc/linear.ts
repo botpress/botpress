@@ -48,6 +48,7 @@ export class LinearOauthClient {
       {
         client_id: this.clientId,
         client_secret: this.clientSecret,
+        actor: 'application',
         redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
         code,
         grant_type: 'authorization_code',
@@ -76,7 +77,7 @@ export class LinearOauthClient {
       id: integrationId,
     })
 
-    return new LinearClient(payload.accessToken)
+    return new LinearClient({ accessToken: payload.accessToken })
   }
 }
 
@@ -105,6 +106,4 @@ export const handleOauth = async (req: Request, client: Client, ctx: Integration
   const linearClient = new LinearClient({ accessToken })
   const organization = await linearClient.organization
   await client.configureIntegration({ identifier: organization.id })
-
-  return {}
 }
