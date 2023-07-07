@@ -1,0 +1,15 @@
+{
+  "extends": "@tsconfig/node18-strictest/tsconfig.json",
+  "compilerOptions": {
+    "target": "es2017",
+    "baseUrl": ".",
+    "outDir": "dist",
+    "checkJs": false,
+    "incremental": true,
+    "exactOptionalPropertyTypes": false,
+    "resolveJsonModule": true,
+    "noPropertyAccessFromIndexSignature": false,
+    "noUnusedLocals": false
+  },
+  "include": [".botpress/**/*", "src/**/*", "./*.ts", "./*.json"]
+}
