@@ -264,7 +264,6 @@ const plainTextInput = z.object({
   multiline: z
     .boolean()
     .optional()
-    .default(false)
     .describe('Indicates whether the input will be a single line (false) or a larger textarea (true'),
   min_length: z.number().min(0).max(3000).optional(),
   max_length: z.number().min(0).max(3000).optional(),
