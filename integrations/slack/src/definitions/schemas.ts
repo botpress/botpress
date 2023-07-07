@@ -10,11 +10,20 @@ const plainTextSchema = z.object({ type: z.literal('plain_text'), text: z.string
 const markdownSchema = z.object({ type: z.literal('mrkdwn'), text: z.string() })
 const plainOrMarkdown = z.discriminatedUnion('type', [markdownSchema, plainTextSchema])
 
-const imageSchema = z
+const imageElement = z
   .object({
     type: z.literal('image'),
     image_url: z.string().describe('The full URL to the image file'),
     alt_text: z.string().describe('Plain text summary of the image'),
+  })
+  .describe('Display an image to a user')
+
+const imageBlock = z
+  .object({
+    type: z.literal('image'),
+    image_url: z.string().describe('The full URL to the image file'),
+    alt_text: z.string().describe('Plain text summary of the image'),
+    title: plainTextSchema.optional(),
   })
   .describe('Display an image to a user')
 
@@ -27,7 +36,7 @@ const buttonSchema = z
   })
   .describe('Button Block. Display a button')
 
-const selectSchema = z
+const staticSelectSchema = z
   .object({
     type: z.literal('static_select'),
     placeholder: plainTextSchema,
@@ -41,32 +50,26 @@ const selectSchema = z
   })
   .strict()
 
-const actionsSchema = z
-  .object({
-    type: z.literal('actions'),
-    elements: z.array(z.discriminatedUnion('type', [buttonSchema, selectSchema])).max(5),
-  })
-  .describe('Display multiple elements in a group')
-  .strict()
-
-const contextSchema = z
+const contextBlock = z
   .object({
     type: z.literal('context'),
-    elements: z.array(z.discriminatedUnion('type', [imageSchema, plainTextSchema, markdownSchema])).max(10),
+    elements: z.array(z.discriminatedUnion('type', [imageElement, ...plainOrMarkdown.options])).max(10),
   })
   .strict()
   .describe('Display multiple elements in a group')
 
-const dividerSchema = z.object({ type: z.literal('divider') }).describe('A simple divider block')
+const dividerBlock = z.object({ type: z.literal('divider') }).describe('A simple divider block')
 
-const headerSchema = z
+const headerBlock = z
   .object({
     type: z.literal('header'),
     text: plainTextSchema,
   })
-  .describe('A simple header block')
+  .describe(
+    'A header is a plain-text block that displays in a larger, bold font. Use it to delineate between different groups of content in your app surface'
+  )
 
-const fileSchema = z
+const fileBlock = z
   .object({
     type: z.literal('file'),
     external_id: z.string(),
@@ -107,7 +110,14 @@ const overflowSchema = z
       .array(
         z.object({
           text: plainTextSchema,
-          value: z.string(),
+          value: z.string().max(75),
+          description: plainTextSchema.optional(),
+          url: z
+            .string()
+            .optional()
+            .describe(
+              "A URL to load in the user's browser when the option is clicked. The url attribute is only available in overflow menus."
+            ),
         })
       )
       .max(5),
@@ -115,19 +125,41 @@ const overflowSchema = z
   })
   .describe('An overflow block')
 
+const actionId = z
+  .string()
+  .max(255)
+  .describe(
+    'An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block. '
+  )
+
 const datePickerSchema = z
   .object({
     type: z.literal('datepicker'),
-    action_id: z.string(),
+    action_id: actionId,
     placeholder: plainTextSchema.optional(),
     initial_date: z.string().optional(),
+  })
+  .describe('A date picker block')
+
+const dateTimePickerSchema = z
+  .object({
+    type: z.literal('datetimepicker'),
+    action_id: actionId,
+    initial_date_time: z
+      .number()
+      .describe(
+        'The initial date and time that is selected when the element is loaded, represented as a UNUIX timestamp in seconds. This should be in the format of 10 digits, for example 1628633820 represents the date and time August 10th, 2021 at 03:17pm PST'
+      )
+      .optional(),
+    // confirm: // TODO:
+    focus_on_load: z.boolean().optional(),
   })
   .describe('A date picker block')
 
 const timePickerSchema = z
   .object({
     type: z.literal('timepicker'),
-    action_id: z.string(),
+    action_id: actionId,
     placeholder: plainTextSchema.optional(),
     initial_time: z.string().optional(),
   })
@@ -143,7 +175,7 @@ const optionGroupSchema = z.object({
   options: z.array(optionSchema),
 })
 
-const multiSelectMenuSchema = z
+const multiSelectStaticMenuSchema = z
   .object({
     type: z.literal('multi_static_select'),
     placeholder: plainTextSchema,
@@ -220,28 +252,59 @@ const externalMultiSelectMenuSchema = z
   })
   .describe('An external multi-select menu block')
 
-const inputSchema = z
+const plainTextInput = z.object({
+  type: z.literal('plain_text_input'),
+  action_id: z
+    .string()
+    .max(255)
+    .describe(
+      'An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block.'
+    ),
+  initial_value: z.string().describe('The initial value in the plain-text input when it is loaded.').optional(),
+  multiline: z
+    .boolean()
+    .optional()
+    .default(false)
+    .describe('Indicates whether the input will be a single line (false) or a larger textarea (true'),
+  min_length: z.number().min(0).max(3000).optional(),
+  max_length: z.number().min(0).max(3000).optional(),
+  focus_on_load: z.boolean().optional(),
+  placeholder: plainTextSchema.optional(),
+  // TODO: dispatch_action_config
+})
+
+const multiSelectMenus = z.discriminatedUnion('type', [
+  multiSelectStaticMenuSchema.sourceType(),
+  externalMultiSelectMenuSchema,
+  usersMultiSelectMenuSchema,
+  conversationsMultiSelectMenuSchema,
+  channelsMultiSelectMenuSchema,
+])
+
+const selectMenus = z.discriminatedUnion('type', [
+  staticSelectSchema,
+  externalSelectMenuSchema,
+  usersSelectMenuSchema,
+  conversationsSelectMenuSchema,
+  channelsSelectMenuSchema,
+])
+
+const inputBlock = z
   .object({
     type: z.literal('input'),
     label: plainTextSchema,
     element: z.discriminatedUnion('type', [
-      selectSchema,
-      multiSelectMenuSchema.innerType(),
-      conversationsSelectMenuSchema,
-      channelsSelectMenuSchema,
-      usersSelectMenuSchema,
-      externalSelectMenuSchema,
-      conversationsMultiSelectMenuSchema,
-      channelsMultiSelectMenuSchema,
-      usersMultiSelectMenuSchema,
-      externalMultiSelectMenuSchema,
-      datePickerSchema,
-      timePickerSchema,
-      radioButtonsSchema,
+      plainTextInput,
       checkboxesSchema,
-      overflowSchema,
+      radioButtonsSchema,
+      ...selectMenus.options,
+      ...multiSelectMenus.options,
+      datePickerSchema,
     ]),
-    block_id: z.string().optional(),
+    dispatch_action: z.boolean().optional(),
+    block_id: z.string().max(255).optional(),
+    hint: plainTextSchema.optional(),
+    optional: z.boolean().optional(),
   })
   .describe('An input block')
 
@@ -249,22 +312,56 @@ const sectionSchema = z
   .object({
     type: z.literal('section'),
     text: plainOrMarkdown,
+    fields: z.array(plainOrMarkdown).max(10).optional(),
     accessory: z
       .discriminatedUnion('type', [
         buttonSchema,
         checkboxesSchema,
         datePickerSchema,
-        imageSchema,
-        multiSelectMenuSchema.innerType(),
+        imageElement,
         overflowSchema,
         radioButtonsSchema,
-        selectSchema,
+        ...multiSelectMenus.options,
+        ...selectMenus.options,
         timePickerSchema,
       ])
       .optional(),
   })
   .strict()
   .describe('Show a message using markdown')
+
+const actionsBlock = z
+  .object({
+    type: z.literal('actions'),
+    elements: z
+      .array(
+        z.union([
+          buttonSchema,
+          checkboxesSchema,
+          datePickerSchema,
+          dateTimePickerSchema,
+          overflowSchema,
+          radioButtonsSchema,
+          ...selectMenus.options,
+          timePickerSchema,
+        ])
+      )
+      .max(5),
+  })
+  .describe('Display multiple elements in a group')
+  .strict()
+
+const blocks = z.discriminatedUnion('type', [
+  actionsBlock,
+  contextBlock,
+  dividerBlock,
+  fileBlock,
+  headerBlock,
+  imageBlock,
+  inputBlock,
+  sectionSchema,
+  // video // TODO:
+])
 
 export const textSchema = z
   .object({
@@ -275,32 +372,7 @@ export const textSchema = z
       )
       .optional(),
     blocks: z
-      .array(
-        z.discriminatedUnion('type', [
-          sectionSchema,
-          imageSchema,
-          actionsSchema,
-          contextSchema,
-          dividerSchema,
-          headerSchema,
-          fileSchema,
-          inputSchema,
-          radioButtonsSchema,
-          checkboxesSchema,
-          overflowSchema,
-          datePickerSchema,
-          timePickerSchema,
-          multiSelectMenuSchema.sourceType(),
-          conversationsSelectMenuSchema,
-          channelsSelectMenuSchema,
-          usersSelectMenuSchema,
-          externalSelectMenuSchema,
-          conversationsMultiSelectMenuSchema,
-          channelsMultiSelectMenuSchema,
-          usersMultiSelectMenuSchema,
-          externalMultiSelectMenuSchema,
-        ])
-      )
+      .array(blocks)
       .max(50)
       .optional()
       .describe(
@@ -308,4 +380,3 @@ export const textSchema = z
       ),
   })
   .strict()
-// .strip()
