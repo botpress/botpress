@@ -16,9 +16,6 @@ export const integrationLogger = {
    */
   forBot: () => {
     return {
-      log: (...args: Parameters<typeof console.log>) => {
-        console.log(serializeForBotMessage(args))
-      },
       info: (...args: Parameters<typeof console.info>) => {
         console.info(serializeForBotMessage(args))
       },
