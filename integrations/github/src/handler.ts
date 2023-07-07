@@ -2,12 +2,10 @@ import { verify as verifyWebhook } from '@octokit/webhooks-methods'
 import type { WebhookEvent } from '@octokit/webhooks-types'
 
 import { GITHUB_SIGNATURE_HEADER } from './const'
-import { fireIssueOpened } from './events/issue-opened'
 import { firePullRequestCommentCreated } from './events/pull-request-comment-created'
 import { firePullRequesMerged } from './events/pull-request-merged'
 import { firePullRequestOpened } from './events/pull-request-opened'
 import {
-  isIssueOpenedEvent,
   isPingEvent,
   isPullRequestCommentCreatedEvent,
   isPullRequestMergedEvent,
@@ -16,7 +14,7 @@ import {
 
 import * as botpress from '.botpress'
 
-export const handler: botpress.IntegrationProps['handler'] = async ({ req, client, ctx }) => {
+export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, client }) => {
   const signature = req.headers[GITHUB_SIGNATURE_HEADER]
   const { body } = req
   if (!(body && signature)) {
@@ -45,8 +43,6 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, clien
     return firePullRequestOpened({ githubEvent: event, client })
   } else if (isPullRequestMergedEvent(event)) {
     return firePullRequesMerged({ githubEvent: event, client })
-  } else if (isIssueOpenedEvent(event)) {
-    return fireIssueOpened({ githubEvent: event, client })
   }
 
   // ============ MESSAGES ==============
