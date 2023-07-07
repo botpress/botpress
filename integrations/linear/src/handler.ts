@@ -8,7 +8,6 @@ import { handleOauth } from './misc/linear'
 import { getUserAndConversation } from './misc/utils'
 import { secrets } from '.botpress'
 
-// eslint-disable-next-line complexity
 export const handler: IntegrationProps['handler'] = async ({ req, ctx, client }) => {
   if (req.path === '/oauth') {
     return handleOauth(req, client, ctx)
@@ -64,7 +63,7 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
       client
     )
 
-    console.log('before linear user', ctx)
+    console.info('before linear user', ctx)
 
     const linearUser = await getUser({
       client,
@@ -73,7 +72,7 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
       type: 'getUser',
     })
 
-    console.log('linearUser', linearUser)
+    console.info('linearUser', linearUser)
 
     await client.setState({
       id: userId,
