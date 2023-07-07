@@ -310,8 +310,8 @@ const inputBlock = z
 const sectionSchema = z
   .object({
     type: z.literal('section'),
-    text: plainOrMarkdown,
-    fields: z.array(plainOrMarkdown).max(10).optional(),
+    text: plainOrMarkdown.optional(),
+    fields: z.array(plainOrMarkdown).min(1).max(10),
     accessory: z
       .discriminatedUnion('type', [
         buttonSchema,
