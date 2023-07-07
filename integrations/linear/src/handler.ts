@@ -63,7 +63,7 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
       client
     )
 
-    console.log('before linear user', ctx)
+    console.info('before linear user', ctx)
 
     const linearUser = await getUser({
       client,
@@ -72,7 +72,7 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client })
       type: 'getUser',
     })
 
-    console.log('linearUser', linearUser)
+    console.info('linearUser', linearUser)
 
     await client.setState({
       id: userId,
