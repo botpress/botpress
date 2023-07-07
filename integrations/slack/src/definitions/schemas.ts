@@ -6,8 +6,8 @@ export const targets = z.object({
   thread: z.record(z.string()).optional(),
 })
 
-const plainTextSchema = z.object({ type: z.literal('plain_text'), text: z.string() })
-const markdownSchema = z.object({ type: z.literal('mrkdwn'), text: z.string() })
+const plainTextSchema = z.object({ type: z.literal('plain_text'), text: z.string() }).strict()
+const markdownSchema = z.object({ type: z.literal('mrkdwn'), text: z.string() }).strict()
 const plainOrMarkdown = z.discriminatedUnion('type', [markdownSchema, plainTextSchema])
 
 const imageElement = z
@@ -16,6 +16,7 @@ const imageElement = z
     image_url: z.string().describe('The full URL to the image file'),
     alt_text: z.string().describe('Plain text summary of the image'),
   })
+  .strict()
   .describe('Display an image to a user')
 
 const imageBlock = z
@@ -25,6 +26,7 @@ const imageBlock = z
     alt_text: z.string().describe('Plain text summary of the image'),
     title: plainTextSchema.optional(),
   })
+  .strict()
   .describe('Display an image to a user')
 
 const buttonSchema = z
@@ -34,6 +36,7 @@ const buttonSchema = z
     text: plainTextSchema,
     url: z.string().optional().describe('An external URL to open when the button is clicked'),
   })
+  .strict()
   .describe('Button Block. Display a button')
 
 const staticSelectSchema = z
@@ -42,10 +45,12 @@ const staticSelectSchema = z
     placeholder: plainTextSchema,
     action_id: z.string(),
     options: z.array(
-      z.object({
-        text: plainTextSchema,
-        value: z.string(),
-      })
+      z
+        .object({
+          text: plainTextSchema,
+          value: z.string(),
+        })
+        .strict()
     ),
   })
   .strict()
@@ -65,6 +70,7 @@ const headerBlock = z
     type: z.literal('header'),
     text: plainTextSchema,
   })
+  .strict()
   .describe(
     'A header is a plain-text block that displays in a larger, bold font. Use it to delineate between different groups of content in your app surface'
   )
@@ -75,19 +81,23 @@ const fileBlock = z
     external_id: z.string(),
     source: z.literal('remote'),
   })
+  .strict()
   .describe('A file block')
 
 const radioButtonsSchema = z
   .object({
     type: z.literal('radio_buttons'),
     options: z.array(
-      z.object({
-        text: plainTextSchema,
-        value: z.string(),
-      })
+      z
+        .object({
+          text: plainTextSchema,
+          value: z.string(),
+        })
+        .strict()
     ),
     action_id: z.string(),
   })
+  .strict()
   .describe('A radio buttons block')
 
 const checkboxesSchema = z
@@ -101,6 +111,7 @@ const checkboxesSchema = z
     ),
     action_id: z.string(),
   })
+  .strict()
   .describe('A checkboxes block')
 
 const overflowSchema = z
@@ -108,21 +119,24 @@ const overflowSchema = z
     type: z.literal('overflow'),
     options: z
       .array(
-        z.object({
-          text: plainTextSchema,
-          value: z.string().max(75),
-          description: plainTextSchema.optional(),
-          url: z
-            .string()
-            .optional()
-            .describe(
-              "A URL to load in the user's browser when the option is clicked. The url attribute is only available in overflow menus."
-            ),
-        })
+        z
+          .object({
+            text: plainTextSchema,
+            value: z.string().max(75),
+            description: plainTextSchema.optional(),
+            url: z
+              .string()
+              .optional()
+              .describe(
+                "A URL to load in the user's browser when the option is clicked. The url attribute is only available in overflow menus."
+              ),
+          })
+          .strict()
       )
       .max(5),
     action_id: z.string(),
   })
+  .strict()
   .describe('An overflow block')
 
 const actionId = z
@@ -139,6 +153,7 @@ const datePickerSchema = z
     placeholder: plainTextSchema.optional(),
     initial_date: z.string().optional(),
   })
+  .strict()
   .describe('A date picker block')
 
 const dateTimePickerSchema = z
@@ -154,6 +169,7 @@ const dateTimePickerSchema = z
     // confirm: // TODO:
     focus_on_load: z.boolean().optional(),
   })
+  .strict()
   .describe('A date picker block')
 
 const timePickerSchema = z
@@ -163,17 +179,22 @@ const timePickerSchema = z
     placeholder: plainTextSchema.optional(),
     initial_time: z.string().optional(),
   })
+  .strict()
   .describe('A time picker block')
 
-const optionSchema = z.object({
-  text: plainTextSchema,
-  value: z.string(),
-})
+const optionSchema = z
+  .object({
+    text: plainTextSchema,
+    value: z.string(),
+  })
+  .strict()
 
-const optionGroupSchema = z.object({
-  label: plainTextSchema,
-  options: z.array(optionSchema),
-})
+const optionGroupSchema = z
+  .object({
+    label: plainTextSchema,
+    options: z.array(optionSchema),
+  })
+  .strict()
 
 const multiSelectStaticMenuSchema = z
   .object({
@@ -183,6 +204,7 @@ const multiSelectStaticMenuSchema = z
     options: z.array(optionSchema).optional(),
     option_groups: z.array(optionGroupSchema).optional(),
   })
+  .strict()
   .refine((obj) => !!obj.options || !!obj.option_groups, {
     message: 'At least one of options or option_groups must be provided',
   })
@@ -194,6 +216,7 @@ const conversationsSelectMenuSchema = z
     placeholder: plainTextSchema,
     action_id: z.string(),
   })
+  .strict()
   .describe('A conversations select menu block')
 
 const channelsSelectMenuSchema = z
@@ -202,6 +225,7 @@ const channelsSelectMenuSchema = z
     placeholder: plainTextSchema,
     action_id: z.string(),
   })
+  .strict()
   .describe('A channels select menu block')
 
 const usersSelectMenuSchema = z
@@ -210,6 +234,7 @@ const usersSelectMenuSchema = z
     placeholder: plainTextSchema,
     action_id: z.string(),
   })
+  .strict()
   .describe('A users select menu block')
 
 const externalSelectMenuSchema = z
@@ -218,6 +243,7 @@ const externalSelectMenuSchema = z
     placeholder: plainTextSchema,
     action_id: z.string(),
   })
+  .strict()
   .describe('An external select menu block')
 
 const conversationsMultiSelectMenuSchema = z
@@ -226,6 +252,7 @@ const conversationsMultiSelectMenuSchema = z
     placeholder: plainTextSchema,
     action_id: z.string(),
   })
+  .strict()
   .describe('A conversations multi-select menu block')
 
 const channelsMultiSelectMenuSchema = z
@@ -234,6 +261,7 @@ const channelsMultiSelectMenuSchema = z
     placeholder: plainTextSchema,
     action_id: z.string(),
   })
+  .strict()
   .describe('A channels multi-select menu block')
 
 const usersMultiSelectMenuSchema = z
@@ -242,6 +270,7 @@ const usersMultiSelectMenuSchema = z
     placeholder: plainTextSchema,
     action_id: z.string(),
   })
+  .strict()
   .describe('A users multi-select menu block')
 
 const externalMultiSelectMenuSchema = z
@@ -250,27 +279,30 @@ const externalMultiSelectMenuSchema = z
     placeholder: plainTextSchema,
     action_id: z.string(),
   })
+  .strict()
   .describe('An external multi-select menu block')
 
-const plainTextInput = z.object({
-  type: z.literal('plain_text_input'),
-  action_id: z
-    .string()
-    .max(255)
-    .describe(
-      'An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block.'
-    ),
-  initial_value: z.string().describe('The initial value in the plain-text input when it is loaded.').optional(),
-  multiline: z
-    .boolean()
-    .optional()
-    .describe('Indicates whether the input will be a single line (false) or a larger textarea (true'),
-  min_length: z.number().min(0).max(3000).optional(),
-  max_length: z.number().min(0).max(3000).optional(),
-  focus_on_load: z.boolean().optional(),
-  placeholder: plainTextSchema.optional(),
-  // TODO: dispatch_action_config
-})
+const plainTextInput = z
+  .object({
+    type: z.literal('plain_text_input'),
+    action_id: z
+      .string()
+      .max(255)
+      .describe(
+        'An identifier for the input value when the parent modal is submitted. You can use this when you receive a view_submission payload to identify the value of the input element. Should be unique among all other action_ids in the containing block.'
+      ),
+    initial_value: z.string().describe('The initial value in the plain-text input when it is loaded.').optional(),
+    multiline: z
+      .boolean()
+      .optional()
+      .describe('Indicates whether the input will be a single line (false) or a larger textarea (true'),
+    min_length: z.number().min(0).max(3000).optional(),
+    max_length: z.number().min(0).max(3000).optional(),
+    focus_on_load: z.boolean().optional(),
+    placeholder: plainTextSchema.optional(),
+    // TODO: dispatch_action_config
+  })
+  .strict()
 
 const multiSelectMenus = z.discriminatedUnion('type', [
   multiSelectStaticMenuSchema.sourceType(),
@@ -305,6 +337,8 @@ const inputBlock = z
     hint: plainTextSchema.optional(),
     optional: z.boolean().optional(),
   })
+
+  .strict()
   .describe('An input block')
 
 const sectionSchema = z
