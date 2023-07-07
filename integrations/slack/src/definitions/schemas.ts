@@ -248,12 +248,12 @@ const sectionSchema = z
     type: z.literal('section'),
     text: z.union([markdownSchema, plainTextSchema]),
     accessory: z
-      .union([
+      .discriminatedUnion('type', [
         buttonSchema,
         checkboxesSchema,
         datePickerSchema,
         imageSchema,
-        multiSelectMenuSchema,
+        multiSelectMenuSchema.innerType(),
         overflowSchema,
         radioButtonsSchema,
         selectSchema,
