@@ -5,7 +5,7 @@ const messages = {
   ...baseMessages.defaults,
   text: {
     schema: z.object({
-      text: z.string(),
+      text: z.string().optional(),
       blocks: z.array(z.any()).optional(),
     }),
   },
