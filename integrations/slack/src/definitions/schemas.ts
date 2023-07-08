@@ -345,7 +345,7 @@ const sectionSchema = z
   .object({
     type: z.literal('section'),
     text: plainOrMarkdown.optional(),
-    fields: z.array(plainOrMarkdown).min(1).max(10),
+    fields: z.array(plainOrMarkdown).min(1).max(10).optional(),
     accessory: z
       .discriminatedUnion('type', [
         buttonSchema,
