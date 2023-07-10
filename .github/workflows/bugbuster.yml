@@ -40,5 +40,5 @@ jobs:
         run: |
           root_dir="$(pwd)/../../"
           script_path="$root_dir/.github/scripts/get-or-create-bot.sh"
-          botid=$(bash $script_path bugbuster)
+          botid=$($script_path bugbuster)
           pnpm bp deploy --botId $botid -y
