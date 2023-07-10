@@ -99,6 +99,7 @@ export const respondInteractive = async (body: InteractiveBody): Promise<string>
     throw new VError('No action in body')
   }
 
+  console.log(JSON.stringify(body.actions, undefined, 2))
   const text = body.actions[0]?.value || body.actions[0]?.selected_option?.value
   if (text === undefined) {
     throw new VError('Action value cannot be undefined')
