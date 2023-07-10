@@ -1,3 +1,5 @@
+#!/bin/bash
+
 function debug { 
   echo "$1" >&2 
 }
@@ -10,7 +12,7 @@ function get_or_create_bot() {
 
   bot_name=$1
 
-  all_bots=$(bp bots ls --json)
+  all_bots=$(pnpm bp bots ls --json)
   bots_with_name=$(echo $all_bots | jq "[ .[] | select(.name==\"$bot_name\") ]")
   bots_count=$(echo $bots_with_name | jq length)
 
