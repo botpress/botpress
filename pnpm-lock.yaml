@@ -66,6 +66,9 @@ importers:
         specifier: ^3.20.6
         version: 3.21.4
     devDependencies:
+      '@botpress/cli':
+        specifier: 0.2.1
+        version: link:../../packages/cli
       '@tsconfig/node18-strictest':
         specifier: ^1.0.0
         version: 1.0.0
