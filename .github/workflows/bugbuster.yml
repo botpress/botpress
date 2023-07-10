@@ -16,7 +16,7 @@ defaults:
     working-directory: ./bots/bugbuster
 
 jobs:
-  entities:
+  bugbuster:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
