@@ -1,4 +1,4 @@
-name: BugBuster
+name: Build and Deploy BugBuster
 
 on:
   push:
