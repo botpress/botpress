@@ -21,9 +21,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v2
-      - uses: pnpm/action-setup@v2.2.4
+      - name: Setup Tilt
+        uses: ./.github/actions/setup-tilt
         with:
-          version: 8
+          tilt_cmd: 'build-packages'
       - name: Install NPM Dependencies
         run: pnpm install
       - name: Login to Botpress
