@@ -38,5 +38,7 @@ jobs:
       - name: Deploy
         if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
         run: |
-          botid=$(./.github/scripts/get-or-create-bot.sh)
+          root_dir="$(pwd)/../../"
+          script_path="$root_dir/.github/scripts/get-or-create-bot.sh"
+          botid=$(bash $script_path bugbuster)
           pnpm bp deploy --botId $botid -y
