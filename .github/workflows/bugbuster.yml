@@ -37,4 +37,6 @@ jobs:
         run: pnpm bp build -y
       - name: Deploy
         if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
-        run: pnpm bp deploy -y
+        run: |
+          botid=$(./.github/scripts/get-or-create-bot.sh)
+          pnpm bp deploy --botId $botid -y
