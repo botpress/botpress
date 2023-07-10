@@ -1,4 +1,4 @@
-name: BugBuster
+name: Build and Deploy BugBuster
 
 on:
   push:
@@ -37,4 +37,8 @@ jobs:
         run: pnpm bp build -y
       - name: Deploy
         if: ${{ github.event_name == 'push' || github.event_name == 'workflow_dispatch' }}
-        run: pnpm bp deploy -y
+        run: |
+          root_dir="$(pwd)/../.."
+          script_path="$root_dir/.github/scripts/get-or-create-bot.sh"
+          botid=$($script_path bugbuster)
+          pnpm bp deploy --botId $botid -y
