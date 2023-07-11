@@ -2,13 +2,13 @@ import type { Client } from '@botpress/client'
 import { Bot } from '@botpress/sdk'
 import type { z } from 'zod'
 import * as schemas from './schemas'
-import * as botpress from '.botpress' /** uncomment to get generated code */
+// import { Github, Linear } from '.botpress'
 
-const github = new botpress.Github({ enabled: false })
-const linear = new botpress.Linear({ enabled: false })
+// const github = new Github()
+// const linear = new Linear()
 
 const bot = new Bot({
-  integrations: [github, linear],
+  // integrations: [github, linear],
   configuration: {
     schema: {},
   },
@@ -34,8 +34,6 @@ const createLinearIssue = async (
 }
 
 bot.event('', async ({ event, client, ctx }) => {
-  console.info('event', event)
-
   const { type, payload } = event
   if (type !== schemas.githubIssueOpenedType) {
     return
@@ -47,6 +45,8 @@ bot.event('', async ({ event, client, ctx }) => {
   }
 
   const { data: githubIssue } = parseResult
+
+  console.info('Received GitHub issue', githubIssue)
 
   const { issue } = await createLinearIssue(client, {
     title: githubIssue.title,
