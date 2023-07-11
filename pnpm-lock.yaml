@@ -1135,6 +1135,9 @@ importers:
       '@botpress/client':
         specifier: 0.1.1
         version: link:../client
+      '@bpinternal/zod-to-json-schema':
+        specifier: ^3.21.4
+        version: 3.21.4(zod@3.21.4)
       axios:
         specifier: 0.27.2
         version: 0.27.2
@@ -1144,9 +1147,6 @@ importers:
       zod:
         specifier: ^3.20.6
         version: 3.21.4
-      zod-to-json-schema:
-        specifier: ^3.20.1
-        version: 3.21.1(zod@3.21.4)
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -1802,6 +1802,14 @@ packages:
       lodash: 4.17.21
       yargs: 17.7.2
       yn: 4.0.0
+    dev: false
+
+  /@bpinternal/zod-to-json-schema@3.21.4(zod@3.21.4):
+    resolution: {integrity: sha512-kWCUrBu+CwODPEH2cleuJ59+D2w+WvA4SlhbpqXYS/bH9k2bsBAOrFa0x/Sz99dBKnMJ6uxVLX0bv53VLOzmKg==}
+    peerDependencies:
+      zod: ^3.21.4
+    dependencies:
+      zod: 3.21.4
     dev: false
 
   /@colors/colors@1.5.0:
@@ -3687,7 +3695,7 @@ packages:
   /axios@0.27.2:
     resolution: {integrity: sha512-t+yRIyySRTp/wua5xEr+z1q60QmLq8ABsS5O9Me1AsE5dfKqgnCFzwiCZZ/cGNd1lq4/7akDWMxdhVlucjmnOQ==}
     dependencies:
-      follow-redirects: 1.15.2(debug@4.3.4)
+      follow-redirects: 1.15.2
       form-data: 4.0.0
     transitivePeerDependencies:
       - debug
@@ -5584,6 +5592,16 @@ packages:
 
   /fn.name@1.1.0:
     resolution: {integrity: sha512-GRnmB5gPyJpAhTQdSZTSp9uaPSvl09KoYcMQtsB9rQoOmzs9dH6ffeccH+Z+cv6P68Hu5bC6JjRh4Ah/mHSNRw==}
+
+  /follow-redirects@1.15.2:
+    resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    dev: false
 
   /follow-redirects@1.15.2(debug@4.3.4):
     resolution: {integrity: sha512-VQLG33o04KaQ8uYi2tVNbdrWp1QWxNNea+nmIB4EVM28v0hmP17z7aG1+wAkNzVq4KeXTq3221ye5qTJP91JwA==}
