@@ -1,13 +1,10 @@
 import { IntegrationDefinitionProps, messages as baseMessages } from '@botpress/sdk'
-import { z } from 'zod'
+import { textSchema } from './schemas'
 
 const messages = {
   ...baseMessages.defaults,
   text: {
-    schema: z.object({
-      text: z.string().optional(),
-      blocks: z.array(z.any()).optional(),
-    }),
+    schema: textSchema,
   },
 }
 
