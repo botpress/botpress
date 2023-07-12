@@ -368,7 +368,7 @@ const actionsBlock = z
     type: z.literal('actions'),
     elements: z
       .array(
-        z.union([
+        z.discriminatedUnion('type', [
           buttonSchema,
           checkboxesSchema,
           datePickerSchema,
