@@ -32,9 +32,14 @@ const imageBlock = z
 const buttonSchema = z
   .object({
     type: z.literal('button'),
-    action_id: z.string().optional().describe('A unique identifier for the button'),
+    action_id: z.string().describe('A unique identifier for the button'),
     text: plainTextSchema,
     url: z.string().optional().describe('An external URL to open when the button is clicked'),
+    value: z.string().optional().describe('The value to send along with the interaction payload'),
+    style: z
+      .enum(['primary', 'danger'])
+      .optional()
+      .describe('Decorates buttons with alternative visual color schemes. Leave empty for default.'),
   })
   .strict()
   .describe('Button Block. Display a button')
