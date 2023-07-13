@@ -44,9 +44,9 @@ export class TunnelSupervisor {
   private _tunnel?: TunnelTail
   private _closed = false
   public readonly events = new EventEmitter<{
-    fail: ReconnectionTriggerEvent
-    close: null
-    reconnected: {
+    connectionFailed: ReconnectionTriggerEvent
+    manuallyClosed: null
+    connected: {
       tunnel: TunnelTail
       ev: ReconnectionTriggerEvent
     }
@@ -79,11 +79,11 @@ export class TunnelSupervisor {
     }
 
     return new Promise((resolve, reject) => {
-      this.events.on('fail', (ev) => {
+      this.events.on('connectionFailed', (ev) => {
         reject(new ReconnectionFailedError(ev))
       })
 
-      this.events.on('close', () => {
+      this.events.on('manuallyClosed', () => {
         resolve()
       })
     })
@@ -96,7 +96,7 @@ export class TunnelSupervisor {
 
     this._closed = true
     this._tunnel?.close()
-    this.events.emit('close', null)
+    this.events.emit('manuallyClosed', null)
   }
 
   private _reconnectSync(ev: ReconnectionTriggerEvent): void {
@@ -104,14 +104,14 @@ export class TunnelSupervisor {
       .then((t) => {
         this._tunnel = t
       })
-      .catch(() => this.events.emit('fail', ev))
+      .catch(() => this.events.emit('connectionFailed', ev))
   }
 
   private async _reconnect(ev: ReconnectionTriggerEvent): Promise<TunnelTail> {
     const newTunnel = async () => {
       const tunnel = await TunnelTail.new(this._tunnelUrl, this._tunnelId)
       this._registerListeners(tunnel)
-      this.events.emit('reconnected', { tunnel, ev })
+      this.events.emit('connected', { tunnel, ev })
       return tunnel
     }
 

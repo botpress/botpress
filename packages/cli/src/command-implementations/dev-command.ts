@@ -60,7 +60,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     })
 
     const supervisor = new utils.tunnel.TunnelSupervisor(wsTunnelUrl, tunnelId, this.logger)
-    supervisor.events.on('reconnected', ({ tunnel }) => {
+    supervisor.events.on('connected', ({ tunnel }) => {
       tunnel.events.on(
         'request',
         (req) =>
