@@ -1,6 +1,6 @@
 import type * as bpclient from '@botpress/client'
 import type { Bot as BotImpl, IntegrationDefinition } from '@botpress/sdk'
-import { TunnelRequest, TunnelResponse, TunnelTail } from '@bpinternal/tunnel'
+import { TunnelRequest, TunnelResponse } from '@bpinternal/tunnel'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import chalk from 'chalk'
 import * as pathlib from 'path'
@@ -59,24 +59,27 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       path: `/${tunnelId}`,
     })
 
-    const tunnel = await TunnelTail.new(wsTunnelUrl, tunnelId)
-    tunnel.events.on(
-      'request',
-      (req) =>
-        void this._forwardTunnelRequest(`http://localhost:${port}`, req)
-          .then((res) => {
-            tunnel.send(res)
-          })
-          .catch((thrown) => {
-            const err = errors.BotpressCLIError.wrap(thrown, 'An error occurred while handling request')
-            this.logger.error(err.message)
-            tunnel.send({
-              requestId: req.id,
-              status: 500,
-              body: err.message,
+    const supervisor = new utils.tunnel.TunnelSupervisor(wsTunnelUrl, tunnelId, this.logger)
+    supervisor.events.on('connected', ({ tunnel }) => {
+      tunnel.events.on(
+        'request',
+        (req) =>
+          void this._forwardTunnelRequest(`http://localhost:${port}`, req)
+            .then((res) => {
+              tunnel.send(res)
             })
-          })
-    )
+            .catch((thrown) => {
+              const err = errors.BotpressCLIError.wrap(thrown, 'An error occurred while handling request')
+              this.logger.error(err.message)
+              tunnel.send({
+                requestId: req.id,
+                status: 500,
+                body: err.message,
+              })
+            })
+      )
+    })
+    await supervisor.start()
 
     await this._deploy(api, httpTunnelUrl)
     await this._runBuild()
@@ -99,9 +102,13 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
         }
       )
 
-      await Promise.race([worker.wait(), watcher.wait(), tunnel.wait()])
+      await Promise.race([worker.wait(), watcher.wait(), supervisor.wait()])
+
+      if (worker.running) {
+        await worker.kill()
+      }
       await watcher.close()
-      // TODO: ensure all processes are closed
+      supervisor.close()
     } catch (thrown) {
       throw errors.BotpressCLIError.wrap(thrown, 'An error occurred while running the dev server')
     } finally {
