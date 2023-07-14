@@ -43,6 +43,8 @@ export class ReconnectionFailedError extends Error {
 export class TunnelSupervisor {
   private _tunnel?: TunnelTail
   private _closed = false
+  private _started = false
+
   public readonly events = new EventEmitter<{
     connectionFailed: ReconnectionTriggerEvent
     manuallyClosed: null
@@ -58,10 +60,11 @@ export class TunnelSupervisor {
     if (this._closed) {
       throw new Error('Tunnel is closed')
     }
-    if (this._tunnel) {
+    if (this._started) {
       throw new Error('Tunnel is already started')
     }
 
+    this._started = true
     const tunnel = await this._reconnect({ type: 'init', ev: null })
     this._tunnel = tunnel
   }
