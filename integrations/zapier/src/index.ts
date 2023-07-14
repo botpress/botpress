@@ -26,7 +26,7 @@ const integration = new Integration({
   unregister: async () => {},
   channels: {},
   actions: {
-    trigger: async ({ ctx, input, client }) => {
+    trigger: async ({ ctx, input, client, logger }) => {
       console.info(`Zapier trigger called with payload: ${JSON.stringify(input)}`)
 
       const subscribers = await getTriggerSubscribers(ctx, client)
@@ -46,6 +46,7 @@ const integration = new Integration({
             console.info(`Successfully notified Zapier trigger REST hook: ${zapierHookUrl}`)
           })
           .catch(async (e) => {
+            logger.forBot().warn(`Failed to notify Zapier trigger REST hook: ${zapierHookUrl} (Error: ${e.message})`)
             console.warn(`Failed to notify Zapier trigger REST hook: ${zapierHookUrl} (Error: ${e.message})`)
 
             if (isAxiosError(e) && e.response?.status === constants.HTTP_STATUS_GONE) {
