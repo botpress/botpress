@@ -1,6 +1,6 @@
 import type { IntegrationContext } from '@botpress/sdk'
 import { Client } from '@notionhq/client'
-import type { CommentObjectResponse, GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints'
+import type { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints'
 import { NOTION_PROPERTY_STRINGIFIED_TYPE_MAP } from './notion.constants'
 import type { NotionPagePropertyTypes } from './notion.types'
 import type { configuration } from '.botpress'
@@ -88,86 +88,6 @@ export function getAllCommentsForBlock(integrationContext: BotpressIntegrationCo
 export function deleteBlock(integrationContext: BotpressIntegrationContext, blockId: string) {
   const notion = getNotionClient(integrationContext)
   return notion.blocks.delete({ block_id: blockId })
-}
-
-/**
- * Because notion doesn't keep track of seconds when a comment is updated, we need to poll for changes every 60 seconds.
- * @param pageId
- * @param onCommentChange is called for every comment that has been updated in the last polling interval
- */
-function listenToCommentChangesOnThePage(
-  integrationContext: BotpressIntegrationContext,
-  pageId: string,
-  onCommentChange: (comment: CommentObjectResponse) => Promise<void>
-) {
-  const pollingInterval = 60 * 1000
-  let cursorMinute: number = new Date().getMinutes()
-
-  const interval = setInterval(() => {
-    console.info('Polling for changes...')
-    getLatestComments()
-      .then((latestComments) => {
-        incrementCursorMinute()
-        Promise.all(latestComments.map(onCommentChange))
-          .then(() => {
-            console.info('Successfully processed all comments')
-          })
-          .catch((err) => {
-            console.error('There was an error while processing one or more comments. - ', err)
-          })
-      })
-      .catch((err) => console.error('There was an error while getting th elatest comments - ', err))
-  }, pollingInterval)
-
-  async function getLatestComments() {
-    const currentComments = await getCommentsForBlock(integrationContext, pageId)
-    const latestComments = filterLatestComments(currentComments)
-    console.info(`Found ${latestComments.length} comment(s) that have been updated in the last minute.`)
-    return latestComments
-  }
-
-  function incrementCursorMinute() {
-    cursorMinute = (cursorMinute + 1) % 60
-  }
-
-  /**
-   *
-   * @param currentComments
-   * @returns comments that have been updated in the the current minute
-   */
-  function filterLatestComments(currentComments: CommentObjectResponse[]) {
-    return currentComments.filter((comment) => {
-      const lastEditedTime = new Date(comment.last_edited_time)
-      // Filter out those that have been created by the integration itself to avoid infinite loops
-      // last 10 minutes is to account for the delay in processing the comment; Theoretically anything over 60+buffer seconds should work
-      return (
-        Date.now() - lastEditedTime.valueOf() < 10 * 60 * 1000 && cursorMinute === lastEditedTime.getMinutes()
-        // The only place where integration id is needed - removing from the config for now
-        // && comment.created_by.id !== integrationContext.integrationId
-      )
-    })
-  }
-  return interval
-}
-
-async function getCommentsForBlock(integrationContext: BotpressIntegrationContext, blockId: string) {
-  const notion = getNotionClient(integrationContext)
-  const comments = []
-  let cursor = undefined
-
-  while (true) {
-    const { results, next_cursor } = await notion.comments.list({
-      block_id: blockId,
-      start_cursor: cursor,
-    })
-    comments.push(...results)
-    if (!next_cursor) {
-      break
-    }
-    cursor = next_cursor
-  }
-  console.log(`${comments.length} comments successfully fetched.`)
-  return comments
 }
 
 export function getDb(integrationContext: BotpressIntegrationContext, databaseId: string) {
