@@ -36,9 +36,9 @@ export type BotDefinitionState = {
 }
 
 export type IntegrationInstance = {
-  enabled: boolean
   id: string
-  configuration: { [key: string]: any }
+  enabled?: boolean
+  configuration?: { [key: string]: any }
 }
 
 export type BotDefinitionRecurringEvent = {
