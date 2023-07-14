@@ -83,7 +83,7 @@ const integration = new Integration({
       },
     },
   },
-  handler: async ({ req, client, ctx }) => {
+  handler: async ({ req, client, ctx, logger }) => {
     log.info('Handler received request')
 
     if (req.query) {
@@ -136,6 +136,8 @@ const integration = new Integration({
         }
       }
     } catch (e: any) {
+      // This is a message that will be displayed to the Bot Owner
+      logger.forBot().error('Error while handling request:', e)
       log.info(req.body)
       log.error(e)
     }

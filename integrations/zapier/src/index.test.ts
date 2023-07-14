@@ -6,9 +6,20 @@ import type { CreateEventProps } from '@botpress/client/dist/gen/client'
 import type { Configuration } from '.botpress/implementation/configuration'
 import { constants } from 'http2'
 
+type Logger = Parameters<(typeof integration)['register']>[0]['logger']
+
 describe('Zapier integration', () => {
   const client = new Client()
   const clientMock = new ClientMock(client)
+
+  const logger: Logger = {
+    forBot: () => ({
+      debug: console.debug,
+      error: console.error,
+      info: console.info,
+      warn: console.warn,
+    }),
+  }
 
   beforeAll(() => {
     clientMock.nock.disableNetConnect()
@@ -59,6 +70,7 @@ describe('Zapier integration', () => {
       client,
       type: 'trigger',
       input,
+      logger,
     })
 
     expect(output).toEqual({})
@@ -95,6 +107,7 @@ describe('Zapier integration', () => {
         data: JSON.stringify({ message: 'Hello' }),
         correlationId: '1234',
       },
+      logger,
     })
 
     expect(output).toEqual({})

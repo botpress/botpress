@@ -22,26 +22,23 @@ import type { Configuration } from './configuration'
 
 
 export type ${propsName} = {
-  enabled: true
-  config: Configuration
-} | {
-  enabled: false
+  enabled?: boolean
   config?: Configuration
 }
 
 export class ${className} implements IntegrationInstance {
   
-  public readonly enabled: boolean
-
+  
   public readonly name = '${name}'
   public readonly version = '${version}'
   public readonly id = '${id}'
-
-  public readonly configuration: Configuration
+  
+  public readonly enabled?: boolean
+  public readonly configuration?: Configuration
 
   constructor(props?: ${propsName}) {
-    this.enabled = props?.enabled ?? false
-    this.configuration = props?.config ?? <Configuration>{}
+    this.enabled = props?.enabled
+    this.configuration = props?.config
   }
 }
 `
