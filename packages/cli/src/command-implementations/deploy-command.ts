@@ -113,15 +113,15 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         ...acc,
         [channelName]: {
           ...channelDef,
-          messages: utils.records.setOnNullMissingValues(channelDef.messages, currentChannel?.messages),
+          messages: utils.records.setOnNullMissingValues(channelDef?.messages, currentChannel?.messages),
           message: {
-            ...channelDef.message,
-            tags: utils.records.setOnNullMissingValues(channelDef.message?.tags, currentChannel?.message.tags),
+            ...channelDef?.message,
+            tags: utils.records.setOnNullMissingValues(channelDef?.message?.tags, currentChannel?.message.tags),
           },
           conversation: {
-            ...channelDef.conversation,
+            ...channelDef?.conversation,
             tags: utils.records.setOnNullMissingValues(
-              channelDef.conversation?.tags,
+              channelDef?.conversation?.tags,
               currentChannel?.conversation.tags
             ),
           },
