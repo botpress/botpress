@@ -104,17 +104,19 @@ function listenToCommentChangesOnThePage(
   let cursorMinute: number = new Date().getMinutes()
 
   const interval = setInterval(() => {
-    console.log('Polling for changes...')
-    getLatestComments().then((latestComments) => {
-      incrementCursorMinute()
-      Promise.all(latestComments.map(onCommentChange))
-        .then(() => {
-          console.log('Successfully processed all comments')
-        })
-        .catch((err) => {
-          console.error('There was an error while processing one or more comments. - ', err)
-        })
-    })
+    console.info('Polling for changes...')
+    getLatestComments()
+      .then((latestComments) => {
+        incrementCursorMinute()
+        Promise.all(latestComments.map(onCommentChange))
+          .then(() => {
+            console.info('Successfully processed all comments')
+          })
+          .catch((err) => {
+            console.error('There was an error while processing one or more comments. - ', err)
+          })
+      })
+      .catch((err) => console.error('There was an error while getting th elatest comments - ', err))
   }, pollingInterval)
 
   async function getLatestComments() {
