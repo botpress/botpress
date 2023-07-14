@@ -28,9 +28,12 @@ const integration = new Integration({
   channels: {
     channel: {
       messages: {
-        text: async ({ payload, ctx, conversation, ack }) => {
+        text: async ({ payload, ctx, conversation, ack, logger }) => {
           const client = new Telegraf(ctx.configuration.botToken)
-          const message = await client.telegram.sendMessage(getChat(conversation), payload.text)
+          const chat = getChat(conversation)
+          const { text } = payload
+          logger.forBot().info(`Sending message to chat ${chat}: ${text}`)
+          const message = await client.telegram.sendMessage(chat, text)
           await ackMessage(message, ack)
         },
         image: async ({ payload, ctx, conversation, ack }) => {
@@ -98,7 +101,7 @@ const integration = new Integration({
       },
     },
   },
-  handler: async ({ req, client }) => {
+  handler: async ({ req, client, logger }) => {
     log.info('Handler received request')
 
     if (!req.body) {
@@ -159,6 +162,7 @@ const integration = new Integration({
       throw new Error('Handler received an empty message id')
     }
 
+    logger.forBot().info(`Received message from user ${userId}: ${data.message.text}`)
     await client.createMessage({
       tags: { 'telegram:id': `${messageId}` },
       type: 'text',
