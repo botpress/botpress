@@ -23,8 +23,8 @@ export default new botpress.Integration({
       statusCode: 200,
     }
   },
-  register: async () => { },
-  unregister: async () => { },
+  register: async () => {},
+  unregister: async () => {},
   actions: {
     deleteBlock,
     addCommentToDiscussion,
@@ -36,8 +36,8 @@ export default new botpress.Integration({
     comments: {
       messages: {
         text,
-        discussion
-      }
+        discussion,
+      },
     },
   },
   handler: async () => {

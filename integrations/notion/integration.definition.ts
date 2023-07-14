@@ -56,7 +56,7 @@ export default new IntegrationDefinition({
       input: {
         schema: z.object({
           databaseId: z.string().min(1),
-          pageProperties: z.record(z.string(), z.object({}).passthrough())
+          pageProperties: z.record(z.string(), z.object({}).passthrough()),
         }),
       },
       output: {
@@ -77,20 +77,21 @@ export default new IntegrationDefinition({
     deleteBlock: {
       input: { schema: z.object({ blockId: z.string().min(1) }) },
       output: {
-        schema: z.object({}).passthrough()
-      }
+        schema: z.object({}).passthrough(),
+      },
     },
     getDb: {
       input: { schema: z.object({ databaseId: z.string().min(1) }) },
       output: {
         schema: z.object({
-          object: z.string(), properties: z.record(z.string(), z.object({})),
+          object: z.string(),
+          properties: z.record(z.string(), z.object({})),
           /**
            * Refer to [getDbStructure](./src/notion/notion.ts) for more details
            */
-          structure: z.string()
-        })
-      }
+          structure: z.string(),
+        }),
+      },
     },
     addCommentToDiscussion: {
       input: {
