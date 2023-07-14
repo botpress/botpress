@@ -29,8 +29,8 @@ jobs:
         run: pnpm install
       - name: Login to Botpress
         run: pnpm bp login -y --token ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }} --workspace-id ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
-      # - name: Install Botpress Dependencies
-      #   run: pnpm bp add linear -y && pnpm bp add github -y
+      - name: Install Botpress Dependencies
+        run: pnpm bp add linear -y && pnpm bp add github -y
       - name: Type Check
         run: tsc --noEmit
       - name: Build
