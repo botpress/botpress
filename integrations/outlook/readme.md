@@ -31,7 +31,13 @@ For more detailed information and examples, refer to the Botpress documentation 
 
 ## Limitations
 
-TODO
+### Rate limit exceeded for the user outlook
+
+> This error occurs if e-mails are retrieved too often from the server or if a check is made to see whether new e-mails are present. (Each retrieval, whether new e-mails are available, is a connection to the server). If this limit is reached, the error mentioned appears and temporarily no more e-mails can be sent.
+
+In practice this can happen if too many e-mails are sent, with several subscriptions from the same BOT. There should always be a reasonable latency between emails (normally the latency is reasonable) or use different email addresses when sending.
+
+**Background and context:** https://learn.microsoft.com/en-us/answers/questions/1044848/message-rate-limit-exceeded
 
 ### Contributing
 
