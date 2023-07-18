@@ -27,15 +27,19 @@ export default new IntegrationDefinition({
   },
   events: {
     event: {
+      title: 'Event from Zapier',
+      description: 'This is called when a Zap sends an event to the Zapier webhook of your bot.',
       schema: EventSchema,
-      ui: { data: { title: 'Zapier Action Data', examples: ['{ "message": "hello, world" }'] } },
+      ui: { data: { title: 'Event Data received from Zapier', examples: ['{ "message": "Hello Botpress!" }'] } },
     },
   },
   actions: {
     trigger: {
+      title: 'Send to Zapier',
+      description: 'This sends a trigger to Zapier which you can use to start a Zap.',
       input: {
         schema: TriggerSchema,
-        ui: { data: { title: 'Zap Trigger Data', examples: ['{ "message": "hello, world" }'] } },
+        ui: { data: { title: 'Trigger Data to send to Zapier', examples: ['{ "message": "Hello Zapier!" }'] } },
       },
       output: {
         schema: z.object({}),
