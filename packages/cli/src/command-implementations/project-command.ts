@@ -13,6 +13,8 @@ import type { CommandArgv, CommandDefinition } from '../typings'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
 
+type IntegrationInstances = Parameters<bpclient.Client['updateBot']>[0]['integrations']
+
 export type ProjectCommandDefinition = CommandDefinition<typeof config.schemas.project>
 export type ProjectCache = { botId: string; devId: string }
 
@@ -78,25 +80,22 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
   }
 
-  protected prepareIntegrations(
-    botImpl: BotImpl,
-    botInfo: bpclient.Bot
-  ): Parameters<bpclient.Client['updateBot']>[0]['integrations'] {
+  protected prepareIntegrations(botImpl: BotImpl, botInfo: bpclient.Bot): IntegrationInstances {
     const { integrations: integrationList } = botImpl.definition
 
-    const integrationsToUninstall = _(botInfo.integrations)
+    const integrationsToUninstall: IntegrationInstances = _(botInfo.integrations)
       .keys()
       .filter((key) => !integrationList?.map((i) => i.id).includes(key))
       .zipObject()
       .mapValues(() => null)
       .value()
 
-    const integrationsToInstall = _(integrationList ?? [])
+    const integrationsToInstall: IntegrationInstances = _(integrationList ?? [])
       .keyBy((i) => i.id)
       .mapValues(({ enabled, configuration }) => ({ enabled, configuration }))
       .value()
 
-    return { ...integrationsToUninstall, ...integrationsToInstall } as Record<string, any> // TODO: fix client typings
+    return { ...integrationsToUninstall, ...integrationsToInstall }
   }
 
   protected displayWebhookUrls(bot: bpclient.Bot) {

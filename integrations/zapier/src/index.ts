@@ -26,7 +26,7 @@ const integration = new Integration({
   unregister: async () => {},
   channels: {},
   actions: {
-    trigger: async ({ ctx, input, client }) => {
+    trigger: async ({ ctx, input, client, logger }) => {
       console.info(`Zapier trigger called with payload: ${JSON.stringify(input)}`)
 
       const subscribers = await getTriggerSubscribers(ctx, client)
@@ -46,6 +46,7 @@ const integration = new Integration({
             console.info(`Successfully notified Zapier trigger REST hook: ${zapierHookUrl}`)
           })
           .catch(async (e) => {
+            logger.forBot().warn(`Failed to notify Zapier trigger REST hook: ${zapierHookUrl} (Error: ${e.message})`)
             console.warn(`Failed to notify Zapier trigger REST hook: ${zapierHookUrl} (Error: ${e.message})`)
 
             if (isAxiosError(e) && e.response?.status === constants.HTTP_STATUS_GONE) {
@@ -100,7 +101,7 @@ async function handleIntegrationEvent(
     await axios
       .post(event.url, <TriggerRequestBody>{
         botId: ctx.botId,
-        data: '{"message": "Hello from Botpress!"}',
+        data: '{"message": "Hello from Botpress! This is an automated test message to confirm that your bot is now able to trigger this Zap."}',
         correlationId: '12345',
       })
       .then(() => {

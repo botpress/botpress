@@ -54,6 +54,34 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  bots/bugbuster:
+    dependencies:
+      '@botpress/client':
+        specifier: 0.1.2
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: 0.1.4
+        version: link:../../packages/sdk
+      zod:
+        specifier: ^3.20.6
+        version: 3.21.4
+    devDependencies:
+      '@botpress/cli':
+        specifier: 0.2.2
+        version: link:../../packages/cli
+      '@tsconfig/node18-strictest':
+        specifier: ^1.0.0
+        version: 1.0.0
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.16.0
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.1(@types/node@18.16.0)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   bots/hello-world:
     dependencies:
       '@botpress/cli':
@@ -936,7 +964,7 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.1.1
+        specifier: 0.1.2
         version: link:../client
       '@bpinternal/tunnel':
         specifier: ^0.0.2
@@ -1012,7 +1040,7 @@ importers:
         version: 3.21.1(zod@3.21.4)
     devDependencies:
       '@botpress/sdk':
-        specifier: 0.1.3
+        specifier: 0.1.4
         version: link:../sdk
       '@types/bluebird':
         specifier: ^3.5.38
@@ -1036,10 +1064,10 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.1.1
+        specifier: 0.1.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.1.3
+        specifier: 0.1.4
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1061,10 +1089,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.1.1
+        specifier: 0.1.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.1.3
+        specifier: 0.1.4
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1096,8 +1124,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.3.1
-        version: 0.3.1
+        specifier: 0.3.3
+        version: 0.3.3
       esbuild:
         specifier: ^0.16.12
         version: 0.16.17
@@ -1105,7 +1133,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.1.1
+        specifier: 0.1.2
         version: link:../client
       axios:
         specifier: 0.27.2
@@ -1684,8 +1712,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.3.1:
-    resolution: {integrity: sha512-rMrE7+yeuEui0508eXzjBEgdWW0lFu8MWNXotvzOnDXvvuBHVtszcMKUhh8N/VGBJDnVyVhmScgNgBNcLp6bTg==}
+  /@botpress/api@0.3.3:
+    resolution: {integrity: sha512-3gn0OnMNy36Y16te7+zu7FFgRvX8zJ3z3tq9RF1ULzd5pyp90UXvUh7+s6oTgJNqKj4f5ObAH31kWulKent0nw==}
     dependencies:
       '@bpinternal/opapi': 0.2.1
     transitivePeerDependencies:
@@ -3133,7 +3161,6 @@ packages:
 
   /@types/node@18.16.0:
     resolution: {integrity: sha512-BsAaKhB+7X+H4GnSjGhJG9Qi8Tw+inU9nJDwmD5CgOmBLEI6ArdhikpLX7DjbjDRDTbqZzU2LSQNZg8WGPiSZQ==}
-    dev: false
 
   /@types/node@18.16.16:
     resolution: {integrity: sha512-NpaM49IGQQAUlBhHMF82QH80J08os4ZmyF9MkpCzWAGuOHqE4gTEbhzd7L3l5LmWuZ6E0OiC1FweQ4tsiW35+g==}
@@ -8878,6 +8905,37 @@ packages:
       semver: 7.5.1
       typescript: 4.9.5
       yargs-parser: 21.1.1
+    dev: true
+
+  /ts-node@10.9.1(@types/node@18.16.0)(typescript@4.9.5):
+    resolution: {integrity: sha512-NtVysVPkxxrwFGUUxGYhfux8k78pQB3JqYBXlLRZgdGUqTO5wU/UyHop5p70iEbGhB7q5KmiZiU0Y3KlJrScEw==}
+    hasBin: true
+    peerDependencies:
+      '@swc/core': '>=1.2.50'
+      '@swc/wasm': '>=1.2.50'
+      '@types/node': '*'
+      typescript: '>=2.7'
+    peerDependenciesMeta:
+      '@swc/core':
+        optional: true
+      '@swc/wasm':
+        optional: true
+    dependencies:
+      '@cspotcode/source-map-support': 0.8.1
+      '@tsconfig/node10': 1.0.9
+      '@tsconfig/node12': 1.0.11
+      '@tsconfig/node14': 1.0.3
+      '@tsconfig/node16': 1.0.4
+      '@types/node': 18.16.0
+      acorn: 8.8.2
+      acorn-walk: 8.2.0
+      arg: 4.1.3
+      create-require: 1.1.1
+      diff: 4.0.2
+      make-error: 1.3.6
+      typescript: 4.9.5
+      v8-compile-cache-lib: 3.0.1
+      yn: 3.1.1
     dev: true
 
   /ts-node@10.9.1(@types/node@18.16.16)(typescript@4.9.5):
