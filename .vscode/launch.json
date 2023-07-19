@@ -17,6 +17,17 @@
       "envFile": "${workspaceFolder}/.env"
     },
     {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Test File",
+      "autoAttachChildProcesses": true,
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "program": "${workspaceRoot}/node_modules/vitest/vitest.mjs",
+      "args": ["run", "${relativeFile}"],
+      "smartStep": true,
+      "console": "integratedTerminal"
+    },
+    {
       "name": "Debug CLI",
       "type": "node",
       "request": "launch",
