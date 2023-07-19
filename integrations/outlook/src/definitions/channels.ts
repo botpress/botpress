@@ -1,5 +1,4 @@
 import { IntegrationDefinitionProps, messages } from '@botpress/sdk'
-
 import { htmlSchema } from '../misc/custom-schemas'
 
 const { text, choice, dropdown } = messages.defaults

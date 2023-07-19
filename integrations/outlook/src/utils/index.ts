@@ -7,7 +7,7 @@ import { load as loadHtml } from 'cheerio'
 import { GraphApi } from '../client'
 import { notificationContentSchema } from '../misc/custom-schemas'
 import type { ResourceData } from '../misc/custom-types'
-import type { Config } from '../misc/types'
+import type { Configuration } from '../misc/types'
 
 function extractMessageFromHtml(htmlContent: string): string {
   const $ = loadHtml(htmlContent)
@@ -17,7 +17,7 @@ function extractMessageFromHtml(htmlContent: string): string {
   return message
 }
 
-export const getClient = (config: Config) => new GraphApi(config.tenantId, config.clientId, config.clientSecret)
+export const getClient = (config: Configuration) => new GraphApi(config.tenantId, config.clientId, config.clientSecret)
 
 export const processMessage = async (message: ChangeNotification, ctx: IntegrationContext, client: Client) => {
   const graphClient = getClient(ctx.configuration)
