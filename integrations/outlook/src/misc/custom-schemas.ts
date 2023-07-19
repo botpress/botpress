@@ -1,6 +1,6 @@
-import * as z from "zod";
+import * as z from 'zod'
 
-export const htmlSchema = z.object({ content: z.string() });
+export const htmlSchema = z.object({ content: z.string() })
 
 export const notificationContentSchema = z
   .object({
@@ -37,18 +37,18 @@ export const notificationContentSchema = z
     id: z.string(),
   })
   .superRefine((val, ctx) => {
-    if (val.body.content === "") {
+    if (val.body.content === '') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: `Invalid email body: ${JSON.stringify(val, null, 3)}`,
-        path: ["body", "content"],
-      });
+        path: ['body', 'content'],
+      })
     }
-    if (val.sender.emailAddress.address === "") {
+    if (val.sender.emailAddress.address === '') {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
         message: `Missing sender property: ${JSON.stringify(val, null, 3)}`,
-        path: ["sender", "emailAddress", "address"],
-      });
+        path: ['sender', 'emailAddress', 'address'],
+      })
     }
-  });
+  })

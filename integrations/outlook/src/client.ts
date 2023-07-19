@@ -1,32 +1,24 @@
-import moment from "moment";
-import { Client, ResponseType } from "@microsoft/microsoft-graph-client";
-import type {
-  Subscription,
-  Message as OutlookMessage,
-  ChangeNotification,
-} from "@microsoft/microsoft-graph-types";
-import { TokenCredentialAuthenticationProvider } from "@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials";
-import { ClientSecretCredential } from "@azure/identity";
-import type { IntegrationContext } from "@botpress/sdk";
+import { ClientSecretCredential } from '@azure/identity'
+import type { IntegrationContext } from '@botpress/sdk'
+import { Client, ResponseType } from '@microsoft/microsoft-graph-client'
+import { TokenCredentialAuthenticationProvider } from '@microsoft/microsoft-graph-client/authProviders/azureTokenCredentials'
+import type { Subscription, Message as OutlookMessage, ChangeNotification } from '@microsoft/microsoft-graph-types'
+import moment from 'moment'
 
-import type { SendMessageProps } from "./misc/custom-types";
+import type { SendMessageProps } from './misc/custom-types'
 
 export class GraphApi {
-  private client: Client;
+  private client: Client
   constructor(tenantId: string, clientId: string, clientSecret: string) {
-    const credential = new ClientSecretCredential(
-      tenantId,
-      clientId,
-      clientSecret
-    );
+    const credential = new ClientSecretCredential(tenantId, clientId, clientSecret)
     const authProvider = new TokenCredentialAuthenticationProvider(credential, {
-      scopes: ["https://graph.microsoft.com/.default"],
-    });
+      scopes: ['https://graph.microsoft.com/.default'],
+    })
 
     this.client = Client.initWithMiddleware({
       //debugLogging: true,
       authProvider,
-    });
+    })
   }
 
   public sendMail = async ({
@@ -39,87 +31,80 @@ export class GraphApi {
   }: SendMessageProps): Promise<void> => {
     const stateRes = await botpressClient.getState({
       id: conversation.id,
-      name: "lastMessageRef",
-      type: "conversation",
-    });
+      name: 'lastMessageRef',
+      type: 'conversation',
+    })
 
-    const { state } = stateRes;
-    const { lastMessageId } = state.payload;
+    const { state } = stateRes
+    const { lastMessageId } = state.payload
 
     if (!lastMessageId) {
-      console.log("conv tag missing: outlook:lastMessageId");
-      return;
+      console.info('conv tag missing: outlook:lastMessageId')
+      return
     }
 
     try {
       await this.client
-        .api(
-          `/users/${ctx.configuration.emailAddress}/messages/${lastMessageId}/replyAll`
-        )
+        .api(`/users/${ctx.configuration.emailAddress}/messages/${lastMessageId}/replyAll`)
         .responseType(ResponseType.RAW)
         .post({
           message: {
             body,
           },
-        });
-      ack({ tags: { "outlook:id": `${message.id}` } });
+        })
+      await ack({ tags: { 'outlook:id': `${message.id}` } })
     } catch (error) {
-      console.log((error as Error).message);
+      console.info((error as Error).message)
     }
 
-    return;
-  };
+    return
+  }
 
-  public subscribeWebhook = async (
-    webhookUrl: string,
-    ctx: IntegrationContext
-  ): Promise<string> => {
-    const expirationDateTime = this.generateExpirationDate();
+  public subscribeWebhook = async (webhookUrl: string, ctx: IntegrationContext): Promise<string> => {
+    const expirationDateTime = this.generateExpirationDate()
 
-    const res = await this.client.api("/subscriptions").post({
-      changeType: "created",
+    const res = await this.client.api('/subscriptions').post({
+      changeType: 'created',
       notificationUrl: webhookUrl,
       lifecycleNotificationUrl: webhookUrl,
       expirationDateTime,
       resource: `/users/${ctx.configuration.emailAddress}/mailFolders('${ctx.configuration.mailFolder}')/messages`,
-    });
+    })
 
-    return res.id;
-  };
+    return res.id
+  }
 
   public listSubscriptions = async (): Promise<Subscription[]> => {
-    const res = await this.client.api("/subscriptions").get();
-    return res.value;
-  };
+    const res = await this.client.api('/subscriptions').get()
+    return res.value
+  }
 
   public handleLifecycleEvents = async (event: ChangeNotification) => {
-    if (event.lifecycleEvent === "reauthorizationRequired") {
-      console.log("lifecycleEvent - reauthorizationRequired");
+    if (event.lifecycleEvent === 'reauthorizationRequired') {
+      console.info('lifecycleEvent - reauthorizationRequired')
 
-      const expirationDateTime = this.generateExpirationDate();
+      const expirationDateTime = this.generateExpirationDate()
       await this.client.api(`/subscriptions/${event.subscriptionId}`).patch({
         expirationDateTime,
-      });
-      console.log("webhook reauthorization success");
+      })
+      console.info('webhook reauthorization success')
     }
 
-    return;
-  };
+    return
+  }
 
   public unsubscribeWebhook = async (subscriptionId: string): Promise<void> => {
-    const res = await this.client.api(`/subscriptions/${subscriptionId}`).del();
+    const res = await this.client.api(`/subscriptions/${subscriptionId}`).del()
 
-    return res;
-  };
+    return res
+  }
 
-  public getNotificationContent = async (
-    odataId: string
-  ): Promise<OutlookMessage> => {
-    const res = await this.client.api(odataId).get();
-    return res;
-  };
+  public getNotificationContent = async (odataId: string): Promise<OutlookMessage> => {
+    const res = await this.client.api(odataId).get()
+    return res
+  }
 
   private generateExpirationDate = () => {
-    return moment.utc().add(20, "minutes");
-  };
+    return moment.utc().add(20, 'minutes')
+  }
 }

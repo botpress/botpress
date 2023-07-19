@@ -1,9 +1,9 @@
-import { IntegrationDefinitionProps, messages } from "@botpress/sdk";
+import { IntegrationDefinitionProps, messages } from '@botpress/sdk'
 
-import { htmlSchema } from "../misc/custom-schemas";
+import { htmlSchema } from '../misc/custom-schemas'
 
-const { text, choice, dropdown } = messages.defaults;
-const messageTags = { id: {} };
+const { text, choice, dropdown } = messages.defaults
+const messageTags = { id: {} }
 const conversationTags = {
   id: {},
   subject: {},
@@ -11,7 +11,7 @@ const conversationTags = {
   toRecipients: {},
   ccRecipients: {},
   firstMessageId: {},
-};
+}
 
 export const channels = {
   channel: {
@@ -30,4 +30,4 @@ export const channels = {
       tags: conversationTags,
     },
   },
-} satisfies IntegrationDefinitionProps["channels"];
+} satisfies IntegrationDefinitionProps['channels']

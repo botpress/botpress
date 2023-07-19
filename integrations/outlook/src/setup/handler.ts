@@ -1,9 +1,8 @@
-import type { ChangeNotification } from "@microsoft/microsoft-graph-types";
-import type { Handler } from "../misc/types";
+import type { ChangeNotification } from '@microsoft/microsoft-graph-types'
+import querystring from 'querystring'
+import type { Handler } from '../misc/types'
 
-import querystring from "querystring";
-
-import { processMessage } from "../utils";
+import { processMessage } from '../utils'
 
 export const handler: Handler = async ({ req, ctx, client }) => {
   // If there is a validationToken parameter
@@ -12,39 +11,37 @@ export const handler: Handler = async ({ req, ctx, client }) => {
   // as plain text with a 200 response
   // https://docs.microsoft.com/graph/webhooks#notification-endpoint-validation
   if (req.query) {
-    const queryParams = querystring.parse(req.query);
-    const validationToken = queryParams.validationToken;
+    const queryParams = querystring.parse(req.query)
+    const validationToken = queryParams.validationToken
 
     if (validationToken) {
-      var str = decodeURIComponent(validationToken as string)
-        .split("+")
-        .join(" ");
+      const str = decodeURIComponent(validationToken as string)
+        .split('+')
+        .join(' ')
       return {
         status: 200,
         headers: {
-          "Content-Type": "text/plain",
+          'Content-Type': 'text/plain',
         },
         body: str,
-      };
+      }
     }
   }
 
   if (!req.body) {
-    console.warn("Handler received an empty body");
-    return;
+    console.warn('Handler received an empty body')
+    return
   }
 
-  const body: { value: ChangeNotification[] | undefined } = JSON.parse(
-    req.body
-  );
+  const body: { value: ChangeNotification[] | undefined } = JSON.parse(req.body)
   if (!body.value) {
-    console.warn("Missing property value in the body");
-    return;
+    console.warn('Missing property value in the body')
+    return
   }
 
   for (const message of body.value) {
-    await processMessage(message, ctx, client);
+    await processMessage(message, ctx, client)
   }
 
-  return;
-};
+  return
+}

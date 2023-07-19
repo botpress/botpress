@@ -1,62 +1,62 @@
-import type { Channels } from "../misc/types";
+import type { Channels } from '../misc/types'
 
-import { getClient } from "../utils";
+import { getClient } from '../utils'
 
 export const channels: Channels = {
   channel: {
     messages: {
       text: async (props) => {
-        const graphClient = getClient(props.ctx.configuration);
+        const graphClient = getClient(props.ctx.configuration)
         await graphClient.sendMail({
           ...props,
           body: {
-            contentType: "text",
+            contentType: 'text',
             content: `${props.payload.text}\n\n${props.ctx.configuration.emailSignature}`,
           },
-        });
+        })
       },
       choice: async (props) => {
-        const graphClient = getClient(props.ctx.configuration);
-        let content = `${props.payload.text}\n`;
+        const graphClient = getClient(props.ctx.configuration)
+        let content = `${props.payload.text}\n`
 
         for (const option of props.payload.options) {
-          content += `- ${option.label}\n`;
+          content += `- ${option.label}\n`
         }
-        content += `\n\n${props.ctx.configuration.emailSignature}`;
+        content += `\n\n${props.ctx.configuration.emailSignature}`
         await graphClient.sendMail({
           ...props,
           body: {
-            contentType: "text",
+            contentType: 'text',
             content,
           },
-        });
+        })
       },
       dropdown: async (props) => {
-        const graphClient = getClient(props.ctx.configuration);
-        let content = `${props.payload.text}\n`;
+        const graphClient = getClient(props.ctx.configuration)
+        let content = `${props.payload.text}\n`
 
         for (const option of props.payload.options) {
-          content += `- ${option.label}\n`;
+          content += `- ${option.label}\n`
         }
-        content += `\n\n${props.ctx.configuration.emailSignature}`;
+        content += `\n\n${props.ctx.configuration.emailSignature}`
         await graphClient.sendMail({
           ...props,
           body: {
-            contentType: "text",
+            contentType: 'text',
             content,
           },
-        });
+        })
       },
       html: async (props) => {
-        const graphClient = getClient(props.ctx.configuration);
+        const graphClient = getClient(props.ctx.configuration)
         await graphClient.sendMail({
           ...props,
           body: {
-            contentType: "html",
+            contentType: 'html',
             content: props.payload.content,
           },
-        });
+        })
       },
     },
   },
-};
+}

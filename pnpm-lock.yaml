@@ -491,6 +491,52 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  integrations/outlook:
+    dependencies:
+      '@azure/identity':
+        specifier: ^3.2.3
+        version: 3.2.3
+      '@botpress/client':
+        specifier: 0.1.1
+        version: 0.1.1
+      '@botpress/sdk':
+        specifier: 0.1.3
+        version: 0.1.3
+      '@microsoft/microsoft-graph-client':
+        specifier: ^3.0.5
+        version: 3.0.5(@azure/identity@3.2.3)
+      cheerio:
+        specifier: ^1.0.0-rc.12
+        version: 1.0.0-rc.12
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
+      moment:
+        specifier: ^2.29.4
+        version: 2.29.4
+      zod:
+        specifier: ^3.20.6
+        version: 3.21.4
+    devDependencies:
+      '@microsoft/microsoft-graph-types':
+        specifier: ^2.35.0
+        version: 2.35.0
+      '@tsconfig/node18-strictest':
+        specifier: ^1.0.0
+        version: 1.0.0
+      '@types/lodash':
+        specifier: ^4.14.195
+        version: 4.14.195
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.16.0
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.1(@types/node@18.16.0)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   integrations/slack:
     dependencies:
       '@botpress/sdk':
@@ -1321,6 +1367,30 @@ packages:
       - supports-color
     dev: false
 
+  /@azure/identity@3.2.3:
+    resolution: {integrity: sha512-knIbl7p2i8r3qPsLW2W84esmDPr36RqieLC72OeuqYk4+0TRNthUhWTs655P9S9Pm3TVVxcFsS3Le9SXIWBIFA==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      '@azure/abort-controller': 1.1.0
+      '@azure/core-auth': 1.4.0
+      '@azure/core-client': 1.7.3
+      '@azure/core-rest-pipeline': 1.11.0
+      '@azure/core-tracing': 1.0.1
+      '@azure/core-util': 1.3.2
+      '@azure/logger': 1.0.4
+      '@azure/msal-browser': 2.37.1
+      '@azure/msal-common': 13.1.0
+      '@azure/msal-node': 1.17.3
+      events: 3.3.0
+      jws: 4.0.0
+      open: 8.4.2
+      stoppable: 1.1.0
+      tslib: 2.5.3
+      uuid: 8.3.2
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   /@azure/logger@1.0.4:
     resolution: {integrity: sha512-ustrPY8MryhloQj7OWGe+HrYx+aoiOxzbXTtgblbV3xwCqpzUK36phH3XNHQKj3EPonyFUuDTfR3qFhTEAuZEg==}
     engines: {node: '>=14.0.0'}
@@ -1665,6 +1735,13 @@ packages:
       '@babel/helper-plugin-utils': 7.22.5
     dev: true
 
+  /@babel/runtime@7.22.6:
+    resolution: {integrity: sha512-wDb5pWm4WDdF6LFUde3Jl8WzPA+3ZbxYqkC6xAXuD3irdEHN1k0NfTRrJD8ZD378SJ61miMLCqIOXYhd8x+AJQ==}
+    engines: {node: '>=6.9.0'}
+    dependencies:
+      regenerator-runtime: 0.13.11
+    dev: false
+
   /@babel/template@7.22.5:
     resolution: {integrity: sha512-X7yV7eiwAxdj9k94NEylvbVHLiVG1nvzCV2EAowhxLTwODV1jl9UzZ48leOC0sH7OnuHrIkllaBgneUykIcZaw==}
     engines: {node: '>=6.9.0'}
@@ -1720,6 +1797,16 @@ packages:
       - debug
     dev: true
 
+  /@botpress/client@0.1.1:
+    resolution: {integrity: sha512-MlGeKpC8nzOMknsz3MwANxkeNXVI8jGcew0SN517syC6R4OHGA8l8PMQ0imPcyOnC8LLBQI9lV+7PVdAmDdOxQ==}
+    dependencies:
+      axios: 1.2.5
+      browser-or-node: 2.1.1
+      type-fest: 3.11.1
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /@botpress/messaging-base@1.2.0:
     resolution: {integrity: sha512-7cjHeD1Ti4cvDmyUV2D2CFKR1kPYv+eFPgXaJOksvrEoNZ1SrqXbHR9l26ndaAz0TuoX3Wc9l4Q7i5sBoHE44Q==}
     dev: false
@@ -1731,6 +1818,18 @@ packages:
       axios: 0.21.4(debug@4.3.4)
       cookie: 0.4.2
       joi: 17.9.2
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /@botpress/sdk@0.1.3:
+    resolution: {integrity: sha512-v8uQGbQoag9hYYqcrBK8H12xhgJWf0AwerJnKYCTVsFQXbTLYIz8yUyXLn+d2tSPskkg6L6nZKlksNVIPlRTvw==}
+    dependencies:
+      '@botpress/client': 0.1.1
+      axios: 0.27.2
+      radash: 9.5.0
+      zod: 3.21.4
+      zod-to-json-schema: 3.21.1(zod@3.21.4)
     transitivePeerDependencies:
       - debug
     dev: false
@@ -2419,6 +2518,33 @@ packages:
     transitivePeerDependencies:
       - encoding
     dev: false
+
+  /@microsoft/microsoft-graph-client@3.0.5(@azure/identity@3.2.3):
+    resolution: {integrity: sha512-xQADFNLUhE78RzYadFZtOmy/5wBZenSZhVK193m40MTDC5hl1aYMQO1QOJApnKga8WcvMCDCU10taRhuXTOz5w==}
+    engines: {node: '>=12.0.0'}
+    peerDependencies:
+      '@azure/identity': '*'
+      '@azure/msal-browser': '*'
+      buffer: '*'
+      stream-browserify: '*'
+    peerDependenciesMeta:
+      '@azure/identity':
+        optional: true
+      '@azure/msal-browser':
+        optional: true
+      buffer:
+        optional: true
+      stream-browserify:
+        optional: true
+    dependencies:
+      '@azure/identity': 3.2.3
+      '@babel/runtime': 7.22.6
+      tslib: 2.5.3
+    dev: false
+
+  /@microsoft/microsoft-graph-types@2.35.0:
+    resolution: {integrity: sha512-3jCQyKaYbNuzVG884SNuWKS19FPUxBwHfDAb3DqZWBwPYcX3HbDe2D22z9Ue+UV+JGuw917cH75RTSgrdnutFg==}
+    dev: true
 
   /@nicolo-ribaudo/chokidar-2@2.1.8-no-fsevents.3:
     resolution: {integrity: sha512-s88O1aVtXftvp5bCPB7WnmXc5IwOZZ7YPuwNPt+GtOOXpPvad1LfbmjYv+qII7zP6RU2QGnqve27dnLycEnyEQ==}
@@ -3133,7 +3259,6 @@ packages:
 
   /@types/lodash@4.14.195:
     resolution: {integrity: sha512-Hwx9EUgdwf2GLarOjQp5ZH8ZmblzcbTBC2wtQWNKARBSxM9ezRIAUpeDTgoQRAFB0+8CNWXVA9+MaSOzOF3nPg==}
-    dev: false
 
   /@types/mime@1.3.2:
     resolution: {integrity: sha512-YATxVxgRqNH6nHEIsvg6k2Boc1JHI9ZbH5iWFFv/MTkchz3b1ieGDa5T0a9RznNdI0KhVbdbWSN+KWWrQZRxTw==}
@@ -8214,6 +8339,10 @@ packages:
       '@redis/json': 1.0.4(@redis/client@1.5.8)
       '@redis/search': 1.1.3(@redis/client@1.5.8)
       '@redis/time-series': 1.0.4(@redis/client@1.5.8)
+    dev: false
+
+  /regenerator-runtime@0.13.11:
+    resolution: {integrity: sha512-kY1AZVr2Ra+t+piVaJ4gxaFaReZVH40AKNo7UCX6W+dEwBo/2oZJzqfuN1qLq1oL45o56cPaTXELwrTh8Fpggg==}
     dev: false
 
   /regex-parser@2.2.11:
