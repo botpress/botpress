@@ -1,30 +1,33 @@
 import { IntegrationDefinitionProps, messages } from "@botpress/sdk";
-import { z } from "zod";
+
+import { htmlSchema } from "../misc/custom-schemas";
+
+const { text, choice, dropdown } = messages.defaults;
+const messageTags = { id: {} };
+const conversationTags = {
+  id: {},
+  subject: {},
+  from: {},
+  toRecipients: {},
+  ccRecipients: {},
+  firstMessageId: {},
+};
 
 export const channels = {
   channel: {
     messages: {
-      ...messages.defaults,
+      text,
+      choice,
+      dropdown,
       html: {
-        schema: z.object({
-          content: z.string(),
-        }),
+        schema: htmlSchema,
       },
     },
     message: {
-      tags: {
-        id: {},
-      },
+      tags: messageTags,
     },
     conversation: {
-      tags: {
-        id: {},
-        subject: {},
-        from: {},
-        toRecipients: {},
-        ccRecipients: {},
-        firstMessageId: {},
-      },
+      tags: conversationTags,
     },
   },
 } satisfies IntegrationDefinitionProps["channels"];

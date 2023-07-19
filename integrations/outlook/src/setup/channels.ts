@@ -2,12 +2,6 @@ import type { Channels } from "../misc/types";
 
 import { getClient } from "../utils";
 
-class NotImplementedError extends Error {
-  constructor() {
-    super("Not implemented");
-  }
-}
-
 export const channels: Channels = {
   channel: {
     messages: {
@@ -20,30 +14,6 @@ export const channels: Channels = {
             content: `${props.payload.text}\n\n${props.ctx.configuration.emailSignature}`,
           },
         });
-      },
-      image: async () => {
-        throw new NotImplementedError();
-      },
-      markdown: async () => {
-        throw new NotImplementedError();
-      },
-      audio: async () => {
-        throw new NotImplementedError();
-      },
-      video: async () => {
-        throw new NotImplementedError();
-      },
-      file: async () => {
-        throw new NotImplementedError();
-      },
-      location: async () => {
-        throw new NotImplementedError();
-      },
-      carousel: async () => {
-        throw new NotImplementedError();
-      },
-      card: async () => {
-        throw new NotImplementedError();
       },
       choice: async (props) => {
         const graphClient = getClient(props.ctx.configuration);

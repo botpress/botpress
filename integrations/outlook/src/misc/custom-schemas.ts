@@ -1,5 +1,7 @@
 import * as z from "zod";
 
+export const htmlSchema = z.object({ content: z.string() });
+
 export const notificationContentSchema = z
   .object({
     body: z.object({
