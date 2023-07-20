@@ -14,9 +14,6 @@ importers:
       '@bpinternal/readiness':
         specifier: 0.0.1
         version: 0.0.1
-      '@tsconfig/node18-strictest':
-        specifier: ^1.0.0
-        version: 1.0.0
       '@types/node':
         specifier: ^18.11.18
         version: 18.16.16
@@ -72,9 +69,6 @@ importers:
       '@botpress/cli':
         specifier: 0.2.2
         version: link:../../packages/cli
-      '@tsconfig/node18-strictest':
-        specifier: ^1.0.0
-        version: 1.0.0
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.0
@@ -1076,9 +1070,6 @@ importers:
         specifier: ^3.20.6
         version: 3.21.4
     devDependencies:
-      '@tsconfig/node18-strictest':
-        specifier: ^1.0.0
-        version: 1.0.0
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.16
@@ -1101,9 +1092,6 @@ importers:
         specifier: ^3.20.6
         version: 3.21.4
     devDependencies:
-      '@tsconfig/node18-strictest':
-        specifier: ^1.0.0
-        version: 1.0.0
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.16
@@ -3176,10 +3164,6 @@ packages:
 
   /@tsconfig/node16@1.0.4:
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
-
-  /@tsconfig/node18-strictest@1.0.0:
-    resolution: {integrity: sha512-bOuNKwO4Fzbt+Su5wqI9zNHwx5C25gLnutwVQA1sBZk0cW8UjVPVcwzIUhJIIJDUx7zDEbAwdCD2HfvIsV8dYg==}
-    deprecated: TypeScript 5.0 supports combining TSConfigs using array syntax in extends
 
   /@types/append-query@2.0.1:
     resolution: {integrity: sha512-L/RxncHj5Wh8B0A5yGTYQbCu+YVbrbtuPaemp/yrQCy1du/qYqEnQBgZoipeSYhTSJoTqRJGLqmnbUOn5iu0cQ==}
