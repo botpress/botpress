@@ -55,7 +55,8 @@ export const registerYargs = (yargz: YargsInstance, commands: tree.CommandTree) 
       },
       async (argv) => {
         const parsed = parseArguments(schema, argv)
-        await command.handler({ ...parsed })
+        const { exitCode } = await command.handler({ ...parsed })
+        process.exit(exitCode)
       }
     )
   }

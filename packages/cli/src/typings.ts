@@ -22,7 +22,7 @@ export type CommandDefinition<S extends CommandSchema = CommandSchema> = {
 
 export type CommandImplementation<C extends CommandDefinition = CommandDefinition> = (
   argv: CommandArgv<C>
-) => Promise<never>
+) => Promise<{ exitCode: number }>
 
 export type CommandLeaf<C extends CommandDefinition = CommandDefinition> = C & {
   handler: CommandImplementation<C>
