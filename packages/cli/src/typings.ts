@@ -1,7 +1,6 @@
 import type yargs from '@bpinternal/yargs-extra'
 // eslint-disable-next-line no-duplicate-imports
 import type { YargsConfig, YargsSchema } from '@bpinternal/yargs-extra'
-import type * as utils from './utils'
 
 export type CommandPositionalOption = yargs.PositionalOptions & { positional: true; idx: number }
 export type CommandNamedOption = YargsSchema[string] & { positional?: false }
@@ -9,7 +8,10 @@ export type CommandOption = CommandPositionalOption | CommandNamedOption
 export type CommandSchema = Record<string, CommandOption>
 
 export type CommandArgv<C extends CommandDefinition = CommandDefinition> = YargsConfig<C['schema']> & {
-  cliRootDir: utils.path.AbsolutePath
+  /**
+   * Ignored: fixes weird typing issue
+   */
+  _?: string
 }
 
 export type CommandDefinition<S extends CommandSchema = CommandSchema> = {
