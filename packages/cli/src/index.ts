@@ -5,9 +5,6 @@ import * as tree from './command-tree'
 import * as errors from './errors'
 import { Logger } from './logger'
 import { registerYargs } from './register-yargs'
-import * as utils from './utils'
-
-const CLI_ROOT_DIR = utils.path.join(__dirname as utils.path.AbsolutePath, '..')
 
 const logError = (thrown: unknown) => {
   const error = errors.BotpressCLIError.map(thrown)
@@ -30,7 +27,7 @@ process.on('unhandledRejection', (thrown: unknown) => onError(thrown))
 
 const commands = tree.zipTree(commandDefinitions, commandImplementations)
 
-registerYargs(yargs, commands, { cliRootDir: CLI_ROOT_DIR })
+registerYargs(yargs, commands)
 
 void yargs
   .version()
