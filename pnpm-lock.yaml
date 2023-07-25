@@ -67,7 +67,7 @@ importers:
         version: 3.21.4
     devDependencies:
       '@botpress/cli':
-        specifier: 0.2.3
+        specifier: 0.2.4
         version: link:../../packages/cli
       '@types/node':
         specifier: ^18.11.17
