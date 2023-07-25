@@ -81,8 +81,8 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     })
     await supervisor.start()
 
-    await this._deploy(api, httpTunnelUrl)
     await this._runBuild()
+    await this._deploy(api, httpTunnelUrl)
     const worker = await this._spawnWorker(env, port)
 
     try {
@@ -119,8 +119,6 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   }
 
   private _restart = async (api: ApiClient, worker: Worker, tunnelUrl: string) => {
-    await this._deploy(api, tunnelUrl)
-
     try {
       await this._runBuild()
     } catch (thrown) {
@@ -129,6 +127,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       return
     }
 
+    await this._deploy(api, tunnelUrl)
     await worker.reload()
   }
 
