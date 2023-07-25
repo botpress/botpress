@@ -1,16 +1,31 @@
-import moment from 'moment'
 import type { RegisterFunction } from '../misc/types'
+import moment from 'moment'
 
 import { getClient } from '../utils'
 
-export const register: RegisterFunction = async ({ webhookUrl, ctx, client }) => {
+export const register: RegisterFunction = async ({
+  webhookUrl,
+  ctx,
+  client,
+}) => {
   const graphClient = getClient(ctx.configuration)
-  console.info('suscribing webhook %s', webhookUrl)
-
   const subscriptions = await graphClient.listSubscriptions()
 
+  if (!ctx.configuration.useAsChannel) {
+    for (let subscription of subscriptions) {
+      if (subscription) {
+        await graphClient.unsubscribeWebhook(subscription.id || '')
+      }
+    }
+    return
+  }
+
+  console.info('suscribing webhook %s', webhookUrl)
+
   const existingSubscription = subscriptions.find((subcription) => {
-    const match = JSON.stringify(subcription.resource).match(/\/users\/(.+)\/mailFolders\('(.+)'\)\/messages/)
+    const match = JSON.stringify(subcription.resource).match(
+      /\/users\/(.+)\/mailFolders\('(.+)'\)\/messages/
+    )
     const emailAddress = match ? match[1] : null
     const mailFolder = match ? match[2] : null
 
@@ -23,7 +38,10 @@ export const register: RegisterFunction = async ({ webhookUrl, ctx, client }) =>
 
   let subscriptionId
 
-  if (existingSubscription && moment.utc(existingSubscription.expirationDateTime).isAfter(moment.utc())) {
+  if (
+    existingSubscription &&
+    moment.utc(existingSubscription.expirationDateTime).isAfter(moment.utc())
+  ) {
     subscriptionId = existingSubscription.id
     console.info('Using existing subscriptionId ', subscriptionId)
   } else {

@@ -1,30 +1,21 @@
 import type { IntegrationDefinitionProps } from '@botpress/sdk'
 import { z } from 'zod'
 
+export { actions } from './actions'
 export { channels } from './channels'
 
 export const configuration = {
   schema: z.object({
-    tenantId: z.string({
-      description: 'Azure AD tenant id',
-    }),
-    clientId: z.string({
-      description: 'Azure AD app client id',
-    }),
-    clientSecret: z.string({
-      description: 'Azure AD app client secret',
-    }),
-    emailAddress: z.string({
-      description: 'Email address to listen',
-    }),
+    tenantId: z.string().describe('Azure AD tenant id'),
+    clientId: z.string().describe('Azure AD app client id'),
+    clientSecret: z.string().describe('Azure AD app client secret'),
+    emailAddress: z.string().describe('Email address to listen'),
     mailFolder: z
-      .string({
-        description: 'Email folder to process messages (default: "inbox")',
-      })
-      .default('inbox'),
-    emailSignature: z.string({
-      description: 'Signature to include in all emails',
-    }),
+      .string()
+      .default('inbox')
+      .describe('Email folder to process messages (default: "inbox")'),
+    emailSignature: z.string().describe('Signature to include in all emails'),
+    useAsChannel: z.boolean().describe('Use integration as a channel'),
   }),
 } satisfies IntegrationDefinitionProps['configuration']
 

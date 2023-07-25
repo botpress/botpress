@@ -1,6 +1,7 @@
 import type { ChangeNotification } from '@microsoft/microsoft-graph-types'
-import querystring from 'querystring'
 import type { Handler } from '../misc/types'
+
+import querystring from 'querystring'
 
 import { processMessage } from '../utils'
 
@@ -15,7 +16,7 @@ export const handler: Handler = async ({ req, ctx, client }) => {
     const validationToken = queryParams.validationToken
 
     if (validationToken) {
-      const str = decodeURIComponent(validationToken as string)
+      var str = decodeURIComponent(validationToken as string)
         .split('+')
         .join(' ')
       return {
