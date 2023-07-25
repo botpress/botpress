@@ -2,10 +2,12 @@ import { Logger } from '@bpinternal/log4bot'
 import yargs, { YargsConfig, YargsSchema } from '@bpinternal/yargs-extra'
 import * as consts from '../src/consts'
 import { createDeployBot } from './tests/create-deploy-bot'
+import { createDeployIntegration } from './tests/create-deploy-integration'
+import { devBot } from './tests/dev-bot'
 import { Test } from './typings'
 import { sleep, TmpDirectory } from './utils'
 
-const tests: Test[] = [createDeployBot]
+const tests: Test[] = [createDeployBot, createDeployIntegration, devBot]
 
 const timeout = (ms: number) =>
   sleep(ms).then(() => {
@@ -39,6 +41,10 @@ const configSchema = {
     type: 'string',
     default: consts.defaultBotpressApiUrl,
   },
+  tunnelUrl: {
+    type: 'string',
+    default: consts.defaultTunnelUrl,
+  },
 } satisfies YargsSchema
 
 const main = async (argv: YargsConfig<typeof configSchema>): Promise<never> => {
@@ -49,7 +55,11 @@ const main = async (argv: YargsConfig<typeof configSchema>): Promise<never> => {
   logger.info(`Running ${filteredTests.length} / ${tests.length} tests`)
 
   for (const { name, handler } of filteredTests) {
-    logger.info(`### Running test: "${name}" ###`)
+    const logLine = `### Running test: "${name}" ###`
+    const logPad = '#'.repeat(logLine.length)
+    logger.info(logPad)
+    logger.info(logLine)
+    logger.info(logPad + '\n')
 
     const tmpDir = TmpDirectory.create()
     try {

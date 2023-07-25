@@ -3,6 +3,7 @@ export type TestProps = {
   workspaceId: string
   token: string
   apiUrl: string
+  tunnelUrl: string
 }
 
 export type Test = {

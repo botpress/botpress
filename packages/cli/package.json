@@ -52,6 +52,7 @@
     "@types/semver": "^7.3.11",
     "@types/tmp": "^0.2.3",
     "@types/uuid": "^9.0.1",
+    "find-process": "^1.4.7",
     "glob": "^9.3.4",
     "tmp": "^0.2.1",
     "ts-node": "^10.9.1"
