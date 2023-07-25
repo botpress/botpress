@@ -15,6 +15,7 @@ import { ProjectCommand } from './project-command'
 
 const DEFAULT_BOT_PORT = 8075
 const DEFAULT_INTEGRATION_PORT = 8076
+const TUNNEL_HELLO_INTERVAL = 5000
 
 export type DevCommandDefinition = typeof commandDefinitions.dev
 export class DevCommand extends ProjectCommand<DevCommandDefinition> {
@@ -61,6 +62,10 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
 
     const supervisor = new utils.tunnel.TunnelSupervisor(wsTunnelUrl, tunnelId, this.logger)
     supervisor.events.on('connected', ({ tunnel }) => {
+      // prevents the tunnel from closing due to inactivity
+      const timer = setInterval(() => tunnel.hello(), TUNNEL_HELLO_INTERVAL)
+      tunnel.events.on('close', () => clearInterval(timer))
+
       tunnel.events.on(
         'request',
         (req) =>
