@@ -1,6 +1,6 @@
 {
   "name": "@botpress/client",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Botpress Client",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",

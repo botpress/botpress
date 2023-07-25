@@ -49,6 +49,7 @@ export function getClientConfig(clientProps: ClientProps): ClientConfig {
     host: props.host ?? defaultApiUrl,
     withCredentials: isBrowser,
     headers,
+    timeout: props.timeout,
   }
 }
 
