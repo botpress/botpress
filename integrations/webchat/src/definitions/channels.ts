@@ -1,17 +1,9 @@
 import { IntegrationDefinitionProps, messages } from '@botpress/sdk'
 import { z } from 'zod'
 
-const cardSchema = z.object({
-  title: z.string().min(1),
+const cardSchema = messages.defaults.card.schema.extend({
   subtitle: z.string().optional(),
-  imageUrl: z.string(),
-  actions: z.array(
-    z.object({
-      action: z.enum(['postback', 'url', 'say']),
-      label: z.string().min(1),
-      value: z.string().min(1),
-    })
-  ),
+  imageUrl: z.string().optional(),
 })
 
 const defaults = {
