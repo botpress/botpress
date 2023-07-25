@@ -10,7 +10,7 @@ Before enabling the Botpress Outlook Integration, please ensure that you have th
 - Access to a Microsoft Outlook account.
 - Access to Azure Portal and Azure Active Directory resource.
 - Register an aplication in AD [auth-register-app-v2](https://learn.microsoft.com/en-us/graph/auth-register-app-v2)
-- Assign `Mail.Read`, `Mail.Send` and `Users.Read.All`[API permissions](https://learn.microsoft.com/en-us/graph/permissions-overview?tabs=http) to your registered aplication.
+- Assign `Mail.Read`, `Mail.Send`, `Users.Read.All` and `Calendars.ReadWrite`[API permissions](https://learn.microsoft.com/en-us/graph/permissions-overview?tabs=http) to your registered aplication.
 - Generate certificates and secrets in [Certificates & Secrets](https://learn.microsoft.com/en-us/graph/auth-register-app-v2#add-credentials)
 
 ## Enable Integration

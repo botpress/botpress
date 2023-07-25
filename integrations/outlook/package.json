@@ -1,5 +1,5 @@
 {
-  "name": "@botpresshub/outlook",
+  "name": "outlook",
   "scripts": {
     "type:check": "tsc --noEmit"
   },
@@ -9,9 +9,8 @@
   "license": "MIT",
   "dependencies": {
     "@azure/identity": "^3.2.3",
-    "@botpress/cli": "workspace:*",
-    "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*",
+    "@botpress/client": "0.1.1",
+    "@botpress/sdk": "0.1.3",
     "@microsoft/microsoft-graph-client": "^3.0.5",
     "cheerio": "^1.0.0-rc.12",
     "lodash": "^4.17.21",

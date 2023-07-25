@@ -7,7 +7,7 @@ export const channels: Channels = {
     messages: {
       text: async (props) => {
         const graphClient = getClient(props.ctx.configuration)
-        await graphClient.sendMail({
+        await graphClient.replyLastMessage({
           ...props,
           body: {
             contentType: 'text',
@@ -23,7 +23,7 @@ export const channels: Channels = {
           content += `- ${option.label}\n`
         }
         content += `\n\n${props.ctx.configuration.emailSignature}`
-        await graphClient.sendMail({
+        await graphClient.replyLastMessage({
           ...props,
           body: {
             contentType: 'text',
@@ -39,7 +39,7 @@ export const channels: Channels = {
           content += `- ${option.label}\n`
         }
         content += `\n\n${props.ctx.configuration.emailSignature}`
-        await graphClient.sendMail({
+        await graphClient.replyLastMessage({
           ...props,
           body: {
             contentType: 'text',
@@ -49,7 +49,7 @@ export const channels: Channels = {
       },
       html: async (props) => {
         const graphClient = getClient(props.ctx.configuration)
-        await graphClient.sendMail({
+        await graphClient.replyLastMessage({
           ...props,
           body: {
             contentType: 'html',
