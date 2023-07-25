@@ -958,6 +958,34 @@ importers:
         specifier: ^4.9.5
         version: 4.9.5
 
+  integrations/zendesk:
+    dependencies:
+      '@botpress/client':
+        specifier: 0.1.1
+        version: 0.1.1
+      '@botpress/sdk':
+        specifier: 0.1.3
+        version: 0.1.3
+      axios:
+        specifier: ^1.4.0
+        version: 1.4.0
+      zod:
+        specifier: ^3.20.6
+        version: 3.21.4
+    devDependencies:
+      '@tsconfig/node18-strictest':
+        specifier: ^1.0.0
+        version: 1.0.0
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.16.0
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.1(@types/node@18.16.0)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   packages/cli:
     dependencies:
       '@botpress/client':
@@ -1711,6 +1739,16 @@ packages:
       - debug
     dev: true
 
+  /@botpress/client@0.1.1:
+    resolution: {integrity: sha512-MlGeKpC8nzOMknsz3MwANxkeNXVI8jGcew0SN517syC6R4OHGA8l8PMQ0imPcyOnC8LLBQI9lV+7PVdAmDdOxQ==}
+    dependencies:
+      axios: 1.2.5
+      browser-or-node: 2.1.1
+      type-fest: 3.11.1
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /@botpress/messaging-base@1.2.0:
     resolution: {integrity: sha512-7cjHeD1Ti4cvDmyUV2D2CFKR1kPYv+eFPgXaJOksvrEoNZ1SrqXbHR9l26ndaAz0TuoX3Wc9l4Q7i5sBoHE44Q==}
     dev: false
@@ -1722,6 +1760,18 @@ packages:
       axios: 0.21.4(debug@4.3.4)
       cookie: 0.4.2
       joi: 17.9.2
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /@botpress/sdk@0.1.3:
+    resolution: {integrity: sha512-v8uQGbQoag9hYYqcrBK8H12xhgJWf0AwerJnKYCTVsFQXbTLYIz8yUyXLn+d2tSPskkg6L6nZKlksNVIPlRTvw==}
+    dependencies:
+      '@botpress/client': 0.1.1
+      axios: 0.27.2
+      radash: 9.5.0
+      zod: 3.21.4
+      zod-to-json-schema: 3.21.1(zod@3.21.4)
     transitivePeerDependencies:
       - debug
     dev: false
@@ -3165,6 +3215,11 @@ packages:
   /@tsconfig/node16@1.0.4:
     resolution: {integrity: sha512-vxhUy4J8lyeyinH7Azl1pdd43GJhZH/tP2weN8TntQblOY+A0XbT8DJk1/oCPuOOyg/Ja757rG0CgHcWC8OfMA==}
 
+  /@tsconfig/node18-strictest@1.0.0:
+    resolution: {integrity: sha512-bOuNKwO4Fzbt+Su5wqI9zNHwx5C25gLnutwVQA1sBZk0cW8UjVPVcwzIUhJIIJDUx7zDEbAwdCD2HfvIsV8dYg==}
+    deprecated: TypeScript 5.0 supports combining TSConfigs using array syntax in extends
+    dev: true
+
   /@types/append-query@2.0.1:
     resolution: {integrity: sha512-L/RxncHj5Wh8B0A5yGTYQbCu+YVbrbtuPaemp/yrQCy1du/qYqEnQBgZoipeSYhTSJoTqRJGLqmnbUOn5iu0cQ==}
     dev: false
@@ -3659,12 +3714,12 @@ packages:
       negotiator: 0.6.3
     dev: false
 
-  /acorn-jsx@5.3.2(acorn@8.8.2):
+  /acorn-jsx@5.3.2(acorn@8.10.0):
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
       acorn: ^6.0.0 || ^7.0.0 || ^8.0.0
     dependencies:
-      acorn: 8.8.2
+      acorn: 8.10.0
     dev: false
 
   /acorn-walk@8.2.0:
@@ -5547,8 +5602,8 @@ packages:
     resolution: {integrity: sha512-7OASN1Wma5fum5SrNhFMAMJxOUAbhyfQ8dQ//PJaJbNw0URTPWqIghHWt1MmAANKhHZIYOHruW4Kw4ruUWOdGw==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dependencies:
-      acorn: 8.8.2
-      acorn-jsx: 5.3.2(acorn@8.8.2)
+      acorn: 8.10.0
+      acorn-jsx: 5.3.2(acorn@8.10.0)
       eslint-visitor-keys: 3.4.1
     dev: false
 
