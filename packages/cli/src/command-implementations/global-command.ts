@@ -24,10 +24,10 @@ class GlobalPaths extends utils.path.PathStore<keyof AllGlobalPaths> {
   public constructor(argv: CommandArgv<GlobalCommandDefinition>) {
     const absBotpressHome = utils.path.absoluteFrom(utils.path.cwd(), argv.botpressHome)
     super({
-      cliRootDir: argv.cliRootDir,
+      cliRootDir: consts.cliRootDir,
       botpressHomeDir: absBotpressHome,
       ..._.mapValues(consts.fromHomeDir, (p) => utils.path.absoluteFrom(absBotpressHome, p)),
-      ..._.mapValues(consts.fromCliRootDir, (p) => utils.path.absoluteFrom(argv.cliRootDir, p)),
+      ..._.mapValues(consts.fromCliRootDir, (p) => utils.path.absoluteFrom(consts.cliRootDir, p)),
     })
   }
 }
