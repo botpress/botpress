@@ -1,0 +1,24 @@
+name: Run CLI Tests
+
+on: pull_request
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  run-checks:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NODE_OPTIONS: '--max_old_space_size=8192'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Tilt
+        uses: ./.github/actions/setup-tilt
+      - run: pnpm run format:check
+      - run: |
+          pnpm run -F cli e2e:test \
+            --api-url https://api.botpress.dev \
+            --workspace-id ${{ secrets.STAGING_E2E_TESTS_WORKSPACE_ID }} \
+            --token ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}

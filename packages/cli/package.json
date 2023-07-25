@@ -8,7 +8,9 @@
     "start": "node dist/index.js",
     "type:check": "tsc --noEmit",
     "bundle": "ts-node -T build.ts",
-    "template:gen": "pnpm -r --stream -F echo-bot -F empty-integration exec bp gen"
+    "template:gen": "pnpm -r --stream -F echo-bot -F empty-integration exec bp gen",
+    "e2e:test": "ts-node -T ./e2e",
+    "unit:test": "pnpm vitest --run"
   },
   "keywords": [],
   "author": "",
@@ -46,11 +48,15 @@
   },
   "devDependencies": {
     "@botpress/sdk": "0.1.5",
+    "@bpinternal/log4bot": "^0.0.4",
     "@types/bluebird": "^3.5.38",
     "@types/prompts": "^2.0.14",
     "@types/semver": "^7.3.11",
+    "@types/tmp": "^0.2.3",
     "@types/uuid": "^9.0.1",
+    "find-process": "^1.4.7",
     "glob": "^9.3.4",
+    "tmp": "^0.2.1",
     "ts-node": "^10.9.1"
   },
   "engines": {
