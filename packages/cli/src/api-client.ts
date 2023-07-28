@@ -54,16 +54,16 @@ export class ApiClient {
 
   public async findPrivateIntegration(ref: IntegrationRef): Promise<Integration | undefined> {
     if (ref.type === 'id') {
-      return this.validateStatus(() => this.client.getIntegration(ref).then((r) => r.integration), [404, 500]) // TODO: fix that
+      return this.validateStatus(() => this.client.getIntegration(ref).then((r) => r.integration), 404)
     }
-    return this.validateStatus(() => this.client.getIntegrationByName(ref).then((r) => r.integration), [404, 500])
+    return this.validateStatus(() => this.client.getIntegrationByName(ref).then((r) => r.integration), 404)
   }
 
   public async findPublicIntegration(ref: IntegrationRef): Promise<Integration | undefined> {
     if (ref.type === 'id') {
-      return this.validateStatus(() => this.client.getPublicIntegrationById(ref).then((r) => r.integration), [404, 500])
+      return this.validateStatus(() => this.client.getPublicIntegrationById(ref).then((r) => r.integration), 404)
     }
-    return this.validateStatus(() => this.client.getPublicIntegration(ref).then((r) => r.integration), [404, 500])
+    return this.validateStatus(() => this.client.getPublicIntegration(ref).then((r) => r.integration), 404)
   }
 
   public async testLogin(): Promise<void> {
