@@ -33,7 +33,7 @@ const createLinearIssue = async (
   return parseResult.data
 }
 
-bot.event('', async ({ event, client, ctx }) => {
+bot.event(async ({ event, client, ctx }) => {
   const { type, payload } = event
   if (type !== schemas.githubIssueOpenedType) {
     return

@@ -25,7 +25,7 @@ const bot = new Bot({
   recurringEvents: {},
 })
 
-bot.message('', async ({ message, client, ctx }) => {
+bot.message(async ({ message, client, ctx }) => {
   logger.info('Received message', message)
 
   await client.createMessage({
