@@ -1,4 +1,4 @@
-import { ApiClient } from '../api-client'
+import { ApiClient } from '../api/client'
 import type commandDefinitions from '../command-definitions'
 import type { ImplementationTree } from '../command-tree'
 import { Logger } from '../logger'
