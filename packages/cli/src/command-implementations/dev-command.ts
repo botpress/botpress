@@ -3,9 +3,12 @@ import type { Bot as BotImpl, IntegrationDefinition } from '@botpress/sdk'
 import { TunnelRequest, TunnelResponse } from '@bpinternal/tunnel'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import chalk from 'chalk'
+import _ from 'lodash'
 import * as pathlib from 'path'
 import * as uuid from 'uuid'
-import type { ApiClient } from '../api-client'
+import { prepareUpdateBotBody } from '../api/bot-body'
+import type { ApiClient } from '../api/client'
+import { prepareUpdateIntegrationBody } from '../api/integration-body'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import * as utils from '../utils'
@@ -203,12 +206,16 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
 
     const line = this.logger.line()
     line.started(`Deploying dev integration ${chalk.bold(integrationDef.name)}...`)
+
     if (integration) {
-      const resp = await api.client
-        .updateIntegration({ ...integrationDef, id: integration.id, url: externalUrl })
-        .catch((thrown) => {
-          throw errors.BotpressCLIError.wrap(thrown, `Could not update dev integration "${integrationDef.name}"`)
-        })
+      const updateIntegrationBody = prepareUpdateIntegrationBody(
+        { ...integrationDef, id: integration.id, url: externalUrl },
+        integration
+      )
+
+      const resp = await api.client.updateIntegration(updateIntegrationBody).catch((thrown) => {
+        throw errors.BotpressCLIError.wrap(thrown, `Could not update dev integration "${integrationDef.name}"`)
+      })
       integration = resp.integration
     } else {
       const resp = await api.client
@@ -262,21 +269,27 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const outfile = this.projectPaths.abs.outFile
     const { default: botImpl } = utils.require.requireJsFile<{ default: BotImpl }>(outfile)
 
-    const integrations = this.prepareIntegrations(botImpl, bot)
-
     const updateLine = this.logger.line()
     updateLine.started('Deploying dev bot...')
 
-    const { bot: updatedBot } = await api.client
-      .updateBot({
+    const integrations = _(botImpl.definition.integrations ?? [])
+      .keyBy((i) => i.id)
+      .mapValues(({ enabled, configuration }) => ({ enabled, configuration }))
+      .value()
+
+    const updateBotBody = prepareUpdateBotBody(
+      {
         ...botImpl.definition,
         id: bot.id,
         integrations,
         url: externalUrl,
-      })
-      .catch((thrown) => {
-        throw errors.BotpressCLIError.wrap(thrown, 'Could not deploy dev bot')
-      })
+      },
+      bot
+    )
+
+    const { bot: updatedBot } = await api.client.updateBot(updateBotBody).catch((thrown) => {
+      throw errors.BotpressCLIError.wrap(thrown, 'Could not deploy dev bot')
+    })
     updateLine.success(`Dev Bot deployed with id "${updatedBot.id}"`)
 
     this.displayWebhookUrls(updatedBot)
