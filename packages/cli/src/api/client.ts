@@ -1,7 +1,7 @@
 import { Client, Integration, isApiError } from '@botpress/client'
 import _ from 'lodash'
-import { formatIntegrationRef, IntegrationRef } from './integration-ref'
-import type { Logger } from './logger'
+import { formatIntegrationRef, IntegrationRef } from '../integration-ref'
+import type { Logger } from '../logger'
 
 export type PageLister<R extends object> = (t: { nextToken?: string }) => Promise<R & { meta: { nextToken?: string } }>
 
