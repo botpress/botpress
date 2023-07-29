@@ -47,11 +47,11 @@ const configSchema = {
   },
   sdkPath: {
     type: 'string',
-    description: 'Path to the Botpress SDK you whish to install',
+    description: 'Path to the Botpress SDK to install; Allows using a version not released on NPM yet.',
   },
   clientPath: {
     type: 'string',
-    description: 'Path to the Botpress Client you whish to install',
+    description: 'Path to the Botpress Client to install; Allows using a version not released on NPM yet.',
   },
 } satisfies YargsSchema
 
