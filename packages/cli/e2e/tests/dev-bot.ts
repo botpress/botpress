@@ -16,7 +16,7 @@ const PORT = 8075
 
 export const devBot: Test = {
   name: 'cli should allow creating and running a bot locally',
-  handler: async ({ tmpDir, tunnelUrl, ...creds }) => {
+  handler: async ({ tmpDir, tunnelUrl, dependencies, ...creds }) => {
     const botpressHomeDir = pathlib.join(tmpDir, '.botpresshome')
     const baseDir = pathlib.join(tmpDir, 'bots')
     const botName = uuid.v4()
@@ -30,6 +30,7 @@ export const devBot: Test = {
     }
 
     await impl.init({ ...argv, workDir: baseDir, name: botName, type: 'bot' }).then(handleExitCode)
+    await utils.fixBotpressDependencies({ workDir: botDir, target: dependencies })
     await utils.npmInstall({ workDir: botDir }).then(handleExitCode)
     await impl.login({ ...argv }).then(handleExitCode)
 
