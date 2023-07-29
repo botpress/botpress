@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cli",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "Botpress CLI",
   "scripts": {
     "build": "pnpm run bundle && pnpm run template:gen",
@@ -47,7 +47,7 @@
     "zod-to-json-schema": "^3.20.1"
   },
   "devDependencies": {
-    "@botpress/sdk": "0.1.6",
+    "@botpress/sdk": "0.2.0",
     "@bpinternal/log4bot": "^0.0.4",
     "@types/bluebird": "^3.5.38",
     "@types/prompts": "^2.0.14",
