@@ -14,7 +14,7 @@ const fetchBot = async (client: Client, botName: string): Promise<ApiBot | undef
 
 export const createDeployBot: Test = {
   name: 'cli should allow creating, building, deploying and mannaging a bot',
-  handler: async ({ tmpDir, ...creds }) => {
+  handler: async ({ tmpDir, dependencies, ...creds }) => {
     const botpressHomeDir = pathlib.join(tmpDir, '.botpresshome')
     const baseDir = pathlib.join(tmpDir, 'bots')
     const botName = uuid.v4()
@@ -30,6 +30,7 @@ export const createDeployBot: Test = {
     const client = new Client({ host: creds.apiUrl, token: creds.token, workspaceId: creds.workspaceId })
 
     await impl.init({ ...argv, workDir: baseDir, name: botName, type: 'bot' }).then(utils.handleExitCode)
+    await utils.fixBotpressDependencies({ workDir: botDir, target: dependencies })
     await utils.npmInstall({ workDir: botDir }).then(utils.handleExitCode)
     await impl.build({ ...argv, workDir: botDir }).then(utils.handleExitCode)
     await impl.login({ ...argv }).then(utils.handleExitCode)
