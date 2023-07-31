@@ -14,7 +14,7 @@ type CreateMessageBody<T extends DefaultMessageType> = Omit<CreateMessageProps, 
 
 const bot = new Bot()
 
-bot.message('', async ({ message, client, ctx }) => {
+bot.message(async ({ message, client, ctx }) => {
   console.info('Received message', message)
 
   await client.createMessage({
