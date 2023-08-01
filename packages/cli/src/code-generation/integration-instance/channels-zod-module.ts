@@ -1,5 +1,6 @@
 import bluebird from 'bluebird'
 import { casing } from '../../utils'
+import { GENERATED_HEADER, INDEX_FILE } from '../const'
 import { jsonSchemaToTypeScriptZod } from '../generators'
 import { Module, ModuleDef, ReExportSchemaModule } from '../module'
 import type * as types from '../typings'
@@ -9,25 +10,65 @@ export class MessageModule extends Module {
     const schema = message.schema ?? {}
     const def: ModuleDef = {
       path: `${name}.ts`,
-      exportName: casing.to.pascalCase(name),
+      exportName: casing.to.camelCase(name),
       content: await jsonSchemaToTypeScriptZod(schema, name),
     }
     return new MessageModule(def)
   }
 }
 
-export class ChannelModule extends ReExportSchemaModule {
-  public static async create(channelName: string, channel: types.ChannelDefinition): Promise<ChannelModule> {
+export class MessagesModule extends ReExportSchemaModule {
+  public static async create(channelName: string, channel: types.ChannelDefinition): Promise<MessagesModule> {
     const messages = channel.messages ?? {}
     const messageModules = await bluebird.map(Object.entries(messages), ([messageName, message]) =>
       MessageModule.create(messageName, message)
     )
 
-    const inst = new ChannelModule({
-      exportName: `channel${casing.to.pascalCase(channelName)}`,
+    const inst = new MessagesModule({
+      exportName: `messages${casing.to.pascalCase(channelName)}`,
     })
     inst.pushDep(...messageModules)
     return inst
+  }
+}
+
+export class ChannelModule extends Module {
+  public static async create(channelName: string, channel: types.ChannelDefinition): Promise<ChannelModule> {
+    const messages = await MessagesModule.create(channelName, channel)
+    messages.unshift('messages')
+
+    const inst = new ChannelModule(messages, channel, {
+      exportName: `channel${casing.to.pascalCase(channelName)}`,
+      path: INDEX_FILE,
+      content: '',
+    })
+
+    inst.pushDep(messages)
+    return inst
+  }
+
+  private constructor(
+    private messages: MessagesModule,
+    private channel: types.ChannelDefinition,
+    private def: ModuleDef
+  ) {
+    super(def)
+  }
+
+  public override get content(): string {
+    const { messages, def, channel } = this
+
+    const { conversation, message } = channel
+    return [
+      GENERATED_HEADER,
+      `import { ${messages.exports} } from './${messages.import(this)}'`,
+      '',
+      `export const ${def.exportName} = {`,
+      `  messages: ${messages.exports},`,
+      `  message: ${JSON.stringify(message)} as const,`,
+      `  conversation: ${JSON.stringify(conversation)} as const,`,
+      '}',
+    ].join('\n')
   }
 }
 

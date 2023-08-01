@@ -6,6 +6,15 @@ import { Github, Linear } from '.botpress'
 const github = new Github()
 const linear = new Linear()
 
+type GITHUB_EVENT_TYPE = `github:${keyof typeof github.definition.events}`
+
+type LINEAR_CHANNELS = keyof typeof linear.definition.channels
+type LINEAR_CONVERSATION_TAG = `linear:${keyof typeof linear.definition.channels.issue.conversation.tags}`
+
+const GITHUB_ISSUE_OPENED_TYPE = 'github:issueOpened' satisfies GITHUB_EVENT_TYPE
+const LINEAR_ISSUE_CHANNEL = 'issue' satisfies LINEAR_CHANNELS
+const LINEAR_CONVERSATION_TAG_ID = 'linear:id' satisfies LINEAR_CONVERSATION_TAG
+
 const bot = new Bot({
   integrations: [github, linear],
   configuration: {
@@ -34,7 +43,7 @@ const createLinearIssue = async (
 
 bot.event(async ({ event, client, ctx }) => {
   const { type, payload } = event
-  if (type !== 'github:issueOpened') {
+  if (type !== GITHUB_ISSUE_OPENED_TYPE) {
     return
   }
 
@@ -54,9 +63,9 @@ bot.event(async ({ event, client, ctx }) => {
   })
 
   const { conversation } = await client.getOrCreateConversation({
-    channel: 'issue',
+    channel: LINEAR_ISSUE_CHANNEL,
     tags: {
-      ['linear:id']: issue.id,
+      [LINEAR_CONVERSATION_TAG_ID]: issue.id,
     },
     integrationName: 'linear',
   })
@@ -70,7 +79,7 @@ bot.event(async ({ event, client, ctx }) => {
     tags: {},
     payload: {
       text: `Automatically created from GitHub issue: ${issueUrl}`,
-    } satisfies z.infer<typeof linear.definition.channels.issue.text>,
+    } satisfies z.infer<typeof linear.definition.channels.issue.messages.text>,
   })
 })
 
