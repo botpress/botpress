@@ -1,7 +1,6 @@
 import type { Client } from '@botpress/client'
 import { Bot } from '@botpress/sdk'
 import type { z } from 'zod'
-import * as schemas from './schemas'
 import { Github, Linear } from '.botpress'
 
 const github = new Github()
@@ -18,14 +17,14 @@ const bot = new Bot({
 
 const createLinearIssue = async (
   client: Client,
-  issue: z.infer<typeof schemas.linearCreateIssueInput>
-): Promise<z.infer<typeof schemas.linearCreateIssueOutput>> => {
+  issue: z.infer<typeof linear.definition.actions.createIssue.input>
+): Promise<z.infer<typeof linear.definition.actions.createIssue.output>> => {
   const { output } = await client.callAction({
     type: 'linear:createIssue',
     input: issue,
   })
 
-  const parseResult = schemas.linearCreateIssueOutput.safeParse(output)
+  const parseResult = linear.definition.actions.createIssue.output.safeParse(output)
   if (!parseResult.success) {
     throw new Error(`Invalid output: ${parseResult.error}`)
   }
@@ -35,11 +34,11 @@ const createLinearIssue = async (
 
 bot.event(async ({ event, client, ctx }) => {
   const { type, payload } = event
-  if (type !== schemas.githubIssueOpenedType) {
+  if (type !== 'github:issueOpened') {
     return
   }
 
-  const parseResult = schemas.githubIssueOpened.safeParse(payload)
+  const parseResult = github.definition.events.issueOpened.safeParse(payload)
   if (!parseResult.success) {
     throw new Error(`Invalid payload: ${parseResult.error}`)
   }
@@ -63,6 +62,7 @@ bot.event(async ({ event, client, ctx }) => {
   })
 
   const issueUrl = `https://github.com/${githubIssue.repositoryOwner}/${githubIssue.repositoryName}/issues/${githubIssue.number}`
+
   await client.createMessage({
     type: 'text',
     conversationId: conversation.id,
@@ -70,7 +70,7 @@ bot.event(async ({ event, client, ctx }) => {
     tags: {},
     payload: {
       text: `Automatically created from GitHub issue: ${issueUrl}`,
-    },
+    } satisfies z.infer<typeof linear.definition.channels.issue.text>,
   })
 })
 
