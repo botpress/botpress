@@ -999,6 +999,9 @@ importers:
       esbuild:
         specifier: ^0.15.18
         version: 0.15.18
+      json-schema:
+        specifier: ^0.4.0
+        version: 0.4.0
       json-schema-to-typescript:
         specifier: ^11.0.2
         version: 11.0.5
@@ -1048,6 +1051,9 @@ importers:
       '@types/bluebird':
         specifier: ^3.5.38
         version: 3.5.38
+      '@types/json-schema':
+        specifier: ^7.0.11
+        version: 7.0.12
       '@types/prompts':
         specifier: ^2.0.14
         version: 2.4.4

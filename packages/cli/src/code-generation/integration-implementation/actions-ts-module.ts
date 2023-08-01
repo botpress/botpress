@@ -1,6 +1,6 @@
 import bluebird from 'bluebird'
-import { compile } from 'json-schema-to-typescript'
 import { casing } from '../../utils'
+import { jsonSchemaToTypeScriptType } from '../generators'
 import { Module, ModuleDef, ReExportTypeModule } from '../module'
 import type * as types from '../typings'
 
@@ -10,11 +10,11 @@ type ActionOutput = types.ActionDefinition['output']
 export class ActionInputModule extends Module {
   public static async create(input: ActionInput): Promise<ActionInputModule> {
     const schema = input.schema ?? {}
-    const filename = 'input.ts'
+    const name = 'input'
     const def: ModuleDef = {
-      path: filename,
+      path: `${name}.ts`,
       exportName: 'Input',
-      content: await compile(schema, filename),
+      content: await jsonSchemaToTypeScriptType(schema, name),
     }
     return new ActionInputModule(def)
   }
@@ -23,11 +23,11 @@ export class ActionInputModule extends Module {
 export class ActionOutputModule extends Module {
   public static async create(output: ActionOutput): Promise<ActionOutputModule> {
     const schema = output.schema ?? {}
-    const filename = 'output.ts'
+    const name = 'output'
     const def: ModuleDef = {
-      path: filename,
+      path: `${name}.ts`,
       exportName: 'Output',
-      content: await compile(schema, filename),
+      content: await jsonSchemaToTypeScriptType(schema, name),
     }
     return new ActionOutputModule(def)
   }

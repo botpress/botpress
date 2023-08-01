@@ -1,6 +1,6 @@
 import bluebird from 'bluebird'
-import { jsonSchemaToZod as compile } from 'json-schema-to-zod'
 import { casing } from '../../utils'
+import { jsonSchemaToTypeScriptZod } from '../generators'
 import { Module, ModuleDef, ReExportSchemaModule } from '../module'
 import type * as types from '../typings'
 
@@ -10,7 +10,7 @@ export class MessageModule extends Module {
     const def: ModuleDef = {
       path: `${name}.ts`,
       exportName: casing.to.pascalCase(name),
-      content: compile(schema, { name }),
+      content: await jsonSchemaToTypeScriptZod(schema, name),
     }
     return new MessageModule(def)
   }

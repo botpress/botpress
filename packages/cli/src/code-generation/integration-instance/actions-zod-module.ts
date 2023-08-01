@@ -1,6 +1,6 @@
 import bluebird from 'bluebird'
-import { jsonSchemaToZod as compile } from 'json-schema-to-zod'
 import { casing } from '../../utils'
+import { jsonSchemaToTypeScriptZod } from '../generators'
 import { Module, ModuleDef, ReExportSchemaModule } from '../module'
 import type * as types from '../typings'
 
@@ -14,7 +14,7 @@ export class ActionInputModule extends Module {
     const def: ModuleDef = {
       path: `${name}.ts`,
       exportName: 'input',
-      content: compile(schema, { name }),
+      content: await jsonSchemaToTypeScriptZod(schema, name),
     }
     return new ActionInputModule(def)
   }
@@ -27,7 +27,7 @@ export class ActionOutputModule extends Module {
     const def: ModuleDef = {
       path: `${name}.ts`,
       exportName: 'output',
-      content: compile(schema, { name }),
+      content: await jsonSchemaToTypeScriptZod(schema, name),
     }
     return new ActionOutputModule(def)
   }

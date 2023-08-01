@@ -51,6 +51,7 @@
     "@botpress/sdk": "0.2.0",
     "@bpinternal/log4bot": "^0.0.4",
     "@types/bluebird": "^3.5.38",
+    "@types/json-schema": "^7.0.11",
     "@types/prompts": "^2.0.14",
     "@types/semver": "^7.3.11",
     "@types/tmp": "^0.2.3",

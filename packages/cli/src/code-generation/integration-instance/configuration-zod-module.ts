@@ -1,4 +1,4 @@
-import { jsonSchemaToZod as compile } from 'json-schema-to-zod'
+import { jsonSchemaToTypeScriptZod } from '../generators'
 import { Module } from '../module'
 import type * as types from '../typings'
 
@@ -9,7 +9,7 @@ export class ConfigurationModule extends Module {
     return new ConfigurationModule({
       path: `${name}.ts`,
       exportName: 'configuration',
-      content: compile(schema, { name }),
+      content: await jsonSchemaToTypeScriptZod(schema, name),
     })
   }
 }

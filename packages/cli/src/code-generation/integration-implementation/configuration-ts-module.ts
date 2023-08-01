@@ -1,15 +1,15 @@
-import { compile } from 'json-schema-to-typescript'
+import { jsonSchemaToTypeScriptType } from '../generators'
 import { Module } from '../module'
 import type * as types from '../typings'
 
 export class ConfigurationModule extends Module {
   public static async create(configuration: types.ConfigurationDefinition): Promise<ConfigurationModule> {
     const schema = configuration.schema ?? {}
-    const filename = 'configuration'
+    const name = 'configuration'
     return new ConfigurationModule({
-      path: `${filename}.ts`,
+      path: `${name}.ts`,
       exportName: 'Configuration',
-      content: await compile(schema, filename),
+      content: await jsonSchemaToTypeScriptType(schema, name),
     })
   }
 }
