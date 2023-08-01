@@ -999,9 +999,6 @@ importers:
       esbuild:
         specifier: ^0.15.18
         version: 0.15.18
-      json-schema:
-        specifier: ^0.4.0
-        version: 0.4.0
       json-schema-to-typescript:
         specifier: ^11.0.2
         version: 11.0.5
