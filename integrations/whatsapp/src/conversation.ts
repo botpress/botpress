@@ -1,5 +1,6 @@
 import { Client, RuntimeError } from '@botpress/client'
 import { CreateConversationPayload, IntegrationContext } from '@botpress/sdk/dist/integration'
+import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 import { name } from 'integration.definition'
 import { WhatsAppAPI, Types } from 'whatsapp-api-js'
 import z from 'zod'
@@ -14,19 +15,21 @@ export async function createConversation({
   channel,
   tags,
   ctx,
+  logger,
 }: {
   ctx: IntegrationContext<Configuration>
   client: Client
+  logger: IntegrationLogger
 } & CreateConversationPayload) {
   const phoneNumberId = ctx.configuration.phoneNumberId
   if (!phoneNumberId) {
-    throw new RuntimeError('Phone number ID is not configured')
+    logForBotAndThrow('Phone number ID is not configured', logger)
   }
 
   const userPhoneTag = `${name}:userPhone`
   const userPhone = tags[userPhoneTag]
   if (!userPhone) {
-    throw new RuntimeError(`A Whatsapp recipient phone number needs to be provided in the '${userPhoneTag}' tag`)
+    logForBotAndThrow(`A Whatsapp recipient phone number needs to be provided in the '${userPhoneTag}' tag`, logger)
   }
 
   /*
@@ -36,7 +39,7 @@ export async function createConversation({
   const templateNameTag = `${name}:templateName`
   const templateName = tags[templateNameTag]
   if (!templateName) {
-    throw new RuntimeError(`A Whatsapp template name needs to be provided in the '${templateNameTag}' tag`)
+    logForBotAndThrow(`A Whatsapp template name needs to be provided in the '${templateNameTag}' tag`, logger)
   }
 
   const templateLanguageTag = `${name}:templateLanguage`
@@ -52,17 +55,19 @@ export async function createConversation({
     try {
       templateVariablesRaw = JSON.parse(tags[templateVariablesTag]!)
     } catch (err) {
-      throw new RuntimeError(
-        `Template variables received isn't valid JSON (error: ${(err as Error)?.message ?? ''}). Received: ${
+      logForBotAndThrow(
+        `Value of ${templateVariablesTag} tag isn't valid JSON (error: ${(err as Error)?.message ?? ''}). Received: ${
           tags[templateVariablesTag]
-        }})`
+        }})`,
+        logger
       )
     }
 
     const validationResult = templateVariablesSchema.safeParse(templateVariablesRaw)
     if (!validationResult.success) {
-      throw new RuntimeError(
-        `Template variables should be an array of strings or numbers (error: ${validationResult.error}))`
+      logForBotAndThrow(
+        `Template variables should be an array of strings or numbers (error: ${validationResult.error}))`,
+        logger
       )
     }
 
@@ -91,16 +96,32 @@ export async function createConversation({
   const response = await whatsapp.sendMessage(phoneNumberId, userPhone, template)
 
   if (response?.error) {
-    throw new RuntimeError(
+    logForBotAndThrow(
       `Failed to start Whatsapp conversation using template "${templateName}" and language "${templateLanguage}" - Error: ${JSON.stringify(
         response.error
-      )}`
+      )}`,
+      logger
     )
   }
+
+  logger
+    .forBot()
+    .info(
+      `Successfully started Whatsapp conversation with template "${templateName}" and language "${templateLanguage}"${
+        templateVariables
+          ? ` using template variables: ${JSON.stringify(templateVariables)}`
+          : ' without template variables'
+      }`
+    )
 
   return {
     body: JSON.stringify({ conversation: { id: conversation.id } }),
     headers: {},
     statusCode: 200,
   }
+}
+
+function logForBotAndThrow(message: string, logger: IntegrationLogger): never {
+  logger.forBot().error(message)
+  throw new RuntimeError(message)
 }
