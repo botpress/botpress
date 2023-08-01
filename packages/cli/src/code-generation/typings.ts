@@ -8,12 +8,12 @@ export type MessageDefinition = { schema: JSONSchema }
 export type TagDefinition = { schema: JSONSchema }
 export type ChannelDefinition = {
   messages?: Record<string, MessageDefinition>
-  message: {
-    tags: AnyObject
+  message?: {
+    tags?: AnyObject
   }
-  conversation: {
-    creation: { enabled: boolean; requiredTags: string[] }
-    tags: AnyObject
+  conversation?: {
+    creation?: { enabled: boolean; requiredTags: string[] }
+    tags?: AnyObject
   }
 }
 export type ActionDefinition = { input: { schema: JSONSchema }; output: { schema: JSONSchema } }
