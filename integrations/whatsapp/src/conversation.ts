@@ -1,10 +1,8 @@
 import { Client, RuntimeError } from '@botpress/client'
-import { CreateConversationPayload, IntegrationContext } from '@botpress/sdk/dist/integration'
-import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 import { name } from 'integration.definition'
 import { WhatsAppAPI, Types } from 'whatsapp-api-js'
 import z from 'zod'
-import { Configuration } from '.botpress/implementation/configuration'
+import { CreateConversationPayload, IntegrationLogger, IntegrationContext } from '.'
 
 const {
   Template: { Template, Language },
@@ -17,7 +15,7 @@ export async function createConversation({
   ctx,
   logger,
 }: {
-  ctx: IntegrationContext<Configuration>
+  ctx: IntegrationContext
   client: Client
   logger: IntegrationLogger
 } & CreateConversationPayload) {

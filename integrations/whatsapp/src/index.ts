@@ -1,5 +1,4 @@
 import type { Client } from '@botpress/client'
-import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { name } from 'integration.definition'
 import queryString from 'query-string'
@@ -10,7 +9,15 @@ import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
 import * as outgoing from './outgoing-message'
-import { Integration, secrets } from '.botpress'
+import { Integration, IntegrationProps, secrets } from '.botpress'
+
+// TODO: Export these types publicly from the SDK and import them here.
+export type CreateConversationPayload = {
+  channel: string
+  tags: Record<string, string>
+}
+export type IntegrationLogger = Parameters<IntegrationProps['handler']>[0]['logger']
+export type IntegrationContext = Parameters<IntegrationProps['handler']>[0]['ctx']
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,

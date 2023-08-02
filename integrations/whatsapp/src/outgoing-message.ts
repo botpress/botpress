@@ -1,6 +1,5 @@
 import type { Conversation } from '@botpress/client'
 import type { IntegrationContext, AckFunction } from '@botpress/sdk'
-import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 import { name } from 'integration.definition'
 import { WhatsAppAPI } from 'whatsapp-api-js'
 import type { Contacts } from 'whatsapp-api-js/types/messages/contacts'
@@ -10,6 +9,7 @@ import type { Image, Audio, Document, Sticker, Video } from 'whatsapp-api-js/typ
 import type Reaction from 'whatsapp-api-js/types/messages/reaction'
 import type { Template } from 'whatsapp-api-js/types/messages/template'
 import type Text from 'whatsapp-api-js/types/messages/text'
+import { IntegrationLogger } from '.'
 import { sleep } from './util'
 
 export type OutgoingMessage =

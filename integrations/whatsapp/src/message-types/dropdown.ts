@@ -1,5 +1,5 @@
-import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 import { Types } from 'whatsapp-api-js'
+import { IntegrationLogger } from '..'
 import * as body from '../interactive/body'
 import { chunkArray } from '../util'
 import type { channels } from '.botpress'
