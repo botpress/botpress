@@ -1,4 +1,5 @@
 import moment from 'moment'
+import { randomBytes } from 'crypto'
 import { Client, ResponseType } from '@microsoft/microsoft-graph-client'
 import type {
   Subscription,
@@ -16,6 +17,8 @@ import type {
   OutputEvent,
   CreateEventProps,
 } from './misc/custom-types'
+
+import { processRecipients } from './utils'
 
 export class GraphApi {
   private client: Client
@@ -36,19 +39,17 @@ export class GraphApi {
   }
 
   public sendEmail = async ({
+    ctx,
     subject,
     type = 'Text',
-    body,
+    body = '',
     toRecipients,
     ccRecipients,
+    bccRecipients,
   }: SendEmailProps): Promise<any> => {
-    let toRecipientsArray =
-      typeof toRecipients === 'string' ? toRecipients.split(',') : toRecipients
-    let ccRecipientsArray =
-      typeof ccRecipients === 'string' ? ccRecipients?.split(',') : ccRecipients
-
-    toRecipientsArray = toRecipientsArray.map((email) => email.trim())
-    ccRecipientsArray = ccRecipientsArray?.map((email) => email.trim())
+    let toRecipientsArray = processRecipients(toRecipients)
+    let ccRecipientsArray = processRecipients(ccRecipients)
+    let bccRecipientsArray = processRecipients(bccRecipients)
 
     const sendMail = {
       message: {
@@ -64,15 +65,22 @@ export class GraphApi {
           ccRecipientsArray?.map((email) => ({
             emailAddress: { address: email },
           })) ?? [],
+        bccRecipients:
+          bccRecipientsArray?.map((email) => ({
+            emailAddress: { address: email },
+          })) ?? [],
       },
       saveToSentItems: 'false',
     }
 
-    const res = await this.client.api('/me/sendMail').post(sendMail)
+    const res = await this.client
+      .api(`/users/${ctx.configuration.emailAddress}/sendMail`)
+      .post(sendMail)
     return res
   }
 
   public createEvent = async ({
+    ctx,
     subject,
     body,
     start,
@@ -88,9 +96,12 @@ export class GraphApi {
       location,
       attendees,
       allowNewTimeProposals: true,
+      transactionId: randomBytes(16).toString('hex'),
     }
 
-    const res = await this.client.api('/me/events').post(event)
+    const res = await this.client
+      .api(`/users/${ctx.configuration.emailAddress}/events`)
+      .post(event)
     return res
   }
 

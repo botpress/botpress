@@ -22,7 +22,7 @@ export const register: RegisterFunction = async ({
 
   console.info('suscribing webhook %s', webhookUrl)
 
-  const existingSubscription = subscriptions.find((subcription) => {
+  const existingSubscriptions = subscriptions.filter((subcription) => {
     const match = JSON.stringify(subcription.resource).match(
       /\/users\/(.+)\/mailFolders\('(.+)'\)\/messages/
     )
@@ -35,6 +35,16 @@ export const register: RegisterFunction = async ({
       mailFolder === ctx.configuration.mailFolder
     )
   })
+
+  let existingSubscription
+  for (let i = 0; i < existingSubscriptions.length; i++) {
+    const subscription = existingSubscriptions[i]
+    if (subscription && i < existingSubscriptions.length - 1) {
+      await graphClient.unsubscribeWebhook(subscription.id || '')
+    } else {
+      existingSubscription = subscription
+    }
+  }
 
   let subscriptionId
 

@@ -30,20 +30,33 @@ export const sendEmailInputSchema = z.object({
   subject: z.string().describe('The subject of the email'),
   type: textOrHtmlSchema
     .optional()
+    .default('Text')
     .describe(
       'The content type of the email body, can be either "Text" or "HTML"'
     ),
-  body: z.string().describe('The body of the email'),
+  body: z
+    .string()
+    .optional()
+    .default('')
+    .describe('The body of the email (Optional)'),
   toRecipients: z
-    .union([z.string(), z.array(z.string())])
+    .string()
     .describe(
       'The recipients of the email (Can be either a string with comma-separated emails)'
     ),
   ccRecipients: z
-    .union([z.string(), z.array(z.string())])
+    .string()
     .optional()
+    .default('')
     .describe(
       'The CC recipients of the email (Can be either a string with comma-separated emails)'
+    ),
+  bccRecipients: z
+    .string()
+    .optional()
+    .default('')
+    .describe(
+      'The BCC recipients of the email (Can be either a string with comma-separated emails)'
     ),
 })
 
@@ -82,11 +95,31 @@ export const createEventPropsSchema = z.object({
 
 export const createEventInputSchema = z.object({
   subject: z.string().describe('Subject for the event'),
-  content: z.string().describe('Content for the event'),
-  startDateTime: z.string().describe('Start datetime for the event'),
-  startTimeZone: z.string().describe('Start timezone for the event'),
-  endDateTime: z.string().describe('End datetime for the event'),
-  endTimeZone: z.string().describe('End timezone for the event'),
+  content: z
+    .string()
+    .describe('Content for the event (Optional)')
+    .default('')
+    .optional(),
+  startDateTime: z
+    .string()
+    .describe(
+      'Start datetime for the event in ISO 8601 (e.g: 2017-04-15T12:00:00)'
+    ),
+  startTimeZone: z
+    .string()
+    .describe(
+      'Start timezone for the event in Windows or IANA format (e.g: "Pacific Standard Time" or "America/Los_Angeles")'
+    ),
+  endDateTime: z
+    .string()
+    .describe(
+      'End datetime for the event in ISO 8601 (e.g: 2017-04-15T12:00:00)'
+    ),
+  endTimeZone: z
+    .string()
+    .describe(
+      'End timezone for the event in Windows or IANA format (e.g: "Pacific Standard Time" or "America/Los_Angeles")'
+    ),
   location: z.string().describe('Name for the event location'),
   attendeeAddress: z
     .string()

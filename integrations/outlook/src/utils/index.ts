@@ -130,3 +130,13 @@ export const createAttendees = (
 
   return attendees
 }
+
+export const processRecipients = (
+  recipients: string[] | string | undefined
+): string[] => {
+  let recipientsArray =
+    (typeof recipients === 'string' ? recipients.split(',') : recipients) || []
+  return recipientsArray
+    ?.map((email) => email.trim())
+    .filter((email) => email !== '')
+}

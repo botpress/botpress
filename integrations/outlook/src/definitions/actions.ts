@@ -16,23 +16,25 @@ const sendEmail = {
         title: 'Email subject',
       },
       type: {
-        title: 'Email body content type',
+        title:
+          'Email body content type (Text/HTML) (Optional. Defautl: "Text") ',
       },
       body: {
         title: 'Email body',
       },
-      to: {
-        title: 'Recipient email addresses',
+      toRecipients: {
+        title: 'Comma-separate recipient email addresses',
       },
       ccRecipients: {
-        title: 'CC recipient email addresses',
+        title: 'Comma-separate CC recipient email addresses (Optional)',
+      },
+      bccRecipients: {
+        title: 'Comma-separate BCC recipient email addresses (Optional)',
       },
     },
   },
   output: {
-    schema: z.object({
-      id: z.string(),
-    }),
+    schema: z.object({}),
   },
 }
 
@@ -45,20 +47,35 @@ const createEvent = {
       subject: {
         title: 'Event subject',
       },
-      body: {
-        title: 'Event body',
+      content: {
+        title: 'Event content (Optional)',
       },
-      start: {
-        title: 'Event start time',
+      startDateTime: {
+        title:
+          'Start datetime for the event in ISO 8601 (e.g: 2017-04-15T12:00:00)',
       },
-      end: {
-        title: 'Event end time',
+      startTimeZone: {
+        title:
+          'Start timezone for the event in Windows or IANA format (e.g: "Pacific Standard Time" or "America/Los_Angeles")',
+      },
+      endDateTime: {
+        title:
+          'End datetime for the event in ISO 8601 (e.g: 2017-04-15T12:00:00)',
+      },
+      endTimeZone: {
+        title:
+          'End timezone for the event in Windows or IANA format (e.g: "Pacific Standard Time" or "America/Los_Angeles")',
       },
       location: {
-        title: 'Event location',
+        title: 'Event location (e.g: In the office N° 5)',
       },
-      attendees: {
-        title: 'Event attendees',
+      attendeeAddress: {
+        title:
+          'Comma-separated list of attendee email addresses, in the same order as attendeeNames',
+      },
+      attendeeNames: {
+        title:
+          'Comma-separated list of attendee names, in the same order as attendeeEmails',
       },
     },
   },

@@ -26,14 +26,22 @@ export type SendMessageProps = {
 
 export type OutputEvent = z.infer<typeof createEventOutputSchema>
 export type InputEvent = z.infer<typeof createEventInputSchema>
-export type CreateEventProps = z.infer<typeof createEventPropsSchema>
+
+interface CtxCreateEventProps {
+  ctx: IntegrationContext
+}
+
+export type CreateEventProps = CtxCreateEventProps &
+  z.infer<typeof createEventPropsSchema>
 
 export interface SendEmailProps {
+  ctx: IntegrationContext
   subject: string
   type?: 'Text' | 'HTML'
   body: string
   toRecipients: string[] | string
   ccRecipients?: string[] | string
+  bccRecipients?: string[] | string
 }
 
 export interface ResourceData extends BaseResourceData {
