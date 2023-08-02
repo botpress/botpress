@@ -50,7 +50,7 @@ export const addCustomerToCampaignUi = {
 }
 
 export const addCustomerToListUi = {
-  campaignId: {
+  listId: {
     title: 'The ID of the Mailchimp list or audience (e.g. a1b2c3d4e5)',
   },
   ...customerUi,

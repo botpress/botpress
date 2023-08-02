@@ -6,6 +6,10 @@ import type {
   Link,
 } from '@mailchimp/mailchimp_marketing'
 
+import z from 'zod'
+
+import { addCustomerFullOutputSchema } from './custom-schemas'
+
 export interface Operation {
   method: HttpMethod
   path: string
@@ -47,16 +51,9 @@ export interface MailchimpClient {
   }
 }
 
-// export interface MailchimpClient {
-//   setConfig: (config: Config) => void
-//   lists: {
-//     addListMember: typeof lists.addListMember
-//     getListMember: typeof lists.getListMember
-//   }
-//   campaigns?: {
-//     get: (campaignId: string) => Promise<{ recipients: { list_id: string } }>
-//   }
-// }
+export type AddCustomerFullOutputType = z.infer<
+  typeof addCustomerFullOutputSchema
+>
 
 export interface Customer {
   email: string

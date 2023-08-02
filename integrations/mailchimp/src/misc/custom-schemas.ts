@@ -81,7 +81,7 @@ export const addCustomerToListInputSchema = customerSchema.extend({
 
 export const sendMassEmailCampaignInputSchema = z.object({
   campaignIds: z
-    .union([z.string(), z.array(z.string())])
+    .string()
     .describe(
       'The Campaign IDs (Can be either a string with comma-separated IDs)'
     ),
@@ -90,37 +90,52 @@ export const sendMassEmailCampaignInputSchema = z.object({
 export const addCustomerOutputSchema = z.object({
   id: z.string(),
   email_address: z.string(),
-  unique_email_id: z.string(),
-  contact_id: z.string(),
-  full_name: z.string(),
-  web_id: z.number(),
-  email_type: z.string(),
   status: z.string(),
-  unsubscribe_reason: z.string(),
-  consents_to_one_to_one_messaging: z.boolean(),
-  merge_fields: z.record(z.any()),
-  interests: z.record(z.any()),
-  stats: MemberStatsSchema,
-  ip_signup: z.string(),
-  timestamp_signup: z.string(),
-  ip_opt: z.string(),
-  timestamp_opt: z.string(),
-  member_rating: z.string(),
-  last_changed: z.string(),
-  language: z.string(),
-  vip: z.boolean(),
-  email_client: z.string(),
-  location: FullMemberLocationSchema,
-  marketing_permissions: z.array(MemberMarketingPermissionsSchema),
-  last_note: MemberLastNoteSchema,
-  source: z.string(),
-  tags_count: z.number(),
-  tags: z.array(TagsSchema),
   list_id: z.string(),
-  _links: z.array(LinkSchema),
+})
+
+export const addCustomerFullOutputSchema = z.object({
+  id: z.string().optional(),
+  email_address: z.string().optional(),
+  unique_email_id: z.string().optional(),
+  contact_id: z.string().optional(),
+  full_name: z.string().optional(),
+  web_id: z.number().optional(),
+  email_type: z.string().optional(),
+  status: z.string().optional(),
+  unsubscribe_reason: z.string().optional(),
+  consents_to_one_to_one_messaging: z.boolean().optional(),
+  merge_fields: z.record(z.any()).optional(),
+  interests: z.record(z.any()).optional(),
+  stats: MemberStatsSchema.optional(),
+  ip_signup: z.string().optional(),
+  timestamp_signup: z.string().optional(),
+  ip_opt: z.string().optional(),
+  timestamp_opt: z.string().optional(),
+  member_rating: z.number().optional(),
+  last_changed: z.string().optional(),
+  language: z.string().optional(),
+  vip: z.boolean().optional(),
+  email_client: z.string().optional(),
+  location: FullMemberLocationSchema.optional(),
+  marketing_permissions: z.array(MemberMarketingPermissionsSchema).optional(),
+  last_note: MemberLastNoteSchema.optional(),
+  source: z.string().optional(),
+  tags_count: z.number().optional(),
+  tags: z.array(TagsSchema).optional(),
+  list_id: z.string().optional(),
+  _links: z.array(LinkSchema).optional(),
+  message: z.string().optional(),
 })
 
 export const sendMassEmailCampaignOutputSchema = z.object({
+  id: z.string().optional(),
+  status: BatchStatusSchema.optional(),
+  total_operations: z.number().optional(),
+  _links: z.array(LinkSchema).optional(),
+})
+
+export const sendMassEmailCampaignFullOutputSchema = z.object({
   id: z.string(),
   status: BatchStatusSchema,
   total_operations: z.number(),

@@ -1,29 +1,45 @@
 import type { Implementation } from '../misc/types'
 
-import { addCustomerToCampaignInputSchema } from '../misc/custom-schemas'
+import {
+  addCustomerToCampaignInputSchema,
+  addCustomerOutputSchema,
+} from '../misc/custom-schemas'
 
 import { getMailchimpClient, getValidCustomer } from 'src/utils'
 
 export const addCustomerToCampaign: Implementation['actions']['addCustomerToCampaign'] =
-  async ({ ctx, input }) => {
+  async ({ ctx, input, logger }) => {
     const validatedInput = addCustomerToCampaignInputSchema.parse(input)
     const mailchimpClient = getMailchimpClient(ctx.configuration)
     const customer = getValidCustomer(validatedInput)
-
     let response
-    const isAlredyAdd = await mailchimpClient.checkIfCustomerInCampaignList(
-      validatedInput.campaignId,
-      validatedInput.email
-    )
 
-    if (!isAlredyAdd) {
-      response = await mailchimpClient.addCustomerToCampaignList(
+    try {
+      const isAlredyAdd = await mailchimpClient.checkIfCustomerInCampaignList(
         validatedInput.campaignId,
-        customer
+        validatedInput.email
       )
-    } else {
-      response = { message: 'The customer was previously added' }
+      let logMessage
+      if (!isAlredyAdd) {
+        response = await mailchimpClient.addCustomerToCampaignList(
+          validatedInput.campaignId,
+          customer
+        )
+      } else {
+        logMessage = 'The customer was previously added'
+        response = { message: logMessage }
+      }
+      logger.forBot().info(logMessage)
+    } catch (error) {
+      logger
+        .forBot()
+        .debug(`'Add Customer To List' exception ${JSON.stringify(error)}`)
+      response = {}
     }
-
-    return response
+    return {
+      id: response.id || '',
+      email_address: response.email_address || '',
+      status: response.status || '',
+      list_id: response.list_id || '',
+    }
   }
