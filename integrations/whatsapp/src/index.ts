@@ -73,11 +73,15 @@ const integration = new Integration({
         card: async ({ payload, ...props }) => {
           await outgoing.sendMany({ ...props, generator: card.generateOutgoingMessages(payload) })
         },
-        dropdown: async ({ payload, ...props }) => {
-          await outgoing.sendMany({ ...props, generator: dropdown.generateOutgoingMessages(payload) })
+        dropdown: async ({ payload, logger, ...props }) => {
+          await outgoing.sendMany({
+            ...props,
+            logger,
+            generator: dropdown.generateOutgoingMessages({ payload, logger }),
+          })
         },
-        choice: async ({ payload, ...props }) => {
-          await outgoing.sendMany({ ...props, generator: choice.generateOutgoingMessages(payload) })
+        choice: async ({ payload, logger, ...props }) => {
+          await outgoing.sendMany({ ...props, logger, generator: choice.generateOutgoingMessages({ payload, logger }) })
         },
       },
     },

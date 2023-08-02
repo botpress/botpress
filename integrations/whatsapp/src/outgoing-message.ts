@@ -41,26 +41,37 @@ export async function send({
   const whatsapp = new WhatsAppAPI(ctx.configuration.accessToken)
   const phoneNumberId = ctx.configuration.phoneNumberId
   const to = conversation.tags[`${name}:userPhone`]
+  const messageType = message._
 
   if (!to) {
-    logger.forBot().error("The phone number ID isn't configured yet.")
+    logger
+      .forBot()
+      .error(
+        "Cannot send message to Whatsapp because the phone number ID isn't specified yet in the Whatsapp configuration of the bot."
+      )
     return
   }
 
   const feedback = await whatsapp.sendMessage(phoneNumberId, to, message)
 
   if (feedback?.error) {
-    logger.forBot().error('Received error from Whatsapp:', feedback)
+    logger.forBot().error(`Failed to send ${messageType} message from bot to Whatsapp. Reason:`, feedback)
     return
   }
 
   const messageId = feedback?.messages?.[0]?.id
 
   if (messageId) {
-    logger.forBot().debug('Successfully sent message from bot to Whatsapp:', message)
+    logger.forBot().debug(`Successfully sent ${messageType} message from bot to Whatsapp:`, message)
     await ack({ tags: { [`${name}:id`]: messageId } })
   } else {
-    logger.forBot().error(`Could not detect message ID in Whatsapp response. Response: ${JSON.stringify(feedback)}`)
+    logger
+      .forBot()
+      .warn(
+        `A ${messageType} message from the bot was sent to Whatsapp but the message ID wasn't found in their response. Response: ${JSON.stringify(
+          feedback
+        )}`
+      )
   }
 }
 
