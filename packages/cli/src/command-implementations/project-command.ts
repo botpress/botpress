@@ -1,5 +1,5 @@
 import type * as bpclient from '@botpress/client'
-import type { IntegrationDefinition, Bot as BotImpl } from '@botpress/sdk'
+import type * as bpsdk from '@botpress/sdk'
 import type { YargsConfig } from '@bpinternal/yargs-extra'
 import chalk from 'chalk'
 import fs from 'fs'
@@ -12,8 +12,6 @@ import * as errors from '../errors'
 import type { CommandArgv, CommandDefinition } from '../typings'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
-
-type IntegrationInstances = Parameters<bpclient.Client['updateBot']>[0]['integrations']
 
 export type ProjectCommandDefinition = CommandDefinition<typeof config.schemas.project>
 export type ProjectCache = { botId: string; devId: string }
@@ -46,7 +44,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return new utils.cache.FSKeyValueCache<ProjectCache>(this.projectPaths.abs.projectCacheFile)
   }
 
-  protected async readIntegrationDefinitionFromFS(): Promise<IntegrationDefinition | undefined> {
+  protected async readIntegrationDefinitionFromFS(): Promise<bpsdk.IntegrationDefinition | undefined> {
     const abs = this.projectPaths.abs
     const rel = this.projectPaths.rel('workDir')
 
@@ -67,7 +65,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       throw new errors.BotpressCLIError('Could not read integration definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: IntegrationDefinition }>(artifact.text)
+    const { default: definition } = utils.require.requireJsCode<{ default: bpsdk.IntegrationDefinition }>(artifact.text)
     return definition
   }
 
@@ -78,24 +76,6 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       await fs.promises.mkdir(dirPath, { recursive: true })
       await fs.promises.writeFile(filePath, file.content)
     }
-  }
-
-  protected prepareIntegrations(botImpl: BotImpl, botInfo: bpclient.Bot): IntegrationInstances {
-    const { integrations: integrationList } = botImpl.definition
-
-    const integrationsToUninstall: IntegrationInstances = _(botInfo.integrations)
-      .keys()
-      .filter((key) => !integrationList?.map((i) => i.id).includes(key))
-      .zipObject()
-      .mapValues(() => null)
-      .value()
-
-    const integrationsToInstall: IntegrationInstances = _(integrationList ?? [])
-      .keyBy((i) => i.id)
-      .mapValues(({ enabled, configuration }) => ({ enabled, configuration }))
-      .value()
-
-    return { ...integrationsToUninstall, ...integrationsToInstall }
   }
 
   protected displayWebhookUrls(bot: bpclient.Bot) {
@@ -119,7 +99,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   }
 
   protected async promptSecrets(
-    integrationDef: IntegrationDefinition,
+    integrationDef: bpsdk.IntegrationDefinition,
     argv: YargsConfig<typeof config.schemas.secrets>
   ): Promise<Record<string, string>> {
     const { secrets: secretDefinitions } = integrationDef
