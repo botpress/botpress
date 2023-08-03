@@ -1,6 +1,9 @@
 import type { Bot as BotType, Event } from '@botpress/client'
 import type { Server } from 'node:http'
+import { mapValues } from 'radash'
+import { SchemaDefinition, schemaDefinitionToJsonSchema } from '../schema'
 import { serve } from '../serve'
+import { Merge } from '../type-utils'
 import { createBotHandler } from './server'
 import type { BotState, EventHandler, MessageHandler, StateExpiredHandler } from './state'
 
@@ -16,14 +19,13 @@ export type EventReceivedBotPayload = {
   event: Event
 }
 
-export type BotDefinitionTag = {
+export type TagDefinition = {
   title?: string
   description?: string
 }
 
-export type BotDefinitionStateType = 'conversation' | 'user' | 'bot'
-export type BotDefinitionState = {
-  type: BotDefinitionStateType
+export type StateDefinition = {
+  type: 'conversation' | 'user' | 'bot'
   schema: Record<string, any>
   expiry?: number
 }
@@ -31,47 +33,78 @@ export type BotDefinitionState = {
 export type IntegrationInstance = {
   id: string
   enabled?: boolean
-  configuration?: { [key: string]: any }
+  configuration?: Record<string, any>
 }
 
-export type BotDefinitionRecurringEvent = {
+export type RecurringEventDefinition = {
   type: string
   payload: Record<string, any>
-  schedule: {
-    cron: string
-  }
+  schedule: { cron: string }
 }
 
-export type BotDefinitionEvent = {
+export type EventDefinition = {
   schema: Record<string, any>
 }
 
-export type BotDefinitionConfiguration = {
+export type ConfigurationDefinition = {
   schema: Record<string, any>
 }
 
-export type BotDefinitionUser = {
-  tags?: Record<string, BotDefinitionTag>
+export type UserDefinition = {
+  tags?: Record<string, TagDefinition>
 }
 
-export type BotDefinitionConversation = {
-  tags?: Record<string, BotDefinitionTag>
+export type ConversationDefinition = {
+  tags?: Record<string, TagDefinition>
 }
 
-export type BotDefinitionMessage = {
-  tags?: Record<string, BotDefinitionTag>
+export type MessageDefinition = {
+  tags?: Record<string, TagDefinition>
 }
 
 export type BotDefinition = {
-  user?: BotDefinitionUser
-  conversation?: BotDefinitionConversation
-  message?: BotDefinitionMessage
-  states?: Record<string, BotDefinitionState>
   integrations?: IntegrationInstance[]
-  configuration?: BotDefinitionConfiguration
-  events?: Record<string, BotDefinitionEvent>
-  recurringEvents?: Record<string, BotDefinitionRecurringEvent>
+  user?: UserDefinition
+  conversation?: ConversationDefinition
+  message?: MessageDefinition
+  states?: Record<string, StateDefinition>
+  configuration?: ConfigurationDefinition
+  events?: Record<string, EventDefinition>
+  recurringEvents?: Record<string, RecurringEventDefinition>
 }
+
+export type BotProps = {
+  integrations?: IntegrationInstance[]
+  user?: UserDefinition
+  conversation?: ConversationDefinition
+  message?: MessageDefinition
+  states?: Record<string, Merge<StateDefinition, SchemaDefinition>>
+  configuration?: Merge<ConfigurationDefinition, SchemaDefinition>
+  events?: Record<string, Merge<EventDefinition, SchemaDefinition>>
+  recurringEvents?: Record<string, RecurringEventDefinition>
+}
+
+const propsToDefinition = (props: BotProps): BotDefinition => ({
+  ...props,
+  configuration: props.configuration
+    ? {
+        ...props.configuration,
+        schema: schemaDefinitionToJsonSchema(props.configuration),
+      }
+    : undefined,
+  events: props.events
+    ? mapValues(props.events, (event) => ({
+        ...event,
+        schema: schemaDefinitionToJsonSchema(event),
+      }))
+    : undefined,
+  states: props.states
+    ? mapValues(props.states, (state) => ({
+        ...state,
+        schema: schemaDefinitionToJsonSchema(state),
+      }))
+    : undefined,
+})
 
 export class Bot {
   private _state: BotState = {
@@ -84,8 +117,8 @@ export class Bot {
 
   public readonly definition: BotDefinition
 
-  public constructor(def: BotDefinition = {}) {
-    this.definition = def
+  public constructor(props: BotProps = {}) {
+    this.definition = propsToDefinition(props)
   }
 
   public message = (handler: MessageHandler): void => {

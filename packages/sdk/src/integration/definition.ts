@@ -1,7 +1,6 @@
 import { mapValues } from 'radash'
-import { z } from 'zod'
-
-import { SchemaDefinition, schemaDefinitionToJsonSchema } from './schema'
+import { SchemaDefinition, schemaDefinitionToJsonSchema } from '../schema'
+import { AnyZodObject, Cast, Iof, Merge } from '../type-utils'
 
 const PUBLIC_VERSION = '0.2.0' as const
 const PRIVATE_VERSION = '0.0.1' as const
@@ -63,10 +62,6 @@ export type UserDefinition = Partial<{
   }
 }>
 
-type AnyZodObject = z.ZodObject<any>
-type Merge<A extends object, B extends object> = Omit<A, keyof B> & B
-type Cast<T, U> = T extends U ? T : U
-
 type BaseConfig = AnyZodObject
 type BaseEvent = Record<string, AnyZodObject>
 type BaseAction = Record<string, Record<'input' | 'output', AnyZodObject>>
@@ -121,54 +116,51 @@ export type IntegrationDefinitionProps<
   secrets?: string[]
 }
 
-function formatIntegrationDefinition(
-  definition: IntegrationDefinitionProps<BaseConfig, BaseEvent, BaseAction, BaseChannel, BaseState>
-) {
-  return {
-    ...definition,
-    configuration: definition.configuration
-      ? {
-          ...definition.configuration,
-          schema: schemaDefinitionToJsonSchema(definition.configuration),
-        }
-      : undefined,
-    events: definition.events
-      ? mapValues(definition.events, (event) => ({
-          ...event,
-          schema: schemaDefinitionToJsonSchema(event),
-        }))
-      : undefined,
-    actions: definition.actions
-      ? mapValues(definition.actions, (action) => ({
-          ...action,
-          input: {
-            ...action.input,
-            schema: schemaDefinitionToJsonSchema(action.input),
-          },
-          output: {
-            ...action.output,
-            schema: schemaDefinitionToJsonSchema(action.output),
-          },
-        }))
-      : undefined,
-    channels: definition.channels
-      ? mapValues(definition.channels, (channel) => ({
-          ...channel,
-          messages: mapValues(channel.messages, (message) => ({
-            ...message,
-            schema: schemaDefinitionToJsonSchema(message),
-          })),
-        }))
-      : undefined,
-    states: definition.states
-      ? mapValues(definition.states, (state) => ({
-          ...state,
-          schema: schemaDefinitionToJsonSchema(state),
-        }))
-      : undefined,
-    user: definition.user,
-  }
-}
+const propsToDefinition = (
+  props: IntegrationDefinitionProps<BaseConfig, BaseEvent, BaseAction, BaseChannel, BaseState>
+): Iof<IntegrationDefinition> => ({
+  ...props,
+  configuration: props.configuration
+    ? {
+        ...props.configuration,
+        schema: schemaDefinitionToJsonSchema(props.configuration),
+      }
+    : undefined,
+  events: props.events
+    ? mapValues(props.events, (event) => ({
+        ...event,
+        schema: schemaDefinitionToJsonSchema(event),
+      }))
+    : undefined,
+  actions: props.actions
+    ? mapValues(props.actions, (action) => ({
+        ...action,
+        input: {
+          ...action.input,
+          schema: schemaDefinitionToJsonSchema(action.input),
+        },
+        output: {
+          ...action.output,
+          schema: schemaDefinitionToJsonSchema(action.output),
+        },
+      }))
+    : undefined,
+  channels: props.channels
+    ? mapValues(props.channels, (channel) => ({
+        ...channel,
+        messages: mapValues(channel.messages, (message) => ({
+          ...message,
+          schema: schemaDefinitionToJsonSchema(message),
+        })),
+      }))
+    : undefined,
+  states: props.states
+    ? mapValues(props.states, (state) => ({
+        ...state,
+        schema: schemaDefinitionToJsonSchema(state),
+      }))
+    : undefined,
+})
 
 export class IntegrationDefinition<
   TConfig extends BaseConfig = BaseConfig,
@@ -206,7 +198,7 @@ export class IntegrationDefinition<
       states,
       user,
       secrets,
-    } = formatIntegrationDefinition(props)
+    } = propsToDefinition(props)
     this.name = name
     this.version = version
     this.icon = icon
