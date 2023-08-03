@@ -53,6 +53,8 @@ export type MessagePayload<P, M, C, U> = {
   type: string
 }
 
+export type ConfigurationDefinition = Record<string, any>
+
 export type ActionDefinitions = {
   [actionType: string]: {
     input: any
@@ -94,13 +96,13 @@ export type ChannelFunctions<Configuration, C extends ChannelDefinitions> = {
   }
 }
 
-type BaseConfig = any
+type BaseConfig = ConfigurationDefinition
 type BaseActions = ActionDefinitions
 type BaseChannels = ChannelDefinitions
 type BaseEvents = EventDefinitions
 
 export type IntegrationImplementationProps<
-  Configuration extends any = BaseConfig,
+  Configuration extends ConfigurationDefinition = BaseConfig,
   Actions extends ActionDefinitions = BaseActions,
   Channels extends ChannelDefinitions = BaseChannels,
   _Events extends EventDefinitions = BaseEvents
@@ -115,7 +117,7 @@ export type IntegrationImplementationProps<
 }
 
 export class IntegrationImplementation<
-  Configuration extends any = BaseConfig,
+  Configuration extends ConfigurationDefinition = BaseConfig,
   Actions extends ActionDefinitions = BaseActions,
   Channels extends ChannelDefinitions = BaseChannels,
   Events extends EventDefinitions = BaseEvents
