@@ -11,14 +11,14 @@ const conversationStartedSchema = z.object({
 const conversationStarted = {
   schema: conversationStartedSchema,
   title: 'Conversation Started',
-  description: 'Triggered when a new conversation is started',
+  description: 'This event occurs when a user activates the webchat widget, prompting the chat interface to appear.',
   ui: {},
 }
 
 export type Trigger = z.infer<typeof trigger.schema>
 
 export const trigger = {
-  title: 'Trigger',
+  title: 'Custom Trigger (advanced)',
   description: "Triggered when a custom event is sent from the user's browser",
   schema: TriggerSchema,
   ui: {},

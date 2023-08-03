@@ -4,6 +4,7 @@ import z from 'zod'
 const conversationId = z
   .string()
   .describe('The conversation id of the webchat instance. Usually {{event.conversationId}}')
+  .default('{{event.conversationId}}')
 
 const getUserData = {
   title: 'Get User Data',
@@ -11,7 +12,11 @@ const getUserData = {
     "Get the user's information that was provided when the webchat is initialized with the property \"userData\", for example: window.botpressWebChat.init({ userData: { name: 'John Doe' } })",
   input: {
     schema: z.object({
-      userId: z.string().uuid().describe('The ID of the user. Usually you can access it using {{event.userId}}'),
+      userId: z
+        .string()
+        .uuid()
+        .describe('The ID of the user. Usually you can access it using {{event.userId}}')
+        .default('{{event.userId}}'),
     }),
   },
   output: {
@@ -73,6 +78,7 @@ const configWebchat = {
 
 const customEvent = {
   title: 'Send Custom Event',
+  description: 'Use this action to send a custom event to the webchat. You must handle this event on your web page.',
   input: {
     schema: z.object({
       conversationId,
