@@ -1,4 +1,4 @@
-import z from 'zod';
+import z from 'zod'
 
 const createTicket = {
   title: 'Get ticket',
@@ -41,7 +41,7 @@ const createTicket = {
       }),
     }),
   },
-};
+}
 const getTicket = {
   title: 'Get ticket',
   description: 'Get Ticket by id.',
@@ -71,7 +71,7 @@ const getTicket = {
       }),
     }),
   },
-};
+}
 const closeTicket = {
   title: 'Close ticket',
   description: 'Close a ticket by its id.',
@@ -105,7 +105,7 @@ const closeTicket = {
       }),
     }),
   },
-};
+}
 const sendMessageToAgent = {
   title: 'Send message to agent',
   description: 'Sends a message to the zendesk agent.',
@@ -143,7 +143,7 @@ const sendMessageToAgent = {
       }),
     }),
   },
-};
+}
 const findCustomer = {
   title: 'Find Customer',
   description: 'Find a Customer in Zendesk',
@@ -152,9 +152,7 @@ const findCustomer = {
       query: z
         .string()
         .min(2)
-        .describe(
-          'partial or full value of any user property, including name, email address, notes, or phone.'
-        ),
+        .describe('partial or full value of any user property, including name, email address, notes, or phone.'),
     }),
     ui: {
       query: {
@@ -174,7 +172,7 @@ const findCustomer = {
       ),
     }),
   },
-};
+}
 
 export const actions = {
   getTicket,
@@ -182,4 +180,4 @@ export const actions = {
   createTicket,
   closeTicket,
   sendMessageToAgent,
-};
+}

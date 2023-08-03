@@ -1,4 +1,4 @@
-import { messages } from '@botpress/sdk';
+import { messages } from '@botpress/sdk'
 
 export const channels = {
   ticket: {
@@ -12,4 +12,4 @@ export const channels = {
       creation: { enabled: true, requiredTags: ['id'] },
     },
   },
-};
+}
