@@ -13,10 +13,7 @@ export {
   IntegrationImplementation as Integration,
   IntegrationImplementationProps as IntegrationProps,
   IntegrationContext,
-  IntegrationOperation,
-  ActionDefinitions,
-  ChannelDefinitions,
-  EventDefinitions,
   AckFunction,
 } from './integration'
-export { Bot, BotContext, BotOperation, IntegrationInstance } from './bot'
+
+export { Bot, BotProps, IntegrationInstance, BotContext } from './bot'
