@@ -26,10 +26,14 @@ const getUserData = {
 
 const showWebchat = {
   title: 'Show Webchat',
+  description: 'Show the webchat widget',
   input: {
     schema: z.object({
       conversationId,
     }),
+    ui: {
+      conversationId: { title: 'Conversation ID', examples: ['{{event.conversationId}}'] },
+    },
   },
   output: {
     schema: z.object({}),
@@ -38,10 +42,14 @@ const showWebchat = {
 
 const hideWebchat = {
   title: 'Hide Webchat',
+  description: 'Hide the webchat widget',
   input: {
     schema: z.object({
       conversationId,
     }),
+    ui: {
+      conversationId: { title: 'Conversation ID', examples: ['{{event.conversationId}}'] },
+    },
   },
   output: {
     schema: z.object({}),
@@ -50,10 +58,14 @@ const hideWebchat = {
 
 const toggleWebchat = {
   title: 'Toggle Webchat',
+  description: 'Toggle the visibility of the webchat widget',
   input: {
     schema: z.object({
       conversationId,
     }),
+    ui: {
+      conversationId: { title: 'Conversation ID', examples: ['{{event.conversationId}}'] },
+    },
   },
   output: {
     schema: z.object({}),
