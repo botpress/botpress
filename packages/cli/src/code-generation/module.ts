@@ -95,3 +95,36 @@ export abstract class ReExportTypeModule extends Module {
     return content
   }
 }
+
+export abstract class ReExportSchemaModule extends Module {
+  protected constructor(def: { exportName: string }) {
+    super({
+      ...def,
+      path: INDEX_FILE,
+      content: '',
+    })
+  }
+
+  public override get content(): string {
+    let content = GENERATED_HEADER
+    const dependencies = this.deps
+    const { exports: schemaName } = this
+
+    for (const m of dependencies) {
+      const { name } = m
+      const importFrom = m.import(this)
+      content += `import * as ${name} from "./${importFrom}";\n`
+      content += `export * as ${name} from "./${importFrom}";\n`
+    }
+
+    content += '\n'
+
+    content += `export const ${schemaName} = {\n`
+    for (const { name, exports } of dependencies) {
+      content += `  ${name}: ${name}.${exports},\n`
+    }
+    content += '}\n'
+
+    return content
+  }
+}

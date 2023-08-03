@@ -1,11 +1,19 @@
 import type { Client } from '@botpress/client'
 import { Bot } from '@botpress/sdk'
 import type { z } from 'zod'
-import * as schemas from './schemas'
 import { Github, Linear } from '.botpress'
 
 const github = new Github()
 const linear = new Linear()
+
+type GITHUB_EVENT_TYPE = `github:${keyof typeof github.definition.events}`
+
+type LINEAR_CHANNELS = keyof typeof linear.definition.channels
+type LINEAR_CONVERSATION_TAG = `linear:${keyof typeof linear.definition.channels.issue.conversation.tags}`
+
+const GITHUB_ISSUE_OPENED_TYPE = 'github:issueOpened' satisfies GITHUB_EVENT_TYPE
+const LINEAR_ISSUE_CHANNEL = 'issue' satisfies LINEAR_CHANNELS
+const LINEAR_CONVERSATION_TAG_ID = 'linear:id' satisfies LINEAR_CONVERSATION_TAG
 
 const bot = new Bot({
   integrations: [github, linear],
@@ -18,14 +26,14 @@ const bot = new Bot({
 
 const createLinearIssue = async (
   client: Client,
-  issue: z.infer<typeof schemas.linearCreateIssueInput>
-): Promise<z.infer<typeof schemas.linearCreateIssueOutput>> => {
+  issue: z.infer<typeof linear.definition.actions.createIssue.input>
+): Promise<z.infer<typeof linear.definition.actions.createIssue.output>> => {
   const { output } = await client.callAction({
     type: 'linear:createIssue',
     input: issue,
   })
 
-  const parseResult = schemas.linearCreateIssueOutput.safeParse(output)
+  const parseResult = linear.definition.actions.createIssue.output.safeParse(output)
   if (!parseResult.success) {
     throw new Error(`Invalid output: ${parseResult.error}`)
   }
@@ -35,11 +43,11 @@ const createLinearIssue = async (
 
 bot.event(async ({ event, client, ctx }) => {
   const { type, payload } = event
-  if (type !== schemas.githubIssueOpenedType) {
+  if (type !== GITHUB_ISSUE_OPENED_TYPE) {
     return
   }
 
-  const parseResult = schemas.githubIssueOpened.safeParse(payload)
+  const parseResult = github.definition.events.issueOpened.safeParse(payload)
   if (!parseResult.success) {
     throw new Error(`Invalid payload: ${parseResult.error}`)
   }
@@ -55,14 +63,15 @@ bot.event(async ({ event, client, ctx }) => {
   })
 
   const { conversation } = await client.getOrCreateConversation({
-    channel: 'issue',
+    channel: LINEAR_ISSUE_CHANNEL,
     tags: {
-      ['linear:id']: issue.id,
+      [LINEAR_CONVERSATION_TAG_ID]: issue.id,
     },
     integrationName: 'linear',
   })
 
   const issueUrl = `https://github.com/${githubIssue.repositoryOwner}/${githubIssue.repositoryName}/issues/${githubIssue.number}`
+
   await client.createMessage({
     type: 'text',
     conversationId: conversation.id,
@@ -70,7 +79,7 @@ bot.event(async ({ event, client, ctx }) => {
     tags: {},
     payload: {
       text: `Automatically created from GitHub issue: ${issueUrl}`,
-    },
+    } satisfies z.infer<typeof linear.definition.channels.issue.messages.text>,
   })
 })
 
