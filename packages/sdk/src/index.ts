@@ -1,9 +1,4 @@
-import { BotClient } from './bot'
-import { IntegrationClient } from './integration'
-
 export * as messages from './message'
-export const clients = { IntegrationClient, BotClient }
-
 export * from './const'
 export * from './serve'
 

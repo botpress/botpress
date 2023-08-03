@@ -113,34 +113,6 @@ importers:
         specifier: ^3.20.6
         version: 3.21.4
 
-  integrations/@testing:
-    dependencies:
-      '@botpress/client':
-        specifier: workspace:*
-        version: link:../../packages/client
-      '@botpress/sdk':
-        specifier: workspace:*
-        version: link:../../packages/sdk
-      axios:
-        specifier: 1.2.5
-        version: 1.2.5
-      uuid:
-        specifier: ^9.0.0
-        version: 9.0.0
-    devDependencies:
-      '@types/node':
-        specifier: ^18.11.17
-        version: 18.16.16
-      '@types/uuid':
-        specifier: ^9.0.1
-        version: 9.0.1
-      nock:
-        specifier: ^13.3.0
-        version: 13.3.1
-      typescript:
-        specifier: ^4.9.4
-        version: 4.9.5
-
   integrations/discord:
     dependencies:
       '@botpress/client':
@@ -905,9 +877,6 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
-      '@botpress/integrations-testing':
-        specifier: workspace:*
-        version: link:../@testing
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -7306,10 +7275,6 @@ packages:
     resolution: {integrity: sha512-Bdboy+l7tA3OGW6FjyFHWkP5LuByj1Tk33Ljyq0axyzdk9//JSi2u3fP1QSmd1KNwq6VOKYGlAu87CisVir6Pw==}
     dev: false
 
-  /json-stringify-safe@5.0.1:
-    resolution: {integrity: sha512-ZClg6AaYvamvYEE82d3Iyd3vSSIjQ+odgjaTzRuO3s7toCdFKczob2i0zCh7JE8kWn17yvAWhUVxvqGwUalsRA==}
-    dev: true
-
   /json5@1.0.2:
     resolution: {integrity: sha512-g1MWMLBiz8FKi1e4w0UyVL3w+iJceWAFBAaBnnGKOpNa5f8TLktkbre1+s6oICydWAm+HRUGTmI+//xv2hvXYA==}
     hasBin: true
@@ -7807,18 +7772,6 @@ packages:
       lower-case: 2.0.2
       tslib: 2.5.3
     dev: false
-
-  /nock@13.3.1:
-    resolution: {integrity: sha512-vHnopocZuI93p2ccivFyGuUfzjq2fxNyNurp7816mlT5V5HF4SzXu8lvLrVzBbNqzs+ODooZ6OksuSUNM7Njkw==}
-    engines: {node: '>= 10.13'}
-    dependencies:
-      debug: 4.3.4
-      json-stringify-safe: 5.0.1
-      lodash: 4.17.21
-      propagate: 2.0.1
-    transitivePeerDependencies:
-      - supports-color
-    dev: true
 
   /node-addon-api@3.2.1:
     resolution: {integrity: sha512-mmcei9JghVNDYydghQmeDX8KoAm0FAiYyIcUt/N4nhyAipB17pllZQDOJD2fotxABnt4Mdz+dKTO7eftLg4d0A==}
@@ -8454,11 +8407,6 @@ packages:
     dependencies:
       kleur: 3.0.3
       sisteransi: 1.0.5
-
-  /propagate@2.0.1:
-    resolution: {integrity: sha512-vGrhOavPSTz4QVNuBNdcNXePNdNMaO1xj9yBeH1ScQPjk/rhg9sSlCXPhMkFuaNNW/syTvYqsnbIJxMBfRbbag==}
-    engines: {node: '>= 8'}
-    dev: true
 
   /proxy-addr@2.0.7:
     resolution: {integrity: sha512-llQsMLSUDUPT44jdrU/O37qlnifitDP+ZwrmmZcoSKyLKvtZxpyV0n2/bD/N4tBAAZ/gJEdZU7KMraoK1+XYAg==}
