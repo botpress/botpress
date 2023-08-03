@@ -17,9 +17,6 @@ const LINEAR_CONVERSATION_TAG_ID = 'linear:id' satisfies LINEAR_CONVERSATION_TAG
 
 const bot = new Bot({
   integrations: [github, linear],
-  configuration: {
-    schema: {},
-  },
   states: {},
   events: {},
 })
