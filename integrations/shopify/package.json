@@ -1,0 +1,26 @@
+{
+  "name": "shopify",
+  "scripts": {
+    "type:check": "tsc --noEmit",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write ."
+  },
+  "keywords": [],
+  "private": true,
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@botpress/client": "0.1.2",
+    "@botpress/sdk": "0.1.4",
+    "axios": "^1.4.0",
+    "shopify-api-node": "^3.12.5",
+    "zod": "^3.21.4"
+  },
+  "devDependencies": {
+    "@tsconfig/node18-strictest": "^1.0.0",
+    "@types/node": "^18.11.17",
+    "prettier": "^2.8.1",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
+  }
+}
