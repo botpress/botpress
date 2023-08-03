@@ -1,6 +1,6 @@
 import type { Client } from '@botpress/client'
 import { Bot, messages } from '@botpress/sdk'
-import type { z } from 'zod'
+import { z } from 'zod'
 // import * as botpress from '.botpress' /** uncomment to get generated code */
 
 type DefaultMessages = typeof messages.defaults
@@ -18,7 +18,7 @@ const logger = console
 const bot = new Bot({
   integrations: [],
   configuration: {
-    schema: {},
+    schema: z.object({}),
   },
   states: {},
   events: {},

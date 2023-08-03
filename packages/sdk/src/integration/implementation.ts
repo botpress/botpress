@@ -5,11 +5,7 @@ import type { IntegrationContext } from './context'
 import { IntegrationLogger } from './logger'
 import { integrationHandler } from './server'
 
-type IntegrationProps<Configuration> = {
-  ctx: IntegrationContext<Configuration>
-  client: Client
-  logger: IntegrationLogger
-}
+export type Tags = Record<string, string>
 
 export type RegisterPayload = {
   webhookUrl: string
@@ -28,10 +24,6 @@ export type ActionPayload<T, I> = {
   input: I
 }
 
-export type EventPayload<E> = {
-  event: E
-}
-
 export type CreateUserPayload = {
   tags: Tags
 }
@@ -41,10 +33,6 @@ export type CreateConversationPayload = {
   tags: Tags
 }
 
-type Tags = { [key: string]: string }
-
-export type AckFunction = (props: { tags: Tags }) => Promise<void>
-
 export type MessagePayload<P, M, C, U> = {
   payload: P
   conversation: C
@@ -53,91 +41,90 @@ export type MessagePayload<P, M, C, U> = {
   type: string
 }
 
-export type ConfigurationDefinition = Record<string, any>
+export type AckFunction = (props: { tags: Tags }) => Promise<void>
 
-export type ActionDefinitions = {
-  [actionType: string]: {
-    input: any
-    output: any
+type BaseConfig = Record<string, any>
+type BaseActions = Record<string, Record<'input' | 'output', any>>
+type BaseChannels = Record<string, Record<string, any>>
+type BaseEvents = Record<string, any>
+
+type CommonArgs<TConfig extends BaseConfig> = {
+  ctx: IntegrationContext<TConfig>
+  client: Client
+  logger: IntegrationLogger
+}
+
+type RegisterArgs<TConfig extends BaseConfig> = CommonArgs<TConfig> & RegisterPayload
+
+type UnregisterArgs<TConfig extends BaseConfig> = CommonArgs<TConfig> & UnregisterPayload
+
+type WebhookArgs<TConfig extends BaseConfig> = CommonArgs<TConfig> & WebhookPayload
+
+type ActionArgs<TConfig extends BaseConfig, T, I> = CommonArgs<TConfig> & ActionPayload<T, I>
+
+type CreateUserArgs<TConfig extends BaseConfig> = CommonArgs<TConfig> & CreateUserPayload
+
+type CreateConversationArgs<TConfig extends BaseConfig> = CommonArgs<TConfig> & CreateConversationPayload
+
+type MessageArgs<TConfig extends BaseConfig, P, M, C, U> = CommonArgs<TConfig> &
+  MessagePayload<P, M, C, U> & {
+    ack: AckFunction
   }
+
+type ActionFunctions<TConfig extends BaseConfig, TActions extends BaseActions> = {
+  [actionType in keyof TActions]: (
+    props: ActionArgs<TConfig, actionType, TActions[actionType]['input']>
+  ) => Promise<TActions[actionType]['output']>
 }
 
-export type ChannelDefinitions = {
-  [channelName: string]: MessageDefinitions
-}
-
-export type EventDefinitions = {
-  [eventName: string]: any
-}
-
-type MessageDefinitions = {
-  [messageType: string]: any
-}
-
-type ActionFunctions<Configuration, A extends ActionDefinitions> = {
-  [actionType in keyof A]: (
-    props: IntegrationProps<Configuration> & ActionPayload<actionType, A[actionType]['input']>
-  ) => Promise<A[actionType]['output']>
-}
-
-type MessageHandlerProps = {
-  ack: AckFunction
-}
-
-export type ChannelFunctions<Configuration, C extends ChannelDefinitions> = {
-  [channelName in keyof C]: {
+type ChannelFunctions<TConfig extends BaseConfig, TChannels extends BaseChannels> = {
+  [channelName in keyof TChannels]: {
     messages: {
-      [messageType in keyof C[channelName]]: (
-        props: IntegrationProps<Configuration> &
-          MessagePayload<C[channelName][messageType], Message, Conversation, User> &
-          MessageHandlerProps
+      [messageType in keyof TChannels[channelName]]: (
+        props: CommonArgs<TConfig> &
+          MessageArgs<TConfig, TChannels[channelName][messageType], Message, Conversation, User>
       ) => Promise<void>
     }
   }
 }
 
-type BaseConfig = ConfigurationDefinition
-type BaseActions = ActionDefinitions
-type BaseChannels = ChannelDefinitions
-type BaseEvents = EventDefinitions
-
 export type IntegrationImplementationProps<
-  Configuration extends ConfigurationDefinition = BaseConfig,
-  Actions extends ActionDefinitions = BaseActions,
-  Channels extends ChannelDefinitions = BaseChannels,
-  _Events extends EventDefinitions = BaseEvents
+  TConfig extends BaseConfig = BaseConfig,
+  TActions extends BaseActions = BaseActions,
+  TChannels extends BaseChannels = BaseChannels,
+  _TEvents extends BaseEvents = BaseEvents
 > = {
-  register: (props: IntegrationProps<Configuration> & RegisterPayload) => Promise<void>
-  unregister: (props: IntegrationProps<Configuration> & UnregisterPayload) => Promise<void>
-  handler: (props: IntegrationProps<Configuration> & WebhookPayload) => Promise<Response | void>
-  createUser?: (props: IntegrationProps<Configuration> & CreateUserPayload) => Promise<Response | void>
-  createConversation?: (props: IntegrationProps<Configuration> & CreateConversationPayload) => Promise<Response | void>
-  actions: ActionFunctions<Configuration, Actions>
-  channels: ChannelFunctions<Configuration, Channels>
+  register: (props: RegisterArgs<TConfig>) => Promise<void>
+  unregister: (props: UnregisterArgs<TConfig>) => Promise<void>
+  handler: (props: WebhookArgs<TConfig>) => Promise<Response | void>
+  createUser?: (props: CreateUserArgs<TConfig>) => Promise<Response | void>
+  createConversation?: (props: CreateConversationArgs<TConfig>) => Promise<Response | void>
+  actions: ActionFunctions<TConfig, TActions>
+  channels: ChannelFunctions<TConfig, TChannels>
 }
 
 export class IntegrationImplementation<
-  Configuration extends ConfigurationDefinition = BaseConfig,
-  Actions extends ActionDefinitions = BaseActions,
-  Channels extends ChannelDefinitions = BaseChannels,
-  Events extends EventDefinitions = BaseEvents
+  TConfig extends BaseConfig = BaseConfig,
+  TActions extends BaseActions = BaseActions,
+  TChannels extends BaseChannels = BaseChannels,
+  TEvents extends BaseEvents = BaseEvents
 > {
-  public readonly props: IntegrationImplementationProps<Configuration, Actions, Channels, Events>
-  public readonly actions: IntegrationImplementationProps<Configuration, Actions, Channels, Events>['actions']
-  public readonly channels: IntegrationImplementationProps<Configuration, Actions, Channels, Events>['channels']
-  public readonly register: IntegrationImplementationProps<Configuration, Actions, Channels, Events>['register']
-  public readonly unregister: IntegrationImplementationProps<Configuration, Actions, Channels, Events>['unregister']
-  public readonly createUser: IntegrationImplementationProps<Configuration, Actions, Channels, Events>['createUser']
+  public readonly props: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>
+  public readonly actions: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>['actions']
+  public readonly channels: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>['channels']
+  public readonly register: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>['register']
+  public readonly unregister: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>['unregister']
+  public readonly createUser: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>['createUser']
   public readonly createConversation: IntegrationImplementationProps<
-    Configuration,
-    Actions,
-    Channels,
-    Events
+    TConfig,
+    TActions,
+    TChannels,
+    TEvents
   >['createConversation']
   public readonly handler: ReturnType<typeof integrationHandler>
   public readonly start: (port?: number) => Promise<Server>
 
-  public constructor(props: IntegrationImplementationProps<Configuration, Actions, Channels, Events>) {
+  public constructor(props: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>) {
     this.props = props
     this.actions = props.actions
     this.channels = props.channels

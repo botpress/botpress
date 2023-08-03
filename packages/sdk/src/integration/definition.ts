@@ -63,17 +63,17 @@ export type UserDefinition = Partial<{
 }>
 
 type BaseConfig = AnyZodObject
-type BaseEvent = Record<string, AnyZodObject>
-type BaseAction = Record<string, Record<'input' | 'output', AnyZodObject>>
-type BaseChannel = Record<string, Record<string, AnyZodObject>>
-type BaseState = Record<string, AnyZodObject>
+type BaseEvents = Record<string, AnyZodObject>
+type BaseActions = Record<string, Record<'input' | 'output', AnyZodObject>>
+type BaseChannels = Record<string, Record<string, AnyZodObject>>
+type BaseStates = Record<string, AnyZodObject>
 
 export type IntegrationDefinitionProps<
   TConfig extends BaseConfig = BaseConfig,
-  TEvent extends BaseEvent = BaseEvent,
-  TAction extends BaseAction = BaseAction,
-  TChannel extends BaseChannel = BaseChannel,
-  TState extends BaseState = BaseState
+  TEvent extends BaseEvents = BaseEvents,
+  TAction extends BaseActions = BaseActions,
+  TChannel extends BaseChannels = BaseChannels,
+  TState extends BaseStates = BaseStates
 > = {
   name: string
   version: typeof PUBLIC_VERSION | typeof PRIVATE_VERSION // TODO: allow any versions
@@ -117,7 +117,7 @@ export type IntegrationDefinitionProps<
 }
 
 const propsToDefinition = (
-  props: IntegrationDefinitionProps<BaseConfig, BaseEvent, BaseAction, BaseChannel, BaseState>
+  props: IntegrationDefinitionProps<BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates>
 ): Iof<IntegrationDefinition> => ({
   ...props,
   configuration: props.configuration
@@ -164,10 +164,10 @@ const propsToDefinition = (
 
 export class IntegrationDefinition<
   TConfig extends BaseConfig = BaseConfig,
-  TEvent extends BaseEvent = BaseEvent,
-  TAction extends BaseAction = BaseAction,
-  TChannel extends BaseChannel = BaseChannel,
-  TState extends BaseState = BaseState
+  TEvents extends BaseEvents = BaseEvents,
+  TActions extends BaseActions = BaseActions,
+  TChannels extends BaseChannels = BaseChannels,
+  TStates extends BaseStates = BaseStates
 > {
   public readonly name: string
   public readonly version: typeof PUBLIC_VERSION | typeof PRIVATE_VERSION // TODO: allow any versions
@@ -183,7 +183,7 @@ export class IntegrationDefinition<
   public readonly user?: UserDefinition
   public readonly secrets?: string[]
 
-  public constructor(props: IntegrationDefinitionProps<TConfig, TEvent, TAction, TChannel, TState>) {
+  public constructor(props: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>) {
     const {
       name,
       version,
