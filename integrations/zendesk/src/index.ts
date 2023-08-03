@@ -1,16 +1,16 @@
-import * as botpress from '.botpress';
-import actions from './actions';
-import { ZendeskApi } from './client';
-import { executeMessageFromAgent } from './events/message-from-agent';
-import { executeTicketAssigned } from './events/ticket-assigned';
-import { executeTicketSolved } from './events/ticket-solved';
-import type { ConditionsData, TriggerPayload } from './misc/types';
-type Config = botpress.configuration.Configuration;
+import * as botpress from '.botpress'
+import actions from './actions'
+import { ZendeskApi } from './client'
+import { executeMessageFromAgent } from './events/message-from-agent'
+import { executeTicketAssigned } from './events/ticket-assigned'
+import { executeTicketSolved } from './events/ticket-solved'
+import type { ConditionsData, TriggerPayload } from './misc/types'
+type Config = botpress.configuration.Configuration
 
-console.info('starting integration');
+console.info('starting integration')
 
 const TRIGGERS = {
-  ticketAssigned: {
+  TicketAssigned: {
     conditions: {
       all: [
         {
@@ -22,7 +22,7 @@ const TRIGGERS = {
       any: [],
     },
   },
-  ticketSolved: {
+  TicketSolved: {
     conditions: {
       all: [
         {
@@ -34,7 +34,7 @@ const TRIGGERS = {
       any: [],
     },
   },
-  newMessage: {
+  NewMessage: {
     conditions: {
       all: [
         {
@@ -51,20 +51,19 @@ const TRIGGERS = {
       any: [],
     },
   },
-};
+}
 
-const getClient = (config: Config) =>
-  new ZendeskApi(config.baseURL, config.username, config.apiToken);
+const getClient = (config: Config) => new ZendeskApi(config.baseURL, config.username, config.apiToken)
 
 export default new botpress.Integration({
   register: async ({ ctx, client, webhookUrl }) => {
-    const zendeskClient = getClient(ctx.configuration);
+    const zendeskClient = getClient(ctx.configuration)
 
-    const subscriptionId = await zendeskClient.subscribeWebhook(webhookUrl);
+    const subscriptionId = await zendeskClient.subscribeWebhook(webhookUrl)
 
     if (!subscriptionId) {
-      console.warn('error creating the webhook subscription');
-      return;
+      console.warn('error creating the webhook subscription')
+      return
     }
 
     await client.setState({
@@ -74,40 +73,40 @@ export default new botpress.Integration({
       payload: {
         subscriptionId,
       },
-    });
+    })
 
     for (let [triggerName, triggerData] of Object.entries(TRIGGERS)) {
       const triggerId = await zendeskClient.createTrigger(
         triggerName,
         subscriptionId,
         triggerData.conditions as ConditionsData
-      );
+      )
 
       await client.setState({
         type: 'integration',
         id: ctx.integrationId,
-        name: `trigger0${triggerName}`,
+        name: `trigger${triggerName}`,
         payload: {
           triggerId,
         },
-      });
+      })
     }
   },
   unregister: async ({ ctx, client }) => {
-    const zendeskClient = getClient(ctx.configuration);
+    const zendeskClient = getClient(ctx.configuration)
 
     for (let triggerName of Object.keys(TRIGGERS)) {
       const stateRes = await client.getState({
         id: ctx.integrationId,
-        name: `trigger0${triggerName}`,
+        name: `trigger${triggerName}`,
         type: 'integration',
-      });
+      })
 
-      const { state } = stateRes;
-      const { triggerId } = state.payload;
+      const { state } = stateRes
+      const { triggerId } = state.payload
 
       if (triggerId) {
-        await zendeskClient.deleteTrigger(triggerId);
+        await zendeskClient.deleteTrigger(triggerId)
       }
     }
 
@@ -115,13 +114,13 @@ export default new botpress.Integration({
       id: ctx.integrationId,
       name: `subscriptionInfo`,
       type: 'integration',
-    });
+    })
 
-    const { state } = stateSubscriptionInfo;
-    const { subscriptionId } = state.payload;
+    const { state } = stateSubscriptionInfo
+    const { subscriptionId } = state.payload
 
     if (subscriptionId) {
-      await zendeskClient.unsubscribeWebhook(subscriptionId);
+      await zendeskClient.unsubscribeWebhook(subscriptionId)
     }
   },
   actions,
@@ -129,23 +128,23 @@ export default new botpress.Integration({
     ticket: {
       messages: {
         text: async ({ payload, ...props }) => {
-          const zendeskClient = getClient(props.ctx.configuration);
+          const zendeskClient = getClient(props.ctx.configuration)
           return await zendeskClient.createComment({
             ...props,
             content: payload.text,
-          });
+          })
         },
       },
     },
   },
   handler: async ({ req, client }) => {
     if (!req.body) {
-      console.warn('Handler received an empty body');
-      return;
+      console.warn('Handler received an empty body')
+      return
     }
-    const trigger = JSON.parse(req.body);
+    const trigger = JSON.parse(req.body)
 
-    const zendeskTrigger = trigger as TriggerPayload;
+    const zendeskTrigger = trigger as TriggerPayload
 
     switch (zendeskTrigger.type) {
       case 'newMessage':
@@ -155,13 +154,13 @@ export default new botpress.Integration({
             'zendesk:id': zendeskTrigger.ticketId,
             'zendesk:authorId': zendeskTrigger.authorId,
           },
-        });
+        })
 
         const { user } = await client.getOrCreateUser({
           tags: {
             'zendesk:id': zendeskTrigger.authorId,
           },
-        });
+        })
 
         await client.createMessage({
           tags: { 'zendesk:id': zendeskTrigger.updated_at },
@@ -169,19 +168,19 @@ export default new botpress.Integration({
           userId: user.id,
           conversationId: conversation.id,
           payload: { text: zendeskTrigger.comment },
-        });
+        })
 
-        return;
+        return
 
       //return await executeMessageFromAgent({ zendeskTrigger, client });
       case 'ticketAssigned':
-        return await executeTicketAssigned({ zendeskTrigger, client });
+        return await executeTicketAssigned({ zendeskTrigger, client })
       case 'ticketSolved':
-        return await executeTicketSolved({ zendeskTrigger, client });
+        return await executeTicketSolved({ zendeskTrigger, client })
 
       default:
-        console.warn('unsopported trigger type');
-        break;
+        console.warn('unsopported trigger type')
+        break
     }
   },
-});
+})
