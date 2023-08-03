@@ -100,7 +100,7 @@ const configWebchat = {
 const customEvent = {
   title: 'Send Custom Event',
   description:
-    "Initiate this action to dispatch a custom event to the webchat. Please ensure to appropriately handle this event within your webpage's code. \n\n window.botpressWebChat.onEvent(event => {}, ['TRIGGER'])",
+    "Initiate this action to dispatch a custom event to the webchat. Please ensure to appropriately handle this event within your webpage's code. Usage: \n\nwindow.botpressWebChat.onEvent(event => {}, ['TRIGGER'])",
   input: {
     schema: z.object({
       conversationId,

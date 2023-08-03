@@ -20,7 +20,7 @@ export type Trigger = z.infer<typeof trigger.schema>
 export const trigger = {
   title: 'Custom Trigger (advanced)',
   description:
-    "This event occurs when a payload is sent from the browser. That payload will be available in {{event.payload}}.\n\n Usage: window.botpressWebChat.sendPayload({ type: 'trigger', payload: {} })",
+    "This event occurs when a payload is sent from the browser. That payload will be available in {{event.payload}}. Usage: \n\nwindow.botpressWebChat.sendPayload({ type: 'trigger', payload: {} })",
   schema: TriggerSchema,
   ui: {},
 }
