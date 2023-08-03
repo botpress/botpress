@@ -110,7 +110,13 @@ const getCustomerOrders = {
   input: {
     schema: z.object({
       customer_id: z.string().optional().describe('The exact customer ID.'),
-      status: z.enum(['open','closed','cancelled','any']).optional().default('open').describe('The status of the order. It could be any of the following variables: "open","closed","cancelled","any"'),
+      status: z
+        .enum(['open', 'closed', 'cancelled', 'any'])
+        .optional()
+        .default('open')
+        .describe(
+          'The status of the order. It could be any of the following variables: "open","closed","cancelled","any"'
+        ),
     }),
     ui: {
       customer_id: {
@@ -119,7 +125,7 @@ const getCustomerOrders = {
       },
       status: {
         title: 'Status',
-        examples: ['open','closed','cancelled','any'],
+        examples: ['open', 'closed', 'cancelled', 'any'],
       },
     },
   },
@@ -130,4 +136,4 @@ const getCustomerOrders = {
   },
 } satisfies ActionDefinition
 
-export const actions = { getProducts, getProductVariants, getCustomers,getCustomerOrders }
+export const actions = { getProducts, getProductVariants, getCustomers, getCustomerOrders }

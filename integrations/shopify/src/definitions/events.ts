@@ -26,7 +26,7 @@ const orderCreated = {
 
 export type OrdeCancelled = z.infer<typeof orderCancelled.schema>
 
-const orderCancelled = {  
+const orderCancelled = {
   schema: z.object({
     type: z.literal(`${INTEGRATION_NAME}:orderCancelled`).optional(),
     order_id: z.number(),

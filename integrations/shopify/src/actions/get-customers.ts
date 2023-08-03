@@ -21,13 +21,11 @@ export const getCustomers: GetCustomers = async ({ ctx, input, logger }) => {
 
     logger
       .forBot()
-      .info(
-        `Ran 'Get Customers List' and found ${customers_list.length} customers matching criteria ${filters.query}`
-      )
+      .info(`Ran 'Get Customers List' and found ${customers_list.length} customers matching criteria ${filters.query}`)
 
     return { customers_list }
   } catch (e) {
     logger.forBot().error(`'Get Customers List' exception ${JSON.stringify(e)}`)
-    return { customers_list : {} }
+    return { customers_list: {} }
   }
 }
