@@ -29,7 +29,7 @@ async function deleteWebhook(ctx: IntegrationContext<Configuration>, webhookId: 
       },
     }
 
-    const response = await axios.delete(`/admin/api/${SHOPIFY_API_VERSION}/webhooks/${webhookId}.json`,axiosConfig)
+    const response = await axios.delete(`/admin/api/${SHOPIFY_API_VERSION}/webhooks/${webhookId}.json`, axiosConfig)
 
     logger.forBot().debug('data: ' + response.data)
 
