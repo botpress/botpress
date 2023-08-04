@@ -1,14 +1,16 @@
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { Integration, secrets } from '.botpress'
+import { Client } from '@botpress/client'
+import { InteractionType, InteractionResponseType } from 'discord-interactions'
+import queryString from 'query-string'
+import { DiscordClient, commandName } from './discord'
+import { Integration } from '.botpress'
 
-sentryHelpers.init({
-  dsn: secrets.SENTRY_DSN,
-  environment: secrets.SENTRY_ENVIRONMENT,
-  release: secrets.SENTRY_RELEASE,
-})
+const discord = new DiscordClient()
 
-const integration = new Integration({
-  register: async () => {},
+export default new Integration({
+  register: async ({ ctx }) => {
+    console.log(`Installing Global Commmands for ${ctx.botId}`)
+    await discord.installGlobalCommands()
+  },
   unregister: async () => {},
   actions: {},
   channels: {
@@ -28,7 +30,81 @@ const integration = new Integration({
       },
     },
   },
-  handler: async () => {},
+  handler: async ({ req, ctx, client }) => {
+    console.log('here2')
+    if (req.path === '/oauth') {
+      const query = queryString.parse(req.query)
+      const code = query.code
+
+      if (!(code && typeof code === 'string')) {
+        throw new Error('invalid code')
+      }
+
+      const data = await discord.getAccessToken(code)
+
+      await client.setState({
+        type: 'integration',
+        id: ctx.integrationId,
+        name: 'credentials',
+        payload: {
+          refreshToken: data.refreshToken,
+          accessToken: data.accessToken,
+          expiryDate: data.expiryDate.toISOString(),
+        },
+      })
+
+      return
+    }
+
+    if (!discord.verifyRequest(req)) {
+      return {
+        status: 401,
+        body: 'Bad request signature',
+      }
+    }
+
+    if (!req.body) {
+      throw new Error('invalid empty body')
+    }
+
+    const { type, data, ...rest } = JSON.parse(req.body)
+
+    console.log(rest)
+    console.log(data)
+
+    if (type === InteractionType.PING) {
+      return {
+        body: JSON.stringify({
+          type: InteractionResponseType.PONG,
+        }),
+      }
+    }
+
+    if (type === InteractionType.APPLICATION_COMMAND) {
+      console.log('here')
+      const { name } = data
+
+      if (name === commandName) {
+        return {
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            type: InteractionResponseType.DEFERRED_CHANNEL_MESSAGE_WITH_SOURCE,
+          }),
+        }
+      }
+    }
+
+    return
+  },
 })
 
-export default sentryHelpers.wrapIntegration(integration)
+type OnChatCommand = {
+  client: Client
+  userId: string
+  channelId: string
+  messageId: string
+}
+
+export const onChatCommand = ({ client }: OnChatCommand) => {}

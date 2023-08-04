@@ -5,13 +5,31 @@ import { z } from 'zod'
 export default new IntegrationDefinition({
   name: 'discord',
   version: '0.2.0',
+  title: 'Discord',
+  description: 'This integration allows your bot to interact with Discord.',
+  icon: 'icon.svg',
   readme: 'readme.md',
   configuration: {
-    schema: z.object({
-      apikey: z.string(),
-      apiSecret: z.string(),
-    }),
+    schema: z.object({}),
   },
+  states: {
+    credentials: {
+      type: 'integration',
+      schema: z.object({
+        refreshToken: z.string(),
+        accessToken: z.string(),
+        expiryDate: z.string(),
+      }),
+    },
+  },
+  secrets: [
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+    'BOT_TOKEN',
+    'CLIENT_ID',
+    'CLIENT_SECRET',
+    'APPLICATION_ID',
+    'PUBLIC_KEY',
+  ],
   channels: {
     channel: {
       messages: messages.defaults,
@@ -34,5 +52,4 @@ export default new IntegrationDefinition({
   },
   actions: {},
   events: {},
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
 })

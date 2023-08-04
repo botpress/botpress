@@ -2,12 +2,11 @@
   "name": "@botpresshub/discord",
   "version": "0.2.0",
   "description": "Discord integration for Botpress",
-  "private": true,
   "scripts": {
     "start": "pnpm bp serve",
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
-    "type:check": "tsc --noEmit",
+    "type-check": "tsc --noEmit",
     "test": "echo \"Tests not implemented yet.\""
   },
   "keywords": [],
@@ -15,13 +14,15 @@
   "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "axios": "^1.4.0",
+    "discord-interactions": "^3.4.0",
+    "query-string": "^6.14.1",
     "zod": "^3.20.6"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@sentry/cli": "^2.18.1",
     "@types/node": "^18.11.17",
     "esbuild": "^0.15.18",
     "nodemon": "^2.0.20",

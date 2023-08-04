@@ -152,6 +152,15 @@ importers:
       '@botpress/sdk-addons':
         specifier: workspace:*
         version: link:../../packages/sdk-addons
+      axios:
+        specifier: ^1.4.0
+        version: 1.4.0
+      discord-interactions:
+        specifier: ^3.4.0
+        version: 3.4.0
+      query-string:
+        specifier: ^6.14.1
+        version: 6.14.1
       zod:
         specifier: ^3.20.6
         version: 3.21.4
@@ -159,9 +168,6 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.16
@@ -4847,6 +4853,13 @@ packages:
       path-type: 4.0.0
     dev: false
 
+  /discord-interactions@3.4.0:
+    resolution: {integrity: sha512-DG0Jxdd/FcK8liAPhIP4u5YHpnz50JWn9DK4OavxsLD49/WGimXtP3EdOY439MaWyCgQfsfFkA1GsTEyu63RzA==}
+    engines: {node: '>=12'}
+    dependencies:
+      tweetnacl: 1.0.3
+    dev: false
+
   /doctrine@2.1.0:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
@@ -9465,6 +9478,10 @@ packages:
   /tunnel@0.0.6:
     resolution: {integrity: sha512-1h/Lnq9yajKY2PEbBadPXj3VxsDDu844OnaAo52UVmIzIvwwtBPIuNvkjuzBlTWpfJyUbG3ez0KSBibQkj4ojg==}
     engines: {node: '>=0.6.11 <=0.7.0 || >=0.7.3'}
+    dev: false
+
+  /tweetnacl@1.0.3:
+    resolution: {integrity: sha512-6rt+RN7aOi1nGMyC4Xa5DdYiukl2UWCbcJft7YhxReBGQD7OAM8Pbxw6YMo4r2diNEA8FEmu32YOn9rhaiE5yw==}
     dev: false
 
   /twilio@3.84.1:
