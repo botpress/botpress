@@ -1,94 +1,70 @@
-import type { Bot as BotType, Event } from '@botpress/client'
 import type { Server } from 'node:http'
 import { SchemaDefinition } from '../schema'
 import { serve } from '../serve'
-import { AnyZodObject } from '../type-utils'
+import { AnyZodObject, Cast } from '../type-utils'
+import { IntegrationInstance } from './integration-instance'
 import { createBotHandler } from './server'
 import type { BotState, EventHandler, MessageHandler, StateExpiredHandler } from './state'
 
-export type RegisterBotPayload = {
-  bot: BotType
+/**
+ * Bot type argument for smart intellisense and type inference
+ */
+type TBot = {
+  integrations: Record<string, any>
+  states: Record<string, AnyZodObject>
+  events: Record<string, AnyZodObject>
 }
 
-export type UnregisterBotPayload = {
-  bot: BotType
-}
-
-export type EventReceivedBotPayload = {
-  event: Event
-}
-
-type BaseIntegrations = string
-type BaseStates = Record<string, AnyZodObject>
-type BaseEvents = Record<string, AnyZodObject>
-
-export type TagDefinition = {
+type TagDefinition = {
   title?: string
   description?: string
 }
 
-export type StateDefinition<TState extends BaseStates[string]> = SchemaDefinition<TState> & {
+type StateDefinition<TState extends TBot['states'][string]> = SchemaDefinition<TState> & {
   type: 'conversation' | 'user' | 'bot'
   expiry?: number
 }
 
-export type IntegrationInstance<Name extends string> = {
-  id: string
-  enabled?: boolean
-  configuration?: Record<string, any>
-
-  name: Name
-  version: string
-}
-
-export type RecurringEventDefinition = {
+type RecurringEventDefinition = {
   type: string
   payload: Record<string, any>
   schedule: { cron: string }
 }
 
-export type EventDefinition<TEvent extends BaseEvents[string]> = SchemaDefinition<TEvent>
+type EventDefinition<TEvent extends TBot['events'][string]> = SchemaDefinition<TEvent>
 
-export type ConfigurationDefinition = SchemaDefinition
+type ConfigurationDefinition = SchemaDefinition
 
-export type UserDefinition = {
+type UserDefinition = {
   tags?: Record<string, TagDefinition>
 }
 
-export type ConversationDefinition = {
+type ConversationDefinition = {
   tags?: Record<string, TagDefinition>
 }
 
-export type MessageDefinition = {
+type MessageDefinition = {
   tags?: Record<string, TagDefinition>
 }
 
-export type BotProps<
-  TIntegrations extends BaseIntegrations = BaseIntegrations,
-  TStates extends BaseStates = BaseStates,
-  TEvents extends BaseEvents = BaseEvents
-> = {
+export type BotProps<T extends TBot = TBot> = {
   integrations?: {
-    [K in TIntegrations]: IntegrationInstance<K>
+    [K in keyof T['integrations']]: IntegrationInstance<Cast<K, string>>
   }
   user?: UserDefinition
   conversation?: ConversationDefinition
   message?: MessageDefinition
   states?: {
-    [K in keyof TStates]: StateDefinition<TStates[K]>
+    [K in keyof T['states']]: StateDefinition<T['states'][K]>
   }
   configuration?: ConfigurationDefinition
   events?: {
-    [K in keyof TEvents]: EventDefinition<TEvents[K]>
+    [K in keyof T['events']]: EventDefinition<T['events'][K]>
   }
   recurringEvents?: Record<string, RecurringEventDefinition>
 }
 
-export class Bot<
-  TIntegrations extends BaseIntegrations = BaseIntegrations,
-  TStates extends BaseStates = BaseStates,
-  TEvents extends BaseEvents = BaseEvents
-> {
+export class Bot<T extends TBot = TBot> {
   private _state: BotState = {
     registerHandlers: [],
     unregisterHandlers: [],
@@ -97,9 +73,9 @@ export class Bot<
     stateExpiredHandlers: [],
   }
 
-  public readonly props: BotProps<TIntegrations, TStates, TEvents>
+  public readonly props: BotProps<T>
 
-  public constructor(props: BotProps<TIntegrations, TStates, TEvents>) {
+  public constructor(props: BotProps<T>) {
     this.props = props
   }
 

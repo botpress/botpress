@@ -1,26 +1,30 @@
-/* eslint-disable brace-style */
 import { SchemaDefinition } from '../schema'
 import { AnyZodObject } from '../type-utils'
 
-type BaseConfig = AnyZodObject
-type BaseEvents = Record<string, AnyZodObject>
-type BaseActions = Record<string, Record<'input' | 'output', AnyZodObject>>
-type BaseChannels = Record<string, Record<string, AnyZodObject>>
-type BaseStates = Record<string, AnyZodObject>
+/**
+ * Integration definition type argument for smart intellisense and type inference
+ */
+type TIntegrationDefinition = {
+  configuration: AnyZodObject
+  events: Record<string, AnyZodObject>
+  actions: Record<string, Record<'input' | 'output', AnyZodObject>>
+  channels: Record<string, Record<string, AnyZodObject>>
+  states: Record<string, AnyZodObject>
+}
 
-export type TagDefinition = {
+type TagDefinition = {
   title?: string
   description?: string
 }
 
-export type ConfigurationDefinition<TConfig extends BaseConfig> = SchemaDefinition<TConfig>
+type ConfigurationDefinition<TConfig extends TIntegrationDefinition['configuration']> = SchemaDefinition<TConfig>
 
-export type EventDefinition<TEvent extends BaseEvents[string]> = SchemaDefinition<TEvent> & {
+type EventDefinition<TEvent extends TIntegrationDefinition['events'][string]> = SchemaDefinition<TEvent> & {
   title?: string
   description?: string
 }
 
-export type ChannelDefinition<TChannel extends BaseChannels[string]> = {
+type ChannelDefinition<TChannel extends TIntegrationDefinition['channels'][string]> = {
   title?: string
   description?: string
   messages: {
@@ -38,18 +42,18 @@ export type ChannelDefinition<TChannel extends BaseChannels[string]> = {
   }>
 }
 
-export type ActionDefinition<TAction extends BaseActions[string]> = {
+type ActionDefinition<TAction extends TIntegrationDefinition['actions'][string]> = {
   title?: string
   description?: string
   input: SchemaDefinition<TAction['input']>
   output: SchemaDefinition<TAction['output']>
 }
 
-export type StateDefinition<TState extends BaseStates[string]> = SchemaDefinition<TState> & {
+type StateDefinition<TState extends TIntegrationDefinition['states'][string]> = SchemaDefinition<TState> & {
   type: 'integration' | 'conversation' | 'user'
 }
 
-export type UserDefinition = Partial<{
+type UserDefinition = Partial<{
   tags: Record<string, TagDefinition>
   creation: {
     enabled: boolean
@@ -57,13 +61,7 @@ export type UserDefinition = Partial<{
   }
 }>
 
-export type IntegrationDefinitionProps<
-  TConfig extends BaseConfig = BaseConfig,
-  TEvents extends BaseEvents = BaseEvents,
-  TActions extends BaseActions = BaseActions,
-  TChannels extends BaseChannels = BaseChannels,
-  TStates extends BaseStates = BaseStates
-> = {
+export type IntegrationDefinitionProps<T extends TIntegrationDefinition = TIntegrationDefinition> = {
   name: string
   version: '0.2.0' | '0.0.1' // TODO: allow any version
 
@@ -72,19 +70,19 @@ export type IntegrationDefinitionProps<
   icon?: string
   readme?: string
 
-  configuration?: ConfigurationDefinition<TConfig>
-  events?: { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
+  configuration?: ConfigurationDefinition<T['configuration']>
+  events?: { [K in keyof T['events']]: EventDefinition<T['events'][K]> }
 
   actions?: {
-    [K in keyof TActions]: ActionDefinition<TActions[K]>
+    [K in keyof T['actions']]: ActionDefinition<T['actions'][K]>
   }
 
   channels?: {
-    [K in keyof TChannels]: ChannelDefinition<TChannels[K]>
+    [K in keyof T['channels']]: ChannelDefinition<T['channels'][K]>
   }
 
   states?: {
-    [K in keyof TStates]: StateDefinition<TStates[K]>
+    [K in keyof T['states']]: StateDefinition<T['states'][K]>
   }
 
   user?: UserDefinition
@@ -92,29 +90,21 @@ export type IntegrationDefinitionProps<
   secrets?: string[]
 }
 
-export class IntegrationDefinition<
-  TConfig extends BaseConfig = BaseConfig,
-  TEvents extends BaseEvents = BaseEvents,
-  TActions extends BaseActions = BaseActions,
-  TChannels extends BaseChannels = BaseChannels,
-  TStates extends BaseStates = BaseStates
-> implements IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>
-{
-  public name: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['name']
-  public version: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['version']
-  public title: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['title']
-  public description: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['description']
-  public icon: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['icon']
-  public readme: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['readme']
-  public configuration: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['configuration']
-  public events: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['events']
-  public actions: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['actions']
-  public channels: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['channels']
-  public states: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['states']
-  public user: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['user']
-  public secrets: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['secrets']
-
-  public constructor(props: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>) {
+export class IntegrationDefinition<T extends TIntegrationDefinition = TIntegrationDefinition> {
+  public name: IntegrationDefinitionProps<T>['name']
+  public version: IntegrationDefinitionProps<T>['version']
+  public title: IntegrationDefinitionProps<T>['title']
+  public description: IntegrationDefinitionProps<T>['description']
+  public icon: IntegrationDefinitionProps<T>['icon']
+  public readme: IntegrationDefinitionProps<T>['readme']
+  public configuration: IntegrationDefinitionProps<T>['configuration']
+  public events: IntegrationDefinitionProps<T>['events']
+  public actions: IntegrationDefinitionProps<T>['actions']
+  public channels: IntegrationDefinitionProps<T>['channels']
+  public states: IntegrationDefinitionProps<T>['states']
+  public user: IntegrationDefinitionProps<T>['user']
+  public secrets: IntegrationDefinitionProps<T>['secrets']
+  public constructor(props: IntegrationDefinitionProps<T>) {
     const {
       name,
       version,

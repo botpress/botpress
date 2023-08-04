@@ -1,10 +1,13 @@
-import { Client } from '@botpress/client'
+import { Client, Event } from '@botpress/client'
 import { botIdHeader, configurationHeader, operationHeader, typeHeader } from '../const'
 import { log } from '../log'
 import type { Handler, Request, Response } from '../serve'
 import { BotContext, botOperationSchema } from './context'
-import type { EventReceivedBotPayload } from './implementation'
 import type { BotState } from './state'
+
+type EventReceivedBotPayload = {
+  event: Event
+}
 
 type OperationHandlerProps = {
   botState: BotState
