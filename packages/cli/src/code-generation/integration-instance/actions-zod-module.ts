@@ -2,7 +2,7 @@ import bluebird from 'bluebird'
 import { casing } from '../../utils'
 import { jsonSchemaToTypeScriptZod } from '../generators'
 import { Module, ModuleDef, ReExportSchemaModule } from '../module'
-import type * as types from '../typings'
+import type * as types from './types'
 
 type ActionInput = types.ActionDefinition['input']
 type ActionOutput = types.ActionDefinition['output']

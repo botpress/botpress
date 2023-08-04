@@ -1,4 +1,5 @@
 import type { IntegrationDefinition } from '@botpress/sdk'
+import { z } from 'zod'
 import { GENERATED_HEADER, INDEX_FILE } from '../const'
 import { Module, ModuleDef } from '../module'
 import { ActionsModule } from './actions-ts-module'
@@ -8,7 +9,7 @@ import { EventsModule } from './events-ts-module'
 
 export class IntegrationImplementationIndexModule extends Module {
   public static async create(integration: IntegrationDefinition): Promise<IntegrationImplementationIndexModule> {
-    const configModule = await ConfigurationModule.create(integration.configuration ?? { schema: {} })
+    const configModule = await ConfigurationModule.create(integration.configuration ?? { schema: z.object({}) })
 
     const actionsModule = await ActionsModule.create(integration.actions ?? {})
     actionsModule.unshift('actions')

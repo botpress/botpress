@@ -3,7 +3,7 @@ import { casing } from '../../utils'
 import { GENERATED_HEADER, INDEX_FILE } from '../const'
 import { jsonSchemaToTypeScriptZod } from '../generators'
 import { Module, ModuleDef, ReExportSchemaModule } from '../module'
-import type * as types from '../typings'
+import type * as types from './types'
 
 export class MessageModule extends Module {
   public static async create(name: string, message: types.MessageDefinition): Promise<MessageModule> {

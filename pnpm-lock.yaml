@@ -970,7 +970,7 @@ importers:
         version: 0.15.18
       json-schema-to-typescript:
         specifier: ^11.0.2
-        version: 11.0.5
+        version: 11.0.2
       json-schema-to-zod:
         specifier: ^1.1.1
         version: 1.1.1
@@ -1122,9 +1122,6 @@ importers:
       zod:
         specifier: ^3.20.6
         version: 3.21.4
-      zod-to-json-schema:
-        specifier: ^3.20.1
-        version: 3.21.1(zod@3.21.4)
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -1676,9 +1673,8 @@ packages:
       '@babel/helper-validator-identifier': 7.22.5
       to-fast-properties: 2.0.0
 
-  /@bcherny/json-schema-ref-parser@10.0.5-fork:
-    resolution: {integrity: sha512-E/jKbPoca1tfUPj3iSbitDZTGnq6FUFjkH6L8U2oDwSuwK1WhnnVtCG7oFOTg/DDnyoXbQYUiUiGOibHqaGVnw==}
-    engines: {node: '>= 16'}
+  /@bcherny/json-schema-ref-parser@9.0.9:
+    resolution: {integrity: sha512-vmEmnJCfpkLdas++9OYg6riIezTYqTHpqUTODJzHLzs5UnXujbOJW9VwcVCnyo1mVRt32FRr23iXBx/sX8YbeQ==}
     dependencies:
       '@jsdevtools/ono': 7.1.3
       '@types/json-schema': 7.0.12
@@ -7289,12 +7285,12 @@ packages:
       - supports-color
     dev: false
 
-  /json-schema-to-typescript@11.0.5:
-    resolution: {integrity: sha512-ZNlvngzlPzjYYECbR+uJ9aUWo25Gw/VuwUytvcuKiwc6NaiZhMyf7qBsxZE2eixmj8AoQEQJhSRG7btln0sUDw==}
+  /json-schema-to-typescript@11.0.2:
+    resolution: {integrity: sha512-XRyeXBJeo/IH4eTP5D1ptX78vCvH86nMDt2k3AxO28C3uYWEDmy4mgPyMpb8bLJ/pJMElOGuQbnKR5Y6NSh3QQ==}
     engines: {node: '>=12.0.0'}
     hasBin: true
     dependencies:
-      '@bcherny/json-schema-ref-parser': 10.0.5-fork
+      '@bcherny/json-schema-ref-parser': 9.0.9
       '@types/json-schema': 7.0.12
       '@types/lodash': 4.14.195
       '@types/prettier': 2.7.3

@@ -12,7 +12,7 @@ type CreateMessageBody<T extends DefaultMessageType> = Omit<CreateMessageProps, 
   payload: DefaultMessagePayload<T>
 }
 
-const bot = new Bot()
+const bot = new Bot({})
 
 bot.message(async ({ message, client, ctx }) => {
   console.info('Received message', message)

@@ -16,7 +16,7 @@ type CreateMessageBody<T extends DefaultMessageType> = Omit<CreateMessageProps, 
 const logger = console
 
 const bot = new Bot({
-  integrations: [],
+  integrations: {},
   configuration: {
     schema: z.object({}),
   },

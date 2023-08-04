@@ -1,16 +1,16 @@
 import bluebird from 'bluebird'
 import { casing } from '../../utils'
-import { jsonSchemaToTypeScriptType } from '../generators'
+import { zodToTypeScriptType } from '../generators'
 import { Module, ModuleDef, ReExportTypeModule } from '../module'
-import type * as types from '../typings'
+import type * as types from './types'
 
 export class EventModule extends Module {
   public static async create(name: string, event: types.EventDefinition): Promise<EventModule> {
-    const schema = event.schema ?? {}
+    const schema = event.schema
     const def: ModuleDef = {
       path: `${name}.ts`,
       exportName: casing.to.pascalCase(name),
-      content: await jsonSchemaToTypeScriptType(schema, name),
+      content: await zodToTypeScriptType(schema, name),
     }
     return new EventModule(def)
   }

@@ -109,18 +109,13 @@ export class IntegrationImplementation<
   TChannels extends BaseChannels = BaseChannels,
   TEvents extends BaseEvents = BaseEvents
 > {
-  public readonly props: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>
-  public readonly actions: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>['actions']
-  public readonly channels: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>['channels']
-  public readonly register: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>['register']
-  public readonly unregister: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>['unregister']
-  public readonly createUser: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>['createUser']
-  public readonly createConversation: IntegrationImplementationProps<
-    TConfig,
-    TActions,
-    TChannels,
-    TEvents
-  >['createConversation']
+  public props: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>
+  public actions: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>['actions']
+  public channels: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>['channels']
+  public register: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>['register']
+  public unregister: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>['unregister']
+  public createUser: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>['createUser']
+  public createConversation: IntegrationImplementationProps<TConfig, TActions, TChannels, TEvents>['createConversation']
   public readonly handler: ReturnType<typeof integrationHandler>
   public readonly start: (port?: number) => Promise<Server>
 
