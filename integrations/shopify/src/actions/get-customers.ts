@@ -1,31 +1,38 @@
-import { SHOPIFY_API_VERSION } from '../const'
-import { prepareParams } from '../utils'
 import axios from 'axios'
+import qs from 'querystring'
 import * as botpress from '.botpress'
+import { RuntimeError } from '@botpress/client'
+import { SHOPIFY_API_VERSION } from '../const'
 
 type GetCustomers = botpress.IntegrationProps['actions']['getCustomers']
 
 export const getCustomers: GetCustomers = async ({ ctx, input, logger }) => {
   const { ids, limit } = input
-  const filters = await prepareParams({ ids, limit })
+  const filters = qs.stringify({ ids, limit })
 
-  axios.defaults.baseURL = `https://${ctx.configuration.shopName}.myshopify.com`
-  axios.defaults.headers['X-Shopify-Access-Token'] = ctx.configuration.access_token
+  const axiosConfig = {
+    baseURL: `https://${ctx.configuration.shopName}.myshopify.com`,
+    headers: {
+      'X-Shopify-Access-Token': ctx.configuration.access_token,
+    },
+  }
 
   try {
     const response = await axios.get(
-      `/admin/api/${SHOPIFY_API_VERSION}/customers.json${filters.length > 0 ? '?' + filters.query : ''}`
+      `/admin/api/${SHOPIFY_API_VERSION}/customers.json${filters.length > 0 ? '?' + filters : ''}`,
+      axiosConfig
     )
 
-    const customers_list = response.data.customers
+    const customersList = response.data.customers
 
     logger
       .forBot()
-      .info(`Ran 'Get Customers List' and found ${customers_list.length} customers matching criteria ${filters.query}`)
+      .info(`Ran 'Get Customers List' and found ${customersList.length} customers matching criteria ${filters}`)
 
-    return { customers_list }
+    return { customersList }
   } catch (e) {
-    logger.forBot().error(`'Get Customers List' exception ${JSON.stringify(e)}`)
-    return { customers_list: {} }
+    const errorMsg = `'Get Customers List' exception ${JSON.stringify(e)}`
+    logger.forBot().error(errorMsg)
+    throw new RuntimeError(errorMsg)
   }
 }

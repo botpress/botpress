@@ -1,15 +1,13 @@
 import axios from 'axios'
+import { SHOPIFY_API_VERSION } from '../const'
 import type * as botpress from '.botpress'
-import { ARR_OF_EVENTS, SHOPIFY_API_VERSION } from '../const'
+import type { IntegrationContext } from '@botpress/sdk'
+import type { Configuration } from '.botpress/implementation/configuration'
 
 type Implementation = ConstructorParameters<typeof botpress.Integration>[0]
 type UnregisterFunction = Implementation['unregister']
 
 export const unregister: UnregisterFunction = async ({ ctx, client, logger }) => {
-  axios.defaults.baseURL = `https://${ctx.configuration.shopName}.myshopify.com`
-  axios.defaults.headers['X-Shopify-Access-Token'] = ctx.configuration.access_token
-  axios.defaults.headers['Content-Type'] = 'application/json'
-
   const stateRes = await client.getState({
     id: `${ctx.integrationId}`,
     name: 'configuration',
@@ -17,13 +15,21 @@ export const unregister: UnregisterFunction = async ({ ctx, client, logger }) =>
   })
 
   for (let i = 0; i < stateRes.length; i++) {
-    await deleteWebhook(stateRes[i].webhookId, logger)
+    await deleteWebhook(ctx, stateRes[i].webhookId, logger)
   }
 }
 
-async function deleteWebhook(webhookId: string, logger) {
+async function deleteWebhook(ctx: IntegrationContext<Configuration>, webhookId: string, logger) {
   try {
-    const response = await axios.delete(`/admin/api/${SHOPIFY_API_VERSION}/webhooks/${webhookId}.json`)
+    const axiosConfig = {
+      baseURL: `https://${ctx.configuration.shopName}.myshopify.com`,
+      headers: {
+        'X-Shopify-Access-Token': ctx.configuration.access_token,
+        'Content-Type': 'application/json',
+      },
+    }
+
+    const response = await axios.delete(`/admin/api/${SHOPIFY_API_VERSION}/webhooks/${webhookId}.json`,axiosConfig)
 
     logger.forBot().debug('data: ' + response.data)
 

@@ -1,17 +1,14 @@
-import * as botpress from '.botpress'
 import actions from './actions'
+import { handler } from './handler'
 import { register } from './setup/register'
 import { unregister } from './setup/unregister'
-import { handler } from './handler'
+import * as botpress from '.botpress'
 
 console.info('Starting Shopify Integration')
 
 export default new botpress.Integration({
   register,
-  unregister: async ({ logger }) => {
-    logger.forBot().debug('in unregister 1')
-    console.log('in unregister 1')
-  },
+  unregister,
   actions,
   handler,
 })

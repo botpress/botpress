@@ -1,5 +1,5 @@
-import { z } from 'zod'
 import { IntegrationDefinitionProps } from '@botpress/sdk'
+import { z } from 'zod'
 
 export const configuration = {
   schema: z.object({

@@ -1,33 +1,40 @@
-import { SHOPIFY_API_VERSION } from '../const'
-import { prepareParams } from '../utils'
 import axios from 'axios'
+import qs from 'querystring'
 import * as botpress from '.botpress'
+import { RuntimeError } from '@botpress/client'
+import { SHOPIFY_API_VERSION } from '../const'
 
 type GetCustomerOrders = botpress.IntegrationProps['actions']['getCustomerOrders']
 
 export const getCustomerOrders: GetCustomerOrders = async ({ ctx, input, logger }) => {
   const { customer_id, status } = input
-  const filters = await prepareParams({ customer_id, status })
+  const filters = qs.stringify({ customer_id, status })
 
-  axios.defaults.baseURL = `https://${ctx.configuration.shopName}.myshopify.com`
-  axios.defaults.headers['X-Shopify-Access-Token'] = ctx.configuration.access_token
+  const axiosConfig = {
+    baseURL: `https://${ctx.configuration.shopName}.myshopify.com`,
+    headers: {
+      'X-Shopify-Access-Token': ctx.configuration.access_token,
+    },
+  }
 
   try {
     const response = await axios.get(
-      `/admin/api/${SHOPIFY_API_VERSION}/orders.json${filters.length > 0 ? '?' + filters.query : ''}`
+      `/admin/api/${SHOPIFY_API_VERSION}/orders.json${filters.length > 0 ? '?' + filters : ''}`,
+      axiosConfig
     )
 
-    const customerOrders_list = response.data.orders
+    const customerOrdersList = response.data.orders
 
     logger
       .forBot()
       .info(
-        `Ran 'Get Customer Orders List' and found ${customerOrders_list.length} customer orders matching criteria ${filters.query}`
+        `Ran 'Get Customer Orders List' and found ${customerOrdersList.length} customer orders matching criteria ${filters}`
       )
 
-    return { customerOrders_list }
+    return { customerOrdersList }
   } catch (e) {
-    logger.forBot().error(`'Get Customer Orders List' exception ${JSON.stringify(e)}`)
-    return { customerOrders_list: {} }
+    const errorMsg = `'Get Customer Orders List' exception ${JSON.stringify(e)}`
+    logger.forBot().error(errorMsg)
+    throw new RuntimeError(errorMsg)
   }
 }

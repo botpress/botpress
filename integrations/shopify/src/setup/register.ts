@@ -9,10 +9,6 @@ type Implementation = ConstructorParameters<typeof botpress.Integration>[0]
 type RegisterFunction = Implementation['register']
 
 export const register: RegisterFunction = async ({ client, ctx, logger, webhookUrl }) => {
-  axios.defaults.baseURL = `https://${ctx.configuration.shopName}.myshopify.com`
-  axios.defaults.headers['X-Shopify-Access-Token'] = ctx.configuration.access_token
-  axios.defaults.headers['Content-Type'] = 'application/json'
-
   var arrOfWebhookIds = []
   for (let i = 0; i < ARR_OF_EVENTS.length; i++) {
     const topic = ARR_OF_EVENTS[i] ? '' : ARR_OF_EVENTS[i].toString()
@@ -31,9 +27,18 @@ export const register: RegisterFunction = async ({ client, ctx, logger, webhookU
 async function createWebhook(topic: string, ctx: IntegrationContext<Configuration>, logger, webhookUrl: string) {
   const topicReadable = topic.replace('/', ' ')
 
+  const axiosConfig = {
+    baseURL: `https://${ctx.configuration.shopName}.myshopify.com`,
+    headers: {
+      'X-Shopify-Access-Token': ctx.configuration.access_token,
+      'Content-Type': 'application/json',
+    },
+  }
+
   try {
     let response = await axios.get(
-      `/admin/api/${SHOPIFY_API_VERSION}/webhooks.json?topic=${topic}&address=${webhookUrl}`
+      `/admin/api/${SHOPIFY_API_VERSION}/webhooks.json?topic=${topic}&address=${webhookUrl}`,
+      axiosConfig
     )
 
     if (response.data.webhooks.length > 0) {
@@ -53,6 +58,7 @@ async function createWebhook(topic: string, ctx: IntegrationContext<Configuratio
         address: webhookUrl,
         format: 'json',
       },
+      axiosConfig,
     })
 
     logger

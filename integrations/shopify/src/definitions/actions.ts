@@ -1,5 +1,5 @@
-import { z } from 'zod'
 import { IntegrationDefinitionProps } from '@botpress/sdk'
+import { z } from 'zod'
 
 type ActionDefinition = NonNullable<IntegrationDefinitionProps['actions']>[string]
 
@@ -37,7 +37,7 @@ const getProducts = {
   },
   output: {
     schema: z.object({
-      products_list: z.array(z.object({}).passthrough()),
+      productsList: z.array(z.object({}).passthrough()),
     }),
   },
 } satisfies ActionDefinition
@@ -68,7 +68,7 @@ const getProductVariants = {
   },
   output: {
     schema: z.object({
-      product_variants_list: z.array(z.object({}).passthrough()),
+      productVariantsList: z.array(z.object({}).passthrough()),
     }),
   },
 } satisfies ActionDefinition
@@ -99,7 +99,7 @@ const getCustomers = {
   },
   output: {
     schema: z.object({
-      customers_list: z.array(z.object({}).passthrough()),
+      customersList: z.array(z.object({}).passthrough()),
     }),
   },
 } satisfies ActionDefinition
@@ -131,7 +131,7 @@ const getCustomerOrders = {
   },
   output: {
     schema: z.object({
-      customerOrders_list: z.array(z.object({}).passthrough()),
+      customerOrdersList: z.array(z.object({}).passthrough()),
     }),
   },
 } satisfies ActionDefinition
