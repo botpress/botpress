@@ -1,7 +1,7 @@
+import type { IntegrationContext } from '@botpress/sdk'
 import axios from 'axios'
 import { SHOPIFY_API_VERSION } from '../const'
 import type * as botpress from '.botpress'
-import type { IntegrationContext } from '@botpress/sdk'
 import type { Configuration } from '.botpress/implementation/configuration'
 
 type Implementation = ConstructorParameters<typeof botpress.Integration>[0]

@@ -1,5 +1,6 @@
 import { Client } from '@botpress/client'
 import type { IntegrationContext } from '@botpress/sdk'
+import { orderCancelledSchema } from 'src/schemas/schemas'
 import type { Configuration } from '.botpress/implementation/configuration'
 
 export const fireOrderCancelled = async ({
@@ -31,10 +32,12 @@ export const fireOrderCancelled = async ({
     fullBody: req,
   }
 
+  const parsedObject = orderCancelledSchema.parse(payload)
+
   logger.forBot().info(`Recieved an order cancelled event for ${shopifyEvent.id}`)
 
   await client.createEvent({
     type: 'orderCancelled',
-    payload,
+    payload: parsedObject,
   })
 }

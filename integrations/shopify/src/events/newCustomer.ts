@@ -1,5 +1,6 @@
 import { Client } from '@botpress/client'
 import type { IntegrationContext } from '@botpress/sdk'
+import { newCustomerSchema } from 'src/schemas/schemas'
 import type { Configuration } from '.botpress/implementation/configuration'
 
 export const fireNewCustomer = async ({
@@ -29,10 +30,13 @@ export const fireNewCustomer = async ({
     note: shopifyEvent.note,
   }
 
+
+  const parsedObject = newCustomerSchema.parse(payload)
+
   logger.forBot().info(`Recieved a customer created event for ${shopifyEvent.email}`)
 
   await client.createEvent({
     type: 'newCustomer',
-    payload,
+    payload: parsedObject,
   })
 }

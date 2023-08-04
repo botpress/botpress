@@ -1,5 +1,6 @@
 import { Client } from '@botpress/client'
 import type { IntegrationContext } from '@botpress/sdk'
+import { orderCreatedSchema } from 'src/schemas/schemas'
 import type { Configuration } from '.botpress/implementation/configuration'
 
 export const fireOrderCreated = async ({
@@ -30,10 +31,12 @@ export const fireOrderCreated = async ({
     fullBody: req,
   }
 
+  const parsedObject = orderCreatedSchema.parse(payload)
+
   logger.forBot().info(`Recieved an order created event for ${shopifyEvent.id}`)
 
   await client.createEvent({
     type: 'orderCreated',
-    payload,
+    payload: parsedObject,
   })
 }

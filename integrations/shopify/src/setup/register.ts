@@ -1,15 +1,15 @@
+import type { IntegrationContext } from '@botpress/sdk'
 import axios from 'axios'
 
-import type * as botpress from '.botpress'
 import { ARR_OF_EVENTS, SHOPIFY_API_VERSION } from '../const'
-import type { IntegrationContext } from '@botpress/sdk'
+import type * as botpress from '.botpress'
 import type { Configuration } from '.botpress/implementation/configuration'
 
 type Implementation = ConstructorParameters<typeof botpress.Integration>[0]
 type RegisterFunction = Implementation['register']
 
 export const register: RegisterFunction = async ({ client, ctx, logger, webhookUrl }) => {
-  var arrOfWebhookIds = []
+  const arrOfWebhookIds = []
   for (let i = 0; i < ARR_OF_EVENTS.length; i++) {
     const topic = ARR_OF_EVENTS[i] ? '' : ARR_OF_EVENTS[i].toString()
     const webhookId = await createWebhook(topic, ctx, logger, webhookUrl)
@@ -54,7 +54,7 @@ async function createWebhook(topic: string, ctx: IntegrationContext<Configuratio
 
     response = await axios.post(`/admin/api/${SHOPIFY_API_VERSION}/webhooks.json`, {
       webhook: {
-        topic: topic,
+        topic,
         address: webhookUrl,
         format: 'json',
       },

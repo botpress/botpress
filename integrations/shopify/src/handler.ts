@@ -1,6 +1,6 @@
-import { fireOrderCreated } from './events/orderCreated'
-import { fireOrderCancelled } from './events/orderCancelled'
 import { fireNewCustomer } from './events/newCustomer'
+import { fireOrderCancelled } from './events/orderCancelled'
+import { fireOrderCreated } from './events/orderCreated'
 import * as botpress from '.botpress'
 
 export const handler: botpress.IntegrationProps['handler'] = async ({ req, client, ctx, logger }) => {

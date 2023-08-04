@@ -1,6 +1,6 @@
 import '@botpress/client'
-import { getCustomers } from './get-customers'
 import { getCustomerOrders } from './get-customerOrders'
+import { getCustomers } from './get-customers'
 import { getProducts } from './get-products'
 import { getProductVariants } from './get-productVariant'
 
