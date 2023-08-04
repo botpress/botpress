@@ -1,6 +1,6 @@
 import { jsonSchemaToTypeScriptZod } from '../generators'
 import { Module } from '../module'
-import type * as types from '../typings'
+import type * as types from './types'
 
 export class ConfigurationModule extends Module {
   public static async create(configuration: types.ConfigurationDefinition): Promise<ConfigurationModule> {

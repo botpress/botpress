@@ -1,31 +1,31 @@
-import { mapValues } from 'radash'
-import { SchemaDefinition, schemaDefinitionToJsonSchema } from '../schema'
-import { AnyZodObject, Cast, Iof, Merge } from '../type-utils'
+/* eslint-disable brace-style */
+import { SchemaDefinition } from '../schema'
+import { AnyZodObject } from '../type-utils'
 
-const PUBLIC_VERSION = '0.2.0' as const
-const PRIVATE_VERSION = '0.0.1' as const
-
-export type JsonSchema = Record<string, any>
+type BaseConfig = AnyZodObject
+type BaseEvents = Record<string, AnyZodObject>
+type BaseActions = Record<string, Record<'input' | 'output', AnyZodObject>>
+type BaseChannels = Record<string, Record<string, AnyZodObject>>
+type BaseStates = Record<string, AnyZodObject>
 
 export type TagDefinition = {
   title?: string
   description?: string
 }
 
-export type ConfigurationDefinition = {
-  schema: JsonSchema
-}
+export type ConfigurationDefinition<TConfig extends BaseConfig> = SchemaDefinition<TConfig>
 
-export type EventDefinition = {
+export type EventDefinition<TEvent extends BaseEvents[string]> = SchemaDefinition<TEvent> & {
   title?: string
   description?: string
-  schema: JsonSchema
 }
 
-export type ChannelDefinition = {
+export type ChannelDefinition<TChannel extends BaseChannels[string]> = {
   title?: string
   description?: string
-  messages: Record<string, MessageDefinition>
+  messages: {
+    [K in keyof TChannel]: SchemaDefinition<TChannel[K]>
+  }
   message?: {
     tags?: Record<string, TagDefinition>
   }
@@ -38,20 +38,15 @@ export type ChannelDefinition = {
   }>
 }
 
-export type ActionDefinition = {
+export type ActionDefinition<TAction extends BaseActions[string]> = {
   title?: string
   description?: string
-  input: { schema: JsonSchema }
-  output: { schema: JsonSchema }
+  input: SchemaDefinition<TAction['input']>
+  output: SchemaDefinition<TAction['output']>
 }
 
-export type MessageDefinition = {
-  schema: JsonSchema
-}
-
-export type StateDefinition = {
+export type StateDefinition<TState extends BaseStates[string]> = SchemaDefinition<TState> & {
   type: 'integration' | 'conversation' | 'user'
-  schema: JsonSchema
 }
 
 export type UserDefinition = Partial<{
@@ -62,53 +57,34 @@ export type UserDefinition = Partial<{
   }
 }>
 
-type BaseConfig = AnyZodObject
-type BaseEvents = Record<string, AnyZodObject>
-type BaseActions = Record<string, Record<'input' | 'output', AnyZodObject>>
-type BaseChannels = Record<string, Record<string, AnyZodObject>>
-type BaseStates = Record<string, AnyZodObject>
-
 export type IntegrationDefinitionProps<
   TConfig extends BaseConfig = BaseConfig,
-  TEvent extends BaseEvents = BaseEvents,
-  TAction extends BaseActions = BaseActions,
-  TChannel extends BaseChannels = BaseChannels,
-  TState extends BaseStates = BaseStates
+  TEvents extends BaseEvents = BaseEvents,
+  TActions extends BaseActions = BaseActions,
+  TChannels extends BaseChannels = BaseChannels,
+  TStates extends BaseStates = BaseStates
 > = {
   name: string
-  version: typeof PUBLIC_VERSION | typeof PRIVATE_VERSION // TODO: allow any versions
+  version: '0.2.0' | '0.0.1' // TODO: allow any version
 
   title?: string
   description?: string
   icon?: string
   readme?: string
 
-  configuration?: Merge<ConfigurationDefinition, SchemaDefinition<TConfig>>
-  events?: { [K in keyof TEvent]: Merge<EventDefinition, SchemaDefinition<TEvent[K]>> }
+  configuration?: ConfigurationDefinition<TConfig>
+  events?: { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
 
   actions?: {
-    [K in keyof TAction]: Merge<
-      ActionDefinition,
-      {
-        ['input']: SchemaDefinition<Cast<TAction[K]['input'], AnyZodObject>>
-        ['output']: SchemaDefinition<Cast<TAction[K]['output'], AnyZodObject>>
-      }
-    >
+    [K in keyof TActions]: ActionDefinition<TActions[K]>
   }
 
   channels?: {
-    [K in keyof TChannel]: Merge<
-      ChannelDefinition,
-      {
-        messages: {
-          [L in keyof TChannel[K]]: Merge<MessageDefinition, SchemaDefinition<TChannel[K][L]>>
-        }
-      }
-    >
+    [K in keyof TChannels]: ChannelDefinition<TChannels[K]>
   }
 
   states?: {
-    [K in keyof TState]: Merge<StateDefinition, SchemaDefinition<TState[K]>>
+    [K in keyof TStates]: StateDefinition<TStates[K]>
   }
 
   user?: UserDefinition
@@ -116,72 +92,27 @@ export type IntegrationDefinitionProps<
   secrets?: string[]
 }
 
-const propsToDefinition = (
-  props: IntegrationDefinitionProps<BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates>
-): Iof<IntegrationDefinition> => ({
-  ...props,
-  configuration: props.configuration
-    ? {
-        ...props.configuration,
-        schema: schemaDefinitionToJsonSchema(props.configuration),
-      }
-    : undefined,
-  events: props.events
-    ? mapValues(props.events, (event) => ({
-        ...event,
-        schema: schemaDefinitionToJsonSchema(event),
-      }))
-    : undefined,
-  actions: props.actions
-    ? mapValues(props.actions, (action) => ({
-        ...action,
-        input: {
-          ...action.input,
-          schema: schemaDefinitionToJsonSchema(action.input),
-        },
-        output: {
-          ...action.output,
-          schema: schemaDefinitionToJsonSchema(action.output),
-        },
-      }))
-    : undefined,
-  channels: props.channels
-    ? mapValues(props.channels, (channel) => ({
-        ...channel,
-        messages: mapValues(channel.messages, (message) => ({
-          ...message,
-          schema: schemaDefinitionToJsonSchema(message),
-        })),
-      }))
-    : undefined,
-  states: props.states
-    ? mapValues(props.states, (state) => ({
-        ...state,
-        schema: schemaDefinitionToJsonSchema(state),
-      }))
-    : undefined,
-})
-
 export class IntegrationDefinition<
   TConfig extends BaseConfig = BaseConfig,
   TEvents extends BaseEvents = BaseEvents,
   TActions extends BaseActions = BaseActions,
   TChannels extends BaseChannels = BaseChannels,
   TStates extends BaseStates = BaseStates
-> {
-  public readonly name: string
-  public readonly version: typeof PUBLIC_VERSION | typeof PRIVATE_VERSION // TODO: allow any versions
-  public readonly title?: string
-  public readonly description?: string
-  public readonly icon?: string
-  public readonly readme?: string
-  public readonly configuration?: ConfigurationDefinition
-  public readonly events?: Record<string, EventDefinition>
-  public readonly actions?: Record<string, ActionDefinition>
-  public readonly channels?: Record<string, ChannelDefinition>
-  public readonly states?: Record<string, StateDefinition>
-  public readonly user?: UserDefinition
-  public readonly secrets?: string[]
+> implements IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>
+{
+  public name: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['name']
+  public version: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['version']
+  public title: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['title']
+  public description: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['description']
+  public icon: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['icon']
+  public readme: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['readme']
+  public configuration: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['configuration']
+  public events: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['events']
+  public actions: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['actions']
+  public channels: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['channels']
+  public states: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['states']
+  public user: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['user']
+  public secrets: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['secrets']
 
   public constructor(props: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>) {
     const {
@@ -198,7 +129,7 @@ export class IntegrationDefinition<
       states,
       user,
       secrets,
-    } = propsToDefinition(props)
+    } = props
     this.name = name
     this.version = version
     this.icon = icon

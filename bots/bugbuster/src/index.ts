@@ -16,7 +16,10 @@ const LINEAR_ISSUE_CHANNEL = 'issue' satisfies LINEAR_CHANNELS
 const LINEAR_CONVERSATION_TAG_ID = 'linear:id' satisfies LINEAR_CONVERSATION_TAG
 
 const bot = new Bot({
-  integrations: [github, linear],
+  integrations: {
+    github,
+    linear,
+  },
   states: {},
   events: {},
 })

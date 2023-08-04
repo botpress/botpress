@@ -1,20 +1,20 @@
 import bluebird from 'bluebird'
 import { casing } from '../../utils'
-import { jsonSchemaToTypeScriptType } from '../generators'
+import { zodToTypeScriptType } from '../generators'
 import { Module, ModuleDef, ReExportTypeModule } from '../module'
-import type * as types from '../typings'
+import type * as types from './types'
 
 type ActionInput = types.ActionDefinition['input']
 type ActionOutput = types.ActionDefinition['output']
 
 export class ActionInputModule extends Module {
   public static async create(input: ActionInput): Promise<ActionInputModule> {
-    const schema = input.schema ?? {}
+    const schema = input.schema
     const name = 'input'
     const def: ModuleDef = {
       path: `${name}.ts`,
       exportName: 'Input',
-      content: await jsonSchemaToTypeScriptType(schema, name),
+      content: await zodToTypeScriptType(schema, name),
     }
     return new ActionInputModule(def)
   }
@@ -22,12 +22,12 @@ export class ActionInputModule extends Module {
 
 export class ActionOutputModule extends Module {
   public static async create(output: ActionOutput): Promise<ActionOutputModule> {
-    const schema = output.schema ?? {}
+    const schema = output.schema
     const name = 'output'
     const def: ModuleDef = {
       path: `${name}.ts`,
       exportName: 'Output',
-      content: await jsonSchemaToTypeScriptType(schema, name),
+      content: await zodToTypeScriptType(schema, name),
     }
     return new ActionOutputModule(def)
   }
@@ -35,8 +35,8 @@ export class ActionOutputModule extends Module {
 
 export class ActionModule extends ReExportTypeModule {
   public static async create(actionName: string, action: types.ActionDefinition): Promise<ActionModule> {
-    const inputModule = await ActionInputModule.create(action.input ?? {})
-    const outputModule = await ActionOutputModule.create(action.output ?? {})
+    const inputModule = await ActionInputModule.create(action.input)
+    const outputModule = await ActionOutputModule.create(action.output)
 
     const inst = new ActionModule({
       exportName: `Action${casing.to.pascalCase(actionName)}`,
