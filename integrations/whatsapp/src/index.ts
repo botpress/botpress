@@ -94,7 +94,7 @@ const integration = new Integration({
     },
   },
   handler: async ({ req, client, ctx, logger }) => {
-    logger.forBot().debug('Handler received request from Whatsapp')
+    logger.forBot().debug('Handler received request from Whatsapp with payload:', req.body)
 
     if (req.query) {
       const query = queryString.parse(req.query)
@@ -142,6 +142,7 @@ const integration = new Integration({
       for (const { changes } of data.entry) {
         for (const change of changes) {
           if (!change.value.messages) {
+            // If the change doesn't contain messages we can ignore it, as we don't currently process other change types (such as statuses).
             continue
           }
 

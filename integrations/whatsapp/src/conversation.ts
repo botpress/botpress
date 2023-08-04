@@ -106,7 +106,7 @@ export async function createConversation({
     .forBot()
     .info(
       `Successfully started Whatsapp conversation with template "${templateName}" and language "${templateLanguage}"${
-        templateVariables
+        templateVariables && templateVariables.length
           ? ` using template variables: ${JSON.stringify(templateVariables)}`
           : ' without template variables'
       }`
