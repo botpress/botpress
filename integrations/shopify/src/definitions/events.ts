@@ -2,7 +2,6 @@ import { IntegrationDefinitionProps } from '@botpress/sdk'
 import { newCustomerSchema, orderCancelledSchema, orderCreatedSchema } from 'src/schemas/schemas'
 import z from 'zod'
 
-
 export type OrderCreated = z.infer<typeof orderCreated.schema>
 
 const orderCreated = {

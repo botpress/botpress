@@ -30,7 +30,6 @@ export const fireNewCustomer = async ({
     note: shopifyEvent.note,
   }
 
-
   const parsedObject = newCustomerSchema.parse(payload)
 
   logger.forBot().info(`Recieved a customer created event for ${shopifyEvent.email}`)
