@@ -1,6 +1,6 @@
 {
   "name": "@botpresshub/whatsapp",
-  "version": "0.3.0",
+  "version": "0.2.0",
   "description": "Whatsapp integration for Botpress",
   "private": true,
   "scripts": {
