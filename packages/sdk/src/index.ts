@@ -8,7 +8,8 @@ export {
   IntegrationImplementation as Integration,
   IntegrationImplementationProps as IntegrationProps,
   IntegrationContext,
+  IntegrationSpecificClient,
   AckFunction,
 } from './integration'
 
-export { Bot, BotProps, IntegrationInstance, BotContext } from './bot'
+export { Bot, BotProps, BotContext, BotSpecificClient, IntegrationInstance } from './bot'
