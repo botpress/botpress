@@ -1,4 +1,4 @@
-import type { Bot as BotType, Event } from '@botpress/client'
+import type * as bpclient from '@botpress/client'
 import type { Server } from 'node:http'
 import { SchemaDefinition } from '../schema'
 import { serve } from '../serve'
@@ -8,15 +8,15 @@ import { createBotHandler } from './server'
 import type { BotState, EventHandler, MessageHandler, StateExpiredHandler } from './state'
 
 export type RegisterBotPayload = {
-  bot: BotType
+  bot: bpclient.Bot
 }
 
 export type UnregisterBotPayload = {
-  bot: BotType
+  bot: bpclient.Bot
 }
 
 export type EventReceivedBotPayload = {
-  event: Event
+  event: bpclient.Event
 }
 
 type BaseIntegrations = string

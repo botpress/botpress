@@ -26,14 +26,14 @@ const bot = new Bot({
 
 const createLinearIssue = async (
   client: Client,
-  issue: z.infer<typeof linear.definition.actions.createIssue.input>
-): Promise<z.infer<typeof linear.definition.actions.createIssue.output>> => {
+  issue: z.infer<typeof linear.definition.actions.createIssue.input.schema>
+): Promise<z.infer<typeof linear.definition.actions.createIssue.output.schema>> => {
   const { output } = await client.callAction({
     type: 'linear:createIssue',
     input: issue,
   })
 
-  const parseResult = linear.definition.actions.createIssue.output.safeParse(output)
+  const parseResult = linear.definition.actions.createIssue.output.schema.safeParse(output)
   if (!parseResult.success) {
     throw new Error(`Invalid output: ${parseResult.error}`)
   }
@@ -47,7 +47,7 @@ bot.event(async ({ event, client, ctx }) => {
     return
   }
 
-  const parseResult = github.definition.events.issueOpened.safeParse(payload)
+  const parseResult = github.definition.events.issueOpened.schema.safeParse(payload)
   if (!parseResult.success) {
     throw new Error(`Invalid payload: ${parseResult.error}`)
   }
@@ -79,7 +79,7 @@ bot.event(async ({ event, client, ctx }) => {
     tags: {},
     payload: {
       text: `Automatically created from GitHub issue: ${issueUrl}`,
-    } satisfies z.infer<typeof linear.definition.channels.issue.messages.text>,
+    } satisfies z.infer<typeof linear.definition.channels.issue.messages.text.schema>,
   })
 })
 

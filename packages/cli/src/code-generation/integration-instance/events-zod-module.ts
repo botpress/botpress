@@ -1,7 +1,8 @@
 import bluebird from 'bluebird'
 import { casing } from '../../utils'
 import { jsonSchemaToTypeScriptZod } from '../generators'
-import { Module, ModuleDef, ReExportSchemaModule } from '../module'
+import { Module, ModuleDef } from '../module'
+import { ReExportSchemaModule } from './schema-module'
 import type * as types from './types'
 
 export class EventModule extends Module {

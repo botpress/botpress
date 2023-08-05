@@ -12,6 +12,7 @@ export class IntegrationInstanceIndexModule extends Module {
     const { name } = integration
 
     const configModule = await ConfigurationModule.create(integration.configuration ?? { schema: {} })
+    configModule.unshift('configuration')
 
     const actionsModule = await ActionsModule.create(integration.actions ?? {})
     actionsModule.unshift('actions')
@@ -77,14 +78,14 @@ export class IntegrationInstanceIndexModule extends Module {
       `import { ${channelsModule.exports} } from "./${channelsImport}"`,
       `import { ${eventsModule.exports} } from "./${eventsImport}"`,
       '',
-      `type Configuration = z.infer<typeof ${configModule.exports}>`,
+      `type Configuration = z.infer<typeof ${configModule.exports}.schema>`,
       '',
       `export type ${propsName} = {`,
       '  enabled?: boolean',
       '  config?: Configuration',
       '}',
       '',
-      `export class ${className} implements IntegrationInstance {`,
+      `export class ${className} implements IntegrationInstance<'${name}'> {`,
       '',
       `  public readonly name = '${name}'`,
       `  public readonly version = '${version}'`,
