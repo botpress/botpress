@@ -367,8 +367,8 @@ async function getUserDetails({ ctx, id }: { ctx: IntegrationContext; id: string
   return data.user
 }
 
-type Card = channels.Channels['channel']['card']
-type CardAction = channels.Channels['channel']['card']['actions'][number]
+type Card = channels.channel.card.Card
+type CardAction = channels.channel.card.Card['actions'][number]
 
 const renderCard = (payload: Card) => {
   const card = [
@@ -445,7 +445,7 @@ function renderButtonSay(action: CardAction) {
   }
 }
 
-type Choice = channels.Channels['channel']['choice']
+type Choice = channels.channel.choice.Choice
 
 function renderChoice(payload: Choice) {
   const choice = [

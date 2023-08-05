@@ -3,6 +3,7 @@ import type { Server } from 'node:http'
 import { SchemaDefinition } from '../schema'
 import { serve } from '../serve'
 import { AnyZodObject } from '../type-utils'
+import { IntegrationInstance } from './integration-instance'
 import { createBotHandler } from './server'
 import type { BotState, EventHandler, MessageHandler, StateExpiredHandler } from './state'
 
@@ -22,44 +23,35 @@ type BaseIntegrations = string
 type BaseStates = Record<string, AnyZodObject>
 type BaseEvents = Record<string, AnyZodObject>
 
-export type TagDefinition = {
+type TagDefinition = {
   title?: string
   description?: string
 }
 
-export type StateDefinition<TState extends BaseStates[string]> = SchemaDefinition<TState> & {
+type StateDefinition<TState extends BaseStates[string]> = SchemaDefinition<TState> & {
   type: 'conversation' | 'user' | 'bot'
   expiry?: number
 }
 
-export type IntegrationInstance<Name extends string> = {
-  id: string
-  enabled?: boolean
-  configuration?: Record<string, any>
-
-  name: Name
-  version: string
-}
-
-export type RecurringEventDefinition = {
+type RecurringEventDefinition = {
   type: string
   payload: Record<string, any>
   schedule: { cron: string }
 }
 
-export type EventDefinition<TEvent extends BaseEvents[string]> = SchemaDefinition<TEvent>
+type EventDefinition<TEvent extends BaseEvents[string]> = SchemaDefinition<TEvent>
 
-export type ConfigurationDefinition = SchemaDefinition
+type ConfigurationDefinition = SchemaDefinition
 
-export type UserDefinition = {
+type UserDefinition = {
   tags?: Record<string, TagDefinition>
 }
 
-export type ConversationDefinition = {
+type ConversationDefinition = {
   tags?: Record<string, TagDefinition>
 }
 
-export type MessageDefinition = {
+type MessageDefinition = {
   tags?: Record<string, TagDefinition>
 }
 
@@ -103,16 +95,16 @@ export class Bot<
     this.props = props
   }
 
-  public message = (handler: MessageHandler): void => {
+  public readonly message = (handler: MessageHandler): void => {
     this._state.messageHandlers.push(handler)
   }
-  public event = (handler: EventHandler): void => {
+  public readonly event = (handler: EventHandler): void => {
     this._state.eventHandlers.push(handler)
   }
-  public stateExpired = (handler: StateExpiredHandler): void => {
+  public readonly stateExpired = (handler: StateExpiredHandler): void => {
     this._state.stateExpiredHandlers.push(handler)
   }
 
-  public handler = createBotHandler(this._state)
-  public start = (port?: number): Promise<Server> => serve(this.handler, port)
+  public readonly handler = createBotHandler(this._state)
+  public readonly start = (port?: number): Promise<Server> => serve(this.handler, port)
 }

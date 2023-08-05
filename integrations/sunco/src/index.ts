@@ -196,7 +196,7 @@ const integration = new Integration({
 
 export default sentryHelpers.wrapIntegration(integration)
 
-type Choice = channels.Channels['channel']['choice']
+type Choice = channels.channel.choice.Choice
 
 function renderChoiceMessage(payload: Choice) {
   return {
@@ -206,7 +206,7 @@ function renderChoiceMessage(payload: Choice) {
   }
 }
 
-type Carousel = channels.Channels['channel']['carousel']
+type Carousel = channels.channel.carousel.Carousel
 
 const sendCarousel = async (props: SendMessageProps, payload: Carousel) => {
   const items: SmoochCard[] = []

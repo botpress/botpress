@@ -179,11 +179,11 @@ function getRequestMetadata(conversation: Conversation) {
   return { to: userId, from: channelId, channel }
 }
 
-type Dropdown = channels.Channels['channel']['dropdown']
-type Choice = channels.Channels['channel']['choice']
-type Carousel = channels.Channels['channel']['carousel']
-type Card = channels.Channels['channel']['card']
-type Location = channels.Channels['channel']['location']
+type Dropdown = channels.channel.dropdown.Dropdown
+type Choice = channels.channel.choice.Choice
+type Carousel = channels.channel.carousel.Carousel
+type Card = channels.channel.card.Card
+type Location = channels.channel.location.Location
 
 function formatLocationPayload(payload: Location) {
   return {

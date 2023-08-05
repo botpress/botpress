@@ -10,24 +10,9 @@ type Entries<T> = {
   [K in keyof T]: [K, T[K]]
 }[keyof T][]
 
-type ConfigOf<I extends Integration> = I extends Integration<infer TConfig, any, any, any> ? TConfig : never
-type ActionsOf<I extends Integration> = I extends Integration<any, infer TActions, any, any> ? TActions : never
-type ChannelsOf<I extends Integration> = I extends Integration<any, any, infer TChannels, any> ? TChannels : never
-type EventsOf<I extends Integration> = I extends Integration<any, any, any, infer TEvents> ? TEvents : never
+type Tof<I extends Integration> = I extends Integration<infer T> ? T : never
 
-type BaseConfig = ConfigOf<Integration>
-type BaseActions = ActionsOf<Integration>
-type BaseChannels = ChannelsOf<Integration>
-type BaseEvents = EventsOf<Integration>
-
-export const wrapIntegration = <
-  TConfig extends BaseConfig,
-  TActions extends BaseActions,
-  TChannels extends BaseChannels,
-  TEvents extends BaseEvents
->(
-  integration: Integration<TConfig, TActions, TChannels, TEvents>
-) => {
+export const wrapIntegration = <T extends Tof<Integration>>(integration: Integration<T>) => {
   type ActionFunctions = typeof integration.props.actions
   const actionsEntries: Entries<ActionFunctions> = Object.entries(integration.props.actions)
   const actions = actionsEntries.reduce((acc, [actionType, action]) => {
@@ -48,7 +33,7 @@ export const wrapIntegration = <
     return acc
   }, {} as ChannelFunctions)
 
-  const integrationProps: IntegrationProps<TConfig, TActions, TChannels, TEvents> = {
+  const integrationProps: IntegrationProps<T> = {
     register: wrapFunction(integration.props.register),
     unregister: wrapFunction(integration.props.unregister),
     handler: wrapFunction(integration.props.handler),
@@ -64,7 +49,7 @@ export const wrapIntegration = <
     integrationProps.createConversation = wrapFunction(integration.props.createConversation)
   }
 
-  return new Integration<TConfig, TActions, TChannels, TEvents>(integrationProps)
+  return new Integration<T>(integrationProps)
 }
 
 function wrapFunction(fn: Function) {

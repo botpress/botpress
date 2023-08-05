@@ -1,4 +1,3 @@
-/* eslint-disable brace-style */
 import { SchemaDefinition } from '../schema'
 import { AnyZodObject } from '../type-utils'
 
@@ -8,19 +7,19 @@ type BaseActions = Record<string, Record<'input' | 'output', AnyZodObject>>
 type BaseChannels = Record<string, Record<string, AnyZodObject>>
 type BaseStates = Record<string, AnyZodObject>
 
-export type TagDefinition = {
+type TagDefinition = {
   title?: string
   description?: string
 }
 
-export type ConfigurationDefinition<TConfig extends BaseConfig> = SchemaDefinition<TConfig>
+type ConfigurationDefinition<TConfig extends BaseConfig> = SchemaDefinition<TConfig>
 
-export type EventDefinition<TEvent extends BaseEvents[string]> = SchemaDefinition<TEvent> & {
+type EventDefinition<TEvent extends BaseEvents[string]> = SchemaDefinition<TEvent> & {
   title?: string
   description?: string
 }
 
-export type ChannelDefinition<TChannel extends BaseChannels[string]> = {
+type ChannelDefinition<TChannel extends BaseChannels[string]> = {
   title?: string
   description?: string
   messages: {
@@ -38,18 +37,18 @@ export type ChannelDefinition<TChannel extends BaseChannels[string]> = {
   }>
 }
 
-export type ActionDefinition<TAction extends BaseActions[string]> = {
+type ActionDefinition<TAction extends BaseActions[string]> = {
   title?: string
   description?: string
   input: SchemaDefinition<TAction['input']>
   output: SchemaDefinition<TAction['output']>
 }
 
-export type StateDefinition<TState extends BaseStates[string]> = SchemaDefinition<TState> & {
+type StateDefinition<TState extends BaseStates[string]> = SchemaDefinition<TState> & {
   type: 'integration' | 'conversation' | 'user'
 }
 
-export type UserDefinition = Partial<{
+type UserDefinition = Partial<{
   tags: Record<string, TagDefinition>
   creation: {
     enabled: boolean
@@ -98,21 +97,26 @@ export class IntegrationDefinition<
   TActions extends BaseActions = BaseActions,
   TChannels extends BaseChannels = BaseChannels,
   TStates extends BaseStates = BaseStates
-> implements IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>
-{
-  public name: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['name']
-  public version: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['version']
-  public title: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['title']
-  public description: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['description']
-  public icon: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['icon']
-  public readme: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['readme']
-  public configuration: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['configuration']
-  public events: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['events']
-  public actions: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['actions']
-  public channels: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['channels']
-  public states: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['states']
-  public user: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['user']
-  public secrets: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['secrets']
+> {
+  public readonly name: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['name']
+  public readonly version: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['version']
+  public readonly title: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['title']
+  public readonly description: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['description']
+  public readonly icon: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['icon']
+  public readonly readme: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['readme']
+  public readonly configuration: IntegrationDefinitionProps<
+    TConfig,
+    TEvents,
+    TActions,
+    TChannels,
+    TStates
+  >['configuration']
+  public readonly events: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['events']
+  public readonly actions: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['actions']
+  public readonly channels: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['channels']
+  public readonly states: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['states']
+  public readonly user: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['user']
+  public readonly secrets: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['secrets']
 
   public constructor(props: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>) {
     const {

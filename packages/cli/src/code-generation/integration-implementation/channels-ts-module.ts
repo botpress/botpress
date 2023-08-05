@@ -1,5 +1,6 @@
 import bluebird from 'bluebird'
 import { casing } from '../../utils'
+import { GENERATED_HEADER, INDEX_FILE } from '../const'
 import { zodToTypeScriptType } from '../generators'
 import { Module, ModuleDef, ReExportTypeModule } from '../module'
 import type * as types from './types'
@@ -16,18 +17,54 @@ export class MessageModule extends Module {
   }
 }
 
-export class ChannelModule extends ReExportTypeModule {
-  public static async create(channelName: string, channel: types.ChannelDefinition): Promise<ChannelModule> {
+export class MessagesModule extends ReExportTypeModule {
+  public static async create(channel: types.ChannelDefinition): Promise<MessagesModule> {
     const messages = channel.messages ?? {}
     const messageModules = await bluebird.map(Object.entries(messages), ([messageName, message]) =>
       MessageModule.create(messageName, message)
     )
 
-    const inst = new ChannelModule({
-      exportName: `Channel${casing.to.pascalCase(channelName)}`,
+    const inst = new MessagesModule({
+      exportName: 'Messages',
     })
     inst.pushDep(...messageModules)
     return inst
+  }
+}
+
+export class ChannelModule extends Module {
+  public static async create(channelName: string, channel: types.ChannelDefinition): Promise<ChannelModule> {
+    const messagesModule = await MessagesModule.create(channel)
+    messagesModule.unshift('messages')
+
+    const inst = new ChannelModule(messagesModule, {
+      path: INDEX_FILE,
+      exportName: `Channel${casing.to.pascalCase(channelName)}`,
+      content: '',
+    })
+
+    inst.pushDep(messagesModule)
+    return inst
+  }
+
+  private constructor(private messageModules: MessageModule, def: ModuleDef) {
+    super(def)
+  }
+
+  public override get content() {
+    const { messageModules } = this
+    const messageImport = messageModules.import(this)
+    return [
+      GENERATED_HEADER,
+      `import { ${messageModules.exports} } from './${messageImport}'`,
+      `export * from './${messageImport}'`,
+      '',
+      `export type ${this.exports} = {`,
+      `  messages: ${messageModules.exports}`,
+      '  message: { tags: {} }', // TODO: implement message
+      '  conversation: { tags: {}; creation: { enabled: false; requiredTags: [] } }', // TODO: implement conversation
+      '}',
+    ].join('\n')
   }
 }
 

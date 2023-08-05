@@ -142,11 +142,11 @@ const integration = new Integration({
 
 export default sentryHelpers.wrapIntegration(integration)
 
-type Carousel = channels.Channels['channel']['carousel']
-type Card = channels.Channels['channel']['card']
-type Choice = channels.Channels['channel']['choice']
-type Dropdown = channels.Channels['channel']['dropdown']
-type Location = channels.Channels['channel']['location']
+type Carousel = channels.channel.carousel.Carousel
+type Card = channels.channel.card.Card
+type Choice = channels.channel.choice.Choice
+type Dropdown = channels.channel.dropdown.Dropdown
+type Location = channels.channel.location.Location
 
 type MessengerAttachment = MessengerPostbackAttachment | MessengerSayAttachment | MessengerUrlAttachment
 

@@ -160,7 +160,7 @@ const integration = new Integration({
 
 export default sentryHelpers.wrapIntegration(integration)
 
-type Choice = channels.Channels['channel']['choice']
+type Choice = channels.channel.choice.Choice
 
 function renderChoiceMessage(payload: Choice) {
   return `${payload.text || ''}\n\n${payload.options
@@ -168,7 +168,7 @@ function renderChoiceMessage(payload: Choice) {
     .join('\n')}`
 }
 
-type Card = channels.Channels['channel']['card']
+type Card = channels.channel.card.Card
 
 function renderCard(card: Card, total?: string): string {
   return `${total ? `${total}: ` : ''}${card.title}\n\n${card.subtitle || ''}\n\n${card.actions
