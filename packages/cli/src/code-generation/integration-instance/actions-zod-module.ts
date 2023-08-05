@@ -1,7 +1,8 @@
 import bluebird from 'bluebird'
 import { casing } from '../../utils'
 import { jsonSchemaToTypeScriptZod } from '../generators'
-import { Module, ModuleDef, ReExportSchemaModule } from '../module'
+import { Module, ModuleDef, ReExportConstantModule } from '../module'
+import { ReExportSchemaModule } from './schema-module'
 import type * as types from './types'
 
 type ActionInput = types.ActionDefinition['input']
@@ -49,7 +50,7 @@ export class ActionModule extends ReExportSchemaModule {
   }
 }
 
-export class ActionsModule extends ReExportSchemaModule {
+export class ActionsModule extends ReExportConstantModule {
   public static async create(actions: Record<string, types.ActionDefinition>): Promise<ActionsModule> {
     const actionModules = await bluebird.map(Object.entries(actions), async ([actionName, action]) => {
       const mod = await ActionModule.create(actionName, action)

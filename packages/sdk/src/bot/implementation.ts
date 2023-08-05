@@ -1,7 +1,7 @@
 import type { Server } from 'node:http'
 import { SchemaDefinition } from '../schema'
 import { serve } from '../serve'
-import { AnyZodObject, Cast } from '../type-utils'
+import { AnyZodObject } from '../type-utils'
 import { IntegrationInstance } from './integration-instance'
 import { createBotHandler } from './server'
 import type { BotState, EventHandler, MessageHandler, StateExpiredHandler } from './state'
@@ -10,7 +10,7 @@ import type { BotState, EventHandler, MessageHandler, StateExpiredHandler } from
  * Bot type argument for smart intellisense and type inference
  */
 type TBot = {
-  integrations: Record<string, any>
+  integrations: string
   states: Record<string, AnyZodObject>
   events: Record<string, AnyZodObject>
 }
@@ -49,7 +49,7 @@ type MessageDefinition = {
 
 export type BotProps<T extends TBot = TBot> = {
   integrations?: {
-    [K in keyof T['integrations']]: IntegrationInstance<Cast<K, string>>
+    [K in T['integrations']]: IntegrationInstance<K>
   }
   user?: UserDefinition
   conversation?: ConversationDefinition
