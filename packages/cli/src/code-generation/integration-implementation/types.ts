@@ -10,3 +10,4 @@ export type MessageDefinition = Def<ChannelDefinition['messages']>[string]
 export type ActionDefinition = Def<IntegrationDefinition['actions']>[string]
 export type EventDefinition = Def<IntegrationDefinition['events']>[string]
 export type StateDefinition = Def<IntegrationDefinition['states']>[string]
+export type UserDefinition = Def<IntegrationDefinition['user']>

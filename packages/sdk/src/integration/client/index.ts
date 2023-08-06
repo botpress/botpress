@@ -5,7 +5,7 @@ import * as routes from './routes'
 /**
  * Just like the regular botpress client, but typed with the integration's properties.
  */
-export class IntegrationSpecificClient<TIntegration extends Integration = Integration> {
+export class IntegrationSpecificClient<TIntegration extends Integration<any>> {
   public constructor(private readonly client: Client) {}
 
   public createConversation: routes.CreateConversation<TIntegration> = (x) => this.client.createConversation(x)

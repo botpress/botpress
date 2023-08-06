@@ -1,7 +1,7 @@
 import bluebird from 'bluebird'
 import { casing } from '../../utils'
 import { GENERATED_HEADER, INDEX_FILE } from '../const'
-import { zodToTypeScriptType } from '../generators'
+import { stringifySingleLine, zodToTypeScriptType } from '../generators'
 import { Module, ModuleDef, ReExportTypeModule } from '../module'
 import type * as types from './types'
 
@@ -37,7 +37,7 @@ export class ChannelModule extends Module {
     const messagesModule = await MessagesModule.create(channel)
     messagesModule.unshift('messages')
 
-    const inst = new ChannelModule(messagesModule, {
+    const inst = new ChannelModule(messagesModule, channel, {
       path: INDEX_FILE,
       exportName: `Channel${casing.to.pascalCase(channelName)}`,
       content: '',
@@ -47,13 +47,20 @@ export class ChannelModule extends Module {
     return inst
   }
 
-  private constructor(private messageModules: MessageModule, def: ModuleDef) {
+  private constructor(private messageModules: MessageModule, private channel: types.ChannelDefinition, def: ModuleDef) {
     super(def)
   }
 
   public override get content() {
     const { messageModules } = this
     const messageImport = messageModules.import(this)
+
+    const message = { tags: this.channel.message?.tags }
+    const conversation = {
+      tags: this.channel.conversation?.tags ?? {},
+      creation: this.channel.conversation?.creation ?? { enabled: false, requiredTags: [] },
+    }
+
     return [
       GENERATED_HEADER,
       `import { ${messageModules.exports} } from './${messageImport}'`,
@@ -61,8 +68,8 @@ export class ChannelModule extends Module {
       '',
       `export type ${this.exports} = {`,
       `  messages: ${messageModules.exports}`,
-      '  message: { tags: {} }', // TODO: implement message
-      '  conversation: { tags: {}; creation: { enabled: false; requiredTags: [] } }', // TODO: implement conversation
+      `  message: ${stringifySingleLine(message)}`,
+      `  conversation: ${stringifySingleLine(conversation)}`,
       '}',
     ].join('\n')
   }

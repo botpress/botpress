@@ -16,3 +16,7 @@ export const jsonSchemaToTypeScriptZod = async (schema: JSONSchema7, name: strin
   code = code.replace(/\.catchall\(z\.never\(\)\)/g, '.strict()')
   return code
 }
+
+export const stringifySingleLine = (x: object): string => {
+  return JSON.stringify(x, null, 1).replace(/\n */g, ' ')
+}

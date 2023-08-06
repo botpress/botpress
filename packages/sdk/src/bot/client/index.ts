@@ -5,7 +5,7 @@ import * as routes from './routes'
 /**
  * Just like the regular botpress client, but typed with the bot's properties.
  */
-export class BotSpecificClient<TBot extends Bot = Bot> {
+export class BotSpecificClient<TBot extends Bot> {
   public constructor(private readonly client: Client) {}
 
   public createConversation: routes.CreateConversation<TBot> = (x) => this.client.createConversation(x)

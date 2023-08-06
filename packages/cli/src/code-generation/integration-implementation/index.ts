@@ -1,12 +1,14 @@
 import type { IntegrationDefinition } from '@botpress/sdk'
 import { z } from 'zod'
 import { GENERATED_HEADER, INDEX_FILE } from '../const'
+import { stringifySingleLine } from '../generators'
 import { Module, ModuleDef } from '../module'
 import { ActionsModule } from './actions-ts-module'
 import { ChannelsModule } from './channels-ts-module'
 import { ConfigurationModule } from './configuration-ts-module'
 import { EventsModule } from './events-ts-module'
 import { StatesModule } from './states-ts-module'
+import * as types from './types'
 
 export class IntegrationImplementationIndexModule extends Module {
   public static async create(integration: IntegrationDefinition): Promise<IntegrationImplementationIndexModule> {
@@ -30,6 +32,7 @@ export class IntegrationImplementationIndexModule extends Module {
       channelsModule,
       eventsModule,
       statesModule,
+      integration,
       {
         path: INDEX_FILE,
         exportName: 'Integration',
@@ -51,6 +54,7 @@ export class IntegrationImplementationIndexModule extends Module {
     private channelsModule: ChannelsModule,
     private eventsModule: EventsModule,
     private statesModule: StatesModule,
+    private integration: IntegrationDefinition,
     def: ModuleDef
   ) {
     super(def)
@@ -66,6 +70,11 @@ export class IntegrationImplementationIndexModule extends Module {
     const channelsImport = channelsModule.import(this)
     const eventsImport = eventsModule.import(this)
     const statesImport = statesModule.import(this)
+
+    const user: types.UserDefinition = {
+      tags: this.integration.user?.tags ?? {},
+      creation: this.integration.user?.creation ?? { enabled: false, requiredTags: [] },
+    }
 
     content += [
       GENERATED_HEADER,
@@ -88,7 +97,7 @@ export class IntegrationImplementationIndexModule extends Module {
       `  channels: ${channelsModule.name}.${channelsModule.exports}`,
       `  events: ${eventsModule.name}.${eventsModule.exports}`,
       `  states: ${statesModule.name}.${statesModule.exports}`,
-      '  user: { tags: {}; creation: { enabled: false; requiredTags: [] } }', // TODO: implement user
+      `  user: ${stringifySingleLine(user)}`,
       '}',
       '',
       'export type IntegrationProps = sdk.IntegrationProps<TIntegration>',

@@ -27,12 +27,12 @@ export type UpdateMessage<_TBot extends Bot> = Client['updateMessage']
 export type ListMessages<_TBot extends Bot> = Client['listMessages']
 export type DeleteMessage<_TBot extends Bot> = Client['deleteMessage']
 
-export type CreateUser<TBot extends Bot> = <IntegrationName extends IntegrationsOf<TBot['props']>>(
+export type CreateUser<TBot extends Bot> = <IntegrationName extends IntegrationsOf<TBot>>(
   x: Merge<
     Arg<Client['createUser']>,
     {
       integrationName: Cast<IntegrationName, string>
-      tags: AsTags<Partial<Record<ListUserTags<TBot['props'], IntegrationName>, string>>>
+      tags: AsTags<Partial<Record<ListUserTags<TBot, IntegrationName>, string>>>
     }
   >
 ) => Res<Client['createUser']>
@@ -43,17 +43,17 @@ export type ListUsers<TBot extends Bot> = (
   x: Merge<
     Arg<Client['listUsers']>,
     {
-      tags: AsTags<Partial<Record<ListUserTags<TBot['props'], null>, string>>>
+      tags: AsTags<Partial<Record<ListUserTags<TBot, null>, string>>>
     }
   >
 ) => Res<Client['listUsers']>
 
-export type GetOrCreateUser<TBot extends Bot> = <IntegrationName extends IntegrationsOf<TBot['props']>>(
+export type GetOrCreateUser<TBot extends Bot> = <IntegrationName extends IntegrationsOf<TBot>>(
   x: Merge<
     Arg<Client['getOrCreateUser']>,
     {
       integrationName: Cast<IntegrationName, string>
-      tags: AsTags<Partial<Record<ListUserTags<TBot['props'], IntegrationName>, string>>>
+      tags: AsTags<Partial<Record<ListUserTags<TBot, IntegrationName>, string>>>
     }
   >
 ) => Res<Client['getOrCreateUser']>
@@ -62,7 +62,7 @@ export type UpdateUser<TBot extends Bot> = (
   x: Merge<
     Arg<Client['updateUser']>,
     {
-      tags: AsTags<Partial<Record<ListUserTags<TBot['props'], null>, string>>>
+      tags: AsTags<Partial<Record<ListUserTags<TBot, null>, string>>>
     }
   >
 ) => Res<Client['updateUser']>
@@ -74,7 +74,7 @@ export type GetState<TBot extends Bot> = <StateName extends keyof TBot['props'][
     Arg<Client['getState']>,
     {
       name: Cast<StateName, string>
-      type: GetStateByName<TBot['props'], StateName>['type']
+      type: GetStateByName<TBot, StateName>['type']
     }
   >
 ) => Res<Client['getState']>
@@ -84,8 +84,8 @@ export type SetState<TBot extends Bot> = <StateName extends keyof TBot['props'][
     Arg<Client['setState']>,
     {
       name: Cast<StateName, string>
-      type: GetStateByName<TBot['props'], StateName>['type']
-      payload: z.infer<GetStateByName<TBot['props'], StateName>['schema']>
+      type: GetStateByName<TBot, StateName>['type']
+      payload: z.infer<GetStateByName<TBot, StateName>['schema']>
     }
   >
 ) => Res<Client['setState']>
@@ -95,20 +95,20 @@ export type PatchState<TBot extends Bot> = <StateName extends keyof TBot['props'
     Arg<Client['patchState']>,
     {
       name: Cast<StateName, string>
-      type: GetStateByName<TBot['props'], StateName>['type']
-      payload: z.infer<GetStateByName<TBot['props'], StateName>['schema']>
+      type: GetStateByName<TBot, StateName>['type']
+      payload: z.infer<GetStateByName<TBot, StateName>['schema']>
     }
   >
 ) => Res<Client['patchState']>
 
-export type CallAction<TBot extends Bot> = <ActionType extends keyof EnumerateActions<TBot['props']>>(
+export type CallAction<TBot extends Bot> = <ActionType extends keyof EnumerateActions<TBot>>(
   x: Merge<
     Arg<Client['callAction']>,
     {
       type: Cast<ActionType, string>
-      input: z.infer<Cast<EnumerateActions<TBot['props']>[ActionType], IntegrationActionDefinition>['input']['schema']>
+      input: z.infer<Cast<EnumerateActions<TBot>[ActionType], IntegrationActionDefinition>['input']['schema']>
     }
   >
 ) => Promise<{
-  output: z.infer<Cast<EnumerateActions<TBot['props']>[ActionType], IntegrationActionDefinition>['output']['schema']>
+  output: z.infer<Cast<EnumerateActions<TBot>[ActionType], IntegrationActionDefinition>['output']['schema']>
 }>

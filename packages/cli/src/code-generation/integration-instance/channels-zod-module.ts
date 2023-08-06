@@ -1,7 +1,7 @@
 import bluebird from 'bluebird'
 import { casing } from '../../utils'
 import { GENERATED_HEADER, INDEX_FILE } from '../const'
-import { jsonSchemaToTypeScriptZod } from '../generators'
+import { jsonSchemaToTypeScriptZod, stringifySingleLine } from '../generators'
 import { Module, ModuleDef, ReExportConstantModule } from '../module'
 import { ReExportSchemaModule } from './schema-module'
 import type * as types from './types'
@@ -66,14 +66,10 @@ export class ChannelModule extends Module {
       '',
       `export const ${def.exportName} = {`,
       `  messages: ${messages.exports},`,
-      `  message: ${this._stringify(message)},`,
-      `  conversation: ${this._stringify(conversation)},`,
+      `  message: ${stringifySingleLine(message)},`,
+      `  conversation: ${stringifySingleLine(conversation)},`,
       '}',
     ].join('\n')
-  }
-
-  private _stringify(x: object): string {
-    return JSON.stringify(x, null, 1).replace(/\n */g, ' ')
   }
 }
 
