@@ -5,6 +5,10 @@
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.cjs",
+    "./bundle": "./dist/bundle.cjs"
+  },
   "license": "MIT",
   "scripts": {
     "build:type": "tsc --emitDeclarationOnly --declaration --target es2019 --module commonjs --moduleResolution node --lib es2019",
