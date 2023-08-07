@@ -57,17 +57,17 @@ importers:
   bots/bugbuster:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.0
+        specifier: 0.3.1
         version: link:../../packages/client
       '@botpress/sdk':
-        specifier: 0.2.1
+        specifier: 0.2.2
         version: link:../../packages/sdk
       zod:
         specifier: ^3.20.6
         version: 3.21.4
     devDependencies:
       '@botpress/cli':
-        specifier: 0.2.7
+        specifier: 0.2.8
         version: link:../../packages/cli
       '@types/node':
         specifier: ^18.11.17
@@ -961,7 +961,7 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.0
+        specifier: 0.3.1
         version: link:../client
       '@bpinternal/tunnel':
         specifier: ^0.1.0
@@ -1037,7 +1037,7 @@ importers:
         version: 3.21.1(zod@3.21.4)
     devDependencies:
       '@botpress/sdk':
-        specifier: 0.2.1
+        specifier: 0.2.2
         version: link:../sdk
       '@bpinternal/log4bot':
         specifier: ^0.0.4
@@ -1073,10 +1073,10 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.0
+        specifier: 0.3.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.2.1
+        specifier: 0.2.2
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1095,10 +1095,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.0
+        specifier: 0.3.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.2.1
+        specifier: 0.2.2
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1127,8 +1127,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.4.0
-        version: 0.4.0
+        specifier: 0.5.0
+        version: 0.5.0
       esbuild:
         specifier: ^0.16.12
         version: 0.16.17
@@ -1136,7 +1136,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.0
+        specifier: 0.3.1
         version: link:../client
       axios:
         specifier: 0.27.2
@@ -1715,8 +1715,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.4.0:
-    resolution: {integrity: sha512-GQc1G83hthDPQsD2TMjaIlUh0hbgFm5CSuVWQ/UT3ype8+Vo9EGSCGMp1MFWeznGO+kF2yOXDQk7rPjVZC2mLA==}
+  /@botpress/api@0.5.0:
+    resolution: {integrity: sha512-NaLDSus66BWcW5t/Knc3rH3uN2rkodTCJbNkGljBO0rxqMl2F7aqNEVCKTyhZDgc6Q5D7w3je9my3BsMFufSMg==}
     dependencies:
       '@bpinternal/opapi': 0.2.1
     transitivePeerDependencies:
