@@ -1,9 +1,10 @@
-import type { IntegrationContext } from '@botpress/sdk'
+import type { IntegrationContext, IntegrationProps } from '@botpress/sdk'
 import axios from 'axios'
 import { SHOPIFY_API_VERSION } from '../const'
 import type * as botpress from '.botpress'
 import type { Configuration } from '.botpress/implementation/configuration'
 
+type IntegrationLogger = Parameters<IntegrationProps['handler']>[0]['logger']
 type Implementation = ConstructorParameters<typeof botpress.Integration>[0]
 type UnregisterFunction = Implementation['unregister']
 
@@ -14,12 +15,13 @@ export const unregister: UnregisterFunction = async ({ ctx, client, logger }) =>
     type: 'integration',
   })
 
-  for (let i = 0; i < stateRes.length; i++) {
-    await deleteWebhook(ctx, stateRes[i].webhookId, logger)
+  const webhookIds = stateRes.state.payload
+  for (let i = 0; i < webhookIds.length; i++) {
+    await deleteWebhook(ctx, webhookIds[i].webhookId, logger)
   }
 }
 
-async function deleteWebhook(ctx: IntegrationContext<Configuration>, webhookId: string, logger) {
+async function deleteWebhook(ctx: IntegrationContext<Configuration>, webhookId: string, logger: IntegrationLogger) {
   try {
     const axiosConfig = {
       baseURL: `https://${ctx.configuration.shopName}.myshopify.com`,

@@ -9,6 +9,7 @@ console.info('Starting Shopify Integration')
 export default new botpress.Integration({
   register,
   unregister,
+  channels: {},
   actions,
   handler,
 })
