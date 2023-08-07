@@ -43,7 +43,7 @@ export type MessagePayload<P, M, C, U> = {
 
 export type AckFunction = (props: { tags: Tags }) => Promise<void>
 
-type TIntegration = {
+type BaseIntegration = {
   configuration: Record<string, any>
   actions: Record<string, Record<'input' | 'output', any>>
   channels: Record<
@@ -73,37 +73,40 @@ type TIntegration = {
   }
 }
 
-type CommonArgs<TConfig extends TIntegration['configuration']> = {
+type CommonArgs<TConfig extends BaseIntegration['configuration']> = {
   ctx: IntegrationContext<TConfig>
   client: Client
   logger: IntegrationLogger
 }
 
-type RegisterArgs<TConfig extends TIntegration['configuration']> = CommonArgs<TConfig> & RegisterPayload
+type RegisterArgs<TConfig extends BaseIntegration['configuration']> = CommonArgs<TConfig> & RegisterPayload
 
-type UnregisterArgs<TConfig extends TIntegration['configuration']> = CommonArgs<TConfig> & UnregisterPayload
+type UnregisterArgs<TConfig extends BaseIntegration['configuration']> = CommonArgs<TConfig> & UnregisterPayload
 
-type WebhookArgs<TConfig extends TIntegration['configuration']> = CommonArgs<TConfig> & WebhookPayload
+type WebhookArgs<TConfig extends BaseIntegration['configuration']> = CommonArgs<TConfig> & WebhookPayload
 
-type ActionArgs<TConfig extends TIntegration['configuration'], T, I> = CommonArgs<TConfig> & ActionPayload<T, I>
+type ActionArgs<TConfig extends BaseIntegration['configuration'], T, I> = CommonArgs<TConfig> & ActionPayload<T, I>
 
-type CreateUserArgs<TConfig extends TIntegration['configuration']> = CommonArgs<TConfig> & CreateUserPayload
+type CreateUserArgs<TConfig extends BaseIntegration['configuration']> = CommonArgs<TConfig> & CreateUserPayload
 
-type CreateConversationArgs<TConfig extends TIntegration['configuration']> = CommonArgs<TConfig> &
+type CreateConversationArgs<TConfig extends BaseIntegration['configuration']> = CommonArgs<TConfig> &
   CreateConversationPayload
 
-type MessageArgs<TConfig extends TIntegration['configuration'], P, M, C, U> = CommonArgs<TConfig> &
+type MessageArgs<TConfig extends BaseIntegration['configuration'], P, M, C, U> = CommonArgs<TConfig> &
   MessagePayload<P, M, C, U> & {
     ack: AckFunction
   }
 
-type ActionFunctions<TConfig extends TIntegration['configuration'], TActions extends TIntegration['actions']> = {
+type ActionFunctions<TConfig extends BaseIntegration['configuration'], TActions extends BaseIntegration['actions']> = {
   [ActionType in keyof TActions]: (
     props: ActionArgs<TConfig, ActionType, TActions[ActionType]['input']>
   ) => Promise<TActions[ActionType]['output']>
 }
 
-type ChannelFunctions<TConfig extends TIntegration['configuration'], TChannels extends TIntegration['channels']> = {
+type ChannelFunctions<
+  TConfig extends BaseIntegration['configuration'],
+  TChannels extends BaseIntegration['channels']
+> = {
   [ChannelName in keyof TChannels]: {
     messages: {
       [MessageType in keyof TChannels[ChannelName]['messages']]: (
@@ -114,28 +117,28 @@ type ChannelFunctions<TConfig extends TIntegration['configuration'], TChannels e
   }
 }
 
-export type IntegrationImplementationProps<T extends TIntegration = TIntegration> = {
-  register: (props: RegisterArgs<T['configuration']>) => Promise<void>
-  unregister: (props: UnregisterArgs<T['configuration']>) => Promise<void>
-  handler: (props: WebhookArgs<T['configuration']>) => Promise<Response | void>
-  createUser?: (props: CreateUserArgs<T['configuration']>) => Promise<Response | void>
-  createConversation?: (props: CreateConversationArgs<T['configuration']>) => Promise<Response | void>
-  actions: ActionFunctions<T['configuration'], T['actions']>
-  channels: ChannelFunctions<T['configuration'], T['channels']>
+export type IntegrationImplementationProps<TIntegration extends BaseIntegration = BaseIntegration> = {
+  register: (props: RegisterArgs<TIntegration['configuration']>) => Promise<void>
+  unregister: (props: UnregisterArgs<TIntegration['configuration']>) => Promise<void>
+  handler: (props: WebhookArgs<TIntegration['configuration']>) => Promise<Response | void>
+  createUser?: (props: CreateUserArgs<TIntegration['configuration']>) => Promise<Response | void>
+  createConversation?: (props: CreateConversationArgs<TIntegration['configuration']>) => Promise<Response | void>
+  actions: ActionFunctions<TIntegration['configuration'], TIntegration['actions']>
+  channels: ChannelFunctions<TIntegration['configuration'], TIntegration['channels']>
 }
 
-export class IntegrationImplementation<T extends TIntegration = TIntegration> {
-  public readonly props: IntegrationImplementationProps<T>
-  public readonly actions: IntegrationImplementationProps<T>['actions']
-  public readonly channels: IntegrationImplementationProps<T>['channels']
-  public readonly register: IntegrationImplementationProps<T>['register']
-  public readonly unregister: IntegrationImplementationProps<T>['unregister']
-  public readonly createUser: IntegrationImplementationProps<T>['createUser']
-  public readonly createConversation: IntegrationImplementationProps<T>['createConversation']
+export class IntegrationImplementation<TIntegration extends BaseIntegration = BaseIntegration> {
+  public readonly props: IntegrationImplementationProps<TIntegration>
+  public readonly actions: IntegrationImplementationProps<TIntegration>['actions']
+  public readonly channels: IntegrationImplementationProps<TIntegration>['channels']
+  public readonly register: IntegrationImplementationProps<TIntegration>['register']
+  public readonly unregister: IntegrationImplementationProps<TIntegration>['unregister']
+  public readonly createUser: IntegrationImplementationProps<TIntegration>['createUser']
+  public readonly createConversation: IntegrationImplementationProps<TIntegration>['createConversation']
   public readonly handler: ReturnType<typeof integrationHandler>
   public readonly start: (port?: number) => Promise<Server>
 
-  public constructor(props: IntegrationImplementationProps<T>) {
+  public constructor(props: IntegrationImplementationProps<TIntegration>) {
     this.props = props
     this.actions = props.actions
     this.channels = props.channels

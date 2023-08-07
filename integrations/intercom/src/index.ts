@@ -5,9 +5,11 @@ import { Client, ReplyToConversationMessageType } from 'intercom-client'
 import { z } from 'zod'
 import * as html from './html.utils'
 import { Integration, secrets } from '.botpress'
-import type { Card } from '.botpress/implementation/channels/channel/card'
-import type { Location } from '.botpress/implementation/channels/channel/location'
-import type { Configuration } from '.botpress/implementation/configuration'
+import type * as botpress from '.botpress'
+
+type Card = botpress.channels.channel.card.Card
+type Location = botpress.channels.channel.location.Location
+type Configuration = botpress.configuration.Configuration
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
