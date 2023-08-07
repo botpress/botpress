@@ -43,25 +43,152 @@ export type UpdateConversation<TIntegration extends Integration<any>> = (
 
 export type DeleteConversation<_TIntegration extends Integration<any>> = Client['deleteConversation']
 
-export type CreateEvent<_TIntegration extends Integration<any>> = Client['createEvent']
-export type GetEvent<_TIntegration extends Integration<any>> = Client['getEvent']
-export type ListEvents<_TIntegration extends Integration<any>> = Client['listEvents']
+export type CreateEvent<TIntegration extends Integration<any>> = <TEvent extends keyof Tof<TIntegration>['events']>(
+  x: Merge<
+    Arg<Client['createEvent']>,
+    {
+      type: Cast<TEvent, string>
+      payload: Tof<TIntegration>['events'][TEvent]['payload']
+    }
+  >
+) => Res<Client['createEvent']>
 
-export type CreateMessage<_TIntegration extends Integration<any>> = Client['createMessage']
-export type GetOrCreateMessage<_TIntegration extends Integration<any>> = Client['getOrCreateMessage']
+export type GetEvent<_TIntegration extends Integration<any>> = Client['getEvent']
+
+export type ListEvents<TIntegration extends Integration<any>> = (
+  x: Merge<
+    Arg<Client['listEvents']>,
+    {
+      type: Cast<keyof Tof<TIntegration>['events'], string>
+    }
+  >
+) => Res<Client['listEvents']>
+
+export type CreateMessage<TIntegration extends Integration<any>> = <
+  TChannel extends keyof Tof<TIntegration>['channels'],
+  TMessage extends keyof Tof<TIntegration>['channels'][TChannel]['messages']
+>(
+  x: Merge<
+    Arg<Client['createMessage']>,
+    {
+      type: Cast<TMessage, string> // TODO: conversation should be used to infer the channel of the message
+      payload: Tof<TIntegration>['channels'][TChannel]['messages'][TMessage]
+      tags: AsTags<Partial<Record<keyof Tof<TIntegration>['channels'][TChannel]['message']['tags'], string>>>
+    }
+  >
+) => Res<Client['createMessage']>
+
+export type GetOrCreateMessage<TIntegration extends Integration<any>> = <
+  TMessage extends keyof Tof<TIntegration>['channels'][string]['messages']
+>(
+  x: Merge<
+    Arg<Client['getOrCreateMessage']>,
+    {
+      type: Cast<TMessage, string> // TODO: conversation should be used to infer the channel of the message
+      payload: Tof<TIntegration>['channels'][string]['messages'][TMessage]
+      tags: AsTags<Partial<Record<keyof Tof<TIntegration>['channels'][string]['message']['tags'], string>>>
+    }
+  >
+) => Res<Client['getOrCreateMessage']>
+
 export type GetMessage<_TIntegration extends Integration<any>> = Client['getMessage']
-export type UpdateMessage<_TIntegration extends Integration<any>> = Client['updateMessage']
-export type ListMessages<_TIntegration extends Integration<any>> = Client['listMessages']
+
+export type UpdateMessage<TIntegration extends Integration<any>> = (
+  x: Merge<
+    Arg<Client['updateMessage']>,
+    {
+      tags: AsTags<Partial<Record<keyof Tof<TIntegration>['channels'][string]['message']['tags'], string>>>
+    }
+  >
+) => Res<Client['updateMessage']>
+
+export type ListMessages<TIntegration extends Integration<any>> = (
+  x: Merge<
+    Arg<Client['listMessages']>,
+    {
+      tags: AsTags<Partial<Record<keyof Tof<TIntegration>['channels'][string]['message']['tags'], string>>>
+    }
+  >
+) => Res<Client['listMessages']>
+
 export type DeleteMessage<_TIntegration extends Integration<any>> = Client['deleteMessage']
 
-export type CreateUser<_TIntegration extends Integration<any>> = Client['createUser']
+export type CreateUser<TIntegration extends Integration<any>> = (x: {
+  tags: AsTags<Partial<Record<keyof Tof<TIntegration>['user']['tags'], string>>>
+}) => Res<Client['createUser']>
+
 export type GetUser<_TIntegration extends Integration<any>> = Client['getUser']
-export type ListUsers<_TIntegration extends Integration<any>> = Client['listUsers']
-export type GetOrCreateUser<_TIntegration extends Integration<any>> = Client['getOrCreateUser']
-export type UpdateUser<_TIntegration extends Integration<any>> = Client['updateUser']
+
+export type ListUsers<TIntegration extends Integration<any>> = (
+  x: Merge<
+    Arg<Client['listUsers']>,
+    {
+      tags: AsTags<Partial<Record<keyof Tof<TIntegration>['user']['tags'], string>>>
+    }
+  >
+) => Res<Client['listUsers']>
+
+export type GetOrCreateUser<TIntegration extends Integration<any>> = (x: {
+  tags: AsTags<Partial<Record<keyof Tof<TIntegration>['user']['tags'], string>>>
+}) => Res<Client['getOrCreateUser']>
+
+export type UpdateUser<TIntegration extends Integration<any>> = (
+  x: Merge<
+    Arg<Client['updateUser']>,
+    {
+      tags: AsTags<Partial<Record<keyof Tof<TIntegration>['user']['tags'], string>>>
+    }
+  >
+) => Res<Client['updateUser']>
 
 export type DeleteUser<_TIntegration extends Integration<any>> = Client['deleteUser']
-export type GetState<_TIntegration extends Integration<any>> = Client['getState']
 
-export type SetState<_TIntegration extends Integration<any>> = Client['setState']
-export type PatchState<_TIntegration extends Integration<any>> = Client['patchState']
+export type GetState<TIntegration extends Integration<any>> = <TState extends keyof Tof<TIntegration>['states']>(
+  x: Merge<
+    Arg<Client['getState']>,
+    {
+      name: Cast<TState, string> // TODO: use state name to infer state type
+    }
+  >
+) => Promise<{
+  state: Merge<
+    Awaited<Res<Client['getState']>>['state'],
+    {
+      payload: Tof<TIntegration>['states'][TState]
+    }
+  >
+}>
+
+export type SetState<TIntegration extends Integration<any>> = <TState extends keyof Tof<TIntegration>['states']>(
+  x: Merge<
+    Arg<Client['setState']>,
+    {
+      name: Cast<TState, string> // TODO: use state name to infer state type
+      payload: Tof<TIntegration>['states'][TState]
+    }
+  >
+) => Promise<{
+  state: Merge<
+    Awaited<Res<Client['setState']>>['state'],
+    {
+      payload: Tof<TIntegration>['states'][TState]
+    }
+  >
+}>
+
+export type PatchState<TIntegration extends Integration<any>> = <TState extends keyof Tof<TIntegration>['states']>(
+  x: Merge<
+    Arg<Client['patchState']>,
+    {
+      name: Cast<TState, string> // TODO: use state name to infer state type
+      payload: Partial<Tof<TIntegration>['states'][TState]>
+    }
+  >
+) => Promise<{
+  state: Merge<
+    Awaited<Res<Client['patchState']>>['state'],
+    {
+      payload: Tof<TIntegration>['states'][TState]
+    }
+  >
+}>

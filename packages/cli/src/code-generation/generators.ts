@@ -7,7 +7,7 @@ import * as utils from '../utils'
 export const zodToTypeScriptType = async (schema: z.ZodObject<any>, name: string): Promise<string> => {
   // TODO: pass directly from zod to typescript with [zod-to-ts](https://www.npmjs.com/package/zod-to-ts)
   const jsonSchema = utils.schema.mapZodToJsonSchema({ schema }) as JSONSchema4
-  const code = await compile(jsonSchema, name)
+  const code = await compile(jsonSchema, name, { unknownAny: false })
   return code
 }
 
