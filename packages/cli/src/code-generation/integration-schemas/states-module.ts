@@ -1,8 +1,8 @@
 import bluebird from 'bluebird'
 import { casing } from '../../utils'
-import { zodToTypeScriptType } from '../generators'
+import { jsonSchemaToTypeScriptType } from '../generators'
 import { Module, ModuleDef, ReExportTypeModule } from '../module'
-import type * as types from './types'
+import type * as types from '../typings'
 
 export class StateModule extends Module {
   public static async create(name: string, state: types.StateDefinition): Promise<StateModule> {
@@ -10,7 +10,7 @@ export class StateModule extends Module {
     const def: ModuleDef = {
       path: `${name}.ts`,
       exportName: casing.to.pascalCase(name),
-      content: await zodToTypeScriptType(schema, name),
+      content: await jsonSchemaToTypeScriptType(schema, name),
     }
     return new StateModule(def)
   }

@@ -49,6 +49,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       ...bot.props,
       integrations: _(bot.props.integrations)
         .values()
+        .filter(utils.guards.is.defined)
         .keyBy((i) => i.id)
         .mapValues(({ enabled, configuration }) => ({ enabled, configuration }))
         .value(),
@@ -160,7 +161,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
 
     this.logger.log('Integrations:')
-    for (const integration of Object.values(bot.integrations)) {
+    for (const integration of Object.values(bot.integrations).filter(utils.guards.is.defined)) {
       if (!integration.enabled) {
         this.logger.log(`${chalk.grey(integration.name)} ${chalk.italic('(disabled)')}: ${integration.webhookUrl}`, {
           prefix: { symbol: '○', indent: 2 },

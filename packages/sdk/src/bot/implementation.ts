@@ -1,6 +1,7 @@
 import type { Server } from 'node:http'
 import { SchemaDefinition } from '../schema'
 import { serve } from '../serve'
+import { Cast } from '../type-utils'
 import { BaseStates, BaseEvents, BaseIntegrations } from './generic'
 import { IntegrationInstance } from './integration-instance'
 import { botHandler, MessageHandler, EventHandler, StateExpiredHandler } from './server'
@@ -43,7 +44,7 @@ export type BotProps<
   TEvents extends BaseEvents = BaseEvents
 > = {
   integrations?: {
-    [K in TIntegrations]: IntegrationInstance<K>
+    [K in keyof TIntegrations]?: IntegrationInstance<Cast<K, string>>
   }
   user?: UserDefinition
   conversation?: ConversationDefinition
