@@ -1,10 +1,10 @@
 import { RuntimeError } from '@botpress/client'
+import { IntegrationProps } from '@botpress/sdk'
 import axios from 'axios'
 import qs from 'querystring'
 import { SHOPIFY_API_VERSION } from '../const'
-import * as botpress from '.botpress'
 
-type GetProductVariants = botpress.IntegrationProps['actions']['getProducts']
+type GetProductVariants = IntegrationProps['actions']['getProducts']
 
 export const getProducts: GetProductVariants = async ({ ctx, input, logger }) => {
   const { ids, limit, product_type, title } = input
