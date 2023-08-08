@@ -1,5 +1,5 @@
 {
-  "name": "shopify",
+  "name": "@botpresshub/shopify",
   "scripts": {
     "type:check": "tsc --noEmit",
     "format:check": "prettier --check .",
