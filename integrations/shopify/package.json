@@ -10,10 +10,9 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "0.1.2",
-    "@botpress/sdk": "0.1.4",
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "axios": "^1.4.0",
-    "shopify-api-node": "^3.12.5",
     "zod": "^3.21.4"
   },
   "devDependencies": {
