@@ -9,7 +9,11 @@ export {
   IntegrationImplementationProps as IntegrationProps,
   IntegrationContext,
   IntegrationSpecificClient,
-  AckFunction,
 } from './integration'
 
 export { Bot, BotProps, BotContext, BotSpecificClient, IntegrationInstance } from './bot'
+
+/**
+ * @deprecated Infer type of integration message handlers instead
+ */
+export type AckFunction = (props: { tags: Record<string, string> }) => Promise<void>

@@ -1,6 +1,6 @@
-import { Client } from '@botpress/client'
 import { ReactionAddedEvent } from '@slack/bolt'
 
+import { IntegrationClient } from '../misc/types'
 import { getUserAndConversation } from '../misc/utils'
 
 export const executeReactionAdded = async ({
@@ -8,7 +8,7 @@ export const executeReactionAdded = async ({
   client,
 }: {
   slackEvent: ReactionAddedEvent
-  client: Client
+  client: IntegrationClient
 }) => {
   await client.createEvent({
     type: 'reactionAdded',

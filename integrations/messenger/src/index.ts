@@ -1,19 +1,23 @@
-import type { Client, Conversation } from '@botpress/client'
-import type { IntegrationContext, AckFunction } from '@botpress/sdk'
+import type { Conversation } from '@botpress/client'
+import type {
+  IntegrationContext,
+  AckFunction,
+  Integration as SdkIntegration,
+  IntegrationSpecificClient,
+} from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
 import queryString from 'query-string'
 import { Integration, channels, secrets, configuration } from '.botpress'
+
+type Tof<I extends SdkIntegration<any>> = I extends SdkIntegration<infer T> ? T : never
+type TIntegration = Tof<Integration>
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
   environment: secrets.SENTRY_ENVIRONMENT,
   release: secrets.SENTRY_RELEASE,
 })
-
-const log = console
-
-const idTag = 'messenger:id'
 
 const integration = new Integration({
   register: async () => {},
@@ -58,7 +62,7 @@ const integration = new Integration({
     },
   },
   handler: async ({ req, client, ctx }) => {
-    log.info('Handler received request')
+    console.info('Handler received request')
 
     if (req.query) {
       const query = queryString.parse(req.query)
@@ -85,7 +89,7 @@ const integration = new Integration({
     }
 
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
 
@@ -100,7 +104,7 @@ const integration = new Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags[idTag]
+    const userId = tags.id
 
     if (!userId) {
       return
@@ -109,7 +113,7 @@ const integration = new Integration({
     const messengerClient = getMessengerClient(ctx.configuration)
     const profile = await messengerClient.getUserProfile(userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { [idTag]: `${profile.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { id: `${profile.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -118,7 +122,7 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const userId = tags[idTag]
+    const userId = tags.id
 
     if (!userId) {
       return
@@ -129,7 +133,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { [idTag]: `${profile.id}` },
+      tags: { id: `${profile.id}` },
     })
 
     return {
@@ -260,11 +264,11 @@ async function sendMessage(
   const messengerClient = getMessengerClient(ctx.configuration)
   const recipientId = getRecipientId(conversation)
   const { messageId } = await send(messengerClient, recipientId)
-  await ack({ tags: { [idTag]: messageId } })
+  await ack({ tags: { id: messageId } })
 }
 
 export function getRecipientId(conversation: Conversation): string {
-  const recipientId = conversation.tags[idTag]
+  const recipientId = conversation.tags.id
 
   if (!recipientId) {
     throw Error(`No recipient id found for user ${conversation.id}`)
@@ -273,24 +277,24 @@ export function getRecipientId(conversation: Conversation): string {
   return recipientId
 }
 
-async function handleMessage(message: MessengerMessage, client: Client) {
+async function handleMessage(message: MessengerMessage, client: IntegrationSpecificClient<TIntegration>) {
   if (message.message) {
     if (message.message.text) {
       const { conversation } = await client.getOrCreateConversation({
         channel: 'channel',
         tags: {
-          [idTag]: message.sender.id,
+          id: message.sender.id,
         },
       })
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          [idTag]: message.sender.id,
+          id: message.sender.id,
         },
       })
 
       await client.createMessage({
-        tags: { [idTag]: message.message.mid },
+        tags: { id: message.message.mid },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,

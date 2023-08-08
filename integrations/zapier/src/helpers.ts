@@ -3,18 +3,18 @@ import { ResourceNotFoundError } from '@botpress/client'
 import type { IntegrationContext } from '@botpress/sdk'
 import { z } from 'zod'
 import {
-  BotpressClient,
   TriggerSubscriber,
   ZapierTriggersStateName,
   ZapierTriggersStateSchema,
   ZapierTriggersState,
+  IntegrationClient,
 } from './types'
 import type { Configuration } from '.botpress/implementation/configuration'
 
 export async function unsubscribeZapierHook(
   url: string,
   ctx: IntegrationContext<Configuration>,
-  client: BotpressClient
+  client: IntegrationClient
 ) {
   let subscribers = await getTriggerSubscribers(ctx, client)
   subscribers = subscribers.filter((x) => x.url !== url)
@@ -22,7 +22,7 @@ export async function unsubscribeZapierHook(
   console.info(`Zapier hook ${url} was unsubscribed`)
 }
 
-export async function getTriggerSubscribers(ctx: IntegrationContext<Configuration>, client: BotpressClient) {
+export async function getTriggerSubscribers(ctx: IntegrationContext<Configuration>, client: IntegrationClient) {
   const state = await getTriggersState(ctx, client)
   return state.subscribers
 }
@@ -30,7 +30,7 @@ export async function getTriggerSubscribers(ctx: IntegrationContext<Configuratio
 export async function saveTriggerSubscribers(
   subscribers: TriggerSubscriber[],
   ctx: IntegrationContext<Configuration>,
-  client: BotpressClient
+  client: IntegrationClient
 ) {
   await client.setState({
     type: 'integration',
@@ -40,7 +40,7 @@ export async function saveTriggerSubscribers(
   })
 }
 
-export async function getTriggersState(ctx: IntegrationContext<Configuration>, client: BotpressClient) {
+export async function getTriggersState(ctx: IntegrationContext<Configuration>, client: IntegrationClient) {
   const defaultState = buildTriggersState()
 
   return await client

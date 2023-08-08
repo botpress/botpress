@@ -1,6 +1,6 @@
-import { Client } from '@botpress/client'
 import { PullRequestClosedEvent } from '@octokit/webhooks-types'
 
+import { IntegrationClient } from 'src/misc/types'
 import { getUserAndConversation } from '../misc/utils'
 
 export const firePullRequesMerged = async ({
@@ -8,7 +8,7 @@ export const firePullRequesMerged = async ({
   client,
 }: {
   githubEvent: PullRequestClosedEvent
-  client: Client
+  client: IntegrationClient
 }) => {
   await client.createEvent({
     type: 'pullRequestMerged',

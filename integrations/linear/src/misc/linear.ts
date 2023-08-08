@@ -1,10 +1,9 @@
-import type { Client } from '@botpress/client'
 import { Request } from '@botpress/sdk'
 import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
 import queryString from 'query-string'
 import { z } from 'zod'
-import { IntegrationCtx } from './types'
+import { IntegrationClient, IntegrationCtx } from './types'
 import { secrets } from '.botpress'
 
 const linearEndpoint = 'https://api.linear.app'
@@ -68,7 +67,7 @@ export class LinearOauthClient {
     }
   }
 
-  async getLinearClient(client: Client, integrationId: string) {
+  async getLinearClient(client: IntegrationClient, integrationId: string) {
     const {
       state: { payload },
     } = await client.getState({
@@ -81,7 +80,7 @@ export class LinearOauthClient {
   }
 }
 
-export const handleOauth = async (req: Request, client: Client, ctx: IntegrationCtx) => {
+export const handleOauth = async (req: Request, client: IntegrationClient, ctx: IntegrationCtx) => {
   const linearOauthClient = new LinearOauthClient()
 
   const query = queryString.parse(req.query)

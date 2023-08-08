@@ -55,7 +55,7 @@ export class ChannelModule extends Module {
     const { messageModules } = this
     const messageImport = messageModules.import(this)
 
-    const message = { tags: this.channel.message?.tags }
+    const message = { tags: this.channel.message?.tags ?? {} }
     const conversation = {
       tags: this.channel.conversation?.tags ?? {},
       creation: this.channel.conversation?.creation ?? { enabled: false, requiredTags: [] },

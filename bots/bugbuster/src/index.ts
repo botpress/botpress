@@ -1,7 +1,8 @@
-import type { Client } from '@botpress/client'
 import { Bot } from '@botpress/sdk'
 import type { z } from 'zod'
 import { Github, Linear } from '.botpress'
+
+type Client = Parameters<Parameters<(typeof bot)['event']>[0]>[0]['client']
 
 const github = new Github()
 const linear = new Linear()

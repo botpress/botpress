@@ -1,11 +1,11 @@
 import { Client } from '@botpress/client'
-import { IntegrationImplementation as Integration } from '../implementation'
+import { BaseIntegration } from '../generic'
 import * as routes from './routes'
 
 /**
  * Just like the regular botpress client, but typed with the integration's properties.
  */
-export class IntegrationSpecificClient<TIntegration extends Integration<any>> {
+export class IntegrationSpecificClient<TIntegration extends BaseIntegration> {
   public constructor(private readonly client: Client) {}
 
   public createConversation: routes.CreateConversation<TIntegration> = (x) => this.client.createConversation(x)
@@ -34,7 +34,12 @@ export class IntegrationSpecificClient<TIntegration extends Integration<any>> {
   public updateUser: routes.UpdateUser<TIntegration> = (x) => this.client.updateUser(x)
   public deleteUser: routes.DeleteUser<TIntegration> = (x) => this.client.deleteUser(x)
 
-  public getState: routes.GetState<TIntegration> = (x) => this.client.getState(x)
-  public setState: routes.SetState<TIntegration> = (x) => this.client.setState(x)
-  public patchState: routes.PatchState<TIntegration> = (x) => this.client.patchState(x)
+  public getState: routes.GetState<TIntegration> = (x) =>
+    this.client.getState(x).then((y) => ({ state: { ...y.state, payload: y.state.payload as any } }))
+  public setState: routes.SetState<TIntegration> = (x) =>
+    this.client.setState(x).then((y) => ({ state: { ...y.state, payload: y.state.payload as any } }))
+  public patchState: routes.PatchState<TIntegration> = (x) =>
+    this.client.patchState(x).then((y) => ({ state: { ...y.state, payload: y.state.payload as any } }))
+
+  public configureIntegration: routes.ConfigureIntegration<TIntegration> = (x) => this.client.configureIntegration(x)
 }

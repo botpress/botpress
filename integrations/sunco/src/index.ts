@@ -134,18 +134,18 @@ const integration = new Integration({
       const { conversation } = await client.getOrCreateConversation({
         channel: 'channel',
         tags: {
-          'sunco:id': payload.conversation.id,
+          id: payload.conversation.id,
         },
       })
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          'sunco:id': payload.message.author.userId,
+          id: payload.message.author.userId,
         },
       })
 
       await client.createMessage({
-        tags: { 'sunco:id': payload.message.id },
+        tags: { id: payload.message.id },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
@@ -154,7 +154,7 @@ const integration = new Integration({
     }
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags['sunco:id']
+    const userId = tags.id
 
     if (!userId) {
       return
@@ -163,7 +163,7 @@ const integration = new Integration({
     const suncoClient = createClient(ctx.configuration.keyId, ctx.configuration.keySecret)
     const suncoUser = await suncoClient.users.getUser(ctx.configuration.appId, userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { 'sunco:id': `${suncoUser.user?.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { id: `${suncoUser.user?.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -172,7 +172,7 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const conversationId = tags['sunco:id']
+    const conversationId = tags.id
 
     if (!conversationId) {
       return
@@ -183,7 +183,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { 'sunco:id': `${suncoConversation.conversation?.id}` },
+      tags: { id: `${suncoConversation.conversation?.id}` },
     })
 
     return {
@@ -253,7 +253,7 @@ const sendCarousel = async (props: SendMessageProps, payload: Carousel) => {
 }
 
 function getConversationId(conversation: Conversation) {
-  const conversationId = conversation.tags['sunco:id']
+  const conversationId = conversation.tags.id
 
   if (!conversationId) {
     throw new Error('Conversation does not have a sunco identifier')
@@ -300,7 +300,7 @@ async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload
     throw new Error('Message not sent')
   }
 
-  await ack({ tags: { 'sunco:id': message.id } })
+  await ack({ tags: { id: message.id } })
 
   if (messages.length > 1) {
     log.warn('More than one message was sent')

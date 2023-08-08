@@ -1,4 +1,4 @@
-import type { Client } from '@botpress/client'
+import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { name } from 'integration.definition'
 import queryString from 'query-string'
@@ -10,6 +10,9 @@ import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
 import * as outgoing from './outgoing-message'
 import { Integration, secrets } from '.botpress'
+
+type Tof<I extends sdk.Integration<any>> = I extends sdk.Integration<infer T> ? T : never
+export type IntegrationClient = sdk.IntegrationSpecificClient<Tof<Integration>>
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
@@ -148,7 +151,7 @@ const integration = new Integration({
 
 export default sentryHelpers.wrapIntegration(integration)
 
-async function handleMessage(message: WhatsAppMessage, value: WhatsAppValue, client: Client) {
+async function handleMessage(message: WhatsAppMessage, value: WhatsAppValue, client: IntegrationClient) {
   if (message.type) {
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
@@ -180,8 +183,8 @@ async function handleMessage(message: WhatsAppMessage, value: WhatsAppValue, cli
             tags: { [`${name}:id`]: message.id },
             type: 'text',
             payload: {
-              text: message.interactive.button_reply?.id,
-              metadata: message.interactive.button_reply?.title,
+              text: message.interactive.button_reply?.id!,
+              // metadata: message.interactive.button_reply?.title,
             },
             userId: user.id,
             conversationId: conversation.id,
@@ -191,8 +194,8 @@ async function handleMessage(message: WhatsAppMessage, value: WhatsAppValue, cli
             tags: { [`${name}:id'`]: message.id },
             type: 'text',
             payload: {
-              text: message.interactive.list_reply?.id,
-              metadata: message.interactive.list_reply?.title,
+              text: message.interactive.list_reply?.id!,
+              // metadata: message.interactive.list_reply?.title,
             },
             userId: user.id,
             conversationId: conversation.id,

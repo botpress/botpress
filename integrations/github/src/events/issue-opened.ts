@@ -1,8 +1,14 @@
-import { Client } from '@botpress/client'
 import { IssuesOpenedEvent } from '@octokit/webhooks-types'
+import { IntegrationClient } from 'src/misc/types'
 import { IssueOpened } from '../definitions/events'
 
-export const fireIssueOpened = async ({ githubEvent, client }: { githubEvent: IssuesOpenedEvent; client: Client }) => {
+export const fireIssueOpened = async ({
+  githubEvent,
+  client,
+}: {
+  githubEvent: IssuesOpenedEvent
+  client: IntegrationClient
+}) => {
   const payload: IssueOpened = {
     id: githubEvent.issue.id,
     number: githubEvent.issue.number,

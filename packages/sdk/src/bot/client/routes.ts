@@ -1,114 +1,33 @@
 import { Client } from '@botpress/client'
-import { z } from 'zod'
-import { Cast, Merge } from '../../type-utils'
-import { Bot } from '../implementation'
-import { EnumerateActions, GetStateByName, IntegrationActionDefinition, IntegrationsOf, ListUserTags } from './types'
+import { BaseBot } from '../generic'
 
-type Arg<F extends (...args: any[]) => any> = Parameters<F>[number]
-type Res<F extends (...args: any[]) => any> = ReturnType<F>
+export type CreateConversation<_TBot extends BaseBot> = Client['createConversation']
+export type GetConversation<_TBot extends BaseBot> = Client['getConversation']
+export type ListConversations<_TBot extends BaseBot> = Client['listConversations']
+export type GetOrCreateConversation<_TBot extends BaseBot> = Client['getOrCreateConversation']
+export type UpdateConversation<_TBot extends BaseBot> = Client['updateConversation']
+export type DeleteConversation<_TBot extends BaseBot> = Client['deleteConversation']
 
-type AsTags<T extends Record<string, string | undefined>> = Cast<T, Record<string, string>>
+export type CreateEvent<_TBot extends BaseBot> = Client['createEvent']
+export type GetEvent<_TBot extends BaseBot> = Client['getEvent']
+export type ListEvents<_TBot extends BaseBot> = Client['listEvents']
 
-export type CreateConversation<_TBot extends Bot> = Client['createConversation']
-export type GetConversation<_TBot extends Bot> = Client['getConversation']
-export type ListConversations<_TBot extends Bot> = Client['listConversations']
-export type GetOrCreateConversation<_TBot extends Bot> = Client['getOrCreateConversation']
-export type UpdateConversation<_TBot extends Bot> = Client['updateConversation']
-export type DeleteConversation<_TBot extends Bot> = Client['deleteConversation']
+export type CreateMessage<_TBot extends BaseBot> = Client['createMessage']
+export type GetOrCreateMessage<_TBot extends BaseBot> = Client['getOrCreateMessage']
+export type GetMessage<_TBot extends BaseBot> = Client['getMessage']
+export type UpdateMessage<_TBot extends BaseBot> = Client['updateMessage']
+export type ListMessages<_TBot extends BaseBot> = Client['listMessages']
+export type DeleteMessage<_TBot extends BaseBot> = Client['deleteMessage']
 
-export type CreateEvent<_TBot extends Bot> = Client['createEvent']
-export type GetEvent<_TBot extends Bot> = Client['getEvent']
-export type ListEvents<_TBot extends Bot> = Client['listEvents']
+export type CreateUser<_TBot extends BaseBot> = Client['createUser']
+export type GetUser<_TBot extends BaseBot> = Client['getUser']
+export type ListUsers<_TBot extends BaseBot> = Client['listUsers']
+export type GetOrCreateUser<_TBot extends BaseBot> = Client['getOrCreateUser']
+export type UpdateUser<_TBot extends BaseBot> = Client['updateUser']
+export type DeleteUser<_TBot extends BaseBot> = Client['deleteUser']
 
-export type CreateMessage<_TBot extends Bot> = Client['createMessage']
-export type GetOrCreateMessage<_TBot extends Bot> = Client['getOrCreateMessage']
-export type GetMessage<_TBot extends Bot> = Client['getMessage']
-export type UpdateMessage<_TBot extends Bot> = Client['updateMessage']
-export type ListMessages<_TBot extends Bot> = Client['listMessages']
-export type DeleteMessage<_TBot extends Bot> = Client['deleteMessage']
+export type GetState<_TBot extends BaseBot> = Client['getState']
+export type SetState<_TBot extends BaseBot> = Client['setState']
+export type PatchState<_TBot extends BaseBot> = Client['patchState']
 
-export type CreateUser<TBot extends Bot> = <IntegrationName extends IntegrationsOf<TBot>>(
-  x: Merge<
-    Arg<Client['createUser']>,
-    {
-      integrationName: Cast<IntegrationName, string>
-      tags: AsTags<Partial<Record<ListUserTags<TBot, IntegrationName>, string>>>
-    }
-  >
-) => Res<Client['createUser']>
-
-export type GetUser<_TBot extends Bot> = Client['getUser']
-
-export type ListUsers<TBot extends Bot> = (
-  x: Merge<
-    Arg<Client['listUsers']>,
-    {
-      tags: AsTags<Partial<Record<ListUserTags<TBot, null>, string>>>
-    }
-  >
-) => Res<Client['listUsers']>
-
-export type GetOrCreateUser<TBot extends Bot> = <IntegrationName extends IntegrationsOf<TBot>>(
-  x: Merge<
-    Arg<Client['getOrCreateUser']>,
-    {
-      integrationName: Cast<IntegrationName, string>
-      tags: AsTags<Partial<Record<ListUserTags<TBot, IntegrationName>, string>>>
-    }
-  >
-) => Res<Client['getOrCreateUser']>
-
-export type UpdateUser<TBot extends Bot> = (
-  x: Merge<
-    Arg<Client['updateUser']>,
-    {
-      tags: AsTags<Partial<Record<ListUserTags<TBot, null>, string>>>
-    }
-  >
-) => Res<Client['updateUser']>
-
-export type DeleteUser<_TBot extends Bot> = Client['deleteUser']
-
-export type GetState<TBot extends Bot> = <StateName extends keyof TBot['props']['states']>(
-  x: Merge<
-    Arg<Client['getState']>,
-    {
-      name: Cast<StateName, string>
-      type: GetStateByName<TBot, StateName>['type']
-    }
-  >
-) => Res<Client['getState']>
-
-export type SetState<TBot extends Bot> = <StateName extends keyof TBot['props']['states']>(
-  x: Merge<
-    Arg<Client['setState']>,
-    {
-      name: Cast<StateName, string>
-      type: GetStateByName<TBot, StateName>['type']
-      payload: z.infer<GetStateByName<TBot, StateName>['schema']>
-    }
-  >
-) => Res<Client['setState']>
-
-export type PatchState<TBot extends Bot> = <StateName extends keyof TBot['props']['states']>(
-  x: Merge<
-    Arg<Client['patchState']>,
-    {
-      name: Cast<StateName, string>
-      type: GetStateByName<TBot, StateName>['type']
-      payload: z.infer<GetStateByName<TBot, StateName>['schema']>
-    }
-  >
-) => Res<Client['patchState']>
-
-export type CallAction<TBot extends Bot> = <ActionType extends keyof EnumerateActions<TBot>>(
-  x: Merge<
-    Arg<Client['callAction']>,
-    {
-      type: Cast<ActionType, string>
-      input: z.infer<Cast<EnumerateActions<TBot>[ActionType], IntegrationActionDefinition>['input']['schema']>
-    }
-  >
-) => Promise<{
-  output: z.infer<Cast<EnumerateActions<TBot>[ActionType], IntegrationActionDefinition>['output']['schema']>
-}>
+export type CallAction<_TBot extends BaseBot> = Client['callAction']

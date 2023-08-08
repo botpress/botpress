@@ -10,8 +10,6 @@ sentryHelpers.init({
   release: secrets.SENTRY_RELEASE,
 })
 
-const log = console
-
 const integration = new Integration({
   register: async () => {},
   unregister: async () => {},
@@ -70,13 +68,13 @@ const integration = new Integration({
   },
   handler: async ({ req, client }) => {
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
 
     const data = JSON.parse(req.body)
 
-    log.info(`Handler received request of type ${data.message_type}`)
+    console.info(`Handler received request of type ${data.message_type}`)
 
     if (data.message_type !== 'text') {
       throw new Error('Handler received an invalid message type')
@@ -89,21 +87,21 @@ const integration = new Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        'vonage:channel': data.channel,
-        'vonage:channelId': data.to,
-        'vonage:userId': data.from,
+        channel: data.channel,
+        channelId: data.to,
+        userId: data.from,
       },
     })
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        'vonage:channel': data.channel,
-        'vonage:userId': data.from,
+        channel: data.channel,
+        userId: data.from,
       },
     })
 
     await client.createMessage({
-      tags: { 'vonage:id': data.message_uuid },
+      tags: { id: data.message_uuid },
       type: 'text',
       userId: user.id,
       conversationId: conversation.id,
@@ -111,8 +109,8 @@ const integration = new Integration({
     })
   },
   createUser: async ({ client, tags }) => {
-    const vonageChannel = tags['vonage:channel']
-    const userId = tags['vonage:userId']
+    const vonageChannel = tags.channel
+    const userId = tags.userId
 
     if (!(vonageChannel && userId)) {
       return
@@ -120,8 +118,8 @@ const integration = new Integration({
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        'vonage:channel': vonageChannel,
-        'vonage:userId': userId,
+        channel: vonageChannel,
+        userId,
       },
     })
 
@@ -132,9 +130,9 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags }) => {
-    const vonageChannel = tags['vonage:channel']
-    const channelId = tags['vonage:channelId']
-    const userId = tags['vonage:userId']
+    const vonageChannel = tags.channel
+    const channelId = tags.channelId
+    const userId = tags.userId
 
     if (!(vonageChannel && channelId && userId)) {
       return
@@ -143,9 +141,9 @@ const integration = new Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel,
       tags: {
-        'vonage:channel': vonageChannel,
-        'vonage:channelId': channelId,
-        'vonage:userId': userId,
+        channel: vonageChannel,
+        channelId,
+        userId,
       },
     })
 
@@ -160,9 +158,9 @@ const integration = new Integration({
 export default sentryHelpers.wrapIntegration(integration)
 
 function getRequestMetadata(conversation: Conversation) {
-  const channel = conversation.tags?.['vonage:channel']
-  const channelId = conversation.tags?.['vonage:channelId']
-  const userId = conversation.tags?.['vonage:userId']
+  const channel = conversation.tags?.['channel']
+  const channelId = conversation.tags?.['channelId']
+  const userId = conversation.tags?.['userId']
 
   if (!channelId) {
     throw new Error('Invalid channel id')
@@ -338,5 +336,5 @@ async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload
       auth: { username: ctx.configuration.apiKey, password: ctx.configuration.apiSecret },
     }
   )
-  await ack({ tags: { 'vonage:id': response.data.message_uuid } })
+  await ack({ tags: { id: response.data.message_uuid } })
 }

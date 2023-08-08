@@ -1,9 +1,17 @@
-import type { Client, Conversation } from '@botpress/client'
-import type { IntegrationContext, AckFunction } from '@botpress/sdk'
+import type { Conversation } from '@botpress/client'
+import type {
+  IntegrationContext,
+  AckFunction,
+  Integration as SdkIntegration,
+  IntegrationSpecificClient,
+} from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import * as line from '@line/bot-sdk'
 import crypto from 'crypto'
 import { Integration, secrets } from '.botpress'
+
+type Tof<I extends SdkIntegration<any>> = I extends SdkIntegration<infer T> ? T : never
+type TIntegration = Tof<Integration>
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
@@ -18,7 +26,7 @@ log.info(`starting integration ${name}`)
 async function replyLineMessage(
   ctx: IntegrationContext,
   conversation: Conversation,
-  client: Client,
+  client: IntegrationSpecificClient<TIntegration>,
   ack: AckFunction,
   messageObj: line.Message
 ) {
@@ -393,7 +401,7 @@ const integration = new Integration({
     })
     const profile = await lineClient.getProfile(userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { 'line:usrId': `${profile.userId}` } })
+    const { user } = await client.getOrCreateUser({ tags: { usrId: `${profile.userId}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -402,8 +410,8 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const usrId = tags['line:usrId']
-    const destId = tags['line:destId']
+    const usrId = tags.usrId
+    const destId = tags.destId
 
     if (!(usrId && destId)) {
       return
@@ -417,7 +425,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { 'line:usrId': `${profile.userId}`, 'line:destId': destId },
+      tags: { usrId: `${profile.userId}`, destId },
     })
 
     return {
@@ -430,7 +438,7 @@ const integration = new Integration({
 
 export default sentryHelpers.wrapIntegration(integration)
 
-async function handleMessage(events: LineEvents, destination: string, client: Client) {
+async function handleMessage(events: LineEvents, destination: string, client: IntegrationSpecificClient<TIntegration>) {
   const message = events.message
   if (message.type) {
     const { conversation } = await client.getOrCreateConversation({

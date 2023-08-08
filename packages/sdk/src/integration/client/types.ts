@@ -1,19 +1,14 @@
 import { Cast } from '../../type-utils'
-import { IntegrationImplementation as Integration } from '../implementation'
+import { BaseIntegration } from '../generic'
 
-// type Def<T> = NonNullable<T>
-
-export type Tof<I extends Integration> = I extends Integration<infer D> ? D : never
-
-export type Definition = Tof<Integration>
-export type ConfigurationDefinition = Definition['configuration']
-export type ActionDefinition = Definition['actions'][string]
-export type ChannelDefinition = Definition['channels'][string]
-export type EventDefinition = Definition['events'][string]
-export type StateDefinition = Definition['states'][string]
-export type UserDefinition = Definition['user']
+export type ConfigurationDefinition = BaseIntegration['configuration']
+export type ActionDefinition = BaseIntegration['actions'][string]
+export type ChannelDefinition = BaseIntegration['channels'][string]
+export type EventDefinition = BaseIntegration['events'][string]
+export type StateDefinition = BaseIntegration['states'][string]
+export type UserDefinition = BaseIntegration['user']
 
 export type GetChannelByName<
-  TIntegration extends Integration<any>,
-  TChannelName extends keyof Tof<TIntegration>['channels']
-> = Cast<Tof<TIntegration>['channels'][TChannelName], ChannelDefinition>
+  TIntegration extends BaseIntegration,
+  TChannelName extends keyof TIntegration['channels']
+> = Cast<TIntegration['channels'][TChannelName], ChannelDefinition>
