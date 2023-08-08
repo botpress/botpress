@@ -1,6 +1,6 @@
 {
   "name": "@botpress/sdk",
-  "version": "0.2.2",
+  "version": "0.2.3",
   "description": "Botpress SDK",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -14,7 +14,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "0.3.1",
+    "@botpress/client": "0.3.2",
     "axios": "0.27.2",
     "radash": "^9.5.0",
     "zod": "^3.20.6",
