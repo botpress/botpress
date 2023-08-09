@@ -1,0 +1,5 @@
+[defaults]
+project=integration-asana
+
+[auth]
+dsn=https://fee5d1472b33cd6c7fa53b8f34aee871@o363631.ingest.sentry.io/4505675573559296
