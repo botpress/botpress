@@ -1,8 +1,11 @@
+import { Client } from '@botpress/client'
 import { WebClient } from '@slack/web-api'
 import { CreateConversationFunction, CreateUserFunction, RegisterFunction, UnregisterFunction } from './misc/types'
 import { getDirectMessageForUser, getTag, isUserId, saveConfig } from './misc/utils'
 
 export type Configuration = { botUserId?: string }
+
+type Conversation = Awaited<ReturnType<Client['getConversation']>>['conversation']
 
 export const register: RegisterFunction = async ({ client, ctx }) => {
   const slack = new WebClient(ctx.configuration.botToken)
@@ -60,10 +63,20 @@ export const createConversation: CreateConversationFunction = async ({ client, c
     return
   }
 
-  const { conversation } = await client.getOrCreateConversation({
-    channel,
-    tags: { id: response.channel.id, thread: thread! },
-  })
+  let conversation: Conversation
+  if (channel === 'thread') {
+    const resp = await client.getOrCreateConversation({
+      channel,
+      tags: { id: response.channel.id, thread },
+    })
+    conversation = resp.conversation
+  } else {
+    const resp = await client.getOrCreateConversation({
+      channel,
+      tags: { id: response.channel.id },
+    })
+    conversation = resp.conversation
+  }
 
   return {
     body: JSON.stringify({ conversation: { id: conversation.id, thread } }),

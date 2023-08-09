@@ -1,4 +1,4 @@
-import { Client, Conversation } from '@botpress/client'
+import { Conversation } from '@botpress/client'
 import { MessagingClient } from '@botpress/messaging-client'
 
 import { INTEGRATION_STATE_NAME, INTEGRATION_STATE_TYPE, USER_DATA_STATE_NAME } from './const'
@@ -6,7 +6,7 @@ import { fireConversationStarted } from './events/conversation-started'
 import { handleTrigger } from './events/trigger'
 import { NewMessage, NewUser, incomingEventSchema } from './misc/messaging/incoming-event'
 import { OutgoingMessage } from './misc/messaging/outgoing-message'
-import { IntegrationCtx } from './misc/types'
+import { IntegrationClient, IntegrationCtx } from './misc/types'
 import { getTag, getUserAndConversation } from './misc/utils'
 import * as botpress from '.botpress'
 
@@ -45,7 +45,7 @@ export const send = async (params: {
   message: OutgoingMessage
   ctx: IntegrationCtx
   conversation: Conversation
-  client: Client
+  client: IntegrationClient
 }) => {
   const { message, ctx, client, conversation } = params
 
@@ -60,7 +60,7 @@ export const send = async (params: {
   await messagingClient.createMessage(conversationId, undefined, message)
 }
 
-async function handleNewUser(newUser: NewUser, client: Client) {
+async function handleNewUser(newUser: NewUser, client: IntegrationClient) {
   const { user } = await client.getOrCreateUser({
     tags: { id: newUser.userId },
   })
@@ -75,7 +75,7 @@ async function handleNewUser(newUser: NewUser, client: Client) {
   }
 }
 
-async function handleUpdateUser(newUser: NewUser, client: Client) {
+async function handleUpdateUser(newUser: NewUser, client: IntegrationClient) {
   const { user } = await client.getOrCreateUser({
     tags: { id: newUser.userId },
   })
@@ -84,11 +84,11 @@ async function handleUpdateUser(newUser: NewUser, client: Client) {
     type: 'user',
     id: user.id,
     name: USER_DATA_STATE_NAME,
-    payload: newUser.userData ?? null,
+    payload: newUser.userData ?? {},
   })
 }
 
-async function handleNewMessage(newMessage: NewMessage, client: Client) {
+async function handleNewMessage(newMessage: NewMessage, client: IntegrationClient) {
   if (!newMessage.message.authorId) {
     console.info('Ignoring message from bot')
     return
@@ -108,7 +108,7 @@ async function handleNewMessage(newMessage: NewMessage, client: Client) {
   if (!isTriggerHandled) {
     await client.createMessage({
       tags: { id: message.id },
-      type: message.payload.type,
+      type: message.payload.type as any, // TODO: fix typing
       userId,
       conversationId,
       payload: message.payload,
@@ -116,7 +116,7 @@ async function handleNewMessage(newMessage: NewMessage, client: Client) {
   }
 }
 
-async function getMessagingClient(ctx: IntegrationCtx, client: Client) {
+async function getMessagingClient(ctx: IntegrationCtx, client: IntegrationClient) {
   const { configuration, integrationId } = ctx
   const { messagingUrl, clientId, clientToken } = configuration
 

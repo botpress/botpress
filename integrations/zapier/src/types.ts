@@ -1,7 +1,9 @@
-import type { Client } from '@botpress/client'
+import * as sdk from '@botpress/sdk'
 import { z } from 'zod'
+import * as botpress from '.botpress'
 
-export type BotpressClient = InstanceType<typeof Client>
+type Tof<I extends sdk.Integration<any>> = I extends sdk.Integration<infer T> ? T : never
+export type IntegrationClient = sdk.IntegrationSpecificClient<Tof<botpress.Integration>>
 
 export const TriggerSubscriberSchema = z.object({
   url: z.string(),

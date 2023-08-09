@@ -1,9 +1,9 @@
 import bluebird from 'bluebird'
 import { casing } from '../../utils'
 import { GENERATED_HEADER, INDEX_FILE } from '../const'
-import { zodToTypeScriptType } from '../generators'
+import { jsonSchemaToTypeScriptType, stringifySingleLine } from '../generators'
 import { Module, ModuleDef, ReExportTypeModule } from '../module'
-import type * as types from './types'
+import type * as types from '../typings'
 
 export class MessageModule extends Module {
   public static async create(name: string, message: types.MessageDefinition): Promise<MessageModule> {
@@ -11,7 +11,7 @@ export class MessageModule extends Module {
     const def: ModuleDef = {
       path: `${name}.ts`,
       exportName: casing.to.pascalCase(name),
-      content: await zodToTypeScriptType(schema, name),
+      content: await jsonSchemaToTypeScriptType(schema, name),
     }
     return new MessageModule(def)
   }
@@ -37,7 +37,7 @@ export class ChannelModule extends Module {
     const messagesModule = await MessagesModule.create(channel)
     messagesModule.unshift('messages')
 
-    const inst = new ChannelModule(messagesModule, {
+    const inst = new ChannelModule(messagesModule, channel, {
       path: INDEX_FILE,
       exportName: `Channel${casing.to.pascalCase(channelName)}`,
       content: '',
@@ -47,13 +47,14 @@ export class ChannelModule extends Module {
     return inst
   }
 
-  private constructor(private messageModules: MessageModule, def: ModuleDef) {
+  private constructor(private messageModules: MessageModule, private channel: types.ChannelDefinition, def: ModuleDef) {
     super(def)
   }
 
   public override get content() {
     const { messageModules } = this
     const messageImport = messageModules.import(this)
+
     return [
       GENERATED_HEADER,
       `import { ${messageModules.exports} } from './${messageImport}'`,
@@ -61,8 +62,8 @@ export class ChannelModule extends Module {
       '',
       `export type ${this.exports} = {`,
       `  messages: ${messageModules.exports}`,
-      '  message: { tags: {} }', // TODO: implement message
-      '  conversation: { tags: {}; creation: { enabled: false; requiredTags: [] } }', // TODO: implement conversation
+      `  message: ${stringifySingleLine(this.channel.message)}`,
+      `  conversation: ${stringifySingleLine(this.channel.conversation)}`,
       '}',
     ].join('\n')
   }

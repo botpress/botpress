@@ -1,9 +1,8 @@
-import { Client } from '@botpress/client'
-
 import { ConversationStarted } from '../misc/messaging/incoming-event'
+import { IntegrationClient } from '../misc/types'
 import { getUserAndConversation } from '../misc/utils'
 
-export async function fireConversationStarted(convoStarted: ConversationStarted, client: Client) {
+export async function fireConversationStarted(convoStarted: ConversationStarted, client: IntegrationClient) {
   const { conversationId, userId } = await getUserAndConversation(
     {
       webchatConvoId: convoStarted.conversationId,

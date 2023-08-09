@@ -63,7 +63,7 @@ export abstract class Module implements File {
   }
 }
 
-export abstract class ReExportModule extends Module {
+export class ReExportTypeModule extends Module {
   protected constructor(def: { exportName: string }) {
     super({
       ...def,
@@ -71,8 +71,6 @@ export abstract class ReExportModule extends Module {
       content: '',
     })
   }
-
-  public abstract mainExportBlock(): string
 
   public override get content(): string {
     let content = GENERATED_HEADER
@@ -86,33 +84,15 @@ export abstract class ReExportModule extends Module {
     }
 
     content += '\n'
-    content += this.mainExportBlock()
-    content += '\n'
 
-    return content
-  }
-}
-
-export class ReExportTypeModule extends ReExportModule {
-  public mainExportBlock(): string {
-    let content = ''
     content += `export type ${this.exports} = {\n`
     for (const { name, exports } of this.deps) {
       content += `  ${name}: ${name}.${exports};\n`
     }
     content += '}'
-    return content
-  }
-}
 
-export class ReExportConstantModule extends ReExportModule {
-  public mainExportBlock(): string {
-    let content = ''
-    content += `export const ${this.exports} = {\n`
-    for (const { name, exports } of this.deps) {
-      content += `  ${name}: ${name}.${exports},\n`
-    }
-    content += '}'
+    content += '\n'
+
     return content
   }
 }

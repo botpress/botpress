@@ -79,14 +79,14 @@ const integration = new Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        'twilio:userPhone': userPhone,
-        'twilio:activePhone': activePhone,
+        userPhone,
+        activePhone,
       },
     })
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        'twilio:userPhone': userPhone,
+        userPhone,
       },
     })
 
@@ -103,7 +103,7 @@ const integration = new Integration({
     }
 
     await client.createMessage({
-      tags: { 'twilio:id': messageSid },
+      tags: { id: messageSid },
       type: 'text',
       userId: user.id,
       conversationId: conversation.id,
@@ -114,7 +114,7 @@ const integration = new Integration({
   },
 
   createUser: async ({ client, tags, ctx }) => {
-    const userPhone = tags['twilio:userPhone']
+    const userPhone = tags['userPhone']
 
     if (!userPhone) {
       return
@@ -124,7 +124,7 @@ const integration = new Integration({
     const phone = await twilioClient.lookups.phoneNumbers(userPhone).fetch()
 
     const { user } = await client.getOrCreateUser({
-      tags: { 'twilio:userPhone': `${phone.phoneNumber}` },
+      tags: { userPhone: `${phone.phoneNumber}` },
     })
 
     return {
@@ -135,8 +135,8 @@ const integration = new Integration({
   },
 
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const userPhone = tags['twilio:userPhone']
-    const activePhone = tags['twilio:activePhone']
+    const userPhone = tags['userPhone']
+    const activePhone = tags['activePhone']
 
     if (!(userPhone && activePhone)) {
       return
@@ -147,7 +147,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { 'twilio:userPhone': `${phone.phoneNumber}`, 'twilio:activePhone': activePhone },
+      tags: { userPhone: `${phone.phoneNumber}`, activePhone },
     })
 
     return {
@@ -177,8 +177,8 @@ function renderCard(card: Card, total?: string): string {
 }
 
 function getPhoneNumbers(conversation: Conversation) {
-  const to = conversation.tags?.['twilio:userPhone']
-  const from = conversation.tags?.['twilio:activePhone']
+  const to = conversation.tags?.['userPhone']
+  const from = conversation.tags?.['activePhone']
 
   if (!to) {
     throw new Error('Invalid to phone number')
@@ -203,5 +203,5 @@ async function sendMessage({ ctx, conversation, ack, mediaUrl, text }: SendMessa
   const twilioClient = new Twilio(ctx.configuration.accountSID, ctx.configuration.authToken)
   const { to, from } = getPhoneNumbers(conversation)
   const { sid } = await twilioClient.messages.create({ to, from, mediaUrl, body: text })
-  await ack({ tags: { 'twilio:id': sid } })
+  await ack({ tags: { id: sid } })
 }

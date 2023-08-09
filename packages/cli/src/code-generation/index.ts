@@ -1,8 +1,8 @@
 import type * as client from '@botpress/client'
 import type { IntegrationDefinition } from '@botpress/sdk'
 import pathlib from 'path'
-import { casing } from '../utils'
-import { INDEX_FILE } from './const'
+import * as utils from '../utils'
+import { GENERATED_HEADER, INDEX_FILE } from './const'
 import { IntegrationImplementationIndexModule } from './integration-implementation'
 import { IntegrationInstanceIndexModule } from './integration-instance'
 import { IntegrationSecretIndexModule } from './integration-secret'
@@ -54,7 +54,7 @@ export const generateIntegrationInstance = async (
   installPath: string
 ): Promise<types.File[]> => {
   const indexModule = await IntegrationInstanceIndexModule.create(integration)
-  const dirname = casing.to.kebabCase(integration.name)
+  const dirname = utils.casing.to.kebabCase(integration.name)
   indexModule.unshift(installPath, dirname)
   const files = indexModule.flatten()
 
@@ -72,7 +72,44 @@ export const generateIntegrationInstance = async (
   return files
 }
 
-export const generateBotIndex = async (installPath: string, instances: string[]): Promise<types.File> => ({
-  path: INDEX_FILE,
-  content: instances.map((instance) => `export * from './${installPath}/${instance}'`).join('\n'),
-})
+export const generateBotIndex = async (installPath: string, instances: string[]): Promise<types.File> => {
+  const lines: string[] = [
+    GENERATED_HEADER,
+    "import * as sdk from '@botpress/sdk'",
+    ...instances.map(
+      (instance) => `import * as ${utils.casing.to.camelCase(instance)} from './${installPath}/${instance}'`
+    ),
+    ...instances.map(
+      (instance) => `export * as ${utils.casing.to.camelCase(instance)} from './${installPath}/${instance}'`
+    ),
+    '',
+    'type TOf<B extends sdk.Bot> = B extends sdk.Bot<infer TIntegrations, infer TStates, infer TEvents> ? {',
+    '  integrations: TIntegrations',
+    '  states: TStates',
+    '  events: TEvents',
+    '} : never',
+    '',
+    'type TIntegrations = {',
+    ...instances.map(
+      (instance) =>
+        `  ${utils.casing.to.camelCase(instance)}: ${utils.casing.to.camelCase(instance)}.T${utils.casing.to.pascalCase(
+          instance
+        )}`
+    ),
+    '}',
+    '',
+    'export class Bot<',
+    "  TStates extends TOf<sdk.Bot>['states'],",
+    "  TEvents extends TOf<sdk.Bot>['events']",
+    '> extends sdk.Bot<',
+    '    TIntegrations,',
+    '    TStates,',
+    '    TEvents',
+    '> {}',
+  ]
+
+  return {
+    path: INDEX_FILE,
+    content: lines.join('\n'),
+  }
+}

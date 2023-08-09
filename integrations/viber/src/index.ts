@@ -2,7 +2,6 @@ import type { Conversation } from '@botpress/client'
 import type { AckFunction, IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
-
 import { Integration, channels, secrets } from '.botpress'
 
 sentryHelpers.init({
@@ -180,20 +179,20 @@ const integration = new Integration({
       const { conversation } = await client.getOrCreateConversation({
         channel: 'channel',
         tags: {
-          'viber:id': data.sender.id,
+          id: data.sender.id,
         },
       })
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          'viber:id': data.sender.id,
+          id: data.sender.id,
         },
       })
 
       switch (data.message.type) {
         case 'text':
           await client.createMessage({
-            tags: { 'viber:id': data.message_token.toString() },
+            tags: { id: data.message_token.toString() },
             type: 'text',
             userId: user.id,
             conversationId: conversation.id,
@@ -202,34 +201,34 @@ const integration = new Integration({
           break
         case 'picture':
           await client.createMessage({
-            tags: { 'viber:id': data.message_token.toString() },
+            tags: { id: data.message_token.toString() },
             type: 'image',
             userId: user.id,
             conversationId: conversation.id,
-            payload: { imageUrl: data.message.media, caption: '' },
+            payload: { imageUrl: data.message.media },
           })
           break
         case 'video':
           await client.createMessage({
-            tags: { 'viber:id': data.message_token.toString() },
+            tags: { id: data.message_token.toString() },
             type: 'video',
             userId: user.id,
             conversationId: conversation.id,
-            payload: { videoUrl: data.message.media, size: data.message.size },
+            payload: { videoUrl: data.message.media },
           })
           break
         case 'file':
           await client.createMessage({
-            tags: { 'viber:id': data.message_token.toString() },
+            tags: { id: data.message_token.toString() },
             type: 'file',
             userId: user.id,
             conversationId: conversation.id,
-            payload: { fileUrl: data.message.media, fileName: data.message.file_name, fileSize: data.message.size },
+            payload: { fileUrl: data.message.media },
           })
           break
         case 'location':
           await client.createMessage({
-            tags: { 'viber:id': data.message_token.toString() },
+            tags: { id: data.message_token.toString() },
             type: 'location',
             userId: user.id,
             conversationId: conversation.id,
@@ -241,8 +240,6 @@ const integration = new Integration({
           return
       }
     } else {
-      // handle other events
-      // log.info('other event: ', data)
     }
 
     return
@@ -256,7 +253,7 @@ const integration = new Integration({
 
     const userDetails = await getUserDetails({ ctx, id: userId })
 
-    const { user } = await client.getOrCreateUser({ tags: { 'viber:id': `${userDetails.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { id: `${userDetails.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -265,7 +262,7 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const userId = tags['viber:id']
+    const userId = tags.id
 
     if (!userId) {
       return
@@ -275,7 +272,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { 'viber:id': `${userDetails.id}` },
+      tags: { id: `${userDetails.id}` },
     })
 
     return {

@@ -281,7 +281,7 @@ const integration = new Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags['intercom:id']
+    const userId = tags.id
 
     if (!userId) {
       return
@@ -290,7 +290,7 @@ const integration = new Integration({
     const intercomClient = new Client({ tokenAuth: { token: ctx.configuration.accessToken } })
     const contact = await intercomClient.contacts.find({ id: userId })
 
-    const { user } = await client.getOrCreateUser({ tags: { 'intercom:id': `${contact.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { id: `${contact.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -299,7 +299,7 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const conversationId = tags['intercom:id']
+    const conversationId = tags.id
 
     if (!conversationId) {
       return
@@ -310,7 +310,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { 'intercom:id': `${chat.id}` },
+      tags: { id: `${chat.id}` },
     })
 
     return {

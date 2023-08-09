@@ -43,7 +43,7 @@ export const unregister: UnregisterFunction = async ({ ctx, client }) => {
   })
 
   const octokit = new Octokit({ auth: token })
-  await octokit.rest.repos.deleteWebhook({ owner, repo, hook_id: state.payload.webhookId })
+  await octokit.rest.repos.deleteWebhook({ owner, repo, hook_id: state.payload.webhookId! })
 }
 
 export const createUser: CreateUserFunction = async () => {

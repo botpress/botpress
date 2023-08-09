@@ -1,6 +1,5 @@
-import { Client } from '@botpress/client'
-
 import { triggerSchema } from '../misc/messaging/incoming-event'
+import { IntegrationClient } from '../misc/types'
 import { Events } from '.botpress/implementation/events'
 
 export const handleTrigger = async ({
@@ -11,7 +10,7 @@ export const handleTrigger = async ({
 }: {
   userId: string
   conversationId: string
-  client: Client
+  client: IntegrationClient
   payload: any
 }) => {
   const triggerParse = triggerSchema.safeParse(payload)
