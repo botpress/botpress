@@ -1,8 +1,8 @@
 import { IssueCreated } from '../definitions/events'
-import { IntegrationClient } from '../misc/types'
+import { Client } from '../misc/types'
 import { getUserAndConversation } from '../misc/utils'
 
-export const fireIssueCreated = async ({ linearEvent, client }: { linearEvent: any; client: IntegrationClient }) => {
+export const fireIssueCreated = async ({ linearEvent, client }: { linearEvent: any; client: Client }) => {
   const payload = {
     title: linearEvent.data.title,
     priority: linearEvent.data.priority,

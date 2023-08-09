@@ -6,7 +6,7 @@ import { fireConversationStarted } from './events/conversation-started'
 import { handleTrigger } from './events/trigger'
 import { NewMessage, NewUser, incomingEventSchema } from './misc/messaging/incoming-event'
 import { OutgoingMessage } from './misc/messaging/outgoing-message'
-import { IntegrationClient, IntegrationCtx } from './misc/types'
+import { Client, IntegrationCtx } from './misc/types'
 import { getTag, getUserAndConversation } from './misc/utils'
 import * as botpress from '.botpress'
 
@@ -45,7 +45,7 @@ export const send = async (params: {
   message: OutgoingMessage
   ctx: IntegrationCtx
   conversation: Conversation
-  client: IntegrationClient
+  client: Client
 }) => {
   const { message, ctx, client, conversation } = params
 
@@ -60,7 +60,7 @@ export const send = async (params: {
   await messagingClient.createMessage(conversationId, undefined, message)
 }
 
-async function handleNewUser(newUser: NewUser, client: IntegrationClient) {
+async function handleNewUser(newUser: NewUser, client: Client) {
   const { user } = await client.getOrCreateUser({
     tags: { id: newUser.userId },
   })
@@ -75,7 +75,7 @@ async function handleNewUser(newUser: NewUser, client: IntegrationClient) {
   }
 }
 
-async function handleUpdateUser(newUser: NewUser, client: IntegrationClient) {
+async function handleUpdateUser(newUser: NewUser, client: Client) {
   const { user } = await client.getOrCreateUser({
     tags: { id: newUser.userId },
   })
@@ -88,7 +88,7 @@ async function handleUpdateUser(newUser: NewUser, client: IntegrationClient) {
   })
 }
 
-async function handleNewMessage(newMessage: NewMessage, client: IntegrationClient) {
+async function handleNewMessage(newMessage: NewMessage, client: Client) {
   if (!newMessage.message.authorId) {
     console.info('Ignoring message from bot')
     return
@@ -116,7 +116,7 @@ async function handleNewMessage(newMessage: NewMessage, client: IntegrationClien
   }
 }
 
-async function getMessagingClient(ctx: IntegrationCtx, client: IntegrationClient) {
+async function getMessagingClient(ctx: IntegrationCtx, client: Client) {
   const { configuration, integrationId } = ctx
   const { messagingUrl, clientId, clientToken } = configuration
 

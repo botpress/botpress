@@ -5,7 +5,7 @@ import axios from 'axios'
 import VError from 'verror'
 import { INTEGRATION_NAME } from '../const'
 import { Configuration } from '../setup'
-import { IntegrationClient, IntegrationCtx } from './types'
+import { Client, IntegrationCtx } from './types'
 
 type InteractiveBody = {
   response_url: string
@@ -126,7 +126,7 @@ export const getChannelType = (props: { channel: string; thread?: string }) => {
 
 export const getUserAndConversation = async (
   props: { slackUserId: string; slackChannelId: string; slackThreadId?: string },
-  client: IntegrationClient
+  client: Client
 ) => {
   const { conversation } = await client.getOrCreateConversation({
     channel: 'thread',
@@ -140,11 +140,11 @@ export const getUserAndConversation = async (
   }
 }
 
-export const saveConfig = async (client: IntegrationClient, ctx: IntegrationCtx, config: Configuration) => {
+export const saveConfig = async (client: Client, ctx: IntegrationCtx, config: Configuration) => {
   await client.setState({ type: 'integration', name: 'configuration', id: ctx.integrationId, payload: config })
 }
 
-export const getConfig = async (client: IntegrationClient, ctx: IntegrationCtx): Promise<Configuration> => {
+export const getConfig = async (client: Client, ctx: IntegrationCtx): Promise<Configuration> => {
   const {
     state: { payload },
   } = await client.getState({ type: 'integration', name: 'configuration', id: ctx.integrationId })

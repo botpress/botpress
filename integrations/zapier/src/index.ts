@@ -6,14 +6,7 @@ import { constants } from 'http2'
 import { Integration, secrets } from '../.botpress'
 import type { Configuration } from '../.botpress/implementation/configuration'
 import { getTriggerSubscribers, saveTriggerSubscribers, unsubscribeZapierHook } from './helpers'
-import {
-  IntegrationClient,
-  TriggerRequestBody,
-  IntegrationEvent,
-  IntegrationEventSchema,
-  EventSchema,
-  Event,
-} from './types'
+import { Client, TriggerRequestBody, IntegrationEvent, IntegrationEventSchema, EventSchema, Event } from './types'
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
@@ -85,11 +78,7 @@ const integration = new Integration({
 
 export default sentryHelpers.wrapIntegration(integration)
 
-async function handleIntegrationEvent(
-  event: IntegrationEvent,
-  ctx: IntegrationContext<Configuration>,
-  client: IntegrationClient
-) {
+async function handleIntegrationEvent(event: IntegrationEvent, ctx: IntegrationContext<Configuration>, client: Client) {
   console.info('Received integration event: ', event)
 
   let subscribers = await getTriggerSubscribers(ctx, client)
@@ -119,7 +108,7 @@ async function handleIntegrationEvent(
   console.info(`Successfully updated trigger subscribers: ${JSON.stringify(subscribers)}`)
 }
 
-export async function handleEvent(event: Event, client: IntegrationClient) {
+export async function handleEvent(event: Event, client: Client) {
   await client.createEvent({
     type: 'event',
     payload: event,

@@ -3,9 +3,9 @@ import type { AckFunction } from '@botpress/sdk'
 import { Comment, Issue, IssueLabel, LinearClient, Team } from '@linear/sdk'
 import { INTEGRATION_NAME } from '../const'
 import { LinearOauthClient } from './linear'
-import { IntegrationClient } from './types'
+import { Client } from './types'
 
-export function getLinearClient(client: IntegrationClient, integrationId: string) {
+export function getLinearClient(client: Client, integrationId: string) {
   const linearOauthClient = new LinearOauthClient()
   return linearOauthClient.getLinearClient(client, integrationId)
 }
@@ -91,7 +91,7 @@ export async function ackMessage(commentId: string, ack: AckFunction) {
 
 export const getUserAndConversation = async (
   props: { linearUserId: string; linearIssueId: string },
-  client: IntegrationClient
+  client: Client
 ) => {
   const { conversation } = await client.getOrCreateConversation({
     channel: 'issue',

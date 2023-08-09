@@ -3,7 +3,7 @@ import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
 import queryString from 'query-string'
 import { z } from 'zod'
-import { IntegrationClient, IntegrationCtx } from './types'
+import { Client, IntegrationCtx } from './types'
 import { secrets } from '.botpress'
 
 const linearEndpoint = 'https://api.linear.app'
@@ -67,7 +67,7 @@ export class LinearOauthClient {
     }
   }
 
-  async getLinearClient(client: IntegrationClient, integrationId: string) {
+  async getLinearClient(client: Client, integrationId: string) {
     const {
       state: { payload },
     } = await client.getState({
@@ -80,7 +80,7 @@ export class LinearOauthClient {
   }
 }
 
-export const handleOauth = async (req: Request, client: IntegrationClient, ctx: IntegrationCtx) => {
+export const handleOauth = async (req: Request, client: Client, ctx: IntegrationCtx) => {
   const linearOauthClient = new LinearOauthClient()
 
   const query = queryString.parse(req.query)

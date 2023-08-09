@@ -1,9 +1,9 @@
 import { INTEGRATION_NAME } from '../const'
-import { IntegrationClient } from './types'
+import { Client } from './types'
 
 export const getUserAndConversation = async (
   props: { webchatUserId: string; webchatConvoId: string },
-  client: IntegrationClient
+  client: Client
 ) => {
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',

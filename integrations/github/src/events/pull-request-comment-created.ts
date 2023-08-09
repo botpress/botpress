@@ -1,5 +1,5 @@
 import { IssueCommentCreatedEvent } from '@octokit/webhooks-types'
-import { IntegrationClient } from '../misc/types'
+import { Client } from '../misc/types'
 import { getUserAndConversation } from '../misc/utils'
 
 export const firePullRequestCommentCreated = async ({
@@ -7,7 +7,7 @@ export const firePullRequestCommentCreated = async ({
   client,
 }: {
   githubEvent: IssueCommentCreatedEvent
-  client: IntegrationClient
+  client: Client
 }) => {
   await client.createMessage({
     tags: { id: githubEvent.comment.id.toString() },

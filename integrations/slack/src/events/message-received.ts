@@ -1,5 +1,5 @@
 import { GenericMessageEvent } from '@slack/bolt'
-import { IntegrationClient } from 'src/misc/types'
+import { Client } from 'src/misc/types'
 import { getUserAndConversation } from '../misc/utils'
 
 export const executeMessageReceived = async ({
@@ -7,7 +7,7 @@ export const executeMessageReceived = async ({
   client,
 }: {
   slackEvent: GenericMessageEvent
-  client: IntegrationClient
+  client: Client
 }) => {
   // prevents the bot from answering itself
   if (slackEvent.bot_id) {

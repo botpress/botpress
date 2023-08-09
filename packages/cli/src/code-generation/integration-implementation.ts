@@ -104,6 +104,8 @@ export class IntegrationImplementationIndexModule extends Module {
       'export type IntegrationProps = sdk.IntegrationProps<TIntegration>',
       '',
       'export class Integration extends sdk.Integration<TIntegration> {}',
+      '',
+      'export type Client = sdk.IntegrationSpecificClient<TIntegration>',
     ].join('\n')
 
     return content

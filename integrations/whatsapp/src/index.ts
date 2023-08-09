@@ -1,4 +1,3 @@
-import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { name } from 'integration.definition'
 import queryString from 'query-string'
@@ -9,7 +8,7 @@ import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
 import * as outgoing from './outgoing-message'
-import { Integration, IntegrationProps, secrets } from '.botpress'
+import { Integration, IntegrationProps, secrets, Client } from '.botpress'
 
 // TODO: Export these types publicly from the SDK and import them here.
 export type CreateConversationPayload = {
@@ -18,9 +17,6 @@ export type CreateConversationPayload = {
 }
 export type IntegrationLogger = Parameters<IntegrationProps['handler']>[0]['logger']
 export type IntegrationContext = Parameters<IntegrationProps['handler']>[0]['ctx']
-
-type Tof<I extends sdk.Integration<any>> = I extends sdk.Integration<infer T> ? T : never
-export type IntegrationClient = sdk.IntegrationSpecificClient<Tof<Integration>>
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
@@ -174,7 +170,7 @@ export default sentryHelpers.wrapIntegration(integration)
 async function handleMessage(
   message: WhatsAppMessage,
   value: WhatsAppValue,
-  client: IntegrationClient,
+  client: Client,
   logger: IntegrationLogger
 ) {
   if (message.type) {

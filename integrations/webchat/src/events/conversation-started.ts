@@ -1,8 +1,8 @@
 import { ConversationStarted } from '../misc/messaging/incoming-event'
-import { IntegrationClient } from '../misc/types'
+import { Client } from '../misc/types'
 import { getUserAndConversation } from '../misc/utils'
 
-export async function fireConversationStarted(convoStarted: ConversationStarted, client: IntegrationClient) {
+export async function fireConversationStarted(convoStarted: ConversationStarted, client: Client) {
   const { conversationId, userId } = await getUserAndConversation(
     {
       webchatConvoId: convoStarted.conversationId,

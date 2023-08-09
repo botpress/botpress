@@ -1,8 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import type * as botpress from '.botpress'
 
-type Tof<I extends sdk.Integration<any>> = I extends sdk.Integration<infer T> ? T : never
-export type IntegrationClient = sdk.IntegrationSpecificClient<Tof<botpress.Integration>>
+export type Client = botpress.Client
 
 /**
  * @deprecated Use `botpress.IntegrationProps` instead

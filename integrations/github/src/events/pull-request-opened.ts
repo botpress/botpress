@@ -1,6 +1,6 @@
 import { PullRequestOpenedEvent } from '@octokit/webhooks-types'
 
-import { IntegrationClient } from '../misc/types'
+import { Client } from '../misc/types'
 import { getUserAndConversation } from '../misc/utils'
 
 export const firePullRequestOpened = async ({
@@ -8,7 +8,7 @@ export const firePullRequestOpened = async ({
   client,
 }: {
   githubEvent: PullRequestOpenedEvent
-  client: IntegrationClient
+  client: Client
 }) => {
   await client.createEvent({
     type: 'pullRequestOpened',

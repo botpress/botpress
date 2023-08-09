@@ -1,14 +1,8 @@
 import { IssuesOpenedEvent } from '@octokit/webhooks-types'
-import { IntegrationClient } from 'src/misc/types'
+import { Client } from 'src/misc/types'
 import { IssueOpened } from '../definitions/events'
 
-export const fireIssueOpened = async ({
-  githubEvent,
-  client,
-}: {
-  githubEvent: IssuesOpenedEvent
-  client: IntegrationClient
-}) => {
+export const fireIssueOpened = async ({ githubEvent, client }: { githubEvent: IssuesOpenedEvent; client: Client }) => {
   const payload: IssueOpened = {
     id: githubEvent.issue.id,
     number: githubEvent.issue.number,

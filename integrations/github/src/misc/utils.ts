@@ -10,7 +10,7 @@ import {
   isPullRequestCommentCreatedEvent,
   isPullRequestOpenedEvent,
 } from './guards'
-import { IntegrationClient } from './types'
+import { Client } from './types'
 
 type CommonMessage = { content: string; conversationId: number; userId: number; messageId: number }
 
@@ -104,7 +104,7 @@ export const getTag = (tags: Record<string, string>, name: string) => {
 
 export const getUserAndConversation = async (
   props: { githubUserId: string | number; githubChannelId: string | number; githubChannel: 'pullRequest' },
-  client: IntegrationClient
+  client: Client
 ) => {
   const { conversation } = await client.getOrCreateConversation({
     channel: props.githubChannel,
