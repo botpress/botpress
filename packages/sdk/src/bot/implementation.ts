@@ -59,11 +59,7 @@ export type BotProps<
   recurringEvents?: Record<string, RecurringEventDefinition>
 }
 
-type BaseBotFrom<
-  TIntegrations extends BaseIntegrations = BaseIntegrations,
-  TStates extends BaseStates = BaseStates,
-  TEvents extends BaseEvents = BaseEvents
-> = {
+type BotFrom<TIntegrations extends BaseIntegrations, TStates extends BaseStates, TEvents extends BaseEvents> = {
   integrations: TIntegrations
   states: TStates
   events: TEvents
@@ -74,9 +70,9 @@ type BotState<
   TStates extends BaseStates = BaseStates,
   TEvents extends BaseEvents = BaseEvents
 > = {
-  messageHandlers: MessageHandler<BaseBotFrom<TIntegrations, TStates, TEvents>>[]
-  eventHandlers: EventHandler<BaseBotFrom<TIntegrations, TStates, TEvents>>[]
-  stateExpiredHandlers: StateExpiredHandler<BaseBotFrom<TIntegrations, TStates, TEvents>>[]
+  messageHandlers: MessageHandler<BotFrom<TIntegrations, TStates, TEvents>>[]
+  eventHandlers: EventHandler<BotFrom<TIntegrations, TStates, TEvents>>[]
+  stateExpiredHandlers: StateExpiredHandler<BotFrom<TIntegrations, TStates, TEvents>>[]
 }
 
 export class Bot<
@@ -96,13 +92,13 @@ export class Bot<
     this.props = props
   }
 
-  public readonly message = (handler: MessageHandler<BaseBotFrom<TIntegrations, TStates, TEvents>>): void => {
+  public readonly message = (handler: MessageHandler<BotFrom<TIntegrations, TStates, TEvents>>): void => {
     this._state.messageHandlers.push(handler)
   }
-  public readonly event = (handler: EventHandler<BaseBotFrom<TIntegrations, TStates, TEvents>>): void => {
+  public readonly event = (handler: EventHandler<BotFrom<TIntegrations, TStates, TEvents>>): void => {
     this._state.eventHandlers.push(handler)
   }
-  public readonly stateExpired = (handler: StateExpiredHandler<BaseBotFrom<TIntegrations, TStates, TEvents>>): void => {
+  public readonly stateExpired = (handler: StateExpiredHandler<BotFrom<TIntegrations, TStates, TEvents>>): void => {
     this._state.stateExpiredHandlers.push(handler)
   }
 

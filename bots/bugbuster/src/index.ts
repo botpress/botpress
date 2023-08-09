@@ -3,15 +3,6 @@ import * as botpress from '.botpress'
 const github = new botpress.github.Github()
 const linear = new botpress.linear.Linear()
 
-type GITHUB_EVENT_TYPE = `github:${keyof botpress.github.events.Events}`
-
-type LINEAR_CHANNELS = keyof botpress.linear.channels.Channels
-type LINEAR_CONVERSATION_TAG = `linear:${keyof botpress.linear.channels.issue.ChannelIssue['conversation']['tags']}`
-
-const GITHUB_ISSUE_OPENED_TYPE = 'github:issueOpened' satisfies GITHUB_EVENT_TYPE
-const LINEAR_ISSUE_CHANNEL = 'issue' satisfies LINEAR_CHANNELS
-const LINEAR_CONVERSATION_TAG_ID = 'linear:id' satisfies LINEAR_CONVERSATION_TAG
-
 const bot = new botpress.Bot({
   integrations: {
     github,
@@ -22,12 +13,11 @@ const bot = new botpress.Bot({
 })
 
 bot.event(async ({ event, client, ctx }) => {
-  const { type, payload } = event
-  if (type !== GITHUB_ISSUE_OPENED_TYPE) {
+  if (event.type !== 'github:issueOpened') {
     return
   }
 
-  const githubIssue = payload
+  const githubIssue = event.payload
 
   console.info('Received GitHub issue', githubIssue)
 
@@ -43,11 +33,11 @@ bot.event(async ({ event, client, ctx }) => {
   const { issue } = output
 
   const { conversation } = await client.getOrCreateConversation({
-    channel: LINEAR_ISSUE_CHANNEL,
-    tags: {
-      [LINEAR_CONVERSATION_TAG_ID]: issue.id,
-    },
     integrationName: 'linear',
+    channel: 'issue',
+    tags: {
+      ['linear:id']: issue.id,
+    },
   })
 
   const issueUrl = `https://github.com/${githubIssue.repositoryOwner}/${githubIssue.repositoryName}/issues/${githubIssue.number}`

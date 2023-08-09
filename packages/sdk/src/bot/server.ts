@@ -1,7 +1,9 @@
 import * as bpclient from '@botpress/client'
 import { log } from '../log'
 import { Request, Response, parseBody } from '../serve'
+import { Merge } from '../type-utils'
 import { BotSpecificClient } from './client'
+import { EnumerateEvents } from './client/types'
 import { BotContext, extractContext } from './context'
 import { BaseBot } from './generic'
 
@@ -18,8 +20,12 @@ type MessagePayload = {
 }
 type MessageArgs<TBot extends BaseBot> = CommonArgs<TBot> & MessagePayload
 
-type EventPayload = { event: bpclient.Event }
-type EventArgs<TBot extends BaseBot> = CommonArgs<TBot> & EventPayload
+type EventPayload<TBot extends BaseBot> = {
+  event: {
+    [K in keyof EnumerateEvents<TBot>]: Merge<bpclient.Event, { type: K; payload: EnumerateEvents<TBot>[K] }>
+  }[keyof EnumerateEvents<TBot>]
+}
+type EventArgs<TBot extends BaseBot> = CommonArgs<TBot> & EventPayload<TBot>
 
 type StateExpiredPayload = { state: bpclient.State }
 type StateExpiredArgs<TBot extends BaseBot> = CommonArgs<TBot> & StateExpiredPayload
@@ -85,15 +91,16 @@ const onUnregister = async <TBot extends BaseBot>(_: ServerProps<TBot>) => {}
 const onEventReceived = async <TBot extends BaseBot>({ ctx, req, client, instance }: ServerProps<TBot>) => {
   log.debug(`Received event ${ctx.type}`)
 
-  const body = parseBody<EventPayload>(req)
+  const body = parseBody<EventPayload<TBot>>(req)
+  const event = body.event as bpclient.Event
 
   switch (ctx.type) {
     case 'message_created':
       const messagePayload: MessagePayload = {
-        user: body.event.payload.user,
-        conversation: body.event.payload.conversation,
-        message: body.event.payload.message,
-        event: body.event,
+        user: event.payload.user,
+        conversation: event.payload.conversation,
+        message: event.payload.message,
+        event,
       }
 
       await Promise.all(
@@ -107,7 +114,7 @@ const onEventReceived = async <TBot extends BaseBot>({ ctx, req, client, instanc
       )
       break
     case 'state_expired':
-      const statePayload: StateExpiredPayload = { state: body.event.payload.state }
+      const statePayload: StateExpiredPayload = { state: event.payload.state }
       await Promise.all(
         instance.stateExpiredHandlers.map((handler) =>
           handler({
@@ -119,7 +126,7 @@ const onEventReceived = async <TBot extends BaseBot>({ ctx, req, client, instanc
       )
       break
     default:
-      const eventPayload: EventPayload = { event: body.event }
+      const eventPayload = { event: body.event } as EventPayload<TBot>
       await Promise.all(
         instance.eventHandlers.map((handler) =>
           handler({

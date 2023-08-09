@@ -83,17 +83,29 @@ export const generateBotIndex = async (installPath: string, instances: string[])
       (instance) => `export * as ${utils.casing.to.camelCase(instance)} from './${installPath}/${instance}'`
     ),
     '',
-    'type StateOf<B extends sdk.Bot> = B extends sdk.Bot<any, infer TState, any> ? TState : never',
-    'type EventsOf<B extends sdk.Bot> = B extends sdk.Bot<any, any, infer TEvents> ? TEvents : never',
+    'type TOf<B extends sdk.Bot> = B extends sdk.Bot<infer TIntegrations, infer TStates, infer TEvents> ? {',
+    '  integrations: TIntegrations',
+    '  states: TStates',
+    '  events: TEvents',
+    '} : never',
     '',
-    'export class Bot<TStates extends StateOf<sdk.Bot>, TEvents extends EventsOf<sdk.Bot>> extends sdk.Bot<{',
+    'type TIntegrations = {',
     ...instances.map(
       (instance) =>
         `  ${utils.casing.to.camelCase(instance)}: ${utils.casing.to.camelCase(instance)}.T${utils.casing.to.pascalCase(
           instance
         )}`
     ),
-    '}, TStates, TEvents> {}',
+    '}',
+    '',
+    'export class Bot<',
+    "  TStates extends TOf<sdk.Bot>['states'],",
+    "  TEvents extends TOf<sdk.Bot>['events']",
+    '> extends sdk.Bot<',
+    '    TIntegrations,',
+    '    TStates,',
+    '    TEvents',
+    '> {}',
   ]
 
   return {
