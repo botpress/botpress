@@ -1,3 +1,4 @@
+import { Client } from '@botpress/client'
 import type { IntegrationContext, IntegrationProps } from '@botpress/sdk'
 import axios from 'axios'
 import { ARR_OF_EVENTS, SHOPIFY_API_VERSION } from '../const'
@@ -16,7 +17,17 @@ function getValue(obj: string | undefined) {
   }
 }
 
-export const register: RegisterFunction = async ({ client, ctx, logger, webhookUrl }) => {
+export const register: RegisterFunction = async ({
+  client,
+  ctx,
+  logger,
+  webhookUrl,
+}: {
+  ctx: IntegrationContext<Configuration>
+  client: Client
+  logger: IntegrationLogger
+  webhookUrl: string
+}) => {
   const webhooks = await Promise.all(
     ARR_OF_EVENTS.map(async (event) => {
       const topic = getValue(event)
