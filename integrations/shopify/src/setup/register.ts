@@ -17,12 +17,13 @@ function getValue(obj: string | undefined) {
 }
 
 export const register: RegisterFunction = async ({ client, ctx, logger, webhookUrl }) => {
-  const arrOfWebhookIds = []
-  for (let i = 0; i < ARR_OF_EVENTS.length; i++) {
-    const topic = getValue(ARR_OF_EVENTS[i])
-    const webhookId = await createWebhook(topic, ctx, logger, webhookUrl)
-    arrOfWebhookIds.push({ webhookId, topic })
-  }
+  const webhooks = await Promise.all(
+    ARR_OF_EVENTS.map(async (event) => {
+      const topic = getValue(event)
+      const webhookId = await createWebhook(topic, ctx, logger, webhookUrl)
+      return { webhookId, topic }
+    })
+  )
 
   await client.setState({
     type: 'integration',
