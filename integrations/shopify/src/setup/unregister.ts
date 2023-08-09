@@ -9,7 +9,7 @@ type Implementation = ConstructorParameters<typeof botpress.Integration>[0]
 type UnregisterFunction = Implementation['unregister']
 
 export const unregister: UnregisterFunction = async ({ ctx, client, logger }) => {
-  const stateRes = await client.getState({
+  const {state} = await client.getState({
     id: `${ctx.integrationId}`,
     name: 'configuration',
     type: 'integration',
