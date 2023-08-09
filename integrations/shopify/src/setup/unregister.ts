@@ -9,13 +9,13 @@ type Implementation = ConstructorParameters<typeof botpress.Integration>[0]
 type UnregisterFunction = Implementation['unregister']
 
 export const unregister: UnregisterFunction = async ({ ctx, client, logger }) => {
-  const {state} = await client.getState({
+  const { state } = await client.getState({
     id: `${ctx.integrationId}`,
     name: 'configuration',
     type: 'integration',
   })
 
-  const webhookIds = stateRes.state.payload
+  const webhookIds = state.payload
   for (let i = 0; i < webhookIds.length; i++) {
     await deleteWebhook(ctx, webhookIds[i].webhookId, logger)
   }

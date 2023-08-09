@@ -29,7 +29,7 @@ export const register: RegisterFunction = async ({ client, ctx, logger, webhookU
     type: 'integration',
     name: 'configuration',
     id: `${ctx.integrationId}`,
-    payload: { arrOfWebhookIds },
+    payload: { webhooks },
   })
 }
 

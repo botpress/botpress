@@ -1,6 +1,6 @@
 import { Client } from '@botpress/client'
 import type { IntegrationContext } from '@botpress/sdk'
-import { orderCancelledSchema } from 'src/schemas/schemas'
+import { orderCancelledSchema } from 'src/schemas'
 import * as botpress from '.botpress'
 
 export const fireOrderCancelled = async ({

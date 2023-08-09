@@ -1,6 +1,6 @@
 import { Client } from '@botpress/client'
 import type { IntegrationContext } from '@botpress/sdk'
-import { newCustomerSchema } from 'src/schemas/schemas'
+import { newCustomerSchema } from 'src/schemas'
 import * as botpress from '.botpress'
 
 export const fireNewCustomer = async ({
