@@ -81,6 +81,8 @@ const createTicket = {
         updated_at: z.string(),
         // tags: z.record(z.string()),
       }),
+      conversationId: z.string(),
+      userId: z.string(),
     }),
   },
 }

@@ -3,11 +3,10 @@ import { ZendeskApi } from './client'
 
 import { executeTicketAssigned } from './events/ticket-assigned'
 import { executeTicketSolved } from './events/ticket-solved'
-import type { ConditionsData, Trigger, TriggerNames, TriggerPayload } from './misc/types'
+import type { ConditionsData, TriggerNames, TriggerPayload } from './misc/types'
 import * as botpress from '.botpress'
-type Config = botpress.configuration.Configuration
 
-console.info('starting integration')
+type Config = botpress.configuration.Configuration
 
 // TODO: TriggerDefinition
 const TRIGGERS: Record<TriggerNames, any> = {
@@ -86,7 +85,7 @@ export default new botpress.Integration({
       }
     }
 
-    let triggersCreated: string[] = []
+    const triggersCreated: string[] = []
 
     try {
       for (let [triggerName, triggerData] of Object.entries(TRIGGERS)) {
@@ -119,7 +118,6 @@ export default new botpress.Integration({
       name: 'subscriptionInfo',
       type: 'integration',
     })
-    console.log(state)
 
     if (state.payload.subscriptionId?.length) {
       await zendeskClient.unsubscribeWebhook(state.payload.subscriptionId)
@@ -136,23 +134,27 @@ export default new botpress.Integration({
   channels: {
     ticket: {
       messages: {
-        text: async ({ client, payload, ...props }) => {
+        text: async ({ ...props }) => {
+          // console.log(JSON.stringify(props, null, 2), payload)
           const zendeskClient = getClient(props.ctx.configuration)
-          console.log('creating comment', payload.text)
+          // console.log('creating comment', payload.text)
 
           // if message comes from agent, we need to forward it to the original conversation
           // if message comes from user, we need to add it to the ticket
+          // console.log('===> User received', props.user)
+          // console.log('===> GET User', await client.getUser({ id: props.message.userId }))
 
-          console.log('==> user', props.user)
-          console.log('==> convo', props.conversation)
-          console.log('==> message', props.message)
+          const { user } = await props.client.getUser({ id: props.payload.userId })
 
-          console.log('===> GET message', await client.getMessage({ id: props.message.id }))
+          if (user.tags?.origin === 'zendesk') {
+            console.log('===> Message from Bot')
+            return
+          }
 
-          return await zendeskClient.createComment({
-            ...props,
-            content: payload.text,
-          })
+          const ticketId = props.conversation!.tags['zendesk1:id']!
+          const zendeskUserId = user.tags['zendesk1:id']!
+          console.log({ ticketId, zendeskUserId })
+          return await zendeskClient.createComment(ticketId, zendeskUserId, props.payload.text)
         },
       },
     },
@@ -174,40 +176,45 @@ export default new botpress.Integration({
         const { conversation } = await client.getOrCreateConversation({
           channel: 'ticket',
           tags: {
-            'zendesk1:id': zendeskTrigger.ticketId,
+            id: zendeskTrigger.ticketId,
           },
         })
 
-        if (!zendeskTrigger.currentUserId?.length) {
+        if (!zendeskTrigger.currentUser.external_id?.length) {
           console.log('no current user id, creating a new one')
           const { user: newUser } = await client.getOrCreateUser({
             tags: {
-              'zendesk1:origin': 'zendesk',
+              id: zendeskTrigger.currentUser.id,
+              origin: 'zendesk',
+              name: zendeskTrigger.currentUser.name,
+              email: zendeskTrigger.currentUser.email,
+              role: zendeskTrigger.currentUser.role,
             },
           })
 
-          zendeskClient.updateUser()
+          console.log('New User', newUser)
+          await zendeskClient.updateUser(zendeskTrigger.currentUser.id, {
+            external_id: newUser.id,
+          })
         }
 
         const { user } = await client.getOrCreateUser({
           tags: {
-            'zendesk1:id': zendeskTrigger.requesterId,
-            'zendesk1:origin': 'zendesk',
+            id: zendeskTrigger.currentUser.id,
           },
         })
 
-        const { user: user2 } = await client.updateUser({ id: user.id, tags: { 'zendesk1:origin': 'zendesk' } })
-        console.log(user2)
+        console.log('After User', user)
 
-        const { message } = await client.createMessage({
-          tags: { 'zendesk1:id': zendeskTrigger.updated_at, 'zendesk1:origin': 'zendesk' },
-          type: 'text',
-          userId: user.id,
-          conversationId: conversation.id,
-          payload: { text: zendeskTrigger.comment },
-        })
-
-        console.log(await client.updateMessage({ id: message.id, tags: { origin: 'zendesk' } }))
+        console.log(
+          await client.createMessage({
+            tags: { origin: 'zendesk' },
+            type: 'text',
+            userId: user.id,
+            conversationId: conversation.id,
+            payload: { text: zendeskTrigger.comment, userId: zendeskTrigger.currentUser.external_id },
+          })
+        )
 
         return
 

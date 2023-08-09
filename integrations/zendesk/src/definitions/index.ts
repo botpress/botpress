@@ -36,6 +36,9 @@ export const user = {
       title: 'zendesk or botpress',
       description: 'The origin of the user',
     },
+    name: {},
+    email: {},
+    role: {},
   },
   creation: { enabled: true, requiredTags: [] },
 }

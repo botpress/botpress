@@ -16,14 +16,12 @@ export const sendMessageToAgent: Implementation['actions']['sendMessageToAgent']
     channel: 'ticket',
     tags: {
       id: ticket.id.toString(),
-      authorId: ticket.requester_id.toString(),
     },
   })
 
   const { user } = await client.getOrCreateUser({
     tags: {
       id: ticket.requester_id.toString(),
-      origin: 'botpress',
     },
   })
 

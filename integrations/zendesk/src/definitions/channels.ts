@@ -1,10 +1,16 @@
-import { IntegrationDefinitionProps, messages } from '@botpress/sdk'
+import type { IntegrationDefinitionProps } from '@botpress/sdk'
+import { z } from 'zod'
 
 export const channels = {
   ticket: {
     title: 'Zendesk Ticket',
     messages: {
-      text: messages.defaults.text,
+      text: {
+        schema: z.object({
+          text: z.string(),
+          userId: z.string(),
+        }),
+      },
     },
     message: {
       tags: {
@@ -20,7 +26,9 @@ export const channels = {
         id: {
           title: 'Zendesk Ticket ID',
         },
-        authorId: {},
+        originConversationId: {
+          title: 'Origin Conversation ID (the non-Zendesk one)',
+        },
       },
       creation: { enabled: true, requiredTags: ['id'] },
     },

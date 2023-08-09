@@ -17,7 +17,7 @@ export const createTicket: Implementation['actions']['createTicket'] = async ({ 
     channel: 'ticket',
     tags: {
       id: ticket.id.toString(),
-      authorId: ticket.requester_id.toString(),
+      originConversationId: input.__conversationId,
     },
   })
 
@@ -46,6 +46,8 @@ export const createTicket: Implementation['actions']['createTicket'] = async ({ 
 
   console.log('Ticket created: ', ticket, ctx)
   return {
-    ticket, // TODO: the output doesn't match the schema, got a Zod error here
+    ticket,
+    conversationId: conversation.id,
+    userId: user.id, // TODO: the output doesn't match the schema, got a Zod error here
   }
 }

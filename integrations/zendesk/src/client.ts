@@ -7,9 +7,13 @@ export const getTriggerTemplate = (name: TriggerNames) => ({
   agent: '{{current_user.email}}',
   comment: '{{ticket.latest_public_comment_html}}',
   ticketId: '{{ticket.id}}',
-  currentUserId: '{{current_user.id}}',
-  currentUserRole: '{{current_user.role}}',
-  currentUserExternalId: '{{current_user.external_id}}',
+  currentUser: {
+    id: '{{current_user.id}}',
+    name: '{{current_user.name}}',
+    email: '{{current_user.email}}',
+    external_id: '{{current_user.external_id}}',
+    role: '{{current_user.role}}',
+  },
 })
 
 export class ZendeskApi {
@@ -92,17 +96,13 @@ export class ZendeskApi {
     } catch {}
   }
 
-  public async createComment({ conversation, ack, content }: any) {
-    const ticket = await this.updateTicket(conversation.id, {
+  public async createComment(ticketId: string, authorId: string, content: string): Promise<void> {
+    await this.updateTicket(ticketId, {
       comment: {
         body: content,
-        author_id: conversation.authorId,
+        author_id: authorId,
       },
     })
-    if (!ticket) {
-      return
-    }
-    await ack({ tags: { id: `${ticket.id}` } })
   }
 
   public async updateTicket(ticketId: string, updateFields: object): Promise<Ticket> {
@@ -126,7 +126,7 @@ export class ZendeskApi {
     }))
   }
 
-  public async updateUser(userId: number, fields: object): Promise<unknown> {
+  public async updateUser(userId: number | string, fields: object): Promise<unknown> {
     // TODO: type me
     const res: AxiosResponse = await this.client.put(`/api/v2/users/${userId}.json`, {
       user: fields,
