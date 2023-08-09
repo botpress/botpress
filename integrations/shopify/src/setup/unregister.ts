@@ -25,7 +25,7 @@ export const unregister: UnregisterFunction = async ({
   })
 
   for (const webhook of state.payload.webhooks ?? []) {
-    const x = await deleteWebhook(ctx, webhook.webhookId, logger)
+    await deleteWebhook(ctx, webhook.webhookId, logger)
   }
 }
 
