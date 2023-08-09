@@ -20,6 +20,7 @@
     "zod": "^3.20.6"
   },
   "devDependencies": {
+    "@sentry/cli": "^2.18.1",
     "@types/asana": "^0.18.12",
     "@types/node": "^18.11.17",
     "ts-node": "^10.9.1",
