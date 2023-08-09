@@ -9,7 +9,15 @@ import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
 import * as outgoing from './outgoing-message'
-import { Integration, secrets } from '.botpress'
+import { Integration, IntegrationProps, secrets } from '.botpress'
+
+// TODO: Export these types publicly from the SDK and import them here.
+export type CreateConversationPayload = {
+  channel: string
+  tags: Record<string, string>
+}
+export type IntegrationLogger = Parameters<IntegrationProps['handler']>[0]['logger']
+export type IntegrationContext = Parameters<IntegrationProps['handler']>[0]['ctx']
 
 type Tof<I extends sdk.Integration<any>> = I extends sdk.Integration<infer T> ? T : never
 export type IntegrationClient = sdk.IntegrationSpecificClient<Tof<Integration>>
@@ -21,8 +29,6 @@ sentryHelpers.init({
 })
 
 const { Text, Media, Location } = Types
-
-const log = console
 
 const integration = new Integration({
   register: async () => {},
@@ -77,17 +83,21 @@ const integration = new Integration({
         card: async ({ payload, ...props }) => {
           await outgoing.sendMany({ ...props, generator: card.generateOutgoingMessages(payload) })
         },
-        dropdown: async ({ payload, ...props }) => {
-          await outgoing.sendMany({ ...props, generator: dropdown.generateOutgoingMessages(payload) })
+        dropdown: async ({ payload, logger, ...props }) => {
+          await outgoing.sendMany({
+            ...props,
+            logger,
+            generator: dropdown.generateOutgoingMessages({ payload, logger }),
+          })
         },
-        choice: async ({ payload, ...props }) => {
-          await outgoing.sendMany({ ...props, generator: choice.generateOutgoingMessages(payload) })
+        choice: async ({ payload, logger, ...props }) => {
+          await outgoing.sendMany({ ...props, logger, generator: choice.generateOutgoingMessages({ payload, logger }) })
         },
       },
     },
   },
   handler: async ({ req, client, ctx, logger }) => {
-    log.info('Handler received request')
+    logger.forBot().debug('Handler received request from Whatsapp with payload:', req.body)
 
     if (req.query) {
       const query = queryString.parse(req.query)
@@ -96,25 +106,36 @@ const integration = new Integration({
       const token = query['hub.verify_token']
       const challenge = query['hub.challenge']
 
-      if (mode === 'subscribe' && token === ctx.configuration.verifyToken) {
-        if (!challenge) {
+      if (mode === 'subscribe') {
+        if (token === ctx.configuration.verifyToken) {
+          if (!challenge) {
+            logger.forBot().warn('Returning HTTP 400 as no challenge parameter was received in query string of request')
+            return {
+              status: 400,
+            }
+          }
+
           return {
-            status: 400,
+            body: typeof challenge === 'string' ? challenge : '',
+          }
+        } else {
+          logger
+            .forBot()
+            .warn("Returning HTTP 403 as the Whatsapp token doesn't match the one in the bot configuration")
+          return {
+            status: 403,
           }
         }
-
-        return {
-          body: typeof challenge === 'string' ? challenge : '',
-        }
       } else {
+        logger.forBot().warn(`Returning HTTP 400 as the '${mode}' mode received in the query string isn't supported`)
         return {
-          status: 403,
+          status: 400,
         }
       }
     }
 
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      logger.forBot().warn('Handler received an empty body, so the message was ignored')
       return
     }
 
@@ -124,6 +145,7 @@ const integration = new Integration({
       for (const { changes } of data.entry) {
         for (const change of changes) {
           if (!change.value.messages) {
+            // If the change doesn't contain messages we can ignore it, as we don't currently process other change types (such as statuses).
             continue
           }
 
@@ -134,15 +156,13 @@ const integration = new Integration({
             const phoneNumberId = ctx.configuration.phoneNumberId
             await whatsapp.markAsRead(phoneNumberId, message.id)
 
-            await handleMessage(message, change.value, client)
+            await handleMessage(message, change.value, client, logger)
           }
         }
       }
     } catch (e: any) {
-      // This is a message that will be displayed to the Bot Owner
       logger.forBot().error('Error while handling request:', e)
-      log.info(req.body)
-      log.error(e)
+      logger.forBot().debug('Request body received:', req.body)
     }
 
     return
@@ -151,7 +171,12 @@ const integration = new Integration({
 
 export default sentryHelpers.wrapIntegration(integration)
 
-async function handleMessage(message: WhatsAppMessage, value: WhatsAppValue, client: IntegrationClient) {
+async function handleMessage(
+  message: WhatsAppMessage,
+  value: WhatsAppValue,
+  client: IntegrationClient,
+  logger: IntegrationLogger
+) {
   if (message.type) {
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
@@ -170,6 +195,8 @@ async function handleMessage(message: WhatsAppMessage, value: WhatsAppValue, cli
       })
 
       if (message.text) {
+        logger.forBot().debug('Received text message from Whatsapp:', message.text.body)
+
         await client.createMessage({
           tags: { [`${name}:id`]: message.id },
           type: 'text',
@@ -179,6 +206,8 @@ async function handleMessage(message: WhatsAppMessage, value: WhatsAppValue, cli
         })
       } else if (message.interactive) {
         if (message.interactive.type === 'button_reply') {
+          logger.forBot().debug('Received button reply from Whatsapp:', message.interactive.button_reply)
+
           await client.createMessage({
             tags: { [`${name}:id`]: message.id },
             type: 'text',
@@ -190,6 +219,8 @@ async function handleMessage(message: WhatsAppMessage, value: WhatsAppValue, cli
             conversationId: conversation.id,
           })
         } else if (message.interactive.type === 'list_reply') {
+          logger.forBot().debug('Received list reply from Whatsapp:', message.interactive.list_reply)
+
           await client.createMessage({
             tags: { [`${name}:id'`]: message.id },
             type: 'text',
@@ -201,11 +232,13 @@ async function handleMessage(message: WhatsAppMessage, value: WhatsAppValue, cli
             conversationId: conversation.id,
           })
         } else {
-          log.warn(`Unhandled interactive type: ${JSON.stringify(message.interactive.type)}`)
+          logger.forBot().warn(`Unhandled interactive type: ${JSON.stringify(message.interactive.type)}`)
         }
       } else {
-        log.warn(`Unhandled message type: ${JSON.stringify(message)}`)
+        logger.forBot().warn(`Unhandled message type: ${JSON.stringify(message)}`)
       }
+    } else {
+      logger.forBot().warn('Ignored message from Whatsapp because it did not have any contacts')
     }
   }
 }
