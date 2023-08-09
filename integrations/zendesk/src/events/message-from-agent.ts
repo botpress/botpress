@@ -8,6 +8,17 @@ export const executeMessageFromAgent = async ({
   zendeskTrigger: TriggerPayload
   client: Client
 }) => {
+  // TODO: Bind this to a conversation somehow (using ticketId)
+  console.log('Executing message from agent', zendeskTrigger)
+
+  const state = await client.getState({
+    name: 'ticketBinding',
+    id: zendeskTrigger.ticketId,
+    type: 'conversation',
+  })
+
+  console.log('state:', state)
+
   await client.createEvent({
     type: 'messageFromAgent',
     payload: {

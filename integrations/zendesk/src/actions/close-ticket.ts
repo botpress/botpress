@@ -11,6 +11,7 @@ export const closeTicket: Implementation['actions']['closeTicket'] = async ({ ct
   const ticket = await zendeskClient.updateTicket(input.ticketId, {
     comment: input.comment,
     status: 'closed',
+    author_id: input.authorId, // TODO: use state for this.. don't need to pass all this shit
   })
   return {
     ticket,

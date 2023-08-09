@@ -24,29 +24,18 @@ export const states: IntegrationDefinitionProps['states'] = {
     type: 'integration',
     schema: z.object({
       subscriptionId: z.string(),
-    }),
-  },
-  ['triggerTicketAssigned']: {
-    type: 'integration',
-    schema: z.object({
-      triggerId: z.string(),
-    }),
-  },
-  ['triggerTicketSolved']: {
-    type: 'integration',
-    schema: z.object({
-      triggerId: z.string(),
-    }),
-  },
-  ['triggerNewMessage']: {
-    type: 'integration',
-    schema: z.object({
-      triggerId: z.string(),
+      triggerIds: z.array(z.string()),
     }),
   },
 }
 
 export const user = {
-  tags: { id: {} },
-  creation: { enabled: true, requiredTags: ['id'] },
+  tags: {
+    id: {},
+    origin: {
+      title: 'zendesk or botpress',
+      description: 'The origin of the user',
+    },
+  },
+  creation: { enabled: true, requiredTags: [] },
 }
