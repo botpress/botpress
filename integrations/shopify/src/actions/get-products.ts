@@ -18,10 +18,7 @@ export const getProducts: GetProductVariants = async ({ ctx, input, logger }) =>
   }
 
   try {
-    const response = await axios.get(
-      `/admin/api/${SHOPIFY_API_VERSION}/products.json${filters.length > 0 ? '?' + filters : ''}`,
-      axiosConfig
-    )
+    const response = await axios.get(`/admin/api/${SHOPIFY_API_VERSION}/products.json?${filters}`, axiosConfig)
 
     const productsList = response.data.products
 

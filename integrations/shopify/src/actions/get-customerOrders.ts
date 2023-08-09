@@ -18,10 +18,7 @@ export const getCustomerOrders: GetCustomerOrders = async ({ ctx, input, logger 
   }
 
   try {
-    const response = await axios.get(
-      `/admin/api/${SHOPIFY_API_VERSION}/orders.json${filters.length > 0 ? '?' + filters : ''}`,
-      axiosConfig
-    )
+    const response = await axios.get(`/admin/api/${SHOPIFY_API_VERSION}/orders.json?${filters}`, axiosConfig)
 
     const customerOrdersList = response.data.orders
 
