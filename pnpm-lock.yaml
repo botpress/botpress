@@ -162,6 +162,9 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
+      '@sentry/cli':
+        specifier: ^2.18.1
+        version: 2.18.1
       '@types/asana':
         specifier: ^0.18.12
         version: 0.18.12
