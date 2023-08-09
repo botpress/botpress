@@ -6,9 +6,7 @@ export const createTaskInputSchema = z.object({
   notes: z
     .string()
     .optional()
-    .describe(
-      'The description of the task (Optional) (e.g. "This is my other task created using the Asana API")'
-    ),
+    .describe('The description of the task (Optional) (e.g. "This is my other task created using the Asana API")'),
   assignee: z
     .string()
     .optional()
@@ -22,22 +20,15 @@ export const createTaskInputSchema = z.object({
     .describe(
       'The project IDs should be strings separated by commas (Optional) (e.g. "1205199808673678, 1215207282932839").'
     ),
-  parent: z
-    .string()
-    .optional()
-    .describe('The ID of the parent task (Optional) (e.g. "1205206556256028")'),
+  parent: z.string().optional().describe('The ID of the parent task (Optional) (e.g. "1205206556256028")'),
   start_on: z
     .string()
     .optional()
-    .describe(
-      'The start date of the task in YYYY-MM-DD format (Optional) (e.g. "2023-08-13")'
-    ),
+    .describe('The start date of the task in YYYY-MM-DD format (Optional) (e.g. "2023-08-13")'),
   due_on: z
     .string()
     .optional()
-    .describe(
-      'The due date of the task without a specific time in YYYY-MM-DD format (Optional) (e.g. "2023-08-15")'
-    ),
+    .describe('The due date of the task without a specific time in YYYY-MM-DD format (Optional) (e.g. "2023-08-15")'),
 })
 
 export const taskOutputSchema = z.object({ permalink_url: z.string() })
@@ -50,10 +41,7 @@ export const updateTaskInputSchema = createTaskInputSchema
   })
   .extend({
     taskId: z.string().describe('Task ID to update'),
-    name: z
-      .string()
-      .optional()
-      .describe('The name of the task (Optional) (e.g. "My Test Task")'),
+    name: z.string().optional().describe('The name of the task (Optional) (e.g. "My Test Task")'),
     assignee: z
       .string()
       .optional()

@@ -3,8 +3,7 @@ export const taskUi = {
     title: 'The name of the task (e.g. "My Test Task")',
   },
   notes: {
-    title:
-      'The description of the task (Optional) (e.g. "This is my other task created using the Asana API")',
+    title: 'The description of the task (Optional) (e.g. "This is my other task created using the Asana API")',
   },
   assignee: {
     title:
@@ -18,12 +17,10 @@ export const taskUi = {
     title: 'The ID of the parent task (Optional) (e.g. "1205206556256028")',
   },
   start_on: {
-    title:
-      'The start date of the task in YYYY-MM-DD format (Optional) (e.g. "2023-08-13")',
+    title: 'The start date of the task in YYYY-MM-DD format (Optional) (e.g. "2023-08-13")',
   },
   due_on: {
-    title:
-      'The due date of the task without a specific time in YYYY-MM-DD format (Optional) (e.g. "2023-08-15")',
+    title: 'The due date of the task without a specific time in YYYY-MM-DD format (Optional) (e.g. "2023-08-15")',
   },
 }
 

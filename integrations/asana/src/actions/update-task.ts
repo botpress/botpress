@@ -4,11 +4,7 @@ import { updateTaskInputSchema } from '../misc/custom-schemas'
 
 import { getClient } from '../utils'
 
-export const updateTask: Implementation['actions']['updateTask'] = async ({
-  ctx,
-  input,
-  logger,
-}) => {
+export const updateTask: Implementation['actions']['updateTask'] = async ({ ctx, input, logger }) => {
   const validatedInput = updateTaskInputSchema.parse(input)
   const asanaClient = getClient(ctx.configuration)
   const task = {

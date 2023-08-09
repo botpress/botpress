@@ -8,12 +8,7 @@ import {
   addCommentToTaskInputSchema,
   addCommentToTaskOutputSchema,
 } from '../misc/custom-schemas'
-import {
-  createTaskUi,
-  updateTaskUi,
-  findUserUi,
-  addCommentToTaskUi,
-} from '../misc/custom-uis'
+import { createTaskUi, updateTaskUi, findUserUi, addCommentToTaskUi } from '../misc/custom-uis'
 
 const createTask = {
   title: 'Create Task',
