@@ -1,4 +1,5 @@
 import type { IntegrationContext, IntegrationProps } from '@botpress/sdk'
+import { Client } from '@botpress/client'
 import axios from 'axios'
 import { SHOPIFY_API_VERSION } from '../const'
 import type * as botpress from '.botpress'
@@ -8,7 +9,15 @@ type IntegrationLogger = Parameters<IntegrationProps['handler']>[0]['logger']
 type Implementation = ConstructorParameters<typeof botpress.Integration>[0]
 type UnregisterFunction = Implementation['unregister']
 
-export const unregister: UnregisterFunction = async ({ ctx, client, logger }) => {
+export const unregister: UnregisterFunction = async ({
+  ctx,
+  client,
+  logger,
+}: {
+  ctx: IntegrationContext<Configuration>
+  client: Client
+  logger: IntegrationLogger
+}) => {
   const { state } = await client.getState({
     id: `${ctx.integrationId}`,
     name: 'configuration',
