@@ -1,0 +1,30 @@
+{
+  "name": "@botpresshub/asana",
+  "version": "0.2.0",
+  "description": "Asana integration for Botpress",
+  "scripts": {
+    "start": "pnpm bp serve",
+    "build": "pnpm bp build",
+    "deploy": "pnpm bp deploy",
+    "type:check": "tsc --noEmit",
+    "test": "echo \"Tests not implemented yet.\""
+  },
+  "keywords": [],
+  "private": true,
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@botpress/sdk": "workspace:*",
+    "@botpress/sdk-addons": "workspace:*",
+    "asana": "^1.0.2",
+    "zod": "^3.20.6"
+  },
+  "devDependencies": {
+    "@types/asana": "^0.18.12",
+    "@types/node": "^18.11.17",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4",
+    "@botpress/cli": "workspace:*",
+    "@botpress/client": "workspace:*"
+  }
+}
