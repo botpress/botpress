@@ -86,13 +86,15 @@ Before requesting a PR make sure the below is applied.
 ### package.json
 
 #### name
+
 In your package.json, make sure that the "name" is prefixed by `@botpresshub`.
 Example: `"name": "@botpresshub/shopify"`
 
 #### javascript
 
 Before requesting a PR make sure your package.json has the below scripts:
-``` javascript
+
+```javascript
   "scripts": {
     "bump": "ts-node -T ./scripts/depsynky bump",
     "type:check": "pnpm -r --stream type:check",
