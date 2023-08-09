@@ -15,11 +15,9 @@ export const unregister: UnregisterFunction = async ({ ctx, client, logger }) =>
     type: 'integration',
   })
 
-  const webhookIds = state.payload
-  for (let i = 0; i < webhookIds.length; i++) {
-    await deleteWebhook(ctx, webhookIds[i].webhookId, logger)
+  for (const webhook of state.payload.webhooks ?? []) {
+    await deleteWebhook(ctx, webhook.webhookId, logger)
   }
-}
 
 async function deleteWebhook(ctx: IntegrationContext<Configuration>, webhookId: string, logger: IntegrationLogger) {
   try {
