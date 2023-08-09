@@ -1,6 +1,6 @@
 import type { IntegrationContext, IntegrationDefinition } from '@botpress/sdk'
-import type * as botpress from '.botpress'
 import type { getTriggerTemplate } from 'src/client'
+import type * as botpress from '.botpress'
 
 type IntegrationDef = ConstructorParameters<typeof IntegrationDefinition>[0]
 export type EventDefinition = Extract<IntegrationDef['events'], {}>['string']
@@ -21,18 +21,6 @@ export type Customer = {
   phone: string
   tags: { [key: string]: string } // TODO: check this
 }
-export type Ticket = {
-  id: string
-  subject: string
-  description: string
-  status: string
-  priority: string
-  requester_id: number
-  assignee_id: number
-  created_at: string
-  update_at: string
-  tags: any // TODO: its an array...
-}
 
 export type TicketRequester = {
   name: string
@@ -48,7 +36,7 @@ export type Trigger = {
   id: string
 }
 
-interface Condition {
+type Condition = {
   field: string
   operator: string
   value: string

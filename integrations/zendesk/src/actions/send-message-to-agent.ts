@@ -1,14 +1,9 @@
-import type * as botpress from '.botpress'
+import { getZendeskClient } from '../client'
 import type { Implementation } from '../misc/types'
-import { ZendeskApi } from '../client'
-
-type Config = botpress.configuration.Configuration
-
-const getClient = (config: Config) => new ZendeskApi(config.baseURL, config.username, config.apiToken)
 
 // TODO: probably delete this action and only use the tunnel Ticket channel
 export const sendMessageToAgent: Implementation['actions']['sendMessageToAgent'] = async ({ ctx, client, input }) => {
-  const zendeskClient = getClient(ctx.configuration)
+  const zendeskClient = getZendeskClient(ctx.configuration)
   console.log('Updating ticket: ', input.ticketId)
   const ticket = await zendeskClient.getTicket(input.ticketId)
 

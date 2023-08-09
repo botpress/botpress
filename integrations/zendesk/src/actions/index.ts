@@ -1,7 +1,7 @@
-import { getTicket } from './get-ticket'
+import { closeTicket } from './close-ticket'
 import { createTicket } from './create-ticket'
 import { findCustomer } from './find-customer'
-import { closeTicket } from './close-ticket'
+import { getTicket } from './get-ticket'
 import { sendMessageToAgent } from './send-message-to-agent'
 
 export default {

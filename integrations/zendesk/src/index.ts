@@ -1,142 +1,22 @@
 import actions from './actions'
-import { ZendeskApi } from './client'
+import { getZendeskClient } from './client'
 
 import { executeTicketAssigned } from './events/ticket-assigned'
 import { executeTicketSolved } from './events/ticket-solved'
-import type { ConditionsData, TriggerNames, TriggerPayload } from './misc/types'
+import type { TriggerPayload } from './misc/types'
+import { register, unregister } from './setup'
 import * as botpress from '.botpress'
 
-type Config = botpress.configuration.Configuration
-
-// TODO: TriggerDefinition
-const TRIGGERS: Record<TriggerNames, any> = {
-  TicketAssigned: {
-    conditions: {
-      all: [
-        {
-          field: 'assignee_id',
-          operator: 'value_previous',
-          value: '',
-        },
-      ],
-      any: [],
-    },
-  },
-  TicketSolved: {
-    conditions: {
-      all: [
-        {
-          field: 'status',
-          operator: 'value',
-          value: 'SOLVED',
-        },
-      ],
-      any: [],
-    },
-  },
-  NewMessage: {
-    conditions: {
-      all: [
-        {
-          field: 'comment_is_public',
-          operator: 'is',
-          value: 'requester_can_see_comment',
-        },
-        {
-          field: 'current_via_id',
-          operator: 'is_not',
-          value: '5',
-        },
-      ],
-      any: [],
-    },
-  },
-} as const
-
-const getClient = (config: Config) => new ZendeskApi(config.baseURL, config.username, config.apiToken)
-
 export default new botpress.Integration({
-  register: async ({ ctx, client, webhookUrl }) => {
-    const zendeskClient = getClient(ctx.configuration)
-
-    // TODO: this can be called multiple times, so we need to check if the webhook is already created
-
-    const subscriptionId = await zendeskClient.subscribeWebhook(webhookUrl)
-
-    if (!subscriptionId) {
-      console.warn('error creating the webhook subscription')
-      return
-    }
-
-    const { state } = await client.getState({
-      id: ctx.integrationId,
-      name: 'subscriptionInfo',
-      type: 'integration',
-    })
-
-    if (state.payload.subscriptionId?.length) {
-      await zendeskClient.unsubscribeWebhook(state.payload.subscriptionId)
-    }
-
-    if (state.payload.triggerIds?.length) {
-      console.log('deleting triggers', state.payload.triggerIds)
-      for (let trigger of state.payload.triggerIds) {
-        await zendeskClient.deleteTrigger(trigger)
-      }
-    }
-
-    const triggersCreated: string[] = []
-
-    try {
-      for (let [triggerName, triggerData] of Object.entries(TRIGGERS)) {
-        const triggerId = await zendeskClient.createTrigger(
-          triggerName as TriggerNames,
-          subscriptionId,
-          triggerData.conditions as ConditionsData
-        )
-
-        triggersCreated.push(triggerId)
-      }
-    } finally {
-      await client.setState({
-        type: 'integration',
-        id: ctx.integrationId,
-        name: 'subscriptionInfo',
-        payload: {
-          subscriptionId,
-          triggerIds: triggersCreated,
-        },
-      })
-    }
-  },
-  unregister: async ({ ctx, client }) => {
-    const zendeskClient = getClient(ctx.configuration)
-
-    // TODO: refactor.. re-use the same method as above
-    const { state } = await client.getState({
-      id: ctx.integrationId,
-      name: 'subscriptionInfo',
-      type: 'integration',
-    })
-
-    if (state.payload.subscriptionId?.length) {
-      await zendeskClient.unsubscribeWebhook(state.payload.subscriptionId)
-    }
-
-    if (state.payload.triggerIds?.length) {
-      console.log('deleting triggers', state.payload.triggerIds)
-      for (let trigger of state.payload.triggerIds) {
-        await zendeskClient.deleteTrigger(trigger)
-      }
-    }
-  },
+  register,
+  unregister,
   actions,
   channels: {
     ticket: {
       messages: {
         text: async ({ ...props }) => {
           // console.log(JSON.stringify(props, null, 2), payload)
-          const zendeskClient = getClient(props.ctx.configuration)
+          const zendeskClient = getZendeskClient(props.ctx.configuration)
           // console.log('creating comment', payload.text)
 
           // if message comes from agent, we need to forward it to the original conversation
@@ -160,7 +40,7 @@ export default new botpress.Integration({
     },
   },
   handler: async ({ req, ctx, client }) => {
-    const zendeskClient = getClient(ctx.configuration)
+    const zendeskClient = getZendeskClient(ctx.configuration)
 
     if (!req.body) {
       console.warn('Handler received an empty body')
@@ -225,7 +105,7 @@ export default new botpress.Integration({
         return await executeTicketSolved({ zendeskTrigger, client })
 
       default:
-        console.warn('unsopported trigger type')
+        console.warn('unsupported trigger type')
         break
     }
   },

@@ -1,5 +1,33 @@
 import z from 'zod'
 
+export const ticketSchema = z.object({
+  id: z.number(),
+  subject: z.string(),
+  description: z.string(),
+  status: z.string(),
+  // priority: z.string().nullable(),
+  requester_id: z.number(),
+  assignee_id: z.number().nullable(),
+  created_at: z.string(),
+  updated_at: z.string(),
+  // tags: z.record(z.string()),
+})
+
+export type Ticket = z.infer<typeof ticketSchema>
+
+export const userSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  email: z.string(),
+  phone: z.string().optional(),
+  created_at: z.string(),
+  updated_at: z.string(),
+  tags: z.array(z.string()),
+  external_id: z.string().nullable(),
+})
+
+export type User = z.infer<typeof userSchema>
+
 const createTicket = {
   title: 'Create Ticket',
   description: 'Creates a new ticket in Zendesk',
@@ -69,18 +97,7 @@ const createTicket = {
     // }
     schema: z.object({
       // TODO: tiddy me up !
-      ticket: z.object({
-        id: z.number(),
-        subject: z.string(),
-        description: z.string(),
-        status: z.string(),
-        // priority: z.string().nullable(),
-        requester_id: z.number(),
-        assignee_id: z.number().nullable(),
-        created_at: z.string(),
-        updated_at: z.string(),
-        // tags: z.record(z.string()),
-      }),
+      ticket: ticketSchema,
       conversationId: z.string(),
       userId: z.string(),
     }),
@@ -101,18 +118,7 @@ const getTicket = {
   },
   output: {
     schema: z.object({
-      ticket: z.object({
-        id: z.string(),
-        subject: z.string(),
-        description: z.string(),
-        status: z.string(),
-        priority: z.string(),
-        requesterId: z.number(),
-        assigneeId: z.nullable(z.number()),
-        createdAt: z.string(),
-        updatedAt: z.string(),
-        tags: z.record(z.string()),
-      }),
+      ticket: ticketSchema,
     }),
   },
 }
@@ -136,18 +142,7 @@ const closeTicket = {
   },
   output: {
     schema: z.object({
-      ticket: z.object({
-        id: z.number(),
-        subject: z.string(),
-        description: z.string(),
-        status: z.string(),
-        // priority: z.string().nullable(),
-        requester_id: z.number(),
-        assignee_id: z.number().nullable(),
-        created_at: z.string(),
-        updated_at: z.string(),
-        // tags: z.record(z.string()),
-      }),
+      ticket: ticketSchema,
     }),
   },
 }
@@ -174,19 +169,7 @@ const sendMessageToAgent = {
   },
   output: {
     schema: z.object({
-      // TODO: tiddy me up !
-      ticket: z.object({
-        id: z.number(),
-        subject: z.string(),
-        description: z.string(),
-        status: z.string(),
-        // priority: z.string().nullable(),
-        requester_id: z.number(),
-        assignee_id: z.number().nullable(),
-        created_at: z.string(),
-        updated_at: z.string(),
-        // tags: z.record(z.string()),
-      }),
+      ticket: ticketSchema,
     }),
   },
 }
@@ -208,14 +191,7 @@ const findCustomer = {
   },
   output: {
     schema: z.object({
-      customers: z.array(
-        z.object({
-          name: z.string(),
-          email: z.string(),
-          phone: z.string(),
-          tags: z.record(z.string()),
-        })
-      ),
+      customers: z.array(userSchema),
     }),
   },
 }
