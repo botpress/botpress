@@ -4,13 +4,13 @@ export const ticketSchema = z.object({
   id: z.number(),
   subject: z.string(),
   description: z.string(),
-  status: z.string(),
-  // priority: z.string().nullable(),
+  status: z.enum(['new', 'open', 'pending', 'hold', 'solved', 'closed']),
+  priority: z.enum(['low', 'normal', 'high', 'urgent']).nullable(),
   requester_id: z.number(),
   assignee_id: z.number().nullable(),
   created_at: z.string(),
   updated_at: z.string(),
-  // tags: z.record(z.string()),
+  tags: z.array(z.string()),
 })
 
 export type Ticket = z.infer<typeof ticketSchema>
@@ -20,10 +20,13 @@ export const userSchema = z.object({
   name: z.string(),
   email: z.string(),
   phone: z.string().optional(),
+  photo: z.string().optional(),
+  role: z.enum(['end-user', 'agent', 'admin']),
   created_at: z.string(),
   updated_at: z.string(),
   tags: z.array(z.string()),
   external_id: z.string().nullable(),
+  user_fields: z.record(z.string()).optional(),
 })
 
 export type User = z.infer<typeof userSchema>
@@ -55,54 +58,13 @@ const createTicket = {
     },
   },
   output: {
-    // OUTPUT
-    // {
-    //   url: 'https://botpress6143.zendesk.com/api/v2/tickets/6.json',
-    //   id: 6,
-    //   external_id: null,
-    //   via: { channel: 'api', source: { from: {}, to: {}, rel: null } },
-    //   created_at: '2023-08-09T14:36:46Z',
-    //   updated_at: '2023-08-09T14:36:46Z',
-    //   type: null,
-    //   subject: 'Blahblahblah',
-    //   raw_subject: 'Blahblahblah',
-    //   description: 'hitl',
-    //   priority: null,
-    //   status: 'new',
-    //   recipient: null,
-    //   requester_id: 18364722289165,
-    //   submitter_id: 18364722289165,
-    //   assignee_id: null,
-    //   organization_id: null,
-    //   group_id: 18160863843725,
-    //   collaborator_ids: [],
-    //   follower_ids: [],
-    //   email_cc_ids: [],
-    //   forum_topic_id: null,
-    //   problem_id: null,
-    //   has_incidents: false,
-    //   is_public: true,
-    //   due_at: null,
-    //   tags: [],
-    //   custom_fields: [],
-    //   satisfaction_rating: null,
-    //   sharing_agreement_ids: [],
-    //   custom_status_id: 18160857554573,
-    //   fields: [],
-    //   followup_ids: [],
-    //   brand_id: 18160857536013,
-    //   allow_channelback: false,
-    //   allow_attachments: true,
-    //   from_messaging_channel: false
-    // }
-    schema: z.object({
-      // TODO: tiddy me up !
-      ticket: ticketSchema,
+    schema: ticketSchema.extend({
       conversationId: z.string(),
       userId: z.string(),
     }),
   },
 }
+
 const getTicket = {
   title: 'Get ticket',
   description: 'Get Ticket by id.',
@@ -117,11 +79,10 @@ const getTicket = {
     },
   },
   output: {
-    schema: z.object({
-      ticket: ticketSchema,
-    }),
+    schema: ticketSchema,
   },
 }
+
 const closeTicket = {
   title: 'Close ticket',
   description: 'Close a ticket by its id.',
@@ -141,38 +102,10 @@ const closeTicket = {
     },
   },
   output: {
-    schema: z.object({
-      ticket: ticketSchema,
-    }),
+    schema: ticketSchema,
   },
 }
-const sendMessageToAgent = {
-  title: 'Send message to agent',
-  description: 'Sends a message to the zendesk agent.',
-  input: {
-    schema: z.object({
-      ticketId: z.string().describe('ID of the ticket to close'),
-      authorId: z.string().describe('ID of the zendesk customer'),
-      comment: z.string().describe('comment'),
-    }),
-    ui: {
-      ticketId: {
-        title: 'Ticket ID',
-      },
-      authorId: {
-        title: 'Author ID',
-      },
-      comment: {
-        title: 'Comment',
-      },
-    },
-  },
-  output: {
-    schema: z.object({
-      ticket: ticketSchema,
-    }),
-  },
-}
+
 const findCustomer = {
   title: 'Find Customer',
   description: 'Find a Customer in Zendesk',
@@ -190,9 +123,7 @@ const findCustomer = {
     },
   },
   output: {
-    schema: z.object({
-      customers: z.array(userSchema),
-    }),
+    schema: z.array(userSchema),
   },
 }
 
@@ -201,5 +132,4 @@ export const actions = {
   findCustomer,
   createTicket,
   closeTicket,
-  sendMessageToAgent,
 }

@@ -66,6 +66,7 @@ export class ZendeskApi {
 
     return data.ticket
   }
+
   public async subscribeWebhook(webhookUrl: string): Promise<string> {
     const { data } = await this.client.post<{ webhook: Webhook }>('/api/v2/webhooks', {
       webhook: {
@@ -80,6 +81,7 @@ export class ZendeskApi {
 
     return data.webhook?.id
   }
+
   public async createTrigger(name: TriggerNames, subscriptionId: string, conditions: ConditionsData): Promise<string> {
     const { data } = await this.client.post<{ trigger: Trigger }>('/api/v2/triggers.json', {
       trigger: {

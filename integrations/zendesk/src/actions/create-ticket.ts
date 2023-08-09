@@ -32,17 +32,16 @@ export const createTicket: Implementation['actions']['createTicket'] = async ({ 
   })
 
   await client.createMessage({
-    tags: { origin: 'botpress' }, // TODO: is it needed to have an ID?
+    tags: { origin: 'botpress' },
     type: 'text',
     userId: user.id,
     conversationId: conversation.id,
     payload: { text: input.comment },
   })
 
-  console.log('Ticket created: ', ticket, ctx)
   return {
-    ticket,
+    ...ticket,
     conversationId: conversation.id,
-    userId: user.id, // TODO: the output doesn't match the schema, got a Zod error here
+    userId: user.id,
   }
 }
