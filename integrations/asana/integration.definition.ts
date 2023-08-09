@@ -1,10 +1,10 @@
 import { IntegrationDefinition } from '@botpress/sdk'
-import { name } from './package.json'
+import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 import { configuration, states, user, channels, actions } from './src/definitions'
 
 export default new IntegrationDefinition({
-  name,
+  name: 'asana',
   version: '0.2.0',
   readme: 'hub.md',
   icon: 'icon.svg',
@@ -12,6 +12,6 @@ export default new IntegrationDefinition({
   channels,
   user,
   actions,
-  events: {},
   states,
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
 })
