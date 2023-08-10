@@ -59,3 +59,13 @@ const zdUserSchema = userSchema.transform((data) => ({
 
 export type ZendeskUser = z.output<typeof zdUserSchema>
 export type User = z.input<typeof userSchema>
+
+export const transformUser = (ticket: ZendeskUser): User => {
+  return {
+    ...omit(ticket, ['external_id', 'user_fields', 'created_at', 'updated_at']),
+    externalId: ticket.external_id,
+    userFields: ticket.user_fields,
+    createdAt: ticket.created_at,
+    updatedAt: ticket.updated_at,
+  }
+}
