@@ -1,6 +1,6 @@
 import { IntegrationDefinitionProps } from '@botpress/sdk'
 import z from 'zod'
-import { UserProfile } from '../definitions/schemas'
+import { LinearIds, UserProfile } from '../definitions/schemas'
 
 const channels = ['issue'] as const
 
@@ -53,6 +53,54 @@ const getIssue = {
   },
   output: {
     schema: issueSchema,
+  },
+}
+
+const listIssues = {
+  title: 'List Issues',
+  input: {
+    schema: z.object({
+      count: z.number().optional().default(10).describe('The number of issues to return'),
+      startCursor: z.string().optional().describe('The cursor to start from'),
+      teamId: z.string().optional().describe('The team ID to filter by'),
+      startDate: z.string().optional().describe('Ignore issues created before this date'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      issues: z.array(issueSchema.extend({ linearIds: LinearIds })),
+      nextCursor: z.string().optional(),
+    }),
+  },
+}
+
+const listTeams = {
+  title: 'List Teams',
+  input: {
+    schema: z.object({}),
+  },
+  output: {
+    schema: z.object({
+      teams: z.array(
+        z.object({
+          id: z.string(),
+          name: z.string(),
+        })
+      ),
+    }),
+  },
+}
+
+const markAsDuplicate = {
+  title: 'Mark Issue as Duplicate',
+  input: {
+    schema: z.object({
+      issueId: z.string().describe('The issue ID on Linear. Ex: {{event.payload.linearIds.issueId}}'),
+      relatedIssueId: z.string().describe('The ID of the existing issue on Linear'),
+    }),
+  },
+  output: {
+    schema: z.object({}),
   },
 }
 
@@ -131,6 +179,9 @@ const createIssue = {
 
 export const actions = {
   findTarget,
+  listIssues,
+  listTeams,
+  markAsDuplicate,
   getIssue,
   getUser,
   updateIssue,

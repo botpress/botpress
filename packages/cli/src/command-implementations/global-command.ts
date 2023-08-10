@@ -5,7 +5,7 @@ import latestVersion from 'latest-version'
 import _ from 'lodash'
 import * as pathlib from 'path'
 import semver from 'semver'
-import type { ApiClientFactory } from '../api-client'
+import type { ApiClientFactory } from '../api/client'
 import type * as config from '../config'
 import * as consts from '../consts'
 import * as errors from '../errors'
@@ -24,10 +24,10 @@ class GlobalPaths extends utils.path.PathStore<keyof AllGlobalPaths> {
   public constructor(argv: CommandArgv<GlobalCommandDefinition>) {
     const absBotpressHome = utils.path.absoluteFrom(utils.path.cwd(), argv.botpressHome)
     super({
-      cliRootDir: argv.cliRootDir,
+      cliRootDir: consts.cliRootDir,
       botpressHomeDir: absBotpressHome,
       ..._.mapValues(consts.fromHomeDir, (p) => utils.path.absoluteFrom(absBotpressHome, p)),
-      ..._.mapValues(consts.fromCliRootDir, (p) => utils.path.absoluteFrom(argv.cliRootDir, p)),
+      ..._.mapValues(consts.fromCliRootDir, (p) => utils.path.absoluteFrom(consts.cliRootDir, p)),
     })
   }
 }

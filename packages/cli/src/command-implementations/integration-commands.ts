@@ -30,8 +30,8 @@ export class GetIntegrationCommand extends GlobalCommand<GetIntegrationCommandDe
   }
 }
 
-export type ListIntegrationCommandDefinition = typeof commandDefinitions.integrations.subcommands.list
-export class ListIntegrationsCommand extends GlobalCommand<ListIntegrationCommandDefinition> {
+export type ListIntegrationsCommandDefinition = typeof commandDefinitions.integrations.subcommands.list
+export class ListIntegrationsCommand extends GlobalCommand<ListIntegrationsCommandDefinition> {
   public async run(): Promise<void> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
 

@@ -19,12 +19,14 @@ import type {
   UnregisterPayload,
   WebhookPayload,
 } from './implementation'
+import { IntegrationLogger, integrationLogger } from './logger'
 
 type OperationHandlerProps = {
   integration: IntegrationImplementationProps
   ctx: IntegrationContext
   req: Request
   client: Client
+  logger: IntegrationLogger
 }
 
 export const serveIntegration = async (integration: IntegrationImplementationProps, port = 6853) => {
@@ -43,6 +45,7 @@ export const integrationHandler =
       ctx,
       req,
       client,
+      logger: integrationLogger,
     }
 
     try {
@@ -138,49 +141,49 @@ function parseBody<T>(req: Request): T {
 // TODO implement the ping operation once the signature is defined
 async function onPing(_: OperationHandlerProps) {}
 
-async function onWebhook({ client, ctx, integration, req: incomingRequest }: OperationHandlerProps) {
+async function onWebhook({ client, ctx, integration, req: incomingRequest, logger }: OperationHandlerProps) {
   const { req } = parseBody<WebhookPayload>(incomingRequest)
-  return integration.handler({ client, ctx, req })
+  return integration.handler({ client, ctx, req, logger })
 }
 
-async function onRegister({ client, ctx, integration, req }: OperationHandlerProps) {
+async function onRegister({ client, ctx, integration, req, logger }: OperationHandlerProps) {
   if (!integration.register) {
     return
   }
 
   const { webhookUrl } = parseBody<RegisterPayload>(req)
 
-  await integration.register({ client, ctx, webhookUrl })
+  await integration.register({ client, ctx, webhookUrl, logger })
 }
 
-async function onUnregister({ client, ctx, integration, req }: OperationHandlerProps) {
+async function onUnregister({ client, ctx, integration, req, logger }: OperationHandlerProps) {
   if (!integration.unregister) {
     return
   }
 
   const { webhookUrl } = parseBody<UnregisterPayload>(req)
 
-  await integration.unregister({ ctx, webhookUrl, client })
+  await integration.unregister({ ctx, webhookUrl, client, logger })
 }
 
-async function onCreateUser({ client, ctx, integration, req }: OperationHandlerProps) {
+async function onCreateUser({ client, ctx, integration, req, logger }: OperationHandlerProps) {
   if (!integration.createUser) {
     return
   }
 
   const { tags } = parseBody<CreateUserPayload>(req)
 
-  return await integration.createUser({ ctx, client, tags })
+  return await integration.createUser({ ctx, client, tags, logger })
 }
 
-async function onCreateConversation({ client, ctx, integration, req }: OperationHandlerProps) {
+async function onCreateConversation({ client, ctx, integration, req, logger }: OperationHandlerProps) {
   if (!integration.createConversation) {
     return
   }
 
   const { channel, tags } = parseBody<CreateConversationPayload>(req)
 
-  return await integration.createConversation({ ctx, client, channel, tags })
+  return await integration.createConversation({ ctx, client, channel, tags, logger })
 }
 
 export type MessageCreatedPayload = {
@@ -191,7 +194,7 @@ export type MessageCreatedPayload = {
   type: string
 }
 
-async function onMessageCreated({ ctx, integration, req, client }: OperationHandlerProps) {
+async function onMessageCreated({ ctx, integration, req, client, logger }: OperationHandlerProps) {
   const { conversation, user, type, payload, message } = parseBody<MessageCreatedPayload>(req)
 
   const channelHandler = integration.channels[conversation.channel]
@@ -213,10 +216,10 @@ async function onMessageCreated({ ctx, integration, req, client }: OperationHand
     })
   }
 
-  await messageHandler({ ctx, conversation, message, user, type, client, payload, ack })
+  await messageHandler({ ctx, conversation, message, user, type, client, payload, ack, logger })
 }
 
-async function onActionTriggered({ req, integration, ctx, client }: OperationHandlerProps) {
+async function onActionTriggered({ req, integration, ctx, client, logger }: OperationHandlerProps) {
   const { input, type } = parseBody<ActionPayload<string, any>>(req)
 
   if (!type) {
@@ -229,7 +232,7 @@ async function onActionTriggered({ req, integration, ctx, client }: OperationHan
     throw new Error(`Action ${type} not found`)
   }
 
-  const output = await action({ ctx, input, client, type })
+  const output = await action({ ctx, input, client, type, logger })
 
   return {
     body: JSON.stringify({ output }),
