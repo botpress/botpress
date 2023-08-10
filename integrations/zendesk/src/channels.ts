@@ -1,4 +1,5 @@
 import { getZendeskClient } from './client'
+import { INTEGRATION_NAME } from './const'
 import type { Channels } from './types'
 
 export default {
@@ -10,8 +11,9 @@ export default {
           return
         }
 
-        const ticketId = props.conversation!.tags['zendesk:id']!
-        const zendeskUserId = user.tags['zendesk:id']!
+        // Keep the integration name in those tags
+        const ticketId = props.conversation!.tags[`${INTEGRATION_NAME}:id`]!
+        const zendeskUserId = user.tags[`${INTEGRATION_NAME}:id`]!
 
         return await getZendeskClient(props.ctx.configuration).createComment(
           ticketId,

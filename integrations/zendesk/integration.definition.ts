@@ -1,18 +1,20 @@
 import { IntegrationDefinition } from '@botpress/sdk'
-import { name } from './package.json'
+import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { INTEGRATION_NAME } from 'src/const'
 import { actions, events, configuration, channels, states, user } from './src/definitions'
 
 export default new IntegrationDefinition({
-  name,
-  icon: 'icon.svg',
-  title: 'Zendesk',
-  description: 'This integration allows your bot to interact with Zendesk.',
-  readme: 'hub.md',
+  name: INTEGRATION_NAME,
+  title: 'Zendesks',
   version: '0.2.0',
+  icon: 'icon.svg',
+  description: 'This integration allows your bot to interact with Zendesk.',
+  readme: 'readme.md',
   configuration,
   states,
   channels,
   user,
   actions,
   events,
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
 })
