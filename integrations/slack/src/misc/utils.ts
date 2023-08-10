@@ -10,7 +10,10 @@ import { IntegrationCtx } from './types'
 type InteractiveBody = {
   response_url: string
   actions: {
+    action_id?: string
+    block_id?: string
     value?: string
+    type: string
     selected_option?: { value: string }
   }[]
   type: string
@@ -99,7 +102,8 @@ export const respondInteractive = async (body: InteractiveBody): Promise<string>
     throw new VError('No action in body')
   }
 
-  const text = body.actions[0]?.value || body.actions[0]?.selected_option?.value
+  const action = body.actions[0]
+  const text = action?.value || action?.selected_option?.value || action?.action_id
   if (text === undefined) {
     throw new VError('Action value cannot be undefined')
   }
