@@ -75,12 +75,14 @@ export default new botpress.Integration({
           },
         })
 
+        const messageWithoutAuthor = zendeskTrigger.comment.split('\n').slice(3).join('\n')
+
         await client.createMessage({
           tags: { origin: 'zendesk' },
           type: 'text',
           userId: user.id,
           conversationId: conversation.id,
-          payload: { text: zendeskTrigger.comment, userId: zendeskTrigger.currentUser.external_id },
+          payload: { text: messageWithoutAuthor, userId: zendeskTrigger.currentUser.external_id },
         })
 
         return
