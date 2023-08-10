@@ -11,80 +11,31 @@ import {
 } from './sub-schemas'
 
 export const customerSchema = z.object({
-  email: z
-    .string()
-    .email()
-    .describe('The email address of the customer (e.g. example@example.com)'),
-  firstName: z
-    .string()
-    .optional()
-    .describe('The first name of the customer (e.g. John)'),
-  lastName: z
-    .string()
-    .optional()
-    .describe('The last name of the customer (e.g. Doe)'),
-  company: z
-    .string()
-    .optional()
-    .describe('The company of the customer (e.g. Acme Inc.)'),
-  birthday: z
-    .string()
-    .optional()
-    .describe('The birthday of the customer (e.g. 01/01/2000)'),
-  language: z
-    .string()
-    .optional()
-    .describe('The language of the customer (e.g. en)'),
-  address1: z
-    .string()
-    .optional()
-    .describe(
-      'The first line of the address of the customer (e.g. 123 St Marie.)'
-    ),
-  address2: z
-    .string()
-    .optional()
-    .describe('The second line of the address of the customer (e.g. Apt. 4B)'),
-  city: z
-    .string()
-    .optional()
-    .describe('The city of the customer (e.g. Anytown)'),
-  state: z
-    .string()
-    .optional()
-    .describe('The state or province of the customer (e.g. CA)'),
-  zip: z
-    .string()
-    .optional()
-    .describe('The zip or postal code of the customer (e.g. 12345)'),
-  country: z
-    .string()
-    .optional()
-    .describe('The country of the customer (e.g. USA)'),
-  phone: z
-    .string()
-    .optional()
-    .describe('The phone number of the customer (e.g. 555-1234)'),
+  email: z.string().email().describe('The email address of the customer (e.g. example@example.com)'),
+  firstName: z.string().optional().describe('The first name of the customer (e.g. John)'),
+  lastName: z.string().optional().describe('The last name of the customer (e.g. Doe)'),
+  company: z.string().optional().describe('The company of the customer (e.g. Acme Inc.)'),
+  birthday: z.string().optional().describe('The birthday of the customer (e.g. 01/01/2000)'),
+  language: z.string().optional().describe('The language of the customer (e.g. en)'),
+  address1: z.string().optional().describe('The first line of the address of the customer (e.g. 123 St Marie.)'),
+  address2: z.string().optional().describe('The second line of the address of the customer (e.g. Apt. 4B)'),
+  city: z.string().optional().describe('The city of the customer (e.g. Anytown)'),
+  state: z.string().optional().describe('The state or province of the customer (e.g. CA)'),
+  zip: z.string().optional().describe('The zip or postal code of the customer (e.g. 12345)'),
+  country: z.string().optional().describe('The country of the customer (e.g. USA)'),
+  phone: z.string().optional().describe('The phone number of the customer (e.g. 555-1234)'),
 })
 
 export const addCustomerToCampaignInputSchema = customerSchema.extend({
-  campaignId: z
-    .string()
-    .describe('The ID of the Mailchimp campaign (e.g. f6g7h8i9j0)'),
+  campaignId: z.string().describe('The ID of the Mailchimp campaign (e.g. f6g7h8i9j0)'),
 })
 
 export const addCustomerToListInputSchema = customerSchema.extend({
-  listId: z
-    .string()
-    .describe('The ID of the Mailchimp list or audience (e.g. a1b2c3d4e5)'),
+  listId: z.string().describe('The ID of the Mailchimp list or audience (e.g. a1b2c3d4e5)'),
 })
 
 export const sendMassEmailCampaignInputSchema = z.object({
-  campaignIds: z
-    .string()
-    .describe(
-      'The Campaign IDs (Can be either a string with comma-separated IDs)'
-    ),
+  campaignIds: z.string().describe('The Campaign IDs (Can be either a string with comma-separated IDs)'),
 })
 
 export const addCustomerOutputSchema = z.object({

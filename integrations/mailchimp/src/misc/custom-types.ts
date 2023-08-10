@@ -1,16 +1,10 @@
-import type {
-  Config,
-  lists,
-  ErrorResponse,
-  HttpMethod,
-  Link,
-} from '@mailchimp/mailchimp_marketing'
+import type { Config, lists, HttpMethod, Link } from '@mailchimp/mailchimp_marketing'
 
 import z from 'zod'
 
 import { addCustomerFullOutputSchema } from './custom-schemas'
 
-export interface Operation {
+export type Operation = {
   method: HttpMethod
   path: string
   params?: object
@@ -18,14 +12,9 @@ export interface Operation {
   operation_id?: string
 }
 
-export type BatchStatus =
-  | 'pending'
-  | 'preprocessing'
-  | 'started'
-  | 'finalizing'
-  | 'finished'
+export type BatchStatus = 'pending' | 'preprocessing' | 'started' | 'finalizing' | 'finished'
 
-export interface BatchResponse {
+export type BatchResponse = {
   id: string
   status: BatchStatus
   total_operations: number
@@ -37,7 +26,7 @@ export interface BatchResponse {
   _links: Link[]
 }
 
-export interface MailchimpClient {
+export type MailchimpClient = {
   setConfig: (config: Config) => void
   lists: {
     addListMember: typeof lists.addListMember
@@ -51,11 +40,9 @@ export interface MailchimpClient {
   }
 }
 
-export type AddCustomerFullOutputType = z.infer<
-  typeof addCustomerFullOutputSchema
->
+export type AddCustomerFullOutputType = z.infer<typeof addCustomerFullOutputSchema>
 
-export interface Customer {
+export type Customer = {
   email: string
   firstName?: string
   lastName?: string

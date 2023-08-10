@@ -1,5 +1,5 @@
 {
-  "name": "mailchimp",
+  "name": "@botpresshub/mailchimp",
   "scripts": {
     "type:check": "tsc --noEmit"
   },
@@ -8,8 +8,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "0.2.0",
-    "@botpress/sdk": "0.1.6",
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@mailchimp/mailchimp_marketing": "^3.0.80",
     "zod": "^3.20.6"
   },
