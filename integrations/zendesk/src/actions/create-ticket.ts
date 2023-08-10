@@ -31,13 +31,13 @@ export const createTicket: Implementation['actions']['createTicket'] = async ({ 
     external_id: user.id,
   })
 
-  await client.createMessage({
-    tags: { origin: 'botpress' },
-    type: 'text',
-    userId: user.id,
-    conversationId: conversation.id,
-    payload: { text: input.comment },
-  })
+  // await client.createMessage({
+  //   tags: { origin: 'botpress' },
+  //   type: 'text',
+  //   userId: user.id,
+  //   conversationId: conversation.id,
+  //   payload: { text: input.comment },
+  // })
 
   return {
     ...ticket,
