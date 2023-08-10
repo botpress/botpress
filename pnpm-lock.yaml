@@ -1,4 +1,4 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
 
 settings:
   autoInstallPeers: true
@@ -1175,6 +1175,9 @@ importers:
       '@botpress/client':
         specifier: 0.3.2
         version: link:../client
+      '@bpinternal/zod-to-json-schema':
+        specifier: ^3.21.4
+        version: 3.21.4(zod@3.21.4)
       axios:
         specifier: 0.27.2
         version: 0.27.2
@@ -1184,9 +1187,6 @@ importers:
       zod:
         specifier: ^3.20.6
         version: 3.21.4
-      zod-to-json-schema:
-        specifier: ^3.20.1
-        version: 3.21.1(zod@3.21.4)
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -1860,6 +1860,14 @@ packages:
       lodash: 4.17.21
       yargs: 17.7.2
       yn: 4.0.0
+    dev: false
+
+  /@bpinternal/zod-to-json-schema@3.21.4(zod@3.21.4):
+    resolution: {integrity: sha512-kWCUrBu+CwODPEH2cleuJ59+D2w+WvA4SlhbpqXYS/bH9k2bsBAOrFa0x/Sz99dBKnMJ6uxVLX0bv53VLOzmKg==}
+    peerDependencies:
+      zod: ^3.21.4
+    dependencies:
+      zod: 3.21.4
     dev: false
 
   /@colors/colors@1.5.0:
