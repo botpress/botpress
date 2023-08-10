@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   title: 'Zendesk',
   description: 'This integration allows your bot to interact with Zendesk.',
   readme: 'hub.md',
-  version: '0.0.1',
+  version: '0.2.0',
   configuration,
   states,
   channels,

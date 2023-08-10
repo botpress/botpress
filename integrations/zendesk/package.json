@@ -1,5 +1,5 @@
 {
-  "name": "zendesk1",
+  "name": "zendesk",
   "scripts": {
     "type:check": "tsc --noEmit"
   },
