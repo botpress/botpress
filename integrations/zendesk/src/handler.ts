@@ -5,9 +5,9 @@ import { executeTicketSolved } from './events/ticket-solved'
 import type { TriggerPayload } from './triggers'
 import type { Handler } from './types'
 
-export const handler: Handler = async ({ req, ctx, client }) => {
+export const handler: Handler = async ({ req, ctx, client, logger }) => {
   if (!req.body) {
-    console.warn('Handler received an empty body')
+    logger.forBot().warn('Handler received an empty body')
     return
   }
 
@@ -64,7 +64,7 @@ export const handler: Handler = async ({ req, ctx, client }) => {
       return await executeTicketSolved({ zendeskTrigger, client })
 
     default:
-      console.warn('unsupported trigger type: ' + zendeskTrigger.type)
+      logger.forBot().warn('Unsupported trigger type: ' + zendeskTrigger.type)
       break
   }
 }

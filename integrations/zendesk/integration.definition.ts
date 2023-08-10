@@ -1,6 +1,6 @@
 import { IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { INTEGRATION_NAME } from 'src/const'
+import { INTEGRATION_NAME } from './src/const'
 import { actions, events, configuration, channels, states, user } from './src/definitions'
 
 export default new IntegrationDefinition({

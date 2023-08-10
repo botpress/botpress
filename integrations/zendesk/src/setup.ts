@@ -2,14 +2,14 @@ import { getZendeskClient } from './client'
 import { Triggers } from './triggers'
 import type { RegisterFunction, UnregisterFunction } from './types'
 
-export const register: RegisterFunction = async ({ client, ctx, webhookUrl }) => {
-  await unregister({ ctx, client, webhookUrl })
+export const register: RegisterFunction = async ({ client, ctx, webhookUrl, logger }) => {
+  await unregister({ ctx, client, webhookUrl, logger })
 
   const zendeskClient = getZendeskClient(ctx.configuration)
   const subscriptionId = await zendeskClient.subscribeWebhook(webhookUrl)
 
   if (!subscriptionId) {
-    console.warn('error creating the webhook subscription')
+    logger.forBot().error('Could not create webhook subscription')
     return
   }
 
