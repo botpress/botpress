@@ -28,7 +28,8 @@ const createTicket = {
     },
   },
   output: {
-    schema: ticketSchema.extend({
+    schema: z.object({
+      ticket: ticketSchema,
       conversationId: z.string(),
       userId: z.string(),
     }),
@@ -49,7 +50,7 @@ const getTicket = {
     },
   },
   output: {
-    schema: ticketSchema,
+    schema: z.object({ ticket: ticketSchema }),
   },
 }
 
@@ -71,7 +72,7 @@ const closeTicket = {
     },
   },
   output: {
-    schema: ticketSchema,
+    schema: z.object({ ticket: ticketSchema }),
   },
 }
 

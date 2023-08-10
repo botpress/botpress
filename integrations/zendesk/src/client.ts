@@ -1,6 +1,6 @@
 import axios, { Axios } from 'axios'
-import type { Ticket, User } from './definitions/schemas'
-import { getTriggerTemplate, type TriggerNames } from './triggers'
+import type { ZendeskUser, ZendeskTicket } from './definitions/schemas'
+import { ConditionsData, getTriggerTemplate, type TriggerNames } from './triggers'
 import type * as botpress from '.botpress'
 
 export type TicketRequester = {
@@ -11,17 +11,6 @@ export type TicketRequester = {
 export type Trigger = {
   url: string
   id: string
-}
-
-type Condition = {
-  field: string
-  operator: string
-  value: string
-}
-
-export type ConditionsData = {
-  all: Condition[]
-  any: Condition[]
 }
 
 class ZendeskApi {
@@ -37,18 +26,18 @@ class ZendeskApi {
     })
   }
 
-  public async findCustomers(query: string): Promise<User[]> {
-    const { data } = await this.client.get<{ users: User[] }>(`/api/v2/users/search.json?query=${query}`)
+  public async findCustomers(query: string): Promise<ZendeskUser[]> {
+    const { data } = await this.client.get<{ users: ZendeskUser[] }>(`/api/v2/users/search.json?query=${query}`)
     return data.users
   }
 
   public async getTicket(ticketId: string) {
-    const { data } = await this.client.get<{ ticket: Ticket }>(`/api/v2/tickets/${ticketId}.json`)
+    const { data } = await this.client.get<{ ticket: ZendeskTicket }>(`/api/v2/tickets/${ticketId}.json`)
     return data.ticket
   }
 
-  public async createTicket(subject: string, comment: string, requester?: TicketRequester): Promise<Ticket> {
-    const { data } = await this.client.post<{ ticket: Ticket }>('/api/v2/tickets.json', {
+  public async createTicket(subject: string, comment: string, requester?: TicketRequester): Promise<ZendeskTicket> {
+    const { data } = await this.client.post<{ ticket: ZendeskTicket }>('/api/v2/tickets.json', {
       ticket: {
         subject,
         comment: { body: comment },
@@ -108,20 +97,20 @@ class ZendeskApi {
     })
   }
 
-  public async updateTicket(ticketId: string | number, updateFields: object): Promise<Ticket> {
-    const { data } = await this.client.put<{ ticket: Ticket }>(`/api/v2/tickets/${ticketId}.json`, {
+  public async updateTicket(ticketId: string | number, updateFields: object): Promise<ZendeskTicket> {
+    const { data } = await this.client.put<{ ticket: ZendeskTicket }>(`/api/v2/tickets/${ticketId}.json`, {
       ticket: updateFields,
     })
     return data.ticket
   }
 
-  public async getAvailableAgents(): Promise<User[]> {
-    const { data } = await this.client.get<{ users: User[] }>('/api/v2/users.json?role=agent')
+  public async getAvailableAgents(): Promise<ZendeskUser[]> {
+    const { data } = await this.client.get<{ users: ZendeskUser[] }>('/api/v2/users.json?role=agent')
     return data.users.filter((user) => user.user_fields?.availability === 'online')
   }
 
-  public async updateUser(userId: number | string, fields: object): Promise<User> {
-    const { data } = await this.client.put<{ user: User }>(`/api/v2/users/${userId}.json`, {
+  public async updateUser(userId: number | string, fields: object): Promise<ZendeskUser> {
+    const { data } = await this.client.put<{ user: ZendeskUser }>(`/api/v2/users/${userId}.json`, {
       user: fields,
     })
     return data.user

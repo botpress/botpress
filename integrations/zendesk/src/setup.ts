@@ -1,6 +1,6 @@
-import { ConditionsData, getZendeskClient } from './client'
-import type { RegisterFunction, UnregisterFunction } from './misc/types'
-import { TRIGGERS, TriggerNames } from './triggers'
+import { getZendeskClient } from './client'
+import { Triggers } from './triggers'
+import type { RegisterFunction, UnregisterFunction } from './types'
 
 export const register: RegisterFunction = async ({ client, ctx, webhookUrl }) => {
   await unregister({ ctx, client, webhookUrl })
@@ -16,13 +16,8 @@ export const register: RegisterFunction = async ({ client, ctx, webhookUrl }) =>
   const triggersCreated: string[] = []
 
   try {
-    for (const [triggerName, triggerData] of Object.entries(TRIGGERS)) {
-      const triggerId = await zendeskClient.createTrigger(
-        triggerName as TriggerNames,
-        subscriptionId,
-        triggerData.conditions as ConditionsData
-      )
-
+    for (const trigger of Triggers) {
+      const triggerId = await zendeskClient.createTrigger(trigger.name, subscriptionId, trigger.conditions)
       triggersCreated.push(triggerId)
     }
   } finally {

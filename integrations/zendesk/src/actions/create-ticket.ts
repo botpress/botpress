@@ -1,5 +1,6 @@
+import { ticketSchema } from 'src/definitions/schemas'
 import { getZendeskClient } from '../client'
-import type { Implementation } from '../misc/types'
+import type { Implementation } from '../types'
 
 export const createTicket: Implementation['actions']['createTicket'] = async ({ ctx, client, input }) => {
   const zendeskClient = getZendeskClient(ctx.configuration)
@@ -32,7 +33,7 @@ export const createTicket: Implementation['actions']['createTicket'] = async ({ 
   })
 
   return {
-    ...ticket,
+    ticket: ticketSchema.parse(ticket),
     conversationId: conversation.id,
     userId: user.id,
   }

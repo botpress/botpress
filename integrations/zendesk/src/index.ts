@@ -21,7 +21,6 @@ export default new botpress.Integration({
           const { user } = await props.client.getUser({ id: props.payload.userId })
 
           if (user.tags?.origin === 'zendesk') {
-            console.log('===> Message from Bot')
             return
           }
 
@@ -34,19 +33,17 @@ export default new botpress.Integration({
     },
   },
   handler: async ({ req, ctx, client }) => {
-    const zendeskClient = getZendeskClient(ctx.configuration)
-
     if (!req.body) {
       console.warn('Handler received an empty body')
       return
     }
-    const trigger = JSON.parse(req.body)
 
+    const zendeskClient = getZendeskClient(ctx.configuration)
+    const trigger = JSON.parse(req.body)
     const zendeskTrigger = trigger as TriggerPayload
-    console.log('handler:', zendeskTrigger)
 
     switch (zendeskTrigger.type) {
-      case 'NewMessage':
+      case 'newMessage':
         const { conversation } = await client.getOrCreateConversation({
           channel: 'ticket',
           tags: {
@@ -54,7 +51,7 @@ export default new botpress.Integration({
           },
         })
 
-        if (!zendeskTrigger.currentUser.external_id?.length) {
+        if (!zendeskTrigger.currentUser.externalId?.length) {
           const { user: newUser } = await client.getOrCreateUser({
             tags: {
               id: zendeskTrigger.currentUser.id,
@@ -83,14 +80,14 @@ export default new botpress.Integration({
           type: 'text',
           userId: user.id,
           conversationId: conversation.id,
-          payload: { text: messageWithoutAuthor, userId: zendeskTrigger.currentUser.external_id },
+          payload: { text: messageWithoutAuthor, userId: zendeskTrigger.currentUser.externalId },
         })
 
         return
 
-      case 'TicketAssigned':
+      case 'ticketAssigned':
         return await executeTicketAssigned({ zendeskTrigger, client })
-      case 'TicketSolved':
+      case 'ticketSolved':
         return await executeTicketSolved({ zendeskTrigger, client })
 
       default:

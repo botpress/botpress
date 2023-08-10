@@ -1,6 +1,8 @@
+import { userSchema } from 'src/definitions/schemas'
 import { getZendeskClient } from '../client'
-import type { Implementation } from '../misc/types'
+import type { Implementation } from '../types'
 
 export const findCustomer: Implementation['actions']['findCustomer'] = async ({ ctx, input }) => {
-  return { customers: await getZendeskClient(ctx.configuration).findCustomers(input.query) }
+  const customers = await getZendeskClient(ctx.configuration).findCustomers(input.query)
+  return { customers: customers.map((c) => userSchema.parse(c)) }
 }

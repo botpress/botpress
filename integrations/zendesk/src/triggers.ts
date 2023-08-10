@@ -1,5 +1,3 @@
-const TRIGGER_NAMES = ['TicketAssigned', 'TicketSolved', 'NewMessage'] as const
-export type TriggerNames = (typeof TRIGGER_NAMES)[number]
 export type TriggerPayload = ReturnType<typeof getTriggerTemplate>
 
 export const getTriggerTemplate = (name: TriggerNames) => ({
@@ -11,13 +9,25 @@ export const getTriggerTemplate = (name: TriggerNames) => ({
     id: '{{current_user.id}}',
     name: '{{current_user.name}}',
     email: '{{current_user.email}}',
-    external_id: '{{current_user.external_id}}',
+    externalId: '{{current_user.external_id}}',
     role: '{{current_user.role}}',
   },
 })
 
-export const TRIGGERS: Record<TriggerNames, any> = {
-  TicketAssigned: {
+export type Condition = {
+  field: string
+  operator: string
+  value: string
+}
+
+export type ConditionsData = {
+  all: ReadonlyArray<Condition>
+  any: ReadonlyArray<Condition>
+}
+
+export const Triggers = [
+  {
+    name: 'ticketAssigned',
     conditions: {
       all: [
         {
@@ -29,7 +39,8 @@ export const TRIGGERS: Record<TriggerNames, any> = {
       any: [],
     },
   },
-  TicketSolved: {
+  {
+    name: 'ticketSolved',
     conditions: {
       all: [
         {
@@ -41,7 +52,8 @@ export const TRIGGERS: Record<TriggerNames, any> = {
       any: [],
     },
   },
-  NewMessage: {
+  {
+    name: 'newMessage',
     conditions: {
       all: [
         {
@@ -58,4 +70,6 @@ export const TRIGGERS: Record<TriggerNames, any> = {
       any: [],
     },
   },
-} as const
+] as const satisfies ReadonlyArray<{ name: string; conditions: ConditionsData }>
+
+export type TriggerNames = (typeof Triggers)[number]['name']

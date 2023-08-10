@@ -1,9 +1,14 @@
+import { ticketSchema } from 'src/definitions/schemas'
 import { getZendeskClient } from '../client'
-import type { Implementation } from '../misc/types'
+import type { Implementation } from '../types'
 
 export const closeTicket: Implementation['actions']['closeTicket'] = async ({ ctx, input }) => {
-  return getZendeskClient(ctx.configuration).updateTicket(input.ticketId, {
+  const ticket = await getZendeskClient(ctx.configuration).updateTicket(input.ticketId, {
     comment: input.comment,
     status: 'closed',
   })
+
+  return {
+    ticket: ticketSchema.parse(ticket),
+  }
 }
