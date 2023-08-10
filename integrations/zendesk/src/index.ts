@@ -19,4 +19,4 @@ const integration = new Integration({
   handler,
 })
 
-export default integration
+export default sentryHelpers.wrapIntegration(integration)
