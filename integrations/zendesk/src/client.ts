@@ -1,7 +1,6 @@
 import axios, { Axios } from 'axios'
-import { Buffer } from 'buffer'
-import type { Ticket, User } from './definitions/actions'
-import type { ConditionsData, TicketRequester, Webhook, Trigger, TriggerNames } from './misc/types'
+import type { Ticket, User } from './definitions/schemas'
+import type { ConditionsData, TicketRequester, Trigger, TriggerNames } from './misc/types'
 import type * as botpress from '.botpress'
 
 export const getTriggerTemplate = (name: TriggerNames) => ({
@@ -18,30 +17,16 @@ export const getTriggerTemplate = (name: TriggerNames) => ({
   },
 })
 
-type Agent = {
-  id: string
-  name: string
-  email: string
-  user_fields?: { availability: 'online' }
-}
-
-export const getZendeskClient = (config: botpress.configuration.Configuration) =>
-  new ZendeskApi(config.baseURL, config.username, config.apiToken)
-
-export class ZendeskApi {
+class ZendeskApi {
   private client: Axios
   constructor(baseURL: string, username: string, password: string) {
-    const credentials = `${username}:${password}`
-
-    const encodedCredentials = Buffer.from(credentials).toString('base64')
-
-    const headers = {
-      Authorization: `Basic ${encodedCredentials}`,
-    }
-
     this.client = axios.create({
       baseURL,
-      headers,
+      withCredentials: true,
+      auth: {
+        username,
+        password,
+      },
     })
   }
 
@@ -68,7 +53,7 @@ export class ZendeskApi {
   }
 
   public async subscribeWebhook(webhookUrl: string): Promise<string> {
-    const { data } = await this.client.post<{ webhook: Webhook }>('/api/v2/webhooks', {
+    const { data } = await this.client.post<{ webhook: { id: string } }>('/api/v2/webhooks', {
       webhook: {
         name: 'bpc_integration_webhook',
         status: 'active',
@@ -96,19 +81,15 @@ export class ZendeskApi {
       },
     })
 
-    return data.trigger.id.toString()
+    return `${data.trigger.id}`
   }
 
   public async deleteTrigger(triggerId: string): Promise<void> {
-    try {
-      await this.client.delete(`/api/v2/triggers/${triggerId}.json`)
-    } catch {}
+    await this.client.delete(`/api/v2/triggers/${triggerId}.json`).catch(() => {})
   }
 
   public async unsubscribeWebhook(subscriptionId: string): Promise<void> {
-    try {
-      await this.client.delete(`/api/v2/webhooks/${subscriptionId}`) // Do not add .json here
-    } catch {}
+    await this.client.delete(`/api/v2/webhooks/${subscriptionId}`).catch(() => {}) // Do not add .json here
   }
 
   public async createComment(ticketId: string, authorId: string, content: string): Promise<void> {
@@ -124,12 +105,11 @@ export class ZendeskApi {
     const { data } = await this.client.put<{ ticket: Ticket }>(`/api/v2/tickets/${ticketId}.json`, {
       ticket: updateFields,
     })
-
     return data.ticket
   }
 
-  public async getAvailableAgents(): Promise<Agent[]> {
-    const { data } = await this.client.get<{ users: Agent[] }>('/api/v2/users.json?role=agent')
+  public async getAvailableAgents(): Promise<User[]> {
+    const { data } = await this.client.get<{ users: User[] }>('/api/v2/users.json?role=agent')
     return data.users.filter((user) => user.user_fields?.availability === 'online')
   }
 
@@ -137,7 +117,9 @@ export class ZendeskApi {
     const { data } = await this.client.put<{ user: User }>(`/api/v2/users/${userId}.json`, {
       user: fields,
     })
-    console.log('Updated user', data)
     return data.user
   }
 }
+
+export const getZendeskClient = (config: botpress.configuration.Configuration) =>
+  new ZendeskApi(config.baseURL, config.username, config.apiToken)

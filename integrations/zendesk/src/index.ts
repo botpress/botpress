@@ -93,7 +93,7 @@ export default new botpress.Integration({
         return await executeTicketSolved({ zendeskTrigger, client })
 
       default:
-        console.warn('unsupported trigger type')
+        console.warn('unsupported trigger type: ' + zendeskTrigger.type)
         break
     }
   },

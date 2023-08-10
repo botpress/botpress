@@ -20,10 +20,6 @@ export type TicketRequester = {
   email: string
 }
 
-export type Webhook = {
-  id: string
-}
-
 export type Trigger = {
   url: string
   id: string
