@@ -1,4 +1,4 @@
-import { ticketSchema } from 'src/definitions/schemas'
+import { transformTicket } from 'src/definitions/schemas'
 import { getZendeskClient } from '../client'
 import type { Implementation } from '../types'
 
@@ -9,6 +9,6 @@ export const closeTicket: Implementation['actions']['closeTicket'] = async ({ ct
   })
 
   return {
-    ticket: ticketSchema.parse(ticket),
+    ticket: transformTicket(ticket),
   }
 }

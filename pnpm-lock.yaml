@@ -969,6 +969,9 @@ importers:
       axios:
         specifier: ^1.4.0
         version: 1.4.0
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       zod:
         specifier: ^3.20.6
         version: 3.21.4
@@ -976,6 +979,9 @@ importers:
       '@tsconfig/node18-strictest':
         specifier: ^1.0.0
         version: 1.0.0
+      '@types/lodash':
+        specifier: ^4.14.191
+        version: 4.14.195
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.0
@@ -3392,7 +3398,6 @@ packages:
 
   /@types/lodash@4.14.195:
     resolution: {integrity: sha512-Hwx9EUgdwf2GLarOjQp5ZH8ZmblzcbTBC2wtQWNKARBSxM9ezRIAUpeDTgoQRAFB0+8CNWXVA9+MaSOzOF3nPg==}
-    dev: false
 
   /@types/mime@1.3.2:
     resolution: {integrity: sha512-YATxVxgRqNH6nHEIsvg6k2Boc1JHI9ZbH5iWFFv/MTkchz3b1ieGDa5T0a9RznNdI0KhVbdbWSN+KWWrQZRxTw==}

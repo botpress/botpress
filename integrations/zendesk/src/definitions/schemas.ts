@@ -1,50 +1,61 @@
+import { omit } from 'lodash'
 import { z } from 'zod'
 
-export const ticketSchema = z
-  .object({
-    id: z.number(),
-    subject: z.string(),
-    description: z.string(),
-    status: z.enum(['new', 'open', 'pending', 'hold', 'solved', 'closed']),
-    priority: z.enum(['low', 'normal', 'high', 'urgent']).nullable(),
-    requester_id: z.number(),
-    assignee_id: z.number().nullable(),
-    created_at: z.string(),
-    updated_at: z.string(),
-    tags: z.array(z.string()),
-  })
-  .transform((data) => ({
-    ...data,
-    createdAt: data.created_at,
-    updatedAt: data.updated_at,
-    requesterId: z.number(),
-    assigneeId: z.number().nullable(),
-  }))
+export const ticketSchema = z.object({
+  id: z.number(),
+  subject: z.string(),
+  description: z.string(),
+  status: z.enum(['new', 'open', 'pending', 'hold', 'solved', 'closed']),
+  priority: z.enum(['low', 'normal', 'high', 'urgent']).nullable(),
+  requesterId: z.number(),
+  assigneeId: z.number().nullable(),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  tags: z.array(z.string()),
+})
 
-export type ZendeskTicket = z.input<typeof ticketSchema>
-export type Ticket = z.output<typeof ticketSchema>
+const zdTicketSchema = ticketSchema.transform((data) => ({
+  ...omit(data, ['requesterId', 'assigneeId', 'createdAt', 'updatedAt']),
+  created_at: data.createdAt,
+  updated_at: data.updatedAt,
+  requester_id: data.requesterId,
+  assignee_id: data.assigneeId,
+}))
 
-export const userSchema = z
-  .object({
-    id: z.number(),
-    name: z.string(),
-    email: z.string(),
-    phone: z.string().optional(),
-    photo: z.string().optional(),
-    role: z.enum(['end-user', 'agent', 'admin']),
-    created_at: z.string(),
-    updated_at: z.string(),
-    tags: z.array(z.string()),
-    external_id: z.string().nullable(),
-    user_fields: z.record(z.string()).optional(),
-  })
-  .transform((data) => ({
-    ...data,
-    createdAt: data.created_at,
-    updatedAt: data.updated_at,
-    externalId: data.external_id,
-    userFields: data.user_fields,
-  }))
+export type ZendeskTicket = z.output<typeof zdTicketSchema>
+export type Ticket = z.input<typeof ticketSchema>
 
-export type ZendeskUser = z.input<typeof userSchema>
-export type User = z.output<typeof userSchema>
+export const transformTicket = (ticket: ZendeskTicket): Ticket => {
+  return {
+    ...omit(ticket, ['requester_id', 'assignee_id', 'created_at', 'updated_at']),
+    requesterId: ticket.requester_id,
+    assigneeId: ticket.assignee_id,
+    createdAt: ticket.created_at,
+    updatedAt: ticket.updated_at,
+  }
+}
+
+export const userSchema = z.object({
+  id: z.number(),
+  name: z.string(),
+  email: z.string(),
+  phone: z.string().optional(),
+  photo: z.string().optional(),
+  role: z.enum(['end-user', 'agent', 'admin']),
+  tags: z.array(z.string()),
+  createdAt: z.string(),
+  updatedAt: z.string(),
+  externalId: z.string().nullable(),
+  userFields: z.record(z.string()).optional(),
+})
+
+const zdUserSchema = userSchema.transform((data) => ({
+  ...omit(data, ['createdAt', 'updatedAt', 'externalId', 'userFields']),
+  created_at: data.createdAt,
+  updated_at: data.updatedAt,
+  external_id: data.externalId,
+  user_fields: data.userFields,
+}))
+
+export type ZendeskUser = z.output<typeof zdUserSchema>
+export type User = z.input<typeof userSchema>
