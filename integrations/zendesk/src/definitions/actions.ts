@@ -92,7 +92,9 @@ const findCustomer = {
     },
   },
   output: {
-    schema: z.array(userSchema),
+    schema: z.object({
+      customers: z.array(userSchema),
+    }),
   },
 }
 

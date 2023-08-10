@@ -5,7 +5,6 @@ const ticketAssigned = {
   description: 'Triggered when the assigneeId has changed from null',
   schema: z.object({
     type: z.string(),
-    agent: z.string(),
     comment: z.string(),
     ticketId: z.string(),
   }),
@@ -17,7 +16,6 @@ const ticketSolved = {
   description: 'Triggered when the status of the ticket is changed to SOLVED',
   schema: z.object({
     type: z.string(),
-    agent: z.string(),
     comment: z.string(),
     ticketId: z.string(),
   }),

@@ -1,6 +1,21 @@
-import type { TriggerNames } from './misc/types'
+const TRIGGER_NAMES = ['TicketAssigned', 'TicketSolved', 'NewMessage'] as const
+export type TriggerNames = (typeof TRIGGER_NAMES)[number]
+export type TriggerPayload = ReturnType<typeof getTriggerTemplate>
 
-// TODO: TriggerDefinition
+export const getTriggerTemplate = (name: TriggerNames) => ({
+  type: name,
+  agent: '{{current_user.email}}',
+  comment: '{{ticket.latest_public_comment_html}}',
+  ticketId: '{{ticket.id}}',
+  currentUser: {
+    id: '{{current_user.id}}',
+    name: '{{current_user.name}}',
+    email: '{{current_user.email}}',
+    external_id: '{{current_user.external_id}}',
+    role: '{{current_user.role}}',
+  },
+})
+
 export const TRIGGERS: Record<TriggerNames, any> = {
   TicketAssigned: {
     conditions: {

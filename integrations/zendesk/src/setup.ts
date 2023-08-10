@@ -1,6 +1,6 @@
-import { getZendeskClient } from './client'
-import type { ConditionsData, RegisterFunction, TriggerNames, UnregisterFunction } from './misc/types'
-import { TRIGGERS } from './triggers'
+import { ConditionsData, getZendeskClient } from './client'
+import type { RegisterFunction, UnregisterFunction } from './misc/types'
+import { TRIGGERS, TriggerNames } from './triggers'
 
 export const register: RegisterFunction = async ({ client, ctx, webhookUrl }) => {
   await unregister({ ctx, client, webhookUrl })

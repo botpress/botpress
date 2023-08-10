@@ -3,8 +3,9 @@ import { getZendeskClient } from './client'
 
 import { executeTicketAssigned } from './events/ticket-assigned'
 import { executeTicketSolved } from './events/ticket-solved'
-import type { TriggerPayload } from './misc/types'
+
 import { register, unregister } from './setup'
+import type { TriggerPayload } from './triggers'
 import * as botpress from '.botpress'
 
 export default new botpress.Integration({

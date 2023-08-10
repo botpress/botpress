@@ -1,21 +1,28 @@
 import axios, { Axios } from 'axios'
 import type { Ticket, User } from './definitions/schemas'
-import type { ConditionsData, TicketRequester, Trigger, TriggerNames } from './misc/types'
+import { getTriggerTemplate, type TriggerNames } from './triggers'
 import type * as botpress from '.botpress'
 
-export const getTriggerTemplate = (name: TriggerNames) => ({
-  type: name,
-  agent: '{{current_user.email}}',
-  comment: '{{ticket.latest_public_comment_html}}',
-  ticketId: '{{ticket.id}}',
-  currentUser: {
-    id: '{{current_user.id}}',
-    name: '{{current_user.name}}',
-    email: '{{current_user.email}}',
-    external_id: '{{current_user.external_id}}',
-    role: '{{current_user.role}}',
-  },
-})
+export type TicketRequester = {
+  name: string
+  email: string
+}
+
+export type Trigger = {
+  url: string
+  id: string
+}
+
+type Condition = {
+  field: string
+  operator: string
+  value: string
+}
+
+export type ConditionsData = {
+  all: Condition[]
+  any: Condition[]
+}
 
 class ZendeskApi {
   private client: Axios

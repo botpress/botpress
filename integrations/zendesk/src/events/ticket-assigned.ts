@@ -1,5 +1,5 @@
 import type { Client } from '@botpress/client'
-import type { TriggerPayload } from 'src/misc/types'
+import type { TriggerPayload } from 'src/triggers'
 
 export const executeTicketAssigned = async ({
   zendeskTrigger,
@@ -13,7 +13,6 @@ export const executeTicketAssigned = async ({
     payload: {
       type: zendeskTrigger.type,
       ticketId: zendeskTrigger.ticketId,
-      agent: zendeskTrigger.agent,
       comment: zendeskTrigger.comment,
     },
   })
