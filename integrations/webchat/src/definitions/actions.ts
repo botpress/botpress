@@ -13,6 +13,9 @@ const getUserData = {
     schema: z.object({
       userId: z.string().uuid().describe('The ID of the user. Usually you can access it using {{event.userId}}'),
     }),
+    ui: {
+      userId: { title: 'User ID', examples: ['{{event.userId}}'] },
+    },
   },
   output: {
     schema: z.object({
@@ -23,10 +26,14 @@ const getUserData = {
 
 const showWebchat = {
   title: 'Show Webchat',
+  description: 'Show the webchat widget',
   input: {
     schema: z.object({
       conversationId,
     }),
+    ui: {
+      conversationId: { title: 'Conversation ID', examples: ['{{event.conversationId}}'] },
+    },
   },
   output: {
     schema: z.object({}),
@@ -35,10 +42,14 @@ const showWebchat = {
 
 const hideWebchat = {
   title: 'Hide Webchat',
+  description: 'Hide the webchat widget',
   input: {
     schema: z.object({
       conversationId,
     }),
+    ui: {
+      conversationId: { title: 'Conversation ID', examples: ['{{event.conversationId}}'] },
+    },
   },
   output: {
     schema: z.object({}),
@@ -47,10 +58,14 @@ const hideWebchat = {
 
 const toggleWebchat = {
   title: 'Toggle Webchat',
+  description: 'Toggle the visibility of the webchat widget',
   input: {
     schema: z.object({
       conversationId,
     }),
+    ui: {
+      conversationId: { title: 'Conversation ID', examples: ['{{event.conversationId}}'] },
+    },
   },
   output: {
     schema: z.object({}),
@@ -63,8 +78,19 @@ const configWebchat = {
   input: {
     schema: z.object({
       conversationId,
-      config: z.string().describe('An config as JSON'),
+      config: z
+        .string()
+        .describe(
+          'A JSON string representing the new configuration. You can use {{JSON.stringify(workflow.someVariable)}} to convert an object to JSON'
+        ),
     }),
+    ui: {
+      conversationId: { title: 'Conversation ID', examples: ['{{event.conversationId}}'] },
+      config: {
+        title: 'JSON Configuration',
+        examples: ['{ "emailAddress": "some@mail.com" }', '{{JSON.stringify(workflow.someVariable)}}'],
+      },
+    },
   },
   output: {
     schema: z.object({}),
@@ -73,11 +99,17 @@ const configWebchat = {
 
 const customEvent = {
   title: 'Send Custom Event',
+  description:
+    "Initiate this action to dispatch a custom event to the webchat. Please ensure to appropriately handle this event within your webpage's code. Usage: \n\nwindow.botpressWebChat.onEvent(event => {}, ['TRIGGER'])",
   input: {
     schema: z.object({
       conversationId,
       event: z.string().describe('An event as JSON to send to the webchat instance'),
     }),
+    ui: {
+      conversationId: { title: 'Conversation ID', examples: ['{{event.conversationId}}'] },
+      event: { title: 'JSON Payload', examples: ['{ "emailAddress": "some@mail.com" }'] },
+    },
   },
   output: {
     schema: z.object({}),

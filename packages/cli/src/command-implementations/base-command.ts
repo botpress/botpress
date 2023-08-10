@@ -9,7 +9,7 @@ export abstract class BaseCommand<C extends CommandDefinition> {
   protected abstract bootstrap?: () => Promise<void>
   protected abstract teardown?: () => Promise<void>
 
-  public async handler(): Promise<never> {
+  public async handler(): Promise<{ exitCode: number }> {
     let exitCode = 0
     try {
       if (this.bootstrap) {
@@ -34,6 +34,6 @@ export abstract class BaseCommand<C extends CommandDefinition> {
       }
     }
 
-    process.exit(exitCode)
+    return { exitCode }
   }
 }

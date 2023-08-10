@@ -1,5 +1,6 @@
 import os from 'os'
 import pathlib from 'path'
+import { CLI_ROOT_DIR } from './root'
 
 // configurable
 
@@ -12,6 +13,8 @@ export const defaultBotpressAppUrl = 'https://app.botpress.cloud'
 export const defaultTunnelUrl = 'https://tunnel.botpress.cloud'
 
 // not configurable
+
+export const cliRootDir = CLI_ROOT_DIR
 
 export const echoBotDirName = 'echo-bot'
 export const emptyIntegrationDirName = 'empty-integration'

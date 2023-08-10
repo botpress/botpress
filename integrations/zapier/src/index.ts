@@ -101,7 +101,7 @@ async function handleIntegrationEvent(
     await axios
       .post(event.url, <TriggerRequestBody>{
         botId: ctx.botId,
-        data: '{"message": "Hello from Botpress!"}',
+        data: '{"message": "Hello from Botpress! This is an automated test message to confirm that your bot is now able to trigger this Zap."}',
         correlationId: '12345',
       })
       .then(() => {

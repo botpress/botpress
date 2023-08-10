@@ -2,14 +2,7 @@ import type { Bot as BotType, Event } from '@botpress/client'
 import type { Server } from 'node:http'
 import { serve } from '../serve'
 import { createBotHandler } from './server'
-import type {
-  BotState,
-  EventHandler,
-  MessageHandler,
-  RegisterHandler,
-  StateExpiredHandler,
-  UnregisterHandler,
-} from './state'
+import type { BotState, EventHandler, MessageHandler, StateExpiredHandler } from './state'
 
 export type RegisterBotPayload = {
   bot: BotType
@@ -95,17 +88,13 @@ export class Bot {
     this.definition = def
   }
 
-  public register = (_handler: RegisterHandler): void => {}
-  public unregister = (_handler: UnregisterHandler): void => {}
-  public message = (_type: string, handler: MessageHandler): void => {
+  public message = (handler: MessageHandler): void => {
     this._state.messageHandlers.push(handler)
   }
-  public conversation = (_type: string, _handler: MessageHandler): void => {}
-  public user = (_type: string, _handler: MessageHandler): void => {}
-  public event = (_type: string, handler: EventHandler): void => {
+  public event = (handler: EventHandler): void => {
     this._state.eventHandlers.push(handler)
   }
-  public stateExpired = (_type: string, handler: StateExpiredHandler): void => {
+  public stateExpired = (handler: StateExpiredHandler): void => {
     this._state.stateExpiredHandlers.push(handler)
   }
 

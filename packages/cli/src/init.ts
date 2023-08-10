@@ -1,3 +1,8 @@
+/**
+ * Important:
+ *
+ * This file must be kept at the root of the src directory (and dist directory when built)
+ */
 import Module from 'module'
 import pathlib from 'path'
 

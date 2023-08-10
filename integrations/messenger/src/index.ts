@@ -3,7 +3,7 @@ import type { IntegrationContext, AckFunction } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
 import queryString from 'query-string'
-import { Integration, channels, secrets } from '.botpress'
+import { Integration, channels, secrets, configuration } from '.botpress'
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
@@ -106,7 +106,7 @@ const integration = new Integration({
       return
     }
 
-    const messengerClient = new MessengerClient({ accessToken: ctx.configuration.accessToken })
+    const messengerClient = getMessengerClient(ctx.configuration)
     const profile = await messengerClient.getUserProfile(userId)
 
     const { user } = await client.getOrCreateUser({ tags: { [idTag]: `${profile.id}` } })
@@ -124,7 +124,7 @@ const integration = new Integration({
       return
     }
 
-    const messengerClient = new MessengerClient({ accessToken: ctx.configuration.accessToken })
+    const messengerClient = getMessengerClient(ctx.configuration)
     const profile = await messengerClient.getUserProfile(userId)
 
     const { conversation } = await client.getOrCreateConversation({
@@ -206,6 +206,14 @@ function formatCardElement(payload: Card) {
   }
 }
 
+function getMessengerClient(ctx: configuration.Configuration) {
+  return new MessengerClient({
+    accessToken: ctx.accessToken,
+    appSecret: ctx.appSecret,
+    appId: ctx.appId,
+  })
+}
+
 function getCarouselMessage(payload: Carousel): MessengerTypes.AttachmentMessage {
   return {
     attachment: {
@@ -249,7 +257,7 @@ async function sendMessage(
   { ack, ctx, conversation }: SendMessageProps,
   send: (client: MessengerClient, recipientId: string) => Promise<{ messageId: string }>
 ) {
-  const messengerClient = new MessengerClient({ accessToken: ctx.configuration.accessToken })
+  const messengerClient = getMessengerClient(ctx.configuration)
   const recipientId = getRecipientId(conversation)
   const { messageId } = await send(messengerClient, recipientId)
   await ack({ tags: { [idTag]: messageId } })

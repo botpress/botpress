@@ -2,26 +2,21 @@ import yargs, { YargsArgv, YargsConfig, cleanupConfig, parseEnv } from '@bpinter
 import _ from 'lodash'
 import * as tree from './command-tree'
 import type * as typings from './typings'
-import type * as utils from './utils'
 
 export type YargsInstance = typeof yargs
-
-export type RegisterProps = {
-  cliRootDir: utils.path.AbsolutePath
-}
 
 const parseArguments = <S extends typings.CommandSchema>(schema: S, argv: YargsArgv<S>): YargsConfig<S> => {
   const yargsEnv = parseEnv(schema, 'BP')
   return cleanupConfig(schema, { ...argv, ...yargsEnv })
 }
 
-export const registerYargs = (yargz: YargsInstance, commands: tree.CommandTree, props: RegisterProps) => {
+export const registerYargs = (yargz: YargsInstance, commands: tree.CommandTree) => {
   for (const cmdName in commands) {
     const command = commands[cmdName] as tree.CommandTreeNode
 
     if (tree.guards.command.isSubTree(command)) {
       yargz.command(cmdName, command.description ?? cmdName, (y) => {
-        registerYargs(y, command.subcommands, props)
+        registerYargs(y, command.subcommands)
         return y
       })
       continue
@@ -60,7 +55,8 @@ export const registerYargs = (yargz: YargsInstance, commands: tree.CommandTree, 
       },
       async (argv) => {
         const parsed = parseArguments(schema, argv)
-        await command.handler({ ...parsed, ...props })
+        const { exitCode } = await command.handler({ ...parsed })
+        process.exit(exitCode)
       }
     )
   }
