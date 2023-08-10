@@ -32,7 +32,7 @@ export const register: RegisterFunction = async ({
     ARR_OF_EVENTS.map(async (event) => {
       const topic = getValue(event)
       const webhookId = await createWebhook(topic, ctx, logger, webhookUrl)
-      return { webhookId, topic }
+      return webhookId
     })
   )
 
@@ -40,7 +40,7 @@ export const register: RegisterFunction = async ({
     type: 'integration',
     name: 'configuration',
     id: `${ctx.integrationId}`,
-    payload: { webhooks },
+    payload: { webhookIds: webhooks },
   })
 }
 
@@ -77,21 +77,23 @@ async function createWebhook(
       return
     }
 
-    response = await axios.post(`/admin/api/${SHOPIFY_API_VERSION}/webhooks.json`, {
-      webhook: {
-        topic,
-        address: webhookUrl,
-        format: 'json',
+    response = await axios.post(
+      `/admin/api/${SHOPIFY_API_VERSION}/webhooks.json`,
+      {
+        webhook: {
+          topic,
+          address: webhookUrl,
+          format: 'json',
+        },
       },
-      axiosConfig,
-    })
+      axiosConfig
+    )
 
     logger
       .forBot()
       .info(
         `Shopify ${topicReadable} Webhook Created ${response.data.webhook.id.toString()} for Bot with Id ${ctx.botId}`
       )
-
     return response.data.webhook.id.toString()
   } catch (e) {
     logger.forBot().error(`'Shopify ${topicReadable} Webhook Creation' exception ${JSON.stringify(e)}`)

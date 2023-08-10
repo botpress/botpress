@@ -4,8 +4,6 @@ import { z } from 'zod'
 export const states = {
   configuration: {
     type: 'integration',
-    schema: z.object({
-      webhookId: z.string().optional(),
-    }),
+    schema: z.object({ webhookIds: z.array(z.string()).optional() }),
   },
 } satisfies IntegrationDefinitionProps['states']
