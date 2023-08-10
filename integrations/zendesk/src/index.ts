@@ -24,8 +24,8 @@ export default new botpress.Integration({
             return
           }
 
-          const ticketId = props.conversation!.tags['zendesk1:id']!
-          const zendeskUserId = user.tags['zendesk1:id']!
+          const ticketId = props.conversation!.tags['zendesk:id']!
+          const zendeskUserId = user.tags['zendesk:id']!
 
           return await zendeskClient.createComment(ticketId, zendeskUserId, props.payload.text)
         },
