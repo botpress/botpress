@@ -79,39 +79,6 @@ Coming soon.
 | [`@botpress/client`](https://www.npmjs.com/package/@botpress/client) | Type-safe client to consume the Botpress APIs   | [Docs]()                                           | [Code]()               |
 | [`@botpress/sdk`](https://www.npmjs.com/package/@botpress/sdk)       | Internal package used by to build integrations  | [Docs]()                                           | [Code]()               |
 
-## Before requesting a PR
-
-Before requesting a PR make sure the below is applied.
-
-### package.json
-
-#### name
-
-In your package.json, make sure that the "name" is prefixed by `@botpresshub`.
-Example: `"name": "@botpresshub/shopify"`
-
-#### javascript
-
-Before requesting a PR make sure your package.json has the below scripts:
-
-```javascript
-  "scripts": {
-    "bump": "ts-node -T ./scripts/depsynky bump",
-    "type:check": "pnpm -r --stream type:check",
-    "format:check": "prettier --check .",
-    "format:fix": "prettier --write .",
-    "lint:check": "eslint ./ --ext .ts --ext .tsx",
-    "lint:fix": "eslint --fix ./ --ext .ts --ext .tsx",
-    "dep:check": "ts-node -T ./scripts/depsynky check",
-    "dep:fix": "ts-node -T ./scripts/depsynky sync",
-    "check": "pnpm dep:check && pnpm format:check && pnpm lint:check && pnpm type:check",
-    "test": "pnpm vitest --run",
-    "fix": "pnpm dep:fix && pnpm format:fix && pnpm lint:fix"
-  }
-```
-
-Then make sure to run `pnpm run check` and fix all the errors/warnings before submitting your code for a PR.
-
 ## Contributing
 
 We love contributions from the community! We welcome pull requests that provide improvements or bug fixes for the CLI, Client, SDK or Integrations.
