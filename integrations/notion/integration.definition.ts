@@ -2,6 +2,9 @@ import { IntegrationDefinition } from '@botpress/sdk'
 import { z } from 'zod'
 import { name } from './package.json'
 
+const emptyObject = z.object({})
+const anyObject = z.object({}).passthrough()
+
 export default new IntegrationDefinition({
   name,
   version: '0.0.1',
@@ -56,11 +59,11 @@ export default new IntegrationDefinition({
       input: {
         schema: z.object({
           databaseId: z.string().min(1),
-          pageProperties: z.record(z.string(), z.object({}).passthrough()),
+          pageProperties: z.record(z.string(), anyObject),
         }),
       },
       output: {
-        schema: z.object({}),
+        schema: emptyObject,
       },
     },
     addCommentToPage: {
@@ -71,13 +74,13 @@ export default new IntegrationDefinition({
         }),
       },
       output: {
-        schema: z.object({}),
+        schema: emptyObject,
       },
     },
     deleteBlock: {
       input: { schema: z.object({ blockId: z.string().min(1) }) },
       output: {
-        schema: z.object({}).passthrough(),
+        schema: emptyObject,
       },
     },
     getDb: {
@@ -85,7 +88,7 @@ export default new IntegrationDefinition({
       output: {
         schema: z.object({
           object: z.string(),
-          properties: z.record(z.string(), z.object({})),
+          properties: z.record(z.string(), anyObject),
           /**
            * Refer to [getDbStructure](./src/notion/notion.ts) for more details
            */
@@ -101,7 +104,7 @@ export default new IntegrationDefinition({
         }),
       },
       output: {
-        schema: z.object({}),
+        schema: emptyObject,
       },
     },
   },
