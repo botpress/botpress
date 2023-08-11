@@ -13,14 +13,18 @@ export type Trigger = {
   id: string
 }
 
+const makeBaseUrl = (organizationDomain: string) => {
+  return organizationDomain.startsWith('https') ? organizationDomain : `https://${organizationDomain}.zendesk.com`
+}
+
 class ZendeskApi {
   private client: Axios
-  constructor(baseURL: string, username: string, password: string) {
+  constructor(organizationDomain: string, username: string, password: string) {
     this.client = axios.create({
-      baseURL,
+      baseURL: makeBaseUrl(organizationDomain),
       withCredentials: true,
       auth: {
-        username,
+        username: username.endsWith('/token') ? username : `${username}/token`,
         password,
       },
     })
