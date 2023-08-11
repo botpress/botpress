@@ -1,9 +1,17 @@
-import { IntegrationDefinitionProps, messages } from '@botpress/sdk'
+import { IntegrationDefinitionProps, messages as baseMessages } from '@botpress/sdk'
+import { textSchema } from './schemas'
+
+const messages = {
+  ...baseMessages.defaults,
+  text: {
+    schema: textSchema,
+  },
+}
 
 export const channels = {
   channel: {
     title: 'Channel',
-    messages: messages.defaults,
+    messages,
     message: { tags: { ts: {} } },
     conversation: {
       tags: { id: {} },
@@ -12,7 +20,7 @@ export const channels = {
   },
   dm: {
     title: 'Direct Message',
-    messages: messages.defaults,
+    messages,
     message: { tags: { ts: {} } },
     conversation: {
       tags: { id: {} },
@@ -21,7 +29,7 @@ export const channels = {
   },
   thread: {
     title: 'Thread',
-    messages: messages.defaults,
+    messages,
     message: { tags: { ts: {} } },
     conversation: {
       tags: { id: {}, thread: {} },
