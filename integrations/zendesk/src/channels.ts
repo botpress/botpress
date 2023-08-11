@@ -6,7 +6,6 @@ export default {
   ticket: {
     messages: {
       text: async ({ ...props }) => {
-        console.log(JSON.stringify(props.user, undefined, 2), props.payload)
         const { user } = await props.client.getUser({ id: props.payload.userId })
         if (user.tags?.origin === 'zendesk') {
           return
