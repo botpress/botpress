@@ -1,6 +1,6 @@
-import * as botpress from '.botpress'
 import { addCommentToDiscussion, addCommentToPage, addPageToDb, deleteBlock, getDb } from './actions'
 import { discussion, text } from './channels'
+import * as botpress from '.botpress'
 
 const logger = console
 logger.info('starting integration')
