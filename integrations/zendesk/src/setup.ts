@@ -1,8 +1,8 @@
+import { IntegrationProps } from '../.botpress/implementation'
 import { getZendeskClient } from './client'
 import { Triggers } from './triggers'
-import type { RegisterFunction, UnregisterFunction } from './types'
 
-export const register: RegisterFunction = async ({ client, ctx, webhookUrl, logger }) => {
+export const register: IntegrationProps['register'] = async ({ client, ctx, webhookUrl, logger }) => {
   await unregister({ ctx, client, webhookUrl, logger })
 
   const zendeskClient = getZendeskClient(ctx.configuration)
@@ -33,7 +33,7 @@ export const register: RegisterFunction = async ({ client, ctx, webhookUrl, logg
   }
 }
 
-export const unregister: UnregisterFunction = async ({ ctx, client }) => {
+export const unregister: IntegrationProps['unregister'] = async ({ ctx, client }) => {
   const zendeskClient = getZendeskClient(ctx.configuration)
 
   const { state } = await client.getState({

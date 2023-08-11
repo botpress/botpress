@@ -17,9 +17,9 @@ export const configuration = {
       description: 'Zendesk API Token',
     }),
   }),
-}
+} satisfies IntegrationDefinitionProps['configuration']
 
-export const states: IntegrationDefinitionProps['states'] = {
+export const states = {
   subscriptionInfo: {
     type: 'integration',
     schema: z.object({
@@ -27,7 +27,7 @@ export const states: IntegrationDefinitionProps['states'] = {
       triggerIds: z.array(z.string()),
     }),
   },
-}
+} satisfies IntegrationDefinitionProps['states']
 
 export const user = {
   tags: {
@@ -41,4 +41,4 @@ export const user = {
     role: {},
   },
   creation: { enabled: true, requiredTags: [] },
-}
+} satisfies IntegrationDefinitionProps['user']

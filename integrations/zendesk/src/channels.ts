@@ -1,6 +1,6 @@
 import { getZendeskClient } from './client'
 import { INTEGRATION_NAME } from './const'
-import type { Channels } from './types'
+import { IntegrationProps } from '.botpress'
 
 export default {
   ticket: {
@@ -23,4 +23,4 @@ export default {
       },
     },
   },
-} satisfies Channels
+} satisfies IntegrationProps['channels']

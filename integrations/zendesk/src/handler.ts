@@ -3,9 +3,9 @@ import { executeTicketAssigned } from './events/ticket-assigned'
 import { executeTicketSolved } from './events/ticket-solved'
 
 import type { TriggerPayload } from './triggers'
-import type { Handler } from './types'
+import { IntegrationProps } from '.botpress'
 
-export const handler: Handler = async ({ req, ctx, client, logger }) => {
+export const handler: IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
   if (!req.body) {
     logger.forBot().warn('Handler received an empty body')
     return
