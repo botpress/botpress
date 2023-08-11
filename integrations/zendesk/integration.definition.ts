@@ -5,7 +5,7 @@ import { actions, events, configuration, channels, states, user } from './src/de
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  title: 'Zendesks',
+  title: 'Zendesk',
   version: '0.2.0',
   icon: 'icon.svg',
   description: 'This integration allows your bot to interact with Zendesk.',
