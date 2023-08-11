@@ -9,7 +9,7 @@ export default new IntegrationDefinition({
   version: '0.2.0',
   icon: 'icon.svg',
   description: 'This integration allows your bot to interact with Zendesk.',
-  readme: 'readme.md',
+  readme: 'README.md',
   configuration,
   states,
   channels,
