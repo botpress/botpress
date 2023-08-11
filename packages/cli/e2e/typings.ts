@@ -4,6 +4,7 @@ export type TestProps = {
   token: string
   apiUrl: string
   tunnelUrl: string
+  dependencies: Record<string, string | undefined>
 }
 
 export type Test = {

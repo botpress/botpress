@@ -15,7 +15,7 @@ const fetchIntegration = async (client: Client, integrationName: string): Promis
 
 export const createDeployIntegration: Test = {
   name: 'cli should allow creating, building, deploying and mannaging an integration',
-  handler: async ({ tmpDir, ...creds }) => {
+  handler: async ({ tmpDir, dependencies, ...creds }) => {
     const botpressHomeDir = pathlib.join(tmpDir, '.botpresshome')
     const baseDir = pathlib.join(tmpDir, 'integrations')
     const integrationName = `myintegration-${uuid.v4()}`.replace(/-/g, '')
@@ -33,6 +33,7 @@ export const createDeployIntegration: Test = {
     await impl
       .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration' })
       .then(utils.handleExitCode)
+    await utils.fixBotpressDependencies({ workDir: integrationDir, target: dependencies })
     await utils.npmInstall({ workDir: integrationDir }).then(utils.handleExitCode)
     await impl.build({ ...argv, workDir: integrationDir }).then(utils.handleExitCode)
     await impl.login({ ...argv }).then(utils.handleExitCode)

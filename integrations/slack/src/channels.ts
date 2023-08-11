@@ -1,12 +1,14 @@
+import { textSchema } from './definitions/schemas'
 import { renderCard } from './misc/renderer'
 import { Channels } from './misc/types'
 import { getSlackTarget, notEmpty, sendSlackMessage } from './misc/utils'
 
 const defaultMessages: Channels['channel']['messages'] = {
   text: async ({ payload, ctx, conversation, ack }) => {
+    const parsed = textSchema.parse(payload)
     await sendSlackMessage(ctx.configuration.botToken, ack, {
       ...getSlackTarget(conversation),
-      text: payload.text,
+      ...parsed,
     })
   },
   image: async ({ payload, ctx, conversation, ack }) => {

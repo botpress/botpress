@@ -45,6 +45,14 @@ const configSchema = {
     type: 'string',
     default: consts.defaultTunnelUrl,
   },
+  sdkPath: {
+    type: 'string',
+    description: 'Path to the Botpress SDK to install; Allows using a version not released on NPM yet.',
+  },
+  clientPath: {
+    type: 'string',
+    description: 'Path to the Botpress Client to install; Allows using a version not released on NPM yet.',
+  },
 } satisfies YargsSchema
 
 const main = async (argv: YargsConfig<typeof configSchema>): Promise<never> => {
@@ -53,6 +61,11 @@ const main = async (argv: YargsConfig<typeof configSchema>): Promise<never> => {
   const filterRegex = argv.filter ? new RegExp(argv.filter) : null
   const filteredTests = tests.filter(({ name }) => (filterRegex ? filterRegex.test(name) : true))
   logger.info(`Running ${filteredTests.length} / ${tests.length} tests`)
+
+  const dependencies = { '@botpress/sdk': argv.sdkPath, '@botpress/client': argv.clientPath } satisfies Record<
+    string,
+    string | undefined
+  >
 
   for (const { name, handler } of filteredTests) {
     const logLine = `### Running test: "${name}" ###`
@@ -64,7 +77,7 @@ const main = async (argv: YargsConfig<typeof configSchema>): Promise<never> => {
     const tmpDir = TmpDirectory.create()
     try {
       const t0 = Date.now()
-      await Promise.race([handler({ tmpDir: tmpDir.path, ...argv }), timeout(argv.timeout)])
+      await Promise.race([handler({ tmpDir: tmpDir.path, dependencies, ...argv }), timeout(argv.timeout)])
       const t1 = Date.now()
       logger.info(`SUCCESS: "${name}" (${t1 - t0}ms)`)
     } catch (thrown) {
