@@ -1,8 +1,9 @@
-import { IntegrationDefinitionProps, messages } from '@botpress/sdk'
+import { IntegrationDefinitionProps } from '@botpress/sdk'
 import { z } from 'zod'
 
 export { actions } from './actions'
 export { events } from './events'
+export { channels } from './channels'
 
 export const configuration = {
   schema: z.object({
@@ -34,34 +35,3 @@ export const user = {
     id: {},
   },
 } satisfies IntegrationDefinitionProps['user']
-
-const messagesWithClassnames = Object.fromEntries(
-  Object.entries(messages.defaults).map(([type, def]) => {
-    const schema = def.schema.extend({
-      className: z.string().describe('CSS className to apply to the message').optional(),
-    })
-    return [
-      type,
-      {
-        ...def,
-        schema,
-      },
-    ]
-  })
-)
-
-export const channels = {
-  channel: {
-    messages: messagesWithClassnames,
-    message: {
-      tags: {
-        id: {},
-      },
-    },
-    conversation: {
-      tags: {
-        id: {},
-      },
-    },
-  },
-} satisfies IntegrationDefinitionProps['channels']
