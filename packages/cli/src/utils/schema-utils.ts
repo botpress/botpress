@@ -1,7 +1,7 @@
+import zodToJsonSchema from '@bpinternal/zod-to-json-schema'
+import type { JsonSchema7Type } from '@bpinternal/zod-to-json-schema/src/parseDef'
+import type { JsonSchema7ObjectType } from '@bpinternal/zod-to-json-schema/src/parsers/object'
 import { z } from 'zod'
-import zodToJsonSchema from 'zod-to-json-schema'
-import type { JsonSchema7Type } from 'zod-to-json-schema/src/parseDef'
-import type { JsonSchema7ObjectType } from 'zod-to-json-schema/src/parsers/object'
 
 type SchemaOptions = {
   title?: string
