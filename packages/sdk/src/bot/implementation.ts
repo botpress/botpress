@@ -1,10 +1,14 @@
 import type { Server } from 'node:http'
+import { z } from 'zod'
 import { SchemaDefinition } from '../schema'
 import { serve } from '../serve'
-import { Cast } from '../type-utils'
-import { BaseStates, BaseEvents, BaseIntegrations } from './generic'
+import { AnyZodObject, Cast } from '../type-utils'
+import { BaseIntegrations } from './generic'
 import { IntegrationInstance } from './integration-instance'
 import { botHandler, MessageHandler, EventHandler, StateExpiredHandler } from './server'
+
+type BaseStates = Record<string, AnyZodObject>
+type BaseEvents = Record<string, AnyZodObject>
 
 type TagDefinition = {
   title?: string
@@ -61,8 +65,12 @@ export type BotProps<
 
 type BotFrom<TIntegrations extends BaseIntegrations, TStates extends BaseStates, TEvents extends BaseEvents> = {
   integrations: TIntegrations
-  states: TStates
-  events: TEvents
+  states: {
+    [K in keyof TStates]: z.infer<TStates[K]>
+  }
+  events: {
+    [K in keyof TEvents]: z.infer<TEvents[K]>
+  }
 }
 
 type BotState<

@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import { Cast, Join, UnionToIntersection } from '../../type-utils'
 import { BaseBot } from '../generic'
 
@@ -46,5 +45,5 @@ export type EnumerateEvents<TBot extends BaseBot> = UnionToIntersection<
   (string extends keyof TBot['events']
     ? {}
     : {
-        [TEventName in keyof TBot['events']]: z.infer<TBot['events'][TEventName]>
+        [TEventName in keyof TBot['events']]: TBot['events'][TEventName]
       })
