@@ -17,6 +17,8 @@ sentryHelpers.init({
   release: secrets.SENTRY_RELEASE,
 })
 
+const log = console
+
 const conversationPartSchema = z.object({
   type: z.literal('conversation_part'),
   id: z.string(),
@@ -187,16 +189,16 @@ const integration = new Integration({
     },
   },
   handler: async ({ req, client, ctx }) => {
-    console.info('Handler received request')
+    log.info('Handler received request')
 
     if (!req.body) {
-      console.warn('Handler received an empty body')
+      log.warn('Handler received an empty body')
       return
     }
     const parsedBody = webhookNotificationSchema.safeParse(await JSON.parse(req.body))
 
     if (!parsedBody.success) {
-      console.warn(`Handler received an invalid body: ${parsedBody.error}`)
+      log.warn(`Handler received an invalid body: ${parsedBody.error}`)
       return
     }
 
@@ -247,7 +249,7 @@ const integration = new Integration({
       }
 
       if (authorType === 'bot') {
-        console.info(`Handler received a bot message with id ${messageId}`)
+        log.info(`Handler received a bot message with id ${messageId}`)
         return // ignore bot messages
       }
 
@@ -273,7 +275,7 @@ const integration = new Integration({
     for (const part of conversation_parts) {
       await createMessage(part)
     }
-    console.info('Handler finished processing request')
+    log.info('Handler finished processing request')
 
     return
   },

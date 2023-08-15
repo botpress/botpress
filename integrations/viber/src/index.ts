@@ -14,6 +14,8 @@ sentryHelpers.init({
   release: secrets.SENTRY_RELEASE,
 })
 
+const log = console
+
 const integration = new Integration({
   register: async ({ webhookUrl, ctx }) => {
     await setViberWebhook(webhookUrl, ctx.configuration.authToken)
@@ -163,7 +165,7 @@ const integration = new Integration({
   },
   handler: async ({ req, client }) => {
     if (!req.body) {
-      console.warn('Handler received an empty body')
+      log.warn('Handler received an empty body')
       return
     }
 
@@ -251,7 +253,7 @@ const integration = new Integration({
           })
           break
         default:
-          console.info('unsupported message type: ', data.message)
+          log.info('unsupported message type: ', data.message)
           return
       }
     }

@@ -15,6 +15,7 @@ sentryHelpers.init({
 })
 
 const idTag = 'instagram:id'
+const log = console
 
 const integration = new Integration({
   register: async () => {},
@@ -59,7 +60,7 @@ const integration = new Integration({
     },
   },
   handler: async ({ req, client, ctx }) => {
-    console.info('Handler received request')
+    log.info('Handler received request')
 
     if (req.query) {
       const query = queryString.parse(req.query)
@@ -86,7 +87,7 @@ const integration = new Integration({
     }
 
     if (!req.body) {
-      console.warn('Handler received an empty body')
+      log.warn('Handler received an empty body')
       return
     }
 

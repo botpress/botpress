@@ -8,6 +8,8 @@ import * as botpress from '.botpress'
 
 type Card = botpress.channels.channel.card.Card
 
+const log = console
+
 sentryHelpers.init({
   dsn: botpress.secrets.SENTRY_DSN,
   environment: botpress.secrets.SENTRY_ENVIRONMENT,
@@ -101,10 +103,10 @@ const integration = new botpress.Integration({
     },
   },
   handler: async ({ req, client, logger }) => {
-    console.info('Handler received request')
+    log.info('Handler received request')
 
     if (!req.body) {
-      console.warn('Handler received an empty body')
+      log.warn('Handler received an empty body')
       return
     }
 

@@ -16,6 +16,8 @@ sentryHelpers.init({
   release: secrets.SENTRY_RELEASE,
 })
 
+const log = console
+
 const clientId = secrets.CLIENT_ID
 const clientSecret = secrets.CLIENT_SECRET
 const topicName = secrets.TOPIC_NAME
@@ -28,7 +30,7 @@ const integration = new Integration({
     channel: {
       messages: {
         text: async ({ ctx, client, conversation, ack, payload }) => {
-          console.info('sending email')
+          log.info('sending email')
 
           const { state } = await client.getState({
             type: 'conversation',
@@ -37,7 +39,7 @@ const integration = new Integration({
           })
 
           if (!state.payload.inReplyTo) {
-            console.info('No inReplyTo tag found')
+            log.info('No inReplyTo tag found')
             return
           }
 
@@ -51,52 +53,52 @@ const integration = new Integration({
           })
         },
         image: async (props) => {
-          console.info('conversation', props.conversation)
-          console.info('message', props.message)
-          console.info('user', props.user)
+          log.info('conversation', props.conversation)
+          log.info('message', props.message)
+          log.info('user', props.user)
         },
         markdown: async (props) => {
-          console.info('conversation', props.conversation)
-          console.info('message', props.message)
-          console.info('user', props.user)
+          log.info('conversation', props.conversation)
+          log.info('message', props.message)
+          log.info('user', props.user)
         },
         audio: async (props) => {
-          console.info('conversation', props.conversation)
-          console.info('message', props.message)
-          console.info('user', props.user)
+          log.info('conversation', props.conversation)
+          log.info('message', props.message)
+          log.info('user', props.user)
         },
         video: async (props) => {
-          console.info('conversation', props.conversation)
-          console.info('message', props.message)
-          console.info('user', props.user)
+          log.info('conversation', props.conversation)
+          log.info('message', props.message)
+          log.info('user', props.user)
         },
         file: async (props) => {
-          console.info('conversation', props.conversation)
-          console.info('message', props.message)
-          console.info('user', props.user)
+          log.info('conversation', props.conversation)
+          log.info('message', props.message)
+          log.info('user', props.user)
         },
         location: async (props) => {
-          console.info('conversation', props.conversation)
-          console.info('message', props.message)
-          console.info('user', props.user)
+          log.info('conversation', props.conversation)
+          log.info('message', props.message)
+          log.info('user', props.user)
         },
         card: async (props) => {
-          console.info('conversation', props.conversation)
-          console.info('message', props.message)
-          console.info('user', props.user)
+          log.info('conversation', props.conversation)
+          log.info('message', props.message)
+          log.info('user', props.user)
         },
         carousel: async (props) => {
-          console.info('conversation', props.conversation)
-          console.info('message', props.message)
-          console.info('user', props.user)
+          log.info('conversation', props.conversation)
+          log.info('message', props.message)
+          log.info('user', props.user)
         },
         dropdown: async (props) => {
-          console.info('conversation', props.conversation)
-          console.info('message', props.message)
-          console.info('user', props.user)
+          log.info('conversation', props.conversation)
+          log.info('message', props.message)
+          log.info('user', props.user)
         },
         choice: async ({ client, conversation, ctx, payload, ack }) => {
-          console.info('sending email')
+          log.info('sending email')
 
           const { state } = await client.getState({
             type: 'conversation',
@@ -105,7 +107,7 @@ const integration = new Integration({
           })
 
           if (!state.payload.inReplyTo) {
-            console.info('No inReplyTo tag found')
+            log.info('No inReplyTo tag found')
             return
           }
 
@@ -129,7 +131,7 @@ const integration = new Integration({
   },
   // eslint-disable-next-line max-lines-per-function
   handler: async (props) => {
-    console.info('handler received a request')
+    log.info('handler received a request')
 
     if (props.req.path.startsWith('/oauth')) {
       return onOAuth(props)
@@ -149,27 +151,27 @@ async function onNewEmail(props: handlerProps) {
   const bodyContent = JSON.parse(req.body || '{}')
 
   const data = bodyContent.message?.data
-  console.info('data', data)
+  log.info('data', data)
 
   if (!data) {
-    console.warn('Handler received an invalid body (no data)')
+    log.warn('Handler received an invalid body (no data)')
     return
   }
 
   const messageData = JSON.parse(decode(data))
-  console.info('messageData', messageData)
+  log.info('messageData', messageData)
 
   const { historyId: historyIdNumber, emailAddress } = messageData
   const historyId = `${historyIdNumber}`
-  console.info('historyId', historyId)
+  log.info('historyId', historyId)
 
   if (!historyId) {
-    console.warn('Handler received an invalid body (no historyId)')
+    log.warn('Handler received an invalid body (no historyId)')
     return
   }
 
   // Only proceed if the incoming historyId is greater that the latest processed historyId
-  console.info('creating gmail client')
+  log.info('creating gmail client')
   const gmail = await getGmailClient({ client, ctx })
 
   const {
@@ -196,7 +198,7 @@ async function onNewEmail(props: handlerProps) {
 
   const history = await getHistory(props, gmail, lastHistoryId, payload.refreshToken)
 
-  console.info(JSON.stringify(history.data, null, 2))
+  log.info(JSON.stringify(history.data, null, 2))
 
   const messageIds = history.data.history?.reduce((acc, h) => {
     h.messagesAdded?.forEach((m) => {
@@ -209,7 +211,7 @@ async function onNewEmail(props: handlerProps) {
   }, [] as string[])
 
   if (!messageIds?.length) {
-    console.info('Handler received an empty message id')
+    log.info('Handler received an empty message id')
     return
   }
 
@@ -248,7 +250,7 @@ async function getHistory(
       },
     })
 
-    console.error('Error while fetching history', e)
+    log.error('Error while fetching history', e)
     throw e
   }
 }
@@ -259,16 +261,16 @@ async function processMessage(
   gmail: gmail_v1.Gmail,
   emailAddress: string
 ) {
-  console.info('getting history')
+  log.info('getting history')
   const gmailMessage = await gmail.users.messages.get({ id: messageId, userId: 'me' })
 
   const message = parseMessage(gmailMessage.data)
-  console.info('message', message)
+  log.info('message', message)
 
   const threadId = message.threadId
 
   if (!threadId) {
-    console.info('Handler received an empty chat id')
+    log.info('Handler received an empty chat id')
     throw new Error('Handler received an empty chat id')
   }
 
@@ -276,13 +278,13 @@ async function processMessage(
   const inReplyTo = message.headers['message-id']
   const from = message.headers['from']
   const userEmail = replyTo ?? /(?<=\<)(.*?)(?=\>)/.exec(from)?.[0] ?? from
-  console.info('userEmail', userEmail)
+  log.info('userEmail', userEmail)
 
   if (userEmail === emailAddress) {
     return
   }
 
-  console.info('threadId', threadId)
+  log.info('threadId', threadId)
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
@@ -290,7 +292,7 @@ async function processMessage(
     },
   })
 
-  console.info('conversation', conversation)
+  log.info('conversation', conversation)
 
   const { conversation: updatedConversation } = await client.updateConversation({
     id: conversation.id,
@@ -303,13 +305,13 @@ async function processMessage(
     },
   })
 
-  console.info('updatedConversation', updatedConversation)
+  log.info('updatedConversation', updatedConversation)
 
   if (!userEmail) {
     throw new Error('Handler received an empty from id')
   }
 
-  console.info('userEmail', userEmail)
+  log.info('userEmail', userEmail)
   const { user } = await client.getOrCreateUser({
     tags: {
       'gmail:id': `${userEmail}`,
@@ -323,10 +325,10 @@ async function processMessage(
     $('.gmail_quote').remove() // Remove previous quoted messages in the thread
     content = $.text()
   } catch (e) {
-    console.error('Error while parsing html content', e)
+    log.error('Error while parsing html content', e)
   }
 
-  console.info('getOrCreateMessage', { threadId, userEmail, content, inReplyTo })
+  log.info('getOrCreateMessage', { threadId, userEmail, content, inReplyTo })
   await client.getOrCreateMessage({
     tags: { 'gmail:id': messageId },
     type: 'text',
@@ -353,15 +355,15 @@ async function onOAuth({ req, client, ctx }: handlerProps) {
   const { code } = queryString.parse(req.query)
 
   if (!code) {
-    console.error('Error extracting code from url')
+    log.error('Error extracting code from url')
     return
   }
 
-  console.info('code', code)
+  log.info('code', code)
   const { tokens } = await oauth2Client.getToken({
     code: code.toString(),
   })
-  console.info('tokens', tokens)
+  log.info('tokens', tokens)
 
   oauth2Client.setCredentials({ refresh_token: tokens.refresh_token })
   const gmail = google.gmail({ version: 'v1', auth: oauth2Client })
@@ -371,14 +373,14 @@ async function onOAuth({ req, client, ctx }: handlerProps) {
   })
 
   const userEmail = profile.data.emailAddress
-  console.info('userEmail', userEmail)
+  log.info('userEmail', userEmail)
 
   if (!userEmail) {
-    console.error('Error extracting email from profile')
+    log.error('Error extracting email from profile')
     return
   }
 
-  console.info('configureIntegration')
+  log.info('configureIntegration')
   await client.configureIntegration({
     identifier: userEmail,
   })
@@ -409,7 +411,7 @@ function getConversationInfo(conversation: Conversation) {
   const cc = conversation.tags?.['gmail:cc']
 
   if (!(threadId && subject && email)) {
-    console.info(`No valid information found for conversation ${conversation.id}`)
+    log.info(`No valid information found for conversation ${conversation.id}`)
     throw Error(`No valid information found for conversation ${conversation.id}`)
   }
 
@@ -417,13 +419,13 @@ function getConversationInfo(conversation: Conversation) {
 }
 
 async function sendEmail({ client, ctx, conversation, ack, content, inReplyTo }: any) {
-  console.info('bulding the client')
+  log.info('bulding the client')
 
   const gmail = await getGmailClient({ client, ctx })
 
   const { threadId, email, subject, references, cc } = getConversationInfo(conversation)
 
-  console.info('Creating mail')
+  log.info('Creating mail')
   const raw = await createMail({
     to: email,
     subject,
@@ -434,10 +436,10 @@ async function sendEmail({ client, ctx, conversation, ack, content, inReplyTo }:
     references: references ?? inReplyTo,
     cc,
   })
-  console.info('Sending mail', raw)
+  log.info('Sending mail', raw)
 
   const res = await gmail.users.messages.send({ requestBody: { threadId, raw }, userId: 'me' })
-  console.info('Response', res)
+  log.info('Response', res)
 
   ack({ tags: { 'gmail:id': `${res.data.id}` } })
 }
@@ -453,7 +455,7 @@ async function getGmailClient({ client, ctx }: any) {
 
   const oauth2Client = new google.auth.OAuth2(clientId, clientSecret, `${payload.webhookUrl}/oauth2callback`)
 
-  console.info('integration state payload', payload)
+  log.info('integration state payload', payload)
 
   oauth2Client.setCredentials({ refresh_token: payload.refreshToken })
   const gmail = google.gmail({ version: 'v1', auth: oauth2Client })

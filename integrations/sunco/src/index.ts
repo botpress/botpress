@@ -12,6 +12,8 @@ sentryHelpers.init({
   release: secrets.SENTRY_RELEASE,
 })
 
+const log = console
+
 const SunshineConversationsClient = require('sunshine-conversations-client')
 
 type SmoochBaseAction = {
@@ -77,7 +79,7 @@ const integration = new Integration({
             // See: https://docs.smooch.io/guide/validating-files/#rejections
             if (err.status === 400 && err.response?.text) {
               // eslint-disable-next-line no-console
-              console.log(err.response.text)
+              log.log(err.response.text)
             }
             throw e
           }
@@ -108,7 +110,7 @@ const integration = new Integration({
   },
   handler: async ({ req, client }) => {
     if (!req.body) {
-      console.warn('Handler received an empty body')
+      log.warn('Handler received an empty body')
       return
     }
 
@@ -116,19 +118,19 @@ const integration = new Integration({
 
     for (const event of data.events) {
       if (event.type !== 'conversation:message') {
-        console.warn('Received an event that is not a message')
+        log.warn('Received an event that is not a message')
         continue
       }
 
       const payload = event.payload
 
       if (payload.message.content.type !== 'text') {
-        console.warn('Received a message that is not a text message')
+        log.warn('Received a message that is not a text message')
         continue
       }
 
       if (payload.message.author.type === 'business') {
-        console.warn('Skipping message that is from a business')
+        log.warn('Skipping message that is from a business')
         continue
       }
 
@@ -300,6 +302,6 @@ async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload
   await ack({ tags: { 'sunco:id': message.id } })
 
   if (messages.length > 1) {
-    console.warn('More than one message was sent')
+    log.warn('More than one message was sent')
   }
 }

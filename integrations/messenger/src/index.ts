@@ -14,6 +14,8 @@ sentryHelpers.init({
   release: secrets.SENTRY_RELEASE,
 })
 
+const log = console
+
 const idTag = 'messenger:id'
 
 const integration = new Integration({
@@ -59,7 +61,7 @@ const integration = new Integration({
     },
   },
   handler: async ({ req, client, ctx }) => {
-    console.info('Handler received request')
+    log.info('Handler received request')
 
     if (req.query) {
       const query = queryString.parse(req.query)
@@ -86,7 +88,7 @@ const integration = new Integration({
     }
 
     if (!req.body) {
-      console.warn('Handler received an empty body')
+      log.warn('Handler received an empty body')
       return
     }
 

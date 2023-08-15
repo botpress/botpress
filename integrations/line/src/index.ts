@@ -16,7 +16,8 @@ sentryHelpers.init({
   release: secrets.SENTRY_RELEASE,
 })
 
-console.info('starting integration line')
+const log = console
+log.info('starting integration line')
 
 const replyLineMessage = async (props: ReplyLineProps, messageObj: line.Message) => {
   const { ctx, conversation, client, ack } = props
@@ -40,7 +41,7 @@ const replyLineMessage = async (props: ReplyLineProps, messageObj: line.Message)
       await ack({ tags: { ['line:msgId']: lineResponse['x-line-request-id'] } })
     }
   } catch (e: any) {
-    console.error(`Error: ${e.originalError.message}`)
+    log.error(`Error: ${e.originalError.message}`)
   }
 }
 
@@ -104,7 +105,7 @@ const integration = new Integration({
           )
         },
         file: async () => {
-          console.error(
+          log.error(
             'Documents & files are not supported by Line - https://developers.line.biz/en/reference/messaging-api'
           )
         },
@@ -189,9 +190,7 @@ const integration = new Integration({
             })
 
             if (sections.length === 12) {
-              console.warn(
-                'Only 12 items are allowed - https://developers.line.biz/en/reference/messaging-api/#f-carousel'
-              )
+              log.warn('Only 12 items are allowed - https://developers.line.biz/en/reference/messaging-api/#f-carousel')
               break
             }
           }
@@ -368,7 +367,7 @@ const integration = new Integration({
     },
   },
   handler: async ({ req, client, ctx }) => {
-    console.info('Handler received request')
+    log.info('Handler received request')
 
     if (!req.body) {
       throw new Error('Handler received an empty body')
@@ -381,7 +380,7 @@ const integration = new Integration({
     }
 
     if (!req.body) {
-      console.warn('Handler received an empty body')
+      log.warn('Handler received an empty body')
       return
     }
 
@@ -391,7 +390,7 @@ const integration = new Integration({
     // Compare x-line-signature request header and the signature
 
     if (req.headers['x-line-signature'] !== signature) {
-      console.warn('Wrong Signature')
+      log.warn('Wrong Signature')
       return {
         status: 401,
       }
