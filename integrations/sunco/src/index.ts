@@ -79,7 +79,7 @@ const integration = new Integration({
             // See: https://docs.smooch.io/guide/validating-files/#rejections
             if (err.status === 400 && err.response?.text) {
               // eslint-disable-next-line no-console
-              log.log(err.response.text)
+              console.log(err.response.text)
             }
             throw e
           }

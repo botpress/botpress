@@ -36,7 +36,8 @@ export const createConversation: botpress.IntegrationProps['createConversation']
     logForBotAndThrow(`A Whatsapp template name needs to be provided in the '${templateNameTag}' tag`, logger)
   }
 
-  const templateLanguage = tags['whatsapp:templateLanguage'] || 'en_US'
+  const templateLanguageTag = 'whatsapp:templateLanguage'
+  const templateLanguage = tags[templateLanguageTag] || 'en_US'
 
   const templateVariablesTag = 'whatsapp:templateVariables'
   const templateVariablesSchema = z.array(z.string().or(z.number()))

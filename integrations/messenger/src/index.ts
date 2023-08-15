@@ -263,7 +263,7 @@ async function sendMessage(
 }
 
 export function getRecipientId(conversation: SendMessageProps['conversation']): string {
-  const recipientId = conversation.tags['messenger:id']
+  const recipientId = conversation.tags[idTag]
 
   if (!recipientId) {
     throw Error(`No recipient id found for user ${conversation.id}`)

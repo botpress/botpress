@@ -1,6 +1,5 @@
 import { PullRequestClosedEvent } from '@octokit/webhooks-types'
-
-import { Client } from 'src/misc/types'
+import { Client } from '../misc/types'
 import { getUserAndConversation } from '../misc/utils'
 
 export const firePullRequesMerged = async ({

@@ -1,5 +1,5 @@
 import { GenericMessageEvent } from '@slack/bolt'
-import { Client } from 'src/misc/types'
+import { Client } from '../misc/types'
 import { getUserAndConversation } from '../misc/utils'
 
 export const executeMessageReceived = async ({
