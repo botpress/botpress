@@ -1,17 +1,9 @@
 import type { Conversation } from '@botpress/client'
-import type {
-  IntegrationContext,
-  AckFunction,
-  Integration as SdkIntegration,
-  IntegrationSpecificClient,
-} from '@botpress/sdk'
+import type { IntegrationContext, AckFunction } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import * as line from '@line/bot-sdk'
 import crypto from 'crypto'
-import { Integration, secrets } from '.botpress'
-
-type Tof<I extends SdkIntegration<any>> = I extends SdkIntegration<infer T> ? T : never
-type TIntegration = Tof<Integration>
+import { Integration, secrets, Client } from '.botpress'
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
@@ -26,7 +18,7 @@ log.info(`starting integration ${name}`)
 async function replyLineMessage(
   ctx: IntegrationContext,
   conversation: Conversation,
-  client: IntegrationSpecificClient<TIntegration>,
+  client: Client,
   ack: AckFunction,
   messageObj: line.Message
 ) {
@@ -410,8 +402,8 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const usrId = tags.usrId
-    const destId = tags.destId
+    const usrId = tags['line:usrId']
+    const destId = tags['line:destId']
 
     if (!(usrId && destId)) {
       return
@@ -438,7 +430,7 @@ const integration = new Integration({
 
 export default sentryHelpers.wrapIntegration(integration)
 
-async function handleMessage(events: LineEvents, destination: string, client: IntegrationSpecificClient<TIntegration>) {
+async function handleMessage(events: LineEvents, destination: string, client: Client) {
   const message = events.message
   if (message.type) {
     const { conversation } = await client.getOrCreateConversation({

@@ -1,4 +1,6 @@
 export type BaseIntegration = {
+  name: string
+  version: string
   configuration: any
   actions: Record<string, Record<'input' | 'output', any>>
   channels: Record<

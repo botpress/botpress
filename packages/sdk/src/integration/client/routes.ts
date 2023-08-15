@@ -1,19 +1,18 @@
 import { Client } from '@botpress/client'
 import { Merge, Cast } from '../../type-utils'
 import { BaseIntegration } from '../generic'
-import { GetChannelByName } from './types'
+import { GetChannelByName, ToTags } from './types'
 
 type Arg<F extends (...args: any[]) => any> = Parameters<F>[number]
 type Res<F extends (...args: any[]) => any> = ReturnType<F>
 
-type AsTags<T extends Record<string, string | undefined>> = Cast<T, Record<string, string>>
-type ToTags<TTags extends string | number | symbol> = AsTags<Partial<Record<TTags, string>>>
+type PrefixConfig<TIntegration extends BaseIntegration> = { allowPrefix: TIntegration['name'] }
 
 export type CreateConversation<TIntegration extends BaseIntegration> = <
   ChannelName extends keyof TIntegration['channels']
 >(x: {
   channel: Cast<ChannelName, string>
-  tags: ToTags<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags']>
+  tags: ToTags<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags'], PrefixConfig<TIntegration>>
 }) => Res<Client['createConversation']>
 
 export type GetConversation<_TIntegration extends BaseIntegration> = Client['getConversation']
@@ -22,7 +21,7 @@ export type ListConversations<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['listConversations']>,
     {
-      tags?: ToTags<keyof TIntegration['channels'][string]['conversation']['tags']>
+      tags?: ToTags<keyof TIntegration['channels'][string]['conversation']['tags'], PrefixConfig<TIntegration>>
     }
   >
 ) => Res<Client['listConversations']>
@@ -31,14 +30,14 @@ export type GetOrCreateConversation<TIntegration extends BaseIntegration> = <
   ChannelName extends keyof TIntegration['channels']
 >(x: {
   channel: Cast<ChannelName, string>
-  tags: ToTags<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags']>
+  tags: ToTags<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags'], PrefixConfig<TIntegration>>
 }) => Res<Client['getOrCreateConversation']>
 
 export type UpdateConversation<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['updateConversation']>,
     {
-      tags: ToTags<keyof TIntegration['channels'][string]['conversation']['tags']>
+      tags: ToTags<keyof TIntegration['channels'][string]['conversation']['tags'], PrefixConfig<TIntegration>>
     }
   >
 ) => Res<Client['updateConversation']>
@@ -75,7 +74,7 @@ export type CreateMessage<TIntegration extends BaseIntegration> = <
     {
       type: Cast<TMessage, string> // TODO: conversation should be used to infer the channel of the message
       payload: TIntegration['channels'][TChannel]['messages'][TMessage]
-      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
+      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags'], PrefixConfig<TIntegration>>
     }
   >
 ) => Res<Client['createMessage']>
@@ -88,7 +87,7 @@ export type GetOrCreateMessage<TIntegration extends BaseIntegration> = <
     {
       type: Cast<TMessage, string> // TODO: conversation should be used to infer the channel of the message
       payload: TIntegration['channels'][string]['messages'][TMessage]
-      tags: ToTags<keyof TIntegration['channels'][string]['message']['tags']>
+      tags: ToTags<keyof TIntegration['channels'][string]['message']['tags'], PrefixConfig<TIntegration>>
     }
   >
 ) => Res<Client['getOrCreateMessage']>
@@ -99,7 +98,7 @@ export type UpdateMessage<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['updateMessage']>,
     {
-      tags: ToTags<keyof TIntegration['channels'][string]['message']['tags']>
+      tags: ToTags<keyof TIntegration['channels'][string]['message']['tags'], PrefixConfig<TIntegration>>
     }
   >
 ) => Res<Client['updateMessage']>
@@ -108,7 +107,7 @@ export type ListMessages<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['listMessages']>,
     {
-      tags: ToTags<keyof TIntegration['channels'][string]['message']['tags']>
+      tags: ToTags<keyof TIntegration['channels'][string]['message']['tags'], PrefixConfig<TIntegration>>
     }
   >
 ) => Res<Client['listMessages']>
@@ -116,7 +115,7 @@ export type ListMessages<TIntegration extends BaseIntegration> = (
 export type DeleteMessage<_TIntegration extends BaseIntegration> = Client['deleteMessage']
 
 export type CreateUser<TIntegration extends BaseIntegration> = (x: {
-  tags: ToTags<keyof TIntegration['user']['tags']>
+  tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
 }) => Res<Client['createUser']>
 
 export type GetUser<_TIntegration extends BaseIntegration> = Client['getUser']
@@ -125,20 +124,20 @@ export type ListUsers<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['listUsers']>,
     {
-      tags: ToTags<keyof TIntegration['user']['tags']>
+      tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
     }
   >
 ) => Res<Client['listUsers']>
 
 export type GetOrCreateUser<TIntegration extends BaseIntegration> = (x: {
-  tags: ToTags<keyof TIntegration['user']['tags']>
+  tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
 }) => Res<Client['getOrCreateUser']>
 
 export type UpdateUser<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['updateUser']>,
     {
-      tags: ToTags<keyof TIntegration['user']['tags']>
+      tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
     }
   >
 ) => Res<Client['updateUser']>

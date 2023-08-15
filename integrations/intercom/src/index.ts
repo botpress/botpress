@@ -281,7 +281,7 @@ const integration = new Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags.id
+    const userId = tags['intercom:id']
 
     if (!userId) {
       return
@@ -299,7 +299,7 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const conversationId = tags.id
+    const conversationId = tags['intercom:id']
 
     if (!conversationId) {
       return

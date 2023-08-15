@@ -154,7 +154,7 @@ const integration = new Integration({
     }
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags.id
+    const userId = tags['sunco:id']
 
     if (!userId) {
       return
@@ -172,7 +172,7 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const conversationId = tags.id
+    const conversationId = tags['sunco:id']
 
     if (!conversationId) {
       return

@@ -114,7 +114,7 @@ const integration = new Integration({
   },
 
   createUser: async ({ client, tags, ctx }) => {
-    const userPhone = tags['userPhone']
+    const userPhone = tags['twilio:userPhone']
 
     if (!userPhone) {
       return
@@ -135,8 +135,8 @@ const integration = new Integration({
   },
 
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const userPhone = tags['userPhone']
-    const activePhone = tags['activePhone']
+    const userPhone = tags['twilio:userPhone']
+    const activePhone = tags['twilio:activePhone']
 
     if (!(userPhone && activePhone)) {
       return

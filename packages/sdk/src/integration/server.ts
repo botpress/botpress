@@ -2,6 +2,7 @@ import { Client, RuntimeError, type Conversation, type Message, type User } from
 import { Request, Response, parseBody } from '../serve'
 import { Cast } from '../type-utils'
 import { IntegrationSpecificClient } from './client'
+import { ToTags } from './client/types'
 import { extractContext, type IntegrationContext } from './context'
 import { BaseIntegration } from './generic'
 import { IntegrationLogger, integrationLogger } from './logger'
@@ -11,8 +12,6 @@ type CommonArgs<TIntegration extends BaseIntegration> = {
   client: IntegrationSpecificClient<TIntegration>
   logger: IntegrationLogger
 }
-
-type Tags = Record<string, string>
 
 type RegisterPayload = { webhookUrl: string }
 type RegisterArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> & RegisterPayload
@@ -27,23 +26,44 @@ type ActionPayload<T extends string, I> = { type: T; input: I }
 type ActionArgs<TIntegration extends BaseIntegration, T extends string, I> = CommonArgs<TIntegration> &
   ActionPayload<T, I>
 
-type CreateUserPayload = { tags: Tags }
-type CreateUserArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> & CreateUserPayload
+type CreateUserPayload<TIntegration extends BaseIntegration> = {
+  tags: ToTags<keyof TIntegration['user']['tags'], { enforcePrefix: TIntegration['name'] }>
+}
+type CreateUserArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> & CreateUserPayload<TIntegration>
 
 type CreateConversationPayload<
   TIntegration extends BaseIntegration,
   TChannel extends keyof TIntegration['channels'] = keyof TIntegration['channels']
 > = {
   channel: TChannel
-  tags: Partial<Record<keyof TIntegration['channels'][TChannel]['conversation']['tags'], string>>
+  tags: ToTags<
+    keyof TIntegration['channels'][TChannel]['conversation']['tags'],
+    { enforcePrefix: TIntegration['name'] }
+  >
 }
 type CreateConversationArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> &
   CreateConversationPayload<TIntegration>
 
-type MessagePayload<P, M, C, U> = { payload: P; conversation: C; message: M; user: U; type: string }
-type MessageArgs<TIntegration extends BaseIntegration, P, M, C, U> = CommonArgs<TIntegration> &
-  MessagePayload<P, M, C, U> & {
-    ack: (props: { tags: Tags }) => Promise<void>
+type MessagePayload<
+  TIntegration extends BaseIntegration,
+  TChannel extends keyof TIntegration['channels'],
+  TMessage extends keyof TIntegration['channels'][TChannel]['messages']
+> = {
+  type: TMessage
+  payload: TIntegration['channels'][TChannel]['messages'][TMessage]
+  conversation: Conversation
+  message: Message
+  user: User
+}
+type MessageArgs<
+  TIntegration extends BaseIntegration,
+  TChannel extends keyof TIntegration['channels'],
+  TMessage extends keyof TIntegration['channels'][TChannel]['messages']
+> = CommonArgs<TIntegration> &
+  MessagePayload<TIntegration, TChannel, TMessage> & {
+    ack: (props: {
+      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags'], { enforcePrefix: TIntegration['name'] }>
+    }) => Promise<void>
   }
 
 export type RegisterFunction<TIntegration extends BaseIntegration> = (
@@ -76,14 +96,7 @@ export type ChannelFunctions<TIntegration extends BaseIntegration> = {
   [ChannelName in keyof TIntegration['channels']]: {
     messages: {
       [MessageType in keyof TIntegration['channels'][ChannelName]['messages']]: (
-        props: CommonArgs<TIntegration> &
-          MessageArgs<
-            TIntegration,
-            TIntegration['channels'][ChannelName]['messages'][MessageType],
-            Message,
-            Conversation,
-            User
-          >
+        props: CommonArgs<TIntegration> & MessageArgs<TIntegration, ChannelName, MessageType>
       ) => Promise<void>
     }
   }
@@ -212,7 +225,7 @@ const onCreateUser = async <TIntegration extends BaseIntegration>({
   if (!instance.createUser) {
     return
   }
-  const { tags } = parseBody<CreateUserPayload>(req)
+  const { tags } = parseBody<CreateUserPayload<TIntegration>>(req)
   return await instance.createUser({ ctx, client, tags, logger })
 }
 
@@ -237,8 +250,7 @@ const onMessageCreated = async <TIntegration extends BaseIntegration>({
   logger,
   instance,
 }: ServerProps<TIntegration>) => {
-  const { conversation, user, type, payload, message } =
-    parseBody<MessagePayload<any, Message, Conversation, User>>(req)
+  const { conversation, user, type, payload, message } = parseBody<MessagePayload<TIntegration, string, string>>(req)
 
   const channelHandler = instance.channels[conversation.channel]
 

@@ -262,7 +262,7 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const userId = tags.id
+    const userId = tags['viber:id']
 
     if (!userId) {
       return

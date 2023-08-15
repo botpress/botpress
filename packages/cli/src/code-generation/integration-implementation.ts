@@ -93,6 +93,8 @@ export class IntegrationImplementationIndexModule extends Module {
       `export * as ${statesModule.name} from "./${statesImport}"`,
       '',
       'type TIntegration = {',
+      `  name: "${integration.name}"`,
+      `  version: "${integration.version}"`,
       `  configuration: ${configModule.name}.${configModule.exports}`,
       `  actions: ${actionsModule.name}.${actionsModule.exports}`,
       `  channels: ${channelsModule.name}.${channelsModule.exports}`,

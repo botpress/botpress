@@ -189,7 +189,7 @@ const integration = new botpress.Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const chatId = tags.id
+    const chatId = tags['telegram:id']
 
     if (!chatId) {
       return

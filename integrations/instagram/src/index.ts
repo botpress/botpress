@@ -1,17 +1,9 @@
 import type { Conversation } from '@botpress/client'
-import type {
-  AckFunction,
-  IntegrationContext,
-  IntegrationSpecificClient,
-  Integration as SdkIntegration,
-} from '@botpress/sdk'
+import type { AckFunction, IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
 import queryString from 'query-string'
-import { Integration, channels, secrets } from '.botpress'
-
-type Tof<I extends SdkIntegration<any>> = I extends SdkIntegration<infer T> ? T : never
-type TIntegration = Tof<Integration>
+import { Integration, channels, secrets, Client } from '.botpress'
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
@@ -104,7 +96,7 @@ const integration = new Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags.id
+    const userId = tags['instagram:id']
 
     if (!userId) {
       return
@@ -122,7 +114,7 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const userId = tags.id
+    const userId = tags['instagram:id']
 
     if (!userId) {
       return
@@ -264,7 +256,7 @@ export function getRecipientId(conversation: Conversation): string {
   return recipientId
 }
 
-async function handleMessage(message: InstagramMessage, client: IntegrationSpecificClient<TIntegration>) {
+async function handleMessage(message: InstagramMessage, client: Client) {
   if (message.message) {
     if (message.message.text) {
       const { conversation } = await client.getOrCreateConversation({

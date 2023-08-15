@@ -109,8 +109,8 @@ const integration = new Integration({
     })
   },
   createUser: async ({ client, tags }) => {
-    const vonageChannel = tags.channel
-    const userId = tags.userId
+    const vonageChannel = tags['vonage:channel']
+    const userId = tags['vonage:userId']
 
     if (!(vonageChannel && userId)) {
       return
@@ -130,9 +130,9 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags }) => {
-    const vonageChannel = tags.channel
-    const channelId = tags.channelId
-    const userId = tags.userId
+    const vonageChannel = tags['vonage:channel']
+    const channelId = tags['vonage:channelId']
+    const userId = tags['vonage:userId']
 
     if (!(vonageChannel && channelId && userId)) {
       return
