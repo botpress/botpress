@@ -27,7 +27,6 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, clien
       await handleNewMessage(body.data, client)
       break
     case 'user.new':
-      await handleNewUser(body.data, client)
       break
     case 'user.updated':
       await handleUpdateUser(body.data, client)
@@ -58,21 +57,6 @@ export const send = async (params: {
   }
 
   await messagingClient.createMessage(conversationId, undefined, message)
-}
-
-async function handleNewUser(newUser: NewUser, client: Client) {
-  const { user } = await client.getOrCreateUser({
-    tags: { id: newUser.userId },
-  })
-
-  if (newUser.userData) {
-    await client.setState({
-      type: 'user',
-      id: user.id,
-      name: USER_DATA_STATE_NAME,
-      payload: newUser.userData,
-    })
-  }
 }
 
 async function handleUpdateUser(newUser: NewUser, client: Client) {
