@@ -99,6 +99,8 @@ export class IntegrationInstanceIndexModule extends Module {
       '}',
       '',
       `export type T${className} = {`,
+      `  name: '${name}'`,
+      `  version: '${version}'`,
       `  configuration: ${configModule.name}.${configModule.exports}`,
       `  actions: ${actionsModule.name}.${actionsModule.exports}`,
       `  channels: ${channelsModule.name}.${channelsModule.exports}`,
