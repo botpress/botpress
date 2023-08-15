@@ -290,7 +290,7 @@ const integration = new Integration({
     const intercomClient = new Client({ tokenAuth: { token: ctx.configuration.accessToken } })
     const contact = await intercomClient.contacts.find({ id: userId })
 
-    const { user } = await client.getOrCreateUser({ tags: { id: `${contact.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { 'intercom:id': `${contact.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -310,7 +310,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { id: `${chat.id}` },
+      tags: { 'intercom:id': `${chat.id}` },
     })
 
     return {

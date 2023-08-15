@@ -209,6 +209,7 @@ async function handleMessage(
             type: 'text',
             payload: {
               text: message.interactive.button_reply?.id!,
+              // TODO: declare in definition
               // metadata: message.interactive.button_reply?.title,
             },
             userId: user.id,
@@ -222,6 +223,7 @@ async function handleMessage(
             type: 'text',
             payload: {
               text: message.interactive.list_reply?.id!,
+              // TODO: declare in definition
               // metadata: message.interactive.list_reply?.title,
             },
             userId: user.id,

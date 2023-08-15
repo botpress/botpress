@@ -1,10 +1,13 @@
 import type { Conversation } from '@botpress/client'
-import type { AckFunction, IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import queryString from 'query-string'
 import { Twilio } from 'twilio'
+import { Integration, channels, secrets } from '.botpress'
 
-import { Integration, channels, configuration, secrets } from '.botpress'
+type Channels = Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
@@ -79,14 +82,14 @@ const integration = new Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        userPhone,
-        activePhone,
+        'twilio:userPhone': userPhone,
+        'twilio:activePhone': activePhone,
       },
     })
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        userPhone,
+        'twilio:userPhone': userPhone,
       },
     })
 
@@ -103,7 +106,7 @@ const integration = new Integration({
     }
 
     await client.createMessage({
-      tags: { id: messageSid },
+      tags: { 'twilio:id': messageSid },
       type: 'text',
       userId: user.id,
       conversationId: conversation.id,
@@ -124,7 +127,7 @@ const integration = new Integration({
     const phone = await twilioClient.lookups.phoneNumbers(userPhone).fetch()
 
     const { user } = await client.getOrCreateUser({
-      tags: { userPhone: `${phone.phoneNumber}` },
+      tags: { 'twilio:userPhone': `${phone.phoneNumber}` },
     })
 
     return {
@@ -147,7 +150,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { userPhone: `${phone.phoneNumber}`, activePhone },
+      tags: { 'twilio:userPhone': `${phone.phoneNumber}`, activePhone },
     })
 
     return {
@@ -177,8 +180,8 @@ function renderCard(card: Card, total?: string): string {
 }
 
 function getPhoneNumbers(conversation: Conversation) {
-  const to = conversation.tags?.['userPhone']
-  const from = conversation.tags?.['activePhone']
+  const to = conversation.tags?.['twilio:userPhone']
+  const from = conversation.tags?.['twilio:activePhone']
 
   if (!to) {
     throw new Error('Invalid to phone number')
@@ -191,10 +194,7 @@ function getPhoneNumbers(conversation: Conversation) {
   return { to, from }
 }
 
-type SendMessageProps = {
-  ctx: IntegrationContext<configuration.Configuration>
-  conversation: Conversation
-  ack: AckFunction
+type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'> & {
   mediaUrl?: string
   text?: string
 }
@@ -203,5 +203,5 @@ async function sendMessage({ ctx, conversation, ack, mediaUrl, text }: SendMessa
   const twilioClient = new Twilio(ctx.configuration.accountSID, ctx.configuration.authToken)
   const { to, from } = getPhoneNumbers(conversation)
   const { sid } = await twilioClient.messages.create({ to, from, mediaUrl, body: text })
-  await ack({ tags: { id: sid } })
+  await ack({ tags: { 'twilio:id': sid } })
 }

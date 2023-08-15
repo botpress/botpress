@@ -1,8 +1,11 @@
-import type { Conversation } from '@botpress/client'
-import type { AckFunction, IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
 import { Integration, channels, secrets } from '.botpress'
+
+type Channels = Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
@@ -87,21 +90,21 @@ const integration = new Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        channel: data.channel,
-        channelId: data.to,
-        userId: data.from,
+        'vonage:channel': data.channel,
+        'vonage:channelId': data.to,
+        'vonage:userId': data.from,
       },
     })
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        channel: data.channel,
-        userId: data.from,
+        'vonage:channel': data.channel,
+        'vonage:userId': data.from,
       },
     })
 
     await client.createMessage({
-      tags: { id: data.message_uuid },
+      tags: { 'vonage:id': data.message_uuid },
       type: 'text',
       userId: user.id,
       conversationId: conversation.id,
@@ -118,8 +121,8 @@ const integration = new Integration({
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        channel: vonageChannel,
-        userId,
+        'vonage:channel': vonageChannel,
+        'vonage:userId': userId,
       },
     })
 
@@ -141,9 +144,9 @@ const integration = new Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel,
       tags: {
-        channel: vonageChannel,
-        channelId,
-        userId,
+        'vonage:channel': vonageChannel,
+        'vonage:channelId': channelId,
+        'vonage:userId': userId,
       },
     })
 
@@ -157,10 +160,10 @@ const integration = new Integration({
 
 export default sentryHelpers.wrapIntegration(integration)
 
-function getRequestMetadata(conversation: Conversation) {
-  const channel = conversation.tags?.['channel']
-  const channelId = conversation.tags?.['channelId']
-  const userId = conversation.tags?.['userId']
+function getRequestMetadata(conversation: SendMessageProps['conversation']) {
+  const channel = conversation.tags?.['vonage:channel']
+  const channelId = conversation.tags?.['vonage:channelId']
+  const userId = conversation.tags?.['vonage:userId']
 
   if (!channelId) {
     throw new Error('Invalid channel id')
@@ -314,13 +317,7 @@ function formatCardPayload(payload: Card, count: number = 0) {
 
   return { message_type: 'text', text: body }
 }
-
-type SendMessageProps = {
-  ctx: IntegrationContext
-  conversation: Conversation
-  ack: AckFunction
-}
-
+type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'>
 async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload: any) {
   const { to, from, channel } = getRequestMetadata(conversation)
   const response = await axios.post(
@@ -336,5 +333,5 @@ async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload
       auth: { username: ctx.configuration.apiKey, password: ctx.configuration.apiSecret },
     }
   )
-  await ack({ tags: { id: response.data.message_uuid } })
+  await ack({ tags: { 'vonage:id': response.data.message_uuid } })
 }

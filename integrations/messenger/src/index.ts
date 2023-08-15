@@ -1,15 +1,21 @@
 import type { Conversation } from '@botpress/client'
-import type { IntegrationContext, AckFunction } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
 import queryString from 'query-string'
 import { Integration, channels, secrets, configuration, Client } from '.botpress'
+
+type Channels = Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
   environment: secrets.SENTRY_ENVIRONMENT,
   release: secrets.SENTRY_RELEASE,
 })
+
+const idTag = 'messenger:id'
 
 const integration = new Integration({
   register: async () => {},
@@ -96,7 +102,7 @@ const integration = new Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags['messenger:id']
+    const userId = tags[idTag]
 
     if (!userId) {
       return
@@ -114,7 +120,7 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const userId = tags['messenger:id']
+    const userId = tags[idTag]
 
     if (!userId) {
       return
@@ -243,11 +249,7 @@ function getChoiceMessage(payload: Choice | Dropdown): MessengerTypes.TextMessag
   }
 }
 
-type SendMessageProps = {
-  ack: AckFunction
-  conversation: Conversation
-  ctx: IntegrationContext
-}
+type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'>
 
 async function sendMessage(
   { ack, ctx, conversation }: SendMessageProps,
@@ -256,7 +258,7 @@ async function sendMessage(
   const messengerClient = getMessengerClient(ctx.configuration)
   const recipientId = getRecipientId(conversation)
   const { messageId } = await send(messengerClient, recipientId)
-  await ack({ tags: { id: messageId } })
+  await ack({ tags: { [idTag]: messageId } })
 }
 
 export function getRecipientId(conversation: Conversation): string {

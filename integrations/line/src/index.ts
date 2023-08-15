@@ -1,9 +1,14 @@
-import type { Conversation } from '@botpress/client'
-import type { IntegrationContext, AckFunction } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import * as line from '@line/bot-sdk'
 import crypto from 'crypto'
 import { Integration, secrets, Client } from '.botpress'
+
+type Channels = Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type MessageHandlerProps = Parameters<MessageHandler>[0]
+
+type ReplyLineProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'client' | 'ack'>
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
@@ -11,17 +16,10 @@ sentryHelpers.init({
   release: secrets.SENTRY_RELEASE,
 })
 
-const log = console
-const name = 'line'
-log.info(`starting integration ${name}`)
+console.info('starting integration line')
 
-async function replyLineMessage(
-  ctx: IntegrationContext,
-  conversation: Conversation,
-  client: Client,
-  ack: AckFunction,
-  messageObj: line.Message
-) {
+const replyLineMessage = async (props: ReplyLineProps, messageObj: line.Message) => {
+  const { ctx, conversation, client, ack } = props
   const config = {
     channelAccessToken: ctx.configuration.channelAccessToken,
     channelSecret: ctx.configuration.channelSecret,
@@ -39,10 +37,10 @@ async function replyLineMessage(
     const lineResponse = await lineClient.replyMessage(stateRes.state.payload.replyToken, messageObj)
 
     if (lineResponse?.['x-line-request-id']) {
-      await ack({ tags: { [`${name}:msgId`]: lineResponse['x-line-request-id'] } })
+      await ack({ tags: { ['line:msgId']: lineResponse['x-line-request-id'] } })
     }
   } catch (e: any) {
-    log.error(`Error: ${e.originalError.message}`)
+    console.error(`Error: ${e.originalError.message}`)
   }
 }
 
@@ -54,57 +52,75 @@ const integration = new Integration({
     channel: {
       messages: {
         text: async ({ payload, ctx, conversation, ack, client }) => {
-          await replyLineMessage(ctx, conversation, client, ack, {
-            type: 'text',
-            text: payload.text,
-          })
+          await replyLineMessage(
+            { ctx, conversation, client, ack },
+            {
+              type: 'text',
+              text: payload.text,
+            }
+          )
         },
         image: async ({ payload, ctx, conversation, ack, client }) => {
-          await replyLineMessage(ctx, conversation, client, ack, {
-            type: 'image',
-            originalContentUrl: payload.imageUrl,
-            previewImageUrl: payload.imageUrl, // Can use this - later when the upload is ready: https://www.npmjs.com/package/image-thumbnail
-          })
+          await replyLineMessage(
+            { ctx, conversation, client, ack },
+            {
+              type: 'image',
+              originalContentUrl: payload.imageUrl,
+              previewImageUrl: payload.imageUrl, // Can use this - later when the upload is ready: https://www.npmjs.com/package/image-thumbnail
+            }
+          )
         },
         markdown: async ({ payload, ctx, conversation, ack, client }) => {
-          await replyLineMessage(ctx, conversation, client, ack, {
-            type: 'text',
-            text: payload.markdown,
-          })
+          await replyLineMessage(
+            { ctx, conversation, client, ack },
+            {
+              type: 'text',
+              text: payload.markdown,
+            }
+          )
         },
 
         // TODO: fix audio, its not working
         audio: async ({ payload, ctx, conversation, ack, client }) => {
-          await replyLineMessage(ctx, conversation, client, ack, {
-            type: 'audio',
-            originalContentUrl: payload.audioUrl,
-            duration: -1,
-          })
+          await replyLineMessage(
+            { ctx, conversation, client, ack },
+            {
+              type: 'audio',
+              originalContentUrl: payload.audioUrl,
+              duration: -1,
+            }
+          )
         },
         video: async ({ payload, ctx, conversation, ack, client }) => {
           //TODO: Upload the thumbnail so it is ready to be passed as URL to Line
 
-          await replyLineMessage(ctx, conversation, client, ack, {
-            type: 'video',
-            originalContentUrl: payload.videoUrl,
-            previewImageUrl: 'https://example.com/preview.jpg',
-          })
+          await replyLineMessage(
+            { ctx, conversation, client, ack },
+            {
+              type: 'video',
+              originalContentUrl: payload.videoUrl,
+              previewImageUrl: 'https://example.com/preview.jpg',
+            }
+          )
         },
         file: async () => {
-          log.error(
+          console.error(
             'Documents & files are not supported by Line - https://developers.line.biz/en/reference/messaging-api'
           )
         },
 
         // TODO: fix location, its not working
         location: async ({ payload, ctx, conversation, ack, client }) => {
-          await replyLineMessage(ctx, conversation, client, ack, {
-            type: 'location',
-            title: '', // TODO: fix this
-            latitude: payload.latitude,
-            longitude: payload.longitude,
-            address: '', // TODO: fix this
-          })
+          await replyLineMessage(
+            { ctx, conversation, client, ack },
+            {
+              type: 'location',
+              title: '', // TODO: fix this
+              latitude: payload.latitude,
+              longitude: payload.longitude,
+              address: '', // TODO: fix this
+            }
+          )
         },
         carousel: async ({ payload, ctx, conversation, ack, client }) => {
           const sections: line.FlexBubble[] = []
@@ -173,19 +189,24 @@ const integration = new Integration({
             })
 
             if (sections.length === 12) {
-              log.warn('Only 12 items are allowed - https://developers.line.biz/en/reference/messaging-api/#f-carousel')
+              console.warn(
+                'Only 12 items are allowed - https://developers.line.biz/en/reference/messaging-api/#f-carousel'
+              )
               break
             }
           }
 
-          await replyLineMessage(ctx, conversation, client, ack, {
-            type: 'flex',
-            altText: 'this is a flex message',
-            contents: {
-              type: 'carousel',
-              contents: sections,
-            },
-          })
+          await replyLineMessage(
+            { ctx, conversation, client, ack },
+            {
+              type: 'flex',
+              altText: 'this is a flex message',
+              contents: {
+                type: 'carousel',
+                contents: sections,
+              },
+            }
+          )
         },
         card: async ({ payload, ctx, conversation, ack, client }) => {
           const buttons: line.FlexButton[] = []
@@ -217,38 +238,41 @@ const integration = new Integration({
             }
           }
 
-          await replyLineMessage(ctx, conversation, client, ack, {
-            type: 'flex',
-            altText: payload.title,
-            contents: {
-              type: 'bubble',
-              body: {
-                type: 'box',
-                layout: 'vertical',
-                contents: [
-                  {
-                    type: 'image',
-                    url: payload.imageUrl ?? '',
-                  },
-                  {
-                    type: 'separator',
-                  },
-                  {
-                    type: 'text',
-                    text: payload.title,
-                  },
-                  {
-                    type: 'text',
-                    text: payload.subtitle ?? '',
-                  },
-                  {
-                    type: 'separator',
-                  },
-                  ...buttons,
-                ],
+          await replyLineMessage(
+            { ctx, conversation, client, ack },
+            {
+              type: 'flex',
+              altText: payload.title,
+              contents: {
+                type: 'bubble',
+                body: {
+                  type: 'box',
+                  layout: 'vertical',
+                  contents: [
+                    {
+                      type: 'image',
+                      url: payload.imageUrl ?? '',
+                    },
+                    {
+                      type: 'separator',
+                    },
+                    {
+                      type: 'text',
+                      text: payload.title,
+                    },
+                    {
+                      type: 'text',
+                      text: payload.subtitle ?? '',
+                    },
+                    {
+                      type: 'separator',
+                    },
+                    ...buttons,
+                  ],
+                },
               },
-            },
-          })
+            }
+          )
         },
         dropdown: async ({ payload, ctx, conversation, ack, client }) => {
           const buttons: line.FlexButton[] = []
@@ -269,31 +293,34 @@ const integration = new Integration({
             })
           }
 
-          await replyLineMessage(ctx, conversation, client, ack, {
-            type: 'flex',
-            altText: payload.text,
-            contents: {
-              type: 'bubble',
-              body: {
-                type: 'box',
-                layout: 'vertical',
-                contents: [
-                  {
-                    type: 'text',
-                    text: payload.text,
-                  },
-                  {
-                    type: 'text',
-                    text: payload.text,
-                  },
-                  {
-                    type: 'separator',
-                  },
-                  ...buttons,
-                ],
+          await replyLineMessage(
+            { ctx, conversation, client, ack },
+            {
+              type: 'flex',
+              altText: payload.text,
+              contents: {
+                type: 'bubble',
+                body: {
+                  type: 'box',
+                  layout: 'vertical',
+                  contents: [
+                    {
+                      type: 'text',
+                      text: payload.text,
+                    },
+                    {
+                      type: 'text',
+                      text: payload.text,
+                    },
+                    {
+                      type: 'separator',
+                    },
+                    ...buttons,
+                  ],
+                },
               },
-            },
-          })
+            }
+          )
         },
         choice: async ({ payload, ctx, conversation, ack, client }) => {
           const buttons: line.FlexButton[] = []
@@ -331,7 +358,7 @@ const integration = new Integration({
             },
           }
 
-          await replyLineMessage(ctx, conversation, client, ack, {
+          await replyLineMessage({ ctx, conversation, client, ack }, {
             type: 'flex',
             altText: payload.text,
             contents,
@@ -341,7 +368,7 @@ const integration = new Integration({
     },
   },
   handler: async ({ req, client, ctx }) => {
-    log.info('Handler received request')
+    console.info('Handler received request')
 
     if (!req.body) {
       throw new Error('Handler received an empty body')
@@ -354,7 +381,7 @@ const integration = new Integration({
     }
 
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
 
@@ -364,7 +391,7 @@ const integration = new Integration({
     // Compare x-line-signature request header and the signature
 
     if (req.headers['x-line-signature'] !== signature) {
-      log.warn('Wrong Signature')
+      console.warn('Wrong Signature')
       return {
         status: 401,
       }
@@ -436,8 +463,8 @@ async function handleMessage(events: LineEvents, destination: string, client: Cl
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        [`${name}:usrId`]: events.source.userId,
-        [`${name}:destId`]: destination,
+        ['line:usrId']: events.source.userId,
+        ['line:destId']: destination,
       },
     })
 
@@ -450,13 +477,13 @@ async function handleMessage(events: LineEvents, destination: string, client: Cl
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        [`${name}:usrId`]: events.source.userId,
+        ['line:usrId']: events.source.userId,
       },
     })
 
     if (message.type === 'text') {
       await client.createMessage({
-        tags: { [`${name}:msgId`]: message.id },
+        tags: { ['line:msgId']: message.id },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,

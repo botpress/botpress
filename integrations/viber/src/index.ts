@@ -179,20 +179,20 @@ const integration = new Integration({
       const { conversation } = await client.getOrCreateConversation({
         channel: 'channel',
         tags: {
-          id: data.sender.id,
+          'viber:id': data.sender.id,
         },
       })
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          id: data.sender.id,
+          'viber:id': data.sender.id,
         },
       })
 
       switch (data.message.type) {
         case 'text':
           await client.createMessage({
-            tags: { id: data.message_token.toString() },
+            tags: { 'viber:id': data.message_token.toString() },
             type: 'text',
             userId: user.id,
             conversationId: conversation.id,
@@ -201,7 +201,7 @@ const integration = new Integration({
           break
         case 'picture':
           await client.createMessage({
-            tags: { id: data.message_token.toString() },
+            tags: { 'viber:id': data.message_token.toString() },
             type: 'image',
             userId: user.id,
             conversationId: conversation.id,
@@ -210,7 +210,7 @@ const integration = new Integration({
           break
         case 'video':
           await client.createMessage({
-            tags: { id: data.message_token.toString() },
+            tags: { 'viber:id': data.message_token.toString() },
             type: 'video',
             userId: user.id,
             conversationId: conversation.id,
@@ -219,7 +219,7 @@ const integration = new Integration({
           break
         case 'file':
           await client.createMessage({
-            tags: { id: data.message_token.toString() },
+            tags: { 'viber:id': data.message_token.toString() },
             type: 'file',
             userId: user.id,
             conversationId: conversation.id,
@@ -228,7 +228,7 @@ const integration = new Integration({
           break
         case 'location':
           await client.createMessage({
-            tags: { id: data.message_token.toString() },
+            tags: { 'viber:id': data.message_token.toString() },
             type: 'location',
             userId: user.id,
             conversationId: conversation.id,
@@ -253,7 +253,7 @@ const integration = new Integration({
 
     const userDetails = await getUserDetails({ ctx, id: userId })
 
-    const { user } = await client.getOrCreateUser({ tags: { id: `${userDetails.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { 'viber:id': `${userDetails.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -272,7 +272,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { id: `${userDetails.id}` },
+      tags: { 'viber:id': `${userDetails.id}` },
     })
 
     return {

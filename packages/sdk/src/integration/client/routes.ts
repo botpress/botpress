@@ -1,7 +1,7 @@
 import { Client } from '@botpress/client'
 import { Merge, Cast } from '../../type-utils'
 import { BaseIntegration } from '../generic'
-import { GetChannelByName, ToTags } from './types'
+import { GetChannelByName, ToTags, WithPrefix } from './types'
 
 type Arg<F extends (...args: any[]) => any> = Parameters<F>[number]
 type Res<F extends (...args: any[]) => any> = ReturnType<F>
@@ -48,7 +48,7 @@ export type CreateEvent<TIntegration extends BaseIntegration> = <TEvent extends 
   x: Merge<
     Arg<Client['createEvent']>,
     {
-      type: Cast<TEvent, string>
+      type: WithPrefix<Cast<TEvent, string>, { allowPrefix: TIntegration['name'] }>
       payload: TIntegration['events'][TEvent]['payload']
     }
   >
@@ -60,7 +60,7 @@ export type ListEvents<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['listEvents']>,
     {
-      type: Cast<keyof TIntegration['events'], string>
+      type: WithPrefix<Cast<keyof TIntegration['events'], string>, { allowPrefix: TIntegration['name'] }>
     }
   >
 ) => Res<Client['listEvents']>

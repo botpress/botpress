@@ -139,7 +139,7 @@ const integration = new botpress.Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        id: `${conversationId}`,
+        'telegram:id': `${conversationId}`,
       },
     })
 
@@ -151,7 +151,7 @@ const integration = new botpress.Integration({
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        id: `${userId}`,
+        'telegram:id': `${userId}`,
       },
     })
 
@@ -163,7 +163,7 @@ const integration = new botpress.Integration({
 
     logger.forBot().info(`Received message from user ${userId}: ${data.message.text}`)
     await client.createMessage({
-      tags: { id: `${messageId}` },
+      tags: { 'telegram:id': `${messageId}` },
       type: 'text',
       userId: user.id,
       conversationId: conversation.id,
@@ -180,7 +180,7 @@ const integration = new botpress.Integration({
     const telegraf = new Telegraf(ctx.configuration.botToken)
     const member = await telegraf.telegram.getChatMember(userId, userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { id: `${member.user.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { 'telegram:id': `${member.user.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -200,7 +200,7 @@ const integration = new botpress.Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { id: `${chat.id}` },
+      tags: { 'telegram:id': `${chat.id}` },
     })
 
     return {
@@ -265,5 +265,5 @@ type TelegramMessage = {
 }
 
 async function ackMessage(message: TelegramMessage, ack: AckFunction) {
-  await ack({ tags: { id: `${message.message_id}` } })
+  await ack({ tags: { 'telegram:id': `${message.message_id}` } })
 }

@@ -110,7 +110,7 @@ async function handleIntegrationEvent(event: IntegrationEvent, ctx: IntegrationC
 
 export async function handleEvent(event: Event, client: Client) {
   await client.createEvent({
-    type: 'event',
+    type: 'zapier:event',
     payload: event,
   })
 }

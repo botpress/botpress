@@ -134,18 +134,18 @@ const integration = new Integration({
       const { conversation } = await client.getOrCreateConversation({
         channel: 'channel',
         tags: {
-          id: payload.conversation.id,
+          'sunco:id': payload.conversation.id,
         },
       })
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          id: payload.message.author.userId,
+          'sunco:id': payload.message.author.userId,
         },
       })
 
       await client.createMessage({
-        tags: { id: payload.message.id },
+        tags: { 'sunco:id': payload.message.id },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
@@ -163,7 +163,7 @@ const integration = new Integration({
     const suncoClient = createClient(ctx.configuration.keyId, ctx.configuration.keySecret)
     const suncoUser = await suncoClient.users.getUser(ctx.configuration.appId, userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { id: `${suncoUser.user?.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { 'sunco:id': `${suncoUser.user?.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -183,7 +183,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { id: `${suncoConversation.conversation?.id}` },
+      tags: { 'sunco:id': `${suncoConversation.conversation?.id}` },
     })
 
     return {
@@ -300,7 +300,7 @@ async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload
     throw new Error('Message not sent')
   }
 
-  await ack({ tags: { id: message.id } })
+  await ack({ tags: { 'sunco:id': message.id } })
 
   if (messages.length > 1) {
     log.warn('More than one message was sent')

@@ -11,6 +11,8 @@ sentryHelpers.init({
   release: secrets.SENTRY_RELEASE,
 })
 
+const idTag = 'instagram:id'
+
 const integration = new Integration({
   register: async () => {},
   unregister: async () => {},
@@ -96,7 +98,7 @@ const integration = new Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags['instagram:id']
+    const userId = tags[idTag]
 
     if (!userId) {
       return
@@ -105,7 +107,7 @@ const integration = new Integration({
     const messengerClient = new MessengerClient({ accessToken: ctx.configuration.accessToken })
     const profile = await messengerClient.getUserProfile(userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { id: `${profile.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { [idTag]: `${profile.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -114,7 +116,7 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const userId = tags['instagram:id']
+    const userId = tags[idTag]
 
     if (!userId) {
       return
@@ -125,7 +127,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { id: `${profile.id}` },
+      tags: { [idTag]: `${profile.id}` },
     })
 
     return {
@@ -243,7 +245,7 @@ async function sendMessage(
   const messengerClient = new MessengerClient({ accessToken: ctx.configuration.accessToken })
   const recipientId = getRecipientId(conversation)
   const { messageId } = await send(messengerClient, recipientId)
-  await ack({ tags: { id: messageId } })
+  await ack({ tags: { [idTag]: messageId } })
 }
 
 export function getRecipientId(conversation: Conversation): string {
@@ -262,19 +264,22 @@ async function handleMessage(message: InstagramMessage, client: Client) {
       const { conversation } = await client.getOrCreateConversation({
         channel: 'channel',
         tags: {
-          id: message.sender.id,
+          [idTag]: message.sender.id,
         },
       })
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          id: message.sender.id,
+          [idTag]: message.sender.id,
         },
       })
 
       await client.createMessage({
         type: 'text',
-        tags: { messageId: message.message.mid },
+        tags: {
+          // TODO: declare in definition
+          // [idTag]: message.message.mid
+        },
         userId: user.id,
         conversationId: conversation.id,
         payload: { text: message.message.text },

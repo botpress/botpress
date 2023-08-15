@@ -14,6 +14,11 @@ export const firePullRequestCommentCreated = async ({
     type: 'text',
     payload: {
       text: githubEvent.comment.body,
+
+      // TODO: declare in definition
+      // targets: {
+      //   pullRequest: githubEvent.issue.number.toString(),
+      // },
     },
     ...(await getUserAndConversation(
       {

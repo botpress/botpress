@@ -27,7 +27,7 @@ const integration = new Integration({
     } catch (err) {}
 
     await client.createEvent({
-      type: 'event',
+      type: 'webhook:event',
       payload: {
         body,
         query,
