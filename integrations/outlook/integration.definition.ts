@@ -11,6 +11,7 @@ import {
 
 export default new IntegrationDefinition({
   name,
+  title:"Outlook",
   version: '0.2.0',
   readme: 'readme.md',
   icon: 'icon.svg',
