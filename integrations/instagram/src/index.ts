@@ -1,9 +1,12 @@
-import type { Conversation } from '@botpress/client'
-import type { AckFunction, IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
 import queryString from 'query-string'
 import { Integration, channels, secrets, Client } from '.botpress'
+
+type Channels = Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
@@ -232,11 +235,7 @@ function getChoiceMessage(payload: Choice | Dropdown): MessengerTypes.Attachment
   }
 }
 
-type SendMessageProps = {
-  ack: AckFunction
-  conversation: Conversation
-  ctx: IntegrationContext
-}
+type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'>
 
 async function sendMessage(
   { ack, ctx, conversation }: SendMessageProps,
@@ -244,12 +243,17 @@ async function sendMessage(
 ) {
   const messengerClient = new MessengerClient({ accessToken: ctx.configuration.accessToken })
   const recipientId = getRecipientId(conversation)
-  const { messageId } = await send(messengerClient, recipientId)
-  await ack({ tags: { [idTag]: messageId } })
+  await send(messengerClient, recipientId)
+  await ack({
+    tags: {
+      // TODO: declare in definition
+      // [idTag]: messageId,
+    },
+  })
 }
 
-export function getRecipientId(conversation: Conversation): string {
-  const recipientId = conversation.tags.id
+export function getRecipientId(conversation: SendMessageProps['conversation']): string {
+  const recipientId = conversation.tags[idTag]
 
   if (!recipientId) {
     throw Error(`No recipient id found for user ${conversation.id}`)

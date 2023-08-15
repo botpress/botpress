@@ -15,8 +15,6 @@ sentryHelpers.init({
   release: secrets.SENTRY_RELEASE,
 })
 
-const log = console
-
 const integration = new Integration({
   register: async () => {},
   unregister: async () => {},
@@ -58,10 +56,10 @@ const integration = new Integration({
     },
   },
   handler: async ({ req, client }) => {
-    log.info('Handler received request')
+    console.info('Handler received request')
 
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
 
@@ -113,7 +111,7 @@ const integration = new Integration({
       payload: { text },
     })
 
-    log.info('Handler received request', data)
+    console.info('Handler received request', data)
   },
 
   createUser: async ({ client, tags, ctx }) => {

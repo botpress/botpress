@@ -1,15 +1,17 @@
 import type { Conversation } from '@botpress/client'
-import type { AckFunction, IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Integration, channels, secrets } from '.botpress'
+
+type Channels = Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
   environment: secrets.SENTRY_ENVIRONMENT,
   release: secrets.SENTRY_RELEASE,
 })
-
-const log = console
 
 const SunshineConversationsClient = require('sunshine-conversations-client')
 
@@ -107,7 +109,7 @@ const integration = new Integration({
   },
   handler: async ({ req, client }) => {
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
 
@@ -115,19 +117,19 @@ const integration = new Integration({
 
     for (const event of data.events) {
       if (event.type !== 'conversation:message') {
-        log.warn('Received an event that is not a message')
+        console.warn('Received an event that is not a message')
         continue
       }
 
       const payload = event.payload
 
       if (payload.message.content.type !== 'text') {
-        log.warn('Received a message that is not a text message')
+        console.warn('Received a message that is not a text message')
         continue
       }
 
       if (payload.message.author.type === 'business') {
-        log.warn('Skipping message that is from a business')
+        console.warn('Skipping message that is from a business')
         continue
       }
 
@@ -277,11 +279,7 @@ function createClient(keyId: string, keySecret: string) {
   }
 }
 
-type SendMessageProps = {
-  ctx: IntegrationContext
-  conversation: Conversation
-  ack: AckFunction
-}
+type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'>
 
 async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload: any) {
   const client = createClient(ctx.configuration.keyId, ctx.configuration.keySecret)
@@ -303,6 +301,6 @@ async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload
   await ack({ tags: { 'sunco:id': message.id } })
 
   if (messages.length > 1) {
-    log.warn('More than one message was sent')
+    console.warn('More than one message was sent')
   }
 }

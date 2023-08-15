@@ -8,6 +8,8 @@ type Res<F extends (...args: any[]) => any> = ReturnType<F>
 
 type PrefixConfig<TIntegration extends BaseIntegration> = { allowPrefix: TIntegration['name'] }
 
+type AllChannels<TIntegration extends BaseIntegration> = TIntegration['channels'][keyof TIntegration['channels']]
+
 export type CreateConversation<TIntegration extends BaseIntegration> = <
   ChannelName extends keyof TIntegration['channels']
 >(x: {
@@ -21,7 +23,7 @@ export type ListConversations<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['listConversations']>,
     {
-      tags?: ToTags<keyof TIntegration['channels'][string]['conversation']['tags'], PrefixConfig<TIntegration>>
+      tags?: ToTags<keyof AllChannels<TIntegration>['conversation']['tags'], PrefixConfig<TIntegration>>
     }
   >
 ) => Res<Client['listConversations']>
@@ -37,7 +39,7 @@ export type UpdateConversation<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['updateConversation']>,
     {
-      tags: ToTags<keyof TIntegration['channels'][string]['conversation']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof AllChannels<TIntegration>['conversation']['tags'], PrefixConfig<TIntegration>>
     }
   >
 ) => Res<Client['updateConversation']>
@@ -80,14 +82,14 @@ export type CreateMessage<TIntegration extends BaseIntegration> = <
 ) => Res<Client['createMessage']>
 
 export type GetOrCreateMessage<TIntegration extends BaseIntegration> = <
-  TMessage extends keyof TIntegration['channels'][string]['messages']
+  TMessage extends keyof AllChannels<TIntegration>['messages']
 >(
   x: Merge<
     Arg<Client['getOrCreateMessage']>,
     {
       type: Cast<TMessage, string> // TODO: conversation should be used to infer the channel of the message
-      payload: TIntegration['channels'][string]['messages'][TMessage]
-      tags: ToTags<keyof TIntegration['channels'][string]['message']['tags'], PrefixConfig<TIntegration>>
+      payload: AllChannels<TIntegration>['messages'][TMessage]
+      tags: ToTags<keyof AllChannels<TIntegration>['message']['tags'], PrefixConfig<TIntegration>>
     }
   >
 ) => Res<Client['getOrCreateMessage']>
@@ -98,7 +100,7 @@ export type UpdateMessage<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['updateMessage']>,
     {
-      tags: ToTags<keyof TIntegration['channels'][string]['message']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof AllChannels<TIntegration>['message']['tags'], PrefixConfig<TIntegration>>
     }
   >
 ) => Res<Client['updateMessage']>
@@ -107,7 +109,7 @@ export type ListMessages<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['listMessages']>,
     {
-      tags: ToTags<keyof TIntegration['channels'][string]['message']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof AllChannels<TIntegration>['message']['tags'], PrefixConfig<TIntegration>>
     }
   >
 ) => Res<Client['listMessages']>

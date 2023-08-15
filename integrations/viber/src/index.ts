@@ -1,16 +1,18 @@
-import type { Conversation } from '@botpress/client'
-import type { AckFunction, IntegrationContext } from '@botpress/sdk'
+import type { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
 import { Integration, channels, secrets } from '.botpress'
+
+type Channels = Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
   environment: secrets.SENTRY_ENVIRONMENT,
   release: secrets.SENTRY_RELEASE,
 })
-
-const log = console
 
 const integration = new Integration({
   register: async ({ webhookUrl, ctx }) => {
@@ -161,7 +163,7 @@ const integration = new Integration({
   },
   handler: async ({ req, client }) => {
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
 
@@ -236,7 +238,7 @@ const integration = new Integration({
           })
           break
         default:
-          log.info('unsupported message type: ', data.message)
+          console.info('unsupported message type: ', data.message)
           return
       }
     } else {
@@ -285,11 +287,8 @@ const integration = new Integration({
 
 export default sentryHelpers.wrapIntegration(integration)
 
-type SendMessageProps = {
-  ctx: IntegrationContext
-  conversation: Conversation
-  ack: AckFunction
-  payload: any
+type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'> & {
+  payload: any // TODO: type this
 }
 
 export async function setViberWebhook(webhookUrl: string | undefined, token: string): Promise<void> {

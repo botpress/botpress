@@ -17,9 +17,6 @@ sentryHelpers.init({
   release: secrets.SENTRY_RELEASE,
 })
 
-const log = console
-const integrationName = 'intercom'
-
 const conversationPartSchema = z.object({
   type: z.literal('conversation_part'),
   id: z.string(),
@@ -190,16 +187,16 @@ const integration = new Integration({
     },
   },
   handler: async ({ req, client, ctx }) => {
-    log.info('Handler received request')
+    console.info('Handler received request')
 
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
     const parsedBody = webhookNotificationSchema.safeParse(await JSON.parse(req.body))
 
     if (!parsedBody.success) {
-      log.warn(`Handler received an invalid body: ${parsedBody.error}`)
+      console.warn(`Handler received an invalid body: ${parsedBody.error}`)
       return
     }
 
@@ -229,7 +226,7 @@ const integration = new Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        [`${integrationName}:id`]: `${conversationId}`,
+        ['intercom:id']: `${conversationId}`,
       },
     })
 
@@ -250,18 +247,18 @@ const integration = new Integration({
       }
 
       if (authorType === 'bot') {
-        log.info(`Handler received a bot message with id ${messageId}`)
+        console.info(`Handler received a bot message with id ${messageId}`)
         return // ignore bot messages
       }
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          [`${integrationName}:id`]: `${authorId}`,
+          ['intercom:id']: `${authorId}`,
         },
       })
 
       await client.createMessage({
-        tags: { [`${integrationName}:id`]: `${messageId}` },
+        tags: { ['intercom:id']: `${messageId}` },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
@@ -276,7 +273,7 @@ const integration = new Integration({
     for (const part of conversation_parts) {
       await createMessage(part)
     }
-    log.info('Handler finished processing request')
+    console.info('Handler finished processing request')
 
     return
   },
@@ -336,14 +333,14 @@ async function sendMessage(props: {
   const {
     conversation_parts: { conversation_parts: conversationParts },
   } = await client.conversations.replyByIdAsAdmin({
-    id: conversation.tags[`${integrationName}:id`] ?? '',
+    id: conversation.tags['intercom:id'] ?? '',
     adminId: configuration.adminId,
     messageType: ReplyToConversationMessageType.COMMENT,
     body,
     attachmentUrls,
   })
 
-  await ack({ tags: { [`${integrationName}:id`]: `${conversationParts.at(-1)?.id ?? ''}` } })
+  await ack({ tags: { ['intercom:id']: `${conversationParts.at(-1)?.id ?? ''}` } })
 }
 
 function composeMessage(...parts: string[]) {
