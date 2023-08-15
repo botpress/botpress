@@ -20,7 +20,7 @@ export const executeMessageReceived = async ({
     payload: {
       text: slackEvent.text!,
 
-      // not declared in the definition:
+      // TODO: declare in definition
       // targets: {
       //   dm: { id: slackEvent.user },
       //   thread: { id: slackEvent.channel || slackEvent.user, thread: slackEvent.thread_ts || slackEvent.ts },

@@ -420,7 +420,7 @@ const integration = new Integration({
     })
     const profile = await lineClient.getProfile(userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { usrId: `${profile.userId}` } })
+    const { user } = await client.getOrCreateUser({ tags: { 'line:usrId': `${profile.userId}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -444,7 +444,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { usrId: `${profile.userId}`, destId },
+      tags: { 'line:usrId': `${profile.userId}`, 'line:destId': destId },
     })
 
     return {

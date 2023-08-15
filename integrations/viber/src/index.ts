@@ -207,7 +207,11 @@ const integration = new Integration({
             type: 'image',
             userId: user.id,
             conversationId: conversation.id,
-            payload: { imageUrl: data.message.media },
+            payload: {
+              imageUrl: data.message.media,
+              // TODO: declare in definition
+              // caption: '',
+            },
           })
           break
         case 'video':
@@ -216,7 +220,11 @@ const integration = new Integration({
             type: 'video',
             userId: user.id,
             conversationId: conversation.id,
-            payload: { videoUrl: data.message.media },
+            payload: {
+              videoUrl: data.message.media,
+              // TODO: declare in definition
+              // size: data.message.size
+            },
           })
           break
         case 'file':
@@ -225,7 +233,12 @@ const integration = new Integration({
             type: 'file',
             userId: user.id,
             conversationId: conversation.id,
-            payload: { fileUrl: data.message.media },
+            payload: {
+              fileUrl: data.message.media,
+              // TODO: declare in definition
+              // fileName: data.message.file_name,
+              // fileSize: data.message.size,
+            },
           })
           break
         case 'location':
@@ -241,7 +254,6 @@ const integration = new Integration({
           console.info('unsupported message type: ', data.message)
           return
       }
-    } else {
     }
 
     return

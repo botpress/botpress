@@ -1,4 +1,3 @@
-import type { Conversation } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
 import queryString from 'query-string'
@@ -111,7 +110,7 @@ const integration = new Integration({
     const messengerClient = getMessengerClient(ctx.configuration)
     const profile = await messengerClient.getUserProfile(userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { id: `${profile.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { [idTag]: `${profile.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -131,7 +130,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { id: `${profile.id}` },
+      tags: { [idTag]: `${profile.id}` },
     })
 
     return {
@@ -261,8 +260,8 @@ async function sendMessage(
   await ack({ tags: { [idTag]: messageId } })
 }
 
-export function getRecipientId(conversation: Conversation): string {
-  const recipientId = conversation.tags.id
+export function getRecipientId(conversation: SendMessageProps['conversation']): string {
+  const recipientId = conversation.tags['messenger:id']
 
   if (!recipientId) {
     throw Error(`No recipient id found for user ${conversation.id}`)
@@ -277,18 +276,18 @@ async function handleMessage(message: MessengerMessage, client: Client) {
       const { conversation } = await client.getOrCreateConversation({
         channel: 'channel',
         tags: {
-          id: message.sender.id,
+          [idTag]: message.sender.id,
         },
       })
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          id: message.sender.id,
+          [idTag]: message.sender.id,
         },
       })
 
       await client.createMessage({
-        tags: { id: message.message.mid },
+        tags: { [idTag]: message.message.mid },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,

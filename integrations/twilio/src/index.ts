@@ -148,7 +148,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { 'twilio:userPhone': `${phone.phoneNumber}`, activePhone },
+      tags: { 'twilio:userPhone': `${phone.phoneNumber}`, 'twilio:activePhone': activePhone },
     })
 
     return {

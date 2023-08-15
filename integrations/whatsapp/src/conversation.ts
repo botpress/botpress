@@ -20,7 +20,7 @@ export const createConversation: botpress.IntegrationProps['createConversation']
     logForBotAndThrow('Phone number ID is not configured', logger)
   }
 
-  const userPhoneTag = 'whatsapp:userPhone' as const
+  const userPhoneTag = 'whatsapp:userPhone'
   const userPhone = tags[userPhoneTag]
   if (!userPhone) {
     logForBotAndThrow(`A Whatsapp recipient phone number needs to be provided in the '${userPhoneTag}' tag`, logger)
@@ -30,7 +30,7 @@ export const createConversation: botpress.IntegrationProps['createConversation']
   Whatsapp only allows using Message Templates for proactively starting conversations with users.
   See: https://developers.facebook.com/docs/whatsapp/pricing#opening-conversations
   */
-  const templateNameTag = 'whatsapp:templateName' as const
+  const templateNameTag = 'whatsapp:templateName'
   const templateName = tags[templateNameTag]
   if (!templateName) {
     logForBotAndThrow(`A Whatsapp template name needs to be provided in the '${templateNameTag}' tag`, logger)
@@ -38,7 +38,7 @@ export const createConversation: botpress.IntegrationProps['createConversation']
 
   const templateLanguage = tags['whatsapp:templateLanguage'] || 'en_US'
 
-  const templateVariablesTag = 'whatsapp:templateVariables' as const
+  const templateVariablesTag = 'whatsapp:templateVariables'
   const templateVariablesSchema = z.array(z.string().or(z.number()))
   let templateVariables: z.infer<typeof templateVariablesSchema> = []
 

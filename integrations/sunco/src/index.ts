@@ -1,4 +1,3 @@
-import type { Conversation } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Integration, channels, secrets } from '.botpress'
 
@@ -254,8 +253,8 @@ const sendCarousel = async (props: SendMessageProps, payload: Carousel) => {
   })
 }
 
-function getConversationId(conversation: Conversation) {
-  const conversationId = conversation.tags.id
+function getConversationId(conversation: SendMessageProps['conversation']) {
+  const conversationId = conversation.tags['sunco:id']
 
   if (!conversationId) {
     throw new Error('Conversation does not have a sunco identifier')
