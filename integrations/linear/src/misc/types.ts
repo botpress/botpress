@@ -1,15 +1,20 @@
-import { IntegrationContext, IntegrationDefinition } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import type * as botpress from '.botpress'
 
-type IntegrationDef = ConstructorParameters<typeof IntegrationDefinition>[0]
-export type EventDefinition = Extract<IntegrationDef['events'], {}>['string']
-export type ActionDefinition = Extract<IntegrationDef['actions'], {}>['string']
-export type ChannelDefinition = Extract<IntegrationDef['channels'], {}>['string']
-export type IntegrationCtx = IntegrationContext<botpress.configuration.Configuration>
+export type Client = botpress.Client
 
-export type Implementation = ConstructorParameters<typeof botpress.Integration>[0]
-export type RegisterFunction = Implementation['register']
-export type UnregisterFunction = Implementation['unregister']
-export type CreateConversationFunction = Implementation['createConversation']
-export type CreateUserFunction = Implementation['createUser']
-export type Channels = Implementation['channels']
+/**
+ * @deprecated Use `botpress.IntegrationProps` instead
+ */
+export type Implementation = botpress.IntegrationProps
+
+export type EventDefinition = Extract<sdk.IntegrationDefinitionProps['events'], {}>['string']
+export type ActionDefinition = Extract<sdk.IntegrationDefinitionProps['actions'], {}>['string']
+export type ChannelDefinition = Extract<sdk.IntegrationDefinitionProps['channels'], {}>['string']
+export type IntegrationCtx = sdk.IntegrationContext<botpress.configuration.Configuration>
+
+export type RegisterFunction = botpress.IntegrationProps['register']
+export type UnregisterFunction = botpress.IntegrationProps['unregister']
+export type CreateConversationFunction = botpress.IntegrationProps['createConversation']
+export type CreateUserFunction = botpress.IntegrationProps['createUser']
+export type Channels = botpress.IntegrationProps['channels']

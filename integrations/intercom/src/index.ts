@@ -5,9 +5,11 @@ import { Client, ReplyToConversationMessageType } from 'intercom-client'
 import { z } from 'zod'
 import * as html from './html.utils'
 import { Integration, secrets } from '.botpress'
-import type { Card } from '.botpress/implementation/channels/channel/card'
-import type { Location } from '.botpress/implementation/channels/channel/location'
-import type { Configuration } from '.botpress/implementation/configuration'
+import type * as botpress from '.botpress'
+
+type Card = botpress.channels.channel.card.Card
+type Location = botpress.channels.channel.location.Location
+type Configuration = botpress.configuration.Configuration
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
@@ -16,7 +18,6 @@ sentryHelpers.init({
 })
 
 const log = console
-const integrationName = 'intercom'
 
 const conversationPartSchema = z.object({
   type: z.literal('conversation_part'),
@@ -227,7 +228,7 @@ const integration = new Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        [`${integrationName}:id`]: `${conversationId}`,
+        ['intercom:id']: `${conversationId}`,
       },
     })
 
@@ -254,12 +255,12 @@ const integration = new Integration({
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          [`${integrationName}:id`]: `${authorId}`,
+          ['intercom:id']: `${authorId}`,
         },
       })
 
       await client.createMessage({
-        tags: { [`${integrationName}:id`]: `${messageId}` },
+        tags: { ['intercom:id']: `${messageId}` },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
@@ -334,14 +335,14 @@ async function sendMessage(props: {
   const {
     conversation_parts: { conversation_parts: conversationParts },
   } = await client.conversations.replyByIdAsAdmin({
-    id: conversation.tags[`${integrationName}:id`] ?? '',
+    id: conversation.tags['intercom:id'] ?? '',
     adminId: configuration.adminId,
     messageType: ReplyToConversationMessageType.COMMENT,
     body,
     attachmentUrls,
   })
 
-  await ack({ tags: { [`${integrationName}:id`]: `${conversationParts.at(-1)?.id ?? ''}` } })
+  await ack({ tags: { ['intercom:id']: `${conversationParts.at(-1)?.id ?? ''}` } })
 }
 
 function composeMessage(...parts: string[]) {

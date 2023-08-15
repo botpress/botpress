@@ -1,7 +1,7 @@
-import type { Client } from '@botpress/client'
 import { z } from 'zod'
+import * as botpress from '.botpress'
 
-export type BotpressClient = InstanceType<typeof Client>
+export type Client = botpress.Client
 
 export const TriggerSubscriberSchema = z.object({
   url: z.string(),

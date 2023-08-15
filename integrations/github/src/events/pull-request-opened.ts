@@ -1,6 +1,6 @@
-import { Client } from '@botpress/client'
 import { PullRequestOpenedEvent } from '@octokit/webhooks-types'
 
+import { Client } from '../misc/types'
 import { getUserAndConversation } from '../misc/utils'
 
 export const firePullRequestOpened = async ({

@@ -1,11 +1,11 @@
-import type { Client, Conversation } from '@botpress/client'
+import type { Conversation } from '@botpress/client'
 import type { AckFunction, Request } from '@botpress/sdk'
 import { ChatPostMessageArguments, WebClient } from '@slack/web-api'
 import axios from 'axios'
 import VError from 'verror'
 import { INTEGRATION_NAME } from '../const'
 import { Configuration } from '../setup'
-import { IntegrationCtx } from './types'
+import { Client, IntegrationCtx } from './types'
 
 type InteractiveBody = {
   response_url: string
@@ -125,7 +125,6 @@ export const getChannelType = (props: { channel: string; thread?: string }) => {
   if (props.thread) {
     return 'thread'
   }
-
   return props.channel.startsWith('D') ? 'dm' : 'channel'
 }
 
@@ -133,10 +132,8 @@ export const getUserAndConversation = async (
   props: { slackUserId: string; slackChannelId: string; slackThreadId?: string },
   client: Client
 ) => {
-  const channelType = getChannelType({ channel: props.slackChannelId, thread: props.slackThreadId })
-
   const { conversation } = await client.getOrCreateConversation({
-    channel: channelType,
+    channel: 'thread',
     tags: { id: props.slackChannelId, thread: props.slackThreadId! },
   })
   const { user } = await client.getOrCreateUser({ tags: { id: props.slackUserId } })

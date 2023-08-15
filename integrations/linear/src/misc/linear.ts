@@ -1,10 +1,9 @@
-import type { Client } from '@botpress/client'
 import { Request } from '@botpress/sdk'
 import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
 import queryString from 'query-string'
 import { z } from 'zod'
-import { IntegrationCtx } from './types'
+import { Client, IntegrationCtx } from './types'
 import { secrets } from '.botpress'
 
 const linearEndpoint = 'https://api.linear.app'

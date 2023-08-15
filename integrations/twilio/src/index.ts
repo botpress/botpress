@@ -1,10 +1,13 @@
 import type { Conversation } from '@botpress/client'
-import type { AckFunction, IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import queryString from 'query-string'
 import { Twilio } from 'twilio'
+import { Integration, channels, secrets } from '.botpress'
 
-import { Integration, channels, configuration, secrets } from '.botpress'
+type Channels = Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
@@ -160,7 +163,7 @@ const integration = new Integration({
 
 export default sentryHelpers.wrapIntegration(integration)
 
-type Choice = channels.Channels['channel']['choice']
+type Choice = channels.channel.choice.Choice
 
 function renderChoiceMessage(payload: Choice) {
   return `${payload.text || ''}\n\n${payload.options
@@ -168,7 +171,7 @@ function renderChoiceMessage(payload: Choice) {
     .join('\n')}`
 }
 
-type Card = channels.Channels['channel']['card']
+type Card = channels.channel.card.Card
 
 function renderCard(card: Card, total?: string): string {
   return `${total ? `${total}: ` : ''}${card.title}\n\n${card.subtitle || ''}\n\n${card.actions
@@ -191,10 +194,7 @@ function getPhoneNumbers(conversation: Conversation) {
   return { to, from }
 }
 
-type SendMessageProps = {
-  ctx: IntegrationContext<configuration.Configuration>
-  conversation: Conversation
-  ack: AckFunction
+type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'> & {
   mediaUrl?: string
   text?: string
 }

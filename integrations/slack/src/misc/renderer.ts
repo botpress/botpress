@@ -1,8 +1,8 @@
 import type { ChatPostMessageArguments } from '@slack/web-api'
 import type { channels } from '.botpress'
 
-type Card = channels.Channels['channel']['card']
-type CardAction = channels.Channels['channel']['card']['actions'][number]
+type Card = channels.channel.card.Card
+type CardAction = channels.channel.card.Card['actions'][number]
 
 export function renderCard(payload: Card): ChatPostMessageArguments['blocks'] {
   return [

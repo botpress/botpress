@@ -7,7 +7,7 @@ import type { channels } from '.botpress'
 const { Text } = Types
 const { Interactive, ActionList, ListSection, Row } = Types.Interactive
 
-type Dropdown = channels.Channels['channel']['dropdown']
+type Dropdown = channels.channel.dropdown.Dropdown
 
 const INTERACTIVE_MAX_ACTIONS_COUNT = 10
 const defaultDescription = ' ' //https://github.com/Secreto31126/whatsapp-api-js/pull/53
