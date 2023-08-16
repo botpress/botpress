@@ -23,6 +23,7 @@
     "@botpress/client": "0.3.2",
     "@bpinternal/tunnel": "^0.1.0",
     "@bpinternal/yargs-extra": "^0.0.3",
+    "@bpinternal/zod-to-json-schema": "^3.21.4",
     "@parcel/watcher": "^2.1.0",
     "@types/lodash": "^4.14.191",
     "@types/node": "^18.11.17",
@@ -43,13 +44,13 @@
     "uuid": "^9.0.0",
     "verror": "^1.10.1",
     "winston": "^3.8.2",
-    "zod": "^3.20.6",
-    "zod-to-json-schema": "^3.20.1"
+    "zod": "^3.20.6"
   },
   "devDependencies": {
     "@botpress/sdk": "0.2.3",
     "@bpinternal/log4bot": "^0.0.4",
     "@types/bluebird": "^3.5.38",
+    "@types/json-schema": "^7.0.11",
     "@types/prompts": "^2.0.14",
     "@types/semver": "^7.3.11",
     "@types/tmp": "^0.2.3",

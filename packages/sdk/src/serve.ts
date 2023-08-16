@@ -17,6 +17,13 @@ export type Response = {
 
 export type Handler = (req: Request) => Promise<Response | void>
 
+export function parseBody<T>(req: Request): T {
+  if (!req.body) {
+    throw new Error('Missing body')
+  }
+  return JSON.parse(req.body)
+}
+
 export async function serve(
   handler: Handler,
   port: number = 8072,

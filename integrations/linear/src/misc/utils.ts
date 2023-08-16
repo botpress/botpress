@@ -1,8 +1,9 @@
-import type { Client, Conversation } from '@botpress/client'
+import type { Conversation } from '@botpress/client'
 import type { AckFunction } from '@botpress/sdk'
 import { Comment, Issue, IssueLabel, LinearClient, Team } from '@linear/sdk'
 import { INTEGRATION_NAME } from '../const'
 import { LinearOauthClient } from './linear'
+import { Client } from './types'
 
 export function getLinearClient(client: Client, integrationId: string) {
   const linearOauthClient = new LinearOauthClient()
