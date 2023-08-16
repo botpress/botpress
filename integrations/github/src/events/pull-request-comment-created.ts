@@ -1,6 +1,5 @@
-import { Client } from '@botpress/client'
 import { IssueCommentCreatedEvent } from '@octokit/webhooks-types'
-
+import { Client } from '../misc/types'
 import { getUserAndConversation } from '../misc/utils'
 
 export const firePullRequestCommentCreated = async ({
@@ -15,9 +14,10 @@ export const firePullRequestCommentCreated = async ({
     type: 'text',
     payload: {
       text: githubEvent.comment.body,
-      targets: {
-        pullRequest: githubEvent.issue.number.toString(),
-      },
+      // TODO: declare in definition
+      // targets: {
+      //   pullRequest: githubEvent.issue.number.toString(),
+      // },
     },
     ...(await getUserAndConversation(
       {

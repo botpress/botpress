@@ -14,7 +14,6 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@bpinternal/zod-to-json-schema": "^3.21.4",
     "@botpress/client": "0.3.2",
     "axios": "0.27.2",
     "radash": "^9.5.0",

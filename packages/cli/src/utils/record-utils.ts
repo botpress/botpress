@@ -30,3 +30,13 @@ export const zipObjects = <A, B>(
 
   return newRecord
 }
+
+export const mapValues = <A, B>(record: Record<string, A>, fn: (value: A) => B): Record<string, B> => {
+  const newRecord: Record<string, B> = {}
+
+  for (const [key, value] of Object.entries(record)) {
+    newRecord[key] = fn(value)
+  }
+
+  return newRecord
+}

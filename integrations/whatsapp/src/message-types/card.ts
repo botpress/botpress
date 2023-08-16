@@ -6,7 +6,7 @@ import * as footer from '../interactive/footer'
 import { UnreachableCaseError, chunkArray } from '../util'
 import type { channels } from '.botpress'
 
-type Card = channels.Channels['channel']['card']
+type Card = channels.channel.card.Card
 
 type SDKAction = Card['actions'][number]
 type ActionURL = SDKAction & { action: 'url' }
