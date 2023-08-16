@@ -28,13 +28,13 @@ To enable the Trello integration in Botpress, follow these steps:
 
 - Locate the Trello integration and click on “Enable” or “Configure.”
 
-- Provide the required API token and workspace ID.
+- Provide the required API token.
 
 - Save the configuration.
 
 ## Usage
 
-Once the integration is enabled, you can start interacting with Trello from your Botpress chatbot. The integration offers actions like `createCard`, `updateCard`, `getMember` and `addComment` to manage tasks and users.
+Once the integration is enabled, you can start interacting with Trello from your Botpress chatbot. The integration offers actions like `createCard`, `updateCard`, `getMember`, `getBoardMembers` and `addComment` to manage tasks and users.
 
 For more details and examples, refer to the Botpress and Trello documentation.
 

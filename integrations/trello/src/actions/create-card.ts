@@ -1,6 +1,5 @@
-import type { Implementation } from '../misc/types'
-
 import { createCardInputSchema } from '../misc/custom-schemas'
+import type { Implementation } from '../misc/types'
 
 import { getClient } from '../utils'
 
@@ -36,5 +35,5 @@ export const createCard: Implementation['actions']['createCard'] = async ({
     response = {}
   }
 
-  return { url: response.url || '' }
+  return { id: response.id || '', url: response.url || '' }
 }

@@ -1,5 +1,9 @@
 {
   "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "dist",
+    "target": "es2017",
+    "checkJs": false,
     "lib": ["es2022"],
     "module": "commonjs",
     "strict": true,
@@ -10,19 +14,16 @@
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
     "noFallthroughCasesInSwitch": true,
-    "noImplicitOverride": true,
     "noImplicitReturns": true,
     "noUncheckedIndexedAccess": true,
     "noUnusedParameters": true,
-    "target": "es2017",
-    "baseUrl": ".",
-    "outDir": "dist",
-    "checkJs": false,
+    "composite": true,
     "incremental": true,
     "exactOptionalPropertyTypes": false,
     "resolveJsonModule": true,
     "noPropertyAccessFromIndexSignature": false,
-    "noUnusedLocals": false
+    "noUnusedLocals": false,
+    "noImplicitOverride": false
   },
-  "include": [".botpress/**/*", "src/**/*", "./*.ts", "./*.json"]
+  "include": [".botpress/**/*", "src/**/*"]
 }

@@ -40,6 +40,7 @@ export const createCardInputSchema = z.object({
 })
 
 export const createCardOutputSchema = z.object({
+  id: z.string(),
   url: z.string(),
 })
 
@@ -152,4 +153,12 @@ export const addCommentInputSchema = z.object({
 
 export const addCommentOutputSchema = z.object({
   text: z.string(),
+})
+
+export const getBoardMembersInputSchema = z.object({
+  boardId: z.string().describe('The ID of the board (e.g kLmNoPqR)'),
+})
+
+export const getBoardMembersOutputSchema = z.object({
+  members: z.array(getMemberOutputSchema).nullable(),
 })

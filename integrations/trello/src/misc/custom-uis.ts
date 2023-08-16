@@ -61,3 +61,9 @@ export const addCommentUi = {
     title: 'Content of the comment to be added',
   },
 }
+
+export const getBoardMembersUi = {
+  boardId: {
+    title: 'The ID of the board (e.g kLmNoPqR)',
+  },
+}

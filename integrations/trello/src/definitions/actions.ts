@@ -7,6 +7,8 @@ import {
   getMemberOutputSchema,
   addCommentInputSchema,
   addCommentOutputSchema,
+  getBoardMembersInputSchema,
+  getBoardMembersOutputSchema,
 } from '../misc/custom-schemas'
 
 import {
@@ -14,6 +16,7 @@ import {
   updateCardUi,
   getMemberUi,
   addCommentUi,
+  getBoardMembersUi,
 } from '../misc/custom-uis'
 
 const createCard = {
@@ -60,9 +63,21 @@ const addComment = {
   },
 }
 
+const getBoardMembers = {
+  title: 'Get Board Members',
+  input: {
+    schema: getBoardMembersInputSchema,
+    ui: getBoardMembersUi,
+  },
+  output: {
+    schema: getBoardMembersOutputSchema,
+  },
+}
+
 export const actions = {
   createCard,
   updateCard,
   getMember,
   addComment,
+  getBoardMembers,
 }

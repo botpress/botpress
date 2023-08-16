@@ -1,6 +1,5 @@
-import type { Implementation } from '../misc/types'
-
 import { updateCardInputSchema } from '../misc/custom-schemas'
+import type { Implementation } from '../misc/types'
 
 import { getClient } from '../utils'
 
@@ -49,5 +48,5 @@ export const updateCard: Implementation['actions']['updateCard'] = async ({
     response = {}
   }
 
-  return { url: response.url || '' }
+  return { id: validatedInput.cardId, url: response.url || '' }
 }
