@@ -28,4 +28,16 @@ export const bot = new botpress.Bot({
   },
   events: {},
   recurringEvents: {},
+  conversation: {
+    tags: {
+      downstream: {
+        title: 'Downstream Conversation ID',
+        description: 'ID of the downstream conversation binded to the upstream one',
+      },
+      upstream: {
+        title: 'Upstream Conversation ID',
+        description: 'ID of the upstream conversation binded to the downstream one',
+      },
+    },
+  },
 })

@@ -10,8 +10,8 @@ export const agentMessageHandler: MessageHandler = async ({ client, conversation
 
   // TODO: handle /stop_hitl command
 
-  if (!downstream.tags.upstream) {
+  if (!downstream.tags['upstream']) {
     throw new Error('Downstream conversation was not binded to upstream conversation')
   }
-  await respond({ client, conversationId: downstream.tags.upstream, ctx }, message.payload.text)
+  await respond({ client, conversationId: downstream.tags['upstream'], ctx }, message.payload.text)
 }

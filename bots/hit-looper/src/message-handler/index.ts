@@ -8,7 +8,7 @@ const getMessageSource = (conversation: Conversation): MessageSource => {
   if (conversation.integration === 'teams') {
     return 'from_patient'
   }
-  if (conversation.integration === 'webchat') {
+  if (conversation.integration === 'zendesk') {
     return 'from_agent'
   }
   throw new Error(`Unknown integration ${conversation.integration}`)

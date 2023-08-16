@@ -69,8 +69,8 @@ export const patientMessageHandler: MessageHandler = async ({ message, client, c
     return
   }
 
-  if (!upstream.tags.downstream) {
+  if (!upstream.tags['downstream']) {
     throw new Error('Upwnstream conversation was not binded to downstream conversation')
   }
-  await respond({ client, conversationId: upstream.tags.downstream, ctx }, message.payload.text)
+  await respond({ client, conversationId: upstream.tags['downstream'], ctx }, message.payload.text)
 }
