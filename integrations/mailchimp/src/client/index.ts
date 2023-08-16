@@ -1,5 +1,10 @@
 import mailchimp from '@mailchimp/mailchimp_marketing'
-import type { MailchimpClient, Customer, Operation, AddCustomerFullOutputType } from 'src/misc/custom-types'
+import type {
+  MailchimpClient,
+  Customer,
+  Operation,
+  AddCustomerFullOutputType,
+} from 'src/misc/custom-types'
 
 import { addCustomerFullOutputSchema } from '../misc/custom-schemas'
 
@@ -14,7 +19,10 @@ export class MailchimpApi {
     })
   }
 
-  public addCustomerToList = async (listId: string, customer: Customer): Promise<AddCustomerFullOutputType> => {
+  public addCustomerToList = async (
+    listId: string,
+    customer: Customer
+  ): Promise<AddCustomerFullOutputType> => {
     const listResponse = await this.client.lists.addListMember(
       listId,
       {
@@ -49,7 +57,10 @@ export class MailchimpApi {
     return this.addCustomerToList(listId, customer)
   }
 
-  public checkIfCustomerInList = async (listId: string, customerEmail: string): Promise<boolean> => {
+  public checkIfCustomerInList = async (
+    listId: string,
+    customerEmail: string
+  ): Promise<boolean> => {
     try {
       await this.client.lists.getListMember(listId, customerEmail)
       return true
@@ -62,13 +73,17 @@ export class MailchimpApi {
     }
   }
 
-  public checkIfCustomerInCampaignList = async (campaignId: string, customerEmail: string): Promise<boolean> => {
+  public checkIfCustomerInCampaignList = async (
+    campaignId: string,
+    customerEmail: string
+  ): Promise<boolean> => {
     const listId = await this.getListFromCampaign(campaignId)
     return this.checkIfCustomerInList(listId, customerEmail)
   }
 
   public sendMassEmailCampaign = async (campaignIds: string | string[]) => {
-    let campaignIdsArray = typeof campaignIds === 'string' ? campaignIds.split(',') : campaignIds
+    let campaignIdsArray =
+      typeof campaignIds === 'string' ? campaignIds.split(',') : campaignIds
     campaignIdsArray = campaignIdsArray.map((campaignId) => campaignId.trim())
 
     const operations: Operation[] = campaignIdsArray.map((campaignId) => ({

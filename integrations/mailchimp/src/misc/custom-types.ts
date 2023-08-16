@@ -1,4 +1,9 @@
-import type { Config, lists, HttpMethod, Link } from '@mailchimp/mailchimp_marketing'
+import type {
+  Config,
+  lists,
+  HttpMethod,
+  Link,
+} from '@mailchimp/mailchimp_marketing'
 
 import z from 'zod'
 
@@ -12,7 +17,12 @@ export type Operation = {
   operation_id?: string
 }
 
-export type BatchStatus = 'pending' | 'preprocessing' | 'started' | 'finalizing' | 'finished'
+export type BatchStatus =
+  | 'pending'
+  | 'preprocessing'
+  | 'started'
+  | 'finalizing'
+  | 'finished'
 
 export type BatchResponse = {
   id: string
@@ -27,20 +37,22 @@ export type BatchResponse = {
 }
 
 export type MailchimpClient = {
-  setConfig: (config: Config) => void
+  setConfig: (config: Config) => void // eslint-disable-line no-unused-vars
   lists: {
     addListMember: typeof lists.addListMember
     getListMember: typeof lists.getListMember
   }
   campaigns?: {
-    get: (campaignId: string) => Promise<{ recipients: { list_id: string } }>
+    get: (campaignId: string) => Promise<{ recipients: { list_id: string } }> // eslint-disable-line no-unused-vars
   }
   batches?: {
-    start: (batch: { operations: Operation[] }) => Promise<BatchResponse>
+    start: (batch: { operations: Operation[] }) => Promise<BatchResponse> // eslint-disable-line no-unused-vars
   }
 }
 
-export type AddCustomerFullOutputType = z.infer<typeof addCustomerFullOutputSchema>
+export type AddCustomerFullOutputType = z.infer<
+  typeof addCustomerFullOutputSchema
+>
 
 export type Customer = {
   email: string

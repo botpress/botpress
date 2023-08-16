@@ -6,7 +6,11 @@ import {
   sendMassEmailCampaignOutputSchema,
 } from '../misc/custom-schemas'
 
-import { addCustomerToCampaignUi, addCustomerToListUi, sendMassEmailCampaignUi } from '../misc/custom-uis'
+import {
+  addCustomerToCampaignUi,
+  addCustomerToListUi,
+  sendMassEmailCampaignUi,
+} from '../misc/custom-uis'
 
 const addCustomerToCampaign = {
   title: 'Add Customer Profile to Campaign',

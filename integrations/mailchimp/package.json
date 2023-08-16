@@ -1,7 +1,17 @@
 {
   "name": "@botpresshub/mailchimp",
   "scripts": {
-    "type:check": "tsc --noEmit"
+    "bump": "ts-node -T ./scripts/depsynky bump",
+    "type:check": "pnpm -r --stream type:check",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "lint:check": "eslint ./ --ext .ts --ext .tsx",
+    "lint:fix": "eslint --fix ./ --ext .ts --ext .tsx",
+    "dep:check": "ts-node -T ./scripts/depsynky check",
+    "dep:fix": "ts-node -T ./scripts/depsynky sync",
+    "check": "pnpm dep:check && pnpm format:check && pnpm lint:check && pnpm type:check",
+    "test": "pnpm vitest --run",
+    "fix": "pnpm dep:fix && pnpm format:fix && pnpm lint:fix"
   },
   "keywords": [],
   "private": true,

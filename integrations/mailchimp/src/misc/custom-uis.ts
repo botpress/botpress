@@ -18,10 +18,12 @@ export const customerUi = {
     title: 'The language of the customer (e.g. en) (Optional)',
   },
   address1: {
-    title: 'The first line of the address of the customer (e.g. 123 St Marie.) (Optional)',
+    title:
+      'The first line of the address of the customer (e.g. 123 St Marie.) (Optional)',
   },
   address2: {
-    title: 'The second line of the address of the customer (e.g. Apt. 4B) (Optional)',
+    title:
+      'The second line of the address of the customer (e.g. Apt. 4B) (Optional)',
   },
   city: {
     title: 'The city of the customer (e.g. Anytown) (Optional)',

@@ -1,7 +1,8 @@
 import actions from './actions'
 import * as botpress from '.botpress'
 
-console.info('starting integration')
+const logger = console
+logger.info('starting integration')
 
 class NotImplementedError extends Error {
   constructor() {

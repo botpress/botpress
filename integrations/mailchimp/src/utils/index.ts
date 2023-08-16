@@ -1,8 +1,12 @@
+// import { IntegrationContext } from '@botpress/sdk'
+
 import { MailchimpApi } from '../client'
+
 import { Customer } from '../misc/custom-types'
 import type { Config } from '../misc/types'
 
-export const getMailchimpClient = (config: Config) => new MailchimpApi(config.apiKey, config.serverPrefix)
+export const getMailchimpClient = (config: Config) =>
+  new MailchimpApi(config.apiKey, config.serverPrefix)
 
 export const getValidCustomer = (validatedInput: Customer) => ({
   email: validatedInput.email,

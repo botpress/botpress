@@ -30,9 +30,10 @@ const MemberMarketingPermissionsInputSchema = z.object({
   marketing_permission_id: z.string().optional(),
   enabled: z.boolean().optional(),
 })
-const MemberMarketingPermissionsSchema = MemberMarketingPermissionsInputSchema.extend({
-  text: z.string().optional(),
-})
+const MemberMarketingPermissionsSchema =
+  MemberMarketingPermissionsInputSchema.extend({
+    text: z.string().optional(),
+  })
 const MemberLocationSchema = z.object({
   latitude: z.number(),
   longitude: z.number(),
