@@ -1,9 +1,12 @@
-import type { Conversation } from '@botpress/client'
-import type { AckFunction, IntegrationContext } from '@botpress/sdk'
+import type { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
-
 import { Integration, channels, secrets } from '.botpress'
+
+type Channels = Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
@@ -206,7 +209,11 @@ const integration = new Integration({
             type: 'image',
             userId: user.id,
             conversationId: conversation.id,
-            payload: { imageUrl: data.message.media, caption: '' },
+            payload: {
+              imageUrl: data.message.media,
+              // TODO: declare in definition
+              // caption: '',
+            },
           })
           break
         case 'video':
@@ -215,7 +222,11 @@ const integration = new Integration({
             type: 'video',
             userId: user.id,
             conversationId: conversation.id,
-            payload: { videoUrl: data.message.media, size: data.message.size },
+            payload: {
+              videoUrl: data.message.media,
+              // TODO: declare in definition
+              // size: data.message.size
+            },
           })
           break
         case 'file':
@@ -224,7 +235,12 @@ const integration = new Integration({
             type: 'file',
             userId: user.id,
             conversationId: conversation.id,
-            payload: { fileUrl: data.message.media, fileName: data.message.file_name, fileSize: data.message.size },
+            payload: {
+              fileUrl: data.message.media,
+              // TODO: declare in definition
+              // fileName: data.message.file_name,
+              // fileSize: data.message.size,
+            },
           })
           break
         case 'location':
@@ -240,9 +256,6 @@ const integration = new Integration({
           log.info('unsupported message type: ', data.message)
           return
       }
-    } else {
-      // handle other events
-      // log.info('other event: ', data)
     }
 
     return
@@ -288,11 +301,8 @@ const integration = new Integration({
 
 export default sentryHelpers.wrapIntegration(integration)
 
-type SendMessageProps = {
-  ctx: IntegrationContext
-  conversation: Conversation
-  ack: AckFunction
-  payload: any
+type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'> & {
+  payload: any // TODO: type this
 }
 
 export async function setViberWebhook(webhookUrl: string | undefined, token: string): Promise<void> {
@@ -367,8 +377,8 @@ async function getUserDetails({ ctx, id }: { ctx: IntegrationContext; id: string
   return data.user
 }
 
-type Card = channels.Channels['channel']['card']
-type CardAction = channels.Channels['channel']['card']['actions'][number]
+type Card = channels.channel.card.Card
+type CardAction = channels.channel.card.Card['actions'][number]
 
 const renderCard = (payload: Card) => {
   const card = [
@@ -445,7 +455,7 @@ function renderButtonSay(action: CardAction) {
   }
 }
 
-type Choice = channels.Channels['channel']['choice']
+type Choice = channels.channel.choice.Choice
 
 function renderChoice(payload: Choice) {
   const choice = [

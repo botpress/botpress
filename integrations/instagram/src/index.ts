@@ -1,9 +1,12 @@
-import type { Client, Conversation } from '@botpress/client'
-import type { AckFunction, IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
 import queryString from 'query-string'
-import { Integration, channels, secrets } from '.botpress'
+import { Integration, channels, secrets, Client } from '.botpress'
+
+type Channels = Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
@@ -141,11 +144,11 @@ const integration = new Integration({
 
 export default sentryHelpers.wrapIntegration(integration)
 
-type Carousel = channels.Channels['channel']['carousel']
-type Card = channels.Channels['channel']['card']
-type Choice = channels.Channels['channel']['choice']
-type Dropdown = channels.Channels['channel']['dropdown']
-type Location = channels.Channels['channel']['location']
+type Carousel = channels.channel.carousel.Carousel
+type Card = channels.channel.card.Card
+type Choice = channels.channel.choice.Choice
+type Dropdown = channels.channel.dropdown.Dropdown
+type Location = channels.channel.location.Location
 
 type InstagramAttachment = InstagramPostbackAttachment | InstagramSayAttachment | InstagramUrlAttachment
 
@@ -233,11 +236,7 @@ function getChoiceMessage(payload: Choice | Dropdown): MessengerTypes.Attachment
   }
 }
 
-type SendMessageProps = {
-  ack: AckFunction
-  conversation: Conversation
-  ctx: IntegrationContext
-}
+type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'>
 
 async function sendMessage(
   { ack, ctx, conversation }: SendMessageProps,
@@ -245,11 +244,16 @@ async function sendMessage(
 ) {
   const messengerClient = new MessengerClient({ accessToken: ctx.configuration.accessToken })
   const recipientId = getRecipientId(conversation)
-  const { messageId } = await send(messengerClient, recipientId)
-  await ack({ tags: { [idTag]: messageId } })
+  await send(messengerClient, recipientId)
+  await ack({
+    tags: {
+      // TODO: declare in definition
+      // [idTag]: messageId,
+    },
+  })
 }
 
-export function getRecipientId(conversation: Conversation): string {
+export function getRecipientId(conversation: SendMessageProps['conversation']): string {
   const recipientId = conversation.tags[idTag]
 
   if (!recipientId) {
@@ -276,8 +280,11 @@ async function handleMessage(message: InstagramMessage, client: Client) {
       })
 
       await client.createMessage({
-        tags: { [idTag]: message.message.mid },
         type: 'text',
+        tags: {
+          // TODO: declare in definition
+          // [idTag]: message.message.mid
+        },
         userId: user.id,
         conversationId: conversation.id,
         payload: { text: message.message.text },

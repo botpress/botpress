@@ -44,6 +44,82 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return new utils.cache.FSKeyValueCache<ProjectCache>(this.projectPaths.abs.projectCacheFile)
   }
 
+  protected parseBot(bot: bpsdk.Bot) {
+    return {
+      ...bot.props,
+      integrations: _(bot.props.integrations)
+        .values()
+        .filter(utils.guards.is.defined)
+        .keyBy((i) => i.id)
+        .mapValues(({ enabled, configuration }) => ({ enabled, configuration }))
+        .value(),
+      configuration: bot.props.configuration
+        ? {
+            ...bot.props.configuration,
+            schema: utils.schema.mapZodToJsonSchema(bot.props.configuration),
+          }
+        : undefined,
+      events: bot.props.events
+        ? _.mapValues(bot.props.events, (event) => ({
+            ...event,
+            schema: utils.schema.mapZodToJsonSchema(event),
+          }))
+        : undefined,
+      states: bot.props.states
+        ? _.mapValues(bot.props.states, (state) => ({
+            ...state,
+            schema: utils.schema.mapZodToJsonSchema(state),
+          }))
+        : undefined,
+    }
+  }
+
+  protected parseIntegrationDefinition(integration: bpsdk.IntegrationDefinition) {
+    return {
+      ...integration,
+      configuration: integration.configuration
+        ? {
+            ...integration.configuration,
+            schema: utils.schema.mapZodToJsonSchema(integration.configuration),
+          }
+        : undefined,
+      events: integration.events
+        ? _.mapValues(integration.events, (event) => ({
+            ...event,
+            schema: utils.schema.mapZodToJsonSchema(event),
+          }))
+        : undefined,
+      actions: integration.actions
+        ? _.mapValues(integration.actions, (action) => ({
+            ...action,
+            input: {
+              ...action.input,
+              schema: utils.schema.mapZodToJsonSchema(action.input),
+            },
+            output: {
+              ...action.output,
+              schema: utils.schema.mapZodToJsonSchema(action.output),
+            },
+          }))
+        : undefined,
+      channels: integration.channels
+        ? _.mapValues(integration.channels, (channel) => ({
+            ...channel,
+            messages: _.mapValues(channel.messages, (message) => ({
+              ...message,
+              schema: utils.schema.mapZodToJsonSchema(message),
+            })),
+          }))
+        : undefined,
+      states: integration.states
+        ? _.mapValues(integration.states, (state) => ({
+            ...state,
+            schema: utils.schema.mapZodToJsonSchema(state),
+          }))
+        : undefined,
+    }
+  }
+
   protected async readIntegrationDefinitionFromFS(): Promise<bpsdk.IntegrationDefinition | undefined> {
     const abs = this.projectPaths.abs
     const rel = this.projectPaths.rel('workDir')
@@ -85,7 +161,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
 
     this.logger.log('Integrations:')
-    for (const integration of Object.values(bot.integrations)) {
+    for (const integration of Object.values(bot.integrations).filter(utils.guards.is.defined)) {
       if (!integration.enabled) {
         this.logger.log(`${chalk.grey(integration.name)} ${chalk.italic('(disabled)')}: ${integration.webhookUrl}`, {
           prefix: { symbol: '○', indent: 2 },

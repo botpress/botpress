@@ -45,7 +45,7 @@ const renderTeams = async ({ ctx, ack, conversation, client }: RenderProps, acti
     }
 
     await turnContext.sendActivity(activity)
-    await ack({ tags: { id: turnContext.activity.id } })
+    await ack({ tags: { ['teams:id']: turnContext.activity.id } })
   })
 }
 

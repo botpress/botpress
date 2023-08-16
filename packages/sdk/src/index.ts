@@ -1,9 +1,4 @@
-import { BotClient } from './bot'
-import { IntegrationClient } from './integration'
-
 export * as messages from './message'
-export const clients = { IntegrationClient, BotClient }
-
 export * from './const'
 export * from './serve'
 
@@ -13,10 +8,12 @@ export {
   IntegrationImplementation as Integration,
   IntegrationImplementationProps as IntegrationProps,
   IntegrationContext,
-  IntegrationOperation,
-  ActionDefinitions,
-  ChannelDefinitions,
-  EventDefinitions,
-  AckFunction,
+  IntegrationSpecificClient,
 } from './integration'
-export { Bot, BotContext, BotOperation, IntegrationInstance } from './bot'
+
+export { Bot, BotProps, BotContext, BotSpecificClient, IntegrationInstance } from './bot'
+
+/**
+ * @deprecated Infer type of integration message handlers instead
+ */
+export type AckFunction = (props: { tags: Record<string, string> }) => Promise<void>

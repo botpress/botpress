@@ -8,7 +8,7 @@ import type { channels } from '.botpress'
 const { Text } = Types
 const { Interactive, ActionButtons } = Types.Interactive
 
-type Choice = channels.Channels['channel']['choice']
+type Choice = channels.channel.choice.Choice
 type Option = Choice['options'][number]
 
 const INTERACTIVE_MAX_BUTTONS_COUNT = 3
