@@ -1,7 +1,10 @@
-import type { Conversation } from '@botpress/client'
-import type { AckFunction, IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Integration, channels, secrets } from '.botpress'
+
+type Channels = Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
@@ -196,7 +199,7 @@ const integration = new Integration({
 
 export default sentryHelpers.wrapIntegration(integration)
 
-type Choice = channels.Channels['channel']['choice']
+type Choice = channels.channel.choice.Choice
 
 function renderChoiceMessage(payload: Choice) {
   return {
@@ -206,7 +209,7 @@ function renderChoiceMessage(payload: Choice) {
   }
 }
 
-type Carousel = channels.Channels['channel']['carousel']
+type Carousel = channels.channel.carousel.Carousel
 
 const sendCarousel = async (props: SendMessageProps, payload: Carousel) => {
   const items: SmoochCard[] = []
@@ -252,7 +255,7 @@ const sendCarousel = async (props: SendMessageProps, payload: Carousel) => {
   })
 }
 
-function getConversationId(conversation: Conversation) {
+function getConversationId(conversation: SendMessageProps['conversation']) {
   const conversationId = conversation.tags['sunco:id']
 
   if (!conversationId) {
@@ -277,11 +280,7 @@ function createClient(keyId: string, keySecret: string) {
   }
 }
 
-type SendMessageProps = {
-  ctx: IntegrationContext
-  conversation: Conversation
-  ack: AckFunction
-}
+type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'>
 
 async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload: any) {
   const client = createClient(ctx.configuration.keyId, ctx.configuration.keySecret)
