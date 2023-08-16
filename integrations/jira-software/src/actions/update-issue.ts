@@ -1,6 +1,5 @@
-import type { Implementation } from '../misc/types'
-
 import { updateIssueInputSchema } from '../misc/custom-schemas'
+import type { Implementation } from '../misc/types'
 
 import { getClient } from '../utils'
 

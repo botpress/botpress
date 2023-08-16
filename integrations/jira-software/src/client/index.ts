@@ -42,7 +42,9 @@ export class JiraApi {
     })
   }
 
-  async findAllUser(): Promise<Version3Models.User[]> {
-    return await this.client.users.getAllUsers()
+  async findAllUser(
+    addParams?: Version3Parameters.GetAllUsers
+  ): Promise<Version3Models.User[]> {
+    return await this.client.users.getAllUsers(addParams)
   }
 }

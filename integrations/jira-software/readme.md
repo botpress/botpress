@@ -26,7 +26,7 @@ To enable the Jira Software integration in Botpress, follow these steps:
 
 ## Usage
 
-Once the integration is enabled, you can start sending and receiving information within your Botpress chatbot. The integration offers actions such as `newIssue`, `updateIssue`, and `addCommentToIssue` that can be used to interact with your Jira Software account.
+Once the integration is enabled, you can start sending and receiving information within your Botpress chatbot. The integration offers actions such as `findAllUser`, `findUser`, `newIssue`, `updateIssue`, and `addCommentToIssue` that can be used to interact with your Jira Software account.
 
 For more detailed information and examples, refer to the Botpress documentation or the Jira Software documentation for configuring the integration.
 

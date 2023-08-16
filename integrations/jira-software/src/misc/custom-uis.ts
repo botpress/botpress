@@ -70,3 +70,13 @@ export const addCommentToIssueUi = {
     title: 'Message content in text format',
   },
 }
+
+export const findAllUsersUi = {
+  startAt: {
+    title: 'The index of the first item to return (Default: 0) (Optional)',
+  },
+  maxResults: {
+    title:
+      ' The maximum number of items to return per page (Default: 50) (Optional)',
+  },
+}

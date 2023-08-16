@@ -87,3 +87,18 @@ export const addCommentToIssueInputSchema = z.object({
 export const addCommentToIssueOutputSchema = z.object({
   id: z.string().optional(),
 })
+
+export const findAllUsersInputSchema = z.object({
+  startAt: z
+    .number()
+    .optional()
+    .describe('The index of the first item to return (Default: 0) (Optional)'),
+  maxResults: z
+    .number()
+    .optional()
+    .describe('The maximum number of items to return (Default: 50) (Optional)'),
+})
+
+export const findAllUsersOutputSchema = z.object({
+  users: z.array(findUserOutputSchema),
+})

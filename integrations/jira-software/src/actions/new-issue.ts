@@ -1,6 +1,5 @@
-import type { Implementation } from '../misc/types'
-
 import { newIssueInputSchema } from '../misc/custom-schemas'
+import type { Implementation } from '../misc/types'
 
 import { getClient } from '../utils'
 
@@ -34,7 +33,7 @@ export const newIssue: Implementation['actions']['newIssue'] = async ({
     response = await jiraClient.newIssue(issue)
     logger.forBot().info(`Successful - New Issue - ${response}`)
   } catch (error) {
-    logger.forBot().debug(`'Find User' exception ${JSON.stringify(error)}`)
+    logger.forBot().debug(`'New Issue' exception ${JSON.stringify(error)}`)
     response = ''
   }
   return { issueKey: response }

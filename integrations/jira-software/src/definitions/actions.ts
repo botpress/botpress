@@ -7,12 +7,15 @@ import {
   updateIssueOutputSchema,
   addCommentToIssueInputSchema,
   addCommentToIssueOutputSchema,
+  findAllUsersInputSchema,
+  findAllUsersOutputSchema,
 } from '../misc/custom-schemas'
 import {
   findUserUi,
   newIssueUi,
   updateIssueUi,
   addCommentToIssueUi,
+  findAllUsersUi,
 } from '../misc/custom-uis'
 
 const findUser = {
@@ -63,9 +66,22 @@ const addCommentToIssue = {
   },
 }
 
+const findAllUsers = {
+  title: 'Find All Users',
+  description: 'Find All Users',
+  input: {
+    schema: findAllUsersInputSchema,
+    ui: findAllUsersUi,
+  },
+  output: {
+    schema: findAllUsersOutputSchema,
+  },
+}
+
 export const actions = {
   findUser,
   newIssue,
   updateIssue,
   addCommentToIssue,
+  findAllUsers,
 }

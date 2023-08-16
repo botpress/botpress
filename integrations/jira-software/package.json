@@ -1,15 +1,25 @@
 {
-  "name": "jira-software",
+  "name": "@botpresshub/jirasoftware",
   "scripts": {
-    "type:check": "tsc --noEmit"
+    "bump": "ts-node -T ./scripts/depsynky bump",
+    "type:check": "pnpm -r --stream type:check",
+    "format:check": "prettier --check .",
+    "format:fix": "prettier --write .",
+    "lint:check": "eslint ./ --ext .ts --ext .tsx",
+    "lint:fix": "eslint --fix ./ --ext .ts --ext .tsx",
+    "dep:check": "ts-node -T ./scripts/depsynky check",
+    "dep:fix": "ts-node -T ./scripts/depsynky sync",
+    "check": "pnpm dep:check && pnpm format:check && pnpm lint:check && pnpm type:check",
+    "test": "pnpm vitest --run",
+    "fix": "pnpm dep:fix && pnpm format:fix && pnpm lint:fix"
   },
   "keywords": [],
   "private": true,
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "0.2.0",
-    "@botpress/sdk": "0.1.6",
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "jira.js": "^2.19.1",
     "zod": "^3.20.6"
   },
