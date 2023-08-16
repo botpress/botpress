@@ -1,48 +1,82 @@
-import { Client } from '@botpress/client'
-import { botIdHeader, configurationHeader, operationHeader, typeHeader } from '../const'
+import * as bpclient from '@botpress/client'
 import { log } from '../log'
-import type { Handler, Request, Response } from '../serve'
-import { BotContext, botOperationSchema } from './context'
-import type { EventReceivedBotPayload } from './implementation'
-import type { BotState } from './state'
+import { Request, Response, parseBody } from '../serve'
+import { Merge } from '../type-utils'
+import { BotSpecificClient } from './client'
+import { EnumerateEvents } from './client/types'
+import { BotContext, extractContext } from './context'
+import { BaseBot } from './generic'
 
-type OperationHandlerProps = {
-  botState: BotState
+type CommonArgs<TBot extends BaseBot> = {
   ctx: BotContext
-  client: Client
-  req: Request
+  client: BotSpecificClient<TBot>
 }
 
-export const createBotHandler =
-  (botState: BotState): Handler =>
-  async (req: Request): Promise<Response> => {
+type MessagePayload = {
+  user: bpclient.User
+  conversation: bpclient.Conversation
+  message: bpclient.Message
+  event: bpclient.Event
+}
+type MessageArgs<TBot extends BaseBot> = CommonArgs<TBot> & MessagePayload
+
+type EventPayload<TBot extends BaseBot> = {
+  event: {
+    [K in keyof EnumerateEvents<TBot>]: Merge<bpclient.Event, { type: K; payload: EnumerateEvents<TBot>[K] }>
+  }[keyof EnumerateEvents<TBot>]
+}
+type EventArgs<TBot extends BaseBot> = CommonArgs<TBot> & EventPayload<TBot>
+
+type StateExpiredPayload = { state: bpclient.State }
+type StateExpiredArgs<TBot extends BaseBot> = CommonArgs<TBot> & StateExpiredPayload
+
+export type MessageHandler<TBot extends BaseBot> = (args: MessageArgs<TBot>) => Promise<void>
+
+export type EventHandler<TBot extends BaseBot> = (args: EventArgs<TBot>) => Promise<void>
+
+export type StateExpiredHandler<TBot extends BaseBot> = (args: StateExpiredArgs<TBot>) => Promise<void>
+
+export type BotHandlers<TBot extends BaseBot> = {
+  messageHandlers: MessageHandler<TBot>[]
+  eventHandlers: EventHandler<TBot>[]
+  stateExpiredHandlers: StateExpiredHandler<TBot>[]
+}
+
+type ServerProps<TBot extends BaseBot> = CommonArgs<TBot> & {
+  req: Request
+  instance: BotHandlers<TBot>
+}
+
+export const botHandler =
+  <TBot extends BaseBot>(instance: BotHandlers<TBot>) =>
+  async (req: Request): Promise<Response | void> => {
     const ctx = extractContext(req.headers)
 
     if (ctx.operation !== 'ping') {
       log.info(`Received ${ctx.operation} operation for bot ${ctx.botId} of type ${ctx.type}`)
     }
 
-    const client = new Client({ botId: ctx.botId })
+    const client = new BotSpecificClient(new bpclient.Client({ botId: ctx.botId }))
 
-    const props: OperationHandlerProps = {
+    const props = {
       req,
-      botState,
       ctx,
       client,
+      instance,
     }
 
     switch (ctx.operation) {
       case 'event_received':
-        await onEventReceived(props)
+        await onEventReceived<TBot>(props)
         break
       case 'register':
-        await onRegister(props)
+        await onRegister<TBot>(props)
         break
       case 'unregister':
-        await onUnregister(props)
+        await onUnregister<TBot>(props)
         break
       case 'ping':
-        await onPing(props)
+        await onPing<TBot>(props)
         break
       default:
         throw new Error(`Unknown operation ${ctx.operation}`)
@@ -51,93 +85,56 @@ export const createBotHandler =
     return { status: 200 }
   }
 
-function extractContext(headers: Record<string, string | undefined>): BotContext {
-  const botId = headers[botIdHeader]
-  const base64Configuration = headers[configurationHeader]
-  const type = headers[typeHeader]
-  const operation = botOperationSchema.parse(headers[operationHeader])
-
-  if (!botId) {
-    throw new Error('Missing bot headers')
-  }
-
-  if (!type) {
-    throw new Error('Missing type headers')
-  }
-
-  if (!base64Configuration) {
-    throw new Error('Missing configuration headers')
-  }
-
-  if (!operation) {
-    throw new Error('Missing operation headers')
-  }
-
-  return {
-    botId,
-    operation,
-    type,
-    configuration: base64Configuration ? JSON.parse(Buffer.from(base64Configuration, 'base64').toString('utf-8')) : {},
-  }
-}
-
-async function onEventReceived({ botState, ctx, req }: OperationHandlerProps) {
+const onPing = async <TBot extends BaseBot>(_: ServerProps<TBot>) => {}
+const onRegister = async <TBot extends BaseBot>(_: ServerProps<TBot>) => {}
+const onUnregister = async <TBot extends BaseBot>(_: ServerProps<TBot>) => {}
+const onEventReceived = async <TBot extends BaseBot>({ ctx, req, client, instance }: ServerProps<TBot>) => {
   log.debug(`Received event ${ctx.type}`)
 
-  const client = new Client({ botId: ctx.botId })
-
-  const body = parseBody<EventReceivedBotPayload>(req)
+  const body = parseBody<EventPayload<TBot>>(req)
+  const event = body.event as bpclient.Event
 
   switch (ctx.type) {
     case 'message_created':
+      const messagePayload: MessagePayload = {
+        user: event.payload.user,
+        conversation: event.payload.conversation,
+        message: event.payload.message,
+        event,
+      }
+
       await Promise.all(
-        botState.messageHandlers.map((handler) =>
+        instance.messageHandlers.map((handler) =>
           handler({
             client,
-            user: body.event.payload.user as any,
-            conversation: body.event.payload.conversation as any,
-            message: body.event.payload.message as any,
-            event: body.event,
             ctx,
+            ...messagePayload,
           })
         )
       )
       break
     case 'state_expired':
+      const statePayload: StateExpiredPayload = { state: event.payload.state }
       await Promise.all(
-        botState.stateExpiredHandlers.map((handler) =>
+        instance.stateExpiredHandlers.map((handler) =>
           handler({
             client,
-            state: body.event.payload.state as any,
             ctx,
+            ...statePayload,
           })
         )
       )
       break
     default:
+      const eventPayload = { event: body.event } as EventPayload<TBot>
       await Promise.all(
-        botState.eventHandlers.map((handler) =>
+        instance.eventHandlers.map((handler) =>
           handler({
             client,
-            event: body.event,
             ctx,
+            ...eventPayload,
           })
         )
       )
   }
-}
-
-// TODO implement the ping operation once the signature is defined
-async function onPing(_: OperationHandlerProps) {}
-
-async function onRegister(_: OperationHandlerProps) {}
-
-async function onUnregister(_: OperationHandlerProps) {}
-
-function parseBody<T>(req: Request): T {
-  if (!req.body) {
-    throw new Error('Missing body')
-  }
-
-  return JSON.parse(req.body)
 }

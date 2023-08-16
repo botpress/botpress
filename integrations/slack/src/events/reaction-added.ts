@@ -1,6 +1,6 @@
-import { Client } from '@botpress/client'
 import { ReactionAddedEvent } from '@slack/bolt'
 
+import { Client } from '../misc/types'
 import { getUserAndConversation } from '../misc/utils'
 
 export const executeReactionAdded = async ({

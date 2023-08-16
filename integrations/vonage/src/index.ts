@@ -1,8 +1,11 @@
-import type { Conversation } from '@botpress/client'
-import type { AckFunction, IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
 import { Integration, channels, secrets } from '.botpress'
+
+type Channels = Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
@@ -159,7 +162,7 @@ const integration = new Integration({
 
 export default sentryHelpers.wrapIntegration(integration)
 
-function getRequestMetadata(conversation: Conversation) {
+function getRequestMetadata(conversation: SendMessageProps['conversation']) {
   const channel = conversation.tags?.['vonage:channel']
   const channelId = conversation.tags?.['vonage:channelId']
   const userId = conversation.tags?.['vonage:userId']
@@ -179,11 +182,11 @@ function getRequestMetadata(conversation: Conversation) {
   return { to: userId, from: channelId, channel }
 }
 
-type Dropdown = channels.Channels['channel']['dropdown']
-type Choice = channels.Channels['channel']['choice']
-type Carousel = channels.Channels['channel']['carousel']
-type Card = channels.Channels['channel']['card']
-type Location = channels.Channels['channel']['location']
+type Dropdown = channels.channel.dropdown.Dropdown
+type Choice = channels.channel.choice.Choice
+type Carousel = channels.channel.carousel.Carousel
+type Card = channels.channel.card.Card
+type Location = channels.channel.location.Location
 
 function formatLocationPayload(payload: Location) {
   return {
@@ -316,13 +319,7 @@ function formatCardPayload(payload: Card, count: number = 0) {
 
   return { message_type: 'text', text: body }
 }
-
-type SendMessageProps = {
-  ctx: IntegrationContext
-  conversation: Conversation
-  ack: AckFunction
-}
-
+type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'>
 async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload: any) {
   const { to, from, channel } = getRequestMetadata(conversation)
   const response = await axios.post(

@@ -1,30 +1,26 @@
-import { Client, RuntimeError } from '@botpress/client'
-import { name } from 'integration.definition'
+import { RuntimeError } from '@botpress/client'
 import { WhatsAppAPI, Types } from 'whatsapp-api-js'
 import z from 'zod'
-import { CreateConversationPayload, IntegrationLogger, IntegrationContext } from '.'
+import { IntegrationLogger } from '.'
+import * as botpress from '.botpress'
 
 const {
   Template: { Template, Language },
 } = Types
 
-export async function createConversation({
+export const createConversation: botpress.IntegrationProps['createConversation'] = async ({
   client,
   channel,
   tags,
   ctx,
   logger,
-}: {
-  ctx: IntegrationContext
-  client: Client
-  logger: IntegrationLogger
-} & CreateConversationPayload) {
+}) => {
   const phoneNumberId = ctx.configuration.phoneNumberId
   if (!phoneNumberId) {
     logForBotAndThrow('Phone number ID is not configured', logger)
   }
 
-  const userPhoneTag = `${name}:userPhone`
+  const userPhoneTag = 'whatsapp:userPhone'
   const userPhone = tags[userPhoneTag]
   if (!userPhone) {
     logForBotAndThrow(`A Whatsapp recipient phone number needs to be provided in the '${userPhoneTag}' tag`, logger)
@@ -34,16 +30,16 @@ export async function createConversation({
   Whatsapp only allows using Message Templates for proactively starting conversations with users.
   See: https://developers.facebook.com/docs/whatsapp/pricing#opening-conversations
   */
-  const templateNameTag = `${name}:templateName`
+  const templateNameTag = 'whatsapp:templateName'
   const templateName = tags[templateNameTag]
   if (!templateName) {
     logForBotAndThrow(`A Whatsapp template name needs to be provided in the '${templateNameTag}' tag`, logger)
   }
 
-  const templateLanguageTag = `${name}:templateLanguage`
+  const templateLanguageTag = 'whatsapp:templateLanguage'
   const templateLanguage = tags[templateLanguageTag] || 'en_US'
 
-  const templateVariablesTag = `${name}:templateVariables`
+  const templateVariablesTag = 'whatsapp:templateVariables'
   const templateVariablesSchema = z.array(z.string().or(z.number()))
   let templateVariables: z.infer<typeof templateVariablesSchema> = []
 
@@ -75,7 +71,7 @@ export async function createConversation({
   const { conversation } = await client.getOrCreateConversation({
     channel,
     tags: {
-      [`${name}:phoneNumberId`]: phoneNumberId,
+      ['whatsapp:phoneNumberId']: phoneNumberId,
       [userPhoneTag]: userPhone,
       [templateNameTag]: templateName,
     },

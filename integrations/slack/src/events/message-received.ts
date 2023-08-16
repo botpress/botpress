@@ -1,6 +1,5 @@
-import { Client } from '@botpress/client'
-
 import { GenericMessageEvent } from '@slack/bolt'
+import { Client } from '../misc/types'
 import { getUserAndConversation } from '../misc/utils'
 
 export const executeMessageReceived = async ({
@@ -19,12 +18,14 @@ export const executeMessageReceived = async ({
     tags: { ts: slackEvent.ts },
     type: 'text',
     payload: {
-      text: slackEvent.text,
-      targets: {
-        dm: { id: slackEvent.user },
-        thread: { id: slackEvent.channel || slackEvent.user, thread: slackEvent.thread_ts || slackEvent.ts },
-        channel: { id: slackEvent.channel },
-      },
+      text: slackEvent.text!,
+
+      // TODO: declare in definition
+      // targets: {
+      //   dm: { id: slackEvent.user },
+      //   thread: { id: slackEvent.channel || slackEvent.user, thread: slackEvent.thread_ts || slackEvent.ts },
+      //   channel: { id: slackEvent.channel },
+      // },
     },
     ...(await getUserAndConversation(
       { slackUserId: slackEvent.user, slackChannelId: slackEvent.channel, slackThreadId: slackEvent.thread_ts },
