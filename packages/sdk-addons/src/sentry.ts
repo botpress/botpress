@@ -1,4 +1,4 @@
-import { IntegrationProps, Integration, ActionDefinitions, ChannelDefinitions, EventDefinitions } from '@botpress/sdk'
+import { IntegrationProps, Integration } from '@botpress/sdk'
 import * as Sentry from '@sentry/node'
 
 export const COMMON_SECRET_NAMES = ['SENTRY_DSN', 'SENTRY_ENVIRONMENT', 'SENTRY_RELEASE']
@@ -10,23 +10,18 @@ type Entries<T> = {
   [K in keyof T]: [K, T[K]]
 }[keyof T][]
 
-export const wrapIntegration = <
-  Co,
-  A extends ActionDefinitions,
-  Ch extends ChannelDefinitions,
-  E extends EventDefinitions
->(
-  integration: Integration<Co, A, Ch, E>
-) => {
-  type Actions = typeof integration.props.actions
-  const actionsEntries: Entries<Actions> = Object.entries(integration.props.actions)
+type Tof<I extends Integration> = I extends Integration<infer T> ? T : never
+
+export const wrapIntegration = <T extends Tof<Integration>>(integration: Integration<T>) => {
+  type ActionFunctions = typeof integration.props.actions
+  const actionsEntries: Entries<ActionFunctions> = Object.entries(integration.props.actions)
   const actions = actionsEntries.reduce((acc, [actionType, action]) => {
     acc[actionType] = wrapFunction(action)
     return acc
-  }, {} as Actions)
+  }, {} as ActionFunctions)
 
-  type Channels = typeof integration.props.channels
-  const channelEntries: Entries<Channels> = Object.entries(integration.props.channels)
+  type ChannelFunctions = typeof integration.props.channels
+  const channelEntries: Entries<ChannelFunctions> = Object.entries(integration.props.channels)
   const channels = channelEntries.reduce((acc, [channelName, channel]) => {
     type Messages = typeof channel.messages
     const messageEntries: Entries<Messages> = Object.entries(channel.messages)
@@ -36,9 +31,9 @@ export const wrapIntegration = <
     }, {} as Messages)
     acc[channelName] = { messages }
     return acc
-  }, {} as Channels)
+  }, {} as ChannelFunctions)
 
-  const integrationProps: IntegrationProps<Co, A, Ch, E> = {
+  const integrationProps: IntegrationProps<T> = {
     register: wrapFunction(integration.props.register),
     unregister: wrapFunction(integration.props.unregister),
     handler: wrapFunction(integration.props.handler),
@@ -54,7 +49,7 @@ export const wrapIntegration = <
     integrationProps.createConversation = wrapFunction(integration.props.createConversation)
   }
 
-  return new Integration<Co, A, Ch, E>(integrationProps)
+  return new Integration<T>(integrationProps)
 }
 
 function wrapFunction(fn: Function) {

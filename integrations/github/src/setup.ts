@@ -33,7 +33,7 @@ export const register: RegisterFunction = async ({ ctx, webhookUrl, client }) =>
   })
 }
 
-export const unregister: UnregisterFunction = async ({ ctx, client }) => {
+export const unregister: UnregisterFunction = async ({ ctx, client, logger }) => {
   const { owner, repo, token } = ctx.configuration
 
   const { state } = await client.getState({
@@ -43,6 +43,11 @@ export const unregister: UnregisterFunction = async ({ ctx, client }) => {
   })
 
   const octokit = new Octokit({ auth: token })
+  if (!state.payload.webhookId) {
+    logger.forBot().error('Unable to remove webhook from github: Webhook id not found')
+    return
+  }
+
   await octokit.rest.repos.deleteWebhook({ owner, repo, hook_id: state.payload.webhookId })
 }
 

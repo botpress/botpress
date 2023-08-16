@@ -1,4 +1,4 @@
-import { Client, Conversation } from '@botpress/client'
+import { Conversation } from '@botpress/client'
 import { MessagingClient } from '@botpress/messaging-client'
 
 import { INTEGRATION_STATE_NAME, INTEGRATION_STATE_TYPE, USER_DATA_STATE_NAME } from './const'
@@ -6,7 +6,7 @@ import { fireConversationStarted } from './events/conversation-started'
 import { handleTrigger } from './events/trigger'
 import { NewMessage, NewUser, incomingEventSchema } from './misc/messaging/incoming-event'
 import { OutgoingMessage } from './misc/messaging/outgoing-message'
-import { IntegrationCtx } from './misc/types'
+import { Client, IntegrationCtx } from './misc/types'
 import { getTag, getUserAndConversation } from './misc/utils'
 import * as botpress from '.botpress'
 
@@ -68,7 +68,7 @@ async function handleUpdateUser(newUser: NewUser, client: Client) {
     type: 'user',
     id: user.id,
     name: USER_DATA_STATE_NAME,
-    payload: newUser.userData ?? null,
+    payload: newUser.userData ?? (null as any), // TODO: fix typing
   })
 }
 
@@ -92,7 +92,7 @@ async function handleNewMessage(newMessage: NewMessage, client: Client) {
   if (!isTriggerHandled) {
     await client.createMessage({
       tags: { id: message.id },
-      type: message.payload.type,
+      type: message.payload.type as any, // TODO: fix typing
       userId,
       conversationId,
       payload: message.payload,

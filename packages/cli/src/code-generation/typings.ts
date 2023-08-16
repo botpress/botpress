@@ -1,12 +1,18 @@
-import type { IntegrationDefinition } from '@botpress/sdk'
-import type { compile } from 'json-schema-to-typescript'
+import { Integration } from '@botpress/client'
 
 export type File = { path: string; content: string }
-export type Schema = Parameters<typeof compile>[0]
 
-export type Def<T> = Exclude<T, undefined>
-export type Config = Def<IntegrationDefinition['configuration']>
-export type Channel = Def<IntegrationDefinition['channels']>[string]
-export type Message = Def<Channel['messages']>[string]
-export type Action = Def<IntegrationDefinition['actions']>[string]
-export type Event = Def<IntegrationDefinition['events']>[string]
+export type IntegrationDefinition = Pick<
+  Integration,
+  'name' | 'version' | 'configuration' | 'channels' | 'states' | 'events' | 'actions' | 'user'
+>
+
+type Def<T> = NonNullable<T>
+
+export type ConfigurationDefinition = Def<IntegrationDefinition['configuration']>
+export type ChannelDefinition = Def<IntegrationDefinition['channels']>[string]
+export type MessageDefinition = Def<ChannelDefinition['messages']>[string]
+export type ActionDefinition = Def<IntegrationDefinition['actions']>[string]
+export type EventDefinition = Def<IntegrationDefinition['events']>[string]
+export type StateDefinition = Def<IntegrationDefinition['states']>[string]
+export type UserDefinition = Def<IntegrationDefinition['user']>

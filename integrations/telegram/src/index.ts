@@ -4,18 +4,19 @@ import type { AckFunction } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Context, Markup, Telegraf } from 'telegraf'
 import type { Update } from 'telegraf/typings/core/types/typegram'
-import type { Card } from '../.botpress/implementation/channels/channel/card'
-import { Integration, secrets } from '.botpress'
+import * as botpress from '.botpress'
+
+type Card = botpress.channels.channel.card.Card
 
 const log = console
 
 sentryHelpers.init({
-  dsn: secrets.SENTRY_DSN,
-  environment: secrets.SENTRY_ENVIRONMENT,
-  release: secrets.SENTRY_RELEASE,
+  dsn: botpress.secrets.SENTRY_DSN,
+  environment: botpress.secrets.SENTRY_ENVIRONMENT,
+  release: botpress.secrets.SENTRY_RELEASE,
 })
 
-const integration = new Integration({
+const integration = new botpress.Integration({
   register: async ({ webhookUrl, ctx }) => {
     const telegraf = new Telegraf(ctx.configuration.botToken)
     await telegraf.telegram.setWebhook(webhookUrl)

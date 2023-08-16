@@ -1,79 +1,179 @@
-import { Client, Conversation, Message, User, RuntimeError } from '@botpress/client'
-
-import {
-  botIdHeader,
-  botUserIdHeader,
-  configurationHeader,
-  integrationIdHeader,
-  operationHeader,
-  webhookIdHeader,
-} from '../const'
-import { Request, Response, serve } from '../serve'
-import { IntegrationContext, integrationOperationSchema } from './context'
-import type {
-  ActionPayload,
-  CreateConversationPayload,
-  CreateUserPayload,
-  IntegrationImplementationProps,
-  RegisterPayload,
-  UnregisterPayload,
-  WebhookPayload,
-} from './implementation'
+import { Client, RuntimeError, type Conversation, type Message, type User } from '@botpress/client'
+import { Request, Response, parseBody } from '../serve'
+import { Cast, Merge } from '../type-utils'
+import { IntegrationSpecificClient } from './client'
+import { ToTags } from './client/types'
+import { extractContext, type IntegrationContext } from './context'
+import { BaseIntegration } from './generic'
 import { IntegrationLogger, integrationLogger } from './logger'
 
-type OperationHandlerProps = {
-  integration: IntegrationImplementationProps
-  ctx: IntegrationContext
-  req: Request
-  client: Client
+type PrefixConfig<TIntegration extends BaseIntegration> = { enforcePrefix: TIntegration['name'] }
+
+type CommonArgs<TIntegration extends BaseIntegration> = {
+  ctx: IntegrationContext<TIntegration['configuration']>
+  client: IntegrationSpecificClient<TIntegration>
   logger: IntegrationLogger
 }
 
-export const serveIntegration = async (integration: IntegrationImplementationProps, port = 6853) => {
-  await serve(integrationHandler(integration), port)
+type RegisterPayload = { webhookUrl: string }
+type RegisterArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> & RegisterPayload
+
+type UnregisterPayload = { webhookUrl: string }
+type UnregisterArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> & UnregisterPayload
+
+type WebhookPayload = { req: Request }
+type WebhookArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> & WebhookPayload
+
+type ActionPayload<T extends string, I> = { type: T; input: I }
+type ActionArgs<TIntegration extends BaseIntegration, T extends string, I> = CommonArgs<TIntegration> &
+  ActionPayload<T, I>
+
+type CreateUserPayload<TIntegration extends BaseIntegration> = {
+  tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
+}
+type CreateUserArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> & CreateUserPayload<TIntegration>
+
+type CreateConversationPayload<
+  TIntegration extends BaseIntegration,
+  TChannel extends keyof TIntegration['channels'] = keyof TIntegration['channels']
+> = {
+  channel: TChannel
+  tags: ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags'], PrefixConfig<TIntegration>>
+}
+type CreateConversationArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> &
+  CreateConversationPayload<TIntegration>
+
+type MessagePayload<
+  TIntegration extends BaseIntegration,
+  TChannel extends keyof TIntegration['channels'],
+  TMessage extends keyof TIntegration['channels'][TChannel]['messages']
+> = {
+  type: TMessage
+  payload: TIntegration['channels'][TChannel]['messages'][TMessage]
+  conversation: Merge<
+    Conversation,
+    {
+      tags: ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags'], PrefixConfig<TIntegration>>
+    }
+  >
+  message: Merge<
+    Message,
+    {
+      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags'], PrefixConfig<TIntegration>>
+    }
+  >
+  user: Merge<
+    User,
+    {
+      tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
+    }
+  >
+}
+type MessageArgs<
+  TIntegration extends BaseIntegration,
+  TChannel extends keyof TIntegration['channels'],
+  TMessage extends keyof TIntegration['channels'][TChannel]['messages']
+> = CommonArgs<TIntegration> &
+  MessagePayload<TIntegration, TChannel, TMessage> & {
+    ack: (props: {
+      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags'], PrefixConfig<TIntegration>>
+    }) => Promise<void>
+  }
+
+export type RegisterFunction<TIntegration extends BaseIntegration> = (
+  props: RegisterArgs<TIntegration>
+) => Promise<void>
+
+export type UnregisterFunction<TIntegration extends BaseIntegration> = (
+  props: UnregisterArgs<TIntegration>
+) => Promise<void>
+
+export type WebhookFunction<TIntegration extends BaseIntegration> = (
+  props: WebhookArgs<TIntegration>
+) => Promise<Response | void>
+
+export type ActionFunctions<TIntegration extends BaseIntegration> = {
+  [ActionType in keyof TIntegration['actions']]: (
+    props: ActionArgs<TIntegration, Cast<ActionType, string>, TIntegration['actions'][ActionType]['input']>
+  ) => Promise<TIntegration['actions'][ActionType]['output']>
+}
+
+export type CreateUserFunction<TIntegration extends BaseIntegration> = (
+  props: CreateUserArgs<TIntegration>
+) => Promise<Response | void>
+
+export type CreateConversationFunction<TIntegration extends BaseIntegration> = (
+  props: CreateConversationArgs<TIntegration>
+) => Promise<Response | void>
+
+export type ChannelFunctions<TIntegration extends BaseIntegration> = {
+  [ChannelName in keyof TIntegration['channels']]: {
+    messages: {
+      [MessageType in keyof TIntegration['channels'][ChannelName]['messages']]: (
+        props: CommonArgs<TIntegration> & MessageArgs<TIntegration, ChannelName, MessageType>
+      ) => Promise<void>
+    }
+  }
+}
+
+export type IntegrationHandlers<TIntegration extends BaseIntegration> = {
+  register: RegisterFunction<TIntegration>
+  unregister: UnregisterFunction<TIntegration>
+  webhook: WebhookFunction<TIntegration>
+  createUser?: CreateUserFunction<TIntegration>
+  createConversation?: CreateConversationFunction<TIntegration>
+  actions: ActionFunctions<TIntegration>
+  channels: ChannelFunctions<TIntegration>
+}
+
+type ServerProps<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> & {
+  req: Request
+  instance: IntegrationHandlers<TIntegration>
 }
 
 export const integrationHandler =
-  (integration: IntegrationImplementationProps) =>
-  // eslint-disable-next-line complexity
+  <TIntegration extends BaseIntegration>(instance: IntegrationHandlers<TIntegration>) =>
   async (req: Request): Promise<Response | void> => {
     const ctx = extractContext(req.headers)
-    const client = new Client({ botId: ctx.botId, integrationId: ctx.integrationId })
 
-    const props: OperationHandlerProps = {
-      integration,
+    const client = new IntegrationSpecificClient<TIntegration>(
+      new Client({ botId: ctx.botId, integrationId: ctx.integrationId })
+    )
+
+    const props = {
       ctx,
       req,
       client,
       logger: integrationLogger,
+      instance,
     }
 
     try {
       let response: Response | void
       switch (ctx.operation) {
         case 'webhook_received':
-          response = await onWebhook(props)
+          response = await onWebhook<TIntegration>(props)
           break
         case 'register':
-          response = await onRegister(props)
+          response = await onRegister<TIntegration>(props)
           break
         case 'unregister':
-          response = await onUnregister(props)
+          response = await onUnregister<TIntegration>(props)
           break
         case 'message_created':
-          response = await onMessageCreated(props)
+          response = await onMessageCreated<TIntegration>(props)
           break
         case 'action_triggered':
-          response = await onActionTriggered(props)
+          response = await onActionTriggered<TIntegration>(props)
           break
         case 'ping':
-          response = await onPing(props)
+          response = await onPing<TIntegration>(props)
           break
         case 'create_user':
-          response = await onCreateUser(props)
+          response = await onCreateUser<TIntegration>(props)
           break
         case 'create_conversation':
-          response = await onCreateConversation(props)
+          response = await onCreateConversation<TIntegration>(props)
           break
         default:
           throw new Error(`Unknown operation ${ctx.operation}`)
@@ -88,116 +188,85 @@ export const integrationHandler =
     }
   }
 
-function extractContext(headers: Record<string, string | undefined>): IntegrationContext {
-  const botId = headers[botIdHeader]
-  const botUserId = headers[botUserIdHeader]
-  const integrationId = headers[integrationIdHeader]
-  const webhookId = headers[webhookIdHeader]
-  const base64Configuration = headers[configurationHeader]
-  const operation = integrationOperationSchema.parse(headers[operationHeader])
+const onPing = async <TIntegration extends BaseIntegration>(_: ServerProps<TIntegration>) => {}
 
-  if (!botId) {
-    throw new Error('Missing bot headers')
-  }
-
-  if (!botUserId) {
-    throw new Error('Missing bot user headers')
-  }
-
-  if (!integrationId) {
-    throw new Error('Missing integration headers')
-  }
-
-  if (!webhookId) {
-    throw new Error('Missing webhook headers')
-  }
-
-  if (!base64Configuration) {
-    throw new Error('Missing configuration headers')
-  }
-
-  if (!operation) {
-    throw new Error('Missing operation headers')
-  }
-
-  return {
-    botId,
-    botUserId,
-    integrationId,
-    webhookId,
-    operation,
-    configuration: base64Configuration ? JSON.parse(Buffer.from(base64Configuration, 'base64').toString('utf-8')) : {},
-  }
-}
-
-function parseBody<T>(req: Request): T {
-  if (!req.body) {
-    throw new Error('Missing body')
-  }
-
-  return JSON.parse(req.body)
-}
-
-// TODO implement the ping operation once the signature is defined
-async function onPing(_: OperationHandlerProps) {}
-
-async function onWebhook({ client, ctx, integration, req: incomingRequest, logger }: OperationHandlerProps) {
+const onWebhook = async <TIntegration extends BaseIntegration>({
+  client,
+  ctx,
+  req: incomingRequest,
+  logger,
+  instance,
+}: ServerProps<TIntegration>) => {
   const { req } = parseBody<WebhookPayload>(incomingRequest)
-  return integration.handler({ client, ctx, req, logger })
+  return instance.webhook({ client, ctx, req, logger })
 }
 
-async function onRegister({ client, ctx, integration, req, logger }: OperationHandlerProps) {
-  if (!integration.register) {
+const onRegister = async <TIntegration extends BaseIntegration>({
+  client,
+  ctx,
+  req,
+  logger,
+  instance,
+}: ServerProps<TIntegration>) => {
+  if (!instance.register) {
     return
   }
-
   const { webhookUrl } = parseBody<RegisterPayload>(req)
-
-  await integration.register({ client, ctx, webhookUrl, logger })
+  await instance.register({ client, ctx, webhookUrl, logger })
 }
 
-async function onUnregister({ client, ctx, integration, req, logger }: OperationHandlerProps) {
-  if (!integration.unregister) {
+const onUnregister = async <TIntegration extends BaseIntegration>({
+  client,
+  ctx,
+  req,
+  logger,
+  instance,
+}: ServerProps<TIntegration>) => {
+  if (!instance.unregister) {
     return
   }
-
   const { webhookUrl } = parseBody<UnregisterPayload>(req)
-
-  await integration.unregister({ ctx, webhookUrl, client, logger })
+  await instance.unregister({ ctx, webhookUrl, client, logger })
 }
 
-async function onCreateUser({ client, ctx, integration, req, logger }: OperationHandlerProps) {
-  if (!integration.createUser) {
+const onCreateUser = async <TIntegration extends BaseIntegration>({
+  client,
+  ctx,
+  req,
+  logger,
+  instance,
+}: ServerProps<TIntegration>) => {
+  if (!instance.createUser) {
     return
   }
-
-  const { tags } = parseBody<CreateUserPayload>(req)
-
-  return await integration.createUser({ ctx, client, tags, logger })
+  const { tags } = parseBody<CreateUserPayload<TIntegration>>(req)
+  return await instance.createUser({ ctx, client, tags, logger })
 }
 
-async function onCreateConversation({ client, ctx, integration, req, logger }: OperationHandlerProps) {
-  if (!integration.createConversation) {
+const onCreateConversation = async <TIntegration extends BaseIntegration>({
+  client,
+  ctx,
+  req,
+  logger,
+  instance,
+}: ServerProps<TIntegration>) => {
+  if (!instance.createConversation) {
     return
   }
-
-  const { channel, tags } = parseBody<CreateConversationPayload>(req)
-
-  return await integration.createConversation({ ctx, client, channel, tags, logger })
+  const { channel, tags } = parseBody<CreateConversationPayload<TIntegration>>(req)
+  return await instance.createConversation({ ctx, client, channel, tags, logger })
 }
 
-export type MessageCreatedPayload = {
-  conversation: Conversation
-  user: User
-  message: Message
-  payload: any
-  type: string
-}
+const onMessageCreated = async <TIntegration extends BaseIntegration>({
+  ctx,
+  req,
+  client,
+  logger,
+  instance,
+}: ServerProps<TIntegration>) => {
+  const { conversation, user, type, payload, message } = parseBody<MessagePayload<TIntegration, string, string>>(req)
 
-async function onMessageCreated({ ctx, integration, req, client, logger }: OperationHandlerProps) {
-  const { conversation, user, type, payload, message } = parseBody<MessageCreatedPayload>(req)
-
-  const channelHandler = integration.channels[conversation.channel]
+  const channelHandler = instance.channels[conversation.channel]
 
   if (!channelHandler) {
     throw new Error(`Channel ${conversation.channel} not found`)
@@ -209,24 +278,30 @@ async function onMessageCreated({ ctx, integration, req, client, logger }: Opera
     throw new Error(`Message of type ${type} not found in channel ${conversation.channel}`)
   }
 
-  const ack = async ({ tags }: { tags: { [key: string]: string } }) => {
+  const ack = async ({ tags }: { tags: Record<string, string> }) => {
     await client.updateMessage({
       id: message.id,
-      tags,
+      tags: tags as any, // TODO: fix this
     })
   }
 
   await messageHandler({ ctx, conversation, message, user, type, client, payload, ack, logger })
 }
 
-async function onActionTriggered({ req, integration, ctx, client, logger }: OperationHandlerProps) {
+const onActionTriggered = async <TIntegration extends BaseIntegration>({
+  req,
+  ctx,
+  client,
+  logger,
+  instance,
+}: ServerProps<TIntegration>) => {
   const { input, type } = parseBody<ActionPayload<string, any>>(req)
 
   if (!type) {
     throw new Error('Missing action type')
   }
 
-  const action = integration.actions[type]
+  const action = instance.actions[type]
 
   if (!action) {
     throw new Error(`Action ${type} not found`)
