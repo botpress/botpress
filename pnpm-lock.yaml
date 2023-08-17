@@ -60,14 +60,14 @@ importers:
         specifier: 0.3.2
         version: link:../../packages/client
       '@botpress/sdk':
-        specifier: 0.2.3
+        specifier: 0.3.0
         version: link:../../packages/sdk
       zod:
         specifier: ^3.20.6
         version: 3.21.4
     devDependencies:
       '@botpress/cli':
-        specifier: 0.2.9
+        specifier: 0.3.0
         version: link:../../packages/cli
       '@types/node':
         specifier: ^18.11.17
@@ -1043,7 +1043,7 @@ importers:
         version: 3.21.4
     devDependencies:
       '@botpress/sdk':
-        specifier: 0.2.3
+        specifier: 0.3.0
         version: link:../sdk
       '@bpinternal/log4bot':
         specifier: ^0.0.4
@@ -1085,7 +1085,7 @@ importers:
         specifier: 0.3.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.2.3
+        specifier: 0.3.0
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1107,7 +1107,7 @@ importers:
         specifier: 0.3.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.2.3
+        specifier: 0.3.0
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
