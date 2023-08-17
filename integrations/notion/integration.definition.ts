@@ -18,41 +18,6 @@ export default new IntegrationDefinition({
       authToken: z.string().min(1),
     }),
   },
-  channels: {
-    comments: {
-      messages: {
-        /**
-         * Adds a page level comment
-         */
-        text: {
-          schema: z.object({
-            pageId: z.string().min(1),
-            commentBody: z.string(),
-          }),
-        },
-        discussion: {
-          schema: z.object({
-            discussionId: z.string().min(1),
-            commentBody: z.string(),
-          }),
-        },
-      },
-      message: {
-        tags: {
-          id: {},
-        },
-      },
-      conversation: {
-        creation: {
-          enabled: true,
-          requiredTags: [],
-        },
-        tags: {
-          id: {},
-        },
-      },
-    },
-  },
   user: { tags: { id: {} } },
   actions: {
     addPageToDb: {
