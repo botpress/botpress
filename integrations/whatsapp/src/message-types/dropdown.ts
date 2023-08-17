@@ -35,7 +35,7 @@ export function* generateOutgoingMessages({
     for (const chunk of chunks) {
       const section = new ListSection(
         truncate(text, ACTION_LABEL_MAX_LENGTH),
-        ...chunk.map((o) => new Row(o.value.substring(0, 200), truncate(o.label, ACTION_LABEL_MAX_LENGTH)))
+        ...chunk.map((o) => new Row(o.value.substring(0, 200), truncate(o.label, ACTION_LABEL_MAX_LENGTH), ' ')) // NOTE: The description parameter is optional as per Whatsapp's documentation, but have a bug that actually enforces the description to be a non-empty string.
       )
       const actionList = new ActionList('Choose...', section)
 
