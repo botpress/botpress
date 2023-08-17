@@ -505,6 +505,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@botpress/sdk-addons':
+        specifier: workspace:*
+        version: link:../../packages/sdk-addons
       '@notionhq/client':
         specifier: ^2.2.7
         version: 2.2.7

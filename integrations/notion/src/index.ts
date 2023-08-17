@@ -1,5 +1,5 @@
+import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { addCommentToDiscussion, addCommentToPage, addPageToDb, deleteBlock, getDb } from './actions'
-import { discussion, text } from './channels'
 import * as botpress from '.botpress'
 
 const logger = console
@@ -11,7 +11,7 @@ class NotImplementedError extends Error {
   }
 }
 
-export default new botpress.Integration({
+const integration = new botpress.Integration({
   createConversation: async ({ client, channel }) => {
     const { conversation } = await client.getOrCreateConversation({
       channel,
@@ -23,6 +23,7 @@ export default new botpress.Integration({
       statusCode: 200,
     }
   },
+  channels: {},
   register: async () => {},
   unregister: async () => {},
   actions: {
@@ -32,15 +33,9 @@ export default new botpress.Integration({
     addPageToDb,
     getDb,
   },
-  channels: {
-    comments: {
-      messages: {
-        text,
-        discussion,
-      },
-    },
-  },
   handler: async () => {
     throw new NotImplementedError()
   },
 })
+
+export default sentryHelpers.wrapIntegration(integration)
