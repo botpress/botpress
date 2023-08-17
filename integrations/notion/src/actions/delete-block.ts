@@ -6,11 +6,11 @@ export const deleteBlock: IntegrationProps['actions']['deleteBlock'] = async ({ 
     const response = await notion.deleteBlock(ctx, input.blockId)
     if (response) {
       console.info('Successfully deleted the block')
-      return { success: true, response }
+      return {}
     } else {
-      return { success: false }
+      return {}
     }
   } catch (error) {
-    return { success: false }
+    return {}
   }
 }

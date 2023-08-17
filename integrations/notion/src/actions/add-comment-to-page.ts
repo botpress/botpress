@@ -6,11 +6,11 @@ export const addCommentToPage: IntegrationProps['actions']['addCommentToPage'] =
     const response = await notion.addCommentToPage(ctx, input.pageId, input.commentBody)
     if (response) {
       console.info('Successfully added comment to page')
-      return { success: true, response }
+      return {}
     } else {
-      return { success: false }
+      return {}
     }
   } catch (error) {
-    return { success: false }
+    return {}
   }
 }

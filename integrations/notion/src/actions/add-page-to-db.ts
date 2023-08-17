@@ -6,11 +6,11 @@ export const addPageToDb: IntegrationProps['actions']['addPageToDb'] = async ({ 
     const response = await notion.addPageToDb(ctx, input.databaseId, input.pageProperties as any)
     if (response) {
       console.info('Successfully added page to database')
-      return { success: true, response }
+      return {}
     } else {
-      return { success: false }
+      return {}
     }
   } catch (error) {
-    return { success: false }
+    return {}
   }
 }
