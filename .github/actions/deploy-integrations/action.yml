@@ -45,7 +45,7 @@ runs:
       shell: bash
       run: |
         script_path="./.github/scripts/ls-sentry-integrations.sh"
-        chmod +x script_path
+        chmod +x $script_path
         filter=$($script_path)
         echo "::set-output name=filter::$filter"
     - name: Inject SourceMaps
