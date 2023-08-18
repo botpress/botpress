@@ -17,7 +17,6 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "@botpress/integrations-testing": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "axios": "1.2.5",
     "uuid": "^9.0.0",

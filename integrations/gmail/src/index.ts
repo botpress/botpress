@@ -53,49 +53,49 @@ const integration = new Integration({
           })
         },
         image: async (props) => {
-          log.log('conversation', props.conversation)
-          log.log('message', props.message)
-          log.log('user', props.user)
+          log.info('conversation', props.conversation)
+          log.info('message', props.message)
+          log.info('user', props.user)
         },
         markdown: async (props) => {
-          log.log('conversation', props.conversation)
-          log.log('message', props.message)
-          log.log('user', props.user)
+          log.info('conversation', props.conversation)
+          log.info('message', props.message)
+          log.info('user', props.user)
         },
         audio: async (props) => {
-          log.log('conversation', props.conversation)
-          log.log('message', props.message)
-          log.log('user', props.user)
+          log.info('conversation', props.conversation)
+          log.info('message', props.message)
+          log.info('user', props.user)
         },
         video: async (props) => {
-          log.log('conversation', props.conversation)
-          log.log('message', props.message)
-          log.log('user', props.user)
+          log.info('conversation', props.conversation)
+          log.info('message', props.message)
+          log.info('user', props.user)
         },
         file: async (props) => {
-          log.log('conversation', props.conversation)
-          log.log('message', props.message)
-          log.log('user', props.user)
+          log.info('conversation', props.conversation)
+          log.info('message', props.message)
+          log.info('user', props.user)
         },
         location: async (props) => {
-          log.log('conversation', props.conversation)
-          log.log('message', props.message)
-          log.log('user', props.user)
+          log.info('conversation', props.conversation)
+          log.info('message', props.message)
+          log.info('user', props.user)
         },
         card: async (props) => {
-          log.log('conversation', props.conversation)
-          log.log('message', props.message)
-          log.log('user', props.user)
+          log.info('conversation', props.conversation)
+          log.info('message', props.message)
+          log.info('user', props.user)
         },
         carousel: async (props) => {
-          log.log('conversation', props.conversation)
-          log.log('message', props.message)
-          log.log('user', props.user)
+          log.info('conversation', props.conversation)
+          log.info('message', props.message)
+          log.info('user', props.user)
         },
         dropdown: async (props) => {
-          log.log('conversation', props.conversation)
-          log.log('message', props.message)
-          log.log('user', props.user)
+          log.info('conversation', props.conversation)
+          log.info('message', props.message)
+          log.info('user', props.user)
         },
         choice: async ({ client, conversation, ctx, payload, ack }) => {
           log.info('sending email')
@@ -390,7 +390,7 @@ async function onOAuth({ req, client, ctx }: handlerProps) {
       type: 'integration',
       name: 'configuration',
       id: ctx.integrationId,
-      payload: { refreshToken: tokens.refresh_token },
+      payload: { refreshToken: tokens.refresh_token! },
     }),
     gmail.users.watch({
       userId: 'me',

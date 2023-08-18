@@ -1,6 +1,4 @@
-import type { Client } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { name } from 'integration.definition'
 import queryString from 'query-string'
 import { WhatsAppAPI, Types } from 'whatsapp-api-js'
 import { createConversation } from './conversation'
@@ -18,6 +16,7 @@ export type CreateConversationPayload = {
 }
 export type IntegrationLogger = Parameters<IntegrationProps['handler']>[0]['logger']
 export type IntegrationContext = Parameters<IntegrationProps['handler']>[0]['ctx']
+export type Client = Parameters<IntegrationProps['handler']>[0]['client']
 
 sentryHelpers.init({
   dsn: secrets.SENTRY_DSN,
@@ -178,16 +177,16 @@ async function handleMessage(
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        [`${name}:userPhone`]: message.from,
-        [`${name}:phoneNumberId`]: value.metadata.phone_number_id,
+        userPhone: message.from,
+        phoneNumberId: value.metadata.phone_number_id,
       },
     })
 
     if (value.contacts.length > 0) {
       const { user } = await client.getOrCreateUser({
         tags: {
-          [`${name}:userId`]: value.contacts[0] ? value.contacts[0].wa_id : '',
-          [`${name}:name`]: value.contacts[0] ? value.contacts[0]?.profile.name : '',
+          userId: value.contacts[0] ? value.contacts[0].wa_id : '',
+          name: value.contacts[0] ? value.contacts[0]?.profile.name : '',
         },
       })
 
@@ -195,7 +194,7 @@ async function handleMessage(
         logger.forBot().debug('Received text message from Whatsapp:', message.text.body)
 
         await client.createMessage({
-          tags: { [`${name}:id`]: message.id },
+          tags: { id: message.id },
           type: 'text',
           payload: { text: message.text.body },
           userId: user.id,
@@ -206,11 +205,12 @@ async function handleMessage(
           logger.forBot().debug('Received button reply from Whatsapp:', message.interactive.button_reply)
 
           await client.createMessage({
-            tags: { [`${name}:id`]: message.id },
+            tags: { id: message.id },
             type: 'text',
             payload: {
-              text: message.interactive.button_reply?.id,
-              metadata: message.interactive.button_reply?.title,
+              text: message.interactive.button_reply?.id!,
+              // TODO: declare in definition
+              // metadata: message.interactive.button_reply?.title,
             },
             userId: user.id,
             conversationId: conversation.id,
@@ -219,11 +219,12 @@ async function handleMessage(
           logger.forBot().debug('Received list reply from Whatsapp:', message.interactive.list_reply)
 
           await client.createMessage({
-            tags: { [`${name}:id'`]: message.id },
+            tags: { id: message.id },
             type: 'text',
             payload: {
-              text: message.interactive.list_reply?.id,
-              metadata: message.interactive.list_reply?.title,
+              text: message.interactive.list_reply?.id!,
+              // TODO: declare in definition
+              // metadata: message.interactive.list_reply?.title,
             },
             userId: user.id,
             conversationId: conversation.id,

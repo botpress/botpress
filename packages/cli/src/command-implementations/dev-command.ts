@@ -1,14 +1,13 @@
 import type * as bpclient from '@botpress/client'
-import type { Bot as BotImpl, IntegrationDefinition } from '@botpress/sdk'
+import type * as bpsdk from '@botpress/sdk'
 import { TunnelRequest, TunnelResponse } from '@bpinternal/tunnel'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import chalk from 'chalk'
-import _ from 'lodash'
 import * as pathlib from 'path'
 import * as uuid from 'uuid'
 import { prepareUpdateBotBody } from '../api/bot-body'
 import type { ApiClient } from '../api/client'
-import { prepareUpdateIntegrationBody } from '../api/integration-body'
+import { prepareUpdateIntegrationBody, CreateIntegrationBody } from '../api/integration-body'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import * as utils from '../utils'
@@ -22,7 +21,7 @@ const TUNNEL_HELLO_INTERVAL = 5000
 
 export type DevCommandDefinition = typeof commandDefinitions.dev
 export class DevCommand extends ProjectCommand<DevCommandDefinition> {
-  private _initialDef: IntegrationDefinition | undefined = undefined
+  private _initialDef: bpsdk.IntegrationDefinition | undefined = undefined
 
   public async run(): Promise<void> {
     this.logger.warn('This command is experimental and subject to breaking changes without notice.')
@@ -149,7 +148,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     }
   }
 
-  private _checkSecrets(integrationDef: IntegrationDefinition) {
+  private _checkSecrets(integrationDef: bpsdk.IntegrationDefinition) {
     const initialSecrets = this._initialDef?.secrets ?? []
     const currentSecrets = integrationDef.secrets ?? []
     const newSecrets = currentSecrets.filter((s) => !initialSecrets.includes(s))
@@ -184,7 +183,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   private async _deployDevIntegration(
     api: ApiClient,
     externalUrl: string,
-    integrationDef: IntegrationDefinition
+    integrationDef: bpsdk.IntegrationDefinition
   ): Promise<void> {
     const devId = await this.projectCache.get('devId')
 
@@ -207,9 +206,14 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying dev integration ${chalk.bold(integrationDef.name)}...`)
 
+    const integrationBody: CreateIntegrationBody = {
+      ...this.parseIntegrationDefinition(integrationDef),
+      url: externalUrl,
+    }
+
     if (integration) {
       const updateIntegrationBody = prepareUpdateIntegrationBody(
-        { ...integrationDef, id: integration.id, url: externalUrl },
+        { ...integrationBody, id: integration.id },
         integration
       )
 
@@ -218,11 +222,9 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       })
       integration = resp.integration
     } else {
-      const resp = await api.client
-        .createIntegration({ ...integrationDef, dev: true, url: externalUrl })
-        .catch((thrown) => {
-          throw errors.BotpressCLIError.wrap(thrown, `Could not deploy dev integration "${integrationDef.name}"`)
-        })
+      const resp = await api.client.createIntegration({ ...integrationBody, dev: true }).catch((thrown) => {
+        throw errors.BotpressCLIError.wrap(thrown, `Could not deploy dev integration "${integrationDef.name}"`)
+      })
       integration = resp.integration
     }
 
@@ -267,22 +269,16 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     }
 
     const outfile = this.projectPaths.abs.outFile
-    const { default: botImpl } = utils.require.requireJsFile<{ default: BotImpl }>(outfile)
+    const { default: botImpl } = utils.require.requireJsFile<{ default: bpsdk.Bot }>(outfile)
 
     const updateLine = this.logger.line()
     updateLine.started('Deploying dev bot...')
 
-    const integrations = _(botImpl.definition.integrations ?? [])
-      .keyBy((i) => i.id)
-      .mapValues(({ enabled, configuration }) => ({ enabled, configuration }))
-      .value()
-
     const updateBotBody = prepareUpdateBotBody(
       {
-        ...botImpl.definition,
         id: bot.id,
-        integrations,
         url: externalUrl,
+        ...this.parseBot(botImpl),
       },
       bot
     )
