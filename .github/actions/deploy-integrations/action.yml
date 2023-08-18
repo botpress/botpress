@@ -50,10 +50,10 @@ runs:
         echo "::set-output name=filter::$filter"
     - name: Inject SourceMaps
       shell: bash
-      run: pnpm -r --stream "${{ steps.list_sentry_integrations.outputs.filter }}" exec sentry-cli sourcemaps inject .botpress/dist
+      run: pnpm -r --stream ${{ steps.list_sentry_integrations.outputs.filter }} exec sentry-cli sourcemaps inject .botpress/dist
     - name: Upload SourceMaps
       shell: bash
-      run: pnpm -r --stream "${{ steps.list_sentry_integrations.outputs.filter }}" exec sentry-cli sourcemaps upload --release=${{ github.sha }} --url-prefix '~' .botpress/dist
+      run: pnpm -r --stream ${{ steps.list_sentry_integrations.outputs.filter }} exec sentry-cli sourcemaps upload --release=${{ github.sha }} --url-prefix '~' .botpress/dist
       env:
         SENTRY_AUTH_TOKEN: ${{ inputs.sentry_auth_token }}
         SENTRY_ORG: botpress-rm
