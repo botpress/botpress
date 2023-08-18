@@ -120,7 +120,7 @@ importers:
         version: link:../../packages/client
       '@botpress/sdk':
         specifier: 0.2.3
-        version: link:../../packages/sdk
+        version: 0.2.3
       zod:
         specifier: ^3.20.6
         version: 3.21.4
@@ -1025,9 +1025,6 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
-      '@botpress/integrations-testing':
-        specifier: workspace:*
-        version: link:../@testing
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -1854,6 +1851,16 @@ packages:
       - openapi-types
     dev: true
 
+  /@botpress/client@0.3.2:
+    resolution: {integrity: sha512-iPHlH4tZkNEOo/TetY7vUKM6o+BtlFe1703QWUtTqo2MnjtNlPtsCzPUJVMVqTojKhqu9QXnB4d0EVU36L73zw==}
+    dependencies:
+      axios: 1.2.5
+      browser-or-node: 2.1.1
+      type-fest: 3.11.1
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /@botpress/messaging-base@1.2.0:
     resolution: {integrity: sha512-7cjHeD1Ti4cvDmyUV2D2CFKR1kPYv+eFPgXaJOksvrEoNZ1SrqXbHR9l26ndaAz0TuoX3Wc9l4Q7i5sBoHE44Q==}
     dev: false
@@ -1865,6 +1872,18 @@ packages:
       axios: 0.21.4(debug@4.3.4)
       cookie: 0.4.2
       joi: 17.9.2
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /@botpress/sdk@0.2.3:
+    resolution: {integrity: sha512-s3yicqSY57vQMVoSn2xcrGf8uJ2zqFO8JEoRQtKdskOI7QaaNR+4kDr5p9UtR5P0k84f3kZdPeL1daxEmi4TdQ==}
+    dependencies:
+      '@botpress/client': 0.3.2
+      axios: 0.27.2
+      radash: 9.5.0
+      zod: 3.21.4
+      zod-to-json-schema: 3.21.4(zod@3.21.4)
     transitivePeerDependencies:
       - debug
     dev: false
@@ -10452,6 +10471,14 @@ packages:
   /yocto-queue@1.0.0:
     resolution: {integrity: sha512-9bnSc/HEW2uRy67wc+T8UwauLuPJVn28jb+GtJY16iiKWyvmYJRXVT4UamsAEGQfPohgr2q4Tq0sQbQlxTfi1g==}
     engines: {node: '>=12.20'}
+
+  /zod-to-json-schema@3.21.4(zod@3.21.4):
+    resolution: {integrity: sha512-fjUZh4nQ1s6HMccgIeE0VP4QG/YRGPmyjO9sAh890aQKPEk3nqbfUXhMFaC+Dr5KvYBm8BCyvfpZf2jY9aGSsw==}
+    peerDependencies:
+      zod: ^3.21.4
+    dependencies:
+      zod: 3.21.4
+    dev: false
 
   /zod@1.11.17:
     resolution: {integrity: sha512-UzIwO92D0dSFwIRyyqAfRXICITLjF0IP8tRbEK/un7adirMssWZx8xF/1hZNE7t61knWZ+lhEuUvxlu2MO8qqA==}
