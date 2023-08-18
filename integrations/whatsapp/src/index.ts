@@ -62,9 +62,12 @@ const integration = new Integration({
           })
         },
         file: async ({ payload, ...props }) => {
+          const extension = payload.fileUrl.includes('.') ? payload.fileUrl.split('.').pop()?.toLowerCase() ?? '' : ''
+          const filename = 'file' + (extension ? `.${extension}` : '')
+
           await outgoing.send({
             ...props,
-            message: new Media.Document(payload.fileUrl, false),
+            message: new Media.Document(payload.fileUrl, false, payload.title, filename),
           })
         },
         location: async ({ payload, ...props }) => {
