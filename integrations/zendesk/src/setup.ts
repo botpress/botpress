@@ -3,7 +3,11 @@ import { getZendeskClient } from './client'
 import { Triggers } from './triggers'
 
 export const register: IntegrationProps['register'] = async ({ client, ctx, webhookUrl, logger }) => {
-  await unregister({ ctx, client, webhookUrl, logger })
+  try {
+    await unregister({ ctx, client, webhookUrl, logger })
+  } catch (err) {
+    // silent catch since if it's the first time, there's nothing to unregister
+  }
 
   const zendeskClient = getZendeskClient(ctx.configuration)
   const subscriptionId = await zendeskClient.subscribeWebhook(webhookUrl)
