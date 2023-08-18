@@ -122,4 +122,4 @@ class ZendeskApi {
 }
 
 export const getZendeskClient = (config: botpress.configuration.Configuration) =>
-  new ZendeskApi(config.organizationDomain, config.username, config.apiToken)
+  new ZendeskApi(config.baseURL, config.username, config.apiToken)

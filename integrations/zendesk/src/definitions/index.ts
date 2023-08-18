@@ -7,7 +7,7 @@ export { channels } from './channels'
 
 export const configuration = {
   schema: z.object({
-    organizationDomain: z.string({
+    baseURL: z.string({
       description: 'Your zendesk organization subdomain. e.g. https://{subdomain}.zendesk.com',
     }),
     username: z.string({
