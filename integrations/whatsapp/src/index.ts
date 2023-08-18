@@ -62,9 +62,12 @@ const integration = new Integration({
           })
         },
         file: async ({ payload, ...props }) => {
+          const extension = payload.fileUrl.includes('.') ? payload.fileUrl.split('.').pop()?.toLowerCase() ?? '' : ''
+          const filename = 'file' + (extension ? `.${extension}` : '')
+
           await outgoing.send({
             ...props,
-            message: new Media.Document(payload.fileUrl, false),
+            message: new Media.Document(payload.fileUrl, false, payload.title, filename),
           })
         },
         location: async ({ payload, ...props }) => {
@@ -87,7 +90,20 @@ const integration = new Integration({
           })
         },
         choice: async ({ payload, logger, ...props }) => {
-          await outgoing.sendMany({ ...props, logger, generator: choice.generateOutgoingMessages({ payload, logger }) })
+          if (payload.options.length <= choice.INTERACTIVE_MAX_BUTTONS_COUNT) {
+            await outgoing.sendMany({
+              ...props,
+              logger,
+              generator: choice.generateOutgoingMessages({ payload, logger }),
+            })
+          } else {
+            // If choice options exceeds the maximum number of buttons allowed by Whatsapp we use a dropdown instead to avoid buttons being split into multiple groups with a repeated message.
+            await outgoing.sendMany({
+              ...props,
+              logger,
+              generator: dropdown.generateOutgoingMessages({ payload, logger }),
+            })
+          }
         },
       },
     },
