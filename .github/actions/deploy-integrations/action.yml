@@ -40,12 +40,20 @@ input:
 runs:
   using: 'composite'
   steps:
+    - name: List Sentry Integrations
+      id: list_sentry_integrations
+      shell: bash
+      run: |
+        script_path="./.github/scripts/ls-sentry-integrations.sh"
+        chmod +x $script_path
+        filter=$($script_path)
+        echo "::set-output name=filter::$filter"
     - name: Inject SourceMaps
       shell: bash
-      run: pnpm -r --stream -F @botpresshub/* exec sentry-cli sourcemaps inject .botpress/dist
+      run: pnpm -r --stream ${{ steps.list_sentry_integrations.outputs.filter }} exec sentry-cli sourcemaps inject .botpress/dist
     - name: Upload SourceMaps
       shell: bash
-      run: pnpm -r --stream -F @botpresshub/* exec sentry-cli sourcemaps upload --release=${{ github.sha }} --url-prefix '~' .botpress/dist
+      run: pnpm -r --stream ${{ steps.list_sentry_integrations.outputs.filter }} exec sentry-cli sourcemaps upload --release=${{ github.sha }} --url-prefix '~' .botpress/dist
       env:
         SENTRY_AUTH_TOKEN: ${{ inputs.sentry_auth_token }}
         SENTRY_ORG: botpress-rm
