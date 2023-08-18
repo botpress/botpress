@@ -23,7 +23,8 @@ jobs:
           script_path="./.github/scripts/ls-sentry-integrations.sh"
           chmod +x $script_path
           filter=$($script_path)
-          echo "$filter"
+          echo "pnpm -r --stream $filter exec sentry-cli sourcemaps inject .botpress/dist"
+
       - name: Setup Tilt
         uses: ./.github/actions/setup-tilt
       - name: Deploy Integrations
