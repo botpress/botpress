@@ -108,9 +108,9 @@ class ZendeskApi {
     return data.ticket
   }
 
-  public async getAvailableAgents(): Promise<ZendeskUser[]> {
+  public async getAgents(online?: boolean): Promise<ZendeskUser[]> {
     const { data } = await this.client.get<{ users: ZendeskUser[] }>('/api/v2/users.json?role=agent')
-    return data.users.filter((user) => user.user_fields?.availability === 'online')
+    return online ? data.users.filter((user) => user.user_fields?.availability === 'online') : data.users
   }
 
   public async updateUser(userId: number | string, fields: object): Promise<ZendeskUser> {

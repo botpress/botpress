@@ -99,9 +99,25 @@ const findCustomer = {
   },
 }
 
+const listAgents = {
+  title: 'List Agents',
+  description: 'List agents',
+  input: {
+    schema: z.object({
+      isOnline: z.boolean().optional().default(true).describe('Only return agents that are currently online'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      agents: z.array(userSchema),
+    }),
+  },
+}
+
 export const actions = {
   getTicket,
   findCustomer,
   createTicket,
   closeTicket,
+  listAgents,
 }

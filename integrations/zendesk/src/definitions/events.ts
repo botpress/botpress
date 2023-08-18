@@ -7,6 +7,7 @@ const ticketAssigned = {
     type: z.string(),
     comment: z.string(),
     ticketId: z.string(),
+    agentName: z.string(),
   }),
   ui: {},
 }
