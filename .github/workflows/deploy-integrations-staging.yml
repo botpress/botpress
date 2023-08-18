@@ -16,6 +16,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
+      - name: List Sentry Integrations
+        id: list_sentry_integrations
+        shell: bash
+        run: |
+          script_path="./.github/scripts/ls-sentry-integrations.sh"
+          chmod +x $script_path
+          filter=$($script_path)
+          echo "$filter"
       - name: Setup Tilt
         uses: ./.github/actions/setup-tilt
       - name: Deploy Integrations
