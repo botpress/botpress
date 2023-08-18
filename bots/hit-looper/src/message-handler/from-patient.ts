@@ -6,8 +6,6 @@ export const patientMessageHandler: MessageHandler = async ({ message, client, c
   const upstreamFlow = await getOrCreateFlow({ client, conversationId: upstream.id }, { hitlEnabled: false })
   if (!upstreamFlow.hitlEnabled) {
     if (message.payload.text === '/start_hitl') {
-      console.debug('Debug 1')
-
       const { output } = await client.callAction({
         type: 'zendesk:createTicket',
         input: {
@@ -21,8 +19,6 @@ export const patientMessageHandler: MessageHandler = async ({ message, client, c
 
       const downstreamId = output.conversationId
 
-      console.debug('Debug 2', downstreamId)
-
       await client.updateConversation({
         id: upstream.id,
         participantIds: [], // not used by the backend (this is a bug)
@@ -30,8 +26,6 @@ export const patientMessageHandler: MessageHandler = async ({ message, client, c
           downstream: downstreamId,
         },
       })
-
-      console.debug('Debug 3')
 
       await client.updateConversation({
         id: downstreamId,
@@ -41,19 +35,12 @@ export const patientMessageHandler: MessageHandler = async ({ message, client, c
         },
       })
 
-      console.debug('Debug 4')
-
       await setFlow({ client, conversationId: upstream.id }, { hitlEnabled: true })
-
-      console.debug('Debug 5')
 
       await setFlow({ client, conversationId: downstreamId }, { hitlEnabled: true })
 
-      console.debug('Debug 6')
-
       await respond({ client, conversationId: upstream.id, ctx }, 'Transfering you to a human agent...')
 
-      console.debug('Debug 7')
       return
     }
 
