@@ -1,5 +1,4 @@
 import { IntegrationDefinition } from '@botpress/sdk'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { z } from 'zod'
 import { name } from './package.json'
 
@@ -74,5 +73,4 @@ export default new IntegrationDefinition({
       },
     },
   },
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
 })

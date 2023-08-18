@@ -1,4 +1,3 @@
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { addCommentToDiscussion, addCommentToPage, addPageToDb, deleteBlock, getDb } from './actions'
 import * as botpress from '.botpress'
 
@@ -11,7 +10,7 @@ class NotImplementedError extends Error {
   }
 }
 
-const integration = new botpress.Integration({
+export default new botpress.Integration({
   createConversation: async ({ client, channel }) => {
     const { conversation } = await client.getOrCreateConversation({
       channel,
@@ -37,5 +36,3 @@ const integration = new botpress.Integration({
     throw new NotImplementedError()
   },
 })
-
-export default sentryHelpers.wrapIntegration(integration)
