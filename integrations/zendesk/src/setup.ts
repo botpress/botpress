@@ -17,6 +17,19 @@ export const register: IntegrationProps['register'] = async ({ client, ctx, webh
     return
   }
 
+  const user = await zendeskClient.createOrUpdateUser({
+    role: 'end-user',
+    external_id: ctx.botUserId,
+    name: 'Botpress',
+  })
+
+  await client.updateUser({
+    id: ctx.botUserId,
+    tags: {
+      'zendesk:id': `${user.id}`,
+    },
+  })
+
   const triggersCreated: string[] = []
 
   try {

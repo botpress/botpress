@@ -1,6 +1,26 @@
 import z from 'zod'
 import { ticketSchema, userSchema } from './schemas'
 
+const startTicketConversation = {
+  title: 'Create Conversation',
+  description: 'Proactively create a botpress conversation on a zendesk ticket',
+  input: {
+    schema: z.object({
+      ticketId: z.string().describe('The ID of the ticket'),
+    }),
+    ui: {
+      ticketId: {
+        title: 'Ticket id',
+      },
+    },
+  },
+  output: {
+    schema: z.object({
+      conversationId: z.string().describe('The ID of the conversation'),
+    }),
+  },
+}
+
 const createTicket = {
   title: 'Create Ticket',
   description: 'Creates a new ticket in Zendesk',
@@ -10,7 +30,6 @@ const createTicket = {
       comment: z.string().describe('Comment for the ticket'),
       requesterName: z.string().describe('Requester name'),
       requesterEmail: z.string().describe('Requester email'),
-      __conversationId: z.string().describe('Internal: Conversation ID to bind the ticket to'),
     }),
     ui: {
       subject: {
@@ -30,8 +49,6 @@ const createTicket = {
   output: {
     schema: z.object({
       ticket: ticketSchema,
-      conversationId: z.string(),
-      userId: z.string(),
     }),
   },
 }
@@ -120,4 +137,5 @@ export const actions = {
   createTicket,
   closeTicket,
   listAgents,
+  startTicketConversation,
 }

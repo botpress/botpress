@@ -1,12 +1,12 @@
-import type { Client } from '@botpress/client'
 import type { TriggerPayload } from 'src/triggers'
+import * as bp from '.botpress'
 
 export const executeTicketSolved = async ({
   zendeskTrigger,
   client,
 }: {
   zendeskTrigger: TriggerPayload
-  client: Client
+  client: bp.Client
 }) => {
   await client.createEvent({
     type: 'ticketSolved',

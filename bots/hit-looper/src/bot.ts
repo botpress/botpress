@@ -18,12 +18,6 @@ export const bot = new botpress.Bot({
       schema: z.object({
         hitlEnabled: z.boolean(),
       }),
-      ui: {
-        hitlEnabled: {
-          title: 'HITL Enabled',
-          examples: [true, false],
-        },
-      },
     },
   },
   events: {},

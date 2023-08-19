@@ -3,10 +3,14 @@ import type { ZendeskUser, ZendeskTicket } from './definitions/schemas'
 import { ConditionsData, getTriggerTemplate, type TriggerNames } from './triggers'
 import type * as botpress from '.botpress'
 
-export type TicketRequester = {
-  name: string
-  email: string
-}
+export type TicketRequester =
+  | {
+      name: string
+      email: string
+    }
+  | {
+      id: string
+    }
 
 export type Trigger = {
   url: string
@@ -17,14 +21,18 @@ const makeBaseUrl = (organizationDomain: string) => {
   return organizationDomain.startsWith('https') ? organizationDomain : `https://${organizationDomain}.zendesk.com`
 }
 
+const makeUsername = (email: string) => {
+  return email.endsWith('/token') ? email : `${email}/token`
+}
+
 class ZendeskApi {
   private client: Axios
-  constructor(organizationDomain: string, username: string, password: string) {
+  constructor(organizationDomain: string, email: string, password: string) {
     this.client = axios.create({
       baseURL: makeBaseUrl(organizationDomain),
       withCredentials: true,
       auth: {
-        username: username.endsWith('/token') ? username : `${username}/token`,
+        username: makeUsername(email),
         password,
       },
     })
@@ -40,12 +48,14 @@ class ZendeskApi {
     return data.ticket
   }
 
-  public async createTicket(subject: string, comment: string, requester?: TicketRequester): Promise<ZendeskTicket> {
+  public async createTicket(subject: string, comment: string, requester: TicketRequester): Promise<ZendeskTicket> {
+    const requesterPayload = 'id' in requester ? { requester_id: requester.id } : { requester }
+
     const { data } = await this.client.post<{ ticket: ZendeskTicket }>('/api/v2/tickets.json', {
       ticket: {
         subject,
         comment: { body: comment },
-        requester,
+        ...requesterPayload,
       },
     })
 
@@ -113,6 +123,13 @@ class ZendeskApi {
     return online ? data.users.filter((user) => user.user_fields?.availability === 'online') : data.users
   }
 
+  public async createOrUpdateUser(fields: object): Promise<ZendeskUser> {
+    const { data } = await this.client.post<{ user: ZendeskUser }>('/api/v2/users/create_or_update', {
+      user: fields,
+    })
+    return data.user
+  }
+
   public async updateUser(userId: number | string, fields: object): Promise<ZendeskUser> {
     const { data } = await this.client.put<{ user: ZendeskUser }>(`/api/v2/users/${userId}.json`, {
       user: fields,
@@ -122,4 +139,4 @@ class ZendeskApi {
 }
 
 export const getZendeskClient = (config: botpress.configuration.Configuration) =>
-  new ZendeskApi(config.baseURL, config.username, config.apiToken)
+  new ZendeskApi(config.organizationSubdomain, config.email, config.apiToken)

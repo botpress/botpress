@@ -1,17 +1,30 @@
 import { respond } from '../api-utils'
-import { getOrCreateFlow } from '../flow-state'
+import { getOrCreateFlow, setFlow } from '../flow-state'
 import { MessageHandler } from '../types'
 
 export const agentMessageHandler: MessageHandler = async ({ client, conversation: downstream, message, ctx }) => {
   const flow = await getOrCreateFlow({ client, conversationId: downstream.id }, { hitlEnabled: true })
   if (!flow.hitlEnabled) {
-    return // hitl is not enabled so agent cannot send messages
+    await respond(
+      { client, conversationId: downstream.id, ctx },
+      'Hitl is not enabled so nobody is reading your messages'
+    )
+    return
   }
 
-  // TODO: handle /stop_hitl command
-
-  if (!downstream.tags['upstream']) {
+  const upstream = downstream.tags['upstream']
+  if (!upstream) {
     throw new Error('Downstream conversation was not binded to upstream conversation')
   }
-  await respond({ client, conversationId: downstream.tags['upstream'], ctx }, message.payload.text)
+
+  if (message.payload.text.trim() === '/stop_hitl') {
+    await setFlow({ client, conversationId: downstream.id }, { hitlEnabled: false })
+    await setFlow({ client, conversationId: upstream }, { hitlEnabled: false })
+
+    const disabledMsg = 'Hitl has been disabled'
+    await respond({ client, conversationId: downstream.id, ctx }, disabledMsg)
+    await respond({ client, conversationId: upstream, ctx }, disabledMsg)
+    return
+  }
+  await respond({ client, conversationId: upstream, ctx }, message.payload.text)
 }

@@ -27,7 +27,6 @@ export const getOrCreateFlow = async (
     return currentFlow
   }
 
-  console.info("initializing flow's state")
   await client.setState({
     name: 'flow',
     type: 'conversation',
