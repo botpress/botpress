@@ -5,13 +5,10 @@ import { patientMessageHandler } from './from-patient'
 
 type MessageSource = 'from_patient' | 'from_agent'
 const getMessageSource = (conversation: Conversation): MessageSource => {
-  if (conversation.integration === 'teams') {
-    return 'from_patient'
-  }
   if (conversation.integration === 'zendesk') {
     return 'from_agent'
   }
-  throw new Error(`Unknown integration ${conversation.integration}`)
+  return 'from_patient'
 }
 
 export const messageHandler: MessageHandler = async (props) => {

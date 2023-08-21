@@ -1,12 +1,12 @@
 import { z } from 'zod'
 import * as botpress from '.botpress'
 
-const teams = new botpress.teams.Teams()
+const telegram = new botpress.telegram.Telegram()
 const zendesk = new botpress.zendesk.Zendesk()
 
 export const bot = new botpress.Bot({
   integrations: {
-    teams,
+    telegram,
     zendesk,
   },
   configuration: {
