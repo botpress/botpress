@@ -1,6 +1,7 @@
 import { isBrowser, isNode } from 'browser-or-node'
 
 const defaultApiUrl = 'https://api.botpress.cloud'
+const defaultTimeout = 60_000
 
 const apiUrlEnvName = 'BP_API_URL'
 const botIdEnvName = 'BP_BOT_ID'
@@ -8,26 +9,29 @@ const integrationIdEnvName = 'BP_INTEGRATION_ID'
 const workspaceIdEnvName = 'BP_WORKSPACE_ID'
 const tokenEnvName = 'BP_TOKEN'
 
+type Headers = Record<string, string | string[]>
+
 export type ClientProps = {
-  host?: string // TODO: rename to url
   integrationId?: string
   workspaceId?: string
   botId?: string
   token?: string
+  apiUrl?: string
   timeout?: number
+  headers?: Headers
 }
 
 export type ClientConfig = {
-  host: string // TODO: rename to url
-  headers: Record<string, string>
+  apiUrl: string
+  headers: Headers
   withCredentials: boolean
-  timeout?: number
+  timeout: number
 }
 
 export function getClientConfig(clientProps: ClientProps): ClientConfig {
-  const props = getProps(clientProps)
+  const props = readEnvConfig(clientProps)
 
-  const headers: Record<string, string> = {}
+  let headers: Record<string, string | string[]> = {}
 
   if (props.workspaceId) {
     headers['x-workspace-id'] = props.workspaceId
@@ -45,15 +49,23 @@ export function getClientConfig(clientProps: ClientProps): ClientConfig {
     headers['Authorization'] = `Bearer ${props.token}`
   }
 
+  headers = {
+    ...headers,
+    ...props.headers,
+  }
+
+  const apiUrl = props.apiUrl ?? defaultApiUrl
+  const timeout = props.timeout ?? defaultTimeout
+
   return {
-    host: props.host ?? defaultApiUrl,
+    apiUrl,
+    timeout,
     withCredentials: isBrowser,
     headers,
-    timeout: props.timeout,
   }
 }
 
-function getProps(props: ClientProps) {
+function readEnvConfig(props: ClientProps): ClientProps {
   if (isBrowser) {
     return getBrowserConfig(props)
   }
@@ -68,7 +80,7 @@ function getProps(props: ClientProps) {
 function getNodeConfig(props: ClientProps): ClientProps {
   const config: ClientProps = {
     ...props,
-    host: props.host ?? process.env[apiUrlEnvName] ?? defaultApiUrl,
+    apiUrl: props.apiUrl ?? process.env[apiUrlEnvName],
     botId: props.botId ?? process.env[botIdEnvName],
     integrationId: props.integrationId ?? process.env[integrationIdEnvName],
     workspaceId: props.workspaceId ?? process.env[workspaceIdEnvName],
