@@ -1,6 +1,10 @@
+import { AxiosRequestConfig } from 'axios'
 import { isBrowser, isNode } from 'browser-or-node'
 
 const defaultApiUrl = 'https://api.botpress.cloud'
+const defaultTimeout = 60_000
+const defaultMaxBodyLength = 100 * 1024 * 1024 // 100MB
+const defaultMaxContentLength = 1024 * 1024 * 1024 // 100MB
 
 const apiUrlEnvName = 'BP_API_URL'
 const botIdEnvName = 'BP_BOT_ID'
@@ -8,52 +12,68 @@ const integrationIdEnvName = 'BP_INTEGRATION_ID'
 const workspaceIdEnvName = 'BP_WORKSPACE_ID'
 const tokenEnvName = 'BP_TOKEN'
 
-export type ClientProps = {
-  host?: string // TODO: rename to url
-  integrationId?: string
-  workspaceId?: string
-  botId?: string
-  token?: string
-  timeout?: number
-}
+type Merge<A extends object, B extends object> = Omit<A, keyof B> & B
 
-export type ClientConfig = {
-  host: string // TODO: rename to url
-  headers: Record<string, string>
-  withCredentials: boolean
-  timeout?: number
-}
+type AxiosConfig = Omit<AxiosRequestConfig, 'url' | 'headers' | 'withCredentials' | 'baseURL' | 'method' | 'data'>
+
+export type ClientProps = Merge<
+  AxiosConfig,
+  {
+    url?: string
+    integrationId?: string
+    workspaceId?: string
+    botId?: string
+    token?: string
+  }
+>
+
+export type ClientConfig = Merge<
+  AxiosConfig,
+  {
+    url: string
+    headers: Record<string, string>
+    withCredentials: boolean
+    timeout: number
+    maxBodyLength: number
+    maxContentLength: number
+  }
+>
 
 export function getClientConfig(clientProps: ClientProps): ClientConfig {
-  const props = getProps(clientProps)
+  const { workspaceId, botId, integrationId, token, url, ...props } = readEnvConfig(clientProps)
 
   const headers: Record<string, string> = {}
 
-  if (props.workspaceId) {
-    headers['x-workspace-id'] = props.workspaceId
+  if (workspaceId) {
+    headers['x-workspace-id'] = workspaceId
   }
 
-  if (props.botId) {
-    headers['x-bot-id'] = props.botId
+  if (botId) {
+    headers['x-bot-id'] = botId
   }
 
-  if (props.integrationId) {
-    headers['x-integration-id'] = props.integrationId
+  if (integrationId) {
+    headers['x-integration-id'] = integrationId
   }
 
-  if (props.token) {
-    headers['Authorization'] = `Bearer ${props.token}`
+  if (token) {
+    headers['Authorization'] = `Bearer ${token}`
   }
 
   return {
-    host: props.host ?? defaultApiUrl,
+    url: url ?? defaultApiUrl,
     withCredentials: isBrowser,
     headers,
-    timeout: props.timeout,
+
+    timeout: props.timeout ?? defaultTimeout,
+    maxBodyLength: props.maxBodyLength ?? defaultMaxBodyLength,
+    maxContentLength: props.maxContentLength ?? defaultMaxContentLength,
+
+    ...props,
   }
 }
 
-function getProps(props: ClientProps) {
+function readEnvConfig(props: ClientProps): ClientProps {
   if (isBrowser) {
     return getBrowserConfig(props)
   }
@@ -68,7 +88,7 @@ function getProps(props: ClientProps) {
 function getNodeConfig(props: ClientProps): ClientProps {
   const config: ClientProps = {
     ...props,
-    host: props.host ?? process.env[apiUrlEnvName] ?? defaultApiUrl,
+    url: props.url ?? process.env[apiUrlEnvName],
     botId: props.botId ?? process.env[botIdEnvName],
     integrationId: props.integrationId ?? process.env[integrationIdEnvName],
     workspaceId: props.workspaceId ?? process.env[workspaceIdEnvName],
