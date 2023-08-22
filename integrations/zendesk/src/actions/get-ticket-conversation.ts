@@ -1,12 +1,12 @@
 import { IntegrationProps } from '.botpress'
 
-export const startTicketConversation: IntegrationProps['actions']['startTicketConversation'] = async ({
+export const getTicketConversation: IntegrationProps['actions']['getTicketConversation'] = async ({
   input,
   client,
 }) => {
   // TODO: ensure the ticket already exists
 
-  const { conversation } = await client.createConversation({
+  const { conversation } = await client.getOrCreateConversation({
     channel: 'ticket',
     tags: {
       'zendesk:id': input.ticketId,

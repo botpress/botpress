@@ -2,7 +2,10 @@ export type TriggerPayload = ReturnType<typeof getTriggerTemplate>
 
 export const getTriggerTemplate = (name: TriggerNames) => ({
   type: name,
-  agent: '{{current_user.email}}',
+  agent: {
+    name: '{{ticket.assignee.name}}',
+    email: '{{ticket.assignee.email}}',
+  },
   comment: '{{ticket.latest_public_comment_html}}',
   ticketId: '{{ticket.id}}',
   currentUser: {
