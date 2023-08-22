@@ -3,11 +3,7 @@ import type { Implementation } from '../misc/types'
 
 import { getClient } from '../utils'
 
-export const addComment: Implementation['actions']['addComment'] = async ({
-  ctx,
-  input,
-  logger,
-}) => {
+export const addComment: Implementation['actions']['addComment'] = async ({ ctx, input, logger }) => {
   const validatedInput = addCommentInputSchema.parse(input)
 
   const trelloClient = getClient(ctx.configuration)

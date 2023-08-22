@@ -3,11 +3,7 @@ import type { Implementation } from '../misc/types'
 
 import { getClient } from '../utils'
 
-export const updateCard: Implementation['actions']['updateCard'] = async ({
-  ctx,
-  input,
-  logger,
-}) => {
+export const updateCard: Implementation['actions']['updateCard'] = async ({ ctx, input, logger }) => {
   const validatedInput = updateCardInputSchema.parse(input)
 
   const trelloClient = getClient(ctx.configuration)
@@ -18,24 +14,11 @@ export const updateCard: Implementation['actions']['updateCard'] = async ({
     idList: validatedInput.listId || undefined,
     desc: validatedInput.desc || undefined,
     due: validatedInput.due || undefined,
-    idMembers:
-      validatedInput.idMembers?.split(',').map((member) => member.trim()) ||
-      undefined,
-    idLabels:
-      validatedInput.idLabels?.split(',').map((label) => label.trim()) ||
-      undefined,
-    closed:
-      validatedInput.closed === 'true'
-        ? true
-        : validatedInput.closed === 'false'
-        ? false
-        : undefined,
+    idMembers: validatedInput.idMembers?.split(',').map((member) => member.trim()) || undefined,
+    idLabels: validatedInput.idLabels?.split(',').map((label) => label.trim()) || undefined,
+    closed: validatedInput.closed === 'true' ? true : validatedInput.closed === 'false' ? false : undefined,
     dueComplete:
-      validatedInput.dueComplete === 'true'
-        ? true
-        : validatedInput.dueComplete === 'false'
-        ? false
-        : undefined,
+      validatedInput.dueComplete === 'true' ? true : validatedInput.dueComplete === 'false' ? false : undefined,
   }
 
   let response

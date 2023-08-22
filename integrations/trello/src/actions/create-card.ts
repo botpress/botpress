@@ -3,11 +3,7 @@ import type { Implementation } from '../misc/types'
 
 import { getClient } from '../utils'
 
-export const createCard: Implementation['actions']['createCard'] = async ({
-  ctx,
-  input,
-  logger,
-}) => {
+export const createCard: Implementation['actions']['createCard'] = async ({ ctx, input, logger }) => {
   const validatedInput = createCardInputSchema.parse(input)
 
   const trelloClient = getClient(ctx.configuration)
@@ -17,12 +13,8 @@ export const createCard: Implementation['actions']['createCard'] = async ({
     idList: validatedInput.listId,
     desc: validatedInput.desc || undefined,
     due: validatedInput.due || undefined,
-    idMembers:
-      validatedInput.idMembers?.split(',').map((member) => member.trim()) ||
-      undefined,
-    idLabels:
-      validatedInput.idLabels?.split(',').map((label) => label.trim()) ||
-      undefined,
+    idMembers: validatedInput.idMembers?.split(',').map((member) => member.trim()) || undefined,
+    idLabels: validatedInput.idLabels?.split(',').map((label) => label.trim()) || undefined,
   }
 
   let response

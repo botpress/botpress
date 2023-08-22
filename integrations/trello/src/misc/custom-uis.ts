@@ -3,16 +3,13 @@ export const createCardUi = {
     title: 'The name of the card (e.g. "My Test Card")',
   },
   listId: {
-    title:
-      'The ID of the list to add the card to (e.g. "5f5f7f7f7f7f7f7f7f7f7f7f")',
+    title: 'The ID of the list to add the card to (e.g. "5f5f7f7f7f7f7f7f7f7f7f7f")',
   },
   desc: {
-    title:
-      'The description of the card (Optional) (e.g. "This is my test card created using the Trello API")',
+    title: 'The description of the card (Optional) (e.g. "This is my test card created using the Trello API")',
   },
   due: {
-    title:
-      'The due date of the card in ISO format (Optional) (e.g. "2023-08-15T15:00:00.000Z")',
+    title: 'The due date of the card in ISO format (Optional) (e.g. "2023-08-15T15:00:00.000Z")',
   },
   idMembers: {
     title:
@@ -33,8 +30,7 @@ export const updateCardUi = {
     title: 'The name of the card (Optional) (e.g. "My Test Card")',
   },
   listId: {
-    title:
-      'The ID of the list to add the card to (Optional) (e.g. "5f5f7f7f7f7f7f7f7f7f7f7f")',
+    title: 'The ID of the list to add the card to (Optional) (e.g. "5f5f7f7f7f7f7f7f7f7f7f7f")',
   },
   closed: {
     title:
@@ -48,8 +44,7 @@ export const updateCardUi = {
 
 export const getMemberUi = {
   usernameOrId: {
-    title:
-      'Trello username or Trello ID (e.g. miuser5 or 6497b46edeb36c99f68he834)',
+    title: 'Trello username or Trello ID (e.g. miuser5 or 6497b46edeb36c99f68he834)',
   },
 }
 

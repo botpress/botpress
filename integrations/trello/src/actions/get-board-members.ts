@@ -5,27 +5,22 @@ import type { Implementation } from '../misc/types'
 
 import { getClient } from '../utils'
 
-export const getBoardMembers: Implementation['actions']['getBoardMembers'] =
-  async ({ ctx, input, logger }) => {
-    const validatedInput = getBoardMembersInputSchema.parse(input)
+export const getBoardMembers: Implementation['actions']['getBoardMembers'] = async ({ ctx, input, logger }) => {
+  const validatedInput = getBoardMembersInputSchema.parse(input)
 
-    const trelloClient = getClient(ctx.configuration)
+  const trelloClient = getClient(ctx.configuration)
 
-    let response
+  let response
 
-    try {
-      response = await trelloClient.getBoardMembers(validatedInput.boardId)
-      logger
-        .forBot()
-        .info(
-          `Successful - Get Board Members - Total Members ${response.length}`
-        )
-    } catch (error) {
-      logger.forBot().debug(`'Get Board Members' exception ${error}`)
-      response = [] as Models.Member[]
-    }
-
-    return {
-      members: response,
-    }
+  try {
+    response = await trelloClient.getBoardMembers(validatedInput.boardId)
+    logger.forBot().info(`Successful - Get Board Members - Total Members ${response.length}`)
+  } catch (error) {
+    logger.forBot().debug(`'Get Board Members' exception ${error}`)
+    response = [] as Models.Member[]
   }
+
+  return {
+    members: response,
+  }
+}

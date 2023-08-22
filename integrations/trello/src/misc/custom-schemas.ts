@@ -1,30 +1,18 @@
 import z from 'zod'
 
-import {
-  TrelloIDSchema,
-  LimitsObjectSchema,
-  MemberPrefsSchema,
-} from './sub-schemas'
+import { TrelloIDSchema, LimitsObjectSchema, MemberPrefsSchema } from './sub-schemas'
 
 export const createCardInputSchema = z.object({
   name: z.string().describe('The name of the card (e.g. "My Test Card")'),
-  listId: z
-    .string()
-    .describe(
-      'The ID of the list to add the card to (e.g. "5f5f7f7f7f7f7f7f7f7f7f7f")'
-    ),
+  listId: z.string().describe('The ID of the list to add the card to (e.g. "5f5f7f7f7f7f7f7f7f7f7f7f")'),
   desc: z
     .string()
     .optional()
-    .describe(
-      'The description of the card (Optional) (e.g. "This is my test card created using the Trello API")'
-    ),
+    .describe('The description of the card (Optional) (e.g. "This is my test card created using the Trello API")'),
   due: z
     .string()
     .optional()
-    .describe(
-      'The due date of the card in ISO format (Optional) (e.g. "2023-08-15T15:00:00.000Z")'
-    ),
+    .describe('The due date of the card in ISO format (Optional) (e.g. "2023-08-15T15:00:00.000Z")'),
   idMembers: z
     .string()
     .optional()
@@ -46,15 +34,10 @@ export const createCardOutputSchema = z.object({
 
 export const updateCardInputSchema = createCardInputSchema.extend({
   cardId: z.string().describe('Card ID to update'),
-  name: z
-    .string()
-    .describe('The name of the card (Optional) (e.g. "My Test Card")')
-    .optional(),
+  name: z.string().describe('The name of the card (Optional) (e.g. "My Test Card")').optional(),
   listId: z
     .string()
-    .describe(
-      'The ID of the list to add the card to (Optional) (e.g. "5f5f7f7f7f7f7f7f7f7f7f7f")'
-    )
+    .describe('The ID of the list to add the card to (Optional) (e.g. "5f5f7f7f7f7f7f7f7f7f7f7f")')
     .optional(),
   closed: z
     .string()
@@ -75,11 +58,7 @@ export const updateCardInputSchema = createCardInputSchema.extend({
 export const updateCardOutputSchema = createCardOutputSchema
 
 export const getMemberInputSchema = z.object({
-  usernameOrId: z
-    .string()
-    .describe(
-      'Trello username or Trello ID (e.g. miuser5 or 6497b46edeb36c99f68he834)'
-    ),
+  usernameOrId: z.string().describe('Trello username or Trello ID (e.g. miuser5 or 6497b46edeb36c99f68he834)'),
 })
 
 export const getMemberOutputSchema = z

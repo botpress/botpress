@@ -18,9 +18,7 @@ export class TrelloApi {
     return await this.client.cards.updateCard(card)
   }
 
-  async addCommentToCard(
-    comment: Parameters.AddCardComment
-  ): Promise<Models.Action> {
+  async addCommentToCard(comment: Parameters.AddCardComment): Promise<Models.Action> {
     return await this.client.cards.addCardComment(comment)
   }
 

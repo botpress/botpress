@@ -11,13 +11,7 @@ import {
   getBoardMembersOutputSchema,
 } from '../misc/custom-schemas'
 
-import {
-  createCardUi,
-  updateCardUi,
-  getMemberUi,
-  addCommentUi,
-  getBoardMembersUi,
-} from '../misc/custom-uis'
+import { createCardUi, updateCardUi, getMemberUi, addCommentUi, getBoardMembersUi } from '../misc/custom-uis'
 
 const createCard = {
   title: 'Create Card',
