@@ -8,7 +8,6 @@ export const channels = {
       text: {
         schema: z.object({
           text: z.string(),
-          userId: z.string(),
         }),
       },
     },
@@ -25,9 +24,6 @@ export const channels = {
       tags: {
         id: {
           title: 'Zendesk Ticket ID',
-        },
-        originConversationId: {
-          title: 'Origin Conversation ID (the non-Zendesk one)',
         },
       },
       creation: { enabled: true, requiredTags: ['id'] },

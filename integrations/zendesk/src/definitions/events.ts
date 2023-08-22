@@ -7,7 +7,10 @@ const ticketAssigned = {
     type: z.string(),
     comment: z.string(),
     ticketId: z.string(),
-    agentName: z.string(),
+    agent: z.object({
+      name: z.string(),
+      email: z.string(),
+    }),
   }),
   ui: {},
 }

@@ -28,7 +28,6 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client, l
         const { user: newUser } = await client.getOrCreateUser({
           tags: {
             id: zendeskTrigger.currentUser.id,
-            origin: 'zendesk',
             name: zendeskTrigger.currentUser.name,
             email: zendeskTrigger.currentUser.email,
             role: zendeskTrigger.currentUser.role,
@@ -53,7 +52,7 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client, l
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
-        payload: { text: messageWithoutAuthor, userId: zendeskTrigger.currentUser.externalId },
+        payload: { text: messageWithoutAuthor },
       })
 
       return

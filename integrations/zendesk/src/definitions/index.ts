@@ -7,11 +7,11 @@ export { channels } from './channels'
 
 export const configuration = {
   schema: z.object({
-    baseURL: z.string({
-      description: 'Your zendesk organization subdomain. e.g. https://{subdomain}.zendesk.com',
+    organizationSubdomain: z.string({
+      description: 'Your zendesk organization subdomain. e.g. botpress7281',
     }),
-    username: z.string({
-      description: 'Your zendesk account email, add "/token" to the end. e.g. jdoe@example.com/token',
+    email: z.string({
+      description: 'Your zendesk account email. e.g. john.doe@botpress.com',
     }),
     apiToken: z.string({
       description: 'Zendesk API Token',
@@ -32,10 +32,6 @@ export const states = {
 export const user = {
   tags: {
     id: {},
-    origin: {
-      title: 'zendesk or botpress',
-      description: 'The origin of the user',
-    },
     name: {},
     email: {},
     role: {},
