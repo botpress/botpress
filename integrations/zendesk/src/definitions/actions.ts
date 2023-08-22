@@ -1,9 +1,9 @@
 import z from 'zod'
 import { ticketSchema, userSchema } from './schemas'
 
-const startTicketConversation = {
-  title: 'Create Conversation',
-  description: 'Proactively create a botpress conversation on a zendesk ticket',
+const getTicketConversation = {
+  title: 'Get Ticket Conversation',
+  description: 'Proactively create or get a botpress conversation on a zendesk ticket',
   input: {
     schema: z.object({
       ticketId: z.string().describe('The ID of the ticket'),
@@ -137,5 +137,5 @@ export const actions = {
   createTicket,
   closeTicket,
   listAgents,
-  startTicketConversation,
+  getTicketConversation,
 }
