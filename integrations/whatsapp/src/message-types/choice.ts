@@ -2,7 +2,7 @@ import { Types } from 'whatsapp-api-js'
 import { IntegrationLogger } from '..'
 import * as body from '../interactive/body'
 import * as button from '../interactive/button'
-import { chunkArray } from '../util'
+import { chunkArray, truncate } from '../util'
 import type { channels } from '.botpress'
 
 const { Text } = Types
@@ -11,7 +11,8 @@ const { Interactive, ActionButtons } = Types.Interactive
 type Choice = channels.channel.choice.Choice
 type Option = Choice['options'][number]
 
-const INTERACTIVE_MAX_BUTTONS_COUNT = 3
+export const INTERACTIVE_MAX_BUTTONS_COUNT = 3
+const BUTTON_LABEL_MAX_LENGTH = 20
 
 export function* generateOutgoingMessages({
   payload: { text, options },
@@ -40,5 +41,5 @@ export function* generateOutgoingMessages({
 }
 
 function createButton(option: Option) {
-  return button.create({ id: option.value, title: option.label })
+  return button.create({ id: option.value, title: truncate(option.label, BUTTON_LABEL_MAX_LENGTH) })
 }

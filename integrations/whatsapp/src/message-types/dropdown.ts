@@ -1,7 +1,7 @@
 import { Types } from 'whatsapp-api-js'
 import { IntegrationLogger } from '..'
 import * as body from '../interactive/body'
-import { chunkArray } from '../util'
+import { chunkArray, truncate } from '../util'
 import type { channels } from '.botpress'
 
 const { Text } = Types
@@ -10,7 +10,7 @@ const { Interactive, ActionList, ListSection, Row } = Types.Interactive
 type Dropdown = channels.channel.dropdown.Dropdown
 
 const INTERACTIVE_MAX_ACTIONS_COUNT = 10
-const defaultDescription = ' ' //https://github.com/Secreto31126/whatsapp-api-js/pull/53
+const ACTION_LABEL_MAX_LENGTH = 24
 
 export function* generateOutgoingMessages({
   payload: { text, options },
@@ -34,10 +34,11 @@ export function* generateOutgoingMessages({
 
     for (const chunk of chunks) {
       const section = new ListSection(
-        text.substring(0, 24),
-        ...chunk.map((o) => new Row(o.value.substring(0, 200), o.label.substring(0, 24), defaultDescription))
+        truncate(text, ACTION_LABEL_MAX_LENGTH),
+        ...chunk.map((o) => new Row(o.value.substring(0, 200), truncate(o.label, ACTION_LABEL_MAX_LENGTH), ' ')) // NOTE: The description parameter is optional as per Whatsapp's documentation, but they have a bug that actually enforces the description to be a non-empty string.
       )
-      const actionList = new ActionList(text.substring(0, 20), section)
+      const actionList = new ActionList('Choose...', section)
+
       yield new Interactive(actionList, body.create(text))
     }
   }
