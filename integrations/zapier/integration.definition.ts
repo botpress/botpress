@@ -9,7 +9,7 @@ export default new IntegrationDefinition({
   title: 'Zapier',
   description: 'This integration allows your bot to interact with Zapier.',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({}),
   },

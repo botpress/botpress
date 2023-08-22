@@ -5,7 +5,7 @@ import { configuration, states, user, actions } from './src/definitions'
 export default new IntegrationDefinition({
   name: 'trello',
   version: '0.2.0',
-  readme: 'readme.md',
+  readme: 'hub.md',
   icon: 'icon.svg',
   configuration,
   user,

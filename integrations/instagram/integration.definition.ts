@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   title: 'Instagram',
   description: 'This integration allows your bot to interact with Instagram.',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({
       appId: z.string(),

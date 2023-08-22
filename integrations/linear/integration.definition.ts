@@ -9,7 +9,7 @@ export default new IntegrationDefinition({
   title: 'Linear',
   description: 'Linear integration for Botpress',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration,
   channels,
   user,
