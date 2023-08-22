@@ -9,7 +9,7 @@ export default new IntegrationDefinition({
   title: 'Microsoft Teams',
   description: 'This integration allows your bot to interact with Microsoft Teams.',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration,
   channels,
   user,

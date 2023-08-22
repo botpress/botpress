@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   title: 'Telegram',
   description: 'This integration allows your bot to interact with Telegram.',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({
       botToken: z.string(),
