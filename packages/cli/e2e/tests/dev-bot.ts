@@ -38,13 +38,14 @@ export const devBot: Test = {
     await utils.sleep(5000)
 
     const allProcess = await findProcess('port', PORT)
-    if (allProcess.length === 0) {
-      throw new Error(`Expected to find a process listening on port ${PORT}`)
-    }
+
+    const [botProcess] = allProcess
     if (allProcess.length > 1) {
       throw new Error(`Expected to find only one process listening on port ${PORT}`)
     }
-    const botProcess = allProcess[0]
+    if (!botProcess) {
+      throw new Error(`Expected to find a process listening on port ${PORT}`)
+    }
 
     /**
      * TODO:
