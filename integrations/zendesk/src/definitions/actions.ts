@@ -17,6 +17,7 @@ const getTicketConversation = {
   output: {
     schema: z.object({
       conversationId: z.string().describe('The ID of the conversation'),
+      tags: z.record(z.string()).describe('The tags of the conversation'),
     }),
   },
 }

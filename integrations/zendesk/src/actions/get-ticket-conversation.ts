@@ -15,5 +15,6 @@ export const getTicketConversation: IntegrationProps['actions']['getTicketConver
 
   return {
     conversationId: conversation.id,
+    tags: conversation.tags,
   }
 }
