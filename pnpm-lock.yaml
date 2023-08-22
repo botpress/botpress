@@ -700,6 +700,46 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  integrations/trello:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@botpress/sdk-addons':
+        specifier: workspace:*
+        version: link:../../packages/sdk-addons
+      trello.js:
+        specifier: ^1.2.6
+        version: 1.2.6
+      zod:
+        specifier: ^3.20.6
+        version: 3.21.4
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@sentry/cli':
+        specifier: ^2.18.1
+        version: 2.18.1
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.16.0
+      esbuild:
+        specifier: ^0.15.18
+        version: 0.15.18
+      nodemon:
+        specifier: ^2.0.20
+        version: 2.0.22
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.1(@types/node@18.16.0)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   integrations/twilio:
     dependencies:
       '@botpress/client':
@@ -9615,6 +9655,16 @@ packages:
   /tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
 
+  /trello.js@1.2.6:
+    resolution: {integrity: sha512-ds7prbYHRp1SeNsDHTbLLfN1dOTBfg1AZ+/hnov25aglveFTNK7q/1KSRC533Fcyep7PdngjpWUKpjlGlkFl/Q==}
+    dependencies:
+      axios: 1.4.0
+      form-data: 4.0.0
+      tslib: 2.6.2
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /trim-repeated@1.0.0:
     resolution: {integrity: sha512-pkonvlKk8/ZuR0D5tLW8ljt5I8kmxp2XKymhepUeOdCEfKpZaktSArkLHZt76OB1ZvO9bssUsDty4SWhLvZpLg==}
     engines: {node: '>=0.10.0'}
@@ -9760,6 +9810,10 @@ packages:
 
   /tslib@2.5.3:
     resolution: {integrity: sha512-mSxlJJwl3BMEQCUNnxXBU9jP4JBktcEGhURcPR6VQVlnP0FdDEsIaz0C35dXNGLyRfrATNofF0F5p2KPxQgB+w==}
+    dev: false
+
+  /tslib@2.6.2:
+    resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
     dev: false
 
   /tsscmp@1.0.6:
