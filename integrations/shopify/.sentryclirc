@@ -1,0 +1,5 @@
+[defaults]
+project=integration-shopify
+
+[auth]
+dsn=https://58077d91efaa7f20094ecb7e872bc23b@o363631.ingest.sentry.io/4505755730968576

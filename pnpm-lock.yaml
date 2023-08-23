@@ -539,6 +539,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@botpress/sdk-addons':
+        specifier: workspace:*
+        version: link:../../packages/sdk-addons
       axios:
         specifier: ^1.4.0
         version: 1.4.0
@@ -546,15 +549,21 @@ importers:
         specifier: ^3.21.4
         version: 3.21.4
     devDependencies:
-      '@tsconfig/node18-strictest':
-        specifier: ^1.0.0
-        version: 1.0.0
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@sentry/cli':
+        specifier: ^2.18.1
+        version: 2.18.1
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.0
-      prettier:
-        specifier: ^2.8.1
-        version: 2.8.8
+      esbuild:
+        specifier: ^0.15.18
+        version: 0.15.18
+      nodemon:
+        specifier: ^2.0.20
+        version: 2.0.22
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@types/node@18.16.0)(typescript@4.9.5)
