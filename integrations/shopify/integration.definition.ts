@@ -1,4 +1,5 @@
 import { IntegrationDefinition } from '@botpress/sdk'
+import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { INTEGRATION_NAME } from './src/const'
 import { actions } from './src/definitions/actions'
 import { configuration } from './src/definitions/configuration'
@@ -16,4 +17,5 @@ export default new IntegrationDefinition({
   actions,
   states,
   events,
+  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
 })
