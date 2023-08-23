@@ -8,6 +8,12 @@ export const executeTicketSolved = async ({
   zendeskTrigger: TriggerPayload
   client: bp.Client
 }) => {
+  console.info('ticketSolved', {
+    type: zendeskTrigger.type,
+    tickeId: zendeskTrigger.ticketId,
+    status: zendeskTrigger.status,
+    comment: zendeskTrigger.comment,
+  })
   await client.createEvent({
     type: 'ticketSolved',
     payload: {
