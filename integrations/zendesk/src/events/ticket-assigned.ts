@@ -12,7 +12,7 @@ export const executeTicketAssigned = async ({
     type: 'ticketAssigned',
     payload: {
       type: zendeskTrigger.type,
-      tickeId: zendeskTrigger.ticketId,
+      ticketId: zendeskTrigger.ticketId,
       status: zendeskTrigger.status,
       comment: zendeskTrigger.comment,
       agent: zendeskTrigger.agent,
