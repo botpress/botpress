@@ -1,8 +1,8 @@
 import { RuntimeError } from '@botpress/client'
-import { IntegrationProps } from '@botpress/sdk'
 import axios from 'axios'
 import qs from 'querystring'
 import { SHOPIFY_API_VERSION } from '../const'
+import { IntegrationProps } from '.botpress'
 
 type GetProductVariants = IntegrationProps['actions']['getProductVariants']
 
