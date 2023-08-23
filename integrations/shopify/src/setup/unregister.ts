@@ -25,11 +25,19 @@ export const unregister: UnregisterFunction = async ({
   })
 
   for (const webhookId of state.payload.webhookIds ?? []) {
-    await deleteWebhook(ctx, webhookId, logger)
+    await deleteWebhook({ ctx, webhookId, logger })
   }
 }
 
-async function deleteWebhook(ctx, webhookId, logger) {
+async function deleteWebhook({
+  ctx,
+  webhookId,
+  logger,
+}: {
+  webhookId: string
+  ctx: IntegrationContext<Configuration>
+  logger: IntegrationLogger
+}) {
   try {
     const axiosConfig = {
       baseURL: `https://${ctx.configuration.shopName}.myshopify.com`,

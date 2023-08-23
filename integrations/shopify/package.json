@@ -1,9 +1,9 @@
 {
   "name": "@botpresshub/shopify",
   "scripts": {
-    "start": "pnpm bp serve",
-    "build": "pnpm bp build",
-    "deploy": "pnpm bp deploy",
+    "start": "bp serve",
+    "build": "bp build",
+    "deploy": "bp deploy",
     "type:check": "tsc --noEmit",
     "test": "echo \"Tests not implemented yet.\""
   },
