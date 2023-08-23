@@ -505,6 +505,63 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@botpress/sdk-addons':
+        specifier: workspace:*
+        version: link:../../packages/sdk-addons
+      '@notionhq/client':
+        specifier: ^2.2.7
+        version: 2.2.7
+      zod:
+        specifier: ^3.20.6
+        version: 3.21.4
+    devDependencies:
+      '@tsconfig/node18-strictest':
+        specifier: ^1.0.0
+        version: 1.0.0
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.16.0
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.1(@types/node@18.16.0)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+      vitest:
+        specifier: ^0.33.0
+        version: 0.33.0
+
+  integrations/shopify:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.4.0
+        version: 1.4.0
+      zod:
+        specifier: ^3.21.4
+        version: 3.21.4
+    devDependencies:
+      '@tsconfig/node18-strictest':
+        specifier: ^1.0.0
+        version: 1.0.0
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.16.0
+      prettier:
+        specifier: ^2.8.1
+        version: 2.8.8
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.1(@types/node@18.16.0)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   integrations/slack:
     dependencies:
       '@botpress/sdk':
