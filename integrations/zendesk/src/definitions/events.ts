@@ -7,6 +7,7 @@ const ticketAssigned = {
     type: z.string(),
     comment: z.string(),
     ticketId: z.string(),
+    status: z.string(),
     agent: z.object({
       name: z.string(),
       email: z.string(),
@@ -22,6 +23,7 @@ const ticketSolved = {
     type: z.string(),
     comment: z.string(),
     ticketId: z.string(),
+    status: z.string(),
   }),
   ui: {},
 }

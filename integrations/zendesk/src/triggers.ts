@@ -8,6 +8,7 @@ export const getTriggerTemplate = (name: TriggerNames) => ({
   },
   comment: '{{ticket.latest_public_comment_html}}',
   ticketId: '{{ticket.id}}',
+  status: '{{ticket.status}}',
   currentUser: {
     id: '{{current_user.id}}',
     name: '{{current_user.name}}',
