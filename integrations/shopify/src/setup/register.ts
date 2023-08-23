@@ -1,11 +1,11 @@
 import { Client } from '@botpress/client'
-import type { IntegrationContext, IntegrationProps } from '@botpress/sdk'
+import type { IntegrationContext } from '@botpress/sdk'
 import axios from 'axios'
 import { ARR_OF_EVENTS, SHOPIFY_API_VERSION } from '../const'
 import type * as botpress from '.botpress'
 import type { Configuration } from '.botpress/implementation/configuration'
 
-type IntegrationLogger = Parameters<IntegrationProps['handler']>[0]['logger']
+type IntegrationLogger = Parameters<botpress.IntegrationProps['handler']>[0]['logger']
 type Implementation = ConstructorParameters<typeof botpress.Integration>[0]
 type RegisterFunction = Implementation['register']
 
@@ -31,7 +31,7 @@ export const register: RegisterFunction = async ({
   const webhooks = await Promise.all(
     ARR_OF_EVENTS.map(async (event) => {
       const topic = getValue(event)
-      const webhookId = await createWebhook(topic, ctx, logger, webhookUrl)
+      const webhookId = await createWebhook({ topic, ctx, logger, webhookUrl })
       return webhookId
     })
   )
@@ -44,12 +44,17 @@ export const register: RegisterFunction = async ({
   })
 }
 
-async function createWebhook(
-  topic: string,
-  ctx: IntegrationContext<Configuration>,
-  logger: IntegrationLogger,
+async function createWebhook({
+  topic,
+  ctx,
+  logger,
+  webhookUrl,
+}: {
+  topic: string
+  ctx: IntegrationContext<Configuration>
+  logger: IntegrationLogger
   webhookUrl: string
-) {
+}) {
   const topicReadable = topic.replace('/', ' ')
 
   const axiosConfig = {

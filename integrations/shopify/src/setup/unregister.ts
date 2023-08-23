@@ -1,11 +1,11 @@
 import { Client } from '@botpress/client'
-import type { IntegrationContext, IntegrationProps } from '@botpress/sdk'
+import type { IntegrationContext } from '@botpress/sdk'
 import axios from 'axios'
 import { SHOPIFY_API_VERSION } from '../const'
 import type * as botpress from '.botpress'
 import type { Configuration } from '.botpress/implementation/configuration'
 
-type IntegrationLogger = Parameters<IntegrationProps['handler']>[0]['logger']
+type IntegrationLogger = Parameters<botpress.IntegrationProps['handler']>[0]['logger']
 type Implementation = ConstructorParameters<typeof botpress.Integration>[0]
 type UnregisterFunction = Implementation['unregister']
 
