@@ -28,7 +28,7 @@ export const createDeployIntegration: Test = {
       ...creds,
     }
 
-    const client = new Client({ host: creds.apiUrl, token: creds.token, workspaceId: creds.workspaceId })
+    const client = new Client({ apiUrl: creds.apiUrl, token: creds.token, workspaceId: creds.workspaceId })
 
     await impl
       .init({ ...argv, workDir: baseDir, name: integrationName, type: 'integration' })

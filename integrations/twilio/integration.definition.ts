@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   title: 'Twilio',
   description: 'This integration allows your bot to interact with Twilio.',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({
       accountSID: z.string(),

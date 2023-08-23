@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   title: 'Sunshine Conversations',
   description: 'This integration allows your bot to interact with Sunshine Conversations.',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({
       appId: z.string(),
