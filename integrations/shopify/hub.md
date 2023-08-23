@@ -1,5 +1,3 @@
-# Botpress Shopify Integration
-
 This integration enables you to connect your Botpress chatbot with Shopify, a leading e-commerce platform. With this integration, you can facilitate seamless interactions related to store operations directly from your chatbot.
 
 To effectively use the integration, you'll need to provide your Shopify store name (as seen in the browser/URL) and the access token generated after adding our App to your shop.
@@ -26,8 +24,8 @@ To set up the Shopify integration in Botpress, the following configurations are 
 To activate the Shopify integration in Botpress:
 
 1. Access the Botpress admin dashboard.
-2. Go to the “Integrations” tab.
-3. Search for the Shopify integration and select “Enable” or “Configure.”
+2. Go to the "Integrations" tab.
+3. Search for the Shopify integration and select "Enable" or "Configure."
 4. Input the required Shop/Store Name and Admin API access token.
 5. Save your configurations.
 

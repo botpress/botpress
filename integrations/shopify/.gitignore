@@ -1,10 +1,1 @@
-node_modules
-dist
-gen
-local/data
-.DS_Store
-*.tsbuildinfo
-__snapshots__
-.ignore.me.*
-.env
 .botpress
