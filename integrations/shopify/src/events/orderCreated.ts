@@ -1,7 +1,10 @@
-import { Client } from '@botpress/client'
-import type { IntegrationContext } from '@botpress/sdk'
 import { orderCreatedSchema } from 'src/schemas'
 import * as botpress from '.botpress'
+
+type Implementation = ConstructorParameters<typeof botpress.Integration>[0]
+type RegisterFunction = Implementation['handler']
+type IntegrationContext = Parameters<RegisterFunction>[0]['ctx']
+type Client = Parameters<RegisterFunction>[0]['client']
 
 export const fireOrderCreated = async ({
   req,
@@ -11,7 +14,7 @@ export const fireOrderCreated = async ({
 }: {
   req: any
   client: Client
-  ctx: IntegrationContext<botpress.configuration.Configuration>
+  ctx: IntegrationContext
   logger: any
 }) => {
   const shopifyEvent = JSON.parse(req.body)
