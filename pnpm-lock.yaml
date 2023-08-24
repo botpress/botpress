@@ -57,17 +57,17 @@ importers:
   bots/bugbuster:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.4
+        specifier: 0.3.5
         version: link:../../packages/client
       '@botpress/sdk':
-        specifier: 0.4.0
+        specifier: 0.4.1
         version: link:../../packages/sdk
       zod:
         specifier: ^3.20.6
         version: 3.21.4
     devDependencies:
       '@botpress/cli':
-        specifier: 0.4.0
+        specifier: 0.4.1
         version: link:../../packages/cli
       '@types/node':
         specifier: ^18.11.17
@@ -1041,7 +1041,7 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.4
+        specifier: 0.3.5
         version: link:../client
       '@bpinternal/tunnel':
         specifier: ^0.1.0
@@ -1117,7 +1117,7 @@ importers:
         version: 3.21.4
     devDependencies:
       '@botpress/sdk':
-        specifier: 0.4.0
+        specifier: 0.4.1
         version: link:../sdk
       '@bpinternal/log4bot':
         specifier: ^0.0.4
@@ -1156,10 +1156,10 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.4
+        specifier: 0.3.5
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.4.0
+        specifier: 0.4.1
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1178,10 +1178,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.4
+        specifier: 0.3.5
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.4.0
+        specifier: 0.4.1
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1219,7 +1219,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.4
+        specifier: 0.3.5
         version: link:../client
       axios:
         specifier: 0.27.2
