@@ -5,19 +5,11 @@ import { Client, ReplyToConversationMessageType } from 'intercom-client'
 import { z } from 'zod'
 import * as html from './html.utils'
 import { Integration, secrets } from '.botpress'
-import type * as botpress from '.botpress'
+import type * as bp from '.botpress'
 
-type Card = botpress.channels.channel.card.Card
-type Location = botpress.channels.channel.location.Location
-type Configuration = botpress.configuration.Configuration
-
-sentryHelpers.init({
-  dsn: secrets.SENTRY_DSN,
-  environment: secrets.SENTRY_ENVIRONMENT,
-  release: secrets.SENTRY_RELEASE,
-})
-
-const log = console
+type Card = bp.channels.channel.card.Card
+type Location = bp.channels.channel.location.Location
+type Configuration = bp.configuration.Configuration
 
 const conversationPartSchema = z.object({
   type: z.literal('conversation_part'),
@@ -189,16 +181,16 @@ const integration = new Integration({
     },
   },
   handler: async ({ req, client, ctx }) => {
-    log.info('Handler received request')
+    console.info('Handler received request')
 
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
     const parsedBody = webhookNotificationSchema.safeParse(await JSON.parse(req.body))
 
     if (!parsedBody.success) {
-      log.warn(`Handler received an invalid body: ${parsedBody.error}`)
+      console.warn(`Handler received an invalid body: ${parsedBody.error}`)
       return
     }
 
@@ -249,7 +241,7 @@ const integration = new Integration({
       }
 
       if (authorType === 'bot') {
-        log.info(`Handler received a bot message with id ${messageId}`)
+        console.info(`Handler received a bot message with id ${messageId}`)
         return // ignore bot messages
       }
 
@@ -275,7 +267,7 @@ const integration = new Integration({
     for (const part of conversation_parts) {
       await createMessage(part)
     }
-    log.info('Handler finished processing request')
+    console.info('Handler finished processing request')
 
     return
   },
@@ -320,7 +312,11 @@ const integration = new Integration({
   },
 })
 
-export default sentryHelpers.wrapIntegration(integration)
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: secrets.SENTRY_DSN,
+  environment: secrets.SENTRY_ENVIRONMENT,
+  release: secrets.SENTRY_RELEASE,
+})
 
 async function sendMessage(props: {
   body: string

@@ -160,9 +160,9 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   }
 
   private _checkSecrets(integrationDef: bpsdk.IntegrationDefinition) {
-    const initialSecrets = this._initialDef?.secrets ?? []
-    const currentSecrets = integrationDef.secrets ?? []
-    const newSecrets = currentSecrets.filter((s) => !initialSecrets.includes(s))
+    const initialSecrets = this._initialDef?.secrets ?? {}
+    const currentSecrets = integrationDef.secrets ?? {}
+    const newSecrets = Object.keys(currentSecrets).filter((s) => !initialSecrets[s])
     if (newSecrets.length > 0) {
       throw new errors.BotpressCLIError('Secrets were added while the server was running. A restart is required.')
     }

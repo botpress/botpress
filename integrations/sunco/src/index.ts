@@ -1,20 +1,11 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { Integration, channels, secrets } from '.botpress'
+import * as bp from '.botpress'
+const SunshineConversationsClient = require('sunshine-conversations-client')
 
-type Channels = Integration['channels']
+type Channels = bp.Integration['channels']
 type Messages = Channels[keyof Channels]['messages']
 type MessageHandler = Messages[keyof Messages]
 type MessageHandlerProps = Parameters<MessageHandler>[0]
-
-sentryHelpers.init({
-  dsn: secrets.SENTRY_DSN,
-  environment: secrets.SENTRY_ENVIRONMENT,
-  release: secrets.SENTRY_RELEASE,
-})
-
-const log = console
-
-const SunshineConversationsClient = require('sunshine-conversations-client')
 
 type SmoochBaseAction = {
   type: string
@@ -48,7 +39,7 @@ type SmoochCard = {
 const POSTBACK_PREFIX = 'postback::'
 const SAY_PREFIX = 'say::'
 
-const integration = new Integration({
+const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {},
@@ -110,7 +101,7 @@ const integration = new Integration({
   },
   handler: async ({ req, client }) => {
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
 
@@ -118,19 +109,19 @@ const integration = new Integration({
 
     for (const event of data.events) {
       if (event.type !== 'conversation:message') {
-        log.warn('Received an event that is not a message')
+        console.warn('Received an event that is not a message')
         continue
       }
 
       const payload = event.payload
 
       if (payload.message.content.type !== 'text') {
-        log.warn('Received a message that is not a text message')
+        console.warn('Received a message that is not a text message')
         continue
       }
 
       if (payload.message.author.type === 'business') {
-        log.warn('Skipping message that is from a business')
+        console.warn('Skipping message that is from a business')
         continue
       }
 
@@ -197,9 +188,13 @@ const integration = new Integration({
   },
 })
 
-export default sentryHelpers.wrapIntegration(integration)
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
+})
 
-type Choice = channels.channel.choice.Choice
+type Choice = bp.channels.channel.choice.Choice
 
 function renderChoiceMessage(payload: Choice) {
   return {
@@ -209,7 +204,7 @@ function renderChoiceMessage(payload: Choice) {
   }
 }
 
-type Carousel = channels.channel.carousel.Carousel
+type Carousel = bp.channels.channel.carousel.Carousel
 
 const sendCarousel = async (props: SendMessageProps, payload: Carousel) => {
   const items: SmoochCard[] = []
@@ -302,6 +297,6 @@ async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload
   await ack({ tags: { 'sunco:id': message.id } })
 
   if (messages.length > 1) {
-    log.warn('More than one message was sent')
+    console.warn('More than one message was sent')
   }
 }

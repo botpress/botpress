@@ -65,5 +65,5 @@ export default new IntegrationDefinition({
   },
   actions: {},
   events: {},
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
 })

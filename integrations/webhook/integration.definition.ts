@@ -26,5 +26,5 @@ export default new IntegrationDefinition({
         .passthrough(),
     },
   },
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
 })

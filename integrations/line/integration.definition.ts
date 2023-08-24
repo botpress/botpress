@@ -37,7 +37,7 @@ export default new IntegrationDefinition({
       }),
     },
   },
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
   user: {
     tags: {
       usrId: {},

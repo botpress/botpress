@@ -4,10 +4,11 @@ import * as consts from '../src/consts'
 import { createDeployBot } from './tests/create-deploy-bot'
 import { createDeployIntegration } from './tests/create-deploy-integration'
 import { devBot } from './tests/dev-bot'
+import { requiredSecrets } from './tests/integration-secrets'
 import { Test } from './typings'
 import { sleep, TmpDirectory } from './utils'
 
-const tests: Test[] = [createDeployBot, createDeployIntegration, devBot]
+const tests: Test[] = [createDeployBot, createDeployIntegration, devBot, requiredSecrets]
 
 const timeout = (ms: number) =>
   sleep(ms).then(() => {

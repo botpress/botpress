@@ -7,26 +7,13 @@ import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
 import * as outgoing from './outgoing-message'
-import { Integration, IntegrationProps, secrets } from '.botpress'
+import * as bp from '.botpress'
 
-// TODO: Export these types publicly from the SDK and import them here.
-export type CreateConversationPayload = {
-  channel: string
-  tags: Record<string, string>
-}
-export type IntegrationLogger = Parameters<IntegrationProps['handler']>[0]['logger']
-export type IntegrationContext = Parameters<IntegrationProps['handler']>[0]['ctx']
-export type Client = Parameters<IntegrationProps['handler']>[0]['client']
-
-sentryHelpers.init({
-  dsn: secrets.SENTRY_DSN,
-  environment: secrets.SENTRY_ENVIRONMENT,
-  release: secrets.SENTRY_RELEASE,
-})
+export type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
 
 const { Text, Media, Location } = Types
 
-const integration = new Integration({
+const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {},
@@ -181,12 +168,16 @@ const integration = new Integration({
   },
 })
 
-export default sentryHelpers.wrapIntegration(integration)
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
+})
 
 async function handleMessage(
   message: WhatsAppMessage,
   value: WhatsAppValue,
-  client: Client,
+  client: bp.Client,
   logger: IntegrationLogger
 ) {
   if (message.type) {
