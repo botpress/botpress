@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { MessagingChannel } from '@botpress/messaging-client'
 import {
   getAdminKey,
@@ -20,7 +19,7 @@ async function main() {
   const channel = new MessagingChannel({ url: messagingURL, adminKey })
   channel.start(clientId, { clientToken })
   const response = await channel.sync(clientId, { webhooks: [{ url: `${serverURLDocker}${webhookRoute}` }] })
-  console.log(JSON.stringify(response, undefined, 2))
+  console.info(JSON.stringify(response, undefined, 2))
 }
 
 void main()

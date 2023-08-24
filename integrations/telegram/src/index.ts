@@ -4,19 +4,11 @@ import type { AckFunction } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Context, Markup, Telegraf } from 'telegraf'
 import type { Update } from 'telegraf/typings/core/types/typegram'
-import * as botpress from '.botpress'
+import * as bp from '.botpress'
 
-type Card = botpress.channels.channel.card.Card
+type Card = bp.channels.channel.card.Card
 
-const log = console
-
-sentryHelpers.init({
-  dsn: botpress.secrets.SENTRY_DSN,
-  environment: botpress.secrets.SENTRY_ENVIRONMENT,
-  release: botpress.secrets.SENTRY_RELEASE,
-})
-
-const integration = new botpress.Integration({
+const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx }) => {
     const telegraf = new Telegraf(ctx.configuration.botToken)
     await telegraf.telegram.setWebhook(webhookUrl)
@@ -103,10 +95,10 @@ const integration = new botpress.Integration({
     },
   },
   handler: async ({ req, client, logger }) => {
-    log.info('Handler received request')
+    console.info('Handler received request')
 
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
 
@@ -213,7 +205,11 @@ const integration = new botpress.Integration({
   },
 })
 
-export default sentryHelpers.wrapIntegration(integration)
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
+})
 
 async function sendCard(
   payload: Card,

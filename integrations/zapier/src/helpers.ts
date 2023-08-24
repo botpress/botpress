@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import { ResourceNotFoundError } from '@botpress/client'
 import type { IntegrationContext } from '@botpress/sdk'
 import { z } from 'zod'

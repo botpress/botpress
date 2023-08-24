@@ -2,22 +2,14 @@ import type { Conversation } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import queryString from 'query-string'
 import { Twilio } from 'twilio'
-import { Integration, channels, secrets } from '.botpress'
+import * as bp from '.botpress'
 
-type Channels = Integration['channels']
+type Channels = bp.Integration['channels']
 type Messages = Channels[keyof Channels]['messages']
 type MessageHandler = Messages[keyof Messages]
 type MessageHandlerProps = Parameters<MessageHandler>[0]
 
-sentryHelpers.init({
-  dsn: secrets.SENTRY_DSN,
-  environment: secrets.SENTRY_ENVIRONMENT,
-  release: secrets.SENTRY_RELEASE,
-})
-
-const log = console
-
-const integration = new Integration({
+const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {},
@@ -58,10 +50,10 @@ const integration = new Integration({
     },
   },
   handler: async ({ req, client }) => {
-    log.info('Handler received request')
+    console.info('Handler received request')
 
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
 
@@ -113,7 +105,7 @@ const integration = new Integration({
       payload: { text },
     })
 
-    log.info('Handler received request', data)
+    console.info('Handler received request', data)
   },
 
   createUser: async ({ client, tags, ctx }) => {
@@ -161,9 +153,13 @@ const integration = new Integration({
   },
 })
 
-export default sentryHelpers.wrapIntegration(integration)
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
+})
 
-type Choice = channels.channel.choice.Choice
+type Choice = bp.channels.channel.choice.Choice
 
 function renderChoiceMessage(payload: Choice) {
   return `${payload.text || ''}\n\n${payload.options
@@ -171,7 +167,7 @@ function renderChoiceMessage(payload: Choice) {
     .join('\n')}`
 }
 
-type Card = channels.channel.card.Card
+type Card = bp.channels.channel.card.Card
 
 function renderCard(card: Card, total?: string): string {
   return `${total ? `${total}: ` : ''}${card.title}\n\n${card.subtitle || ''}\n\n${card.actions

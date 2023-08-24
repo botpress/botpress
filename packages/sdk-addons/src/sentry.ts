@@ -3,16 +3,21 @@ import * as Sentry from '@sentry/node'
 
 export const COMMON_SECRET_NAMES = ['SENTRY_DSN', 'SENTRY_ENVIRONMENT', 'SENTRY_RELEASE']
 
-export const init = ({ dsn, environment, release }: { dsn: string; environment: string; release: string }) =>
-  Sentry.init({ dsn, environment, release })
-
 type Entries<T> = {
   [K in keyof T]: [K, T[K]]
 }[keyof T][]
 
 type Tof<I extends Integration> = I extends Integration<infer T> ? T : never
 
-export const wrapIntegration = <T extends Tof<Integration>>(integration: Integration<T>) => {
+export type SentryConfig = {
+  dsn: string
+  environment: string
+  release: string
+}
+
+export const wrapIntegration = <T extends Tof<Integration>>(integration: Integration<T>, config: SentryConfig) => {
+  Sentry.init(config)
+
   type ActionFunctions = typeof integration.props.actions
   const actionsEntries: Entries<ActionFunctions> = Object.entries(integration.props.actions)
   const actions = actionsEntries.reduce((acc, [actionType, action]) => {
