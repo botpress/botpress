@@ -1,6 +1,6 @@
 {
   "name": "@botpress/client",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Botpress Client",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -8,7 +8,7 @@
   "license": "MIT",
   "scripts": {
     "build:type": "tsc --emitDeclarationOnly --declaration --target es2019 --module commonjs --moduleResolution node --lib es2019",
-    "build:browser": "esbuild --bundle --external:axios --external:browser-or-node --platform=browser --format=esm --minify --outfile=dist/index.mjs src/index.ts",
+    "build:browser": "esbuild --bundle --external:crypto --external:axios --external:browser-or-node --platform=browser --format=esm --minify --outfile=dist/index.mjs src/index.ts",
     "build:node": "esbuild --bundle --external:axios --external:browser-or-node --platform=node --minify --sourcemap --outfile=dist/index.cjs src/index.ts",
     "build:bundle": "esbuild --bundle --platform=node --minify --sourcemap --outfile=dist/bundle.cjs src/index.ts",
     "build": "pnpm build:type && pnpm build:node && pnpm build:browser && pnpm build:bundle",
@@ -21,7 +21,7 @@
     "type-fest": "^3.4.0"
   },
   "devDependencies": {
-    "@botpress/api": "0.5.1",
+    "@botpress/api": "0.5.4",
     "esbuild": "^0.16.12"
   }
 }
