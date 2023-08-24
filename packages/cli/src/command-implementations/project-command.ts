@@ -200,8 +200,10 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
       const prompted = await this.prompt.text(`Enter value for secret "${secretDef}"`)
       if (!prompted) {
-        throw new errors.BotpressCLIError('Secret is required')
+        this.logger.debug(`Secret "${secretDef}" was not provided`)
+        continue
       }
+
       values[secretDef] = prompted
     }
 

@@ -9,13 +9,17 @@ type Entries<T> = {
 
 type Tof<I extends Integration> = I extends Integration<infer T> ? T : never
 
-export type SentryConfig = {
+export type SentryConfig = Partial<{
   dsn: string
   environment: string
   release: string
-}
+}>
 
 export const wrapIntegration = <T extends Tof<Integration>>(integration: Integration<T>, config: SentryConfig) => {
+  if (!config.dsn || !config.environment || !config.release) {
+    console.warn('sentry ignored: missing config')
+  }
+
   Sentry.init(config)
 
   type ActionFunctions = typeof integration.props.actions

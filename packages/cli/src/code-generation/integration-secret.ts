@@ -12,9 +12,8 @@ export class IntegrationSecretIndexModule extends Module {
     for (const secretName of integration.secrets ?? []) {
       const envVariableName = secretEnvVariableName(secretName)
       const fieldName = casing.to.screamingSnakeCase(secretName)
-      content += `  public get ${fieldName}(): string {\n`
+      content += `  public get ${fieldName}(): string | undefined {\n`
       content += `    const envVarValue = process.env.${envVariableName}\n`
-      content += `    if (!envVarValue) { throw new Error('Missing environment variable ${envVariableName}') }\n`
       content += '    return envVarValue\n'
       content += '  }\n'
     }

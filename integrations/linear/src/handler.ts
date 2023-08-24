@@ -5,6 +5,7 @@ import { fireIssueCreated } from './events/issueCreated'
 import { fireIssueUpdated } from './events/issueUpdated'
 import { handleOauth } from './misc/linear'
 import { getUserAndConversation } from './misc/utils'
+import * as secrets from './secrets'
 import * as botpress from '.botpress'
 
 export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
@@ -24,7 +25,7 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, 
   }
 
   // Verify the request, it will throw an error in case of not coming from linear
-  const webhook = new LinearWebhooks(botpress.secrets.WEBHOOK_SIGNING_SECRET)
+  const webhook = new LinearWebhooks(secrets.webhookSigningSecret)
   // are we sure it throws? it returns a boolean , add char to test this
   webhook.verify(Buffer.from(req.body), webhookSignatureHeader, linearEvent[LINEAR_WEBHOOK_TS_FIELD])
 
