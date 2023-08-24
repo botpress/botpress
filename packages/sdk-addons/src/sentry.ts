@@ -30,7 +30,7 @@ export type SentryConfig = Partial<{
 
 export const wrapIntegration = <T extends Tof<Integration>>(integration: Integration<T>, config: SentryConfig) => {
   if (!config.dsn || !config.environment || !config.release) {
-    console.warn('sentry disabled')
+    return integration
   }
 
   Sentry.init(config)

@@ -205,9 +205,12 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         continue
       }
 
-      if (!optional) {
-        throw new errors.BotpressCLIError(`Secret "${secretName}" is required`)
+      if (optional) {
+        this.logger.warn(`Secret "${secretName}" is unassigned`)
+        continue
       }
+
+      throw new errors.BotpressCLIError(`Secret "${secretName}" is required`)
     }
 
     const envVariables = _.mapKeys(values, (_v, k) => codegen.secretEnvVariableName(k))
