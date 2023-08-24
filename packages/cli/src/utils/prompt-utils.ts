@@ -29,7 +29,7 @@ export class CLIPrompt {
 
   public async confirm(message: string): Promise<boolean> {
     if (this._props.confirm) {
-      this._logger.debug(`Confirming automatically: ${message}`)
+      this._logger.debug(`Confirming automatically (non-interactive mode): ${message}`)
       return true
     }
 
@@ -48,6 +48,7 @@ export class CLIPrompt {
 
   public async password(message: string, opts: PasswordOptions = {}): Promise<string | undefined> {
     if (this._props.confirm) {
+      this._logger.debug(`Return default (non-interactive mode): ${message}`)
       return opts?.default
     }
 
@@ -63,6 +64,7 @@ export class CLIPrompt {
 
   public async select<V extends string>(message: string, opts: SelectOptions<V> = {}): Promise<V | undefined> {
     if (this._props.confirm) {
+      this._logger.debug(`Return default (non-interactive mode): ${message}`)
       return opts?.default
     }
 
@@ -78,6 +80,7 @@ export class CLIPrompt {
 
   public async text(message: string, opts: TextOptions = {}): Promise<string | undefined> {
     if (this._props.confirm) {
+      this._logger.debug(`Return default (non-interactive mode): ${message}`)
       return opts?.default
     }
 

@@ -13,5 +13,5 @@ export default new IntegrationDefinition({
   events: {},
   channels: {},
   states,
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
 })

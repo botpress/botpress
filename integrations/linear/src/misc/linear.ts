@@ -3,8 +3,8 @@ import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
 import queryString from 'query-string'
 import { z } from 'zod'
-import * as secrets from '../secrets'
 import { Client, IntegrationCtx } from './types'
+import * as bp from '.botpress'
 
 const linearEndpoint = 'https://api.linear.app'
 
@@ -35,8 +35,8 @@ export class LinearOauthClient {
   private clientSecret: string
 
   constructor() {
-    this.clientId = secrets.clientId
-    this.clientSecret = secrets.clientSecret
+    this.clientId = bp.secrets.CLIENT_ID
+    this.clientSecret = bp.secrets.CLIENT_SECRET
   }
 
   async getAccessToken(code: string) {

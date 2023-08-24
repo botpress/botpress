@@ -10,18 +10,9 @@ import type Mail from 'nodemailer/lib/mailer'
 import queryString from 'query-string'
 import * as bp from '.botpress'
 
-type SecretName = keyof typeof bp.secrets
-const getSecret = (name: SecretName) => {
-  const value = bp.secrets[name]
-  if (!value) {
-    throw new Error(`Missing ${name}`)
-  }
-  return value
-}
-
-const clientId: string = getSecret('CLIENT_ID')
-const clientSecret: string = getSecret('CLIENT_SECRET')
-const topicName: string = getSecret('TOPIC_NAME')
+const clientId = bp.secrets.CLIENT_ID
+const clientSecret = bp.secrets.CLIENT_SECRET
+const topicName = bp.secrets.TOPIC_NAME
 
 const integration = new bp.Integration({
   register: async () => {},

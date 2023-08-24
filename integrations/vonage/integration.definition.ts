@@ -44,5 +44,5 @@ export default new IntegrationDefinition({
     },
     creation: { enabled: true, requiredTags: ['userId', 'channel'] },
   },
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
 })

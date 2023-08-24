@@ -5,7 +5,6 @@ import channels from './channels'
 import { handler } from './handler'
 import { createConversation, register, unregister } from './setup'
 import * as bp from '.botpress'
-import './secrets'
 
 const integration = new bp.Integration({
   register,

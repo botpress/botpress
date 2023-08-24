@@ -1,1 +1,1 @@
-export const INTEGRATION_NAME = 'linearfleur'
+export const INTEGRATION_NAME = 'linear'

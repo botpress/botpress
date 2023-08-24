@@ -1,7 +1,20 @@
-import { IntegrationProps, Integration } from '@botpress/sdk'
+import { IntegrationProps, Integration, IntegrationDefinitionProps } from '@botpress/sdk'
 import * as Sentry from '@sentry/node'
 
-export const COMMON_SECRET_NAMES = ['SENTRY_DSN', 'SENTRY_ENVIRONMENT', 'SENTRY_RELEASE']
+export const COMMON_SECRET_NAMES = {
+  SENTRY_DSN: {
+    optional: true,
+    description: 'Sentry DSN',
+  },
+  SENTRY_ENVIRONMENT: {
+    optional: true,
+    description: 'Sentry environment',
+  },
+  SENTRY_RELEASE: {
+    optional: true,
+    description: 'Sentry release',
+  },
+} satisfies IntegrationDefinitionProps['secrets']
 
 type Entries<T> = {
   [K in keyof T]: [K, T[K]]
@@ -17,7 +30,7 @@ export type SentryConfig = Partial<{
 
 export const wrapIntegration = <T extends Tof<Integration>>(integration: Integration<T>, config: SentryConfig) => {
   if (!config.dsn || !config.environment || !config.release) {
-    console.warn('sentry ignored: missing config')
+    console.warn('sentry disabled')
   }
 
   Sentry.init(config)

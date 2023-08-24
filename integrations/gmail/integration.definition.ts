@@ -53,5 +53,10 @@ export default new IntegrationDefinition({
       }),
     },
   },
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES, 'CLIENT_ID', 'CLIENT_SECRET', 'TOPIC_NAME'],
+  secrets: {
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+    CLIENT_ID: { description: 'Gmail Client ID' },
+    CLIENT_SECRET: { description: 'Gmail Client Secret' },
+    TOPIC_NAME: {},
+  },
 })
