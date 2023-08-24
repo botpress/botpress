@@ -9,11 +9,11 @@
   "license": "MIT",
   "dependencies": {
     "@botpress/client": "0.3.4",
-    "@botpress/sdk": "0.3.2",
+    "@botpress/sdk": "0.4.0",
     "zod": "^3.20.6"
   },
   "devDependencies": {
-    "@botpress/cli": "0.3.2",
+    "@botpress/cli": "0.4.0",
     "@types/node": "^18.11.17",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.4"
