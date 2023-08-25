@@ -16,6 +16,7 @@ const conversationPartSchema = z.object({
   id: z.string(),
   author: z.object({
     id: z.string(),
+    email: z.string().nullable(),
     type: z.string(),
   }),
   body: z.string().nullable(),
@@ -25,6 +26,7 @@ const conversationSourceSchema = z.object({
   id: z.string(),
   author: z.object({
     id: z.string(),
+    email: z.string().nullable(),
     type: z.string(),
   }),
   body: z.string().nullable(),
@@ -34,6 +36,7 @@ type IntercomMessage = {
   id: string
   author: {
     id: string
+    email: string | null
     type: string
   }
   body: string | null
@@ -227,7 +230,7 @@ const integration = new Integration({
     // this uses the message payload from intercom to create the message in the bot
     const createMessage = async (intercomMessage: IntercomMessage) => {
       const {
-        author: { id: authorId, type: authorType },
+        author: { id: authorId, email, type: authorType },
         body,
         id: messageId,
       } = intercomMessage
@@ -248,6 +251,7 @@ const integration = new Integration({
       const { user } = await client.getOrCreateUser({
         tags: {
           ['intercom:id']: `${authorId}`,
+          ['intercom:email']: `${email}`,
         },
       })
 
@@ -281,7 +285,9 @@ const integration = new Integration({
     const intercomClient = new Client({ tokenAuth: { token: ctx.configuration.accessToken } })
     const contact = await intercomClient.contacts.find({ id: userId })
 
-    const { user } = await client.getOrCreateUser({ tags: { 'intercom:id': `${contact.id}` } })
+    const { user } = await client.getOrCreateUser({
+      tags: { 'intercom:id': `${contact.id}`, 'intercom:email': `${contact.email}` },
+    })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
