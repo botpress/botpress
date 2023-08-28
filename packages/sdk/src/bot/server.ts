@@ -67,16 +67,16 @@ export const botHandler =
 
     switch (ctx.operation) {
       case 'event_received':
-        await onEventReceived<TBot>(props)
+        await onEventReceived<TBot>(props as ServerProps<TBot>)
         break
       case 'register':
-        await onRegister<TBot>(props)
+        await onRegister<TBot>(props as ServerProps<TBot>)
         break
       case 'unregister':
-        await onUnregister<TBot>(props)
+        await onUnregister<TBot>(props as ServerProps<TBot>)
         break
       case 'ping':
-        await onPing<TBot>(props)
+        await onPing<TBot>(props as ServerProps<TBot>)
         break
       default:
         throw new Error(`Unknown operation ${ctx.operation}`)
