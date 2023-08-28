@@ -1,1 +1,1 @@
-export const INTEGRATION_NAME = 'intercombassam'
+export const INTEGRATION_NAME = 'intercom'
