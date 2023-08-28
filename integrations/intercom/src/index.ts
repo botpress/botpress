@@ -6,6 +6,7 @@ import { z } from 'zod'
 import * as html from './html.utils'
 import { Integration, secrets } from '.botpress'
 import type * as bp from '.botpress'
+import { INTEGRATION_NAME } from './const'
 
 type Card = bp.channels.channel.card.Card
 type Location = bp.channels.channel.location.Location
@@ -223,7 +224,7 @@ const integration = new Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        ['intercom:id']: `${conversationId}`,
+        [`${INTEGRATION_NAME}:id`]: `${conversationId}`,
       },
     })
 
@@ -250,13 +251,13 @@ const integration = new Integration({
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          ['intercom:id']: `${authorId}`,
-          ['intercom:email']: `${email}`,
+          [`${INTEGRATION_NAME}:id`]: `${authorId}`,
+          [`${INTEGRATION_NAME}:email`]: `${email}`,
         },
       })
 
       await client.createMessage({
-        tags: { ['intercom:id']: `${messageId}` },
+        tags: { [`${INTEGRATION_NAME}:id`]: `${messageId}` },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
@@ -276,7 +277,7 @@ const integration = new Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags['intercom:id']
+    const userId = tags[`${INTEGRATION_NAME}:id`]
 
     if (!userId) {
       return
@@ -286,7 +287,7 @@ const integration = new Integration({
     const contact = await intercomClient.contacts.find({ id: userId })
 
     const { user } = await client.getOrCreateUser({
-      tags: { 'intercom:id': `${contact.id}`, 'intercom:email': `${contact.email}` },
+      tags: { [`${INTEGRATION_NAME}:id`]: `${contact.id}`, [`${INTEGRATION_NAME}:email`]: `${contact.email}` },
     })
 
     return {
@@ -296,7 +297,7 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const conversationId = tags['intercom:id']
+    const conversationId = tags[`${INTEGRATION_NAME}:id`]
 
     if (!conversationId) {
       return
@@ -307,7 +308,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { 'intercom:id': `${chat.id}` },
+      tags: { [`${INTEGRATION_NAME}:id`]: `${chat.id}` },
     })
 
     return {
@@ -337,14 +338,14 @@ async function sendMessage(props: {
   const {
     conversation_parts: { conversation_parts: conversationParts },
   } = await client.conversations.replyByIdAsAdmin({
-    id: conversation.tags['intercom:id'] ?? '',
+    id: conversation.tags[`${INTEGRATION_NAME}:id`] ?? '',
     adminId: configuration.adminId,
     messageType: ReplyToConversationMessageType.COMMENT,
     body,
     attachmentUrls,
   })
 
-  await ack({ tags: { ['intercom:id']: `${conversationParts.at(-1)?.id ?? ''}` } })
+  await ack({ tags: { [`${INTEGRATION_NAME}:id`]: `${conversationParts.at(-1)?.id ?? ''}` } })
 }
 
 function composeMessage(...parts: string[]) {
