@@ -6,7 +6,7 @@ const anyObject = z.object({}).passthrough()
 
 export default new IntegrationDefinition({
   name: 'notion',
-  version: '0.0.1',
+  version: '0.2.0',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
