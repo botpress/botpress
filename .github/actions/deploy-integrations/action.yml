@@ -116,3 +116,5 @@ runs:
         pnpm -r --stream -F @botpresshub/whatsapp -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
         echo "### Deploying integration @botpresshub/zapier ###"
         pnpm -r --stream -F @botpresshub/zapier -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        echo "### Deploying integration @botpresshub/zendesk ###"
+        pnpm -r --stream -F @botpresshub/zendesk -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
