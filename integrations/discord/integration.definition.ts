@@ -5,7 +5,7 @@ import { z } from 'zod'
 export default new IntegrationDefinition({
   name: 'discord',
   version: '0.2.0',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({
       apikey: z.string(),
@@ -34,5 +34,5 @@ export default new IntegrationDefinition({
   },
   actions: {},
   events: {},
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
 })

@@ -1,22 +1,14 @@
 import type { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
-import { Integration, channels, secrets } from '.botpress'
+import * as bp from '.botpress'
 
-type Channels = Integration['channels']
+type Channels = bp.Integration['channels']
 type Messages = Channels[keyof Channels]['messages']
 type MessageHandler = Messages[keyof Messages]
 type MessageHandlerProps = Parameters<MessageHandler>[0]
 
-sentryHelpers.init({
-  dsn: secrets.SENTRY_DSN,
-  environment: secrets.SENTRY_ENVIRONMENT,
-  release: secrets.SENTRY_RELEASE,
-})
-
-const log = console
-
-const integration = new Integration({
+const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx }) => {
     await setViberWebhook(webhookUrl, ctx.configuration.authToken)
   },
@@ -165,7 +157,7 @@ const integration = new Integration({
   },
   handler: async ({ req, client }) => {
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
 
@@ -253,7 +245,7 @@ const integration = new Integration({
           })
           break
         default:
-          log.info('unsupported message type: ', data.message)
+          console.info('unsupported message type: ', data.message)
           return
       }
     }
@@ -299,7 +291,11 @@ const integration = new Integration({
   },
 })
 
-export default sentryHelpers.wrapIntegration(integration)
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
+})
 
 type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'> & {
   payload: any // TODO: type this
@@ -377,8 +373,8 @@ async function getUserDetails({ ctx, id }: { ctx: IntegrationContext; id: string
   return data.user
 }
 
-type Card = channels.channel.card.Card
-type CardAction = channels.channel.card.Card['actions'][number]
+type Card = bp.channels.channel.card.Card
+type CardAction = bp.channels.channel.card.Card['actions'][number]
 
 const renderCard = (payload: Card) => {
   const card = [
@@ -455,7 +451,7 @@ function renderButtonSay(action: CardAction) {
   }
 }
 
-type Choice = channels.channel.choice.Choice
+type Choice = bp.channels.channel.choice.Choice
 
 function renderChoice(payload: Choice) {
   const choice = [

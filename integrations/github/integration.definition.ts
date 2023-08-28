@@ -9,7 +9,7 @@ export default new IntegrationDefinition({
   title: 'GitHub',
   version: '0.2.0',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   description: 'Github integration for Botpress',
   configuration,
   actions,

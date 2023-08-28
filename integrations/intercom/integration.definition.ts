@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   title: 'Intercom',
   description: 'This integration allows your bot to interact with Intercom.',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({
       accessToken: z.string(),
@@ -33,7 +33,7 @@ export default new IntegrationDefinition({
   },
   actions: {},
   events: {},
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
   user: {
     tags: { id: {} },
     creation: { enabled: true, requiredTags: ['id'] },

@@ -57,17 +57,17 @@ importers:
   bots/bugbuster:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.2
+        specifier: 0.3.6
         version: link:../../packages/client
       '@botpress/sdk':
-        specifier: 0.3.0
+        specifier: 0.4.2
         version: link:../../packages/sdk
       zod:
         specifier: ^3.20.6
         version: 3.21.4
     devDependencies:
       '@botpress/cli':
-        specifier: 0.3.0
+        specifier: 0.4.2
         version: link:../../packages/cli
       '@types/node':
         specifier: ^18.11.17
@@ -722,6 +722,46 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  integrations/trello:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@botpress/sdk-addons':
+        specifier: workspace:*
+        version: link:../../packages/sdk-addons
+      trello.js:
+        specifier: ^1.2.6
+        version: 1.2.6
+      zod:
+        specifier: ^3.20.6
+        version: 3.21.4
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@sentry/cli':
+        specifier: ^2.18.1
+        version: 2.18.1
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.16.0
+      esbuild:
+        specifier: ^0.15.18
+        version: 0.15.18
+      nodemon:
+        specifier: ^2.0.20
+        version: 2.0.22
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.1(@types/node@18.16.0)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   integrations/twilio:
     dependencies:
       '@botpress/client':
@@ -1063,7 +1103,7 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.2
+        specifier: 0.3.6
         version: link:../client
       '@bpinternal/tunnel':
         specifier: ^0.1.0
@@ -1139,7 +1179,7 @@ importers:
         version: 3.21.4
     devDependencies:
       '@botpress/sdk':
-        specifier: 0.3.0
+        specifier: 0.4.2
         version: link:../sdk
       '@bpinternal/log4bot':
         specifier: ^0.0.4
@@ -1178,10 +1218,10 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.2
+        specifier: 0.3.6
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.3.0
+        specifier: 0.4.2
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1200,10 +1240,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.2
+        specifier: 0.3.6
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.3.0
+        specifier: 0.4.2
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1232,8 +1272,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.5.1
-        version: 0.5.1(openapi-types@12.1.3)
+        specifier: 0.5.5
+        version: 0.5.5(openapi-types@12.1.3)
       esbuild:
         specifier: ^0.16.12
         version: 0.16.17
@@ -1241,7 +1281,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.2
+        specifier: 0.3.6
         version: link:../client
       axios:
         specifier: 0.27.2
@@ -1842,10 +1882,10 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.5.1(openapi-types@12.1.3):
-    resolution: {integrity: sha512-W02713bdlQ+XaGrO7pxXj1zbfGtkkYn/tT0kxF8ZwU6VLQIh1xCQA5vT1vO7KDdjQUjXMyRdg/Dhtgp2ij1vGg==}
+  /@botpress/api@0.5.5(openapi-types@12.1.3):
+    resolution: {integrity: sha512-lbhPVqS9unCrb3vONyXXPgw8pZtmybIE6kfY5Q6uQYm4pJ3yNPUBqMpuVkvOOMAn5VF/qg16n67oY7KjXUZjWQ==}
     dependencies:
-      '@bpinternal/opapi': 0.2.5(openapi-types@12.1.3)
+      '@bpinternal/opapi': 0.3.1(openapi-types@12.1.3)
     transitivePeerDependencies:
       - debug
       - openapi-types
@@ -1873,8 +1913,8 @@ packages:
       moment: 2.29.4
       regex-parser: 2.2.11
 
-  /@bpinternal/opapi@0.2.5(openapi-types@12.1.3):
-    resolution: {integrity: sha512-GkHIcWc1SWvEymfVkdEu0arK2U+n4v/GYxd+8Fkb+/AufdnuPLyz2DB/R/tONg/JgwZz0+vvdFj/NOPOVC+q7Q==}
+  /@bpinternal/opapi@0.3.1(openapi-types@12.1.3):
+    resolution: {integrity: sha512-L0EmF+kuXJ0w/eTifoFl5mTHyQSiLX3VrDG/QHBiFWDdiL28oHt6iLQq99AmCONT+dsi3eYyLXAD4ObStsgLJA==}
     dependencies:
       '@anatine/zod-openapi': 1.14.0(openapi3-ts@2.0.2)(zod@3.21.4)
       '@readme/openapi-parser': 2.5.0(openapi-types@12.1.3)
@@ -9677,6 +9717,16 @@ packages:
   /tr46@0.0.3:
     resolution: {integrity: sha512-N3WMsuqV66lT30CrXNbEjx4GEwlow3v6rr4mCcv6prnfwhS01rkgyFdjPNBYd9br7LpXV1+Emh01fHnq2Gdgrw==}
 
+  /trello.js@1.2.6:
+    resolution: {integrity: sha512-ds7prbYHRp1SeNsDHTbLLfN1dOTBfg1AZ+/hnov25aglveFTNK7q/1KSRC533Fcyep7PdngjpWUKpjlGlkFl/Q==}
+    dependencies:
+      axios: 1.4.0
+      form-data: 4.0.0
+      tslib: 2.6.2
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /trim-repeated@1.0.0:
     resolution: {integrity: sha512-pkonvlKk8/ZuR0D5tLW8ljt5I8kmxp2XKymhepUeOdCEfKpZaktSArkLHZt76OB1ZvO9bssUsDty4SWhLvZpLg==}
     engines: {node: '>=0.10.0'}
@@ -9822,6 +9872,10 @@ packages:
 
   /tslib@2.5.3:
     resolution: {integrity: sha512-mSxlJJwl3BMEQCUNnxXBU9jP4JBktcEGhURcPR6VQVlnP0FdDEsIaz0C35dXNGLyRfrATNofF0F5p2KPxQgB+w==}
+    dev: false
+
+  /tslib@2.6.2:
+    resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
     dev: false
 
   /tsscmp@1.0.6:

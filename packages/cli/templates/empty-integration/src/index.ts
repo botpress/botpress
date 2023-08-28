@@ -1,7 +1,6 @@
 import * as botpress from '.botpress'
 
-const logger = console
-logger.info('starting integration')
+console.info('starting integration')
 
 class NotImplementedError extends Error {
   constructor() {

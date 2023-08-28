@@ -85,6 +85,29 @@ We love contributions from the community! We welcome pull requests that provide 
 
 Please keep the contributions to integrations and open-source packages. For bugs or features related to the API, Botpress Cloud or the Botpress Studio, please talk to us on [Discord](https://discord.gg/botpress) instead!
 
+### Prerequisites
+
+The development environment requires the following tools to be installed:
+
+- [`git`](https://git-scm.com/): Git is a free and open source distributed version control system.
+- [`node`](https://nodejs.org/en/): Node.js® is a JavaScript runtime built on Chrome's V8 JavaScript engine.
+- [`pnpm`](https://pnpm.io/): PNPM is a fast, disk space efficient package manager.
+- [`tilt`](https://tilt.dev/): Tilt is a toolkit for fixing the pains of microservice development.
+
+### Building from sources
+
+```sh
+# Clone the repository
+git clone https://github.com/botpress/botpress.git
+cd botpress
+
+# Build Sources
+tilt ci
+
+# Run Checks
+pnpm run check
+```
+
 ## Licensing
 
 All packages in this repository are open-source software and licensed under the [MIT License](LICENSE). By contributing in this repository, you agree to release your code under this license as well.

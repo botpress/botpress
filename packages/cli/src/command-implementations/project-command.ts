@@ -184,25 +184,33 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
 
     const secretArgv = this._parseArgvSecrets(argv.secrets)
-    const invalidSecret = Object.keys(secretArgv).find((s) => !secretDefinitions.includes(s))
+    const invalidSecret = Object.keys(secretArgv).find((s) => !secretDefinitions[s])
     if (invalidSecret) {
       throw new errors.BotpressCLIError(`Secret ${invalidSecret} is not defined in integration definition`)
     }
 
     const values: Record<string, string> = {}
-    for (const secretDef of secretDefinitions) {
-      const argvSecret = secretArgv[secretDef]
+    for (const [secretName, { optional }] of Object.entries(secretDefinitions)) {
+      const argvSecret = secretArgv[secretName]
       if (argvSecret) {
-        this.logger.debug(`Using secret "${secretDef}" from argv`)
-        values[secretDef] = argvSecret
+        this.logger.debug(`Using secret "${secretName}" from argv`)
+        values[secretName] = argvSecret
         continue
       }
 
-      const prompted = await this.prompt.text(`Enter value for secret "${secretDef}"`)
-      if (!prompted) {
-        throw new errors.BotpressCLIError('Secret is required')
+      const mode = optional ? 'optional' : 'required'
+      const prompted = await this.prompt.text(`Enter value for secret "${secretName}" (${mode})`)
+      if (prompted) {
+        values[secretName] = prompted
+        continue
       }
-      values[secretDef] = prompted
+
+      if (optional) {
+        this.logger.warn(`Secret "${secretName}" is unassigned`)
+        continue
+      }
+
+      throw new errors.BotpressCLIError(`Secret "${secretName}" is required`)
     }
 
     const envVariables = _.mapKeys(values, (_v, k) => codegen.secretEnvVariableName(k))

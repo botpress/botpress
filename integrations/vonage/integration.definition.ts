@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   title: 'Vonage',
   description: 'This integration allows your bot to interact with Vonage.',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({
       apiKey: z.string(),
@@ -44,5 +44,5 @@ export default new IntegrationDefinition({
     },
     creation: { enabled: true, requiredTags: ['userId', 'channel'] },
   },
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
 })

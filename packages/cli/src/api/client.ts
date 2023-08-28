@@ -28,7 +28,7 @@ export class ApiClient {
 
   public constructor(props: ApiClientProps, private _logger: Logger) {
     const { apiUrl, token, workspaceId } = props
-    this.client = new Client({ host: apiUrl, token, workspaceId })
+    this.client = new Client({ apiUrl, token, workspaceId })
     this.url = apiUrl
     this.token = token
     this.workspaceId = workspaceId

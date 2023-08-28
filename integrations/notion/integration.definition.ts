@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   name: 'notion',
   version: '0.0.1',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({
       /**
