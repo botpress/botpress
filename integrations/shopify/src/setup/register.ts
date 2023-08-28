@@ -15,21 +15,13 @@ function getValue(obj: string | undefined) {
   }
 }
 
-export const register: RegisterFunction = async ({ client, ctx, logger, webhookUrl }) => {
-  const webhooks = await Promise.all(
+export const register: RegisterFunction = async ({ ctx, logger, webhookUrl }) => {
+  await Promise.all(
     ARR_OF_EVENTS.map(async (event) => {
       const topic = getValue(event)
-      const webhookId = await createWebhook({ topic, ctx, logger, webhookUrl })
-      return webhookId
+      await createWebhook({ topic, ctx, logger, webhookUrl })
     })
   )
-
-  await client.setState({
-    type: 'integration',
-    name: 'configuration',
-    id: `${ctx.integrationId}`,
-    payload: { webhookIds: webhooks },
-  })
 }
 
 async function createWebhook({

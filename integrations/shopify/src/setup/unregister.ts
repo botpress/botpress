@@ -7,21 +7,38 @@ type Implementation = ConstructorParameters<typeof botpress.Integration>[0]
 type UnregisterFunction = Implementation['unregister']
 type IntegrationContext = Parameters<UnregisterFunction>[0]['ctx']
 
-export const unregister: UnregisterFunction = async ({ client, ctx, logger }) => {
-  const { state } = await client.getState({
-    id: `${ctx.integrationId}`,
-    name: 'configuration',
-    type: 'integration',
-  })
+export const unregister: UnregisterFunction = async ({ ctx, logger, webhookUrl }) => {
+  const axiosConfig = {
+    baseURL: `https://${ctx.configuration.shopName}.myshopify.com`,
+    headers: {
+      'X-Shopify-Access-Token': ctx.configuration.access_token,
+      'Content-Type': 'application/json',
+    },
+  }
 
-  for (const webhookId of state.payload.webhookIds ?? []) {
-    await deleteWebhook({ ctx, webhookId, logger })
+  let response = await axios.get(`/admin/api/${SHOPIFY_API_VERSION}/webhooks.json?address=${webhookUrl}`, axiosConfig)
+
+  if (response.data.webhooks.length > 0) {
+    logger
+      .forBot()
+      .info(
+        `Shopify "${
+          response.data.webhooks.topic
+        }" Webhook was found with id ${response.data.webhooks[0].id.toString()} for Bot ${
+          ctx.botId
+        }. Webhook was not created`
+      )
+
+    for (const webhook of response.data.webhooks) {
+      const webhookId = webhook.id
+      await deleteWebhook({ webhookId, ctx, logger })
+    }
   }
 }
 
 async function deleteWebhook({
-  ctx,
   webhookId,
+  ctx,
   logger,
 }: {
   webhookId: string
@@ -39,9 +56,7 @@ async function deleteWebhook({
 
     const response = await axios.delete(`/admin/api/${SHOPIFY_API_VERSION}/webhooks/${webhookId}.json`, axiosConfig)
 
-    logger.forBot().debug('data: ' + response.data)
-
-    logger.forBot().info(`Shopify ${webhookId} Webhook Deleted ${response.data}`)
+    logger.forBot().info(`Shopify ${webhookId} Webhook Deleted ${JSON.stringify(response.data)}`)
   } catch (e) {
     logger.forBot().error(`'Shopify ${webhookId} Webhook Deletion' exception ${JSON.stringify(e)}`)
   }
