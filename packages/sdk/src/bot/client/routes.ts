@@ -84,9 +84,53 @@ export type GetOrCreateUser<_TBot extends BaseBot> = Client['getOrCreateUser']
 export type UpdateUser<_TBot extends BaseBot> = Client['updateUser']
 export type DeleteUser<_TBot extends BaseBot> = Client['deleteUser']
 
-export type GetState<_TBot extends BaseBot> = Client['getState']
-export type SetState<_TBot extends BaseBot> = Client['setState']
-export type PatchState<_TBot extends BaseBot> = Client['patchState']
+export type GetState<TBot extends BaseBot> = <TState extends keyof TBot['states']>(
+  x: Merge<
+    Arg<Client['getState']>,
+    {
+      name: Cast<TState, string> // TODO: use state name to infer state type
+    }
+  >
+) => Promise<{
+  state: Merge<
+    Awaited<Res<Client['getState']>>['state'],
+    {
+      payload: TBot['states'][TState]
+    }
+  >
+}>
+
+export type SetState<TBot extends BaseBot> = <TState extends keyof TBot['states']>(
+  x: Merge<
+    Arg<Client['setState']>,
+    {
+      name: Cast<TState, string> // TODO: use state name to infer state type
+    }
+  >
+) => Promise<{
+  state: Merge<
+    Awaited<Res<Client['setState']>>['state'],
+    {
+      payload: TBot['states'][TState]
+    }
+  >
+}>
+
+export type PatchState<TBot extends BaseBot> = <TState extends keyof TBot['states']>(
+  x: Merge<
+    Arg<Client['patchState']>,
+    {
+      name: Cast<TState, string> // TODO: use state name to infer state type
+    }
+  >
+) => Promise<{
+  state: Merge<
+    Awaited<Res<Client['patchState']>>['state'],
+    {
+      payload: TBot['states'][TState]
+    }
+  >
+}>
 
 export type CallAction<TBot extends BaseBot> = <ActionType extends keyof EnumerateActions<TBot>>(
   x: Merge<

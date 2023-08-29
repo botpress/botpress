@@ -56,6 +56,11 @@ type UserDefinition = Partial<{
   }
 }>
 
+type SecretDefinition = {
+  optional?: boolean
+  description?: string
+}
+
 export type IntegrationDefinitionProps<
   TConfig extends BaseConfig = BaseConfig,
   TEvents extends BaseEvents = BaseEvents,
@@ -88,7 +93,7 @@ export type IntegrationDefinitionProps<
 
   user?: UserDefinition
 
-  secrets?: string[]
+  secrets?: Record<string, SecretDefinition>
 }
 
 export class IntegrationDefinition<

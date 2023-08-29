@@ -1,8 +1,7 @@
 import { addCommentToDiscussion, addCommentToPage, addPageToDb, deleteBlock, getDb } from './actions'
-import * as botpress from '.botpress'
+import * as bp from '.botpress'
 
-const logger = console
-logger.info('starting integration')
+console.info('starting integration')
 
 class NotImplementedError extends Error {
   constructor() {
@@ -10,7 +9,7 @@ class NotImplementedError extends Error {
   }
 }
 
-export default new botpress.Integration({
+export default new bp.Integration({
   createConversation: async ({ client, channel }) => {
     const { conversation } = await client.getOrCreateConversation({
       channel,

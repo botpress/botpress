@@ -4,7 +4,7 @@ import axios from 'axios'
 import queryString from 'query-string'
 import { z } from 'zod'
 import { Client, IntegrationCtx } from './types'
-import { secrets } from '.botpress'
+import * as bp from '.botpress'
 
 const linearEndpoint = 'https://api.linear.app'
 
@@ -35,8 +35,8 @@ export class LinearOauthClient {
   private clientSecret: string
 
   constructor() {
-    this.clientId = secrets.CLIENT_ID
-    this.clientSecret = secrets.CLIENT_SECRET
+    this.clientId = bp.secrets.CLIENT_ID
+    this.clientSecret = bp.secrets.CLIENT_SECRET
   }
 
   async getAccessToken(code: string) {

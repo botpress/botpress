@@ -16,5 +16,16 @@ export default new IntegrationDefinition({
   actions,
   events,
   states,
-  secrets: ['CLIENT_ID', 'CLIENT_SECRET', 'WEBHOOK_SIGNING_SECRET', ...sentryHelpers.COMMON_SECRET_NAMES],
+  secrets: {
+    CLIENT_ID: {
+      description: 'The client ID of your Linear OAuth app.',
+    },
+    CLIENT_SECRET: {
+      description: 'The client secret of your Linear OAuth app.',
+    },
+    WEBHOOK_SIGNING_SECRET: {
+      description: 'The signing secret of your Linear webhook.',
+    },
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+  },
 })

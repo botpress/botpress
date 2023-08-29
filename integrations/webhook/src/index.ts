@@ -1,14 +1,8 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import qs from 'qs'
-import { Integration, secrets } from '.botpress'
+import * as bp from '.botpress'
 
-sentryHelpers.init({
-  dsn: secrets.SENTRY_DSN,
-  environment: secrets.SENTRY_ENVIRONMENT,
-  release: secrets.SENTRY_RELEASE,
-})
-
-const integration = new Integration({
+const integration = new bp.Integration({
   handler: async ({ req, client, ctx }) => {
     if (ctx.configuration.secret && req.headers['x-bp-secret'] !== ctx.configuration.secret) {
       throw new Error('Invalid secret')
@@ -42,4 +36,8 @@ const integration = new Integration({
   channels: {},
 })
 
-export default sentryHelpers.wrapIntegration(integration)
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
+})

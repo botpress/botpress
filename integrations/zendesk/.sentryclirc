@@ -1,0 +1,5 @@
+[defaults]
+project=integration-zendesk
+
+[auth]
+dsn=https://cd50676f9cf896c5b3b238ce2ad8a375@o363631.ingest.sentry.io/4505686832906240

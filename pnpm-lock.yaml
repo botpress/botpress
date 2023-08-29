@@ -57,17 +57,17 @@ importers:
   bots/bugbuster:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.3
+        specifier: 0.3.6
         version: link:../../packages/client
       '@botpress/sdk':
-        specifier: 0.3.1
+        specifier: 0.4.2
         version: link:../../packages/sdk
       zod:
         specifier: ^3.20.6
         version: 3.21.4
     devDependencies:
       '@botpress/cli':
-        specifier: 0.3.1
+        specifier: 0.4.2
         version: link:../../packages/cli
       '@types/node':
         specifier: ^18.11.17
@@ -112,6 +112,28 @@ importers:
       zod:
         specifier: ^3.20.6
         version: 3.21.4
+
+  bots/hit-looper:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      zod:
+        specifier: ^3.20.6
+        version: 3.21.4
+    devDependencies:
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.16.0
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.1(@types/node@18.16.0)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
 
   integrations/asana:
     dependencies:
@@ -1078,10 +1100,50 @@ importers:
         specifier: ^4.9.5
         version: 4.9.5
 
+  integrations/zendesk:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@botpress/sdk-addons':
+        specifier: workspace:*
+        version: link:../../packages/sdk-addons
+      axios:
+        specifier: ^1.4.0
+        version: 1.4.0
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
+      zod:
+        specifier: ^3.21.4
+        version: 3.21.4
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@sentry/cli':
+        specifier: ^2.18.1
+        version: 2.18.1
+      '@types/lodash':
+        specifier: ^4.14.191
+        version: 4.14.195
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.16.0
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.1(@types/node@18.16.0)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.5
+        version: 4.9.5
+
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.3
+        specifier: 0.3.6
         version: link:../client
       '@bpinternal/tunnel':
         specifier: ^0.1.0
@@ -1157,7 +1219,7 @@ importers:
         version: 3.21.4
     devDependencies:
       '@botpress/sdk':
-        specifier: 0.3.1
+        specifier: 0.4.2
         version: link:../sdk
       '@bpinternal/log4bot':
         specifier: ^0.0.4
@@ -1196,10 +1258,10 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.3
+        specifier: 0.3.6
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.3.1
+        specifier: 0.4.2
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1218,10 +1280,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.3
+        specifier: 0.3.6
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.3.1
+        specifier: 0.4.2
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1250,8 +1312,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.5.1
-        version: 0.5.1(openapi-types@12.1.3)
+        specifier: 0.5.5
+        version: 0.5.5(openapi-types@12.1.3)
       esbuild:
         specifier: ^0.16.12
         version: 0.16.17
@@ -1259,7 +1321,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.3
+        specifier: 0.3.6
         version: link:../client
       axios:
         specifier: 0.27.2
@@ -1860,10 +1922,10 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.5.1(openapi-types@12.1.3):
-    resolution: {integrity: sha512-W02713bdlQ+XaGrO7pxXj1zbfGtkkYn/tT0kxF8ZwU6VLQIh1xCQA5vT1vO7KDdjQUjXMyRdg/Dhtgp2ij1vGg==}
+  /@botpress/api@0.5.5(openapi-types@12.1.3):
+    resolution: {integrity: sha512-lbhPVqS9unCrb3vONyXXPgw8pZtmybIE6kfY5Q6uQYm4pJ3yNPUBqMpuVkvOOMAn5VF/qg16n67oY7KjXUZjWQ==}
     dependencies:
-      '@bpinternal/opapi': 0.2.5(openapi-types@12.1.3)
+      '@bpinternal/opapi': 0.3.1(openapi-types@12.1.3)
     transitivePeerDependencies:
       - debug
       - openapi-types
@@ -1891,8 +1953,8 @@ packages:
       moment: 2.29.4
       regex-parser: 2.2.11
 
-  /@bpinternal/opapi@0.2.5(openapi-types@12.1.3):
-    resolution: {integrity: sha512-GkHIcWc1SWvEymfVkdEu0arK2U+n4v/GYxd+8Fkb+/AufdnuPLyz2DB/R/tONg/JgwZz0+vvdFj/NOPOVC+q7Q==}
+  /@bpinternal/opapi@0.3.1(openapi-types@12.1.3):
+    resolution: {integrity: sha512-L0EmF+kuXJ0w/eTifoFl5mTHyQSiLX3VrDG/QHBiFWDdiL28oHt6iLQq99AmCONT+dsi3eYyLXAD4ObStsgLJA==}
     dependencies:
       '@anatine/zod-openapi': 1.14.0(openapi3-ts@2.0.2)(zod@3.21.4)
       '@readme/openapi-parser': 2.5.0(openapi-types@12.1.3)
