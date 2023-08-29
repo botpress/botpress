@@ -1,7 +1,7 @@
 import { WebClient } from '@slack/web-api'
 import { Integration } from '.botpress'
 
-export const retrieveMessage: Integration['actions']['retrieveMessage'] = async ({ ctx, input }) => {
+export const retrieveMessage: Integration['actions']['retrieveMessage'] = async ({ ctx, input, logger }) => {
   const slackClient = new WebClient(ctx.configuration.botToken)
 
   const response = await slackClient.conversations.history({
@@ -11,17 +11,20 @@ export const retrieveMessage: Integration['actions']['retrieveMessage'] = async 
     channel: input.channel,
   })
 
-  if (response.ok) {
+  if (!response.ok) {
+    logger.forBot().error('Could not retrieve message', response.error)
     throw new Error(`Could not retrieve message: ${response.error}`)
   }
 
   const message = response.messages?.[0]
 
   if (!message) {
-    throw new Error('Message not found')
+    logger.forBot().error('No message found')
+    throw new Error('No message found')
   }
 
   if (!message.type || !message.ts || !message.user || !message.text) {
+    logger.forBot().error('Message is missing required fields')
     throw new Error('Message is missing required fields')
   }
 
