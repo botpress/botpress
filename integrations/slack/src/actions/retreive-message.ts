@@ -1,7 +1,7 @@
 import { WebClient } from '@slack/web-api'
 import { Integration } from '.botpress'
 
-export const retrieveMessage: Integration['actions']['retrievegMessage'] = async ({ ctx, input }) => {
+export const retrieveMessage: Integration['actions']['retrieveMessage'] = async ({ ctx, input }) => {
   const slackClient = new WebClient(ctx.configuration.botToken)
 
   const response = await slackClient.conversations.history({

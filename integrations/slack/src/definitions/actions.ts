@@ -63,7 +63,7 @@ const findTarget = {
   },
 }
 
-const retrievegMessage = {
+const retrieveMessage = {
   title: 'Retrieve Message',
   description: 'Retrieve a message from Slack',
   input: {
@@ -93,5 +93,5 @@ const retrievegMessage = {
 export const actions = {
   addReaction,
   findTarget,
-  retrievegMessage,
+  retrieveMessage,
 } satisfies IntegrationDefinitionProps['actions']
