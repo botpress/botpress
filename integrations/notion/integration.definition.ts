@@ -5,7 +5,8 @@ const emptyObject = z.object({})
 const anyObject = z.object({}).passthrough()
 
 export default new IntegrationDefinition({
-  name: 'notion',
+  name: 'Notion',
+  description: 'Notion integration for Botpress',
   version: '0.2.0',
   icon: 'icon.svg',
   readme: 'hub.md',
