@@ -72,6 +72,9 @@ importers:
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.0
+      shellby:
+        specifier: workspace:*
+        version: link:../../scripts/shellby
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@types/node@18.16.0)(typescript@4.9.5)
@@ -128,6 +131,9 @@ importers:
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.0
+      shellby:
+        specifier: workspace:*
+        version: link:../../scripts/shellby
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@types/node@18.16.0)(typescript@4.9.5)
@@ -1359,6 +1365,12 @@ importers:
       yaml:
         specifier: ^2.3.1
         version: 2.3.1
+
+  scripts/shellby:
+    dependencies:
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
 
 packages:
 
