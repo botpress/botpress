@@ -57,17 +57,17 @@ importers:
   bots/bugbuster:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.7
+        specifier: workspace:*
         version: link:../../packages/client
       '@botpress/sdk':
-        specifier: 0.4.3
+        specifier: workspace:*
         version: link:../../packages/sdk
       zod:
         specifier: ^3.20.6
         version: 3.21.4
     devDependencies:
       '@botpress/cli':
-        specifier: 0.4.3
+        specifier: workspace:*
         version: link:../../packages/cli
       '@types/node':
         specifier: ^18.11.17

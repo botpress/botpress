@@ -24,11 +24,11 @@ process.on('uncaughtException', onError)
 
 void yargs
   .command(
-    'bump <package>',
+    'bump [package]',
     'Bump version of a package',
-    () => yargs.positional('package', { type: 'string', demandOption: true }).options(config.bumpSchema),
+    () => yargs.positional('package', { type: 'string', demandOption: false }).options(config.bumpSchema),
     (argv) => {
-      void bumpVersion(argv.package, argv)
+      void bumpVersion(argv)
     }
   )
   .command('sync', 'Sync versions of all packages', config.syncSchema, (argv) => {
