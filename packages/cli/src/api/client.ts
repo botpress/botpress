@@ -1,34 +1,39 @@
-import { Client, Integration, isApiError } from '@botpress/client'
+import * as bpclient from '@botpress/client'
 import _ from 'lodash'
 import { formatIntegrationRef, IntegrationRef } from '../integration-ref'
 import type { Logger } from '../logger'
+import * as paging from './paging'
 
 export type PageLister<R extends object> = (t: { nextToken?: string }) => Promise<R & { meta: { nextToken?: string } }>
 
 export type ApiClientProps = {
   apiUrl: string
   token: string
-  workspaceId?: string
+  workspaceId: string
 }
 
 export type ApiClientFactory = {
   newClient: (props: ApiClientProps, logger: Logger) => ApiClient
 }
 
+type PublicIntegration = bpclient.Integration
+type PrivateIntegration = bpclient.Integration & { workspaceId: string }
+type Integration = bpclient.Integration & { workspaceId?: string }
+
 /**
  * This class is used to wrap the Botpress API and provide a more convenient way to interact with it.
  */
 export class ApiClient {
-  public readonly client: Client
+  public readonly client: bpclient.Client
   public readonly url: string
   public readonly token: string
-  public readonly workspaceId?: string
+  public readonly workspaceId: string
 
   public static newClient = (props: ApiClientProps, logger: Logger) => new ApiClient(props, logger)
 
   public constructor(props: ApiClientProps, private _logger: Logger) {
     const { apiUrl, token, workspaceId } = props
-    this.client = new Client({ apiUrl, token, workspaceId })
+    this.client = new bpclient.Client({ apiUrl, token, workspaceId })
     this.url = apiUrl
     this.token = token
     this.workspaceId = workspaceId
@@ -52,14 +57,21 @@ export class ApiClient {
     return
   }
 
-  public async findPrivateIntegration(ref: IntegrationRef): Promise<Integration | undefined> {
+  public async findPrivateIntegration(ref: IntegrationRef): Promise<PrivateIntegration | undefined> {
+    const { workspaceId } = this
     if (ref.type === 'id') {
-      return this.validateStatus(() => this.client.getIntegration(ref).then((r) => r.integration), 404)
+      return this.validateStatus(
+        () => this.client.getIntegration(ref).then((r) => ({ ...r.integration, workspaceId })),
+        404
+      )
     }
-    return this.validateStatus(() => this.client.getIntegrationByName(ref).then((r) => r.integration), 404)
+    return this.validateStatus(
+      () => this.client.getIntegrationByName(ref).then((r) => ({ ...r.integration, workspaceId })),
+      404
+    )
   }
 
-  public async findPublicIntegration(ref: IntegrationRef): Promise<Integration | undefined> {
+  public async findPublicIntegration(ref: IntegrationRef): Promise<PublicIntegration | undefined> {
     if (ref.type === 'id') {
       return this.validateStatus(() => this.client.getPublicIntegrationById(ref).then((r) => r.integration), 404)
     }
@@ -70,25 +82,7 @@ export class ApiClient {
     await this.client.listBots({})
   }
 
-  public async listAllPages<R extends object>(lister: PageLister<R>): Promise<R[]>
-  public async listAllPages<R extends object, M>(lister: PageLister<R>, mapper?: (r: R) => M[]): Promise<M[]>
-  public async listAllPages<R extends object, M>(lister: PageLister<R>, mapper?: (r: R) => M[]) {
-    let nextToken: string | undefined
-    const all: R[] = []
-
-    do {
-      const { meta, ...r } = await lister({ nextToken })
-      all.push(r as R)
-      nextToken = meta.nextToken
-    } while (nextToken)
-
-    if (!mapper) {
-      return all
-    }
-
-    const mapped: M[] = all.flatMap((r) => mapper(r))
-    return mapped
-  }
+  public listAllPages = paging.listAllPages
 
   public async validateStatus<V>(fn: () => Promise<V>, allowedStatuses: number | number[]): Promise<V | undefined> {
     try {
@@ -96,7 +90,7 @@ export class ApiClient {
       return v
     } catch (err) {
       const allowedStatusesArray = _.isArray(allowedStatuses) ? allowedStatuses : [allowedStatuses]
-      const isAllowed = isApiError(err) && err.code && allowedStatusesArray.includes(err.code)
+      const isAllowed = bpclient.isApiError(err) && err.code && allowedStatusesArray.includes(err.code)
       if (isAllowed) {
         return
       }
