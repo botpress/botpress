@@ -1,4 +1,3 @@
-import type { Integration } from '@botpress/client'
 import { casing } from '../utils'
 import { GENERATED_HEADER, INDEX_FILE } from './const'
 import { stringifySingleLine } from './generators'
@@ -8,9 +7,10 @@ import { ConfigurationModule } from './integration-schemas/configuration-module'
 import { EventsModule } from './integration-schemas/events-module'
 import { StatesModule } from './integration-schemas/states-module'
 import { Module, ModuleDef } from './module'
+import * as types from './typings'
 
 export class IntegrationInstanceIndexModule extends Module {
-  public static async create(integration: Integration): Promise<IntegrationInstanceIndexModule> {
+  public static async create(integration: types.IntegrationDefinition): Promise<IntegrationInstanceIndexModule> {
     const { name } = integration
 
     const configModule = await ConfigurationModule.create(integration.configuration ?? { schema: {} })
@@ -54,7 +54,7 @@ export class IntegrationInstanceIndexModule extends Module {
   }
 
   private constructor(
-    private integration: Integration,
+    private integration: types.IntegrationDefinition,
     private configModule: ConfigurationModule,
     private actionsModule: ActionsModule,
     private channelsModule: ChannelsModule,
@@ -77,6 +77,8 @@ export class IntegrationInstanceIndexModule extends Module {
     const { name, version, id } = integration
     const className = casing.to.pascalCase(name)
     const propsName = `${className}Props`
+
+    const integrationId = id === null ? 'null' : `'${id}'`
 
     const lines = [
       GENERATED_HEADER,
@@ -113,7 +115,7 @@ export class IntegrationInstanceIndexModule extends Module {
       '',
       `  public readonly name = '${name}'`,
       `  public readonly version = '${version}'`,
-      `  public readonly id = '${id}'`,
+      `  public readonly id = ${integrationId}`,
       '',
       '  public readonly enabled?: boolean',
       `  public readonly configuration?: ${configModule.name}.${configModule.exports}`,

@@ -1,14 +1,17 @@
 import type * as bpclient from '@botpress/client'
 import type * as bpsdk from '@botpress/sdk'
 import type { YargsConfig } from '@bpinternal/yargs-extra'
+import bluebird from 'bluebird'
 import chalk from 'chalk'
 import fs from 'fs'
 import _ from 'lodash'
 import pathlib from 'path'
+import { ApiClient } from '../api/client'
 import * as codegen from '../code-generation'
 import type * as config from '../config'
 import * as consts from '../consts'
 import * as errors from '../errors'
+import { formatIntegrationRef, IntegrationRef } from '../integration-ref'
 import type { CommandArgv, CommandDefinition } from '../typings'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
@@ -19,6 +22,9 @@ export type ProjectCache = { botId: string; devId: string }
 type ConfigurableProjectPaths = { entryPoint: string; outDir: string; workDir: string }
 type ConstantProjectPaths = typeof consts.fromOutDir & typeof consts.fromWorkDir
 type AllProjectPaths = ConfigurableProjectPaths & ConstantProjectPaths
+
+type ApiIntegrationInstance = utils.types.Merge<bpsdk.IntegrationInstance<string>, { id: string }>
+type LocalIntegrationInstance = utils.types.Merge<bpsdk.IntegrationInstance<string>, { id: null }>
 
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   public constructor(argv: CommandArgv<ProjectCommandDefinition>) {
@@ -44,15 +50,49 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return new utils.cache.FSKeyValueCache<ProjectCache>(this.projectPaths.abs.projectCacheFile)
   }
 
-  protected parseBot(bot: bpsdk.Bot) {
+  protected async prepareBotIntegrationInstances(bot: bpsdk.Bot, api: ApiClient) {
+    const integrationList = _(bot.props.integrations).values().filter(utils.guards.is.defined).value()
+
+    const { apiInstances, localInstances } = this._splitApiAndLocalIntegrationInstances(integrationList)
+
+    const fetchedInstances: ApiIntegrationInstance[] = await bluebird.map(localInstances, async (instance) => {
+      const ref: IntegrationRef = { type: 'name', name: instance.name, version: instance.version }
+      const integration = await api.findIntegration(ref)
+      if (!integration) {
+        const formattedRef = formatIntegrationRef(ref)
+        throw new errors.BotpressCLIError(`Integration "${formattedRef}" not found`)
+      }
+      return { ...instance, id: integration.id }
+    })
+
     return {
-      ...bot.props,
-      integrations: _(bot.props.integrations)
-        .values()
-        .filter(utils.guards.is.defined)
+      integrations: _([...fetchedInstances, ...apiInstances])
         .keyBy((i) => i.id)
         .mapValues(({ enabled, configuration }) => ({ enabled, configuration }))
         .value(),
+    }
+  }
+
+  private _splitApiAndLocalIntegrationInstances(instances: bpsdk.IntegrationInstance<string>[]): {
+    apiInstances: ApiIntegrationInstance[]
+    localInstances: LocalIntegrationInstance[]
+  } {
+    const apiInstances: ApiIntegrationInstance[] = []
+    const localInstances: LocalIntegrationInstance[] = []
+    for (const { id, ...instance } of instances) {
+      if (id) {
+        apiInstances.push({ ...instance, id })
+      } else {
+        localInstances.push({ ...instance, id: null })
+      }
+    }
+
+    return { apiInstances, localInstances }
+  }
+
+  protected prepareBot(bot: bpsdk.Bot) {
+    return {
+      ...bot.props,
       configuration: bot.props.configuration
         ? {
             ...bot.props.configuration,
@@ -74,7 +114,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
   }
 
-  protected parseIntegrationDefinition(integration: bpsdk.IntegrationDefinition) {
+  protected prepareIntegrationDefinition(integration: bpsdk.IntegrationDefinition) {
     return {
       ...integration,
       configuration: integration.configuration
@@ -120,9 +160,11 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
   }
 
-  protected async readIntegrationDefinitionFromFS(): Promise<bpsdk.IntegrationDefinition | undefined> {
-    const abs = this.projectPaths.abs
-    const rel = this.projectPaths.rel('workDir')
+  protected async readIntegrationDefinitionFromFS(
+    projectPaths: utils.path.PathStore<'workDir' | 'definition'> = this.projectPaths
+  ): Promise<bpsdk.IntegrationDefinition | undefined> {
+    const abs = projectPaths.abs
+    const rel = projectPaths.rel('workDir')
 
     if (!fs.existsSync(abs.definition)) {
       this.logger.debug(`Integration definition not found at ${rel.definition}`)

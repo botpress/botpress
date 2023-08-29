@@ -72,7 +72,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
 
     const createBody: CreateIntegrationBody = {
-      ...this.parseIntegrationDefinition(integrationDef),
+      ...this.prepareIntegrationDefinition(integrationDef),
       icon: iconFileContent,
       readme: readmeFileContent,
       code,
@@ -147,7 +147,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       {
         id: bot.id,
         code,
-        ...this.parseBot(botImpl),
+        ...this.prepareBot(botImpl),
+        ...(await this.prepareBotIntegrationInstances(botImpl, api)),
       },
       bot
     )
