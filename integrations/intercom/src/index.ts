@@ -3,25 +3,15 @@ import type { AckFunction } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Client, ReplyToConversationMessageType } from 'intercom-client'
 import { z } from 'zod'
-import * as html from './html.utils'
-import { Integration, secrets } from '.botpress'
-import type * as bp from '.botpress'
 import { INTEGRATION_NAME } from './const'
+import * as html from './html.utils'
+import * as bp from '.botpress'
 
 type Card = bp.channels.channel.card.Card
 type Location = bp.channels.channel.location.Location
 type Configuration = bp.configuration.Configuration
 
-const conversationPartSchema = z.object({
-  type: z.literal('conversation_part'),
-  id: z.string(),
-  author: z.object({
-    id: z.string(),
-    email: z.string().nullable(),
-    type: z.string(),
-  }),
-  body: z.string().nullable(),
-})
+type IntercomMessage = z.infer<typeof conversationSourceSchema>
 
 const conversationSourceSchema = z.object({
   id: z.string(),
@@ -33,15 +23,9 @@ const conversationSourceSchema = z.object({
   body: z.string().nullable(),
 })
 
-type IntercomMessage = {
-  id: string
-  author: {
-    id: string
-    email: string | null
-    type: string
-  }
-  body: string | null
-}
+const conversationPartSchema = conversationSourceSchema.extend({
+  type: z.literal('conversation_part'),
+})
 
 const conversationSchema = z.object({
   type: z.literal('conversation'),
@@ -64,7 +48,7 @@ const webhookNotificationSchema = z.object({
   }),
 })
 
-const integration = new Integration({
+const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {},
@@ -320,9 +304,9 @@ const integration = new Integration({
 })
 
 export default sentryHelpers.wrapIntegration(integration, {
-  dsn: secrets.SENTRY_DSN,
-  environment: secrets.SENTRY_ENVIRONMENT,
-  release: secrets.SENTRY_RELEASE,
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
 })
 
 async function sendMessage(props: {
