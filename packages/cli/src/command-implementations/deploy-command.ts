@@ -51,6 +51,11 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const readmeFileContent = await this._readMediaFile('readme', readmeRelativeFilePath)
 
     const integration = await api.findIntegration({ type: 'name', name, version })
+    if (integration && !integration.workspaceId) {
+      throw new errors.BotpressCLIError(
+        `Public integration ${integrationDef.name} v${integrationDef.version} is already deployed in another workspace.`
+      )
+    }
 
     let message: string
     if (integration) {
