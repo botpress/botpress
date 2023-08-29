@@ -33,14 +33,14 @@ export const Triggers = [
   {
     name: 'ticketAssigned',
     conditions: {
-      all: [
+      all: [],
+      any: [
         {
           field: 'assignee_id',
-          operator: 'value_previous',
+          operator: 'changed',
           value: '',
         },
       ],
-      any: [],
     },
   },
   {
