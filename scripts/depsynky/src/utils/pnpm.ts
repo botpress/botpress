@@ -1,3 +1,4 @@
+import { spawn } from 'child_process'
 import * as fs from 'fs'
 import * as glob from 'glob'
 import * as pathlib from 'path'
@@ -14,6 +15,33 @@ export type PnpmWorkspace = {
 }
 
 const PNPM_WORKSPACE_FILE = 'pnpm-workspace.yaml'
+
+export async function install(): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const pnpmInstall = spawn('pnpm', ['install'])
+
+    pnpmInstall.stdout.on('data', (data) => {
+      console.info(data.toString())
+    })
+
+    pnpmInstall.stderr.on('data', (data) => {
+      console.error(data.toString())
+    })
+
+    pnpmInstall.on('close', (code) => {
+      console.debug(`pnpm install finished with code ${code}`)
+      resolve()
+    })
+
+    pnpmInstall.on('error', (err) => {
+      reject(new Error(`pnpm install failed: ${err}`))
+    })
+
+    pnpmInstall.on('disconnect', () => {
+      reject(new Error('pnpm install disconnected'))
+    })
+  })
+}
 
 export const searchWorkspaces = (rootDir: string): PnpmWorkspace[] => {
   const pnpmWorkspacesFile = pathlib.join(rootDir, PNPM_WORKSPACE_FILE)

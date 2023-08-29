@@ -6,6 +6,7 @@ import { syncVersions } from './commands/sync-versions'
 import * as config from './config'
 import * as errors from './errors'
 import { logger } from './utils/logging'
+import { install } from './utils/pnpm'
 
 const onError = (thrown: unknown): never => {
   const err: Error = thrown instanceof Error ? thrown : new Error(`${thrown}`)
@@ -27,8 +28,9 @@ void yargs
     'bump <package>',
     'Bump version of a package',
     () => yargs.positional('package', { type: 'string', demandOption: true }).options(config.bumpSchema),
-    (argv) => {
-      void bumpVersion(argv.package, argv)
+    async (argv) => {
+      await bumpVersion(argv.package, argv)
+      await install()
     }
   )
   .command('sync', 'Sync versions of all packages', config.syncSchema, (argv) => {
