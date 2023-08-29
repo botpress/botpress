@@ -53,7 +53,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const integration = await api.findIntegration({ type: 'name', name, version })
     if (integration && !integration.workspaceId) {
       throw new errors.BotpressCLIError(
-        `Integration ${integrationDef.name} v${integrationDef.version} is already deployed publicly in another workspace.`
+        `Public integration ${integrationDef.name} v${integrationDef.version} is already deployed in another workspace.`
       )
     }
 
