@@ -9,7 +9,9 @@ import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
   if (req.path === '/oauth') {
-    return handleOauth(req, client, ctx)
+    return handleOauth(req, client, ctx).catch((err) => {
+      console.info('error', err.response?.data, err.message)
+    })
   }
 
   if (!req.body) {
