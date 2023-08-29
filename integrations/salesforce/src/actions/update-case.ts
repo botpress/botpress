@@ -10,14 +10,14 @@ export const updateCase: Implementation['actions']['updateCase'] = async ({
   logger,
 }) => {
   const validatedInput = updateCaseInputSchema.parse(input)
-
-  const SalesforceClient = getClient(ctx.configuration)
+  const SalesforceClient = await getClient(ctx.configuration)
 
   const caseData = {
     Subject: validatedInput.subject || undefined,
     SuppliedName: validatedInput.suppliedName || undefined,
     Description: validatedInput.description || undefined,
     Priority: validatedInput.priority || undefined,
+    Status: validatedInput.status || undefined,
     Origin: validatedInput.origin || undefined,
   }
 

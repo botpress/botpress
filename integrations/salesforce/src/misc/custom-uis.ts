@@ -36,7 +36,7 @@ export const createContactUi = {
 
 export const createLeadUi = {
   firstName: {
-    title: 'The first name of the contact (e.g. John)',
+    title: 'The first name of the lead (e.g. John)',
   },
   lastName: {
     title: 'The last name of the lead (e.g. Doe)',
@@ -70,9 +70,61 @@ export const updateCaseUi = {
   priority: {
     title: 'The updated priority of the case (Optional) (e.g. High)',
   },
+  status: {
+    title: 'The updated status of the case (Optional) (e.g. Resolved)',
+  },
   origin: {
     title:
       'The updated origin of the case (Optional) (e.g. Botpress: bot user-1)',
+  },
+}
+
+export const updateContactUi = {
+  contactId: {
+    title: 'The ID of the contact to update',
+  },
+  firstName: {
+    title: 'The updated first name of the contact (Optional) (e.g. John)',
+  },
+  lastName: {
+    title: 'The updated last name of the contact (Optional) (e.g. Doe)',
+  },
+  accountId: {
+    title:
+      'The updated ID of the account associated with the contact (Optional)',
+  },
+  email: {
+    title:
+      'The updated email address of the contact (Optional) (e.g. john.doe@example.com)',
+  },
+  phone: {
+    title:
+      'The updated phone number of the contact (Optional) (e.g. +1-555-1234)',
+  },
+}
+
+export const updateLeadUi = {
+  leadId: {
+    title: 'The ID of the lead to update',
+  },
+  firstName: {
+    title: 'The updated first name of the lead (Optional) (e.g. John)',
+  },
+  lastName: {
+    title: 'The updated last name of the lead (Optional) (e.g. Doe)',
+  },
+  company: {
+    title: 'The updated company of the lead (Optional) (e.g. Acme Inc.)',
+  },
+  email: {
+    title:
+      'The updated email address of the lead (Optional) (e.g. john.doe@example.com)',
+  },
+  phone: {
+    title: 'The updated phone number of the lead (Optional) (e.g. +1-555-1234)',
+  },
+  status: {
+    title: 'The updated status of the lead (Optional) (e.g. Contacted)',
   },
 }
 
@@ -84,6 +136,12 @@ export const findContactUi = {
 
 export const findLeadUi = {
   email: {
-    title: 'Contact email (e.g. example@example.com)',
+    title: 'Lead email (e.g. example@example.com)',
+  },
+}
+
+export const findCaseUi = {
+  caseNumber: {
+    title: 'The case number (e.g. 00001026)',
   },
 }

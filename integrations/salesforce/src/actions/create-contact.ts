@@ -7,11 +7,10 @@ import { getClient } from '../utils'
 export const createContact: Implementation['actions']['createContact'] =
   async ({ ctx, input, logger }) => {
     const validatedInput = createContactInputSchema.parse(input)
-
-    const SalesforceClient = getClient(ctx.configuration)
+    const SalesforceClient = await getClient(ctx.configuration)
 
     const contactData = {
-      FirstName: validatedInput.lastName,
+      FirstName: validatedInput.firstName,
       LastName: validatedInput.lastName,
       AccountId: validatedInput.accountId,
       Email: validatedInput.email,

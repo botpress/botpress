@@ -7,10 +7,16 @@ import {
   createLeadOutputSchema,
   updateCaseInputSchema,
   updateCaseOutputSchema,
+  updateContactInputSchema,
+  updateContactOutputSchema,
+  updateLeadInputSchema,
+  updateLeadOutputSchema,
   findContactInputSchema,
   findContactOutputSchema,
   findLeadInputSchema,
   findLeadOutputSchema,
+  findCaseInputSchema,
+  findCaseOutputSchema,
 } from '../misc/custom-schemas'
 
 import {
@@ -18,8 +24,11 @@ import {
   createContactUi,
   createLeadUi,
   updateCaseUi,
+  updateContactUi,
+  updateLeadUi,
   findContactUi,
   findLeadUi,
+  findCaseUi,
 } from '../misc/custom-uis'
 
 const createCase = {
@@ -66,6 +75,28 @@ const updateCase = {
   },
 }
 
+const updateContact = {
+  title: 'Update Contact',
+  input: {
+    schema: updateContactInputSchema,
+    ui: updateContactUi,
+  },
+  output: {
+    schema: updateContactOutputSchema,
+  },
+}
+
+const updateLead = {
+  title: 'Update Lead',
+  input: {
+    schema: updateLeadInputSchema,
+    ui: updateLeadUi,
+  },
+  output: {
+    schema: updateLeadOutputSchema,
+  },
+}
+
 const findContact = {
   title: 'Find Contact',
   input: {
@@ -88,11 +119,25 @@ const findLead = {
   },
 }
 
+const findCase = {
+  title: 'Find Case',
+  input: {
+    schema: findCaseInputSchema,
+    ui: findCaseUi,
+  },
+  output: {
+    schema: findCaseOutputSchema,
+  },
+}
+
 export const actions = {
   createCase,
   createContact,
   createLead,
   updateCase,
+  updateContact,
+  updateLead,
   findContact,
   findLead,
+  findCase,
 }

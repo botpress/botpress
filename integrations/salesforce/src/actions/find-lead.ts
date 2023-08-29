@@ -1,6 +1,9 @@
 import type { Implementation } from '../misc/types'
 
-import { findLeadInputSchema } from '../misc/custom-schemas'
+import {
+  findLeadInputSchema,
+  findLeadOutputSchema,
+} from '../misc/custom-schemas'
 
 import { getClient } from '../utils'
 
@@ -10,8 +13,7 @@ export const findLead: Implementation['actions']['findLead'] = async ({
   logger,
 }) => {
   const validatedInput = findLeadInputSchema.parse(input)
-
-  const SalesforceClient = getClient(ctx.configuration)
+  const SalesforceClient = await getClient(ctx.configuration)
 
   let response
 
@@ -23,5 +25,5 @@ export const findLead: Implementation['actions']['findLead'] = async ({
     response = {}
   }
 
-  return { id: response?.Id || '', url: response?.attributes?.url || '' }
+  return findLeadOutputSchema.parse(response)
 }

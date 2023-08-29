@@ -34,7 +34,7 @@ To enable the Salesforce integration in Botpress, follow these steps:
 
 ## Usage
 
-Once the integration is enabled, you can start interacting with Salesforce from your Botpress chatbot. The integration offers actions like `createCase` and `findContact` to manage cases and contacts.
+Once the integration is enabled, you can start interacting with Salesforce from your Botpress chatbot. The integration provides actions to create, update and search Salesforce objects such as Contact, Lead and Case.
 
 For more details and examples, refer to the Botpress and Salesforce documentation.
 

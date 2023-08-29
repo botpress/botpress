@@ -10,11 +10,10 @@ export const createLead: Implementation['actions']['createLead'] = async ({
   logger,
 }) => {
   const validatedInput = createLeadInputSchema.parse(input)
-
-  const SalesforceClient = getClient(ctx.configuration)
+  const SalesforceClient = await getClient(ctx.configuration)
 
   const leadData = {
-    FirstName: validatedInput.lastName,
+    FirstName: validatedInput.firstName,
     LastName: validatedInput.lastName,
     Company: validatedInput.company,
     Email: validatedInput.email,

@@ -1,6 +1,9 @@
 import type { Implementation } from '../misc/types'
 
-import { findContactInputSchema } from '../misc/custom-schemas'
+import {
+  findContactInputSchema,
+  findContactOutputSchema,
+} from '../misc/custom-schemas'
 
 import { getClient } from '../utils'
 
@@ -10,8 +13,7 @@ export const findContact: Implementation['actions']['findContact'] = async ({
   logger,
 }) => {
   const validatedInput = findContactInputSchema.parse(input)
-
-  const SalesforceClient = getClient(ctx.configuration)
+  const SalesforceClient = await getClient(ctx.configuration)
 
   let response
 
@@ -23,5 +25,5 @@ export const findContact: Implementation['actions']['findContact'] = async ({
     response = {}
   }
 
-  return { id: response?.Id || '', url: response?.attributes?.url || '' }
+  return findContactOutputSchema.parse(response)
 }

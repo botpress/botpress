@@ -10,8 +10,7 @@ export const createCase: Implementation['actions']['createCase'] = async ({
   logger,
 }) => {
   const validatedInput = createCaseInputSchema.parse(input)
-
-  const SalesforceClient = getClient(ctx.configuration)
+  const SalesforceClient = await getClient(ctx.configuration)
 
   const caseData = {
     Subject: validatedInput.subject,
