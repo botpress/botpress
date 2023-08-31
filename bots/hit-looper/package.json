@@ -1,7 +1,8 @@
 {
   "name": "hit-looper",
   "scripts": {
-    "type:check": "echo \"Setup needed before type checking\""
+    "type:check": "tsc --noEmit",
+    "integrations": "ts-node -T ./integrations.ts"
   },
   "keywords": [],
   "private": true,
@@ -14,6 +15,7 @@
   },
   "devDependencies": {
     "@types/node": "^18.11.17",
+    "shellby": "workspace:*",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.4"
   }

@@ -218,7 +218,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     line.started(`Deploying dev integration ${chalk.bold(integrationDef.name)}...`)
 
     const integrationBody: CreateIntegrationBody = {
-      ...this.parseIntegrationDefinition(integrationDef),
+      ...this.prepareIntegrationDefinition(integrationDef),
       url: externalUrl,
     }
 
@@ -292,7 +292,8 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       {
         id: bot.id,
         url: externalUrl,
-        ...this.parseBot(botImpl),
+        ...this.prepareBot(botImpl),
+        ...(await this.prepareBotIntegrationInstances(botImpl, api)),
       },
       bot
     )

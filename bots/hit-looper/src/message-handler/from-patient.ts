@@ -22,7 +22,7 @@ export const patientMessageHandler: MessageHandler = async ({ message, client, c
       const {
         output: { conversationId: downstreamId },
       } = await client.callAction({
-        type: 'zendesk:startTicketConversation',
+        type: 'zendesk:getTicketConversation',
         input: {
           ticketId: `${ticket.id}`,
         },
@@ -30,7 +30,6 @@ export const patientMessageHandler: MessageHandler = async ({ message, client, c
 
       await client.updateConversation({
         id: upstream.id,
-        participantIds: [], // TODO: rm that when updating the api
         tags: {
           downstream: downstreamId,
         },
@@ -38,7 +37,6 @@ export const patientMessageHandler: MessageHandler = async ({ message, client, c
 
       await client.updateConversation({
         id: downstreamId,
-        participantIds: [], // TODO: rm that when updating the api
         tags: {
           upstream: upstream.id,
         },

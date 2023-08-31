@@ -1,5 +1,6 @@
 import semver from 'semver'
 import * as uuid from 'uuid'
+import * as utils from './utils'
 
 export type UUIDIntegrationRef = {
   type: 'id'
@@ -12,11 +13,20 @@ export type NameIntegrationRef = {
   version: string
 }
 
-export type IntegrationRef = UUIDIntegrationRef | NameIntegrationRef
+export type LocalPathIntegrationRef = {
+  type: 'path'
+  path: utils.path.AbsolutePath
+}
+
+export type ApiIntegrationRef = UUIDIntegrationRef | NameIntegrationRef
+export type IntegrationRef = ApiIntegrationRef | LocalPathIntegrationRef
 
 const LATEST_TAG = 'latest'
 
 export const formatIntegrationRef = (ref: IntegrationRef): string => {
+  if (ref.type === 'path') {
+    return ref.path
+  }
   if (ref.type === 'id') {
     return ref.id
   }
@@ -24,8 +34,16 @@ export const formatIntegrationRef = (ref: IntegrationRef): string => {
 }
 
 export const parseIntegrationRef = (ref: string): IntegrationRef | undefined => {
+  if (!ref) {
+    return
+  }
+
   if (uuid.validate(ref)) {
     return { type: 'id', id: ref }
+  }
+
+  if (utils.path.isAbsolute(ref)) {
+    return { type: 'path', path: ref }
   }
 
   if (!ref.includes('@')) {

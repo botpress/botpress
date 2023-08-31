@@ -1,0 +1,16 @@
+{
+  "name": "shellby",
+  "version": "0.0.1",
+  "private": true,
+  "description": "Just a function to run shell commands without having to handle the child_process API",
+  "main": "src/index.ts",
+  "scripts": {
+    "type:check": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "typescript": "^4.9.4"
+  }
+}

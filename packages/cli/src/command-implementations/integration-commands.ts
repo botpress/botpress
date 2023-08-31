@@ -14,6 +14,9 @@ export class GetIntegrationCommand extends GlobalCommand<GetIntegrationCommandDe
     if (!parsedRef) {
       throw new errors.InvalidIntegrationReferenceError(this.argv.integrationRef)
     }
+    if (parsedRef.type === 'path') {
+      throw new errors.BotpressCLIError('Cannot get local integration')
+    }
 
     try {
       const integration = await api.findIntegration(parsedRef)
@@ -61,6 +64,9 @@ export class DeleteIntegrationCommand extends GlobalCommand<DeleteIntegrationCom
     const parsedRef = parseIntegrationRef(this.argv.integrationRef)
     if (!parsedRef) {
       throw new errors.InvalidIntegrationReferenceError(this.argv.integrationRef)
+    }
+    if (parsedRef.type === 'path') {
+      throw new errors.BotpressCLIError('Cannot delete local integration')
     }
 
     let integration: bpclient.Integration | undefined

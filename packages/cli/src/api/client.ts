@@ -1,6 +1,6 @@
 import * as bpclient from '@botpress/client'
 import _ from 'lodash'
-import { formatIntegrationRef, IntegrationRef } from '../integration-ref'
+import { formatIntegrationRef, ApiIntegrationRef as IntegrationRef } from '../integration-ref'
 import type { Logger } from '../logger'
 import * as paging from './paging'
 
