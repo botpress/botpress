@@ -2,15 +2,12 @@ import * as childProcess from 'child_process'
 
 const parseCommand = (cmd: string): { command: string; args: string[] } => {
   const [command, ...args] = cmd.split(' ')
-  if (command) {
-    return {
-      command,
-      args,
-    }
+  if (!command) {
+    throw new Error('Command is empty')
   }
   return {
-    command: cmd,
-    args: [],
+    command,
+    args,
   }
 }
 
