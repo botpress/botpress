@@ -1,6 +1,3 @@
-import * as bpsdk from '@botpress/sdk'
-import { z } from 'zod'
-import * as utils from '../utils'
 import { GENERATED_HEADER, INDEX_FILE } from './const'
 import { stringifySingleLine } from './generators'
 import { ActionsModule } from './integration-schemas/actions-module'
@@ -12,11 +9,7 @@ import { Module, ModuleDef } from './module'
 import * as types from './typings'
 
 export class IntegrationImplementationIndexModule extends Module {
-  public static async create(
-    sdkIntegration: bpsdk.IntegrationDefinition
-  ): Promise<IntegrationImplementationIndexModule> {
-    const integration = this._mapIntegration(sdkIntegration)
-
+  public static async create(integration: types.IntegrationDefinition): Promise<IntegrationImplementationIndexModule> {
     const configModule = await ConfigurationModule.create(integration.configuration ?? { schema: {} })
     configModule.unshift('configuration')
 
@@ -112,41 +105,4 @@ export class IntegrationImplementationIndexModule extends Module {
 
     return content
   }
-
-  private static _mapIntegration = (i: bpsdk.IntegrationDefinition): types.IntegrationDefinition => ({
-    name: i.name,
-    version: i.version,
-    user: {
-      tags: i.user?.tags ?? {},
-      creation: i.user?.creation ?? { enabled: false, requiredTags: [] },
-    },
-    configuration: i.configuration ? this._mapSchema(i.configuration) : { schema: {} },
-    events: i.events ? utils.records.mapValues(i.events, this._mapSchema) : {},
-    states: i.states ? utils.records.mapValues(i.states, this._mapSchema) : {},
-    actions: i.actions
-      ? utils.records.mapValues(i.actions, (a) => ({
-          input: this._mapSchema(a.input),
-          output: this._mapSchema(a.output),
-        }))
-      : {},
-    channels: i.channels
-      ? utils.records.mapValues(i.channels, (c) => ({
-          conversation: {
-            tags: c.conversation?.tags ?? {},
-            creation: c.conversation?.creation ?? { enabled: false, requiredTags: [] },
-          },
-          message: {
-            tags: c.message?.tags ?? {},
-          },
-          messages: utils.records.mapValues(c.messages, this._mapSchema),
-        }))
-      : {},
-  })
-
-  private static _mapSchema = <T extends { schema: z.ZodObject<any> }>(
-    x: T
-  ): utils.types.Merge<T, { schema: ReturnType<typeof utils.schema.mapZodToJsonSchema> }> => ({
-    ...x,
-    schema: utils.schema.mapZodToJsonSchema(x),
-  })
 }

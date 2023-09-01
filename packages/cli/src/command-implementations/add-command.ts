@@ -1,12 +1,20 @@
 import type * as bpclient from '@botpress/client'
+import type * as bpsdk from '@botpress/sdk'
 import bluebird from 'bluebird'
 import chalk from 'chalk'
 import * as fs from 'fs'
 import * as pathlib from 'path'
 import * as codegen from '../code-generation'
 import type commandDefinitions from '../command-definitions'
+import * as consts from '../consts'
 import * as errors from '../errors'
-import { parseIntegrationRef } from '../integration-ref'
+import {
+  ApiIntegrationRef,
+  formatIntegrationRef,
+  LocalPathIntegrationRef,
+  parseIntegrationRef,
+} from '../integration-ref'
+import * as utils from '../utils'
 import { ProjectCommand } from './project-command'
 
 type IntegrationInstallDir = codegen.IntegrationInstanceJson & {
@@ -23,16 +31,15 @@ export class AddCommand extends ProjectCommand<AddCommandDefinition> {
 
     const integrationRef = this.argv.integrationRef
 
-    const api = await this.ensureLoginAndCreateClient(this.argv)
     const parsedRef = parseIntegrationRef(integrationRef)
     if (!parsedRef) {
       throw new errors.InvalidIntegrationReferenceError(integrationRef)
     }
 
-    const integration = await api.findIntegration(parsedRef)
-    if (!integration) {
-      throw new errors.BotpressCLIError(`Integration "${integrationRef}" not found`)
-    }
+    const integration =
+      parsedRef.type === 'path'
+        ? await this._fetchLocalIntegration(parsedRef)
+        : await this._fetchApiIntegration(parsedRef)
 
     const allInstances = await this._listIntegrationInstances()
     const existingInstance = allInstances.find((i) => i.name === integration.name)
@@ -48,6 +55,35 @@ export class AddCommand extends ProjectCommand<AddCommandDefinition> {
     }
 
     await this._generateIntegrationInstance(integration)
+  }
+
+  private _fetchLocalIntegration = async (
+    integrationRef: LocalPathIntegrationRef
+  ): Promise<bpsdk.IntegrationDefinition> => {
+    this.logger.warn(
+      'Installing integration from a local path. There is no guarantee that the integration is deployed with the expected schemas.'
+    )
+
+    const workDir = integrationRef.path
+    const pathStore = new utils.path.PathStore<'workDir' | 'definition'>({
+      workDir,
+      definition: utils.path.absoluteFrom(workDir, consts.fromWorkDir.definition),
+    })
+    const integrationDefinition = await this.readIntegrationDefinitionFromFS(pathStore)
+    if (!integrationDefinition) {
+      throw new errors.BotpressCLIError(`Integration definition not found at ${workDir}`)
+    }
+    return integrationDefinition
+  }
+
+  private _fetchApiIntegration = async (integrationRef: ApiIntegrationRef): Promise<bpclient.Integration> => {
+    const api = await this.ensureLoginAndCreateClient(this.argv)
+    const integration = await api.findIntegration(integrationRef)
+    if (!integration) {
+      const formattedRef = formatIntegrationRef(integrationRef)
+      throw new errors.BotpressCLIError(`Integration "${formattedRef}" not found`)
+    }
+    return integration
   }
 
   private async _listIntegrationInstances(): Promise<IntegrationInstallDir[]> {
@@ -87,7 +123,7 @@ export class AddCommand extends ProjectCommand<AddCommandDefinition> {
     await this._generateBotIndex()
   }
 
-  private async _generateIntegrationInstance(integration: bpclient.Integration) {
+  private async _generateIntegrationInstance(integration: bpclient.Integration | bpsdk.IntegrationDefinition) {
     const line = this.logger.line()
 
     const { name, version } = integration
