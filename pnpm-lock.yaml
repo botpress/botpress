@@ -1,4 +1,4 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
 
 settings:
   autoInstallPeers: true
@@ -441,9 +441,9 @@ importers:
 
   integrations/linear:
     dependencies:
-      '@botpress/cli':
+      '@botpress/client':
         specifier: workspace:*
-        version: link:../../packages/cli
+        version: link:../../packages/client
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -466,9 +466,9 @@ importers:
         specifier: ^3.20.6
         version: 3.21.4
     devDependencies:
-      '@botpress/client':
+      '@botpress/cli':
         specifier: workspace:*
-        version: link:../../packages/client
+        version: link:../../packages/cli
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1

@@ -1,8 +1,8 @@
 import { LinearDocument } from '@linear/sdk'
-import { Implementation } from '../misc/types'
 import { getLinearClient } from '../misc/utils'
+import { IntegrationProps } from '.botpress'
 
-export const markAsDuplicate: Implementation['actions']['markAsDuplicate'] = async ({
+export const markAsDuplicate: IntegrationProps['actions']['markAsDuplicate'] = async ({
   client,
   ctx,
   input: { issueId, relatedIssueId },

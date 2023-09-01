@@ -74,6 +74,33 @@ const listIssues = {
   },
 }
 
+const userSchema = z.object({
+  id: z.string(),
+  email: z.string(),
+  name: z.string(),
+  displayName: z.string(),
+  avatarUrl: z.string().optional(),
+  description: z.string().optional(),
+  lastSeen: z.string().optional(),
+  updatedAt: z.date(),
+})
+
+const listUsers = {
+  title: 'List Users',
+  input: {
+    schema: z.object({
+      count: z.number().optional().default(10).describe('The number of users to return'),
+      startCursor: z.string().optional().describe('The cursor to start from'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      users: z.array(userSchema),
+      nextCursor: z.string().optional(),
+    }),
+  },
+}
+
 const listTeams = {
   title: 'List Teams',
   input: {
@@ -85,6 +112,8 @@ const listTeams = {
         z.object({
           id: z.string(),
           name: z.string(),
+          description: z.string().optional(),
+          icon: z.string().optional(),
         })
       ),
     }),
@@ -181,6 +210,7 @@ export const actions = {
   findTarget,
   listIssues,
   listTeams,
+  listUsers,
   markAsDuplicate,
   getIssue,
   getUser,
