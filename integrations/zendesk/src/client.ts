@@ -136,6 +136,11 @@ class ZendeskApi {
     })
     return data.user
   }
+
+  public async getUser(userId: number | string): Promise<ZendeskUser> {
+    const { data } = await this.client.get<{ user: ZendeskUser }>(`/api/v2/users/${userId}.json`)
+    return data.user
+  }
 }
 
 export const getZendeskClient = (config: botpress.configuration.Configuration) =>

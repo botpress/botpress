@@ -27,19 +27,20 @@ export class IntegrationSpecificClient<TIntegration extends BaseIntegration> {
   public listMessages: routes.ListMessages<TIntegration> = (x) => this.client.listMessages(x)
   public deleteMessage: routes.DeleteMessage<TIntegration> = (x) => this.client.deleteMessage(x)
 
-  public createUser: routes.CreateUser<TIntegration> = (x) => this.client.createUser(x)
-  public getUser: routes.GetUser<TIntegration> = (x) => this.client.getUser(x)
+  public createUser: routes.CreateUser<TIntegration> = ((x) =>
+    this.client.createUser(x)) as routes.CreateUser<TIntegration>
+  public getUser: routes.GetUser<TIntegration> = ((x) => this.client.getUser(x)) as routes.GetUser<TIntegration>
   public listUsers: routes.ListUsers<TIntegration> = (x) => this.client.listUsers(x)
-  public getOrCreateUser: routes.GetOrCreateUser<TIntegration> = (x) => this.client.getOrCreateUser(x)
-  public updateUser: routes.UpdateUser<TIntegration> = (x) => this.client.updateUser(x)
+  public getOrCreateUser: routes.GetOrCreateUser<TIntegration> = ((x) =>
+    this.client.getOrCreateUser(x)) as routes.GetOrCreateUser<TIntegration>
+  public updateUser: routes.UpdateUser<TIntegration> = ((x) =>
+    this.client.updateUser(x)) as routes.UpdateUser<TIntegration>
   public deleteUser: routes.DeleteUser<TIntegration> = (x) => this.client.deleteUser(x)
 
-  public getState: routes.GetState<TIntegration> = (x) =>
-    this.client.getState(x).then((y) => ({ state: { ...y.state, payload: y.state.payload as any } }))
-  public setState: routes.SetState<TIntegration> = (x) =>
-    this.client.setState(x).then((y) => ({ state: { ...y.state, payload: y.state.payload as any } }))
-  public patchState: routes.PatchState<TIntegration> = (x) =>
-    this.client.patchState(x).then((y) => ({ state: { ...y.state, payload: y.state.payload as any } }))
+  public getState: routes.GetState<TIntegration> = ((x) => this.client.getState(x)) as routes.GetState<TIntegration>
+  public setState: routes.SetState<TIntegration> = ((x) => this.client.setState(x)) as routes.SetState<TIntegration>
+  public patchState: routes.PatchState<TIntegration> = ((x) =>
+    this.client.patchState(x)) as routes.PatchState<TIntegration>
 
   public configureIntegration: routes.ConfigureIntegration<TIntegration> = (x) => this.client.configureIntegration(x)
 }
