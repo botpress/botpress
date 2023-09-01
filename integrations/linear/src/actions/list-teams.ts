@@ -5,5 +5,12 @@ export const listTeams: IntegrationProps['actions']['listTeams'] = async ({ clie
   const linearClient = await getLinearClient(client, ctx.integrationId)
   const teams = await linearClient.teams()
 
-  return { teams: teams.nodes.map((x) => ({ id: x.id, name: x.name })) }
+  return {
+    teams: teams.nodes.map((x) => ({
+      id: x.id,
+      name: x.name,
+      description: x.description,
+      icon: x.icon,
+    })),
+  }
 }

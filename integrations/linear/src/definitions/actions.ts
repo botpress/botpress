@@ -112,6 +112,8 @@ const listTeams = {
         z.object({
           id: z.string(),
           name: z.string(),
+          description: z.string().optional(),
+          icon: z.string().optional(),
         })
       ),
     }),
