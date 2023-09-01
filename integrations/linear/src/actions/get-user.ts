@@ -1,10 +1,10 @@
 import z from 'zod'
 
 import { UserProfile } from '../definitions/schemas'
-import { Implementation } from '../misc/types'
 import { getLinearClient } from '../misc/utils'
+import { IntegrationProps } from '.botpress'
 
-export const getUser: Implementation['actions']['getUser'] = async ({ client, ctx, input: { linearUserId } }) => {
+export const getUser: IntegrationProps['actions']['getUser'] = async ({ client, ctx, input: { linearUserId } }) => {
   const linearClient = await getLinearClient(client, ctx.integrationId)
   const user = await linearClient.user(linearUserId)
 

@@ -1,8 +1,8 @@
 import { IssueConnection } from '@linear/sdk'
 
 import { Target } from '../definitions/actions'
-import { Implementation } from '../misc/types'
 import { getLinearClient } from '../misc/utils'
+import { IntegrationProps } from '.botpress'
 
 const findIssues = async (issues: IssueConnection, targets: Target[]) => {
   const data = await issues.fetchNext()
@@ -20,7 +20,7 @@ const findIssues = async (issues: IssueConnection, targets: Target[]) => {
   }
 }
 
-export const findTarget: Implementation['actions']['findTarget'] = async ({ input, client, ctx }) => {
+export const findTarget: IntegrationProps['actions']['findTarget'] = async ({ input, client, ctx }) => {
   const targets: Target[] = []
 
   const linearClient = await getLinearClient(client, ctx.integrationId)

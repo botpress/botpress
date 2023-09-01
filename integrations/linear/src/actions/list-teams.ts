@@ -1,7 +1,7 @@
-import { Implementation } from '../misc/types'
 import { getLinearClient } from '../misc/utils'
+import { IntegrationProps } from '.botpress'
 
-export const listTeams: Implementation['actions']['listTeams'] = async ({ client, ctx, input: {} }) => {
+export const listTeams: IntegrationProps['actions']['listTeams'] = async ({ client, ctx, input: {} }) => {
   const linearClient = await getLinearClient(client, ctx.integrationId)
   const teams = await linearClient.teams()
 

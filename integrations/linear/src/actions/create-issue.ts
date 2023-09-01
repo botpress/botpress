@@ -1,8 +1,8 @@
-import { Implementation } from '../misc/types'
 import { getLinearClient, getTeam } from '../misc/utils'
 import { getIssueFields } from './get-issue'
+import { IntegrationProps } from '.botpress'
 
-export const createIssue: Implementation['actions']['createIssue'] = async ({
+export const createIssue: IntegrationProps['actions']['createIssue'] = async ({
   ctx,
   client,
   input: { title, description, priority, teamName, labels, project },
