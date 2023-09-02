@@ -5,4 +5,5 @@
  */
 import * as utils from './utils'
 
-export const CLI_ROOT_DIR = utils.path.join(__dirname as utils.path.AbsolutePath, '..')
+const SRC_DIR = __dirname as utils.path.AbsolutePath
+export const CLI_ROOT_DIR = utils.path.join(SRC_DIR, '..')

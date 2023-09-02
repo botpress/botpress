@@ -6,6 +6,7 @@ import chalk from 'chalk'
 import fs from 'fs'
 import _ from 'lodash'
 import pathlib from 'path'
+import semver from 'semver'
 import { ApiClient } from '../api/client'
 import * as codegen from '../code-generation'
 import type * as config from '../config'
@@ -42,6 +43,11 @@ class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
 }
 
 export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends GlobalCommand<C> {
+  protected override async bootstrap() {
+    await super.bootstrap()
+    await this._notifyUpdateSdk()
+  }
+
   protected get projectPaths() {
     return new ProjectPaths(this.argv)
   }
@@ -280,5 +286,65 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       return [text, undefined]
     }
     return [text.slice(0, index), text.slice(index + 1)]
+  }
+
+  private _notifyUpdateSdk = async (): Promise<void> => {
+    try {
+      this.logger.debug('Checking if sdk is up to date')
+
+      const { workDir } = this.projectPaths.abs
+      const projectPkgJson = await utils.pkgJson.readPackageJson(workDir)
+      if (!projectPkgJson) {
+        this.logger.debug(`Could not find package.json at "${workDir}"`)
+        return
+      }
+
+      const sdkPackageName = '@botpress/sdk'
+      const actualSdkVersion = utils.pkgJson.findDependency(projectPkgJson, sdkPackageName)
+      if (!actualSdkVersion) {
+        this.logger.debug(`Could not find dependency "${sdkPackageName}" in project package.json`)
+        return
+      }
+
+      const actualCleanedSdkVersion = semver.valid(semver.coerce(actualSdkVersion))
+      if (!actualCleanedSdkVersion) {
+        this.logger.debug(`Invalid sdk version "${actualSdkVersion}" in project package.json`)
+        return
+      }
+
+      const cliPkgJson = await this.readPkgJson()
+      const expectedSdkVersion = utils.pkgJson.findDependency(cliPkgJson, sdkPackageName)
+      if (!expectedSdkVersion) {
+        this.logger.debug(`Could not find dependency "${sdkPackageName}" in cli package.json`)
+        return
+      }
+
+      const expectedCleanedSdkVersion = semver.valid(semver.coerce(expectedSdkVersion))
+      if (!expectedCleanedSdkVersion) {
+        this.logger.debug(`Invalid sdk version "${expectedSdkVersion}" in cli package.json`)
+        return
+      }
+
+      if (semver.eq(actualCleanedSdkVersion, expectedCleanedSdkVersion)) {
+        return
+      }
+
+      const diff = semver.diff(actualCleanedSdkVersion, expectedCleanedSdkVersion)
+      if (!diff) {
+        this.logger.debug(`Could not compare versions "${actualCleanedSdkVersion}" and "${expectedCleanedSdkVersion}"`)
+        return
+      }
+
+      const errorMsg = `Project SDK version is "${actualCleanedSdkVersion}", but expected "${expectedCleanedSdkVersion}"`
+      if (utils.semver.releases.lt(diff, 'minor')) {
+        this.logger.debug(`${errorMsg}. This may cause compatibility issues.`)
+        return
+      }
+
+      this.logger.warn(chalk.bold(`${errorMsg}. This will cause compatibility issues.`))
+    } catch (thrown) {
+      const err = errors.BotpressCLIError.map(thrown)
+      this.logger.debug(`Failed to check if sdk is up to date: ${err.message}`)
+    }
   }
 }
