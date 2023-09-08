@@ -1,10 +1,10 @@
 import { LinearDocument } from '@linear/sdk'
 
-import { Implementation } from '../misc/types'
 import { getLinearClient } from '../misc/utils'
 import { getIssueFields } from './get-issue'
+import { IntegrationProps } from '.botpress'
 
-export const listIssues: Implementation['actions']['listIssues'] = async ({
+export const listIssues: IntegrationProps['actions']['listIssues'] = async ({
   client,
   ctx,
   input: { count, startCursor, startDate, teamId },

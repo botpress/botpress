@@ -7,6 +7,7 @@ export default new IntegrationDefinition({
   name: 'asana',
   version: '0.2.0',
   readme: 'hub.md',
+  description: 'Asana integration for Botpress',
   icon: 'icon.svg',
   configuration,
   channels,
