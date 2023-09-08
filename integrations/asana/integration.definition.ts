@@ -6,6 +6,7 @@ import { configuration, states, user, channels, actions } from './src/definition
 export default new IntegrationDefinition({
   name: 'asana',
   version: '0.2.0',
+  title: 'Asana',
   readme: 'hub.md',
   description: 'Asana integration for Botpress',
   icon: 'icon.svg',
