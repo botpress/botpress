@@ -6,6 +6,7 @@ export default new IntegrationDefinition({
   name: 'trello',
   version: '0.2.0',
   readme: 'hub.md',
+  description: 'Trello integration for Botpress',
   icon: 'icon.svg',
   configuration,
   user,

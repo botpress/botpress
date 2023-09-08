@@ -1,7 +1,7 @@
 import { Issue } from '@linear/sdk'
 
-import { Implementation } from '../misc/types'
 import { getLinearClient } from '../misc/utils'
+import { IntegrationProps } from '.botpress'
 
 export const getIssueFields = (issue: Issue) => ({
   id: issue.id,
@@ -15,7 +15,7 @@ export const getIssueFields = (issue: Issue) => ({
   updatedAt: issue.updatedAt.toISOString(),
 })
 
-export const getIssue: Implementation['actions']['getIssue'] = async ({ client, ctx, input: { issueId } }) => {
+export const getIssue: IntegrationProps['actions']['getIssue'] = async ({ client, ctx, input: { issueId } }) => {
   const linearClient = await getLinearClient(client, ctx.integrationId)
   const issue = await linearClient.issue(issueId)
 
