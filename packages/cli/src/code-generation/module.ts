@@ -63,7 +63,7 @@ export abstract class Module implements File {
   }
 }
 
-export abstract class ReExportTypeModule extends Module {
+export class ReExportTypeModule extends Module {
   protected constructor(def: { exportName: string }) {
     super({
       ...def,
@@ -75,22 +75,23 @@ export abstract class ReExportTypeModule extends Module {
   public override get content(): string {
     let content = GENERATED_HEADER
     const dependencies = this.deps
-    const { exports: className } = this
 
     for (const m of dependencies) {
       const { name } = m
       const importFrom = m.import(this)
-      content += `import type * as ${name} from "./${importFrom}";\n`
+      content += `import * as ${name} from "./${importFrom}";\n`
       content += `export * as ${name} from "./${importFrom}";\n`
     }
 
     content += '\n'
 
-    content += `export type ${className} = {\n`
-    for (const { name, exports } of dependencies) {
+    content += `export type ${this.exports} = {\n`
+    for (const { name, exports } of this.deps) {
       content += `  ${name}: ${name}.${exports};\n`
     }
-    content += '}\n'
+    content += '}'
+
+    content += '\n'
 
     return content
   }

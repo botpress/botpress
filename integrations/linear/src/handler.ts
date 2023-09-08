@@ -1,4 +1,3 @@
-import { IntegrationProps } from '@botpress/sdk'
 import { LinearWebhooks, LINEAR_WEBHOOK_SIGNATURE_HEADER, LINEAR_WEBHOOK_TS_FIELD } from '@linear/sdk'
 
 import { getUser } from './actions/get-user'
@@ -6,11 +5,14 @@ import { fireIssueCreated } from './events/issueCreated'
 import { fireIssueUpdated } from './events/issueUpdated'
 import { handleOauth } from './misc/linear'
 import { getUserAndConversation } from './misc/utils'
-import { secrets } from '.botpress'
+import * as bp from '.botpress'
 
-export const handler: IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
+export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
   if (req.path === '/oauth') {
-    return handleOauth(req, client, ctx)
+    return handleOauth(req, client, ctx).catch((err) => {
+      logger.forBot().error('Error while processing OAuth', err.response?.data || err.message)
+      throw err
+    })
   }
 
   if (!req.body) {
@@ -25,7 +27,7 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client, l
   }
 
   // Verify the request, it will throw an error in case of not coming from linear
-  const webhook = new LinearWebhooks(secrets.WEBHOOK_SIGNING_SECRET)
+  const webhook = new LinearWebhooks(bp.secrets.WEBHOOK_SIGNING_SECRET)
   // are we sure it throws? it returns a boolean , add char to test this
   webhook.verify(Buffer.from(req.body), webhookSignatureHeader, linearEvent[LINEAR_WEBHOOK_TS_FIELD])
 

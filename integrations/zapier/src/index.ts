@@ -1,27 +1,13 @@
-/* eslint-disable no-console */
 import type { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios, { isAxiosError } from 'axios'
 import { constants } from 'http2'
-import { Integration, secrets } from '../.botpress'
 import type { Configuration } from '../.botpress/implementation/configuration'
 import { getTriggerSubscribers, saveTriggerSubscribers, unsubscribeZapierHook } from './helpers'
-import {
-  BotpressClient,
-  TriggerRequestBody,
-  IntegrationEvent,
-  IntegrationEventSchema,
-  EventSchema,
-  Event,
-} from './types'
+import { Client, TriggerRequestBody, IntegrationEvent, IntegrationEventSchema, EventSchema, Event } from './types'
+import * as bp from '.botpress'
 
-sentryHelpers.init({
-  dsn: secrets.SENTRY_DSN,
-  environment: secrets.SENTRY_ENVIRONMENT,
-  release: secrets.SENTRY_RELEASE,
-})
-
-const integration = new Integration({
+const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   channels: {},
@@ -83,13 +69,13 @@ const integration = new Integration({
   },
 })
 
-export default sentryHelpers.wrapIntegration(integration)
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
+})
 
-async function handleIntegrationEvent(
-  event: IntegrationEvent,
-  ctx: IntegrationContext<Configuration>,
-  client: BotpressClient
-) {
+async function handleIntegrationEvent(event: IntegrationEvent, ctx: IntegrationContext<Configuration>, client: Client) {
   console.info('Received integration event: ', event)
 
   let subscribers = await getTriggerSubscribers(ctx, client)
@@ -119,7 +105,7 @@ async function handleIntegrationEvent(
   console.info(`Successfully updated trigger subscribers: ${JSON.stringify(subscribers)}`)
 }
 
-export async function handleEvent(event: Event, client: BotpressClient) {
+export async function handleEvent(event: Event, client: Client) {
   await client.createEvent({
     type: 'zapier:event',
     payload: event,

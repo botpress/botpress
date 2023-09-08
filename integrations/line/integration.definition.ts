@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   title: 'Line',
   description: 'This integration allows your bot to interact with Line.',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({
       channelAccessToken: z.string(),
@@ -37,7 +37,7 @@ export default new IntegrationDefinition({
       }),
     },
   },
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
   user: {
     tags: {
       usrId: {},

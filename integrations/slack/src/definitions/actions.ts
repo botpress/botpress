@@ -63,7 +63,35 @@ const findTarget = {
   },
 }
 
+const retrieveMessage = {
+  title: 'Retrieve Message',
+  description: 'Retrieve a message from Slack',
+  input: {
+    schema: z.object({
+      ts: z.string().describe('The timestamp of the message to retrieve'),
+      channel: z.string().describe('The channel of the message to retrieve'),
+    }),
+    ui: {
+      ts: {
+        title: 'Timestamp',
+      },
+      channel: {
+        title: 'Channel',
+      },
+    },
+  },
+  output: {
+    schema: z.object({
+      type: z.string(),
+      user: z.string(),
+      ts: z.string(),
+      text: z.string(),
+    }),
+  },
+}
+
 export const actions = {
   addReaction,
   findTarget,
+  retrieveMessage,
 } satisfies IntegrationDefinitionProps['actions']

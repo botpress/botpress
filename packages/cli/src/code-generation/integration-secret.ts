@@ -9,14 +9,22 @@ export class IntegrationSecretIndexModule extends Module {
   public static async create(integration: IntegrationDefinition): Promise<IntegrationSecretIndexModule> {
     let content = GENERATED_HEADER
     content += 'class Secrets {\n'
-    for (const secretName of integration.secrets ?? []) {
+    for (const [secretName, { optional }] of Object.entries(integration.secrets ?? {})) {
       const envVariableName = secretEnvVariableName(secretName)
       const fieldName = casing.to.screamingSnakeCase(secretName)
-      content += `  public get ${fieldName}(): string {\n`
-      content += `    const envVarValue = process.env.${envVariableName}\n`
-      content += `    if (!envVarValue) { throw new Error('Missing environment variable ${envVariableName}') }\n`
-      content += '    return envVarValue\n'
-      content += '  }\n'
+
+      if (optional) {
+        content += `  public get ${fieldName}(): string | undefined {\n`
+        content += `    const envVarValue = process.env.${envVariableName}\n`
+        content += '    return envVarValue\n'
+        content += '  }\n'
+      } else {
+        content += `  public get ${fieldName}(): string {\n`
+        content += `    const envVarValue = process.env.${envVariableName}\n`
+        content += `    if (!envVarValue) throw new Error('Missing required secret "${secretName}"')\n`
+        content += '    return envVarValue\n'
+        content += '  }\n'
+      }
     }
     content += '}\n'
     content += 'export const secrets = new Secrets()\n'

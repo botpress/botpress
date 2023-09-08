@@ -1,20 +1,16 @@
-import type { Client, Conversation } from '@botpress/client'
-import type { AckFunction, IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
 import queryString from 'query-string'
-import { Integration, channels, secrets } from '.botpress'
+import * as bp from '.botpress'
 
-sentryHelpers.init({
-  dsn: secrets.SENTRY_DSN,
-  environment: secrets.SENTRY_ENVIRONMENT,
-  release: secrets.SENTRY_RELEASE,
-})
+type Channels = bp.Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 const idTag = 'instagram:id'
-const log = console
 
-const integration = new Integration({
+const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {},
@@ -57,7 +53,7 @@ const integration = new Integration({
     },
   },
   handler: async ({ req, client, ctx }) => {
-    log.info('Handler received request')
+    console.info('Handler received request')
 
     if (req.query) {
       const query = queryString.parse(req.query)
@@ -84,7 +80,7 @@ const integration = new Integration({
     }
 
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
 
@@ -139,13 +135,17 @@ const integration = new Integration({
   },
 })
 
-export default sentryHelpers.wrapIntegration(integration)
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
+})
 
-type Carousel = channels.Channels['channel']['carousel']
-type Card = channels.Channels['channel']['card']
-type Choice = channels.Channels['channel']['choice']
-type Dropdown = channels.Channels['channel']['dropdown']
-type Location = channels.Channels['channel']['location']
+type Carousel = bp.channels.channel.carousel.Carousel
+type Card = bp.channels.channel.card.Card
+type Choice = bp.channels.channel.choice.Choice
+type Dropdown = bp.channels.channel.dropdown.Dropdown
+type Location = bp.channels.channel.location.Location
 
 type InstagramAttachment = InstagramPostbackAttachment | InstagramSayAttachment | InstagramUrlAttachment
 
@@ -233,11 +233,7 @@ function getChoiceMessage(payload: Choice | Dropdown): MessengerTypes.Attachment
   }
 }
 
-type SendMessageProps = {
-  ack: AckFunction
-  conversation: Conversation
-  ctx: IntegrationContext
-}
+type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'>
 
 async function sendMessage(
   { ack, ctx, conversation }: SendMessageProps,
@@ -245,11 +241,16 @@ async function sendMessage(
 ) {
   const messengerClient = new MessengerClient({ accessToken: ctx.configuration.accessToken })
   const recipientId = getRecipientId(conversation)
-  const { messageId } = await send(messengerClient, recipientId)
-  await ack({ tags: { [idTag]: messageId } })
+  await send(messengerClient, recipientId)
+  await ack({
+    tags: {
+      // TODO: declare in definition
+      // [idTag]: messageId,
+    },
+  })
 }
 
-export function getRecipientId(conversation: Conversation): string {
+export function getRecipientId(conversation: SendMessageProps['conversation']): string {
   const recipientId = conversation.tags[idTag]
 
   if (!recipientId) {
@@ -259,7 +260,7 @@ export function getRecipientId(conversation: Conversation): string {
   return recipientId
 }
 
-async function handleMessage(message: InstagramMessage, client: Client) {
+async function handleMessage(message: InstagramMessage, client: bp.Client) {
   if (message.message) {
     if (message.message.text) {
       const { conversation } = await client.getOrCreateConversation({
@@ -276,8 +277,11 @@ async function handleMessage(message: InstagramMessage, client: Client) {
       })
 
       await client.createMessage({
-        tags: { [idTag]: message.message.mid },
         type: 'text',
+        tags: {
+          // TODO: declare in definition
+          // [idTag]: message.message.mid
+        },
         userId: user.id,
         conversationId: conversation.id,
         payload: { text: message.message.text },

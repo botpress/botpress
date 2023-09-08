@@ -1,18 +1,13 @@
-import type { Conversation } from '@botpress/client'
-import type { AckFunction, IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
-import { Integration, channels, secrets } from '.botpress'
+import * as bp from '.botpress'
 
-sentryHelpers.init({
-  dsn: secrets.SENTRY_DSN,
-  environment: secrets.SENTRY_ENVIRONMENT,
-  release: secrets.SENTRY_RELEASE,
-})
+type Channels = bp.Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type MessageHandlerProps = Parameters<MessageHandler>[0]
 
-const log = console
-
-const integration = new Integration({
+const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {},
@@ -70,13 +65,13 @@ const integration = new Integration({
   },
   handler: async ({ req, client }) => {
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
 
     const data = JSON.parse(req.body)
 
-    log.info(`Handler received request of type ${data.message_type}`)
+    console.info(`Handler received request of type ${data.message_type}`)
 
     if (data.message_type !== 'text') {
       throw new Error('Handler received an invalid message type')
@@ -157,9 +152,13 @@ const integration = new Integration({
   },
 })
 
-export default sentryHelpers.wrapIntegration(integration)
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
+})
 
-function getRequestMetadata(conversation: Conversation) {
+function getRequestMetadata(conversation: SendMessageProps['conversation']) {
   const channel = conversation.tags?.['vonage:channel']
   const channelId = conversation.tags?.['vonage:channelId']
   const userId = conversation.tags?.['vonage:userId']
@@ -179,11 +178,11 @@ function getRequestMetadata(conversation: Conversation) {
   return { to: userId, from: channelId, channel }
 }
 
-type Dropdown = channels.Channels['channel']['dropdown']
-type Choice = channels.Channels['channel']['choice']
-type Carousel = channels.Channels['channel']['carousel']
-type Card = channels.Channels['channel']['card']
-type Location = channels.Channels['channel']['location']
+type Dropdown = bp.channels.channel.dropdown.Dropdown
+type Choice = bp.channels.channel.choice.Choice
+type Carousel = bp.channels.channel.carousel.Carousel
+type Card = bp.channels.channel.card.Card
+type Location = bp.channels.channel.location.Location
 
 function formatLocationPayload(payload: Location) {
   return {
@@ -316,13 +315,7 @@ function formatCardPayload(payload: Card, count: number = 0) {
 
   return { message_type: 'text', text: body }
 }
-
-type SendMessageProps = {
-  ctx: IntegrationContext
-  conversation: Conversation
-  ack: AckFunction
-}
-
+type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'>
 async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload: any) {
   const { to, from, channel } = getRequestMetadata(conversation)
   const response = await axios.post(

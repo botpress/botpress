@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   title: 'Gmail',
   description: 'This integration allows your bot to interact with Gmail.',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({}).passthrough(),
   },
@@ -53,5 +53,10 @@ export default new IntegrationDefinition({
       }),
     },
   },
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES, 'CLIENT_ID', 'CLIENT_SECRET', 'TOPIC_NAME'],
+  secrets: {
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+    CLIENT_ID: { description: 'Gmail Client ID' },
+    CLIENT_SECRET: { description: 'Gmail Client Secret' },
+    TOPIC_NAME: {},
+  },
 })

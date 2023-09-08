@@ -6,8 +6,8 @@ export abstract class BaseCommand<C extends CommandDefinition> {
   public constructor(protected readonly logger: Logger, protected readonly argv: CommandArgv<C>) {}
 
   protected abstract run(): Promise<void>
-  protected abstract bootstrap?: () => Promise<void>
-  protected abstract teardown?: () => Promise<void>
+  protected bootstrap?(): Promise<void>
+  protected teardown?(): Promise<void>
 
   public async handler(): Promise<{ exitCode: number }> {
     let exitCode = 0

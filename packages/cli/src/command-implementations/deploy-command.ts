@@ -1,8 +1,7 @@
 import type * as bpclient from '@botpress/client'
-import type { Bot as BotImpl, IntegrationDefinition } from '@botpress/sdk'
+import type * as bpsdk from '@botpress/sdk'
 import chalk from 'chalk'
 import * as fs from 'fs'
-import _ from 'lodash'
 import { prepareUpdateBotBody } from '../api/bot-body'
 import type { ApiClient } from '../api/client'
 import { prepareUpdateIntegrationBody, CreateIntegrationBody } from '../api/integration-body'
@@ -36,7 +35,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     return new BuildCommand(this.api, this.prompt, this.logger, this.argv).run()
   }
 
-  private async _deployIntegration(api: ApiClient, integrationDef: IntegrationDefinition) {
+  private async _deployIntegration(api: ApiClient, integrationDef: bpsdk.IntegrationDefinition) {
     const outfile = this.projectPaths.abs.outFile
     let code = await fs.promises.readFile(outfile, 'utf-8')
 
@@ -52,6 +51,11 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const readmeFileContent = await this._readMediaFile('readme', readmeRelativeFilePath)
 
     const integration = await api.findIntegration({ type: 'name', name, version })
+    if (integration && !integration.workspaceId) {
+      throw new errors.BotpressCLIError(
+        `Public integration ${integrationDef.name} v${integrationDef.version} is already deployed in another workspace.`
+      )
+    }
 
     let message: string
     if (integration) {
@@ -68,7 +72,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
 
     const createBody: CreateIntegrationBody = {
-      ...integrationDef,
+      ...this.prepareIntegrationDefinition(integrationDef),
       icon: iconFileContent,
       readme: readmeFileContent,
       code,
@@ -113,17 +117,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   private async _deployBot(api: ApiClient, argvBotId: string | undefined, argvCreateNew: boolean | undefined) {
     const outfile = this.projectPaths.abs.outFile
     const code = await fs.promises.readFile(outfile, 'utf-8')
-    const { default: botImpl } = utils.require.requireJsFile<{ default: BotImpl }>(outfile)
-
-    const {
-      states,
-      events,
-      recurringEvents,
-      configuration: botConfiguration,
-      user,
-      conversation,
-      message,
-    } = botImpl.definition
+    const { default: botImpl } = utils.require.requireJsFile<{ default: bpsdk.Bot }>(outfile)
 
     let bot: bpclient.Bot
     if (argvBotId && argvCreateNew) {
@@ -149,23 +143,12 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying bot ${chalk.bold(bot.name)}...`)
 
-    const integrations = _(botImpl.definition.integrations ?? [])
-      .keyBy((i) => i.id)
-      .mapValues(({ enabled, configuration }) => ({ enabled, configuration }))
-      .value()
-
     const updateBotBody = prepareUpdateBotBody(
       {
         id: bot.id,
         code,
-        states,
-        recurringEvents,
-        configuration: botConfiguration,
-        events,
-        user,
-        conversation,
-        message,
-        integrations,
+        ...this.prepareBot(botImpl),
+        ...(await this.prepareBotIntegrationInstances(botImpl, api)),
       },
       bot
     )

@@ -42,7 +42,7 @@ const FG_COLORS: Record<Color, ChalkColor> = {
 type Symbol = '✓' | '⚠' | '×' | '●' | ' ' | '○'
 type Color = 'blue' | 'green' | 'yellow' | 'red' | 'pink' | 'white' | 'orange' | 'purple'
 type LogPrefix = { symbol: Symbol; fg?: Color; bg?: Color; indent?: number } | string
-type SymbolRederer<T extends Symbol> = { default: T; windows?: string; mac?: string }
+type SymbolRenderer<T extends Symbol> = { default: T; windows?: string; mac?: string }
 
 type LogProps = {
   metadata: any
@@ -56,23 +56,23 @@ type PrintProps = {
   stderr?: boolean
 }
 
-const checkmark: SymbolRederer<'✓'> = {
+const checkmark: SymbolRenderer<'✓'> = {
   default: '✓',
   windows: '√',
   mac: '✔',
 }
 
-const cross: SymbolRederer<'×'> = {
+const cross: SymbolRenderer<'×'> = {
   default: '×',
   mac: '✖',
 }
 
-const danger: SymbolRederer<'⚠'> = { default: '⚠' }
-const circle: SymbolRederer<'○'> = { default: '○' }
-const disc: SymbolRederer<'●'> = { default: '●' }
-const space: SymbolRederer<' '> = { default: ' ' }
+const danger: SymbolRenderer<'⚠'> = { default: '⚠' }
+const circle: SymbolRenderer<'○'> = { default: '○' }
+const disc: SymbolRenderer<'●'> = { default: '●' }
+const space: SymbolRenderer<' '> = { default: ' ' }
 
-const renderers: Record<Symbol, SymbolRederer<Symbol>> = {
+const renderers: Record<Symbol, SymbolRenderer<Symbol>> = {
   '✓': checkmark,
   '×': cross,
   '⚠': danger,

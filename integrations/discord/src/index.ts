@@ -1,12 +1,14 @@
 import { Client } from '@botpress/client'
+import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { InteractionType, InteractionResponseType } from 'discord-interactions'
 import queryString from 'query-string'
 import { DiscordClient, commandName } from './discord'
 import { Integration } from '.botpress'
+import * as bp from '.botpress'
 
 const discord = new DiscordClient()
 
-export default new Integration({
+const integration = new Integration({
   register: async ({ ctx }) => {
     console.log(`Installing Global Commmands for ${ctx.botId}`)
     await discord.installGlobalCommands()
@@ -108,3 +110,9 @@ type OnChatCommand = {
 }
 
 export const onChatCommand = ({ client }: OnChatCommand) => {}
+
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
+})

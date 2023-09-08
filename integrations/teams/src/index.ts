@@ -2,17 +2,11 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 import { channels } from './channels'
 import { handler } from './handler'
-import * as botpress from '.botpress'
-
-sentryHelpers.init({
-  dsn: botpress.secrets.SENTRY_DSN,
-  environment: botpress.secrets.SENTRY_ENVIRONMENT,
-  release: botpress.secrets.SENTRY_RELEASE,
-})
+import * as bp from '.botpress'
 
 console.info('starting integration teams')
 
-const integration = new botpress.Integration({
+const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {},
@@ -20,4 +14,8 @@ const integration = new botpress.Integration({
   handler,
 })
 
-export default sentryHelpers.wrapIntegration(integration)
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
+})

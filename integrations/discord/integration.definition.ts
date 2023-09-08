@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   title: 'Discord',
   description: 'This integration allows your bot to interact with Discord.',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({}),
   },
@@ -22,14 +22,6 @@ export default new IntegrationDefinition({
       }),
     },
   },
-  secrets: [
-    ...sentryHelpers.COMMON_SECRET_NAMES,
-    'BOT_TOKEN',
-    'CLIENT_ID',
-    'CLIENT_SECRET',
-    'APPLICATION_ID',
-    'PUBLIC_KEY',
-  ],
   channels: {
     channel: {
       messages: messages.defaults,
@@ -52,4 +44,12 @@ export default new IntegrationDefinition({
   },
   actions: {},
   events: {},
+  secrets: {
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+    BOT_TOKEN: {},
+    CLIENT_ID: {},
+    CLIENT_SECRET: {},
+    APPLICATION_ID: {},
+    PUBLIC_KEY: {},
+  },
 })

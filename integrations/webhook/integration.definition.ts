@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   title: 'Webhook',
   description: 'This integration allows your bot to interact with Webhook.',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({
       secret: z.string().optional(),
@@ -26,5 +26,5 @@ export default new IntegrationDefinition({
         .passthrough(),
     },
   },
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
 })

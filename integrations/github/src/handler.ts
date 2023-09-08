@@ -29,7 +29,7 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, clien
     id: ctx.integrationId,
   })
 
-  if (!(await verifyWebhook(state.payload.webhookSecret, body, signature))) {
+  if (!(await verifyWebhook(state.payload.webhookSecret!, body, signature))) {
     return console.warn('Invalid webhook secret', state.payload.webhookSecret, signature)
   }
 

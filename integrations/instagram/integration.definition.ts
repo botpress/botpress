@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   title: 'Instagram',
   description: 'This integration allows your bot to interact with Instagram.',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({
       appId: z.string(),
@@ -30,7 +30,7 @@ export default new IntegrationDefinition({
   },
   actions: {},
   events: {},
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
   user: {
     tags: { id: {} },
     creation: { enabled: true, requiredTags: ['id'] },
