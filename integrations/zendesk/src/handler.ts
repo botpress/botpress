@@ -24,19 +24,10 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client, l
         },
       })
 
-      if (!zendeskTrigger.currentUser.externalId?.length) {
-        const { user: newUser } = await client.getOrCreateUser({
-          tags: {
-            id: zendeskTrigger.currentUser.id,
-            name: zendeskTrigger.currentUser.name,
-            email: zendeskTrigger.currentUser.email,
-            role: zendeskTrigger.currentUser.role,
-          },
-        })
+      const requesterId = conversation.tags['zendesk:requesterId']
 
-        await zendeskClient.updateUser(zendeskTrigger.currentUser.id, {
-          external_id: newUser.id,
-        })
+      if (zendeskTrigger.currentUser.id === requesterId) {
+        return
       }
 
       const { user } = await client.getOrCreateUser({
@@ -45,10 +36,35 @@ export const handler: IntegrationProps['handler'] = async ({ req, ctx, client, l
         },
       })
 
+      if (!zendeskTrigger.currentUser.externalId?.length) {
+        await zendeskClient.updateUser(zendeskTrigger.currentUser.id, {
+          external_id: user.id,
+        })
+      }
+
+      const email = user.tags['email']
+      const name = user.tags['name']
+      const role = user.tags['role']
+
+      if (
+        email !== zendeskTrigger.currentUser.email ||
+        name !== zendeskTrigger.currentUser.name ||
+        role !== zendeskTrigger.currentUser.role
+      ) {
+        await client.updateUser({
+          id: user.id,
+          tags: {
+            name: zendeskTrigger.currentUser.name,
+            email: zendeskTrigger.currentUser.email,
+            role: zendeskTrigger.currentUser.role,
+          },
+        })
+      }
+
       const messageWithoutAuthor = zendeskTrigger.comment.split('\n').slice(3).join('\n')
 
       await client.createMessage({
-        tags: { origin: 'zendesk' },
+        tags: {},
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,

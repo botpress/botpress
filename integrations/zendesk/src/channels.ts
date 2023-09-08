@@ -25,7 +25,7 @@ class TagStore<T extends Record<string, string>> {
 export default {
   ticket: {
     messages: {
-      text: async ({ client, ...props }) => {
+      text: async ({ client, ack, ...props }) => {
         const conversationTags = new TagStore(props.conversation, props.logger)
         const ticketId = conversationTags.get(`${INTEGRATION_NAME}:id`)
 
@@ -38,11 +38,13 @@ export default {
         const zendeskAuthorId =
           conversationTags.find(`${INTEGRATION_NAME}:requesterId`) ?? userTags.get(`${INTEGRATION_NAME}:id`)
 
-        return await getZendeskClient(props.ctx.configuration).createComment(
+        const comment = await getZendeskClient(props.ctx.configuration).createComment(
           ticketId,
           zendeskAuthorId,
           props.payload.text
         )
+
+        await ack({ tags: { 'zendesk:id': `${comment.id}` } })
       },
     },
   },

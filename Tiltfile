@@ -102,7 +102,8 @@ local_resource(
   cmd='pnpm build',
   labels=['client'],
   resource_deps=['generate-client'],
-  deps=["./packages/client"]
+  deps=["./packages/client"],
+  ignore=['packages/client/dist']
 )
 
 ## build sdk
@@ -114,7 +115,8 @@ local_resource(
   cmd='pnpm build',
   labels=['sdk'],
   resource_deps=['build-client'],
-  deps=["./packages/sdk"]
+  deps=["./packages/sdk"],
+  ignore=['packages/sdk/dist']
 )
 
 ## build cli
@@ -126,7 +128,8 @@ local_resource(
   cmd='pnpm build',
   labels=['cli'],
   resource_deps=['build-sdk'],
-  deps=["./packages/cli"]
+  deps=["./packages/cli"],
+  ignore=['packages/cli/dist', 'packages/cli/templates'],
 )
 
 ## build integrations

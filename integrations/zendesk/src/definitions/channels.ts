@@ -14,10 +14,6 @@ export const channels = {
     message: {
       tags: {
         id: {},
-        origin: {
-          title: 'zendesk or botpress',
-          description: 'The origin of the message',
-        },
       },
     },
     conversation: {

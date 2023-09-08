@@ -102,8 +102,8 @@ class ZendeskApi {
     await this.client.delete(`/api/v2/webhooks/${subscriptionId}`).catch(() => {}) // Do not add .json here
   }
 
-  public async createComment(ticketId: string, authorId: string, content: string): Promise<void> {
-    await this.updateTicket(ticketId, {
+  public async createComment(ticketId: string, authorId: string, content: string) {
+    return this.updateTicket(ticketId, {
       comment: {
         body: content,
         author_id: authorId,

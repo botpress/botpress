@@ -1,7 +1,10 @@
 {
   "name": "@botpresshub/zendesk",
   "scripts": {
-    "type:check": "tsc --noEmit"
+    "start": "bp serve",
+    "gen": "bp gen",
+    "build": "bp build",
+    "deploy": "bp deploy"
   },
   "keywords": [],
   "private": true,
