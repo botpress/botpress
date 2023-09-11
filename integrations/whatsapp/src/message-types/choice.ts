@@ -41,5 +41,6 @@ export function* generateOutgoingMessages({
 }
 
 function createButton(option: Option) {
-  return button.create({ id: option.value, title: truncate(option.label, BUTTON_LABEL_MAX_LENGTH) })
+  const safeValue = option.value.trim() // Whatsapp doesn't allow trailing spaces in button IDs
+  return button.create({ id: safeValue, title: truncate(option.label, BUTTON_LABEL_MAX_LENGTH) })
 }

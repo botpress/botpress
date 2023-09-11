@@ -2,7 +2,7 @@ import { IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { z } from 'zod'
 
-export const name = 'whatsapp'
+export const name = 'whatsappabe'
 
 export default new IntegrationDefinition({
   name,
