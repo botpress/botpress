@@ -88,10 +88,14 @@ export async function sendMany({
   generator: Generator<OutgoingMessage, void, unknown>
   logger: IntegrationLogger
 }) {
-  for (const message of generator) {
-    // Sending multiple messages in sequence does not guarantee delivery order on the client-side.
-    // In order for messages to appear in order on the client side, adding some sleep in between each seems to work.
-    await sleep(1000)
-    await send({ ctx, conversation, ack, message, logger })
+  try {
+    for (const message of generator) {
+      // Sending multiple messages in sequence does not guarantee delivery order on the client-side.
+      // In order for messages to appear in order on the client side, adding some sleep in between each seems to work.
+      await sleep(1000)
+      await send({ ctx, conversation, ack, message, logger })
+    }
+  } catch (err) {
+    logger.forBot().error('Failed to generate messages for sending to Whatsapp. Reason:', err)
   }
 }
