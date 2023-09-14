@@ -1,14 +1,14 @@
-import { respond } from '../api-utils'
+import { mkRespond } from '../api-utils'
 import { getOrCreateFlow, setFlow } from '../flow-state'
 import { MessageHandler } from '../types'
 
-export const agentMessageHandler: MessageHandler = async ({ client, conversation: downstream, message, ctx }) => {
+export const agentMessageHandler: MessageHandler = async (props) => {
+  const { client, conversation: downstream, message } = props
+  const respond = mkRespond(props)
+
   const flow = await getOrCreateFlow({ client, conversationId: downstream.id }, { hitlEnabled: true })
   if (!flow.hitlEnabled) {
-    await respond(
-      { client, conversationId: downstream.id, ctx },
-      'Hitl is not enabled so nobody is reading your messages'
-    )
+    await respond({ conversationId: downstream.id, text: 'Hitl is not enabled so nobody is reading your messages' })
     return
   }
 
@@ -22,9 +22,9 @@ export const agentMessageHandler: MessageHandler = async ({ client, conversation
     await setFlow({ client, conversationId: upstream }, { hitlEnabled: false })
 
     const disabledMsg = 'Hitl has been disabled'
-    await respond({ client, conversationId: downstream.id, ctx }, disabledMsg)
-    await respond({ client, conversationId: upstream, ctx }, disabledMsg)
+    await respond({ conversationId: downstream.id, text: disabledMsg })
+    await respond({ conversationId: upstream, text: disabledMsg })
     return
   }
-  await respond({ client, conversationId: upstream, ctx }, message.payload.text)
+  await respond({ conversationId: upstream, text: message.payload.text })
 }
