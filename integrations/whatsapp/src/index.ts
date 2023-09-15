@@ -197,7 +197,22 @@ async function handleMessage(
         },
       })
 
-      if (message.text) {
+      if (message.location) {
+        logger.forBot().debug('Received location message from Whatsapp:', JSON.stringify(message.location))
+
+        await client.createMessage({
+          tags: { id: message.id },
+          type: 'location',
+          payload: {
+            latitude: message.location.latitude,
+            longitude: message.location.longitude,
+            address: message.location.address,
+            title: message.location.name,
+          },
+          userId: user.id,
+          conversationId: conversation.id,
+        })
+      } else if (message.text) {
         logger.forBot().debug('Received text message from Whatsapp:', message.text.body)
 
         await client.createMessage({
