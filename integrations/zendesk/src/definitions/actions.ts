@@ -1,3 +1,4 @@
+import { IntegrationDefinitionProps } from '@botpress/sdk'
 import z from 'zod'
 import { ticketSchema, userSchema } from './schemas'
 
@@ -132,6 +133,21 @@ const listAgents = {
   },
 }
 
+const setConversationRequester = {
+  title: 'Set Conversation Requester',
+  description:
+    'Assign a requester to a conversation. Every outgoing message in the conversation will then be sent as this requester instead of your bot.',
+  input: {
+    schema: z.object({
+      conversationId: z.string().describe('The Botpress conversation Id to assign the requester to'),
+      requesterId: z.string().describe('The Zendesk requester Id to assign to the conversation'),
+    }),
+  },
+  output: {
+    schema: z.object({}),
+  },
+} satisfies NonNullable<IntegrationDefinitionProps['actions']>[string]
+
 export const actions = {
   getTicket,
   findCustomer,
@@ -139,4 +155,5 @@ export const actions = {
   closeTicket,
   listAgents,
   getTicketConversation,
-}
+  setConversationRequester,
+} satisfies IntegrationDefinitionProps['actions']

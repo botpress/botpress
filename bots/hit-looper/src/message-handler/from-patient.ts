@@ -1,8 +1,11 @@
-import { respond } from '../api-utils'
+import { mkRespond } from 'src/api-utils'
 import { getOrCreateFlow, setFlow } from '../flow-state'
 import { MessageHandler } from '../types'
 
-export const patientMessageHandler: MessageHandler = async ({ message, client, ctx, conversation: upstream }) => {
+export const patientMessageHandler: MessageHandler = async (props) => {
+  const respond = mkRespond(props)
+  const { message, client, conversation: upstream } = props
+
   const upstreamFlow = await getOrCreateFlow({ client, conversationId: upstream.id }, { hitlEnabled: false })
   if (!upstreamFlow.hitlEnabled) {
     if (message.payload.text.trim() === '/start_hitl') {
@@ -12,9 +15,9 @@ export const patientMessageHandler: MessageHandler = async ({ message, client, c
         type: 'zendesk:createTicket',
         // TODO: get these from the user or the upstream integration
         input: {
-          requesterEmail: 'john.doe@botpress.com',
+          requesterEmail: 'john.doe@foobar.com',
           requesterName: 'John Doe',
-          subject: 'Hitl request',
+          subject: `Hitl request ${Date.now()}`,
           comment: 'I need help.',
         },
       })
@@ -25,6 +28,14 @@ export const patientMessageHandler: MessageHandler = async ({ message, client, c
         type: 'zendesk:getTicketConversation',
         input: {
           ticketId: `${ticket.id}`,
+        },
+      })
+
+      await client.callAction({
+        type: 'zendesk:setConversationRequester',
+        input: {
+          conversationId: downstreamId,
+          requesterId: `${ticket.requesterId}`,
         },
       })
 
@@ -44,26 +55,26 @@ export const patientMessageHandler: MessageHandler = async ({ message, client, c
 
       await setFlow({ client, conversationId: upstream.id }, { hitlEnabled: true })
       await setFlow({ client, conversationId: downstreamId }, { hitlEnabled: true })
-      await respond({ client, conversationId: upstream.id, ctx }, 'Transfering you to a human agent...')
+      await respond({ conversationId: upstream.id, text: 'Transfering you to a human agent...' })
       return
     }
 
-    await respond(
-      { client, conversationId: upstream.id, ctx },
-      [
+    await respond({
+      conversationId: upstream.id,
+      text: [
         'Hi, I am a bot.',
         'I cannot answer your questions.',
         'Type `/start_hitl` to talk to a human agent.',
         'Have fun :)',
-      ].join('\n')
-    )
+      ].join('\n'),
+    })
     return
   }
 
   const downstream = upstream.tags['downstream']
   if (!downstream) {
-    throw new Error('Upwnstream conversation was not binded to downstream conversation')
+    throw new Error('Upstream conversation was not binded to downstream conversation')
   }
 
-  await respond({ client, conversationId: downstream, ctx }, message.payload.text)
+  await respond({ conversationId: downstream, text: message.payload.text })
 }

@@ -116,11 +116,22 @@ export type ListMessages<TIntegration extends BaseIntegration> = (
 
 export type DeleteMessage<_TIntegration extends BaseIntegration> = Client['deleteMessage']
 
+type UserResponse<TIntegration extends BaseIntegration> = {
+  user: Merge<
+    Awaited<Res<Client['getUser']>>['user'],
+    {
+      tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
+    }
+  >
+}
+
 export type CreateUser<TIntegration extends BaseIntegration> = (x: {
   tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
-}) => Res<Client['createUser']>
+}) => Promise<UserResponse<TIntegration>>
 
-export type GetUser<_TIntegration extends BaseIntegration> = Client['getUser']
+export type GetUser<TIntegration extends BaseIntegration> = (
+  x: Arg<Client['getUser']>
+) => Promise<UserResponse<TIntegration>>
 
 export type ListUsers<TIntegration extends BaseIntegration> = (
   x: Merge<
@@ -133,7 +144,7 @@ export type ListUsers<TIntegration extends BaseIntegration> = (
 
 export type GetOrCreateUser<TIntegration extends BaseIntegration> = (x: {
   tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
-}) => Res<Client['getOrCreateUser']>
+}) => Promise<UserResponse<TIntegration>>
 
 export type UpdateUser<TIntegration extends BaseIntegration> = (
   x: Merge<
@@ -142,9 +153,18 @@ export type UpdateUser<TIntegration extends BaseIntegration> = (
       tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
     }
   >
-) => Res<Client['updateUser']>
+) => Promise<UserResponse<TIntegration>>
 
 export type DeleteUser<_TIntegration extends BaseIntegration> = Client['deleteUser']
+
+type StateResponse<TIntegration extends BaseIntegration, TState extends keyof TIntegration['states']> = {
+  state: Merge<
+    Awaited<Res<Client['getState']>>['state'],
+    {
+      payload: TIntegration['states'][TState]
+    }
+  >
+}
 
 export type GetState<TIntegration extends BaseIntegration> = <TState extends keyof TIntegration['states']>(
   x: Merge<
@@ -153,14 +173,7 @@ export type GetState<TIntegration extends BaseIntegration> = <TState extends key
       name: Cast<TState, string> // TODO: use state name to infer state type
     }
   >
-) => Promise<{
-  state: Merge<
-    Awaited<Res<Client['getState']>>['state'],
-    {
-      payload: TIntegration['states'][TState]
-    }
-  >
-}>
+) => Promise<StateResponse<TIntegration, TState>>
 
 export type SetState<TIntegration extends BaseIntegration> = <TState extends keyof TIntegration['states']>(
   x: Merge<
@@ -170,14 +183,7 @@ export type SetState<TIntegration extends BaseIntegration> = <TState extends key
       payload: TIntegration['states'][TState]
     }
   >
-) => Promise<{
-  state: Merge<
-    Awaited<Res<Client['setState']>>['state'],
-    {
-      payload: TIntegration['states'][TState]
-    }
-  >
-}>
+) => Promise<StateResponse<TIntegration, TState>>
 
 export type PatchState<TIntegration extends BaseIntegration> = <TState extends keyof TIntegration['states']>(
   x: Merge<
@@ -187,13 +193,6 @@ export type PatchState<TIntegration extends BaseIntegration> = <TState extends k
       payload: Partial<TIntegration['states'][TState]>
     }
   >
-) => Promise<{
-  state: Merge<
-    Awaited<Res<Client['patchState']>>['state'],
-    {
-      payload: TIntegration['states'][TState]
-    }
-  >
-}>
+) => Promise<StateResponse<TIntegration, TState>>
 
 export type ConfigureIntegration<_TIntegration extends BaseIntegration> = Client['configureIntegration']

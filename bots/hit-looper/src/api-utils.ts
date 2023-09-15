@@ -1,20 +1,19 @@
 import { Conversation } from '@botpress/client'
 import { MessageHandlerProps, Client } from './types'
 
-export const respond = async (
-  { client, conversationId, ctx }: Pick<MessageHandlerProps, 'client' | 'ctx'> & { conversationId: string },
-  text: string
-) => {
-  await client.createMessage({
-    conversationId,
-    userId: ctx.botId,
-    tags: {},
-    type: 'text',
-    payload: {
-      text,
-    },
-  })
-}
+export const mkRespond =
+  ({ client, ctx }: MessageHandlerProps) =>
+  async ({ conversationId, text }: { conversationId: string; text: string }) => {
+    await client.createMessage({
+      conversationId,
+      userId: ctx.botId,
+      tags: {},
+      type: 'text',
+      payload: {
+        text,
+      },
+    })
+  }
 
 type ListConversations = Client['listConversations']
 export const findConversation = async (

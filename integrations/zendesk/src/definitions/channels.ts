@@ -25,6 +25,9 @@ export const channels = {
         id: {
           title: 'Zendesk Ticket ID',
         },
+        requesterId: {
+          title: 'Zendesk Requester ID',
+        },
       },
       creation: { enabled: true, requiredTags: ['id'] },
     },
