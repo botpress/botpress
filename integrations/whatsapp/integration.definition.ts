@@ -22,15 +22,16 @@ const TagsForCreatingConversation = {
   },
   [TemplateNameTag]: {
     title: 'Message template name',
-    description: 'Name of Message Template to start the conversation with.',
+    description: 'Name of the Whatsapp Message Template to start the conversation with.',
   },
   [TemplateLanguageTag]: {
     title: 'Message template language (optional)',
-    description: 'Language of Message Template to start the conversation with. Defaults to "en_US" (U.S. English).',
+    description:
+      'Language of the Whatsapp Message Template to start the conversation with. Defaults to "en_US" (U.S. English).',
   },
   [TemplateVariablesTag]: {
     title: 'Message template variables (optional)',
-    description: 'JSON array representation of variable values to pass to the Message Template.',
+    description: 'JSON array representation of variable values to pass to the Whatsapp Message Template.',
   },
 }
 
