@@ -3,7 +3,7 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { z } from 'zod'
 
 export const name = 'whatsapp'
-export const channel = 'channel' // TODO: Rename to "whatsapp"
+export const channel = 'channel' // TODO: Rename to "whatsapp" once support for integration versioning is finished.
 
 export const PhoneNumberIdTag = 'phoneNumberId'
 export const UserPhoneTag = 'userPhone'
