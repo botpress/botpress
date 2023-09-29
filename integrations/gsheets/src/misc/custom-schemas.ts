@@ -12,7 +12,6 @@ export const getValuesOutputSchema = z
   .object({
     range: z.string().nullable(),
     majorDimension: z.string().nullable(),
-    values: z.array(z.array(z.string())).nullable(),
   })
   .partial()
   .passthrough()
@@ -55,13 +54,6 @@ export const appendValuesInputSchema = z.object({
 export const appendValuesOutputSchema = z
   .object({
     spreadsheetId: z.string().nullable(),
-    updates: z.object({
-      spreadsheetId: z.string().nullable(),
-      updatedRange: z.string().nullable(),
-      updatedRows: z.number().nullable(),
-      updatedColumns: z.number().nullable(),
-      updatedCells: z.number().nullable(),
-    }),
   })
   .partial()
   .passthrough()

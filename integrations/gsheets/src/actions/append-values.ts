@@ -24,5 +24,5 @@ export const appendValues: Implementation['actions']['appendValues'] = async ({
     logger.forBot().debug(`'Append Values' exception ${error}`)
   }
 
-  return { updatedCells: response?.updates?.updatedCells || 0 }
+  return response
 }

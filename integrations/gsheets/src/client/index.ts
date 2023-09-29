@@ -10,7 +10,7 @@ export class GoogleSheetsApi {
 
     const jwtClient = new JWT({
       email: clientEmail,
-      key: privateKey,
+      key: privateKey.split(String.raw`\n`).join('\n'),
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     })
 

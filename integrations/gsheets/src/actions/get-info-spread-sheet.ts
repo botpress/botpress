@@ -9,7 +9,9 @@ export const getInfoSpreadsheet: Implementation['actions']['getInfoSpreadsheet']
     let response
 
     try {
-      response = await GoogleSheetsClient.getSpreadsheet(validatedInput.fields)
+      response = await GoogleSheetsClient.getSpreadsheet(
+        validatedInput.fields.replaceAll(' ', '')
+      )
       logger
         .forBot()
         .info(`Successful - Get Spreadsheet - ${response?.spreadsheetId}`)
@@ -18,5 +20,5 @@ export const getInfoSpreadsheet: Implementation['actions']['getInfoSpreadsheet']
       logger.forBot().debug(`'Get Spreadsheet' exception ${error}`)
     }
 
-    return { spreadsheetId: response?.spreadsheetId || '' }
+    return response
   }
