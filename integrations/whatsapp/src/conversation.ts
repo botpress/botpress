@@ -37,7 +37,8 @@ export async function startConversation(
   }
 ): Promise<Pick<Conversation, 'id'>> {
   const { channel, phoneNumberId, userPhone, templateName, templateVariablesJson } = params
-  let { templateLanguage } = params
+  const templateLanguage = params.templateLanguage || 'en_US'
+
   const { client, ctx, logger } = dependencies
 
   let templateVariables: z.infer<typeof TemplateVariablesSchema> = []
@@ -93,7 +94,6 @@ export async function startConversation(
 
   const whatsapp = new WhatsAppAPI(ctx.configuration.accessToken)
 
-  templateLanguage = templateLanguage || 'en_US'
   const language = new Language(templateLanguage)
 
   const template = new Template(templateName, language, {
