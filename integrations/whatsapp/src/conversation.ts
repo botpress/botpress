@@ -129,7 +129,7 @@ export async function startConversation(
 }
 
 /**
- * This handler is for allowing to initiate a Whatsapp conversation using the Botpress Client.
+ * This handler is for allowing bots to start conversations by calling `client.createConversation()` directly.
  */
 export const createConversationHandler: botpress.IntegrationProps['createConversation'] = async ({
   client,

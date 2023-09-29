@@ -36,7 +36,7 @@ const integration = new bp.Integration({
       }
     },
   },
-  createConversation, // This is not needed for the `startConversation` action above, it's only for allowing to initiate Whatsapp conversations from the Botpress Client.
+  createConversation, // This is not needed for the `startConversation` action above, it's only for allowing bots to start conversations by calling `client.createConversation()` directly.
   channels: {
     channel: {
       messages: {
