@@ -24,7 +24,12 @@ type Card = botpress.channels.channel.card.Card
 type Action = Card['actions'][number]
 type ActionType = Action['action']
 
-const getAdapter = (config: TeamsConfig) => new BotFrameworkAdapter(config)
+const getAdapter = (config: TeamsConfig) =>
+  new BotFrameworkAdapter({
+    channelAuthTenant: config.tenantId,
+    appId: config.appId,
+    appPassword: config.appPassword,
+  })
 
 const renderTeams = async ({ ctx, ack, conversation, client }: RenderProps, activity: Partial<Activity>) => {
   const { configuration } = ctx
