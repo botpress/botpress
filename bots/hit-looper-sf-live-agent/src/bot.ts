@@ -4,7 +4,7 @@ import * as botpress from '.botpress'
 const telegram = new botpress.telegram.Telegram({
   enabled: true,
   config: {
-    botToken: '6431097472:AAE93bFokM7eY3FIZLvjUfGzr9wy7bjJ7Jc',
+    botToken: '111111111:AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA',
   },
 })
 
