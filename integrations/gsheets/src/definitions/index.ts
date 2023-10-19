@@ -16,15 +16,11 @@ export const configuration = {
       ),
     privateKey: z
       .string()
-      .describe(
-        'The private key from the Google service account. You can get it from the downloaded JSON file.'
-      ),
+      .describe('The private key from the Google service account. You can get it from the downloaded JSON file.'),
     clientEmail: z
       .string()
       .email()
-      .describe(
-        'The client email from the Google service account. You can get it from the downloaded JSON file.'
-      ),
+      .describe('The client email from the Google service account. You can get it from the downloaded JSON file.'),
   }),
 }
 

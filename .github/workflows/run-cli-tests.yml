@@ -16,7 +16,6 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup Tilt
         uses: ./.github/actions/setup-tilt
-      - run: pnpm run format:check
       - run: |
           pnpm run -F cli e2e:test \
             --api-url https://api.botpress.dev \

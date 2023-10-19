@@ -3,11 +3,7 @@ import z from 'zod'
 const sheetsValues = z.array(z.array(z.any()))
 
 export const getValuesInputSchema = z.object({
-  range: z
-    .string()
-    .describe(
-      'The A1 notation of the values to retrieve. (e.g. "Sheet1!A1:B2")'
-    ),
+  range: z.string().describe('The A1 notation of the values to retrieve. (e.g. "Sheet1!A1:B2")'),
 })
 
 export const getValuesOutputSchema = z
@@ -20,9 +16,7 @@ export const getValuesOutputSchema = z
   .passthrough()
 
 export const updateValuesInputSchema = z.object({
-  range: z
-    .string()
-    .describe('The A1 notation of the values to update. (e.g. "Sheet1!A1:B2")'),
+  range: z.string().describe('The A1 notation of the values to update. (e.g. "Sheet1!A1:B2")'),
   values: sheetsValues.describe(
     'The values to write to the range. This is an array of arrays, where each inner array represents a row/s of data.'
   ),
@@ -40,11 +34,7 @@ export const updateValuesOutputSchema = z
   .passthrough()
 
 export const appendValuesInputSchema = z.object({
-  range: z
-    .string()
-    .describe(
-      'The A1 notation of the range to append to. (e.g. "Sheet1!A1:B2")'
-    ),
+  range: z.string().describe('The A1 notation of the range to append to. (e.g. "Sheet1!A1:B2")'),
   values: sheetsValues.describe(
     'The values to write to the range. This is an array of arrays, where each inner array represents a row/s of data.'
   ),
@@ -58,9 +48,7 @@ export const appendValuesOutputSchema = z
   .passthrough()
 
 export const clearValuesInputSchema = z.object({
-  range: z
-    .string()
-    .describe('The A1 notation of the range to clear. (e.g. "Sheet1!A1:B2")'),
+  range: z.string().describe('The A1 notation of the range to clear. (e.g. "Sheet1!A1:B2")'),
 })
 
 export const clearValuesOutputSchema = z
@@ -94,9 +82,7 @@ export const getInfoSpreadsheetOutputSchema = z
   .passthrough()
 
 export const addSheetInputSchema = z.object({
-  title: z
-    .string()
-    .describe('The title of the new sheet to add to the spreadsheet.'),
+  title: z.string().describe('The title of the new sheet to add to the spreadsheet.'),
 })
 
 export const addSheetOutputSchema = z

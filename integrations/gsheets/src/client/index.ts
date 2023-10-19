@@ -1,5 +1,5 @@
-import { google, sheets_v4 } from 'googleapis'
 import { JWT } from 'google-auth-library'
+import { google, sheets_v4 } from 'googleapis'
 
 export class GoogleSheetsApi {
   private sheets: sheets_v4.Sheets
@@ -25,10 +25,7 @@ export class GoogleSheetsApi {
     return response.data
   }
 
-  async updateValues(
-    range: string,
-    values: any[][]
-  ): Promise<sheets_v4.Schema$UpdateValuesResponse> {
+  async updateValues(range: string, values: any[][]): Promise<sheets_v4.Schema$UpdateValuesResponse> {
     const response = await this.sheets.spreadsheets.values.update({
       spreadsheetId: this.spreadsheetId,
       range,
@@ -38,10 +35,7 @@ export class GoogleSheetsApi {
     return response.data
   }
 
-  async appendValues(
-    range: string,
-    values: any[][]
-  ): Promise<sheets_v4.Schema$AppendValuesResponse> {
+  async appendValues(range: string, values: any[][]): Promise<sheets_v4.Schema$AppendValuesResponse> {
     const response = await this.sheets.spreadsheets.values.append({
       spreadsheetId: this.spreadsheetId,
       range,
@@ -51,9 +45,7 @@ export class GoogleSheetsApi {
     return response.data
   }
 
-  async clearValues(
-    range: string
-  ): Promise<sheets_v4.Schema$ClearValuesResponse> {
+  async clearValues(range: string): Promise<sheets_v4.Schema$ClearValuesResponse> {
     const response = await this.sheets.spreadsheets.values.clear({
       spreadsheetId: this.spreadsheetId,
       range,
@@ -61,9 +53,7 @@ export class GoogleSheetsApi {
     return response.data
   }
 
-  async batchUpdate(
-    requests: sheets_v4.Schema$Request[]
-  ): Promise<sheets_v4.Schema$BatchUpdateSpreadsheetResponse> {
+  async batchUpdate(requests: sheets_v4.Schema$Request[]): Promise<sheets_v4.Schema$BatchUpdateSpreadsheetResponse> {
     const response = await this.sheets.spreadsheets.batchUpdate({
       spreadsheetId: this.spreadsheetId,
       requestBody: { requests },
