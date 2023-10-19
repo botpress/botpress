@@ -204,8 +204,8 @@ async function handleMessage(
           tags: { id: message.id },
           type: 'location',
           payload: {
-            latitude: message.location.latitude,
-            longitude: message.location.longitude,
+            latitude: Number(message.location.latitude),
+            longitude: Number(message.location.longitude),
             address: message.location.address,
             title: message.location.name,
           },
