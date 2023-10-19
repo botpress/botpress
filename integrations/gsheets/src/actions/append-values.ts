@@ -14,7 +14,7 @@ export const appendValues: Implementation['actions']['appendValues'] = async ({
   try {
     response = await GoogleSheetsClient.appendValues(
       validatedInput.range,
-      JSON.parse(validatedInput.values)
+      validatedInput.values
     )
     logger
       .forBot()

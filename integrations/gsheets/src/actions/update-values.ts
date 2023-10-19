@@ -14,7 +14,7 @@ export const updateValues: Implementation['actions']['updateValues'] = async ({
   try {
     response = await GoogleSheetsClient.updateValues(
       validatedInput.range,
-      JSON.parse(validatedInput.values)
+      validatedInput.values
     )
     logger
       .forBot()

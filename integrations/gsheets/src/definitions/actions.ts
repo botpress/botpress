@@ -3,8 +3,6 @@ import {
   addSheetOutputSchema,
   appendValuesInputSchema,
   appendValuesOutputSchema,
-  batchUpdateInputSchema,
-  batchUpdateOutputSchema,
   clearValuesInputSchema,
   clearValuesOutputSchema,
   getInfoSpreadsheetInputSchema,
@@ -18,7 +16,6 @@ import {
 import {
   addSheetUi,
   appendValuesUi,
-  batchUpdateUi,
   clearValuesUi,
   getInfoSpreadsheetUi,
   getValuesUi,
@@ -69,17 +66,6 @@ const clearValues = {
   },
 }
 
-const batchUpdate = {
-  title: 'Batch Update',
-  input: {
-    schema: batchUpdateInputSchema,
-    ui: batchUpdateUi,
-  },
-  output: {
-    schema: batchUpdateOutputSchema,
-  },
-}
-
 const getInfoSpreadsheet = {
   title: 'Get Info of a SpreadSheet',
   input: {
@@ -107,7 +93,6 @@ export const actions = {
   updateValues,
   appendValues,
   clearValues,
-  batchUpdate,
   getInfoSpreadsheet,
   addSheet,
 }

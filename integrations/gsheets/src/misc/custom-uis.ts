@@ -10,13 +10,6 @@ export const clearValuesUi = {
   },
 }
 
-export const batchUpdateUi = {
-  requests: {
-    title:
-      'The update requests to apply to the spreadsheet. This is a JSON string that represents an array of request objects as specified in the Google Sheets API documentation.',
-  },
-}
-
 export const getInfoSpreadsheetUi = {
   fields: {
     title:
@@ -36,7 +29,7 @@ export const updateValuesUi = {
   },
   values: {
     title:
-      'The values to write to the range. This is a JSON string that represents an array of arrays, where each inner array represents a row/s of data.',
+      'The values to write to the range. This is an array of arrays, where each inner array represents a row/s of data.',
   },
 }
 
@@ -46,6 +39,6 @@ export const appendValuesUi = {
   },
   values: {
     title:
-      'The values to write to the range. This is a JSON string that represents an array of arrays, where each inner array represents a row/s of data.',
+      'The values to write to the range. This is an array of arrays, where each inner array represents a row/s of data.',
   },
 }

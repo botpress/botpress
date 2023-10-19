@@ -1,5 +1,7 @@
 import z from 'zod'
 
+const sheetsValues = z.array(z.array(z.any()))
+
 export const getValuesInputSchema = z.object({
   range: z
     .string()
@@ -12,6 +14,7 @@ export const getValuesOutputSchema = z
   .object({
     range: z.string().nullable(),
     majorDimension: z.string().nullable(),
+    values: sheetsValues.nullable(),
   })
   .partial()
   .passthrough()
@@ -20,11 +23,9 @@ export const updateValuesInputSchema = z.object({
   range: z
     .string()
     .describe('The A1 notation of the values to update. (e.g. "Sheet1!A1:B2")'),
-  values: z
-    .string()
-    .describe(
-      'The values to write to the range. This is a JSON string that represents an array of arrays, where each inner array represents a row/s of data.'
-    ),
+  values: sheetsValues.describe(
+    'The values to write to the range. This is an array of arrays, where each inner array represents a row/s of data.'
+  ),
 })
 
 export const updateValuesOutputSchema = z
@@ -44,11 +45,9 @@ export const appendValuesInputSchema = z.object({
     .describe(
       'The A1 notation of the range to append to. (e.g. "Sheet1!A1:B2")'
     ),
-  values: z
-    .string()
-    .describe(
-      'The values to write to the range. This is a JSON string that represents an array of arrays, where each inner array represents a row/s of data.'
-    ),
+  values: sheetsValues.describe(
+    'The values to write to the range. This is an array of arrays, where each inner array represents a row/s of data.'
+  ),
 })
 
 export const appendValuesOutputSchema = z
@@ -72,32 +71,24 @@ export const clearValuesOutputSchema = z
   .partial()
   .passthrough()
 
-export const batchUpdateInputSchema = z.object({
-  requests: z
-    .string()
-    .describe(
-      'The update requests to apply to the spreadsheet. This is a JSON string that represents an array of request objects as specified in the Google Sheets API documentation.'
-    ),
-})
-
-export const batchUpdateOutputSchema = z
-  .object({
-    spreadsheetId: z.string().nullable(),
-  })
-  .partial()
-  .passthrough()
-
 export const getInfoSpreadsheetInputSchema = z.object({
   fields: z
-    .string()
+    .array(z.string())
     .describe(
-      'The fields to include in the response when retrieving spreadsheet properties and metadata. This is a comma-separated list of field names. (e.g. "spreadsheetId,properties.title,sheets.properties.sheetId,sheets.properties.title")'
+      'The fields to include in the response when retrieving spreadsheet properties and metadata. This is a list of field names.'
     ),
 })
 
 export const getInfoSpreadsheetOutputSchema = z
   .object({
     spreadsheetId: z.string().nullable(),
+    spreadsheetUrl: z.string().nullable().optional(),
+    dataSources: z.array(z.any()).optional(),
+    dataSourceSchedules: z.array(z.any()).optional(),
+    developerMetadata: z.array(z.any()).optional(),
+    namedRanges: z.array(z.any()).optional(),
+    properties: z.any().optional(),
+    sheets: z.array(z.any()).optional(),
   })
   .partial()
   .passthrough()
