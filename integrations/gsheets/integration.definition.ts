@@ -6,7 +6,7 @@ export default new IntegrationDefinition({
   name: 'gsheets',
   version: '0.2.0',
   title: 'Google Sheets',
-  readme: 'readme.md',
+  readme: 'hub.md',
   icon: 'icon.svg',
   configuration,
   channels,

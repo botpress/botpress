@@ -1,21 +1,18 @@
 import { z } from 'zod'
-import * as botpress from '.botpress'
+import * as bp from '.botpress'
 
-const telegram = new botpress.telegram.Telegram({
+const telegram = new bp.telegram.Telegram({
   enabled: true,
 })
 
-const zendesk = new botpress.zendesk.Zendesk({
+const gsheets = new bp.gsheets.Gsheets({
   enabled: true,
 })
 
-export const bot = new botpress.Bot({
+export const bot = new bp.Bot({
   integrations: {
     telegram,
-    zendesk,
-  },
-  configuration: {
-    schema: z.object({}),
+    gsheets,
   },
   states: {
     flow: {
