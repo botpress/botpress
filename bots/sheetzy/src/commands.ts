@@ -1,6 +1,6 @@
+import * as z from 'zod'
 import { MessageHandlerProps } from './types'
 import { ApiUtils } from './utils'
-import * as z from 'zod'
 
 const valuesSchema = z.array(z.array(z.union([z.string(), z.number()])))
 
@@ -137,6 +137,8 @@ const addSheet: Command = async (props, args) => {
       title,
     },
   })
+
+  await utils.respond('Done')
 }
 
 export const commands = {
