@@ -1,5 +1,5 @@
 {
-  "name": "gsheets",
+  "name": "@botpresshub/gsheets",
   "scripts": {
     "type:check": "tsc --noEmit"
   },

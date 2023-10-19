@@ -1,4 +1,3 @@
-
 import actions from './actions'
 import { register, unregister, channels, handler } from './setup'
 import * as botpress from '.botpress'

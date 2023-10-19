@@ -1,12 +1,11 @@
 import { IntegrationDefinition } from '@botpress/sdk'
-import { name } from './package.json'
 
 import { configuration, states, user, channels, actions } from './src/definitions'
 
 export default new IntegrationDefinition({
-  name,
+  name: 'gsheets',
   version: '0.2.0',
-  title: 'gsheets',
+  title: 'Google Sheets',
   readme: 'readme.md',
   icon: 'icon.svg',
   configuration,
