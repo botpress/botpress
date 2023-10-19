@@ -1,7 +1,8 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { channel } from 'integration.definition'
 import queryString from 'query-string'
 import { WhatsAppAPI, Types } from 'whatsapp-api-js'
-import { createConversation } from './conversation'
+import { createConversationHandler as createConversation, startConversation } from './conversation'
 import * as card from './message-types/card'
 import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
@@ -16,8 +17,26 @@ const { Text, Media, Location } = Types
 const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
-  actions: {},
-  createConversation,
+  actions: {
+    startConversation: async ({ ctx, input, client, logger }) => {
+      const conversation = await startConversation(
+        {
+          channel,
+          phoneNumberId: ctx.configuration.phoneNumberId,
+          userPhone: input.userPhone,
+          templateName: input.templateName,
+          templateLanguage: input.templateLanguage,
+          templateVariablesJson: input.templateVariablesJson,
+        },
+        { client, ctx, logger }
+      )
+
+      return {
+        conversationId: conversation.id,
+      }
+    },
+  },
+  createConversation, // This is not needed for the `startConversation` action above, it's only for allowing bots to start conversations by calling `client.createConversation()` directly.
   channels: {
     channel: {
       messages: {
@@ -197,7 +216,22 @@ async function handleMessage(
         },
       })
 
-      if (message.text) {
+      if (message.location) {
+        logger.forBot().debug('Received location message from Whatsapp:', JSON.stringify(message.location))
+
+        await client.createMessage({
+          tags: { id: message.id },
+          type: 'location',
+          payload: {
+            latitude: Number(message.location.latitude),
+            longitude: Number(message.location.longitude),
+            address: message.location.address,
+            title: message.location.name,
+          },
+          userId: user.id,
+          conversationId: conversation.id,
+        })
+      } else if (message.text) {
         logger.forBot().debug('Received text message from Whatsapp:', message.text.body)
 
         await client.createMessage({
