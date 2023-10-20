@@ -1,6 +1,6 @@
 import { clearValuesInputSchema } from 'src/misc/custom-schemas'
 import type { Implementation } from '../misc/types'
-import { getClient } from '../utils'
+import { getClient } from '../client'
 
 export const clearValues: Implementation['actions']['clearValues'] = async ({ ctx, input, logger }) => {
   const validatedInput = clearValuesInputSchema.parse(input)
