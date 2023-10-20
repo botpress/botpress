@@ -1,13 +1,10 @@
 import actions from './actions'
-import { register, unregister, channels, handler } from './setup'
-import * as botpress from '.botpress'
+import * as bp from '.botpress'
 
-console.info('starting integration')
-
-export default new botpress.Integration({
-  register,
-  unregister,
+export default new bp.Integration({
+  register: async () => {},
+  unregister: async () => {},
   actions,
-  channels,
-  handler,
+  channels: {},
+  handler: async () => {},
 })

@@ -1,6 +1,6 @@
 import { addSheetInputSchema } from 'src/misc/custom-schemas'
 import type { Implementation } from '../misc/types'
-import { getClient } from '../utils'
+import { getClient } from '../client'
 
 export const addSheet: Implementation['actions']['addSheet'] = async ({ ctx, input, logger }) => {
   const validatedInput = addSheetInputSchema.parse(input)

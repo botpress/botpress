@@ -21,10 +21,3 @@ export const configuration = {
       .describe('The client email from the Google service account. You can get it from the downloaded JSON file.'),
   }),
 }
-
-export const states: IntegrationDefinitionProps['states'] = {}
-
-export const user = {
-  tags: { id: {} },
-  creation: { enabled: true, requiredTags: ['id'] },
-}

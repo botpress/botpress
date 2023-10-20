@@ -1,6 +1,6 @@
 import { getValuesInputSchema } from 'src/misc/custom-schemas'
 import type { Implementation } from '../misc/types'
-import { getClient } from '../utils'
+import { getClient } from '../client'
 
 export const getValues: Implementation['actions']['getValues'] = async ({ ctx, input, logger }) => {
   const validatedInput = getValuesInputSchema.parse(input)
