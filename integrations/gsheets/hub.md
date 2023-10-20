@@ -20,6 +20,8 @@ This integration allows you to interact with Google Sheets with the following ac
 1. The downloaded JSON file contains a `client_email` field. Share your spreadsheet with this email address to give it access.
 1. Install this integration in your bot with the following configuration:
 
-- `spreadsheetId`: The ID of the Google Spreadsheet to interact with. This is the last part of the URL of your spreadsheet (ex: https://docs.google.com/spreadsheets/d/YOUR_SPREADSHEET_ID/edit#gid=0)
-- `privateKey`: The private key from the Google service account. You can get it from the downloaded JSON file.
-- `clientEmail`: The client email from the Google service account. You can get it from the downloaded JSON file.
+   - `spreadsheetId`: The ID of the Google Spreadsheet to interact with. This is the last part of the URL of your spreadsheet (ex: https://docs.google.com/spreadsheets/d/**YOUR_SPREADSHEET_ID**/edit#gid=0)
+
+   - `privateKey`: The private key from the Google service account. You can get it from the downloaded JSON file.
+
+   - `clientEmail`: The client email from the Google service account. You can get it from the downloaded JSON file.

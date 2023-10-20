@@ -1,7 +1,7 @@
-import { IntegrationDefinitionProps, messages } from '@botpress/sdk'
+import { IntegrationDefinitionProps } from '@botpress/sdk'
 
 export const channels = {
   channel: {
-    messages: { ...messages.defaults },
+    messages: {},
   },
 } satisfies IntegrationDefinitionProps['channels']
