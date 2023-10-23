@@ -9,7 +9,7 @@ export const PhoneNumberIdTag = 'phoneNumberId'
 export const UserPhoneTag = 'userPhone'
 export const TemplateNameTag = 'templateName'
 export const TemplateLanguageTag = 'templateLanguage'
-export const TemplateVariablesTag = 'templateVariables'
+export const TemplateVariablesTag = 'templateVariablesJson'
 
 const TagsForCreatingConversation = {
   [PhoneNumberIdTag]: {
