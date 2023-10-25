@@ -1,4 +1,4 @@
-# BugBuster
+# Bug Buster
 
 ## Description
 
