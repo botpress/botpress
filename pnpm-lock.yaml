@@ -341,10 +341,10 @@ importers:
   integrations/gsheets:
     dependencies:
       '@botpress/client':
-        specifier: 0.5.2
+        specifier: workspace:*
         version: link:../../packages/client
       '@botpress/sdk':
-        specifier: 0.4.8
+        specifier: workspace:*
         version: link:../../packages/sdk
       google-auth-library:
         specifier: ^9.0.0
@@ -1174,7 +1174,7 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.5.2
+        specifier: 0.6.0
         version: link:../client
       '@bpinternal/tunnel':
         specifier: ^0.1.0
@@ -1289,7 +1289,7 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.5.2
+        specifier: 0.6.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 0.4.8
@@ -1311,7 +1311,7 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.5.2
+        specifier: 0.6.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 0.4.8
@@ -1343,8 +1343,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.7.2
-        version: 0.7.2(openapi-types@12.1.3)
+        specifier: 0.10.0
+        version: 0.10.0(openapi-types@12.1.3)
       esbuild:
         specifier: ^0.16.12
         version: 0.16.17
@@ -1352,7 +1352,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.5.2
+        specifier: 0.6.0
         version: link:../client
       axios:
         specifier: 0.27.2
@@ -1959,10 +1959,10 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.7.2(openapi-types@12.1.3):
-    resolution: {integrity: sha512-Z+TTp5ObeClP8DyKSiq3is71Dy0rKXZnFqKHLc+y+YreMGDuu8GweBPnCIxUGnRV6qafimpfmCR0LEWWfG9NwQ==}
+  /@botpress/api@0.10.0(openapi-types@12.1.3):
+    resolution: {integrity: sha512-tRix5jKJGeX3KzF70LgD10mCpz7JRVIvEViIg9aZ2bZgqmZlX0XgcpgGTOmRszEtPSyGApeAwtOS6hR8ECCF+A==}
     dependencies:
-      '@bpinternal/opapi': 0.3.4(openapi-types@12.1.3)
+      '@bpinternal/opapi': 0.5.1(openapi-types@12.1.3)
     transitivePeerDependencies:
       - debug
       - openapi-types
@@ -1990,12 +1990,12 @@ packages:
       moment: 2.29.4
       regex-parser: 2.2.11
 
-  /@bpinternal/opapi@0.3.4(openapi-types@12.1.3):
-    resolution: {integrity: sha512-32p2ijgl1yd3xlBoQd4HO9fIBI7NR26HUqmsbyQF8pOPaKPhVk8Jdz87Ie/PU0ob04zAf0t1ObnsYMq49AlbDA==}
+  /@bpinternal/opapi@0.5.1(openapi-types@12.1.3):
+    resolution: {integrity: sha512-d26hI71ZA5Eg+2N9ssBtnGHdTd2Cd4AvAMbxs3sXvZ4hqp0u76HP+2ko8ecRUDahbmyLKX/NzBpGDCWLReyRKw==}
     dependencies:
       '@anatine/zod-openapi': 1.14.0(openapi3-ts@2.0.2)(zod@3.21.4)
       '@readme/openapi-parser': 2.5.0(openapi-types@12.1.3)
-      axios: 1.4.0
+      axios: 1.5.1
       chalk: 4.1.2
       decompress: 4.2.1
       execa: 6.1.0
@@ -4314,6 +4314,7 @@ packages:
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
+    dev: false
 
   /axios@1.5.1:
     resolution: {integrity: sha512-Q28iYCWzNHjAm+yEAot5QaAMxhMghWLFVf7rRdwhUI+c2jix2DUXjAHXVi+s1ibs3mjPO/cCgbA++3BjD0vP/A==}
@@ -4323,7 +4324,6 @@ packages:
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
-    dev: false
 
   /babel-jest@29.5.0(@babel/core@7.22.5):
     resolution: {integrity: sha512-mA4eCDh5mSo2EcA9xQjVTpmbbNk32Zb3Q3QFQsNhaK56Q+yoXowzFodLux30HRgyOho5rsQ6B0P9QpMkvvnJ0Q==}

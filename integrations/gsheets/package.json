@@ -8,8 +8,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "0.5.2",
-    "@botpress/sdk": "0.4.8",
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "google-auth-library": "^9.0.0",
     "googleapis": "^126.0.1",
     "zod": "^3.20.6"

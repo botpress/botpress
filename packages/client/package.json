@@ -1,6 +1,6 @@
 {
   "name": "@botpress/client",
-  "version": "0.5.2",
+  "version": "0.6.0",
   "description": "Botpress Client",
   "main": "./dist/index.cjs",
   "module": "./dist/index.mjs",
@@ -21,7 +21,7 @@
     "type-fest": "^3.4.0"
   },
   "devDependencies": {
-    "@botpress/api": "0.7.2",
+    "@botpress/api": "0.10.0",
     "esbuild": "^0.16.12"
   }
 }
