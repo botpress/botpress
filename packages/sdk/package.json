@@ -14,7 +14,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "0.5.2",
+    "@botpress/client": "0.6.0",
     "axios": "0.27.2",
     "radash": "^9.5.0",
     "zod": "^3.20.6"
