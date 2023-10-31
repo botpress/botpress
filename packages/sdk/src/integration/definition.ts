@@ -12,7 +12,12 @@ type TagDefinition = {
   description?: string
 }
 
-type ConfigurationDefinition<TConfig extends BaseConfig> = SchemaDefinition<TConfig>
+type ConfigurationDefinition<TConfig extends BaseConfig> = SchemaDefinition<TConfig> & {
+  identifier?: {
+    required?: boolean
+    linkTemplateScript?: string
+  }
+}
 
 type EventDefinition<TEvent extends BaseEvents[string]> = SchemaDefinition<TEvent> & {
   title?: string
