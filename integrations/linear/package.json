@@ -2,7 +2,6 @@
   "name": "@botpresshub/linear",
   "private": true,
   "scripts": {
-    "deploy": "pnpm bp deploy",
     "start": "pnpm bp serve",
     "build": "pnpm bp build",
     "login": "pnpm bp login",
