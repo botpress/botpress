@@ -49,6 +49,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     const iconFileContent = await this._readMediaFile('icon', iconRelativeFilePath)
     const readmeFileContent = await this._readMediaFile('readme', readmeRelativeFilePath)
+    const identifierExtractScriptFileContent = await this._readMediaFile('extractScript', readmeRelativeFilePath)
 
     const integration = await api.findIntegration({ type: 'name', name, version })
     if (integration && !integration.workspaceId) {
@@ -73,9 +74,12 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     const createBody: CreateIntegrationBody = {
       ...this.prepareIntegrationDefinition(integrationDef),
+      code,
       icon: iconFileContent,
       readme: readmeFileContent,
-      code,
+      identifier: {
+        extractScript: identifierExtractScriptFileContent,
+      },
     }
 
     const line = this.logger.line()
@@ -101,7 +105,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private _readMediaFile = async (
-    filePurpose: 'icon' | 'readme',
+    filePurpose: 'icon' | 'readme' | 'extractScript',
     filePath: string | undefined
   ): Promise<string | undefined> => {
     if (!filePath) {

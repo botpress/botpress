@@ -12,6 +12,9 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   configuration,
   channels,
+  identifier: {
+    extractScript: 'extract.vrl',
+  },
   user,
   actions,
   events,
