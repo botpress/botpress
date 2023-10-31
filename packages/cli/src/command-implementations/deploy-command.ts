@@ -133,7 +133,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private _readMediaFile = async (
-    filePurpose: 'icon' | 'readme' | 'extractScript',
+    filePurpose: 'icon' | 'readme',
     filePath: string | undefined
   ): Promise<string | undefined> => {
     if (!filePath) {
