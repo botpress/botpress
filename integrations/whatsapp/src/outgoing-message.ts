@@ -1,6 +1,6 @@
 import type { Conversation } from '@botpress/client'
 import type { IntegrationContext, AckFunction } from '@botpress/sdk'
-import { name } from 'integration.definition'
+import { PhoneNumberIdTag, UserPhoneTag, name } from 'integration.definition'
 import { WhatsAppAPI } from 'whatsapp-api-js'
 import type { Contacts } from 'whatsapp-api-js/types/messages/contacts'
 import type { Interactive } from 'whatsapp-api-js/types/messages/interactive'
@@ -39,9 +39,16 @@ export async function send({
   logger: IntegrationLogger
 }) {
   const whatsapp = new WhatsAppAPI(ctx.configuration.accessToken)
-  const phoneNumberId = ctx.configuration.phoneNumberId
-  const to = conversation.tags[`${name}:userPhone`]
+  const phoneNumberId = conversation.tags[`${name}:${PhoneNumberIdTag}`]
+  const to = conversation.tags[`${name}:${UserPhoneTag}`]
   const messageType = message._
+
+  if (!phoneNumberId) {
+    logger
+      .forBot()
+      .error("Cannot send message to Whatsapp because the phone number ID wasn't set in the conversation tags.")
+    return
+  }
 
   if (!to) {
     logger

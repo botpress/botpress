@@ -44,7 +44,7 @@ export async function startConversation(
   let templateVariables: z.infer<typeof TemplateVariablesSchema> = []
 
   if (!phoneNumberId) {
-    logForBotAndThrow('Phone number ID was not provided', logger)
+    logForBotAndThrow('Whatsapp Phone number ID to use as sender was not provided', logger)
   }
 
   if (!userPhone) {
@@ -138,7 +138,7 @@ export const createConversationHandler: botpress.IntegrationProps['createConvers
   ctx,
   logger,
 }) => {
-  const phoneNumberId = ctx.configuration.phoneNumberId
+  const phoneNumberId = tags[`${name}:${PhoneNumberIdTag}`] || ctx.configuration.phoneNumberId
   const userPhone = tags[`${name}:${UserPhoneTag}`]!
   const templateName = tags[`${name}:${TemplateNameTag}`]!
   const templateLanguage = tags[`${name}:${TemplateLanguageTag}`]

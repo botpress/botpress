@@ -22,7 +22,7 @@ const integration = new bp.Integration({
       const conversation = await startConversation(
         {
           channel,
-          phoneNumberId: ctx.configuration.phoneNumberId,
+          phoneNumberId: input.senderPhoneNumberId || ctx.configuration.phoneNumberId,
           userPhone: input.userPhone,
           templateName: input.templateName,
           templateLanguage: input.templateLanguage,
