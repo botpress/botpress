@@ -18,4 +18,7 @@ export default new IntegrationDefinition({
   events,
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
   user,
+  identifier: {
+    extractScript: 'extract.vrl',
+  },
 })

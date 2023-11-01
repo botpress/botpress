@@ -45,10 +45,19 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       code = code.replace(new RegExp(`process\\.env\\.${secretName}`, 'g'), `"${secretValue}"`)
     }
 
-    const { name, version, icon: iconRelativeFilePath, readme: readmeRelativeFilePath } = integrationDef
+    const {
+      name,
+      version,
+      icon: iconRelativeFilePath,
+      readme: readmeRelativeFilePath,
+      identifier,
+      configuration,
+    } = integrationDef
 
     const iconFileContent = await this._readMediaFile('icon', iconRelativeFilePath)
     const readmeFileContent = await this._readMediaFile('readme', readmeRelativeFilePath)
+    const identifierExtractScriptFileContent = await this._readFile(identifier?.extractScript)
+    const identifierLinkTemplateFileContent = await this._readFile(configuration?.identifier?.linkTemplateScript)
 
     const integration = await api.findIntegration({ type: 'name', name, version })
     if (integration && !integration.workspaceId) {
@@ -71,11 +80,23 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       return
     }
 
+    const integrationDefinition = this.prepareIntegrationDefinition(integrationDef)
+
     const createBody: CreateIntegrationBody = {
-      ...this.prepareIntegrationDefinition(integrationDef),
+      ...integrationDefinition,
+      code,
       icon: iconFileContent,
       readme: readmeFileContent,
-      code,
+      configuration: {
+        ...integrationDefinition.configuration,
+        identifier: {
+          ...(integrationDefinition.configuration?.identifier ?? {}),
+          linkTemplateScript: identifierLinkTemplateFileContent,
+        },
+      },
+      identifier: {
+        extractScript: identifierExtractScriptFileContent,
+      },
     }
 
     const line = this.logger.line()
@@ -98,6 +119,17 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       })
     }
     line.success('Integration deployed')
+  }
+
+  private _readFile = async (filePath: string | undefined): Promise<string | undefined> => {
+    if (!filePath) {
+      return undefined
+    }
+
+    const absoluteFilePath = utils.path.absoluteFrom(this.projectPaths.abs.workDir, filePath)
+    return fs.promises.readFile(absoluteFilePath, 'utf-8').catch((thrown) => {
+      throw errors.BotpressCLIError.wrap(thrown, `Could not read file "${absoluteFilePath}"`)
+    })
   }
 
   private _readMediaFile = async (

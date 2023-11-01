@@ -6,6 +6,9 @@ export { events } from './events'
 export { channels } from './channels'
 
 export const configuration = {
+  identifier: {
+    linkTemplateScript: 'linkTemplate.vrl',
+  },
   schema: z.object({
     botToken: z.string(),
     signingSecret: z.string(),
