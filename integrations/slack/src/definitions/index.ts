@@ -10,8 +10,8 @@ export const configuration = {
     linkTemplateScript: 'linkTemplate.vrl',
   },
   schema: z.object({
-    botToken: z.string().optional(),
-    signingSecret: z.string().optional(),
+    botToken: z.string().optional(), // TODO revert once the multiple configuration is available
+    signingSecret: z.string().optional(), // TODO revert once the multiple configuration is available
   }),
 } satisfies IntegrationDefinitionProps['configuration']
 
