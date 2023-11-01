@@ -1,5 +1,5 @@
-webhookId = .webhookId
-webhookUrl = .webhookUrl
-clientId = .vars.clientId
+webhookId = to_string!(.webhookId)
+webhookUrl = to_string!(.webhookUrl)
+clientId = to_string!(.vars.clientId)
 
 "https://linear.app/oauth/authorize?client_id={{ clientId }}&redirect_uri={{ webhookUrl }}/oauth&response_type=code&prompt=consent&actor=application&state={{ webhookId }}&scope=read,write,issues:create,comments:create,admin"
