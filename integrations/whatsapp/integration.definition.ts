@@ -13,24 +13,25 @@ export const TemplateVariablesTag = 'templateVariables'
 
 const TagsForCreatingConversation = {
   [PhoneNumberIdTag]: {
-    title: 'Phone number ID',
-    description: 'ID of the Whatsapp phone number to use as sender.',
+    title: 'Phone Number ID',
+    description:
+      'Whatsapp Phone Number ID to use as sender. If not provided it defaults to the one set in the configuration.',
   },
   [UserPhoneTag]: {
     title: 'User phone number',
     description: 'Phone number of the Whatsapp user to start the conversation with.',
   },
   [TemplateNameTag]: {
-    title: 'Message template name',
+    title: 'Message Template name',
     description: 'Name of the Whatsapp Message Template to start the conversation with.',
   },
   [TemplateLanguageTag]: {
-    title: 'Message template language (optional)',
+    title: 'Message Template language (optional)',
     description:
       'Language of the Whatsapp Message Template to start the conversation with. Defaults to "en_US" (U.S. English).',
   },
   [TemplateVariablesTag]: {
-    title: 'Message template variables (optional)',
+    title: 'Message Template variables (optional)',
     description: 'JSON array representation of variable values to pass to the Whatsapp Message Template.',
   },
 }
@@ -43,10 +44,15 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
+    ui: {
+      phoneNumberId: {
+        title: 'Default Phone Number ID for starting conversations',
+      },
+    },
     schema: z.object({
       verifyToken: z.string(),
-      phoneNumberId: z.string(),
       accessToken: z.string(),
+      phoneNumberId: z.string(),
     }),
   },
   channels: {
@@ -76,7 +82,7 @@ export default new IntegrationDefinition({
     startConversation: {
       title: 'Start Conversation',
       description:
-        "Starts a conversation with a user's Whatsapp phone number by sending them a message using a Whatsapp Message Template.",
+        "Proactively starts a conversation with a user's Whatsapp phone number by sending them a message using a Whatsapp Message Template.",
       input: {
         schema: z.object({
           userPhone: z.string().describe(TagsForCreatingConversation.userPhone.description),
@@ -86,6 +92,7 @@ export default new IntegrationDefinition({
             .string()
             .optional()
             .describe(TagsForCreatingConversation.templateVariables.description),
+          senderPhoneNumberId: z.string().optional().describe(TagsForCreatingConversation.phoneNumberId.description),
         }),
       },
       output: {
