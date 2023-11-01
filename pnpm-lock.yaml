@@ -1177,7 +1177,7 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.6.2
+        specifier: 0.6.3
         version: link:../client
       '@bpinternal/tunnel':
         specifier: ^0.1.0
@@ -1253,7 +1253,7 @@ importers:
         version: 3.21.4
     devDependencies:
       '@botpress/sdk':
-        specifier: 0.4.9
+        specifier: 0.4.10
         version: link:../sdk
       '@bpinternal/log4bot':
         specifier: ^0.0.4
@@ -1292,10 +1292,10 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.6.2
+        specifier: 0.6.3
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.4.9
+        specifier: 0.4.10
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1314,10 +1314,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.6.2
+        specifier: 0.6.3
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.4.9
+        specifier: 0.4.10
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1346,8 +1346,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.12.2
-        version: 0.12.2(openapi-types@12.1.3)
+        specifier: 0.12.5
+        version: 0.12.5(openapi-types@12.1.3)
       esbuild:
         specifier: ^0.16.12
         version: 0.16.17
@@ -1355,7 +1355,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.6.2
+        specifier: 0.6.3
         version: link:../client
       axios:
         specifier: 0.27.2
@@ -1962,8 +1962,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.12.2(openapi-types@12.1.3):
-    resolution: {integrity: sha512-SJv1ysuH2v4UbimNGWjd/nX7ExOPFW6H/FPhT/RsCinSuujMSx9fof7nVc/u/PZ2ubnFDgHifui84DhQ1EZ5Bg==}
+  /@botpress/api@0.12.5(openapi-types@12.1.3):
+    resolution: {integrity: sha512-MLnbCOKHJ5DE+j2wrDB49V7XSmLzwsT9XZc2BYAFsj2sdaPqTyZ2EfRKUMtxbkS2PH4WFTyJ9czLNGK1qktscA==}
     dependencies:
       '@bpinternal/opapi': 0.5.1(openapi-types@12.1.3)
     transitivePeerDependencies:
