@@ -22,6 +22,12 @@ export const states = {
       botUserId: z.string().optional(),
     }),
   },
+  credentials: {
+    type: 'integration',
+    schema: z.object({
+      accessToken: z.string(),
+    }),
+  },
 } satisfies IntegrationDefinitionProps['states']
 
 export const user = {

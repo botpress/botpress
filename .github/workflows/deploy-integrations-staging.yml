@@ -31,3 +31,5 @@ jobs:
           linear_client_id: ${{ secrets.STAGING_LINEAR_CLIENT_ID }}
           linear_client_secret: ${{ secrets.STAGING_LINEAR_CLIENT_SECRET }}
           linear_webhook_signing_secret: ${{ secrets.STAGING_LINEAR_WEBHOOK_SIGNING_SECRET }}
+          slack_client_id: ${{ secrets.STAGING_SLACK_CLIENT_ID }}
+          slack_client_secret: ${{ secrets.STAGING_SLACK_CLIENT_SECRET }}

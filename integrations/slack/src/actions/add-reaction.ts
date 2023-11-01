@@ -1,9 +1,10 @@
 import { WebClient } from '@slack/web-api'
 import { Implementation } from '../misc/types'
-import { getTag } from '../misc/utils'
+import { getAccessToken, getTag } from '../misc/utils'
 
 export const addReaction: Implementation['actions']['addReaction'] = async ({ ctx, client, input }) => {
-  const slackClient = new WebClient(ctx.configuration.botToken)
+  const accessToken = await getAccessToken(client, ctx)
+  const slackClient = new WebClient(accessToken)
 
   if (input.messageId) {
     const { message } = await client.getMessage({ id: input.messageId })

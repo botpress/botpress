@@ -1,11 +1,13 @@
 import type { Conversation } from '@botpress/client'
-import type { AckFunction, Request } from '@botpress/sdk'
+import type { AckFunction, IntegrationContext, Request } from '@botpress/sdk'
 import { ChatPostMessageArguments, WebClient } from '@slack/web-api'
 import axios from 'axios'
+import queryString from 'query-string'
 import VError from 'verror'
 import { INTEGRATION_NAME } from '../const'
 import { Configuration } from '../setup'
 import { Client, IntegrationCtx } from './types'
+import * as bp from '.botpress'
 
 type InteractiveBody = {
   response_url: string
@@ -48,8 +50,74 @@ function getTags(message: SlackMessage) {
   return tags
 }
 
-export function onOAuth() {
-  return {}
+const oauthHeaders = {
+  'Content-Type': 'application/x-www-form-urlencoded',
+} as const
+
+export class SlackOauthClient {
+  private clientId: string
+  private clientSecret: string
+
+  constructor() {
+    this.clientId = bp.secrets.CLIENT_ID
+    this.clientSecret = bp.secrets.CLIENT_SECRET
+  }
+
+  async getAccessToken(code: string) {
+    const res = await axios.post(
+      'https://slack.com/api/oauth.v2.access',
+      {
+        client_id: this.clientId,
+        client_secret: this.clientSecret,
+        redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
+        code,
+      },
+      {
+        headers: oauthHeaders,
+      }
+    )
+
+    const { access_token } = res.data
+
+    if (!access_token) {
+      throw new Error('No access token found')
+    }
+
+    return access_token as string
+  }
+}
+
+export async function onOAuth(req: Request, client: bp.Client, ctx: IntegrationContext) {
+  const slackOAuthClient = new SlackOauthClient()
+
+  const query = queryString.parse(req.query)
+  const code = query.code
+
+  if (typeof code !== 'string') {
+    throw new Error('Handler received an empty code')
+  }
+
+  const accessToken = await slackOAuthClient.getAccessToken(code)
+
+  await client.setState({
+    type: 'integration',
+    name: 'credentials',
+    id: ctx.integrationId,
+    payload: {
+      accessToken,
+    },
+  })
+
+  const slackClient = new WebClient(accessToken)
+  const { team } = await slackClient.team.info()
+
+  const teamId = team?.id
+
+  if (!teamId) {
+    throw new Error('No team ID found')
+  }
+
+  await client.configureIntegration({ identifier: teamId })
 }
 
 export const getSlackTarget = (conversation: Conversation) => {
@@ -154,4 +222,14 @@ export const getConfig = async (client: Client, ctx: IntegrationCtx): Promise<Co
   } = await client.getState({ type: 'integration', name: 'configuration', id: ctx.integrationId })
 
   return payload as Configuration
+}
+
+export const getAccessToken = async (client: Client, ctx: IntegrationCtx) => {
+  if (ctx.configuration.botToken) {
+    return ctx.configuration.botToken
+  }
+
+  const { state } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+
+  return state.payload.accessToken
 }

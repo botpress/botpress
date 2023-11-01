@@ -1,18 +1,20 @@
 import { textSchema } from './definitions/schemas'
 import { renderCard } from './misc/renderer'
 import { Channels } from './misc/types'
-import { getSlackTarget, notEmpty, sendSlackMessage } from './misc/utils'
+import { getAccessToken, getSlackTarget, notEmpty, sendSlackMessage } from './misc/utils'
 
 const defaultMessages: Channels['channel']['messages'] = {
-  text: async ({ payload, ctx, conversation, ack }) => {
+  text: async ({ client, payload, ctx, conversation, ack }) => {
     const parsed = textSchema.parse(payload)
-    await sendSlackMessage(ctx.configuration.botToken, ack, {
+    const accessToken = await getAccessToken(client, ctx)
+    await sendSlackMessage(accessToken, ack, {
       ...getSlackTarget(conversation),
       ...parsed,
     })
   },
-  image: async ({ payload, ctx, conversation, ack }) => {
-    await sendSlackMessage(ctx.configuration.botToken, ack, {
+  image: async ({ client, payload, ctx, conversation, ack }) => {
+    const accessToken = await getAccessToken(client, ctx)
+    await sendSlackMessage(accessToken, ack, {
       ...getSlackTarget(conversation),
       blocks: [
         {
@@ -23,8 +25,9 @@ const defaultMessages: Channels['channel']['messages'] = {
       ],
     })
   },
-  markdown: async ({ ctx, conversation, ack, payload }) => {
-    await sendSlackMessage(ctx.configuration.botToken, ack, {
+  markdown: async ({ ctx, conversation, ack, client, payload }) => {
+    const accessToken = await getAccessToken(client, ctx)
+    await sendSlackMessage(accessToken, ack, {
       ...getSlackTarget(conversation),
       text: payload.markdown,
       blocks: [
@@ -35,8 +38,9 @@ const defaultMessages: Channels['channel']['messages'] = {
       ],
     })
   },
-  audio: async ({ ctx, conversation, ack, payload }) => {
-    await sendSlackMessage(ctx.configuration.botToken, ack, {
+  audio: async ({ ctx, conversation, ack, client, payload }) => {
+    const accessToken = await getAccessToken(client, ctx)
+    await sendSlackMessage(accessToken, ack, {
       ...getSlackTarget(conversation),
       text: 'audio',
       blocks: [
@@ -47,8 +51,9 @@ const defaultMessages: Channels['channel']['messages'] = {
       ],
     })
   },
-  video: async ({ ctx, conversation, ack, payload }) => {
-    await sendSlackMessage(ctx.configuration.botToken, ack, {
+  video: async ({ ctx, conversation, ack, client, payload }) => {
+    const accessToken = await getAccessToken(client, ctx)
+    await sendSlackMessage(accessToken, ack, {
       ...getSlackTarget(conversation),
       text: 'video',
       blocks: [
@@ -59,8 +64,9 @@ const defaultMessages: Channels['channel']['messages'] = {
       ],
     })
   },
-  file: async ({ ctx, conversation, ack, payload }) => {
-    await sendSlackMessage(ctx.configuration.botToken, ack, {
+  file: async ({ ctx, conversation, ack, client, payload }) => {
+    const accessToken = await getAccessToken(client, ctx)
+    await sendSlackMessage(accessToken, ack, {
       ...getSlackTarget(conversation),
       text: 'file',
       blocks: [
@@ -71,9 +77,10 @@ const defaultMessages: Channels['channel']['messages'] = {
       ],
     })
   },
-  location: async ({ ctx, conversation, ack, payload }) => {
+  location: async ({ ctx, conversation, ack, client, payload }) => {
     const googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${payload.latitude},${payload.longitude}`
-    await sendSlackMessage(ctx.configuration.botToken, ack, {
+    const accessToken = await getAccessToken(client, ctx)
+    await sendSlackMessage(accessToken, ack, {
       ...getSlackTarget(conversation),
       text: 'location',
       blocks: [
@@ -84,22 +91,25 @@ const defaultMessages: Channels['channel']['messages'] = {
       ],
     })
   },
-  carousel: async ({ ctx, conversation, ack, payload }) => {
-    await sendSlackMessage(ctx.configuration.botToken, ack, {
+  carousel: async ({ ctx, conversation, ack, client, payload }) => {
+    const accessToken = await getAccessToken(client, ctx)
+    await sendSlackMessage(accessToken, ack, {
       ...getSlackTarget(conversation),
       text: 'carousel',
       blocks: payload.items.flatMap(renderCard).filter(notEmpty),
     })
   },
-  card: async ({ ctx, conversation, ack, payload }) => {
-    await sendSlackMessage(ctx.configuration.botToken, ack, {
+  card: async ({ ctx, conversation, ack, client, payload }) => {
+    const accessToken = await getAccessToken(client, ctx)
+    await sendSlackMessage(accessToken, ack, {
       ...getSlackTarget(conversation),
       text: 'card',
       blocks: renderCard(payload),
     })
   },
-  dropdown: async ({ ctx, conversation, ack, payload }) => {
-    await sendSlackMessage(ctx.configuration.botToken, ack, {
+  dropdown: async ({ ctx, conversation, ack, client, payload }) => {
+    const accessToken = await getAccessToken(client, ctx)
+    await sendSlackMessage(accessToken, ack, {
       ...getSlackTarget(conversation),
       text: payload.text,
       blocks:
@@ -131,8 +141,9 @@ const defaultMessages: Channels['channel']['messages'] = {
           : undefined,
     })
   },
-  choice: async ({ ctx, conversation, ack, payload }) => {
-    await sendSlackMessage(ctx.configuration.botToken, ack, {
+  choice: async ({ ctx, conversation, ack, client, payload }) => {
+    const accessToken = await getAccessToken(client, ctx)
+    await sendSlackMessage(accessToken, ack, {
       ...getSlackTarget(conversation),
       text: payload.text,
       blocks:

@@ -1,11 +1,17 @@
 import { WebClient } from '@slack/web-api'
 import { CreateConversationFunction, CreateUserFunction, RegisterFunction, UnregisterFunction } from './misc/types'
-import { getDirectMessageForUser, getTag, isUserId, saveConfig } from './misc/utils'
+import { getAccessToken, getDirectMessageForUser, getTag, isUserId, saveConfig } from './misc/utils'
 
 export type Configuration = { botUserId?: string }
 
 export const register: RegisterFunction = async ({ client, ctx }) => {
-  const slack = new WebClient(ctx.configuration.botToken)
+  const accessToken = await getAccessToken(client, ctx)
+
+  if (!accessToken) {
+    return
+  }
+
+  const slack = new WebClient(accessToken)
   const identity = await slack.auth.test()
 
   const configuration: Configuration = { botUserId: identity.user_id }
@@ -24,7 +30,8 @@ export const createUser: CreateUserFunction = async ({ client, tags, ctx }) => {
     return
   }
 
-  const slack = new WebClient(ctx.configuration.botToken)
+  const accessToken = await getAccessToken(client, ctx)
+  const slack = new WebClient(accessToken)
   const member = await slack.users.info({ user: userId })
 
   if (!member.user?.id) {
@@ -48,12 +55,14 @@ export const createConversation: CreateConversationFunction = async ({ client, c
     return
   }
 
+  const accessToken = await getAccessToken(client, ctx)
+
   if (isUserId(conversationId)) {
-    const channelId = await getDirectMessageForUser(conversationId, ctx.configuration.botToken)
+    const channelId = await getDirectMessageForUser(conversationId, accessToken)
     conversationId = channelId || conversationId
   }
 
-  const slack = new WebClient(ctx.configuration.botToken)
+  const slack = new WebClient(accessToken)
   const response = await slack.conversations.info({ channel: conversationId })
 
   if (!response.channel?.id) {
