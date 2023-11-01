@@ -26,3 +26,5 @@ jobs:
           linear_client_id: ${{ secrets.PRODUCTION_LINEAR_CLIENT_ID }}
           linear_client_secret: ${{ secrets.PRODUCTION_LINEAR_CLIENT_SECRET }}
           linear_webhook_signing_secret: ${{ secrets.PRODUCTION_LINEAR_WEBHOOK_SIGNING_SECRET }}
+          slack_client_id: ${{ secrets.PRODUCTION_SLACK_CLIENT_ID }}
+          slack_client_secret: ${{ secrets.PRODUCTION_SLACK_CLIENT_SECRET }}

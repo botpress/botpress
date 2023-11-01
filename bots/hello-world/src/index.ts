@@ -1,4 +1,4 @@
-import { Bot } from '@botpress/sdk'
+import { Bot } from '.botpress'
 
 const bot = new Bot({})
 

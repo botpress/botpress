@@ -16,7 +16,15 @@ export default new IntegrationDefinition({
   channels,
   actions,
   events,
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  secrets: {
+    CLIENT_ID: {
+      description: 'The client ID of your Slack OAuth app.',
+    },
+    CLIENT_SECRET: {
+      description: 'The client secret of your Slack OAuth app.',
+    },
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+  },
   user,
   identifier: {
     extractScript: 'extract.vrl',

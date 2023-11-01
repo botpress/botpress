@@ -36,6 +36,12 @@ input:
   linear_webhook_signing_secret:
     description: 'Linear webhook signing secret'
     required: true
+  slack_client_id:
+    description: 'Slack client id'
+    required: true
+  slack_client_secret:
+    description: 'Slack client secret'
+    required: true
 
 runs:
   using: 'composite'
@@ -97,7 +103,7 @@ runs:
         echo "### Deploying integration @botpresshub/notion ###"
         pnpm -r --stream -F @botpresshub/notion -c exec -- 'bp deploy -v -y --noBuild'
         echo "### Deploying integration @botpresshub/slack ###"
-        pnpm -r --stream -F @botpresshub/slack -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        pnpm -r --stream -F @botpresshub/slack -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE" --secrets CLIENT_ID="${{ inputs.slack_client_id }}" --secrets CLIENT_SECRET="${{ inputs.slack_client_secret }}"'
         echo "### Deploying integration @botpresshub/sunco ###"
         pnpm -r --stream -F @botpresshub/sunco -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
         echo "### Deploying integration @botpresshub/teams ###"
