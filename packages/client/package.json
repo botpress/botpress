@@ -21,7 +21,7 @@
     "type-fest": "^3.4.0"
   },
   "devDependencies": {
-    "@botpress/api": "0.12.1",
+    "@botpress/api": "0.12.2",
     "esbuild": "^0.16.12"
   }
 }
