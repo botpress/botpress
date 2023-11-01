@@ -6,6 +6,11 @@ export type Configuration = { botUserId?: string }
 
 export const register: RegisterFunction = async ({ client, ctx }) => {
   const accessToken = await getAccessToken(client, ctx)
+
+  if (!accessToken) {
+    return
+  }
+
   const slack = new WebClient(accessToken)
   const identity = await slack.auth.test()
 
