@@ -4,9 +4,10 @@ export type File = { path: string; content: string }
 
 export type IntegrationDefinition = Pick<
   Integration,
-  'name' | 'version' | 'configuration' | 'channels' | 'states' | 'events' | 'actions' | 'user'
+  'name' | 'version' | 'channels' | 'states' | 'events' | 'actions' | 'user'
 > & {
   id: string | null
+  configuration: Omit<Integration['configuration'], 'identifier'>
 }
 
 type Def<T> = NonNullable<T>
