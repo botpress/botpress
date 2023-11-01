@@ -12,7 +12,12 @@ type TagDefinition = {
   description?: string
 }
 
-type ConfigurationDefinition<TConfig extends BaseConfig> = SchemaDefinition<TConfig>
+type ConfigurationDefinition<TConfig extends BaseConfig> = SchemaDefinition<TConfig> & {
+  identifier?: {
+    required?: boolean
+    linkTemplateScript?: string
+  }
+}
 
 type EventDefinition<TEvent extends BaseEvents[string]> = SchemaDefinition<TEvent> & {
   title?: string
@@ -76,6 +81,10 @@ export type IntegrationDefinitionProps<
   icon?: string
   readme?: string
 
+  identifier?: {
+    extractScript?: string
+  }
+
   configuration?: ConfigurationDefinition<TConfig>
   events?: { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
 
@@ -122,6 +131,7 @@ export class IntegrationDefinition<
   public readonly states: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['states']
   public readonly user: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['user']
   public readonly secrets: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['secrets']
+  public readonly identifier: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['identifier']
 
   public constructor(props: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>) {
     const {
@@ -138,12 +148,14 @@ export class IntegrationDefinition<
       states,
       user,
       secrets,
+      identifier,
     } = props
     this.name = name
     this.version = version
     this.icon = icon
     this.readme = readme
     this.title = title
+    this.identifier = identifier
     this.description = description
     this.configuration = configuration
     this.events = events
