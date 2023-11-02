@@ -28,6 +28,6 @@ export default new IntegrationDefinition({
   user,
   identifier: {
     extractScript: 'extract.vrl',
-    fallbackHandlerScript: 'fallback.vrl',
+    fallbackHandlerScript: 'fallbackHandler.vrl',
   },
 })
