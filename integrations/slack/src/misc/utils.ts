@@ -189,21 +189,27 @@ export const getTag = (tags: Record<string, string>, name: string) => {
   return tags[`${INTEGRATION_NAME}:${name}`]
 }
 
-export const getChannelType = (props: { channel: string; thread?: string }) => {
-  if (props.thread) {
-    return 'thread'
-  }
-  return props.channel.startsWith('D') ? 'dm' : 'channel'
-}
-
 export const getUserAndConversation = async (
   props: { slackUserId: string; slackChannelId: string; slackThreadId?: string },
   client: Client
 ) => {
-  const { conversation } = await client.getOrCreateConversation({
-    channel: 'thread',
-    tags: { id: props.slackChannelId, thread: props.slackThreadId! },
-  })
+  let conversation: Conversation
+
+  if (props.slackThreadId) {
+    const resp = await client.getOrCreateConversation({
+      channel: 'thread',
+      tags: { id: props.slackChannelId, thread: props.slackThreadId },
+    })
+    conversation = resp.conversation
+  } else {
+    const channel = props.slackChannelId.startsWith('D') ? 'dm' : 'channel'
+    const resp = await client.getOrCreateConversation({
+      channel,
+      tags: { id: props.slackChannelId },
+    })
+    conversation = resp.conversation
+  }
+
   const { user } = await client.getOrCreateUser({ tags: { id: props.slackUserId } })
 
   return {
