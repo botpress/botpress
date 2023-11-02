@@ -57,6 +57,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const iconFileContent = await this._readMediaFile('icon', iconRelativeFilePath)
     const readmeFileContent = await this._readMediaFile('readme', readmeRelativeFilePath)
     const identifierExtractScriptFileContent = await this._readFile(identifier?.extractScript)
+    const fallbackHandlerScriptFileContent = await this._readFile(identifier?.fallbackHandlerScript)
     const identifierLinkTemplateFileContent = await this._readFile(configuration?.identifier?.linkTemplateScript)
 
     const integration = await api.findIntegration({ type: 'name', name, version })
@@ -96,6 +97,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       },
       identifier: {
         extractScript: identifierExtractScriptFileContent,
+        fallbackHandlerScript: fallbackHandlerScriptFileContent,
       },
     }
 
