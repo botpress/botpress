@@ -83,6 +83,7 @@ export type IntegrationDefinitionProps<
 
   identifier?: {
     extractScript?: string
+    fallbackHandlerScript?: string
   }
 
   configuration?: ConfigurationDefinition<TConfig>
