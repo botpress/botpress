@@ -127,6 +127,8 @@ type UserResponse<TIntegration extends BaseIntegration> = {
 
 export type CreateUser<TIntegration extends BaseIntegration> = (x: {
   tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
+  name: TIntegration['user']['name']
+  pictureUrl: TIntegration['user']['pictureUrl']
 }) => Promise<UserResponse<TIntegration>>
 
 export type GetUser<TIntegration extends BaseIntegration> = (

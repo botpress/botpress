@@ -30,6 +30,8 @@ type ActionArgs<TIntegration extends BaseIntegration, T extends string, I> = Com
 
 type CreateUserPayload<TIntegration extends BaseIntegration> = {
   tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
+  name?: TIntegration['user']['name']
+  pictureUrl?: TIntegration['user']['tags']
 }
 type CreateUserArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> & CreateUserPayload<TIntegration>
 

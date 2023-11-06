@@ -23,6 +23,8 @@ export type BaseIntegration = {
   states: Record<string, any>
   user: {
     tags: Record<string, any>
+    name?: string
+    pictureUrl?: string
     creation: {
       enabled: boolean
       requiredTags: string[]
