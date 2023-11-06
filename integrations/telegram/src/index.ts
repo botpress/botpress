@@ -9,7 +9,7 @@ import * as bp from '.botpress'
 
 type Card = bp.channels.channel.card.Card
 
-const prefixedId = `${name}:id`
+const prefixedId = `${name}:id` as const
 
 const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx }) => {
