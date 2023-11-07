@@ -8,13 +8,18 @@ const messages = {
   },
 }
 
+const convoTags = {
+  id: {},
+  title: {},
+} as const
+
 export const channels = {
   channel: {
     title: 'Channel',
     messages,
     message: { tags: { ts: {} } },
     conversation: {
-      tags: { id: {} },
+      tags: { ...convoTags },
       creation: { enabled: true, requiredTags: ['id'] },
     },
   },
@@ -23,7 +28,7 @@ export const channels = {
     messages,
     message: { tags: { ts: {} } },
     conversation: {
-      tags: { id: {} },
+      tags: { ...convoTags },
       creation: { enabled: true, requiredTags: ['id'] },
     },
   },
@@ -32,7 +37,7 @@ export const channels = {
     messages,
     message: { tags: { ts: {} } },
     conversation: {
-      tags: { id: {}, thread: {} },
+      tags: { ...convoTags, thread: {} },
       creation: { enabled: true, requiredTags: ['id'] },
     },
   },

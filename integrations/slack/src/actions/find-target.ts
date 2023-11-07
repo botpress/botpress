@@ -27,7 +27,9 @@ export const findTarget: Implementation['actions']['findTarget'] = async ({ clie
     const users = (list.members || [])
       .filter((x) => !x.deleted)
       .map<Target>((member) => ({
-        displayName: member.real_name || member.name || '',
+        displayName: member.name!,
+        name: member.profile?.real_name ?? '',
+        email: member.profile?.email ?? '',
         tags: { id: member.id! },
         channel: 'dm',
       }))
