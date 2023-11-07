@@ -170,8 +170,8 @@ const integration = new bp.Integration({
           for (const message of change.value.messages) {
             const accessToken = ctx.configuration.accessToken
             const whatsapp = new WhatsAppAPI(accessToken)
+            const phoneNumberId = change.value.metadata.phone_number_id
 
-            const phoneNumberId = ctx.configuration.phoneNumberId
             await whatsapp.markAsRead(phoneNumberId, message.id)
 
             await handleMessage(message, change.value, client, logger)
