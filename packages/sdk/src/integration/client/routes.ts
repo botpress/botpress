@@ -125,9 +125,14 @@ type UserResponse<TIntegration extends BaseIntegration> = {
   >
 }
 
-export type CreateUser<TIntegration extends BaseIntegration> = (x: {
-  tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
-}) => Promise<UserResponse<TIntegration>>
+export type CreateUser<TIntegration extends BaseIntegration> = (
+  x: Merge<
+    Arg<Client['createUser']>,
+    {
+      tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
+    }
+  >
+) => Promise<UserResponse<TIntegration>>
 
 export type GetUser<TIntegration extends BaseIntegration> = (
   x: Arg<Client['getUser']>
@@ -142,9 +147,14 @@ export type ListUsers<TIntegration extends BaseIntegration> = (
   >
 ) => Res<Client['listUsers']>
 
-export type GetOrCreateUser<TIntegration extends BaseIntegration> = (x: {
-  tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
-}) => Promise<UserResponse<TIntegration>>
+export type GetOrCreateUser<TIntegration extends BaseIntegration> = (
+  x: Merge<
+    Arg<Client['getOrCreateUser']>,
+    {
+      tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
+    }
+  >
+) => Promise<UserResponse<TIntegration>>
 
 export type UpdateUser<TIntegration extends BaseIntegration> = (
   x: Merge<
