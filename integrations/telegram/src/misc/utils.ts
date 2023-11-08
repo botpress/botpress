@@ -12,6 +12,29 @@ export const getUserNameFromTelegramUser = (telegramUser: User) => {
   return `${telegramUser.first_name} (id: ${telegramUser.id})`
 }
 
+const getDataUriFromImgHref = async (imgHref: string): Promise<string> => {
+  const fileExtension = imgHref.substring(imgHref.lastIndexOf('.') + 1)
+
+  const { data } = await axios.default.get(imgHref, { responseType: 'arraybuffer' })
+
+  const base64File = Buffer.from(data, 'binary').toString('base64')
+
+  return `data:image/${fileExtension};base64,${base64File}`
+}
+
+export const getBestPhotoSize = (photos: PhotoSize[][] | undefined): PhotoSize | null =>
+  photos?.[0]?.reduce((finalPicture: PhotoSize | null, currentPicture: PhotoSize) => {
+    const isSizeBelowLimit = !!currentPicture.file_size && currentPicture.file_size < PICTURE_LIMIT_SIZE
+    const isSizeAbovePrevious =
+      !!currentPicture.file_size && !!finalPicture?.file_size && currentPicture.file_size > finalPicture.file_size
+
+    // here we want to use the picture with the best resolution below PICTURE_LIMIT_SIZE
+    if (isSizeBelowLimit && (!finalPicture || isSizeAbovePrevious)) {
+      return currentPicture
+    }
+    return finalPicture
+  }, null) || null
+
 export const getUserPictureDataUri = async ({
   botToken,
   telegramUserId,
@@ -23,27 +46,12 @@ export const getUserPictureDataUri = async ({
     const telegraf = new Telegraf(botToken)
     const res = await telegraf.telegram.getUserProfilePhotos(telegramUserId)
 
-    const photoToUse = res.photos?.[0]?.reduce<PhotoSize | null>((finalPicture, currentPicture) => {
-      const isSizeBelowLimit = !!currentPicture.file_size && currentPicture.file_size < PICTURE_LIMIT_SIZE
-      const isSizeAbovePrevious =
-        !!currentPicture.file_size && !!finalPicture?.file_size && currentPicture.file_size > finalPicture.file_size
-      // here we want to use the picture with the best resolution below PICTURE_LIMIT_SIZE
-      if (isSizeBelowLimit && (!finalPicture || isSizeAbovePrevious)) {
-        return currentPicture
-      }
-      return finalPicture
-    }, null)
+    const photoToUse = getBestPhotoSize(res.photos)
 
     if (photoToUse) {
       const fileLink = await telegraf.telegram.getFileLink(photoToUse.file_id)
 
-      const fileExtension = fileLink.href.substring(fileLink.href.lastIndexOf('.') + 1)
-
-      const { data } = await axios.default.get(fileLink.href, { responseType: 'arraybuffer' })
-
-      const base64File = Buffer.from(data, 'binary').toString('base64')
-
-      return `data:image/${fileExtension};base64,${base64File}`
+      return await getDataUriFromImgHref(fileLink.href)
     }
     return null
   } catch (error) {
