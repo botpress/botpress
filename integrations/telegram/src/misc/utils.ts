@@ -22,8 +22,8 @@ const getDataUriFromImgHref = async (imgHref: string): Promise<string> => {
   return `data:image/${fileExtension};base64,${base64File}`
 }
 
-export const getBestPhotoSize = (photos: PhotoSize[][] | undefined): PhotoSize | null =>
-  photos?.[0]?.reduce((finalPicture: PhotoSize | null, currentPicture: PhotoSize) => {
+const getBestPhotoSize = (photos: PhotoSize[]): PhotoSize | null =>
+  photos.reduce((finalPicture: PhotoSize | null, currentPicture: PhotoSize) => {
     const isSizeBelowLimit = !!currentPicture.file_size && currentPicture.file_size < PICTURE_LIMIT_SIZE
     const isSizeAbovePrevious =
       !!currentPicture.file_size && !!finalPicture?.file_size && currentPicture.file_size > finalPicture.file_size
@@ -46,7 +46,10 @@ export const getUserPictureDataUri = async ({
     const telegraf = new Telegraf(botToken)
     const res = await telegraf.telegram.getUserProfilePhotos(telegramUserId)
 
-    const photoToUse = getBestPhotoSize(res.photos)
+    if (!res.photos[0]) {
+      return null
+    }
+    const photoToUse = getBestPhotoSize(res.photos[0])
 
     if (photoToUse) {
       const fileLink = await telegraf.telegram.getFileLink(photoToUse.file_id)
