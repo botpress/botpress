@@ -1,0 +1,1 @@
+export const PICTURE_LIMIT_SIZE = 100_000

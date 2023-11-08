@@ -4,7 +4,8 @@ import type { AckFunction } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { name } from 'integration.definition'
 import { Context, Markup, Telegraf } from 'telegraf'
-import type { Update } from 'telegraf/typings/core/types/typegram'
+import type { Update, User } from 'telegraf/typings/core/types/typegram'
+import { getUserPictureDataUri, getUserNameFromTelegramUser } from './misc/utils'
 import * as bp from '.botpress'
 
 type Card = bp.channels.channel.card.Card
@@ -97,7 +98,7 @@ const integration = new bp.Integration({
       },
     },
   },
-  handler: async ({ req, client, logger }) => {
+  handler: async ({ req, client, ctx, logger }) => {
     console.info('Handler received request')
 
     if (!req.body) {
@@ -146,10 +147,13 @@ const integration = new bp.Integration({
       throw new Error('Handler received an empty from id')
     }
 
+    const userName = getUserNameFromTelegramUser(data.message.from as User)
+
     const { user } = await client.getOrCreateUser({
       tags: {
         [prefixedId]: `${userId}`,
       },
+      name: userName || userId,
     })
 
     const messageId = data.message.message_id
@@ -166,6 +170,19 @@ const integration = new bp.Integration({
       conversationId: conversation.id,
       payload: { text: data.message.text },
     })
+
+    // doing this after creating the message to avoid latency
+    const userFieldsToUpdate = {
+      pictureUrl: await getUserPictureDataUri({
+        botToken: ctx.configuration.botToken,
+        telegramUserId: userId,
+      }),
+      name: user.name !== userName ? userName : undefined,
+    }
+
+    if (userFieldsToUpdate.pictureUrl || userFieldsToUpdate.name) {
+      await client.updateUser({ ...user, ...userFieldsToUpdate })
+    }
   },
   createUser: async ({ client, tags, ctx }) => {
     const userId = Number(tags[prefixedId])
