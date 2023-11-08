@@ -156,6 +156,24 @@ const integration = new bp.Integration({
       name: userName || userId,
     })
 
+    const userFieldsToUpdate = {
+      pictureUrl:
+        user.pictureUrl ||
+        (await getUserPictureDataUri({
+          botToken: ctx.configuration.botToken,
+          telegramUserId: userId,
+        })),
+      name: user.name !== userName ? userName : undefined,
+    }
+
+    if (userFieldsToUpdate.pictureUrl || userFieldsToUpdate.name) {
+      await client.updateUser({
+        ...user,
+        ...(userFieldsToUpdate.pictureUrl && { pictureUrl: userFieldsToUpdate.pictureUrl }),
+        ...(userFieldsToUpdate.name && { name: userFieldsToUpdate.name }),
+      })
+    }
+
     const messageId = data.message.message_id
 
     if (!messageId) {
@@ -170,19 +188,6 @@ const integration = new bp.Integration({
       conversationId: conversation.id,
       payload: { text: data.message.text },
     })
-
-    // doing this after creating the message to avoid latency
-    const userFieldsToUpdate = {
-      pictureUrl: await getUserPictureDataUri({
-        botToken: ctx.configuration.botToken,
-        telegramUserId: userId,
-      }),
-      name: user.name !== userName ? userName : undefined,
-    }
-
-    if (userFieldsToUpdate.pictureUrl || userFieldsToUpdate.name) {
-      await client.updateUser({ ...user, ...userFieldsToUpdate })
-    }
   },
   createUser: async ({ client, tags, ctx }) => {
     const userId = Number(tags[prefixedId])
