@@ -1,6 +1,6 @@
 import { getInfoSpreadsheetInputSchema } from 'src/misc/custom-schemas'
-import type { Implementation } from '../misc/types'
 import { getClient } from '../client'
+import type { Implementation } from '../misc/types'
 import * as bp from '.botpress'
 
 export const getInfoSpreadsheet: Implementation['actions']['getInfoSpreadsheet'] = async ({ ctx, input, logger }) => {
