@@ -1,4 +1,4 @@
-import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
+import { IntegrationLogger } from 'src'
 import { WhatsAppMessage, WhatsAppValue } from './whatsapp-types'
 import * as bp from '.botpress'
 
