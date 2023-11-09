@@ -54,6 +54,10 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       configuration,
     } = integrationDef
 
+    if (iconRelativeFilePath && !iconRelativeFilePath.toLowerCase().endsWith('.svg')) {
+      throw new errors.BotpressCLIError('Icon must be an SVG file')
+    }
+
     const iconFileContent = await this._readMediaFile('icon', iconRelativeFilePath)
     const readmeFileContent = await this._readMediaFile('readme', readmeRelativeFilePath)
     const identifierExtractScriptFileContent = await this._readFile(identifier?.extractScript)
