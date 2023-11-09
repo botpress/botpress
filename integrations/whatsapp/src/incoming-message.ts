@@ -35,6 +35,18 @@ export async function handleIncomingMessage(
           userId: user.id,
           conversationId: conversation.id,
         })
+      } else if (message.button) {
+        logger.forBot().debug('Received button message from Whatsapp:', message.button)
+
+        await client.createMessage({
+          tags: { id: message.id },
+          type: 'text',
+          payload: {
+            text: message.button.text,
+          },
+          userId: user.id,
+          conversationId: conversation.id,
+        })
       } else if (message.interactive) {
         if (message.interactive.type === 'button_reply') {
           logger.forBot().debug('Received button reply from Whatsapp:', message.interactive.button_reply)
@@ -60,18 +72,6 @@ export async function handleIncomingMessage(
               text: message.interactive.list_reply?.id!,
               // TODO: declare in definition
               // metadata: message.interactive.list_reply?.title,
-            },
-            userId: user.id,
-            conversationId: conversation.id,
-          })
-        } else if (message.button) {
-          logger.forBot().debug('Received button message from Whatsapp:', message.interactive.button_reply)
-
-          await client.createMessage({
-            tags: { id: message.id },
-            type: 'text',
-            payload: {
-              text: message.button.text,
             },
             userId: user.id,
             conversationId: conversation.id,
