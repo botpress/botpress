@@ -1,44 +1,74 @@
+import { z } from 'zod'
+import * as schemas from './custom-schemas'
+
+type SchemaOptions<T> = {
+  title: string
+  examples: T[]
+}
+
+type IsEmptyObject<T> = keyof T extends never ? true : false
+
+type UiOf<TSchema extends z.AnyZodObject> = IsEmptyObject<z.infer<TSchema>> extends true
+  ? Record<string, never>
+  : {
+      [K in keyof z.infer<TSchema>]: Partial<SchemaOptions<z.infer<TSchema>[K]>>
+    }
+
 export const getValuesUi = {
   range: {
-    title: 'The A1 notation of the values to retrieve. (e.g. "Sheet1!A1:B2")',
+    title: 'Range',
+    examples: ['Sheet1!A1:B2'],
   },
-}
-
-export const clearValuesUi = {
-  range: {
-    title: 'The A1 notation of the values to retrieve. (e.g. "Sheet1!A1:B2")',
-  },
-}
-
-export const getInfoSpreadsheetUi = {
-  fields: {
-    title:
-      'The fields to include in the response when retrieving spreadsheet properties and metadata. This is a comma-separated list of field names. (e.g. "spreadsheetId,properties.title,sheets.properties.sheetId,sheets.properties.title")',
-  },
-}
-
-export const addSheetUi = {
-  title: {
-    title: 'The title of the new sheet to add to the spreadsheet.',
-  },
-}
+} satisfies UiOf<typeof schemas.getValuesInputSchema>
 
 export const updateValuesUi = {
   range: {
-    title: 'The A1 notation of the values to retrieve. (e.g. "Sheet1!A1:B2")',
+    title: 'Range',
+    examples: ['Sheet1!A1:B2'],
   },
   values: {
-    title:
-      'The values to write to the range. This is an array of arrays, where each inner array represents a row/s of data.',
+    title: 'Values',
+    examples: [
+      [
+        ['a', 'b'],
+        ['c', 'd'],
+      ],
+    ],
   },
-}
+} satisfies UiOf<typeof schemas.updateValuesInputSchema>
 
 export const appendValuesUi = {
   range: {
-    title: 'The A1 notation of the values to retrieve. (e.g. "Sheet1!A1:B2")',
+    title: 'Range',
+    examples: ['Sheet1!A1:B2'],
   },
   values: {
-    title:
-      'The values to write to the range. This is an array of arrays, where each inner array represents a row/s of data.',
+    title: 'Values',
+    examples: [
+      [
+        ['a', 'b'],
+        ['c', 'd'],
+      ],
+    ],
   },
-}
+} satisfies UiOf<typeof schemas.appendValuesInputSchema>
+
+export const clearValuesUi = {
+  range: {
+    title: 'Range',
+    examples: ['Sheet1!A1:B2'],
+  },
+} satisfies UiOf<typeof schemas.clearValuesInputSchema>
+
+export const getInfoUi = {
+  fields: {
+    title: 'Fields',
+    examples: [['spreadsheetId', 'properties.title', 'sheets.properties.sheetId', 'sheets.properties.title']],
+  },
+} satisfies UiOf<typeof schemas.getInfoInputSchema>
+
+export const addSheetUi = {
+  title: {
+    title: 'Title',
+  },
+} satisfies UiOf<typeof schemas.addSheetInputSchema>
