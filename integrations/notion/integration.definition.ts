@@ -44,7 +44,7 @@ export default new IntegrationDefinition({
       },
     },
     deleteBlock: {
-      input: { schema: z.object({ blockId: z.string().min(1) }) },
+      input: { schema: z.object({ blockId: z.string().min(1) }), ui: { blockId: {} } },
       output: {
         schema: emptyObject,
       },

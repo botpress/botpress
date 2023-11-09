@@ -1,26 +1,22 @@
 import {
+  ActionDefinitions,
   addSheetInputSchema,
   addSheetOutputSchema,
   appendValuesInputSchema,
   appendValuesOutputSchema,
   clearValuesInputSchema,
   clearValuesOutputSchema,
-  getInfoSpreadsheetInputSchema,
-  getInfoSpreadsheetOutputSchema,
+  getInfoInputSchema,
+  getInfoOutputSchema,
   getValuesInputSchema,
   getValuesOutputSchema,
   updateValuesInputSchema,
   updateValuesOutputSchema,
 } from '../misc/custom-schemas'
 
-import {
-  addSheetUi,
-  appendValuesUi,
-  clearValuesUi,
-  getInfoSpreadsheetUi,
-  getValuesUi,
-  updateValuesUi,
-} from '../misc/custom-uis'
+import { addSheetUi, appendValuesUi, clearValuesUi, getInfoUi, getValuesUi, updateValuesUi } from '../misc/custom-uis'
+
+type ActionDef = ActionDefinitions[string]
 
 const getValues = {
   title: 'Get Values',
@@ -31,7 +27,7 @@ const getValues = {
   output: {
     schema: getValuesOutputSchema,
   },
-}
+} satisfies ActionDef
 
 const updateValues = {
   title: 'Update Values',
@@ -42,7 +38,7 @@ const updateValues = {
   output: {
     schema: updateValuesOutputSchema,
   },
-}
+} satisfies ActionDef
 
 const appendValues = {
   title: 'Append Values',
@@ -53,7 +49,7 @@ const appendValues = {
   output: {
     schema: appendValuesOutputSchema,
   },
-}
+} satisfies ActionDef
 
 const clearValues = {
   title: 'Clear Values',
@@ -64,18 +60,18 @@ const clearValues = {
   output: {
     schema: clearValuesOutputSchema,
   },
-}
+} satisfies ActionDef
 
 const getInfoSpreadsheet = {
   title: 'Get Info of a SpreadSheet',
   input: {
-    schema: getInfoSpreadsheetInputSchema,
-    ui: getInfoSpreadsheetUi,
+    schema: getInfoInputSchema,
+    ui: getInfoUi,
   },
   output: {
-    schema: getInfoSpreadsheetOutputSchema,
+    schema: getInfoOutputSchema,
   },
-}
+} satisfies ActionDef
 
 const addSheet = {
   title: 'Add Sheet',
@@ -86,7 +82,7 @@ const addSheet = {
   output: {
     schema: addSheetOutputSchema,
   },
-}
+} satisfies ActionDef
 
 export const actions = {
   getValues,
@@ -95,4 +91,4 @@ export const actions = {
   clearValues,
   getInfoSpreadsheet,
   addSheet,
-}
+} satisfies ActionDefinitions
