@@ -1,5 +1,6 @@
 import { axios } from '@botpress/client'
-import { PICTURE_LIMIT_SIZE } from 'src/const'
+import { IntegrationLogger } from 'src'
+import { USER_PICTURE_MAX_SIZE_BYTES } from 'src/const'
 import { Telegraf } from 'telegraf'
 import { PhotoSize, User } from 'telegraf/typings/core/types/typegram'
 
@@ -12,6 +13,24 @@ export const getUserNameFromTelegramUser = (telegramUser: User) => {
   return `${telegramUser.first_name} (id: ${telegramUser.id})`
 }
 
+const getMimeTypeFromExtension = (extension: string): string => {
+  switch (extension.toLowerCase()) {
+    case 'jpg':
+    case 'jpeg':
+      return 'image/jpeg'
+    case 'png':
+      return 'image/png'
+    case 'gif':
+      return 'image/gif'
+    case 'bmp':
+      return 'image/bmp'
+    case 'svg':
+      return 'image/svg+xml'
+    default:
+      return 'application/octet-stream'
+  }
+}
+
 const getDataUriFromImgHref = async (imgHref: string): Promise<string> => {
   const fileExtension = imgHref.substring(imgHref.lastIndexOf('.') + 1)
 
@@ -19,28 +38,32 @@ const getDataUriFromImgHref = async (imgHref: string): Promise<string> => {
 
   const base64File = Buffer.from(data, 'binary').toString('base64')
 
-  return `data:image/${fileExtension};base64,${base64File}`
+  return `data:${getMimeTypeFromExtension(fileExtension)};base64,${base64File}`
 }
 
-const getBestPhotoSize = (photos: PhotoSize[]): PhotoSize | null =>
-  photos.reduce((finalPicture: PhotoSize | null, currentPicture: PhotoSize) => {
-    const isSizeBelowLimit = !!currentPicture.file_size && currentPicture.file_size < PICTURE_LIMIT_SIZE
-    const isSizeAbovePrevious =
-      !!currentPicture.file_size && !!finalPicture?.file_size && currentPicture.file_size > finalPicture.file_size
+const getBestPhotoSize = (photos: PhotoSize[]): PhotoSize | null => {
+  let bestPhoto = null
 
-    // here we want to use the picture with the best resolution below PICTURE_LIMIT_SIZE
-    if (isSizeBelowLimit && (!finalPicture || isSizeAbovePrevious)) {
-      return currentPicture
+  for (const photo of photos) {
+    const isSizeBelowLimit = !!photo.file_size && photo.file_size < USER_PICTURE_MAX_SIZE_BYTES
+    const isSizeAbovePrevious = !!photo.file_size && !!bestPhoto?.file_size && photo.file_size > bestPhoto.file_size
+
+    if (isSizeBelowLimit && (!bestPhoto || isSizeAbovePrevious)) {
+      bestPhoto = photo
     }
-    return finalPicture
-  }, null) || null
+  }
+
+  return bestPhoto
+}
 
 export const getUserPictureDataUri = async ({
   botToken,
   telegramUserId,
+  logger,
 }: {
   botToken: string
   telegramUserId: number
+  logger: IntegrationLogger
 }): Promise<string | null> => {
   try {
     const telegraf = new Telegraf(botToken)
@@ -58,7 +81,7 @@ export const getUserPictureDataUri = async ({
     }
     return null
   } catch (error) {
-    console.error("Couldn't convert Telegram profile picture to base64 Data URI: ", error)
+    logger.forBot().error("Couldn't convert Telegram profile picture to base64 Data URI: ", error)
     return null
   }
 }

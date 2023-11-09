@@ -1,1 +1,1 @@
-export const PICTURE_LIMIT_SIZE = 25_000
+export const USER_PICTURE_MAX_SIZE_BYTES = 25_000

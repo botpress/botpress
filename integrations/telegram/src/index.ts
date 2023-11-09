@@ -8,6 +8,8 @@ import type { Update, User } from 'telegraf/typings/core/types/typegram'
 import { getUserPictureDataUri, getUserNameFromTelegramUser } from './misc/utils'
 import * as bp from '.botpress'
 
+export type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
+
 type Card = bp.channels.channel.card.Card
 
 const prefixedId = `${name}:id` as const
@@ -157,12 +159,13 @@ const integration = new bp.Integration({
     })
 
     const userFieldsToUpdate = {
-      pictureUrl:
-        user.pictureUrl ||
-        (await getUserPictureDataUri({
-          botToken: ctx.configuration.botToken,
-          telegramUserId: userId,
-        })),
+      pictureUrl: !user.pictureUrl
+        ? await getUserPictureDataUri({
+            botToken: ctx.configuration.botToken,
+            telegramUserId: userId,
+            logger,
+          })
+        : undefined,
       name: user.name !== userName ? userName : undefined,
     }
 
