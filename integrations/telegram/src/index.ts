@@ -155,7 +155,7 @@ const integration = new bp.Integration({
       tags: {
         [prefixedId]: `${userId}`,
       },
-      name: userName || userId,
+      ...(userName && { name: userName }),
     })
 
     const userFieldsToUpdate = {

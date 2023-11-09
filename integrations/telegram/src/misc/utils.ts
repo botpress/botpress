@@ -5,12 +5,12 @@ import { Telegraf } from 'telegraf'
 import { PhotoSize, User } from 'telegraf/typings/core/types/typegram'
 
 export const getUserNameFromTelegramUser = (telegramUser: User) => {
-  if (telegramUser.last_name) {
+  if (telegramUser.first_name && telegramUser.last_name) {
     return `${telegramUser.first_name} ${telegramUser.last_name}`
   } else if (telegramUser.username) {
-    return `${telegramUser.first_name} (username: ${telegramUser.username})`
+    return telegramUser.username
   }
-  return `${telegramUser.first_name} (id: ${telegramUser.id})`
+  return null
 }
 
 const getMimeTypeFromExtension = (extension: string): string => {
