@@ -10,7 +10,7 @@ export const getUserNameFromTelegramUser = (telegramUser: User) => {
   } else if (telegramUser.username) {
     return telegramUser.username
   }
-  return null
+  return telegramUser.first_name
 }
 
 const getMimeTypeFromExtension = (extension: string): string => {
