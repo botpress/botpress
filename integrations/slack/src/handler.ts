@@ -60,7 +60,7 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, 
 
   switch (event.type) {
     case 'message':
-      return executeMessageReceived({ slackEvent: event, client })
+      return executeMessageReceived({ slackEvent: event, client, ctx })
 
     case 'reaction_added':
       if (event.user !== botUserId) {

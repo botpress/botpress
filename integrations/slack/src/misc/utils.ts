@@ -190,7 +190,11 @@ export const getTag = (tags: Record<string, string>, name: string) => {
 }
 
 export const getUserAndConversation = async (
-  props: { slackUserId: string; slackChannelId: string; slackThreadId?: string },
+  props: {
+    slackUserId: string
+    slackChannelId: string
+    slackThreadId?: string
+  },
   client: Client
 ) => {
   let conversation: Conversation
@@ -210,12 +214,22 @@ export const getUserAndConversation = async (
     conversation = resp.conversation
   }
 
-  const { user } = await client.getOrCreateUser({ tags: { id: props.slackUserId } })
+  const { user } = await client.getOrCreateUser({
+    tags: { id: props.slackUserId },
+  })
 
   return {
+    user,
     userId: user.id,
     conversationId: conversation.id,
   }
+}
+
+export const getSlackUserProfile = async (botToken: string, slackUserId: string) => {
+  const slackClient = new WebClient(botToken)
+  const { profile } = await slackClient.users.profile.get({ user: slackUserId })
+
+  return profile
 }
 
 export const saveConfig = async (client: Client, ctx: IntegrationCtx, config: Configuration) => {
