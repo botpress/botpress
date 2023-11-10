@@ -1,15 +1,17 @@
 import { GenericMessageEvent } from '@slack/bolt'
-import { Client, IntegrationCtx } from '../misc/types'
+import { Client, IntegrationCtx, IntegrationLogger } from '../misc/types'
 import { getAccessToken, getSlackUserProfile, getUserAndConversation } from '../misc/utils'
 
 export const executeMessageReceived = async ({
   slackEvent,
   client,
   ctx,
+  logger,
 }: {
   slackEvent: GenericMessageEvent
   client: Client
   ctx: IntegrationCtx
+  logger: IntegrationLogger
 }) => {
   // prevents the bot from answering itself
   if (slackEvent.bot_id) {
@@ -22,14 +24,18 @@ export const executeMessageReceived = async ({
   )
 
   if (!user.pictureUrl || !user.name) {
-    const accessToken = await getAccessToken(client, ctx)
-    const userProfile = await getSlackUserProfile(accessToken, slackEvent.user)
-    const fieldsToUpdate = {
-      pictureUrl: userProfile?.image_192,
-      name: userProfile?.real_name,
-    }
-    if (fieldsToUpdate.pictureUrl || fieldsToUpdate.name) {
-      await client.updateUser({ ...user, ...fieldsToUpdate })
+    try {
+      const accessToken = await getAccessToken(client, ctx)
+      const userProfile = await getSlackUserProfile(accessToken, slackEvent.user)
+      const fieldsToUpdate = {
+        pictureUrl: userProfile?.image_192,
+        name: userProfile?.real_name,
+      }
+      if (fieldsToUpdate.pictureUrl || fieldsToUpdate.name) {
+        await client.updateUser({ ...user, ...fieldsToUpdate })
+      }
+    } catch (error) {
+      logger.forBot().error('Error while fetching user profile', error)
     }
   }
 
