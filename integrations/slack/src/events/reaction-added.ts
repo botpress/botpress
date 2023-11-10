@@ -10,6 +10,11 @@ export const executeReactionAdded = async ({
   slackEvent: ReactionAddedEvent
   client: Client
 }) => {
+  const { userId, conversationId } = await getUserAndConversation(
+    { slackUserId: slackEvent.user, slackChannelId: slackEvent.item.channel },
+    client
+  )
+
   await client.createEvent({
     type: 'reactionAdded',
     payload: {
@@ -19,10 +24,8 @@ export const executeReactionAdded = async ({
         thread: 'ts' in slackEvent.item ? { id: slackEvent.item.channel, thread: slackEvent.item.ts } : undefined,
         channel: { id: slackEvent.item.channel },
       },
-      ...(await getUserAndConversation(
-        { slackUserId: slackEvent.user, slackChannelId: slackEvent.item.channel },
-        client
-      )),
+      userId,
+      conversationId,
     },
   })
 }

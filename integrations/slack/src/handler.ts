@@ -36,11 +36,17 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, 
       throw Error(`Interaction type ${body.type} is not supported yet`)
     }
 
+    const { userId, conversationId } = await getUserAndConversation(
+      { slackUserId: body.user.id, slackChannelId: body.channel.id },
+      client
+    )
+
     await client.createMessage({
       tags: { ts: body.message.ts },
       type: 'text',
       payload: { text: actionValue },
-      ...(await getUserAndConversation({ slackUserId: body.user.id, slackChannelId: body.channel.id }, client)),
+      userId,
+      conversationId,
     })
 
     return
