@@ -46,6 +46,11 @@ export type UpdateConversation<TIntegration extends BaseIntegration> = (
 
 export type DeleteConversation<_TIntegration extends BaseIntegration> = Client['deleteConversation']
 
+export type ListParticipants<_TIntegration extends BaseIntegration> = Client['listParticipants']
+export type AddParticipant<_TIntegration extends BaseIntegration> = Client['addParticipant']
+export type GetParticipant<_TIntegration extends BaseIntegration> = Client['getParticipant']
+export type RemoveParticipant<_TIntegration extends BaseIntegration> = Client['removeParticipant']
+
 export type CreateEvent<TIntegration extends BaseIntegration> = <TEvent extends keyof TIntegration['events']>(
   x: Merge<
     Arg<Client['createEvent']>,

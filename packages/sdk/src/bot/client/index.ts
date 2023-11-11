@@ -15,6 +15,11 @@ export class BotSpecificClient<TBot extends BaseBot> {
   public updateConversation: routes.UpdateConversation<TBot> = (x) => this.client.updateConversation(x)
   public deleteConversation: routes.DeleteConversation<TBot> = (x) => this.client.deleteConversation(x)
 
+  public listParticipants: routes.ListParticipants<TBot> = (x) => this.client.listParticipants(x)
+  public addParticipant: routes.AddParticipant<TBot> = (x) => this.client.addParticipant(x)
+  public getParticipant: routes.GetParticipant<TBot> = (x) => this.client.getParticipant(x)
+  public removeParticipant: routes.RemoveParticipant<TBot> = (x) => this.client.removeParticipant(x)
+
   public createEvent: routes.CreateEvent<TBot> = (x) => this.client.createEvent(x)
   public getEvent: routes.GetEvent<TBot> = (x) => this.client.getEvent(x)
   public listEvents: routes.ListEvents<TBot> = (x) => this.client.listEvents(x)
