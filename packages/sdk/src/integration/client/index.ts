@@ -16,6 +16,11 @@ export class IntegrationSpecificClient<TIntegration extends BaseIntegration> {
   public updateConversation: routes.UpdateConversation<TIntegration> = (x) => this.client.updateConversation(x)
   public deleteConversation: routes.DeleteConversation<TIntegration> = (x) => this.client.deleteConversation(x)
 
+  public listParticipants: routes.ListParticipants<TIntegration> = (x) => this.client.listParticipants(x)
+  public addParticipant: routes.AddParticipant<TIntegration> = (x) => this.client.addParticipant(x)
+  public getParticipant: routes.GetParticipant<TIntegration> = (x) => this.client.getParticipant(x)
+  public removeParticipant: routes.RemoveParticipant<TIntegration> = (x) => this.client.removeParticipant(x)
+
   public createEvent: routes.CreateEvent<TIntegration> = (x) => this.client.createEvent(x)
   public getEvent: routes.GetEvent<TIntegration> = (x) => this.client.getEvent(x)
   public listEvents: routes.ListEvents<TIntegration> = (x) => this.client.listEvents(x)

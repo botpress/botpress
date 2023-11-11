@@ -66,6 +66,11 @@ export type UpdateConversation<_TBot extends BaseBot> = Client['updateConversati
 
 export type DeleteConversation<_TBot extends BaseBot> = Client['deleteConversation']
 
+export type ListParticipants<_TBot extends BaseBot> = Client['listParticipants']
+export type AddParticipant<_TBot extends BaseBot> = Client['addParticipant']
+export type GetParticipant<_TBot extends BaseBot> = Client['getParticipant']
+export type RemoveParticipant<_TBot extends BaseBot> = Client['removeParticipant']
+
 export type CreateEvent<_TBot extends BaseBot> = Client['createEvent']
 export type GetEvent<_TBot extends BaseBot> = Client['getEvent']
 export type ListEvents<_TBot extends BaseBot> = Client['listEvents']
