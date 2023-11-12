@@ -12,12 +12,12 @@ export const startDmConversation: botpress.IntegrationProps['actions']['startDmC
 
   const { user } = await client.getOrCreateUser({
     tags: {
-      id: input.userId,
+      id: input.slackUserId,
     },
   })
 
   const { ok, channel } = await slackClient.conversations.open({
-    users: input.userId,
+    users: input.slackUserId,
   })
 
   if (!ok || !channel) {

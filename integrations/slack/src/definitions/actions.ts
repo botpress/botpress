@@ -108,7 +108,7 @@ const startDmConversation = {
   description: 'Initiate a conversation with a user in a DM',
   input: {
     schema: z.object({
-      userId: z.string().describe('The ID of the user to initiate the conversation with'),
+      slackUserId: z.string().describe('The ID of the user to initiate the conversation with'),
     }),
     ui: {
       userId: {
