@@ -23,6 +23,7 @@ export async function handleIncomingMessage(
           userId: value.contacts[0] ? value.contacts[0].wa_id : '',
           name: value.contacts[0] ? value.contacts[0]?.profile.name : '',
         },
+        name: value.contacts[0] ? value.contacts[0]?.profile.name : '',
       })
 
       if (message.text) {
