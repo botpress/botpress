@@ -292,16 +292,16 @@ async function handleMessage(
       },
     })
 
-    if (!user.pictureUrl || !user.name) {
+    // TODO: do this for profile_pic as well, as of 13 NOV 2023 the url "https://platform-lookaside.fbsbx.com/platform/profilepic?eai=<eai>&psid=<psid>&width=<width>&ext=<ext>&hash=<hash>" is not working
+    if (!user.name) {
       try {
         const messengerClient = getMessengerClient(ctx.configuration)
         const profile = await messengerClient.getUserProfile(message.sender.id)
 
         const fieldsToUpdate = {
-          pictureUrl: profile?.profilePic,
           name: profile?.name,
         }
-        if (fieldsToUpdate.pictureUrl || fieldsToUpdate.name) {
+        if (fieldsToUpdate.name) {
           await client.updateUser({ ...user, ...fieldsToUpdate })
         }
       } catch (error) {
