@@ -298,12 +298,7 @@ async function handleMessage(
         const messengerClient = getMessengerClient(ctx.configuration)
         const profile = await messengerClient.getUserProfile(message.sender.id)
 
-        const fieldsToUpdate = {
-          name: profile?.name,
-        }
-        if (fieldsToUpdate.name) {
-          await client.updateUser({ ...user, ...fieldsToUpdate })
-        }
+        await client.updateUser({ ...user, name: profile.name })
       } catch (error) {
         logger.forBot().error('Error while fetching user profile', error)
       }
