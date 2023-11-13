@@ -300,7 +300,7 @@ async function handleMessage(
 
         await client.updateUser({ ...user, name: profile.name })
       } catch (error) {
-        logger.forBot().error('Error while fetching user profile', error)
+        logger.forBot().error('Error while fetching user profile from Messenger:', error)
       }
     }
 
