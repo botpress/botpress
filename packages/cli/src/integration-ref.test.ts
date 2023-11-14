@@ -3,6 +3,7 @@ import { test, expect } from 'vitest'
 import { formatIntegrationRef, IntegrationRef, parseIntegrationRef } from './integration-ref'
 
 const path = '/my/path'
+const prefixedUlid = 'intver_01HF58RDKE3M7K5RJ5XZ7GF6HE'
 const uuid = 'a0eebc99-9c0b-4ef8-bb6d-6bb9bd380a11'
 const name = 'myintegration'
 
@@ -41,7 +42,17 @@ describe('parseIntegrationRef', () => {
     expect(result).toEqual(expected)
   })
 
-  test('parse with a uuid return uuid', () => {
+  test('parse with a prefixed ULID sets `id` type', () => {
+    // arrange
+    const ref = prefixedUlid
+    // act
+    const result = parseIntegrationRef(ref)
+    // assert
+    const expected: IntegrationRef = { type: 'id', id: ref }
+    expect(result).toEqual(expected)
+  })
+
+  test('parse with a legacy UUID sets `id` type', () => {
     // arrange
     const ref = uuid
     // act
@@ -94,7 +105,16 @@ describe('formatIntegrationRef', () => {
     expect(result).toEqual(ref.path)
   })
 
-  test('format with a uuid should return uuid', () => {
+  test('format with a prefixed ULID uses `id` type', () => {
+    // arrange
+    const ref: IntegrationRef = { type: 'id', id: prefixedUlid }
+    // act
+    const result = formatIntegrationRef(ref)
+    // assert
+    expect(result).toEqual(ref.id)
+  })
+
+  test('format with a legacy UUID uses `id` type', () => {
     // arrange
     const ref: IntegrationRef = { type: 'id', id: uuid }
     // act
