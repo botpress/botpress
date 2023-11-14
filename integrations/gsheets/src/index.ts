@@ -1,17 +1,39 @@
 import actions from './actions'
 import * as bp from '.botpress'
-import { getClient } from './client'
+import { getClient, GoogleSheetsApi } from './client'
+
+type SpreadsheetData = Awaited<ReturnType<GoogleSheetsApi['getSpreadsheet']>>
+const summarizeSpreadsheet = (spreadsheet: SpreadsheetData) => {
+  const title = spreadsheet.properties?.title
+  if (!title) {
+    return 'No Title'
+  }
+
+  let summary = `spreadsheet "${title}"`
+  const sheets = spreadsheet.sheets
+  if (!sheets) {
+    return summary
+  }
+
+  const sheetsTitles = sheets.map((sheet) => sheet.properties?.title).filter((x): x is string => !!x)
+  if (!sheetsTitles.length) {
+    return summary
+  }
+
+  summary += ` with sheets "${sheetsTitles.join('", "')}" `
+  return summary
+}
 
 export default new bp.Integration({
   register: async (props) => {
-    props.logger.forBot().info('Registering Gsheets integration')
+    props.logger.forBot().info('Registering Google Sheets integration')
     try {
       const gsheetsClient = getClient(props.ctx.configuration)
-      const { properties, sheets } = await gsheetsClient.getSpreadsheet('')
-      const summary = JSON.stringify({ properties, sheets }).substring(0, 200)
-      props.logger.forBot().info(`Successfully connected to Gsheets`)
+      const spreadsheet = await gsheetsClient.getSpreadsheet('')
+      const summary = summarizeSpreadsheet(spreadsheet)
+      props.logger.forBot().info(`Successfully connected to Google Sheets: ${summary}`)
     } catch (thrown) {
-      props.logger.forBot().error(`Failed to connect to Gsheets: ${thrown}`)
+      props.logger.forBot().error(`Failed to connect to Google Sheets: ${thrown}`)
       throw thrown
     }
   },
