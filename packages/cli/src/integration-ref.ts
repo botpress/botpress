@@ -1,6 +1,6 @@
 import semver from 'semver'
-import * as uuid from 'uuid'
 import * as utils from './utils'
+import { isValidID } from './utils/id-utils'
 
 export type UUIDIntegrationRef = {
   type: 'id'
@@ -38,7 +38,7 @@ export const parseIntegrationRef = (ref: string): IntegrationRef | undefined => 
     return
   }
 
-  if (uuid.validate(ref)) {
+  if (isValidID(ref)) {
     return { type: 'id', id: ref }
   }
 
