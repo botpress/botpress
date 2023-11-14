@@ -35,7 +35,7 @@ export const executeMessageReceived = async ({
         await client.updateUser({ ...user, ...fieldsToUpdate })
       }
     } catch (error) {
-      logger.forBot().error('Error while fetching user profile', error)
+      logger.forBot().error('Error while fetching user profile from Slack:', error)
     }
   }
 

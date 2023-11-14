@@ -1,3 +1,4 @@
+import { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
 import queryString from 'query-string'
@@ -7,6 +8,7 @@ type Channels = bp.Integration['channels']
 type Messages = Channels[keyof Channels]['messages']
 type MessageHandler = Messages[keyof Messages]
 type MessageHandlerProps = Parameters<MessageHandler>[0]
+type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
 
 const idTag = 'messenger:id'
 
@@ -52,7 +54,7 @@ const integration = new bp.Integration({
       },
     },
   },
-  handler: async ({ req, client, ctx }) => {
+  handler: async ({ req, client, ctx, logger }) => {
     console.info('Handler received request')
 
     if (req.query) {
@@ -88,7 +90,7 @@ const integration = new bp.Integration({
 
     for (const { messaging } of data.entry) {
       for (const message of messaging) {
-        await handleMessage(message, client)
+        await handleMessage(message, { client, ctx, logger })
       }
     }
 
@@ -268,30 +270,47 @@ export function getRecipientId(conversation: SendMessageProps['conversation']): 
   return recipientId
 }
 
-async function handleMessage(message: MessengerMessage, client: bp.Client) {
-  if (message.message) {
-    if (message.message.text) {
-      const { conversation } = await client.getOrCreateConversation({
-        channel: 'channel',
-        tags: {
-          [idTag]: message.sender.id,
-        },
-      })
+async function handleMessage(
+  message: MessengerMessage,
+  {
+    client,
+    ctx,
+    logger,
+  }: { client: bp.Client; ctx: IntegrationContext<bp.configuration.Configuration>; logger: IntegrationLogger }
+) {
+  if (message?.message?.text) {
+    const { conversation } = await client.getOrCreateConversation({
+      channel: 'channel',
+      tags: {
+        [idTag]: message.sender.id,
+      },
+    })
 
-      const { user } = await client.getOrCreateUser({
-        tags: {
-          [idTag]: message.sender.id,
-        },
-      })
+    const { user } = await client.getOrCreateUser({
+      tags: {
+        [idTag]: message.sender.id,
+      },
+    })
 
-      await client.createMessage({
-        tags: { [idTag]: message.message.mid },
-        type: 'text',
-        userId: user.id,
-        conversationId: conversation.id,
-        payload: { text: message.message.text },
-      })
+    // TODO: do this for profile_pic as well, as of 13 NOV 2023 the url "https://platform-lookaside.fbsbx.com/platform/profilepic?eai=<eai>&psid=<psid>&width=<width>&ext=<ext>&hash=<hash>" is not working
+    if (!user.name) {
+      try {
+        const messengerClient = getMessengerClient(ctx.configuration)
+        const profile = await messengerClient.getUserProfile(message.sender.id)
+
+        await client.updateUser({ ...user, name: profile.name })
+      } catch (error) {
+        logger.forBot().error('Error while fetching user profile from Messenger:', error)
+      }
     }
+
+    await client.createMessage({
+      tags: { [idTag]: message.message.mid },
+      type: 'text',
+      userId: user.id,
+      conversationId: conversation.id,
+      payload: { text: message.message.text },
+    })
   }
 }
 
