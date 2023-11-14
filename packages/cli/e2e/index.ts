@@ -78,7 +78,10 @@ const main = async (argv: YargsConfig<typeof configSchema>): Promise<never> => {
     const tmpDir = TmpDirectory.create()
     try {
       const t0 = Date.now()
-      await Promise.race([handler({ tmpDir: tmpDir.path, dependencies, ...argv }), timeout(argv.timeout)])
+      await Promise.race([
+        handler({ tmpDir: tmpDir.path, dependencies, logger: logger.sub(name), ...argv }),
+        timeout(argv.timeout),
+      ])
       const t1 = Date.now()
       logger.info(`SUCCESS: "${name}" (${t1 - t0}ms)`)
     } catch (thrown) {
