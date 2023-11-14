@@ -75,11 +75,13 @@ const main = async (argv: YargsConfig<typeof configSchema>): Promise<never> => {
     logger.info(logLine)
     logger.info(logPad + '\n')
 
+    const loggerNamespace = name.replace(/ /g, '_').replace(/[^a-zA-Z0-9_]/g, '')
+
     const tmpDir = TmpDirectory.create()
     try {
       const t0 = Date.now()
       await Promise.race([
-        handler({ tmpDir: tmpDir.path, dependencies, logger: logger.sub(name), ...argv }),
+        handler({ tmpDir: tmpDir.path, dependencies, logger: logger.sub(loggerNamespace), ...argv }),
         timeout(argv.timeout),
       ])
       const t1 = Date.now()
