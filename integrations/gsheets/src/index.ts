@@ -1,6 +1,6 @@
 import actions from './actions'
-import * as bp from '.botpress'
 import { getClient, GoogleSheetsApi } from './client'
+import * as bp from '.botpress'
 
 type SpreadsheetData = Awaited<ReturnType<GoogleSheetsApi['getSpreadsheet']>>
 const summarizeSpreadsheet = (spreadsheet: SpreadsheetData) => {
