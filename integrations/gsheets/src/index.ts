@@ -9,7 +9,7 @@ export default new bp.Integration({
       const gsheetsClient = getClient(props.ctx.configuration)
       const { properties, sheets } = await gsheetsClient.getSpreadsheet('')
       const summary = JSON.stringify({ properties, sheets }).substring(0, 200)
-      props.logger.forBot().info(`Successfully connected to Gsheets: ${summary}`)
+      props.logger.forBot().info(`Successfully connected to Gsheets`)
     } catch (thrown) {
       props.logger.forBot().error(`Failed to connect to Gsheets: ${thrown}`)
       throw thrown
