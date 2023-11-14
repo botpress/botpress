@@ -5,6 +5,7 @@ import { mapKeys, isEqual } from 'lodash'
 import { getAccessToken } from 'src/misc/utils'
 import * as botpress from '.botpress'
 
+type SyncedUser = NonNullable<Awaited<ReturnType<typeof syncSlackUserToBotpressUser>>>
 const syncSlackUserToBotpressUser = async (member: Member, botpressClient: botpress.Client) => {
   try {
     const { user } = await botpressClient.getOrCreateUser({
@@ -13,7 +14,7 @@ const syncSlackUserToBotpressUser = async (member: Member, botpressClient: botpr
       },
     })
 
-    const latestTags = mapKeys(user.tags, (v, k) => k.split(':')[1])
+    const latestTags = mapKeys(user.tags, (_v, k) => k.split(':')[1])
     const tags = { ...member.profile }
 
     if (isEqual(latestTags, tags)) {
@@ -21,10 +22,11 @@ const syncSlackUserToBotpressUser = async (member: Member, botpressClient: botpr
     }
 
     const { user: updatedUser } = await botpressClient.updateUser({
+      id: user.id,
       name: member.name,
       pictureUrl: member.profile?.image_512,
       tags,
-    } as any)
+    })
 
     return updatedUser
   } catch (err) {
@@ -32,6 +34,7 @@ const syncSlackUserToBotpressUser = async (member: Member, botpressClient: botpr
       await new Promise((resolve) => setTimeout(resolve, 10 * 1000))
       await syncSlackUserToBotpressUser(member, botpressClient)
     }
+    return
   }
 }
 
@@ -53,10 +56,10 @@ export const listActiveMembers: botpress.IntegrationProps['actions']['listActive
   }
   await getAllMembers()
 
-  const users = []
+  const users: SyncedUser[] = []
   for (const slackMember of slackMembers) {
     const user = await syncSlackUserToBotpressUser(slackMember, botpressClient)
-    users.push(user)
+    user && users.push(user)
   }
 
   return { users }
