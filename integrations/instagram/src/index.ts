@@ -299,7 +299,7 @@ async function handleMessage(
           fields: ['id', 'name', 'profile_pic', 'username'] as any,
         })) as InstagramUserProfile
 
-        logger.forBot().info('Fetched latest Instagram profile: ', userProfile)
+        logger.forBot().info('Fetched latest Instagram user profile: ', userProfile)
 
         const fieldsToUpdate = {
           pictureUrl: userProfile?.profilePic,
