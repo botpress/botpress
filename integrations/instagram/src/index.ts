@@ -292,6 +292,13 @@ async function handleMessage(
 
     if (!user.pictureUrl || !user.name) {
       try {
+        logger
+          .forBot()
+          .info(
+            `The user does not have a ${!user.name ? 'name' : ''}${
+              !user.pictureUrl ? (!user.name ? ' and picture URL' : 'picture URL') : ''
+            }, fetching from Instagram`
+          )
         const messengerClient = getMessengerClient(ctx.configuration)
         const userProfile = await messengerClient.getUserProfile(message.sender.id, {
           fields: ['id', 'name', 'profile_pic'],
