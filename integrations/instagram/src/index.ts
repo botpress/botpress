@@ -298,9 +298,9 @@ async function handleMessage(
           // username is an available field for instagram ids -> https://developers.facebook.com/docs/instagram-basic-display-api/guides/getting-profiles-and-media
           fields: ['id', 'name', 'profile_pic', 'username'] as any,
         })) as InstagramUserProfile
-        
-        logger.forBot().info(`Fetched latest Instagram profile: ${JSON.stringify(userProfile)}`)
-        
+
+        logger.forBot().info('Fetched latest Instagram profile: ', userProfile)
+
         const fieldsToUpdate = {
           pictureUrl: userProfile?.profilePic,
           name: userProfile?.name || userProfile?.username,

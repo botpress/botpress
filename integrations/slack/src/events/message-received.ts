@@ -28,9 +28,7 @@ export const executeMessageReceived = async ({
     try {
       const accessToken = await getAccessToken(client, ctx)
       const userProfile = await getSlackUserProfile(accessToken, slackEvent.user)
-      logger
-        .forBot()
-        .info(`Fetched latest Slack profile: ${JSON.stringify(_.pick(userProfile, ['id', 'real_name', 'image_192']))}`)
+      logger.forBot().info('Fetched latest Slack profile: ', _.pick(userProfile, ['id', 'real_name', 'image_192']))
       const fieldsToUpdate = {
         pictureUrl: userProfile?.image_192,
         name: userProfile?.real_name,
