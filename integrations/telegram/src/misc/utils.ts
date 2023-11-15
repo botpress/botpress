@@ -68,7 +68,7 @@ export const getUserPictureDataUri = async ({
   try {
     const telegraf = new Telegraf(botToken)
     const res = await telegraf.telegram.getUserProfilePhotos(telegramUserId)
-    logger.forBot().info('Fetched latest Telegram pictures')
+    logger.forBot().info('Fetched latest user picture from Telegram')
 
     if (!res.photos[0]) {
       return null
