@@ -1,4 +1,5 @@
 import { GenericMessageEvent } from '@slack/bolt'
+import _ from 'lodash'
 import { Client, IntegrationCtx, IntegrationLogger } from '../misc/types'
 import { getAccessToken, getSlackUserProfile, getUserAndConversation } from '../misc/utils'
 
@@ -25,15 +26,9 @@ export const executeMessageReceived = async ({
 
   if (!user.pictureUrl || !user.name) {
     try {
-      logger
-        .forBot()
-        .info(
-          `The user does not have a ${!user.name ? 'name' : ''}${
-            !user.pictureUrl ? (!user.name ? ' and picture URL' : 'picture URL') : ''
-          }, fetching from Slack`
-        )
       const accessToken = await getAccessToken(client, ctx)
       const userProfile = await getSlackUserProfile(accessToken, slackEvent.user)
+      logger.forBot().info(`Fetched latest Slack profile: ${_.pick(userProfile, ['id', 'real_name', 'image_192'])}`)
       const fieldsToUpdate = {
         pictureUrl: userProfile?.image_192,
         name: userProfile?.real_name,
