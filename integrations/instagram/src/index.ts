@@ -296,7 +296,7 @@ async function handleMessage(
         const userProfile = await messengerClient.getUserProfile(message.sender.id, {
           fields: ['id', 'name', 'profile_pic'],
         })
-        logger.forBot().info(`Fetched latest Instagram profile: ${userProfile}`)
+        logger.forBot().info(`Fetched latest Instagram profile: ${JSON.stringify(userProfile)}`)
         const fieldsToUpdate = {
           pictureUrl: userProfile?.profilePic,
           name: userProfile?.name,
