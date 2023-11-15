@@ -1,3 +1,4 @@
+import { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
 import queryString from 'query-string'
@@ -7,6 +8,7 @@ type Channels = bp.Integration['channels']
 type Messages = Channels[keyof Channels]['messages']
 type MessageHandler = Messages[keyof Messages]
 type MessageHandlerProps = Parameters<MessageHandler>[0]
+type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
 
 const idTag = 'instagram:id'
 
@@ -52,7 +54,7 @@ const integration = new bp.Integration({
       },
     },
   },
-  handler: async ({ req, client, ctx }) => {
+  handler: async ({ req, client, ctx, logger }) => {
     console.info('Handler received request')
 
     if (req.query) {
@@ -88,7 +90,7 @@ const integration = new bp.Integration({
 
     for (const { messaging } of data.entry) {
       for (const message of messaging) {
-        await handleMessage(message, client)
+        await handleMessage(message, { client, ctx, logger })
       }
     }
 
@@ -101,7 +103,7 @@ const integration = new bp.Integration({
       return
     }
 
-    const messengerClient = new MessengerClient({ accessToken: ctx.configuration.accessToken })
+    const messengerClient = getMessengerClient(ctx.configuration)
     const profile = await messengerClient.getUserProfile(userId)
 
     const { user } = await client.getOrCreateUser({ tags: { [idTag]: `${profile.id}` } })
@@ -119,7 +121,7 @@ const integration = new bp.Integration({
       return
     }
 
-    const messengerClient = new MessengerClient({ accessToken: ctx.configuration.accessToken })
+    const messengerClient = getMessengerClient(ctx.configuration)
     const profile = await messengerClient.getUserProfile(userId)
 
     const { conversation } = await client.getOrCreateConversation({
@@ -205,6 +207,12 @@ function formatCardElement(payload: Card) {
   }
 }
 
+function getMessengerClient(configuration: bp.configuration.Configuration) {
+  return new MessengerClient({
+    accessToken: configuration.accessToken,
+  })
+}
+
 function getCarouselMessage(payload: Carousel): MessengerTypes.AttachmentMessage {
   return {
     attachment: {
@@ -239,7 +247,7 @@ async function sendMessage(
   { ack, ctx, conversation }: SendMessageProps,
   send: (client: MessengerClient, recipientId: string) => Promise<{ messageId: string }>
 ) {
-  const messengerClient = new MessengerClient({ accessToken: ctx.configuration.accessToken })
+  const messengerClient = getMessengerClient(ctx.configuration)
   const recipientId = getRecipientId(conversation)
   await send(messengerClient, recipientId)
   await ack({
@@ -260,33 +268,63 @@ export function getRecipientId(conversation: SendMessageProps['conversation']): 
   return recipientId
 }
 
-async function handleMessage(message: InstagramMessage, client: bp.Client) {
-  if (message.message) {
-    if (message.message.text) {
-      const { conversation } = await client.getOrCreateConversation({
-        channel: 'channel',
-        tags: {
-          [idTag]: message.sender.id,
-        },
-      })
+async function handleMessage(
+  message: InstagramMessage,
+  {
+    client,
+    ctx,
+    logger,
+  }: { client: bp.Client; ctx: IntegrationContext<bp.configuration.Configuration>; logger: IntegrationLogger }
+) {
+  if (message?.message?.text) {
+    const { conversation } = await client.getOrCreateConversation({
+      channel: 'channel',
+      tags: {
+        [idTag]: message.sender.id,
+      },
+    })
 
-      const { user } = await client.getOrCreateUser({
-        tags: {
-          [idTag]: message.sender.id,
-        },
-      })
+    const { user } = await client.getOrCreateUser({
+      tags: {
+        [idTag]: message.sender.id,
+      },
+    })
 
-      await client.createMessage({
-        type: 'text',
-        tags: {
-          // TODO: declare in definition
-          // [idTag]: message.message.mid
-        },
-        userId: user.id,
-        conversationId: conversation.id,
-        payload: { text: message.message.text },
-      })
+    if (!user.pictureUrl || !user.name) {
+      try {
+        logger
+          .forBot()
+          .info(
+            `The user does not have a ${!user.name ? 'name' : ''}${
+              !user.pictureUrl ? (!user.name ? ' and picture URL' : 'picture URL') : ''
+            }, fetching from Instagram`
+          )
+        const messengerClient = getMessengerClient(ctx.configuration)
+        const userProfile = await messengerClient.getUserProfile(message.sender.id, {
+          fields: ['id', 'name', 'profile_pic'],
+        })
+        const fieldsToUpdate = {
+          pictureUrl: userProfile?.profilePic,
+          name: userProfile?.name,
+        }
+        if (fieldsToUpdate.pictureUrl || fieldsToUpdate.name) {
+          await client.updateUser({ ...user, ...fieldsToUpdate })
+        }
+      } catch (error) {
+        logger.forBot().error('Error while fetching user profile from Instagram', error)
+      }
     }
+
+    await client.createMessage({
+      type: 'text',
+      tags: {
+        // TODO: declare in definition
+        // [idTag]: message.message.mid
+      },
+      userId: user.id,
+      conversationId: conversation.id,
+      payload: { text: message.message.text },
+    })
   }
 }
 

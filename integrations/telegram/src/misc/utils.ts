@@ -66,6 +66,7 @@ export const getUserPictureDataUri = async ({
   logger: IntegrationLogger
 }): Promise<string | null> => {
   try {
+    logger.forBot().info('The user does not have a pictureUrl, fetching from Telegram')
     const telegraf = new Telegraf(botToken)
     const res = await telegraf.telegram.getUserProfilePhotos(telegramUserId)
 

@@ -294,6 +294,7 @@ async function handleMessage(
 
     // TODO: do this for profile_pic as well, as of 13 NOV 2023 the url "https://platform-lookaside.fbsbx.com/platform/profilepic?eai=<eai>&psid=<psid>&width=<width>&ext=<ext>&hash=<hash>" is not working
     if (!user.name) {
+      logger.forBot().info('The user does not have a name, fetching from Messenger')
       try {
         const messengerClient = getMessengerClient(ctx.configuration)
         const profile = await messengerClient.getUserProfile(message.sender.id)
