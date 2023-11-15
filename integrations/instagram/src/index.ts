@@ -9,6 +9,7 @@ type Messages = Channels[keyof Channels]['messages']
 type MessageHandler = Messages[keyof Messages]
 type MessageHandlerProps = Parameters<MessageHandler>[0]
 type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
+type InstagramUserProfile = MessengerTypes.User & { username: string }
 
 const idTag = 'instagram:id'
 
@@ -293,13 +294,16 @@ async function handleMessage(
     if (!user.pictureUrl || !user.name) {
       try {
         const messengerClient = getMessengerClient(ctx.configuration)
-        const userProfile = await messengerClient.getUserProfile(message.sender.id, {
-          fields: ['id', 'name', 'profile_pic'],
-        })
+        const userProfile = (await messengerClient.getUserProfile(message.sender.id, {
+          // username is an available field for instagram ids -> https://developers.facebook.com/docs/instagram-basic-display-api/guides/getting-profiles-and-media
+          fields: ['id', 'name', 'profile_pic', 'username'] as any,
+        })) as InstagramUserProfile
+        
         logger.forBot().info(`Fetched latest Instagram profile: ${JSON.stringify(userProfile)}`)
+        
         const fieldsToUpdate = {
           pictureUrl: userProfile?.profilePic,
-          name: userProfile?.name,
+          name: userProfile?.name || userProfile?.username,
         }
         if (fieldsToUpdate.pictureUrl || fieldsToUpdate.name) {
           await client.updateUser({ ...user, ...fieldsToUpdate })
