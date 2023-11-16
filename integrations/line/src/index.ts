@@ -1,6 +1,7 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import * as line from '@line/bot-sdk'
 import crypto from 'crypto'
+import { INTEGRATION_NAME, destIdTag, msgIdTag, usrIdTag } from './const'
 import * as bp from '.botpress'
 
 type Channels = bp.Integration['channels']
@@ -10,7 +11,7 @@ type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 type ReplyLineProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'client' | 'ack'>
 
-console.info('starting integration line')
+console.info(`starting integration ${INTEGRATION_NAME}`)
 
 const replyLineMessage = async (props: ReplyLineProps, messageObj: line.Message) => {
   const { ctx, conversation, client, ack } = props
@@ -31,7 +32,7 @@ const replyLineMessage = async (props: ReplyLineProps, messageObj: line.Message)
     const lineResponse = await lineClient.replyMessage(stateRes.state.payload.replyToken, messageObj)
 
     if (lineResponse?.['x-line-request-id']) {
-      await ack({ tags: { ['line:msgId']: lineResponse['x-line-request-id'] } })
+      await ack({ tags: { [msgIdTag]: lineResponse['x-line-request-id'] } })
     }
   } catch (e: any) {
     console.error(`Error: ${e.originalError.message}`)
@@ -402,7 +403,7 @@ const integration = new bp.Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags['line:usrId']
+    const userId = tags[usrIdTag]
 
     if (!userId) {
       return
@@ -414,7 +415,7 @@ const integration = new bp.Integration({
     })
     const profile = await lineClient.getProfile(userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { 'line:usrId': `${profile.userId}` } })
+    const { user } = await client.getOrCreateUser({ tags: { [usrIdTag]: `${profile.userId}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -423,8 +424,8 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const usrId = tags['line:usrId']
-    const destId = tags['line:destId']
+    const usrId = tags[usrIdTag]
+    const destId = tags[destIdTag]
 
     if (!(usrId && destId)) {
       return
@@ -438,7 +439,7 @@ const integration = new bp.Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { 'line:usrId': `${profile.userId}`, 'line:destId': destId },
+      tags: { [usrIdTag]: `${profile.userId}`, [destIdTag]: destId },
     })
 
     return {
@@ -461,8 +462,8 @@ async function handleMessage(events: LineEvents, destination: string, client: bp
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        ['line:usrId']: events.source.userId,
-        ['line:destId']: destination,
+        [usrIdTag]: events.source.userId,
+        [destIdTag]: destination,
       },
     })
 
@@ -475,13 +476,13 @@ async function handleMessage(events: LineEvents, destination: string, client: bp
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        ['line:usrId']: events.source.userId,
+        [usrIdTag]: events.source.userId,
       },
     })
 
     if (message.type === 'text') {
       await client.createMessage({
-        tags: { ['line:msgId']: message.id },
+        tags: { [msgIdTag]: message.id },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
