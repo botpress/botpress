@@ -2,6 +2,7 @@ import { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
 import queryString from 'query-string'
+import { idTag } from './const'
 import * as bp from '.botpress'
 
 type Channels = bp.Integration['channels']
@@ -9,8 +10,6 @@ type Messages = Channels[keyof Channels]['messages']
 type MessageHandler = Messages[keyof Messages]
 type MessageHandlerProps = Parameters<MessageHandler>[0]
 type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
-
-const idTag = 'messenger:id'
 
 const integration = new bp.Integration({
   register: async () => {},
@@ -294,10 +293,10 @@ async function handleMessage(
 
     // TODO: do this for profile_pic as well, as of 13 NOV 2023 the url "https://platform-lookaside.fbsbx.com/platform/profilepic?eai=<eai>&psid=<psid>&width=<width>&ext=<ext>&hash=<hash>" is not working
     if (!user.name) {
-      logger.forBot().info('The user does not have a name, fetching from Messenger')
       try {
         const messengerClient = getMessengerClient(ctx.configuration)
-        const profile = await messengerClient.getUserProfile(message.sender.id)
+        const profile = await messengerClient.getUserProfile(message.sender.id, { fields: ['id', 'name'] })
+        logger.forBot().info('Fetched latest Messenger user profile: ', profile)
 
         await client.updateUser({ ...user, name: profile.name })
       } catch (error) {

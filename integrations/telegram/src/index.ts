@@ -2,17 +2,15 @@ import type { Conversation } from '@botpress/client'
 import type { AckFunction } from '@botpress/sdk'
 
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { name } from 'integration.definition'
 import { Context, Markup, Telegraf } from 'telegraf'
 import type { Update, User } from 'telegraf/typings/core/types/typegram'
+import { idTag } from './const'
 import { getUserPictureDataUri, getUserNameFromTelegramUser } from './misc/utils'
 import * as bp from '.botpress'
 
 export type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
 
 type Card = bp.channels.channel.card.Card
-
-const prefixedId = `${name}:id` as const
 
 const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx }) => {
@@ -139,7 +137,7 @@ const integration = new bp.Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        [prefixedId]: `${conversationId}`,
+        [idTag]: `${conversationId}`,
       },
     })
 
@@ -153,7 +151,7 @@ const integration = new bp.Integration({
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        [prefixedId]: `${userId}`,
+        [idTag]: `${userId}`,
       },
       ...(userName && { name: userName }),
     })
@@ -185,7 +183,7 @@ const integration = new bp.Integration({
 
     logger.forBot().info(`Received message from user ${userId}: ${data.message.text}`)
     await client.createMessage({
-      tags: { [prefixedId]: `${messageId}` },
+      tags: { [idTag]: `${messageId}` },
       type: 'text',
       userId: user.id,
       conversationId: conversation.id,
@@ -193,7 +191,7 @@ const integration = new bp.Integration({
     })
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = Number(tags[prefixedId])
+    const userId = Number(tags[idTag])
 
     if (isNaN(userId)) {
       return
@@ -202,7 +200,7 @@ const integration = new bp.Integration({
     const telegraf = new Telegraf(ctx.configuration.botToken)
     const member = await telegraf.telegram.getChatMember(userId, userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { [prefixedId]: `${member.user.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { [idTag]: `${member.user.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -211,7 +209,7 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const chatId = tags[prefixedId]
+    const chatId = tags[idTag]
 
     if (!chatId) {
       return
@@ -222,7 +220,7 @@ const integration = new bp.Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { [prefixedId]: `${chat.id}` },
+      tags: { [idTag]: `${chat.id}` },
     })
 
     return {
@@ -277,7 +275,7 @@ async function sendCard(
 }
 
 function getChat(conversation: Conversation): string {
-  const chat = conversation.tags[prefixedId]
+  const chat = conversation.tags[idTag]
 
   if (!chat) {
     throw Error(`No chat found for conversation ${conversation.id}`)
@@ -291,5 +289,5 @@ type TelegramMessage = {
 }
 
 async function ackMessage(message: TelegramMessage, ack: AckFunction) {
-  await ack({ tags: { [prefixedId]: `${message.message_id}` } })
+  await ack({ tags: { [idTag]: `${message.message_id}` } })
 }

@@ -1,6 +1,5 @@
 import type { Conversation } from '@botpress/client'
 import type { IntegrationContext, AckFunction } from '@botpress/sdk'
-import { PhoneNumberIdTag, UserPhoneTag, name } from 'integration.definition'
 import { WhatsAppAPI } from 'whatsapp-api-js'
 import type { Contacts } from 'whatsapp-api-js/types/messages/contacts'
 import type { Interactive } from 'whatsapp-api-js/types/messages/interactive'
@@ -10,6 +9,7 @@ import type Reaction from 'whatsapp-api-js/types/messages/reaction'
 import type { Template } from 'whatsapp-api-js/types/messages/template'
 import type Text from 'whatsapp-api-js/types/messages/text'
 import { IntegrationLogger } from '.'
+import { INTEGRATION_NAME, phoneNumberIdTag, userPhoneTag } from './const'
 import { sleep } from './util'
 
 export type OutgoingMessage =
@@ -39,8 +39,8 @@ export async function send({
   logger: IntegrationLogger
 }) {
   const whatsapp = new WhatsAppAPI(ctx.configuration.accessToken)
-  const phoneNumberId = conversation.tags[`${name}:${PhoneNumberIdTag}`]
-  const to = conversation.tags[`${name}:${UserPhoneTag}`]
+  const phoneNumberId = conversation.tags[phoneNumberIdTag]
+  const to = conversation.tags[userPhoneTag]
   const messageType = message._
 
   if (!phoneNumberId) {
@@ -70,7 +70,7 @@ export async function send({
 
   if (messageId) {
     logger.forBot().debug(`Successfully sent ${messageType} message from bot to Whatsapp:`, message)
-    await ack({ tags: { [`${name}:id`]: messageId } })
+    await ack({ tags: { [`${INTEGRATION_NAME}:id`]: messageId } })
   } else {
     logger
       .forBot()
