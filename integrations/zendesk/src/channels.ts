@@ -1,7 +1,7 @@
 import '@botpress/client'
 import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 import { getZendeskClient } from './client'
-import { INTEGRATION_NAME } from './const'
+import { idTag, requesterIdTag } from './const'
 import { IntegrationProps } from '.botpress'
 
 class TagStore<T extends Record<string, string>> {
@@ -27,7 +27,7 @@ export default {
     messages: {
       text: async ({ client, ...props }) => {
         const conversationTags = new TagStore(props.conversation, props.logger)
-        const ticketId = conversationTags.get(`${INTEGRATION_NAME}:id`)
+        const ticketId = conversationTags.get(idTag)
 
         const { user } = await client.getUser({
           id: props.user.id,
@@ -35,8 +35,7 @@ export default {
 
         const userTags = new TagStore(user, props.logger)
 
-        const zendeskAuthorId =
-          conversationTags.find(`${INTEGRATION_NAME}:requesterId`) ?? userTags.get(`${INTEGRATION_NAME}:id`)
+        const zendeskAuthorId = conversationTags.find(requesterIdTag) ?? userTags.get(idTag)
 
         return await getZendeskClient(props.ctx.configuration).createComment(
           ticketId,
