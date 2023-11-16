@@ -3,7 +3,7 @@ import type { AckFunction } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Client, ReplyToConversationMessageType } from 'intercom-client'
 import { z } from 'zod'
-import { INTEGRATION_NAME } from './const'
+import { emailTag, idTag } from './const'
 import * as html from './html.utils'
 import * as bp from '.botpress'
 
@@ -208,7 +208,7 @@ const integration = new bp.Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        [`${INTEGRATION_NAME}:id`]: `${conversationId}`,
+        [idTag]: `${conversationId}`,
       },
     })
 
@@ -235,13 +235,13 @@ const integration = new bp.Integration({
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          [`${INTEGRATION_NAME}:id`]: `${authorId}`,
-          [`${INTEGRATION_NAME}:email`]: `${email}`,
+          [idTag]: `${authorId}`,
+          [emailTag]: `${email}`,
         },
       })
 
       await client.createMessage({
-        tags: { [`${INTEGRATION_NAME}:id`]: `${messageId}` },
+        tags: { [idTag]: `${messageId}` },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
@@ -261,7 +261,7 @@ const integration = new bp.Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags[`${INTEGRATION_NAME}:id`]
+    const userId = tags[idTag]
 
     if (!userId) {
       return
@@ -271,7 +271,7 @@ const integration = new bp.Integration({
     const contact = await intercomClient.contacts.find({ id: userId })
 
     const { user } = await client.getOrCreateUser({
-      tags: { [`${INTEGRATION_NAME}:id`]: `${contact.id}`, [`${INTEGRATION_NAME}:email`]: `${contact.email}` },
+      tags: { [idTag]: `${contact.id}`, [emailTag]: `${contact.email}` },
     })
 
     return {
@@ -281,7 +281,7 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const conversationId = tags[`${INTEGRATION_NAME}:id`]
+    const conversationId = tags[idTag]
 
     if (!conversationId) {
       return
@@ -292,7 +292,7 @@ const integration = new bp.Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { [`${INTEGRATION_NAME}:id`]: `${chat.id}` },
+      tags: { [idTag]: `${chat.id}` },
     })
 
     return {
@@ -322,14 +322,14 @@ async function sendMessage(props: {
   const {
     conversation_parts: { conversation_parts: conversationParts },
   } = await client.conversations.replyByIdAsAdmin({
-    id: conversation.tags[`${INTEGRATION_NAME}:id`] ?? '',
+    id: conversation.tags[idTag] ?? '',
     adminId: configuration.adminId,
     messageType: ReplyToConversationMessageType.COMMENT,
     body,
     attachmentUrls,
   })
 
-  await ack({ tags: { [`${INTEGRATION_NAME}:id`]: `${conversationParts.at(-1)?.id ?? ''}` } })
+  await ack({ tags: { [idTag]: `${conversationParts.at(-1)?.id ?? ''}` } })
 }
 
 function composeMessage(...parts: string[]) {
