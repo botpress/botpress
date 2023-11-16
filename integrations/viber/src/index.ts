@@ -1,6 +1,7 @@
 import type { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
+import { idTag } from './const'
 import * as bp from '.botpress'
 
 type Channels = bp.Integration['channels']
@@ -175,20 +176,20 @@ const integration = new bp.Integration({
       const { conversation } = await client.getOrCreateConversation({
         channel: 'channel',
         tags: {
-          'viber:id': data.sender.id,
+          [idTag]: data.sender.id,
         },
       })
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          'viber:id': data.sender.id,
+          [idTag]: data.sender.id,
         },
       })
 
       switch (data.message.type) {
         case 'text':
           await client.createMessage({
-            tags: { 'viber:id': data.message_token.toString() },
+            tags: { [idTag]: data.message_token.toString() },
             type: 'text',
             userId: user.id,
             conversationId: conversation.id,
@@ -197,7 +198,7 @@ const integration = new bp.Integration({
           break
         case 'picture':
           await client.createMessage({
-            tags: { 'viber:id': data.message_token.toString() },
+            tags: { [idTag]: data.message_token.toString() },
             type: 'image',
             userId: user.id,
             conversationId: conversation.id,
@@ -210,7 +211,7 @@ const integration = new bp.Integration({
           break
         case 'video':
           await client.createMessage({
-            tags: { 'viber:id': data.message_token.toString() },
+            tags: { [idTag]: data.message_token.toString() },
             type: 'video',
             userId: user.id,
             conversationId: conversation.id,
@@ -223,7 +224,7 @@ const integration = new bp.Integration({
           break
         case 'file':
           await client.createMessage({
-            tags: { 'viber:id': data.message_token.toString() },
+            tags: { [idTag]: data.message_token.toString() },
             type: 'file',
             userId: user.id,
             conversationId: conversation.id,
@@ -237,7 +238,7 @@ const integration = new bp.Integration({
           break
         case 'location':
           await client.createMessage({
-            tags: { 'viber:id': data.message_token.toString() },
+            tags: { [idTag]: data.message_token.toString() },
             type: 'location',
             userId: user.id,
             conversationId: conversation.id,
@@ -253,7 +254,7 @@ const integration = new bp.Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags['viber:id']
+    const userId = tags[idTag]
 
     if (!userId) {
       return
@@ -261,7 +262,7 @@ const integration = new bp.Integration({
 
     const userDetails = await getUserDetails({ ctx, id: userId })
 
-    const { user } = await client.getOrCreateUser({ tags: { 'viber:id': `${userDetails.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { [idTag]: `${userDetails.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -270,7 +271,7 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const userId = tags['viber:id']
+    const userId = tags[idTag]
 
     if (!userId) {
       return
@@ -280,7 +281,7 @@ const integration = new bp.Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { 'viber:id': `${userDetails.id}` },
+      tags: { [idTag]: `${userDetails.id}` },
     })
 
     return {
@@ -318,7 +319,7 @@ export async function setViberWebhook(webhookUrl: string | undefined, token: str
 }
 
 export async function sendViberMessage({ conversation, ctx, ack, payload }: SendMessageProps) {
-  const target = conversation.tags['viber:id']
+  const target = conversation.tags[idTag]
   const { data } = await axios.post(
     'https://chatapi.viber.com/pa/send_message',
     {
@@ -346,7 +347,7 @@ export async function sendViberMessage({ conversation, ctx, ack, payload }: Send
   }
   await ack({
     tags: {
-      ['viber:id']: data.message_token.toString(),
+      [idTag]: data.message_token.toString(),
     },
   })
   return data

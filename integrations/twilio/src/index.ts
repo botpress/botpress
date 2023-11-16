@@ -2,6 +2,7 @@ import type { Conversation } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import queryString from 'query-string'
 import { Twilio } from 'twilio'
+import { activePhoneTag, idTag, userPhoneTag } from './const'
 import * as bp from '.botpress'
 
 type Channels = bp.Integration['channels']
@@ -74,14 +75,14 @@ const integration = new bp.Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        'twilio:userPhone': userPhone,
-        'twilio:activePhone': activePhone,
+        [userPhoneTag]: userPhone,
+        [activePhoneTag]: activePhone,
       },
     })
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        'twilio:userPhone': userPhone,
+        [userPhoneTag]: userPhone,
       },
     })
 
@@ -98,7 +99,7 @@ const integration = new bp.Integration({
     }
 
     await client.createMessage({
-      tags: { 'twilio:id': messageSid },
+      tags: { [idTag]: messageSid },
       type: 'text',
       userId: user.id,
       conversationId: conversation.id,
@@ -109,7 +110,7 @@ const integration = new bp.Integration({
   },
 
   createUser: async ({ client, tags, ctx }) => {
-    const userPhone = tags['twilio:userPhone']
+    const userPhone = tags[userPhoneTag]
 
     if (!userPhone) {
       return
@@ -119,7 +120,7 @@ const integration = new bp.Integration({
     const phone = await twilioClient.lookups.phoneNumbers(userPhone).fetch()
 
     const { user } = await client.getOrCreateUser({
-      tags: { 'twilio:userPhone': `${phone.phoneNumber}` },
+      tags: { [userPhoneTag]: `${phone.phoneNumber}` },
     })
 
     return {
@@ -130,8 +131,8 @@ const integration = new bp.Integration({
   },
 
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const userPhone = tags['twilio:userPhone']
-    const activePhone = tags['twilio:activePhone']
+    const userPhone = tags[userPhoneTag]
+    const activePhone = tags[activePhoneTag]
 
     if (!(userPhone && activePhone)) {
       return
@@ -142,7 +143,7 @@ const integration = new bp.Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { 'twilio:userPhone': `${phone.phoneNumber}`, 'twilio:activePhone': activePhone },
+      tags: { [userPhoneTag]: `${phone.phoneNumber}`, [activePhoneTag]: activePhone },
     })
 
     return {
@@ -176,8 +177,8 @@ function renderCard(card: Card, total?: string): string {
 }
 
 function getPhoneNumbers(conversation: Conversation) {
-  const to = conversation.tags?.['twilio:userPhone']
-  const from = conversation.tags?.['twilio:activePhone']
+  const to = conversation.tags?.[userPhoneTag]
+  const from = conversation.tags?.[activePhoneTag]
 
   if (!to) {
     throw new Error('Invalid to phone number')
@@ -199,5 +200,5 @@ async function sendMessage({ ctx, conversation, ack, mediaUrl, text }: SendMessa
   const twilioClient = new Twilio(ctx.configuration.accountSID, ctx.configuration.authToken)
   const { to, from } = getPhoneNumbers(conversation)
   const { sid } = await twilioClient.messages.create({ to, from, mediaUrl, body: text })
-  await ack({ tags: { 'twilio:id': sid } })
+  await ack({ tags: { [idTag]: sid } })
 }
