@@ -2,6 +2,7 @@ import { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
 import queryString from 'query-string'
+import { idTag } from './const'
 import * as bp from '.botpress'
 
 type Channels = bp.Integration['channels']
@@ -10,8 +11,6 @@ type MessageHandler = Messages[keyof Messages]
 type MessageHandlerProps = Parameters<MessageHandler>[0]
 type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
 type InstagramUserProfile = MessengerTypes.User & { username: string }
-
-const idTag = 'instagram:id'
 
 const integration = new bp.Integration({
   register: async () => {},
@@ -293,18 +292,14 @@ async function handleMessage(
 
     if (!user.pictureUrl || !user.name) {
       try {
-        logger
-          .forBot()
-          .info(
-            `The user does not have a ${!user.name ? 'name' : ''}${
-              !user.pictureUrl ? (!user.name ? ' and picture URL' : 'picture URL') : ''
-            }, fetching from Instagram`
-          )
         const messengerClient = getMessengerClient(ctx.configuration)
         const userProfile = (await messengerClient.getUserProfile(message.sender.id, {
           // username is an available field for instagram ids -> https://developers.facebook.com/docs/instagram-basic-display-api/guides/getting-profiles-and-media
           fields: ['id', 'name', 'profile_pic', 'username'] as any,
         })) as InstagramUserProfile
+
+        logger.forBot().info('Fetched latest Instagram user profile: ', userProfile)
+
         const fieldsToUpdate = {
           pictureUrl: userProfile?.profilePic,
           name: userProfile?.name || userProfile?.username,
