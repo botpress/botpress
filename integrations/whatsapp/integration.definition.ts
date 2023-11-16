@@ -1,15 +1,16 @@
 import { IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { z } from 'zod'
+import {
+  INTEGRATION_NAME,
+  PhoneNumberIdTag,
+  TemplateLanguageTag,
+  TemplateNameTag,
+  TemplateVariablesTag,
+  UserPhoneTag,
+} from './src/const'
 
-export const name = 'whatsapp'
 export const channel = 'channel' // TODO: Rename to "whatsapp" once support for integration versioning is finished.
-
-export const PhoneNumberIdTag = 'phoneNumberId'
-export const UserPhoneTag = 'userPhone'
-export const TemplateNameTag = 'templateName'
-export const TemplateLanguageTag = 'templateLanguage'
-export const TemplateVariablesTag = 'templateVariables'
 
 const TagsForCreatingConversation = {
   [PhoneNumberIdTag]: {
@@ -37,7 +38,7 @@ const TagsForCreatingConversation = {
 }
 
 export default new IntegrationDefinition({
-  name,
+  name: INTEGRATION_NAME,
   version: '0.2.0',
   title: 'WhatsApp',
   description: 'This integration allows your bot to interact with WhatsApp.',
