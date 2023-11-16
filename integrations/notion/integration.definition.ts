@@ -1,11 +1,12 @@
 import { IntegrationDefinition } from '@botpress/sdk'
 import { z } from 'zod'
+import { INTEGRATION_NAME } from './src/const'
 
 const emptyObject = z.object({})
 const anyObject = z.object({}).passthrough()
 
 export default new IntegrationDefinition({
-  name: 'notion',
+  name: INTEGRATION_NAME,
   description: 'Notion integration for Botpress',
   title: 'Notion',
   version: '0.2.0',

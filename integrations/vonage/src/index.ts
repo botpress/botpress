@@ -1,5 +1,6 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
+import { idTag, channelIdTag, channelTag, userIdTag } from './const'
 import * as bp from '.botpress'
 
 type Channels = bp.Integration['channels']
@@ -84,21 +85,21 @@ const integration = new bp.Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        'vonage:channel': data.channel,
-        'vonage:channelId': data.to,
-        'vonage:userId': data.from,
+        [channelTag]: data.channel,
+        [channelIdTag]: data.to,
+        [userIdTag]: data.from,
       },
     })
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        'vonage:channel': data.channel,
-        'vonage:userId': data.from,
+        [channelTag]: data.channel,
+        [userIdTag]: data.from,
       },
     })
 
     await client.createMessage({
-      tags: { 'vonage:id': data.message_uuid },
+      tags: { [idTag]: data.message_uuid },
       type: 'text',
       userId: user.id,
       conversationId: conversation.id,
@@ -106,8 +107,8 @@ const integration = new bp.Integration({
     })
   },
   createUser: async ({ client, tags }) => {
-    const vonageChannel = tags['vonage:channel']
-    const userId = tags['vonage:userId']
+    const vonageChannel = tags[channelTag]
+    const userId = tags[userIdTag]
 
     if (!(vonageChannel && userId)) {
       return
@@ -115,8 +116,8 @@ const integration = new bp.Integration({
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        'vonage:channel': vonageChannel,
-        'vonage:userId': userId,
+        [channelTag]: vonageChannel,
+        [userIdTag]: userId,
       },
     })
 
@@ -127,9 +128,9 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags }) => {
-    const vonageChannel = tags['vonage:channel']
-    const channelId = tags['vonage:channelId']
-    const userId = tags['vonage:userId']
+    const vonageChannel = tags[channelTag]
+    const channelId = tags[channelIdTag]
+    const userId = tags[userIdTag]
 
     if (!(vonageChannel && channelId && userId)) {
       return
@@ -138,9 +139,9 @@ const integration = new bp.Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel,
       tags: {
-        'vonage:channel': vonageChannel,
-        'vonage:channelId': channelId,
-        'vonage:userId': userId,
+        [channelTag]: vonageChannel,
+        [channelIdTag]: channelId,
+        [userIdTag]: userId,
       },
     })
 
@@ -159,9 +160,9 @@ export default sentryHelpers.wrapIntegration(integration, {
 })
 
 function getRequestMetadata(conversation: SendMessageProps['conversation']) {
-  const channel = conversation.tags?.['vonage:channel']
-  const channelId = conversation.tags?.['vonage:channelId']
-  const userId = conversation.tags?.['vonage:userId']
+  const channel = conversation.tags?.[channelTag]
+  const channelId = conversation.tags?.[channelIdTag]
+  const userId = conversation.tags?.[userIdTag]
 
   if (!channelId) {
     throw new Error('Invalid channel id')
@@ -331,5 +332,5 @@ async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload
       auth: { username: ctx.configuration.apiKey, password: ctx.configuration.apiSecret },
     }
   )
-  await ack({ tags: { 'vonage:id': response.data.message_uuid } })
+  await ack({ tags: { [idTag]: response.data.message_uuid } })
 }
