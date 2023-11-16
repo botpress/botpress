@@ -119,7 +119,7 @@ class ZendeskApi {
   }
 
   public async getAgents(online?: boolean): Promise<ZendeskUser[]> {
-    const { data } = await this.client.get<{ users: ZendeskUser[] }>('/api/v2/users.json?role=agent')
+    const { data } = await this.client.get<{ users: ZendeskUser[] }>('/api/v2/users.json?role[]=agent&role[]=admin')
     return online ? data.users.filter((user) => user.user_fields?.availability === 'online') : data.users
   }
 
