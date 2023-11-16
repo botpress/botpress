@@ -2,6 +2,7 @@ import { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
 import queryString from 'query-string'
+import { idTag } from './const'
 import * as bp from '.botpress'
 
 type Channels = bp.Integration['channels']
@@ -9,8 +10,6 @@ type Messages = Channels[keyof Channels]['messages']
 type MessageHandler = Messages[keyof Messages]
 type MessageHandlerProps = Parameters<MessageHandler>[0]
 type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
-
-const idTag = 'messenger:id'
 
 const integration = new bp.Integration({
   register: async () => {},
