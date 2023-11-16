@@ -25,19 +25,13 @@ export const executeMessageReceived = async ({
 
   if (!user.pictureUrl || !user.name) {
     try {
-      logger
-        .forBot()
-        .info(
-          `The user does not have a ${!user.name ? 'name' : ''}${
-            !user.pictureUrl ? (!user.name ? ' and picture URL' : 'picture URL') : ''
-          }, fetching from Slack`
-        )
       const accessToken = await getAccessToken(client, ctx)
       const userProfile = await getSlackUserProfile(accessToken, slackEvent.user)
       const fieldsToUpdate = {
         pictureUrl: userProfile?.image_192,
         name: userProfile?.real_name,
       }
+      logger.forBot().info('Fetched latest Slack user profile: ', fieldsToUpdate)
       if (fieldsToUpdate.pictureUrl || fieldsToUpdate.name) {
         await client.updateUser({ ...user, ...fieldsToUpdate })
       }
