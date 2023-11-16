@@ -1,4 +1,5 @@
 import { getZendeskClient } from 'src/client'
+import { requesterIdTag } from 'src/const'
 import { IntegrationProps } from '.botpress'
 
 type ZendeskClient = ReturnType<typeof getZendeskClient>
@@ -26,7 +27,7 @@ export const setConversationRequester: IntegrationProps['actions']['setConversat
   await client.updateConversation({
     id: input.conversationId,
     tags: {
-      'zendesk:requesterId': input.requesterId,
+      [requesterIdTag]: input.requesterId,
     },
   })
 

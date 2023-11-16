@@ -8,6 +8,7 @@ import { decode } from 'js-base64'
 import MailComposer from 'nodemailer/lib/mail-composer'
 import type Mail from 'nodemailer/lib/mailer'
 import queryString from 'query-string'
+import { ccTag, emailTag, idTag, referencesTag, subjectTag } from './const'
 import * as bp from '.botpress'
 
 const clientId = bp.secrets.CLIENT_ID
@@ -284,7 +285,7 @@ async function processMessage(
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
-      'gmail:id': `${threadId}`,
+      [idTag]: `${threadId}`,
     },
   })
 
@@ -294,10 +295,10 @@ async function processMessage(
     id: conversation.id,
     participantIds: [],
     tags: {
-      'gmail:subject': message.headers['subject'],
-      'gmail:email': userEmail,
-      'gmail:references': message.headers['references'],
-      'gmail:cc': message.headers['cc'],
+      [subjectTag]: message.headers['subject'],
+      [emailTag]: userEmail,
+      [referencesTag]: message.headers['references'],
+      [ccTag]: message.headers['cc'],
     },
   })
 
@@ -310,7 +311,7 @@ async function processMessage(
   console.info('userEmail', userEmail)
   const { user } = await client.getOrCreateUser({
     tags: {
-      'gmail:id': `${userEmail}`,
+      [idTag]: `${userEmail}`,
     },
   })
 
@@ -326,7 +327,7 @@ async function processMessage(
 
   console.info('getOrCreateMessage', { threadId, userEmail, content, inReplyTo })
   await client.getOrCreateMessage({
-    tags: { 'gmail:id': messageId },
+    tags: { [idTag]: messageId },
     type: 'text',
     userId: user.id,
     conversationId: conversation.id,
@@ -400,11 +401,11 @@ function fakeHistoryId(historyId: string) {
 }
 
 function getConversationInfo(conversation: Conversation) {
-  const threadId = conversation.tags?.['gmail:id']
-  const subject = conversation.tags?.['gmail:subject']
-  const email = conversation.tags?.['gmail:email']
-  const references = conversation.tags?.['gmail:references']
-  const cc = conversation.tags?.['gmail:cc']
+  const threadId = conversation.tags?.[idTag]
+  const subject = conversation.tags?.[subjectTag]
+  const email = conversation.tags?.[emailTag]
+  const references = conversation.tags?.[referencesTag]
+  const cc = conversation.tags?.[ccTag]
 
   if (!(threadId && subject && email)) {
     console.info(`No valid information found for conversation ${conversation.id}`)
@@ -437,7 +438,7 @@ async function sendEmail({ client, ctx, conversation, ack, content, inReplyTo }:
   const res = await gmail.users.messages.send({ requestBody: { threadId, raw }, userId: 'me' })
   console.info('Response', res)
 
-  ack({ tags: { 'gmail:id': `${res.data.id}` } })
+  ack({ tags: { [idTag]: `${res.data.id}` } })
 }
 
 async function getGmailClient({ client, ctx }: any) {
