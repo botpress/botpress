@@ -1,4 +1,5 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { idTag } from './const'
 import * as bp from '.botpress'
 const SunshineConversationsClient = require('sunshine-conversations-client')
 
@@ -128,18 +129,18 @@ const integration = new bp.Integration({
       const { conversation } = await client.getOrCreateConversation({
         channel: 'channel',
         tags: {
-          'sunco:id': payload.conversation.id,
+          [idTag]: payload.conversation.id,
         },
       })
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          'sunco:id': payload.message.author.userId,
+          [idTag]: payload.message.author.userId,
         },
       })
 
       await client.createMessage({
-        tags: { 'sunco:id': payload.message.id },
+        tags: { [idTag]: payload.message.id },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
@@ -148,7 +149,7 @@ const integration = new bp.Integration({
     }
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags['sunco:id']
+    const userId = tags[idTag]
 
     if (!userId) {
       return
@@ -157,7 +158,7 @@ const integration = new bp.Integration({
     const suncoClient = createClient(ctx.configuration.keyId, ctx.configuration.keySecret)
     const suncoUser = await suncoClient.users.getUser(ctx.configuration.appId, userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { 'sunco:id': `${suncoUser.user?.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { [idTag]: `${suncoUser.user?.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -166,7 +167,7 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const conversationId = tags['sunco:id']
+    const conversationId = tags[idTag]
 
     if (!conversationId) {
       return
@@ -177,7 +178,7 @@ const integration = new bp.Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { 'sunco:id': `${suncoConversation.conversation?.id}` },
+      tags: { [idTag]: `${suncoConversation.conversation?.id}` },
     })
 
     return {
@@ -251,7 +252,7 @@ const sendCarousel = async (props: SendMessageProps, payload: Carousel) => {
 }
 
 function getConversationId(conversation: SendMessageProps['conversation']) {
-  const conversationId = conversation.tags['sunco:id']
+  const conversationId = conversation.tags[idTag]
 
   if (!conversationId) {
     throw new Error('Conversation does not have a sunco identifier')
@@ -294,7 +295,7 @@ async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload
     throw new Error('Message not sent')
   }
 
-  await ack({ tags: { 'sunco:id': message.id } })
+  await ack({ tags: { [idTag]: message.id } })
 
   if (messages.length > 1) {
     console.warn('More than one message was sent')
