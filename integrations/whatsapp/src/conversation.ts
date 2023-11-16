@@ -1,16 +1,17 @@
 import { Conversation, RuntimeError } from '@botpress/client'
 import { IntegrationContext } from '@botpress/sdk'
-import {
-  PhoneNumberIdTag,
-  UserPhoneTag,
-  TemplateNameTag,
-  name,
-  TemplateLanguageTag,
-  TemplateVariablesTag,
-} from 'integration.definition'
 import { WhatsAppAPI, Types } from 'whatsapp-api-js'
 import z from 'zod'
 import { IntegrationLogger } from '.'
+import {
+  PhoneNumberIdTag,
+  UserPhoneTag,
+  phoneNumberIdTag,
+  userPhoneTag,
+  templateLanguageTag,
+  templateNameTag,
+  templateVariablesTag,
+} from './const'
 import * as botpress from '.botpress'
 import { Channels } from '.botpress/implementation/channels'
 
@@ -138,11 +139,11 @@ export const createConversationHandler: botpress.IntegrationProps['createConvers
   ctx,
   logger,
 }) => {
-  const phoneNumberId = tags[`${name}:${PhoneNumberIdTag}`] || ctx.configuration.phoneNumberId
-  const userPhone = tags[`${name}:${UserPhoneTag}`]!
-  const templateName = tags[`${name}:${TemplateNameTag}`]!
-  const templateLanguage = tags[`${name}:${TemplateLanguageTag}`]
-  const templateVariablesJson = tags[`${name}:${TemplateVariablesTag}`]
+  const phoneNumberId = tags[phoneNumberIdTag] || ctx.configuration.phoneNumberId
+  const userPhone = tags[userPhoneTag] || ''
+  const templateName = tags[templateNameTag] || ''
+  const templateLanguage = tags[templateLanguageTag]
+  const templateVariablesJson = tags[templateVariablesTag]
 
   const conversation = await startConversation(
     { channel, phoneNumberId, userPhone, templateName, templateLanguage, templateVariablesJson },
