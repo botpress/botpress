@@ -1,5 +1,4 @@
 import { GenericMessageEvent } from '@slack/bolt'
-import _ from 'lodash'
 import { Client, IntegrationCtx, IntegrationLogger } from '../misc/types'
 import { getAccessToken, getSlackUserProfile, getUserAndConversation } from '../misc/utils'
 
@@ -28,11 +27,11 @@ export const executeMessageReceived = async ({
     try {
       const accessToken = await getAccessToken(client, ctx)
       const userProfile = await getSlackUserProfile(accessToken, slackEvent.user)
-      logger.forBot().info('Fetched latest Slack user profile: ', _.pick(userProfile, ['id', 'real_name', 'image_192']))
       const fieldsToUpdate = {
         pictureUrl: userProfile?.image_192,
         name: userProfile?.real_name,
       }
+      logger.forBot().info('Fetched latest Slack user profile: ', fieldsToUpdate)
       if (fieldsToUpdate.pictureUrl || fieldsToUpdate.name) {
         await client.updateUser({ ...user, ...fieldsToUpdate })
       }
