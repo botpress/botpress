@@ -29,102 +29,122 @@ const integration = new bp.Integration({
           const client = new Telegraf(ctx.configuration.botToken)
           const chat = getChat(conversation)
           const { text } = payload
-          logger.forBot().info(`Sending message to chat ${chat}: ${text}`)
+          logger.forBot().debug(`Sending text message to Telegram chat ${chat}:`, text)
           const message = await client.telegram.sendMessage(chat, text)
           await ackMessage(message, ack)
         },
-        image: async ({ payload, ctx, conversation, ack }) => {
+        image: async ({ payload, ctx, conversation, ack, logger }) => {
           const client = new Telegraf(ctx.configuration.botToken)
-          const message = await client.telegram.sendPhoto(getChat(conversation), payload.imageUrl)
+          const chat = getChat(conversation)
+          logger.forBot().debug(`Sending image message to Telegram chat ${chat}`, payload.imageUrl)
+          const message = await client.telegram.sendPhoto(chat, payload.imageUrl)
           await ackMessage(message, ack)
         },
-        markdown: async ({ ctx, conversation, ack, payload }) => {
+        markdown: async ({ payload, ctx, conversation, ack, logger }) => {
           const client = new Telegraf(ctx.configuration.botToken)
-          const message = await client.telegram.sendMessage(getChat(conversation), payload.markdown, {
+          const chat = getChat(conversation)
+          logger.forBot().debug(`Sending markdown message to Telegram chat ${chat}:`, payload.markdown)
+          const message = await client.telegram.sendMessage(chat, payload.markdown, {
             parse_mode: 'MarkdownV2',
           })
           await ackMessage(message, ack)
         },
-        audio: async ({ ctx, conversation, ack, payload }) => {
+        audio: async ({ payload, ctx, conversation, ack, logger }) => {
           const client = new Telegraf(ctx.configuration.botToken)
-          const message = await client.telegram.sendAudio(getChat(conversation), payload.audioUrl)
+          const chat = getChat(conversation)
+          logger.forBot().debug(`Sending audio message to Telegram chat ${chat}:`, payload.audioUrl)
+          const message = await client.telegram.sendAudio(chat, payload.audioUrl)
           await ackMessage(message, ack)
         },
-        video: async ({ ctx, conversation, ack, payload }) => {
+        video: async ({ payload, ctx, conversation, ack, logger }) => {
           const client = new Telegraf(ctx.configuration.botToken)
-          const message = await client.telegram.sendVideo(getChat(conversation), payload.videoUrl)
+          const chat = getChat(conversation)
+          logger.forBot().debug(`Sending video message to Telegram chat ${chat}:`, payload.videoUrl)
+          const message = await client.telegram.sendVideo(chat, payload.videoUrl)
           await ackMessage(message, ack)
         },
-        file: async ({ ctx, conversation, ack, payload }) => {
+        file: async ({ payload, ctx, conversation, ack, logger }) => {
           const client = new Telegraf(ctx.configuration.botToken)
-          const message = await client.telegram.sendDocument(getChat(conversation), payload.fileUrl)
+          const chat = getChat(conversation)
+          logger.forBot().debug(`Sending file message to Telegram chat ${chat}:`, payload.fileUrl)
+          const message = await client.telegram.sendDocument(chat, payload.fileUrl)
           await ackMessage(message, ack)
         },
-        location: async ({ ctx, conversation, ack, payload }) => {
+        location: async ({ payload, ctx, conversation, ack, logger }) => {
           const client = new Telegraf(ctx.configuration.botToken)
-          const message = await client.telegram.sendLocation(getChat(conversation), payload.latitude, payload.longitude)
+          const chat = getChat(conversation)
+          logger.forBot().debug(`Sending location message to Telegram chat ${chat}:`, {
+            latitude: payload.latitude,
+            longitude: payload.longitude,
+          })
+          const message = await client.telegram.sendLocation(chat, payload.latitude, payload.longitude)
           await ackMessage(message, ack)
         },
-        card: async ({ ctx, conversation, ack, payload }) => {
+        card: async ({ payload, ctx, conversation, ack, logger }) => {
           const client = new Telegraf(ctx.configuration.botToken)
-          await sendCard(payload, client, conversation, ack)
+          const chat = getChat(conversation)
+          logger.forBot().debug(`Sending card message to Telegram chat ${chat}:`, payload)
+          await sendCard(payload, client, chat, ack)
         },
-        carousel: async ({ ctx, conversation, ack, payload }) => {
+        carousel: async ({ payload, ctx, conversation, ack, logger }) => {
           const client = new Telegraf(ctx.configuration.botToken)
+          const chat = getChat(conversation)
+          logger.forBot().debug(`Sending carousel message to Telegram chat ${chat}:`, payload)
           payload.items.forEach(async (item) => {
-            await sendCard(item, client, conversation, ack)
+            await sendCard(item, client, chat, ack)
           })
         },
-        dropdown: async ({ ctx, conversation, ack, payload }) => {
+        dropdown: async ({ payload, ctx, conversation, ack, logger }) => {
           const client = new Telegraf(ctx.configuration.botToken)
+          const chat = getChat(conversation)
           const buttons = payload.options.map((choice) => Markup.button.callback(choice.label, choice.value))
-          const message = await client.telegram.sendMessage(
-            getChat(conversation),
-            payload.text,
-            Markup.keyboard(buttons).oneTime()
-          )
+          logger.forBot().debug(`Sending dropdown message to Telegram chat ${chat}:`, payload)
+          const message = await client.telegram.sendMessage(chat, payload.text, Markup.keyboard(buttons).oneTime())
           await ackMessage(message, ack)
         },
-        choice: async ({ ctx, conversation, ack, payload }) => {
+        choice: async ({ payload, ctx, conversation, ack, logger }) => {
           const client = new Telegraf(ctx.configuration.botToken)
+          const chat = getChat(conversation)
+          logger.forBot().debug(`Sending choice message to Telegram chat ${chat}:`, payload)
           const buttons = payload.options.map((choice) => Markup.button.callback(choice.label, choice.value))
-          const message = await client.telegram.sendMessage(
-            getChat(conversation),
-            payload.text,
-            Markup.keyboard(buttons).oneTime()
-          )
+          const message = await client.telegram.sendMessage(chat, payload.text, Markup.keyboard(buttons).oneTime())
           await ackMessage(message, ack)
         },
       },
     },
   },
   handler: async ({ req, client, ctx, logger }) => {
-    console.info('Handler received request')
+    logger.forBot().debug('Handler received request from Telegram with payload:', req.body)
 
     if (!req.body) {
-      console.warn('Handler received an empty body')
+      logger.forBot().warn('Handler received an empty body, so the message was ignored')
       return
     }
 
     const data = JSON.parse(req.body)
 
     if (data.my_chat_member) {
+      logger.forBot().warn('Handler received a chat member update, so the message was ignored')
       return
     }
 
     if (data.channel_post) {
+      logger.forBot().warn('Handler received a channel post, so the message was ignored')
       return
     }
 
     if (data.edited_message) {
+      logger.forBot().warn('Handler received an edited message, so the message was ignored')
       return
     }
 
     if (data.message.from.is_bot) {
+      logger.forBot().warn('Handler received a message from a bot, so the message was ignored')
       return
     }
 
     if (!data.message.text) {
+      logger.forBot().warn('Request body does not contain a text message, so the message was ignored')
       return
     }
 
@@ -181,7 +201,7 @@ const integration = new bp.Integration({
       throw new Error('Handler received an empty message id')
     }
 
-    logger.forBot().info(`Received message from user ${userId}: ${data.message.text}`)
+    logger.forBot().debug(`Received message from user ${userId}: ${data.message.text}`)
     await client.createMessage({
       tags: { [idTag]: `${messageId}` },
       type: 'text',
@@ -237,12 +257,7 @@ export default sentryHelpers.wrapIntegration(integration, {
   release: bp.secrets.SENTRY_RELEASE,
 })
 
-async function sendCard(
-  payload: Card,
-  client: Telegraf<Context<Update>>,
-  conversation: Conversation,
-  ack: AckFunction
-) {
+async function sendCard(payload: Card, client: Telegraf<Context<Update>>, chat: string, ack: AckFunction) {
   const text = `*${payload.title}*${payload.subtitle ? '\n' + payload.subtitle : ''}`
   const buttons = payload.actions
     .filter((item) => item.value && item.label)
@@ -259,14 +274,14 @@ async function sendCard(
       }
     })
   if (payload.imageUrl) {
-    const message = await client.telegram.sendPhoto(getChat(conversation), payload.imageUrl, {
+    const message = await client.telegram.sendPhoto(chat, payload.imageUrl, {
       caption: text,
       parse_mode: 'MarkdownV2',
       ...Markup.inlineKeyboard(buttons),
     })
     await ackMessage(message, ack)
   } else {
-    const message = await client.telegram.sendMessage(getChat(conversation), text, {
+    const message = await client.telegram.sendMessage(chat, text, {
       parse_mode: 'MarkdownV2',
       ...Markup.inlineKeyboard(buttons),
     })
