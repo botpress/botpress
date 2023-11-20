@@ -4,7 +4,8 @@ import { getAccessToken, getDirectMessageForUser, getTag, isUserId, saveConfig }
 
 export type Configuration = { botUserId?: string }
 
-export const register: RegisterFunction = async ({ client, ctx }) => {
+export const register: RegisterFunction = async ({ client, ctx, logger }) => {
+  logger.forBot().debug('Registering Slack integration')
   const accessToken = await getAccessToken(client, ctx)
 
   if (!accessToken) {
