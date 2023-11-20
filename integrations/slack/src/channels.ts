@@ -85,7 +85,7 @@ const defaultMessages: Channels['channel']['messages'] = {
   },
   location: async ({ ctx, conversation, ack, client, payload, logger }) => {
     const googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${payload.latitude},${payload.longitude}`
-    logger.forBot().debug('Sending location message to Slack chat:', googleMapsLink)
+    logger.forBot().debug('Sending location message to Slack chat:', payload)
     const accessToken = await getAccessToken(client, ctx)
     await sendSlackMessage(accessToken, ack, {
       ...getSlackTarget(conversation),
