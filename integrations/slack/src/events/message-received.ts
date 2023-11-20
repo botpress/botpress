@@ -31,7 +31,7 @@ export const executeMessageReceived = async ({
         pictureUrl: userProfile?.image_192,
         name: userProfile?.real_name,
       }
-      logger.forBot().info('Fetched latest Slack user profile: ', fieldsToUpdate)
+      logger.forBot().debug('Fetched latest Slack user profile: ', fieldsToUpdate)
       if (fieldsToUpdate.pictureUrl || fieldsToUpdate.name) {
         await client.updateUser({ ...user, ...fieldsToUpdate })
       }
