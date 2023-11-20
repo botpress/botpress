@@ -48,6 +48,21 @@ export async function handleIncomingMessage(
           userId: user.id,
           conversationId: conversation.id,
         })
+      } else if (message.location) {
+        logger.forBot().debug('Received location message from Whatsapp:', JSON.stringify(message.location))
+
+        await client.createMessage({
+          tags: { id: message.id },
+          type: 'location',
+          payload: {
+            latitude: Number(message.location.latitude),
+            longitude: Number(message.location.longitude),
+            address: message.location.address,
+            title: message.location.name,
+          },
+          userId: user.id,
+          conversationId: conversation.id,
+        })
       } else if (message.interactive) {
         if (message.interactive.type === 'button_reply') {
           logger.forBot().debug('Received button reply from Whatsapp:', message.interactive.button_reply)
@@ -73,21 +88,6 @@ export async function handleIncomingMessage(
               text: message.interactive.list_reply?.id!,
               // TODO: declare in definition
               // metadata: message.interactive.list_reply?.title,
-            },
-            userId: user.id,
-            conversationId: conversation.id,
-          })
-        } else if (message.location) {
-          logger.forBot().debug('Received location message from Whatsapp:', JSON.stringify(message.location))
-
-          await client.createMessage({
-            tags: { id: message.id },
-            type: 'location',
-            payload: {
-              latitude: Number(message.location.latitude),
-              longitude: Number(message.location.longitude),
-              address: message.location.address,
-              title: message.location.name,
             },
             userId: user.id,
             conversationId: conversation.id,
