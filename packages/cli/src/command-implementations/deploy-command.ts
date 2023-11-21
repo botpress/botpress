@@ -127,6 +127,26 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     line.success('Integration deployed')
   }
 
+  private _detectDeprecatedFeatures(integrationDef: bpsdk.IntegrationDefinition) {
+    const deprecatedFields: string[] = []
+    const { user, channels } = integrationDef
+    if (user?.creation?.enabled) {
+      deprecatedFields.push('user.creation')
+    }
+
+    for (const [channelName, channel] of Object.entries(channels ?? {})) {
+      if (channel?.conversation?.creation?.enabled) {
+        deprecatedFields.push(`channels.${channelName}.creation`)
+      }
+    }
+
+    if (!deprecatedFields.length) {
+      return
+    }
+
+    // const errorMessage
+  }
+
   private _readFile = async (filePath: string | undefined): Promise<string | undefined> => {
     if (!filePath) {
       return undefined

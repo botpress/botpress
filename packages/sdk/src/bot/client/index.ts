@@ -8,10 +8,8 @@ import * as routes from './routes'
 export class BotSpecificClient<TBot extends BaseBot> {
   public constructor(private readonly client: Client) {}
 
-  public createConversation: routes.CreateConversation<TBot> = (x) => this.client.createConversation(x)
   public getConversation: routes.GetConversation<TBot> = (x) => this.client.getConversation(x)
   public listConversations: routes.ListConversations<TBot> = (x) => this.client.listConversations(x)
-  public getOrCreateConversation: routes.GetOrCreateConversation<TBot> = (x) => this.client.getOrCreateConversation(x)
   public updateConversation: routes.UpdateConversation<TBot> = (x) => this.client.updateConversation(x)
   public deleteConversation: routes.DeleteConversation<TBot> = (x) => this.client.deleteConversation(x)
 
@@ -31,10 +29,8 @@ export class BotSpecificClient<TBot extends BaseBot> {
   public listMessages: routes.ListMessages<TBot> = (x) => this.client.listMessages(x)
   public deleteMessage: routes.DeleteMessage<TBot> = (x) => this.client.deleteMessage(x)
 
-  public createUser: routes.CreateUser<TBot> = (x) => this.client.createUser(x)
   public getUser: routes.GetUser<TBot> = (x) => this.client.getUser(x)
   public listUsers: routes.ListUsers<TBot> = (x) => this.client.listUsers(x)
-  public getOrCreateUser: routes.GetOrCreateUser<TBot> = (x) => this.client.getOrCreateUser(x)
   public updateUser: routes.UpdateUser<TBot> = (x) => this.client.updateUser(x)
   public deleteUser: routes.DeleteUser<TBot> = (x) => this.client.deleteUser(x)
 
@@ -46,4 +42,21 @@ export class BotSpecificClient<TBot extends BaseBot> {
     this.client.patchState(x).then((y) => ({ state: { ...y.state, payload: y.state.payload as any } }))
 
   public callAction: routes.CallAction<TBot> = (x) => this.client.callAction(x)
+
+  /**
+   * @deprecated Use `callAction` to delegate the conversation creation to an integration.
+   */
+  public createConversation: routes.CreateConversation<TBot> = (x) => this.client.createConversation(x)
+  /**
+   * @deprecated Use `callAction` to delegate the conversation creation to an integration.
+   */
+  public getOrCreateConversation: routes.GetOrCreateConversation<TBot> = (x) => this.client.getOrCreateConversation(x)
+  /**
+   * @deprecated Use `callAction` to delegate the user creation to an integration.
+   */
+  public createUser: routes.CreateUser<TBot> = (x) => this.client.createUser(x)
+  /**
+   * @deprecated Use `callAction` to delegate the user creation to an integration.
+   */
+  public getOrCreateUser: routes.GetOrCreateUser<TBot> = (x) => this.client.getOrCreateUser(x)
 }
