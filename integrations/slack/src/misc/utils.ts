@@ -240,7 +240,7 @@ export const getConfig = async (client: Client, ctx: IntegrationCtx): Promise<Co
   const {
     state: { payload },
   } = await client.getState({ type: 'integration', name: 'configuration', id: ctx.integrationId }).catch(() => ({
-    state: { payload: {} },
+    state: { payload: {} as any },
   }))
 
   return payload as Configuration
@@ -254,7 +254,7 @@ export const getSyncState = async (client: Client, ctx: IntegrationCtx): Promise
   const {
     state: { payload },
   } = await client.getState({ type: 'integration', name: 'sync', id: ctx.integrationId }).catch(() => ({
-    state: { payload: {} },
+    state: { payload: {} as any },
   }))
 
   return payload as SyncState
@@ -268,7 +268,7 @@ export const getAccessToken = async (client: Client, ctx: IntegrationCtx) => {
   const { state } = await client
     .getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
     .catch(() => ({
-      state: { payload: {} },
+      state: { payload: {} as any },
     }))
 
   return state.payload.accessToken
