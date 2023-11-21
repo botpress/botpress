@@ -1,16 +1,11 @@
-import type { Conversation } from '@botpress/client'
-import type { AckFunction } from '@botpress/sdk'
-
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { Context, Markup, Telegraf } from 'telegraf'
-import type { Update, User } from 'telegraf/typings/core/types/typegram'
+import { Markup, Telegraf } from 'telegraf'
+import type { User } from 'telegraf/typings/core/types/typegram'
 import { idTag } from './const'
-import { getUserPictureDataUri, getUserNameFromTelegramUser } from './misc/utils'
+import { getUserPictureDataUri, getUserNameFromTelegramUser, getChat, sendCard, ackMessage } from './misc/utils'
 import * as bp from '.botpress'
 
 export type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
-
-type Card = bp.channels.channel.card.Card
 
 const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx }) => {
@@ -256,53 +251,3 @@ export default sentryHelpers.wrapIntegration(integration, {
   environment: bp.secrets.SENTRY_ENVIRONMENT,
   release: bp.secrets.SENTRY_RELEASE,
 })
-
-async function sendCard(payload: Card, client: Telegraf<Context<Update>>, chat: string, ack: AckFunction) {
-  const text = `*${payload.title}*${payload.subtitle ? '\n' + payload.subtitle : ''}`
-  const buttons = payload.actions
-    .filter((item) => item.value && item.label)
-    .map((item) => {
-      switch (item.action) {
-        case 'url':
-          return Markup.button.url(item.label, item.value)
-        case 'postback':
-          return Markup.button.callback(item.label, `postback:${item.value}`)
-        case 'say':
-          return Markup.button.callback(item.label, `say:${item.value}`)
-        default:
-          throw new Error(`Unknown action type: ${item.action}`)
-      }
-    })
-  if (payload.imageUrl) {
-    const message = await client.telegram.sendPhoto(chat, payload.imageUrl, {
-      caption: text,
-      parse_mode: 'MarkdownV2',
-      ...Markup.inlineKeyboard(buttons),
-    })
-    await ackMessage(message, ack)
-  } else {
-    const message = await client.telegram.sendMessage(chat, text, {
-      parse_mode: 'MarkdownV2',
-      ...Markup.inlineKeyboard(buttons),
-    })
-    await ackMessage(message, ack)
-  }
-}
-
-function getChat(conversation: Conversation): string {
-  const chat = conversation.tags[idTag]
-
-  if (!chat) {
-    throw Error(`No chat found for conversation ${conversation.id}`)
-  }
-
-  return chat
-}
-
-type TelegramMessage = {
-  message_id: number
-}
-
-async function ackMessage(message: TelegramMessage, ack: AckFunction) {
-  await ack({ tags: { [idTag]: `${message.message_id}` } })
-}
