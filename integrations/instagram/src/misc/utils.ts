@@ -5,6 +5,8 @@ import * as bp from '.botpress'
 export function getMessengerClient(configuration: bp.configuration.Configuration) {
   return new MessengerClient({
     accessToken: configuration.accessToken,
+    appId: configuration.appId,
+    appSecret: configuration.appSecret,
   })
 }
 
