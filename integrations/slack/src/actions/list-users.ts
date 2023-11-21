@@ -3,7 +3,7 @@ import { WebClient } from '@slack/web-api'
 import { Member } from '@slack/web-api/dist/response/UsersListResponse'
 import { chain, mapKeys, isEqual } from 'lodash'
 import { getAccessToken, getSyncState, saveSyncState } from 'src/misc/utils'
-import { user as userDef } from '../definitions/index'
+import { userTags } from '../definitions/index'
 import * as botpress from '.botpress'
 
 const syncSlackUserToBotpressUser = async (member: Member, botpressClient: botpress.Client): Promise<User> => {
@@ -15,7 +15,8 @@ const syncSlackUserToBotpressUser = async (member: Member, botpressClient: botpr
     })
 
     const latestTags = mapKeys(user.tags, (_v, k) => k.split(':')[1])
-    const updatedTags: Record<keyof (typeof userDef)['tags'], string | undefined> = {
+    const updatedTags: Record<keyof typeof userTags, string | undefined> = {
+      dm_conversation_id: user.tags.dm_conversation_id,
       id: member.id,
       avatar_hash: member.profile?.avatar_hash,
       display_name: member.profile?.display_name,
