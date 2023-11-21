@@ -16,6 +16,13 @@ export const startDmConversation: botpress.IntegrationProps['actions']['startDmC
     },
   })
 
+  if (user.tags.dm_conversation_id) {
+    return {
+      conversationId: user.tags.dm_conversation_id,
+      userId: user.id,
+    }
+  }
+
   const { ok, channel } = await slackClient.conversations.open({
     users: input.slackUserId,
   })
@@ -37,6 +44,13 @@ export const startDmConversation: botpress.IntegrationProps['actions']['startDmC
       title: `DM with ${user.name}`,
     },
   } as any)
+
+  await client.updateUser({
+    id: user.id,
+    tags: {
+      dm_conversation_id: conversation.id,
+    },
+  })
 
   return {
     conversationId: conversation.id,

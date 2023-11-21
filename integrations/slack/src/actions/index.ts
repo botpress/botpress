@@ -1,6 +1,6 @@
 import { addReaction } from './add-reaction'
 import { findTarget } from './find-target'
-import { listActiveMembers } from './list-users'
+import { syncMembers } from './list-users'
 import { retrieveMessage } from './retreive-message'
 import { startDmConversation } from './start-dm'
 
@@ -10,6 +10,6 @@ export default {
   addReaction,
   findTarget,
   retrieveMessage,
-  listActiveMembers,
+  syncMembers,
   startDmConversation,
 } satisfies bp.IntegrationProps['actions']
