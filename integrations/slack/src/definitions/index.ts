@@ -22,6 +22,12 @@ export const states = {
       botUserId: z.string().optional(),
     }),
   },
+  sync: {
+    type: 'integration',
+    schema: z.object({
+      usersLastSyncTs: z.number().optional(),
+    }),
+  },
   credentials: {
     type: 'integration',
     schema: z.object({
@@ -33,21 +39,25 @@ export const states = {
 export const user = {
   tags: {
     id: {},
-    avatar_hash: {},
-    status_text: {},
-    status_emoji: {},
+    tz: {},
+    is_bot: {},
+    is_admin: {},
+    title: {},
+    phone: {},
+    email: {},
     real_name: {},
     display_name: {},
     real_name_normalized: {},
     display_name_normalized: {},
-    email: {},
+    avatar_hash: {},
+    status_text: {},
+    status_emoji: {},
     image_24: {},
-    image_32: {},
     image_48: {},
-    image_72: {},
     image_192: {},
     image_512: {},
+    image_1024: {},
     team: {},
-  },
+  } as const,
   creation: { enabled: true, requiredTags: ['id'] },
-} satisfies IntegrationDefinitionProps['user']
+} as const satisfies IntegrationDefinitionProps['user']
