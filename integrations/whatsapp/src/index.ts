@@ -117,7 +117,11 @@ const integration = new bp.Integration({
     },
   },
   handler: async ({ req, client, ctx, logger }) => {
-    logger.forBot().debug('Handler received request from Whatsapp with payload:', req.body)
+    if (req.body) {
+      logger.forBot().debug('Handler received request from Whatsapp with payload:', req.body)
+    } else {
+      logger.forBot().debug('Handler received request from Whatsapp with empty payload')
+    }
 
     if (req.query) {
       const query = queryString.parse(req.query)

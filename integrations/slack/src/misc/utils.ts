@@ -5,7 +5,7 @@ import axios from 'axios'
 import queryString from 'query-string'
 import VError from 'verror'
 import { INTEGRATION_NAME } from '../const'
-import { Configuration } from '../setup'
+import { Configuration, SyncState } from '../setup'
 import { Client, IntegrationCtx } from './types'
 import * as bp from '.botpress'
 
@@ -239,9 +239,25 @@ export const saveConfig = async (client: Client, ctx: IntegrationCtx, config: Co
 export const getConfig = async (client: Client, ctx: IntegrationCtx): Promise<Configuration> => {
   const {
     state: { payload },
-  } = await client.getState({ type: 'integration', name: 'configuration', id: ctx.integrationId })
+  } = await client.getState({ type: 'integration', name: 'configuration', id: ctx.integrationId }).catch(() => ({
+    state: { payload: {} as any },
+  }))
 
   return payload as Configuration
+}
+
+export const saveSyncState = async (client: Client, ctx: IntegrationCtx, state: SyncState) => {
+  await client.setState({ type: 'integration', name: 'sync', id: ctx.integrationId, payload: state })
+}
+
+export const getSyncState = async (client: Client, ctx: IntegrationCtx): Promise<SyncState> => {
+  const {
+    state: { payload },
+  } = await client.getState({ type: 'integration', name: 'sync', id: ctx.integrationId }).catch(() => ({
+    state: { payload: {} as any },
+  }))
+
+  return payload as SyncState
 }
 
 export const getAccessToken = async (client: Client, ctx: IntegrationCtx) => {
@@ -249,7 +265,11 @@ export const getAccessToken = async (client: Client, ctx: IntegrationCtx) => {
     return ctx.configuration.botToken
   }
 
-  const { state } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+  const { state } = await client
+    .getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+    .catch(() => ({
+      state: { payload: {} as any },
+    }))
 
   return state.payload.accessToken
 }

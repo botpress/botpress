@@ -90,8 +90,43 @@ const retrieveMessage = {
   },
 }
 
+const syncMembers = {
+  title: 'Sync Members',
+  description:
+    'Sync Slack workspace members to Botpress users. This action keeps track of the last sync timestamp and will only sync updated members since the last sync.',
+  input: {
+    schema: z.object({}),
+  },
+  output: {
+    schema: z.object({ syncedCount: z.number() }),
+  },
+}
+
+const startDmConversation = {
+  title: 'Start DM Conversation',
+  description: 'Initiate a conversation with a user in a DM',
+  input: {
+    schema: z.object({
+      slackUserId: z.string().describe('The ID of the user to initiate the conversation with'),
+    }),
+    ui: {
+      userId: {
+        title: 'User Id',
+      },
+    },
+  },
+  output: {
+    schema: z.object({
+      userId: z.string(),
+      conversationId: z.string(),
+    }),
+  },
+}
+
 export const actions = {
   addReaction,
   findTarget,
   retrieveMessage,
+  syncMembers,
+  startDmConversation,
 } satisfies IntegrationDefinitionProps['actions']
