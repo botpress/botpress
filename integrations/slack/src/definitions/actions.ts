@@ -90,8 +90,44 @@ const retrieveMessage = {
   },
 }
 
+const listActiveMembers = {
+  title: 'List Active Members',
+  description: 'Retrieve the list of active members from Slack',
+  input: {
+    schema: z.object({}),
+  },
+  output: {
+    schema: z.object({
+      users: z.array(z.object({})), //TODO z array or botpress user
+    }),
+  },
+}
+
+const startDmConversation = {
+  title: 'Start DM Conversation',
+  description: 'Initiate a conversation with a user in a DM',
+  input: {
+    schema: z.object({
+      slackUserId: z.string().describe('The ID of the user to initiate the conversation with'),
+    }),
+    ui: {
+      userId: {
+        title: 'User Id',
+      },
+    },
+  },
+  output: {
+    schema: z.object({
+      userId: z.string(),
+      conversationId: z.string(),
+    }),
+  },
+}
+
 export const actions = {
   addReaction,
   findTarget,
   retrieveMessage,
+  listActiveMembers,
+  startDmConversation,
 } satisfies IntegrationDefinitionProps['actions']

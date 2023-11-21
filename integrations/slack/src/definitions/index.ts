@@ -31,6 +31,23 @@ export const states = {
 } satisfies IntegrationDefinitionProps['states']
 
 export const user = {
-  tags: { id: {} },
+  tags: {
+    id: {},
+    avatar_hash: {},
+    status_text: {},
+    status_emoji: {},
+    real_name: {},
+    display_name: {},
+    real_name_normalized: {},
+    display_name_normalized: {},
+    email: {},
+    image_24: {},
+    image_32: {},
+    image_48: {},
+    image_72: {},
+    image_192: {},
+    image_512: {},
+    team: {},
+  },
   creation: { enabled: true, requiredTags: ['id'] },
 } satisfies IntegrationDefinitionProps['user']
