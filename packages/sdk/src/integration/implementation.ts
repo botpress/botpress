@@ -16,7 +16,13 @@ export type IntegrationImplementationProps<TIntegration extends BaseIntegration 
   register: RegisterFunction<TIntegration>
   unregister: UnregisterFunction<TIntegration>
   handler: WebhookFunction<TIntegration>
+  /**
+   * @deprecated
+   */
   createUser?: CreateUserFunction<TIntegration>
+  /**
+   * @deprecated
+   */
   createConversation?: CreateConversationFunction<TIntegration>
   actions: ActionFunctions<TIntegration>
   channels: ChannelFunctions<TIntegration>
