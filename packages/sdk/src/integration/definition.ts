@@ -35,6 +35,9 @@ type ChannelDefinition<TChannel extends BaseChannels[string]> = {
   }
   conversation?: Partial<{
     tags: Record<string, TagDefinition>
+    /**
+     * @deprecated
+     */
     creation: {
       enabled: boolean
       requiredTags: string[]
@@ -55,6 +58,9 @@ type StateDefinition<TState extends BaseStates[string]> = SchemaDefinition<TStat
 
 type UserDefinition = Partial<{
   tags: Record<string, TagDefinition>
+  /**
+   * @deprecated
+   */
   creation: {
     enabled: boolean
     requiredTags: string[]
