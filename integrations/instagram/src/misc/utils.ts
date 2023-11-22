@@ -1,5 +1,14 @@
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
-import { Card, Carousel, Choice, Dropdown, InstagramAttachment, Location } from './types'
+import {
+  Card,
+  Carousel,
+  Choice,
+  Dropdown,
+  InstagramAttachment,
+  InstagramUserProfile,
+  IntegrationLogger,
+  Location,
+} from './types'
 import * as bp from '.botpress'
 
 export function getMessengerClient(configuration: bp.configuration.Configuration) {
@@ -80,5 +89,25 @@ export function getChoiceMessage(payload: Choice | Dropdown): MessengerTypes.Tex
       title: option.label,
       payload: option.value,
     })),
+  }
+}
+
+export const getUserProfile = async (
+  userId: string,
+  configuration: bp.configuration.Configuration,
+  logger: IntegrationLogger
+) => {
+  const messengerClient = getMessengerClient(configuration)
+  try {
+    return (await messengerClient.getUserProfile(userId, {
+      // username is an available field for instagram ids -> https://developers.facebook.com/docs/instagram-basic-display-api/guides/getting-profiles-and-media
+      fields: ['id', 'name', 'profile_pic', 'username'] as any,
+    })) as InstagramUserProfile
+  } catch (error) {
+    logger.forBot().debug("profile_pic can't be fetched from instagram, trying without it")
+    // if the user is not a business instagram user, this will fail because of profile_pic
+    return (await messengerClient.getUserProfile(userId, {
+      fields: ['id', 'name', 'username'] as any,
+    })) as InstagramUserProfile
   }
 }
