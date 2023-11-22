@@ -116,15 +116,48 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         integration
       )
 
+      this._detectDeprecatedFeatures(integrationDef, { allowDeprecated: true })
       await api.client.updateIntegration(updateBody).catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, `Could not update integration "${integrationDef.name}"`)
       })
     } else {
+      this._detectDeprecatedFeatures(integrationDef, this.argv)
       await api.client.createIntegration(createBody).catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, `Could not create integration "${integrationDef.name}"`)
       })
     }
     line.success('Integration deployed')
+  }
+
+  private _detectDeprecatedFeatures(
+    integrationDef: bpsdk.IntegrationDefinition,
+    opts: { allowDeprecated?: boolean } = {}
+  ) {
+    const deprecatedFields: string[] = []
+    const { user, channels } = integrationDef
+    if (user?.creation?.enabled) {
+      deprecatedFields.push('user.creation')
+    }
+
+    for (const [channelName, channel] of Object.entries(channels ?? {})) {
+      if (channel?.conversation?.creation?.enabled) {
+        deprecatedFields.push(`channels.${channelName}.creation`)
+      }
+    }
+
+    if (!deprecatedFields.length) {
+      return
+    }
+
+    const errorMessage = `The following fields of the integration's definition are deprecated: ${deprecatedFields.join(
+      ', '
+    )}`
+
+    if (opts.allowDeprecated) {
+      this.logger.warn(errorMessage)
+    } else {
+      throw new errors.BotpressCLIError(errorMessage)
+    }
   }
 
   private _readFile = async (filePath: string | undefined): Promise<string | undefined> => {

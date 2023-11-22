@@ -134,6 +134,11 @@ const deploySchema = {
   noBuild,
   createNewBot: { type: 'boolean', description: 'Create a new bot when deploying. Only used when deploying a bot' },
   sourceMap,
+  allowDeprecated: {
+    type: 'boolean',
+    description: 'Allow deprecated features in the project',
+    default: false,
+  },
 } satisfies CommandSchema
 
 const devSchema = {

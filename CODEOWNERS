@@ -5,20 +5,24 @@
 /scripts @franklevasseur
 
 # Client, SDK, CLI
-/packages @franklevasseur 
+/packages @franklevasseur
 
 # Bots
-/packages/bots @franklevasseur 
+/packages/bots @franklevasseur
 
 # Integrations
-/integrations/gmail @michaelmass 
-/integrations/gsheets @franklevasseur 
+/integrations/gmail @michaelmass
+/integrations/gsheets @franklevasseur
 /integrations/instagram @kimchicharlie
+integrations/intercom @chsir17 @ptrckbp
+integrations/line @franklevasseur
 /integrations/messenger @kimchicharlie
-/integrations/notion @lakshya0246 
-/integrations/teams @franklevasseur 
+/integrations/notion @lakshya0246
+/integrations/teams @franklevasseur
+/integrations/telegram @franklevasseur
+/integrations/twilio @AbrahamLopez10
+/integrations/webhook @franklevasseur
 /integrations/whatsapp @AbrahamLopez10
-/integrations/zapier @AbrahamLopez10 
-/integrations/twilio @AbrahamLopez10 
-/integrations/zendesk @davidvitora 
+/integrations/zapier @AbrahamLopez10
+/integrations/zendesk @davidvitora
 
