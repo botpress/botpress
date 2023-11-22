@@ -1189,8 +1189,8 @@ importers:
         specifier: ^0.0.12
         version: 0.0.12
       '@bpinternal/tunnel':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.1.1
+        version: 0.1.1
       '@bpinternal/yargs-extra':
         specifier: ^0.0.3
         version: 0.0.3
@@ -2058,8 +2058,8 @@ packages:
       - supports-color
     dev: false
 
-  /@bpinternal/tunnel@0.1.0:
-    resolution: {integrity: sha512-w2PuecYvZCBJKrT3Ibs8/7JpddnEHsaQHHYG3h+lRXydW4PgAbmigYzRw9mA7O5mp3eGY3Ao0c42OKdiL9f02A==}
+  /@bpinternal/tunnel@0.1.1:
+    resolution: {integrity: sha512-B1ryt5n3/PSMFuoOkW4h2zHNF9rcsOB5nDBcCPQtmO2Mrz7c6kAtMBHBMhBe8DWIvqeasZYhDgxYwDh8wivFsw==}
     dependencies:
       '@types/ws': 8.5.5
       browser-or-node: 2.1.1
