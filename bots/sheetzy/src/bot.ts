@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import * as bp from '.botpress'
 
 const telegram = new bp.telegram.Telegram({
@@ -22,14 +21,6 @@ export const bot = new bp.Bot({
   integrations: {
     telegram,
     gsheets,
-  },
-  states: {
-    flow: {
-      type: 'conversation',
-      schema: z.object({
-        hitlEnabled: z.boolean(),
-      }),
-    },
   },
   events: {},
   recurringEvents: {},

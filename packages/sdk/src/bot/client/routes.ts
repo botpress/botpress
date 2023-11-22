@@ -40,7 +40,7 @@ export type GetState<TBot extends BaseBot> = <TState extends keyof TBot['states'
   x: Merge<
     Arg<Client['getState']>,
     {
-      name: Cast<TState, string> // TODO: use state name to infer state type
+      name: Cast<TState, string> // TODO: use state name to infer state type (cannot be done until there is a bot.definition.ts file)
     }
   >
 ) => Promise<{
@@ -56,7 +56,8 @@ export type SetState<TBot extends BaseBot> = <TState extends keyof TBot['states'
   x: Merge<
     Arg<Client['setState']>,
     {
-      name: Cast<TState, string> // TODO: use state name to infer state type
+      name: Cast<TState, string> // TODO: use state name to infer state type (cannot be done until there is a bot.definition.ts file)
+      payload: TBot['states'][TState]
     }
   >
 ) => Promise<{
@@ -72,7 +73,8 @@ export type PatchState<TBot extends BaseBot> = <TState extends keyof TBot['state
   x: Merge<
     Arg<Client['patchState']>,
     {
-      name: Cast<TState, string> // TODO: use state name to infer state type
+      name: Cast<TState, string> // TODO: use state name to infer state type (cannot be done until there is a bot.definition.ts file)
+      payload: Partial<TBot['states'][TState]>
     }
   >
 ) => Promise<{
