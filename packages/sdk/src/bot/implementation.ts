@@ -5,7 +5,7 @@ import { serve } from '../serve'
 import { AnyZodObject, Cast } from '../type-utils'
 import { BaseIntegrations } from './generic'
 import { IntegrationInstance } from './integration-instance'
-import { botHandler, MessageHandler, EventHandler, StateExpiredHandler } from './server'
+import { botHandler, MessageHandler, EventHandler, StateExpiredHandler, StateType } from './server'
 
 type BaseStates = Record<string, AnyZodObject>
 type BaseEvents = Record<string, AnyZodObject>
@@ -16,7 +16,7 @@ type TagDefinition = {
 }
 
 type StateDefinition<TState extends BaseStates[string]> = SchemaDefinition<TState> & {
-  type: 'conversation' | 'user' | 'bot'
+  type: StateType
   expiry?: number
 }
 

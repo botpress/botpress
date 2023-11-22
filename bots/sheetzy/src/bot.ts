@@ -23,14 +23,6 @@ export const bot = new bp.Bot({
     telegram,
     gsheets,
   },
-  states: {
-    flow: {
-      type: 'conversation',
-      schema: z.object({
-        hitlEnabled: z.boolean(),
-      }),
-    },
-  },
   events: {},
   recurringEvents: {},
   conversation: {
