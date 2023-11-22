@@ -34,9 +34,9 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, 
     const actionValue = await respondInteractive(body)
 
     if (body.type !== 'block_actions') {
-      const errMessage = `Interaction type ${body.type} is not supported yet`
+      const errMessage = `Interaction type ${body.type} received from Slack is not supported yet`
       logger.forBot().error(errMessage)
-      throw Error(errMessage)
+      return
     }
 
     const { userId, conversationId } = await getUserAndConversation(

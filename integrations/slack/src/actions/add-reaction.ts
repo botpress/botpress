@@ -17,7 +17,7 @@ export const addReaction: Implementation['actions']['addReaction'] = async ({ ct
       timestamp: getTag(message.tags, 'ts'),
     }
 
-    logger.forBot().debug('Addind reaction:', addReactionArgs)
+    logger.forBot().debug('Sending reaction to Slack:', addReactionArgs)
     await slackClient.reactions.add(addReactionArgs)
   }
 
