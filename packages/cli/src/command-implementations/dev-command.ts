@@ -92,6 +92,11 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
           })
       })
     })
+
+    supervisor.events.on('manuallyClosed', () => {
+      this.logger.debug('Tunnel manually closed')
+    })
+
     await supervisor.start()
 
     await this._runBuild()
