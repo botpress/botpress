@@ -16,11 +16,10 @@ export async function sendMessage(
 ) {
   const messengerClient = getMessengerClient(ctx.configuration)
   const recipientId = getRecipientId(conversation)
-  await send(messengerClient, recipientId)
+  const message = await send(messengerClient, recipientId)
   await ack({
     tags: {
-      // TODO: declare in definition
-      // [idTag]: messageId,
+      [idTag]: message.messageId,
     },
   })
 }

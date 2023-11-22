@@ -5,8 +5,6 @@ import * as bp from '.botpress'
 export function getMessengerClient(configuration: bp.configuration.Configuration) {
   return new MessengerClient({
     accessToken: configuration.accessToken,
-    appId: configuration.appId,
-    appSecret: configuration.appSecret,
   })
 }
 
@@ -64,18 +62,23 @@ export function getCarouselMessage(payload: Carousel): MessengerTypes.Attachment
   }
 }
 
-export function getChoiceMessage(payload: Choice | Dropdown): MessengerTypes.AttachmentMessage {
+export function getChoiceMessage(payload: Choice | Dropdown): MessengerTypes.TextMessage {
+  if (!payload.options.length) {
+    return { text: payload.text }
+  }
+
+  if (payload.options.length > 13) {
+    return {
+      text: `${payload.text}\n\n${payload.options.map((o, idx) => `${idx + 1}. ${o.label}`).join('\n')}`,
+    }
+  }
+
   return {
-    attachment: {
-      type: 'template',
-      payload: {
-        templateType: 'generic',
-      },
-    },
-    quickReplies: payload.options.map((choice) => ({
+    text: payload.text,
+    quickReplies: payload.options.map((option) => ({
       contentType: 'text',
-      title: choice.label,
-      payload: choice.value,
+      title: option.label,
+      payload: option.value,
     })),
   }
 }

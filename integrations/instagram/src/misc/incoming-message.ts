@@ -52,8 +52,7 @@ export async function handleMessage(
     await client.createMessage({
       type: 'text',
       tags: {
-        // TODO: declare in definition
-        // [idTag]: message.message.mid
+        [idTag]: message.message.mid,
       },
       userId: user.id,
       conversationId: conversation.id,
