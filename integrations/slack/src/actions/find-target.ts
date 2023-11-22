@@ -16,7 +16,13 @@ const fuse = new Fuse<Target>([], {
   keys: ['displayName'],
 })
 
-export const findTarget: Implementation['actions']['findTarget'] = async ({ client: botpressClient, ctx, input }) => {
+export const findTarget: Implementation['actions']['findTarget'] = async ({
+  client: botpressClient,
+  ctx,
+  input,
+  logger,
+}) => {
+  logger.forBot().debug('Received action findTarget with input:', input)
   const accessToken = await getAccessToken(botpressClient, ctx)
   const client = new WebClient(accessToken)
 

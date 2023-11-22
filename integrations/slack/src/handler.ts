@@ -14,6 +14,7 @@ import {
 import * as botpress from '.botpress'
 
 export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
+  logger.forBot().debug('Handler received request from Slack with payload:', req.body)
   if (req.path.startsWith('/oauth')) {
     return onOAuth(req, client, ctx).catch((err) => {
       logger.forBot().error('Error while processing OAuth', err.response?.data || err.message)
@@ -22,7 +23,7 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, 
   }
 
   if (!req.body) {
-    console.warn('Handler received an empty body')
+    logger.forBot().warn('Handler received an empty body, so the message was ignored')
     return
   }
 
@@ -33,7 +34,9 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, 
     const actionValue = await respondInteractive(body)
 
     if (body.type !== 'block_actions') {
-      throw Error(`Interaction type ${body.type} is not supported yet`)
+      const errMessage = `Interaction type ${body.type} received from Slack is not supported yet`
+      logger.forBot().error(errMessage)
+      return
     }
 
     const { userId, conversationId } = await getUserAndConversation(
@@ -55,14 +58,14 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, 
   const data = JSON.parse(req.body)
 
   if (data.type === 'url_verification') {
-    console.info('Handler received request of type url_verification')
+    logger.forBot().debug('Handler received request of type url_verification')
     return {
       body: JSON.stringify({ challenge: data.challenge }),
     }
   }
 
   const event: ReactionAddedEvent | GenericMessageEvent = data.event
-  console.info(`Handler received request of type ${data.event.type}`)
+  logger.forBot().debug(`Handler received request of type ${data.event.type}`)
 
   switch (event.type) {
     case 'message':
