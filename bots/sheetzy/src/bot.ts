@@ -1,4 +1,3 @@
-import { z } from 'zod'
 import * as bp from '.botpress'
 
 const telegram = new bp.telegram.Telegram({
