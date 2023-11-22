@@ -1,7 +1,7 @@
 import { IntegrationContext } from '@botpress/sdk'
 import { idTag } from 'src/const'
-import { InstagramMessage, InstagramUserProfile, IntegrationLogger } from './types'
-import { getMessengerClient } from './utils'
+import { InstagramMessage, IntegrationLogger } from './types'
+import { getUserProfile } from './utils'
 import * as bp from '.botpress'
 
 export async function handleMessage(
@@ -29,11 +29,7 @@ export async function handleMessage(
 
     if (!user.pictureUrl || !user.name) {
       try {
-        const messengerClient = getMessengerClient(ctx.configuration)
-        const userProfile = (await messengerClient.getUserProfile(message.sender.id, {
-          // username is an available field for instagram ids -> https://developers.facebook.com/docs/instagram-basic-display-api/guides/getting-profiles-and-media
-          fields: ['id', 'name', 'profile_pic', 'username'] as any,
-        })) as InstagramUserProfile
+        const userProfile = await getUserProfile(message.sender.id, ctx.configuration, logger)
 
         logger.forBot().debug('Fetched latest Instagram user profile: ', userProfile)
 
@@ -52,8 +48,7 @@ export async function handleMessage(
     await client.createMessage({
       type: 'text',
       tags: {
-        // TODO: declare in definition
-        // [idTag]: message.message.mid
+        [idTag]: message.message.mid,
       },
       userId: user.id,
       conversationId: conversation.id,
