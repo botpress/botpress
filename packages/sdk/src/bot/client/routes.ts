@@ -1,69 +1,16 @@
 import { Client } from '@botpress/client'
-import { Cast, Join, Merge } from '../../type-utils'
+import { Cast, Merge } from '../../type-utils'
 import { BaseBot } from '../generic'
-import {
-  EnumerateActions,
-  GetIntegrationByName,
-  GetIntegrationChannelByName,
-  IntegrationInstanceActionDefinition,
-} from './types'
+import { EnumerateActions, IntegrationInstanceActionDefinition } from './types'
 
 type Arg<F extends (...args: any[]) => any> = Parameters<F>[number]
 type Res<F extends (...args: any[]) => any> = ReturnType<F>
 
-type AsTags<T extends Record<string, string | undefined>> = Cast<T, Record<string, string>>
-type ToTags<TTags extends string | number | symbol> = AsTags<Partial<Record<TTags, string>>>
-
-export type CreateConversation<TBot extends BaseBot> = <
-  TIntegrationName extends keyof TBot['integrations'],
-  TChannelName extends Cast<keyof GetIntegrationByName<TBot, TIntegrationName>['channels'], string>
->(
-  x: Merge<
-    Arg<Client['createConversation']>,
-    {
-      integrationName: Cast<TIntegrationName, string>
-      channel: Cast<TChannelName, string>
-      tags: ToTags<
-        Join<
-          [
-            TIntegrationName,
-            ':',
-            keyof GetIntegrationChannelByName<TBot, TIntegrationName, TChannelName>['conversation']['tags']
-          ]
-        >
-      >
-    }
-  >
-) => Res<Client['createConversation']>
-
+export type CreateConversation<_TBot extends BaseBot> = Client['createConversation']
 export type GetConversation<_TBot extends BaseBot> = Client['getConversation']
-
 export type ListConversations<_TBot extends BaseBot> = Client['listConversations']
-
-export type GetOrCreateConversation<TBot extends BaseBot> = <
-  TIntegrationName extends keyof TBot['integrations'],
-  TChannelName extends Cast<keyof GetIntegrationByName<TBot, TIntegrationName>['channels'], string>
->(
-  x: Merge<
-    Arg<Client['getOrCreateConversation']>,
-    {
-      integrationName: Cast<TIntegrationName, string>
-      channel: Cast<TChannelName, string>
-      tags: ToTags<
-        Join<
-          [
-            TIntegrationName,
-            ':',
-            keyof GetIntegrationChannelByName<TBot, TIntegrationName, TChannelName>['conversation']['tags']
-          ]
-        >
-      >
-    }
-  >
-) => Res<Client['getOrCreateConversation']>
-
+export type GetOrCreateConversation<_TBot extends BaseBot> = Client['getOrCreateConversation']
 export type UpdateConversation<_TBot extends BaseBot> = Client['updateConversation']
-
 export type DeleteConversation<_TBot extends BaseBot> = Client['deleteConversation']
 
 export type ListParticipants<_TBot extends BaseBot> = Client['listParticipants']
@@ -93,7 +40,7 @@ export type GetState<TBot extends BaseBot> = <TState extends keyof TBot['states'
   x: Merge<
     Arg<Client['getState']>,
     {
-      name: Cast<TState, string> // TODO: use state name to infer state type
+      name: Cast<TState, string> // TODO: use state name to infer state type (cannot be done until there is a bot.definition.ts file)
     }
   >
 ) => Promise<{
@@ -109,7 +56,8 @@ export type SetState<TBot extends BaseBot> = <TState extends keyof TBot['states'
   x: Merge<
     Arg<Client['setState']>,
     {
-      name: Cast<TState, string> // TODO: use state name to infer state type
+      name: Cast<TState, string> // TODO: use state name to infer state type (cannot be done until there is a bot.definition.ts file)
+      payload: TBot['states'][TState]
     }
   >
 ) => Promise<{
@@ -125,7 +73,8 @@ export type PatchState<TBot extends BaseBot> = <TState extends keyof TBot['state
   x: Merge<
     Arg<Client['patchState']>,
     {
-      name: Cast<TState, string> // TODO: use state name to infer state type
+      name: Cast<TState, string> // TODO: use state name to infer state type (cannot be done until there is a bot.definition.ts file)
+      payload: Partial<TBot['states'][TState]>
     }
   >
 ) => Promise<{

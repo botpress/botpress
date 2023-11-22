@@ -12,13 +12,19 @@ type CommonArgs<TBot extends BaseBot> = {
   client: BotSpecificClient<TBot>
 }
 
-type MessagePayload = {
+type MessagePayload<TBot extends BaseBot> = {
   user: bpclient.User
   conversation: bpclient.Conversation
   message: bpclient.Message
   event: bpclient.Event
+  states: {
+    [TState in keyof TBot['states']]: {
+      type: StateType
+      payload: TBot['states'][TState]
+    }
+  }
 }
-type MessageArgs<TBot extends BaseBot> = CommonArgs<TBot> & MessagePayload
+type MessageArgs<TBot extends BaseBot> = CommonArgs<TBot> & MessagePayload<TBot>
 
 type EventPayload<TBot extends BaseBot> = {
   event: {
@@ -29,6 +35,8 @@ type EventArgs<TBot extends BaseBot> = CommonArgs<TBot> & EventPayload<TBot>
 
 type StateExpiredPayload = { state: bpclient.State }
 type StateExpiredArgs<TBot extends BaseBot> = CommonArgs<TBot> & StateExpiredPayload
+
+export type StateType = 'conversation' | 'user' | 'bot'
 
 export type MessageHandler<TBot extends BaseBot> = (args: MessageArgs<TBot>) => Promise<void>
 
@@ -56,9 +64,9 @@ export const botHandler =
       log.info(`Received ${ctx.operation} operation for bot ${ctx.botId} of type ${ctx.type}`)
     }
 
-    const client = new BotSpecificClient(new bpclient.Client({ botId: ctx.botId }))
+    const client: BotSpecificClient<TBot> = new BotSpecificClient(new bpclient.Client({ botId: ctx.botId }))
 
-    const props = {
+    const props: ServerProps<TBot> = {
       req,
       ctx,
       client,
@@ -96,10 +104,11 @@ const onEventReceived = async <TBot extends BaseBot>({ ctx, req, client, instanc
 
   switch (ctx.type) {
     case 'message_created':
-      const messagePayload: MessagePayload = {
+      const messagePayload: MessagePayload<TBot> = {
         user: event.payload.user,
         conversation: event.payload.conversation,
         message: event.payload.message,
+        states: event.payload.states,
         event,
       }
 
