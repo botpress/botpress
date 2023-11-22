@@ -29,6 +29,8 @@ export default new IntegrationDefinition({
     schema: z.object({
       botToken: z.string().optional(), // TODO revert once the multiple configuration is available
       signingSecret: z.string().optional(), // TODO revert once the multiple configuration is available
+      botAvatarUrl: z.string().optional(),
+      botName: z.string().optional(),
     }),
   },
   states: {

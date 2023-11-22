@@ -131,9 +131,19 @@ export const getSlackTarget = (conversation: Conversation) => {
   return { channel, thread_ts: thread }
 }
 
-export async function sendSlackMessage(botToken: string, ack: AckFunction, payload: ChatPostMessageArguments) {
-  const client = new WebClient(botToken)
-  const response = await client.chat.postMessage(payload)
+export async function sendSlackMessage(
+  { client, ctx, ack }: { client: Client; ctx: IntegrationCtx; ack: AckFunction },
+  payload: ChatPostMessageArguments
+) {
+  const accessToken = await getAccessToken(client, ctx)
+  const slackClient = new WebClient(accessToken)
+
+  const botOptionalProps = {
+    icon_url: ctx.configuration.botAvatarUrl,
+    username: ctx.configuration.botName,
+  }
+
+  const response = await slackClient.chat.postMessage({ ...payload, ...botOptionalProps })
   const message = response.message
 
   if (!(response.ok && message)) {
