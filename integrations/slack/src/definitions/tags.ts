@@ -1,0 +1,32 @@
+export const userTags = {
+  dm_conversation_id: {
+    title: 'DM Conversation ID',
+    description: 'The ID of the conversation used to DM the user (created by calling the `startDmConversation` action)',
+  },
+  id: {
+    title: 'ID',
+    description: 'The Slack ID of the user (U0000XXXXXX)',
+  },
+  tz: {},
+  is_bot: {},
+  is_admin: {},
+  title: {},
+  phone: {},
+  email: {},
+  real_name: {},
+  display_name: {},
+  real_name_normalized: {},
+  display_name_normalized: {},
+  avatar_hash: {},
+  status_text: {},
+  status_emoji: {},
+  image_24: {},
+  image_48: {},
+  image_192: {},
+  image_512: {},
+  image_1024: {},
+  team: {
+    title: 'Team',
+    description: 'The Slack ID of the team (T0000XXXXXX)',
+  },
+} as const

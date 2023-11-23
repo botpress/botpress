@@ -1,4 +1,3 @@
-import { IntegrationDefinitionProps } from '@botpress/sdk'
 import z from 'zod'
 
 type Channel = 'dm' | 'channel'
@@ -9,7 +8,7 @@ export type Target = {
   channel: Channel
 }
 
-const addReaction = {
+export const addReaction = {
   title: 'Add Reaction',
   description: 'Add a reaction to a message',
   input: {
@@ -33,7 +32,7 @@ const addReaction = {
   },
 }
 
-const findTarget = {
+export const findTarget = {
   title: 'Find Target',
   description: 'Find a target in Slack (ex: a channel, a user to send a dm, etc)',
   input: {
@@ -63,7 +62,7 @@ const findTarget = {
   },
 }
 
-const retrieveMessage = {
+export const retrieveMessage = {
   title: 'Retrieve Message',
   description: 'Retrieve a message from Slack',
   input: {
@@ -90,7 +89,7 @@ const retrieveMessage = {
   },
 }
 
-const syncMembers = {
+export const syncMembers = {
   title: 'Sync Members',
   description:
     'Sync Slack workspace members to Botpress users. This action keeps track of the last sync timestamp and will only sync updated members since the last sync.',
@@ -102,7 +101,7 @@ const syncMembers = {
   },
 }
 
-const startDmConversation = {
+export const startDmConversation = {
   title: 'Start DM Conversation',
   description: 'Initiate a conversation with a user in a DM',
   input: {
@@ -122,11 +121,3 @@ const startDmConversation = {
     }),
   },
 }
-
-export const actions = {
-  addReaction,
-  findTarget,
-  retrieveMessage,
-  syncMembers,
-  startDmConversation,
-} satisfies IntegrationDefinitionProps['actions']
