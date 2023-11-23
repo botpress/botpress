@@ -6,7 +6,7 @@ import queryString from 'query-string'
 import VError from 'verror'
 import { INTEGRATION_NAME } from '../const'
 import { Configuration, SyncState } from '../setup'
-import { Client, IntegrationCtx } from './types'
+import { Client, IntegrationCtx, IntegrationLogger } from './types'
 import * as bp from '.botpress'
 
 type InteractiveBody = {
@@ -131,17 +131,40 @@ export const getSlackTarget = (conversation: Conversation) => {
   return { channel, thread_ts: thread }
 }
 
+const isValidUrl = (str: string) => {
+  try {
+    new URL(str)
+    return true
+  } catch (err) {
+    return false
+  }
+}
+
+const getOptionalProps = (ctx: IntegrationCtx, logger: IntegrationLogger) => {
+  if (ctx.configuration.botAvatarUrl && isValidUrl(ctx.configuration.botAvatarUrl)) {
+    return {
+      username: ctx.configuration.botName,
+      icon_url: ctx.configuration.botAvatarUrl,
+    }
+  }
+
+  if (ctx.configuration.botAvatarUrl && !isValidUrl(ctx.configuration.botAvatarUrl)) {
+    logger.forBot().warn('Invalid bot avatar URL')
+  }
+
+  return {
+    username: ctx.configuration.botName,
+  }
+}
+
 export async function sendSlackMessage(
-  { client, ctx, ack }: { client: Client; ctx: IntegrationCtx; ack: AckFunction },
+  { client, ctx, ack, logger }: { client: Client; ctx: IntegrationCtx; ack: AckFunction; logger: IntegrationLogger },
   payload: ChatPostMessageArguments
 ) {
   const accessToken = await getAccessToken(client, ctx)
   const slackClient = new WebClient(accessToken)
 
-  const botOptionalProps = {
-    icon_url: ctx.configuration.botAvatarUrl,
-    username: ctx.configuration.botName,
-  }
+  const botOptionalProps = getOptionalProps(ctx, logger)
 
   const response = await slackClient.chat.postMessage({ ...payload, ...botOptionalProps })
   const message = response.message

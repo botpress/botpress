@@ -8,7 +8,7 @@ const defaultMessages: Channels['channel']['messages'] = {
     const parsed = textSchema.parse(payload)
     logger.forBot().debug('Sending text message to Slack chat:', payload)
     await sendSlackMessage(
-      { ack, ctx, client },
+      { ack, ctx, client, logger },
       {
         ...getSlackTarget(conversation),
         ...parsed,
@@ -18,7 +18,7 @@ const defaultMessages: Channels['channel']['messages'] = {
   image: async ({ client, payload, ctx, conversation, ack, logger }) => {
     logger.forBot().debug('Sending image message to Slack chat:', payload)
     await sendSlackMessage(
-      { ack, ctx, client },
+      { ack, ctx, client, logger },
       {
         ...getSlackTarget(conversation),
         blocks: [
@@ -35,7 +35,7 @@ const defaultMessages: Channels['channel']['messages'] = {
     logger.forBot().debug('Sending markdown message to Slack chat:', payload)
 
     await sendSlackMessage(
-      { ack, ctx, client },
+      { ack, ctx, client, logger },
       {
         ...getSlackTarget(conversation),
         text: payload.markdown,
@@ -51,7 +51,7 @@ const defaultMessages: Channels['channel']['messages'] = {
   audio: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending audio message to Slack chat:', payload)
     await sendSlackMessage(
-      { ack, ctx, client },
+      { ack, ctx, client, logger },
       {
         ...getSlackTarget(conversation),
         text: 'audio',
@@ -67,7 +67,7 @@ const defaultMessages: Channels['channel']['messages'] = {
   video: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending video message to Slack chat:', payload)
     await sendSlackMessage(
-      { ack, ctx, client },
+      { ack, ctx, client, logger },
       {
         ...getSlackTarget(conversation),
         text: 'video',
@@ -83,7 +83,7 @@ const defaultMessages: Channels['channel']['messages'] = {
   file: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending file message to Slack chat:', payload)
     await sendSlackMessage(
-      { ack, ctx, client },
+      { ack, ctx, client, logger },
       {
         ...getSlackTarget(conversation),
         text: 'file',
@@ -100,7 +100,7 @@ const defaultMessages: Channels['channel']['messages'] = {
     const googleMapsLink = `https://www.google.com/maps/search/?api=1&query=${payload.latitude},${payload.longitude}`
     logger.forBot().debug('Sending location message to Slack chat:', payload)
     await sendSlackMessage(
-      { ack, ctx, client },
+      { ack, ctx, client, logger },
       {
         ...getSlackTarget(conversation),
         text: 'location',
@@ -116,7 +116,7 @@ const defaultMessages: Channels['channel']['messages'] = {
   carousel: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending carousel message to Slack chat:', payload)
     await sendSlackMessage(
-      { ack, ctx, client },
+      { ack, ctx, client, logger },
       {
         ...getSlackTarget(conversation),
         text: 'carousel',
@@ -127,7 +127,7 @@ const defaultMessages: Channels['channel']['messages'] = {
   card: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending card message to Slack chat:', payload)
     await sendSlackMessage(
-      { ack, ctx, client },
+      { ack, ctx, client, logger },
       {
         ...getSlackTarget(conversation),
         text: 'card',
@@ -138,7 +138,7 @@ const defaultMessages: Channels['channel']['messages'] = {
   dropdown: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending dropdown message to Slack chat:', payload)
     await sendSlackMessage(
-      { ack, ctx, client },
+      { ack, ctx, client, logger },
       {
         ...getSlackTarget(conversation),
         text: payload.text,
@@ -175,7 +175,7 @@ const defaultMessages: Channels['channel']['messages'] = {
   choice: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending choice message to Slack chat:', payload)
     await sendSlackMessage(
-      { ack, ctx, client },
+      { ack, ctx, client, logger },
       {
         ...getSlackTarget(conversation),
         text: payload.text,

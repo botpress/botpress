@@ -26,10 +26,18 @@ export default new IntegrationDefinition({
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
     },
+    ui: {
+      botName: {
+        title: 'Bot Name (Name displayed as the sender in Slack conversations)',
+      },
+      botAvatarUrl: {
+        title: "Bot Avatar URL (URL for the image used as the Slack bot's avatar)",
+      },
+    },
     schema: z.object({
       botToken: z.string().optional(), // TODO revert once the multiple configuration is available
       signingSecret: z.string().optional(), // TODO revert once the multiple configuration is available
-      botAvatarUrl: z.string().optional(),
+      botAvatarUrl: z.string().url().optional(),
       botName: z.string().optional(),
     }),
   },
