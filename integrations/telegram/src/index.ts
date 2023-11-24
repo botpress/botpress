@@ -1,7 +1,7 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Markup, Telegraf } from 'telegraf'
 import type { User } from 'telegraf/typings/core/types/typegram'
-import { idTag } from './const'
+import { chatIdTag, idTag, senderIdTag } from './const'
 import { getUserPictureDataUri, getUserNameFromTelegramUser, getChat, sendCard, ackMessage } from './misc/utils'
 import * as bp from '.botpress'
 
@@ -128,6 +128,11 @@ const integration = new bp.Integration({
       return
     }
 
+    if (data.edited_channel_post) {
+      logger.forBot().warn('Handler received an edited channel post, so the message was ignored')
+      return
+    }
+
     if (data.edited_message) {
       logger.forBot().warn('Handler received an edited message, so the message was ignored')
       return
@@ -149,18 +154,21 @@ const integration = new bp.Integration({
       throw new Error('Handler received an empty chat id')
     }
 
-    const { conversation } = await client.getOrCreateConversation({
-      channel: 'channel',
-      tags: {
-        [idTag]: `${conversationId}`,
-      },
-    })
-
-    const userId = data.message.from.id
+    const userId = data.message.from?.id
+    const chatId = data.message.chat?.id
 
     if (!userId) {
       throw new Error('Handler received an empty from id')
     }
+
+    const { conversation } = await client.getOrCreateConversation({
+      channel: 'channel',
+      tags: {
+        [idTag]: `${conversationId}`,
+        [senderIdTag]: `${userId}`,
+        [chatIdTag]: `${chatId}`,
+      },
+    })
 
     const userName = getUserNameFromTelegramUser(data.message.from as User)
 
@@ -198,7 +206,7 @@ const integration = new bp.Integration({
 
     logger.forBot().debug(`Received message from user ${userId}: ${data.message.text}`)
     await client.createMessage({
-      tags: { [idTag]: `${messageId}` },
+      tags: { [idTag]: `${messageId}`, [senderIdTag]: `${userId}`, [chatIdTag]: `${chatId}` },
       type: 'text',
       userId: user.id,
       conversationId: conversation.id,
