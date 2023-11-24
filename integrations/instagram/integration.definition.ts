@@ -22,9 +22,9 @@ export default new IntegrationDefinition({
   channels: {
     channel: {
       messages: messages.defaults,
-      message: { tags: { id: {}, messageId: {} } },
+      message: { tags: { id: {}, messageId: {}, senderId: {}, recipientId: {} } },
       conversation: {
-        tags: { id: {} },
+        tags: { id: {}, recipientId: {}, senderId: {} },
         creation: { enabled: true, requiredTags: ['id'] },
       },
     },
