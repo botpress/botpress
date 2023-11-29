@@ -1,0 +1,9 @@
+q = parse_query_string!(.query)
+challenge = q."hub.challenge"
+
+{
+  "headers": {
+    "content-type": "application/json"
+  },
+  "body": challenge
+}

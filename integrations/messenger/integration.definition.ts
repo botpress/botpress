@@ -9,6 +9,9 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+    },
     schema: z.object({
       appId: z.string().min(1),
       appSecret: z.string().min(1),
@@ -16,6 +19,10 @@ export default new IntegrationDefinition({
       pageId: z.string().min(1),
       accessToken: z.string().min(1),
     }),
+  },
+  identifier: {
+    extractScript: 'extract.vrl',
+    fallbackHandlerScript: 'fallbackHandler.vrl',
   },
   channels: {
     channel: {
@@ -31,7 +38,26 @@ export default new IntegrationDefinition({
   },
   actions: {},
   events: {},
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  states: {
+    oauth: {
+      type: 'integration',
+      schema: z.object({
+        accessToken: z.string(),
+      }),
+    },
+  },
+  secrets: {
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+    APP_ID: {
+      description: 'App ID of the Meta app for Messenger bots',
+    },
+    APP_SECRET: {
+      description: 'App Secret of the Meta app for Messenger bots',
+    },
+    VERIFY_TOKEN: {
+      description: 'Verify token for Messenger webhook',
+    },
+  },
   user: {
     tags: { id: {} },
     creation: { enabled: true, requiredTags: ['id'] },

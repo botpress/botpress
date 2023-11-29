@@ -55,6 +55,9 @@ input:
   groq_secrets:
     description: 'Groq secrets'
     required: false
+  messenger_secrets:
+    description: 'Messenger secrets'
+    required: false
 
 runs:
   using: 'composite'
@@ -125,6 +128,8 @@ runs:
                 base_command="$base_command ${{ inputs.groq_secrets }}"
             elif [ $integration == "anthropic" ]; then
                 base_command="$base_command ${{ inputs.anthropic_secrets }}"
+            elif [ $integration == "messenger" ]; then
+                base_command="$base_command ${{ inputs.messenger_secrets }}"
             elif [ $integration == "fireworks-ai" ]; then
                 base_command="$base_command ${{ inputs.fireworks_ai_secrets }}"
             elif [ $integration == "cerebras" ]; then

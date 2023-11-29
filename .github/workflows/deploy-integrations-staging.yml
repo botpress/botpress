@@ -51,3 +51,4 @@ jobs:
           anthropic_secrets: '--secrets ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}'
           fireworks_ai_secrets: '--secrets FIREWORKS_AI_API_KEY=${{ secrets.FIREWORKS_AI_API_KEY }}'
           cerebras_secrets: '--secrets CEREBRAS_API_KEY=${{ secrets.CEREBRAS_API_KEY }}'
+          messenger_secrets: '--secrets APP_ID=${{ secrets.STAGING_MESSENGER_APP_ID }} --secrets APP_SECRET=${{ secrets.STAGING_MESSENGER_APP_SECRET  }}'
