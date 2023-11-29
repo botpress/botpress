@@ -28,7 +28,7 @@ export default new IntegrationDefinition({
     },
     ui: {
       botName: {
-        title: 'Bot Name (Name displayed as the sender in Slack conversations)',
+        title: 'Bot Name (displayed as the sender in Slack conversations)',
       },
       botAvatarUrl: {
         title: "Bot Avatar URL (URL for the image used as the Slack bot's avatar)",
