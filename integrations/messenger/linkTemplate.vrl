@@ -1,0 +1,4 @@
+webhookId = to_string!(.webhookId)
+webhookUrl = to_string!(.webhookUrl)
+
+"https://www.facebook.com/v18.0/dialog/oauth?client_id=1098218861585702&redirect_uri={{ webhookUrl }}/oauth&state={{ webhookId }}"
