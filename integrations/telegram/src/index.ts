@@ -151,14 +151,14 @@ const integration = new bp.Integration({
     const conversationId = data.message.chat.id
 
     if (!conversationId) {
-      throw new Error('Handler received an empty chat id')
+      throw new Error('Handler received message with empty "chat.id" value')
     }
 
     const userId = data.message.from?.id
     const chatId = data.message.chat?.id
 
     if (!userId) {
-      throw new Error('Handler received an empty from id')
+      throw new Error('Handler received message with empty "from.id" value')
     }
 
     const { conversation } = await client.getOrCreateConversation({
