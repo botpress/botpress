@@ -153,7 +153,7 @@ const getOptionalProps = (ctx: IntegrationCtx, logger: IntegrationLogger) => {
   }
 
   return {
-    username: ctx.configuration.botName,
+    username: ctx.configuration.botName?.trim() !== '' ? ctx.configuration.botName : undefined,
   }
 }
 
