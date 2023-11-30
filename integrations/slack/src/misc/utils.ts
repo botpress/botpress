@@ -141,15 +141,15 @@ const isValidUrl = (str: string) => {
 }
 
 const getOptionalProps = (ctx: IntegrationCtx, logger: IntegrationLogger) => {
-  if (ctx.configuration.botAvatarUrl && isValidUrl(ctx.configuration.botAvatarUrl)) {
-    return {
-      username: ctx.configuration.botName,
-      icon_url: ctx.configuration.botAvatarUrl,
+  if (ctx.configuration.botAvatarUrl) {
+    if (isValidUrl(ctx.configuration.botAvatarUrl)) {
+      return {
+        username: ctx.configuration.botName,
+        icon_url: ctx.configuration.botAvatarUrl,
+      }
+    } else {
+      logger.forBot().warn('Invalid bot avatar URL')
     }
-  }
-
-  if (ctx.configuration.botAvatarUrl && !isValidUrl(ctx.configuration.botAvatarUrl)) {
-    logger.forBot().warn('Invalid bot avatar URL')
   }
 
   return {
