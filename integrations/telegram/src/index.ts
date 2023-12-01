@@ -1,7 +1,7 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Markup, Telegraf } from 'telegraf'
 import type { User } from 'telegraf/typings/core/types/typegram'
-import { chatIdTag, idTag, senderIdTag } from './const'
+import { chatIdTag, idTag, fromUserIdTag } from './const'
 import { getUserPictureDataUri, getUserNameFromTelegramUser, getChat, sendCard, ackMessage } from './misc/utils'
 import * as bp from '.botpress'
 
@@ -165,7 +165,7 @@ const integration = new bp.Integration({
       channel: 'channel',
       tags: {
         [idTag]: `${conversationId}`,
-        [senderIdTag]: `${userId}`,
+        [fromUserIdTag]: `${userId}`,
         [chatIdTag]: `${chatId}`,
       },
     })
@@ -206,7 +206,7 @@ const integration = new bp.Integration({
 
     logger.forBot().debug(`Received message from user ${userId}: ${data.message.text}`)
     await client.createMessage({
-      tags: { [idTag]: `${messageId}`, [senderIdTag]: `${userId}`, [chatIdTag]: `${chatId}` },
+      tags: { [idTag]: `${messageId}`, [fromUserIdTag]: `${userId}`, [chatIdTag]: `${chatId}` },
       type: 'text',
       userId: user.id,
       conversationId: conversation.id,
