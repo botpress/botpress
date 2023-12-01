@@ -1,5 +1,6 @@
 import type { GenericMessageEvent, ReactionAddedEvent } from '@slack/bolt'
 
+import { channelIdTag, userIdTag } from './const'
 import { executeMessageReceived } from './events/message-received'
 import { executeReactionAdded } from './events/reaction-added'
 import {
@@ -45,7 +46,7 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, 
     )
 
     await client.createMessage({
-      tags: { ts: body.message.ts },
+      tags: { ts: body.message.ts, [userIdTag]: body.user.id, [channelIdTag]: body.channel.id },
       type: 'text',
       payload: { text: actionValue },
       userId,
