@@ -15,7 +15,7 @@ const convoTags = {
 
 const messageTags = {
   ts: {},
-  senderId: {},
+  userId: {},
   channelId: {},
 } as const
 
