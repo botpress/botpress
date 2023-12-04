@@ -1,4 +1,5 @@
 import { GenericMessageEvent } from '@slack/bolt'
+import { channelIdTag, userIdTag } from 'src/const'
 import { Client, IntegrationCtx, IntegrationLogger } from '../misc/types'
 import { getAccessToken, getSlackUserProfile, getUserAndConversation } from '../misc/utils'
 
@@ -41,7 +42,7 @@ export const executeMessageReceived = async ({
   }
 
   await client.createMessage({
-    tags: { ts: slackEvent.ts },
+    tags: { ts: slackEvent.ts, [userIdTag]: slackEvent.user, [channelIdTag]: slackEvent.channel },
     type: 'text',
     payload: {
       text: slackEvent.text!,

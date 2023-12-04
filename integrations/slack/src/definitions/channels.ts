@@ -13,10 +13,16 @@ const convoTags = {
   title: {},
 } as const
 
+const messageTags = {
+  ts: {},
+  userId: {},
+  channelId: {},
+} as const
+
 export const channel = {
   title: 'Channel',
   messages,
-  message: { tags: { ts: {} } },
+  message: { tags: messageTags },
   conversation: {
     tags: { ...convoTags },
     creation: { enabled: true, requiredTags: ['id'] },
@@ -26,7 +32,7 @@ export const channel = {
 export const dm = {
   title: 'Direct Message',
   messages,
-  message: { tags: { ts: {} } },
+  message: { tags: messageTags },
   conversation: {
     tags: { ...convoTags },
     creation: { enabled: true, requiredTags: ['id'] },
@@ -36,7 +42,7 @@ export const dm = {
 export const thread = {
   title: 'Thread',
   messages,
-  message: { tags: { ts: {} } },
+  message: { tags: messageTags },
   conversation: {
     tags: { ...convoTags, thread: {} },
     creation: { enabled: true, requiredTags: ['id'] },
