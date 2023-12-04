@@ -164,9 +164,9 @@ const integration = new bp.Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        [idTag]: `${conversationId}`,
-        [fromUserIdTag]: `${userId}`,
-        [chatIdTag]: `${chatId}`,
+        [idTag]: conversationId.toString(),
+        [fromUserIdTag]: userId.toString(),
+        ...(chatId && { [chatIdTag]: chatId.toString() }),
       },
     })
 
@@ -174,7 +174,7 @@ const integration = new bp.Integration({
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        [idTag]: `${userId}`,
+        [idTag]: userId.toString(),
       },
       ...(userName && { name: userName }),
     })
