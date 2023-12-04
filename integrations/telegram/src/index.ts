@@ -206,7 +206,11 @@ const integration = new bp.Integration({
 
     logger.forBot().debug(`Received message from user ${userId}: ${data.message.text}`)
     await client.createMessage({
-      tags: { [idTag]: `${messageId}`, [fromUserIdTag]: `${userId}`, [chatIdTag]: `${chatId}` },
+      tags: {
+        [idTag]: messageId.toString(),
+        [fromUserIdTag]: userId.toString(),
+        ...(chatId && { [chatIdTag]: chatId.toString() }),
+      },
       type: 'text',
       userId: user.id,
       conversationId: conversation.id,
@@ -243,7 +247,7 @@ const integration = new bp.Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { [idTag]: `${chat.id}` },
+      tags: { [idTag]: chat.id.toString() },
     })
 
     return {
