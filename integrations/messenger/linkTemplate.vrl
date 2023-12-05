@@ -1,4 +1,5 @@
 webhookId = to_string!(.webhookId)
 webhookUrl = to_string!(.webhookUrl)
+messengerPageId = to_string(.messengerPageId)
 
-"https://www.facebook.com/v18.0/dialog/oauth?client_id=1098218861585702&redirect_uri={{ webhookUrl }}/oauth&state={{ webhookId }}"
+"https://www.facebook.com/v18.0/dialog/oauth?client_id=1098218861585702&redirect_uri={{ webhookUrl }}/oauth&state={{ webhookId }}&scope=email,user_messenger_contact&messenger_page_id={{ messengerPageId }}"
