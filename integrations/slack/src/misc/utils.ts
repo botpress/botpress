@@ -2,6 +2,7 @@ import type { Conversation } from '@botpress/client'
 import type { AckFunction, IntegrationContext, Request } from '@botpress/sdk'
 import { ChatPostMessageArguments, WebClient } from '@slack/web-api'
 import axios from 'axios'
+import * as crypto from 'crypto'
 import queryString from 'query-string'
 import VError from 'verror'
 import { INTEGRATION_NAME } from '../const'
@@ -305,4 +306,28 @@ export const getAccessToken = async (client: Client, ctx: IntegrationCtx) => {
     }))
 
   return state.payload.accessToken
+}
+
+export const validateRequestSignature = ({ req, logger }: { req: Request; logger: IntegrationLogger }): boolean => {
+  const signingSecret = bp.secrets.SIGNING_SECRET
+
+  const timestamp = req.headers['x-slack-request-timestamp']
+  const slackSignature = req.headers['x-slack-signature'] as string
+
+  if (!timestamp || !slackSignature) {
+    logger.forBot().error('Request signature verification failed: missing timestamp or signature')
+    return false
+  }
+
+  // Check if the timestamp is within five minutes of local time
+  const fiveMinutesAgo = Math.floor(Date.now() / 1000) - 60 * 5
+  if (parseInt(timestamp) < fiveMinutesAgo) {
+    logger.forBot().error('Request signature verification failed: timestamp is too old')
+    return false
+  }
+
+  const sigBasestring = `v0:${timestamp}:${JSON.stringify(req.body)}`
+  const mySignature = 'v0=' + crypto.createHmac('sha256', signingSecret).update(sigBasestring).digest('hex')
+
+  return crypto.timingSafeEqual(Buffer.from(mySignature, 'utf8'), Buffer.from(slackSignature, 'utf8'))
 }
