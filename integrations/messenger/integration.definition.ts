@@ -54,9 +54,6 @@ export default new IntegrationDefinition({
     APP_SECRET: {
       description: 'App Secret of the Meta app for Messenger bots',
     },
-    VERIFY_TOKEN: {
-      description: 'Verify token for Messenger webhook',
-    },
   },
   user: {
     tags: { id: {} },
