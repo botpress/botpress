@@ -38,7 +38,7 @@ export async function handleOAuthRedirect(req: Request, client: bp.Client, ctx: 
   const query = new URLSearchParams(req.query)
   const code = query.get('code')
 
-  if (typeof code !== 'string') {
+  if (!code) {
     throw new Error('Handler received an empty code')
   }
 
