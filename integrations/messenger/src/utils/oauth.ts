@@ -1,6 +1,5 @@
 import type { IntegrationContext, Request, Response } from '@botpress/sdk'
 import axios from 'axios'
-import { MessengerClient } from 'messaging-api-messenger'
 import z from 'zod'
 import * as bp from '.botpress'
 
@@ -34,7 +33,7 @@ export class MessengerOauthClient {
 }
 
 export async function handleOAuthRedirect(req: Request, client: bp.Client, ctx: IntegrationContext): Promise<Response> {
-  const slackOAuthClient = new MessengerOauthClient()
+  const oauthClient = new MessengerOauthClient()
 
   const query = new URLSearchParams(req.query)
   const code = query.get('code')
@@ -43,7 +42,7 @@ export async function handleOAuthRedirect(req: Request, client: bp.Client, ctx: 
     throw new Error('Handler received an empty code')
   }
 
-  const accessToken = await slackOAuthClient.getAccessToken(code)
+  const accessToken = await oauthClient.getAccessToken(code)
 
   await client.setState({
     type: 'integration',
@@ -54,11 +53,8 @@ export async function handleOAuthRedirect(req: Request, client: bp.Client, ctx: 
     },
   })
 
-  const messengerClient = new MessengerClient({ accessToken })
-  const page = await messengerClient.getPageInfo()
-
   await client.configureIntegration({
-    identifier: page.id, // This should match the identifier obtained by the extract.vrl script
+    identifier: ctx.configuration.pageId, // This should match the identifier obtained by the extract.vrl script
   })
 
   return { status: 200 }
