@@ -36,8 +36,6 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, 
     return
   }
 
-  const data = JSON.parse(req.body)
-
   const { botUserId } = await getConfig(client, ctx)
 
   if (isInteractiveRequest(req)) {
@@ -66,6 +64,8 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, 
 
     return
   }
+
+  const data = JSON.parse(req.body)
 
   if (data.type === 'url_verification') {
     logger.forBot().debug('Handler received request of type url_verification')
