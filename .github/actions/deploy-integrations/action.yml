@@ -87,7 +87,7 @@ runs:
         echo "### Deploying integration @botpresshub/github ###"
         pnpm -r --stream -F @botpresshub/github -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
         echo "### Deploying integration @botpresshub/gmail ###"
-        pnpm -r --stream -F @botpresshub/gmail -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"' --secrets CLIENT_ID="${{ inputs.gmail_client_id }}" --secrets CLIENT_SECRET="${{ inputs.gmail_client_secret }}" --secrets TOPIC_NAME="${{ inputs.gmail_topic_name }}"
+        pnpm -r --stream -F @botpresshub/gmail -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"' --secrets CLIENT_ID="${{ inputs.gmail_client_id }}" --secrets CLIENT_SECRET="${{ inputs.gmail_client_secret }}" --secrets TOPIC_NAME="${{ inputs.gmail_topic_name }}" --secrets GOOGLE_PUBLIC_KEY="${{ inputs.google_public_key }}"'
         echo "### Deploying integration @botpresshub/gsheets ###"
         pnpm -r --stream -F @botpresshub/gsheets -c exec -- 'bp deploy -v -y --noBuild'
         echo "### Deploying integration @botpresshub/instagram ###"
@@ -97,7 +97,7 @@ runs:
         echo "### Deploying integration @botpresshub/line ###"
         pnpm -r --stream -F @botpresshub/line -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
         echo "### Deploying integration @botpresshub/linear ###"
-        pnpm -r --stream -F @botpresshub/linear -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"' --secrets CLIENT_ID="${{ inputs.linear_client_id }}" --secrets CLIENT_SECRET="${{ inputs.linear_client_secret }}" --secrets WEBHOOK_SIGNING_SECRET="${{ inputs.linear_webhook_signing_secret }}"
+        pnpm -r --stream -F @botpresshub/linear -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"' --secrets CLIENT_ID="${{ inputs.linear_client_id }}" --secrets CLIENT_SECRET="${{ inputs.linear_client_secret }}" --secrets WEBHOOK_SIGNING_SECRET="${{ inputs.linear_webhook_signing_secret }}"'
         echo "### Deploying integration @botpresshub/messenger ###"
         pnpm -r --stream -F @botpresshub/messenger -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
         echo "### Deploying integration @botpresshub/notion ###"

@@ -58,6 +58,7 @@ export default new IntegrationDefinition({
     ...sentryHelpers.COMMON_SECRET_NAMES,
     CLIENT_ID: { description: 'Gmail Client ID' },
     CLIENT_SECRET: { description: 'Gmail Client Secret' },
+    GOOGLE_PUBLIC_KEY: { description: 'Google Public Key' },
     TOPIC_NAME: {},
   },
 })

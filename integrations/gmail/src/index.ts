@@ -9,6 +9,7 @@ import MailComposer from 'nodemailer/lib/mail-composer'
 import type Mail from 'nodemailer/lib/mailer'
 import queryString from 'query-string'
 import { ccTag, emailTag, idTag, referencesTag, subjectTag } from './const'
+import { validateRequestSignature } from './utils'
 import * as bp from '.botpress'
 
 const clientId = bp.secrets.CLIENT_ID
@@ -122,15 +123,21 @@ const integration = new bp.Integration({
       },
     },
   },
-  // eslint-disable-next-line max-lines-per-function
-  handler: async (props) => {
+  handler: async ({ req, logger, ctx, client }) => {
     console.info('handler received a request')
 
-    if (props.req.path.startsWith('/oauth')) {
-      return onOAuth(props)
+    const isSignatureValid = validateRequestSignature({ req, logger, ctx })
+
+    if (!isSignatureValid) {
+      logger.forBot().error('Handler received a request with an invalid signature')
+      return
     }
 
-    await onNewEmail(props)
+    if (req.path.startsWith('/oauth')) {
+      return onOAuth({ req, logger, ctx, client })
+    }
+
+    await onNewEmail({ req, logger, ctx, client })
   },
 })
 
