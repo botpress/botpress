@@ -319,9 +319,10 @@ export const validateRequestSignature = ({ req, logger }: { req: Request; logger
     return false
   }
 
-  // Check if the timestamp is within five minutes of local time
   const fiveMinutesAgo = Math.floor(Date.now() / 1000) - 60 * 5
-  if (parseInt(timestamp) < fiveMinutesAgo) {
+
+  const isTimestampTooOld = parseInt(timestamp) < fiveMinutesAgo
+  if (isTimestampTooOld) {
     logger.forBot().error('Request signature verification failed: timestamp is too old')
     return false
   }
@@ -329,5 +330,10 @@ export const validateRequestSignature = ({ req, logger }: { req: Request; logger
   const sigBasestring = `v0:${timestamp}:${JSON.stringify(req.body)}`
   const mySignature = 'v0=' + crypto.createHmac('sha256', signingSecret).update(sigBasestring).digest('hex')
 
-  return crypto.timingSafeEqual(Buffer.from(mySignature, 'utf8'), Buffer.from(slackSignature, 'utf8'))
+  try {
+    return crypto.timingSafeEqual(Buffer.from(mySignature, 'utf8'), Buffer.from(slackSignature, 'utf8'))
+  } catch (error) {
+    logger.forBot().error('An error occurred while verifying the request signature')
+    return false
+  }
 }
