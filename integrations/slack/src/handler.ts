@@ -11,16 +11,23 @@ import {
   getUserAndConversation,
   getConfig,
   validateRequestSignature,
+  getOAuthAccessToken,
 } from './misc/utils'
 
 import * as botpress from '.botpress'
 
 export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
-  const isSignatureValid = validateRequestSignature({ req, logger })
+  const isOAuthConfigured = !!(await getOAuthAccessToken(client, ctx))
 
-  if (!isSignatureValid) {
-    logger.forBot().error('Handler received a request with an invalid signature')
-    return
+  if (isOAuthConfigured) {
+    const isSignatureValid = validateRequestSignature({ req, logger })
+
+    if (!isSignatureValid) {
+      logger.forBot().error('Handler received a request with an invalid signature')
+      return
+    }
+  } else {
+    logger.forBot().debug('OAuth is not configured, skipping signature validation')
   }
 
   logger.forBot().debug('Handler received request from Slack with payload:', req.body)

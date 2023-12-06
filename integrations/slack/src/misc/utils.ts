@@ -294,11 +294,7 @@ export const getSyncState = async (client: Client, ctx: IntegrationCtx): Promise
   return payload as SyncState
 }
 
-export const getAccessToken = async (client: Client, ctx: IntegrationCtx) => {
-  if (ctx.configuration.botToken) {
-    return ctx.configuration.botToken
-  }
-
+export const getOAuthAccessToken = async (client: Client, ctx: IntegrationCtx) => {
   const { state } = await client
     .getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
     .catch(() => ({
@@ -306,6 +302,14 @@ export const getAccessToken = async (client: Client, ctx: IntegrationCtx) => {
     }))
 
   return state.payload.accessToken
+}
+
+export const getAccessToken = async (client: Client, ctx: IntegrationCtx) => {
+  if (ctx.configuration.botToken) {
+    return ctx.configuration.botToken
+  }
+
+  return getOAuthAccessToken(client, ctx)
 }
 
 export const validateRequestSignature = ({ req, logger }: { req: Request; logger: IntegrationLogger }): boolean => {
