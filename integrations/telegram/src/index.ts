@@ -1,7 +1,7 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Markup, Telegraf } from 'telegraf'
 import type { User } from 'telegraf/typings/core/types/typegram'
-import { idTag } from './const'
+import { chatIdTag, idTag, fromUserIdTag } from './const'
 import { getUserPictureDataUri, getUserNameFromTelegramUser, getChat, sendCard, ackMessage } from './misc/utils'
 import * as bp from '.botpress'
 
@@ -128,6 +128,11 @@ const integration = new bp.Integration({
       return
     }
 
+    if (data.edited_channel_post) {
+      logger.forBot().warn('Handler received an edited channel post, so the message was ignored')
+      return
+    }
+
     if (data.edited_message) {
       logger.forBot().warn('Handler received an edited message, so the message was ignored')
       return
@@ -146,27 +151,30 @@ const integration = new bp.Integration({
     const conversationId = data.message.chat.id
 
     if (!conversationId) {
-      throw new Error('Handler received an empty chat id')
+      throw new Error('Handler received message with empty "chat.id" value')
+    }
+
+    const userId = data.message.from?.id
+    const chatId = data.message.chat?.id
+
+    if (!userId) {
+      throw new Error('Handler received message with empty "from.id" value')
     }
 
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        [idTag]: `${conversationId}`,
+        [idTag]: conversationId.toString(),
+        [fromUserIdTag]: userId.toString(),
+        ...(chatId && { [chatIdTag]: chatId.toString() }),
       },
     })
-
-    const userId = data.message.from.id
-
-    if (!userId) {
-      throw new Error('Handler received an empty from id')
-    }
 
     const userName = getUserNameFromTelegramUser(data.message.from as User)
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        [idTag]: `${userId}`,
+        [idTag]: userId.toString(),
       },
       ...(userName && { name: userName }),
     })
@@ -198,7 +206,11 @@ const integration = new bp.Integration({
 
     logger.forBot().debug(`Received message from user ${userId}: ${data.message.text}`)
     await client.createMessage({
-      tags: { [idTag]: `${messageId}` },
+      tags: {
+        [idTag]: messageId.toString(),
+        [fromUserIdTag]: userId.toString(),
+        ...(chatId && { [chatIdTag]: chatId.toString() }),
+      },
       type: 'text',
       userId: user.id,
       conversationId: conversation.id,
@@ -235,7 +247,7 @@ const integration = new bp.Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { [idTag]: `${chat.id}` },
+      tags: { [idTag]: chat.id.toString() },
     })
 
     return {
