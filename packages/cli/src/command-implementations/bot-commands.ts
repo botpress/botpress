@@ -24,7 +24,11 @@ export class ListBotsCommand extends GlobalCommand<ListBotsCommandDefinition> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
 
     try {
-      const bots = await api.listAllPages(api.client.listBots, (r) => r.bots)
+      const { dev } = this.argv
+      const bots = await api.listAllPages(
+        (x) => api.client.listBots({ ...x, dev }),
+        (r) => r.bots
+      )
       this.logger.success('Bots:')
       this.logger.json(bots)
     } catch (thrown) {
