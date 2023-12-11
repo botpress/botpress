@@ -60,6 +60,12 @@ const integrationRef = {
 
 const sourceMap = { type: 'boolean', description: 'Generate sourcemaps', default: false } satisfies CommandOption
 
+const dev = {
+  type: 'boolean',
+  description: 'List only dev bots / dev integrations',
+  default: false,
+} satisfies CommandOption
+
 // base schemas
 
 const globalSchema = {
@@ -192,6 +198,7 @@ const deleteBotSchema = {
 const listBotsSchema = {
   ...globalSchema,
   ...credentialsSchema,
+  dev,
 } satisfies CommandSchema
 
 const getIntegrationSchema = {
@@ -204,7 +211,8 @@ const listIntegrationsSchema = {
   ...globalSchema,
   ...credentialsSchema,
   name: { type: 'string', description: 'The name filter when listing integrations' },
-  version: { type: 'string', description: 'The version filter when listing integrations' },
+  versionNumber: { type: 'string', description: 'The version filter when listing integrations' },
+  dev,
 } satisfies CommandSchema
 
 const deleteIntegrationSchema = {
