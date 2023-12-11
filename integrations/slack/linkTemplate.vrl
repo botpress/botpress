@@ -1,4 +1,4 @@
 webhookId = to_string!(.webhookId)
 webhookUrl = to_string!(.webhookUrl)
 
-"https://slack.com/oauth/v2/authorize?client_id=327679845109.4960499297143&state={{ webhookId }}&redirect_uri={{ webhookUrl }}/oauth&scope=channels:history,channels:read,chat:write,files:read,files:write,groups:history,groups:read,im:read,links:read,links:write,metadata.message:read,mpim:history,mpim:read,team:read,usergroups:read,users:read&user_scope="
+"https://slack.com/oauth/v2/authorize?client_id=327679845109.4960499297143&state={{ webhookId }}&redirect_uri={{ webhookUrl }}/oauth&scope=channels:history,channels:read,chat:write,files:read,files:write,groups:history,groups:read,im:read,links:read,links:write,metadata.message:read,mpim:history,mpim:read,team:read,usergroups:read,users:read,users.profile:read,users.profile:read,reactions.read,reactions.write,mpim:write,mpim:write.invites,mpim:write.topic,im:write,im:history,groups:write.topic,groups:write.invites,groups:write,dnd:read,chat:write.customize,channels:join,channels:manage,channels:write.invites,channels:write.topic&user_scope="
