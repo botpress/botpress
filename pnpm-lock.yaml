@@ -1186,8 +1186,8 @@ importers:
         specifier: 0.9.1
         version: link:../client
       '@bpinternal/const':
-        specifier: ^0.0.12
-        version: 0.0.12
+        specifier: ^0.0.20
+        version: 0.0.20
       '@bpinternal/tunnel':
         specifier: ^0.1.1
         version: 0.1.1
@@ -1989,8 +1989,8 @@ packages:
       - debug
     dev: false
 
-  /@bpinternal/const@0.0.12:
-    resolution: {integrity: sha512-sxXuAK2nz/iv/fKmkb9NyjLT6Z2HBPV2vPX1dAxvD261nlWuUavbWbd/8pLy6X162C5i8QTUmjxIQtfxPKv1PQ==}
+  /@bpinternal/const@0.0.20:
+    resolution: {integrity: sha512-AVeQy25M9eXMvjnLZVbFmr++qkONYrwW7qLXD9q9ccD4WLEgMmJZ6e+BSUnwPEBQ8LiqWQXf/YJ1MJxoVkcyNw==}
     dependencies:
       vitest: 0.34.6
     transitivePeerDependencies:
