@@ -33,6 +33,10 @@ export async function serve(
   const server = createServer(async (req, res) => {
     try {
       const request = await mapIncomingMessageToRequest(req)
+      if (request.path === '/health') {
+        res.writeHead(200).end('ok')
+        return
+      }
       const response = await handler(request)
       res.writeHead(response?.status ?? 200, response?.headers ?? {}).end(response?.body ?? '{}')
     } catch (e: any) {
