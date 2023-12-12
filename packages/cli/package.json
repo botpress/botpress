@@ -20,7 +20,7 @@
   },
   "main": "dist/index.js",
   "dependencies": {
-    "@botpress/client": "0.9.1",
+    "@botpress/client": "0.9.2",
     "@bpinternal/const": "^0.0.20",
     "@bpinternal/tunnel": "^0.1.1",
     "@bpinternal/yargs-extra": "^0.0.3",
