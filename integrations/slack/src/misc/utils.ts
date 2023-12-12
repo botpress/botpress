@@ -331,7 +331,7 @@ export const validateRequestSignature = ({ req, logger }: { req: Request; logger
     return false
   }
 
-  const sigBasestring = `v0:${timestamp}:${JSON.stringify(req.body)}`
+  const sigBasestring = `v0:${timestamp}:${req.body}`
   const mySignature = 'v0=' + crypto.createHmac('sha256', signingSecret).update(sigBasestring).digest('hex')
 
   try {

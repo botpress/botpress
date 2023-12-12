@@ -17,6 +17,14 @@ import {
 import * as botpress from '.botpress'
 
 export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
+  logger.forBot().debug('Handler received request from Slack with payload:', req.body)
+  if (req.path.startsWith('/oauth')) {
+    return onOAuth(req, client, ctx).catch((err) => {
+      logger.forBot().error('Error while processing OAuth', err.response?.data || err.message)
+      throw err
+    })
+  }
+
   const isOAuthConfigured = !!(await getOAuthAccessToken(client, ctx))
 
   if (isOAuthConfigured) {
@@ -28,14 +36,6 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, 
     }
   } else {
     logger.forBot().debug('OAuth is not configured, skipping signature validation')
-  }
-
-  logger.forBot().debug('Handler received request from Slack with payload:', req.body)
-  if (req.path.startsWith('/oauth')) {
-    return onOAuth(req, client, ctx).catch((err) => {
-      logger.forBot().error('Error while processing OAuth', err.response?.data || err.message)
-      throw err
-    })
   }
 
   if (!req.body) {
