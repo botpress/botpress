@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest'
 import { validateRequestSignature } from './utils'
 import * as crypto from 'crypto'
 
-const generateSlackSignature = (secret: string, timestamp: string, body: string) => {
+const generateSlackSignature = (secret: string, timestamp: string, body: any) => {
   const sigBasestring = `v0:${timestamp}:${body}`
   return 'v0=' + crypto.createHmac('sha256', secret).update(sigBasestring).digest('hex')
 }
@@ -19,7 +19,7 @@ describe('validateRequestSignature', () => {
   it('validates a legitimate Slack request', () => {
     const timestamp = Math.floor(Date.now() / 1000).toString()
     const body = {}
-    const signature = generateSlackSignature('valid-signing-secret', timestamp, JSON.stringify(body))
+    const signature = generateSlackSignature('valid-signing-secret', timestamp, body)
 
     const mockRequest = {
       headers: {
@@ -35,7 +35,7 @@ describe('validateRequestSignature', () => {
   it('invalidates a 6 min old legitimate Slack request', () => {
     const timestamp = (Math.floor(Date.now() / 1000) - 60 * 6).toString()
     const body = {}
-    const signature = generateSlackSignature('valid-signing-secret', timestamp, JSON.stringify(body))
+    const signature = generateSlackSignature('valid-signing-secret', timestamp, body)
 
     const mockRequest = {
       headers: {
@@ -51,7 +51,7 @@ describe('validateRequestSignature', () => {
   it('invalidates a request with an incorrect signature', () => {
     const timestamp = Math.floor(Date.now() / 1000).toString()
     const body = {}
-    const invalidSignature = generateSlackSignature('invalid-secret', timestamp, JSON.stringify(body))
+    const invalidSignature = generateSlackSignature('invalid-secret', timestamp, body)
 
     const mockRequest = {
       headers: {
