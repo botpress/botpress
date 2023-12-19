@@ -10,6 +10,14 @@ export const firePullRequestOpened = async ({
   githubEvent: PullRequestOpenedEvent
   client: Client
 }) => {
+  const { userId, conversationId } = await getUserAndConversation(
+    {
+      githubUserId: githubEvent.pull_request.user.id,
+      githubChannelId: githubEvent.pull_request.number,
+      githubChannel: 'pullRequest',
+    },
+    client
+  )
   await client.createEvent({
     type: 'pullRequestOpened',
     payload: {
@@ -20,14 +28,10 @@ export const firePullRequestOpened = async ({
       targets: {
         pullRequest: githubEvent.pull_request.number.toString(),
       },
-      ...(await getUserAndConversation(
-        {
-          githubUserId: githubEvent.pull_request.user.id,
-          githubChannelId: githubEvent.pull_request.number,
-          githubChannel: 'pullRequest',
-        },
-        client
-      )),
+      userId,
+      conversationId,
     },
+    userId,
+    conversationId,
   })
 }

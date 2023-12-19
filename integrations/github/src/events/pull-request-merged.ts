@@ -9,6 +9,14 @@ export const firePullRequesMerged = async ({
   githubEvent: PullRequestClosedEvent
   client: Client
 }) => {
+  const { userId, conversationId } = await getUserAndConversation(
+    {
+      githubUserId: githubEvent.pull_request.user.id,
+      githubChannelId: githubEvent.pull_request.number,
+      githubChannel: 'pullRequest',
+    },
+    client
+  )
   await client.createEvent({
     type: 'pullRequestMerged',
     payload: {
@@ -19,14 +27,10 @@ export const firePullRequesMerged = async ({
       targets: {
         pullRequest: githubEvent.pull_request.number.toString(),
       },
-      ...(await getUserAndConversation(
-        {
-          githubUserId: githubEvent.pull_request.user.id,
-          githubChannelId: githubEvent.pull_request.number,
-          githubChannel: 'pullRequest',
-        },
-        client
-      )),
+      userId,
+      conversationId,
     },
+    userId,
+    conversationId,
   })
 }
