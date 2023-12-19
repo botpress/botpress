@@ -17,5 +17,7 @@ export async function fireConversationStarted(convoStarted: ConversationStarted,
       userId,
       conversationId,
     },
+    userId,
+    conversationId,
   })
 }

@@ -27,5 +27,7 @@ export const executeReactionAdded = async ({
       userId,
       conversationId,
     },
+    userId,
+    conversationId,
   })
 }

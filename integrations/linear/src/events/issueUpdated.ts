@@ -40,5 +40,7 @@ export const fireIssueUpdated = async ({ linearEvent, client }: { linearEvent: a
   await client.createEvent({
     type: 'issueUpdated',
     payload: { ...payload, conversationId, userId },
+    conversationId,
+    userId,
   })
 }

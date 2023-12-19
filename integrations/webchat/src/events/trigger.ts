@@ -23,6 +23,8 @@ export const handleTrigger = async ({
         conversationId,
         payload: triggerParse.data.payload,
       } satisfies Events['trigger'],
+      userId,
+      conversationId,
     })
 
     return true
