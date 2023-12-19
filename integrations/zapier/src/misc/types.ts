@@ -47,3 +47,5 @@ export const EventSchema = z.object({
 })
 
 export type Event = z.infer<typeof EventSchema>
+
+export type IntegrationLogger = Parameters<botpress.IntegrationProps['handler']>[0]['logger']

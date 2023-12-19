@@ -2,7 +2,7 @@ import { IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { z } from 'zod'
 import { INTEGRATION_NAME } from './src/const'
-import { TriggerSchema, EventSchema, ZapierTriggersStateName, ZapierTriggersStateSchema } from './src/types'
+import { TriggerSchema, EventSchema, ZapierTriggersStateName, ZapierTriggersStateSchema } from './src/misc/types'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
