@@ -1183,7 +1183,7 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.9.4
+        specifier: workspace:*
         version: link:../client
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1302,7 +1302,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 0.9.4
-        version: link:../../../client
+        version: 0.9.4
       '@botpress/sdk':
         specifier: 0.5.7
         version: link:../../../sdk
@@ -1324,7 +1324,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 0.9.4
-        version: link:../../../client
+        version: 0.9.4
       '@botpress/sdk':
         specifier: 0.5.7
         version: link:../../../sdk
@@ -1364,7 +1364,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.9.4
+        specifier: workspace:*
         version: link:../client
       zod:
         specifier: ^3.20.6
@@ -1973,6 +1973,16 @@ packages:
       - debug
       - openapi-types
     dev: true
+
+  /@botpress/client@0.9.4:
+    resolution: {integrity: sha512-0Jh8jcTbGtRK6uUL1VkIZaats3CJZW+XXWxUtEQT8TRBNl8/kmuMvivrYMpQCAz5SUM281+CbovDEvckajTRng==}
+    dependencies:
+      axios: 1.6.3
+      browser-or-node: 2.1.1
+      type-fest: 3.11.1
+    transitivePeerDependencies:
+      - debug
+    dev: false
 
   /@botpress/messaging-base@1.2.0:
     resolution: {integrity: sha512-7cjHeD1Ti4cvDmyUV2D2CFKR1kPYv+eFPgXaJOksvrEoNZ1SrqXbHR9l26ndaAz0TuoX3Wc9l4Q7i5sBoHE44Q==}
