@@ -1301,8 +1301,8 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.9.4
-        version: 0.9.4
+        specifier: 0.9.5
+        version: link:../../../client
       '@botpress/sdk':
         specifier: 0.5.7
         version: link:../../../sdk
@@ -1323,8 +1323,8 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.9.4
-        version: 0.9.4
+        specifier: 0.9.5
+        version: link:../../../client
       '@botpress/sdk':
         specifier: 0.5.7
         version: link:../../../sdk
@@ -1973,16 +1973,6 @@ packages:
       - debug
       - openapi-types
     dev: true
-
-  /@botpress/client@0.9.4:
-    resolution: {integrity: sha512-0Jh8jcTbGtRK6uUL1VkIZaats3CJZW+XXWxUtEQT8TRBNl8/kmuMvivrYMpQCAz5SUM281+CbovDEvckajTRng==}
-    dependencies:
-      axios: 1.6.3
-      browser-or-node: 2.1.1
-      type-fest: 3.11.1
-    transitivePeerDependencies:
-      - debug
-    dev: false
 
   /@botpress/messaging-base@1.2.0:
     resolution: {integrity: sha512-7cjHeD1Ti4cvDmyUV2D2CFKR1kPYv+eFPgXaJOksvrEoNZ1SrqXbHR9l26ndaAz0TuoX3Wc9l4Q7i5sBoHE44Q==}
