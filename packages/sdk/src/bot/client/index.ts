@@ -22,7 +22,8 @@ export class BotSpecificClient<TBot extends BaseBot> {
   public listEvents: routes.ListEvents<TBot> = ((x) => this.client.listEvents(x)) as routes.ListEvents<TBot>
 
   public createMessage: routes.CreateMessage<TBot> = ((x) => this.client.createMessage(x)) as routes.CreateMessage<TBot>
-  public getOrCreateMessage: routes.GetOrCreateMessage<TBot> = ((x) => this.client.getOrCreateMessage(x)) as routes.GetOrCreateMessage<TBot>
+  public getOrCreateMessage: routes.GetOrCreateMessage<TBot> = ((x) =>
+    this.client.getOrCreateMessage(x)) as routes.GetOrCreateMessage<TBot>
   public getMessage: routes.GetMessage<TBot> = ((x) => this.client.getMessage(x)) as routes.GetMessage<TBot>
   public updateMessage: routes.UpdateMessage<TBot> = ((x) => this.client.updateMessage(x)) as routes.UpdateMessage<TBot>
   public listMessages: routes.ListMessages<TBot> = ((x) => this.client.listMessages(x)) as routes.ListMessages<TBot>
