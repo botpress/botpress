@@ -58,7 +58,38 @@ export default new IntegrationDefinition({
   },
   channels: {
     [channel]: {
-      messages: messages.defaults,
+      messages: {
+        ...messages.defaults,
+        whatsappImage: {
+          schema: z.object({
+            image: z.object({
+              id: z.string(),
+              mime_type: z.string(),
+              sha256: z.string(),
+            }),
+          }),
+        },
+        whatsappAudio: {
+          schema: z.object({
+            audio: z.object({
+              id: z.string(),
+              voice: z.boolean(),
+              mime_type: z.string(),
+              sha256: z.string(),
+            }),
+          }),
+        },
+        whatsappDocument: {
+          schema: z.object({
+            document: z.object({
+              id: z.string(),
+              filename: z.string(),
+              mime_type: z.string(),
+              sha256: z.string(),
+            }),
+          }),
+        },
+      },
       message: {
         tags: {
           id: {},
