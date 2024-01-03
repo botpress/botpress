@@ -1,5 +1,7 @@
-import { messages as baseMessages } from '@botpress/sdk'
+import { messages as baseMessages, IntegrationDefinitionProps } from '@botpress/sdk'
 import { textSchema } from './schemas'
+
+type ChannelDef = NonNullable<IntegrationDefinitionProps['channels']>[string]
 
 const messages = {
   ...baseMessages.defaults,
@@ -27,7 +29,7 @@ export const channel = {
     tags: { ...convoTags },
     creation: { enabled: true, requiredTags: ['id'] },
   },
-}
+} satisfies ChannelDef
 
 export const dm = {
   title: 'Direct Message',
@@ -37,7 +39,7 @@ export const dm = {
     tags: { ...convoTags },
     creation: { enabled: true, requiredTags: ['id'] },
   },
-}
+} satisfies ChannelDef
 
 export const thread = {
   title: 'Thread',
@@ -47,4 +49,4 @@ export const thread = {
     tags: { ...convoTags, thread: {} },
     creation: { enabled: true, requiredTags: ['id'] },
   },
-}
+} satisfies ChannelDef

@@ -8,13 +8,18 @@ import * as routes from './routes'
 export class IntegrationSpecificClient<TIntegration extends BaseIntegration> {
   public constructor(private readonly client: Client) {}
 
-  public createConversation: routes.CreateConversation<TIntegration> = (x) => this.client.createConversation(x)
-  public getConversation: routes.GetConversation<TIntegration> = (x) => this.client.getConversation(x)
-  public listConversations: routes.ListConversations<TIntegration> = (x) => this.client.listConversations(x)
-  public getOrCreateConversation: routes.GetOrCreateConversation<TIntegration> = (x) =>
-    this.client.getOrCreateConversation(x)
-  public updateConversation: routes.UpdateConversation<TIntegration> = (x) => this.client.updateConversation(x)
-  public deleteConversation: routes.DeleteConversation<TIntegration> = (x) => this.client.deleteConversation(x)
+  public createConversation: routes.CreateConversation<TIntegration> = ((x) =>
+    this.client.createConversation(x)) as routes.CreateConversation<TIntegration>
+  public getConversation: routes.GetConversation<TIntegration> = ((x) =>
+    this.client.getConversation(x)) as routes.GetConversation<TIntegration>
+  public listConversations: routes.ListConversations<TIntegration> = ((x) =>
+    this.client.listConversations(x)) as routes.ListConversations<TIntegration>
+  public getOrCreateConversation: routes.GetOrCreateConversation<TIntegration> = ((x) =>
+    this.client.getOrCreateConversation(x)) as routes.GetOrCreateConversation<TIntegration>
+  public updateConversation: routes.UpdateConversation<TIntegration> = ((x) =>
+    this.client.updateConversation(x)) as routes.UpdateConversation<TIntegration>
+  public deleteConversation: routes.DeleteConversation<TIntegration> = ((x) =>
+    this.client.deleteConversation(x)) as routes.DeleteConversation<TIntegration>
 
   public listParticipants: routes.ListParticipants<TIntegration> = (x) => this.client.listParticipants(x)
   public addParticipant: routes.AddParticipant<TIntegration> = (x) => this.client.addParticipant(x)
@@ -25,12 +30,18 @@ export class IntegrationSpecificClient<TIntegration extends BaseIntegration> {
   public getEvent: routes.GetEvent<TIntegration> = (x) => this.client.getEvent(x)
   public listEvents: routes.ListEvents<TIntegration> = (x) => this.client.listEvents(x)
 
-  public createMessage: routes.CreateMessage<TIntegration> = (x) => this.client.createMessage(x)
-  public getOrCreateMessage: routes.GetOrCreateMessage<TIntegration> = (x) => this.client.getOrCreateMessage(x)
-  public getMessage: routes.GetMessage<TIntegration> = (x) => this.client.getMessage(x)
-  public updateMessage: routes.UpdateMessage<TIntegration> = (x) => this.client.updateMessage(x)
-  public listMessages: routes.ListMessages<TIntegration> = (x) => this.client.listMessages(x)
-  public deleteMessage: routes.DeleteMessage<TIntegration> = (x) => this.client.deleteMessage(x)
+  public createMessage: routes.CreateMessage<TIntegration> = ((x) =>
+    this.client.createMessage(x)) as routes.CreateMessage<TIntegration>
+  public getOrCreateMessage: routes.GetOrCreateMessage<TIntegration> = ((x) =>
+    this.client.getOrCreateMessage(x)) as routes.GetOrCreateMessage<TIntegration>
+  public getMessage: routes.GetMessage<TIntegration> = ((x) =>
+    this.client.getMessage(x)) as routes.GetMessage<TIntegration>
+  public updateMessage: routes.UpdateMessage<TIntegration> = ((x) =>
+    this.client.updateMessage(x)) as routes.UpdateMessage<TIntegration>
+  public listMessages: routes.ListMessages<TIntegration> = ((x) =>
+    this.client.listMessages(x)) as routes.ListMessages<TIntegration>
+  public deleteMessage: routes.DeleteMessage<TIntegration> = ((x) =>
+    this.client.deleteMessage(x)) as routes.DeleteMessage<TIntegration>
 
   public createUser: routes.CreateUser<TIntegration> = ((x) =>
     this.client.createUser(x)) as routes.CreateUser<TIntegration>

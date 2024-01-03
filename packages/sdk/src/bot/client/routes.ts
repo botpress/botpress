@@ -1,7 +1,7 @@
 import { Client } from '@botpress/client'
 import { Cast, Merge } from '../../type-utils'
 import { BaseBot } from '../generic'
-import { EnumerateActions, IntegrationInstanceActionDefinition } from './types'
+import * as types from './types'
 
 type Arg<F extends (...args: any[]) => any> = Parameters<F>[number]
 type Res<F extends (...args: any[]) => any> = ReturnType<F>
@@ -18,15 +18,36 @@ export type AddParticipant<_TBot extends BaseBot> = Client['addParticipant']
 export type GetParticipant<_TBot extends BaseBot> = Client['getParticipant']
 export type RemoveParticipant<_TBot extends BaseBot> = Client['removeParticipant']
 
-export type CreateEvent<_TBot extends BaseBot> = Client['createEvent']
-export type GetEvent<_TBot extends BaseBot> = Client['getEvent']
-export type ListEvents<_TBot extends BaseBot> = Client['listEvents']
+export type GetEvent<TBot extends BaseBot> = (x: Arg<Client['getEvent']>) => Promise<types.EventResponse<TBot>>
+export type ListEvents<_TBot extends BaseBot> = Client['listEvents'] // TODO: type properly
 
-export type CreateMessage<_TBot extends BaseBot> = Client['createMessage']
-export type GetOrCreateMessage<_TBot extends BaseBot> = Client['getOrCreateMessage']
-export type GetMessage<_TBot extends BaseBot> = Client['getMessage']
-export type UpdateMessage<_TBot extends BaseBot> = Client['updateMessage']
-export type ListMessages<_TBot extends BaseBot> = Client['listMessages']
+export type CreateMessage<TBot extends BaseBot> = <TMessage extends keyof types.GetMessages<TBot>>(
+  x: Merge<
+    Arg<Client['createMessage']>,
+    {
+      type: Cast<TMessage, string>
+      payload: Cast<types.GetMessages<TBot>[TMessage], Record<string, any>>
+      // TODO: use bot definiton message property to infer allowed tags (cannot be done until there is a bot.definition.ts file)
+    }
+  >
+) => Promise<types.MessageResponse<TBot, TMessage>>
+
+export type GetOrCreateMessage<TBot extends BaseBot> = <TMessage extends keyof types.GetMessages<TBot>>(
+  x: Merge<
+    Arg<Client['getOrCreateMessage']>,
+    {
+      type: Cast<TMessage, string>
+      payload: Cast<types.GetMessages<TBot>[TMessage], Record<string, any>>
+      // TODO: use bot definiton message property to infer allowed tags (cannot be done until there is a bot.definition.ts file)
+    }
+  >
+) => Promise<types.MessageResponse<TBot, TMessage>>
+
+export type GetMessage<TBot extends BaseBot> = (x: Arg<Client['getMessage']>) => Promise<types.MessageResponse<TBot>>
+export type UpdateMessage<TBot extends BaseBot> = (
+  x: Arg<Client['updateMessage']>
+) => Promise<types.MessageResponse<TBot>>
+export type ListMessages<_TBot extends BaseBot> = Client['listMessages'] // TODO: type properly
 export type DeleteMessage<_TBot extends BaseBot> = Client['deleteMessage']
 
 export type CreateUser<_TBot extends BaseBot> = Client['createUser']
@@ -86,14 +107,14 @@ export type PatchState<TBot extends BaseBot> = <TState extends keyof TBot['state
   >
 }>
 
-export type CallAction<TBot extends BaseBot> = <ActionType extends keyof EnumerateActions<TBot>>(
+export type CallAction<TBot extends BaseBot> = <ActionType extends keyof types.EnumerateActions<TBot>>(
   x: Merge<
     Arg<Client['callAction']>,
     {
       type: Cast<ActionType, string>
-      input: Cast<EnumerateActions<TBot>[ActionType], IntegrationInstanceActionDefinition>['input']
+      input: Cast<types.EnumerateActions<TBot>[ActionType], types.IntegrationInstanceActionDefinition>['input']
     }
   >
 ) => Promise<{
-  output: Cast<EnumerateActions<TBot>[ActionType], IntegrationInstanceActionDefinition>['output']
+  output: Cast<types.EnumerateActions<TBot>[ActionType], types.IntegrationInstanceActionDefinition>['output']
 }>
