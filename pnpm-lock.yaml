@@ -1364,7 +1364,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: workspace:*
+        specifier: 0.9.5
         version: link:../client
       zod:
         specifier: ^3.20.6
