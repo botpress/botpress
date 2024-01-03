@@ -69,7 +69,7 @@ export async function handleIncomingMessage(
 
         await client.createMessage({
           tags: { id: message.id },
-          type: 'whatsappImage',
+          type: 'whatsappImage' as any, // Note: We cast this to avoid defining a custom message type which involves supporting it as an outgoing message as well.
           payload: {
             image: {
               id: message.image.id,
@@ -85,7 +85,7 @@ export async function handleIncomingMessage(
 
         await client.createMessage({
           tags: { id: message.id },
-          type: 'whatsappAudio',
+          type: 'whatsappAudio' as any,
           payload: {
             audio: {
               id: message.audio.id,
@@ -102,7 +102,7 @@ export async function handleIncomingMessage(
 
         await client.createMessage({
           tags: { id: message.id },
-          type: 'whatsappDocument',
+          type: 'whatsappDocument' as any,
           payload: {
             document: {
               id: message.document.id,
