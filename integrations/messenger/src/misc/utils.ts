@@ -1,12 +1,16 @@
+import { IntegrationContext } from '@botpress/sdk'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
+import { getAccessToken } from 'src/utils/oauth'
 import { Card, Carousel, Choice, Dropdown, Location, MessengerAttachment } from './types'
 import * as bp from '.botpress'
 
-export function getMessengerClient(ctx: bp.configuration.Configuration) {
+export async function getMessengerClient(client: bp.Client, ctx: IntegrationContext) {
+  const accessToken = await getAccessToken(client, ctx)
+
   return new MessengerClient({
-    accessToken: ctx.accessToken,
-    appSecret: ctx.appSecret,
-    appId: ctx.appId,
+    accessToken,
+    appSecret: ctx.configuration.appSecret,
+    appId: ctx.configuration.appId,
   })
 }
 

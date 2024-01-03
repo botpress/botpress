@@ -19,6 +19,7 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "@slack/web-api": "^6.8.0",
+    "axios": "^1.6.2",
     "messaging-api-messenger": "^1.1.0",
     "query-string": "^6.14.1",
     "zod": "^3.20.6"
