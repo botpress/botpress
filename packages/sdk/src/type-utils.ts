@@ -11,6 +11,10 @@ export type Join<S extends (string | number | symbol)[]> = S extends [infer H, .
   ? Cast<H, string>
   : ''
 
+export type Split<S extends string | number | symbol, D extends string> = S extends `${infer H}${D}${infer T}`
+  ? [H, ...Split<Cast<T, string>, D>]
+  : [S]
+
 export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never
 
 export type ValueOf<T> = T[keyof T]
@@ -55,6 +59,8 @@ type _test_keyby = Expect<
 >
 
 type _test_join = Expect<IsEqual<Join<['a', 'b', 'c']>, 'abc'>>
+
+type _test_split = Expect<IsEqual<Split<'a.b.c', '.'>, ['a', 'b', 'c']>>
 
 type _test_union_to_intersection = Expect<
   IsEqual<
