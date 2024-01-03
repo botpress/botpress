@@ -270,13 +270,15 @@ export const saveConfig = async (client: Client, ctx: IntegrationCtx, config: Co
 }
 
 export const getConfig = async (client: Client, ctx: IntegrationCtx): Promise<Configuration> => {
+  const emptyPayload: bp.states.configuration.Configuration = {}
+
   const {
     state: { payload },
   } = await client.getState({ type: 'integration', name: 'configuration', id: ctx.integrationId }).catch(() => ({
-    state: { payload: {} as any },
+    state: { payload: emptyPayload },
   }))
 
-  return payload as Configuration
+  return payload
 }
 
 export const saveSyncState = async (client: Client, ctx: IntegrationCtx, state: SyncState) => {

@@ -3,6 +3,10 @@ import { getOrCreateFlow, setFlow } from '../flow-state'
 import { MessageHandler } from '../types'
 
 export const agentMessageHandler: MessageHandler = async (props) => {
+  if (props.message.type !== 'text') {
+    return
+  }
+
   const { client, conversation: downstream, message } = props
   const respond = mkRespond(props)
 
