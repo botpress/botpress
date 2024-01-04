@@ -69,7 +69,7 @@ export async function handleIncomingMessage(
 
         await client.createMessage({
           tags: { id: message.id },
-          type: 'whatsappImage' as any, // Note: We cast this to avoid defining a custom message type which involves supporting it as an outgoing message as well.
+          type: 'whatsappImage' as any, // Note: We cast this to avoid defining a custom message type which would involve having to support it as an outgoing message as well.
           payload: {
             image: {
               id: message.image.id,
