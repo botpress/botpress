@@ -102,7 +102,6 @@ export async function handleIncomingMessage(
             document: {
               documentUrl,
               filename: message.document.filename,
-              mime_type: message.document.mime_type,
             },
           },
           userId: user.id,
