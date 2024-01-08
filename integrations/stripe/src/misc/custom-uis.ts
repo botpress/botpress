@@ -55,6 +55,9 @@ export const createSubsLinkUi = {
   trial_period_days: {
     title: 'The number of free trial days for the subscription (optional)',
   },
+  description: {
+    title: 'A description for the subscription (optional)',
+  },
 }
 
 export const listProductPricesUi = {}

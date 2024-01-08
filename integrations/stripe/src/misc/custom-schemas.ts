@@ -1,55 +1,52 @@
 import z from 'zod'
-
+import {
+  createPaymentLinkUi,
+  createSubsLinkUi,
+  createCustomerUi,
+  deactivatePaymentLinkUi,
+  findPaymentLinkUi,
+  listCustomersUi,
+  retrieveCustomerByIdUi,
+  searchCustomersUi,
+} from './custom-uis'
 import { partialCustomer } from './sub-schemas'
 
 export const createPaymentLinkInputSchema = z.object({
-  productName: z.string().describe('The name of the product to be sold.'),
+  productName: z.string().describe(createPaymentLinkUi.productName.title),
   unit_amount: z
     .number()
     .optional()
     .default(0)
-    .describe(
-      'The unit amount of the price in the smallest currency (e.g. 1000 cents for USD) (Optional: If the product already has a previously defined single price.).'
-    ),
+    .describe(createPaymentLinkUi.unit_amount.title),
   currency: z
     .string()
     .optional()
     .default('usd')
-    .describe(
-      'The currency in which the price will be expressed (Optional) (Default: "usd")'
-    ),
+    .describe(createPaymentLinkUi.currency.title),
   quantity: z
     .number()
     .optional()
     .default(1)
-    .describe(
-      'The quantity of the product being purchased (Optional) (Default: 1).'
-    ),
+    .describe(createPaymentLinkUi.quantity.title),
   adjustableQuantity: z
     .boolean()
     .optional()
     .default(false)
-    .describe(
-      'Set to true if the quantity can be adjusted to any non-negative Integer (Optional) (Default: false).'
-    ),
+    .describe(createPaymentLinkUi.adjustableQuantity.title),
   adjustableQuantityMaximum: z
     .number()
     .min(2)
     .max(999)
     .optional()
     .default(99)
-    .describe(
-      'The maximum quantity the customer can purchase. You can specify a value up to 999 (Optional) (Default: 99).'
-    ),
+    .describe(createPaymentLinkUi.adjustableQuantityMaximum.title),
   adjustableQuantityMinimum: z
     .number()
     .min(1)
     .max(998)
     .optional()
     .default(1)
-    .describe(
-      'The minimum quantity the customer can purchase. (Optional) (Default: 1).'
-    ),
+    .describe(createPaymentLinkUi.adjustableQuantityMinimum.title),
 })
 
 export const createPaymentLinkOutputSchema = z
@@ -79,71 +76,55 @@ export const listProductPricesOutputSchema = z
   .partial()
 
 export const createSubsLinkInputSchema = z.object({
-  productName: z.string().describe('The name of the subscription product.'),
+  productName: z.string().describe(createSubsLinkUi.productName.title),
   unit_amount: z
     .number()
     .optional()
     .default(0)
-    .describe(
-      'The unit amount of the price in the smallest currency unit (e.g., 1000 cents for USD) (Optional: If the product already has a previously defined single price).'
-    ),
+    .describe(createSubsLinkUi.unit_amount.title),
   currency: z
     .string()
     .optional()
     .default('usd')
-    .describe(
-      'The currency in which the price will be expressed (Optional) (Default: "usd")'
-    ),
+    .describe(createSubsLinkUi.currency.title),
   quantity: z
     .number()
     .optional()
     .default(1)
-    .describe(
-      'The quantity of the product being purchased (Optional) (Default: 1).'
-    ),
+    .describe(createSubsLinkUi.quantity.title),
   adjustableQuantity: z
     .boolean()
     .optional()
     .default(false)
-    .describe(
-      'Set to true if the quantity can be adjusted to any non-negative Integer (Optional) (Default: false).'
-    ),
+    .describe(createSubsLinkUi.adjustableQuantity.title),
   adjustableQuantityMaximum: z
     .number()
     .min(2)
     .max(999)
     .optional()
     .default(99)
-    .describe(
-      'The maximum quantity the customer can purchase. You can specify a value up to 999 (Optional) (Default: 99).'
-    ),
+    .describe(createSubsLinkUi.adjustableQuantityMaximum.title),
   adjustableQuantityMinimum: z
     .number()
     .min(1)
     .max(998)
     .optional()
     .default(1)
-    .describe(
-      'The minimum quantity the customer can purchase. (Optional) (Default: 1).'
-    ),
+    .describe(createSubsLinkUi.adjustableQuantityMinimum.title),
   chargingInterval: z
     .string()
     .optional()
     .default('month')
-    .describe(
-      'The charging interval for the subscription. Can be "day", "week", "month", or "year". (Optional) (Default: "month")'
-    ),
+    .describe(createSubsLinkUi.chargingInterval.title),
   trial_period_days: z
     .number()
     .min(1)
     .optional()
-    .describe('The number of free trial days for the subscription. (Optional)'),
+    .describe(createSubsLinkUi.trial_period_days.title),
   description: z
     .string()
     .optional()
-    .describe(
-      "The subscription's description, meant to be displayable to the customer. Use this field to optionally store an explanation of the subscription."
-    ),
+    .describe(createSubsLinkUi.description.title),
 })
 
 export const createSubsLinkOutputSchema = z
@@ -167,7 +148,7 @@ export const listPaymentLinksOutputSchema = z
   .partial()
 
 export const findPaymentLinkInputSchema = z.object({
-  url: z.string().describe('PaymentLink URL'),
+  url: z.string().describe(findPaymentLinkUi.url.title),
 })
 
 export const findPaymentLinkOutputSchema = z
@@ -177,7 +158,7 @@ export const findPaymentLinkOutputSchema = z
   .partial()
 
 export const deactivatePaymentLinkInputSchema = z.object({
-  id: z.string().describe('Paymentlink ID to deactivate'),
+  id: z.string().describe(deactivatePaymentLinkUi.id.title),
 })
 
 export const deactivatePaymentLinkOutputSchema = z
@@ -194,7 +175,7 @@ export const listCustomersInputSchema = z.object({
     .email()
     .max(512)
     .optional()
-    .describe('e-mail for the Customer (Optional) (e.g. John.Doe@mail.com)'),
+    .describe(listCustomersUi.email.title),
 })
 
 export const listCustomersOutputSchema = z
@@ -204,24 +185,9 @@ export const listCustomersOutputSchema = z
   .partial()
 
 export const searchCustomersInputSchema = z.object({
-  email: z
-    .string()
-    // .email()
-    .max(512)
-    .optional()
-    .describe(
-      'e-mail substring for the Customer (Optional) (e.g. John for John.Doe@mail.com)'
-    ),
-  name: z
-    .string()
-    .optional()
-    .describe('Name substring for the Customer (Optional)'),
-  phone: z
-    .string()
-    .optional()
-    .describe(
-      'Phone substring for the Customer (Optional) (e.g. 99 for +19999999999)'
-    ),
+  email: z.string().max(512).optional().describe(searchCustomersUi.email.title),
+  name: z.string().optional().describe(searchCustomersUi.name.title),
+  phone: z.string().optional().describe(searchCustomersUi.phone.title),
 })
 
 export const searchCustomersOutputSchema = z
@@ -231,34 +197,18 @@ export const searchCustomersOutputSchema = z
   .partial()
 
 export const createCustomerInputSchema = z.object({
-  email: z
-    .string()
-    .email()
-    .max(512)
-    .describe('The email of the customer (e.g. John.Doe@mail.com)'),
-  name: z.string().optional().describe('The name of the customer (Optional).'),
-  phone: z
-    .string()
-    .optional()
-    .describe(
-      'The phone number of the customer (Optional) (e.g. +19999999999)'
-    ),
+  email: z.string().email().max(512).describe(createCustomerUi.email.title),
+  name: z.string().optional().describe(createCustomerUi.name.title),
+  phone: z.string().optional().describe(createCustomerUi.phone.title),
   description: z
     .string()
     .optional()
-    .describe('A description for the customer (Optional).'),
+    .describe(createCustomerUi.description.title),
   paymentMethodId: z
     .string()
     .optional()
-    .describe(
-      'The ID of the PaymentMethod to attach to the customer. (Optional) (e.g. pm_1NqyTXDWcmVTIcloDmHa2ryH)'
-    ),
-  address: z
-    .string()
-    .optional()
-    .describe(
-      'The address of the customer. Must be a valid JSON string representing the address (Optional) (e.g. {"city": "San Francisco", "country": "US", "line1": "123 Main St", "line2": "", "postal_code": "94111", "state": "CA"} )'
-    ),
+    .describe(createCustomerUi.paymentMethodId.title),
+  address: z.string().optional().describe(createCustomerUi.address.title),
 })
 
 export const createCustomerOutputSchema = z
@@ -277,7 +227,7 @@ export const createOrRetrieveCustomerOutputSchema = z
   .partial()
 
 export const retrieveCustomerByIdInputSchema = z.object({
-  id: z.string().describe('Customer ID to Retrieve (e.g. cus_Oe9DKrGO7g9tk3)'),
+  id: z.string().describe(retrieveCustomerByIdUi.id.title),
 })
 
 export const retrieveCustomerByIdOutputSchema = z

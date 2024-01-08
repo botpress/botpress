@@ -1,5 +1,5 @@
 {
-  "name": "stripe",
+  "name": "stripe2",
   "scripts": {
     "type:check": "tsc --noEmit"
   },
