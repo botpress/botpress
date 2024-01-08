@@ -1,11 +1,13 @@
 /* eslint-disable max-lines-per-function */
-import { IntegrationLogger } from 'src'
+import { IntegrationCtx, IntegrationLogger } from 'src'
+import { getWhatsAppMediaUrl } from './util'
 import { WhatsAppMessage, WhatsAppValue } from './whatsapp-types'
 import * as bp from '.botpress'
 
 export async function handleIncomingMessage(
   message: WhatsAppMessage,
   value: WhatsAppValue,
+  ctx: IntegrationCtx,
   client: bp.Client,
   logger: IntegrationLogger
 ) {
@@ -67,48 +69,39 @@ export async function handleIncomingMessage(
       } else if (message.image) {
         logger.forBot().debug('Received image message from Whatsapp:', message.button)
 
+        const imageUrl = await getWhatsAppMediaUrl(message.image.id, ctx)
+
         await client.createMessage({
           tags: { id: message.id },
-          type: 'whatsappImage' as any, // Note: We cast this to avoid defining a custom message type which would involve having to support it as an outgoing message as well.
-          payload: {
-            image: {
-              id: message.image.id,
-              mime_type: message.image.mime_type,
-              sha256: message.image.sha256,
-            },
-          },
+          type: 'image',
+          payload: { imageUrl },
           userId: user.id,
           conversationId: conversation.id,
         })
       } else if (message.audio) {
         logger.forBot().debug('Received audio message from Whatsapp:', message.button)
 
+        const audioUrl = await getWhatsAppMediaUrl(message.audio.id, ctx)
+
         await client.createMessage({
           tags: { id: message.id },
-          type: 'whatsappAudio' as any,
-          payload: {
-            audio: {
-              id: message.audio.id,
-              voice: message.audio.voice,
-              mime_type: message.audio.mime_type,
-              sha256: message.audio.sha256,
-            },
-          },
+          type: 'audio',
+          payload: { audioUrl },
           userId: user.id,
           conversationId: conversation.id,
         })
       } else if (message.document) {
         logger.forBot().debug('Received document message from Whatsapp:', message.button)
 
+        const documentUrl = await getWhatsAppMediaUrl(message.document.id, ctx)
+
         await client.createMessage({
           tags: { id: message.id },
-          type: 'whatsappDocument' as any,
+          type: 'document' as any, // Note: We cast this to avoid defining a custom message type which would involve having to support it as an outgoing message as well.
           payload: {
             document: {
-              id: message.document.id,
+              documentUrl,
               filename: message.document.filename,
-              mime_type: message.document.mime_type,
-              sha256: message.document.sha256,
             },
           },
           userId: user.id,
