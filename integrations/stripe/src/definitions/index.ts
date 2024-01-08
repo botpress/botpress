@@ -15,8 +15,8 @@ export const configuration = {
     apiVersion: z
       .string()
       .optional()
-      .default('2023-08-16')
-      .describe('API Version (Optional) (Default: 2023-08-16)'),
+      .default('2023-10-16')
+      .describe('API Version (optional) (default: 2023-10-16)'),
   }),
 }
 

@@ -1,5 +1,5 @@
-import type { Implementation } from '../misc/types'
 import type { Product } from 'src/misc/custom-types'
+import type { Implementation } from '../misc/types'
 import { getClient } from '../utils'
 
 export const listProductPrices: Implementation['actions']['listProductPrices'] =

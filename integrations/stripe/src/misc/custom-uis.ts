@@ -1,63 +1,59 @@
 export const createPaymentLinkUi = {
-  productName: { title: 'The name of the product to be sold.' },
+  productName: { title: 'The name of the product to be sold' },
   unit_amount: {
-    title:
-      'The unit amount of the price in the smallest currency (e.g. 1000 cents for USD) (Optional: If the product already has a previously defined single price.).',
+    title: 'The unit price in cents (optional)',
   },
   currency: {
-    title:
-      'The currency in which the price will be expressed (Optional) (Default: "usd")',
+    title: 'The currency in which the price will be expressed (optional)',
   },
   quantity: {
-    title:
-      'The quantity of the product being purchased (Optional) (Default: 1).',
+    title: 'The quantity of the product being purchased (optional)',
   },
   adjustableQuantity: {
     title:
-      'Set to true if the quantity can be adjusted to any non-negative Integer (Optional) (Default: false).',
+      'Set to true if the quantity can be adjusted to any non-negative integer (optional)',
   },
   adjustableQuantityMaximum: {
     title:
-      'The maximum quantity the customer can purchase. You can specify a value up to 999 (Optional) (Default: 99).',
+      'The maximum quantity the customer can purchase. You can specify a value up to 999 (optional)',
   },
   adjustableQuantityMinimum: {
-    title:
-      'The minimum quantity the customer can purchase. (Optional) (Default: 1).',
+    title: 'The minimum quantity the customer can purchase (optional)',
   },
 }
 
 export const createSubsLinkUi = {
-  productName: { title: 'The name of the subscription product.' },
+  productName: { title: 'The name of the subscription product' },
   unit_amount: {
     title:
-      'The unit amount of the price in the smallest currency unit (e.g., 1000 cents for USD) (Optional: If the product already has a previously defined single price).',
+      'The unit amount of the price in the smallest currency unit (e.g., 1000 cents for USD) (optional: If the product already has a previously defined single price)',
   },
   currency: {
     title:
-      'The currency in which the price will be expressed (Optional) (Default: "usd")',
+      'The currency in which the price will be expressed (optional) (Default: "usd")',
   },
   quantity: {
     title:
-      'The quantity of the product being purchased (Optional) (Default: 1).',
+      'The quantity of the product being purchased (optional) (Default: 1)',
   },
   adjustableQuantity: {
     title:
-      'Set to true if the quantity can be adjusted to any non-negative Integer (Optional) (Default: false).',
+      'Set to true if the quantity can be adjusted to any non-negative Integer (optional) (Default: false)',
   },
   adjustableQuantityMaximum: {
     title:
-      'The maximum quantity the customer can purchase. You can specify a value up to 999 (Optional) (Default: 99).',
+      'The maximum quantity the customer can purchase. You can specify a value up to 999 (optional) (Default: 99)',
   },
   adjustableQuantityMinimum: {
     title:
-      'The minimum quantity the customer can purchase. (Optional) (Default: 1).',
+      'The minimum quantity the customer can purchase (optional) (Default: 1)',
   },
   chargingInterval: {
     title:
-      'The charging interval for the subscription. Can be "day", "week", "month", or "year". (Optional) (Default: "month")',
+      'The charging interval for the subscription. Can be "day", "week", "month", or "year" (optional) (Default: "month")',
   },
   trial_period_days: {
-    title: 'The number of free trial days for the subscription. (Optional)',
+    title: 'The number of free trial days for the subscription (optional)',
   },
 }
 
@@ -66,58 +62,57 @@ export const listProductPricesUi = {}
 export const listPaymentLinksUi = {}
 
 export const findPaymentLinkUi = {
-  url: { title: 'PaymentLink URL' },
+  url: { title: 'Payment link URL' },
 }
 
 export const deactivatePaymentLinkUi = {
-  id: { title: 'Paymentlink ID to deactivate' },
+  id: { title: 'Payment link ID to deactivate' },
 }
 
 export const listCustomersUi = {
   email: {
-    title: 'e-mail for the Customer (Optional) (e.g. John.Doe@mail.com)',
+    title: 'e-mail of the Customer (optional) (e.g. john.doe@mail.com)',
   },
 }
 
 export const searchCustomersUi = {
   email: {
-    title:
-      'e-mail substring for the Customer (Optional) (e.g. John for John.Doe@mail.com)',
+    title: 'Search query on customer emails (optional)',
   },
   name: {
-    title: 'Name substring for the Customer (Optional)',
+    title: 'Search query on customer names (optional)',
   },
   phone: {
-    title:
-      'Phone substring for the Customer (Optional) (e.g. 99 for +19999999999)',
+    title: 'Search query on customer phone numbers (optional)',
   },
 }
 
 export const createCustomerUi = {
   email: {
-    title: 'The email of the customer (e.g. John.Doe@mail.com)',
+    title: 'The email of the customer',
   },
   name: {
-    title: 'The name of the customer (Optional)',
+    title: 'The name of the customer (optional)',
   },
   phone: {
-    title: 'The phone number of the customer (Optional) (e.g. +19999999999)',
+    title: 'The phone number of the customer (optional)',
   },
   description: {
-    title: 'A description for the customer (Optional)',
+    title: 'A description for the customer (optional)',
   },
   paymentMethodId: {
-    title:
-      'The ID of the PaymentMethod to attach to the customer. (Optional) (e.g. pm_1NqyTXDWcmVTIcloDmHa2ryH)',
+    title: 'The ID of the payment method to attach to the customer (optional)',
   },
   address: {
     title:
-      'The address of the customer. Must be a valid JSON string representing the address (Optional) (e.g. {"city": "San Francisco", "country": "US", "line1": "123 Main St", "line2": "", "postal_code": "94111", "state": "CA"} )',
+      'The address of the customer. Must be a valid JSON string representing the address (optional)',
   },
 }
 
 export const createOrRetrieveCustomerUi = createCustomerUi
 
 export const retrieveCustomerByIdUi = {
-  id: { title: 'Customer ID to Retrieve (e.g. cus_Oe9DKrGO7g9tk3)' },
+  id: {
+    title: 'Customer ID to retrieve',
+  },
 }

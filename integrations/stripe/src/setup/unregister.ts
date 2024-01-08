@@ -13,7 +13,7 @@ export const unregister: UnregisterFunction = async ({ ctx, client }) => {
   if (stripeWebhookId) {
     const response = await StripeClient.deleteWebhook(stripeWebhookId)
     if (response.deleted) {
-      console.log(`Webhook successfully deleted - ${response.id}`)
+      console.info(`Webhook successfully deleted - ${response.id}`)
     }
   }
 }

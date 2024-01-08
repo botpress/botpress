@@ -34,7 +34,7 @@ export class StripeApi {
       products = await this.listProducts(
         productsBasic[productsBasic.length - 1]?.id
       )
-      for (let product of products.data) {
+      for (const product of products.data) {
         productsBasic.push({ id: product.id, name: product.name })
       }
     }
@@ -104,7 +104,7 @@ export class StripeApi {
         isExpand,
         pricesBasic[pricesBasic.length - 1]?.id
       )
-      for (let price of prices.data) {
+      for (const price of prices.data) {
         pricesBasic.push({
           id: price.id,
           unit_amount: price.unit_amount,
@@ -145,7 +145,7 @@ export class StripeApi {
       paymentLinks = await this.listPaymentLink(
         paymentLinksBasic[paymentLinksBasic.length - 1]?.id
       )
-      for (let paymentLink of paymentLinks.data) {
+      for (const paymentLink of paymentLinks.data) {
         paymentLinksBasic.push({ id: paymentLink.id, url: paymentLink.url })
       }
     }
@@ -200,7 +200,7 @@ export class StripeApi {
         email,
         customersBasic[customersBasic.length - 1]?.id
       )
-      for (let customer of customers.data) {
+      for (const customer of customers.data) {
         customersBasic.push({
           id: customer.id,
           email: customer.email,
@@ -271,7 +271,7 @@ export class StripeApi {
       webhooks = await this.listWebhooks(
         webhooksBasic[webhooksBasic.length - 1]?.id
       )
-      for (let webhook of webhooks.data) {
+      for (const webhook of webhooks.data) {
         webhooksBasic.push({
           id: webhook.id,
           url: webhook.url,

@@ -1,6 +1,6 @@
+import Stripe from 'stripe'
 import type { RegisterFunction } from '../misc/types'
 import { getClient } from '../utils'
-import Stripe from 'stripe'
 
 export const register: RegisterFunction = async ({
   ctx,

@@ -1,6 +1,6 @@
-import { Events } from '.botpress/implementation/events'
-import { Client } from '.botpress'
 import Stripe from 'stripe'
+import { Client } from '.botpress'
+import { Events } from '.botpress/implementation/events'
 
 export const fireChargeFailed = async ({
   stripeEvent,

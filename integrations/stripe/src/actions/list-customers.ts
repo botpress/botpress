@@ -1,6 +1,6 @@
-import type { Implementation } from '../misc/types'
 import type { Customer } from 'src/misc/custom-types'
 import { listCustomersInputSchema } from '../misc/custom-schemas'
+import type { Implementation } from '../misc/types'
 import { getClient } from '../utils'
 
 export const listCustomers: Implementation['actions']['listCustomers'] =

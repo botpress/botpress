@@ -1,6 +1,4 @@
-import {} from './sub-types'
-
-interface Product {
+type Product = {
   name: string
   prices: Array<{
     unit_amount: number | null
@@ -9,7 +7,7 @@ interface Product {
   }>
 }
 
-interface Address {
+type Address = {
   city: string | null
   country: string | null
   line1: string | null
@@ -18,7 +16,7 @@ interface Address {
   state: string | null
 }
 
-interface Customer {
+type Customer = {
   id: string
   email: string | null
   name?: string | null

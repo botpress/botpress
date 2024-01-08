@@ -1,5 +1,5 @@
-import type { Implementation } from '../misc/types'
 import { deactivatePaymentLinkInputSchema } from '../misc/custom-schemas'
+import type { Implementation } from '../misc/types'
 import { getClient } from '../utils'
 
 export const deactivatePaymentLink: Implementation['actions']['deactivatePaymentLink'] =

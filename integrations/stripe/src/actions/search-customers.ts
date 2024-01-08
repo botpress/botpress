@@ -1,5 +1,5 @@
-import type { Implementation } from '../misc/types'
 import { searchCustomersInputSchema } from '../misc/custom-schemas'
+import type { Implementation } from '../misc/types'
 import { getClient } from '../utils'
 
 export const searchCustomers: Implementation['actions']['searchCustomers'] =

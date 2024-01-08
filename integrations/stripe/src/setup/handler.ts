@@ -1,9 +1,9 @@
 import { fireChargeFailed } from 'src/events/charge-failed'
-import type { Handler } from '../misc/types'
-import { firePaymentIntentFailed } from 'src/events/payment-intent-failed'
 import { fireInvoicePaymentFailed } from 'src/events/invoice-payment-failed'
+import { firePaymentIntentFailed } from 'src/events/payment-intent-failed'
 import { fireSubscriptionDeleted } from 'src/events/subscription-deleted'
 import { fireSubscriptionUpdated } from 'src/events/subscription-updated'
+import type { Handler } from '../misc/types'
 
 export const handler: Handler = async ({ req, client }) => {
   if (!req.body) {
@@ -29,6 +29,6 @@ export const handler: Handler = async ({ req, client }) => {
       await fireSubscriptionUpdated({ stripeEvent, client })
       break
     default:
-      console.log(`Unhandled event type ${stripeEvent.type}`)
+      console.warn(`Unhandled event type ${stripeEvent.type}`)
   }
 }
