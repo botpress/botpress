@@ -1,9 +1,8 @@
 import * as bpclient from '@botpress/client'
 import { log } from '../log'
 import { Request, Response, parseBody } from '../serve'
-import { Merge } from '../type-utils'
 import { BotSpecificClient } from './client'
-import { EnumerateEvents } from './client/types'
+import * as types from './client/types'
 import { BotContext, extractContext } from './context'
 import { BaseBot } from './generic'
 
@@ -15,7 +14,7 @@ type CommonArgs<TBot extends BaseBot> = {
 type MessagePayload<TBot extends BaseBot> = {
   user: bpclient.User
   conversation: bpclient.Conversation
-  message: bpclient.Message
+  message: types.MessageResponse<TBot>['message']
   event: bpclient.Event
   states: {
     [TState in keyof TBot['states']]: {
@@ -26,11 +25,7 @@ type MessagePayload<TBot extends BaseBot> = {
 }
 type MessageArgs<TBot extends BaseBot> = CommonArgs<TBot> & MessagePayload<TBot>
 
-type EventPayload<TBot extends BaseBot> = {
-  event: {
-    [K in keyof EnumerateEvents<TBot>]: Merge<bpclient.Event, { type: K; payload: EnumerateEvents<TBot>[K] }>
-  }[keyof EnumerateEvents<TBot>]
-}
+type EventPayload<TBot extends BaseBot> = types.EventResponse<TBot>
 type EventArgs<TBot extends BaseBot> = CommonArgs<TBot> & EventPayload<TBot>
 
 type StateExpiredPayload = { state: bpclient.State }

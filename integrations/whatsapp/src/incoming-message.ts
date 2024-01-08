@@ -1,3 +1,4 @@
+/* eslint-disable max-lines-per-function */
 import { IntegrationLogger } from 'src'
 import { WhatsAppMessage, WhatsAppValue } from './whatsapp-types'
 import * as bp from '.botpress'
@@ -59,6 +60,56 @@ export async function handleIncomingMessage(
             longitude: Number(message.location.longitude),
             address: message.location.address,
             title: message.location.name,
+          },
+          userId: user.id,
+          conversationId: conversation.id,
+        })
+      } else if (message.image) {
+        logger.forBot().debug('Received image message from Whatsapp:', message.button)
+
+        await client.createMessage({
+          tags: { id: message.id },
+          type: 'whatsappImage' as any, // Note: We cast this to avoid defining a custom message type which would involve having to support it as an outgoing message as well.
+          payload: {
+            image: {
+              id: message.image.id,
+              mime_type: message.image.mime_type,
+              sha256: message.image.sha256,
+            },
+          },
+          userId: user.id,
+          conversationId: conversation.id,
+        })
+      } else if (message.audio) {
+        logger.forBot().debug('Received audio message from Whatsapp:', message.button)
+
+        await client.createMessage({
+          tags: { id: message.id },
+          type: 'whatsappAudio' as any,
+          payload: {
+            audio: {
+              id: message.audio.id,
+              voice: message.audio.voice,
+              mime_type: message.audio.mime_type,
+              sha256: message.audio.sha256,
+            },
+          },
+          userId: user.id,
+          conversationId: conversation.id,
+        })
+      } else if (message.document) {
+        logger.forBot().debug('Received document message from Whatsapp:', message.button)
+
+        await client.createMessage({
+          tags: { id: message.id },
+          type: 'whatsappDocument' as any,
+          payload: {
+            document: {
+              id: message.document.id,
+              filename: message.document.filename,
+              mime_type: message.document.mime_type,
+              sha256: message.document.sha256,
+            },
           },
           userId: user.id,
           conversationId: conversation.id,
