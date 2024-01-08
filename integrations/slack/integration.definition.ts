@@ -97,6 +97,9 @@ export default new IntegrationDefinition({
     CLIENT_SECRET: {
       description: 'The client secret of your Slack OAuth app.',
     },
+    SIGNING_SECRET: {
+      description: 'The signing secret of your Slack OAuth app used to verify requests signature.',
+    },
     ...sentryHelpers.COMMON_SECRET_NAMES,
   },
   user: {

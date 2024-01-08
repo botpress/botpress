@@ -2,6 +2,7 @@ import type { Conversation } from '@botpress/client'
 import type { AckFunction, IntegrationContext, Request } from '@botpress/sdk'
 import { ChatPostMessageArguments, WebClient } from '@slack/web-api'
 import axios from 'axios'
+import * as crypto from 'crypto'
 import queryString from 'query-string'
 import VError from 'verror'
 import { INTEGRATION_NAME } from '../const'
@@ -295,11 +296,7 @@ export const getSyncState = async (client: Client, ctx: IntegrationCtx): Promise
   return payload as SyncState
 }
 
-export const getAccessToken = async (client: Client, ctx: IntegrationCtx) => {
-  if (ctx.configuration.botToken) {
-    return ctx.configuration.botToken
-  }
-
+export const getOAuthAccessToken = async (client: Client, ctx: IntegrationCtx) => {
   const { state } = await client
     .getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
     .catch(() => ({
@@ -307,4 +304,42 @@ export const getAccessToken = async (client: Client, ctx: IntegrationCtx) => {
     }))
 
   return state.payload.accessToken
+}
+
+export const getAccessToken = async (client: Client, ctx: IntegrationCtx) => {
+  if (ctx.configuration.botToken) {
+    return ctx.configuration.botToken
+  }
+
+  return getOAuthAccessToken(client, ctx)
+}
+
+export const validateRequestSignature = ({ req, logger }: { req: Request; logger: IntegrationLogger }): boolean => {
+  const signingSecret = bp.secrets.SIGNING_SECRET
+
+  const timestamp = req.headers['x-slack-request-timestamp']
+  const slackSignature = req.headers['x-slack-signature'] as string
+
+  if (!timestamp || !slackSignature) {
+    logger.forBot().error('Request signature verification failed: missing timestamp or signature')
+    return false
+  }
+
+  const fiveMinutesAgo = Math.floor(Date.now() / 1000) - 60 * 5
+
+  const isTimestampTooOld = parseInt(timestamp) < fiveMinutesAgo
+  if (isTimestampTooOld) {
+    logger.forBot().error('Request signature verification failed: timestamp is too old')
+    return false
+  }
+
+  const sigBasestring = `v0:${timestamp}:${req.body}`
+  const mySignature = 'v0=' + crypto.createHmac('sha256', signingSecret).update(sigBasestring).digest('hex')
+
+  try {
+    return crypto.timingSafeEqual(Buffer.from(mySignature, 'utf8'), Buffer.from(slackSignature, 'utf8'))
+  } catch (error) {
+    logger.forBot().error('An error occurred while verifying the request signature')
+    return false
+  }
 }
