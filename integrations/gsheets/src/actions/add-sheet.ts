@@ -2,6 +2,7 @@ import { getClient } from '../client'
 import type { Implementation } from '../misc/types'
 
 export const addSheet: Implementation['actions']['addSheet'] = async ({ ctx, input, logger }) => {
+  logger.forBot().debug('Calling action "addSheet" with input:', input)
   const GoogleSheetsClient = getClient(ctx.configuration)
 
   const requests = [
