@@ -10,6 +10,8 @@ import {
   respondInteractive,
   getUserAndConversation,
   getConfig,
+  validateRequestSignature,
+  getOAuthAccessToken,
 } from './misc/utils'
 
 import * as botpress from '.botpress'
@@ -23,6 +25,19 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, 
     })
   }
 
+  const isOAuthConfigured = !!(await getOAuthAccessToken(client, ctx))
+
+  if (isOAuthConfigured) {
+    const isSignatureValid = validateRequestSignature({ req, logger })
+
+    if (!isSignatureValid) {
+      logger.forBot().error('Handler received a request with an invalid signature')
+      return
+    }
+  } else {
+    logger.forBot().debug('OAuth is not configured, skipping signature validation')
+  }
+
   if (!req.body) {
     logger.forBot().warn('Handler received an empty body, so the message was ignored')
     return
@@ -32,6 +47,7 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, 
 
   if (isInteractiveRequest(req)) {
     const body = parseInteractiveBody(req)
+
     const actionValue = await respondInteractive(body)
 
     if (body.type !== 'block_actions') {
