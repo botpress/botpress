@@ -1,5 +1,6 @@
 import { IntegrationProps } from '../.botpress/implementation'
 import { getZendeskClient } from './client'
+import { idTag } from './const'
 import { Triggers } from './triggers'
 
 export const register: IntegrationProps['register'] = async ({ client, ctx, webhookUrl, logger }) => {
@@ -26,7 +27,7 @@ export const register: IntegrationProps['register'] = async ({ client, ctx, webh
   await client.updateUser({
     id: ctx.botUserId,
     tags: {
-      'zendesk:id': `${user.id}`,
+      [idTag]: `${user.id}`,
     },
   })
 

@@ -8,6 +8,7 @@ const confirm = true
 const json = false
 const entryPoint = consts.defaultEntrypoint
 const outDir = consts.defaultOutputFolder
+const allowDeprecated = false
 export default {
   noBuild,
   secrets,
@@ -17,4 +18,5 @@ export default {
   json,
   entryPoint,
   outDir,
+  allowDeprecated,
 }

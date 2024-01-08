@@ -22,10 +22,10 @@ export default new IntegrationDefinition({
     channel: {
       messages: messages.defaults,
       message: {
-        tags: { id: {} },
+        tags: { id: {}, recipientId: {}, senderId: {} },
       },
       conversation: {
-        tags: { id: {} },
+        tags: { id: {}, recipientId: {}, senderId: {} },
         creation: { enabled: true, requiredTags: ['id'] },
       },
     },

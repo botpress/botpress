@@ -9,6 +9,7 @@ import {
   MessageFactory,
 } from 'botbuilder'
 import '@botpress/client'
+import { idTag } from './const'
 import * as botpress from '.botpress'
 
 type Messages = botpress.Integration['channels']['channel']['messages']
@@ -24,7 +25,12 @@ type Card = botpress.channels.channel.card.Card
 type Action = Card['actions'][number]
 type ActionType = Action['action']
 
-const getAdapter = (config: TeamsConfig) => new BotFrameworkAdapter(config)
+const getAdapter = (config: TeamsConfig) =>
+  new BotFrameworkAdapter({
+    channelAuthTenant: config.tenantId,
+    appId: config.appId,
+    appPassword: config.appPassword,
+  })
 
 const renderTeams = async ({ ctx, ack, conversation, client }: RenderProps, activity: Partial<Activity>) => {
   const { configuration } = ctx
@@ -45,7 +51,7 @@ const renderTeams = async ({ ctx, ack, conversation, client }: RenderProps, acti
     }
 
     await turnContext.sendActivity(activity)
-    await ack({ tags: { ['teams:id']: turnContext.activity.id } })
+    await ack({ tags: { [idTag]: turnContext.activity.id } })
   })
 }
 

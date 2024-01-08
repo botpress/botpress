@@ -1,5 +1,0 @@
-# 🧩 Integrations
-
-## Contribution Guidelines
-
-TODO

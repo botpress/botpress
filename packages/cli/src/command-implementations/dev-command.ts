@@ -67,8 +67,14 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const supervisor = new utils.tunnel.TunnelSupervisor(wsTunnelUrl, tunnelId, this.logger)
     supervisor.events.on('connected', ({ tunnel }) => {
       // prevents the tunnel from closing due to inactivity
-      const timer = setInterval(() => tunnel.hello(), TUNNEL_HELLO_INTERVAL)
-      tunnel.events.on('close', () => clearInterval(timer))
+      const timer = setInterval(() => {
+        if (tunnel.closed) {
+          return handleClose()
+        }
+        tunnel.hello()
+      }, TUNNEL_HELLO_INTERVAL)
+      const handleClose = (): void => clearInterval(timer)
+      tunnel.events.on('close', handleClose)
 
       tunnel.events.on('request', (req) => {
         if (!worker) {
@@ -92,6 +98,11 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
           })
       })
     })
+
+    supervisor.events.on('manuallyClosed', () => {
+      this.logger.debug('Tunnel manually closed')
+    })
+
     await supervisor.start()
 
     await this._runBuild()

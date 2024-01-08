@@ -8,7 +8,7 @@ export type LoginCommandDefinition = typeof commandDefinitions.login
 export class LoginCommand extends GlobalCommand<LoginCommandDefinition> {
   public async run(): Promise<void> {
     const promptedToken = await this.globalCache.sync('token', this.argv.token, async (previousToken) => {
-      const prompted = await this.prompt.password('Enter your Personal Access Token', {
+      const prompted = await this.prompt.text('Enter your Personal Access Token', {
         initial: previousToken,
       })
 

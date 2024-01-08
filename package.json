@@ -1,5 +1,5 @@
 {
-  "name": "cloud",
+  "name": "botpress",
   "private": true,
   "scripts": {
     "bump": "ts-node -T ./scripts/depsynky bump && pnpm install",

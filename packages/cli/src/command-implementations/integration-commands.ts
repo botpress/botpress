@@ -38,11 +38,15 @@ export class ListIntegrationsCommand extends GlobalCommand<ListIntegrationsComma
   public async run(): Promise<void> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
 
-    const privateLister = (req: { nextToken?: string }) =>
-      api.client.listIntegrations({ nextToken: req.nextToken, name: this.argv.name, version: this.argv.version })
+    const { dev, name, versionNumber: version } = this.argv
 
-    const publicLister = (req: { nextToken?: string }) =>
-      api.client.listPublicIntegrations({ nextToken: req.nextToken, name: this.argv.name, version: this.argv.version })
+    const privateLister = (req: { nextToken?: string }) =>
+      api.client.listIntegrations({ nextToken: req.nextToken, dev, name, version })
+
+    const dummyLister: typeof privateLister = async () => ({ integrations: [], meta: {} })
+    const publicLister = dev
+      ? dummyLister
+      : (req: { nextToken?: string }) => api.client.listPublicIntegrations({ nextToken: req.nextToken, name, version })
 
     try {
       const privateIntegrations = await api.listAllPages(privateLister, (r) => r.integrations)

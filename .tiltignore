@@ -1,0 +1,13 @@
+packages/cli/dist/
+packages/cli/node_modules/
+packages/cli/**/.botpress/
+packages/client/dist/
+packages/client/node_modules/
+packages/sdk/dist/
+packages/sdk/node_modules/
+bots/**/dist/
+bots/**/node_modules/
+bots/**/.botpress/
+integrations/**/dist/
+integrations/**/node_modules/
+integrations/**/.botpress/
