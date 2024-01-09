@@ -2,6 +2,7 @@ import { WebClient } from '@slack/web-api'
 import Fuse from 'fuse.js'
 import { Target } from '../definitions/actions'
 import { Implementation } from '../misc/types'
+import { getAccessToken } from '../misc/utils'
 
 const fuse = new Fuse<Target>([], {
   shouldSort: true,
@@ -15,8 +16,15 @@ const fuse = new Fuse<Target>([], {
   keys: ['displayName'],
 })
 
-export const findTarget: Implementation['actions']['findTarget'] = async ({ ctx, input }) => {
-  const client = new WebClient(ctx.configuration.botToken)
+export const findTarget: Implementation['actions']['findTarget'] = async ({
+  client: botpressClient,
+  ctx,
+  input,
+  logger,
+}) => {
+  logger.forBot().debug('Received action findTarget with input:', input)
+  const accessToken = await getAccessToken(botpressClient, ctx)
+  const client = new WebClient(accessToken)
 
   const targets: Target[] = []
 
@@ -25,7 +33,9 @@ export const findTarget: Implementation['actions']['findTarget'] = async ({ ctx,
     const users = (list.members || [])
       .filter((x) => !x.deleted)
       .map<Target>((member) => ({
-        displayName: member.real_name || member.name || '',
+        displayName: member.name!,
+        name: member.profile?.real_name ?? '',
+        email: member.profile?.email ?? '',
         tags: { id: member.id! },
         channel: 'dm',
       }))

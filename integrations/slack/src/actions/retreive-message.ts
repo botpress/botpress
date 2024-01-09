@@ -1,8 +1,11 @@
 import { WebClient } from '@slack/web-api'
+import { getAccessToken } from '../misc/utils'
 import { Integration } from '.botpress'
 
-export const retrieveMessage: Integration['actions']['retrieveMessage'] = async ({ ctx, input, logger }) => {
-  const slackClient = new WebClient(ctx.configuration.botToken)
+export const retrieveMessage: Integration['actions']['retrieveMessage'] = async ({ client, ctx, input, logger }) => {
+  logger.forBot().debug('Received action retrieveMessage with input:', input)
+  const accessToken = await getAccessToken(client, ctx)
+  const slackClient = new WebClient(accessToken)
 
   const response = await slackClient.conversations.history({
     limit: 1,

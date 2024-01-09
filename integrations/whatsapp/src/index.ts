@@ -1,23 +1,47 @@
+import { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { channel } from 'integration.definition'
 import queryString from 'query-string'
 import { WhatsAppAPI, Types } from 'whatsapp-api-js'
-import { createConversation } from './conversation'
+import { createConversationHandler as createConversation, startConversation } from './conversation'
+import { handleIncomingMessage } from './incoming-message'
 import * as card from './message-types/card'
 import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
 import * as outgoing from './outgoing-message'
+import { WhatsAppPayload } from './whatsapp-types'
 import * as bp from '.botpress'
+import { Configuration } from '.botpress/implementation/configuration'
 
 export type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
+export type IntegrationCtx = IntegrationContext<Configuration>
 
 const { Text, Media, Location } = Types
 
 const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
-  actions: {},
-  createConversation,
+  actions: {
+    startConversation: async ({ ctx, input, client, logger }) => {
+      const conversation = await startConversation(
+        {
+          channel,
+          phoneNumberId: input.senderPhoneNumberId || ctx.configuration.phoneNumberId,
+          userPhone: input.userPhone,
+          templateName: input.templateName,
+          templateLanguage: input.templateLanguage,
+          templateVariablesJson: input.templateVariablesJson,
+        },
+        { client, ctx, logger }
+      )
+
+      return {
+        conversationId: conversation.id,
+      }
+    },
+  },
+  createConversation, // This is not needed for the `startConversation` action above, it's only for allowing bots to start conversations by calling `client.createConversation()` directly.
   channels: {
     channel: {
       messages: {
@@ -96,7 +120,11 @@ const integration = new bp.Integration({
     },
   },
   handler: async ({ req, client, ctx, logger }) => {
-    logger.forBot().debug('Handler received request from Whatsapp with payload:', req.body)
+    if (req.body) {
+      logger.forBot().debug('Handler received request from Whatsapp with payload:', req.body)
+    } else {
+      logger.forBot().debug('Handler received request from Whatsapp with empty payload')
+    }
 
     if (req.query) {
       const query = queryString.parse(req.query)
@@ -152,10 +180,11 @@ const integration = new bp.Integration({
             const accessToken = ctx.configuration.accessToken
             const whatsapp = new WhatsAppAPI(accessToken)
 
-            const phoneNumberId = ctx.configuration.phoneNumberId
+            const phoneNumberId = change.value.metadata.phone_number_id
+
             await whatsapp.markAsRead(phoneNumberId, message.id)
 
-            await handleMessage(message, change.value, client, logger)
+            await handleIncomingMessage(message, change.value, ctx, client, logger)
           }
         }
       }
@@ -173,162 +202,3 @@ export default sentryHelpers.wrapIntegration(integration, {
   environment: bp.secrets.SENTRY_ENVIRONMENT,
   release: bp.secrets.SENTRY_RELEASE,
 })
-
-async function handleMessage(
-  message: WhatsAppMessage,
-  value: WhatsAppValue,
-  client: bp.Client,
-  logger: IntegrationLogger
-) {
-  if (message.type) {
-    const { conversation } = await client.getOrCreateConversation({
-      channel: 'channel',
-      tags: {
-        userPhone: message.from,
-        phoneNumberId: value.metadata.phone_number_id,
-      },
-    })
-
-    if (value.contacts.length > 0) {
-      const { user } = await client.getOrCreateUser({
-        tags: {
-          userId: value.contacts[0] ? value.contacts[0].wa_id : '',
-          name: value.contacts[0] ? value.contacts[0]?.profile.name : '',
-        },
-      })
-
-      if (message.text) {
-        logger.forBot().debug('Received text message from Whatsapp:', message.text.body)
-
-        await client.createMessage({
-          tags: { id: message.id },
-          type: 'text',
-          payload: { text: message.text.body },
-          userId: user.id,
-          conversationId: conversation.id,
-        })
-      } else if (message.interactive) {
-        if (message.interactive.type === 'button_reply') {
-          logger.forBot().debug('Received button reply from Whatsapp:', message.interactive.button_reply)
-
-          await client.createMessage({
-            tags: { id: message.id },
-            type: 'text',
-            payload: {
-              text: message.interactive.button_reply?.id!,
-              // TODO: declare in definition
-              // metadata: message.interactive.button_reply?.title,
-            },
-            userId: user.id,
-            conversationId: conversation.id,
-          })
-        } else if (message.interactive.type === 'list_reply') {
-          logger.forBot().debug('Received list reply from Whatsapp:', message.interactive.list_reply)
-
-          await client.createMessage({
-            tags: { id: message.id },
-            type: 'text',
-            payload: {
-              text: message.interactive.list_reply?.id!,
-              // TODO: declare in definition
-              // metadata: message.interactive.list_reply?.title,
-            },
-            userId: user.id,
-            conversationId: conversation.id,
-          })
-        } else {
-          logger.forBot().warn(`Unhandled interactive type: ${JSON.stringify(message.interactive.type)}`)
-        }
-      } else {
-        logger.forBot().warn(`Unhandled message type: ${JSON.stringify(message)}`)
-      }
-    } else {
-      logger.forBot().warn('Ignored message from Whatsapp because it did not have any contacts')
-    }
-  }
-}
-
-type WhatsAppPayload = {
-  object: string
-  entry: WhatsAppEntry[]
-}
-
-type WhatsAppEntry = {
-  id: string
-  changes: WhatsAppChanges[]
-}
-
-type WhatsAppChanges = {
-  value: WhatsAppValue
-  field: string
-}
-
-type WhatsAppValue = {
-  messaging_product: string
-  metadata: {
-    display_phone_number: string
-    phone_number_id: string
-  }
-  contacts: WhatsAppProfile[]
-  messages: WhatsAppMessage[]
-}
-
-type WhatsAppProfile = {
-  profile: {
-    name: string
-  }
-  wa_id: string
-}
-
-type WhatsAppMessage = {
-  from: string
-  id: string
-  timestamp: string
-  text?: {
-    body: string
-  }
-  image?: {
-    mime_type: string
-    body: string
-    sha256: string
-    id: string
-  }
-  location?: {
-    address: string
-    latitude: string
-    longitude: string
-    name: string
-    url: string
-  }
-  document?: {
-    filename: string
-    mime_type: string
-    sha256: string
-    id: string
-  }
-  audio?: {
-    //could be audio file, or voice note
-    mime_type: string
-    sha256: string
-    id: string
-    voice: boolean
-  }
-  errors?: {
-    code: number
-    title: string
-  }
-  interactive?: {
-    type: string
-    button_reply?: {
-      id: string
-      title: string
-    }
-    list_reply?: {
-      id: string
-      title: string
-      description: string
-    }
-  }
-  //contacts?: not implemented - long and didn't find a use case for it
-  type: string
-}

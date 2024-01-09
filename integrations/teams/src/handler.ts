@@ -1,7 +1,10 @@
 import { Activity, ConversationReference, TurnContext } from 'botbuilder'
+import { authorizeRequest } from './signature'
 import * as botpress from '.botpress'
 
 export const handler: botpress.IntegrationProps['handler'] = async ({ req, client }) => {
+  await authorizeRequest(req)
+
   if (!req.body) {
     console.warn('Handler received an empty body')
     return

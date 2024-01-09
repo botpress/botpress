@@ -1,7 +1,7 @@
 import z from 'zod'
 
 const ticketAssigned = {
-  title: 'The ticket has been assigned to an Agent',
+  title: 'Ticket:Assigned',
   description: 'Triggered when the assigneeId has changed from null',
   schema: z.object({
     type: z.string(),
@@ -17,7 +17,7 @@ const ticketAssigned = {
 }
 
 const ticketSolved = {
-  title: 'The ticket has been solved',
+  title: 'Ticket:Solved',
   description: 'Triggered when the status of the ticket is changed to SOLVED',
   schema: z.object({
     type: z.string(),

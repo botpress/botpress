@@ -1,0 +1,7 @@
+challenge = parse_json!(.body).challenge
+
+{
+  "body": encode_json({
+    "challenge": challenge
+  })
+}

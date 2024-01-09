@@ -7,6 +7,7 @@ export const configuration = {
   schema: z.object({
     appId: z.string(),
     appPassword: z.string(),
+    tenantId: z.string().optional(),
   }),
 } satisfies IntegrationDefinitionProps['configuration']
 

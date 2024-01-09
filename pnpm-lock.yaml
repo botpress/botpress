@@ -64,7 +64,7 @@ importers:
         version: link:../../packages/sdk
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -114,7 +114,7 @@ importers:
         version: 4.9.5
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
 
   bots/hit-looper:
     dependencies:
@@ -126,7 +126,7 @@ importers:
         version: link:../../packages/sdk
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -141,7 +141,7 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
-  integrations/airtable:
+  bots/sheetzy:
     dependencies:
       '@botpress/client':
         specifier: workspace:*
@@ -149,19 +149,16 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      airtable:
-        specifier: ^0.12.2
-        version: 0.12.2
-      axios:
-        specifier: ^1.5.0
-        version: 1.6.5
       zod:
-        specifier: 3.20.6
+        specifier: ^3.20.6
         version: 3.20.6
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.16
+      shellby:
+        specifier: workspace:*
+        version: link:../../scripts/shellby
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@types/node@18.16.16)(typescript@4.9.5)
@@ -182,7 +179,7 @@ importers:
         version: 1.0.2
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -219,7 +216,7 @@ importers:
         version: link:../../packages/sdk-addons
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -265,7 +262,7 @@ importers:
         version: 2.0.19
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -317,7 +314,7 @@ importers:
         version: 6.14.1
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@sentry/cli':
         specifier: ^2.18.1
@@ -337,6 +334,34 @@ importers:
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@types/node@18.16.16)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
+  integrations/gsheets:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      google-auth-library:
+        specifier: ^9.0.0
+        version: 9.0.0
+      googleapis:
+        specifier: ^126.0.1
+        version: 126.0.1
+      zod:
+        specifier: ^3.20.6
+        version: 3.20.6
+    devDependencies:
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.16.0
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.1(@types/node@18.16.0)(typescript@4.9.5)
       typescript:
         specifier: ^4.9.4
         version: 4.9.5
@@ -363,7 +388,7 @@ importers:
         version: 6.14.1
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@sentry/cli':
         specifier: ^2.18.1
@@ -403,7 +428,7 @@ importers:
         version: 4.0.0
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@sentry/cli':
         specifier: ^2.18.1
@@ -446,7 +471,7 @@ importers:
         version: 1.0.1
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@sentry/cli':
         specifier: ^2.18.1
@@ -492,7 +517,7 @@ importers:
         version: 1.6.4
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -532,7 +557,7 @@ importers:
         version: 6.14.1
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@sentry/cli':
         specifier: ^2.18.1
@@ -569,7 +594,7 @@ importers:
         version: 2.2.7
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@tsconfig/node18-strictest':
         specifier: ^1.0.0
@@ -607,12 +632,18 @@ importers:
       fuse.js:
         specifier: ^6.6.2
         version: 6.6.2
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
+      query-string:
+        specifier: ^6.14.1
+        version: 6.14.1
       verror:
         specifier: ^1.10.1
         version: 1.10.1
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -623,6 +654,9 @@ importers:
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
+      '@types/lodash':
+        specifier: ^4.14.191
+        version: 4.14.195
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.16
@@ -652,7 +686,7 @@ importers:
         version: 9.14.0(@babel/core@7.22.5)
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@sentry/cli':
         specifier: ^2.18.1
@@ -684,12 +718,21 @@ importers:
       '@botpress/sdk-addons':
         specifier: workspace:*
         version: link:../../packages/sdk-addons
+      axios:
+        specifier: ^1.5.1
+        version: 1.5.1
       botbuilder:
         specifier: ^4.18.0
         version: 4.20.0
+      jsonwebtoken:
+        specifier: ^9.0.2
+        version: 9.0.2
+      jwks-rsa:
+        specifier: ^3.1.0
+        version: 3.1.0
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -697,6 +740,9 @@ importers:
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
+      '@types/jsonwebtoken':
+        specifier: ^9.0.3
+        version: 9.0.3
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.16
@@ -732,7 +778,7 @@ importers:
         version: 4.12.2
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -772,7 +818,7 @@ importers:
         version: 1.2.6
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -815,7 +861,7 @@ importers:
         version: 3.84.1
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -855,7 +901,7 @@ importers:
         version: 1.4.0
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -895,7 +941,7 @@ importers:
         version: 0.27.2
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -932,7 +978,7 @@ importers:
         version: link:../../packages/sdk-addons
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -972,7 +1018,7 @@ importers:
         version: 6.11.0
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@sentry/cli':
         specifier: ^2.18.1
@@ -1014,8 +1060,8 @@ importers:
         specifier: ^0.8.2
         version: 0.8.2
       zod:
-        specifier: ^3.21.4
-        version: 3.21.4
+        specifier: ^3.20.6
+        version: 3.20.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1051,14 +1097,14 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk-addons
       axios:
-        specifier: 1.2.5
-        version: 1.2.5
+        specifier: ^1.6.3
+        version: 1.6.3
       uuid:
         specifier: ^9.0.0
         version: 9.0.0
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1112,8 +1158,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       zod:
-        specifier: ^3.21.4
-        version: 3.21.4
+        specifier: ^3.20.6
+        version: 3.20.6
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1137,17 +1183,20 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.8
+        specifier: 0.10.1
         version: link:../client
+      '@bpinternal/const':
+        specifier: ^0.0.20
+        version: 0.0.20
       '@bpinternal/tunnel':
-        specifier: ^0.1.0
-        version: 0.1.0
+        specifier: ^0.1.1
+        version: 0.1.1
       '@bpinternal/yargs-extra':
         specifier: ^0.0.3
         version: 0.0.3
       '@bpinternal/zod-to-json-schema':
         specifier: ^3.21.4
-        version: 3.21.4(zod@3.21.4)
+        version: 3.21.4(zod@3.20.6)
       '@parcel/watcher':
         specifier: ^2.1.0
         version: 2.1.0
@@ -1210,10 +1259,10 @@ importers:
         version: 3.9.0
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@botpress/sdk':
-        specifier: 0.4.4
+        specifier: 0.5.9
         version: link:../sdk
       '@bpinternal/log4bot':
         specifier: ^0.0.4
@@ -1252,14 +1301,14 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.8
+        specifier: 0.10.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.4.4
+        specifier: 0.5.9
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -1274,14 +1323,14 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.8
+        specifier: 0.10.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.4.4
+        specifier: 0.5.9
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -1296,8 +1345,8 @@ importers:
   packages/client:
     dependencies:
       axios:
-        specifier: 1.2.5
-        version: 1.2.5
+        specifier: ^1.6.1
+        version: 1.6.1
       browser-or-node:
         specifier: ^2.1.1
         version: 2.1.1
@@ -1306,8 +1355,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.5.7
-        version: 0.5.7(openapi-types@12.1.3)
+        specifier: 0.15.9
+        version: 0.15.9(openapi-types@12.1.3)
       esbuild:
         specifier: ^0.16.12
         version: 0.16.17
@@ -1315,17 +1364,11 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.3.8
+        specifier: 0.10.1
         version: link:../client
-      axios:
-        specifier: 0.27.2
-        version: 0.27.2
-      radash:
-        specifier: ^9.5.0
-        version: 9.5.0
       zod:
         specifier: ^3.20.6
-        version: 3.21.4
+        version: 3.20.6
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -1560,7 +1603,7 @@ packages:
     engines: {node: 10 || 12 || 14 || 16 || 18}
     dependencies:
       '@azure/msal-common': 13.1.0
-      jsonwebtoken: 9.0.0
+      jsonwebtoken: 9.0.2
       uuid: 8.3.2
     dev: false
 
@@ -1922,10 +1965,10 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.5.7(openapi-types@12.1.3):
-    resolution: {integrity: sha512-oNne4M0LFwrm/CKCxUXc7oXDGJXFjDSLp7y1D84WSTDTCnFwaFKi4FZRs5q7XaSBIP9E6XHz9UeIleFk/ELSsQ==}
+  /@botpress/api@0.15.9(openapi-types@12.1.3):
+    resolution: {integrity: sha512-qZD2pMO0gJs8Q+mTkHo9V2iokw1GckKjKs2hirLEwApWfYtvyNY4NT8q3T9jq+bdOrNypvs3XMf/MMgoUd2qOg==}
     dependencies:
-      '@bpinternal/opapi': 0.3.3(openapi-types@12.1.3)
+      '@bpinternal/opapi': 0.6.3(openapi-types@12.1.3)
     transitivePeerDependencies:
       - debug
       - openapi-types
@@ -1946,6 +1989,28 @@ packages:
       - debug
     dev: false
 
+  /@bpinternal/const@0.0.20:
+    resolution: {integrity: sha512-AVeQy25M9eXMvjnLZVbFmr++qkONYrwW7qLXD9q9ccD4WLEgMmJZ6e+BSUnwPEBQ8LiqWQXf/YJ1MJxoVkcyNw==}
+    dependencies:
+      vitest: 0.34.6
+    transitivePeerDependencies:
+      - '@edge-runtime/vm'
+      - '@vitest/browser'
+      - '@vitest/ui'
+      - happy-dom
+      - jsdom
+      - less
+      - lightningcss
+      - playwright
+      - safaridriver
+      - sass
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+      - webdriverio
+    dev: false
+
   /@bpinternal/log4bot@0.0.4:
     resolution: {integrity: sha512-psjT4wxlMcKMnWu+acnxoMeVQaAjD5eRfTdpk1L2uymhy2hnukzxg53Z2cThbFDJsdEufFOneEGwSi2kfWXRwA==}
     dependencies:
@@ -1953,12 +2018,12 @@ packages:
       moment: 2.29.4
       regex-parser: 2.2.11
 
-  /@bpinternal/opapi@0.3.3(openapi-types@12.1.3):
-    resolution: {integrity: sha512-RnnqBofAwguskGw4/BW7DVlNTXGIllbhZgwNF3z6gcuvsg7zxe2jou3J/Ej4tnB+q9YwegHb+STHWMHjPnrvWA==}
+  /@bpinternal/opapi@0.6.3(openapi-types@12.1.3):
+    resolution: {integrity: sha512-XVzxAtc6sOLPUDBjln50QCk73YrMfFFbec1PJ1Qb0dDRxaNI/dAdNDTtY9yZlrQUSxLV+PKJHcbyUTtDZ34mXQ==}
     dependencies:
       '@anatine/zod-openapi': 1.14.0(openapi3-ts@2.0.2)(zod@3.21.4)
       '@readme/openapi-parser': 2.5.0(openapi-types@12.1.3)
-      axios: 1.6.5
+      axios: 1.6.3
       chalk: 4.1.2
       decompress: 4.2.1
       execa: 6.1.0
@@ -1993,8 +2058,8 @@ packages:
       - supports-color
     dev: false
 
-  /@bpinternal/tunnel@0.1.0:
-    resolution: {integrity: sha512-w2PuecYvZCBJKrT3Ibs8/7JpddnEHsaQHHYG3h+lRXydW4PgAbmigYzRw9mA7O5mp3eGY3Ao0c42OKdiL9f02A==}
+  /@bpinternal/tunnel@0.1.1:
+    resolution: {integrity: sha512-B1ryt5n3/PSMFuoOkW4h2zHNF9rcsOB5nDBcCPQtmO2Mrz7c6kAtMBHBMhBe8DWIvqeasZYhDgxYwDh8wivFsw==}
     dependencies:
       '@types/ws': 8.5.5
       browser-or-node: 2.1.1
@@ -2017,12 +2082,12 @@ packages:
       yn: 4.0.0
     dev: false
 
-  /@bpinternal/zod-to-json-schema@3.21.4(zod@3.21.4):
+  /@bpinternal/zod-to-json-schema@3.21.4(zod@3.20.6):
     resolution: {integrity: sha512-kWCUrBu+CwODPEH2cleuJ59+D2w+WvA4SlhbpqXYS/bH9k2bsBAOrFa0x/Sz99dBKnMJ6uxVLX0bv53VLOzmKg==}
     peerDependencies:
       zod: ^3.21.4
     dependencies:
-      zod: 3.21.4
+      zod: 3.20.6
     dev: false
 
   /@colors/colors@1.5.0:
@@ -3584,11 +3649,10 @@ packages:
       '@types/node': 18.16.16
     dev: false
 
-  /@types/jsonwebtoken@9.0.2:
-    resolution: {integrity: sha512-drE6uz7QBKq1fYqqoFKTDRdFCPHd5TCub75BM+D+cMx7NU9hUz7SESLfC2fSCXVFMO5Yj8sOWHuGqPgjc+fz0Q==}
+  /@types/jsonwebtoken@9.0.3:
+    resolution: {integrity: sha512-b0jGiOgHtZ2jqdPgPnP6WLCXZk1T8p06A/vPGzUvxpFGgKMbjXJDjC5m52ErqBnIuWZFgGoIJyRdeG5AyreJjA==}
     dependencies:
       '@types/node': 18.16.16
-    dev: false
 
   /@types/keyv@3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
@@ -3885,12 +3949,28 @@ packages:
       '@vitest/utils': 0.33.0
       chai: 4.3.7
 
+  /@vitest/expect@0.34.6:
+    resolution: {integrity: sha512-QUzKpUQRc1qC7qdGo7rMK3AkETI7w18gTCUrsNnyjjJKYiuUB9+TQK3QnR1unhCnWRC0AbKv2omLGQDF/mIjOw==}
+    dependencies:
+      '@vitest/spy': 0.34.6
+      '@vitest/utils': 0.34.6
+      chai: 4.3.10
+    dev: false
+
   /@vitest/runner@0.33.0:
     resolution: {integrity: sha512-UPfACnmCB6HKRHTlcgCoBh6ppl6fDn+J/xR8dTufWiKt/74Y9bHci5CKB8tESSV82zKYtkBJo9whU3mNvfaisg==}
     dependencies:
       '@vitest/utils': 0.33.0
       p-limit: 4.0.0
       pathe: 1.1.1
+
+  /@vitest/runner@0.34.6:
+    resolution: {integrity: sha512-1CUQgtJSLF47NnhN+F9X2ycxUP0kLHQ/JWvNHbeBfwW8CzEGgeskzNnHDyv1ieKTltuR6sdIHV+nmR6kPxQqzQ==}
+    dependencies:
+      '@vitest/utils': 0.34.6
+      p-limit: 4.0.0
+      pathe: 1.1.1
+    dev: false
 
   /@vitest/snapshot@0.33.0:
     resolution: {integrity: sha512-tJjrl//qAHbyHajpFvr8Wsk8DIOODEebTu7pgBrP07iOepR5jYkLFiqLq2Ltxv+r0uptUb4izv1J8XBOwKkVYA==}
@@ -3899,10 +3979,24 @@ packages:
       pathe: 1.1.1
       pretty-format: 29.5.0
 
+  /@vitest/snapshot@0.34.6:
+    resolution: {integrity: sha512-B3OZqYn6k4VaN011D+ve+AA4whM4QkcwcrwaKwAbyyvS/NB1hCWjFIBQxAQQSQir9/RtyAAGuq+4RJmbn2dH4w==}
+    dependencies:
+      magic-string: 0.30.1
+      pathe: 1.1.1
+      pretty-format: 29.5.0
+    dev: false
+
   /@vitest/spy@0.33.0:
     resolution: {integrity: sha512-Kv+yZ4hnH1WdiAkPUQTpRxW8kGtH8VRTnus7ZTGovFYM1ZezJpvGtb9nPIjPnptHbsyIAxYZsEpVPYgtpjGnrg==}
     dependencies:
       tinyspy: 2.1.1
+
+  /@vitest/spy@0.34.6:
+    resolution: {integrity: sha512-xaCvneSaeBw/cz8ySmF7ZwGvL0lBjfvqc1LpQ/vcdHEvpLn3Ff1vAvjw+CoGn0802l++5L/pxb7whwcWAw+DUQ==}
+    dependencies:
+      tinyspy: 2.1.1
+    dev: false
 
   /@vitest/utils@0.33.0:
     resolution: {integrity: sha512-pF1w22ic965sv+EN6uoePkAOTkAPWM03Ri/jXNyMIKBb/XHLDPfhLvf/Fa9g0YECevAIz56oVYXhodLvLQ/awA==}
@@ -3910,6 +4004,14 @@ packages:
       diff-sequences: 29.4.3
       loupe: 2.3.6
       pretty-format: 29.5.0
+
+  /@vitest/utils@0.34.6:
+    resolution: {integrity: sha512-IG5aDD8S6zlvloDsnzHw0Ut5xczlF+kv2BOTo+iXfPr54Yhi5qbVOgGB1hZaVq4iJ4C/MZ2J0y15IlsV/ZcI0A==}
+    dependencies:
+      diff-sequences: 29.4.3
+      loupe: 2.3.6
+      pretty-format: 29.5.0
+    dev: false
 
   /@xmldom/xmldom@0.7.11:
     resolution: {integrity: sha512-UDi3g6Jss/W5FnSzO9jCtQwEpfymt0M+sPPlmLhDH6h2TJ8j4ESE/LpmNPBij15J5NKkk4/cg/qoVMdWI3vnlQ==}
@@ -3984,6 +4086,15 @@ packages:
       debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
+
+  /agent-base@7.1.0:
+    resolution: {integrity: sha512-o/zjMZRhJxny7OyEF+Op8X+efiELC7k7yOjMzgfzVqOzXqkBkWI79YoTdOtsuWd5BWhAGAuOY/Xa6xpiaWXiNg==}
+    engines: {node: '>= 14'}
+    dependencies:
+      debug: 4.3.4
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   /aggregate-error@3.1.0:
     resolution: {integrity: sha512-4I7Td01quW/RpocfNayFdFVk1qSuoh0E7JrbRJ16nH01HhKFQ88INq9Sd+nd72zqRySlr9BmDA8xlEJ6vJMrYA==}
@@ -4267,8 +4378,8 @@ packages:
       - debug
     dev: false
 
-  /axios@1.2.5:
-    resolution: {integrity: sha512-9pU/8mmjSSOb4CXVsvGIevN+MlO/t9OWtKadTaLuN85Gge3HGorUckgp8A/2FH4V4hJ7JuQ3LIeI7KAV9ITZrQ==}
+  /axios@1.4.0:
+    resolution: {integrity: sha512-S4XCWMEmzvo64T9GfvQDOXgYRDJ/wsSZc7Jvdgx5u1sd0JwsuPLqb3SYmusag+edF6ziyMensPVqLTSc1PiSEA==}
     dependencies:
       follow-redirects: 1.15.2(debug@4.3.4)
       form-data: 4.0.0
@@ -4277,8 +4388,28 @@ packages:
       - debug
     dev: false
 
-  /axios@1.4.0:
-    resolution: {integrity: sha512-S4XCWMEmzvo64T9GfvQDOXgYRDJ/wsSZc7Jvdgx5u1sd0JwsuPLqb3SYmusag+edF6ziyMensPVqLTSc1PiSEA==}
+  /axios@1.5.1:
+    resolution: {integrity: sha512-Q28iYCWzNHjAm+yEAot5QaAMxhMghWLFVf7rRdwhUI+c2jix2DUXjAHXVi+s1ibs3mjPO/cCgbA++3BjD0vP/A==}
+    dependencies:
+      follow-redirects: 1.15.2(debug@4.3.4)
+      form-data: 4.0.0
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /axios@1.6.1:
+    resolution: {integrity: sha512-vfBmhDpKafglh0EldBEbVuoe7DyAavGSLWhuSm5ZSEKQnHhBf0xAAwybbNH1IkrJNGnS/VG4I5yxig1pCEXE4g==}
+    dependencies:
+      follow-redirects: 1.15.2(debug@4.3.4)
+      form-data: 4.0.0
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /axios@1.6.3:
+    resolution: {integrity: sha512-fWyNdeawGam70jXSVlKl+SUNVcL6j6W79CuSIPfi6HnDUmSCH6gyUys/HrqHeA/wU0Az41rRgean494d0Jb+ww==}
     dependencies:
       follow-redirects: 1.15.2(debug@4.3.4)
       form-data: 4.0.0
@@ -4496,7 +4627,7 @@ packages:
       botbuilder-stdlib: 4.20.0-internal
       botframework-schema: 4.20.0
       cross-fetch: 3.1.6
-      jsonwebtoken: 9.0.0
+      jsonwebtoken: 9.0.2
       rsa-pem-from-mod-exp: 0.8.5
       zod: 1.11.17
     transitivePeerDependencies:
@@ -4696,6 +4827,19 @@ packages:
     resolution: {integrity: sha512-4tYFyifaFfGacoiObjJegolkwSU4xQNGbVgUiNYVUxbQ2x2lUsFvY4hVgVzGiIe6WLOPqycWXA40l+PWsxthUw==}
     dev: false
 
+  /chai@4.3.10:
+    resolution: {integrity: sha512-0UXG04VuVbruMUYbJ6JctvH0YnC/4q3/AkT18q4NaITo91CUm0liMS9VqzT9vZhVQ/1eqPanMWjBM+Juhfb/9g==}
+    engines: {node: '>=4'}
+    dependencies:
+      assertion-error: 1.1.0
+      check-error: 1.0.3
+      deep-eql: 4.1.3
+      get-func-name: 2.0.2
+      loupe: 2.3.6
+      pathval: 1.1.1
+      type-detect: 4.0.8
+    dev: false
+
   /chai@4.3.7:
     resolution: {integrity: sha512-HLnAzZ2iupm25PlN0xFreAlBA5zaBSv3og0DdeGA4Ar6h6rJ3A0rolRUKJhSF2V10GZKDgWF/VmAEsNWjCRB+A==}
     engines: {node: '>=4'}
@@ -4730,6 +4874,12 @@ packages:
 
   /check-error@1.0.2:
     resolution: {integrity: sha512-BrgHpW9NURQgzoNyjfq0Wu6VFO6D7IZEmJNdtgNqpzGG8RuNFHt2jQxWlAs4HMe119chBnv+34syEZtc6IhLtA==}
+
+  /check-error@1.0.3:
+    resolution: {integrity: sha512-iKEoDYaRmd1mxM90a2OEfWhjsjPpYPuQ+lMYsoxB126+t8fw7ySEO48nmDg5COTjxDI65/Y2OWpeEHk3ZOe8zg==}
+    dependencies:
+      get-func-name: 2.0.2
+    dev: false
 
   /cheerio-select@2.1.0:
     resolution: {integrity: sha512-9v9kG0LvzrlcungtnJtpGNxY+fzECQKhK4EGJX2vByejiMX84MFNQw4UxPJl3bFbTMw+Dfs37XaIkCwTZfLh4g==}
@@ -6421,11 +6571,35 @@ packages:
       - supports-color
     dev: false
 
+  /gaxios@6.1.1:
+    resolution: {integrity: sha512-bw8smrX+XlAoo9o1JAksBwX+hi/RG15J+NTSxmNPIclKC3ZVK6C2afwY8OSdRvOK0+ZLecUJYtj2MmjOt3Dm0w==}
+    engines: {node: '>=14'}
+    dependencies:
+      extend: 3.0.2
+      https-proxy-agent: 7.0.2
+      is-stream: 2.0.1
+      node-fetch: 2.6.11
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    dev: false
+
   /gcp-metadata@5.2.0:
     resolution: {integrity: sha512-aFhhvvNycky2QyhG+dcfEdHBF0FRbYcf39s6WNHUDysKSrbJ5vuFbjydxBcmewtXeV248GP8dWT3ByPNxsyHCw==}
     engines: {node: '>=12'}
     dependencies:
       gaxios: 5.1.0
+      json-bigint: 1.0.0
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    dev: false
+
+  /gcp-metadata@6.0.0:
+    resolution: {integrity: sha512-Ozxyi23/1Ar51wjUT2RDklK+3HxqDr8TLBNK8rBBFQ7T85iIGnXnVusauj06QyqCXRFZig8LZC+TUddWbndlpQ==}
+    engines: {node: '>=14'}
+    dependencies:
+      gaxios: 6.1.1
       json-bigint: 1.0.0
     transitivePeerDependencies:
       - encoding
@@ -6447,6 +6621,9 @@ packages:
 
   /get-func-name@2.0.0:
     resolution: {integrity: sha512-Hm0ixYtaSZ/V7C8FJrtZIuBBI+iSgL+1Aq82zSu8VQNB4S3Gk8e7Qs3VwBDJAhmRZcFqkl3tQu36g/Foh5I5ig==}
+
+  /get-func-name@2.0.2:
+    resolution: {integrity: sha512-8vXOvuE167CtIc3OyItco7N/dpRtBbYOsPsXCz7X/PMnlGjYjSGuZJgM1Y7mmew7BKf9BqvLX2tnOVy1BBUsxQ==}
 
   /get-intrinsic@1.2.1:
     resolution: {integrity: sha512-2DcsyfABl+gVHEfCOaTrWgyt+tb6MSEGmKq+kI5HwLbIYgjgmMcV8KQ41uaKz1xxUcn9tJtgFbQUEVcEbd0FYw==}
@@ -6602,6 +6779,22 @@ packages:
       - supports-color
     dev: false
 
+  /google-auth-library@9.0.0:
+    resolution: {integrity: sha512-IQGjgQoVUAfOk6khqTVMLvWx26R+yPw9uLyb1MNyMQpdKiKt0Fd9sp4NWoINjyGHR8S3iw12hMTYK7O8J07c6Q==}
+    engines: {node: '>=14'}
+    dependencies:
+      base64-js: 1.5.1
+      ecdsa-sig-formatter: 1.0.11
+      gaxios: 6.1.1
+      gcp-metadata: 6.0.0
+      gtoken: 7.0.1
+      jws: 4.0.0
+      lru-cache: 6.0.0
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    dev: false
+
   /google-p12-pem@4.0.1:
     resolution: {integrity: sha512-WPkN4yGtz05WZ5EhtlxNDWPhC4JIic6G8ePitwUWy4l+XPVYec+a0j0Ts47PDtW59y3RwAhUd9/h9ZZ63px6RQ==}
     engines: {node: '>=12.0.0'}
@@ -6625,12 +6818,38 @@ packages:
       - supports-color
     dev: false
 
+  /googleapis-common@7.0.0:
+    resolution: {integrity: sha512-58iSybJPQZ8XZNMpjrklICefuOuyJ0lMxfKmBqmaC0/xGT4SiOs4BE60LAOOGtBURy1n8fHa2X2YUNFEWWbXyQ==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      extend: 3.0.2
+      gaxios: 6.1.1
+      google-auth-library: 9.0.0
+      qs: 6.11.0
+      url-template: 2.0.8
+      uuid: 9.0.0
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    dev: false
+
   /googleapis@112.0.0:
     resolution: {integrity: sha512-WPfXhYZVrbbJRxB+ZZDksjuelmt49Mcl/1mo7w05kvLS1EbynvTELsNTJwh+hNrjsFKdh4izWLAcjTDo0Boycg==}
     engines: {node: '>=12.0.0'}
     dependencies:
       google-auth-library: 8.8.0
       googleapis-common: 6.0.4
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    dev: false
+
+  /googleapis@126.0.1:
+    resolution: {integrity: sha512-4N8LLi+hj6ytK3PhE52KcM8iSGhJjtXnCDYB4fp6l+GdLbYz4FoDmx074WqMbl7iYMDN87vqD/8drJkhxW92mQ==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      google-auth-library: 9.0.0
+      googleapis-common: 7.0.0
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -6682,6 +6901,17 @@ packages:
     dependencies:
       gaxios: 5.1.0
       google-p12-pem: 4.0.1
+      jws: 4.0.0
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    dev: false
+
+  /gtoken@7.0.1:
+    resolution: {integrity: sha512-KcFVtoP1CVFtQu0aSk3AyAt2og66PFhZAlkUOuWKwzMLoulHXG5W5wE5xAnHb+yl3/wEFoqGW7/cDGMU8igDZQ==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      gaxios: 6.1.1
       jws: 4.0.0
     transitivePeerDependencies:
       - encoding
@@ -6812,6 +7042,16 @@ packages:
       debug: 4.3.4
     transitivePeerDependencies:
       - supports-color
+
+  /https-proxy-agent@7.0.2:
+    resolution: {integrity: sha512-NmLNjm6ucYwtcUmL7JQC1ZQ57LmHP4lT15FQ8D61nak1rO6DH+fz5qNK2Ap5UN4ZapYICE3/0KodcLYSPsPbaA==}
+    engines: {node: '>= 14'}
+    dependencies:
+      agent-base: 7.1.0
+      debug: 4.3.4
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
 
   /human-signals@2.1.0:
     resolution: {integrity: sha512-B4FFZ6q/T2jhhksgkbEW3HBvWIfDW85snkQgawt07S7J5QXTk6BkNV+0yAeZrM5QpMAdYlocGoljn0sJ/WQkFw==}
@@ -7553,7 +7793,7 @@ packages:
       jest-util: 29.5.0
       natural-compare: 1.4.0
       pretty-format: 29.5.0
-      semver: 7.5.1
+      semver: 7.5.4
     transitivePeerDependencies:
       - supports-color
     dev: true
@@ -7634,6 +7874,10 @@ packages:
       '@sideway/address': 4.1.4
       '@sideway/formula': 3.0.1
       '@sideway/pinpoint': 2.0.0
+    dev: false
+
+  /jose@4.15.2:
+    resolution: {integrity: sha512-IY73F228OXRl9ar3jJagh7Vnuhj/GzBunPiZP13K0lOl7Am9SoWW3kEzq3MCllJMTtZqHTiDXQvoRd4U95aU6A==}
     dev: false
 
   /js-base64@3.7.5:
@@ -7804,7 +8048,23 @@ packages:
       jws: 3.2.2
       lodash: 4.17.21
       ms: 2.1.3
-      semver: 7.5.1
+      semver: 7.5.4
+    dev: false
+
+  /jsonwebtoken@9.0.2:
+    resolution: {integrity: sha512-PRp66vJ865SSqOlgqS8hujT5U4AOgMfhrwYIuIhfKaoSCZcirrmASQr8CX7cUg+RMih+hgznrjp99o+W4pJLHQ==}
+    engines: {node: '>=12', npm: '>=6'}
+    dependencies:
+      jws: 3.2.2
+      lodash.includes: 4.3.0
+      lodash.isboolean: 3.0.3
+      lodash.isinteger: 4.0.4
+      lodash.isnumber: 3.0.3
+      lodash.isplainobject: 4.0.6
+      lodash.isstring: 4.0.1
+      lodash.once: 4.1.1
+      ms: 2.1.3
+      semver: 7.5.4
     dev: false
 
   /jsprim@1.4.2:
@@ -7831,6 +8091,20 @@ packages:
       buffer-equal-constant-time: 1.0.1
       ecdsa-sig-formatter: 1.0.11
       safe-buffer: 5.2.1
+    dev: false
+
+  /jwks-rsa@3.1.0:
+    resolution: {integrity: sha512-v7nqlfezb9YfHHzYII3ef2a2j1XnGeSE/bK3WfumaYCqONAIstJbrEGapz4kadScZzEt7zYCN7bucj8C0Mv/Rg==}
+    engines: {node: '>=14'}
+    dependencies:
+      '@types/express': 4.17.17
+      '@types/jsonwebtoken': 9.0.3
+      debug: 4.3.4
+      jose: 4.15.2
+      limiter: 1.1.5
+      lru-memoizer: 2.2.0
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /jws@3.2.2:
@@ -7880,6 +8154,10 @@ packages:
       type-check: 0.4.0
     dev: false
 
+  /limiter@1.1.5:
+    resolution: {integrity: sha512-FWWMIEOxz3GwUI4Ts/IvgVy6LPvoMPgjMdQ185nN6psJyBJ4yOpzqm695/h5umdLJg2vW3GR5iG11MAkR2AzJA==}
+    dev: false
+
   /lines-and-columns@1.2.4:
     resolution: {integrity: sha512-7ylylesZQ/PV29jhEDl3Ufjo6ZX7gCqJr5F7PKrqc93v7fzSymt1BpwEU8nAUXs8qzzvqhbjhK5QZg6Mt/HkBg==}
     dev: true
@@ -7900,6 +8178,10 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       p-locate: 5.0.0
+    dev: false
+
+  /lodash.clonedeep@4.5.0:
+    resolution: {integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==}
     dev: false
 
   /lodash.defaults@4.2.0:
@@ -7969,7 +8251,7 @@ packages:
   /loupe@2.3.6:
     resolution: {integrity: sha512-RaPMZKiMy8/JruncMU5Bt6na1eftNoo++R4Y+N2FrxkDVTrGvcyzFTsaGif4QTeKESheMGegbhw6iUAq+5A8zA==}
     dependencies:
-      get-func-name: 2.0.0
+      get-func-name: 2.0.2
 
   /lower-case@2.0.2:
     resolution: {integrity: sha512-7fm3l3NAF9WfN6W3JOmf5drwpVqX78JtoGJ3A6W0a6ZnldM41w2fV5D490psKFTpMds8TJse/eHLFFsNHHjHgg==}
@@ -7987,6 +8269,13 @@ packages:
     engines: {node: '>=8'}
     dev: false
 
+  /lru-cache@4.0.2:
+    resolution: {integrity: sha512-uQw9OqphAGiZhkuPlpFGmdTU2tEuhxTourM/19qGJrxBPHAr/f8BT1a0i/lOclESnGatdJG/UCkP9kZB/Lh1iw==}
+    dependencies:
+      pseudomap: 1.0.2
+      yallist: 2.1.2
+    dev: false
+
   /lru-cache@5.1.1:
     resolution: {integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==}
     dependencies:
@@ -8001,6 +8290,13 @@ packages:
   /lru-cache@9.1.2:
     resolution: {integrity: sha512-ERJq3FOzJTxBbFjZ7iDs+NiK4VI9Wz+RdrrAB8dio1oV+YvdPzUEE4QNiT2VD51DkIbCYRUUzCRkssXCHqSnKQ==}
     engines: {node: 14 || >=16.14}
+
+  /lru-memoizer@2.2.0:
+    resolution: {integrity: sha512-QfOZ6jNkxCcM/BkIPnFsqDhtrazLRsghi9mBwFAzol5GCvj4EkFT899Za3+QwikCg5sRX8JstioBDwOxEyzaNw==}
+    dependencies:
+      lodash.clonedeep: 4.5.0
+      lru-cache: 4.0.2
+    dev: false
 
   /lru-queue@0.1.0:
     resolution: {integrity: sha512-BpdYkt9EvGl8OfWHDQPISVpcl5xZthb+XPsbELj5AQXxIC8IriDZIQYjBJPEm5rS420sjZ0TLEzRcq5KdBhYrQ==}
@@ -8909,6 +9205,10 @@ packages:
   /proxy-from-env@1.1.0:
     resolution: {integrity: sha512-D+zkORCbA9f1tdWRK0RaCR3GPv50cMxcrz4X8k5LTSUD1Dkw47mKJEZQNunItRTkWwgtaUSo1RVFRIG9ZXiFYg==}
 
+  /pseudomap@1.0.2:
+    resolution: {integrity: sha512-b/YwNhb8lk1Zz2+bXXpS/LK9OisiZZ1SNsSLxN1x2OXVEhW2Ckr/7mWE5vrC1ZTiJlD9g19jWszTmJsB+oEpFQ==}
+    dev: false
+
   /psl@1.9.0:
     resolution: {integrity: sha512-E/ZsdU4HLs/68gYzgGTkMicWTLPdAftJLfJFlLUAAKZGkStNU72sZjT66SnMDVOfOWY/YAoiD7Jxa9iHvngcag==}
     dev: false
@@ -9270,6 +9570,13 @@ packages:
 
   /semver@7.5.1:
     resolution: {integrity: sha512-Wvss5ivl8TMRZXXESstBA4uR5iXgEN/VC5/sOcuXdVLzcdkz4HWetIoRfG5gb5X+ij/G9rw9YoGn3QoQ8OCSpw==}
+    engines: {node: '>=10'}
+    hasBin: true
+    dependencies:
+      lru-cache: 6.0.0
+
+  /semver@7.5.4:
+    resolution: {integrity: sha512-1bCSESV6Pv+i21Hvpxp3Dx+pSD8lIPt8uVjRrxAUt/nbswYc+tK6Y2btiULjd4+fnq15PX+nqQDC7Oft7WkwcA==}
     engines: {node: '>=10'}
     hasBin: true
     dependencies:
@@ -9720,6 +10027,11 @@ packages:
     resolution: {integrity: sha512-FdswUUo5SxRizcBc6b1GSuLpLjisa8N8qMyYoP3rl+bym+QauhtJP5bvZY1ytt8krKGmMLYIRl36HBZfeAoqhQ==}
     engines: {node: '>=14.0.0'}
 
+  /tinypool@0.7.0:
+    resolution: {integrity: sha512-zSYNUlYSMhJ6Zdou4cJwo/p7w5nmAH17GRfU/ui3ctvjXFErXXkruT4MWW6poDeXgCaIBlGLrfU6TbTXxyGMww==}
+    engines: {node: '>=14.0.0'}
+    dev: false
+
   /tinyspy@2.1.1:
     resolution: {integrity: sha512-XPJL2uSzcOyBMky6OFrusqWlzfFrXtE0hPuMgW8A2HmaqrPo4ZQHRN/V0QXN3FSjKxpsbRrFc5LI7KOwBsT1/w==}
     engines: {node: '>=14.0.0'}
@@ -10106,7 +10418,7 @@ packages:
   /universal-github-app-jwt@1.1.1:
     resolution: {integrity: sha512-G33RTLrIBMFmlDV4u4CBF7dh71eWwykck4XgaxaIVeZKOYZRAAxvcGMRFTUclVY6xoUPQvO4Ne5wKGxYm/Yy9w==}
     dependencies:
-      '@types/jsonwebtoken': 9.0.2
+      '@types/jsonwebtoken': 9.0.3
       jsonwebtoken: 9.0.0
     dev: false
 
@@ -10240,6 +10552,28 @@ packages:
       - supports-color
       - terser
 
+  /vite-node@0.34.6(@types/node@18.16.16):
+    resolution: {integrity: sha512-nlBMJ9x6n7/Amaz6F3zJ97EBwR2FkzhBRxF5e+jE6LA3yi6Wtc2lyTij1OnDMIr34v5g/tVQtsVAzhT0jc5ygA==}
+    engines: {node: '>=v14.18.0'}
+    hasBin: true
+    dependencies:
+      cac: 6.7.14
+      debug: 4.3.4
+      mlly: 1.4.0
+      pathe: 1.1.1
+      picocolors: 1.0.0
+      vite: 4.4.4(@types/node@18.16.16)
+    transitivePeerDependencies:
+      - '@types/node'
+      - less
+      - lightningcss
+      - sass
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+    dev: false
+
   /vite@4.4.4(@types/node@18.16.16):
     resolution: {integrity: sha512-4mvsTxjkveWrKDJI70QmelfVqTm+ihFAb6+xf4sjEU2TmUCTlVX87tmg/QooPEMQb/lM9qGHT99ebqPziEd3wg==}
     engines: {node: ^14.18.0 || >=16.0.0}
@@ -10338,6 +10672,71 @@ packages:
       - sugarss
       - supports-color
       - terser
+
+  /vitest@0.34.6:
+    resolution: {integrity: sha512-+5CALsOvbNKnS+ZHMXtuUC7nL8/7F1F2DnHGjSsszX8zCjWSSviphCb/NuS9Nzf4Q03KyyDRBAXhF/8lffME4Q==}
+    engines: {node: '>=v14.18.0'}
+    hasBin: true
+    peerDependencies:
+      '@edge-runtime/vm': '*'
+      '@vitest/browser': '*'
+      '@vitest/ui': '*'
+      happy-dom: '*'
+      jsdom: '*'
+      playwright: '*'
+      safaridriver: '*'
+      webdriverio: '*'
+    peerDependenciesMeta:
+      '@edge-runtime/vm':
+        optional: true
+      '@vitest/browser':
+        optional: true
+      '@vitest/ui':
+        optional: true
+      happy-dom:
+        optional: true
+      jsdom:
+        optional: true
+      playwright:
+        optional: true
+      safaridriver:
+        optional: true
+      webdriverio:
+        optional: true
+    dependencies:
+      '@types/chai': 4.3.5
+      '@types/chai-subset': 1.3.3
+      '@types/node': 18.16.16
+      '@vitest/expect': 0.34.6
+      '@vitest/runner': 0.34.6
+      '@vitest/snapshot': 0.34.6
+      '@vitest/spy': 0.34.6
+      '@vitest/utils': 0.34.6
+      acorn: 8.10.0
+      acorn-walk: 8.2.0
+      cac: 6.7.14
+      chai: 4.3.10
+      debug: 4.3.4
+      local-pkg: 0.4.3
+      magic-string: 0.30.1
+      pathe: 1.1.1
+      picocolors: 1.0.0
+      std-env: 3.3.3
+      strip-literal: 1.0.1
+      tinybench: 2.5.0
+      tinypool: 0.7.0
+      vite: 4.4.4(@types/node@18.16.16)
+      vite-node: 0.34.6(@types/node@18.16.16)
+      why-is-node-running: 2.2.2
+    transitivePeerDependencies:
+      - less
+      - lightningcss
+      - sass
+      - stylus
+      - sugarss
+      - supports-color
+      - terser
+    dev: false
 
   /walker@1.0.8:
     resolution: {integrity: sha512-ts/8E8l5b7kY0vlWLewOkDXMmPdLcVV4GmOQLyxuSswIJsweeFZtAsMF7k1Nszz+TYBQrlYRmzOnr398y1JemQ==}
@@ -10525,6 +10924,10 @@ packages:
     resolution: {integrity: sha512-0pfFzegeDWJHJIAmTLRP2DwHjdF5s7jo9tuztdQxAhINCdvS+3nGINqPd00AphqJR/0LhANUS6/+7SCb98YOfA==}
     engines: {node: '>=10'}
 
+  /yallist@2.1.2:
+    resolution: {integrity: sha512-ncTzHV7NvsQZkYe1DW7cbDLm0YpzHmZF5r/iyP3ZnQtMiJ+pjzisCiMNI+Sj+xQF5pXhSHxSB3uDbsBTzY/c2A==}
+    dev: false
+
   /yallist@3.1.1:
     resolution: {integrity: sha512-a4UGQaWPH59mOXUYnAG2ewncQS4i4F43Tv3JoAM+s2VDAmS9NsK8GpDMLrCHPksFT7h3K6TOoUNn2pb7RoXx4g==}
 
@@ -10587,7 +10990,6 @@ packages:
 
   /zod@3.20.6:
     resolution: {integrity: sha512-oyu0m54SGCtzh6EClBVqDDlAYRz4jrVtKwQ7ZnsEmMI9HnzuZFj8QFwAY1M5uniIYACdGvv0PBWPF2kO0aNofA==}
-    dev: false
 
   /zod@3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}

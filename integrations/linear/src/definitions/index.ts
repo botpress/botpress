@@ -7,6 +7,9 @@ export { states } from './states'
 export { UserProfile } from './schemas'
 
 export const configuration = {
+  identifier: {
+    linkTemplateScript: 'linkTemplate.vrl',
+  },
   schema: z.object({}),
 } satisfies IntegrationDefinitionProps['configuration']
 
