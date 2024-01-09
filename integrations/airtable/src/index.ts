@@ -1,9 +1,6 @@
-import * as botpress from '.botpress'
-
 import actions from './actions'
 import { register, unregister, channels, handler } from './setup'
-
-console.info('starting integration')
+import * as botpress from '.botpress'
 
 export default new botpress.Integration({
   register,
