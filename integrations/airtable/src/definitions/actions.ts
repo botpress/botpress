@@ -3,8 +3,6 @@ import {
   createRecordOutputSchema,
   createTableInputSchema,
   createTableOutputSchema,
-  getBaseTablesInputSchema,
-  getBaseTablesOutputSchema,
   getTableRecordsInputSchema,
   getTableRecordsOutputSchema,
   updateRecordInputSchema,
@@ -16,22 +14,10 @@ import {
 import {
   createRecordUi,
   createTableUi,
-  getBaseTablesUi,
   getTableRecordsUi,
   updateRecordUi,
   updateTableUi,
 } from '../misc/custom-uis'
-
-const getBaseTables = {
-  title: 'Get Tables of the Base',
-  input: {
-    schema: getBaseTablesInputSchema,
-    ui: getBaseTablesUi,
-  },
-  output: {
-    schema: getBaseTablesOutputSchema,
-  },
-}
 
 const getTableRecords = {
   title: 'Get Records of the Table',
@@ -89,7 +75,6 @@ const updateRecord = {
 }
 
 export const actions = {
-  getBaseTables,
   getTableRecords,
   createTable,
   updateTable,

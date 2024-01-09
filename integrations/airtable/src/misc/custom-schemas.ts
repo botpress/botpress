@@ -1,14 +1,5 @@
 import z from 'zod'
-
 import { tableSchema, recordSchema } from './sub-schemas'
-
-export const getBaseTablesInputSchema = z.object({})
-
-export const getBaseTablesOutputSchema = z
-  .object({
-    tables: z.array(tableSchema),
-  })
-  .passthrough()
 
 export const getTableRecordsInputSchema = z.object({
   tableIdOrName: z

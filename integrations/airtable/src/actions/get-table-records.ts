@@ -1,8 +1,8 @@
-import type { Implementation } from '../misc/types'
 import {
   getTableRecordsInputSchema,
   getTableRecordsOutputSchema,
 } from '../misc/custom-schemas'
+import type { Implementation } from '../misc/types'
 import { getClient } from '../utils'
 
 export const getTableRecords: Implementation['actions']['getTableRecords'] =

@@ -1,5 +1,5 @@
 {
-  "name": "airtable",
+  "name": "airtable2",
   "scripts": {
     "type:check": "tsc --noEmit"
   },

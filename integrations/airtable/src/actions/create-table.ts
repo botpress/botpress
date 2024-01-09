@@ -1,5 +1,5 @@
-import type { Implementation } from '../misc/types'
 import { createTableInputSchema } from '../misc/custom-schemas'
+import type { Implementation } from '../misc/types'
 import { fieldsStringToArray, getClient } from '../utils'
 
 export const createTable: Implementation['actions']['createTable'] = async ({

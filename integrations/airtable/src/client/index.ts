@@ -1,6 +1,6 @@
 import Airtable from 'airtable'
 import axios, { AxiosInstance } from 'axios'
-import { tableFields } from 'src/misc/custom-types'
+import { TableFields } from '../misc/types'
 
 export class AirtableApi {
   private base: Airtable.Base
@@ -12,7 +12,10 @@ export class AirtableApi {
     this.base = new Airtable({ apiKey, endpointUrl }).base(baseId)
     this.axiosClient = axios.create({
       baseURL: endpointUrl || 'https://api.airtable.com/v0/',
-      headers: { Authorization: `Bearer ${apiKey}` },
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        'Content-Type': 'application/json',
+      },
     })
   }
 
@@ -31,14 +34,7 @@ export class AirtableApi {
     return record
   }
 
-  async getBaseTables() {
-    const response = await this.axiosClient.get(
-      `/meta/bases/${this.baseId}/tables`
-    )
-    return response.data.tables
-  }
-
-  async createTable(name: string, fields: tableFields, description?: string) {
+  async createTable(name: string, fields: TableFields, description?: string) {
     const descriptionLimit = 20000
     const validDescription = description?.slice(0, descriptionLimit)
     const payload = {
@@ -46,6 +42,7 @@ export class AirtableApi {
       description: validDescription,
       fields,
     }
+
     const response = await this.axiosClient.post(
       `/meta/bases/${this.baseId}/tables`,
       payload

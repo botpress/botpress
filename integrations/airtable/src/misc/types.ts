@@ -12,3 +12,4 @@ export type RegisterFunction = Implementation['register']
 export type UnregisterFunction = Implementation['unregister']
 export type Channels = Implementation['channels']
 export type Handler = Implementation['handler']
+export type TableFields = Array<{ name: string; type: string }>

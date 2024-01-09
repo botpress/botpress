@@ -1,5 +1,5 @@
-import type { Implementation } from '../misc/types'
 import { updateRecordInputSchema } from '../misc/custom-schemas'
+import type { Implementation } from '../misc/types'
 import { getClient } from '../utils'
 
 export const updateRecord: Implementation['actions']['updateRecord'] = async ({
