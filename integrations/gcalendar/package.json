@@ -1,18 +1,18 @@
 {
-  "name": "@botpresshub/gcalendar", 
+  "name": "@botpresshub/gcalendar",
   "scripts": {
     "type:check": "tsc --noEmit"
   },
   "keywords": [],
   "private": true,
-  "author": "Goose", 
+  "author": "Goose",
   "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "google-auth-library": "^9.0.0",
     "googleapis": "^126.0.1",
-    "zod": "^3.20.6"
+    "zod": "3.20.6"
   },
   "devDependencies": {
     "@types/node": "^18.11.17",

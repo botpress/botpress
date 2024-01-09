@@ -240,6 +240,34 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  integrations/gcalendar:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      google-auth-library:
+        specifier: ^9.0.0
+        version: 9.0.0
+      googleapis:
+        specifier: ^126.0.1
+        version: 126.0.1
+      zod:
+        specifier: 3.20.6
+        version: 3.20.6
+    devDependencies:
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.16.16
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.1(@types/node@18.16.16)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   integrations/github:
     dependencies:
       '@botpress/sdk':
@@ -10155,7 +10183,7 @@ packages:
       '@tsconfig/node14': 1.0.3
       '@tsconfig/node16': 1.0.4
       '@types/node': 18.16.0
-      acorn: 8.8.2
+      acorn: 8.10.0
       acorn-walk: 8.2.0
       arg: 4.1.3
       create-require: 1.1.1
@@ -10949,6 +10977,10 @@ packages:
 
   /zod@1.11.17:
     resolution: {integrity: sha512-UzIwO92D0dSFwIRyyqAfRXICITLjF0IP8tRbEK/un7adirMssWZx8xF/1hZNE7t61knWZ+lhEuUvxlu2MO8qqA==}
+    dev: false
+
+  /zod@3.20.6:
+    resolution: {integrity: sha512-oyu0m54SGCtzh6EClBVqDDlAYRz4jrVtKwQ7ZnsEmMI9HnzuZFj8QFwAY1M5uniIYACdGvv0PBWPF2kO0aNofA==}
     dev: false
 
   /zod@3.21.4:
