@@ -1,10 +1,13 @@
-import { IntegrationLogger } from 'src'
+/* eslint-disable max-lines-per-function */
+import { IntegrationCtx, IntegrationLogger } from 'src'
+import { getWhatsAppMediaUrl } from './util'
 import { WhatsAppMessage, WhatsAppValue } from './whatsapp-types'
 import * as bp from '.botpress'
 
 export async function handleIncomingMessage(
   message: WhatsAppMessage,
   value: WhatsAppValue,
+  ctx: IntegrationCtx,
   client: bp.Client,
   logger: IntegrationLogger
 ) {
@@ -59,6 +62,47 @@ export async function handleIncomingMessage(
             longitude: Number(message.location.longitude),
             address: message.location.address,
             title: message.location.name,
+          },
+          userId: user.id,
+          conversationId: conversation.id,
+        })
+      } else if (message.image) {
+        logger.forBot().debug('Received image message from Whatsapp:', message.button)
+
+        const imageUrl = await getWhatsAppMediaUrl(message.image.id, ctx)
+
+        await client.createMessage({
+          tags: { id: message.id },
+          type: 'image',
+          payload: { imageUrl },
+          userId: user.id,
+          conversationId: conversation.id,
+        })
+      } else if (message.audio) {
+        logger.forBot().debug('Received audio message from Whatsapp:', message.button)
+
+        const audioUrl = await getWhatsAppMediaUrl(message.audio.id, ctx)
+
+        await client.createMessage({
+          tags: { id: message.id },
+          type: 'audio',
+          payload: { audioUrl },
+          userId: user.id,
+          conversationId: conversation.id,
+        })
+      } else if (message.document) {
+        logger.forBot().debug('Received document message from Whatsapp:', message.button)
+
+        const documentUrl = await getWhatsAppMediaUrl(message.document.id, ctx)
+
+        await client.createMessage({
+          tags: { id: message.id },
+          type: 'document' as any, // Note: We cast this to avoid defining a custom message type which would involve having to support it as an outgoing message as well.
+          payload: {
+            document: {
+              documentUrl,
+              filename: message.document.filename,
+            },
           },
           userId: user.id,
           conversationId: conversation.id,

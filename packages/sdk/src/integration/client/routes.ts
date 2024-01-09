@@ -1,5 +1,5 @@
 import { Client } from '@botpress/client'
-import { Merge, Cast } from '../../type-utils'
+import { Merge, Cast, ValueOf } from '../../type-utils'
 import { BaseIntegration } from '../generic'
 import { GetChannelByName, ToTags, WithPrefix } from './types'
 
@@ -8,16 +8,30 @@ type Res<F extends (...args: any[]) => any> = ReturnType<F>
 
 type PrefixConfig<TIntegration extends BaseIntegration> = { allowPrefix: TIntegration['name'] }
 
-type AllChannels<TIntegration extends BaseIntegration> = TIntegration['channels'][keyof TIntegration['channels']]
+type AllChannels<TIntegration extends BaseIntegration> = ValueOf<TIntegration['channels']>
+
+type ConversationResponse<
+  TIntegration extends BaseIntegration,
+  ChannelName extends keyof TIntegration['channels'] = keyof TIntegration['channels']
+> = {
+  conversation: Merge<
+    Awaited<Res<Client['getConversation']>>['conversation'],
+    {
+      tags: ToTags<keyof TIntegration['channels'][ChannelName]['conversation']['tags'], PrefixConfig<TIntegration>>
+    }
+  >
+}
 
 export type CreateConversation<TIntegration extends BaseIntegration> = <
   ChannelName extends keyof TIntegration['channels']
 >(x: {
   channel: Cast<ChannelName, string>
   tags: ToTags<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags'], PrefixConfig<TIntegration>>
-}) => Res<Client['createConversation']>
+}) => Promise<ConversationResponse<TIntegration, ChannelName>>
 
-export type GetConversation<_TIntegration extends BaseIntegration> = Client['getConversation']
+export type GetConversation<TIntegration extends BaseIntegration> = (
+  x: Arg<Client['getConversation']>
+) => Promise<ConversationResponse<TIntegration>>
 
 export type ListConversations<TIntegration extends BaseIntegration> = (
   x: Merge<
@@ -26,14 +40,14 @@ export type ListConversations<TIntegration extends BaseIntegration> = (
       tags?: ToTags<keyof AllChannels<TIntegration>['conversation']['tags'], PrefixConfig<TIntegration>>
     }
   >
-) => Res<Client['listConversations']>
+) => Res<Client['listConversations']> // TODO: response should contain the tags
 
 export type GetOrCreateConversation<TIntegration extends BaseIntegration> = <
   ChannelName extends keyof TIntegration['channels']
 >(x: {
   channel: Cast<ChannelName, string>
   tags: ToTags<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags'], PrefixConfig<TIntegration>>
-}) => Res<Client['getOrCreateConversation']>
+}) => Promise<ConversationResponse<TIntegration, ChannelName>>
 
 export type UpdateConversation<TIntegration extends BaseIntegration> = (
   x: Merge<
@@ -42,7 +56,7 @@ export type UpdateConversation<TIntegration extends BaseIntegration> = (
       tags: ToTags<keyof AllChannels<TIntegration>['conversation']['tags'], PrefixConfig<TIntegration>>
     }
   >
-) => Res<Client['updateConversation']>
+) => Promise<ConversationResponse<TIntegration>>
 
 export type DeleteConversation<_TIntegration extends BaseIntegration> = Client['deleteConversation']
 
@@ -72,6 +86,20 @@ export type ListEvents<TIntegration extends BaseIntegration> = (
   >
 ) => Res<Client['listEvents']>
 
+type MessageResponse<
+  TIntegration extends BaseIntegration,
+  TChannel extends keyof TIntegration['channels'],
+  TMessage extends keyof TIntegration['channels'][TChannel]['messages']
+> = {
+  message: Merge<
+    Awaited<Res<Client['createMessage']>>['message'],
+    {
+      payload: TIntegration['channels'][TChannel]['messages'][TMessage]
+      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags'], PrefixConfig<TIntegration>>
+    }
+  >
+}
+
 export type CreateMessage<TIntegration extends BaseIntegration> = <
   TChannel extends keyof TIntegration['channels'],
   TMessage extends keyof TIntegration['channels'][TChannel]['messages']
@@ -84,22 +112,27 @@ export type CreateMessage<TIntegration extends BaseIntegration> = <
       tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags'], PrefixConfig<TIntegration>>
     }
   >
-) => Res<Client['createMessage']>
+) => Promise<MessageResponse<TIntegration, TChannel, TMessage>>
 
 export type GetOrCreateMessage<TIntegration extends BaseIntegration> = <
-  TMessage extends keyof AllChannels<TIntegration>['messages']
+  TChannel extends keyof TIntegration['channels'],
+  TMessage extends keyof TIntegration['channels'][TChannel]['messages']
 >(
   x: Merge<
     Arg<Client['getOrCreateMessage']>,
     {
       type: Cast<TMessage, string> // TODO: conversation should be used to infer the channel of the message
-      payload: AllChannels<TIntegration>['messages'][TMessage]
-      tags: ToTags<keyof AllChannels<TIntegration>['message']['tags'], PrefixConfig<TIntegration>>
+      payload: TIntegration['channels'][TChannel]['messages'][TMessage]
+      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags'], PrefixConfig<TIntegration>>
     }
   >
-) => Res<Client['getOrCreateMessage']>
+) => Promise<MessageResponse<TIntegration, TChannel, TMessage>>
 
-export type GetMessage<_TIntegration extends BaseIntegration> = Client['getMessage']
+export type GetMessage<TIntegration extends BaseIntegration> = (
+  x: Arg<Client['getMessage']>
+) => Promise<
+  MessageResponse<TIntegration, keyof TIntegration['channels'], keyof ValueOf<TIntegration['channels']>['messages']>
+>
 
 export type UpdateMessage<TIntegration extends BaseIntegration> = (
   x: Merge<
@@ -108,7 +141,9 @@ export type UpdateMessage<TIntegration extends BaseIntegration> = (
       tags: ToTags<keyof AllChannels<TIntegration>['message']['tags'], PrefixConfig<TIntegration>>
     }
   >
-) => Res<Client['updateMessage']>
+) => Promise<
+  MessageResponse<TIntegration, keyof TIntegration['channels'], keyof ValueOf<TIntegration['channels']>['messages']>
+>
 
 export type ListMessages<TIntegration extends BaseIntegration> = (
   x: Merge<
@@ -117,7 +152,7 @@ export type ListMessages<TIntegration extends BaseIntegration> = (
       tags: ToTags<keyof AllChannels<TIntegration>['message']['tags'], PrefixConfig<TIntegration>>
     }
   >
-) => Res<Client['listMessages']>
+) => Res<Client['listMessages']> // TODO: response should contain the tags
 
 export type DeleteMessage<_TIntegration extends BaseIntegration> = Client['deleteMessage']
 
