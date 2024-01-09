@@ -1,4 +1,4 @@
-import { listEvents } from '../actions';
+import { listEvents } from '../actions'
 import {
   ActionDefinitions,
   listEventsInputSchema,
@@ -9,18 +9,18 @@ import {
   updateEventOutputSchema,
   deleteEventInputSchema,
   deleteEventOutputSchema,
-} from '../misc/custom-schemas';
+} from '../misc/custom-schemas'
 
 type ActionDef = {
-  title: string;
+  title: string
   input: {
-    schema: any;
-    ui: any;
-  };
+    schema: any
+    ui: any
+  }
   output: {
-    schema: any;
-  };
-};
+    schema: any
+  }
+}
 
 const createEvent: ActionDef = {
   title: 'Create Event',
@@ -31,7 +31,7 @@ const createEvent: ActionDef = {
   output: {
     schema: createEventOutputSchema,
   },
-};
+}
 
 const updateEvent: ActionDef = {
   title: 'Update Event',
@@ -42,7 +42,7 @@ const updateEvent: ActionDef = {
   output: {
     schema: updateEventOutputSchema,
   },
-};
+}
 
 const deleteEvent: ActionDef = {
   title: 'Delete Event',
@@ -53,7 +53,7 @@ const deleteEvent: ActionDef = {
   output: {
     schema: deleteEventOutputSchema,
   },
-};
+}
 
 const getEvents: ActionDef = {
   title: 'Get Events',
@@ -64,11 +64,11 @@ const getEvents: ActionDef = {
   output: {
     schema: listEventsOutputSchema,
   },
-};
+}
 
 export const actions = {
   getEvents,
   createEvent,
   updateEvent,
   deleteEvent,
-} as ActionDefinitions;
+} as ActionDefinitions

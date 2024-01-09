@@ -1,6 +1,6 @@
-import actions from './actions'
+import * as actions from './actions'
 import { getClient, GoogleCalendarApi } from './client'
-import * as bp from 'botpress'
+import * as bp from '.botpress'
 
 type CalendarData = Awaited<ReturnType<GoogleCalendarApi['getCalendar']>>
 const summarizeCalendar = (calendar: CalendarData) => {
@@ -15,7 +15,9 @@ const summarizeCalendar = (calendar: CalendarData) => {
     return summary
   }
 
-  const eventTitles = events.map((event: { properties?: { title?: string } }) => event.properties?.title).filter((x: unknown): x is string => !!x)
+  const eventTitles = events
+    .map((event: { properties?: { title?: string } }) => event.properties?.title)
+    .filter((x: unknown): x is string => !!x)
   if (!eventTitles.length) {
     return summary
   }

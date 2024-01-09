@@ -4,7 +4,6 @@ import z from 'zod'
 export type ActionDefinitions = NonNullable<IntegrationDefinition['actions']>
 export type Schema = ActionDefinitions[string]['input']['schema']
 
-// Define a common schema for calendar events
 const eventSchema = z.object({
   summary: z.string().describe('The event title/summary.'),
   description: z.string().nullable().optional().describe('The event description.'),
@@ -13,7 +12,6 @@ const eventSchema = z.object({
   endDateTime: z.string().describe('The end date and time in ISO 8601 format (e.g., "2023-12-31T12:00:00Z").'),
 })
 
-// Define input and output schemas for Google Calendar actions
 export const createEventInputSchema = z.object({
   event: eventSchema.describe('The event data to create a new calendar event.'),
 }) satisfies Schema
@@ -53,12 +51,16 @@ export const listEventsInputSchema = z.object({
   endDate: z.string().nullable().optional().describe('The end date for listing events (in ISO 8601 format).'),
 }) satisfies Schema
 
-export const listEventsOutputSchema = z
-  .array(
-    z.object({
-      eventId: z.string().nullable().describe('The ID of the calendar event.'),
-      event: eventSchema.describe('The calendar event data.'),
-    })
-  )
-  .partial()
-  .passthrough() satisfies Schema
+export const listEventsOutputSchema = z.object({
+  events: z
+    .array(
+      z
+        .object({
+          eventId: z.string().nullable().describe('The ID of the calendar event.'),
+          event: eventSchema.describe('The calendar event data.'),
+        })
+        .partial()
+    )
+    .optional()
+    .describe('The list of calendar events.'),
+}) satisfies Schema

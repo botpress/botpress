@@ -1,6 +1,6 @@
 import { JWT } from 'google-auth-library'
 import { google, calendar_v3 } from 'googleapis'
-import { Config } from './misc/types'
+import { Config } from '../misc/types'
 
 export function getClient(config: Config) {
   return new GoogleCalendarApi(config.calendarId, config.privateKey, config.clientEmail)
