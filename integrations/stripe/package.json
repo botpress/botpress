@@ -1,5 +1,5 @@
 {
-  "name": "stripe2",
+  "name": "@botpresshub/stripe",
   "scripts": {
     "start": "pnpm bp serve",
     "build": "pnpm bp build",
