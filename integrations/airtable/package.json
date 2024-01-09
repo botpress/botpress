@@ -1,7 +1,11 @@
 {
-  "name": "airtable2",
+  "name": "@botpresshub/airtable",
   "scripts": {
-    "type:check": "tsc --noEmit"
+    "start": "pnpm bp serve",
+    "build": "pnpm bp build",
+    "deploy": "pnpm bp deploy",
+    "type:check": "tsc --noEmit",
+    "test": "echo \"Tests not implemented yet.\""
   },
   "keywords": [],
   "private": true,
