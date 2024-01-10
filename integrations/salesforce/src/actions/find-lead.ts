@@ -1,17 +1,10 @@
+import { findLeadInputSchema, findLeadOutputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
-import {
-  findLeadInputSchema,
-  findLeadOutputSchema,
-} from '../misc/custom-schemas'
 
 import { getClient } from '../utils'
 
-export const findLead: Implementation['actions']['findLead'] = async ({
-  ctx,
-  input,
-  logger,
-}) => {
+export const findLead: Implementation['actions']['findLead'] = async ({ ctx, input, logger }) => {
   const validatedInput = findLeadInputSchema.parse(input)
   const SalesforceClient = await getClient(ctx.configuration)
 

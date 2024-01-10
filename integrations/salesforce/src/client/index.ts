@@ -6,13 +6,7 @@ export class SalesforceApi {
   private password: string
   private securityToken: string
 
-  constructor(
-    username: string,
-    password: string,
-    securityToken: string,
-    SFLoginURL?: string,
-    apiVersion?: string
-  ) {
+  constructor(username: string, password: string, securityToken: string, SFLoginURL?: string, apiVersion?: string) {
     const opts = apiVersion ? { version: apiVersion } : null
     this.username = username
     this.password = password
@@ -38,13 +32,7 @@ export class SalesforceApi {
     return result
   }
 
-  async createLead(leadData: {
-    FirstName: string
-    LastName: string
-    Company: string
-    Email?: string
-    Phone?: string
-  }) {
+  async createLead(leadData: { FirstName: string; LastName: string; Company: string; Email?: string; Phone?: string }) {
     const result = await this.conn.sobject('Lead').create(leadData)
     return result
   }

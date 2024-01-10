@@ -57,12 +57,10 @@ export const updateCaseUi = {
     title: 'The ID of the case to update',
   },
   subject: {
-    title:
-      'The updated subject of the case (Optional) (e.g. My Updated Subject)',
+    title: 'The updated subject of the case (Optional) (e.g. My Updated Subject)',
   },
   suppliedName: {
-    title:
-      'The updated supplied name for the case (Optional) (e.g. UpdatedExampleName)',
+    title: 'The updated supplied name for the case (Optional) (e.g. UpdatedExampleName)',
   },
   description: {
     title: 'The updated description of the case (Optional)',
@@ -74,8 +72,7 @@ export const updateCaseUi = {
     title: 'The updated status of the case (Optional) (e.g. Resolved)',
   },
   origin: {
-    title:
-      'The updated origin of the case (Optional) (e.g. Botpress: bot user-1)',
+    title: 'The updated origin of the case (Optional) (e.g. Botpress: bot user-1)',
   },
 }
 
@@ -90,16 +87,13 @@ export const updateContactUi = {
     title: 'The updated last name of the contact (Optional) (e.g. Doe)',
   },
   accountId: {
-    title:
-      'The updated ID of the account associated with the contact (Optional)',
+    title: 'The updated ID of the account associated with the contact (Optional)',
   },
   email: {
-    title:
-      'The updated email address of the contact (Optional) (e.g. john.doe@example.com)',
+    title: 'The updated email address of the contact (Optional) (e.g. john.doe@example.com)',
   },
   phone: {
-    title:
-      'The updated phone number of the contact (Optional) (e.g. +1-555-1234)',
+    title: 'The updated phone number of the contact (Optional) (e.g. +1-555-1234)',
   },
 }
 
@@ -117,8 +111,7 @@ export const updateLeadUi = {
     title: 'The updated company of the lead (Optional) (e.g. Acme Inc.)',
   },
   email: {
-    title:
-      'The updated email address of the lead (Optional) (e.g. john.doe@example.com)',
+    title: 'The updated email address of the lead (Optional) (e.g. john.doe@example.com)',
   },
   phone: {
     title: 'The updated phone number of the lead (Optional) (e.g. +1-555-1234)',

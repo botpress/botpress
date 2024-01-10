@@ -13,9 +13,7 @@ export const configuration = {
       .string()
       .optional()
       .default('https://login.salesforce.com')
-      .describe(
-        'Login URL for Salesforce, excluding trailing (Default: https://login.salesforce.com)'
-      ),
+      .describe('Login URL for Salesforce, excluding trailing (default: https://login.salesforce.com)'),
     email: z.string().describe('Email to use to connect to Salesforce'),
     password: z.string().describe('Password to use to connect to Salesforce'),
     securityToken: z
@@ -27,9 +25,7 @@ export const configuration = {
       .string()
       .optional()
       .default('42.0')
-      .describe(
-        'What Salesforce API version to use, must be a string without the "v" in front (Default: 42.0)'
-      ),
+      .describe('What Salesforce API version to use, must be a string without the "v" in front (default: 42.0)'),
   }),
 }
 

@@ -1,14 +1,9 @@
-import type { Implementation } from '../misc/types'
-
 import { createCaseInputSchema } from '../misc/custom-schemas'
+import type { Implementation } from '../misc/types'
 
 import { getClient } from '../utils'
 
-export const createCase: Implementation['actions']['createCase'] = async ({
-  ctx,
-  input,
-  logger,
-}) => {
+export const createCase: Implementation['actions']['createCase'] = async ({ ctx, input, logger }) => {
   const validatedInput = createCaseInputSchema.parse(input)
   const SalesforceClient = await getClient(ctx.configuration)
 

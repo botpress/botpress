@@ -1,14 +1,9 @@
-import type { Implementation } from '../misc/types'
-
 import { updateLeadInputSchema } from '../misc/custom-schemas'
+import type { Implementation } from '../misc/types'
 
 import { getClient } from '../utils'
 
-export const updateLead: Implementation['actions']['updateLead'] = async ({
-  ctx,
-  input,
-  logger,
-}) => {
+export const updateLead: Implementation['actions']['updateLead'] = async ({ ctx, input, logger }) => {
   const validatedInput = updateLeadInputSchema.parse(input)
   const SalesforceClient = await getClient(ctx.configuration)
 
@@ -25,10 +20,7 @@ export const updateLead: Implementation['actions']['updateLead'] = async ({
   let returnData
 
   try {
-    response = await SalesforceClient.updateLead(
-      validatedInput.leadId,
-      leadData
-    )
+    response = await SalesforceClient.updateLead(validatedInput.leadId, leadData)
     if (response.success) {
       logger.forBot().info(`Successful - Update Lead - ${response.id}`)
     }

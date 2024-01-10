@@ -1,6 +1,6 @@
+import { updateContactInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
-import { updateContactInputSchema } from '../misc/custom-schemas'
 
 import { getClient } from '../utils'
 

@@ -1,17 +1,21 @@
 {
   "name": "salesforce",
   "scripts": {
-    "type:check": "tsc --noEmit"
+    "start": "pnpm bp serve",
+    "build": "pnpm bp build",
+    "deploy": "pnpm bp deploy",
+    "type:check": "tsc --noEmit",
+    "test": "echo \"Tests not implemented yet.\""
   },
   "keywords": [],
   "private": true,
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "0.3.2",
-    "@botpress/sdk": "0.3.0",
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "jsforce": "^1.11.1",
-    "zod": "^3.20.6"
+    "zod": "3.20.6"
   },
   "devDependencies": {
     "@types/jsforce": "^1.11.0",

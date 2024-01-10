@@ -1,14 +1,10 @@
+import { updateCaseInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
-import { updateCaseInputSchema } from '../misc/custom-schemas'
 
 import { getClient } from '../utils'
 
-export const updateCase: Implementation['actions']['updateCase'] = async ({
-  ctx,
-  input,
-  logger,
-}) => {
+export const updateCase: Implementation['actions']['updateCase'] = async ({ ctx, input, logger }) => {
   const validatedInput = updateCaseInputSchema.parse(input)
   const SalesforceClient = await getClient(ctx.configuration)
 
@@ -25,10 +21,7 @@ export const updateCase: Implementation['actions']['updateCase'] = async ({
   let returnData
 
   try {
-    response = await SalesforceClient.updateCase(
-      validatedInput.caseId,
-      caseData
-    )
+    response = await SalesforceClient.updateCase(validatedInput.caseId, caseData)
     if (response.success) {
       logger.forBot().info(`Successful - Update Case - ${response.id}`)
     }
