@@ -1,8 +1,5 @@
 import actions from './actions'
-import * as botpress from '.botpress'
-
-const logger = console
-logger.info('starting integration')
+import * as bp from '.botpress'
 
 class NotImplementedError extends Error {
   constructor() {
@@ -10,7 +7,7 @@ class NotImplementedError extends Error {
   }
 }
 
-export default new botpress.Integration({
+export default new bp.Integration({
   register: async () => {
     /**
      * This is called when a bot installs the integration.
