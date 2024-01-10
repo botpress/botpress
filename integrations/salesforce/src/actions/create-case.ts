@@ -1,6 +1,5 @@
 import { createCaseInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
-
 import { getClient } from '../utils'
 
 export const createCase: Implementation['actions']['createCase'] = async ({ ctx, input, logger }) => {
@@ -15,25 +14,15 @@ export const createCase: Implementation['actions']['createCase'] = async ({ ctx,
     Origin: `Botpress: bot ${validatedInput.botId || ''}`,
   }
 
-  let response
-  let returnData
-
-  try {
-    response = await SalesforceClient.createCase(caseData)
-    if (response.success) {
-      logger.forBot().info(`Successful - Create Case - ${response.id}`)
-    }
-  } catch (error) {
-    logger.forBot().debug(`'Create Case' exception ${JSON.stringify(error)}`)
-  }
+  const response = await SalesforceClient.createCase(caseData, logger)
 
   if (response?.success) {
-    returnData = {
+    logger.forBot().info(`Successful - Create Case - ${response.id}`)
+    return {
       id: response.id,
     }
-  } else {
-    returnData = response || {}
   }
 
-  return returnData
+  logger.forBot().debug(`'Create Case' exception ${JSON.stringify(response.errors)}`)
+  return response || {}
 }

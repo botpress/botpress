@@ -1,4 +1,3 @@
-import type { IntegrationDefinitionProps } from '@botpress/sdk'
 import z from 'zod'
 
 import { actions } from './actions'

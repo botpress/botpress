@@ -28,13 +28,11 @@ export class SalesforceApi {
     Priority?: string
     Origin: string
   }) {
-    const result = await this.conn.sobject('Case').create(caseData)
-    return result
+    return this.conn.sobject('Case').create(caseData)
   }
 
   async createLead(leadData: { FirstName: string; LastName: string; Company: string; Email?: string; Phone?: string }) {
-    const result = await this.conn.sobject('Lead').create(leadData)
-    return result
+    return this.conn.sobject('Lead').create(leadData)
   }
 
   async createContact(contactData: {

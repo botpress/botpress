@@ -1,5 +1,5 @@
-import { Config } from '../misc/types'
 import { SalesforceApi } from '../client'
+import { Config } from '../misc/types'
 
 export async function getClient(config: Config) {
   const SalesforceClient = new SalesforceApi(

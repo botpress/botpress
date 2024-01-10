@@ -1,5 +1,5 @@
 {
-  "name": "salesforce",
+  "name": "salesforce2",
   "scripts": {
     "start": "pnpm bp serve",
     "build": "pnpm bp build",
