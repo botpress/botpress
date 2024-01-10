@@ -1,5 +1,5 @@
-import { Client } from '@botpress/client'
 import { INTEGRATION_NAME } from '../const'
+import { Client } from './types'
 
 export const getUserAndConversation = async (
   props: { webchatUserId: string; webchatConvoId: string },

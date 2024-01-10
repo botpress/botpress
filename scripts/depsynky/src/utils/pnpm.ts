@@ -43,3 +43,8 @@ export const findReferences = (rootDir: string, pkgName: string) => {
 export const versions = (workspaces: PnpmWorkspace[]): Record<string, string> => {
   return objects.fromEntries(workspaces.map(({ content: { name, version } }) => [name, version]))
 }
+
+export const listPublicPackages = (rootDir: string): string[] => {
+  const workspaces = searchWorkspaces(rootDir)
+  return workspaces.filter((w) => !w.content.private).map((w) => w.content.name)
+}

@@ -27,7 +27,7 @@ export const createDeployBot: Test = {
       ...creds,
     }
 
-    const client = new Client({ host: creds.apiUrl, token: creds.token, workspaceId: creds.workspaceId })
+    const client = new Client({ apiUrl: creds.apiUrl, token: creds.token, workspaceId: creds.workspaceId })
 
     await impl.init({ ...argv, workDir: baseDir, name: botName, type: 'bot' }).then(utils.handleExitCode)
     await utils.fixBotpressDependencies({ workDir: botDir, target: dependencies })

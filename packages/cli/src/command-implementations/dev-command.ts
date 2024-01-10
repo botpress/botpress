@@ -1,14 +1,13 @@
 import type * as bpclient from '@botpress/client'
-import type { Bot as BotImpl, IntegrationDefinition } from '@botpress/sdk'
+import type * as bpsdk from '@botpress/sdk'
 import { TunnelRequest, TunnelResponse } from '@bpinternal/tunnel'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import chalk from 'chalk'
-import _ from 'lodash'
 import * as pathlib from 'path'
 import * as uuid from 'uuid'
 import { prepareUpdateBotBody } from '../api/bot-body'
 import type { ApiClient } from '../api/client'
-import { prepareUpdateIntegrationBody } from '../api/integration-body'
+import { prepareUpdateIntegrationBody, CreateIntegrationBody } from '../api/integration-body'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import * as utils from '../utils'
@@ -22,7 +21,7 @@ const TUNNEL_HELLO_INTERVAL = 5000
 
 export type DevCommandDefinition = typeof commandDefinitions.dev
 export class DevCommand extends ProjectCommand<DevCommandDefinition> {
-  private _initialDef: IntegrationDefinition | undefined = undefined
+  private _initialDef: bpsdk.IntegrationDefinition | undefined = undefined
 
   public async run(): Promise<void> {
     this.logger.warn('This command is experimental and subject to breaking changes without notice.')
@@ -63,40 +62,62 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       path: `/${tunnelId}`,
     })
 
+    let worker: Worker | undefined = undefined
+
     const supervisor = new utils.tunnel.TunnelSupervisor(wsTunnelUrl, tunnelId, this.logger)
     supervisor.events.on('connected', ({ tunnel }) => {
       // prevents the tunnel from closing due to inactivity
-      const timer = setInterval(() => tunnel.hello(), TUNNEL_HELLO_INTERVAL)
-      tunnel.events.on('close', () => clearInterval(timer))
+      const timer = setInterval(() => {
+        if (tunnel.closed) {
+          return handleClose()
+        }
+        tunnel.hello()
+      }, TUNNEL_HELLO_INTERVAL)
+      const handleClose = (): void => clearInterval(timer)
+      tunnel.events.on('close', handleClose)
 
-      tunnel.events.on(
-        'request',
-        (req) =>
-          void this._forwardTunnelRequest(`http://localhost:${port}`, req)
-            .then((res) => {
-              tunnel.send(res)
+      tunnel.events.on('request', (req) => {
+        if (!worker) {
+          this.logger.debug('Worker not ready yet, ignoring request')
+          tunnel.send({ requestId: req.id, status: 503, body: 'Worker not ready yet' })
+          return
+        }
+
+        void this._forwardTunnelRequest(`http://localhost:${port}`, req)
+          .then((res) => {
+            tunnel.send(res)
+          })
+          .catch((thrown) => {
+            const err = errors.BotpressCLIError.wrap(thrown, 'An error occurred while handling request')
+            this.logger.error(err.message)
+            tunnel.send({
+              requestId: req.id,
+              status: 500,
+              body: err.message,
             })
-            .catch((thrown) => {
-              const err = errors.BotpressCLIError.wrap(thrown, 'An error occurred while handling request')
-              this.logger.error(err.message)
-              tunnel.send({
-                requestId: req.id,
-                status: 500,
-                body: err.message,
-              })
-            })
-      )
+          })
+      })
     })
+
+    supervisor.events.on('manuallyClosed', () => {
+      this.logger.debug('Tunnel manually closed')
+    })
+
     await supervisor.start()
 
     await this._runBuild()
     await this._deploy(api, httpTunnelUrl)
-    const worker = await this._spawnWorker(env, port)
+    worker = await this._spawnWorker(env, port)
 
     try {
       const watcher = await utils.filewatcher.FileWatcher.watch(
         this.argv.workDir,
         async (events) => {
+          if (!worker) {
+            this.logger.debug('Worker not ready yet, ignoring file change event')
+            return
+          }
+
           const typescriptEvents = events.filter((e) => pathlib.extname(e.path) === '.ts')
           if (typescriptEvents.length === 0) {
             return
@@ -149,10 +170,10 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     }
   }
 
-  private _checkSecrets(integrationDef: IntegrationDefinition) {
-    const initialSecrets = this._initialDef?.secrets ?? []
-    const currentSecrets = integrationDef.secrets ?? []
-    const newSecrets = currentSecrets.filter((s) => !initialSecrets.includes(s))
+  private _checkSecrets(integrationDef: bpsdk.IntegrationDefinition) {
+    const initialSecrets = this._initialDef?.secrets ?? {}
+    const currentSecrets = integrationDef.secrets ?? {}
+    const newSecrets = Object.keys(currentSecrets).filter((s) => !initialSecrets[s])
     if (newSecrets.length > 0) {
       throw new errors.BotpressCLIError('Secrets were added while the server was running. A restart is required.')
     }
@@ -184,7 +205,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   private async _deployDevIntegration(
     api: ApiClient,
     externalUrl: string,
-    integrationDef: IntegrationDefinition
+    integrationDef: bpsdk.IntegrationDefinition
   ): Promise<void> {
     const devId = await this.projectCache.get('devId')
 
@@ -207,9 +228,14 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying dev integration ${chalk.bold(integrationDef.name)}...`)
 
+    const integrationBody: CreateIntegrationBody = {
+      ...this.prepareIntegrationDefinition(integrationDef),
+      url: externalUrl,
+    }
+
     if (integration) {
       const updateIntegrationBody = prepareUpdateIntegrationBody(
-        { ...integrationDef, id: integration.id, url: externalUrl },
+        { ...integrationBody, id: integration.id },
         integration
       )
 
@@ -218,15 +244,15 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       })
       integration = resp.integration
     } else {
-      const resp = await api.client
-        .createIntegration({ ...integrationDef, dev: true, url: externalUrl })
-        .catch((thrown) => {
-          throw errors.BotpressCLIError.wrap(thrown, `Could not deploy dev integration "${integrationDef.name}"`)
-        })
+      const resp = await api.client.createIntegration({ ...integrationBody, dev: true }).catch((thrown) => {
+        throw errors.BotpressCLIError.wrap(thrown, `Could not deploy dev integration "${integrationDef.name}"`)
+      })
       integration = resp.integration
     }
 
     line.success(`Dev Integration deployed with id "${integration.id}"`)
+    line.commit()
+
     await this.projectCache.set('devId', integration.id)
   }
 
@@ -263,26 +289,22 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
 
       bot = resp.bot
       createLine.success(`Dev Bot created with id "${bot.id}"`)
+      createLine.commit()
       await this.projectCache.set('devId', bot.id)
     }
 
     const outfile = this.projectPaths.abs.outFile
-    const { default: botImpl } = utils.require.requireJsFile<{ default: BotImpl }>(outfile)
+    const { default: botImpl } = utils.require.requireJsFile<{ default: bpsdk.Bot }>(outfile)
 
     const updateLine = this.logger.line()
     updateLine.started('Deploying dev bot...')
 
-    const integrations = _(botImpl.definition.integrations ?? [])
-      .keyBy((i) => i.id)
-      .mapValues(({ enabled, configuration }) => ({ enabled, configuration }))
-      .value()
-
     const updateBotBody = prepareUpdateBotBody(
       {
-        ...botImpl.definition,
         id: bot.id,
-        integrations,
         url: externalUrl,
+        ...this.prepareBot(botImpl),
+        ...(await this.prepareBotIntegrationInstances(botImpl, api)),
       },
       bot
     )
@@ -291,6 +313,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       throw errors.BotpressCLIError.wrap(thrown, 'Could not deploy dev bot')
     })
     updateLine.success(`Dev Bot deployed with id "${updatedBot.id}"`)
+    updateLine.commit()
 
     this.displayWebhookUrls(updatedBot)
   }

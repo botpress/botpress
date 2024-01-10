@@ -10,7 +10,7 @@ export default new IntegrationDefinition({
   version: '0.2.0',
   icon: 'icon.svg',
   description: 'Webchat integration for Botpress',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration,
   channels,
   user,

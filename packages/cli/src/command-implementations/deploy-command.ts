@@ -1,8 +1,7 @@
 import type * as bpclient from '@botpress/client'
-import type { Bot as BotImpl, IntegrationDefinition } from '@botpress/sdk'
+import type * as bpsdk from '@botpress/sdk'
 import chalk from 'chalk'
 import * as fs from 'fs'
-import _ from 'lodash'
 import { prepareUpdateBotBody } from '../api/bot-body'
 import type { ApiClient } from '../api/client'
 import { prepareUpdateIntegrationBody, CreateIntegrationBody } from '../api/integration-body'
@@ -36,7 +35,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     return new BuildCommand(this.api, this.prompt, this.logger, this.argv).run()
   }
 
-  private async _deployIntegration(api: ApiClient, integrationDef: IntegrationDefinition) {
+  private async _deployIntegration(api: ApiClient, integrationDef: bpsdk.IntegrationDefinition) {
     const outfile = this.projectPaths.abs.outFile
     let code = await fs.promises.readFile(outfile, 'utf-8')
 
@@ -46,12 +45,31 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       code = code.replace(new RegExp(`process\\.env\\.${secretName}`, 'g'), `"${secretValue}"`)
     }
 
-    const { name, version, icon: iconRelativeFilePath, readme: readmeRelativeFilePath } = integrationDef
+    const {
+      name,
+      version,
+      icon: iconRelativeFilePath,
+      readme: readmeRelativeFilePath,
+      identifier,
+      configuration,
+    } = integrationDef
+
+    if (iconRelativeFilePath && !iconRelativeFilePath.toLowerCase().endsWith('.svg')) {
+      throw new errors.BotpressCLIError('Icon must be an SVG file')
+    }
 
     const iconFileContent = await this._readMediaFile('icon', iconRelativeFilePath)
     const readmeFileContent = await this._readMediaFile('readme', readmeRelativeFilePath)
+    const identifierExtractScriptFileContent = await this._readFile(identifier?.extractScript)
+    const fallbackHandlerScriptFileContent = await this._readFile(identifier?.fallbackHandlerScript)
+    const identifierLinkTemplateFileContent = await this._readFile(configuration?.identifier?.linkTemplateScript)
 
     const integration = await api.findIntegration({ type: 'name', name, version })
+    if (integration && !integration.workspaceId) {
+      throw new errors.BotpressCLIError(
+        `Public integration ${integrationDef.name} v${integrationDef.version} is already deployed in another workspace.`
+      )
+    }
 
     let message: string
     if (integration) {
@@ -67,11 +85,24 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       return
     }
 
+    const integrationDefinition = this.prepareIntegrationDefinition(integrationDef)
+
     const createBody: CreateIntegrationBody = {
-      ...integrationDef,
+      ...integrationDefinition,
+      code,
       icon: iconFileContent,
       readme: readmeFileContent,
-      code,
+      configuration: {
+        ...integrationDefinition.configuration,
+        identifier: {
+          ...(integrationDefinition.configuration?.identifier ?? {}),
+          linkTemplateScript: identifierLinkTemplateFileContent,
+        },
+      },
+      identifier: {
+        extractScript: identifierExtractScriptFileContent,
+        fallbackHandlerScript: fallbackHandlerScriptFileContent,
+      },
     }
 
     const line = this.logger.line()
@@ -85,15 +116,59 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         integration
       )
 
+      this._detectDeprecatedFeatures(integrationDef, { allowDeprecated: true })
       await api.client.updateIntegration(updateBody).catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, `Could not update integration "${integrationDef.name}"`)
       })
     } else {
+      this._detectDeprecatedFeatures(integrationDef, this.argv)
       await api.client.createIntegration(createBody).catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, `Could not create integration "${integrationDef.name}"`)
       })
     }
     line.success('Integration deployed')
+  }
+
+  private _detectDeprecatedFeatures(
+    integrationDef: bpsdk.IntegrationDefinition,
+    opts: { allowDeprecated?: boolean } = {}
+  ) {
+    const deprecatedFields: string[] = []
+    const { user, channels } = integrationDef
+    if (user?.creation?.enabled) {
+      deprecatedFields.push('user.creation')
+    }
+
+    for (const [channelName, channel] of Object.entries(channels ?? {})) {
+      if (channel?.conversation?.creation?.enabled) {
+        deprecatedFields.push(`channels.${channelName}.creation`)
+      }
+    }
+
+    if (!deprecatedFields.length) {
+      return
+    }
+
+    const errorMessage = `The following fields of the integration's definition are deprecated: ${deprecatedFields.join(
+      ', '
+    )}`
+
+    if (opts.allowDeprecated) {
+      this.logger.warn(errorMessage)
+    } else {
+      throw new errors.BotpressCLIError(errorMessage)
+    }
+  }
+
+  private _readFile = async (filePath: string | undefined): Promise<string | undefined> => {
+    if (!filePath) {
+      return undefined
+    }
+
+    const absoluteFilePath = utils.path.absoluteFrom(this.projectPaths.abs.workDir, filePath)
+    return fs.promises.readFile(absoluteFilePath, 'utf-8').catch((thrown) => {
+      throw errors.BotpressCLIError.wrap(thrown, `Could not read file "${absoluteFilePath}"`)
+    })
   }
 
   private _readMediaFile = async (
@@ -113,17 +188,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   private async _deployBot(api: ApiClient, argvBotId: string | undefined, argvCreateNew: boolean | undefined) {
     const outfile = this.projectPaths.abs.outFile
     const code = await fs.promises.readFile(outfile, 'utf-8')
-    const { default: botImpl } = utils.require.requireJsFile<{ default: BotImpl }>(outfile)
-
-    const {
-      states,
-      events,
-      recurringEvents,
-      configuration: botConfiguration,
-      user,
-      conversation,
-      message,
-    } = botImpl.definition
+    const { default: botImpl } = utils.require.requireJsFile<{ default: bpsdk.Bot }>(outfile)
 
     let bot: bpclient.Bot
     if (argvBotId && argvCreateNew) {
@@ -149,23 +214,12 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying bot ${chalk.bold(bot.name)}...`)
 
-    const integrations = _(botImpl.definition.integrations ?? [])
-      .keyBy((i) => i.id)
-      .mapValues(({ enabled, configuration }) => ({ enabled, configuration }))
-      .value()
-
     const updateBotBody = prepareUpdateBotBody(
       {
         id: bot.id,
         code,
-        states,
-        recurringEvents,
-        configuration: botConfiguration,
-        events,
-        user,
-        conversation,
-        message,
-        integrations,
+        ...this.prepareBot(botImpl),
+        ...(await this.prepareBotIntegrationInstances(botImpl, api)),
       },
       bot
     )

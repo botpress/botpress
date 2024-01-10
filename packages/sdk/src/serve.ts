@@ -17,6 +17,13 @@ export type Response = {
 
 export type Handler = (req: Request) => Promise<Response | void>
 
+export function parseBody<T>(req: Request): T {
+  if (!req.body) {
+    throw new Error('Missing body')
+  }
+  return JSON.parse(req.body)
+}
+
 export async function serve(
   handler: Handler,
   port: number = 8072,
@@ -26,6 +33,10 @@ export async function serve(
   const server = createServer(async (req, res) => {
     try {
       const request = await mapIncomingMessageToRequest(req)
+      if (request.path === '/health') {
+        res.writeHead(200).end('ok')
+        return
+      }
       const response = await handler(request)
       res.writeHead(response?.status ?? 200, response?.headers ?? {}).end(response?.body ?? '{}')
     } catch (e: any) {

@@ -9,7 +9,7 @@ READINESS_PORT = 8082
 
 GENERATE_CLIENT_RESSOURCES = ['pnpm-install', 'openapi-generator-server', 'readiness', 'generate-client']
 BUILD_PACKAGES_RESSOURCES = GENERATE_CLIENT_RESSOURCES + ['build-client', 'build-sdk', 'build-cli']
-BUILD_ALL_RESSOURCES = BUILD_PACKAGES_RESSOURCES + ['build-integrations', 'build-bots']
+BUILD_ALL_RESSOURCES = BUILD_PACKAGES_RESSOURCES + ['build-integrations', 'add-integrations', 'build-bots']
 
 COMMAND_RESSOURCES = {
   'generate-client': GENERATE_CLIENT_RESSOURCES,
@@ -101,7 +101,8 @@ local_resource(
   dir='packages/client',
   cmd='pnpm build',
   labels=['client'],
-  resource_deps=['generate-client']
+  resource_deps=['generate-client'],
+  deps=["./packages/client"]
 )
 
 ## build sdk
@@ -112,7 +113,8 @@ local_resource(
   dir='packages/sdk',
   cmd='pnpm build',
   labels=['sdk'],
-  resource_deps=['build-client']
+  resource_deps=['build-client'],
+  deps=["./packages/sdk"]
 )
 
 ## build cli
@@ -123,7 +125,8 @@ local_resource(
   dir='packages/cli',
   cmd='pnpm build',
   labels=['cli'],
-  resource_deps=['build-sdk']
+  resource_deps=['build-sdk'],
+  deps=["./packages/cli"]
 )
 
 ## build integrations
@@ -133,16 +136,29 @@ local_resource(
   allow_parallel=True,
   cmd='pnpm -r --stream -F @botpresshub/* exec bp build --source-map',
   labels=['integrations'],
-  resource_deps=['build-cli']
+  resource_deps=['build-cli'],
+  deps=["./integrations"]
 )
 
 ## build bots
 
+bot_filter = ".\\bots\\*" if os.name == 'nt' else './bots/*'
+
+local_resource(
+  name='add-integrations',
+  allow_parallel=True,
+  cmd='pnpm -r --stream -F "%s" run integrations' % bot_filter,
+  labels=['bots'],
+  resource_deps=['build-integrations'],
+  deps=["./bots"]
+)
+
 local_resource(
   name='build-bots',
   allow_parallel=True,
-  cmd='pnpm -r --stream -F hello-world exec bp build --source-map',
+  cmd='pnpm -r --stream -F "%s" exec bp build --source-map' % bot_filter,
   labels=['bots'],
-  resource_deps=['build-integrations']
+  resource_deps=['add-integrations'],
+  deps=["./bots"]
 )
 

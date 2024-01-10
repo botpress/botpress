@@ -1,11 +1,12 @@
 import { IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { z } from 'zod'
+import { INTEGRATION_NAME } from './src/const'
 
 export default new IntegrationDefinition({
-  name: 'discord',
+  name: INTEGRATION_NAME,
   version: '0.2.0',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({
       apikey: z.string(),
@@ -34,5 +35,5 @@ export default new IntegrationDefinition({
   },
   actions: {},
   events: {},
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
 })

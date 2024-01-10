@@ -4,10 +4,11 @@ import * as consts from '../src/consts'
 import { createDeployBot } from './tests/create-deploy-bot'
 import { createDeployIntegration } from './tests/create-deploy-integration'
 import { devBot } from './tests/dev-bot'
+import { requiredSecrets } from './tests/integration-secrets'
 import { Test } from './typings'
 import { sleep, TmpDirectory } from './utils'
 
-const tests: Test[] = [createDeployBot, createDeployIntegration, devBot]
+const tests: Test[] = [createDeployBot, createDeployIntegration, devBot, requiredSecrets]
 
 const timeout = (ms: number) =>
   sleep(ms).then(() => {
@@ -74,10 +75,15 @@ const main = async (argv: YargsConfig<typeof configSchema>): Promise<never> => {
     logger.info(logLine)
     logger.info(logPad + '\n')
 
+    const loggerNamespace = name.replace(/ /g, '_').replace(/[^a-zA-Z0-9_]/g, '')
+
     const tmpDir = TmpDirectory.create()
     try {
       const t0 = Date.now()
-      await Promise.race([handler({ tmpDir: tmpDir.path, dependencies, ...argv }), timeout(argv.timeout)])
+      await Promise.race([
+        handler({ tmpDir: tmpDir.path, dependencies, logger: logger.sub(loggerNamespace), ...argv }),
+        timeout(argv.timeout),
+      ])
       const t1 = Date.now()
       logger.info(`SUCCESS: "${name}" (${t1 - t0}ms)`)
     } catch (thrown) {

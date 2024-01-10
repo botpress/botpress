@@ -1,14 +1,15 @@
 import { IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { INTEGRATION_NAME } from 'src/const'
 import { z } from 'zod'
 
 export default new IntegrationDefinition({
-  name: 'telegram',
+  name: INTEGRATION_NAME,
   version: '0.2.0',
   title: 'Telegram',
   description: 'This integration allows your bot to interact with Telegram.',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({
       botToken: z.string(),
@@ -17,16 +18,16 @@ export default new IntegrationDefinition({
   channels: {
     channel: {
       messages: messages.defaults,
-      message: { tags: { id: {} } },
+      message: { tags: { id: {}, fromUserId: {}, chatId: {} } },
       conversation: {
-        tags: { id: {} },
+        tags: { id: {}, fromUserId: {}, chatId: {} },
         creation: { enabled: true, requiredTags: ['id'] },
       },
     },
   },
   actions: {},
   events: {},
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
   user: {
     tags: {
       id: {},

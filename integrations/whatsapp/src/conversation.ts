@@ -1,67 +1,80 @@
-import { Client, RuntimeError } from '@botpress/client'
-import { name } from 'integration.definition'
+import { Conversation, RuntimeError } from '@botpress/client'
+import { IntegrationContext } from '@botpress/sdk'
 import { WhatsAppAPI, Types } from 'whatsapp-api-js'
 import z from 'zod'
-import { CreateConversationPayload, IntegrationLogger, IntegrationContext } from '.'
+import { IntegrationLogger } from '.'
+import {
+  PhoneNumberIdTag,
+  UserPhoneTag,
+  phoneNumberIdTag,
+  userPhoneTag,
+  templateLanguageTag,
+  templateNameTag,
+  templateVariablesTag,
+} from './const'
+import * as botpress from '.botpress'
+import { Channels } from '.botpress/implementation/channels'
 
 const {
   Template: { Template, Language },
 } = Types
 
-export async function createConversation({
-  client,
-  channel,
-  tags,
-  ctx,
-  logger,
-}: {
-  ctx: IntegrationContext
-  client: Client
-  logger: IntegrationLogger
-} & CreateConversationPayload) {
-  const phoneNumberId = ctx.configuration.phoneNumberId
+const TemplateVariablesSchema = z.array(z.string().or(z.number()))
+
+export async function startConversation(
+  params: {
+    channel: keyof Channels
+    phoneNumberId: string
+    userPhone: string
+    templateName: string
+    templateLanguage?: string
+    templateVariablesJson?: string
+  },
+  dependencies: {
+    client: botpress.Client
+
+    ctx: IntegrationContext
+    logger: IntegrationLogger
+  }
+): Promise<Pick<Conversation, 'id'>> {
+  const { channel, phoneNumberId, userPhone, templateName, templateVariablesJson } = params
+  const templateLanguage = params.templateLanguage || 'en_US'
+
+  const { client, ctx, logger } = dependencies
+
+  let templateVariables: z.infer<typeof TemplateVariablesSchema> = []
+
   if (!phoneNumberId) {
-    logForBotAndThrow('Phone number ID is not configured', logger)
+    logForBotAndThrow('Whatsapp Phone number ID to use as sender was not provided', logger)
   }
 
-  const userPhoneTag = `${name}:userPhone`
-  const userPhone = tags[userPhoneTag]
   if (!userPhone) {
-    logForBotAndThrow(`A Whatsapp recipient phone number needs to be provided in the '${userPhoneTag}' tag`, logger)
+    logForBotAndThrow('A Whatsapp recipient phone number needs to be provided', logger)
   }
 
   /*
   Whatsapp only allows using Message Templates for proactively starting conversations with users.
   See: https://developers.facebook.com/docs/whatsapp/pricing#opening-conversations
   */
-  const templateNameTag = `${name}:templateName`
-  const templateName = tags[templateNameTag]
   if (!templateName) {
-    logForBotAndThrow(`A Whatsapp template name needs to be provided in the '${templateNameTag}' tag`, logger)
+    logForBotAndThrow('A Whatsapp template name needs to be provided', logger)
   }
 
-  const templateLanguageTag = `${name}:templateLanguage`
-  const templateLanguage = tags[templateLanguageTag] || 'en_US'
-
-  const templateVariablesTag = `${name}:templateVariables`
-  const templateVariablesSchema = z.array(z.string().or(z.number()))
-  let templateVariables: z.infer<typeof templateVariablesSchema> = []
-
-  if (templateVariablesTag in tags) {
+  if (templateVariablesJson) {
     let templateVariablesRaw = []
 
     try {
-      templateVariablesRaw = JSON.parse(tags[templateVariablesTag]!)
+      templateVariablesRaw = JSON.parse(templateVariablesJson)
     } catch (err) {
       logForBotAndThrow(
-        `Value of ${templateVariablesTag} tag isn't valid JSON (error: ${(err as Error)?.message ?? ''}). Received: ${
-          tags[templateVariablesTag]
-        }})`,
+        `Value provided for Template Variables JSON isn't valid JSON (error: ${
+          (err as Error)?.message ?? ''
+        }). Received: ${templateVariablesJson}})`,
         logger
       )
     }
 
-    const validationResult = templateVariablesSchema.safeParse(templateVariablesRaw)
+    const validationResult = TemplateVariablesSchema.safeParse(templateVariablesRaw)
     if (!validationResult.success) {
       logForBotAndThrow(
         `Template variables should be an array of strings or numbers (error: ${validationResult.error}))`,
@@ -75,15 +88,16 @@ export async function createConversation({
   const { conversation } = await client.getOrCreateConversation({
     channel,
     tags: {
-      [`${name}:phoneNumberId`]: phoneNumberId,
-      [userPhoneTag]: userPhone,
-      [templateNameTag]: templateName,
+      [PhoneNumberIdTag]: phoneNumberId,
+      [UserPhoneTag]: userPhone,
     },
   })
 
   const whatsapp = new WhatsAppAPI(ctx.configuration.accessToken)
 
-  const template = new Template(templateName, new Language(templateLanguage), {
+  const language = new Language(templateLanguage)
+
+  const template = new Template(templateName, language, {
     type: 'body',
     parameters: templateVariables.map((variable) => ({
       type: 'text',
@@ -111,6 +125,30 @@ export async function createConversation({
           : ' without template variables'
       }`
     )
+
+  return conversation
+}
+
+/**
+ * This handler is for allowing bots to start conversations by calling `client.createConversation()` directly.
+ */
+export const createConversationHandler: botpress.IntegrationProps['createConversation'] = async ({
+  client,
+  channel,
+  tags,
+  ctx,
+  logger,
+}) => {
+  const phoneNumberId = tags[phoneNumberIdTag] || ctx.configuration.phoneNumberId
+  const userPhone = tags[userPhoneTag] || ''
+  const templateName = tags[templateNameTag] || ''
+  const templateLanguage = tags[templateLanguageTag]
+  const templateVariablesJson = tags[templateVariablesTag]
+
+  const conversation = await startConversation(
+    { channel, phoneNumberId, userPhone, templateName, templateLanguage, templateVariablesJson },
+    { client, ctx, logger }
+  )
 
   return {
     body: JSON.stringify({ conversation: { id: conversation.id } }),

@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   title: 'Messenger',
   description: 'This integration allows your bot to interact with Messenger.',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({
       appId: z.string(),
@@ -22,17 +22,17 @@ export default new IntegrationDefinition({
     channel: {
       messages: messages.defaults,
       message: {
-        tags: { id: {} },
+        tags: { id: {}, recipientId: {}, senderId: {} },
       },
       conversation: {
-        tags: { id: {} },
+        tags: { id: {}, recipientId: {}, senderId: {} },
         creation: { enabled: true, requiredTags: ['id'] },
       },
     },
   },
   actions: {},
   events: {},
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
   user: {
     tags: { id: {} },
     creation: { enabled: true, requiredTags: ['id'] },

@@ -1,9 +1,7 @@
 import type { YargsConfig } from '@bpinternal/yargs-extra'
 import chalk from 'chalk'
-import fs from 'fs'
 import latestVersion from 'latest-version'
 import _ from 'lodash'
-import * as pathlib from 'path'
 import semver from 'semver'
 import type { ApiClientFactory } from '../api/client'
 import type * as config from '../config'
@@ -32,19 +30,10 @@ class GlobalPaths extends utils.path.PathStore<keyof AllGlobalPaths> {
   }
 }
 
-type PackageJson = { name: string; version: string }
-
-const UPDATE_MSG = (props: PackageJson & { latest: string }) =>
-  `${chalk.bold('Update available')} ${chalk.dim(props.version)} → ${chalk.green(props.latest)}
-
-To update, run:
-  for npm  ${chalk.cyan(`npm i -g ${props.name}`)}
-  for yarn ${chalk.cyan(`yarn global add ${props.name}`)}
-  for pnpm ${chalk.cyan(`pnpm i -g ${props.name}`)}`
-
 export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends BaseCommand<C> {
   protected api: ApiClientFactory
   protected prompt: utils.prompt.CLIPrompt
+  private _pkgJson: utils.pkgJson.PackageJson | undefined
 
   public constructor(
     api: ApiClientFactory,
@@ -64,13 +53,12 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     return new utils.cache.FSKeyValueCache<GlobalCache>(this.globalPaths.abs.globalCacheFile)
   }
 
-  protected override bootstrap = async () => {
-    const pkgJson = await this._readPackageJson()
-
+  protected override async bootstrap() {
+    const pkgJson = await this.readPkgJson()
     const versionText = chalk.bold(`v${pkgJson.version}`)
     this.logger.log(`Botpress CLI ${versionText}`, { prefix: '🤖' })
 
-    await this._notifyUpdate(pkgJson)
+    await this._notifyUpdateCli()
 
     const paths = this.globalPaths
     if (paths.abs.botpressHomeDir !== consts.defaultBotpressHome) {
@@ -95,23 +83,46 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     return this.api.newClient({ apiUrl, token, workspaceId }, this.logger)
   }
 
-  private _notifyUpdate = async (pkgJson: PackageJson): Promise<void> => {
+  private _notifyUpdateCli = async (): Promise<void> => {
     try {
+      this.logger.debug('Checking if cli is up to date')
+
+      const pkgJson = await this.readPkgJson()
+      if (!pkgJson.version) {
+        throw new errors.BotpressCLIError('Could not find version in package.json')
+      }
+
       const latest = await latestVersion(pkgJson.name)
       const isOutdated = semver.lt(pkgJson.version, latest)
       if (isOutdated) {
-        this.logger.box(UPDATE_MSG({ ...pkgJson, latest }))
+        this.logger.box(
+          [
+            `${chalk.bold('Update available')} ${chalk.dim(pkgJson.version)} → ${chalk.green(latest)}`,
+            '',
+            'To update, run:',
+            `  for npm  ${chalk.cyan(`npm i -g ${pkgJson.name}`)}`,
+            `  for yarn ${chalk.cyan(`yarn global add ${pkgJson.name}`)}`,
+            `  for pnpm ${chalk.cyan(`pnpm i -g ${pkgJson.name}`)}`,
+          ].join('\n')
+        )
       }
     } catch (thrown) {
       const err = errors.BotpressCLIError.map(thrown)
-      this.logger.debug(`Failed to check for updates: ${err.message}`)
+      this.logger.debug(`Failed to check if cli is up to date: ${err.message}`)
     }
   }
 
-  private _readPackageJson = async (): Promise<PackageJson> => {
-    const path = pathlib.join(this.globalPaths.abs.cliRootDir, 'package.json')
-    const strContent = await fs.promises.readFile(path, 'utf8')
-    const jsonContent = JSON.parse(strContent)
-    return jsonContent
+  protected async readPkgJson(): Promise<utils.pkgJson.PackageJson> {
+    if (this._pkgJson) {
+      return this._pkgJson
+    }
+    const { cliRootDir } = this.globalPaths.abs
+    const pkgJson = await utils.pkgJson.readPackageJson(cliRootDir)
+    if (!pkgJson) {
+      throw new errors.BotpressCLIError(`Could not find package.json at "${cliRootDir}"`)
+    }
+
+    this._pkgJson = pkgJson
+    return pkgJson
   }
 }

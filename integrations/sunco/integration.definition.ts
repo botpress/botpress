@@ -1,14 +1,15 @@
 import { IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { z } from 'zod'
+import { INTEGRATION_NAME } from './src/const'
 
 export default new IntegrationDefinition({
-  name: 'sunco',
+  name: INTEGRATION_NAME,
   version: '0.2.0',
   title: 'Sunshine Conversations',
   description: 'This integration allows your bot to interact with Sunshine Conversations.',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({
       appId: z.string(),
@@ -26,7 +27,7 @@ export default new IntegrationDefinition({
   },
   actions: {},
   events: {},
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
   user: {
     tags: {
       id: {},

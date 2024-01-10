@@ -1,11 +1,14 @@
-import type { Client, Conversation } from '@botpress/client'
-import type { AckFunction, Request } from '@botpress/sdk'
+import type { Conversation } from '@botpress/client'
+import type { AckFunction, IntegrationContext, Request } from '@botpress/sdk'
 import { ChatPostMessageArguments, WebClient } from '@slack/web-api'
 import axios from 'axios'
+import * as crypto from 'crypto'
+import queryString from 'query-string'
 import VError from 'verror'
 import { INTEGRATION_NAME } from '../const'
-import { Configuration } from '../setup'
-import { IntegrationCtx } from './types'
+import { Configuration, SyncState } from '../setup'
+import { Client, IntegrationCtx, IntegrationLogger } from './types'
+import * as bp from '.botpress'
 
 type InteractiveBody = {
   response_url: string
@@ -48,8 +51,74 @@ function getTags(message: SlackMessage) {
   return tags
 }
 
-export function onOAuth() {
-  return {}
+const oauthHeaders = {
+  'Content-Type': 'application/x-www-form-urlencoded',
+} as const
+
+export class SlackOauthClient {
+  private clientId: string
+  private clientSecret: string
+
+  constructor() {
+    this.clientId = bp.secrets.CLIENT_ID
+    this.clientSecret = bp.secrets.CLIENT_SECRET
+  }
+
+  async getAccessToken(code: string) {
+    const res = await axios.post(
+      'https://slack.com/api/oauth.v2.access',
+      {
+        client_id: this.clientId,
+        client_secret: this.clientSecret,
+        redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
+        code,
+      },
+      {
+        headers: oauthHeaders,
+      }
+    )
+
+    const { access_token } = res.data
+
+    if (!access_token) {
+      throw new Error('No access token found')
+    }
+
+    return access_token as string
+  }
+}
+
+export async function onOAuth(req: Request, client: bp.Client, ctx: IntegrationContext) {
+  const slackOAuthClient = new SlackOauthClient()
+
+  const query = queryString.parse(req.query)
+  const code = query.code
+
+  if (typeof code !== 'string') {
+    throw new Error('Handler received an empty code')
+  }
+
+  const accessToken = await slackOAuthClient.getAccessToken(code)
+
+  await client.setState({
+    type: 'integration',
+    name: 'credentials',
+    id: ctx.integrationId,
+    payload: {
+      accessToken,
+    },
+  })
+
+  const slackClient = new WebClient(accessToken)
+  const { team } = await slackClient.team.info()
+
+  const teamId = team?.id
+
+  if (!teamId) {
+    throw new Error('No team ID found')
+  }
+
+  await client.configureIntegration({ identifier: teamId })
 }
 
 export const getSlackTarget = (conversation: Conversation) => {
@@ -63,9 +132,42 @@ export const getSlackTarget = (conversation: Conversation) => {
   return { channel, thread_ts: thread }
 }
 
-export async function sendSlackMessage(botToken: string, ack: AckFunction, payload: ChatPostMessageArguments) {
-  const client = new WebClient(botToken)
-  const response = await client.chat.postMessage(payload)
+const isValidUrl = (str: string) => {
+  try {
+    new URL(str)
+    return true
+  } catch (err) {
+    return false
+  }
+}
+
+const getOptionalProps = (ctx: IntegrationCtx, logger: IntegrationLogger) => {
+  if (ctx.configuration.botAvatarUrl) {
+    if (isValidUrl(ctx.configuration.botAvatarUrl)) {
+      return {
+        username: ctx.configuration.botName,
+        icon_url: ctx.configuration.botAvatarUrl,
+      }
+    } else {
+      logger.forBot().warn('Invalid bot avatar URL')
+    }
+  }
+
+  return {
+    username: ctx.configuration.botName?.trim() !== '' ? ctx.configuration.botName : undefined,
+  }
+}
+
+export async function sendSlackMessage(
+  { client, ctx, ack, logger }: { client: Client; ctx: IntegrationCtx; ack: AckFunction; logger: IntegrationLogger },
+  payload: ChatPostMessageArguments
+) {
+  const accessToken = await getAccessToken(client, ctx)
+  const slackClient = new WebClient(accessToken)
+
+  const botOptionalProps = getOptionalProps(ctx, logger)
+
+  const response = await slackClient.chat.postMessage({ ...payload, ...botOptionalProps })
   const message = response.message
 
   if (!(response.ok && message)) {
@@ -121,30 +223,47 @@ export const getTag = (tags: Record<string, string>, name: string) => {
   return tags[`${INTEGRATION_NAME}:${name}`]
 }
 
-export const getChannelType = (props: { channel: string; thread?: string }) => {
-  if (props.thread) {
-    return 'thread'
-  }
-
-  return props.channel.startsWith('D') ? 'dm' : 'channel'
-}
-
 export const getUserAndConversation = async (
-  props: { slackUserId: string; slackChannelId: string; slackThreadId?: string },
+  props: {
+    slackUserId: string
+    slackChannelId: string
+    slackThreadId?: string
+  },
   client: Client
 ) => {
-  const channelType = getChannelType({ channel: props.slackChannelId, thread: props.slackThreadId })
+  let conversation: Conversation
 
-  const { conversation } = await client.getOrCreateConversation({
-    channel: channelType,
-    tags: { id: props.slackChannelId, thread: props.slackThreadId! },
+  if (props.slackThreadId) {
+    const resp = await client.getOrCreateConversation({
+      channel: 'thread',
+      tags: { id: props.slackChannelId, thread: props.slackThreadId },
+    })
+    conversation = resp.conversation
+  } else {
+    const channel = props.slackChannelId.startsWith('D') ? 'dm' : 'channel'
+    const resp = await client.getOrCreateConversation({
+      channel,
+      tags: { id: props.slackChannelId },
+    })
+    conversation = resp.conversation
+  }
+
+  const { user } = await client.getOrCreateUser({
+    tags: { id: props.slackUserId },
   })
-  const { user } = await client.getOrCreateUser({ tags: { id: props.slackUserId } })
 
   return {
+    user,
     userId: user.id,
     conversationId: conversation.id,
   }
+}
+
+export const getSlackUserProfile = async (botToken: string, slackUserId: string) => {
+  const slackClient = new WebClient(botToken)
+  const { profile } = await slackClient.users.profile.get({ user: slackUserId })
+
+  return profile
 }
 
 export const saveConfig = async (client: Client, ctx: IntegrationCtx, config: Configuration) => {
@@ -152,9 +271,75 @@ export const saveConfig = async (client: Client, ctx: IntegrationCtx, config: Co
 }
 
 export const getConfig = async (client: Client, ctx: IntegrationCtx): Promise<Configuration> => {
+  const emptyPayload: bp.states.configuration.Configuration = {}
+
   const {
     state: { payload },
-  } = await client.getState({ type: 'integration', name: 'configuration', id: ctx.integrationId })
+  } = await client.getState({ type: 'integration', name: 'configuration', id: ctx.integrationId }).catch(() => ({
+    state: { payload: emptyPayload },
+  }))
 
-  return payload as Configuration
+  return payload
+}
+
+export const saveSyncState = async (client: Client, ctx: IntegrationCtx, state: SyncState) => {
+  await client.setState({ type: 'integration', name: 'sync', id: ctx.integrationId, payload: state })
+}
+
+export const getSyncState = async (client: Client, ctx: IntegrationCtx): Promise<SyncState> => {
+  const {
+    state: { payload },
+  } = await client.getState({ type: 'integration', name: 'sync', id: ctx.integrationId }).catch(() => ({
+    state: { payload: {} as any },
+  }))
+
+  return payload as SyncState
+}
+
+export const getOAuthAccessToken = async (client: Client, ctx: IntegrationCtx) => {
+  const { state } = await client
+    .getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+    .catch(() => ({
+      state: { payload: {} as any },
+    }))
+
+  return state.payload.accessToken
+}
+
+export const getAccessToken = async (client: Client, ctx: IntegrationCtx) => {
+  if (ctx.configuration.botToken) {
+    return ctx.configuration.botToken
+  }
+
+  return getOAuthAccessToken(client, ctx)
+}
+
+export const validateRequestSignature = ({ req, logger }: { req: Request; logger: IntegrationLogger }): boolean => {
+  const signingSecret = bp.secrets.SIGNING_SECRET
+
+  const timestamp = req.headers['x-slack-request-timestamp']
+  const slackSignature = req.headers['x-slack-signature'] as string
+
+  if (!timestamp || !slackSignature) {
+    logger.forBot().error('Request signature verification failed: missing timestamp or signature')
+    return false
+  }
+
+  const fiveMinutesAgo = Math.floor(Date.now() / 1000) - 60 * 5
+
+  const isTimestampTooOld = parseInt(timestamp) < fiveMinutesAgo
+  if (isTimestampTooOld) {
+    logger.forBot().error('Request signature verification failed: timestamp is too old')
+    return false
+  }
+
+  const sigBasestring = `v0:${timestamp}:${req.body}`
+  const mySignature = 'v0=' + crypto.createHmac('sha256', signingSecret).update(sigBasestring).digest('hex')
+
+  try {
+    return crypto.timingSafeEqual(Buffer.from(mySignature, 'utf8'), Buffer.from(slackSignature, 'utf8'))
+  } catch (error) {
+    logger.forBot().error('An error occurred while verifying the request signature')
+    return false
+  }
 }

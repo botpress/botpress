@@ -1,17 +1,12 @@
-import type { Conversation } from '@botpress/client'
-import type { AckFunction, IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { Integration, channels, secrets } from '.botpress'
-
-sentryHelpers.init({
-  dsn: secrets.SENTRY_DSN,
-  environment: secrets.SENTRY_ENVIRONMENT,
-  release: secrets.SENTRY_RELEASE,
-})
-
-const log = console
-
+import { idTag } from './const'
+import * as bp from '.botpress'
 const SunshineConversationsClient = require('sunshine-conversations-client')
+
+type Channels = bp.Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 type SmoochBaseAction = {
   type: string
@@ -45,7 +40,7 @@ type SmoochCard = {
 const POSTBACK_PREFIX = 'postback::'
 const SAY_PREFIX = 'say::'
 
-const integration = new Integration({
+const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {},
@@ -107,7 +102,7 @@ const integration = new Integration({
   },
   handler: async ({ req, client }) => {
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
 
@@ -115,37 +110,37 @@ const integration = new Integration({
 
     for (const event of data.events) {
       if (event.type !== 'conversation:message') {
-        log.warn('Received an event that is not a message')
+        console.warn('Received an event that is not a message')
         continue
       }
 
       const payload = event.payload
 
       if (payload.message.content.type !== 'text') {
-        log.warn('Received a message that is not a text message')
+        console.warn('Received a message that is not a text message')
         continue
       }
 
       if (payload.message.author.type === 'business') {
-        log.warn('Skipping message that is from a business')
+        console.warn('Skipping message that is from a business')
         continue
       }
 
       const { conversation } = await client.getOrCreateConversation({
         channel: 'channel',
         tags: {
-          'sunco:id': payload.conversation.id,
+          [idTag]: payload.conversation.id,
         },
       })
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          'sunco:id': payload.message.author.userId,
+          [idTag]: payload.message.author.userId,
         },
       })
 
       await client.createMessage({
-        tags: { 'sunco:id': payload.message.id },
+        tags: { [idTag]: payload.message.id },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
@@ -154,7 +149,7 @@ const integration = new Integration({
     }
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags['sunco:id']
+    const userId = tags[idTag]
 
     if (!userId) {
       return
@@ -163,7 +158,7 @@ const integration = new Integration({
     const suncoClient = createClient(ctx.configuration.keyId, ctx.configuration.keySecret)
     const suncoUser = await suncoClient.users.getUser(ctx.configuration.appId, userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { 'sunco:id': `${suncoUser.user?.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { [idTag]: `${suncoUser.user?.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -172,7 +167,7 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const conversationId = tags['sunco:id']
+    const conversationId = tags[idTag]
 
     if (!conversationId) {
       return
@@ -183,7 +178,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { 'sunco:id': `${suncoConversation.conversation?.id}` },
+      tags: { [idTag]: `${suncoConversation.conversation?.id}` },
     })
 
     return {
@@ -194,9 +189,13 @@ const integration = new Integration({
   },
 })
 
-export default sentryHelpers.wrapIntegration(integration)
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
+})
 
-type Choice = channels.Channels['channel']['choice']
+type Choice = bp.channels.channel.choice.Choice
 
 function renderChoiceMessage(payload: Choice) {
   return {
@@ -206,7 +205,7 @@ function renderChoiceMessage(payload: Choice) {
   }
 }
 
-type Carousel = channels.Channels['channel']['carousel']
+type Carousel = bp.channels.channel.carousel.Carousel
 
 const sendCarousel = async (props: SendMessageProps, payload: Carousel) => {
   const items: SmoochCard[] = []
@@ -252,8 +251,8 @@ const sendCarousel = async (props: SendMessageProps, payload: Carousel) => {
   })
 }
 
-function getConversationId(conversation: Conversation) {
-  const conversationId = conversation.tags['sunco:id']
+function getConversationId(conversation: SendMessageProps['conversation']) {
+  const conversationId = conversation.tags[idTag]
 
   if (!conversationId) {
     throw new Error('Conversation does not have a sunco identifier')
@@ -277,11 +276,7 @@ function createClient(keyId: string, keySecret: string) {
   }
 }
 
-type SendMessageProps = {
-  ctx: IntegrationContext
-  conversation: Conversation
-  ack: AckFunction
-}
+type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'>
 
 async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload: any) {
   const client = createClient(ctx.configuration.keyId, ctx.configuration.keySecret)
@@ -300,9 +295,9 @@ async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload
     throw new Error('Message not sent')
   }
 
-  await ack({ tags: { 'sunco:id': message.id } })
+  await ack({ tags: { [idTag]: message.id } })
 
   if (messages.length > 1) {
-    log.warn('More than one message was sent')
+    console.warn('More than one message was sent')
   }
 }

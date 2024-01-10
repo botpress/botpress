@@ -1,8 +1,8 @@
 {
-  "name": "cloud",
+  "name": "botpress",
   "private": true,
   "scripts": {
-    "bump": "ts-node -T ./scripts/depsynky bump",
+    "bump": "ts-node -T ./scripts/depsynky bump && pnpm install",
     "type:check": "pnpm -r --stream type:check",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write .",

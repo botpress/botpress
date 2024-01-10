@@ -1,68 +1,47 @@
-import type { Client } from '@botpress/client'
-import { Bot } from '@botpress/sdk'
-import type { z } from 'zod'
-import * as schemas from './schemas'
-import { Github, Linear } from '.botpress'
+import * as botpress from '.botpress'
 
-const github = new Github()
-const linear = new Linear()
+const github = new botpress.github.Github()
+const linear = new botpress.linear.Linear()
 
-const bot = new Bot({
-  integrations: [github, linear],
-  configuration: {
-    schema: {},
+const bot = new botpress.Bot({
+  integrations: {
+    github,
+    linear,
   },
   states: {},
   events: {},
 })
 
-const createLinearIssue = async (
-  client: Client,
-  issue: z.infer<typeof schemas.linearCreateIssueInput>
-): Promise<z.infer<typeof schemas.linearCreateIssueOutput>> => {
-  const { output } = await client.callAction({
-    type: 'linear:createIssue',
-    input: issue,
-  })
-
-  const parseResult = schemas.linearCreateIssueOutput.safeParse(output)
-  if (!parseResult.success) {
-    throw new Error(`Invalid output: ${parseResult.error}`)
-  }
-
-  return parseResult.data
-}
-
 bot.event(async ({ event, client, ctx }) => {
-  const { type, payload } = event
-  if (type !== schemas.githubIssueOpenedType) {
+  if (event.type !== 'github:issueOpened') {
     return
   }
 
-  const parseResult = schemas.githubIssueOpened.safeParse(payload)
-  if (!parseResult.success) {
-    throw new Error(`Invalid payload: ${parseResult.error}`)
-  }
-
-  const { data: githubIssue } = parseResult
+  const githubIssue = event.payload
 
   console.info('Received GitHub issue', githubIssue)
 
-  const { issue } = await createLinearIssue(client, {
-    title: githubIssue.title,
-    description: githubIssue.content ?? 'No content...',
-    teamName: 'Cloud Services',
+  const { output } = await client.callAction({
+    type: 'linear:createIssue',
+    input: {
+      title: githubIssue.title,
+      description: githubIssue.content ?? 'No content...',
+      teamName: 'Cloud Services',
+    },
   })
 
+  const { issue } = output
+
   const { conversation } = await client.getOrCreateConversation({
+    integrationName: 'linear',
     channel: 'issue',
     tags: {
       ['linear:id']: issue.id,
     },
-    integrationName: 'linear',
   })
 
   const issueUrl = `https://github.com/${githubIssue.repositoryOwner}/${githubIssue.repositoryName}/issues/${githubIssue.number}`
+
   await client.createMessage({
     type: 'text',
     conversationId: conversation.id,

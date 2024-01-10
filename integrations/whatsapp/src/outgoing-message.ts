@@ -1,6 +1,5 @@
 import type { Conversation } from '@botpress/client'
 import type { IntegrationContext, AckFunction } from '@botpress/sdk'
-import { name } from 'integration.definition'
 import { WhatsAppAPI } from 'whatsapp-api-js'
 import type { Contacts } from 'whatsapp-api-js/types/messages/contacts'
 import type { Interactive } from 'whatsapp-api-js/types/messages/interactive'
@@ -10,6 +9,7 @@ import type Reaction from 'whatsapp-api-js/types/messages/reaction'
 import type { Template } from 'whatsapp-api-js/types/messages/template'
 import type Text from 'whatsapp-api-js/types/messages/text'
 import { IntegrationLogger } from '.'
+import { INTEGRATION_NAME, phoneNumberIdTag, userPhoneTag } from './const'
 import { sleep } from './util'
 
 export type OutgoingMessage =
@@ -39,9 +39,16 @@ export async function send({
   logger: IntegrationLogger
 }) {
   const whatsapp = new WhatsAppAPI(ctx.configuration.accessToken)
-  const phoneNumberId = ctx.configuration.phoneNumberId
-  const to = conversation.tags[`${name}:userPhone`]
+  const phoneNumberId = conversation.tags[phoneNumberIdTag]
+  const to = conversation.tags[userPhoneTag]
   const messageType = message._
+
+  if (!phoneNumberId) {
+    logger
+      .forBot()
+      .error("Cannot send message to Whatsapp because the phone number ID wasn't set in the conversation tags.")
+    return
+  }
 
   if (!to) {
     logger
@@ -63,7 +70,7 @@ export async function send({
 
   if (messageId) {
     logger.forBot().debug(`Successfully sent ${messageType} message from bot to Whatsapp:`, message)
-    await ack({ tags: { [`${name}:id`]: messageId } })
+    await ack({ tags: { [`${INTEGRATION_NAME}:id`]: messageId } })
   } else {
     logger
       .forBot()
@@ -88,10 +95,14 @@ export async function sendMany({
   generator: Generator<OutgoingMessage, void, unknown>
   logger: IntegrationLogger
 }) {
-  for (const message of generator) {
-    // Sending multiple messages in sequence does not guarantee delivery order on the client-side.
-    // In order for messages to appear in order on the client side, adding some sleep in between each seems to work.
-    await sleep(1000)
-    await send({ ctx, conversation, ack, message, logger })
+  try {
+    for (const message of generator) {
+      // Sending multiple messages in sequence does not guarantee delivery order on the client-side.
+      // In order for messages to appear in order on the client side, adding some sleep in between each seems to work.
+      await sleep(1000)
+      await send({ ctx, conversation, ack, message, logger })
+    }
+  } catch (err) {
+    logger.forBot().error('Failed to generate messages for sending to Whatsapp. Reason:', err)
   }
 }

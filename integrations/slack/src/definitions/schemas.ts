@@ -1,11 +1,5 @@
 import z from 'zod'
 
-export const targets = z.object({
-  dm: z.record(z.string()).optional(),
-  channel: z.record(z.string()).optional(),
-  thread: z.record(z.string()).optional(),
-})
-
 const plainTextSchema = z.object({ type: z.literal('plain_text'), text: z.string() }).strict()
 const markdownSchema = z.object({ type: z.literal('mrkdwn'), text: z.string() }).strict()
 const plainOrMarkdown = z.discriminatedUnion('type', [markdownSchema, plainTextSchema])

@@ -1,5 +1,7 @@
-import { IntegrationDefinitionProps, messages as baseMessages } from '@botpress/sdk'
+import { messages as baseMessages, IntegrationDefinitionProps } from '@botpress/sdk'
 import { textSchema } from './schemas'
+
+type ChannelDef = NonNullable<IntegrationDefinitionProps['channels']>[string]
 
 const messages = {
   ...baseMessages.defaults,
@@ -8,32 +10,43 @@ const messages = {
   },
 }
 
-export const channels = {
-  channel: {
-    title: 'Channel',
-    messages,
-    message: { tags: { ts: {} } },
-    conversation: {
-      tags: { id: {} },
-      creation: { enabled: true, requiredTags: ['id'] },
-    },
+const convoTags = {
+  id: {},
+  title: {},
+} as const
+
+const messageTags = {
+  ts: {},
+  userId: {},
+  channelId: {},
+} as const
+
+export const channel = {
+  title: 'Channel',
+  messages,
+  message: { tags: messageTags },
+  conversation: {
+    tags: { ...convoTags },
+    creation: { enabled: true, requiredTags: ['id'] },
   },
-  dm: {
-    title: 'Direct Message',
-    messages,
-    message: { tags: { ts: {} } },
-    conversation: {
-      tags: { id: {} },
-      creation: { enabled: true, requiredTags: ['id'] },
-    },
+} satisfies ChannelDef
+
+export const dm = {
+  title: 'Direct Message',
+  messages,
+  message: { tags: messageTags },
+  conversation: {
+    tags: { ...convoTags },
+    creation: { enabled: true, requiredTags: ['id'] },
   },
-  thread: {
-    title: 'Thread',
-    messages,
-    message: { tags: { ts: {} } },
-    conversation: {
-      tags: { id: {}, thread: {} },
-      creation: { enabled: true, requiredTags: ['id'] },
-    },
+} satisfies ChannelDef
+
+export const thread = {
+  title: 'Thread',
+  messages,
+  message: { tags: messageTags },
+  conversation: {
+    tags: { ...convoTags, thread: {} },
+    creation: { enabled: true, requiredTags: ['id'] },
   },
-} satisfies IntegrationDefinitionProps['channels']
+} satisfies ChannelDef

@@ -26,7 +26,32 @@ const promptJump = async (pkgName: string, pkgVersion: string): Promise<VersionJ
   return promptedJump
 }
 
-export const bumpVersion = async (pkgName: string, argv: YargsConfig<typeof config.bumpSchema>) => {
+const promptPackage = async (publicPkgs: string[]): Promise<string> => {
+  if (publicPkgs.length === 0) {
+    throw new errors.DepSynkyError('No public packages found')
+  }
+
+  const { pkgName } = await prompts.prompt({
+    type: 'select',
+    name: 'pkgName',
+    message: 'Select a package to bump',
+    choices: publicPkgs.map((name) => ({ title: name, value: name })),
+  })
+
+  if (!pkgName) {
+    throw new errors.DepSynkyError('No package selected')
+  }
+
+  return pkgName
+}
+
+export const bumpVersion = async (argv: YargsConfig<typeof config.bumpSchema> & { pkgName?: string }) => {
+  let pkgName = argv.pkgName
+  if (!pkgName) {
+    const publicPkgs = utils.pnpm.listPublicPackages(argv.rootDir)
+    pkgName = await promptPackage(publicPkgs)
+  }
+
   const { dependency, dependents } = utils.pnpm.findReferences(argv.rootDir, pkgName)
   const targetPackages = [dependency, ...dependents]
 

@@ -1,19 +1,15 @@
-import type { Conversation } from '@botpress/client'
-import type { AckFunction, IntegrationContext } from '@botpress/sdk'
+import type { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
+import { idTag } from './const'
+import * as bp from '.botpress'
 
-import { Integration, channels, secrets } from '.botpress'
+type Channels = bp.Integration['channels']
+type Messages = Channels[keyof Channels]['messages']
+type MessageHandler = Messages[keyof Messages]
+type MessageHandlerProps = Parameters<MessageHandler>[0]
 
-sentryHelpers.init({
-  dsn: secrets.SENTRY_DSN,
-  environment: secrets.SENTRY_ENVIRONMENT,
-  release: secrets.SENTRY_RELEASE,
-})
-
-const log = console
-
-const integration = new Integration({
+const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx }) => {
     await setViberWebhook(webhookUrl, ctx.configuration.authToken)
   },
@@ -162,7 +158,7 @@ const integration = new Integration({
   },
   handler: async ({ req, client }) => {
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
 
@@ -180,20 +176,20 @@ const integration = new Integration({
       const { conversation } = await client.getOrCreateConversation({
         channel: 'channel',
         tags: {
-          'viber:id': data.sender.id,
+          [idTag]: data.sender.id,
         },
       })
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          'viber:id': data.sender.id,
+          [idTag]: data.sender.id,
         },
       })
 
       switch (data.message.type) {
         case 'text':
           await client.createMessage({
-            tags: { 'viber:id': data.message_token.toString() },
+            tags: { [idTag]: data.message_token.toString() },
             type: 'text',
             userId: user.id,
             conversationId: conversation.id,
@@ -202,34 +198,47 @@ const integration = new Integration({
           break
         case 'picture':
           await client.createMessage({
-            tags: { 'viber:id': data.message_token.toString() },
+            tags: { [idTag]: data.message_token.toString() },
             type: 'image',
             userId: user.id,
             conversationId: conversation.id,
-            payload: { imageUrl: data.message.media, caption: '' },
+            payload: {
+              imageUrl: data.message.media,
+              // TODO: declare in definition
+              // caption: '',
+            },
           })
           break
         case 'video':
           await client.createMessage({
-            tags: { 'viber:id': data.message_token.toString() },
+            tags: { [idTag]: data.message_token.toString() },
             type: 'video',
             userId: user.id,
             conversationId: conversation.id,
-            payload: { videoUrl: data.message.media, size: data.message.size },
+            payload: {
+              videoUrl: data.message.media,
+              // TODO: declare in definition
+              // size: data.message.size
+            },
           })
           break
         case 'file':
           await client.createMessage({
-            tags: { 'viber:id': data.message_token.toString() },
+            tags: { [idTag]: data.message_token.toString() },
             type: 'file',
             userId: user.id,
             conversationId: conversation.id,
-            payload: { fileUrl: data.message.media, fileName: data.message.file_name, fileSize: data.message.size },
+            payload: {
+              fileUrl: data.message.media,
+              // TODO: declare in definition
+              // fileName: data.message.file_name,
+              // fileSize: data.message.size,
+            },
           })
           break
         case 'location':
           await client.createMessage({
-            tags: { 'viber:id': data.message_token.toString() },
+            tags: { [idTag]: data.message_token.toString() },
             type: 'location',
             userId: user.id,
             conversationId: conversation.id,
@@ -237,18 +246,15 @@ const integration = new Integration({
           })
           break
         default:
-          log.info('unsupported message type: ', data.message)
+          console.info('unsupported message type: ', data.message)
           return
       }
-    } else {
-      // handle other events
-      // log.info('other event: ', data)
     }
 
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags['viber:id']
+    const userId = tags[idTag]
 
     if (!userId) {
       return
@@ -256,7 +262,7 @@ const integration = new Integration({
 
     const userDetails = await getUserDetails({ ctx, id: userId })
 
-    const { user } = await client.getOrCreateUser({ tags: { 'viber:id': `${userDetails.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { [idTag]: `${userDetails.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -265,7 +271,7 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const userId = tags['viber:id']
+    const userId = tags[idTag]
 
     if (!userId) {
       return
@@ -275,7 +281,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { 'viber:id': `${userDetails.id}` },
+      tags: { [idTag]: `${userDetails.id}` },
     })
 
     return {
@@ -286,13 +292,14 @@ const integration = new Integration({
   },
 })
 
-export default sentryHelpers.wrapIntegration(integration)
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
+})
 
-type SendMessageProps = {
-  ctx: IntegrationContext
-  conversation: Conversation
-  ack: AckFunction
-  payload: any
+type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'> & {
+  payload: any // TODO: type this
 }
 
 export async function setViberWebhook(webhookUrl: string | undefined, token: string): Promise<void> {
@@ -312,7 +319,7 @@ export async function setViberWebhook(webhookUrl: string | undefined, token: str
 }
 
 export async function sendViberMessage({ conversation, ctx, ack, payload }: SendMessageProps) {
-  const target = conversation.tags['viber:id']
+  const target = conversation.tags[idTag]
   const { data } = await axios.post(
     'https://chatapi.viber.com/pa/send_message',
     {
@@ -340,7 +347,7 @@ export async function sendViberMessage({ conversation, ctx, ack, payload }: Send
   }
   await ack({
     tags: {
-      ['viber:id']: data.message_token.toString(),
+      [idTag]: data.message_token.toString(),
     },
   })
   return data
@@ -367,8 +374,8 @@ async function getUserDetails({ ctx, id }: { ctx: IntegrationContext; id: string
   return data.user
 }
 
-type Card = channels.Channels['channel']['card']
-type CardAction = channels.Channels['channel']['card']['actions'][number]
+type Card = bp.channels.channel.card.Card
+type CardAction = bp.channels.channel.card.Card['actions'][number]
 
 const renderCard = (payload: Card) => {
   const card = [
@@ -445,7 +452,7 @@ function renderButtonSay(action: CardAction) {
   }
 }
 
-type Choice = channels.Channels['channel']['choice']
+type Choice = bp.channels.channel.choice.Choice
 
 function renderChoice(payload: Choice) {
   const choice = [
