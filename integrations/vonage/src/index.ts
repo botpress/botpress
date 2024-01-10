@@ -1,21 +1,14 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
-import { Integration, channels, secrets } from '.botpress'
+import { idTag, channelIdTag, channelTag, userIdTag } from './const'
+import * as bp from '.botpress'
 
-type Channels = Integration['channels']
+type Channels = bp.Integration['channels']
 type Messages = Channels[keyof Channels]['messages']
 type MessageHandler = Messages[keyof Messages]
 type MessageHandlerProps = Parameters<MessageHandler>[0]
 
-sentryHelpers.init({
-  dsn: secrets.SENTRY_DSN,
-  environment: secrets.SENTRY_ENVIRONMENT,
-  release: secrets.SENTRY_RELEASE,
-})
-
-const log = console
-
-const integration = new Integration({
+const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {},
@@ -73,13 +66,13 @@ const integration = new Integration({
   },
   handler: async ({ req, client }) => {
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
 
     const data = JSON.parse(req.body)
 
-    log.info(`Handler received request of type ${data.message_type}`)
+    console.info(`Handler received request of type ${data.message_type}`)
 
     if (data.message_type !== 'text') {
       throw new Error('Handler received an invalid message type')
@@ -92,21 +85,21 @@ const integration = new Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        'vonage:channel': data.channel,
-        'vonage:channelId': data.to,
-        'vonage:userId': data.from,
+        [channelTag]: data.channel,
+        [channelIdTag]: data.to,
+        [userIdTag]: data.from,
       },
     })
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        'vonage:channel': data.channel,
-        'vonage:userId': data.from,
+        [channelTag]: data.channel,
+        [userIdTag]: data.from,
       },
     })
 
     await client.createMessage({
-      tags: { 'vonage:id': data.message_uuid },
+      tags: { [idTag]: data.message_uuid },
       type: 'text',
       userId: user.id,
       conversationId: conversation.id,
@@ -114,8 +107,8 @@ const integration = new Integration({
     })
   },
   createUser: async ({ client, tags }) => {
-    const vonageChannel = tags['vonage:channel']
-    const userId = tags['vonage:userId']
+    const vonageChannel = tags[channelTag]
+    const userId = tags[userIdTag]
 
     if (!(vonageChannel && userId)) {
       return
@@ -123,8 +116,8 @@ const integration = new Integration({
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        'vonage:channel': vonageChannel,
-        'vonage:userId': userId,
+        [channelTag]: vonageChannel,
+        [userIdTag]: userId,
       },
     })
 
@@ -135,9 +128,9 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags }) => {
-    const vonageChannel = tags['vonage:channel']
-    const channelId = tags['vonage:channelId']
-    const userId = tags['vonage:userId']
+    const vonageChannel = tags[channelTag]
+    const channelId = tags[channelIdTag]
+    const userId = tags[userIdTag]
 
     if (!(vonageChannel && channelId && userId)) {
       return
@@ -146,9 +139,9 @@ const integration = new Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel,
       tags: {
-        'vonage:channel': vonageChannel,
-        'vonage:channelId': channelId,
-        'vonage:userId': userId,
+        [channelTag]: vonageChannel,
+        [channelIdTag]: channelId,
+        [userIdTag]: userId,
       },
     })
 
@@ -160,12 +153,16 @@ const integration = new Integration({
   },
 })
 
-export default sentryHelpers.wrapIntegration(integration)
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
+})
 
 function getRequestMetadata(conversation: SendMessageProps['conversation']) {
-  const channel = conversation.tags?.['vonage:channel']
-  const channelId = conversation.tags?.['vonage:channelId']
-  const userId = conversation.tags?.['vonage:userId']
+  const channel = conversation.tags?.[channelTag]
+  const channelId = conversation.tags?.[channelIdTag]
+  const userId = conversation.tags?.[userIdTag]
 
   if (!channelId) {
     throw new Error('Invalid channel id')
@@ -182,11 +179,11 @@ function getRequestMetadata(conversation: SendMessageProps['conversation']) {
   return { to: userId, from: channelId, channel }
 }
 
-type Dropdown = channels.channel.dropdown.Dropdown
-type Choice = channels.channel.choice.Choice
-type Carousel = channels.channel.carousel.Carousel
-type Card = channels.channel.card.Card
-type Location = channels.channel.location.Location
+type Dropdown = bp.channels.channel.dropdown.Dropdown
+type Choice = bp.channels.channel.choice.Choice
+type Carousel = bp.channels.channel.carousel.Carousel
+type Card = bp.channels.channel.card.Card
+type Location = bp.channels.channel.location.Location
 
 function formatLocationPayload(payload: Location) {
   return {
@@ -335,5 +332,5 @@ async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload
       auth: { username: ctx.configuration.apiKey, password: ctx.configuration.apiSecret },
     }
   )
-  await ack({ tags: { 'vonage:id': response.data.message_uuid } })
+  await ack({ tags: { [idTag]: response.data.message_uuid } })
 }

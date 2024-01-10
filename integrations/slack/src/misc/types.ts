@@ -18,3 +18,5 @@ export type UnregisterFunction = botpress.IntegrationProps['unregister']
 export type CreateConversationFunction = botpress.IntegrationProps['createConversation']
 export type CreateUserFunction = botpress.IntegrationProps['createUser']
 export type Channels = botpress.IntegrationProps['channels']
+
+export type IntegrationLogger = Parameters<botpress.IntegrationProps['handler']>[0]['logger']

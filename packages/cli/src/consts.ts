@@ -20,7 +20,6 @@ export const echoBotDirName = 'echo-bot'
 export const emptyIntegrationDirName = 'empty-integration'
 
 export const fromCliRootDir = {
-  packageJson: 'package.json',
   echoBotTemplate: pathlib.join('templates', echoBotDirName),
   emptyIntegrationTemplate: pathlib.join('templates', emptyIntegrationDirName),
 }

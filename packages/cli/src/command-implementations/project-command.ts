@@ -1,14 +1,18 @@
 import type * as bpclient from '@botpress/client'
 import type * as bpsdk from '@botpress/sdk'
 import type { YargsConfig } from '@bpinternal/yargs-extra'
+import bluebird from 'bluebird'
 import chalk from 'chalk'
 import fs from 'fs'
 import _ from 'lodash'
 import pathlib from 'path'
+import semver from 'semver'
+import { ApiClient } from '../api/client'
 import * as codegen from '../code-generation'
 import type * as config from '../config'
 import * as consts from '../consts'
 import * as errors from '../errors'
+import { formatIntegrationRef, IntegrationRef } from '../integration-ref'
 import type { CommandArgv, CommandDefinition } from '../typings'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
@@ -19,6 +23,9 @@ export type ProjectCache = { botId: string; devId: string }
 type ConfigurableProjectPaths = { entryPoint: string; outDir: string; workDir: string }
 type ConstantProjectPaths = typeof consts.fromOutDir & typeof consts.fromWorkDir
 type AllProjectPaths = ConfigurableProjectPaths & ConstantProjectPaths
+
+type ApiIntegrationInstance = utils.types.Merge<bpsdk.IntegrationInstance<string>, { id: string }>
+type LocalIntegrationInstance = utils.types.Merge<bpsdk.IntegrationInstance<string>, { id: null }>
 
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   public constructor(argv: CommandArgv<ProjectCommandDefinition>) {
@@ -36,6 +43,11 @@ class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
 }
 
 export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends GlobalCommand<C> {
+  protected override async bootstrap() {
+    await super.bootstrap()
+    await this._notifyUpdateSdk()
+  }
+
   protected get projectPaths() {
     return new ProjectPaths(this.argv)
   }
@@ -44,15 +56,49 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return new utils.cache.FSKeyValueCache<ProjectCache>(this.projectPaths.abs.projectCacheFile)
   }
 
-  protected parseBot(bot: bpsdk.Bot) {
+  protected async prepareBotIntegrationInstances(bot: bpsdk.Bot, api: ApiClient) {
+    const integrationList = _(bot.props.integrations).values().filter(utils.guards.is.defined).value()
+
+    const { apiInstances, localInstances } = this._splitApiAndLocalIntegrationInstances(integrationList)
+
+    const fetchedInstances: ApiIntegrationInstance[] = await bluebird.map(localInstances, async (instance) => {
+      const ref: IntegrationRef = { type: 'name', name: instance.name, version: instance.version }
+      const integration = await api.findIntegration(ref)
+      if (!integration) {
+        const formattedRef = formatIntegrationRef(ref)
+        throw new errors.BotpressCLIError(`Integration "${formattedRef}" not found`)
+      }
+      return { ...instance, id: integration.id }
+    })
+
     return {
-      ...bot.props,
-      integrations: _(bot.props.integrations)
-        .values()
-        .filter(utils.guards.is.defined)
+      integrations: _([...fetchedInstances, ...apiInstances])
         .keyBy((i) => i.id)
         .mapValues(({ enabled, configuration }) => ({ enabled, configuration }))
         .value(),
+    }
+  }
+
+  private _splitApiAndLocalIntegrationInstances(instances: bpsdk.IntegrationInstance<string>[]): {
+    apiInstances: ApiIntegrationInstance[]
+    localInstances: LocalIntegrationInstance[]
+  } {
+    const apiInstances: ApiIntegrationInstance[] = []
+    const localInstances: LocalIntegrationInstance[] = []
+    for (const { id, ...instance } of instances) {
+      if (id) {
+        apiInstances.push({ ...instance, id })
+      } else {
+        localInstances.push({ ...instance, id: null })
+      }
+    }
+
+    return { apiInstances, localInstances }
+  }
+
+  protected prepareBot(bot: bpsdk.Bot) {
+    return {
+      ...bot.props,
       configuration: bot.props.configuration
         ? {
             ...bot.props.configuration,
@@ -74,7 +120,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
   }
 
-  protected parseIntegrationDefinition(integration: bpsdk.IntegrationDefinition) {
+  protected prepareIntegrationDefinition(integration: bpsdk.IntegrationDefinition) {
     return {
       ...integration,
       configuration: integration.configuration
@@ -120,9 +166,11 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
   }
 
-  protected async readIntegrationDefinitionFromFS(): Promise<bpsdk.IntegrationDefinition | undefined> {
-    const abs = this.projectPaths.abs
-    const rel = this.projectPaths.rel('workDir')
+  protected async readIntegrationDefinitionFromFS(
+    projectPaths: utils.path.PathStore<'workDir' | 'definition'> = this.projectPaths
+  ): Promise<bpsdk.IntegrationDefinition | undefined> {
+    const abs = projectPaths.abs
+    const rel = projectPaths.rel('workDir')
 
     if (!fs.existsSync(abs.definition)) {
       this.logger.debug(`Integration definition not found at ${rel.definition}`)
@@ -184,25 +232,33 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
 
     const secretArgv = this._parseArgvSecrets(argv.secrets)
-    const invalidSecret = Object.keys(secretArgv).find((s) => !secretDefinitions.includes(s))
+    const invalidSecret = Object.keys(secretArgv).find((s) => !secretDefinitions[s])
     if (invalidSecret) {
       throw new errors.BotpressCLIError(`Secret ${invalidSecret} is not defined in integration definition`)
     }
 
     const values: Record<string, string> = {}
-    for (const secretDef of secretDefinitions) {
-      const argvSecret = secretArgv[secretDef]
+    for (const [secretName, { optional }] of Object.entries(secretDefinitions)) {
+      const argvSecret = secretArgv[secretName]
       if (argvSecret) {
-        this.logger.debug(`Using secret "${secretDef}" from argv`)
-        values[secretDef] = argvSecret
+        this.logger.debug(`Using secret "${secretName}" from argv`)
+        values[secretName] = argvSecret
         continue
       }
 
-      const prompted = await this.prompt.text(`Enter value for secret "${secretDef}"`)
-      if (!prompted) {
-        throw new errors.BotpressCLIError('Secret is required')
+      const mode = optional ? 'optional' : 'required'
+      const prompted = await this.prompt.text(`Enter value for secret "${secretName}" (${mode})`)
+      if (prompted) {
+        values[secretName] = prompted
+        continue
       }
-      values[secretDef] = prompted
+
+      if (optional) {
+        this.logger.warn(`Secret "${secretName}" is unassigned`)
+        continue
+      }
+
+      throw new errors.BotpressCLIError(`Secret "${secretName}" is required`)
     }
 
     const envVariables = _.mapKeys(values, (_v, k) => codegen.secretEnvVariableName(k))
@@ -230,5 +286,65 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       return [text, undefined]
     }
     return [text.slice(0, index), text.slice(index + 1)]
+  }
+
+  private _notifyUpdateSdk = async (): Promise<void> => {
+    try {
+      this.logger.debug('Checking if sdk is up to date')
+
+      const { workDir } = this.projectPaths.abs
+      const projectPkgJson = await utils.pkgJson.readPackageJson(workDir)
+      if (!projectPkgJson) {
+        this.logger.debug(`Could not find package.json at "${workDir}"`)
+        return
+      }
+
+      const sdkPackageName = '@botpress/sdk'
+      const actualSdkVersion = utils.pkgJson.findDependency(projectPkgJson, sdkPackageName)
+      if (!actualSdkVersion) {
+        this.logger.debug(`Could not find dependency "${sdkPackageName}" in project package.json`)
+        return
+      }
+
+      const actualCleanedSdkVersion = semver.valid(semver.coerce(actualSdkVersion))
+      if (!actualCleanedSdkVersion) {
+        this.logger.debug(`Invalid sdk version "${actualSdkVersion}" in project package.json`)
+        return
+      }
+
+      const cliPkgJson = await this.readPkgJson()
+      const expectedSdkVersion = utils.pkgJson.findDependency(cliPkgJson, sdkPackageName)
+      if (!expectedSdkVersion) {
+        this.logger.debug(`Could not find dependency "${sdkPackageName}" in cli package.json`)
+        return
+      }
+
+      const expectedCleanedSdkVersion = semver.valid(semver.coerce(expectedSdkVersion))
+      if (!expectedCleanedSdkVersion) {
+        this.logger.debug(`Invalid sdk version "${expectedSdkVersion}" in cli package.json`)
+        return
+      }
+
+      if (semver.eq(actualCleanedSdkVersion, expectedCleanedSdkVersion)) {
+        return
+      }
+
+      const diff = semver.diff(actualCleanedSdkVersion, expectedCleanedSdkVersion)
+      if (!diff) {
+        this.logger.debug(`Could not compare versions "${actualCleanedSdkVersion}" and "${expectedCleanedSdkVersion}"`)
+        return
+      }
+
+      const errorMsg = `Project SDK version is "${actualCleanedSdkVersion}", but expected "${expectedCleanedSdkVersion}"`
+      if (utils.semver.releases.lt(diff, 'minor')) {
+        this.logger.debug(`${errorMsg}. This may cause compatibility issues.`)
+        return
+      }
+
+      this.logger.warn(chalk.bold(`${errorMsg}. This will cause compatibility issues.`))
+    } catch (thrown) {
+      const err = errors.BotpressCLIError.map(thrown)
+      this.logger.debug(`Failed to check if sdk is up to date: ${err.message}`)
+    }
   }
 }

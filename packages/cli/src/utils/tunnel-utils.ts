@@ -58,10 +58,10 @@ export class TunnelSupervisor {
 
   public async start(): Promise<void> {
     if (this._closed) {
-      throw new Error('Tunnel is closed')
+      throw new Error('Cannot start: Tunnel is closed')
     }
     if (this._started) {
-      throw new Error('Tunnel is already started')
+      throw new Error('Cannot start: Tunnel is already started')
     }
 
     this._started = true
@@ -78,7 +78,7 @@ export class TunnelSupervisor {
    */
   public async wait(): Promise<void> {
     if (this._closed) {
-      throw new Error('Tunnel is closed')
+      throw new Error('Cannot wait: Tunnel is closed')
     }
 
     return new Promise((resolve, reject) => {

@@ -1,5 +1,5 @@
-import { Channels } from './misc/types'
 import { createComment, getCardContent } from './misc/utils'
+import { IntegrationProps } from '.botpress'
 
 export default {
   issue: {
@@ -20,4 +20,4 @@ export default {
       choice: ({ payload, ...props }) => createComment({ ...props, content: payload.text }),
     },
   },
-} satisfies Channels
+} satisfies IntegrationProps['channels']

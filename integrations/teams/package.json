@@ -17,12 +17,16 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
+    "axios": "^1.5.1",
     "botbuilder": "^4.18.0",
+    "jsonwebtoken": "^9.0.2",
+    "jwks-rsa": "^3.1.0",
     "zod": "^3.20.6"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@sentry/cli": "^2.18.1",
+    "@types/jsonwebtoken": "^9.0.3",
     "@types/node": "^18.11.17",
     "esbuild": "^0.15.18",
     "nodemon": "^2.0.20",

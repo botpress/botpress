@@ -1,11 +1,12 @@
-import type * as client from '@botpress/client'
-import type { IntegrationDefinition } from '@botpress/sdk'
+import type * as bpclient from '@botpress/client'
+import type * as bpsdk from '@botpress/sdk'
 import pathlib from 'path'
 import * as utils from '../utils'
 import { GENERATED_HEADER, INDEX_FILE } from './const'
 import { IntegrationImplementationIndexModule } from './integration-implementation'
 import { IntegrationInstanceIndexModule } from './integration-instance'
 import { IntegrationSecretIndexModule } from './integration-secret'
+import * as mapIntegration from './map-integration'
 import type * as types from './typings'
 
 export { File } from './typings'
@@ -13,19 +14,20 @@ export { secretEnvVariableName } from './integration-secret'
 export const INTEGRATION_JSON = 'integration.json'
 
 export const generateIntegrationImplementationTypings = async (
-  integration: IntegrationDefinition,
+  sdkIntegration: bpsdk.IntegrationDefinition,
   implementationTypingsPath: string
 ): Promise<types.File[]> => {
+  const integration = mapIntegration.from.sdk(sdkIntegration)
   const indexModule = await IntegrationImplementationIndexModule.create(integration)
   indexModule.unshift(implementationTypingsPath)
   return indexModule.flatten()
 }
 
 export const generateIntegrationSecrets = async (
-  integration: IntegrationDefinition,
+  sdkIntegration: bpsdk.IntegrationDefinition,
   secretsPath: string
 ): Promise<types.File[]> => {
-  const indexModule = await IntegrationSecretIndexModule.create(integration)
+  const indexModule = await IntegrationSecretIndexModule.create(sdkIntegration)
   indexModule.unshift(secretsPath)
   return indexModule.flatten()
 }
@@ -46,13 +48,20 @@ export const generateIntegrationIndex = async (
 export type IntegrationInstanceJson = {
   name: string
   version: string
-  id: string
+  id: string | null
 }
 
 export const generateIntegrationInstance = async (
-  integration: client.Integration,
+  anyIntegration: bpclient.Integration | bpsdk.IntegrationDefinition,
   installPath: string
 ): Promise<types.File[]> => {
+  let integration: types.IntegrationDefinition
+  if ('id' in anyIntegration) {
+    integration = mapIntegration.from.client(anyIntegration)
+  } else {
+    integration = mapIntegration.from.sdk(anyIntegration)
+  }
+
   const indexModule = await IntegrationInstanceIndexModule.create(integration)
   const dirname = utils.casing.to.kebabCase(integration.name)
   indexModule.unshift(installPath, dirname)

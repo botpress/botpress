@@ -10,18 +10,26 @@ export type CLIPromptsChoice<V extends string> = {
   value: V
 }
 
-export class NonInteractiveError extends Error {
-  constructor(message: string) {
-    super(`${message}:\n  Cannot prompt for input in non-interactive mode`)
-  }
-}
+type PasswordOptions = Partial<{
+  default: string | undefined
+  initial: string
+}>
+type SelectOptions<V extends string> = Partial<{
+  default: V | undefined
+  initial: CLIPromptsChoice<V>
+  choices: CLIPromptsChoice<V>[]
+}>
+type TextOptions = Partial<{
+  default: string | undefined
+  initial: string
+}>
 
 export class CLIPrompt {
   constructor(private _props: CLIPromptsProps, private _logger: Logger) {}
 
   public async confirm(message: string): Promise<boolean> {
     if (this._props.confirm) {
-      this._logger.debug(`Confirming automatically: ${message}`)
+      this._logger.debug(`Confirming automatically (non-interactive mode): ${message}`)
       return true
     }
 
@@ -38,9 +46,10 @@ export class CLIPrompt {
     return true
   }
 
-  public async password(message: string, opts?: { initial?: string }): Promise<string | undefined> {
+  public async password(message: string, opts: PasswordOptions = {}): Promise<string | undefined> {
     if (this._props.confirm) {
-      throw new NonInteractiveError(message)
+      this._logger.debug(`Return default (non-interactive mode): ${message}`)
+      return opts?.default
     }
 
     const { prompted } = await this._prompts({
@@ -53,12 +62,10 @@ export class CLIPrompt {
     return prompted ? prompted : undefined
   }
 
-  public async select<V extends string>(
-    message: string,
-    opts?: { initial?: CLIPromptsChoice<V>; choices: CLIPromptsChoice<V>[] }
-  ): Promise<V | undefined> {
+  public async select<V extends string>(message: string, opts: SelectOptions<V> = {}): Promise<V | undefined> {
     if (this._props.confirm) {
-      throw new NonInteractiveError(message)
+      this._logger.debug(`Return default (non-interactive mode): ${message}`)
+      return opts?.default
     }
 
     const { prompted } = await this._prompts({
@@ -71,9 +78,10 @@ export class CLIPrompt {
     return prompted ? prompted : undefined
   }
 
-  public async text(message: string, opts?: { initial?: string }): Promise<string | undefined> {
+  public async text(message: string, opts: TextOptions = {}): Promise<string | undefined> {
     if (this._props.confirm) {
-      throw new NonInteractiveError(message)
+      this._logger.debug(`Return default (non-interactive mode): ${message}`)
+      return opts?.default
     }
 
     const { prompted } = await this._prompts({

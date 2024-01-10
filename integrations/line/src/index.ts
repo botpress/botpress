@@ -1,23 +1,17 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import * as line from '@line/bot-sdk'
 import crypto from 'crypto'
-import { Integration, secrets, Client } from '.botpress'
+import { INTEGRATION_NAME, destIdTag, msgIdTag, usrIdTag } from './const'
+import * as bp from '.botpress'
 
-type Channels = Integration['channels']
+type Channels = bp.Integration['channels']
 type Messages = Channels[keyof Channels]['messages']
 type MessageHandler = Messages[keyof Messages]
 type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 type ReplyLineProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'client' | 'ack'>
 
-sentryHelpers.init({
-  dsn: secrets.SENTRY_DSN,
-  environment: secrets.SENTRY_ENVIRONMENT,
-  release: secrets.SENTRY_RELEASE,
-})
-
-const log = console
-log.info('starting integration line')
+console.info(`starting integration ${INTEGRATION_NAME}`)
 
 const replyLineMessage = async (props: ReplyLineProps, messageObj: line.Message) => {
   const { ctx, conversation, client, ack } = props
@@ -38,14 +32,14 @@ const replyLineMessage = async (props: ReplyLineProps, messageObj: line.Message)
     const lineResponse = await lineClient.replyMessage(stateRes.state.payload.replyToken, messageObj)
 
     if (lineResponse?.['x-line-request-id']) {
-      await ack({ tags: { ['line:msgId']: lineResponse['x-line-request-id'] } })
+      await ack({ tags: { [msgIdTag]: lineResponse['x-line-request-id'] } })
     }
   } catch (e: any) {
-    log.error(`Error: ${e.originalError.message}`)
+    console.error(`Error: ${e.originalError.message}`)
   }
 }
 
-const integration = new Integration({
+const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {},
@@ -105,7 +99,7 @@ const integration = new Integration({
           )
         },
         file: async () => {
-          log.error(
+          console.error(
             'Documents & files are not supported by Line - https://developers.line.biz/en/reference/messaging-api'
           )
         },
@@ -190,7 +184,9 @@ const integration = new Integration({
             })
 
             if (sections.length === 12) {
-              log.warn('Only 12 items are allowed - https://developers.line.biz/en/reference/messaging-api/#f-carousel')
+              console.warn(
+                'Only 12 items are allowed - https://developers.line.biz/en/reference/messaging-api/#f-carousel'
+              )
               break
             }
           }
@@ -367,7 +363,7 @@ const integration = new Integration({
     },
   },
   handler: async ({ req, client, ctx }) => {
-    log.info('Handler received request')
+    console.info('Handler received request')
 
     if (!req.body) {
       throw new Error('Handler received an empty body')
@@ -380,7 +376,7 @@ const integration = new Integration({
     }
 
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
 
@@ -390,7 +386,7 @@ const integration = new Integration({
     // Compare x-line-signature request header and the signature
 
     if (req.headers['x-line-signature'] !== signature) {
-      log.warn('Wrong Signature')
+      console.warn('Wrong Signature')
       return {
         status: 401,
       }
@@ -407,7 +403,7 @@ const integration = new Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags['line:usrId']
+    const userId = tags[usrIdTag]
 
     if (!userId) {
       return
@@ -419,7 +415,7 @@ const integration = new Integration({
     })
     const profile = await lineClient.getProfile(userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { 'line:usrId': `${profile.userId}` } })
+    const { user } = await client.getOrCreateUser({ tags: { [usrIdTag]: `${profile.userId}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -428,8 +424,8 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const usrId = tags['line:usrId']
-    const destId = tags['line:destId']
+    const usrId = tags[usrIdTag]
+    const destId = tags[destIdTag]
 
     if (!(usrId && destId)) {
       return
@@ -443,7 +439,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { 'line:usrId': `${profile.userId}`, 'line:destId': destId },
+      tags: { [usrIdTag]: `${profile.userId}`, [destIdTag]: destId },
     })
 
     return {
@@ -454,16 +450,20 @@ const integration = new Integration({
   },
 })
 
-export default sentryHelpers.wrapIntegration(integration)
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
+})
 
-async function handleMessage(events: LineEvents, destination: string, client: Client) {
+async function handleMessage(events: LineEvents, destination: string, client: bp.Client) {
   const message = events.message
   if (message.type) {
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        ['line:usrId']: events.source.userId,
-        ['line:destId']: destination,
+        [usrIdTag]: events.source.userId,
+        [destIdTag]: destination,
       },
     })
 
@@ -476,13 +476,13 @@ async function handleMessage(events: LineEvents, destination: string, client: Cl
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        ['line:usrId']: events.source.userId,
+        [usrIdTag]: events.source.userId,
       },
     })
 
     if (message.type === 'text') {
       await client.createMessage({
-        tags: { ['line:msgId']: message.id },
+        tags: { [msgIdTag]: message.id },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,

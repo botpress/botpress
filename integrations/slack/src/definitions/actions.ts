@@ -1,4 +1,3 @@
-import { IntegrationDefinitionProps } from '@botpress/sdk'
 import z from 'zod'
 
 type Channel = 'dm' | 'channel'
@@ -9,7 +8,7 @@ export type Target = {
   channel: Channel
 }
 
-const addReaction = {
+export const addReaction = {
   title: 'Add Reaction',
   description: 'Add a reaction to a message',
   input: {
@@ -33,7 +32,7 @@ const addReaction = {
   },
 }
 
-const findTarget = {
+export const findTarget = {
   title: 'Find Target',
   description: 'Find a target in Slack (ex: a channel, a user to send a dm, etc)',
   input: {
@@ -63,7 +62,62 @@ const findTarget = {
   },
 }
 
-export const actions = {
-  addReaction,
-  findTarget,
-} satisfies IntegrationDefinitionProps['actions']
+export const retrieveMessage = {
+  title: 'Retrieve Message',
+  description: 'Retrieve a message from Slack',
+  input: {
+    schema: z.object({
+      ts: z.string().describe('The timestamp of the message to retrieve'),
+      channel: z.string().describe('The channel of the message to retrieve'),
+    }),
+    ui: {
+      ts: {
+        title: 'Timestamp',
+      },
+      channel: {
+        title: 'Channel',
+      },
+    },
+  },
+  output: {
+    schema: z.object({
+      type: z.string(),
+      user: z.string(),
+      ts: z.string(),
+      text: z.string(),
+    }),
+  },
+}
+
+export const syncMembers = {
+  title: 'Sync Members',
+  description:
+    'Sync Slack workspace members to Botpress users. This action keeps track of the last sync timestamp and will only sync updated members since the last sync.',
+  input: {
+    schema: z.object({}),
+  },
+  output: {
+    schema: z.object({ syncedCount: z.number() }),
+  },
+}
+
+export const startDmConversation = {
+  title: 'Start DM Conversation',
+  description: 'Initiate a conversation with a user in a DM',
+  input: {
+    schema: z.object({
+      slackUserId: z.string().describe('The ID of the user to initiate the conversation with'),
+    }),
+    ui: {
+      userId: {
+        title: 'User Id',
+      },
+    },
+  },
+  output: {
+    schema: z.object({
+      userId: z.string(),
+      conversationId: z.string(),
+    }),
+  },
+}

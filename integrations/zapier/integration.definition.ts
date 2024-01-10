@@ -1,15 +1,16 @@
 import { IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { z } from 'zod'
+import { INTEGRATION_NAME } from './src/const'
 import { TriggerSchema, EventSchema, ZapierTriggersStateName, ZapierTriggersStateSchema } from './src/types'
 
 export default new IntegrationDefinition({
-  name: 'zapier',
+  name: INTEGRATION_NAME,
   version: '0.2.0',
   title: 'Zapier',
   description: 'This integration allows your bot to interact with Zapier.',
   icon: 'icon.svg',
-  readme: 'readme.md',
+  readme: 'hub.md',
   configuration: {
     schema: z.object({}),
   },
@@ -46,5 +47,5 @@ export default new IntegrationDefinition({
       },
     },
   },
-  secrets: [...sentryHelpers.COMMON_SECRET_NAMES],
+  secrets: sentryHelpers.COMMON_SECRET_NAMES,
 })

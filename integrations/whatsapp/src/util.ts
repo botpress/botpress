@@ -1,3 +1,6 @@
+import { IntegrationCtx } from 'src'
+import { WhatsAppAPI } from 'whatsapp-api-js'
+
 export class UnreachableCaseError extends Error {
   constructor(val: never) {
     super(`Unreachable case: ${val}`)
@@ -19,4 +22,18 @@ export function chunkArray<T>(array: T[], chunkSize: number) {
 
 export async function sleep(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms))
+}
+
+export function truncate(input: string, maxLength: number) {
+  let truncated = input.substring(0, maxLength)
+  if (truncated.length < input.length) {
+    truncated = truncated.substring(0, maxLength - 1) + '…'
+  }
+  return truncated
+}
+
+export async function getWhatsAppMediaUrl(whatsappMediaId: string, ctx: IntegrationCtx): Promise<string> {
+  const whatsapp = new WhatsAppAPI(ctx.configuration.accessToken)
+  const media = await whatsapp.retrieveMedia(whatsappMediaId)
+  return media.url
 }

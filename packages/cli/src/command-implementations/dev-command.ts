@@ -62,40 +62,62 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       path: `/${tunnelId}`,
     })
 
+    let worker: Worker | undefined = undefined
+
     const supervisor = new utils.tunnel.TunnelSupervisor(wsTunnelUrl, tunnelId, this.logger)
     supervisor.events.on('connected', ({ tunnel }) => {
       // prevents the tunnel from closing due to inactivity
-      const timer = setInterval(() => tunnel.hello(), TUNNEL_HELLO_INTERVAL)
-      tunnel.events.on('close', () => clearInterval(timer))
+      const timer = setInterval(() => {
+        if (tunnel.closed) {
+          return handleClose()
+        }
+        tunnel.hello()
+      }, TUNNEL_HELLO_INTERVAL)
+      const handleClose = (): void => clearInterval(timer)
+      tunnel.events.on('close', handleClose)
 
-      tunnel.events.on(
-        'request',
-        (req) =>
-          void this._forwardTunnelRequest(`http://localhost:${port}`, req)
-            .then((res) => {
-              tunnel.send(res)
+      tunnel.events.on('request', (req) => {
+        if (!worker) {
+          this.logger.debug('Worker not ready yet, ignoring request')
+          tunnel.send({ requestId: req.id, status: 503, body: 'Worker not ready yet' })
+          return
+        }
+
+        void this._forwardTunnelRequest(`http://localhost:${port}`, req)
+          .then((res) => {
+            tunnel.send(res)
+          })
+          .catch((thrown) => {
+            const err = errors.BotpressCLIError.wrap(thrown, 'An error occurred while handling request')
+            this.logger.error(err.message)
+            tunnel.send({
+              requestId: req.id,
+              status: 500,
+              body: err.message,
             })
-            .catch((thrown) => {
-              const err = errors.BotpressCLIError.wrap(thrown, 'An error occurred while handling request')
-              this.logger.error(err.message)
-              tunnel.send({
-                requestId: req.id,
-                status: 500,
-                body: err.message,
-              })
-            })
-      )
+          })
+      })
     })
+
+    supervisor.events.on('manuallyClosed', () => {
+      this.logger.debug('Tunnel manually closed')
+    })
+
     await supervisor.start()
 
     await this._runBuild()
     await this._deploy(api, httpTunnelUrl)
-    const worker = await this._spawnWorker(env, port)
+    worker = await this._spawnWorker(env, port)
 
     try {
       const watcher = await utils.filewatcher.FileWatcher.watch(
         this.argv.workDir,
         async (events) => {
+          if (!worker) {
+            this.logger.debug('Worker not ready yet, ignoring file change event')
+            return
+          }
+
           const typescriptEvents = events.filter((e) => pathlib.extname(e.path) === '.ts')
           if (typescriptEvents.length === 0) {
             return
@@ -149,9 +171,9 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   }
 
   private _checkSecrets(integrationDef: bpsdk.IntegrationDefinition) {
-    const initialSecrets = this._initialDef?.secrets ?? []
-    const currentSecrets = integrationDef.secrets ?? []
-    const newSecrets = currentSecrets.filter((s) => !initialSecrets.includes(s))
+    const initialSecrets = this._initialDef?.secrets ?? {}
+    const currentSecrets = integrationDef.secrets ?? {}
+    const newSecrets = Object.keys(currentSecrets).filter((s) => !initialSecrets[s])
     if (newSecrets.length > 0) {
       throw new errors.BotpressCLIError('Secrets were added while the server was running. A restart is required.')
     }
@@ -207,7 +229,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     line.started(`Deploying dev integration ${chalk.bold(integrationDef.name)}...`)
 
     const integrationBody: CreateIntegrationBody = {
-      ...this.parseIntegrationDefinition(integrationDef),
+      ...this.prepareIntegrationDefinition(integrationDef),
       url: externalUrl,
     }
 
@@ -229,6 +251,8 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     }
 
     line.success(`Dev Integration deployed with id "${integration.id}"`)
+    line.commit()
+
     await this.projectCache.set('devId', integration.id)
   }
 
@@ -265,6 +289,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
 
       bot = resp.bot
       createLine.success(`Dev Bot created with id "${bot.id}"`)
+      createLine.commit()
       await this.projectCache.set('devId', bot.id)
     }
 
@@ -278,7 +303,8 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       {
         id: bot.id,
         url: externalUrl,
-        ...this.parseBot(botImpl),
+        ...this.prepareBot(botImpl),
+        ...(await this.prepareBotIntegrationInstances(botImpl, api)),
       },
       bot
     )
@@ -287,6 +313,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       throw errors.BotpressCLIError.wrap(thrown, 'Could not deploy dev bot')
     })
     updateLine.success(`Dev Bot deployed with id "${updatedBot.id}"`)
+    updateLine.commit()
 
     this.displayWebhookUrls(updatedBot)
   }

@@ -3,49 +3,29 @@ import type { AckFunction } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Client, ReplyToConversationMessageType } from 'intercom-client'
 import { z } from 'zod'
+import { emailTag, idTag } from './const'
 import * as html from './html.utils'
-import { Integration, secrets } from '.botpress'
-import type * as botpress from '.botpress'
+import * as bp from '.botpress'
 
-type Card = botpress.channels.channel.card.Card
-type Location = botpress.channels.channel.location.Location
-type Configuration = botpress.configuration.Configuration
+type Card = bp.channels.channel.card.Card
+type Location = bp.channels.channel.location.Location
+type Configuration = bp.configuration.Configuration
 
-sentryHelpers.init({
-  dsn: secrets.SENTRY_DSN,
-  environment: secrets.SENTRY_ENVIRONMENT,
-  release: secrets.SENTRY_RELEASE,
-})
-
-const log = console
-
-const conversationPartSchema = z.object({
-  type: z.literal('conversation_part'),
-  id: z.string(),
-  author: z.object({
-    id: z.string(),
-    type: z.string(),
-  }),
-  body: z.string().nullable(),
-})
+type IntercomMessage = z.infer<typeof conversationSourceSchema>
 
 const conversationSourceSchema = z.object({
   id: z.string(),
   author: z.object({
     id: z.string(),
+    email: z.string().nullable(),
     type: z.string(),
   }),
   body: z.string().nullable(),
 })
 
-type IntercomMessage = {
-  id: string
-  author: {
-    id: string
-    type: string
-  }
-  body: string | null
-}
+const conversationPartSchema = conversationSourceSchema.extend({
+  type: z.literal('conversation_part'),
+})
 
 const conversationSchema = z.object({
   type: z.literal('conversation'),
@@ -68,7 +48,7 @@ const webhookNotificationSchema = z.object({
   }),
 })
 
-const integration = new Integration({
+const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {},
@@ -189,16 +169,16 @@ const integration = new Integration({
     },
   },
   handler: async ({ req, client, ctx }) => {
-    log.info('Handler received request')
+    console.info('Handler received request')
 
     if (!req.body) {
-      log.warn('Handler received an empty body')
+      console.warn('Handler received an empty body')
       return
     }
     const parsedBody = webhookNotificationSchema.safeParse(await JSON.parse(req.body))
 
     if (!parsedBody.success) {
-      log.warn(`Handler received an invalid body: ${parsedBody.error}`)
+      console.warn(`Handler received an invalid body: ${parsedBody.error}`)
       return
     }
 
@@ -228,14 +208,14 @@ const integration = new Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        ['intercom:id']: `${conversationId}`,
+        [idTag]: `${conversationId}`,
       },
     })
 
     // this uses the message payload from intercom to create the message in the bot
     const createMessage = async (intercomMessage: IntercomMessage) => {
       const {
-        author: { id: authorId, type: authorType },
+        author: { id: authorId, email, type: authorType },
         body,
         id: messageId,
       } = intercomMessage
@@ -249,18 +229,19 @@ const integration = new Integration({
       }
 
       if (authorType === 'bot') {
-        log.info(`Handler received a bot message with id ${messageId}`)
+        console.info(`Handler received a bot message with id ${messageId}`)
         return // ignore bot messages
       }
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          ['intercom:id']: `${authorId}`,
+          [idTag]: `${authorId}`,
+          [emailTag]: `${email}`,
         },
       })
 
       await client.createMessage({
-        tags: { ['intercom:id']: `${messageId}` },
+        tags: { [idTag]: `${messageId}` },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
@@ -275,12 +256,12 @@ const integration = new Integration({
     for (const part of conversation_parts) {
       await createMessage(part)
     }
-    log.info('Handler finished processing request')
+    console.info('Handler finished processing request')
 
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags['intercom:id']
+    const userId = tags[idTag]
 
     if (!userId) {
       return
@@ -289,7 +270,9 @@ const integration = new Integration({
     const intercomClient = new Client({ tokenAuth: { token: ctx.configuration.accessToken } })
     const contact = await intercomClient.contacts.find({ id: userId })
 
-    const { user } = await client.getOrCreateUser({ tags: { 'intercom:id': `${contact.id}` } })
+    const { user } = await client.getOrCreateUser({
+      tags: { [idTag]: `${contact.id}`, [emailTag]: `${contact.email}` },
+    })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -298,7 +281,7 @@ const integration = new Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const conversationId = tags['intercom:id']
+    const conversationId = tags[idTag]
 
     if (!conversationId) {
       return
@@ -309,7 +292,7 @@ const integration = new Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { 'intercom:id': `${chat.id}` },
+      tags: { [idTag]: `${chat.id}` },
     })
 
     return {
@@ -320,7 +303,11 @@ const integration = new Integration({
   },
 })
 
-export default sentryHelpers.wrapIntegration(integration)
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
+})
 
 async function sendMessage(props: {
   body: string
@@ -335,14 +322,14 @@ async function sendMessage(props: {
   const {
     conversation_parts: { conversation_parts: conversationParts },
   } = await client.conversations.replyByIdAsAdmin({
-    id: conversation.tags['intercom:id'] ?? '',
+    id: conversation.tags[idTag] ?? '',
     adminId: configuration.adminId,
     messageType: ReplyToConversationMessageType.COMMENT,
     body,
     attachmentUrls,
   })
 
-  await ack({ tags: { ['intercom:id']: `${conversationParts.at(-1)?.id ?? ''}` } })
+  await ack({ tags: { [idTag]: `${conversationParts.at(-1)?.id ?? ''}` } })
 }
 
 function composeMessage(...parts: string[]) {

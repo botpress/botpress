@@ -1,6 +1,5 @@
 import type { IntegrationDefinition } from '@botpress/sdk'
 import chalk from 'chalk'
-import _ from 'lodash'
 import * as codegen from '../code-generation'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
@@ -48,21 +47,9 @@ export class GenerateCommand extends ProjectCommand<GenerateCommandDefinition> {
       return
     }
 
-    for (const secret of secrets) {
-      if (!utils.casing.is.screamingSnakeCase(secret)) {
-        throw new errors.BotpressCLIError(`Secret ${secret} should be in SCREAMING_SNAKE_CASE`)
-      }
-    }
-
-    const groups = _(secrets)
-      .groupBy()
-      .mapValues((s) => s.length)
-      .toPairs()
-      .value()
-
-    for (const [secret, count] of groups) {
-      if (count > 1) {
-        throw new errors.BotpressCLIError(`Secret ${secret} is dupplicated; It appears ${count} times`)
+    for (const secretName in secrets) {
+      if (!utils.casing.is.screamingSnakeCase(secretName)) {
+        throw new errors.BotpressCLIError(`Secret ${secretName} should be in SCREAMING_SNAKE_CASE`)
       }
     }
   }
