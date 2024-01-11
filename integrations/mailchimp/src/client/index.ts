@@ -5,12 +5,18 @@ import type {
   MailchimpClient,
   Customer,
   Operation,
-  AddCustomerFullOutputType,
-  GetAllListsOutputType,
+  addCustomerFullOutputType,
+  getAllListsOutputType,
   getAllListsInputType,
+  getAllCampaignsOutputType,
+  getAllCampaignsInputType,
 } from 'src/misc/custom-types'
 import { isMailchimpError } from 'src/utils'
-import { addCustomerFullOutputSchema, getAllListsInputSchema, getAllListsOutputSchema } from '../misc/custom-schemas'
+import {
+  addCustomerFullOutputSchema,
+  getAllCampaignsOutputSchema,
+  getAllListsOutputSchema,
+} from '../misc/custom-schemas'
 
 export class MailchimpApi {
   private client: MailchimpClient
@@ -24,15 +30,19 @@ export class MailchimpApi {
     this.logger = logger
   }
 
-  public getAllLists = async (input: getAllListsInputType): Promise<GetAllListsOutputType> => {
-    const validatedInput = getAllListsInputSchema.parse(input)
+  public getAllCampaigns = async (input: getAllCampaignsInputType): Promise<getAllCampaignsOutputType> => {
+    const response = await this.client.campaigns?.list(input)
 
-    const response = await this.client.lists.getAllLists(validatedInput)
+    return getAllCampaignsOutputSchema.parse(response)
+  }
+
+  public getAllLists = async (input: getAllListsInputType): Promise<getAllListsOutputType> => {
+    const response = await this.client.lists.getAllLists(input)
 
     return getAllListsOutputSchema.parse(response)
   }
 
-  public addCustomerToList = async (listId: string, customer: Customer): Promise<AddCustomerFullOutputType> => {
+  public addCustomerToList = async (listId: string, customer: Customer): Promise<addCustomerFullOutputType> => {
     this.logger?.forBot().debug('Adding customer to list', { listId, customer })
 
     const existing = await this.getListCustomer(listId, customer.email)
@@ -71,7 +81,7 @@ export class MailchimpApi {
   public addCustomerToCampaignList = async (
     campaignId: string,
     customer: Customer
-  ): Promise<AddCustomerFullOutputType> => {
+  ): Promise<addCustomerFullOutputType> => {
     this.logger?.forBot().debug('Adding customer to campaign list', { campaignId, customer })
     const listId = await this.getCampaignListID(campaignId)
     this.logger?.forBot().debug('Found Campaign list ID', { listId })

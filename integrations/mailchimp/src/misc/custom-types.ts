@@ -2,7 +2,13 @@ import { HttpMethod, Link, Config, lists, ErrorResponse } from '@mailchimp/mailc
 
 import z from 'zod'
 
-import { addCustomerFullOutputSchema, getAllListsInputSchema, getAllListsOutputSchema } from './custom-schemas'
+import {
+  addCustomerFullOutputSchema,
+  getAllCampaignsInputSchema,
+  getAllCampaignsOutputSchema,
+  getAllListsInputSchema,
+  getAllListsOutputSchema,
+} from './custom-schemas'
 
 export type Operation = {
   method: HttpMethod
@@ -26,23 +32,29 @@ export type BatchResponse = {
 }
 
 export type MailchimpClient = {
-  setConfig: (config: Config) => void // eslint-disable-line no-unused-vars
+  setConfig: (config: Config) => void
   lists: {
     getAllLists: typeof lists.getAllLists
     addListMember: typeof lists.addListMember
     getListMember: typeof lists.getListMember
   }
   campaigns?: {
-    get: (campaignId: string) => Promise<{ recipients: { list_id: string } }> // eslint-disable-line no-unused-vars
+    get: (campaignId: string) => Promise<{ recipients: { list_id: string } }>
+    list: (input: { count?: number }) => Promise<any>
   }
+
   batches?: {
-    start: (batch: { operations: Operation[] }) => Promise<BatchResponse> // eslint-disable-line no-unused-vars
+    start: (batch: { operations: Operation[] }) => Promise<BatchResponse>
   }
 }
 
-export type AddCustomerFullOutputType = z.infer<typeof addCustomerFullOutputSchema>
+export type addCustomerFullOutputType = z.infer<typeof addCustomerFullOutputSchema>
+
 export type getAllListsInputType = z.infer<typeof getAllListsInputSchema>
-export type GetAllListsOutputType = z.infer<typeof getAllListsOutputSchema>
+export type getAllListsOutputType = z.infer<typeof getAllListsOutputSchema>
+
+export type getAllCampaignsInputType = z.infer<typeof getAllCampaignsInputSchema>
+export type getAllCampaignsOutputType = z.infer<typeof getAllCampaignsOutputSchema>
 
 export type Customer = {
   email: string

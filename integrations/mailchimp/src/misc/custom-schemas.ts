@@ -10,6 +10,15 @@ import {
   batchStatusSchema,
   listSchema,
   constraintsSchema,
+  recipientsSchema,
+  settingsSchema,
+  variateSettingsSchema,
+  trackingSchema,
+  rssOptsSchema,
+  abSplitOptsSchema,
+  socialCardSchema,
+  reportSummarySchema,
+  deliveryStatusSchema,
 } from './sub-schemas'
 
 export const customerSchema = z.object({
@@ -108,4 +117,38 @@ export const getAllListsOutputSchema = z.object({
 
 export const getAllListsInputSchema = z.object({
   count: z.number().optional().default(100),
+})
+
+export const getAllCampaignsInputSchema = getAllListsInputSchema
+
+const campaignSchema = z.object({
+  id: z.string(),
+  web_id: z.number(),
+  parent_campaign_id: z.string(),
+  type: z.string(),
+  create_time: z.string(),
+  archive_url: z.string(),
+  long_archive_url: z.string(),
+  status: z.string(),
+  emails_sent: z.number(),
+  send_time: z.string(),
+  content_type: z.string(),
+  needs_block_refresh: z.boolean(),
+  resendable: z.boolean(),
+  recipients: recipientsSchema,
+  settings: settingsSchema,
+  variate_settings: variateSettingsSchema,
+  tracking: trackingSchema,
+  rss_opts: rssOptsSchema,
+  ab_split_opts: abSplitOptsSchema,
+  social_card: socialCardSchema,
+  report_summary: reportSummarySchema,
+  delivery_status: deliveryStatusSchema,
+  _links: z.array(linkSchema),
+})
+
+export const getAllCampaignsOutputSchema = z.object({
+  campaigns: z.array(campaignSchema),
+  total_items: z.number().describe('Total number of items'),
+  _links: z.array(linkSchema),
 })

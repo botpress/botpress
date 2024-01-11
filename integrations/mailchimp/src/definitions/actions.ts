@@ -6,6 +6,8 @@ import {
   sendMassEmailCampaignOutputSchema,
   getAllListsOutputSchema,
   getAllListsInputSchema,
+  getAllCampaignsOutputSchema,
+  getAllCampaignsInputSchema,
 } from '../misc/custom-schemas'
 import { addCustomerToCampaignUi, addCustomerToListUi, sendMassEmailCampaignUi } from '../misc/custom-uis'
 
@@ -61,8 +63,25 @@ const getAllLists = {
   },
 }
 
+export const getAllCampaigns = {
+  title: 'Get All Campaigns',
+  description: 'Get all available campaigns',
+  input: {
+    schema: getAllCampaignsInputSchema,
+    ui: {
+      count: {
+        title: 'List count to retrieve',
+      },
+    },
+  },
+  output: {
+    schema: getAllCampaignsOutputSchema,
+  },
+}
+
 export const actions = {
   getAllLists,
+  getAllCampaigns,
   addCustomerToCampaign,
   addCustomerToList,
   sendMassEmailCampaign,
