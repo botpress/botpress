@@ -1,9 +1,12 @@
+import z from 'zod'
 import {
   addCustomerToCampaignInputSchema,
   addCustomerToListInputSchema,
   sendMassEmailCampaignInputSchema,
   addCustomerOutputSchema,
   sendMassEmailCampaignOutputSchema,
+  getAllListsOutputSchema,
+  getAllListsInputSchema,
 } from '../misc/custom-schemas'
 
 import {
@@ -48,7 +51,24 @@ const sendMassEmailCampaign = {
   },
 }
 
+const getAllLists = {
+  title: 'Get All Email Lists/Audiences',
+  description: 'Get all available email lists/audiences',
+  input: {
+    schema: getAllListsInputSchema,
+    ui: {
+      count: {
+        title: 'List count to retrieve',
+      }
+    }
+  },
+  output: {
+    schema: getAllListsOutputSchema,
+  },
+}
+
 export const actions = {
+  getAllLists,
   addCustomerToCampaign,
   addCustomerToList,
   sendMassEmailCampaign,

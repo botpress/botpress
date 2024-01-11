@@ -29,7 +29,7 @@ export const addCustomerToCampaign: Implementation['actions']['addCustomerToCamp
       logger
         .forBot()
         .debug(`'Add Customer To List' exception ${JSON.stringify(error)}`)
-      response = {}
+      throw error
     }
     return {
       id: response.id || '',

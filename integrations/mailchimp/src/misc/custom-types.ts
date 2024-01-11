@@ -1,13 +1,13 @@
-import type {
-  Config,
-  lists,
+import {
   HttpMethod,
   Link,
+  Config,
+  lists,
 } from '@mailchimp/mailchimp_marketing'
 
 import z from 'zod'
 
-import { addCustomerFullOutputSchema } from './custom-schemas'
+import { addCustomerFullOutputSchema, getAllListsOutputSchema } from './custom-schemas'
 
 export type Operation = {
   method: HttpMethod
@@ -39,6 +39,7 @@ export type BatchResponse = {
 export type MailchimpClient = {
   setConfig: (config: Config) => void // eslint-disable-line no-unused-vars
   lists: {
+    getAllLists: typeof lists.getAllLists
     addListMember: typeof lists.addListMember
     getListMember: typeof lists.getListMember
   }
@@ -53,6 +54,8 @@ export type MailchimpClient = {
 export type AddCustomerFullOutputType = z.infer<
   typeof addCustomerFullOutputSchema
 >
+
+export type GetAllListsOutputType = z.infer<typeof getAllListsOutputSchema>
 
 export type Customer = {
   email: string

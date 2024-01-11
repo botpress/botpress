@@ -20,7 +20,7 @@ export const sendMassEmailCampaign: Implementation['actions']['sendMassEmailCamp
       logger
         .forBot()
         .debug(`'Send Mass Email Campaign' exception ${JSON.stringify(error)}`)
-      response = {}
+      throw error
     }
 
     return {

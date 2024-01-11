@@ -1,5 +1,3 @@
-// import { IntegrationContext } from '@botpress/sdk'
-
 import { MailchimpApi } from '../client'
 
 import { Customer } from '../misc/custom-types'

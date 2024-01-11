@@ -1,13 +1,15 @@
 import * as z from 'zod'
 
 import {
-  LinkSchema,
-  TagsSchema,
-  MemberLastNoteSchema,
-  MemberMarketingPermissionsSchema,
-  FullMemberLocationSchema,
-  MemberStatsSchema,
-  BatchStatusSchema,
+  linkSchema,
+  tagsSchema,
+  memberLastNoteSchema,
+  memberMarketingPermissionsSchema,
+  fullMemberLocationSchema,
+  memberStatsSchema,
+  batchStatusSchema,
+  listSchema,
+  constraintsSchema
 } from './sub-schemas'
 
 export const customerSchema = z.object({
@@ -107,7 +109,7 @@ export const addCustomerFullOutputSchema = z.object({
   consents_to_one_to_one_messaging: z.boolean().optional(),
   merge_fields: z.record(z.any()).optional(),
   interests: z.record(z.any()).optional(),
-  stats: MemberStatsSchema.optional(),
+  stats: memberStatsSchema.optional(),
   ip_signup: z.string().optional(),
   timestamp_signup: z.string().optional(),
   ip_opt: z.string().optional(),
@@ -117,32 +119,42 @@ export const addCustomerFullOutputSchema = z.object({
   language: z.string().optional(),
   vip: z.boolean().optional(),
   email_client: z.string().optional(),
-  location: FullMemberLocationSchema.optional(),
-  marketing_permissions: z.array(MemberMarketingPermissionsSchema).optional(),
-  last_note: MemberLastNoteSchema.optional(),
+  location: fullMemberLocationSchema.optional(),
+  marketing_permissions: z.array(memberMarketingPermissionsSchema).optional(),
+  last_note: memberLastNoteSchema.optional(),
   source: z.string().optional(),
   tags_count: z.number().optional(),
-  tags: z.array(TagsSchema).optional(),
+  tags: z.array(tagsSchema).optional(),
   list_id: z.string().optional(),
-  _links: z.array(LinkSchema).optional(),
+  _links: z.array(linkSchema).optional(),
   message: z.string().optional(),
 })
 
 export const sendMassEmailCampaignOutputSchema = z.object({
   id: z.string().optional(),
-  status: BatchStatusSchema.optional(),
+  status: batchStatusSchema.optional(),
   total_operations: z.number().optional(),
-  _links: z.array(LinkSchema).optional(),
+  _links: z.array(linkSchema).optional(),
 })
 
 export const sendMassEmailCampaignFullOutputSchema = z.object({
   id: z.string(),
-  status: BatchStatusSchema,
+  status: batchStatusSchema,
   total_operations: z.number(),
   finished_operations: z.number(),
   errored_operations: z.number(),
   submitted_at: z.string(),
   completed_at: z.string(),
   response_body_url: z.string(),
-  _links: z.array(LinkSchema),
+  _links: z.array(linkSchema),
+})
+
+export const getAllListsOutputSchema = z.object({
+  lists: z.array(listSchema),
+  constraints: constraintsSchema,
+  _links: z.array(linkSchema)
+})
+
+export const getAllListsInputSchema = z.object({
+  count: z.number().optional().default(100),
 })

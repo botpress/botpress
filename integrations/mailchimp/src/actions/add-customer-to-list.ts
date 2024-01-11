@@ -9,12 +9,12 @@ export const addCustomerToList: Implementation['actions']['addCustomerToList'] =
     const customer = getValidCustomer(validatedInput)
     let response
     try {
-      const isAlredyAdd = await mailchimpClient.checkIfCustomerInList(
+      const isAlreadyAdded = await mailchimpClient.checkIfCustomerInList(
         validatedInput.listId,
         validatedInput.email
       )
       let logMessage
-      if (!isAlredyAdd) {
+      if (!isAlreadyAdded) {
         response = await mailchimpClient.addCustomerToList(
           validatedInput.listId,
           customer
@@ -29,7 +29,7 @@ export const addCustomerToList: Implementation['actions']['addCustomerToList'] =
       logger
         .forBot()
         .debug(`'Add Customer To List' exception ${JSON.stringify(error)}`)
-      response = {}
+      throw error
     }
 
     return {
