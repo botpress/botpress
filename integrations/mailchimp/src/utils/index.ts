@@ -1,10 +1,12 @@
+import { RuntimeError } from '@botpress/client'
+import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
+import { ZodError } from 'zod'
 import { MailchimpApi } from '../client'
-
-import { Customer } from '../misc/custom-types'
+import { Customer, MailchimpAPIError } from '../misc/custom-types'
 import type { Config } from '../misc/types'
 
-export const getMailchimpClient = (config: Config) =>
-  new MailchimpApi(config.apiKey, config.serverPrefix)
+export const getMailchimpClient = (config: Config, logger?: IntegrationLogger) =>
+  new MailchimpApi(config.apiKey, config.serverPrefix, logger)
 
 export const getValidCustomer = (validatedInput: Customer) => ({
   email: validatedInput.email,
@@ -21,3 +23,32 @@ export const getValidCustomer = (validatedInput: Customer) => ({
   country: validatedInput.country,
   phone: validatedInput.phone,
 })
+
+export const isMailchimpError = (error: any): error is MailchimpAPIError => {
+  if ('status' in error && 'response' in error) {
+    if ('body' in error.response) {
+      return true
+    }
+  }
+  return false
+}
+
+export const isZodError = (error: any): error is ZodError => {
+  return error && typeof error === 'object' && error instanceof ZodError && 'errors' in error
+}
+
+export const parseError = (error: any): RuntimeError => {
+  if (isMailchimpError(error)) {
+    return new RuntimeError(
+      `Mailchimp API errored with ${error.response.body.status} status code: ${error.response.body.detail}`,
+      {
+        name: error.response.body.title,
+        message: error.response.body.detail,
+      }
+    )
+  }
+  if (isZodError(error)) {
+    return new RuntimeError(`input or output does not conform to expected schema: ${error.message}`, error)
+  }
+  return new RuntimeError(`Unexpected error: ${error.message}`, error)
+}

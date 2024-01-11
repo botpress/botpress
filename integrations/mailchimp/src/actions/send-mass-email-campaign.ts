@@ -1,32 +1,31 @@
-import { getMailchimpClient } from 'src/utils'
-import { sendMassEmailCampaignInputSchema } from '../misc/custom-schemas'
+import { RuntimeError } from '@botpress/client'
+import { getMailchimpClient, parseError } from 'src/utils'
+import { sendMassEmailCampaignInputSchema, sendMassEmailCampaignOutputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 
-export const sendMassEmailCampaign: Implementation['actions']['sendMassEmailCampaign'] =
-  async ({ ctx, input, logger }) => {
+export const sendMassEmailCampaign: Implementation['actions']['sendMassEmailCampaign'] = async ({
+  ctx,
+  input,
+  logger,
+}) => {
+  try {
     const validatedInput = sendMassEmailCampaignInputSchema.parse(input)
-    const mailchimpClient = getMailchimpClient(ctx.configuration)
-    let response
-    try {
-      response = await mailchimpClient.sendMassEmailCampaign(
-        validatedInput.campaignIds
-      )
-      logger
-        .forBot()
-        .info(
-          `Batch operation with id: ${response?.id} has triggered ${response?.total_operations} operations`
-        )
-    } catch (error) {
-      logger
-        .forBot()
-        .debug(`'Send Mass Email Campaign' exception ${JSON.stringify(error)}`)
-      throw error
+    const mailchimpClient = getMailchimpClient(ctx.configuration, logger)
+    const response = await mailchimpClient.sendMassEmailCampaign(validatedInput.campaignIds)
+
+    if (typeof response === 'undefined') {
+      throw new RuntimeError('Batch client is not available')
     }
 
-    return {
-      id: response?.id,
-      status: response?.status,
-      total_operations: response?.total_operations,
-      _links: response?._links,
-    }
+    return sendMassEmailCampaignOutputSchema.parse({
+      id: response.id,
+      status: response.status,
+      total_operations: response.total_operations,
+      _links: response._links,
+    })
+  } catch (err) {
+    const error = parseError(err)
+    logger.forBot().error('Error adding customer to campaign', error)
+    throw error
   }
+}

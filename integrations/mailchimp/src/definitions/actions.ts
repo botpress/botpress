@@ -1,4 +1,3 @@
-import z from 'zod'
 import {
   addCustomerToCampaignInputSchema,
   addCustomerToListInputSchema,
@@ -8,16 +7,11 @@ import {
   getAllListsOutputSchema,
   getAllListsInputSchema,
 } from '../misc/custom-schemas'
-
-import {
-  addCustomerToCampaignUi,
-  addCustomerToListUi,
-  sendMassEmailCampaignUi,
-} from '../misc/custom-uis'
+import { addCustomerToCampaignUi, addCustomerToListUi, sendMassEmailCampaignUi } from '../misc/custom-uis'
 
 const addCustomerToCampaign = {
   title: 'Add Customer Profile to Campaign',
-  description: 'Add Customer Profile to Campaign List',
+  description: "Adds a Customer's Profile to a Campaign",
   input: {
     schema: addCustomerToCampaignInputSchema,
     ui: addCustomerToCampaignUi,
@@ -29,7 +23,7 @@ const addCustomerToCampaign = {
 
 const addCustomerToList = {
   title: 'Add Customer Profile to List/Audience',
-  description: 'Add Customer Profile to List/Audience',
+  description: "Add Customer's Profile to a List/Audience",
   input: {
     schema: addCustomerToListInputSchema,
     ui: addCustomerToListUi,
@@ -59,8 +53,8 @@ const getAllLists = {
     ui: {
       count: {
         title: 'List count to retrieve',
-      }
-    }
+      },
+    },
   },
   output: {
     schema: getAllListsOutputSchema,

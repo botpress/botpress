@@ -1,13 +1,8 @@
-import {
-  HttpMethod,
-  Link,
-  Config,
-  lists,
-} from '@mailchimp/mailchimp_marketing'
+import { HttpMethod, Link, Config, lists, ErrorResponse } from '@mailchimp/mailchimp_marketing'
 
 import z from 'zod'
 
-import { addCustomerFullOutputSchema, getAllListsOutputSchema } from './custom-schemas'
+import { addCustomerFullOutputSchema, getAllListsInputSchema, getAllListsOutputSchema } from './custom-schemas'
 
 export type Operation = {
   method: HttpMethod
@@ -17,13 +12,7 @@ export type Operation = {
   operation_id?: string
 }
 
-export type BatchStatus =
-  | 'pending'
-  | 'preprocessing'
-  | 'started'
-  | 'finalizing'
-  | 'finished'
-
+export type BatchStatus = 'pending' | 'preprocessing' | 'started' | 'finalizing' | 'finished'
 export type BatchResponse = {
   id: string
   status: BatchStatus
@@ -51,10 +40,8 @@ export type MailchimpClient = {
   }
 }
 
-export type AddCustomerFullOutputType = z.infer<
-  typeof addCustomerFullOutputSchema
->
-
+export type AddCustomerFullOutputType = z.infer<typeof addCustomerFullOutputSchema>
+export type getAllListsInputType = z.infer<typeof getAllListsInputSchema>
 export type GetAllListsOutputType = z.infer<typeof getAllListsOutputSchema>
 
 export type Customer = {
@@ -71,4 +58,29 @@ export type Customer = {
   zip?: string
   country?: string
   phone?: string
+}
+export type MailchimpAPIError = {
+  status: number
+  response: HTTPResponse<ErrorResponse>
+}
+
+type HTTPResponse<T> = {
+  request: any
+  req: any
+  text: string
+  body: T
+  headers: Record<string, string>
+  status: number
+  clientError: boolean
+  serverError: boolean
+  accepted: boolean
+  noContent: boolean
+  badRequest: boolean
+  unauthorized: boolean
+  notAcceptable: boolean
+  forbidden: boolean
+  notFound: boolean
+  type: string
+  charset: string
+  links: Record<string, string>
 }
