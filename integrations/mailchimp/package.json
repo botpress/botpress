@@ -1,5 +1,5 @@
 {
-  "name": "mailchimp2",
+  "name": "@botpresshub/mailchimp",
   "scripts": {
     "start": "pnpm bp serve",
     "build": "pnpm bp build",
