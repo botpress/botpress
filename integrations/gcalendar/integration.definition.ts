@@ -5,7 +5,7 @@ import { configuration, actions } from './src/definitions'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '0.0.1',
+  version: '0.2.0',
   description: 'This integration allows your bot to interact with Google Calendar.',
   title: 'Google Calendar',
   readme: 'hub.md',

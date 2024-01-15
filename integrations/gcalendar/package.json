@@ -1,5 +1,5 @@
 {
-  "name": "gcalendar2",
+  "name": "@botpress/googlecalendar",
   "private": true,
   "scripts": {
     "start": "pnpm bp serve",
