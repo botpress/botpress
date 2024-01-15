@@ -18,6 +18,7 @@ The Google Calendar Integration supports the following actions:
 To set up the Google Calendar Integration for your Botpress bot, follow these steps:
 
 1. **Google Cloud Project Setup**:
+
    - Create a new project in the [Google Cloud Console](https://console.cloud.google.com/).
    - Enable the Google Calendar API for your project.
    - Create a service account for your project.
