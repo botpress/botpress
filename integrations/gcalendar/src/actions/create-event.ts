@@ -1,16 +1,23 @@
-import { z } from 'zod'
-import * as schemas from '../misc/custom-schemas'
+import { getClient } from 'src/client'
+import { parseError } from 'src/misc/utils'
+import { Implementation } from '../misc/types'
 
-export const createEventInputSchema = z.object({
-  calendarId: z.string().describe('The ID of the calendar to create the event in.'),
-  event: z.any().describe('The event data to create.'),
-}) satisfies schemas.Schema
+export const createEvent: Implementation['actions']['createEvent'] = async ({ ctx, logger, input }) => {
+  try {
+    const { calendar } = await getClient(ctx.configuration)
+    const response = await calendar.events.insert({
+      calendarId: ctx.configuration.calendarId,
+      requestBody: {
+        ...input,
+      },
+    })
 
-export const createEventOutputSchema = z
-  .object({
-    event: z.any().optional(),
-  })
-  .partial()
-  .passthrough() satisfies schemas.Schema
-
-// Implement your create event action logic here
+    return {
+      eventId: response.data.id,
+    }
+  } catch (error) {
+    const err = parseError(error)
+    logger.forBot().error('Error while creating event ', err.message)
+    throw err
+  }
+}

@@ -1,16 +1,17 @@
-import { z } from 'zod'
-import * as schemas from '../misc/custom-schemas'
+import { getClient } from 'src/client'
+import { parseError } from 'src/misc/utils'
+import { Implementation } from '../misc/types'
 
-export const deleteEventInputSchema = z.object({
-  calendarId: z.string().describe('The ID of the calendar to delete the event from.'),
-  eventId: z.string().describe('The ID of the event to delete.'),
-}) satisfies schemas.Schema
+export const deleteEvent: Implementation['actions']['deleteEvent'] = async ({ logger, ctx, input }) => {
+  try {
+    const { calendar } = await getClient(ctx.configuration)
 
-export const deleteEventOutputSchema = z
-  .object({
-    success: z.boolean().optional(),
-  })
-  .partial()
-  .passthrough() satisfies schemas.Schema
+    await calendar.events.delete({ calendarId: ctx.configuration.calendarId, eventId: input.eventId })
 
-// Implement your delete event action logic here
+    return { success: true }
+  } catch (error) {
+    const err = parseError(error)
+    logger.forBot().error('Error while deleting event ', err.message)
+    throw err
+  }
+}

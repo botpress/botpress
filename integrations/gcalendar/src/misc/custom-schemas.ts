@@ -12,9 +12,7 @@ const eventSchema = z.object({
   endDateTime: z.string().describe('The end date and time in ISO 8601 format (e.g., "2023-12-31T12:00:00Z").'),
 })
 
-export const createEventInputSchema = z.object({
-  event: eventSchema.describe('The event data to create a new calendar event.'),
-}) satisfies Schema
+export const createEventInputSchema = eventSchema satisfies Schema
 
 export const createEventOutputSchema = z
   .object({
@@ -23,9 +21,8 @@ export const createEventOutputSchema = z
   .partial()
   .passthrough() satisfies Schema
 
-export const updateEventInputSchema = z.object({
+export const updateEventInputSchema = eventSchema.extend({
   eventId: z.string().describe('The ID of the calendar event to update.'),
-  event: eventSchema.describe('The updated event data.'),
 }) satisfies Schema
 
 export const updateEventOutputSchema = z
@@ -47,8 +44,7 @@ export const deleteEventOutputSchema = z
   .passthrough() satisfies Schema
 
 export const listEventsInputSchema = z.object({
-  startDate: z.string().nullable().optional().describe('The start date for listing events (in ISO 8601 format).'),
-  endDate: z.string().nullable().optional().describe('The end date for listing events (in ISO 8601 format).'),
+  count: z.number().min(1).max(2500).default(100).describe('The maximum number of events to return.'),
 }) satisfies Schema
 
 export const listEventsOutputSchema = z.object({

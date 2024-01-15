@@ -1,1 +1,1 @@
-export const INTEGRATION_NAME = 'googleCalendar'
+export const INTEGRATION_NAME = 'googlecalendar'

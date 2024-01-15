@@ -1,4 +1,3 @@
-import { listEvents } from '../actions'
 import {
   ActionDefinitions,
   listEventsInputSchema,
@@ -10,6 +9,7 @@ import {
   deleteEventInputSchema,
   deleteEventOutputSchema,
 } from '../misc/custom-schemas'
+import { updateEventUi, deleteEventUi, createEventUi } from '../misc/custom-uis'
 
 type ActionDef = {
   title: string
@@ -26,7 +26,7 @@ const createEvent: ActionDef = {
   title: 'Create Event',
   input: {
     schema: createEventInputSchema,
-    ui: {}, // Placeholder value for 'ui'
+    ui: createEventUi,
   },
   output: {
     schema: createEventOutputSchema,
@@ -37,7 +37,7 @@ const updateEvent: ActionDef = {
   title: 'Update Event',
   input: {
     schema: updateEventInputSchema,
-    ui: {}, // Placeholder value for 'ui'
+    ui: updateEventUi,
   },
   output: {
     schema: updateEventOutputSchema,
@@ -48,18 +48,18 @@ const deleteEvent: ActionDef = {
   title: 'Delete Event',
   input: {
     schema: deleteEventInputSchema,
-    ui: {}, // Placeholder value for 'ui'
+    ui: deleteEventUi,
   },
   output: {
     schema: deleteEventOutputSchema,
   },
 }
 
-const getEvents: ActionDef = {
-  title: 'Get Events',
+const listEvents: ActionDef = {
+  title: 'List Events',
   input: {
     schema: listEventsInputSchema,
-    ui: listEvents,
+    ui: {},
   },
   output: {
     schema: listEventsOutputSchema,
@@ -67,7 +67,7 @@ const getEvents: ActionDef = {
 }
 
 export const actions = {
-  getEvents,
+  listEvents,
   createEvent,
   updateEvent,
   deleteEvent,

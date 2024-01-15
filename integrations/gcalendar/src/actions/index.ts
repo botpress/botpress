@@ -1,8 +1,6 @@
-import { addEvent } from './create-event'
+import { createEvent } from './create-event'
 import { deleteEvent } from './delete-event'
-import { getCalendar } from './get-calendar'
-import { listCalendars } from './list-calendars'
-import { listEvents } from './list-event'
+import { listEvents } from './list-events'
 import { updateEvent } from './update-event'
 
-export { listEvents, addEvent, updateEvent, deleteEvent, listCalendars, getCalendar }
+export { createEvent, deleteEvent, listEvents, updateEvent }

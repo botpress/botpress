@@ -1,7 +1,6 @@
 import z from 'zod'
-import { actions } from './actions'
 
-export { actions }
+export { actions } from './actions'
 
 export const configuration = {
   schema: z.object({

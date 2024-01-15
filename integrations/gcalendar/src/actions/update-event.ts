@@ -1,18 +1,22 @@
-// update-event.ts
-import { z } from 'zod'
-import * as schemas from '../misc/custom-schemas'
+import { getClient } from 'src/client'
+import { parseError } from 'src/misc/utils'
+import { Implementation } from '../misc/types'
 
-export const updateEventInputSchema = z.object({
-  calendarId: z.string().describe('The ID of the calendar where the event to update is located.'),
-  eventId: z.string().describe('The ID of the event to update.'),
-  eventData: z.any().describe('The updated event data.'),
-}) satisfies schemas.Schema
+export const updateEvent: Implementation['actions']['updateEvent'] = async ({ logger, ctx, input }) => {
+  try {
+    const { calendar } = await getClient(ctx.configuration)
 
-export const updateEventOutputSchema = z
-  .object({
-    updatedEvent: z.any().optional(),
-  })
-  .partial()
-  .passthrough() satisfies schemas.Schema
-
-// TODO: Implement update event action logic here
+    await calendar.events.patch({
+      calendarId: ctx.configuration.calendarId,
+      eventId: input.eventId,
+      requestBody: {
+        ...input,
+      },
+    })
+    return { success: true }
+  } catch (error) {
+    const err = parseError(error)
+    logger.forBot().error('Error while updating events ', err.message)
+    throw err
+  }
+}

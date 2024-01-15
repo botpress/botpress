@@ -15,17 +15,25 @@ type UiOf<TSchema extends z.AnyZodObject> = IsEmptyObject<z.infer<TSchema>> exte
     }
 
 export const createEventUi = {
-  event: {
-    title: 'Event Data',
-    examples: [
-      {
-        summary: 'Team Meeting',
-        description: 'Discuss project updates.',
-        location: 'Meeting Room',
-        startDateTime: '2023-12-31T10:00:00Z',
-        endDateTime: '2023-12-31T12:00:00Z',
-      },
-    ],
+  startDateTime: {
+    title: 'Start Date/Time',
+    examples: ['2023-12-31T11:00:00Z'],
+  },
+  endDateTime: {
+    title: 'End Date/Time',
+    examples: ['2023-12-31T13:00:00Z'],
+  },
+  summary: {
+    title: 'Summary',
+    examples: ['Team Meeting'],
+  },
+  description: {
+    title: 'Description',
+    examples: ['Discuss project updates.'],
+  },
+  location: {
+    title: 'Location',
+    examples: ['Meeting Room'],
   },
 } satisfies UiOf<typeof schemas.createEventInputSchema>
 
@@ -34,17 +42,25 @@ export const updateEventUi = {
     title: 'Event ID',
     examples: ['12345'],
   },
-  event: {
-    title: 'Updated Event Data',
-    examples: [
-      {
-        summary: 'Updated Team Meeting',
-        description: 'Discuss project updates (updated).',
-        location: 'Meeting Room (updated)',
-        startDateTime: '2023-12-31T11:00:00Z',
-        endDateTime: '2023-12-31T13:00:00Z',
-      },
-    ],
+  endDateTime: {
+    title: 'End Date/Time',
+    examples: ['2023-12-31T13:00:00Z'],
+  },
+  location: {
+    title: 'Location',
+    examples: ['Meeting Room (updated)'],
+  },
+  startDateTime: {
+    title: 'Start Date/Time',
+    examples: ['2023-12-31T11:00:00Z'],
+  },
+  description: {
+    title: 'Description',
+    examples: ['Discuss project updates (updated).'],
+  },
+  summary: {
+    title: 'Summary',
+    examples: ['Updated Team Meeting'],
   },
 } satisfies UiOf<typeof schemas.updateEventInputSchema>
 
@@ -56,12 +72,7 @@ export const deleteEventUi = {
 } satisfies UiOf<typeof schemas.deleteEventInputSchema>
 
 export const listEventsUi = {
-  startDate: {
-    title: 'Start Date',
-    examples: ['2023-12-31T00:00:00Z'],
-  },
-  endDate: {
-    title: 'End Date',
-    examples: ['2024-01-01T00:00:00Z'],
+  count: {
+    title: 'Number of events to retrieve',
   },
 } satisfies UiOf<typeof schemas.listEventsInputSchema>
