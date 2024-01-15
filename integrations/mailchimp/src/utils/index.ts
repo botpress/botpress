@@ -48,7 +48,7 @@ export const parseError = (error: any): RuntimeError => {
     )
   }
   if (isZodError(error)) {
-    return new RuntimeError(`input or output does not conform to expected schema: ${error.message}`, error)
+    return new RuntimeError(`Output does not conform to expected schema: ${error.message}`, error)
   }
   return new RuntimeError(`Unexpected error: ${error.message}`, error)
 }

@@ -154,8 +154,9 @@ const recipientsSchema = z
         match: z.string().describe('Match condition'),
         conditions: z.array(z.unknown()).describe('Array of conditions'), // Adjust the type accordingly
       })
-      .describe('Segment options'),
+      .partial(),
   })
+  .passthrough()
   .describe('Recipients information')
 
 const settingsSchema = z
@@ -172,100 +173,111 @@ const settingsSchema = z
     auto_footer: z.boolean().describe('Indicates whether auto-footer is enabled'),
     inline_css: z.boolean().describe('Indicates whether inline CSS is enabled'),
     auto_tweet: z.boolean().describe('Indicates whether auto-tweet is enabled'),
-    auto_fb_post: z.array(z.string()).describe('Array of Facebook post strings'),
+    auto_fb_post: z.array(z.string()).optional().describe('Array of Facebook post strings'),
     fb_comments: z.boolean().describe('Indicates whether Facebook comments are enabled'),
     timewarp: z.boolean().describe('Indicates whether timewarp is enabled'),
     template_id: z.number().describe('ID of the template'),
     drag_and_drop: z.boolean().describe('Indicates whether drag-and-drop is enabled'),
   })
+  .passthrough()
   .describe('Settings for the campaign')
 
-const variateSettingsSchema = z.object({
-  winning_combination_id: z.string().describe('ID of the winning combination'),
-  winning_campaign_id: z.string().describe('ID of the winning campaign'),
-  winner_criteria: z.string().describe('Criteria for choosing the winner'),
-  wait_time: z.number().describe('Wait time'),
-  test_size: z.number().describe('Size of the test'),
-  subject_lines: z.array(z.string()).describe('Array of subject lines'),
-  send_times: z.array(z.string()).describe('Array of send times'),
-  from_names: z.array(z.string()).describe('Array of sender names'),
-  reply_to_addresses: z.array(z.string()).describe('Array of reply-to email addresses'),
-  contents: z.array(z.string()).describe('Array of content strings'),
-  combinations: z
-    .array(
-      z.object({
-        id: z.string().describe('ID of the combination'),
-        subject_line: z.number().describe('Subject line'),
-        send_time: z.number().describe('Send time'),
-        from_name: z.number().describe("Sender's name"),
-        reply_to: z.number().describe('Reply-to'),
-        content_description: z.number().describe('Content description'),
-        recipients: z.number().describe('Recipients'),
-      })
-    )
-    .describe('Array of combinations'),
-})
+const variateSettingsSchema = z
+  .object({
+    winning_combination_id: z.string().describe('ID of the winning combination'),
+    winning_campaign_id: z.string().describe('ID of the winning campaign'),
+    winner_criteria: z.string().describe('Criteria for choosing the winner'),
+    wait_time: z.number().describe('Wait time'),
+    test_size: z.number().describe('Size of the test'),
+    subject_lines: z.array(z.string()).describe('Array of subject lines'),
+    send_times: z.array(z.string()).describe('Array of send times'),
+    from_names: z.array(z.string()).describe('Array of sender names'),
+    reply_to_addresses: z.array(z.string()).describe('Array of reply-to email addresses'),
+    contents: z.array(z.string()).describe('Array of content strings'),
+    combinations: z
+      .array(
+        z.object({
+          id: z.string().describe('ID of the combination'),
+          subject_line: z.number().describe('Subject line'),
+          send_time: z.number().describe('Send time'),
+          from_name: z.number().describe("Sender's name"),
+          reply_to: z.number().describe('Reply-to'),
+          content_description: z.number().describe('Content description'),
+          recipients: z.number().describe('Recipients'),
+        })
+      )
+      .describe('Array of combinations'),
+  })
+  .passthrough()
 
-const trackingSchema = z.object({
-  opens: z.boolean().describe('Indicates whether opens tracking is enabled'),
-  html_clicks: z.boolean().describe('Indicates whether HTML clicks tracking is enabled'),
-  text_clicks: z.boolean().describe('Indicates whether text clicks tracking is enabled'),
-  goal_tracking: z.boolean().describe('Indicates whether goal tracking is enabled'),
-  ecomm360: z.boolean().describe('Indicates whether Ecomm360 is enabled'),
-  google_analytics: z.string().describe('Google Analytics tracking code'),
-  clicktale: z.string().describe('Clicktale tracking code'),
-  salesforce: z
-    .object({
-      campaign: z.boolean().describe('Indicates whether Salesforce campaign tracking is enabled'),
-      notes: z.boolean().describe('Indicates whether Salesforce notes tracking is enabled'),
-    })
-    .describe('Salesforce tracking options'),
-  capsule: z
-    .object({
-      notes: z.boolean().describe('Indicates whether Capsule notes tracking is enabled'),
-    })
-    .describe('Capsule tracking options'),
-})
-
-const rssOptsSchema = z.object({
-  feed_url: z.string().describe('URL of the RSS feed'),
-  frequency: z.string().describe('Frequency of sending (e.g., "daily")'),
-  schedule: z.object({
-    hour: z.number().describe('Hour of the day for sending'),
-    daily_send: z
+const trackingSchema = z
+  .object({
+    opens: z.boolean().describe('Indicates whether opens tracking is enabled'),
+    html_clicks: z.boolean().describe('Indicates whether HTML clicks tracking is enabled'),
+    text_clicks: z.boolean().describe('Indicates whether text clicks tracking is enabled'),
+    goal_tracking: z.boolean().describe('Indicates whether goal tracking is enabled'),
+    ecomm360: z.boolean().describe('Indicates whether Ecomm360 is enabled'),
+    google_analytics: z.string().describe('Google Analytics tracking code'),
+    clicktale: z.string().describe('Clicktale tracking code'),
+    salesforce: z
       .object({
-        sunday: z.boolean(),
-        monday: z.boolean(),
-        tuesday: z.boolean(),
-        wednesday: z.boolean(),
-        thursday: z.boolean(),
-        friday: z.boolean(),
-        saturday: z.boolean(),
+        campaign: z.boolean().describe('Indicates whether Salesforce campaign tracking is enabled'),
+        notes: z.boolean().describe('Indicates whether Salesforce notes tracking is enabled'),
       })
-      .describe('Daily send options'),
-    weekly_send_day: z.string().describe('Day of the week for weekly sending'),
-    monthly_send_date: z.number().describe('Date of the month for monthly sending'),
-  }),
-  last_sent: z.string().describe('Last time the RSS feed was sent'),
-  constrain_rss_img: z.boolean().describe('Indicates whether to constrain RSS images'),
-})
+      .optional()
+      .describe('Salesforce tracking options'),
+    capsule: z
+      .object({
+        notes: z.boolean().describe('Indicates whether Capsule notes tracking is enabled'),
+      })
+      .optional()
+      .describe('Capsule tracking options'),
+  })
+  .passthrough()
 
-const abSplitOptsSchema = z.object({
-  split_test: z.string().describe('Type of split test (e.g., "subject")'),
-  pick_winner: z.string().describe('Criteria for picking the winner'),
-  wait_units: z.string().describe('Units for waiting (e.g., "hours")'),
-  wait_time: z.number().describe('Wait time'),
-  split_size: z.number().describe('Size of the split'),
-  from_name_a: z.string().describe("Sender's name for variation A"),
-  from_name_b: z.string().describe("Sender's name for variation B"),
-  reply_email_a: z.string().describe('Reply-to email address for variation A'),
-  reply_email_b: z.string().describe('Reply-to email address for variation B'),
-  subject_a: z.string().describe('Subject line for variation A'),
-  subject_b: z.string().describe('Subject line for variation B'),
-  send_time_a: z.string().describe('Send time for variation A'),
-  send_time_b: z.string().describe('Send time for variation B'),
-  send_time_winner: z.string().describe('Send time for the winner'),
-})
+const rssOptsSchema = z
+  .object({
+    feed_url: z.string().describe('URL of the RSS feed'),
+    frequency: z.string().describe('Frequency of sending (e.g., "daily")'),
+    schedule: z.object({
+      hour: z.number().describe('Hour of the day for sending'),
+      daily_send: z
+        .object({
+          sunday: z.boolean(),
+          monday: z.boolean(),
+          tuesday: z.boolean(),
+          wednesday: z.boolean(),
+          thursday: z.boolean(),
+          friday: z.boolean(),
+          saturday: z.boolean(),
+        })
+        .describe('Daily send options'),
+      weekly_send_day: z.string().describe('Day of the week for weekly sending'),
+      monthly_send_date: z.number().describe('Date of the month for monthly sending'),
+    }),
+    last_sent: z.string().describe('Last time the RSS feed was sent'),
+    constrain_rss_img: z.boolean().describe('Indicates whether to constrain RSS images'),
+  })
+  .passthrough()
+
+const abSplitOptsSchema = z
+  .object({
+    split_test: z.string().describe('Type of split test (e.g., "subject")'),
+    pick_winner: z.string().describe('Criteria for picking the winner'),
+    wait_units: z.string().describe('Units for waiting (e.g., "hours")'),
+    wait_time: z.number().describe('Wait time'),
+    split_size: z.number().describe('Size of the split'),
+    from_name_a: z.string().describe("Sender's name for variation A"),
+    from_name_b: z.string().describe("Sender's name for variation B"),
+    reply_email_a: z.string().describe('Reply-to email address for variation A'),
+    reply_email_b: z.string().describe('Reply-to email address for variation B'),
+    subject_a: z.string().describe('Subject line for variation A'),
+    subject_b: z.string().describe('Subject line for variation B'),
+    send_time_a: z.string().describe('Send time for variation A'),
+    send_time_b: z.string().describe('Send time for variation B'),
+    send_time_winner: z.string().describe('Send time for the winner'),
+  })
+  .passthrough()
 
 const socialCardSchema = z.object({
   image_url: z.string().describe('URL of the social card image'),
@@ -273,27 +285,32 @@ const socialCardSchema = z.object({
   title: z.string().describe('Title of the social card'),
 })
 
-const reportSummarySchema = z.object({
-  opens: z.number().describe('Total opens'),
-  unique_opens: z.number().describe('Unique opens'),
-  open_rate: z.number().describe('Open rate'),
-  clicks: z.number().describe('Total clicks'),
-  subscriber_clicks: z.number().describe('Subscriber clicks'),
-  click_rate: z.number().describe('Click rate'),
-  ecommerce: z.object({
-    total_orders: z.number().describe('Total ecommerce orders'),
-    total_spent: z.number().describe('Total amount spent in ecommerce'),
-    total_revenue: z.number().describe('Total ecommerce revenue'),
-  }),
-})
+const reportSummarySchema = z
+  .object({
+    opens: z.number().describe('Total opens'),
+    unique_opens: z.number().describe('Unique opens'),
+    open_rate: z.number().describe('Open rate'),
+    clicks: z.number().describe('Total clicks'),
+    subscriber_clicks: z.number().describe('Subscriber clicks'),
+    click_rate: z.number().describe('Click rate'),
+    ecommerce: z.object({
+      total_orders: z.number().describe('Total ecommerce orders'),
+      total_spent: z.number().describe('Total amount spent in ecommerce'),
+      total_revenue: z.number().describe('Total ecommerce revenue'),
+    }),
+  })
+  .passthrough()
 
-const deliveryStatusSchema = z.object({
-  enabled: z.boolean().describe('Indicates whether delivery status tracking is enabled'),
-  can_cancel: z.boolean().describe('Indicates whether the campaign can be canceled'),
-  status: z.string().describe('Current delivery status'),
-  emails_sent: z.number().describe('Total emails sent'),
-  emails_canceled: z.number().describe('Total emails canceled'),
-})
+const deliveryStatusSchema = z.union([
+  z.object({
+    enabled: z.literal(true).describe('Indicates whether delivery status tracking is enabled'),
+    can_cancel: z.boolean().describe('Indicates whether the campaign can be canceled'),
+    status: z.string().describe('Current delivery status'),
+    emails_sent: z.number().describe('Total emails sent'),
+    emails_canceled: z.number().describe('Total emails canceled'),
+  }),
+  z.object({ enabled: z.literal(false) }),
+])
 
 export {
   HttpMethodSchema,
