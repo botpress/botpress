@@ -1,7 +1,7 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Markup, Telegraf } from 'telegraf'
 import type { User } from 'telegraf/typings/core/types/typegram'
-import { chatIdTag, idTag, fromUserIdTag } from './const'
+import { chatIdTag, idTag, fromUserIdTag, fromUserNameTag } from './const'
 import { getUserPictureDataUri, getUserNameFromTelegramUser, getChat, sendCard, ackMessage } from './misc/utils'
 import * as bp from '.botpress'
 
@@ -161,16 +161,17 @@ const integration = new bp.Integration({
       throw new Error('Handler received message with empty "from.id" value')
     }
 
+    const userName = getUserNameFromTelegramUser(data.message.from as User)
+
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
         [idTag]: conversationId.toString(),
         [fromUserIdTag]: userId.toString(),
+        [fromUserNameTag]: userName,
         ...(chatId && { [chatIdTag]: chatId.toString() }),
       },
     })
-
-    const userName = getUserNameFromTelegramUser(data.message.from as User)
 
     const { user } = await client.getOrCreateUser({
       tags: {
@@ -208,7 +209,6 @@ const integration = new bp.Integration({
     await client.createMessage({
       tags: {
         [idTag]: messageId.toString(),
-        [fromUserIdTag]: userId.toString(),
         ...(chatId && { [chatIdTag]: chatId.toString() }),
       },
       type: 'text',
