@@ -117,7 +117,7 @@ runs:
         echo "### Deploying integration @botpresshub/vonage ###"
         pnpm -r --stream -F @botpresshub/vonage -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
         echo "### Deploying integration @botpresshub/webchat ###"
-        pnpm -r --stream -F @botpresshub/webchat -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
+        echo "webchat disabled"
         echo "### Deploying integration @botpresshub/webhook ###"
         pnpm -r --stream -F @botpresshub/webhook -c exec -- 'dsn=$(cat .sentryclirc | grep dsn | sed "s/dsn=//"); bp deploy -v -y --noBuild --secrets SENTRY_DSN="$dsn" --secrets SENTRY_ENVIRONMENT="$SENTRY_ENVIRONMENT" --secrets SENTRY_RELEASE="$SENTRY_RELEASE"'
         echo "### Deploying integration @botpresshub/whatsapp ###"
