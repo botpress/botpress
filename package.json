@@ -1,0 +1,46 @@
+{
+  "name": "@bpinternal/zui",
+  "version": "0.1.1",
+  "description": "An extension of Zod for working nicely with UIs and JSON Schemas",
+  "type": "module",
+  "source": "./src/index.ts",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "require": "./dist/index.cjs"
+    }
+  },
+  "scripts": {
+    "build": "tsup",
+    "watch": "tsup --watch",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "type:check": "tsc --noEmit",
+    "format:check": "prettier --check src/",
+    "format:fix": "prettier --write src/"
+  },
+  "devDependencies": {
+    "prettier": "^2.8.8",
+    "tsup": "^8.0.1",
+    "typescript": "^5.2.2",
+    "vitest": "^0.34.6",
+    "zod": "^3.22.4"
+  },
+  "dependencies": {
+    "@bpinternal/json-schema-to-zod": "^2.0.14",
+    "@bpinternal/zod-to-json-schema": "^3.22.4"
+  },
+  "bundledDependencies": [
+    "zod"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/botpress/packages"
+  },
+  "keywords": [],
+  "author": "Botpress, Inc.",
+  "license": "MIT",
+  "packageManager": "pnpm@8.6.0+"
+}
