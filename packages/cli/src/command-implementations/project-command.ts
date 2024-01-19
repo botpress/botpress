@@ -42,6 +42,12 @@ class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   }
 }
 
+type PromptSecretsOptions = {
+  knownSecrets: string[]
+  formatEnv: boolean
+}
+const PROMPT_SECRET_DEFAULTS = { knownSecrets: [], formatEnv: false } satisfies PromptSecretsOptions
+
 export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends GlobalCommand<C> {
   protected override async bootstrap() {
     await super.bootstrap()
@@ -123,6 +129,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   protected prepareIntegrationDefinition(integration: bpsdk.IntegrationDefinition) {
     return {
       ...integration,
+      secrets: undefined,
       configuration: integration.configuration
         ? {
             ...integration.configuration,
@@ -224,8 +231,11 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   protected async promptSecrets(
     integrationDef: bpsdk.IntegrationDefinition,
-    argv: YargsConfig<typeof config.schemas.secrets>
+    argv: YargsConfig<typeof config.schemas.secrets>,
+    opts: Partial<PromptSecretsOptions> = {}
   ): Promise<Record<string, string>> {
+    const options = { ...PROMPT_SECRET_DEFAULTS, ...opts }
+
     const { secrets: secretDefinitions } = integrationDef
     if (!secretDefinitions) {
       return {}
@@ -246,19 +256,33 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         continue
       }
 
-      const mode = optional ? 'optional' : 'required'
+      const alreadyKnown = options.knownSecrets.includes(secretName)
+      let mode: string
+      if (alreadyKnown) {
+        mode = 'already set'
+      } else if (optional) {
+        mode = 'optional'
+      } else {
+        mode = 'required'
+      }
+
       const prompted = await this.prompt.text(`Enter value for secret "${secretName}" (${mode})`)
       if (prompted) {
         values[secretName] = prompted
         continue
       }
 
-      if (optional) {
+      if (alreadyKnown) {
+        this.logger.log(`Secret "${secretName}" is unchanged`)
+      } else if (optional) {
         this.logger.warn(`Secret "${secretName}" is unassigned`)
-        continue
+      } else {
+        throw new errors.BotpressCLIError(`Secret "${secretName}" is required`)
       }
+    }
 
-      throw new errors.BotpressCLIError(`Secret "${secretName}" is required`)
+    if (!options.formatEnv) {
+      return values
     }
 
     const envVariables = _.mapKeys(values, (_v, k) => codegen.secretEnvVariableName(k))
