@@ -89,6 +89,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     const createBody: CreateIntegrationBody = {
       ...integrationDefinition,
+      secrets: {}, // TODO: this is a temporary fix
       code,
       icon: iconFileContent,
       readme: readmeFileContent,
