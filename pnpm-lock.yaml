@@ -1355,8 +1355,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.15.9
-        version: 0.15.9(openapi-types@12.1.3)
+        specifier: 0.15.10
+        version: 0.15.10(openapi-types@12.1.3)
       esbuild:
         specifier: ^0.16.12
         version: 0.16.17
@@ -1965,8 +1965,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.15.9(openapi-types@12.1.3):
-    resolution: {integrity: sha512-qZD2pMO0gJs8Q+mTkHo9V2iokw1GckKjKs2hirLEwApWfYtvyNY4NT8q3T9jq+bdOrNypvs3XMf/MMgoUd2qOg==}
+  /@botpress/api@0.15.10(openapi-types@12.1.3):
+    resolution: {integrity: sha512-7hwXYKbWUchMDjwA5qY5F2r9kxVzUu8bZ4eGE3+q1PceEuXcSORoSP2FFHtakGCUwAZNaTWfSeXGsyRKDZn0QA==}
     dependencies:
       '@bpinternal/opapi': 0.6.3(openapi-types@12.1.3)
     transitivePeerDependencies:
