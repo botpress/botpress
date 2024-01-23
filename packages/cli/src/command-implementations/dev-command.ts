@@ -231,6 +231,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
 
     const integrationBody: CreateIntegrationBody = {
       ...this.prepareIntegrationDefinition(integrationDef),
+      secrets: {}, // TODO: this is a temporary fix
       url: externalUrl,
     }
 
