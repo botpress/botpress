@@ -6,7 +6,6 @@ import { prepareUpdateBotBody } from '../api/bot-body'
 import type { ApiClient } from '../api/client'
 import { prepareUpdateIntegrationBody, CreateIntegrationBody } from '../api/integration-body'
 import type commandDefinitions from '../command-definitions'
-import * as consts from '../consts'
 import * as errors from '../errors'
 import * as utils from '../utils'
 import { BuildCommand } from './build-command'
@@ -16,9 +15,6 @@ export type DeployCommandDefinition = typeof commandDefinitions.deploy
 export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   public async run(): Promise<void> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
-    if (api.url !== consts.defaultBotpressApiUrl) {
-      this.logger.log(`Using custom url ${api.url}`)
-    }
 
     if (!this.argv.noBuild) {
       await this._runBuild() // This ensures the bundle is always synced with source code
@@ -37,13 +33,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
   private async _deployIntegration(api: ApiClient, integrationDef: bpsdk.IntegrationDefinition) {
     const outfile = this.projectPaths.abs.outFile
-    let code = await fs.promises.readFile(outfile, 'utf-8')
-
-    const secrets = await this.promptSecrets(integrationDef, this.argv)
-    // TODO: provide these secrets to the backend by API and remove this string replacement hack
-    for (const [secretName, secretValue] of Object.entries(secrets)) {
-      code = code.replace(new RegExp(`process\\.env\\.${secretName}`, 'g'), `"${secretValue}"`)
-    }
+    const code = await fs.promises.readFile(outfile, 'utf-8')
 
     const {
       name,
@@ -89,7 +79,6 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     const createBody: CreateIntegrationBody = {
       ...integrationDefinition,
-      secrets: {}, // TODO: this is a temporary fix
       code,
       icon: iconFileContent,
       readme: readmeFileContent,
@@ -107,7 +96,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
 
     const line = this.logger.line()
-    line.started(`Deploying integration ${chalk.bold(integrationDef.name)} v${integrationDef.version}...`)
+    const logMessage = `Deploying integration ${chalk.bold(integrationDef.name)} v${integrationDef.version}...`
     if (integration) {
       const updateBody = prepareUpdateIntegrationBody(
         {
@@ -117,12 +106,20 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         integration
       )
 
+      const { secrets: knownSecrets } = integration
+      updateBody.secrets = await this.promptSecrets(integrationDef, this.argv, { knownSecrets })
+
       this._detectDeprecatedFeatures(integrationDef, { allowDeprecated: true })
+
+      line.started(logMessage)
       await api.client.updateIntegration(updateBody).catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, `Could not update integration "${integrationDef.name}"`)
       })
     } else {
+      createBody.secrets = await this.promptSecrets(integrationDef, this.argv)
       this._detectDeprecatedFeatures(integrationDef, this.argv)
+
+      line.started(logMessage)
       await api.client.createIntegration(createBody).catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, `Could not create integration "${integrationDef.name}"`)
       })
