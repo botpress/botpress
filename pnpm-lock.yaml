@@ -9,8 +9,8 @@ dependencies:
     specifier: ^2.0.14
     version: 2.0.14
   '@bpinternal/zod-to-json-schema':
-    specifier: ^3.22.4
-    version: 3.22.4(zod@3.22.4)
+    specifier: ^3.22.5
+    version: 3.22.5(zod@3.22.4)
 
 devDependencies:
   prettier:
@@ -36,8 +36,8 @@ packages:
     hasBin: true
     dev: false
 
-  /@bpinternal/zod-to-json-schema@3.22.4(zod@3.22.4):
-    resolution: {integrity: sha512-PyFjMNOrE6r2gSc2qjytE8Z0f9Cffde/n0SwMKJJxL7TNrPCArjLbzi80BRKrzS61l2aXWR9ak7TATW3oNn79A==}
+  /@bpinternal/zod-to-json-schema@3.22.5(zod@3.22.4):
+    resolution: {integrity: sha512-6cWhIJYtbOPz94La+uBGt6Vpdh8sNYG9JeKPSdjJdx9+M2ty83qcYzKM5zYnl4Ith+wWM9HD14n+ygM9Jln63w==}
     peerDependencies:
       zod: ^3.22.4
     dependencies:
