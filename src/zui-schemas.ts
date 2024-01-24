@@ -1,6 +1,7 @@
 import type { ZuiTypeAny } from './zui'
 import type { Options } from '@bpinternal/zod-to-json-schema'
 import { zuiToJsonSchema } from './zui-to-json-schema'
+import { z } from 'zod'
 
 export type ZuiSchemaOptions = {
   /**
@@ -64,14 +65,16 @@ const processConfiguration = (config: Record<string, ZuiTypeAny>, currentRoot: s
   })
 }
 
-export const getZuiSchemas = (input: ZuiTypeAny, opts: ZuiSchemaOptions = { rootScope: BASE_SCOPE }) => {
+export const getZuiSchemas = (input: ZuiTypeAny | z.ZodTypeAny, opts: ZuiSchemaOptions = { rootScope: BASE_SCOPE }) => {
   const schema = zuiToJsonSchema(input, opts)
 
   let uischema: UISchema = {}
 
   if (input?._def?.shape) {
+    const layout = input && 'ui' in input && input.ui.layout
+
     uischema = {
-      type: input.ui?.layout ?? 'VerticalLayout',
+      type: layout || 'VerticalLayout',
       elements: [],
     }
 

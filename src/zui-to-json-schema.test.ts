@@ -126,7 +126,7 @@ describe('zuiToJsonSchema', () => {
               "hello",
             ],
             "type": "string",
-            "x-zui": {
+            "${zuiKey}": {
               "examples": [
                 "hello",
               ],
@@ -137,7 +137,7 @@ describe('zuiToJsonSchema', () => {
           "testExample",
         ],
         "type": "object",
-        "x-zui": {},
+        "${zuiKey}": {},
       }
     `)
   })
@@ -246,7 +246,7 @@ describe('zuiToJsonSchema', () => {
         },
         "minItems": 1,
         "type": "array",
-        "x-zui": {},
+        "${zuiKey}": {},
       }
     `)
   })
@@ -297,7 +297,7 @@ describe('zuiToJsonSchema', () => {
             "type": "object",
           },
         ],
-        "x-zui": {},
+        "${zuiKey}": {},
       }
     `)
   })
@@ -354,7 +354,7 @@ describe('zuiToJsonSchema', () => {
             "type": "object",
           },
         ],
-        "x-zui": {},
+        "${zuiKey}": {},
       }
     `)
   })

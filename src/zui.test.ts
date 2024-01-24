@@ -169,3 +169,18 @@ test('Record 2', () => {
 
   schema.parse(type)
 })
+
+test('any', () => {
+  const schema = zui.any()
+  schema.parse({ a: 666 })
+})
+
+test('unknown', () => {
+  const schema = zui.unknown()
+  schema.parse({ a: 666 })
+})
+
+test('null', () => {
+  const schema = zui.null()
+  schema.parse(null)
+})
