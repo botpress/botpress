@@ -287,7 +287,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
 
     for (const secretName of knownSecrets) {
-      const isDefined = !!secretDefinitions[secretName]
+      const isDefined = secretName in secretDefinitions
       if (isDefined) {
         continue
       }
