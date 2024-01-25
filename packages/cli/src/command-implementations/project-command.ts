@@ -42,12 +42,6 @@ class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   }
 }
 
-type PromptSecretsOptions = {
-  knownSecrets: string[]
-  formatEnv: boolean
-}
-const PROMPT_SECRET_DEFAULTS = { knownSecrets: [], formatEnv: false } satisfies PromptSecretsOptions
-
 export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends GlobalCommand<C> {
   protected override async bootstrap() {
     await super.bootstrap()
@@ -232,9 +226,20 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   protected async promptSecrets(
     integrationDef: bpsdk.IntegrationDefinition,
     argv: YargsConfig<typeof config.schemas.secrets>,
-    opts: Partial<PromptSecretsOptions> = {}
-  ): Promise<Record<string, string>> {
-    const options = { ...PROMPT_SECRET_DEFAULTS, ...opts }
+    opts?: { formatEnv?: boolean }
+  ): Promise<Record<string, string>>
+  protected async promptSecrets(
+    integrationDef: bpsdk.IntegrationDefinition,
+    argv: YargsConfig<typeof config.schemas.secrets>,
+    opts?: { formatEnv?: boolean; knownSecrets: string[] }
+  ): Promise<Record<string, string | null>>
+  protected async promptSecrets(
+    integrationDef: bpsdk.IntegrationDefinition,
+    argv: YargsConfig<typeof config.schemas.secrets>,
+    opts: { formatEnv?: boolean; knownSecrets?: string[] } = {}
+  ): Promise<Record<string, string | null>> {
+    const formatEnv = opts.formatEnv ?? false
+    const knownSecrets = opts.knownSecrets ?? []
 
     const { secrets: secretDefinitions } = integrationDef
     if (!secretDefinitions) {
@@ -247,7 +252,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       throw new errors.BotpressCLIError(`Secret ${invalidSecret} is not defined in integration definition`)
     }
 
-    const values: Record<string, string> = {}
+    const values: Record<string, string | null> = {}
     for (const [secretName, { optional }] of Object.entries(secretDefinitions)) {
       const argvSecret = secretArgv[secretName]
       if (argvSecret) {
@@ -256,7 +261,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         continue
       }
 
-      const alreadyKnown = options.knownSecrets.includes(secretName)
+      const alreadyKnown = knownSecrets.includes(secretName)
       let mode: string
       if (alreadyKnown) {
         mode = 'already set'
@@ -281,7 +286,19 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       }
     }
 
-    if (!options.formatEnv) {
+    for (const secretName of knownSecrets) {
+      const isDefined = secretName in secretDefinitions
+      if (isDefined) {
+        continue
+      }
+      const prompted = await this.prompt.confirm(`Secret "${secretName}" was removed. Do you wish to delete it?`)
+      if (prompted) {
+        this.logger.log(`Deleting secret "${secretName}"`, { prefix: { symbol: '×', fg: 'red' } })
+        values[secretName] = null
+      }
+    }
+
+    if (!formatEnv) {
       return values
     }
 
