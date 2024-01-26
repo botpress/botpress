@@ -82,5 +82,28 @@ runs:
 
         echo "### Deploying integrations ###"
 
-        cmd='echo "\033[1;32m<=== DEPLOYING $(cat package.json | jq -r ".name") ===>\033[0m" && bp deploy -v -y --noBuild'
-        pnpm -r --workspace-concurrency=1 -F "@botpresshub/*" -F "\!webchat" -c exec -- $cmd
+        cmd='echo "\033[1;32m<=== DEPLOYING $(cat package.json | jq -r ".name") ===>\033[0m" && bp deploy -y'
+        pnpm -F "asana" -c exec $cmd
+        pnpm -F "discord" -c exec $cmd
+        pnpm -F "github" -c exec $cmd
+        pnpm -F "gmail" -c exec $cmd
+        pnpm -F "gsheets" -c exec $cmd
+        pnpm -F "instagram" -c exec $cmd
+        pnpm -F "intercom" -c exec $cmd
+        pnpm -F "line" -c exec $cmd
+        pnpm -F "linear" -c exec $cmd
+        pnpm -F "messenger" -c exec $cmd
+        pnpm -F "notion" -c exec $cmd
+        pnpm -F "slack" -c exec $cmd
+        pnpm -F "sunco" -c exec $cmd
+        pnpm -F "teams" -c exec $cmd
+        pnpm -F "telegram" -c exec $cmd
+        pnpm -F "trello" -c exec $cmd
+        pnpm -F "twilio" -c exec $cmd
+        pnpm -F "viber" -c exec $cmd
+        pnpm -F "vonage" -c exec $cmd
+        # pnpm -F "webchat" -c exec $cmd
+        pnpm -F "webhook" -c exec $cmd
+        pnpm -F "whatsapp" -c exec $cmd
+        pnpm -F "zapier" -c exec $cmd
+        pnpm -F "zendesk" -c exec $cmd
