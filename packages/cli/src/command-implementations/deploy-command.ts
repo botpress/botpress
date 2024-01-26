@@ -95,8 +95,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       },
     }
 
-    const line = this.logger.line()
-    const logMessage = `Deploying integration ${chalk.bold(integrationDef.name)} v${integrationDef.version}...`
+    const startedMessage = `Deploying integration ${chalk.bold(integrationDef.name)} v${integrationDef.version}...`
+    const successMessage = 'Integration deployed'
     if (integration) {
       const updateBody = prepareUpdateIntegrationBody(
         {
@@ -108,23 +108,25 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
       const { secrets: knownSecrets } = integration
       updateBody.secrets = await this.promptSecrets(integrationDef, this.argv, { knownSecrets })
-
       this._detectDeprecatedFeatures(integrationDef, { allowDeprecated: true })
 
-      line.started(logMessage)
+      const line = this.logger.line()
+      line.started(startedMessage)
       await api.client.updateIntegration(updateBody).catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, `Could not update integration "${integrationDef.name}"`)
       })
+      line.success(successMessage)
     } else {
       createBody.secrets = await this.promptSecrets(integrationDef, this.argv)
       this._detectDeprecatedFeatures(integrationDef, this.argv)
 
-      line.started(logMessage)
+      const line = this.logger.line()
+      line.started(startedMessage)
       await api.client.createIntegration(createBody).catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, `Could not create integration "${integrationDef.name}"`)
       })
+      line.success(successMessage)
     }
-    line.success('Integration deployed')
   }
 
   private _detectDeprecatedFeatures(

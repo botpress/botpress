@@ -347,6 +347,10 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         return
       }
 
+      if (actualSdkVersion.startsWith('workspace:')) {
+        return
+      }
+
       const actualCleanedSdkVersion = semver.valid(semver.coerce(actualSdkVersion))
       if (!actualCleanedSdkVersion) {
         this.logger.debug(`Invalid sdk version "${actualSdkVersion}" in project package.json`)
