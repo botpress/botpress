@@ -81,4 +81,6 @@ runs:
         # deploy
 
         echo "### Deploying integrations ###"
-        pnpm -r --stream -F "@botpresshub/*" -F "!webchat" -c exec -- 'bp deploy -v -y --noBuild'
+
+        cmd='echo "\033[1;32m<=== DEPLOYING $(cat package.json | jq -r ".name") ===>\033[0m" && bp deploy -v -y --noBuild'
+        pnpm -r --stream --workspace-concurrency=1 -F "@botpresshub/*" -F "\!webchat" -c exec -- $cmd
