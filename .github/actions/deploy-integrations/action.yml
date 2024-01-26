@@ -82,28 +82,51 @@ runs:
 
         echo "### Deploying integrations ###"
 
-        cmd='echo "\033[1;32m<=== DEPLOYING $(cat package.json | jq -r ".name") ===>\033[0m" && bp deploy -y'
-        pnpm -F "asana" -c exec $cmd
-        pnpm -F "discord" -c exec $cmd
-        pnpm -F "github" -c exec $cmd
-        pnpm -F "gmail" -c exec $cmd
-        pnpm -F "gsheets" -c exec $cmd
-        pnpm -F "instagram" -c exec $cmd
-        pnpm -F "intercom" -c exec $cmd
-        pnpm -F "line" -c exec $cmd
-        pnpm -F "linear" -c exec $cmd
-        pnpm -F "messenger" -c exec $cmd
-        pnpm -F "notion" -c exec $cmd
-        pnpm -F "slack" -c exec $cmd
-        pnpm -F "sunco" -c exec $cmd
-        pnpm -F "teams" -c exec $cmd
-        pnpm -F "telegram" -c exec $cmd
-        pnpm -F "trello" -c exec $cmd
-        pnpm -F "twilio" -c exec $cmd
-        pnpm -F "viber" -c exec $cmd
-        pnpm -F "vonage" -c exec $cmd
-        # pnpm -F "webchat" -c exec $cmd
-        pnpm -F "webhook" -c exec $cmd
-        pnpm -F "whatsapp" -c exec $cmd
-        pnpm -F "zapier" -c exec $cmd
-        pnpm -F "zendesk" -c exec $cmd
+        echo "\033[1;32m<=== deploying asana ==>\033[0m"
+        pnpm -F "asana" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying discord ==>\033[0m"
+        pnpm -F "discord" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying github ==>\033[0m"
+        pnpm -F "github" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying gmail ==>\033[0m"
+        pnpm -F "gmail" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying gsheets ==>\033[0m"
+        pnpm -F "gsheets" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying instagram ==>\033[0m"
+        pnpm -F "instagram" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying intercom ==>\033[0m"
+        pnpm -F "intercom" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying line ==>\033[0m"
+        pnpm -F "line" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying linear ==>\033[0m"
+        pnpm -F "linear" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying messenger ==>\033[0m"
+        pnpm -F "messenger" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying notion ==>\033[0m"
+        pnpm -F "notion" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying slack ==>\033[0m"
+        pnpm -F "slack" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying sunco ==>\033[0m"
+        pnpm -F "sunco" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying teams ==>\033[0m"
+        pnpm -F "teams" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying telegram ==>\033[0m"
+        pnpm -F "telegram" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying trello ==>\033[0m"
+        pnpm -F "trello" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying twilio ==>\033[0m"
+        pnpm -F "twilio" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying viber ==>\033[0m"
+        pnpm -F "viber" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying vonage ==>\033[0m"
+        pnpm -F "vonage" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== webchat skipped ==>\033[0m"
+        # pnpm -F "webchat" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying webhook ==>\033[0m"
+        pnpm -F "webhook" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying whatsapp ==>\033[0m"
+        pnpm -F "whatsapp" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying zapier ==>\033[0m"
+        pnpm -F "zapier" -c exec bp deploy -y -v --noBuild
+        echo "\033[1;32m<=== deploying zendesk ==>\033[0m"
+        pnpm -F "zendesk" -c exec bp deploy -y -v --noBuild
