@@ -81,4 +81,4 @@ runs:
         # deploy
 
         echo "### Deploying integrations ###"
-        pnpm -r --stream -F "@botpresshub/*" -F "!webchat" exec -- 'bp deploy -v -y --noBuild'
+        pnpm -r --stream -F "@botpresshub/*" -F "!webchat" -c exec -- 'bp deploy -v -y --noBuild'
