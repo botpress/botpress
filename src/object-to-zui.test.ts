@@ -4,7 +4,10 @@ import { zui } from './zui'
 
 describe('object-to-zui', () => {
   test('validate object to json', async () => {
-    const schema = objectToZui({ name: 'Bob', age: 20, birthDate: '1988-11-29', isAdmin: true }).toJsonSchema()
+    const schema = objectToZui(
+      { name: 'Bob', age: 20, birthDate: '1988-11-29', isAdmin: true },
+      { optional: true },
+    ).toJsonSchema()
 
     expect(schema).toHaveProperty('type', 'object')
     expect(schema).toHaveProperty('properties')
@@ -25,7 +28,7 @@ describe('object-to-zui', () => {
       address: { street: '123 Main St', city: 'New York', state: 'NY' },
     }
 
-    const schema = zui.fromObject(obj).toJsonSchema()
+    const schema = zui.fromObject(obj, { optional: true }).toJsonSchema()
     zui.fromJsonSchema(schema).parse(obj)
 
     expect(schema).toMatchInlineSnapshot(`
@@ -75,10 +78,13 @@ describe('object-to-zui', () => {
 
   test('should handle null values correctly', () => {
     const schema = zui
-      .fromObject({
-        test: null,
-        anotherValue: 'test',
-      })
+      .fromObject(
+        {
+          test: null,
+          anotherValue: 'test',
+        },
+        { optional: true },
+      )
       .toJsonSchema()
     expect(schema.properties?.test?.type).toBe('null')
     expect(schema.properties?.anotherValue?.type).toBe('string')
@@ -86,17 +92,21 @@ describe('object-to-zui', () => {
 
   test('should handle nested objects correctly', () => {
     const schema = zui
-      .fromObject({
-        user: {
-          name: 'Alice',
-          age: 30,
-          address: {
-            street: '123 Main St',
-            city: 'New York',
+      .fromObject(
+        {
+          user: {
+            name: 'Alice',
+            age: 30,
+            address: {
+              street: '123 Main St',
+              city: 'New York',
+            },
           },
         },
-      })
-      .toJsonSchema()
+        { optional: true, nullable: true },
+      )
+      .toJsonSchema({ target: 'openApi3' })
+
     expect(schema.properties?.user?.type).toBe('object')
     expect(schema.properties?.user?.properties?.name?.type).toBe('string')
     expect(schema.properties?.user?.properties?.age?.type).toBe('number')
@@ -105,10 +115,13 @@ describe('object-to-zui', () => {
 
   test('should handle arrays correctly', () => {
     const schema = zui
-      .fromObject({
-        tags: ['tag1', 'tag2'],
-        scores: [1, 2, 3],
-      })
+      .fromObject(
+        {
+          tags: ['tag1', 'tag2'],
+          scores: [1, 2, 3],
+        },
+        { optional: true },
+      )
       .toJsonSchema()
     expect(schema.properties?.tags?.type).toBe('array')
     expect(schema.properties?.tags?.items?.type).toBe('string')

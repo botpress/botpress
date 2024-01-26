@@ -5,36 +5,49 @@ import { ZuiTypeAny, zui } from './zui'
 const dateTimeRegex =
   /^\d{4}-\d{2}-\d{2}(T|\s)?((\d{2}:\d{2}:\d{2}(\.\d{1,3})?)|(\d{2}:\d{2}))?(\s?([+-]\d{2}:\d{2}|Z))?$/
 
-export const objectToZui = (obj: any) => {
+export type ObjectToZuiOptions = { optional?: boolean; nullable?: boolean }
+
+export const objectToZui = (obj: any, opts?: ObjectToZuiOptions) => {
   if (typeof obj !== 'object') {
     throw new Error('Input must be an object')
   }
 
+  const applyOptions = (zuiType: ZuiTypeAny) => {
+    let newType = zuiType
+    if (opts?.nullable) {
+      newType = newType.nullable()
+    }
+    if (opts?.optional) {
+      newType = newType.optional()
+    }
+    return newType
+  }
+
   const schema = Object.entries(obj).reduce((acc, [key, value]) => {
     if (value === null) {
-      acc[key] = zui.null().optional()
+      acc[key] = applyOptions(zui.null())
     } else {
       switch (typeof value) {
         case 'string':
-          acc[key] = dateTimeRegex.test(value) ? zui.string().datetime().optional() : zui.string().optional()
+          acc[key] = dateTimeRegex.test(value) ? applyOptions(zui.string().datetime()) : applyOptions(zui.string())
           break
         case 'number':
-          acc[key] = zui.number().optional()
+          acc[key] = applyOptions(zui.number())
           break
         case 'boolean':
-          acc[key] = zui.boolean().optional()
+          acc[key] = applyOptions(zui.boolean())
           break
         case 'object':
           if (Array.isArray(value)) {
             if (value.length === 0) {
-              acc[key] = zui.array(z.unknown()).optional()
+              acc[key] = applyOptions(zui.array(z.unknown()))
             } else if (typeof value[0] === 'object') {
-              acc[key] = zui.array(objectToZui(value[0])).optional()
+              acc[key] = applyOptions(zui.array(objectToZui(value[0], opts)))
             } else if (['string', 'number', 'boolean'].includes(typeof value[0])) {
-              acc[key] = zui.array((zui as any)[typeof value[0] as any]()).optional()
+              acc[key] = applyOptions(zui.array((zui as any)[typeof value[0] as any]()))
             }
           } else {
-            acc[key] = objectToZui(value).optional()
+            acc[key] = applyOptions(objectToZui(value, opts))
           }
           break
         default:
