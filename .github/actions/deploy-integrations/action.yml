@@ -83,4 +83,4 @@ runs:
         echo "### Deploying integrations ###"
 
         cmd='echo "\033[1;32m<=== DEPLOYING $(cat package.json | jq -r ".name") ===>\033[0m" && bp deploy -y && sleep 1'
-        pnpm -F "@botpresshub/*" -F "!webchat" -c exec $cmd
+        pnpm -r --workspace-concurrency=1 -F "@botpresshub/*" -F "!webchat" -c exec $cmd
