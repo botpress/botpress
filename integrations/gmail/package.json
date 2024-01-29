@@ -6,7 +6,7 @@
   "scripts": {
     "start": "pnpm bp serve",
     "build": "pnpm bp build",
-    "deploy": "ts-node -T ./scripts/replace.ts && pnpm bp deploy --noBuild",
+    "deploy": "pnpm bp deploy",
     "type-check": "tsc --noEmit",
     "test": "echo \"Tests not implemented yet.\""
   },
