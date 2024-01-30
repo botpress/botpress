@@ -1,56 +1,15 @@
-import * as botpress from '.botpress'
+import { bot } from './bot'
+import { handleNewIssue, handleSyncIssuesRequest } from './handlers'
 
-const github = new botpress.github.Github()
-const linear = new botpress.linear.Linear()
-
-const bot = new botpress.Bot({
-  integrations: {
-    github,
-    linear,
-  },
-  states: {},
-  events: {},
-})
-
-bot.event(async ({ event, client, ctx }) => {
-  if (event.type !== 'github:issueOpened') {
-    return
+bot.event(async (props) => {
+  const { event } = props
+  if (event.type === 'github:issueOpened') {
+    return handleNewIssue(props, event)
   }
 
-  const githubIssue = event.payload
-
-  console.info('Received GitHub issue', githubIssue)
-
-  const { output } = await client.callAction({
-    type: 'linear:createIssue',
-    input: {
-      title: githubIssue.title,
-      description: githubIssue.content ?? 'No content...',
-      teamName: 'Cloud Services',
-    },
-  })
-
-  const { issue } = output
-
-  const { conversation } = await client.getOrCreateConversation({
-    integrationName: 'linear',
-    channel: 'issue',
-    tags: {
-      ['linear:id']: issue.id,
-    },
-  })
-
-  const issueUrl = `https://github.com/${githubIssue.repositoryOwner}/${githubIssue.repositoryName}/issues/${githubIssue.number}`
-
-  await client.createMessage({
-    type: 'text',
-    conversationId: conversation.id,
-    userId: ctx.botId,
-    tags: {},
-    payload: {
-      text: `Automatically created from GitHub issue: ${issueUrl}`,
-    },
-  })
+  if (event.type === 'syncIssuesRequest') {
+    return handleSyncIssuesRequest(props, event)
+  }
 })
 
 export default bot

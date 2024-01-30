@@ -20,11 +20,13 @@ type StateDefinition<TState extends BaseStates[string]> = SchemaDefinition<TStat
   expiry?: number
 }
 
-type RecurringEventDefinition = {
-  type: string
-  payload: Record<string, any>
-  schedule: { cron: string }
-}
+type RecurringEventDefinition<TEvents extends BaseEvents> = {
+  [K in keyof TEvents]: {
+    type: K
+    payload: z.infer<TEvents[K]>
+    schedule: { cron: string }
+  }
+}[keyof TEvents]
 
 type EventDefinition<TEvent extends BaseEvents[string]> = SchemaDefinition<TEvent>
 
@@ -51,7 +53,7 @@ export type BotProps<
     [K in keyof TIntegrations]?: IntegrationInstance<Cast<K, string>>
   }
   user?: UserDefinition
-  conversation?: ConversationDefinition
+  conversation?: ConversationDefinition // TODO: add configuration to generic and infer from there
   message?: MessageDefinition
   states?: {
     [K in keyof TStates]: StateDefinition<TStates[K]>
@@ -60,7 +62,7 @@ export type BotProps<
   events?: {
     [K in keyof TEvents]: EventDefinition<TEvents[K]>
   }
-  recurringEvents?: Record<string, RecurringEventDefinition>
+  recurringEvents?: Record<string, RecurringEventDefinition<TEvents>>
 }
 
 type BotFrom<TIntegrations extends BaseIntegrations, TStates extends BaseStates, TEvents extends BaseEvents> = {
