@@ -1,7 +1,7 @@
 import { getMailchimpClient, parseError } from 'src/utils'
-import type { Implementation } from '../misc/types'
+import * as bp from '.botpress'
 
-export const getAllLists: Implementation['actions']['getAllLists'] = async ({ ctx, logger, input }) => {
+export const getAllLists: bp.IntegrationProps['actions']['getAllLists'] = async ({ ctx, logger, input }) => {
   try {
     const mailchimpClient = getMailchimpClient(ctx.configuration)
     return await mailchimpClient.getAllLists({

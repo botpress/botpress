@@ -1,8 +1,12 @@
 import { getMailchimpClient, getValidCustomer, parseError } from 'src/utils'
 import { addCustomerOutputSchema, addCustomerToListInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import * as bp from '.botpress'
 
-export const addCustomerToList: Implementation['actions']['addCustomerToList'] = async ({ ctx, input, logger }) => {
+export const addCustomerToList: bp.IntegrationProps['actions']['addCustomerToList'] = async ({
+  ctx,
+  input,
+  logger,
+}) => {
   try {
     const validatedInput = addCustomerToListInputSchema.parse(input)
     const mailchimpClient = getMailchimpClient(ctx.configuration, logger)

@@ -3,9 +3,9 @@ import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 import { ZodError } from 'zod'
 import { MailchimpApi } from '../client'
 import { Customer, MailchimpAPIError } from '../misc/custom-types'
-import type { Config } from '../misc/types'
+import * as bp from '.botpress'
 
-export const getMailchimpClient = (config: Config, logger?: IntegrationLogger) =>
+export const getMailchimpClient = (config: bp.configuration.Configuration, logger?: IntegrationLogger) =>
   new MailchimpApi(config.apiKey, config.serverPrefix, logger)
 
 export const getValidCustomer = (validatedInput: Customer) => ({

@@ -1,5 +1,4 @@
 import { RuntimeError } from '@botpress/client'
-import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 import mailchimp, { lists } from '@mailchimp/mailchimp_marketing'
 import type {
   MailchimpClient,
@@ -11,6 +10,7 @@ import type {
   getAllCampaignsOutputType,
   getAllCampaignsInputType,
 } from 'src/misc/custom-types'
+import { IntegrationLogger } from 'src/misc/types'
 import { isMailchimpError } from 'src/utils'
 import {
   addCustomerFullOutputSchema,
