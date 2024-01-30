@@ -123,6 +123,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   protected prepareIntegrationDefinition(integration: bpsdk.IntegrationDefinition) {
     return {
       ...integration,
+      secrets: undefined,
       configuration: integration.configuration
         ? {
             ...integration.configuration,
@@ -224,8 +225,22 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   protected async promptSecrets(
     integrationDef: bpsdk.IntegrationDefinition,
-    argv: YargsConfig<typeof config.schemas.secrets>
-  ): Promise<Record<string, string>> {
+    argv: YargsConfig<typeof config.schemas.secrets>,
+    opts?: { formatEnv?: boolean }
+  ): Promise<Record<string, string>>
+  protected async promptSecrets(
+    integrationDef: bpsdk.IntegrationDefinition,
+    argv: YargsConfig<typeof config.schemas.secrets>,
+    opts?: { formatEnv?: boolean; knownSecrets: string[] }
+  ): Promise<Record<string, string | null>>
+  protected async promptSecrets(
+    integrationDef: bpsdk.IntegrationDefinition,
+    argv: YargsConfig<typeof config.schemas.secrets>,
+    opts: { formatEnv?: boolean; knownSecrets?: string[] } = {}
+  ): Promise<Record<string, string | null>> {
+    const formatEnv = opts.formatEnv ?? false
+    const knownSecrets = opts.knownSecrets ?? []
+
     const { secrets: secretDefinitions } = integrationDef
     if (!secretDefinitions) {
       return {}
@@ -237,7 +252,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       throw new errors.BotpressCLIError(`Secret ${invalidSecret} is not defined in integration definition`)
     }
 
-    const values: Record<string, string> = {}
+    const values: Record<string, string | null> = {}
     for (const [secretName, { optional }] of Object.entries(secretDefinitions)) {
       const argvSecret = secretArgv[secretName]
       if (argvSecret) {
@@ -246,19 +261,45 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         continue
       }
 
-      const mode = optional ? 'optional' : 'required'
+      const alreadyKnown = knownSecrets.includes(secretName)
+      let mode: string
+      if (alreadyKnown) {
+        mode = 'already set'
+      } else if (optional) {
+        mode = 'optional'
+      } else {
+        mode = 'required'
+      }
+
       const prompted = await this.prompt.text(`Enter value for secret "${secretName}" (${mode})`)
       if (prompted) {
         values[secretName] = prompted
         continue
       }
 
-      if (optional) {
+      if (alreadyKnown) {
+        this.logger.log(`Secret "${secretName}" is unchanged`)
+      } else if (optional) {
         this.logger.warn(`Secret "${secretName}" is unassigned`)
+      } else {
+        throw new errors.BotpressCLIError(`Secret "${secretName}" is required`)
+      }
+    }
+
+    for (const secretName of knownSecrets) {
+      const isDefined = secretName in secretDefinitions
+      if (isDefined) {
         continue
       }
+      const prompted = await this.prompt.confirm(`Secret "${secretName}" was removed. Do you wish to delete it?`)
+      if (prompted) {
+        this.logger.log(`Deleting secret "${secretName}"`, { prefix: { symbol: '×', fg: 'red' } })
+        values[secretName] = null
+      }
+    }
 
-      throw new errors.BotpressCLIError(`Secret "${secretName}" is required`)
+    if (!formatEnv) {
+      return values
     }
 
     const envVariables = _.mapKeys(values, (_v, k) => codegen.secretEnvVariableName(k))
@@ -303,6 +344,10 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       const actualSdkVersion = utils.pkgJson.findDependency(projectPkgJson, sdkPackageName)
       if (!actualSdkVersion) {
         this.logger.debug(`Could not find dependency "${sdkPackageName}" in project package.json`)
+        return
+      }
+
+      if (actualSdkVersion.startsWith('workspace:')) {
         return
       }
 
