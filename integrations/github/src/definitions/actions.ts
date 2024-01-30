@@ -12,7 +12,7 @@ export type Target = {
 const findTarget = {
   input: {
     schema: z.object({
-      query: z.string().min(2),
+      query: z.string(),
       channel: z.enum(Channels),
     }),
   },
