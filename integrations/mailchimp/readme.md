@@ -21,7 +21,10 @@ To enable the Mailchimp integration in Botpress, follow these steps:
 - Access your Botpress admin panel.
 - Navigate to the “Integrations” section.
 - Locate the Mailchimp integration and click on “Enable” or “Configure.”
-- Provide the required API key, Server prefix (e.g. us19) and configuration details.
+- Login to your Mailchimp account.
+- Generate an API key for your Mailchimp account by following the instructions [here](https://mailchimp.com/help/about-api-keys/#Generate_an_API_key).
+- Note the url prefix (e.g. us19) for your Mailchimp account by looking at the url of the Mailchimp admin panel.
+- Paste the API Key and Server Prefix into the Botpress Mailchimp integration configuration.
 - Save the configuration.
 
 ## Usage
