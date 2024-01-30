@@ -33,15 +33,6 @@ Once the integration is enabled, you can start sending and receiving emails with
 
 For more detailed information and examples, refer to the Botpress documentation or the Mailchimp documentation for configuring the integration.
 
-## Limitations
-
-### API Request Limits
-
-Mailchimp imposes some limits on API requests to prevent a single user from making too many expensive calls at once. Exceeding these limits can result in your API access being disabled, so it’s important to be aware of the quantity and complexity of your requests.
-
-- The Marketing API has a limit of 10 concurrent connections for your API key.
-- Requests to the Marketing API time out at 120 seconds, so if you’re making a long-running request that won’t finish in that time, you may need to use the Batch endpoint to complete the request.
-
 ## Contributing
 
 Contributions are welcome! If you encounter any issues or have suggestions for improvement, please submit them via the project’s issue tracker. Pull requests are also appreciated.
