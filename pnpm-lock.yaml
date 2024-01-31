@@ -255,8 +255,8 @@ importers:
         specifier: ^126.0.1
         version: 126.0.1
       zod:
-        specifier: 3.20.6
-        version: 3.20.6
+        specifier: ^3.20.6
+        version: 3.21.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
