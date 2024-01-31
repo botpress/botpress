@@ -11,6 +11,7 @@
 /packages/bots @franklevasseur
 
 # Integrations
+/integrations/gcalendar @charlescatta
 /integrations/mailchimp @charlescatta
 /integrations/gmail @michaelmass
 /integrations/gsheets @franklevasseur

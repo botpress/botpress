@@ -1,0 +1,27 @@
+{
+  "name": "@botpresshub/googlecalendar",
+  "private": true,
+  "scripts": {
+    "start": "pnpm bp serve",
+    "build": "pnpm bp build",
+    "deploy": "pnpm bp deploy",
+    "type:check": "tsc --noEmit",
+    "test": "echo \"Tests not implemented yet.\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "google-auth-library": "^9.0.0",
+    "googleapis": "^126.0.1",
+    "zod": "^3.20.6"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@types/node": "^18.11.17",
+    "googleapis-common": "^7.0.1",
+    "typescript": "^4.9.4"
+  }
+}
