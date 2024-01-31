@@ -3,7 +3,7 @@ import { Handler } from './typings'
 
 /**
  * checks if all issues in GitHub are assigned to someone
- * if not, sends a DM to the owner of the bot
+ * if not, sends a DM to listeners of the bot
  */
 export const handleSyncIssuesRequest: Handler<'syncIssuesRequest'> = async (props) => {
   try {
