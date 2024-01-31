@@ -1,5 +1,5 @@
 {
-  "name": "@botpress/googlecalendar",
+  "name": "@botpresshub/googlecalendar",
   "private": true,
   "scripts": {
     "start": "pnpm bp serve",
@@ -16,7 +16,7 @@
     "@botpress/sdk": "workspace:*",
     "google-auth-library": "^9.0.0",
     "googleapis": "^126.0.1",
-    "zod": "3.20.6"
+    "zod": "^3.20.6"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
