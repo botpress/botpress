@@ -1,7 +1,7 @@
 import * as pathlib from 'path'
 import { $ } from 'shellby'
 
-const integrations = ['linear', 'github']
+const integrations = ['linear', 'github', 'slack']
 
 const rootDir = pathlib.resolve(__dirname, '..', '..')
 const integrationsDir = pathlib.join(rootDir, 'integrations')

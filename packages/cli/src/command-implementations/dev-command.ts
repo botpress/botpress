@@ -39,8 +39,9 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     let defaultPort = DEFAULT_BOT_PORT
     if (this._initialDef) {
       defaultPort = DEFAULT_INTEGRATION_PORT
-      const secrets = await this.promptSecrets(this._initialDef, this.argv)
-      env = { ...env, ...secrets }
+      // TODO: store secrets in local cache to avoid prompting every time
+      const secretEnvVariables = await this.promptSecrets(this._initialDef, this.argv, { formatEnv: true })
+      env = { ...env, ...secretEnvVariables }
     }
 
     const port = this.argv.port ?? defaultPort
