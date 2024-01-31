@@ -28,6 +28,7 @@ To set up the Google Calendar Integration for your Botpress bot, follow these st
    - Install the Google Calendar Integration in your Botpress bot.
    - Open the JSON file downloaded earlier and copy paste the `private_key` and `client_email ` values in the configuration fields.
    - Go to your Google Calendar and copy the calendar ID from the calendar url.
+   - Add the `client_email` from the JSON file as a user with the access and necessary permissions to the calendar.
 
 ## Usage
 
