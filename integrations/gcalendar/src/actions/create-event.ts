@@ -8,7 +8,17 @@ export const createEvent: Implementation['actions']['createEvent'] = async ({ ct
     const response = await calendar.events.insert({
       calendarId: ctx.configuration.calendarId,
       requestBody: {
-        ...input,
+        summary: input.summary,
+        description: input.description,
+        location: input.location,
+        start: {
+          // The replaceAll is used to remove the extra quotes from the input created by the studio
+          dateTime: input.startDateTime.replaceAll('"', ''),
+        },
+        end: {
+          // The replaceAll is used to remove the extra quotes from the input created by the studio
+          dateTime: input.endDateTime.replaceAll('"', ''),
+        },
       },
     })
 
