@@ -8,9 +8,18 @@ const slack = new bp.slack.Slack()
 export type Bot = typeof bot
 export type EventHandler = Parameters<Bot['event']>[0]
 export type EventHandlerProps = Parameters<EventHandler>[0]
+export type MessageHandler = Parameters<Bot['message']>[0]
+export type MessageHandlerProps = Parameters<MessageHandler>[0]
+
 export type BotEvents = {
   [K in EventHandlerProps['event']['type']]: Extract<EventHandlerProps['event'], { type: K }>
 }
+
+export type BotListeners = z.infer<typeof listenersSchema>
+
+const listenersSchema = z.object({
+  conversationIds: z.array(z.string()),
+})
 
 export const bot = new bp.Bot({
   integrations: {
@@ -18,12 +27,12 @@ export const bot = new bp.Bot({
     linear,
     slack,
   },
-  configuration: {
-    schema: z.object({
-      ownerSlackId: z.string().optional(),
-    }),
+  states: {
+    listeners: {
+      type: 'bot',
+      schema: listenersSchema,
+    },
   },
-  states: {},
   events: {
     syncIssuesRequest: {
       schema: z.object({}),
