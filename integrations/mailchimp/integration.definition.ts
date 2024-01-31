@@ -1,6 +1,5 @@
 import { IntegrationDefinition } from '@botpress/sdk'
 import { z } from 'zod'
-import { name } from './package.json'
 import {
   addCustomerToCampaignInputSchema,
   addCustomerToListInputSchema,
@@ -14,8 +13,10 @@ import {
 } from './src/misc/custom-schemas'
 import { addCustomerToCampaignUi, addCustomerToListUi, sendMassEmailCampaignUi } from './src/misc/custom-uis'
 
+const INTEGRATION_NAME = 'mailchimp'
+
 export default new IntegrationDefinition({
-  name,
+  name: INTEGRATION_NAME,
   version: '0.2.0',
   readme: 'readme.md',
   icon: 'icon.svg',

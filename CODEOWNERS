@@ -11,6 +11,7 @@
 /packages/bots @franklevasseur
 
 # Integrations
+/integrations/mailchimp @charlescatta
 /integrations/gmail @michaelmass
 /integrations/gsheets @franklevasseur
 /integrations/instagram @kimchicharlie
