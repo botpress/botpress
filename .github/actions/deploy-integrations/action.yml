@@ -100,6 +100,8 @@ runs:
         pnpm -r --stream -F @botpresshub/linear -c exec -- 'bp deploy -v -y --noBuild'
         echo "### Deploying integration @botpresshub/messenger ###"
         pnpm -r --stream -F @botpresshub/messenger -c exec -- 'bp deploy -v -y --noBuild'
+        echo "### Deploying integration @botpresshub/mailchimp ###"
+        pnpm -r --stream -F @botpresshub/mailchimp -c exec -- 'bp deploy -v -y --noBuild'
         echo "### Deploying integration @botpresshub/notion ###"
         pnpm -r --stream -F @botpresshub/notion -c exec -- 'bp deploy -v -y --noBuild'
         echo "### Deploying integration @botpresshub/slack ###"
