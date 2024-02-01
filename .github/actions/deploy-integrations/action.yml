@@ -84,8 +84,8 @@ runs:
 
         echo "### Deploying integration @botpresshub/discord ###"
         pnpm -r --stream -F @botpresshub/discord -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/gcalendar ###"
-        pnpm -r --stream -F @botpresshub/gcalendar -c exec -- 'bp deploy -v -y --noBuild'
+        echo "### Deploying integration @botpresshub/googlecalendar ###"
+        pnpm -r --stream -F @botpresshub/googlecalendar -c exec -- 'bp deploy -v -y --noBuild'
         echo "### Deploying integration @botpresshub/github ###"
         pnpm -r --stream -F @botpresshub/github -c exec -- 'bp deploy -v -y --noBuild'
         echo "### Deploying integration @botpresshub/gmail ###"
