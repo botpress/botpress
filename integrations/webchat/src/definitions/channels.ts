@@ -7,11 +7,11 @@ const cardSchema = messages.defaults.card.schema.extend({
 })
 
 const choiceSchema = messages.defaults.choice.schema.extend({
-  text: z.string().optional(),
+  text: z.string().min(0).optional(),
 })
 
 const dropdownSchema = messages.defaults.dropdown.schema.extend({
-  text: z.string().optional(),
+  text: z.string().min(0).optional(),
 })
 
 const defaults = {
