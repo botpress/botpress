@@ -41,7 +41,7 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, clien
         },
       })
 
-      await client.createMessage({
+      await client.getOrCreateMessage({
         tags: { id: activity.id },
         type: 'text',
         userId: user.id,
