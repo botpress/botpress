@@ -23,7 +23,7 @@ export const createEvent: IntegrationProps['actions']['createEvent'] = async ({ 
     })
 
     return {
-      eventId: response.data.id,
+      eventId: response.data.id || undefined,
     }
   } catch (error) {
     const err = parseError(error)
