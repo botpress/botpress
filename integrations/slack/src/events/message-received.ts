@@ -41,7 +41,7 @@ export const executeMessageReceived = async ({
     }
   }
 
-  await client.createMessage({
+  await client.getOrCreateMessage({
     tags: {
       ts: slackEvent.ts,
       [tsTag]: slackEvent.ts,
