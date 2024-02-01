@@ -6,8 +6,18 @@ const cardSchema = messages.defaults.card.schema.extend({
   imageUrl: z.string().optional(),
 })
 
+const choiceSchema = messages.defaults.choice.schema.extend({
+  text: z.string().optional(),
+})
+
+const dropdownSchema = messages.defaults.dropdown.schema.extend({
+  text: z.string().optional(),
+})
+
 const defaults = {
   ...messages.defaults,
+  choice: { schema: choiceSchema },
+  dropdown: { schema: dropdownSchema },
   carousel: { schema: z.object({ items: z.array(cardSchema) }) },
   card: { schema: cardSchema },
 } as const
