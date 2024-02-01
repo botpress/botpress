@@ -16,6 +16,7 @@ export default {
       carousel: async ({ payload, ...props }) => {
         await Promise.all(payload.items.map((item) => createComment({ ...props, content: getCardContent(item) })))
       },
+      // TODO: fix dropdown and choice, they are not implemented properly as they are not sending choices and payload.text can be empty
       dropdown: ({ payload, ...props }) => createComment({ ...props, content: payload.text }),
       choice: ({ payload, ...props }) => createComment({ ...props, content: payload.text }),
     },

@@ -1,3 +1,4 @@
+import { Block, KnownBlock } from '@slack/web-api'
 import { textSchema } from './definitions/schemas'
 import { renderCard } from './misc/renderer'
 import { Channels } from './misc/types'
@@ -137,71 +138,96 @@ const defaultMessages: Channels['channel']['messages'] = {
   },
   dropdown: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending dropdown message to Slack chat:', payload)
+    const text = payload.text?.trim().length ? payload.text : undefined
+    const blocks: (Block | KnownBlock)[] = []
+
+    if (text) {
+      blocks.push({
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text,
+        },
+      })
+    }
+
+    if (payload.options?.length) {
+      blocks.push({
+        type: 'actions',
+        elements: [
+          {
+            type: 'static_select',
+            action_id: 'option_selected',
+            placeholder: {
+              type: 'plain_text',
+              text: payload.text,
+            },
+            options: payload.options
+              .filter((o) => o.label.length > 0)
+              .map((choice) => ({
+                text: {
+                  type: 'plain_text',
+                  text: choice.label,
+                },
+                value: choice.value,
+              })),
+          },
+        ],
+      })
+    }
+
+    if (!blocks.length) {
+      logger.forBot().warn('No text or options provided for choice message')
+      return
+    }
+
     await sendSlackMessage(
       { ack, ctx, client, logger },
       {
         ...getSlackTarget(conversation),
-        text: payload.text,
-        blocks:
-          payload.options?.length > 0
-            ? [
-                {
-                  type: 'actions',
-                  elements: [
-                    {
-                      type: 'static_select',
-                      action_id: 'option_selected',
-                      placeholder: {
-                        type: 'plain_text',
-                        text: payload.text,
-                      },
-                      options: payload.options
-                        .filter((o) => o.label.length > 0)
-                        .map((choice) => ({
-                          text: {
-                            type: 'plain_text',
-                            text: choice.label,
-                          },
-                          value: choice.value,
-                        })),
-                    },
-                  ],
-                },
-              ]
-            : undefined,
+        blocks,
       }
     )
   },
   choice: async ({ ctx, conversation, ack, client, payload, logger }) => {
     logger.forBot().debug('Sending choice message to Slack chat:', payload)
+    const text = payload.text?.trim().length ? payload.text : undefined
+    const blocks: (Block | KnownBlock)[] = []
+
+    if (text) {
+      blocks.push({
+        type: 'section',
+        text: {
+          type: 'mrkdwn',
+          text,
+        },
+      })
+    }
+
+    if (payload.options?.length) {
+      blocks.push({
+        type: 'actions',
+        elements: payload.options
+          .filter((o) => o.label.length > 0)
+          .map((choice, i) => ({
+            type: 'button',
+            text: { type: 'plain_text', text: choice.label },
+            value: choice.value,
+            action_id: `quick_reply_${i}`,
+          })),
+      })
+    }
+
+    if (!blocks.length) {
+      logger.forBot().warn('No text or options provided for choice message')
+      return
+    }
+
     await sendSlackMessage(
       { ack, ctx, client, logger },
       {
         ...getSlackTarget(conversation),
-        text: payload.text,
-        blocks:
-          payload.options?.length > 0
-            ? [
-                {
-                  type: 'section',
-                  text: {
-                    type: 'plain_text',
-                    text: payload.text,
-                  },
-                },
-                {
-                  type: 'actions',
-                  elements: payload.options
-                    .filter((o) => o.label.length > 0)
-                    .map((choice, i) => ({
-                      type: 'button',
-                      text: { type: 'plain_text', text: choice.label },
-                      value: choice.value,
-                      action_id: `quick_reply_${i}`,
-                    })),
-                },
-              ]
-            : undefined,
+        blocks,
       }
     )
   },

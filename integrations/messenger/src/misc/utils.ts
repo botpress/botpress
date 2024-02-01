@@ -69,14 +69,17 @@ export function getChoiceMessage(payload: Choice | Dropdown): MessengerTypes.Tex
     return { text: payload.text }
   }
 
+  // If there are more than 13 options, we can't use quick replies as per Messenger's limitations
+  // We'll just send a text message with the options
   if (payload.options.length > 13) {
+    const lines = payload.options.map((o, idx) => `${idx + 1}. ${o.label}`).join('\n')
     return {
-      text: `${payload.text}\n\n${payload.options.map((o, idx) => `${idx + 1}. ${o.label}`).join('\n')}`,
+      text: `${payload.text}\n\n${lines}`.trim(),
     }
   }
 
   return {
-    text: payload.text,
+    text: payload.text?.trim().length ? payload.text : undefined,
     quickReplies: payload.options.map((option) => ({
       contentType: 'text',
       title: option.label,

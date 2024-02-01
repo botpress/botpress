@@ -164,10 +164,12 @@ const channel = {
     choice: async (props) => {
       const { options, text } = props.payload
       const buttons: CardAction[] = options.map(mapChoice)
+
       const activity: Partial<Activity> = {
         type: 'message',
         attachments: [CardFactory.heroCard(text, [], buttons)],
       }
+
       await renderTeams(props, activity)
     },
     dropdown: async (props) => {

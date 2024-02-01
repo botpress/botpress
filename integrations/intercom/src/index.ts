@@ -137,7 +137,7 @@ const integration = new bp.Integration({
           const choices = payload.options.map((choice) => html.li(choice.value))
 
           const message = composeMessage(
-            html.p(payload.text),
+            payload.text?.trim().length ? html.p(payload.text) : '',
             html.p('Type one of the following options:'),
             choices.length > 0 ? html.ol(choices.join('')) : ''
           )
@@ -153,7 +153,7 @@ const integration = new bp.Integration({
           const choices = payload.options.map((choice) => html.li(choice.value))
 
           const message = composeMessage(
-            html.p(payload.text),
+            payload.text?.trim().length ? html.p(payload.text) : '',
             html.p('Type one of the following options:'),
             choices.length > 0 ? html.ol(choices.join('')) : ''
           )

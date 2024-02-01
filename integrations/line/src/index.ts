@@ -288,6 +288,24 @@ const integration = new bp.Integration({
             })
           }
 
+          const body: line.FlexComponent[] = []
+
+          if (payload.text) {
+            body.push({
+              type: 'text',
+              text: payload.text,
+            })
+          }
+
+          if (buttons.length > 0) {
+            if (body.length > 0) {
+              body.push({
+                type: 'separator',
+              })
+            }
+            body.push(...buttons)
+          }
+
           await replyLineMessage(
             { ctx, conversation, client, ack },
             {
@@ -298,20 +316,7 @@ const integration = new bp.Integration({
                 body: {
                   type: 'box',
                   layout: 'vertical',
-                  contents: [
-                    {
-                      type: 'text',
-                      text: payload.text,
-                    },
-                    {
-                      type: 'text',
-                      text: payload.text,
-                    },
-                    {
-                      type: 'separator',
-                    },
-                    ...buttons,
-                  ],
+                  contents: body,
                 },
               },
             }
@@ -335,21 +340,30 @@ const integration = new bp.Integration({
             })
           }
 
+          const body: line.FlexComponent[] = []
+
+          if (payload.text) {
+            body.push({
+              type: 'text',
+              text: payload.text,
+            })
+          }
+
+          if (buttons.length > 0) {
+            if (body.length > 0) {
+              body.push({
+                type: 'separator',
+              })
+            }
+            body.push(...buttons)
+          }
+
           const contents: line.FlexBubble = {
             type: 'bubble',
             body: {
               type: 'box',
               layout: 'vertical',
-              contents: [
-                {
-                  type: 'text',
-                  text: payload.text,
-                },
-                {
-                  type: 'separator',
-                },
-                ...buttons,
-              ],
+              contents: body,
             },
           }
 

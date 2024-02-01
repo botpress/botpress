@@ -110,6 +110,8 @@ const integration = new bp.Integration({
             content += `- ${option.label}\n`
           }
 
+          content = content.trim() // Remove trailing newline and top-level newline if no payload text
+
           await sendEmail({
             ctx,
             content,
