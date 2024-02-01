@@ -15,9 +15,9 @@ export type ZuiSchemaOptions = {
    */
   stripZuiProps?: boolean
   /**
-   * Removes the $schema property
+   * Sets the $schema path. If set to false, it will remove the $schema property from the schema
    */
-  stripSchemaProps?: boolean
+  $schemaUrl?: string | false
   target?: 'jsonSchema7' | 'openApi3'
 } & Partial<Pick<Options, 'unionStrategy' | 'discriminator'>>
 

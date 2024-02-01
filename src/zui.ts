@@ -59,6 +59,8 @@ export type ZuiType<
 
 export type ZuiExtension<Z extends ZodType, UI extends UIExtension, Out = z.infer<Z>> = {
   id: (id: string) => ZuiType<Z, UI>
+  // Sets the index of the field in a list
+  index: (index: number) => ZuiType<Z, UI>
   /**
    * The type of component to use to display the field and its options
    */
@@ -138,6 +140,7 @@ export const zuiKey = 'x-zui' as const
 
 const Extensions: ReadonlyArray<keyof ZuiExtension<any, any>> = [
   'id',
+  'index',
   'tooltip',
   'disabled',
   'displayAs',

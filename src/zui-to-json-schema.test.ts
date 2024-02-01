@@ -145,7 +145,7 @@ describe('zuiToJsonSchema', () => {
   test('examples are available on json schema', () => {
     const schema = zui.string().examples(['Example 1'])
 
-    const jsonSchema = getZuiSchemas(schema, { stripZuiProps: true, stripSchemaProps: true })
+    const jsonSchema = getZuiSchemas(schema, { stripZuiProps: true, $schemaUrl: false })
     expect(jsonSchema.schema).toMatchInlineSnapshot(`
       {
         "examples": [
@@ -159,7 +159,7 @@ describe('zuiToJsonSchema', () => {
   test('record with a value works', () => {
     const schema = zui.record(zui.string().max(30)).describe('hello')
 
-    const jsonSchema = getZuiSchemas(schema, { stripZuiProps: true, stripSchemaProps: true })
+    const jsonSchema = getZuiSchemas(schema, { stripZuiProps: true, $schemaUrl: false })
     expect(jsonSchema.schema).toMatchInlineSnapshot(`
       {
         "additionalProperties": {
@@ -175,7 +175,7 @@ describe('zuiToJsonSchema', () => {
   test('record with second parameter', () => {
     const schema = zui.record(zui.string(), zui.number().max(30), {}).describe('hello')
 
-    const jsonSchema = getZuiSchemas(schema, { stripZuiProps: true, stripSchemaProps: true })
+    const jsonSchema = getZuiSchemas(schema, { stripZuiProps: true, $schemaUrl: false })
     expect(jsonSchema.schema).toMatchInlineSnapshot(`
       {
         "additionalProperties": {
@@ -189,9 +189,23 @@ describe('zuiToJsonSchema', () => {
   })
 
   test('record with second parameter', () => {
+    const schema = zui.object({})
+
+    const jsonSchema = getZuiSchemas(schema, { stripZuiProps: true, $schemaUrl: 'http://schema.com' })
+    expect(jsonSchema.schema).toMatchInlineSnapshot(`
+      {
+        "$schema": "http://schema.com",
+        "additionalProperties": false,
+        "properties": {},
+        "type": "object",
+      }
+    `)
+  })
+
+  test('record with second parameter', () => {
     const schema = zui.object({ multipleTypes: z.union([z.string(), z.number()]) })
 
-    const jsonSchema = getZuiSchemas(schema, { stripZuiProps: true, stripSchemaProps: true })
+    const jsonSchema = getZuiSchemas(schema, { stripZuiProps: true, $schemaUrl: false })
     expect(jsonSchema.schema).toMatchInlineSnapshot(`
       {
         "additionalProperties": false,
