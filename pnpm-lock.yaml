@@ -240,37 +240,6 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
-  integrations/gcalendar:
-    dependencies:
-      '@botpress/client':
-        specifier: workspace:*
-        version: link:../../packages/client
-      '@botpress/sdk':
-        specifier: workspace:*
-        version: link:../../packages/sdk
-      google-auth-library:
-        specifier: ^9.0.0
-        version: 9.0.0
-      googleapis:
-        specifier: ^126.0.1
-        version: 126.0.1
-      zod:
-        specifier: ^3.20.6
-        version: 3.21.4
-    devDependencies:
-      '@botpress/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
-      '@types/node':
-        specifier: ^18.11.17
-        version: 18.16.16
-      googleapis-common:
-        specifier: ^7.0.1
-        version: 7.0.1
-      typescript:
-        specifier: ^4.9.4
-        version: 4.9.5
-
   integrations/github:
     dependencies:
       '@botpress/sdk':
@@ -365,6 +334,37 @@ importers:
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@types/node@18.16.16)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
+  integrations/googlecalendar:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      google-auth-library:
+        specifier: ^9.0.0
+        version: 9.0.0
+      googleapis:
+        specifier: ^126.0.1
+        version: 126.0.1
+      zod:
+        specifier: ^3.20.6
+        version: 3.21.4
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.16.16
+      googleapis-common:
+        specifier: ^7.0.1
+        version: 7.0.1
       typescript:
         specifier: ^4.9.4
         version: 4.9.5
