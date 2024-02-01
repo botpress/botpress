@@ -1,8 +1,8 @@
 import { getClient } from 'src/client'
 import { parseError } from 'src/misc/utils'
-import { Implementation } from '../misc/types'
+import { IntegrationProps } from '../misc/types'
 
-export const updateEvent: Implementation['actions']['updateEvent'] = async ({ logger, ctx, input }) => {
+export const updateEvent: IntegrationProps['actions']['updateEvent'] = async ({ logger, ctx, input }) => {
   try {
     const { calendar } = await getClient(ctx.configuration)
 

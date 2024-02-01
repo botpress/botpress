@@ -16,7 +16,7 @@ export const createEventInputSchema = eventSchema
 
 export const createEventOutputSchema = z
   .object({
-    eventId: z.string().nullable().describe('The ID of the created calendar event.'),
+    eventId: z.string().describe('The ID of the created calendar event.'),
   })
   .partial()
   .passthrough()
@@ -27,7 +27,7 @@ export const updateEventInputSchema = eventSchema.extend({
 
 export const updateEventOutputSchema = z
   .object({
-    success: z.boolean().nullable().describe('Indicates whether the event update was successful.'),
+    success: z.boolean().describe('Indicates whether the event update was successful.'),
   })
   .partial()
   .passthrough()
@@ -40,7 +40,7 @@ export const deleteEventInputSchema = z
 
 export const deleteEventOutputSchema = z
   .object({
-    success: z.boolean().nullable().describe('Indicates whether the event deletion was successful.'),
+    success: z.boolean().describe('Indicates whether the event deletion was successful.'),
   })
   .partial()
   .passthrough()
