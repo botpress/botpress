@@ -29,7 +29,7 @@ export const locationSchema = baseSchema.extend({
 })
 
 export const dropdownSchema = baseSchema.extend({
-  message: z.string(),
+  message: z.string().optional(),
   options: z.array(z.object({ label: z.string(), value: z.string() })),
   allowCreation: z.boolean().optional(),
   placeholderText: z.string().optional(),
@@ -41,7 +41,7 @@ export const dropdownSchema = baseSchema.extend({
 })
 
 export const singleChoiceSchema = baseSchema.extend({
-  text: z.string(),
+  text: z.string().optional(),
   disableFreeText: z.boolean().optional(),
   choices: z.array(z.object({ title: z.string(), value: z.string() })),
 })

@@ -48,7 +48,7 @@ const cardSchema = z.object({
 })
 
 const choiceSchema = z.object({
-  text: NonEmptyString,
+  text: z.string().optional(),
   options: z.array(
     z.object({
       label: NonEmptyString,
