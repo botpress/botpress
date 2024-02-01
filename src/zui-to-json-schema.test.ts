@@ -110,7 +110,7 @@ describe('zuiToJsonSchema', () => {
     `)
   })
 
-  test('supported properties are avaialble in the json schema', () => {
+  test('supported properties are available in the json schema', () => {
     const schema = zui.object({
       testExample: zui.string().examples(['hello']),
     })

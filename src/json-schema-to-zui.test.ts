@@ -90,7 +90,7 @@ describe('jsonSchemaToZui', () => {
   test('convert object with nested', () => {
     const zuiSchema = zui.object({
       name: zui.string().describe('Name of person').title('title').optional(),
-      isAdmin: zui.boolean().displayAs({ type: 'Checkbox' }).optional(),
+      isAdmin: zui.boolean().displayAs('Checkbox', {}).optional(),
       department: zui.string().default('IT').optional(),
       address: zui.object({
         city: zui.object({

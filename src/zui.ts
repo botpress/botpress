@@ -22,11 +22,11 @@ import type {
 } from 'zod'
 
 // eslint-disable-next-line no-duplicate-imports
-import z from 'zod'
-import { JsonFormElement } from './components'
+import { z } from 'zod'
 import { ZuiSchemaOptions, getZuiSchemas } from './zui-schemas'
 import { JsonSchema7, jsonSchemaToZui } from '.'
 import { ObjectToZuiOptions, objectToZui } from './object-to-zui'
+import type { GlobalExtensionDefinition, UIExtension, ZodToBaseType } from './uiextensions'
 
 export type Infer<
   T extends ZodType | ZuiType<any> | ZuiTypeAny,
@@ -37,91 +37,98 @@ export type ToZodType<T extends ZuiTypeAny> = T extends ZuiType<infer Z> ? Z : n
 
 export type ZuiRawShape = { [k: string]: ZuiTypeAny }
 export type ZuiTypeAny = ZuiType<any>
-export type ZuiType<O extends ZodType, N extends ZuiExtension<O> = ZuiExtension<O>> = N & {
+
+export type ZuiType<
+  O extends ZodType,
+  UI extends UIExtension = any,
+  N extends ZuiExtension<O, any> = ZuiExtension<O, UI>,
+> = N & {
   [P in keyof O]: O[P] extends (...args: any) => O
-    ? (...args: Parameters<O[P]>) => ZuiType<O, N>
+    ? (...args: Parameters<O[P]>) => ZuiType<O, UI, N>
     : P extends '_def'
     ? O[P] & { [zuiKey]: N['ui'] }
     : P extends 'optional'
-    ? (...args: Parameters<O[P]>) => ZodOptional<O> & ZuiType<O, N>
+    ? (...args: Parameters<O[P]>) => ZodOptional<O> & ZuiType<O, UI, N>
     : P extends 'default'
     ? {
-        (arg?: any): ZodDefault<O> & ZuiType<O, N>
-        (...args: Parameters<O[P]>): ZodDefault<O> & ZuiType<O, N>
+        (arg?: any): ZodDefault<O> & ZuiType<O, UI, N>
+        (...args: Parameters<O[P]>): ZodDefault<O> & ZuiType<O, UI, N>
       }
     : O[P]
 }
 
-export type ZuiExtension<Z extends ZodType, Out = z.infer<Z>> = {
-  // Sets the id of the field
-  id: (id: string) => ZuiType<Z>
+export type ZuiExtension<Z extends ZodType, UI extends UIExtension, Out = z.infer<Z>> = {
+  id: (id: string) => ZuiType<Z, UI>
   /**
    * The type of component to use to display the field and its options
    */
-  displayAs: <T extends JsonFormElement>(options: T) => ZuiType<Z>
+  displayAs: <K extends keyof UI[ZodToBaseType<Z>]>(
+    id: K,
+    options: z.infer<UI[ZodToBaseType<Z>][K]['schema']>,
+  ) => ZuiType<Z, UI>
   /**
    * Examples of valid values for the field
    * @default []
    */
-  examples: (examples: Out[]) => ZuiType<Z>
+  examples: (examples: Out[]) => ZuiType<Z, UI>
   /**
    * Whether the field should fill the available space
    * @default false
    */
-  fill: (fill: boolean) => ZuiType<Z>
+  fill: (fill: boolean) => ZuiType<Z, UI>
   /**
    * Whether the field can be set dynamically using super inputs
    * @default false
    */
-  dynamic: (dynamic: boolean) => ZuiType<Z>
+  dynamic: (dynamic: boolean) => ZuiType<Z, UI>
   /**
    * The title of the field. Defaults to the field name.
    */
-  title: (title: string) => ZuiType<Z>
+  title: (title: string) => ZuiType<Z, UI>
   /**
    * Whether the field is hidden in the UI. Useful for internal fields.
    * @default false
    */
-  hidden: (hidden: boolean) => ZuiType<Z>
+  hidden: (hidden: boolean) => ZuiType<Z, UI>
   /**
    * Whether the field can be overriden by a more specific configuration
    * @default false
    */
-  overridable: (overridable: boolean) => ZuiType<Z>
+  overridable: (overridable: boolean) => ZuiType<Z, UI>
   /**
    * Mark the field as searchable, when applicable
    * @default true
    */
-  searchable: (searchable: boolean) => ZuiType<Z>
+  searchable: (searchable: boolean) => ZuiType<Z, UI>
   /**
    * Whether the field is disabled
    * @default false
    */
-  disabled: (disabled: boolean) => ZuiType<Z>
+  disabled: (disabled: boolean) => ZuiType<Z, UI>
   /**
    * Whether the field should show the description as a tooltip
    * @default true
    */
-  tooltip: (tooltip: boolean) => ZuiType<Z>
+  tooltip: (tooltip: boolean) => ZuiType<Z, UI>
   /**
    * Whether the field is readonly
    * @default false
    */
-  readonly: (readonly: boolean) => ZuiType<Z>
+  readonly: (readonly: boolean) => ZuiType<Z, UI>
   /**
    * Placeholder text for the field
    */
-  placeholder: (placeholder: string) => ZuiType<Z>
+  placeholder: (placeholder: string) => ZuiType<Z, UI>
   /**
    * Choose how the field & its childs are displayed
    */
-  layout: (layout: 'HorizontalLayout' | 'VerticalLayout' | 'CollapsiblePanel') => ZuiType<Z>
+  layout: (layout: 'HorizontalLayout' | 'VerticalLayout' | 'CollapsiblePanel') => ZuiType<Z, UI>
   /**
    * Returns the ZUI schema for the field
    */
   get ui(): {
-    [P in keyof Omit<ZuiExtension<Z>, 'ui'>]?: ZuiExtension<Z>[P] extends (...args: any) => ZuiType<Z>
-      ? Parameters<ZuiExtension<Z>[P]>[0]
+    [P in keyof Omit<ZuiExtension<Z, UI>, 'ui'>]?: ZuiExtension<Z, UI>[P] extends (...args: any) => ZuiType<Z, UI>
+      ? Parameters<ZuiExtension<Z, UI>[P]>[0]
       : never
   }
   toJsonSchema(options?: ZuiSchemaOptions): any //TODO: fix typings, JsonSchema7 doesn't work well when consuming it
@@ -129,7 +136,7 @@ export type ZuiExtension<Z extends ZodType, Out = z.infer<Z>> = {
 
 export const zuiKey = 'x-zui' as const
 
-const Extensions: ReadonlyArray<keyof ZuiExtension<any>> = [
+const Extensions: ReadonlyArray<keyof ZuiExtension<any, any>> = [
   'id',
   'tooltip',
   'disabled',
@@ -168,9 +175,14 @@ function extend<T extends ZCreate>(zType: T) {
   const instance = ((zType as any).prototype as any) ?? (zType as any)
 
   for (const extension of Extensions) {
-    instance[extension] = function (props: unknown) {
+    instance[extension] = function (...props: unknown[]) {
       this._def[zuiKey] ??= {}
-      this._def[zuiKey][extension] = props
+
+      if (Array.isArray(props) && props.length > 1) {
+        this._def[zuiKey][extension] = props
+      } else {
+        this._def[zuiKey][extension] = props[0]
+      }
       return this
     }
   }
@@ -247,13 +259,16 @@ type ZuiRecord = {
   <Value extends ZodTypeAny>(valueSchema: ZodTypeAny, params?: RecordArgs[2]): ZuiType<ZodRecord<ZodString, Value>>
 }
 
-type Zui = {
-  string: (params?: StringArgs[0]) => ZuiType<ZodString>
-  number: (params?: NumberArgs[0]) => ZuiType<ZodNumber>
-  boolean: (params?: BooleanArgs[0]) => ZuiType<ZodBoolean>
-  literal: (value: LiteralArgs[0], params?: LiteralArgs[1]) => ZuiType<ZodLiteral<any>>
-  array: <T extends ZodTypeAny>(schema: T, params?: ArrayArgs[1]) => ZuiType<ZodArray<T, 'many'>> & ZodArray<T, 'many'>
-  object: <T extends ZodRawShape>(shape: T, params?: ObjectArgs[1]) => ZuiType<ZodObject<T>> & ZodObject<T>
+export type Zui<UI extends UIExtension = GlobalExtensionDefinition> = {
+  string: (params?: StringArgs[0]) => ZuiType<ZodString, UI>
+  number: (params?: NumberArgs[0]) => ZuiType<ZodNumber, UI>
+  boolean: (params?: BooleanArgs[0]) => ZuiType<ZodBoolean, UI>
+  literal: (value: LiteralArgs[0], params?: LiteralArgs[1]) => ZuiType<ZodLiteral<any>, UI>
+  array: <T extends ZodTypeAny>(
+    schema: T,
+    params?: ArrayArgs[1],
+  ) => ZuiType<ZodArray<T, 'many'>, UI> & ZodArray<T, 'many'>
+  object: <T extends ZodRawShape>(shape: T, params?: ObjectArgs[1]) => ZuiType<ZodObject<T>, UI> & ZodObject<T>
   union: <T extends readonly [ZodTypeAny, ZodTypeAny, ...ZodTypeAny[]]>(
     types: T,
     params?: UnionArgs[1],
@@ -265,13 +280,13 @@ type Zui = {
     discriminator: Discriminator,
     options: Types,
     params?: DiscriminatedUnionArgs[2],
-  ) => ZuiType<ZodDiscriminatedUnion<Discriminator, Types>>
+  ) => ZuiType<ZodDiscriminatedUnion<Discriminator, Types>, UI>
   record: ZuiRecord
-  optional: (type: OptionalArgs[0], params?: OptionalArgs[1]) => ZuiType<ZodOptional<any>>
+  optional: (type: OptionalArgs[0], params?: OptionalArgs[1]) => ZuiType<ZodOptional<any>, UI>
   enum: <U extends string, T extends Readonly<[U, ...U[]]>>(
     values: T,
     params?: EnumArgs[1],
-  ) => ZuiType<ZodEnum<Writeable<T>>>
+  ) => ZuiType<ZodEnum<Writeable<T>>, UI>
   any: (params?: AnyArgs[0]) => ZuiType<ZodAny>
   unknown: (params?: UnknownArgs[0]) => ZuiType<ZodUnknown>
   null: (params?: NullArgs[0]) => ZuiType<ZodNull>
@@ -279,7 +294,7 @@ type Zui = {
   fromObject(object: any, options?: ObjectToZuiOptions): ZuiType<ZodAny>
 }
 
-const zui: Zui = {
+const zui: Zui<GlobalExtensionDefinition> = {
   string: (params) => z.string(params) as unknown as ZuiType<ZodString>,
   number: (params) => z.number(params) as unknown as ZuiType<ZodNumber>,
   boolean: (params) => z.boolean(params) as unknown as ZuiType<ZodBoolean>,

@@ -19,10 +19,23 @@
     "test:watch": "vitest",
     "type:check": "tsc --noEmit",
     "format:check": "prettier --check src/",
-    "format:fix": "prettier --write src/"
+    "format:fix": "prettier --write src/",
+    "storybook": "storybook dev -p 6006",
+    "build-storybook": "storybook build"
   },
   "devDependencies": {
+    "@storybook/addon-essentials": "^7.6.11",
+    "@storybook/addon-interactions": "^7.6.11",
+    "@storybook/addon-links": "^7.6.11",
+    "@storybook/addon-onboarding": "^1.0.11",
+    "@storybook/blocks": "^7.6.11",
+    "@storybook/react": "^7.6.11",
+    "@storybook/react-vite": "^7.6.11",
+    "@storybook/test": "^7.6.11",
+    "@types/react": "^18.2.48",
     "prettier": "^2.8.8",
+    "react-dom": "^18.2.0",
+    "storybook": "^7.6.11",
     "tsup": "^8.0.1",
     "typescript": "^5.2.2",
     "vitest": "^0.34.6",
@@ -30,7 +43,8 @@
   },
   "dependencies": {
     "@bpinternal/json-schema-to-zod": "^2.0.14",
-    "@bpinternal/zod-to-json-schema": "^3.22.5"
+    "@bpinternal/zod-to-json-schema": "^3.22.5",
+    "react": "^18.2.0"
   },
   "bundledDependencies": [
     "zod"

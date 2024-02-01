@@ -52,19 +52,6 @@ describe('zui', () => {
   })
 })
 
-describe('examples', () => {
-  test('displayAs with Component Props', () => {
-    // import a UI component props from inspector-kit or wherever
-    type Dropdown = { type: 'dropdown'; choices: string[] }
-
-    // use in zui to get typings on the options but without direct dependency on inspector-kit in zui
-    const dropdown = zui.string().displayAs<Dropdown>({ type: 'dropdown', choices: ['a', 'b'] })
-
-    // props are available on the zui def which can be used in the UI
-    expect(dropdown.ui.displayAs).toEqual({ type: 'dropdown', choices: ['a', 'b'] })
-  })
-})
-
 test('Type inference', () => {
   const schema = zui.object({
     name: zui.string().title('Name'),

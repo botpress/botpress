@@ -54,7 +54,7 @@ const processConfiguration = (config: Record<string, ZuiTypeAny>, currentRoot: s
         return processConfiguration(currentShape, nextScope, elements[elements.length - 1])
       }
 
-      elements.push({ scope, label: zuiSchema.ui.title, ...zuiSchema.ui.displayAs })
+      elements.push({ scope, label: zuiSchema.ui.title, ...(zuiSchema.ui.displayAs as any) })
     } else if (!currentShape) {
       elements.push({ scope, label: key })
     }
