@@ -1,8 +1,8 @@
 import { getClient } from 'src/client'
 import { parseError } from 'src/misc/utils'
-import { Implementation } from '../misc/types'
+import { IntegrationProps } from '../misc/types'
 
-export const createEvent: Implementation['actions']['createEvent'] = async ({ ctx, logger, input }) => {
+export const createEvent: IntegrationProps['actions']['createEvent'] = async ({ ctx, logger, input }) => {
   try {
     const { calendar } = await getClient(ctx.configuration)
     const response = await calendar.events.insert({
@@ -23,7 +23,7 @@ export const createEvent: Implementation['actions']['createEvent'] = async ({ ct
     })
 
     return {
-      eventId: response.data.id,
+      eventId: response.data.id || undefined,
     }
   } catch (error) {
     const err = parseError(error)

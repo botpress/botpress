@@ -1,9 +1,9 @@
 import { getClient } from 'src/client'
 import { listEventsOutputSchema } from 'src/misc/custom-schemas'
 import { parseError } from 'src/misc/utils'
-import { Implementation } from '../misc/types'
+import { IntegrationProps } from '../misc/types'
 
-export const listEvents: Implementation['actions']['listEvents'] = async ({ logger, ctx, input }) => {
+export const listEvents: IntegrationProps['actions']['listEvents'] = async ({ logger, ctx, input }) => {
   try {
     const { calendar } = await getClient(ctx.configuration)
     logger.forBot().debug('Listing events', input)
