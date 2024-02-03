@@ -1,5 +1,5 @@
 ﻿import { AxiosResponse } from 'axios';
-import { defaultSize, defaultModel, defaultQuality, TDalleData, TContext } from 'types'
+import { defaultSize, defaultModel, defaultQuality, TDalleData, TContext } from './types'
 
 export function buildApiData(input: TDalleData) {
   return {

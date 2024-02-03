@@ -1,7 +1,7 @@
 import * as botpress from '.botpress'
 import axios from 'axios'
 import { buildApiData, validateResponse, getApiConfig } from './client'
-import { TGenerateImageOutput, TContext } from 'types'
+import { TGenerateImageOutput } from './types'
 
 class NotImplementedError extends Error {
   constructor() {
