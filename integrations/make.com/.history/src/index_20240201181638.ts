@@ -1,0 +1,88 @@
+import * as botpress from '.botpress'
+import axios, { AxiosInstance } from 'axios'
+
+class NotImplementedError extends Error {
+  constructor() {
+    super('Not implemented')
+  }
+}
+
+export default new botpress.Integration({
+  register: async () => {}, 
+  unregister: async () => {},
+  actions: {
+    sendData: async function ({ ctx, input, logger }): Promise<botpress.actions.sendData.output.Output> {
+      
+      logger.forBot().info('Sending data to Make.com Test');
+    
+      const webhookURL = ctx.configuration.webhookURL;
+      const dataToSend = JSON.parse(input.data);
+      const nestedData = { data: dataToSend };
+    
+      try {
+        const response = await axios.post(webhookURL, nestedData);
+        if (response.status === 200) {
+          logger.forBot().info(`Status code: ${response.status}`);
+          return { response: response.data };
+        } else if (response.status === 400) {
+          logger.forBot().error('Make.com queue is full');
+          return { response: 'Queue is full' };
+        } else if (response.status === 500) {
+          logger.forBot().error('Make.com scenario failed');
+          return { response: 'Scenario failed' };
+        } else {
+          logger.forBot().error(`Unexpected response status: ${response.status}`);
+          return { response: `Unexpected status code: ${response.status}` };
+        }
+      } catch (error) {
+        if (error instanceof Error) {
+          logger.forBot().error(`Error sending data to Make.com: ${error.message}`);
+          return { response: `Error: ${error.message}` };
+        } else {
+          logger.forBot().error(`An unknown error occurred while sending data to Make.com`);
+          return { response: 'An unknown error occurred' };
+        }
+      }      
+    }    
+  },
+  channels: {
+    channel: {
+      messages: {
+        text: async () => {
+          throw new NotImplementedError()
+        },
+        image: async () => {
+          throw new NotImplementedError()
+        },
+        markdown: async () => {
+          throw new NotImplementedError()
+        },
+        audio: async () => {
+          throw new NotImplementedError()
+        },
+        video: async () => {
+          throw new NotImplementedError()
+        },
+        file: async () => {
+          throw new NotImplementedError()
+        },
+        location: async () => {
+          throw new NotImplementedError()
+        },
+        carousel: async () => {
+          throw new NotImplementedError()
+        },
+        card: async () => {
+          throw new NotImplementedError()
+        },
+        choice: async () => {
+          throw new NotImplementedError()
+        },
+        dropdown: async () => {
+          throw new NotImplementedError()
+        },
+      },
+    },
+  },
+  handler: async () => {},
+})
