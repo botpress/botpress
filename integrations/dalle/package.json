@@ -13,8 +13,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "0.10.1",
-    "@botpress/sdk": "0.5.9",
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "axios": "^1.6.7",
     "zod": "^3.22.4"
   },
