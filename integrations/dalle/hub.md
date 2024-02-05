@@ -13,10 +13,10 @@
 Drag the 'Generate Image' card into the node of your choice.
 
 Inputs:
+
 - Prompt: Enter a detailed description of the image you want to generate.
 
-- Size: Choose the resolution of the generated image. 
-	- Options: "1024x1024" for a square image, "1792x1024" for a wide image, and "1024x1792" for a portrait or full-body image.
-		
-- Quality: Select the quality level of the image generation. 
-	- Options: "Standard" and "HD."
+- Size: Choose the resolution of the generated image.
+  - Options: "1024x1024" for a square image, "1792x1024" for a wide image, and "1024x1792" for a portrait or full-body image.
+- Quality: Select the quality level of the image generation.
+  - Options: "Standard" and "HD."

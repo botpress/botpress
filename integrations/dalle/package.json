@@ -1,5 +1,5 @@
 {
-  "name": "dalle",
+  "name": "@botpresshub/dalle",
   "scripts": {
     "type:check": "tsc --noEmit",
     "version": "bp --version",
@@ -19,7 +19,7 @@
     "zod": "^3.22.4"
   },
   "devDependencies": {
-    "@botpress/cli": "^0.5.0",
+    "@botpress/cli": "workspace:*",
     "@types/node": "^18.19.10",
     "ts-node": "^10.9.2",
     "typescript": "^4.9.5"
