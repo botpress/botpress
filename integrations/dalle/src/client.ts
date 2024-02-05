@@ -1,24 +1,22 @@
 ﻿import { AxiosResponse } from 'axios'
-import * as bp from '.botpress'
+import * as schemas from './schemas'
+import { ActionArgs } from './types'
 
-type DalleData = bp.actions.generateImage.input.Input
-
-const defaultSize: NonNullable<DalleData['size']> = '1024x1024'
-const defaultModel: NonNullable<DalleData['model']> = 'dall-e-3'
-const defaultQuality: NonNullable<DalleData['quality']> = 'standard'
-
-export function buildApiData(input: DalleData) {
+export function buildApiData(args: ActionArgs) {
+  const size = schemas.sizeConfig.safeParse(args, args.input.size)
+  const quality = schemas.qualityConfig.safeParse(args, args.input.quality)
+  const model = schemas.modelConfig.safeParse(args, args.input.model)
   return {
-    prompt: input.prompt,
+    prompt: args.input.prompt,
     n: 1,
-    size: input.size ?? defaultSize,
-    model: input.model ?? defaultModel,
-    quality: input.quality ?? defaultQuality,
+    model,
+    size,
+    quality,
   }
 }
 
-export function getApiConfig(ctx: any) {
-  const apiKey = ctx.configuration.apiKey
+export function getApiConfig(args: ActionArgs) {
+  const apiKey = args.ctx.configuration.apiKey
   const apiUrl = 'https://api.openai.com/v1/images/generations'
   const headers = {
     'Content-Type': 'application/json',

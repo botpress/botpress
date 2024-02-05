@@ -8,11 +8,11 @@ export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
-    generateImage: async ({ ctx, input, logger }): Promise<GenerateImageOutput> => {
-      logger.forBot().info('Generating Image')
+    generateImage: async (args): Promise<GenerateImageOutput> => {
+      args.logger.forBot().info('Generating Image')
 
-      const { apiUrl, headers } = getApiConfig(ctx)
-      const data = buildApiData(input)
+      const { apiUrl, headers } = getApiConfig(args)
+      const data = buildApiData(args)
 
       try {
         const response = await axios.post(apiUrl, data, { headers })
@@ -23,7 +23,7 @@ export default new bp.Integration({
 
         return { url: image, createdDate }
       } catch (error) {
-        logger.forBot().error('Error creating image:', error)
+        args.logger.forBot().error('Error creating image:', error)
         return { url: '', createdDate: Date.now().toString() }
       }
     },
