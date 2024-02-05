@@ -27,7 +27,11 @@ const respond = async (props: MessageHandlerProps, text: string) => {
 }
 
 bot.message(async (props) => {
-  const { message, client, ctx } = props
+  const { conversation, message, client, ctx } = props
+  if (conversation.integration !== 'slack') {
+    console.info(`Ignoring message from ${conversation.integration}`)
+    return
+  }
 
   if (message.type === 'text' && message.payload.text === '#start_listening') {
     const state = await listeners.readListeners(props)
