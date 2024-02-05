@@ -1,5 +1,11 @@
 ﻿import { AxiosResponse } from 'axios'
-import { defaultSize, defaultModel, defaultQuality, DalleData } from './types'
+import * as bp from '.botpress'
+
+type DalleData = bp.actions.generateImage.input.Input
+
+const defaultSize: DalleData['size'] = '1024x1024'
+const defaultModel: DalleData['model'] = 'dall-e-3'
+const defaultQuality: DalleData['quality'] = 'standard'
 
 export function buildApiData(input: DalleData) {
   return {

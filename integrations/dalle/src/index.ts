@@ -1,7 +1,8 @@
 import axios from 'axios'
 import { buildApiData, validateResponse, getApiConfig } from './client'
-import { GenerateImageOutput } from './types'
 import * as bp from '.botpress'
+
+type GenerateImageOutput = bp.actions.generateImage.output.Output
 
 export default new bp.Integration({
   register: async () => {},
