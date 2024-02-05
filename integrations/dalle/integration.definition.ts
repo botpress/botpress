@@ -7,7 +7,7 @@ const sizeSchema = z
 
 const qualitySchema = z.union([z.literal('standard'), z.literal('hd')]).describe('Quality of the image to generate.')
 
-const modelSchema = z.union([z.literal('dall-e-3')]).describe('Model to use.')
+const modelSchema = z.literal('dall-e-3').describe('Model to use.')
 
 export default new IntegrationDefinition({
   name: 'dalle',

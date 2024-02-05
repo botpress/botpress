@@ -3,17 +3,17 @@ import * as bp from '.botpress'
 
 type DalleData = bp.actions.generateImage.input.Input
 
-const defaultSize: DalleData['size'] = '1024x1024'
-const defaultModel: DalleData['model'] = 'dall-e-3'
-const defaultQuality: DalleData['quality'] = 'standard'
+const defaultSize: NonNullable<DalleData['size']> = '1024x1024'
+const defaultModel: NonNullable<DalleData['model']> = 'dall-e-3'
+const defaultQuality: NonNullable<DalleData['quality']> = 'standard'
 
 export function buildApiData(input: DalleData) {
   return {
     prompt: input.prompt,
     n: 1,
-    size: defaultSize, // Replace with enum input.size,
-    model: defaultModel, // Replace with enum input.model,
-    quality: defaultQuality, // Replace with enum input.quality
+    size: input.size ?? defaultSize,
+    model: input.model ?? defaultModel,
+    quality: input.quality ?? defaultQuality,
   }
 }
 
