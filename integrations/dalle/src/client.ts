@@ -12,6 +12,7 @@ export function buildApiData(args: ActionArgs) {
     model,
     size,
     quality,
+    user: args.input.user,
   }
 }
 
