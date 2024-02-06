@@ -11,13 +11,14 @@
 /packages/bots @franklevasseur
 
 # Integrations
-/integrations/googlecalendar @charlescatta
-/integrations/mailchimp @charlescatta
+/integrations/dalle @franklevasseur
 /integrations/gmail @michaelmass
+/integrations/googlecalendar @charlescatta
 /integrations/gsheets @franklevasseur
 /integrations/instagram @kimchicharlie
 /integrations/intercom @chsir17 @ptrckbp
 /integrations/linear @allardy
+/integrations/mailchimp @charlescatta
 /integrations/messenger @kimchicharlie
 /integrations/notion @lakshya0246
 /integrations/slack @michaelmass

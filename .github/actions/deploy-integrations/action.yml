@@ -82,6 +82,8 @@ runs:
 
         # deploy
 
+        echo "### Deploying integration @botpresshub/dalle ###"
+        pnpm -r --stream -F @botpresshub/dalle -c exec -- 'bp deploy -v -y --noBuild'
         echo "### Deploying integration @botpresshub/discord ###"
         pnpm -r --stream -F @botpresshub/discord -c exec -- 'bp deploy -v -y --noBuild'
         echo "### Deploying integration @botpresshub/googlecalendar ###"
