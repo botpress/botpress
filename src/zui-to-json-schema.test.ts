@@ -372,4 +372,45 @@ describe('zuiToJsonSchema', () => {
       }
     `)
   })
+
+  test('lazy schemas', () => {
+    const schema = zui.lazy(() =>
+      zui.object({
+        type: zui.string().examples(['hello']),
+        value: zui.number().hidden(true),
+      }),
+    )
+
+    expect(schema.toJsonSchema()).toMatchInlineSnapshot(`
+    {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "additionalProperties": false,
+      "properties": {
+        "type": {
+          "examples": [
+            "hello",
+          ],
+          "type": "string",
+          "x-zui": {
+            "examples": [
+              "hello",
+            ],
+          },
+        },
+        "value": {
+          "type": "number",
+          "x-zui": {
+            "hidden": true,
+          },
+        },
+      },
+      "required": [
+        "type",
+        "value",
+      ],
+      "type": "object",
+      "x-zui": {},
+    }
+  `)
+  })
 })

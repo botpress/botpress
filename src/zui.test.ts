@@ -171,3 +171,14 @@ test('null', () => {
   const schema = zui.null()
   schema.parse(null)
 })
+
+test('Lazy', () => {
+  const schema = zui.lazy(() =>
+    zui.object({
+      type: zui.string().examples(['hello']),
+      value: zui.number().hidden(true),
+    }),
+  )
+
+  schema.parse({ type: 'hello', value: 5 })
+})

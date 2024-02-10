@@ -29,6 +29,19 @@ const isArray = (schema: JsonSchema7): schema is JsonSchema7ArrayType =>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (schema as any).type === 'array'
 
+const getShape = (zuiSchema?: ZuiType<any> | z.ZodTypeAny) => {
+  if (!zuiSchema?._def) {
+    return
+  }
+
+  // for z.lazy schemas
+  if (zuiSchema._def.getter && typeof zuiSchema._def.getter === 'function') {
+    return zuiSchema._def.getter()._def?.shape?.()
+  }
+
+  return zuiSchema._def.shape?.()
+}
+
 const mergeZuiIntoJsonSchema = (
   jsonSchema: JsonSchemaWithZui,
   zuiSchema: ZuiType<any> | z.ZodTypeAny,
@@ -46,7 +59,7 @@ const mergeZuiIntoJsonSchema = (
 
   if (isObject(jsonSchema)) {
     for (const [key, value] of Object.entries(jsonSchema.properties)) {
-      const shape = zuiSchema?._def.shape?.()
+      const shape = getShape(zuiSchema)
 
       if (shape?.[key]) {
         const innerZui = shape[key].ui as ZuiExtension<ToZodType<ZuiTypeAny>, any>['ui']

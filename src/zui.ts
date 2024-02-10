@@ -19,6 +19,7 @@ import type {
   ZodAny,
   ZodUnknown,
   ZodNull,
+  ZodLazy,
 } from 'zod'
 
 // eslint-disable-next-line no-duplicate-imports
@@ -172,9 +173,10 @@ type ZCreate = { create: (...args: any) => ZodType } & (
   | typeof z.ZodAny
   | typeof z.ZodUnknown
   | typeof z.ZodNull
+  | typeof z.ZodLazy
 )
 
-function extend<T extends ZCreate>(zType: T) {
+function extend<T extends ZCreate | ZodLazy<any>>(zType: T) {
   const instance = ((zType as any).prototype as any) ?? (zType as any)
 
   for (const extension of Extensions) {
@@ -187,6 +189,15 @@ function extend<T extends ZCreate>(zType: T) {
         this._def[zuiKey][extension] = props[0]
       }
       return this
+    }
+  }
+
+  if (zType instanceof z.ZodLazy) {
+    const original = zType._def.getter
+    zType._def.getter = () => {
+      const schema = original()
+      extend(schema)
+      return schema
     }
   }
 
@@ -237,6 +248,7 @@ extend(z.ZodDefault)
 extend(z.ZodAny)
 extend(z.ZodUnknown)
 extend(z.ZodNull)
+extend(z.ZodLazy)
 
 type StringArgs = Parameters<typeof z.string>
 type NumberArgs = Parameters<typeof z.number>
@@ -293,6 +305,7 @@ export type Zui<UI extends UIExtension = GlobalExtensionDefinition> = {
   any: (params?: AnyArgs[0]) => ZuiType<ZodAny>
   unknown: (params?: UnknownArgs[0]) => ZuiType<ZodUnknown>
   null: (params?: NullArgs[0]) => ZuiType<ZodNull>
+  lazy: <T extends ZodTypeAny>(schema: () => T) => ZuiType<ZodLazy<T>, UI>
   fromJsonSchema(schema: JsonSchema7): ZuiType<ZodAny>
   fromObject(object: any, options?: ObjectToZuiOptions): ZuiType<ZodAny>
 }
@@ -337,6 +350,13 @@ const zui: Zui<GlobalExtensionDefinition> = {
   any: (params) => z.any(params) as unknown as ZuiType<ZodAny>,
   unknown: (params) => z.unknown(params) as unknown as ZuiType<ZodUnknown>,
   null: (params) => z.null(params) as unknown as ZuiType<ZodNull>,
+
+  lazy: <T extends ZodTypeAny>(schema: () => T) => {
+    const lazySchema = z.lazy(schema)
+    extend(lazySchema)
+    return lazySchema as unknown as ZuiType<ZodLazy<T>>
+  },
+
   fromJsonSchema: (schema) => jsonSchemaToZui(schema) as unknown as ZuiType<ZodAny>,
   fromObject: (object, options) => objectToZui(object, options) as unknown as ZuiType<ZodAny>,
 }
