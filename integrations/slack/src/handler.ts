@@ -56,6 +56,11 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, 
       return
     }
 
+    if (typeof actionValue !== 'string' || !actionValue?.length) {
+      logger.forBot().debug('No action value was returned, so the message was ignored')
+      return
+    }
+
     const { userId, conversationId } = await getUserAndConversation(
       { slackUserId: body.user.id, slackChannelId: body.channel.id },
       client
