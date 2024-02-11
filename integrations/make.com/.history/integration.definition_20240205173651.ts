@@ -1,0 +1,38 @@
+import { IntegrationDefinition, messages } from '@botpress/sdk';
+import { z } from 'zod';
+
+const INTEGRATION_NAME = "makecom";
+
+// Define a dynamic object schema that can accept any string as a key and various types as values
+const dynamicObjectSchema = z.record(z.string(), z.union([z.string(), z.number(), z.array(z.any())]));
+
+export default new IntegrationDefinition({
+  name: INTEGRATION_NAME,
+  version: '0.2.0',
+  icon: 'icon.svg',
+  configuration: {
+    schema: z.object({
+      webhookUrl: z.string().url().describe('Make.com webhook URL'),
+    }).describe('Configuration schema for Make.com Integration'),
+  },
+  channels: {
+    channel: {
+      messages: { ...messages.defaults },
+    },
+  },
+  actions: {
+    sendData: {
+      input: {
+        schema: z.object({
+          // Use the dynamicObjectSchema for the data input to allow flexibility
+          data: dynamicObjectSchema.describe("JSON object of data to send"),
+        }).describe('Input schema for sending data'),
+      },
+      output: {
+        schema: z.object({
+          responses: z.array(z.object({ response: z.string() }))
+        }).describe('Output schema after sending data'),
+      }
+    }
+  },
+});
