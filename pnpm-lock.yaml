@@ -754,6 +754,28 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  integrations/stripe:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      stripe:
+        specifier: ^13.5.0
+        version: 13.11.0
+      zod:
+        specifier: 3.20.6
+        version: 3.20.6
+    devDependencies:
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.16.16
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   integrations/sunco:
     dependencies:
       '@botpress/cli':
@@ -1539,7 +1561,7 @@ packages:
       '@jridgewell/gen-mapping': 0.3.3
       '@jridgewell/trace-mapping': 0.3.18
 
-  /@anatine/zod-openapi@1.14.0(openapi3-ts@2.0.2)(zod@3.21.4):
+  /@anatine/zod-openapi@1.14.0(openapi3-ts@2.0.2)(zod@3.20.6):
     resolution: {integrity: sha512-fNpzgdrqTdHLK2/rZjALyZbyZAua+cXm9kKug2TZ1ly2szSu9G1eH4YrnR6p2uHME/5/BOfCebUjWTVm83hJIg==}
     peerDependencies:
       openapi3-ts: ^2.0.0 || ^3.0.0
@@ -1547,7 +1569,7 @@ packages:
     dependencies:
       openapi3-ts: 2.0.2
       ts-deepmerge: 6.0.3
-      zod: 3.21.4
+      zod: 3.20.6
     dev: true
 
   /@apidevtools/openapi-schemas@2.1.0:
@@ -2108,7 +2130,7 @@ packages:
   /@bpinternal/opapi@0.6.3(openapi-types@12.1.3):
     resolution: {integrity: sha512-XVzxAtc6sOLPUDBjln50QCk73YrMfFFbec1PJ1Qb0dDRxaNI/dAdNDTtY9yZlrQUSxLV+PKJHcbyUTtDZ34mXQ==}
     dependencies:
-      '@anatine/zod-openapi': 1.14.0(openapi3-ts@2.0.2)(zod@3.21.4)
+      '@anatine/zod-openapi': 1.14.0(openapi3-ts@2.0.2)(zod@3.20.6)
       '@readme/openapi-parser': 2.5.0(openapi-types@12.1.3)
       axios: 1.6.7
       chalk: 4.1.2
@@ -2122,7 +2144,7 @@ packages:
       tsconfig-paths: 4.2.0
       verror: 1.10.1
       winston: 3.9.0
-      zod: 3.21.4
+      zod: 3.20.6
     transitivePeerDependencies:
       - debug
       - openapi-types
@@ -2152,7 +2174,7 @@ packages:
       browser-or-node: 2.1.1
       isomorphic-ws: 5.0.0(ws@8.13.0)
       ws: 8.13.0
-      zod: 3.21.4
+      zod: 3.20.6
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -9989,6 +10011,14 @@ packages:
       escape-string-regexp: 1.0.5
     dev: false
 
+  /stripe@13.11.0:
+    resolution: {integrity: sha512-yPxVJxUzP1QHhHeFnYjJl48QwDS1+5befcL7ju7+t+i88D5r0rbsL+GkCCS6zgcU+TiV5bF9eMGcKyJfLf8BZQ==}
+    engines: {node: '>=12.*'}
+    dependencies:
+      '@types/node': 18.16.16
+      qs: 6.11.0
+    dev: false
+
   /strtok3@6.3.0:
     resolution: {integrity: sha512-fZtbhtvI9I48xDSywd/somNqgUHl2L2cstmXCCif0itOf96jeW18MBSyrLuNicYQVkvpOxkZtkzujiTJ9LW5Jw==}
     engines: {node: '>=10'}
@@ -11183,3 +11213,4 @@ packages:
 
   /zod@3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
+    dev: false
