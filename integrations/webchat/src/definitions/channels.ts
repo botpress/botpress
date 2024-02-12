@@ -8,6 +8,7 @@ const cardSchema = messages.defaults.card.schema.extend({
 
 const defaults = {
   ...messages.defaults,
+  quick_reply: { schema: z.object({ text: z.string(), payload: z.string() }) },
   carousel: { schema: z.object({ items: z.array(cardSchema) }) },
   card: { schema: cardSchema },
 } as const
