@@ -20,6 +20,23 @@
   
 </div>
 
+## Table of Contents
+
+- [Getting Started](#getting-started)
+- [Integrations](#integrations)
+  - [Installation](#installation)
+  - [Usage](#usage)
+  - [Deploying a Private Integration](#deploying-a-private-integration)
+  - [Making your Integration Public](#making-your-integration-public)
+- [Agents](#agents)
+- [Devtools](#devtools)
+- [Contributing](#contributing)
+  - [Prerequisites](#prerequisites)
+  - [Building from Sources](#building-from-sources)
+- [Licensing](#licensing)
+- [FAQ](#faq)
+- [Contact Us](#contact-us)
+
 ## Getting started
 
 This repository contains:
@@ -27,6 +44,9 @@ This repository contains:
 - [**Integrations**](#integrations) – all public integrations on the [Botpress Hub](https://app.botpress.cloud/hub)
 - [**Agents**](#agents) – all public agents on the [Botpress Studio](https://studio.botpress.cloud) **(coming soon)**
 - [**Devtools**](#devtools) – all Botpress Cloud dev tools (CLI, SDK, API Client)
+
+For more information on our beginner learning tools, please visit here
+- [Botpress Learning Tools](https://www.youtube.com/botpress)
 
 ## Integrations
 
@@ -107,6 +127,19 @@ tilt ci
 # Run Checks
 pnpm run check
 ```
+
+## FAQ
+Q: How do I start using Botpress Cloud?
+A: Follow the [Getting Started](#getting-started) section to begin using Botpress Cloud.
+
+Q: How can I contribute to Botpress Cloud?
+A: Check out the [Contributing](#contributing) section for guidelines on how to contribute.
+
+Q: Where can I find documentation for Botpress Cloud?
+A: You can find the [Documentation](https://botpress.com/docs) here.
+
+## Contact Us
+For any questions or support, please join our Discord community or send us an email at contact@botpress.com.
 
 ## Licensing
 
