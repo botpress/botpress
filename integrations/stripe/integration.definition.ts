@@ -1,6 +1,5 @@
 import { IntegrationDefinition } from '@botpress/sdk'
 import { z } from 'zod'
-import { name } from './package.json'
 import {
   createCustomerInputSchema,
   createCustomerOutputSchema,
@@ -44,7 +43,7 @@ import {
 } from './src/misc/custom-uis'
 
 export default new IntegrationDefinition({
-  name,
+  name: 'stripe',
   version: '0.2.0',
   title: 'Stripe',
   readme: 'readme.md',

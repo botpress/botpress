@@ -17,6 +17,7 @@ const INTEGRATION_NAME = 'mailchimp'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
+  title: 'Mailchimp',
   version: '0.2.0',
   readme: 'hub.md',
   icon: 'icon.svg',

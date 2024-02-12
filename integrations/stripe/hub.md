@@ -1,6 +1,6 @@
 # Botpress Stripe Integration
 
-This integration allows you to connect your Botpress chatbot with Stripe, a popular online payment platform that facilitates transactions between businesses and their customers. Stripe allows you to manage payments, subscriptions, invoices, and more.
+Connect your Botpress chatbot with Stripe, a popular online payment platform that facilitates transactions between businesses and their customers. Stripe allows you to manage payments, subscriptions, invoices, and more.
 
 ## Setup
 
