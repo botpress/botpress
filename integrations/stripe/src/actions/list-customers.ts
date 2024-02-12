@@ -1,5 +1,5 @@
-import { getClient } from '../client'
 import type { Customer } from 'src/misc/custom-types'
+import { getClient } from '../client'
 import { listCustomersInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
 

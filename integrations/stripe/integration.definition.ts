@@ -2,18 +2,6 @@ import { IntegrationDefinition } from '@botpress/sdk'
 import { z } from 'zod'
 import { name } from './package.json'
 import {
-  createCustomerUi,
-  createOrRetrieveCustomerUi,
-  createPaymentLinkUi,
-  createSubsLinkUi,
-  deactivatePaymentLinkUi,
-  findPaymentLinkUi,
-  listCustomersUi,
-  listPaymentLinksUi,
-  retrieveCustomerByIdUi,
-  searchCustomersUi,
-} from './src/misc/custom-uis'
-import {
   createCustomerInputSchema,
   createCustomerOutputSchema,
   createOrRetrieveCustomerInputSchema,
@@ -42,6 +30,18 @@ import {
   subscriptionDeletedSchema,
   subscriptionUpdatedSchema,
 } from './src/misc/custom-schemas'
+import {
+  createCustomerUi,
+  createOrRetrieveCustomerUi,
+  createPaymentLinkUi,
+  createSubsLinkUi,
+  deactivatePaymentLinkUi,
+  findPaymentLinkUi,
+  listCustomersUi,
+  listPaymentLinksUi,
+  retrieveCustomerByIdUi,
+  searchCustomersUi,
+} from './src/misc/custom-uis'
 
 export default new IntegrationDefinition({
   name,

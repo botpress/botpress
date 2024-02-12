@@ -1,5 +1,5 @@
-import { getClient } from '../client'
 import type { Product } from 'src/misc/custom-types'
+import { getClient } from '../client'
 import type { Implementation } from '../misc/types'
 
 export const listProductPrices: Implementation['actions']['listProductPrices'] = async ({ ctx, logger }) => {
@@ -43,7 +43,7 @@ export const listProductPrices: Implementation['actions']['listProductPrices'] =
     response = {
       products,
     }
-    logger.forBot().info(`Successful - List Product Prices`)
+    logger.forBot().info('Successful - List Product Prices')
   } catch (error) {
     response = {}
     logger.forBot().debug(`'List Product Prices' exception ${JSON.stringify(error)}`)

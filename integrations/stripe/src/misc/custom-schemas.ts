@@ -199,6 +199,7 @@ export const chargeFailedSchema = baseSchema.extend({
     })
     .describe('The data to send with the event'),
 })
+
 export const subscriptionDeletedSchema = baseSchema.extend({
   data: z
     .object({
@@ -207,6 +208,7 @@ export const subscriptionDeletedSchema = baseSchema.extend({
     })
     .describe('The data to send with the event'),
 })
+
 export const subscriptionUpdatedSchema = baseSchema.extend({
   data: z
     .object({
@@ -215,6 +217,7 @@ export const subscriptionUpdatedSchema = baseSchema.extend({
     })
     .describe('The data to send with the event'),
 })
+
 export const invoicePaymentFailedSchema = baseSchema.extend({
   data: z
     .object({
@@ -223,6 +226,7 @@ export const invoicePaymentFailedSchema = baseSchema.extend({
     })
     .describe('The data to send with the event'),
 })
+
 export const paymentIntentFailedSchema = baseSchema.extend({
   data: z
     .object({
