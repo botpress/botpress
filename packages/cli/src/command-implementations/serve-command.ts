@@ -17,8 +17,9 @@ export class ServeCommand extends ProjectCommand<ServeCommandDefinition> {
 
     const integrationDef = await this.readIntegrationDefinitionFromFS()
     if (integrationDef) {
-      const secrets = await this.promptSecrets(integrationDef, this.argv)
-      for (const [key, value] of Object.entries(secrets)) {
+      // TODO: store secrets in local cache to avoid prompting every time
+      const secretEnvVariables = await this.promptSecrets(integrationDef, this.argv, { formatEnv: true })
+      for (const [key, value] of Object.entries(secretEnvVariables)) {
         process.env[key] = value
       }
     }

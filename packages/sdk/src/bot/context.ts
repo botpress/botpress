@@ -5,11 +5,13 @@ export const botOperationSchema = z.enum(['event_received', 'register', 'unregis
 
 export type BotOperation = z.infer<typeof botOperationSchema>
 
-export type BotContext<Configuration = any, Type extends string = string> = {
+export type BotContext = {
   botId: string
-  type: Type
+  type: string
   operation: BotOperation
-  configuration: Configuration
+  configuration: {
+    payload: string
+  }
 }
 
 export const extractContext = (headers: Record<string, string | undefined>): BotContext => {
