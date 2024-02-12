@@ -16,13 +16,11 @@ export const createPaymentLinkUi = {
     placeholder: 'ex: 1',
   },
   adjustableQuantity: {
-    title:
-      'Set to true if the quantity can be adjusted to any non-negative integer (optional)',
+    title: 'Set to true if the quantity can be adjusted to any non-negative integer (optional)',
     placeholder: 'ex: true',
   },
   adjustableQuantityMaximum: {
-    title:
-      'The maximum quantity the customer can purchase. You can specify a value up to 999 (optional)',
+    title: 'The maximum quantity the customer can purchase. You can specify a value up to 999 (optional)',
     placeholder: 'ex: 10',
   },
   adjustableQuantityMinimum: {
@@ -49,13 +47,11 @@ export const createSubsLinkUi = {
     placeholder: '1',
   },
   adjustableQuantity: {
-    title:
-      'Set to true if the quantity can be adjusted to any non-negative Integer (optional)',
+    title: 'Set to true if the quantity can be adjusted to any non-negative Integer (optional)',
     placeholder: 'false',
   },
   adjustableQuantityMaximum: {
-    title:
-      'The maximum quantity the customer can purchase. You can specify a value up to 999 (optional)',
+    title: 'The maximum quantity the customer can purchase. You can specify a value up to 999 (optional)',
     placeholder: '99',
   },
   adjustableQuantityMinimum: {
@@ -63,8 +59,7 @@ export const createSubsLinkUi = {
     placeholder: '1',
   },
   chargingInterval: {
-    title:
-      'The charging interval for the subscription. Can be "day", "week", "month", or "year" (optional)',
+    title: 'The charging interval for the subscription. Can be "day", "week", "month", or "year" (optional)',
     placeholder: 'month',
   },
   trial_period_days: {
@@ -139,10 +134,8 @@ export const createCustomerUi = {
     placeholder: 'ex: payment-method-id',
   },
   address: {
-    title:
-      'The address of the customer. Must be a valid JSON string representing the address (optional)',
-    placeholder:
-      'ex: {"street": "123 Main St", "city": "New York", "state": "NY", "postalCode": "10001"}',
+    title: 'The address of the customer. Must be a valid JSON string representing the address (optional)',
+    placeholder: 'ex: {"street": "123 Main St", "city": "New York", "state": "NY", "postalCode": "10001"}',
   },
 }
 
