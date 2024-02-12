@@ -41,7 +41,7 @@ export const executeMessageReceived = async ({
     }
   }
 
-  if (typeof !slackEvent.text !== 'string' || !slackEvent.text?.length) {
+  if (typeof slackEvent.text !== 'string' || !slackEvent.text?.length) {
     logger.forBot().debug('No text was received, so the message was ignored')
     return
   }
