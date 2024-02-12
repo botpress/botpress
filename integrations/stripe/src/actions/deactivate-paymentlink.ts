@@ -1,32 +1,29 @@
 import { deactivatePaymentLinkInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
-import { getClient } from '../utils'
+import { getClient } from '../client'
 
-export const deactivatePaymentLink: Implementation['actions']['deactivatePaymentLink'] =
-  async ({ ctx, logger, input }) => {
-    const validatedInput = deactivatePaymentLinkInputSchema.parse(input)
-    const StripeClient = getClient(ctx.configuration)
-    let response
-    try {
-      const paymentLink = await StripeClient.deactivatePaymentLink(
-        validatedInput.id
-      )
+export const deactivatePaymentLink: Implementation['actions']['deactivatePaymentLink'] = async ({
+  ctx,
+  logger,
+  input,
+}) => {
+  const validatedInput = deactivatePaymentLinkInputSchema.parse(input)
+  const StripeClient = getClient(ctx.configuration)
+  let response
+  try {
+    const paymentLink = await StripeClient.deactivatePaymentLink(validatedInput.id)
 
-      response = {
-        id: paymentLink.id,
-        url: paymentLink.url,
-        active: paymentLink.active,
-      }
-
-      logger
-        .forBot()
-        .info(`Successful - Deactivate Payment Link - ${paymentLink?.id}`)
-    } catch (error) {
-      response = {}
-      logger
-        .forBot()
-        .debug(`'Deactivate Payment Link' exception ${JSON.stringify(error)}`)
+    response = {
+      id: paymentLink.id,
+      url: paymentLink.url,
+      active: paymentLink.active,
     }
 
-    return response
+    logger.forBot().info(`Successful - Deactivate Payment Link - ${paymentLink?.id}`)
+  } catch (error) {
+    response = {}
+    logger.forBot().debug(`'Deactivate Payment Link' exception ${JSON.stringify(error)}`)
   }
+
+  return response
+}

@@ -1,12 +1,8 @@
 import Stripe from 'stripe'
 import type { RegisterFunction } from '../misc/types'
-import { getClient } from '../utils'
+import { getClient } from '../client'
 
-export const register: RegisterFunction = async ({
-  ctx,
-  client,
-  webhookUrl,
-}) => {
+export const register: RegisterFunction = async ({ ctx, client, webhookUrl, logger }) => {
   const StripeClient = getClient(ctx.configuration)
 
   const webhookData: Stripe.WebhookEndpointCreateParams = {
@@ -24,7 +20,7 @@ export const register: RegisterFunction = async ({
   try {
     stripeWebhookId = await StripeClient.createOrRetrieveWebhookId(webhookData)
   } catch (error) {
-    console.warn('error creating the integration in Stripe', error)
+    logger.forBot().warn('error creating the integration in Stripe', error)
     return
   }
 

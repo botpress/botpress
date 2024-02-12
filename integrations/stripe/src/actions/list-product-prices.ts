@@ -1,56 +1,53 @@
 import type { Product } from 'src/misc/custom-types'
 import type { Implementation } from '../misc/types'
-import { getClient } from '../utils'
+import { getClient } from '../client'
 
-export const listProductPrices: Implementation['actions']['listProductPrices'] =
-  async ({ ctx, logger }) => {
-    const StripeClient = getClient(ctx.configuration)
-    let response
-    try {
-      const prices = await StripeClient.listAllPricesBasic(undefined, true)
+export const listProductPrices: Implementation['actions']['listProductPrices'] = async ({ ctx, logger }) => {
+  const StripeClient = getClient(ctx.configuration)
+  let response
+  try {
+    const prices = await StripeClient.listAllPricesBasic(undefined, true)
 
-      prices.map((price) => {
-        return {
-          productName: (price.product as any).name,
-        }
-      })
+    prices.map((price) => {
+      return {
+        productName: (price.product as any).name,
+      }
+    })
 
-      const products: Record<string, Product> = {}
+    const products: Record<string, Product> = {}
 
-      for (const price of prices) {
-        if (typeof price.product !== 'string' && 'id' in price.product) {
-          const product = products[price.product.id]
-          if (product) {
-            product.prices.push({
-              unit_amount: price.unit_amount,
-              currency: price.currency,
-              recurring: price.recurring,
-            })
-          } else {
-            products[price.product.id] = {
-              name: (price.product as any).name,
-              prices: [
-                {
-                  unit_amount: price.unit_amount,
-                  currency: price.currency,
-                  recurring: price.recurring,
-                },
-              ],
-            }
+    for (const price of prices) {
+      if (typeof price.product !== 'string' && 'id' in price.product) {
+        const product = products[price.product.id]
+        if (product) {
+          product.prices.push({
+            unit_amount: price.unit_amount,
+            currency: price.currency,
+            recurring: price.recurring,
+          })
+        } else {
+          products[price.product.id] = {
+            name: (price.product as any).name,
+            prices: [
+              {
+                unit_amount: price.unit_amount,
+                currency: price.currency,
+                recurring: price.recurring,
+              },
+            ],
           }
         }
       }
-
-      response = {
-        products,
-      }
-      logger.forBot().info(`Successful - List Product Prices`)
-    } catch (error) {
-      response = {}
-      logger
-        .forBot()
-        .debug(`'List Product Prices' exception ${JSON.stringify(error)}`)
     }
 
-    return response
+    response = {
+      products,
+    }
+    logger.forBot().info(`Successful - List Product Prices`)
+  } catch (error) {
+    response = {}
+    logger.forBot().debug(`'List Product Prices' exception ${JSON.stringify(error)}`)
   }
+
+  return response
+}

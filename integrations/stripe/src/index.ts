@@ -1,13 +1,11 @@
 import actions from './actions'
-import { register, unregister, channels, handler } from './setup'
-import * as botpress from '.botpress'
+import { register, unregister, handler } from './setup'
+import * as bp from '.botpress'
 
-console.info('Starting Stripe integration')
-
-export default new botpress.Integration({
+export default new bp.Integration({
   register,
   unregister,
   actions,
-  channels,
   handler,
+  channels: {},
 })
