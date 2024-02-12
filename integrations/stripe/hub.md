@@ -49,31 +49,6 @@ To handle these limits, the documentation recommends:
 - Reduce unnecessary load.
 - Run mutations on the same object sequentially.
 
-## PCI Compliance with Stripe
-
-Complying with PCI standards is a crucial first step, but it's just the beginning. While the PCI DSS guidelines provide important rules for managing and storing cardholder data, they do not offer complete protection for payment environments.
-
-### Additional Protection with Stripe
-
-A much more effective way to protect your business is by implementing a more secure card acceptance method, such as Stripe Checkout, Elements, or mobile SDKs. These methods not only provide a way to mitigate data breaches but also avoid the PCI compliance validation process, which can be a significant investment of time, money, and stress.
-
-It's important to note that **sensitive card data should not be processed by the backend**, but only by the frontend through Stripe.js. This ensures that sensitive data never touch your server, further enhancing security.
-
-### Time Savings with Stripe
-
-Here's a comparison of the average audit time with and without Stripe Elements, Checkout, or mobile SDKs:
-
-| Visa Merchant Level | Average Audit Time (Annual Estimates) | Average Audit Time with Stripe Elements, Checkout or Mobile SDKs (Annual Estimates) |
-| ------------------- | ------------------------------------- | ----------------------------------------------------------------------------------- |
-| Level 1             | 3 to 5 months                         | 2 to 5 days                                                                         |
-| Level 2             | 1 to 3 months                         | 0 days                                                                              |
-| Level 3             | 1 to 3 months                         | 0 days                                                                              |
-| Level 4             | 1 to 3 months                         | 0 days                                                                              |
-
-As you can see, using Stripe can significantly reduce the time required for auditing.
-
-For more information about PCI compliance with Stripe, you can check out the [PCI Compilance Guide](https://stripe.com/es/guides/pci-compliance) provided by Stripe.
-
 ## Contributing
 
 Contributions are welcome! Please submit issues and pull requests.
