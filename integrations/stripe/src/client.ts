@@ -1,4 +1,5 @@
 import Stripe from 'stripe'
+import { Config } from './misc/types'
 
 export class StripeApi {
   private stripe: Stripe
@@ -31,9 +32,7 @@ export class StripeApi {
       return { id: product.id, name: product.name }
     })
     while (products.has_more) {
-      products = await this.listProducts(
-        productsBasic[productsBasic.length - 1]?.id
-      )
+      products = await this.listProducts(productsBasic[productsBasic.length - 1]?.id)
       for (const product of products.data) {
         productsBasic.push({ id: product.id, name: product.name })
       }
@@ -65,11 +64,7 @@ export class StripeApi {
     return price
   }
 
-  async listPrices(
-    productId?: string,
-    isExpand: boolean = false,
-    startingAfter?: string
-  ) {
+  async listPrices(productId?: string, isExpand: boolean = false, startingAfter?: string) {
     const prices = await this.stripe.prices.list({
       active: true,
       limit: 100,
@@ -80,11 +75,7 @@ export class StripeApi {
     return prices
   }
 
-  async listAllPricesBasic(
-    productId?: string,
-    isExpand: boolean = false,
-    startingAfter?: string
-  ) {
+  async listAllPricesBasic(productId?: string, isExpand: boolean = false, startingAfter?: string) {
     let prices = await this.listPrices(productId, isExpand, startingAfter)
     const pricesBasic = prices.data.map((price) => {
       return {
@@ -99,11 +90,7 @@ export class StripeApi {
       }
     })
     while (prices.has_more) {
-      prices = await this.listPrices(
-        productId,
-        isExpand,
-        pricesBasic[pricesBasic.length - 1]?.id
-      )
+      prices = await this.listPrices(productId, isExpand, pricesBasic[pricesBasic.length - 1]?.id)
       for (const price of prices.data) {
         pricesBasic.push({
           id: price.id,
@@ -142,9 +129,7 @@ export class StripeApi {
       return { id: paymentLink.id, url: paymentLink.url }
     })
     while (paymentLinks.has_more) {
-      paymentLinks = await this.listPaymentLink(
-        paymentLinksBasic[paymentLinksBasic.length - 1]?.id
-      )
+      paymentLinks = await this.listPaymentLink(paymentLinksBasic[paymentLinksBasic.length - 1]?.id)
       for (const paymentLink of paymentLinks.data) {
         paymentLinksBasic.push({ id: paymentLink.id, url: paymentLink.url })
       }
@@ -154,9 +139,7 @@ export class StripeApi {
 
   async createSubsLink(
     lineItem: Stripe.PaymentLinkCreateParams.LineItem,
-    subscriptionData:
-      | Stripe.PaymentLinkCreateParams.SubscriptionData
-      | undefined
+    subscriptionData: Stripe.PaymentLinkCreateParams.SubscriptionData | undefined
   ) {
     const paymentLink = await this.stripe.paymentLinks.create({
       line_items: [lineItem],
@@ -196,10 +179,7 @@ export class StripeApi {
       }
     })
     while (customers.has_more) {
-      customers = await this.listCustomer(
-        email,
-        customersBasic[customersBasic.length - 1]?.id
-      )
+      customers = await this.listCustomer(email, customersBasic[customersBasic.length - 1]?.id)
       for (const customer of customers.data) {
         customersBasic.push({
           id: customer.id,
@@ -268,9 +248,7 @@ export class StripeApi {
       }
     })
     while (webhooks.has_more) {
-      webhooks = await this.listWebhooks(
-        webhooksBasic[webhooksBasic.length - 1]?.id
-      )
+      webhooks = await this.listWebhooks(webhooksBasic[webhooksBasic.length - 1]?.id)
       for (const webhook of webhooks.data) {
         webhooksBasic.push({
           id: webhook.id,
@@ -281,9 +259,7 @@ export class StripeApi {
     return webhooksBasic
   }
 
-  async createOrRetrieveWebhookId(
-    webhookData: Stripe.WebhookEndpointCreateParams
-  ) {
+  async createOrRetrieveWebhookId(webhookData: Stripe.WebhookEndpointCreateParams) {
     const webhooks = await this.listAllWebhooksBasic()
     let webhook = webhooks.find((w) => w.url === webhookData.url)
     if (!webhook) {
@@ -301,4 +277,8 @@ export class StripeApi {
     const customer = await this.stripe.customers.retrieve(id)
     return customer
   }
+}
+
+export function getClient(config: Config) {
+  return new StripeApi(config.apiKey, config.apiVersion)
 }
