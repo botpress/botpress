@@ -13,26 +13,10 @@ import { partialCustomer } from './sub-schemas'
 
 export const createPaymentLinkInputSchema = z.object({
   productName: z.string().describe(createPaymentLinkUi.productName.title),
-  unit_amount: z
-    .number()
-    .optional()
-    .default(0)
-    .describe(createPaymentLinkUi.unit_amount.title),
-  currency: z
-    .string()
-    .optional()
-    .default('usd')
-    .describe(createPaymentLinkUi.currency.title),
-  quantity: z
-    .number()
-    .optional()
-    .default(1)
-    .describe(createPaymentLinkUi.quantity.title),
-  adjustableQuantity: z
-    .boolean()
-    .optional()
-    .default(false)
-    .describe(createPaymentLinkUi.adjustableQuantity.title),
+  unit_amount: z.number().optional().default(0).describe(createPaymentLinkUi.unit_amount.title),
+  currency: z.string().optional().default('usd').describe(createPaymentLinkUi.currency.title),
+  quantity: z.number().optional().default(1).describe(createPaymentLinkUi.quantity.title),
+  adjustableQuantity: z.boolean().optional().default(false).describe(createPaymentLinkUi.adjustableQuantity.title),
   adjustableQuantityMaximum: z
     .number()
     .min(2)
@@ -77,26 +61,10 @@ export const listProductPricesOutputSchema = z
 
 export const createSubsLinkInputSchema = z.object({
   productName: z.string().describe(createSubsLinkUi.productName.title),
-  unit_amount: z
-    .number()
-    .optional()
-    .default(0)
-    .describe(createSubsLinkUi.unit_amount.title),
-  currency: z
-    .string()
-    .optional()
-    .default('usd')
-    .describe(createSubsLinkUi.currency.title),
-  quantity: z
-    .number()
-    .optional()
-    .default(1)
-    .describe(createSubsLinkUi.quantity.title),
-  adjustableQuantity: z
-    .boolean()
-    .optional()
-    .default(false)
-    .describe(createSubsLinkUi.adjustableQuantity.title),
+  unit_amount: z.number().optional().default(0).describe(createSubsLinkUi.unit_amount.title),
+  currency: z.string().optional().default('usd').describe(createSubsLinkUi.currency.title),
+  quantity: z.number().optional().default(1).describe(createSubsLinkUi.quantity.title),
+  adjustableQuantity: z.boolean().optional().default(false).describe(createSubsLinkUi.adjustableQuantity.title),
   adjustableQuantityMaximum: z
     .number()
     .min(2)
@@ -111,20 +79,9 @@ export const createSubsLinkInputSchema = z.object({
     .optional()
     .default(1)
     .describe(createSubsLinkUi.adjustableQuantityMinimum.title),
-  chargingInterval: z
-    .string()
-    .optional()
-    .default('month')
-    .describe(createSubsLinkUi.chargingInterval.title),
-  trial_period_days: z
-    .number()
-    .min(1)
-    .optional()
-    .describe(createSubsLinkUi.trial_period_days.title),
-  description: z
-    .string()
-    .optional()
-    .describe(createSubsLinkUi.description.title),
+  chargingInterval: z.string().optional().default('month').describe(createSubsLinkUi.chargingInterval.title),
+  trial_period_days: z.number().min(1).optional().describe(createSubsLinkUi.trial_period_days.title),
+  description: z.string().optional().describe(createSubsLinkUi.description.title),
 })
 
 export const createSubsLinkOutputSchema = z
@@ -170,12 +127,7 @@ export const deactivatePaymentLinkOutputSchema = z
   .partial()
 
 export const listCustomersInputSchema = z.object({
-  email: z
-    .string()
-    .email()
-    .max(512)
-    .optional()
-    .describe(listCustomersUi.email.title),
+  email: z.string().email().max(512).optional().describe(listCustomersUi.email.title),
 })
 
 export const listCustomersOutputSchema = z
@@ -200,14 +152,8 @@ export const createCustomerInputSchema = z.object({
   email: z.string().email().max(512).describe(createCustomerUi.email.title),
   name: z.string().optional().describe(createCustomerUi.name.title),
   phone: z.string().optional().describe(createCustomerUi.phone.title),
-  description: z
-    .string()
-    .optional()
-    .describe(createCustomerUi.description.title),
-  paymentMethodId: z
-    .string()
-    .optional()
-    .describe(createCustomerUi.paymentMethodId.title),
+  description: z.string().optional().describe(createCustomerUi.description.title),
+  paymentMethodId: z.string().optional().describe(createCustomerUi.paymentMethodId.title),
   address: z.string().optional().describe(createCustomerUi.address.title),
 })
 
@@ -239,3 +185,49 @@ export const retrieveCustomerByIdOutputSchema = z
   })
   .passthrough()
   .partial()
+
+const baseSchema = z.object({
+  origin: z.literal('stripe').describe('The origin of the event trigger'),
+  userId: z.string().uuid().describe('Botpress User ID'),
+})
+
+export const chargeFailedSchema = baseSchema.extend({
+  data: z
+    .object({
+      type: z.string().default('charge.failed'),
+      object: z.object({}).passthrough().describe('The object of the failed charge'),
+    })
+    .describe('The data to send with the event'),
+})
+export const subscriptionDeletedSchema = baseSchema.extend({
+  data: z
+    .object({
+      type: z.string().default('customer.subscription.deleted'),
+      object: z.object({}).passthrough().describe('The object of the deleted subscription'),
+    })
+    .describe('The data to send with the event'),
+})
+export const subscriptionUpdatedSchema = baseSchema.extend({
+  data: z
+    .object({
+      type: z.string().default('customer.subscription.updated'),
+      object: z.object({}).passthrough().describe('The object of the updated subscription'),
+    })
+    .describe('The data to send with the event'),
+})
+export const invoicePaymentFailedSchema = baseSchema.extend({
+  data: z
+    .object({
+      type: z.string().default('invoice.payment_failed'),
+      object: z.object({}).passthrough().describe('The object of the invoice whose payment failed'),
+    })
+    .describe('The data to send with the event'),
+})
+export const paymentIntentFailedSchema = baseSchema.extend({
+  data: z
+    .object({
+      type: z.string().default('payment_intent.payment_failed'),
+      object: z.object({}).passthrough().describe('The object of the payment intent that failed'),
+    })
+    .describe('The data to send with the event'),
+})
