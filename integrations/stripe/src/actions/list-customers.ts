@@ -1,7 +1,7 @@
+import { getClient } from '../client'
 import type { Customer } from 'src/misc/custom-types'
 import { listCustomersInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
-import { getClient } from '../client'
 
 export const listCustomers: Implementation['actions']['listCustomers'] = async ({ ctx, logger, input }) => {
   const validatedInput = listCustomersInputSchema.parse(input)
@@ -24,7 +24,7 @@ export const listCustomers: Implementation['actions']['listCustomers'] = async (
     response = {
       customers: customerByEmails,
     }
-    logger.forBot().info(`Successful - List Customers`)
+    logger.forBot().info('Successful - List Customers')
   } catch (error) {
     response = {}
     logger.forBot().debug(`'List Customers' exception ${JSON.stringify(error)}`)

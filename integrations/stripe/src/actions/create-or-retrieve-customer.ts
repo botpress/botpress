@@ -1,6 +1,6 @@
+import { getClient } from '../client'
 import { createOrRetrieveCustomerInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
-import { getClient } from '../client'
 
 export const createOrRetrieveCustomer: Implementation['actions']['createOrRetrieveCustomer'] = async ({
   ctx,

@@ -198,15 +198,27 @@ export class StripeApi {
 
   async searchCustomers(email?: string, name?: string, phone?: string) {
     const queryParts: string[] = []
-    if (email) queryParts.push(`email~'${email}'`)
-    if (name) queryParts.push(`name~'${name}'`)
-    if (phone) queryParts.push(`phone~'${phone}'`)
+
+    if (email) {
+      queryParts.push(`email~'${email}'`)
+    }
+
+    if (name) {
+      queryParts.push(`name~'${name}'`)
+    }
+
+    if (phone) {
+      queryParts.push(`phone~'${phone}'`)
+    }
+
     const query = queryParts.join(' AND ')
     const limit = 100
+
     let response = await this.stripe.customers.search({
       query,
       limit,
     })
+
     const customers = response.data
     while (response.has_more) {
       const page = response.next_page || undefined

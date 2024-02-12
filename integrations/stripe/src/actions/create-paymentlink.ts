@@ -1,6 +1,6 @@
+import { getClient } from '../client'
 import { createPaymentLinkInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
-import { getClient } from '../client'
 
 export const createPaymentLink: Implementation['actions']['createPaymentLink'] = async ({ ctx, logger, input }) => {
   const validatedInput = createPaymentLinkInputSchema.parse(input)

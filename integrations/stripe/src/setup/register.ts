@@ -1,6 +1,6 @@
 import Stripe from 'stripe'
-import type { RegisterFunction } from '../misc/types'
 import { getClient } from '../client'
+import type { RegisterFunction } from '../misc/types'
 
 export const register: RegisterFunction = async ({ ctx, client, webhookUrl, logger }) => {
   const StripeClient = getClient(ctx.configuration)
@@ -27,7 +27,7 @@ export const register: RegisterFunction = async ({ ctx, client, webhookUrl, logg
   await client.setState({
     type: 'integration',
     id: ctx.integrationId,
-    name: `stripeIntegrationInfo`,
+    name: 'stripeIntegrationInfo',
     payload: {
       stripeWebhookId,
     },

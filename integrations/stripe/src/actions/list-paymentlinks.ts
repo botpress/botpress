@@ -1,5 +1,5 @@
-import type { Implementation } from '../misc/types'
 import { getClient } from '../client'
+import type { Implementation } from '../misc/types'
 
 export const listPaymentLinks: Implementation['actions']['listPaymentLinks'] = async ({ ctx, logger }) => {
   const StripeClient = getClient(ctx.configuration)

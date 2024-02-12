@@ -1,6 +1,6 @@
+import { getClient } from '../client'
 import type { Product } from 'src/misc/custom-types'
 import type { Implementation } from '../misc/types'
-import { getClient } from '../client'
 
 export const listProductPrices: Implementation['actions']['listProductPrices'] = async ({ ctx, logger }) => {
   const StripeClient = getClient(ctx.configuration)

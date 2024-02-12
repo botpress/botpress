@@ -1,6 +1,6 @@
+import { getClient } from '../client'
 import { createCustomerInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
-import { getClient } from '../client'
 
 export const createCustomer: Implementation['actions']['createCustomer'] = async ({ ctx, logger, input }) => {
   const validatedInput = createCustomerInputSchema.parse(input)

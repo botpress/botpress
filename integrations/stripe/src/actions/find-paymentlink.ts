@@ -1,6 +1,6 @@
+import { getClient } from '../client'
 import { findPaymentLinkInputSchema } from '../misc/custom-schemas'
 import type { Implementation } from '../misc/types'
-import { getClient } from '../client'
 
 export const findPaymentLink: Implementation['actions']['findPaymentLink'] = async ({ ctx, logger, input }) => {
   const validatedInput = findPaymentLinkInputSchema.parse(input)
