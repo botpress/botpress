@@ -6,6 +6,7 @@ type BaseEvents = Record<string, AnyZodObject>
 type BaseActions = Record<string, Record<'input' | 'output', AnyZodObject>>
 type BaseChannels = Record<string, Record<string, AnyZodObject>>
 type BaseStates = Record<string, AnyZodObject>
+type BaseEntities = Record<string, AnyZodObject>
 
 type TagDefinition = {
   title?: string
@@ -72,12 +73,22 @@ type SecretDefinition = {
   description?: string
 }
 
+type EntityOperation = 'create' | 'read' | 'update' | 'delete' | 'list'
+type EntityNotification = 'created' | 'updated' | 'deleted'
+type EntityDefinition<TEntity extends AnyZodObject> = SchemaDefinition<TEntity> & {
+  title?: string
+  description?: string
+  operations?: Partial<Record<EntityOperation, boolean>>
+  notification?: Partial<Record<EntityNotification, boolean>>
+}
+
 export type IntegrationDefinitionProps<
   TConfig extends BaseConfig = BaseConfig,
   TEvents extends BaseEvents = BaseEvents,
   TActions extends BaseActions = BaseActions,
   TChannels extends BaseChannels = BaseChannels,
-  TStates extends BaseStates = BaseStates
+  TStates extends BaseStates = BaseStates,
+  TEntities extends BaseEntities = BaseEntities
 > = {
   name: string
   version: '0.2.0' | '0.0.1' // TODO: allow any version
@@ -110,6 +121,10 @@ export type IntegrationDefinitionProps<
   user?: UserDefinition
 
   secrets?: Record<string, SecretDefinition>
+
+  entities?: {
+    [K in keyof TEntities]: EntityDefinition<TEntities[K]>
+  }
 }
 
 export class IntegrationDefinition<
@@ -117,30 +132,33 @@ export class IntegrationDefinition<
   TEvents extends BaseEvents = BaseEvents,
   TActions extends BaseActions = BaseActions,
   TChannels extends BaseChannels = BaseChannels,
-  TStates extends BaseStates = BaseStates
-> {
-  public readonly name: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['name']
-  public readonly version: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['version']
-  public readonly title: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['title']
-  public readonly description: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['description']
-  public readonly icon: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['icon']
-  public readonly readme: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['readme']
-  public readonly configuration: IntegrationDefinitionProps<
+  TStates extends BaseStates = BaseStates,
+  TEntities extends BaseEntities = BaseEntities,
+  TProps extends IntegrationDefinitionProps<
     TConfig,
     TEvents,
     TActions,
     TChannels,
-    TStates
-  >['configuration']
-  public readonly events: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['events']
-  public readonly actions: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['actions']
-  public readonly channels: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['channels']
-  public readonly states: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['states']
-  public readonly user: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['user']
-  public readonly secrets: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['secrets']
-  public readonly identifier: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>['identifier']
-
-  public constructor(props: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates>) {
+    TStates,
+    TEntities
+  > = IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates, TEntities>
+> {
+  public readonly name: TProps['name']
+  public readonly version: TProps['version']
+  public readonly title: TProps['title']
+  public readonly description: TProps['description']
+  public readonly icon: TProps['icon']
+  public readonly readme: TProps['readme']
+  public readonly configuration: TProps['configuration']
+  public readonly events: TProps['events']
+  public readonly actions: TProps['actions']
+  public readonly channels: TProps['channels']
+  public readonly states: TProps['states']
+  public readonly user: TProps['user']
+  public readonly secrets: TProps['secrets']
+  public readonly identifier: TProps['identifier']
+  public readonly entities: TProps['entities']
+  public constructor(props: TProps) {
     const {
       name,
       version,
@@ -156,6 +174,7 @@ export class IntegrationDefinition<
       user,
       secrets,
       identifier,
+      entities,
     } = props
     this.name = name
     this.version = version
@@ -171,5 +190,6 @@ export class IntegrationDefinition<
     this.states = states
     this.user = user
     this.secrets = secrets
+    this.entities = entities
   }
 }

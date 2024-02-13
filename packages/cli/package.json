@@ -22,6 +22,7 @@
   "dependencies": {
     "@botpress/client": "0.11.1",
     "@bpinternal/const": "^0.0.20",
+    "@bpinternal/jex": "^0.0.1",
     "@bpinternal/tunnel": "^0.1.1",
     "@bpinternal/yargs-extra": "^0.0.3",
     "@bpinternal/zod-to-json-schema": "^3.21.4",

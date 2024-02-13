@@ -41,6 +41,16 @@ export const mapValues = <A, B>(record: Record<string, A>, fn: (value: A, key: s
   return newRecord
 }
 
+export const mapKeys = <A>(record: Record<string, A>, fn: (key: string, value: A) => string): Record<string, A> => {
+  const newRecord: Record<string, A> = {}
+
+  for (const [key, value] of Object.entries(record)) {
+    newRecord[fn(key, value)] = value
+  }
+
+  return newRecord
+}
+
 export function filterValues<A, B extends A>(
   record: Record<string, A>,
   fn: (value: A, key: string) => value is B

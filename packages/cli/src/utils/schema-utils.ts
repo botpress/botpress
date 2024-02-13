@@ -1,6 +1,8 @@
+import * as jex from '@bpinternal/jex'
 import zodToJsonSchema from '@bpinternal/zod-to-json-schema'
 import type { JsonSchema7Type } from '@bpinternal/zod-to-json-schema/src/parseDef'
 import type { JsonSchema7ObjectType } from '@bpinternal/zod-to-json-schema/src/parsers/object'
+import { JSONSchema7 } from 'json-schema'
 import { z } from 'zod'
 
 type SchemaOptions = {
@@ -38,4 +40,10 @@ export function mapZodToJsonSchema(definition: SchemaDefinition): ReturnType<typ
   }
 
   return schema
+}
+
+export function zodExtends(zChild: z.ZodObject<any>, zParent: z.ZodObject<any>): Promise<boolean> {
+  const childSchema = zodToJsonSchema(zChild) as JSONSchema7
+  const parentSchema = zodToJsonSchema(zParent) as JSONSchema7
+  return jex.jsonSchemaExtends(childSchema, parentSchema)
 }

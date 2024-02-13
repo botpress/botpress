@@ -13,6 +13,7 @@ import type * as config from '../config'
 import * as consts from '../consts'
 import * as errors from '../errors'
 import { formatIntegrationRef, IntegrationRef } from '../integration-ref'
+import { augmentIntegrationDefinition } from '../sdk/augment-entities'
 import { validateIntegrationDefinition } from '../sdk/validate-integration'
 import type { CommandArgv, CommandDefinition } from '../typings'
 import * as utils from '../utils'
@@ -60,7 +61,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   protected async fetchBotIntegrationInstances(bot: sdk.Bot, api: ApiClient) {
     const integrationList = _(bot.props.integrations).values().filter(utils.guards.is.defined).value()
 
-    const { remoteInstances, localInstances } = this._splitApiAndLocalIntegrationInstances(integrationList)
+    const { remoteInstances, localInstances } = this._splitRemoteAndLocalIntegrationInstances(integrationList)
 
     const fetchedInstances: RemoteIntegrationInstance[] = await bluebird.map(localInstances, async (instance) => {
       const ref: IntegrationRef = { type: 'name', name: instance.name, version: instance.version }
@@ -78,7 +79,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       .value()
   }
 
-  private _splitApiAndLocalIntegrationInstances(instances: sdk.IntegrationInstance<string>[]): {
+  private _splitRemoteAndLocalIntegrationInstances(instances: sdk.IntegrationInstance<string>[]): {
     remoteInstances: RemoteIntegrationInstance[]
     localInstances: LocalIntegrationInstance[]
   } {
@@ -121,8 +122,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const { default: definition } = utils.require.requireJsCode<{ default: sdk.IntegrationDefinition }>(artifact.text)
 
     validateIntegrationDefinition(definition)
-
-    return definition
+    return augmentIntegrationDefinition(definition)
   }
 
   protected async writeGeneratedFilesToOutFolder(files: codegen.File[]) {
