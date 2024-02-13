@@ -4,6 +4,8 @@ import * as errors from '../errors'
 import * as utils from '../utils'
 import { SdkActionDef, SdkEntityDef, SdkEventDef } from './typings'
 
+const ID_SHAPE: z.ZodRawShape = { id: z.string() }
+
 export const augmentIntegrationDefinition = async (
   integrationDef: bpsdk.IntegrationDefinition
 ): Promise<bpsdk.IntegrationDefinition> => {
@@ -19,7 +21,7 @@ export const augmentIntegrationDefinition = async (
   for (const [entityName, entityDef] of Object.entries(entities)) {
     const entitiesActions = _getEntityActions(entityName, entityDef)
     for (const [actionName, actionDef] of Object.entries(entitiesActions)) {
-      const alreadyDefined = entitiesActions[actionName]
+      const alreadyDefined = actions[actionName]
       if (alreadyDefined) {
         const isValid = await _actionExtends(alreadyDefined, actionDef)
         if (!isValid) {
@@ -62,64 +64,68 @@ export const augmentIntegrationDefinition = async (
 const _getEntityActions = (entityName: string, entityDef: SdkEntityDef): Record<string, SdkActionDef> => {
   const pascalName = utils.casing.to.pascalCase(entityName)
   const camelName = utils.casing.to.camelCase(entityName)
-  const { schema } = entityDef
-  const id: z.ZodRawShape = { id: z.string() }
 
   const actions: Record<string, SdkActionDef> = {}
 
-  if (entityDef.operations?.create) {
-    actions[`create${pascalName}`] = {
+  if (entityDef.actions?.create) {
+    const actionName = entityDef.actions.create.name ?? `create${pascalName}`
+    const outputKey = entityDef.actions.create.ouputKey ?? camelName
+    const inputSchema = entityDef.actions.create.input?.schema ?? entityDef.schema
+    actions[actionName] = {
       input: {
-        schema: z.object({
-          [camelName]: schema,
-        }),
+        schema: inputSchema,
       },
       output: {
         schema: z.object({
-          [camelName]: schema.extend(id),
+          [outputKey]: entityDef.schema.extend(ID_SHAPE),
         }),
       },
     }
   }
 
-  if (entityDef.operations?.read) {
-    actions[`read${pascalName}`] = {
-      input: { schema: z.object(id) },
+  if (entityDef.actions?.read) {
+    const actionName = entityDef.actions.read.name ?? `read${pascalName}`
+    const outputKey = entityDef.actions.read.ouputKey ?? camelName
+    actions[actionName] = {
+      input: { schema: z.object(ID_SHAPE) },
       output: {
         schema: z.object({
-          [camelName]: schema.extend(id),
+          [outputKey]: entityDef.schema.extend(ID_SHAPE),
         }),
       },
     }
   }
 
-  if (entityDef.operations?.update) {
-    actions[`update${pascalName}`] = {
+  if (entityDef.actions?.update) {
+    const actionName = entityDef.actions.update.name ?? `update${pascalName}`
+    const outputKey = entityDef.actions.update.ouputKey ?? camelName
+    const inputSchema = entityDef.actions.update.input?.schema ?? entityDef.schema
+    actions[actionName] = {
       input: {
-        schema: z.object({
-          [camelName]: schema.extend(id),
-        }),
+        schema: inputSchema.extend(ID_SHAPE),
       },
       output: {
         schema: z.object({
-          [camelName]: schema.extend(id),
+          [outputKey]: entityDef.schema.extend(ID_SHAPE),
         }),
       },
     }
   }
 
-  if (entityDef.operations?.delete) {
-    actions[`delete${pascalName}`] = {
-      input: { schema: z.object(id) },
+  if (entityDef.actions?.delete) {
+    const actionName = entityDef.actions.delete.name ?? `delete${pascalName}`
+    actions[actionName] = {
+      input: { schema: z.object(ID_SHAPE) },
       output: { schema: z.object({}) },
     }
   }
 
-  if (entityDef.operations?.list) {
-    // TODO: use plural form of entity name
-    actions[`list${pascalName}`] = {
+  if (entityDef.actions?.list) {
+    const actionName = entityDef.actions.list.name ?? `list${pascalName}`
+    const outputKey = entityDef.actions.list.ouputKey ?? camelName
+    actions[actionName] = {
       input: { schema: z.object({}) },
-      output: { schema: z.object({ [camelName]: z.array(schema.extend(id)) }) },
+      output: { schema: z.object({ [outputKey]: z.array(entityDef.schema.extend(ID_SHAPE)) }) },
     }
   }
 
@@ -128,16 +134,18 @@ const _getEntityActions = (entityName: string, entityDef: SdkEntityDef): Record<
 
 const _getEntityEvents = (entityName: string, entityDef: SdkEntityDef): Record<string, SdkEventDef> => {
   const camelName = utils.casing.to.camelCase(entityName)
-  const { schema } = entityDef
   const events: Record<string, SdkEventDef> = {}
-  if (entityDef.notification?.created) {
-    events[`${camelName}Created`] = { schema: schema.extend({ id: z.string() }) }
+  if (entityDef.events?.created) {
+    const eventName = entityDef.events.created.name ?? `${camelName}Created`
+    events[eventName] = { schema: entityDef.schema.extend(ID_SHAPE) }
   }
-  if (entityDef.notification?.updated) {
-    events[`${camelName}Updated`] = { schema: schema.extend({ id: z.string() }) }
+  if (entityDef.events?.updated) {
+    const eventName = entityDef.events.updated.name ?? `${camelName}Updated`
+    events[eventName] = { schema: entityDef.schema.extend(ID_SHAPE) }
   }
-  if (entityDef.notification?.deleted) {
-    events[`${camelName}Deleted`] = { schema: schema.extend({ id: z.string() }) }
+  if (entityDef.events?.deleted) {
+    const eventName = entityDef.events.deleted.name ?? `${camelName}Deleted`
+    events[eventName] = { schema: z.object(ID_SHAPE) }
   }
   return events
 }

@@ -74,12 +74,24 @@ type SecretDefinition = {
 }
 
 type EntityOperation = 'create' | 'read' | 'update' | 'delete' | 'list'
-type EntityNotification = 'created' | 'updated' | 'deleted'
+type EntityEvent = 'created' | 'updated' | 'deleted'
+
+type EntityOperationDefinition<TOp extends EntityOperation> = {
+  name?: string
+  ouputKey?: string // listIssues -> { issue: Issue[] } VS listIssues -> { issues: Issue[] }
+} & (TOp extends 'create' | 'update' ? { input?: SchemaDefinition<AnyZodObject> } : {})
+
+type EntityEventDefinition = {
+  name?: string
+}
+
 type EntityDefinition<TEntity extends AnyZodObject> = SchemaDefinition<TEntity> & {
   title?: string
   description?: string
-  operations?: Partial<Record<EntityOperation, boolean>>
-  notification?: Partial<Record<EntityNotification, boolean>>
+  actions?: Partial<{
+    [K in EntityOperation]: EntityOperationDefinition<K>
+  }>
+  events?: Partial<Record<EntityEvent, EntityEventDefinition>>
 }
 
 export type IntegrationDefinitionProps<
