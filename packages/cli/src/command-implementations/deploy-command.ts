@@ -2,9 +2,13 @@ import type * as bpclient from '@botpress/client'
 import type * as bpsdk from '@botpress/sdk'
 import chalk from 'chalk'
 import * as fs from 'fs'
-import { prepareUpdateBotBody } from '../api/bot-body'
+import { prepareCreateBotBody, prepareUpdateBotBody } from '../api/bot-body'
 import type { ApiClient } from '../api/client'
-import { prepareUpdateIntegrationBody, CreateIntegrationBody } from '../api/integration-body'
+import {
+  prepareUpdateIntegrationBody,
+  CreateIntegrationBody,
+  prepareCreateIntegrationBody,
+} from '../api/integration-body'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import * as utils from '../utils'
@@ -75,17 +79,16 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       return
     }
 
-    const integrationDefinition = this.prepareIntegrationDefinition(integrationDef)
-
-    const createBody: CreateIntegrationBody = {
-      ...integrationDefinition,
+    let createBody: CreateIntegrationBody = prepareCreateIntegrationBody(integrationDef)
+    createBody = {
+      ...createBody,
       code,
       icon: iconFileContent,
       readme: readmeFileContent,
       configuration: {
-        ...integrationDefinition.configuration,
+        ...createBody.configuration,
         identifier: {
-          ...(integrationDefinition.configuration?.identifier ?? {}),
+          ...(createBody.configuration?.identifier ?? {}),
           linkTemplateScript: identifierLinkTemplateFileContent,
         },
       },
@@ -117,7 +120,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       })
       line.success(successMessage)
     } else {
-      createBody.secrets = await this.promptSecrets(integrationDef, this.argv)
+      const createSecrets = await this.promptSecrets(integrationDef, this.argv)
+      createBody.secrets = utils.records.filterValues(createSecrets, utils.guards.is.notNull)
       this._detectDeprecatedFeatures(integrationDef, this.argv)
 
       const line = this.logger.line()
@@ -214,12 +218,13 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying bot ${chalk.bold(bot.name)}...`)
 
+    const integrationInstances = await this.fetchBotIntegrationInstances(botImpl, api)
     const updateBotBody = prepareUpdateBotBody(
       {
+        ...prepareCreateBotBody(botImpl),
         id: bot.id,
         code,
-        ...this.prepareBot(botImpl),
-        ...(await this.prepareBotIntegrationInstances(botImpl, api)),
+        integrations: integrationInstances,
       },
       bot
     )

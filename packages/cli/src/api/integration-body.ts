@@ -1,4 +1,5 @@
 import type { Client, Integration } from '@botpress/client'
+import * as sdk from '@botpress/sdk'
 import * as utils from '../utils'
 
 export type CreateIntegrationBody = Parameters<Client['createIntegration']>[0]
@@ -9,6 +10,51 @@ type UpdateIntegrationChannelBody = UpdateIntegrationChannelsBody[string]
 
 type Channels = Integration['channels']
 type Channel = Integration['channels'][string]
+
+export const prepareCreateIntegrationBody = (integration: sdk.IntegrationDefinition): CreateIntegrationBody => ({
+  ...integration,
+  secrets: undefined,
+  configuration: integration.configuration
+    ? {
+        ...integration.configuration,
+        schema: utils.schema.mapZodToJsonSchema(integration.configuration),
+      }
+    : undefined,
+  events: integration.events
+    ? utils.records.mapValues(integration.events, (event) => ({
+        ...event,
+        schema: utils.schema.mapZodToJsonSchema(event),
+      }))
+    : undefined,
+  actions: integration.actions
+    ? utils.records.mapValues(integration.actions, (action) => ({
+        ...action,
+        input: {
+          ...action.input,
+          schema: utils.schema.mapZodToJsonSchema(action.input),
+        },
+        output: {
+          ...action.output,
+          schema: utils.schema.mapZodToJsonSchema(action.output),
+        },
+      }))
+    : undefined,
+  channels: integration.channels
+    ? utils.records.mapValues(integration.channels, (channel) => ({
+        ...channel,
+        messages: utils.records.mapValues(channel.messages, (message) => ({
+          ...message,
+          schema: utils.schema.mapZodToJsonSchema(message),
+        })),
+      }))
+    : undefined,
+  states: integration.states
+    ? utils.records.mapValues(integration.states, (state) => ({
+        ...state,
+        schema: utils.schema.mapZodToJsonSchema(state),
+      }))
+    : undefined,
+})
 
 export const prepareUpdateIntegrationBody = (
   localIntegration: UpdateIntegrationBody,

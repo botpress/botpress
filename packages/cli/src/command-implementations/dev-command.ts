@@ -5,9 +5,13 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import chalk from 'chalk'
 import * as pathlib from 'path'
 import * as uuid from 'uuid'
-import { prepareUpdateBotBody } from '../api/bot-body'
+import { prepareCreateBotBody, prepareUpdateBotBody } from '../api/bot-body'
 import type { ApiClient } from '../api/client'
-import { prepareUpdateIntegrationBody, CreateIntegrationBody } from '../api/integration-body'
+import {
+  prepareUpdateIntegrationBody,
+  CreateIntegrationBody,
+  prepareCreateIntegrationBody,
+} from '../api/integration-body'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import * as utils from '../utils'
@@ -41,7 +45,8 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       defaultPort = DEFAULT_INTEGRATION_PORT
       // TODO: store secrets in local cache to avoid prompting every time
       const secretEnvVariables = await this.promptSecrets(this._initialDef, this.argv, { formatEnv: true })
-      env = { ...env, ...secretEnvVariables }
+      const nonNullSecretEnvVariables = utils.records.filterValues(secretEnvVariables, utils.guards.is.notNull)
+      env = { ...env, ...nonNullSecretEnvVariables }
     }
 
     const port = this.argv.port ?? defaultPort
@@ -229,14 +234,14 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying dev integration ${chalk.bold(integrationDef.name)}...`)
 
-    const integrationBody: CreateIntegrationBody = {
-      ...this.prepareIntegrationDefinition(integrationDef),
+    const createIntegrationBody: CreateIntegrationBody = {
+      ...prepareCreateIntegrationBody(integrationDef),
       url: externalUrl,
     }
 
     if (integration) {
       const updateIntegrationBody = prepareUpdateIntegrationBody(
-        { ...integrationBody, id: integration.id },
+        { ...createIntegrationBody, id: integration.id },
         integration
       )
 
@@ -245,7 +250,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       })
       integration = resp.integration
     } else {
-      const resp = await api.client.createIntegration({ ...integrationBody, dev: true }).catch((thrown) => {
+      const resp = await api.client.createIntegration({ ...createIntegrationBody, dev: true }).catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, `Could not deploy dev integration "${integrationDef.name}"`)
       })
       integration = resp.integration
@@ -300,12 +305,13 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const updateLine = this.logger.line()
     updateLine.started('Deploying dev bot...')
 
+    const integrationInstances = await this.fetchBotIntegrationInstances(botImpl, api)
     const updateBotBody = prepareUpdateBotBody(
       {
+        ...prepareCreateBotBody(botImpl),
         id: bot.id,
         url: externalUrl,
-        ...this.prepareBot(botImpl),
-        ...(await this.prepareBotIntegrationInstances(botImpl, api)),
+        integrations: integrationInstances,
       },
       bot
     )
