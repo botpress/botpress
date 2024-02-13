@@ -1,13 +1,17 @@
-import type * as bpclient from '@botpress/client'
-import type * as bpsdk from '@botpress/sdk'
+import type * as client from '@botpress/client'
+import type * as sdk from '@botpress/sdk'
 import { TunnelRequest, TunnelResponse } from '@bpinternal/tunnel'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import chalk from 'chalk'
 import * as pathlib from 'path'
 import * as uuid from 'uuid'
-import { prepareUpdateBotBody } from '../api/bot-body'
+import { prepareCreateBotBody, prepareUpdateBotBody } from '../api/bot-body'
 import type { ApiClient } from '../api/client'
-import { prepareUpdateIntegrationBody, CreateIntegrationBody } from '../api/integration-body'
+import {
+  prepareUpdateIntegrationBody,
+  CreateIntegrationBody,
+  prepareCreateIntegrationBody,
+} from '../api/integration-body'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import * as utils from '../utils'
@@ -21,7 +25,7 @@ const TUNNEL_HELLO_INTERVAL = 5000
 
 export type DevCommandDefinition = typeof commandDefinitions.dev
 export class DevCommand extends ProjectCommand<DevCommandDefinition> {
-  private _initialDef: bpsdk.IntegrationDefinition | undefined = undefined
+  private _initialDef: sdk.IntegrationDefinition | undefined = undefined
 
   public async run(): Promise<void> {
     this.logger.warn('This command is experimental and subject to breaking changes without notice.')
@@ -41,7 +45,8 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       defaultPort = DEFAULT_INTEGRATION_PORT
       // TODO: store secrets in local cache to avoid prompting every time
       const secretEnvVariables = await this.promptSecrets(this._initialDef, this.argv, { formatEnv: true })
-      env = { ...env, ...secretEnvVariables }
+      const nonNullSecretEnvVariables = utils.records.filterValues(secretEnvVariables, utils.guards.is.notNull)
+      env = { ...env, ...nonNullSecretEnvVariables }
     }
 
     const port = this.argv.port ?? defaultPort
@@ -171,7 +176,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     }
   }
 
-  private _checkSecrets(integrationDef: bpsdk.IntegrationDefinition) {
+  private _checkSecrets(integrationDef: sdk.IntegrationDefinition) {
     const initialSecrets = this._initialDef?.secrets ?? {}
     const currentSecrets = integrationDef.secrets ?? {}
     const newSecrets = Object.keys(currentSecrets).filter((s) => !initialSecrets[s])
@@ -206,11 +211,11 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   private async _deployDevIntegration(
     api: ApiClient,
     externalUrl: string,
-    integrationDef: bpsdk.IntegrationDefinition
+    integrationDef: sdk.IntegrationDefinition
   ): Promise<void> {
     const devId = await this.projectCache.get('devId')
 
-    let integration: bpclient.Integration | undefined = undefined
+    let integration: client.Integration | undefined = undefined
 
     if (devId) {
       const resp = await api.client.getIntegration({ id: devId }).catch(async (thrown) => {
@@ -229,14 +234,14 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying dev integration ${chalk.bold(integrationDef.name)}...`)
 
-    const integrationBody: CreateIntegrationBody = {
-      ...this.prepareIntegrationDefinition(integrationDef),
+    const createIntegrationBody: CreateIntegrationBody = {
+      ...prepareCreateIntegrationBody(integrationDef),
       url: externalUrl,
     }
 
     if (integration) {
       const updateIntegrationBody = prepareUpdateIntegrationBody(
-        { ...integrationBody, id: integration.id },
+        { ...createIntegrationBody, id: integration.id },
         integration
       )
 
@@ -245,7 +250,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       })
       integration = resp.integration
     } else {
-      const resp = await api.client.createIntegration({ ...integrationBody, dev: true }).catch((thrown) => {
+      const resp = await api.client.createIntegration({ ...createIntegrationBody, dev: true }).catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, `Could not deploy dev integration "${integrationDef.name}"`)
       })
       integration = resp.integration
@@ -260,7 +265,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   private async _deployDevBot(api: ApiClient, externalUrl: string): Promise<void> {
     const devId = await this.projectCache.get('devId')
 
-    let bot: bpclient.Bot | undefined = undefined
+    let bot: client.Bot | undefined = undefined
 
     if (devId) {
       const resp = await api.client.getBot({ id: devId }).catch(async (thrown) => {
@@ -295,17 +300,18 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     }
 
     const outfile = this.projectPaths.abs.outFile
-    const { default: botImpl } = utils.require.requireJsFile<{ default: bpsdk.Bot }>(outfile)
+    const { default: botImpl } = utils.require.requireJsFile<{ default: sdk.Bot }>(outfile)
 
     const updateLine = this.logger.line()
     updateLine.started('Deploying dev bot...')
 
+    const integrationInstances = await this.fetchBotIntegrationInstances(botImpl, api)
     const updateBotBody = prepareUpdateBotBody(
       {
+        ...prepareCreateBotBody(botImpl),
         id: bot.id,
         url: externalUrl,
-        ...this.prepareBot(botImpl),
-        ...(await this.prepareBotIntegrationInstances(botImpl, api)),
+        integrations: integrationInstances,
       },
       bot
     )

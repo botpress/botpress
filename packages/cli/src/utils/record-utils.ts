@@ -31,11 +31,31 @@ export const zipObjects = <A, B>(
   return newRecord
 }
 
-export const mapValues = <A, B>(record: Record<string, A>, fn: (value: A) => B): Record<string, B> => {
+export const mapValues = <A, B>(record: Record<string, A>, fn: (value: A, key: string) => B): Record<string, B> => {
   const newRecord: Record<string, B> = {}
 
   for (const [key, value] of Object.entries(record)) {
-    newRecord[key] = fn(value)
+    newRecord[key] = fn(value, key)
+  }
+
+  return newRecord
+}
+
+export function filterValues<A, B extends A>(
+  record: Record<string, A>,
+  fn: (value: A, key: string) => value is B
+): Record<string, B>
+export function filterValues<A, _B extends A>(
+  record: Record<string, A>,
+  fn: (value: A, key: string) => boolean
+): Record<string, A>
+export function filterValues<A>(record: Record<string, A>, fn: (value: A, key: string) => boolean) {
+  const newRecord: Record<string, A> = {}
+
+  for (const [key, value] of Object.entries(record)) {
+    if (fn(value, key)) {
+      newRecord[key] = value
+    }
   }
 
   return newRecord
