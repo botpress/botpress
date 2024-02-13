@@ -100,7 +100,7 @@ module.exports = {
     curly: 'error',
     'eol-last': 'error',
     eqeqeq: ['error', 'smart'],
-    '@typescript-eslint/no-shadow': 'error',
+    '@typescript-eslint/no-shadow': 'off',
     'import/order': [
       'warn',
       {

@@ -1,5 +1,5 @@
-import type * as bpclient from '@botpress/client'
-import type * as bpsdk from '@botpress/sdk'
+import type * as client from '@botpress/client'
+import type * as sdk from '@botpress/sdk'
 import pathlib from 'path'
 import * as utils from '../utils'
 import { GENERATED_HEADER, INDEX_FILE } from './const'
@@ -14,7 +14,7 @@ export { secretEnvVariableName } from './integration-secret'
 export const INTEGRATION_JSON = 'integration.json'
 
 export const generateIntegrationImplementationTypings = async (
-  sdkIntegration: bpsdk.IntegrationDefinition,
+  sdkIntegration: sdk.IntegrationDefinition,
   implementationTypingsPath: string
 ): Promise<types.File[]> => {
   const integration = mapIntegration.from.sdk(sdkIntegration)
@@ -24,7 +24,7 @@ export const generateIntegrationImplementationTypings = async (
 }
 
 export const generateIntegrationSecrets = async (
-  sdkIntegration: bpsdk.IntegrationDefinition,
+  sdkIntegration: sdk.IntegrationDefinition,
   secretsPath: string
 ): Promise<types.File[]> => {
   const indexModule = await IntegrationSecretIndexModule.create(sdkIntegration)
@@ -52,7 +52,7 @@ export type IntegrationInstanceJson = {
 }
 
 export const generateIntegrationInstance = async (
-  anyIntegration: bpclient.Integration | bpsdk.IntegrationDefinition,
+  anyIntegration: client.Integration | sdk.IntegrationDefinition,
   installPath: string
 ): Promise<types.File[]> => {
   let integration: types.IntegrationDefinition

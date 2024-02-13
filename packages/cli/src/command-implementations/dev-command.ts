@@ -1,5 +1,5 @@
-import type * as bpclient from '@botpress/client'
-import type * as bpsdk from '@botpress/sdk'
+import type * as client from '@botpress/client'
+import type * as sdk from '@botpress/sdk'
 import { TunnelRequest, TunnelResponse } from '@bpinternal/tunnel'
 import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import chalk from 'chalk'
@@ -25,7 +25,7 @@ const TUNNEL_HELLO_INTERVAL = 5000
 
 export type DevCommandDefinition = typeof commandDefinitions.dev
 export class DevCommand extends ProjectCommand<DevCommandDefinition> {
-  private _initialDef: bpsdk.IntegrationDefinition | undefined = undefined
+  private _initialDef: sdk.IntegrationDefinition | undefined = undefined
 
   public async run(): Promise<void> {
     this.logger.warn('This command is experimental and subject to breaking changes without notice.')
@@ -176,7 +176,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     }
   }
 
-  private _checkSecrets(integrationDef: bpsdk.IntegrationDefinition) {
+  private _checkSecrets(integrationDef: sdk.IntegrationDefinition) {
     const initialSecrets = this._initialDef?.secrets ?? {}
     const currentSecrets = integrationDef.secrets ?? {}
     const newSecrets = Object.keys(currentSecrets).filter((s) => !initialSecrets[s])
@@ -211,11 +211,11 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   private async _deployDevIntegration(
     api: ApiClient,
     externalUrl: string,
-    integrationDef: bpsdk.IntegrationDefinition
+    integrationDef: sdk.IntegrationDefinition
   ): Promise<void> {
     const devId = await this.projectCache.get('devId')
 
-    let integration: bpclient.Integration | undefined = undefined
+    let integration: client.Integration | undefined = undefined
 
     if (devId) {
       const resp = await api.client.getIntegration({ id: devId }).catch(async (thrown) => {
@@ -265,7 +265,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   private async _deployDevBot(api: ApiClient, externalUrl: string): Promise<void> {
     const devId = await this.projectCache.get('devId')
 
-    let bot: bpclient.Bot | undefined = undefined
+    let bot: client.Bot | undefined = undefined
 
     if (devId) {
       const resp = await api.client.getBot({ id: devId }).catch(async (thrown) => {
@@ -300,7 +300,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     }
 
     const outfile = this.projectPaths.abs.outFile
-    const { default: botImpl } = utils.require.requireJsFile<{ default: bpsdk.Bot }>(outfile)
+    const { default: botImpl } = utils.require.requireJsFile<{ default: sdk.Bot }>(outfile)
 
     const updateLine = this.logger.line()
     updateLine.started('Deploying dev bot...')

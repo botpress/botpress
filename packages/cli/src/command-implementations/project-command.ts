@@ -1,5 +1,5 @@
-import type * as bpclient from '@botpress/client'
-import type * as bpsdk from '@botpress/sdk'
+import type * as client from '@botpress/client'
+import type * as sdk from '@botpress/sdk'
 import type { YargsConfig } from '@bpinternal/yargs-extra'
 import bluebird from 'bluebird'
 import chalk from 'chalk'
@@ -24,8 +24,8 @@ type ConfigurableProjectPaths = { entryPoint: string; outDir: string; workDir: s
 type ConstantProjectPaths = typeof consts.fromOutDir & typeof consts.fromWorkDir
 type AllProjectPaths = ConfigurableProjectPaths & ConstantProjectPaths
 
-type RemoteIntegrationInstance = utils.types.Merge<bpsdk.IntegrationInstance<string>, { id: string }>
-type LocalIntegrationInstance = utils.types.Merge<bpsdk.IntegrationInstance<string>, { id: null }>
+type RemoteIntegrationInstance = utils.types.Merge<sdk.IntegrationInstance<string>, { id: string }>
+type LocalIntegrationInstance = utils.types.Merge<sdk.IntegrationInstance<string>, { id: null }>
 
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   public constructor(argv: CommandArgv<ProjectCommandDefinition>) {
@@ -56,7 +56,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return new utils.cache.FSKeyValueCache<ProjectCache>(this.projectPaths.abs.projectCacheFile)
   }
 
-  protected async fetchBotIntegrationInstances(bot: bpsdk.Bot, api: ApiClient) {
+  protected async fetchBotIntegrationInstances(bot: sdk.Bot, api: ApiClient) {
     const integrationList = _(bot.props.integrations).values().filter(utils.guards.is.defined).value()
 
     const { remoteInstances, localInstances } = this._splitApiAndLocalIntegrationInstances(integrationList)
@@ -77,7 +77,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       .value()
   }
 
-  private _splitApiAndLocalIntegrationInstances(instances: bpsdk.IntegrationInstance<string>[]): {
+  private _splitApiAndLocalIntegrationInstances(instances: sdk.IntegrationInstance<string>[]): {
     remoteInstances: RemoteIntegrationInstance[]
     localInstances: LocalIntegrationInstance[]
   } {
@@ -96,7 +96,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   protected async readIntegrationDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'definition'> = this.projectPaths
-  ): Promise<bpsdk.IntegrationDefinition | undefined> {
+  ): Promise<sdk.IntegrationDefinition | undefined> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
@@ -117,7 +117,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       throw new errors.BotpressCLIError('Could not read integration definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: bpsdk.IntegrationDefinition }>(artifact.text)
+    const { default: definition } = utils.require.requireJsCode<{ default: sdk.IntegrationDefinition }>(artifact.text)
     return definition
   }
 
@@ -130,7 +130,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
   }
 
-  protected displayWebhookUrls(bot: bpclient.Bot) {
+  protected displayWebhookUrls(bot: client.Bot) {
     if (!_.keys(bot.integrations).length) {
       this.logger.debug('No integrations in bot')
       return
@@ -151,7 +151,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   }
 
   protected async promptSecrets(
-    integrationDef: bpsdk.IntegrationDefinition,
+    integrationDef: sdk.IntegrationDefinition,
     argv: YargsConfig<typeof config.schemas.secrets>,
     opts: { formatEnv?: boolean; knownSecrets?: string[] } = {}
   ): Promise<Record<string, string | null>> {
