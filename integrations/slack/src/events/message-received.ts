@@ -41,7 +41,12 @@ export const executeMessageReceived = async ({
     }
   }
 
-  await client.createMessage({
+  if (typeof slackEvent.text !== 'string' || !slackEvent.text?.length) {
+    logger.forBot().debug('No text was received, so the message was ignored')
+    return
+  }
+
+  await client.getOrCreateMessage({
     tags: {
       ts: slackEvent.ts,
       [tsTag]: slackEvent.ts,

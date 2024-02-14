@@ -8,3 +8,4 @@ __snapshots__
 .ignore.me.*
 .env
 .botpress
+.botpresshome

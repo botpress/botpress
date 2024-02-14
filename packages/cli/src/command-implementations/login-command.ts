@@ -1,4 +1,4 @@
-import * as bpclient from '@botpress/client'
+import * as client from '@botpress/client'
 import * as paging from '../api/paging'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
@@ -20,7 +20,7 @@ export class LoginCommand extends GlobalCommand<LoginCommandDefinition> {
     })
 
     const promptedWorkspaceId = await this.globalCache.sync('workspaceId', this.argv.workspaceId, async (defaultId) => {
-      const tmpClient = new bpclient.Client({ apiUrl: this.argv.apiUrl, token: promptedToken }) // no workspaceId yet
+      const tmpClient = new client.Client({ apiUrl: this.argv.apiUrl, token: promptedToken }) // no workspaceId yet
       const userWorkspaces = await paging
         .listAllPages(tmpClient.listWorkspaces, (r) => r.workspaces)
         .catch((thrown) => {

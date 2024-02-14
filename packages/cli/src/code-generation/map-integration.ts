@@ -1,11 +1,11 @@
-import * as bpclient from '@botpress/client'
-import * as bpsdk from '@botpress/sdk'
+import * as client from '@botpress/client'
+import * as sdk from '@botpress/sdk'
 import { z } from 'zod'
 import * as utils from '../utils'
 import * as types from './typings'
 
 export namespace from {
-  export const sdk = (i: bpsdk.IntegrationDefinition): types.IntegrationDefinition => ({
+  export const sdk = (i: sdk.IntegrationDefinition): types.IntegrationDefinition => ({
     id: null,
     name: i.name,
     version: i.version,
@@ -36,7 +36,7 @@ export namespace from {
       : {},
   })
 
-  export const client = (i: bpclient.Integration): types.IntegrationDefinition => {
+  export const client = (i: client.Integration): types.IntegrationDefinition => {
     const { id, name, version, configuration, channels, states, events, actions, user } = i
     return { id, name, version, configuration, channels, states, events, actions, user }
   }

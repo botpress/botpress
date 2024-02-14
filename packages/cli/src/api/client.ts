@@ -1,4 +1,4 @@
-import * as bpclient from '@botpress/client'
+import * as client from '@botpress/client'
 import _ from 'lodash'
 import { formatIntegrationRef, ApiIntegrationRef as IntegrationRef } from '../integration-ref'
 import type { Logger } from '../logger'
@@ -16,15 +16,15 @@ export type ApiClientFactory = {
   newClient: (props: ApiClientProps, logger: Logger) => ApiClient
 }
 
-type PublicIntegration = bpclient.Integration
-type PrivateIntegration = bpclient.Integration & { workspaceId: string }
-type Integration = bpclient.Integration & { workspaceId?: string }
+type PublicIntegration = client.Integration
+type PrivateIntegration = client.Integration & { workspaceId: string }
+type Integration = client.Integration & { workspaceId?: string }
 
 /**
  * This class is used to wrap the Botpress API and provide a more convenient way to interact with it.
  */
 export class ApiClient {
-  public readonly client: bpclient.Client
+  public readonly client: client.Client
   public readonly url: string
   public readonly token: string
   public readonly workspaceId: string
@@ -33,7 +33,7 @@ export class ApiClient {
 
   public constructor(props: ApiClientProps, private _logger: Logger) {
     const { apiUrl, token, workspaceId } = props
-    this.client = new bpclient.Client({ apiUrl, token, workspaceId })
+    this.client = new client.Client({ apiUrl, token, workspaceId })
     this.url = apiUrl
     this.token = token
     this.workspaceId = workspaceId
@@ -90,7 +90,7 @@ export class ApiClient {
       return v
     } catch (err) {
       const allowedStatusesArray = _.isArray(allowedStatuses) ? allowedStatuses : [allowedStatuses]
-      const isAllowed = bpclient.isApiError(err) && err.code && allowedStatusesArray.includes(err.code)
+      const isAllowed = client.isApiError(err) && err.code && allowedStatusesArray.includes(err.code)
       if (isAllowed) {
         return
       }

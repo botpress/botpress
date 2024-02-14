@@ -1,0 +1,27 @@
+{
+  "name": "@botpresshub/dalle",
+  "scripts": {
+    "type:check": "tsc --noEmit",
+    "version": "bp --version",
+    "login": "bp login",
+    "dev": "bp dev",
+    "gen": "bp gen",
+    "deploy": "bp deploy"
+  },
+  "keywords": [],
+  "private": true,
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "axios": "^1.6.7",
+    "zod": "^3.20.6"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@types/node": "^18.19.10",
+    "ts-node": "^10.9.2",
+    "typescript": "^4.9.5"
+  }
+}

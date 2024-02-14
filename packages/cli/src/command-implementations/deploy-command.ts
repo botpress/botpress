@@ -1,12 +1,15 @@
-import type * as bpclient from '@botpress/client'
-import type * as bpsdk from '@botpress/sdk'
+import type * as client from '@botpress/client'
+import type * as sdk from '@botpress/sdk'
 import chalk from 'chalk'
 import * as fs from 'fs'
-import { prepareUpdateBotBody } from '../api/bot-body'
+import { prepareCreateBotBody, prepareUpdateBotBody } from '../api/bot-body'
 import type { ApiClient } from '../api/client'
-import { prepareUpdateIntegrationBody, CreateIntegrationBody } from '../api/integration-body'
+import {
+  prepareUpdateIntegrationBody,
+  CreateIntegrationBody,
+  prepareCreateIntegrationBody,
+} from '../api/integration-body'
 import type commandDefinitions from '../command-definitions'
-import * as consts from '../consts'
 import * as errors from '../errors'
 import * as utils from '../utils'
 import { BuildCommand } from './build-command'
@@ -16,9 +19,6 @@ export type DeployCommandDefinition = typeof commandDefinitions.deploy
 export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   public async run(): Promise<void> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
-    if (api.url !== consts.defaultBotpressApiUrl) {
-      this.logger.log(`Using custom url ${api.url}`)
-    }
 
     if (!this.argv.noBuild) {
       await this._runBuild() // This ensures the bundle is always synced with source code
@@ -35,15 +35,9 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     return new BuildCommand(this.api, this.prompt, this.logger, this.argv).run()
   }
 
-  private async _deployIntegration(api: ApiClient, integrationDef: bpsdk.IntegrationDefinition) {
+  private async _deployIntegration(api: ApiClient, integrationDef: sdk.IntegrationDefinition) {
     const outfile = this.projectPaths.abs.outFile
-    let code = await fs.promises.readFile(outfile, 'utf-8')
-
-    const secrets = await this.promptSecrets(integrationDef, this.argv)
-    // TODO: provide these secrets to the backend by API and remove this string replacement hack
-    for (const [secretName, secretValue] of Object.entries(secrets)) {
-      code = code.replace(new RegExp(`process\\.env\\.${secretName}`, 'g'), `"${secretValue}"`)
-    }
+    const code = await fs.promises.readFile(outfile, 'utf-8')
 
     const {
       name,
@@ -85,17 +79,16 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       return
     }
 
-    const integrationDefinition = this.prepareIntegrationDefinition(integrationDef)
-
-    const createBody: CreateIntegrationBody = {
-      ...integrationDefinition,
+    let createBody: CreateIntegrationBody = prepareCreateIntegrationBody(integrationDef)
+    createBody = {
+      ...createBody,
       code,
       icon: iconFileContent,
       readme: readmeFileContent,
       configuration: {
-        ...integrationDefinition.configuration,
+        ...createBody.configuration,
         identifier: {
-          ...(integrationDefinition.configuration?.identifier ?? {}),
+          ...(createBody.configuration?.identifier ?? {}),
           linkTemplateScript: identifierLinkTemplateFileContent,
         },
       },
@@ -105,8 +98,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       },
     }
 
-    const line = this.logger.line()
-    line.started(`Deploying integration ${chalk.bold(integrationDef.name)} v${integrationDef.version}...`)
+    const startedMessage = `Deploying integration ${chalk.bold(integrationDef.name)} v${integrationDef.version}...`
+    const successMessage = 'Integration deployed'
     if (integration) {
       const updateBody = prepareUpdateIntegrationBody(
         {
@@ -116,21 +109,32 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         integration
       )
 
+      const { secrets: knownSecrets } = integration
+      updateBody.secrets = await this.promptSecrets(integrationDef, this.argv, { knownSecrets })
       this._detectDeprecatedFeatures(integrationDef, { allowDeprecated: true })
+
+      const line = this.logger.line()
+      line.started(startedMessage)
       await api.client.updateIntegration(updateBody).catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, `Could not update integration "${integrationDef.name}"`)
       })
+      line.success(successMessage)
     } else {
+      const createSecrets = await this.promptSecrets(integrationDef, this.argv)
+      createBody.secrets = utils.records.filterValues(createSecrets, utils.guards.is.notNull)
       this._detectDeprecatedFeatures(integrationDef, this.argv)
+
+      const line = this.logger.line()
+      line.started(startedMessage)
       await api.client.createIntegration(createBody).catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, `Could not create integration "${integrationDef.name}"`)
       })
+      line.success(successMessage)
     }
-    line.success('Integration deployed')
   }
 
   private _detectDeprecatedFeatures(
-    integrationDef: bpsdk.IntegrationDefinition,
+    integrationDef: sdk.IntegrationDefinition,
     opts: { allowDeprecated?: boolean } = {}
   ) {
     const deprecatedFields: string[] = []
@@ -188,9 +192,9 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   private async _deployBot(api: ApiClient, argvBotId: string | undefined, argvCreateNew: boolean | undefined) {
     const outfile = this.projectPaths.abs.outFile
     const code = await fs.promises.readFile(outfile, 'utf-8')
-    const { default: botImpl } = utils.require.requireJsFile<{ default: bpsdk.Bot }>(outfile)
+    const { default: botImpl } = utils.require.requireJsFile<{ default: sdk.Bot }>(outfile)
 
-    let bot: bpclient.Bot
+    let bot: client.Bot
     if (argvBotId && argvCreateNew) {
       throw new errors.BotpressCLIError('Cannot specify both --botId and --createNew')
     } else if (argvCreateNew) {
@@ -214,12 +218,13 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying bot ${chalk.bold(bot.name)}...`)
 
+    const integrationInstances = await this.fetchBotIntegrationInstances(botImpl, api)
     const updateBotBody = prepareUpdateBotBody(
       {
+        ...prepareCreateBotBody(botImpl),
         id: bot.id,
         code,
-        ...this.prepareBot(botImpl),
-        ...(await this.prepareBotIntegrationInstances(botImpl, api)),
+        integrations: integrationInstances,
       },
       bot
     )
@@ -231,7 +236,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     this.displayWebhookUrls(updatedBot)
   }
 
-  private async _createNewBot(api: ApiClient): Promise<bpclient.Bot> {
+  private async _createNewBot(api: ApiClient): Promise<client.Bot> {
     const line = this.logger.line()
     const { bot: createdBot } = await api.client.createBot({}).catch((thrown) => {
       throw errors.BotpressCLIError.wrap(thrown, 'Could not create bot')
@@ -241,7 +246,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     return createdBot
   }
 
-  private async _getExistingBot(api: ApiClient, botId: string | undefined): Promise<bpclient.Bot> {
+  private async _getExistingBot(api: ApiClient, botId: string | undefined): Promise<client.Bot> {
     const promptedBotId = await this.projectCache.sync('botId', botId, async (defaultId) => {
       const userBots = await api
         .listAllPages(api.client.listBots, (r) => r.bots)

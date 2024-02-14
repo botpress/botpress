@@ -1,5 +1,5 @@
-import type * as bpclient from '@botpress/client'
-import type * as bpsdk from '@botpress/sdk'
+import type * as client from '@botpress/client'
+import type * as sdk from '@botpress/sdk'
 import bluebird from 'bluebird'
 import chalk from 'chalk'
 import * as fs from 'fs'
@@ -59,7 +59,7 @@ export class AddCommand extends ProjectCommand<AddCommandDefinition> {
 
   private _fetchLocalIntegration = async (
     integrationRef: LocalPathIntegrationRef
-  ): Promise<bpsdk.IntegrationDefinition> => {
+  ): Promise<sdk.IntegrationDefinition> => {
     this.logger.warn(
       'Installing integration from a local path. There is no guarantee that the integration is deployed with the expected schemas.'
     )
@@ -76,7 +76,7 @@ export class AddCommand extends ProjectCommand<AddCommandDefinition> {
     return integrationDefinition
   }
 
-  private _fetchApiIntegration = async (integrationRef: ApiIntegrationRef): Promise<bpclient.Integration> => {
+  private _fetchApiIntegration = async (integrationRef: ApiIntegrationRef): Promise<client.Integration> => {
     const api = await this.ensureLoginAndCreateClient(this.argv)
     const integration = await api.findIntegration(integrationRef)
     if (!integration) {
@@ -123,7 +123,7 @@ export class AddCommand extends ProjectCommand<AddCommandDefinition> {
     await this._generateBotIndex()
   }
 
-  private async _generateIntegrationInstance(integration: bpclient.Integration | bpsdk.IntegrationDefinition) {
+  private async _generateIntegrationInstance(integration: client.Integration | sdk.IntegrationDefinition) {
     const line = this.logger.line()
 
     const { name, version } = integration
