@@ -49,12 +49,7 @@ const processConfiguration = (config: Record<string, ZuiTypeAny>, currentRoot: s
     const elements = currentSchema.elements ?? []
 
     if (zuiSchema.ui) {
-      if (zuiSchema.ui.layout) {
-        elements.push({ type: zuiSchema.ui.layout, label: zuiSchema.ui.title, elements: [] })
-        return processConfiguration(currentShape, nextScope, elements[elements.length - 1])
-      }
-
-      elements.push({ scope, label: zuiSchema.ui.title, ...(zuiSchema.ui.displayAs as any) })
+      elements.push({ scope, label: zuiSchema.ui.title })
     } else if (!currentShape) {
       elements.push({ scope, label: key })
     }
@@ -71,13 +66,6 @@ export const getZuiSchemas = (input: ZuiTypeAny | z.ZodTypeAny, opts: ZuiSchemaO
   let uischema: UISchema = {}
 
   if (input?._def?.shape) {
-    const layout = input && 'ui' in input && input.ui.layout
-
-    uischema = {
-      type: layout || 'VerticalLayout',
-      elements: [],
-    }
-
     processConfiguration(input._def.shape(), opts.rootScope || BASE_SCOPE, uischema)
   }
 

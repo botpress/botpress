@@ -6,7 +6,9 @@ import { z } from 'zod'
 
 type JsonSchemaWithZui = JsonSchema7 & {
   [zuiKey]?: ZuiExtension<ToZodType<ZuiTypeAny>, any>
-  properties?: { [key: string]: any }
+  properties?: {
+    [key: string]: any
+  }
 }
 
 export const zuiToJsonSchema = (zuiType: ZuiTypeAny | z.ZodTypeAny, opts: ZuiSchemaOptions = {}): JsonSchemaWithZui => {
@@ -48,10 +50,6 @@ const mergeZuiIntoJsonSchema = (
   opts: ZuiSchemaOptions,
 ): JsonSchema7 => {
   const assignZuiProps = (value: JsonSchemaWithZui, ui: ZuiExtension<ToZodType<ZuiTypeAny>, any>['ui']) => {
-    if (ui?.examples) {
-      Object.assign(value, { examples: ui.examples })
-    }
-
     if (!opts.stripZuiProps) {
       Object.assign(value, { [zuiKey]: ui })
     }

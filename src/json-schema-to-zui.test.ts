@@ -60,7 +60,7 @@ describe('jsonSchemaToZui', () => {
   })
 
   test('convert string with regex', () => {
-    const zuiObject = zui.string().regex(/hello/i).title('Title').readonly(true).length(20)
+    const zuiObject = zui.string().regex(/hello/i).title('Title').length(20)
     testZuiConversion(zuiObject)
   })
 

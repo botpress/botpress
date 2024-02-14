@@ -8,32 +8,29 @@ describe('zui', () => {
   })
 
   test('string', () => {
-    const schema = zui.string().regex(/hello/i).title('Title').examples(['Example 1']).readonly(true).length(20)
+    const schema = zui.string().regex(/hello/i).title('Title').disabled().length(20)
 
     expect(schema.ui).toEqual({
       title: 'Title',
-      examples: ['Example 1'],
-      readonly: true,
+      disabled: true,
     })
   })
 
   test('number', () => {
-    const schema = zui.number().min(10).title('Title').examples([10]).readonly(true).max(20).int()
+    const schema = zui.number().min(10).title('Title').disabled(true).max(20).int()
 
     expect(schema.ui).toEqual({
       title: 'Title',
-      examples: [10],
-      readonly: true,
+      disabled: true,
     })
   })
 
   test('boolean', () => {
-    const schema = zui.boolean().title('Title').examples([true]).readonly(true)
+    const schema = zui.boolean().title('Title').disabled()
 
     expect(schema.ui).toEqual({
       title: 'Title',
-      examples: [true],
-      readonly: true,
+      disabled: true,
     })
   })
 
@@ -175,7 +172,7 @@ test('null', () => {
 test('Lazy', () => {
   const schema = zui.lazy(() =>
     zui.object({
-      type: zui.string().examples(['hello']),
+      type: zui.string(),
       value: zui.number().hidden(true),
     }),
   )

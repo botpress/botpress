@@ -1,7 +1,8 @@
 import { z } from 'zod'
 import { describe, test } from 'vitest'
-import { type Zui, zui as basezui } from './zui'
-import { type UIExtension, defaultExtensions } from './uiextensions'
+import { type Zui, zui as basezui } from '../zui'
+import { defaultExtensions } from './defaultextension'
+import { type UIComponentDefinitions } from './types'
 
 const testExtensions = {
   string: {
@@ -33,7 +34,7 @@ const testExtensions = {
   object: {
     SuperObject: { id: 'SuperObject', schema: z.object({ label: z.string().optional() }) },
   },
-} satisfies UIExtension
+} satisfies UIComponentDefinitions
 
 describe('ZUI UI Extensions', () => {
   test('should be able to extend zui using module declaration', () => {
@@ -57,23 +58,10 @@ describe('ZUI UI Extensions', () => {
   test('should be able to use zui with default extensions', () => {
     const zui = basezui as Zui<typeof defaultExtensions>
 
-    zui.string().displayAs('textbox', {
-      name: 'username',
-      type: 'text',
-      default: 'hello',
-    })
+    zui.string().displayAs('textbox', {})
 
-    zui.number().displayAs('numberinput', {
-      name: 'age',
-      type: 'number',
-      default: 5,
-      min: 0,
-      max: 10,
-    })
+    zui.number().displayAs('numberinput', {})
 
-    zui.boolean().displayAs('checkbox', {
-      name: 'isAwesome',
-      default: true,
-    })
+    zui.boolean().displayAs('checkbox', {}).disabled()
   })
 })

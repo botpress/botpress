@@ -42,19 +42,7 @@ describe('zuiToJsonSchema', () => {
     `)
 
     expect(jsonSchema.uischema).toMatchInlineSnapshot(`
-      {
-        "elements": [
-          {
-            "label": "Name",
-            "scope": "#/properties/name",
-          },
-          {
-            "label": "Age",
-            "scope": "#/properties/age",
-          },
-        ],
-        "type": "VerticalLayout",
-      }
+      {}
     `)
   })
 
@@ -97,22 +85,14 @@ describe('zuiToJsonSchema', () => {
           "type": "object",
           "${zuiKey}": {},
         },
-        "uischema": {
-          "elements": [
-            {
-              "label": undefined,
-              "scope": "#/properties/fruit",
-            },
-          ],
-          "type": "VerticalLayout",
-        },
+        "uischema": {},
       }
     `)
   })
 
   test('supported properties are available in the json schema', () => {
     const schema = zui.object({
-      testExample: zui.string().examples(['hello']),
+      testExample: zui.string().displayAs('textarea', { rows: 5 }),
     })
 
     const jsonSchema = getZuiSchemas(schema)
@@ -122,13 +102,13 @@ describe('zuiToJsonSchema', () => {
         "additionalProperties": false,
         "properties": {
           "testExample": {
-            "examples": [
-              "hello",
-            ],
             "type": "string",
             "${zuiKey}": {
-              "examples": [
-                "hello",
+              "displayAs": [
+                "textarea",
+                {
+                  "rows": 5,
+                },
               ],
             },
           },
@@ -143,14 +123,11 @@ describe('zuiToJsonSchema', () => {
   })
 
   test('examples are available on json schema', () => {
-    const schema = zui.string().examples(['Example 1'])
+    const schema = zui.string()
 
     const jsonSchema = getZuiSchemas(schema, { stripZuiProps: true, $schemaUrl: false })
     expect(jsonSchema.schema).toMatchInlineSnapshot(`
       {
-        "examples": [
-          "Example 1",
-        ],
         "type": "string",
       }
     `)
@@ -376,8 +353,8 @@ describe('zuiToJsonSchema', () => {
   test('lazy schemas', () => {
     const schema = zui.lazy(() =>
       zui.object({
-        type: zui.string().examples(['hello']),
-        value: zui.number().hidden(true),
+        type: zui.string().title('Type'),
+        value: zui.number().hidden(),
       }),
     )
 
@@ -387,14 +364,9 @@ describe('zuiToJsonSchema', () => {
       "additionalProperties": false,
       "properties": {
         "type": {
-          "examples": [
-            "hello",
-          ],
           "type": "string",
           "x-zui": {
-            "examples": [
-              "hello",
-            ],
+            "title": "Type",
           },
         },
         "value": {
