@@ -179,7 +179,7 @@ importers:
         version: 0.12.2
       axios:
         specifier: ^1.5.0
-        version: 1.6.5
+        version: 1.6.7
       zod:
         specifier: 3.20.6
         version: 3.20.6
