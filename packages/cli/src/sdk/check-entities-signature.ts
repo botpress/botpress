@@ -1,29 +1,62 @@
 import * as sdk from '@botpress/sdk'
-import { ActionDefinition } from 'src/code-generation/typings'
-import { z } from 'zod'
+import { AnyZodObject, z } from 'zod'
 import * as errors from '../errors'
 import * as utils from '../utils'
 import { SdkActionDef, SdkEntityDef, SdkEntityEvent, SdkEntityOperation, SdkEventDef } from './typings'
 
 const ID_SHAPE: z.ZodRawShape = { id: z.string() }
 
-export const validateEntitiesSignature = (_i: sdk.IntegrationDefinition): void => {
-  throw new errors.BotpressCLIError('Not implemented')
+export const validateEntitiesSignature = async (_i: sdk.IntegrationDefinition): Promise<void> => {
+  for (const [entityName, entityDef] of Object.entries(_i.entities ?? {})) {
+    const actionsSignatures = _getEntitiesActionsSignatures(entityDef)
+    const eventSignatures = _getEntityEventSignature(entityDef)
+
+    const actions = _i.actions ?? {}
+
+    for (const [operationName, actionName] of Object.entries(entityDef.actions ?? {})) {
+      const actionDef = actions[actionName]
+      if (!actionDef) {
+        throw new errors.BotpressCLIError(`Action "${actionName}" not found for entity "${entityName}"`)
+      }
+
+      const actionSignature = actionsSignatures[operationName as SdkEntityOperation]
+      await _checkActionExtends(actionDef, actionSignature).catch((err) => {
+        throw errors.BotpressCLIError.wrap(
+          err,
+          `Action "${actionName}" does not match the required signature for operation "${operationName}" or entity "${entityName}"`
+        )
+      })
+    }
+
+    const events = _i.events ?? {}
+
+    for (const [notificationName, eventName] of Object.entries(entityDef.events ?? {})) {
+      const eventDef = events[eventName]
+      if (!eventDef) {
+        throw new errors.BotpressCLIError(`Event "${eventName}" not found for entity "${entityName}"`)
+      }
+
+      const eventSignature = eventSignatures[notificationName as SdkEntityEvent]
+      await _checkEventExtends(eventDef, eventSignature).catch((err) => {
+        throw errors.BotpressCLIError.wrap(
+          err,
+          `Event "${eventName}" does not match the required signature for notification "${notificationName}" or entity "${entityName}"`
+        )
+      })
+    }
+  }
 }
 
-const _getEntitiesActionsSignatures = (
-  entityName: string,
-  entityDef: SdkEntityDef
-): Record<SdkEntityOperation, ActionDefinition> => {
-  const camelName = utils.casing.to.camelCase(entityName)
+const _getEntitiesActionsSignatures = (entityDef: SdkEntityDef): Record<SdkEntityOperation, SdkActionDef> => {
+  const anyObject = z.any() as any as AnyZodObject // action input should be an object, but record is fine here for checking extension
 
   const createAction = {
     input: {
-      schema: entityDef.schema.partial(),
+      schema: anyObject,
     },
     output: {
       schema: z.object({
-        [camelName]: entityDef.schema.extend(ID_SHAPE),
+        data: entityDef.schema.extend(ID_SHAPE),
       }),
     },
   }
@@ -32,18 +65,18 @@ const _getEntitiesActionsSignatures = (
     input: { schema: z.object(ID_SHAPE) },
     output: {
       schema: z.object({
-        [camelName]: entityDef.schema.extend(ID_SHAPE),
+        data: entityDef.schema.extend(ID_SHAPE),
       }),
     },
   }
 
   const updateAction = {
     input: {
-      schema: entityDef.schema.partial().extend(ID_SHAPE),
+      schema: anyObject,
     },
     output: {
       schema: z.object({
-        [camelName]: entityDef.schema.extend(ID_SHAPE),
+        data: entityDef.schema.extend(ID_SHAPE),
       }),
     },
   }
@@ -56,7 +89,7 @@ const _getEntitiesActionsSignatures = (
   // TODO: use plural of camelName
   const listAction = {
     input: { schema: z.object({}) },
-    output: { schema: z.object({ [camelName]: z.array(entityDef.schema.extend(ID_SHAPE)) }) },
+    output: { schema: z.object({ data: z.array(entityDef.schema.extend(ID_SHAPE)) }) },
   }
 
   return {
@@ -68,19 +101,17 @@ const _getEntitiesActionsSignatures = (
   }
 }
 
-const _getEntityEventSignature = (entityName: string, entityDef: SdkEntityDef): Record<SdkEntityEvent, SdkEventDef> => {
-  const camelName = utils.casing.to.camelCase(entityName)
-
+const _getEntityEventSignature = (entityDef: SdkEntityDef): Record<SdkEntityEvent, SdkEventDef> => {
   const createdEvent = {
-    schema: z.object({ [camelName]: entityDef.schema.extend(ID_SHAPE) }),
+    schema: z.object({ data: entityDef.schema.extend(ID_SHAPE) }),
   }
 
   const updatedEvent = {
-    schema: z.object({ [camelName]: entityDef.schema.extend(ID_SHAPE) }),
+    schema: z.object({ data: entityDef.schema.extend(ID_SHAPE) }),
   }
 
   const deletedEvent = {
-    schema: z.object({ [camelName]: entityDef.schema.extend(ID_SHAPE) }),
+    schema: z.object({ data: entityDef.schema.extend(ID_SHAPE) }),
   }
 
   return {

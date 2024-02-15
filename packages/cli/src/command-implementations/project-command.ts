@@ -120,7 +120,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const { default: definition } = utils.require.requireJsCode<{ default: sdk.IntegrationDefinition }>(artifact.text)
 
-    validateIntegrationDefinition(definition)
+    await validateIntegrationDefinition(definition)
 
     return definition
   }

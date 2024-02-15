@@ -1298,8 +1298,8 @@ importers:
         specifier: ^0.0.20
         version: 0.0.20
       '@bpinternal/jex':
-        specifier: ^0.0.2
-        version: 0.0.2
+        specifier: ^0.0.3
+        version: 0.0.3
       '@bpinternal/tunnel':
         specifier: ^0.1.1
         version: 0.1.1
@@ -2079,7 +2079,7 @@ packages:
     resolution: {integrity: sha512-vmEmnJCfpkLdas++9OYg6riIezTYqTHpqUTODJzHLzs5UnXujbOJW9VwcVCnyo1mVRt32FRr23iXBx/sX8YbeQ==}
     dependencies:
       '@jsdevtools/ono': 7.1.3
-      '@types/json-schema': 7.0.12
+      '@types/json-schema': 7.0.15
       call-me-maybe: 1.0.2
       js-yaml: 4.1.0
     dev: false
@@ -2134,8 +2134,8 @@ packages:
       - webdriverio
     dev: false
 
-  /@bpinternal/jex@0.0.2:
-    resolution: {integrity: sha512-wTJO8Az80wG7gQs11IDNjyII6+nL77oKkgBRq47g4/1J8LRmV7yR/hC4SSHjQfNY0h7Qm0aB5ySqIPOpdK5z7A==}
+  /@bpinternal/jex@0.0.3:
+    resolution: {integrity: sha512-szHuUY4SJ/MLJRBXhEV/IuLCdttqj27hvKx5TJgkIirSwe2BFp0UV6mXeayb283quSzoljZgdZVaEaO5NGUQxQ==}
     dependencies:
       '@apidevtools/json-schema-ref-parser': 11.1.0
       lodash: 4.17.21
