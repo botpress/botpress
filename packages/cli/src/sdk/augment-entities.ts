@@ -23,12 +23,7 @@ export const augmentIntegrationDefinition = async (
     for (const [actionName, actionDef] of Object.entries(entitiesActions)) {
       const alreadyDefined = actions[actionName]
       if (alreadyDefined) {
-        const isValid = await _actionExtends(alreadyDefined, actionDef)
-        if (!isValid) {
-          throw new errors.BotpressCLIError(
-            `Action "${actionName}" is defined in integration, but does not extend the required entity schema`
-          )
-        }
+        await _checkActionExtends(alreadyDefined, actionDef)
       }
       actions[actionName] = actionDef
     }
@@ -43,12 +38,7 @@ export const augmentIntegrationDefinition = async (
     for (const [eventName, eventDef] of Object.entries(entitiesEvents)) {
       const alreadyDefined = events[eventName]
       if (alreadyDefined) {
-        const isValid = await _eventExtends(alreadyDefined, eventDef)
-        if (!isValid) {
-          throw new errors.BotpressCLIError(
-            `Event "${eventName}" is defined in integration, but does not extend the required entity schema`
-          )
-        }
+        await _checkEventExtends(alreadyDefined, eventDef)
       }
       events[eventName] = eventDef
     }
@@ -150,17 +140,27 @@ const _getEntityEvents = (entityName: string, entityDef: SdkEntityDef): Record<s
   return events
 }
 
-const _actionExtends = async (child: SdkActionDef, parent: SdkActionDef): Promise<boolean> => {
+const _checkActionExtends = async (child: SdkActionDef, parent: SdkActionDef): Promise<void> => {
   // child function is not forced to use all input fields from parent
   const inputExtends = await utils.schema.zodExtends(parent.input.schema, child.input.schema)
+  if (!inputExtends.extends) {
+    const reason = inputExtends.reasons.join('\n')
+    throw new errors.BotpressCLIError(`Action input schema does not extend the required entity schema:\n${reason}`)
+  }
 
   // child function can return more fields than parent
   const outputExtends = await utils.schema.zodExtends(child.output.schema, parent.output.schema)
-
-  return inputExtends && outputExtends
+  if (!outputExtends.extends) {
+    const reason = outputExtends.reasons.join('\n')
+    throw new errors.BotpressCLIError(`Action output schema does not extend the required entity schema:\n${reason}`)
+  }
 }
 
-const _eventExtends = async (child: SdkEventDef, parent: SdkEventDef): Promise<boolean> => {
+const _checkEventExtends = async (child: SdkEventDef, parent: SdkEventDef): Promise<void> => {
   // child event can have more fields than parent
-  return await utils.schema.zodExtends(child.schema, parent.schema)
+  const eventExtends = await utils.schema.zodExtends(child.schema, parent.schema)
+  if (!eventExtends.extends) {
+    const reason = eventExtends.reasons.join('\n')
+    throw new errors.BotpressCLIError(`Event schema does not extend the required entity schema:\n${reason}`)
+  }
 }

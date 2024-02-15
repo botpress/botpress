@@ -1298,8 +1298,8 @@ importers:
         specifier: ^0.0.20
         version: 0.0.20
       '@bpinternal/jex':
-        specifier: ^0.0.1
-        version: 0.0.1
+        specifier: ^0.0.2
+        version: 0.0.2
       '@bpinternal/tunnel':
         specifier: ^0.1.1
         version: 0.1.1
@@ -2134,8 +2134,8 @@ packages:
       - webdriverio
     dev: false
 
-  /@bpinternal/jex@0.0.1:
-    resolution: {integrity: sha512-g+NXcyGbJpAbWNZqz/9rqljy++uMSyd+UL74R8jslbyqb73WE0RDJDCSOYrq+dvRq62J2S67Y8iZZi9J09asfw==}
+  /@bpinternal/jex@0.0.2:
+    resolution: {integrity: sha512-wTJO8Az80wG7gQs11IDNjyII6+nL77oKkgBRq47g4/1J8LRmV7yR/hC4SSHjQfNY0h7Qm0aB5ySqIPOpdK5z7A==}
     dependencies:
       '@apidevtools/json-schema-ref-parser': 11.1.0
       lodash: 4.17.21

@@ -42,7 +42,7 @@ export function mapZodToJsonSchema(definition: SchemaDefinition): ReturnType<typ
   return schema
 }
 
-export function zodExtends(zChild: z.ZodObject<any>, zParent: z.ZodObject<any>): Promise<boolean> {
+export function zodExtends(zChild: z.ZodObject<any>, zParent: z.ZodObject<any>) {
   const childSchema = zodToJsonSchema(zChild) as JSONSchema7
   const parentSchema = zodToJsonSchema(zParent) as JSONSchema7
   return jex.jsonSchemaExtends(childSchema, parentSchema)
