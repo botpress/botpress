@@ -48,7 +48,8 @@ export const validateEntitiesSignature = async (_i: sdk.IntegrationDefinition): 
 }
 
 const _getEntitiesActionsSignatures = (entityDef: SdkEntityDef): Record<SdkEntityOperation, SdkActionDef> => {
-  const anyObject = z.any() as any as AnyZodObject // action input should be an object, but record is fine here for checking extension
+  // action input should be an object, but any zod schema is fine here as we only check for extension
+  const anyObject = z.any() as any as AnyZodObject
 
   const createAction = {
     input: {
@@ -86,7 +87,6 @@ const _getEntitiesActionsSignatures = (entityDef: SdkEntityDef): Record<SdkEntit
     output: { schema: z.object({}) },
   }
 
-  // TODO: use plural of camelName
   const listAction = {
     input: { schema: z.object({}) },
     output: { schema: z.object({ data: z.array(entityDef.schema.extend(ID_SHAPE)) }) },
