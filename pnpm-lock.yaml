@@ -1333,6 +1333,9 @@ importers:
       chokidar:
         specifier: ^3.5.3
         version: 3.5.3
+      dotenv:
+        specifier: ^16.4.4
+        version: 16.4.4
       esbuild:
         specifier: ^0.15.18
         version: 0.15.18
@@ -5517,6 +5520,11 @@ packages:
     dependencies:
       no-case: 3.0.4
       tslib: 2.5.3
+    dev: false
+
+  /dotenv@16.4.4:
+    resolution: {integrity: sha512-XvPXc8XAQThSjAbY6cQ/9PcBXmFoWuw1sQ3b8HqUCR6ziGXjkTi//kB9SWa2UwqlgdAIuRqAa/9hVljzPehbYg==}
+    engines: {node: '>=12'}
     dev: false
 
   /dotenv@8.6.0:
