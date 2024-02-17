@@ -1,4 +1,4 @@
-export const INTEGRATION_NAME = 'whatsapp'
+export const INTEGRATION_NAME = 'whatsappabe'
 
 export const PhoneNumberIdTag = 'phoneNumberId'
 export const UserPhoneTag = 'userPhone'
