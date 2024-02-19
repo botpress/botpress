@@ -1,12 +1,8 @@
 import z from 'zod'
 
-const fieldSchema = z
-  .object({ name: z.string(), type: z.string() })
-  .passthrough()
+const fieldSchema = z.object({ name: z.string(), type: z.string() }).passthrough()
 
-const viewSchema = z
-  .object({ id: z.string(), name: z.string(), type: z.string() })
-  .passthrough()
+const viewSchema = z.object({ id: z.string(), name: z.string(), type: z.string() }).passthrough()
 
 const tableSchema = z.object({
   description: z.string().optional(),

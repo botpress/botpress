@@ -1,6 +1,6 @@
 import Airtable from 'airtable'
 import axios, { AxiosInstance } from 'axios'
-import { TableFields } from '../misc/types'
+import { TableFields } from './misc/types'
 
 export class AirtableApi {
   private base: Airtable.Base
@@ -43,25 +43,15 @@ export class AirtableApi {
       fields,
     }
 
-    const response = await this.axiosClient.post(
-      `/meta/bases/${this.baseId}/tables`,
-      payload
-    )
+    const response = await this.axiosClient.post(`/meta/bases/${this.baseId}/tables`, payload)
     return response.data
   }
 
-  async updateTable(
-    tableIdOrName: string,
-    name?: string,
-    description?: string
-  ) {
-    const response = await this.axiosClient.patch(
-      `/meta/bases/${this.baseId}/tables/${tableIdOrName}`,
-      {
-        name,
-        description,
-      }
-    )
+  async updateTable(tableIdOrName: string, name?: string, description?: string) {
+    const response = await this.axiosClient.patch(`/meta/bases/${this.baseId}/tables/${tableIdOrName}`, {
+      name,
+      description,
+    })
     return response.data
   }
 }

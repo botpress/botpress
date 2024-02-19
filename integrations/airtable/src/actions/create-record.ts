@@ -1,32 +1,23 @@
 import { createRecordInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 import { getClient } from '../utils'
 
-export const createRecord: Implementation['actions']['createRecord'] = async ({
-  ctx,
-  logger,
-  input,
-}) => {
+export const createRecord: IntegrationProps['actions']['createRecord'] = async ({ ctx, logger, input }) => {
   const validatedInput = createRecordInputSchema.parse(input)
   const AirtableClient = getClient(ctx.configuration)
-  let record
+
   try {
-    record = await AirtableClient.createRecord(
-      validatedInput.tableIdOrName,
-      JSON.parse(validatedInput.fields)
-    )
-    record = {
+    const record = await AirtableClient.createRecord(validatedInput.tableIdOrName, JSON.parse(validatedInput.fields))
+    logger.forBot().info(`Successful - Create Record - ${record.id}`)
+    return {
       _rawJson: record.fields,
       id: record.id,
     }
-    logger.forBot().info(`Successful - Create Record - ${record.id}`)
   } catch (error) {
-    record = {
+    logger.forBot().debug(`'Create Record' exception ${JSON.stringify(error)}`)
+    return {
       _rawJson: {},
       id: '',
     }
-    logger.forBot().debug(`'Create Record' exception ${JSON.stringify(error)}`)
   }
-
-  return record
 }

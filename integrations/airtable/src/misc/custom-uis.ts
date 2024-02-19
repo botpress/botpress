@@ -47,7 +47,6 @@ export const updateRecordUi = {
     title: 'The ID of the Record to be updated',
   },
   fields: {
-    title:
-      'The fields and their values for the new record, in a JSON format (e.g. {"Name":"John Doe","Verify":true})',
+    title: 'The fields and their values for the new record, in a JSON format (e.g. {"Name":"John Doe","Verify":true})',
   },
 }
