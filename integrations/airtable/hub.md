@@ -24,14 +24,3 @@ To enable the Airtable integration in Botpress, follow these steps:
 3. Locate the Airtable integration and click on “Enable” or “Configure.”
 4. Provide the required `accessToken`, `baseId`, and `endpointUrl` (Optional).
 5. Save the configuration.
-
-### Scope and resources/access of the Personal Access Token
-
-Personal Access Token act as the user account granting access, with the following limitations:
-
-- Scope: What actions the token can perform.
-- Resources/access: Which bases and workspaces the token can access. Tokens may be granted access to individual or all bases/workspaces. These can be listed using the list bases endpoint.
-
-For example, to update a record in a base via the API, the user who granted the token must have editor access to the base. In addition, the token must have both the correct scope (**data.records:write**) and the base added as a resource.
-
-For personal access tokens, scopes and resources/access are configured individually from **/create/tokens**.
