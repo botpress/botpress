@@ -35,24 +35,3 @@ Personal Access Token act as the user account granting access, with the followin
 For example, to update a record in a base via the API, the user who granted the token must have editor access to the base. In addition, the token must have both the correct scope (**data.records:write**) and the base added as a resource.
 
 For personal access tokens, scopes and resources/access are configured individually from **/create/tokens**.
-
-## Usage
-
-Once the integration is enabled, you can start using Airtable features from your Botpress chatbot. The integration offers several actions for interacting with Airtable, such as `getBaseTables`, `getTableRecords`, `createTable`, `updateTable`, `createRecord`, and `updateRecord`. These actions allow you to get tables and records from a base, create and update tables, and create and update records.
-
-For more details and examples, refer to the Botpress and Airtable documentation.
-
-## Limitations
-
-- Free Plan Limits:
-  - Records: Limited to **1,000 records per base**.
-  - API: Limited to **1,000 API calls per month**.
-  - Commenters: Limited to **50 commenters per workspace**.
-  - Sync and extensions: Available on the **Team plan and above**. To continue using Airtable with higher limits, you can upgrade to the Team plan.
-- Rate limiting: Airtable employs a number of safeguards against bursts of incoming traffic to help maximize its stability. The API is limited to **5 requests per second per base**. If you exceed this rate, you will receive a **429 status code** and will need to wait **30 seconds** before subsequent requests will succeed. Airtable may change the enforced API rate limits or enforce additional types of limits in their sole discretion, including tiered based on pricing plan. Upon receiving a 429 status code, API integrations should back-off and wait before retrying the API request. The official JavaScript client has built-in back-off and retry logic. If you anticipate a higher read volume, it is recommended to use a caching proxy.
-
-## Contributing
-
-Contributions are welcome! Please submit issues and pull requests.
-
-Enjoy seamless helpdesk and customer support integration between Botpress and Airtable!
