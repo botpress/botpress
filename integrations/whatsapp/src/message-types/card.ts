@@ -90,9 +90,9 @@ function isNotActionUrl(action: Action): action is ActionSay | ActionPostback {
 function* generateInteractiveMessages(card: Card, nonURLActions: Action[]) {
   const [firstChunk, ...followingChunks] = chunkArray(nonURLActions, INTERACTIVE_MAX_BUTTONS_COUNT)
   if (firstChunk) {
-    const buttons = createButtons(firstChunk) as AtLeastOne<Button>
+    const buttons: Button[] = createButtons(firstChunk)
     yield new Interactive(
-      new ActionButtons(...buttons),
+      new ActionButtons(...(buttons as AtLeastOne<Button>)),
       body.create(card.title),
       card.imageUrl ? new Header(new Image(card.imageUrl, false)) : undefined,
       card.subtitle ? footer.create(card.subtitle) : undefined
@@ -101,8 +101,8 @@ function* generateInteractiveMessages(card: Card, nonURLActions: Action[]) {
 
   if (followingChunks) {
     for (const chunk of followingChunks) {
-      const buttons = createButtons(chunk) as AtLeastOne<Button>
-      yield new Interactive(new ActionButtons(...buttons), body.create(card.title))
+      const buttons: Button[] = createButtons(chunk)
+      yield new Interactive(new ActionButtons(...(buttons as AtLeastOne<Button>)), body.create(card.title))
     }
   }
 }

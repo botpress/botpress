@@ -33,8 +33,8 @@ export function* generateOutgoingMessages({
     }
 
     for (const chunk of chunks) {
-      const buttons = chunk.map(createButton) as AtLeastOne<Button>
-      yield new Interactive(new ActionButtons(...buttons), body.create(text))
+      const buttons: Button[] = chunk.map(createButton)
+      yield new Interactive(new ActionButtons(...(buttons as AtLeastOne<Button>)), body.create(text))
     }
   }
 }

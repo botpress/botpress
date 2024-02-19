@@ -31,12 +31,12 @@ export function* generateOutgoingMessages({
     }
 
     for (const chunk of chunks) {
-      const rows = chunk.map(
+      const rows: Row[] = chunk.map(
         (o) => new Row(o.value.substring(0, 200), truncate(o.label, ACTION_LABEL_MAX_LENGTH), ' ')
-      ) as AtLeastOne<Row>
+      )
       const section = new ListSection(
         truncate(text, ACTION_LABEL_MAX_LENGTH),
-        ...rows // NOTE: The description parameter is optional as per Whatsapp's documentation, but they have a bug that actually enforces the description to be a non-empty string.
+        ...(rows as AtLeastOne<Row>) // NOTE: The description parameter is optional as per Whatsapp's documentation, but they have a bug that actually enforces the description to be a non-empty string.
       )
       const actionList = new ActionList('Choose...', section)
 

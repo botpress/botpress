@@ -94,12 +94,12 @@ export async function startConversation(
 
   const language = new Language(templateLanguage)
 
-  const bodyParams = templateVariables.map((variable) => ({
+  const bodyParams: BodyParameter[] = templateVariables.map((variable) => ({
     type: 'text',
     text: variable.toString(),
-  })) as AtLeastOne<BodyParameter>
+  }))
 
-  const body = new BodyComponent(...bodyParams)
+  const body = new BodyComponent(...(bodyParams as AtLeastOne<BodyParameter>))
 
   const template = new Template(templateName, language, body)
 
