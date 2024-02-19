@@ -1,7 +1,6 @@
 import type { Meta, StoryObj } from '@storybook/react'
 import { ZuiForm } from '..'
-import { defaultExtensionComponents } from '../defaultextension'
-import { defaultExtensions } from '../defaultextension'
+import { defaultExtensions, resolverOverrides } from '../defaultextension'
 import { vanillaCells, vanillaRenderers } from '@jsonforms/vanilla-renderers'
 import { exampleSchema } from './exampleschema'
 
@@ -20,7 +19,7 @@ type Story = StoryObj<typeof meta>
 export const ExampleSchema: Story = {
   args: {
     schema: exampleSchema.toJsonSchema(),
-    components: defaultExtensionComponents,
+    overrides: resolverOverrides,
     renderers: vanillaRenderers,
     cells: vanillaCells,
   },

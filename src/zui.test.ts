@@ -66,6 +66,7 @@ test('Type inference', () => {
     age: 10,
     name: 'hello',
   }
+  console.info(typingsInfer)
 })
 
 test('Unions', () => {
@@ -129,7 +130,7 @@ test('ZuiTypeAny', () => {
 
   const schema = zui.string().title('Name')
   const result = func(schema)
-  result.tooltip(true)
+  result.tooltip('hello')
 })
 
 test('Record 1', () => {

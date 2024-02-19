@@ -2,7 +2,7 @@ export type {
   BaseType,
   GlobalComponentDefinitions,
   UIComponentDefinitions,
-  ComponentImplementationMap,
+  SchemaResolversMap,
   AsBaseType,
 } from './ui/types'
 export { type ZuiFormProps, ZuiForm, schemaToUISchema } from './ui'

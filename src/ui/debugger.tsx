@@ -1,3 +1,4 @@
+import React from 'react'
 import { useState, useMemo, CSSProperties, FC, HTMLAttributes } from 'react'
 import { ZuiFormProps, schemaToUISchema } from '.'
 import { GlobalComponentDefinitions, UIComponentDefinitions } from './types'
@@ -76,15 +77,15 @@ const fullscreenStyle: CSSProperties = {
 
 export const ZuiFormDEBUG = <UI extends UIComponentDefinitions = GlobalComponentDefinitions>({
   schema,
-  components,
+  overrides,
   fullscreen,
   ...jsonformprops
 }: ZuiFormProps<UI> & { fullscreen: boolean }) => {
   const [data, setData] = useState({})
   const [errors, setErrors] = useState<string | Record<string, any> | null>(null)
   const uiSchema = useMemo(() => {
-    return schemaToUISchema<UI>(schema, components)
-  }, [schema, components])
+    return schemaToUISchema<UI>(schema, overrides)
+  }, [schema, overrides])
 
   if (!uiSchema) {
     return null

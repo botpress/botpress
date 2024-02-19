@@ -45,11 +45,11 @@ const processConfiguration = (config: Record<string, ZuiTypeAny>, currentRoot: s
     const scope = `${currentRoot}${key}`
     const nextScope = `${scope}/properties/`
     const zuiSchema = config[key]
-    const currentShape = zuiSchema._def?.shape?.()
+    const currentShape = zuiSchema?._def?.shape?.()
     const elements = currentSchema.elements ?? []
 
-    if (zuiSchema.ui) {
-      elements.push({ scope, label: zuiSchema.ui.title })
+    if (zuiSchema?.ui) {
+      elements.push({ scope, label: zuiSchema?.ui.title })
     } else if (!currentShape) {
       elements.push({ scope, label: key })
     }
