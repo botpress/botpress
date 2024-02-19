@@ -1,12 +1,10 @@
-import { Types } from 'whatsapp-api-js'
+import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
+import { Text, Interactive, ActionButtons, Button } from 'whatsapp-api-js/messages'
 import { IntegrationLogger } from '..'
 import * as body from '../interactive/body'
 import * as button from '../interactive/button'
 import { chunkArray, truncate } from '../util'
 import type { channels } from '.botpress'
-
-const { Text } = Types
-const { Interactive, ActionButtons } = Types.Interactive
 
 type Choice = channels.channel.choice.Choice
 type Option = Choice['options'][number]
@@ -35,7 +33,8 @@ export function* generateOutgoingMessages({
     }
 
     for (const chunk of chunks) {
-      yield new Interactive(new ActionButtons(...chunk.map(createButton)), body.create(text))
+      const buttons: Button[] = chunk.map(createButton)
+      yield new Interactive(new ActionButtons(...(buttons as AtLeastOne<Button>)), body.create(text))
     }
   }
 }

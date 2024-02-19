@@ -1,5 +1,5 @@
-import { Types } from 'whatsapp-api-js'
-import type { Button } from 'whatsapp-api-js/types/messages/interactive'
+import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
+import { Text, Interactive, ActionButtons, Header, Image, Button } from 'whatsapp-api-js/messages'
 import * as body from '../interactive/body'
 import * as button from '../interactive/button'
 import * as footer from '../interactive/footer'
@@ -14,10 +14,6 @@ type ActionSay = SDKAction & { action: 'say' }
 type ActionPostback = SDKAction & { action: 'postback' }
 
 type Action = ActionSay | ActionURL | ActionPostback
-type NonUrlAction = ActionPostback | ActionSay
-
-const { Text, Media } = Types
-const { ActionButtons, Interactive, Header } = Types.Interactive
 
 const POSTBACK_PREFIX = 'p:'
 const SAY_PREFIX = 's:'
@@ -73,7 +69,7 @@ export function* generateOutgoingMessages(card: Card) {
 
 function* generateHeader(card: Card) {
   if (card.imageUrl) {
-    yield new Media.Image(card.imageUrl, false, card.title)
+    yield new Image(card.imageUrl, false, card.title)
   } else {
     yield new Text(card.title)
   }
@@ -91,25 +87,27 @@ function isNotActionUrl(action: Action): action is ActionSay | ActionPostback {
   return !isActionURL(action)
 }
 
-function* generateInteractiveMessages(card: Card, nonURLActions: NonUrlAction[]) {
+function* generateInteractiveMessages(card: Card, nonURLActions: Action[]) {
   const [firstChunk, ...followingChunks] = chunkArray(nonURLActions, INTERACTIVE_MAX_BUTTONS_COUNT)
   if (firstChunk) {
+    const buttons: Button[] = createButtons(firstChunk)
     yield new Interactive(
-      new ActionButtons(...createButtons(firstChunk)),
+      new ActionButtons(...(buttons as AtLeastOne<Button>)),
       body.create(card.title),
-      card.imageUrl ? new Header(new Media.Image(card.imageUrl, false)) : undefined,
+      card.imageUrl ? new Header(new Image(card.imageUrl, false)) : undefined,
       card.subtitle ? footer.create(card.subtitle) : undefined
     )
   }
 
   if (followingChunks) {
     for (const chunk of followingChunks) {
-      yield new Interactive(new ActionButtons(...createButtons(chunk)), body.create(card.title), undefined, undefined)
+      const buttons: Button[] = createButtons(chunk)
+      yield new Interactive(new ActionButtons(...(buttons as AtLeastOne<Button>)), body.create(card.title))
     }
   }
 }
 
-function createButtons(nonURLActions: NonUrlAction[]) {
+function createButtons(nonURLActions: Action[]) {
   const buttons: Button[] = []
   for (const action of nonURLActions) {
     switch (action.action) {
@@ -119,6 +117,9 @@ function createButtons(nonURLActions: NonUrlAction[]) {
       case 'say':
         buttons.push(button.create({ id: `${SAY_PREFIX}${action.value}`, title: action.label }))
         break
+      case 'url':
+        // TODO implement support for URL actions
+        throw new Error('URL actions not implemented yet')
       default:
         throw new UnreachableCaseError(action)
     }

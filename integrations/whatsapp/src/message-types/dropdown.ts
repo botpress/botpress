@@ -1,11 +1,9 @@
-import { Types } from 'whatsapp-api-js'
+import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
+import { Text, Interactive, ActionList, ListSection, Row } from 'whatsapp-api-js/messages'
 import { IntegrationLogger } from '..'
 import * as body from '../interactive/body'
 import { chunkArray, truncate } from '../util'
 import type { channels } from '.botpress'
-
-const { Text } = Types
-const { Interactive, ActionList, ListSection, Row } = Types.Interactive
 
 type Dropdown = channels.channel.dropdown.Dropdown
 
@@ -33,9 +31,12 @@ export function* generateOutgoingMessages({
     }
 
     for (const chunk of chunks) {
+      const rows: Row[] = chunk.map(
+        (o) => new Row(o.value.substring(0, 200), truncate(o.label, ACTION_LABEL_MAX_LENGTH), ' ')
+      )
       const section = new ListSection(
         truncate(text, ACTION_LABEL_MAX_LENGTH),
-        ...chunk.map((o) => new Row(o.value.substring(0, 200), truncate(o.label, ACTION_LABEL_MAX_LENGTH), ' ')) // NOTE: The description parameter is optional as per Whatsapp's documentation, but they have a bug that actually enforces the description to be a non-empty string.
+        ...(rows as AtLeastOne<Row>) // NOTE: The description parameter is optional as per Whatsapp's documentation, but they have a bug that actually enforces the description to be a non-empty string.
       )
       const actionList = new ActionList('Choose...', section)
 

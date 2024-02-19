@@ -1166,8 +1166,8 @@ importers:
         specifier: ^6.14.1
         version: 6.14.1
       whatsapp-api-js:
-        specifier: ^0.8.2
-        version: 0.8.2
+        specifier: ^1.0.5
+        version: 1.0.5
       zod:
         specifier: ^3.20.6
         version: 3.20.6
@@ -4873,6 +4873,7 @@ packages:
     engines: {node: '>=10.16.0'}
     dependencies:
       streamsearch: 1.1.0
+    dev: true
 
   /bytes@3.1.2:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
@@ -9910,6 +9911,7 @@ packages:
   /streamsearch@1.1.0:
     resolution: {integrity: sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==}
     engines: {node: '>=10.0.0'}
+    dev: true
 
   /strict-uri-encode@2.0.0:
     resolution: {integrity: sha512-QwiXZgpRcKkhTj2Scnn++4PKtWsH0kpzZ62L2R6c/LUVYv7hVnZqcg2+sMuT6R7Jusu1vviK/MFsu6kNJfWlEQ==}
@@ -10604,6 +10606,7 @@ packages:
     engines: {node: '>=14.0'}
     dependencies:
       busboy: 1.6.0
+    dev: true
 
   /unfetch@4.2.0:
     resolution: {integrity: sha512-F9p7yYCn6cIW9El1zi0HI6vqpeIvBsr3dSuRO6Xuppb1u5rXpCPmMvLSyECLhybr9isec8Ohl0hPekMVrEinDA==}
@@ -10990,11 +10993,9 @@ packages:
   /webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
 
-  /whatsapp-api-js@0.8.2:
-    resolution: {integrity: sha512-n/Wt7VO7D+8InLchNmQ6LmqFC6kLnyRgu6Slo8v0kVt3JgvnZsPrp178OpsxVn50jFECxasKqEaZXBF/SIN36g==}
-    engines: {node: '>=16.0.0'}
-    dependencies:
-      undici: 5.22.1
+  /whatsapp-api-js@1.0.5:
+    resolution: {integrity: sha512-cuxRRf1pi/ztICjpqw52yHycpoaLF2M74+2A8YMq1lDyuNsy0+4tIXNxoxDMJZxCBkSV8sDMsPK4F7oHjPFYzw==}
+    engines: {node: '>14.21'}
     dev: false
 
   /whatwg-url@5.0.0:
