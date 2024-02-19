@@ -1,3 +1,4 @@
+import { ClientTypedMessageComponent } from 'whatsapp-api-js/lib/types/types'
 import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
 import { Text, Interactive, ActionButtons, Header, Image, Button } from 'whatsapp-api-js/messages'
 import * as body from '../interactive/body'
@@ -31,39 +32,38 @@ export function* generateOutgoingMessages(card: Card) {
     return
   }
 
-  // We have to split the actions into two groups: URL actions and other actions
+  // We have to split the actions into two groups (URL actions and other actions) because buttons are sent differently than URLs
   const urlActions = actions.filter(isActionURL)
   const nonUrlActions = actions.filter(isNotActionUrl)
 
   if (urlActions.length === 0) {
-    // All actions are either postback or say, we can display an interactive message
-    for (const m of generateInteractiveMessages(card, nonUrlActions)) {
+    // All actions are either postback or say
+    for (const m of generateButtonInteractiveMessages(card, nonUrlActions)) {
       yield m
     }
     return
   }
 
   if (nonUrlActions.length === 0) {
-    // All actions are URL, we can't display an interactive message
-    for (const m of generateHeader(card)) {
+    // All actions are URL
+    if (card.imageUrl) {
+      yield new Image(card.imageUrl)
+    }
+
+    for (const m of generateCTAUrlInteractiveMessages(card, urlActions)) {
       yield m
     }
 
-    for (const action of urlActions) {
-      yield new Text(`${action.label}: ${action.value}`)
-    }
     return
   }
 
   // We have have a mix of URL, postback and say actions
-  // We can display an interactive message with the postback and say actions
-  // and display the URL actions as text
-  for (const m of generateInteractiveMessages(card, nonUrlActions)) {
+  for (const m of generateButtonInteractiveMessages(card, nonUrlActions)) {
     yield m
   }
 
-  for (const action of urlActions) {
-    yield new Text(`${action.label}: ${action.value}`)
+  for (const m of generateCTAUrlInteractiveMessages(card, urlActions)) {
+    yield m
   }
 }
 
@@ -87,8 +87,8 @@ function isNotActionUrl(action: Action): action is ActionSay | ActionPostback {
   return !isActionURL(action)
 }
 
-function* generateInteractiveMessages(card: Card, nonURLActions: Action[]) {
-  const [firstChunk, ...followingChunks] = chunkArray(nonURLActions, INTERACTIVE_MAX_BUTTONS_COUNT)
+function* generateButtonInteractiveMessages(card: Card, actions: Array<ActionSay | ActionPostback>) {
+  const [firstChunk, ...followingChunks] = chunkArray(actions, INTERACTIVE_MAX_BUTTONS_COUNT)
   if (firstChunk) {
     const buttons: Button[] = createButtons(firstChunk)
     yield new Interactive(
@@ -107,7 +107,7 @@ function* generateInteractiveMessages(card: Card, nonURLActions: Action[]) {
   }
 }
 
-function createButtons(nonURLActions: Action[]) {
+function createButtons(nonURLActions: Array<ActionSay | ActionPostback>) {
   const buttons: Button[] = []
   for (const action of nonURLActions) {
     switch (action.action) {
@@ -117,12 +117,46 @@ function createButtons(nonURLActions: Action[]) {
       case 'say':
         buttons.push(button.create({ id: `${SAY_PREFIX}${action.value}`, title: action.label }))
         break
-      case 'url':
-        // TODO implement support for URL actions
-        throw new Error('URL actions not implemented yet')
       default:
         throw new UnreachableCaseError(action)
     }
   }
   return buttons
+}
+
+function* generateCTAUrlInteractiveMessages(card: Card, actions: ActionURL[]) {
+  let actionNumber = 1
+
+  for (const action of actions) {
+    if (actionNumber === 1) {
+      // First CTA URL button will be in a WhatsApp card
+      yield new Interactive(
+        new InteractiveCtaUrl(action.value, action.label),
+        body.create(card.subtitle ?? action.value),
+        card.title ? new Header(card.title) : undefined
+      )
+    } else {
+      // Subsequent CTA URL buttons will be standalone
+      yield new Interactive(
+        new InteractiveCtaUrl(action.value, action.label),
+        body.create('\u200B') // Zero width space character used to force the interactive message to be sent (WhatsApp documentation says body is optional but it's not actually true)
+      )
+    }
+
+    actionNumber++
+  }
+}
+
+class InteractiveCtaUrl implements ClientTypedMessageComponent {
+  public readonly name: string
+  public readonly parameters: { url: string; display_text: string }
+
+  constructor(url: string, displayText: string) {
+    this.name = 'cta_url'
+    this.parameters = { url, display_text: displayText }
+  }
+
+  get _type() {
+    return this.name
+  }
 }
