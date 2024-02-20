@@ -47,7 +47,7 @@ export default new IntegrationDefinition({
   name,
   version: '0.2.0',
   title: 'Stripe',
-  readme: 'readme.md',
+  readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
