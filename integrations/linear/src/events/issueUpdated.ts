@@ -22,7 +22,7 @@ export const fireIssueUpdated = async ({ linearEvent, client, ctx }: IssueProps)
     createdAt: linearEvent.data.createdAt,
     teamKey: linearEvent.data.team?.key,
     teamName: linearEvent.data.team?.name,
-    labels: linearEvent.data.labels?.map((x: any) => x.name) ?? [],
+    labels: linearEvent.data.labels?.map((x) => x.name) ?? [],
     linearIds: {
       creatorId: linearEvent.data.creatorId,
       labelIds: linearEvent.data.labelIds ?? [],

@@ -102,19 +102,6 @@ export const getIssueTags = async (issue: Issue) => {
   }
 }
 
-export const updateConversationTags = async (props: {
-  linearIssueId: string
-  conversationId: string
-  integrationId: string
-  client: Client
-}) => {
-  const linearClient = await getLinearClient(props.client, props.integrationId)
-  const existingIssue = await linearClient.issue(props.linearIssueId)
-  const newTags = await getIssueTags(existingIssue)
-
-  await props.client.updateConversation(props.conversationId, { tags: newTags })
-}
-
 export const getUserAndConversation = async (
   props: { linearUserId: string; linearIssueId: string; client: Client; integrationId: string },
 
@@ -136,7 +123,8 @@ export const getUserAndConversation = async (
     const newTags = await getIssueTags(existingIssue)
 
     logger?.forBot().info('set tags', newTags)
-    await props.client.updateConversation(conversation.id, { tags: newTags })
+
+    // await props.client.updateConversation(conversation.id, { tags: newTags })
   }
 
   const { user } = await props.client.getOrCreateUser({ tags: { id: props.linearUserId }, name: 'test' })
