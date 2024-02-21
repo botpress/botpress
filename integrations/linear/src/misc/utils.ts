@@ -117,7 +117,8 @@ export const updateConversationTags = async (props: {
 
 export const getUserAndConversation = async (
   props: { linearUserId: string; linearIssueId: string },
-  client: Client
+  client: Client,
+  logger?: any
 ) => {
   const { conversation } = await client.getOrCreateConversation({
     channel: 'issue',
@@ -126,10 +127,11 @@ export const getUserAndConversation = async (
     },
   })
 
+  logger?.forBot().info(conversation)
   console.info(conversation)
 
-  const { user } = await client.getOrCreateUser({ tags: { id: props.linearUserId } })
-
+  const { user } = await client.getOrCreateUser({ tags: { id: props.linearUserId }, name: 'test' })
+  logger?.forBot().info(user)
   // sync the user from linear to botpress profile
 
   // TODO: when we create users and conversations based on linear entities, add the tags and properties to them

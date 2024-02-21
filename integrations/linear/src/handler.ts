@@ -61,7 +61,8 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
         linearIssueId: issueConversationId,
         linearUserId,
       },
-      client
+      client,
+      logger
     )
 
     if (created) {
