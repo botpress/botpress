@@ -1,5 +1,6 @@
 import { IntegrationDefinitionProps, messages } from '@botpress/sdk'
 import { z } from 'zod'
+import { issueSchema } from './schemas'
 
 export { actions } from './actions'
 export { events } from './events'
@@ -38,3 +39,11 @@ export const user = {
     id: {},
   },
 } satisfies IntegrationDefinitionProps['user']
+
+export const entities = {
+  issue: {
+    title: 'Issue',
+    description: 'A linear issue',
+    schema: issueSchema,
+  },
+} satisfies IntegrationDefinitionProps['entities']
