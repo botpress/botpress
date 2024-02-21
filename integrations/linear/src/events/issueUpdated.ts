@@ -9,9 +9,10 @@ type IssueProps = {
   linearEvent: LinearIssueEvent
   client: Client
   ctx: IntegrationContext<bp.configuration.Configuration>
+  logger: any
 }
 
-export const fireIssueUpdated = async ({ linearEvent, client, ctx }: IssueProps) => {
+export const fireIssueUpdated = async ({ linearEvent, client, logger, ctx }: IssueProps) => {
   const payload = {
     title: linearEvent.data.title,
     priority: linearEvent.data.priority,
@@ -43,6 +44,7 @@ export const fireIssueUpdated = async ({ linearEvent, client, ctx }: IssueProps)
     integrationId: ctx.integrationId,
     forceUpdate: true,
     client,
+    logger,
   })
 
   await client.createEvent({
