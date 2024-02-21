@@ -56,15 +56,12 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
     const issueConversationId = linearEvent.data.issueId || linearEvent.data.issue.id
     const content = linearEvent.data.body
 
-    const { userId, conversationId } = await getUserAndConversation(
-      {
-        linearIssueId: issueConversationId,
-        linearUserId,
-        client,
-        integrationId: ctx.integrationId,
-      },
-      logger
-    )
+    const { userId, conversationId } = await getUserAndConversation({
+      linearIssueId: issueConversationId,
+      linearUserId,
+      integrationId: ctx.integrationId,
+      client,
+    })
 
     const linearUser = await getUser({
       client,

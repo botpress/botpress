@@ -40,8 +40,8 @@ export const fireIssueUpdated = async ({ linearEvent, client, ctx }: IssueProps)
   const { conversationId, userId } = await getUserAndConversation({
     linearIssueId: linearEvent.data.id,
     linearUserId: linearEvent.data.creatorId,
-    client,
     integrationId: ctx.integrationId,
+    client,
   })
 
   await client.createEvent({

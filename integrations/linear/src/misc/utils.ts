@@ -1,7 +1,7 @@
 import type { Conversation } from '@botpress/client'
 import type { AckFunction } from '@botpress/sdk'
 import { Comment, Issue, IssueLabel, LinearClient, Team } from '@linear/sdk'
-import { idTag } from '../const'
+import { idTag, urlTag } from '../const'
 import { LinearOauthClient } from './linear'
 import { Client } from '.botpress'
 
@@ -102,10 +102,12 @@ export const getIssueTags = async (issue: Issue) => {
   }
 }
 
-export const getUserAndConversation = async (
-  props: { linearUserId: string; linearIssueId: string; client: Client; integrationId: string },
-  logger?: any
-) => {
+export const getUserAndConversation = async (props: {
+  linearUserId: string
+  linearIssueId: string
+  client: Client
+  integrationId: string
+}) => {
   const { conversation } = await props.client.getOrCreateConversation({
     channel: 'issue',
     tags: {
@@ -113,29 +115,22 @@ export const getUserAndConversation = async (
     },
   })
 
-  logger?.forBot().info('conversation', conversation)
-
   const linearClient = await getLinearClient(props.client, props.integrationId)
 
-  if (!conversation.tags['linear:url']) {
+  // TODO: better way to know if the conversation was just created
+  if (!conversation.tags[urlTag]) {
     const existingIssue = await linearClient.issue(props.linearIssueId)
     const newTags = await getIssueTags(existingIssue)
 
     await props.client.updateConversation({ id: conversation.id, tags: newTags })
   }
 
-  const { user } = await props.client.getOrCreateUser({ tags: { id: props.linearUserId }, name: 'test' })
-  logger?.forBot().info(user)
-
-  // sync the user from linear to botpress profile
+  const { user } = await props.client.getOrCreateUser({ tags: { id: props.linearUserId } })
 
   if (!user.name) {
     const linearUser = await linearClient.user(props.linearUserId)
-    logger?.forBot().info('linear user', linearUser)
     await props.client.updateUser({ id: user.id, name: linearUser.name, avatarUrl: linearUser.avatarUrl })
   }
-
-  // TODO: when we create users and conversations based on linear entities, add the tags and properties to them
 
   return {
     userId: user.id,
