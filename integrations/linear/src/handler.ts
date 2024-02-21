@@ -3,8 +3,8 @@ import { LinearWebhooks, LINEAR_WEBHOOK_SIGNATURE_HEADER, LINEAR_WEBHOOK_TS_FIEL
 import { getUser } from './actions/get-user'
 import { fireIssueCreated } from './events/issueCreated'
 import { fireIssueUpdated } from './events/issueUpdated'
-import { handleOauth } from './misc/linear'
-import { getUserAndConversation } from './misc/utils'
+import { LinearEvent, handleOauth } from './misc/linear'
+import { getUserAndConversation, updateConversationTags } from './misc/utils'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
@@ -19,7 +19,8 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
     return
   }
 
-  const linearEvent = JSON.parse(req.body)
+  const linearEvent: LinearEvent = JSON.parse(req.body)
+  linearEvent.type = linearEvent.type.toLowerCase() as LinearEvent['type']
 
   const webhookSignatureHeader = req.headers[LINEAR_WEBHOOK_SIGNATURE_HEADER]
   if (!webhookSignatureHeader) {
@@ -31,15 +32,13 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   // are we sure it throws? it returns a boolean , add char to test this
   webhook.verify(Buffer.from(req.body), webhookSignatureHeader, linearEvent[LINEAR_WEBHOOK_TS_FIELD])
 
-  const eventType = linearEvent.type.toLowerCase()
-
   // ============ EVENTS ==============
-  if (eventType === 'issue' && linearEvent.action === 'create') {
+  if (linearEvent.type === 'issue' && linearEvent.action === 'create') {
     await fireIssueCreated({ linearEvent, client })
     return
   }
 
-  if (eventType === 'issue' && linearEvent.action === 'update') {
+  if (linearEvent.type === 'issue' && linearEvent.action === 'update') {
     await fireIssueUpdated({ linearEvent, client })
     return
   }
@@ -52,12 +51,12 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
     return
   }
 
-  if (eventType === 'comment' && linearEvent.action === 'create') {
+  if (linearEvent.type === 'comment' && linearEvent.action === 'create') {
     const linearCommentId = linearEvent.data.id
     const issueConversationId = linearEvent.data.issueId || linearEvent.data.issue.id
     const content = linearEvent.data.body
 
-    const { userId, conversationId } = await getUserAndConversation(
+    const { userId, conversationId, created } = await getUserAndConversation(
       {
         linearIssueId: issueConversationId,
         linearUserId,
@@ -65,7 +64,14 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
       client
     )
 
-    console.info('before linear user', ctx)
+    if (created) {
+      await updateConversationTags({
+        linearIssueId: issueConversationId,
+        conversationId,
+        integrationId: ctx.integrationId,
+        client,
+      })
+    }
 
     const linearUser = await getUser({
       client,

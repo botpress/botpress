@@ -1,9 +1,10 @@
+import { LinearIssueEvent } from 'src/misc/linear'
 import { IssueUpdated } from '../definitions/events'
 
 import { getUserAndConversation } from '../misc/utils'
 import { Client } from '.botpress'
 
-export const fireIssueUpdated = async ({ linearEvent, client }: { linearEvent: any; client: Client }) => {
+export const fireIssueUpdated = async ({ linearEvent, client }: { linearEvent: LinearIssueEvent; client: Client }) => {
   const payload = {
     title: linearEvent.data.title,
     priority: linearEvent.data.priority,

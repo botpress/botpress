@@ -60,8 +60,8 @@ export async function createComment({ ctx, client, conversation, ack, content }:
   const res = await linearClient.createComment({
     issueId,
     body: content,
-    // displayIconUrl: '' // TODO: get the bot icon from config
-    // createAsUser: '' // TODO: get the bot name from config
+    createAsUser: ctx.configuration.botName,
+    displayIconUrl: ctx.configuration.botAvatarUrl,
   })
   const comment = await res.comment
   if (!comment) {
@@ -89,14 +89,44 @@ export async function ackMessage(commentId: string, ack: AckFunction) {
   await ack({ tags: { id: commentId } })
 }
 
+export const getIssueTags = async (issue: Issue) => {
+  const parent = await issue.parent
+
+  return {
+    id: issue.id,
+    url: issue.url,
+    title: issue.title,
+    parentId: parent?.id,
+    parentTitle: parent?.title,
+    parentUrl: parent?.url,
+  }
+}
+
+export const updateConversationTags = async (props: {
+  linearIssueId: string
+  conversationId: string
+  integrationId: string
+  client: Client
+}) => {
+  const linearClient = await getLinearClient(props.client, props.integrationId)
+  const existingIssue = await linearClient.issue(props.linearIssueId)
+  const newTags = await getIssueTags(existingIssue)
+
+  await props.client.updateConversation(props.conversationId, { tags: newTags })
+}
+
 export const getUserAndConversation = async (
   props: { linearUserId: string; linearIssueId: string },
   client: Client
 ) => {
   const { conversation } = await client.getOrCreateConversation({
     channel: 'issue',
-    tags: { id: props.linearIssueId },
+    tags: {
+      id: props.linearIssueId,
+    },
   })
+
+  console.info(conversation)
 
   const { user } = await client.getOrCreateUser({ tags: { id: props.linearUserId } })
 
@@ -107,6 +137,8 @@ export const getUserAndConversation = async (
   return {
     userId: user.id,
     conversationId: conversation.id,
+    // Temporary
+    created: !!conversation.tags?.['linear:url'],
   }
 }
 
