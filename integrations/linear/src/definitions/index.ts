@@ -11,8 +11,8 @@ export const configuration = {
     linkTemplateScript: 'linkTemplate.vrl',
   },
   schema: z.object({
-    botName: z.string().optional().describe('Name used when the bot sends messages'),
-    botAvatarUrl: z.string().optional().describe('URL of the bot avatar'),
+    displayName: z.string().optional().describe('Name used when sending messages'),
+    avatarUrl: z.string().optional().describe('URL of the bot avatar'),
   }),
 } satisfies IntegrationDefinitionProps['configuration']
 

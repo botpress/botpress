@@ -25,8 +25,8 @@ export const createIssue: IntegrationProps['actions']['createIssue'] = async ({
     teamId: team.id,
     labelIds,
     projectId,
-    createAsUser: ctx.configuration.botName,
-    displayIconUrl: ctx.configuration.botAvatarUrl,
+    createAsUser: ctx.configuration.displayName,
+    displayIconUrl: ctx.configuration.avatarUrl,
   })
 
   const fullIssue = await issueFetch

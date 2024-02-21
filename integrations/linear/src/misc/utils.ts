@@ -60,8 +60,8 @@ export async function createComment({ ctx, client, conversation, ack, content }:
   const res = await linearClient.createComment({
     issueId,
     body: content,
-    createAsUser: ctx.configuration.botName,
-    displayIconUrl: ctx.configuration.botAvatarUrl,
+    createAsUser: ctx.configuration.displayName,
+    displayIconUrl: ctx.configuration.avatarUrl,
   })
   const comment = await res.comment
   if (!comment) {
