@@ -96,9 +96,9 @@ export const getIssueTags = async (issue: Issue) => {
     id: issue.id,
     url: issue.url,
     title: issue.title,
-    parentId: parent?.id || null,
+    parentId: parent?.id || '',
     parentTitle: parent?.title || '',
-    parentUrl: parent?.url,
+    parentUrl: parent?.url || '',
   }
 }
 
@@ -108,7 +108,6 @@ export const getUserAndConversation = async (props: {
   client: Client
   integrationId: string
   forceUpdate?: boolean
-  logger?: any
 }) => {
   const { conversation } = await props.client.getOrCreateConversation({
     channel: 'issue',
@@ -124,7 +123,6 @@ export const getUserAndConversation = async (props: {
     const existingIssue = await linearClient.issue(props.linearIssueId)
     const newTags = await getIssueTags(existingIssue)
 
-    props.logger?.forBot().info('new tags', newTags)
     await props.client.updateConversation({ id: conversation.id, tags: newTags })
   }
 
