@@ -20,3 +20,4 @@ pnpm-lock.yaml
 gen
 dist
 .botpress
+.botpresshome
