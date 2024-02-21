@@ -71,7 +71,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
       logger,
     })
 
-    console.info('linearUser', linearUser)
+    console.info('linear User', linearUser)
 
     await client.setState({
       id: userId,

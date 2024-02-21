@@ -118,7 +118,7 @@ export const getUserAndConversation = async (
 
   const linearClient = await getLinearClient(props.client, props.integrationId)
 
-  if (!conversation.tags?.['linear:url']) {
+  if (!conversation.tags['linear:url']) {
     const existingIssue = await linearClient.issue(props.linearIssueId)
     const newTags = await getIssueTags(existingIssue)
 
