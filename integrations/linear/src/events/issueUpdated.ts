@@ -41,6 +41,7 @@ export const fireIssueUpdated = async ({ linearEvent, client, ctx }: IssueProps)
     linearIssueId: linearEvent.data.id,
     linearUserId: linearEvent.data.creatorId,
     integrationId: ctx.integrationId,
+    forceUpdate: true,
     client,
   })
 

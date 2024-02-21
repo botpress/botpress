@@ -107,6 +107,7 @@ export const getUserAndConversation = async (props: {
   linearIssueId: string
   client: Client
   integrationId: string
+  forceUpdate?: boolean
 }) => {
   const { conversation } = await props.client.getOrCreateConversation({
     channel: 'issue',
@@ -118,7 +119,7 @@ export const getUserAndConversation = async (props: {
   const linearClient = await getLinearClient(props.client, props.integrationId)
 
   // TODO: better way to know if the conversation was just created
-  if (!conversation.tags[urlTag]) {
+  if (props.forceUpdate || !conversation.tags[urlTag]) {
     const existingIssue = await linearClient.issue(props.linearIssueId)
     const newTags = await getIssueTags(existingIssue)
 
