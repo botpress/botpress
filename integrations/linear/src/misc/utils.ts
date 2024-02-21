@@ -116,31 +116,45 @@ export const updateConversationTags = async (props: {
 }
 
 export const getUserAndConversation = async (
-  props: { linearUserId: string; linearIssueId: string },
-  client: Client,
+  props: { linearUserId: string; linearIssueId: string; client: Client; integrationId: string },
+
   logger?: any
 ) => {
-  const { conversation } = await client.getOrCreateConversation({
+  const { conversation } = await props.client.getOrCreateConversation({
     channel: 'issue',
     tags: {
       id: props.linearIssueId,
     },
   })
 
-  logger?.forBot().info(conversation)
-  console.info(conversation)
+  logger?.forBot().info('conversation', conversation)
 
-  const { user } = await client.getOrCreateUser({ tags: { id: props.linearUserId }, name: 'test' })
+  const linearClient = await getLinearClient(props.client, props.integrationId)
+
+  if (!conversation.tags?.['linear:url']) {
+    const existingIssue = await linearClient.issue(props.linearIssueId)
+    const newTags = await getIssueTags(existingIssue)
+
+    logger?.forBot().info('set tags', newTags)
+    await props.client.updateConversation(conversation.id, { tags: newTags })
+  }
+
+  const { user } = await props.client.getOrCreateUser({ tags: { id: props.linearUserId }, name: 'test' })
   logger?.forBot().info(user)
+
   // sync the user from linear to botpress profile
+
+  if (!user.name) {
+    const linearUser = await linearClient.user(props.linearUserId)
+    logger?.forBot().info('linear user', linearUser)
+    await props.client.updateUser({ id: user.id, name: linearUser.name, avatarUrl: linearUser.avatarUrl })
+  }
 
   // TODO: when we create users and conversations based on linear entities, add the tags and properties to them
 
   return {
     userId: user.id,
     conversationId: conversation.id,
-    // Temporary
-    created: !!conversation.tags?.['linear:url'],
   }
 }
 

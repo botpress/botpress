@@ -4,7 +4,7 @@ import { getUser } from './actions/get-user'
 import { fireIssueCreated } from './events/issueCreated'
 import { fireIssueUpdated } from './events/issueUpdated'
 import { LinearEvent, handleOauth } from './misc/linear'
-import { getUserAndConversation, updateConversationTags } from './misc/utils'
+import { getUserAndConversation } from './misc/utils'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
@@ -34,12 +34,12 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
 
   // ============ EVENTS ==============
   if (linearEvent.type === 'issue' && linearEvent.action === 'create') {
-    await fireIssueCreated({ linearEvent, client })
+    await fireIssueCreated({ linearEvent, client, ctx })
     return
   }
 
   if (linearEvent.type === 'issue' && linearEvent.action === 'update') {
-    await fireIssueUpdated({ linearEvent, client })
+    await fireIssueUpdated({ linearEvent, client, ctx })
     return
   }
 
@@ -56,23 +56,12 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
     const issueConversationId = linearEvent.data.issueId || linearEvent.data.issue.id
     const content = linearEvent.data.body
 
-    const { userId, conversationId, created } = await getUserAndConversation(
-      {
-        linearIssueId: issueConversationId,
-        linearUserId,
-      },
+    const { userId, conversationId } = await getUserAndConversation({
+      linearIssueId: issueConversationId,
+      linearUserId,
       client,
-      logger
-    )
-
-    if (created) {
-      await updateConversationTags({
-        linearIssueId: issueConversationId,
-        conversationId,
-        integrationId: ctx.integrationId,
-        client,
-      })
-    }
+      integrationId: ctx.integrationId,
+    })
 
     const linearUser = await getUser({
       client,
