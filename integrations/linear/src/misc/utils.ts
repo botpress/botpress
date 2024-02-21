@@ -130,7 +130,13 @@ export const getUserAndConversation = async (props: {
 
   if (!user.name) {
     const linearUser = await linearClient.user(props.linearUserId)
-    await props.client.updateUser({ id: user.id, name: linearUser.name, pictureUrl: linearUser.avatarUrl })
+
+    await props.client.updateUser({
+      id: user.id,
+      name: linearUser.name,
+      pictureUrl: linearUser.avatarUrl,
+      tags: user.tags,
+    })
   }
 
   return {
