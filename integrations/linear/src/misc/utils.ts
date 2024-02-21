@@ -1,7 +1,7 @@
 import type { Conversation } from '@botpress/client'
 import type { AckFunction } from '@botpress/sdk'
 import { Comment, Issue, IssueLabel, LinearClient, Team } from '@linear/sdk'
-import { idTag } from '../const'
+import { idTag, urlTag } from '../const'
 import { LinearOauthClient } from './linear'
 import { Client } from '.botpress'
 
@@ -60,8 +60,8 @@ export async function createComment({ ctx, client, conversation, ack, content }:
   const res = await linearClient.createComment({
     issueId,
     body: content,
-    // displayIconUrl: '' // TODO: get the bot icon from config
-    // createAsUser: '' // TODO: get the bot name from config
+    createAsUser: ctx.configuration.displayName,
+    displayIconUrl: ctx.configuration.avatarUrl,
   })
   const comment = await res.comment
   if (!comment) {
@@ -89,20 +89,55 @@ export async function ackMessage(commentId: string, ack: AckFunction) {
   await ack({ tags: { id: commentId } })
 }
 
-export const getUserAndConversation = async (
-  props: { linearUserId: string; linearIssueId: string },
+export const getIssueTags = async (issue: Issue) => {
+  const parent = await issue.parent
+
+  return {
+    id: issue.id,
+    url: issue.url,
+    title: issue.title,
+    parentId: parent?.id || '',
+    parentTitle: parent?.title || '',
+    parentUrl: parent?.url || '',
+  }
+}
+
+export const getUserAndConversation = async (props: {
+  linearUserId: string
+  linearIssueId: string
   client: Client
-) => {
-  const { conversation } = await client.getOrCreateConversation({
+  integrationId: string
+  forceUpdate?: boolean
+}) => {
+  const { conversation } = await props.client.getOrCreateConversation({
     channel: 'issue',
-    tags: { id: props.linearIssueId },
+    tags: {
+      id: props.linearIssueId,
+    },
   })
 
-  const { user } = await client.getOrCreateUser({ tags: { id: props.linearUserId } })
+  const linearClient = await getLinearClient(props.client, props.integrationId)
 
-  // sync the user from linear to botpress profile
+  // TODO: better way to know if the conversation was just created
+  if (props.forceUpdate || !conversation.tags[urlTag]) {
+    const existingIssue = await linearClient.issue(props.linearIssueId)
+    const newTags = await getIssueTags(existingIssue)
 
-  // TODO: when we create users and conversations based on linear entities, add the tags and properties to them
+    await props.client.updateConversation({ id: conversation.id, tags: newTags })
+  }
+
+  const { user } = await props.client.getOrCreateUser({ tags: { id: props.linearUserId } })
+
+  if (!user.name) {
+    const linearUser = await linearClient.user(props.linearUserId)
+
+    await props.client.updateUser({
+      id: user.id,
+      name: linearUser.name,
+      pictureUrl: linearUser.avatarUrl,
+      tags: user.tags,
+    })
+  }
 
   return {
     userId: user.id,

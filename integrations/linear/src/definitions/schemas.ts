@@ -78,8 +78,12 @@ export const LinearIssue = z.object({
   number: z.number().describe('The issue number on Linear, such as "123" in XXX-123'),
   teamName: z
     .string()
+    .optional()
     .describe('The name of the Linear team the issue currently belongs to, such as "Customer Support"'),
-  teamKey: z.string().describe('The key of the Linear team the issue currently belongs to, such as "XXX" in XXX-123'),
+  teamKey: z
+    .string()
+    .optional()
+    .describe('The key of the Linear team the issue currently belongs to, such as "XXX" in XXX-123'),
   createdAt: z.string().datetime().describe('The ISO date the issue was created'),
   updatedAt: z.string().datetime().describe('The ISO date the issue was last updated'),
   status: z.string().describe('The issue State name (such as "In Progress"'),
