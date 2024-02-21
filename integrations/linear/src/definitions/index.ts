@@ -31,6 +31,11 @@ export const channels = {
       },
       tags: {
         id: {},
+        title: {},
+        url: {},
+        parentId: {},
+        parentTitle: {},
+        parentUrl: {},
       },
     },
   },

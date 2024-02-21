@@ -121,11 +121,7 @@ export const getUserAndConversation = async (
     const existingIssue = await linearClient.issue(props.linearIssueId)
     const newTags = await getIssueTags(existingIssue)
 
-    logger?.forBot().info('set tags', conversation.id, newTags)
-
-    await props.client.updateConversation(conversation.id, { tags: newTags }).catch((err: any) => {
-      console.log('error updating conversation', err)
-    })
+    await props.client.updateConversation({ id: conversation.id, tags: newTags })
   }
 
   const { user } = await props.client.getOrCreateUser({ tags: { id: props.linearUserId }, name: 'test' })
