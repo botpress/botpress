@@ -2,7 +2,7 @@
   "name": "botpress",
   "private": true,
   "scripts": {
-    "bump": "ts-node -T ./scripts/depsynky bump && pnpm install",
+    "bump": "ts-node -T ./scripts/depsynky bump && pnpm -w install",
     "type:check": "pnpm -r --stream type:check",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write .",
