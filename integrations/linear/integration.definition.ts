@@ -1,7 +1,7 @@
 import { IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { INTEGRATION_NAME } from './src/const'
-import { actions, channels, events, configuration, user, states } from './src/definitions'
+import { actions, channels, events, configuration, user, states, entities } from './src/definitions'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -19,6 +19,7 @@ export default new IntegrationDefinition({
   actions,
   events,
   states,
+  entities,
   secrets: {
     CLIENT_ID: {
       description: 'The client ID of your Linear OAuth app.',

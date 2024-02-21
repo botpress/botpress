@@ -57,6 +57,22 @@ export const LinearIds = z
   .optional()
   .describe('The Linear IDs of the referenced entities')
 
+export const issueSchema = z.object({
+  id: z.string().describe('The issue ID on Linear'),
+  identifier: z.string().describe("Issue's human readable identifier (e.g. XXX-123)"),
+  number: z.number().describe('The issue number on Linear, such as "123" in XXX-123'),
+  title: z.string().describe('The issue title on Linear'),
+  description: z
+    .string()
+    .optional()
+    .describe('A markdown description of the issue. Images and videos are inlined using markdown links.'),
+  priority: z.number().describe('Priority of the issue, such as "1" for "Urgent", 0 for "No Priority"'),
+  estimate: z.number().optional().describe('The estimate of the issue in points'),
+  url: z.string().describe('The URL of the issue on Linear'),
+  createdAt: z.string().datetime().describe('The ISO date the issue was created'),
+  updatedAt: z.string().datetime().describe('The ISO date the issue was last updated'),
+})
+
 export const LinearIssue = z.object({
   title: z.string().describe('The issue title on Linear, such as "Fix the bug'),
   number: z.number().describe('The issue number on Linear, such as "123" in XXX-123'),

@@ -109,7 +109,7 @@ export const startDmConversation = {
       slackUserId: z.string().describe('The ID of the user to initiate the conversation with'),
     }),
     ui: {
-      userId: {
+      slackUserId: {
         title: 'User Id',
       },
     },
