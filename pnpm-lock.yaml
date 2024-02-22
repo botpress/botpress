@@ -44,6 +44,9 @@ importers:
       prettier:
         specifier: ^2.8.1
         version: 2.8.8
+      retry-cli:
+        specifier: ^0.7.0
+        version: 0.7.0
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@types/node@18.16.16)(typescript@4.9.5)
@@ -8728,6 +8731,11 @@ packages:
     engines: {node: '>= 6.13.0'}
     dev: false
 
+  /node-getopt@0.3.2:
+    resolution: {integrity: sha512-yqkmYrMbK1wPrfz7mgeYvA4tBperLg9FQ4S3Sau3nSAkpOA0x0zC8nQ1siBwozy1f4SE8vq2n1WKv99r+PCa1Q==}
+    engines: {node: '>= 0.6.0'}
+    dev: false
+
   /node-gyp-build@4.6.0:
     resolution: {integrity: sha512-NTZVKn9IylLwUzaKjkas1e4u2DLNcV4rdYagA4PWdPwW87Bi7z+BznyKSRwS/761tV/lzCGXplWsiaMjLqP2zQ==}
     hasBin: true
@@ -9602,6 +9610,15 @@ packages:
     resolution: {integrity: sha512-/Fpe5guzJk1gPqdJLJR5u7eG/gNY4nImjbRDaVWVMRhne55TCmj2i9Q+54PBRfatRC8v/rIiv9BN0pMd9OV5EQ==}
     dependencies:
       lowercase-keys: 1.0.1
+    dev: false
+
+  /retry-cli@0.7.0:
+    resolution: {integrity: sha512-VSWsAZFV4AxAsxH2/r+TDQGTS4cTory266mmpI5KiZUZB/8VjqksCZ/kOGMLQ7XZFVNwzVdQ54pEJu6jnLbSVw==}
+    hasBin: true
+    dependencies:
+      cross-spawn: 7.0.3
+      node-getopt: 0.3.2
+      retry: 0.13.1
     dev: false
 
   /retry@0.13.1:
