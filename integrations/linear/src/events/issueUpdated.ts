@@ -37,6 +37,7 @@ export const fireIssueUpdated = async ({ linearEvent, client, ctx }: IssueProps)
     },
   } satisfies Omit<IssueUpdated, 'conversationId' | 'userId'>
 
+  console.log('updated')
   const { conversationId, userId } = await getUserAndConversation({
     linearIssueId: linearEvent.data.id,
     linearUserId: linearEvent.data.creatorId,
