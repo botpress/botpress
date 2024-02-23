@@ -21,3 +21,4 @@ gen
 dist
 .botpress
 .botpresshome
+.botpresshome.*
