@@ -94,7 +94,7 @@ export const LinearIssue = z.object({
     .describe('A markdown description of the issue. Images and videos are inlined using markdown links.'),
   labels: z.array(z.string()).optional().describe('Label names'),
   linearIds: LinearIds,
-  userId: z.string().describe('Botpress User ID of the person who created the issue'),
+  userId: z.string().optional().describe('Botpress User ID of the person who created the issue'),
   conversationId: z.string().describe('Botpress Conversation ID of the issue'),
 })
 
