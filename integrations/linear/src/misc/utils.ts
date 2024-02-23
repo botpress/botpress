@@ -108,8 +108,7 @@ export const getUserAndConversation = async (props: {
   client: Client
   integrationId: string
   forceUpdate?: boolean
-}) => {
-  console.log('getUserAndConversation', props.linearIssueId)
+}): Promise<{ conversationId: string; userId?: string }> => {
   const { conversation } = await props.client.getOrCreateConversation({
     channel: 'issue',
     tags: {
@@ -124,29 +123,27 @@ export const getUserAndConversation = async (props: {
     try {
       const existingIssue = await linearClient.issue(props.linearIssueId)
       const newTags = await getIssueTags(existingIssue)
-      console.log(newTags)
+
       await props.client.updateConversation({ id: conversation.id, tags: newTags })
     } catch (err) {
       console.error('error updating convo', err)
     }
   }
-  console.log('getOrCreateUser', props.linearUserId)
-  const { user } = await props.client.getOrCreateUser({ tags: { id: props.linearUserId } })
 
+  if (!props.linearUserId) {
+    return { conversationId: conversation.id }
+  }
+
+  const { user } = await props.client.getOrCreateUser({ tags: { id: props.linearUserId } })
   if (!user.name) {
     const linearUser = await linearClient.user(props.linearUserId)
 
-    try {
-      console.log(user.tags)
-      await props.client.updateUser({
-        id: user.id,
-        name: linearUser.name,
-        pictureUrl: linearUser.avatarUrl,
-        tags: user.tags,
-      })
-    } catch (err) {
-      console.error('error updating user', err)
-    }
+    await props.client.updateUser({
+      id: user.id,
+      name: linearUser.name,
+      pictureUrl: linearUser.avatarUrl,
+      tags: user.tags,
+    })
   }
 
   return {
