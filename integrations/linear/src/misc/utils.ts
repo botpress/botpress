@@ -120,14 +120,10 @@ export const getUserAndConversation = async (props: {
 
   // TODO: better way to know if the conversation was just created
   if (props.forceUpdate || !conversation.tags[urlTag]) {
-    try {
-      const existingIssue = await linearClient.issue(props.linearIssueId)
-      const newTags = await getIssueTags(existingIssue)
+    const existingIssue = await linearClient.issue(props.linearIssueId)
+    const newTags = await getIssueTags(existingIssue)
 
-      await props.client.updateConversation({ id: conversation.id, tags: newTags })
-    } catch (err) {
-      console.error('error updating convo', err)
-    }
+    await props.client.updateConversation({ id: conversation.id, tags: newTags })
   }
 
   if (!props.linearUserId) {
