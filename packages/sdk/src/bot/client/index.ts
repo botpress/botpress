@@ -34,12 +34,18 @@ export class BotSpecificClient<TBot extends BaseBot> {
   public updateUser: routes.UpdateUser<TBot> = (x) => this.client.updateUser(x)
   public deleteUser: routes.DeleteUser<TBot> = (x) => this.client.deleteUser(x)
 
-  public getState: routes.GetState<TBot> = (x) =>
-    this.client.getState(x).then((y) => ({ state: { ...y.state, payload: y.state.payload as any } }))
-  public setState: routes.SetState<TBot> = (x) =>
-    this.client.setState(x).then((y) => ({ state: { ...y.state, payload: y.state.payload as any } }))
-  public patchState: routes.PatchState<TBot> = (x) =>
-    this.client.patchState(x).then((y) => ({ state: { ...y.state, payload: y.state.payload as any } }))
+  public getState: routes.GetState<TBot> = ((x) =>
+    this.client.getState(x).then((y) => ({ state: { ...y.state, payload: y.state.payload } }))) as routes.GetState<TBot>
+  public setState: routes.SetState<TBot> = ((x) =>
+    this.client.setState(x).then((y) => ({ state: { ...y.state, payload: y.state.payload } }))) as routes.SetState<TBot>
+  public getOrSetState: routes.GetOrSetState<TBot> = ((x) =>
+    this.client
+      .getOrSetState(x)
+      .then((y) => ({ state: { ...y.state, payload: y.state.payload } }))) as routes.GetOrSetState<TBot>
+  public patchState: routes.PatchState<TBot> = ((x) =>
+    this.client
+      .patchState(x)
+      .then((y) => ({ state: { ...y.state, payload: y.state.payload } }))) as routes.PatchState<TBot>
 
   public callAction: routes.CallAction<TBot> = (x) => this.client.callAction(x)
 

@@ -90,6 +90,23 @@ export type SetState<TBot extends BaseBot> = <TState extends keyof TBot['states'
   >
 }>
 
+export type GetOrSetState<TBot extends BaseBot> = <TState extends keyof TBot['states']>(
+  x: Merge<
+    Arg<Client['getOrSetState']>,
+    {
+      name: Cast<TState, string> // TODO: use state name to infer state type (cannot be done until there is a bot.definition.ts file)
+      payload: TBot['states'][TState]
+    }
+  >
+) => Promise<{
+  state: Merge<
+    Awaited<Res<Client['getOrSetState']>>['state'],
+    {
+      payload: TBot['states'][TState]
+    }
+  >
+}>
+
 export type PatchState<TBot extends BaseBot> = <TState extends keyof TBot['states']>(
   x: Merge<
     Arg<Client['patchState']>,
