@@ -145,4 +145,26 @@ describe('object-to-zui', () => {
     expect(schema.properties?.eventTime?.format).toBe('date-time')
     expect(schema.properties?.eventTime?.type).toBe('string')
   })
+
+  test('empty objects are considered passtrough, other are strict', () => {
+    const schema = zui.fromObject({ input: {}, test: { output: {} }, fixed: { value: true } }).toJsonSchema()
+
+    expect(schema).toHaveProperty('properties')
+    expect(Object.keys(schema.properties || {})).toHaveLength(3)
+    expect(schema.properties?.input).toHaveProperty('additionalProperties', true)
+    expect(schema.properties?.test).toHaveProperty('additionalProperties', false)
+    expect(schema.properties?.test?.properties?.output).toHaveProperty('additionalProperties', true)
+    expect(schema.properties?.fixed).toHaveProperty('additionalProperties', false)
+  })
+
+  test('when passtrough is set to true, they are all passtrough', () => {
+    const schema = zui
+      .fromObject({ input: {}, test: { output: {} }, fixed: { value: true } }, { passtrough: true })
+      .toJsonSchema()
+
+    expect(schema.properties?.input).toHaveProperty('additionalProperties', true)
+    expect(schema.properties?.test).toHaveProperty('additionalProperties', true)
+    expect(schema.properties?.test?.properties?.output).toHaveProperty('additionalProperties', true)
+    expect(schema.properties?.fixed).toHaveProperty('additionalProperties', true)
+  })
 })
