@@ -1,7 +1,6 @@
 import { z } from 'zod'
 import { describe, test } from 'vitest'
 import { type Zui, zui as basezui } from '../zui'
-import { defaultExtensions } from './defaultextension'
 import { type UIComponentDefinitions } from './types'
 
 const testExtensions = {
@@ -53,15 +52,5 @@ describe('ZUI UI Extensions', () => {
     })
 
     aSchema.toJsonSchema()
-  })
-
-  test('should be able to use zui with default extensions', () => {
-    const zui = basezui as Zui<typeof defaultExtensions>
-
-    zui.string().displayAs('textbox', {})
-
-    zui.number().displayAs('numberinput', {})
-
-    zui.boolean().displayAs('checkbox', {}).disabled()
   })
 })

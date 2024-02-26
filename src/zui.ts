@@ -25,9 +25,9 @@ import type {
 // eslint-disable-next-line no-duplicate-imports
 import { z } from 'zod'
 import { ZuiSchemaOptions, getZuiSchemas } from './zui-schemas'
-import { JsonSchema7, jsonSchemaToZui } from '.'
+import { GlobalComponentDefinitions, JsonSchema7, jsonSchemaToZui } from '.'
 import { ObjectToZuiOptions, objectToZui } from './object-to-zui'
-import type { GlobalComponentDefinitions, UIComponentDefinitions, ZodToBaseType } from './ui/types'
+import type { UIComponentDefinitions, ZodToBaseType } from './ui/types'
 
 export type Infer<
   T extends ZodType | ZuiType<any> | ZuiTypeAny,
@@ -41,7 +41,7 @@ export type ZuiTypeAny = ZuiType<any>
 
 export type ZuiType<
   O extends ZodType,
-  UI extends UIComponentDefinitions = any,
+  UI extends UIComponentDefinitions = GlobalComponentDefinitions,
   N extends ZuiExtension<O, any> = ZuiExtension<O, UI>,
 > = N & {
   [P in keyof O]: O[P] extends (...args: any) => O
@@ -58,7 +58,7 @@ export type ZuiType<
     : O[P]
 }
 
-export type ZuiExtension<Z extends ZodType, UI extends UIComponentDefinitions> = {
+export type ZuiExtension<Z extends ZodType, UI extends UIComponentDefinitions = GlobalComponentDefinitions> = {
   /**
    * The type of component to use to display the field and its options
    */
