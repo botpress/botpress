@@ -231,7 +231,7 @@ export type ZuiReactLayoutComponentProps<
   ID extends keyof UI[Type],
   UI extends UIComponentDefinitions = GlobalComponentDefinitions,
 > = ZuiReactComponentBaseProps<Type, ID, UI> & {
-  children: any[]
+  children: JSX.Element | JSX.Element[]
 }
 
 export type ZuiReactControlComponentProps<

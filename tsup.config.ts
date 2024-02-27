@@ -11,5 +11,5 @@ export default defineConfig({
   clean: true,
   shims: true,
   noExternal: ['zod'],
-  bundle: true
+  bundle: true,
 })

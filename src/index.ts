@@ -1,6 +1,13 @@
 import { UIComponentDefinitions } from './ui/types'
 import { zui } from './zui'
-export type { BaseType, UIComponentDefinitions, SchemaResolversMap, ZuiComponentMap, AsBaseType } from './ui/types'
+export type {
+  BaseType,
+  UIComponentDefinitions,
+  SchemaResolversMap,
+  ZuiComponentMap,
+  AsBaseType,
+  ZuiReactComponent,
+} from './ui/types'
 export {
   type ZuiFormProps,
   ZuiForm,

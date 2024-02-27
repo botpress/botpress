@@ -34,7 +34,7 @@ export type ZuiFormProps<UI extends UIComponentDefinitions = GlobalComponentDefi
   JsonFormsReactProps & {
     overrides?: SchemaResolversMap<UI>
     components: ZuiComponentMap<UI>
-    schema: JSONSchema | any
+    schema: JSONSchema | object | any
   }
 
 export const defaultControlResolver = (
@@ -311,13 +311,17 @@ export function ZuiForm<UI extends UIComponentDefinitions = GlobalComponentDefin
   overrides = {},
   components,
   ...jsonformprops
-}: ZuiFormProps<UI>): React.ReactNode | null {
+}: ZuiFormProps<UI>): JSX.Element | null {
   const renderers = useMemo(() => {
     return transformZuiComponentsToRenderers(components)
   }, [components])
 
   const uiSchema = useMemo(() => {
-    return schemaToUISchema<UI>(schema, overrides)
+    if (!schema) {
+      console.warn('Schema is nullish, skipping form rendering')
+      return null
+    }
+    return schemaToUISchema<UI>(schema as JSONSchema, overrides)
   }, [schema, overrides])
 
   if (!uiSchema) {
