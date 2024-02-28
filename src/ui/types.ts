@@ -77,14 +77,14 @@ export type JSONSchema = ArraySchema | ObjectSchema | PrimitiveSchema
 export type JSONSchemaOfType<T extends BaseType> = T extends 'string'
   ? StringSchema
   : T extends 'number'
-  ? NumberSchema
-  : T extends 'boolean'
-  ? BooleanSchema
-  : T extends 'object'
-  ? ObjectSchema
-  : T extends 'array'
-  ? ArraySchema
-  : never
+    ? NumberSchema
+    : T extends 'boolean'
+      ? BooleanSchema
+      : T extends 'object'
+        ? ObjectSchema
+        : T extends 'array'
+          ? ArraySchema
+          : never
 
 export type UILayoutSchema =
   | ({
@@ -158,16 +158,16 @@ export type UIComponentDefinitions = {
 export type ZodToBaseType<T extends ZodType> = T extends z.ZodString
   ? 'string'
   : T extends z.ZodBoolean
-  ? 'boolean'
-  : T extends z.ZodNumber
-  ? 'number'
-  : T extends z.ZodArray<any, any>
-  ? 'array'
-  : T extends z.ZodObject<any, any>
-  ? 'object'
-  : T extends z.ZodEnum<[string, ...string[]]>
-  ? 'string'
-  : any
+    ? 'boolean'
+    : T extends z.ZodNumber
+      ? 'number'
+      : T extends z.ZodArray<any, any>
+        ? 'array'
+        : T extends z.ZodObject<any, any>
+          ? 'object'
+          : T extends z.ZodEnum<[string, ...string[]]>
+            ? 'string'
+            : any
 
 export type AsBaseType<T> = T extends BaseType ? T : never
 

@@ -47,15 +47,15 @@ export type ZuiType<
   [P in keyof O]: O[P] extends (...args: any) => O
     ? (...args: Parameters<O[P]>) => ZuiType<O, UI, N>
     : P extends '_def'
-    ? O[P] & { [zuiKey]: N['ui'] }
-    : P extends 'optional'
-    ? (...args: Parameters<O[P]>) => ZodOptional<O> & ZuiType<O, UI, N>
-    : P extends 'default'
-    ? {
-        (arg?: any): ZodDefault<O> & ZuiType<O, UI, N>
-        (...args: Parameters<O[P]>): ZodDefault<O> & ZuiType<O, UI, N>
-      }
-    : O[P]
+      ? O[P] & { [zuiKey]: N['ui'] }
+      : P extends 'optional'
+        ? (...args: Parameters<O[P]>) => ZodOptional<O> & ZuiType<O, UI, N>
+        : P extends 'default'
+          ? {
+              (arg?: any): ZodDefault<O> & ZuiType<O, UI, N>
+              (...args: Parameters<O[P]>): ZodDefault<O> & ZuiType<O, UI, N>
+            }
+          : O[P]
 }
 
 export type ZuiExtension<Z extends ZodType, UI extends UIComponentDefinitions = GlobalComponentDefinitions> = {
