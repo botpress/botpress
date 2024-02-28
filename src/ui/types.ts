@@ -3,6 +3,7 @@ import type { Rule } from '@jsonforms/core'
 import { zuiKey } from '../zui'
 import { FC } from 'react'
 import { GlobalComponentDefinitions } from '..'
+import { JsonFormsStateContext } from '@jsonforms/react'
 
 export type ZuiSchemaExtension = {
   [zuiKey]: {
@@ -219,8 +220,10 @@ export type ZuiReactComponentBaseProps<
   context: {
     path: string
     uiSchema: Type extends ContainerType ? UILayoutSchema : UIControlSchema
-    renderers: any[]
-    cells: any[]
+    formErrors: NonNullable<JsonFormsStateContext['core']>['errors']
+    formData?: any
+    readonly: boolean
+    dispatch?: JsonFormsStateContext['dispatch']
   }
   i18nKeyPrefix?: string
   zuiProps: ZuiSchemaExtension[typeof zuiKey]

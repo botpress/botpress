@@ -17,10 +17,12 @@ import { zuiKey } from '../zui'
 import {
   JsonForms,
   type JsonFormsInitStateProps,
+  type JsonFormsStateContext,
   type JsonFormsReactProps,
   JsonFormsDispatch,
   withJsonFormsControlProps,
   withJsonFormsLayoutProps,
+  useJsonForms,
 } from '@jsonforms/react'
 import { useMemo } from 'react'
 import { ControlProps, JsonFormsProps, JsonFormsRendererRegistryEntry } from '@jsonforms/core'
@@ -177,14 +179,13 @@ const transformControlProps = <Type extends BaseType>(
   type: Type,
   id: string,
   props: ControlProps,
+  ctxData: JsonFormsStateContext | undefined = undefined,
 ): ZuiReactControlComponentProps<Type, string> => {
   const {
     uischema,
     id: renderID,
     schema,
-    renderers,
     path,
-    cells,
     enabled,
     handleChange,
     required,
@@ -213,10 +214,12 @@ const transformControlProps = <Type extends BaseType>(
     onChange: (data) => handleChange(path, data),
     schema: schema as any,
     context: {
+      formErrors: ctxData?.core?.errors,
+      formData: ctxData?.core?.data,
       path: path!,
+      readonly: ctxData?.readonly ?? false,
       uiSchema: uischema as any,
-      renderers: renderers!,
-      cells: cells!,
+      dispatch: ctxData?.dispatch,
     },
   }
 
@@ -225,7 +228,8 @@ const transformControlProps = <Type extends BaseType>(
 
 const withTransformControlProps = (type: BaseType, id: string, Component: FC<any>) => {
   return withJsonFormsControlProps((props) => {
-    const transformedProps = transformControlProps(type, id, props)
+    const ctxData = useJsonForms()
+    const transformedProps = transformControlProps(type, id, props, ctxData)
     return <Component {...transformedProps} />
   })
 }
@@ -234,9 +238,9 @@ const transformLayoutProps = <Type extends ContainerType>(
   type: Type,
   id: string,
   props: any,
+  ctxData: JsonFormsStateContext | undefined = undefined,
 ): ZuiReactLayoutComponentProps<ContainerType, string> => {
   const { uischema, id: renderID, schema, renderers, path, cells, enabled, handleChange, data } = props
-
   return {
     type,
     id: renderID,
@@ -249,8 +253,10 @@ const transformLayoutProps = <Type extends ContainerType>(
     context: {
       path: path!,
       uiSchema: uischema! as any,
-      renderers: renderers!,
-      cells: cells!,
+      readonly: ctxData?.readonly ?? false,
+      formData: ctxData?.core?.data,
+      formErrors: ctxData?.core?.errors,
+      dispatch: ctxData?.dispatch,
     },
     data,
     zuiProps: (uischema as any)[zuiKey] ?? {},
@@ -272,7 +278,8 @@ const transformLayoutProps = <Type extends ContainerType>(
 
 const withTransformLayoutProps = (type: ContainerType, id: string, Component: FC<any>) => {
   return withJsonFormsLayoutProps((props: any) => {
-    const transformedProps = transformLayoutProps(type, id, props)
+    const ctxData = useJsonForms()
+    const transformedProps = transformLayoutProps(type, id, props, ctxData)
     return <Component {...transformedProps} />
   })
 }
