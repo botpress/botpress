@@ -1,5 +1,6 @@
 {
   "name": "empty-integration",
+  "integrationName": null,
   "scripts": {
     "type:check": "tsc --noEmit"
   },

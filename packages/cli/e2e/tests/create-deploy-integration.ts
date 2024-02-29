@@ -21,7 +21,9 @@ export const createDeployIntegration: Test = {
     const botpressHomeDir = pathlib.join(tmpDir, '.botpresshome')
     const baseDir = pathlib.join(tmpDir, 'integrations')
     const integrationName = `${HANDLE}/myintegration-${uuid.v4()}`.replace(/-/g, '')
-    const integrationDir = pathlib.join(baseDir, integrationName)
+
+    const base64Name = Buffer.from(integrationName).toString('base64')
+    const integrationDir = pathlib.join(baseDir, base64Name)
 
     const argv = {
       ...defaults,
