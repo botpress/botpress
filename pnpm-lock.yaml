@@ -1295,7 +1295,7 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.11.5
+        specifier: 0.11.6
         version: link:../client
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1416,7 +1416,7 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.11.5
+        specifier: 0.11.6
         version: link:../../../client
       '@botpress/sdk':
         specifier: 0.6.1
@@ -1438,7 +1438,7 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.11.5
+        specifier: 0.11.6
         version: link:../../../client
       '@botpress/sdk':
         specifier: 0.6.1
@@ -1479,7 +1479,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.11.5
+        specifier: 0.11.6
         version: link:../client
       zod:
         specifier: ^3.20.6
