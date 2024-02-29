@@ -81,23 +81,19 @@ export const generateIntegrationInstance = async (
   return files
 }
 
-export const generateBotIndex = async (installPath: string, instances: string[]): Promise<types.File> => {
+export const generateBotIndex = async (
+  installPath: string,
+  instances: { name: string; dirname: string }[]
+): Promise<types.File> => {
   const lines: string[] = [
     GENERATED_HEADER,
     "import * as sdk from '@botpress/sdk'",
-    ...instances.map(
-      (instance) => `import * as ${utils.casing.to.camelCase(instance)} from './${installPath}/${instance}'`
-    ),
-    ...instances.map(
-      (instance) => `export * as ${utils.casing.to.camelCase(instance)} from './${installPath}/${instance}'`
-    ),
+    ...instances.map((i) => `import * as ${utils.casing.to.camelCase(i.name)} from './${installPath}/${i.dirname}'`),
+    ...instances.map((i) => `export * as ${utils.casing.to.camelCase(i.name)} from './${installPath}/${i.dirname}'`),
     '',
     'type TIntegrations = {',
     ...instances.map(
-      (instance) =>
-        `  ${utils.casing.to.camelCase(instance)}: ${utils.casing.to.camelCase(instance)}.T${utils.casing.to.pascalCase(
-          instance
-        )}`
+      (i) => `  "${i.name}": ${utils.casing.to.camelCase(i.name)}.T${utils.casing.to.pascalCase(i.dirname)}`
     ),
     '}',
     '',
