@@ -1,8 +1,8 @@
 import { IntegrationDefinition, messages } from '@botpress/sdk'
-import { name } from './package.json'
+import { name, integrationName } from './package.json'
 
 export default new IntegrationDefinition({
-  name,
+  name: integrationName ?? name,
   version: '0.2.0',
   channels: {
     channel: {
