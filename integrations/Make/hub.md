@@ -31,14 +31,3 @@ With the integration enabled, you can leverage Make.com to automate workflows su
 - Syncing chatbot data with other tools like spreadsheets, or databases.
 
 For detailed usage examples and scenario configurations, refer to the Botpress and Make.com documentation.
-
-## Limitations
-
-- Make.com's operations limits may apply depending on your subscription plan.
-- Latency in triggering actions or receiving data may occur depending on the complexity of the Make.com scenarios and the responsiveness of third-party services.
-
-## Contributing
-
-We encourage contributions! If you have ideas on how to improve the integration or have developed useful scenarios, please share them.
-
-Discover the power of automation by integrating Botpress with Make.com, and unlock new possibilities for your chatbot!
