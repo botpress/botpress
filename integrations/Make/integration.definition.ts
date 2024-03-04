@@ -1,4 +1,4 @@
-import { IntegrationDefinition, messages } from '@botpress/sdk'
+import { IntegrationDefinition } from '@botpress/sdk'
 import { z } from 'zod'
 
 const INTEGRATION_NAME = 'make'
@@ -28,9 +28,18 @@ export default new IntegrationDefinition({
       output: {
         schema: z
           .object({
-            response: z.array(z.any()).describe('Output schema after sending data, expecting any JSON structure'),
+            success: z.boolean().describe('True if the data was sent successfully'),
+            response: z
+              .object({
+                data: z
+                  .any()
+                  .describe(
+                    'Data received from Make.com, will be the string `Accepted` if successful and no data is returned'
+                  ),
+              })
+              .nullable(),
           })
-          .describe('Output schema after sending data'),
+          .describe('Output schema after sending data, expecting any JSON structure'),
       },
     },
   },
