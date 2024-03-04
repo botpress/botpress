@@ -1,74 +1,43 @@
 import * as botpress from '.botpress'
 import axios from 'axios'
 
-class NotImplementedError extends Error {
-  constructor() {
-    super('Not implemented')
-  }
-}
-
 export default new botpress.Integration({
   register: async () => {},
   unregister: async () => {},
-  actions: {
-    sendData: async function ({ ctx, input, logger }): Promise<botpress.actions.sendData.output.Output> {
+    actions: {
+    sendData: async function ({ ctx, input, logger }) {
       logger.forBot().info('Sending data to Make.com')
 
       const webhookURL = ctx.configuration.webhookUrl
-      let dataToSend
-      try {
-        dataToSend = JSON.parse(input.data)
-      } catch (error) {
-        if (error instanceof Error) {
-          logger.forBot().error(`Invalid JSON format: ${error.message}`)
-        } else {
-          logger.forBot().error(`Invalid JSON format and the error could not be identified`)
-        }
-        return { response: [{ response: 'Invalid data format' }] }
-      }
-
-      const nestedData = { data: dataToSend }
       const start = Date.now()
 
       try {
-        const response = await axios.post(webhookURL, nestedData)
+        const requestData = JSON.parse(input.data)
+
+        const { data: response, status } = await axios.post(webhookURL, { data: requestData })
+
         const duration = Date.now() - start
-        logger
-          .forBot()
-          .info(`Successfully sent data to Make.com, duration: ${duration}ms, status code: ${response.status}`)
-        return { response: [{ response: response.data }] }
+        logger.forBot().info(`Successfully sent data to Make.com, duration: ${duration}ms, status code: ${status}`)
+
+        return { success: true, response }
       } catch (error) {
         const duration = Date.now() - start
         if (axios.isAxiosError(error)) {
           const status = error.response ? error.response.status : 'Network Error'
-          logger.forBot().error({
-            message: `Error sending data to Make.com. Status: ${status}, duration: ${duration}ms`,
-            error: error.message,
-            status: error.response ? error.response.status : 'Network Error',
-            duration: Date.now() - start,
-            requestData: nestedData,
-            response: error.response?.data,
-          })
-          return {
-            response: [
-              {
-                response: `Error sending data to Make.com, Status: ${status}, Error: ${error.message}, Duration: ${
-                  Date.now() - start
-                }ms. Check you webhook url`,
-              },
-            ],
-          }
+          logger
+            .forBot()
+            .error(`Error sending data to Make.com. Status: ${status}, duration: ${duration}ms: ${error.message}`, {
+              response: error.response?.data,
+            })
+        } else if (error instanceof SyntaxError) {
+          logger.forBot().error(`Error parsing input JSON data: ${error.message}`)
         } else {
-          logger.forBot().error(`An unknown error occurred while sending data to Make.com`)
-          return {
-            response: [
-              {
-                response: `An unknown error occurred while sending data to Make.com, Duration: ${Date.now() - start}ms`,
-              },
-            ],
-          }
+          logger.forBot().error(`Error sending data to Make.com. Duration: ${duration}ms`, {
+            error,
+          })
         }
       }
+      return { success: false, response: null }
     },
   },
   channels: {},
