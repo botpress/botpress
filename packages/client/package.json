@@ -19,8 +19,8 @@
     "build": "pnpm build:type && pnpm build:node && pnpm build:browser && pnpm build:bundle",
     "type:check": "tsc --noEmit --target es2019 --module commonjs --moduleResolution node --lib es2019",
     "generate": "ts-node ./openapi.ts",
-    "test": "pnpm run test:e2e",
-    "test:e2e": "ts-node -T ./e2e/node.ts && ts-node -T ./e2e/browser"
+    "test": "pnpm run e2e:test",
+    "e2e:test": "ts-node -T ./e2e/node.ts && ts-node -T ./e2e/browser"
   },
   "dependencies": {
     "axios": "^1.6.1",

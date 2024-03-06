@@ -1,5 +1,4 @@
 import { Client, errorFrom } from '../src'
-import * as utils from './utils'
 
 const main = async () => {
   const client = new Client()
@@ -9,7 +8,9 @@ const main = async () => {
       throw new Error('Expected to reject')
     })
     .catch((err) => {
-      utils.expect(errorFrom(err).type).toBe('Unauthorized')
+      if (errorFrom(err).type !== 'Unauthorized') {
+        throw Error()
+      }
     })
 }
 
