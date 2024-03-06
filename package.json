@@ -1,6 +1,6 @@
 {
   "name": "@bpinternal/zui",
-  "version": "0.2.5",
+  "version": "0.2.6",
   "description": "An extension of Zod for working nicely with UIs and JSON Schemas",
   "type": "module",
   "source": "./src/index.ts",
@@ -42,7 +42,7 @@
     "zod": "^3.22.4"
   },
   "dependencies": {
-    "@bpinternal/json-schema-to-zod": "^2.0.14",
+    "@bpinternal/json-schema-to-zod": "^2.0.15",
     "@bpinternal/zod-to-json-schema": "^3.22.5",
     "@jsonforms/core": "^3.2.1",
     "@jsonforms/react": "^3.2.1",

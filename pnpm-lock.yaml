@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   '@bpinternal/json-schema-to-zod':
-    specifier: ^2.0.14
-    version: 2.0.14
+    specifier: ^2.0.15
+    version: 2.0.15
   '@bpinternal/zod-to-json-schema':
     specifier: ^3.22.5
     version: 3.22.5(zod@3.22.4)
@@ -1425,9 +1425,8 @@ packages:
     resolution: {integrity: sha512-4iri8i1AqYHJE2DstZYkyEprg6Pq6sKx3xn5FpySk9sNhH7qN2LLlHJCfDTZRILNwQNPD7mATWM0TBui7uC1pA==}
     dev: true
 
-  /@bpinternal/json-schema-to-zod@2.0.14:
-    resolution: {integrity: sha512-HQ/dwscrhoT2f6qDbg+5tj7O/6gSMniTN1sDsuDuCTNuQopaSoqezrVuG72CgBpX/8jVTgD5cjKa9FyD17yb2w==}
-    hasBin: true
+  /@bpinternal/json-schema-to-zod@2.0.15:
+    resolution: {integrity: sha512-CEi5XbffaDBAV+Ghqifx8XN+QZ/lzTGsWPn62uiTwD+arpqdlNZs7a0gtkNz1Fkr0KmkHWTZtzUdYNjIqIszTw==}
     dev: false
 
   /@bpinternal/zod-to-json-schema@3.22.5(zod@3.22.4):
