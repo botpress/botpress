@@ -17,4 +17,5 @@ jobs:
       - name: Setup Tilt
         uses: ./.github/actions/setup-tilt
       - run: |
-          pnpm run -F client e2e:test
+          pnpm -F client exec puppeteer browsers install chrome
+          pnpm -F client run e2e:test
