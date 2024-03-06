@@ -11,7 +11,8 @@
     "dep:check": "ts-node -T ./scripts/depsynky check",
     "dep:fix": "ts-node -T ./scripts/depsynky sync",
     "check": "pnpm dep:check && pnpm format:check && pnpm lint:check && pnpm type:check",
-    "test": "pnpm vitest --run"
+    "test": "pnpm vitest --run",
+    "fix": "pnpm dep:fix && pnpm format:fix && pnpm lint:fix"
   },
   "dependencies": {
     "@botpress/cli": "workspace:*",
