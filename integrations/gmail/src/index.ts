@@ -293,7 +293,6 @@ async function processMessage(
 
   const { conversation: updatedConversation } = await client.updateConversation({
     id: conversation.id,
-    participantIds: [],
     tags: {
       [subjectTag]: message.headers['subject'],
       [emailTag]: userEmail,

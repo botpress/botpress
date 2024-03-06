@@ -2,7 +2,8 @@ import { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { channel } from 'integration.definition'
 import queryString from 'query-string'
-import { WhatsAppAPI, Types } from 'whatsapp-api-js'
+import WhatsAppAPI from 'whatsapp-api-js'
+import { Audio, Document, Image, Location, Text, Video } from 'whatsapp-api-js/messages'
 import { createConversationHandler as createConversation, startConversation } from './conversation'
 import { handleIncomingMessage } from './incoming-message'
 import * as card from './message-types/card'
@@ -16,8 +17,6 @@ import { Configuration } from '.botpress/implementation/configuration'
 
 export type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
 export type IntegrationCtx = IntegrationContext<Configuration>
-
-const { Text, Media, Location } = Types
 
 const integration = new bp.Integration({
   register: async () => {},
@@ -51,7 +50,7 @@ const integration = new bp.Integration({
         image: async ({ payload, ...props }) => {
           await outgoing.send({
             ...props,
-            message: new Media.Image(payload.imageUrl, false),
+            message: new Image(payload.imageUrl, false),
           })
         },
         markdown: async ({ payload, ...props }) => {
@@ -63,13 +62,13 @@ const integration = new bp.Integration({
         audio: async ({ payload, ...props }) => {
           await outgoing.send({
             ...props,
-            message: new Media.Audio(payload.audioUrl, false),
+            message: new Audio(payload.audioUrl, false),
           })
         },
         video: async ({ payload, ...props }) => {
           await outgoing.send({
             ...props,
-            message: new Media.Video(payload.videoUrl, false),
+            message: new Video(payload.videoUrl, false),
           })
         },
         file: async ({ payload, ...props }) => {
@@ -78,7 +77,7 @@ const integration = new bp.Integration({
 
           await outgoing.send({
             ...props,
-            message: new Media.Document(payload.fileUrl, false, payload.title, filename),
+            message: new Document(payload.fileUrl, false, payload.title, filename),
           })
         },
         location: async ({ payload, ...props }) => {
@@ -178,7 +177,7 @@ const integration = new bp.Integration({
 
           for (const message of change.value.messages) {
             const accessToken = ctx.configuration.accessToken
-            const whatsapp = new WhatsAppAPI(accessToken)
+            const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
 
             const phoneNumberId = change.value.metadata.phone_number_id
 

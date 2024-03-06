@@ -1,6 +1,4 @@
-import { Types } from 'whatsapp-api-js'
-
-const { Body } = Types.Interactive
+import { Body } from 'whatsapp-api-js/messages'
 
 const MAX_LENGTH = 1024
 

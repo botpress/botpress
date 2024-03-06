@@ -1,5 +1,5 @@
-import type * as bpclient from '@botpress/client'
-import type * as bpsdk from '@botpress/sdk'
+import type * as client from '@botpress/client'
+import type * as sdk from '@botpress/sdk'
 import type { YargsConfig } from '@bpinternal/yargs-extra'
 import bluebird from 'bluebird'
 import chalk from 'chalk'
@@ -13,6 +13,7 @@ import type * as config from '../config'
 import * as consts from '../consts'
 import * as errors from '../errors'
 import { formatIntegrationRef, IntegrationRef } from '../integration-ref'
+import { validateIntegrationDefinition } from '../sdk/validate-integration'
 import type { CommandArgv, CommandDefinition } from '../typings'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
@@ -24,8 +25,8 @@ type ConfigurableProjectPaths = { entryPoint: string; outDir: string; workDir: s
 type ConstantProjectPaths = typeof consts.fromOutDir & typeof consts.fromWorkDir
 type AllProjectPaths = ConfigurableProjectPaths & ConstantProjectPaths
 
-type ApiIntegrationInstance = utils.types.Merge<bpsdk.IntegrationInstance<string>, { id: string }>
-type LocalIntegrationInstance = utils.types.Merge<bpsdk.IntegrationInstance<string>, { id: null }>
+type RemoteIntegrationInstance = utils.types.Merge<sdk.IntegrationInstance<string>, { id: string }>
+type LocalIntegrationInstance = utils.types.Merge<sdk.IntegrationInstance<string>, { id: null }>
 
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   public constructor(argv: CommandArgv<ProjectCommandDefinition>) {
@@ -56,12 +57,12 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return new utils.cache.FSKeyValueCache<ProjectCache>(this.projectPaths.abs.projectCacheFile)
   }
 
-  protected async prepareBotIntegrationInstances(bot: bpsdk.Bot, api: ApiClient) {
+  protected async fetchBotIntegrationInstances(bot: sdk.Bot, api: ApiClient) {
     const integrationList = _(bot.props.integrations).values().filter(utils.guards.is.defined).value()
 
-    const { apiInstances, localInstances } = this._splitApiAndLocalIntegrationInstances(integrationList)
+    const { remoteInstances, localInstances } = this._splitApiAndLocalIntegrationInstances(integrationList)
 
-    const fetchedInstances: ApiIntegrationInstance[] = await bluebird.map(localInstances, async (instance) => {
+    const fetchedInstances: RemoteIntegrationInstance[] = await bluebird.map(localInstances, async (instance) => {
       const ref: IntegrationRef = { type: 'name', name: instance.name, version: instance.version }
       const integration = await api.findIntegration(ref)
       if (!integration) {
@@ -71,105 +72,32 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       return { ...instance, id: integration.id }
     })
 
-    return {
-      integrations: _([...fetchedInstances, ...apiInstances])
-        .keyBy((i) => i.id)
-        .mapValues(({ enabled, configuration }) => ({ enabled, configuration }))
-        .value(),
-    }
+    return _([...fetchedInstances, ...remoteInstances])
+      .keyBy((i) => i.id)
+      .mapValues(({ enabled, configuration }) => ({ enabled, configuration }))
+      .value()
   }
 
-  private _splitApiAndLocalIntegrationInstances(instances: bpsdk.IntegrationInstance<string>[]): {
-    apiInstances: ApiIntegrationInstance[]
+  private _splitApiAndLocalIntegrationInstances(instances: sdk.IntegrationInstance<string>[]): {
+    remoteInstances: RemoteIntegrationInstance[]
     localInstances: LocalIntegrationInstance[]
   } {
-    const apiInstances: ApiIntegrationInstance[] = []
+    const remoteInstances: RemoteIntegrationInstance[] = []
     const localInstances: LocalIntegrationInstance[] = []
     for (const { id, ...instance } of instances) {
       if (id) {
-        apiInstances.push({ ...instance, id })
+        remoteInstances.push({ ...instance, id })
       } else {
         localInstances.push({ ...instance, id: null })
       }
     }
 
-    return { apiInstances, localInstances }
-  }
-
-  protected prepareBot(bot: bpsdk.Bot) {
-    return {
-      ...bot.props,
-      configuration: bot.props.configuration
-        ? {
-            ...bot.props.configuration,
-            schema: utils.schema.mapZodToJsonSchema(bot.props.configuration),
-          }
-        : undefined,
-      events: bot.props.events
-        ? _.mapValues(bot.props.events, (event) => ({
-            ...event,
-            schema: utils.schema.mapZodToJsonSchema(event),
-          }))
-        : undefined,
-      states: bot.props.states
-        ? _.mapValues(bot.props.states, (state) => ({
-            ...state,
-            schema: utils.schema.mapZodToJsonSchema(state),
-          }))
-        : undefined,
-    }
-  }
-
-  protected prepareIntegrationDefinition(integration: bpsdk.IntegrationDefinition) {
-    return {
-      ...integration,
-      secrets: undefined,
-      configuration: integration.configuration
-        ? {
-            ...integration.configuration,
-            schema: utils.schema.mapZodToJsonSchema(integration.configuration),
-          }
-        : undefined,
-      events: integration.events
-        ? _.mapValues(integration.events, (event) => ({
-            ...event,
-            schema: utils.schema.mapZodToJsonSchema(event),
-          }))
-        : undefined,
-      actions: integration.actions
-        ? _.mapValues(integration.actions, (action) => ({
-            ...action,
-            input: {
-              ...action.input,
-              schema: utils.schema.mapZodToJsonSchema(action.input),
-            },
-            output: {
-              ...action.output,
-              schema: utils.schema.mapZodToJsonSchema(action.output),
-            },
-          }))
-        : undefined,
-      channels: integration.channels
-        ? _.mapValues(integration.channels, (channel) => ({
-            ...channel,
-            messages: _.mapValues(channel.messages, (message) => ({
-              ...message,
-              schema: utils.schema.mapZodToJsonSchema(message),
-            })),
-          }))
-        : undefined,
-      states: integration.states
-        ? _.mapValues(integration.states, (state) => ({
-            ...state,
-            schema: utils.schema.mapZodToJsonSchema(state),
-          }))
-        : undefined,
-    }
+    return { remoteInstances, localInstances }
   }
 
   protected async readIntegrationDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'definition'> = this.projectPaths
-  ): Promise<bpsdk.IntegrationDefinition | undefined> {
+  ): Promise<sdk.IntegrationDefinition | undefined> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
@@ -190,7 +118,10 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       throw new errors.BotpressCLIError('Could not read integration definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: bpsdk.IntegrationDefinition }>(artifact.text)
+    const { default: definition } = utils.require.requireJsCode<{ default: sdk.IntegrationDefinition }>(artifact.text)
+
+    validateIntegrationDefinition(definition)
+
     return definition
   }
 
@@ -203,7 +134,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
   }
 
-  protected displayWebhookUrls(bot: bpclient.Bot) {
+  protected displayWebhookUrls(bot: client.Bot) {
     if (!_.keys(bot.integrations).length) {
       this.logger.debug('No integrations in bot')
       return
@@ -224,17 +155,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   }
 
   protected async promptSecrets(
-    integrationDef: bpsdk.IntegrationDefinition,
-    argv: YargsConfig<typeof config.schemas.secrets>,
-    opts?: { formatEnv?: boolean }
-  ): Promise<Record<string, string>>
-  protected async promptSecrets(
-    integrationDef: bpsdk.IntegrationDefinition,
-    argv: YargsConfig<typeof config.schemas.secrets>,
-    opts?: { formatEnv?: boolean; knownSecrets: string[] }
-  ): Promise<Record<string, string | null>>
-  protected async promptSecrets(
-    integrationDef: bpsdk.IntegrationDefinition,
+    integrationDef: sdk.IntegrationDefinition,
     argv: YargsConfig<typeof config.schemas.secrets>,
     opts: { formatEnv?: boolean; knownSecrets?: string[] } = {}
   ): Promise<Record<string, string | null>> {
@@ -309,7 +230,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   private _parseArgvSecrets(argvSecrets: string[]): Record<string, string> {
     const parsed: Record<string, string> = {}
     for (const secret of argvSecrets) {
-      const [key, value] = this._splitOnce(secret, '=')
+      const [key, value] = utils.string.splitOnce(secret, '=')
       if (!value) {
         throw new errors.BotpressCLIError(
           `Secret "${key}" is missing a value. Expected format: "SECRET_NAME=secretValue"`
@@ -319,14 +240,6 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
 
     return parsed
-  }
-
-  private _splitOnce = (text: string, separator: string): [string, string | undefined] => {
-    const index = text.indexOf(separator)
-    if (index === -1) {
-      return [text, undefined]
-    }
-    return [text.slice(0, index), text.slice(index + 1)]
   }
 
   private _notifyUpdateSdk = async (): Promise<void> => {

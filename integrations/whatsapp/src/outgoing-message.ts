@@ -1,14 +1,21 @@
 import type { Conversation } from '@botpress/client'
 import type { IntegrationContext, AckFunction } from '@botpress/sdk'
-import { WhatsAppAPI } from 'whatsapp-api-js'
-import type { Contacts } from 'whatsapp-api-js/types/messages/contacts'
-import type { Interactive } from 'whatsapp-api-js/types/messages/interactive'
-import type Location from 'whatsapp-api-js/types/messages/location'
-import type { Image, Audio, Document, Sticker, Video } from 'whatsapp-api-js/types/messages/media'
-import type Reaction from 'whatsapp-api-js/types/messages/reaction'
-import type { Template } from 'whatsapp-api-js/types/messages/template'
-import type Text from 'whatsapp-api-js/types/messages/text'
-import { IntegrationLogger } from '.'
+import WhatsAppAPI from 'whatsapp-api-js'
+import {
+  Text,
+  Audio,
+  Document,
+  Image,
+  Sticker,
+  Video,
+  Location,
+  Contacts,
+  Interactive,
+  Template,
+  Reaction,
+} from 'whatsapp-api-js/messages'
+import { ServerErrorResponse, ServerSentMessageResponse } from 'whatsapp-api-js/types'
+import { IntegrationCtx, IntegrationLogger } from '.'
 import { INTEGRATION_NAME, phoneNumberIdTag, userPhoneTag } from './const'
 import { sleep } from './util'
 
@@ -32,16 +39,16 @@ export async function send({
   ack,
   logger,
 }: {
-  ctx: IntegrationContext
+  ctx: IntegrationCtx
   conversation: Conversation
   ack: AckFunction
   message: OutgoingMessage
   logger: IntegrationLogger
 }) {
-  const whatsapp = new WhatsAppAPI(ctx.configuration.accessToken)
+  const whatsapp = new WhatsAppAPI({ token: ctx.configuration.accessToken, secure: false })
   const phoneNumberId = conversation.tags[phoneNumberIdTag]
   const to = conversation.tags[userPhoneTag]
-  const messageType = message._
+  const messageType = message._type
 
   if (!phoneNumberId) {
     logger
@@ -60,13 +67,14 @@ export async function send({
   }
 
   const feedback = await whatsapp.sendMessage(phoneNumberId, to, message)
+  const errorResponse = feedback as ServerErrorResponse
 
-  if (feedback?.error) {
-    logger.forBot().error(`Failed to send ${messageType} message from bot to Whatsapp. Reason:`, feedback)
+  if (errorResponse?.error) {
+    logger.forBot().error(`Failed to send ${messageType} message from bot to Whatsapp. Reason:`, errorResponse?.error)
     return
   }
 
-  const messageId = feedback?.messages?.[0]?.id
+  const messageId = (feedback as ServerSentMessageResponse)?.messages?.[0]?.id
 
   if (messageId) {
     logger.forBot().debug(`Successfully sent ${messageType} message from bot to Whatsapp:`, message)

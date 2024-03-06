@@ -2,11 +2,10 @@ import _ from 'lodash'
 
 const capitalizeFirstLetter = (text: string) => text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
 
-const splitHyphens = (tokens: string[]) => tokens.flatMap((token) => token.split('-'))
-const splitUnderscores = (tokens: string[]) => tokens.flatMap((token) => token.split('_'))
+const splitChar = (char: string) => (tokens: string[]) => tokens.flatMap((token) => token.split(char))
 const splitCaseChange = (tokens: string[]) => tokens.flatMap((token) => token.split(/(?<=[a-z])(?=[A-Z])/))
 const splitTokens = (tokens: string[]) => {
-  return [splitHyphens, splitUnderscores, splitCaseChange].reduce((acc, step) => step(acc), tokens)
+  return [splitChar('/'), splitChar('-'), splitChar('_'), splitCaseChange].reduce((acc, step) => step(acc), tokens)
 }
 
 type SupportedCase = `${'pascal' | 'kebab' | 'snake' | 'screamingSnake' | 'camel'}Case`

@@ -1,9 +1,18 @@
+import { IntegrationContext } from '@botpress/sdk'
 import { IssueCreated } from '../definitions/events'
+import { LinearIssueEvent } from '../misc/linear'
 
 import { getUserAndConversation } from '../misc/utils'
+import * as bp from '.botpress'
 import { Client } from '.botpress'
 
-export const fireIssueCreated = async ({ linearEvent, client }: { linearEvent: any; client: Client }) => {
+type IssueProps = {
+  linearEvent: LinearIssueEvent
+  client: Client
+  ctx: IntegrationContext<bp.configuration.Configuration>
+}
+
+export const fireIssueCreated = async ({ linearEvent, client, ctx }: IssueProps) => {
   const payload = {
     title: linearEvent.data.title,
     priority: linearEvent.data.priority,
@@ -29,13 +38,12 @@ export const fireIssueCreated = async ({ linearEvent, client }: { linearEvent: a
     },
   } satisfies Omit<IssueCreated, 'conversationId' | 'userId'>
 
-  const { conversationId, userId } = await getUserAndConversation(
-    {
-      linearIssueId: linearEvent.data.id,
-      linearUserId: linearEvent.data.creatorId,
-    },
-    client
-  )
+  const { conversationId, userId } = await getUserAndConversation({
+    linearIssueId: linearEvent.data.id,
+    linearUserId: linearEvent.data.creatorId,
+    integrationId: ctx.integrationId,
+    client,
+  })
 
   await client.createEvent({
     type: 'issueCreated',

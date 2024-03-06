@@ -55,6 +55,8 @@ export class IntegrationSpecificClient<TIntegration extends BaseIntegration> {
 
   public getState: routes.GetState<TIntegration> = ((x) => this.client.getState(x)) as routes.GetState<TIntegration>
   public setState: routes.SetState<TIntegration> = ((x) => this.client.setState(x)) as routes.SetState<TIntegration>
+  public getOrSetState: routes.GetOrSetState<TIntegration> = ((x) =>
+    this.client.getOrSetState(x)) as routes.GetOrSetState<TIntegration>
   public patchState: routes.PatchState<TIntegration> = ((x) =>
     this.client.patchState(x)) as routes.PatchState<TIntegration>
 

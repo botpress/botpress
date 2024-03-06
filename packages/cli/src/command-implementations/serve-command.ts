@@ -19,7 +19,8 @@ export class ServeCommand extends ProjectCommand<ServeCommandDefinition> {
     if (integrationDef) {
       // TODO: store secrets in local cache to avoid prompting every time
       const secretEnvVariables = await this.promptSecrets(integrationDef, this.argv, { formatEnv: true })
-      for (const [key, value] of Object.entries(secretEnvVariables)) {
+      const nonNullSecretEnvVariables = utils.records.filterValues(secretEnvVariables, utils.guards.is.notNull)
+      for (const [key, value] of Object.entries(nonNullSecretEnvVariables)) {
         process.env[key] = value
       }
     }

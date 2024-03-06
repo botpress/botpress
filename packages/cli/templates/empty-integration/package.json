@@ -1,5 +1,6 @@
 {
   "name": "empty-integration",
+  "integrationName": null,
   "scripts": {
     "type:check": "tsc --noEmit"
   },
@@ -8,8 +9,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "0.11.0",
-    "@botpress/sdk": "0.5.10",
+    "@botpress/client": "0.11.6",
+    "@botpress/sdk": "0.6.1",
     "zod": "^3.20.6"
   },
   "devDependencies": {

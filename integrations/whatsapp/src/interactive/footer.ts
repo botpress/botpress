@@ -1,6 +1,4 @@
-import { Types } from 'whatsapp-api-js'
-
-const { Footer } = Types.Interactive
+import { Footer } from 'whatsapp-api-js/messages'
 
 const MAX_LENGTH = 60
 

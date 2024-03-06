@@ -44,6 +44,9 @@ importers:
       prettier:
         specifier: ^2.8.1
         version: 2.8.8
+      retry-cli:
+        specifier: ^0.7.0
+        version: 0.7.0
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@types/node@18.16.16)(typescript@4.9.5)
@@ -782,6 +785,28 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  integrations/stripe:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      stripe:
+        specifier: ^13.5.0
+        version: 13.11.0
+      zod:
+        specifier: 3.20.6
+        version: 3.20.6
+    devDependencies:
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.16.16
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   integrations/sunco:
     dependencies:
       '@botpress/cli':
@@ -1172,8 +1197,8 @@ importers:
         specifier: ^6.14.1
         version: 6.14.1
       whatsapp-api-js:
-        specifier: ^0.8.2
-        version: 0.8.2
+        specifier: ^1.0.5
+        version: 1.0.5
       zod:
         specifier: ^3.20.6
         version: 3.20.6
@@ -1298,7 +1323,7 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.11.0
+        specifier: 0.11.6
         version: link:../client
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1339,6 +1364,9 @@ importers:
       chokidar:
         specifier: ^3.5.3
         version: 3.5.3
+      dotenv:
+        specifier: ^16.4.4
+        version: 16.4.4
       esbuild:
         specifier: ^0.15.18
         version: 0.15.18
@@ -1377,7 +1405,7 @@ importers:
         version: 3.20.6
     devDependencies:
       '@botpress/sdk':
-        specifier: 0.5.10
+        specifier: 0.6.1
         version: link:../sdk
       '@bpinternal/log4bot':
         specifier: ^0.0.4
@@ -1416,10 +1444,10 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.11.0
+        specifier: 0.11.6
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.5.10
+        specifier: 0.6.1
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1438,10 +1466,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.11.0
+        specifier: 0.11.6
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.5.10
+        specifier: 0.6.1
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1470,8 +1498,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.16.0
-        version: 0.16.0(openapi-types@12.1.3)
+        specifier: 0.18.1
+        version: 0.18.1(openapi-types@12.1.3)
       esbuild:
         specifier: ^0.16.12
         version: 0.16.17
@@ -1479,7 +1507,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.11.0
+        specifier: 0.11.6
         version: link:../client
       zod:
         specifier: ^3.20.6
@@ -1567,15 +1595,15 @@ packages:
       '@jridgewell/gen-mapping': 0.3.3
       '@jridgewell/trace-mapping': 0.3.18
 
-  /@anatine/zod-openapi@1.14.0(openapi3-ts@2.0.2)(zod@3.21.4):
-    resolution: {integrity: sha512-fNpzgdrqTdHLK2/rZjALyZbyZAua+cXm9kKug2TZ1ly2szSu9G1eH4YrnR6p2uHME/5/BOfCebUjWTVm83hJIg==}
+  /@anatine/zod-openapi@1.14.2(openapi3-ts@2.0.2)(zod@3.20.6):
+    resolution: {integrity: sha512-q0qHfnuNYVKu0Swrnnvfj9971AEyW7c8v9jCOZGCl5ZbyGMNG4RPyJkRcMi/JC8CRfdOe0IDfNm1nNsi2avprg==}
     peerDependencies:
       openapi3-ts: ^2.0.0 || ^3.0.0
       zod: ^3.20.0
     dependencies:
       openapi3-ts: 2.0.2
-      ts-deepmerge: 6.0.3
-      zod: 3.21.4
+      ts-deepmerge: 6.2.1
+      zod: 3.20.6
     dev: true
 
   /@apidevtools/openapi-schemas@2.1.0:
@@ -2017,11 +2045,11 @@ packages:
       '@babel/helper-plugin-utils': 7.22.5
     dev: true
 
-  /@babel/runtime@7.22.10:
-    resolution: {integrity: sha512-21t/fkKLMZI4pqP2wlmsQAWnYW1PDyKyyUV4vCi+B25ydmdaYTKXPwCj0BzSUnZf4seIiYvSA3jcZ3gdsMFkLQ==}
+  /@babel/runtime@7.24.0:
+    resolution: {integrity: sha512-Chk32uHMg6TnQdvw2e9IlqPpFX/6NLuK0Ys2PqLb7/gL5uFn9mXvK715FGLlOLQrcO4qIkNHkvPGktzzXexsFw==}
     engines: {node: '>=6.9.0'}
     dependencies:
-      regenerator-runtime: 0.14.0
+      regenerator-runtime: 0.14.1
     dev: true
 
   /@babel/template@7.22.5:
@@ -2079,8 +2107,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.16.0(openapi-types@12.1.3):
-    resolution: {integrity: sha512-yJxaOJGcEwF3KjyVmB9Ca+dEk2hl8I1WzNAFqfm/Bk0UxsV0KxiqRDCz6fprKxg3Tb2ehQP9NS6LIyIUVugIpQ==}
+  /@botpress/api@0.18.1(openapi-types@12.1.3):
+    resolution: {integrity: sha512-O4D0bTDwNZ+eKChB7YSTJTDQYSTvvnrlJWpJXnDCkjN6lsI77ZqSOECUwpJl+SL1LLm5b1rus8LPTEbAeQkkGA==}
     dependencies:
       '@bpinternal/opapi': 0.6.3(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -2204,21 +2232,21 @@ packages:
   /@bpinternal/opapi@0.6.3(openapi-types@12.1.3):
     resolution: {integrity: sha512-XVzxAtc6sOLPUDBjln50QCk73YrMfFFbec1PJ1Qb0dDRxaNI/dAdNDTtY9yZlrQUSxLV+PKJHcbyUTtDZ34mXQ==}
     dependencies:
-      '@anatine/zod-openapi': 1.14.0(openapi3-ts@2.0.2)(zod@3.21.4)
+      '@anatine/zod-openapi': 1.14.2(openapi3-ts@2.0.2)(zod@3.20.6)
       '@readme/openapi-parser': 2.5.0(openapi-types@12.1.3)
       axios: 1.6.7
       chalk: 4.1.2
       decompress: 4.2.1
       execa: 6.1.0
-      json-schema-to-typescript: 13.0.2
+      json-schema-to-typescript: 13.1.2
       nodemon: 2.0.22
-      openapi-typescript: 6.2.6
+      openapi-typescript: 6.7.4
       openapi3-ts: 2.0.2
       radash: 9.5.0
       tsconfig-paths: 4.2.0
       verror: 1.10.1
       winston: 3.9.0
-      zod: 3.21.4
+      zod: 3.20.6
     transitivePeerDependencies:
       - debug
       - openapi-types
@@ -2248,7 +2276,7 @@ packages:
       browser-or-node: 2.1.1
       isomorphic-ws: 5.0.0(ws@8.13.0)
       ws: 8.13.0
-      zod: 3.21.4
+      zod: 3.20.6
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -2731,6 +2759,11 @@ packages:
     resolution: {integrity: sha512-LxcyMGxwmTh2lY9FwHPGWOHmYFCZvbrFCBZL4FzSSsxsRPuhrYUg/49/0KDfW8tnIEaEHtfmn6+NPN+1DqaNmA==}
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dev: false
+
+  /@fastify/busboy@2.1.0:
+    resolution: {integrity: sha512-+KpH+QxZU7O4675t3mnkQKcZZg56u+K/Ct2K+N2AZYNVK8kyeo/bI18tI8aPm3tvNNRyTWfj6s5tnGNlcbQRsA==}
+    engines: {node: '>=14'}
+    dev: true
 
   /@graphql-typed-document-node/core@3.2.0(graphql@15.8.0):
     resolution: {integrity: sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==}
@@ -3390,7 +3423,7 @@ packages:
       ajv: 4.11.8 - 8
     dependencies:
       '@babel/code-frame': 7.22.5
-      '@babel/runtime': 7.22.10
+      '@babel/runtime': 7.24.0
       '@humanwhocodes/momoa': 2.0.4
       ajv: 8.12.0
       chalk: 4.1.2
@@ -4930,12 +4963,6 @@ packages:
       ieee754: 1.2.1
     dev: true
 
-  /busboy@1.6.0:
-    resolution: {integrity: sha512-8SFQbg/0hQ9xy3UNTB0YEnsNBbWfhf7RtnzpL7TkBiTBRfrQ9Fxcnz7VJsleJpyp6rVLvXiuORqjlHi5q+PYuA==}
-    engines: {node: '>=10.16.0'}
-    dependencies:
-      streamsearch: 1.1.0
-
   /bytes@3.1.2:
     resolution: {integrity: sha512-/Nf7TyzTx6S3yRJObOAV7956r8cr2+Oj8AC5dt8wSP3BQAoeX58NoHyCU8P8zGkNXStjTSi6fzO6F0pBdcYbEg==}
     engines: {node: '>= 0.8'}
@@ -5573,6 +5600,11 @@ packages:
     dependencies:
       no-case: 3.0.4
       tslib: 2.5.3
+    dev: false
+
+  /dotenv@16.4.4:
+    resolution: {integrity: sha512-XvPXc8XAQThSjAbY6cQ/9PcBXmFoWuw1sQ3b8HqUCR6ziGXjkTi//kB9SWa2UwqlgdAIuRqAa/9hVljzPehbYg==}
+    engines: {node: '>=12'}
     dev: false
 
   /dotenv@8.6.0:
@@ -6322,7 +6354,7 @@ packages:
       human-signals: 3.0.1
       is-stream: 3.0.0
       merge-stream: 2.0.0
-      npm-run-path: 5.1.0
+      npm-run-path: 5.3.0
       onetime: 6.0.0
       signal-exit: 3.0.7
       strip-final-newline: 3.0.0
@@ -6416,6 +6448,18 @@ packages:
       glob-parent: 5.1.2
       merge2: 1.4.1
       micromatch: 4.0.5
+    dev: false
+
+  /fast-glob@3.3.2:
+    resolution: {integrity: sha512-oX2ruAFQwf/Orj8m737Y5adxDQO0LAB7/S5MnxCdTNDd4p6BsyIVsv9JQsATbTSq8KHRpLwIHbVlUNatxd+1Ow==}
+    engines: {node: '>=8.6.0'}
+    dependencies:
+      '@nodelib/fs.stat': 2.0.5
+      '@nodelib/fs.walk': 1.2.8
+      glob-parent: 5.1.2
+      merge2: 1.4.1
+      micromatch: 4.0.5
+    dev: true
 
   /fast-json-stable-stringify@2.1.0:
     resolution: {integrity: sha512-lhd/wF+Lk98HZoTCtlVraHtfh5XYijIjalXck7saUtuanSDyLMxnHhSXEDJqHxD7msR8D0uCmqlkwjCV8xvwHw==}
@@ -8131,8 +8175,8 @@ packages:
       mz: 2.7.0
       prettier: 2.8.8
 
-  /json-schema-to-typescript@13.0.2:
-    resolution: {integrity: sha512-TCaEVW4aI2FmMQe7f98mvr3/oiVmXEC1xZjkTZ9L/BSoTXFlC7p64mD5AD2d8XWycNBQZUnHwXL5iVXt1HWwNQ==}
+  /json-schema-to-typescript@13.1.2:
+    resolution: {integrity: sha512-17G+mjx4nunvOpkPvcz7fdwUwYCEwyH8vR3Ym3rFiQ8uzAL3go+c1306Kk7iGRk8HuXBXqy+JJJmpYl0cvOllw==}
     engines: {node: '>=12.0.0'}
     hasBin: true
     dependencies:
@@ -8759,6 +8803,11 @@ packages:
     engines: {node: '>= 6.13.0'}
     dev: false
 
+  /node-getopt@0.3.2:
+    resolution: {integrity: sha512-yqkmYrMbK1wPrfz7mgeYvA4tBperLg9FQ4S3Sau3nSAkpOA0x0zC8nQ1siBwozy1f4SE8vq2n1WKv99r+PCa1Q==}
+    engines: {node: '>= 0.6.0'}
+    dev: false
+
   /node-gyp-build@4.6.0:
     resolution: {integrity: sha512-NTZVKn9IylLwUzaKjkas1e4u2DLNcV4rdYagA4PWdPwW87Bi7z+BznyKSRwS/761tV/lzCGXplWsiaMjLqP2zQ==}
     hasBin: true
@@ -8814,8 +8863,8 @@ packages:
       path-key: 3.1.1
     dev: true
 
-  /npm-run-path@5.1.0:
-    resolution: {integrity: sha512-sJOdmRGrY2sjNTRMbSvluQqg+8X7ZK61yvzBEIDhz4f8z1TZFYABsqjjCBd/0PUNE9M6QDgHJXQkGUEm7Q+l9Q==}
+  /npm-run-path@5.3.0:
+    resolution: {integrity: sha512-ppwTtiJZq0O/ai0z7yfudtBpWIoxM8yE6nHi1X47eFR2EWORqfbu6CnPlNsjeN683eT0qG6H/Pyf9fCcvjnnnQ==}
     engines: {node: ^12.20.0 || ^14.13.1 || >=16.0.0}
     dependencies:
       path-key: 4.0.0
@@ -8922,15 +8971,15 @@ packages:
     resolution: {integrity: sha512-N4YtSYJqghVu4iek2ZUvcN/0aqH1kRDuNqzcycDxhOUpg7GdvLa2F3DgS6yBNhInhv2r/6I0Flkn7CqL8+nIcw==}
     dev: true
 
-  /openapi-typescript@6.2.6:
-    resolution: {integrity: sha512-UKLdIwn5Yo0NXx+33H4trIihn/cZAYZo5U+PYD4uYWvBD+mRsEBbXz3gUbeNdgP4Uyv9X6Z8FMx7C08PQI3lcw==}
+  /openapi-typescript@6.7.4:
+    resolution: {integrity: sha512-EZyeW9Wy7UDCKv0iYmKrq2pVZtquXiD/YHiUClAKqiMi42nodx/EQH11K6fLqjt1IZlJmVokrAsExsBMM2RROQ==}
     hasBin: true
     dependencies:
       ansi-colors: 4.1.3
-      fast-glob: 3.2.12
+      fast-glob: 3.3.2
       js-yaml: 4.1.0
-      supports-color: 9.3.1
-      undici: 5.22.1
+      supports-color: 9.4.0
+      undici: 5.28.3
       yargs-parser: 21.1.1
     dev: true
 
@@ -9522,8 +9571,8 @@ packages:
       '@redis/time-series': 1.0.4(@redis/client@1.5.8)
     dev: false
 
-  /regenerator-runtime@0.14.0:
-    resolution: {integrity: sha512-srw17NI0TUWHuGa5CFGGmhfNIeja30WMBfbslPNhf6JrqQlLN5gcrvig1oqPxiVaXb0oW0XRKtH6Nngs5lKCIA==}
+  /regenerator-runtime@0.14.1:
+    resolution: {integrity: sha512-dYnhHh0nJoMfnkZs6GmmhFknAGRrLznOu5nc9ML+EJxGvrx6H7teuevqVqCuPcPK//3eDrrjQhehXVx9cnkGdw==}
     dev: true
 
   /regex-parser@2.2.11:
@@ -9624,6 +9673,15 @@ packages:
     resolution: {integrity: sha512-/Fpe5guzJk1gPqdJLJR5u7eG/gNY4nImjbRDaVWVMRhne55TCmj2i9Q+54PBRfatRC8v/rIiv9BN0pMd9OV5EQ==}
     dependencies:
       lowercase-keys: 1.0.1
+
+  /retry-cli@0.7.0:
+    resolution: {integrity: sha512-VSWsAZFV4AxAsxH2/r+TDQGTS4cTory266mmpI5KiZUZB/8VjqksCZ/kOGMLQ7XZFVNwzVdQ54pEJu6jnLbSVw==}
+    hasBin: true
+    dependencies:
+      cross-spawn: 7.0.3
+      node-getopt: 0.3.2
+      retry: 0.13.1
+    dev: false
 
   /retry@0.13.1:
     resolution: {integrity: sha512-XQBQ3I8W1Cge0Seh+6gjj03LbmRFWuoszgK9ooCpwYIrhhoO80pfq4cUkU5DkknwfOfFteRwlZ56PYOGYyFWdg==}
@@ -9929,10 +9987,6 @@ packages:
     engines: {node: '>=4', npm: '>=6'}
     dev: false
 
-  /streamsearch@1.1.0:
-    resolution: {integrity: sha512-Mcc5wHehp9aXz1ax6bZUyY5afg9u2rv5cqQI3mRrYkGC8rW2hM02jWuwjtL++LS5qinSyhj2QfLyNsuc+VsExg==}
-    engines: {node: '>=10.0.0'}
-
   /strict-uri-encode@2.0.0:
     resolution: {integrity: sha512-QwiXZgpRcKkhTj2Scnn++4PKtWsH0kpzZ62L2R6c/LUVYv7hVnZqcg2+sMuT6R7Jusu1vviK/MFsu6kNJfWlEQ==}
     engines: {node: '>=4'}
@@ -10040,6 +10094,14 @@ packages:
       escape-string-regexp: 1.0.5
     dev: false
 
+  /stripe@13.11.0:
+    resolution: {integrity: sha512-yPxVJxUzP1QHhHeFnYjJl48QwDS1+5befcL7ju7+t+i88D5r0rbsL+GkCCS6zgcU+TiV5bF9eMGcKyJfLf8BZQ==}
+    engines: {node: '>=12.*'}
+    dependencies:
+      '@types/node': 18.16.16
+      qs: 6.11.0
+    dev: false
+
   /strtok3@6.3.0:
     resolution: {integrity: sha512-fZtbhtvI9I48xDSywd/somNqgUHl2L2cstmXCCif0itOf96jeW18MBSyrLuNicYQVkvpOxkZtkzujiTJ9LW5Jw==}
     engines: {node: '>=10'}
@@ -10116,8 +10178,8 @@ packages:
       has-flag: 4.0.0
     dev: true
 
-  /supports-color@9.3.1:
-    resolution: {integrity: sha512-knBY82pjmnIzK3NifMo3RxEIRD9E0kIzV4BKcyTZ9+9kWgLMxd4PrsTSMoFQUabgRBbF8KOLRDCyKgNV+iK44Q==}
+  /supports-color@9.4.0:
+    resolution: {integrity: sha512-VL+lNrEoIXww1coLPOmiEmK/0sGigko5COxI09KzHc2VJXJsQ37UaQ+8quuxjDeA7+KnLGTWRyOXSLLR2Wb4jw==}
     engines: {node: '>=12'}
     dev: true
 
@@ -10297,8 +10359,8 @@ packages:
   /triple-beam@1.3.0:
     resolution: {integrity: sha512-XrHUvV5HpdLmIj4uVMxHggLbFSZYIn7HEWsqePZcI50pco+MPqJ50wMGY794X7AOOhxOBAjbkqfAbEe/QMp2Lw==}
 
-  /ts-deepmerge@6.0.3:
-    resolution: {integrity: sha512-MBBJL0UK/mMnZRONMz4J1CRu5NsGtsh+gR1nkn8KLE9LXo/PCzeHhQduhNary8m5/m9ryOOyFwVKxq81cPlaow==}
+  /ts-deepmerge@6.2.1:
+    resolution: {integrity: sha512-8CYSLazCyj0DJDpPIxOFzJG46r93uh6EynYjuey+bxcLltBeqZL7DMfaE5ZPzZNFlav7wx+2TDa/mBl8gkTYzw==}
     engines: {node: '>=14.13.1'}
     dev: true
 
@@ -10609,11 +10671,12 @@ packages:
   /undici-types@5.26.5:
     resolution: {integrity: sha512-JlCMO+ehdEIKqlFxk6IfVoAUVmgz7cU7zD/h9XZ0qzeosSHmUJVOzSQvvYSYWXkFXC+IfLKSIffhv0sVZup6pA==}
 
-  /undici@5.22.1:
-    resolution: {integrity: sha512-Ji2IJhFXZY0x/0tVBXeQwgPlLWw13GVzpsWPQ3rV50IFMMof2I55PZZxtm4P6iNq+L5znYN9nSTAq0ZyE6lSJw==}
+  /undici@5.28.3:
+    resolution: {integrity: sha512-3ItfzbrhDlINjaP0duwnNsKpDQk3acHI3gVJ1z4fmwMK31k5G9OVIAMLSIaP6w4FaGkaAkN6zaQO9LUvZ1t7VA==}
     engines: {node: '>=14.0'}
     dependencies:
-      busboy: 1.6.0
+      '@fastify/busboy': 2.1.0
+    dev: true
 
   /unfetch@4.2.0:
     resolution: {integrity: sha512-F9p7yYCn6cIW9El1zi0HI6vqpeIvBsr3dSuRO6Xuppb1u5rXpCPmMvLSyECLhybr9isec8Ohl0hPekMVrEinDA==}
@@ -10996,11 +11059,9 @@ packages:
   /webidl-conversions@3.0.1:
     resolution: {integrity: sha512-2JAn3z8AR6rjK8Sm8orRC0h/bcl/DqL7tRPdGZ4I1CjdF+EaMLmYxBHyXuKL849eucPFhvBoxMsflfOb8kxaeQ==}
 
-  /whatsapp-api-js@0.8.2:
-    resolution: {integrity: sha512-n/Wt7VO7D+8InLchNmQ6LmqFC6kLnyRgu6Slo8v0kVt3JgvnZsPrp178OpsxVn50jFECxasKqEaZXBF/SIN36g==}
-    engines: {node: '>=16.0.0'}
-    dependencies:
-      undici: 5.22.1
+  /whatsapp-api-js@1.0.5:
+    resolution: {integrity: sha512-cuxRRf1pi/ztICjpqw52yHycpoaLF2M74+2A8YMq1lDyuNsy0+4tIXNxoxDMJZxCBkSV8sDMsPK4F7oHjPFYzw==}
+    engines: {node: '>14.21'}
     dev: false
 
   /whatwg-url@5.0.0:
@@ -11224,3 +11285,4 @@ packages:
 
   /zod@3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
+    dev: false
