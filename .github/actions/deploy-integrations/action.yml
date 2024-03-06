@@ -102,6 +102,8 @@ runs:
         pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/line -c exec -- 'bp deploy -v -y --noBuild'
         echo "### Deploying integration @botpresshub/linear ###"
         pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/linear -c exec -- 'bp deploy -v -y --noBuild'
+        echo "### Deploying integration @botpresshub/make ###"
+        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/make -c exec -- 'bp deploy -v -y --noBuild'
         echo "### Deploying integration @botpresshub/messenger ###"
         pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/messenger -c exec -- 'bp deploy -v -y --noBuild'
         echo "### Deploying integration @botpresshub/mailchimp ###"
@@ -134,5 +136,3 @@ runs:
         pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/zendesk -c exec -- 'bp deploy -v -y --noBuild'
         echo "### Deploying integration @botpresshub/stripe ###"
         pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/stripe -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/make ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/make -c exec -- 'bp deploy -v -y --noBuild'
