@@ -1,11 +1,12 @@
 import { IntegrationDefinition } from '@botpress/sdk'
 import { z } from 'zod'
 
-const INTEGRATION_NAME = 'make'
+const INTEGRATION_NAME = 'make.com'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: '0.2.0',
+  title: 'Make.com',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

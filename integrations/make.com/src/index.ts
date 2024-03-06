@@ -1,11 +1,11 @@
-import * as botpress from '.botpress'
 import axios from 'axios'
+import * as botpress from '.botpress'
 
 export default new botpress.Integration({
   register: async () => {},
   unregister: async () => {},
-    actions: {
-    sendData: async function ({ ctx, input, logger }) {
+  actions: {
+    async sendData({ ctx, input, logger }) {
       logger.forBot().info('Sending data to Make.com')
 
       const webhookURL = ctx.configuration.webhookUrl
