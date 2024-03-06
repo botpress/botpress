@@ -14,18 +14,13 @@ const toJs = async (tsScript: string): Promise<string> => {
     stdin: {
       contents: tsScript,
       resolveDir: __dirname,
-      loader: 'ts'
+      loader: 'ts',
     },
-    external: [
-      'crypto',
-      'axios',
-      'browser-or-node'
-    ],
     bundle: true,
     write: false,
     format: 'esm',
     platform: 'browser',
-    target: 'es2017'
+    target: 'es2017',
   })
   const jsScript = buildResult.outputFiles[0]!.text
   return jsScript
@@ -66,7 +61,7 @@ const main = async () => {
 
 void main()
   .then(() => {
-    console.log('done')
+    console.error('Browser Done')
     process.exit(0)
   })
   .catch((err) => {

@@ -6,6 +6,11 @@
   "module": "./dist/index.mjs",
   "types": "./dist/index.d.ts",
   "license": "MIT",
+  "browser": {
+    "crypto": false,
+    "http": false,
+    "https": false
+  },
   "scripts": {
     "build:type": "tsc --emitDeclarationOnly --declaration --target es2019 --module commonjs --moduleResolution node --lib es2019",
     "build:browser": "esbuild --bundle --external:crypto --external:axios --external:browser-or-node --platform=browser --format=esm --minify --outfile=dist/index.mjs src/index.ts",

@@ -35,5 +35,5 @@ export const expect = <T>(x: T) => ({
     if (!didThrow) {
       throw new ExpectError(`Expected ${x} to throw`)
     }
-  }
+  },
 })
