@@ -11,13 +11,7 @@
     "dep:check": "ts-node -T ./scripts/depsynky check",
     "dep:fix": "ts-node -T ./scripts/depsynky sync",
     "check": "pnpm dep:check && pnpm format:check && pnpm lint:check && pnpm type:check",
-    "test": "pnpm vitest --run",
-    "fix": "pnpm dep:fix && pnpm format:fix && pnpm lint:fix",
-    "version": "bp --version",
-    "login": "bp login",
-    "dev": "bp dev",
-    "gen": "bp gen",
-    "deploy": "bp deploy"
+    "test": "pnpm vitest --run"
   },
   "dependencies": {
     "@botpress/cli": "workspace:*",
