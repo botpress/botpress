@@ -622,6 +622,34 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  integrations/make:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.6.7
+        version: 1.6.7
+      zod:
+        specifier: ^3.20.6
+        version: 3.20.6
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^18.19.10
+        version: 18.19.10
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@types/node@18.19.10)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.5
+        version: 4.9.5
+
   integrations/messenger:
     dependencies:
       '@botpress/cli':
@@ -10387,7 +10415,7 @@ packages:
     resolution: {integrity: sha512-yPxVJxUzP1QHhHeFnYjJl48QwDS1+5befcL7ju7+t+i88D5r0rbsL+GkCCS6zgcU+TiV5bF9eMGcKyJfLf8BZQ==}
     engines: {node: '>=12.*'}
     dependencies:
-      '@types/node': 18.16.16
+      '@types/node': 18.19.10
       qs: 6.11.0
     dev: false
 
