@@ -31,6 +31,6 @@
     "@botpress/api": "0.18.1",
     "esbuild": "^0.16.12",
     "lodash": "^4.17.21",
-    "puppeteer": "^22.4.0"
+    "puppeteer": "^22.0.0"
   }
 }
