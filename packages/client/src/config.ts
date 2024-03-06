@@ -46,7 +46,7 @@ export function getClientConfig(clientProps: ClientProps): ClientConfig {
   }
 
   if (props.token) {
-    headers['Authorization'] = `Bearer ${props.token}`
+    headers.Authorization = `Bearer ${props.token}`
   }
 
   headers = {
