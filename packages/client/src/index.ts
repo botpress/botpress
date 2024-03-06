@@ -58,4 +58,5 @@ type ExtractMethods<T> = PickMatching<T, (...rest: any[]) => any>
 
 type FunctionNames = keyof ExtractMethods<Client>
 
+export type ClientParams<T extends FunctionNames> = Simplify<Parameters<Client[T]>[0]>
 export type ClientReturn<T extends FunctionNames> = Simplify<Awaited<ReturnType<Client[T]>>>
