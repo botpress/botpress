@@ -1,5 +1,5 @@
 {
-  "name": "@botpresshub/make.com",
+  "name": "@botpresshub/make",
   "scripts": {
     "start": "pnpm bp serve",
     "build": "pnpm bp build",
