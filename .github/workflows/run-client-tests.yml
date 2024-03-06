@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 jobs:
-  run-tests:
+  run-client-tests:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     env:
