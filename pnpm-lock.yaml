@@ -622,7 +622,7 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
-  integrations/make.com:
+  integrations/make:
     dependencies:
       '@botpress/client':
         specifier: workspace:*
@@ -637,6 +637,9 @@ importers:
         specifier: ^3.20.6
         version: 3.20.6
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/node':
         specifier: ^18.19.10
         version: 18.19.10
