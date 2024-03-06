@@ -1479,7 +1479,7 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       puppeteer:
-        specifier: ~22.0.0
+        specifier: ^22.0.0
         version: 22.0.0(typescript@4.9.5)
 
   packages/sdk:
@@ -6853,7 +6853,7 @@ packages:
       extend: 3.0.2
       https-proxy-agent: 7.0.2
       is-stream: 2.0.1
-      node-fetch: 2.6.11
+      node-fetch: 2.7.0
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -7684,7 +7684,7 @@ packages:
   /isomorphic-unfetch@3.1.0:
     resolution: {integrity: sha512-geDJjpoZ8N0kWexiwkX8F9NkTsXhetLPVbZFQ+JTW239QNOwvB0gniuR1Wc6f0AMTn7/mFGyXvHTifrCp/GH8Q==}
     dependencies:
-      node-fetch: 2.6.11
+      node-fetch: 2.7.0
       unfetch: 4.2.0
     transitivePeerDependencies:
       - encoding
