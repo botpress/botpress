@@ -4,7 +4,7 @@ Supercharge your workflow with the Google Sheets integration, simplifying intera
 
 From tracking inventory and managing project tasks to organizing event attendees, Google Sheets integration streamlines your data management tasks.
 
-Give your bot new abilities like  add new entries, update existing records, and retrieve essential information.
+Give your bot new abilities like add new entries, update existing records, and retrieve essential information.
 
 Stay agile and organized by dynamically adding new sheets to accommodate evolving data needs, ensuring your spreadsheets remain flexible and scalable.
 
