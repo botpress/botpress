@@ -108,7 +108,7 @@ export const getUserAndConversation = async (props: {
   client: Client
   integrationId: string
   forceUpdate?: boolean
-}) => {
+}): Promise<{ conversationId: string; userId?: string }> => {
   const { conversation } = await props.client.getOrCreateConversation({
     channel: 'issue',
     tags: {
@@ -126,8 +126,11 @@ export const getUserAndConversation = async (props: {
     await props.client.updateConversation({ id: conversation.id, tags: newTags })
   }
 
-  const { user } = await props.client.getOrCreateUser({ tags: { id: props.linearUserId } })
+  if (!props.linearUserId) {
+    return { conversationId: conversation.id }
+  }
 
+  const { user } = await props.client.getOrCreateUser({ tags: { id: props.linearUserId } })
   if (!user.name) {
     const linearUser = await linearClient.user(props.linearUserId)
 
