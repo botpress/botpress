@@ -9,7 +9,8 @@ export default new IntegrationDefinition({
   version: '0.2.0',
   title: 'Asana',
   readme: 'hub.md',
-  description: 'Asana integration for Botpress',
+  description:
+    "Maximize productivity with Asana. Connect your bot to your Asana inbox, effortlessly create and update tasks, add comments, and locate users—all within your bot's workflow",
   icon: 'icon.svg',
   configuration,
   channels,

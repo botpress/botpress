@@ -7,7 +7,8 @@ export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: '0.2.0',
   title: 'Linear',
-  description: 'Linear integration for Botpress',
+  description:
+    'Elevate project management with Linear. Update, create, and track issues effortlessly. Improve collaboration with workflow actions like marking duplicates, managing teams and connect your chatbot directly in discussions',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration,

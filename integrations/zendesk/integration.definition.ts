@@ -8,7 +8,8 @@ export default new IntegrationDefinition({
   title: 'Zendesk',
   version: '0.2.0',
   icon: 'icon.svg',
-  description: 'This integration allows your bot to interact with Zendesk.',
+  description:
+    'Optimize your support workflow using Zendesk. Seamlessly integrate your chatbot into Zendesk chat, enabling you to trigger workflows from ticket updates. Easily manage tickets, access conversations, and engage with customers',
   readme: 'hub.md',
   configuration,
   states,
