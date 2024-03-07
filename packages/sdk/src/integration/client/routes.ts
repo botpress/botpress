@@ -235,6 +235,16 @@ export type SetState<TIntegration extends BaseIntegration> = <TState extends key
   >
 ) => Promise<StateResponse<TIntegration, TState>>
 
+export type GetOrSetState<TIntegration extends BaseIntegration> = <TState extends keyof TIntegration['states']>(
+  x: Merge<
+    Arg<Client['getOrSetState']>,
+    {
+      name: Cast<TState, string> // TODO: use state name to infer state type
+      payload: TIntegration['states'][TState]
+    }
+  >
+) => Promise<StateResponse<TIntegration, TState>>
+
 export type PatchState<TIntegration extends BaseIntegration> = <TState extends keyof TIntegration['states']>(
   x: Merge<
     Arg<Client['patchState']>,

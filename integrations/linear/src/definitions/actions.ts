@@ -1,6 +1,6 @@
 import { IntegrationDefinitionProps } from '@botpress/sdk'
 import z from 'zod'
-import { LinearIds, UserProfile } from '../definitions/schemas'
+import { LinearIds, UserProfile, issueSchema } from '../definitions/schemas'
 
 const channels = ['issue'] as const
 
@@ -31,18 +31,6 @@ const findTarget = {
     }),
   },
 }
-
-const issueSchema = z.object({
-  id: z.string(),
-  number: z.number(),
-  identifier: z.string(),
-  title: z.string(),
-  description: z.string().optional(),
-  priority: z.number(),
-  url: z.string(),
-  createdAt: z.date(),
-  updatedAt: z.date(),
-})
 
 const getIssue = {
   title: 'Get Issue',

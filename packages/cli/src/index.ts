@@ -1,3 +1,4 @@
+import 'dotenv/config'
 import yargs from '@bpinternal/yargs-extra'
 import commandDefinitions from './command-definitions'
 import commandImplementations from './command-implementations'

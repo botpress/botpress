@@ -1,4 +1,4 @@
-import type * as bpclient from '@botpress/client'
+import type * as client from '@botpress/client'
 import chalk from 'chalk'
 import _ from 'lodash'
 import type commandDefinitions from '../command-definitions'
@@ -73,7 +73,7 @@ export class DeleteIntegrationCommand extends GlobalCommand<DeleteIntegrationCom
       throw new errors.BotpressCLIError('Cannot delete local integration')
     }
 
-    let integration: bpclient.Integration | undefined
+    let integration: client.Integration | undefined
     try {
       integration = await api.findPrivateIntegration(parsedRef)
     } catch (thrown) {

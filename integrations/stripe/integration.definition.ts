@@ -46,7 +46,7 @@ export default new IntegrationDefinition({
   name: 'stripe',
   version: '0.2.0',
   title: 'Stripe',
-  readme: 'readme.md',
+  readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
@@ -83,10 +83,6 @@ export default new IntegrationDefinition({
     },
   },
   channels: {},
-  user: {
-    tags: { id: {} },
-    creation: { enabled: true, requiredTags: ['id'] },
-  },
   states: {
     stripeIntegrationInfo: {
       type: 'integration',

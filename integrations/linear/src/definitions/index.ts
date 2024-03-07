@@ -1,5 +1,6 @@
 import { IntegrationDefinitionProps, messages } from '@botpress/sdk'
 import { z } from 'zod'
+import { issueSchema } from './schemas'
 
 export { actions } from './actions'
 export { events } from './events'
@@ -10,7 +11,10 @@ export const configuration = {
   identifier: {
     linkTemplateScript: 'linkTemplate.vrl',
   },
-  schema: z.object({}),
+  schema: z.object({
+    displayName: z.string().optional().describe('The name displayed in message transmissions'),
+    avatarUrl: z.string().optional().describe('The web address for the profile picture'),
+  }),
 } satisfies IntegrationDefinitionProps['configuration']
 
 export const channels = {
@@ -28,6 +32,11 @@ export const channels = {
       },
       tags: {
         id: {},
+        title: {},
+        url: {},
+        parentId: {},
+        parentTitle: {},
+        parentUrl: {},
       },
     },
   },
@@ -38,3 +47,11 @@ export const user = {
     id: {},
   },
 } satisfies IntegrationDefinitionProps['user']
+
+export const entities = {
+  issue: {
+    title: 'Issue',
+    description: 'A linear issue',
+    schema: issueSchema,
+  },
+} satisfies IntegrationDefinitionProps['entities']

@@ -1,4 +1,4 @@
-import { getLinearClient, getTeam } from '../misc/utils'
+import { getIssueTags, getLinearClient, getTeam } from '../misc/utils'
 import { getIssueFields } from './get-issue'
 import { IntegrationProps } from '.botpress'
 
@@ -25,6 +25,8 @@ export const createIssue: IntegrationProps['actions']['createIssue'] = async ({
     teamId: team.id,
     labelIds,
     projectId,
+    createAsUser: ctx.configuration.displayName,
+    displayIconUrl: ctx.configuration.avatarUrl,
   })
 
   const fullIssue = await issueFetch
@@ -33,12 +35,11 @@ export const createIssue: IntegrationProps['actions']['createIssue'] = async ({
   }
 
   const issue = getIssueFields(fullIssue)
+  const issueTags = await getIssueTags(fullIssue)
 
   await client.getOrCreateConversation({
     channel: 'issue',
-    tags: {
-      id: fullIssue.id,
-    },
+    tags: issueTags,
   })
 
   return {
