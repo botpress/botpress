@@ -8,7 +8,8 @@ export default new IntegrationDefinition({
   version: '0.2.0',
   title: 'Trello',
   readme: 'hub.md',
-  description: 'Trello integration for Botpress',
+  description:
+    "Boost your chatbot's capabilities with Trello. Easily update cards, add comments, create new cards, and read board members from your chatbot",
   icon: 'icon.svg',
   configuration,
   user,

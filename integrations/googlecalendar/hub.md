@@ -1,17 +1,6 @@
-# Google Calendar Integration
-
 ## Description
 
 The Google Calendar Integration allows you to seamlessly interact with Google Calendar within your Botpress bot. This integration provides various actions to manage calendar events, enhancing the functionality of your bot.
-
-## Actions Supported
-
-The Google Calendar Integration supports the following actions:
-
-- `createEvent`: Create a new event on Google Calendar.
-- `listEvents`: Retrieve a list of upcoming events from Google Calendar.
-- `updateEvent`: Update an existing event on Google Calendar.
-- `deleteEvent`: Delete an event from Google Calendar.
 
 ## Installation and Configuration
 
@@ -39,11 +28,3 @@ Once the Google Calendar Integration is configured, you can use it to manage cal
 - Update or delete events based on user requests.
 
 The integration provides powerful capabilities to enhance your bot's scheduling and event management functionalities.
-
-## Documentation and Resources
-
-For detailed documentation, API references, and examples, please refer to the integration's README file or the Botpress documentation.
-
-If you encounter any issues or have questions related to the Google Calendar Integration, feel free to reach out to our support team or the Botpress community for assistance.
-
-Start using the Google Calendar Integration to streamline your bot's scheduling and calendar management tasks!

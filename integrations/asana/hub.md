@@ -15,9 +15,3 @@ Before activating the Botpress Asana Integration, please ensure the availability
 ## Functionality
 
 Once the integration is operational, you can initiate interactions with Asana directly from your Botpress chatbot. The integration introduces actions such as `createTask`, `updateTask`, `findUser`, and `addCommentToTask`, streamlining the management of tasks and users.
-
-## Constraints
-
-- The Asana API rate limits are applicable.
-
-- Certain advanced Asana features tied to paid plans may not be accessible.

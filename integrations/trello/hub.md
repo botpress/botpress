@@ -1,5 +1,3 @@
-# Botpress Trello Integration
-
 This integration allows you to connect your Botpress chatbot with Trello, a popular project management platform. With this integration, you can easily manage your projects and tasks directly from your chatbot.
 
 To set up the integration, you will need to provide your **Trello API key** and **Token**. Once the integration is set up, you can use the built-in actions to create and update cards, add comments to cards, and more.
@@ -43,9 +41,3 @@ For more details and examples, refer to the Botpress and Trello documentation.
 - Trello API rate limits apply.
 
 - Some Trello paid features may not be available.
-
-## Contributing
-
-Contributions are welcome! Please submit issues and pull requests.
-
-Enjoy the seamless task management integration between Botpress and Trello!

@@ -8,7 +8,8 @@ export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: '0.2.0',
   title: 'Zapier',
-  description: 'This integration allows your bot to interact with Zapier.',
+  description:
+    "Trigger workflows from Zapier or let Zapier trigger your workflows to automate tasks and enhance your chatbot's capabilities.",
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

@@ -1,5 +1,3 @@
-# Botpress Make.com Integration
-
 This integration enables you to connect your Botpress chatbot with Make.com, a powerful automation platform that allows you to automate tasks across various applications and services. With the Botpress Make.com integration, you can extend the capabilities of your chatbot by automating actions, syncing data with other tools, and much more.
 
 To set up the integration, you will need to set up a scenario that starts from a **Webhook** on Make.com. Once the integration is in place, you can design and implement automation scenarios in Make.com that trigger from or act upon events in your Botpress chatbot.
@@ -12,7 +10,7 @@ Before enabling the Botpress Make.com Integration, please ensure that you have:
 - An account on Make.com with access to creating scenarios.
 - Familiarity with Make.com's platform and how to create and manage scenarios.
 
-## Enable Integration
+## Installation and Configuration
 
 To enable the Make.com integration in Botpress, follow these steps:
 

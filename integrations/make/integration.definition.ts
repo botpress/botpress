@@ -8,6 +8,8 @@ export default new IntegrationDefinition({
   version: '0.2.0',
   title: 'Make.com',
   icon: 'icon.svg',
+  description:
+    'Seamlessly connect your Botpress chatbot with Make.com to unlock a world of possibilities. Automate tasks, sync data across multiple applications, and enhance the capabilities of your chatbot like never before',
   readme: 'hub.md',
   configuration: {
     schema: z

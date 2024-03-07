@@ -1,24 +1,4 @@
-## Setup
-
-### Step 1 - Create Integration
-
-Create a Notion integration [Create an integration - Notion Developers](https://developers.notion.com/docs/create-a-notion-integration)
-
-### Step 2 - Give access to Notion Assets
-
-Give your integration access to all the pages and databases that you want to use with Botpress
-
-### Step 3 - Configure your Bot
-
-Give your integration access to all the pages and databases that you want to use with Botpress. [Share a database with your integration - Notion Developers](https://developers.notion.com/docs/create-a-notion-integration#step-2-share-a-database-with-your-integration)
-
-You need a token to get your newly created Notion Integration _(not the same as Botpress Studio's Notion Integration)_ connected with Botpress Studio:
-
-- `Auth Token` - You'll find this by going to your integration under `https://www.notion.so/my-integrations`. Once you click on your integration, go to the "Secrets" section and find the "Internal Integration Secret" field. Click "Show" then "Copy". Paste the copied token under `Auth Token` field for Notion integration under the "Integrations" tab for your bot.
-
-With that you just need to enable your integration and you can start expanding your Bot's capabilities with Notion.
-
-## Actions
+## Capabilities
 
 The Notion Integration for Botpress Studio allows you to do the following things:
 
@@ -47,3 +27,23 @@ You can delete the following entities:
 - a page in a database
 - a page
 - a block
+
+## Installation and Configuration
+
+### Step 1 - Create Integration
+
+Create a Notion integration [Create an integration - Notion Developers](https://developers.notion.com/docs/create-a-notion-integration)
+
+### Step 2 - Give access to Notion Assets
+
+Give your integration access to all the pages and databases that you want to use with Botpress
+
+### Step 3 - Configure your Bot
+
+Give your integration access to all the pages and databases that you want to use with Botpress. [Share a database with your integration - Notion Developers](https://developers.notion.com/docs/create-a-notion-integration#step-2-share-a-database-with-your-integration)
+
+You need a token to get your newly created Notion Integration _(not the same as Botpress Studio's Notion Integration)_ connected with Botpress Studio:
+
+- `Auth Token` - You'll find this by going to your integration under `https://www.notion.so/my-integrations`. Once you click on your integration, go to the "Secrets" section and find the "Internal Integration Secret" field. Click "Show" then "Copy". Paste the copied token under `Auth Token` field for Notion integration under the "Integrations" tab for your bot.
+
+With that you just need to enable your integration and you can start expanding your Bot's capabilities with Notion.

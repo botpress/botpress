@@ -48,6 +48,8 @@ export default new IntegrationDefinition({
   title: 'Stripe',
   readme: 'hub.md',
   icon: 'icon.svg',
+  description:
+    'Enhance your chatbot with Stripe to manage payments, subscriptions, and customers seamlessly. Execute workflows on charge failures and subscription updates easily',
   configuration: {
     schema: z.object({
       apiKey: z.string().describe('API Key'),

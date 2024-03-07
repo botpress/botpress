@@ -1,17 +1,14 @@
-# Google Sheet
-
 ## Description
 
-This integration allows you to interact with Google Sheets with the following actions:
+Supercharge your workflow with the Google Sheets integration, simplifying interactions with your spreadsheet data. Easily update, append, and retrieve values to keep your spreadsheets up-to-date.
 
-- getValues
-- updateValues
-- appendValues
-- clearValues
-- getInfoSpreadsheet
-- addSheet
+From tracking inventory and managing project tasks to organizing event attendees, Google Sheets integration streamlines your data management tasks.
 
-## Installation
+Give your bot new abilities like add new entries, update existing records, and retrieve essential information.
+
+Stay agile and organized by dynamically adding new sheets to accommodate evolving data needs, ensuring your spreadsheets remain flexible and scalable.
+
+## Installation and Configuration
 
 1. Login to Google Cloud Console and create a new project.
 1. Enable Google Sheets API for the project.

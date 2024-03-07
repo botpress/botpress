@@ -1,8 +1,6 @@
-# Botpress Stripe Integration
+Connect your Botpress chatbot with Stripe, a popular online payment platform that facilitates transactions between businesses and their customers. Stripe allows you to manage payments, subscriptions, invoices, and more.
 
-This integration allows you to connect your Botpress chatbot with Stripe, a popular online payment platform that facilitates transactions between businesses and their customers. Stripe allows you to manage payments, subscriptions, invoices, and more.
-
-## Setup
+## Setup and Configuration
 
 To set up the integration, you will need to provide your Stripe `apiKey`. This key can be obtained from the Stripe Dashboard. Once the integration is set up, you can use the built-in actions to manage your Stripe data.
 
@@ -36,21 +34,3 @@ Once the integration is enabled, you can start using Stripe features from your B
 - **Payment Intent Failed**: This event occurs when a payment intent fails in Stripe.
 
 These events allow your chatbot to respond to various situations related to charges, payments and subscriptions in Stripe.
-
-## Limitations and Solutions
-
-Stripe has frequency limits to maximize its stability, allowing up to 100 read and write operations per second in active mode, and 25 operations per second in test mode.
-
-In addition, Stripe locks objects during some operations to prevent interference. If a request attempts to acquire a lock already in use, an error may occur.
-
-To handle these limits, the documentation recommends:
-
-- Retry requests that return 429 errors.
-- Reduce unnecessary load.
-- Run mutations on the same object sequentially.
-
-## Contributing
-
-Contributions are welcome! Please submit issues and pull requests.
-
-Enjoy seamless helpdesk and customer support integration between Botpress and Stripe!

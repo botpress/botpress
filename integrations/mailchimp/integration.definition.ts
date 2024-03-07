@@ -17,9 +17,12 @@ const INTEGRATION_NAME = 'mailchimp'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
+  title: 'Mailchimp',
   version: '0.2.0',
   readme: 'hub.md',
   icon: 'icon.svg',
+  description:
+    "Elevate your bot's email marketing abilities with Mailchimp. Access and add customers to campaigns and lists and send mass email campaigns from within your workflows",
   channels: {},
   configuration: {
     schema: z.object({
