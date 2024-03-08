@@ -1,0 +1,24 @@
+name: Bug Report
+description: File a bug report
+title: '[Bug]: '
+body:
+  - type: markdown
+    attributes:
+      value: "Thank you for taking the time to fill out this bug report.\n Keep in mind this repository is meant for Developper focused tools, for public integrations developpement and eventually agent developpement (See [This Repository](https://github.com/botpress/botpress#this-repository))."
+  - type: checkboxes
+    id: dx-related-confirmation
+    attributes:
+      label: 'Make sure the issue is related to code located in this repository.'
+      description: 'If you are using Botpress Cloud, ensure that the bug you want to report is related to code located in this repository. When in doubt, please report the bug on [our Discord Server](https://discord.gg/botpress).'
+      options:
+        - label: 'I confirm that the reported bug is not related to Botpress on premise version (v12 and below)'
+          required: true
+        - label: 'I confirm that the reported bug is not related to the Botpress Studio'
+          required: true
+        - label: 'I confirm that the reported bug is not related to the Botpress Dashboard'
+          required: true
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: 'Description of the bug'
+      description: 'What is your issue? Make sure to add logs, context or any information that you think might help understand and solve the issue.'
