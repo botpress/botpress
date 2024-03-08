@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { ZuiTypeAny, zui, zuiKey } from './zui'
-import { getZuiSchemas } from './zui-schemas'
+import { ZuiTypeAny, zui, zuiKey } from '../zui'
+import { getZuiSchemas } from '../zui-schemas'
 import { jsonSchemaToZui } from './json-schema-to-zui'
 import { zuiToJsonSchema } from './zui-to-json-schema'
 

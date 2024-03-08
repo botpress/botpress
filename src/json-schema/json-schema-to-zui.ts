@@ -1,7 +1,7 @@
 import { parseSchema } from '@bpinternal/json-schema-to-zod'
 import { ZodTypeAny } from 'zod'
-import { ZuiTypeAny, zui, zuiKey } from './zui'
-import { JsonSchema7 } from '.'
+import { ZuiTypeAny, zui, zuiKey } from '../zui'
+import { JsonSchema7 } from '..'
 
 const jsonSchemaToZodStr = (schema: any): string => {
   return parseSchema(schema, {

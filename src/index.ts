@@ -22,7 +22,7 @@ export type {
 } from '@bpinternal/zod-to-json-schema'
 
 export { getZuiSchemas } from './zui-schemas'
-export { jsonSchemaToZui } from './json-schema-to-zui'
+export { jsonSchemaToZui } from './json-schema/json-schema-to-zui'
 export { ZodError as ZuiError } from 'zod'
 
 export interface ComponentDefinitions {}

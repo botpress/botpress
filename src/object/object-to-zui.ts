@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { ZuiTypeAny, zui } from './zui'
+import { ZuiTypeAny, zui } from '../zui'
 
 // Using a basic regex do determine if it's a date or not to avoid using another lib for that
 const dateTimeRegex =

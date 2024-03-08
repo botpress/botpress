@@ -1,7 +1,7 @@
 import { zodToJsonSchema, type JsonSchema7ArrayType, type JsonSchema7ObjectType } from '@bpinternal/zod-to-json-schema'
-import type { JsonSchema7, ZuiExtension, ZuiTypeAny, ZuiType } from './index'
-import { zuiKey, ToZodType } from './zui'
-import type { ZuiSchemaOptions } from './zui-schemas'
+import type { JsonSchema7, ZuiExtension, ZuiTypeAny, ZuiType } from '../index'
+import { zuiKey, ToZodType } from '../zui'
+import type { ZuiSchemaOptions } from '../zui-schemas'
 import { z } from 'zod'
 
 type JsonSchemaWithZui = JsonSchema7 & {

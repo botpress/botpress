@@ -1,6 +1,6 @@
 import type { ZuiTypeAny } from './zui'
 import type { Options } from '@bpinternal/zod-to-json-schema'
-import { zuiToJsonSchema } from './zui-to-json-schema'
+import { zuiToJsonSchema } from './json-schema/zui-to-json-schema'
 import { z } from 'zod'
 
 export type ZuiSchemaOptions = {

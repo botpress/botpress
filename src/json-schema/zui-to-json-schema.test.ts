@@ -1,7 +1,7 @@
 import { describe, test, expect } from 'vitest'
-import { zui } from '.'
-import { getZuiSchemas } from '.'
-import { zuiKey } from './zui'
+import { zui } from '..'
+import { getZuiSchemas } from '..'
+import { zuiKey } from '../zui'
 import { z } from 'zod'
 
 describe('zuiToJsonSchema', () => {

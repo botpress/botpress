@@ -26,8 +26,10 @@ import type {
 import { z } from 'zod'
 import { ZuiSchemaOptions, getZuiSchemas } from './zui-schemas'
 import { GlobalComponentDefinitions, JsonSchema7, jsonSchemaToZui } from '.'
-import { ObjectToZuiOptions, objectToZui } from './object-to-zui'
+import { ObjectToZuiOptions, objectToZui } from './object/object-to-zui'
 import type { UIComponentDefinitions, ZodToBaseType } from './ui/types'
+import { isNodeEnvironment } from './utils'
+import { ToTsOptions } from './typescript/zui-to-ts'
 
 export type Infer<
   T extends ZodType | ZuiType<any> | ZuiTypeAny,
@@ -98,6 +100,7 @@ export type ZuiExtension<Z extends ZodType, UI extends UIComponentDefinitions = 
       : never
   }
   toJsonSchema(options?: ZuiSchemaOptions): any //TODO: fix typings, JsonSchema7 doesn't work well when consuming it
+  toTypescriptTypings(options?: { schemaName?: string } & ZuiSchemaOptions & ToTsOptions): string
 }
 
 export const zuiKey = 'x-zui' as const
@@ -186,6 +189,18 @@ function extend<T extends ZCreate | ZodLazy<any>>(zType: T) {
         ret._def[zuiKey] = this?._def?.[zuiKey]
         return ret
       }
+    }
+  }
+
+  if (!instance.toTypescriptTypings) {
+    instance.toTypescriptTypings = async function (options?: any) {
+      if (!isNodeEnvironment()) {
+        console.warn('toTypescriptTypings is not supported in browser')
+        return ''
+      }
+
+      const module = await import('./typescript/zui-to-ts')
+      return module.toTypescriptTypings(this.toJsonSchema(options), options)
     }
   }
 
