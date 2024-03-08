@@ -20,56 +20,76 @@
   
 </div>
 
-## Getting started
+## This Repository
 
 This repository contains:
 
-- [**Integrations**](#integrations) – all public integrations on the [Botpress Hub](https://app.botpress.cloud/hub)
-- [**Agents**](#agents) – all public agents on the [Botpress Studio](https://studio.botpress.cloud) **(coming soon)**
+- [**Integrations**](#integrations) – all public integrations on the [Botpress Hub](https://app.botpress.cloud/hub) maintained by Botpress
 - [**Devtools**](#devtools) – all Botpress Cloud dev tools (CLI, SDK, API Client)
+- [**Bots**](#bots) - some example of bots "_as code_" made only using the SDK and the CLI
+- [**Agents**](#agents) – all public agents on the [Botpress Studio](https://studio.botpress.cloud) **(coming soon)**
+
+## Contributing
+
+We love contributions from the community!
+
+We welcome pull requests and issues relevant for any code contained in this repository. See the [This Repository](#this-repository) section for more details.
+
+For bugs or features related to the API, Botpress Dashboard or the Botpress Studio, please talk to us on [Discord](https://discord.gg/botpress) instead!
+
+For any problem related to on-premise Botpress v12, please see the [Botpress v12 repository](https://github.com/botpress/v12).
 
 ## Integrations
 
 The [`/integrations`](./integrations) folder contains all our public and open-source integrations. We invite the community to contribute their own integrations to Botpress Cloud.
 
-Create integrations using the **Botpress CLI** and submit a pull request to make your mark on the future of chatbots.
+### Integration Development
 
-### Installation
-
-The Botpress Cloud environment is built using **Typescript** and [**Node.js**](https://nodejs.org).
-Make sure you have a recent version of Node (>16) and npm installed.
+To develop an integration, start by installing the [Botpress CLI](https://www.npmjs.com/package/@botpress/cli):
 
 ```sh
 npm install -g @botpress/cli # for npm
 yarn global add @botpress/cli # for yarn
-pnpm i -g @botpress/cli # for pnpm
+pnpm install -g @botpress/cli # for pnpm
 ```
 
-### Usage
+Then, in the directory of your choice, create a new integration:
 
 ```sh
-# Login for the first time
-bp login
-
-# Interactive command to build a new integration
 bp init
 ```
 
-### Deploying a Private Integration
+This command will generate a integration from one of the proposed templates.
 
-By default, all integrations are private to the workspace they have been deployed in.
+_This step can be executed in any directory and git repository of your choice. You don't have to fork this repository to create an integration._
+
+You can then modify both the definition and implementation of your integration respectively located in the `integration.definition.ts` and `src/index.ts` files.
+
+For more information on how to develop an integration, please refer to the [Documentation](https://botpress.com/docs/developers/).
+
+Once your integration is ready, you can deploy it to your workspace using the following command:
 
 ```sh
 bp deploy
 ```
 
+This will deploy your integration to your workspace and make it available to all your bots.
+
 ### Making your Integration Public
+
+By default, all integrations are private to the workspace they have been deployed in.
 
 To submit your integration to the Botpress Hub and make it publicly available to the community, please make a pull request to this repository by following these [Integration Contribution guidelines](./integrations).
 
-## Agents
+## Bots
 
-Coming soon.
+The [`/bots`](./bots) folder contains examples of bots "_as code_" made only using the client, the SDK and the CLI.
+
+**This is not the recommended way to build bots** and is in no way a replacement for the Botpress Studio.
+
+However it can be useful for experienced developers who want to build bots in a more programmatic way.
+
+It is also used internally by the Botress team since the Studio and CLI both use the same underlying primitives.
 
 ## Devtools
 
@@ -79,11 +99,11 @@ Coming soon.
 | [`@botpress/client`](https://www.npmjs.com/package/@botpress/client) | Type-safe client to consume the Botpress APIs   | [Docs]()                                           | [Code]()               |
 | [`@botpress/sdk`](https://www.npmjs.com/package/@botpress/sdk)       | Internal package used by to build integrations  | [Docs]()                                           | [Code]()               |
 
-## Contributing
+## Agents
 
-We love contributions from the community! We welcome pull requests that provide improvements or bug fixes for the CLI, Client, SDK or Integrations.
+Coming soon.
 
-Please keep the contributions to integrations and open-source packages. For bugs or features related to the API, Botpress Cloud or the Botpress Studio, please talk to us on [Discord](https://discord.gg/botpress) instead!
+## Local Development
 
 ### Prerequisites
 
