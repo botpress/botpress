@@ -1,0 +1,23 @@
+name: Botpress DevTools or Public Integrations
+description: File a bug report or feature request for Botpress DevTools or Public Integrations
+body:
+  - type: markdown
+    attributes:
+      value: "Thank you for taking the time to fill out this issue report.\n\nKeep in mind this repository is meant for Developper focused tools, for public integrations developpement and eventually agent developpement (See the [README](https://github.com/botpress/botpress#this-repository) file for more details)."
+  - type: checkboxes
+    id: dx-related-confirmation
+    attributes:
+      label: 'Make sure the issue is related to code located in this repository.'
+      description: 'When in doubt, please report the bug on [our Discord Server](https://discord.gg/botpress).'
+      options:
+        - label: 'I confirm that the reported bug or feature request is not related to Botpress on premise version (v12 and below)'
+          required: true
+        - label: 'I confirm that the reported bug or feature request is not related to the Botpress Studio'
+          required: true
+        - label: 'I confirm that the reported bug or feature request is not related to the Botpress Dashboard'
+          required: true
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: 'Description of the bug or feature request'
+      description: 'What is your bug or feature request ? Make sure to add logs, context or any information that you think might help understand and solve the issue.'
