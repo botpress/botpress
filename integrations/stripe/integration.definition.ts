@@ -1,6 +1,5 @@
 import { IntegrationDefinition } from '@botpress/sdk'
 import { z } from 'zod'
-import { name } from './package.json'
 import {
   createCustomerInputSchema,
   createCustomerOutputSchema,
@@ -44,11 +43,13 @@ import {
 } from './src/misc/custom-uis'
 
 export default new IntegrationDefinition({
-  name,
+  name: 'stripe',
   version: '0.2.0',
   title: 'Stripe',
-  readme: 'readme.md',
+  readme: 'hub.md',
   icon: 'icon.svg',
+  description:
+    'Enhance your chatbot with Stripe to manage payments, subscriptions, and customers seamlessly. Execute workflows on charge failures and subscription updates easily',
   configuration: {
     schema: z.object({
       apiKey: z.string().describe('API Key'),
@@ -84,10 +85,6 @@ export default new IntegrationDefinition({
     },
   },
   channels: {},
-  user: {
-    tags: { id: {} },
-    creation: { enabled: true, requiredTags: ['id'] },
-  },
   states: {
     stripeIntegrationInfo: {
       type: 'integration',

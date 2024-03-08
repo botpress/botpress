@@ -50,7 +50,9 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
 
   private _copy = async (props: { srcDir: string; destDir: string; name: string }) => {
     const { srcDir, destDir, name } = props
-    const destination = pathlib.join(destDir, props.name)
+
+    const dirName = utils.casing.to.kebabCase(name)
+    const destination = pathlib.join(destDir, dirName)
 
     const exist = await this._checkIfDestinationExists(destination)
     if (exist) {
@@ -61,10 +63,10 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
 
     const pkgJsonPath = pathlib.join(destination, 'package.json')
     const strContent = await fs.promises.readFile(pkgJsonPath, 'utf-8')
-    const { name: _, ...json } = JSON.parse(strContent)
+    const { name: _, integrationName: __, ...json } = JSON.parse(strContent)
 
     const pkgJsonName = utils.casing.to.snakeCase(name)
-    const updatedJson = { name: pkgJsonName, ...json }
+    const updatedJson = { name: pkgJsonName, integrationName: name, ...json }
     await fs.promises.writeFile(pkgJsonPath, JSON.stringify(updatedJson, null, 2))
   }
 

@@ -142,10 +142,7 @@ export class AddCommand extends ProjectCommand<AddCommandDefinition> {
 
   private async _generateBotIndex() {
     const allInstances = await this._listIntegrationInstances()
-    const indexFile = await codegen.generateBotIndex(
-      this.projectPaths.rel('outDir').installDir,
-      allInstances.map((i) => i.dirname)
-    )
+    const indexFile = await codegen.generateBotIndex(this.projectPaths.rel('outDir').installDir, allInstances)
     await this.writeGeneratedFilesToOutFolder([indexFile])
   }
 }

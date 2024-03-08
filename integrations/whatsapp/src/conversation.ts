@@ -1,8 +1,10 @@
 import { Conversation, RuntimeError } from '@botpress/client'
-import { IntegrationContext } from '@botpress/sdk'
-import { WhatsAppAPI, Types } from 'whatsapp-api-js'
+import WhatsAppAPI from 'whatsapp-api-js'
+import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
+import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
+import { ServerErrorResponse, ServerMessageResponse } from 'whatsapp-api-js/types'
 import z from 'zod'
-import { IntegrationLogger } from '.'
+import { IntegrationCtx, IntegrationLogger } from '.'
 import {
   PhoneNumberIdTag,
   UserPhoneTag,
@@ -14,10 +16,6 @@ import {
 } from './const'
 import * as botpress from '.botpress'
 import { Channels } from '.botpress/implementation/channels'
-
-const {
-  Template: { Template, Language },
-} = Types
 
 const TemplateVariablesSchema = z.array(z.string().or(z.number()))
 
@@ -32,8 +30,7 @@ export async function startConversation(
   },
   dependencies: {
     client: botpress.Client
-
-    ctx: IntegrationContext
+    ctx: IntegrationCtx
     logger: IntegrationLogger
   }
 ): Promise<Pick<Conversation, 'id'>> {
@@ -93,24 +90,26 @@ export async function startConversation(
     },
   })
 
-  const whatsapp = new WhatsAppAPI(ctx.configuration.accessToken)
+  const whatsapp = new WhatsAppAPI({ token: ctx.configuration.accessToken, secure: false })
 
   const language = new Language(templateLanguage)
 
-  const template = new Template(templateName, language, {
-    type: 'body',
-    parameters: templateVariables.map((variable) => ({
-      type: 'text',
-      text: variable,
-    })),
-  })
+  const bodyParams: BodyParameter[] = templateVariables.map((variable) => ({
+    type: 'text',
+    text: variable.toString(),
+  }))
 
-  const response = await whatsapp.sendMessage(phoneNumberId, userPhone, template)
+  const body = new BodyComponent(...(bodyParams as AtLeastOne<BodyParameter>))
 
-  if (response?.error) {
+  const template = new Template(templateName, language, body)
+
+  const response = (await whatsapp.sendMessage(phoneNumberId, userPhone, template)) as ServerMessageResponse
+  const errorResponse = response as ServerErrorResponse
+
+  if (errorResponse?.error) {
     logForBotAndThrow(
       `Failed to start Whatsapp conversation using template "${templateName}" and language "${templateLanguage}" - Error: ${JSON.stringify(
-        response.error
+        errorResponse?.error
       )}`,
       logger
     )

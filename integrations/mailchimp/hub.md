@@ -1,6 +1,6 @@
-# Botpress Mailchimp Integration
+## Description
 
-This integration allows you to connect your Botpress chatbot with Mailchimp, a popular email marketing platform. With this integration, you can easily manage your email campaigns and subscribers directly from your chatbot.
+Connect your Botpress chatbot with Mailchimp, a popular email marketing platform. With this integration, you can easily manage your email campaigns and subscribers directly from your chatbot.
 
 To set up the integration, you’ll need to provide your Mailchimp API key and Server Prefix (e.g. us19). Once the integration is set up, you can use the built-in actions to add customer to campaign or list, send mass campaigns, and more.
 
@@ -32,9 +32,3 @@ To enable the Mailchimp integration in Botpress, follow these steps:
 Once the integration is enabled, you can start sending and receiving emails within your Botpress chatbot. The integration offers actions such as `addCustomerToCampaign`, `addCustomerToList`, and `sendMassEmailCampaign` that can be used to interact with your Mailchimp account.
 
 For more detailed information and examples, refer to the Botpress documentation or the Mailchimp documentation for configuring the integration.
-
-## Contributing
-
-Contributions are welcome! If you encounter any issues or have suggestions for improvement, please submit them via the project’s issue tracker. Pull requests are also appreciated.
-
-Enjoy the seamless email integration between Botpress and Mailchimp!

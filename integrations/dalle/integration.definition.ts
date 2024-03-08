@@ -10,8 +10,8 @@ export default new IntegrationDefinition({
   name: 'dalle',
   version: '0.2.0',
   icon: 'icon.svg',
-  title: 'Dalle Image Generation',
-  description: 'Generate images using Dalle',
+  title: 'DALL-E Image Generation',
+  description: 'Integrate DALL-E to generate stunning and unique images directly within your chatbot conversations',
   readme: 'hub.md',
   configuration: {
     schema: z.object({

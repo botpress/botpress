@@ -1,0 +1,21 @@
+name: Run Client Tests
+
+on: pull_request
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  run-client-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      NODE_OPTIONS: '--max_old_space_size=8192'
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup Tilt
+        uses: ./.github/actions/setup-tilt
+      - run: |
+          pnpm -F client exec puppeteer browsers install chrome
+          pnpm -F client run e2e:test

@@ -7,7 +7,8 @@ const anyObject = z.object({}).passthrough()
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  description: 'Notion integration for Botpress',
+  description:
+    'Supercharge your productivity with Notion integration. Add pages and comments, manage databases, and engage in discussions—all within your chatbot',
   title: 'Notion',
   version: '0.2.0',
   icon: 'icon.svg',

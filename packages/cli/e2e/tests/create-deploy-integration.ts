@@ -8,6 +8,8 @@ import defaults from '../defaults'
 import { Test } from '../typings'
 import * as utils from '../utils'
 
+const HANDLE = 'botpress'
+
 const fetchIntegration = async (client: Client, integrationName: string): Promise<ApiIntegration | undefined> => {
   const integrations = await fetchAllIntegrations(client)
   return integrations.find(({ name }) => name === integrationName)
@@ -18,8 +20,11 @@ export const createDeployIntegration: Test = {
   handler: async ({ tmpDir, dependencies, logger, ...creds }) => {
     const botpressHomeDir = pathlib.join(tmpDir, '.botpresshome')
     const baseDir = pathlib.join(tmpDir, 'integrations')
-    const integrationName = `myintegration-${uuid.v4()}`.replace(/-/g, '')
-    const integrationDir = pathlib.join(baseDir, integrationName)
+
+    const integrationSuffix = uuid.v4().replace(/-/g, '')
+    const integrationName = `${HANDLE}/myintegration${integrationSuffix}`
+    const integrationDirName = `${HANDLE}-myintegration${integrationSuffix}`
+    const integrationDir = pathlib.join(baseDir, integrationDirName)
 
     const argv = {
       ...defaults,
@@ -37,6 +42,8 @@ export const createDeployIntegration: Test = {
     await utils.npmInstall({ workDir: integrationDir }).then(utils.handleExitCode)
     await impl.build({ ...argv, workDir: integrationDir }).then(utils.handleExitCode)
     await impl.login({ ...argv }).then(utils.handleExitCode)
+
+    await client.updateWorkspace({ id: creds.workspaceId, handle: HANDLE })
 
     await impl
       .deploy({ ...argv, createNewBot: undefined, botId: undefined, workDir: integrationDir })

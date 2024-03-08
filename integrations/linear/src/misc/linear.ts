@@ -5,6 +5,65 @@ import queryString from 'query-string'
 import { z } from 'zod'
 import * as bp from '.botpress'
 
+type BaseEvent = {
+  action: 'create' | 'update'
+  type: string
+  webhookTimestamp: number
+  data: {
+    issueId?: string
+    userId?: string
+    user?: {
+      id: string
+    }
+  }
+}
+
+export type LinearIssueEvent = {
+  type: 'issue'
+  data: {
+    id: string
+    creatorId: string
+    labelIds?: string[]
+    number: number
+    title: string
+    updatedAt: string
+    createdAt: string
+    description: string
+    priority: number
+    labels: {
+      name: string
+    }[]
+    subscriberIds: string[]
+    assignee?: {
+      id: string
+    }
+    team?: {
+      id: string
+      key: string
+      name: string
+    }
+    state: {
+      name: string
+    }
+    project: {
+      id: string
+    }
+  }
+} & BaseEvent
+
+export type LinearCommentEvent = {
+  type: 'comment'
+  data: {
+    id: string
+    body: string
+    issue: {
+      id: string
+    }
+  }
+} & BaseEvent
+
+export type LinearEvent = LinearCommentEvent | LinearIssueEvent
+
 const linearEndpoint = 'https://api.linear.app'
 
 const oauthHeaders = {

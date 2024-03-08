@@ -1,9 +1,17 @@
+import { IntegrationContext } from '@botpress/sdk'
 import { IssueUpdated } from '../definitions/events'
-
+import { LinearIssueEvent } from '../misc/linear'
 import { getUserAndConversation } from '../misc/utils'
+import * as bp from '.botpress'
 import { Client } from '.botpress'
 
-export const fireIssueUpdated = async ({ linearEvent, client }: { linearEvent: any; client: Client }) => {
+type IssueProps = {
+  linearEvent: LinearIssueEvent
+  client: Client
+  ctx: IntegrationContext<bp.configuration.Configuration>
+}
+
+export const fireIssueUpdated = async ({ linearEvent, client, ctx }: IssueProps) => {
   const payload = {
     title: linearEvent.data.title,
     priority: linearEvent.data.priority,
@@ -14,7 +22,7 @@ export const fireIssueUpdated = async ({ linearEvent, client }: { linearEvent: a
     createdAt: linearEvent.data.createdAt,
     teamKey: linearEvent.data.team?.key,
     teamName: linearEvent.data.team?.name,
-    labels: linearEvent.data.labels?.map((x: any) => x.name) ?? [],
+    labels: linearEvent.data.labels?.map((x) => x.name) ?? [],
     linearIds: {
       creatorId: linearEvent.data.creatorId,
       labelIds: linearEvent.data.labelIds ?? [],
@@ -29,13 +37,13 @@ export const fireIssueUpdated = async ({ linearEvent, client }: { linearEvent: a
     },
   } satisfies Omit<IssueUpdated, 'conversationId' | 'userId'>
 
-  const { conversationId, userId } = await getUserAndConversation(
-    {
-      linearIssueId: linearEvent.data.id,
-      linearUserId: linearEvent.data.creatorId,
-    },
-    client
-  )
+  const { conversationId, userId } = await getUserAndConversation({
+    linearIssueId: linearEvent.data.id,
+    linearUserId: linearEvent.data.creatorId,
+    integrationId: ctx.integrationId,
+    forceUpdate: true,
+    client,
+  })
 
   await client.createEvent({
     type: 'issueUpdated',
