@@ -21,4 +21,4 @@ body:
     id: feature-description
     attributes:
       label: 'Description of the feature'
-      description: 'What is the feature you'd like to see implemented? Make sure to add context or any information that you think might help understand and implement the feature.'
+      description: "What is the feature you'd like to see implemented? Make sure to add context or any information that you think might help understand and implement the feature."
