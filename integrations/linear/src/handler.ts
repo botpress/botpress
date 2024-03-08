@@ -72,7 +72,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
     })
 
     await client.setState({
-      id: userId,
+      id: userId as string, // TODO: fix this
       type: 'user',
       name: 'profile',
       payload: linearUser,
@@ -83,7 +83,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
       type: 'text',
       payload: { text: content },
       conversationId,
-      userId,
+      userId: userId as string, // TODO: fix this
     })
   }
 }
