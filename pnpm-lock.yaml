@@ -1324,7 +1324,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 0.11.7
-        version: 0.11.7
+        version: link:../client
       '@bpinternal/const':
         specifier: ^0.0.20
         version: 0.0.20
@@ -1514,7 +1514,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 0.11.7
-        version: 0.11.7
+        version: link:../client
       zod:
         specifier: ^3.20.6
         version: 3.20.6
