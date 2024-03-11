@@ -1516,7 +1516,7 @@ importers:
         specifier: 0.11.8
         version: link:../client
       '@bpinternal/zui':
-        specifier: ^0.2.8
+        specifier: 0.2.8
         version: 0.2.8(zod@3.20.6)
       zod:
         specifier: ^3.20.6
