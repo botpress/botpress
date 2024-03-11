@@ -1515,6 +1515,9 @@ importers:
       '@botpress/client':
         specifier: 0.11.8
         version: link:../client
+      '@bpinternal/zui':
+        specifier: ^0.2.8
+        version: 0.2.8(zod@3.20.6)
       zod:
         specifier: ^3.20.6
         version: 3.20.6
@@ -2099,7 +2102,6 @@ packages:
       '@types/json-schema': 7.0.12
       call-me-maybe: 1.0.2
       js-yaml: 4.1.0
-    dev: true
 
   /@bcherny/json-schema-ref-parser@9.0.9:
     resolution: {integrity: sha512-vmEmnJCfpkLdas++9OYg6riIezTYqTHpqUTODJzHLzs5UnXujbOJW9VwcVCnyo1mVRt32FRr23iXBx/sX8YbeQ==}
@@ -2158,6 +2160,10 @@ packages:
       - supports-color
       - terser
       - webdriverio
+    dev: false
+
+  /@bpinternal/json-schema-to-zod@2.0.15:
+    resolution: {integrity: sha512-CEi5XbffaDBAV+Ghqifx8XN+QZ/lzTGsWPn62uiTwD+arpqdlNZs7a0gtkNz1Fkr0KmkHWTZtzUdYNjIqIszTw==}
     dev: false
 
   /@bpinternal/log4bot@0.0.4:
@@ -2237,6 +2243,31 @@ packages:
     dependencies:
       zod: 3.20.6
     dev: false
+
+  /@bpinternal/zod-to-json-schema@3.22.5(zod@3.20.6):
+    resolution: {integrity: sha512-6cWhIJYtbOPz94La+uBGt6Vpdh8sNYG9JeKPSdjJdx9+M2ty83qcYzKM5zYnl4Ith+wWM9HD14n+ygM9Jln63w==}
+    peerDependencies:
+      zod: ^3.22.4
+    dependencies:
+      zod: 3.20.6
+    dev: false
+
+  /@bpinternal/zui@0.2.8(zod@3.20.6):
+    resolution: {integrity: sha512-bDLse1MEPGixl9LX9ntIqy/ZHEQLE4OsdOwxdQDHAo8XSFGrg4Q6x8JMr/HR7H4yZSs2MkEAtX4LKJ3p/pnezA==}
+    dependencies:
+      '@bpinternal/json-schema-to-zod': 2.0.15
+      '@bpinternal/zod-to-json-schema': 3.22.5(zod@3.20.6)
+      '@jsonforms/core': 3.2.1
+      '@jsonforms/react': 3.2.1(@jsonforms/core@3.2.1)(react@18.2.0)
+      '@jsonforms/vanilla-renderers': 3.2.1(@jsonforms/core@3.2.1)(@jsonforms/react@3.2.1)(react@18.2.0)
+      json-schema-to-typescript: 13.1.2
+      lodash: 4.17.21
+      react: 18.2.0
+    transitivePeerDependencies:
+      - zod
+    dev: false
+    bundledDependencies:
+      - zod
 
   /@colors/colors@1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
@@ -3016,6 +3047,39 @@ packages:
 
   /@jsdevtools/ono@7.1.3:
     resolution: {integrity: sha512-4JQNk+3mVzK3xh2rqd6RB4J46qUR19azEHBneZyTZM+c456qOrbbM/5xcR8huNCCcbVt7+UmizG6GuUvPvKUYg==}
+
+  /@jsonforms/core@3.2.1:
+    resolution: {integrity: sha512-G5ldiWM2e5Vh5WrbjDKb0QJ1SG/39kxC48x2ufFKhfpDHibqhPaXegg5jmSBTNcB0ldE9jMmpKwxF6fi5VBCEA==}
+    dependencies:
+      '@types/json-schema': 7.0.12
+      ajv: 8.12.0
+      ajv-formats: 2.1.1(ajv@8.12.0)
+      lodash: 4.17.21
+    dev: false
+
+  /@jsonforms/react@3.2.1(@jsonforms/core@3.2.1)(react@18.2.0):
+    resolution: {integrity: sha512-MKDEXBHtaCZR7vjtlTa4JtyItgYxCPrShjLTgoZbwRL6dsi54d6gRJ08YvV3XuwPn0kempXj3RCMY/kw/5AYRQ==}
+    peerDependencies:
+      '@jsonforms/core': 3.2.1
+      react: ^16.12.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@jsonforms/core': 3.2.1
+      lodash: 4.17.21
+      react: 18.2.0
+    dev: false
+
+  /@jsonforms/vanilla-renderers@3.2.1(@jsonforms/core@3.2.1)(@jsonforms/react@3.2.1)(react@18.2.0):
+    resolution: {integrity: sha512-Pdr/RWBYvsMDoUFYCiOSov2TKpyaKIm9C6Iudv/e9SWiroSvm1nm9ktqDOn2nfqW0O4aFG2Q/qUsLO88LAg99A==}
+    peerDependencies:
+      '@jsonforms/core': 3.2.1
+      '@jsonforms/react': 3.2.1
+      react: ^16.12.0 || ^17.0.0 || ^18.0.0
+    dependencies:
+      '@jsonforms/core': 3.2.1
+      '@jsonforms/react': 3.2.1(@jsonforms/core@3.2.1)(react@18.2.0)
+      lodash: 4.17.21
+      react: 18.2.0
+    dev: false
 
   /@line/bot-sdk@7.5.2:
     resolution: {integrity: sha512-mMaDnr+mOqQDLYJcUp+fQwZklg/LoOZzNILlWdsj2IFD2nXF+HhAm3KEy5tyUx629Y2bCx6nv9Jl0UlMwBiAiw==}
@@ -4310,6 +4374,17 @@ packages:
       ajv: 8.12.0
     dev: true
 
+  /ajv-formats@2.1.1(ajv@8.12.0):
+    resolution: {integrity: sha512-Wx0Kx52hxE7C18hkMEggYlEifqWZtYaRgouJor+WMdPnQyEK13vgEWyVNup7SoeeoLMsr4kf5h6dOW11I15MUA==}
+    peerDependencies:
+      ajv: ^8.0.0
+    peerDependenciesMeta:
+      ajv:
+        optional: true
+    dependencies:
+      ajv: 8.12.0
+    dev: false
+
   /ajv@6.12.6:
     resolution: {integrity: sha512-j3fVLgvTo527anyYyJOGTYJbG+vnnQYvE0m5mmkc1TK+nxAppkCLMIL0aZ4dblVCNoGShhm+kzE4ZUykBoMg4g==}
     dependencies:
@@ -4326,7 +4401,6 @@ packages:
       json-schema-traverse: 1.0.0
       require-from-string: 2.0.2
       uri-js: 4.4.1
-    dev: true
 
   /ansi-align@3.0.1:
     resolution: {integrity: sha512-IOfwwBF5iczOjp/WeY4YxyjqAFMQoZufdQWDd19SEExbVLNXqvpzSJ/M7Za4/sCPmQ0+GRquoA7bGcINcxew6w==}
@@ -8352,7 +8426,6 @@ packages:
       mkdirp: 1.0.4
       mz: 2.7.0
       prettier: 2.8.8
-    dev: true
 
   /json-schema-traverse@0.4.1:
     resolution: {integrity: sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg==}
@@ -8360,7 +8433,6 @@ packages:
 
   /json-schema-traverse@1.0.0:
     resolution: {integrity: sha512-NM8/P9n3XjXhIZn1lLhkFaACTOURQXjWhV4BA/RnOv8xvgqtqpAX9IO4mRQxSx1Rlo4tqzeqb0sOlruaOy3dug==}
-    dev: true
 
   /json-schema@0.4.0:
     resolution: {integrity: sha512-es94M3nTIfsEPisRafak+HDLfHXnKBhV3vU5eqPcS3flIWqcxJWgXHXiey3YrpaNsanY5ei1VoYEbOzijuq9BA==}
@@ -9804,6 +9876,13 @@ packages:
   /react-is@18.2.0:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
 
+  /react@18.2.0:
+    resolution: {integrity: sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==}
+    engines: {node: '>=0.10.0'}
+    dependencies:
+      loose-envify: 1.4.0
+    dev: false
+
   /readable-stream@2.3.8:
     resolution: {integrity: sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA==}
     dependencies:
@@ -9927,7 +10006,6 @@ packages:
   /require-from-string@2.0.2:
     resolution: {integrity: sha512-Xf0nWe6RseziFMu+Ap9biiUbmplq6S9/p+7w7YXP/JBHhrUDDUhwa+vANyubuqfZWTveU//DYVGsDG7RKL/vEw==}
     engines: {node: '>=0.10.0'}
-    dev: true
 
   /requires-port@1.0.0:
     resolution: {integrity: sha512-KigOCHcocU3XODJxsu8i/j8T9tzT4adHiecwORRQ0ZZFcp7ahwXuRU1m+yuO90C5ZUyGeGfocHDI14M3L3yDAQ==}
