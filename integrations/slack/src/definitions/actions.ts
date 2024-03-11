@@ -121,3 +121,25 @@ export const startDmConversation = {
     }),
   },
 }
+
+export const updateChannelTopic = {
+  title: 'Update Channel Topic',
+  description: 'Update the topic of a channel',
+  input: {
+    schema: z.object({
+      topic: z.string().describe('The new topic of the channel'),
+      channelId: z.string().describe('The channel id of the target channel'),
+    }),
+    ui: {
+      topic: {
+        title: 'New Topic',
+      },
+      channelId: {
+        title: 'Channel id',
+      },
+    },
+  },
+  output: {
+    schema: z.object({}),
+  },
+}
