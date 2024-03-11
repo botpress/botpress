@@ -1323,8 +1323,8 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: workspace:*
-        version: link:../client
+        specifier: 0.11.7
+        version: 0.11.7
       '@bpinternal/const':
         specifier: ^0.0.20
         version: 0.0.20
@@ -1513,8 +1513,8 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: workspace:*
-        version: link:../client
+        specifier: 0.11.7
+        version: 0.11.7
       zod:
         specifier: ^3.20.6
         version: 3.20.6
