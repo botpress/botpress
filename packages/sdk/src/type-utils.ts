@@ -58,3 +58,24 @@ type _test_keyby = Expect<
     }
   >
 >
+
+type _test_join = Expect<IsEqual<Join<['a', 'b', 'c']>, 'abc'>>
+
+type _test_split = Expect<IsEqual<Split<'a.b.c', '.'>, ['a', 'b', 'c']>>
+
+type _test_union_to_intersection = Expect<
+  IsEqual<
+    UnionToIntersection<
+      | {
+          name: string
+        }
+      | {
+          age: number
+        }
+    >,
+    {
+      name: string
+      age: number
+    }
+  >
+>
