@@ -33,10 +33,10 @@ export default new IntegrationDefinition({
           .object({
             success: z.boolean().describe('True if the data was sent successfully'),
             response: z
-                  .any()
-                  .describe(
-                    'Data received from Make.com, will be the string `Accepted` if successful and no data is returned'
-                  )
+              .any()
+              .describe(
+                'Data received from Make.com, will be the string `Accepted` if successful and no data is returned'
+              )
               .nullable(),
           })
           .describe('Output schema after sending data, expecting any JSON structure'),
