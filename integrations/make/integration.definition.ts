@@ -24,7 +24,7 @@ export default new IntegrationDefinition({
       input: {
         schema: z
           .object({
-            data: z.string().min(1, { message: 'Must not me empty' }).describe('JSON string of data to send'),
+            data: z.string().min(1, { message: 'Must not be empty' }).describe('JSON string of data to send'),
           })
           .describe('Input schema for sending data'),
       },
@@ -33,13 +33,10 @@ export default new IntegrationDefinition({
           .object({
             success: z.boolean().describe('True if the data was sent successfully'),
             response: z
-              .object({
-                data: z
                   .any()
                   .describe(
                     'Data received from Make.com, will be the string `Accepted` if successful and no data is returned'
-                  ),
-              })
+                  )
               .nullable(),
           })
           .describe('Output schema after sending data, expecting any JSON structure'),
