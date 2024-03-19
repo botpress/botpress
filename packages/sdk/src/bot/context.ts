@@ -1,7 +1,7 @@
 import { z } from 'zod'
 import { botIdHeader, configurationHeader, operationHeader, typeHeader } from '../const'
 
-export const botOperationSchema = z.enum(['event_received', 'register', 'unregister', 'ping'])
+export const botOperationSchema = z.enum(['event_received', 'register', 'unregister', 'ping', 'action_triggered'])
 
 export type BotOperation = z.infer<typeof botOperationSchema>
 
