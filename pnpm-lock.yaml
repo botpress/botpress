@@ -1498,8 +1498,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.18.5
-        version: 0.18.5(openapi-types@12.1.3)
+        specifier: 0.19.0
+        version: 0.19.0(openapi-types@12.1.3)
       esbuild:
         specifier: ^0.16.12
         version: 0.16.17
@@ -2114,10 +2114,10 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.18.5(openapi-types@12.1.3):
-    resolution: {integrity: sha512-naJwWSAxHMijULNxCg9redZBA4lbIDG7OXUa7dm3mqiyU2AP31DTByxKMro086Prpy2tQ440xKbcY4PBfTFyfA==}
+  /@botpress/api@0.19.0(openapi-types@12.1.3):
+    resolution: {integrity: sha512-PGSJSzbRIwdpxEwDDS8JWYNIEXiewnMh0jlX//ThbSrKZtdVS3Vuuv3Mr5Uthw+IEjnxSW30UvjqUajuDB98qA==}
     dependencies:
-      '@bpinternal/opapi': 0.7.10(openapi-types@12.1.3)
+      '@bpinternal/opapi': 0.8.1(openapi-types@12.1.3)
     transitivePeerDependencies:
       - debug
       - openapi-types
@@ -2167,19 +2167,19 @@ packages:
       moment: 2.29.4
       regex-parser: 2.2.11
 
-  /@bpinternal/opapi@0.7.10(openapi-types@12.1.3):
-    resolution: {integrity: sha512-2bet5UYMtt0vONJz6FJ+7qB9psKbNM2m8Kv5A9TfHzWSe+D4dec04GnB3Gwn5ISO6d27ii7330gI7PfImDihwA==}
+  /@bpinternal/opapi@0.8.1(openapi-types@12.1.3):
+    resolution: {integrity: sha512-W/fvFLr0SK7NFFp2TH/8tE1LGxZwcEGcKMmOoiYQO42sP++cWHTtgGUuI8iok9D09CfvyNbs1W8XbNzv8cjMLA==}
     dependencies:
       '@anatine/zod-openapi': 1.12.1(openapi3-ts@2.0.2)(zod@3.22.4)
       '@readme/openapi-parser': 2.5.0(openapi-types@12.1.3)
-      axios: 1.6.7
+      axios: 1.6.8
       chalk: 4.1.2
       decompress: 4.2.1
       execa: 8.0.1
       json-schema-to-typescript: 13.1.2
-      openapi-typescript: 6.7.4
+      openapi-typescript: 6.7.5
       openapi3-ts: 2.0.2
-      radash: 12.0.0
+      radash: 12.1.0
       tsconfig-paths: 4.2.0
       verror: 1.10.1
       winston: 3.12.0
@@ -4615,6 +4615,17 @@ packages:
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
+    dev: false
+
+  /axios@1.6.8:
+    resolution: {integrity: sha512-v/ZHtJDU39mDpyBoFVkETcd/uNdxrWRrg3bKpOKzXFA6Bvqopts6ALSMU3y6ijYxbw2B+wPrIv46egTzJXCLGQ==}
+    dependencies:
+      follow-redirects: 1.15.6
+      form-data: 4.0.0
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+    dev: true
 
   /b4a@1.6.6:
     resolution: {integrity: sha512-5Tk1HLk6b6ctmjIkAcU/Ujv/1WqiDl0F0JdRCR80VsOcUlHcu7pWeWRlOqQLHfDEsVx9YH/aif5AG4ehoCtTmg==}
@@ -6735,6 +6746,17 @@ packages:
         optional: true
     dependencies:
       debug: 4.3.4
+    dev: false
+
+  /follow-redirects@1.15.6:
+    resolution: {integrity: sha512-wWN62YITEaOpSK584EZXJafH1AGpO8RVgElfkuXbTOrPX4fIfOyEpW/CsiNd8JdYrAoOvafRTOEnvsO++qCqFA==}
+    engines: {node: '>=4.0'}
+    peerDependencies:
+      debug: '*'
+    peerDependenciesMeta:
+      debug:
+        optional: true
+    dev: true
 
   /for-each@0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
@@ -9175,8 +9197,8 @@ packages:
     resolution: {integrity: sha512-N4YtSYJqghVu4iek2ZUvcN/0aqH1kRDuNqzcycDxhOUpg7GdvLa2F3DgS6yBNhInhv2r/6I0Flkn7CqL8+nIcw==}
     dev: true
 
-  /openapi-typescript@6.7.4:
-    resolution: {integrity: sha512-EZyeW9Wy7UDCKv0iYmKrq2pVZtquXiD/YHiUClAKqiMi42nodx/EQH11K6fLqjt1IZlJmVokrAsExsBMM2RROQ==}
+  /openapi-typescript@6.7.5:
+    resolution: {integrity: sha512-ZD6dgSZi0u1QCP55g8/2yS5hNJfIpgqsSGHLxxdOjvY7eIrXzj271FJEQw33VwsZ6RCtO/NOuhxa7GBWmEudyA==}
     hasBin: true
     dependencies:
       ansi-colors: 4.1.3
@@ -9766,8 +9788,8 @@ packages:
     requiresBuild: true
     dev: true
 
-  /radash@12.0.0:
-    resolution: {integrity: sha512-CiemtIwEZH9XZAzl+/X6CQndV8lCcP8sMHCFs4ryI1011Y/PeWHYQwkOs4nyqFMNnqrbVL8WuvVlexqDceG29Q==}
+  /radash@12.1.0:
+    resolution: {integrity: sha512-b0Zcf09AhqKS83btmUeYBS8tFK7XL2e3RvLmZcm0sTdF1/UUlHSsjXdCcWNxe7yfmAlPve5ym0DmKGtTzP6kVQ==}
     engines: {node: '>=14.18.0'}
     dev: true
 
