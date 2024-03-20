@@ -80,7 +80,7 @@ export type CreateEvent<TIntegration extends BaseIntegration> = <TEvent extends 
     Arg<Client['createEvent']>,
     {
       type: WithPrefix<Cast<TEvent, string>, { allowPrefix: TIntegration['name'] }>
-      payload: TIntegration['events'][TEvent]['payload']
+      payload: TIntegration['events'][TEvent]
     }
   >
 ) => Promise<EventResponse<TIntegration, TEvent>>

@@ -16,6 +16,7 @@
   },
   "dependencies": {
     "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:^",
     "@bpinternal/readiness": "0.0.1",
     "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^5.47.0",

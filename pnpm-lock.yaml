@@ -11,6 +11,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
+      '@botpress/sdk':
+        specifier: workspace:^
+        version: link:packages/sdk
       '@bpinternal/readiness':
         specifier: 0.0.1
         version: 0.0.1
@@ -1405,7 +1408,7 @@ importers:
         version: 3.20.6
     devDependencies:
       '@botpress/sdk':
-        specifier: 0.6.4
+        specifier: 0.6.5
         version: link:../sdk
       '@bpinternal/log4bot':
         specifier: ^0.0.4
@@ -1447,7 +1450,7 @@ importers:
         specifier: 0.11.9
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.6.4
+        specifier: 0.6.5
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1469,7 +1472,7 @@ importers:
         specifier: 0.11.9
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.6.4
+        specifier: 0.6.5
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
