@@ -1324,7 +1324,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 0.11.9
-        version: link:../client
+        version: 0.11.9
       '@bpinternal/const':
         specifier: ^0.0.20
         version: 0.0.20
@@ -1445,7 +1445,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 0.11.9
-        version: link:../../../client
+        version: 0.11.9
       '@botpress/sdk':
         specifier: 0.6.3
         version: link:../../../sdk
@@ -1467,7 +1467,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 0.11.9
-        version: link:../../../client
+        version: 0.11.9
       '@botpress/sdk':
         specifier: 0.6.3
         version: link:../../../sdk
@@ -1514,7 +1514,7 @@ importers:
     dependencies:
       '@botpress/client':
         specifier: 0.11.9
-        version: link:../client
+        version: 0.11.9
       zod:
         specifier: ^3.20.6
         version: 3.20.6
@@ -2122,6 +2122,16 @@ packages:
       - debug
       - openapi-types
     dev: true
+
+  /@botpress/client@0.11.9:
+    resolution: {integrity: sha512-vSN1DkTEt1Fv+5vLAHRy0sr/ESqlL5rBqJtUpbHfrz57PC3CvAQHxs6AkpPpJ7H9je0G4KhH/QXAykp0qvNpbQ==}
+    dependencies:
+      axios: 1.6.8
+      browser-or-node: 2.1.1
+      type-fest: 3.11.1
+    transitivePeerDependencies:
+      - debug
+    dev: false
 
   /@botpress/messaging-base@1.2.0:
     resolution: {integrity: sha512-7cjHeD1Ti4cvDmyUV2D2CFKR1kPYv+eFPgXaJOksvrEoNZ1SrqXbHR9l26ndaAz0TuoX3Wc9l4Q7i5sBoHE44Q==}
@@ -4625,7 +4635,6 @@ packages:
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
-    dev: true
 
   /b4a@1.6.6:
     resolution: {integrity: sha512-5Tk1HLk6b6ctmjIkAcU/Ujv/1WqiDl0F0JdRCR80VsOcUlHcu7pWeWRlOqQLHfDEsVx9YH/aif5AG4ehoCtTmg==}
@@ -6756,7 +6765,6 @@ packages:
     peerDependenciesMeta:
       debug:
         optional: true
-    dev: true
 
   /for-each@0.3.3:
     resolution: {integrity: sha512-jqYfLp7mo9vIyQf8ykW2v7A+2N4QjeCeI5+Dz9XraiO1ign81wjiH7Fb9vSOWvQfNtmSa4H2RoQTrrXivdUZmw==}
