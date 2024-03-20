@@ -79,7 +79,7 @@ export type CreateEvent<TIntegration extends BaseIntegration> = <TEvent extends 
   x: Merge<
     Arg<Client['createEvent']>,
     {
-      type: Cast<TEvent, string>
+      type: WithPrefix<Cast<TEvent, string>, { allowPrefix: TIntegration['name'] }>
       payload: TIntegration['events'][TEvent]
     }
   >

@@ -31,7 +31,7 @@ const integration = new bp.Integration({
     } catch (err) {}
 
     await client.createEvent({
-      type: 'event',
+      type: 'webhook:event',
       payload: {
         body,
         query,
