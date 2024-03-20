@@ -65,6 +65,16 @@ export type AddParticipant<_TIntegration extends BaseIntegration> = Client['addP
 export type GetParticipant<_TIntegration extends BaseIntegration> = Client['getParticipant']
 export type RemoveParticipant<_TIntegration extends BaseIntegration> = Client['removeParticipant']
 
+type EventResponse<TIntegration extends BaseIntegration, TEvent extends keyof TIntegration['events']> = {
+  event: Merge<
+    Awaited<Res<Client['getEvent']>>['event'],
+    {
+      type: TEvent
+      payload: TIntegration['events'][TEvent]
+    }
+  >
+}
+
 export type CreateEvent<TIntegration extends BaseIntegration> = <TEvent extends keyof TIntegration['events']>(
   x: Merge<
     Arg<Client['createEvent']>,
@@ -73,9 +83,13 @@ export type CreateEvent<TIntegration extends BaseIntegration> = <TEvent extends 
       payload: TIntegration['events'][TEvent]['payload']
     }
   >
-) => Res<Client['createEvent']>
+) => Promise<EventResponse<TIntegration, TEvent>>
 
-export type GetEvent<_TIntegration extends BaseIntegration> = Client['getEvent']
+export type GetEvent<TIntegration extends BaseIntegration> = (x: Arg<Client['getEvent']>) => Promise<
+  ValueOf<{
+    [K in keyof TIntegration['events']]: EventResponse<TIntegration, K>
+  }>
+>
 
 export type ListEvents<TIntegration extends BaseIntegration> = (
   x: Merge<
@@ -128,9 +142,8 @@ export type GetOrCreateMessage<TIntegration extends BaseIntegration> = <
   >
 ) => Promise<MessageResponse<TIntegration, TChannel, TMessage>>
 
-export type GetMessage<TIntegration extends BaseIntegration> = (
-  x: Arg<Client['getMessage']>
-) => Promise<
+export type GetMessage<TIntegration extends BaseIntegration> = (x: Arg<Client['getMessage']>) => Promise<
+  // TODO: should return a union of all possible message types like in `GetEvent`
   MessageResponse<TIntegration, keyof TIntegration['channels'], keyof ValueOf<TIntegration['channels']>['messages']>
 >
 

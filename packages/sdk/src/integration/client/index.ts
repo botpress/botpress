@@ -21,14 +21,20 @@ export class IntegrationSpecificClient<TIntegration extends BaseIntegration> {
   public deleteConversation: routes.DeleteConversation<TIntegration> = ((x) =>
     this.client.deleteConversation(x)) as routes.DeleteConversation<TIntegration>
 
-  public listParticipants: routes.ListParticipants<TIntegration> = (x) => this.client.listParticipants(x)
-  public addParticipant: routes.AddParticipant<TIntegration> = (x) => this.client.addParticipant(x)
-  public getParticipant: routes.GetParticipant<TIntegration> = (x) => this.client.getParticipant(x)
-  public removeParticipant: routes.RemoveParticipant<TIntegration> = (x) => this.client.removeParticipant(x)
+  public listParticipants: routes.ListParticipants<TIntegration> = ((x) =>
+    this.client.listParticipants(x)) as routes.ListParticipants<TIntegration>
+  public addParticipant: routes.AddParticipant<TIntegration> = ((x) =>
+    this.client.addParticipant(x)) as routes.AddParticipant<TIntegration>
+  public getParticipant: routes.GetParticipant<TIntegration> = ((x) =>
+    this.client.getParticipant(x)) as routes.GetParticipant<TIntegration>
+  public removeParticipant: routes.RemoveParticipant<TIntegration> = ((x) =>
+    this.client.removeParticipant(x)) as routes.RemoveParticipant<TIntegration>
 
-  public createEvent: routes.CreateEvent<TIntegration> = (x) => this.client.createEvent(x)
-  public getEvent: routes.GetEvent<TIntegration> = (x) => this.client.getEvent(x)
-  public listEvents: routes.ListEvents<TIntegration> = (x) => this.client.listEvents(x)
+  public createEvent: routes.CreateEvent<TIntegration> = ((x) =>
+    this.client.createEvent(x)) as routes.CreateEvent<TIntegration>
+  public getEvent: routes.GetEvent<TIntegration> = ((x) => this.client.getEvent(x)) as routes.GetEvent<TIntegration>
+  public listEvents: routes.ListEvents<TIntegration> = ((x) =>
+    this.client.listEvents(x)) as routes.ListEvents<TIntegration>
 
   public createMessage: routes.CreateMessage<TIntegration> = ((x) =>
     this.client.createMessage(x)) as routes.CreateMessage<TIntegration>
