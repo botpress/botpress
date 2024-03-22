@@ -243,7 +243,7 @@ export type SetState<TIntegration extends BaseIntegration> = <TState extends key
     Arg<Client['setState']>,
     {
       name: Cast<TState, string> // TODO: use state name to infer state type
-      payload: TIntegration['states'][TState]
+      payload: TIntegration['states'][TState] | null
     }
   >
 ) => Promise<StateResponse<TIntegration, TState>>
