@@ -68,7 +68,7 @@ async function handleUpdateUser(newUser: NewUser, client: Client) {
     type: 'user',
     id: user.id,
     name: USER_DATA_STATE_NAME,
-    payload: newUser.userData ?? (null as any), // TODO: fix typing
+    payload: newUser.userData ?? null,
   })
 }
 

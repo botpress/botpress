@@ -9,7 +9,7 @@
   "license": "MIT",
   "dependencies": {
     "@botpress/client": "0.12.0",
-    "@botpress/sdk": "0.6.6",
+    "@botpress/sdk": "0.6.7",
     "zod": "^3.20.6"
   },
   "devDependencies": {
