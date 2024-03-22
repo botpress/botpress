@@ -2,6 +2,16 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import qs from 'qs'
 import * as bp from '.botpress'
 
+type EventEvent = bp.events.event.Event
+type Method = EventEvent['method']
+
+const methods = {
+  GET: null,
+  POST: null,
+} satisfies Record<Method, null>
+
+const isMethod = (method: string): method is Method => method in methods
+
 const integration = new bp.Integration({
   handler: async ({ req, client, ctx }) => {
     if (ctx.configuration.secret && req.headers['x-bp-secret'] !== ctx.configuration.secret) {
@@ -9,7 +19,7 @@ const integration = new bp.Integration({
     }
 
     const method = req.method.toUpperCase()
-    if (!['POST', 'GET'].includes(method)) {
+    if (!isMethod(method)) {
       throw new Error('Invalid method')
     }
 

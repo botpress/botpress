@@ -69,6 +69,8 @@ export const botHandler =
     }
 
     switch (ctx.operation) {
+      case 'action_triggered':
+        throw new Error(`Operation ${ctx.operation} not supported yet`)
       case 'event_received':
         await onEventReceived<TBot>(props as ServerProps<TBot>)
         break

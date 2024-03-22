@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import esbuild from 'esbuild'
 import fs from 'fs'
 import pathlib from 'path'

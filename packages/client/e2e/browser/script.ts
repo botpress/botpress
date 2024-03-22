@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import { Client, errorFrom } from '../../src'
 import * as consts from '../consts'
 
