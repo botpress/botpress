@@ -20,6 +20,8 @@ import type {
   ZodUnknown,
   ZodNull,
   ZodLazy,
+  Primitive,
+  ZodSymbol,
 } from 'zod'
 
 // eslint-disable-next-line no-duplicate-imports
@@ -36,13 +38,13 @@ export type Infer<
   Out = T extends ZodType ? T['_output'] : T extends ZuiType<infer Z> ? Z['_output'] : never,
 > = Out
 
-export type ToZodType<T extends ZuiTypeAny> = T extends ZuiType<infer Z> ? Z : never
+export type ToZodType<T extends ZuiType | ZodType> = T extends ZuiType<infer Z> ? Z : T extends ZodType ? T : never
 
 export type ZuiRawShape = { [k: string]: ZuiTypeAny }
 export type ZuiTypeAny = ZuiType<any>
 
 export type ZuiType<
-  O extends ZodType,
+  O extends ZodType = ZodType,
   UI extends UIComponentDefinitions = GlobalComponentDefinitions,
   N extends ZuiExtension<O, any> = ZuiExtension<O, UI>,
 > = N & {
@@ -241,24 +243,30 @@ type AnyArgs = Parameters<typeof z.any>
 type UnknownArgs = Parameters<typeof z.unknown>
 type NullArgs = Parameters<typeof z.null>
 
+type KeySchema = ZuiType<ZodString | ZodNumber | ZodSymbol>
+
 type ZuiRecord = {
-  <Keys extends ZodTypeAny, Value extends ZodTypeAny>(
-    keySchema: ZodTypeAny,
-    valueSchema: ZodTypeAny,
+  <Keys extends KeySchema, Value extends ZodType | ZuiType>(
+    keySchema: Keys,
+    valueSchema: Value,
     params?: RecordArgs[2],
-  ): ZuiType<ZodRecord<Keys, Value>>
-  <Value extends ZodTypeAny>(valueSchema: ZodTypeAny, params?: RecordArgs[2]): ZuiType<ZodRecord<ZodString, Value>>
+  ): ZuiType<ZodRecord<ToZodType<Keys>, ToZodType<Value>>>
+  // OVERLOAD vvvvvv
+  <Value extends ZodType | ZuiType>(
+    valueSchema: Value,
+    params?: RecordArgs[2],
+  ): ZuiType<ZodRecord<ZodString, ToZodType<Value>>>
 }
 
 export type Zui<UI extends UIComponentDefinitions = GlobalComponentDefinitions> = {
   string: (params?: StringArgs[0]) => ZuiType<ZodString, UI>
   number: (params?: NumberArgs[0]) => ZuiType<ZodNumber, UI>
   boolean: (params?: BooleanArgs[0]) => ZuiType<ZodBoolean, UI>
-  literal: (value: LiteralArgs[0], params?: LiteralArgs[1]) => ZuiType<ZodLiteral<any>, UI>
-  array: <T extends ZodTypeAny>(
+  literal: <T extends Primitive>(value: T, params?: LiteralArgs[1]) => ZuiType<ZodLiteral<T>, UI>
+  array: <T extends ZodType | ZuiType>(
     schema: T,
     params?: ArrayArgs[1],
-  ) => ZuiType<ZodArray<T, 'many'>, UI> & ZodArray<T, 'many'>
+  ) => ZuiType<ZodArray<ToZodType<T>, 'many'>, UI> & ZodArray<ToZodType<T>, 'many'>
   object: <T extends ZodRawShape>(shape: T, params?: ObjectArgs[1]) => ZuiType<ZodObject<T>, UI> & ZodObject<T>
   union: <T extends readonly [ZodTypeAny, ZodTypeAny, ...ZodTypeAny[]]>(
     types: T,
@@ -290,11 +298,13 @@ const zui: Zui<GlobalComponentDefinitions> = {
   string: (params) => z.string(params) as unknown as ZuiType<ZodString>,
   number: (params) => z.number(params) as unknown as ZuiType<ZodNumber>,
   boolean: (params) => z.boolean(params) as unknown as ZuiType<ZodBoolean>,
-  literal: (value, params) => z.literal(value, params) as unknown as ZuiType<ZodLiteral<any>>,
+  literal: <T extends Primitive>(value: T, params?: LiteralArgs[1]) =>
+    z.literal(value, params) as unknown as ZuiType<ZodLiteral<T>>,
   optional: (type, params) => z.optional(type, params) as unknown as ZuiType<ZodOptional<any>>,
 
-  array: <T extends ZodTypeAny>(schema: T, params?: ArrayArgs[1]) =>
-    z.array(schema, params) as unknown as ZuiType<ZodArray<T, 'many'>> & ZodArray<T, 'many'>,
+  array: <T extends ZodType | ZuiType>(schema: T, params?: ArrayArgs[1]) =>
+    z.array(schema as ZodType, params) as unknown as ZuiType<ZodArray<ToZodType<T>, 'many'>> &
+      ZodArray<ToZodType<T>, 'many'>,
 
   object: <T extends ZodRawShape>(shape: T, params?: ObjectArgs[1]) =>
     z.object(shape as ZodRawShape, params) as ZodObject<T> & ZuiType<ZodObject<T>>,
@@ -314,11 +324,14 @@ const zui: Zui<GlobalComponentDefinitions> = {
       ZodDiscriminatedUnion<Discriminator, Types>
     >,
 
-  record: <Keys extends ZodTypeAny, Value extends ZodTypeAny>(
+  record: <Keys extends KeySchema, Value extends ZuiType>(
     keySchema: Keys,
     valueSchema: Value,
     params?: RecordArgs[2],
-  ) => z.record(keySchema, valueSchema, params) as unknown as ZuiType<ZodRecord<Keys, Value>>,
+  ) =>
+    z.record(keySchema as ToZodType<Keys>, valueSchema as ToZodType<Value>, params) as unknown as ZuiType<
+      ZodRecord<ToZodType<Keys>, ToZodType<Value>>
+    >,
 
   enum: <U extends string, T extends Readonly<[U, ...U[]]>>(values: T, params?: EnumArgs[1]) =>
     z.enum(values as any, params) as unknown as ZuiType<ZodEnum<Writeable<T>>>,

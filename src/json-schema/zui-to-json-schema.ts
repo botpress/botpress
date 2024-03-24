@@ -5,14 +5,14 @@ import type { ZuiSchemaOptions } from '../zui-schemas'
 import { z } from 'zod'
 
 type JsonSchemaWithZui = JsonSchema7 & {
-  [zuiKey]?: ZuiExtension<ToZodType<ZuiTypeAny>, any>
+  [zuiKey]?: ZuiExtension<ToZodType<ZuiType>, any>
   properties?: {
     [key: string]: any
   }
 }
 
 export const zuiToJsonSchema = (zuiType: ZuiTypeAny | z.ZodTypeAny, opts: ZuiSchemaOptions = {}): JsonSchemaWithZui => {
-  const jsonSchema = zodToJsonSchema(zuiType as ToZodType<ZuiTypeAny>, opts)
+  const jsonSchema = zodToJsonSchema(zuiType as ToZodType<ZuiType>, opts)
 
   if (opts.$schemaUrl === false) {
     delete jsonSchema.$schema
@@ -49,7 +49,7 @@ const mergeZuiIntoJsonSchema = (
   zuiSchema: ZuiType<any> | z.ZodTypeAny,
   opts: ZuiSchemaOptions,
 ): JsonSchema7 => {
-  const assignZuiProps = (value: JsonSchemaWithZui, ui: ZuiExtension<ToZodType<ZuiTypeAny>, any>['ui']) => {
+  const assignZuiProps = (value: JsonSchemaWithZui, ui: ZuiExtension<ToZodType<ZuiType>, any>['ui']) => {
     if (!opts.stripZuiProps) {
       Object.assign(value, { [zuiKey]: ui })
     }
@@ -60,7 +60,7 @@ const mergeZuiIntoJsonSchema = (
       const shape = getShape(zuiSchema)
 
       if (shape?.[key]) {
-        const innerZui = shape[key].ui as ZuiExtension<ToZodType<ZuiTypeAny>, any>['ui']
+        const innerZui = shape[key].ui as ZuiExtension<ToZodType<ZuiType>, any>['ui']
 
         assignZuiProps(value, innerZui)
         mergeZuiIntoJsonSchema(value, shape[key], opts)

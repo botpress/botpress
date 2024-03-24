@@ -180,3 +180,23 @@ test('Lazy', () => {
 
   schema.parse({ type: 'hello', value: 5 })
 })
+
+test('array', () => {
+  const schema = zui.array(
+    zui.object({
+      name: zui.string(),
+      age: zui.number(),
+      aliases: zui.record(zui.string(), zui.object({ name: zui.string() }), {}),
+    }),
+  )
+
+  schema.parse([
+    {
+      age: 34,
+      name: 'Hello',
+      aliases: {
+        yo: { name: 'jacques' },
+      },
+    },
+  ] satisfies Infer<typeof schema>)
+})
