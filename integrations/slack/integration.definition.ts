@@ -12,6 +12,7 @@ import {
   startDmConversation,
   syncMembers,
   thread,
+  updateChannelTopic,
   userTags,
 } from './src/definitions'
 
@@ -72,6 +73,7 @@ export default new IntegrationDefinition({
     retrieveMessage,
     syncMembers,
     startDmConversation,
+    updateChannelTopic,
   },
   events: {
     reactionAdded: {
