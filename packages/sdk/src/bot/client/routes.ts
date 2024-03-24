@@ -78,7 +78,7 @@ export type SetState<TBot extends BaseBot> = <TState extends keyof TBot['states'
     Arg<Client['setState']>,
     {
       name: Cast<TState, string> // TODO: use state name to infer state type (cannot be done until there is a bot.definition.ts file)
-      payload: TBot['states'][TState]
+      payload: TBot['states'][TState] | null
     }
   >
 ) => Promise<{
