@@ -1,4 +1,5 @@
 import { IntegrationDefinition } from '@botpress/sdk'
+
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { INTEGRATION_NAME } from './src/const'
 import { configuration, states, user, actions } from './src/definitions'
