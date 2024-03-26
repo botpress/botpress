@@ -1,11 +1,13 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Markup, Telegraf } from 'telegraf'
 import type { User } from 'telegraf/typings/core/types/typegram'
-import { chatIdTag, idTag, fromUserIdTag, fromUserNameTag } from './const'
+import { chatIdTag, idTag, fromUserIdTag, fromUserNameTag, INTEGRATION_NAME } from './const'
 import { getUserPictureDataUri, getUserNameFromTelegramUser, getChat, sendCard, ackMessage } from './misc/utils'
 import * as bp from '.botpress'
 
 export type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
+
+console.info(`starting integration ${INTEGRATION_NAME}`)
 
 const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx }) => {

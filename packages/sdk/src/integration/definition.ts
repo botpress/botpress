@@ -87,7 +87,7 @@ export type IntegrationDefinitionProps<
   TEntities extends BaseEntities = BaseEntities
 > = {
   name: string
-  version: '0.2.0' | '0.0.1' // TODO: allow any version
+  version: string
 
   title?: string
   description?: string
