@@ -1,4 +1,4 @@
-name: Check Integrations Version
+name: Check Integration Versions
 
 on: pull_request
 
@@ -7,7 +7,7 @@ permissions:
   contents: read
 
 jobs:
-  check-integrations-version:
+  check-integration-versions:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
