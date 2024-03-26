@@ -9,6 +9,7 @@ const json = false
 const entryPoint = consts.defaultEntrypoint
 const outDir = consts.defaultOutputFolder
 const allowDeprecated = false
+const isPublic = false
 export default {
   noBuild,
   secrets,
@@ -19,4 +20,5 @@ export default {
   entryPoint,
   outDir,
   allowDeprecated,
+  public: isPublic,
 }

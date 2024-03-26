@@ -90,7 +90,7 @@ runs:
             
             if [ $exists -eq 0 ]; then
                 echo -e "\nDeploying integration: ### $integration ###\n"
-                pnpm retry -n 2 -- pnpm -r --stream -F $integration -c exec -- 'bp deploy -v -y --noBuild'
+                pnpm retry -n 2 -- pnpm -r --stream -F $integration -c exec -- 'bp deploy -v -y --noBuild --public'
             else
                 echo -e "\nSkipping integration: ### $integration ###\n"
             fi
