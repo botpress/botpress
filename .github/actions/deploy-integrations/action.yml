@@ -82,57 +82,16 @@ runs:
 
         # deploy
 
-        echo "### Deploying integration @botpresshub/dalle ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/dalle -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/discord ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/discord -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/googlecalendar ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/googlecalendar -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/github ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/github -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/gmail ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/gmail -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/gsheets ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/gsheets -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/instagram ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/instagram -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/intercom ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/intercom -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/line ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/line -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/linear ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/linear -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/make ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/make -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/messenger ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/messenger -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/mailchimp ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/mailchimp -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/notion ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/notion -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/slack ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/slack -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/sunco ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/sunco -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/teams ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/teams -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/telegram ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/telegram -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/twilio ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/twilio -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/viber ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/viber -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/vonage ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/vonage -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/webchat ###"
-        echo "webchat disabled"
-        echo "### Deploying integration @botpresshub/webhook ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/webhook -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/whatsapp ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/whatsapp -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/zapier ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/zapier -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/zendesk ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/zendesk -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/stripe ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/stripe -c exec -- 'bp deploy -v -y --noBuild'
+        integration_paths=$(pnpm list -F "@botpresshub/*" -F "!asana" -F "!trello" -F "!webchat" --json | jq -r "map(".path") | .[]")
+
+        for integration_path in $integration_paths; do
+            integration=$(basename $integration_path)
+            exists=$(./.github/scripts/integration-exists.sh $integration)
+            
+            if [ $exists -eq 0 ]; then
+                echo -e "\nDeploying integration: ### $integration ###\n"
+                pnpm retry -n 2 -- pnpm -r --stream -F $integration -c exec -- 'bp deploy -v -y --noBuild'
+            else
+                echo -e "\nSkipping integration: ### $integration ###\n"
+            fi
+        done
