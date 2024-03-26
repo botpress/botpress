@@ -11,7 +11,7 @@ type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 type ReplyLineProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'client' | 'ack'>
 
-console.info(`starting integration ${INTEGRATION_NAME}`)
+console.info(`starting integration ${INTEGRATION_NAME}!`)
 
 const replyLineMessage = async (props: ReplyLineProps, messageObj: line.Message) => {
   const { ctx, conversation, client, ack } = props
