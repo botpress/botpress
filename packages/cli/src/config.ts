@@ -126,6 +126,10 @@ const buildSchema = {
   sourceMap,
 } satisfies CommandSchema
 
+const readSchema = {
+  ...projectSchema,
+} satisfies CommandSchema
+
 const serveSchema = {
   ...projectSchema,
   ...secretsSchema,
@@ -249,6 +253,7 @@ export const schemas = {
   generate: generateSchema,
   bundle: bundleSchema,
   build: buildSchema,
+  read: readSchema,
   serve: serveSchema,
   deploy: deploySchema,
   add: addSchema,

@@ -5,15 +5,15 @@ import { BaseLogger, LoggerOptions } from './base-logger'
 export class Logger extends BaseLogger {
   private static _previousLine: SingleLineLogger | undefined // this is global to the whole process
 
-  protected print(message: string, props: Partial<{ metadata: any; prefix: string; stderr?: boolean }> = {}): void {
+  protected print(message: string, props: Partial<{ prefix: string; stderr?: boolean }> = {}): void {
     this.cleanup()
-    const log = props.stderr ? console.error : console.info
-    const { metadata, prefix } = props
+    const stream = props.stderr ? process.stderr : process.stdout
+    const { prefix } = props
     if (prefix) {
-      log(prefix, message, metadata ?? '')
+      this.render(`${prefix} ${message} \n`, stream)
       return
     }
-    log(message, metadata ?? '')
+    this.render(`${message} \n`, stream)
   }
 
   public line(): SingleLineLogger {
@@ -55,9 +55,9 @@ class SingleLineLogger extends BaseLogger {
     const { metadata, prefix } = props
     cursorTo(process.stdout, 0)
     if (prefix) {
-      process.stdout.write(`${prefix} ${message} ${metadata ?? ''}`)
+      this.render(`${prefix} ${message} ${metadata ?? ''}`)
       return
     }
-    process.stdout.write(`${message} ${metadata ?? ''}`)
+    this.render(`${message} ${metadata ?? ''}`)
   }
 }
