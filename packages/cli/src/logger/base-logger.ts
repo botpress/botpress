@@ -9,7 +9,7 @@ export type LoggerOptions = {
   json?: boolean // prevents loggin anything else than json
 }
 
-const STDOUT_CHUNK_SIZE = 100
+const STDOUT_CHUNK_SIZE = 1000
 const DEFAULT_OPTIONS: LoggerOptions = { verbose: false }
 
 type ChalkColor = (str: string) => string
