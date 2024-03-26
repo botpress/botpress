@@ -66,6 +66,12 @@ const dev = {
   default: false,
 } satisfies CommandOption
 
+const isPublic = {
+  type: 'boolean',
+  description: 'Weither or not to deploy the integration publicly',
+  default: false,
+} satisfies CommandOption
+
 // base schemas
 
 const globalSchema = {
@@ -144,6 +150,7 @@ const deploySchema = {
   noBuild,
   createNewBot: { type: 'boolean', description: 'Create a new bot when deploying. Only used when deploying a bot' },
   sourceMap,
+  public: isPublic,
   allowDeprecated: {
     type: 'boolean',
     description: 'Allow deprecated features in the project',

@@ -24,9 +24,8 @@ jobs:
         with:
           files: 'integrations/**/*.{ts,md,svg}'
           separator: '\n'
-      - name: List modified integrations
+      - name: Check integration versions
         run: |
-          echo -e "Changed files: ${{ steps.changed-files.outputs.all_changed_files }}"
           modified_integrations=$(echo -e "${{ steps.changed-files.outputs.all_changed_files }}" | awk -F'/' '{print $2}' | sort -u)
 
           for integration in $modified_integrations; do

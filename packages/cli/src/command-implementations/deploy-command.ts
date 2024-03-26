@@ -96,6 +96,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         extractScript: identifierExtractScriptFileContent,
         fallbackHandlerScript: fallbackHandlerScriptFileContent,
       },
+      public: this.argv.public,
     }
 
     const startedMessage = `Deploying integration ${chalk.bold(integrationDef.name)} v${integrationDef.version}...`
@@ -105,6 +106,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         {
           id: integration.id,
           ...createBody,
+          public: this.argv.public,
         },
         integration
       )
