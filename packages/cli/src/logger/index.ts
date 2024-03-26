@@ -10,10 +10,10 @@ export class Logger extends BaseLogger {
     const stream = props.stderr ? process.stderr : process.stdout
     const { prefix } = props
     if (prefix) {
-      this.render(`${prefix} ${message} \n`, stream)
+      this.render(`${prefix} ${message}\n`, stream)
       return
     }
-    this.render(`${message} \n`, stream)
+    this.render(`${message}\n`, stream)
   }
 
   public line(): SingleLineLogger {
@@ -46,18 +46,18 @@ class SingleLineLogger extends BaseLogger {
     console.log()
   }
 
-  protected print(message: string, props: Partial<{ metadata: any; prefix: string }> = {}): void {
+  protected print(message: string, props: Partial<{ prefix: string }> = {}): void {
     if (this._commited) {
       return
     }
 
     clearLine(process.stdout, 0)
-    const { metadata, prefix } = props
+    const { prefix } = props
     cursorTo(process.stdout, 0)
     if (prefix) {
-      this.render(`${prefix} ${message} ${metadata ?? ''}`)
+      this.render(`${prefix} ${message}`)
       return
     }
-    this.render(`${message} ${metadata ?? ''}`)
+    this.render(message)
   }
 }
