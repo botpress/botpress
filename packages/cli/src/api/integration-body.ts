@@ -12,7 +12,14 @@ type Channels = Integration['channels']
 type Channel = Integration['channels'][string]
 
 export const prepareCreateIntegrationBody = (integration: sdk.IntegrationDefinition): CreateIntegrationBody => ({
-  ...integration,
+  name: integration.name,
+  version: integration.version,
+  title: integration.title,
+  description: integration.description,
+  icon: integration.icon,
+  readme: integration.readme,
+  user: integration.user,
+  identifier: integration.identifier,
   secrets: undefined,
   configuration: integration.configuration
     ? {

@@ -2,12 +2,14 @@ import boxen from 'boxen'
 import chalk from 'chalk'
 import _ from 'lodash'
 import util from 'util'
+import * as utils from '../utils'
 
 export type LoggerOptions = {
   verbose: boolean
   json?: boolean // prevents loggin anything else than json
 }
 
+const STDOUT_CHUNK_SIZE = 100
 const DEFAULT_OPTIONS: LoggerOptions = { verbose: false }
 
 type ChalkColor = (str: string) => string
@@ -45,7 +47,6 @@ type LogPrefix = { symbol: Symbol; fg?: Color; bg?: Color; indent?: number } | s
 type SymbolRenderer<T extends Symbol> = { default: T; windows?: string; mac?: string }
 
 type LogProps = {
-  metadata: any
   prefix: LogPrefix
   stderr?: boolean
 }
@@ -115,27 +116,27 @@ export abstract class BaseLogger {
     this.log(msg)
   }
 
-  public debug(message: string, metadata?: any): void {
+  public debug(message: string): void {
     if (!this.opts.verbose) {
       return
     }
-    this.log(chalk.grey(message), { metadata, prefix: { symbol: '●', fg: 'blue' } })
+    this.log(chalk.grey(message), { prefix: { symbol: '●', fg: 'blue' } })
   }
 
-  public started(message: string, metadata?: any): void {
-    this.log(message, { metadata, prefix: { symbol: '○', fg: 'purple' } })
+  public started(message: string): void {
+    this.log(message, { prefix: { symbol: '○', fg: 'purple' } })
   }
 
-  public success(message: string, metadata?: any): void {
-    this.log(message, { metadata, prefix: { symbol: '✓', fg: 'green' } })
+  public success(message: string): void {
+    this.log(message, { prefix: { symbol: '✓', fg: 'green' } })
   }
 
-  public warn(message: string, metadata?: any): void {
-    this.log(message, { metadata, prefix: { symbol: '⚠', fg: 'yellow' } })
+  public warn(message: string): void {
+    this.log(message, { prefix: { symbol: '⚠', fg: 'yellow' } })
   }
 
-  public error(message: string, metadata?: any): void {
-    this.log(message, { metadata, prefix: { symbol: '×', fg: 'red' }, stderr: true })
+  public error(message: string): void {
+    this.log(message, { prefix: { symbol: '×', fg: 'red' }, stderr: true })
   }
 
   public box(message: string): void {
@@ -171,6 +172,13 @@ export abstract class BaseLogger {
       return renderer.mac || renderer.default
     } else {
       return renderer.default
+    }
+  }
+
+  protected render(message: string, stream: NodeJS.WriteStream = process.stdout): void {
+    // chunking the message ensures that the process won't exit before the message is fully written
+    for (const chunk of utils.string.chunkString(message, STDOUT_CHUNK_SIZE)) {
+      stream.write(chunk)
     }
   }
 }

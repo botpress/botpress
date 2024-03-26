@@ -25,6 +25,7 @@ export default {
   generate: { description: 'Generate typings for intellisense', schema: config.schemas.generate, alias: 'gen' },
   bundle: { description: 'Bundle a botpress project', schema: config.schemas.bundle },
   build: { description: 'Generate typings and bundle a botpress project', schema: config.schemas.build },
+  read: { description: 'Read and parse an integration definition', schema: config.schemas.read },
   serve: { description: 'Serve your project locally', schema: config.schemas.serve },
   deploy: { description: 'Deploy your project to the cloud', schema: config.schemas.deploy },
   add: { description: 'Install an integration in your bot', schema: config.schemas.add },
