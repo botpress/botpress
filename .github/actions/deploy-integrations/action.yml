@@ -82,8 +82,7 @@ runs:
 
         # deploy
 
-        list_cmd='pnpm list -F "@botpresshub/*" -F "!asana" -F "!trello" -F "!webchat" --json'
-        integration_paths=$(eval $list_cmd | jq -r "map(".path") | .[]")
+        integration_paths=$(pnpm list -F "@botpresshub/*" -F "!asana" -F "!trello" -F "!webchat" --json | jq -r "map(".path") | .[]")
 
         for integration_path in $integration_paths; do
             integration=$(basename $integration_path)
