@@ -90,7 +90,10 @@ runs:
             
             if [ $exists -eq 0 ]; then
                 echo -e "\nDeploying integration: ### $integration ###\n"
-                pnpm retry -n 2 -- pnpm -r --stream -F $integration -c exec -- 'bp deploy -v -y --noBuild --public'
+                
+                # TODO: deprecated features should only be allowed when bumping a patch or a minor version
+                
+                pnpm retry -n 2 -- pnpm -r --stream -F $integration -c exec -- 'bp deploy -v -y --noBuild --public --allowDeprecated'
             else
                 echo -e "\nSkipping integration: ### $integration ###\n"
             fi
