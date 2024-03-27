@@ -46,7 +46,7 @@
     "uuid": "^9.0.0",
     "verror": "^1.10.1",
     "winston": "^3.8.2",
-    "zod": "^3.20.6"
+    "zod": "3.22.4"
   },
   "devDependencies": {
     "@botpress/sdk": "0.6.2",

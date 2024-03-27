@@ -11,7 +11,7 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "zod": "^3.20.6"
+    "zod": "3.22.4"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
