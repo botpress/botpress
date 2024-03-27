@@ -61,6 +61,18 @@ const carouselSchema = z.object({
   items: z.array(cardSchema),
 })
 
+const blocSchema = z.object({
+  items: z.union([
+    textMessageSchema,
+    markdownMessageSchema,
+    imageMessageSchema,
+    audioMessageSchema,
+    videoMessageSchema,
+    fileMessageSchema,
+    locationMessageSchema,
+  ]).array(),
+})
+
 export const defaults = {
   text: { schema: textMessageSchema },
   markdown: { schema: markdownMessageSchema },
@@ -73,4 +85,5 @@ export const defaults = {
   card: { schema: cardSchema },
   dropdown: { schema: choiceSchema },
   choice: { schema: choiceSchema },
+  bloc: { schema: blocSchema },
 } as const // should use satisfies operator but this works for older versions of TS
