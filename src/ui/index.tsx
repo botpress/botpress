@@ -1,340 +1,223 @@
 import {
   BaseType,
-  ContainerType,
-  SchemaContext,
   UIComponentDefinitions,
-  UIControlSchema,
-  UILayoutSchema,
   ZuiComponentMap,
-  ZuiReactControlComponentProps,
-  ZuiReactLayoutComponentProps,
-  containerTypes,
-  SchemaResolversMap,
   JSONSchema,
-  UISchema,
+  ZuiReactComponent,
+  ZuiReactComponentBaseProps,
+  ObjectSchema,
+  ArraySchema,
+  ZuiReactComponentProps,
+  ZuiReactControlComponentProps,
+  PrimitiveSchema,
+  ZuiReactArrayChildProps,
 } from './types'
 import { zuiKey } from '../zui'
-import {
-  JsonForms,
-  type JsonFormsInitStateProps,
-  type JsonFormsStateContext,
-  type JsonFormsReactProps,
-  JsonFormsDispatch,
-  withJsonFormsControlProps,
-  withJsonFormsLayoutProps,
-  useJsonForms,
-} from '@jsonforms/react'
-import { useMemo } from 'react'
-import { ControlProps, JsonFormsProps, JsonFormsRendererRegistryEntry } from '@jsonforms/core'
-import React, { FC } from 'react'
+import React, { type FC, useMemo } from 'react'
 import { GlobalComponentDefinitions } from '..'
+import { FormDataProvider, getDefaultItemData, useFormData } from './providers/FormDataProvider'
+import { getPathData } from './providers/FormDataProvider'
+import { formatTitle } from './titleutils'
 
-export type ZuiFormProps<UI extends UIComponentDefinitions = GlobalComponentDefinitions> = Omit<
-  JsonFormsInitStateProps,
-  'uischema' | 'schema' | 'renderers' | 'cells'
-> &
-  JsonFormsReactProps & {
-    overrides?: SchemaResolversMap<UI>
-    components: ZuiComponentMap<UI>
-    schema: JSONSchema | object | any
-  }
-
-export const defaultControlResolver = (
-  params: any,
-  ctx: SchemaContext<'string' | 'number' | 'boolean', string>,
-): UIControlSchema => {
-  return {
-    type: 'Control',
-    scope: ctx.scope,
-    _componentType: ctx.type,
-    _componentID: ctx.id,
-    label: ctx.zuiProps?.title ?? true,
-    options: params,
-    [zuiKey]: ctx.zuiProps,
-  }
+type ComponentMeta<Type extends BaseType = BaseType> = {
+  type: Type
+  Component: ZuiReactComponent<Type, string>
+  id: string
+  params: any
 }
 
-export const defaultContainerResolver = (
-  params: any,
-  ctx: SchemaContext<ContainerType, string>,
-  children: UISchema[],
-): UILayoutSchema => {
-  return {
-    type: 'HorizontalLayout',
-    _componentType: ctx.type,
-    _componentID: ctx.id,
-    elements: children,
-    options: {
-      params,
-    },
-    [zuiKey]: ctx.zuiProps,
-  }
-}
+const resolveComponent = <Type extends BaseType>(
+  components: ZuiComponentMap<any>,
+  fieldSchema: JSONSchema,
+): ComponentMeta<Type> | null => {
+  const type = fieldSchema.type as BaseType
+  const uiDefinition = fieldSchema[zuiKey]?.displayAs || null
 
-export const defaultUISchemaResolvers: SchemaResolversMap<UIComponentDefinitions> = {
-  string: {
-    default: defaultControlResolver,
-  },
-  number: {
-    default: defaultControlResolver,
-  },
-  boolean: {
-    default: defaultControlResolver,
-  },
-  object: {
-    default: defaultContainerResolver,
-  },
-  array: {
-    default: defaultContainerResolver,
-  },
-}
-
-const getSchemaResolver = <Type extends BaseType, UI extends UIComponentDefinitions = GlobalComponentDefinitions>(
-  type: Type,
-  id: keyof UI[BaseType] & string,
-  overrides: SchemaResolversMap<UI> = {},
-) => {
-  const typeResolvers = { ...defaultUISchemaResolvers[type], ...overrides[type] }
-  const componentFunc = typeResolvers?.[id] || typeResolvers?.default
-  if (!componentFunc) {
-    return null
-  }
-  return componentFunc
-}
-
-const keyToScope = (key: string) => {
-  return '#/properties/' + key
-}
-
-export const schemaToUISchema = <UI extends UIComponentDefinitions = GlobalComponentDefinitions>(
-  schema: JSONSchema,
-  overrides: SchemaResolversMap<UI> = {},
-  currentKey: string = 'root',
-): UISchema | null => {
-  const scope = keyToScope(currentKey)
-
-  const zuiProps = schema[zuiKey] ?? {}
-
-  if (zuiProps.hidden === true) {
-    return null
-  }
-  if (zuiProps)
-    if (schema.type === 'object') {
-      const properties = Object.entries(schema.properties)
-        .map(([key, value]) => {
-          return schemaToUISchema(value, overrides, key)
-        })
-        .filter(Boolean) as UISchema[]
-
-      if (!schema[zuiKey]?.displayAs || schema[zuiKey].displayAs.length !== 2) {
-        const resolver = getSchemaResolver(schema.type, 'default', overrides)
-        return resolver?.({}, { type: 'object', id: 'default', schema, scope, zuiProps }, properties) || null
+  if (!uiDefinition || !Array.isArray(uiDefinition) || uiDefinition.length < 2) {
+    const defaultComponent = components[type]?.default
+    if (defaultComponent) {
+      return {
+        Component: defaultComponent as ZuiReactComponent<Type, string>,
+        type: type as Type,
+        id: 'default',
+        params: {},
       }
+    }
+    return null
+  }
 
-      const [id, params] = schema[zuiKey].displayAs
-      const resolver = getSchemaResolver(schema.type, id, overrides)
+  const componentID: string = uiDefinition[0] || 'default'
 
-      return resolver?.(params, { type: schema.type, id: id as any, schema, scope, zuiProps }, properties) || null
+  const Component = components[type]?.[componentID] || null
+
+  if (!Component) {
+    console.warn(`Component ${type}.${componentID} not found`)
+    return null
+  }
+
+  const params = uiDefinition[1] || {}
+
+  return {
+    Component: Component as ZuiReactComponent<Type, string>,
+    type: type as Type,
+    id: componentID,
+    params,
+  }
+}
+
+export type ZuiFormProps<UI extends UIComponentDefinitions = GlobalComponentDefinitions> = {
+  schema: JSONSchema
+  components: ZuiComponentMap<UI>
+  value: any
+  onChange: (value: any) => void
+  disableValidation?: boolean
+}
+
+export const ZuiForm = <UI extends UIComponentDefinitions = GlobalComponentDefinitions>({
+  schema,
+  components,
+  onChange,
+  value,
+  disableValidation,
+}: ZuiFormProps<UI>): JSX.Element | null => {
+  return (
+    <FormDataProvider
+      formData={value}
+      setFormData={onChange}
+      formSchema={schema}
+      disableValidation={disableValidation || false}
+    >
+      <FormElementRenderer
+        components={components}
+        fieldSchema={schema}
+        path={[]}
+        required={true}
+        isArrayChild={false}
+      />
+    </FormDataProvider>
+  )
+}
+
+type FormRendererProps = {
+  components: ZuiComponentMap<any>
+  fieldSchema: JSONSchema
+  path: string[]
+  required: boolean
+} & ZuiReactArrayChildProps
+
+const FormElementRenderer: FC<FormRendererProps> = ({ components, fieldSchema, path, required, ...childProps }) => {
+  const { formData, handlePropertyChange, addArrayItem, removeArrayItem, formErrors, formValid } = useFormData()
+  const data = useMemo(() => getPathData(formData, path), [formData, path])
+  const componentMeta = useMemo(() => resolveComponent(components, fieldSchema), [fieldSchema, components])
+
+  if (!componentMeta) {
+    return null
+  }
+
+  if (fieldSchema[zuiKey]?.hidden === true) {
+    return null
+  }
+
+  const { Component: _component, type } = componentMeta
+
+  const pathString = path.length > 0 ? path.join('.') : 'root'
+
+  const baseProps: Omit<ZuiReactComponentBaseProps<BaseType, any>, 'data' | 'isArrayChild'> = {
+    type,
+    componentID: componentMeta.id,
+    scope: pathString,
+    context: {
+      path: pathString,
+      readonly: false,
+      formData,
+      formErrors,
+      formValid,
+      updateForm: handlePropertyChange,
+    },
+    enabled: fieldSchema[zuiKey]?.disabled !== true,
+    onChange: (data: any) => handlePropertyChange(pathString, data),
+    errors: formErrors?.filter((e) => e.path.join('.') === pathString) || [],
+    label: fieldSchema[zuiKey]?.title || formatTitle(path[path.length - 1]?.toString() || ''),
+    params: componentMeta.params,
+    schema: fieldSchema,
+    zuiProps: fieldSchema[zuiKey],
+  }
+
+  if (fieldSchema.type === 'array' && type === 'array') {
+    const Component = _component as any as ZuiReactComponent<'array', any>
+    const schema = baseProps.schema as ArraySchema
+
+    const props: Omit<ZuiReactComponentProps<'array', any>, 'children'> = {
+      ...baseProps,
+      type,
+      schema,
+      data: Array.isArray(data) ? data : [],
+      addItem: (data = undefined) =>
+        addArrayItem(baseProps.context.path, typeof data === 'undefined' ? getDefaultItemData(schema.items) : data),
+      removeItem: (index) => removeArrayItem(baseProps.context.path, index),
+      ...childProps,
     }
 
-  if (schema.type === 'array') {
-    const items = schemaToUISchema(schema.items, overrides, currentKey)
-    if (!schema[zuiKey]?.displayAs || schema[zuiKey].displayAs.length !== 2) {
-      const resolver = getSchemaResolver(schema.type, 'default', overrides)
-      return (
-        resolver?.(
-          {},
-          { type: 'array', id: 'default', schema, scope, zuiProps },
-          [items].filter(Boolean) as UISchema[],
-        ) || null
-      )
-    }
-    const [id, params] = schema[zuiKey].displayAs
-    const resolver = getSchemaResolver(schema.type, id, overrides)
     return (
-      resolver?.(
-        params,
-        { type: schema.type, id: id as any, schema, scope, zuiProps },
-        [items].filter(Boolean) as UISchema[],
-      ) || null
+      <Component key={baseProps.scope} {...props} isArrayChild={props.isArrayChild as any}>
+        {props.data?.map((_, index) => {
+          const childPath = [...path, index.toString()]
+          return (
+            <FormElementRenderer
+              key={childPath.join('.')}
+              components={components}
+              fieldSchema={fieldSchema.items}
+              path={childPath}
+              required={required}
+              isArrayChild={true}
+              index={index}
+              removeSelf={() => removeArrayItem(baseProps.context.path, index)}
+            />
+          )
+        }) || []}
+      </Component>
     )
   }
 
-  if (schema.type === 'string' || schema.type === 'boolean' || schema.type === 'number') {
-    if (!schema[zuiKey]?.displayAs || schema[zuiKey].displayAs.length !== 2) {
-      const resolver = getSchemaResolver(schema.type, 'default', overrides) as any
-      return resolver?.({}, { type: schema.type, id: 'default', scope, zuiProps }) || null
+  if (fieldSchema.type === 'object' && type === 'object') {
+    const Component = _component as any as ZuiReactComponent<'object', any>
+    const props: Omit<ZuiReactComponentProps<'object', any>, 'children'> = {
+      ...baseProps,
+      type,
+      schema: baseProps.schema as any as ObjectSchema,
+      data: data || {},
+      ...childProps,
     }
-    const [id, params] = schema[zuiKey].displayAs
-    const resolver = getSchemaResolver(schema.type, id, overrides) as any
-    return resolver?.(params, { type: schema.type, id, schema, scope, zuiProps }) || null
+    return (
+      <Component key={baseProps.scope} {...props} isArrayChild={props.isArrayChild as any}>
+        {Object.entries(fieldSchema.properties).map(([fieldName, childSchema]) => {
+          const childPath = [...path, fieldName]
+          return (
+            <FormElementRenderer
+              key={childPath.join('.')}
+              components={components}
+              fieldSchema={childSchema}
+              path={childPath}
+              required={fieldSchema.required?.includes(fieldName) || false}
+              isArrayChild={false}
+            />
+          )
+        })}
+      </Component>
+    )
   }
+  const Component = _component as any as ZuiReactComponent<any, any>
 
-  console.error('No component function found for', schema.type, schema)
-
-  return null
-}
-
-const transformControlProps = <Type extends BaseType>(
-  type: Type,
-  id: string,
-  props: ControlProps,
-  ctxData: JsonFormsStateContext | undefined = undefined,
-): ZuiReactControlComponentProps<Type, string> => {
-  const {
-    uischema,
-    id: renderID,
-    schema,
-    path,
-    enabled,
-    handleChange,
+  const props: ZuiReactControlComponentProps<'boolean' | 'number' | 'string', any> = {
+    ...baseProps,
+    type: type as any as 'boolean' | 'number' | 'string',
+    schema: baseProps.schema as any as PrimitiveSchema,
+    config: {},
     required,
     data,
-    errors,
-    label,
-    description,
-    config,
-    i18nKeyPrefix,
-  } = props
-  const transformedProps: ZuiReactControlComponentProps<Type, string> = {
-    type,
-    id: renderID,
-    componentID: id,
-    params: uischema?.options,
-    scope: path!,
-    enabled: enabled,
-    required: required ?? false,
-    data,
-    errors,
-    label,
-    description,
-    config,
-    i18nKeyPrefix,
-    zuiProps: (uischema as any)[zuiKey] ?? {},
-    onChange: (data) => handleChange(path, data),
-    schema: schema as any,
-    context: {
-      formErrors: ctxData?.core?.errors,
-      formData: ctxData?.core?.data,
-      path: path!,
-      readonly: ctxData?.readonly ?? false,
-      uiSchema: uischema as any,
-      dispatch: ctxData?.dispatch,
-    },
+    description: fieldSchema.description,
+    ...childProps,
   }
 
-  return transformedProps
-}
-
-const withTransformControlProps = (type: BaseType, id: string, Component: FC<any>) => {
-  return withJsonFormsControlProps((props) => {
-    const ctxData = useJsonForms()
-    const transformedProps = transformControlProps(type, id, props, ctxData)
-    return <Component {...transformedProps} />
-  })
-}
-
-const transformLayoutProps = <Type extends ContainerType>(
-  type: Type,
-  id: string,
-  props: any,
-  ctxData: JsonFormsStateContext | undefined = undefined,
-): ZuiReactLayoutComponentProps<ContainerType, string> => {
-  const { uischema, id: renderID, schema, renderers, path, cells, enabled, handleChange, data } = props
-  return {
-    type,
-    id: renderID,
-    componentID: id,
-    enabled,
-    params: uischema.options,
-    scope: path!,
-    onChange: (data) => handleChange(path, data),
-    schema: schema as any,
-    context: {
-      path: path!,
-      uiSchema: uischema! as any,
-      readonly: ctxData?.readonly ?? false,
-      formData: ctxData?.core?.data,
-      formErrors: ctxData?.core?.errors,
-      dispatch: ctxData?.dispatch,
-    },
-    data,
-    zuiProps: (uischema as any)[zuiKey] ?? {},
-    children: uischema.elements?.map((child: any, index: number) => {
-      return (
-        <JsonFormsDispatch
-          key={`${path}-${index}`}
-          renderers={renderers}
-          cells={cells}
-          uischema={child}
-          schema={schema}
-          path={path}
-          enabled={enabled}
-        />
-      )
-    }),
-  }
-}
-
-const withTransformLayoutProps = (type: ContainerType, id: string, Component: FC<any>) => {
-  return withJsonFormsLayoutProps((props: any) => {
-    const ctxData = useJsonForms()
-    const transformedProps = transformLayoutProps(type, id, props, ctxData)
-    return <Component {...transformedProps} />
-  })
-}
-
-type JSONFormsRenderer = JsonFormsRendererRegistryEntry
-
-export const transformZuiComponentsToRenderers = (
-  components: ZuiComponentMap,
-): NonNullable<JsonFormsProps['renderers']> => {
-  return Object.entries(components)
-    .map(([type, ids]) => {
-      return Object.entries(ids).map<JSONFormsRenderer>(([id, component]) => {
-        if (containerTypes.includes(type as ContainerType)) {
-          return {
-            tester: (uischema: any, _, __) => {
-              return uischema?._componentType === type && uischema?._componentID === id ? 100 : 0
-            },
-            renderer: withTransformLayoutProps(type as ContainerType, id, component),
-          }
-        }
-        return {
-          tester: (uischema: any, _, __) => {
-            return uischema?.type === 'Control' && uischema._componentType === type && uischema?._componentID === id
-              ? 100
-              : 0
-          },
-          renderer: withTransformControlProps(type as BaseType, id, component),
-        }
-      })
-    })
-    .reduce((acc, val) => acc.concat(val), [])
-}
-
-export function ZuiForm<UI extends UIComponentDefinitions = GlobalComponentDefinitions>({
-  schema,
-  overrides = {},
-  components,
-  ...jsonformprops
-}: ZuiFormProps<UI>): JSX.Element | null {
-  const renderers = useMemo(() => {
-    return transformZuiComponentsToRenderers(components)
-  }, [components])
-
-  const uiSchema = useMemo(() => {
-    if (!schema) {
-      console.warn('Schema is nullish, skipping form rendering')
-      return null
-    }
-    return schemaToUISchema<UI>(schema as JSONSchema, overrides)
-  }, [schema, overrides])
-
-  if (!uiSchema) {
-    console.warn('UI Schema returned null, skipping form rendering')
-    return null
-  }
-
-  return <JsonForms {...jsonformprops} schema={schema} uischema={uiSchema} renderers={renderers} />
+  return <Component {...props} />
 }
