@@ -1408,7 +1408,7 @@ importers:
         version: 3.20.6
     devDependencies:
       '@botpress/sdk':
-        specifier: 0.6.10
+        specifier: 0.6.11
         version: link:../sdk
       '@bpinternal/log4bot':
         specifier: ^0.0.4
@@ -1450,7 +1450,7 @@ importers:
         specifier: 0.12.3
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.6.10
+        specifier: 0.6.11
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1472,7 +1472,7 @@ importers:
         specifier: 0.12.3
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.6.10
+        specifier: 0.6.11
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
