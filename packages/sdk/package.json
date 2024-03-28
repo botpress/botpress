@@ -13,6 +13,7 @@
   "license": "MIT",
   "dependencies": {
     "@botpress/client": "0.12.4",
+    "@bpinternal/zui": "^0.3.0",
     "zod": "^3.20.6"
   },
   "devDependencies": {

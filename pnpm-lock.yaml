@@ -1518,6 +1518,9 @@ importers:
       '@botpress/client':
         specifier: 0.12.4
         version: link:../client
+      '@bpinternal/zui':
+        specifier: ^0.3.0
+        version: 0.3.0(zod@3.20.6)
       zod:
         specifier: ^3.20.6
         version: 3.20.6
@@ -2105,7 +2108,6 @@ packages:
       '@types/json-schema': 7.0.12
       call-me-maybe: 1.0.2
       js-yaml: 4.1.0
-    dev: true
 
   /@bcherny/json-schema-ref-parser@9.0.9:
     resolution: {integrity: sha512-vmEmnJCfpkLdas++9OYg6riIezTYqTHpqUTODJzHLzs5UnXujbOJW9VwcVCnyo1mVRt32FRr23iXBx/sX8YbeQ==}
@@ -2164,6 +2166,10 @@ packages:
       - supports-color
       - terser
       - webdriverio
+    dev: false
+
+  /@bpinternal/json-schema-to-zod@2.0.15:
+    resolution: {integrity: sha512-CEi5XbffaDBAV+Ghqifx8XN+QZ/lzTGsWPn62uiTwD+arpqdlNZs7a0gtkNz1Fkr0KmkHWTZtzUdYNjIqIszTw==}
     dev: false
 
   /@bpinternal/log4bot@0.0.4:
@@ -2243,6 +2249,28 @@ packages:
     dependencies:
       zod: 3.20.6
     dev: false
+
+  /@bpinternal/zod-to-json-schema@3.22.5(zod@3.20.6):
+    resolution: {integrity: sha512-6cWhIJYtbOPz94La+uBGt6Vpdh8sNYG9JeKPSdjJdx9+M2ty83qcYzKM5zYnl4Ith+wWM9HD14n+ygM9Jln63w==}
+    peerDependencies:
+      zod: ^3.22.4
+    dependencies:
+      zod: 3.20.6
+    dev: false
+
+  /@bpinternal/zui@0.3.0(zod@3.20.6):
+    resolution: {integrity: sha512-1dlc/qiKjuFXCL2o6LNaFn+dJ97n5Vfr8BWsjFyby48Sa6aCd9IibRKuFYjfEvJzcaX5CsR/OiTu+4+zppr7dw==}
+    dependencies:
+      '@bpinternal/json-schema-to-zod': 2.0.15
+      '@bpinternal/zod-to-json-schema': 3.22.5(zod@3.20.6)
+      json-schema-to-typescript: 13.1.2
+      lodash: 4.17.21
+      react: 18.2.0
+    transitivePeerDependencies:
+      - zod
+    dev: false
+    bundledDependencies:
+      - zod
 
   /@colors/colors@1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}
@@ -8805,7 +8833,6 @@ packages:
       mkdirp: 1.0.4
       mz: 2.7.0
       prettier: 2.8.8
-    dev: true
 
   /json-schema-traverse@0.4.1:
     resolution: {integrity: sha512-xbbCH5dCYU5T8LcEhhuh7HJ88HXuW3qsI3Y0zOZFKfZEHcpWiHU/Jxzk629Brsab/mMiHQti9wMP+845RPe3Vg==}
@@ -10306,6 +10333,13 @@ packages:
 
   /react-is@18.2.0:
     resolution: {integrity: sha512-xWGDIW6x921xtzPkhiULtthJHoJvBbF3q26fzloPCK0hsvxtPVelvftw3zjbHWSkR2km9Z+4uxbDDK/6Zw9B8w==}
+
+  /react@18.2.0:
+    resolution: {integrity: sha512-/3IjMdb2L9QbBdWiW5e3P2/npwMBaU9mHCSCUzNln0ZCYbcfTsGbTJrU/kGemdH2IWmB2ioZ+zkxtmq6g09fGQ==}
+    engines: {node: '>=0.10.0'}
+    dependencies:
+      loose-envify: 1.4.0
+    dev: false
 
   /readable-stream@2.3.8:
     resolution: {integrity: sha512-8p0AUk4XODgIewSi0l8Epjs+EVnWiK7NoDIEGU0HhE7+ZyY8D1IMY7odu5lRrFXGg71L15KG8QrPmum45RTtdA==}
