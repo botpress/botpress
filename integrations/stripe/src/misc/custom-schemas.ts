@@ -1,4 +1,4 @@
-import z from 'zod'
+import { zui as z } from '@botpress/sdk'
 import {
   createPaymentLinkUi,
   createSubsLinkUi,
@@ -10,6 +10,10 @@ import {
   searchCustomersUi,
 } from './custom-uis'
 import { partialCustomer } from './sub-schemas'
+
+
+z.string().displayAs('debug', { type: 'debug'})
+
 
 export const createPaymentLinkInputSchema = z.object({
   productName: z.string().describe(createPaymentLinkUi.productName.title),

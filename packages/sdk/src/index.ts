@@ -17,3 +17,5 @@ export { Bot, BotProps, BotContext, BotSpecificClient, IntegrationInstance } fro
  * @deprecated Infer type of integration message handlers instead
  */
 export type AckFunction = (props: { tags: Record<string, string> }) => Promise<void>
+
+export { zui, zui as z } from './zui'
