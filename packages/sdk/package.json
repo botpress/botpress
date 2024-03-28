@@ -19,6 +19,7 @@
     "@types/node": "^18.11.17",
     "esbuild": "^0.16.10",
     "ts-node": "^10.9.1",
+    "tsup": "^8.0.2",
     "type-fest": "^3.4.0",
     "typescript": "^4.9.4"
   }
