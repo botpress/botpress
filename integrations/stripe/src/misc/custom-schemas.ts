@@ -11,8 +11,8 @@ import {
 } from './custom-uis'
 import { partialCustomer } from './sub-schemas'
 
-
-z.string().displayAs('debug', { type: 'debug'})
+// Test schema 
+z.string().displayAs('JSONInput', { allowDynamicVariable: false })
 
 
 export const createPaymentLinkInputSchema = z.object({
