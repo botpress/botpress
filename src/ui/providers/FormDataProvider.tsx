@@ -1,8 +1,7 @@
 import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import React from 'react'
 import { JSONSchema } from '../types'
-import { jsonSchemaToZui } from '../../json-schema/json-schema-to-zui'
-import { ZodAny } from 'zod'
+import { jsonSchemaToZui } from '../../transforms/json-schema-to-zui'
 
 export type FormFieldContextProps = {
   formData: any
@@ -25,25 +24,17 @@ export const useFormData = () => {
   if (context === undefined) {
     throw new Error('useFormData must be used within a FormDataProvider')
   }
-  const zodSchema = useMemo(() => {
-    try {
-      return jsonSchemaToZui(context.formSchema) as any as ZodAny
-    } catch (e) {
-      console.error('Error transforming zod schema to zui schema', e)
-      return null
-    }
-  }, [context.formSchema])
 
   const validation = useMemo(() => {
     if (context.disableValidation) {
       return { formValid: null, formErrors: null }
     }
 
-    if (!zodSchema) {
+    if (!context.formSchema) {
       return { formValid: null, formErrors: null }
     }
 
-    const validation = zodSchema.safeParse(context.formData)
+    const validation = jsonSchemaToZui(context.formSchema).safeParse(context.formData)
 
     if (!validation.success) {
       return {
@@ -55,7 +46,7 @@ export const useFormData = () => {
       formValid: true,
       formErrors: [],
     }
-  }, [zodSchema, context.formData])
+  }, [context.formData])
 
   const handlePropertyChange = (path: string, data: any) => {
     context.setFormData(setObjectPath(context.formData, path, data))

@@ -10,6 +10,6 @@ export default defineConfig({
   platform: 'browser',
   clean: true,
   shims: true,
-  noExternal: ['zod'],
+  external: ['zod', 'react', 'react-dom'],
   bundle: true,
 })

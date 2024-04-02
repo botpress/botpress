@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
-import { objectToZui } from './object-to-zui'
-import { zui } from '../zui'
+import { objectToZui } from '.'
+import { zui } from '../../zui'
 
 describe('object-to-zui', () => {
   test('validate object to json', async () => {

@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { zui } from '../zui'
+import { zui } from '../../zui'
 
 describe('zui-to-ts', () => {
   test('validate simple schema', async () => {

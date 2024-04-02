@@ -1,6 +1,23 @@
 import { describe, test, expect } from 'vitest'
 import { zui } from '.'
+import * as ogZod from 'zod'
 import { Infer, ZuiTypeAny } from './zui'
+
+type ExampleSchema = {
+  schema: ogZod.ZodObject<any>
+}
+// check that a zui schema is compatible with a zod schema
+export const someSchema: ExampleSchema = {
+  schema: zui.object({
+    name: zui.string().title('Name'),
+    age: zui.number().title('Age'),
+    employer: zui
+      .object({
+        name: zui.string().title('Employer Name'),
+      })
+      .disabled(),
+  }),
+}
 
 describe('zui', () => {
   test('vanially zui gives me a zui def', () => {

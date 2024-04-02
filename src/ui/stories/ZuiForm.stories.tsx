@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
-import { UIComponentDefinitions, ZuiComponentMap } from '../types'
+import { FormError, UIComponentDefinitions, ZuiComponentMap } from '../types'
 import { Zui, zui as zuiImport } from '../../index'
 import { ZuiForm } from '..'
 import { z } from 'zod'
@@ -29,7 +29,7 @@ const exampleSchema = zui
         zui.object({
           date: zui.string(),
           time: zui.string(),
-          ids: zui.array(zui.number()),
+          ids: zui.array(zui.number()).min(2),
         }),
       )
       .min(1)
@@ -41,7 +41,7 @@ const exampleSchema = zui
       birthday: zui.string(),
       plan: zui.enum(['basic', 'premium']),
       age: zui.number(),
-      email: zui.string().title('Email Address'),
+      email: zui.string().email().title('Email Address'),
       password: zui.string(),
       passwordConfirm: zui.string(),
     }),
@@ -49,12 +49,12 @@ const exampleSchema = zui
   })
   .title('User Information')
 
-const ErrorBox: FC<{ errors: z.ZodIssue[]; data: any | null }> = ({ errors, data }) =>
+const ErrorBox: FC<{ errors: FormError[]; data: any | null }> = ({ errors, data }) =>
   errors &&
   data !== null && (
     <span style={{ color: 'red' }}>
       {errors.map((e) => (
-        <p key={e.code}>{e.message}</p>
+        <p key={e.path.join('')}>{e.message}</p>
       ))}
     </span>
   )
@@ -98,7 +98,7 @@ const componentMap: ZuiComponentMap<typeof exampleExtensions> = {
               <p>Form is invalid with {context.formErrors?.length} errors:</p>
               <ul>
                 {context.formErrors?.map((e) => (
-                  <li>
+                  <li key={e.path.join('.')}>
                     {e.path.join('.')} - {e.message}
                   </li>
                 ))}
@@ -110,11 +110,12 @@ const componentMap: ZuiComponentMap<typeof exampleExtensions> = {
     },
   },
   array: {
-    default: ({ children, scope, context, addItem }) => (
+    default: ({ children, scope, context, addItem, errors }) => (
       <>
         <button onClick={() => addItem()}>Add item {context.path}</button>
         <p>{scope}</p>
         {children}
+        <ErrorBox errors={errors} data={null} />
       </>
     ),
   },
@@ -170,11 +171,12 @@ const componentMap: ZuiComponentMap<typeof exampleExtensions> = {
     },
   },
   object: {
-    default: ({ children, ...rest }) => {
+    default: ({ children, errors, data, ...rest }) => {
       return (
         <section>
           <div style={{ border: '1px solid red' }}>{children}</div>
           {rest.isArrayChild === true && <button onClick={() => rest.removeSelf()}>delete</button>}
+          {!!errors?.length && <ErrorBox errors={errors} data={data} />}
         </section>
       )
     },

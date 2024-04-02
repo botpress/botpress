@@ -3,13 +3,9 @@ import { zui } from './zui'
 export type { BaseType, UIComponentDefinitions, ZuiComponentMap, AsBaseType, ZuiReactComponent } from './ui/types'
 export { ZuiForm, type ZuiFormProps } from './ui'
 export type { Zui, ZuiType, Infer, ZuiExtension, ZuiRawShape, ZuiTypeAny } from './zui'
-export type {
-  JsonSchema7Type as JsonSchema7,
-  JsonSchema7ObjectType as JsonSchema7Object,
-} from '@bpinternal/zod-to-json-schema'
 
-export { getZuiSchemas } from './zui-schemas'
-export { jsonSchemaToZui } from './json-schema/json-schema-to-zui'
+export { jsonSchemaToZui } from './transforms/json-schema-to-zui'
+export { zuiToJsonSchema } from './transforms/zui-to-json-schema'
 export { ZodError as ZuiError } from 'zod'
 
 export interface ComponentDefinitions {}

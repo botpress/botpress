@@ -11,10 +11,11 @@
     "noUncheckedIndexedAccess": true,
     "allowSyntheticDefaultImports": true,
     "lib": ["dom", "dom.iterable", "esnext"],
-    "allowJs": true,
+    "allowJs": false,
+    "declaration": false,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "noEmit": true,
+    "noEmit": false,
     "resolveJsonModule": true,
     "isolatedModules": true,
     "paths": {

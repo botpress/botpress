@@ -1,8 +1,6 @@
 import { describe, test, expect } from 'vitest'
-import { zui } from '..'
-import { getZuiSchemas } from '..'
-import { zuiKey } from '../zui'
-import { z } from 'zod'
+import { zuiToJsonSchema } from './zui-extension'
+import { zui, zuiKey } from '../../zui'
 
 describe('zuiToJsonSchema', () => {
   test('should work', () => {
@@ -11,9 +9,9 @@ describe('zuiToJsonSchema', () => {
       age: zui.number().max(100).min(0).title('Age').describe('Age in years').default(20),
     })
 
-    const jsonSchema = getZuiSchemas(schema)
+    const jsonSchema = zuiToJsonSchema(schema)
 
-    expect(jsonSchema.schema).toMatchInlineSnapshot(`
+    expect(jsonSchema).toMatchInlineSnapshot(`
       {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
@@ -40,54 +38,29 @@ describe('zuiToJsonSchema', () => {
         "${zuiKey}": {},
       }
     `)
-
-    expect(jsonSchema.uischema).toMatchInlineSnapshot(`
-      {}
-    `)
-  })
-
-  test('non-object schemas', () => {
-    const expectEmptySchema = (input: any) => {
-      expect(getZuiSchemas(input).uischema).toMatchInlineSnapshot(`{}`)
-    }
-    expectEmptySchema(zui.string().title('Name').default('No Name'))
-    expectEmptySchema(zui.boolean())
-    expectEmptySchema(zui.array(zui.string()))
-    expectEmptySchema(zui.number().title('Age').default(20))
   })
 
   test('enums', () => {
     expect(
-      getZuiSchemas(
+      zuiToJsonSchema(
         zui.object({
           fruit: zui.enum(['Apple', 'Banana', 'Orange']),
         }),
       ),
-    ).toMatchInlineSnapshot(`
-      {
-        "schema": {
-          "$schema": "http://json-schema.org/draft-07/schema#",
-          "additionalProperties": false,
-          "properties": {
-            "fruit": {
-              "enum": [
-                "Apple",
-                "Banana",
-                "Orange",
-              ],
-              "type": "string",
-              "${zuiKey}": {},
-            },
-          },
-          "required": [
-            "fruit",
-          ],
-          "type": "object",
-          "${zuiKey}": {},
+    ).toEqual({
+      $schema: 'http://json-schema.org/draft-07/schema#',
+      additionalProperties: false,
+      properties: {
+        fruit: {
+          enum: ['Apple', 'Banana', 'Orange'],
+          type: 'string',
+          [zuiKey]: {},
         },
-        "uischema": {},
-      }
-    `)
+      },
+      required: ['fruit'],
+      type: 'object',
+      [zuiKey]: {},
+    })
   })
 
   test('supported properties are available in the json schema', () => {
@@ -95,8 +68,8 @@ describe('zuiToJsonSchema', () => {
       testExample: zui.string().displayAs('textarea', { rows: 5 }),
     })
 
-    const jsonSchema = getZuiSchemas(schema)
-    expect(jsonSchema.schema).toMatchInlineSnapshot(`
+    const jsonSchema = zuiToJsonSchema(schema)
+    expect(jsonSchema).toMatchInlineSnapshot(`
       {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
@@ -125,8 +98,8 @@ describe('zuiToJsonSchema', () => {
   test('examples are available on json schema', () => {
     const schema = zui.string()
 
-    const jsonSchema = getZuiSchemas(schema, { stripZuiProps: true, $schemaUrl: false })
-    expect(jsonSchema.schema).toMatchInlineSnapshot(`
+    const jsonSchema = zuiToJsonSchema(schema, { stripZuiProps: true, $schemaUrl: false })
+    expect(jsonSchema).toMatchInlineSnapshot(`
       {
         "type": "string",
       }
@@ -136,24 +109,22 @@ describe('zuiToJsonSchema', () => {
   test('record with a value works', () => {
     const schema = zui.record(zui.string().max(30)).describe('hello')
 
-    const jsonSchema = getZuiSchemas(schema, { stripZuiProps: true, $schemaUrl: false })
-    expect(jsonSchema.schema).toMatchInlineSnapshot(`
-      {
-        "additionalProperties": {
-          "maxLength": 30,
-          "type": "string",
-        },
-        "description": "hello",
-        "type": "object",
-      }
-    `)
+    const jsonSchema = zuiToJsonSchema(schema, { stripZuiProps: true, $schemaUrl: false })
+    expect(jsonSchema).toEqual({
+      additionalProperties: {
+        maxLength: 30,
+        type: 'string',
+      },
+      description: 'hello',
+      type: 'object',
+    })
   })
 
   test('record with second parameter', () => {
     const schema = zui.record(zui.string(), zui.number().max(30), {}).describe('hello')
 
-    const jsonSchema = getZuiSchemas(schema, { stripZuiProps: true, $schemaUrl: false })
-    expect(jsonSchema.schema).toMatchInlineSnapshot(`
+    const jsonSchema = zuiToJsonSchema(schema, { stripZuiProps: true, $schemaUrl: false })
+    expect(jsonSchema).toMatchInlineSnapshot(`
       {
         "additionalProperties": {
           "maximum": 30,
@@ -168,8 +139,8 @@ describe('zuiToJsonSchema', () => {
   test('record with second parameter', () => {
     const schema = zui.object({})
 
-    const jsonSchema = getZuiSchemas(schema, { stripZuiProps: true, $schemaUrl: 'http://schema.com' })
-    expect(jsonSchema.schema).toMatchInlineSnapshot(`
+    const jsonSchema = zuiToJsonSchema(schema, { stripZuiProps: true, $schemaUrl: 'http://schema.com' })
+    expect(jsonSchema).toMatchInlineSnapshot(`
       {
         "$schema": "http://schema.com",
         "additionalProperties": false,
@@ -180,10 +151,10 @@ describe('zuiToJsonSchema', () => {
   })
 
   test('record with second parameter', () => {
-    const schema = zui.object({ multipleTypes: z.union([z.string(), z.number()]) })
+    const schema = zui.object({ multipleTypes: zui.union([zui.string(), zui.number()]) })
 
-    const jsonSchema = getZuiSchemas(schema, { stripZuiProps: true, $schemaUrl: false })
-    expect(jsonSchema.schema).toMatchInlineSnapshot(`
+    const jsonSchema = zuiToJsonSchema(schema, { stripZuiProps: true, $schemaUrl: false })
+    expect(jsonSchema).toMatchInlineSnapshot(`
       {
         "additionalProperties": false,
         "properties": {
@@ -213,8 +184,8 @@ describe('zuiToJsonSchema', () => {
       .min(1)
       .describe('Array of objects with validation')
 
-    const jsonSchema = getZuiSchemas(arrayWithObjects)
-    expect(jsonSchema.schema).toMatchInlineSnapshot(`
+    const jsonSchema = zuiToJsonSchema(arrayWithObjects)
+    expect(jsonSchema).toMatchInlineSnapshot(`
       {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "description": "Array of objects with validation",
@@ -248,8 +219,8 @@ describe('zuiToJsonSchema', () => {
       zui.object({ kek: zui.literal('B'), lel: zui.number() }),
     ])
 
-    const jsonSchema = getZuiSchemas(schema)
-    expect(jsonSchema.schema).toMatchInlineSnapshot(`
+    const jsonSchema = zuiToJsonSchema(schema)
+    expect(jsonSchema).toMatchInlineSnapshot(`
       {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "anyOf": [
@@ -299,8 +270,8 @@ describe('zuiToJsonSchema', () => {
       zui.object({ kek: zui.literal('B'), lel: zui.number() }),
     ])
 
-    const jsonSchema = getZuiSchemas(schema, { target: 'openApi3', discriminator: true, unionStrategy: 'oneOf' })
-    expect(jsonSchema.schema).toMatchInlineSnapshot(`
+    const jsonSchema = zuiToJsonSchema(schema, { target: 'openApi3', discriminator: true, unionStrategy: 'oneOf' })
+    expect(jsonSchema).toMatchInlineSnapshot(`
       {
         "discriminator": {
           "propertyName": "kek",
