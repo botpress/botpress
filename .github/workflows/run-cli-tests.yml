@@ -22,6 +22,7 @@ jobs:
           pnpm run -F cli e2e:test -v \
             --api-url https://api.botpress.dev \
             --workspace-id ${{ secrets.STAGING_E2E_TESTS_WORKSPACE_ID }} \
+            --workspace-handle clitests \
             --token ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }} \
             --sdk-path "$(pwd)/packages/sdk" \
             --client-path "$(pwd)/packages/client"
