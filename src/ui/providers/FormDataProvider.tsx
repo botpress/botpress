@@ -78,7 +78,7 @@ export function setObjectPath(obj: any, path: string, data: any): any {
       }
     }
     return current[key]
-  }, obj)
+  }, obj ?? {})
   return { ...obj }
 }
 
