@@ -1,5 +1,5 @@
 import { type JSONSchema4 } from 'json-schema'
-import { cloneDeep, endsWith, merge, isEqual } from 'lodash-es'
+import { cloneDeep, endsWith, merge, isEqual } from 'lodash'
 import { generate } from './generator'
 import { link } from './linker'
 import { normalize } from './normalizer'

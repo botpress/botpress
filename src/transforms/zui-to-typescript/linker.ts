@@ -1,5 +1,5 @@
 import { type JSONSchema4Type } from 'json-schema'
-import { isPlainObject } from 'lodash-es'
+import isPlainObject from 'lodash/isPlainObject'
 import { type JSONSchema, Parent, type LinkedJSONSchema } from './types/JSONSchema'
 
 /**

@@ -1,4 +1,4 @@
-import { memoize, omit } from 'lodash-es'
+import { memoize, omit } from 'lodash'
 import { DEFAULT_OPTIONS, type Options } from './index'
 import {
   type AST,

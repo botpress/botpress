@@ -1,4 +1,5 @@
-import { isEmpty, isEqual } from 'lodash-es'
+import isEqual from 'lodash/isEqual'
+import isEmpty from 'lodash/isEmpty'
 import { type Options } from './'
 import { type DereferencedPaths } from './resolver'
 import { type JSONSchemaTypeName, type LinkedJSONSchema, type NormalizedJSONSchema, Parent } from './types/JSONSchema'

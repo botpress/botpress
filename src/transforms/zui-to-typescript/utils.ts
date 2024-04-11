@@ -1,4 +1,4 @@
-import { deburr, isPlainObject, trim, upperFirst } from 'lodash-es'
+import { deburr, isPlainObject, trim, upperFirst } from 'lodash'
 import { type JSONSchema, type LinkedJSONSchema, Parent } from './types/JSONSchema'
 
 const basename = (path: string, suffix?: string) => {
