@@ -18,4 +18,4 @@ export { Bot, BotProps, BotContext, BotSpecificClient, IntegrationInstance } fro
  */
 export type AckFunction = (props: { tags: Record<string, string> }) => Promise<void>
 
-export { zui, zui as z } from './zui'
+export { z, studioComponentDefinitions } from './zod'
