@@ -1,9 +1,9 @@
-import { z, type UIComponentDefinitions } from '@bpinternal/zui'
+import z, { type UIComponentDefinitions } from '@bpinternal/zui'
+
 const commonInputParams = z.object({
   allowDynamicVariable: z.boolean().optional(),
   horizontal: z.boolean().optional(),
 })
-
 export const studioComponentDefinitions = [
   {
     type: 'string',

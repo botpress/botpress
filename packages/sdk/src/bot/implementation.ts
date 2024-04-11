@@ -1,5 +1,5 @@
 import type { Server } from 'node:http'
-import { z } from 'zod'
+import { z } from '@bpinternal/zui'
 import { SchemaDefinition } from '../schema'
 import { serve } from '../serve'
 import { AnyZodObject, Cast } from '../type-utils'
