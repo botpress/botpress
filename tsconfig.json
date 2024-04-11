@@ -22,11 +22,6 @@
     "noEmit": false,
     "resolveJsonModule": true,
     "isolatedModules": true,
-    "paths": {
-      "zod": [
-        "./src/zod/index.ts"
-      ]
-    }
   },
   "exclude": [
     "node_modules",

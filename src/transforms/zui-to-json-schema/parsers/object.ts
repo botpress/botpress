@@ -1,4 +1,4 @@
-import { ZodObjectDef } from 'zod'
+import { ZodObjectDef } from '../../../z'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 

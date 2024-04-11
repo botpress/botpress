@@ -1,4 +1,4 @@
-import { ZodNullableDef } from 'zod'
+import { ZodNullableDef } from '../../../z'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 import { JsonSchema7NullType } from './null'

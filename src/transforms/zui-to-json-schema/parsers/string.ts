@@ -1,4 +1,4 @@
-import { ZodStringDef } from 'zod'
+import { ZodStringDef } from '../../../z'
 import { ErrorMessages, setResponseValueAndErrors } from '../errorMessages'
 import { Refs } from '../Refs'
 

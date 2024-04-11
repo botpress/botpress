@@ -11,11 +11,6 @@ export default defineConfig({
       include: ['path', 'process'],
     }),
   ],
-  resolve: {
-    alias: {
-      zod: path.resolve(__dirname, './src/zod/index.ts'),
-    },
-  },
   test: {
     environment: 'jsdom',
     globals: true,

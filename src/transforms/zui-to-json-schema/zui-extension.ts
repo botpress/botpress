@@ -1,6 +1,6 @@
 import { JSONSchema } from '../../ui/types'
 import { zuiKey } from '../../ui/constants'
-import type { z } from 'zod'
+import type { z } from '../../z'
 import { ArraySchema, ObjectSchema } from '../../ui/types'
 import { zodToJsonSchema } from './zodToJsonSchema'
 import { Options } from './Options'

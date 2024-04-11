@@ -1,6 +1,6 @@
 import { describe, expect, test } from 'vitest'
 import { objectToZui } from '.'
-import { z } from 'zod'
+import { z } from '../../z'
 import { JSONSchemaOfType } from '../../ui/types'
 
 describe('object-to-zui', () => {

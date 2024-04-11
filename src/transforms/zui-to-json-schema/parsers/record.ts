@@ -1,4 +1,4 @@
-import { ZodFirstPartyTypeKind, ZodMapDef, ZodRecordDef, ZodTypeAny } from 'zod'
+import { ZodFirstPartyTypeKind, ZodMapDef, ZodRecordDef, ZodTypeAny } from '../../../z'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 import { JsonSchema7EnumType } from './enum'

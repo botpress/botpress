@@ -1,6 +1,6 @@
 import { zodToJsonSchema } from '../zodToJsonSchema'
 
-import { z } from 'zod'
+import { z } from '../../../z'
 
 enum nativeEnum {
   'a',

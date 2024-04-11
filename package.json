@@ -1,6 +1,6 @@
 {
   "name": "@bpinternal/zui",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "An extension of Zod for working nicely with UIs and JSON Schemas",
   "type": "module",
   "source": "./src/index.ts",

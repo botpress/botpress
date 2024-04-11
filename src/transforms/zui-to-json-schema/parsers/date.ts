@@ -1,4 +1,4 @@
-import { ZodDateDef } from 'zod'
+import { ZodDateDef } from '../../../z'
 import { Refs } from '../Refs'
 import { ErrorMessages, setResponseValueAndErrors } from '../errorMessages'
 import { JsonSchema7NumberType } from './number'

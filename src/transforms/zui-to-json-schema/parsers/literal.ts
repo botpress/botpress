@@ -1,4 +1,4 @@
-import { ZodLiteralDef } from 'zod'
+import { ZodLiteralDef } from '../../../z'
 import { Refs } from '../Refs'
 
 export type JsonSchema7LiteralType =

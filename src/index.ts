@@ -1,4 +1,4 @@
-import * as z from './zod'
+import * as z from './z'
 import { UIComponentDefinitions } from './ui/types'
 export type { BaseType, UIComponentDefinitions, ZuiComponentMap, AsBaseType, ZuiReactComponent } from './ui/types'
 export { ZuiForm, type ZuiFormProps } from './ui'

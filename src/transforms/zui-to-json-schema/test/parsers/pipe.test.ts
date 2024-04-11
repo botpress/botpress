@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '../../../../z'
 import { parsePipelineDef } from '../../parsers/pipeline'
 import { getRefs } from '../../Refs'
 

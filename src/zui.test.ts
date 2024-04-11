@@ -1,5 +1,5 @@
 import { test } from 'vitest'
-import * as zui from 'zod'
+import * as zui from './z'
 
 type ExampleSchema = {
   schema: zui.ZodObject<any>

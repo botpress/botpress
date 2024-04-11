@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { z } from 'zod'
+import { z } from '../../z'
 
 describe('zui-to-ts', () => {
   test('generate typings for example schema', async () => {

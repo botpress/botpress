@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '../../../../z'
 import { parseObjectDef } from '../../parsers/object'
 import { getRefs } from '../../Refs'
 

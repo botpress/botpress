@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '../../../z'
 import { zodToJsonSchema } from '../zodToJsonSchema'
 
 describe('The readme example', () => {

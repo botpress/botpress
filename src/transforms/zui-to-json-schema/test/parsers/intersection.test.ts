@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '../../../../z'
 import { parseIntersectionDef } from '../../parsers/intersection'
 import { getRefs } from '../../Refs'
 

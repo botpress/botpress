@@ -5,7 +5,7 @@ import { ZuiComponentMap } from '../index'
 import { ObjectSchema, JSONSchema, ZuiReactComponentBaseProps, BaseType, UIComponentDefinitions } from './types'
 import { FC, PropsWithChildren, useState } from 'react'
 import { vi } from 'vitest'
-import { z as zui } from 'zod'
+import { z as zui } from '../z'
 
 const TestId = (type: JSONSchema['type'], path: string[], subpath?: string) =>
   `${type}:${path.length > 0 ? path.join('.') : 'root'}${subpath ? `:${subpath}` : ''}`

@@ -1,6 +1,6 @@
 import { JSONSchema7Type } from 'json-schema'
 import { parseBigintDef } from '../../parsers/bigint'
-import { z } from 'zod'
+import { z } from '../../../../z'
 import { getRefs } from '../../Refs'
 
 describe('bigint', () => {
