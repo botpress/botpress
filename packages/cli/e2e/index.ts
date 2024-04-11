@@ -34,6 +34,10 @@ const configSchema = {
     type: 'string',
     demandOption: true,
   },
+  workspaceHandle: {
+    type: 'string',
+    demandOption: true,
+  },
   token: {
     type: 'string',
     demandOption: true,
