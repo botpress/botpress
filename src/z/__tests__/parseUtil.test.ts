@@ -1,4 +1,4 @@
-import z from '../../index'
+import z from '../index'
 import type { SyncParseReturnType } from '../types'
 
 test('parseUtil isInvalid should use structural typing', () => {

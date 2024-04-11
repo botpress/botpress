@@ -1,4 +1,4 @@
-import { ZodNumberDef } from '../../../z'
+import { ZodNumberDef } from '../../../z/index'
 import { addErrorMessage, ErrorMessages, setResponseValueAndErrors } from '../errorMessages'
 import { Refs } from '../Refs'
 

@@ -1,4 +1,4 @@
-import { z } from '../../../../z'
+import { z } from '../../../../z/index'
 import { parseRecordDef } from '../../parsers/record'
 import { getRefs } from '../../Refs'
 

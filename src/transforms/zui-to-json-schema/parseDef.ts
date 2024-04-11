@@ -1,4 +1,4 @@
-import { ZodFirstPartyTypeKind, ZodTypeDef } from '../../z'
+import { ZodFirstPartyTypeKind, ZodTypeDef } from '../../z/index'
 import { JsonSchema7AnyType, parseAnyDef } from './parsers/any'
 import { JsonSchema7ArrayType, parseArrayDef } from './parsers/array'
 import { JsonSchema7BigintType, parseBigintDef } from './parsers/bigint'

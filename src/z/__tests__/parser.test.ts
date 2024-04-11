@@ -1,4 +1,4 @@
-import * as z from '../index'
+import z from '../index'
 
 test('parse strict object with unknown keys', () => {
   expect(() =>

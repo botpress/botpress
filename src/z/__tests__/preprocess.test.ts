@@ -1,5 +1,5 @@
 import { util } from '../types/utils'
-import * as z from '../index'
+import z from '../index'
 
 test('preprocess', () => {
   const schema = z.preprocess((data) => [data], z.string().array())

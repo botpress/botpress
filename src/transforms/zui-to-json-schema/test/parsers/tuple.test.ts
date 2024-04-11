@@ -1,4 +1,4 @@
-import { z } from '../../../../z'
+import { z } from '../../../../z/index'
 import { parseTupleDef } from '../../parsers/tuple'
 import { getRefs } from '../../Refs'
 

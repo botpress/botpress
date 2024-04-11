@@ -1,4 +1,4 @@
-import { ZodPromiseDef } from '../../../z'
+import { ZodPromiseDef } from '../../../z/index'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 

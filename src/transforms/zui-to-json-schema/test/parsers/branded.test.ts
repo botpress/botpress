@@ -1,4 +1,4 @@
-import { z } from '../../../../z'
+import { z } from '../../../../z/index'
 import { parseBrandedDef } from '../../parsers/branded'
 import { getRefs } from '../../Refs'
 

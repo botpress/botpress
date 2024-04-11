@@ -1,4 +1,4 @@
-import { z, SomeZodObject, ZodTypeAny } from '../../z'
+import { z, SomeZodObject, ZodTypeAny } from '../../z/index'
 
 // Using a basic regex do determine if it's a date or not to avoid using another lib for that
 const dateTimeRegex =

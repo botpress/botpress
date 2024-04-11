@@ -1,4 +1,4 @@
-import { z } from '../z'
+import { z } from '../z/index'
 import { describe, test } from 'vitest'
 import { type UIComponentDefinitions } from './types'
 

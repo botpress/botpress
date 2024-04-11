@@ -1,4 +1,4 @@
-import * as z from '../index'
+import z from '../index'
 
 test('string coercion', () => {
   const schema = z.coerce.string()

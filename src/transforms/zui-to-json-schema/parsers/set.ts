@@ -1,4 +1,4 @@
-import { ZodSetDef } from '../../../z'
+import { ZodSetDef } from '../../../z/index'
 import { ErrorMessages, setResponseValueAndErrors } from '../errorMessages'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'

@@ -1,4 +1,4 @@
-import { ZodEnumDef } from '../../../z'
+import { ZodEnumDef } from '../../../z/index'
 
 export type JsonSchema7EnumType = {
   type: 'string'

@@ -1,5 +1,5 @@
 import { JSONSchema7Type } from 'json-schema'
-import { z } from '../../../../z'
+import { z } from '../../../../z/index'
 import { parseUnionDef } from '../../parsers/union'
 import { getRefs } from '../../Refs'
 import deref from 'local-ref-resolver'

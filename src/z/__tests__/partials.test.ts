@@ -1,6 +1,5 @@
 import { util } from '../types/utils'
-import * as z from '../index'
-import { ZodNullable, ZodOptional } from '../index'
+import z, { ZodNullable, ZodOptional } from '../index'
 
 const nested = z.object({
   name: z.string(),

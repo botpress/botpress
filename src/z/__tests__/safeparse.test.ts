@@ -1,4 +1,4 @@
-import * as z from '../index'
+import z from '../index'
 const stringSchema = z.string()
 
 test('safeparse fail', () => {

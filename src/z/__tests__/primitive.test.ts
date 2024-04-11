@@ -1,4 +1,4 @@
-import * as z from '../index'
+import z from '../index'
 import { util } from '../types/utils'
 import { Mocker } from './Mocker'
 

@@ -1,5 +1,5 @@
 import { util } from '../types/utils'
-import * as z from '../index'
+import z from '../index'
 
 const fish = z.object({
   name: z.string(),

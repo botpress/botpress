@@ -1,4 +1,4 @@
-import { ZodBigIntDef } from '../../../z'
+import { ZodBigIntDef } from '../../../z/index'
 import { Refs } from '../Refs'
 import { ErrorMessages, setResponseValueAndErrors } from '../errorMessages'
 

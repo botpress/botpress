@@ -1,5 +1,5 @@
 import { JSONSchema7Type } from 'json-schema'
-import { z } from '../../../../z'
+import { z } from '../../../../z/index'
 import { JsonSchema7Type } from '../../parseDef'
 import { JsonSchema7StringType, zodPatterns, parseStringDef } from '../../parsers/string'
 import Ajv from 'ajv'

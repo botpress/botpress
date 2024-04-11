@@ -19,7 +19,7 @@ import {
   ZodEnumDef,
   ZodDefaultDef,
   z,
-} from '../../z'
+} from '../../z/index'
 import { zuiKey } from '../../ui/constants'
 import { JsonSchema7Type } from '../zui-to-json-schema/parseDef'
 

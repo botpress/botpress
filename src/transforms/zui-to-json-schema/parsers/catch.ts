@@ -1,4 +1,4 @@
-import { ZodCatchDef } from '../../../z'
+import { ZodCatchDef } from '../../../z/index'
 import { parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 

@@ -1,4 +1,4 @@
-import { ZodIntersectionDef } from '../../../z'
+import { ZodIntersectionDef } from '../../../z/index'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 import { JsonSchema7StringType } from './string'

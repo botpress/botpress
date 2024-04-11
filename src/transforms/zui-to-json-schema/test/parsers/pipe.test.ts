@@ -1,4 +1,4 @@
-import { z } from '../../../../z'
+import { z } from '../../../../z/index'
 import { parsePipelineDef } from '../../parsers/pipeline'
 import { getRefs } from '../../Refs'
 

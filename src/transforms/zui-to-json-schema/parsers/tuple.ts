@@ -1,4 +1,4 @@
-import { ZodTupleDef, ZodTupleItems, ZodTypeAny } from '../../../z'
+import { ZodTupleDef, ZodTupleItems, ZodTypeAny } from '../../../z/index'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 

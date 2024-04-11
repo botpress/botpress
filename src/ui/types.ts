@@ -1,4 +1,4 @@
-import { ZodSchema, z } from '../z'
+import { ZodSchema, z } from '../z/index'
 import type { FC } from 'react'
 import type { GlobalComponentDefinitions } from '..'
 import { zuiKey } from './constants'

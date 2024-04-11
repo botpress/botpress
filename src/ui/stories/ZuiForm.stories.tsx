@@ -1,7 +1,7 @@
 import React, { FC, useEffect, useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
 import { FormError, UIComponentDefinitions, ZuiComponentMap } from '../types'
-import { z } from '../../z'
+import { z } from '../../z/index'
 import { ZuiForm } from '..'
 
 // declare module 'zod' {

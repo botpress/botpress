@@ -1,5 +1,5 @@
 import { JSONSchema7 } from 'json-schema'
-import { z } from '../../../z'
+import { z } from '../../../z/index'
 import { zodToJsonSchema } from '../zodToJsonSchema'
 
 describe('Meta data', () => {

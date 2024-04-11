@@ -1,6 +1,6 @@
 import { describe, test, expect } from 'vitest'
 import { zuiToJsonSchema } from './zui-extension'
-import { z } from '../../z'
+import { z } from '../../z/index'
 import { zuiKey } from '../../ui/constants'
 import { testComponentDefinitions } from '../../ui/ui.test'
 

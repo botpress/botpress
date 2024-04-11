@@ -1,4 +1,4 @@
-import { ZodPipelineDef } from '../../../z'
+import { ZodPipelineDef } from '../../../z/index'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
 import { JsonSchema7AllOfType } from './intersection'
