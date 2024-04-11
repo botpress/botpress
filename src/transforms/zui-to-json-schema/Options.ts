@@ -1,4 +1,4 @@
-import { ZodSchema } from 'zod'
+import type { ZodSchema } from 'zod'
 
 export type Targets = 'jsonSchema7' | 'jsonSchema2019-09' | 'openApi3'
 

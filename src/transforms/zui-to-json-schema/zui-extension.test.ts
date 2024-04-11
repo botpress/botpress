@@ -1,12 +1,14 @@
 import { describe, test, expect } from 'vitest'
 import { zuiToJsonSchema } from './zui-extension'
-import { zui, zuiKey } from '../../zui'
+import { z } from 'zod'
+import { zuiKey } from '../../ui/constants'
+import { testComponentDefinitions } from '../../ui/ui.test'
 
 describe('zuiToJsonSchema', () => {
   test('should work', () => {
-    const schema = zui.object({
-      name: zui.string().title('Name').default('No Name'),
-      age: zui.number().max(100).min(0).title('Age').describe('Age in years').default(20),
+    const schema = z.object({
+      name: z.string().title('Name').default('No Name'),
+      age: z.number().max(100).min(0).title('Age').describe('Age in years').default(20),
     })
 
     const jsonSchema = zuiToJsonSchema(schema)
@@ -43,8 +45,8 @@ describe('zuiToJsonSchema', () => {
   test('enums', () => {
     expect(
       zuiToJsonSchema(
-        zui.object({
-          fruit: zui.enum(['Apple', 'Banana', 'Orange']),
+        z.object({
+          fruit: z.enum(['Apple', 'Banana', 'Orange']),
         }),
       ),
     ).toEqual({
@@ -64,8 +66,10 @@ describe('zuiToJsonSchema', () => {
   })
 
   test('supported properties are available in the json schema', () => {
-    const schema = zui.object({
-      testExample: zui.string().displayAs('textarea', { rows: 5 }),
+    const schema = z.object({
+      testExample: z.string().displayAs<typeof testComponentDefinitions>('customstringcomponent', {
+        multiline: true,
+      }),
     })
 
     const jsonSchema = zuiToJsonSchema(schema)
@@ -78,9 +82,9 @@ describe('zuiToJsonSchema', () => {
             "type": "string",
             "${zuiKey}": {
               "displayAs": [
-                "textarea",
+                "customstringcomponent",
                 {
-                  "rows": 5,
+                  "multiline": true,
                 },
               ],
             },
@@ -96,7 +100,7 @@ describe('zuiToJsonSchema', () => {
   })
 
   test('examples are available on json schema', () => {
-    const schema = zui.string()
+    const schema = z.string()
 
     const jsonSchema = zuiToJsonSchema(schema, { stripZuiProps: true, $schemaUrl: false })
     expect(jsonSchema).toMatchInlineSnapshot(`
@@ -107,7 +111,7 @@ describe('zuiToJsonSchema', () => {
   })
 
   test('record with a value works', () => {
-    const schema = zui.record(zui.string().max(30)).describe('hello')
+    const schema = z.record(z.string().max(30)).describe('hello')
 
     const jsonSchema = zuiToJsonSchema(schema, { stripZuiProps: true, $schemaUrl: false })
     expect(jsonSchema).toEqual({
@@ -121,7 +125,7 @@ describe('zuiToJsonSchema', () => {
   })
 
   test('record with second parameter', () => {
-    const schema = zui.record(zui.string(), zui.number().max(30), {}).describe('hello')
+    const schema = z.record(z.string(), z.number().max(30), {}).describe('hello')
 
     const jsonSchema = zuiToJsonSchema(schema, { stripZuiProps: true, $schemaUrl: false })
     expect(jsonSchema).toMatchInlineSnapshot(`
@@ -137,7 +141,7 @@ describe('zuiToJsonSchema', () => {
   })
 
   test('record with second parameter', () => {
-    const schema = zui.object({})
+    const schema = z.object({})
 
     const jsonSchema = zuiToJsonSchema(schema, { stripZuiProps: true, $schemaUrl: 'http://schema.com' })
     expect(jsonSchema).toMatchInlineSnapshot(`
@@ -151,7 +155,7 @@ describe('zuiToJsonSchema', () => {
   })
 
   test('record with second parameter', () => {
-    const schema = zui.object({ multipleTypes: zui.union([zui.string(), zui.number()]) })
+    const schema = z.object({ multipleTypes: z.union([z.string(), z.number()]) })
 
     const jsonSchema = zuiToJsonSchema(schema, { stripZuiProps: true, $schemaUrl: false })
     expect(jsonSchema).toMatchInlineSnapshot(`
@@ -174,11 +178,11 @@ describe('zuiToJsonSchema', () => {
   })
 
   test('validate array of objects', async () => {
-    const arrayWithObjects = zui
+    const arrayWithObjects = z
       .array(
-        zui.object({
-          id: zui.number(),
-          title: zui.string().min(5),
+        z.object({
+          id: z.number(),
+          title: z.string().min(5),
         }),
       )
       .min(1)
@@ -214,9 +218,9 @@ describe('zuiToJsonSchema', () => {
   })
 
   test('oneOf', () => {
-    const schema = zui.discriminatedUnion('kek', [
-      zui.object({ kek: zui.literal('A'), lel: zui.boolean() }),
-      zui.object({ kek: zui.literal('B'), lel: zui.number() }),
+    const schema = z.discriminatedUnion('kek', [
+      z.object({ kek: z.literal('A'), lel: z.boolean() }),
+      z.object({ kek: z.literal('B'), lel: z.number() }),
     ])
 
     const jsonSchema = zuiToJsonSchema(schema)
@@ -265,9 +269,9 @@ describe('zuiToJsonSchema', () => {
   })
 
   test('oneOf with discriminator', () => {
-    const schema = zui.discriminatedUnion('kek', [
-      zui.object({ kek: zui.literal('A'), lel: zui.boolean() }),
-      zui.object({ kek: zui.literal('B'), lel: zui.number() }),
+    const schema = z.discriminatedUnion('kek', [
+      z.object({ kek: z.literal('A'), lel: z.boolean() }),
+      z.object({ kek: z.literal('B'), lel: z.number() }),
     ])
 
     const jsonSchema = zuiToJsonSchema(schema, { target: 'openApi3', discriminator: true, unionStrategy: 'oneOf' })
@@ -322,10 +326,10 @@ describe('zuiToJsonSchema', () => {
   })
 
   test('lazy schemas', () => {
-    const schema = zui.lazy(() =>
-      zui.object({
-        type: zui.string().title('Type'),
-        value: zui.number().hidden(),
+    const schema = z.lazy(() =>
+      z.object({
+        type: z.string().title('Type'),
+        value: z.number().hidden(),
       }),
     )
 

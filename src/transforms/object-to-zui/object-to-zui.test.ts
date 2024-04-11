@@ -1,6 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { objectToZui } from '.'
-import { zui } from '../../zui'
+import { z } from 'zod'
+import { JSONSchemaOfType } from '../../ui/types'
 
 describe('object-to-zui', () => {
   test('validate object to json', async () => {
@@ -8,6 +9,10 @@ describe('object-to-zui', () => {
       { name: 'Bob', age: 20, birthDate: '1988-11-29', isAdmin: true },
       { optional: true },
     ).toJsonSchema()
+
+    if (schema.type !== 'object') {
+      throw new Error('Expected object type')
+    }
 
     expect(schema).toHaveProperty('type', 'object')
     expect(schema).toHaveProperty('properties')
@@ -28,8 +33,8 @@ describe('object-to-zui', () => {
       address: { street: '123 Main St', city: 'New York', state: 'NY' },
     }
 
-    const schema = zui.fromObject(obj, { optional: true }).toJsonSchema()
-    zui.fromJsonSchema(schema).parse(obj)
+    const schema = z.fromObject(obj, { optional: true }).toJsonSchema()
+    z.fromJsonSchema(schema).parse(obj)
 
     expect(schema).toMatchInlineSnapshot(`
       {
@@ -77,7 +82,7 @@ describe('object-to-zui', () => {
   })
 
   test('should handle null values correctly', () => {
-    const schema = zui
+    const schema = z
       .fromObject(
         {
           test: null,
@@ -86,12 +91,15 @@ describe('object-to-zui', () => {
         { optional: true },
       )
       .toJsonSchema()
+    if (schema.type !== 'object') {
+      throw new Error('Expected object type')
+    }
     expect(schema.properties?.test?.type).toBe('null')
     expect(schema.properties?.anotherValue?.type).toBe('string')
   })
 
   test('should handle nested objects correctly', () => {
-    const schema = zui
+    const schema = z
       .fromObject(
         {
           user: {
@@ -107,6 +115,9 @@ describe('object-to-zui', () => {
       )
       .toJsonSchema({ target: 'openApi3' })
 
+    if (schema.type !== 'object' || schema.properties?.user?.type !== 'object') {
+      throw new Error('Expected object type')
+    }
     expect(schema.properties?.user?.type).toBe('object')
     expect(schema.properties?.user?.properties?.name?.type).toBe('string')
     expect(schema.properties?.user?.properties?.age?.type).toBe('number')
@@ -114,7 +125,7 @@ describe('object-to-zui', () => {
   })
 
   test('should handle arrays correctly', () => {
-    const schema = zui
+    const schema = z
       .fromObject(
         {
           tags: ['tag1', 'tag2'],
@@ -122,7 +133,11 @@ describe('object-to-zui', () => {
         },
         { optional: true },
       )
-      .toJsonSchema()
+      .toJsonSchema() as JSONSchemaOfType<'object'>
+
+    if (schema.properties?.tags?.type !== 'array' || schema.properties?.scores?.type !== 'array') {
+      throw new Error('Expected array type')
+    }
     expect(schema.properties?.tags?.type).toBe('array')
     expect(schema.properties?.tags?.items?.type).toBe('string')
     expect(schema.properties?.scores?.type).toBe('array')
@@ -130,25 +145,33 @@ describe('object-to-zui', () => {
   })
 
   test('should handle empty objects correctly', () => {
-    const schema = zui.fromObject({}).toJsonSchema()
+    const schema = z.fromObject({}).toJsonSchema() as JSONSchemaOfType<'object'>
+    expect(schema).toHaveProperty('type', 'object')
     expect(schema).toHaveProperty('properties')
     expect(Object.keys(schema.properties || {})).toHaveLength(0)
   })
 
   test('should handle datetime with timezone correctly', () => {
-    const schema = zui
+    const schema = z
       .fromObject({
         eventTime: '2023-03-15T14:00:00+01:00',
       })
-      .toJsonSchema()
+      .toJsonSchema() as JSONSchemaOfType<'object'>
 
+    if (schema.properties?.eventTime?.type !== 'string') {
+      throw new Error('Expected string type')
+    }
     expect(schema.properties?.eventTime?.format).toBe('date-time')
     expect(schema.properties?.eventTime?.type).toBe('string')
   })
 
   test('empty objects are considered passtrough, other are strict', () => {
-    const schema = zui.fromObject({ input: {}, test: { output: {} }, fixed: { value: true } }).toJsonSchema()
-
+    const schema = z
+      .fromObject({ input: {}, test: { output: {} }, fixed: { value: true } })
+      .toJsonSchema() as JSONSchemaOfType<'object'>
+    if (schema.properties?.test?.type !== 'object' || schema.properties?.fixed?.type !== 'object') {
+      throw new Error('Expected object type')
+    }
     expect(schema).toHaveProperty('properties')
     expect(Object.keys(schema.properties || {})).toHaveLength(3)
     expect(schema.properties?.input).toHaveProperty('additionalProperties', true)
@@ -158,9 +181,13 @@ describe('object-to-zui', () => {
   })
 
   test('when passtrough is set to true, they are all passtrough', () => {
-    const schema = zui
+    const schema = z
       .fromObject({ input: {}, test: { output: {} }, fixed: { value: true } }, { passtrough: true })
-      .toJsonSchema()
+      .toJsonSchema() as JSONSchemaOfType<'object'>
+
+    if (schema.properties?.test?.type !== 'object' || schema.properties?.fixed?.type !== 'object') {
+      throw new Error('Expected object type')
+    }
 
     expect(schema.properties?.input).toHaveProperty('additionalProperties', true)
     expect(schema.properties?.test).toHaveProperty('additionalProperties', true)

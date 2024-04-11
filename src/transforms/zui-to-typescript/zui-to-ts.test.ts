@@ -1,41 +1,41 @@
 import { describe, expect, test } from 'vitest'
-import { zui } from '../../zui'
+import { z } from 'zod'
 
 describe('zui-to-ts', () => {
-  test('validate simple schema', async () => {
-    const schema = zui.object({
-      name: zui.string().title('Name'),
-      age: zui.number().max(100).min(0).title('Age').describe('Age in years').default(18),
-      job: zui.enum(['developer', 'designer', 'manager']).title('Job').default('developer'),
-      group: zui.union([zui.literal('avg'), zui.literal('key'), zui.literal('max')]),
+  test('generate typings for example schema', async () => {
+    const schema = z.object({
+      name: z.string().title('Name'),
+      age: z.number().max(100).min(0).title('Age').describe('Age in years').default(18),
+      job: z.enum(['developer', 'designer', 'manager']).title('Job').default('developer'),
+      group: z.union([z.literal('avg'), z.literal('key'), z.literal('max')]),
     })
 
     const def = await schema.toTypescriptTypings({ schemaName: 'User' })
     expect(def).toMatchInlineSnapshot(`
-      "export interface User {
-        name: string;
-        /**
-         * Age in years
-         */
-        age?: number;
-        job?: \"developer\" | \"designer\" | \"manager\";
-        group: \"avg\" | \"key\" | \"max\";
-      }
-      "
+"export interface User {
+name: string
+/**
+ * Age in years
+ */
+age?: number
+job?: (\"developer\" | \"designer\" | \"manager\")
+group: (\"avg\" | \"key\" | \"max\")
+}
+"
     `)
   })
 
   test('without schema, no export statement', async () => {
-    const schema = zui.object({
-      name: zui.string().title('Name'),
+    const schema = z.object({
+      name: z.string().title('Name'),
     })
 
     const def = await schema.toTypescriptTypings()
     expect(def).toMatchInlineSnapshot(`
-      "{
-        name: string;
-      }
-      "
+"{
+name: string
+}
+"
     `)
   })
 })

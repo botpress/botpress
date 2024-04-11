@@ -1,7 +1,7 @@
-import { ZuiExtension, ZuiTypeAny, ZuiType, JSONSchemaWithZui, ToZodType, zuiKey } from '../../zui'
-import { z } from 'zod'
-import { ArraySchema, ObjectSchema } from '~/ui/types'
-import { JSONSchema } from 'json-schema-to-typescript'
+import { JSONSchema } from '../../ui/types'
+import { zuiKey } from '../../ui/constants'
+import type { z } from 'zod'
+import { ArraySchema, ObjectSchema } from '../../ui/types'
 import { zodToJsonSchema } from './zodToJsonSchema'
 import { Options } from './Options'
 import { JsonSchema7Type } from './parseDef'
@@ -25,10 +25,10 @@ export type ZuiSchemaOptions = {
 } & Partial<Pick<Options, 'unionStrategy' | 'discriminator'>>
 
 export const zuiToJsonSchema = (
-  zuiType: ZuiTypeAny | z.ZodTypeAny,
+  zuiType: z.ZodTypeAny,
   opts: ZuiSchemaOptions = { target: 'jsonSchema7' },
-): JSONSchemaWithZui<JsonSchema7Type> => {
-  const jsonSchema = zodToJsonSchema(zuiType as ToZodType<ZuiType>, opts)
+): JSONSchema => {
+  const jsonSchema = zodToJsonSchema(zuiType as z.ZodType, opts)
 
   if (opts.$schemaUrl === false) {
     delete jsonSchema.$schema
@@ -47,7 +47,7 @@ const isArray = (schema: JsonSchema7Type): schema is ArraySchema =>
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   (schema as any).type === 'array'
 
-const getShape = (zuiSchema?: ZuiType<any> | z.ZodTypeAny) => {
+const getShape = (zuiSchema?: z.ZodTypeAny) => {
   if (!zuiSchema?._def) {
     return
   }
@@ -62,10 +62,10 @@ const getShape = (zuiSchema?: ZuiType<any> | z.ZodTypeAny) => {
 
 const mergeZuiIntoJsonSchema = (
   jsonSchema: JSONSchema,
-  zuiSchema: ZuiType<any> | z.ZodTypeAny,
+  zuiSchema: z.ZodTypeAny,
   opts: ZuiSchemaOptions,
 ): JSONSchema => {
-  const assignZuiProps = (value: JSONSchema, ui: ZuiExtension<ToZodType<ZuiType>, any>['ui']) => {
+  const assignZuiProps = (value: JSONSchema, ui: any) => {
     if (!opts.stripZuiProps) {
       Object.assign(value, { [zuiKey]: ui })
     }
@@ -76,7 +76,7 @@ const mergeZuiIntoJsonSchema = (
       const shape = getShape(zuiSchema)
 
       if (shape?.[key]) {
-        const innerZui = shape[key].ui as ZuiExtension<ToZodType<ZuiType>, any>['ui']
+        const innerZui = shape[key].ui
 
         assignZuiProps(value, innerZui)
         mergeZuiIntoJsonSchema(value, shape[key], opts)

@@ -1,51 +1,70 @@
-import React, { FC, useState } from 'react'
+import React, { FC, useEffect, useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
 import { FormError, UIComponentDefinitions, ZuiComponentMap } from '../types'
-import { Zui, zui as zuiImport } from '../../index'
-import { ZuiForm } from '..'
 import { z } from 'zod'
+import { ZuiForm } from '..'
 
-const zui = zuiImport as Zui<typeof exampleExtensions>
+// declare module 'zod' {
+//   interface ComponentDefinitions {
+//     components: typeof exampleExtensions
+//   }
+// }
 
-const exampleExtensions = {
-  string: {
-    debug: {
-      id: 'debug',
-      schema: z.null(),
-    },
+const exampleExtensions = [
+  {
+    type: 'number',
+    id: 'debug',
+    schema: z.null(),
   },
-  number: {},
-  boolean: {},
-  array: {},
-  object: {},
-} satisfies UIComponentDefinitions
+  {
+    type: 'string',
+    id: 'debug',
+    schema: z.null(),
+  },
+  {
+    type: 'boolean',
+    id: 'debug',
+    schema: z.null(),
+  },
+  {
+    type: 'array',
+    id: 'debug',
+    schema: z.null(),
+  },
+  {
+    type: 'object',
+    id: 'debug',
+    schema: z.null(),
+  },
+] as const satisfies UIComponentDefinitions
 
-const exampleSchema = zui
+const exampleSchema = z
   .object({
-    firstName: zui.string().title('first name').disabled().placeholder('Enter your name').nullable(),
-    lastName: zui.string().min(3).title('Last Name <3').optional().nullable(),
-    dates: zui
+    field: z.string(),
+    firstName: z.string().title('first name').disabled().placeholder('Enter your name').nullable(),
+    lastName: z.string().min(3).title('Last Name <3').optional().nullable(),
+    dates: z
       .array(
-        zui.object({
-          date: zui.string(),
-          time: zui.string(),
-          ids: zui.array(zui.number()).min(2),
+        z.object({
+          date: z.string(),
+          time: z.string(),
+          ids: z.array(z.number()).min(2),
         }),
       )
       .min(1)
       .nonempty(),
     // tests the hidden function
-    aRandomField: zui.string().optional().hidden(),
+    aRandomField: z.string().optional().hidden(),
 
-    stuff: zui.object({
-      birthday: zui.string(),
-      plan: zui.enum(['basic', 'premium']),
-      age: zui.number(),
-      email: zui.string().email().title('Email Address'),
-      password: zui.string(),
-      passwordConfirm: zui.string(),
+    stuff: z.object({
+      birthday: z.string(),
+      plan: z.enum(['basic', 'premium']),
+      age: z.number(),
+      email: z.string().email().title('Email Address'),
+      password: z.string(),
+      passwordConfirm: z.string(),
     }),
-    debug: zui.string().optional().displayAs('debug', null),
+    debug: z.number().optional().displayAs<typeof exampleExtensions>('debug', null),
   })
   .title('User Information')
 
@@ -60,57 +79,44 @@ const ErrorBox: FC<{ errors: FormError[]; data: any | null }> = ({ errors, data 
   )
 
 const componentMap: ZuiComponentMap<typeof exampleExtensions> = {
-  string: {
-    default: ({ onChange, errors, required, label, data, zuiProps, schema }) => {
-      if (schema.enum?.length) {
+  components: [
+    {
+      type: 'string',
+      id: 'debug',
+      component: ({ context }) => {
         return (
-          <div style={{ padding: '1rem' }}>
-            <span>{label}</span>
-            <select onChange={(e) => onChange(e.target.value)} value={data || ''}>
-              {schema.enum.map((e) => (
-                <option key={e} value={e}>
-                  {e}
-                </option>
-              ))}
-            </select>
-            {required && <span>*</span>}
-            <ErrorBox errors={errors} data={data} />
+          <div>
+            <pre>{JSON.stringify(context.formData, null, 2)}</pre>
+            {context.formValid === null && <p>Form validation disabled</p>}
+            {context.formValid === true && <p>Form is valid</p>}
+            {context.formValid === false && (
+              <div>
+                <p>Form is invalid with {context.formErrors?.length} errors:</p>
+                <ul>
+                  {context.formErrors?.map((e) => (
+                    <li key={e.path.join('.')}>
+                      {e.path.join('.')} - {e.message}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
           </div>
         )
-      }
+      },
+    },
+  ],
+  defaults: {
+    object: ({ children, errors, data, ...rest }) => {
       return (
-        <div style={{ padding: '1rem' }}>
-          <span>{label}</span>
-          <input placeholder={zuiProps?.placeholder} onChange={(e) => onChange(e.target.value)} value={data || ''} />
-          {required && <span>*</span>}
-          <ErrorBox errors={errors} data={data} />
-        </div>
+        <section>
+          <div style={{ border: '1px solid red' }}>{children}</div>
+          {rest.isArrayChild === true && <button onClick={() => rest.removeSelf()}>delete</button>}
+          {!!errors?.length && <ErrorBox errors={errors} data={data} />}
+        </section>
       )
     },
-    debug: ({ context }) => {
-      return (
-        <div>
-          <pre>{JSON.stringify(context.formData, null, 2)}</pre>
-          {context.formValid === null && <p>Form validation disabled</p>}
-          {context.formValid === true && <p>Form is valid</p>}
-          {context.formValid === false && (
-            <div>
-              <p>Form is invalid with {context.formErrors?.length} errors:</p>
-              <ul>
-                {context.formErrors?.map((e) => (
-                  <li key={e.path.join('.')}>
-                    {e.path.join('.')} - {e.message}
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
-        </div>
-      )
-    },
-  },
-  array: {
-    default: ({ children, scope, context, addItem, errors }) => (
+    array: ({ children, scope, context, addItem, errors }) => (
       <>
         <button onClick={() => addItem()}>Add item {context.path}</button>
         <p>{scope}</p>
@@ -118,9 +124,7 @@ const componentMap: ZuiComponentMap<typeof exampleExtensions> = {
         <ErrorBox errors={errors} data={null} />
       </>
     ),
-  },
-  boolean: {
-    default: ({ data, enabled, label, errors, onChange }) => {
+    boolean: ({ data, enabled, label, errors, onChange }) => {
       return (
         <div style={{ padding: '1rem' }}>
           <label>
@@ -136,9 +140,7 @@ const componentMap: ZuiComponentMap<typeof exampleExtensions> = {
         </div>
       )
     },
-  },
-  number: {
-    default: ({ data, zuiProps, onChange, label, required, errors, schema }) => {
+    number: ({ data, zuiProps, onChange, label, required, errors, schema }) => {
       if (schema.enum?.length) {
         return (
           <div style={{ padding: '1rem' }}>
@@ -169,15 +171,30 @@ const componentMap: ZuiComponentMap<typeof exampleExtensions> = {
         </div>
       )
     },
-  },
-  object: {
-    default: ({ children, errors, data, ...rest }) => {
+    string: ({ onChange, errors, required, label, data, zuiProps, schema }) => {
+      if (schema.enum?.length) {
+        return (
+          <div style={{ padding: '1rem' }}>
+            <span>{label}</span>
+            <select onChange={(e) => onChange(e.target.value)} value={data || ''}>
+              {schema.enum.map((e) => (
+                <option key={e} value={e}>
+                  {e}
+                </option>
+              ))}
+            </select>
+            {required && <span>*</span>}
+            <ErrorBox errors={errors} data={data} />
+          </div>
+        )
+      }
       return (
-        <section>
-          <div style={{ border: '1px solid red' }}>{children}</div>
-          {rest.isArrayChild === true && <button onClick={() => rest.removeSelf()}>delete</button>}
-          {!!errors?.length && <ErrorBox errors={errors} data={data} />}
-        </section>
+        <div style={{ padding: '1rem' }}>
+          <span>{label}</span>
+          <input placeholder={zuiProps?.placeholder} onChange={(e) => onChange(e.target.value)} value={data || ''} />
+          {required && <span>*</span>}
+          <ErrorBox errors={errors} data={data} />
+        </div>
       )
     },
   },
@@ -185,16 +202,21 @@ const componentMap: ZuiComponentMap<typeof exampleExtensions> = {
 
 const ZuiFormExample = () => {
   const [formData, setFormData] = useState({})
+  useEffect(() => {
+    exampleSchema.toTypescriptTypings().then(console.log)
+  }, [])
   return (
-    <ZuiForm<typeof exampleExtensions>
-      schema={exampleSchema.toJsonSchema({
-        target: 'openApi3',
-      })}
-      value={formData}
-      onChange={setFormData}
-      components={componentMap}
-      disableValidation={false}
-    />
+    <>
+      <ZuiForm<typeof exampleExtensions>
+        schema={exampleSchema.toJsonSchema({
+          target: 'openApi3',
+        })}
+        value={formData}
+        onChange={setFormData}
+        components={componentMap}
+        disableValidation={false}
+      />
+    </>
   )
 }
 const meta = {

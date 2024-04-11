@@ -1,12 +1,19 @@
+import * as z from './zod'
 import { UIComponentDefinitions } from './ui/types'
-import { zui } from './zui'
 export type { BaseType, UIComponentDefinitions, ZuiComponentMap, AsBaseType, ZuiReactComponent } from './ui/types'
 export { ZuiForm, type ZuiFormProps } from './ui'
-export type { Zui, ZuiType, Infer, ZuiExtension, ZuiRawShape, ZuiTypeAny } from './zui'
 
-export { jsonSchemaToZui } from './transforms/json-schema-to-zui'
-export { zuiToJsonSchema } from './transforms/zui-to-json-schema'
-export { ZodError as ZuiError } from 'zod'
+import { jsonSchemaToZui } from './transforms/json-schema-to-zui'
+import { zuiToJsonSchema } from './transforms/zui-to-json-schema'
+import { objectToZui } from './transforms/object-to-zui'
+import { toTypescriptTypings } from './transforms/zui-to-typescript'
+
+export const transforms = {
+  jsonSchemaToZui,
+  zuiToJsonSchema,
+  objectToZui,
+  zuiToTypescriptTypings: toTypescriptTypings,
+}
 
 export interface ComponentDefinitions {}
 
@@ -16,7 +23,5 @@ export type GlobalComponentDefinitions = ComponentDefinitions extends {
   ? TComponentMap
   : any
 
-export { zui } from './zui'
-export { zui as z }
-
-export default zui
+export { z }
+export default z

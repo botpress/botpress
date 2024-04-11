@@ -1,10 +1,8 @@
-import { describe, test, expect } from 'vitest'
-import { zui } from '.'
-import * as ogZod from 'zod'
-import { Infer, ZuiTypeAny } from './zui'
+import { test } from 'vitest'
+import * as zui from 'zod'
 
 type ExampleSchema = {
-  schema: ogZod.ZodObject<any>
+  schema: zui.ZodObject<any>
 }
 // check that a zui schema is compatible with a zod schema
 export const someSchema: ExampleSchema = {
@@ -18,54 +16,9 @@ export const someSchema: ExampleSchema = {
       .disabled(),
   }),
 }
-
-describe('zui', () => {
-  test('vanially zui gives me a zui def', () => {
-    expect(zui.string().ui).toEqual({})
-  })
-
-  test('string', () => {
-    const schema = zui.string().regex(/hello/i).title('Title').disabled().length(20)
-
-    expect(schema.ui).toEqual({
-      title: 'Title',
-      disabled: true,
-    })
-  })
-
-  test('number', () => {
-    const schema = zui.number().min(10).title('Title').disabled(true).max(20).int()
-
-    expect(schema.ui).toEqual({
-      title: 'Title',
-      disabled: true,
-    })
-  })
-
-  test('boolean', () => {
-    const schema = zui.boolean().title('Title').disabled()
-
-    expect(schema.ui).toEqual({
-      title: 'Title',
-      disabled: true,
-    })
-  })
-
-  test('optional', () => {
-    const a = zui.boolean().title('Active').optional()
-    const b = zui.boolean().title('Active')
-
-    expect(a.ui).toEqual(b.ui)
-  })
-
-  test('with default value', () => {
-    const a = zui.boolean().title('Active').default(true)
-    const b = zui.boolean().title('Active')
-
-    expect(a.ui).toEqual(b.ui)
-  })
+zui.object({
+  apples: zui.array(zui.string().title('Apple')),
 })
-
 test('Type inference', () => {
   const schema = zui.object({
     name: zui.string().title('Name'),
@@ -75,7 +28,7 @@ test('Type inference', () => {
     }),
   })
 
-  type Schema = Infer<typeof schema>
+  type Schema = zui.infer<typeof schema>
   const typingsInfer: Schema = {
     employer: {
       name: 'hello',
@@ -98,7 +51,7 @@ test('Unions', () => {
     }),
   ])
 
-  type Schema = Infer<typeof schema>
+  type Schema = zui.infer<typeof schema>
   const type_a: Schema = {
     type: 'a',
     a: 'hello',
@@ -125,7 +78,7 @@ test('Discriminated Unions', () => {
     }),
   ])
 
-  type Schema = Infer<typeof schema>
+  type Schema = zui.infer<typeof schema>
   const type_a: Schema = {
     type: 'a',
     a: 'hello',
@@ -141,19 +94,19 @@ test('Discriminated Unions', () => {
 })
 
 test('ZuiTypeAny', () => {
-  const func = (type: ZuiTypeAny) => {
+  const func = (type: zui.ZodTypeAny) => {
     return type
   }
 
   const schema = zui.string().title('Name')
   const result = func(schema)
-  result.tooltip('hello')
+  result.describe('hello')
 })
 
 test('Record 1', () => {
   const schema = zui.record(zui.number().title('Age'))
 
-  type Schema = Infer<typeof schema>
+  type Schema = zui.infer<typeof schema>
   const type: Schema = {
     a: 666,
   }
@@ -164,7 +117,7 @@ test('Record 1', () => {
 test('Record 2', () => {
   const schema = zui.record(zui.string().title('Name'), zui.number().title('Age'))
 
-  type Schema = Infer<typeof schema>
+  type Schema = zui.infer<typeof schema>
   const type: Schema = {
     a: 666,
   }
@@ -215,5 +168,5 @@ test('array', () => {
         yo: { name: 'jacques' },
       },
     },
-  ] satisfies Infer<typeof schema>)
+  ] satisfies zui.infer<typeof schema>)
 })

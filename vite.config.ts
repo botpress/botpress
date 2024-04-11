@@ -1,11 +1,22 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react-swc'
+import { defineConfig } from 'vitest/config'
+import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
+import react from '@vitejs/plugin-react-swc'
+import path from 'path'
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    nodePolyfills({
+      include: ['path', 'process'],
+    }),
+  ],
+  resolve: {
+    alias: {
+      zod: path.resolve(__dirname, './src/zod/index.ts'),
+    },
+  },
   test: {
-    // 👋 add the line below to add jsdom to vite
     environment: 'jsdom',
     globals: true,
   },

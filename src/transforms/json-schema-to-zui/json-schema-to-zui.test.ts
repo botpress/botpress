@@ -1,9 +1,10 @@
 import { describe, expect, test } from 'vitest'
-import { ZuiTypeAny, zui, zuiKey } from '../../zui'
+import { ZodTypeAny, z } from 'zod'
+import { zuiKey } from '../../ui/constants'
 import { jsonSchemaToZui, traverseZodDefinitions } from '.'
 import { zuiToJsonSchema } from '../zui-to-json-schema/zui-extension'
 
-const testZuiConversion = (zuiObject: ZuiTypeAny) => {
+const testZuiConversion = (zuiObject: ZodTypeAny) => {
   const jsonSchema = zuiToJsonSchema(zuiObject)
   const asZui = jsonSchemaToZui(jsonSchema)
   const convertedJsonSchema = zuiToJsonSchema(asZui)
@@ -26,9 +27,9 @@ const testZuiConversion = (zuiObject: ZuiTypeAny) => {
 
 describe('jsonSchemaToZui', () => {
   test('convert record', () => {
-    const inner = [zui.string().title('Name'), zui.number().title('Age')] as const
+    const inner = [z.string().title('Name'), z.number().title('Age')] as const
 
-    expect(zuiToJsonSchema(zui.record(inner[0], inner[1]))).toMatchObject({
+    expect(zuiToJsonSchema(z.record(inner[0], inner[1]))).toMatchObject({
       type: 'object',
       additionalProperties: {
         type: 'number',
@@ -40,52 +41,52 @@ describe('jsonSchemaToZui', () => {
   })
 
   test('convert discriminated union', () => {
-    const zuiObject = zui.discriminatedUnion('type', [
-      zui.object({
-        type: zui.literal('a'),
-        a: zui.string(),
+    const zuiObject = z.discriminatedUnion('type', [
+      z.object({
+        type: z.literal('a'),
+        a: z.string(),
       }),
-      zui.object({
-        type: zui.literal('b'),
-        b: zui.number(),
+      z.object({
+        type: z.literal('b'),
+        b: z.number(),
       }),
     ])
     testZuiConversion(zuiObject)
   })
 
   test('convert union', () => {
-    const zuiObject = zui.union([
-      zui.object({
-        type: zui.literal('a'),
-        a: zui.string(),
+    const zuiObject = z.union([
+      z.object({
+        type: z.literal('a'),
+        a: z.string(),
       }),
-      zui.object({
-        type: zui.literal('b'),
-        b: zui.number(),
+      z.object({
+        type: z.literal('b'),
+        b: z.number(),
       }),
     ])
     testZuiConversion(zuiObject)
   })
 
   test('convert string with regex', () => {
-    const zuiObject = zui.string().regex(/hello/i).title('Title').length(20)
+    const zuiObject = z.string().regex(/hello/i).title('Title').length(20)
     testZuiConversion(zuiObject)
   })
 
   test('convert complex enum record', () => {
-    const complexEnumRecord = zui
+    const complexEnumRecord = z
       .object({
-        status: zui.enum(['Active', 'Inactive', 'Pending']),
-        data: zui.record(zui.string(), zui.union([zui.number(), zui.boolean()])),
+        status: z.enum(['Active', 'Inactive', 'Pending']),
+        data: z.record(z.string(), z.union([z.number(), z.boolean()])),
       })
       .describe('Complex enum and record types')
     testZuiConversion(complexEnumRecord)
   })
 
   test('convert complex enum record', () => {
-    const zuiSchema = zui.discriminatedUnion('kek', [
-      zui.object({ kek: zui.literal('A'), lel: zui.boolean() }),
-      zui.object({ kek: zui.literal('B'), lel: zui.number() }),
+    const zuiSchema = z.discriminatedUnion('kek', [
+      z.object({ kek: z.literal('A'), lel: z.boolean() }),
+      z.object({ kek: z.literal('B'), lel: z.number() }),
     ])
     const strategy = { discriminator: true, unionStrategy: 'oneOf' } as const
 

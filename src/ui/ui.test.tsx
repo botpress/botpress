@@ -1,10 +1,11 @@
+import React from 'react'
 import { fireEvent, render } from '@testing-library/react'
 import { ZuiForm, ZuiFormProps } from './index'
-import { zui, ComponentDefinitions, ZuiComponentMap } from '../index'
-import { ObjectSchema, JSONSchema, ZuiReactComponentBaseProps, BaseType } from './types'
+import { ZuiComponentMap } from '../index'
+import { ObjectSchema, JSONSchema, ZuiReactComponentBaseProps, BaseType, UIComponentDefinitions } from './types'
 import { FC, PropsWithChildren, useState } from 'react'
 import { vi } from 'vitest'
-import { z } from 'zod'
+import { z as zui } from 'zod'
 
 const TestId = (type: JSONSchema['type'], path: string[], subpath?: string) =>
   `${type}:${path.length > 0 ? path.join('.') : 'root'}${subpath ? `:${subpath}` : ''}`
@@ -99,7 +100,10 @@ describe('UI', () => {
     })
 
     const jsonSchema = schema.toJsonSchema({ target: 'jsonSchema7' }) as ObjectSchema
-    const components = { ...testComponentImplementation, number: { default: () => null } }
+    const components = {
+      ...testComponentImplementation,
+      defaults: { ...testComponentImplementation.defaults, number: () => null },
+    }
 
     const rendered = render(
       <ZuiForm<typeof testComponentDefinitions>
@@ -335,7 +339,9 @@ describe('UI', () => {
     const schema = zui.object({
       firstName: zui.string(),
       lastName: zui.string(),
-      customField: zui.string().displayAs('customstringcomponent', { multiline: true }),
+      customField: zui
+        .string()
+        .displayAs<typeof testComponentDefinitions>('customstringcomponent', { multiline: true }),
     })
 
     const jsonSchema = schema.toJsonSchema({ target: 'jsonSchema7' }) as ObjectSchema
@@ -362,7 +368,7 @@ describe('UI', () => {
         .string()
         .title('First Name')
         .placeholder('Enter your first name')
-        .displayAs('customstringcomponent', { multiline: false })
+        .displayAs<typeof testComponentDefinitions>('customstringcomponent', { multiline: false })
         .disabled()
         .hidden(false),
       lastName: zui.string().title('Last Name'),
@@ -396,11 +402,11 @@ describe('UI', () => {
         kids: zui.array(
           zui.object({
             name: zui.string(),
-            toys: zui.array(zui.string()).displayAs('stringList', {}),
+            toys: zui.array(zui.string()).displayAs<typeof testComponentDefinitions>('stringList', {}),
           }),
         ),
       })
-      .displayAs('collapsible', { collapsed: true })
+      .displayAs<typeof testComponentDefinitions>('collapsible', { collapsed: true })
 
     const jsonSchema = schema.toJsonSchema({ target: 'jsonSchema7' }) as ObjectSchema
 
@@ -425,30 +431,30 @@ describe('UI', () => {
   })
 })
 
-const testComponentDefinitions = {
-  string: {
-    customstringcomponent: {
-      id: 'customstringcomponent',
-      schema: z.object({ multiline: z.boolean() }),
-    },
+export const testComponentDefinitions = [
+  {
+    type: 'string',
+    id: 'customstringcomponent',
+    schema: zui.object({ multiline: zui.boolean() }),
   },
-  number: {},
-  boolean: {},
-  array: {
-    stringList: {
-      id: 'stringList',
-      schema: z.object({}),
-    },
+  {
+    type: 'string',
+    id: 'otherstringcomponent',
+    schema: zui.object({ multiline: zui.boolean() }),
   },
-  object: {
-    collapsible: {
-      id: 'collapsible',
-      schema: z.object({ collapsed: z.boolean() }),
-    },
+  {
+    type: 'array',
+    id: 'stringList',
+    schema: zui.object({}),
   },
-} satisfies ComponentDefinitions
+  {
+    type: 'object',
+    id: 'collapsible',
+    schema: zui.object({ collapsed: zui.boolean() }),
+  },
+] as const satisfies UIComponentDefinitions
 
-const ZuiFormWithState: FC<Omit<ZuiFormProps, 'onChange' | 'value'>> = (props) => {
+const ZuiFormWithState: FC<Omit<ZuiFormProps<any>, 'onChange' | 'value'>> = (props) => {
   const [state, setState] = useState({})
   return <ZuiForm {...props} value={state} onChange={(data) => setState(data)} />
 }
@@ -490,19 +496,74 @@ const TestWrapper: FC<PropsWithChildren<ZuiReactComponentBaseProps<BaseType, any
 }
 
 const testComponentImplementation: ZuiComponentMap<typeof testComponentDefinitions> = {
-  string: {
-    customstringcomponent: (props) => {
-      return (
-        <TestWrapper {...props}>
-          <input
-            data-testid={`${props.type}:${props.scope}:custominput`}
-            value={props.data || ''}
-            onChange={(e) => props.onChange(e.target.value)}
-          />
-        </TestWrapper>
-      )
+  components: [
+    {
+      type: 'string',
+      id: 'customstringcomponent',
+      component: (props) => {
+        return (
+          <TestWrapper {...props}>
+            <input
+              data-testid={`${props.type}:${props.scope}:custominput`}
+              value={props.data || ''}
+              onChange={(e) => props.onChange(e.target.value)}
+            />
+          </TestWrapper>
+        )
+      },
     },
-    default: (props) => {
+    {
+      type: 'string',
+      id: 'otherstringcomponent',
+      component: (props) => {
+        return (
+          <TestWrapper {...props}>
+            <input
+              data-testid={`${props.type}:${props.scope}:input`}
+              value={props.data || ''}
+              onChange={(e) => props.onChange(e.target.value)}
+            />
+          </TestWrapper>
+        )
+      },
+    },
+    {
+      type: 'object',
+      id: 'collapsible',
+      component: (props) => {
+        return (
+          <TestWrapper {...props}>
+            <details data-iscollapsible>
+              <summary>Collapsible</summary>
+              {props.children}
+            </details>
+          </TestWrapper>
+        )
+      },
+    },
+    {
+      type: 'array',
+      id: 'stringList',
+      component: (props) => {
+        const childrens = Array.isArray(props.children) ? props.children : [props.children]
+        return (
+          <TestWrapper {...props}>
+            <button data-testid="stringlistelement:addbtn" onClick={() => props.addItem('')}>
+              Add item
+            </button>
+            {childrens.map((child, index) => (
+              <div key={child.key} data-testid={`stringlistelement:${index}`}>
+                <span key={index}>{child}</span>
+                <button onClick={() => props.removeItem(index)}>-</button>
+              </div>
+            ))}
+          </TestWrapper>
+        )
+      },
+    },
+  ],
+  defaults: {
+    string: (props) => {
       return (
         <TestWrapper {...props}>
           <input
@@ -513,9 +574,7 @@ const testComponentImplementation: ZuiComponentMap<typeof testComponentDefinitio
         </TestWrapper>
       )
     },
-  },
-  number: {
-    default: (props) => {
+    number: (props) => {
       return (
         <TestWrapper {...props}>
           <input
@@ -527,9 +586,7 @@ const testComponentImplementation: ZuiComponentMap<typeof testComponentDefinitio
         </TestWrapper>
       )
     },
-  },
-  boolean: {
-    default: (props) => {
+    boolean: (props) => {
       return (
         <TestWrapper {...props}>
           <input
@@ -541,40 +598,10 @@ const testComponentImplementation: ZuiComponentMap<typeof testComponentDefinitio
         </TestWrapper>
       )
     },
-  },
-  object: {
-    collapsible: (props) => {
-      return (
-        <TestWrapper {...props}>
-          <details data-iscollapsible>
-            <summary>Collapsible</summary>
-            {props.children}
-          </details>
-        </TestWrapper>
-      )
-    },
-    default: (props) => {
+    object: (props) => {
       return <TestWrapper {...props}>{props.children}</TestWrapper>
     },
-  },
-  array: {
-    stringList: (props) => {
-      const childrens = Array.isArray(props.children) ? props.children : [props.children]
-      return (
-        <TestWrapper {...props}>
-          <button data-testid="stringlistelement:addbtn" onClick={() => props.addItem('')}>
-            Add item
-          </button>
-          {childrens.map((child, index) => (
-            <div key={child.key} data-testid={`stringlistelement:${index}`}>
-              <span key={index}>{child}</span>
-              <button onClick={() => props.removeItem(index)}>-</button>
-            </div>
-          ))}
-        </TestWrapper>
-      )
-    },
-    default: ({ type, scope, children, addItem, removeItem, schema }) => {
+    array: ({ type, scope, children, addItem, removeItem, schema }) => {
       return (
         <div data-testid={`${type}:${scope}`}>
           <section data-testid={`${type}:${scope}:container`}>{children}</section>
