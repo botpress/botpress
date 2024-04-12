@@ -316,7 +316,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     if (!localHandle && remoteHandle) {
       const confirmAddHandle = await this.prompt.confirm(
-        `Your current workspace handle is "${remoteHandle}". Do you want to deploy the integration with name "${remoteHandle}/${localName}"?`
+        `Your current workspace handle is "${remoteHandle}". Do you want to use the name "${remoteHandle}/${localName}"?`
       )
       if (!confirmAddHandle) {
         throw new errors.BotpressCLIError(workspaceHandleIsMandatoryMsg)
