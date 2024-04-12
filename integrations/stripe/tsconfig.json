@@ -10,10 +10,5 @@
     "resolveJsonModule": true,
     "noPropertyAccessFromIndexSignature": false
   },
-  "include": [
-    ".botpress/**/*",
-    "src/**/*",
-    "./*.ts",
-    "./*.json"
-  ]
+  "include": [".botpress/**/*", "src/**/*", "./*.ts", "./*.json"]
 }
