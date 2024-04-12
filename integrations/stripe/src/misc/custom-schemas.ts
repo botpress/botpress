@@ -1,12 +1,17 @@
 import { z } from '@botpress/sdk'
-import {
-  createCustomerUi,
-  deactivatePaymentLinkUi,
-  listCustomersUi,
-  retrieveCustomerByIdUi,
-  searchCustomersUi,
-} from './custom-uis'
-import { partialCustomer } from './sub-schemas'
+
+const partialCustomer = z
+  .object({
+    id: z.string(),
+    email: z.string().nullable(),
+    name: z.string().nullable().optional(),
+    description: z.string().nullable(),
+    phone: z.string().nullable().optional(),
+    address: z.object({}).passthrough().nullable().optional(),
+    created: z.number(),
+    delinquent: z.boolean().nullable().optional(),
+  })
+  .passthrough()
 
 export const createPaymentLinkInputSchema = z.object({
   productName: z.string().placeholder('ex: T-Shirt').describe('The name of the product to be sold'),
@@ -125,7 +130,7 @@ export const findPaymentLinkOutputSchema = z
   .partial()
 
 export const deactivatePaymentLinkInputSchema = z.object({
-  id: z.string().describe(deactivatePaymentLinkUi.id.title),
+  id: z.string().describe('The payment link ID to deactivate').placeholder('ex: test_aEUdTEdRP95RdvaaEJ'),
 })
 
 export const deactivatePaymentLinkOutputSchema = z
@@ -137,7 +142,7 @@ export const deactivatePaymentLinkOutputSchema = z
   .partial()
 
 export const listCustomersInputSchema = z.object({
-  email: z.string().email().max(512).optional().describe(listCustomersUi.email.title),
+  email: z.string().email().max(512).optional().describe('The e-mail of the customer to search for'),
 })
 
 export const listCustomersOutputSchema = z
@@ -147,9 +152,9 @@ export const listCustomersOutputSchema = z
   .partial()
 
 export const searchCustomersInputSchema = z.object({
-  email: z.string().max(512).optional().describe(searchCustomersUi.email.title),
-  name: z.string().optional().describe(searchCustomersUi.name.title),
-  phone: z.string().optional().describe(searchCustomersUi.phone.title),
+  email: z.string().max(512).optional().describe('Search by query on customer emails'),
+  name: z.string().optional().describe('Search by query on customer name'),
+  phone: z.string().optional().describe('Search by query on customer phone number'),
 })
 
 export const searchCustomersOutputSchema = z
@@ -159,12 +164,20 @@ export const searchCustomersOutputSchema = z
   .partial()
 
 export const createCustomerInputSchema = z.object({
-  email: z.string().email().max(512).describe(createCustomerUi.email.title),
-  name: z.string().optional().describe(createCustomerUi.name.title),
-  phone: z.string().optional().describe(createCustomerUi.phone.title),
-  description: z.string().optional().describe(createCustomerUi.description.title),
-  paymentMethodId: z.string().optional().describe(createCustomerUi.paymentMethodId.title),
-  address: z.string().optional().describe(createCustomerUi.address.title),
+  email: z.string().email().max(512).describe('The email of the customer').placeholder('johndoe@botpress.com'),
+  name: z.string().optional().describe('The name of the customer').placeholder('John Doe'),
+  phone: z.string().optional().describe('The phone number of the customer').placeholder('+1234567890'),
+  description: z.string().optional().describe('A description for the customer').placeholder('Customer Description'),
+  paymentMethodId: z
+    .string()
+    .optional()
+    .describe('The ID of the payment method to attach to the customer')
+    .placeholder('payment-method-id'),
+  address: z
+    .string()
+    .optional()
+    .describe('The address of the customer')
+    .placeholder('123 Bot Street, Bot City, Botland, 12345'),
 })
 
 export const createCustomerOutputSchema = z
@@ -183,7 +196,7 @@ export const createOrRetrieveCustomerOutputSchema = z
   .partial()
 
 export const retrieveCustomerByIdInputSchema = z.object({
-  id: z.string().describe(retrieveCustomerByIdUi.id.title),
+  id: z.string().describe('The ID of the customer to retrieve').placeholder('cus_1234567890'),
 })
 
 export const retrieveCustomerByIdOutputSchema = z
