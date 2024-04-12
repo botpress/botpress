@@ -67,7 +67,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     if (integration && integration.public && !api.isBotpressWorkspace) {
       throw new errors.BotpressCLIError(
-        `Integration ${integrationDef.name} v${integrationDef.version} is already deployed publicly. It cannot be updated. Please bump the version.`
+        `Integration ${integrationDef.name} v${integrationDef.version} is already deployed publicly and cannot be updated. Please bump the version.`
       )
     }
 
@@ -379,7 +379,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       )
     }
     if (parts.length === 2) {
-      const [name, workspaceHandle] = parts as [string, string]
+      const [workspaceHandle, name] = parts as [string, string]
       return { name, workspaceHandle }
     }
     const [name] = parts as [string]
