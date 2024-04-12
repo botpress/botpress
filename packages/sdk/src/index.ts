@@ -1,6 +1,7 @@
 export * as messages from './message'
 export * from './const'
 export * from './serve'
+export * from './zui'
 
 export {
   IntegrationDefinition,
@@ -17,5 +18,3 @@ export { Bot, BotProps, BotContext, BotSpecificClient, IntegrationInstance } fro
  * @deprecated Infer type of integration message handlers instead
  */
 export type AckFunction = (props: { tags: Record<string, string> }) => Promise<void>
-
-export { z, studioComponentDefinitions } from './zod'

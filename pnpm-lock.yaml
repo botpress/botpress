@@ -1339,7 +1339,7 @@ importers:
         version: 0.0.3
       '@bpinternal/zod-to-json-schema':
         specifier: ^3.21.4
-        version: 3.21.4(zod@3.20.6)
+        version: 3.21.4(zod@3.22.4)
       '@parcel/watcher':
         specifier: ^2.1.0
         version: 2.1.0
@@ -1403,12 +1403,9 @@ importers:
       winston:
         specifier: ^3.8.2
         version: 3.9.0
-      zod:
-        specifier: ^3.20.6
-        version: 3.20.6
     devDependencies:
       '@botpress/sdk':
-        specifier: 0.6.14
+        specifier: workspace:*
         version: link:../sdk
       '@bpinternal/log4bot':
         specifier: ^0.0.4
@@ -1452,9 +1449,6 @@ importers:
       '@botpress/sdk':
         specifier: 0.6.14
         version: link:../../../sdk
-      zod:
-        specifier: ^3.20.6
-        version: 3.20.6
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -1474,9 +1468,6 @@ importers:
       '@botpress/sdk':
         specifier: 0.6.14
         version: link:../../../sdk
-      zod:
-        specifier: ^3.20.6
-        version: 3.20.6
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -1519,8 +1510,8 @@ importers:
         specifier: 0.13.1
         version: link:../client
       '@bpinternal/zui':
-        specifier: 0.5.3
-        version: 0.5.3
+        specifier: 0.5.4
+        version: 0.5.4
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -2249,20 +2240,20 @@ packages:
       yn: 4.0.0
     dev: false
 
-  /@bpinternal/zod-to-json-schema@3.21.4(zod@3.20.6):
+  /@bpinternal/zod-to-json-schema@3.21.4(zod@3.22.4):
     resolution: {integrity: sha512-kWCUrBu+CwODPEH2cleuJ59+D2w+WvA4SlhbpqXYS/bH9k2bsBAOrFa0x/Sz99dBKnMJ6uxVLX0bv53VLOzmKg==}
     peerDependencies:
       zod: ^3.21.4
     dependencies:
-      zod: 3.20.6
+      zod: 3.22.4
     dev: false
 
-  /@bpinternal/zui@0.5.3:
-    resolution: {integrity: sha512-pkToeDtVJRqeYdt54N+KKIiehzodS+GokJia9WtGJNZkxO0784sdDRTG7sSoVF4hhzKoYUgDxYHjY1Jdb4WRjA==}
+  /@bpinternal/zui@0.5.4:
+    resolution: {integrity: sha512-S5DsWH3bdhxQ9YgUf2H3WZF29SeXOU8rfSP/L4eSb0Ew66CjeoFyfaZ9JpsHiUlEresV/eBgqSP25FBM2SgHGA==}
     dependencies:
       '@apidevtools/json-schema-ref-parser': 11.5.4
       '@bpinternal/json-schema-to-zod': 2.0.15
-      lodash-es: 4.17.21
+      lodash: 4.17.21
       react: 18.2.0
     dev: false
 
@@ -9056,10 +9047,6 @@ packages:
     engines: {node: '>=10'}
     dependencies:
       p-locate: 5.0.0
-    dev: false
-
-  /lodash-es@4.17.21:
-    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
     dev: false
 
   /lodash.clonedeep@4.5.0:

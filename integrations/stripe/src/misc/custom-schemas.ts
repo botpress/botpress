@@ -1,40 +1,35 @@
-import { zui as z } from '@botpress/sdk'
+import { z } from '@botpress/sdk'
 import {
-  createPaymentLinkUi,
-  createSubsLinkUi,
   createCustomerUi,
   deactivatePaymentLinkUi,
-  findPaymentLinkUi,
   listCustomersUi,
   retrieveCustomerByIdUi,
   searchCustomersUi,
 } from './custom-uis'
 import { partialCustomer } from './sub-schemas'
 
-// Test schema 
-z.string().displayAs('JSONInput', { allowDynamicVariable: false })
-
-
 export const createPaymentLinkInputSchema = z.object({
-  productName: z.string().describe(createPaymentLinkUi.productName.title),
-  unit_amount: z.number().optional().default(0).describe(createPaymentLinkUi.unit_amount.title),
-  currency: z.string().optional().default('usd').describe(createPaymentLinkUi.currency.title),
-  quantity: z.number().optional().default(1).describe(createPaymentLinkUi.quantity.title),
-  adjustableQuantity: z.boolean().optional().default(false).describe(createPaymentLinkUi.adjustableQuantity.title),
+  productName: z.string().placeholder('ex: T-Shirt').describe('The name of the product to be sold'),
+  unit_amount: z.number().title('Unit Price').optional().default(0).describe('The unit price in cents'),
+  currency: z.string().optional().default('usd').describe('The currency in which the price will be expressed'),
+  quantity: z.number().optional().default(1).describe('The quantity of the product being purchased'),
+  adjustableQuantity: z.boolean().optional().default(false).describe('Wether or not the quantity can be adjusted'),
   adjustableQuantityMaximum: z
     .number()
+    .title('Max Quantity')
     .min(2)
     .max(999)
     .optional()
     .default(99)
-    .describe(createPaymentLinkUi.adjustableQuantityMaximum.title),
+    .describe('The maximum quantity the customer can purchase, up to 999'),
   adjustableQuantityMinimum: z
     .number()
+    .title('Min Quantity')
     .min(1)
     .max(998)
     .optional()
     .default(1)
-    .describe(createPaymentLinkUi.adjustableQuantityMinimum.title),
+    .describe('The minimum quantity the customer can purchase'),
 })
 
 export const createPaymentLinkOutputSchema = z
@@ -64,28 +59,35 @@ export const listProductPricesOutputSchema = z
   .partial()
 
 export const createSubsLinkInputSchema = z.object({
-  productName: z.string().describe(createSubsLinkUi.productName.title),
-  unit_amount: z.number().optional().default(0).describe(createSubsLinkUi.unit_amount.title),
-  currency: z.string().optional().default('usd').describe(createSubsLinkUi.currency.title),
-  quantity: z.number().optional().default(1).describe(createSubsLinkUi.quantity.title),
-  adjustableQuantity: z.boolean().optional().default(false).describe(createSubsLinkUi.adjustableQuantity.title),
+  productName: z.string().describe('The name of the subscription product'),
+  unit_amount: z.number().optional().default(0).describe('The unit price in cents'),
+  currency: z.string().optional().default('usd').describe('The currency in which the price is expressed'),
+  quantity: z.number().optional().default(1).describe('The quantity of the subscription being purchased'),
+  adjustableQuantity: z.boolean().optional().default(false).describe('Wether or not the quantity can be adjusted'),
   adjustableQuantityMaximum: z
     .number()
+    .title('Max Quantity')
     .min(2)
     .max(999)
     .optional()
     .default(99)
-    .describe(createSubsLinkUi.adjustableQuantityMaximum.title),
+    .describe('The maximum quantity the customer can purchase, up to 999'),
   adjustableQuantityMinimum: z
     .number()
+    .title('Min Quantity')
     .min(1)
     .max(998)
     .optional()
     .default(1)
-    .describe(createSubsLinkUi.adjustableQuantityMinimum.title),
-  chargingInterval: z.string().optional().default('month').describe(createSubsLinkUi.chargingInterval.title),
-  trial_period_days: z.number().min(1).optional().describe(createSubsLinkUi.trial_period_days.title),
-  description: z.string().optional().describe(createSubsLinkUi.description.title),
+    .describe('The minimum quantity the customer can purchase'),
+  chargingInterval: z
+    .enum(['day', 'week', 'month', 'year'])
+    .title('Payment Interval')
+    .optional()
+    .default('month')
+    .describe('The interval at which the customer will be charged'),
+  trial_period_days: z.number().min(1).optional().describe('The number of free trial days for the subscription'),
+  description: z.string().optional().describe('A description of the subscription product'),
 })
 
 export const createSubsLinkOutputSchema = z
@@ -109,7 +111,11 @@ export const listPaymentLinksOutputSchema = z
   .partial()
 
 export const findPaymentLinkInputSchema = z.object({
-  url: z.string().describe(findPaymentLinkUi.url.title),
+  url: z
+    .string()
+    .title('Payment link')
+    .describe('The URL of the payment link')
+    .placeholder('ex: https://buy.stripe.com/test_b0tPr3sS5w3sOm3'),
 })
 
 export const findPaymentLinkOutputSchema = z

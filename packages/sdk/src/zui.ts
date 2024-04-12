@@ -1,9 +1,11 @@
-import z, { type UIComponentDefinitions } from '@bpinternal/zui'
+import { z, type UIComponentDefinitions } from '@bpinternal/zui'
+export * from '@bpinternal/zui'
 
 const commonInputParams = z.object({
   allowDynamicVariable: z.boolean().optional(),
   horizontal: z.boolean().optional(),
 })
+
 export const studioComponentDefinitions = [
   {
     type: 'string',
@@ -143,5 +145,5 @@ declare module '@bpinternal/zui' {
   type ComponentDefinitions = typeof studioComponentDefinitions
 }
 
-export { z }
 export default z
+export { z }

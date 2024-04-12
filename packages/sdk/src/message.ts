@@ -1,4 +1,4 @@
-import { z } from '@bpinternal/zui'
+import { z } from './zui'
 
 const NonEmptyString = z.string().min(1)
 

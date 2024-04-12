@@ -1,7 +1,6 @@
-import zodToJsonSchema from '@bpinternal/zod-to-json-schema'
 import type { JsonSchema7Type } from '@bpinternal/zod-to-json-schema/src/parseDef'
 import type { JsonSchema7ObjectType } from '@bpinternal/zod-to-json-schema/src/parsers/object'
-import { z } from 'zod'
+import { z, transforms } from '@botpress/sdk'
 
 type SchemaOptions = {
   title?: string
@@ -15,8 +14,8 @@ type SchemaDefinition = {
 
 const isObjectSchema = (schema: JsonSchema7Type): schema is JsonSchema7ObjectType => (schema as any)?.type === 'object'
 
-export function mapZodToJsonSchema(definition: SchemaDefinition): ReturnType<typeof zodToJsonSchema> {
-  const schema = zodToJsonSchema(definition.schema, { errorMessages: true })
+export function mapZodToJsonSchema(definition: SchemaDefinition): ReturnType<typeof transforms.zuiToJsonSchema> {
+  const schema = transforms.zuiToJsonSchema(definition.schema, { target: 'jsonSchema7' })
   if (!isObjectSchema(schema) || !definition.ui) {
     return schema
   }

@@ -1,4 +1,4 @@
-import type { z } from '@bpinternal/zui'
+import type z from './zui'
 import { AnyZodObject } from './type-utils'
 
 type SchemaOptions<T> = {
