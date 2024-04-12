@@ -16,5 +16,10 @@ type UiDefinition<TSchema extends AnyZodObject = AnyZodObject> = IsEmptyObject<z
 
 export type SchemaDefinition<TSchema extends AnyZodObject = AnyZodObject> = {
   schema: TSchema
+
+  /**
+   * @deprecated
+   * Use zod.Schema.displayAs() instead
+   **/
   ui?: Partial<UiDefinition<TSchema>>
 }

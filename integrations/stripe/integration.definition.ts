@@ -29,18 +29,6 @@ import {
   subscriptionDeletedSchema,
   subscriptionUpdatedSchema,
 } from './src/misc/custom-schemas'
-import {
-  createCustomerUi,
-  createOrRetrieveCustomerUi,
-  createPaymentLinkUi,
-  createSubsLinkUi,
-  deactivatePaymentLinkUi,
-  findPaymentLinkUi,
-  listCustomersUi,
-  listPaymentLinksUi,
-  retrieveCustomerByIdUi,
-  searchCustomersUi,
-} from './src/misc/custom-uis'
 
 export default new IntegrationDefinition({
   name: 'stripe',
@@ -98,7 +86,6 @@ export default new IntegrationDefinition({
       title: 'Create Payment Link',
       input: {
         schema: createPaymentLinkInputSchema,
-        ui: createPaymentLinkUi,
       },
       output: {
         schema: createPaymentLinkOutputSchema,
@@ -108,7 +95,6 @@ export default new IntegrationDefinition({
       title: 'List Product Prices',
       input: {
         schema: listProductPricesInputSchema,
-        ui: {},
       },
       output: {
         schema: listProductPricesOutputSchema,
@@ -118,7 +104,6 @@ export default new IntegrationDefinition({
       title: 'Create Subscription Payment Link',
       input: {
         schema: createSubsLinkInputSchema,
-        ui: createSubsLinkUi,
       },
       output: {
         schema: createSubsLinkOutputSchema,
@@ -128,7 +113,6 @@ export default new IntegrationDefinition({
       title: 'List Payment Links',
       input: {
         schema: listPaymentLinksInputSchema,
-        ui: listPaymentLinksUi,
       },
       output: {
         schema: listPaymentLinksOutputSchema,
@@ -148,7 +132,6 @@ export default new IntegrationDefinition({
       title: 'Deactivate Payment Link',
       input: {
         schema: deactivatePaymentLinkInputSchema,
-        ui: deactivatePaymentLinkUi,
       },
       output: {
         schema: deactivatePaymentLinkOutputSchema,
@@ -158,7 +141,6 @@ export default new IntegrationDefinition({
       title: 'List Customers By Email',
       input: {
         schema: listCustomersInputSchema,
-        ui: listCustomersUi,
       },
       output: {
         schema: listCustomersOutputSchema,
@@ -168,7 +150,6 @@ export default new IntegrationDefinition({
       title: 'Search Customers By Fields',
       input: {
         schema: searchCustomersInputSchema,
-        ui: searchCustomersUi,
       },
       output: {
         schema: searchCustomersOutputSchema,
@@ -178,7 +159,6 @@ export default new IntegrationDefinition({
       title: 'Create Customer',
       input: {
         schema: createCustomerInputSchema,
-        ui: createCustomerUi,
       },
       output: {
         schema: createCustomerOutputSchema,
@@ -188,7 +168,6 @@ export default new IntegrationDefinition({
       title: 'Create Or Retrieve Customer',
       input: {
         schema: createOrRetrieveCustomerInputSchema,
-        ui: createOrRetrieveCustomerUi,
       },
       output: {
         schema: createOrRetrieveCustomerOutputSchema,
@@ -198,7 +177,6 @@ export default new IntegrationDefinition({
       title: 'Retrieve Customer By ID',
       input: {
         schema: retrieveCustomerByIdInputSchema,
-        ui: retrieveCustomerByIdUi,
       },
       output: {
         schema: retrieveCustomerByIdOutputSchema,
