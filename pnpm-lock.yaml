@@ -14,6 +14,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:^
         version: link:packages/sdk
+      '@bpinternal/depsynky':
+        specifier: ^0.0.1
+        version: 0.0.1
       '@bpinternal/readiness':
         specifier: 0.0.1
         version: 0.0.1
@@ -2155,6 +2158,19 @@ packages:
       - supports-color
       - terser
       - webdriverio
+    dev: false
+
+  /@bpinternal/depsynky@0.0.1:
+    resolution: {integrity: sha512-Gu3qhkEOThWDLiWgO4LosVerUKIArQFV+SzxUskha/vYTUulBLiIWdTzVEx3HDCKqVQTWc91GIpmNIwce8VKUg==}
+    hasBin: true
+    dependencies:
+      '@bpinternal/yargs-extra': 0.0.3
+      chalk: 4.1.2
+      glob: 9.3.5
+      prettier: 2.8.8
+      prompts: 2.4.2
+      semver: 7.5.4
+      yaml: 2.3.1
     dev: false
 
   /@bpinternal/es-node@0.0.5:
@@ -10743,7 +10759,7 @@ packages:
       mime: 2.6.0
       qs: 6.11.0
       readable-stream: 3.6.2
-      semver: 7.5.1
+      semver: 7.5.4
     transitivePeerDependencies:
       - supports-color
     dev: false
