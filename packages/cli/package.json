@@ -24,7 +24,6 @@
     "@bpinternal/const": "^0.0.20",
     "@bpinternal/tunnel": "^0.1.1",
     "@bpinternal/yargs-extra": "^0.0.3",
-    "@bpinternal/zod-to-json-schema": "^3.21.4",
     "@parcel/watcher": "^2.1.0",
     "@types/lodash": "^4.14.191",
     "@types/node": "^18.11.17",
