@@ -121,7 +121,6 @@ export default new IntegrationDefinition({
       title: 'Find Payment Link',
       input: {
         schema: findPaymentLinkInputSchema,
-        ui: findPaymentLinkUi,
       },
       output: {
         schema: findPaymentLinkOutputSchema,
