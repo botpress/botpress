@@ -2,14 +2,14 @@
   "name": "botpress",
   "private": true,
   "scripts": {
-    "bump": "ts-node -T ./scripts/depsynky bump && pnpm -w install",
+    "bump": "depsynky bump && pnpm -w install",
     "type:check": "pnpm -r --stream type:check",
     "format:check": "prettier --check .",
     "format:fix": "prettier --write .",
     "lint:check": "eslint ./ --ext .ts --ext .tsx",
     "lint:fix": "eslint --fix ./ --ext .ts --ext .tsx",
-    "dep:check": "ts-node -T ./scripts/depsynky check",
-    "dep:fix": "ts-node -T ./scripts/depsynky sync",
+    "dep:check": "depsynky check",
+    "dep:fix": "depsynky sync",
     "check": "pnpm dep:check && pnpm format:check && pnpm lint:check && pnpm type:check",
     "test": "pnpm vitest --run",
     "fix": "pnpm dep:fix && pnpm format:fix && pnpm lint:fix"
@@ -17,6 +17,7 @@
   "dependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/sdk": "workspace:^",
+    "@bpinternal/depsynky": "^0.0.1",
     "@bpinternal/readiness": "0.0.1",
     "@types/node": "^18.11.18",
     "@typescript-eslint/eslint-plugin": "^5.47.0",
