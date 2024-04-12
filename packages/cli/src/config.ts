@@ -156,6 +156,11 @@ const deploySchema = {
     description: 'Allow deprecated features in the project',
     default: false,
   },
+  noWorkspaceHandle: {
+    type: 'boolean',
+    description: 'Allow to deploy an integration without a workspace handle',
+    default: false,
+  },
 } satisfies CommandSchema
 
 const devSchema = {

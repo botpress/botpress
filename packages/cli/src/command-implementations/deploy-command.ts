@@ -46,7 +46,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       readme: readmeRelativeFilePath,
       identifier,
       configuration,
-    } = integrationDef
+    } = await this._manageWorkspaceHandle(api, integrationDef)
 
     if (iconRelativeFilePath && !iconRelativeFilePath.toLowerCase().endsWith('.svg')) {
       throw new errors.BotpressCLIError('Icon must be an SVG file')
@@ -62,6 +62,12 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     if (integration && !integration.workspaceId) {
       throw new errors.BotpressCLIError(
         `Public integration ${integrationDef.name} v${integrationDef.version} is already deployed in another workspace.`
+      )
+    }
+
+    if (integration && integration.public) {
+      throw new errors.BotpressCLIError(
+        `Integration ${integrationDef.name} v${integrationDef.version} is already deployed publicly. It cannot be updated. Please bump the version.`
       )
     }
 
@@ -279,5 +285,104 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     })
 
     return fetchedBot
+  }
+
+  private async _manageWorkspaceHandle(
+    api: ApiClient,
+    integration: sdk.IntegrationDefinition
+  ): Promise<sdk.IntegrationDefinition> {
+    if (this.argv.noWorkspaceHandle) {
+      return integration
+    }
+
+    const { name: localName, workspaceHandle: localHandle } = this._parseIntegrationName(integration.name)
+    const { handle: remoteHandle } = await api.getWorkspace().catch((thrown) => {
+      throw errors.BotpressCLIError.wrap(thrown, 'Could not fetch workspace')
+    })
+
+    if (localHandle && remoteHandle) {
+      if (localHandle !== remoteHandle) {
+        throw new errors.BotpressCLIError(
+          `Your current workspace handle is "${remoteHandle}" but the integration handle is "${localHandle}".`
+        )
+      }
+      return integration
+    }
+
+    const workspaceHandleIsMandatoryMsg = 'Cannot deploy integration without workspace handle'
+
+    if (!localHandle && remoteHandle) {
+      const confirmAddHandle = await this.prompt.confirm(
+        `Your current workspace handle is "${remoteHandle}". Do you want to deploy the integration with name "${remoteHandle}/${localName}"?`
+      )
+      if (!confirmAddHandle) {
+        throw new errors.BotpressCLIError(workspaceHandleIsMandatoryMsg)
+      }
+      const newName = `${remoteHandle}/${localName}`
+      return { ...integration, name: newName }
+    }
+
+    if (localHandle && !remoteHandle) {
+      const { available } = await api.client.checkHandleAvailability({ handle: localHandle }).catch((thrown) => {
+        throw errors.BotpressCLIError.wrap(thrown, 'Could not check handle availability')
+      })
+
+      if (!available) {
+        throw new errors.BotpressCLIError(`Handle "${localHandle}" is not yours and is not available`)
+      }
+
+      const confirmClaimHandle = await this.prompt.confirm(
+        `Handle "${localHandle}" is available. Do you want to claim it ?`
+      )
+      if (!confirmClaimHandle) {
+        throw new errors.BotpressCLIError(workspaceHandleIsMandatoryMsg)
+      }
+
+      await api.updateWorkspace({ handle: localHandle }).catch((thrown) => {
+        throw errors.BotpressCLIError.wrap(thrown, `Could not claim handle "${localHandle}"`)
+      })
+
+      this.logger.success(`Handle "${localHandle}" is now yours!`)
+      return integration
+    }
+
+    this.logger.warn("It seems you don't have a workspace handle yet.")
+    let claimedHandle: string | undefined = undefined
+    do {
+      const prompted = await this.prompt.text('Please enter a workspace handle')
+      if (!prompted) {
+        throw new errors.BotpressCLIError(workspaceHandleIsMandatoryMsg)
+      }
+
+      const { available, suggestions } = await api.client.checkHandleAvailability({ handle: prompted })
+      if (!available) {
+        this.logger.warn(`Handle "${prompted}" is not available. Suggestions: ${suggestions.join(', ')}`)
+        continue
+      }
+
+      claimedHandle = prompted
+      await api.updateWorkspace({ handle: claimedHandle }).catch((thrown) => {
+        throw errors.BotpressCLIError.wrap(thrown, `Could not claim handle "${claimedHandle}"`)
+      })
+    } while (!claimedHandle)
+
+    this.logger.success(`Handle "${claimedHandle}" is yours!`)
+    const newName = `${claimedHandle}/${localName}`
+    return { ...integration, name: newName }
+  }
+
+  private _parseIntegrationName = (integrationName: string): { name: string; workspaceHandle?: string } => {
+    const parts = integrationName.split('/')
+    if (parts.length > 2) {
+      throw new errors.BotpressCLIError(
+        `Invalid integration name "${integrationName}": a single forward slash is allowed`
+      )
+    }
+    if (parts.length === 2) {
+      const [name, workspaceHandle] = parts as [string, string]
+      return { name, workspaceHandle }
+    }
+    const [name] = parts as [string]
+    return { name }
   }
 }
