@@ -295,7 +295,7 @@ async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload
     throw new Error('Message not sent')
   }
 
-  await ack({ tags: { [idTag]: message.id } })
+  await ack({ tags: { id: message.id } })
 
   if (messages.length > 1) {
     console.warn('More than one message was sent')

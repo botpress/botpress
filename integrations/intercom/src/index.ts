@@ -1,10 +1,10 @@
 import type { Conversation } from '@botpress/client'
-import type { AckFunction } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Client, ReplyToConversationMessageType } from 'intercom-client'
 import { z } from 'zod'
 import { emailTag, idTag } from './const'
 import * as html from './html.utils'
+import * as types from './types'
 import * as bp from '.botpress'
 
 type Card = bp.channels.channel.card.Card
@@ -312,7 +312,7 @@ export default sentryHelpers.wrapIntegration(integration, {
 async function sendMessage(props: {
   body: string
   conversation: Conversation
-  ack: AckFunction
+  ack: types.AckFunction
   configuration: Configuration
   attachmentUrls?: string[]
 }) {
@@ -329,7 +329,7 @@ async function sendMessage(props: {
     attachmentUrls,
   })
 
-  await ack({ tags: { [idTag]: `${conversationParts.at(-1)?.id ?? ''}` } })
+  await ack({ tags: { id: `${conversationParts.at(-1)?.id ?? ''}` } })
 }
 
 function composeMessage(...parts: string[]) {

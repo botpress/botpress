@@ -5,8 +5,6 @@ import { chatIdTag, idTag, fromUserIdTag, fromUserNameTag, INTEGRATION_NAME } fr
 import { getUserPictureDataUri, getUserNameFromTelegramUser, getChat, sendCard, ackMessage } from './misc/utils'
 import * as bp from '.botpress'
 
-export type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
-
 console.info(`starting integration ${INTEGRATION_NAME}`)
 
 const integration = new bp.Integration({

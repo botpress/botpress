@@ -332,5 +332,5 @@ async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload
       auth: { username: ctx.configuration.apiKey, password: ctx.configuration.apiSecret },
     }
   )
-  await ack({ tags: { [idTag]: response.data.message_uuid } })
+  await ack({ tags: { id: response.data.message_uuid } })
 }
