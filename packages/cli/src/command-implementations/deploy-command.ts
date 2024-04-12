@@ -59,13 +59,13 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const identifierLinkTemplateFileContent = await this._readFile(configuration?.identifier?.linkTemplateScript)
 
     const integration = await api.findIntegration({ type: 'name', name, version })
-    if (integration && !integration.workspaceId) {
+    if (integration && integration.workspaceId !== api.workspaceId) {
       throw new errors.BotpressCLIError(
         `Public integration ${integrationDef.name} v${integrationDef.version} is already deployed in another workspace.`
       )
     }
 
-    if (integration && integration.public) {
+    if (integration && integration.public && !api.isBotpressWorkspace) {
       throw new errors.BotpressCLIError(
         `Integration ${integrationDef.name} v${integrationDef.version} is already deployed publicly. It cannot be updated. Please bump the version.`
       )
@@ -291,11 +291,11 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     api: ApiClient,
     integration: sdk.IntegrationDefinition
   ): Promise<sdk.IntegrationDefinition> {
-    if (this.argv.noWorkspaceHandle) {
-      return integration
+    const { name: localName, workspaceHandle: localHandle } = this._parseIntegrationName(integration.name)
+    if (!localHandle && api.isBotpressWorkspace) {
+      return integration // botpress has the right to omit workspace handle
     }
 
-    const { name: localName, workspaceHandle: localHandle } = this._parseIntegrationName(integration.name)
     const { handle: remoteHandle } = await api.getWorkspace().catch((thrown) => {
       throw errors.BotpressCLIError.wrap(thrown, 'Could not fetch workspace')
     })

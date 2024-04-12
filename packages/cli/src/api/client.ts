@@ -50,6 +50,14 @@ export class ApiClient {
     this.workspaceId = workspaceId
   }
 
+  public get isBotpressWorkspace(): boolean {
+    return [
+      '6a76fa10-e150-4ff6-8f59-a300feec06c1',
+      '95de33eb-1551-4af9-9088-e5dcb02efd09',
+      '11111111-1111-1111-aaaa-111111111111',
+    ].includes(this.workspaceId)
+  }
+
   public async getWorkspace(): Promise<Responses['getWorkspace']> {
     return this.client.getWorkspace({ id: this.workspaceId })
   }
