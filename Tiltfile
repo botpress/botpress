@@ -28,7 +28,7 @@ if command not in AVAILABLE_COMMANDS:
   fail('command must be one of %s' % AVAILABLE_COMMANDS)
 
 enabled_services = COMMAND_RESSOURCES[command]
-# config.clear_enabled_resources()
+config.clear_enabled_resources()
 config.set_enabled_resources(enabled_services)
 
 # resources
