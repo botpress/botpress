@@ -802,9 +802,6 @@ importers:
       stripe:
         specifier: ^13.5.0
         version: 13.11.0
-      zod:
-        specifier: 3.22.4
-        version: 3.22.4
     devDependencies:
       '@types/node':
         specifier: ^18.11.17

@@ -1,5 +1,4 @@
-import { IntegrationDefinition } from '@botpress/sdk'
-import { z } from 'zod'
+import { IntegrationDefinition, z } from '@botpress/sdk'
 import {
   createCustomerInputSchema,
   createCustomerOutputSchema,
