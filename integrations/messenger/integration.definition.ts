@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 export default new IntegrationDefinition({
   name: 'messenger',
-  version: '0.2.0',
+  version: '0.2.1',
   title: 'Messenger',
   description: 'This integration allows your bot to interact with Messenger.',
   icon: 'icon.svg',

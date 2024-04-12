@@ -5,7 +5,7 @@ import { INTEGRATION_NAME } from './src/const'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '0.2.0',
+  version: '0.2.1',
   title: 'Sunshine Conversations',
   description: 'This integration allows your bot to interact with Sunshine Conversations.',
   icon: 'icon.svg',
