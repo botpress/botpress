@@ -39,6 +39,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const outfile = this.projectPaths.abs.outFile
     const code = await fs.promises.readFile(outfile, 'utf-8')
 
+    integrationDef = await this._manageWorkspaceHandle(api, integrationDef)
+
     const {
       name,
       version,
@@ -46,7 +48,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       readme: readmeRelativeFilePath,
       identifier,
       configuration,
-    } = await this._manageWorkspaceHandle(api, integrationDef)
+    } = integrationDef
 
     if (iconRelativeFilePath && !iconRelativeFilePath.toLowerCase().endsWith('.svg')) {
       throw new errors.BotpressCLIError('Icon must be an SVG file')
@@ -61,22 +63,22 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const integration = await api.findIntegration({ type: 'name', name, version })
     if (integration && integration.workspaceId !== api.workspaceId) {
       throw new errors.BotpressCLIError(
-        `Public integration ${integrationDef.name} v${integrationDef.version} is already deployed in another workspace.`
+        `Public integration ${name} v${version} is already deployed in another workspace.`
       )
     }
 
     if (integration && integration.public && !api.isBotpressWorkspace) {
       throw new errors.BotpressCLIError(
-        `Integration ${integrationDef.name} v${integrationDef.version} is already deployed publicly and cannot be updated. Please bump the version.`
+        `Integration ${name} v${version} is already deployed publicly and cannot be updated. Please bump the version.`
       )
     }
 
     let message: string
     if (integration) {
       this.logger.warn('Integration already exists. If you decide to deploy, it will overwrite the existing one.')
-      message = `Are you sure you want to override integration ${integrationDef.name} v${integrationDef.version}?`
+      message = `Are you sure you want to override integration ${name} v${version}?`
     } else {
-      message = `Are you sure you want to deploy integration ${integrationDef.name} v${integrationDef.version}?`
+      message = `Are you sure you want to deploy integration ${name} v${version}?`
     }
 
     const confirm = await this.prompt.confirm(message)
@@ -105,7 +107,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       public: this.argv.public,
     }
 
-    const startedMessage = `Deploying integration ${chalk.bold(integrationDef.name)} v${integrationDef.version}...`
+    const startedMessage = `Deploying integration ${chalk.bold(name)} v${version}...`
     const successMessage = 'Integration deployed'
     if (integration) {
       const updateBody = prepareUpdateIntegrationBody(
@@ -124,7 +126,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       const line = this.logger.line()
       line.started(startedMessage)
       await api.client.updateIntegration(updateBody).catch((thrown) => {
-        throw errors.BotpressCLIError.wrap(thrown, `Could not update integration "${integrationDef.name}"`)
+        throw errors.BotpressCLIError.wrap(thrown, `Could not update integration "${name}"`)
       })
       line.success(successMessage)
     } else {
@@ -135,7 +137,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       const line = this.logger.line()
       line.started(startedMessage)
       await api.client.createIntegration(createBody).catch((thrown) => {
-        throw errors.BotpressCLIError.wrap(thrown, `Could not create integration "${integrationDef.name}"`)
+        throw errors.BotpressCLIError.wrap(thrown, `Could not create integration "${name}"`)
       })
       line.success(successMessage)
     }
@@ -293,6 +295,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   ): Promise<sdk.IntegrationDefinition> {
     const { name: localName, workspaceHandle: localHandle } = this._parseIntegrationName(integration.name)
     if (!localHandle && api.isBotpressWorkspace) {
+      this.logger.debug('Botpress workspace detected; workspace handle omitted')
       return integration // botpress has the right to omit workspace handle
     }
 
