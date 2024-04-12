@@ -1329,7 +1329,7 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.13.1
+        specifier: 0.14.0
         version: link:../client
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1411,7 +1411,7 @@ importers:
         version: 3.20.6
     devDependencies:
       '@botpress/sdk':
-        specifier: 0.6.14
+        specifier: 0.6.15
         version: link:../sdk
       '@bpinternal/log4bot':
         specifier: ^0.0.4
@@ -1450,10 +1450,10 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.13.1
+        specifier: 0.14.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.6.14
+        specifier: 0.6.15
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1472,10 +1472,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.13.1
+        specifier: 0.14.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.6.14
+        specifier: 0.6.15
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1504,8 +1504,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.22.0
-        version: 0.22.0(openapi-types@12.1.3)
+        specifier: 0.24.0
+        version: 0.24.0(openapi-types@12.1.3)
       esbuild:
         specifier: ^0.16.12
         version: 0.16.17
@@ -1519,7 +1519,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.13.1
+        specifier: 0.14.0
         version: link:../client
       zod:
         specifier: ^3.20.6
@@ -1552,45 +1552,6 @@ importers:
       typescript:
         specifier: ^4.9.4
         version: 4.9.5
-
-  scripts/depsynky:
-    dependencies:
-      '@bpinternal/yargs-extra':
-        specifier: ^0.0.3
-        version: 0.0.3
-      '@types/node':
-        specifier: ^18.11.18
-        version: 18.16.16
-      '@types/prompts':
-        specifier: ^2.0.14
-        version: 2.4.4
-      '@types/semver':
-        specifier: ^7.3.11
-        version: 7.5.0
-      chalk:
-        specifier: ^4.1.2
-        version: 4.1.2
-      glob:
-        specifier: ^9.3.4
-        version: 9.3.5
-      prettier:
-        specifier: ^2.8.1
-        version: 2.8.8
-      prompts:
-        specifier: ^2.4.2
-        version: 2.4.2
-      semver:
-        specifier: ^7.5.1
-        version: 7.5.1
-      ts-node:
-        specifier: ^10.9.1
-        version: 10.9.1(@types/node@18.16.16)(typescript@4.9.5)
-      typescript:
-        specifier: ^4.9.4
-        version: 4.9.5
-      yaml:
-        specifier: ^2.3.1
-        version: 2.3.1
 
 packages:
 
@@ -2114,8 +2075,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.22.0(openapi-types@12.1.3):
-    resolution: {integrity: sha512-8MPRtQ/8/7cFPZiemJSwLG321kWeOn1/2T1iQT1/4oTTamOsntiYaT5ViY/tK2yn+FYxqsyxdtHw3ptSoZr1vw==}
+  /@botpress/api@0.24.0(openapi-types@12.1.3):
+    resolution: {integrity: sha512-6zJTkmX1El9STInSmSCvmROYDg4HsZFqS2znYXKNedc3hsR0YBJ4aXxCnSMJd3doaszjetwSwok843Ow/cmySw==}
     dependencies:
       '@bpinternal/opapi': 0.9.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -4145,6 +4106,7 @@ packages:
     dependencies:
       '@types/node': 18.19.10
       kleur: 3.0.3
+    dev: true
 
   /@types/qs@6.9.7:
     resolution: {integrity: sha512-FGa1F62FT09qcrueBA6qYTrJPVDzah9a+493+o2PCXsesWHIn27G98TsSMs3WPNbZIEj4+VJf6saSFpvD+3Zsw==}
