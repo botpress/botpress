@@ -299,7 +299,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       return integration // botpress has the right to omit workspace handle
     }
 
-    const { handle: remoteHandle } = await api.getWorkspace().catch((thrown) => {
+    const { handle: remoteHandle, name: workspaceName } = await api.getWorkspace().catch((thrown) => {
       throw errors.BotpressCLIError.wrap(thrown, 'Could not fetch workspace')
     })
 
@@ -335,7 +335,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       }
 
       const confirmClaimHandle = await this.prompt.confirm(
-        `Handle "${localHandle}" is available. Do you want to claim it ?`
+        `Handle "${localHandle}" is available. Do you want to claim it for your workspace ${workspaceName}?`
       )
       if (!confirmClaimHandle) {
         throw new errors.BotpressCLIError(workspaceHandleIsMandatoryMsg)
