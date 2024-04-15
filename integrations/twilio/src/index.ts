@@ -130,8 +130,8 @@ const integration = new bp.Integration({
   },
 
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const userPhone = tags.userPhone
-    const activePhone = tags.activePhone
+    const userPhone = tags['twilio:userPhone'] // TODO: rm prefix in SDK typings
+    const activePhone = tags['twilio:activePhone'] // TODO: rm prefix in SDK typings
 
     if (!(userPhone && activePhone)) {
       return
