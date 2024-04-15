@@ -67,9 +67,9 @@ describe('zuiToJsonSchema', () => {
 
   test('supported properties are available in the json schema', () => {
     const schema = z.object({
-      testExample: z.string().displayAs<typeof testComponentDefinitions>('customstringcomponent', {
-        multiline: true,
-      }),
+      testExample: z
+        .string()
+        .displayAs<typeof testComponentDefinitions>({ id: 'customstringcomponent', params: { multiline: true } }),
     })
 
     const jsonSchema = zuiToJsonSchema(schema)

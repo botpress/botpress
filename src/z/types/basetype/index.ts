@@ -1,11 +1,4 @@
-import type {
-  BaseType,
-  KeysOfType,
-  SchemaOfType,
-  UIComponentDefinitions,
-  ZodKindToBaseType,
-  JSONSchema,
-} from '../../../ui/types'
+import type { BaseType, UIComponentDefinitions, ZodKindToBaseType, JSONSchema, ParseSchema } from '../../../ui/types'
 import { zuiKey } from '../../../ui/constants'
 import {
   AsyncParseReturnType,
@@ -515,10 +508,9 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
   displayAs<
     UI extends UIComponentDefinitions = GlobalComponentDefinitions,
     Type extends BaseType = ZodKindToBaseType<this['_def']>,
-    ID extends KeysOfType<UI, Type> = KeysOfType<UI, Type>,
-  >(id: ID, options: SchemaOfType<UI, Type, ID>): this {
+  >(options: ParseSchema<UI[Type][keyof UI[Type]]>): this {
     this._def[zuiKey] ??= {}
-    this._def[zuiKey].displayAs = [id, options]
+    this._def[zuiKey].displayAs = [options.id, options.params]
     return this
   }
 

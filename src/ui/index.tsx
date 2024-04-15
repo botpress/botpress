@@ -27,14 +27,14 @@ type ComponentMeta<Type extends BaseType = BaseType> = {
 }
 
 const resolveComponent = <Type extends BaseType>(
-  components: ZuiComponentMap<any[]> | undefined,
+  components: ZuiComponentMap | undefined,
   fieldSchema: JSONSchema,
 ): ComponentMeta<Type> | null => {
   const type = fieldSchema.type as BaseType
   const uiDefinition = fieldSchema[zuiKey]?.displayAs || null
 
   if (!uiDefinition || !Array.isArray(uiDefinition) || uiDefinition.length < 2) {
-    const defaultComponent = components?.defaults[type]
+    const defaultComponent = components?.[type]?.default
 
     if (!defaultComponent) {
       return null
@@ -50,11 +50,7 @@ const resolveComponent = <Type extends BaseType>(
 
   const componentID: string = uiDefinition[0]
 
-  const Component =
-    (components?.components.find((c) => c.type === type && c.id === componentID)?.component as ZuiReactComponent<
-      Type,
-      any
-    >) || null
+  const Component = components?.[type]?.[componentID] || null
 
   if (!Component) {
     console.warn(`Component ${type}.${componentID} not found`)
