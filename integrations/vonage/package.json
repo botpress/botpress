@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/vonage",
-  "version": "0.2.0",
   "description": "Vonage integration for Botpress",
   "private": true,
   "scripts": {

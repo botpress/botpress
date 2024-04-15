@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/zapier",
-  "version": "0.1.0",
   "description": "Zapier integration for Botpress",
   "private": true,
   "scripts": {

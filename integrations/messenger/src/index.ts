@@ -1,6 +1,5 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import queryString from 'query-string'
-import { idTag } from './const'
 import { handleMessage } from './misc/incoming-message'
 import { sendMessage } from './misc/outgoing-message'
 import { MessengerPayload } from './misc/types'
@@ -141,7 +140,7 @@ const integration = new bp.Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags[idTag]
+    const userId = tags['messenger:id']
 
     if (!userId) {
       return
@@ -150,7 +149,7 @@ const integration = new bp.Integration({
     const messengerClient = getMessengerClient(ctx.configuration)
     const profile = await messengerClient.getUserProfile(userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { [idTag]: `${profile.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { id: `${profile.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -159,7 +158,7 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const userId = tags[idTag]
+    const userId = tags['messenger:id']
 
     if (!userId) {
       return
@@ -170,7 +169,7 @@ const integration = new bp.Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { [idTag]: `${profile.id}` },
+      tags: { id: `${profile.id}` },
     })
 
     return {

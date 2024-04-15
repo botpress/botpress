@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/viber",
-  "version": "0.2.0",
   "description": "Viber integration for Botpress",
   "private": true,
   "scripts": {

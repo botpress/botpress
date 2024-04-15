@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/webhook",
-  "version": "0.1.0",
   "description": "Webhook integration for Botpress",
   "private": true,
   "scripts": {

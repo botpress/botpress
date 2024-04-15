@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/sunco",
-  "version": "0.2.0",
   "description": "Sunco integration for Botpress",
   "private": true,
   "scripts": {

@@ -1,5 +1,4 @@
 import { IntegrationContext } from '@botpress/sdk'
-import { idTag, recipientIdTag, senderIdTag } from 'src/const'
 import { MessengerMessage } from './types'
 import { getMessengerClient } from './utils'
 import * as bp from '.botpress'
@@ -19,15 +18,15 @@ export async function handleMessage(
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        [idTag]: message.sender.id,
-        [senderIdTag]: message.sender.id,
-        [recipientIdTag]: message.recipient.id,
+        id: message.sender.id,
+        senderId: message.sender.id,
+        recipientId: message.recipient.id,
       },
     })
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        [idTag]: message.sender.id,
+        id: message.sender.id,
       },
     })
 
@@ -45,7 +44,11 @@ export async function handleMessage(
     }
 
     await client.createMessage({
-      tags: { [idTag]: message.message.mid, [senderIdTag]: message.sender.id, [recipientIdTag]: message.recipient.id },
+      tags: {
+        id: message.message.mid,
+        senderId: message.sender.id,
+        recipientId: message.recipient.id,
+      },
       type: 'text',
       userId: user.id,
       conversationId: conversation.id,

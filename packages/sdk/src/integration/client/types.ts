@@ -22,6 +22,9 @@ type PrefixConfig =
   | {
       enforcePrefix: string
     }
+  | {
+      noPrefix: true
+    }
   | null
 
 export type WithPrefix<TTags extends string, TPrefix extends PrefixConfig = null> = TPrefix extends {
@@ -30,8 +33,10 @@ export type WithPrefix<TTags extends string, TPrefix extends PrefixConfig = null
   ? TTags | Join<[TPrefix['allowPrefix'], ':', TTags]>
   : TPrefix extends { enforcePrefix: string }
   ? Join<[TPrefix['enforcePrefix'], ':', TTags]>
-  : TTags
+  : TPrefix extends { noPrefix: true }
+  ? TTags
+  : never
 
-export type ToTags<TTags extends string | number | symbol, TPrefix extends PrefixConfig = null> = AsTags<
+export type ToTags<TTags extends string | number | symbol, TPrefix extends PrefixConfig = { noPrefix: true }> = AsTags<
   Partial<Record<WithPrefix<Cast<TTags, string>, TPrefix>, string>>
 >
