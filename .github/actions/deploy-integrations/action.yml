@@ -90,11 +90,11 @@ runs:
 
             base_command="pnpm -r --stream -F $integration -c exec -- 'bp deploy -v -y --noBuild --public --allowDeprecated'"
             if [ $integration == "gmail" ]; then
-                base_command="$base_command --secrets CLIENT_ID="${{ inputs.gmail_client_id }}" --secrets CLIENT_SECRET="${{ inputs.gmail_client_secret }}" --secrets TOPIC_NAME="${{ inputs.gmail_topic_name }}"
+                base_command="$base_command --secrets CLIENT_ID=${{ inputs.gmail_client_id }} --secrets CLIENT_SECRET=${{ inputs.gmail_client_secret }} --secrets TOPIC_NAME=${{ inputs.gmail_topic_name }}"
             elif [ $integration == "linear" ]; then
-                base_command="$base_command --secrets CLIENT_ID="${{ inputs.linear_client_id }}" --secrets CLIENT_SECRET="${{ inputs.linear_client_secret }}" --secrets WEBHOOK_SIGNING_SECRET="${{ inputs.linear_webhook_signing_secret }}"
+                base_command="$base_command --secrets CLIENT_ID=${{ inputs.linear_client_id }} --secrets CLIENT_SECRET=${{ inputs.linear_client_secret }} --secrets WEBHOOK_SIGNING_SECRET=${{ inputs.linear_webhook_signing_secret }}"
             elif [ $integration == "slack" ]; then
-                base_command="$base_command --secrets CLIENT_ID="${{ inputs.slack_client_id }}" --secrets CLIENT_SECRET="${{ inputs.slack_client_secret }}" --secrets SIGNING_SECRET="${{ inputs.slack_signing_secret }}"
+                base_command="$base_command --secrets CLIENT_ID=${{ inputs.slack_client_id }} --secrets CLIENT_SECRET=${{ inputs.slack_client_secret }} --secrets SIGNING_SECRET=${{ inputs.slack_signing_secret }}"
             fi
             
             if [ $exists -eq 0 ]; then
