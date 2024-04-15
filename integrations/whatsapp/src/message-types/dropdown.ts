@@ -1,7 +1,7 @@
 import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
 import { Text, Interactive, ActionList, ListSection, Row } from 'whatsapp-api-js/messages'
-import { IntegrationLogger } from '..'
 import * as body from '../interactive/body'
+import * as types from '../types'
 import { chunkArray, truncate } from '../util'
 import type { channels } from '.botpress'
 
@@ -15,7 +15,7 @@ export function* generateOutgoingMessages({
   logger,
 }: {
   payload: Dropdown
-  logger: IntegrationLogger
+  logger: types.Logger
 }) {
   if (options.length === 0) {
     yield new Text(text)

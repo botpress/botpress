@@ -1,5 +1,3 @@
-import type { Conversation } from '@botpress/client'
-import type { IntegrationContext, AckFunction } from '@botpress/sdk'
 import WhatsAppAPI from 'whatsapp-api-js'
 import {
   Text,
@@ -15,8 +13,8 @@ import {
   Reaction,
 } from 'whatsapp-api-js/messages'
 import { ServerErrorResponse, ServerSentMessageResponse } from 'whatsapp-api-js/types'
-import { IntegrationCtx, IntegrationLogger } from '.'
-import { INTEGRATION_NAME, phoneNumberIdTag, userPhoneTag } from './const'
+import { phoneNumberIdTag, userPhoneTag } from './const'
+import * as types from './types'
 import { sleep } from './util'
 
 export type OutgoingMessage =
@@ -32,19 +30,15 @@ export type OutgoingMessage =
   | Template
   | Reaction
 
-export async function send({
-  ctx,
-  conversation,
-  message,
-  ack,
-  logger,
-}: {
-  ctx: IntegrationCtx
-  conversation: Conversation
-  ack: AckFunction
+export type SendMessageProps = {
+  ctx: types.MessageHandlerProps['ctx']
+  conversation: types.MessageHandlerProps['conversation']
+  ack: types.MessageHandlerProps['ack']
+  logger: types.MessageHandlerProps['logger']
   message: OutgoingMessage
-  logger: IntegrationLogger
-}) {
+}
+
+export async function send({ ctx, conversation, message, ack, logger }: SendMessageProps) {
   const whatsapp = new WhatsAppAPI({ token: ctx.configuration.accessToken, secure: false })
   const phoneNumberId = conversation.tags[phoneNumberIdTag]
   const to = conversation.tags[userPhoneTag]
@@ -78,7 +72,7 @@ export async function send({
 
   if (messageId) {
     logger.forBot().debug(`Successfully sent ${messageType} message from bot to Whatsapp:`, message)
-    await ack({ tags: { [`${INTEGRATION_NAME}:id`]: messageId } })
+    await ack({ tags: { id: messageId } })
   } else {
     logger
       .forBot()
@@ -96,13 +90,7 @@ export async function sendMany({
   ack,
   generator,
   logger,
-}: {
-  ctx: IntegrationContext
-  conversation: Conversation
-  ack: AckFunction
-  generator: Generator<OutgoingMessage, void, unknown>
-  logger: IntegrationLogger
-}) {
+}: Omit<SendMessageProps, 'message'> & { generator: Generator<OutgoingMessage, void, unknown> }) {
   try {
     for (const message of generator) {
       // Sending multiple messages in sequence does not guarantee delivery order on the client-side.

@@ -1,13 +1,11 @@
 import { axios, Conversation } from '@botpress/client'
-import { AckFunction } from '@botpress/sdk'
-import { IntegrationLogger } from 'src'
 import { idTag, USER_PICTURE_MAX_SIZE_BYTES } from 'src/const'
 import { Context, Markup, Telegraf } from 'telegraf'
 import { PhotoSize, Update, User } from 'telegraf/typings/core/types/typegram'
-import { Card, TelegramMessage } from './types'
+import { Card, TelegramMessage, AckFunction, Logger } from './types'
 
 export async function ackMessage(message: TelegramMessage, ack: AckFunction) {
-  await ack({ tags: { [idTag]: `${message.message_id}` } })
+  await ack({ tags: { id: `${message.message_id}` } })
 }
 
 export async function sendCard(payload: Card, client: Telegraf<Context<Update>>, chat: string, ack: AckFunction) {
@@ -111,7 +109,7 @@ export const getUserPictureDataUri = async ({
 }: {
   botToken: string
   telegramUserId: number
-  logger: IntegrationLogger
+  logger: Logger
 }): Promise<string | null> => {
   try {
     const telegraf = new Telegraf(botToken)

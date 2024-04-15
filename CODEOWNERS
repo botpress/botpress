@@ -5,7 +5,7 @@
 /scripts @franklevasseur
 
 # Client, SDK, CLI
-/packages @franklevasseur
+/packages @botpress/cloud-services
 
 # Bots
 /packages/bots @franklevasseur

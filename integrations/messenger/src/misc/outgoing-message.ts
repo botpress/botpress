@@ -17,7 +17,7 @@ export async function sendMessage(
   const messengerClient = getMessengerClient(ctx.configuration)
   const recipientId = getRecipientId(conversation)
   const { messageId } = await send(messengerClient, recipientId)
-  await ack({ tags: { [idTag]: messageId } })
+  await ack({ tags: { id: messageId } })
 }
 
 export function getRecipientId(conversation: SendMessageProps['conversation']): string {

@@ -1,5 +1,5 @@
 import type { Conversation } from '@botpress/client'
-import type { AckFunction, IntegrationContext, Request } from '@botpress/sdk'
+import type { IntegrationContext, Request } from '@botpress/sdk'
 import { ChatPostMessageArguments, WebClient } from '@slack/web-api'
 import axios from 'axios'
 import * as crypto from 'crypto'
@@ -7,7 +7,7 @@ import queryString from 'query-string'
 import VError from 'verror'
 import { INTEGRATION_NAME } from '../const'
 import { Configuration, SyncState } from '../setup'
-import { Client, IntegrationCtx, IntegrationLogger } from './types'
+import { AckFunction, Client, IntegrationCtx, IntegrationLogger } from './types'
 import * as bp from '.botpress'
 
 type InteractiveBody = {

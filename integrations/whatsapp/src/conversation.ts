@@ -4,7 +4,6 @@ import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { ServerErrorResponse, ServerMessageResponse } from 'whatsapp-api-js/types'
 import z from 'zod'
-import { IntegrationCtx, IntegrationLogger } from '.'
 import {
   PhoneNumberIdTag,
   UserPhoneTag,
@@ -14,6 +13,7 @@ import {
   templateNameTag,
   templateVariablesTag,
 } from './const'
+import * as types from './types'
 import * as botpress from '.botpress'
 import { Channels } from '.botpress/implementation/channels'
 
@@ -30,8 +30,8 @@ export async function startConversation(
   },
   dependencies: {
     client: botpress.Client
-    ctx: IntegrationCtx
-    logger: IntegrationLogger
+    ctx: types.IntegrationCtx
+    logger: types.Logger
   }
 ): Promise<Pick<Conversation, 'id'>> {
   const { channel, phoneNumberId, userPhone, templateName, templateVariablesJson } = params
@@ -156,7 +156,7 @@ export const createConversationHandler: botpress.IntegrationProps['createConvers
   }
 }
 
-function logForBotAndThrow(message: string, logger: IntegrationLogger): never {
+function logForBotAndThrow(message: string, logger: types.Logger): never {
   logger.forBot().error(message)
   throw new RuntimeError(message)
 }

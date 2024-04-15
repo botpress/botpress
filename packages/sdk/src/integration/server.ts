@@ -76,7 +76,7 @@ type MessageArgs<
 > = CommonArgs<TIntegration> &
   MessagePayload<TIntegration, TChannel, TMessage> & {
     ack: (props: {
-      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags'], { allowPrefix: TIntegration['name'] }>
     }) => Promise<void>
   }
 
@@ -278,10 +278,11 @@ const onMessageCreated = async <TIntegration extends BaseIntegration>({
     throw new Error(`Message of type ${type} not found in channel ${conversation.channel}`)
   }
 
-  const ack = async ({ tags }: { tags: Record<string, string> }) => {
+  type UpdateMessageProps = Parameters<(typeof client)['updateMessage']>[0]
+  const ack = async ({ tags }: Pick<UpdateMessageProps, 'tags'>) => {
     await client.updateMessage({
       id: message.id,
-      tags: tags as any, // TODO: fix this
+      tags,
     })
   }
 

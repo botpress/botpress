@@ -200,5 +200,5 @@ async function sendMessage({ ctx, conversation, ack, mediaUrl, text }: SendMessa
   const twilioClient = new Twilio(ctx.configuration.accountSID, ctx.configuration.authToken)
   const { to, from } = getPhoneNumbers(conversation)
   const { sid } = await twilioClient.messages.create({ to, from, mediaUrl, body: text })
-  await ack({ tags: { [idTag]: sid } })
+  await ack({ tags: { id: sid } })
 }

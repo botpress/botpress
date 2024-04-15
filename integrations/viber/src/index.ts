@@ -347,7 +347,7 @@ export async function sendViberMessage({ conversation, ctx, ack, payload }: Send
   }
   await ack({
     tags: {
-      [idTag]: data.message_token.toString(),
+      id: data.message_token.toString(),
     },
   })
   return data
