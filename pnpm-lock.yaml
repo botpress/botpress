@@ -1403,7 +1403,7 @@ importers:
     devDependencies:
       '@botpress/sdk':
         specifier: 0.6.15
-        version: link:../sdk
+        version: 0.6.15
       '@bpinternal/log4bot':
         specifier: ^0.0.4
         version: 0.0.4
@@ -1445,10 +1445,7 @@ importers:
         version: link:../../../client
       '@botpress/sdk':
         specifier: 0.6.15
-        version: link:../../../sdk
-      zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        version: 0.6.15
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -1467,10 +1464,7 @@ importers:
         version: link:../../../client
       '@botpress/sdk':
         specifier: 0.6.15
-        version: link:../../../sdk
-      zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        version: 0.6.15
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -2087,15 +2081,14 @@ packages:
       - openapi-types
     dev: true
 
-  /@botpress/client@0.13.1:
-    resolution: {integrity: sha512-iS0T1DTTJDdvuliGS06UWkBI1SdM6FZe3RBK5XDCVGqrGdCSB8AwMbRZZJZaYwEV20s8g/XKbyKUZ87ngw882Q==}
+  /@botpress/client@0.14.0:
+    resolution: {integrity: sha512-PE2PjtbLqgonU3h27U1uxe1kkYT4/9o94qMftlXJH3lvWsN+/fFR3SEQcfv+WZICZuaMBL5YqC1uIbM4FG9ZQg==}
     dependencies:
       axios: 1.6.8
       browser-or-node: 2.1.1
       type-fest: 3.11.1
     transitivePeerDependencies:
       - debug
-    dev: false
 
   /@botpress/messaging-base@1.2.0:
     resolution: {integrity: sha512-7cjHeD1Ti4cvDmyUV2D2CFKR1kPYv+eFPgXaJOksvrEoNZ1SrqXbHR9l26ndaAz0TuoX3Wc9l4Q7i5sBoHE44Q==}
@@ -2112,14 +2105,13 @@ packages:
       - debug
     dev: false
 
-  /@botpress/sdk@0.6.14:
-    resolution: {integrity: sha512-dOXuUJuSEzzpqg2UWNFjnm7jtg423nj+6Ma65vXcZrtcMhZzThpxXuGC4cJibYnyv1NIisLKpoWWtySdn9ZciA==}
+  /@botpress/sdk@0.6.15:
+    resolution: {integrity: sha512-Tt4eb8mc530dc1xzcKnhIrSYrQF6UcbPNz5Ux7q7aaC/gUMxkMeJ2BF2KPIzIhfu/GqqvzoWCDZj71RMMEBHIg==}
     dependencies:
-      '@botpress/client': 0.13.1
+      '@botpress/client': 0.14.0
       zod: 3.22.4
     transitivePeerDependencies:
       - debug
-    dev: false
 
   /@bpinternal/const@0.0.20:
     resolution: {integrity: sha512-AVeQy25M9eXMvjnLZVbFmr++qkONYrwW7qLXD9q9ccD4WLEgMmJZ6e+BSUnwPEBQ8LiqWQXf/YJ1MJxoVkcyNw==}
@@ -5484,7 +5476,6 @@ packages:
 
   /browser-or-node@2.1.1:
     resolution: {integrity: sha512-8CVjaLJGuSKMVTxJ2DpBl5XnlNDiT4cQFeuCJJrvJmts9YrTZDizTX7PjC2s6W4x+MBGZeEY6dGMrF04/6Hgqg==}
-    dev: false
 
   /browser-request@0.3.3:
     resolution: {integrity: sha512-YyNI4qJJ+piQG6MMEuo7J3Bzaqssufx04zpEKYfSrl/1Op59HWali9zMtBpXnkmqMcOuWJPZvudrm9wISmnCbg==}
