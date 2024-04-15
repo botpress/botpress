@@ -1445,7 +1445,7 @@ importers:
         version: link:../../../client
       '@botpress/sdk':
         specifier: 0.6.14
-        version: link:../../../sdk
+        version: 0.6.14
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -1464,7 +1464,7 @@ importers:
         version: link:../../../client
       '@botpress/sdk':
         specifier: 0.6.14
-        version: link:../../../sdk
+        version: 0.6.14
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -1507,8 +1507,8 @@ importers:
         specifier: 0.13.1
         version: link:../client
       '@bpinternal/zui':
-        specifier: 0.5.4
-        version: 0.5.4
+        specifier: 0.6.0
+        version: 0.6.0
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -1561,8 +1561,8 @@ packages:
       zod: 3.22.4
     dev: true
 
-  /@apidevtools/json-schema-ref-parser@11.5.4:
-    resolution: {integrity: sha512-o2fsypTGU0WxRxbax8zQoHiIB4dyrkwYfcm8TxZ+bx9pCzcWZbQtiMqpgBvWA/nJ2TrGjK5adCLfTH8wUeU/Wg==}
+  /@apidevtools/json-schema-ref-parser@11.5.5:
+    resolution: {integrity: sha512-hv/aXDILyroHioVW27etFMV+IX6FyNn41YwbeGIAt5h/7fUTQvHI5w3ols8qYAT8aQt3kzexq5ZwxFDxNHIhdQ==}
     engines: {node: '>= 16'}
     dependencies:
       '@jsdevtools/ono': 7.1.3
@@ -2081,6 +2081,16 @@ packages:
       - openapi-types
     dev: true
 
+  /@botpress/client@0.13.1:
+    resolution: {integrity: sha512-iS0T1DTTJDdvuliGS06UWkBI1SdM6FZe3RBK5XDCVGqrGdCSB8AwMbRZZJZaYwEV20s8g/XKbyKUZ87ngw882Q==}
+    dependencies:
+      axios: 1.6.8
+      browser-or-node: 2.1.1
+      type-fest: 3.11.1
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /@botpress/messaging-base@1.2.0:
     resolution: {integrity: sha512-7cjHeD1Ti4cvDmyUV2D2CFKR1kPYv+eFPgXaJOksvrEoNZ1SrqXbHR9l26ndaAz0TuoX3Wc9l4Q7i5sBoHE44Q==}
     dev: false
@@ -2092,6 +2102,15 @@ packages:
       axios: 0.21.4(debug@4.3.4)
       cookie: 0.4.2
       joi: 17.9.2
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /@botpress/sdk@0.6.14:
+    resolution: {integrity: sha512-dOXuUJuSEzzpqg2UWNFjnm7jtg423nj+6Ma65vXcZrtcMhZzThpxXuGC4cJibYnyv1NIisLKpoWWtySdn9ZciA==}
+    dependencies:
+      '@botpress/client': 0.13.1
+      zod: 3.22.4
     transitivePeerDependencies:
       - debug
     dev: false
@@ -2212,10 +2231,10 @@ packages:
       yn: 4.0.0
     dev: false
 
-  /@bpinternal/zui@0.5.4:
-    resolution: {integrity: sha512-S5DsWH3bdhxQ9YgUf2H3WZF29SeXOU8rfSP/L4eSb0Ew66CjeoFyfaZ9JpsHiUlEresV/eBgqSP25FBM2SgHGA==}
+  /@bpinternal/zui@0.6.0:
+    resolution: {integrity: sha512-PidBuFkoNCg0qig9KRjKbF8ovGx3/GVyPxyniktihDvvwEV9NsnTzZ47PcBIlmPJpqg2h5SL7nVNgrXStVKs4g==}
     dependencies:
-      '@apidevtools/json-schema-ref-parser': 11.5.4
+      '@apidevtools/json-schema-ref-parser': 11.5.5
       '@bpinternal/json-schema-to-zod': 2.0.15
       lodash: 4.17.21
       react: 18.2.0
@@ -5179,7 +5198,6 @@ packages:
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
-    dev: true
 
   /b4a@1.6.6:
     resolution: {integrity: sha512-5Tk1HLk6b6ctmjIkAcU/Ujv/1WqiDl0F0JdRCR80VsOcUlHcu7pWeWRlOqQLHfDEsVx9YH/aif5AG4ehoCtTmg==}
