@@ -26,7 +26,7 @@ export const unregister: UnregisterFunction = async () => {
 }
 
 export const createUser: CreateUserFunction = async ({ client, tags, ctx }) => {
-  const userId = tags.id
+  const userId = tags['slack:id'] // TODO: rm prefix in SDK typings
 
   if (!userId) {
     return
@@ -50,7 +50,7 @@ export const createUser: CreateUserFunction = async ({ client, tags, ctx }) => {
 }
 
 export const createConversation: CreateConversationFunction = async ({ client, channel, tags, ctx }) => {
-  let conversationId = tags['slack:id']
+  let conversationId = tags['slack:id'] // TODO: rm prefix in SDK typings
   const thread = (tags as Record<string, string>)['sack:thread'] // TODO: fix cast in SDK typings
 
   if (!conversationId) {

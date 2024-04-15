@@ -15,8 +15,6 @@ export type IntegrationCtx = sdk.IntegrationContext<botpress.configuration.Confi
 
 export type RegisterFunction = botpress.IntegrationProps['register']
 export type UnregisterFunction = botpress.IntegrationProps['unregister']
-export type CreateConversationFunction = botpress.IntegrationProps['createConversation']
-export type CreateUserFunction = botpress.IntegrationProps['createUser']
 export type Channels = botpress.IntegrationProps['channels']
 
 type ValueOf<T> = T[keyof T]

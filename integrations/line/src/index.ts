@@ -400,7 +400,7 @@ const integration = new bp.Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags['line:usrId']
+    const userId = tags['line:usrId'] // TODO: rm prefix in SDK typings
 
     if (!userId) {
       return
@@ -421,8 +421,8 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const usrId = tags['line:usrId']
-    const destId = tags['line:destId']
+    const usrId = tags['line:usrId'] // TODO: rm prefix in SDK typings
+    const destId = tags['line:destId'] // TODO: rm prefix in SDK typings
 
     if (!(usrId && destId)) {
       return

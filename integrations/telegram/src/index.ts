@@ -215,7 +215,8 @@ const integration = new bp.Integration({
     })
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = Number(tags.id)
+    const strId = tags['telegram:id'] // TODO: rm prefix in SDK typings
+    const userId = Number(strId)
 
     if (isNaN(userId)) {
       return
@@ -233,7 +234,7 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const chatId = tags.chatId
+    const chatId = tags['telegram:chatId'] // TODO: rm prefix in SDK typings
 
     if (!chatId) {
       return

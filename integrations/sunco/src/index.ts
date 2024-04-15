@@ -149,7 +149,7 @@ const integration = new bp.Integration({
     }
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags['sunco:id']
+    const userId = tags['sunco:id'] // TODO: rm prefix in SDK typings
 
     if (!userId) {
       return

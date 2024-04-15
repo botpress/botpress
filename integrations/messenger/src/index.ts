@@ -85,7 +85,7 @@ const integration = new bp.Integration({
     logger.forBot().debug('Handler received request from Messenger with payload:', req.body)
 
     if (req.query) {
-      const query = queryString.parse(req.query)
+      const query: Record<string, string | string[] | null> = queryString.parse(req.query)
 
       const mode = query['hub.mode']
       const token = query['hub.verify_token']
@@ -140,7 +140,7 @@ const integration = new bp.Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags['messenger:id']
+    const userId = tags['messenger:id'] // TODO: rm prefix in SDK typings
 
     if (!userId) {
       return

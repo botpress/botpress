@@ -140,7 +140,7 @@ const integration = new bp.Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags['instagram:id']
+    const userId = tags['instagram:id'] // TODO: rm prefix in SDK typings
 
     if (!userId) {
       return
@@ -158,7 +158,7 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const userId = tags['instagram:id']
+    const userId = tags['instagram:id'] // TODO: rm prefix in SDK typings
 
     if (!userId) {
       return

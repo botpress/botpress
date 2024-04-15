@@ -106,8 +106,8 @@ const integration = new bp.Integration({
     })
   },
   createUser: async ({ client, tags }) => {
-    const vonageChannel = tags.channel
-    const userId = tags.userId
+    const vonageChannel = tags['vonage:channel'] // TODO: rm prefix in SDK typings
+    const userId = tags['vonage:userId'] // TODO: rm prefix in SDK typings
 
     if (!(vonageChannel && userId)) {
       return
@@ -127,9 +127,9 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags }) => {
-    const vonageChannel = tags.channel
-    const channelId = tags.channelId
-    const userId = tags.userId
+    const vonageChannel = tags['vonage:channel'] // TODO: rm prefix in SDK typings
+    const channelId = tags['vonage:channelId'] // TODO: rm prefix in SDK typings
+    const userId = tags['vonage:userId'] // TODO: rm prefix in SDK typings
 
     if (!(vonageChannel && channelId && userId)) {
       return
