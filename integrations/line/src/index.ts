@@ -32,7 +32,7 @@ const replyLineMessage = async (props: ReplyLineProps, messageObj: line.Message)
     const lineResponse = await lineClient.replyMessage(stateRes.state.payload.replyToken, messageObj)
 
     if (lineResponse?.['x-line-request-id']) {
-      await ack({ tags: { [msgIdTag]: lineResponse['x-line-request-id'] } })
+      await ack({ tags: { msgId: lineResponse['x-line-request-id'] } })
     }
   } catch (e: any) {
     console.error(`Error: ${e.originalError.message}`)

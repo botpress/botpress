@@ -19,7 +19,7 @@ export async function sendMessage(
   const message = await send(messengerClient, recipientId)
   await ack({
     tags: {
-      [idTag]: message.messageId,
+      id: message.messageId,
     },
   })
 }

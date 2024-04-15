@@ -9,6 +9,7 @@ import MailComposer from 'nodemailer/lib/mail-composer'
 import type Mail from 'nodemailer/lib/mailer'
 import queryString from 'query-string'
 import { ccTag, emailTag, idTag, referencesTag, subjectTag } from './const'
+import * as types from './types'
 import * as bp from '.botpress'
 
 const clientId = bp.secrets.CLIENT_ID
@@ -414,7 +415,11 @@ function getConversationInfo(conversation: Conversation) {
   return { threadId, subject, email, references, cc }
 }
 
-async function sendEmail({ client, ctx, conversation, ack, content, inReplyTo }: any) {
+type SendEmailProps = Pick<types.MessageHandlerProps, 'ctx' | 'conversation' | 'client' | 'ack'> & {
+  content: string
+  inReplyTo: string
+}
+async function sendEmail({ client, ctx, conversation, ack, content, inReplyTo }: SendEmailProps) {
   console.info('bulding the client')
 
   const gmail = await getGmailClient({ client, ctx })
@@ -437,7 +442,7 @@ async function sendEmail({ client, ctx, conversation, ack, content, inReplyTo }:
   const res = await gmail.users.messages.send({ requestBody: { threadId, raw }, userId: 'me' })
   console.info('Response', res)
 
-  ack({ tags: { [idTag]: `${res.data.id}` } })
+  ack({ tags: { id: `${res.data.id}` } })
 }
 
 async function getGmailClient({ client, ctx }: any) {

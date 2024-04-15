@@ -19,4 +19,8 @@ export type CreateConversationFunction = botpress.IntegrationProps['createConver
 export type CreateUserFunction = botpress.IntegrationProps['createUser']
 export type Channels = botpress.IntegrationProps['channels']
 
-export type IntegrationLogger = Parameters<botpress.IntegrationProps['handler']>[0]['logger']
+type ValueOf<T> = T[keyof T]
+export type MessageHandler = ValueOf<ValueOf<Channels>['messages']>
+export type MessageHandlerProps = Parameters<MessageHandler>[0]
+export type AckFunction = MessageHandlerProps['ack']
+export type IntegrationLogger = MessageHandlerProps['logger']

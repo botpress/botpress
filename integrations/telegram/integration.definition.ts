@@ -5,7 +5,7 @@ import { z } from 'zod'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '0.2.1',
+  version: '0.2.2',
   title: 'Telegram',
   description: 'This integration allows your bot to interact with Telegram.',
   icon: 'icon.svg',
