@@ -1417,7 +1417,7 @@ importers:
         version: 3.20.6
     devDependencies:
       '@botpress/sdk':
-        specifier: 0.6.15
+        specifier: 0.7.0
         version: link:../sdk
       '@bpinternal/log4bot':
         specifier: ^0.0.4
@@ -1459,7 +1459,7 @@ importers:
         specifier: 0.14.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.6.15
+        specifier: 0.7.0
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1481,7 +1481,7 @@ importers:
         specifier: 0.14.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.6.15
+        specifier: 0.7.0
         version: link:../../../sdk
       zod:
         specifier: ^3.20.6
@@ -1521,6 +1521,12 @@ importers:
       puppeteer:
         specifier: ^22.0.0
         version: 22.0.0(typescript@4.9.5)
+      ts-node:
+        specifier: ^10.9.2
+        version: 10.9.2(@types/node@18.19.10)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
 
   packages/sdk:
     dependencies:

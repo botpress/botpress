@@ -1,12 +1,11 @@
 import { IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { z } from 'zod'
-import { INTEGRATION_NAME } from './src/const'
 import { TriggerSchema, EventSchema, ZapierTriggersStateName, ZapierTriggersStateSchema } from './src/types'
 
 export default new IntegrationDefinition({
-  name: INTEGRATION_NAME,
-  version: '0.2.0',
+  name: 'zapier',
+  version: '0.2.1',
   title: 'Zapier',
   description:
     "Trigger workflows from Zapier or let Zapier trigger your workflows to automate tasks and enhance your chatbot's capabilities.",

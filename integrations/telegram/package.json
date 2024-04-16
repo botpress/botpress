@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/telegram",
-  "version": "0.2.1",
   "description": "Telegram integration for Botpress",
   "private": true,
   "scripts": {
