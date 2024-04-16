@@ -14,8 +14,6 @@
     "noImplicitReturns": true,
     "noUncheckedIndexedAccess": true,
     "noUnusedParameters": true,
-    "composite": true,
-    "incremental": true,
     "exactOptionalPropertyTypes": false,
     "resolveJsonModule": true,
     "noPropertyAccessFromIndexSignature": false,
