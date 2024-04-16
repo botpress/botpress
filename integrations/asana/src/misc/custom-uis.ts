@@ -47,7 +47,7 @@ export const updateTaskUi = {
 }
 
 export const findUserUi = {
-  userId: {
+  userEmail: {
     title: 'User Email (e.g. "mrsomebody@example.com")',
   },
 }
