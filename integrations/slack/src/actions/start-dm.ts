@@ -42,7 +42,6 @@ export const startDmConversation: botpress.IntegrationProps['actions']['startDmC
     id: conversation.id,
     tags: {
       title: `DM with ${user.name}`,
-      // title: `DM with ${user.name}`,
       id: channel.id,
     },
   } as any)
