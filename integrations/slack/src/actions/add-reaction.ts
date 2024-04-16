@@ -1,6 +1,6 @@
 import { WebClient } from '@slack/web-api'
 import { Implementation } from '../misc/types'
-import { getAccessToken, getTag } from '../misc/utils'
+import { getAccessToken } from '../misc/utils'
 
 export const addReaction: Implementation['actions']['addReaction'] = async ({ ctx, client, logger, input }) => {
   logger.forBot().debug('Received action addReaction with input:', input)
@@ -13,8 +13,8 @@ export const addReaction: Implementation['actions']['addReaction'] = async ({ ct
 
     const addReactionArgs = {
       name: input.name,
-      channel: getTag(conversation.tags, 'id'),
-      timestamp: getTag(message.tags, 'ts'),
+      channel: conversation.tags.id,
+      timestamp: message.tags.ts,
     }
 
     logger.forBot().debug('Sending reaction to Slack:', addReactionArgs)

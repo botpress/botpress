@@ -1,11 +1,8 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Markup, Telegraf } from 'telegraf'
 import type { User } from 'telegraf/typings/core/types/typegram'
-import { chatIdTag, idTag, fromUserIdTag, fromUserNameTag, INTEGRATION_NAME } from './const'
 import { getUserPictureDataUri, getUserNameFromTelegramUser, getChat, sendCard, ackMessage } from './misc/utils'
 import * as bp from '.botpress'
-
-console.info(`starting integration ${INTEGRATION_NAME}`)
 
 const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx }) => {
@@ -166,16 +163,16 @@ const integration = new bp.Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        [idTag]: conversationId.toString(),
-        [fromUserIdTag]: userId.toString(),
-        [fromUserNameTag]: userName,
-        ...(chatId && { [chatIdTag]: chatId.toString() }),
+        id: conversationId.toString(),
+        fromUserId: userId.toString(),
+        fromUserName: userName,
+        ...(chatId && { chatId: chatId.toString() }),
       },
     })
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        [idTag]: userId.toString(),
+        id: userId.toString(),
       },
       ...(userName && { name: userName }),
     })
@@ -208,8 +205,8 @@ const integration = new bp.Integration({
     logger.forBot().debug(`Received message from user ${userId}: ${data.message.text}`)
     await client.createMessage({
       tags: {
-        [idTag]: messageId.toString(),
-        ...(chatId && { [chatIdTag]: chatId.toString() }),
+        id: messageId.toString(),
+        ...(chatId && { chatId: chatId.toString() }),
       },
       type: 'text',
       userId: user.id,
@@ -218,7 +215,8 @@ const integration = new bp.Integration({
     })
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = Number(tags[idTag])
+    const strId = tags.id
+    const userId = Number(strId)
 
     if (isNaN(userId)) {
       return
@@ -227,7 +225,7 @@ const integration = new bp.Integration({
     const telegraf = new Telegraf(ctx.configuration.botToken)
     const member = await telegraf.telegram.getChatMember(userId, userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { [idTag]: `${member.user.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { id: `${member.user.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -236,8 +234,7 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const chatId = tags[idTag]
-
+    const chatId = tags.id
     if (!chatId) {
       return
     }
@@ -247,7 +244,7 @@ const integration = new bp.Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { [idTag]: chat.id.toString() },
+      tags: { id: chat.id.toString() },
     })
 
     return {

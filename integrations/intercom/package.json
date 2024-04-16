@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/intercom",
-  "version": "0.2.0",
   "description": "Intercom integration for Botpress",
   "private": true,
   "scripts": {

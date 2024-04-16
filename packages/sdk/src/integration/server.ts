@@ -7,8 +7,6 @@ import { extractContext, type IntegrationContext } from './context'
 import { BaseIntegration } from './generic'
 import { IntegrationLogger, integrationLogger } from './logger'
 
-type PrefixConfig<TIntegration extends BaseIntegration> = { enforcePrefix: TIntegration['name'] }
-
 type CommonArgs<TIntegration extends BaseIntegration> = {
   ctx: IntegrationContext<TIntegration['configuration']>
   client: IntegrationSpecificClient<TIntegration>
@@ -29,8 +27,9 @@ type ActionArgs<TIntegration extends BaseIntegration, T extends string, I> = Com
   ActionPayload<T, I>
 
 type CreateUserPayload<TIntegration extends BaseIntegration> = {
-  tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
+  tags: ToTags<keyof TIntegration['user']['tags']>
 }
+
 type CreateUserArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> & CreateUserPayload<TIntegration>
 
 type CreateConversationPayload<
@@ -38,8 +37,9 @@ type CreateConversationPayload<
   TChannel extends keyof TIntegration['channels'] = keyof TIntegration['channels']
 > = {
   channel: TChannel
-  tags: ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags'], PrefixConfig<TIntegration>>
+  tags: ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
 }
+
 type CreateConversationArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> &
   CreateConversationPayload<TIntegration>
 
@@ -53,31 +53,30 @@ type MessagePayload<
   conversation: Merge<
     Conversation,
     {
-      tags: ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
     }
   >
   message: Merge<
     Message,
     {
-      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
     }
   >
   user: Merge<
     User,
     {
-      tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof TIntegration['user']['tags']>
     }
   >
 }
+
 type MessageArgs<
   TIntegration extends BaseIntegration,
   TChannel extends keyof TIntegration['channels'],
   TMessage extends keyof TIntegration['channels'][TChannel]['messages']
 > = CommonArgs<TIntegration> &
   MessagePayload<TIntegration, TChannel, TMessage> & {
-    ack: (props: {
-      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags'], { allowPrefix: TIntegration['name'] }>
-    }) => Promise<void>
+    ack: (props: { tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']> }) => Promise<void>
   }
 
 export type RegisterFunction<TIntegration extends BaseIntegration> = (

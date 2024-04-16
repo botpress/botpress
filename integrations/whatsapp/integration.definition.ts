@@ -1,45 +1,37 @@
 import { IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { z } from 'zod'
-import {
-  INTEGRATION_NAME,
-  PhoneNumberIdTag,
-  TemplateLanguageTag,
-  TemplateNameTag,
-  TemplateVariablesTag,
-  UserPhoneTag,
-} from './src/const'
 
 export const channel = 'channel' // TODO: Rename to "whatsapp" once support for integration versioning is finished.
 
 const TagsForCreatingConversation = {
-  [PhoneNumberIdTag]: {
+  phoneNumberId: {
     title: 'Phone Number ID',
     description:
       'Whatsapp Phone Number ID to use as sender. If not provided it defaults to the one set in the configuration.',
   },
-  [UserPhoneTag]: {
+  userPhone: {
     title: 'User phone number',
     description: 'Phone number of the Whatsapp user to start the conversation with.',
   },
-  [TemplateNameTag]: {
+  templateName: {
     title: 'Message Template name',
     description: 'Name of the Whatsapp Message Template to start the conversation with.',
   },
-  [TemplateLanguageTag]: {
+  templateLanguage: {
     title: 'Message Template language (optional)',
     description:
       'Language of the Whatsapp Message Template to start the conversation with. Defaults to "en_US" (U.S. English).',
   },
-  [TemplateVariablesTag]: {
+  templateVariables: {
     title: 'Message Template variables (optional)',
     description: 'JSON array representation of variable values to pass to the Whatsapp Message Template.',
   },
 }
 
 export default new IntegrationDefinition({
-  name: INTEGRATION_NAME,
-  version: '0.2.1',
+  name: 'whatsapp',
+  version: '0.3.0',
   title: 'WhatsApp',
   description: 'This integration allows your bot to interact with WhatsApp.',
   icon: 'icon.svg',
@@ -67,7 +59,7 @@ export default new IntegrationDefinition({
       conversation: {
         creation: {
           enabled: true,
-          requiredTags: [PhoneNumberIdTag, UserPhoneTag],
+          requiredTags: ['phoneNumberId', 'userPhone'],
         },
         tags: TagsForCreatingConversation,
       },

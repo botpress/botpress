@@ -1,11 +1,11 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { idTag } from './const'
 import * as bp from '.botpress'
 const SunshineConversationsClient = require('sunshine-conversations-client')
 
+type ValueOf<T> = T[keyof T]
 type Channels = bp.Integration['channels']
-type Messages = Channels[keyof Channels]['messages']
-type MessageHandler = Messages[keyof Messages]
+type Messages = ValueOf<Channels>['messages']
+type MessageHandler = ValueOf<Messages>
 type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 type SmoochBaseAction = {
@@ -129,18 +129,18 @@ const integration = new bp.Integration({
       const { conversation } = await client.getOrCreateConversation({
         channel: 'channel',
         tags: {
-          [idTag]: payload.conversation.id,
+          id: payload.conversation.id,
         },
       })
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          [idTag]: payload.message.author.userId,
+          id: payload.message.author.userId,
         },
       })
 
       await client.createMessage({
-        tags: { [idTag]: payload.message.id },
+        tags: { id: payload.message.id },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
@@ -149,8 +149,7 @@ const integration = new bp.Integration({
     }
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags[idTag]
-
+    const userId = tags.id
     if (!userId) {
       return
     }
@@ -158,7 +157,7 @@ const integration = new bp.Integration({
     const suncoClient = createClient(ctx.configuration.keyId, ctx.configuration.keySecret)
     const suncoUser = await suncoClient.users.getUser(ctx.configuration.appId, userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { [idTag]: `${suncoUser.user?.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { id: `${suncoUser.user?.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -167,8 +166,7 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const conversationId = tags[idTag]
-
+    const conversationId = tags.id
     if (!conversationId) {
       return
     }
@@ -178,7 +176,7 @@ const integration = new bp.Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { [idTag]: `${suncoConversation.conversation?.id}` },
+      tags: { id: `${suncoConversation.conversation?.id}` },
     })
 
     return {
@@ -252,7 +250,7 @@ const sendCarousel = async (props: SendMessageProps, payload: Carousel) => {
 }
 
 function getConversationId(conversation: SendMessageProps['conversation']) {
-  const conversationId = conversation.tags[idTag]
+  const conversationId = conversation.tags.id
 
   if (!conversationId) {
     throw new Error('Conversation does not have a sunco identifier')
