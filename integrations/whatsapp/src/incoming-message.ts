@@ -1,5 +1,5 @@
 /* eslint-disable max-lines-per-function */
-import { IntegrationCtx, IntegrationLogger } from 'src'
+import * as types from './types'
 import { getWhatsAppMediaUrl } from './util'
 import { WhatsAppMessage, WhatsAppValue } from './whatsapp-types'
 import * as bp from '.botpress'
@@ -7,9 +7,9 @@ import * as bp from '.botpress'
 export async function handleIncomingMessage(
   message: WhatsAppMessage,
   value: WhatsAppValue,
-  ctx: IntegrationCtx,
+  ctx: types.IntegrationCtx,
   client: bp.Client,
-  logger: IntegrationLogger
+  logger: types.Logger
 ) {
   if (message.type) {
     const { conversation } = await client.getOrCreateConversation({

@@ -1,12 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import * as bp from '.botpress'
 
-export type Card = bp.channels.channel.card.Card
-
-export type TelegramMessage = {
-  message_id: number
-}
-
 export type ValueOf<T> = T[keyof T]
 
 export type Handler = bp.IntegrationProps['handler']

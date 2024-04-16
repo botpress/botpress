@@ -1,5 +1,4 @@
 import { getZendeskClient } from 'src/client'
-import { idTag } from 'src/const'
 import { IntegrationProps } from '.botpress'
 
 type ZendeskClient = ReturnType<typeof getZendeskClient>
@@ -27,7 +26,7 @@ export const getTicketConversation: IntegrationProps['actions']['getTicketConver
   const { conversation } = await client.getOrCreateConversation({
     channel: 'ticket',
     tags: {
-      [idTag]: input.ticketId,
+      id: input.ticketId,
     },
   })
 

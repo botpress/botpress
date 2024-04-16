@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/instagram",
-  "version": "0.2.0",
   "description": "Instagram integration for Botpress",
   "private": true,
   "scripts": {

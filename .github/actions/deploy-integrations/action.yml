@@ -87,13 +87,19 @@ runs:
         for integration_path in $integration_paths; do
             integration=$(basename $integration_path)
             exists=$(./.github/scripts/integration-exists.sh $integration)
+
+            base_command="bp deploy -v -y --noBuild --public --allowDeprecated"
+            if [ $integration == "gmail" ]; then
+                base_command="$base_command --secrets CLIENT_ID=${{ inputs.gmail_client_id }} --secrets CLIENT_SECRET=${{ inputs.gmail_client_secret }} --secrets TOPIC_NAME=${{ inputs.gmail_topic_name }}"
+            elif [ $integration == "linear" ]; then
+                base_command="$base_command --secrets CLIENT_ID=${{ inputs.linear_client_id }} --secrets CLIENT_SECRET=${{ inputs.linear_client_secret }} --secrets WEBHOOK_SIGNING_SECRET=${{ inputs.linear_webhook_signing_secret }}"
+            elif [ $integration == "slack" ]; then
+                base_command="$base_command --secrets CLIENT_ID=${{ inputs.slack_client_id }} --secrets CLIENT_SECRET=${{ inputs.slack_client_secret }} --secrets SIGNING_SECRET=${{ inputs.slack_signing_secret }}"
+            fi
             
             if [ $exists -eq 0 ]; then
                 echo -e "\nDeploying integration: ### $integration ###\n"
-                
-                # TODO: deprecated features should only be allowed when bumping a patch or a minor version
-                
-                pnpm retry -n 2 -- pnpm -r --stream -F $integration -c exec -- 'bp deploy -v -y --noBuild --public --allowDeprecated'
+                pnpm retry -n 2 -- pnpm -F $integration -c exec -- "$base_command"
             else
                 echo -e "\nSkipping integration: ### $integration ###\n"
             fi

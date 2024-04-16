@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/messenger",
-  "version": "0.2.0",
   "description": "Messenger integration for Botpress",
   "private": true,
   "scripts": {

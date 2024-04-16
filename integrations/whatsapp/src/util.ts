@@ -1,6 +1,6 @@
-import { IntegrationCtx } from 'src'
 import WhatsAppAPI from 'whatsapp-api-js'
 import { ServerErrorResponse, ServerMediaRetrieveResponse } from 'whatsapp-api-js/types'
+import { IntegrationCtx } from './types'
 
 export class UnreachableCaseError extends Error {
   constructor(val: never) {

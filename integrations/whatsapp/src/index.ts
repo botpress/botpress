@@ -1,4 +1,3 @@
-import { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { channel } from 'integration.definition'
 import queryString from 'query-string'
@@ -13,10 +12,6 @@ import * as dropdown from './message-types/dropdown'
 import * as outgoing from './outgoing-message'
 import { WhatsAppPayload } from './whatsapp-types'
 import * as bp from '.botpress'
-import { Configuration } from '.botpress/implementation/configuration'
-
-export type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
-export type IntegrationCtx = IntegrationContext<Configuration>
 
 const integration = new bp.Integration({
   register: async () => {},

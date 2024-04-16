@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/line",
-  "version": "0.2.0",
   "description": "Line integration for Botpress",
   "private": true,
   "scripts": {

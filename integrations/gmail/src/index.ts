@@ -8,7 +8,7 @@ import { decode } from 'js-base64'
 import MailComposer from 'nodemailer/lib/mail-composer'
 import type Mail from 'nodemailer/lib/mailer'
 import queryString from 'query-string'
-import { ccTag, emailTag, idTag, referencesTag, subjectTag } from './const'
+import * as types from './types'
 import * as bp from '.botpress'
 
 const clientId = bp.secrets.CLIENT_ID
@@ -285,7 +285,7 @@ async function processMessage(
   const { conversation } = await client.getOrCreateConversation({
     channel: 'channel',
     tags: {
-      [idTag]: `${threadId}`,
+      id: `${threadId}`,
     },
   })
 
@@ -294,10 +294,10 @@ async function processMessage(
   const { conversation: updatedConversation } = await client.updateConversation({
     id: conversation.id,
     tags: {
-      [subjectTag]: message.headers['subject'],
-      [emailTag]: userEmail,
-      [referencesTag]: message.headers['references'],
-      [ccTag]: message.headers['cc'],
+      subject: message.headers['subject'],
+      email: userEmail,
+      references: message.headers['references'],
+      cc: message.headers['cc'],
     },
   })
 
@@ -310,7 +310,7 @@ async function processMessage(
   console.info('userEmail', userEmail)
   const { user } = await client.getOrCreateUser({
     tags: {
-      [idTag]: `${userEmail}`,
+      id: `${userEmail}`,
     },
   })
 
@@ -326,7 +326,7 @@ async function processMessage(
 
   console.info('getOrCreateMessage', { threadId, userEmail, content, inReplyTo })
   await client.getOrCreateMessage({
-    tags: { [idTag]: messageId },
+    tags: { id: messageId },
     type: 'text',
     userId: user.id,
     conversationId: conversation.id,
@@ -400,11 +400,11 @@ function fakeHistoryId(historyId: string) {
 }
 
 function getConversationInfo(conversation: Conversation) {
-  const threadId = conversation.tags?.[idTag]
-  const subject = conversation.tags?.[subjectTag]
-  const email = conversation.tags?.[emailTag]
-  const references = conversation.tags?.[referencesTag]
-  const cc = conversation.tags?.[ccTag]
+  const threadId = conversation.tags?.id
+  const subject = conversation.tags?.subject
+  const email = conversation.tags?.email
+  const references = conversation.tags?.references
+  const cc = conversation.tags?.cc
 
   if (!(threadId && subject && email)) {
     console.info(`No valid information found for conversation ${conversation.id}`)
@@ -414,7 +414,11 @@ function getConversationInfo(conversation: Conversation) {
   return { threadId, subject, email, references, cc }
 }
 
-async function sendEmail({ client, ctx, conversation, ack, content, inReplyTo }: any) {
+type SendEmailProps = Pick<types.MessageHandlerProps, 'ctx' | 'conversation' | 'client' | 'ack'> & {
+  content: string
+  inReplyTo: string
+}
+async function sendEmail({ client, ctx, conversation, ack, content, inReplyTo }: SendEmailProps) {
   console.info('bulding the client')
 
   const gmail = await getGmailClient({ client, ctx })
@@ -437,7 +441,7 @@ async function sendEmail({ client, ctx, conversation, ack, content, inReplyTo }:
   const res = await gmail.users.messages.send({ requestBody: { threadId, raw }, userId: 'me' })
   console.info('Response', res)
 
-  ack({ tags: { [idTag]: `${res.data.id}` } })
+  ack({ tags: { id: `${res.data.id}` } })
 }
 
 async function getGmailClient({ client, ctx }: any) {

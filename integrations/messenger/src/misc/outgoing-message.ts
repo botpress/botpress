@@ -1,5 +1,4 @@
 import { MessengerClient } from 'messaging-api-messenger'
-import { idTag } from 'src/const'
 import { getMessengerClient } from './utils'
 import * as bp from '.botpress'
 
@@ -17,11 +16,11 @@ export async function sendMessage(
   const messengerClient = getMessengerClient(ctx.configuration)
   const recipientId = getRecipientId(conversation)
   const { messageId } = await send(messengerClient, recipientId)
-  await ack({ tags: { [idTag]: messageId } })
+  await ack({ tags: { id: messageId } })
 }
 
 export function getRecipientId(conversation: SendMessageProps['conversation']): string {
-  const recipientId = conversation.tags[idTag]
+  const recipientId = conversation.tags.id
 
   if (!recipientId) {
     throw Error(`No recipient id found for user ${conversation.id}`)
