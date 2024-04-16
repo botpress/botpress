@@ -85,7 +85,7 @@ export const createSubsLinkInputSchema = z.object({
     .optional()
     .default(1)
     .describe('The minimum quantity the customer can purchase'),
-  chargingInterval: z  // change to .enum(['day', 'week', 'month', 'year'])
+  chargingInterval: z // change to .enum(['day', 'week', 'month', 'year'])
     .string()
     .title('Payment Interval')
     .optional()
