@@ -1,76 +1,18 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import _ from 'lodash'
-import { Markup, Telegraf, Telegram } from 'telegraf'
-import type { User, CommonMessageBundle } from 'telegraf/typings/core/types/typegram'
 
-import { getUserPictureDataUri, getUserNameFromTelegramUser, getChat, sendCard, ackMessage } from './misc/utils'
+import { Markup, Telegraf } from 'telegraf'
+import type { User } from 'telegraf/typings/core/types/typegram'
+
+import { TelegramMessage } from './misc/types'
+import {
+  getUserPictureDataUri,
+  getUserNameFromTelegramUser,
+  getChat,
+  sendCard,
+  ackMessage,
+  convertTelegramMessageToBotpressMessage,
+} from './misc/utils'
 import * as bp from '.botpress'
-
-type MessageTypes = keyof typeof bp.channels.channel
-type BotpressMessage<T extends MessageTypes = MessageTypes> = T extends MessageTypes
-  ? {
-      type: T
-      payload: bp.channels.channel.Messages[T]
-    }
-  : never
-
-const convertTelegramMessageToBotpressMessage = async (
-  message: CommonMessageBundle,
-  telegram: Telegram
-): Promise<BotpressMessage> => {
-  if ('text' in message) {
-    return {
-      type: 'text',
-      payload: { text: message.text },
-    }
-  }
-
-  if ('photo' in message) {
-    const photo = _.maxBy(message.photo, (photo) => photo.height * photo.width)
-
-    if (!photo) {
-      throw new Error('No photo found in the message')
-    }
-
-    const link = await telegram.getFileLink(photo.file_id)
-
-    return {
-      type: 'image',
-      payload: {
-        imageUrl: link.toString(),
-      },
-    }
-  }
-
-  if ('audio' in message) {
-    return {
-      type: 'audio',
-      payload: {
-        audioUrl: message.audio.file_id,
-      },
-    }
-  }
-
-  if ('video' in message) {
-    return {
-      type: 'video',
-      payload: {
-        videoUrl: message.video.file_id,
-      },
-    }
-  }
-
-  if ('document' in message) {
-    return {
-      type: 'file',
-      payload: {
-        fileUrl: message.document.file_id,
-      },
-    }
-  }
-
-  throw new Error('Unsupported message type')
-}
 
 const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx }) => {
@@ -208,7 +150,7 @@ const integration = new bp.Integration({
       return
     }
 
-    const message = data.message as CommonMessageBundle
+    const message = data.message as TelegramMessage
 
     if (message.from?.is_bot) {
       logger.forBot().warn('Handler received a message from a bot, so the message was ignored')
@@ -282,16 +224,22 @@ const integration = new bp.Integration({
       throw new Error('Handler received an empty message id')
     }
 
-    logger.forBot().debug(`Received message from user ${userId}: ${message.text}`)
+    const telegraf = new Telegraf(ctx.configuration.botToken)
+    const bpMessage = await convertTelegramMessageToBotpressMessage({
+      message,
+      telegram: telegraf.telegram,
+    })
+
+    logger.forBot().debug(`Received message from user ${userId}: ${JSON.stringify(message, null, 2)}`)
+
     await client.createMessage({
       tags: {
         id: messageId.toString(),
         ...(chatId && { chatId: chatId.toString() }),
       },
-      type: 'text',
+      ...bpMessage,
       userId: user.id,
       conversationId: conversation.id,
-      payload: { text: message.text },
     })
   },
   createUser: async ({ client, tags, ctx }) => {

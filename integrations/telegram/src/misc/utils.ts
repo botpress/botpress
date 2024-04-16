@@ -1,7 +1,9 @@
 import { axios } from '@botpress/client'
-import { Context, Markup, Telegraf } from 'telegraf'
+import _ from 'lodash'
+import { Context, Markup, Telegraf, Telegram } from 'telegraf'
 import { PhotoSize, Update, User } from 'telegraf/typings/core/types/typegram'
-import { Card, TelegramMessage, AckFunction, Logger, MessageHandlerProps } from './types'
+
+import { Card, AckFunction, Logger, MessageHandlerProps, BotpressMessage, TelegramMessage } from './types'
 
 export const USER_PICTURE_MAX_SIZE_BYTES = 25_000
 
@@ -133,4 +135,78 @@ export const getUserPictureDataUri = async ({
     logger.forBot().error("Couldn't convert Telegram profile picture to base64 Data URI: ", error)
     return null
   }
+}
+
+export const convertTelegramMessageToBotpressMessage = async ({
+  message,
+  telegram,
+}: {
+  message: TelegramMessage
+  telegram: Telegram
+}): Promise<BotpressMessage> => {
+  if ('photo' in message) {
+    const photo = _.maxBy(message.photo, (photo) => photo.height * photo.width)
+
+    if (!photo) {
+      throw new Error('No photo found in the message')
+    }
+
+    const fileUrl = await telegram.getFileLink(photo.file_id)
+
+    return {
+      type: 'image',
+      payload: {
+        imageUrl: fileUrl.toString(),
+      },
+    }
+  }
+
+  if ('audio' in message) {
+    const fileUrl = await telegram.getFileLink(message.audio.file_id)
+    return {
+      type: 'audio',
+      payload: {
+        audioUrl: fileUrl.toString(),
+      },
+    }
+  }
+
+  if ('voice' in message) {
+    const fileUrl = await telegram.getFileLink(message.voice.file_id)
+    return {
+      type: 'audio',
+      payload: {
+        audioUrl: fileUrl.toString(),
+      },
+    }
+  }
+
+  if ('video' in message) {
+    const fileUrl = await telegram.getFileLink(message.video.file_id)
+    return {
+      type: 'video',
+      payload: {
+        videoUrl: fileUrl.toString(),
+      },
+    }
+  }
+
+  if ('document' in message) {
+    const fileUrl = await telegram.getFileLink(message.document.file_id)
+    return {
+      type: 'file',
+      payload: {
+        fileUrl: fileUrl.toString(),
+      },
+    }
+  }
+
+  if ('text' in message) {
+    return {
+      type: 'text',
+      payload: { text: message.text },
+    }
+  }
+
+  throw new Error('Unsupported message type')
 }

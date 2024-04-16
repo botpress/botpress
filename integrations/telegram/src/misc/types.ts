@@ -1,11 +1,10 @@
 import * as sdk from '@botpress/sdk'
+import * as Typegram from 'telegraf/typings/core/types/typegram'
 import * as bp from '.botpress'
 
-export type Card = bp.channels.channel.card.Card
+export type TelegramMessage = Typegram.Message
 
-export type TelegramMessage = {
-  message_id: number
-}
+export type Card = bp.channels.channel.card.Card
 
 export type ValueOf<T> = T[keyof T]
 
@@ -31,3 +30,11 @@ export type Channel = ValueOf<bp.IntegrationProps['channels']>
 export type MessageHandler = ValueOf<Channel['messages']>
 export type MessageHandlerProps = Parameters<MessageHandler>[0]
 export type AckFunction = MessageHandlerProps['ack']
+
+export type MessageTypes = keyof typeof bp.channels.channel
+export type BotpressMessage<T extends MessageTypes = MessageTypes> = T extends MessageTypes
+  ? {
+      type: T
+      payload: bp.channels.channel.Messages[T]
+    }
+  : never
