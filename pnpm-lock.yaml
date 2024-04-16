@@ -72,8 +72,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -122,8 +122,8 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
 
   bots/hit-looper:
     dependencies:
@@ -134,8 +134,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@bpinternal/es-node':
         specifier: ^0.0.5
@@ -159,8 +159,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@bpinternal/es-node':
         specifier: ^0.0.5
@@ -187,8 +187,8 @@ importers:
         specifier: ^1.0.2
         version: 1.0.2
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -224,8 +224,8 @@ importers:
         specifier: ^1.6.7
         version: 1.6.7
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -252,8 +252,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk-addons
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -298,8 +298,8 @@ importers:
         specifier: ^2.0.19
         version: 2.0.19
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -350,8 +350,8 @@ importers:
         specifier: ^6.14.1
         version: 6.14.1
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@sentry/cli':
         specifier: ^2.18.1
@@ -390,8 +390,8 @@ importers:
         specifier: ^126.0.1
         version: 126.0.1
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -421,8 +421,8 @@ importers:
         specifier: ^126.0.1
         version: 126.0.1
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -455,8 +455,8 @@ importers:
         specifier: ^6.14.1
         version: 6.14.1
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@sentry/cli':
         specifier: ^2.18.1
@@ -495,8 +495,8 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@sentry/cli':
         specifier: ^2.18.1
@@ -538,8 +538,8 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@sentry/cli':
         specifier: ^2.18.1
@@ -584,8 +584,8 @@ importers:
         specifier: ^1.6.4
         version: 1.6.6
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -612,8 +612,8 @@ importers:
         specifier: ^3.0.80
         version: 3.0.80
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@types/mailchimp__mailchimp_marketing':
         specifier: ^3.0.10
@@ -640,8 +640,8 @@ importers:
         specifier: ^1.6.7
         version: 1.6.7
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -680,8 +680,8 @@ importers:
         specifier: ^6.14.1
         version: 6.14.1
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@sentry/cli':
         specifier: ^2.18.1
@@ -717,8 +717,8 @@ importers:
         specifier: ^2.2.7
         version: 2.2.7
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@tsconfig/node18-strictest':
         specifier: ^1.0.0
@@ -766,8 +766,8 @@ importers:
         specifier: ^1.10.1
         version: 1.10.1
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -828,8 +828,8 @@ importers:
         specifier: ^9.12.0
         version: 9.14.0(@babel/core@7.22.5)
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@sentry/cli':
         specifier: ^2.18.1
@@ -874,8 +874,8 @@ importers:
         specifier: ^3.1.0
         version: 3.1.0
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -920,8 +920,8 @@ importers:
         specifier: ^4.11.2
         version: 4.12.2
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -960,8 +960,8 @@ importers:
         specifier: ^1.2.6
         version: 1.2.6
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1003,8 +1003,8 @@ importers:
         specifier: ^3.84.0
         version: 3.84.1
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1043,8 +1043,8 @@ importers:
         specifier: ^1.2.1
         version: 1.4.0
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1083,8 +1083,8 @@ importers:
         specifier: ^0.27.2
         version: 0.27.2
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1120,8 +1120,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk-addons
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1160,8 +1160,8 @@ importers:
         specifier: ^6.11.0
         version: 6.11.0
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@sentry/cli':
         specifier: ^2.18.1
@@ -1203,8 +1203,8 @@ importers:
         specifier: ^1.0.5
         version: 1.0.5
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1246,8 +1246,8 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -1301,8 +1301,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       zod:
-        specifier: ^3.20.6
-        version: 3.20.6
+        specifier: ^3.22.4
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -12531,9 +12531,6 @@ packages:
   /zod@1.11.17:
     resolution: {integrity: sha512-UzIwO92D0dSFwIRyyqAfRXICITLjF0IP8tRbEK/un7adirMssWZx8xF/1hZNE7t61knWZ+lhEuUvxlu2MO8qqA==}
     dev: false
-
-  /zod@3.20.6:
-    resolution: {integrity: sha512-oyu0m54SGCtzh6EClBVqDDlAYRz4jrVtKwQ7ZnsEmMI9HnzuZFj8QFwAY1M5uniIYACdGvv0PBWPF2kO0aNofA==}
 
   /zod@3.21.4:
     resolution: {integrity: sha512-m46AKbrzKVzOzs/DZgVnG5H55N1sv1M8qZU3A8RIKbs3mrACDNeIOeilDymVb2HdmP8uwshOCF4uJ8uM9rCqJw==}
