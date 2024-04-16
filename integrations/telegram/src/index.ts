@@ -157,11 +157,6 @@ const integration = new bp.Integration({
       return
     }
 
-    if (message.chat?.type !== 'private' || message.sender_chat?.type !== 'private') {
-      logger.forBot().warn('Handler received a message from a private chat, so the message was ignored')
-      return
-    }
-
     if (!('text' in message) && !('photo' in message)) {
       logger.forBot().warn('Request body does not contain a text message or photo, so the message was ignored')
       return
