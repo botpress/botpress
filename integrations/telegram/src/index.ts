@@ -234,7 +234,7 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const chatId = tags['telegram:chatId'] // TODO: rm prefix in SDK typings
+    const chatId = tags['telegram:id'] // TODO: rm prefix in SDK typings
 
     if (!chatId) {
       return
