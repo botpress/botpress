@@ -4,12 +4,6 @@ import { FormError, UIComponentDefinitions, ZuiComponentMap } from '../types'
 import { z } from '../../z/index'
 import { ZuiForm } from '..'
 
-// declare module 'zod' {
-//   interface ComponentDefinitions {
-//     components: typeof exampleExtensions
-//   }
-// }
-
 const exampleExtensions = {
   string: {
     debug: {
@@ -45,7 +39,7 @@ const exampleExtensions = {
 
 const exampleSchema = z
   .object({
-    field: z.string(),
+    field: z.enum(['yes', 'no']).displayAs<typeof exampleExtensions>({ id: 'debug', params: {} }),
     firstName: z.string().title('first name').disabled().placeholder('Enter your name').nullable(),
     lastName: z.string().min(3).title('Last Name <3').optional().nullable(),
     dates: z
@@ -85,9 +79,10 @@ const ErrorBox: FC<{ errors: FormError[]; data: any | null }> = ({ errors, data 
 
 const componentMap: ZuiComponentMap<typeof exampleExtensions> = {
   string: {
-    debug: ({ context }) => {
+    debug: ({ context, schema }) => {
       return (
         <div>
+          {schema.enum?.length && <p>String enum values: {schema.enum.join(', ')}</p>}
           <pre>{JSON.stringify(context.formData, null, 2)}</pre>
           {context.formValid === null && <p>Form validation disabled</p>}
           {context.formValid === true && <p>Form is valid</p>}
