@@ -1,11 +1,79 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { Markup, Telegraf } from 'telegraf'
-import type { User } from 'telegraf/typings/core/types/typegram'
+import _ from 'lodash'
+import { Markup, Telegraf, Telegram } from 'telegraf'
+import type { User, CommonMessageBundle } from 'telegraf/typings/core/types/typegram'
 import { chatIdTag, idTag, fromUserIdTag, fromUserNameTag, INTEGRATION_NAME } from './const'
+
 import { getUserPictureDataUri, getUserNameFromTelegramUser, getChat, sendCard, ackMessage } from './misc/utils'
 import * as bp from '.botpress'
 
 console.info(`starting integration ${INTEGRATION_NAME}`)
+
+type MessageTypes = keyof typeof bp.channels.channel
+type BotpressMessage<T extends MessageTypes = MessageTypes> = T extends MessageTypes
+  ? {
+      type: T
+      payload: bp.channels.channel.Messages[T]
+    }
+  : never
+
+const convertTelegramMessageToBotpressMessage = async (
+  message: CommonMessageBundle,
+  telegram: Telegram
+): Promise<BotpressMessage> => {
+  if ('text' in message) {
+    return {
+      type: 'text',
+      payload: { text: message.text },
+    }
+  }
+
+  if ('photo' in message) {
+    const photo = _.maxBy(message.photo, (photo) => photo.height * photo.width)
+
+    if (!photo) {
+      throw new Error('No photo found in the message')
+    }
+
+    const link = await telegram.getFileLink(photo.file_id)
+
+    return {
+      type: 'image',
+      payload: {
+        imageUrl: link.toString(),
+      },
+    }
+  }
+
+  if ('audio' in message) {
+    return {
+      type: 'audio',
+      payload: {
+        audioUrl: message.audio.file_id,
+      },
+    }
+  }
+
+  if ('video' in message) {
+    return {
+      type: 'video',
+      payload: {
+        videoUrl: message.video.file_id,
+      },
+    }
+  }
+
+  if ('document' in message) {
+    return {
+      type: 'file',
+      payload: {
+        fileUrl: message.document.file_id,
+      },
+    }
+  }
+
+  throw new Error('Unsupported message type')
+}
 
 const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx }) => {
@@ -138,30 +206,42 @@ const integration = new bp.Integration({
       return
     }
 
-    if (data.message.from.is_bot) {
+    if (!data.message) {
+      logger.forBot().warn('Handler received a non-message update, so the event was ignored')
+      return
+    }
+
+    const message = data.message as CommonMessageBundle
+
+    if (message.from?.is_bot) {
       logger.forBot().warn('Handler received a message from a bot, so the message was ignored')
       return
     }
 
-    if (!data.message.text) {
-      logger.forBot().warn('Request body does not contain a text message, so the message was ignored')
+    if (message.chat?.type !== 'private' || message.sender_chat?.type !== 'private') {
+      logger.forBot().warn('Handler received a message from a private chat, so the message was ignored')
       return
     }
 
-    const conversationId = data.message.chat.id
+    if (!('text' in message) && !('photo' in message)) {
+      logger.forBot().warn('Request body does not contain a text message or photo, so the message was ignored')
+      return
+    }
+
+    const conversationId = message.chat.id
 
     if (!conversationId) {
       throw new Error('Handler received message with empty "chat.id" value')
     }
 
-    const userId = data.message.from?.id
-    const chatId = data.message.chat?.id
+    const userId = message.from?.id
+    const chatId = message.chat?.id
 
     if (!userId) {
       throw new Error('Handler received message with empty "from.id" value')
     }
 
-    const userName = getUserNameFromTelegramUser(data.message.from as User)
+    const userName = getUserNameFromTelegramUser(message.from as User)
 
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
@@ -199,13 +279,13 @@ const integration = new bp.Integration({
       })
     }
 
-    const messageId = data.message.message_id
+    const messageId = message.message_id
 
     if (!messageId) {
       throw new Error('Handler received an empty message id')
     }
 
-    logger.forBot().debug(`Received message from user ${userId}: ${data.message.text}`)
+    logger.forBot().debug(`Received message from user ${userId}: ${message.text}`)
     await client.createMessage({
       tags: {
         [idTag]: messageId.toString(),
@@ -214,7 +294,7 @@ const integration = new bp.Integration({
       type: 'text',
       userId: user.id,
       conversationId: conversation.id,
-      payload: { text: data.message.text },
+      payload: { text: message.text },
     })
   },
   createUser: async ({ client, tags, ctx }) => {
