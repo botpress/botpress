@@ -1,4 +1,4 @@
-import * as z from 'zod'
+import { z } from 'zod'
 import { MessageHandlerProps } from './types'
 import { ApiUtils } from './utils'
 

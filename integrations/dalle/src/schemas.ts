@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from 'zod'
 import { ActionArgs } from './types'
 
 type ConfigFieldProps<Z extends z.ZodTypeAny> = {

@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from 'zod'
 
 const HttpMethodSchema = z.union([
   z.literal('GET'),

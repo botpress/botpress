@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from 'zod'
 
 const plainTextSchema = z.object({ type: z.literal('plain_text'), text: z.string() }).strict()
 const markdownSchema = z.object({ type: z.literal('mrkdwn'), text: z.string() }).strict()

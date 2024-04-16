@@ -1,6 +1,6 @@
 import { HttpMethod, Link, Config, lists, ErrorResponse } from '@mailchimp/mailchimp_marketing'
 
-import z from 'zod'
+import { z } from 'zod'
 
 import {
   addCustomerFullOutputSchema,

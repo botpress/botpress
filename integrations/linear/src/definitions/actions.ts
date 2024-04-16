@@ -1,5 +1,5 @@
 import { IntegrationDefinitionProps } from '@botpress/sdk'
-import z from 'zod'
+import { z } from 'zod'
 import { LinearIds, UserProfile, issueSchema } from '../definitions/schemas'
 
 const channels = ['issue'] as const

@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from 'zod'
 
 const ticketAssigned = {
   title: 'Ticket:Assigned',

@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from 'zod'
 
 import { UserProfile } from '../definitions/schemas'
 import { getLinearClient } from '../misc/utils'

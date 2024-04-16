@@ -1,6 +1,6 @@
 import { User } from '@linear/sdk'
 import { assert, Equals } from 'tsafe/assert'
-import z from 'zod'
+import { z } from 'zod'
 
 export const targets = z.object({
   issue: z.record(z.string()).optional(),
