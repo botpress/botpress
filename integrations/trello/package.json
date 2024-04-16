@@ -15,8 +15,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "trello.js": "^1.2.6",
-    "zod": "npm:@bpinternal/zui@^0.6.2"
+    "trello.js": "^1.2.6"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

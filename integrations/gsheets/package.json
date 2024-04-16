@@ -11,8 +11,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "google-auth-library": "^9.0.0",
-    "googleapis": "^126.0.1",
-    "zod": "npm:@bpinternal/zui@^0.6.2"
+    "googleapis": "^126.0.1"
   },
   "devDependencies": {
     "@types/node": "^18.11.17",

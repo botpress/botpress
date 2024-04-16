@@ -1,5 +1,4 @@
-import { IntegrationDefinitionProps, messages } from '@botpress/sdk'
-import { z } from 'zod'
+import { z, IntegrationDefinitionProps, messages } from '@botpress/sdk'
 import { issueSchema } from './schemas'
 
 export { actions } from './actions'

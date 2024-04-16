@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
+import { ZodError } from '@botpress/sdk'
 import { GaxiosError } from 'googleapis-common'
-import { ZodError } from 'zod'
 
 export function isGaxiosError(error: any): error is GaxiosError {
   if (error?.response?.message?.length > 0) {

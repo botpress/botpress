@@ -1,5 +1,4 @@
-import { IntegrationDefinition } from '@botpress/sdk'
-import { z } from 'zod'
+import { z, IntegrationDefinition } from '@botpress/sdk'
 import { INTEGRATION_NAME } from './src/const'
 import {
   listEventsInputSchema,

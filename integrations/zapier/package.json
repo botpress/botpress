@@ -18,8 +18,7 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "axios": "^1.6.3",
-    "uuid": "^9.0.0",
-    "zod": "npm:@bpinternal/zui@^0.6.2"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

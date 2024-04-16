@@ -18,8 +18,7 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "@sentry/node": "7.53.1",
-    "telegraf": "^4.11.2",
-    "zod": "npm:@bpinternal/zui@^0.6.2"
+    "telegraf": "^4.11.2"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

@@ -1,5 +1,4 @@
-import { IntegrationDefinitionProps } from '@botpress/sdk'
-import { z } from 'zod'
+import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 import { LinearIssue, targets } from '../definitions/schemas'
 
 export type IssueCreated = z.infer<typeof issueCreated.schema>

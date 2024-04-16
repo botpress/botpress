@@ -16,8 +16,7 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "@botpress/sdk-addons": "workspace:*",
-    "zod": "npm:@bpinternal/zui@^0.6.2"
+    "@botpress/sdk-addons": "workspace:*"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

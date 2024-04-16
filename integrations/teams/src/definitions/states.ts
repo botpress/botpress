@@ -1,6 +1,5 @@
-import { IntegrationDefinitionProps } from '@botpress/sdk'
+import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 import type { ConversationReference } from 'botbuilder'
-import { z } from 'zod'
 
 // type testing utils
 type Is<A, B> = A extends B ? (B extends A ? true : false) : false

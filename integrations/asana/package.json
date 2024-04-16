@@ -16,8 +16,7 @@
   "dependencies": {
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "asana": "^1.0.2",
-    "zod": "npm:@bpinternal/zui@^0.6.2"
+    "asana": "^1.0.2"
   },
   "devDependencies": {
     "@sentry/cli": "^2.18.1",

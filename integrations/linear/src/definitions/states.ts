@@ -1,5 +1,4 @@
-import { IntegrationDefinitionProps } from '@botpress/sdk'
-import { z } from 'zod'
+import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 import { UserProfile } from './schemas'
 
 export const states = {

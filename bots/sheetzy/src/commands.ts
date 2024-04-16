@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '@botpress/sdk'
 import { MessageHandlerProps } from './types'
 import { ApiUtils } from './utils'
 

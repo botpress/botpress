@@ -22,8 +22,7 @@
     "googleapis": "^112.0.0",
     "js-base64": "^3.7.5",
     "nodemailer": "^6.7.2",
-    "query-string": "^6.14.1",
-    "zod": "npm:@bpinternal/zui@^0.6.2"
+    "query-string": "^6.14.1"
   },
   "devDependencies": {
     "@sentry/cli": "^2.18.1",

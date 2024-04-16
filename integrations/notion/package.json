@@ -11,8 +11,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "@notionhq/client": "^2.2.7",
-    "zod": "npm:@bpinternal/zui@^0.6.2"
+    "@notionhq/client": "^2.2.7"
   },
   "devDependencies": {
     "@tsconfig/node18-strictest": "^1.0.0",

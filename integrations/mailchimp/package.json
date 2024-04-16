@@ -14,8 +14,7 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "@mailchimp/mailchimp_marketing": "^3.0.80",
-    "zod": "npm:@bpinternal/zui@^0.6.2"
+    "@mailchimp/mailchimp_marketing": "^3.0.80"
   },
   "devDependencies": {
     "@types/mailchimp__mailchimp_marketing": "^3.0.10",

@@ -1,5 +1,4 @@
-import { IntegrationDefinition } from '@botpress/sdk'
-import { z } from 'zod'
+import { z, IntegrationDefinition } from '@botpress/sdk'
 
 const sizeDescription =
   'Size of the image to generate. Can be "1024x1024", "1792x1024", or "1024x1792". Defaults to 1024x1024.'

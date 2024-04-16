@@ -1,6 +1,6 @@
+import { z } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Client, ReplyToConversationMessageType } from 'intercom-client'
-import { z } from 'zod'
 import * as html from './html.utils'
 import * as types from './types'
 import * as bp from '.botpress'
