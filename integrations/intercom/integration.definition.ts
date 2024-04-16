@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 export default new IntegrationDefinition({
   name: 'intercom',
-  version: '0.3.0',
+  version: '0.4.0',
   title: 'Intercom',
   description: 'This integration allows your bot to interact with Intercom.',
   icon: 'icon.svg',

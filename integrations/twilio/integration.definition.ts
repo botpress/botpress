@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 export default new IntegrationDefinition({
   name: 'twilio',
-  version: '0.3.0',
+  version: '0.4.0',
   title: 'Twilio',
   description: 'This integration allows your bot to interact with Twilio.',
   icon: 'icon.svg',

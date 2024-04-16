@@ -6,7 +6,7 @@ import { configuration, states, user, channels, actions } from './src/definition
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '0.2.0',
+  version: '0.3.0',
   title: 'Asana',
   readme: 'hub.md',
   description:

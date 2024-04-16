@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 export default new IntegrationDefinition({
   name: 'instagram',
-  version: '0.3.0',
+  version: '0.4.0',
   title: 'Instagram',
   description: 'This integration allows your bot to interact with Instagram.',
   icon: 'icon.svg',

@@ -4,7 +4,7 @@ import { z } from 'zod'
 
 export default new IntegrationDefinition({
   name: 'sunco',
-  version: '0.3.0',
+  version: '0.4.0',
   title: 'Sunshine Conversations',
   description: 'This integration allows your bot to interact with Sunshine Conversations.',
   icon: 'icon.svg',

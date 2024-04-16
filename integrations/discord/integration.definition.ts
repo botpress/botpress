@@ -5,7 +5,7 @@ import { INTEGRATION_NAME } from './src/const'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '0.2.0',
+  version: '0.3.0',
   readme: 'hub.md',
   configuration: {
     schema: z.object({
