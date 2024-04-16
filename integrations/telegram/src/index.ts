@@ -157,22 +157,20 @@ const integration = new bp.Integration({
       return
     }
 
-    if (!('text' in message) && !('photo' in message)) {
-      logger.forBot().warn('Request body does not contain a text message or photo, so the message was ignored')
-      return
-    }
-
     const conversationId = message.chat.id
+    const userId = message.from?.id
+    const messageId = message.message_id
 
     if (!conversationId) {
       throw new Error('Handler received message with empty "chat.id" value')
     }
 
-    const userId = message.from?.id
-    const chatId = message.chat?.id
-
     if (!userId) {
       throw new Error('Handler received message with empty "from.id" value')
+    }
+
+    if (!messageId) {
+      throw new Error('Handler received an empty message id')
     }
 
     const userName = getUserNameFromTelegramUser(message.from as User)
@@ -183,7 +181,7 @@ const integration = new bp.Integration({
         id: conversationId.toString(),
         fromUserId: userId.toString(),
         fromUserName: userName,
-        ...(chatId && { chatId: chatId.toString() }),
+        chatId: conversationId.toString(),
       },
     })
 
@@ -213,12 +211,6 @@ const integration = new bp.Integration({
       })
     }
 
-    const messageId = message.message_id
-
-    if (!messageId) {
-      throw new Error('Handler received an empty message id')
-    }
-
     const telegraf = new Telegraf(ctx.configuration.botToken)
     const bpMessage = await convertTelegramMessageToBotpressMessage({
       message,
@@ -230,7 +222,7 @@ const integration = new bp.Integration({
     await client.createMessage({
       tags: {
         id: messageId.toString(),
-        ...(chatId && { chatId: chatId.toString() }),
+        chatId: conversationId.toString(),
       },
       ...bpMessage,
       userId: user.id,
