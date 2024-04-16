@@ -21,24 +21,5 @@ export const unregister: IntegrationProps['unregister'] = async () => {
 }
 
 export const createConversation: IntegrationProps['createConversation'] = async ({ client, channel, tags }) => {
-  const {
-    ['linear:id']: id,
-    ['linear:title']: title,
-    ['linear:url']: url,
-    ['linear:parentId']: parentId,
-    ['linear:parentTitle']: parentTitle,
-    ['linear:parentUrl']: parentUrl,
-  } = tags
-
-  await client.createConversation({
-    channel,
-    tags: {
-      id,
-      title,
-      url,
-      parentId,
-      parentTitle,
-      parentUrl,
-    },
-  })
+  await client.createConversation({ channel, tags })
 }

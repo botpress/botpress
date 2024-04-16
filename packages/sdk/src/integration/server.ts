@@ -27,7 +27,7 @@ type ActionArgs<TIntegration extends BaseIntegration, T extends string, I> = Com
   ActionPayload<T, I>
 
 type CreateUserPayload<TIntegration extends BaseIntegration> = {
-  tags: ToTags<keyof TIntegration['user']['tags'], { enforcePrefix: TIntegration['name'] }>
+  tags: ToTags<keyof TIntegration['user']['tags']>
 }
 
 type CreateUserArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> & CreateUserPayload<TIntegration>
@@ -37,10 +37,7 @@ type CreateConversationPayload<
   TChannel extends keyof TIntegration['channels'] = keyof TIntegration['channels']
 > = {
   channel: TChannel
-  tags: ToTags<
-    keyof TIntegration['channels'][TChannel]['conversation']['tags'],
-    { enforcePrefix: TIntegration['name'] }
-  >
+  tags: ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
 }
 
 type CreateConversationArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> &

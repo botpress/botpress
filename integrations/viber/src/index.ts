@@ -253,8 +253,7 @@ const integration = new bp.Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags['viber:id'] // TODO: rm prefix in SDK typings
-
+    const userId = tags.id
     if (!userId) {
       return
     }
@@ -270,8 +269,7 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const userId = tags['viber:id'] // TODO: rm prefix in SDK typings
-
+    const userId = tags.id
     if (!userId) {
       return
     }
