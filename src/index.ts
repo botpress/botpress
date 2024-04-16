@@ -1,4 +1,3 @@
-import { UIComponentDefinitions } from './ui/types'
 import { jsonSchemaToZui } from './transforms/json-schema-to-zui'
 import { zuiToJsonSchema } from './transforms/zui-to-json-schema'
 import { objectToZui } from './transforms/object-to-zui'
@@ -14,11 +13,3 @@ export const transforms = {
   objectToZui,
   zuiToTypescriptTypings: toTypescriptTypings,
 }
-
-export interface ComponentDefinitions {}
-
-export type GlobalComponentDefinitions = ComponentDefinitions extends {
-  components: infer TComponentMap extends UIComponentDefinitions
-}
-  ? TComponentMap
-  : any

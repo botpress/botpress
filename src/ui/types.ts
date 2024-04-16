@@ -1,6 +1,5 @@
-import { ZodSchema, z } from '../z/index'
+import { z } from '../z/index'
 import type { FC } from 'react'
-import type { GlobalComponentDefinitions } from '..'
 import { zuiKey } from './constants'
 
 export type BaseSchema = {
@@ -92,11 +91,14 @@ export type BaseType = 'number' | 'string' | 'boolean' | 'object' | 'array'
 export const containerTypes = ['object', 'array'] as const
 export type ContainerType = (typeof containerTypes)[number]
 
-export type UIComponentDefinition = {
-  id: string
-  type: BaseType
-  schema: ZodSchema
+export type DefaultComponentDefinitions = {
+  number: {}
+  string: {}
+  boolean: {}
+  object: {}
+  array: {}
 }
+
 export type UIComponentDefinitions = {
   [T in BaseType]: {
     [K: string]: {
@@ -143,7 +145,7 @@ export type AsBaseType<T> = T extends BaseType ? T : never
 export type SchemaContext<
   Type extends BaseType,
   ID extends keyof UI[Type],
-  UI extends UIComponentDefinitions = GlobalComponentDefinitions,
+  UI extends UIComponentDefinitions = DefaultComponentDefinitions,
 > = {
   type: Type
   id: ID
@@ -160,7 +162,7 @@ export type FormError = {
 export type ZuiReactComponentBaseProps<
   Type extends BaseType,
   ID extends keyof UI[Type],
-  UI extends UIComponentDefinitions = GlobalComponentDefinitions,
+  UI extends UIComponentDefinitions = DefaultComponentDefinitions,
 > = {
   type: Type
   componentID: ID
@@ -196,7 +198,7 @@ export type ZuiReactArrayChildProps =
 export type ZuiReactObjectComponentProps<
   Type extends ContainerType,
   ID extends keyof UI[Type],
-  UI extends UIComponentDefinitions = GlobalComponentDefinitions,
+  UI extends UIComponentDefinitions = DefaultComponentDefinitions,
 > = ZuiReactComponentBaseProps<Type, ID, UI> & {
   children: JSX.Element | JSX.Element[]
 }
@@ -204,7 +206,7 @@ export type ZuiReactObjectComponentProps<
 export type ZuiReactArrayComponentProps<
   Type extends ContainerType,
   ID extends keyof UI[Type],
-  UI extends UIComponentDefinitions = GlobalComponentDefinitions,
+  UI extends UIComponentDefinitions = DefaultComponentDefinitions,
 > = ZuiReactComponentBaseProps<Type, ID, UI> & {
   children: JSX.Element | JSX.Element[]
   addItem: (initialData?: any) => void
@@ -214,7 +216,7 @@ export type ZuiReactArrayComponentProps<
 export type ZuiReactControlComponentProps<
   Type extends BaseType,
   ID extends keyof UI[Type],
-  UI extends UIComponentDefinitions = GlobalComponentDefinitions,
+  UI extends UIComponentDefinitions = DefaultComponentDefinitions,
 > = ZuiReactComponentBaseProps<Type, ID, UI> & {
   description?: string
   required: boolean
@@ -224,7 +226,7 @@ export type ZuiReactControlComponentProps<
 export type ZuiReactComponentProps<
   Type extends BaseType,
   ID extends keyof UI[Type],
-  UI extends UIComponentDefinitions = GlobalComponentDefinitions,
+  UI extends UIComponentDefinitions = DefaultComponentDefinitions,
 > = Type extends 'object'
   ? ZuiReactObjectComponentProps<Type, ID, UI>
   : Type extends 'array'
@@ -234,10 +236,10 @@ export type ZuiReactComponentProps<
 export type ZuiReactComponent<
   Type extends BaseType,
   ID extends keyof UI[Type],
-  UI extends UIComponentDefinitions = GlobalComponentDefinitions,
+  UI extends UIComponentDefinitions = DefaultComponentDefinitions,
 > = FC<ZuiReactComponentProps<Type, ID, UI>>
 
-export type ZuiComponentMap<UI extends UIComponentDefinitions = GlobalComponentDefinitions> = {
+export type ZuiComponentMap<UI extends UIComponentDefinitions = DefaultComponentDefinitions> = {
   [T in BaseType]: {
     [K in keyof UI[T]]: ZuiReactComponent<T, K, UI>
   } & {

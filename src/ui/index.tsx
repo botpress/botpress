@@ -11,23 +11,23 @@ import {
   ZuiReactControlComponentProps,
   PrimitiveSchema,
   ZuiReactArrayChildProps,
+  DefaultComponentDefinitions,
 } from './types'
 import { zuiKey } from './constants'
 import React, { type FC, useMemo } from 'react'
-import { GlobalComponentDefinitions } from '..'
 import { FormDataProvider, getDefaultItemData, useFormData } from './providers/FormDataProvider'
 import { getPathData } from './providers/FormDataProvider'
 import { formatTitle } from './titleutils'
 
 type ComponentMeta<Type extends BaseType = BaseType> = {
   type: Type
-  Component: ZuiReactComponent<Type, 'default'>
+  Component: ZuiReactComponent<Type, 'default', any>
   id: string
   params: any
 }
 
 const resolveComponent = <Type extends BaseType>(
-  components: ZuiComponentMap | undefined,
+  components: ZuiComponentMap<any> | undefined,
   fieldSchema: JSONSchema,
 ): ComponentMeta<Type> | null => {
   const type = fieldSchema.type as BaseType
@@ -41,7 +41,7 @@ const resolveComponent = <Type extends BaseType>(
     }
 
     return {
-      Component: defaultComponent as ZuiReactComponent<Type, 'default'>,
+      Component: defaultComponent as ZuiReactComponent<Type, 'default', any>,
       type: type as Type,
       id: 'default',
       params: {},
@@ -60,14 +60,14 @@ const resolveComponent = <Type extends BaseType>(
   const params = uiDefinition[1] || {}
 
   return {
-    Component: Component as ZuiReactComponent<Type, 'default'>,
+    Component: Component as ZuiReactComponent<Type, 'default', any>,
     type: type as Type,
     id: componentID,
     params,
   }
 }
 
-export type ZuiFormProps<UI extends UIComponentDefinitions = GlobalComponentDefinitions> = {
+export type ZuiFormProps<UI extends UIComponentDefinitions = DefaultComponentDefinitions> = {
   schema: JSONSchema
   components: ZuiComponentMap<UI>
   value: any
@@ -75,7 +75,7 @@ export type ZuiFormProps<UI extends UIComponentDefinitions = GlobalComponentDefi
   disableValidation?: boolean
 }
 
-export const ZuiForm = <UI extends UIComponentDefinitions = GlobalComponentDefinitions>({
+export const ZuiForm = <UI extends UIComponentDefinitions = DefaultComponentDefinitions>({
   schema,
   components,
   onChange,
@@ -124,7 +124,7 @@ const FormElementRenderer: FC<FormRendererProps> = ({ components, fieldSchema, p
 
   const pathString = path.length > 0 ? path.join('.') : 'root'
 
-  const baseProps: Omit<ZuiReactComponentBaseProps<BaseType, any>, 'data' | 'isArrayChild'> = {
+  const baseProps: Omit<ZuiReactComponentBaseProps<BaseType, string, any>, 'data' | 'isArrayChild'> = {
     type,
     componentID: componentMeta.id,
     scope: pathString,
@@ -146,10 +146,10 @@ const FormElementRenderer: FC<FormRendererProps> = ({ components, fieldSchema, p
   }
 
   if (fieldSchema.type === 'array' && type === 'array') {
-    const Component = _component as any as ZuiReactComponent<'array', any>
+    const Component = _component as any as ZuiReactComponent<'array', string, any>
     const schema = baseProps.schema as ArraySchema
 
-    const props: Omit<ZuiReactComponentProps<'array', any>, 'children'> = {
+    const props: Omit<ZuiReactComponentProps<'array', string, any>, 'children'> = {
       ...baseProps,
       type,
       schema,
@@ -182,8 +182,8 @@ const FormElementRenderer: FC<FormRendererProps> = ({ components, fieldSchema, p
   }
 
   if (fieldSchema.type === 'object' && type === 'object') {
-    const Component = _component as any as ZuiReactComponent<'object', any>
-    const props: Omit<ZuiReactComponentProps<'object', any>, 'children'> = {
+    const Component = _component as any as ZuiReactComponent<'object', string, any>
+    const props: Omit<ZuiReactComponentProps<'object', string, any>, 'children'> = {
       ...baseProps,
       type,
       schema: baseProps.schema as any as ObjectSchema,
@@ -210,7 +210,7 @@ const FormElementRenderer: FC<FormRendererProps> = ({ components, fieldSchema, p
   }
   const Component = _component as any as ZuiReactComponent<any, any>
 
-  const props: ZuiReactControlComponentProps<'boolean' | 'number' | 'string', any> = {
+  const props: ZuiReactControlComponentProps<'boolean' | 'number' | 'string', string, any> = {
     ...baseProps,
     type: type as any as 'boolean' | 'number' | 'string',
     schema: baseProps.schema as any as PrimitiveSchema,

@@ -466,7 +466,7 @@ const ZuiFormWithState: FC<Omit<ZuiFormProps<any>, 'onChange' | 'value'>> = (pro
   return <ZuiForm {...props} value={state} onChange={(data) => setState(data)} />
 }
 
-const TestWrapper: FC<PropsWithChildren<ZuiReactComponentBaseProps<BaseType, any>>> = ({
+const TestWrapper: FC<PropsWithChildren<ZuiReactComponentBaseProps<BaseType, string, any>>> = ({
   children,
   type,
   scope,
