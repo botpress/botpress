@@ -1,4 +1,4 @@
-import { z, type UIComponentDefinitions } from '@bpinternal/zui'
+import { z, type UIComponentDefinitions, type DefaultComponentDefinitions } from '@bpinternal/zui'
 export * from '@bpinternal/zui'
 
 const commonInputParams = z.object({
@@ -136,9 +136,11 @@ export const studioComponentDefinitions = {
   },
 } as const satisfies UIComponentDefinitions
 
-declare module '@bpinternal/zui' {
-  type ComponentDefinitions = typeof studioComponentDefinitions
-}
+export type UI<Namespace extends 'studio' | 'dashboard' = 'studio'> = Namespace extends 'studio' ?
+  typeof studioComponentDefinitions :
+  Namespace extends 'dashboard' ?
+  DefaultComponentDefinitions
+  : any
 
 export default z
 export { z }
