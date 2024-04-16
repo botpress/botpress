@@ -136,10 +136,10 @@ export const studioComponentDefinitions = {
   },
 } as const satisfies UIComponentDefinitions
 
-export type UI<Namespace extends 'studio' | 'dashboard' = 'studio'> = Namespace extends 'studio' ?
-  typeof studioComponentDefinitions :
-  Namespace extends 'dashboard' ?
-  DefaultComponentDefinitions
+export type UI<Namespace extends 'studio' | 'dashboard' = 'studio'> = Namespace extends 'studio'
+  ? typeof studioComponentDefinitions
+  : Namespace extends 'dashboard'
+  ? DefaultComponentDefinitions
   : any
 
 export default z
