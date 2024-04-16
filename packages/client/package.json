@@ -12,12 +12,12 @@
     "https": false
   },
   "scripts": {
-    "build:type": "tsc --emitDeclarationOnly --declaration --target es2019 --module commonjs --moduleResolution node --lib es2019",
-    "build:browser": "esbuild --bundle --external:crypto --external:axios --external:browser-or-node --platform=browser --format=esm --minify --outfile=dist/index.mjs src/index.ts",
-    "build:node": "esbuild --bundle --external:axios --external:browser-or-node --platform=node --minify --sourcemap --outfile=dist/index.cjs src/index.ts",
-    "build:bundle": "esbuild --bundle --platform=node --minify --sourcemap --outfile=dist/bundle.cjs src/index.ts",
+    "type:check": "tsc --noEmit",
+    "build:type": "tsc --emitDeclarationOnly --declaration",
+    "build:browser": "ts-node -T ./build.ts --browser",
+    "build:node": "ts-node -T ./build.ts --node",
+    "build:bundle": "ts-node -T ./build.ts --bundle",
     "build": "pnpm build:type && pnpm build:node && pnpm build:browser && pnpm build:bundle",
-    "type:check": "tsc --noEmit --target es2019 --module commonjs --moduleResolution node --lib es2019",
     "generate": "ts-node ./openapi.ts",
     "test": "pnpm run e2e:test",
     "e2e:test": "ts-node -T ./e2e/node.ts && ts-node -T ./e2e/browser"
@@ -31,6 +31,8 @@
     "@botpress/api": "0.24.0",
     "esbuild": "^0.16.12",
     "lodash": "^4.17.21",
-    "puppeteer": "^22.0.0"
+    "puppeteer": "^22.0.0",
+    "ts-node": "^10.9.2",
+    "typescript": "^4.9.4"
   }
 }
