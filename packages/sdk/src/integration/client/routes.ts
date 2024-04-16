@@ -6,8 +6,6 @@ import { GetChannelByName, ToTags, WithPrefix } from './types'
 type Arg<F extends (...args: any[]) => any> = Parameters<F>[number]
 type Res<F extends (...args: any[]) => any> = ReturnType<F>
 
-type PrefixConfig<TIntegration extends BaseIntegration> = { allowPrefix: TIntegration['name'] }
-
 type AllChannels<TIntegration extends BaseIntegration> = ValueOf<TIntegration['channels']>
 
 type ConversationResponse<
@@ -17,7 +15,7 @@ type ConversationResponse<
   conversation: Merge<
     Awaited<Res<Client['getConversation']>>['conversation'],
     {
-      tags: ToTags<keyof TIntegration['channels'][ChannelName]['conversation']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof TIntegration['channels'][ChannelName]['conversation']['tags']>
     }
   >
 }
@@ -26,7 +24,7 @@ export type CreateConversation<TIntegration extends BaseIntegration> = <
   ChannelName extends keyof TIntegration['channels']
 >(x: {
   channel: Cast<ChannelName, string>
-  tags: ToTags<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags'], PrefixConfig<TIntegration>>
+  tags: ToTags<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags']>
 }) => Promise<ConversationResponse<TIntegration, ChannelName>>
 
 export type GetConversation<TIntegration extends BaseIntegration> = (
@@ -37,7 +35,7 @@ export type ListConversations<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['listConversations']>,
     {
-      tags?: ToTags<keyof AllChannels<TIntegration>['conversation']['tags'], PrefixConfig<TIntegration>>
+      tags?: ToTags<keyof AllChannels<TIntegration>['conversation']['tags']>
     }
   >
 ) => Res<Client['listConversations']> // TODO: response should contain the tags
@@ -46,14 +44,14 @@ export type GetOrCreateConversation<TIntegration extends BaseIntegration> = <
   ChannelName extends keyof TIntegration['channels']
 >(x: {
   channel: Cast<ChannelName, string>
-  tags: ToTags<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags'], PrefixConfig<TIntegration>>
+  tags: ToTags<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags']>
 }) => Promise<ConversationResponse<TIntegration, ChannelName>>
 
 export type UpdateConversation<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['updateConversation']>,
     {
-      tags: ToTags<keyof AllChannels<TIntegration>['conversation']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof AllChannels<TIntegration>['conversation']['tags']>
     }
   >
 ) => Promise<ConversationResponse<TIntegration>>
@@ -109,7 +107,7 @@ type MessageResponse<
     Awaited<Res<Client['createMessage']>>['message'],
     {
       payload: TIntegration['channels'][TChannel]['messages'][TMessage]
-      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
     }
   >
 }
@@ -123,7 +121,7 @@ export type CreateMessage<TIntegration extends BaseIntegration> = <
     {
       type: Cast<TMessage, string> // TODO: conversation should be used to infer the channel of the message
       payload: TIntegration['channels'][TChannel]['messages'][TMessage]
-      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
     }
   >
 ) => Promise<MessageResponse<TIntegration, TChannel, TMessage>>
@@ -137,7 +135,7 @@ export type GetOrCreateMessage<TIntegration extends BaseIntegration> = <
     {
       type: Cast<TMessage, string> // TODO: conversation should be used to infer the channel of the message
       payload: TIntegration['channels'][TChannel]['messages'][TMessage]
-      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
     }
   >
 ) => Promise<MessageResponse<TIntegration, TChannel, TMessage>>
@@ -151,7 +149,7 @@ export type UpdateMessage<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['updateMessage']>,
     {
-      tags: ToTags<keyof AllChannels<TIntegration>['message']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof AllChannels<TIntegration>['message']['tags']>
     }
   >
 ) => Promise<
@@ -162,7 +160,7 @@ export type ListMessages<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['listMessages']>,
     {
-      tags: ToTags<keyof AllChannels<TIntegration>['message']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof AllChannels<TIntegration>['message']['tags']>
     }
   >
 ) => Res<Client['listMessages']> // TODO: response should contain the tags
@@ -173,7 +171,7 @@ type UserResponse<TIntegration extends BaseIntegration> = {
   user: Merge<
     Awaited<Res<Client['getUser']>>['user'],
     {
-      tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof TIntegration['user']['tags']>
     }
   >
 }
@@ -182,7 +180,7 @@ export type CreateUser<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['createUser']>,
     {
-      tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof TIntegration['user']['tags']>
     }
   >
 ) => Promise<UserResponse<TIntegration>>
@@ -195,7 +193,7 @@ export type ListUsers<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['listUsers']>,
     {
-      tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof TIntegration['user']['tags']>
     }
   >
 ) => Res<Client['listUsers']>
@@ -204,7 +202,7 @@ export type GetOrCreateUser<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['getOrCreateUser']>,
     {
-      tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof TIntegration['user']['tags']>
     }
   >
 ) => Promise<UserResponse<TIntegration>>
@@ -213,7 +211,7 @@ export type UpdateUser<TIntegration extends BaseIntegration> = (
   x: Merge<
     Arg<Client['updateUser']>,
     {
-      tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof TIntegration['user']['tags']>
     }
   >
 ) => Promise<UserResponse<TIntegration>>

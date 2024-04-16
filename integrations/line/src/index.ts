@@ -1,7 +1,6 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import * as line from '@line/bot-sdk'
 import crypto from 'crypto'
-import { INTEGRATION_NAME, destIdTag, msgIdTag, usrIdTag } from './const'
 import * as bp from '.botpress'
 
 type Channels = bp.Integration['channels']
@@ -10,8 +9,6 @@ type MessageHandler = Messages[keyof Messages]
 type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 type ReplyLineProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'client' | 'ack'>
-
-console.info(`starting integration ${INTEGRATION_NAME}`)
 
 const replyLineMessage = async (props: ReplyLineProps, messageObj: line.Message) => {
   const { ctx, conversation, client, ack } = props
@@ -403,8 +400,7 @@ const integration = new bp.Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags[usrIdTag]
-
+    const userId = tags.usrId
     if (!userId) {
       return
     }
@@ -415,7 +411,7 @@ const integration = new bp.Integration({
     })
     const profile = await lineClient.getProfile(userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { [usrIdTag]: `${profile.userId}` } })
+    const { user } = await client.getOrCreateUser({ tags: { usrId: `${profile.userId}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -424,9 +420,8 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const usrId = tags[usrIdTag]
-    const destId = tags[destIdTag]
-
+    const usrId = tags.usrId
+    const destId = tags.destId
     if (!(usrId && destId)) {
       return
     }
@@ -439,7 +434,7 @@ const integration = new bp.Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { [usrIdTag]: `${profile.userId}`, [destIdTag]: destId },
+      tags: { usrId: `${profile.userId}`, destId },
     })
 
     return {
@@ -462,8 +457,8 @@ async function handleMessage(events: LineEvents, destination: string, client: bp
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        [usrIdTag]: events.source.userId,
-        [destIdTag]: destination,
+        usrId: events.source.userId,
+        destId: destination,
       },
     })
 
@@ -476,13 +471,13 @@ async function handleMessage(events: LineEvents, destination: string, client: bp
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        [usrIdTag]: events.source.userId,
+        usrId: events.source.userId,
       },
     })
 
     if (message.type === 'text') {
       await client.createMessage({
-        tags: { [msgIdTag]: message.id },
+        tags: { msgId: message.id },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,

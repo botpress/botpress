@@ -21,8 +21,5 @@ export const unregister: IntegrationProps['unregister'] = async () => {
 }
 
 export const createConversation: IntegrationProps['createConversation'] = async ({ client, channel, tags }) => {
-  await client.createConversation({
-    channel,
-    tags,
-  })
+  await client.createConversation({ channel, tags })
 }

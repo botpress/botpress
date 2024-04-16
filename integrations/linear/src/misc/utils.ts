@@ -1,8 +1,6 @@
-import type { Conversation } from '@botpress/client'
 import { Comment, Issue, IssueLabel, LinearClient, Team } from '@linear/sdk'
-import { idTag, urlTag } from '../const'
 import { LinearOauthClient } from './linear'
-import { AckFunction } from './types'
+import { AckFunction, MessageHandlerProps } from './types'
 import { Client } from '.botpress'
 
 export function getLinearClient(client: Client, integrationId: string) {
@@ -75,8 +73,8 @@ export function getCardContent(card: any) {
   return `*${card.title}*${card.subtitle ? '\n' + card.subtitle : ''}`
 }
 
-export function getIssueId(conversation: Conversation): string {
-  const issueId = conversation.tags[idTag]
+export function getIssueId(conversation: MessageHandlerProps['conversation']): string {
+  const issueId = conversation.tags.id
 
   if (!issueId) {
     throw Error(`No issue found for conversation ${conversation.id}`)
@@ -119,7 +117,7 @@ export const getUserAndConversation = async (props: {
   const linearClient = await getLinearClient(props.client, props.integrationId)
 
   // TODO: better way to know if the conversation was just created
-  if (props.forceUpdate || !conversation.tags[urlTag]) {
+  if (props.forceUpdate || !conversation.tags.url) {
     const existingIssue = await linearClient.issue(props.linearIssueId)
     const newTags = await getIssueTags(existingIssue)
 

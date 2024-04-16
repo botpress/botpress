@@ -1,13 +1,11 @@
-import type { Conversation } from '@botpress/client'
 import type { IntegrationContext, Request } from '@botpress/sdk'
 import { ChatPostMessageArguments, WebClient } from '@slack/web-api'
 import axios from 'axios'
 import * as crypto from 'crypto'
 import queryString from 'query-string'
 import VError from 'verror'
-import { INTEGRATION_NAME } from '../const'
 import { Configuration, SyncState } from '../setup'
-import { AckFunction, Client, IntegrationCtx, IntegrationLogger } from './types'
+import { AckFunction, Client, IntegrationCtx, IntegrationLogger, Conversation } from './types'
 import * as bp from '.botpress'
 
 type InteractiveBody = {
@@ -122,8 +120,8 @@ export async function onOAuth(req: Request, client: bp.Client, ctx: IntegrationC
 }
 
 export const getSlackTarget = (conversation: Conversation) => {
-  const channel = getTag(conversation.tags, 'id')
-  const thread = getTag(conversation.tags, 'thread')
+  const channel = conversation.tags.id
+  const thread = (conversation.tags as Record<string, string>).thread // TODO: fix cast in SDK typings
 
   if (!channel) {
     throw Error(`No channel found for conversation ${conversation.id}`)
@@ -217,10 +215,6 @@ export const respondInteractive = async (body: InteractiveBody): Promise<string>
   } catch (err: any) {
     throw new VError(err, 'Error while responding to interactive request')
   }
-}
-
-export const getTag = (tags: Record<string, string>, name: string) => {
-  return tags[`${INTEGRATION_NAME}:${name}`]
 }
 
 export const getUserAndConversation = async (

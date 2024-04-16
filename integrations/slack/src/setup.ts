@@ -1,6 +1,6 @@
 import { WebClient } from '@slack/web-api'
 import { CreateConversationFunction, CreateUserFunction, RegisterFunction, UnregisterFunction } from './misc/types'
-import { getAccessToken, getDirectMessageForUser, getTag, isUserId, saveConfig } from './misc/utils'
+import { getAccessToken, getDirectMessageForUser, isUserId, saveConfig } from './misc/utils'
 
 export type SyncState = { usersLastSyncTs?: number }
 export type Configuration = { botUserId?: string }
@@ -26,8 +26,7 @@ export const unregister: UnregisterFunction = async () => {
 }
 
 export const createUser: CreateUserFunction = async ({ client, tags, ctx }) => {
-  const userId = getTag(tags, 'id')
-
+  const userId = tags.id
   if (!userId) {
     return
   }
@@ -50,8 +49,8 @@ export const createUser: CreateUserFunction = async ({ client, tags, ctx }) => {
 }
 
 export const createConversation: CreateConversationFunction = async ({ client, channel, tags, ctx }) => {
-  let conversationId = getTag(tags, 'id')
-  const thread = getTag(tags, 'thread')
+  let conversationId = tags.id
+  const thread = (tags as Record<string, string>).thread // TODO: fix cast in SDK typings
 
   if (!conversationId) {
     return

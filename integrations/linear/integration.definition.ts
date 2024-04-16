@@ -1,11 +1,10 @@
 import { IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { INTEGRATION_NAME } from './src/const'
 import { actions, channels, events, configuration, user, states, entities } from './src/definitions'
 
 export default new IntegrationDefinition({
-  name: INTEGRATION_NAME,
-  version: '0.2.1',
+  name: 'linear',
+  version: '0.3.0',
   title: 'Linear',
   description:
     'Elevate project management with Linear. Update, create, and track issues effortlessly. Improve collaboration with workflow actions like marking duplicates, managing teams and connect your chatbot directly in discussions',

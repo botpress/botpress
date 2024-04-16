@@ -13,7 +13,6 @@ import {
   Reaction,
 } from 'whatsapp-api-js/messages'
 import { ServerErrorResponse, ServerSentMessageResponse } from 'whatsapp-api-js/types'
-import { phoneNumberIdTag, userPhoneTag } from './const'
 import * as types from './types'
 import { sleep } from './util'
 
@@ -40,8 +39,8 @@ export type SendMessageProps = {
 
 export async function send({ ctx, conversation, message, ack, logger }: SendMessageProps) {
   const whatsapp = new WhatsAppAPI({ token: ctx.configuration.accessToken, secure: false })
-  const phoneNumberId = conversation.tags[phoneNumberIdTag]
-  const to = conversation.tags[userPhoneTag]
+  const phoneNumberId = conversation.tags.phoneNumberId
+  const to = conversation.tags.userPhone
   const messageType = message._type
 
   if (!phoneNumberId) {

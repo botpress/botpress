@@ -2,6 +2,9 @@ import * as sdk from '@botpress/sdk'
 import type * as botpress from '.botpress'
 
 export type Client = botpress.Client
+export type User = Awaited<ReturnType<Client['getUser']>>['user']
+export type Message = Awaited<ReturnType<Client['createMessage']>>['message']
+export type Conversation = Awaited<ReturnType<Client['getConversation']>>['conversation']
 
 /**
  * @deprecated Use `botpress.IntegrationProps` instead
