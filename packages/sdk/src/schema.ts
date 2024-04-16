@@ -1,5 +1,5 @@
-import type z from './zui'
 import { AnyZodObject } from './type-utils'
+import type z from './zui'
 
 type SchemaOptions<T> = {
   title: string

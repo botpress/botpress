@@ -1,6 +1,6 @@
+import { z, transforms } from '@botpress/sdk'
 import type { JsonSchema7Type } from '@bpinternal/zod-to-json-schema/src/parseDef'
 import type { JsonSchema7ObjectType } from '@bpinternal/zod-to-json-schema/src/parsers/object'
-import { z, transforms } from '@botpress/sdk'
 
 type SchemaOptions = {
   title?: string
