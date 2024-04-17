@@ -1232,6 +1232,9 @@ importers:
       '@botpress/client':
         specifier: 0.14.0
         version: link:../client
+      '@botpress/sdk':
+        specifier: 0.8.0
+        version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
         version: 0.0.20
@@ -1305,9 +1308,6 @@ importers:
         specifier: ^3.8.2
         version: 3.9.0
     devDependencies:
-      '@botpress/sdk':
-        specifier: 0.8.0
-        version: link:../sdk
       '@bpinternal/log4bot':
         specifier: ^0.0.4
         version: 0.0.4
