@@ -1,9 +1,10 @@
 import { axios } from '@botpress/client'
+import { AssertionError } from 'assert'
 import _ from 'lodash'
 import { Context, Markup, Telegraf, Telegram } from 'telegraf'
 import { PhotoSize, Update, User } from 'telegraf/typings/core/types/typegram'
-
 import { Card, AckFunction, Logger, MessageHandlerProps, BotpressMessage, TelegramMessage } from './types'
+import * as bp from '.botpress'
 
 export const USER_PICTURE_MAX_SIZE_BYTES = 25_000
 
@@ -210,3 +211,26 @@ export const convertTelegramMessageToBotpressMessage = async ({
 
   throw new Error('Unsupported message type')
 }
+
+type Webhook = bp.Integration['webhook']
+type AugmentedWebhook = (arg: Parameters<Webhook>[0]) => ReturnType<Webhook>
+
+export class WebhookAssertionError extends Error {}
+
+export const wrapHandler =
+  (handler: AugmentedWebhook) =>
+  async (...props: Parameters<Webhook>) => {
+    const args = props[0]
+
+    try {
+      return handler({
+        ...args,
+      })
+    } catch (err) {
+      if (err instanceof AssertionError) {
+        args.logger.forBot().error('Assertion Error:', err.message)
+      } else {
+        throw err
+      }
+    }
+  }

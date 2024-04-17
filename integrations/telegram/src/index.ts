@@ -1,4 +1,5 @@
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { ok } from 'assert/strict'
 
 import { Markup, Telegraf } from 'telegraf'
 import type { User } from 'telegraf/typings/core/types/typegram'
@@ -11,6 +12,7 @@ import {
   sendCard,
   ackMessage,
   convertTelegramMessageToBotpressMessage,
+  wrapHandler,
 } from './misc/utils'
 import * as bp from '.botpress'
 
@@ -115,63 +117,28 @@ const integration = new bp.Integration({
       },
     },
   },
-  handler: async ({ req, client, ctx, logger }) => {
+  handler: wrapHandler(async ({ req, client, ctx, logger }) => {
     logger.forBot().debug('Handler received request from Telegram with payload:', req.body)
 
-    if (!req.body) {
-      logger.forBot().warn('Handler received an empty body, so the message was ignored')
-      return
-    }
+    ok(req.body, 'Handler received an empty body, so the message was ignored')
 
     const data = JSON.parse(req.body)
 
-    if (data.my_chat_member) {
-      logger.forBot().warn('Handler received a chat member update, so the message was ignored')
-      return
-    }
-
-    if (data.channel_post) {
-      logger.forBot().warn('Handler received a channel post, so the message was ignored')
-      return
-    }
-
-    if (data.edited_channel_post) {
-      logger.forBot().warn('Handler received an edited channel post, so the message was ignored')
-      return
-    }
-
-    if (data.edited_message) {
-      logger.forBot().warn('Handler received an edited message, so the message was ignored')
-      return
-    }
-
-    if (!data.message) {
-      logger.forBot().warn('Handler received a non-message update, so the event was ignored')
-      return
-    }
+    ok(!data.my_chat_member, 'Handler received a chat member update, so the message was ignored')
+    ok(!data.channel_post, 'Handler received a channel post, so the message was ignored')
+    ok(!data.edited_channel_post, 'Handler received an edited channel post, so the message was ignored')
+    ok(!data.edited_message, 'Handler received an edited message, so the message was ignored')
+    ok(data.message, 'Handler received a non-message update, so the event was ignored')
 
     const message = data.message as TelegramMessage
-
-    if (message.from?.is_bot) {
-      logger.forBot().warn('Handler received a message from a bot, so the message was ignored')
-      return
-    }
-
     const conversationId = message.chat.id
     const userId = message.from?.id
     const messageId = message.message_id
 
-    if (!conversationId) {
-      throw new Error('Handler received message with empty "chat.id" value')
-    }
-
-    if (!userId) {
-      throw new Error('Handler received message with empty "from.id" value')
-    }
-
-    if (!messageId) {
-      throw new Error('Handler received an empty message id')
-    }
+    ok(!message.from?.is_bot, 'Handler received a message from a bot, so the message was ignored')
+    ok(conversationId, 'Handler received message with empty "chat.id" value')
+    ok(userId, 'Handler received message with empty "from.id" value')
+    ok(messageId, 'Handler received an empty message id')
 
     const userName = getUserNameFromTelegramUser(message.from as User)
 
@@ -228,7 +195,7 @@ const integration = new bp.Integration({
       userId: user.id,
       conversationId: conversation.id,
     })
-  },
+  }),
   createUser: async ({ client, tags, ctx }) => {
     const strId = tags.id
     const userId = Number(strId)
