@@ -850,9 +850,15 @@ importers:
       '@sentry/node':
         specifier: 7.53.1
         version: 7.53.1
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
       telegraf:
         specifier: ^4.11.2
         version: 4.12.2
+      zod:
+        specifier: ^3.20.6
+        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -860,6 +866,9 @@ importers:
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
+      '@types/lodash':
+        specifier: ^4.14.191
+        version: 4.14.195
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.16
