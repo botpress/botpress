@@ -8,9 +8,6 @@ dependencies:
   '@apidevtools/json-schema-ref-parser':
     specifier: ^11.5.4
     version: 11.5.4
-  '@bpinternal/json-schema-to-zod':
-    specifier: ^2.0.15
-    version: 2.0.15
   lodash:
     specifier: ^4.17.21
     version: 4.17.21
@@ -1447,10 +1444,6 @@ packages:
   /@base2/pretty-print-object@1.0.1:
     resolution: {integrity: sha512-4iri8i1AqYHJE2DstZYkyEprg6Pq6sKx3xn5FpySk9sNhH7qN2LLlHJCfDTZRILNwQNPD7mATWM0TBui7uC1pA==}
     dev: true
-
-  /@bpinternal/json-schema-to-zod@2.0.15:
-    resolution: {integrity: sha512-CEi5XbffaDBAV+Ghqifx8XN+QZ/lzTGsWPn62uiTwD+arpqdlNZs7a0gtkNz1Fkr0KmkHWTZtzUdYNjIqIszTw==}
-    dev: false
 
   /@colors/colors@1.5.0:
     resolution: {integrity: sha512-ooWCrlZP11i8GImSjTHYHLkvFDP48nS4+204nGb1RiX/WXYHmJA2III9/e2DWVabCESdW7hBAEzHRqUn9OUVvQ==}

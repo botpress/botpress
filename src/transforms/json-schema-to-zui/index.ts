@@ -1,4 +1,3 @@
-import { parseSchema } from '@bpinternal/json-schema-to-zod'
 import {
   type ZodAnyDef,
   type ZodArrayDef,
@@ -22,6 +21,7 @@ import {
 } from '../../z/index'
 import { zuiKey } from '../../ui/constants'
 import { JsonSchema7Type } from '../zui-to-json-schema/parseDef'
+import { parseSchema } from './parsers/parseSchema'
 
 const jsonSchemaToZodStr = (schema: any): string => {
   return parseSchema(schema, {
