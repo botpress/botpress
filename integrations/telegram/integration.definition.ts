@@ -20,6 +20,7 @@ export default new IntegrationDefinition({
       message: { tags: { id: {}, chatId: {} } },
       conversation: {
         tags: { id: {}, fromUserId: {}, fromUserName: {}, chatId: {} },
+        creation: { enabled: true, requiredTags: ['id'] },
       },
     },
   },
@@ -30,5 +31,6 @@ export default new IntegrationDefinition({
     tags: {
       id: {},
     },
+    creation: { enabled: true, requiredTags: ['id'] },
   },
 })
