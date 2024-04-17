@@ -17,8 +17,7 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "query-string": "^6.14.1",
-    "twilio": "^3.84.0",
-    "zod": "^3.20.6"
+    "twilio": "^3.84.0"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

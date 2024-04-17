@@ -14,8 +14,7 @@
   "dependencies": {
     "@botpress/messaging-client": "1.2.1",
     "@botpress/sdk": "workspace:*",
-    "@botpress/sdk-addons": "workspace:*",
-    "zod": "^3.20.6"
+    "@botpress/sdk-addons": "workspace:*"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

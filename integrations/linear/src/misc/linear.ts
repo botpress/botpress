@@ -1,8 +1,7 @@
-import { IntegrationContext, Request } from '@botpress/sdk'
+import { z, IntegrationContext, Request } from '@botpress/sdk'
 import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
 import queryString from 'query-string'
-import { z } from 'zod'
 import * as bp from '.botpress'
 
 type BaseEvent = {

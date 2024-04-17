@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '@botpress/sdk'
 import * as schemas from './custom-schemas'
 
 type SchemaOptions<T> = {

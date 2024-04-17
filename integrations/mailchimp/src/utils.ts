@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
+import { ZodError } from '@botpress/sdk'
 import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
-import { ZodError } from 'zod'
 import { MailchimpApi } from './client'
 import { Customer, MailchimpAPIError } from './misc/custom-types'
 import * as bp from '.botpress'

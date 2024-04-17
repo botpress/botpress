@@ -19,8 +19,7 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "axios": "^1.3.4",
-    "qs": "^6.11.0",
-    "zod": "^3.20.6"
+    "qs": "^6.11.0"
   },
   "devDependencies": {
     "@sentry/cli": "^2.18.1",

@@ -1,6 +1,5 @@
 import { ResourceNotFoundError } from '@botpress/client'
-import type { IntegrationContext } from '@botpress/sdk'
-import { z } from 'zod'
+import { z, IntegrationContext } from '@botpress/sdk'
 import {
   TriggerSubscriber,
   ZapierTriggersStateName,

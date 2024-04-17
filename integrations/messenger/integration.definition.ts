@@ -1,10 +1,9 @@
-import { IntegrationDefinition, messages } from '@botpress/sdk'
+import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { z } from 'zod'
 
 export default new IntegrationDefinition({
   name: 'messenger',
-  version: '0.3.0',
+  version: '0.4.0',
   title: 'Messenger',
   description: 'This integration allows your bot to interact with Messenger.',
   icon: 'icon.svg',

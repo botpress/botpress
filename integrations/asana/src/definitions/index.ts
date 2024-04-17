@@ -1,5 +1,4 @@
-import type { IntegrationDefinitionProps } from '@botpress/sdk'
-import z from 'zod'
+import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 
 export { actions } from './actions'
 export { channels } from './channels'

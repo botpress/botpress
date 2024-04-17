@@ -1,4 +1,4 @@
-import type { z } from 'zod'
+import type z from './zui'
 
 export type AnyZodObject = z.ZodObject<any>
 export type Merge<A extends object, B extends object> = Omit<A, keyof B> & B

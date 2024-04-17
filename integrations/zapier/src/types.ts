@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '@botpress/sdk'
 import * as botpress from '.botpress'
 
 export type Client = botpress.Client

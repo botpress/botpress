@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '@botpress/sdk'
 import * as botpress from '.botpress'
 
 const telegram = new botpress.telegram.Telegram({
