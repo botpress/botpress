@@ -1,5 +1,4 @@
-import { IntegrationDefinition } from '@botpress/sdk'
-import { z } from 'zod'
+import { z, IntegrationDefinition } from '@botpress/sdk'
 
 const sizeDescription =
   'Size of the image to generate. Can be "1024x1024", "1792x1024", or "1024x1792". Defaults to 1024x1024.'
@@ -8,7 +7,7 @@ const modelDescription = 'Model to use for image generation. Defaults to "dall-e
 
 export default new IntegrationDefinition({
   name: 'dalle',
-  version: '0.2.0',
+  version: '0.3.0',
   icon: 'icon.svg',
   title: 'DALL-E Image Generation',
   description: 'Integrate DALL-E to generate stunning and unique images directly within your chatbot conversations',

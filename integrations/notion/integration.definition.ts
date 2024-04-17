@@ -1,5 +1,4 @@
-import { IntegrationDefinition } from '@botpress/sdk'
-import { z } from 'zod'
+import { z, IntegrationDefinition } from '@botpress/sdk'
 
 const emptyObject = z.object({})
 const anyObject = z.object({}).passthrough()
@@ -9,7 +8,7 @@ export default new IntegrationDefinition({
   description:
     'Supercharge your productivity with Notion integration. Add pages and comments, manage databases, and engage in discussions—all within your chatbot',
   title: 'Notion',
-  version: '0.2.1',
+  version: '0.3.0',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

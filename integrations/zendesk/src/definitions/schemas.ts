@@ -1,5 +1,5 @@
+import { z } from '@botpress/sdk'
 import { omit } from 'lodash'
-import { z } from 'zod'
 
 export const ticketSchema = z.object({
   id: z.number(),

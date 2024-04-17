@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '@botpress/sdk'
 import * as bp from '.botpress'
 
 const github = new bp.github.Github()

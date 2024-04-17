@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from '@botpress/sdk'
 
 export const TriggerSchema = z.object({
   origin: z.literal('website').describe('The origin of the event trigger'),

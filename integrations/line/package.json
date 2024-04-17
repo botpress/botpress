@@ -18,8 +18,7 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "@line/bot-sdk": "^7.5.2",
-    "crypto": "^1.0.1",
-    "zod": "^3.20.6"
+    "crypto": "^1.0.1"
   },
   "devDependencies": {
     "@sentry/cli": "^2.18.1",

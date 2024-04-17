@@ -4,7 +4,7 @@ import { configuration, states, user, actions } from './src/definitions'
 
 export default new IntegrationDefinition({
   name: 'trello',
-  version: '0.2.1',
+  version: '0.3.0',
   title: 'Trello',
   readme: 'hub.md',
   description:

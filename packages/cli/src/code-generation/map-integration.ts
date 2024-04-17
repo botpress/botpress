@@ -1,6 +1,6 @@
 import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
-import { z } from 'zod'
+import { z } from '@botpress/sdk'
 import * as utils from '../utils'
 import * as types from './typings'
 

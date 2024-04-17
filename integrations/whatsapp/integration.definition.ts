@@ -1,6 +1,5 @@
-import { IntegrationDefinition, messages } from '@botpress/sdk'
+import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { z } from 'zod'
 
 export const channel = 'channel' // TODO: Rename to "whatsapp" once support for integration versioning is finished.
 
@@ -31,7 +30,7 @@ const TagsForCreatingConversation = {
 
 export default new IntegrationDefinition({
   name: 'whatsapp',
-  version: '0.3.0',
+  version: '0.4.0',
   title: 'WhatsApp',
   description: 'This integration allows your bot to interact with WhatsApp.',
   icon: 'icon.svg',
