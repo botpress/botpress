@@ -1,4 +1,4 @@
-import type { z } from 'zod'
+import type { z } from '@botpress/sdk'
 import type { cardSchema } from './content-types'
 
 type InputActionType = 'postback' | 'url' | 'say'

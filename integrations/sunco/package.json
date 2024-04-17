@@ -17,8 +17,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "sunshine-conversations-client": "^9.12.0",
-    "zod": "^3.20.6"
+    "sunshine-conversations-client": "^9.12.0"
   },
   "devDependencies": {
     "@sentry/cli": "^2.18.1",

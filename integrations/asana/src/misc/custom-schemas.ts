@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from '@botpress/sdk'
 import { photoSchema, workspaceSchema } from './sub-schemas'
 
 export const createTaskInputSchema = z.object({

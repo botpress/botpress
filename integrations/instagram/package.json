@@ -18,8 +18,7 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "messaging-api-messenger": "^1.1.0",
-    "query-string": "^6.14.1",
-    "zod": "^3.20.6"
+    "query-string": "^6.14.1"
   },
   "devDependencies": {
     "@sentry/cli": "^2.18.1",

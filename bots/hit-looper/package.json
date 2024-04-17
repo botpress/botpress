@@ -10,8 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*",
-    "zod": "^3.20.6"
+    "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
     "@bpinternal/es-node": "^0.0.5",

@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '@botpress/sdk'
 import * as ct from './content-types'
 import { triggerSchema } from './triggers'
 

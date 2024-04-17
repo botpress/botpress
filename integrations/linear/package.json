@@ -17,8 +17,7 @@
     "@linear/sdk": "^2.6.0",
     "axios": "^1.4.0",
     "query-string": "^6.14.1",
-    "tsafe": "^1.6.4",
-    "zod": "^3.20.6"
+    "tsafe": "^1.6.4"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
