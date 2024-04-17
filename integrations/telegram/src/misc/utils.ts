@@ -1,5 +1,5 @@
 import { axios } from '@botpress/client'
-import { AssertionError } from 'assert'
+import { AssertionError, ok } from 'assert'
 import _ from 'lodash'
 import { Context, Markup, Telegraf, Telegram } from 'telegraf'
 import { PhotoSize, Update, User } from 'telegraf/typings/core/types/typegram'
@@ -148,10 +148,7 @@ export const convertTelegramMessageToBotpressMessage = async ({
   if ('photo' in message) {
     const photo = _.maxBy(message.photo, (photo) => photo.height * photo.width)
 
-    if (!photo) {
-      throw new Error('No photo found in the message')
-    }
-
+    ok(photo, 'No photo found in message')
     const fileUrl = await telegram.getFileLink(photo.file_id)
 
     return {
