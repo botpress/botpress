@@ -152,6 +152,9 @@ const integration = new bp.Integration({
             },
           })
         },
+        bloc: () => {
+          throw new Error('Not implemented')
+        },
       },
     },
   },

@@ -205,6 +205,9 @@ const defaultMessages: Channels['channel']['messages'] = {
       }
     )
   },
+  bloc: () => {
+    throw new Error('Not implemented')
+  },
 }
 
 export default {

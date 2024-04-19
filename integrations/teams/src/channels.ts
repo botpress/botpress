@@ -184,6 +184,9 @@ const channel = {
       }
       await renderTeams(props, activity)
     },
+    bloc: () => {
+      throw new Error('Not implemented')
+    },
   },
 } satisfies botpress.IntegrationProps['channels']['channel']
 

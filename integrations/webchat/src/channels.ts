@@ -87,6 +87,9 @@ export default {
           },
         })
       },
+      bloc: () => {
+        throw new Error('Not implemented')
+      },
     },
   },
 } satisfies Channels

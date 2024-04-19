@@ -119,6 +119,9 @@ const integration = new bp.Integration({
             inReplyTo: state.payload.inReplyTo,
           })
         },
+        bloc: () => {
+          throw new Error('Not implemented')
+        },
       },
     },
   },

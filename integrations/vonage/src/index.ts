@@ -60,6 +60,9 @@ const integration = new bp.Integration({
           const payload = formatChoicePayload(props.payload)
           await sendMessage(props, payload)
         },
+        bloc: () => {
+          throw new Error('Not implemented')
+        },
       },
     },
   },

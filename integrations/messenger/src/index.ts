@@ -78,6 +78,9 @@ const integration = new bp.Integration({
             props.logger.forBot().debug('Sending choice message from bot to Messenger:', choiceMessage)
             return messenger.sendMessage(recipientId, getChoiceMessage(payload))
           }),
+        bloc: () => {
+          throw new Error('Not implemented')
+        },
       },
     },
   },

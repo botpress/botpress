@@ -19,6 +19,7 @@ const integration = new bp.Integration({
         card: async () => {},
         dropdown: async () => {},
         choice: async () => {},
+        bloc: async () => {},
       },
     },
   },

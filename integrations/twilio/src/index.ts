@@ -46,6 +46,9 @@ const integration = new bp.Integration({
         choice: async (props) => {
           await sendMessage({ ...props, text: renderChoiceMessage(props.payload) })
         },
+        bloc: () => {
+          throw new Error('Not implemented')
+        },
       },
     },
   },

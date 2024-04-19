@@ -356,6 +356,9 @@ const integration = new bp.Integration({
             contents,
           } satisfies line.FlexMessage)
         },
+        bloc: () => {
+          throw new Error('Not implemented')
+        },
       },
     },
   },

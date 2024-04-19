@@ -18,6 +18,9 @@ export default {
       },
       dropdown: ({ payload, ...props }) => createComment({ ...props, content: payload.text }),
       choice: ({ payload, ...props }) => createComment({ ...props, content: payload.text }),
+      bloc: () => {
+        throw new Error('Not implemented')
+      },
     },
   },
 } satisfies IntegrationProps['channels']

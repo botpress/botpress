@@ -162,6 +162,9 @@ const integration = new bp.Integration({
             ack,
           })
         },
+        bloc: () => {
+          throw new Error('Not implemented')
+        },
       },
     },
   },

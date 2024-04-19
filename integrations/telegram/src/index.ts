@@ -114,6 +114,9 @@ const integration = new bp.Integration({
           const message = await client.telegram.sendMessage(chat, payload.text, Markup.keyboard(buttons).oneTime())
           await ackMessage(message, ack)
         },
+        bloc: () => {
+          throw new Error('Not implemented')
+        },
       },
     },
   },
