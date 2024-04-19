@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '@botpress/sdk'
 
 export const webchatVisibility = z.object({
   type: z.literal('webchat-visibility'),

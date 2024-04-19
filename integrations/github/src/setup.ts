@@ -1,5 +1,5 @@
 import { Octokit } from 'octokit'
-import { CreateConversationFunction, CreateUserFunction, RegisterFunction, UnregisterFunction } from './misc/types'
+import { RegisterFunction, UnregisterFunction } from './misc/types'
 
 export const register: RegisterFunction = async ({ ctx, webhookUrl, client }) => {
   const { owner, repo, token } = ctx.configuration
@@ -49,12 +49,4 @@ export const unregister: UnregisterFunction = async ({ ctx, client, logger }) =>
   }
 
   await octokit.rest.repos.deleteWebhook({ owner, repo, hook_id: state.payload.webhookId })
-}
-
-export const createUser: CreateUserFunction = async () => {
-  // not necessary
-}
-
-export const createConversation: CreateConversationFunction = async () => {
-  // not necessary
 }

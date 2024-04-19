@@ -1,6 +1,6 @@
+import { z } from '@botpress/sdk'
 import { Issue } from '@linear/sdk'
 
-import { z } from 'zod'
 import { issueSchema } from '../definitions/schemas'
 import { getLinearClient } from '../misc/utils'
 import { IntegrationProps } from '.botpress'

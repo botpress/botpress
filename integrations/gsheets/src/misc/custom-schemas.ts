@@ -1,5 +1,4 @@
-import { IntegrationDefinition } from '@botpress/sdk'
-import z from 'zod'
+import { z, IntegrationDefinition } from '@botpress/sdk'
 
 export type ActionDefinitions = NonNullable<IntegrationDefinition['actions']>
 export type Schema = ActionDefinitions[string]['input']['schema']

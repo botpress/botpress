@@ -1,11 +1,9 @@
-import { IntegrationDefinition, messages } from '@botpress/sdk'
+import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { z } from 'zod'
-import { INTEGRATION_NAME } from './src/const'
 
 export default new IntegrationDefinition({
-  name: INTEGRATION_NAME,
-  version: '0.2.0',
+  name: 'line',
+  version: '0.4.0',
   title: 'Line',
   description: 'This integration allows your bot to interact with Line.',
   icon: 'icon.svg',

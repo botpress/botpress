@@ -2,10 +2,6 @@
 
 Official Botpress HTTP client for TypeScript. Queries the [Botpress API](https://botpress.com/docs/api/).
 
-## Disclaimer ⚠️
-
-This package is still in development and is not ready for production use. Use it at your own risk.
-
 ## Installation
 
 ```bash

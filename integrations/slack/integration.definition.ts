@@ -1,8 +1,6 @@
-import { IntegrationDefinition } from '@botpress/sdk'
+import { z, IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { z } from 'zod'
 
-import { INTEGRATION_NAME } from './src/const'
 import {
   addReaction,
   channel,
@@ -17,10 +15,10 @@ import {
 } from './src/definitions'
 
 export default new IntegrationDefinition({
-  name: INTEGRATION_NAME,
+  name: 'slack',
   title: 'Slack',
   description: 'This integration allows your bot to interact with Slack.',
-  version: '0.2.0',
+  version: '0.4.0',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

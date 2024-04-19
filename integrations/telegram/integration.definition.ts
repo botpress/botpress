@@ -1,11 +1,9 @@
-import { IntegrationDefinition, messages } from '@botpress/sdk'
+import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { INTEGRATION_NAME } from 'src/const'
-import { z } from 'zod'
 
 export default new IntegrationDefinition({
-  name: INTEGRATION_NAME,
-  version: '0.2.1',
+  name: 'telegram',
+  version: '0.4.1',
   title: 'Telegram',
   description: 'This integration allows your bot to interact with Telegram.',
   icon: 'icon.svg',

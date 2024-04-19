@@ -9,7 +9,6 @@ import {
   MessageFactory,
 } from 'botbuilder'
 import '@botpress/client'
-import { idTag } from './const'
 import * as botpress from '.botpress'
 
 type Messages = botpress.Integration['channels']['channel']['messages']
@@ -51,7 +50,7 @@ const renderTeams = async ({ ctx, ack, conversation, client }: RenderProps, acti
     }
 
     await turnContext.sendActivity(activity)
-    await ack({ tags: { [idTag]: turnContext.activity.id } })
+    await ack({ tags: { id: turnContext.activity.id } })
   })
 }
 

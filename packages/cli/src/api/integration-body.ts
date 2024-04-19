@@ -1,5 +1,5 @@
 import type { Client, Integration } from '@botpress/client'
-import * as sdk from '@botpress/sdk'
+import type * as sdk from '@botpress/sdk'
 import * as utils from '../utils'
 
 export type CreateIntegrationBody = Parameters<Client['createIntegration']>[0]

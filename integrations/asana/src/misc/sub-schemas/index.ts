@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from '@botpress/sdk'
 
 const workspaceSchema = z.object({
   gid: z.string(),

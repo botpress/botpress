@@ -2,14 +2,12 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import actions from './actions'
 import channels from './channels'
 import { handler } from './handler'
-import { register, unregister, createUser, createConversation } from './setup'
+import { register, unregister } from './setup'
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({
   register,
   unregister,
-  createUser,
-  createConversation,
   handler,
   actions,
   channels,

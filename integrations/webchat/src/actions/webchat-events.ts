@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from '@botpress/sdk'
 import { send } from '../handler'
 import { triggerSchema } from '../misc/messaging/triggers'
 import { Implementation } from '../misc/types'

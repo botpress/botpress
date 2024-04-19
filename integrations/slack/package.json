@@ -20,8 +20,7 @@
     "fuse.js": "^6.6.2",
     "lodash": "^4.17.21",
     "query-string": "^6.14.1",
-    "verror": "^1.10.1",
-    "zod": "^3.20.6"
+    "verror": "^1.10.1"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

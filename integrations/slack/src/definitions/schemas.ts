@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from '@botpress/sdk'
 
 const plainTextSchema = z.object({ type: z.literal('plain_text'), text: z.string() }).strict()
 const markdownSchema = z.object({ type: z.literal('mrkdwn'), text: z.string() }).strict()

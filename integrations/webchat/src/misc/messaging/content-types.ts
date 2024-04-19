@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '@botpress/sdk'
 
 /**
  * Schemas as defined by the Messaging API

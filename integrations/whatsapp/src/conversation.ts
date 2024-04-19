@@ -1,19 +1,10 @@
 import { Conversation, RuntimeError } from '@botpress/client'
+import { z } from '@botpress/sdk'
 import WhatsAppAPI from 'whatsapp-api-js'
 import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { ServerErrorResponse, ServerMessageResponse } from 'whatsapp-api-js/types'
-import z from 'zod'
-import { IntegrationCtx, IntegrationLogger } from '.'
-import {
-  PhoneNumberIdTag,
-  UserPhoneTag,
-  phoneNumberIdTag,
-  userPhoneTag,
-  templateLanguageTag,
-  templateNameTag,
-  templateVariablesTag,
-} from './const'
+import * as types from './types'
 import * as botpress from '.botpress'
 import { Channels } from '.botpress/implementation/channels'
 
@@ -30,8 +21,8 @@ export async function startConversation(
   },
   dependencies: {
     client: botpress.Client
-    ctx: IntegrationCtx
-    logger: IntegrationLogger
+    ctx: types.IntegrationCtx
+    logger: types.Logger
   }
 ): Promise<Pick<Conversation, 'id'>> {
   const { channel, phoneNumberId, userPhone, templateName, templateVariablesJson } = params
@@ -85,8 +76,8 @@ export async function startConversation(
   const { conversation } = await client.getOrCreateConversation({
     channel,
     tags: {
-      [PhoneNumberIdTag]: phoneNumberId,
-      [UserPhoneTag]: userPhone,
+      phoneNumberId,
+      userPhone,
     },
   })
 
@@ -138,11 +129,11 @@ export const createConversationHandler: botpress.IntegrationProps['createConvers
   ctx,
   logger,
 }) => {
-  const phoneNumberId = tags[phoneNumberIdTag] || ctx.configuration.phoneNumberId
-  const userPhone = tags[userPhoneTag] || ''
-  const templateName = tags[templateNameTag] || ''
-  const templateLanguage = tags[templateLanguageTag]
-  const templateVariablesJson = tags[templateVariablesTag]
+  const phoneNumberId = tags.phoneNumberId || ctx.configuration.phoneNumberId
+  const userPhone = tags.userPhone || ''
+  const templateName = tags.templateName || ''
+  const templateLanguage = tags.templateLanguage
+  const templateVariablesJson = tags.templateVariables
 
   const conversation = await startConversation(
     { channel, phoneNumberId, userPhone, templateName, templateLanguage, templateVariablesJson },
@@ -156,7 +147,7 @@ export const createConversationHandler: botpress.IntegrationProps['createConvers
   }
 }
 
-function logForBotAndThrow(message: string, logger: IntegrationLogger): never {
+function logForBotAndThrow(message: string, logger: types.Logger): never {
   logger.forBot().error(message)
   throw new RuntimeError(message)
 }
