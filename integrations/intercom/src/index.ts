@@ -4,6 +4,7 @@ import { Client, ReplyToConversationMessageType } from 'intercom-client'
 import * as html from './html.utils'
 import * as types from './types'
 import * as bp from '.botpress'
+import { RuntimeError } from '@botpress/client'
 
 type Card = bp.channels.channel.card.Card
 type Location = bp.channels.channel.location.Location
@@ -163,7 +164,7 @@ const integration = new bp.Integration({
           })
         },
         bloc: () => {
-          throw new Error('Not implemented')
+          throw new RuntimeError('Not implemented')
         },
       },
     },

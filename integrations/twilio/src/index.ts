@@ -3,6 +3,7 @@ import queryString from 'query-string'
 import { Twilio } from 'twilio'
 import * as types from './types'
 import * as bp from '.botpress'
+import { RuntimeError } from '@botpress/client'
 
 type Channels = bp.Integration['channels']
 type Messages = Channels[keyof Channels]['messages']
@@ -47,7 +48,7 @@ const integration = new bp.Integration({
           await sendMessage({ ...props, text: renderChoiceMessage(props.payload) })
         },
         bloc: () => {
-          throw new Error('Not implemented')
+          throw new RuntimeError('Not implemented')
         },
       },
     },

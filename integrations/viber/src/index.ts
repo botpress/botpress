@@ -2,6 +2,7 @@ import type { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
 import * as bp from '.botpress'
+import { RuntimeError } from '@botpress/client'
 
 type Channels = bp.Integration['channels']
 type Messages = Channels[keyof Channels]['messages']
@@ -153,7 +154,7 @@ const integration = new bp.Integration({
           })
         },
         bloc: () => {
-          throw new Error('Not implemented')
+          throw new RuntimeError('Not implemented')
         },
       },
     },

@@ -10,6 +10,7 @@ import {
 } from 'botbuilder'
 import '@botpress/client'
 import * as botpress from '.botpress'
+import { RuntimeError } from '@botpress/client'
 
 type Messages = botpress.Integration['channels']['channel']['messages']
 type MessageTypes = keyof Messages
@@ -185,7 +186,7 @@ const channel = {
       await renderTeams(props, activity)
     },
     bloc: () => {
-      throw new Error('Not implemented')
+      throw new RuntimeError('Not implemented')
     },
   },
 } satisfies botpress.IntegrationProps['channels']['channel']

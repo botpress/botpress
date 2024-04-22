@@ -12,6 +12,7 @@ import * as dropdown from './message-types/dropdown'
 import * as outgoing from './outgoing-message'
 import { WhatsAppPayload } from './whatsapp-types'
 import * as bp from '.botpress'
+import { RuntimeError } from '@botpress/client'
 
 const integration = new bp.Integration({
   register: async () => {},
@@ -112,7 +113,7 @@ const integration = new bp.Integration({
           }
         },
         bloc: () => {
-          throw new Error('Not implemented')
+          throw new RuntimeError('Not implemented')
         },
       },
     },

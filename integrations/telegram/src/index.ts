@@ -15,6 +15,7 @@ import {
   wrapHandler,
 } from './misc/utils'
 import * as bp from '.botpress'
+import { RuntimeError } from '@botpress/client'
 
 const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx }) => {
@@ -115,7 +116,7 @@ const integration = new bp.Integration({
           await ackMessage(message, ack)
         },
         bloc: () => {
-          throw new Error('Not implemented')
+          throw new RuntimeError('Not implemented')
         },
       },
     },

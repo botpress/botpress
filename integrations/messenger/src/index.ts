@@ -5,6 +5,7 @@ import { sendMessage } from './misc/outgoing-message'
 import { MessengerPayload } from './misc/types'
 import { formatGoogleMapLink, getCarouselMessage, getChoiceMessage, getMessengerClient } from './misc/utils'
 import * as bp from '.botpress'
+import { RuntimeError } from '@botpress/client'
 
 const integration = new bp.Integration({
   register: async () => {},
@@ -79,7 +80,7 @@ const integration = new bp.Integration({
             return messenger.sendMessage(recipientId, getChoiceMessage(payload))
           }),
         bloc: () => {
-          throw new Error('Not implemented')
+          throw new RuntimeError('Not implemented')
         },
       },
     },
