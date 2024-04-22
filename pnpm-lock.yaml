@@ -1239,10 +1239,10 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.14.1
+        specifier: 0.14.2
         version: link:../client
       '@botpress/sdk':
-        specifier: 0.8.1
+        specifier: 0.8.2
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1354,10 +1354,10 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.14.1
+        specifier: 0.14.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.1
+        specifier: 0.8.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1373,10 +1373,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.14.1
+        specifier: 0.14.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.1
+        specifier: 0.8.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1402,8 +1402,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.26.1
-        version: 0.26.1(openapi-types@12.1.3)
+        specifier: 0.26.2
+        version: 0.26.2(openapi-types@12.1.3)
       esbuild:
         specifier: ^0.16.12
         version: 0.16.17
@@ -1423,7 +1423,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.14.1
+        specifier: 0.14.2
         version: link:../client
       '@bpinternal/zui':
         specifier: 0.6.2
@@ -1991,8 +1991,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.26.1(openapi-types@12.1.3):
-    resolution: {integrity: sha512-FfywIAfqmbHZNXX3kaeq4XdVNb0nz64Opy0/cVEf6DXPWlX2p2LqaDD+hji6LwGmrDKnYG07Krf65cfnFUa9EA==}
+  /@botpress/api@0.26.2(openapi-types@12.1.3):
+    resolution: {integrity: sha512-SfK8+4sqLKsk9vh+lCeyHdJJCRM5w6o6G5QzgzUF91EYjq/K347uxzdqiua1BHj7VFb64qacVb6AlEqVYy1Q6w==}
     dependencies:
       '@bpinternal/opapi': 0.10.8(openapi-types@12.1.3)
     transitivePeerDependencies:
