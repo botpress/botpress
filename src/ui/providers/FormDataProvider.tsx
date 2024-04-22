@@ -2,6 +2,7 @@ import { PropsWithChildren, createContext, useContext, useMemo } from 'react'
 import React from 'react'
 import { JSONSchema } from '../types'
 import { jsonSchemaToZui } from '../../transforms/json-schema-to-zui'
+import { ROOT } from '../constants'
 
 export type FormFieldContextProps = {
   formData: any
@@ -67,6 +68,9 @@ export const useFormData = () => {
 }
 
 export function setObjectPath(obj: any, path: string, data: any): any {
+  if (path === ROOT) {
+    return data
+  }
   const pathArray = path.split('.')
   const pathArrayLength = pathArray.length
   pathArray.reduce((current: any, key: string, index: number) => {

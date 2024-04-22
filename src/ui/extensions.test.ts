@@ -44,6 +44,7 @@ const testExtensions = {
       params: z.object({ label: z.string().optional() }),
     },
   },
+  discriminatedUnion: {},
 } as const satisfies UIComponentDefinitions
 
 describe('ZUI UI Extensions', () => {

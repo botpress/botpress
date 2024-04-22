@@ -6,7 +6,7 @@ settings:
 
 dependencies:
   '@apidevtools/json-schema-ref-parser':
-    specifier: ^11.5.4
+    specifier: ^11.5.5
     version: 11.5.5
   lodash:
     specifier: ^4.17.21

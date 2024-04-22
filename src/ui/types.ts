@@ -4,6 +4,9 @@ import { zuiKey } from './constants'
 
 export type BaseSchema = {
   description?: string
+  anyOf?: JSONSchema[]
+  oneOf?: JSONSchema[]
+  allOf?: JSONSchema[]
   [zuiKey]?: {
     tooltip?: boolean
     disabled?: boolean
@@ -84,11 +87,13 @@ export type JSONSchemaOfType<T extends BaseType> = T extends 'string'
         ? ObjectSchema
         : T extends 'array'
           ? ArraySchema
-          : never
+          : T extends 'discriminatedUnion'
+            ? ObjectSchema
+            : never
 
-export type BaseType = 'number' | 'string' | 'boolean' | 'object' | 'array'
+export type BaseType = 'number' | 'string' | 'boolean' | 'object' | 'array' | 'discriminatedUnion'
 
-export const containerTypes = ['object', 'array'] as const
+export const containerTypes = ['object', 'array', 'discriminatedUnion'] as const
 export type ContainerType = (typeof containerTypes)[number]
 
 export type DefaultComponentDefinitions = {
@@ -97,6 +102,7 @@ export type DefaultComponentDefinitions = {
   boolean: {}
   object: {}
   array: {}
+  discriminatedUnion: {}
 }
 
 export type UIComponentDefinitions = {
@@ -125,7 +131,12 @@ export type ZodKindToBaseType<T extends z.ZodTypeDef> = T extends infer U
                 ? ZodKindToBaseType<U['innerType']['_def']>
                 : U extends { typeName: z.ZodFirstPartyTypeKind.ZodNullable; innerType: z.ZodTypeAny }
                   ? ZodKindToBaseType<U['innerType']['_def']>
-                  : never
+                  : U extends {
+                        typeName: z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion
+                        options: z.ZodDiscriminatedUnionOption<any>[]
+                      }
+                    ? 'discriminatedUnion'
+                    : never
   : never
 
 export type BaseTypeToType<T extends BaseType> = T extends 'string'
@@ -195,6 +206,18 @@ export type ZuiReactArrayChildProps =
       isArrayChild: false
     }
 
+export type ZuiReactDiscriminatedUnionComponentProps<
+  Type extends ContainerType,
+  ID extends keyof UI[Type],
+  UI extends UIComponentDefinitions = DefaultComponentDefinitions,
+> = ZuiReactComponentBaseProps<Type, ID, UI> & {
+  discriminatorKey: string | null
+  discriminatorOptions: string[] | null
+  discriminatorValue: string | null
+  setDiscriminator: (discriminator: string) => void
+  children: JSX.Element | JSX.Element[] | null
+}
+
 export type ZuiReactObjectComponentProps<
   Type extends ContainerType,
   ID extends keyof UI[Type],
@@ -231,7 +254,9 @@ export type ZuiReactComponentProps<
   ? ZuiReactObjectComponentProps<Type, ID, UI>
   : Type extends 'array'
     ? ZuiReactArrayComponentProps<Type, ID, UI>
-    : ZuiReactControlComponentProps<Type, ID, UI>
+    : Type extends 'discriminatedUnion'
+      ? ZuiReactDiscriminatedUnionComponentProps<Type, ID, UI>
+      : ZuiReactControlComponentProps<Type, ID, UI>
 
 export type ZuiReactComponent<
   Type extends BaseType,

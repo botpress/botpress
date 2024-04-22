@@ -13,8 +13,8 @@ import {
   ZuiReactArrayChildProps,
   DefaultComponentDefinitions,
 } from './types'
-import { zuiKey } from './constants'
-import React, { type FC, useMemo } from 'react'
+import { ROOT, zuiKey } from './constants'
+import React, { type FC, useMemo, useEffect } from 'react'
 import { FormDataProvider, getDefaultItemData, useFormData } from './providers/FormDataProvider'
 import { getPathData } from './providers/FormDataProvider'
 import { formatTitle } from './titleutils'
@@ -26,11 +26,23 @@ type ComponentMeta<Type extends BaseType = BaseType> = {
   params: any
 }
 
+export const getSchemaType = (schema: JSONSchema): BaseType => {
+  if (schema.anyOf?.length) {
+    const discriminator = resolveDiscriminator(schema.anyOf)
+    return discriminator ? 'discriminatedUnion' : 'object'
+  }
+  if (schema.type === 'integer') {
+    return 'number'
+  }
+
+  return schema.type
+}
+
 const resolveComponent = <Type extends BaseType>(
   components: ZuiComponentMap<any> | undefined,
   fieldSchema: JSONSchema,
 ): ComponentMeta<Type> | null => {
-  const type = fieldSchema.type as BaseType
+  const type = getSchemaType(fieldSchema)
   const uiDefinition = fieldSchema[zuiKey]?.displayAs || null
 
   if (!uiDefinition || !Array.isArray(uiDefinition) || uiDefinition.length < 2) {
@@ -65,6 +77,68 @@ const resolveComponent = <Type extends BaseType>(
     id: componentID,
     params,
   }
+}
+
+export const resolveDiscriminator = (anyOf: ObjectSchema['anyOf']) => {
+  const output = anyOf
+    ?.map((schema) => {
+      if (schema.type !== 'object') {
+        return null
+      }
+      return Object.entries(schema.properties)
+        .map(([key, def]) => {
+          if (def.type === 'string' && def.const?.length) {
+            return { key, value: def.const }
+          }
+          return null
+        })
+        .filter((v): v is { key: string; value: string } => !!v)
+    })
+    .flat()
+    .reduce(
+      (acc, data) => {
+        if (!data) {
+          return acc
+        }
+        const { key, value } = data
+        if (acc.key === null) {
+          acc.key = key
+        }
+        if (acc.key === key) {
+          acc.values.push(value)
+        }
+
+        return acc
+      },
+      { key: null as string | null, values: [] as string[] },
+    )
+
+  if (output?.key === null || !output?.values.length) {
+    return null
+  }
+  return output
+}
+
+export const resolveDiscriminatedSchema = (key: string | null, value: string | null, anyOf: ObjectSchema['anyOf']) => {
+  if (!anyOf?.length || !key || !value) {
+    return null
+  }
+  for (const schema of anyOf) {
+    if (schema.type !== 'object') {
+      continue
+    }
+    const discriminator = schema.properties[key]
+    if (discriminator?.type === 'string' && discriminator.const === value) {
+      return {
+        ...schema,
+        properties: {
+          ...schema.properties,
+          [key]: { ...discriminator, [zuiKey]: { hidden: true } },
+        },
+      } as ObjectSchema
+    }
+  }
+  return null
 }
 
 export type ZuiFormProps<UI extends UIComponentDefinitions = DefaultComponentDefinitions> = {
@@ -122,7 +196,7 @@ const FormElementRenderer: FC<FormRendererProps> = ({ components, fieldSchema, p
 
   const { Component: _component, type } = componentMeta
 
-  const pathString = path.length > 0 ? path.join('.') : 'root'
+  const pathString = path.length > 0 ? path.join('.') : ROOT
 
   const baseProps: Omit<ZuiReactComponentBaseProps<BaseType, string, any>, 'data' | 'isArrayChild'> = {
     type,
@@ -205,6 +279,54 @@ const FormElementRenderer: FC<FormRendererProps> = ({ components, fieldSchema, p
             />
           )
         })}
+      </Component>
+    )
+  }
+
+  if (type === 'discriminatedUnion') {
+    const Component = _component as any as ZuiReactComponent<'discriminatedUnion', string, any>
+
+    const discriminator = useMemo(() => resolveDiscriminator(fieldSchema.anyOf), [fieldSchema.anyOf])
+    const discriminatorValue = discriminator?.key ? data?.[discriminator.key] : null
+    useEffect(() => {
+      if (discriminator?.key && discriminator?.values.length) {
+        handlePropertyChange(pathString, { [discriminator.key]: discriminator.values[0] })
+      }
+    }, [])
+    const props: Omit<ZuiReactComponentProps<'discriminatedUnion', string, any>, 'children'> = {
+      ...baseProps,
+      type,
+      schema: baseProps.schema as any as ObjectSchema,
+      data: data || {},
+      discriminatorKey: discriminator?.key || null,
+      discriminatorOptions: discriminator?.values || null,
+      discriminatorValue,
+      setDiscriminator: (disc: string) => {
+        if (!discriminator?.key) {
+          console.warn('No discriminator key found, cannot set discriminator')
+          return
+        }
+        handlePropertyChange(pathString, { [discriminator.key]: disc })
+      },
+      ...childProps,
+    }
+    const discriminatedSchema = useMemo(
+      () => resolveDiscriminatedSchema(discriminator?.key || null, discriminatorValue, fieldSchema.anyOf),
+      [fieldSchema.anyOf, data, discriminator?.key],
+    )
+
+    return (
+      <Component key={baseProps.scope} {...props} isArrayChild={props.isArrayChild as any}>
+        {discriminatedSchema && (
+          <FormElementRenderer
+            components={components}
+            fieldSchema={discriminatedSchema}
+            path={path}
+            required={required}
+            key={path.join('.')}
+            isArrayChild={false}
+          />
+        )}
       </Component>
     )
   }
