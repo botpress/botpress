@@ -1,4 +1,5 @@
 import * as bp from '.botpress'
+import * as console from 'node:console'
 
 export const executeConversationAssigned = async ({
   client,
@@ -11,7 +12,9 @@ export const executeConversationAssigned = async ({
   user: { id: string }
   agent_name: string
 }) => {
-  await client.createEvent({
+  console.log('Will create events with parameters: ', { client, conversation, user, agent_name })
+
+  return await client.createEvent({
     type: 'onConversationAssigned',
     payload: {
       conversation,

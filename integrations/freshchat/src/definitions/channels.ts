@@ -21,6 +21,9 @@ export const channels = {
     },
     conversation: {
       tags: {
+        masterConversationId: {
+          title: 'Master Botpress Conversation'
+        },
         freshchatConversationId: {
           title: 'Freshchat Conversation',
         },

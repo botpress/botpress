@@ -24,6 +24,8 @@ export type ActionPropsCreateConversation = Parameters<ActionCreateConversation>
 export type ActionGetCreateUser = bp.IntegrationProps['actions']['getCreateUser']
 export type ActionPropsGetCreateUser = Parameters<ActionGetCreateUser>[0]
 
+export type ActionSendMessage = bp.IntegrationProps['actions']['sendMessage']
+
 export type Channel = ValueOf<bp.IntegrationProps['channels']>
 export type MessageHandler = ValueOf<Channel['messages']>
 export type MessageHandlerProps = Parameters<MessageHandler>[0]

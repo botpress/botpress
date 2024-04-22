@@ -61,3 +61,7 @@ export type UserWithFreshchatInfo = z.infer<typeof UserWithFreshchatInfoSchema>
 export const ConversationSchema = z.object({ id: z.string() })
 export const ConversationWithFreshchatInfoSchema = ConversationSchema.merge(z.object({ freshchat: FreshchatConversationSchema }))
 export type ConversationWithFreshchatInfo = z.infer<typeof ConversationWithFreshchatInfoSchema>
+
+// Event specific schema
+
+export const MessageEventSchema = z.object({ text: z.string() })

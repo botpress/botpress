@@ -1,5 +1,5 @@
 import z from 'zod'
-import { ConversationSchema } from './schemas'
+import { ConversationSchema, MessageEventSchema, UserSchema } from './schemas'
 
 /*const onAgentTyping = {
   title: 'Agent Typing',
@@ -74,11 +74,24 @@ const onConversationAssigned = {
   description: 'Triggered when the freshdesk conversation has been assigned to an agent.',
   schema: z.object({
     agent_name: z.string(),
-    conversation: ConversationSchema
+    conversation: ConversationSchema,
+    user: UserSchema
+  }),
+  ui: {},
+}
+
+const onAgentMessage = {
+  title: 'Agent Message',
+  description: 'Triggered when there is a Agent message',
+  schema: z.object({
+    message: MessageEventSchema,
+    conversation: ConversationSchema,
+    user: UserSchema
   }),
   ui: {},
 }
 
 export const events = {
-  onConversationAssigned
+  onConversationAssigned,
+  onAgentMessage
 }

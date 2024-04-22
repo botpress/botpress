@@ -5,6 +5,9 @@ export default {
   channel: {
     messages: {
       text: async ({ client, ctx, conversation, ...props }) => {
+
+        console.log("Received messages from channel", { props })
+
         /*
 
         try {
