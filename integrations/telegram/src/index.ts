@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { ok } from 'assert/strict'
 
@@ -15,7 +16,6 @@ import {
   wrapHandler,
 } from './misc/utils'
 import * as bp from '.botpress'
-import { RuntimeError } from '@botpress/client'
 
 const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx }) => {

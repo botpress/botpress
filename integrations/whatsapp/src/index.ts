@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { channel } from 'integration.definition'
 import queryString from 'query-string'
@@ -12,7 +13,6 @@ import * as dropdown from './message-types/dropdown'
 import * as outgoing from './outgoing-message'
 import { WhatsAppPayload } from './whatsapp-types'
 import * as bp from '.botpress'
-import { RuntimeError } from '@botpress/client'
 
 const integration = new bp.Integration({
   register: async () => {},

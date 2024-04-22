@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import queryString from 'query-string'
 import { handleMessage } from './misc/incoming-message'
@@ -5,7 +6,6 @@ import { sendMessage } from './misc/outgoing-message'
 import { InstagramPayload } from './misc/types'
 import { formatGoogleMapLink, getCarouselMessage, getChoiceMessage, getMessengerClient } from './misc/utils'
 import * as bp from '.botpress'
-import { RuntimeError } from '@botpress/client'
 
 const integration = new bp.Integration({
   register: async () => {},

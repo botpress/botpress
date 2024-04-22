@@ -1,7 +1,7 @@
+import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
 import * as bp from '.botpress'
-import { RuntimeError } from '@botpress/client'
 
 type Channels = bp.Integration['channels']
 type Messages = Channels[keyof Channels]['messages']

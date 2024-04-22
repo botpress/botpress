@@ -1,6 +1,6 @@
+import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import * as bp from '.botpress'
-import { RuntimeError } from '@botpress/client'
 const SunshineConversationsClient = require('sunshine-conversations-client')
 
 type ValueOf<T> = T[keyof T]

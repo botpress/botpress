@@ -1,10 +1,10 @@
+import { RuntimeError } from '@botpress/client'
 import { z } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Client, ReplyToConversationMessageType } from 'intercom-client'
 import * as html from './html.utils'
 import * as types from './types'
 import * as bp from '.botpress'
-import { RuntimeError } from '@botpress/client'
 
 type Card = bp.channels.channel.card.Card
 type Location = bp.channels.channel.location.Location

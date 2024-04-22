@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import {
   Activity,
   ConversationReference,
@@ -8,9 +9,7 @@ import {
   Attachment,
   MessageFactory,
 } from 'botbuilder'
-import '@botpress/client'
 import * as botpress from '.botpress'
-import { RuntimeError } from '@botpress/client'
 
 type Messages = botpress.Integration['channels']['channel']['messages']
 type MessageTypes = keyof Messages
