@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import * as line from '@line/bot-sdk'
 import crypto from 'crypto'
@@ -355,6 +356,9 @@ const integration = new bp.Integration({
             altText: payload.text,
             contents,
           } satisfies line.FlexMessage)
+        },
+        bloc: () => {
+          throw new RuntimeError('Not implemented')
         },
       },
     },

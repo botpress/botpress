@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
 import * as bp from '.botpress'
@@ -59,6 +60,9 @@ const integration = new bp.Integration({
         choice: async (props) => {
           const payload = formatChoicePayload(props.payload)
           await sendMessage(props, payload)
+        },
+        bloc: () => {
+          throw new RuntimeError('Not implemented')
         },
       },
     },

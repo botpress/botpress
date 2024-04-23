@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import {
   Activity,
   ConversationReference,
@@ -8,7 +9,6 @@ import {
   Attachment,
   MessageFactory,
 } from 'botbuilder'
-import '@botpress/client'
 import * as botpress from '.botpress'
 
 type Messages = botpress.Integration['channels']['channel']['messages']
@@ -183,6 +183,9 @@ const channel = {
         attachments: [CardFactory.heroCard(text, [], buttons)],
       }
       await renderTeams(props, activity)
+    },
+    bloc: () => {
+      throw new RuntimeError('Not implemented')
     },
   },
 } satisfies botpress.IntegrationProps['channels']['channel']

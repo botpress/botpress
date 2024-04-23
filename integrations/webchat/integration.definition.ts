@@ -7,7 +7,7 @@ import { actions, channels, events, configuration, user, states } from './src/de
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   title: 'Webchat',
-  version: '0.3.0',
+  version: '0.3.1',
   icon: 'icon.svg',
   description: 'Webchat integration for Botpress',
   readme: 'hub.md',

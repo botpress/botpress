@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import * as bp from '.botpress'
 const SunshineConversationsClient = require('sunshine-conversations-client')
@@ -96,6 +97,9 @@ const integration = new bp.Integration({
         },
         choice: async (props) => {
           await sendMessage(props, renderChoiceMessage(props.payload))
+        },
+        bloc: () => {
+          throw new RuntimeError('Not implemented')
         },
       },
     },

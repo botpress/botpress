@@ -30,7 +30,7 @@ const TagsForCreatingConversation = {
 
 export default new IntegrationDefinition({
   name: 'whatsapp',
-  version: '0.4.0',
+  version: '0.4.1',
   title: 'WhatsApp',
   description: 'This integration allows your bot to interact with WhatsApp.',
   icon: 'icon.svg',
