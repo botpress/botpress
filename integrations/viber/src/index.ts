@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import type { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
@@ -151,6 +152,9 @@ const integration = new bp.Integration({
               },
             },
           })
+        },
+        bloc: () => {
+          throw new RuntimeError('Not implemented')
         },
       },
     },

@@ -5,7 +5,7 @@ import { configuration, channels, user, states } from './src/definitions'
 
 export default new IntegrationDefinition({
   name: 'teams',
-  version: '0.3.0',
+  version: '0.3.1',
   title: 'Microsoft Teams',
   description: 'This integration allows your bot to interact with Microsoft Teams.',
   icon: 'icon.svg',

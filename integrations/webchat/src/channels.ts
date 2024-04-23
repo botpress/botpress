@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import { send } from './handler'
 import * as bridge from './misc/messaging/bridge'
 import { Channels } from './misc/types'
@@ -86,6 +87,9 @@ export default {
             })),
           },
         })
+      },
+      bloc: () => {
+        throw new RuntimeError('Not implemented')
       },
     },
   },

@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import queryString from 'query-string'
 import { handleMessage } from './misc/incoming-message'
@@ -78,6 +79,9 @@ const integration = new bp.Integration({
             props.logger.forBot().debug('Sending choice message from bot to Instagram:', choiceMessage)
             return instagram.sendMessage(recipientId, getChoiceMessage(payload))
           }),
+        bloc: () => {
+          throw new RuntimeError('Not implemented')
+        },
       },
     },
   },
