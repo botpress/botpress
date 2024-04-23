@@ -1,4 +1,16 @@
-import { Client, RuntimeError, type Conversation, type Message, type User } from '@botpress/client'
+import {
+  AlreadyExistsError,
+  Client,
+  LimitExceededError,
+  PaymentRequiredError,
+  QuotaExceededError,
+  RateLimitedError,
+  ResourceNotFoundError,
+  RuntimeError,
+  type Conversation,
+  type Message,
+  type User,
+} from '@botpress/client'
 import { Request, Response, parseBody } from '../serve'
 import { Cast, Merge } from '../type-utils'
 import { IntegrationSpecificClient } from './client'
@@ -179,8 +191,22 @@ export const integrationHandler =
       }
       return response ? { ...response, status: response.status ?? 200 } : { status: 200 }
     } catch (e) {
-      if (e instanceof RuntimeError) {
-        return { status: e.code, body: JSON.stringify(e.toJSON()) }
+      if (
+        e instanceof RuntimeError ||
+        e instanceof ResourceNotFoundError ||
+        e instanceof AlreadyExistsError ||
+        e instanceof RateLimitedError ||
+        e instanceof QuotaExceededError ||
+        e instanceof PaymentRequiredError ||
+        e instanceof LimitExceededError
+      ) {
+        /**
+         * We bubble the above errors to the bot owner as they are not caused by the integration itself
+         * They are caused by the user's actions or the bot's configuration
+         * We wrap the error in a RuntimeError to ensure the error is sent to the bot owner and not caught by the Bridge
+         */
+        const runtimeError = new RuntimeError(e.message, e)
+        return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
       } else {
         throw e
       }
