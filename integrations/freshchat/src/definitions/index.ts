@@ -5,6 +5,7 @@ import { FreshchatConfigurationSchema } from './schemas'
 export { actions } from './actions'
 export { events } from './events'
 export { channels } from './channels'
+export { states } from './states'
 
 export const configuration = {
   schema: FreshchatConfigurationSchema,

@@ -25,7 +25,7 @@ export const FreshchatAvatarSchema = z.object({
 
 export const FreshchatPropertySchema = z.object({
   name: z.string(),
-  value: z.string(),
+  value: z.string().optional(),
 })
 
 export const FreshchatUserSchema = z.object({
@@ -49,18 +49,16 @@ export const FreshchatConversationSchema = z.object({
   channel_id: z.string().optional(),
   user_id: z.string().optional()
 })
+export type FreshchatConversation = z.infer<typeof FreshchatConversationSchema>
+
 
 export type FreshchatUser = z.infer<typeof FreshchatUserSchema>
+
 
 // Extended Botpress User/Conversation Schemas
 
 export const UserSchema = z.object({ id: z.string() })
-export const UserWithFreshchatInfoSchema = UserSchema.merge(z.object({ freshchat: FreshchatUserSchema }))
-export type UserWithFreshchatInfo = z.infer<typeof UserWithFreshchatInfoSchema>
-
 export const ConversationSchema = z.object({ id: z.string() })
-export const ConversationWithFreshchatInfoSchema = ConversationSchema.merge(z.object({ freshchat: FreshchatConversationSchema }))
-export type ConversationWithFreshchatInfo = z.infer<typeof ConversationWithFreshchatInfoSchema>
 
 // Event specific schema
 

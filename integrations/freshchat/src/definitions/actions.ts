@@ -1,24 +1,63 @@
 import { ActionDefinition } from 'src/schemas'
 import z from 'zod'
-import { UserWithFreshchatInfoSchema, ConversationWithFreshchatInfoSchema } from './schemas'
+import {
+  FreshchatUserSchema,
+  FreshchatConversationSchema, FreshchatConversation
+} from './schemas'
 
 const createConversation: ActionDefinition = {
-  title: 'Create Proxy Conversation',
-  description: 'Creates a new Botpress Proxy Conversation and Map to a new Freshchat Conversation',
+  title: 'Create Freshchat Conversation',
+  description: 'Creates a Freshchat Conversation',
   input: {
-    schema: z.object({ userId: z.string(), transcript: z.string(), originConversationId: z.string(), originUserId: z.string() }),
+    schema: z.object({ freshchatUserId: z.string(), transcript: z.string() }),
     ui: {},
   },
   output: {
-    schema: ConversationWithFreshchatInfoSchema
+    schema: FreshchatConversationSchema
+  },
+}
+
+const updateConversation: ActionDefinition = {
+  title: 'Update Freshchat Conversation',
+  description: 'Updates Freshchat Conversation',
+  input: {
+    schema: z.object({
+      freshchatConversationId: z.string(),
+      status: z.string(),
+      assignedGroupId: z.string().optional(),
+      assignedAgentId: z.string().optional(),
+      channelId: z.string().optional(),
+      properties: z.string().default({}).optional()
+    }),
+    ui: {
+      status: {
+        title: 'Conversation Status (new,assigned,resolved,reopened)',
+        examples: [ 'new','assigned','resolved','reopened' ]
+      },
+    },
+  },
+  output: {
+    schema: z.object({ success: z.boolean(), message: z.string().optional(), data: FreshchatConversationSchema.optional() })
+  },
+}
+
+const listenConversation: ActionDefinition = {
+  title: 'Listen Freshchat Conversation',
+  description: 'The supplied Botpress conversation will listen events from the supplied Freshchat Conversation',
+  input: {
+    schema: z.object({ botpressConversationId: z.string(), freshchatConversationId: z.string() }),
+    ui: {},
+  },
+  output: {
+    schema: z.object({ success: z.boolean() })
   },
 }
 
 const sendMessage: ActionDefinition = {
-  title: 'Send Message to Proxy',
-  description: 'Sends a message to the proxy Freshdesk/Botpress conversation',
+  title: 'Send Message to Freshchat',
+  description: 'Sends a message to the Freshchat conversation',
   input: {
-    schema: z.object({ payload: z.string(), proxyConversationId: z.string(), proxyUserId: z.string() }),
+    schema: z.object({ payload: z.string(), freshchatConversationId: z.string(), freshchatUserId: z.string() }),
     ui: {},
   },
   output: {
@@ -27,19 +66,22 @@ const sendMessage: ActionDefinition = {
 }
 
 const getCreateUser: ActionDefinition = {
-  title: 'Get or Create Proxy User',
-  description: 'Finds a Freshchat/Botpress proxy user with the specified email or creates a new Freshchat/Botpress proxy user',
+  title: 'Get or Create Freshchat User',
+  description: 'Finds a Freshchat user with the specified email or creates a new Freshchat user',
   input: {
     schema: z.object({ email: z.string() }),
     ui: {},
   },
   output: {
-    schema: UserWithFreshchatInfoSchema
+    schema: FreshchatUserSchema
   },
 }
 
+
 export const actions = {
   createConversation,
+  updateConversation,
+  listenConversation,
   getCreateUser,
   sendMessage
 }

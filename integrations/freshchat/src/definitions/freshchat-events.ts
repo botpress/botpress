@@ -77,6 +77,10 @@ interface ReopenData {
 }
 
 interface ResolveData {
+  resolve: Resolve
+}
+
+interface Resolve {
   resolver: string;
   resolver_id: string;
   conversation: Conversation;
@@ -85,6 +89,10 @@ interface ResolveData {
 }
 
 interface AssignmentData {
+  assignment: Assignment
+}
+
+interface Assignment {
   assignor: string;
   assignor_id: string;
   to_agent_id: string;

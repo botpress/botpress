@@ -1,6 +1,7 @@
 import type { IntegrationDefinitionProps } from '@botpress/sdk'
 import { z } from 'zod'
 
+// This is not used
 export const channels = {
   channel: {
     title: 'Freshchat',
@@ -12,27 +13,12 @@ export const channels = {
       },
     },
     message: {
-      tags: {
-        origin: {
-          title: 'Freshchat or Botpress',
-          description: 'The origin of the message',
-        },
-      },
+      tags: {},
     },
     conversation: {
       tags: {
-        masterConversationId: {
-          title: 'Master Botpress Conversation'
-        },
-        freshchatConversationId: {
-          title: 'Freshchat Conversation',
-        },
-        freshchatUserId: {
-          title: 'Freshchat User',
-        },
-        userId: {
-          title: 'Botpress/Freshchat Proxy User',
-        }
+        freshchatConversationId: { title: 'Freshchat Conversation Id', description: 'Freshchat Conversation Id' },
+        botpressConversationId: { title: 'Botpress Conversation Id', description: 'Botpress Conversation Id' }
       }
     }
   },

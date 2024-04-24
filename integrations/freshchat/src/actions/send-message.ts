@@ -1,41 +1,27 @@
 import { getFreshchatClient } from 'src/client'
 import { ActionCreateConversation } from '../schemas'
-import { executeConversationAssigned } from '../events/conversation-assigned'
-import * as console from 'node:console'
 
 export const sendMessage: ActionCreateConversation = async ({ ctx, client, input, logger }) => {
   const freshchatClient = getFreshchatClient({ ...ctx.configuration })
-
-  const botpressProxyUser = await client.getUser({
-    id: input.proxyUserId
-  })
-
-  if(!botpressProxyUser) {
-    logger.forBot().error(`Botpress proxy User ${input.proxyUserId} doesn't exist`)
-    return {};
-  }
-
-  console.log('Proxy will receive the following message', { input })
 
   let payload;
 
   try {
     payload = JSON.parse(input.payload)
   } catch (e) {
-    payload = { text: 'invalid payload: ' + e.message }
+    payload = { text: 'invalid payload from user message: ' + e.message }
   }
 
-  const createMessage = {
-    userId: botpressProxyUser.user.id,
-    type: 'text',
+  if(!payload.text?.length) {
+    payload = { text: 'Invalid user payload: only text is supported'}
+  }
+
+  console.log('Will send message with args', {
     payload,
-    conversationId: input.proxyConversationId,
-    tags: {}
-  }
+    input
+  })
 
-  console.log('Will create message with args', createMessage)
-
-  await client.createMessage(createMessage)
+  await freshchatClient.sendMessage(input.freshchatUserId, input.freshchatConversationId, payload.text)
 
   return {}
 }

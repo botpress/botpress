@@ -1,6 +1,12 @@
-import { IntegrationDefinition } from '@botpress/sdk'
+import { IntegrationDefinition, IntegrationDefinitionProps } from '@botpress/sdk'
 import { INTEGRATION_NAME } from './src/const'
-import { actions, events, configuration, channels, user } from './src/definitions'
+import { actions, events, configuration, channels, states } from './src/definitions'
+
+export const user = {
+  tags: {
+    freshchatUserId: {},
+  },
+} satisfies IntegrationDefinitionProps['user']
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -10,9 +16,10 @@ export default new IntegrationDefinition({
   description: 'This integration allows your bot to use Freshchat as a HITL Provider',
   readme: 'hub.md',
   configuration,
-  states: {},
+  states,
   channels,
-  user,
   actions,
-  events
+  events,
+  user
 })
+

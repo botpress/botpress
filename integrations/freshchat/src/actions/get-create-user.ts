@@ -19,13 +19,5 @@ export const getCreateUser: ActionGetCreateUser = async ({ ctx, input, client })
 
   console.log('got freshchat user', freshchatUser)
 
-  const botpressUser = await client.getOrCreateUser({
-    tags: {
-      freshchatUserId: freshchatUser.id
-    }
-  })
-
-  console.log('will return ', { ...botpressUser.user, freshchat: freshchatUser })
-
-  return { ...botpressUser.user, freshchat: freshchatUser }
+  return freshchatUser
 }

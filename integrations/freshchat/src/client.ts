@@ -1,6 +1,7 @@
-import axios, { Axios } from 'axios'
+import axios, { Axios, AxiosError } from 'axios'
 import { FreshchatConfiguration, FreshchatUser } from './definitions/schemas'
 import * as console from 'node:console'
+import { FreshchatConversation } from './definitions/schemas'
 
 class FreshchatClient {
   private client: Axios
@@ -39,6 +40,25 @@ class FreshchatClient {
       }]
     })
     return data
+  }
+
+  public async updateConversation(conversationId: string, args: {
+    status: 'new' | 'assigned' | 'resolved' | 'reopened',
+    assigned_group_id?: string,
+    assigned_agent_id?: string,
+    channel_id?: string,
+    properties?: {
+      // cf_
+      [key: string]: string;
+    }
+  }): Promise<{ success: boolean, message?: string, data?: FreshchatConversation }> {
+    try {
+      const { data } = await this.client.put(`/conversations/${conversationId}`, args)
+      return { success: true, data };
+    } catch (error: any) {
+      console.log('error updating conversation', error)
+      return { success: false, message: error.response?.data?.message || error.message }
+    }
   }
 
   public async sendMessage(fromUserId: string, freshchatConversationId: string, message: string) {
