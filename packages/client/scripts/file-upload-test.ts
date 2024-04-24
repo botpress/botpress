@@ -14,7 +14,7 @@ const client = new Client({
   token: 'bp_pat_abcdefghijklmnopqrstuvwxyz0123456789',
 })
 
-;(async function () {
+void (async function () {
   const { file } = await client.createAndUploadFile({
     name: 'test.txt',
     data: Buffer.from('aaa'),
