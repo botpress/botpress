@@ -3,6 +3,8 @@ export * from './const'
 export * from './serve'
 export * from './zui'
 
+export { isApiError, RuntimeError } from '@botpress/client'
+
 export {
   IntegrationDefinition,
   IntegrationDefinitionProps,

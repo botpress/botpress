@@ -1,4 +1,3 @@
-import '@botpress/client'
 import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 import { getZendeskClient } from './client'
 import { IntegrationProps } from '.botpress'

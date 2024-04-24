@@ -1,12 +1,13 @@
-import { Conversation, RuntimeError } from '@botpress/client'
-import { z } from '@botpress/sdk'
+import { Conversation } from '@botpress/client'
+import { z, RuntimeError } from '@botpress/sdk'
 import WhatsAppAPI from 'whatsapp-api-js'
 import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { ServerErrorResponse, ServerMessageResponse } from 'whatsapp-api-js/types'
 import * as types from './types'
 import * as botpress from '.botpress'
-import { Channels } from '.botpress/implementation/channels'
+
+type Channels = botpress.channels.Channels
 
 const TemplateVariablesSchema = z.array(z.string().or(z.number()))
 

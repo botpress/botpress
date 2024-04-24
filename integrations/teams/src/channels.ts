@@ -8,7 +8,6 @@ import {
   Attachment,
   MessageFactory,
 } from 'botbuilder'
-import '@botpress/client'
 import * as botpress from '.botpress'
 
 type Messages = botpress.Integration['channels']['channel']['messages']

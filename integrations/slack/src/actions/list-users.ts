@@ -1,4 +1,5 @@
-import { User, isApiError } from '@botpress/client'
+import { User } from '@botpress/client'
+import { isApiError } from '@botpress/sdk'
 import { WebClient } from '@slack/web-api'
 import { Member } from '@slack/web-api/dist/response/UsersListResponse'
 import { chain, mapKeys, isEqual } from 'lodash'
