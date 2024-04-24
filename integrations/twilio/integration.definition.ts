@@ -3,7 +3,7 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'twilio',
-  version: '0.4.0',
+  version: '0.4.1',
   title: 'Twilio',
   description: 'This integration allows your bot to interact with Twilio.',
   icon: 'icon.svg',

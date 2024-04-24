@@ -14,7 +14,7 @@ import { updateEventUi, deleteEventUi, createEventUi } from './src/misc/custom-u
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '0.3.0',
+  version: '0.3.1',
   description:
     "Elevate your chatbot's capabilities with the Botpress integration for Google Calendar. Seamlessly sync your chatbot with Google Calendar to effortlessly manage events, appointments, and schedules",
   title: 'Google Calendar',

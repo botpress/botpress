@@ -4,7 +4,7 @@ import { INTEGRATION_NAME } from './src/const'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '0.3.0',
+  version: '0.3.1',
   readme: 'hub.md',
   configuration: {
     schema: z.object({
