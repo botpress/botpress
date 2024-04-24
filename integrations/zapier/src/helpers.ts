@@ -1,5 +1,4 @@
-import { ResourceNotFoundError } from '@botpress/client'
-import { z, IntegrationContext } from '@botpress/sdk'
+import { z, IntegrationContext, isApiError } from '@botpress/sdk'
 import {
   TriggerSubscriber,
   ZapierTriggersStateName,
@@ -46,7 +45,7 @@ export async function getTriggersState(ctx: IntegrationContext<Configuration>, c
     .then((res) => ZapierTriggersStateSchema.parse(res.state.payload))
     .catch((e) => {
       // TODO: Remove hard-coded "No State found" message check once the bridge client correctly receives the ResourceNotFoundError
-      if (e instanceof ResourceNotFoundError || e.message === 'No State found') {
+      if ((isApiError(e) && e.type === 'ResourceNotFound') || e.message === 'No State found') {
         console.info("Zapier triggers state doesn't exist yet and will be initialized")
         return defaultState
       } else if (e instanceof z.ZodError) {

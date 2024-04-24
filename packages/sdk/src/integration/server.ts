@@ -1,4 +1,4 @@
-import { Client, RuntimeError, type Conversation, type Message, type User } from '@botpress/client'
+import { isApiError, Client, type Conversation, type Message, type User, RuntimeError } from '@botpress/client'
 import { Request, Response, parseBody } from '../serve'
 import { Cast, Merge } from '../type-utils'
 import { IntegrationSpecificClient } from './client'
@@ -178,12 +178,12 @@ export const integrationHandler =
           throw new Error(`Unknown operation ${ctx.operation}`)
       }
       return response ? { ...response, status: response.status ?? 200 } : { status: 200 }
-    } catch (e) {
-      if (e instanceof RuntimeError) {
-        return { status: e.code, body: JSON.stringify(e.toJSON()) }
-      } else {
-        throw e
+    } catch (thrown) {
+      if (isApiError(thrown)) {
+        const runtimeError = new RuntimeError(thrown.message, thrown)
+        return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
       }
+      throw thrown
     }
   }
 

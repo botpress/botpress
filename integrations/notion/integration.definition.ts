@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   description:
     'Supercharge your productivity with Notion integration. Add pages and comments, manage databases, and engage in discussions—all within your chatbot',
   title: 'Notion',
-  version: '0.3.0',
+  version: '0.3.1',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

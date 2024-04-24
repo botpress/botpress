@@ -1242,7 +1242,7 @@ importers:
         specifier: 0.14.2
         version: link:../client
       '@botpress/sdk':
-        specifier: 0.8.2
+        specifier: 0.8.3
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1357,7 +1357,7 @@ importers:
         specifier: 0.14.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.2
+        specifier: 0.8.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1376,7 +1376,7 @@ importers:
         specifier: 0.14.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.2
+        specifier: 0.8.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
