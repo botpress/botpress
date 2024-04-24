@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import { textSchema } from './definitions/schemas'
 import { renderCard } from './misc/renderer'
 import { Channels } from './misc/types'
@@ -204,6 +205,9 @@ const defaultMessages: Channels['channel']['messages'] = {
             : undefined,
       }
     )
+  },
+  bloc: () => {
+    throw new RuntimeError('Not implemented')
   },
 }
 

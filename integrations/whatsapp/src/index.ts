@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { channel } from 'integration.definition'
 import queryString from 'query-string'
@@ -110,6 +111,9 @@ const integration = new bp.Integration({
               generator: dropdown.generateOutgoingMessages({ payload, logger }),
             })
           }
+        },
+        bloc: () => {
+          throw new RuntimeError('Not implemented')
         },
       },
     },

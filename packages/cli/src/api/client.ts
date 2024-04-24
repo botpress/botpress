@@ -20,6 +20,17 @@ type PublicIntegration = client.Integration
 type PrivateIntegration = client.Integration & { workspaceId: string }
 type Integration = client.Integration & { workspaceId?: string }
 
+type BaseOperation = (...args: any[]) => Promise<any>
+type Operations = {
+  [K in keyof client.Client as client.Client[K] extends BaseOperation ? K : never]: client.Client[K]
+}
+type Requests = {
+  [K in keyof Operations]: Parameters<Operations[K]>[0]
+}
+type Responses = {
+  [K in keyof Operations]: ReturnType<Operations[K]>
+}
+
 /**
  * This class is used to wrap the Botpress API and provide a more convenient way to interact with it.
  */
@@ -37,6 +48,22 @@ export class ApiClient {
     this.url = apiUrl
     this.token = token
     this.workspaceId = workspaceId
+  }
+
+  public get isBotpressWorkspace(): boolean {
+    return [
+      '6a76fa10-e150-4ff6-8f59-a300feec06c1',
+      '95de33eb-1551-4af9-9088-e5dcb02efd09',
+      '11111111-1111-1111-aaaa-111111111111',
+    ].includes(this.workspaceId)
+  }
+
+  public async getWorkspace(): Promise<Responses['getWorkspace']> {
+    return this.client.getWorkspace({ id: this.workspaceId })
+  }
+
+  public async updateWorkspace(props: Omit<Requests['updateWorkspace'], 'id'>): Promise<Responses['updateWorkspace']> {
+    return this.client.updateWorkspace({ id: this.workspaceId, ...props })
   }
 
   public async findIntegration(ref: IntegrationRef): Promise<Integration | undefined> {

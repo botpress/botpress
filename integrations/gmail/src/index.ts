@@ -1,4 +1,4 @@
-import type { Conversation } from '@botpress/client'
+import { RuntimeError, type Conversation } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import cheerio from 'cheerio'
 // @ts-ignore
@@ -118,6 +118,9 @@ const integration = new bp.Integration({
             ack,
             inReplyTo: state.payload.inReplyTo,
           })
+        },
+        bloc: () => {
+          throw new RuntimeError('Not implemented')
         },
       },
     },

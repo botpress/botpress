@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import queryString from 'query-string'
 import { Twilio } from 'twilio'
@@ -45,6 +46,9 @@ const integration = new bp.Integration({
         },
         choice: async (props) => {
           await sendMessage({ ...props, text: renderChoiceMessage(props.payload) })
+        },
+        bloc: () => {
+          throw new RuntimeError('Not implemented')
         },
       },
     },

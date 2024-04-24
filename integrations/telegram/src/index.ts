@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { ok } from 'assert/strict'
 
@@ -113,6 +114,9 @@ const integration = new bp.Integration({
           const buttons = payload.options.map((choice) => Markup.button.callback(choice.label, choice.value))
           const message = await client.telegram.sendMessage(chat, payload.text, Markup.keyboard(buttons).oneTime())
           await ackMessage(message, ack)
+        },
+        bloc: () => {
+          throw new RuntimeError('Not implemented')
         },
       },
     },

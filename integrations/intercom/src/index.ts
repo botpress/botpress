@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import { z } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Client, ReplyToConversationMessageType } from 'intercom-client'
@@ -161,6 +162,9 @@ const integration = new bp.Integration({
             ctx,
             ack,
           })
+        },
+        bloc: () => {
+          throw new RuntimeError('Not implemented')
         },
       },
     },

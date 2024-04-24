@@ -5,10 +5,18 @@ import { createDeployBot } from './tests/create-deploy-bot'
 import { createDeployIntegration } from './tests/create-deploy-integration'
 import { devBot } from './tests/dev-bot'
 import { requiredSecrets } from './tests/integration-secrets'
+import { prependWorkspaceHandle, enforceWorkspaceHandle } from './tests/manage-workspace-handle'
 import { Test } from './typings'
 import { sleep, TmpDirectory } from './utils'
 
-const tests: Test[] = [createDeployBot, createDeployIntegration, devBot, requiredSecrets]
+const tests: Test[] = [
+  createDeployBot,
+  createDeployIntegration,
+  devBot,
+  requiredSecrets,
+  prependWorkspaceHandle,
+  enforceWorkspaceHandle,
+]
 
 const timeout = (ms: number) =>
   sleep(ms).then(() => {
