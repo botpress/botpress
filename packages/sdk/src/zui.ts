@@ -134,6 +134,12 @@ export const studioComponentDefinitions = {
       }),
     },
   },
+  discriminatedUnion: {
+    selector: {
+      id: 'selector',
+      params: commonInputParams.extend({}),
+    },
+  },
 } as const satisfies UIComponentDefinitions
 
 export type UI<Namespace extends 'studio' | 'dashboard' = 'studio'> = Namespace extends 'studio'
