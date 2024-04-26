@@ -6,6 +6,7 @@ import { Events } from '.botpress/implementation/events'
 export const fireSubscriptionCreated = async ({
   stripeEvent,
   client,
+  logger,
 }: {
   stripeEvent: Stripe.CustomerSubscriptionCreatedEvent
   client: Client
@@ -19,6 +20,8 @@ export const fireSubscriptionCreated = async ({
           : stripeEvent.data.object.customer.id,
     },
   })
+
+  logger.forBot().debug('Triggering subscription created event')
 
   const payload = {
     origin: 'stripe',
