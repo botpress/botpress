@@ -3,12 +3,11 @@ import Stripe from 'stripe'
 import { Client } from '.botpress'
 import { Events } from '.botpress/implementation/events'
 
-export const fireSubscriptionDeleted = async ({
+export const fireSubscriptionCreated = async ({
   stripeEvent,
   client,
-  logger,
 }: {
-  stripeEvent: Stripe.CustomerSubscriptionDeletedEvent
+  stripeEvent: Stripe.CustomerSubscriptionCreatedEvent
   client: Client
   logger: IntegrationLogger
 }) => {
@@ -17,20 +16,18 @@ export const fireSubscriptionDeleted = async ({
       id:
         typeof stripeEvent.data.object.customer === 'string'
           ? stripeEvent.data.object.customer
-          : stripeEvent.data.object.customer?.id,
+          : stripeEvent.data.object.customer.id,
     },
   })
-
-  logger.forBot().debug('Triggering subscription updated event')
 
   const payload = {
     origin: 'stripe',
     userId: user.id,
     data: { type: stripeEvent.type, object: { ...stripeEvent.data.object } },
-  } satisfies Events['subscriptionDeleted']
+  } satisfies Events['subscriptionCreated']
 
   await client.createEvent({
-    type: 'subscriptionDeleted',
+    type: 'subscriptionCreated',
     payload,
   })
 }

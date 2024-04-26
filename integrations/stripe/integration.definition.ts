@@ -27,11 +27,12 @@ import {
   paymentIntentFailedSchema,
   subscriptionDeletedSchema,
   subscriptionUpdatedSchema,
+  subscriptionCreatedSchema,
 } from './src/misc/custom-schemas'
 
 export default new IntegrationDefinition({
   name: 'stripe',
-  version: '0.3.1',
+  version: '0.4.0',
   title: 'Stripe',
   readme: 'hub.md',
   icon: 'icon.svg',
@@ -60,6 +61,12 @@ export default new IntegrationDefinition({
       description:
         'This event occurs when a subscription is updated in Stripe. For example when the subscription is cancelled, but does not terminate immediately cancel_at_period_end goes to true.',
     },
+    subscriptionCreated: {
+      schema: subscriptionCreatedSchema,
+      title: 'Subscription Created',
+      description:
+        'This event occurs when a subscription is created in Stripe. For example when the subscription is cancelled, but does not terminate immediately cancel_at_period_end goes to true.',
+    },
     invoicePaymentFailed: {
       schema: invoicePaymentFailedSchema,
       title: 'Invoice Payment Failed',
@@ -69,6 +76,13 @@ export default new IntegrationDefinition({
       schema: paymentIntentFailedSchema,
       title: 'Payment Intent Failed',
       description: 'This event occurs when a payment intent fails in Stripe.',
+    },
+  },
+  user: {
+    tags: {
+      id: {
+        title: 'Stripe customer ID',
+      },
     },
   },
   channels: {},
