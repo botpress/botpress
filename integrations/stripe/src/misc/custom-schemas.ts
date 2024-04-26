@@ -211,7 +211,7 @@ export const retrieveCustomerByIdOutputSchema = z
 
 const baseSchema = z.object({
   origin: z.literal('stripe').describe('The origin of the event trigger'),
-  userId: z.string().uuid().describe('Botpress User ID'),
+  userId: z.string().describe('Botpress User ID'),
 })
 
 export const chargeFailedSchema = baseSchema.extend({
@@ -219,6 +219,15 @@ export const chargeFailedSchema = baseSchema.extend({
     .object({
       type: z.string().default('charge.failed'),
       object: z.object({}).passthrough().describe('The object of the failed charge'),
+    })
+    .describe('The data to send with the event'),
+})
+
+export const subscriptionCreatedSchema = baseSchema.extend({
+  data: z
+    .object({
+      type: z.string().default('customer.subscription.created'),
+      object: z.object({}).passthrough().describe('The object of the created subscription'),
     })
     .describe('The data to send with the event'),
 })

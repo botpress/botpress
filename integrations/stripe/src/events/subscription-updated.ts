@@ -8,13 +8,16 @@ export const fireSubscriptionUpdated = async ({
   client,
   logger,
 }: {
-  stripeEvent: Stripe.Event
+  stripeEvent: Stripe.CustomerSubscriptionUpdatedEvent
   client: Client
   logger: IntegrationLogger
 }) => {
   const { user } = await client.getOrCreateUser({
     tags: {
-      id: (stripeEvent.data.object as { customer: string })?.customer || '',
+      id:
+        typeof stripeEvent.data.object.customer === 'string'
+          ? stripeEvent.data.object.customer
+          : stripeEvent.data.object.customer.id,
     },
   })
 
@@ -22,7 +25,7 @@ export const fireSubscriptionUpdated = async ({
 
   const payload = {
     origin: 'stripe',
-    userId: user?.id || '',
+    userId: user.id,
     data: { type: stripeEvent.type, object: { ...stripeEvent.data.object } },
   } satisfies Events['subscriptionUpdated']
 
