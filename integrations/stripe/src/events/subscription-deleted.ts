@@ -21,7 +21,7 @@ export const fireSubscriptionDeleted = async ({
     },
   })
 
-  logger.forBot().debug('Triggering subscription updated event')
+  logger.forBot().debug('Triggering subscription deleted event')
 
   const payload = {
     origin: 'stripe',
