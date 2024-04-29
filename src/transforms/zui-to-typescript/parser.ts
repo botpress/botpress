@@ -1,5 +1,10 @@
 import { type JSONSchema4Type, type JSONSchema4TypeName } from 'json-schema'
-import { findKey, includes, isPlainObject, map, memoize, omit } from 'lodash'
+import findKey from 'lodash/findKey'
+import includes from 'lodash/includes'
+import isPlainObject from 'lodash/isPlainObject'
+import map from 'lodash/map'
+import memoize from 'lodash/memoize'
+import omit from 'lodash/omit'
 import { type Options } from './'
 import {
   type AST,

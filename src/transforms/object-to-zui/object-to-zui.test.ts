@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'vitest'
 import { objectToZui } from '.'
 import { z } from '../../z/index'
-import { JSONSchemaOfType } from '../../ui/types'
+import { JSONSchemaOfType, ObjectSchema } from '../../ui/types'
 
 describe('object-to-zui', () => {
   test('validate object to json', async () => {
@@ -38,7 +38,6 @@ describe('object-to-zui', () => {
 
     expect(schema).toMatchInlineSnapshot(`
       {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "address": {
@@ -90,11 +89,13 @@ describe('object-to-zui', () => {
         },
         { optional: true },
       )
-      .toJsonSchema()
+      .toJsonSchema() as ObjectSchema
+
     if (schema.type !== 'object') {
       throw new Error('Expected object type')
     }
-    expect(schema.properties?.test?.type).toBe('null')
+    expect(schema.properties?.test?.type).toBeUndefined()
+    expect((schema.properties?.test as any).enum).toStrictEqual(['null'])
     expect(schema.properties?.anotherValue?.type).toBe('string')
   })
 

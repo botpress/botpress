@@ -1,7 +1,8 @@
-import { z } from '../z/index'
+import { ZodEnumDef, z } from '../z/index'
 import type { FC } from 'react'
 import { zuiKey } from './constants'
 
+export type SerializedFunction = string
 export type BaseSchema = {
   description?: string
   anyOf?: JSONSchema[]
@@ -9,10 +10,10 @@ export type BaseSchema = {
   allOf?: JSONSchema[]
   [zuiKey]?: {
     tooltip?: boolean
-    disabled?: boolean
     displayAs?: [string, any]
     title?: string
-    hidden?: boolean
+    disabled?: boolean | SerializedFunction
+    hidden?: boolean | SerializedFunction
     placeholder?: string
   }
 }
@@ -31,9 +32,6 @@ export type ArraySchema = {
 
 export type ObjectSchema = {
   type: 'object'
-  properties: {
-    [key: string]: JSONSchema
-  }
   required?: string[]
   additionalProperties: boolean
   default?: any
@@ -42,12 +40,23 @@ export type ObjectSchema = {
   dependentRequired?: {
     [key: string]: string[]
   }
-} & BaseSchema
+} & (
+  | {
+      properties: {
+        [key: string]: JSONSchema
+      }
+      additionalProperties?: false
+    }
+  | {
+      properties?: never
+      additionalProperties: JSONSchema
+    }
+) &
+  BaseSchema
 
 export type StringSchema = {
   type: 'string'
   enum?: string[]
-  const?: string
   minLength?: number
   maxLength?: number
   pattern?: string
@@ -125,18 +134,20 @@ export type ZodKindToBaseType<T extends z.ZodTypeDef> = T extends infer U
           ? 'array'
           : U extends { typeName: z.ZodFirstPartyTypeKind.ZodObject }
             ? 'object'
-            : U extends { typeName: z.ZodFirstPartyTypeKind.ZodEnum }
+            : U extends ZodEnumDef
               ? 'string'
-              : U extends { typeName: z.ZodFirstPartyTypeKind.ZodOptional; innerType: z.ZodTypeAny }
+              : U extends { typeName: z.ZodFirstPartyTypeKind.ZodDefault; innerType: z.ZodTypeAny }
                 ? ZodKindToBaseType<U['innerType']['_def']>
-                : U extends { typeName: z.ZodFirstPartyTypeKind.ZodNullable; innerType: z.ZodTypeAny }
+                : U extends { typeName: z.ZodFirstPartyTypeKind.ZodOptional; innerType: z.ZodTypeAny }
                   ? ZodKindToBaseType<U['innerType']['_def']>
-                  : U extends {
-                        typeName: z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion
-                        options: z.ZodDiscriminatedUnionOption<any>[]
-                      }
-                    ? 'discriminatedUnion'
-                    : never
+                  : U extends { typeName: z.ZodFirstPartyTypeKind.ZodNullable; innerType: z.ZodTypeAny }
+                    ? ZodKindToBaseType<U['innerType']['_def']>
+                    : U extends {
+                          typeName: z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion
+                          options: z.ZodDiscriminatedUnionOption<any>[]
+                        }
+                      ? 'discriminatedUnion'
+                      : never
   : never
 
 export type BaseTypeToType<T extends BaseType> = T extends 'string'
@@ -179,19 +190,19 @@ export type ZuiReactComponentBaseProps<
   componentID: ID
   params: ID extends 'default' ? {} : z.infer<UI[Type][ID]['params']>
   data: BaseTypeToType<Type> | null
-  enabled: boolean
+  disabled: boolean
   scope: string
   onChange: (data: any) => void
   schema: JSONSchemaOfType<Type>
   label: string
   errors: FormError[]
   context: {
-    path: string
+    path: string[]
     formValid: boolean | null
     formErrors: FormError[] | null
     formData?: any
     readonly: boolean
-    updateForm: (path: string, data: any) => void
+    updateForm: (path: string[], data: any) => void
   }
   zuiProps: BaseSchema[typeof zuiKey]
 } & ZuiReactArrayChildProps
@@ -212,6 +223,7 @@ export type ZuiReactDiscriminatedUnionComponentProps<
   UI extends UIComponentDefinitions = DefaultComponentDefinitions,
 > = ZuiReactComponentBaseProps<Type, ID, UI> & {
   discriminatorKey: string | null
+  discriminatorLabel: string
   discriminatorOptions: string[] | null
   discriminatorValue: string | null
   setDiscriminator: (discriminator: string) => void

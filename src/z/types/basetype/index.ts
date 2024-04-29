@@ -59,7 +59,7 @@ export type TypeOf<T extends ZodType<any, any, any>> = T['_output']
 export type input<T extends ZodType<any, any, any>> = T['_input']
 export type output<T extends ZodType<any, any, any>> = T['_output']
 export type { TypeOf as infer }
-
+export type Maskable<T = any> = boolean | ((shape: T | null) => util.DeepPartialBoolean<T> | boolean)
 export type CustomErrorParams = Partial<util.Omit<ZodCustomIssue, 'code'>>
 export interface ZodTypeDef {
   typeName: ZodFirstPartyTypeKind
@@ -469,6 +469,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
 
   private _setZuiMeta(key: string, value: any) {
     const def = this._def as KindToDef<any>
+    const serializedValue = typeof value === 'function' ? value.toString() : value
     switch (def.typeName) {
       case ZodFirstPartyTypeKind.ZodNullable:
       case ZodFirstPartyTypeKind.ZodDefault:
@@ -476,19 +477,19 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
       case ZodFirstPartyTypeKind.ZodReadonly:
         def.innerType._def[zuiKey] = {
           ...def.innerType._def[zuiKey],
-          [key]: value,
+          [key]: serializedValue,
         }
         break
       case ZodFirstPartyTypeKind.ZodEffects:
         def.schema._def[zuiKey] = {
           ...def.schema._def[zuiKey],
-          [key]: value,
+          [key]: serializedValue,
         }
         break
       default:
         def[zuiKey] = {
           ...def[zuiKey],
-          [key]: value,
+          [key]: serializedValue,
         }
     }
   }
@@ -532,7 +533,9 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    * Whether the field is hidden in the UI. Useful for internal fields.
    * @default false
    */
-  hidden(hidden?: boolean): this {
+  hidden<T extends any = this['_output']>(
+    hidden?: boolean | ((shape: T | null) => util.DeepPartialBoolean<T> | boolean),
+  ): this {
     this._setZuiMeta('hidden', typeof hidden === 'undefined' ? true : hidden)
     return this
   }
@@ -541,7 +544,9 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    * Whether the field is disabled
    * @default false
    */
-  disabled(disabled?: boolean): this {
+  disabled<T extends any = this['_output']>(
+    disabled?: boolean | ((shape: T | null) => util.DeepPartialBoolean<T> | boolean),
+  ): this {
     this._setZuiMeta('disabled', typeof disabled === 'undefined' ? true : disabled)
     return this
   }

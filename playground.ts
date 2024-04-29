@@ -1,52 +1,40 @@
-import { z, BaseType } from './src'
+import { z } from './src'
 
-type ComponentDefinitions = {
-  [T in BaseType]: {
-    [K: string]: {
-      id: typeof K
-      params: z.ZodObject<any>
-    }
-  }
-}
-
-const defs = {
-  string: {
-    name: {
-      id: 'name',
-      params: z.object({ name: z.string() }),
-    },
-    ssn: {
-      id: 'ssn',
-      params: z.object({ ssn: z.string() }),
-    },
-  },
-  number: {
-    age: {
-      id: 'age',
-      params: z.object({ age: z.number() }),
-    },
-  },
-  array: {},
-  boolean: {},
-  object: {},
-} as const satisfies ComponentDefinitions
-
-z.string().displayAs<typeof defs>({ id: 'ssn', params: { ssn: '123-45-6789' } })
-
-// //  [type][id] from defs, then get the z.infered params
-// type ParseSchema<I> = I extends infer U
-//   ? U extends { id: string; params: z.ZodObject<any> }
-//     ? {
-//         id: U['id']
-//         params: z.infer<U['params']>
-//       }
-//     : object
-//   : never
-
-// type Opts<T extends BaseType, Defs extends ComponentDefinitions> = Defs[T][keyof Defs[T]]
-
-// function displayAs<T extends BaseType, Defs extends ComponentDefinitions>(opts: ParseSchema<Opts<T, Defs>>) {
-//   return opts
-// }
-
-// displayAs<'string', typeof defs>({ id: 'name', params: { name: 'John' } })
+const aschema = z.object({
+  payment: z.discriminatedUnion('type', [
+    z.object({
+      type: z.literal('Credit Card'),
+      cardNumber: z.string().title('Credit Card Number').placeholder('1234 5678 9012 3456'),
+      expirationDate: z.string().title('Expiration Date').placeholder('10/29'),
+      brand: z.enum(['Visa', 'Mastercard', 'American Express']).default('Visa'),
+    }),
+    z.object({
+      type: z.literal('PayPal'),
+      email: z.string().email().title('Paypal Email').placeholder('john.doe@gmail.com'),
+    }),
+    z.object({
+      type: z.literal('Bitcoin'),
+      address: z.string().title('Bitcoin Address').placeholder('1A1zP1eP5QGefi2DMPTfTL5SLmv7DivfNa'),
+    }),
+    z.object({
+      type: z.literal('Bank Transfer'),
+      accountNumber: z.string().title('Account Number').placeholder('1234567890'),
+    }),
+    z
+      .object({
+        type: z.literal('Cash'),
+        amount: z
+          .number()
+          .title('Amount')
+          .disabled((value) => (value || 0) > 100),
+      })
+      .disabled((obj) => {
+        return {
+          type: !!obj && obj.amount > 100,
+        }
+      })
+      .disabled((obj) => {
+        return false
+      }),
+  ]),
+})

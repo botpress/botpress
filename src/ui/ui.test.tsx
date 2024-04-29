@@ -6,10 +6,10 @@ import { ObjectSchema, JSONSchema, ZuiReactComponentBaseProps, BaseType, UICompo
 import { FC, PropsWithChildren, useState } from 'react'
 import { vi } from 'vitest'
 import { z as zui } from '../z/index'
-import { ROOT, zuiKey } from './constants'
+import { zuiKey } from './constants'
 
 const TestId = (type: BaseType, path: string[], subpath?: string) =>
-  `${type}:${path.length > 0 ? path.join('.') : ROOT}${subpath ? `:${subpath}` : ''}`
+  `${type}:${path.length > 0 ? path.join('.') : ''}${subpath ? `:${subpath}` : ''}`
 
 describe('UI', () => {
   it('renders a simple form from a json schema', () => {
@@ -43,7 +43,7 @@ describe('UI', () => {
       lastName: zui.string(),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'jsonSchema7' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
     const rendered = render(
       <ZuiForm<typeof testComponentDefinitions>
         schema={jsonSchema}
@@ -71,7 +71,7 @@ describe('UI', () => {
       }),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'jsonSchema7' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
     const rendered = render(
       <ZuiForm<typeof testComponentDefinitions>
         schema={jsonSchema}
@@ -100,7 +100,7 @@ describe('UI', () => {
       }),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'jsonSchema7' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
     const components = {
       ...testComponentImplementation,
       number: {
@@ -151,7 +151,7 @@ describe('UI', () => {
       ),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'jsonSchema7' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
     const rendered = render(
       <ZuiForm<typeof testComponentDefinitions>
         schema={jsonSchema}
@@ -172,7 +172,7 @@ describe('UI', () => {
       favoriteColors: zui.array(zui.string()),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'jsonSchema7' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
     const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
 
     const addBtn = rendered.getByTestId('array:favoriteColors:addbtn')
@@ -200,7 +200,7 @@ describe('UI', () => {
       vector: zui.array(zui.number()),
     })
 
-    const jsonSchema = aDeeplyNestedSchema.toJsonSchema({ target: 'jsonSchema7' }) as ObjectSchema
+    const jsonSchema = aDeeplyNestedSchema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
 
     const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
     const addButton = rendered.getByTestId('array:vector:addbtn')
@@ -222,7 +222,7 @@ describe('UI', () => {
       favoriteColors: zui.array(zui.string()),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'jsonSchema7' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
     const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
 
     const addBtn = rendered.getByTestId('array:favoriteColors:addbtn')
@@ -233,12 +233,13 @@ describe('UI', () => {
     const elements = rendered.getByTestId('array:favoriteColors:container').children
     expect(elements).toHaveLength(50)
   })
+
   it('handles removing an element from an array implementation', () => {
     const schema = zui.object({
       favoriteColors: zui.array(zui.string()),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'jsonSchema7' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
     const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
 
     const addBtn = rendered.getByTestId('array:favoriteColors:addbtn')
@@ -262,7 +263,7 @@ describe('UI', () => {
       ),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'jsonSchema7' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
     const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
 
     const addBtn = rendered.getByTestId('array:favoriteColors:addbtn')
@@ -284,7 +285,7 @@ describe('UI', () => {
       favoriteColors: zui.array(zui.string()),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'jsonSchema7' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
     const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
 
     const addBtn = rendered.getByTestId('array:favoriteColors:addbtn')
@@ -321,7 +322,7 @@ describe('UI', () => {
       ),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'jsonSchema7' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
 
     const rendered = render(
       <ZuiForm<typeof testComponentDefinitions>
@@ -348,7 +349,7 @@ describe('UI', () => {
         .displayAs<typeof testComponentDefinitions>({ id: 'customstringcomponent', params: { multiline: true } }),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'jsonSchema7' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
 
     const rendered = render(
       <ZuiForm<typeof testComponentDefinitions>
@@ -378,7 +379,7 @@ describe('UI', () => {
       lastName: zui.string().title('Last Name'),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'jsonSchema7' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
 
     const rendered = render(
       <ZuiForm<typeof testComponentDefinitions>
@@ -400,6 +401,30 @@ describe('UI', () => {
     })
   })
 
+  it('renders nullable elements', () => {
+    const schema = zui.object({
+      name: zui.string().nullable(),
+      age: zui.number().nullable(),
+    })
+
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+
+    const rendered = render(
+      <ZuiForm<typeof testComponentDefinitions>
+        schema={jsonSchema}
+        components={testComponentImplementation}
+        value={{}}
+        onChange={() => console.log()}
+      />,
+    )
+
+    const nameInput = rendered.getByTestId('string:name:input')
+    expect(nameInput).toBeTruthy()
+
+    const ageInput = rendered.getByTestId('number:age:input')
+    expect(ageInput).toBeTruthy()
+  })
+
   it('render multilevel arrays with custom components correctly', () => {
     const schema = zui
       .object({
@@ -412,7 +437,7 @@ describe('UI', () => {
       })
       .displayAs<typeof testComponentDefinitions>({ id: 'collapsible', params: { collapsed: false } })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'jsonSchema7' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
 
     const rendered = render(
       <ZuiForm<typeof testComponentDefinitions>
@@ -471,84 +496,165 @@ describe('UI', () => {
     expect(rendered.queryByTestId(TestId('string', ['name'], 'input'))).toBeFalsy()
   })
 
-  describe('utils', () => {
-    it('can resolve a discriminated union discriminator', () => {
-      const aDUSchema = zui
-        .discriminatedUnion('type', [
-          zui.object({
-            type: zui.literal('text'),
-            name: zui.string(),
-          }),
-          zui.object({
-            type: zui.literal('number'),
-            value: zui.number(),
-          }),
-          zui.object({
-            value: zui.string(),
-            type: zui.literal('image'),
-          }),
-        ])
-        .toJsonSchema()
+  it('handles disabled functions correctly on simple fields', () => {
+    const schema = zui.object({
+      name: zui.string().disabled((n) => n?.includes('Charles') || false),
+      value: zui.number().disabled((n) => n === 5),
+    })
 
-      const discriminators = resolveDiscriminator(aDUSchema.anyOf)
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
 
-      expect(discriminators).toEqual({
-        key: 'type',
-        values: ['text', 'number', 'image'],
+    const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
+    const numberInput = rendered.getByTestId('number:value:input') as HTMLInputElement
+
+    expect(numberInput.disabled).toBeFalsy()
+    fireEvent.change(numberInput, { target: { value: '5' } })
+    expect(numberInput.disabled).toBeTruthy()
+
+    const textInput = rendered.getByTestId('string:name:input') as HTMLInputElement
+
+    expect(textInput.disabled).toBeFalsy()
+    fireEvent.change(textInput, { target: { value: 'Charles' } })
+    expect(textInput.disabled).toBeTruthy()
+  })
+
+  it('handles conditional disabled functions on object fields', () => {
+    const schema = zui
+      .object({
+        name: zui.string(),
+        address: zui.object({
+          street: zui.string(),
+          city: zui.string(),
+        }),
       })
-    })
-
-    it('can resolve null when resolving discriminator on a non-discriminated union', () => {
-      const aSchema = zui
-        .object({
-          test: zui.string().min(3).optional().nullable(),
-        })
-        .toJsonSchema()
-
-      const discriminators = resolveDiscriminator(aSchema.anyOf)
-
-      expect(discriminators).toBeNull()
-    })
-
-    it('can resolve the discriminated schema for a given discriminator value', () => {
-      const aDUSchema = zui
-        .discriminatedUnion('type', [
-          zui.object({
-            type: zui.literal('text'),
-            name: zui.string(),
-          }),
-          zui.object({
-            type: zui.literal('number'),
-            value: zui.number(),
-          }),
-          zui.object({
-            value: zui.string(),
-            type: zui.literal('image'),
-          }),
-        ])
-        .toJsonSchema()
-
-      const schema = resolveDiscriminatedSchema('type', 'text', aDUSchema.anyOf)
-
-      expect(schema).toEqual({
-        type: 'object',
-        properties: {
-          type: {
-            type: 'string',
-            const: 'text',
-            [zuiKey]: {
-              hidden: true,
-            },
-          },
-          name: { type: 'string' },
+      .disabled((obj) => ({
+        address: {
+          city: !obj?.name,
+          street: !obj?.name,
         },
-        required: ['type', 'name'],
-        additionalProperties: false,
-      })
+      }))
+
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+
+    const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
+
+    const cityInput = rendered.getByTestId('string:address.city:input') as HTMLInputElement
+    const streetInput = rendered.getByTestId('string:address.street:input') as HTMLInputElement
+    const nameInput = rendered.getByTestId('string:name:input') as HTMLInputElement
+
+    expect(cityInput.disabled).toBeTruthy()
+    expect(streetInput.disabled).toBeTruthy()
+    expect(nameInput.disabled).toBeFalsy()
+
+    fireEvent.change(nameInput, { target: { value: 'John' } })
+
+    expect(cityInput.disabled).toBeFalsy()
+    expect(streetInput.disabled).toBeFalsy()
+    expect(nameInput.disabled).toBeFalsy()
+  })
+
+  it('handles conditional rendering on simple fields', () => {
+    const schema = zui.object({
+      name: zui.string().hidden((n) => n === 'Charles'),
+      value: zui.number().hidden((n) => n === 5),
     })
+
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+
+    const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
+
+    const numberInput = rendered.getByTestId('number:value:input') as HTMLInputElement
+
+    expect(numberInput).toBeTruthy()
+
+    const textInput = rendered.getByTestId('string:name:input') as HTMLInputElement
+
+    expect(textInput).toBeTruthy()
+
+    fireEvent.change(numberInput, { target: { value: '5' } })
+    expect(rendered.queryByTestId('number:value:input')).toBeFalsy()
+
+    fireEvent.change(textInput, { target: { value: 'Charles' } })
+    expect(rendered.queryByTestId('number:value:input')).toBeFalsy()
   })
 })
 
+describe('utils', () => {
+  it('can resolve a discriminated union discriminator', () => {
+    const aDUSchema = zui
+      .discriminatedUnion('type', [
+        zui.object({
+          type: zui.literal('text'),
+          name: zui.string(),
+        }),
+        zui.object({
+          type: zui.literal('number'),
+          value: zui.number(),
+        }),
+        zui.object({
+          value: zui.string(),
+          type: zui.literal('image'),
+        }),
+      ])
+      .toJsonSchema()
+
+    const discriminators = resolveDiscriminator(aDUSchema.anyOf)
+
+    expect(discriminators).toEqual({
+      key: 'type',
+      values: ['text', 'number', 'image'],
+    })
+  })
+
+  it('can resolve null when resolving discriminator on a non-discriminated union', () => {
+    const aSchema = zui
+      .object({
+        test: zui.string().min(3).optional().nullable(),
+      })
+      .toJsonSchema()
+
+    const discriminators = resolveDiscriminator(aSchema.anyOf)
+
+    expect(discriminators).toBeNull()
+  })
+
+  it('can resolve the discriminated schema for a given discriminator value', () => {
+    const aDUSchema = zui
+      .discriminatedUnion('type', [
+        zui.object({
+          type: zui.literal('text'),
+          name: zui.string(),
+        }),
+        zui.object({
+          type: zui.literal('number'),
+          value: zui.number(),
+        }),
+        zui.object({
+          value: zui.string(),
+          type: zui.literal('image'),
+        }),
+      ])
+      .toJsonSchema()
+
+    const schema = resolveDiscriminatedSchema('type', 'text', aDUSchema.anyOf)
+
+    expect(schema).toEqual({
+      type: 'object',
+      properties: {
+        type: {
+          type: 'string',
+          enum: ['text'],
+          [zuiKey]: {
+            hidden: true,
+          },
+        },
+        name: { type: 'string' },
+      },
+      required: ['type', 'name'],
+      additionalProperties: false,
+    })
+  })
+})
 export const testComponentDefinitions = {
   string: {
     customstringcomponent: {
@@ -626,6 +732,7 @@ const testComponentImplementation: ZuiComponentMap<typeof testComponentDefinitio
           <input
             data-testid={`${props.type}:${props.scope}:custominput`}
             value={props.data || ''}
+            disabled={props.disabled}
             onChange={(e) => props.onChange(e.target.value)}
           />
         </TestWrapper>
@@ -637,6 +744,7 @@ const testComponentImplementation: ZuiComponentMap<typeof testComponentDefinitio
           <input
             data-testid={`${props.type}:${props.scope}:input`}
             value={props.data || ''}
+            disabled={props.disabled}
             onChange={(e) => props.onChange(e.target.value)}
           />
         </TestWrapper>
@@ -648,6 +756,7 @@ const testComponentImplementation: ZuiComponentMap<typeof testComponentDefinitio
           <input
             data-testid={`${props.type}:${props.scope}:input`}
             value={props.data || ''}
+            disabled={props.disabled}
             onChange={(e) => props.onChange(e.target.value)}
           />
         </TestWrapper>
@@ -707,6 +816,7 @@ const testComponentImplementation: ZuiComponentMap<typeof testComponentDefinitio
         <TestWrapper {...props}>
           <input
             type="checkbox"
+            disabled={props.disabled}
             data-testid={`${props.type}:${props.scope}:input`}
             checked={props.data || false}
             onChange={(e) => props.onChange(Boolean(e.target.value))}
@@ -721,6 +831,7 @@ const testComponentImplementation: ZuiComponentMap<typeof testComponentDefinitio
         <TestWrapper {...props}>
           <input
             type="number"
+            disabled={props.disabled}
             data-testid={`${props.type}:${props.scope}:input`}
             value={props.data || ''}
             onChange={(e) => props.onChange(parseFloat(e.target.value))}
@@ -749,7 +860,7 @@ const testComponentImplementation: ZuiComponentMap<typeof testComponentDefinitio
 
 const traverseSchemaTest = (schema: JSONSchema, callback: (path: string[], child: JSONSchema) => void) => {
   const traverse = (path: string[], child: JSONSchema) => {
-    if (child.type === 'object') {
+    if (child.type === 'object' && child.properties) {
       for (const [key, value] of Object.entries(child.properties)) {
         traverse([...path, key], value)
       }

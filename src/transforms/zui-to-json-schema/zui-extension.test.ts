@@ -15,7 +15,6 @@ describe('zuiToJsonSchema', () => {
 
     expect(jsonSchema).toMatchInlineSnapshot(`
       {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "age": {
@@ -50,7 +49,6 @@ describe('zuiToJsonSchema', () => {
         }),
       ),
     ).toEqual({
-      $schema: 'http://json-schema.org/draft-07/schema#',
       additionalProperties: false,
       properties: {
         fruit: {
@@ -75,7 +73,6 @@ describe('zuiToJsonSchema', () => {
     const jsonSchema = zuiToJsonSchema(schema)
     expect(jsonSchema).toMatchInlineSnapshot(`
       {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "additionalProperties": false,
         "properties": {
           "testExample": {
@@ -188,20 +185,21 @@ describe('zuiToJsonSchema', () => {
       .min(1)
       .describe('Array of objects with validation')
 
-    const jsonSchema = zuiToJsonSchema(arrayWithObjects)
+    const jsonSchema = zuiToJsonSchema(arrayWithObjects, { target: 'openApi3' })
     expect(jsonSchema).toMatchInlineSnapshot(`
       {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "description": "Array of objects with validation",
         "items": {
           "additionalProperties": false,
           "properties": {
             "id": {
               "type": "number",
+              "${zuiKey}": {},
             },
             "title": {
               "minLength": 5,
               "type": "string",
+              "${zuiKey}": {},
             },
           },
           "required": [
@@ -209,6 +207,7 @@ describe('zuiToJsonSchema', () => {
             "title",
           ],
           "type": "object",
+          "${zuiKey}": {},
         },
         "minItems": 1,
         "type": "array",
@@ -226,13 +225,14 @@ describe('zuiToJsonSchema', () => {
     const jsonSchema = zuiToJsonSchema(schema)
     expect(jsonSchema).toMatchInlineSnapshot(`
       {
-        "$schema": "http://json-schema.org/draft-07/schema#",
         "anyOf": [
           {
             "additionalProperties": false,
             "properties": {
               "kek": {
-                "const": "A",
+                "enum": [
+                  "A",
+                ],
                 "type": "string",
               },
               "lel": {
@@ -249,7 +249,9 @@ describe('zuiToJsonSchema', () => {
             "additionalProperties": false,
             "properties": {
               "kek": {
-                "const": "B",
+                "enum": [
+                  "B",
+                ],
                 "type": "string",
               },
               "lel": {
@@ -335,7 +337,6 @@ describe('zuiToJsonSchema', () => {
 
     expect(schema.toJsonSchema()).toMatchInlineSnapshot(`
     {
-      "$schema": "http://json-schema.org/draft-07/schema#",
       "additionalProperties": false,
       "properties": {
         "type": {
@@ -359,5 +360,25 @@ describe('zuiToJsonSchema', () => {
       "x-zui": {},
     }
   `)
+  })
+
+  test('array of array', () => {
+    const schema = z.array(z.array(z.string()))
+
+    const jsonSchema = zuiToJsonSchema(schema)
+    expect(jsonSchema).toMatchInlineSnapshot(`
+      {
+        "items": {
+          "items": {
+            "type": "string",
+            "${zuiKey}": {},
+          },
+          "type": "array",
+          "${zuiKey}": {},
+        },
+        "type": "array",
+        "${zuiKey}": {},
+      }
+    `)
   })
 })

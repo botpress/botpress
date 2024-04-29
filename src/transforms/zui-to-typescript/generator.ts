@@ -1,4 +1,5 @@
-import { memoize, omit } from 'lodash'
+import memoize from 'lodash/memoize'
+import omit from 'lodash/omit'
 import { DEFAULT_OPTIONS, type Options } from './index'
 import {
   type AST,

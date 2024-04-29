@@ -1,6 +1,6 @@
 import { JSONSchema } from '../../ui/types'
 import { zuiKey } from '../../ui/constants'
-import type { z } from '../../z/index'
+import { z } from '../../z/index'
 import { ArraySchema, ObjectSchema } from '../../ui/types'
 import { zodToJsonSchema } from './zodToJsonSchema'
 import { Options } from './Options'
@@ -24,10 +24,7 @@ export type ZuiSchemaOptions = {
   target?: 'jsonSchema7' | 'openApi3'
 } & Partial<Pick<Options, 'unionStrategy' | 'discriminator'>>
 
-export const zuiToJsonSchema = (
-  zuiType: z.ZodTypeAny,
-  opts: ZuiSchemaOptions = { target: 'jsonSchema7' },
-): JSONSchema => {
+export const zuiToJsonSchema = (zuiType: z.ZodTypeAny, opts: ZuiSchemaOptions = { target: 'openApi3' }): JSONSchema => {
   const jsonSchema = zodToJsonSchema(zuiType as z.ZodType, opts)
 
   if (opts.$schemaUrl === false) {
@@ -71,7 +68,7 @@ const mergeZuiIntoJsonSchema = (
     }
   }
 
-  if (isObject(jsonSchema)) {
+  if (isObject(jsonSchema) && jsonSchema.properties) {
     for (const [key, value] of Object.entries(jsonSchema.properties)) {
       const shape = getShape(zuiSchema)
 
@@ -86,9 +83,9 @@ const mergeZuiIntoJsonSchema = (
 
   if (isArray(jsonSchema)) {
     if (Array.isArray(jsonSchema.items)) {
-      jsonSchema.items.forEach((item, index) => mergeZuiIntoJsonSchema(item, zuiSchema._def.typeOf[index], opts))
+      jsonSchema.items.forEach((item, index) => mergeZuiIntoJsonSchema(item, zuiSchema._def.type[index], opts))
     } else if (jsonSchema.items) {
-      mergeZuiIntoJsonSchema(jsonSchema.items, zuiSchema._def.typeOf, opts)
+      mergeZuiIntoJsonSchema(jsonSchema.items, zuiSchema._def.type, opts)
     }
   }
 

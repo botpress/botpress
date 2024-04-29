@@ -1,5 +1,4 @@
 import { defineConfig } from 'tsup'
-import { polyfillNode } from 'esbuild-plugin-polyfill-node'
 
 export default defineConfig({
   entry: ['src/index.ts'],
@@ -11,14 +10,7 @@ export default defineConfig({
   platform: 'browser',
   clean: true,
   shims: true,
-  external: ['zod', 'react', 'react-dom'],
+  external: ['react', 'react-dom'],
   bundle: true,
-  plugins: [
-    polyfillNode({
-      polyfills: {
-        path: true,
-        process: true,
-      },
-    }),
-  ],
+  plugins: [],
 })

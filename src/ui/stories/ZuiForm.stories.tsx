@@ -1,8 +1,9 @@
-import React, { FC, useEffect, useState } from 'react'
+import React, { FC, useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
 import { FormError, UIComponentDefinitions, ZuiComponentMap } from '../types'
 import { z } from '../../z/index'
 import { ZuiForm } from '..'
+import { BoundaryFallbackComponent } from '../ErrorBoundary'
 
 const exampleExtensions = {
   string: {
@@ -40,9 +41,12 @@ const exampleExtensions = {
 
 const exampleSchema = z
   .object({
-    root: z.string().title('Root').placeholder('Root').default('root'),
-    field: z.enum(['yes', 'no']).displayAs<typeof exampleExtensions>({ id: 'debug', params: {} }),
-    firstName: z.string().title('first name').disabled().placeholder('Enter your name').nullable(),
+    root: z
+      .string()
+      .title('Root')
+      .placeholder('Root')
+      .disabled((s) => s?.includes('9') || false),
+    firstName: z.string().title('first name').placeholder('Enter your name').nullable(),
     lastName: z.string().min(3).title('Last Name <3').optional().nullable(),
     dates: z
       .array(
@@ -61,12 +65,14 @@ const exampleSchema = z
       z.object({ type: z.literal('number'), b: z.number().placeholder('42').default(5) }),
       z.object({
         type: z.literal('complex'),
-        address: z.object({
-          street: z.string().placeholder('1234 Main St'),
-          city: z.string().placeholder('San Francisco'),
-          state: z.string().placeholder('CA'),
-          zip: z.string().placeholder('94111'),
-        }),
+        address: z
+          .object({
+            street: z.string().placeholder('1234 Main St'),
+            city: z.string().placeholder('San Francisco'),
+            state: z.string().placeholder('CA'),
+            zip: z.string().placeholder('94111'),
+          })
+          .disabled((obj) => !obj?.street && { city: false }),
         root: z.string().placeholder('root'),
         babies: z.array(z.object({ name: z.string(), age: z.number() })),
       }),
@@ -82,6 +88,12 @@ const exampleSchema = z
     debug: z.number().optional().displayAs<typeof exampleExtensions>({ id: 'debug', params: {} }),
   })
   .title('User Information')
+  .disabled((s) => {
+    return { firstName: s?.root?.includes('6') || false }
+  })
+  .hidden((v) => ({
+    aDiscriminatedUnion: v?.root === 'hidden',
+  }))
 
 const ErrorBox: FC<{ errors: FormError[]; data: any | null }> = ({ errors, data }) =>
   errors &&
@@ -117,12 +129,12 @@ const componentMap: ZuiComponentMap<typeof exampleExtensions> = {
         </div>
       )
     },
-    default: ({ onChange, errors, required, label, data, zuiProps, schema }) => {
+    default: ({ onChange, errors, required, disabled, label, data, zuiProps, schema }) => {
       if (schema.enum?.length) {
         return (
           <div style={{ padding: '1rem' }}>
             <span>{label}</span>
-            <select onChange={(e) => onChange(e.target.value)} value={data || ''}>
+            <select disabled={disabled} onChange={(e) => onChange(e.target.value)} value={data || ''}>
               {schema.enum.map((e) => (
                 <option key={e} value={e}>
                   {e}
@@ -137,7 +149,12 @@ const componentMap: ZuiComponentMap<typeof exampleExtensions> = {
       return (
         <div style={{ padding: '1rem' }}>
           <span>{label}</span>
-          <input placeholder={zuiProps?.placeholder} onChange={(e) => onChange(e.target.value)} value={data || ''} />
+          <input
+            disabled={disabled}
+            placeholder={zuiProps?.placeholder}
+            onChange={(e) => onChange(e.target.value)}
+            value={data || ''}
+          />
           {required && <span>*</span>}
           <ErrorBox errors={errors} data={data} />
         </div>
@@ -181,7 +198,7 @@ const componentMap: ZuiComponentMap<typeof exampleExtensions> = {
   },
   boolean: {
     debug: () => null,
-    default: ({ data, enabled, label, errors, onChange }) => {
+    default: ({ data, disabled: enabled, label, errors, onChange }) => {
       return (
         <div style={{ padding: '1rem' }}>
           <label>
@@ -239,24 +256,31 @@ const componentMap: ZuiComponentMap<typeof exampleExtensions> = {
     },
   },
 }
-
+const Fallback: BoundaryFallbackComponent = ({ error, schema }) => {
+  return (
+    <div style={{ background: '#F44', color: '#FFF' }}>
+      <h1>Something went wrong rendering {schema?.type}</h1>
+      <p>{error.message}</p>
+    </div>
+  )
+}
 const ZuiFormExample = () => {
   const [formData, setFormData] = useState({})
-  useEffect(() => {
-    exampleSchema.toTypescriptTypings().then(console.log)
-  }, [])
+
   return (
     <>
       <ZuiForm<typeof exampleExtensions>
-        schema={exampleSchema.toJsonSchema()}
+        schema={exampleSchema.toJsonSchema({ target: 'openApi3' })}
         value={formData}
         onChange={setFormData}
         components={componentMap}
+        fallback={Fallback}
         disableValidation={false}
       />
     </>
   )
 }
+
 const meta = {
   title: 'Form/Example',
   component: ZuiFormExample,
