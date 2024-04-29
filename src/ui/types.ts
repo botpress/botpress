@@ -22,7 +22,7 @@ export type JSONSchemaPrimitiveType = 'string' | 'number' | 'integer' | 'boolean
 
 export type ArraySchema = {
   type: 'array'
-  items: JSONSchema
+  items: JSONSchema | JSONSchema[]
   minItems?: number
   maxItems?: number
   uniqueItems?: boolean
@@ -54,13 +54,35 @@ export type ObjectSchema = {
 ) &
   BaseSchema
 
+// https://json-schema.org/understanding-json-schema/reference/string#built-in-formats
+export type Formats =
+  | 'date-time'
+  | 'time'
+  | 'date'
+  | 'duration'
+  | 'email'
+  | 'idn-email'
+  | 'hostname'
+  | 'idn-hostname'
+  | 'ipv4'
+  | 'ipv6'
+  | 'uuid'
+  | 'uri'
+  | 'uri-reference'
+  | 'iri'
+  | 'iri-reference'
+  | 'uri-template'
+  | 'json-pointer'
+  | 'relative-json-pointer'
+  | 'regex'
+
 export type StringSchema = {
   type: 'string'
   enum?: string[]
   minLength?: number
   maxLength?: number
   pattern?: string
-  format?: string
+  format?: Formats
   default?: string
 } & BaseSchema
 
@@ -78,7 +100,6 @@ export type NumberSchema = {
 export type BooleanSchema = {
   type: 'boolean'
   enum?: boolean[]
-  const?: boolean
   default?: boolean
 } & BaseSchema
 
@@ -134,20 +155,22 @@ export type ZodKindToBaseType<T extends z.ZodTypeDef> = T extends infer U
           ? 'array'
           : U extends { typeName: z.ZodFirstPartyTypeKind.ZodObject }
             ? 'object'
-            : U extends ZodEnumDef
-              ? 'string'
-              : U extends { typeName: z.ZodFirstPartyTypeKind.ZodDefault; innerType: z.ZodTypeAny }
-                ? ZodKindToBaseType<U['innerType']['_def']>
-                : U extends { typeName: z.ZodFirstPartyTypeKind.ZodOptional; innerType: z.ZodTypeAny }
+            : U extends { typeName: z.ZodFirstPartyTypeKind.ZodTuple }
+              ? never
+              : U extends ZodEnumDef
+                ? 'string'
+                : U extends { typeName: z.ZodFirstPartyTypeKind.ZodDefault; innerType: z.ZodTypeAny }
                   ? ZodKindToBaseType<U['innerType']['_def']>
-                  : U extends { typeName: z.ZodFirstPartyTypeKind.ZodNullable; innerType: z.ZodTypeAny }
+                  : U extends { typeName: z.ZodFirstPartyTypeKind.ZodOptional; innerType: z.ZodTypeAny }
                     ? ZodKindToBaseType<U['innerType']['_def']>
-                    : U extends {
-                          typeName: z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion
-                          options: z.ZodDiscriminatedUnionOption<any>[]
-                        }
-                      ? 'discriminatedUnion'
-                      : never
+                    : U extends { typeName: z.ZodFirstPartyTypeKind.ZodNullable; innerType: z.ZodTypeAny }
+                      ? ZodKindToBaseType<U['innerType']['_def']>
+                      : U extends {
+                            typeName: z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion
+                            options: z.ZodDiscriminatedUnionOption<any>[]
+                          }
+                        ? 'discriminatedUnion'
+                        : never
   : never
 
 export type BaseTypeToType<T extends BaseType> = T extends 'string'

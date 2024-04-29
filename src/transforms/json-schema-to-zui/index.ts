@@ -70,8 +70,10 @@ const applyZuiPropsRecursively = (zodField: ZodTypeAny, jsonSchemaField: any) =>
       }
     } else if (Array.isArray(items)) {
       items.forEach((item, index) => {
-        if (zodField._def.type[index]) {
-          applyZuiPropsRecursively(zodField._def.type[index], item)
+        const def: z.ZodDef = zodField._def
+
+        if (def.typeName === z.ZodFirstPartyTypeKind.ZodTuple) {
+          applyZuiPropsRecursively(def.items[index]!, item)
         }
       })
     }

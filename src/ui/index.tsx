@@ -274,6 +274,11 @@ const FormElementRenderer: FC<FormRendererProps> = ({
       ...childProps,
     }
 
+    // Tuple
+    if (Array.isArray(fieldSchema.items)) {
+      return null
+    }
+
     return (
       <Component key={baseProps.scope} {...props} isArrayChild={props.isArrayChild as any}>
         {Array.isArray(props.data)
@@ -283,13 +288,13 @@ const FormElementRenderer: FC<FormRendererProps> = ({
                 <ErrorBoundary
                   key={childPath.join('.')}
                   fallback={fallback}
-                  fieldSchema={fieldSchema.items}
+                  fieldSchema={fieldSchema.items as JSONSchema}
                   path={childPath}
                 >
                   <FormElementRenderer
                     key={childPath.join('.')}
                     components={components}
-                    fieldSchema={fieldSchema.items}
+                    fieldSchema={fieldSchema.items as JSONSchema}
                     path={childPath}
                     required={required}
                     isArrayChild={true}

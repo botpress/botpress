@@ -866,7 +866,13 @@ const traverseSchemaTest = (schema: JSONSchema, callback: (path: string[], child
       }
     }
     if (child.type === 'array') {
-      traverse([...path, '0'], child.items!)
+      if (Array.isArray(child.items)) {
+        child.items.forEach((item, index) => {
+          traverse([...path, index.toString()], item)
+        })
+      } else {
+        traverse([...path, '0'], child.items!)
+      }
     }
     callback(path, child)
   }

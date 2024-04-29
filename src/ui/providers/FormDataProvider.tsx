@@ -158,7 +158,10 @@ export function setObjectPath(obj: any, path: string[], data: any): any {
   return { ...obj }
 }
 
-export const getDefaultItemData = (schema: JSONSchema): any => {
+export const getDefaultItemData = (schema: JSONSchema | JSONSchema[]): any => {
+  if (Array.isArray(schema)) {
+    return schema.map((s) => getDefaultItemData(s))
+  }
   if (schema.type === 'object') {
     return {}
   }

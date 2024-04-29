@@ -2,14 +2,6 @@ import { RawCreateParams, ZodFirstPartyTypeKind, ZodType, ZodTypeAny, ZodTypeDef
 import { processCreateParams, util, ZodParsedType } from '../utils'
 import { ParseInput, ParseReturnType } from '../utils/parseUtil'
 
-////////////////////////////////////////////
-////////////////////////////////////////////
-//////////                        //////////
-//////////       ZodDefault       //////////
-//////////                        //////////
-////////////////////////////////////////////
-////////////////////////////////////////////
-
 export interface ZodDefaultDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTypeDef {
   innerType: T
   defaultValue: () => util.noUndefined<T['_input']>

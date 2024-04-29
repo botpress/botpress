@@ -47,6 +47,9 @@ export const emailRegex = /^(?!\.)(?!.*\.\.)([A-Z0-9_+-\.]*)[A-Z0-9_+-]@([A-Z0-9
 
 // from https://thekevinscott.com/emojis-in-javascript/#writing-a-regular-expression
 const _emojiRegex = `^(\\p{Extended_Pictographic}|\\p{Emoji_Component})+$`
+
+export const isEmojiRegex = (value: any) => value === _emojiRegex
+
 let emojiRegex: RegExp
 export const ipv4Regex =
   /^(((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))\.){3}((25[0-5])|(2[0-4][0-9])|(1[0-9]{2})|([0-9]{1,2}))$/

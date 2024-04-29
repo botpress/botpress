@@ -1,10 +1,8 @@
 import { JSONSchema } from '../../ui/types'
 import { zuiKey } from '../../ui/constants'
 import { z } from '../../z/index'
-import { ArraySchema, ObjectSchema } from '../../ui/types'
 import { zodToJsonSchema } from './zodToJsonSchema'
 import { Options } from './Options'
-import { JsonSchema7Type } from './parseDef'
 
 export type ZuiSchemaOptions = {
   /**
@@ -36,14 +34,6 @@ export const zuiToJsonSchema = (zuiType: z.ZodTypeAny, opts: ZuiSchemaOptions = 
   return mergeZuiIntoJsonSchema(jsonSchema as JSONSchema, zuiType, opts)
 }
 
-const isObject = (schema: JsonSchema7Type): schema is ObjectSchema =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (schema as any).type === 'object' && (schema as any).properties
-
-const isArray = (schema: JsonSchema7Type): schema is ArraySchema =>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  (schema as any).type === 'array'
-
 const getShape = (zuiSchema?: z.ZodTypeAny) => {
   if (!zuiSchema?._def) {
     return
@@ -68,7 +58,7 @@ const mergeZuiIntoJsonSchema = (
     }
   }
 
-  if (isObject(jsonSchema) && jsonSchema.properties) {
+  if (jsonSchema.type === 'object' && jsonSchema.properties) {
     for (const [key, value] of Object.entries(jsonSchema.properties)) {
       const shape = getShape(zuiSchema)
 
@@ -81,9 +71,15 @@ const mergeZuiIntoJsonSchema = (
     }
   }
 
-  if (isArray(jsonSchema)) {
+  if (jsonSchema.type == 'array') {
     if (Array.isArray(jsonSchema.items)) {
-      jsonSchema.items.forEach((item, index) => mergeZuiIntoJsonSchema(item, zuiSchema._def.type[index], opts))
+      const def: z.ZodDef = zuiSchema._def
+      if (def.typeName === z.ZodFirstPartyTypeKind.ZodTuple) {
+        jsonSchema.items.forEach((item, index) => {
+          const current = def.items[index]
+          current && mergeZuiIntoJsonSchema(item, current, opts)
+        })
+      }
     } else if (jsonSchema.items) {
       mergeZuiIntoJsonSchema(jsonSchema.items, zuiSchema._def.type, opts)
     }

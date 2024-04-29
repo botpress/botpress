@@ -58,6 +58,7 @@ const exampleSchema = z
       )
       .min(1)
       .nonempty(),
+    aTuple: z.tuple([z.string(), z.number(), z.object({ pointsScored: z.number() })]),
     // tests the hidden function
     aRandomField: z.string().optional().hidden(),
     aDiscriminatedUnion: z.discriminatedUnion('type', [

@@ -139,10 +139,12 @@ describe('object-to-zui', () => {
     if (schema.properties?.tags?.type !== 'array' || schema.properties?.scores?.type !== 'array') {
       throw new Error('Expected array type')
     }
+    expect(Array.isArray(schema.properties?.tags?.items)).toBe(false)
     expect(schema.properties?.tags?.type).toBe('array')
-    expect(schema.properties?.tags?.items?.type).toBe('string')
+    expect((schema.properties?.tags?.items as any)?.type).toBe('string')
     expect(schema.properties?.scores?.type).toBe('array')
-    expect(schema.properties?.scores?.items?.type).toBe('number')
+    expect(Array.isArray(schema.properties?.scores?.items)).toBe(false)
+    expect((schema.properties?.scores?.items as any)?.type).toBe('number')
   })
 
   test('should handle empty objects correctly', () => {

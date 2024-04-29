@@ -27,13 +27,6 @@ import { processCreateParams, util, ZodParsedType } from '../utils'
 import { addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../utils/parseUtil'
 import { Primitive } from '../utils/typeAliases'
 
-/////////////////////////////////////////////////////
-/////////////////////////////////////////////////////
-//////////                                 //////////
-//////////      ZodDiscriminatedUnion      //////////
-//////////                                 //////////
-/////////////////////////////////////////////////////
-/////////////////////////////////////////////////////
 const getDiscriminator = <T extends ZodTypeAny>(type: T): Primitive[] => {
   if (type instanceof ZodLazy) {
     return getDiscriminator(type.schema)
