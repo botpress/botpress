@@ -11,6 +11,7 @@ export const register: RegisterFunction = async ({ ctx, client, webhookUrl, logg
       'charge.failed',
       'customer.subscription.deleted',
       'customer.subscription.updated',
+      'customer.subscription.created',
       'invoice.payment_failed',
       'payment_intent.payment_failed',
     ],
