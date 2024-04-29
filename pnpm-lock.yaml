@@ -1,4 +1,4 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
 
 settings:
   autoInstallPeers: true
@@ -1239,10 +1239,10 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.14.2
+        specifier: 0.15.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 0.8.3
+        specifier: 0.8.4
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1354,10 +1354,10 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.14.2
+        specifier: 0.15.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.3
+        specifier: 0.8.4
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1373,10 +1373,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.14.2
+        specifier: 0.15.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.3
+        specifier: 0.8.4
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1423,7 +1423,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.14.2
+        specifier: 0.15.0
         version: link:../client
       '@bpinternal/zui':
         specifier: 0.6.2
