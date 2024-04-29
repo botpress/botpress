@@ -1242,8 +1242,8 @@ importers:
         specifier: 0.15.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 0.8.4
-        version: 0.8.4
+        specifier: 0.8.5
+        version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
         version: 0.0.20
@@ -1357,8 +1357,8 @@ importers:
         specifier: 0.15.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.4
-        version: 0.8.4
+        specifier: 0.8.5
+        version: link:../../../sdk
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -1376,8 +1376,8 @@ importers:
         specifier: 0.15.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.4
-        version: 0.8.4
+        specifier: 0.8.5
+        version: link:../../../sdk
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -2000,16 +2000,6 @@ packages:
       - openapi-types
     dev: true
 
-  /@botpress/client@0.15.0:
-    resolution: {integrity: sha512-N4FFWjlsyxILg/27ZkJ9ed8NPFV5kN18YUplO2qysG1VuIbiIgX44Mo4uKjq4P+N8/nKE/u364HBoxoFp6EzIw==}
-    dependencies:
-      axios: 1.6.8
-      browser-or-node: 2.1.1
-      type-fest: 3.11.1
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
   /@botpress/messaging-base@1.2.0:
     resolution: {integrity: sha512-7cjHeD1Ti4cvDmyUV2D2CFKR1kPYv+eFPgXaJOksvrEoNZ1SrqXbHR9l26ndaAz0TuoX3Wc9l4Q7i5sBoHE44Q==}
     dev: false
@@ -2021,15 +2011,6 @@ packages:
       axios: 0.21.4(debug@4.3.4)
       cookie: 0.4.2
       joi: 17.9.2
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
-  /@botpress/sdk@0.8.4:
-    resolution: {integrity: sha512-gkVOQFrW4mtF5ZfRRiW1JEnH/OuKOuiTmboin9wVTELwEJruL+TtQ5WPQKaYh3izqIdTyRoBeGwrfEWcvgE7nQ==}
-    dependencies:
-      '@botpress/client': 0.15.0
-      '@bpinternal/zui': 0.6.2
     transitivePeerDependencies:
       - debug
     dev: false
@@ -2075,10 +2056,6 @@ packages:
     dependencies:
       esbuild: 0.20.2
     dev: true
-
-  /@bpinternal/json-schema-to-zod@2.0.15:
-    resolution: {integrity: sha512-CEi5XbffaDBAV+Ghqifx8XN+QZ/lzTGsWPn62uiTwD+arpqdlNZs7a0gtkNz1Fkr0KmkHWTZtzUdYNjIqIszTw==}
-    dev: false
 
   /@bpinternal/log4bot@0.0.4:
     resolution: {integrity: sha512-psjT4wxlMcKMnWu+acnxoMeVQaAjD5eRfTdpk1L2uymhy2hnukzxg53Z2cThbFDJsdEufFOneEGwSi2kfWXRwA==}
@@ -2150,15 +2127,6 @@ packages:
       lodash: 4.17.21
       yargs: 17.7.2
       yn: 4.0.0
-    dev: false
-
-  /@bpinternal/zui@0.6.2:
-    resolution: {integrity: sha512-fT7CCv9L02SCLvBegsjluRfgEaJ+oNJueLi6Sc6H5k8X9cfs85Nvum+9OaIcAMF85u4FI2BqY0kA+D8Pq/5YaA==}
-    dependencies:
-      '@apidevtools/json-schema-ref-parser': 11.6.1
-      '@bpinternal/json-schema-to-zod': 2.0.15
-      lodash: 4.17.21
-      react: 18.3.1
     dev: false
 
   /@bpinternal/zui@0.7.2:
@@ -5127,6 +5095,7 @@ packages:
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
+    dev: true
 
   /b4a@1.6.6:
     resolution: {integrity: sha512-5Tk1HLk6b6ctmjIkAcU/Ujv/1WqiDl0F0JdRCR80VsOcUlHcu7pWeWRlOqQLHfDEsVx9YH/aif5AG4ehoCtTmg==}

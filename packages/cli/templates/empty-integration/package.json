@@ -10,7 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "@botpress/client": "0.15.0",
-    "@botpress/sdk": "0.8.4"
+    "@botpress/sdk": "0.8.5"
   },
   "devDependencies": {
     "@types/node": "^18.11.17",
