@@ -72,16 +72,24 @@ const mergeZuiIntoJsonSchema = (
   }
 
   if (jsonSchema.type == 'array') {
+    const def: z.ZodDef = zuiSchema._def
     if (Array.isArray(jsonSchema.items)) {
-      const def: z.ZodDef = zuiSchema._def
       if (def.typeName === z.ZodFirstPartyTypeKind.ZodTuple) {
         jsonSchema.items.forEach((item, index) => {
           const current = def.items[index]
           current && mergeZuiIntoJsonSchema(item, current, opts)
         })
       }
+
+      if (def.typeName === z.ZodFirstPartyTypeKind.ZodMap) {
+        jsonSchema.items.map((item) => mergeZuiIntoJsonSchema(item, def.valueType, opts))
+      }
     } else if (jsonSchema.items) {
-      mergeZuiIntoJsonSchema(jsonSchema.items, zuiSchema._def.type, opts)
+      if (def.typeName === z.ZodFirstPartyTypeKind.ZodMap) {
+        mergeZuiIntoJsonSchema(jsonSchema.items, def.valueType, opts)
+      } else {
+        mergeZuiIntoJsonSchema(jsonSchema.items, zuiSchema._def.type, opts)
+      }
     }
   }
 
