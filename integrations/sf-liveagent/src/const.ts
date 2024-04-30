@@ -1,1 +1,1 @@
-export const INTEGRATION_NAME = 'sfLiveAgent'
+export const INTEGRATION_NAME = 'sfliveagent'

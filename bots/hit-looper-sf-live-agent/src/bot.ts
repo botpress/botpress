@@ -8,7 +8,7 @@ const telegram = new botpress.telegram.Telegram({
   },
 })
 
-const sfLiveAgent = new botpress.sfLiveAgent.SfLiveAgent({
+const sfliveagent = new botpress.sfliveagent.sfliveagent({
   enabled: true,
   config: {
     endpoint: 'https://d.la2s-core1.sfdc-58ktaz.salesforceliveagent.com/chat',
@@ -23,7 +23,7 @@ const sfLiveAgent = new botpress.sfLiveAgent.SfLiveAgent({
 export const bot = new botpress.Bot({
   integrations: {
     telegram,
-    sfLiveAgent,
+    sfliveagent,
   },
   configuration: {
     schema: z.object({}),

@@ -26,12 +26,12 @@ export const agentMessageHandler: MessageHandler = async (props) => {
     await respond({ conversationId: upstream, text: disabledMsg })
 
     const {
-      output: {}
+      output: {},
     } = await client.callAction({
-      type: 'sfLiveAgent:endConversationSession',
+      type: 'sfliveagent:endConversationSession',
       input: {
         conversationId: downstream.id,
-        reason: 'AGENT_ENDED'
+        reason: 'AGENT_ENDED',
       },
     })
     return

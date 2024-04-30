@@ -12,20 +12,17 @@ export const patientMessageHandler: MessageHandler = async (props) => {
       await respond({ conversationId: upstream.id, text: 'Connecting you to a human agent...' })
 
       try {
-
-        const {
-          output: session
-        } = await client.callAction({
-          type: 'sfLiveAgent:createConversationSession',
+        const { output: session } = await client.callAction({
+          type: 'sfliveagent:createConversationSession',
           input: {},
         })
 
         const {
           output: { conversationId: downstreamId },
         } = await client.callAction({
-          type: 'sfLiveAgent:getConversationFromSession',
+          type: 'sfliveagent:getConversationFromSession',
           input: {
-            session
+            session,
           },
         })
 
@@ -44,18 +41,18 @@ export const patientMessageHandler: MessageHandler = async (props) => {
         })
 
         const {
-          output: {}
+          output: {},
         } = await client.callAction({
-          type: 'sfLiveAgent:startChat',
+          type: 'sfliveagent:startChat',
           input: {
             session,
-            userName: 'Anonymous User'
+            userName: 'Anonymous User',
           },
         })
 
         await setFlow({ client, conversationId: upstream.id }, { hitlEnabled: true })
         await setFlow({ client, conversationId: downstreamId }, { hitlEnabled: true })
-      } catch(e) {
+      } catch (e) {
         await respond({ conversationId: upstream.id, text: 'Failed to start session: ' + e.message })
       }
       return

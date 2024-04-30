@@ -1,5 +1,5 @@
 {
-  "name": "@botpresshub/sf-liveagent",
+  "name": "@botpresshub/sfliveagent",
   "version": "0.0.1",
   "description": "Integration for Salesforce LiveAgent",
   "private": true,
