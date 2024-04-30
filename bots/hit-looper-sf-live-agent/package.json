@@ -2,7 +2,7 @@
   "name": "hit-looper",
   "scripts": {
     "type:check": "tsc --noEmit",
-    "integrations": "ts-node -T ./integrations.ts"
+    "integrations": "es-node ./integrations.ts"
   },
   "keywords": [],
   "private": true,
