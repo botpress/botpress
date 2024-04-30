@@ -568,7 +568,7 @@ importers:
         version: 3.0.80
     devDependencies:
       '@types/mailchimp__mailchimp_marketing':
-        specifier: ^3.0.10
+        specifier: 3.0.10
         version: 3.0.10
       '@types/node':
         specifier: ^18.11.17
