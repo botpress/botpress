@@ -134,6 +134,7 @@ export const studioComponentDefinitions = {
       }),
     },
   },
+  discriminatedUnion: {},
 } as const satisfies UIComponentDefinitions
 
 export type UI<Namespace extends 'studio' | 'dashboard' = 'studio'> = Namespace extends 'studio'
