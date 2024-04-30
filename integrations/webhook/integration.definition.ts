@@ -2,7 +2,7 @@ import { z, IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
-  name: 'webhook',
+  name: 'webhookdv',
   version: '0.4.1',
   title: 'Webhook',
   description:

@@ -1,4 +1,4 @@
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+//import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import qs from 'qs'
 import * as bp from '.botpress'
 
@@ -30,6 +30,18 @@ const integration = new bp.Integration({
       body = JSON.parse(req.body ?? '{}')
     } catch (err) {}
 
+    console.log('will trigger webhook with: ', {
+      type: 'webhook:event',
+        payload: {
+        body,
+          query,
+          method,
+          path: req.path,
+      },
+      userId: body?.userId,
+        conversationId: body?.conversationId
+    })
+
     await client.createEvent({
       type: 'webhook:event',
       payload: {
@@ -38,6 +50,8 @@ const integration = new bp.Integration({
         method,
         path: req.path,
       },
+      userId: body?.userId,
+      conversationId: body?.conversationId
     })
   },
   register: async () => {},
@@ -46,8 +60,10 @@ const integration = new bp.Integration({
   channels: {},
 })
 
-export default sentryHelpers.wrapIntegration(integration, {
+export default integration;
+
+/*export default sentryHelpers.wrapIntegration(integration, {
   dsn: bp.secrets.SENTRY_DSN,
   environment: bp.secrets.SENTRY_ENVIRONMENT,
   release: bp.secrets.SENTRY_RELEASE,
-})
+})*/

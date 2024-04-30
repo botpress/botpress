@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from '@botpress/sdk'
 import { MessageEventSchema } from './schemas'
 
 const BasicEventSchema = z.object({

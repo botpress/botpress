@@ -1,5 +1,5 @@
 {
-  "name": "@botpresshub/webhook",
+  "name": "@botpresshub/webhookdv",
   "description": "Webhook integration for Botpress",
   "private": true,
   "scripts": {

@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '@botpress/sdk'
 import type { IntegrationDefinitionProps } from '@botpress/sdk'
 
 export const states = {
