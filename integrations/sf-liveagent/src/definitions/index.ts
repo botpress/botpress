@@ -26,6 +26,5 @@ export const states = {
 export const user = {
   tags: {
     pollingKey: z.string(),
-  },
-  creation: { enabled: true, requiredTags: [ 'pollingKey' ] },
+  }
 } satisfies IntegrationDefinitionProps['user']

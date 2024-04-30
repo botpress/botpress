@@ -24,8 +24,7 @@ export const channels = {
         pollingKey: {
           title: 'Key for polling',
         }
-      },
-      creation: { enabled: true, requiredTags: ['pollingKey'] },
+      }
     },
   },
 } satisfies IntegrationDefinitionProps['channels']
