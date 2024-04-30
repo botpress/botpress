@@ -22,8 +22,8 @@ void (async function () {
       name: 'test.txt',
       data: Buffer.from('aaa'),
     })
-    .then(({ file }: GetFileResponse) => {
-      console.debug('file:', file, '\n')
+    .then((response: GetFileResponse) => {
+      console.debug('GetFileResponse:', response, '\n')
       console.info('\x1b[32m%s\x1b[0m', 'File was created and uploaded successfully.')
     })
     .catch((err: any) => {
