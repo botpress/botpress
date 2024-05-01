@@ -1,4 +1,4 @@
-import { describe, it } from 'vitest'
+import { describe, expect, it } from 'vitest'
 import { GetFileResponse } from '../../dist/gen'
 
 /**
@@ -19,11 +19,13 @@ describe('createAndUploadFile', () => {
       token: 'bp_pat_abcdefghijklmnopqrstuvwxyz0123456789',
     })
 
-    const response = await client.createAndUploadFile({
+    const response: GetFileResponse = await client.createAndUploadFile({
       name: 'test.txt',
       data: Buffer.from('aaa'),
     })
 
-    console.debug('GetFileResponse:', response, '\n')
+    expect(response.file.name).toBe('test.txt')
+    expect(response.file.status).toBe('UPLOAD_COMPLETED')
+    expect(response.url, 'File URL should have been returned').toBeTruthy()
   })
 })
