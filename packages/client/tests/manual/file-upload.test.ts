@@ -9,7 +9,7 @@ import { GetFileResponse } from '../../dist/gen'
  *   2. Run `pnpm build` in the `packages/client` directory.
  *   3. Then run `pnpm test:manual` to run this script.
  */
-const { Client } = require('../../dist/index.cjs')
+import { Client } from '../../dist/index.cjs'
 
 describe('createAndUploadFile', () => {
   it('works as expected', async () => {
