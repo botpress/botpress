@@ -1,17 +1,16 @@
-import type { IntegrationDefinitionProps } from '@botpress/sdk'
+import type { IntegrationDefinitionProps  } from '@botpress/sdk'
 import { EndConversationReasonSchema } from 'src/events/conversation-ended'
-import z from 'zod'
-import { LiveAgentSessionSchema } from './schemas'
+import { z } from '@botpress/sdk'
 
 const createConversationSession = {
   title: 'Create Conversation Session',
   description: 'Creates a new Conversation Session',
   input: {
-    schema: z.object({}),
+    schema: z.object({ ignore: z.string().optional() }),
     ui: {},
   },
   output: {
-    schema: z.object({ success: z.boolean(), liveAgentSessionKey: z.string() }),
+    schema: z.object({ success: z.boolean(), liveAgentSessionKey: z.string().optional(), message: z.string().optional() }),
   },
 }
 
@@ -69,7 +68,7 @@ const sendMessage = {
     ui: {},
   },
   output: {
-    schema: z.object({})
+    schema: z.object({ success: z.boolean() }),
   },
 }
 

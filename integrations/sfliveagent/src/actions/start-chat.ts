@@ -7,12 +7,16 @@ export const startChat: IntegrationProps['actions']['startChat'] = async ({ ctx,
   try {
     const { liveAgentSessionKey, userName } = input
 
+    logger.forBot().error('will start chat using key: ' + liveAgentSessionKey)
+
     const { conversation: linkedConversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
         liveAgentSessionKey
       }
     })
+
+    console.log('Start Chat, found conversation: ', { linkedConversation })
 
     if(!linkedConversation || !linkedConversation.tags.botpressConversationId) {
       throw new Error('Linked conversation does not exist')
@@ -28,7 +32,7 @@ export const startChat: IntegrationProps['actions']['startChat'] = async ({ ctx,
 
     await salesforceClient.startChat({ userName })
   } catch (e) {
-    logger.forBot().error('Failed to create conversation session: ' + e.message)
+    logger.forBot().error('Failed to start chat: ' + e.message)
     return { success: false, message: 'Failed to startChat: ' + e.message }
   }
 

@@ -22,9 +22,3 @@ export const states = {
     schema: LiveAgentSessionSchema,
   }
 } satisfies IntegrationDefinitionProps['states']
-
-export const user = {
-  tags: {
-    pollingKey: z.string(),
-  }
-} satisfies IntegrationDefinitionProps['user']

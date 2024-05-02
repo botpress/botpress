@@ -7,6 +7,8 @@ export const listenConversation: IntegrationProps['actions']['listenConversation
   try {
     const { botpressConversationId, liveAgentSessionKey } = input;
 
+    console.log('Will listen conversation:  ', { botpressConversationId, liveAgentSessionKey })
+
     if(!liveAgentSessionKey?.length) {
       logger.forBot().error(`Invalid Live Agent Session Key for listen: ${liveAgentSessionKey}, please specify a valid one.`)
       return { success: false };
@@ -59,10 +61,11 @@ export const listenConversation: IntegrationProps['actions']['listenConversation
       return { success: false, message: 'Failed to create Polling Session: ' + e.message }
     }
 
-    client.updateConversation({
+    await client.updateConversation({
       id: linkedConversation.id,
       tags: {
         pollingKey,
+        liveAgentSessionKey,
         botpressConversationId
       }
     })

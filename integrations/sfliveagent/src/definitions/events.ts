@@ -1,6 +1,4 @@
-import { EndConversationReasonSchema } from 'src/events/conversation-ended'
-import z from 'zod'
-import { ConversationSchema } from './schemas'
+import { z } from '@botpress/sdk'
 
 const onAgentTyping = {
   title: 'Agent Typing',
@@ -45,7 +43,7 @@ const onConversationEnded = {
   description: 'Triggered when the conversation with the LiveAgent has ended',
   schema: z.object({
     botpressConversationId: z.string(),
-    reason: EndConversationReasonSchema
+    reason: z.string(), //EndConversationReasonSchema
   }),
   ui: {},
 }
@@ -83,6 +81,7 @@ const onQueueUpdated = {
 export const events = {
   onAgentTyping,
   onAgentNotTyping,
+  //onAgentMessage,
   onConversationAssigned,
   onConversationEnded,
   onConversationRequestFailed,

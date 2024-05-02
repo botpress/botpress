@@ -1,6 +1,6 @@
 import { IntegrationDefinition } from '@botpress/sdk'
 import { INTEGRATION_NAME } from './src/const'
-import { actions, events, configuration, channels, states, user } from './src/definitions'
+import { actions, events, configuration, channels, states } from './src/definitions'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -12,7 +12,6 @@ export default new IntegrationDefinition({
   configuration,
   states,
   channels,
-  user,
   actions,
   events,
   secrets: { 'POOLING_URL': { description: '', optional: false }, 'POOLING_SK': { description: '', optional: false } },
