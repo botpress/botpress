@@ -6,10 +6,9 @@ import { GetFileResponse } from '../../dist/gen'
  *
  * Follow these steps to run it:
  *   1. Run Tilt on the Skynet repository using the `files-api` mode and make sure a "DEV_BYPASS_USAGE_CHECKS" env var with a string value of "true" is passed to the `files-api` Tilt resource so that we can use the predefined bot ID below.
- *   2. Run `pnpm build` in the `packages/client` directory.
- *   3. Then run `pnpm test:manual` to run this script.
+ *   2. Then run `pnpm test:manual` in the terminal to run this test.
  */
-import { Client } from '../../dist/index.cjs'
+import { Client } from '../../src'
 
 describe('createAndUploadFile', () => {
   it('works as expected', async () => {
