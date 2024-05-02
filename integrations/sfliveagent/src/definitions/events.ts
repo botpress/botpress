@@ -81,7 +81,7 @@ const onQueueUpdated = {
 export const events = {
   onAgentTyping,
   onAgentNotTyping,
-  //onAgentMessage,
+  onAgentMessage,
   onConversationAssigned,
   onConversationEnded,
   onConversationRequestFailed,

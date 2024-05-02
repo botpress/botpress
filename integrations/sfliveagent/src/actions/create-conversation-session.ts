@@ -28,7 +28,7 @@ export const createConversationSession: IntegrationProps['actions']['createConve
       throw new Error('Failed to create Session')
     }
 
-    const { conversation } = await client.getOrCreateConversation({
+    const { conversation } = await client.createConversation({
       channel: 'channel',
       tags: {
         liveAgentSessionKey: session.sessionKey

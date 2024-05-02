@@ -1,8 +1,17 @@
 import { getSalesforceClient } from '../client'
 import { SFLiveagentConfig } from '../definitions/schemas'
 import { IntegrationProps } from '../../.botpress'
+import { Conversation } from '@botpress/client'
 
 export const listenConversation: IntegrationProps['actions']['listenConversation'] = async ({ ctx, client, input, logger }) => {
+
+  const findConversation = async (
+    { client }: any,
+    arg: { tags: any }
+  ): Promise<Conversation | undefined> => {
+    const { conversations } = await client.listConversations(arg)
+    return conversations[0]
+  }
 
   try {
     const { botpressConversationId, liveAgentSessionKey } = input;
@@ -27,14 +36,13 @@ export const listenConversation: IntegrationProps['actions']['listenConversation
     })
 
     // Get Conversation that links the botpress conversation to the chasitor conversation
-    const { conversation: linkedConversation } = await client.getOrCreateConversation({
-      channel: 'channel',
-      tags: {
-        liveAgentSessionKey
-      }
+    const linkedConversation = await findConversation({ client }, {
+      tags: { liveAgentSessionKey }
     })
 
-    if(!linkedConversation || !linkedConversation.tags.botpressConversationId) {
+    console.log('found conversation: ', { liveAgentSessionKey })
+
+    if(!linkedConversation || !linkedConversation.tags.liveAgentSessionKey) {
       throw new Error('Linked conversation does not exist')
     }
 
@@ -74,5 +82,5 @@ export const listenConversation: IntegrationProps['actions']['listenConversation
     return { success: false, message: 'Failed to listenConversation: ' + e.message }
   }
 
-  return { success: true, pollingKey }
+  return { success: true }
 }

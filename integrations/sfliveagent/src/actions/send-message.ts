@@ -3,6 +3,15 @@ import { IntegrationProps } from '../../.botpress'
 import { SFLiveagentConfig } from '../definitions/schemas'
 import { AxiosError } from 'axios'
 import { executeConversationEnded } from '../events/conversation-ended'
+import { Conversation } from '@botpress/client'
+
+const findConversation = async (
+  { client }: any,
+  arg: { tags: any }
+): Promise<Conversation | undefined> => {
+  const { conversations } = await client.listConversations(arg)
+  return conversations[0]
+}
 
 export const sendMessage: IntegrationProps['actions']['sendMessage'] = async ({ ctx, client, input, logger }) => {
 
@@ -18,12 +27,11 @@ export const sendMessage: IntegrationProps['actions']['sendMessage'] = async ({ 
   try {
 
     // Get Conversation that links the botpress conversation to the liveAgent conversation
-    linkedConversation = (await client.getOrCreateConversation({
-      channel: 'channel',
-      tags: {
-        liveAgentSessionKey: input.liveAgentSessionKey
-      }
-    })).conversation
+    linkedConversation = await findConversation({ client }, {
+      tags: { liveAgentSessionKey: input.liveAgentSessionKey }
+    })
+
+    console.log('Got Linked conversation while sendingMessage: ', {linkedConversation})
 
     if(!linkedConversation || !linkedConversation.tags.botpressConversationId) {
       throw new Error('Linked conversation does not exist')
