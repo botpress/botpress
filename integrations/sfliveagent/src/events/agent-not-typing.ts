@@ -2,16 +2,16 @@ import { Conversation } from '@botpress/client'
 import * as bp from '.botpress'
 
 export const executeAgentNotTyping = async ({
-  conversation,
+  botpressConversationId,
   client,
 }: {
-  conversation: Conversation
+  botpressConversationId: string
   client: bp.Client
 }) => {
   await client.createEvent({
     type: 'onAgentNotTyping',
     payload: {
-      conversation
+      botpressConversationId
     },
   })
 }

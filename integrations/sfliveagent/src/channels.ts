@@ -9,23 +9,7 @@ export default {
   channel: {
     messages: {
       text: async ({ client, ctx, conversation, ...props }) => {
-
-        const { state: { payload: liveAgentSession } } = await client.getState({
-          type: 'conversation',
-          id: conversation.id,
-          name: 'liveAgentSession'
-        })
-
-        try {
-          const salesforceClient = getSalesforceClient({ ...ctx.configuration as SFLiveagentConfig}, liveAgentSession)
-          await salesforceClient.sendMessage(props.payload.text)
-        } catch(err) {
-          if((err as AxiosError)?.response?.status === 403) {
-            // Session is no longer valid
-            void executeConversationEnded({ conversation, client, reason: 'INVALID_SESSION' })
-          }
-          throw err
-        }
+        console.log('tried to send message in the channel, not supported')
       },
     },
   },

@@ -3,18 +3,18 @@ import type { ChatEstablishedMessage } from 'src/triggers'
 import * as bp from '.botpress'
 
 export const executeConversationAssigned = async ({
-  conversation,
+  botpressConversationId,
   message,
   client,
 }: {
-  conversation: Conversation
+  botpressConversationId: string
   message: ChatEstablishedMessage
   client: bp.Client
 }) => {
   await client.createEvent({
     type: 'onConversationAssigned',
     payload: {
-      conversation,
+      botpressConversationId,
       agentName: message.name
     },
   })

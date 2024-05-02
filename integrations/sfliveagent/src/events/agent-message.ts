@@ -1,17 +1,19 @@
-import { Conversation } from '@botpress/client'
 import * as bp from '.botpress'
 
-export const executeAgentTyping = async ({
+export const executeAgentMessage = async ({
   botpressConversationId,
   client,
+  message
 }: {
   botpressConversationId: string
+  message: { text: string }
   client: bp.Client
 }) => {
   await client.createEvent({
-    type: 'onAgentTyping',
+    type: 'onAgentMessage',
     payload: {
-      botpressConversationId
+      botpressConversationId,
+      message
     },
   })
 }

@@ -5,6 +5,7 @@ import { executeConversationAssigned } from './events/conversation-assigned'
 import { executeConversationEnded } from './events/conversation-ended'
 import { executeConversationRequestFailed } from './events/conversation-request-failed'
 import { executeConversationRequestSuccess } from './events/conversation-request-success'
+import { executeAgentMessage } from './events/agent-message'
 import { executeQueueUpdated } from './events/queue-updated'
 import type { TriggerPayload } from './triggers'
 import { IntegrationProps } from '.botpress'
@@ -15,23 +16,24 @@ export const handler: IntegrationProps['handler'] = async ({ req, client, logger
     return
   }
 
+  console.log('Got Data on handler:', JSON.stringify(req.body))
+
   const trigger = JSON.parse(req.body) as TriggerPayload
 
   if(['data', 'polling_start', 'polling_end', 'error'].includes(trigger.type)) {
 
-    const { conversation } = await client.getOrCreateConversation({
+    console.log('will try to get using the following tags: ', { pollingKey: trigger.transport.key })
+
+    const { conversation: linkedConversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
         pollingKey: trigger.transport.key
       },
     })
 
-    const { user } = await client.getOrCreateUser({
-      tags: {
-        pollingKey: trigger.transport.key
-      },
-    })
+    console.log('Got conversation:', linkedConversation)
 
+    const botpressConversationId = linkedConversation.tags.botpressConversationId
 
     switch (trigger.type) {
       case 'data':
@@ -43,20 +45,14 @@ export const handler: IntegrationProps['handler'] = async ({ req, client, logger
           const { type, message } = payloadMessage
           // Process Message
           switch(type) {
-            case 'ChatRequestFail': void executeConversationRequestFailed({ conversation, message, client }); break
-            case 'ChatRequestSuccess': void executeConversationRequestSuccess({ conversation, client }); break
-            case 'ChatEstablished': void executeConversationAssigned({ conversation, message, client }); break
-            case 'ChatMessage': void client.createMessage({
-              tags: { origin: 'Salesforce LiveAgent' },
-              type: 'text',
-              userId: user.id,
-              conversationId: conversation.id,
-              payload: { text: message.text },
-            }); break
-            case 'AgentTyping': void executeAgentTyping({ conversation, client }); break
-            case 'AgentNotTyping': void executeAgentNotTyping({ conversation, client }); break
-            case 'QueueUpdate': void executeQueueUpdated({ conversation, message, client }); break
-            case 'ChatEnded': void executeConversationEnded({ conversation, client, reason: message.reason === 'agent' ? 'AGENT_ENDED' : message.reason }); break
+            case 'ChatRequestFail': void executeConversationRequestFailed({ botpressConversationId, message, client }); break
+            case 'ChatRequestSuccess': void executeConversationRequestSuccess({ botpressConversationId, client }); break
+            case 'ChatEstablished': void executeConversationAssigned({ botpressConversationId, message, client }); break
+            case 'ChatMessage': void  executeAgentMessage({ botpressConversationId,message: { text: message.text }, client }); break
+            case 'AgentTyping': void executeAgentTyping({ botpressConversationId, client }); break
+            case 'AgentNotTyping': void executeAgentNotTyping({ botpressConversationId, client }); break
+            case 'QueueUpdate': void executeQueueUpdated({ botpressConversationId, message, client }); break
+            case 'ChatEnded': void executeConversationEnded({ botpressConversationId, client, reason: message.reason === 'agent' ? 'AGENT_ENDED' : message.reason }); break
             default:
               logger.forBot().error('Unsupported message type: ' + JSON.stringify({ type, message }, null, 2))
           }

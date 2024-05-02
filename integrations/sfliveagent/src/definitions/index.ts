@@ -1,5 +1,5 @@
 import type { IntegrationDefinitionProps } from '@botpress/sdk'
-import { z } from 'zod'
+import { z } from '@botpress/sdk'
 import { LiveAgentSessionSchema, SFLiveagentConfigSchema } from './schemas'
 
 export { actions } from './actions'

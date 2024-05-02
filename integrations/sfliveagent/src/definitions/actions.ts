@@ -11,7 +11,7 @@ const createConversationSession = {
     ui: {},
   },
   output: {
-    schema: LiveAgentSessionSchema,
+    schema: z.object({ success: z.boolean(), liveAgentSessionKey: z.string() }),
   },
 }
 
@@ -21,7 +21,7 @@ const startChat = {
   input: {
     schema: z.object({
       userName: z.string().describe('Requester User Name'),
-      session: LiveAgentSessionSchema,
+      liveAgentSessionKey: z.string().describe('Key from the Chasitor conversation session'),
     }),
     ui: {
       userName: {
@@ -30,27 +30,19 @@ const startChat = {
     },
   },
   output: {
-    schema: z.object({})
+    schema: z.object({ success: z.boolean() })
   },
 }
 
-const getConversationFromSession = {
-  title: 'Get Conversation Id from Session',
-  description: 'Gets the conversation id from the LiveAgent Session',
+const listenConversation = {
+  title: 'Listen Chasitor Conversation Session',
+  description: 'The supplied Botpress conversation will listen events from the supplied Chasitor Session',
   input: {
-    schema: z.object({
-      session: LiveAgentSessionSchema,
-    }),
-    ui: {
-      session: {
-        title: 'Live Agent Session Object',
-      }
-    },
+    schema: z.object({ botpressConversationId: z.string(), liveAgentSessionKey: z.string() }),
+    ui: {},
   },
   output: {
-    schema: z.object({
-      conversationId: z.string()
-    }),
+    schema: z.object({ success: z.boolean() })
   },
 }
 
@@ -59,20 +51,33 @@ const endConversationSession = {
   description: 'Ends the current Conversation Session',
   input: {
     schema: z.object({
-      conversationId: z.string().describe('Id from the Botpress conversation'),
+      liveAgentSessionKey: z.string().describe('Key from the Chasitor conversation session'),
       reason: EndConversationReasonSchema
     }),
     ui: {},
   },
   output: {
-    schema: z.object({}),
+    schema: z.object({ success: z.boolean() }),
+  },
+}
+
+const sendMessage = {
+  title: 'Send Message to the LiveAgent Session',
+  description: 'Sends a message to the LiveAgent Session',
+  input: {
+    schema: z.object({ payload: z.string(), liveAgentSessionKey: z.string() }),
+    ui: {},
+  },
+  output: {
+    schema: z.object({})
   },
 }
 
 export const actions = {
   createConversationSession,
   startChat,
-  getConversationFromSession,
-  endConversationSession
+  listenConversation,
+  endConversationSession,
+  sendMessage
 } satisfies IntegrationDefinitionProps['actions']
 

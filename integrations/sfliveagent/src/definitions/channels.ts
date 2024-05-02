@@ -1,5 +1,5 @@
 import type { IntegrationDefinitionProps } from '@botpress/sdk'
-import { z } from 'zod'
+import { z } from '@botpress/sdk'
 
 export const channels = {
   channel: {
@@ -23,6 +23,12 @@ export const channels = {
       tags: {
         pollingKey: {
           title: 'Key for polling',
+        },
+        liveAgentSessionKey: {
+          title: 'Key for polling',
+        },
+        botpressConversationId: {
+          title: 'Id from the origin conversation',
         }
       }
     },

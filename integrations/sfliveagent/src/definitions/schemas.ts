@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '@botpress/sdk'
 
 export const AxiosBasicCredentialsSchema = z.object({
   username: z.string(),
