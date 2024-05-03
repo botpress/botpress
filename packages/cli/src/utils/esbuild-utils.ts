@@ -51,6 +51,7 @@ export function buildCode<W extends boolean>({
     logLevel,
     keepNames,
     write,
+    legalComments: 'none',
   })
 }
 
