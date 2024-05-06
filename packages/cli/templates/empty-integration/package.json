@@ -9,8 +9,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "0.15.0",
-    "@botpress/sdk": "0.8.5"
+    "@botpress/client": "0.16.0",
+    "@botpress/sdk": "0.8.6"
   },
   "devDependencies": {
     "@types/node": "^18.11.17",
