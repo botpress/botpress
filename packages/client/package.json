@@ -20,7 +20,8 @@
     "build": "pnpm build:type && pnpm build:node && pnpm build:browser && pnpm build:bundle",
     "generate": "ts-node ./openapi.ts",
     "test": "pnpm run e2e:test",
-    "e2e:test": "ts-node -T ./e2e/node.ts && ts-node -T ./e2e/browser"
+    "test:manual": "vitest tests/manual/file-upload",
+    "e2e:test": "ts-node -T ./tests/e2e/node.ts && ts-node -T ./tests/e2e/browser"
   },
   "dependencies": {
     "axios": "^1.6.1",
@@ -28,11 +29,12 @@
     "type-fest": "^3.4.0"
   },
   "devDependencies": {
-    "@botpress/api": "0.26.2",
+    "@botpress/api": "0.27.7",
     "esbuild": "^0.16.12",
     "lodash": "^4.17.21",
     "puppeteer": "^22.0.0",
     "ts-node": "^10.9.2",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.4",
+    "vitest": "^0.33.0"
   }
 }
