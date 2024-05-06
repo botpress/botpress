@@ -1,5 +1,5 @@
 /* eslint-disable no-console */
-import { Client, errorFrom } from '../../src'
+import { Client, errorFrom } from '../../../src'
 import * as consts from '../consts'
 
 const exit = (code: 0 | 1) => {
