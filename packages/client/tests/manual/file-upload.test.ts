@@ -1,5 +1,4 @@
 import { describe, expect, it } from 'vitest'
-import { GetFileResponse } from '../../dist/gen'
 
 /**
  * This a test to be run manually to test the custom file creation/upload method added in the client.
@@ -18,13 +17,13 @@ describe('createAndUploadFile', () => {
       token: 'bp_pat_abcdefghijklmnopqrstuvwxyz0123456789',
     })
 
-    const response: GetFileResponse = await client.createAndUploadFile({
+    const response = await client.createAndUploadFile({
       name: 'test.txt',
       data: Buffer.from('aaa'),
     })
 
     expect(response.file.name).toBe('test.txt')
     expect(response.file.status).toBe('UPLOAD_COMPLETED')
-    expect(response.url, 'File URL should have been returned').toBeTruthy()
+    expect(response.file.url, 'File URL should have been returned').toBeTruthy()
   })
 })
