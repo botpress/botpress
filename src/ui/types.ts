@@ -315,3 +315,9 @@ export type ParseSchema<I> = I extends infer U
       }
     : object
   : never
+
+export type MergeUIComponentDefinitions<T extends UIComponentDefinitions, U extends UIComponentDefinitions> = {
+  [Type in BaseType]: {
+    [K in keyof (T[Type] & U[Type])]: (T[Type] & U[Type])[K]
+  }
+}

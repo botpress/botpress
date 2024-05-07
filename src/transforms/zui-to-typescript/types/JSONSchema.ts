@@ -1,6 +1,6 @@
 import { type JSONSchema4, type JSONSchema4Type, type JSONSchema4TypeName } from 'json-schema'
-import memoize from 'lodash/memoize'
-import isPlainObject from 'lodash/isPlainObject'
+import memoize from 'lodash/memoize.js'
+import isPlainObject from 'lodash/isPlainObject.js'
 
 export type SchemaType =
   | 'ALL_OF'

@@ -1,7 +1,7 @@
-import deburr from 'lodash/deburr'
-import isPlainObject from 'lodash/isPlainObject'
-import trim from 'lodash/trim'
-import upperFirst from 'lodash/upperFirst'
+import deburr from 'lodash/deburr.js'
+import isPlainObject from 'lodash/isPlainObject.js'
+import trim from 'lodash/trim.js'
+import upperFirst from 'lodash/upperFirst.js'
 
 import { type JSONSchema, type LinkedJSONSchema, Parent } from './types/JSONSchema'
 

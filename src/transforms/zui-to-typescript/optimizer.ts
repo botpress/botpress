@@ -1,4 +1,4 @@
-import uniqBy from 'lodash/uniqBy'
+import uniqBy from 'lodash/uniqBy.js'
 import { type Options } from '.'
 import { generateType } from './generator'
 import { type AST, T_ANY, T_UNKNOWN } from './types/AST'

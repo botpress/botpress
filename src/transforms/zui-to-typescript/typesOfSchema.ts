@@ -1,4 +1,4 @@
-import isPlainObject from 'lodash/isPlainObject'
+import isPlainObject from 'lodash/isPlainObject.js'
 import { isCompound, type JSONSchema, type SchemaType } from './types/JSONSchema'
 
 /**

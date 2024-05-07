@@ -13,6 +13,7 @@ export type {
   ZuiReactComponentProps,
   JSONSchema,
   JSONSchemaOfType,
+  MergeUIComponentDefinitions,
 } from './ui/types'
 export type { BoundaryFallbackComponent } from './ui/ErrorBoundary'
 export { ZuiForm, type ZuiFormProps } from './ui'
