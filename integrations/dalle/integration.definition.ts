@@ -9,7 +9,7 @@ export default new IntegrationDefinition({
   name: 'dalle',
   version: '0.3.2',
   icon: 'icon.svg',
-  title: 'DALL-E Image Generation',
+  title: 'DALL-E (Deprecated)',
   description: 'Integrate DALL-E to generate stunning and unique images directly within your chatbot conversations',
   readme: 'hub.md',
   configuration: {
