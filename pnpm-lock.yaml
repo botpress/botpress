@@ -1,4 +1,4 @@
-lockfileVersion: '6.0'
+lockfileVersion: '6.1'
 
 settings:
   autoInstallPeers: true
@@ -1239,10 +1239,10 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.16.0
+        specifier: 0.16.1
         version: link:../client
       '@botpress/sdk':
-        specifier: 0.8.6
+        specifier: 0.8.7
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1354,10 +1354,10 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.16.0
+        specifier: 0.16.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.6
+        specifier: 0.8.7
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1373,10 +1373,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.16.0
+        specifier: 0.16.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.6
+        specifier: 0.8.7
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1402,8 +1402,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.27.7
-        version: 0.27.7(openapi-types@12.1.3)
+        specifier: 0.27.10
+        version: 0.27.10(openapi-types@12.1.3)
       esbuild:
         specifier: ^0.16.12
         version: 0.16.17
@@ -1426,7 +1426,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.16.0
+        specifier: 0.16.1
         version: link:../client
       '@bpinternal/zui':
         specifier: 0.7.2
@@ -1994,10 +1994,10 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.27.7(openapi-types@12.1.3):
-    resolution: {integrity: sha512-AZmzzxVS2+tyGQ4lMNLDTgANuKp6JURGXhS6ghw3gmzj9RQHRGvRUkP0stW0zhNCETun8ubMwb1D8SiHNqIFaQ==}
+  /@botpress/api@0.27.10(openapi-types@12.1.3):
+    resolution: {integrity: sha512-oWLaPpzMlJyIWvX5He5mU64u2qG5JlXi0BWlPGfxiEhs8c2TmbUlHLbpqlQpRSbEaGdKJdOHd+r21XuRlXXwWg==}
     dependencies:
-      '@bpinternal/opapi': 0.10.12(openapi-types@12.1.3)
+      '@bpinternal/opapi': 0.10.15(openapi-types@12.1.3)
     transitivePeerDependencies:
       - debug
       - openapi-types
@@ -2067,12 +2067,12 @@ packages:
       moment: 2.29.4
       regex-parser: 2.2.11
 
-  /@bpinternal/opapi@0.10.12(openapi-types@12.1.3):
-    resolution: {integrity: sha512-llHqCptDG1ImyTHyENgtjeAulwQ5Cjjw1xO98Jd1toLfG8QfkLm2GK9AoUL0i4BxpDzSwJ2GKzWg5asYB6N1AA==}
+  /@bpinternal/opapi@0.10.15(openapi-types@12.1.3):
+    resolution: {integrity: sha512-IOK0OBaqwugMb261lB0MI8AxigZQ+JFQBQ2+eIJZZfL82jqlHIcHJGDxTod0fNrPPZiUo5FCdrrRNUsam34lVw==}
     engines: {node: '>=16.0.0', pnpm: '>=8.6.0 <9'}
     dependencies:
       '@anatine/zod-openapi': 1.12.1(openapi3-ts@2.0.2)(zod@3.22.4)
-      '@readme/openapi-parser': 2.5.0(openapi-types@12.1.3)
+      '@readme/openapi-parser': 2.5.1(openapi-types@12.1.3)
       axios: 1.6.8
       chalk: 4.1.2
       decompress: 4.2.1
@@ -3730,9 +3730,9 @@ packages:
       js-yaml: 4.1.0
     dev: true
 
-  /@readme/openapi-parser@2.5.0(openapi-types@12.1.3):
-    resolution: {integrity: sha512-IbymbOqRuUzoIgxfAAR7XJt2FWl6n2yqN09fF5adacGm7W03siA3bj1Emql0X9D2T+RpBYz3x9zDsMhuoMP62A==}
-    engines: {node: '>=14'}
+  /@readme/openapi-parser@2.5.1(openapi-types@12.1.3):
+    resolution: {integrity: sha512-p9ndWhwjtP+DEiOOF6jeNMpdmYIPM4nl+JEIdnQNdq7b68esI024x7HiYACZpaYaSvISDSyKc7aiRJx4K4IDhg==}
+    engines: {node: '>=18'}
     peerDependencies:
       openapi-types: '>=7'
     dependencies:
