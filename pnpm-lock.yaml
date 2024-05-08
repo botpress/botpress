@@ -1373,8 +1373,8 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.16.0
-        version: 0.16.0
+        specifier: 0.16.1
+        version: link:../../../client
       '@botpress/sdk':
         specifier: 0.8.7
         version: link:../../../sdk
