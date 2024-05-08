@@ -1426,8 +1426,8 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.16.0
-        version: 0.16.0
+        specifier: 0.16.1
+        version: link:../client
       '@bpinternal/zui':
         specifier: 0.7.2
         version: 0.7.2
