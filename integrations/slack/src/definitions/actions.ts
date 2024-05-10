@@ -13,7 +13,7 @@ export const addReaction = {
   description: 'Add a reaction to a message',
   input: {
     schema: z.object({
-      name: z.string().describe('The name of the reaction to add'),
+      name: z.string().describe('The name of the reaction to add').emoji(),
       messageId: z.string().describe('The ID of the message, ex: {{event.messageId}}'),
     }),
     ui: {
