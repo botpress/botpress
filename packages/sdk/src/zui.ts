@@ -8,8 +8,8 @@ const commonInputParams = z.object({
 
 export const studioComponentDefinitions = {
   string: {
-    textInput: {
-      id: 'textInput',
+    text: {
+      id: 'text',
       params: commonInputParams.extend({
         multiLine: z.boolean().optional(),
         growVertically: z.boolean().optional(),
@@ -26,8 +26,8 @@ export const studioComponentDefinitions = {
       id: 'radiogroup',
       params: commonInputParams.extend({}),
     },
-    datepicker: {
-      id: 'datepicker',
+    date: {
+      id: 'date',
       params: commonInputParams.extend({
         dateFormat: z.string().optional(),
         minDate: z.string().optional(),
@@ -42,8 +42,8 @@ export const studioComponentDefinitions = {
         showWeekNumbers: z.boolean().optional(),
       }),
     },
-    timepicker: {
-      id: 'timepicker',
+    time: {
+      id: 'time',
       params: commonInputParams.extend({
         useAMPM: z.boolean().optional(),
         timeFormat: z.string().optional(),
@@ -53,8 +53,8 @@ export const studioComponentDefinitions = {
         precision: z.enum(['minute', 'second', 'millisecond']).optional(),
       }),
     },
-    variablepicker: {
-      id: 'variablepicker',
+    variable: {
+      id: 'variable',
       params: z.object({
         type: z.enum([
           'any',
@@ -72,22 +72,22 @@ export const studioComponentDefinitions = {
         horizontal: z.boolean().optional(),
       }),
     },
-    richTextEditor: {
-      id: 'richTextEditor',
+    richtext: {
+      id: 'richtext',
       params: z.object({
         allowDynamicVariable: z.boolean().optional(),
         resizable: z.boolean().optional(),
       }),
     },
-    JSONInput: {
-      id: 'JSONInput',
+    json: {
+      id: 'json',
       params: commonInputParams.extend({
         showPreview: z.boolean().optional(),
         showValidationError: z.boolean().optional(),
       }),
     },
-    fileInput: {
-      id: 'fileInput',
+    file: {
+      id: 'file',
       params: commonInputParams.extend({
         fileTypes: z.array(z.enum(['image', 'audio', 'video'])).optional(),
         showUploadedFiles: z.boolean().optional(),
@@ -95,8 +95,8 @@ export const studioComponentDefinitions = {
     },
   },
   number: {
-    numberInput: {
-      id: 'numberInput',
+    number: {
+      id: 'number',
       params: commonInputParams.extend({
         allowNumericCharactersOnly: z.boolean().optional(),
         stepSize: z.number().optional(),
@@ -117,13 +117,28 @@ export const studioComponentDefinitions = {
     },
   },
   array: {
-    optionList: {
-      id: 'optionList',
+    options: {
+      id: 'options',
       params: commonInputParams,
     },
-    stringList: {
-      id: 'stringList',
+    strings: {
+      id: 'strings',
       params: commonInputParams,
+    },
+    daterange: {
+      id: 'daterange',
+      params: z.object({
+        dateFormat: z.string().optional(),
+        minDate: z.string().optional(),
+        maxDate: z.string().optional(),
+        defaultTimezone: z.string().optional(),
+        allowSingleDayRange: z.boolean().optional(),
+        highlightCurrentDay: z.boolean().optional(),
+        showOutsideDaysOfMonth: z.boolean().optional(),
+        firstDayOfWeek: z.number().optional(),
+        canChangeMonth: z.boolean().optional(),
+        showWeekNumbers: z.boolean().optional(),
+      }),
     },
   },
   object: {
@@ -131,6 +146,20 @@ export const studioComponentDefinitions = {
       id: 'collapsible',
       params: z.object({
         defaultOpen: z.boolean().optional(),
+      }),
+    },
+    modal: {
+      id: 'modal',
+      params: z.object({
+        title: z.string().optional(),
+        buttonLabel: z.string().optional(),
+        closeButtonLabel: z.string().optional(),
+      }),
+    },
+    popover: {
+      id: 'popover',
+      params: z.object({
+        buttonLabel: z.string().optional(),
       }),
     },
   },
