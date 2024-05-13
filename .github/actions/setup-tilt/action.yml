@@ -21,7 +21,6 @@ runs:
       with:
         node-version: '18.x'
         check-latest: true
-        cache: 'pnpm'
     - name: Install dependencies
       shell: bash
       run: pnpm i --frozen-lockfile
