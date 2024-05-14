@@ -1,13 +1,14 @@
 {
-  "name": "@bp-templates/empty-integration",
-  "integrationName": "empty-integration",
+  "name": "@bp-templates/webhook-message",
+  "integrationName": "webhook-message",
   "scripts": {
     "type:check": "tsc --noEmit"
   },
   "private": true,
   "dependencies": {
     "@botpress/client": "0.16.2",
-    "@botpress/sdk": "0.8.9"
+    "@botpress/sdk": "0.8.9",
+    "axios": "^1.6.8"
   },
   "devDependencies": {
     "@types/node": "^18.11.17",

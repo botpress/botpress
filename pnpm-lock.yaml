@@ -1389,6 +1389,47 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  packages/cli/templates/hello-world:
+    dependencies:
+      '@botpress/client':
+        specifier: 0.16.2
+        version: link:../../../client
+      '@botpress/sdk':
+        specifier: 0.8.9
+        version: link:../../../sdk
+    devDependencies:
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.19.10
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.2(@types/node@18.19.10)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
+  packages/cli/templates/webhook-message:
+    dependencies:
+      '@botpress/client':
+        specifier: 0.16.2
+        version: link:../../../client
+      '@botpress/sdk':
+        specifier: 0.8.9
+        version: link:../../../sdk
+      axios:
+        specifier: ^1.6.8
+        version: 1.6.8
+    devDependencies:
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.19.10
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.2(@types/node@18.19.10)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   packages/client:
     dependencies:
       axios:
@@ -5098,7 +5139,6 @@ packages:
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
-    dev: true
 
   /b4a@1.6.6:
     resolution: {integrity: sha512-5Tk1HLk6b6ctmjIkAcU/Ujv/1WqiDl0F0JdRCR80VsOcUlHcu7pWeWRlOqQLHfDEsVx9YH/aif5AG4ehoCtTmg==}
@@ -11415,7 +11455,7 @@ packages:
   /trello.js@1.2.6:
     resolution: {integrity: sha512-ds7prbYHRp1SeNsDHTbLLfN1dOTBfg1AZ+/hnov25aglveFTNK7q/1KSRC533Fcyep7PdngjpWUKpjlGlkFl/Q==}
     dependencies:
-      axios: 1.6.7
+      axios: 1.6.8
       form-data: 4.0.0
       tslib: 2.6.2
     transitivePeerDependencies:
