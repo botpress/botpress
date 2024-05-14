@@ -20,7 +20,7 @@
   },
   "main": "dist/index.js",
   "dependencies": {
-    "@botpress/client": "0.16.1",
+    "@botpress/client": "0.16.2",
     "@botpress/sdk": "0.8.9",
     "@bpinternal/const": "^0.0.20",
     "@bpinternal/tunnel": "^0.1.1",
