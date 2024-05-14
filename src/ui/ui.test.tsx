@@ -1,6 +1,7 @@
 import React from 'react'
 import { fireEvent, render } from '@testing-library/react'
-import { ZuiForm, ZuiFormProps, getSchemaType, resolveDiscriminatedSchema, resolveDiscriminator } from './index'
+import { ZuiForm, ZuiFormProps, getSchemaType } from './index'
+import { resolveDiscriminatedSchema, resolveDiscriminator } from './hooks/useDiscriminator'
 import { ZuiComponentMap } from '../index'
 import { ObjectSchema, JSONSchema, ZuiReactComponentBaseProps, BaseType, UIComponentDefinitions } from './types'
 import { FC, PropsWithChildren, useState } from 'react'
@@ -577,6 +578,67 @@ describe('UI', () => {
     fireEvent.change(textInput, { target: { value: 'Charles' } })
     expect(rendered.queryByTestId('number:value:input')).toBeFalsy()
   })
+
+  it('prepopulates the form with existing defaults on first render', () => {
+    const schema = zui.object({
+      name: zui.string().default('John'),
+      age: zui.number().default(20),
+      favoriteFoods: zui.array(zui.string()).default(['Pizza', 'Burgers']),
+      paymentMethod: zui
+        .discriminatedUnion('type', [
+          zui.object({
+            type: zui.literal('credit'),
+            cardNumber: zui.string(),
+          }),
+          zui.object({
+            type: zui.literal('paypal'),
+            email: zui.string(),
+          }),
+        ])
+        .default({ type: 'credit', cardNumber: '1234' }),
+    })
+
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+
+    const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
+
+    const nameInput = rendered.getByTestId('string:name:input') as HTMLInputElement
+    const ageInput = rendered.getByTestId('number:age:input') as HTMLInputElement
+    const favoriteFoods = rendered.getByTestId('array:favoriteFoods:container').children
+    const creditCardInput = rendered.getByTestId('string:paymentMethod.cardNumber:input') as HTMLInputElement
+
+    expect(nameInput.value).toBe('John')
+    expect(ageInput.value).toBe('20')
+    expect(favoriteFoods).toHaveLength(2)
+    expect(creditCardInput.value).toBe('1234')
+    console.log(nameInput.value, ageInput.value)
+  })
+
+  it("Doesn't override initialData with default values", () => {
+    const schema = zui.object({
+      name: zui.string().default('John'),
+      age: zui.number().default(20),
+    })
+
+    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+
+    const mock = vi.fn()
+    const rendered = render(
+      <ZuiFormWithState
+        schema={jsonSchema}
+        components={testComponentImplementation}
+        onChange={mock}
+        initialData={{ name: 'Jane' }}
+      />,
+    )
+    const nameInput = rendered.getByTestId('string:name:input') as HTMLInputElement
+    const ageInput = rendered.getByTestId('number:age:input') as HTMLInputElement
+
+    expect(nameInput.value).toBe('Jane')
+    expect(ageInput.value).toBe('20')
+
+    expect(mock).toHaveBeenCalledWith({ name: 'Jane', age: 20 })
+  })
 })
 
 describe('utils', () => {
@@ -683,9 +745,20 @@ export const testComponentDefinitions = {
   discriminatedUnion: {},
 } as const satisfies UIComponentDefinitions
 
-const ZuiFormWithState: FC<Omit<ZuiFormProps<any>, 'onChange' | 'value'>> = (props) => {
-  const [state, setState] = useState({})
-  return <ZuiForm {...props} value={state} onChange={(data) => setState(data)} />
+const ZuiFormWithState: FC<
+  Omit<ZuiFormProps<any>, 'onChange' | 'value'> & { initialData?: any; onChange?: (data: any) => void }
+> = (props) => {
+  const [state, setState] = useState(props.initialData)
+  return (
+    <ZuiForm
+      {...props}
+      value={state}
+      onChange={(data) => {
+        setState(data)
+        props.onChange?.(data)
+      }}
+    />
+  )
 }
 
 const TestWrapper: FC<PropsWithChildren<ZuiReactComponentBaseProps<BaseType, string, any>>> = ({

@@ -1,6 +1,6 @@
 import React, { FC, useState } from 'react'
 import type { Meta, StoryObj } from '@storybook/react'
-import { FormError, UIComponentDefinitions, ZuiComponentMap } from '../types'
+import { DeepPartial, FormError, UIComponentDefinitions, ZuiComponentMap } from '../types'
 import { z } from '../../z/index'
 import { ZuiForm } from '..'
 import { BoundaryFallbackComponent } from '../ErrorBoundary'
@@ -44,6 +44,7 @@ const exampleSchema = z
     root: z
       .string()
       .title('Root')
+      .default('root')
       .placeholder('Root')
       .disabled((s) => s?.includes('9') || false),
     firstName: z.string().title('first name').placeholder('Enter your name').nullable(),
@@ -53,39 +54,56 @@ const exampleSchema = z
         z.object({
           date: z.string(),
           time: z.string(),
-          ids: z.array(z.number()).min(2),
+          ids: z.array(z.number().default(-1)).min(2),
         }),
       )
       .min(1)
-      .nonempty(),
+      .nonempty()
+      .default([{ date: '2021-01-01', time: '12:00', ids: [1, 2] }]),
     aTuple: z.tuple([z.string(), z.number(), z.object({ pointsScored: z.number() })]),
     // tests the hidden function
     aRandomField: z.string().optional().hidden(),
-    aDiscriminatedUnion: z.discriminatedUnion('type', [
-      z.object({ type: z.literal('text'), text: z.string().placeholder('Some text') }),
-      z.object({ type: z.literal('number'), b: z.number().placeholder('42').default(5) }),
-      z.object({
-        type: z.literal('complex'),
-        address: z
-          .object({
-            street: z.string().placeholder('1234 Main St'),
-            city: z.string().placeholder('San Francisco'),
-            state: z.string().placeholder('CA'),
-            zip: z.string().placeholder('94111'),
-          })
-          .disabled((obj) => !obj?.street && { city: false }),
-        root: z.string().placeholder('root'),
-        babies: z.array(z.object({ name: z.string(), age: z.number() })),
+    aDiscriminatedUnion: z
+      .discriminatedUnion('type', [
+        z.object({ type: z.literal('text'), text: z.string().placeholder('Some text') }),
+        z.object({ type: z.literal('number'), b: z.number().placeholder('42').default(5) }),
+        z.object({
+          type: z.literal('complex'),
+          address: z
+            .object({
+              street: z.string().placeholder('1234 Main St'),
+              city: z.string().placeholder('San Francisco'),
+              state: z.string().placeholder('CA'),
+              zip: z.string().placeholder('94111'),
+            })
+            .disabled((obj) => !obj?.street && { city: false }),
+          root: z.string().placeholder('root'),
+          babies: z.array(z.object({ name: z.string(), age: z.number() })),
+        }),
+      ])
+      .default({
+        type: 'complex',
+        address: { street: '1234 Main St', city: 'San Francisco', state: 'CA', zip: '94111' },
+        babies: [],
+        root: 'root',
       }),
-    ]),
-    stuff: z.object({
-      birthday: z.string(),
-      plan: z.enum(['basic', 'premium']),
-      age: z.number(),
-      email: z.string().email().title('Email Address'),
-      password: z.string(),
-      passwordConfirm: z.string(),
-    }),
+    stuff: z
+      .object({
+        birthday: z.string(),
+        plan: z.enum(['basic', 'premium']),
+        age: z.number(),
+        email: z.string().email().title('Email Address'),
+        password: z.string(),
+        passwordConfirm: z.string(),
+      })
+      .default({
+        password: 'this is a password',
+        passwordConfirm: 'this is a password',
+        age: 42,
+        plan: 'premium',
+        email: '',
+        birthday: '2021-01-01',
+      }),
     debug: z.number().optional().displayAs<typeof exampleExtensions>({ id: 'debug', params: {} }),
   })
   .title('User Information')
@@ -241,8 +259,14 @@ const componentMap: ZuiComponentMap<typeof exampleExtensions> = {
   },
   discriminatedUnion: {
     default: ({ children, discriminatorKey, discriminatorOptions, discriminatorValue, setDiscriminator }) => {
+      const [hidden, setHidden] = useState<boolean>(false)
+      if (hidden) {
+        return <button onClick={() => setHidden(false)}>Show</button>
+      }
+
       return (
         <div>
+          <button onClick={() => setHidden(true)}>Hide</button>
           <span>{discriminatorKey}</span>
           <select value={discriminatorValue || undefined} onChange={(e) => setDiscriminator(e.target.value)}>
             {discriminatorOptions?.map((option) => (
@@ -266,10 +290,18 @@ const Fallback: BoundaryFallbackComponent = ({ error, schema }) => {
   )
 }
 const ZuiFormExample = () => {
-  const [formData, setFormData] = useState({})
+  const [formData, setFormData] = useState<DeepPartial<z.infer<typeof exampleSchema>>>({
+    firstName: 'John',
+    lastName: 'Doe',
+    stuff: {
+      password: 'password',
+      passwordConfirm: 'password',
+    },
+  })
 
   return (
     <>
+      <pre>{JSON.stringify(formData, null, 2)}</pre>
       <ZuiForm<typeof exampleExtensions>
         schema={exampleSchema.toJsonSchema({ target: 'openApi3' })}
         value={formData}
