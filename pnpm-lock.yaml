@@ -1242,7 +1242,7 @@ importers:
         specifier: 0.16.1
         version: link:../client
       '@botpress/sdk':
-        specifier: 0.8.8
+        specifier: 0.8.9
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1357,7 +1357,7 @@ importers:
         specifier: 0.16.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.8
+        specifier: 0.8.9
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1376,7 +1376,7 @@ importers:
         specifier: 0.16.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.8
+        specifier: 0.8.9
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1429,8 +1429,8 @@ importers:
         specifier: 0.16.1
         version: link:../client
       '@bpinternal/zui':
-        specifier: 0.7.3
-        version: 0.7.3
+        specifier: 0.7.4
+        version: 0.7.4
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -2132,9 +2132,9 @@ packages:
       yn: 4.0.0
     dev: false
 
-  /@bpinternal/zui@0.7.3:
-    resolution: {integrity: sha512-2kPqCc1fyAwItDKNMvR4s3SSYvHxWsdlhTp9aNoyVeuEoqHjOu95T1d0pqGm2Q+uVFNj9G2pZv7s9kWEuBW2Ew==}
-    engines: {node: '>=16.0.0', pnpm: '>=8.6.0 <9'}
+  /@bpinternal/zui@0.7.4:
+    resolution: {integrity: sha512-nFQnXMi0QgCvT5GmYYc4YWvAIZ2iNUqCzVIB//JM3GlcGJwhBGY3ZIKUpJr3XeO8G+eyWjHFEdC0EEDyUswjlw==}
+    engines: {node: '>=16.0.0', pnpm: '>=9'}
     dependencies:
       '@apidevtools/json-schema-ref-parser': 11.6.1
       lodash: 4.17.21
