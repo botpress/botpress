@@ -59,7 +59,7 @@ Then, in the directory of your choice, create a new integration:
 bp init
 ```
 
-This command will generate a integration from one of the proposed templates.
+This command will generate an integration from one of the proposed templates.
 
 _This step can be executed in any directory and git repository of your choice. You don't have to fork this repository to create an integration._
 
