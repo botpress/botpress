@@ -1,6 +1,6 @@
 {
-  "name": "@bp-templates/empty-integration",
-  "integrationName": "empty-integration",
+  "name": "@bp-templates/hello-world",
+  "integrationName": "hello-world",
   "scripts": {
     "type:check": "tsc --noEmit"
   },

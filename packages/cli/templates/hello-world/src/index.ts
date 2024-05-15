@@ -16,7 +16,18 @@ export default new bp.Integration({
      */
     throw new sdk.RuntimeError('Invalid configuration') // replace this with your own validation logic
   },
-  actions: {},
+  actions: {
+    helloWorld: async (props) => {
+      /**
+       * This is called when a bot calls the action `helloWorld`.
+       */
+      props.logger.forBot().info('Hello World!') // this log will be visible by the bots that use this integration
+
+      let { name } = props.input
+      name = name || 'World'
+      return { message: `Hello "${name}"! Nice to meet you ;)` }
+    },
+  },
   channels: {},
   handler: async () => {},
 })

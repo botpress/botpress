@@ -18,10 +18,14 @@ export const cliRootDir = CLI_ROOT_DIR
 
 export const echoBotDirName = 'echo-bot'
 export const emptyIntegrationDirName = 'empty-integration'
+export const helloWorldIntegrationDirName = 'hello-world'
+export const webhookMessageIntegrationDirName = 'webhook-message'
 
 export const fromCliRootDir = {
   echoBotTemplate: pathlib.join('templates', echoBotDirName),
   emptyIntegrationTemplate: pathlib.join('templates', emptyIntegrationDirName),
+  helloWorldIntegrationTemplate: pathlib.join('templates', helloWorldIntegrationDirName),
+  webhookMessageIntegrationTemplate: pathlib.join('templates', webhookMessageIntegrationDirName),
 }
 
 export const fromHomeDir = {
