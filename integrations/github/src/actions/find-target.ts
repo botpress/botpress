@@ -2,7 +2,7 @@ import Fuse from 'fuse.js'
 import { Octokit } from 'octokit'
 
 import { Target } from '../definitions/actions'
-import { Implementation } from '../misc/types'
+import * as bp from '.botpress'
 
 const fuse = new Fuse<Target>([], {
   shouldSort: true,
@@ -16,7 +16,7 @@ const fuse = new Fuse<Target>([], {
   keys: ['displayName'],
 })
 
-export const findTarget: Implementation['actions']['findTarget'] = async ({ input, ctx }) => {
+export const findTarget: bp.IntegrationProps['actions']['findTarget'] = async ({ input, ctx }) => {
   const { owner, repo, token } = ctx.configuration
   const client = new Octokit({ auth: token })
 

@@ -1,8 +1,13 @@
 import { WebClient } from '@slack/web-api'
 import { getAccessToken } from '../misc/utils'
-import { Integration } from '.botpress'
+import * as bp from '.botpress'
 
-export const retrieveMessage: Integration['actions']['retrieveMessage'] = async ({ client, ctx, input, logger }) => {
+export const retrieveMessage: bp.IntegrationProps['actions']['retrieveMessage'] = async ({
+  client,
+  ctx,
+  input,
+  logger,
+}) => {
   logger.forBot().debug('Received action retrieveMessage with input:', input)
   const accessToken = await getAccessToken(client, ctx)
   const slackClient = new WebClient(accessToken)

@@ -1,9 +1,9 @@
 import { createTaskInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
 import { getClient } from '../utils'
 
-export const createTask: Implementation['actions']['createTask'] = async ({ ctx, input, logger }) => {
+export const createTask: IntegrationProps['actions']['createTask'] = async ({ ctx, input, logger }) => {
   const validatedInput = createTaskInputSchema.parse(input)
   const asanaClient = getClient(ctx.configuration)
   const task = {

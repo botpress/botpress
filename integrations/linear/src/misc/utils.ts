@@ -1,9 +1,9 @@
 import { Comment, Issue, IssueLabel, LinearClient, Team } from '@linear/sdk'
 import { LinearOauthClient } from './linear'
 import { AckFunction, MessageHandlerProps } from './types'
-import { Client } from '.botpress'
+import * as bp from '.botpress'
 
-export function getLinearClient(client: Client, integrationId: string) {
+export function getLinearClient(client: bp.Client, integrationId: string) {
   const linearOauthClient = new LinearOauthClient()
   return linearOauthClient.getLinearClient(client, integrationId)
 }
@@ -103,7 +103,7 @@ export const getIssueTags = async (issue: Issue) => {
 export const getUserAndConversation = async (props: {
   linearUserId: string
   linearIssueId: string
-  client: Client
+  client: bp.Client
   integrationId: string
   forceUpdate?: boolean
 }): Promise<{ conversationId: string; userId?: string }> => {

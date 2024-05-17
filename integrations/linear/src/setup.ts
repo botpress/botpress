@@ -1,7 +1,7 @@
 import { getLinearClient } from './misc/utils'
-import { IntegrationProps } from '.botpress'
+import * as bp from '.botpress'
 
-export const register: IntegrationProps['register'] = async ({ client, ctx }) => {
+export const register: bp.IntegrationProps['register'] = async ({ client, ctx }) => {
   try {
     const linearClient = await getLinearClient(client, ctx.integrationId)
     const user = await linearClient.userSettings.then((settings) => settings.user)
@@ -16,10 +16,10 @@ export const register: IntegrationProps['register'] = async ({ client, ctx }) =>
   }
 }
 
-export const unregister: IntegrationProps['unregister'] = async () => {
+export const unregister: bp.IntegrationProps['unregister'] = async () => {
   // nothing to unregister
 }
 
-export const createConversation: IntegrationProps['createConversation'] = async ({ client, channel, tags }) => {
+export const createConversation: bp.IntegrationProps['createConversation'] = async ({ client, channel, tags }) => {
   await client.createConversation({ channel, tags })
 }

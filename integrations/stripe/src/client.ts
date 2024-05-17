@@ -1,5 +1,5 @@
 import Stripe from 'stripe'
-import { Config } from './misc/types'
+import { Configuration } from './misc/types'
 
 export class StripeApi {
   private stripe: Stripe
@@ -291,6 +291,6 @@ export class StripeApi {
   }
 }
 
-export function getClient(config: Config) {
+export function getClient(config: Configuration) {
   return new StripeApi(config.apiKey, config.apiVersion)
 }

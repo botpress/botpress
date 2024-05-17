@@ -1,8 +1,8 @@
 import { getClient } from '../client'
 import { findPaymentLinkInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const findPaymentLink: Implementation['actions']['findPaymentLink'] = async ({ ctx, logger, input }) => {
+export const findPaymentLink: IntegrationProps['actions']['findPaymentLink'] = async ({ ctx, logger, input }) => {
   const validatedInput = findPaymentLinkInputSchema.parse(input)
   const StripeClient = getClient(ctx.configuration)
   let response = {}

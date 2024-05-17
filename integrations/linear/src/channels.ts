@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import { createComment, getCardContent } from './misc/utils'
-import { IntegrationProps } from '.botpress'
+import * as bp from '.botpress'
 
 export default {
   issue: {
@@ -24,4 +24,4 @@ export default {
       },
     },
   },
-} satisfies IntegrationProps['channels']
+} satisfies bp.IntegrationProps['channels']

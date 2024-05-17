@@ -1,8 +1,8 @@
 import { JWT } from 'google-auth-library'
 import { google, sheets_v4 } from 'googleapis'
-import { Config } from './misc/types'
+import { Configuration } from './misc/types'
 
-export function getClient(config: Config) {
+export function getClient(config: Configuration) {
   return new GoogleSheetsApi(config.spreadsheetId, config.privateKey, config.clientEmail)
 }
 

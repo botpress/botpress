@@ -1,8 +1,8 @@
 import { LinearDocument } from '@linear/sdk'
 import { getLinearClient } from '../misc/utils'
-import { IntegrationProps } from '.botpress'
+import * as bp from '.botpress'
 
-export const markAsDuplicate: IntegrationProps['actions']['markAsDuplicate'] = async ({
+export const markAsDuplicate: bp.IntegrationProps['actions']['markAsDuplicate'] = async ({
   client,
   ctx,
   input: { issueId, relatedIssueId },

@@ -1,8 +1,8 @@
 import { getClient } from '../client'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 import * as bp from '.botpress'
 
-export const getInfoSpreadsheet: Implementation['actions']['getInfoSpreadsheet'] = async ({ ctx, input, logger }) => {
+export const getInfoSpreadsheet: IntegrationProps['actions']['getInfoSpreadsheet'] = async ({ ctx, input, logger }) => {
   logger.forBot().debug('Calling action "getInfoSpreadsheet" with input: ', input)
   const GoogleSheetsClient = getClient(ctx.configuration)
   let response: bp.actions.getInfoSpreadsheet.output.Output

@@ -8,7 +8,6 @@ import { decode } from 'js-base64'
 import MailComposer from 'nodemailer/lib/mail-composer'
 import type Mail from 'nodemailer/lib/mailer'
 import queryString from 'query-string'
-import * as types from './types'
 import * as bp from '.botpress'
 
 const clientId = bp.secrets.CLIENT_ID
@@ -417,7 +416,7 @@ function getConversationInfo(conversation: Conversation) {
   return { threadId, subject, email, references, cc }
 }
 
-type SendEmailProps = Pick<types.MessageHandlerProps, 'ctx' | 'conversation' | 'client' | 'ack'> & {
+type SendEmailProps = Pick<bp.AnyMessageProps, 'ctx' | 'conversation' | 'client' | 'ack'> & {
   content: string
   inReplyTo: string
 }
