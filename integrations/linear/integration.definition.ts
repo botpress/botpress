@@ -4,7 +4,7 @@ import { actions, channels, events, configuration, user, states, entities } from
 
 export default new IntegrationDefinition({
   name: 'linear',
-  version: '0.4.1',
+  version: '0.4.2',
   title: 'Linear',
   description:
     'Elevate project management with Linear. Update, create, and track issues effortlessly. Improve collaboration with workflow actions like marking duplicates, managing teams and connect your chatbot directly in discussions',

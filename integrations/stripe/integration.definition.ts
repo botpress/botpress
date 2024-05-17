@@ -32,7 +32,7 @@ import {
 
 export default new IntegrationDefinition({
   name: 'stripe',
-  version: '0.4.2',
+  version: '0.4.3',
   title: 'Stripe',
   readme: 'hub.md',
   icon: 'icon.svg',
