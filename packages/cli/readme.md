@@ -2,10 +2,6 @@
 
 Official Botpress CLI. Made to query to BotpressAPI and simplify the development of bots and integrations as code.
 
-## Disclaimer ⚠️
-
-This package is still in development and is not ready for production use. Use it at your own risk.
-
 ## Installation
 
 ```bash
