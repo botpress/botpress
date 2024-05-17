@@ -1,5 +1,5 @@
 import { getZendeskClient } from 'src/client'
-import { IntegrationProps } from '.botpress'
+import * as bp from '.botpress'
 
 type ZendeskClient = ReturnType<typeof getZendeskClient>
 
@@ -12,7 +12,7 @@ const requesterExists = async (client: ZendeskClient, requesterId: string) => {
   }
 }
 
-export const setConversationRequester: IntegrationProps['actions']['setConversationRequester'] = async ({
+export const setConversationRequester: bp.IntegrationProps['actions']['setConversationRequester'] = async ({
   input,
   client,
   ctx,

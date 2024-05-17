@@ -1,9 +1,9 @@
 import { findUserInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
 import { getClient } from '../utils'
 
-export const findUser: Implementation['actions']['findUser'] = async ({ ctx, input, logger }) => {
+export const findUser: IntegrationProps['actions']['findUser'] = async ({ ctx, input, logger }) => {
   const validatedInput = findUserInputSchema.parse(input)
   const asanaClient = getClient(ctx.configuration)
   let response

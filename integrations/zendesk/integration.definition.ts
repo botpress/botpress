@@ -5,7 +5,7 @@ import { actions, events, configuration, channels, states, user } from './src/de
 export default new IntegrationDefinition({
   name: 'zendesk',
   title: 'Zendesk',
-  version: '0.4.1',
+  version: '0.4.2',
   icon: 'icon.svg',
   description:
     'Optimize your support workflow using Zendesk. Seamlessly integrate your chatbot into Zendesk chat, enabling you to trigger workflows from ticket updates. Easily manage tickets, access conversations, and engage with customers',

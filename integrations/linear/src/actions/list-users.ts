@@ -1,9 +1,9 @@
 import { LinearDocument } from '@linear/sdk'
 
 import { getLinearClient } from '../misc/utils'
-import { IntegrationProps } from '.botpress'
+import * as bp from '.botpress'
 
-export const listUsers: IntegrationProps['actions']['listUsers'] = async ({
+export const listUsers: bp.IntegrationProps['actions']['listUsers'] = async ({
   client,
   ctx,
   input: { count, startCursor },

@@ -4,32 +4,35 @@ import { AnyZodObject } from '../type-utils'
 type BaseConfig = AnyZodObject
 type BaseEvents = Record<string, AnyZodObject>
 type BaseActions = Record<string, AnyZodObject>
-type BaseChannels = Record<string, Record<string, AnyZodObject>>
+type BaseMessages = Record<string, AnyZodObject>
+type BaseChannels = Record<string, BaseMessages>
 type BaseStates = Record<string, AnyZodObject>
 type BaseEntities = Record<string, AnyZodObject>
 
-type TagDefinition = {
+export type TagDefinition = {
   title?: string
   description?: string
 }
 
-type ConfigurationDefinition<TConfig extends BaseConfig> = SchemaDefinition<TConfig> & {
+export type ConfigurationDefinition<TConfig extends BaseConfig = BaseConfig> = SchemaDefinition<TConfig> & {
   identifier?: {
     required?: boolean
     linkTemplateScript?: string
   }
 }
 
-type EventDefinition<TEvent extends BaseEvents[string]> = SchemaDefinition<TEvent> & {
+export type EventDefinition<TEvent extends BaseEvents[string] = BaseEvents[string]> = SchemaDefinition<TEvent> & {
   title?: string
   description?: string
 }
 
-type ChannelDefinition<TChannel extends BaseChannels[string]> = {
+export type MessageDefinition<TMessage extends BaseMessages[string] = BaseMessages[string]> = SchemaDefinition<TMessage>
+
+export type ChannelDefinition<TChannel extends BaseChannels[string] = BaseChannels[string]> = {
   title?: string
   description?: string
   messages: {
-    [K in keyof TChannel]: SchemaDefinition<TChannel[K]>
+    [K in keyof TChannel]: MessageDefinition<TChannel[K]>
   }
   message?: {
     tags?: Record<string, TagDefinition>
@@ -46,18 +49,18 @@ type ChannelDefinition<TChannel extends BaseChannels[string]> = {
   }>
 }
 
-type ActionDefinition<TAction extends BaseActions[string]> = {
+export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[string]> = {
   title?: string
   description?: string
   input: SchemaDefinition<TAction>
   output: SchemaDefinition<AnyZodObject> // cannot infer both input and output types (typescript limitation)
 }
 
-type StateDefinition<TState extends BaseStates[string]> = SchemaDefinition<TState> & {
+export type StateDefinition<TState extends BaseStates[string] = BaseStates[string]> = SchemaDefinition<TState> & {
   type: 'integration' | 'conversation' | 'user'
 }
 
-type UserDefinition = Partial<{
+export type UserDefinition = Partial<{
   tags: Record<string, TagDefinition>
   /**
    * @deprecated
@@ -68,15 +71,16 @@ type UserDefinition = Partial<{
   }
 }>
 
-type SecretDefinition = {
+export type SecretDefinition = {
   optional?: boolean
   description?: string
 }
 
-type EntityDefinition<TEntity extends BaseEntities[string]> = SchemaDefinition<TEntity> & {
-  title?: string
-  description?: string
-}
+export type EntityDefinition<TEntity extends BaseEntities[string] = BaseEntities[string]> =
+  SchemaDefinition<TEntity> & {
+    title?: string
+    description?: string
+  }
 
 export type IntegrationDefinitionProps<
   TConfig extends BaseConfig = BaseConfig,

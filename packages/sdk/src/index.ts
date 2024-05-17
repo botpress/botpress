@@ -12,6 +12,16 @@ export {
   IntegrationImplementationProps as IntegrationProps,
   IntegrationContext,
   IntegrationSpecificClient,
+  TagDefinition,
+  ConfigurationDefinition,
+  EventDefinition,
+  ChannelDefinition,
+  MessageDefinition,
+  ActionDefinition,
+  StateDefinition,
+  UserDefinition,
+  SecretDefinition,
+  EntityDefinition,
 } from './integration'
 
 export { Bot, BotProps, BotContext, BotSpecificClient, IntegrationInstance } from './bot'

@@ -1,4 +1,4 @@
 import { AsanaApi } from '../client'
-import type { Config } from '../misc/types'
+import type { Configuration } from '../misc/types'
 
-export const getClient = (config: Config) => new AsanaApi(config.apiToken)
+export const getClient = (config: Configuration) => new AsanaApi(config.apiToken)

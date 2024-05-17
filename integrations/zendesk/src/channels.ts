@@ -1,6 +1,6 @@
 import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 import { getZendeskClient } from './client'
-import { IntegrationProps } from '.botpress'
+import * as bp from '.botpress'
 
 class TagStore<T extends Record<string, string>> {
   constructor(private _t: { tags: T }, private _logger: IntegrationLogger) {}
@@ -43,4 +43,4 @@ export default {
       },
     },
   },
-} satisfies IntegrationProps['channels']
+} satisfies bp.IntegrationProps['channels']

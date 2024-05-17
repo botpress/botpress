@@ -1,7 +1,7 @@
 import axios, { Axios } from 'axios'
 import type { ZendeskUser, ZendeskTicket } from './definitions/schemas'
 import { ConditionsData, getTriggerTemplate, type TriggerNames } from './triggers'
-import type * as botpress from '.botpress'
+import * as bp from '.botpress'
 
 export type TicketRequester =
   | {
@@ -143,5 +143,5 @@ class ZendeskApi {
   }
 }
 
-export const getZendeskClient = (config: botpress.configuration.Configuration) =>
+export const getZendeskClient = (config: bp.configuration.Configuration) =>
   new ZendeskApi(config.organizationSubdomain, config.email, config.apiToken)

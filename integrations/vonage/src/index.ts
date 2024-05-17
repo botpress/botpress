@@ -3,11 +3,6 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
 import * as bp from '.botpress'
 
-type Channels = bp.Integration['channels']
-type Messages = Channels[keyof Channels]['messages']
-type MessageHandler = Messages[keyof Messages]
-type MessageHandlerProps = Parameters<MessageHandler>[0]
-
 const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
@@ -318,7 +313,7 @@ function formatCardPayload(payload: Card, count: number = 0) {
 
   return { message_type: 'text', text: body }
 }
-type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'>
+type SendMessageProps = Pick<bp.AnyMessageProps, 'ctx' | 'conversation' | 'ack'>
 async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload: any) {
   const { to, from, channel } = getRequestMetadata(conversation)
   const response = await axios.post(

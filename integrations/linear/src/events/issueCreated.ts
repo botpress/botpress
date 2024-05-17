@@ -1,15 +1,12 @@
-import { IntegrationContext } from '@botpress/sdk'
 import { IssueCreated } from '../definitions/events'
 import { LinearIssueEvent } from '../misc/linear'
-
 import { getUserAndConversation } from '../misc/utils'
 import * as bp from '.botpress'
-import { Client } from '.botpress'
 
 type IssueProps = {
   linearEvent: LinearIssueEvent
-  client: Client
-  ctx: IntegrationContext<bp.configuration.Configuration>
+  client: bp.Client
+  ctx: bp.Context
 }
 
 export const fireIssueCreated = async ({ linearEvent, client, ctx }: IssueProps) => {

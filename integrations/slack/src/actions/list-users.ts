@@ -5,9 +5,9 @@ import { Member } from '@slack/web-api/dist/response/UsersListResponse'
 import { chain, mapKeys, isEqual } from 'lodash'
 import { getAccessToken, getSyncState, saveSyncState } from 'src/misc/utils'
 import { userTags } from '../definitions/index'
-import * as botpress from '.botpress'
+import * as bp from '.botpress'
 
-const syncSlackUserToBotpressUser = async (member: Member, botpressClient: botpress.Client): Promise<User> => {
+const syncSlackUserToBotpressUser = async (member: Member, botpressClient: bp.Client): Promise<User> => {
   try {
     const { user } = await botpressClient.getOrCreateUser({
       tags: {
@@ -61,7 +61,7 @@ const syncSlackUserToBotpressUser = async (member: Member, botpressClient: botpr
   }
 }
 
-export const syncMembers: botpress.IntegrationProps['actions']['syncMembers'] = async ({
+export const syncMembers: bp.IntegrationProps['actions']['syncMembers'] = async ({
   client: botpressClient,
   ctx,
   logger,

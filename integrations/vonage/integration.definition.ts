@@ -3,7 +3,7 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'vonage',
-  version: '0.4.1',
+  version: '0.4.2',
   title: 'Vonage',
   description: 'This integration allows your bot to interact with Vonage.',
   icon: 'icon.svg',

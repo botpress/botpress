@@ -1,8 +1,8 @@
 import { WebClient } from '@slack/web-api'
-import { Implementation } from '../misc/types'
 import { getAccessToken } from '../misc/utils'
+import * as bp from '.botpress'
 
-export const addReaction: Implementation['actions']['addReaction'] = async ({ ctx, client, logger, input }) => {
+export const addReaction: bp.IntegrationProps['actions']['addReaction'] = async ({ ctx, client, logger, input }) => {
   logger.forBot().debug('Received action addReaction with input:', input)
   const accessToken = await getAccessToken(client, ctx)
   const slackClient = new WebClient(accessToken)

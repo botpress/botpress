@@ -2,9 +2,9 @@ import { z } from '@botpress/sdk'
 
 import { UserProfile } from '../definitions/schemas'
 import { getLinearClient } from '../misc/utils'
-import { IntegrationProps } from '.botpress'
+import * as bp from '.botpress'
 
-export const getUser: IntegrationProps['actions']['getUser'] = async ({ client, ctx, input: { linearUserId } }) => {
+export const getUser: bp.IntegrationProps['actions']['getUser'] = async ({ client, ctx, input: { linearUserId } }) => {
   const linearClient = await getLinearClient(client, ctx.integrationId)
   const user = await linearClient.user(linearUserId)
 

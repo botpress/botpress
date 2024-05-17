@@ -3,12 +3,6 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import * as bp from '.botpress'
 const SunshineConversationsClient = require('sunshine-conversations-client')
 
-type ValueOf<T> = T[keyof T]
-type Channels = bp.Integration['channels']
-type Messages = ValueOf<Channels>['messages']
-type MessageHandler = ValueOf<Messages>
-type MessageHandlerProps = Parameters<MessageHandler>[0]
-
 type SmoochBaseAction = {
   type: string
   text: string
@@ -278,7 +272,7 @@ function createClient(keyId: string, keySecret: string) {
   }
 }
 
-type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'>
+type SendMessageProps = Pick<bp.AnyMessageProps, 'ctx' | 'conversation' | 'ack'>
 
 async function sendMessage({ conversation, ctx, ack }: SendMessageProps, payload: any) {
   const client = createClient(ctx.configuration.keyId, ctx.configuration.keySecret)

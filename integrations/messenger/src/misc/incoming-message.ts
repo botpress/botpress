@@ -3,7 +3,7 @@ import { MessengerMessage } from './types'
 import { getMessengerClient } from './utils'
 import * as bp from '.botpress'
 
-type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
+type IntegrationLogger = bp.Logger
 
 export async function handleMessage(
   message: MessengerMessage,

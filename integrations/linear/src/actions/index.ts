@@ -7,7 +7,7 @@ import { listTeams } from './list-teams'
 import { listUsers } from './list-users'
 import { markAsDuplicate } from './mark-as-duplicate'
 import { updateIssue } from './update-issue'
-import * as botpress from '.botpress'
+import * as bp from '.botpress'
 
 export default {
   findTarget,
@@ -19,4 +19,4 @@ export default {
   listUsers,
   markAsDuplicate,
   createIssue,
-} satisfies botpress.IntegrationProps['actions']
+} satisfies bp.IntegrationProps['actions']

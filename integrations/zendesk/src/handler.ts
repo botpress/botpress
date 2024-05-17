@@ -1,11 +1,10 @@
 import { getZendeskClient } from './client'
 import { executeTicketAssigned } from './events/ticket-assigned'
 import { executeTicketSolved } from './events/ticket-solved'
-
 import type { TriggerPayload } from './triggers'
-import { IntegrationProps } from '.botpress'
+import * as bp from '.botpress'
 
-export const handler: IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
+export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
   if (!req.body) {
     logger.forBot().warn('Handler received an empty body')
     return

@@ -1,7 +1,7 @@
 import { z } from '@botpress/sdk'
-import * as botpress from '.botpress'
+import * as bp from '.botpress'
 
-export type Client = botpress.Client
+export type Client = bp.Client
 
 export const TriggerSubscriberSchema = z.object({
   url: z.string(),

@@ -4,11 +4,7 @@ import * as line from '@line/bot-sdk'
 import crypto from 'crypto'
 import * as bp from '.botpress'
 
-type Channels = bp.Integration['channels']
-type Messages = Channels[keyof Channels]['messages']
-type MessageHandler = Messages[keyof Messages]
-type MessageHandlerProps = Parameters<MessageHandler>[0]
-
+type MessageHandlerProps = bp.AnyMessageProps
 type ReplyLineProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'client' | 'ack'>
 
 const replyLineMessage = async (props: ReplyLineProps, messageObj: line.Message) => {

@@ -1,12 +1,9 @@
-import type { IntegrationContext } from '@botpress/sdk'
-import type * as botpress from '.botpress'
-import type { Configuration } from '.botpress/implementation/configuration'
+import * as bp from '.botpress'
 
-export type Config = botpress.configuration.Configuration
-export type Implementation = ConstructorParameters<typeof botpress.Integration>[0]
-export type IntegrationCtx = IntegrationContext<Configuration>
-
-export type RegisterFunction = Implementation['register']
-export type UnregisterFunction = Implementation['unregister']
-export type Channels = Implementation['channels']
-export type Handler = Implementation['handler']
+export type Configuration = bp.configuration.Configuration
+export type IntegrationProps = bp.IntegrationProps
+export type IntegrationCtx = bp.Context
+export type RegisterFunction = IntegrationProps['register']
+export type UnregisterFunction = IntegrationProps['unregister']
+export type Channels = IntegrationProps['channels']
+export type Handler = IntegrationProps['handler']

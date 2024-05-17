@@ -1,7 +1,7 @@
 import { getClient } from '../client'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const updateValues: Implementation['actions']['updateValues'] = async ({ ctx, input, logger }) => {
+export const updateValues: IntegrationProps['actions']['updateValues'] = async ({ ctx, input, logger }) => {
   logger.forBot().debug('Calling action "updateValues" with input: ', input)
   const GoogleSheetsClient = getClient(ctx.configuration)
   let response

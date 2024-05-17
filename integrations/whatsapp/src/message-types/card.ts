@@ -5,7 +5,7 @@ import * as body from '../interactive/body'
 import * as button from '../interactive/button'
 import * as footer from '../interactive/footer'
 import { UnreachableCaseError, chunkArray } from '../util'
-import type { channels } from '.botpress'
+import { channels } from '.botpress'
 
 type Card = channels.channel.card.Card
 

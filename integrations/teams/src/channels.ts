@@ -9,18 +9,14 @@ import {
   Attachment,
   MessageFactory,
 } from 'botbuilder'
-import * as botpress from '.botpress'
+import * as bp from '.botpress'
 
-type Messages = botpress.Integration['channels']['channel']['messages']
-type MessageTypes = keyof Messages
-type RenderProps = Parameters<Messages[MessageTypes]>[0]
+type TeamsConfig = bp.configuration.Configuration
 
-type TeamsConfig = botpress.configuration.Configuration
-
-type Choice = botpress.channels.channel.choice.Choice
+type Choice = bp.channels.channel.choice.Choice
 type Alternative = Choice['options'][number]
 
-type Card = botpress.channels.channel.card.Card
+type Card = bp.channels.channel.card.Card
 type Action = Card['actions'][number]
 type ActionType = Action['action']
 
@@ -31,7 +27,7 @@ const getAdapter = (config: TeamsConfig) =>
     appPassword: config.appPassword,
   })
 
-const renderTeams = async ({ ctx, ack, conversation, client }: RenderProps, activity: Partial<Activity>) => {
+const renderTeams = async ({ ctx, ack, conversation, client }: bp.AnyMessageProps, activity: Partial<Activity>) => {
   const { configuration } = ctx
   const adapter = getAdapter(configuration)
 
@@ -188,8 +184,8 @@ const channel = {
       throw new RuntimeError('Not implemented')
     },
   },
-} satisfies botpress.IntegrationProps['channels']['channel']
+} satisfies bp.IntegrationProps['channels']['channel']
 
 export const channels = {
   channel,
-} satisfies botpress.IntegrationProps['channels']
+} satisfies bp.IntegrationProps['channels']

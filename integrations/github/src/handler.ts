@@ -14,9 +14,9 @@ import {
   isPullRequestOpenedEvent,
 } from './misc/guards'
 
-import * as botpress from '.botpress'
+import * as bp from '.botpress'
 
-export const handler: botpress.IntegrationProps['handler'] = async ({ req, client, ctx }) => {
+export const handler: bp.IntegrationProps['handler'] = async ({ req, client, ctx }) => {
   const signature = req.headers[GITHUB_SIGNATURE_HEADER]
   const { body } = req
   if (!(body && signature)) {

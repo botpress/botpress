@@ -3,7 +3,7 @@ import { Client } from '@notionhq/client'
 import type { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints'
 import { NOTION_PROPERTY_STRINGIFIED_TYPE_MAP } from './notion.constants'
 import type { NotionPagePropertyTypes } from './notion.types'
-import type { configuration } from '.botpress'
+import { configuration } from '.botpress'
 
 // TODO: Write a decorator to achieve this
 type BotpressIntegrationContext = IntegrationContext<configuration.Configuration>
