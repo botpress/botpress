@@ -67,19 +67,23 @@ You can then modify both the definition and implementation of your integration r
 
 For more information on how to develop an integration, please refer to the [Documentation](https://botpress.com/docs/developers/).
 
-Once your integration is ready, you can deploy it to your workspace using the following command:
+### Integration Deployment
+
+To try out your integration, you can deploy its current version to your workspace using the Botpress CLI:
 
 ```sh
 bp deploy
 ```
 
-This will deploy your integration to your workspace and make it available to all your bots.
+This will deploy your integration's current version to your workspace and make it available to all your bots. If this version is already deployed, it will be updated. Otherwise, a new version will be created.
 
-### Making your Integration Public
+By default, all integrations are private to the workspace they have been deployed in. When you are ready to share your version with the community, you can make it public by running:
 
-By default, all integrations are private to the workspace they have been deployed in.
+```sh
+bp deploy --public
+```
 
-To submit your integration to the Botpress Hub and make it publicly available to the community, please make a pull request to this repository by following these [Integration Contribution guidelines](./integrations).
+This will make your integration available to all Botpress users on the [Botpress Hub](https://app.botpress.cloud/hub). Once a version of your integration is public, it cannot be updated again.
 
 ## Bots
 
@@ -97,7 +101,7 @@ It is also used internally by the Botress team since the Studio and CLI both use
 | -------------------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------- | ---------------------- |
 | [`@botpress/cli`](https://www.npmjs.com/package/@botpress/cli)       | Build and deploy private or public integrations | [Docs](https://botpress.com/docs/integration/cli/) | [Code](./packages/cli) |
 | [`@botpress/client`](https://www.npmjs.com/package/@botpress/client) | Type-safe client to consume the Botpress APIs   | [Docs]()                                           | [Code]()               |
-| [`@botpress/sdk`](https://www.npmjs.com/package/@botpress/sdk)       | Internal package used by to build integrations  | [Docs]()                                           | [Code]()               |
+| [`@botpress/sdk`](https://www.npmjs.com/package/@botpress/sdk)       | SDK used by to build integrations               | [Docs]()                                           | [Code]()               |
 
 ## Agents
 

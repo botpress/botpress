@@ -13,10 +13,9 @@ pnpm add @botpress/client # for pnpm
 ## Usage
 
 ```ts
-import { Client } from '@botpress/client'
+import { Client, ClientReturn } from '@botpress/client'
 
-type ListBotsResponse = Awaited<ReturnType<Client['listBots']>>
-type Bot = ListBotsResponse['bots'][number]
+type Bot = ClientReturn<'listBots'>['bots'][number]
 
 const main = async () => {
   const token = 'your-token'
