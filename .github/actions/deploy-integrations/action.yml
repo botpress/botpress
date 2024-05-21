@@ -87,7 +87,7 @@ runs:
 
         # deploy
 
-        redeploy=${{ inputs.force && 1 || 0 }}
+        redeploy=${{ inputs.force == 'true' && 1 || 0 }}
         integration_paths=$(pnpm list -F "@botpresshub/*" -F "!asana" -F "!trello" -F "!webchat" --json | jq -r "map(".path") | .[]")
 
         for integration_path in $integration_paths; do
