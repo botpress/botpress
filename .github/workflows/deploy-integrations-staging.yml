@@ -22,6 +22,7 @@ jobs:
         uses: ./.github/actions/deploy-integrations
         with:
           environment: 'staging'
+          force: true
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}
