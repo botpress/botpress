@@ -6,6 +6,20 @@ const commonInputParams = z.object({
   horizontal: z.boolean().optional(),
 })
 
+const variableType = z.enum([
+          'any',
+          'string',
+          'number',
+          'boolean',
+          'object',
+          'pattern',
+          'date',
+          'array',
+          'target',
+          'time',
+          'enum',
+        ]),
+
 export const studioComponentDefinitions = {
   string: {
     text: {
@@ -53,25 +67,6 @@ export const studioComponentDefinitions = {
         precision: z.enum(['minute', 'second', 'millisecond']).optional(),
       }),
     },
-    variable: {
-      id: 'variable',
-      params: z.object({
-        type: z.enum([
-          'any',
-          'string',
-          'number',
-          'boolean',
-          'object',
-          'pattern',
-          'date',
-          'array',
-          'target',
-          'time',
-          'enum',
-        ]),
-        horizontal: z.boolean().optional(),
-      }),
-    },
     richtext: {
       id: 'richtext',
       params: z.object({
@@ -91,6 +86,50 @@ export const studioComponentDefinitions = {
       params: commonInputParams.extend({
         fileTypes: z.array(z.enum(['image', 'audio', 'video'])).optional(),
         showUploadedFiles: z.boolean().optional(),
+      }),
+    },
+    // custom types
+    variable: {
+      id: 'variable',
+      params: z.object({
+        type: variableType,
+        horizontal: z.boolean().optional(),
+      }),
+    },
+    conversation: {
+      id: 'conversation',
+      params: z.object({
+        horizontal: z.boolean().optional(),
+      }),
+    },
+    user: {
+      id: 'user',
+      params: z.object({
+        horizontal: z.boolean().optional(),
+      }),
+    },
+    message: {
+      id: 'message',
+      params: z.object({
+        horizontal: z.boolean().optional(),
+      }),
+    },
+    agent: {
+      id: 'agent',
+      params: z.object({
+        horizontal: z.boolean().optional(),
+      }),
+    },
+    event: {
+      id: 'event',
+      params: z.object({
+        horizontal: z.boolean().optional(),
+      }),
+    },
+    table: {
+      id: 'table',
+      params: z.object({
+        horizontal: z.boolean().optional(),
       }),
     },
   },
@@ -172,5 +211,27 @@ export type UI<Namespace extends 'studio' | 'dashboard' = 'studio'> = Namespace 
   ? DefaultComponentDefinitions
   : any
 
-export default z
-export { z }
+const extendedZ = Object.assign(z, {
+  variable: (type: z.infer<typeof variableType> = 'any', opts?: { horizontal?: boolean }) =>
+    z.string().displayAs<typeof studioComponentDefinitions>({ id: 'variable', params: { type, ...opts }})
+  ,
+  conversation: (opts?: { horizontal?: boolean }) =>
+    z.string().displayAs<typeof studioComponentDefinitions>({ id: 'conversation', params: { ...opts }})
+  ,
+  user: (opts?: { horizontal?: boolean }) =>
+    z.string().displayAs<typeof studioComponentDefinitions>({ id: 'user', params: { ...opts }})
+  ,
+  message: (opts?: { horizontal?: boolean }) =>
+    z.string().displayAs<typeof studioComponentDefinitions>({ id: 'message', params: { ...opts }})
+  ,
+  agent: (opts?: { horizontal?: boolean }) =>
+    z.string().displayAs<typeof studioComponentDefinitions>({ id: 'agent', params: { ...opts }})
+  ,
+  event: (opts?: { horizontal?: boolean }) =>
+    z.string().displayAs<typeof studioComponentDefinitions>({ id: 'event', params: { ...opts }}),
+  table: (opts?: { horizontal?: boolean }) =>
+    z.string().displayAs<typeof studioComponentDefinitions>({ id: 'table', params: { ...opts }}),
+})
+
+export default extendedZ
+export { extendedZ as z }
