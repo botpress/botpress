@@ -12,6 +12,7 @@ input:
   force:
     type: boolean
     description: 'Force re-deploying integrations'
+    default: false
     required: false
   sentry_auth_token:
     description: 'Sentry auth token'
@@ -86,6 +87,7 @@ runs:
 
         # deploy
 
+        redeploy=${{ inputs.force == 'true' && 1 || 0 }}
         integration_paths=$(pnpm list -F "@botpresshub/*" -F "!asana" -F "!trello" -F "!webchat" --json | jq -r "map(".path") | .[]")
 
         for integration_path in $integration_paths; do
@@ -101,7 +103,6 @@ runs:
                 base_command="$base_command --secrets CLIENT_ID=${{ inputs.slack_client_id }} --secrets CLIENT_SECRET=${{ inputs.slack_client_secret }} --secrets SIGNING_SECRET=${{ inputs.slack_signing_secret }}"
             fi
             
-            redeploy=${{ inputs.force && 1 || 0 }}
             if [ $exists -eq 0 ]; then
                 echo -e "\nDeploying integration: ### $integration ###\n"
                 pnpm retry -n 2 -- pnpm -F $integration -c exec -- "$base_command"
