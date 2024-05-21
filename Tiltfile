@@ -1,13 +1,6 @@
 # constants
 
-## ports
-
-OPENAPI_GENERATOR_SERVER_PORT = 8081
-READINESS_PORT = 8082
-
-## commands
-
-GENERATE_CLIENT_RESSOURCES = ['pnpm-install', 'openapi-generator-server', 'readiness', 'generate-client']
+GENERATE_CLIENT_RESSOURCES = ['pnpm-install', 'generate-client']
 BUILD_PACKAGES_RESSOURCES = GENERATE_CLIENT_RESSOURCES + ['build-client', 'build-sdk', 'build-cli']
 BUILD_ALL_RESSOURCES = BUILD_PACKAGES_RESSOURCES + ['build-integrations', 'add-integrations', 'build-bots']
 
@@ -41,44 +34,6 @@ local_resource(
   labels=['scripts'],
 )
 
-## openapi-generator-server
-
-openapi_generator_resource = {
-  'image': 'botpress/openapi-generator-online',
-  'ports': ['%s:8080' % OPENAPI_GENERATOR_SERVER_PORT],
-  'restart': 'always',
-}
-
-docker_compose(encode_yaml({
-  'version': '3.5',
-  'services': {
-    'openapi-generator-server': openapi_generator_resource,
-  },
-}))
-
-dc_resource(name='openapi-generator-server', labels=['utils'])
-
-## readiness
-
-local_resource(
-  name="readiness",
-  allow_parallel=True,
-  serve_cmd='pnpm ready',
-  serve_env={
-    'PORT': '%s' % READINESS_PORT,
-    'LOG_LEVEL': 'info',
-    'CONFIG': encode_json([
-      { 'type': 'http', 'name': 'openapi-generator-server', 'url': 'http://localhost:%s' % OPENAPI_GENERATOR_SERVER_PORT },
-    ]),
-  },
-  labels=['utils'],
-  readiness_probe=probe(http_get=http_get_action(port=READINESS_PORT, path='/ready'), period_secs=1, failure_threshold=10),
-  resource_deps=[
-    'openapi-generator-server',
-    'pnpm-install',
-  ]
-)
-
 ## generate client
 
 local_resource(
@@ -86,11 +41,7 @@ local_resource(
   allow_parallel=True,
   dir='packages/client',
   cmd='pnpm generate',
-  env={
-    'OPENAPI_GENERATOR_ENDPOINT': 'http://localhost:%s' % OPENAPI_GENERATOR_SERVER_PORT,
-  },
   labels=['client'],
-  resource_deps=['readiness']
 )
 
 ## build client
