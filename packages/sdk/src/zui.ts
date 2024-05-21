@@ -213,24 +213,24 @@ export type UI<Namespace extends 'studio' | 'dashboard' = 'studio'> = Namespace 
 
 const extendedZ = Object.assign(z, {
   variable: (type: z.infer<typeof variableType> = 'any', opts?: { horizontal?: boolean }) =>
-    z.string().displayAs<typeof studioComponentDefinitions>({ id: 'variable', params: { type, ...opts }})
+    z.string().displayAs<UI>({ id: 'variable', params: { type, ...opts }})
   ,
   conversation: (opts?: { horizontal?: boolean }) =>
-    z.string().displayAs<typeof studioComponentDefinitions>({ id: 'conversation', params: { ...opts }})
+    z.string().displayAs<UI>({ id: 'conversation', params: { ...opts }})
   ,
   user: (opts?: { horizontal?: boolean }) =>
-    z.string().displayAs<typeof studioComponentDefinitions>({ id: 'user', params: { ...opts }})
+    z.string().displayAs<UI>({ id: 'user', params: { ...opts }})
   ,
   message: (opts?: { horizontal?: boolean }) =>
-    z.string().displayAs<typeof studioComponentDefinitions>({ id: 'message', params: { ...opts }})
+    z.string().displayAs<UI>({ id: 'message', params: { ...opts }})
   ,
   agent: (opts?: { horizontal?: boolean }) =>
-    z.string().displayAs<typeof studioComponentDefinitions>({ id: 'agent', params: { ...opts }})
+    z.string().displayAs<UI>({ id: 'agent', params: { ...opts }})
   ,
   event: (opts?: { horizontal?: boolean }) =>
-    z.string().displayAs<typeof studioComponentDefinitions>({ id: 'event', params: { ...opts }}),
+    z.string().displayAs<UI>({ id: 'event', params: { ...opts }}),
   table: (opts?: { horizontal?: boolean }) =>
-    z.string().displayAs<typeof studioComponentDefinitions>({ id: 'table', params: { ...opts }}),
+    z.string().displayAs<UI>({ id: 'table', params: { ...opts }}),
 })
 
 export default extendedZ
