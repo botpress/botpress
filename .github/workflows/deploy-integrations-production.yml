@@ -1,6 +1,13 @@
 name: Deploy Integrations Production
 
-on: workflow_dispatch
+on:
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force re-deploying integrations'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   id-token: write
@@ -17,6 +24,7 @@ jobs:
         uses: ./.github/actions/deploy-integrations
         with:
           environment: 'production'
+          force: ${{ github.event.inputs.force == 'true' }}
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
