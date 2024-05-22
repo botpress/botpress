@@ -7,18 +7,18 @@ const commonInputParams = z.object({
 })
 
 const variableType = z.enum([
-          'any',
-          'string',
-          'number',
-          'boolean',
-          'object',
-          'pattern',
-          'date',
-          'array',
-          'target',
-          'time',
-          'enum',
-        ]),
+  'any',
+  'string',
+  'number',
+  'boolean',
+  'object',
+  'pattern',
+  'date',
+  'array',
+  'target',
+  'time',
+  'enum',
+])
 
 export const studioComponentDefinitions = {
   string: {
@@ -211,27 +211,20 @@ export type UI<Namespace extends 'studio' | 'dashboard' = 'studio'> = Namespace 
   ? DefaultComponentDefinitions
   : any
 
-const extendedZ = Object.assign(z, {
+
+
+  const ext = {
   variable: (type: z.infer<typeof variableType> = 'any', opts?: { horizontal?: boolean }) =>
-    z.string().displayAs<UI>({ id: 'variable', params: { type, ...opts }})
-  ,
+    z.string().displayAs<UI>({ id: 'variable', params: { type, ...opts } }),
   conversation: (opts?: { horizontal?: boolean }) =>
-    z.string().displayAs<UI>({ id: 'conversation', params: { ...opts }})
-  ,
-  user: (opts?: { horizontal?: boolean }) =>
-    z.string().displayAs<UI>({ id: 'user', params: { ...opts }})
-  ,
-  message: (opts?: { horizontal?: boolean }) =>
-    z.string().displayAs<UI>({ id: 'message', params: { ...opts }})
-  ,
-  agent: (opts?: { horizontal?: boolean }) =>
-    z.string().displayAs<UI>({ id: 'agent', params: { ...opts }})
-  ,
-  event: (opts?: { horizontal?: boolean }) =>
-    z.string().displayAs<UI>({ id: 'event', params: { ...opts }}),
-  table: (opts?: { horizontal?: boolean }) =>
-    z.string().displayAs<UI>({ id: 'table', params: { ...opts }}),
-})
+    z.string().displayAs<UI>({ id: 'conversation', params: { ...opts } }),
+  user: (opts?: { horizontal?: boolean }) => z.string().displayAs<UI>({ id: 'user', params: { ...opts } }),
+  message: (opts?: { horizontal?: boolean }) => z.string().displayAs<UI>({ id: 'message', params: { ...opts } }),
+  agent: (opts?: { horizontal?: boolean }) => z.string().displayAs<UI>({ id: 'agent', params: { ...opts } }),
+  event: (opts?: { horizontal?: boolean }) => z.string().displayAs<UI>({ id: 'event', params: { ...opts } }),
+  table: (opts?: { horizontal?: boolean }) => z.string().displayAs<UI>({ id: 'table', params: { ...opts } }),
+}
+const extendedZ = Object.assign(z, ext)
 
 export default extendedZ
 export { extendedZ as z }
