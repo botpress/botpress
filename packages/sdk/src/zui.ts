@@ -132,6 +132,24 @@ export const studioComponentDefinitions = {
         horizontal: z.boolean().optional(),
       }),
     },
+    tablerow: {
+      id: 'tablerow',
+      params: z.object({
+        horizontal: z.boolean().optional(),
+      }),
+    },
+    intent: {
+      id: 'intent',
+      params: z.object({
+        horizontal: z.boolean().optional(),
+      }),
+    },
+    datasource: {
+      id: 'datasource',
+      params: z.object({
+        horizontal: z.boolean().optional(),
+      }),
+    },
   },
   number: {
     number: {
