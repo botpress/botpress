@@ -1239,7 +1239,7 @@ importers:
         specifier: 0.18.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 0.8.11
+        specifier: 0.8.12
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1354,7 +1354,7 @@ importers:
         specifier: 0.18.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.11
+        specifier: 0.8.12
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1373,7 +1373,7 @@ importers:
         specifier: 0.18.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.11
+        specifier: 0.8.12
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1392,7 +1392,7 @@ importers:
         specifier: 0.18.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.11
+        specifier: 0.8.12
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1411,7 +1411,7 @@ importers:
         specifier: 0.18.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.11
+        specifier: 0.8.12
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -1443,8 +1443,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.27.15
-        version: 0.27.15(openapi-types@12.1.3)
+        specifier: 0.27.17
+        version: 0.27.17(openapi-types@12.1.3)
       '@types/qs':
         specifier: ^6.9.7
         version: 6.9.7
@@ -2038,8 +2038,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.27.15(openapi-types@12.1.3):
-    resolution: {integrity: sha512-znSi9PzkaRbgJXuF4xm/bNk4gw5UkSvWRr+XN8KFyk1qoTPx55K+DMlyG3ODrCiEd9ZZX9NO5x59Jh5rqdYHaw==}
+  /@botpress/api@0.27.17(openapi-types@12.1.3):
+    resolution: {integrity: sha512-vfoakoOCqqR/FwOTHhaNxBuFMeAlTo7gJcsMPjGoED8TdYP9zqmiAi0vJw5R0wRRL+lPpe9FQns5zw8ZXc0tOw==}
     dependencies:
       '@bpinternal/opapi': 0.10.15(openapi-types@12.1.3)
     transitivePeerDependencies:
