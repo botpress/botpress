@@ -1,5 +1,5 @@
 {
-  "name": "hit-looper",
+  "name": "@bp-bots/hit-looper",
   "scripts": {
     "type:check": "tsc --noEmit",
     "integrations": "es-node ./integrations.ts"

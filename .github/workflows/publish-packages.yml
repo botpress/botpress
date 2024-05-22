@@ -14,10 +14,10 @@ jobs:
       NODE_OPTIONS: '--max_old_space_size=8192'
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Tilt
-        uses: ./.github/actions/setup-tilt
+      - name: Setup
+        uses: ./.github/actions/setup
         with:
-          tilt_cmd: 'build-packages'
+          filter: '@botpress/*'
       - name: Publish Client
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:

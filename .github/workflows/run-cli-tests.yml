@@ -16,8 +16,10 @@ jobs:
       NODE_OPTIONS: '--max_old_space_size=8192'
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Tilt
-        uses: ./.github/actions/setup-tilt
+      - name: Setup
+        uses: ./.github/actions/setup
+        with:
+          filter: '@botpress/cli'
       - run: |
           pnpm run -F cli e2e:test -v \
             --api-url https://api.botpress.dev \

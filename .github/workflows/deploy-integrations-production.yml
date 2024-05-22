@@ -18,8 +18,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Tilt
-        uses: ./.github/actions/setup-tilt
+      - name: Setup
+        uses: ./.github/actions/setup
       - name: Deploy Integrations
         uses: ./.github/actions/deploy-integrations
         with:

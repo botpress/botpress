@@ -1,7 +1,8 @@
 {
   "name": "@botpresshub/notion",
   "scripts": {
-    "type:check": "tsc --noEmit"
+    "type:check": "tsc --noEmit",
+    "build": "pnpm bp build"
   },
   "keywords": [],
   "private": true,
