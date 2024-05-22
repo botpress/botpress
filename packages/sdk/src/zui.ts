@@ -6,7 +6,7 @@ const commonInputParams = z.object({
   horizontal: z.boolean().optional(),
 })
 
-const variableType = z.enum([
+export const variableType = z.enum([
   'any',
   'string',
   'number',
@@ -212,19 +212,5 @@ export type UI<Namespace extends 'studio' | 'dashboard' = 'studio'> = Namespace 
   : any
 
 
-
-  const ext = {
-  variable: (type: z.infer<typeof variableType> = 'any', opts?: { horizontal?: boolean }) =>
-    z.string().displayAs<UI>({ id: 'variable', params: { type, ...opts } }),
-  conversation: (opts?: { horizontal?: boolean }) =>
-    z.string().displayAs<UI>({ id: 'conversation', params: { ...opts } }),
-  user: (opts?: { horizontal?: boolean }) => z.string().displayAs<UI>({ id: 'user', params: { ...opts } }),
-  message: (opts?: { horizontal?: boolean }) => z.string().displayAs<UI>({ id: 'message', params: { ...opts } }),
-  agent: (opts?: { horizontal?: boolean }) => z.string().displayAs<UI>({ id: 'agent', params: { ...opts } }),
-  event: (opts?: { horizontal?: boolean }) => z.string().displayAs<UI>({ id: 'event', params: { ...opts } }),
-  table: (opts?: { horizontal?: boolean }) => z.string().displayAs<UI>({ id: 'table', params: { ...opts } }),
-}
-const extendedZ = Object.assign(z, ext)
-
-export default extendedZ
-export { extendedZ as z }
+export default z
+export { z }
