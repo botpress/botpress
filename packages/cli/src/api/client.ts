@@ -4,15 +4,7 @@ import { formatIntegrationRef, ApiIntegrationRef as IntegrationRef, NameIntegrat
 import type { Logger } from '../logger'
 import { findPreviousIntegrationVersion } from './find-previous-version'
 import * as paging from './paging'
-import {
-  ApiClientProps,
-  PublicIntegration,
-  PrivateIntegration,
-  Integration,
-  IntegrationSummary,
-  Requests,
-  Responses,
-} from './types'
+import { ApiClientProps, PublicIntegration, PrivateIntegration, Integration, Requests, Responses } from './types'
 
 export * from './types'
 
@@ -110,7 +102,11 @@ export class ApiClient {
     }
   }
 
-  public async findPreviousIntegrationVersion(ref: NameIntegrationRef): Promise<IntegrationSummary | undefined> {
-    return findPreviousIntegrationVersion(this.client, ref)
+  public async findPreviousIntegrationVersion(ref: NameIntegrationRef): Promise<Integration | undefined> {
+    const previous = await findPreviousIntegrationVersion(this.client, ref)
+    if (!previous) {
+      return
+    }
+    return this.findIntegration({ type: 'id', id: previous.id })
   }
 }
