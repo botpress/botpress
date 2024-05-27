@@ -50,6 +50,10 @@ const extendedZ = Object.assign(z, {
   agent,
   event,
   table,
+  tablerow,
+  intent,
+  aimodel,
+  datasource,
 })
 
 export * from './zui'
