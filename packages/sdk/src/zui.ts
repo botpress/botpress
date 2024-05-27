@@ -229,6 +229,5 @@ export type UI<Namespace extends 'studio' | 'dashboard' = 'studio'> = Namespace 
   ? DefaultComponentDefinitions
   : any
 
-
 export default z
 export { z }
