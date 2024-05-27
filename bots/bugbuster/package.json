@@ -1,5 +1,5 @@
 {
-  "name": "bugbuster",
+  "name": "@bp-bots/bugbuster",
   "scripts": {
     "type:check": "tsc --noEmit",
     "integrations": "es-node ./integrations.ts"

@@ -116,7 +116,6 @@ The development environment requires the following tools to be installed:
 - [`git`](https://git-scm.com/): Git is a free and open source distributed version control system.
 - [`node`](https://nodejs.org/en/): Node.js® is a JavaScript runtime built on Chrome's V8 JavaScript engine.
 - [`pnpm`](https://pnpm.io/): PNPM is a fast, disk space efficient package manager.
-- [`tilt`](https://tilt.dev/): Tilt is a toolkit for fixing the pains of microservice development.
 
 ### Building from sources
 
@@ -125,8 +124,11 @@ The development environment requires the following tools to be installed:
 git clone https://github.com/botpress/botpress.git
 cd botpress
 
-# Build Sources
-tilt ci
+# Install dependencies
+pnpm install
+
+# Build all packages
+pnpm run build
 
 # Run Checks
 pnpm run check

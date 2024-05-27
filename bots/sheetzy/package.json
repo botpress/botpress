@@ -1,5 +1,5 @@
 {
-  "name": "sheetzy",
+  "name": "@bp-bots/sheetzy",
   "scripts": {
     "type:check": "tsc --noEmit",
     "integrations": "es-node ./integrations.ts"

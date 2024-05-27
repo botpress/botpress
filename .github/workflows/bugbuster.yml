@@ -21,12 +21,10 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Tilt
-        uses: ./.github/actions/setup-tilt
+      - name: Setup
+        uses: ./.github/actions/setup
         with:
-          tilt_cmd: 'build-packages'
-      - name: Install NPM Dependencies
-        run: pnpm install
+          filter: '@botpress/*'
       - name: Login to Botpress
         run: pnpm bp login -y --token ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }} --workspace-id ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
       - name: Install Botpress Dependencies

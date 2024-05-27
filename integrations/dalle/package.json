@@ -4,6 +4,7 @@
     "type:check": "tsc --noEmit",
     "version": "bp --version",
     "login": "bp login",
+    "build": "bp build",
     "dev": "bp dev",
     "gen": "bp gen",
     "deploy": "bp deploy"

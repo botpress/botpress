@@ -9,6 +9,11 @@ input:
     options:
       - staging
       - production
+  force:
+    type: boolean
+    description: 'Force re-deploying integrations'
+    default: false
+    required: false
   sentry_auth_token:
     description: 'Sentry auth token'
     required: true
@@ -82,6 +87,7 @@ runs:
 
         # deploy
 
+        redeploy=${{ inputs.force == 'true' && 1 || 0 }}
         integration_paths=$(pnpm list -F "@botpresshub/*" -F "!asana" -F "!trello" -F "!webchat" --json | jq -r "map(".path") | .[]")
 
         for integration_path in $integration_paths; do
@@ -99,6 +105,9 @@ runs:
             
             if [ $exists -eq 0 ]; then
                 echo -e "\nDeploying integration: ### $integration ###\n"
+                pnpm retry -n 2 -- pnpm -F $integration -c exec -- "$base_command"
+            elif [ $redeploy -eq 1 ]; then
+                echo -e "\nRe-deploying integration: ### $integration ###\n"
                 pnpm retry -n 2 -- pnpm -F $integration -c exec -- "$base_command"
             else
                 echo -e "\nSkipping integration: ### $integration ###\n"
