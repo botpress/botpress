@@ -1,6 +1,6 @@
-import { IntegrationDefinition } from '@botpress/sdk'
+import { IntegrationDefinition, interfaces } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { actions, channels, events, configuration, user, states, entities } from './src/definitions'
+import { actions, channels, events, configuration, user, states, schemas } from './src/definitions'
 
 export default new IntegrationDefinition({
   name: 'linear',
@@ -19,7 +19,18 @@ export default new IntegrationDefinition({
   actions,
   events,
   states,
-  entities,
+  entities: {
+    issue: {
+      title: 'Issue',
+      description: 'A linear issue',
+      schema: schemas.issueSchema,
+    },
+    project: {
+      title: 'Project',
+      description: 'A linear project',
+      schema: schemas.projectSchema,
+    },
+  },
   secrets: {
     CLIENT_ID: {
       description: 'The client ID of your Linear OAuth app.',
@@ -33,3 +44,19 @@ export default new IntegrationDefinition({
     ...sentryHelpers.COMMON_SECRET_NAMES,
   },
 })
+  .extend(interfaces.listable, (self) => ({
+    entities: { item: self.entities.issue },
+    prefix: 'issue.',
+  }))
+  .extend(interfaces.creatable, (self) => ({
+    entities: { item: self.entities.issue },
+    prefix: 'issue.',
+  }))
+  .extend(interfaces.listable, (self) => ({
+    entities: { item: self.entities.project },
+    prefix: 'project.',
+  }))
+  .extend(interfaces.creatable, (self) => ({
+    entities: { item: self.entities.project },
+    prefix: 'project.',
+  }))

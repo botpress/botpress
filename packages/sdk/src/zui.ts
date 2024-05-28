@@ -1,4 +1,5 @@
 import { z, type UIComponentDefinitions, type DefaultComponentDefinitions } from '@bpinternal/zui'
+import { AnyZodObject } from './type-utils'
 export * from '@bpinternal/zui'
 
 const commonInputParams = z.object({
@@ -152,5 +153,10 @@ export type UI<Namespace extends 'studio' | 'dashboard' = 'studio'> = Namespace 
   : Namespace extends 'dashboard'
   ? DefaultComponentDefinitions
   : any
+
+export type GenericZuiSchema<
+  A extends Record<string, z.ZodTypeAny> = Record<string, z.ZodTypeAny>,
+  R extends z.ZodTypeAny = AnyZodObject
+> = (typeArguments: A) => R
 
 export default z

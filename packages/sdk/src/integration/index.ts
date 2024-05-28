@@ -1,4 +1,5 @@
 export * from './context'
 export * from './definition'
 export * from './implementation'
+export * from './interface'
 export * from './client'

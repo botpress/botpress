@@ -1,5 +1,6 @@
 import { SchemaDefinition } from '../schema'
 import { AnyZodObject } from '../type-utils'
+import { InterfaceDeclaration, InterfaceResolveProps } from './interface'
 
 type BaseConfig = AnyZodObject
 type BaseEvents = Record<string, AnyZodObject>
@@ -82,6 +83,13 @@ export type EntityDefinition<TEntity extends BaseEntities[string] = BaseEntities
     description?: string
   }
 
+export type InterfaceInstance<TEvents extends BaseEvents = BaseEvents, TActions extends BaseActions = BaseActions> = {
+  name: string
+  prefix?: string
+  actions: { [K in keyof TActions]: ActionDefinition<TActions[K]> }
+  events: { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
+}
+
 export type IntegrationDefinitionProps<
   TConfig extends BaseConfig = BaseConfig,
   TEvents extends BaseEvents = BaseEvents,
@@ -127,6 +135,12 @@ export type IntegrationDefinitionProps<
   }
 }
 
+export type ExtensionBuilderProps<TEntities extends BaseEntities = BaseEntities> = {
+  entities: {
+    [K in keyof TEntities]: EntityDefinition<TEntities[K]>
+  }
+}
+
 export class IntegrationDefinition<
   TConfig extends BaseConfig = BaseConfig,
   TEvents extends BaseEvents = BaseEvents,
@@ -150,14 +164,17 @@ export class IntegrationDefinition<
   public readonly secrets: this['props']['secrets']
   public readonly identifier: this['props']['identifier']
   public readonly entities: this['props']['entities']
+  public readonly interfaces: InterfaceInstance[] = []
 
   public clone(
     props: Partial<IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates, TEntities>>
   ): IntegrationDefinition<TConfig, TEvents, TActions, TChannels, TStates, TEntities> {
-    return new IntegrationDefinition<TConfig, TEvents, TActions, TChannels, TStates, TEntities>({
+    const clone = new IntegrationDefinition<TConfig, TEvents, TActions, TChannels, TStates, TEntities>({
       ...this,
       ...props,
     })
+    clone.interfaces.push(...this.interfaces)
+    return clone
   }
 
   public constructor(
@@ -178,5 +195,15 @@ export class IntegrationDefinition<
     this.user = props.user
     this.secrets = props.secrets
     this.entities = props.entities
+  }
+
+  public extend<E extends BaseEntities>(
+    interfaceDeclaration: InterfaceDeclaration<E>,
+    builder: (self: ExtensionBuilderProps<TEntities>) => InterfaceResolveProps<E>
+  ): this {
+    const resolveProps = builder({ entities: this.entities ?? {} } as ExtensionBuilderProps<TEntities>)
+    const interfaceInstance = interfaceDeclaration.resolve(resolveProps)
+    this.interfaces.push(interfaceInstance)
+    return this
   }
 }

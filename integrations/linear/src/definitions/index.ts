@@ -5,6 +5,7 @@ export { actions } from './actions'
 export { events } from './events'
 export { states } from './states'
 export { UserProfile } from './schemas'
+export * as schemas from './schemas'
 
 export const configuration = {
   identifier: {
