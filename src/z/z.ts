@@ -204,6 +204,7 @@ export {
 
 export const NEVER = INVALID as never
 
+export * from './extensions'
 export * from './types'
 export * from './types/error'
 export * from './types/utils'
