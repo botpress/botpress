@@ -29,7 +29,7 @@
     "@types/lodash": "^4.14.191",
     "@types/node": "^18.11.17",
     "@types/verror": "^1.10.6",
-    "axios": "^1.4.0",
+    "axios": "^0.28.0",
     "bluebird": "^3.7.2",
     "boxen": "5.1.2",
     "chalk": "^4.1.2",
