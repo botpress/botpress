@@ -73,12 +73,6 @@ export const issueSchema = z.object({
   updatedAt: z.string().datetime().describe('The ISO date the issue was last updated'),
 })
 
-export const projectSchema = z.object({
-  id: z.string().describe('The project ID on Linear'),
-  name: z.string().describe('The project name on Linear'),
-  description: z.string().optional().describe('The project description on Linear'),
-})
-
 export const LinearIssue = z.object({
   title: z.string().describe('The issue title on Linear, such as "Fix the bug'),
   number: z.number().describe('The issue number on Linear, such as "123" in XXX-123'),

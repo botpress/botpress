@@ -1,7 +1,7 @@
 import { InterfaceDeclaration } from './integration/interface'
 import z from './zui'
 
-const metaSchema = z.object({ nextToken: z.string().optional() })
+const nextToken = z.string().optional()
 export const listable = new InterfaceDeclaration({
   name: 'listable',
   entities: {
@@ -13,10 +13,10 @@ export const listable = new InterfaceDeclaration({
   actions: {
     list: {
       input: {
-        schema: () => z.object({ meta: metaSchema }),
+        schema: () => z.object({ nextToken }),
       },
       output: {
-        schema: (args) => z.object({ items: z.array(args.item), meta: metaSchema }),
+        schema: (args) => z.object({ items: z.array(args.item), meta: z.object({ nextToken }) }),
       },
     },
   },
@@ -28,6 +28,9 @@ export const creatable = new InterfaceDeclaration({
     item: {
       schema: z.object({ id: z.string() }),
     },
+    input: {
+      schema: z.object({}),
+    },
   },
   events: {
     created: {
@@ -37,7 +40,7 @@ export const creatable = new InterfaceDeclaration({
   actions: {
     create: {
       input: {
-        schema: (args) => args.item,
+        schema: (args) => args.input,
       },
       output: {
         schema: (args) => z.object({ item: args.item }),

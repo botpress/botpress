@@ -25,11 +25,6 @@ export default new IntegrationDefinition({
       description: 'A linear issue',
       schema: schemas.issueSchema,
     },
-    project: {
-      title: 'Project',
-      description: 'A linear project',
-      schema: schemas.projectSchema,
-    },
   },
   secrets: {
     CLIENT_ID: {
@@ -46,17 +41,9 @@ export default new IntegrationDefinition({
 })
   .extend(interfaces.listable, (self) => ({
     entities: { item: self.entities.issue },
-    prefix: 'issue.',
+    prefix: 'issue',
   }))
   .extend(interfaces.creatable, (self) => ({
-    entities: { item: self.entities.issue },
-    prefix: 'issue.',
-  }))
-  .extend(interfaces.listable, (self) => ({
-    entities: { item: self.entities.project },
-    prefix: 'project.',
-  }))
-  .extend(interfaces.creatable, (self) => ({
-    entities: { item: self.entities.project },
-    prefix: 'project.',
+    entities: { item: self.entities.issue, input: actions.createIssue.input },
+    prefix: 'issue',
   }))

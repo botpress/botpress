@@ -11,50 +11,36 @@ const integration = new bp.Integration({
   unregister,
   handler,
   createConversation,
+  channels,
   actions: {
     ...actions,
-    'issue.create': async (props) => {
+    issuecreate: async (props) => {
       const res = await actions.createIssue({
         ...props,
         type: 'createIssue',
-        input: { description: props.input.description ?? '', teamName: '', title: props.input.title },
+        input: props.input,
       })
       return {
         item: res.issue,
       }
     },
-    'issue.list': async (props) => {
+    issuelist: async (props) => {
+      const count = 20
+      const startCursor = props.input.nextToken
       const res = await actions.listIssues({
         ...props,
         type: 'listIssues',
-        input: { count: 0 },
+        input: {
+          count,
+          startCursor,
+        },
       })
       return {
         items: res.issues,
-        meta: { nextToken: undefined },
-      }
-    },
-    'project.create': async () => {
-      return {
-        item: {
-          id: '1',
-          name: 'Test Project',
-        },
-      }
-    },
-    'project.list': async () => {
-      return {
-        items: [
-          {
-            id: '1',
-            name: 'Test Project',
-          },
-        ],
-        meta: { nextToken: undefined },
+        meta: { nextToken: res.nextCursor },
       }
     },
   },
-  channels,
 })
 
 export default sentryHelpers.wrapIntegration(integration, {
