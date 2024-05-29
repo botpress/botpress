@@ -1,6 +1,6 @@
 import _ from 'lodash'
 
-const specialChars = /[^a-zA-Z0-9\/_-]/g
+const specialChars = /[^a-zA-Z0-9_-]/g
 
 const capitalizeFirstLetter = (text: string) => text.charAt(0).toUpperCase() + text.slice(1).toLowerCase()
 
@@ -8,7 +8,7 @@ const splitChar = (char: string) => (tokens: string[]) => tokens.flatMap((token)
 const splitRegex = (regex: RegExp) => (tokens: string[]) => tokens.flatMap((token) => token.split(regex))
 const splitCaseChange = (tokens: string[]) => tokens.flatMap((token) => token.split(/(?<=[a-z])(?=[A-Z])/))
 const splitTokens = (tokens: string[]) => {
-  return [splitRegex(specialChars), splitChar('/'), splitChar('-'), splitChar('_'), splitCaseChange].reduce(
+  return [splitRegex(specialChars), splitChar('-'), splitChar('_'), splitCaseChange].reduce(
     (acc, step) => step(acc),
     tokens
   )
