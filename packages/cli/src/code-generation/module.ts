@@ -1,6 +1,7 @@
 import { posix as pathlib } from 'path'
 import * as utils from '../utils'
 import { GENERATED_HEADER, INDEX_FILE } from './const'
+import * as strings from './strings'
 import type { File } from './typings'
 
 export type ModuleDef = File & {
@@ -18,14 +19,17 @@ export abstract class Module implements File {
     return this._def.content
   }
 
+  /**
+   * @returns file name without extension
+   */
   public get name(): string {
     const basename = pathlib.basename(this.path)
     if (basename === INDEX_FILE) {
       const dirname = pathlib.basename(pathlib.dirname(this.path))
-      return utils.casing.to.camelCase(dirname)
+      return dirname
     }
     const withoutExtension = utils.path.rmExtension(basename)
-    return utils.casing.to.camelCase(withoutExtension)
+    return withoutExtension
   }
 
   public get exports(): string {
@@ -74,20 +78,21 @@ export class ReExportTypeModule extends Module {
 
   public override get content(): string {
     let content = GENERATED_HEADER
-    const dependencies = this.deps
 
-    for (const m of dependencies) {
+    for (const m of this.deps) {
       const { name } = m
+      const importAlias = strings.importAlias(name)
       const importFrom = m.import(this)
-      content += `import * as ${name} from "./${importFrom}";\n`
-      content += `export * as ${name} from "./${importFrom}";\n`
+      content += `import * as ${importAlias} from "./${importFrom}";\n`
+      content += `export * as ${importAlias} from "./${importFrom}";\n`
     }
 
     content += '\n'
 
     content += `export type ${this.exports} = {\n`
     for (const { name, exports } of this.deps) {
-      content += `  ${name}: ${name}.${exports};\n`
+      const importAlias = strings.importAlias(name)
+      content += `  "${name}": ${importAlias}.${exports};\n`
     }
     content += '}'
 

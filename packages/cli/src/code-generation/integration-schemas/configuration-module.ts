@@ -1,6 +1,7 @@
 import { INDEX_FILE } from '../const'
 import { jsonSchemaToTypeScriptType } from '../generators'
 import { Module } from '../module'
+import * as strings from '../strings'
 import type * as types from '../typings'
 
 export class ConfigurationModule extends Module {
@@ -15,10 +16,12 @@ export class ConfigurationModule extends Module {
     }
 
     const name = 'configuration'
+
+    const exportName = strings.typeName(name)
     return new ConfigurationModule({
       path: INDEX_FILE,
-      exportName: 'Configuration',
-      content: await jsonSchemaToTypeScriptType(schema, name),
+      exportName,
+      content: await jsonSchemaToTypeScriptType(schema, exportName),
     })
   }
 }

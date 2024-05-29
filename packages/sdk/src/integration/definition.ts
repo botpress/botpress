@@ -151,6 +151,15 @@ export class IntegrationDefinition<
   public readonly identifier: this['props']['identifier']
   public readonly entities: this['props']['entities']
 
+  public clone(
+    props: Partial<IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates, TEntities>>
+  ): IntegrationDefinition<TConfig, TEvents, TActions, TChannels, TStates, TEntities> {
+    return new IntegrationDefinition<TConfig, TEvents, TActions, TChannels, TStates, TEntities>({
+      ...this,
+      ...props,
+    })
+  }
+
   public constructor(
     public readonly props: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates, TEntities>
   ) {

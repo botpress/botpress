@@ -1,7 +1,7 @@
 import bluebird from 'bluebird'
-import { casing } from '../../utils'
 import { jsonSchemaToTypeScriptType } from '../generators'
 import { Module, ModuleDef, ReExportTypeModule } from '../module'
+import * as strings from '../strings'
 import type * as types from '../typings'
 
 type ActionInput = types.ActionDefinition['input']
@@ -11,10 +11,11 @@ export class ActionInputModule extends Module {
   public static async create(input: ActionInput): Promise<ActionInputModule> {
     const schema = input.schema
     const name = 'input'
+    const exportName = strings.typeName(name)
     const def: ModuleDef = {
       path: `${name}.ts`,
-      exportName: 'Input',
-      content: await jsonSchemaToTypeScriptType(schema, name),
+      exportName,
+      content: await jsonSchemaToTypeScriptType(schema, exportName),
     }
     return new ActionInputModule(def)
   }
@@ -24,10 +25,11 @@ export class ActionOutputModule extends Module {
   public static async create(output: ActionOutput): Promise<ActionOutputModule> {
     const schema = output.schema
     const name = 'output'
+    const exportName = strings.typeName(name)
     const def: ModuleDef = {
       path: `${name}.ts`,
-      exportName: 'Output',
-      content: await jsonSchemaToTypeScriptType(schema, name),
+      exportName,
+      content: await jsonSchemaToTypeScriptType(schema, exportName),
     }
     return new ActionOutputModule(def)
   }
@@ -39,7 +41,7 @@ export class ActionModule extends ReExportTypeModule {
     const outputModule = await ActionOutputModule.create(action.output)
 
     const inst = new ActionModule({
-      exportName: `Action${casing.to.pascalCase(actionName)}`,
+      exportName: strings.typeName(actionName),
     })
 
     inst.pushDep(inputModule)
@@ -57,7 +59,7 @@ export class ActionsModule extends ReExportTypeModule {
     })
 
     const inst = new ActionsModule({
-      exportName: 'Actions',
+      exportName: strings.typeName('actions'),
     })
 
     inst.pushDep(...actionModules)
