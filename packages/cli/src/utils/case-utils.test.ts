@@ -41,3 +41,19 @@ test('case utils should convert from camel case to all other cases', () => {
   expect(caseUtils.to.snakeCase(camelCase)).toBe(snakeCase)
   expect(caseUtils.to.screamingSnakeCase(camelCase)).toBe(screamingSnakeCase)
 })
+
+test('case utils should split special characters when converting', () => {
+  expect(caseUtils.to.pascalCase(`${pascalCase}.2`)).toBe(`${pascalCase}2`)
+  expect(caseUtils.to.kebabCase(`${kebabCase}.2`)).toBe(`${kebabCase}-2`)
+  expect(caseUtils.to.snakeCase(`${snakeCase}.2`)).toBe(`${snakeCase}_2`)
+  expect(caseUtils.to.screamingSnakeCase(`${screamingSnakeCase}.2`)).toBe(`${screamingSnakeCase}_2`)
+  expect(caseUtils.to.camelCase(`${camelCase}.2`)).toBe(`${camelCase}2`)
+})
+
+test('case utils should prevent special characters when checking', () => {
+  expect(caseUtils.is.pascalCase(`${pascalCase}.2`)).toBe(false)
+  expect(caseUtils.is.kebabCase(`${kebabCase}.2`)).toBe(false)
+  expect(caseUtils.is.snakeCase(`${snakeCase}.2`)).toBe(false)
+  expect(caseUtils.is.screamingSnakeCase(`${screamingSnakeCase}.2`)).toBe(false)
+  expect(caseUtils.is.camelCase(`${camelCase}.2`)).toBe(false)
+})
