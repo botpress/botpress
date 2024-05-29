@@ -173,4 +173,3 @@ export type UI<Namespace extends 'studio' | 'dashboard' = 'studio'> = Namespace 
   : any
 
 export default z
-export { z }
