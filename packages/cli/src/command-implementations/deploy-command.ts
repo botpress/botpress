@@ -322,7 +322,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         throw new errors.BotpressCLIError(workspaceHandleIsMandatoryMsg)
       }
       const newName = `${remoteHandle}/${localName}`
-      return { ...integration, name: newName }
+      return integration.clone({ name: newName })
     }
 
     if (localHandle && !remoteHandle) {
@@ -371,7 +371,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     this.logger.success(`Handle "${claimedHandle}" is yours!`)
     const newName = `${claimedHandle}/${localName}`
-    return { ...integration, name: newName }
+    return integration.clone({ name: newName })
   }
 
   private _parseIntegrationName = (integrationName: string): { name: string; workspaceHandle?: string } => {
