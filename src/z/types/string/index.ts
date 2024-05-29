@@ -1,8 +1,21 @@
-import { StringValidation, ZodIssueCode } from '../'
-import { RawCreateParams, ZodFirstPartyTypeKind, ZodType, ZodTypeDef } from '../index'
-import { processCreateParams, util, ZodParsedType } from '../utils'
-import { errorUtil } from '../utils/errorUtil'
-import { addIssueToContext, INVALID, ParseContext, ParseInput, ParseReturnType, ParseStatus } from '../utils/parseUtil'
+import {
+  StringValidation,
+  ZodIssueCode,
+  RawCreateParams,
+  ZodFirstPartyTypeKind,
+  ZodType,
+  ZodTypeDef,
+  processCreateParams,
+  util,
+  ZodParsedType,
+  errorUtil,
+  addIssueToContext,
+  INVALID,
+  ParseContext,
+  ParseInput,
+  ParseReturnType,
+  ParseStatus,
+} from '../index'
 
 export type IpVersion = 'v4' | 'v6'
 export type ZodStringCheck =

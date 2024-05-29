@@ -1,8 +1,20 @@
-import { ZodIssueCode } from '../error'
-import { ParseInputLazyPath, RawCreateParams, ZodFirstPartyTypeKind, ZodType, ZodTypeAny, ZodTypeDef } from '../index'
-import { processCreateParams, ZodParsedType } from '../utils'
-import { errorUtil } from '../utils/errorUtil'
-import { addIssueToContext, INVALID, ParseInput, ParseReturnType, ParseStatus } from '../utils/parseUtil'
+import {
+  ZodIssueCode,
+  ParseInputLazyPath,
+  RawCreateParams,
+  ZodFirstPartyTypeKind,
+  ZodType,
+  ZodTypeAny,
+  ZodTypeDef,
+  processCreateParams,
+  ZodParsedType,
+  errorUtil,
+  addIssueToContext,
+  INVALID,
+  ParseInput,
+  ParseReturnType,
+  ParseStatus,
+} from '../index'
 
 export interface ZodArrayDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTypeDef {
   type: T

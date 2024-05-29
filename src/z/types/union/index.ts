@@ -1,7 +1,13 @@
-import { ZodError, ZodIssue, ZodIssueCode } from '../error'
-import { RawCreateParams, ZodFirstPartyTypeKind, ZodType, ZodTypeAny, ZodTypeDef } from '../index'
-import { processCreateParams } from '../utils'
 import {
+  RawCreateParams,
+  ZodFirstPartyTypeKind,
+  ZodType,
+  ZodTypeAny,
+  ZodTypeDef,
+  ZodError,
+  ZodIssue,
+  ZodIssueCode,
+  processCreateParams,
   addIssueToContext,
   DIRTY,
   INVALID,
@@ -9,7 +15,7 @@ import {
   ParseInput,
   ParseReturnType,
   SyncParseReturnType,
-} from '../utils/parseUtil'
+} from '../index'
 
 export type ZodUnionOptions = Readonly<[ZodTypeAny, ...ZodTypeAny[]]>
 export interface ZodUnionDef<T extends ZodUnionOptions = Readonly<[ZodTypeAny, ZodTypeAny, ...ZodTypeAny[]]>>

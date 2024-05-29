@@ -1,5 +1,4 @@
-import { ZodFirstPartyTypeKind, ZodType, ZodTypeAny, ZodTypeDef } from '../index'
-import { ParseInput, ParseReturnType } from '../utils/parseUtil'
+import { ZodFirstPartyTypeKind, ZodType, ZodTypeAny, ZodTypeDef, ParseInput, ParseReturnType } from '../index'
 
 export interface ZodBrandedDef<T extends ZodTypeAny> extends ZodTypeDef {
   type: T

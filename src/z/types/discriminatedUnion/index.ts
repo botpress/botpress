@@ -1,9 +1,9 @@
-import { ZodBranded } from '../branded'
-import { ZodCatch } from '../catch'
-import { ZodDefault } from '../default'
-import { ZodEnum } from '../enum'
-import { ZodIssueCode } from '../error'
 import {
+  ZodBranded,
+  ZodCatch,
+  ZodDefault,
+  ZodEnum,
+  ZodIssueCode,
   input,
   output,
   RawCreateParams,
@@ -12,20 +12,26 @@ import {
   ZodType,
   ZodTypeAny,
   ZodTypeDef,
+  ZodLazy,
+  ZodLiteral,
+  ZodNativeEnum,
+  ZodNull,
+  ZodNullable,
+  UnknownKeysParam,
+  ZodObject,
+  ZodOptional,
+  ZodReadonly,
+  ZodEffects,
+  ZodUndefined,
+  processCreateParams,
+  util,
+  ZodParsedType,
+  addIssueToContext,
+  INVALID,
+  ParseInput,
+  ParseReturnType,
+  Primitive,
 } from '../index'
-import { ZodLazy } from '../lazy'
-import { ZodLiteral } from '../literal'
-import { ZodNativeEnum } from '../nativeEnum'
-import { ZodNull } from '../null'
-import { ZodNullable } from '../nullable'
-import { UnknownKeysParam, ZodObject } from '../object'
-import { ZodOptional } from '../optional'
-import { ZodReadonly } from '../readonly'
-import { ZodEffects } from '../transformer'
-import { ZodUndefined } from '../undefined'
-import { processCreateParams, util, ZodParsedType } from '../utils'
-import { addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../utils/parseUtil'
-import { Primitive } from '../utils/typeAliases'
 
 const getDiscriminator = <T extends ZodTypeAny>(type: T): Primitive[] => {
   if (type instanceof ZodLazy) {

@@ -4,19 +4,15 @@
  * Internal pattern to get rid of circular dependencies
  * @see https://medium.com/p/a04c987cf0de
  */
-import defaultErrorMap from './error/locales/en'
-import { jsonSchemaToZui } from '../../transforms/json-schema-to-zui'
-import { objectToZui } from '../../transforms/object-to-zui'
-import { zuiToJsonSchema } from '../../transforms/zui-to-json-schema'
 
+export * from './basetype'
+export * from './defs'
 export * from './utils'
 export * from './utils/parseUtil'
 export * from './utils/enumUtil'
 export * from './utils/errorUtil'
 export * from './utils/partialUtil'
 export * from './utils/typeAliases'
-export * from './basetype'
-export * from './defs'
 export * from './any'
 export * from './array'
 export * from './bigint'
@@ -58,4 +54,10 @@ export * from './undefined'
 export * from './union'
 export * from './unknown'
 export * from './void'
+
+import defaultErrorMap from './error/locales/en'
+import { jsonSchemaToZui } from '../../transforms/json-schema-to-zui'
+import { objectToZui } from '../../transforms/object-to-zui'
+import { zuiToJsonSchema } from '../../transforms/zui-to-json-schema'
+
 export { defaultErrorMap, jsonSchemaToZui, objectToZui, zuiToJsonSchema }

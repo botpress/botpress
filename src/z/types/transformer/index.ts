@@ -1,5 +1,5 @@
-import { IssueData } from '../error'
 import {
+  IssueData,
   input,
   output,
   RawCreateParams,
@@ -8,9 +8,15 @@ import {
   ZodType,
   ZodTypeAny,
   ZodTypeDef,
+  processCreateParams,
+  util,
+  addIssueToContext,
+  DIRTY,
+  INVALID,
+  isValid,
+  ParseInput,
+  ParseReturnType,
 } from '../index'
-import { processCreateParams, util } from '../utils'
-import { addIssueToContext, DIRTY, INVALID, isValid, ParseInput, ParseReturnType } from '../utils/parseUtil'
 
 export type Refinement<T> = (arg: T, ctx: RefinementCtx) => any
 export type SuperRefinement<T> = (arg: T, ctx: RefinementCtx) => void | Promise<void>

@@ -46,8 +46,8 @@ import {
   KindToDef,
 } from '../index'
 import type { ZuiSchemaOptions } from '../../../transforms/zui-to-json-schema/zui-extension'
-import { ObjectToZuiOptions } from '../../../transforms/object-to-zui'
-import { ToTypescriptTyingsOptions, toTypescriptTypings } from '../../../transforms/zui-to-typescript'
+import type { ObjectToZuiOptions } from '../../../transforms/object-to-zui'
+import { type ToTypescriptTyingsOptions, toTypescriptTypings } from '../../../transforms/zui-to-typescript'
 
 export type RefinementCtx = {
   addIssue: (arg: IssueData) => void

@@ -1,14 +1,20 @@
-import { ZodIssueCode } from '../error'
-import { ParseInputLazyPath, RawCreateParams, ZodFirstPartyTypeKind, ZodType, ZodTypeAny, ZodTypeDef } from '../index'
-import { processCreateParams, ZodParsedType } from '../utils'
 import {
+  ZodIssueCode,
+  ParseInputLazyPath,
+  RawCreateParams,
+  ZodFirstPartyTypeKind,
+  ZodType,
+  ZodTypeAny,
+  ZodTypeDef,
+  processCreateParams,
+  ZodParsedType,
   addIssueToContext,
   INVALID,
   ParseInput,
   ParseReturnType,
   ParseStatus,
   SyncParseReturnType,
-} from '../utils/parseUtil'
+} from '../index'
 
 export type ZodTupleItems = [ZodTypeAny, ...ZodTypeAny[]]
 export type AssertArray<T> = T extends any[] ? T : never

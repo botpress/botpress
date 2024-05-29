@@ -1,8 +1,16 @@
-import { ZodIssueCode } from '../error'
-import { RawCreateParams, ZodFirstPartyTypeKind, ZodType, ZodTypeDef } from '../index'
-import { processCreateParams } from '../utils'
-import { addIssueToContext, INVALID, ParseInput, ParseReturnType } from '../utils/parseUtil'
-import { Primitive } from '../utils/typeAliases'
+import {
+  ZodIssueCode,
+  RawCreateParams,
+  ZodFirstPartyTypeKind,
+  ZodType,
+  ZodTypeDef,
+  processCreateParams,
+  addIssueToContext,
+  INVALID,
+  ParseInput,
+  ParseReturnType,
+  Primitive,
+} from '../index'
 
 export interface ZodLiteralDef<T = any> extends ZodTypeDef {
   value: T
