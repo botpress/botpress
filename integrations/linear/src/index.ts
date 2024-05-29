@@ -14,7 +14,7 @@ const integration = new bp.Integration({
   channels,
   actions: {
     ...actions,
-    issuecreate: async (props) => {
+    issuescreate: async (props) => {
       const res = await actions.createIssue({
         ...props,
         type: 'createIssue',
@@ -24,7 +24,7 @@ const integration = new bp.Integration({
         item: res.issue,
       }
     },
-    issuelist: async (props) => {
+    issueslist: async (props) => {
       const count = 20
       const startCursor = props.input.nextToken
       const res = await actions.listIssues({
