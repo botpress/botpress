@@ -1,11 +1,11 @@
 import { test, expect } from 'vitest'
 import * as caseUtils from './case-utils'
 
-const pascalCase = 'HelloWorld'
-const kebabCase = 'hello-world'
-const snakeCase = 'hello_world'
-const screamingSnakeCase = 'HELLO_WORLD'
-const camelCase = 'helloWorld'
+const pascalCase = 'HelloLittleWorld'
+const kebabCase = 'hello-little-world'
+const snakeCase = 'hello_little_world'
+const screamingSnakeCase = 'HELLO_LITTLE_WORLD'
+const camelCase = 'helloLittleWorld'
 
 test('case utils should convert from pascal case to all other cases', () => {
   expect(caseUtils.to.kebabCase(pascalCase)).toBe(kebabCase)
