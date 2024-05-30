@@ -51,19 +51,19 @@ export type Operation = Simplify<
 >
 
 /**
- * @deprecated Use ClientInput instead
+ * @deprecated Use ClientInputs instead
  */
 export type ClientParams<T extends Operation> = Simplify<Parameters<IClient[T]>[0]>
 /**
- * @deprecated Use ClientOutput instead
+ * @deprecated Use ClientOutputs instead
  */
 export type ClientReturn<T extends Operation> = Simplify<Awaited<ReturnType<IClient[T]>>>
 
-export type ClientInput = Simplify<{
+export type ClientInputs = Simplify<{
   [T in Operation]: Parameters<IClient[T]>[0]
 }>
 
-export type ClientOutput = Simplify<{
+export type ClientOutputs = Simplify<{
   [T in Operation]: Awaited<ReturnType<IClient[T]>>
 }>
 

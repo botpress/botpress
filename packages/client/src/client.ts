@@ -43,7 +43,7 @@ export class Client extends gen.Client implements types.IClient {
     accessPolicies,
     content,
     url,
-  }: types.ClientInput['createAndUploadFile']): Promise<types.ClientOutput['createAndUploadFile']> => {
+  }: types.ClientInputs['createAndUploadFile']): Promise<types.ClientOutputs['createAndUploadFile']> => {
     if (url && content) {
       throw new errors.CreateAndUploadFileError('Cannot provide both content and URL, please provide only one of them')
     }
