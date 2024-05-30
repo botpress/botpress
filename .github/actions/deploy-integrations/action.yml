@@ -79,7 +79,7 @@ runs:
             integration=$(basename $integration_path)
             exists=$(./.github/scripts/integration-exists.sh $integration)
 
-            base_command="bp deploy -v -y --noBuild --public --allowDeprecated"
+            base_command="bp deploy -v -y --noBuild --public"
             if [ $integration == "gmail" ]; then
                 base_command="$base_command ${{ inputs.gmail_secrets }}"
             elif [ $integration == "linear" ]; then

@@ -2,6 +2,7 @@ import type * as client from '@botpress/client'
 import type * as sdk from '@botpress/sdk'
 import chalk from 'chalk'
 import * as fs from 'fs'
+import semver from 'semver'
 import { prepareCreateBotBody, prepareUpdateBotBody } from '../api/bot-body'
 import type { ApiClient } from '../api/client'
 import {
@@ -135,7 +136,10 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
       const createSecrets = await this.promptSecrets(integrationDef, this.argv, { knownSecrets })
       createBody.secrets = utils.records.filterValues(createSecrets, utils.guards.is.notNull)
-      this._detectDeprecatedFeatures(integrationDef, this.argv)
+
+      this._detectDeprecatedFeatures(integrationDef, {
+        allowDeprecated: this._allowDeprecatedFeatures(integrationDef, previousVersion),
+      })
 
       const line = this.logger.line()
       line.started(startedMessage)
@@ -144,6 +148,26 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       })
       line.success(successMessage)
     }
+  }
+
+  private _allowDeprecatedFeatures(
+    integrationDef: sdk.IntegrationDefinition,
+    previousVersion: client.Integration | undefined
+  ): boolean {
+    if (this.argv.allowDeprecated) {
+      return true
+    }
+
+    if (!previousVersion) {
+      return false
+    }
+
+    const versionDiff = semver.diff(integrationDef.version, previousVersion.version)
+    if (!versionDiff) {
+      return false
+    }
+
+    return utils.semver.releases.lt(versionDiff, 'major')
   }
 
   private _detectDeprecatedFeatures(
