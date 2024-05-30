@@ -23,30 +23,15 @@ input:
   cloud_ops_workspace_id:
     description: 'Cloud Ops workspace id'
     required: true
-  gmail_client_id:
-    description: 'Gmail client id'
-    required: true
-  gmail_client_secret:
-    description: 'Gmail client secret'
-    required: true
-  gmail_topic_name:
-    description: 'Gmail topic name'
-    required: true
-  linear_client_id:
-    description: 'Linear client id'
-    required: true
-  linear_client_secret:
-    description: 'Linear client secret'
-    required: true
-  linear_webhook_signing_secret:
-    description: 'Linear webhook signing secret'
-    required: true
-  slack_client_id:
-    description: 'Slack client id'
-    required: true
-  slack_client_secret:
-    description: 'Slack client secret'
-    required: true
+  gmail_secrets:
+    description: 'Gmail secrets'
+    required: false
+  linear_secrets:
+    description: 'Linear secrets'
+    required: false
+  slack_secrets:
+    description: 'Slack secrets'
+    required: false
 
 runs:
   using: 'composite'
@@ -96,11 +81,11 @@ runs:
 
             base_command="bp deploy -v -y --noBuild --public --allowDeprecated"
             if [ $integration == "gmail" ]; then
-                base_command="$base_command --secrets CLIENT_ID=${{ inputs.gmail_client_id }} --secrets CLIENT_SECRET=${{ inputs.gmail_client_secret }} --secrets TOPIC_NAME=${{ inputs.gmail_topic_name }}"
+                base_command="$base_command ${{ inputs.gmail_secrets }}"
             elif [ $integration == "linear" ]; then
-                base_command="$base_command --secrets CLIENT_ID=${{ inputs.linear_client_id }} --secrets CLIENT_SECRET=${{ inputs.linear_client_secret }} --secrets WEBHOOK_SIGNING_SECRET=${{ inputs.linear_webhook_signing_secret }}"
+                base_command="$base_command ${{ inputs.linear_secrets }}"
             elif [ $integration == "slack" ]; then
-                base_command="$base_command --secrets CLIENT_ID=${{ inputs.slack_client_id }} --secrets CLIENT_SECRET=${{ inputs.slack_client_secret }} --secrets SIGNING_SECRET=${{ inputs.slack_signing_secret }}"
+                base_command="$base_command ${{ inputs.slack_secrets }}"
             fi
             
             if [ $exists -eq 0 ]; then

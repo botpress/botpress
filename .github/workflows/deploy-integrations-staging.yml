@@ -32,12 +32,6 @@ jobs:
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}
-          gmail_client_id: ${{ secrets.STAGING_GMAIL_CLIENT_ID }}
-          gmail_client_secret: ${{ secrets.STAGING_GMAIL_CLIENT_SECRET }}
-          gmail_topic_name: ${{ secrets.STAGING_GMAIL_TOPIC_NAME }}
-          linear_client_id: ${{ secrets.STAGING_LINEAR_CLIENT_ID }}
-          linear_client_secret: ${{ secrets.STAGING_LINEAR_CLIENT_SECRET }}
-          linear_webhook_signing_secret: ${{ secrets.STAGING_LINEAR_WEBHOOK_SIGNING_SECRET }}
-          slack_client_id: ${{ secrets.STAGING_SLACK_CLIENT_ID }}
-          slack_client_secret: ${{ secrets.STAGING_SLACK_CLIENT_SECRET }}
-          slack_signing_secret: ${{ secrets.STAGING_SLACK_SIGNING_SECRET }}
+          gmail_secrets: '' # secrets should already exist
+          linear_secrets: '' # secrets should already exst
+          slack_secrets: '' # secrets should already exist

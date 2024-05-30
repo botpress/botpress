@@ -1,35 +1,12 @@
 import * as client from '@botpress/client'
 import _ from 'lodash'
-import { formatIntegrationRef, ApiIntegrationRef as IntegrationRef } from '../integration-ref'
+import { formatIntegrationRef, ApiIntegrationRef as IntegrationRef, NameIntegrationRef } from '../integration-ref'
 import type { Logger } from '../logger'
+import { findPreviousIntegrationVersion } from './find-previous-version'
 import * as paging from './paging'
+import { ApiClientProps, PublicIntegration, PrivateIntegration, Integration, Requests, Responses } from './types'
 
-export type PageLister<R extends object> = (t: { nextToken?: string }) => Promise<R & { meta: { nextToken?: string } }>
-
-export type ApiClientProps = {
-  apiUrl: string
-  token: string
-  workspaceId: string
-}
-
-export type ApiClientFactory = {
-  newClient: (props: ApiClientProps, logger: Logger) => ApiClient
-}
-
-type PublicIntegration = client.Integration
-type PrivateIntegration = client.Integration & { workspaceId: string }
-type Integration = client.Integration & { workspaceId?: string }
-
-type BaseOperation = (...args: any[]) => Promise<any>
-type Operations = {
-  [K in keyof client.Client as client.Client[K] extends BaseOperation ? K : never]: client.Client[K]
-}
-type Requests = {
-  [K in keyof Operations]: Parameters<Operations[K]>[0]
-}
-type Responses = {
-  [K in keyof Operations]: ReturnType<Operations[K]>
-}
+export * from './types'
 
 /**
  * This class is used to wrap the Botpress API and provide a more convenient way to interact with it.
@@ -123,5 +100,13 @@ export class ApiClient {
       }
       throw err
     }
+  }
+
+  public async findPreviousIntegrationVersion(ref: NameIntegrationRef): Promise<Integration | undefined> {
+    const previous = await findPreviousIntegrationVersion(this.client, ref)
+    if (!previous) {
+      return
+    }
+    return this.findIntegration({ type: 'id', id: previous.id })
   }
 }
