@@ -19,7 +19,10 @@ describe('createAndUploadFile', () => {
   it('works with a buffer', async () => {
     const response = await client.createAndUploadFile({
       name: 'test.txt',
-      data: Buffer.from('aaa'),
+      content: Buffer.from('aaa'),
+      accessPolicies: ['public_content'],
+      index: true,
+      tags: {},
     })
 
     expect(response.file.name).toBe('test.txt')
@@ -30,7 +33,7 @@ describe('createAndUploadFile', () => {
   it('works with plain text', async () => {
     const response = await client.createAndUploadFile({
       name: 'test.txt',
-      data: 'aaa',
+      content: 'aaa',
     })
 
     expect(response.file.name).toBe('test.txt')
