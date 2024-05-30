@@ -53,25 +53,6 @@ export const studioComponentDefinitions = {
         precision: z.enum(['minute', 'second', 'millisecond']).optional(),
       }),
     },
-    variable: {
-      id: 'variable',
-      params: z.object({
-        type: z.enum([
-          'any',
-          'string',
-          'number',
-          'boolean',
-          'object',
-          'pattern',
-          'date',
-          'array',
-          'target',
-          'time',
-          'enum',
-        ]),
-        horizontal: z.boolean().optional(),
-      }),
-    },
     richtext: {
       id: 'richtext',
       params: z.object({
