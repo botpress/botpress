@@ -1,4 +1,4 @@
-lockfileVersion: '6.1'
+lockfileVersion: '6.0'
 
 settings:
   autoInstallPeers: true
@@ -1239,7 +1239,7 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.19.0
+        specifier: 0.20.0
         version: link:../client
       '@botpress/sdk':
         specifier: 0.8.20
@@ -1354,7 +1354,7 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.19.0
+        specifier: 0.20.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 0.8.20
@@ -1373,7 +1373,7 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.19.0
+        specifier: 0.20.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 0.8.20
@@ -1392,7 +1392,7 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 0.19.0
+        specifier: 0.20.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 0.8.20
@@ -1411,7 +1411,7 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 0.19.0
+        specifier: 0.20.0
         version: link:../../../client
       '@botpress/sdk':
         specifier: 0.8.20
@@ -1473,7 +1473,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.19.0
+        specifier: 0.20.0
         version: link:../client
       '@bpinternal/zui':
         specifier: 0.8.3
