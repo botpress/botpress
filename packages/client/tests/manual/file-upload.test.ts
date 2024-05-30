@@ -20,9 +20,6 @@ describe('createAndUploadFile', () => {
     const response = await client.createAndUploadFile({
       name: 'test.txt',
       content: Buffer.from('aaa'),
-      accessPolicies: ['public_content'],
-      index: true,
-      tags: {},
     })
 
     expect(response.file.name).toBe('test.txt')
