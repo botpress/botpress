@@ -1242,7 +1242,7 @@ importers:
         specifier: 0.19.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 0.8.19
+        specifier: 0.8.20
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1357,7 +1357,7 @@ importers:
         specifier: 0.19.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.19
+        specifier: 0.8.20
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1376,7 +1376,7 @@ importers:
         specifier: 0.19.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.19
+        specifier: 0.8.20
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1395,7 +1395,7 @@ importers:
         specifier: 0.19.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.19
+        specifier: 0.8.20
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1414,7 +1414,7 @@ importers:
         specifier: 0.19.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.19
+        specifier: 0.8.20
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -1476,8 +1476,8 @@ importers:
         specifier: 0.19.0
         version: link:../client
       '@bpinternal/zui':
-        specifier: 0.8.2
-        version: 0.8.2
+        specifier: 0.8.3
+        version: 0.8.3
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -2163,8 +2163,8 @@ packages:
       yn: 4.0.0
     dev: false
 
-  /@bpinternal/zui@0.8.2:
-    resolution: {integrity: sha512-c6mtknxq6WT2jOYc8xJQOHpmuS/AO31Dw4CWe4sLSuZvfkxnyM6KBX+Z/jezJrqhVBnHwBlROD/JN3JizYz0BQ==}
+  /@bpinternal/zui@0.8.3:
+    resolution: {integrity: sha512-dS1uTmBQpQf5yTqI44OCJdaL3ZWVKIU8mWEZLSQZEmZujeCBMyK2xjl8wLAw+uWuav98Q3w2htjytGq6gD0hIA==}
     engines: {node: '>=16.0.0', pnpm: '>=9'}
     dependencies:
       '@apidevtools/json-schema-ref-parser': 11.6.2
