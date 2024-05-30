@@ -15,7 +15,7 @@ export type ApiClientFactory = {
 export type PublicIntegration = client.Integration
 export type PrivateIntegration = client.Integration & { workspaceId: string }
 export type Integration = client.Integration & { workspaceId?: string }
-export type IntegrationSummary = client.ClientReturn<'listIntegrations'>['integrations'][number]
+export type IntegrationSummary = client.ClientOutputs['listIntegrations']['integrations'][number]
 
 export type BaseOperation = (...args: any[]) => Promise<any>
 export type Operations = {
