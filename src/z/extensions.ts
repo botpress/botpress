@@ -59,3 +59,6 @@ export const aimodel = () => ZodEnum.create(AI_MODELS).displayAs<any>({ id: 'dro
 
 export const datasource = (opts?: { horizontal?: boolean }) =>
   ZodString.create().displayAs<any>({ id: 'datasource', params: { ...opts } })
+
+export const knowledgebase = (opts?: { horizontal?: boolean }) =>
+  ZodString.create().displayAs<any>({ id: 'knowledgebase', params: { ...opts } })
