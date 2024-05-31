@@ -1,5 +1,5 @@
-import { AnyZodObject } from '../type-utils'
-import { GenericZuiSchema } from '../zui'
+import { AnyZodObject } from '../../type-utils'
+import { GenericZuiSchema } from '../../zui'
 import { ActionDefinition, EntityDefinition, EventDefinition, InterfaceInstance } from './definition'
 
 const pairs = <K extends string, V>(obj: Record<K, V>) => Object.entries(obj) as [K, V][]

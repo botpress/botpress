@@ -1,5 +1,5 @@
-import { SchemaDefinition } from '../schema'
-import { AnyZodObject } from '../type-utils'
+import { SchemaDefinition } from '../../schema'
+import { AnyZodObject } from '../../type-utils'
 import { InterfaceDeclaration, InterfaceResolveProps } from './interface'
 
 type BaseConfig = AnyZodObject

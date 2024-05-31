@@ -1,4 +1,4 @@
-import { InterfaceDeclaration } from './integration/interface'
+import { InterfaceDeclaration } from './integration/definition'
 import z from './zui'
 
 const nextToken = z.string().optional()
