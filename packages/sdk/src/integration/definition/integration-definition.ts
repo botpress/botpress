@@ -1,5 +1,5 @@
 import { BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates, BaseEntities } from './generic'
-import { InterfaceDeclaration, InterfaceResolveProps } from './interface'
+import { InterfaceDeclaration, InterfaceResolveProps } from './interface-declaration'
 import {
   ConfigurationDefinition,
   EventDefinition,
