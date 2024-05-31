@@ -1,27 +1,34 @@
 import { GenericZuiSchema } from '../../zui'
-import { BaseEntities } from './generic'
+import { BaseActions, BaseEntities, BaseEvents } from './generic'
 import { ActionDefinition, EntityDefinition, EventDefinition, InterfaceInstance } from './types'
 
 const pairs = <K extends string, V>(obj: Record<K, V>) => Object.entries(obj) as [K, V][]
 const mapValues = <K extends string, V, R>(obj: Record<K, V>, fn: (value: V, key: K) => R): Record<K, R> =>
   Object.fromEntries(pairs(obj).map(([key, value]) => [key, fn(value, key)])) as Record<K, R>
 
-type GenericEventDefinition<TEntities extends BaseEntities> = {
-  schema: GenericZuiSchema<TEntities>
+type GenericEventDefinition<TEntities extends BaseEntities, TEvent extends BaseEvents[string] = BaseEvents[string]> = {
+  schema: GenericZuiSchema<TEntities, TEvent>
 }
 
-type GenericActionDefinition<TEntities extends BaseEntities> = {
-  input: { schema: GenericZuiSchema<TEntities> }
+type GenericActionDefinition<
+  TEntities extends BaseEntities,
+  TAction extends BaseActions[string] = BaseActions[string]
+> = {
+  input: { schema: GenericZuiSchema<TEntities, TAction> }
   output: { schema: GenericZuiSchema<TEntities> }
 }
 
-export type InterfaceDeclarationProps<TEntities extends BaseEntities = BaseEntities> = {
+export type InterfaceDeclarationProps<
+  TEntities extends BaseEntities = BaseEntities,
+  TActions extends BaseActions = BaseActions,
+  TEvents extends BaseEntities = BaseEntities
+> = {
   name: string
 
-  events: { [K: string]: GenericEventDefinition<TEntities> }
+  events: { [K in keyof TEvents]: GenericEventDefinition<TEntities, TEvents[K]> }
 
   actions: {
-    [K: string]: GenericActionDefinition<TEntities>
+    [K in keyof TActions]: GenericActionDefinition<TEntities, TActions[K]>
   }
 
   entities: {
@@ -35,20 +42,24 @@ export type InterfaceResolveProps<TEntities extends BaseEntities = BaseEntities>
   }
 }
 
-export class InterfaceDeclaration<TEntities extends BaseEntities = BaseEntities> {
+export class InterfaceDeclaration<
+  TEntities extends BaseEntities = BaseEntities,
+  TActions extends BaseActions = BaseActions,
+  TEvents extends BaseEntities = BaseEntities
+> {
   public readonly entities: this['props']['entities']
   public readonly name: this['props']['name']
   public readonly events: this['props']['events']
   public readonly actions: this['props']['actions']
 
-  public constructor(public readonly props: InterfaceDeclarationProps<TEntities>) {
+  public constructor(public readonly props: InterfaceDeclarationProps<TEntities, TActions, TEvents>) {
     this.name = props.name
     this.events = props.events
     this.actions = props.actions
     this.entities = props.entities
   }
 
-  public resolve(props: InterfaceResolveProps<TEntities>): InterfaceInstance {
+  public resolve(props: InterfaceResolveProps<TEntities>): InterfaceInstance<TActions, TEvents> {
     const { entities } = props
 
     const prefix = Object.keys(entities).join('.')
@@ -86,6 +97,6 @@ export class InterfaceDeclaration<TEntities extends BaseEntities = BaseEntities>
       name: this.name,
       actions,
       events,
-    }
+    } as InterfaceInstance<TActions, TEvents>
   }
 }
