@@ -14,17 +14,27 @@ const integration = new bp.Integration({
   channels,
   actions: {
     ...actions,
-    issuescreate: async (props) => {
+    issuexcreate: async (props) => {
+      const defaults: bp.actions.createIssue.input.Input = {
+        title: '',
+        description: '',
+        teamName: '',
+      }
+
       const res = await actions.createIssue({
         ...props,
         type: 'createIssue',
-        input: props.input,
+        input: {
+          ...defaults,
+          ...props.input,
+        },
       })
+
       return {
         item: res.issue,
       }
     },
-    issueslist: async (props) => {
+    issuexlist: async (props) => {
       const count = 20
       const startCursor = props.input.nextToken
       const res = await actions.listIssues({

@@ -76,7 +76,6 @@ export type EntityDefinition<TEntity extends BaseEntities[string] = BaseEntities
   }
 
 export type InterfaceInstance<TEvents extends BaseEvents = BaseEvents, TActions extends BaseActions = BaseActions> = {
-  name: string
   actions: { [K in keyof TActions]: ActionDefinition<TActions[K]> }
   events: { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
 }

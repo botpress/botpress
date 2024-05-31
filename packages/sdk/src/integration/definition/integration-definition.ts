@@ -1,5 +1,8 @@
+import { Writable } from '../../type-utils'
+import * as utils from '../../utils'
+import { EntityStore, BrandedEntity, createStore, isBranded } from './entity-store'
 import { BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates, BaseEntities } from './generic'
-import { InterfaceDeclaration, InterfaceResolveProps } from './interface-declaration'
+import { InterfaceDeclaration } from './interface-declaration'
 import {
   ConfigurationDefinition,
   EventDefinition,
@@ -9,7 +12,6 @@ import {
   UserDefinition,
   SecretDefinition,
   EntityDefinition,
-  InterfaceInstance,
 } from './types'
 
 export type IntegrationDefinitionProps<
@@ -57,11 +59,18 @@ export type IntegrationDefinitionProps<
   }
 }
 
-export type ExtensionBuilderProps<TEntities extends BaseEntities = BaseEntities> = {
-  entities: {
-    [K in keyof TEntities]: EntityDefinition<TEntities[K]>
-  }
+type InterfaceStatement = {
+  name: string
+  prefix: string
 }
+
+type InterfaceTypeArguments<TInterfaceEntities extends BaseEntities> = {
+  [K in keyof TInterfaceEntities]: BrandedEntity<TInterfaceEntities[K], string>
+}
+
+type ExtensionBuilder<TIntegrationEntities extends BaseEntities, TInterfaceEntities extends BaseEntities> = (
+  input: EntityStore<TIntegrationEntities>
+) => InterfaceTypeArguments<TInterfaceEntities>
 
 export class IntegrationDefinition<
   TConfig extends BaseConfig = BaseConfig,
@@ -86,18 +95,7 @@ export class IntegrationDefinition<
   public readonly secrets: this['props']['secrets']
   public readonly identifier: this['props']['identifier']
   public readonly entities: this['props']['entities']
-  public readonly interfaces: InterfaceInstance[] = []
-
-  public clone(
-    props: Partial<IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates, TEntities>>
-  ): IntegrationDefinition<TConfig, TEvents, TActions, TChannels, TStates, TEntities> {
-    const clone = new IntegrationDefinition<TConfig, TEvents, TActions, TChannels, TStates, TEntities>({
-      ...this,
-      ...props,
-    })
-    clone.interfaces.push(...this.interfaces)
-    return clone
-  }
+  public readonly interfaces: InterfaceStatement[] = []
 
   public constructor(
     public readonly props: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates, TEntities>
@@ -119,13 +117,50 @@ export class IntegrationDefinition<
     this.entities = props.entities
   }
 
+  public clone(
+    props: Partial<IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates, TEntities>>
+  ): IntegrationDefinition<TConfig, TEvents, TActions, TChannels, TStates, TEntities> {
+    const clone = new IntegrationDefinition<TConfig, TEvents, TActions, TChannels, TStates, TEntities>({
+      ...this,
+      ...props,
+    })
+    clone.interfaces.push(...this.interfaces)
+    return clone
+  }
+
   public extend<E extends BaseEntities>(
     interfaceDeclaration: InterfaceDeclaration<E>,
-    builder: (self: ExtensionBuilderProps<TEntities>) => InterfaceResolveProps<E>
+    builder: ExtensionBuilder<TEntities, E>
   ): this {
-    const resolveProps = builder({ entities: this.entities ?? {} } as ExtensionBuilderProps<TEntities>)
-    const interfaceInstance = interfaceDeclaration.resolve(resolveProps)
-    this.interfaces.push(interfaceInstance)
+    const namespaceDelimiter = 'x' // TODO: replace by a dot
+    const prefix = Object.keys(this.entities ?? {})
+      .map((s) => s + namespaceDelimiter)
+      .join('')
+
+    const interfaceTypeArguments = builder(createStore(this.entities))
+    const unbrandedEntity = utils.pairs(interfaceTypeArguments).find(([_k, e]) => !isBranded(e))
+    if (unbrandedEntity) {
+      // this means the user tried providing a plain schema without referencing an entity from the integration
+      throw new Error(
+        `Cannot extend interface "${interfaceDeclaration.name}" with entity "${unbrandedEntity[0]}"; the provided schema is not part of the integration's entities.`
+      )
+    }
+
+    const interfaceInstance = interfaceDeclaration.resolve({
+      entities: interfaceTypeArguments,
+      prefix,
+    })
+
+    const self = this as Writable<IntegrationDefinition>
+    const { actions, events } = interfaceInstance
+    self.actions = { ...(self.actions ?? {}), ...actions }
+    self.events = { ...(self.events ?? {}), ...events }
+
+    this.interfaces.push({
+      name: interfaceDeclaration.name,
+      prefix,
+    })
+
     return this
   }
 }

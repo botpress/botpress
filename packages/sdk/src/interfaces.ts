@@ -28,9 +28,6 @@ export const creatable = new InterfaceDeclaration({
     item: {
       schema: z.object({ id: z.string() }),
     },
-    input: {
-      schema: z.object({}),
-    },
   },
   events: {
     created: {
@@ -40,7 +37,7 @@ export const creatable = new InterfaceDeclaration({
   actions: {
     create: {
       input: {
-        schema: (args) => args.input,
+        schema: (args) => args.item.partial(),
       },
       output: {
         schema: (args) => z.object({ item: args.item }),

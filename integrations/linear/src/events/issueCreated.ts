@@ -50,7 +50,7 @@ export const fireIssueCreated = async ({ linearEvent, client, ctx }: IssueProps)
   // TODO: replace proper IDs and names with the actual values in the URL and payload
   const url = 'https://linear.app/botpress/issue/$ID/$NAME'
   await client.createEvent({
-    type: 'issuescreated',
+    type: 'issuexcreated',
     payload: {
       id: linearEvent.data.id,
       createdAt: linearEvent.data.createdAt,

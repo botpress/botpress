@@ -1,10 +1,7 @@
+import * as utils from '../../utils'
 import { GenericZuiSchema } from '../../zui'
 import { BaseActions, BaseEntities, BaseEvents } from './generic'
 import { ActionDefinition, EntityDefinition, EventDefinition, InterfaceInstance } from './types'
-
-const pairs = <K extends string, V>(obj: Record<K, V>) => Object.entries(obj) as [K, V][]
-const mapValues = <K extends string, V, R>(obj: Record<K, V>, fn: (value: V, key: K) => R): Record<K, R> =>
-  Object.fromEntries(pairs(obj).map(([key, value]) => [key, fn(value, key)])) as Record<K, R>
 
 type GenericEventDefinition<TEntities extends BaseEntities, TEvent extends BaseEvents[string] = BaseEvents[string]> = {
   schema: GenericZuiSchema<TEntities, TEvent>
@@ -38,8 +35,11 @@ export type InterfaceDeclarationProps<
 
 export type InterfaceResolveProps<TEntities extends BaseEntities = BaseEntities> = {
   entities: {
-    [K in keyof TEntities]: EntityDefinition<TEntities[K]>
+    [K in keyof TEntities]: {
+      schema: TEntities[K]
+    }
   }
+  prefix: string
 }
 
 export class InterfaceDeclaration<
@@ -60,17 +60,15 @@ export class InterfaceDeclaration<
   }
 
   public resolve(props: InterfaceResolveProps<TEntities>): InterfaceInstance<TActions, TEvents> {
-    const { entities } = props
+    const { entities, prefix } = props
 
-    const prefix = Object.keys(entities).join('.')
-
-    const entitySchemas = mapValues(entities, (entity) => entity.schema) as unknown as TEntities
+    const entitySchemas = utils.mapValues(entities, (entity) => entity.schema) as unknown as TEntities
 
     const actions: Record<string, ActionDefinition> = {}
     const events: Record<string, EventDefinition> = {}
 
     // unreference actions
-    for (const [actionName, action] of pairs(this.actions)) {
+    for (const [actionName, action] of utils.pairs(this.actions)) {
       const {
         input: { schema: inputSchema },
         output: { schema: outputSchema },
@@ -79,7 +77,7 @@ export class InterfaceDeclaration<
       const resolvedInputSchema = inputSchema(entitySchemas)
       const resolvedOutputSchema = outputSchema(entitySchemas)
 
-      const newActionName = prefix ? `${prefix}.${actionName}` : actionName
+      const newActionName = `${prefix}${actionName}`
       actions[newActionName] = {
         input: { schema: resolvedInputSchema },
         output: { schema: resolvedOutputSchema },
@@ -87,14 +85,13 @@ export class InterfaceDeclaration<
     }
 
     // unreference events
-    for (const [eventName, event] of pairs(this.events)) {
+    for (const [eventName, event] of utils.pairs(this.events)) {
       const resolvedEventSchema = event.schema(entitySchemas)
-      const newEventName = prefix ? `${prefix}.${eventName}` : eventName
+      const newEventName = `${prefix}${eventName}`
       events[newEventName] = { schema: resolvedEventSchema }
     }
 
     return {
-      name: this.name,
       actions,
       events,
     } as InterfaceInstance<TActions, TEvents>
