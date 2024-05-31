@@ -1,94 +1,16 @@
-import { SchemaDefinition } from '../../schema'
-import { AnyZodObject } from '../../type-utils'
+import { BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates, BaseEntities } from './generic'
 import { InterfaceDeclaration, InterfaceResolveProps } from './interface'
-
-type BaseConfig = AnyZodObject
-type BaseEvents = Record<string, AnyZodObject>
-type BaseActions = Record<string, AnyZodObject>
-type BaseMessages = Record<string, AnyZodObject>
-type BaseChannels = Record<string, BaseMessages>
-type BaseStates = Record<string, AnyZodObject>
-type BaseEntities = Record<string, AnyZodObject>
-
-export type TagDefinition = {
-  title?: string
-  description?: string
-}
-
-export type ConfigurationDefinition<TConfig extends BaseConfig = BaseConfig> = SchemaDefinition<TConfig> & {
-  identifier?: {
-    required?: boolean
-    linkTemplateScript?: string
-  }
-}
-
-export type EventDefinition<TEvent extends BaseEvents[string] = BaseEvents[string]> = SchemaDefinition<TEvent> & {
-  title?: string
-  description?: string
-}
-
-export type MessageDefinition<TMessage extends BaseMessages[string] = BaseMessages[string]> = SchemaDefinition<TMessage>
-
-export type ChannelDefinition<TChannel extends BaseChannels[string] = BaseChannels[string]> = {
-  title?: string
-  description?: string
-  messages: {
-    [K in keyof TChannel]: MessageDefinition<TChannel[K]>
-  }
-  message?: {
-    tags?: Record<string, TagDefinition>
-  }
-  conversation?: Partial<{
-    tags: Record<string, TagDefinition>
-    /**
-     * @deprecated
-     */
-    creation: {
-      enabled: boolean
-      requiredTags: string[]
-    }
-  }>
-}
-
-export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[string]> = {
-  title?: string
-  description?: string
-  input: SchemaDefinition<TAction>
-  output: SchemaDefinition<AnyZodObject> // cannot infer both input and output types (typescript limitation)
-}
-
-export type StateDefinition<TState extends BaseStates[string] = BaseStates[string]> = SchemaDefinition<TState> & {
-  type: 'integration' | 'conversation' | 'user'
-}
-
-export type UserDefinition = Partial<{
-  tags: Record<string, TagDefinition>
-  /**
-   * @deprecated
-   */
-  creation: {
-    enabled: boolean
-    requiredTags: string[]
-  }
-}>
-
-export type SecretDefinition = {
-  optional?: boolean
-  description?: string
-}
-
-export type EntityDefinition<TEntity extends BaseEntities[string] = BaseEntities[string]> =
-  SchemaDefinition<TEntity> & {
-    title?: string
-    description?: string
-  }
-
-export type InterfaceInstance<TEvents extends BaseEvents = BaseEvents, TActions extends BaseActions = BaseActions> = {
-  name: string
-  prefix?: string
-  actions: { [K in keyof TActions]: ActionDefinition<TActions[K]> }
-  events: { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
-}
+import {
+  ConfigurationDefinition,
+  EventDefinition,
+  ChannelDefinition,
+  ActionDefinition,
+  StateDefinition,
+  UserDefinition,
+  SecretDefinition,
+  EntityDefinition,
+  InterfaceInstance,
+} from './types'
 
 export type IntegrationDefinitionProps<
   TConfig extends BaseConfig = BaseConfig,

@@ -1,12 +1,10 @@
-import { AnyZodObject } from '../../type-utils'
 import { GenericZuiSchema } from '../../zui'
-import { ActionDefinition, EntityDefinition, EventDefinition, InterfaceInstance } from './definition'
+import { BaseEntities } from './generic'
+import { ActionDefinition, EntityDefinition, EventDefinition, InterfaceInstance } from './types'
 
 const pairs = <K extends string, V>(obj: Record<K, V>) => Object.entries(obj) as [K, V][]
 const mapValues = <K extends string, V, R>(obj: Record<K, V>, fn: (value: V, key: K) => R): Record<K, R> =>
   Object.fromEntries(pairs(obj).map(([key, value]) => [key, fn(value, key)])) as Record<K, R>
-
-type BaseEntities = Record<string, AnyZodObject>
 
 type GenericEventDefinition<TEntities extends BaseEntities> = {
   schema: GenericZuiSchema<TEntities>
@@ -35,7 +33,6 @@ export type InterfaceResolveProps<TEntities extends BaseEntities = BaseEntities>
   entities: {
     [K in keyof TEntities]: EntityDefinition<TEntities[K]>
   }
-  prefix?: string
 }
 
 export class InterfaceDeclaration<TEntities extends BaseEntities = BaseEntities> {
@@ -52,7 +49,9 @@ export class InterfaceDeclaration<TEntities extends BaseEntities = BaseEntities>
   }
 
   public resolve(props: InterfaceResolveProps<TEntities>): InterfaceInstance {
-    const { entities, prefix } = props
+    const { entities } = props
+
+    const prefix = Object.keys(entities).join('.')
 
     const entitySchemas = mapValues(entities, (entity) => entity.schema) as unknown as TEntities
 
@@ -68,7 +67,9 @@ export class InterfaceDeclaration<TEntities extends BaseEntities = BaseEntities>
 
       const resolvedInputSchema = inputSchema(entitySchemas)
       const resolvedOutputSchema = outputSchema(entitySchemas)
-      actions[actionName] = {
+
+      const newActionName = prefix ? `${prefix}.${actionName}` : actionName
+      actions[newActionName] = {
         input: { schema: resolvedInputSchema },
         output: { schema: resolvedOutputSchema },
       }
@@ -77,14 +78,14 @@ export class InterfaceDeclaration<TEntities extends BaseEntities = BaseEntities>
     // unreference events
     for (const [eventName, event] of pairs(this.events)) {
       const resolvedEventSchema = event.schema(entitySchemas)
-      events[eventName] = { schema: resolvedEventSchema }
+      const newEventName = prefix ? `${prefix}.${eventName}` : eventName
+      events[newEventName] = { schema: resolvedEventSchema }
     }
 
     return {
       name: this.name,
       actions,
       events,
-      prefix,
     }
   }
 }
