@@ -5,8 +5,7 @@ import * as utils from '../utils'
 import * as types from './typings'
 
 export namespace from {
-  export const sdk = (_i: sdk.IntegrationDefinition): types.IntegrationDefinition => {
-    const i = flattenInterfaces(_i)
+  export const sdk = (i: sdk.IntegrationDefinition): types.IntegrationDefinition => {
     return {
       id: null,
       name: i.name,
@@ -51,28 +50,3 @@ export namespace from {
     schema: utils.schema.mapZodToJsonSchema(x),
   })
 }
-
-const flattenInterfaces = (i: sdk.IntegrationDefinition): sdk.IntegrationDefinition =>
-  i.clone({
-    ...i,
-    actions: {
-      ...i.actions,
-      ...i.interfaces.reduce(
-        (acc, i) => ({
-          ...acc,
-          ...utils.records.mapKeys(i.actions, (_, actionName) => (i.prefix ? `${i.prefix}${actionName}` : actionName)),
-        }),
-        {}
-      ),
-    },
-    events: {
-      ...i.events,
-      ...i.interfaces.reduce(
-        (acc, i) => ({
-          ...acc,
-          ...utils.records.mapKeys(i.events, (_, eventName) => (i.prefix ? `${i.prefix}${eventName}` : eventName)),
-        }),
-        {}
-      ),
-    },
-  })

@@ -40,10 +40,8 @@ export default new IntegrationDefinition({
   },
 })
   .extend(interfaces.listable, (self) => ({
-    entities: { item: self.entities.issue },
-    prefix: 'issues',
+    item: self.issue,
   }))
   .extend(interfaces.creatable, (self) => ({
-    entities: { item: self.entities.issue, input: actions.createIssue.input },
-    prefix: 'issues',
+    item: self.issue,
   }))
