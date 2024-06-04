@@ -115,7 +115,7 @@ export const useFormData = (fieldSchema: JSONSchema, path: string[]) => {
     const hidden = hiddenMask === true || getPathData(context.hiddenState, path)
     const disabled = disabledMask === true || getPathData(context.disabledState, path)
     return { hidden: hidden === true, disabled: disabled === true }
-  }, [context.hiddenState, context.disabledState, path])
+  }, [context.hiddenState, context.disabledState, hiddenMask, disabledMask, path])
 
   const handlePropertyChange = useCallback(
     (path: string[], data: any) => {
