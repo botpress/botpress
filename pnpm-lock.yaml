@@ -1242,7 +1242,7 @@ importers:
         specifier: 0.20.1
         version: link:../client
       '@botpress/sdk':
-        specifier: 0.8.21
+        specifier: 0.8.22
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1357,7 +1357,7 @@ importers:
         specifier: 0.20.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.21
+        specifier: 0.8.22
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1376,7 +1376,7 @@ importers:
         specifier: 0.20.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.21
+        specifier: 0.8.22
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1395,7 +1395,7 @@ importers:
         specifier: 0.20.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.21
+        specifier: 0.8.22
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1414,7 +1414,7 @@ importers:
         specifier: 0.20.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.21
+        specifier: 0.8.22
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -1476,8 +1476,8 @@ importers:
         specifier: 0.20.1
         version: link:../client
       '@bpinternal/zui':
-        specifier: 0.8.3
-        version: 0.8.3
+        specifier: 0.8.4
+        version: 0.8.4(react@18.3.1)
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -2163,9 +2163,11 @@ packages:
       yn: 4.0.0
     dev: false
 
-  /@bpinternal/zui@0.8.3:
-    resolution: {integrity: sha512-dS1uTmBQpQf5yTqI44OCJdaL3ZWVKIU8mWEZLSQZEmZujeCBMyK2xjl8wLAw+uWuav98Q3w2htjytGq6gD0hIA==}
-    engines: {node: '>=16.0.0', pnpm: '>=9'}
+  /@bpinternal/zui@0.8.4(react@18.3.1):
+    resolution: {integrity: sha512-OAfO/FOXyhpT77nBzxS8fEcE6JrqwghOh+K8h5QYjbcPVLBF8w62qTUdk1Rrlt6hhqgeaw27Wgd3yZu6P5TxsA==}
+    engines: {node: '>=16.0.0', pnpm: 9.1.0}
+    peerDependencies:
+      react: ^18.2.0
     dependencies:
       '@apidevtools/json-schema-ref-parser': 11.6.2
       lodash: 4.17.21
