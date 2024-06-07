@@ -9,7 +9,7 @@ import { describe, expect, it } from 'vitest'
  */
 import { Client } from '../../src'
 
-describe('createAndUploadFile', () => {
+describe('uploadFile', () => {
   const client = new Client({
     apiUrl: 'http://localhost:5986',
     botId: '87e67c78-e5d3-4cf7-97de-82b1f3907879',
@@ -17,34 +17,34 @@ describe('createAndUploadFile', () => {
   })
 
   it('works with a buffer', async () => {
-    const response = await client.createAndUploadFile({
-      name: 'test.txt',
+    const response = await client.uploadFile({
+      key: 'test.txt',
       content: Buffer.from('aaa'),
     })
 
-    expect(response.file.name).toBe('test.txt')
+    expect(response.file.key).toBe('test.txt')
     expect(response.file.status).toBe('upload_completed')
     expect(response.file.url, 'File URL should have been returned').toBeTruthy()
   })
 
   it('works with plain text', async () => {
-    const response = await client.createAndUploadFile({
-      name: 'test.txt',
+    const response = await client.uploadFile({
+      key: 'test.txt',
       content: 'aaa',
     })
 
-    expect(response.file.name).toBe('test.txt')
+    expect(response.file.key).toBe('test.txt')
     expect(response.file.status).toBe('upload_completed')
     expect(response.file.url, 'File URL should have been returned').toBeTruthy()
   })
 
   it('works with a URL', async () => {
-    const response = await client.createAndUploadFile({
-      name: 'whatsapp-banner.png',
+    const response = await client.uploadFile({
+      key: 'whatsapp-banner.png',
       url: 'https://docs.botpress.cloud/docs/content/whatsapp-banner.png',
     })
 
-    expect(response.file.name).toBe('whatsapp-banner.png')
+    expect(response.file.key).toBe('whatsapp-banner.png')
     expect(response.file.status).toBe('upload_completed')
     expect(response.file.url, 'File URL should have been returned').toBeTruthy()
   })
