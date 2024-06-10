@@ -267,3 +267,9 @@ export type PatchState<TIntegration extends BaseIntegration> = <TState extends k
 ) => Promise<StateResponse<TIntegration, TState>>
 
 export type ConfigureIntegration<_TIntegration extends BaseIntegration> = Client['configureIntegration']
+
+export type UpsertFile<_TIntegration extends BaseIntegration> = Client['upsertFile']
+export type DeleteFile<_TIntegration extends BaseIntegration> = Client['deleteFile']
+export type ListFiles<_TIntegration extends BaseIntegration> = Client['listFiles']
+export type GetFile<_TIntegration extends BaseIntegration> = Client['getFile']
+export type UpdateFileMetadata<_TIntegration extends BaseIntegration> = Client['updateFileMetadata']
