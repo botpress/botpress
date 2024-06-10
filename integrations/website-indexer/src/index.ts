@@ -17,8 +17,13 @@ export default new bp.Integration({
     throw new sdk.RuntimeError('Invalid configuration') // replace this with your own validation logic
   },
   actions: {
-    indexPage: async ({ input: { pageUrl }, logger }) => {
+    indexPage: async ({ input: { pageUrl }, logger, client }) => {
       logger.forBot().debug(`Indexing page ${pageUrl}`)
+
+      const size = 1000
+      const response = await client.upsertFile({ key: pageUrl, size })
+      logger.forBot().debug(`Page ${pageUrl} indexed`)
+      logger.forBot().debug(`Response: ${JSON.stringify(response)}`)
 
       return {}
     },

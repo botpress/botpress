@@ -66,5 +66,7 @@ export class IntegrationSpecificClient<TIntegration extends BaseIntegration> {
   public patchState: routes.PatchState<TIntegration> = ((x) =>
     this.client.patchState(x)) as routes.PatchState<TIntegration>
 
+  public upsertFile: routes.UpsertFile = (x) => this.client.upsertFile(x)
+
   public configureIntegration: routes.ConfigureIntegration<TIntegration> = (x) => this.client.configureIntegration(x)
 }

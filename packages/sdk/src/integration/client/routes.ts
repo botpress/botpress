@@ -266,4 +266,6 @@ export type PatchState<TIntegration extends BaseIntegration> = <TState extends k
   >
 ) => Promise<StateResponse<TIntegration, TState>>
 
+export type UpsertFile = (x: Arg<Client['upsertFile']>) => Res<Client['upsertFile']>
+
 export type ConfigureIntegration<_TIntegration extends BaseIntegration> = Client['configureIntegration']
