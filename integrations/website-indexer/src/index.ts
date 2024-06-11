@@ -19,6 +19,16 @@ export default new bp.Integration({
     throw new sdk.RuntimeError('Invalid configuration') // replace this with your own validation logic
   },
   actions: {
+    startPoll: async ({ logger, client, ctx, input }) => {
+      logger.forBot().debug('Start poll', input)
+      await client.createEvent({
+        type: 'pollCallback',
+        payload: {},
+        conversationId: input.conversationId,
+        schedule: { delay: 10000 },
+      })
+      return {}
+    },
     indexPage: async ({ input: { pageUrl }, logger, client }) => {
       logger.forBot().debug(`Indexing page ${pageUrl}`)
 

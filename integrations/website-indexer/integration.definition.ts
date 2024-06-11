@@ -12,7 +12,26 @@ export default new IntegrationDefinition({
       optional: false,
     },
   },
+  events: {
+    pollCallback: {
+      title: 'Poll Callback',
+      description: 'Callback',
+      schema: z.object({}),
+    },
+  },
   actions: {
+    startPoll: {
+      title: 'Start Poll',
+      description: 'Starts the polling',
+      input: {
+        schema: z.object({
+          conversationId: z.string(),
+        }),
+      },
+      output: {
+        schema: z.object({}),
+      },
+    },
     indexPage: {
       title: 'Index Page',
       description: 'Indexes a website page',
