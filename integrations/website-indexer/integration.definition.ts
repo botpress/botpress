@@ -16,7 +16,9 @@ export default new IntegrationDefinition({
     pollCallback: {
       title: 'Poll Callback',
       description: 'Callback',
-      schema: z.object({}),
+      schema: z.object({
+        fileId: z.string(),
+      }),
     },
   },
   actions: {
@@ -26,10 +28,26 @@ export default new IntegrationDefinition({
       input: {
         schema: z.object({
           conversationId: z.string(),
+          fileId: z.string(),
+          delay: z.number(),
         }),
       },
       output: {
         schema: z.object({}),
+      },
+    },
+    getFileStatus: {
+      title: 'Get File Status',
+      description: 'Gets the file status',
+      input: {
+        schema: z.object({
+          fileId: z.string(),
+        }),
+      },
+      output: {
+        schema: z.object({
+          status: z.string(),
+        }),
       },
     },
     indexPage: {
@@ -41,7 +59,9 @@ export default new IntegrationDefinition({
         }),
       },
       output: {
-        schema: z.object({}),
+        schema: z.object({
+          fileId: z.string(),
+        }),
       },
     },
     testCron: {
@@ -52,6 +72,36 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({}),
+      },
+    },
+
+    searchFiles: {
+      title: 'Search Files',
+      description: 'Search files',
+      input: {
+        schema: z.object({
+          minScore: z.string(),
+          query: z.string(),
+        }),
+      },
+      output: {
+        schema: z.object({
+          answer: z.string(),
+        }),
+      },
+    },
+    fetchUrls: {
+      title: 'Fetch URLs',
+      description: 'Fetch URLs',
+      input: {
+        schema: z.object({
+          rootUrl: z.string(),
+        }),
+      },
+      output: {
+        schema: z.object({
+          urls: z.array(z.string()),
+        }),
       },
     },
   },

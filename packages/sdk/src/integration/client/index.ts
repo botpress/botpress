@@ -66,8 +66,6 @@ export class IntegrationSpecificClient<TIntegration extends BaseIntegration> {
   public patchState: routes.PatchState<TIntegration> = ((x) =>
     this.client.patchState(x)) as routes.PatchState<TIntegration>
 
-  public upsertFile: routes.UpsertFile = (x) => this.client.upsertFile(x)
-
   public configureIntegration: routes.ConfigureIntegration<TIntegration> = (x) => this.client.configureIntegration(x)
 
   public upsertFile: routes.UpsertFile<TIntegration> = (x) => this.client.upsertFile(x)
@@ -75,4 +73,5 @@ export class IntegrationSpecificClient<TIntegration extends BaseIntegration> {
   public listFiles: routes.ListFiles<TIntegration> = (x) => this.client.listFiles(x)
   public getFile: routes.GetFile<TIntegration> = (x) => this.client.getFile(x)
   public updateFileMetadata: routes.UpdateFileMetadata<TIntegration> = (x) => this.client.updateFileMetadata(x)
+  public searchFiles: routes.SearchFiles<TIntegration> = (x) => this.client.searchFiles(x)
 }
