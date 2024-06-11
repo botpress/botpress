@@ -49,6 +49,13 @@ export class BotSpecificClient<TBot extends BaseBot> {
 
   public callAction: routes.CallAction<TBot> = (x) => this.client.callAction(x)
 
+  public upsertFile: routes.UpsertFile<TBot> = (x) => this.client.upsertFile(x)
+  public deleteFile: routes.DeleteFile<TBot> = (x) => this.client.deleteFile(x)
+  public listFiles: routes.ListFiles<TBot> = (x) => this.client.listFiles(x)
+  public getFile: routes.GetFile<TBot> = (x) => this.client.getFile(x)
+  public updateFileMetadata: routes.UpdateFileMetadata<TBot> = (x) => this.client.updateFileMetadata(x)
+  public searchFiles: routes.SearchFiles<TBot> = (x) => this.client.searchFiles(x)
+
   /**
    * @deprecated Use `callAction` to delegate the conversation creation to an integration.
    */
