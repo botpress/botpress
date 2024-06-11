@@ -17,7 +17,8 @@ export default new IntegrationDefinition({
       title: 'Poll Callback',
       description: 'Callback',
       schema: z.object({
-        fileId: z.string(),
+        // studio does not support string[] input
+        fileIds: z.string(),
       }),
     },
   },
@@ -28,7 +29,8 @@ export default new IntegrationDefinition({
       input: {
         schema: z.object({
           conversationId: z.string(),
-          fileId: z.string(),
+          // studio does not support string[] input
+          fileIds: z.string(),
           delay: z.number(),
         }),
       },
@@ -41,7 +43,8 @@ export default new IntegrationDefinition({
       description: 'Gets the file status',
       input: {
         schema: z.object({
-          fileId: z.string(),
+          // studio does not support string[] input
+          fileIds: z.string(),
         }),
       },
       output: {
@@ -50,17 +53,19 @@ export default new IntegrationDefinition({
         }),
       },
     },
-    indexPage: {
-      title: 'Index Page',
-      description: 'Indexes a website page',
+    indexUrls: {
+      title: 'Index URLs',
+      description: 'Indexes URLs',
       input: {
         schema: z.object({
-          pageUrl: z.string(),
+          // studio does not support string[] input
+          pageUrls: z.string(),
         }),
       },
       output: {
         schema: z.object({
-          fileId: z.string(),
+          // studio does not support string[] output
+          fileIds: z.string(),
         }),
       },
     },
@@ -74,7 +79,6 @@ export default new IntegrationDefinition({
         schema: z.object({}),
       },
     },
-
     searchFiles: {
       title: 'Search Files',
       description: 'Search files',

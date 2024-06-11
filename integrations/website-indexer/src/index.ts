@@ -28,36 +28,51 @@ export default new bp.Integration({
       logger.forBot().debug('Start poll', input)
       await client.createEvent({
         type: 'pollCallback',
-        payload: { fileId: input.fileId },
+        payload: { fileIds: input.fileIds },
         conversationId: input.conversationId,
         schedule: { delay: input.delay },
       })
       return {}
     },
-    getFileStatus: async ({ input: { fileId }, logger, client }) => {
-      logger.forBot().debug(`Getting file status for ${fileId}`)
-      const response = await client.getFile({ id: fileId })
-      logger.forBot().debug(`File status: ${response.file.status}`)
-      return { status: response.file.status }
+    getFileStatus: async ({ input, logger, client }) => {
+      logger.forBot().debug(`Getting file status for ${input.fileIds}`)
+      const fileIdsSchema = z.array(z.string())
+      const fileIds = fileIdsSchema.parse(JSON.parse(input.fileIds))
+      // const fileIds = input.fileIds as unknown as string[]
+      const files = await Promise.all(fileIds.map((id) => client.getFile({ id })))
+      const statuses = files.map((x) => x.file.status)
+      logger.forBot().debug(`File statuses: ${statuses}`)
+      const status = statuses.every((x) => x === 'indexing_completed')
+        ? 'indexing_completed'
+        : statuses.some((x) => x === 'indexing_failed')
+        ? 'indexing_failed'
+        : 'indexing_pending'
+      return { status }
     },
-    indexPage: async ({ input: { pageUrl }, logger, client }) => {
-      logger.forBot().debug(`Indexing page ${pageUrl}`)
+    indexUrls: async ({ input, logger, client }) => {
+      const pageUrlsSchema = z.object({
+        urls: z.array(z.string()),
+      })
+      const { urls: pageUrls } = pageUrlsSchema.parse(JSON.parse(input.pageUrls))
+
+      logger.forBot().debug(`Indexing ${pageUrls.length} urls`)
 
       const scraper = new Scraper(logger, bp.secrets.SCRAPER_API_KEY)
-      const scrapingResponse = await scraper.fetchPageHtml(pageUrl)
-      const response = await client.upsertFile({
-        key: pageUrl,
-        size: scrapingResponse.content.byteLength,
-        index: true,
-        contentType: 'text/html',
-      })
-      logger.forBot().debug(`Page ${pageUrl} indexed`)
-      logger.forBot().debug(`Response: ${JSON.stringify(response)}`)
+      const files = await Promise.all(
+        pageUrls.map(async (url) => {
+          const scrapingResponse = await scraper.fetchPageHtml(url)
+          const response = await client.upsertFile({
+            key: url,
+            size: scrapingResponse.content.byteLength,
+            index: true,
+            contentType: 'text/html',
+          })
+          await axios.put(response.file.uploadUrl, scrapingResponse.content)
+          return response.file.id
+        })
+      )
 
-      await axios.put(response.file.uploadUrl, scrapingResponse.content)
-      logger.forBot().debug(`Page ${pageUrl} uploaded`)
-
-      return { fileId: response.file.id }
+      return { fileIds: JSON.stringify(files) }
     },
     testCron: async ({ logger }) => {
       logger.forBot().debug('Test cron job')
