@@ -1118,13 +1118,31 @@ importers:
       '@botpress/sdk-addons':
         specifier: workspace:*
         version: link:../../packages/sdk-addons
+      axios:
+        specifier: ^1.7.2
+        version: 1.7.2
+      axios-retry:
+        specifier: ^4.4.0
+        version: 4.4.0(axios@1.7.2)
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
+      uuid:
+        specifier: ^9.0.0
+        version: 9.0.0
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@types/lodash':
+        specifier: ^4.14.191
+        version: 4.14.195
       '@types/node':
         specifier: ^18.11.17
         version: 18.19.10
+      '@types/uuid':
+        specifier: ^9.0.1
+        version: 9.0.1
       nodemon:
         specifier: ^3.1.3
         version: 3.1.3
@@ -5007,6 +5025,15 @@ packages:
       - debug
     dev: false
 
+  /axios-retry@4.4.0(axios@1.7.2):
+    resolution: {integrity: sha512-yewTKjzl6jSgc+2M7FCJ3LxRGgL1iiXHcj+E6h6xie6H1mTHr7yqaUroWIvVXG1UKSPwGDXxV05YxtGvrD6Paw==}
+    peerDependencies:
+      axios: 0.x || 1.x
+    dependencies:
+      axios: 1.7.2
+      is-retry-allowed: 2.2.0
+    dev: false
+
   /axios@0.21.4(debug@4.3.4):
     resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
     dependencies:
@@ -5106,6 +5133,16 @@ packages:
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
+
+  /axios@1.7.2:
+    resolution: {integrity: sha512-2A8QhOMrbomlDuiLeK9XibIBzuHeRcqqNOHp0Cyp5EoJ1IFDh+XZH3A6BkXtv0K4gFGCI0Y4BM7B1wOEi0Rmgw==}
+    dependencies:
+      follow-redirects: 1.15.6(debug@4.3.4)
+      form-data: 4.0.0
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
 
   /b4a@1.6.6:
     resolution: {integrity: sha512-5Tk1HLk6b6ctmjIkAcU/Ujv/1WqiDl0F0JdRCR80VsOcUlHcu7pWeWRlOqQLHfDEsVx9YH/aif5AG4ehoCtTmg==}
@@ -8166,6 +8203,11 @@ packages:
     dependencies:
       call-bind: 1.0.2
       has-tostringtag: 1.0.0
+    dev: false
+
+  /is-retry-allowed@2.2.0:
+    resolution: {integrity: sha512-XVm7LOeLpTW4jV19QSH38vkswxoLud8sQ57YwJVTPWdiaI9I8keEhGFpBlslyVsgdQy4Opg8QOLb8YRgsyZiQg==}
+    engines: {node: '>=10'}
     dev: false
 
   /is-set@2.0.2:
@@ -11250,7 +11292,7 @@ packages:
   /trello.js@1.2.6:
     resolution: {integrity: sha512-ds7prbYHRp1SeNsDHTbLLfN1dOTBfg1AZ+/hnov25aglveFTNK7q/1KSRC533Fcyep7PdngjpWUKpjlGlkFl/Q==}
     dependencies:
-      axios: 1.6.8
+      axios: 1.7.2
       form-data: 4.0.0
       tslib: 2.6.2
     transitivePeerDependencies:
