@@ -1133,6 +1133,9 @@ importers:
       uuid:
         specifier: ^9.0.0
         version: 9.0.0
+      xml2js:
+        specifier: ^0.6.2
+        version: 0.6.2
       xml2json:
         specifier: ^0.12.0
         version: 0.12.0
@@ -1149,6 +1152,9 @@ importers:
       '@types/uuid':
         specifier: ^9.0.1
         version: 9.0.1
+      '@types/xml2js':
+        specifier: ^0.4.14
+        version: 0.4.14
       '@types/xml2json':
         specifier: ^0.11.6
         version: 0.11.6
@@ -4499,6 +4505,12 @@ packages:
     dependencies:
       '@types/node': 18.19.10
     dev: false
+
+  /@types/xml2js@0.4.14:
+    resolution: {integrity: sha512-4YnrRemBShWRO2QjvUin8ESA41rH+9nQGLUGZV/1IDhi3SL9OhdpNC/MrulTWuptXKwhx/aDxE7toV0f/ypIXQ==}
+    dependencies:
+      '@types/node': 18.19.10
+    dev: true
 
   /@types/xml2json@0.11.6:
     resolution: {integrity: sha512-OYZ5cB4zctk4JdK1MGdLmeBMdmg+/AClCUspQ6KtQ2vZLJkSpm0XWE9H0vCfCGlXvbqn9CBqIda2dXX2KAE/5w==}
@@ -12356,6 +12368,14 @@ packages:
 
   /xml2js@0.5.0:
     resolution: {integrity: sha512-drPFnkQJik/O+uPKpqSgr22mpuFHqKdbS835iAQrUC73L2F5WkboIRd63ai/2Yg6I1jzifPFKH2NTK+cfglkIA==}
+    engines: {node: '>=4.0.0'}
+    dependencies:
+      sax: 1.2.4
+      xmlbuilder: 11.0.1
+    dev: false
+
+  /xml2js@0.6.2:
+    resolution: {integrity: sha512-T4rieHaC1EXcES0Kxxj4JWgaUQHDk+qwHcYOCFHfiwKz7tOVPLq7Hjq9dM1WCMhylqMEfP7hMcOIChvotiZegA==}
     engines: {node: '>=4.0.0'}
     dependencies:
       sax: 1.2.4

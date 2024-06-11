@@ -24,7 +24,7 @@ export function buildCode(p: BuildCodeProps<true>): Promise<BuildResult>
 export function buildCode(p: BuildCodeProps<false>): Promise<BuildResult & { outputFiles: OutputFile[] }>
 export function buildCode<W extends boolean>({
   cwd,
-  minify = true,
+  minify = false,
   bundle = true,
   sourcemap = false,
   logLevel = 'silent',
@@ -59,7 +59,7 @@ export function buildEntrypoint(p: BuildEntrypointProps<true>): Promise<BuildRes
 export function buildEntrypoint(p: BuildEntrypointProps<false>): Promise<BuildResult & { outputFiles: OutputFile[] }>
 export function buildEntrypoint<W extends boolean>({
   cwd,
-  minify = true,
+  minify = false,
   bundle = true,
   sourcemap = false,
   logLevel = 'silent',

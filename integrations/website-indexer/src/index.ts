@@ -3,7 +3,8 @@ import axios from 'axios'
 import _ from 'lodash'
 import parseRobots from 'robots-parser'
 import Url from 'url'
-import xml2json from 'xml2json'
+// import xml2json from 'xml2json'
+import xml2js from 'xml2js'
 import { Scraper } from './scraper'
 import * as bp from '.botpress'
 
@@ -80,7 +81,8 @@ export default new bp.Integration({
       return { answer: topPassage.content }
     },
     fetchUrls: async ({ input: { rootUrl } }) => {
-      return { urls: await fetchUrls(rootUrl) }
+      const urls = await fetchUrls(rootUrl)
+      return { urls: urls.slice(0, 2) } // todo: return all pages
     },
   },
   channels: {},
@@ -171,7 +173,9 @@ export const fetchSitemap = async (options: z.infer<typeof loadSitemapSchema>): 
 
   type Sitemap = { sitemap: { loc: string } } | { sitemap: { loc: string }[] }
 
-  const { urlset, sitemapindex } = JSON.parse(xml2json.toJson(data)) as {
+  const parser = new xml2js.Parser({ trim: true, explicitArray: false })
+  const parsedXml = await parser.parseStringPromise(data)
+  const { urlset, sitemapindex } = parsedXml as {
     urlset?: {
       url: UrlSetItem | UrlSetItem[]
     }

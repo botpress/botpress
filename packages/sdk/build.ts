@@ -8,7 +8,7 @@ void esbuild.build({
   entryPoints: ['./src/index.ts'],
   bundle: true,
   platform: 'node',
-  minify: true,
+  minify: false,
   sourcemap: true,
   outfile: './dist/index.js',
   format: 'cjs',
