@@ -135,3 +135,10 @@ export type CallAction<TBot extends BaseBot> = <ActionType extends keyof types.E
 ) => Promise<{
   output: Cast<types.EnumerateActions<TBot>[ActionType], types.IntegrationInstanceActionDefinition>['output']
 }>
+
+export type UpsertFile<_TBot extends BaseBot> = Client['upsertFile']
+export type DeleteFile<_TBot extends BaseBot> = Client['deleteFile']
+export type ListFiles<_TBot extends BaseBot> = Client['listFiles']
+export type GetFile<_TBot extends BaseBot> = Client['getFile']
+export type UpdateFileMetadata<_TBot extends BaseBot> = Client['updateFileMetadata']
+export type SearchFiles<_TBot extends BaseBot> = Client['searchFiles']

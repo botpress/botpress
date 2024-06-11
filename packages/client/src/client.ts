@@ -33,19 +33,19 @@ export class Client extends gen.Client implements types.IClient {
   }
 
   /**
-   * Creates and uploads a new file in a single step. Returns an object containing the file metadata and the URL to retrieve the file.
+   * Create/update and upload a file in a single step. Returns an object containing the file metadata and the URL to retrieve the file.
    */
-  public readonly createAndUploadFile = async ({
-    name,
+  public readonly uploadFile = async ({
+    key,
     index,
     tags,
     contentType,
     accessPolicies,
     content,
     url,
-  }: types.ClientInputs['createAndUploadFile']): Promise<types.ClientOutputs['createAndUploadFile']> => {
+  }: types.ClientInputs['uploadFile']): Promise<types.ClientOutputs['uploadFile']> => {
     if (url && content) {
-      throw new errors.CreateAndUploadFileError('Cannot provide both content and URL, please provide only one of them')
+      throw new errors.UploadFileError('Cannot provide both content and URL, please provide only one of them')
     }
 
     if (url) {
@@ -53,18 +53,18 @@ export class Client extends gen.Client implements types.IClient {
         .get(url, { responseType: 'arraybuffer' })
         .then((res) => res.data)
         .catch((err) => {
-          throw new errors.CreateAndUploadFileError(`Failed to download file from provided URL: ${err.message}`, err)
+          throw new errors.UploadFileError(`Failed to download file from provided URL: ${err.message}`, err)
         })
     }
 
     if (!content) {
-      throw new errors.CreateAndUploadFileError('No content was provided for the file')
+      throw new errors.UploadFileError('No content was provided for the file')
     }
 
     const buffer = content instanceof Buffer ? content : Buffer.from(content)
 
-    const { file } = await this.createFile({
-      name,
+    const { file } = await this.upsertFile({
+      key,
       tags,
       index,
       accessPolicies,
@@ -77,7 +77,7 @@ export class Client extends gen.Client implements types.IClient {
         maxBodyLength: Infinity,
       })
     } catch (err: any) {
-      throw new errors.CreateAndUploadFileError(`Failed to upload file: ${err.message}`, <AxiosError>err, file)
+      throw new errors.UploadFileError(`Failed to upload file: ${err.message}`, <AxiosError>err, file)
     }
 
     return await this.getFile({ id: file.id })
