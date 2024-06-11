@@ -36,3 +36,7 @@ export const createStore = <TEntities extends BaseEntities>(
 export const isBranded = (entity: BrandedEntity): boolean => {
   return entity[entityKey] !== undefined
 }
+
+export const getName = (entity: BrandedEntity): string => {
+  return entity[entityKey]
+}

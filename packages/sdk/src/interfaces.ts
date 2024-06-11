@@ -1,12 +1,23 @@
 import { InterfaceDeclaration } from './integration/definition'
 import z from './zui'
 
+const withId = (schema: z.ZodTypeAny) => z.intersection(schema, z.object({ id: z.string() }))
+
+const capitalize = (s: string) => s[0]!.toUpperCase() + s.slice(1)
+const camelCase = (...parts: string[]) => {
+  const [first, ...rest] = parts.filter((s) => s.length > 0).map((s) => s.toLowerCase())
+  if (!first) {
+    return ''
+  }
+  return [first, ...rest.map(capitalize)].join('')
+}
+
 const nextToken = z.string().optional()
 export const listable = new InterfaceDeclaration({
   name: 'listable',
   entities: {
     item: {
-      schema: z.object({ id: z.string() }),
+      schema: z.object({}),
     },
   },
   events: {},
@@ -16,34 +27,120 @@ export const listable = new InterfaceDeclaration({
         schema: () => z.object({ nextToken }),
       },
       output: {
-        schema: (args) => z.object({ items: z.array(args.item), meta: z.object({ nextToken }) }),
+        schema: (args) =>
+          z.object({
+            items: z.array(withId(args.item)),
+            meta: z.object({ nextToken }),
+          }),
       },
     },
   },
+  templateName: (name, props) => camelCase(props.item, name), // issueList
 })
 
 export const creatable = new InterfaceDeclaration({
   name: 'creatable',
   entities: {
     item: {
-      schema: z.object({ id: z.string() }),
+      schema: z.object({}),
     },
   },
   events: {
     created: {
-      schema: (args) => args.item,
+      schema: (args) =>
+        z.object({
+          item: withId(args.item),
+        }),
     },
   },
   actions: {
     create: {
       input: {
-        schema: (args) => args.item.partial(),
+        schema: (args) => z.object({ item: args.item }),
       },
       output: {
-        schema: (args) => z.object({ item: args.item }),
+        schema: (args) => z.object({ item: withId(args.item) }),
       },
     },
   },
+  templateName: (name, props) => camelCase(props.item, name), // issueCreate, issueCreated
+})
+
+export const readable = new InterfaceDeclaration({
+  name: 'readable',
+  entities: {
+    item: {
+      schema: z.object({}),
+    },
+  },
+  events: {},
+  actions: {
+    read: {
+      input: {
+        schema: () => z.object({ id: z.string() }),
+      },
+      output: {
+        schema: (args) => z.object({ item: withId(args.item) }),
+      },
+    },
+  },
+  templateName: (name, props) => camelCase(props.item, name), // issueRead
+})
+
+export const updatable = new InterfaceDeclaration({
+  name: 'updatable',
+  entities: {
+    item: {
+      schema: z.object({}),
+    },
+  },
+  events: {
+    updated: {
+      schema: (args) =>
+        z.object({
+          item: withId(args.item),
+        }),
+    },
+  },
+  actions: {
+    update: {
+      input: {
+        schema: (args) => z.object({ id: z.string(), item: args.item }),
+      },
+      output: {
+        schema: (args) => z.object({ item: withId(args.item) }),
+      },
+    },
+  },
+  templateName: (name, props) => camelCase(props.item, name), // issueUpdate, issueUpdated
+})
+
+export const deletable = new InterfaceDeclaration({
+  name: 'deletable',
+  entities: {
+    item: {
+      schema: z.object({}),
+    },
+  },
+  events: {
+    deleted: {
+      schema: (args) =>
+        z.object({
+          item: withId(args.item),
+        }),
+    },
+  },
+  actions: {
+    delete: {
+      input: {
+        schema: () => z.object({ id: z.string() }),
+      },
+      output: {
+        schema: (args) => z.object({ item: withId(args.item) }),
+      },
+    },
+  },
+  templateName: (name, props) => camelCase(props.item, name), // issueDelete, issueDeleted
 })
 
 export const hitl = new InterfaceDeclaration({

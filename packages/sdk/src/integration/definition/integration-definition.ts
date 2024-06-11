@@ -1,8 +1,8 @@
 import { Writable } from '../../type-utils'
 import * as utils from '../../utils'
-import { EntityStore, BrandedEntity, createStore, isBranded } from './entity-store'
+import { EntityStore, BrandedEntity, createStore, isBranded, getName } from './entity-store'
 import { BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates, BaseEntities } from './generic'
-import { InterfaceDeclaration } from './interface-declaration'
+import { InterfaceDeclaration, InterfaceResolveProps } from './interface-declaration'
 import {
   ConfigurationDefinition,
   EventDefinition,
@@ -137,8 +137,8 @@ export class IntegrationDefinition<
       .map((s) => s + namespaceDelimiter)
       .join('')
 
-    const interfaceTypeArguments = builder(createStore(this.entities))
-    const unbrandedEntity = utils.pairs(interfaceTypeArguments).find(([_k, e]) => !isBranded(e))
+    const extensionBuilderOutput = builder(createStore(this.entities)) as Record<string, BrandedEntity>
+    const unbrandedEntity = utils.pairs(extensionBuilderOutput).find(([_k, e]) => !isBranded(e))
     if (unbrandedEntity) {
       // this means the user tried providing a plain schema without referencing an entity from the integration
       throw new Error(
@@ -146,9 +146,13 @@ export class IntegrationDefinition<
       )
     }
 
+    const interfaceTypeArguments = utils.mapValues(extensionBuilderOutput, (e) => ({
+      name: getName(e),
+      schema: e.schema,
+    }))
+
     const interfaceInstance = interfaceDeclaration.resolve({
-      entities: interfaceTypeArguments,
-      prefix,
+      entities: interfaceTypeArguments as InterfaceResolveProps<E>['entities'],
     })
 
     const self = this as Writable<IntegrationDefinition>

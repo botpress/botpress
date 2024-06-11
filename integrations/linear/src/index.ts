@@ -1,3 +1,4 @@
+import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 import actions from './actions'
@@ -14,7 +15,7 @@ const integration = new bp.Integration({
   channels,
   actions: {
     ...actions,
-    issuexcreate: async (props) => {
+    issueCreate: async (props) => {
       const defaults: bp.actions.createIssue.input.Input = {
         title: '',
         description: '',
@@ -34,7 +35,7 @@ const integration = new bp.Integration({
         item: res.issue,
       }
     },
-    issuexlist: async (props) => {
+    issueList: async (props) => {
       const count = 20
       const startCursor = props.input.nextToken
       const res = await actions.listIssues({
@@ -48,6 +49,36 @@ const integration = new bp.Integration({
       return {
         items: res.issues,
         meta: { nextToken: res.nextCursor },
+      }
+    },
+    issueUpdate: async (props) => {
+      const res = await actions.updateIssue({
+        ...props,
+        type: 'updateIssue',
+        input: {
+          issueId: props.input.id,
+        },
+      })
+
+      if (!res.issue) {
+        throw new sdk.RuntimeError('Issue not found')
+      }
+
+      return {
+        item: res.issue,
+      }
+    },
+    issueRead: async (props) => {
+      const res = await actions.getIssue({
+        ...props,
+        type: 'getIssue',
+        input: {
+          issueId: props.input.id,
+        },
+      })
+
+      return {
+        item: res,
       }
     },
   },

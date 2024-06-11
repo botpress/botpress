@@ -1,10 +1,10 @@
 import { IntegrationDefinition, interfaces } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { actions, channels, events, configuration, user, states, schemas } from './src/definitions'
+import { actions, channels, configuration, user, states, entities } from './src/definitions'
 
 export default new IntegrationDefinition({
-  name: 'linear',
-  version: '0.4.3',
+  name: 'fleur/linear',
+  version: '0.0.1',
   title: 'Linear',
   description:
     'Elevate project management with Linear. Update, create, and track issues effortlessly. Improve collaboration with workflow actions like marking duplicates, managing teams and connect your chatbot directly in discussions',
@@ -17,15 +17,8 @@ export default new IntegrationDefinition({
   },
   user,
   actions,
-  events,
   states,
-  entities: {
-    issue: {
-      title: 'Issue',
-      description: 'A linear issue',
-      schema: schemas.issueSchema,
-    },
-  },
+  entities,
   secrets: {
     CLIENT_ID: {
       description: 'The client ID of your Linear OAuth app.',
@@ -43,5 +36,11 @@ export default new IntegrationDefinition({
     item: self.issue,
   }))
   .extend(interfaces.creatable, (self) => ({
+    item: self.issue,
+  }))
+  .extend(interfaces.readable, (self) => ({
+    item: self.issue,
+  }))
+  .extend(interfaces.updatable, (self) => ({
     item: self.issue,
   }))
