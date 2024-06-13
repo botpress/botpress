@@ -22,8 +22,6 @@ export async function generateContent(
     provider: string
   }
 ): Promise<GenerateContentOutput> {
-  logger.forBot().debug('Generating content for input:', input)
-
   const messages = input.messages.map(mapToOpenAIMessage)
 
   if (input.systemPrompt) {
