@@ -80,6 +80,7 @@ export type GenerateContentInput = z.infer<typeof GenerateContentInputSchema>
 
 export const GenerateContentOutputSchema = z.object({
   id: z.string(),
+  provider: z.string(),
   model: z.string(),
   choices: z.array(
     MessageSchema.omit({ role: true }).extend({

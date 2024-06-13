@@ -17,7 +17,10 @@ import { GenerateContentInput, GenerateContentOutput, ToolCall, Message } from '
 export async function generateContent(
   input: GenerateContentInput,
   openAIClient: OpenAI,
-  logger: IntegrationLogger
+  logger: IntegrationLogger,
+  params: {
+    provider: string
+  }
 ): Promise<GenerateContentOutput> {
   logger.forBot().debug('Generating content for input:', input)
 
@@ -46,6 +49,7 @@ export async function generateContent(
 
   return <GenerateContentOutput>{
     id: response.id,
+    provider: params.provider,
     model: response.model,
     choices: response.choices.map((choice) => ({
       role: choice.message.role,

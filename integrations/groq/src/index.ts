@@ -12,7 +12,7 @@ export default new bp.Integration({
         apiKey: bp.secrets.GROQ_API_KEY,
       })
 
-      return await openai.generateContent(input as GenerateContentInput, groq, logger)
+      return await openai.generateContent(input as GenerateContentInput, groq, logger, { provider: 'groq' })
     },
   },
   channels: {},

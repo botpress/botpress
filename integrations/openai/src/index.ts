@@ -11,7 +11,7 @@ export default new bp.Integration({
         apiKey: bp.secrets.OPENAI_API_KEY,
       })
 
-      return await openai.generateContent(input as GenerateContentInput, openAIClient, logger)
+      return await openai.generateContent(input as GenerateContentInput, openAIClient, logger, { provider: 'openai' })
     },
   },
   channels: {},
