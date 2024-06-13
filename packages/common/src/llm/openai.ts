@@ -1,5 +1,6 @@
-import OpenAI from 'openai'
 import { InvalidPayloadError } from '@botpress/client'
+import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
+import OpenAI from 'openai'
 import {
   ChatCompletion,
   ChatCompletionAssistantMessageParam,
@@ -11,7 +12,6 @@ import {
   ChatCompletionToolMessageParam,
   ChatCompletionUserMessageParam,
 } from 'openai/resources'
-import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 import { GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './schemas'
 
 export async function generateContent(
@@ -109,7 +109,9 @@ function mapToOpenAIMessage(message: Message): ChatCompletionMessageParam {
 }
 
 function mapToOpenAIMessageContent(message: Message) {
-  if (message.type === 'tool_calls') return undefined
+  if (message.type === 'tool_calls') {
+    return undefined
+  }
 
   if (!message.content) {
     throw new InvalidPayloadError('`content` is required when message type is not "tool_calls"')
@@ -147,7 +149,9 @@ function mapToOpenAIMessageContent(message: Message) {
 function mapToOpenAIToolChoice(
   toolChoice: GenerateContentInput['toolChoice']
 ): ChatCompletionToolChoiceOption | undefined {
-  if (!toolChoice) return undefined
+  if (!toolChoice) {
+    return undefined
+  }
 
   switch (toolChoice.type) {
     case '': // TODO: remove once Studio issue is fixed

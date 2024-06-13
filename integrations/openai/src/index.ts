@@ -1,6 +1,6 @@
+import { GenerateContentInput, openai } from '@botpress/common'
 import OpenAI from 'openai'
 import * as bp from '.botpress'
-import { GenerateContentInput, openai } from '@botpress/common'
 
 export default new bp.Integration({
   register: async () => {},

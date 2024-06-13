@@ -1,6 +1,6 @@
-import { IntegrationDefinition, z } from '@botpress/sdk'
-import { integrationName } from './package.json'
+import { IntegrationDefinition } from '@botpress/sdk'
 import { GenerateContentInputSchema, GenerateContentOutputSchema } from '../../packages/common/src'
+import { integrationName } from './package.json'
 
 export default new IntegrationDefinition({
   name: integrationName,
