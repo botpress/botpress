@@ -1,0 +1,19 @@
+import OpenAI from 'openai'
+import * as bp from '.botpress'
+import { GenerateContentInput, openai } from '@botpress/common'
+
+export default new bp.Integration({
+  register: async () => {},
+  unregister: async () => {},
+  actions: {
+    generateContent: async ({ input, logger }) => {
+      const openAIClient = new OpenAI({
+        apiKey: bp.secrets.OPENAI_API_KEY,
+      })
+
+      return await openai.generateContent(input as GenerateContentInput, openAIClient, logger)
+    },
+  },
+  channels: {},
+  handler: async () => {},
+})
