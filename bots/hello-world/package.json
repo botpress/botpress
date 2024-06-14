@@ -3,7 +3,7 @@
   "description": "Hello-world bot",
   "private": true,
   "scripts": {
-    "type:check": "tsc --noEmit"
+    "check:type": "tsc --noEmit"
   },
   "dependencies": {
     "@botpress/cli": "workspace:*",

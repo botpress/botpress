@@ -1,16 +1,16 @@
 {
   "name": "@botpress/cli",
-  "version": "0.8.30",
+  "version": "0.8.31",
   "description": "Botpress CLI",
   "scripts": {
     "build": "pnpm run bundle && pnpm run template:gen",
     "dev": "ts-node -T src/index.ts",
     "start": "node dist/index.js",
-    "type:check": "tsc --noEmit",
+    "check:type": "tsc --noEmit",
     "bundle": "ts-node -T build.ts",
     "template:gen": "pnpm -r --stream -F @bp-templates/* exec bp gen",
-    "e2e:test": "ts-node -T ./e2e",
-    "unit:test": "pnpm vitest --run"
+    "test:e2e": "ts-node -T ./e2e",
+    "test:unit": "pnpm vitest --run"
   },
   "keywords": [],
   "author": "",
@@ -21,7 +21,7 @@
   "main": "dist/index.js",
   "dependencies": {
     "@botpress/client": "0.22.0",
-    "@botpress/sdk": "0.8.25",
+    "@botpress/sdk": "0.8.26",
     "@bpinternal/const": "^0.0.20",
     "@bpinternal/tunnel": "^0.1.1",
     "@bpinternal/yargs-extra": "^0.0.3",

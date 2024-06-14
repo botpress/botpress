@@ -268,6 +268,7 @@ export type PatchState<TIntegration extends BaseIntegration> = <TState extends k
 
 export type ConfigureIntegration<_TIntegration extends BaseIntegration> = Client['configureIntegration']
 
+export type UploadFile<_TIntegration extends BaseIntegration> = Client['uploadFile']
 export type UpsertFile<_TIntegration extends BaseIntegration> = Client['upsertFile']
 export type DeleteFile<_TIntegration extends BaseIntegration> = Client['deleteFile']
 export type ListFiles<_TIntegration extends BaseIntegration> = Client['listFiles']

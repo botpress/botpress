@@ -12,16 +12,16 @@
     "https": false
   },
   "scripts": {
-    "type:check": "tsc --noEmit",
+    "check:type": "tsc --noEmit",
     "build:type": "tsc --emitDeclarationOnly --declaration",
     "build:browser": "ts-node -T ./build.ts --browser",
     "build:node": "ts-node -T ./build.ts --node",
     "build:bundle": "ts-node -T ./build.ts --bundle",
     "build": "pnpm build:type && pnpm build:node && pnpm build:browser && pnpm build:bundle",
     "generate": "ts-node ./openapi.ts",
-    "test": "pnpm run e2e:test",
     "test:manual": "vitest tests/manual/file-upload",
-    "e2e:test": "ts-node -T ./tests/e2e/node.ts && ts-node -T ./tests/e2e/browser"
+    "test:e2e": "ts-node -T ./tests/e2e/node.ts && ts-node -T ./tests/e2e/browser",
+    "test": "pnpm run test:e2e"
   },
   "dependencies": {
     "axios": "^1.6.1",
