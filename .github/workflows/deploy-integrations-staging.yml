@@ -35,3 +35,4 @@ jobs:
           gmail_secrets: '' # secrets should already exist
           linear_secrets: '' # secrets should already exst
           slack_secrets: '' # secrets should already exist
+          extra_filter: '-F "!@botpresshub/*"' # TODO: remove this line; its only a test
