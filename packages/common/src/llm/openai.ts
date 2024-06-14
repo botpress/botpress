@@ -130,8 +130,14 @@ function mapToOpenAIMessageContent(message: Message) {
       return message.content.map((content) => {
         switch (content.type) {
           case 'text':
+            if (!content.text) {
+              throw new InvalidPayloadError('`text` is required when part type is "text"')
+            }
             return <ChatCompletionContentPartText>{ type: 'text', text: content.text }
           case 'image':
+            if (!content.url) {
+              throw new InvalidPayloadError('`url` is required when part type is "image"')
+            }
             return <ChatCompletionContentPartImage>{
               type: 'image_url',
               image_url: {
