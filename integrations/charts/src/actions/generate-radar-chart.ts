@@ -6,7 +6,7 @@ export const generateRadarChart: bp.IntegrationProps['actions']['generateRadarCh
   input,
   logger,
   type,
-  ctx
+  ctx,
 }) => {
   logger.forBot().debug('Generating radar chart', { input, type })
 
@@ -17,20 +17,20 @@ export const generateRadarChart: bp.IntegrationProps['actions']['generateRadarCh
       datasets: [
         {
           label: input.title || 'Radar Chart',
-          data: input.data
-        }
-      ]
+          data: input.data,
+        },
+      ],
     },
     options: {
       scales: {
         r: {
           title: {
             display: true,
-            text: input.axisTitle || 'Axis'
-          }
-        }
-      }
-    }
+            text: input.axisTitle || 'Axis',
+          },
+        },
+      },
+    },
   }
 
   const imageUrl = await buildChart({ chartConfig, botId: ctx.botId, client, fileName: 'radar_chart' })

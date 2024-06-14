@@ -11,6 +11,6 @@ export default new IntegrationDefinition({
   actions: actionDefinitions,
   secrets: {
     SCREENSHOT_API_KEY: {},
-    EXTRACT_CONTENT_KEY: {}
-  }
+    EXTRACT_CONTENT_KEY: {},
+  },
 })

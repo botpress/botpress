@@ -6,7 +6,7 @@ export const generateBubbleChart: bp.IntegrationProps['actions']['generateBubble
   input,
   logger,
   type,
-  ctx
+  ctx,
 }) => {
   logger.forBot().debug('Generating bubble chart', { input, type })
 
@@ -16,26 +16,26 @@ export const generateBubbleChart: bp.IntegrationProps['actions']['generateBubble
       datasets: [
         {
           label: input.title || 'Bubble Chart',
-          data: input.data
-        }
-      ]
+          data: input.data,
+        },
+      ],
     },
     options: {
       scales: {
         x: {
           title: {
             display: true,
-            text: input.xAxisTitle || 'X Axis'
-          }
+            text: input.xAxisTitle || 'X Axis',
+          },
         },
         y: {
           title: {
             display: true,
-            text: input.yAxisTitle || 'Y Axis'
-          }
-        }
-      }
-    }
+            text: input.yAxisTitle || 'Y Axis',
+          },
+        },
+      },
+    },
   }
 
   const imageUrl = await buildChart({ chartConfig, botId: ctx.botId, client, fileName: 'bubble_chart' })

@@ -15,5 +15,5 @@ export const actionImplementations = {
   generateBubbleChart,
   generateDoughnutChart,
   generateRadarChart,
-  generateHorizontalBarChart
+  generateHorizontalBarChart,
 }

@@ -7,5 +7,5 @@ export default new bp.Integration({
   unregister: async () => {},
   actions: actionImplementations,
   channels: {},
-  handler: async () => {}
+  handler: async () => {},
 })

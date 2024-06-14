@@ -6,7 +6,7 @@ export const generateDoughnutChart: bp.IntegrationProps['actions']['generateDoug
   input,
   logger,
   type,
-  ctx
+  ctx,
 }) => {
   logger.forBot().debug('Generating doughnut chart', { input, type })
 
@@ -17,10 +17,10 @@ export const generateDoughnutChart: bp.IntegrationProps['actions']['generateDoug
       datasets: [
         {
           label: input.title || 'Doughnut Chart',
-          data: input.data
-        }
-      ]
-    }
+          data: input.data,
+        },
+      ],
+    },
   }
 
   const imageUrl = await buildChart({ chartConfig, botId: ctx.botId, client, fileName: 'doughnut_chart' })

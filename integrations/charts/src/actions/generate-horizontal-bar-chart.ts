@@ -6,7 +6,7 @@ export const generateHorizontalBarChart: bp.IntegrationProps['actions']['generat
   input,
   logger,
   type,
-  ctx
+  ctx,
 }) => {
   logger.forBot().debug('Generating horizontal bar chart', { input, type })
 
@@ -17,9 +17,9 @@ export const generateHorizontalBarChart: bp.IntegrationProps['actions']['generat
       datasets: [
         {
           label: input.title || 'Horizontal Bar Chart',
-          data: input.yData
-        }
-      ]
+          data: input.yData,
+        },
+      ],
     },
     options: {
       indexAxis: 'y',
@@ -27,17 +27,17 @@ export const generateHorizontalBarChart: bp.IntegrationProps['actions']['generat
         x: {
           title: {
             display: true,
-            text: input.xAxisTitle || 'X Axis'
-          }
+            text: input.xAxisTitle || 'X Axis',
+          },
         },
         y: {
           title: {
             display: true,
-            text: input.yAxisTitle || 'Y Axis'
-          }
-        }
-      }
-    }
+            text: input.yAxisTitle || 'Y Axis',
+          },
+        },
+      },
+    },
   }
 
   const imageUrl = await buildChart({ chartConfig, botId: ctx.botId, client, fileName: 'horizontal_bar_chart' })
