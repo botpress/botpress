@@ -11,6 +11,7 @@
 /packages/bots @franklevasseur
 
 # Integrations
+/integrations/charts @allardy
 /integrations/dalle @franklevasseur
 /integrations/gmail @michaelmass
 /integrations/googlecalendar @charlescatta
@@ -29,6 +30,7 @@
 /integrations/teams @franklevasseur
 /integrations/telegram @franklevasseur @charlescatta
 /integrations/twilio @AbrahamLopez10
+/integrations/webbrowser @allardy
 /integrations/webhook @franklevasseur
 /integrations/whatsapp @AbrahamLopez10
 /integrations/zapier @AbrahamLopez10

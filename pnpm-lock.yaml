@@ -199,12 +199,9 @@ importers:
 
   integrations/charts:
     dependencies:
-      '@botpress/client':
-        specifier: 0.21.0
-        version: 0.21.0
       '@botpress/sdk':
-        specifier: 0.8.23
-        version: 0.8.23(react@18.3.1)
+        specifier: workspace:*
+        version: link:../../packages/sdk
       axios:
         specifier: ^1.7.2
         version: 1.7.2
@@ -1110,12 +1107,9 @@ importers:
 
   integrations/webbrowser:
     dependencies:
-      '@botpress/client':
-        specifier: 0.21.0
-        version: 0.21.0
       '@botpress/sdk':
-        specifier: 0.8.23
-        version: 0.8.23(react@18.3.1)
+        specifier: workspace:*
+        version: link:../../packages/sdk
       axios:
         specifier: ^1.7.2
         version: 1.7.2
@@ -2163,17 +2157,6 @@ packages:
       - openapi-types
     dev: true
 
-  /@botpress/client@0.21.0:
-    resolution: {integrity: sha512-X0MGFxEkFLi/JfwFzjsXvipAfOQV58SnuJybchf9rvoCMY+itvrxIDCJcSbg/RFTn5m+LDVJCm9Qwz6ldBDeOw==}
-    dependencies:
-      axios: 1.7.2
-      browser-or-node: 2.1.1
-      qs: 6.11.0
-      type-fest: 3.11.1
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
   /@botpress/messaging-base@1.2.0:
     resolution: {integrity: sha512-7cjHeD1Ti4cvDmyUV2D2CFKR1kPYv+eFPgXaJOksvrEoNZ1SrqXbHR9l26ndaAz0TuoX3Wc9l4Q7i5sBoHE44Q==}
     dev: false
@@ -2187,16 +2170,6 @@ packages:
       joi: 17.9.2
     transitivePeerDependencies:
       - debug
-    dev: false
-
-  /@botpress/sdk@0.8.23(react@18.3.1):
-    resolution: {integrity: sha512-wDsEflxpb2wytTW4LI7RvRLein1aZdThHHyyz2AiWGj0G0LuO49dVvbPxMIog2V6hMscfdjZ4FSfWm86DC1+ow==}
-    dependencies:
-      '@botpress/client': 0.21.0
-      '@bpinternal/zui': 0.8.4(react@18.3.1)
-    transitivePeerDependencies:
-      - debug
-      - react
     dev: false
 
   /@bpinternal/const@0.0.20:

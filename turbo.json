@@ -25,6 +25,11 @@
       "outputs": [".botpress/**"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
+    "@botpresshub/charts#build": {
+      "inputs": ["integration.definition.ts", "src/**"],
+      "outputs": [".botpress/**"],
+      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+    },
     "@botpresshub/dalle#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
@@ -146,6 +151,11 @@
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/vonage#build": {
+      "inputs": ["integration.definition.ts", "src/**"],
+      "outputs": [".botpress/**"],
+      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+    },
+    "@botpresshub/webbrowser#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
