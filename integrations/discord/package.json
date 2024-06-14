@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/discord",
-  "version": "0.2.0",
   "description": "Discord integration for Botpress",
   "private": true,
   "scripts": {

@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/teams",
-  "version": "0.2.0",
   "description": "Teams integration for Botpress",
   "private": true,
   "scripts": {

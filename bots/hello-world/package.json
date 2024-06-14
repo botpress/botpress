@@ -1,6 +1,5 @@
 {
   "name": "@bp-bots/hello-world",
-  "version": "1.0.0",
   "description": "Hello-world bot",
   "private": true,
   "scripts": {

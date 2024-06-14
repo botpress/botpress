@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/asana",
-  "version": "0.2.0",
   "description": "Asana integration for Botpress",
   "scripts": {
     "start": "pnpm bp serve",
