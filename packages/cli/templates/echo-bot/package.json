@@ -1,7 +1,7 @@
 {
   "name": "@bp-templates/echo-bot",
   "scripts": {
-    "type:check": "tsc --noEmit"
+    "check:type": "tsc --noEmit"
   },
   "private": true,
   "dependencies": {

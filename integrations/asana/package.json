@@ -5,8 +5,7 @@
     "start": "pnpm bp serve",
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
-    "type:check": "tsc --noEmit",
-    "test": "echo \"Tests not implemented yet.\""
+    "check:type": "tsc --noEmit"
   },
   "keywords": [],
   "private": true,

@@ -1,7 +1,7 @@
 {
   "name": "@botpresshub/dalle",
   "scripts": {
-    "type:check": "tsc --noEmit",
+    "check:type": "tsc --noEmit",
     "version": "bp --version",
     "login": "bp login",
     "build": "bp build",

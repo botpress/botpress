@@ -4,7 +4,7 @@
   "main": "./src/index.ts",
   "scripts": {
     "build": "tsc",
-    "type:check": "tsc --noEmit"
+    "check:type": "tsc --noEmit"
   },
   "dependencies": {
     "@sentry/node": "^7.53.1",

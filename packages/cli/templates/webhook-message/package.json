@@ -2,7 +2,7 @@
   "name": "@bp-templates/webhook-message",
   "integrationName": "webhook-message",
   "scripts": {
-    "type:check": "tsc --noEmit"
+    "check:type": "tsc --noEmit"
   },
   "private": true,
   "dependencies": {
