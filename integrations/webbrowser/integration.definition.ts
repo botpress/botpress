@@ -1,9 +1,8 @@
 import { IntegrationDefinition } from '@botpress/sdk'
 import { actionDefinitions } from 'src/definitions/actions'
-import { integrationName } from './package.json'
 
 export default new IntegrationDefinition({
-  name: integrationName,
+  name: 'webbrowser',
   version: '0.0.1',
   description: 'Tools to interact with web pages',
   readme: 'hub.md',

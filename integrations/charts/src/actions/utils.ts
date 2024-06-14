@@ -1,8 +1,13 @@
-import { Client } from '@botpress/client'
 import axios from 'axios'
 import * as bp from '.botpress'
 
-export const buildChart = async (props: { chartConfig: any; client: any; botId: string; fileName: string }) => {
+export type BuildChartProps = {
+  chartConfig: any // TODO: type this properly
+  client: bp.Client
+  botId: string
+  fileName: string
+}
+export const buildChart = async (props: BuildChartProps) => {
   try {
     const response = await axios.get('https://quickchart.io/chart', {
       params: {
@@ -12,12 +17,7 @@ export const buildChart = async (props: { chartConfig: any; client: any; botId: 
       responseType: 'arraybuffer',
     })
 
-    const cloud = new Client({
-      ...props.client.config,
-      botId: props.botId,
-    })
-
-    const { file } = await cloud.uploadFile({
+    const { file } = await props.client.uploadFile({
       key: `${props.fileName}_${Date.now()}.png`,
       content: response.data,
       index: false,

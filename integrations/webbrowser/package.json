@@ -1,13 +1,12 @@
 {
   "name": "@botpresshub/webbrowser",
-  "integrationName": "@botpresshub/webbrowser",
   "scripts": {
-    "type:check": "tsc --noEmit"
+    "check:type": "tsc --noEmit",
+    "build": "pnpm bp build"
   },
   "private": true,
   "dependencies": {
-    "@botpress/client": "0.21.0",
-    "@botpress/sdk": "0.8.23",
+    "@botpress/sdk": "workspace:*",
     "axios": "^1.7.2"
   },
   "devDependencies": {
