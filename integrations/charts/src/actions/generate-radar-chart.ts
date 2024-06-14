@@ -1,4 +1,4 @@
-import { buildChart } from './utils'
+import { buildChart, ChartConfig } from './utils'
 import * as bp from '.botpress'
 
 export const generateRadarChart: bp.IntegrationProps['actions']['generateRadarChart'] = async ({
@@ -10,14 +10,14 @@ export const generateRadarChart: bp.IntegrationProps['actions']['generateRadarCh
 }) => {
   logger.forBot().debug('Generating radar chart', { input, type })
 
-  const chartConfig = {
+  const chartConfig: ChartConfig = {
     type: 'radar',
     data: {
       labels: input.labels,
       datasets: [
         {
           label: input.title || 'Radar Chart',
-          data: input.data,
+          data: input.data!,
         },
       ],
     },

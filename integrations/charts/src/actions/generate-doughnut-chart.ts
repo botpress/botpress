@@ -1,4 +1,4 @@
-import { buildChart } from './utils'
+import { buildChart, ChartConfig } from './utils'
 import * as bp from '.botpress'
 
 export const generateDoughnutChart: bp.IntegrationProps['actions']['generateDoughnutChart'] = async ({
@@ -10,14 +10,14 @@ export const generateDoughnutChart: bp.IntegrationProps['actions']['generateDoug
 }) => {
   logger.forBot().debug('Generating doughnut chart', { input, type })
 
-  const chartConfig = {
+  const chartConfig: ChartConfig = {
     type: 'doughnut',
     data: {
       labels: input.labels,
       datasets: [
         {
           label: input.title || 'Doughnut Chart',
-          data: input.data,
+          data: input.data!,
         },
       ],
     },

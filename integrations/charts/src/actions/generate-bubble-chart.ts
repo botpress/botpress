@@ -1,4 +1,4 @@
-import { buildChart } from './utils'
+import { buildChart, ChartConfig } from './utils'
 import * as bp from '.botpress'
 
 export const generateBubbleChart: bp.IntegrationProps['actions']['generateBubbleChart'] = async ({
@@ -10,13 +10,13 @@ export const generateBubbleChart: bp.IntegrationProps['actions']['generateBubble
 }) => {
   logger.forBot().debug('Generating bubble chart', { input, type })
 
-  const chartConfig = {
+  const chartConfig: ChartConfig = {
     type: 'bubble',
     data: {
       datasets: [
         {
           label: input.title || 'Bubble Chart',
-          data: input.data,
+          data: input.data!,
         },
       ],
     },

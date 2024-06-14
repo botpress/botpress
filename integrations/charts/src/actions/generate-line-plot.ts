@@ -1,4 +1,4 @@
-import { buildChart } from './utils'
+import { buildChart, ChartConfig } from './utils'
 import * as bp from '.botpress'
 
 export const generateLinePlot: bp.IntegrationProps['actions']['generateLinePlot'] = async ({
@@ -10,14 +10,14 @@ export const generateLinePlot: bp.IntegrationProps['actions']['generateLinePlot'
 }) => {
   logger.forBot().debug('Generating line plot', { input, type })
 
-  const chartConfig = {
+  const chartConfig: ChartConfig = {
     type: 'line',
     data: {
       labels: input.xData,
       datasets: [
         {
           label: input.title || 'Line Plot',
-          data: input.yData,
+          data: input.yData!,
         },
       ],
     },

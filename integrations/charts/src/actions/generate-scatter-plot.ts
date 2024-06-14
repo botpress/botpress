@@ -1,4 +1,4 @@
-import { buildChart } from './utils'
+import { buildChart, ChartConfig } from './utils'
 import * as bp from '.botpress'
 
 export const generateScatterPlot: bp.IntegrationProps['actions']['generateScatterPlot'] = async ({
@@ -10,13 +10,13 @@ export const generateScatterPlot: bp.IntegrationProps['actions']['generateScatte
 }) => {
   logger.forBot().debug('Generating scatter plot', { input, type })
 
-  const chartConfig = {
+  const chartConfig: ChartConfig = {
     type: 'scatter',
     data: {
       datasets: [
         {
           label: input.title || 'Scatter Plot',
-          data: input.data, // input.data should be an array of objects with x and y properties
+          data: input.data!,
         },
       ],
     },

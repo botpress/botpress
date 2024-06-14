@@ -209,6 +209,9 @@ importers:
       '@types/node':
         specifier: ^18.11.17
         version: 18.19.10
+      chart.js:
+        specifier: ^3.9.1
+        version: 3.9.1
       ts-node:
         specifier: ^10.9.1
         version: 10.9.2(@types/node@18.19.10)(typescript@4.9.5)
@@ -5656,6 +5659,10 @@ packages:
   /char-regex@1.0.2:
     resolution: {integrity: sha512-kWWXztvZ5SBQV+eRgKFeh8q5sLuZY2+8WUIzlxWVTg+oGwY14qylx1KbKzHd8P6ZYkAg0xyIDU9JMHhyJMZ1jw==}
     engines: {node: '>=10'}
+    dev: true
+
+  /chart.js@3.9.1:
+    resolution: {integrity: sha512-Ro2JbLmvg83gXF5F4sniaQ+lTbSv18E+TIf2cOeiH1Iqd2PGFOtem+DUufMZsCJwFE7ywPOpfXFBwRTGq7dh6w==}
     dev: true
 
   /check-error@1.0.3:
