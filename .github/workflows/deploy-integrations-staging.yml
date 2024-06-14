@@ -35,5 +35,3 @@ jobs:
           gmail_secrets: '' # secrets should already exist
           linear_secrets: '' # secrets should already exst
           slack_secrets: '' # secrets should already exist
-          extra_filter: '-F "!asana" -F "!dalle" -F "!discord" -F "!github" -F "!gmail" -F "!googlecalendar" -F "!gsheets" -F "!instagram" -F "!intercom" -F "!line" -F "!linear" -F "!mailchimp" -F "!make" -F "!messenger" -F "!notion" -F "!slack" -F "!stripe" -F "!sunco" -F "!teams" -F "!trello" -F "!twilio" -F "!viber" -F "!vonage" -F "!webchat" -F "!webhook" -F "!whatsapp" -F "!zapier" -F "!zendesk"' # TODO: remove this line; its only a test
-
