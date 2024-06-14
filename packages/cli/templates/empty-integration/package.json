@@ -2,12 +2,12 @@
   "name": "@bp-templates/empty-integration",
   "integrationName": "empty-integration",
   "scripts": {
-    "type:check": "tsc --noEmit"
+    "check:type": "tsc --noEmit"
   },
   "private": true,
   "dependencies": {
     "@botpress/client": "0.22.0",
-    "@botpress/sdk": "0.8.25"
+    "@botpress/sdk": "0.8.26"
   },
   "devDependencies": {
     "@types/node": "^18.11.17",

@@ -7,8 +7,7 @@
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
     "login": "pnpm bp login",
-    "test": "echo \"Tests not implemented yet.\"",
-    "type:check": "tsc --noEmit"
+    "check:type": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",

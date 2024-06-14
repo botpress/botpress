@@ -4,7 +4,7 @@
     "start": "pnpm bp serve",
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
-    "type:check": "tsc --noEmit"
+    "check:type": "tsc --noEmit"
   },
   "keywords": [],
   "private": true,

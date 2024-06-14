@@ -1,11 +1,11 @@
 {
   "name": "@botpress/sdk",
-  "version": "0.8.25",
+  "version": "0.8.26",
   "description": "Botpress SDK",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "type:check": "tsc --noEmit",
+    "check:type": "tsc --noEmit",
     "build:type": "tsc --emitDeclarationOnly --declaration",
     "build:node": "ts-node -T build.ts",
     "build": "pnpm build:type && pnpm build:node"

@@ -7,7 +7,7 @@
     "build": "pnpm bp build",
     "login": "pnpm bp login",
     "deploy": "pnpm bp deploy",
-    "type:check": "tsc --noEmit",
+    "check:type": "tsc --noEmit",
     "test": "jest"
   },
   "keywords": [],
