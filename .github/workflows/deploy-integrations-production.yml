@@ -31,3 +31,4 @@ jobs:
           gmail_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_GMAIL_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_GMAIL_CLIENT_SECRET }} --secrets TOPIC_NAME=${{ secrets.PRODUCTION_GMAIL_TOPIC_NAME }}'
           linear_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_LINEAR_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_LINEAR_CLIENT_SECRET }} --secrets WEBHOOK_SIGNING_SECRET=${{ secrets.PRODUCTION_LINEAR_WEBHOOK_SIGNING_SECRET }}'
           slack_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_SLACK_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_SLACK_CLIENT_SECRET }} --secrets SIGNING_SECRET=${{ secrets.PRODUCTION_SLACK_SIGNING_SECRET }}'
+          extra_filter: '-F "!groq" -F "!openai"'
