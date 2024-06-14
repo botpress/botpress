@@ -10,7 +10,6 @@
   "dependencies": {
     "@botpress/common": "workspace:*",
     "@botpress/client": "workspace:*",
-    "@botpress/openai": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "openai": "^4.50.0"
   },
