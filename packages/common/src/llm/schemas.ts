@@ -24,17 +24,17 @@ const MessageSchema = z.object({
   toolResultCallId: z.string().optional().describe('Required if `type` is "tool_result"'), // note: not supported by Gemini
   content: z
     .string()
-    // TODO: We need to check limits of integration action input/output in the bridge
-    // TODO: union types are not supported yet by the Studio, this needs to be fixed before we enable multipart support
-    // .or(
-    //   z.array(
-    //     z.object({
-    //       type: z.enum(['text', 'image']),
-    //       mimeType: z.string(),
-    //       data: z.string().describe('plain text or base64-encoded binary data'),
-    //     })
-    //   )
-    // )
+    // TODO: union types are not supported yet by the Studio, comment this out when testing via an action card in the Studio
+    .or(
+      z.array(
+        z.object({
+          type: z.enum(['text', 'image']),
+          mimeType: z.string(),
+          text: z.string().optional().describe('Required if part type is "text" '),
+          url: z.string().optional().describe('Required if part type is "image"'),
+        })
+      )
+    )
     .optional()
     .describe(
       'Required unless `type` is "tool_call". If `type` is "multipart", this field must be an array of content objects. If `type` is "tool_result" then this field should be the result of the tool call (a plain string or a JSON-encoded array or object). If `type` is "tool_call" then the `toolCalls` field should be used instead.'
