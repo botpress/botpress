@@ -32,12 +32,12 @@ input:
   slack_secrets:
     description: 'Slack secrets'
     required: false
-  charts_secrets:
-    description: 'Charts secrets'
-    required: false
-  webbrowser_secrets:
-    description: 'WebBrowser secrets'
-    required: false
+  # charts_secrets:
+  #   description: 'Charts secrets'
+  #   required: false
+  # webbrowser_secrets:
+  #   description: 'WebBrowser secrets'
+  #   required: false
 
 runs:
   using: 'composite'
@@ -92,10 +92,6 @@ runs:
                 base_command="$base_command ${{ inputs.linear_secrets }}"
             elif [ $integration == "slack" ]; then
                 base_command="$base_command ${{ inputs.slack_secrets }}"
-            elif [ $integration == "charts" ]; then
-                base_command="$base_command ${{ inputs.charts }}"
-            elif [ $integration == "webbrowser" ]; then
-                base_command="$base_command ${{ inputs.webbrowser }}"
             fi
             
             if [ $exists -eq 0 ]; then
