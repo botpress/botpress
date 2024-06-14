@@ -1,4 +1,4 @@
-import { schemas, openai } from '@botpress/common'
+import { llm } from '@botpress/common'
 import OpenAI from 'openai'
 import * as bp from '.botpress'
 
@@ -12,7 +12,9 @@ export default new bp.Integration({
   unregister: async () => {},
   actions: {
     generateContent: async ({ input, logger }) => {
-      return await openai.generateContent(<schemas.GenerateContentInput>input, groqClient, logger, { provider: 'groq' })
+      return await llm.openai.generateContent(<llm.schemas.GenerateContentInput>input, groqClient, logger, {
+        provider: 'groq',
+      })
     },
   },
   channels: {},

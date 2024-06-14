@@ -1,4 +1,4 @@
-import { schemas } from '@botpress/common'
+import { llm } from '@botpress/common'
 import { IntegrationDefinition } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
@@ -11,10 +11,10 @@ export default new IntegrationDefinition({
       title: 'Generate Content',
       description: 'Generate content using any OpenAI model as LLM',
       input: {
-        schema: schemas.GenerateContentInputSchema,
+        schema: llm.schemas.GenerateContentInputSchema,
       },
       output: {
-        schema: schemas.GenerateContentOutputSchema,
+        schema: llm.schemas.GenerateContentOutputSchema,
       },
     },
   },
