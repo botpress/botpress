@@ -379,7 +379,7 @@ importers:
   integrations/groq:
     dependencies:
       '@botpress/client':
-        specifier: 0.21.0
+        specifier: workspace:*
         version: link:../../packages/client
       '@botpress/common':
         specifier: workspace:*
@@ -388,7 +388,7 @@ importers:
         specifier: workspace:*
         version: link:../openai
       '@botpress/sdk':
-        specifier: 0.8.24
+        specifier: workspace:*
         version: link:../../packages/sdk
       openai:
         specifier: ^4.50.0
@@ -710,13 +710,13 @@ importers:
   integrations/openai:
     dependencies:
       '@botpress/client':
-        specifier: 0.21.0
+        specifier: workspace:*
         version: link:../../packages/client
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
       '@botpress/sdk':
-        specifier: 0.8.24
+        specifier: workspace:*
         version: link:../../packages/sdk
       openai:
         specifier: ^4.50.0

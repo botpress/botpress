@@ -1,19 +1,16 @@
 {
   "name": "@botpress/openai",
-  "integrationName": "openai",
-  "main": "./src/index.ts",
   "scripts": {
     "start": "pnpm bp serve",
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
-    "type-check": "tsc --noEmit",
-    "test": "echo \"Tests not implemented yet.\""
+    "check:type": "tsc --noEmit"
   },
   "private": true,
   "dependencies": {
     "@botpress/common": "workspace:*",
-    "@botpress/client": "0.21.0",
-    "@botpress/sdk": "0.8.24",
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "openai": "^4.50.0"
   },
   "devDependencies": {

@@ -1,11 +1,7 @@
 {
   "name": "@botpress/common",
-  "version": "0.1.0",
   "private": true,
   "main": "./src/index.ts",
-  "scripts": {
-    "build": "tsc"
-  },
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",

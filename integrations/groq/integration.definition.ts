@@ -1,9 +1,8 @@
 import { IntegrationDefinition } from '@botpress/sdk'
-import { GenerateContentInputSchema, GenerateContentOutputSchema } from '../../packages/common/src'
-import { integrationName } from './package.json'
+import { schemas } from '@botpress/common'
 
 export default new IntegrationDefinition({
-  name: integrationName,
+  name: 'groq',
   version: '0.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
@@ -12,10 +11,10 @@ export default new IntegrationDefinition({
       title: 'Generate Content',
       description: 'Generate content using any LLM supported by Groq',
       input: {
-        schema: GenerateContentInputSchema,
+        schema: schemas.GenerateContentInputSchema,
       },
       output: {
-        schema: GenerateContentOutputSchema,
+        schema: schemas.GenerateContentOutputSchema,
       },
     },
   },
