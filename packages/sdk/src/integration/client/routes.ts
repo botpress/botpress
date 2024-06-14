@@ -273,4 +273,3 @@ export type DeleteFile<_TIntegration extends BaseIntegration> = Client['deleteFi
 export type ListFiles<_TIntegration extends BaseIntegration> = Client['listFiles']
 export type GetFile<_TIntegration extends BaseIntegration> = Client['getFile']
 export type UpdateFileMetadata<_TIntegration extends BaseIntegration> = Client['updateFileMetadata']
-export type SearchFiles<_TIntegration extends BaseIntegration> = Client['searchFiles']

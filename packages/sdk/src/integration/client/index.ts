@@ -73,5 +73,4 @@ export class IntegrationSpecificClient<TIntegration extends BaseIntegration> {
   public listFiles: routes.ListFiles<TIntegration> = (x) => this.client.listFiles(x)
   public getFile: routes.GetFile<TIntegration> = (x) => this.client.getFile(x)
   public updateFileMetadata: routes.UpdateFileMetadata<TIntegration> = (x) => this.client.updateFileMetadata(x)
-  public searchFiles: routes.SearchFiles<TIntegration> = (x) => this.client.searchFiles(x)
 }
