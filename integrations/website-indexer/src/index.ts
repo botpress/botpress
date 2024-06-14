@@ -24,33 +24,6 @@ export default new bp.Integration({
     throw new RuntimeError('Invalid configuration') // replace this with your own validation logic
   },
   actions: {
-    startPoll: async ({ logger, client, input }) => {
-      logger.forBot().debug('Start poll', input)
-      await client.createEvent({
-        type: 'pollCallback',
-        payload: { fileIds: input.fileIds },
-        conversationId: input.conversationId,
-        schedule: { delay: input.delay },
-      })
-      return {}
-    },
-    getFileStatus: async ({ input, logger, client }) => {
-      logger.forBot().debug(`Getting file status for ${input.fileIds}`)
-      const fileIdsSchema = z.array(z.string())
-      const fileIds = fileIdsSchema.parse(JSON.parse(input.fileIds))
-      // const fileIds = input.fileIds as unknown as string[]
-      const files = await Promise.all(fileIds.map((id) => client.getFile({ id })))
-      const statuses = files.map((x) => x.file.status)
-      logger.forBot().debug(`File statuses: ${statuses}`)
-      const status = statuses.every((x) => x === 'indexing_completed' || x === 'indexing_failed')
-        ? 'indexing_completed'
-        : 'indexing_pending'
-
-      const progress =
-        statuses.filter((x) => x === 'indexing_completed' || x === 'indexing_failed').length / statuses.length
-      const failedCount = statuses.filter((x) => x === 'indexing_failed').length
-      return { status, progress: Math.round(progress * 100), failedCount }
-    },
     indexUrls: async ({ input, logger, client }) => {
       const pageUrlsSchema = z.object({
         urls: z.array(z.string()),
@@ -78,27 +51,6 @@ export default new bp.Integration({
 
       return { fileIds: JSON.stringify(files), scraperCreditCost }
     },
-    testCron: async ({ logger }) => {
-      logger.forBot().debug('Test cron job')
-      return {}
-    },
-    searchFiles: async ({ input: { query, minScore }, logger, client }) => {
-      logger.forBot().debug(`Searching files with query ${query}`)
-      const response = await client.searchFiles({ query })
-      const sortedPassages = response.passages.sort((a, b) => b.score - a.score)
-      const topPassage = sortedPassages[0]
-      if (!topPassage) {
-        logger.forBot().debug('No passage found')
-        return { answer: 'NO_ANSWER' }
-      }
-      logger.forBot().debug(`Top passage: ${topPassage.content}, score: ${topPassage.score}`)
-
-      if (topPassage.score < parseFloat(minScore)) {
-        logger.forBot().debug('Score too low')
-        return { answer: 'NO_ANSWER' }
-      }
-      return { answer: topPassage.content }
-    },
     fetchUrls: async ({ input: { rootUrl, maxUrls } }) => {
       const urls = await fetchUrls(rootUrl)
       return { urls: urls.slice(0, maxUrls) }
@@ -108,7 +60,7 @@ export default new bp.Integration({
   handler: async () => {},
 })
 
-export const fetchUrls = async (url: string): Promise<string[]> => {
+const fetchUrls = async (url: string): Promise<string[]> => {
   const finalUrls = new Set<string>()
   finalUrls.add(url)
 
@@ -182,7 +134,7 @@ const loadSitemapSchema = z.object({
   sameDomain: z.boolean().default(false),
 })
 
-export const fetchSitemap = async (options: z.infer<typeof loadSitemapSchema>): Promise<UrlEntry[]> => {
+const fetchSitemap = async (options: z.infer<typeof loadSitemapSchema>): Promise<UrlEntry[]> => {
   options = loadSitemapSchema.parse(options)
 
   const urls: UrlEntry[] = []
@@ -275,7 +227,7 @@ export const urlSchema = z.string().transform((url, ctx) => {
   }
 })
 
-export const getErrorMessage = (err: unknown): string => {
+const getErrorMessage = (err: unknown): string => {
   if (axios.isAxiosError(err)) {
     const data = err.response?.data
     const statusCode = err.response?.status
