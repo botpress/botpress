@@ -1,0 +1,17 @@
+{
+  "name": "@botpress/common",
+  "private": true,
+  "main": "./src/index.ts",
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "openai": "^4.50.0"
+  },
+  "devDependencies": {
+    "@types/node": "^18.11.17",
+    "typescript": "^4.9.4"
+  }
+}

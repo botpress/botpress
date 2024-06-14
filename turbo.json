@@ -50,6 +50,11 @@
       "outputs": [".botpress/**"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
+    "@botpresshub/groq#build": {
+      "inputs": ["integration.definition.ts", "src/**"],
+      "outputs": [".botpress/**"],
+      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+    },
     "@botpresshub/gsheets#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
@@ -91,6 +96,11 @@
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/notion#build": {
+      "inputs": ["integration.definition.ts", "src/**"],
+      "outputs": [".botpress/**"],
+      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+    },
+    "@botpresshub/openai#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
