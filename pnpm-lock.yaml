@@ -197,6 +197,28 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  integrations/charts:
+    dependencies:
+      '@botpress/client':
+        specifier: 0.21.0
+        version: 0.21.0
+      '@botpress/sdk':
+        specifier: 0.8.23
+        version: 0.8.23(react@18.3.1)
+      axios:
+        specifier: ^1.7.2
+        version: 1.7.2
+    devDependencies:
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.19.10
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.2(@types/node@18.19.10)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   integrations/dalle:
     dependencies:
       '@botpress/client':
@@ -1032,6 +1054,28 @@ importers:
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@types/node@18.16.16)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
+  integrations/webbrowser:
+    dependencies:
+      '@botpress/client':
+        specifier: 0.21.0
+        version: 0.21.0
+      '@botpress/sdk':
+        specifier: 0.8.23
+        version: 0.8.23(react@18.3.1)
+      axios:
+        specifier: ^1.7.2
+        version: 1.7.2
+    devDependencies:
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.19.10
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.2(@types/node@18.19.10)(typescript@4.9.5)
       typescript:
         specifier: ^4.9.4
         version: 4.9.5
@@ -2050,6 +2094,17 @@ packages:
       - openapi-types
     dev: true
 
+  /@botpress/client@0.21.0:
+    resolution: {integrity: sha512-X0MGFxEkFLi/JfwFzjsXvipAfOQV58SnuJybchf9rvoCMY+itvrxIDCJcSbg/RFTn5m+LDVJCm9Qwz6ldBDeOw==}
+    dependencies:
+      axios: 1.7.2
+      browser-or-node: 2.1.1
+      qs: 6.11.0
+      type-fest: 3.11.1
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /@botpress/messaging-base@1.2.0:
     resolution: {integrity: sha512-7cjHeD1Ti4cvDmyUV2D2CFKR1kPYv+eFPgXaJOksvrEoNZ1SrqXbHR9l26ndaAz0TuoX3Wc9l4Q7i5sBoHE44Q==}
     dev: false
@@ -2063,6 +2118,16 @@ packages:
       joi: 17.9.2
     transitivePeerDependencies:
       - debug
+    dev: false
+
+  /@botpress/sdk@0.8.23(react@18.3.1):
+    resolution: {integrity: sha512-wDsEflxpb2wytTW4LI7RvRLein1aZdThHHyyz2AiWGj0G0LuO49dVvbPxMIog2V6hMscfdjZ4FSfWm86DC1+ow==}
+    dependencies:
+      '@botpress/client': 0.21.0
+      '@bpinternal/zui': 0.8.4(react@18.3.1)
+    transitivePeerDependencies:
+      - debug
+      - react
     dev: false
 
   /@bpinternal/const@0.0.20:
@@ -5078,6 +5143,16 @@ packages:
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
+
+  /axios@1.7.2:
+    resolution: {integrity: sha512-2A8QhOMrbomlDuiLeK9XibIBzuHeRcqqNOHp0Cyp5EoJ1IFDh+XZH3A6BkXtv0K4gFGCI0Y4BM7B1wOEi0Rmgw==}
+    dependencies:
+      follow-redirects: 1.15.6(debug@4.3.4)
+      form-data: 4.0.0
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
 
   /b4a@1.6.6:
     resolution: {integrity: sha512-5Tk1HLk6b6ctmjIkAcU/Ujv/1WqiDl0F0JdRCR80VsOcUlHcu7pWeWRlOqQLHfDEsVx9YH/aif5AG4ehoCtTmg==}
@@ -11197,7 +11272,7 @@ packages:
   /trello.js@1.2.6:
     resolution: {integrity: sha512-ds7prbYHRp1SeNsDHTbLLfN1dOTBfg1AZ+/hnov25aglveFTNK7q/1KSRC533Fcyep7PdngjpWUKpjlGlkFl/Q==}
     dependencies:
-      axios: 1.6.8
+      axios: 1.7.2
       form-data: 4.0.0
       tslib: 2.6.2
     transitivePeerDependencies:
