@@ -18,9 +18,9 @@
     "test": "vitest run",
     "dev": "tsx playground.ts",
     "test:watch": "vitest",
-    "type:check": "tsc --noEmit",
-    "format:check": "prettier --check src/",
-    "format:fix": "prettier --write src/",
+    "check:type": "tsc --noEmit",
+    "check:format": "prettier --check src/",
+    "fix:format": "prettier --write src/",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
