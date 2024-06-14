@@ -49,6 +49,7 @@ export class BotSpecificClient<TBot extends BaseBot> {
 
   public callAction: routes.CallAction<TBot> = (x) => this.client.callAction(x)
 
+  public uploadFile: routes.UploadFile<TBot> = (x) => this.client.uploadFile(x)
   public upsertFile: routes.UpsertFile<TBot> = (x) => this.client.upsertFile(x)
   public deleteFile: routes.DeleteFile<TBot> = (x) => this.client.deleteFile(x)
   public listFiles: routes.ListFiles<TBot> = (x) => this.client.listFiles(x)
