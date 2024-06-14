@@ -384,9 +384,6 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
-      '@botpress/openai':
-        specifier: workspace:*
-        version: link:../openai
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
