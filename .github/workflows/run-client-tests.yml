@@ -20,4 +20,4 @@ jobs:
           filter: '@botpress/client'
       - run: |
           pnpm -F client exec puppeteer browsers install chrome
-          pnpm -F client run e2e:test
+          pnpm -F client run test:e2e

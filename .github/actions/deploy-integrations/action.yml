@@ -9,6 +9,11 @@ input:
     options:
       - staging
       - production
+  extra_filter:
+    type: string
+    description: 'Pnpm addtional filters to select integrations to deploy'
+    required: false
+    default: ''
   force:
     type: boolean
     description: 'Force re-deploying integrations'
@@ -73,7 +78,8 @@ runs:
         # deploy
 
         redeploy=${{ inputs.force == 'true' && 1 || 0 }}
-        integration_paths=$(pnpm list -F "@botpresshub/*" -F "!asana" -F "!trello" -F "!webchat" --json | jq -r "map(".path") | .[]")
+        all_filters="-F "@botpresshub/*" -F "!asana" -F "!trello" -F "!webchat" ${{ inputs.extra_filter }}"
+        integration_paths=$(pnpm list $all_filters --json | jq -r "map(".path") | .[]")
 
         for integration_path in $integration_paths; do
             integration=$(basename $integration_path)
