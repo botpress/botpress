@@ -1,5 +1,5 @@
 import axios from 'axios'
-import type { ChartConfiguration } from 'chart.js'
+import type { ChartConfiguration } from 'chart.js' // do not import the implementation, only the types
 import * as bp from '.botpress'
 
 export type ChartConfig = ChartConfiguration
