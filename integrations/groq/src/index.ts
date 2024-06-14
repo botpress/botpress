@@ -1,5 +1,5 @@
-import OpenAI from 'openai'
 import { schemas, openai } from '@botpress/common'
+import OpenAI from 'openai'
 import * as bp from '.botpress'
 
 const groqClient = new OpenAI({

@@ -1,5 +1,5 @@
-import { IntegrationDefinition } from '@botpress/sdk'
 import { schemas } from '@botpress/common'
+import { IntegrationDefinition } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
   name: 'groq',
