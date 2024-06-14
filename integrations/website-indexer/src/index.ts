@@ -42,12 +42,14 @@ export default new bp.Integration({
       const files = await Promise.all(fileIds.map((id) => client.getFile({ id })))
       const statuses = files.map((x) => x.file.status)
       logger.forBot().debug(`File statuses: ${statuses}`)
-      const status = statuses.every((x) => x === 'indexing_completed')
+      const status = statuses.every((x) => x === 'indexing_completed' || x === 'indexing_failed')
         ? 'indexing_completed'
-        : statuses.some((x) => x === 'indexing_failed')
-        ? 'indexing_failed'
         : 'indexing_pending'
-      return { status }
+
+      const progress =
+        statuses.filter((x) => x === 'indexing_completed' || x === 'indexing_failed').length / statuses.length
+      const failedCount = statuses.filter((x) => x === 'indexing_failed').length
+      return { status, progress: Math.round(progress * 100), failedCount }
     },
     indexUrls: async ({ input, logger, client }) => {
       const pageUrlsSchema = z.object({
@@ -58,9 +60,11 @@ export default new bp.Integration({
       logger.forBot().debug(`Indexing ${pageUrls.length} urls`)
 
       const scraper = new Scraper(logger, bp.secrets.SCRAPER_API_KEY)
+      let scraperCreditCost = 0
       const files = await Promise.all(
         pageUrls.map(async (url) => {
           const scrapingResponse = await scraper.fetchPageHtml(url)
+          scraperCreditCost += scrapingResponse.cost
           const response = await client.upsertFile({
             key: url,
             size: scrapingResponse.content.byteLength,
@@ -72,7 +76,7 @@ export default new bp.Integration({
         })
       )
 
-      return { fileIds: JSON.stringify(files) }
+      return { fileIds: JSON.stringify(files), scraperCreditCost }
     },
     testCron: async ({ logger }) => {
       logger.forBot().debug('Test cron job')
@@ -95,9 +99,9 @@ export default new bp.Integration({
       }
       return { answer: topPassage.content }
     },
-    fetchUrls: async ({ input: { rootUrl } }) => {
+    fetchUrls: async ({ input: { rootUrl, maxUrls } }) => {
       const urls = await fetchUrls(rootUrl)
-      return { urls: urls.slice(0, 2) } // todo: return all pages
+      return { urls: urls.slice(0, maxUrls) }
     },
   },
   channels: {},

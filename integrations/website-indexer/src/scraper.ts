@@ -140,5 +140,6 @@ const _fetchPageHtml = async (client: AxiosInstance, options: z.infer<typeof fet
     content: response.data as Buffer,
     contentType: response.headers['content-type'] as string,
     id: v5(options.url.trim().toLowerCase(), UUID_NAMESPACE),
+    cost: parseInt(response.headers['sa-credit-cost']),
   }
 }

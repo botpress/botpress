@@ -22,6 +22,7 @@ export default new IntegrationDefinition({
       }),
     },
   },
+
   actions: {
     startPoll: {
       title: 'Start Poll',
@@ -50,6 +51,8 @@ export default new IntegrationDefinition({
       output: {
         schema: z.object({
           status: z.string(),
+          progress: z.number(),
+          failedCount: z.number(),
         }),
       },
     },
@@ -66,6 +69,7 @@ export default new IntegrationDefinition({
         schema: z.object({
           // studio does not support string[] output
           fileIds: z.string(),
+          scraperCreditCost: z.number(),
         }),
       },
     },
@@ -100,6 +104,7 @@ export default new IntegrationDefinition({
       input: {
         schema: z.object({
           rootUrl: z.string(),
+          maxUrls: z.number(),
         }),
       },
       output: {
