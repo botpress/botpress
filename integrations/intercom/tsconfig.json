@@ -1,10 +1,8 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-    "target": "es2017",
     "baseUrl": ".",
-    "outDir": "dist",
-    "checkJs": false
+    "outDir": "dist"
   },
-  "include": [".botpress/**/*", "src/**/*", "../intercom/src/start.ts"]
+  "include": [".botpress/**/*", "src/**/*", "integration.definition.ts"]
 }
