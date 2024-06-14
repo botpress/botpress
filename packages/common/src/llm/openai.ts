@@ -130,12 +130,12 @@ function mapToOpenAIMessageContent(message: Message) {
       return message.content.map((content) => {
         switch (content.type) {
           case 'text':
-            return <ChatCompletionContentPartText>{ type: 'text', text: content.data }
+            return <ChatCompletionContentPartText>{ type: 'text', text: content.text }
           case 'image':
             return <ChatCompletionContentPartImage>{
               type: 'image_url',
               image_url: {
-                url: content.data,
+                url: content.url,
                 detail: 'auto',
               },
             }
