@@ -1,4 +1,4 @@
-import { buildChart } from './utils'
+import { buildChart, ChartConfig } from './utils'
 import * as bp from '.botpress'
 
 export const generatePieChart: bp.IntegrationProps['actions']['generatePieChart'] = async ({
@@ -10,14 +10,14 @@ export const generatePieChart: bp.IntegrationProps['actions']['generatePieChart'
 }) => {
   logger.forBot().debug('Generating pie chart', { input, type })
 
-  const chartConfig = {
+  const chartConfig: ChartConfig = {
     type: 'pie',
     data: {
       labels: input.labels,
       datasets: [
         {
           label: input.title || 'Pie Chart',
-          data: input.data,
+          data: input.data!,
         },
       ],
     },

@@ -1,4 +1,4 @@
-import { buildChart } from './utils'
+import { buildChart, ChartConfig } from './utils'
 import * as bp from '.botpress'
 
 export const generateHorizontalBarChart: bp.IntegrationProps['actions']['generateHorizontalBarChart'] = async ({
@@ -10,14 +10,14 @@ export const generateHorizontalBarChart: bp.IntegrationProps['actions']['generat
 }) => {
   logger.forBot().debug('Generating horizontal bar chart', { input, type })
 
-  const chartConfig = {
+  const chartConfig: ChartConfig = {
     type: 'bar',
     data: {
       labels: input.xData,
       datasets: [
         {
           label: input.title || 'Horizontal Bar Chart',
-          data: input.yData,
+          data: input.yData!,
         },
       ],
     },
