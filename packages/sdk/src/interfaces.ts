@@ -15,6 +15,7 @@ const camelCase = (...parts: string[]) => {
 const nextToken = z.string().optional()
 export const listable = new InterfaceDeclaration({
   name: 'listable',
+  version: '0.0.1',
   entities: {
     item: {
       schema: z.object({}),
@@ -40,6 +41,7 @@ export const listable = new InterfaceDeclaration({
 
 export const creatable = new InterfaceDeclaration({
   name: 'creatable',
+  version: '0.0.1',
   entities: {
     item: {
       schema: z.object({}),
@@ -68,6 +70,7 @@ export const creatable = new InterfaceDeclaration({
 
 export const readable = new InterfaceDeclaration({
   name: 'readable',
+  version: '0.0.1',
   entities: {
     item: {
       schema: z.object({}),
@@ -89,6 +92,7 @@ export const readable = new InterfaceDeclaration({
 
 export const updatable = new InterfaceDeclaration({
   name: 'updatable',
+  version: '0.0.1',
   entities: {
     item: {
       schema: z.object({}),
@@ -117,6 +121,7 @@ export const updatable = new InterfaceDeclaration({
 
 export const deletable = new InterfaceDeclaration({
   name: 'deletable',
+  version: '0.0.1',
   entities: {
     item: {
       schema: z.object({}),
@@ -145,6 +150,7 @@ export const deletable = new InterfaceDeclaration({
 
 export const hitl = new InterfaceDeclaration({
   name: 'hitl',
+  version: '0.0.1',
   entities: {},
   events: {},
   actions: {

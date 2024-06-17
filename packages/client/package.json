@@ -30,7 +30,7 @@
     "type-fest": "^3.4.0"
   },
   "devDependencies": {
-    "@botpress/api": "0.31.0",
+    "@botpress/api": "/Users/francoislevasseur/Documents/code/skynet/packages/public-api",
     "@types/qs": "^6.9.7",
     "esbuild": "^0.16.12",
     "lodash": "^4.17.21",

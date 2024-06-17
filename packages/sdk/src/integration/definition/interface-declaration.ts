@@ -29,6 +29,7 @@ export type InterfaceDeclarationProps<
   TEvents extends BaseEntities = BaseEntities
 > = {
   name: string
+  version: string
 
   events: { [K in keyof TEvents]: GenericEventDefinition<TEntities, TEvents[K]> }
 
@@ -57,14 +58,16 @@ export class InterfaceDeclaration<
   TActions extends BaseActions = BaseActions,
   TEvents extends BaseEntities = BaseEntities
 > {
-  public readonly entities: this['props']['entities']
   public readonly name: this['props']['name']
+  public readonly version: this['props']['version']
+  public readonly entities: this['props']['entities']
   public readonly events: this['props']['events']
   public readonly actions: this['props']['actions']
   public readonly templateName: this['props']['templateName']
 
   public constructor(public readonly props: InterfaceDeclarationProps<TEntities, TActions, TEvents>) {
     this.name = props.name
+    this.version = props.version
     this.events = props.events
     this.actions = props.actions
     this.entities = props.entities

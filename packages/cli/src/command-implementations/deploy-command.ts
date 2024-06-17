@@ -6,10 +6,11 @@ import semver from 'semver'
 import { prepareCreateBotBody, prepareUpdateBotBody } from '../api/bot-body'
 import type { ApiClient } from '../api/client'
 import {
-  prepareUpdateIntegrationBody,
   CreateIntegrationBody,
+  prepareUpdateIntegrationBody,
   prepareCreateIntegrationBody,
 } from '../api/integration-body'
+import { CreateInterfaceBody, prepareCreateInterfaceBody, prepareUpdateInterfaceBody } from '../api/interface-body'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import * as utils from '../utils'
@@ -31,8 +32,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       return this._deployIntegration(api, projectDef.definition)
     }
     if (projectDef.type === 'interface') {
-      // TODO: implement this
-      throw new errors.BotpressCLIError('Cannot deploy interface projects yet.')
+      return this._deployInterface(api, projectDef.definition)
     }
     return this._deployBot(api, this.argv.botId, this.argv.createNewBot)
   }
@@ -81,7 +81,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     let message: string
     if (integration) {
-      this.logger.warn('Integration already exists. If you decide to deploy, it will overwrite the existing one.')
+      this.logger.warn('Integration already exists. If you decide to deploy, it will override the existing one.')
       message = `Are you sure you want to override integration ${name} v${version}?`
     } else {
       message = `Are you sure you want to deploy integration ${name} v${version}?`
@@ -150,6 +150,57 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       line.started(startedMessage)
       await api.client.createIntegration(createBody).catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, `Could not create integration "${name}"`)
+      })
+      line.success(successMessage)
+    }
+  }
+
+  private async _deployInterface(api: ApiClient, interfaceDeclaration: sdk.InterfaceDeclaration) {
+    if (!api.isBotpressWorkspace) {
+      throw new errors.BotpressCLIError('Your workspace is not allowed to deploy interfaces.')
+    }
+
+    const { name, version } = interfaceDeclaration
+    const intrface = await api.findPublicInterface({ type: 'name', name, version })
+
+    let message: string
+    if (intrface) {
+      this.logger.warn('Interface already exists. If you decide to deploy, it will override the existing one.')
+      message = `Are you sure you want to override interface ${name} v${version}?`
+    } else {
+      message = `Are you sure you want to deploy interface ${name} v${version}?`
+    }
+
+    const confirm = await this.prompt.confirm(message)
+    if (!confirm) {
+      this.logger.log('Aborted')
+      return
+    }
+
+    const createBody: CreateInterfaceBody = prepareCreateInterfaceBody(interfaceDeclaration)
+
+    const startedMessage = `Deploying interface ${chalk.bold(name)} v${version}...`
+    const successMessage = 'Interface deployed'
+    if (intrface) {
+      const updateBody = prepareUpdateInterfaceBody(
+        {
+          id: intrface.id,
+          ...createBody,
+        },
+        intrface
+      )
+
+      const line = this.logger.line()
+      line.started(startedMessage)
+      await api.client.updateInterface(updateBody).catch((thrown) => {
+        throw errors.BotpressCLIError.wrap(thrown, `Could not update interface "${name}"`)
+      })
+      line.success(successMessage)
+    } else {
+      const line = this.logger.line()
+      line.started(startedMessage)
+      await api.client.createInterface(createBody).catch((thrown) => {
+        throw errors.BotpressCLIError.wrap(thrown, `Could not create interface "${name}"`)
       })
       line.success(successMessage)
     }

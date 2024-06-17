@@ -11,6 +11,7 @@ export type {
   File,
   Bot,
   Integration,
+  Interface,
   Issue,
   IssueEvent,
   Account,
