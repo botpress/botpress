@@ -1,7 +1,7 @@
 import WhatsAppAPI from 'whatsapp-api-js'
 import { ServerErrorResponse, ServerMediaRetrieveResponse } from 'whatsapp-api-js/types'
-import { IntegrationCtx, Client } from './types'
 import { getAccessToken } from './misc/whatsapp'
+import { IntegrationCtx, Client } from './types'
 
 export class UnreachableCaseError extends Error {
   constructor(val: never) {
