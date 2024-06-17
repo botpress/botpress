@@ -37,6 +37,9 @@ input:
   slack_secrets:
     description: 'Slack secrets'
     required: false
+  whatsapp_secrets:
+    description: 'Whatsapp secrets'
+    required: false
   charts_secrets:
     description: 'Charts secrets'
     required: false
@@ -110,6 +113,10 @@ runs:
                 base_command="$base_command ${{ inputs.slack_secrets }}"
             elif [ $integration == "charts" ]; then
                 base_command="$base_command ${{ inputs.charts_secrets }}"
+            elif [ $integration == "whatsapp" ]; then
+                base_command="$base_command ${{ inputs.whatsapp_secrets }}"
+            elif [ $integration == "webbrowser" ]; then
+                base_command="$base_command ${{ inputs.webbrowser_secrets }}"
             elif [ $integration == "pdf-generator" ]; then
                 base_command="$base_command ${{ inputs.pdf_secrets }}"
             elif [ $integration == "browser" ]; then

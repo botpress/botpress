@@ -122,9 +122,6 @@ export default new IntegrationDefinition({
     ACCESS_TOKEN: {
       description: 'Access token for internal Meta App',
     },
-    VERIFY_TOKEN: {
-      description: 'The verification token used to verify the webhook',
-    },
     NUMBER_PIN: {
       description: '6 Digits Pin used for phone number registration',
     },
