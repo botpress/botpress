@@ -43,6 +43,13 @@ export type ZodDef =
   | ZodDateDef
   | ZodUndefinedDef
   | ZodNullDef
+  | ZodDefaultDef
+  | ZodCatchDef
+  | ZodTemplateLiteralDef
+  | ZodReadonlyDef
+  | ZodDiscriminatedUnionDef<any>
+  | ZodBrandedDef<any>
+  | ZodPipelineDef<any, any>
   | ZodAnyDef
   | ZodUnknownDef
   | ZodNeverDef
