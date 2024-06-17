@@ -25,9 +25,14 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       await this._runBuild() // This ensures the bundle is always synced with source code
     }
 
-    const integrationDef = await this.readIntegrationDefinitionFromFS()
-    if (integrationDef) {
-      return this._deployIntegration(api, integrationDef)
+    const projectDef = await this.readProjectDefinitionFromFS()
+
+    if (projectDef.type === 'integration') {
+      return this._deployIntegration(api, projectDef.definition)
+    }
+    if (projectDef.type === 'interface') {
+      // TODO: implement this
+      throw new errors.BotpressCLIError('Cannot deploy interface projects yet.')
     }
     return this._deployBot(api, this.argv.botId, this.argv.createNewBot)
   }

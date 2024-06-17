@@ -24,8 +24,8 @@ type IntegrationInstallDir = codegen.IntegrationInstanceJson & {
 export type AddCommandDefinition = typeof commandDefinitions.add
 export class AddCommand extends ProjectCommand<AddCommandDefinition> {
   public async run(): Promise<void> {
-    const integrationDef = await this.readIntegrationDefinitionFromFS()
-    if (integrationDef) {
+    const projectDef = await this.readProjectDefinitionFromFS()
+    if (projectDef.type !== 'bot') {
       throw new errors.ExclusiveBotFeatureError()
     }
 
@@ -65,9 +65,9 @@ export class AddCommand extends ProjectCommand<AddCommandDefinition> {
     )
 
     const workDir = integrationRef.path
-    const pathStore = new utils.path.PathStore<'workDir' | 'definition'>({
+    const pathStore = new utils.path.PathStore<'workDir' | 'integrationDefinition'>({
       workDir,
-      definition: utils.path.absoluteFrom(workDir, consts.fromWorkDir.definition),
+      integrationDefinition: utils.path.absoluteFrom(workDir, consts.fromWorkDir.integrationDefinition),
     })
     const integrationDefinition = await this.readIntegrationDefinitionFromFS(pathStore)
     if (!integrationDefinition) {

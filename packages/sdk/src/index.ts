@@ -13,6 +13,8 @@ export {
   IntegrationImplementationProps as IntegrationProps,
   IntegrationContext,
   IntegrationSpecificClient,
+  InterfaceDeclaration,
+  InterfaceDeclarationProps,
   TagDefinition,
   ConfigurationDefinition,
   EventDefinition,

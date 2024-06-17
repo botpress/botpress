@@ -28,6 +28,12 @@ type AllProjectPaths = ConfigurableProjectPaths & ConstantProjectPaths
 type RemoteIntegrationInstance = utils.types.Merge<sdk.IntegrationInstance<string>, { id: string }>
 type LocalIntegrationInstance = utils.types.Merge<sdk.IntegrationInstance<string>, { id: null }>
 
+export type ProjectType = ProjectDefinition['type']
+export type ProjectDefinition =
+  | { type: 'integration'; definition: sdk.IntegrationDefinition }
+  | { type: 'interface'; definition: sdk.InterfaceDeclaration }
+  | { type: 'bot'; definition: null }
+
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   public constructor(argv: CommandArgv<ProjectCommandDefinition>) {
     const absWorkDir = utils.path.absoluteFrom(utils.path.cwd(), argv.workDir)
@@ -95,21 +101,32 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return { remoteInstances, localInstances }
   }
 
+  protected async readProjectDefinitionFromFS(): Promise<ProjectDefinition> {
+    const integrationDefinition = await this.readIntegrationDefinitionFromFS(this.projectPaths)
+    if (integrationDefinition) {
+      return { type: 'integration', definition: integrationDefinition }
+    }
+    const interfaceDefinition = await this.readInterfaceDefinitionFromFS(this.projectPaths)
+    if (interfaceDefinition) {
+      return { type: 'interface', definition: interfaceDefinition }
+    }
+    return { type: 'bot', definition: null }
+  }
+
   protected async readIntegrationDefinitionFromFS(
-    projectPaths: utils.path.PathStore<'workDir' | 'definition'> = this.projectPaths
+    projectPaths: utils.path.PathStore<'workDir' | 'integrationDefinition'> = this.projectPaths
   ): Promise<sdk.IntegrationDefinition | undefined> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
-    if (!fs.existsSync(abs.definition)) {
-      this.logger.debug(`Integration definition not found at ${rel.definition}`)
+    if (!fs.existsSync(abs.integrationDefinition)) {
       return
     }
 
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
       cwd: abs.workDir,
       outfile: '',
-      entrypoint: rel.definition,
+      entrypoint: rel.integrationDefinition,
       write: false,
     })
 
@@ -121,6 +138,33 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const { default: definition } = utils.require.requireJsCode<{ default: sdk.IntegrationDefinition }>(artifact.text)
 
     validateIntegrationDefinition(definition)
+
+    return definition
+  }
+
+  protected async readInterfaceDefinitionFromFS(
+    projectPaths: utils.path.PathStore<'workDir' | 'interfaceDefinition'> = this.projectPaths
+  ): Promise<sdk.InterfaceDeclaration | undefined> {
+    const abs = projectPaths.abs
+    const rel = projectPaths.rel('workDir')
+
+    if (!fs.existsSync(abs.interfaceDefinition)) {
+      return
+    }
+
+    const { outputFiles } = await utils.esbuild.buildEntrypoint({
+      cwd: abs.workDir,
+      outfile: '',
+      entrypoint: rel.interfaceDefinition,
+      write: false,
+    })
+
+    const artifact = outputFiles[0]
+    if (!artifact) {
+      throw new errors.BotpressCLIError('Could not read interface definition')
+    }
+
+    const { default: definition } = utils.require.requireJsCode<{ default: sdk.InterfaceDeclaration }>(artifact.text)
 
     return definition
   }

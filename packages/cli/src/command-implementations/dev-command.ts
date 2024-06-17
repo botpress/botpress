@@ -32,7 +32,12 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
 
     const api = await this.ensureLoginAndCreateClient(this.argv)
 
-    this._initialDef = await this.readIntegrationDefinitionFromFS()
+    const projectDef = await this.readProjectDefinitionFromFS()
+    if (projectDef.type === 'interface') {
+      throw new errors.ExclusiveIntegrationFeatureError()
+    }
+
+    this._initialDef = projectDef.definition ?? undefined
 
     let env: Record<string, string> = {
       ...process.env,

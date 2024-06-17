@@ -6,11 +6,15 @@ import { ProjectCommand } from './project-command'
 export type ReadCommandDefinition = typeof commandDefinitions.read
 export class ReadCommand extends ProjectCommand<ReadCommandDefinition> {
   public async run(): Promise<void> {
-    const integrationDef = await this.readIntegrationDefinitionFromFS()
-    if (!integrationDef) {
-      throw new errors.ExclusiveIntegrationFeatureError()
+    const projectDef = await this.readProjectDefinitionFromFS()
+    if (projectDef.type === 'bot') {
+      throw new errors.BotpressCLIError('A bot project has no definition to read')
     }
-    const parsed = prepareCreateIntegrationBody(integrationDef)
+    if (projectDef.type === 'interface') {
+      // TODO: implement read for interface projects
+      throw new errors.BotpressCLIError('Cannot read an interface project yet.')
+    }
+    const parsed = prepareCreateIntegrationBody(projectDef.definition)
     this.logger.json(parsed)
   }
 }
