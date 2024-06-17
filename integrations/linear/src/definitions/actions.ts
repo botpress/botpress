@@ -1,5 +1,5 @@
 import { z, IntegrationDefinitionProps } from '@botpress/sdk'
-import { LinearIds, UserProfile, issueSchema } from '../definitions/schemas'
+import { linearIdsSchema, userProfileSchema, issueSchema } from '../definitions/schemas'
 
 const channels = ['issue'] as const
 
@@ -55,7 +55,7 @@ const listIssues = {
   },
   output: {
     schema: z.object({
-      issues: z.array(issueSchema.extend({ linearIds: LinearIds })),
+      issues: z.array(issueSchema.extend({ linearIds: linearIdsSchema })),
       nextCursor: z.string().optional(),
     }),
   },
@@ -129,7 +129,7 @@ const getUser = {
     }),
   },
   output: {
-    schema: UserProfile,
+    schema: userProfileSchema,
   },
 }
 
