@@ -34,7 +34,11 @@ export function truncate(input: string, maxLength: number) {
   return truncated
 }
 
-export async function getWhatsAppMediaUrl(whatsappMediaId: string, client: Client, ctx: IntegrationCtx): Promise<string> {
+export async function getWhatsAppMediaUrl(
+  whatsappMediaId: string,
+  client: Client,
+  ctx: IntegrationCtx
+): Promise<string> {
   const accessToken = await getAccessToken(client, ctx)
   const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
   const media = await whatsapp.retrieveMedia(whatsappMediaId)
