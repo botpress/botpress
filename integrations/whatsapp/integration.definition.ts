@@ -30,22 +30,33 @@ const TagsForCreatingConversation = {
 
 export default new IntegrationDefinition({
   name: 'whatsapp',
-  version: '0.4.3',
+  version: '2.0.0',
   title: 'WhatsApp',
   description: 'This integration allows your bot to interact with WhatsApp.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+    },
     ui: {
       phoneNumberId: {
         title: 'Default Phone Number ID for starting conversations',
       },
+      useManualConfiguration: {
+        title: 'Use Manual Configuration',
+      },
     },
     schema: z.object({
-      verifyToken: z.string().min(1),
-      accessToken: z.string().min(1),
-      phoneNumberId: z.string().min(1),
+      useManualConfiguration: z.boolean(),
+      verifyToken: z.string().min(1).optional(),
+      accessToken: z.string().min(1).optional(),
+      phoneNumberId: z.string().min(1).optional(),
     }),
+  },
+  identifier: {
+    extractScript: 'extract.vrl',
+    fallbackHandlerScript: 'fallbackHandler.vrl',
   },
   channels: {
     [channel]: {
@@ -56,10 +67,6 @@ export default new IntegrationDefinition({
         },
       },
       conversation: {
-        creation: {
-          enabled: true,
-          requiredTags: ['phoneNumberId', 'userPhone'],
-        },
         tags: TagsForCreatingConversation,
       },
     },
@@ -95,5 +102,31 @@ export default new IntegrationDefinition({
     },
   },
   events: {},
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  states: {
+    credentials: {
+      type: 'integration',
+      schema: z.object({
+        accessToken: z.string().optional(),
+        phoneNumberId: z.string().optional(),
+      }),
+    },
+  },
+  secrets: {
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+    CLIENT_ID: {
+      description: 'The client ID of your Meta app.',
+    },
+    CLIENT_SECRET: {
+      description: 'The client secret of your Meta app.',
+    },
+    ACCESS_TOKEN: {
+      description: 'Access token for internal Meta App',
+    },
+    VERIFY_TOKEN: {
+      description: 'The verification token used to verify the webhook',
+    },
+    NUMBER_PIN: {
+      description: '6 Digits Pin used for phone number registration',
+    },
+  },
 })

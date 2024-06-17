@@ -13,16 +13,24 @@ import * as dropdown from './message-types/dropdown'
 import * as outgoing from './outgoing-message'
 import { WhatsAppPayload } from './whatsapp-types'
 import * as bp from '.botpress'
+import { getAccessToken, getPhoneNumberId, handleOauth } from './misc/whatsapp'
 
 const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
     startConversation: async ({ ctx, input, client, logger }) => {
+
+      let phoneNumberId: string | undefined = input.senderPhoneNumberId || await getPhoneNumberId(client, ctx)
+
+      if(!phoneNumberId) {
+        throw new Error('phoneNumberId is required')
+      }
+
       const conversation = await startConversation(
         {
           channel,
-          phoneNumberId: input.senderPhoneNumberId || ctx.configuration.phoneNumberId,
+          phoneNumberId,
           userPhone: input.userPhone,
           templateName: input.templateName,
           templateLanguage: input.templateLanguage,
@@ -119,6 +127,17 @@ const integration = new bp.Integration({
     },
   },
   handler: async ({ req, client, ctx, logger }) => {
+
+    if (req.path === '/oauth') {
+      try {
+        return handleOauth(req, client, ctx, logger)
+      } catch(err: any) {
+        const errorMessage = '(OAuth registration) Error: '+ err.response?.data || err.message
+        logger.forBot().error(errorMessage)
+        return { status: 500, body: errorMessage }
+      }
+    }
+
     if (req.body) {
       logger.forBot().debug('Handler received request from Whatsapp with payload:', req.body)
     } else {
@@ -176,7 +195,16 @@ const integration = new bp.Integration({
           }
 
           for (const message of change.value.messages) {
-            const accessToken = ctx.configuration.accessToken
+
+            const accessToken = await getAccessToken(client, ctx)
+
+            if(!accessToken || !accessToken.length) {
+              logger.forBot().warn('Client Access Token not set, please link the credentials again')
+              return {
+                status: 403,
+              }
+            }
+
             const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
 
             const phoneNumberId = change.value.metadata.phone_number_id

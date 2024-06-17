@@ -6,6 +6,7 @@ import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-j
 import { ServerErrorResponse, ServerMessageResponse } from 'whatsapp-api-js/types'
 import * as types from './types'
 import * as bp from '.botpress'
+import { getAccessToken, getPhoneNumberId } from './misc/whatsapp'
 
 type Channels = bp.channels.Channels
 
@@ -82,7 +83,7 @@ export async function startConversation(
     },
   })
 
-  const whatsapp = new WhatsAppAPI({ token: ctx.configuration.accessToken, secure: false })
+  const whatsapp = new WhatsAppAPI({ token: await getAccessToken(client, ctx), secure: false })
 
   const language = new Language(templateLanguage)
 
@@ -130,7 +131,17 @@ export const createConversationHandler: bp.IntegrationProps['createConversation'
   ctx,
   logger,
 }) => {
-  const phoneNumberId = tags.phoneNumberId || ctx.configuration.phoneNumberId
+
+  let phoneNumberId: string | undefined = tags.phoneNumberId
+
+  if(!phoneNumberId) {
+    phoneNumberId = await getPhoneNumberId(client, ctx)
+  }
+
+  if(!phoneNumberId) {
+    throw new Error('phoneNumberId is required')
+  }
+
   const userPhone = tags.userPhone || ''
   const templateName = tags.templateName || ''
   const templateLanguage = tags.templateLanguage

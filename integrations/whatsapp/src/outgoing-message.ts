@@ -15,6 +15,8 @@ import {
 import { ServerErrorResponse, ServerSentMessageResponse } from 'whatsapp-api-js/types'
 import * as types from './types'
 import { sleep } from './util'
+import { getAccessToken } from './misc/whatsapp'
+import * as bp from '../.botpress'
 
 export type OutgoingMessage =
   | Text
@@ -30,6 +32,7 @@ export type OutgoingMessage =
   | Reaction
 
 export type SendMessageProps = {
+  client: bp.Client
   ctx: types.MessageHandlerProps['ctx']
   conversation: types.MessageHandlerProps['conversation']
   ack: types.MessageHandlerProps['ack']
@@ -37,8 +40,10 @@ export type SendMessageProps = {
   message: OutgoingMessage
 }
 
-export async function send({ ctx, conversation, message, ack, logger }: SendMessageProps) {
-  const whatsapp = new WhatsAppAPI({ token: ctx.configuration.accessToken, secure: false })
+export async function send({ client, ctx, conversation, message, ack, logger }: SendMessageProps) {
+  const accessToken = await getAccessToken(client, ctx)
+
+  const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
   const phoneNumberId = conversation.tags.phoneNumberId
   const to = conversation.tags.userPhone
   const messageType = message._type
@@ -84,6 +89,7 @@ export async function send({ ctx, conversation, message, ack, logger }: SendMess
 }
 
 export async function sendMany({
+  client,
   ctx,
   conversation,
   ack,
@@ -95,7 +101,7 @@ export async function sendMany({
       // Sending multiple messages in sequence does not guarantee delivery order on the client-side.
       // In order for messages to appear in order on the client side, adding some sleep in between each seems to work.
       await sleep(1000)
-      await send({ ctx, conversation, ack, message, logger })
+      await send({ ctx, conversation, ack, message, logger, client })
     }
   } catch (err) {
     logger.forBot().error('Failed to generate messages for sending to Whatsapp. Reason:', err)
