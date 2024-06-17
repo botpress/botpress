@@ -20,10 +20,9 @@ const integration = new bp.Integration({
   unregister: async () => {},
   actions: {
     startConversation: async ({ ctx, input, client, logger }) => {
+      let phoneNumberId: string | undefined = input.senderPhoneNumberId || (await getPhoneNumberId(client, ctx))
 
-      let phoneNumberId: string | undefined = input.senderPhoneNumberId || await getPhoneNumberId(client, ctx)
-
-      if(!phoneNumberId) {
+      if (!phoneNumberId) {
         throw new Error('phoneNumberId is required')
       }
 
@@ -127,12 +126,11 @@ const integration = new bp.Integration({
     },
   },
   handler: async ({ req, client, ctx, logger }) => {
-
     if (req.path === '/oauth') {
       try {
         return handleOauth(req, client, ctx, logger)
-      } catch(err: any) {
-        const errorMessage = '(OAuth registration) Error: '+ err.response?.data || err.message
+      } catch (err: any) {
+        const errorMessage = '(OAuth registration) Error: ' + err.response?.data || err.message
         logger.forBot().error(errorMessage)
         return { status: 500, body: errorMessage }
       }
@@ -195,10 +193,9 @@ const integration = new bp.Integration({
           }
 
           for (const message of change.value.messages) {
-
             const accessToken = await getAccessToken(client, ctx)
 
-            if(!accessToken || !accessToken.length) {
+            if (!accessToken || !accessToken.length) {
               logger.forBot().warn('Client Access Token not set, please link the credentials again')
               return {
                 status: 403,

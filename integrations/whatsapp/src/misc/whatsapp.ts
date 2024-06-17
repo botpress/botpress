@@ -33,7 +33,7 @@ export class MetaOauthClient {
   async getWhatsappBusinessIdFromToken(input_token: string) {
     const query = new URLSearchParams({
       input_token,
-      access_token: bp.secrets.ACCESS_TOKEN
+      access_token: bp.secrets.ACCESS_TOKEN,
     })
 
     const { data } = await axios.get(`https://graph.facebook.com/${this.version}/debug_token?${query.toString()}`)
@@ -43,10 +43,12 @@ export class MetaOauthClient {
 
   async getWhatsappNumberIdFromBussiness(businessId: string, access_token: string) {
     const query = new URLSearchParams({
-      access_token
+      access_token,
     })
 
-    const { data } = await axios.get(`https://graph.facebook.com/${this.version}/${businessId}/phone_numbers?${query.toString()}`)
+    const { data } = await axios.get(
+      `https://graph.facebook.com/${this.version}/${businessId}/phone_numbers?${query.toString()}`
+    )
 
     return data.data[0].id
   }
@@ -55,33 +57,45 @@ export class MetaOauthClient {
     const query = new URLSearchParams({
       access_token,
       messaging_product: 'whatsapp',
-      pin: bp.secrets.NUMBER_PIN
+      pin: bp.secrets.NUMBER_PIN,
     })
 
     try {
-      const { data } = await axios.post(`https://graph.facebook.com/${this.version}/${numberId}/register?${query.toString()}`)
+      const { data } = await axios.post(
+        `https://graph.facebook.com/${this.version}/${numberId}/register?${query.toString()}`
+      )
 
-      if(!data.success) {
+      if (!data.success) {
         throw new Error('No Success')
       }
-    } catch(e: any) {
-      this.logger.forBot().error(`(OAuth registration) Error registering the provided number Id: ${e.message} -> ${e.response?.data}`)
+    } catch (e: any) {
+      this.logger
+        .forBot()
+        .error(`(OAuth registration) Error registering the provided number Id: ${e.message} -> ${e.response?.data}`)
     }
   }
 
   async subscribeToWebhooks(wabaId: string, access_token: string) {
     try {
-      const { data } = await axios.post(`https://graph.facebook.com/${this.version}/${wabaId}/subscribed_apps`, {}, {
-        headers: {
-          'Authorization': 'Bearer ' + access_token
+      const { data } = await axios.post(
+        `https://graph.facebook.com/${this.version}/${wabaId}/subscribed_apps`,
+        {},
+        {
+          headers: {
+            Authorization: 'Bearer ' + access_token,
+          },
         }
-      })
+      )
 
-      if(!data.success) {
+      if (!data.success) {
         throw new Error('No Success')
       }
-    } catch(e: any) {
-      this.logger.forBot().error(`(OAuth registration) Error subscribing to webhooks for WABA ${wabaId}: ${e.message} -> ${e.response?.data}`)
+    } catch (e: any) {
+      this.logger
+        .forBot()
+        .error(
+          `(OAuth registration) Error subscribing to webhooks for WABA ${wabaId}: ${e.message} -> ${e.response?.data}`
+        )
     }
   }
 }
@@ -122,22 +136,26 @@ export const handleOauth = async (req: Request, client: bp.Client, ctx: Integrat
 }
 
 export const getAccessToken = async (client: bp.Client, ctx: IntegrationContext) => {
-
-  if(ctx.configuration.useManualConfiguration) {
+  if (ctx.configuration.useManualConfiguration) {
     return ctx.configuration.accessToken
   }
 
-  const { state: { payload: { accessToken } } } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+  const {
+    state: {
+      payload: { accessToken },
+    },
+  } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
 
   return accessToken
 }
 
 export const getPhoneNumberId = async (client: bp.Client, ctx: IntegrationContext) => {
-
-  if(ctx.configuration.useManualConfiguration) {
+  if (ctx.configuration.useManualConfiguration) {
     return ctx.configuration.phoneNumberId
   }
 
-  const { state: { payload } } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
+  const {
+    state: { payload },
+  } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
   return payload.phoneNumberId
 }
