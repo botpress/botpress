@@ -1,0 +1,16 @@
+{
+  "name": "@botpresshub/updatable",
+  "description": "Updatable interface for Botpress",
+  "private": true,
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@botpress/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "typescript": "^4.9.4"
+  }
+}

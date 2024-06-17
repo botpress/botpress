@@ -1,0 +1,16 @@
+{
+  "name": "@botpresshub/listable",
+  "description": "Listable interface for Botpress",
+  "private": true,
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@botpress/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "typescript": "^4.9.4"
+  }
+}
