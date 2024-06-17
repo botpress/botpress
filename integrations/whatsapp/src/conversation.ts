@@ -131,7 +131,7 @@ export const createConversationHandler: bp.IntegrationProps['createConversation'
   ctx,
   logger,
 }) => {
-  const phoneNumberId: string | undefined = tags.phoneNumberId || await getPhoneNumberId(client, ctx)
+  const phoneNumberId: string | undefined = tags.phoneNumberId || (await getPhoneNumberId(client, ctx))
 
   if (!phoneNumberId) {
     throw new Error('phoneNumberId is required')
