@@ -37,6 +37,12 @@ input:
   slack_secrets:
     description: 'Slack secrets'
     required: false
+  charts_secrets:
+    description: 'Charts secrets'
+    required: false
+  webbrowser_secrets:
+    description: 'WebBrowser secrets'
+    required: false
 
 runs:
   using: 'composite'
@@ -78,8 +84,9 @@ runs:
         # deploy
 
         redeploy=${{ inputs.force == 'true' && 1 || 0 }}
-        all_filters="-F "@botpresshub/*" -F "!asana" -F "!trello" -F "!webchat" ${{ inputs.extra_filter }}"
-        integration_paths=$(pnpm list $all_filters --json | jq -r "map(".path") | .[]")
+        all_filters="-F '@botpresshub/*' -F '!asana' -F '!trello' -F '!webchat' -F '!groq' -F '!openai' ${{ inputs.extra_filter }}"
+        list_integrations_cmd="pnpm list $all_filters --json"
+        integration_paths=$(eval $list_integrations_cmd | jq -r "map(".path") | .[]")
 
         for integration_path in $integration_paths; do
             integration=$(basename $integration_path)
@@ -92,6 +99,10 @@ runs:
                 base_command="$base_command ${{ inputs.linear_secrets }}"
             elif [ $integration == "slack" ]; then
                 base_command="$base_command ${{ inputs.slack_secrets }}"
+            elif [ $integration == "charts" ]; then
+                base_command="$base_command ${{ inputs.charts_secrets }}"
+            elif [ $integration == "webbrowser" ]; then
+                base_command="$base_command ${{ inputs.webbrowser_secrets }}"
             fi
             
             if [ $exists -eq 0 ]; then

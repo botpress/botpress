@@ -11,9 +11,11 @@
 /packages/bots @franklevasseur
 
 # Integrations
+/integrations/charts @allardy
 /integrations/dalle @franklevasseur
 /integrations/gmail @michaelmass
 /integrations/googlecalendar @charlescatta
+/integrations/groq @AbrahamLopez10
 /integrations/gsheets @franklevasseur
 /integrations/instagram @charlescatta
 /integrations/intercom @chsir17 @ptrckbp
@@ -22,11 +24,13 @@
 /integrations/make @charlescatta
 /integrations/messenger @charlescatta
 /integrations/notion @lakshya0246
+/integrations/openai @AbrahamLopez10
 /integrations/slack @michaelmass
 /integrations/stripe @charlescatta
 /integrations/teams @franklevasseur
 /integrations/telegram @franklevasseur @charlescatta
 /integrations/twilio @AbrahamLopez10
+/integrations/webbrowser @allardy
 /integrations/webhook @franklevasseur
 /integrations/whatsapp @AbrahamLopez10
 /integrations/zapier @AbrahamLopez10
