@@ -4,9 +4,9 @@ import WhatsAppAPI from 'whatsapp-api-js'
 import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { ServerErrorResponse, ServerMessageResponse } from 'whatsapp-api-js/types'
+import { getAccessToken, getPhoneNumberId } from './misc/whatsapp'
 import * as types from './types'
 import * as bp from '.botpress'
-import { getAccessToken, getPhoneNumberId } from './misc/whatsapp'
 
 type Channels = bp.channels.Channels
 

@@ -10,17 +10,17 @@ import * as card from './message-types/card'
 import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
+import { getAccessToken, getPhoneNumberId, handleOauth } from './misc/whatsapp'
 import * as outgoing from './outgoing-message'
 import { WhatsAppPayload } from './whatsapp-types'
 import * as bp from '.botpress'
-import { getAccessToken, getPhoneNumberId, handleOauth } from './misc/whatsapp'
 
 const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
     startConversation: async ({ ctx, input, client, logger }) => {
-      let phoneNumberId: string | undefined = input.senderPhoneNumberId || (await getPhoneNumberId(client, ctx))
+      const phoneNumberId: string | undefined = input.senderPhoneNumberId || (await getPhoneNumberId(client, ctx))
 
       if (!phoneNumberId) {
         throw new Error('phoneNumberId is required')
@@ -194,13 +194,6 @@ const integration = new bp.Integration({
 
           for (const message of change.value.messages) {
             const accessToken = await getAccessToken(client, ctx)
-
-            if (!accessToken || !accessToken.length) {
-              logger.forBot().warn('Client Access Token not set, please link the credentials again')
-              return {
-                status: 403,
-              }
-            }
 
             const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
 

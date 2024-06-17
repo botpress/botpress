@@ -13,10 +13,10 @@ import {
   Reaction,
 } from 'whatsapp-api-js/messages'
 import { ServerErrorResponse, ServerSentMessageResponse } from 'whatsapp-api-js/types'
+import * as bp from '../.botpress'
+import { getAccessToken } from './misc/whatsapp'
 import * as types from './types'
 import { sleep } from './util'
-import { getAccessToken } from './misc/whatsapp'
-import * as bp from '../.botpress'
 
 export type OutgoingMessage =
   | Text
