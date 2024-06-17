@@ -1,3 +1,4 @@
+import { zuiKey } from '../../../ui/constants'
 import {
   StringValidation,
   ZodIssueCode,
@@ -469,6 +470,11 @@ export class ZodString extends ZodType<string, ZodStringDef> {
       ...this._def,
       checks: [...this._def.checks, { kind: 'trim' }],
     })
+  }
+
+  secret() {
+    this._def[zuiKey] = { ...this._def[zuiKey], secret: true }
+    return this
   }
 
   toLowerCase() {

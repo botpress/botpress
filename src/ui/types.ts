@@ -2,20 +2,23 @@ import { ZodEnumDef, z } from '../z/index'
 import type { FC } from 'react'
 import { zuiKey } from './constants'
 
+export type ZuiExtensionObject = {
+  tooltip?: boolean
+  displayAs?: [string, any]
+  title?: string
+  disabled?: boolean | SerializedFunction
+  hidden?: boolean | SerializedFunction
+  placeholder?: string
+  secret?: boolean
+}
+
 export type SerializedFunction = string
 export type BaseSchema = {
   description?: string
   anyOf?: JSONSchema[]
   oneOf?: JSONSchema[]
   allOf?: JSONSchema[]
-  [zuiKey]?: {
-    tooltip?: boolean
-    displayAs?: [string, any]
-    title?: string
-    disabled?: boolean | SerializedFunction
-    hidden?: boolean | SerializedFunction
-    placeholder?: string
-  }
+  [zuiKey]?: ZuiExtensionObject
 }
 
 export type JSONSchemaPrimitiveType = 'string' | 'number' | 'integer' | 'boolean' | 'null'
