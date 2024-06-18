@@ -96,6 +96,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     let createBody: CreateIntegrationBody = prepareCreateIntegrationBody(integrationDef)
     createBody = {
       ...createBody,
+      interfaces: await this._formatInterfacesImplStatements(api, integrationDef),
       code,
       icon: iconFileContent,
       readme: readmeFileContent,
@@ -470,5 +471,30 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
     const [name] = parts as [string]
     return { name }
+  }
+
+  private _formatInterfacesImplStatements = async (
+    api: ApiClient,
+    integration: sdk.IntegrationDefinition
+  ): Promise<CreateIntegrationBody['interfaces']> => {
+    if (!integration.interfaces.length) {
+      return undefined
+    }
+
+    const interfaces: NonNullable<CreateIntegrationBody['interfaces']> = {}
+    for (const i of integration.interfaces) {
+      const { name, version, entities, actions, events } = i
+      const intrface = await api.findPublicInterface({ type: 'name', name, version })
+      if (!intrface) {
+        throw new errors.BotpressCLIError(`Could not find interface "${name}@${version}"`)
+      }
+      const { id } = intrface
+
+      const entityNames = Object.values(entities).map((e) => e.name)
+      const key = `${name}<${entityNames.join(',')}>`
+      interfaces[key] = { id, entities, actions, events }
+    }
+
+    return interfaces
   }
 }

@@ -3,7 +3,8 @@
   "description": "Readable interface for Botpress",
   "private": true,
   "scripts": {
-    "check:type": "tsc --noEmit"
+    "check:type": "tsc --noEmit",
+    "deploy": "pnpm bp deploy"
   },
   "license": "MIT",
   "dependencies": {

@@ -1,7 +1,13 @@
 import * as utils from '../../utils'
 import z, { AnyZodObject, GenericZuiSchema, ZodRef } from '../../zui'
 import { BaseActions, BaseEntities, BaseEvents } from './generic'
-import { ActionDefinition, EntityDefinition, EventDefinition, InterfaceInstance } from './types'
+import {
+  ActionDefinition,
+  EntityDefinition,
+  EventDefinition,
+  InterfaceImplementationStatement,
+  InterfaceInstance,
+} from './types'
 
 type EntityReferences<TEntities extends BaseEntities> = {
   [K in keyof TEntities]: ZodRef
@@ -44,13 +50,21 @@ export type InterfaceDeclarationProps<
   templateName?: (name: string, props: InterfaceTemplateNameProps<TEntities>) => string
 }
 
-export type InterfaceResolveProps<TEntities extends BaseEntities = BaseEntities> = {
+export type InterfaceResolveInput<TEntities extends BaseEntities = BaseEntities> = {
   entities: {
     [K in keyof TEntities]: {
       name: string
       schema: TEntities[K]
     }
   }
+}
+
+export type InterfaceResolveOutput<
+  TActions extends BaseActions = BaseActions,
+  TEvents extends BaseEvents = BaseEvents
+> = {
+  instance: InterfaceInstance<TActions, TEvents>
+  implementStatement: InterfaceImplementationStatement
 }
 
 export class InterfaceDeclaration<
@@ -74,8 +88,16 @@ export class InterfaceDeclaration<
     this.templateName = props.templateName
   }
 
-  public resolve(props: InterfaceResolveProps<TEntities>): InterfaceInstance<TActions, TEvents> {
+  public resolve(props: InterfaceResolveInput<TEntities>): InterfaceResolveOutput<TActions, TEvents> {
     const { entities } = props
+
+    const implementStatement: InterfaceImplementationStatement = {
+      name: this.name,
+      version: this.version,
+      entities: utils.mapValues(entities, (entity) => ({ name: entity.name })), // { item: { name: 'issue' } }
+      actions: {},
+      events: {},
+    }
 
     const actions: Record<string, ActionDefinition> = {}
     const events: Record<string, EventDefinition> = {}
@@ -90,6 +112,7 @@ export class InterfaceDeclaration<
         input: { schema: resolvedInputSchema },
         output: { schema: resolvedOutputSchema },
       }
+      implementStatement.actions[actionName] = { name: newActionName }
     }
 
     // dereference events
@@ -97,17 +120,23 @@ export class InterfaceDeclaration<
       const resolvedEventSchema = this._dereference(event.schema, entities)
       const newEventName = this._rename(entities, eventName)
       events[newEventName] = { schema: resolvedEventSchema }
+      implementStatement.events[eventName] = { name: newEventName }
     }
 
-    return {
+    const instance = {
       actions,
       events,
     } as InterfaceInstance<TActions, TEvents>
+
+    return {
+      instance,
+      implementStatement,
+    }
   }
 
   private _dereference(
     generic: GenericZuiSchema<EntityReferences<TEntities>, AnyZodObject>,
-    entities: InterfaceResolveProps<TEntities>['entities']
+    entities: InterfaceResolveInput<TEntities>['entities']
   ): AnyZodObject {
     const entitySchemas: Record<string, AnyZodObject> = {}
     const entityReferences: Record<string, ZodRef> = {}
@@ -120,7 +149,7 @@ export class InterfaceDeclaration<
     ) as AnyZodObject
   }
 
-  private _rename(entities: InterfaceResolveProps<TEntities>['entities'], name: string): string {
+  private _rename(entities: InterfaceResolveInput<TEntities>['entities'], name: string): string {
     if (!this.templateName) {
       return name
     }

@@ -2,7 +2,7 @@ import { Writable } from '../../type-utils'
 import * as utils from '../../utils'
 import { EntityStore, BrandedEntity, createStore, isBranded, getName } from './entity-store'
 import { BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates, BaseEntities } from './generic'
-import { InterfaceDeclaration, InterfaceResolveProps } from './interface-declaration'
+import { InterfaceDeclaration, InterfaceResolveInput } from './interface-declaration'
 import {
   ConfigurationDefinition,
   EventDefinition,
@@ -12,6 +12,7 @@ import {
   UserDefinition,
   SecretDefinition,
   EntityDefinition,
+  InterfaceImplementationStatement,
 } from './types'
 
 export type IntegrationDefinitionProps<
@@ -59,11 +60,6 @@ export type IntegrationDefinitionProps<
   }
 }
 
-type InterfaceStatement = {
-  name: string
-  prefix: string
-}
-
 type InterfaceTypeArguments<TInterfaceEntities extends BaseEntities> = {
   [K in keyof TInterfaceEntities]: BrandedEntity<TInterfaceEntities[K], string>
 }
@@ -95,7 +91,7 @@ export class IntegrationDefinition<
   public readonly secrets: this['props']['secrets']
   public readonly identifier: this['props']['identifier']
   public readonly entities: this['props']['entities']
-  public readonly interfaces: InterfaceStatement[] = []
+  public readonly interfaces: InterfaceImplementationStatement[] = []
 
   public constructor(
     public readonly props: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates, TEntities>
@@ -132,11 +128,6 @@ export class IntegrationDefinition<
     interfaceDeclaration: InterfaceDeclaration<E>,
     builder: ExtensionBuilder<TEntities, E>
   ): this {
-    const namespaceDelimiter = 'x' // TODO: replace by a dot
-    const prefix = Object.keys(this.entities ?? {})
-      .map((s) => s + namespaceDelimiter)
-      .join('')
-
     const extensionBuilderOutput = builder(createStore(this.entities)) as Record<string, BrandedEntity>
     const unbrandedEntity = utils.pairs(extensionBuilderOutput).find(([_k, e]) => !isBranded(e))
     if (unbrandedEntity) {
@@ -151,8 +142,8 @@ export class IntegrationDefinition<
       schema: e.schema,
     }))
 
-    const interfaceInstance = interfaceDeclaration.resolve({
-      entities: interfaceTypeArguments as InterfaceResolveProps<E>['entities'],
+    const { instance: interfaceInstance, implementStatement } = interfaceDeclaration.resolve({
+      entities: interfaceTypeArguments as InterfaceResolveInput<E>['entities'],
     })
 
     const self = this as Writable<IntegrationDefinition>
@@ -160,10 +151,7 @@ export class IntegrationDefinition<
     self.actions = { ...(self.actions ?? {}), ...actions }
     self.events = { ...(self.events ?? {}), ...events }
 
-    this.interfaces.push({
-      name: interfaceDeclaration.name,
-      prefix,
-    })
+    this.interfaces.push(implementStatement)
 
     return this
   }

@@ -79,3 +79,11 @@ export type InterfaceInstance<TEvents extends BaseEvents = BaseEvents, TActions 
   actions: { [K in keyof TActions]: ActionDefinition<TActions[K]> }
   events: { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
 }
+
+export type InterfaceImplementationStatement = {
+  name: string
+  version: string
+  entities: Record<string, { name: string }>
+  actions: Record<string, { name: string }>
+  events: Record<string, { name: string }>
+}
