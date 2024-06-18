@@ -91,20 +91,13 @@ function getTokenUsage(
   provider: string
 ) {
   const inputTokens = response.usage?.prompt_tokens
-  const outputTokens = response.usage?.completion_tokens
   if (!inputTokens) {
-    logger
-      .forBot()
-      .error(
-        `Received invalid input token count of "${inputTokens}" from "${provider}" LLM provider which cannot be billed to the user`
-      )
+    logger.forBot().error(`Received invalid input token count of "${inputTokens}" from "${provider}" LLM provider`)
   }
+
+  const outputTokens = response.usage?.completion_tokens
   if (!outputTokens) {
-    logger
-      .forBot()
-      .error(
-        `Received invalid output token count of "${outputTokens}" from "${provider}" LLM provider which cannot be billed to the user`
-      )
+    logger.forBot().error(`Received invalid output token count of "${outputTokens}" from "${provider}" LLM provider`)
   }
 
   return {
