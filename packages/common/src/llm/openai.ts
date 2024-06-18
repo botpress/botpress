@@ -62,7 +62,7 @@ export async function generateContent(
     tools: mapToOpenAITools(input.tools),
   })
 
-  const { inputTokens, outputTokens } = getTokenUsage(response, logger)
+  const { inputTokens, outputTokens } = getTokenUsage(response, logger, params.provider)
 
   return <GenerateContentOutput>{
     id: response.id,
@@ -87,20 +87,23 @@ export async function generateContent(
 
 function getTokenUsage(
   response: { usage?: { prompt_tokens?: number; completion_tokens?: number } },
-  logger: IntegrationLogger
+  logger: IntegrationLogger,
+  provider: string
 ) {
   const inputTokens = response.usage?.prompt_tokens
   const outputTokens = response.usage?.completion_tokens
   if (!inputTokens) {
     logger
       .forBot()
-      .error(`Received invalid input token count of "${inputTokens}" from OpenAI which could not be billed to the user`)
+      .error(
+        `Received invalid input token count of "${inputTokens}" from "${provider}" LLM provider which cannot be billed to the user`
+      )
   }
   if (!outputTokens) {
     logger
       .forBot()
       .error(
-        `Received invalid output token count of "${outputTokens}" from OpenAI which could not be billed to the user`
+        `Received invalid output token count of "${outputTokens}" from "${provider}" LLM provider which cannot be billed to the user`
       )
   }
 
