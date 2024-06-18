@@ -146,3 +146,10 @@ export class InvalidIntegrationReferenceError extends BotpressCLIError {
     super(message)
   }
 }
+
+export class InvalidInterfaceReferenceError extends BotpressCLIError {
+  constructor(ref: string) {
+    const message = `Invalid interface reference "${ref}".`
+    super(message)
+  }
+}
