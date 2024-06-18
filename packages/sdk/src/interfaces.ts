@@ -18,7 +18,9 @@ export const listable = new InterfaceDeclaration({
   version: '0.0.1',
   entities: {
     item: {
-      schema: z.object({}),
+      schema: z.object({
+        id: z.string(),
+      }),
     },
   },
   events: {},
@@ -44,7 +46,9 @@ export const creatable = new InterfaceDeclaration({
   version: '0.0.1',
   entities: {
     item: {
-      schema: z.object({}),
+      schema: z.object({
+        id: z.string(),
+      }),
     },
   },
   events: {
@@ -73,7 +77,9 @@ export const readable = new InterfaceDeclaration({
   version: '0.0.1',
   entities: {
     item: {
-      schema: z.object({}),
+      schema: z.object({
+        id: z.string(),
+      }),
     },
   },
   events: {},
@@ -95,7 +101,9 @@ export const updatable = new InterfaceDeclaration({
   version: '0.0.1',
   entities: {
     item: {
-      schema: z.object({}),
+      schema: z.object({
+        id: z.string(),
+      }),
     },
   },
   events: {
@@ -124,7 +132,9 @@ export const deletable = new InterfaceDeclaration({
   version: '0.0.1',
   entities: {
     item: {
-      schema: z.object({}),
+      schema: z.object({
+        id: z.string(),
+      }),
     },
   },
   events: {
