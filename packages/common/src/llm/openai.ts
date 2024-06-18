@@ -14,14 +14,31 @@ import {
 } from 'openai/resources'
 import { GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './schemas'
 
+type ModelCost = {
+  inputCostPer1MTokens: number
+  outputCostPer1MTokens: number
+}
+
 export async function generateContent(
   input: GenerateContentInput,
   openAIClient: OpenAI,
   logger: IntegrationLogger,
   params: {
     provider: string
+    modelCosts: {
+      [key: string]: ModelCost
+    }
   }
 ): Promise<GenerateContentOutput> {
+  const modelCost = params.modelCosts[input.model]
+  if (!modelCost) {
+    throw new InvalidPayloadError(
+      `Model name "${input.model}" is not supported by this integration, supported model names are: ${Object.keys(
+        params.modelCosts
+      ).join(', ')}`
+    )
+  }
+
   const messages = input.messages.map(mapToOpenAIMessage)
 
   if (input.systemPrompt) {
@@ -45,6 +62,8 @@ export async function generateContent(
     tools: mapToOpenAITools(input.tools),
   })
 
+  const { inputTokens, outputTokens } = getTokenUsage(response, logger, params.provider)
+
   return <GenerateContentOutput>{
     id: response.id,
     provider: params.provider,
@@ -58,10 +77,37 @@ export async function generateContent(
       toolCalls: mapToToolCalls(choice.message.tool_calls, logger),
     })),
     usage: {
-      inputTokens: response.usage?.prompt_tokens ?? 0,
-      outputTokens: response.usage?.completion_tokens ?? 0,
+      inputTokens,
+      inputCost: calculateTokenCost(modelCost.inputCostPer1MTokens, inputTokens),
+      outputTokens,
+      outputCost: calculateTokenCost(modelCost.outputCostPer1MTokens, outputTokens),
     },
   }
+}
+
+function getTokenUsage(
+  response: { usage?: { prompt_tokens?: number; completion_tokens?: number } },
+  logger: IntegrationLogger,
+  provider: string
+) {
+  const inputTokens = response.usage?.prompt_tokens
+  if (!inputTokens) {
+    logger.forBot().error(`Received invalid input token count of "${inputTokens}" from "${provider}" LLM provider`)
+  }
+
+  const outputTokens = response.usage?.completion_tokens
+  if (!outputTokens) {
+    logger.forBot().error(`Received invalid output token count of "${outputTokens}" from "${provider}" LLM provider`)
+  }
+
+  return {
+    inputTokens: inputTokens || 0,
+    outputTokens: outputTokens || 0,
+  }
+}
+
+function calculateTokenCost(costPer1MTokens: number, tokenCount: number) {
+  return (costPer1MTokens / 1_000_000) * tokenCount
 }
 
 function mapToOpenAIMessage(message: Message): ChatCompletionMessageParam {
