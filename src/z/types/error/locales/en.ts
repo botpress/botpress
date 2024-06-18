@@ -109,6 +109,9 @@ const errorMap: ZodErrorMap = (issue, _ctx) => {
     case ZodIssueCode.not_finite:
       message = 'Number must be finite'
       break
+    case ZodIssueCode.unresolved_reference:
+      message = 'Unresolved reference'
+      break
     default:
       message = _ctx.defaultError
       util.assertNever(issue)

@@ -76,6 +76,18 @@ export class ZodIntersection<T extends ZodTypeAny, U extends ZodTypeAny> extends
   ZodIntersectionDef<T, U>,
   T['_input'] & U['_input']
 > {
+  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+    return new ZodIntersection({
+      ...this._def,
+      left: this._def.left.dereference(defs),
+      right: this._def.right.dereference(defs),
+    })
+  }
+
+  getReferences(): string[] {
+    return [...this._def.left.getReferences(), ...this._def.right.getReferences()]
+  }
+
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { status, ctx } = this._processInputParams(input)
     const handleParsed = (

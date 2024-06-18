@@ -47,6 +47,21 @@ export class ZodRecord<Key extends KeySchema = ZodString, Value extends ZodTypeA
   get valueSchema() {
     return this._def.valueType
   }
+
+  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+    const keyType = this._def.keyType.dereference(defs)
+    const valueType = this._def.valueType.dereference(defs)
+    return new ZodRecord({
+      ...this._def,
+      keyType,
+      valueType,
+    })
+  }
+
+  getReferences(): string[] {
+    return [...this._def.keyType.getReferences(), ...this._def.valueType.getReferences()]
+  }
+
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { status, ctx } = this._processInputParams(input)
     if (ctx.parsedType !== ZodParsedType.object) {

@@ -328,6 +328,10 @@ ${escapeString((schema as z.ZodLiteral<any>).value)}`.trim()
     case z.ZodFirstPartyTypeKind.ZodReadonly:
       return `readonly ${sUnwrapZod(def.innerType, newConfig)}`
 
+    case z.ZodFirstPartyTypeKind.ZodRef:
+      // TODO: should be represented as a type argument <T>
+      throw new Error('ZodRef cannot be transformed to TypeScript yet')
+
     case z.ZodFirstPartyTypeKind.ZodTemplateLiteral:
       const inner = def.parts
         .map((p) => {

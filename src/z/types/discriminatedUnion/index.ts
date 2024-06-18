@@ -88,6 +88,25 @@ export class ZodDiscriminatedUnion<
   Discriminator extends string,
   Options extends ZodDiscriminatedUnionOption<Discriminator>[],
 > extends ZodType<output<Options[number]>, ZodDiscriminatedUnionDef<Discriminator, Options>, input<Options[number]>> {
+  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+    const options = this.options.map((option) => option.dereference(defs)) as [
+      ZodDiscriminatedUnionOption<Discriminator>,
+      ...ZodDiscriminatedUnionOption<Discriminator>[],
+    ]
+
+    const optionsMap = ZodDiscriminatedUnion._getOptionsMap(this.discriminator, options)
+
+    return new ZodDiscriminatedUnion({
+      ...this._def,
+      options,
+      optionsMap,
+    })
+  }
+
+  getReferences(): string[] {
+    return this.options.flatMap((option) => option.getReferences())
+  }
+
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const { ctx } = this._processInputParams(input)
 
@@ -158,6 +177,24 @@ export class ZodDiscriminatedUnion<
     options: Types,
     params?: RawCreateParams,
   ): ZodDiscriminatedUnion<Discriminator, Types> {
+    const optionsMap = ZodDiscriminatedUnion._getOptionsMap(discriminator, options)
+    return new ZodDiscriminatedUnion<
+      Discriminator,
+      // DiscriminatorValue,
+      Types
+    >({
+      typeName: ZodFirstPartyTypeKind.ZodDiscriminatedUnion,
+      discriminator,
+      options,
+      optionsMap,
+      ...processCreateParams(params),
+    })
+  }
+
+  private static _getOptionsMap<
+    Discriminator extends string,
+    Types extends [ZodDiscriminatedUnionOption<Discriminator>, ...ZodDiscriminatedUnionOption<Discriminator>[]],
+  >(discriminator: Discriminator, options: Types) {
     // Get all the valid discriminator values
     const optionsMap: Map<Primitive, Types[number]> = new Map()
 
@@ -178,16 +215,6 @@ export class ZodDiscriminatedUnion<
       }
     }
 
-    return new ZodDiscriminatedUnion<
-      Discriminator,
-      // DiscriminatorValue,
-      Types
-    >({
-      typeName: ZodFirstPartyTypeKind.ZodDiscriminatedUnion,
-      discriminator,
-      options,
-      optionsMap,
-      ...processCreateParams(params),
-    })
+    return optionsMap
   }
 }

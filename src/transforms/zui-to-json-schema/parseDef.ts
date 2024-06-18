@@ -31,8 +31,8 @@ import { JsonSchema7UnknownType, parseUnknownDef } from './parsers/unknown'
 import { Refs, Seen } from './Refs'
 import { parseReadonlyDef } from './parsers/readonly'
 import { zuiKey } from '../../ui/constants'
+import { JsonSchema7RefType, parseRefDef } from './parsers/ref'
 
-type JsonSchema7RefType = { $ref: string }
 type JsonSchema7Meta = {
   default?: any
   description?: string
@@ -164,6 +164,8 @@ const selectParser = (def: any, typeName: ZodFirstPartyTypeKind, refs: Refs): Js
       return parseTupleDef(def, refs)
     case ZodFirstPartyTypeKind.ZodRecord:
       return parseRecordDef(def, refs)
+    case ZodFirstPartyTypeKind.ZodRef:
+      return parseRefDef(def)
     case ZodFirstPartyTypeKind.ZodLiteral:
       return parseLiteralDef(def, refs)
     case ZodFirstPartyTypeKind.ZodEnum:

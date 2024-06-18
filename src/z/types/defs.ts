@@ -92,6 +92,7 @@ export enum ZodFirstPartyTypeKind {
   ZodIntersection = 'ZodIntersection',
   ZodTuple = 'ZodTuple',
   ZodRecord = 'ZodRecord',
+  ZodRef = 'ZodRef',
   ZodMap = 'ZodMap',
   ZodSet = 'ZodSet',
   ZodFunction = 'ZodFunction',

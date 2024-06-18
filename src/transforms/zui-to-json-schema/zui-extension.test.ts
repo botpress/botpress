@@ -381,4 +381,43 @@ describe('zuiToJsonSchema', () => {
       }
     `)
   })
+
+  test('generic is transformed to a ref', () => {
+    const T = z.ref('T')
+    const TJsonSchema = zuiToJsonSchema(T)
+    expect(TJsonSchema).toMatchInlineSnapshot(`
+      {
+        "$ref": "T",
+        "${zuiKey}": {},
+      }
+    `)
+
+    const schema = z.object({
+      description: z.string(),
+      data: T,
+    })
+
+    const jsonSchema = zuiToJsonSchema(schema)
+    expect(jsonSchema).toMatchInlineSnapshot(`
+      {
+        "additionalProperties": false,
+        "properties": {
+          "data": {
+            "$ref": "T",
+            "${zuiKey}": {},
+          },
+          "description": {
+            "type": "string",
+            "${zuiKey}": {},
+          },
+        },
+        "required": [
+          "description",
+          "data",
+        ],
+        "type": "object",
+        "${zuiKey}": {},
+      }
+    `)
+  })
 })

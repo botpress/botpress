@@ -30,6 +30,7 @@ import {
   ZodPromise,
   ZodReadonly,
   ZodRecord,
+  ZodRef,
   ZodSet,
   ZodString,
   ZodSymbol,
@@ -86,6 +87,7 @@ export type ZodFirstPartySchemaTypes =
   | ZodReadonly<any>
   | ZodSymbol
   | ZodTemplateLiteral<any>
+  | ZodRef
 
 // requires TS 4.4+
 abstract class Class {
@@ -120,6 +122,7 @@ const discriminatedUnionType = ZodDiscriminatedUnion.create
 const intersectionType = ZodIntersection.create
 const tupleType = ZodTuple.create
 const recordType = ZodRecord.create
+const refType = ZodRef.create
 const mapType = ZodMap.create
 const setType = ZodSet.create
 const functionType = ZodFunction.create
@@ -187,6 +190,7 @@ export {
   preprocessType as preprocess,
   promiseType as promise,
   recordType as record,
+  refType as ref,
   setType as set,
   strictObjectType as strictObject,
   stringType as string,

@@ -45,6 +45,8 @@ test('first party switch', () => {
       break
     case z.ZodFirstPartyTypeKind.ZodRecord:
       break
+    case z.ZodFirstPartyTypeKind.ZodRef:
+      break
     case z.ZodFirstPartyTypeKind.ZodMap:
       break
     case z.ZodFirstPartyTypeKind.ZodSet:

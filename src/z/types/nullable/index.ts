@@ -23,6 +23,17 @@ export class ZodNullable<T extends ZodTypeAny> extends ZodType<
   ZodNullableDef<T>,
   T['_input'] | null
 > {
+  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+    return new ZodNullable({
+      ...this._def,
+      innerType: this._def.innerType.dereference(defs),
+    })
+  }
+
+  getReferences(): string[] {
+    return this._def.innerType.getReferences()
+  }
+
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     const parsedType = this._getType(input)
     if (parsedType === ZodParsedType.null) {

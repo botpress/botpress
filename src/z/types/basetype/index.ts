@@ -156,6 +156,16 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
 
   abstract _parse(input: ParseInput): ParseReturnType<Output>
 
+  /** deeply replace all references in the schema */
+  dereference(_defs: Record<string, ZodTypeAny>): ZodTypeAny {
+    return this
+  }
+
+  /** deeply scans the schema to check if it contains references */
+  getReferences(): string[] {
+    return []
+  }
+
   _getType(input: ParseInput): string {
     return getParsedType(input.data)
   }
