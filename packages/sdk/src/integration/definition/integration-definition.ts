@@ -91,6 +91,8 @@ export class IntegrationDefinition<
   public readonly secrets: this['props']['secrets']
   public readonly identifier: this['props']['identifier']
   public readonly entities: this['props']['entities']
+
+  // TODO: make this a record
   public readonly interfaces: InterfaceImplementationStatement[] = []
 
   public constructor(
@@ -142,12 +144,12 @@ export class IntegrationDefinition<
       schema: e.schema,
     }))
 
-    const { instance: interfaceInstance, implementStatement } = interfaceDeclaration.resolve({
+    const { resolved, implementStatement } = interfaceDeclaration.resolve({
       entities: interfaceTypeArguments as InterfaceResolveInput<E>['entities'],
     })
 
     const self = this as Writable<IntegrationDefinition>
-    const { actions, events } = interfaceInstance
+    const { actions, events } = resolved
     self.actions = { ...(self.actions ?? {}), ...actions }
     self.events = { ...(self.events ?? {}), ...events }
 

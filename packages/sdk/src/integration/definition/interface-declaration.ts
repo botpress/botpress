@@ -6,7 +6,7 @@ import {
   EntityDefinition,
   EventDefinition,
   InterfaceImplementationStatement,
-  InterfaceInstance,
+  ResolvedInterface,
 } from './types'
 
 type EntityReferences<TEntities extends BaseEntities> = {
@@ -63,14 +63,14 @@ export type InterfaceResolveOutput<
   TActions extends BaseActions = BaseActions,
   TEvents extends BaseEvents = BaseEvents
 > = {
-  instance: InterfaceInstance<TActions, TEvents>
+  resolved: ResolvedInterface<TActions, TEvents>
   implementStatement: InterfaceImplementationStatement
 }
 
 export class InterfaceDeclaration<
   TEntities extends BaseEntities = BaseEntities,
   TActions extends BaseActions = BaseActions,
-  TEvents extends BaseEntities = BaseEntities
+  TEvents extends BaseEvents = BaseEvents
 > {
   public readonly name: this['props']['name']
   public readonly version: this['props']['version']
@@ -123,13 +123,13 @@ export class InterfaceDeclaration<
       implementStatement.events[eventName] = { name: newEventName }
     }
 
-    const instance = {
+    const resolved = {
       actions,
       events,
-    } as InterfaceInstance<TActions, TEvents>
+    } as ResolvedInterface<TActions, TEvents>
 
     return {
-      instance,
+      resolved,
       implementStatement,
     }
   }

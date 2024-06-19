@@ -154,7 +154,7 @@ export type UI<Namespace extends 'studio' | 'dashboard' = 'studio'> = Namespace 
   : any
 
 export type GenericZuiSchema<
-  A extends Record<string, z.ZodRef> = Record<string, z.ZodRef>,
+  A extends Record<string, z.ZodTypeAny> = Record<string, z.ZodTypeAny>,
   R extends z.ZodTypeAny = z.ZodTypeAny
 > = (typeArguments: A) => R
 
