@@ -74,12 +74,6 @@ export const useFormData = (fieldSchema: JSONSchema, path: string[]) => {
 
   const data = useMemo(() => getPathData(context.formData, path), [context.formData, path])
 
-  useEffect(() => {
-    if (data === null || typeof data === 'undefined') {
-      context.setFormData(setObjectPath(context.formData, path, getDefaultItemData(fieldSchema)))
-    }
-  }, [fieldSchema])
-
   const validation = useMemo(() => {
     if (context.disableValidation) {
       return { formValid: null, formErrors: null }
@@ -127,7 +121,13 @@ export const useFormData = (fieldSchema: JSONSchema, path: string[]) => {
   const addArrayItem = useCallback(
     (path: string[], data: any) => {
       const currentData = getPathData(context.formData, path) || []
-      context.setFormData(setObjectPath(context.formData, path, [...currentData, data]))
+      context.setFormData(
+        setObjectPath(
+          context.formData,
+          path,
+          Array.isArray(currentData) ? [...currentData, data] : [...currentData, data],
+        ),
+      )
     },
     [context.formData],
   )
@@ -164,31 +164,67 @@ export function setObjectPath(obj: any, path: string[], data: any): any {
   return { ...obj }
 }
 
-export const getDefaultItemData = (schema: JSONSchema | JSONSchema[]): any | null => {
+export const getDefaultValues = (schema: JSONSchema | JSONSchema[], optional?: boolean): any => {
   if (Array.isArray(schema)) {
-    return schema.map((s) => getDefaultItemData(s))
-  }
-  if (schema.type === 'object') {
-    return schema.default || {}
-  }
-  if (schema.type === 'array') {
-    return schema.default || []
-  }
-  if (schema.type === 'string') {
-    return schema.default || ''
-  }
-  if (schema.type === 'number') {
-    return typeof schema.default === 'number' ? schema.default : 0
-  }
-  if (schema.type === 'boolean') {
-    return typeof schema.default === 'boolean' ? schema.default : false
+    return getDefaultValues(schema[0]!)
   }
 
   if (schema.default) {
     return schema.default
   }
 
-  return null
+  if (schema.nullable) {
+    return null
+  }
+
+  if (optional) {
+    return undefined
+  }
+
+  if (schema.anyOf?.length) {
+    return getDefaultValues(schema.anyOf[0]!)
+  }
+
+  if (schema.type === 'object') {
+    if (schema.properties) {
+      const data: Record<string, any> = {}
+      Object.entries(schema.properties).map(([key, fieldSchema]) => {
+        data[key] = getDefaultValues(fieldSchema, !schema.required?.includes(key) || isOptional(fieldSchema) || false)
+      })
+      return data
+    }
+  }
+
+  if (schema.type === 'array') {
+    if (schema.minItems && schema.minItems > 0) {
+      return [getDefaultValues(schema.items)]
+    }
+
+    return []
+  }
+
+  if (schema.type === 'string') {
+    if (schema.enum?.length) {
+      return schema.enum[0]
+    }
+    return ''
+  }
+
+  if (schema.type === 'number') {
+    if (schema.enum?.length) {
+      return schema.enum[0]
+    }
+    return 0
+  }
+
+  if (schema.type === 'boolean') {
+    if (schema.enum?.length) {
+      return schema.enum[0]
+    }
+    return false
+  }
+
+  return undefined
 }
 
 export const FormDataProvider: React.FC<PropsWithChildren<FormDataProviderProps>> = ({
@@ -223,4 +259,30 @@ export function getPathData(object: any, path: string[]): any {
   return path.reduce((prev, curr) => {
     return prev ? prev[curr] : null
   }, object)
+}
+
+export function isOptional(schema: JSONSchema): boolean {
+  return schema.anyOf?.some((s) => s.not && Object.keys(s.not).length === 0) || false
+}
+
+type AnyObject = { [key: string]: any }
+
+export function deepMerge(target: AnyObject, source: AnyObject): AnyObject {
+  const output = { ...target }
+
+  for (const key in source) {
+    if (source.hasOwnProperty(key)) {
+      if (typeof source[key] === 'object' && source[key] !== null && !Array.isArray(source[key])) {
+        if (typeof output[key] === 'object' && output[key] !== null && !Array.isArray(output[key])) {
+          output[key] = deepMerge(output[key], source[key])
+        } else {
+          output[key] = deepMerge({}, source[key])
+        }
+      } else {
+        output[key] = source[key]
+      }
+    }
+  }
+
+  return output
 }

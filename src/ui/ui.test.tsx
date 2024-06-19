@@ -44,7 +44,7 @@ describe('UI', () => {
       lastName: zui.string(),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
     const rendered = render(
       <ZuiForm<typeof testComponentDefinitions>
         schema={jsonSchema}
@@ -72,7 +72,7 @@ describe('UI', () => {
       }),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
     const rendered = render(
       <ZuiForm<typeof testComponentDefinitions>
         schema={jsonSchema}
@@ -101,7 +101,7 @@ describe('UI', () => {
       }),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
     const components = {
       ...testComponentImplementation,
       number: {
@@ -152,7 +152,7 @@ describe('UI', () => {
       ),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
     const rendered = render(
       <ZuiForm<typeof testComponentDefinitions>
         schema={jsonSchema}
@@ -173,7 +173,7 @@ describe('UI', () => {
       favoriteColors: zui.array(zui.string()),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
     const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
 
     const addBtn = rendered.getByTestId('array:favoriteColors:addbtn')
@@ -201,7 +201,7 @@ describe('UI', () => {
       vector: zui.array(zui.number()),
     })
 
-    const jsonSchema = aDeeplyNestedSchema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = aDeeplyNestedSchema.toJsonSchema() as ObjectSchema
 
     const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
     const addButton = rendered.getByTestId('array:vector:addbtn')
@@ -223,7 +223,7 @@ describe('UI', () => {
       favoriteColors: zui.array(zui.string()),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
     const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
 
     const addBtn = rendered.getByTestId('array:favoriteColors:addbtn')
@@ -240,7 +240,7 @@ describe('UI', () => {
       favoriteColors: zui.array(zui.string()),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
     const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
 
     const addBtn = rendered.getByTestId('array:favoriteColors:addbtn')
@@ -264,7 +264,7 @@ describe('UI', () => {
       ),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
     const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
 
     const addBtn = rendered.getByTestId('array:favoriteColors:addbtn')
@@ -286,7 +286,7 @@ describe('UI', () => {
       favoriteColors: zui.array(zui.string()),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
     const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
 
     const addBtn = rendered.getByTestId('array:favoriteColors:addbtn')
@@ -323,7 +323,7 @@ describe('UI', () => {
       ),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
 
     const rendered = render(
       <ZuiForm<typeof testComponentDefinitions>
@@ -350,7 +350,7 @@ describe('UI', () => {
         .displayAs<typeof testComponentDefinitions>({ id: 'customstringcomponent', params: { multiline: true } }),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
 
     const rendered = render(
       <ZuiForm<typeof testComponentDefinitions>
@@ -380,7 +380,7 @@ describe('UI', () => {
       lastName: zui.string().title('Last Name'),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
 
     const rendered = render(
       <ZuiForm<typeof testComponentDefinitions>
@@ -408,7 +408,7 @@ describe('UI', () => {
       age: zui.number().nullable(),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
 
     const rendered = render(
       <ZuiForm<typeof testComponentDefinitions>
@@ -438,7 +438,7 @@ describe('UI', () => {
       })
       .displayAs<typeof testComponentDefinitions>({ id: 'collapsible', params: { collapsed: false } })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
 
     const rendered = render(
       <ZuiForm<typeof testComponentDefinitions>
@@ -503,7 +503,7 @@ describe('UI', () => {
       value: zui.number().disabled((n) => n === 5),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
 
     const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
     const numberInput = rendered.getByTestId('number:value:input') as HTMLInputElement
@@ -535,7 +535,7 @@ describe('UI', () => {
         },
       }))
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
 
     const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
 
@@ -560,7 +560,7 @@ describe('UI', () => {
       value: zui.number().hidden((n) => n === 5),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
 
     const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
 
@@ -598,7 +598,7 @@ describe('UI', () => {
         .default({ type: 'credit', cardNumber: '1234' }),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
 
     const rendered = render(<ZuiFormWithState schema={jsonSchema} components={testComponentImplementation} />)
 
@@ -620,7 +620,7 @@ describe('UI', () => {
       age: zui.number().default(20),
     })
 
-    const jsonSchema = schema.toJsonSchema({ target: 'openApi3' }) as ObjectSchema
+    const jsonSchema = schema.toJsonSchema() as ObjectSchema
 
     const mock = vi.fn()
     const rendered = render(
@@ -636,8 +636,6 @@ describe('UI', () => {
 
     expect(nameInput.value).toBe('Jane')
     expect(ageInput.value).toBe('20')
-
-    expect(mock).toHaveBeenCalledWith({ name: 'Jane', age: 20 })
   })
 })
 

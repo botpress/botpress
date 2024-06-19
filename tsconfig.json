@@ -10,27 +10,15 @@
     "noUnusedParameters": true,
     "noUncheckedIndexedAccess": true,
     "allowSyntheticDefaultImports": true,
-    "lib": [
-      "dom",
-      "ESNext",
-      "dom.iterable",
-    ],
+    "lib": ["dom", "ESNext", "dom.iterable"],
     "allowJs": false,
     "declaration": false,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "noEmit": false,
     "resolveJsonModule": true,
-    "isolatedModules": true,
+    "isolatedModules": true
   },
-  "exclude": [
-    "node_modules",
-    "dist",
-    "*.test.ts",
-    "**/benchmark/**/*.ts",
-  ],
-  "include": [
-    "src/**/*",
-    "vitest.d.ts"
-  ]
+  "exclude": ["node_modules", "dist", "*.test.ts", "**/benchmark/**/*.ts"],
+  "include": ["src/**/*", "vitest.d.ts"]
 }

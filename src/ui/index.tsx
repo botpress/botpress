@@ -15,7 +15,7 @@ import {
 } from './types'
 import { zuiKey } from './constants'
 import React, { type FC, useMemo } from 'react'
-import { FormDataProvider, getDefaultItemData, useFormData } from './hooks/useFormData'
+import { FormDataProvider, deepMerge, getDefaultValues, useFormData } from './hooks/useFormData'
 import { getPathData } from './hooks/useFormData'
 import { formatTitle } from './titleutils'
 import { BoundaryFallbackComponent, ErrorBoundary } from './ErrorBoundary'
@@ -98,9 +98,13 @@ export const ZuiForm = <UI extends UIComponentDefinitions = DefaultComponentDefi
   disableValidation,
   fallback,
 }: ZuiFormProps<UI>): JSX.Element | null => {
+  const actualData = useMemo(() => {
+    return deepMerge(getDefaultValues(schema), value)
+  }, [value, schema])
+
   return (
     <FormDataProvider
-      formData={value || {}}
+      formData={actualData}
       setFormData={onChange}
       formSchema={schema}
       disableValidation={disableValidation || false}
@@ -182,7 +186,7 @@ const FormElementRenderer: FC<FormRendererProps> = ({
       schema,
       data: dataArray,
       addItem: (data = undefined) =>
-        addArrayItem(path, typeof data === 'undefined' ? getDefaultItemData(schema.items) : data),
+        addArrayItem(path, typeof data === 'undefined' ? getDefaultValues(schema.items) : data),
       removeItem: (index) => removeArrayItem(path, index),
       ...childProps,
     }
