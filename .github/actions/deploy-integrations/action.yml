@@ -43,6 +43,12 @@ input:
   webbrowser_secrets:
     description: 'WebBrowser secrets'
     required: false
+  openai_secrets:
+    description: 'OpenAI secrets'
+    required: false
+  groq_secrets:
+    description: 'Groq secrets'
+    required: false
 
 runs:
   using: 'composite'
@@ -84,7 +90,7 @@ runs:
         # deploy
 
         redeploy=${{ inputs.force == 'true' && 1 || 0 }}
-        all_filters="-F '@botpresshub/*' -F '!asana' -F '!trello' -F '!webchat' -F '!groq' -F '!openai' ${{ inputs.extra_filter }}"
+        all_filters="-F '@botpresshub/*' -F '!asana' -F '!trello' -F '!webchat' ${{ inputs.extra_filter }}"
         list_integrations_cmd="pnpm list $all_filters --json"
         integration_paths=$(eval $list_integrations_cmd | jq -r "map(".path") | .[]")
 
@@ -103,6 +109,10 @@ runs:
                 base_command="$base_command ${{ inputs.charts_secrets }}"
             elif [ $integration == "webbrowser" ]; then
                 base_command="$base_command ${{ inputs.webbrowser_secrets }}"
+            elif [ $integration == "openai" ]; then
+                base_command="$base_command ${{ inputs.openai_secrets }}"
+            elif [ $integration == "groq" ]; then
+                base_command="$base_command ${{ inputs.groq_secrets }}"
             fi
             
             if [ $exists -eq 0 ]; then
