@@ -25,8 +25,8 @@ type ConfigurableProjectPaths = { entryPoint: string; outDir: string; workDir: s
 type ConstantProjectPaths = typeof consts.fromOutDir & typeof consts.fromWorkDir
 type AllProjectPaths = ConfigurableProjectPaths & ConstantProjectPaths
 
-type RemoteIntegrationInstance = utils.types.Merge<sdk.IntegrationInstance<string>, { id: string }>
-type LocalIntegrationInstance = utils.types.Merge<sdk.IntegrationInstance<string>, { id: null }>
+type RemoteIntegrationInstance = utils.types.Merge<sdk.IntegrationInstance<any>, { id: string }>
+type LocalIntegrationInstance = utils.types.Merge<sdk.IntegrationInstance<any>, { id: null }>
 
 export type ProjectType = ProjectDefinition['type']
 export type ProjectDefinition =
@@ -84,7 +84,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       .value()
   }
 
-  private _splitApiAndLocalIntegrationInstances(instances: sdk.IntegrationInstance<string>[]): {
+  private _splitApiAndLocalIntegrationInstances(instances: sdk.IntegrationInstance<any>[]): {
     remoteInstances: RemoteIntegrationInstance[]
     localInstances: LocalIntegrationInstance[]
   } {
