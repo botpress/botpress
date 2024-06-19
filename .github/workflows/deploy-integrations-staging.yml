@@ -37,3 +37,5 @@ jobs:
           slack_secrets: '' # secrets should already exist
           charts_secrets: '--secrets QUICKCHARTS_API_KEY=${{ secrets.QUICKCHARTS_API_KEY }}'
           webbrowser_secrets: '--secrets EXTRACT_CONTENT_KEY=${{ secrets.EXTRACT_CONTENT_KEY }} --secrets SCREENSHOT_API_KEY=${{ secrets.SCREENSHOT_API_KEY }}'
+          openai_secrets: '--secrets OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}'
+          groq_secrets: '--secrets GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}'

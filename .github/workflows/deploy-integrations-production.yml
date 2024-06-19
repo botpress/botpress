@@ -33,4 +33,4 @@ jobs:
           slack_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_SLACK_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_SLACK_CLIENT_SECRET }} --secrets SIGNING_SECRET=${{ secrets.PRODUCTION_SLACK_SIGNING_SECRET }}'
           charts_secrets: '--secrets QUICKCHARTS_API_KEY=${{ secrets.QUICKCHARTS_API_KEY }}'
           webbrowser_secrets: '--secrets EXTRACT_CONTENT_KEY=${{ secrets.EXTRACT_CONTENT_KEY }} --secrets SCREENSHOT_API_KEY=${{ secrets.SCREENSHOT_API_KEY }}'
-          extra_filter: "-F '!charts' -F '!webbrowser'"
+          extra_filter: "-F '!charts' -F '!webbrowser' -F '!groq' -F '!openai'"
