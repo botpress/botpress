@@ -101,19 +101,21 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return { remoteInstances, localInstances }
   }
 
-  protected async readProjectDefinitionFromFS(): Promise<ProjectDefinition> {
-    const integrationDefinition = await this.readIntegrationDefinitionFromFS(this.projectPaths)
+  protected async readProjectDefinitionFromFS(
+    projectPaths: utils.path.PathStore<'workDir' | 'integrationDefinition' | 'interfaceDefinition'> = this.projectPaths
+  ): Promise<ProjectDefinition> {
+    const integrationDefinition = await this._readIntegrationDefinitionFromFS(projectPaths)
     if (integrationDefinition) {
       return { type: 'integration', definition: integrationDefinition }
     }
-    const interfaceDefinition = await this.readInterfaceDefinitionFromFS(this.projectPaths)
+    const interfaceDefinition = await this._readInterfaceDefinitionFromFS(projectPaths)
     if (interfaceDefinition) {
       return { type: 'interface', definition: interfaceDefinition }
     }
     return { type: 'bot', definition: null }
   }
 
-  protected async readIntegrationDefinitionFromFS(
+  private async _readIntegrationDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'integrationDefinition'> = this.projectPaths
   ): Promise<sdk.IntegrationDefinition | undefined> {
     const abs = projectPaths.abs
@@ -142,7 +144,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return definition
   }
 
-  protected async readInterfaceDefinitionFromFS(
+  private async _readInterfaceDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'interfaceDefinition'> = this.projectPaths
   ): Promise<sdk.InterfaceDeclaration | undefined> {
     const abs = projectPaths.abs
