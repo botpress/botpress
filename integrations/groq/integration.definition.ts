@@ -1,5 +1,5 @@
 import { llm } from '@botpress/common'
-import { IntegrationDefinition } from '@botpress/sdk'
+import { IntegrationDefinition, z } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
   name: 'groq',
@@ -11,7 +11,12 @@ export default new IntegrationDefinition({
       title: 'Generate Content',
       description: 'Generate content using any LLM supported by Groq',
       input: {
-        schema: llm.schemas.GenerateContentInputSchema,
+        schema: llm.schemas.GenerateContentInputSchema.extend({
+          model: z
+            .enum(['llama3-8b-8192', 'llama3-70b-8192', 'mixtral-8x7b-32768', 'gemma-7b-it'])
+            .describe('Model identifier to be used for content generation.')
+            .default('mixtral-8x7b-32768'),
+        }),
       },
       output: {
         schema: llm.schemas.GenerateContentOutputSchema,
