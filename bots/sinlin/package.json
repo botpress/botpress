@@ -1,0 +1,19 @@
+{
+  "name": "@bp-bots/sinlin",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "integrations": "es-node ./integrations.ts"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@bpinternal/es-node": "^0.0.5",
+    "@types/node": "^18.11.17",
+    "execa": "^8.0.1",
+    "typescript": "^4.9.4"
+  }
+}

@@ -1,7 +1,7 @@
 import { InterfaceDeclaration } from './integration/definition'
 import z from './zui'
 
-const withId = (schema: z.ZodTypeAny) => z.intersection(schema, z.object({ id: z.string() }))
+const withId = (schema: z.ZodTypeAny) => z.intersection(schema, z.object({ ID: z.string() }))
 
 const capitalize = (s: string) => s[0]!.toUpperCase() + s.slice(1)
 const camelCase = (...parts: string[]) => {
@@ -12,15 +12,15 @@ const camelCase = (...parts: string[]) => {
   return [first, ...rest.map(capitalize)].join('')
 }
 
+const baseItem = z.object({ ID: z.string() })
+
 const nextToken = z.string().optional()
 export const listable = new InterfaceDeclaration({
   name: 'listable',
   version: '0.0.1',
   entities: {
     item: {
-      schema: z.object({
-        id: z.string(),
-      }),
+      schema: baseItem,
     },
   },
   events: {},
@@ -46,9 +46,7 @@ export const creatable = new InterfaceDeclaration({
   version: '0.0.1',
   entities: {
     item: {
-      schema: z.object({
-        id: z.string(),
-      }),
+      schema: baseItem,
     },
   },
   events: {
@@ -77,9 +75,7 @@ export const readable = new InterfaceDeclaration({
   version: '0.0.1',
   entities: {
     item: {
-      schema: z.object({
-        id: z.string(),
-      }),
+      schema: baseItem,
     },
   },
   events: {},
@@ -101,9 +97,7 @@ export const updatable = new InterfaceDeclaration({
   version: '0.0.1',
   entities: {
     item: {
-      schema: z.object({
-        id: z.string(),
-      }),
+      schema: baseItem,
     },
   },
   events: {
@@ -132,9 +126,7 @@ export const deletable = new InterfaceDeclaration({
   version: '0.0.1',
   entities: {
     item: {
-      schema: z.object({
-        id: z.string(),
-      }),
+      schema: baseItem,
     },
   },
   events: {

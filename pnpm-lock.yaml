@@ -163,6 +163,31 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  bots/sinlin:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@bpinternal/es-node':
+        specifier: ^0.0.5
+        version: 0.0.5
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.19.10
+      execa:
+        specifier: ^8.0.1
+        version: 8.0.1
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   integrations/asana:
     dependencies:
       '@botpress/sdk':
