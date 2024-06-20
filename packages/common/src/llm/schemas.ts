@@ -44,21 +44,41 @@ const MessageSchema = z.object({
 export type Message = z.infer<typeof MessageSchema>
 
 export const GenerateContentInputSchema = z.object({
-  model: z.string(),
-  systemPrompt: z.string().optional(),
-  messages: z.array(MessageSchema),
+  model: z.string().describe('Model to use for content generation'),
+  systemPrompt: z.string().optional().describe('Optional system prompt to guide the model'),
+  messages: z.array(MessageSchema).describe('Array of messages for the model to process').min(1),
   responseFormat: z
     .enum(['text', 'json_object'])
     .optional()
     .describe(
-      'If "json_object" specified then you must also instruct the model to generate JSON either via the system prompt or a user message.'
+      'Response format expected from the model. If "json_object" is chosen, you must instruct the model to generate JSON either via the system prompt or a user message.'
     ), // note: only OpenAI and Groq support this but for other models we can just append this as an indication in the system prompt
   // note: we don't support streaming yet
-  maxTokens: z.number().optional(),
-  temperature: z.number().default(1), // TODO: the Studio doesn't support empty number inputs so best to define a proper default value
-  topP: z.number().default(1), // TODO: .placeholder() from zui doesn't work, so we have to use .default() which introduces some typing issues
+  maxTokens: z.number().optional().describe('Maximum number of tokens allowed in the generated response'),
+  temperature: z
+    .number()
+    .min(0)
+    .max(2)
+    // @ts-ignore
+    .displayAs({ id: 'slider', params: { stepSize: 0.01, horizontal: true } })
+    .default(1)
+    .describe('Sampling temperature for the model. Higher values result in more random outputs.'),
+  topP: z
+    .number()
+    .min(0)
+    .max(1)
+    .default(1)
+    // @ts-ignore
+    .displayAs({ id: 'slider', params: { stepSize: 0.01, horizontal: true } })
+    .describe(
+      'Top-p sampling parameter. Limits sampling to the smallest set of tokens with a cumulative probability above the threshold.'
+    ), // TODO: .placeholder() from zui doesn't work, so we have to use .default() which introduces some typing issues
   // note: topK is supported by Claude and Gemini but not by OpenAI or Groq
-  stopSequences: z.array(z.string()).optional(),
+  stopSequences: z
+    .array(z.string())
+    .max(4)
+    .optional()
+    .describe('Sequences where the model should stop generating further tokens.'),
   tools: z
     .array(
       z.object({
