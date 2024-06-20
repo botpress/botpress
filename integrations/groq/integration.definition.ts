@@ -3,7 +3,7 @@ import { IntegrationDefinition, z } from '@botpress/sdk'
 
 const model = z
   .enum(['llama3-8b-8192', 'llama3-70b-8192', 'mixtral-8x7b-32768', 'gemma-7b-it'])
-  .describe('Model identifier to be used for content generation.')
+  .describe('Model to use for content generation')
   .default('mixtral-8x7b-32768')
 
 export type Model = z.infer<typeof model>

@@ -44,7 +44,7 @@ const MessageSchema = z.object({
 export type Message = z.infer<typeof MessageSchema>
 
 export const GenerateContentInputSchema = z.object({
-  model: z.string().describe('Model identifier to be used for content generation'),
+  model: z.string().describe('Model to use for content generation'),
   systemPrompt: z.string().optional().describe('Optional system prompt to guide the model'),
   messages: z.array(MessageSchema).describe('Array of messages for the model to process').min(1),
   responseFormat: z
