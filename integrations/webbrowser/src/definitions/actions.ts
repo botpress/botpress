@@ -15,24 +15,29 @@ const captureScreenshot = {
   },
 }
 
-const browsePage = {
-  title: 'Browse Page',
-  description: 'Extract metadata and content of the specified page as markdown.',
+const fullPage = z.object({
+  url: z.string(),
+  content: z.string(),
+  metadata: z.object({
+    title: z.string().nullable().optional(),
+    description: z.string().nullable().optional(),
+    favicon: z.string().nullable().optional(),
+    author: z.string().nullable().optional(),
+    datePublished: z.string().nullable().optional(),
+  }),
+})
+
+const browsePages = {
+  title: 'Browse Pages',
+  description: 'Extract the full content & the metadata of the specified pages as markdown.',
   input: {
     schema: z.object({
-      url: z.string(),
+      urls: z.array(z.string()),
     }),
   },
   output: {
     schema: z.object({
-      content: z.string(),
-      metadata: z.object({
-        title: z.string().nullable().optional(),
-        description: z.string().nullable().optional(),
-        favicon: z.string().nullable().optional(),
-        author: z.string().nullable().optional(),
-        datePublished: z.string().nullable().optional(),
-      }),
+      results: z.array(fullPage),
     }),
   },
 }
@@ -71,6 +76,11 @@ const webSearch = {
         .enum(['Day', 'Week', 'Month'])
         .optional()
         .describe('Only consider results from the last day, week or month'),
+      browsePages: z
+        .boolean()
+        .optional()
+        .default(false)
+        .describe('Whether to browse to the pages to get the full content'),
     }),
   },
   output: {
@@ -84,6 +94,7 @@ const webSearch = {
             .array(z.object({ name: z.string(), url: z.string() }))
             .optional()
             .describe('Useful links on the page'),
+          page: fullPage.optional(),
         })
       ),
     }),
@@ -92,6 +103,6 @@ const webSearch = {
 
 export const actionDefinitions = {
   captureScreenshot,
-  browsePage,
+  browsePages,
   webSearch,
 }

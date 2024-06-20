@@ -1,4 +1,4 @@
-import { browsePage } from './actions/browse-page'
+import { browsePages } from './actions/browse-pages'
 import { captureScreenshot } from './actions/capture-screenshot'
 import { webSearch } from './actions/web-search'
 import * as bp from '.botpress'
@@ -8,7 +8,7 @@ export default new bp.Integration({
   unregister: async () => {},
   actions: {
     captureScreenshot,
-    browsePage,
+    browsePages,
     webSearch,
   },
   channels: {},
