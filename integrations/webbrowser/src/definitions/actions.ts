@@ -45,6 +45,8 @@ const domainNameValidator = z
   .max(50, 'Domain name is too long')
 
 const webSearch = {
+  title: 'Web Search',
+  description: 'Search information on the web.',
   input: {
     schema: z.object({
       query: z.string().min(1).max(1000).describe('What are we searching for?'),
@@ -75,10 +77,13 @@ const webSearch = {
     schema: z.object({
       results: z.array(
         z.object({
-          name: z.string(),
-          url: z.string(),
-          snippet: z.string(),
-          links: z.array(z.object({ name: z.string(), url: z.string() })).optional(),
+          name: z.string().describe('Title of the page'),
+          url: z.string().describe('URL of the page'),
+          snippet: z.string().describe('A short summary of the page'),
+          links: z
+            .array(z.object({ name: z.string(), url: z.string() }))
+            .optional()
+            .describe('Useful links on the page'),
         })
       ),
     }),
