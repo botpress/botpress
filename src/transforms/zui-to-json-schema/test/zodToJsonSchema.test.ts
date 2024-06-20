@@ -1,3 +1,4 @@
+import { zuiKey } from '../../../ui/constants'
 import { z } from '../../../z/index'
 import { zodToJsonSchema } from '../zodToJsonSchema'
 
@@ -5,6 +6,7 @@ describe('Root schema result after parsing', () => {
   it('should return the schema directly in the root if no name is passed', () => {
     expect(zodToJsonSchema(z.any())).toEqual({
       $schema: 'http://json-schema.org/draft-07/schema#',
+      [zuiKey]: {},
     })
   })
   it('should return the schema inside a named property in "definitions" if a name is passed', () => {
@@ -12,7 +14,7 @@ describe('Root schema result after parsing', () => {
       $schema: 'http://json-schema.org/draft-07/schema#',
       $ref: `#/definitions/MySchema`,
       definitions: {
-        MySchema: {},
+        MySchema: { [zuiKey]: {} },
       },
     })
   })
@@ -22,7 +24,7 @@ describe('Root schema result after parsing', () => {
       $schema: 'http://json-schema.org/draft-07/schema#',
       $ref: `#/$defs/MySchema`,
       $defs: {
-        MySchema: {},
+        MySchema: { [zuiKey]: {} },
       },
     })
   })
@@ -32,7 +34,8 @@ describe('Root schema result after parsing', () => {
       zodToJsonSchema(z.union([z.any(), z.instanceof(String), z.string(), z.number()]), { strictUnions: false }),
     ).toEqual({
       $schema: 'http://json-schema.org/draft-07/schema#',
-      anyOf: [{}, {}, { type: 'string' }, { type: 'number' }],
+      anyOf: [{ [zuiKey]: {} }, { [zuiKey]: {} }, { type: 'string', [zuiKey]: {} }, { type: 'number', [zuiKey]: {} }],
+      [zuiKey]: {},
     })
   })
 
@@ -41,7 +44,8 @@ describe('Root schema result after parsing', () => {
       zodToJsonSchema(z.union([z.any(), z.instanceof(String), z.string(), z.number()]), { strictUnions: true }),
     ).toEqual({
       $schema: 'http://json-schema.org/draft-07/schema#',
-      anyOf: [{ type: 'string' }, { type: 'number' }],
+      anyOf: [{ [zuiKey]: {} }, { [zuiKey]: {} }, { type: 'string', [zuiKey]: {} }, { type: 'number', [zuiKey]: {} }],
+      [zuiKey]: {},
     })
   })
 
@@ -57,9 +61,18 @@ describe('Root schema result after parsing', () => {
       $schema: 'http://json-schema.org/draft-07/schema#',
       additionalProperties: false,
       properties: {
-        field: { anyOf: [{ type: 'string' }, { type: 'number' }] },
+        field: {
+          anyOf: [
+            { [zuiKey]: {} },
+            { [zuiKey]: {} },
+            { type: 'string', [zuiKey]: {} },
+            { type: 'number', [zuiKey]: {} },
+          ],
+          [zuiKey]: {},
+        },
       },
       type: 'object',
+      [zuiKey]: {},
     })
   })
 
@@ -78,12 +91,13 @@ describe('Root schema result after parsing', () => {
       $schema: 'http://json-schema.org/draft-07/schema#',
       $ref: '#/definitions/MyArraySchema',
       definitions: {
-        MySpecialStringSchema: { type: 'string' },
+        MySpecialStringSchema: { type: 'string', [zuiKey]: {} },
         MyArraySchema: {
           type: 'array',
           items: {
             $ref: '#/definitions/MySpecialStringSchema',
           },
+          [zuiKey]: {},
         },
       },
     })

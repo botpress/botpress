@@ -1,3 +1,5 @@
+import { zuiKey } from '../../../ui/constants'
+import { ZuiExtensionObject } from '../../../ui/types'
 import { ZodSetDef } from '../../../z/index'
 import { ErrorMessages, setResponseValueAndErrors } from '../errorMessages'
 import { JsonSchema7Type, parseDef } from '../parseDef'
@@ -10,6 +12,7 @@ export type JsonSchema7SetType = {
   minItems?: number
   maxItems?: number
   errorMessage?: ErrorMessages<JsonSchema7SetType>
+  [zuiKey]?: ZuiExtensionObject
 }
 
 export function parseSetDef(def: ZodSetDef, refs: Refs): JsonSchema7SetType {

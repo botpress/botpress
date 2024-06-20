@@ -10,6 +10,7 @@ export type ZuiExtensionObject = {
   hidden?: boolean | SerializedFunction
   placeholder?: string
   secret?: boolean
+  coerce?: boolean
 }
 
 export type SerializedFunction = string

@@ -1,3 +1,5 @@
+import { zuiKey } from '../../../ui/constants'
+import { ZuiExtensionObject } from '../../../ui/types'
 import { ZodMapDef } from '../../../z/index'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
@@ -12,6 +14,7 @@ export type JsonSchema7MapType = {
     minItems: 2
     maxItems: 2
   }
+  [zuiKey]?: ZuiExtensionObject
 }
 
 export function parseMapDef(def: ZodMapDef, refs: Refs): JsonSchema7MapType | JsonSchema7RecordType {

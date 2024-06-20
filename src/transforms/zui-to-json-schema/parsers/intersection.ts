@@ -1,3 +1,5 @@
+import { zuiKey } from '../../../ui/constants'
+import { ZuiExtensionObject } from '../../../ui/types'
 import { ZodIntersectionDef } from '../../../z/index'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
@@ -6,6 +8,7 @@ import { JsonSchema7StringType } from './string'
 export type JsonSchema7AllOfType = {
   allOf: JsonSchema7Type[]
   unevaluatedProperties?: boolean
+  [zuiKey]?: ZuiExtensionObject
 }
 
 const isJsonSchema7AllOfType = (type: JsonSchema7Type | JsonSchema7StringType): type is JsonSchema7AllOfType => {

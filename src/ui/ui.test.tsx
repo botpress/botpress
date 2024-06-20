@@ -708,10 +708,11 @@ describe('utils', () => {
             hidden: true,
           },
         },
-        name: { type: 'string' },
+        name: { type: 'string', [zuiKey]: {} },
       },
       required: ['type', 'name'],
       additionalProperties: false,
+      [zuiKey]: {},
     })
   })
 })

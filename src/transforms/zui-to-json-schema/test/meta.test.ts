@@ -1,15 +1,16 @@
-import { JSONSchema7 } from 'json-schema'
 import { z } from '../../../z/index'
 import { zodToJsonSchema } from '../zodToJsonSchema'
+import { zuiKey } from '../../../ui/constants'
 
 describe('Meta data', () => {
   it('should be possible to use description', () => {
     const $z = z.string().describe('My neat string')
     const $j = zodToJsonSchema($z)
-    const $e: JSONSchema7 = {
+    const $e = {
       $schema: 'http://json-schema.org/draft-07/schema#',
       type: 'string',
       description: 'My neat string',
+      [zuiKey]: {},
     }
 
     expect($j).toEqual($e)
@@ -23,6 +24,7 @@ describe('Meta data', () => {
       type: 'string',
       description: 'My neat string',
       markdownDescription: 'My neat string',
+      [zuiKey]: {},
     }
 
     expect($j).toEqual($e)
@@ -52,21 +54,25 @@ describe('Meta data', () => {
           description: 'aaaaaaaaa',
           properties: {},
           type: 'object',
+          [zuiKey]: {},
         },
         p2: {
           additionalProperties: false,
           description: 'bbbbbbbbb',
           properties: {},
           type: 'object',
+          [zuiKey]: {},
         },
         p3: {
           additionalProperties: false,
           description: 'ccccccccc',
           properties: {},
           type: 'object',
+          [zuiKey]: {},
         },
       },
       type: 'object',
+      [zuiKey]: {},
     })
   })
 })

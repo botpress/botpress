@@ -1,3 +1,4 @@
+import { zuiKey } from '../../../../ui/constants'
 import { z } from '../../../../z/index'
 import { parseObjectDef } from '../../parsers/object'
 import { getRefs } from '../../Refs'
@@ -43,13 +44,16 @@ describe('nullable', () => {
           properties: {
             three: {
               type: 'string',
+              [zuiKey]: {},
             },
           },
+          [zuiKey]: {},
         },
         {
           type: 'null',
         },
       ],
+      [zuiKey]: {},
     })
 
     expect(jsonSchema.properties.two.$ref).toEqual('#/properties/one')

@@ -1,3 +1,4 @@
+import { zuiKey } from '../../../../ui/constants'
 import { z } from '../../../../z/index'
 import { parseObjectDef } from '../../parsers/object'
 import { getRefs } from '../../Refs'
@@ -10,11 +11,12 @@ describe('objects', () => {
     const expectedSchema = {
       type: 'object',
       properties: {
-        normalProperty: { type: 'string' },
+        normalProperty: { type: 'string', [zuiKey]: {} },
       },
       required: ['normalProperty'],
       additionalProperties: {
         type: 'boolean',
+        [zuiKey]: {},
       },
     }
     expect(parsedSchema).toEqual(expectedSchema)
@@ -27,8 +29,8 @@ describe('objects', () => {
     const expectedSchema = {
       type: 'object',
       properties: {
-        foo: { type: 'boolean' },
-        bar: { type: 'number' },
+        foo: { type: 'boolean', [zuiKey]: {} },
+        bar: { type: 'number', [zuiKey]: {} },
       },
       required: ['bar'],
       additionalProperties: false,

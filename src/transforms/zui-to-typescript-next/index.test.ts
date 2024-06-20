@@ -541,7 +541,6 @@ describe('primitives', () => {
   it.concurrent.each(getTypingVariations(z.date().title('MyDate'), { declaration: true }))(
     'date',
     (typings) => {
-      console.log(typings)
       expect(typings).toBeValidTypeScript()
     },
     5000,

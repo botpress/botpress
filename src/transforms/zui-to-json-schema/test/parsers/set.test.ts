@@ -3,6 +3,7 @@ import { z } from '../../../../z/index'
 import { parseSetDef } from '../../parsers/set'
 import { getRefs } from '../../Refs'
 import { errorReferences } from './errorReferences'
+import { zuiKey } from '../../../../ui/constants'
 
 describe('set', () => {
   it("should include min and max size error messages if they're passed.", () => {
@@ -18,7 +19,7 @@ describe('set', () => {
       maxItems: 10,
       errorMessage: errs,
       uniqueItems: true,
-      items: {},
+      items: { [zuiKey]: {} },
     }
     const zodSchema = z.set(z.any()).min(5, minSizeError).max(10, maxSizeError)
     const jsonParsedSchema = parseSetDef(zodSchema._def, errorReferences())
@@ -31,7 +32,7 @@ describe('set', () => {
       minItems: 5,
       maxItems: 10,
       uniqueItems: true,
-      items: {},
+      items: { [zuiKey]: {} },
     }
     const zodSchema = z.set(z.any()).min(5).max(10)
     const jsonParsedSchema = parseSetDef(zodSchema._def, errorReferences())

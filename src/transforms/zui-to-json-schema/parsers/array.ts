@@ -1,3 +1,5 @@
+import { zuiKey } from '../../../ui/constants'
+import { ZuiExtensionObject } from '../../../ui/types'
 import { ZodArrayDef, ZodFirstPartyTypeKind } from '../../../z/index'
 import { ErrorMessages, setResponseValueAndErrors } from '../errorMessages'
 import { JsonSchema7Type, parseDef } from '../parseDef'
@@ -9,12 +11,14 @@ export type JsonSchema7ArrayType = {
   minItems?: number
   maxItems?: number
   errorMessages?: ErrorMessages<JsonSchema7ArrayType, 'items'>
+  [zuiKey]?: ZuiExtensionObject
 }
 
 export function parseArrayDef(def: ZodArrayDef, refs: Refs) {
   const res: JsonSchema7ArrayType = {
     type: 'array',
   }
+
   if (def.type?._def?.typeName !== ZodFirstPartyTypeKind.ZodAny) {
     res.items = parseDef(def.type._def, {
       ...refs,

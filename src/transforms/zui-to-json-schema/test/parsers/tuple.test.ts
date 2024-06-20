@@ -1,3 +1,4 @@
+import { zuiKey } from '../../../../ui/constants'
 import { z } from '../../../../z/index'
 import { parseTupleDef } from '../../parsers/tuple'
 import { getRefs } from '../../Refs'
@@ -9,7 +10,10 @@ describe('objects', () => {
     const parsedSchema = parseTupleDef(schema._def, getRefs())
     const expectedSchema = {
       type: 'array',
-      items: [{ type: 'string' }, { type: 'number' }],
+      items: [
+        { type: 'string', [zuiKey]: {} },
+        { type: 'number', [zuiKey]: {} },
+      ],
       minItems: 2,
       maxItems: 2,
     }
@@ -22,10 +26,14 @@ describe('objects', () => {
     const parsedSchema = parseTupleDef(schema._def, getRefs())
     const expectedSchema = {
       type: 'array',
-      items: [{ type: 'string' }, { type: 'number' }],
+      items: [
+        { type: 'string', [zuiKey]: {} },
+        { type: 'number', [zuiKey]: {} },
+      ],
       minItems: 2,
       additionalItems: {
         type: 'boolean',
+        [zuiKey]: {},
       },
     }
     expect(parsedSchema).toEqual(expectedSchema)

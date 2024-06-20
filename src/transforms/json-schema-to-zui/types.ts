@@ -1,3 +1,6 @@
+import { zuiKey } from '../../ui/constants'
+import { ZuiExtensionObject } from '../../ui/types'
+
 export type Serializable = { [key: string]: Serializable } | Serializable[] | string | number | boolean | null
 
 export type JsonSchema = JsonSchemaObject | boolean
@@ -49,6 +52,7 @@ export type JsonSchemaObject = {
   enum?: Serializable[]
 
   errorMessage?: { [key: string]: string | undefined }
+  [zuiKey]?: ZuiExtensionObject
 } & { [key: string]: any }
 
 export type ParserSelector = (schema: JSONSchemaExtended, refs: Refs) => string

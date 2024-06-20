@@ -1,3 +1,5 @@
+import { zuiKey } from '../../../ui/constants'
+import { ZuiExtensionObject } from '../../../ui/types'
 import { ZodTupleDef, ZodTupleItems, ZodTypeAny } from '../../../z/index'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
@@ -6,6 +8,7 @@ export type JsonSchema7TupleType = {
   type: 'array'
   minItems: number
   items: JsonSchema7Type[]
+  [zuiKey]?: ZuiExtensionObject
 } & (
   | {
       maxItems: number

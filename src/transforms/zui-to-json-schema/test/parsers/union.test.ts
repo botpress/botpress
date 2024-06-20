@@ -3,6 +3,7 @@ import { z } from '../../../../z/index'
 import { parseUnionDef } from '../../parsers/union'
 import { getRefs } from '../../Refs'
 import deref from 'local-ref-resolver'
+import { zuiKey } from '../../../../ui/constants'
 
 describe('Unions', () => {
   it('Should be possible to get a simple type array from a union of only unvalidated primitives', () => {
@@ -39,26 +40,33 @@ describe('Unions', () => {
           properties: {
             herp: {
               type: 'string',
+              [zuiKey]: {},
             },
             derp: {
               type: 'boolean',
+              [zuiKey]: {},
             },
           },
           required: ['herp', 'derp'],
           additionalProperties: false,
+          [zuiKey]: {},
         },
         {
           type: 'array',
           items: {
             type: 'number',
+            [zuiKey]: {},
           },
+          [zuiKey]: {},
         },
         {
           type: 'string',
+          [zuiKey]: {},
           minLength: 3,
         },
         {
           type: 'number',
+          [zuiKey]: {},
         },
       ],
     }
@@ -79,10 +87,12 @@ describe('Unions', () => {
           properties: {
             foo: {
               type: 'boolean',
+              [zuiKey]: {},
             },
           },
           required: ['foo'],
           additionalProperties: false,
+          [zuiKey]: {},
         },
         {
           $ref: '#/anyOf/0',
@@ -135,27 +145,33 @@ describe('Unions', () => {
             kek: {
               type: 'string',
               const: 'A',
+              [zuiKey]: {},
             },
             lel: {
               type: 'boolean',
+              [zuiKey]: {},
             },
           },
           required: ['kek', 'lel'],
           additionalProperties: false,
+          [zuiKey]: {},
         },
         {
           type: 'object',
           properties: {
             kek: {
               type: 'string',
+              [zuiKey]: {},
               const: 'B',
             },
             lel: {
               type: 'number',
+              [zuiKey]: {},
             },
           },
           required: ['kek', 'lel'],
           additionalProperties: false,
+          [zuiKey]: {},
         },
       ],
     })
@@ -182,28 +198,34 @@ describe('Unions', () => {
           properties: {
             kek: {
               type: 'string',
+              [zuiKey]: {},
               const: 'A',
             },
             lel: {
               type: 'boolean',
+              [zuiKey]: {},
             },
           },
           required: ['kek', 'lel'],
           additionalProperties: false,
+          [zuiKey]: {},
         },
         {
           type: 'object',
           properties: {
             kek: {
               type: 'string',
+              [zuiKey]: {},
               const: 'B',
             },
             lel: {
               type: 'number',
+              [zuiKey]: {},
             },
           },
           required: ['kek', 'lel'],
           additionalProperties: false,
+          [zuiKey]: {},
         },
       ],
       discriminator: {
@@ -220,9 +242,9 @@ describe('Unions', () => {
       { type: ['boolean', 'string', 'number'], enum: [true, 'herp', 3] },
       {
         anyOf: [
-          { type: 'boolean', const: true },
-          { type: 'string', const: 'herp', description: 'derp' },
-          { type: 'number', const: 3 },
+          { type: 'boolean', const: true, [zuiKey]: {} },
+          { type: 'string', const: 'herp', description: 'derp', [zuiKey]: {} },
+          { type: 'number', const: 3, [zuiKey]: {} },
         ],
       },
     ])

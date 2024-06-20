@@ -36,7 +36,7 @@ describe('zuiToJsonSchema', () => {
           },
         },
         "type": "object",
-        "${zuiKey}": {},
+        "x-zui": {},
       }
     `)
   })
@@ -67,6 +67,7 @@ describe('zuiToJsonSchema', () => {
     const schema = z.object({
       testExample: z
         .string()
+        .nullable()
         .displayAs<typeof testComponentDefinitions>({ id: 'customstringcomponent', params: { multiline: true } }),
     })
 
@@ -76,6 +77,7 @@ describe('zuiToJsonSchema', () => {
         "additionalProperties": false,
         "properties": {
           "testExample": {
+            "nullable": true,
             "type": "string",
             "${zuiKey}": {
               "displayAs": [
@@ -91,7 +93,7 @@ describe('zuiToJsonSchema', () => {
           "testExample",
         ],
         "type": "object",
-        "${zuiKey}": {},
+        "x-zui": {},
       }
     `)
   })
@@ -99,10 +101,11 @@ describe('zuiToJsonSchema', () => {
   test('examples are available on json schema', () => {
     const schema = z.string()
 
-    const jsonSchema = zuiToJsonSchema(schema, { stripZuiProps: true, $schemaUrl: false })
+    const jsonSchema = zuiToJsonSchema(schema, { $schemaUrl: false })
     expect(jsonSchema).toMatchInlineSnapshot(`
       {
         "type": "string",
+        "x-zui": {},
       }
     `)
   })
@@ -110,29 +113,33 @@ describe('zuiToJsonSchema', () => {
   test('record with a value works', () => {
     const schema = z.record(z.string().max(30)).describe('hello')
 
-    const jsonSchema = zuiToJsonSchema(schema, { stripZuiProps: true, $schemaUrl: false })
+    const jsonSchema = zuiToJsonSchema(schema, { $schemaUrl: false })
     expect(jsonSchema).toEqual({
       additionalProperties: {
         maxLength: 30,
         type: 'string',
+        [zuiKey]: {},
       },
       description: 'hello',
       type: 'object',
+      [zuiKey]: {},
     })
   })
 
   test('record with second parameter', () => {
     const schema = z.record(z.string(), z.number().max(30), {}).describe('hello')
 
-    const jsonSchema = zuiToJsonSchema(schema, { stripZuiProps: true, $schemaUrl: false })
+    const jsonSchema = zuiToJsonSchema(schema, { $schemaUrl: false })
     expect(jsonSchema).toMatchInlineSnapshot(`
       {
         "additionalProperties": {
           "maximum": 30,
           "type": "number",
+          "x-zui": {},
         },
         "description": "hello",
         "type": "object",
+        "x-zui": {},
       }
     `)
   })
@@ -140,13 +147,14 @@ describe('zuiToJsonSchema', () => {
   test('record with second parameter', () => {
     const schema = z.object({})
 
-    const jsonSchema = zuiToJsonSchema(schema, { stripZuiProps: true, $schemaUrl: 'http://schema.com' })
+    const jsonSchema = zuiToJsonSchema(schema, { $schemaUrl: 'http://schema.com' })
     expect(jsonSchema).toMatchInlineSnapshot(`
       {
         "$schema": "http://schema.com",
         "additionalProperties": false,
         "properties": {},
         "type": "object",
+        "x-zui": {},
       }
     `)
   })
@@ -154,7 +162,7 @@ describe('zuiToJsonSchema', () => {
   test('record with second parameter', () => {
     const schema = z.object({ multipleTypes: z.union([z.string(), z.number()]) })
 
-    const jsonSchema = zuiToJsonSchema(schema, { stripZuiProps: true, $schemaUrl: false })
+    const jsonSchema = zuiToJsonSchema(schema, { $schemaUrl: false })
     expect(jsonSchema).toMatchInlineSnapshot(`
       {
         "additionalProperties": false,
@@ -164,12 +172,14 @@ describe('zuiToJsonSchema', () => {
               "string",
               "number",
             ],
+            "x-zui": {},
           },
         },
         "required": [
           "multipleTypes",
         ],
         "type": "object",
+        "x-zui": {},
       }
     `)
   })
@@ -194,12 +204,12 @@ describe('zuiToJsonSchema', () => {
           "properties": {
             "id": {
               "type": "number",
-              "${zuiKey}": {},
+              "x-zui": {},
             },
             "title": {
               "minLength": 5,
               "type": "string",
-              "${zuiKey}": {},
+              "x-zui": {},
             },
           },
           "required": [
@@ -207,11 +217,11 @@ describe('zuiToJsonSchema', () => {
             "title",
           ],
           "type": "object",
-          "${zuiKey}": {},
+          "x-zui": {},
         },
         "minItems": 1,
         "type": "array",
-        "${zuiKey}": {},
+        "x-zui": {},
       }
     `)
   })
@@ -234,9 +244,11 @@ describe('zuiToJsonSchema', () => {
                   "A",
                 ],
                 "type": "string",
+                "x-zui": {},
               },
               "lel": {
                 "type": "boolean",
+                "x-zui": {},
               },
             },
             "required": [
@@ -244,6 +256,7 @@ describe('zuiToJsonSchema', () => {
               "lel",
             ],
             "type": "object",
+            "x-zui": {},
           },
           {
             "additionalProperties": false,
@@ -253,9 +266,11 @@ describe('zuiToJsonSchema', () => {
                   "B",
                 ],
                 "type": "string",
+                "x-zui": {},
               },
               "lel": {
                 "type": "number",
+                "x-zui": {},
               },
             },
             "required": [
@@ -263,9 +278,10 @@ describe('zuiToJsonSchema', () => {
               "lel",
             ],
             "type": "object",
+            "x-zui": {},
           },
         ],
-        "${zuiKey}": {},
+        "x-zui": {},
       }
     `)
   })
@@ -291,9 +307,11 @@ describe('zuiToJsonSchema', () => {
                   "A",
                 ],
                 "type": "string",
+                "x-zui": {},
               },
               "lel": {
                 "type": "boolean",
+                "x-zui": {},
               },
             },
             "required": [
@@ -301,6 +319,7 @@ describe('zuiToJsonSchema', () => {
               "lel",
             ],
             "type": "object",
+            "x-zui": {},
           },
           {
             "additionalProperties": false,
@@ -310,9 +329,11 @@ describe('zuiToJsonSchema', () => {
                   "B",
                 ],
                 "type": "string",
+                "x-zui": {},
               },
               "lel": {
                 "type": "number",
+                "x-zui": {},
               },
             },
             "required": [
@@ -320,9 +341,10 @@ describe('zuiToJsonSchema', () => {
               "lel",
             ],
             "type": "object",
+            "x-zui": {},
           },
         ],
-        "${zuiKey}": {},
+        "x-zui": {},
       }
     `)
   })
@@ -363,7 +385,7 @@ describe('zuiToJsonSchema', () => {
   })
 
   test('array of array', () => {
-    const schema = z.array(z.array(z.string()))
+    const schema = z.array(z.array(z.string().disabled()))
 
     const jsonSchema = zuiToJsonSchema(schema)
     expect(jsonSchema).toMatchInlineSnapshot(`
@@ -371,24 +393,28 @@ describe('zuiToJsonSchema', () => {
         "items": {
           "items": {
             "type": "string",
-            "${zuiKey}": {},
+            "${zuiKey}": {
+              "disabled": true,
+            },
           },
           "type": "array",
-          "${zuiKey}": {},
+          "x-zui": {},
         },
         "type": "array",
-        "${zuiKey}": {},
+        "x-zui": {},
       }
     `)
   })
 
   test('generic is transformed to a ref', () => {
-    const T = z.ref('T')
+    const T = z.ref('T').disabled()
     const TJsonSchema = zuiToJsonSchema(T)
     expect(TJsonSchema).toMatchInlineSnapshot(`
       {
         "$ref": "T",
-        "${zuiKey}": {},
+        "${zuiKey}": {
+          "disabled": true,
+        },
       }
     `)
 
@@ -404,11 +430,13 @@ describe('zuiToJsonSchema', () => {
         "properties": {
           "data": {
             "$ref": "T",
-            "${zuiKey}": {},
+            "${zuiKey}": {
+              "disabled": true,
+            },
           },
           "description": {
             "type": "string",
-            "${zuiKey}": {},
+            "x-zui": {},
           },
         },
         "required": [
@@ -416,8 +444,83 @@ describe('zuiToJsonSchema', () => {
           "data",
         ],
         "type": "object",
-        "${zuiKey}": {},
+        "x-zui": {},
       }
     `)
   })
+})
+
+describe('coercion serialization', () => {
+  {
+    it('serializes coerced dates correctly', () => {
+      const schema = z.coerce.date().displayAs({ id: 'doood', params: {} } as never)
+      const serialized = schema.toJsonSchema()
+      expect(serialized).toMatchInlineSnapshot(`
+      {
+        "format": "date-time",
+        "type": "string",
+        "x-zui": {
+          "coerce": true,
+          "displayAs": [
+            "doood",
+            {},
+          ],
+        },
+      }
+    `)
+    })
+
+    it('serializes coerced strings correctly', () => {
+      const schema = z.coerce.string()
+      const serialized = schema.toJsonSchema()
+      expect(serialized).toMatchInlineSnapshot(`
+      {
+        "type": "string",
+        "x-zui": {
+          "coerce": true,
+        },
+      }
+    `)
+    })
+
+    it('serializes coerced bigints correctly', () => {
+      const schema = z.coerce.bigint()
+      const serialized = schema.toJsonSchema()
+      expect(serialized).toMatchInlineSnapshot(`
+      {
+        "format": "int64",
+        "type": "integer",
+        "x-zui": {
+          "coerce": true,
+        },
+      }
+    `)
+    })
+
+    it('serializes coerced booleans correctly', () => {
+      const schema = z.coerce.boolean()
+      const serialized = schema.toJsonSchema()
+      expect(serialized).toMatchInlineSnapshot(`
+      {
+        "type": "boolean",
+        "x-zui": {
+          "coerce": true,
+        },
+      }
+    `)
+    })
+
+    it('serializes coerced numbers correctly', () => {
+      const schema = z.coerce.number()
+      const serialized = schema.toJsonSchema()
+      expect(serialized).toMatchInlineSnapshot(`
+      {
+        "type": "number",
+        "x-zui": {
+          "coerce": true,
+        },
+      }
+    `)
+    })
+  }
 })

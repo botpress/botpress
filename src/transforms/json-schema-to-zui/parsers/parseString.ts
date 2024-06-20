@@ -1,8 +1,15 @@
+import { zuiKey } from '../../../ui/constants'
 import { JsonSchemaObject } from '../types'
 import { withMessage } from '../utils'
 
 export const parseString = (schema: JsonSchemaObject & { type: 'string' }) => {
   let r = 'z.string()'
+  if (schema[zuiKey]?.coerce) {
+    if (schema.format === 'date-time') {
+      return 'z.coerce.date()'
+    }
+    r = 'z.coerce.string()'
+  }
 
   r += withMessage(schema, 'format', ({ value }) => {
     switch (value) {

@@ -1,3 +1,5 @@
+import { zuiKey } from '../../../ui/constants'
+import { ZuiExtensionObject } from '../../../ui/types'
 import { ZodBigIntDef } from '../../../z/index'
 import { Refs } from '../Refs'
 import { ErrorMessages, setResponseValueAndErrors } from '../errorMessages'
@@ -11,12 +13,20 @@ export type JsonSchema7BigintType = {
   exclusiveMaximum?: BigInt
   multipleOf?: BigInt
   errorMessage?: ErrorMessages<JsonSchema7BigintType>
+  [zuiKey]?: ZuiExtensionObject
 }
 
 export function parseBigintDef(def: ZodBigIntDef, refs: Refs): JsonSchema7BigintType {
   const res: JsonSchema7BigintType = {
     type: 'integer',
     format: 'int64',
+    ...(def.coerce
+      ? {
+          [zuiKey]: {
+            coerce: def.coerce || undefined,
+          },
+        }
+      : {}),
   }
 
   if (!def.checks) return res

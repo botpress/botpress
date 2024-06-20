@@ -1,8 +1,11 @@
+import { zuiKey } from '../../../ui/constants'
+import { ZuiExtensionObject } from '../../../ui/types'
 import { ZodNativeEnumDef } from '../../../z/index'
 
 export type JsonSchema7NativeEnumType = {
   type: 'string' | 'number' | ['string', 'number']
   enum: (string | number)[]
+  [zuiKey]?: ZuiExtensionObject
 }
 
 export function parseNativeEnumDef(def: ZodNativeEnumDef): JsonSchema7NativeEnumType {

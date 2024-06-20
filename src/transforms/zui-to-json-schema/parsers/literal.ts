@@ -1,3 +1,5 @@
+import { zuiKey } from '../../../ui/constants'
+import { ZuiExtensionObject } from '../../../ui/types'
 import { ZodLiteralDef } from '../../../z/index'
 import { Refs } from '../Refs'
 
@@ -5,9 +7,11 @@ export type JsonSchema7LiteralType =
   | {
       type: 'string' | 'number' | 'integer' | 'boolean'
       const: string | number | boolean
+      [zuiKey]?: ZuiExtensionObject
     }
   | {
       type: 'object' | 'array'
+      [zuiKey]?: ZuiExtensionObject
     }
 
 export function parseLiteralDef(def: ZodLiteralDef, refs: Refs): JsonSchema7LiteralType {

@@ -1,3 +1,4 @@
+import { zuiKey } from '../../../ui/constants'
 import { z } from '../../../z/index'
 import { zodToJsonSchema } from '../zodToJsonSchema'
 
@@ -17,12 +18,13 @@ describe('Open API target', () => {
       // $schema: "http://json-schema.org/draft-07/schema#",
       additionalProperties: false,
       properties: {
-        companyId: { type: 'string', nullable: true },
-        name: { type: 'string', nullable: true },
-        something: { type: 'string', enum: ['hej'] },
+        companyId: { type: 'string', [zuiKey]: {}, nullable: true },
+        name: { type: 'string', [zuiKey]: {}, nullable: true },
+        something: { type: 'string', [zuiKey]: {}, enum: ['hej'] },
       },
       required: ['companyId', 'something'],
       type: 'object',
+      [zuiKey]: {},
     }
 
     expect(swaggerSchema).toEqual(expectedSchema)
@@ -39,11 +41,12 @@ describe('Open API target', () => {
       type: 'object',
       required: ['a', 'b', 'c'],
       properties: {
-        a: { type: 'boolean' },
+        a: { type: 'boolean', [zuiKey]: {} },
         b: { $ref: '#/properties/a' },
         c: { $ref: '#/properties/a' },
       },
       additionalProperties: false,
+      [zuiKey]: {},
     }
 
     expect(swaggerSchema).toEqual(expectedSchema)
@@ -79,13 +82,15 @@ describe('Open API target', () => {
           properties: {
             legalReason: {
               type: 'object',
-              properties: { reason: { type: 'string', enum: ['FOO', 'BAR'] } },
+              properties: { reason: { type: 'string', [zuiKey]: {}, enum: ['FOO', 'BAR'] } },
               required: ['reason'],
               additionalProperties: false,
               nullable: true,
+              [zuiKey]: {},
             },
           },
           additionalProperties: false,
+          [zuiKey]: {},
         },
         requiredLegalReasonTypes: {
           type: 'array',
@@ -93,10 +98,12 @@ describe('Open API target', () => {
             $ref: '#/properties/alias/properties/legalReason/properties/reason',
           },
           nullable: true,
+          [zuiKey]: {},
         },
       },
       required: ['alias'],
       additionalProperties: false,
+      [zuiKey]: {},
     }
 
     expect(result).toEqual(expected)

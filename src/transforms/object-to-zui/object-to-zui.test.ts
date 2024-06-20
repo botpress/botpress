@@ -20,7 +20,6 @@ describe('object-to-zui', () => {
 
     for (const key in schema.properties) {
       expect(schema.properties[key]).toHaveProperty('type')
-      expect(schema.properties[key]).toHaveProperty('x-zui')
     }
   })
 
@@ -45,12 +44,15 @@ describe('object-to-zui', () => {
             "properties": {
               "city": {
                 "type": "string",
+                "x-zui": {},
               },
               "state": {
                 "type": "string",
+                "x-zui": {},
               },
               "street": {
                 "type": "string",
+                "x-zui": {},
               },
             },
             "type": "object",

@@ -1,8 +1,13 @@
+import { zuiKey } from '../../../ui/constants'
 import { JsonSchemaObject } from '../types'
 import { withMessage } from '../utils'
 
 export const parseNumber = (schema: JsonSchemaObject & { type: 'number' | 'integer' }) => {
   let r = 'z.number()'
+
+  if (schema[zuiKey]?.coerce) {
+    r = 'z.coerce.number()'
+  }
 
   if (schema.type === 'integer') {
     r += withMessage(schema, 'type', () => ['.int(', ')'])

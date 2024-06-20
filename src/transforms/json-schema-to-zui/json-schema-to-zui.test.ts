@@ -146,3 +146,35 @@ describe('jsonSchemaToZui', () => {
     })
   })
 })
+
+describe('Coercion deserialization', () => {
+  it('should deserialize coerced strings correctly', () => {
+    const schema = z.coerce.string().toJsonSchema()
+    const asZui = jsonSchemaToZui(schema)
+    expect(asZui._def[zuiKey]?.coerce).toStrictEqual(true)
+  })
+
+  it('should deserialize coerced numbers correctly', () => {
+    const schema = z.coerce.number().toJsonSchema()
+    const asZui = jsonSchemaToZui(schema)
+    expect(asZui._def[zuiKey]?.coerce).toStrictEqual(true)
+  })
+
+  it('should deserialize coerced booleans correctly', () => {
+    const schema = z.coerce.boolean().toJsonSchema()
+    const asZui = jsonSchemaToZui(schema)
+    expect(asZui._def[zuiKey]?.coerce).toStrictEqual(true)
+  })
+
+  it('should deserialize coerced dates correctly', () => {
+    const schema = z.coerce.date().toJsonSchema()
+    const asZui = jsonSchemaToZui(schema)
+    expect(asZui._def[zuiKey]?.coerce).toStrictEqual(true)
+  })
+
+  it('should deserialize coerced bigints correctly', () => {
+    const schema = z.coerce.bigint().toJsonSchema()
+    const asZui = jsonSchemaToZui(schema)
+    expect(asZui._def[zuiKey]?.coerce).toStrictEqual(true)
+  })
+})

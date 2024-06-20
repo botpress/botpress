@@ -1,3 +1,4 @@
+import { zuiKey } from '../../../../ui/constants'
 import { z } from '../../../../z/index'
 import { parseRecordDef } from '../../parsers/record'
 import { getRefs } from '../../Refs'
@@ -11,6 +12,7 @@ describe('records', () => {
       type: 'object',
       additionalProperties: {
         type: 'number',
+        [zuiKey]: {},
       },
     }
 
@@ -28,14 +30,17 @@ describe('records', () => {
         properties: {
           foo: {
             type: 'number',
+            [zuiKey]: {},
             minimum: 2,
           },
         },
         required: ['foo'],
         additionalProperties: {
           type: 'string',
+          [zuiKey]: {},
           pattern: '^[cC][^\\s-]{8,}$',
         },
+        [zuiKey]: {},
       },
     }
 
@@ -50,6 +55,7 @@ describe('records', () => {
       type: 'object',
       additionalProperties: {
         type: 'number',
+        [zuiKey]: {},
       },
       propertyNames: {
         format: 'uuid',
@@ -65,6 +71,7 @@ describe('records', () => {
       type: 'object',
       additionalProperties: {
         type: 'number',
+        [zuiKey]: {},
       },
       propertyNames: {
         enum: ['foo', 'bar'],

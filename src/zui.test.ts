@@ -36,7 +36,7 @@ test('Type inference', () => {
     age: 10,
     name: 'hello',
   }
-  console.info(typingsInfer)
+  typingsInfer
 })
 
 test('Unions', () => {

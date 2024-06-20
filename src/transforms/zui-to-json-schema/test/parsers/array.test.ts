@@ -4,6 +4,7 @@ import { parseArrayDef } from '../../parsers/array'
 import { getRefs } from '../../Refs'
 import { errorReferences } from './errorReferences'
 import deref from 'local-ref-resolver'
+import { zuiKey } from '../../../../ui/constants'
 
 describe('Arrays and array validations', () => {
   it('should be possible to describe a simple array', () => {
@@ -12,6 +13,7 @@ describe('Arrays and array validations', () => {
       type: 'array',
       items: {
         type: 'string',
+        [zuiKey]: {},
       },
     }
     expect(parsedSchema).toEqual(jsonSchema)
@@ -29,6 +31,7 @@ describe('Arrays and array validations', () => {
       type: 'array',
       items: {
         type: 'string',
+        [zuiKey]: {},
       },
       minItems: 2,
       maxItems: 4,
@@ -41,6 +44,7 @@ describe('Arrays and array validations', () => {
       type: 'array',
       items: {
         type: 'string',
+        [zuiKey]: {},
       },
       minItems: 5,
       maxItems: 5,

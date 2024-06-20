@@ -2,6 +2,7 @@ import { JSONSchema7Type } from 'json-schema'
 import { z } from '../../../../z/index'
 import { parseDefaultDef } from '../../parsers/default'
 import { getRefs } from '../../Refs'
+import { zuiKey } from '../../../../ui/constants'
 
 describe('promise', () => {
   it('should be possible to use default on objects', () => {
@@ -13,11 +14,13 @@ describe('promise', () => {
       properties: {
         foo: {
           type: 'boolean',
+          [zuiKey]: {},
         },
       },
       default: {
         foo: true,
       },
+      [zuiKey]: {},
     }
 
     expect(parsedSchema).toEqual(jsonSchema)
@@ -28,6 +31,7 @@ describe('promise', () => {
     const jsonSchema: JSONSchema7Type = {
       type: 'string',
       default: 'default',
+      [zuiKey]: {},
     }
     expect(parsedSchema).toEqual(jsonSchema)
   })
@@ -42,6 +46,7 @@ describe('promise', () => {
     const jsonSchema: JSONSchema7Type = {
       type: 'string',
       default: 'default',
+      [zuiKey]: {},
     }
 
     expect(parsedSchema).toEqual(jsonSchema)

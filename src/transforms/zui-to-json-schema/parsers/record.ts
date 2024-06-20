@@ -1,3 +1,5 @@
+import { zuiKey } from '../../../ui/constants'
+import { ZuiExtensionObject } from '../../../ui/types'
 import { ZodFirstPartyTypeKind, ZodMapDef, ZodRecordDef, ZodTypeAny } from '../../../z/index'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
@@ -11,6 +13,7 @@ export type JsonSchema7RecordType = {
   type: 'object'
   additionalProperties: JsonSchema7Type
   propertyNames?: JsonSchema7RecordPropertyNamesType
+  [zuiKey]?: ZuiExtensionObject
 }
 
 export function parseRecordDef(

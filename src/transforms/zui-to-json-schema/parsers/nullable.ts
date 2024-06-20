@@ -1,3 +1,5 @@
+import { zuiKey } from '../../../ui/constants'
+import { ZuiExtensionObject } from '../../../ui/types'
 import { ZodNullableDef } from '../../../z/index'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
@@ -7,9 +9,11 @@ import { primitiveMappings } from './union'
 export type JsonSchema7NullableType =
   | {
       anyOf: [JsonSchema7Type, JsonSchema7NullType]
+      [zuiKey]?: ZuiExtensionObject
     }
   | {
       type: [string, 'null']
+      [zuiKey]?: ZuiExtensionObject
     }
 
 export function parseNullableDef(def: ZodNullableDef, refs: Refs): JsonSchema7NullableType | undefined {

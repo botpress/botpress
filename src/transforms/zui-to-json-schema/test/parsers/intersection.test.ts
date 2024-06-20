@@ -1,3 +1,4 @@
+import { zuiKey } from '../../../../ui/constants'
 import { z } from '../../../../z/index'
 import { parseIntersectionDef } from '../../parsers/intersection'
 import { getRefs } from '../../Refs'
@@ -13,10 +14,12 @@ describe('intersections', () => {
         {
           type: 'string',
           minLength: 1,
+          [zuiKey]: {},
         },
         {
           type: 'string',
           maxLength: 3,
+          [zuiKey]: {},
         },
       ],
     })
@@ -31,6 +34,7 @@ describe('intersections', () => {
       allOf: [
         {
           type: 'string',
+          [zuiKey]: {},
         },
         {
           $ref: '#/allOf/0',
@@ -55,19 +59,23 @@ describe('intersections', () => {
           properties: {
             foo: {
               type: 'string',
+              [zuiKey]: {},
             },
           },
           required: ['foo'],
           type: 'object',
+          [zuiKey]: {},
         },
         {
           properties: {
             bar: {
               type: 'string',
+              [zuiKey]: {},
             },
           },
           required: ['bar'],
           type: 'object',
+          [zuiKey]: {},
         },
       ],
       unevaluatedProperties: false,
@@ -92,20 +100,24 @@ describe('intersections', () => {
           properties: {
             foo: {
               type: 'string',
+              [zuiKey]: {},
             },
           },
           required: ['foo'],
           type: 'object',
+          [zuiKey]: {},
         },
         {
           properties: {
             bar: {
               type: 'string',
+              [zuiKey]: {},
             },
           },
           required: ['bar'],
           type: 'object',
           additionalProperties: true,
+          [zuiKey]: {},
         },
       ],
     })
@@ -130,28 +142,34 @@ describe('intersections', () => {
           properties: {
             foo: {
               type: 'string',
+              [zuiKey]: {},
             },
           },
           required: ['foo'],
           type: 'object',
+          [zuiKey]: {},
         },
         {
           properties: {
             bar: {
               type: 'string',
+              [zuiKey]: {},
             },
           },
           required: ['bar'],
           type: 'object',
+          [zuiKey]: {},
         },
         {
           properties: {
             baz: {
               type: 'string',
+              [zuiKey]: {},
             },
           },
           required: ['baz'],
           type: 'object',
+          [zuiKey]: {},
         },
       ],
       unevaluatedProperties: false,
@@ -179,29 +197,35 @@ describe('intersections', () => {
           properties: {
             foo: {
               type: 'string',
+              [zuiKey]: {},
             },
           },
           required: ['foo'],
           type: 'object',
+          [zuiKey]: {},
         },
         {
           properties: {
             bar: {
               type: 'string',
+              [zuiKey]: {},
             },
           },
           required: ['bar'],
           type: 'object',
+          [zuiKey]: {},
         },
         {
           additionalProperties: true,
           properties: {
             baz: {
               type: 'string',
+              [zuiKey]: {},
             },
           },
           required: ['baz'],
           type: 'object',
+          [zuiKey]: {},
         },
       ],
     })

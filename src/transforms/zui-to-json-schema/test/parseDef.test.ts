@@ -3,6 +3,7 @@ import { z } from '../../../z/index'
 import { parseDef } from '../parseDef'
 import Ajv from 'ajv'
 import { getRefs } from '../Refs'
+import { zuiKey } from '../../../ui/constants'
 
 const ajv = new Ajv()
 
@@ -29,23 +30,29 @@ describe('Basic parsing', () => {
       properties: {
         requiredString: {
           type: 'string',
+          [zuiKey]: {},
         },
         optionalString: {
           type: 'string',
+          [zuiKey]: {},
         },
         literalString: {
           type: 'string',
           const: 'literalStringValue',
+          [zuiKey]: {},
         },
         stringArray: {
           type: 'array',
           items: {
             type: 'string',
+            [zuiKey]: {},
           },
+          [zuiKey]: {},
         },
         stringEnum: {
           type: 'string',
           enum: ['stringEnumOptionA', 'stringEnumOptionB'],
+          [zuiKey]: {},
         },
         tuple: {
           type: 'array',
@@ -53,44 +60,56 @@ describe('Basic parsing', () => {
           items: [
             {
               type: 'string',
+              [zuiKey]: {},
             },
             {
               type: 'number',
+              [zuiKey]: {},
             },
             {
               type: 'boolean',
+              [zuiKey]: {},
             },
           ],
           maxItems: 3,
+          [zuiKey]: {},
         },
         record: {
           type: 'object',
           additionalProperties: {
             type: 'boolean',
+            [zuiKey]: {},
           },
+          [zuiKey]: {},
         },
         requiredNumber: {
           type: 'number',
+          [zuiKey]: {},
         },
         optionalNumber: {
           type: 'number',
+          [zuiKey]: {},
         },
         numberOrNull: {
           type: ['number', 'null'],
+          [zuiKey]: {},
         },
         numberUnion: {
           type: 'number',
           enum: [1, 2, 3],
+          [zuiKey]: {},
         },
         mixedUnion: {
           anyOf: [
             {
               type: 'string',
               const: 'abc',
+              [zuiKey]: {},
             },
             {
               type: 'number',
               const: 123,
+              [zuiKey]: {},
             },
             {
               type: 'object',
@@ -98,12 +117,15 @@ describe('Basic parsing', () => {
                 nowItGetsAnnoying: {
                   type: 'boolean',
                   const: true,
+                  [zuiKey]: {},
                 },
               },
               required: ['nowItGetsAnnoying'],
               additionalProperties: false,
+              [zuiKey]: {},
             },
           ],
+          [zuiKey]: {},
         },
         objectOrNull: {
           anyOf: [
@@ -112,25 +134,30 @@ describe('Basic parsing', () => {
               properties: {
                 myString: {
                   type: 'string',
+                  [zuiKey]: {},
                 },
               },
               required: ['myString'],
               additionalProperties: false,
+              [zuiKey]: {},
             },
             {
               type: 'null',
             },
           ],
+          [zuiKey]: {},
         },
         passthrough: {
           type: 'object',
           properties: {
             myString: {
               type: 'string',
+              [zuiKey]: {},
             },
           },
           required: ['myString'],
           additionalProperties: true,
+          [zuiKey]: {},
         },
       },
       required: [
@@ -148,6 +175,7 @@ describe('Basic parsing', () => {
         'passthrough',
       ],
       additionalProperties: false,
+      [zuiKey]: {},
     }
     const parsedSchema = parseDef(zodSchema._def, getRefs())
     expect(parsedSchema).toEqual(expectedJsonSchema)
@@ -158,7 +186,7 @@ describe('Basic parsing', () => {
     const shorthand = z.string().nullable()
     const union = z.union([z.string(), z.null()])
 
-    const expected = { type: ['string', 'null'] }
+    const expected = { type: ['string', 'null'], [zuiKey]: {} }
 
     expect(parseDef(shorthand._def, getRefs())).toEqual(expected)
     expect(parseDef(union._def, getRefs())).toEqual(expected)

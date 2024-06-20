@@ -3,8 +3,9 @@ import { z } from '../../../../z/index'
 import { parseMapDef } from '../../parsers/map'
 import Ajv from 'ajv'
 import { getRefs } from '../../Refs'
+import { zuiKey } from '../../../../ui/constants'
 
-const ajv = new Ajv()
+const ajv = new Ajv({ strict: false })
 describe('map', () => {
   it('should be possible to use Map', () => {
     const mapSchema = z.map(z.string(), z.number())
@@ -19,9 +20,11 @@ describe('map', () => {
         items: [
           {
             type: 'string',
+            [zuiKey]: {},
           },
           {
             type: 'number',
+            [zuiKey]: {},
           },
         ],
         minItems: 2,
@@ -48,6 +51,7 @@ describe('map', () => {
       type: 'object',
       additionalProperties: {
         type: 'number',
+        [zuiKey]: {},
       },
       propertyNames: {
         minLength: 1,

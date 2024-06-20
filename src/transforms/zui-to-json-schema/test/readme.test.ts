@@ -1,3 +1,4 @@
+import { zuiKey } from '../../../ui/constants'
 import { z } from '../../../z/index'
 import { zodToJsonSchema } from '../zodToJsonSchema'
 
@@ -23,13 +24,16 @@ describe('The readme example', () => {
             myString: {
               type: 'string',
               minLength: 5,
+              [zuiKey]: {},
             },
             myUnion: {
               type: ['number', 'boolean'],
+              [zuiKey]: {},
             },
           },
           additionalProperties: false,
           required: ['myString', 'myUnion'],
+          [zuiKey]: {},
         },
       },
     })
@@ -45,6 +49,7 @@ describe('The readme example', () => {
         format: 'Invalid email',
         minLength: 'Too short',
       },
+      [zuiKey]: {},
     }
     const parsedJsonSchema = zodToJsonSchema(EmailSchema, {
       errorMessages: true,

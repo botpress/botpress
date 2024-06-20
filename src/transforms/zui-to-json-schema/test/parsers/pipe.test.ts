@@ -1,3 +1,4 @@
+import { zuiKey } from '../../../../ui/constants'
 import { z } from '../../../../z/index'
 import { parsePipelineDef } from '../../parsers/pipeline'
 import { getRefs } from '../../Refs'
@@ -7,7 +8,10 @@ describe('pipe', () => {
     const schema = z.number().pipe(z.number().int())
 
     expect(parsePipelineDef(schema._def, getRefs())).toEqual({
-      allOf: [{ type: 'number' }, { type: 'integer' }],
+      allOf: [
+        { type: 'number', [zuiKey]: {} },
+        { type: 'integer', [zuiKey]: {} },
+      ],
     })
   })
 
@@ -16,6 +20,7 @@ describe('pipe', () => {
 
     expect(parsePipelineDef(schema._def, getRefs({ pipeStrategy: 'input' }))).toEqual({
       type: 'number',
+      [zuiKey]: {},
     })
   })
 
@@ -24,6 +29,7 @@ describe('pipe', () => {
 
     expect(parsePipelineDef(schema._def, getRefs({ pipeStrategy: 'output' }))).toEqual({
       type: 'integer',
+      [zuiKey]: {},
     })
   })
 })

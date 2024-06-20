@@ -1,3 +1,4 @@
+import { zuiKey } from '../../../../ui/constants'
 import { z } from '../../../../z/index'
 import { parseBrandedDef } from '../../parsers/branded'
 import { getRefs } from '../../Refs'
@@ -9,6 +10,7 @@ describe('objects', () => {
 
     const expectedSchema = {
       type: 'string',
+      [zuiKey]: {},
     }
 
     expect(parsedSchema).toEqual(expectedSchema)

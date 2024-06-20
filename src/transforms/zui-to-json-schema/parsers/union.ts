@@ -1,3 +1,5 @@
+import { zuiKey } from '../../../ui/constants'
+import { ZuiExtensionObject } from '../../../ui/types'
 import { ZodDiscriminatedUnionDef, ZodLiteralDef, ZodTypeAny, ZodUnionDef } from '../../../z/index'
 import { JsonSchema7Type, parseDef } from '../parseDef'
 import { Refs } from '../Refs'
@@ -17,10 +19,12 @@ export type JsonSchema7UnionType = JsonSchema7PrimitiveUnionType | JsonSchema7An
 type JsonSchema7PrimitiveUnionType =
   | {
       type: JsonSchema7Primitive | JsonSchema7Primitive[]
+      [zuiKey]?: ZuiExtensionObject
     }
   | {
       type: JsonSchema7Primitive | JsonSchema7Primitive[]
       enum: (string | number | bigint | boolean | null)[]
+      [zuiKey]?: ZuiExtensionObject
     }
 
 type JsonSchema7AnyOfType = {

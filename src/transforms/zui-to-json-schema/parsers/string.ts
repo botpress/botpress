@@ -1,3 +1,5 @@
+import { zuiKey } from '../../../ui/constants'
+import { ZuiExtensionObject } from '../../../ui/types'
 import { ZodStringDef } from '../../../z/index'
 import { ErrorMessages, setResponseValueAndErrors } from '../errorMessages'
 import { Refs } from '../Refs'
@@ -42,18 +44,26 @@ export type JsonSchema7StringType = {
   pattern?: string
   allOf?: {
     pattern: string
-    errorMessage?: ErrorMessages<{ pattern: string }>
+    errorMessage?: ErrorMessages<{ type: 'string'; pattern: string }>
   }[]
   anyOf?: {
     format: string
-    errorMessage?: ErrorMessages<{ format: string }>
+    errorMessage?: ErrorMessages<{ type: 'string'; format: string }>
   }[]
   errorMessage?: ErrorMessages<JsonSchema7StringType>
+  [zuiKey]?: ZuiExtensionObject
 }
 
 export function parseStringDef(def: ZodStringDef, refs: Refs): JsonSchema7StringType {
   const res: JsonSchema7StringType = {
     type: 'string',
+    ...(def.coerce
+      ? {
+          [zuiKey]: {
+            coerce: def.coerce || undefined,
+          },
+        }
+      : {}),
   }
 
   function processPattern(value: string): string {
