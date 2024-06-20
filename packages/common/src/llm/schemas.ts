@@ -1,4 +1,4 @@
-import { z } from '@botpress/sdk'
+import { z, UI } from '@botpress/sdk'
 
 const ToolCallSchema = z.object({
   id: z.string(),
@@ -59,8 +59,7 @@ export const GenerateContentInputSchema = z.object({
     .number()
     .min(0)
     .max(2)
-    // @ts-ignore
-    .displayAs({ id: 'slider', params: { stepSize: 0.01, horizontal: true } })
+    .displayAs<UI>({ id: 'slider', params: { stepSize: 0.01, horizontal: true } })
     .default(1)
     .describe('Sampling temperature for the model. Higher values result in more random outputs.'),
   topP: z
@@ -68,8 +67,7 @@ export const GenerateContentInputSchema = z.object({
     .min(0)
     .max(1)
     .default(1)
-    // @ts-ignore
-    .displayAs({ id: 'slider', params: { stepSize: 0.01, horizontal: true } })
+    .displayAs<UI>({ id: 'slider', params: { stepSize: 0.01, horizontal: true } })
     .describe(
       'Top-p sampling parameter. Limits sampling to the smallest set of tokens with a cumulative probability above the threshold.'
     ), // TODO: .placeholder() from zui doesn't work, so we have to use .default() which introduces some typing issues
