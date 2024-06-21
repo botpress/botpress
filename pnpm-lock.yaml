@@ -171,6 +171,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -178,6 +181,9 @@ importers:
       '@bpinternal/es-node':
         specifier: ^0.0.5
         version: 0.0.5
+      '@types/lodash':
+        specifier: ^4.14.191
+        version: 4.14.195
       '@types/node':
         specifier: ^18.11.17
         version: 18.19.10

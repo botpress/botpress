@@ -5,8 +5,43 @@ import { EventEmitter } from './event-emitter'
 import { DataSource, Syncer } from './sync'
 import * as bp from '.botpress'
 
+const initialState: IssueState = { nextToken: undefined, tableCreated: false }
+
 const getBlankClient = (props: EventHandlerProps | MessageHandlerProps): Client =>
   (props.client as any).client as Client
+
+const reply = async (props: MessageHandlerProps, text: string) => {
+  await props.client.createMessage({
+    type: 'text',
+    payload: {
+      text,
+    },
+    conversationId: props.message.conversationId,
+    userId: props.ctx.botId,
+    tags: {},
+  })
+}
+
+const getIssueState = async (props: EventHandlerProps | MessageHandlerProps): Promise<IssueState> => {
+  const {
+    state: { payload: state },
+  } = await props.client.getOrSetState({
+    type: 'bot',
+    name: 'issue',
+    id: props.ctx.botId,
+    payload: initialState,
+  })
+  return state
+}
+
+const setIssueState = async (props: EventHandlerProps | MessageHandlerProps, state: IssueState) => {
+  await props.client.setState({
+    type: 'bot',
+    name: 'issue',
+    id: props.ctx.botId,
+    payload: state,
+  })
+}
 
 type LinearIssue = bp.fleurLinear.entities.issue.Issue
 type IssueEvents = {
@@ -16,7 +51,7 @@ type IssueEvents = {
 }
 
 class LinearIssueSource extends EventEmitter<IssueEvents> implements DataSource<LinearIssue> {
-  public constructor(private props: EventHandlerProps) {
+  public constructor(private props: EventHandlerProps | MessageHandlerProps) {
     super()
   }
 
@@ -31,33 +66,26 @@ class LinearIssueSource extends EventEmitter<IssueEvents> implements DataSource<
   }
 }
 
-const TABLE_NAME = 'linear-issues'
+const TABLE_NAME = 'linearIssuesTable'
 
-bot.event(async (props) => {
-  const dataSource = new LinearIssueSource(props)
+const sync = async (
+  props: EventHandlerProps | MessageHandlerProps,
+  dataSource: LinearIssueSource,
+  state: IssueState
+) => {
   const blankClient = getBlankClient(props)
   const syncer = new Syncer<LinearIssue>(dataSource, blankClient, { tableName: TABLE_NAME })
 
-  const {
-    state: { payload: state },
-  } = await props.client.getOrSetState({
-    type: 'bot',
-    name: 'issue',
-    id: props.ctx.botId,
-    payload: {
-      nextToken: undefined,
-      tableCreated: false,
-    },
-  })
+  const newState = await syncer.sync(state)
+  await setIssueState(props, newState)
+}
+
+bot.event(async (props) => {
+  const dataSource = new LinearIssueSource(props)
+  const state = await getIssueState(props)
 
   if (props.event.type === 'syncIssues') {
-    const newState = await syncer.sync(state)
-    await props.client.setState({
-      type: 'bot',
-      name: 'issue',
-      id: props.ctx.botId,
-      payload: newState,
-    })
+    await sync(props, dataSource, state)
     return
   }
 
@@ -73,17 +101,37 @@ bot.event(async (props) => {
 })
 
 bot.message(async (props) => {
-  const { conversation, message, ctx } = props
+  const { conversation, message } = props
   if (conversation.integration !== 'telegram') {
     console.info(`Ignoring message from ${conversation.integration}`)
     return
   }
 
-  const blankClient = getBlankClient(props)
+  if (message.type !== 'text') {
+    await reply(props, 'I only understand text messages')
+    return
+  }
 
-  if (message.type === 'text' && message.payload.text === '/list') {
+  const blankClient = getBlankClient(props)
+  const dataSource = new LinearIssueSource(props)
+
+  const state = await getIssueState(props)
+
+  if (message.payload.text === '/sync') {
+    await sync(props, dataSource, state)
+    await reply(props, 'Issues synced')
+    return
+  }
+
+  if (message.payload.text === '/list') {
+    if (!state.tableCreated) {
+      await reply(props, 'Table does not exist')
+      return
+    }
     const { rows } = await blankClient.findTableRows({
       table: TABLE_NAME,
+      filter: {},
+      limit: 10,
     })
 
     const issues: string[] = rows.map(({ computed, stale, similarity, ...r }) =>
@@ -92,18 +140,27 @@ bot.message(async (props) => {
         .join('; ')
     )
 
-    const response = issues.join('\n')
+    const response = issues.join('\n') || 'No issues found'
+    const summary = response.length > 1000 ? response.substring(0, 500) + '...' : response
 
-    await props.client.createMessage({
-      type: 'text',
-      payload: {
-        text: response,
-      },
-      conversationId: message.conversationId,
-      userId: ctx.botId,
-      tags: {},
-    })
+    await reply(props, summary)
+    return
   }
+
+  if (message.payload.text === '/clear') {
+    if (!state.tableCreated) {
+      await reply(props, 'Table does not exist')
+      return
+    }
+
+    await blankClient.deleteTable({ table: TABLE_NAME })
+    await reply(props, 'Table cleared')
+
+    await setIssueState(props, { ...state, tableCreated: false })
+    return
+  }
+
+  await reply(props, 'What do you want ?')
 })
 
 export default bot
