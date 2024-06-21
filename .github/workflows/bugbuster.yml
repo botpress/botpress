@@ -1,14 +1,14 @@
 name: Build and Deploy BugBuster
 
 on:
-  # push:
-  #   branches:
-  #     - master
-  #   paths:
-  #     - 'bots/bugbuster/**'
-  # pull_request:
-  #   paths:
-  #     - 'bots/bugbuster/**'
+  push:
+    branches:
+      - master
+    paths:
+      - 'bots/bugbuster/**'
+  pull_request:
+    paths:
+      - 'bots/bugbuster/**'
   workflow_dispatch: {}
 
 defaults:
