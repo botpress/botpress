@@ -43,7 +43,7 @@ const setIssueState = async (props: EventHandlerProps | MessageHandlerProps, sta
   })
 }
 
-type LinearIssue = bp.fleurLinear.entities.issue.Issue
+type LinearIssue = bp.linear.entities.issue.Issue
 type IssueEvents = {
   created: { event: { item: LinearIssue }; state: IssueState }
   updated: { event: { item: LinearIssue }; state: IssueState }
@@ -59,7 +59,7 @@ class LinearIssueSource extends EventEmitter<IssueEvents> implements DataSource<
     nextToken?: string | undefined
   }): Promise<{ items: LinearIssue[]; meta: { nextToken?: string | undefined } }> {
     const { output } = await this.props.client.callAction({
-      type: 'fleur/linear:issueList',
+      type: 'linear:issueList',
       input,
     })
     return output
@@ -89,13 +89,15 @@ bot.event(async (props) => {
     return
   }
 
-  if (props.event.type === 'fleur/linear:issueCreated') {
-    dataSource.emit('created', { event: { item: props.event.payload.item }, state })
+  if (props.event.type === 'linear:issueCreated') {
+    // TODO: uncomment this line once linear implements the creatable interface
+    // dataSource.emit('created', { event: { item: props.event.payload.item }, state })
     return
   }
 
-  if (props.event.type === 'fleur/linear:issueUpdated') {
-    dataSource.emit('updated', { event: { item: props.event.payload.item }, state })
+  if (props.event.type === 'linear:issueUpdated') {
+    // TODO: uncomment this line once linear implements the updatable interface
+    // dataSource.emit('updated', { event: { item: props.event.payload.item }, state })
     return
   }
 })

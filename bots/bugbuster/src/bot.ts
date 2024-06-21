@@ -2,7 +2,7 @@ import { z } from '@botpress/sdk'
 import * as bp from '.botpress'
 
 const github = new bp.github.Github()
-const linear = new bp['fleurLinear'].FleurLinear()
+const linear = new bp.linear.Linear()
 const slack = new bp.slack.Slack()
 
 export type Bot = typeof bot
@@ -24,7 +24,7 @@ const listenersSchema = z.object({
 export const bot = new bp.Bot({
   integrations: {
     github,
-    'fleur/linear': linear,
+    linear,
     slack,
   },
   states: {

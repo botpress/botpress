@@ -6,7 +6,7 @@ export const handleNewIssue: Handler<'github:issueOpened'> = async ({ client, ct
   console.info('Received GitHub issue', githubIssue)
 
   const { output } = await client.callAction({
-    type: 'fleur/linear:createIssue',
+    type: 'linear:createIssue',
     input: {
       title: githubIssue.title,
       description: githubIssue.content ?? 'No content...',

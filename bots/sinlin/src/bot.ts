@@ -15,7 +15,7 @@ const issueState = z.object({
 
 export const bot = new bp.Bot({
   integrations: {
-    'fleur/linear': new bp.fleurLinear.FleurLinear(),
+    linear: new bp.linear.Linear(),
     telegram: new bp.telegram.Telegram(),
   },
   configuration: {
