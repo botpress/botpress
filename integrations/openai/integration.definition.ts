@@ -1,5 +1,12 @@
 import { llm } from '@botpress/common'
-import { IntegrationDefinition } from '@botpress/sdk'
+import { z, IntegrationDefinition } from '@botpress/sdk'
+
+const model = z
+  .enum(['gpt-4o-2024-05-13', 'gpt-4-turbo-2024-04-09', 'gpt-3.5-turbo-0125'])
+  .describe('Model to use for content generation')
+  .default('gpt-4o-2024-05-13')
+
+export type Model = z.infer<typeof model>
 
 export default new IntegrationDefinition({
   name: 'openai',
@@ -11,7 +18,7 @@ export default new IntegrationDefinition({
       title: 'Generate Content',
       description: 'Generate content using any OpenAI model as LLM',
       input: {
-        schema: llm.schemas.GenerateContentInputSchema,
+        schema: llm.schemas.GenerateContentInputSchema.extend({ model }),
       },
       output: {
         schema: llm.schemas.GenerateContentOutputSchema,

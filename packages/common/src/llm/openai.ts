@@ -19,18 +19,18 @@ type ModelCost = {
   outputCostPer1MTokens: number
 }
 
-export async function generateContent(
+export async function generateContent<M extends string>(
   input: GenerateContentInput,
   openAIClient: OpenAI,
   logger: IntegrationLogger,
   params: {
     provider: string
     modelCosts: {
-      [key: string]: ModelCost
+      [key in M]: ModelCost
     }
   }
 ): Promise<GenerateContentOutput> {
-  const modelCost = params.modelCosts[input.model]
+  const modelCost = params.modelCosts[input.model as M]
   if (!modelCost) {
     throw new InvalidPayloadError(
       `Model name "${input.model}" is not supported by this integration, supported model names are: ${Object.keys(
