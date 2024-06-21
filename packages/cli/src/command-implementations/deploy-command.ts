@@ -477,12 +477,13 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     api: ApiClient,
     integration: sdk.IntegrationDefinition
   ): Promise<CreateIntegrationBody['interfaces']> => {
-    if (!integration.interfaces.length) {
+    const interfacesEntries = Object.entries(integration.interfaces)
+    if (!interfacesEntries.length) {
       return undefined
     }
 
     const interfaces: NonNullable<CreateIntegrationBody['interfaces']> = {}
-    for (const i of integration.interfaces) {
+    for (const [key, i] of interfacesEntries) {
       const { name, version, entities, actions, events } = i
       const intrface = await api.findPublicInterface({ type: 'name', name, version })
       if (!intrface) {
@@ -490,8 +491,6 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       }
       const { id } = intrface
 
-      const entityNames = Object.values(entities).map((e) => e.name)
-      const key = `${name}<${entityNames.join(',')}>`
       interfaces[key] = { id, entities, actions, events }
     }
 

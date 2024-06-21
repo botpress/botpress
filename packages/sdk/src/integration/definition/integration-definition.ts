@@ -92,8 +92,7 @@ export class IntegrationDefinition<
   public readonly identifier: this['props']['identifier']
   public readonly entities: this['props']['entities']
 
-  // TODO: make this a record
-  public readonly interfaces: InterfaceImplementationStatement[] = []
+  public readonly interfaces: Record<string, InterfaceImplementationStatement> = {}
 
   public constructor(
     public readonly props: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates, TEntities>
@@ -122,7 +121,9 @@ export class IntegrationDefinition<
       ...this,
       ...props,
     })
-    clone.interfaces.push(...this.interfaces)
+    for (const [key, value] of Object.entries(this.interfaces)) {
+      clone.interfaces[key] = value
+    }
     return clone
   }
 
@@ -153,7 +154,9 @@ export class IntegrationDefinition<
     self.actions = { ...(self.actions ?? {}), ...actions }
     self.events = { ...(self.events ?? {}), ...events }
 
-    this.interfaces.push(implementStatement)
+    const entityNames = Object.values(interfaceTypeArguments).map((e) => e.name)
+    const key = `${interfaceDeclaration.name}<${entityNames.join(',')}>`
+    this.interfaces[key] = implementStatement
 
     return this
   }
