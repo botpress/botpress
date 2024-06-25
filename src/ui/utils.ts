@@ -1,3 +1,67 @@
+import { zuiKey } from './constants'
+import { resolveDiscriminator } from './hooks/useDiscriminator'
+import { BaseType, JSONSchema, ZuiComponentMap, ZuiReactComponent } from './types'
+
+type ComponentMeta<Type extends BaseType = BaseType> = {
+  type: Type
+  Component: ZuiReactComponent<Type, 'default', any>
+  id: string
+  params: any
+}
+
+export const getSchemaType = (schema: JSONSchema): BaseType => {
+  if (schema.anyOf?.length) {
+    const discriminator = resolveDiscriminator(schema.anyOf)
+    return discriminator ? 'discriminatedUnion' : 'object'
+  }
+  if (schema.type === 'integer') {
+    return 'number'
+  }
+
+  return schema.type
+}
+
+export const resolveComponent = <Type extends BaseType>(
+  components: ZuiComponentMap<any> | undefined,
+  fieldSchema: JSONSchema,
+): ComponentMeta<Type> | null => {
+  const type = getSchemaType(fieldSchema)
+  const uiDefinition = fieldSchema[zuiKey]?.displayAs || null
+
+  if (!uiDefinition || !Array.isArray(uiDefinition) || uiDefinition.length < 2) {
+    const defaultComponent = components?.[type]?.default
+
+    if (!defaultComponent) {
+      return null
+    }
+
+    return {
+      Component: defaultComponent as ZuiReactComponent<Type, 'default', any>,
+      type: type as Type,
+      id: 'default',
+      params: {},
+    }
+  }
+
+  const componentID: string = uiDefinition[0]
+
+  const Component = components?.[type]?.[componentID] || null
+
+  if (!Component) {
+    console.warn(`Component ${type}.${componentID} not found`)
+    return null
+  }
+
+  const params = uiDefinition[1] || {}
+
+  return {
+    Component: Component as ZuiReactComponent<Type, 'default', any>,
+    type: type as Type,
+    id: componentID,
+    params,
+  }
+}
+
 export function formatTitle(title: string, separator?: RegExp): string {
   if (!separator) separator = new RegExp('/s|-|_| ', 'g')
   return decamelize(title).split(separator).map(capitalize).map(handleSpecialWords).reduce(combine)

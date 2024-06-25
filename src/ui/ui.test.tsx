@@ -180,6 +180,7 @@ describe('UI', () => {
     fireEvent.click(addBtn)
 
     const element = rendered.queryByTestId('string:favoriteColors.0:input')
+
     expect(element).toBeTruthy()
 
     expect(rendered.queryByTestId('string:favoriteColors.0')?.getAttribute('data-ischild')).toBe('true')
@@ -337,8 +338,10 @@ describe('UI', () => {
     const input = rendered.getByTestId('string:students.0.name:input')
     fireEvent.change(input, { target: { value: 'Jane' } })
 
-    expect(onChangeMock).toHaveBeenCalledTimes(1)
-    expect(onChangeMock).toHaveBeenCalledWith({ students: [{ name: 'Jane', age: 20 }] })
+    expect(onChangeMock).toHaveBeenCalledTimes(2)
+
+    // check initial value
+    expect(onChangeMock).toHaveBeenCalledWith({ students: [{ name: 'John', age: 20 }] })
   })
 
   it('it renders custom zui components with correct params as input', () => {
@@ -611,7 +614,6 @@ describe('UI', () => {
     expect(ageInput.value).toBe('20')
     expect(favoriteFoods).toHaveLength(2)
     expect(creditCardInput.value).toBe('1234')
-    console.log(nameInput.value, ageInput.value)
   })
 
   it("Doesn't override initialData with default values", () => {
@@ -853,7 +855,7 @@ const testComponentImplementation: ZuiComponentMap<typeof testComponentDefinitio
       const childrens = Array.isArray(props.children) ? props.children : [props.children]
       return (
         <TestWrapper {...props}>
-          <button data-testid="stringlistelement:addbtn" onClick={() => props.addItem('')}>
+          <button data-testid="stringlistelement:addbtn" onClick={() => props.addItem()}>
             Add item
           </button>
           {childrens.map((child, index) => (
