@@ -1,4 +1,5 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
+import { MAX_URLS } from 'src/constants'
 import { integrationName } from './package.json'
 
 export default new IntegrationDefinition({
@@ -18,15 +19,12 @@ export default new IntegrationDefinition({
       description: 'Indexes URLs',
       input: {
         schema: z.object({
-          // studio does not support string[] input
-          pageUrls: z.string(),
-          test: z.array(z.string()),
+          pageUrls: z.array(z.string()).min(1).max(MAX_URLS),
         }),
       },
       output: {
         schema: z.object({
-          // studio does not support string[] output
-          fileIds: z.string(),
+          fileIds: z.array(z.string()),
           scraperCreditCost: z.number(),
         }),
       },

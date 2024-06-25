@@ -4,26 +4,22 @@ import _ from 'lodash'
 import parseRobots from 'robots-parser'
 import Url from 'url'
 import xml2js from 'xml2js'
+import { MAX_URLS } from './constants'
 import { Scraper, urlSchema } from './scraper'
 import * as bp from '.botpress'
-
-const MAX_URLS = 500
 
 export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
     indexUrls: async ({ input, logger, client }) => {
-      const pageUrlsSchema = z.object({
-        urls: z.array(z.string()).min(1).max(MAX_URLS),
-      })
-      const { urls: pageUrls } = pageUrlsSchema.parse(JSON.parse(input.pageUrls))
+      const { pageUrls } = input
 
       logger.forBot().debug(`Indexing ${pageUrls.length} urls`)
 
       const scraper = new Scraper(logger, bp.secrets.SCRAPER_API_KEY)
       let scraperCreditCost = 0
-      const files = await Promise.all(
+      const fileIds = await Promise.all(
         pageUrls.map(async (url) => {
           const scrapingResponse = await scraper.fetchPageHtml(url)
           scraperCreditCost += scrapingResponse.cost
@@ -38,7 +34,7 @@ export default new bp.Integration({
         })
       )
 
-      return { fileIds: JSON.stringify(files), scraperCreditCost }
+      return { fileIds, scraperCreditCost }
     },
     fetchUrls: async ({ input: { rootUrl } }) => {
       const urls = await fetchUrls(rootUrl)
