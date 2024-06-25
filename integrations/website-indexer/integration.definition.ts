@@ -20,6 +20,7 @@ export default new IntegrationDefinition({
         schema: z.object({
           // studio does not support string[] input
           pageUrls: z.string(),
+          test: z.array(z.string()),
         }),
       },
       output: {
