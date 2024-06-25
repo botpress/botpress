@@ -3,9 +3,8 @@ import axios from 'axios'
 import _ from 'lodash'
 import parseRobots from 'robots-parser'
 import Url from 'url'
-// import xml2json from 'xml2json'
 import xml2js from 'xml2js'
-import { Scraper } from './scraper'
+import { Scraper, urlSchema } from './scraper'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
@@ -14,7 +13,7 @@ export default new bp.Integration({
   actions: {
     indexUrls: async ({ input, logger, client }) => {
       const pageUrlsSchema = z.object({
-        urls: z.array(z.string()),
+        urls: z.array(z.string()).min(1).max(500),
       })
       const { urls: pageUrls } = pageUrlsSchema.parse(JSON.parse(input.pageUrls))
 
@@ -180,86 +179,4 @@ const areSameDomain = (a: string, b: string) => {
   } catch {
     return false
   }
-}
-
-export const urlSchema = z.string().transform((url, ctx) => {
-  url = url.trim()
-  if (!url.includes('://')) {
-    url = `https://${url}`
-  }
-  try {
-    const x = new URL(url)
-    if (x.protocol !== 'http:' && x.protocol !== 'https:') {
-      ctx.addIssue({
-        code: 'custom',
-        message: 'Invalid protocol, only URLs starting with HTTP and HTTPS are supported',
-      })
-      return z.NEVER
-    }
-
-    if (!/.\.[a-zA-Z]{2,}$/.test(x.hostname)) {
-      ctx.addIssue({
-        code: 'custom',
-        message: 'Invalid TLD',
-      })
-      return z.NEVER
-    }
-    const pathName = x.pathname.endsWith('/') ? x.pathname.slice(0, -1) : x.pathname
-    return `${x.origin}${pathName}`.toLowerCase()
-  } catch (e) {
-    ctx.addIssue({
-      code: 'custom',
-      message: 'Invalid URL: ' + getErrorMessage(e),
-    })
-    return z.NEVER
-  }
-})
-
-const getErrorMessage = (err: unknown): string => {
-  if (axios.isAxiosError(err)) {
-    const data = err.response?.data
-    const statusCode = err.response?.status
-
-    if (!data) {
-      return `${err.message} (Status Code: ${statusCode})`
-    }
-
-    if (_.isArray(data.errors)) {
-      return `${printZodErrors(data.errors)} (Status Code: ${statusCode})`
-    }
-
-    return `${data.message || data.error?.message || data.error || data || err.message} (Status Code: ${statusCode})`
-  } else if (err instanceof z.ZodError) {
-    return printZodErrors(err.errors)
-  } else if (err instanceof Error) {
-    return err.message || 'Unexpected error'
-  } else if (err && typeof err === 'object' && 'message' in err && typeof err.message === 'string') {
-    return err.message
-  } else if (err && typeof err === 'object' && 'title' in err && typeof err.title === 'string') {
-    // DM Issue
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const maybeIssue = err as any
-    return `${err.title}: ${maybeIssue.message ?? maybeIssue.description ?? 'Unexpected error'}`
-  } else if (typeof err === 'string') {
-    return err
-  }
-
-  return 'Unexpected error'
-}
-
-const printZodErrors = (errors: z.ZodIssue[]) =>
-  `Validation Error: ${errors.map((x) => `"${joinPath(x.path)}": ${x.message}`).join('\n')}`
-
-const joinPath = (path: (string | number)[]): string => {
-  if (path.length === 1) {
-    return path[0]!.toString()
-  }
-
-  return path.reduce<string>((acc, item) => {
-    if (typeof item === 'number') {
-      return `${acc}[${item}]`
-    }
-
-    return `${acc}${acc.length === 0 ? '' : '.'}${item}`
-  }, '')
 }
