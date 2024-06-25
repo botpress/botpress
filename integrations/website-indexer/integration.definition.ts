@@ -36,7 +36,6 @@ export default new IntegrationDefinition({
       input: {
         schema: z.object({
           rootUrl: z.string(),
-          maxUrls: z.number(),
         }),
       },
       output: {

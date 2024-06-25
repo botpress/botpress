@@ -7,13 +7,15 @@ import xml2js from 'xml2js'
 import { Scraper, urlSchema } from './scraper'
 import * as bp from '.botpress'
 
+const MAX_URLS = 500
+
 export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
     indexUrls: async ({ input, logger, client }) => {
       const pageUrlsSchema = z.object({
-        urls: z.array(z.string()).min(1).max(500),
+        urls: z.array(z.string()).min(1).max(MAX_URLS),
       })
       const { urls: pageUrls } = pageUrlsSchema.parse(JSON.parse(input.pageUrls))
 
@@ -38,9 +40,9 @@ export default new bp.Integration({
 
       return { fileIds: JSON.stringify(files), scraperCreditCost }
     },
-    fetchUrls: async ({ input: { rootUrl, maxUrls } }) => {
+    fetchUrls: async ({ input: { rootUrl } }) => {
       const urls = await fetchUrls(rootUrl)
-      return { urls: urls.slice(0, maxUrls) }
+      return { urls: urls.slice(0, MAX_URLS) }
     },
   },
   channels: {},
