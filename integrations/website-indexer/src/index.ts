@@ -1,4 +1,4 @@
-import { z, RuntimeError } from '@botpress/sdk'
+import { z } from '@botpress/sdk'
 import axios from 'axios'
 import _ from 'lodash'
 import parseRobots from 'robots-parser'
@@ -9,20 +9,8 @@ import { Scraper } from './scraper'
 import * as bp from '.botpress'
 
 export default new bp.Integration({
-  register: async () => {
-    /**
-     * This is called when a bot installs the integration.
-     * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
-     */
-    throw new RuntimeError('Invalid configuration') // replace this with your own validation logic
-  },
-  unregister: async () => {
-    /**
-     * This is called when a bot removes the integration.
-     * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
-     */
-    throw new RuntimeError('Invalid configuration') // replace this with your own validation logic
-  },
+  register: async () => {},
+  unregister: async () => {},
   actions: {
     indexUrls: async ({ input, logger, client }) => {
       const pageUrlsSchema = z.object({
