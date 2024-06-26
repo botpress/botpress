@@ -4,7 +4,6 @@ import _ from 'lodash'
 import parseRobots from 'robots-parser'
 import Url from 'url'
 import xml2js from 'xml2js'
-import { Scraper } from './scraper'
 import { urlSchema } from './urlSchema'
 
 export const fetchUrls = async (url: string): Promise<string[]> => {
@@ -97,11 +96,15 @@ const fetchSitemap = async (options: z.infer<typeof loadSitemapSchema>): Promise
     const locs = _.isArray(sitemapindex?.sitemap)
       ? sitemapindex?.sitemap.map((x) => x.loc) ?? []
       : [sitemapindex?.sitemap?.loc]
-    for (const loc of locs.filter(Boolean) as string[]) {
-      try {
-        const subUrls = await fetchSitemap({ ...options, url: loc, depth: options.depth - 1 })
-        subUrls.forEach((item) => appendUrl(item.url, item.lastModified))
-      } catch {}
+    const locsFiltered = locs.filter(Boolean) as string[]
+
+    const fetchLocsResults = await Promise.allSettled(
+      locsFiltered.map(async (loc) => fetchSitemap({ ...options, url: loc, depth: options.depth - 1 }))
+    )
+    for (const result of fetchLocsResults) {
+      if (result.status === 'fulfilled') {
+        result.value.forEach((item) => appendUrl(item.url, item.lastModified))
+      }
     }
   }
 
@@ -113,25 +116,9 @@ const fetchSitemap = async (options: z.infer<typeof loadSitemapSchema>): Promise
   return [...urls]
 }
 
-const strategy = process.env['STRATEGY'] === 'scraper' ? 'scraper' : 'axios'
-console.log(`Using ${strategy} to fetch`)
-
 const fetchPageContent = async (url: string) => {
-  if (strategy === 'scraper') {
-    const apiKey = process.env['SCRAPER_API_KEY']
-    if (!apiKey) {
-      throw new Error('Missing SCRAPER_API_KEY')
-    }
-    const scraper = new Scraper(apiKey)
-    scraper.onRetry(({ retryCount, error }) => {
-      console.log(`Retrying request ${retryCount}`, error.message)
-    })
-    const response = await scraper.fetchPageHtml(url)
-    return response.content.toString()
-  } else {
-    const response = await axios.get(url)
-    return response.data
-  }
+  const response = await axios.get(url)
+  return response.data
 }
 
 type UrlSetItem = {
