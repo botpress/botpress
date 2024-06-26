@@ -21,8 +21,10 @@ async function main() {
 
   await Promise.all(
     rootUrls.map(async (url) => {
+      console.time(`fetchUrls ${url}`)
       const urls = await fetchUrls(url)
-      console.log(`Fetched ${urls.length} urls from ${url}`)
+      console.timeLog(`fetchUrls ${url}`, urls.length)
+      // console.log(`Fetched ${urls.length} urls from ${url}`)
       remaining.delete(url)
       console.log(`Remaining: [${Array.from(remaining).join(', ')}]`)
     })

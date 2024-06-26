@@ -1,12 +1,9 @@
 import { z } from '@botpress/sdk'
-import axios, { AxiosInstance } from 'axios'
+import axios, { AxiosError, AxiosInstance } from 'axios'
 import axiosRetry from 'axios-retry'
+import EventEmitter from 'events'
 import { v5 } from 'uuid'
-import { getErrorMessage } from './errors'
 import { urlSchema } from './urlSchema'
-import * as bp from '.botpress'
-
-type IntegrationLogger = bp.Logger
 
 const fetchPageHtmlSchema = z.object({
   url: urlSchema,
@@ -14,13 +11,16 @@ const fetchPageHtmlSchema = z.object({
 
 export class Scraper {
   private client: AxiosInstance
-  constructor(logger: IntegrationLogger, apiKey: string) {
+  private eventEmitter: EventEmitter
+  constructor(apiKey: string) {
     this.client = axios.create({
       baseURL: 'http://api.scraperapi.com',
       params: {
         api_key: apiKey,
       },
     })
+
+    this.eventEmitter = new EventEmitter()
 
     axiosRetry(this.client, {
       retries: 2,
@@ -30,7 +30,7 @@ export class Scraper {
         return codes.includes(error.response?.status ?? 0)
       },
       onRetry: (retryCount, error) => {
-        logger.forBot().warn(`Retrying request ${retryCount}`, getErrorMessage(error))
+        this.eventEmitter.emit('retry', { retryCount, error })
       },
     })
   }
@@ -39,6 +39,10 @@ export class Scraper {
     return await _fetchPageHtml(this.client, {
       url,
     })
+  }
+
+  public onRetry(callback: (data: { retryCount: number; error: AxiosError }) => void) {
+    this.eventEmitter.on('retry', callback)
   }
 }
 

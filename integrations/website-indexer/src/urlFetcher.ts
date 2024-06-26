@@ -4,6 +4,7 @@ import _ from 'lodash'
 import parseRobots from 'robots-parser'
 import Url from 'url'
 import xml2js from 'xml2js'
+import { Scraper } from './scraper'
 import { urlSchema } from './urlSchema'
 
 export const fetchUrls = async (url: string): Promise<string[]> => {
@@ -46,7 +47,8 @@ const fetchRobotsSitemapUrls = async (url: string): Promise<string[]> => {
     const content = await fetchPageContent(url)
     const sitemaps = parseRobots(url, content ?? '').getSitemaps()
     return sitemaps
-  } catch {
+  } catch (e) {
+    console.error(`Error while reading robots.txt ${url}: ${e}`)
     return []
   }
 }
@@ -111,9 +113,25 @@ const fetchSitemap = async (options: z.infer<typeof loadSitemapSchema>): Promise
   return [...urls]
 }
 
+const strategy = process.env['STRATEGY'] === 'scraper' ? 'scraper' : 'axios'
+console.log(`Using ${strategy} to fetch`)
+
 const fetchPageContent = async (url: string) => {
-  const response = await axios.get(url)
-  return response.data
+  if (strategy === 'scraper') {
+    const apiKey = process.env['SCRAPER_API_KEY']
+    if (!apiKey) {
+      throw new Error('Missing SCRAPER_API_KEY')
+    }
+    const scraper = new Scraper(apiKey)
+    scraper.onRetry(({ retryCount, error }) => {
+      console.log(`Retrying request ${retryCount}`, error.message)
+    })
+    const response = await scraper.fetchPageHtml(url)
+    return response.content.toString()
+  } else {
+    const response = await axios.get(url)
+    return response.data
+  }
 }
 
 type UrlSetItem = {

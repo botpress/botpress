@@ -1,5 +1,6 @@
 import axios from 'axios'
 import { backOff } from 'exponential-backoff'
+import { getErrorMessage } from './errors'
 import { Scraper } from './scraper'
 import { fetchUrls } from './urlFetcher'
 import * as bp from '.botpress'
@@ -13,7 +14,10 @@ export default new bp.Integration({
 
       logger.forBot().debug(`Indexing ${pageUrls.length} urls`)
 
-      const scraper = new Scraper(logger, bp.secrets.SCRAPER_API_KEY)
+      const scraper = new Scraper(bp.secrets.SCRAPER_API_KEY)
+      scraper.onRetry(({ retryCount, error }) => {
+        logger.forBot().warn(`Retrying request ${retryCount}`, getErrorMessage(error))
+      })
       const results = await Promise.allSettled(
         pageUrls.map(async (url) => {
           const scrapingResponse = await backOff(
