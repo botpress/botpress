@@ -335,13 +335,16 @@ describe('UI', () => {
       />,
     )
 
+    // check initial value
+    expect(onChangeMock).toHaveBeenCalledWith({ students: [{ name: 'John', age: 20 }] })
+
     const input = rendered.getByTestId('string:students.0.name:input')
     fireEvent.change(input, { target: { value: 'Jane' } })
 
-    expect(onChangeMock).toHaveBeenCalledTimes(2)
+    expect(onChangeMock).toHaveBeenCalledTimes(3) // 1 for initial value, 2 for change
 
-    // check initial value
-    expect(onChangeMock).toHaveBeenCalledWith({ students: [{ name: 'John', age: 20 }] })
+    // check value after change
+    expect(onChangeMock).toHaveBeenCalledWith({ students: [{ name: 'Jane', age: 20 }] })
   })
 
   it('it renders custom zui components with correct params as input', () => {
@@ -718,6 +721,7 @@ describe('utils', () => {
     })
   })
 })
+
 export const testComponentDefinitions = {
   string: {
     customstringcomponent: {

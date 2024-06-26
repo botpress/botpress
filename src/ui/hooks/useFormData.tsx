@@ -1,23 +1,57 @@
-import { PropsWithChildren, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import React from 'react'
+import React, { PropsWithChildren, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
 import { ArraySchema, JSONSchema } from '../types'
 import { jsonSchemaToZui } from '../../transforms/json-schema-to-zui'
 import { zuiKey } from '../constants'
-import { Maskable } from '../../z'
+import { Maskable, ZodIssue } from '../../z'
 
 export type FormDataContextProps = {
+  /**
+   * The current form data
+   * */
   formData: any
   formSchema: JSONSchema | any
+  /**
+   * Function to update the form data, takes a callback that receives the form data with the new values
+   * */
   setFormData: (callback: (formData: any) => void) => void
-  setHiddenState: (callback: (hiddenState: any) => void) => void
-  setDisabledState: (callback: (disabledState: any) => void) => void
+
+  /**
+   * hiddenState is an object that contains the hidden state of the form fields
+   */
   hiddenState: object
+  /**
+   * Function to update the hidden state, takes a callback that receives the hidden state with the new values
+   * */
+  setHiddenState: (callback: (hiddenState: any) => void) => void
+  /**
+   * disabledState is an object that contains the disabled state of the form fields
+   */
   disabledState: object
-  disableValidation: boolean
+  /**
+   * Function to update the disabled state, takes a callback that receives the disabled state with the new values
+   * */
+  setDisabledState: (callback: (disabledState: any) => void) => void
+
+  /**
+   * Validation state of the form
+   */
+  validation: {
+    formValid: boolean | null
+    formErrors: ZodIssue[] | null
+  }
+
+  disableValidation?: boolean
+
+  /**
+   * Function to transform the form data before validation and computation of hidden/disabled states
+   * useful for cases where the underlying form data does not match the schema
+   */
+  dataTransform?: (formData: any) => any
 }
+
 export type FormDataProviderProps = Omit<
   FormDataContextProps,
-  'setHiddenState' | 'setDisabledState' | 'hiddenState' | 'disabledState'
+  'setHiddenState' | 'setDisabledState' | 'hiddenState' | 'disabledState' | 'validation'
 >
 
 export const FormDataContext = createContext<FormDataContextProps>({
@@ -34,7 +68,7 @@ export const FormDataContext = createContext<FormDataContextProps>({
   },
   hiddenState: {},
   disabledState: {},
-  disableValidation: false,
+  validation: { formValid: null, formErrors: null },
 })
 
 const parseMaskableField = (key: 'hidden' | 'disabled', fieldSchema: JSONSchema, data: any): Maskable => {
@@ -75,30 +109,28 @@ export const useFormData = (fieldSchema: JSONSchema, path: string[]) => {
   const data = useMemo(() => getPathData(formContext.formData, path), [formContext.formData, path])
 
   const validation = useMemo(() => {
-    if (formContext.disableValidation) {
+    if (formContext.validation.formValid === null) {
       return { formValid: null, formErrors: null }
     }
-
-    if (!formContext.formSchema) {
-      return { formValid: null, formErrors: null }
-    }
-
-    const validation = jsonSchemaToZui(formContext.formSchema).safeParse(formContext.formData)
-
-    if (!validation.success) {
+    if (formContext.validation.formValid === false) {
       return {
         formValid: false,
-        formErrors: validation.error.issues,
+        formErrors: formContext.validation.formErrors?.filter((issue) => issue.path === path) || null,
       }
     }
-    return {
-      formValid: true,
-      formErrors: [],
-    }
-  }, [formContext.formData])
+    return { formValid: true, formErrors: [] }
+  }, [formContext.validation.formValid, formContext.validation.formErrors, path])
 
-  const hiddenMask = useMemo(() => parseMaskableField('hidden', fieldSchema, data), [fieldSchema, data])
-  const disabledMask = useMemo(() => parseMaskableField('disabled', fieldSchema, data), [fieldSchema, data])
+  const transformedData = formContext.dataTransform ? formContext.dataTransform(data) : data
+
+  const hiddenMask = useMemo(
+    () => parseMaskableField('hidden', fieldSchema, transformedData),
+    [fieldSchema, transformedData],
+  )
+  const disabledMask = useMemo(
+    () => parseMaskableField('disabled', fieldSchema, transformedData),
+    [fieldSchema, transformedData],
+  )
 
   useEffect(() => {
     formContext.setHiddenState((hiddenState) => setObjectPath(hiddenState, path, hiddenMask || {}))
@@ -240,9 +272,35 @@ export const FormDataProvider: React.FC<PropsWithChildren<FormDataProviderProps>
   formData,
   formSchema,
   disableValidation,
+  dataTransform,
 }) => {
   const [hiddenState, setHiddenState] = useState({})
   const [disabledState, setDisabledState] = useState({})
+
+  const transformedData = dataTransform ? dataTransform(formData) : formData
+
+  const validation = useMemo(() => {
+    if (disableValidation) {
+      return { formValid: null, formErrors: null }
+    }
+
+    if (!formSchema) {
+      return { formValid: null, formErrors: null }
+    }
+
+    const validation = jsonSchemaToZui(formSchema).safeParse(transformedData)
+
+    if (!validation.success) {
+      return {
+        formValid: false,
+        formErrors: validation.error.issues,
+      }
+    }
+    return {
+      formValid: true,
+      formErrors: [],
+    }
+  }, [JSON.stringify({ transformedData })])
 
   return (
     <FormDataContext.Provider
@@ -250,11 +308,12 @@ export const FormDataProvider: React.FC<PropsWithChildren<FormDataProviderProps>
         formData,
         setFormData,
         formSchema,
-        disableValidation,
+        validation,
         hiddenState,
         setHiddenState,
         disabledState,
         setDisabledState,
+        dataTransform,
       }}
     >
       {children}
