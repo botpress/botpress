@@ -27,7 +27,7 @@ export const fetchUrls = async (url: string): Promise<string[]> => {
         ...getWellKnownSitemaps(`https://${host}`),
       ])
 
-  await Promise.all(
+  await Promise.allSettled(
     sitemaps.map(async (sitemap) => {
       const entries = await fetchSitemap({ url: sitemap, depth: 3, maxUrls: 5000, sameDomain: false }).catch(() => {
         // console.error(`Error while reading sitemap ${sitemap}: ${err?.message}`)
