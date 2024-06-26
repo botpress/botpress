@@ -1,1 +1,1 @@
-export const MAX_URLS = 500
+export const MAX_URLS = 100

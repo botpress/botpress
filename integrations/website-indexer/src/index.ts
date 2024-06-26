@@ -1,10 +1,10 @@
 import { z } from '@botpress/sdk'
 import axios from 'axios'
+import { backOff } from 'exponential-backoff'
 import _ from 'lodash'
 import parseRobots from 'robots-parser'
 import Url from 'url'
 import xml2js from 'xml2js'
-import { MAX_URLS } from './constants'
 import { Scraper, urlSchema } from './scraper'
 import * as bp from '.botpress'
 
@@ -18,27 +18,71 @@ export default new bp.Integration({
       logger.forBot().debug(`Indexing ${pageUrls.length} urls`)
 
       const scraper = new Scraper(logger, bp.secrets.SCRAPER_API_KEY)
-      let scraperCreditCost = 0
-      const fileIds = await Promise.all(
+      const results = await Promise.allSettled(
         pageUrls.map(async (url) => {
-          const scrapingResponse = await scraper.fetchPageHtml(url)
-          scraperCreditCost += scrapingResponse.cost
+          const scrapingResponse = await backOff(
+            async () => {
+              return await scraper.fetchPageHtml(url)
+            },
+            {
+              retry: (e) => {
+                logger.forBot().debug('retrying scraping ...')
+                return e?.response?.status === 429
+              },
+              numOfAttempts: 10,
+              maxDelay: 1000,
+              delayFirstAttempt: false,
+              jitter: 'full',
+            }
+          )
+
+          logger.forBot().debug(`Scraped ${url} with ${scrapingResponse.cost} credits`)
+
           const response = await client.upsertFile({
             key: url,
             size: scrapingResponse.content.byteLength,
             index: true,
             contentType: 'text/html',
           })
+
+          logger.forBot().debug(`uploading file: ${url}`)
           await axios.put(response.file.uploadUrl, scrapingResponse.content)
-          return response.file.id
+          return { fileId: response.file.id, url, scraperCreditCost: scrapingResponse.cost }
         })
       )
 
-      return { fileIds, scraperCreditCost }
+      const outputResults: (
+        | {
+            status: 'success'
+            url: string
+            fileId: string
+            scraperCreditCost: number
+          }
+        | {
+            status: 'failed'
+            url: string
+            failureReason: string
+          }
+      )[] = []
+
+      for (const r of results) {
+        if (r.status === 'rejected') {
+          outputResults.push({ status: 'failed', url: r.reason.url, failureReason: r.reason.message })
+        } else {
+          outputResults.push({
+            status: 'success',
+            url: r.value.url,
+            fileId: r.value.fileId,
+            scraperCreditCost: r.value.scraperCreditCost,
+          })
+        }
+      }
+
+      return { results: outputResults }
     },
     fetchUrls: async ({ input: { rootUrl } }) => {
       const urls = await fetchUrls(rootUrl)
-      return { urls: urls.slice(0, MAX_URLS) }
+      return { urls }
     },
   },
   channels: {},

@@ -24,8 +24,17 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: z.object({
-          fileIds: z.array(z.string()),
-          scraperCreditCost: z.number(),
+          results: z.array(
+            z.discriminatedUnion('status', [
+              z.object({
+                status: z.literal('success'),
+                url: z.string(),
+                fileId: z.string(),
+                scraperCreditCost: z.number(),
+              }),
+              z.object({ status: z.literal('failed'), url: z.string(), failureReason: z.string() }),
+            ])
+          ),
         }),
       },
     },
