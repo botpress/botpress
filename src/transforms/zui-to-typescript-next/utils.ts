@@ -1,4 +1,5 @@
-import _ from 'lodash'
+import { camelCase, deburr } from '../../ui/utils'
+
 export function escapeString(str: string) {
   if (typeof str !== 'string') {
     return ''
@@ -35,12 +36,12 @@ export const getMultilineComment = (description?: string) => {
 }
 
 export const toValidFunctionName = (str: string) => {
-  let name = _.deburr(str)
+  let name = deburr(str)
   name = name.replace(/[^a-zA-Z0-9_$]/g, '')
 
   if (!/^[a-zA-Z_$]/.test(name)) {
     name = `_${name}`
   }
 
-  return _.camelCase(name)
+  return camelCase(name)
 }

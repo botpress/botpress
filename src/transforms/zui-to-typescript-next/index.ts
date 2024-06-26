@@ -56,7 +56,7 @@ class Declaration {
 
 export type TypescriptGenerationOptions = {
   declaration?: boolean
-  formatters?: ((typing: string) => string)[]
+  formatter?: (typing: string) => string
 }
 
 type SchemaTypes = z.Schema | KeyValue | FnParameters | Declaration | null
@@ -84,10 +84,8 @@ export function toTypescript(schema: z.Schema, options?: TypescriptGenerationOpt
 
   let dts = sUnwrapZod(wrappedSchema, { ...options })
 
-  if (options.formatters?.length) {
-    for (const formatter of options.formatters) {
-      dts = formatter(dts)
-    }
+  if (options.formatter) {
+    dts = options.formatter(dts)
   }
 
   return dts

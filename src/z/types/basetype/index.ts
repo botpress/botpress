@@ -48,7 +48,6 @@ import {
 } from '../index'
 import type { ZuiSchemaOptions } from '../../../transforms/zui-to-json-schema/zui-extension'
 import type { ObjectToZuiOptions } from '../../../transforms/object-to-zui'
-import { type ToTypescriptTyingsOptions, toTypescriptTypings } from '../../../transforms/zui-to-typescript'
 import { TypescriptGenerationOptions, toTypescript } from '../../../transforms/zui-to-typescript-next'
 
 export type RefinementCtx = {
@@ -577,13 +576,6 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     return zuiToJsonSchema(this, opts)
   }
 
-  /**
-   * @deprecated use toTypescript instead
-   */
-  async toTypescriptTypings(opts?: ToTypescriptTyingsOptions): Promise<string> {
-    return toTypescriptTypings(this.toJsonSchema(), opts)
-  }
-
   toTypescript(opts?: TypescriptGenerationOptions): string {
     return toTypescript(this, opts)
   }
@@ -593,7 +585,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
       formatters: ((typing: string) => Promise<string> | string)[]
     },
   ): Promise<string> {
-    let result = toTypescript(this, { ...opts, formatters: [] })
+    let result = toTypescript(this, { ...opts, formatter: undefined })
     for (const formatter of opts?.formatters || []) {
       result = await formatter(result)
     }

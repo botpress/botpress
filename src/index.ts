@@ -1,7 +1,6 @@
 import { jsonSchemaToZui } from './transforms/json-schema-to-zui'
 import { zuiToJsonSchema } from './transforms/zui-to-json-schema'
 import { objectToZui } from './transforms/object-to-zui'
-import { toTypescriptTypings } from './transforms/zui-to-typescript'
 import {
   toTypescript,
   UntitledDeclarationError,
@@ -29,10 +28,6 @@ export const transforms = {
   zuiToJsonSchema,
   objectToZui,
   toTypescript,
-  /**
-   * @deprecated use toTypescript instead
-   */
-  zuiToTypescriptTypings: toTypescriptTypings,
 }
 
 export { UntitledDeclarationError, type TypescriptGenerationOptions }
