@@ -61,6 +61,7 @@ export const FormElementRenderer: FC<FormRendererProps> = ({
       formErrors,
       formValid,
       updateForm: handlePropertyChange,
+      updateFormData: (data) => handlePropertyChange([], data),
     },
     onChange: (data: any) => handlePropertyChange(path, data),
     disabled,

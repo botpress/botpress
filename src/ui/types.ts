@@ -1,4 +1,4 @@
-import { ZodEnumDef, z } from '../z/index'
+import { ZodEnumDef, ZodIssueCode, z } from '../z/index'
 import type { FC } from 'react'
 import { zuiKey } from './constants'
 
@@ -208,7 +208,8 @@ export type SchemaContext<
 
 export type FormError = {
   message: string
-  path: (string | number)[]
+  path: Path
+  code: ZodIssueCode
 }
 
 export type ZuiReactComponentBaseProps<
@@ -227,12 +228,13 @@ export type ZuiReactComponentBaseProps<
   label: string
   errors: FormError[]
   context: {
-    path: string[]
+    path: Path
     formValid: boolean | null
     formErrors: FormError[] | null
     formData?: any
     readonly: boolean
-    updateForm: (path: string[], data: any) => void
+    updateForm: (path: Path, data: any) => void
+    updateFormData: (data: any) => void
   }
   zuiProps: BaseSchema[typeof zuiKey]
 } & ZuiReactArrayChildProps
@@ -330,3 +332,4 @@ export type MergeUIComponentDefinitions<T extends UIComponentDefinitions, U exte
 }
 
 export type DeepPartial<T> = T extends object ? { [K in keyof T]?: DeepPartial<T[K]> } : T
+export type Path = (string | number)[]

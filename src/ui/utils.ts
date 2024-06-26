@@ -1,6 +1,6 @@
 import { zuiKey } from './constants'
 import { resolveDiscriminator } from './hooks/useDiscriminator'
-import { BaseType, JSONSchema, ZuiComponentMap, ZuiReactComponent } from './types'
+import { BaseType, JSONSchema, Path, ZuiComponentMap, ZuiReactComponent } from './types'
 
 type ComponentMeta<Type extends BaseType = BaseType> = {
   type: Type
@@ -60,6 +60,11 @@ export const resolveComponent = <Type extends BaseType>(
     id: componentID,
     params,
   }
+}
+
+export function pathMatches(path1: Path, path2: Path): boolean {
+  if (path1.length !== path2.length) return false
+  return path1.every((part, index) => part === path2[index])
 }
 
 export function formatTitle(title: string, separator?: RegExp): string {

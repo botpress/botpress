@@ -1,9 +1,9 @@
 import { useMemo, useEffect } from 'react'
-import { JSONSchema, ObjectSchema } from '../types'
+import { JSONSchema, ObjectSchema, Path } from '../types'
 import { useFormData } from './useFormData'
 import { zuiKey } from '../constants'
 
-export const useDiscriminator = (fieldSchema: JSONSchema, path: string[]) => {
+export const useDiscriminator = (fieldSchema: JSONSchema, path: Path) => {
   const { handlePropertyChange, data } = useFormData(fieldSchema, path)
 
   const { discriminator, value, discriminatedSchema } = useMemo(() => {

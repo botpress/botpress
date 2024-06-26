@@ -1,8 +1,9 @@
 import React, { PropsWithChildren, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { ArraySchema, JSONSchema } from '../types'
+import { ArraySchema, FormError, JSONSchema, Path } from '../types'
 import { jsonSchemaToZui } from '../../transforms/json-schema-to-zui'
 import { zuiKey } from '../constants'
 import { Maskable, ZodIssue } from '../../z'
+import { pathMatches } from '../utils'
 
 export type FormDataContextProps = {
   /**
@@ -100,7 +101,7 @@ const parseMaskableField = (key: 'hidden' | 'disabled', fieldSchema: JSONSchema,
   return false
 }
 
-export const useFormData = (fieldSchema: JSONSchema, path: string[]) => {
+export const useFormData = (fieldSchema: JSONSchema, path: Path) => {
   const formContext = useContext(FormDataContext)
   if (formContext === undefined) {
     throw new Error('useFormData must be used within a FormDataProvider')
@@ -115,7 +116,14 @@ export const useFormData = (fieldSchema: JSONSchema, path: string[]) => {
     if (formContext.validation.formValid === false) {
       return {
         formValid: false,
-        formErrors: formContext.validation.formErrors?.filter((issue) => issue.path === path) || null,
+        formErrors:
+          formContext.validation.formErrors
+            ?.filter((issue) => pathMatches(issue.path, path))
+            .map<FormError>((issue) => ({
+              message: issue.message,
+              code: issue.code,
+              path: path,
+            })) || null,
       }
     }
     return { formValid: true, formErrors: [] }
@@ -144,13 +152,13 @@ export const useFormData = (fieldSchema: JSONSchema, path: string[]) => {
   }, [formContext.hiddenState, formContext.disabledState, hiddenMask, disabledMask, path])
 
   const handlePropertyChange = useCallback(
-    (path: string[], data: any) => {
+    (path: Path, data: any) => {
       formContext.setFormData((formData) => setObjectPath(formData, path, data))
     },
     [formContext.setFormData],
   )
   const addArrayItem = useCallback(
-    (path: string[], data: any = undefined) => {
+    (path: Path, data: any = undefined) => {
       const defaultData = getDefaultValues((fieldSchema as ArraySchema).items)
 
       formContext.setFormData((formData) => {
@@ -165,7 +173,7 @@ export const useFormData = (fieldSchema: JSONSchema, path: string[]) => {
   )
 
   const removeArrayItem = useCallback(
-    (path: string[], index: number) => {
+    (path: Path, index: number) => {
       formContext.setFormData((formData) => {
         const currentData = getPathData(formData, path) || []
 
@@ -183,14 +191,14 @@ export const useFormData = (fieldSchema: JSONSchema, path: string[]) => {
   return { ...formContext, data, disabled, hidden, handlePropertyChange, addArrayItem, removeArrayItem, ...validation }
 }
 
-export function setObjectPath(obj: any, path: string[], data: any): any {
+export function setObjectPath(obj: any, path: Path, data: any): any {
   if (path.length === 0) {
     return data
   }
 
   const pathLength = path.length
 
-  path.reduce((current: any, key: string, index: number) => {
+  path.reduce((current: any, key: string | number, index: number) => {
     if (index === pathLength - 1) {
       current[key] = data
     } else {
@@ -321,7 +329,7 @@ export const FormDataProvider: React.FC<PropsWithChildren<FormDataProviderProps>
   )
 }
 
-export function getPathData(object: any, path: string[]): any {
+export function getPathData(object: any, path: Path): any {
   return path.reduce((prev, curr) => {
     return prev ? prev[curr] : null
   }, object)

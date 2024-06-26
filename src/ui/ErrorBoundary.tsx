@@ -1,5 +1,5 @@
 import React, { Component, ErrorInfo, FC, ReactNode } from 'react'
-import { JSONSchema } from './types'
+import { JSONSchema, Path } from './types'
 
 export type BoundaryFallbackComponent = FC<{ error: Error; schema: JSONSchema }>
 
@@ -7,7 +7,7 @@ export type ErrorBoundaryProps = {
   children?: ReactNode
   fallback?: BoundaryFallbackComponent
   fieldSchema: JSONSchema
-  path: string[]
+  path: Path
 }
 type State =
   | {
