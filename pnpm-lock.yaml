@@ -1333,7 +1333,7 @@ importers:
         specifier: 0.23.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 0.8.28
+        specifier: 0.8.29
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1448,7 +1448,7 @@ importers:
         specifier: 0.23.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.28
+        specifier: 0.8.29
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1467,7 +1467,7 @@ importers:
         specifier: 0.23.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.28
+        specifier: 0.8.29
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1486,7 +1486,7 @@ importers:
         specifier: 0.23.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.28
+        specifier: 0.8.29
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1505,7 +1505,7 @@ importers:
         specifier: 0.23.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.28
+        specifier: 0.8.29
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -1586,8 +1586,8 @@ importers:
         specifier: 0.23.0
         version: link:../client
       '@bpinternal/zui':
-        specifier: 0.8.6
-        version: 0.8.6(react@18.3.1)
+        specifier: 0.9.0
+        version: 0.9.0(react@18.3.1)
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -1639,15 +1639,6 @@ packages:
       ts-deepmerge: 4.0.0
       zod: 3.22.4
     dev: true
-
-  /@apidevtools/json-schema-ref-parser@11.6.2:
-    resolution: {integrity: sha512-ENUdLLT04aDbbHCRwfKf8gR67AhV0CdFrOAtk+FcakBAgaq6ds3HLK9X0BCyiFUz8pK9uP+k6YZyJaGG7Mt7vQ==}
-    engines: {node: '>= 16'}
-    dependencies:
-      '@jsdevtools/ono': 7.1.3
-      '@types/json-schema': 7.0.15
-      js-yaml: 4.1.0
-    dev: false
 
   /@apidevtools/openapi-schemas@2.1.0:
     resolution: {integrity: sha512-Zc1AlqrJlX3SlpupFGpiLi2EbteyP7fXmUOGup6/DnkRgjP9bgMM/ag+n91rsv0U1Gpz0H3VILA/o3bW7Ua6BQ==}
@@ -2273,14 +2264,12 @@ packages:
       yn: 4.0.0
     dev: false
 
-  /@bpinternal/zui@0.8.6(react@18.3.1):
-    resolution: {integrity: sha512-L8JwGP5W5TN+a8PYRqDH3E5KDLG1Cvry6YXqkIGg6pyR0iHsMLXg9b9+2rqQ7kHPASEYqN6ZIhtOA7bQNkK2Mw==}
+  /@bpinternal/zui@0.9.0(react@18.3.1):
+    resolution: {integrity: sha512-bHqx1WwaFQ+FodiaC2gSxoDATuTOQi0+DPojPL1jdQKMqqoaIIarf8xnXcjclD9Log8pTihcJxu4jC5mOr0mUA==}
     engines: {node: '>=16.0.0', pnpm: 9.1.0}
     peerDependencies:
       react: ^18.2.0
     dependencies:
-      '@apidevtools/json-schema-ref-parser': 11.6.2
-      lodash: 4.17.21
       react: 18.3.1
     dev: false
 
