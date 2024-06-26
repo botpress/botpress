@@ -5,7 +5,10 @@ const ToolCallSchema = z.object({
   type: z.enum(['function']),
   function: z.object({
     name: z.string(),
-    arguments: z.string(),
+    arguments: z
+      .record(z.any())
+      .nullable()
+      .describe('Some LLMs may generate invalid JSON for a tool call, so this will be `null` when it happens.'),
   }),
 })
 

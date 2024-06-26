@@ -13,11 +13,7 @@ import {
   ChatCompletionUserMessageParam,
 } from 'openai/resources'
 import { GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './schemas'
-
-type ModelCost = {
-  inputCostPer1MTokens: number
-  outputCostPer1MTokens: number
-}
+import { ModelCost } from './types'
 
 export async function generateContent<M extends string>(
   input: GenerateContentInput,
@@ -33,7 +29,7 @@ export async function generateContent<M extends string>(
   const modelCost = params.modelCosts[input.model as M]
   if (!modelCost) {
     throw new InvalidPayloadError(
-      `Model name "${input.model}" is not supported by this integration, supported model names are: ${Object.keys(
+      `Model name "${input.model}" is not allowed by this integration, supported model names are: ${Object.keys(
         params.modelCosts
       ).join(', ')}`
     )
@@ -74,7 +70,7 @@ export async function generateContent<M extends string>(
       content: choice.message.content,
       index: choice.index,
       stopReason: mapToStopReason(choice.finish_reason),
-      toolCalls: mapToToolCalls(choice.message.tool_calls, logger),
+      toolCalls: mapToToolCalls(choice.message.tool_calls, logger, params.provider),
     })),
     usage: {
       inputTokens,
@@ -128,6 +124,8 @@ function mapToOpenAIMessage(message: Message): ChatCompletionMessageParam {
       } else if (message.type === 'tool_calls') {
         if (!message.toolCalls) {
           throw new InvalidPayloadError('`toolCalls` is required when message type is "tool_calls"')
+        } else if (message.toolCalls.length === 0) {
+          throw new InvalidPayloadError('`toolCalls` must contain at least one tool call')
         }
 
         return <ChatCompletionAssistantMessageParam>{
@@ -137,7 +135,7 @@ function mapToOpenAIMessage(message: Message): ChatCompletionMessageParam {
             type: 'function',
             function: {
               name: toolCall.function.name,
-              arguments: toolCall.function.arguments,
+              arguments: JSON.stringify(toolCall.function.arguments),
             },
           })),
         }
@@ -167,6 +165,10 @@ function mapToOpenAIMessageContent(message: Message) {
 
   switch (message.type) {
     case 'text':
+      if (typeof message.content !== 'string') {
+        throw new InvalidPayloadError('`content` must be a string when message type is "text"')
+      }
+      return message.content as string
     case 'tool_result':
       return message.content as string
     case 'multipart':
@@ -259,16 +261,30 @@ function mapToStopReason(
 
 function mapToToolCalls(
   openAIToolCalls: ChatCompletionMessageToolCall[] | undefined,
-  logger: IntegrationLogger
+  logger: IntegrationLogger,
+  provider: string
 ): ToolCall[] | undefined {
   return openAIToolCalls?.reduce((toolCalls, openAIToolCall) => {
     if (openAIToolCall.type === 'function') {
+      let toolCallArguments: ToolCall['function']['arguments']
+
+      try {
+        toolCallArguments = JSON.parse(openAIToolCall.function.arguments)
+      } catch (err) {
+        logger
+          .forBot()
+          .warn(
+            `Received invalid JSON from "${provider}" LLM provider for arguments in a tool call of function "${openAIToolCall.function.name}", a \`null\` value for arguments will be passed instead - JSON parser error: ${err} / Invalid JSON received: ${openAIToolCall.function.arguments}`
+          )
+        toolCallArguments = null
+      }
+
       toolCalls.push({
         id: openAIToolCall.id,
         type: openAIToolCall.type,
         function: {
           name: openAIToolCall.function.name,
-          arguments: openAIToolCall.function.arguments,
+          arguments: toolCallArguments,
         },
       })
     } else {
