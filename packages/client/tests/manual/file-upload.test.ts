@@ -23,8 +23,10 @@ describe('uploadFile', () => {
     })
 
     expect(response.file.key).toBe('test.txt')
-    expect(response.file.status).toBe('upload_completed')
     expect(response.file.url, 'File URL should have been returned').toBeTruthy()
+
+    const content = await fetch(response.file.url).then((res) => res.text())
+    expect(content).toBe('aaa')
   })
 
   it('works with plain text', async () => {
@@ -34,18 +36,24 @@ describe('uploadFile', () => {
     })
 
     expect(response.file.key).toBe('test.txt')
-    expect(response.file.status).toBe('upload_completed')
     expect(response.file.url, 'File URL should have been returned').toBeTruthy()
+
+    const content = await fetch(response.file.url).then((res) => res.text())
+    expect(content).toBe('aaa')
   })
 
   it('works with a URL', async () => {
+    const sourceUrl = 'https://docs.botpress.cloud/docs/content/whatsapp-banner.png'
+
     const response = await client.uploadFile({
       key: 'whatsapp-banner.png',
-      url: 'https://docs.botpress.cloud/docs/content/whatsapp-banner.png',
+      url: sourceUrl,
     })
 
     expect(response.file.key).toBe('whatsapp-banner.png')
-    expect(response.file.status).toBe('upload_completed')
     expect(response.file.url, 'File URL should have been returned').toBeTruthy()
+
+    const download = await fetch(response.file.url)
+    expect(download.status).toBe(200)
   })
 })
