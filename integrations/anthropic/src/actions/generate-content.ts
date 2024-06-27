@@ -14,7 +14,7 @@ type ModelSpecs = llm.types.ModelCost & {
 export async function generateContent<M extends string>(
   input: llm.schemas.GenerateContentInput,
   anthropic: Anthropic,
-  _logger: IntegrationLogger,
+  logger: IntegrationLogger,
   params: {
     models: {
       [key in M]: ModelSpecs
@@ -40,20 +40,27 @@ export async function generateContent<M extends string>(
     messages.push(await mapToAnthropicMessage(message))
   }
 
-  const response = await anthropic.messages.create({
-    model: input.model,
-    max_tokens: input.maxTokens || modelSpecs.outputTokensLimit,
-    temperature: input.temperature,
-    top_p: input.topP,
-    system: input.systemPrompt,
-    stop_sequences: input.stopSequences,
-    metadata: {
-      user_id: input.userId,
-    },
-    tools: mapToAnthropicTools(input),
-    tool_choice: mapToAnthropicToolChoice(input.toolChoice),
-    messages,
-  })
+  let response: Anthropic.Messages.Message
+
+  try {
+    response = await anthropic.messages.create({
+      model: input.model,
+      max_tokens: input.maxTokens || modelSpecs.outputTokensLimit,
+      temperature: input.temperature,
+      top_p: input.topP,
+      system: input.systemPrompt,
+      stop_sequences: input.stopSequences,
+      metadata: {
+        user_id: input.userId,
+      },
+      tools: mapToAnthropicTools(input),
+      tool_choice: mapToAnthropicToolChoice(input.toolChoice),
+      messages,
+    })
+  } catch (err) {
+    logger.forBot().error(`generateContent action failed because Anthropic returned an error: ${JSON.stringify(err)}`)
+    throw err
+  }
 
   const { input_tokens: inputTokens, output_tokens: outputTokens } = response.usage
 
