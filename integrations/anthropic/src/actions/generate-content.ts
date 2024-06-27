@@ -4,7 +4,12 @@ import { llm } from '@botpress/common'
 import { InvalidPayloadError } from '@botpress/client'
 import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 
-type ModelSpecs = llm.types.ModelCost & { maxTokens: number }
+type ModelSpecs = llm.types.ModelCost & {
+  /**
+   * Maximum number of output tokens supported by the model.
+   */
+  outputTokensLimit: number
+}
 
 export async function generateContent<M extends string>(
   input: llm.schemas.GenerateContentInput,
@@ -37,7 +42,7 @@ export async function generateContent<M extends string>(
 
   const response = await anthropic.messages.create({
     model: input.model,
-    max_tokens: input.maxTokens ?? modelSpecs.maxTokens,
+    max_tokens: input.maxTokens || modelSpecs.outputTokensLimit,
     temperature: input.temperature,
     top_p: input.topP,
     system: input.systemPrompt,
@@ -52,23 +57,24 @@ export async function generateContent<M extends string>(
 
   const { input_tokens: inputTokens, output_tokens: outputTokens } = response.usage
 
+  const content = response.content
+    .filter((x): x is Anthropic.TextBlock => x.type === 'text') // Claude models only return "text" or "tool_use" blocks at the moment.
+    .map((content) => content.text)
+    .join('\n\n')
+
   return <llm.schemas.GenerateContentOutput>{
     id: response.id,
     provider: 'anthropic',
     model: response.model,
     choices: [
+      // Claude models don't support multiple "choices" or completions, they only return one.
       {
         role: response.role,
         type: 'multipart',
         index: 0,
         stopReason: mapToStopReason(response.stop_reason),
         toolCalls: mapToToolCalls(response),
-        content: response.content
-          .filter((x): x is Anthropic.TextBlock => x.type === 'text') // Claude models only return text or tool_use blocks at the moment.
-          .map((content) => ({
-            type: content.type,
-            text: content.text,
-          })),
+        content,
       },
     ],
     usage: {
@@ -116,6 +122,10 @@ async function mapToAnthropicMessageContent(message: llm.schemas.Message): Promi
           throw new InvalidPayloadError('`url` is required when part type is "image"')
         }
 
+        if (!part.mimeType) {
+          throw new InvalidPayloadError('`mimeType` is required when part type is "image"')
+        }
+
         let buffer: Buffer
         try {
           buffer = await fetch(part.url).then(async (res) => Buffer.from(await res.arrayBuffer()))
@@ -128,8 +138,8 @@ async function mapToAnthropicMessageContent(message: llm.schemas.Message): Promi
         content.push(<Anthropic.ImageBlockParam>{
           type: 'image',
           source: {
-            media_type: part.mimeType,
             type: 'base64',
+            media_type: part.mimeType,
             data: buffer.toString('base64'),
           },
         })
@@ -207,7 +217,7 @@ function mapToAnthropicToolChoice(
         type: 'tool',
         name: toolChoice.functionName,
       }
-    case 'none': // This is handled when passing the tool list by removing all tools
+    case 'none': // This is handled when passing the tool list by removing all tools, as Anthropic doesn't support a "none" tool choice
     default:
       return undefined
   }

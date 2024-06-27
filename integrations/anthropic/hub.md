@@ -1,5 +1,5 @@
-# OpenAI Integration
+# Anthropic Integration
 
-This integration allows you to use any of the Chat models currently available from [OpenAI](https://openai.com/) as the LLM of your choice for a node, workflow, or skill in your bot.
+This integration allows your bot to choose from a curated list of Claude models from [Anthropic](https://docs.anthropic.com/en/docs/about-claude/models) as the LLM of your choice for a node, workflow, or skill in your bot.
 
-Usage is charged to the AI Spend of your workspace in Botpress Cloud at the [same pricing](https://openai.com/api/pricing/) (at cost) as directly with OpenAI.
+Usage is charged to the AI Spend of your workspace in Botpress Cloud at the [same pricing](https://www.anthropic.com/pricing) (at cost) as directly with Anthropic.

@@ -22,7 +22,7 @@ const ToolChoiceSchema = z.object({
 
 const MessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
-  type: z.enum(['text', 'tool_calls', 'tool_result', 'multipart']),
+  type: z.enum(['text', 'tool_calls', 'tool_result', 'multipart']).default('text'),
   toolCalls: z.array(ToolCallSchema).optional().describe('Required if `type` is "tool_calls"'),
   toolResultCallId: z.string().optional().describe('Required if `type` is "tool_result"'), // note: not supported by Gemini
   content: z
@@ -32,7 +32,10 @@ const MessageSchema = z.object({
       z.array(
         z.object({
           type: z.enum(['text', 'image']),
-          mimeType: z.string(),
+          mimeType: z
+            .string()
+            .optional()
+            .describe('Indicates the MIME type of the content. Reuired if part type is "image".'),
           text: z.string().optional().describe('Required if part type is "text" '),
           url: z.string().optional().describe('Required if part type is "image"'),
         })
