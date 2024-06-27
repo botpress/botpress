@@ -581,13 +581,13 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
   }
 
   async toTypescriptAsync(
-    opts?: Omit<TypescriptGenerationOptions, 'formatters'> & {
-      formatters: ((typing: string) => Promise<string> | string)[]
+    opts?: Omit<TypescriptGenerationOptions, 'formatter'> & {
+      formatter?: (typing: string) => Promise<string> | string
     },
   ): Promise<string> {
     let result = toTypescript(this, { ...opts, formatter: undefined })
-    for (const formatter of opts?.formatters || []) {
-      result = await formatter(result)
+    if (opts?.formatter) {
+      result = await opts.formatter(result)
     }
     return result
   }
