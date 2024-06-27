@@ -11,7 +11,7 @@ input:
       - production
   extra_filter:
     type: string
-    description: 'Pnpm addtional filters to select integrations to deploy'
+    description: 'Pnpm additional filters to select integrations to deploy'
     required: false
     default: ''
   force:

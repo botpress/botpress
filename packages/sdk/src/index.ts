@@ -1,4 +1,5 @@
 export * as messages from './message'
+export * as interfaces from './interfaces'
 export * from './const'
 export * from './serve'
 export * from './zui'
@@ -12,6 +13,8 @@ export {
   IntegrationImplementationProps as IntegrationProps,
   IntegrationContext,
   IntegrationSpecificClient,
+  InterfaceDeclaration,
+  InterfaceDeclarationProps,
   TagDefinition,
   ConfigurationDefinition,
   EventDefinition,

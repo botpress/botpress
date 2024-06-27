@@ -15,6 +15,7 @@ import { GenerateCommand } from './gen-command'
 import type { GlobalCommand, GlobalCommandDefinition } from './global-command'
 import { InitCommand } from './init-command'
 import * as integrations from './integration-commands'
+import * as interfaces from './interface-commands'
 import { LoginCommand } from './login-command'
 import { LogoutCommand } from './logout-command'
 import { ReadCommand } from './read-command'
@@ -48,6 +49,13 @@ export default {
       get: getHandler(integrations.GetIntegrationCommand),
       list: getHandler(integrations.ListIntegrationsCommand),
       delete: getHandler(integrations.DeleteIntegrationCommand),
+    },
+  },
+  interfaces: {
+    subcommands: {
+      get: getHandler(interfaces.GetInterfaceCommand),
+      list: getHandler(interfaces.ListInterfacesCommand),
+      delete: getHandler(interfaces.DeleteInterfaceCommand),
     },
   },
   init: getHandler(InitCommand),

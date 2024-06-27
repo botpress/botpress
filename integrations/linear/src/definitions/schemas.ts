@@ -26,7 +26,7 @@ type LinearUserProfile = Pick<
   | 'name'
 > & { linearId: string }
 
-export const UserProfile = z.object({
+export const userProfileSchema = z.object({
   linearId: z.string().describe('Linear User ID'),
   admin: z.boolean().describe('Indicates if the user is an admin of the organization'),
   archivedAt: z.string().datetime().optional().describe('Date when the user was archived'),
@@ -44,7 +44,7 @@ export const UserProfile = z.object({
   name: z.string().describe("The user's full name"),
 })
 
-export const LinearIds = z
+export const linearIdsSchema = z
   .object({
     creatorId: z.string().optional().describe('The internal Linear User ID of the user who created the issue'),
     labelIds: z.array(z.string()).optional().describe('The internal Linear Label IDs associated with the issue'),
@@ -57,25 +57,28 @@ export const LinearIds = z
   .optional()
   .describe('The Linear IDs of the referenced entities')
 
-export const issueSchema = z.object({
-  id: z.string().describe('The issue ID on Linear'),
-  identifier: z.string().describe("Issue's human readable identifier (e.g. XXX-123)"),
+const commonIssueProperties = {
+  title: z.string().describe('The issue title on Linear, such as "Fix the bug'),
   number: z.number().describe('The issue number on Linear, such as "123" in XXX-123'),
-  title: z.string().describe('The issue title on Linear'),
+  createdAt: z.string().datetime().describe('The ISO date the issue was created'),
+  updatedAt: z.string().datetime().describe('The ISO date the issue was last updated'),
+  priority: z.number().describe('Priority of the issue, such as "1" for "Urgent", 0 for "No Priority"'),
   description: z
     .string()
     .optional()
     .describe('A markdown description of the issue. Images and videos are inlined using markdown links.'),
-  priority: z.number().describe('Priority of the issue, such as "1" for "Urgent", 0 for "No Priority"'),
+}
+
+export const issueSchema = z.object({
+  ...commonIssueProperties,
+  id: z.string().describe('The issue ID on Linear'),
+  identifier: z.string().describe("Issue's human readable identifier (e.g. XXX-123)"),
   estimate: z.number().optional().describe('The estimate of the issue in points'),
   url: z.string().describe('The URL of the issue on Linear'),
-  createdAt: z.string().datetime().describe('The ISO date the issue was created'),
-  updatedAt: z.string().datetime().describe('The ISO date the issue was last updated'),
 })
 
-export const LinearIssue = z.object({
-  title: z.string().describe('The issue title on Linear, such as "Fix the bug'),
-  number: z.number().describe('The issue number on Linear, such as "123" in XXX-123'),
+export const issueEventSchema = z.object({
+  ...commonIssueProperties,
   teamName: z
     .string()
     .optional()
@@ -84,16 +87,9 @@ export const LinearIssue = z.object({
     .string()
     .optional()
     .describe('The key of the Linear team the issue currently belongs to, such as "XXX" in XXX-123'),
-  createdAt: z.string().datetime().describe('The ISO date the issue was created'),
-  updatedAt: z.string().datetime().describe('The ISO date the issue was last updated'),
   status: z.string().describe('The issue State name (such as "In Progress"'),
-  priority: z.number().describe('Priority of the issue, such as "1" for "Urgent", 0 for "No Priority"'),
-  description: z
-    .string()
-    .optional()
-    .describe('A markdown description of the issue. Images and videos are inlined using markdown links.'),
   labels: z.array(z.string()).optional().describe('Label names'),
-  linearIds: LinearIds,
+  linearIds: linearIdsSchema,
   userId: z
     .string()
     .optional()
@@ -103,4 +99,4 @@ export const LinearIssue = z.object({
   conversationId: z.string().describe('Botpress Conversation ID of the issue'),
 })
 
-assert<Equals<z.infer<typeof UserProfile>, LinearUserProfile>>()
+assert<Equals<z.infer<typeof userProfileSchema>, LinearUserProfile>>()

@@ -28,4 +28,5 @@ export type BaseIntegration = {
       requiredTags: string[]
     }
   }
+  entities: Record<string, any>
 }

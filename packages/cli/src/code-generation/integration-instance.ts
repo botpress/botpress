@@ -4,6 +4,7 @@ import { stringifySingleLine } from './generators'
 import { ActionsModule } from './integration-schemas/actions-module'
 import { ChannelsModule } from './integration-schemas/channels-module'
 import { ConfigurationModule } from './integration-schemas/configuration-module'
+import { EntitiesModule } from './integration-schemas/entities-module'
 import { EventsModule } from './integration-schemas/events-module'
 import { StatesModule } from './integration-schemas/states-module'
 import { Module, ModuleDef } from './module'
@@ -28,6 +29,9 @@ export class IntegrationInstanceIndexModule extends Module {
     const statesModule = await StatesModule.create(integration.states ?? {})
     statesModule.unshift('states')
 
+    const entitiesModule = await EntitiesModule.create(integration.entities ?? {})
+    entitiesModule.unshift('entities')
+
     const exportName = casing.to.pascalCase(name)
 
     const inst = new IntegrationInstanceIndexModule(
@@ -37,6 +41,7 @@ export class IntegrationInstanceIndexModule extends Module {
       channelsModule,
       eventsModule,
       statesModule,
+      entitiesModule,
       {
         path: INDEX_FILE,
         content: '',
@@ -49,6 +54,7 @@ export class IntegrationInstanceIndexModule extends Module {
     inst.pushDep(channelsModule)
     inst.pushDep(eventsModule)
     inst.pushDep(statesModule)
+    inst.pushDep(entitiesModule)
 
     return inst
   }
@@ -60,19 +66,22 @@ export class IntegrationInstanceIndexModule extends Module {
     private channelsModule: ChannelsModule,
     private eventsModule: EventsModule,
     private statesModule: StatesModule,
+    private entitiesModule: EntitiesModule,
     def: ModuleDef
   ) {
     super(def)
   }
 
   public override get content(): string {
-    const { configModule, actionsModule, channelsModule, eventsModule, statesModule, integration } = this
+    const { configModule, actionsModule, channelsModule, eventsModule, statesModule, entitiesModule, integration } =
+      this
 
     const configImport = configModule.import(this)
     const actionsImport = actionsModule.import(this)
     const channelsImport = channelsModule.import(this)
     const eventsImport = eventsModule.import(this)
     const statesImport = statesModule.import(this)
+    const entitiesImport = entitiesModule.import(this)
 
     const { name, version, id } = integration
     const className = casing.to.pascalCase(name)
@@ -89,11 +98,13 @@ export class IntegrationInstanceIndexModule extends Module {
       `import type * as ${channelsModule.name} from "./${channelsImport}"`,
       `import type * as ${eventsModule.name} from "./${eventsImport}"`,
       `import type * as ${statesModule.name} from "./${statesImport}"`,
+      `import type * as ${entitiesModule.name} from "./${entitiesImport}"`,
       `export * as ${configModule.name} from "./${configImport}"`,
       `export * as ${actionsModule.name} from "./${actionsImport}"`,
       `export * as ${channelsModule.name} from "./${channelsImport}"`,
       `export * as ${eventsModule.name} from "./${eventsImport}"`,
       `export * as ${statesModule.name} from "./${statesImport}"`,
+      `export * as ${entitiesModule.name} from "./${entitiesImport}"`,
       '',
       `export type ${propsName} = {`,
       '  enabled?: boolean',
@@ -109,9 +120,10 @@ export class IntegrationInstanceIndexModule extends Module {
       `  events: ${eventsModule.name}.${eventsModule.exports}`,
       `  states: ${statesModule.name}.${statesModule.exports}`,
       `  user: ${stringifySingleLine(this.integration.user)}`,
+      `  entities: ${entitiesModule.name}.${entitiesModule.exports}`,
       '}',
       '',
-      `export class ${className} implements IntegrationInstance<'${name}'> {`,
+      `export class ${className} implements IntegrationInstance<T${className}> {`,
       '',
       `  public readonly name = '${name}'`,
       `  public readonly version = '${version}'`,

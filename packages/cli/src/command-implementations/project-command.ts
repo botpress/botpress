@@ -25,8 +25,14 @@ type ConfigurableProjectPaths = { entryPoint: string; outDir: string; workDir: s
 type ConstantProjectPaths = typeof consts.fromOutDir & typeof consts.fromWorkDir
 type AllProjectPaths = ConfigurableProjectPaths & ConstantProjectPaths
 
-type RemoteIntegrationInstance = utils.types.Merge<sdk.IntegrationInstance<string>, { id: string }>
-type LocalIntegrationInstance = utils.types.Merge<sdk.IntegrationInstance<string>, { id: null }>
+type RemoteIntegrationInstance = utils.types.Merge<sdk.IntegrationInstance<any>, { id: string }>
+type LocalIntegrationInstance = utils.types.Merge<sdk.IntegrationInstance<any>, { id: null }>
+
+export type ProjectType = ProjectDefinition['type']
+export type ProjectDefinition =
+  | { type: 'integration'; definition: sdk.IntegrationDefinition }
+  | { type: 'interface'; definition: sdk.InterfaceDeclaration }
+  | { type: 'bot'; definition: null }
 
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   public constructor(argv: CommandArgv<ProjectCommandDefinition>) {
@@ -78,7 +84,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       .value()
   }
 
-  private _splitApiAndLocalIntegrationInstances(instances: sdk.IntegrationInstance<string>[]): {
+  private _splitApiAndLocalIntegrationInstances(instances: sdk.IntegrationInstance<any>[]): {
     remoteInstances: RemoteIntegrationInstance[]
     localInstances: LocalIntegrationInstance[]
   } {
@@ -95,21 +101,34 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return { remoteInstances, localInstances }
   }
 
-  protected async readIntegrationDefinitionFromFS(
-    projectPaths: utils.path.PathStore<'workDir' | 'definition'> = this.projectPaths
+  protected async readProjectDefinitionFromFS(
+    projectPaths: utils.path.PathStore<'workDir' | 'integrationDefinition' | 'interfaceDefinition'> = this.projectPaths
+  ): Promise<ProjectDefinition> {
+    const integrationDefinition = await this._readIntegrationDefinitionFromFS(projectPaths)
+    if (integrationDefinition) {
+      return { type: 'integration', definition: integrationDefinition }
+    }
+    const interfaceDefinition = await this._readInterfaceDefinitionFromFS(projectPaths)
+    if (interfaceDefinition) {
+      return { type: 'interface', definition: interfaceDefinition }
+    }
+    return { type: 'bot', definition: null }
+  }
+
+  private async _readIntegrationDefinitionFromFS(
+    projectPaths: utils.path.PathStore<'workDir' | 'integrationDefinition'> = this.projectPaths
   ): Promise<sdk.IntegrationDefinition | undefined> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
-    if (!fs.existsSync(abs.definition)) {
-      this.logger.debug(`Integration definition not found at ${rel.definition}`)
+    if (!fs.existsSync(abs.integrationDefinition)) {
       return
     }
 
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
       cwd: abs.workDir,
       outfile: '',
-      entrypoint: rel.definition,
+      entrypoint: rel.integrationDefinition,
       write: false,
     })
 
@@ -121,6 +140,33 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const { default: definition } = utils.require.requireJsCode<{ default: sdk.IntegrationDefinition }>(artifact.text)
 
     validateIntegrationDefinition(definition)
+
+    return definition
+  }
+
+  private async _readInterfaceDefinitionFromFS(
+    projectPaths: utils.path.PathStore<'workDir' | 'interfaceDefinition'> = this.projectPaths
+  ): Promise<sdk.InterfaceDeclaration | undefined> {
+    const abs = projectPaths.abs
+    const rel = projectPaths.rel('workDir')
+
+    if (!fs.existsSync(abs.interfaceDefinition)) {
+      return
+    }
+
+    const { outputFiles } = await utils.esbuild.buildEntrypoint({
+      cwd: abs.workDir,
+      outfile: '',
+      entrypoint: rel.interfaceDefinition,
+      write: false,
+    })
+
+    const artifact = outputFiles[0]
+    if (!artifact) {
+      throw new errors.BotpressCLIError('Could not read interface definition')
+    }
+
+    const { default: definition } = utils.require.requireJsCode<{ default: sdk.InterfaceDeclaration }>(artifact.text)
 
     return definition
   }

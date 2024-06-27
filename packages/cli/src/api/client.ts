@@ -4,7 +4,15 @@ import { formatIntegrationRef, ApiIntegrationRef as IntegrationRef, NameIntegrat
 import type { Logger } from '../logger'
 import { findPreviousIntegrationVersion } from './find-previous-version'
 import * as paging from './paging'
-import { ApiClientProps, PublicIntegration, PrivateIntegration, Integration, Requests, Responses } from './types'
+import {
+  ApiClientProps,
+  PublicIntegration,
+  PrivateIntegration,
+  Integration,
+  Requests,
+  Responses,
+  Interface,
+} from './types'
 
 export * from './types'
 
@@ -80,6 +88,13 @@ export class ApiClient {
       return this.validateStatus(() => this.client.getPublicIntegrationById(ref).then((r) => r.integration), 404)
     }
     return this.validateStatus(() => this.client.getPublicIntegration(ref).then((r) => r.integration), 404)
+  }
+
+  public async findPublicInterface(ref: IntegrationRef): Promise<Interface | undefined> {
+    if (ref.type === 'id') {
+      return this.validateStatus(() => this.client.getInterface(ref).then((r) => r.interface), 404)
+    }
+    return this.validateStatus(() => this.client.getInterfaceByName(ref).then((r) => r.interface), 404)
   }
 
   public async testLogin(): Promise<void> {
