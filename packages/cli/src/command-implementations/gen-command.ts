@@ -9,12 +9,13 @@ import { ProjectCommand } from './project-command'
 export type GenerateCommandDefinition = typeof commandDefinitions.generate
 export class GenerateCommand extends ProjectCommand<GenerateCommandDefinition> {
   public async run(): Promise<void> {
-    const integrationDef = await this.readIntegrationDefinitionFromFS()
-    if (!integrationDef) {
-      this.logger.warn('No typings to generate for bot')
+    const projectDef = await this.readProjectDefinitionFromFS()
+    if (projectDef.type !== 'integration') {
+      this.logger.warn(`No typings to generate for ${projectDef.type} projects`)
       return
     }
 
+    const { definition: integrationDef } = projectDef
     this._validateSecrets(integrationDef)
 
     const line = this.logger.line()

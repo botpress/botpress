@@ -1,0 +1,67 @@
+name: Deploy Interfaces
+description: Deploys interfaces
+
+input:
+  environment:
+    type: choice
+    description: 'Environment to deploy to'
+    required: true
+    options:
+      - staging
+      - production
+  extra_filter:
+    type: string
+    description: 'Pnpm additional filters to select interfaces to deploy'
+    required: false
+    default: ''
+  force:
+    type: boolean
+    description: 'Force re-deploying interfaces'
+    default: false
+    required: false
+  token_cloud_ops_account:
+    description: 'Cloud Ops account token'
+    required: true
+  cloud_ops_workspace_id:
+    description: 'Cloud Ops workspace id'
+    required: true
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Deploys Interfaces
+      env:
+        ENVIRONMENT: ${{ inputs.environment }}
+        TOKEN_CLOUD_OPS_ACCOUNT: ${{ inputs.token_cloud_ops_account }}
+        CLOUD_OPS_WORKSPACE_ID: ${{ inputs.cloud_ops_workspace_id }}
+      shell: bash
+      run: |
+        api_url="${{ inputs.environment == 'staging' && 'https://api.botpress.dev' || 'https://api.botpress.cloud' }}"
+
+        # login
+
+        echo "### Logging in to $api_url ###"
+        pnpm bp login -y --api-url $api_url --workspaceId "$CLOUD_OPS_WORKSPACE_ID" --token "$TOKEN_CLOUD_OPS_ACCOUNT"
+
+        # deploy
+
+        redeploy=${{ inputs.force == 'true' && 1 || 0 }}
+        all_filters="-F '{interfaces/*}' ${{ inputs.extra_filter }}"
+        list_interfaces_cmd="pnpm list $all_filters --json"
+        interface_paths=$(eval $list_interfaces_cmd | jq -r "map(".path") | .[]")
+
+        for interface_path in $interface_paths; do
+            interface=$(basename $interface_path)
+            exists=$(./.github/scripts/interface-exists.sh $interface)
+
+            base_command="bp deploy -v -y" # all interfaces are public right now            
+            if [ $exists -eq 0 ]; then
+                echo -e "\nDeploying interface: ### $interface ###\n"
+                pnpm retry -n 2 -- pnpm -F $interface -c exec -- "$base_command"
+            elif [ $redeploy -eq 1 ]; then
+                echo -e "\nRe-deploying interface: ### $interface ###\n"
+                pnpm retry -n 2 -- pnpm -F $interface -c exec -- "$base_command"
+            else
+                echo -e "\nSkipping interface: ### $interface ###\n"
+            fi
+        done

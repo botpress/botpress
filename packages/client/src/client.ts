@@ -80,6 +80,6 @@ export class Client extends gen.Client implements types.IClient {
       throw new errors.UploadFileError(`Failed to upload file: ${err.message}`, <AxiosError>err, file)
     }
 
-    return await this.getFile({ id: file.id })
+    return { file }
   }
 }

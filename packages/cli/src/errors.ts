@@ -63,14 +63,14 @@ export class BotpressCLIError extends VError {
 
 export class ExclusiveBotFeatureError extends BotpressCLIError {
   constructor() {
-    const message = 'This feature is only available for bots. This project is an integration'
+    const message = 'This feature is only available for bots. This project is an integration or interface.'
     super(message)
   }
 }
 
 export class ExclusiveIntegrationFeatureError extends BotpressCLIError {
   constructor() {
-    const message = 'This feature is only available for integration. This project is a bot'
+    const message = 'This feature is only available for integration. This project is a bot or interface.'
     super(message)
   }
 }
@@ -143,6 +143,13 @@ export class ParamRequiredError extends BotpressCLIError {
 export class InvalidIntegrationReferenceError extends BotpressCLIError {
   constructor(ref: string) {
     const message = `Invalid integration reference "${ref}".`
+    super(message)
+  }
+}
+
+export class InvalidInterfaceReferenceError extends BotpressCLIError {
+  constructor(ref: string) {
+    const message = `Invalid interface reference "${ref}".`
     super(message)
   }
 }

@@ -232,6 +232,19 @@
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
+    },
+    "@bp-bots/sinlin#integrations": {
+      "cache": false,
+      "dependsOn": ["@botpress/cli#build", "@botpresshub/telegram#build", "@botpresshub/linear#build"]
+    },
+    "@bp-bots/sinlin#build": {
+      "cache": false,
+      "dependsOn": [
+        "@bp-bots/sinlin#integrations",
+        "@botpress/client#build",
+        "@botpress/sdk#build",
+        "@botpress/cli#build"
+      ]
     }
   }
 }

@@ -32,7 +32,12 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
 
     const api = await this.ensureLoginAndCreateClient(this.argv)
 
-    this._initialDef = await this.readIntegrationDefinitionFromFS()
+    const projectDef = await this.readProjectDefinitionFromFS()
+    if (projectDef.type === 'interface') {
+      throw new errors.BotpressCLIError('This feature is not available for interfaces.')
+    }
+
+    this._initialDef = projectDef.definition ?? undefined
 
     let env: Record<string, string> = {
       ...process.env,
@@ -167,10 +172,14 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   }
 
   private _deploy = async (api: ApiClient, tunnelUrl: string) => {
-    const integrationDef = await this.readIntegrationDefinitionFromFS()
-    if (integrationDef) {
-      this._checkSecrets(integrationDef)
-      await this._deployDevIntegration(api, tunnelUrl, integrationDef)
+    const projectDef = await this.readProjectDefinitionFromFS()
+    if (projectDef.type === 'interface') {
+      throw new errors.BotpressCLIError('This feature is not available for interfaces.')
+    }
+
+    if (projectDef.type === 'integration') {
+      this._checkSecrets(projectDef.definition)
+      await this._deployDevIntegration(api, tunnelUrl, projectDef.definition)
     } else {
       await this._deployDevBot(api, tunnelUrl)
     }
