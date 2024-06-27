@@ -9,7 +9,7 @@ export type Model = z.infer<typeof model>
 
 export default new IntegrationDefinition({
   name: 'openai',
-  version: '0.0.1',
+  version: '0.0.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   secrets: {
