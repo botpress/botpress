@@ -12,7 +12,7 @@ export default new bp.Integration({
   unregister: async () => {},
   actions: {
     generateContent: async ({ input, logger }) => {
-      return await llm.openai.generateContent(<llm.openai.GenerateContentInput>input, groqClient, logger, {
+      return await llm.openai.generateContent(<llm.GenerateContentInput>input, groqClient, logger, {
         provider: 'groq',
         modelCosts: {
           // Source: https://wow.groq.com/
