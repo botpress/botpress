@@ -44,19 +44,32 @@ export async function generateContent<M extends string>(
     })
   }
 
-  const response = await openAIClient.chat.completions.create({
-    model: input.model,
-    max_tokens: input.maxTokens || undefined, // note: ignore a zero value as the Studio doesn't support empty number inputs and defaults this to 0
-    temperature: input.temperature,
-    top_p: input.topP,
-    response_format: input.responseFormat === 'json_object' ? { type: 'json_object' } : undefined,
-    // TODO: the Studio is adding an empty item by default in the action input form
-    stop: input.stopSequences?.filter((x) => x.trim()), // don't send empty values
-    user: input.userId || undefined, // don't send an empty value
-    messages,
-    tool_choice: mapToOpenAIToolChoice(input.toolChoice), // note: the action input type is
-    tools: mapToOpenAITools(input.tools),
-  })
+  let response: OpenAI.Chat.Completions.ChatCompletion
+
+  try {
+    response = await openAIClient.chat.completions.create({
+      model: input.model,
+      max_tokens: input.maxTokens || undefined, // note: ignore a zero value as the Studio doesn't support empty number inputs and defaults this to 0
+      temperature: input.temperature,
+      top_p: input.topP,
+      response_format: input.responseFormat === 'json_object' ? { type: 'json_object' } : undefined,
+      // TODO: the Studio is adding an empty item by default in the action input form
+      stop: input.stopSequences?.filter((x) => x.trim()), // don't send empty values
+      user: input.userId || undefined, // don't send an empty value
+      messages,
+      tool_choice: mapToOpenAIToolChoice(input.toolChoice), // note: the action input type is
+      tools: mapToOpenAITools(input.tools),
+    })
+  } catch (err) {
+    logger
+      .forBot()
+      .error(
+        `generateContent action failed because the "${
+          params.provider
+        }" LLM provider returned an error: ${JSON.stringify(err)}`
+      )
+    throw err
+  }
 
   const { inputTokens, outputTokens } = getTokenUsage(response, logger, params.provider)
 
