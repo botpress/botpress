@@ -7,7 +7,7 @@ export const getAllCampaigns: bp.IntegrationProps['actions']['getAllCampaigns'] 
     const allCampaigns = await mailchimpClient.getAllCampaigns({
       count: input.count || 100,
     })
-    return allCampaigns
+    return allCampaigns as bp.actions.getAllCampaigns.output.Output
   } catch (err) {
     const error = parseError(err)
     logger.forBot().error('Error adding customer to campaign', error)
