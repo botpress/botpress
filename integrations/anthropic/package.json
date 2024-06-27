@@ -1,5 +1,5 @@
 {
-  "name": "@botpresshub/openai",
+  "name": "@botpresshub/anthropic",
   "scripts": {
     "start": "pnpm bp serve",
     "build": "pnpm bp build",
