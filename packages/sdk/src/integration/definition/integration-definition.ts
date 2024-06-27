@@ -132,7 +132,7 @@ export class IntegrationDefinition<
     interfaceDeclaration: InterfaceDeclaration<E>,
     builder: ExtensionBuilder<TEntities, E>
   ): this {
-    const extensionBuilderOutput = builder(createStore(this.entities)) as Record<string, BrandedSchema>
+    const extensionBuilderOutput = builder(createStore(this.entities))
     const unbrandedEntity = utils.pairs(extensionBuilderOutput).find(([_k, e]) => !isBranded(e))
     if (unbrandedEntity) {
       // this means the user tried providing a plain schema without referencing an entity from the integration
