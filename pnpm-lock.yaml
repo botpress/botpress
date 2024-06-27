@@ -1410,6 +1410,19 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  interfaces/llm:
+    dependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   interfaces/readable:
     dependencies:
       '@botpress/sdk':
