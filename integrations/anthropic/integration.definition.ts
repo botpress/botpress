@@ -10,7 +10,7 @@ export type Model = z.infer<typeof model>
 
 export default new IntegrationDefinition({
   name: 'anthropic',
-  version: '0.0.1',
+  version: '0.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   actions: {
