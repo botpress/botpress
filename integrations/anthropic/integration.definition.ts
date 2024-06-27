@@ -2,21 +2,21 @@ import { llm } from '@botpress/common'
 import { z, IntegrationDefinition } from '@botpress/sdk'
 
 const model = z
-  .enum(['gpt-4o-2024-05-13', 'gpt-4-turbo-2024-04-09', 'gpt-3.5-turbo-0125'])
+  .enum(['claude-3-5-sonnet-20240620', 'claude-3-haiku-20240307'])
   .describe('Model to use for content generation')
-  .default('gpt-4o-2024-05-13')
+  .default('claude-3-5-sonnet-20240620')
 
 export type Model = z.infer<typeof model>
 
 export default new IntegrationDefinition({
-  name: 'openai',
+  name: 'anthropic',
   version: '0.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   actions: {
     generateContent: {
       title: 'Generate Content',
-      description: 'Generate content using any OpenAI model as LLM',
+      description: 'Generate content using any Anthropic model as LLM',
       input: {
         schema: llm.schemas.GenerateContentInputSchema.extend({ model }),
       },
@@ -26,8 +26,8 @@ export default new IntegrationDefinition({
     },
   },
   secrets: {
-    OPENAI_API_KEY: {
-      description: 'OpenAI API key',
+    ANTHROPIC_API_KEY: {
+      description: 'Anthropic API key',
     },
   },
 })
