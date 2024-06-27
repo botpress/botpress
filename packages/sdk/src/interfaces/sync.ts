@@ -1,5 +1,5 @@
-import { InterfaceDeclaration } from './integration/definition'
-import z from './zui'
+import { InterfaceDeclaration } from '../integration/definition'
+import z from '../zui'
 
 const baseItem = z.object({ id: z.string() })
 const withId = (schema: z.ZodTypeAny) => z.intersection(schema, baseItem)
@@ -147,21 +147,4 @@ export const deletable = new InterfaceDeclaration({
     },
   },
   templateName: (name, props) => camelCase(props.item, name), // issueDelete, issueDeleted
-})
-
-export const hitl = new InterfaceDeclaration({
-  name: 'hitl',
-  version: '0.0.1',
-  entities: {},
-  events: {},
-  actions: {
-    startHITL: {
-      input: {
-        schema: () => z.object({ upstreamConversationId: z.string() }),
-      },
-      output: {
-        schema: () => z.object({ downstreamConversationId: z.string() }),
-      },
-    },
-  },
 })

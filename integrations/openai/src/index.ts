@@ -1,5 +1,4 @@
 import { llm } from '@botpress/common'
-import { Model } from 'integration.definition'
 import OpenAI from 'openai'
 import * as bp from '.botpress'
 
@@ -12,7 +11,7 @@ export default new bp.Integration({
   unregister: async () => {},
   actions: {
     generateContent: async ({ input, logger }) => {
-      return await llm.openai.generateContent<Model>(<llm.schemas.GenerateContentInput>input, openAIClient, logger, {
+      return await llm.openai.generateContent(<llm.GenerateContentInput>input, openAIClient, logger, {
         provider: 'openai',
         modelCosts: {
           // Source: https://openai.com/api/pricing/

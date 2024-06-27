@@ -1,4 +1,5 @@
-import { z } from '@botpress/sdk'
+import { InterfaceDeclaration } from '../integration/definition'
+import { z } from '../zui'
 
 const ToolCallSchema = z.object({
   id: z.string(),
@@ -8,8 +9,6 @@ const ToolCallSchema = z.object({
     arguments: z.string(),
   }),
 })
-
-export type ToolCall = z.infer<typeof ToolCallSchema>
 
 const ToolChoiceSchema = z.object({
   // TODO: remove empty value from enum once Studio issue is fixed
@@ -41,9 +40,7 @@ const MessageSchema = z.object({
     ),
 })
 
-export type Message = z.infer<typeof MessageSchema>
-
-export const GenerateContentInputSchema = z.object({
+const GenerateContentInputSchema = z.object({
   model: z.string().describe('Model to use for content generation'),
   systemPrompt: z.string().optional().describe('Optional system prompt to guide the model'),
   messages: z.array(MessageSchema).describe('Array of messages for the model to process').min(1),
@@ -96,9 +93,7 @@ export const GenerateContentInputSchema = z.object({
   userId: z.string().optional(),
 })
 
-export type GenerateContentInput = z.infer<typeof GenerateContentInputSchema>
-
-export const GenerateContentOutputSchema = z.object({
+const GenerateContentOutputSchema = z.object({
   id: z.string().describe('Response ID from LLM provider'),
   provider: z.string().describe('LLM provider name'),
   model: z.string().describe('Model name'),
@@ -118,4 +113,26 @@ export const GenerateContentOutputSchema = z.object({
   }),
 })
 
-export type GenerateContentOutput = z.infer<typeof GenerateContentOutputSchema>
+export const llm = new InterfaceDeclaration({
+  name: 'llm',
+  version: '0.0.1',
+  entities: {},
+  events: {},
+  actions: {
+    generateContent: {
+      input: {
+        schema: () => GenerateContentInputSchema,
+      },
+      output: {
+        schema: () => GenerateContentOutputSchema,
+      },
+    },
+  },
+})
+
+export namespace llm {
+  export type GenerateContentInput = z.infer<typeof GenerateContentInputSchema>
+  export type GenerateContentOutput = z.infer<typeof GenerateContentOutputSchema>
+  export type ToolCall = z.infer<typeof ToolCallSchema>
+  export type Message = z.infer<typeof MessageSchema>
+}

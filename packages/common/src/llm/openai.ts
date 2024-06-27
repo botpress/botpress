@@ -12,7 +12,7 @@ import {
   ChatCompletionToolMessageParam,
   ChatCompletionUserMessageParam,
 } from 'openai/resources'
-import { GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './schemas'
+import { GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './types'
 
 type ModelCost = {
   inputCostPer1MTokens: number
