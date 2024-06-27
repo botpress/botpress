@@ -1,11 +1,4 @@
-import { z, IntegrationDefinition, interfaces } from '@botpress/sdk'
-
-const model = z
-  .enum(['gpt-4o-2024-05-13', 'gpt-4-turbo-2024-04-09', 'gpt-3.5-turbo-0125'])
-  .describe('Model to use for content generation')
-  .default('gpt-4o-2024-05-13')
-
-export type Model = z.infer<typeof model>
+import { IntegrationDefinition, interfaces } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
   name: 'openai',
