@@ -130,10 +130,7 @@ export const deletable = new InterfaceDeclaration({
   },
   events: {
     deleted: {
-      schema: (args) =>
-        z.object({
-          item: withId(args.item),
-        }),
+      schema: () => baseItem,
     },
   },
   actions: {
@@ -142,7 +139,7 @@ export const deletable = new InterfaceDeclaration({
         schema: () => baseItem,
       },
       output: {
-        schema: (args) => z.object({ item: withId(args.item) }),
+        schema: () => z.object({}),
       },
     },
   },
