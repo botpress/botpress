@@ -1,4 +1,5 @@
 import { InvalidPayloadError } from '@botpress/client'
+import * as sdk from '@botpress/sdk'
 import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 import OpenAI from 'openai'
 import {
@@ -12,7 +13,11 @@ import {
   ChatCompletionToolMessageParam,
   ChatCompletionUserMessageParam,
 } from 'openai/resources'
-import { GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './schemas'
+
+export type GenerateContentInput = sdk.interfaces.llm.GenerateContentInput
+export type GenerateContentOutput = sdk.interfaces.llm.GenerateContentOutput
+export type ToolCall = sdk.interfaces.llm.ToolCall
+export type Message = sdk.interfaces.llm.Message
 
 type ModelCost = {
   inputCostPer1MTokens: number
