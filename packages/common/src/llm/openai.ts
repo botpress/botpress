@@ -4,6 +4,7 @@ import OpenAI from 'openai'
 import {
   ChatCompletion,
   ChatCompletionAssistantMessageParam,
+  ChatCompletionContentPart,
   ChatCompletionContentPartImage,
   ChatCompletionContentPartText,
   ChatCompletionMessageParam,
@@ -40,7 +41,10 @@ export async function generateContent<M extends string>(
     )
   }
 
-  const messages = input.messages.map(mapToOpenAIMessage)
+  const messages: ChatCompletionMessageParam[] = []
+  for (const message of input.messages) {
+    messages.push(await mapToOpenAIMessage(message))
+  }
 
   if (input.systemPrompt) {
     messages.unshift({
@@ -129,8 +133,8 @@ function calculateTokenCost(costPer1MTokens: number, tokenCount: number) {
   return (costPer1MTokens / 1_000_000) * tokenCount
 }
 
-function mapToOpenAIMessage(message: Message): ChatCompletionMessageParam {
-  const content = mapToOpenAIMessageContent(message)
+async function mapToOpenAIMessage(message: Message): Promise<ChatCompletionMessageParam> {
+  const content = await mapToOpenAIMessageContent(message)
 
   switch (message.role) {
     case 'assistant':
@@ -177,7 +181,7 @@ function mapToOpenAIMessage(message: Message): ChatCompletionMessageParam {
   }
 }
 
-function mapToOpenAIMessageContent(message: Message) {
+async function mapToOpenAIMessageContent(message: Message) {
   if (message.type === 'tool_calls') {
     return undefined
   }
@@ -198,28 +202,55 @@ function mapToOpenAIMessageContent(message: Message) {
       if (!Array.isArray(message.content)) {
         throw new InvalidPayloadError('`content` must be an array when message type is "multipart"')
       }
-      return message.content.map((content) => {
+
+      const parts: ChatCompletionContentPart[] = []
+
+      for (const content of message.content) {
         switch (content.type) {
           case 'text':
             if (!content.text) {
               throw new InvalidPayloadError('`text` is required when part type is "text"')
             }
-            return <ChatCompletionContentPartText>{ type: 'text', text: content.text }
+
+            parts.push(<ChatCompletionContentPartText>{ type: 'text', text: content.text })
+
+            break
           case 'image':
             if (!content.url) {
               throw new InvalidPayloadError('`url` is required when part type is "image"')
             }
-            return <ChatCompletionContentPartImage>{
+
+            // Note: As of June 2024 it seems that OpenAI doesn't support image URLs directly (they return this error: "Expected a base64-encoded data URL with an image MIME type") contrary to what they say in their documentation, so we need to fetch the image and pass it as a data URI instead.
+            let buffer: Buffer
+            try {
+              const response = await fetch(content.url)
+              buffer = Buffer.from(await response.arrayBuffer())
+
+              const contentTypeHeader = response.headers.get('content-type')
+              if (!content.mimeType && contentTypeHeader) {
+                content.mimeType = contentTypeHeader
+              }
+            } catch (err: any) {
+              throw new InvalidPayloadError(
+                `Failed to retrieve image in message content from the provided URL: ${content.url} (Error: ${err.message})`
+              )
+            }
+
+            parts.push(<ChatCompletionContentPartImage>{
               type: 'image_url',
               image_url: {
-                url: content.url,
+                url: `data:${content.mimeType};base64,${buffer.toString('base64')}`,
                 detail: 'auto',
               },
-            }
+            })
+
+            break
           default:
             throw new InvalidPayloadError(`Content type "${content.type}" is not supported`)
         }
-      })
+      }
+
+      return parts
     default:
       throw new InvalidPayloadError(`Message type "${message.type}" is not supported`)
   }
