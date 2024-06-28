@@ -1,4 +1,4 @@
-import { z, IntegrationDefinition } from '@botpress/sdk'
+import { z, IntegrationDefinition, interfaces } from '@botpress/sdk'
 import { INTEGRATION_NAME } from './src/const'
 import {
   listEventsInputSchema,
@@ -14,7 +14,7 @@ import { updateEventUi, deleteEventUi, createEventUi } from './src/misc/custom-u
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '0.3.2',
+  version: '0.4.0',
   description:
     "Elevate your chatbot's capabilities with the Botpress integration for Google Calendar. Seamlessly sync your chatbot with Google Calendar to effortlessly manage events, appointments, and schedules",
   title: 'Google Calendar',
@@ -33,6 +33,25 @@ export default new IntegrationDefinition({
         .email()
         .describe('The client email from the Google service account. You can get it from the downloaded JSON file.'),
     }),
+  },
+  entities: {
+    event: {
+      schema: z.object({
+        id: z.string().describe('The ID of the calendar event.'),
+        summary: z.string().optional().describe('The event title/summary.'),
+        description: z.string().optional().describe('The event description.'),
+        location: z.string().optional().describe('The event location.'),
+        startDateTime: z
+          .string()
+          .optional()
+          .describe('The start date and time in RFC3339 format (e.g., "2023-12-31T10:00:00.000Z").'),
+        endDateTime: z
+          .string()
+          .optional()
+          .describe('The end date and time in RFC3339 format (e.g., "2023-12-31T12:00:00.000Z").'),
+      }),
+      ui: {},
+    },
   },
   actions: {
     listEvents: {
@@ -77,3 +96,18 @@ export default new IntegrationDefinition({
     },
   },
 })
+  .extend(interfaces.listable, (self) => ({
+    item: self.event,
+  }))
+  .extend(interfaces.creatable, (self) => ({
+    item: self.event,
+  }))
+  .extend(interfaces.readable, (self) => ({
+    item: self.event,
+  }))
+  .extend(interfaces.updatable, (self) => ({
+    item: self.event,
+  }))
+  .extend(interfaces.deletable, (self) => ({
+    item: self.event,
+  }))

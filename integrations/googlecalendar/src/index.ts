@@ -1,4 +1,4 @@
-import * as actions from './actions'
+import actions from './actions'
 import { getClient } from './client'
 import * as bp from '.botpress'
 
