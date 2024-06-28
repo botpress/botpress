@@ -16,6 +16,4 @@ export default new IntegrationDefinition({
       description: 'Groq API key',
     },
   },
-}).extend(interfaces.llm, ({ model }) => ({
-  model,
-}))
+}).extend(interfaces.llm, ({ model }) => ({ model }))
