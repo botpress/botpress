@@ -1,5 +1,4 @@
 import { llm } from '@botpress/common'
-import { Model } from 'integration.definition'
 import OpenAI from 'openai'
 import * as bp from '.botpress'
 
@@ -13,8 +12,9 @@ export default new bp.Integration({
   unregister: async () => {},
   actions: {
     generateContent: async ({ input, logger }) => {
-      return await llm.openai.generateContent<Model>(<llm.schemas.GenerateContentInput>input, groqClient, logger, {
+      return await llm.openai.generateContent(<llm.GenerateContentInput>input, groqClient, logger, {
         provider: 'groq',
+        defaultModel: 'mixtral-8x7b-32768',
         modelCosts: {
           // Source: https://wow.groq.com/
           'llama3-8b-8192': { inputCostPer1MTokens: 0.05, outputCostPer1MTokens: 0.08 },

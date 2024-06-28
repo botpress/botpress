@@ -1,5 +1,4 @@
 import { llm } from '@botpress/common'
-import { Model } from 'integration.definition'
 import OpenAI from 'openai'
 import * as bp from '.botpress'
 
@@ -12,8 +11,9 @@ export default new bp.Integration({
   unregister: async () => {},
   actions: {
     generateContent: async ({ input, logger }) => {
-      return await llm.openai.generateContent<Model>(<llm.schemas.GenerateContentInput>input, openAIClient, logger, {
+      return await llm.openai.generateContent(<llm.GenerateContentInput>input, openAIClient, logger, {
         provider: 'openai',
+        defaultModel: 'gpt-4o-2024-05-13',
         modelCosts: {
           // Source: https://openai.com/api/pricing/
           // Only full model names should be supported here, as the short model names can be pointed to a newer model with different pricing by OpenAI at any time.

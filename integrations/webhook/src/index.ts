@@ -34,7 +34,7 @@ const integration = new bp.Integration({
       type: 'webhook:event',
       payload: {
         body,
-        query,
+        query: query as Record<string, any>,
         method,
         path: req.path,
       },
