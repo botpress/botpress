@@ -1,6 +1,7 @@
 import { Writable } from '../../type-utils'
 import * as utils from '../../utils'
-import { EntityStore, BrandedEntity, createStore, isBranded, getName } from './entity-store'
+import { z } from '../../zui'
+import { SchemaStore, BrandedSchema, createStore, isBranded, getName } from './branded-schema'
 import { BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates, BaseEntities } from './generic'
 import { InterfaceDeclaration, InterfaceResolveInput } from './interface-declaration'
 import {
@@ -61,11 +62,11 @@ export type IntegrationDefinitionProps<
 }
 
 type InterfaceTypeArguments<TInterfaceEntities extends BaseEntities> = {
-  [K in keyof TInterfaceEntities]: BrandedEntity<TInterfaceEntities[K], string>
+  [K in keyof TInterfaceEntities]: BrandedSchema<z.ZodSchema<z.infer<TInterfaceEntities[K]>>>
 }
 
 type ExtensionBuilder<TIntegrationEntities extends BaseEntities, TInterfaceEntities extends BaseEntities> = (
-  input: EntityStore<TIntegrationEntities>
+  input: SchemaStore<TIntegrationEntities>
 ) => InterfaceTypeArguments<TInterfaceEntities>
 
 export class IntegrationDefinition<
@@ -131,7 +132,7 @@ export class IntegrationDefinition<
     interfaceDeclaration: InterfaceDeclaration<E>,
     builder: ExtensionBuilder<TEntities, E>
   ): this {
-    const extensionBuilderOutput = builder(createStore(this.entities)) as Record<string, BrandedEntity>
+    const extensionBuilderOutput = builder(createStore(this.entities))
     const unbrandedEntity = utils.pairs(extensionBuilderOutput).find(([_k, e]) => !isBranded(e))
     if (unbrandedEntity) {
       // this means the user tried providing a plain schema without referencing an entity from the integration
