@@ -149,13 +149,15 @@ async function mapToAnthropicMessageContent(message: llm.schemas.Message): Promi
           throw new InvalidPayloadError('`url` is required when part type is "image"')
         }
 
-        if (!part.mimeType) {
-          throw new InvalidPayloadError('`mimeType` is required when part type is "image"')
-        }
-
         let buffer: Buffer
         try {
-          buffer = await fetch(part.url).then(async (res) => Buffer.from(await res.arrayBuffer()))
+          const response = await fetch(part.url)
+          buffer = Buffer.from(await response.arrayBuffer())
+
+          const contentTypeHeader = response.headers.get('content-type')
+          if (!part.mimeType && contentTypeHeader) {
+            part.mimeType = contentTypeHeader
+          }
         } catch (err: any) {
           throw new InvalidPayloadError(
             `Failed to retrieve image in message content from the provided URL: ${part.url} (Error: ${err.message})`
