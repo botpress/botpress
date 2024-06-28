@@ -20,6 +20,13 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup
         uses: ./.github/actions/setup
+      - name: Deploy Interfaces
+        uses: ./.github/actions/deploy-interfaces
+        with:
+          environment: 'production'
+          force: ${{ github.event.inputs.force == 'true' }}
+          token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
+          cloud_ops_workspace_id: ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
       - name: Deploy Integrations
         uses: ./.github/actions/deploy-integrations
         with:

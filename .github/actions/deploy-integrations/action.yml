@@ -90,7 +90,7 @@ runs:
         # deploy
 
         redeploy=${{ inputs.force == 'true' && 1 || 0 }}
-        all_filters="-F '@botpresshub/*' -F '!asana' -F '!trello' -F '!webchat' ${{ inputs.extra_filter }}"
+        all_filters="-F '{integrations/*}' -F '!asana' -F '!trello' -F '!webchat' ${{ inputs.extra_filter }}"
         list_integrations_cmd="pnpm list $all_filters --json"
         integration_paths=$(eval $list_integrations_cmd | jq -r "map(".path") | .[]")
 
