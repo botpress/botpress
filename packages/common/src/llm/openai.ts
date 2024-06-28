@@ -19,12 +19,15 @@ type ModelCost = {
   outputCostPer1MTokens: number
 }
 
+type NoInfer<T> = [T][T extends any ? 0 : never]
+
 export async function generateContent<M extends string>(
   input: GenerateContentInput,
   openAIClient: OpenAI,
   logger: IntegrationLogger,
   params: {
     provider: string
+    defaultModel: NoInfer<M>
     modelCosts: {
       [key in M]: ModelCost
     }

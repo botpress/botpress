@@ -1455,7 +1455,7 @@ importers:
         specifier: 0.23.1
         version: link:../client
       '@botpress/sdk':
-        specifier: 0.8.30
+        specifier: 0.8.31
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1570,7 +1570,7 @@ importers:
         specifier: 0.23.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.30
+        specifier: 0.8.31
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1589,7 +1589,7 @@ importers:
         specifier: 0.23.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.30
+        specifier: 0.8.31
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1608,7 +1608,7 @@ importers:
         specifier: 0.23.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.30
+        specifier: 0.8.31
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1627,7 +1627,7 @@ importers:
         specifier: 0.23.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.30
+        specifier: 0.8.31
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -1708,8 +1708,8 @@ importers:
         specifier: 0.23.1
         version: link:../client
       '@bpinternal/zui':
-        specifier: 0.9.0
-        version: 0.9.0(react@18.3.1)
+        specifier: 0.9.1
+        version: 0.9.1(react@18.3.1)
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -2386,8 +2386,8 @@ packages:
       yn: 4.0.0
     dev: false
 
-  /@bpinternal/zui@0.9.0(react@18.3.1):
-    resolution: {integrity: sha512-bHqx1WwaFQ+FodiaC2gSxoDATuTOQi0+DPojPL1jdQKMqqoaIIarf8xnXcjclD9Log8pTihcJxu4jC5mOr0mUA==}
+  /@bpinternal/zui@0.9.1(react@18.3.1):
+    resolution: {integrity: sha512-fUn5Liq3i4LQNpWRymtEDz0j34ntntG7PzaPTrQCgjpsvQYAw028723A4abTMg/3eicx8AiV1mzAy3WOhRa5BA==}
     engines: {node: '>=16.0.0', pnpm: 9.1.0}
     peerDependencies:
       react: ^18.2.0
