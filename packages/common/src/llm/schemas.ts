@@ -35,7 +35,7 @@ const MessageSchema = z.object({
           mimeType: z
             .string()
             .optional()
-            .describe('Indicates the MIME type of the content. Reuired if part type is "image".'),
+            .describe('Indicates the MIME type of the content. Required if part type is "image".'),
           text: z.string().optional().describe('Required if part type is "text" '),
           url: z.string().optional().describe('Required if part type is "image"'),
         })
