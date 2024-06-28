@@ -14,6 +14,11 @@ import {
 } from 'openai/resources'
 import { GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './schemas'
 import { ModelCost } from './types'
+import { z } from '@botpress/sdk'
+
+const OpenAIInnerErrorSchema = z.object({
+  message: z.string(),
+})
 
 export async function generateContent<M extends string>(
   input: GenerateContentInput,
@@ -60,14 +65,19 @@ export async function generateContent<M extends string>(
       tool_choice: mapToOpenAIToolChoice(input.toolChoice), // note: the action input type is
       tools: mapToOpenAITools(input.tools),
     })
-  } catch (err) {
-    logger
-      .forBot()
-      .error(
-        `generateContent action failed because the "${
-          params.provider
-        }" LLM provider returned an error: ${JSON.stringify(err)}`
-      )
+  } catch (err: any) {
+    if (err instanceof OpenAI.APIError) {
+      const parsedInnerError = OpenAIInnerErrorSchema.safeParse(err.error)
+      if (parsedInnerError.success) {
+        logger
+          .forBot()
+          .error(`${params.provider} error ${err.status} (${err.type}:${err.code}) - ${parsedInnerError.data.message}`)
+        throw err
+      }
+    }
+
+    // Fallback
+    logger.forBot().error(err.message)
     throw err
   }
 

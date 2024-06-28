@@ -3,6 +3,7 @@ import { MessageCreateParams } from '@anthropic-ai/sdk/resources/messages'
 import { llm } from '@botpress/common'
 import { InvalidPayloadError } from '@botpress/client'
 import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
+import { z } from '@botpress/sdk'
 
 type ModelSpecs = llm.types.ModelCost & {
   /**
@@ -10,6 +11,12 @@ type ModelSpecs = llm.types.ModelCost & {
    */
   outputTokensLimit: number
 }
+
+// Reference: https://docs.anthropic.com/en/api/errors
+const AnthropicInnerErrorSchema = z.object({
+  type: z.literal('error'),
+  error: z.object({ type: z.string(), message: z.string() }),
+})
 
 export async function generateContent<M extends string>(
   input: llm.schemas.GenerateContentInput,
@@ -57,8 +64,21 @@ export async function generateContent<M extends string>(
       tool_choice: mapToAnthropicToolChoice(input.toolChoice),
       messages,
     })
-  } catch (err) {
-    logger.forBot().error(`generateContent action failed because Anthropic returned an error: ${JSON.stringify(err)}`)
+  } catch (err: any) {
+    if (err instanceof Anthropic.APIError) {
+      const parsedInnerError = AnthropicInnerErrorSchema.safeParse(err.error)
+      if (parsedInnerError.success) {
+        logger
+          .forBot()
+          .error(
+            `Anthropic error ${err.status} (${parsedInnerError.data.error.type}) - ${parsedInnerError.data.error.message}`
+          )
+        throw err
+      }
+    }
+
+    // Fallback
+    logger.forBot().error(err.message)
     throw err
   }
 
