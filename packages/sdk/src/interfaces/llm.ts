@@ -41,7 +41,8 @@ const MessageSchema = z.object({
 })
 
 const GenerateContentInputSchema = z.object({
-  model: z.string().describe('Model to use for content generation'),
+  // optional because an llm integration should have a default model
+  model: z.string().optional().describe('Model to use for content generation'),
   systemPrompt: z.string().optional().describe('Optional system prompt to guide the model'),
   messages: z.array(MessageSchema).describe('Array of messages for the model to process').min(1),
   responseFormat: z
