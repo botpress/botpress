@@ -14,6 +14,7 @@ export default new bp.Integration({
     generateContent: async ({ input, logger }) => {
       return await llm.openai.generateContent(<llm.GenerateContentInput>input, groqClient, logger, {
         provider: 'groq',
+        defaultModel: 'mixtral-8x7b-32768',
         modelCosts: {
           // Source: https://wow.groq.com/
           'llama3-8b-8192': { inputCostPer1MTokens: 0.05, outputCostPer1MTokens: 0.08 },

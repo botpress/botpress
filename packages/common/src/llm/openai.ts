@@ -19,12 +19,15 @@ type ModelCost = {
   outputCostPer1MTokens: number
 }
 
+type NoInfer<T> = [T][T extends any ? 0 : never]
+
 export async function generateContent<M extends string>(
   input: GenerateContentInput,
   openAIClient: OpenAI,
   logger: IntegrationLogger,
   params: {
     provider: string
+    defaultModel: NoInfer<M>
     modelCosts: {
       [key in M]: ModelCost
     }
@@ -49,7 +52,7 @@ export async function generateContent<M extends string>(
   }
 
   const response = await openAIClient.chat.completions.create({
-    model: input.model,
+    model: input.model ?? params.defaultModel,
     max_tokens: input.maxTokens || undefined, // note: ignore a zero value as the Studio doesn't support empty number inputs and defaults this to 0
     temperature: input.temperature,
     top_p: input.topP,
