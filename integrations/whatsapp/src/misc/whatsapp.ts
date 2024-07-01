@@ -30,9 +30,9 @@ export class MetaOauthClient {
     return data.access_token
   }
 
-  async getWhatsappBusinessIdFromToken(input_token: string) {
+  async getWhatsappBusinessIdFromToken(inputToken: string) {
     const query = new URLSearchParams({
-      input_token,
+      input_token: inputToken,
       access_token: bp.secrets.ACCESS_TOKEN,
     })
 
@@ -41,9 +41,9 @@ export class MetaOauthClient {
     return data.data.granular_scopes[0].target_ids[0]
   }
 
-  async getWhatsappNumberIdFromBussiness(businessId: string, access_token: string) {
+  async getWhatsappNumberIdFromBusiness(businessId: string, accessToken: string) {
     const query = new URLSearchParams({
-      access_token,
+      access_token: accessToken,
     })
 
     const { data } = await axios.get(
@@ -53,9 +53,9 @@ export class MetaOauthClient {
     return data.data[0].id
   }
 
-  async registerNumber(numberId: string, access_token: string) {
+  async registerNumber(numberId: string, accessToken: string) {
     const query = new URLSearchParams({
-      access_token,
+      access_token: accessToken,
       messaging_product: 'whatsapp',
       pin: bp.secrets.NUMBER_PIN,
     })
@@ -75,14 +75,14 @@ export class MetaOauthClient {
     }
   }
 
-  async subscribeToWebhooks(wabaId: string, access_token: string) {
+  async subscribeToWebhooks(wabaId: string, accessToken: string) {
     try {
       const { data } = await axios.post(
         `https://graph.facebook.com/${this.version}/${wabaId}/subscribed_apps`,
         {},
         {
           headers: {
-            Authorization: 'Bearer ' + access_token,
+            Authorization: 'Bearer ' + accessToken,
           },
         }
       )
@@ -118,7 +118,7 @@ export const handleOauth = async (req: Request, client: bp.Client, ctx: Integrat
     identifier: wabaId,
   })
 
-  const phoneNumberId = await oauthClient.getWhatsappNumberIdFromBussiness(wabaId, accessToken)
+  const phoneNumberId = await oauthClient.getWhatsappNumberIdFromBusiness(wabaId, accessToken)
 
   // For now these will be async since we have a 5 sec timeout on the webhook
   void oauthClient.registerNumber(phoneNumberId, accessToken)
