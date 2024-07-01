@@ -1,4 +1,4 @@
-VERIFY_TOKEN = "aaa123"
+VERIFY_TOKEN = "0IjoxNTE2Mj"
 
 q = parse_query_string!(.query)
 mode = q."hub.mode"
