@@ -1,8 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { llm } from '@botpress/common'
+import { generateContent } from './actions/generate-content'
 import { ModelId } from './schemas'
 import * as bp from '.botpress'
-import { generateContent } from './actions/generate-content'
 
 const anthropic = new Anthropic({
   apiKey: bp.secrets.ANTHROPIC_API_KEY,

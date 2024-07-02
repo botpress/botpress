@@ -1,9 +1,9 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { MessageCreateParams } from '@anthropic-ai/sdk/resources/messages'
-import { llm } from '@botpress/common'
 import { InvalidPayloadError } from '@botpress/client'
-import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
+import { llm } from '@botpress/common'
 import { z } from '@botpress/sdk'
+import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 
 type ModelSpecs = llm.ModelCost & {
   /**
@@ -136,46 +136,7 @@ async function mapToAnthropicMessageContent(message: llm.Message): Promise<Anthr
       throw new InvalidPayloadError('`content` must be an array when message type is "multipart"')
     }
 
-    const content: Anthropic.MessageParam['content'] = []
-
-    for (const part of message.content) {
-      if (part.type === 'text') {
-        content.push(<Anthropic.TextBlockParam>{
-          type: 'text',
-          text: part.text,
-        })
-      } else if (part.type === 'image') {
-        if (!part.url) {
-          throw new InvalidPayloadError('`url` is required when part type is "image"')
-        }
-
-        let buffer: Buffer
-        try {
-          const response = await fetch(part.url)
-          buffer = Buffer.from(await response.arrayBuffer())
-
-          const contentTypeHeader = response.headers.get('content-type')
-          if (!part.mimeType && contentTypeHeader) {
-            part.mimeType = contentTypeHeader
-          }
-        } catch (err: any) {
-          throw new InvalidPayloadError(
-            `Failed to retrieve image in message content from the provided URL: ${part.url} (Error: ${err.message})`
-          )
-        }
-
-        content.push(<Anthropic.ImageBlockParam>{
-          type: 'image',
-          source: {
-            type: 'base64',
-            media_type: part.mimeType,
-            data: buffer.toString('base64'),
-          },
-        })
-      }
-    }
-
-    return content
+    return await mapMultipartMessageToContent(message)
   } else if (message.type === 'tool_calls') {
     if (!message.toolCalls) {
       throw new InvalidPayloadError('`toolCalls` is required when message type is "tool_calls"')
@@ -208,6 +169,49 @@ async function mapToAnthropicMessageContent(message: llm.Message): Promise<Anthr
   } else {
     throw new InvalidPayloadError(`Message type "${message.type}" is not supported`)
   }
+}
+
+async function mapMultipartMessageToContent(message: llm.Message): Promise<Anthropic.MessageParam['content']> {
+  const content: Anthropic.MessageParam['content'] = []
+
+  for (const part of message.content) {
+    if (part.type === 'text') {
+      content.push(<Anthropic.TextBlockParam>{
+        type: 'text',
+        text: part.text,
+      })
+    } else if (part.type === 'image') {
+      if (!part.url) {
+        throw new InvalidPayloadError('`url` is required when part type is "image"')
+      }
+
+      let buffer: Buffer
+      try {
+        const response = await fetch(part.url)
+        buffer = Buffer.from(await response.arrayBuffer())
+
+        const contentTypeHeader = response.headers.get('content-type')
+        if (!part.mimeType && contentTypeHeader) {
+          part.mimeType = contentTypeHeader
+        }
+      } catch (err: any) {
+        throw new InvalidPayloadError(
+          `Failed to retrieve image in message content from the provided URL: ${part.url} (Error: ${err.message})`
+        )
+      }
+
+      content.push(<Anthropic.ImageBlockParam>{
+        type: 'image',
+        source: {
+          type: 'base64',
+          media_type: part.mimeType,
+          data: buffer.toString('base64'),
+        },
+      })
+    }
+  }
+
+  return content
 }
 
 function mapToAnthropicTools(input: llm.GenerateContentInput): Anthropic.Tool[] | undefined {
