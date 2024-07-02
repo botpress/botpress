@@ -149,6 +149,14 @@ export const getAccessToken = async (client: bp.Client, ctx: IntegrationContext)
   return accessToken
 }
 
+export const getSecret = (ctx: IntegrationContext) => {
+  if (ctx.configuration.useManualConfiguration) {
+    return ctx.configuration.clientSecret
+  }
+
+  return bp.secrets.CLIENT_SECRET
+}
+
 export const getPhoneNumberId = async (client: bp.Client, ctx: IntegrationContext) => {
   if (ctx.configuration.useManualConfiguration) {
     return ctx.configuration.phoneNumberId

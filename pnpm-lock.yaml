@@ -1319,52 +1319,6 @@ importers:
         specifier: ^4.9.5
         version: 4.9.5
 
-  integrations/whatsappbusiness:
-    dependencies:
-      '@botpress/client':
-        specifier: workspace:*
-        version: link:../../packages/client
-      '@botpress/sdk':
-        specifier: workspace:*
-        version: link:../../packages/sdk
-      '@botpress/sdk-addons':
-        specifier: workspace:*
-        version: link:../../packages/sdk-addons
-      axios:
-        specifier: ^1.6.2
-        version: 1.6.8
-      query-string:
-        specifier: ^6.14.1
-        version: 6.14.1
-      whatsapp-api-js:
-        specifier: ^1.0.5
-        version: 1.0.5
-      zod:
-        specifier: ^3.20.6
-        version: 3.22.4
-    devDependencies:
-      '@botpress/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
-      '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
-      '@types/node':
-        specifier: ^18.13.0
-        version: 18.19.10
-      esbuild:
-        specifier: ^0.15.18
-        version: 0.15.18
-      nodemon:
-        specifier: ^2.0.20
-        version: 2.0.22
-      ts-node:
-        specifier: ^10.9.1
-        version: 10.9.2(@types/node@18.19.10)(typescript@4.9.5)
-      typescript:
-        specifier: ^4.9.5
-        version: 4.9.5
-
   integrations/zapier:
     dependencies:
       '@botpress/client':
