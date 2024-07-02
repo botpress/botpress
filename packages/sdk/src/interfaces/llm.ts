@@ -40,59 +40,63 @@ const MessageSchema = z.object({
     ),
 })
 
-const GenerateContentInputSchema = z.object({
-  // optional because an llm integration should have a default model
-  model: z.string().optional().describe('Model to use for content generation'),
-  systemPrompt: z.string().optional().describe('Optional system prompt to guide the model'),
-  messages: z.array(MessageSchema).describe('Array of messages for the model to process').min(1),
-  responseFormat: z
-    .enum(['text', 'json_object'])
-    .optional()
-    .describe(
-      'Response format expected from the model. If "json_object" is chosen, you must instruct the model to generate JSON either via the system prompt or a user message.'
-    ), // note: only OpenAI and Groq support this but for other models we can just append this as an indication in the system prompt
-  // note: we don't support streaming yet
-  maxTokens: z.number().optional().describe('Maximum number of tokens allowed in the generated response'),
-  temperature: z
-    .number()
-    .min(0)
-    .max(2)
-    // @ts-ignore
-    .displayAs({ id: 'slider', params: { stepSize: 0.01, horizontal: true } })
-    .default(1)
-    .describe('Sampling temperature for the model. Higher values result in more random outputs.'),
-  topP: z
-    .number()
-    .min(0)
-    .max(1)
-    .default(1)
-    // @ts-ignore
-    .displayAs({ id: 'slider', params: { stepSize: 0.01, horizontal: true } })
-    .describe(
-      'Top-p sampling parameter. Limits sampling to the smallest set of tokens with a cumulative probability above the threshold.'
-    ), // TODO: .placeholder() from zui doesn't work, so we have to use .default() which introduces some typing issues
-  // note: topK is supported by Claude and Gemini but not by OpenAI or Groq
-  stopSequences: z
-    .array(z.string())
-    .max(4)
-    .optional()
-    .describe('Sequences where the model should stop generating further tokens.'),
-  tools: z
-    .array(
-      z.object({
-        type: z.literal('function'),
-        function: z.object({
-          name: z.string(),
-          description: z.string().optional(),
-          inputSchema: z.object({}).passthrough().optional(),
-        }),
-      })
-    )
-    .optional(),
-  // TODO: an object with options doesn't seem to be supported by the Studio as it's not rendering correctly, the dropdown for "type" is not working and it's sending a blank value instead which causes a schema validation error unless an empty value is allowed in the `type` enum
-  toolChoice: ToolChoiceSchema.optional(), // note: Gemini doesn't support this but we can just ignore it there
-  userId: z.string().optional(),
-})
+const ModelSchema = z.object({ id: z.string() })
+
+const GenerateContentInputSchema = <S extends z.ZodSchema>(modelSchema: S) =>
+  z.object({
+    model: modelSchema.describe('Model to use for content generation'),
+    systemPrompt: z.string().optional().describe('Optional system prompt to guide the model'),
+    messages: z.array(MessageSchema).describe('Array of messages for the model to process').min(1),
+    responseFormat: z
+      .enum(['text', 'json_object'])
+      .optional()
+      .describe(
+        'Response format expected from the model. If "json_object" is chosen, you must instruct the model to generate JSON either via the system prompt or a user message.'
+      ), // note: only OpenAI and Groq support this but for other models we can just append this as an indication in the system prompt
+    // note: we don't support streaming yet
+    maxTokens: z.number().optional().describe('Maximum number of tokens allowed in the generated response'),
+    temperature: z
+      .number()
+      .min(0)
+      .max(2)
+      // @ts-ignore
+      .displayAs({ id: 'slider', params: { stepSize: 0.01, horizontal: true } })
+      .default(1)
+      .describe('Sampling temperature for the model. Higher values result in more random outputs.'),
+    topP: z
+      .number()
+      .min(0)
+      .max(1)
+      .default(1)
+      // @ts-ignore
+      .displayAs({ id: 'slider', params: { stepSize: 0.01, horizontal: true } })
+      .describe(
+        'Top-p sampling parameter. Limits sampling to the smallest set of tokens with a cumulative probability above the threshold.'
+      ), // TODO: .placeholder() from zui doesn't work, so we have to use .default() which introduces some typing issues
+    // note: topK is supported by Claude and Gemini but not by OpenAI or Groq
+    stopSequences: z
+      .array(z.string())
+      .max(4)
+      .optional()
+      .describe('Sequences where the model should stop generating further tokens.'),
+    tools: z
+      .array(
+        z.object({
+          type: z.literal('function'),
+          function: z.object({
+            name: z.string(),
+            description: z.string().optional(),
+            inputSchema: z.object({}).passthrough().optional(),
+          }),
+        })
+      )
+      .optional(),
+    // TODO: an object with options doesn't seem to be supported by the Studio as it's not rendering correctly, the dropdown for "type" is not working and it's sending a blank value instead which causes a schema validation error unless an empty value is allowed in the `type` enum
+    toolChoice: ToolChoiceSchema.optional(), // note: Gemini doesn't support this but we can just ignore it there
+    userId: z.string().optional(),
+  })
+
+const GenerateContentInputBaseSchema = GenerateContentInputSchema(ModelSchema)
 
 const GenerateContentOutputSchema = z.object({
   id: z.string().describe('Response ID from LLM provider'),
@@ -116,13 +120,17 @@ const GenerateContentOutputSchema = z.object({
 
 export const llm = new InterfaceDeclaration({
   name: 'llm',
-  version: '0.0.1',
-  entities: {},
+  version: '0.1.0',
+  entities: {
+    model: {
+      schema: ModelSchema,
+    },
+  },
   events: {},
   actions: {
     generateContent: {
       input: {
-        schema: () => GenerateContentInputSchema,
+        schema: ({ model }) => GenerateContentInputSchema(model),
       },
       output: {
         schema: () => GenerateContentOutputSchema,
@@ -132,7 +140,7 @@ export const llm = new InterfaceDeclaration({
 })
 
 export namespace llm {
-  export type GenerateContentInput = z.infer<typeof GenerateContentInputSchema>
+  export type GenerateContentInput = z.infer<typeof GenerateContentInputBaseSchema>
   export type GenerateContentOutput = z.infer<typeof GenerateContentOutputSchema>
   export type ToolCall = z.infer<typeof ToolCallSchema>
   export type Message = z.infer<typeof MessageSchema>

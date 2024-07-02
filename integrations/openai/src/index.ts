@@ -1,5 +1,6 @@
 import { llm } from '@botpress/common'
 import OpenAI from 'openai'
+import { ModelId } from './schemas'
 import * as bp from '.botpress'
 
 const openAIClient = new OpenAI({
@@ -11,7 +12,7 @@ export default new bp.Integration({
   unregister: async () => {},
   actions: {
     generateContent: async ({ input, logger }) => {
-      return await llm.openai.generateContent(<llm.GenerateContentInput>input, openAIClient, logger, {
+      return await llm.openai.generateContent<ModelId>(<llm.GenerateContentInput>input, openAIClient, logger, {
         provider: 'openai',
         defaultModel: 'gpt-4o-2024-05-13',
         modelCosts: {
