@@ -120,7 +120,7 @@ const GenerateContentOutputSchema = z.object({
 
 export const llm = new InterfaceDeclaration({
   name: 'llm',
-  version: '0.0.1',
+  version: '0.1.0',
   entities: {
     model: {
       schema: ModelSchema,
