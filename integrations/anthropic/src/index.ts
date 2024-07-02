@@ -1,6 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { llm } from '@botpress/common'
-import { Model } from 'integration.definition'
+import { ModelId } from './schemas'
 import * as bp from '.botpress'
 import { generateContent } from './actions/generate-content'
 
@@ -13,7 +13,7 @@ export default new bp.Integration({
   unregister: async () => {},
   actions: {
     generateContent: async ({ input, logger }) => {
-      return await generateContent<Model>(<llm.schemas.GenerateContentInput>input, anthropic, logger, {
+      return await generateContent<ModelId>(<llm.GenerateContentInput>input, anthropic, logger, {
         models: {
           // Source: https://docs.anthropic.com/en/docs/about-claude/models
           'claude-3-5-sonnet-20240620': {

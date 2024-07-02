@@ -5,7 +5,7 @@ import { InvalidPayloadError } from '@botpress/client'
 import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 import { z } from '@botpress/sdk'
 
-type ModelSpecs = llm.types.ModelCost & {
+type ModelSpecs = llm.ModelCost & {
   /**
    * Maximum number of output tokens supported by the model.
    */
@@ -19,7 +19,7 @@ const AnthropicInnerErrorSchema = z.object({
 })
 
 export async function generateContent<M extends string>(
-  input: llm.schemas.GenerateContentInput,
+  input: llm.GenerateContentInput,
   anthropic: Anthropic,
   logger: IntegrationLogger,
   params: {
@@ -27,7 +27,7 @@ export async function generateContent<M extends string>(
       [key in M]: ModelSpecs
     }
   }
-): Promise<llm.schemas.GenerateContentOutput> {
+): Promise<llm.GenerateContentOutput> {
   const modelSpecs = params.models[input.model as M]
   if (!modelSpecs) {
     throw new InvalidPayloadError(
@@ -89,7 +89,7 @@ export async function generateContent<M extends string>(
     .map((content) => content.text)
     .join('\n\n')
 
-  return <llm.schemas.GenerateContentOutput>{
+  return <llm.GenerateContentOutput>{
     id: response.id,
     provider: 'anthropic',
     model: response.model,
@@ -117,14 +117,14 @@ function calculateTokenCost(costPer1MTokens: number, tokenCount: number) {
   return (costPer1MTokens / 1_000_000) * tokenCount
 }
 
-async function mapToAnthropicMessage(message: llm.schemas.Message): Promise<Anthropic.MessageParam> {
+async function mapToAnthropicMessage(message: llm.Message): Promise<Anthropic.MessageParam> {
   return {
     role: message.role,
     content: await mapToAnthropicMessageContent(message),
   }
 }
 
-async function mapToAnthropicMessageContent(message: llm.schemas.Message): Promise<Anthropic.MessageParam['content']> {
+async function mapToAnthropicMessageContent(message: llm.Message): Promise<Anthropic.MessageParam['content']> {
   if (message.type === 'text') {
     if (typeof message.content !== 'string') {
       throw new InvalidPayloadError('`content` must be a string when message type is "text"')
@@ -210,7 +210,7 @@ async function mapToAnthropicMessageContent(message: llm.schemas.Message): Promi
   }
 }
 
-function mapToAnthropicTools(input: llm.schemas.GenerateContentInput): Anthropic.Tool[] | undefined {
+function mapToAnthropicTools(input: llm.GenerateContentInput): Anthropic.Tool[] | undefined {
   if (input.toolChoice?.type === 'none') {
     // Don't return any tools if tool choice was to not use any tools
     return []
@@ -230,7 +230,7 @@ function mapToAnthropicTools(input: llm.schemas.GenerateContentInput): Anthropic
 }
 
 function mapToAnthropicToolChoice(
-  toolChoice: llm.schemas.GenerateContentInput['toolChoice']
+  toolChoice: llm.GenerateContentInput['toolChoice']
 ): Anthropic.MessageCreateParams['tool_choice'] {
   if (!toolChoice) {
     return undefined
@@ -253,7 +253,7 @@ function mapToAnthropicToolChoice(
 }
 function mapToStopReason(
   anthropicStopReason: Anthropic.Message['stop_reason']
-): llm.schemas.GenerateContentOutput['choices'][0]['stopReason'] {
+): llm.GenerateContentOutput['choices'][0]['stopReason'] {
   switch (anthropicStopReason) {
     case 'end_turn':
     case 'stop_sequence':
@@ -267,7 +267,7 @@ function mapToStopReason(
   }
 }
 
-function mapToToolCalls(response: Anthropic.Message): llm.schemas.ToolCall[] | undefined {
+function mapToToolCalls(response: Anthropic.Message): llm.ToolCall[] | undefined {
   const toolCalls = response.content.filter((x): x is Anthropic.ToolUseBlock => x.type === 'tool_use')
 
   return toolCalls.map((toolCall) => {
@@ -276,7 +276,7 @@ function mapToToolCalls(response: Anthropic.Message): llm.schemas.ToolCall[] | u
       type: 'function',
       function: {
         name: toolCall.name,
-        arguments: toolCall.input as llm.schemas.ToolCall['function']['arguments'],
+        arguments: toolCall.input as llm.ToolCall['function']['arguments'],
       },
     }
   })
