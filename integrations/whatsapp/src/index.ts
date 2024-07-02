@@ -1,6 +1,7 @@
 import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { channel } from 'integration.definition'
+import * as crypto from 'node:crypto'
 import queryString from 'query-string'
 import WhatsAppAPI from 'whatsapp-api-js'
 import { Audio, Document, Image, Location, Text, Video } from 'whatsapp-api-js/messages'
@@ -10,6 +11,7 @@ import * as card from './message-types/card'
 import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
+import { getAccessToken, getPhoneNumberId, getSecret, handleOauth } from './misc/whatsapp'
 import * as outgoing from './outgoing-message'
 import { WhatsAppPayload } from './whatsapp-types'
 import * as bp from '.botpress'
@@ -19,10 +21,16 @@ const integration = new bp.Integration({
   unregister: async () => {},
   actions: {
     startConversation: async ({ ctx, input, client, logger }) => {
+      const phoneNumberId: string | undefined = input.senderPhoneNumberId || (await getPhoneNumberId(client, ctx))
+
+      if (!phoneNumberId) {
+        throw new Error('phoneNumberId is required')
+      }
+
       const conversation = await startConversation(
         {
           channel,
-          phoneNumberId: input.senderPhoneNumberId || ctx.configuration.phoneNumberId,
+          phoneNumberId,
           userPhone: input.userPhone,
           templateName: input.templateName,
           templateLanguage: input.templateLanguage,
@@ -119,6 +127,16 @@ const integration = new bp.Integration({
     },
   },
   handler: async ({ req, client, ctx, logger }) => {
+    if (req.path === '/oauth') {
+      try {
+        return handleOauth(req, client, ctx, logger)
+      } catch (err: any) {
+        const errorMessage = '(OAuth registration) Error: ' + err.response?.data || err.message
+        logger.forBot().error(errorMessage)
+        return { status: 500, body: errorMessage }
+      }
+    }
+
     if (req.body) {
       logger.forBot().debug('Handler received request from Whatsapp with payload:', req.body)
     } else {
@@ -165,6 +183,26 @@ const integration = new bp.Integration({
       return
     }
 
+    const secret = getSecret(ctx)
+    // For testing purposes, if you send the secret in the header it's possible to disable signature check
+    if (req.headers['x-secret'] !== secret) {
+      const signature = req.headers['x-hub-signature-256']
+
+      if (!signature) {
+        const errorMessage = 'Couldn\'t find "x-hub-signature-256" in headers.'
+        logger.forBot().error(errorMessage)
+        return { status: 401, body: errorMessage }
+      } else {
+        const signatureHash = signature.split('=')[1]
+        const expectedHash = crypto.createHmac('sha256', secret).update(req.body).digest('hex')
+        if (signatureHash !== expectedHash) {
+          const errorMessage = "Couldn't validate the request signature."
+          logger.forBot().error(errorMessage)
+          return { status: 401, body: errorMessage }
+        }
+      }
+    }
+
     try {
       const data = JSON.parse(req.body) as WhatsAppPayload
 
@@ -176,7 +214,8 @@ const integration = new bp.Integration({
           }
 
           for (const message of change.value.messages) {
-            const accessToken = ctx.configuration.accessToken
+            const accessToken = await getAccessToken(client, ctx)
+
             const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
 
             const phoneNumberId = change.value.metadata.phone_number_id

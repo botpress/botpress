@@ -16,7 +16,8 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "query-string": "^6.14.1",
-    "whatsapp-api-js": "^1.0.5"
+    "whatsapp-api-js": "^1.0.5",
+    "axios": "^1.6.2"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

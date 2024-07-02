@@ -1,0 +1,31 @@
+VERIFY_TOKEN = "0IjoxNTE2Mj"
+
+q = parse_query_string!(.query)
+mode = q."hub.mode"
+challenge = q."hub.challenge"
+verifyTokenReceived = q."hub.verify_token"
+
+
+response = {
+  "status": 403,
+  "body": "Invalid webhook request"
+}
+
+if mode == "subscribe" {
+  if verifyTokenReceived == VERIFY_TOKEN {
+    response = {
+      "status": 200,
+      "headers": {
+        "content-type": "application/json"
+      },
+      "body": challenge
+    }
+  } else {
+    response = {
+      "status": 403,
+      "body": "Invalid verify token"
+    }
+  }
+}
+
+response

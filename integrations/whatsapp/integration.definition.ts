@@ -30,22 +30,37 @@ const TagsForCreatingConversation = {
 
 export default new IntegrationDefinition({
   name: 'whatsapp',
-  version: '0.4.2',
+  version: '2.0.2',
   title: 'WhatsApp',
   description: 'This integration allows your bot to interact with WhatsApp.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+    },
     ui: {
       phoneNumberId: {
         title: 'Default Phone Number ID for starting conversations',
       },
+      useManualConfiguration: {
+        title: 'Use Manual Configuration',
+      },
     },
     schema: z.object({
-      verifyToken: z.string(),
-      accessToken: z.string(),
-      phoneNumberId: z.string(),
+      useManualConfiguration: z.boolean().optional().describe('Skip oAuth and supply details from a Meta App'),
+      verifyToken: z.string().optional().describe('Token used for verification when subscribing to webhooks'),
+      accessToken: z
+        .string()
+        .optional()
+        .describe('Access Token from a System Account that has permission to the Meta app'),
+      clientSecret: z.string().optional().describe('Meta app secret used for webhook signature check'),
+      phoneNumberId: z.string().optional().describe('Default Phone used for starting conversations'),
     }),
+  },
+  identifier: {
+    extractScript: 'extract.vrl',
+    fallbackHandlerScript: 'fallbackHandler.vrl',
   },
   channels: {
     [channel]: {
@@ -56,10 +71,6 @@ export default new IntegrationDefinition({
         },
       },
       conversation: {
-        creation: {
-          enabled: true,
-          requiredTags: ['phoneNumberId', 'userPhone'],
-        },
         tags: TagsForCreatingConversation,
       },
     },
@@ -95,5 +106,28 @@ export default new IntegrationDefinition({
     },
   },
   events: {},
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  states: {
+    credentials: {
+      type: 'integration',
+      schema: z.object({
+        accessToken: z.string().optional(),
+        phoneNumberId: z.string().optional(),
+      }),
+    },
+  },
+  secrets: {
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+    CLIENT_ID: {
+      description: 'The client ID of your Meta app.',
+    },
+    CLIENT_SECRET: {
+      description: 'The client secret of your Meta app.',
+    },
+    ACCESS_TOKEN: {
+      description: 'Access token for internal Meta App',
+    },
+    NUMBER_PIN: {
+      description: '6 Digits Pin used for phone number registration',
+    },
+  },
 })

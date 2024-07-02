@@ -1240,6 +1240,9 @@ importers:
       '@botpress/sdk-addons':
         specifier: workspace:*
         version: link:../../packages/sdk-addons
+      axios:
+        specifier: ^1.6.2
+        version: 1.6.8
       query-string:
         specifier: ^6.14.1
         version: 6.14.1
