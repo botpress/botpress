@@ -3,7 +3,7 @@ import { modelId } from 'src/schemas'
 
 export default new IntegrationDefinition({
   name: 'groq',
-  version: '0.0.2',
+  version: '1.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
