@@ -12,6 +12,7 @@ export {
   IntegrationImplementation as Integration,
   IntegrationImplementationProps as IntegrationProps,
   IntegrationContext,
+  IntegrationLogger,
   IntegrationSpecificClient,
   InterfaceDeclaration,
   InterfaceDeclarationProps,

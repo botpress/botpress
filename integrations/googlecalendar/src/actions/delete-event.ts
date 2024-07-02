@@ -1,17 +1,24 @@
-import { getClient } from 'src/client'
-import { parseError } from 'src/misc/utils'
-import { IntegrationProps } from '../misc/types'
+import sync from './sync'
+import * as bp from '.botpress'
 
-export const deleteEvent: IntegrationProps['actions']['deleteEvent'] = async ({ logger, ctx, input }) => {
-  try {
-    const { calendar } = await getClient(ctx.configuration)
+export const deleteEvent: bp.IntegrationProps['actions']['deleteEvent'] = async (props) => {
+  const { client, ctx, input, logger } = props
+  const { eventId } = input
 
-    await calendar.events.delete({ calendarId: ctx.configuration.calendarId, eventId: input.eventId })
+  if (!eventId) {
+    return { eventId }
+  }
 
-    return { success: true }
-  } catch (error) {
-    const err = parseError(error)
-    logger.forBot().error('Error while deleting event ', err.message)
-    throw err
+  await sync.eventDelete({
+    type: 'eventDelete',
+    client,
+    ctx,
+    logger,
+    input: {
+      id: eventId,
+    },
+  })
+  return {
+    eventId,
   }
 }

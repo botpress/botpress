@@ -1,5 +1,5 @@
 import { InvalidPayloadError } from '@botpress/client'
-import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
+import { z, IntegrationLogger } from '@botpress/sdk'
 import OpenAI from 'openai'
 import {
   ChatCompletion,
@@ -13,13 +13,13 @@ import {
   ChatCompletionToolMessageParam,
   ChatCompletionUserMessageParam,
 } from 'openai/resources'
-import { GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './schemas'
-import { ModelCost } from './types'
-import { z } from '@botpress/sdk'
+import { ModelCost, GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './types'
 
 const OpenAIInnerErrorSchema = z.object({
   message: z.string(),
 })
+
+type NoInfer<T> = [T][T extends any ? 0 : never]
 
 export async function generateContent<M extends string>(
   input: GenerateContentInput,
@@ -27,12 +27,13 @@ export async function generateContent<M extends string>(
   logger: IntegrationLogger,
   params: {
     provider: string
+    defaultModel: NoInfer<M>
     modelCosts: {
       [key in M]: ModelCost
     }
   }
 ): Promise<GenerateContentOutput> {
-  const modelCost = params.modelCosts[input.model as M]
+  const modelCost = params.modelCosts[input.model.id as M]
   if (!modelCost) {
     throw new InvalidPayloadError(
       `Model name "${input.model}" is not allowed by this integration, supported model names are: ${Object.keys(
@@ -57,7 +58,7 @@ export async function generateContent<M extends string>(
 
   try {
     response = await openAIClient.chat.completions.create({
-      model: input.model,
+      model: input.model.id,
       max_tokens: input.maxTokens || undefined, // note: ignore a zero value as the Studio doesn't support empty number inputs and defaults this to 0
       temperature: input.temperature,
       top_p: input.topP,

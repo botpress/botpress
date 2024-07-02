@@ -1435,6 +1435,19 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  interfaces/llm:
+    dependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   interfaces/readable:
     dependencies:
       '@botpress/sdk':
@@ -1467,7 +1480,7 @@ importers:
         specifier: 0.23.1
         version: link:../client
       '@botpress/sdk':
-        specifier: 0.8.29
+        specifier: 0.8.31
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1582,7 +1595,7 @@ importers:
         specifier: 0.23.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.29
+        specifier: 0.8.31
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1601,7 +1614,7 @@ importers:
         specifier: 0.23.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.29
+        specifier: 0.8.31
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1620,7 +1633,7 @@ importers:
         specifier: 0.23.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.29
+        specifier: 0.8.31
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1639,7 +1652,7 @@ importers:
         specifier: 0.23.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.29
+        specifier: 0.8.31
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -1720,8 +1733,8 @@ importers:
         specifier: 0.23.1
         version: link:../client
       '@bpinternal/zui':
-        specifier: 0.8.7
-        version: 0.8.7(react@18.3.1)
+        specifier: 0.9.1
+        version: 0.9.1(react@18.3.1)
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -1787,15 +1800,6 @@ packages:
       web-streams-polyfill: 3.3.3
     transitivePeerDependencies:
       - encoding
-    dev: false
-
-  /@apidevtools/json-schema-ref-parser@11.6.4:
-    resolution: {integrity: sha512-9K6xOqeevacvweLGik6LnZCb1fBtCOSIWQs8d096XGeqoLKC33UVMGz9+77Gw44KvbH4pKcQPWo4ZpxkXYj05w==}
-    engines: {node: '>= 16'}
-    dependencies:
-      '@jsdevtools/ono': 7.1.3
-      '@types/json-schema': 7.0.15
-      js-yaml: 4.1.0
     dev: false
 
   /@apidevtools/openapi-schemas@2.1.0:
@@ -2422,14 +2426,12 @@ packages:
       yn: 4.0.0
     dev: false
 
-  /@bpinternal/zui@0.8.7(react@18.3.1):
-    resolution: {integrity: sha512-FTpn9jIg76acRiyyphL7Wdza4+HRd0of3j64RWI9m3X9CdEfDKMnpVhcw5sSbHUmvi3o4eLHgiXbHA148mRGFw==}
+  /@bpinternal/zui@0.9.1(react@18.3.1):
+    resolution: {integrity: sha512-fUn5Liq3i4LQNpWRymtEDz0j34ntntG7PzaPTrQCgjpsvQYAw028723A4abTMg/3eicx8AiV1mzAy3WOhRa5BA==}
     engines: {node: '>=16.0.0', pnpm: 9.1.0}
     peerDependencies:
       react: ^18.2.0
     dependencies:
-      '@apidevtools/json-schema-ref-parser': 11.6.4
-      lodash: 4.17.21
       react: 18.3.1
     dev: false
 

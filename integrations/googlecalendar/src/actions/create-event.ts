@@ -1,33 +1,24 @@
-import { getClient } from 'src/client'
-import { parseError } from 'src/misc/utils'
-import { IntegrationProps } from '../misc/types'
+import sync from './sync'
+import * as bp from '.botpress'
 
-export const createEvent: IntegrationProps['actions']['createEvent'] = async ({ ctx, logger, input }) => {
-  try {
-    const { calendar } = await getClient(ctx.configuration)
-    const response = await calendar.events.insert({
-      calendarId: ctx.configuration.calendarId,
-      requestBody: {
+export const createEvent: bp.IntegrationProps['actions']['createEvent'] = async (props) => {
+  const { client, ctx, input, logger } = props
+  const output = await sync.eventCreate({
+    type: 'eventCreate',
+    client,
+    ctx,
+    logger,
+    input: {
+      item: {
+        description: input.description ?? undefined,
         summary: input.summary,
-        description: input.description,
-        location: input.location,
-        start: {
-          // The replaceAll is used to remove the extra quotes from the input created by the studio
-          dateTime: input.startDateTime.replaceAll('"', ''),
-        },
-        end: {
-          // The replaceAll is used to remove the extra quotes from the input created by the studio
-          dateTime: input.endDateTime.replaceAll('"', ''),
-        },
+        location: input.location ?? undefined,
+        startDateTime: input.startDateTime,
+        endDateTime: input.endDateTime,
       },
-    })
-
-    return {
-      eventId: response.data.id || undefined,
-    }
-  } catch (error) {
-    const err = parseError(error)
-    logger.forBot().error('Error while creating event ', err.message)
-    throw err
+    },
+  })
+  return {
+    eventId: output.item.id,
   }
 }
