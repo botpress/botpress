@@ -96,18 +96,18 @@ export default new IntegrationDefinition({
     },
   },
 })
-  .extend(interfaces.listable, (self) => ({
-    item: self.event,
+  .extend(interfaces.listable, (entities) => ({
+    item: entities.event,
   }))
-  .extend(interfaces.creatable, (self) => ({
-    item: self.event,
+  .extend(interfaces.creatable, (entities) => ({
+    item: entities.event,
   }))
-  .extend(interfaces.readable, (self) => ({
-    item: self.event,
+  .extend(interfaces.readable, (entities) => ({
+    item: entities.event,
   }))
-  .extend(interfaces.updatable, (self) => ({
-    item: self.event,
+  .extend(interfaces.updatable, (entities) => ({
+    item: entities.event,
   }))
-  .extend(interfaces.deletable, (self) => ({
-    item: self.event,
+  .extend(interfaces.deletable, (entities) => ({
+    item: entities.event,
   }))
