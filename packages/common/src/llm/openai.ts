@@ -1,5 +1,6 @@
 import { InvalidPayloadError } from '@botpress/client'
 import { z, IntegrationLogger } from '@botpress/sdk'
+import assert from 'assert'
 import OpenAI from 'openai'
 import {
   ChatCompletion,
@@ -14,7 +15,6 @@ import {
   ChatCompletionUserMessageParam,
 } from 'openai/resources'
 import { ModelCost, GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './types'
-import assert from 'assert'
 
 const OpenAIInnerErrorSchema = z.object({
   message: z.string(),
