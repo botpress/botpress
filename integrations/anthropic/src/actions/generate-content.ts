@@ -2,8 +2,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { MessageCreateParams } from '@anthropic-ai/sdk/resources/messages'
 import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
-import { z } from '@botpress/sdk'
-import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
+import { z, IntegrationLogger } from '@botpress/sdk'
 
 type ModelSpecs = llm.ModelCost & {
   /**
