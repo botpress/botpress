@@ -14,6 +14,7 @@ import {
   ChatCompletionUserMessageParam,
 } from 'openai/resources'
 import { ModelCost, GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './types'
+import assert from 'assert'
 
 const OpenAIInnerErrorSchema = z.object({
   message: z.string(),
@@ -204,57 +205,61 @@ async function mapToOpenAIMessageContent(message: Message) {
         throw new InvalidPayloadError('`content` must be an array when message type is "multipart"')
       }
 
-      return await mapMultipartMessageToOpenAIMessageParts(message)
+      return await mapMultipartMessageToOpenAIMessageParts(message.content)
     default:
       throw new InvalidPayloadError(`Message type "${message.type}" is not supported`)
   }
 }
 
-async function mapMultipartMessageToOpenAIMessageParts(message: Message): Promise<ChatCompletionContentPart[]> {
+async function mapMultipartMessageToOpenAIMessageParts(
+  content: NonNullable<Message['content']>
+): Promise<ChatCompletionContentPart[]> {
+  assert(typeof content !== 'string')
+
   const parts: ChatCompletionContentPart[] = []
 
-  for (const content of message.content) {
-    switch (content.type) {
+  for (const contentPart of content) {
+    switch (contentPart.type) {
       case 'text':
-        if (!content.text) {
+        if (!contentPart.text) {
           throw new InvalidPayloadError('`text` is required when part type is "text"')
         }
 
-        parts.push(<ChatCompletionContentPartText>{ type: 'text', text: content.text })
+        parts.push(<ChatCompletionContentPartText>{ type: 'text', text: contentPart.text })
 
         break
       case 'image':
-        if (!content.url) {
+        if (!contentPart.url) {
           throw new InvalidPayloadError('`url` is required when part type is "image"')
         }
 
         // Note: As of June 2024 it seems that OpenAI doesn't support image URLs directly (they return this error: "Expected a base64-encoded data URL with an image MIME type") contrary to what they say in their documentation, so we need to fetch the image and pass it as a data URI instead.
         let buffer: Buffer
         try {
-          const response = await fetch(content.url)
+          const response = await fetch(contentPart.url)
           buffer = Buffer.from(await response.arrayBuffer())
 
           const contentTypeHeader = response.headers.get('content-type')
-          if (!content.mimeType && contentTypeHeader) {
-            content.mimeType = contentTypeHeader
+          if (!contentPart.mimeType && contentTypeHeader) {
+            contentPart.mimeType = contentTypeHeader
           }
         } catch (err: any) {
           throw new InvalidPayloadError(
-            `Failed to retrieve image in message content from the provided URL: ${content.url} (Error: ${err.message})`
+            `Failed to retrieve image in message content from the provided URL: ${contentPart.url} (Error: ${err.message})`
           )
         }
 
         parts.push(<ChatCompletionContentPartImage>{
           type: 'image_url',
           image_url: {
-            url: `data:${content.mimeType};base64,${buffer.toString('base64')}`,
+            url: `data:${contentPart.mimeType};base64,${buffer.toString('base64')}`,
             detail: 'auto',
           },
         })
 
         break
       default:
-        throw new InvalidPayloadError(`Content type "${content.type}" is not supported`)
+        throw new InvalidPayloadError(`Content type "${contentPart.type}" is not supported`)
     }
   }
 

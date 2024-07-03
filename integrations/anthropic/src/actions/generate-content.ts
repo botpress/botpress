@@ -3,6 +3,7 @@ import { MessageCreateParams } from '@anthropic-ai/sdk/resources/messages'
 import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
 import { z, IntegrationLogger } from '@botpress/sdk'
+import assert from 'assert'
 
 type ModelSpecs = llm.ModelCost & {
   /**
@@ -27,7 +28,7 @@ export async function generateContent<M extends string>(
     }
   }
 ): Promise<llm.GenerateContentOutput> {
-  const modelSpecs = params.models[input.model as M]
+  const modelSpecs = params.models[input.model.id as M]
   if (!modelSpecs) {
     throw new InvalidPayloadError(
       `Model name "${input.model}" is not allowed, supported model names are: ${Object.keys(params.models).join(', ')}`
@@ -50,7 +51,7 @@ export async function generateContent<M extends string>(
 
   try {
     response = await anthropic.messages.create({
-      model: input.model,
+      model: input.model.id,
       max_tokens: input.maxTokens || modelSpecs.outputTokensLimit,
       temperature: input.temperature,
       top_p: input.topP,
@@ -135,7 +136,7 @@ async function mapToAnthropicMessageContent(message: llm.Message): Promise<Anthr
       throw new InvalidPayloadError('`content` must be an array when message type is "multipart"')
     }
 
-    return await mapMultipartMessageToContent(message)
+    return await mapMultipartMessageContentToAnthropicContent(message.content)
   } else if (message.type === 'tool_calls') {
     if (!message.toolCalls) {
       throw new InvalidPayloadError('`toolCalls` is required when message type is "tool_calls"')
@@ -170,12 +171,16 @@ async function mapToAnthropicMessageContent(message: llm.Message): Promise<Anthr
   }
 }
 
-async function mapMultipartMessageToContent(message: llm.Message): Promise<Anthropic.MessageParam['content']> {
-  const content: Anthropic.MessageParam['content'] = []
+async function mapMultipartMessageContentToAnthropicContent(
+  content: NonNullable<llm.Message['content']>
+): Promise<Anthropic.MessageParam['content']> {
+  assert(typeof content !== 'string')
 
-  for (const part of message.content) {
+  const anthropicContent: Anthropic.MessageParam['content'] = []
+
+  for (const part of content) {
     if (part.type === 'text') {
-      content.push(<Anthropic.TextBlockParam>{
+      anthropicContent.push(<Anthropic.TextBlockParam>{
         type: 'text',
         text: part.text,
       })
@@ -199,7 +204,7 @@ async function mapMultipartMessageToContent(message: llm.Message): Promise<Anthr
         )
       }
 
-      content.push(<Anthropic.ImageBlockParam>{
+      anthropicContent.push(<Anthropic.ImageBlockParam>{
         type: 'image',
         source: {
           type: 'base64',
@@ -210,7 +215,7 @@ async function mapMultipartMessageToContent(message: llm.Message): Promise<Anthr
     }
   }
 
-  return content
+  return anthropicContent
 }
 
 function mapToAnthropicTools(input: llm.GenerateContentInput): Anthropic.Tool[] | undefined {
