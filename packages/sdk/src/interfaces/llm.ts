@@ -1,5 +1,5 @@
-import z from 'src/zui'
 import { InterfaceDeclaration } from '../integration/definition'
+import z from '../zui'
 
 const ToolCallSchema = z.object({
   id: z.string(),
