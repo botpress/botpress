@@ -21,7 +21,7 @@ const ToolChoiceSchema = z.object({
 
 const MessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
-  type: z.enum(['text', 'tool_calls', 'tool_result', 'multipart']).placeholder('text'),
+  type: z.enum(['text', 'tool_calls', 'tool_result', 'multipart']).default('text'),
   toolCalls: z.array(ToolCallSchema).optional().describe('Required if `type` is "tool_calls"'),
   toolResultCallId: z.string().optional().describe('Required if `type` is "tool_result"'), // note: not supported by Gemini
   content: z
