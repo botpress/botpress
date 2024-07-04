@@ -113,6 +113,8 @@ runs:
                 base_command="$base_command ${{ inputs.openai_secrets }}"
             elif [ $integration == "groq" ]; then
                 base_command="$base_command ${{ inputs.groq_secrets }}"
+            elif [ $integration == "anthropic" ]; then
+                base_command="$base_command ${{ inputs.anthropic_secrets }}"
             fi
             
             if [ $exists -eq 0 ]; then
