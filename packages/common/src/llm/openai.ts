@@ -1,9 +1,11 @@
 import { InvalidPayloadError } from '@botpress/client'
-import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
+import { z, IntegrationLogger } from '@botpress/sdk'
+import assert from 'assert'
 import OpenAI from 'openai'
 import {
   ChatCompletion,
   ChatCompletionAssistantMessageParam,
+  ChatCompletionContentPart,
   ChatCompletionContentPartImage,
   ChatCompletionContentPartText,
   ChatCompletionMessageParam,
@@ -12,12 +14,11 @@ import {
   ChatCompletionToolMessageParam,
   ChatCompletionUserMessageParam,
 } from 'openai/resources'
-import { GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './types'
+import { ModelCost, GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './types'
 
-type ModelCost = {
-  inputCostPer1MTokens: number
-  outputCostPer1MTokens: number
-}
+const OpenAIInnerErrorSchema = z.object({
+  message: z.string(),
+})
 
 type NoInfer<T> = [T][T extends any ? 0 : never]
 
@@ -36,13 +37,16 @@ export async function generateContent<M extends string>(
   const modelCost = params.modelCosts[input.model.id as M]
   if (!modelCost) {
     throw new InvalidPayloadError(
-      `Model name "${input.model}" is not supported by this integration, supported model names are: ${Object.keys(
+      `Model name "${input.model}" is not allowed by this integration, supported model names are: ${Object.keys(
         params.modelCosts
       ).join(', ')}`
     )
   }
 
-  const messages = input.messages.map(mapToOpenAIMessage)
+  const messages: ChatCompletionMessageParam[] = []
+  for (const message of input.messages) {
+    messages.push(await mapToOpenAIMessage(message))
+  }
 
   if (input.systemPrompt) {
     messages.unshift({
@@ -51,19 +55,37 @@ export async function generateContent<M extends string>(
     })
   }
 
-  const response = await openAIClient.chat.completions.create({
-    model: input.model.id,
-    max_tokens: input.maxTokens || undefined, // note: ignore a zero value as the Studio doesn't support empty number inputs and defaults this to 0
-    temperature: input.temperature,
-    top_p: input.topP,
-    response_format: input.responseFormat === 'json_object' ? { type: 'json_object' } : undefined,
-    // TODO: the Studio is adding an empty item by default in the action input form
-    stop: input.stopSequences?.filter((x) => x.trim()), // don't send empty values
-    user: input.userId || undefined, // don't send an empty value
-    messages,
-    tool_choice: mapToOpenAIToolChoice(input.toolChoice), // note: the action input type is
-    tools: mapToOpenAITools(input.tools),
-  })
+  let response: OpenAI.Chat.Completions.ChatCompletion
+
+  try {
+    response = await openAIClient.chat.completions.create({
+      model: input.model.id,
+      max_tokens: input.maxTokens || undefined, // note: ignore a zero value as the Studio doesn't support empty number inputs and defaults this to 0
+      temperature: input.temperature,
+      top_p: input.topP,
+      response_format: input.responseFormat === 'json_object' ? { type: 'json_object' } : undefined,
+      // TODO: the Studio is adding an empty item by default in the action input form
+      stop: input.stopSequences?.filter((x) => x.trim()), // don't send empty values
+      user: input.userId || undefined, // don't send an empty value
+      messages,
+      tool_choice: mapToOpenAIToolChoice(input.toolChoice), // note: the action input type is
+      tools: mapToOpenAITools(input.tools),
+    })
+  } catch (err: any) {
+    if (err instanceof OpenAI.APIError) {
+      const parsedInnerError = OpenAIInnerErrorSchema.safeParse(err.error)
+      if (parsedInnerError.success) {
+        logger
+          .forBot()
+          .error(`${params.provider} error ${err.status} (${err.type}:${err.code}) - ${parsedInnerError.data.message}`)
+        throw err
+      }
+    }
+
+    // Fallback
+    logger.forBot().error(err.message)
+    throw err
+  }
 
   const { inputTokens, outputTokens } = getTokenUsage(response, logger, params.provider)
 
@@ -77,7 +99,7 @@ export async function generateContent<M extends string>(
       content: choice.message.content,
       index: choice.index,
       stopReason: mapToStopReason(choice.finish_reason),
-      toolCalls: mapToToolCalls(choice.message.tool_calls, logger),
+      toolCalls: mapToToolCalls(choice.message.tool_calls, logger, params.provider),
     })),
     usage: {
       inputTokens,
@@ -113,8 +135,8 @@ function calculateTokenCost(costPer1MTokens: number, tokenCount: number) {
   return (costPer1MTokens / 1_000_000) * tokenCount
 }
 
-function mapToOpenAIMessage(message: Message): ChatCompletionMessageParam {
-  const content = mapToOpenAIMessageContent(message)
+async function mapToOpenAIMessage(message: Message): Promise<ChatCompletionMessageParam> {
+  const content = await mapToOpenAIMessageContent(message)
 
   switch (message.role) {
     case 'assistant':
@@ -131,6 +153,8 @@ function mapToOpenAIMessage(message: Message): ChatCompletionMessageParam {
       } else if (message.type === 'tool_calls') {
         if (!message.toolCalls) {
           throw new InvalidPayloadError('`toolCalls` is required when message type is "tool_calls"')
+        } else if (message.toolCalls.length === 0) {
+          throw new InvalidPayloadError('`toolCalls` must contain at least one tool call')
         }
 
         return <ChatCompletionAssistantMessageParam>{
@@ -140,7 +164,7 @@ function mapToOpenAIMessage(message: Message): ChatCompletionMessageParam {
             type: 'function',
             function: {
               name: toolCall.function.name,
-              arguments: toolCall.function.arguments,
+              arguments: JSON.stringify(toolCall.function.arguments),
             },
           })),
         }
@@ -159,7 +183,7 @@ function mapToOpenAIMessage(message: Message): ChatCompletionMessageParam {
   }
 }
 
-function mapToOpenAIMessageContent(message: Message) {
+async function mapToOpenAIMessageContent(message: Message) {
   if (message.type === 'tool_calls') {
     return undefined
   }
@@ -170,37 +194,76 @@ function mapToOpenAIMessageContent(message: Message) {
 
   switch (message.type) {
     case 'text':
+      if (typeof message.content !== 'string') {
+        throw new InvalidPayloadError('`content` must be a string when message type is "text"')
+      }
+      return message.content as string
     case 'tool_result':
       return message.content as string
     case 'multipart':
       if (!Array.isArray(message.content)) {
         throw new InvalidPayloadError('`content` must be an array when message type is "multipart"')
       }
-      return message.content.map((content) => {
-        switch (content.type) {
-          case 'text':
-            if (!content.text) {
-              throw new InvalidPayloadError('`text` is required when part type is "text"')
-            }
-            return <ChatCompletionContentPartText>{ type: 'text', text: content.text }
-          case 'image':
-            if (!content.url) {
-              throw new InvalidPayloadError('`url` is required when part type is "image"')
-            }
-            return <ChatCompletionContentPartImage>{
-              type: 'image_url',
-              image_url: {
-                url: content.url,
-                detail: 'auto',
-              },
-            }
-          default:
-            throw new InvalidPayloadError(`Content type "${content.type}" is not supported`)
-        }
-      })
+
+      return await mapMultipartMessageToOpenAIMessageParts(message.content)
     default:
       throw new InvalidPayloadError(`Message type "${message.type}" is not supported`)
   }
+}
+
+async function mapMultipartMessageToOpenAIMessageParts(
+  content: NonNullable<Message['content']>
+): Promise<ChatCompletionContentPart[]> {
+  assert(typeof content !== 'string')
+
+  const parts: ChatCompletionContentPart[] = []
+
+  for (const contentPart of content) {
+    switch (contentPart.type) {
+      case 'text':
+        if (!contentPart.text) {
+          throw new InvalidPayloadError('`text` is required when part type is "text"')
+        }
+
+        parts.push(<ChatCompletionContentPartText>{ type: 'text', text: contentPart.text })
+
+        break
+      case 'image':
+        if (!contentPart.url) {
+          throw new InvalidPayloadError('`url` is required when part type is "image"')
+        }
+
+        // Note: As of June 2024 it seems that OpenAI doesn't support image URLs directly (they return this error: "Expected a base64-encoded data URL with an image MIME type") contrary to what they say in their documentation, so we need to fetch the image and pass it as a data URI instead.
+        let buffer: Buffer
+        try {
+          const response = await fetch(contentPart.url)
+          buffer = Buffer.from(await response.arrayBuffer())
+
+          const contentTypeHeader = response.headers.get('content-type')
+          if (!contentPart.mimeType && contentTypeHeader) {
+            contentPart.mimeType = contentTypeHeader
+          }
+        } catch (err: any) {
+          throw new InvalidPayloadError(
+            `Failed to retrieve image in message content from the provided URL: ${contentPart.url} (Error: ${err.message})`
+          )
+        }
+
+        parts.push(<ChatCompletionContentPartImage>{
+          type: 'image_url',
+          image_url: {
+            url: `data:${contentPart.mimeType};base64,${buffer.toString('base64')}`,
+            detail: 'auto',
+          },
+        })
+
+        break
+      default:
+        throw new InvalidPayloadError(`Content type "${contentPart.type}" is not supported`)
+    }
+  }
+
+  return parts
 }
 
 function mapToOpenAIToolChoice(
@@ -262,16 +325,30 @@ function mapToStopReason(
 
 function mapToToolCalls(
   openAIToolCalls: ChatCompletionMessageToolCall[] | undefined,
-  logger: IntegrationLogger
+  logger: IntegrationLogger,
+  provider: string
 ): ToolCall[] | undefined {
   return openAIToolCalls?.reduce((toolCalls, openAIToolCall) => {
     if (openAIToolCall.type === 'function') {
+      let toolCallArguments: ToolCall['function']['arguments']
+
+      try {
+        toolCallArguments = JSON.parse(openAIToolCall.function.arguments)
+      } catch (err) {
+        logger
+          .forBot()
+          .warn(
+            `Received invalid JSON from "${provider}" LLM provider for arguments in a tool call of function "${openAIToolCall.function.name}", a \`null\` value for arguments will be passed instead - JSON parser error: ${err} / Invalid JSON received: ${openAIToolCall.function.arguments}`
+          )
+        toolCallArguments = null
+      }
+
       toolCalls.push({
         id: openAIToolCall.id,
         type: openAIToolCall.type,
         function: {
           name: openAIToolCall.function.name,
-          arguments: openAIToolCall.function.arguments,
+          arguments: toolCallArguments,
         },
       })
     } else {

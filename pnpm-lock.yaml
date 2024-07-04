@@ -194,6 +194,31 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  integrations/anthropic:
+    dependencies:
+      '@anthropic-ai/sdk':
+        specifier: ^0.24.0
+        version: 0.24.0
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.19.10
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.2(@types/node@18.19.10)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   integrations/asana:
     dependencies:
       '@botpress/sdk':
@@ -1761,6 +1786,21 @@ packages:
       ts-deepmerge: 4.0.0
       zod: 3.22.4
     dev: true
+
+  /@anthropic-ai/sdk@0.24.0:
+    resolution: {integrity: sha512-iMb1bQimQrSw/Rq6duPiuCJ7uvlSciq5PWp17jVOfy5dK2EJY36ol10ttwb+Zf6yzkKHMdt+vNIpznj/HsPXOg==}
+    dependencies:
+      '@types/node': 18.19.10
+      '@types/node-fetch': 2.6.4
+      abort-controller: 3.0.0
+      agentkeepalive: 4.5.0
+      form-data-encoder: 1.7.2
+      formdata-node: 4.4.1
+      node-fetch: 2.7.0
+      web-streams-polyfill: 3.3.3
+    transitivePeerDependencies:
+      - encoding
+    dev: false
 
   /@apidevtools/openapi-schemas@2.1.0:
     resolution: {integrity: sha512-Zc1AlqrJlX3SlpupFGpiLi2EbteyP7fXmUOGup6/DnkRgjP9bgMM/ag+n91rsv0U1Gpz0H3VILA/o3bW7Ua6BQ==}

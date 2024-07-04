@@ -1,12 +1,15 @@
 import { InterfaceDeclaration } from '../integration/definition'
-import { z } from '../zui'
+import z from '../zui'
 
 const ToolCallSchema = z.object({
   id: z.string(),
   type: z.enum(['function']),
   function: z.object({
     name: z.string(),
-    arguments: z.string(),
+    arguments: z
+      .record(z.any())
+      .nullable()
+      .describe('Some LLMs may generate invalid JSON for a tool call, so this will be `null` when it happens.'),
   }),
 })
 
@@ -18,7 +21,7 @@ const ToolChoiceSchema = z.object({
 
 const MessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
-  type: z.enum(['text', 'tool_calls', 'tool_result', 'multipart']),
+  type: z.enum(['text', 'tool_calls', 'tool_result', 'multipart']).default('text'),
   toolCalls: z.array(ToolCallSchema).optional().describe('Required if `type` is "tool_calls"'),
   toolResultCallId: z.string().optional().describe('Required if `type` is "tool_result"'), // note: not supported by Gemini
   content: z
@@ -28,7 +31,12 @@ const MessageSchema = z.object({
       z.array(
         z.object({
           type: z.enum(['text', 'image']),
-          mimeType: z.string(),
+          mimeType: z
+            .string()
+            .optional()
+            .describe(
+              'Indicates the MIME type of the content. If not provided it will be detected from the content-type header of the provided URL.'
+            ),
           text: z.string().optional().describe('Required if part type is "text" '),
           url: z.string().optional().describe('Required if part type is "image"'),
         })
@@ -120,7 +128,7 @@ const GenerateContentOutputSchema = z.object({
 
 export const llm = new InterfaceDeclaration({
   name: 'llm',
-  version: '0.1.0',
+  version: '0.2.0',
   entities: {
     model: {
       schema: ModelSchema,

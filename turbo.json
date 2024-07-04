@@ -20,6 +20,11 @@
       "outputs": ["dist/**"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build"]
     },
+    "@botpresshub/anthropic#build": {
+      "inputs": ["integration.definition.ts", "src/**"],
+      "outputs": [".botpress/**"],
+      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+    },
     "@botpresshub/asana#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
