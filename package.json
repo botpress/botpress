@@ -1,6 +1,6 @@
 {
   "name": "@bpinternal/zui",
-  "version": "0.9.1",
+  "version": "0.9.2",
   "description": "An extension of Zod for working nicely with UIs and JSON Schemas",
   "type": "module",
   "source": "./src/index.ts",
@@ -46,9 +46,9 @@
     "ts-morph": "^22.0.0",
     "tsup": "^8.0.1",
     "tsx": "^4.7.2",
-    "typescript": "5.4.5",
+    "typescript": "5.5.3",
     "vite": "^5.2.6",
-    "vitest": "1.5.2"
+    "vitest": "1.6.0"
   },
   "dependencies": {
   },
