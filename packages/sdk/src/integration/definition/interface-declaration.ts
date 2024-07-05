@@ -1,8 +1,9 @@
 import * as utils from '../../utils'
 import z, { AnyZodObject, GenericZuiSchema, ZodRef } from '../../zui'
-import { BaseActions, BaseEntities, BaseEvents } from './generic'
+import { BaseActions, BaseChannels, BaseEntities, BaseEvents } from './generic'
 import {
   ActionDefinition,
+  ChannelDefinition,
   EntityDefinition,
   EventDefinition,
   InterfaceImplementationStatement,
@@ -15,6 +16,17 @@ type EntityReferences<TEntities extends BaseEntities> = {
 
 type GenericEventDefinition<TEntities extends BaseEntities, TEvent extends BaseEvents[string] = BaseEvents[string]> = {
   schema: GenericZuiSchema<EntityReferences<TEntities>, TEvent>
+}
+
+type GenericChannelDefinition<
+  TEntities extends BaseEntities,
+  TChannel extends BaseChannels[string] = BaseChannels[string]
+> = {
+  messages: {
+    [K in keyof TChannel]: {
+      schema: GenericZuiSchema<EntityReferences<TEntities>, TChannel[K]>
+    }
+  }
 }
 
 type GenericActionDefinition<
@@ -32,19 +44,24 @@ export type InterfaceTemplateNameProps<TEntities extends BaseEntities = BaseEnti
 export type InterfaceDeclarationProps<
   TEntities extends BaseEntities = BaseEntities,
   TActions extends BaseActions = BaseActions,
-  TEvents extends BaseEntities = BaseEntities
+  TEvents extends BaseEntities = BaseEntities,
+  TChannels extends BaseChannels = BaseChannels
 > = {
   name: string
   version: string
 
-  events: { [K in keyof TEvents]: GenericEventDefinition<TEntities, TEvents[K]> }
+  entities?: {
+    [K in keyof TEntities]: EntityDefinition<TEntities[K]>
+  }
 
-  actions: {
+  events?: { [K in keyof TEvents]: GenericEventDefinition<TEntities, TEvents[K]> }
+
+  actions?: {
     [K in keyof TActions]: GenericActionDefinition<TEntities, TActions[K]>
   }
 
-  entities: {
-    [K in keyof TEntities]: EntityDefinition<TEntities[K]>
+  channels?: {
+    [K in keyof TChannels]: GenericChannelDefinition<TEntities, TChannels[K]>
   }
 
   templateName?: (name: string, props: InterfaceTemplateNameProps<TEntities>) => string
@@ -74,17 +91,20 @@ export class InterfaceDeclaration<
 > {
   public readonly name: this['props']['name']
   public readonly version: this['props']['version']
-  public readonly entities: this['props']['entities']
-  public readonly events: this['props']['events']
-  public readonly actions: this['props']['actions']
+  public readonly entities: NonNullable<this['props']['entities']>
+  public readonly events: NonNullable<this['props']['events']>
+  public readonly actions: NonNullable<this['props']['actions']>
+  public readonly channels: NonNullable<this['props']['channels']>
   public readonly templateName: this['props']['templateName']
 
   public constructor(public readonly props: InterfaceDeclarationProps<TEntities, TActions, TEvents>) {
     this.name = props.name
     this.version = props.version
-    this.events = props.events
-    this.actions = props.actions
-    this.entities = props.entities
+    this.entities = props.entities ?? ({} as NonNullable<this['props']['entities']>)
+    this.events = props.events ?? ({} as NonNullable<this['props']['events']>)
+    this.actions = props.actions ?? ({} as NonNullable<this['props']['actions']>)
+    this.channels = props.channels ?? ({} as NonNullable<this['props']['channels']>)
+
     this.templateName = props.templateName
   }
 
@@ -101,6 +121,7 @@ export class InterfaceDeclaration<
 
     const actions: Record<string, ActionDefinition> = {}
     const events: Record<string, EventDefinition> = {}
+    const channels: Record<string, ChannelDefinition> = {}
 
     // dereference actions
     for (const [actionName, action] of utils.pairs(this.actions)) {
@@ -123,10 +144,21 @@ export class InterfaceDeclaration<
       implementStatement.events[eventName] = { name: newEventName }
     }
 
+    // dereference channels
+    for (const [channelName, channel] of utils.pairs(this.channels)) {
+      const messages: Record<string, { schema: AnyZodObject }> = {}
+      for (const [messageName, message] of utils.pairs(channel.messages)) {
+        const resolvedMessageSchema = this._dereference(message.schema, entities)
+        messages[messageName] = { schema: resolvedMessageSchema }
+      }
+      channels[channelName] = { messages }
+    }
+
     const resolved = {
-      actions,
-      events,
-    } as ResolvedInterface<TActions, TEvents>
+      actions: actions as ResolvedInterface<TActions, TEvents>['actions'],
+      events: events as ResolvedInterface<TActions, TEvents>['events'],
+      channels: channels as ResolvedInterface<TActions, TEvents>['channels'],
+    }
 
     return {
       resolved,

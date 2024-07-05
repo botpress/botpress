@@ -154,6 +154,7 @@ export class IntegrationDefinition<
     const { actions, events } = resolved
     self.actions = { ...(self.actions ?? {}), ...actions }
     self.events = { ...(self.events ?? {}), ...events }
+    self.channels = { ...(self.channels ?? {}), ...resolved.channels }
 
     const entityNames = Object.values(interfaceTypeArguments).map((e) => e.name)
     const key = `${interfaceDeclaration.name}<${entityNames.join(',')}>`
