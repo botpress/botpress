@@ -1,5 +1,5 @@
 {
-  "name": "@botpresshub/webbrowser",
+  "name": "@botpresshub/browser",
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "pnpm bp build"

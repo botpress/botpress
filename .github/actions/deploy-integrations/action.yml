@@ -40,8 +40,8 @@ input:
   charts_secrets:
     description: 'Charts secrets'
     required: false
-  webbrowser_secrets:
-    description: 'WebBrowser secrets'
+  browser_secrets:
+    description: 'Browser secrets'
     required: false
   openai_secrets:
     description: 'OpenAI secrets'
@@ -107,8 +107,8 @@ runs:
                 base_command="$base_command ${{ inputs.slack_secrets }}"
             elif [ $integration == "charts" ]; then
                 base_command="$base_command ${{ inputs.charts_secrets }}"
-            elif [ $integration == "webbrowser" ]; then
-                base_command="$base_command ${{ inputs.webbrowser_secrets }}"
+            elif [ $integration == "browser" ]; then
+                base_command="$base_command ${{ inputs.browser_secrets }}"
             elif [ $integration == "openai" ]; then
                 base_command="$base_command ${{ inputs.openai_secrets }}"
             elif [ $integration == "groq" ]; then
