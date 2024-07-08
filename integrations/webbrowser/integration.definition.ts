@@ -10,6 +10,6 @@ export default new IntegrationDefinition({
   actions: actionDefinitions,
   secrets: {
     SCREENSHOT_API_KEY: {},
-    EXTRACT_CONTENT_KEY: {},
+    FIRECRAWL_API_KEY: {},
   },
 })

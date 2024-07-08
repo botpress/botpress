@@ -13,17 +13,17 @@ type BingSearchResult = {
 }
 
 export const webSearch: bp.IntegrationProps['actions']['webSearch'] = async ({ client, input, logger, type, ctx }) => {
-  logger.forBot().debug('Search Web', { input })
-
   const clientConfig = (client as any).client.config
 
   const axiosConfig = {
     ...clientConfig,
     baseURL: `${clientConfig.apiUrl}/v1/cognitive`,
   }
+  const startTime = Date.now()
 
   try {
     const { data: searchResults } = await axios.post<BingSearchResult[]>('bing/search', input, axiosConfig)
+    logger.forBot().debug(`Search Web using Bing took ${Date.now() - startTime}ms`)
 
     if (!input.browsePages) {
       return { results: searchResults }

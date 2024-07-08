@@ -12,28 +12,53 @@ type ExtractedContent = {
   }
 }
 
-const getPageContent = async (url: string) => {
-  const { data } = await axios.post<ExtractedContent>(
-    'https://studio.botpress.dev/documents/extract-content',
-    { url },
+type FireCrawlResponse = {
+  success: boolean
+  data: {
+    content: string
+    metadata: {
+      ogLocaleAlternate: string[]
+      sourceURL: string
+      pageStatusCode: number
+    }
+  }
+  returnCode: number
+}
+
+const getPageContent = async (url: string, logger: any): Promise<ExtractedContent & { url: string }> => {
+  const startTime = Date.now()
+  const { data } = await axios.post<FireCrawlResponse>(
+    'https://api.firecrawl.dev/v0/scrape',
+    {
+      url,
+    },
     {
       headers: {
-        'x-api-key': bp.secrets.EXTRACT_CONTENT_KEY,
+        Authorization: `Bearer ${bp.secrets.FIRECRAWL_API_KEY}`,
       },
     }
   )
 
-  return { ...data, url }
+  logger.forBot().info(`Browsing ${url} took ${Date.now() - startTime}ms`)
+
+  return { content: data.data.content, url }
 }
 
 export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async ({ input, logger }) => {
-  logger.forBot().debug('Browsing Pages', { input })
+  const startTime = Date.now()
 
   try {
-    const results = await Promise.all(input.urls.map(async (url) => getPageContent(url)))
-    return { results }
+    const pageContentPromises = await Promise.allSettled(input.urls.map((url) => getPageContent(url, logger)))
+
+    return {
+      results: pageContentPromises
+        .filter((promise): promise is PromiseFulfilledResult<any> => promise.status === 'fulfilled')
+        .map((result) => result.value),
+    }
   } catch (err) {
     logger.forBot().error('There was an error while browsing the page.', err)
     throw err
+  } finally {
+    logger.forBot().info(`Browsing took ${Date.now() - startTime}ms`)
   }
 }

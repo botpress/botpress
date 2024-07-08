@@ -18,13 +18,6 @@ const captureScreenshot = {
 const fullPage = z.object({
   url: z.string(),
   content: z.string(),
-  metadata: z.object({
-    title: z.string().nullable().optional(),
-    description: z.string().nullable().optional(),
-    favicon: z.string().nullable().optional(),
-    author: z.string().nullable().optional(),
-    datePublished: z.string().nullable().optional(),
-  }),
 })
 
 const browsePages = {
@@ -51,7 +44,7 @@ const domainNameValidator = z
 
 const webSearch = {
   title: 'Web Search',
-  description: 'Search information on the web.',
+  description: 'Search information on the web. You need to browse to that page to get the full content of the page.',
   input: {
     schema: z.object({
       query: z.string().min(1).max(1000).describe('What are we searching for?'),
