@@ -24,8 +24,8 @@ type IntegrationInstallDir = codegen.IntegrationInstanceJson & {
 export type AddCommandDefinition = typeof commandDefinitions.add
 export class AddCommand extends ProjectCommand<AddCommandDefinition> {
   public async run(): Promise<void> {
-    const integrationDef = await this.readIntegrationDefinitionFromFS()
-    if (integrationDef) {
+    const projectDef = await this.readProjectDefinitionFromFS()
+    if (projectDef.type !== 'bot') {
       throw new errors.ExclusiveBotFeatureError()
     }
 
@@ -38,7 +38,7 @@ export class AddCommand extends ProjectCommand<AddCommandDefinition> {
 
     const integration =
       parsedRef.type === 'path'
-        ? await this._fetchLocalIntegration(parsedRef)
+        ? await this._fetchLocalIntegrationOrInterface(parsedRef)
         : await this._fetchApiIntegration(parsedRef)
 
     const allInstances = await this._listIntegrationInstances()
@@ -57,33 +57,44 @@ export class AddCommand extends ProjectCommand<AddCommandDefinition> {
     await this._generateIntegrationInstance(integration)
   }
 
-  private _fetchLocalIntegration = async (
-    integrationRef: LocalPathIntegrationRef
+  private _fetchLocalIntegrationOrInterface = async (
+    integrationOrInterfaceRef: LocalPathIntegrationRef
   ): Promise<sdk.IntegrationDefinition> => {
     this.logger.warn(
       'Installing integration from a local path. There is no guarantee that the integration is deployed with the expected schemas.'
     )
 
-    const workDir = integrationRef.path
-    const pathStore = new utils.path.PathStore<'workDir' | 'definition'>({
+    const workDir = integrationOrInterfaceRef.path
+    const pathStore = new utils.path.PathStore<'workDir' | 'integrationDefinition' | 'interfaceDefinition'>({
       workDir,
-      definition: utils.path.absoluteFrom(workDir, consts.fromWorkDir.definition),
+      integrationDefinition: utils.path.absoluteFrom(workDir, consts.fromWorkDir.integrationDefinition),
+      interfaceDefinition: utils.path.absoluteFrom(workDir, consts.fromWorkDir.interfaceDefinition),
     })
-    const integrationDefinition = await this.readIntegrationDefinitionFromFS(pathStore)
-    if (!integrationDefinition) {
+
+    const projectDef = await this.readProjectDefinitionFromFS(pathStore)
+    if (projectDef.type === 'bot') {
       throw new errors.BotpressCLIError(`Integration definition not found at ${workDir}`)
+    } else if (projectDef.type === 'interface') {
+      throw new errors.BotpressCLIError('Installing interfaces is not supported yet')
     }
-    return integrationDefinition
+
+    return projectDef.definition
   }
 
   private _fetchApiIntegration = async (integrationRef: ApiIntegrationRef): Promise<client.Integration> => {
     const api = await this.ensureLoginAndCreateClient(this.argv)
     const integration = await api.findIntegration(integrationRef)
-    if (!integration) {
-      const formattedRef = formatIntegrationRef(integrationRef)
-      throw new errors.BotpressCLIError(`Integration "${formattedRef}" not found`)
+    if (integration) {
+      return integration
     }
-    return integration
+
+    const intrface = await api.findPublicInterface(integrationRef)
+    if (intrface) {
+      throw new errors.BotpressCLIError('Installing interfaces is not supported yet')
+    }
+
+    const formattedRef = formatIntegrationRef(integrationRef)
+    throw new errors.BotpressCLIError(`Integration "${formattedRef}" not found`)
   }
 
   private async _listIntegrationInstances(): Promise<IntegrationInstallDir[]> {

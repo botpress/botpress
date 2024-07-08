@@ -1,0 +1,22 @@
+{
+  "name": "@bp-bots/sinlin",
+  "description": "A bot that syncs issues from Linear to Botpress tables",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "integrations": "es-node ./integrations.ts"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "lodash": "^4.17.21"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@bpinternal/es-node": "^0.0.5",
+    "@types/lodash": "^4.14.191",
+    "@types/node": "^18.11.17",
+    "execa": "^8.0.1",
+    "typescript": "^4.9.4"
+  }
+}

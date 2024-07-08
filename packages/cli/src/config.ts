@@ -52,10 +52,15 @@ const botRef = {
 
 const integrationRef = {
   type: 'string',
-  description: 'The integration ID or name with optionnal version. Ex: teams or teams@0.2.0',
+  description: 'The integration ID or name with optional version. Ex: teams or teams@0.2.0',
   demandOption: true,
   positional: true,
   idx: 0,
+} satisfies CommandOption
+
+const interfaceRef = {
+  ...integrationRef,
+  description: 'The interface ID or name with optional version. Ex: teams or teams@0.2.0',
 } satisfies CommandOption
 
 const sourceMap = { type: 'boolean', description: 'Generate sourcemaps', default: false } satisfies CommandOption
@@ -232,6 +237,23 @@ const deleteIntegrationSchema = {
   integrationRef,
 } satisfies CommandSchema
 
+const getInterfaceSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+  interfaceRef,
+} satisfies CommandSchema
+
+const listInterfacesSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+} satisfies CommandSchema
+
+const deleteInterfaceSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+  interfaceRef,
+} satisfies CommandSchema
+
 const initSchema = {
   ...globalSchema,
   workDir,
@@ -256,6 +278,9 @@ export const schemas = {
   getIntegration: getIntegrationSchema,
   listIntegrations: listIntegrationsSchema,
   deleteIntegration: deleteIntegrationSchema,
+  getInterface: getInterfaceSchema,
+  listInterfaces: listInterfacesSchema,
+  deleteInterface: deleteInterfaceSchema,
   init: initSchema,
   generate: generateSchema,
   bundle: bundleSchema,

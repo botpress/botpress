@@ -35,12 +35,13 @@ export namespace from {
             messages: utils.records.mapValues(c.messages, _mapSchema),
           }))
         : {},
+      entities: i.entities ? utils.records.mapValues(i.entities, _mapSchema) : {},
     }
   }
 
   export const client = (i: client.Integration): types.IntegrationDefinition => {
-    const { id, name, version, configuration, channels, states, events, actions, user } = i
-    return { id, name, version, configuration, channels, states, events, actions, user }
+    const { id, name, version, configuration, channels, states, events, actions, user, entities } = i
+    return { id, name, version, configuration, channels, states, events, actions, user, entities }
   }
 
   const _mapSchema = <T extends { schema: z.ZodObject<any> }>(

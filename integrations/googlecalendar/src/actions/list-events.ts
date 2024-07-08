@@ -1,35 +1,41 @@
-import { getClient } from 'src/client'
-import { listEventsOutputSchema } from 'src/misc/custom-schemas'
-import { parseError } from 'src/misc/utils'
-import { IntegrationProps } from '../misc/types'
+import sync from './sync'
+import * as bp from '.botpress'
 
-export const listEvents: IntegrationProps['actions']['listEvents'] = async ({ logger, ctx, input }) => {
-  try {
-    const { calendar } = await getClient(ctx.configuration)
-    logger.forBot().debug('Listing events', input)
-    const response = await calendar.events.list({
-      calendarId: ctx.configuration.calendarId,
-      maxResults: input.count,
+export const listEvents: bp.IntegrationProps['actions']['listEvents'] = async (props) => {
+  const { client, ctx, input, logger } = props
+
+  const output = await sync.eventList(
+    {
+      type: 'eventList',
+      client,
+      ctx,
+      logger,
+      input: {
+        nextToken: input.pageToken,
+      },
+    },
+    {
+      count: input.count,
+      timeMin: input.timeMin,
+    }
+  )
+
+  type ListEventOutput = bp.actions.listEvents.output.Output
+  type EventResponse = ListEventOutput['events'][number]
+  const events: ListEventOutput['events'] = output.items.map(
+    ({ id, ...item }): EventResponse => ({
+      eventId: id,
+      event: {
+        summary: item.summary ?? '',
+        location: item.location,
+        description: item.description,
+        endDateTime: item.endDateTime ?? new Date().toISOString(),
+        startDateTime: item.startDateTime ?? new Date().toISOString(),
+      },
     })
+  )
 
-    logger.forBot().debug('List events response', response.data)
-
-    return listEventsOutputSchema.parse({
-      events:
-        response.data.items?.map((e) => ({
-          eventId: e.id,
-          event: {
-            summary: e.summary,
-            description: e.description,
-            location: e.location,
-            startDateTime: e.start?.dateTime,
-            endDateTime: e.end?.dateTime,
-          },
-        })) ?? [],
-    })
-  } catch (error) {
-    const err = parseError(error)
-    logger.forBot().error('Error while listing events ', err.message)
-    throw err
+  return {
+    events,
   }
 }

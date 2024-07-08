@@ -11,7 +11,7 @@ input:
       - production
   extra_filter:
     type: string
-    description: 'Pnpm addtional filters to select integrations to deploy'
+    description: 'Pnpm additional filters to select integrations to deploy'
     required: false
     default: ''
   force:
@@ -90,7 +90,7 @@ runs:
         # deploy
 
         redeploy=${{ inputs.force == 'true' && 1 || 0 }}
-        all_filters="-F '@botpresshub/*' -F '!asana' -F '!trello' -F '!webchat' ${{ inputs.extra_filter }}"
+        all_filters="-F '{integrations/*}' -F '!asana' -F '!trello' -F '!webchat' ${{ inputs.extra_filter }}"
         list_integrations_cmd="pnpm list $all_filters --json"
         integration_paths=$(eval $list_integrations_cmd | jq -r "map(".path") | .[]")
 
@@ -113,6 +113,8 @@ runs:
                 base_command="$base_command ${{ inputs.openai_secrets }}"
             elif [ $integration == "groq" ]; then
                 base_command="$base_command ${{ inputs.groq_secrets }}"
+            elif [ $integration == "anthropic" ]; then
+                base_command="$base_command ${{ inputs.anthropic_secrets }}"
             fi
             
             if [ $exists -eq 0 ]; then

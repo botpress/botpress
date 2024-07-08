@@ -4,7 +4,7 @@ export type File = { path: string; content: string }
 
 export type IntegrationDefinition = Pick<
   Integration,
-  'name' | 'version' | 'channels' | 'states' | 'events' | 'actions' | 'user'
+  'name' | 'version' | 'channels' | 'states' | 'events' | 'actions' | 'user' | 'entities'
 > & {
   id: string | null
   configuration: Omit<Integration['configuration'], 'identifier'>
@@ -19,3 +19,4 @@ export type ActionDefinition = Def<IntegrationDefinition['actions']>[string]
 export type EventDefinition = Def<IntegrationDefinition['events']>[string]
 export type StateDefinition = Def<IntegrationDefinition['states']>[string]
 export type UserDefinition = Def<IntegrationDefinition['user']>
+export type EntityDefinition = Def<IntegrationDefinition['entities']>[string]

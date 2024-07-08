@@ -2,7 +2,7 @@ import { z } from '@bpinternal/zui'
 import type { Server } from 'node:http'
 import { SchemaDefinition } from '../schema'
 import { serve } from '../serve'
-import { AnyZodObject, Cast } from '../type-utils'
+import { AnyZodObject } from '../type-utils'
 import { BaseIntegrations } from './generic'
 import { IntegrationInstance } from './integration-instance'
 import { botHandler, MessageHandler, EventHandler, StateExpiredHandler, StateType } from './server'
@@ -50,7 +50,7 @@ export type BotProps<
   TEvents extends BaseEvents = BaseEvents
 > = {
   integrations?: {
-    [K in keyof TIntegrations]?: IntegrationInstance<Cast<K, string>>
+    [K in keyof TIntegrations]?: IntegrationInstance<TIntegrations[K]>
   }
   user?: UserDefinition
   conversation?: ConversationDefinition // TODO: add configuration to generic and infer from there

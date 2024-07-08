@@ -1,28 +1,14 @@
-import { llm } from '@botpress/common'
-import { IntegrationDefinition, z } from '@botpress/sdk'
-
-const model = z
-  .enum(['llama3-8b-8192', 'llama3-70b-8192', 'mixtral-8x7b-32768', 'gemma-7b-it'])
-  .describe('Model to use for content generation')
-  .default('mixtral-8x7b-32768')
-
-export type Model = z.infer<typeof model>
+import { IntegrationDefinition, interfaces, z } from '@botpress/sdk'
+import { modelId } from 'src/schemas'
 
 export default new IntegrationDefinition({
   name: 'groq',
-  version: '0.0.1',
+  version: '2.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
-  actions: {
-    generateContent: {
-      title: 'Generate Content',
-      description: 'Generate content using any LLM supported by Groq',
-      input: {
-        schema: llm.schemas.GenerateContentInputSchema.extend({ model }),
-      },
-      output: {
-        schema: llm.schemas.GenerateContentOutputSchema,
-      },
+  entities: {
+    model: {
+      schema: z.object({ id: modelId }),
     },
   },
   secrets: {
@@ -30,4 +16,6 @@ export default new IntegrationDefinition({
       description: 'Groq API key',
     },
   },
-})
+}).extend(interfaces.llm, ({ model }) => ({
+  model,
+}))

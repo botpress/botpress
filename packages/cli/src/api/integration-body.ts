@@ -21,6 +21,7 @@ export const prepareCreateIntegrationBody = (integration: sdk.IntegrationDefinit
   user: integration.user,
   identifier: integration.identifier,
   secrets: undefined,
+  interfaces: {},
   configuration: integration.configuration
     ? {
         ...integration.configuration,
