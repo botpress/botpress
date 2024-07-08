@@ -35,10 +35,23 @@ export async function generateContent<M extends string>(
     )
   }
 
+  if (input.messages.length === 0 && !input.systemPrompt) {
+    throw new InvalidPayloadError('At least one message or a system prompt is required')
+  }
+
   if (input.responseFormat === 'json_object') {
     input.systemPrompt =
       (input.systemPrompt || '') +
       '\n\nYour response must always be in valid JSON format and expressed as a JSON object.'
+  }
+
+  if (input.messages.length === 0) {
+    // Anthropic requires at least one message, so we add one by default if none were provided.
+    input.messages.push({
+      type: 'text',
+      role: 'user',
+      content: 'Follow the instructions provided in the system prompt.',
+    })
   }
 
   const messages: Anthropic.MessageParam[] = []
