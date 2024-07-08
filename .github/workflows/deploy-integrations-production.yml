@@ -43,4 +43,3 @@ jobs:
           openai_secrets: '--secrets OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}'
           groq_secrets: '--secrets GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}'
           anthropic_secrets: '--secrets ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}'
-          extra_filter: "-F '!charts' -F '!browser'"
