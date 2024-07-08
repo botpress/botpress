@@ -54,7 +54,7 @@ const GenerateContentInputSchema = <S extends z.ZodSchema>(modelSchema: S) =>
   z.object({
     model: modelSchema.describe('Model to use for content generation'),
     systemPrompt: z.string().optional().describe('Optional system prompt to guide the model'),
-    messages: z.array(MessageSchema).describe('Array of messages for the model to process').min(1),
+    messages: z.array(MessageSchema).describe('Array of messages for the model to process'),
     responseFormat: z
       .enum(['text', 'json_object'])
       .optional()
@@ -128,7 +128,7 @@ const GenerateContentOutputSchema = z.object({
 
 export const llm = new InterfaceDeclaration({
   name: 'llm',
-  version: '0.2.0',
+  version: '0.3.0',
   entities: {
     model: {
       schema: ModelSchema,
