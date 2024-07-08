@@ -19,10 +19,8 @@ export const captureScreenshot: bp.IntegrationProps['actions']['captureScreensho
       throw new Error('Screenshot not available')
     }
   } catch (error) {
-    logger.forBot().error('There was an error while taking the screenshot')
-
     if (isAxiosError(error)) {
-      console.error('Error taking screenshot:', error.response?.data)
+      logger.forBot().error('There was an error while taking the screenshot', error.response?.data)
     }
 
     throw error
