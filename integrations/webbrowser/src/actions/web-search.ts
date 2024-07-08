@@ -12,7 +12,7 @@ type BingSearchResult = {
   }[]
 }
 
-export const webSearch: bp.IntegrationProps['actions']['webSearch'] = async ({ client, input, logger, type, ctx }) => {
+export const webSearch: bp.IntegrationProps['actions']['webSearch'] = async ({ client, input, logger, ctx }) => {
   const clientConfig = (client as any).client.config
 
   const axiosConfig = {
