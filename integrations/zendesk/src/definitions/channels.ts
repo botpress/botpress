@@ -1,15 +1,9 @@
-import { z, IntegrationDefinitionProps } from '@botpress/sdk'
+import { IntegrationDefinitionProps } from '@botpress/sdk'
 
 export const channels = {
   ticket: {
     title: 'Zendesk Ticket',
-    messages: {
-      text: {
-        schema: z.object({
-          text: z.string(),
-        }),
-      },
-    },
+    messages: {}, // defined by the HITL interface
     message: {
       tags: {
         id: {},

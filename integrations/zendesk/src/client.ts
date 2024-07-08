@@ -123,7 +123,7 @@ class ZendeskApi {
     return online ? data.users.filter((user) => user.user_fields?.availability === 'online') : data.users
   }
 
-  public async createOrUpdateUser(fields: object): Promise<ZendeskUser> {
+  public async createOrUpdateUser(fields: Partial<ZendeskUser>): Promise<ZendeskUser> {
     const { data } = await this.client.post<{ user: ZendeskUser }>('/api/v2/users/create_or_update', {
       user: fields,
     })

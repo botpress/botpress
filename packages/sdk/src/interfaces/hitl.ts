@@ -24,7 +24,7 @@ export const hitl = new InterfaceDeclaration({
           }),
       },
     },
-    createTicket: {
+    openTicket: {
       input: {
         schema: () =>
           z.object({
@@ -42,7 +42,7 @@ export const hitl = new InterfaceDeclaration({
     },
   },
   channels: {
-    hitl: {
+    ticket: {
       messages: {
         text: {
           schema: () =>
