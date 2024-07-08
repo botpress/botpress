@@ -253,6 +253,25 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  integrations/browser:
+    dependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.7.2
+        version: 1.7.2
+    devDependencies:
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.19.10
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.2(@types/node@18.19.10)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   integrations/charts:
     dependencies:
       '@botpress/sdk':
@@ -1160,25 +1179,6 @@ importers:
       ts-node:
         specifier: ^10.9.1
         version: 10.9.1(@types/node@18.16.16)(typescript@4.9.5)
-      typescript:
-        specifier: ^4.9.4
-        version: 4.9.5
-
-  integrations/webbrowser:
-    dependencies:
-      '@botpress/sdk':
-        specifier: workspace:*
-        version: link:../../packages/sdk
-      axios:
-        specifier: ^1.7.2
-        version: 1.7.2
-    devDependencies:
-      '@types/node':
-        specifier: ^18.11.17
-        version: 18.19.10
-      ts-node:
-        specifier: ^10.9.1
-        version: 10.9.2(@types/node@18.19.10)(typescript@4.9.5)
       typescript:
         specifier: ^4.9.4
         version: 4.9.5
