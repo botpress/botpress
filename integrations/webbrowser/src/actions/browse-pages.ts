@@ -1,17 +1,6 @@
 import axios from 'axios'
 import * as bp from '.botpress'
 
-type ExtractedContent = {
-  content: string
-  metadata: {
-    title?: string | null
-    description?: string | null
-    author?: string | null
-    favicon?: string | null
-    datePublished?: string | null
-  }
-}
-
 type FireCrawlResponse = {
   success: boolean
   data: {
@@ -25,7 +14,7 @@ type FireCrawlResponse = {
   returnCode: number
 }
 
-const getPageContent = async (url: string, logger: any): Promise<ExtractedContent & { url: string }> => {
+const getPageContent = async (url: string, logger: any): Promise<{ content: string; url: string }> => {
   const startTime = Date.now()
   const { data } = await axios.post<FireCrawlResponse>(
     'https://api.firecrawl.dev/v0/scrape',
