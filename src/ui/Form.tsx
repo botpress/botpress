@@ -1,8 +1,13 @@
-import React, { useState } from 'react'
-import { useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { BoundaryFallbackComponent, ErrorBoundary } from './ErrorBoundary'
 import { FormDataProvider, deepMerge, getDefaultValues } from './hooks/useFormData'
-import { DefaultComponentDefinitions, JSONSchema, UIComponentDefinitions, ZuiComponentMap } from './types'
+import {
+  FormValidation,
+  DefaultComponentDefinitions,
+  JSONSchema,
+  UIComponentDefinitions,
+  ZuiComponentMap,
+} from './types'
 import { FormElementRenderer } from './ElementRenderer'
 
 export type ZuiFormProps<UI extends UIComponentDefinitions = DefaultComponentDefinitions> = {
@@ -13,6 +18,7 @@ export type ZuiFormProps<UI extends UIComponentDefinitions = DefaultComponentDef
   disableValidation?: boolean
   fallback?: BoundaryFallbackComponent
   dataTransform?: (data: any) => any
+  onValidation?: (validation: FormValidation) => void
 }
 
 export const ZuiForm = <UI extends UIComponentDefinitions = DefaultComponentDefinitions>({
@@ -23,6 +29,7 @@ export const ZuiForm = <UI extends UIComponentDefinitions = DefaultComponentDefi
   disableValidation,
   fallback,
   dataTransform,
+  onValidation,
 }: ZuiFormProps<UI>): JSX.Element | null => {
   const [formData, setFormData] = useState<object>(value)
 
@@ -42,6 +49,7 @@ export const ZuiForm = <UI extends UIComponentDefinitions = DefaultComponentDefi
       formSchema={schema}
       disableValidation={disableValidation || false}
       dataTransform={dataTransform}
+      onValidation={onValidation}
     >
       <ErrorBoundary fallback={fallback} fieldSchema={schema} path={[]}>
         <FormElementRenderer

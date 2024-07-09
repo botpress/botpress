@@ -18,6 +18,8 @@ export type {
   JSONSchema,
   JSONSchemaOfType,
   MergeUIComponentDefinitions,
+  FormValidation,
+  FormError,
 } from './ui/types'
 export type { BoundaryFallbackComponent } from './ui/ErrorBoundary'
 export { ZuiForm, type ZuiFormProps } from './ui'

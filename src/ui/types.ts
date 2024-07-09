@@ -333,3 +333,17 @@ export type MergeUIComponentDefinitions<T extends UIComponentDefinitions, U exte
 
 export type DeepPartial<T> = T extends object ? { [K in keyof T]?: DeepPartial<T[K]> } : T
 export type Path = (string | number)[]
+
+export type FormValidation =
+  | {
+      formValid: false
+      formErrors: FormError[]
+    }
+  | {
+      formValid: true
+      formErrors: []
+    }
+  | {
+      formValid: null
+      formErrors: null
+    }

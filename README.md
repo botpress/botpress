@@ -300,21 +300,73 @@ z.never()
 
 Zui extends Zod by adding additional methods for customizing the UI of your schema
 
-### .title()
+### `.title(text: string)`
 
-### .placeholder()
+Saves the title to display in the UI, if not specified, a title will be generated from the key
 
-### .displayAs()
+### `.placeholder(text: string)`
 
-### .hidden()
+Saves the placeholder to display in the UI's field, if not specified, no placeholder will be displayed.
 
-### .disabled()
 
-### .toJsonSchema()
+### `.displayAs<ComponentDefinition>({ id: string, params: object })`
 
-### .toTypescriptTypings()
+Specifies the component to use for displaying the field, if not specified, the default component will be used.
+The type of `params` comes from the component definition.
 
-You must polyfill `process` to call this function in the browser
+
+### `.hidden(condition?: boolean | (currentValue) => boolean | object)`
+
+Hides/shows the component, the condition is optional, if `.hidden()` is called without a condition, the component will be hidden by default.
+It can also be a function that receives the current value of the field and returns a boolean.
+In the case of objects and arrays, a partial object can be passed to hide/show specific fields.
+example:
+
+```ts
+z.object({
+  name: z.string()
+  age: z.number()
+}).hidden(formData => {
+  return {
+    age: formData.name?.length < 1 // the age field will be hidden if the name field is empty
+  }
+})
+```
+
+### .disabled(condition?: boolean | (currentValue) => boolean)
+
+Disables/enables the component, the condition is optional, if `.disabled()` is called without a condition, the component will be disabled by default.
+It can also be a function that receives the current value of the field and returns a boolean.
+In the case of objects and arrays, a partial object can be passed to hide/show specific fields.
+example:
+
+```ts
+z.object({
+  name: z.string()
+  age: z.number()
+}).hidden(formData => {
+  return {
+    age: formData.name?.length < 1 // the age field will be hidden if the name field is empty
+  }
+})
+```
+
+### .toJsonSchema(options?: ToJsonSchemaOptions)
+
+Converts the schema to a JSON schema, by default it targets 'openApi3' 
+
+options can be passed to customize the output:
+```ts
+{
+  target: "openApi3" | "jsonSchema7" | undefined, // defaults to openApi3
+  $schemaUrl: string | false | undefined // if not false, will default to the appropriate schema url for the target
+  unionStrategy: "oneOf" | "anyOf" | undefined // defaults to anyOf
+}
+```
+
+### .toTypescript()
+
+## .toTypescriptAsync()
 
 ### Zod.fromJsonSchema()
 

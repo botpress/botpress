@@ -1,8 +1,8 @@
 import React, { PropsWithChildren, createContext, useCallback, useContext, useEffect, useMemo, useState } from 'react'
-import { ArraySchema, FormError, JSONSchema, Path } from '../types'
+import { ArraySchema, FormError, FormValidation, JSONSchema, Path } from '../types'
 import { jsonSchemaToZui } from '../../transforms/json-schema-to-zui'
 import { zuiKey } from '../constants'
-import { Maskable, ZodIssue } from '../../z'
+import { Maskable } from '../../z'
 import { pathMatches } from '../utils'
 
 export type FormDataContextProps = {
@@ -36,10 +36,7 @@ export type FormDataContextProps = {
   /**
    * Validation state of the form
    */
-  validation: {
-    formValid: boolean | null
-    formErrors: ZodIssue[] | null
-  }
+  validation: FormValidation
 
   disableValidation?: boolean
 
@@ -48,6 +45,8 @@ export type FormDataContextProps = {
    * useful for cases where the underlying form data does not match the schema
    */
   dataTransform?: (formData: any) => any
+
+  onValidation?: (validation: FormValidation) => void
 }
 
 export type FormDataProviderProps = Omit<
@@ -109,7 +108,7 @@ export const useFormData = (fieldSchema: JSONSchema, path: Path) => {
 
   const data = useMemo(() => getPathData(formContext.formData, path), [formContext.formData, path])
 
-  const validation = useMemo(() => {
+  const validation: FormValidation = useMemo(() => {
     if (formContext.validation.formValid === null) {
       return { formValid: null, formErrors: null }
     }
@@ -280,6 +279,7 @@ export const FormDataProvider: React.FC<PropsWithChildren<FormDataProviderProps>
   formData,
   formSchema,
   disableValidation,
+  onValidation,
   dataTransform,
 }) => {
   const [hiddenState, setHiddenState] = useState({})
@@ -287,7 +287,7 @@ export const FormDataProvider: React.FC<PropsWithChildren<FormDataProviderProps>
 
   const transformedData = dataTransform ? dataTransform(formData) : formData
 
-  const validation = useMemo(() => {
+  const validation: FormValidation = useMemo(() => {
     if (disableValidation) {
       return { formValid: null, formErrors: null }
     }
@@ -309,6 +309,12 @@ export const FormDataProvider: React.FC<PropsWithChildren<FormDataProviderProps>
       formErrors: [],
     }
   }, [JSON.stringify({ transformedData })])
+
+  useEffect(() => {
+    if (onValidation) {
+      onValidation(validation)
+    }
+  }, [validation])
 
   return (
     <FormDataContext.Provider

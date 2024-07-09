@@ -347,6 +347,69 @@ describe('UI', () => {
     expect(onChangeMock).toHaveBeenCalledWith({ students: [{ name: 'Jane', age: 20 }] })
   })
 
+  it('calls onValidation with form validation', () => {
+    const schema = zui.object({
+      name: zui.string().max(3),
+      age: zui.number().min(8),
+    })
+
+    const spy = vi.fn()
+
+    const rendered = render(
+      <ZuiFormWithState
+        schema={schema.toJsonSchema() as ObjectSchema}
+        components={testComponentImplementation}
+        onValidation={spy}
+      />,
+    )
+
+    const nameInput = rendered.getByTestId('string:name:input') as HTMLInputElement
+    const ageInput = rendered.getByTestId('number:age:input') as HTMLInputElement
+
+    fireEvent.change(nameInput, { target: { value: 'Joh' } })
+    expect(spy.mock.calls.every((call) => call.formValid === false)).toStrictEqual(false)
+    expect(spy.mock.lastCall[0].formErrors).toHaveLength(1)
+
+    fireEvent.change(ageInput, { target: { value: '5' } })
+
+    expect(spy.mock.calls.every((call) => call.formValid === false)).toStrictEqual(false)
+    expect(spy.mock.lastCall[0].formErrors).toHaveLength(1)
+
+    fireEvent.change(ageInput, { target: { value: '10' } })
+
+    expect(spy.mock.lastCall[0].formValid).toStrictEqual(true)
+    expect(spy.mock.lastCall[0].formErrors).toHaveLength(0)
+  })
+
+  it('returns null formValidation when disableValidation is true', () => {
+    const schema = zui.object({
+      name: zui.string().max(3),
+      age: zui.number().min(8),
+    })
+
+    const spy = vi.fn()
+
+    const rendered = render(
+      <ZuiFormWithState
+        schema={schema.toJsonSchema() as ObjectSchema}
+        components={testComponentImplementation}
+        onValidation={spy}
+        disableValidation
+      />,
+    )
+
+    const nameInput = rendered.getByTestId('string:name:input') as HTMLInputElement
+    const ageInput = rendered.getByTestId('number:age:input') as HTMLInputElement
+
+    fireEvent.change(nameInput, { target: { value: 'John' } })
+    fireEvent.change(ageInput, { target: { value: '5' } })
+
+    spy.mock.calls.forEach((call) => {
+      expect(call[0].formValid).toBeNull()
+      expect(call[0].formErrors).toBeNull()
+    })
+  })
+
   it('it renders custom zui components with correct params as input', () => {
     const schema = zui.object({
       firstName: zui.string(),
