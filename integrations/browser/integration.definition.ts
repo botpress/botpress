@@ -2,7 +2,7 @@ import { IntegrationDefinition } from '@botpress/sdk'
 import { actionDefinitions } from 'src/definitions/actions'
 
 export default new IntegrationDefinition({
-  name: 'webbrowser',
+  name: 'browser',
   version: '0.0.1',
   description: 'Tools to interact with web pages',
   readme: 'hub.md',
@@ -10,6 +10,6 @@ export default new IntegrationDefinition({
   actions: actionDefinitions,
   secrets: {
     SCREENSHOT_API_KEY: {},
-    EXTRACT_CONTENT_KEY: {},
+    FIRECRAWL_API_KEY: {},
   },
 })

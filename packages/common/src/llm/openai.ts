@@ -43,6 +43,10 @@ export async function generateContent<M extends string>(
     )
   }
 
+  if (input.messages.length === 0 && !input.systemPrompt) {
+    throw new InvalidPayloadError('At least one message or a system prompt is required')
+  }
+
   const messages: ChatCompletionMessageParam[] = []
   for (const message of input.messages) {
     messages.push(await mapToOpenAIMessage(message))
