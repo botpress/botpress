@@ -3,12 +3,17 @@ import { modelId } from 'src/schemas'
 
 export default new IntegrationDefinition({
   name: 'groq',
-  version: '2.1.0',
+  version: '2.2.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
     model: {
-      schema: z.object({ id: modelId }),
+      schema: interfaces.llm.entities.model.schema,
+    },
+    modelRef: {
+      schema: z.object({
+        id: modelId,
+      }),
     },
   },
   secrets: {
@@ -16,6 +21,7 @@ export default new IntegrationDefinition({
       description: 'Groq API key',
     },
   },
-}).extend(interfaces.llm, ({ model }) => ({
+}).extend(interfaces.llm, ({ model, modelRef }) => ({
   model,
+  modelRef,
 }))
