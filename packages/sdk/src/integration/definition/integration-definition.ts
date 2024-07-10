@@ -151,14 +151,40 @@ export class IntegrationDefinition<
     })
 
     const self = this as Writable<IntegrationDefinition>
-    const { actions, events } = resolved
-    self.actions = { ...(self.actions ?? {}), ...actions }
-    self.events = { ...(self.events ?? {}), ...events }
+
+    /**
+     * If an action is defined both in the integration and the interface; we shallow-merge both.
+     * This allows setting more specific properties in the integration, while staying compatible with the interface.
+     * Same goes for channels and events.
+     */
+
+    self.actions = this._mergeRecords(self.actions ?? {}, resolved.actions)
+    self.channels = this._mergeRecords(self.channels ?? {}, resolved.channels)
+    self.events = this._mergeRecords(self.events ?? {}, resolved.events)
 
     const entityNames = Object.values(interfaceTypeArguments).map((e) => e.name)
     const key = `${interfaceDeclaration.name}<${entityNames.join(',')}>`
     this.interfaces[key] = implementStatement
 
     return this
+  }
+
+  private _mergeRecords<K extends string, V>(a: Record<K, V>, b: Record<K, V>): Record<K, V> {
+    const allKeys = utils.unique([...Object.keys(a), ...Object.keys(b)])
+
+    const inputA = a as Record<string, any>
+    const inputB = b as Record<string, any>
+    const result: Record<string, any> = {}
+    for (const key of allKeys) {
+      const valueA = inputA[key]
+      const valueB = inputB[key]
+      if (valueA && valueB) {
+        result[key] = { ...valueA, ...valueB }
+      } else {
+        result[key] = valueA ?? valueB
+      }
+    }
+
+    return result as Record<K, V>
   }
 }

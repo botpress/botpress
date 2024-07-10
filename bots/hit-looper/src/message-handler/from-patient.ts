@@ -8,63 +8,74 @@ export const patientMessageHandler: MessageHandler = async (props) => {
   }
 
   const respond = mkRespond(props)
-  const { message, client, conversation: upstream } = props
+  const { message, client, conversation: upstreamConversation, user: upstreamUser } = props
 
-  const upstreamFlow = await getOrCreateFlow({ client, conversationId: upstream.id }, { hitlEnabled: false })
+  const upstreamFlow = await getOrCreateFlow(
+    { client, conversationId: upstreamConversation.id },
+    { hitlEnabled: false }
+  )
+
   if (!upstreamFlow.hitlEnabled) {
     if (message.payload.text.trim() === '/start_hitl') {
       const {
-        output: { ticket },
+        output: { userId: downstreamUserId },
       } = await client.callAction({
-        type: 'zendesk:createTicket',
         // TODO: get these from the user or the upstream integration
+        type: 'zendesk:createUser',
         input: {
-          requesterEmail: 'john.doe@foobar.com',
-          requesterName: 'John Doe',
-          subject: `Hitl request ${Date.now()}`,
-          comment: 'I need help.',
+          name: 'John Doe',
+          pictureUrl: 'https://en.wikipedia.org/wiki/Steve_(Minecraft)#/media/File:Steve_(Minecraft).png',
+          email: 'john.doe@foobar.com',
+        },
+      })
+
+      await client.updateUser({
+        id: upstreamUser.id,
+        tags: {
+          downstream: downstreamUserId,
+        },
+      })
+
+      await client.updateUser({
+        id: downstreamUserId,
+        tags: {
+          upstream: upstreamUser.id,
         },
       })
 
       const {
-        output: { conversationId: downstreamId },
+        output: { conversationId: downstreamConversationId },
       } = await client.callAction({
-        type: 'zendesk:getTicketConversation',
+        type: 'zendesk:openTicket',
         input: {
-          ticketId: `${ticket.id}`,
-        },
-      })
-
-      await client.callAction({
-        type: 'zendesk:setConversationRequester',
-        input: {
-          conversationId: downstreamId,
-          requesterId: `${ticket.requesterId}`,
+          title: `Hitl request ${Date.now()}`,
+          description: 'I need help.',
+          userId: downstreamUserId,
         },
       })
 
       await client.updateConversation({
-        id: upstream.id,
+        id: upstreamConversation.id,
         tags: {
-          downstream: downstreamId,
+          downstream: downstreamConversationId,
         },
       })
 
       await client.updateConversation({
-        id: downstreamId,
+        id: downstreamConversationId,
         tags: {
-          upstream: upstream.id,
+          upstream: upstreamConversation.id,
         },
       })
 
-      await setFlow({ client, conversationId: upstream.id }, { hitlEnabled: true })
-      await setFlow({ client, conversationId: downstreamId }, { hitlEnabled: true })
-      await respond({ conversationId: upstream.id, text: 'Transfering you to a human agent...' })
+      await setFlow({ client, conversationId: upstreamConversation.id }, { hitlEnabled: true })
+      await setFlow({ client, conversationId: downstreamConversationId }, { hitlEnabled: true })
+      await respond({ conversationId: upstreamConversation.id, text: 'Transfering you to a human agent...' })
       return
     }
 
     await respond({
-      conversationId: upstream.id,
+      conversationId: upstreamConversation.id,
       text: [
         'Hi, I am a bot.',
         'I cannot answer your questions.',
@@ -75,10 +86,26 @@ export const patientMessageHandler: MessageHandler = async (props) => {
     return
   }
 
-  const downstream = upstream.tags['downstream']
-  if (!downstream) {
-    throw new Error('Upstream conversation was not binded to downstream conversation')
+  const downstreamConversationId = upstreamConversation.tags['downstream']
+  if (!downstreamConversationId) {
+    console.error('Upstream conversation was not binded to downstream conversation')
+    await respond({
+      conversationId: upstreamConversation.id,
+      text: 'Something went wrong, you are not connected to a human agent...',
+    })
+    return
   }
 
-  await respond({ conversationId: downstream, text: message.payload.text })
+  const downstreamUserId = upstreamUser.tags['downstream']
+  if (!downstreamUserId) {
+    console.error('Upstream user was not binded to downstream user')
+    await respond({
+      conversationId: upstreamConversation.id,
+      text: 'Something went wrong, you are not connected to a human agent...',
+    })
+    return
+  }
+
+  console.info('Sending message to downstream')
+  await respond({ conversationId: downstreamConversationId, userId: downstreamUserId, text: message.payload.text })
 }

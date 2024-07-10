@@ -177,6 +177,9 @@ const integration = new bp.Integration({
     if (userFieldsToUpdate.pictureUrl || userFieldsToUpdate.name) {
       await client.updateUser({
         ...user,
+        tags: {
+          id: user.tags.id,
+        },
         ...(userFieldsToUpdate.pictureUrl && { pictureUrl: userFieldsToUpdate.pictureUrl }),
         ...(userFieldsToUpdate.name && { name: userFieldsToUpdate.name }),
       })
