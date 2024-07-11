@@ -2,15 +2,8 @@ import Anthropic from '@anthropic-ai/sdk'
 import { MessageCreateParams } from '@anthropic-ai/sdk/resources/messages'
 import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
-import { z, IntegrationLogger } from '@botpress/sdk'
+import { z, IntegrationLogger, interfaces } from '@botpress/sdk'
 import assert from 'assert'
-
-type ModelSpecs = llm.ModelCost & {
-  /**
-   * Maximum number of output tokens supported by the model.
-   */
-  outputTokensLimit: number
-}
 
 // Reference: https://docs.anthropic.com/en/api/errors
 const AnthropicInnerErrorSchema = z.object({
@@ -23,20 +16,26 @@ export async function generateContent<M extends string>(
   anthropic: Anthropic,
   logger: IntegrationLogger,
   params: {
-    models: {
-      [key in M]: ModelSpecs
-    }
+    models: Record<M, interfaces.llm.ModelDetails>
+    defaultModel: M
   }
 ): Promise<llm.GenerateContentOutput> {
-  const modelSpecs = params.models[input.model.id as M]
-  if (!modelSpecs) {
+  const modelId = (input.model?.id || params.defaultModel) as M
+  const model = params.models[modelId]
+  if (!model) {
     throw new InvalidPayloadError(
-      `Model name "${input.model}" is not allowed, supported model names are: ${Object.keys(params.models).join(', ')}`
+      `Model ID "${modelId}" is not allowed, supported model IDs are: ${Object.keys(params.models).join(', ')}`
     )
   }
 
   if (input.messages.length === 0 && !input.systemPrompt) {
     throw new InvalidPayloadError('At least one message or a system prompt is required')
+  }
+
+  if (input.maxTokens && input.maxTokens > model.output.maxTokens) {
+    throw new InvalidPayloadError(
+      `maxTokens must be less than or equal to ${model.output.maxTokens} for model ID "${modelId}`
+    )
   }
 
   if (input.responseFormat === 'json_object') {
@@ -64,8 +63,8 @@ export async function generateContent<M extends string>(
 
   try {
     response = await anthropic.messages.create({
-      model: input.model.id,
-      max_tokens: input.maxTokens || modelSpecs.outputTokensLimit,
+      model: modelId,
+      max_tokens: input.maxTokens || model.output.maxTokens,
       temperature: input.temperature,
       top_p: input.topP,
       system: input.systemPrompt,
@@ -119,9 +118,9 @@ export async function generateContent<M extends string>(
     ],
     usage: {
       inputTokens,
-      inputCost: calculateTokenCost(modelSpecs.inputCostPer1MTokens, inputTokens),
+      inputCost: calculateTokenCost(model.input.costPer1MTokens, inputTokens),
       outputTokens,
-      outputCost: calculateTokenCost(modelSpecs.outputCostPer1MTokens, outputTokens),
+      outputCost: calculateTokenCost(model.output.costPer1MTokens, outputTokens),
     },
   }
 }

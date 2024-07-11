@@ -1,5 +1,5 @@
 import { InvalidPayloadError } from '@botpress/client'
-import { z, IntegrationLogger } from '@botpress/sdk'
+import { z, IntegrationLogger, interfaces } from '@botpress/sdk'
 import assert from 'assert'
 import OpenAI from 'openai'
 import {
@@ -14,13 +14,11 @@ import {
   ChatCompletionToolMessageParam,
   ChatCompletionUserMessageParam,
 } from 'openai/resources'
-import { ModelCost, GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './types'
+import { GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './types'
 
 const OpenAIInnerErrorSchema = z.object({
   message: z.string(),
 })
-
-type NoInfer<T> = [T][T extends any ? 0 : never]
 
 export async function generateContent<M extends string>(
   input: GenerateContentInput,
@@ -28,23 +26,28 @@ export async function generateContent<M extends string>(
   logger: IntegrationLogger,
   params: {
     provider: string
-    defaultModel: NoInfer<M>
-    modelCosts: {
-      [key in M]: ModelCost
-    }
+    models: Record<M, interfaces.llm.ModelDetails>
+    defaultModel: M
   }
 ): Promise<GenerateContentOutput> {
-  const modelCost = params.modelCosts[input.model.id as M]
-  if (!modelCost) {
+  const modelId = (input.model?.id || params.defaultModel) as M
+  const model = params.models[modelId]
+  if (!model) {
     throw new InvalidPayloadError(
-      `Model name "${input.model}" is not allowed by this integration, supported model names are: ${Object.keys(
-        params.modelCosts
+      `Model ID "${modelId}" is not allowed by this integration, supported model IDs are: ${Object.keys(
+        params.models
       ).join(', ')}`
     )
   }
 
   if (input.messages.length === 0 && !input.systemPrompt) {
     throw new InvalidPayloadError('At least one message or a system prompt is required')
+  }
+
+  if (input.maxTokens && input.maxTokens > model.output.maxTokens) {
+    throw new InvalidPayloadError(
+      `maxTokens must be less than or equal to ${model.output.maxTokens} for model ID "${modelId}`
+    )
   }
 
   const messages: ChatCompletionMessageParam[] = []
@@ -63,16 +66,16 @@ export async function generateContent<M extends string>(
 
   try {
     response = await openAIClient.chat.completions.create({
-      model: input.model.id,
-      max_tokens: input.maxTokens || undefined, // note: ignore a zero value as the Studio doesn't support empty number inputs and defaults this to 0
+      model: modelId,
+      max_tokens: input.maxTokens || undefined, // note: ignore a zero value as the Studio doesn't support empty number inputs and is defaulting this to 0
       temperature: input.temperature,
       top_p: input.topP,
       response_format: input.responseFormat === 'json_object' ? { type: 'json_object' } : undefined,
       // TODO: the Studio is adding an empty item by default in the action input form
       stop: input.stopSequences?.filter((x) => x.trim()), // don't send empty values
-      user: input.userId || undefined, // don't send an empty value
+      user: input.userId || undefined, // don't send a blank string value
       messages,
-      tool_choice: mapToOpenAIToolChoice(input.toolChoice), // note: the action input type is
+      tool_choice: mapToOpenAIToolChoice(input.toolChoice),
       tools: mapToOpenAITools(input.tools),
     })
   } catch (err: any) {
@@ -107,9 +110,9 @@ export async function generateContent<M extends string>(
     })),
     usage: {
       inputTokens,
-      inputCost: calculateTokenCost(modelCost.inputCostPer1MTokens, inputTokens),
+      inputCost: calculateTokenCost(model.input.costPer1MTokens, inputTokens),
       outputTokens,
-      outputCost: calculateTokenCost(modelCost.outputCostPer1MTokens, outputTokens),
+      outputCost: calculateTokenCost(model.output.costPer1MTokens, outputTokens),
     },
   }
 }
