@@ -47,7 +47,7 @@ export default new bp.Integration({
     },
     listModels: async ({}) => {
       return {
-        models: Object.entries(models).map(([id, model]) => ({ id, ...model })),
+        models: Object.entries(models).map(([id, model]) => ({ id: <ModelId>id, ...model })),
       }
     },
   },

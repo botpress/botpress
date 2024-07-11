@@ -7,9 +7,6 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
-    model: {
-      schema: interfaces.llm.entities.model.schema,
-    },
     modelRef: {
       schema: z.object({
         id: modelId,
@@ -21,7 +18,6 @@ export default new IntegrationDefinition({
       description: 'Groq API key',
     },
   },
-}).extend(interfaces.llm, ({ model, modelRef }) => ({
-  model,
+}).extend(interfaces.llm, ({ modelRef }) => ({
   modelRef,
 }))

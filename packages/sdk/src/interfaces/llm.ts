@@ -138,19 +138,12 @@ const GenerateContentOutputSchema = z.object({
   }),
 })
 
-const ListModelsOutputSchema = z.object({
-  models: z.array(ModelSchema),
-})
-
 export const llm = new InterfaceDeclaration({
   name: 'llm',
   version: '1.0.0',
   entities: {
     modelRef: {
       schema: ModelRefSchema,
-    },
-    model: {
-      schema: ModelSchema,
     },
   },
   events: {},
@@ -168,7 +161,10 @@ export const llm = new InterfaceDeclaration({
         schema: () => z.object({}),
       },
       output: {
-        schema: () => ListModelsOutputSchema,
+        schema: ({ modelRef }) =>
+          z.object({
+            models: z.array(z.intersection(ModelSchema, modelRef)),
+          }),
       },
     },
   },
