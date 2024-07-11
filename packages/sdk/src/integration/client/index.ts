@@ -6,7 +6,7 @@ import * as routes from './routes'
  * Just like the regular botpress client, but typed with the integration's properties.
  */
 export class IntegrationSpecificClient<TIntegration extends BaseIntegration> {
-  public get inner() {
+  public get _inner() {
     return this.client
   }
 

@@ -6,7 +6,7 @@ import * as routes from './routes'
  * Just like the regular botpress client, but typed with the bot's properties.
  */
 export class BotSpecificClient<TBot extends BaseBot> {
-  public get inner() {
+  public get _inner() {
     return this.client
   }
 
