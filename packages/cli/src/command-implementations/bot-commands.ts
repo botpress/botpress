@@ -1,4 +1,5 @@
 import chalk from 'chalk'
+import { ApiClient } from 'src/api/client'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import { GlobalCommand } from './global-command'
@@ -54,14 +55,35 @@ export class DeleteBotCommand extends GlobalCommand<DeleteBotCommandDefinition> 
 export type CreateBotCommandDefinition = typeof commandDefinitions.bots.subcommands.create
 export class CreateBotCommand extends GlobalCommand<CreateBotCommandDefinition> {
   public async run(): Promise<void> {
-    const { client } = await this.ensureLoginAndCreateClient(this.argv)
+    const api = await this.ensureLoginAndCreateClient(this.argv)
 
     try {
-      const { bot } = await client.createBot({ name: this.argv.name })
-      this.logger.success(`Bot ${chalk.bold(bot.id)}:`)
-      this.logger.json(bot)
+      if (this.argv.ifNotExists) {
+        await this._getOrCreate(api, this.argv.name)
+        return
+      }
+      await this._create(api, this.argv.name)
     } catch (thrown) {
       throw errors.BotpressCLIError.wrap(thrown, 'Could not create bot')
     }
+  }
+
+  private _getOrCreate = async (api: ApiClient, name: string | undefined) => {
+    if (!name) {
+      throw new errors.BotpressCLIError('option --if-not-exists requires that a name be provided')
+    }
+    const existingBot = await api.findBotByName(name)
+    if (existingBot) {
+      this.logger.success(`Bot ${chalk.bold(name)} already exists`)
+      this.logger.json(existingBot)
+      return
+    }
+    return this._create(api, name)
+  }
+
+  private _create = async (api: ApiClient, name: string | undefined) => {
+    const { bot } = await api.client.createBot({ name })
+    this.logger.success(`Bot ${chalk.bold(bot.id)}:`)
+    this.logger.json(bot)
   }
 }
