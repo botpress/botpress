@@ -12,6 +12,7 @@ import {
   Requests,
   Responses,
   Interface,
+  BotSummary,
 } from './types'
 
 export * from './types'
@@ -123,5 +124,11 @@ export class ApiClient {
       return
     }
     return this.findIntegration({ type: 'id', id: previous.id })
+  }
+
+  public async findBotByName(name: string): Promise<BotSummary | undefined> {
+    // api does not allow filtering bots by name
+    const allBots = await this.listAllPages(this.client.listBots, (r) => r.bots)
+    return allBots.find((b) => b.name === name)
   }
 }

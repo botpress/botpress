@@ -197,6 +197,11 @@ const createBotSchema = {
   ...globalSchema,
   ...credentialsSchema,
   name: { type: 'string', description: 'The name of the bot to create' },
+  ifNotExists: {
+    type: 'boolean',
+    description: 'Do not create if a bot with the same name already exists',
+    default: false,
+  },
 } satisfies CommandSchema
 
 const getBotSchema = {
