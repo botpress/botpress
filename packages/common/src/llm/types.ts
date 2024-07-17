@@ -4,8 +4,3 @@ export type GenerateContentInput = sdk.interfaces.llm.GenerateContentInput
 export type GenerateContentOutput = sdk.interfaces.llm.GenerateContentOutput
 export type ToolCall = sdk.interfaces.llm.ToolCall
 export type Message = sdk.interfaces.llm.Message
-
-export type ModelCost = {
-  inputCostPer1MTokens: number
-  outputCostPer1MTokens: number
-}

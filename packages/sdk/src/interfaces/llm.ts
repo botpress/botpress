@@ -48,11 +48,23 @@ const MessageSchema = z.object({
     ),
 })
 
-const ModelSchema = z.object({ id: z.string() })
+const ModelRefSchema = z.object({ id: z.string() })
 
-const GenerateContentInputSchema = <S extends z.ZodSchema>(modelSchema: S) =>
+const ModelSchema = ModelRefSchema.extend({
+  name: z.string(),
+  input: z.object({
+    maxTokens: z.number().int(),
+    costPer1MTokens: z.number(),
+  }),
+  output: z.object({
+    maxTokens: z.number().int(),
+    costPer1MTokens: z.number(),
+  }),
+})
+
+const GenerateContentInputSchema = <S extends z.ZodSchema>(modelRefSchema: S) =>
   z.object({
-    model: modelSchema.describe('Model to use for content generation'),
+    model: modelRefSchema.describe('Model to use for content generation').optional(),
     systemPrompt: z.string().optional().describe('Optional system prompt to guide the model'),
     messages: z.array(MessageSchema).describe('Array of messages for the model to process'),
     responseFormat: z
@@ -104,7 +116,7 @@ const GenerateContentInputSchema = <S extends z.ZodSchema>(modelSchema: S) =>
     userId: z.string().optional(),
   })
 
-const GenerateContentInputBaseSchema = GenerateContentInputSchema(ModelSchema)
+const GenerateContentInputBaseSchema = GenerateContentInputSchema(ModelRefSchema)
 
 const GenerateContentOutputSchema = z.object({
   id: z.string().describe('Response ID from LLM provider'),
@@ -128,20 +140,31 @@ const GenerateContentOutputSchema = z.object({
 
 export const llm = new InterfaceDeclaration({
   name: 'llm',
-  version: '0.3.0',
+  version: '1.0.0',
   entities: {
-    model: {
-      schema: ModelSchema,
+    modelRef: {
+      schema: ModelRefSchema,
     },
   },
   events: {},
   actions: {
     generateContent: {
       input: {
-        schema: ({ model }) => GenerateContentInputSchema(model),
+        schema: ({ modelRef }) => GenerateContentInputSchema(modelRef),
       },
       output: {
         schema: () => GenerateContentOutputSchema,
+      },
+    },
+    listModels: {
+      input: {
+        schema: () => z.object({}),
+      },
+      output: {
+        schema: ({ modelRef }) =>
+          z.object({
+            models: z.array(z.intersection(ModelSchema, modelRef)),
+          }),
       },
     },
   },
@@ -152,4 +175,6 @@ export namespace llm {
   export type GenerateContentOutput = z.infer<typeof GenerateContentOutputSchema>
   export type ToolCall = z.infer<typeof ToolCallSchema>
   export type Message = z.infer<typeof MessageSchema>
+  export type Model = z.infer<typeof ModelSchema>
+  export type ModelDetails = Omit<Model, 'id'>
 }

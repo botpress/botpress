@@ -3,11 +3,11 @@ import { modelId } from 'src/schemas'
 
 export default new IntegrationDefinition({
   name: 'anthropic',
-  version: '0.2.0',
+  version: '0.3.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
-    model: {
+    modelRef: {
       schema: z.object({
         id: modelId,
       }),
@@ -18,6 +18,6 @@ export default new IntegrationDefinition({
       description: 'Anthropic API key',
     },
   },
-}).extend(interfaces.llm, ({ model }) => ({
-  model,
+}).extend(interfaces.llm, ({ modelRef }) => ({
+  modelRef,
 }))

@@ -14,21 +14,16 @@
 /integrations/charts @allardy
 /integrations/dalle @franklevasseur
 /integrations/gmail @michaelmass
-/integrations/googlecalendar @charlescatta
+/integrations/googlecalendar @franklevasseur
 /integrations/groq @AbrahamLopez10
 /integrations/gsheets @franklevasseur
-/integrations/instagram @charlescatta
 /integrations/intercom @chsir17 @ptrckbp
 /integrations/linear @allardy
-/integrations/mailchimp @charlescatta
-/integrations/make @charlescatta
-/integrations/messenger @charlescatta
 /integrations/notion @lakshya0246
 /integrations/openai @AbrahamLopez10
 /integrations/slack @michaelmass
-/integrations/stripe @charlescatta
 /integrations/teams @franklevasseur
-/integrations/telegram @franklevasseur @charlescatta
+/integrations/telegram @franklevasseur
 /integrations/twilio @AbrahamLopez10
 /integrations/browser @allardy
 /integrations/webhook @franklevasseur

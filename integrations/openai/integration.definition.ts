@@ -3,11 +3,11 @@ import { modelId } from 'src/schemas'
 
 export default new IntegrationDefinition({
   name: 'openai',
-  version: '2.1.0',
+  version: '2.2.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
-    model: {
+    modelRef: {
       schema: z.object({
         id: modelId,
       }),
@@ -18,6 +18,6 @@ export default new IntegrationDefinition({
       description: 'OpenAI API key',
     },
   },
-}).extend(interfaces.llm, ({ model }) => ({
-  model,
+}).extend(interfaces.llm, ({ modelRef }) => ({
+  modelRef,
 }))
