@@ -13,6 +13,7 @@ import {
   UserDefinition,
   SecretDefinition,
   EntityDefinition,
+  MessageDefinition,
   InterfaceImplementationStatement,
 } from './types'
 
@@ -153,14 +154,14 @@ export class IntegrationDefinition<
     const self = this as Writable<IntegrationDefinition>
 
     /**
-     * If an action is defined both in the integration and the interface; we shallow-merge both.
+     * If an action is defined both in the integration and the interface; we merge both.
      * This allows setting more specific properties in the integration, while staying compatible with the interface.
      * Same goes for channels and events.
      */
 
-    self.actions = this._mergeRecords(self.actions ?? {}, resolved.actions)
-    self.channels = this._mergeRecords(self.channels ?? {}, resolved.channels)
-    self.events = this._mergeRecords(self.events ?? {}, resolved.events)
+    self.actions = utils.mergeRecords(self.actions ?? {}, resolved.actions, this._mergeActions)
+    self.channels = utils.mergeRecords(self.channels ?? {}, resolved.channels, this._mergeChannels)
+    self.events = utils.mergeRecords(self.events ?? {}, resolved.events, this._mergeEvents)
 
     const entityNames = Object.values(interfaceTypeArguments).map((e) => e.name)
     const key = `${interfaceDeclaration.name}<${entityNames.join(',')}>`
@@ -169,22 +170,41 @@ export class IntegrationDefinition<
     return this
   }
 
-  private _mergeRecords<K extends string, V>(a: Record<K, V>, b: Record<K, V>): Record<K, V> {
-    const allKeys = utils.unique([...Object.keys(a), ...Object.keys(b)])
-
-    const inputA = a as Record<string, any>
-    const inputB = b as Record<string, any>
-    const result: Record<string, any> = {}
-    for (const key of allKeys) {
-      const valueA = inputA[key]
-      const valueB = inputB[key]
-      if (valueA && valueB) {
-        result[key] = { ...valueA, ...valueB }
-      } else {
-        result[key] = valueA ?? valueB
-      }
+  private _mergeActions = (a: ActionDefinition, b: ActionDefinition): ActionDefinition => {
+    return {
+      title: b.title ?? a.title,
+      description: b.description ?? a.description,
+      input: {
+        schema: a.input.schema.merge(b.input.schema),
+      },
+      output: {
+        schema: a.output.schema.merge(b.output.schema),
+      },
     }
+  }
 
-    return result as Record<K, V>
+  private _mergeEvents = (a: EventDefinition, b: EventDefinition): EventDefinition => {
+    return {
+      title: b.title ?? a.title,
+      description: b.description ?? a.description,
+      schema: a.schema.merge(b.schema),
+    }
+  }
+
+  private _mergeChannels = (a: ChannelDefinition, b: ChannelDefinition): ChannelDefinition => {
+    const messages = utils.mergeRecords(a.messages, b.messages, this._mergeMessage)
+    return {
+      title: b.title ?? a.title,
+      description: b.description ?? a.description,
+      conversation: b.conversation ?? a.conversation,
+      message: b.message ?? a.message,
+      messages,
+    }
+  }
+
+  private _mergeMessage = (a: MessageDefinition, b: MessageDefinition): MessageDefinition => {
+    return {
+      schema: a.schema.merge(b.schema),
+    }
   }
 }
