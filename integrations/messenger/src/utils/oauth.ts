@@ -1,4 +1,6 @@
-import type { IntegrationContext, Request, Response, z } from '@botpress/sdk'
+import { z } from '@botpress/sdk'
+// eslint-disable-next-line no-duplicate-imports
+import type { IntegrationContext, Request, Response } from '@botpress/sdk'
 import axios from 'axios'
 import * as bp from '.botpress'
 
