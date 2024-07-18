@@ -3,7 +3,7 @@ import { modelId } from 'src/schemas'
 
 export default new IntegrationDefinition({
   name: 'openai',
-  version: '2.2.0',
+  version: '2.2.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {

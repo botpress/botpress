@@ -13,6 +13,17 @@ const openAIClient = new OpenAI({
 //  https://openai.com/api/pricing/
 const models: Record<ModelId, interfaces.llm.ModelDetails> = {
   // IMPORTANT: Only full model names should be supported here, as the short model names can be pointed by OpenAI at any time to a newer model with different pricing.
+  'gpt-4o-mini-2024-07-18': {
+    name: 'GPT 4-o Mini',
+    input: {
+      costPer1MTokens: 0.15,
+      maxTokens: 128_000,
+    },
+    output: {
+      costPer1MTokens: 0.6,
+      maxTokens: 4096,
+    },
+  },
   'gpt-4o-2024-05-13': {
     name: 'GPT 4-o',
     input: {
@@ -56,7 +67,7 @@ export default new bp.Integration({
       return await llm.openai.generateContent<ModelId>(<llm.GenerateContentInput>input, openAIClient, logger, {
         provider: 'openai',
         models,
-        defaultModel: 'gpt-4o-2024-05-13',
+        defaultModel: 'gpt-4o-mini-2024-07-18',
       })
     },
     listModels: async ({}) => {
