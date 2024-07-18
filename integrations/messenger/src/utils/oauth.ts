@@ -1,6 +1,5 @@
-import type { IntegrationContext, Request, Response } from '@botpress/sdk'
+import type { IntegrationContext, Request, Response, z } from '@botpress/sdk'
 import axios from 'axios'
-import z from 'zod'
 import * as bp from '.botpress'
 
 export class MessengerOauthClient {
