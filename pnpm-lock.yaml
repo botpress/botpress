@@ -760,6 +760,9 @@ importers:
       '@slack/web-api':
         specifier: ^6.8.0
         version: 6.8.1
+      axios:
+        specifier: ^1.6.2
+        version: 1.7.2
       messaging-api-messenger:
         specifier: ^1.1.0
         version: 1.1.0
