@@ -12,9 +12,15 @@ export default new IntegrationDefinition({
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
     },
+    ui: {
+      useManualConfiguration: {
+        title: 'Use Manual Configuration',
+      },
+    },
     schema: z.object({
-      appId: z.string(),
-      appSecret: z.string(),
+      useManualConfiguration: z.boolean().optional().describe('Skip oAuth and supply details from a Meta App'),
+      clientId: z.string(),
+      clientSecret: z.string(),
       verifyToken: z.string(),
       pageId: z.string(),
       accessToken: z.string(),
@@ -48,12 +54,15 @@ export default new IntegrationDefinition({
   },
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
-    APP_ID: {
-      description: 'App ID of the Meta app for Messenger bots',
+    CLIENT_ID: {
+      description: 'The client ID of your Meta app.',
     },
-    APP_SECRET: {
-      description: 'App Secret of the Meta app for Messenger bots',
+    CLIENT_SECRET: {
+      description: 'The client secret of your Meta app.',
     },
+    ACCESS_TOKEN: {
+      description: 'Access token for internal Meta App',
+    }
   },
   user: {
     tags: { id: {} },

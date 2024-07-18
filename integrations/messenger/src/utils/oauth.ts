@@ -9,8 +9,8 @@ export class MessengerOauthClient {
   private clientSecret: string
 
   constructor() {
-    this.clientId = bp.secrets.APP_ID
-    this.clientSecret = bp.secrets.APP_SECRET
+    this.clientId = bp.secrets.CLIENT_ID
+    this.clientSecret = bp.secrets.CLIENT_SECRET
   }
 
   async getAccessToken(code: string) {
@@ -54,21 +54,22 @@ export async function handleOAuthRedirect(req: Request, client: bp.Client, ctx: 
     },
   })
 
-  await client.configureIntegration({
+  // TODO: Get identifier from token and set
+  /*await client.configureIntegration({
     identifier: ctx.configuration.pageId, // This should match the identifier obtained by the extract.vrl script
-  })
+  })*/
 
   return { status: 200 }
 }
 
-export async function getAccessToken(client: bp.Client, ctx: IntegrationContext) {
-  if (ctx.configuration.accessToken) {
-    // Use access token from configuration if available
-    return ctx.configuration.accessToken
+export async function getCredentials(client: bp.Client, ctx: IntegrationContext): Promise<{accessToken: string; clientSecret: string; clientId: string}> {
+  if (ctx.configuration.useManualConfiguration) {
+    // Use access token from configuration if manual configuration is enabled
+    return ctx.configuration
   }
 
   // Otherwise use the access token obtained from the OAuth flow and stored in the state
   const { state } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
 
-  return state.payload.accessToken
+  return { accessToken: state.payload.accessToken, clientSecret: bp.secrets.CLIENT_SECRET, clientId: bp.secrets.CLIENT_ID }
 }
