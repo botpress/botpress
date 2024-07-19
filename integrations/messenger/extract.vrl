@@ -1,0 +1,8 @@
+. = parse_json!(.body)
+pageId = null
+
+if .object == "page" {
+  pageId = .entry[0].id
+}
+
+pageId

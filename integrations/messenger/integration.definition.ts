@@ -3,19 +3,32 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'messenger',
-  version: '0.4.3',
+  version: '2.0.0',
   title: 'Messenger',
   description: 'This integration allows your bot to interact with Messenger.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+    },
+    ui: {
+      useManualConfiguration: {
+        title: 'Use Manual Configuration',
+      },
+    },
     schema: z.object({
-      appId: z.string(),
-      appSecret: z.string(),
-      verifyToken: z.string(),
-      pageId: z.string(),
-      accessToken: z.string(),
+      useManualConfiguration: z.boolean().optional().describe('Skip oAuth and supply details from a Meta App'),
+      clientId: z.string().optional(),
+      clientSecret: z.string().optional(),
+      verifyToken: z.string().optional(),
+      pageId: z.string().optional(),
+      accessToken: z.string().optional(),
     }),
+  },
+  identifier: {
+    extractScript: 'extract.vrl',
+    fallbackHandlerScript: 'fallbackHandler.vrl',
   },
   channels: {
     channel: {
@@ -24,16 +37,33 @@ export default new IntegrationDefinition({
         tags: { id: {}, recipientId: {}, senderId: {} },
       },
       conversation: {
-        tags: { id: {}, recipientId: {}, senderId: {} },
-        creation: { enabled: true, requiredTags: ['id'] },
+        tags: { id: {}, recipientId: {}, senderId: {} }
       },
     },
   },
   actions: {},
   events: {},
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  states: {
+    oauth: {
+      type: 'integration',
+      schema: z.object({
+        accessToken: z.string(),
+      }),
+    },
+  },
+  secrets: {
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+    CLIENT_ID: {
+      description: 'The client ID of your Meta app.',
+    },
+    CLIENT_SECRET: {
+      description: 'The client secret of your Meta app.',
+    },
+    ACCESS_TOKEN: {
+      description: 'Access token for internal Meta App',
+    }
+  },
   user: {
-    tags: { id: {} },
-    creation: { enabled: true, requiredTags: ['id'] },
+    tags: { id: {} }
   },
 })

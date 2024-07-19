@@ -5,6 +5,7 @@ import { handleMessage } from './misc/incoming-message'
 import { sendMessage } from './misc/outgoing-message'
 import { MessengerPayload } from './misc/types'
 import { formatGoogleMapLink, getCarouselMessage, getChoiceMessage, getMessengerClient } from './misc/utils'
+import { handleOAuthRedirect } from './utils/oauth'
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({
@@ -86,6 +87,17 @@ const integration = new bp.Integration({
     },
   },
   handler: async ({ req, client, ctx, logger }) => {
+    if (req.path.startsWith('/oauth')) {
+      try {
+        await handleOAuthRedirect(req, client, ctx)
+        return { status: 200 }
+      } catch (err: any) {
+        const errorMessage = '(OAuth registration) Error: ' + err.message
+        logger.forBot().error(errorMessage)
+        return { status: 400, body: errorMessage }
+      }
+    }
+
     logger.forBot().debug('Handler received request from Messenger with payload:', req.body)
 
     if (req.query) {
@@ -149,7 +161,7 @@ const integration = new bp.Integration({
       return
     }
 
-    const messengerClient = getMessengerClient(ctx.configuration)
+    const messengerClient = await getMessengerClient(client, ctx)
     const profile = await messengerClient.getUserProfile(userId)
 
     const { user } = await client.getOrCreateUser({ tags: { id: `${profile.id}` } })
@@ -166,7 +178,7 @@ const integration = new bp.Integration({
       return
     }
 
-    const messengerClient = getMessengerClient(ctx.configuration)
+    const messengerClient = await getMessengerClient(client, ctx)
     const profile = await messengerClient.getUserProfile(userId)
 
     const { conversation } = await client.getOrCreateConversation({
