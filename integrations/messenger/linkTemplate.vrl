@@ -1,12 +1,13 @@
 webhookId = to_string!(.webhookId)
 webhookUrl = to_string!(.webhookUrl)
+env = to_string!(.env)
 
 clientId = "863177262278394"
-configId = "1959069221184739"
+configId = "1573997113497422"
 
 if env == "production" {
     clientId = "1198248357833460"
-    configId = "1959069221184739"
+    configId = "1573997113497422"
 }
 
 "https://www.facebook.com/v19.0/dialog/oauth?client_id={{ clientId }}&redirect_uri={{ webhookUrl }}/oauth&state={{ webhookId }}&config_id={{ configId }}&override_default_response_type=true&response_type=code&extras={\"sessionInfoVersion\":2}"

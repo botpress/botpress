@@ -19,11 +19,11 @@ export default new IntegrationDefinition({
     },
     schema: z.object({
       useManualConfiguration: z.boolean().optional().describe('Skip oAuth and supply details from a Meta App'),
-      clientId: z.string(),
-      clientSecret: z.string(),
-      verifyToken: z.string(),
-      pageId: z.string(),
-      accessToken: z.string(),
+      clientId: z.string().optional(),
+      clientSecret: z.string().optional(),
+      verifyToken: z.string().optional(),
+      pageId: z.string().optional(),
+      accessToken: z.string().optional(),
     }),
   },
   identifier: {
@@ -37,8 +37,7 @@ export default new IntegrationDefinition({
         tags: { id: {}, recipientId: {}, senderId: {} },
       },
       conversation: {
-        tags: { id: {}, recipientId: {}, senderId: {} },
-        creation: { enabled: true, requiredTags: ['id'] },
+        tags: { id: {}, recipientId: {}, senderId: {} }
       },
     },
   },
@@ -65,7 +64,6 @@ export default new IntegrationDefinition({
     }
   },
   user: {
-    tags: { id: {} },
-    creation: { enabled: true, requiredTags: ['id'] },
+    tags: { id: {} }
   },
 })

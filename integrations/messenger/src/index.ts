@@ -88,10 +88,14 @@ const integration = new bp.Integration({
   },
   handler: async ({ req, client, ctx, logger }) => {
     if (req.path.startsWith('/oauth')) {
-      return handleOAuthRedirect(req, client, ctx).catch((err) => {
-        logger.forBot().error('Error while processing redirect from OAuth flow', err.response?.data || err.message)
-        throw err
-      })
+      try {
+        await handleOAuthRedirect(req, client, ctx)
+        return { status: 200 }
+      } catch (err: any) {
+        const errorMessage = '(OAuth registration) Error: ' + err.message
+        logger.forBot().error(errorMessage)
+        return { status: 400, body: errorMessage }
+      }
     }
 
     logger.forBot().debug('Handler received request from Messenger with payload:', req.body)
