@@ -7,10 +7,13 @@ import * as bp from '.botpress'
 export class MessengerOauthClient {
   private clientId: string
   private clientSecret: string
+  private accessToken: string
+  private version: string = 'v19.0'
 
   constructor() {
     this.clientId = bp.secrets.CLIENT_ID
     this.clientSecret = bp.secrets.CLIENT_SECRET
+    this.accessToken = bp.secrets.ACCESS_TOKEN
   }
 
   async getAccessToken(code: string) {
@@ -21,7 +24,7 @@ export class MessengerOauthClient {
       code,
     })
 
-    const res = await axios.get(`https://graph.facebook.com/v18.0/oauth/access_token?${query.toString()}`)
+    const res = await axios.get(`https://graph.facebook.com/${this.version}/oauth/access_token?${query.toString()}`)
 
     const data = z
       .object({
@@ -30,6 +33,23 @@ export class MessengerOauthClient {
       .parse(res.data)
 
     return data.access_token
+  }
+
+  async getPageIdFromToken(inputToken: string): Promise<string> {
+    const query = new URLSearchParams({
+      input_token: inputToken,
+      access_token: this.accessToken,
+    })
+
+    const { data } = await axios.get(`https://graph.facebook.com/${this.version}/debug_token?${query.toString()}`)
+
+    const scope = data.data.granular_scopes.find((item: { scope: string; target_ids: string[] }) => item.scope === 'pages_messaging')
+
+    if(scope?.target_ids?.length !== 1) {
+      throw new Error('You need to select one, and only one page')
+    }
+
+    return scope.target_ids[0]
   }
 }
 
@@ -54,12 +74,11 @@ export async function handleOAuthRedirect(req: Request, client: bp.Client, ctx: 
     },
   })
 
-  // TODO: Get identifier from token and set
-  /*await client.configureIntegration({
-    identifier: ctx.configuration.pageId, // This should match the identifier obtained by the extract.vrl script
-  })*/
+  const pageId = await oauthClient.getPageIdFromToken(accessToken)
 
-  return { status: 200 }
+  await client.configureIntegration({
+    identifier: pageId, // This should match the identifier obtained by the extract.vrl script
+  })
 }
 
 export async function getCredentials(client: bp.Client, ctx: IntegrationContext): Promise<{accessToken: string; clientSecret: string; clientId: string}> {
