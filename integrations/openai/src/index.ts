@@ -14,18 +14,18 @@ const openAIClient = new OpenAI({
 const models: Record<ModelId, interfaces.llm.ModelDetails> = {
   // IMPORTANT: Only full model names should be supported here, as the short model names can be pointed by OpenAI at any time to a newer model with different pricing.
   'gpt-4o-mini-2024-07-18': {
-    name: 'GPT 4-o Mini',
+    name: 'GPT-4o Mini',
     input: {
       costPer1MTokens: 0.15,
       maxTokens: 128_000,
     },
     output: {
       costPer1MTokens: 0.6,
-      maxTokens: 4096,
+      maxTokens: 16_000,
     },
   },
   'gpt-4o-2024-05-13': {
-    name: 'GPT 4-o',
+    name: 'GPT-4o',
     input: {
       costPer1MTokens: 5,
       maxTokens: 128_000,
@@ -36,7 +36,7 @@ const models: Record<ModelId, interfaces.llm.ModelDetails> = {
     },
   },
   'gpt-4-turbo-2024-04-09': {
-    name: 'GPT 4 Turbo',
+    name: 'GPT-4 Turbo',
     input: {
       costPer1MTokens: 10,
       maxTokens: 128_000,
@@ -47,7 +47,7 @@ const models: Record<ModelId, interfaces.llm.ModelDetails> = {
     },
   },
   'gpt-3.5-turbo-0125': {
-    name: 'GPT 3.5',
+    name: 'GPT-3.5',
     input: {
       costPer1MTokens: 0.5,
       maxTokens: 128_000,
