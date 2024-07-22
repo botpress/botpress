@@ -1592,7 +1592,7 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: workspace:*
+        specifier: 0.23.3
         version: link:../../../client
       '@botpress/sdk':
         specifier: 0.8.35
@@ -1611,7 +1611,7 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: workspace:*
+        specifier: 0.23.3
         version: link:../../../client
       '@botpress/sdk':
         specifier: 0.8.35
@@ -1630,7 +1630,7 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: workspace:*
+        specifier: 0.23.3
         version: link:../../../client
       '@botpress/sdk':
         specifier: 0.8.35
@@ -1649,7 +1649,7 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: workspace:*
+        specifier: 0.23.3
         version: link:../../../client
       '@botpress/sdk':
         specifier: 0.8.35
