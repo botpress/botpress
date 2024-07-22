@@ -13,7 +13,7 @@
   },
   "scripts": {
     "check:type": "tsc --noEmit",
-    "build:type": "tsc --emitDeclarationOnly --declaration",
+    "build:type": "tsup ./src/index.ts --dts-resolve --dts-only",
     "build:browser": "ts-node -T ./build.ts --browser",
     "build:node": "ts-node -T ./build.ts --node",
     "build:bundle": "ts-node -T ./build.ts --bundle",
@@ -36,6 +36,7 @@
     "lodash": "^4.17.21",
     "puppeteer": "^22.0.0",
     "ts-node": "^10.9.2",
+    "tsup": "^8.0.2",
     "typescript": "^4.9.4",
     "vitest": "^0.33.0"
   }
