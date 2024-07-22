@@ -42,9 +42,9 @@ export default new IntegrationDefinition({
       },
     },
     schema: z.object({
-      verifyToken: z.string(),
-      accessToken: z.string(),
-      phoneNumberId: z.string(),
+      verifyToken: z.string().min(1),
+      accessToken: z.string().min(1),
+      phoneNumberId: z.string().min(1),
     }),
   },
   channels: {

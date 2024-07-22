@@ -6,10 +6,10 @@ export { channels } from './channels'
 
 export const configuration = {
   schema: z.object({
-    messagingUrl: z.string(),
+    messagingUrl: z.string().min(1),
     clientId: z.string().uuid(),
-    clientToken: z.string(),
-    adminKey: z.string(),
+    clientToken: z.string().min(1),
+    adminKey: z.string().min(1),
   }),
 } satisfies IntegrationDefinitionProps['configuration']
 

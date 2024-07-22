@@ -10,11 +10,11 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      appId: z.string(),
-      appSecret: z.string(),
-      verifyToken: z.string(),
-      pageId: z.string(),
-      accessToken: z.string(),
+      appId: z.string().min(1),
+      appSecret: z.string().min(1),
+      verifyToken: z.string().min(1),
+      pageId: z.string().min(1),
+      accessToken: z.string().min(1),
     }),
   },
   channels: {

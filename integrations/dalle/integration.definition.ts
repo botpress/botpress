@@ -14,7 +14,7 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      apiKey: z.string().describe('Open AI Key'),
+      apiKey: z.string().min(1).describe('Open AI Key'),
     }),
   },
   channels: {},

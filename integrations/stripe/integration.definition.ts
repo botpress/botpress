@@ -40,7 +40,7 @@ export default new IntegrationDefinition({
     'Enhance your chatbot with Stripe to manage payments, subscriptions, and customers seamlessly. Execute workflows on charge failures and subscription updates easily',
   configuration: {
     schema: z.object({
-      apiKey: z.string().describe('API Key'),
+      apiKey: z.string().min(1).describe('API Key'),
       apiVersion: z.string().optional().default('2023-10-16').describe('API Version (optional) (default: 2023-10-16)'),
     }),
   },

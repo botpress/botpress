@@ -25,8 +25,8 @@ export default new IntegrationDefinition({
   channels: {},
   configuration: {
     schema: z.object({
-      apiKey: z.string().describe('Your API Key'),
-      serverPrefix: z.string().describe('Your Server Prefix'),
+      apiKey: z.string().min(1).describe('Your API Key'),
+      serverPrefix: z.string().min(1).describe('Your Server Prefix'),
     }),
   },
   actions: {

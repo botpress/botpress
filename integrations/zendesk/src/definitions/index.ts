@@ -6,15 +6,21 @@ export { channels } from './channels'
 
 export const configuration = {
   schema: z.object({
-    organizationSubdomain: z.string({
-      description: 'Your zendesk organization subdomain. e.g. botpress7281',
-    }),
-    email: z.string({
-      description: 'Your zendesk account email. e.g. john.doe@botpress.com',
-    }),
-    apiToken: z.string({
-      description: 'Zendesk API Token',
-    }),
+    organizationSubdomain: z
+      .string({
+        description: 'Your zendesk organization subdomain. e.g. botpress7281',
+      })
+      .min(1),
+    email: z
+      .string({
+        description: 'Your zendesk account email. e.g. john.doe@botpress.com',
+      })
+      .email(),
+    apiToken: z
+      .string({
+        description: 'Zendesk API Token',
+      })
+      .min(1),
   }),
 } satisfies IntegrationDefinitionProps['configuration']
 

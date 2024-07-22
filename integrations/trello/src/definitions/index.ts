@@ -8,8 +8,8 @@ export { channels }
 
 export const configuration = {
   schema: z.object({
-    apiKey: z.string().describe('API Key for Trello'),
-    token: z.string().describe('API Token for Trello'),
+    apiKey: z.string().min(1).describe('API Key for Trello'),
+    token: z.string().min(1).describe('API Token for Trello'),
   }),
 }
 

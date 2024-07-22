@@ -24,9 +24,11 @@ export default new IntegrationDefinition({
     schema: z.object({
       calendarId: z
         .string()
+        .min(1)
         .describe('The ID of the Google Calendar to interact with. You can find it in your Google Calendar settings.'),
       privateKey: z
         .string()
+        .min(1)
         .describe('The private key from the Google service account. You can get it from the downloaded JSON file.'),
       clientEmail: z
         .string()

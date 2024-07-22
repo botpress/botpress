@@ -10,9 +10,9 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      apiKey: z.string(),
-      apiSecret: z.string(),
-      signatureSecret: z.string(),
+      apiKey: z.string().min(1),
+      apiSecret: z.string().min(1),
+      signatureSecret: z.string().min(1),
       useTestingApi: z.boolean(),
     }),
   },

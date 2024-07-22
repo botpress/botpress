@@ -10,8 +10,8 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      channelAccessToken: z.string(),
-      channelSecret: z.string(),
+      channelAccessToken: z.string().min(1),
+      channelSecret: z.string().min(1),
     }),
   },
   channels: {

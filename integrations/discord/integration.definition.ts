@@ -8,8 +8,8 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      apikey: z.string(),
-      apiSecret: z.string(),
+      apikey: z.string().min(1),
+      apiSecret: z.string().min(1),
     }),
   },
   channels: {
