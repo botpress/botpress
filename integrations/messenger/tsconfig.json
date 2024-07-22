@@ -1,8 +1,14 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+
     "baseUrl": ".",
-    "outDir": "dist"
+    "outDir": "dist",
+    "jsx": "react",
+    "jsxFactory": "React.createElement",
+    "jsxImportSource": "react",
+    "moduleResolution": "Bundler"
   },
-  "include": [".botpress/**/*", "src/**/*", "integration.definition.ts"]
+  "include": [
+    ".botpress/**/*", "src/**/*", "integration.definition.ts"]
 }

@@ -1,0 +1,10 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Select your facebook page</title>
+</head>
+<body>
+  {{myVariable}}
+</body>
+</html>

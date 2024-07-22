@@ -5,8 +5,15 @@ import { handleMessage } from './misc/incoming-message'
 import { sendMessage } from './misc/outgoing-message'
 import { MessengerPayload } from './misc/types'
 import { formatGoogleMapLink, getCarouselMessage, getChoiceMessage, getMessengerClient } from './misc/utils'
-import { handleOAuthRedirect } from './utils/oauth'
+import { handleOAuthRedirect, handleOAuthRedirectAndGetPages } from './utils/oauth'
 import * as bp from '.botpress'
+import Mustache from 'mustache'
+import fs from 'fs'
+import path from 'path'
+import pageSelect from './wizzard/page-select.txt'
+import teste from './wizzard/teste'
+import { renderToStaticMarkup } from 'react-dom/server'
+import React from 'react'
 
 const integration = new bp.Integration({
   register: async () => {},
@@ -87,7 +94,125 @@ const integration = new bp.Integration({
     },
   },
   handler: async ({ req, client, ctx, logger }) => {
-    if (req.path.startsWith('/oauth')) {
+    console.log('got request', {req})
+
+    if (req.query.includes('code')) {
+      try {
+        const pages = await handleOAuthRedirectAndGetPages(req, client, ctx)
+
+        const pagesHTML = pages.map(pageId => `<li onclick="location.assign('https://webhook.botpress.dev/87616b28-2c74-4572-bb16-211b349d54b2?pageId=${pageId}')"> ${pageId} </li>`)
+        const fullHtml = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <title>React Component</title>
+        </head>
+        <body>
+          
+        </body>
+        </html>
+      `
+        return {
+          headers: {
+            'Content-Type': 'text/html'
+          },
+          body: fullHtml
+        }
+      } catch (err: any) {
+        const errorMessage = '(OAuth registration) Error: ' + err.message
+        logger.forBot().error(errorMessage)
+        return { status: 400, body: errorMessage }
+      }
+    } else if (req.query.includes('pageId')) {
+      const page =
+      // Create the full HTML with script tags to rehydrate on the client side
+      const fullHtml = `
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="UTF-8">
+          <title>React Component</title>
+        </head>
+        <body>
+          
+        </body>
+        </html>
+      `
+      return {
+        headers: {
+          'Content-Type': 'text/html'
+        },
+        body: fullHtml
+      }
+    }
+
+    if (req.query) {
+      const query: Record<string, string | string[] | null> = queryString.parse(req.query)
+      if(query.redirect=='true') {
+        return {
+          status: 302,
+          headers: {
+            Location: 'https://facebook.com'
+          },
+          body: 'kkk'
+        }
+      } else {
+        /*const pages =  [ { id: '1', name: 'Tester c' }, { id: '2', name: 'Tester 2 c' } ]
+        const jsxElement = React.createElement('div', {}, [teste({ pages })])
+        const htmlString = renderToStaticMarkup(jsxElement)
+        console.log(htmlString)*/
+
+
+        const pages =  [ { id: '1', name: 'Tester c' }, { id: '2', name: 'Tester 2 c' } ]
+        const txtElement = JSON.stringify(teste({ pages }))
+        console.log(txtElement)
+
+        // Create the full HTML with script tags to rehydrate on the client side
+        const fullHtml = `
+          <!DOCTYPE html>
+          <html lang="en">
+          <head>
+            <meta charset="UTF-8">
+            <title>React Component</title>
+          </head>
+          <body>
+            <div id="root">Loading</div>
+            <script src="https://unpkg.com/react/umd/react.development.js"></script>
+            <script src="https://unpkg.com/react-dom/umd/react-dom.development.js"></script>
+            <script>
+              const container = document.getElementById('root');
+              const root = ReactDOM.createRoot(container);
+              const element = ${txtElement}
+              const testeElement = React.createElement(
+                'button', 
+                { onClick: () => alert('Button Clicked!') }, 
+                'Click me!'
+              );
+              console.log({element, testeElement})
+              
+              root.render(testeElement);
+            </script>
+          </body>
+          </html>
+        `
+
+        console.log(fullHtml)
+
+        return {
+          headers: {
+            'Content-Type': 'text/html'
+          },
+          body: fullHtml
+        }
+      }
+    } else {
+      return {
+        body: 'no query'
+      }
+    }
+
+    /*if (req.path.startsWith('/oauth')) {
       try {
         await handleOAuthRedirect(req, client, ctx)
         return { status: 200 }
@@ -96,7 +221,7 @@ const integration = new bp.Integration({
         logger.forBot().error(errorMessage)
         return { status: 400, body: errorMessage }
       }
-    }
+    }*/
 
     logger.forBot().debug('Handler received request from Messenger with payload:', req.body)
 

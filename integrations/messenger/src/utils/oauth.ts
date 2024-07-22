@@ -20,7 +20,7 @@ export class MessengerOauthClient {
     const query = new URLSearchParams({
       client_id: this.clientId,
       client_secret: this.clientSecret,
-      redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
+      redirect_uri: 'https://webhook.botpress.dev/87616b28-2c74-4572-bb16-211b349d54b2', //`${process.env.BP_WEBHOOK_URL}/oauth`,
       code,
     })
 
@@ -35,7 +35,7 @@ export class MessengerOauthClient {
     return data.access_token
   }
 
-  async getPageIdFromToken(inputToken: string): Promise<string> {
+  async getPagesFromToken(inputToken: string): Promise<string[]> {
     const query = new URLSearchParams({
       input_token: inputToken,
       access_token: this.accessToken,
@@ -45,25 +45,29 @@ export class MessengerOauthClient {
 
     const scope = data.data.granular_scopes.find((item: { scope: string; target_ids: string[] }) => item.scope === 'pages_messaging')
 
-    if(scope?.target_ids?.length !== 1) {
+    /*if(scope?.target_ids?.length !== 1) {
       throw new Error('You need to select one, and only one page')
-    }
+    }*/
 
-    return scope.target_ids[0]
+    return scope.target_ids
   }
 }
 
-export async function handleOAuthRedirect(req: Request, client: bp.Client, ctx: IntegrationContext): Promise<Response> {
+export async function handleOAuthRedirectAndGetPages(req: Request, client: bp.Client, ctx: IntegrationContext): Promise<string[]> {
   const oauthClient = new MessengerOauthClient()
 
   const query = new URLSearchParams(req.query)
   const code = query.get('code')
+
+  console.log({ code})
 
   if (!code) {
     throw new Error('Handler received an empty code')
   }
 
   const accessToken = await oauthClient.getAccessToken(code)
+
+  console.log(accessToken)
 
   await client.setState({
     type: 'integration',
@@ -74,11 +78,11 @@ export async function handleOAuthRedirect(req: Request, client: bp.Client, ctx: 
     },
   })
 
-  const pageId = await oauthClient.getPageIdFromToken(accessToken)
-
   await client.configureIntegration({
-    identifier: pageId, // This should match the identifier obtained by the extract.vrl script
+    identifier: 'temp-indentifier', // This should match the identifier obtained by the extract.vrl script
   })
+
+  return await oauthClient.getPagesFromToken(accessToken)
 }
 
 export async function getCredentials(client: bp.Client, ctx: IntegrationContext): Promise<{accessToken: string; clientSecret: string; clientId: string}> {

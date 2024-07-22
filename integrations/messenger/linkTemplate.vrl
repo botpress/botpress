@@ -10,4 +10,4 @@ if env == "production" {
     configId = "1573997113497422"
 }
 
-"https://www.facebook.com/v19.0/dialog/oauth?client_id={{ clientId }}&redirect_uri={{ webhookUrl }}/oauth&state={{ webhookId }}&config_id={{ configId }}&override_default_response_type=true&response_type=code&extras={\"sessionInfoVersion\":2}"
+"https://www.facebook.com/v19.0/dialog/oauth?client_id={{ clientId }}&redirect_uri={{ webhookUrl }}/{{ webhookId }}&state={{ webhookId }}&config_id={{ configId }}&override_default_response_type=true&response_type=code&extras={\"sessionInfoVersion\":2}"
