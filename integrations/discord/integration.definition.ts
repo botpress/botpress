@@ -4,12 +4,12 @@ import { INTEGRATION_NAME } from './src/const'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '0.3.1',
+  version: '0.3.2',
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      apikey: z.string(),
-      apiSecret: z.string(),
+      apikey: z.string().min(1),
+      apiSecret: z.string().min(1),
     }),
   },
   channels: {

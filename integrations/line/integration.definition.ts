@@ -3,15 +3,15 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'line',
-  version: '0.4.2',
+  version: '0.4.3',
   title: 'Line',
   description: 'This integration allows your bot to interact with Line.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      channelAccessToken: z.string(),
-      channelSecret: z.string(),
+      channelAccessToken: z.string().min(1),
+      channelSecret: z.string().min(1),
     }),
   },
   channels: {
