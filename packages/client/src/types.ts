@@ -15,6 +15,10 @@ export type {
   IssueEvent,
   Account,
   Workspace,
+  WorkspaceMember,
+  Table,
+  Column,
+  Row,
   Usage,
 } from './gen/models'
 
