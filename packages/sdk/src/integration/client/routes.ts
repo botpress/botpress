@@ -225,6 +225,9 @@ type StateResponse<TIntegration extends BaseIntegration, TState extends keyof TI
       payload: TIntegration['states'][TState]
     }
   >
+  meta: {
+    cached: boolean
+  }
 }
 
 export type GetState<TIntegration extends BaseIntegration> = <TState extends keyof TIntegration['states']>(
