@@ -12,6 +12,7 @@
 
 # Integrations
 /integrations/charts @allardy @botpress/cloud-services
+/integrations/pdf-generator @lakshya0246 @botpress/cloud-services
 /integrations/dalle @franklevasseur @botpress/cloud-services
 /integrations/gmail @michaelmass @botpress/cloud-services
 /integrations/googlecalendar @franklevasseur @botpress/cloud-services
