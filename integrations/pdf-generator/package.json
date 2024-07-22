@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/pdf-generator",
-  "integrationName": "pdf-generator",
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "pnpm bp build"

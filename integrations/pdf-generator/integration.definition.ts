@@ -1,8 +1,7 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { integrationName } from './package.json'
 
 export default new IntegrationDefinition({
-  name: integrationName,
+  name: 'pdf-generator',
   version: '0.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
