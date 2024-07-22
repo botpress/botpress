@@ -1477,7 +1477,7 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: workspace:*
+        specifier: 0.23.3
         version: link:../client
       '@botpress/sdk':
         specifier: 0.8.35
@@ -1730,7 +1730,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: workspace:*
+        specifier: 0.23.3
         version: link:../client
       '@bpinternal/zui':
         specifier: 0.9.3
