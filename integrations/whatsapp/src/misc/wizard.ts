@@ -104,7 +104,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: Integra
           description: 'Choose a number from the current Whatsapp Business Account to use as default:',
           settings: { targetUrl: `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}` },
           select: {
-            key: 'wabaId',
+            key: 'phoneNumberId',
             options: phoneNumbers.map((phoneNumber) => ({ id: phoneNumber.id, display: phoneNumber.verifiedName })),
           },
           additionalData: [{ key: 'wizard-step', value: 'verify-number' }],
