@@ -485,8 +485,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       openai:
-        specifier: ^4.50.0
-        version: 4.50.0
+        specifier: ^4.53.0
+        version: 4.53.0
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -1755,8 +1755,8 @@ importers:
         specifier: workspace:*
         version: link:../sdk
       openai:
-        specifier: ^4.50.0
-        version: 4.50.0
+        specifier: ^4.53.0
+        version: 4.53.0
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -10034,22 +10034,6 @@ packages:
       define-lazy-prop: 2.0.0
       is-docker: 2.2.1
       is-wsl: 2.2.0
-    dev: false
-
-  /openai@4.50.0:
-    resolution: {integrity: sha512-2ADkNIU6Q589oYHr5pn9k7SbUcrBTK9X0rIXrYqwMVSoqOj1yK9/1OO0ExaWsqOOpD7o58UmRjeKlx9gKAcuKQ==}
-    hasBin: true
-    dependencies:
-      '@types/node': 18.19.10
-      '@types/node-fetch': 2.6.4
-      abort-controller: 3.0.0
-      agentkeepalive: 4.5.0
-      form-data-encoder: 1.7.2
-      formdata-node: 4.4.1
-      node-fetch: 2.7.0
-      web-streams-polyfill: 3.3.3
-    transitivePeerDependencies:
-      - encoding
     dev: false
 
   /openai@4.53.0:

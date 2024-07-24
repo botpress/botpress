@@ -8,10 +8,10 @@
   },
   "private": true,
   "dependencies": {
-    "@botpress/common": "workspace:*",
     "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "openai": "^4.50.0"
+    "openai": "^4.53.0"
   },
   "devDependencies": {
     "@types/node": "^18.11.17",
