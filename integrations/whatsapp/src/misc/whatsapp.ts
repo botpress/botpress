@@ -117,6 +117,7 @@ export class MetaOauthClient {
         .error(
           `(OAuth registration) Error subscribing to webhooks for WABA ${wabaId}: ${e.message} -> ${e.response?.data}`
         )
+      throw new Error('Issue subscribing to Webhooks for WABA, please try again.')
     }
   }
 }

@@ -125,8 +125,8 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: Integra
     await client.configureIntegration({
       identifier: wabaId,
     })
-    void oauthClient.registerNumber(phoneNumberId, accessToken)
-    void oauthClient.subscribeToWebhooks(wabaId, accessToken)
+    await oauthClient.registerNumber(phoneNumberId, accessToken)
+    await oauthClient.subscribeToWebhooks(wabaId, accessToken)
 
     return redirectTo(getInterstitialUrl(true))
   }
