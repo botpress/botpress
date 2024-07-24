@@ -10,8 +10,8 @@ const openAIClient = new OpenAI({
   apiKey: bp.secrets.OPENAI_API_KEY,
 })
 
-const DefaultLanguageModelId: LanguageModelId = 'gpt-4o-mini-2024-07-18'
-const DefaultImageModelId: ImageModelId = 'dall-e-3-standard-1024'
+const DEFAULT_LANGUAGE_MODEL_ID: LanguageModelId = 'gpt-4o-mini-2024-07-18'
+const DEFAULT_IMAGE_MODEL_ID: ImageModelId = 'dall-e-3-standard-1024'
 
 // References:
 //  https://platform.openai.com/docs/models
@@ -117,11 +117,11 @@ export default new bp.Integration({
       return await llm.openai.generateContent<LanguageModelId>(<llm.GenerateContentInput>input, openAIClient, logger, {
         provider: 'openai',
         models: languageModels,
-        defaultModel: DefaultLanguageModelId,
+        defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
       })
     },
     generateImage: async ({ input }) => {
-      const imageModelId = (input.model?.id ?? DefaultImageModelId) as ImageModelId
+      const imageModelId = (input.model?.id ?? DEFAULT_IMAGE_MODEL_ID) as ImageModelId
       const imageModel = imageModels[imageModelId]
       if (!imageModel) {
         throw new InvalidPayloadError(

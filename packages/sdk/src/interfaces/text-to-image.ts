@@ -5,8 +5,7 @@ const ImageModelRefSchema = z.object({
   id: z.string(),
 })
 
-const ImageModelSchema = z.object({
-  id: z.string(),
+const ImageModelSchema = ImageModelRefSchema.extend({
   name: z.string(),
   costPerImage: z.number().describe('Cost per image generation, in U.S. dollars'),
   sizes: z.array(z.string()).describe('Available image sizes'),
