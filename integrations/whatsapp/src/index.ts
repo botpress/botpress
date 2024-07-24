@@ -11,12 +11,12 @@ import * as card from './message-types/card'
 import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
+import { getInterstitialUrl, redirectTo } from './misc/html-utils'
 import { getAccessToken, getPhoneNumberId, getSecret } from './misc/whatsapp'
+import { handleWizard } from './misc/wizard'
 import * as outgoing from './outgoing-message'
 import { WhatsAppPayload } from './whatsapp-types'
 import * as bp from '.botpress'
-import { getInterstitialUrl, redirectTo } from './misc/html-utils'
-import { handleWizard } from './misc/wizard'
 
 const integration = new bp.Integration({
   register: async () => {},

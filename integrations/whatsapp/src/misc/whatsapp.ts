@@ -41,7 +41,7 @@ export class MetaOauthClient {
     )
 
     const businessIds = dataDebugToken.data.granular_scopes.find(
-      (item: { scope: string; target_ids: string[] }) => item.scope == 'whatsapp_business_messaging'
+      (item: { scope: string; target_ids: string[] }) => item.scope === 'whatsapp_business_messaging'
     ).target_ids
 
     const { data: dataBusinesses } = await axios.get(

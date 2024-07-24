@@ -1,8 +1,8 @@
 import { IntegrationContext, Request } from '@botpress/sdk'
-import * as bp from '../../.botpress'
-import { getOAuthConfigId, MetaOauthClient } from './whatsapp'
-import { generateButtonDialog, generateSelectDialog, getInterstitialUrl, redirectTo } from './html-utils'
 import queryString from 'query-string'
+import * as bp from '../../.botpress'
+import { generateButtonDialog, generateSelectDialog, getInterstitialUrl, redirectTo } from './html-utils'
+import { getOAuthConfigId, MetaOauthClient } from './whatsapp'
 
 export const handleWizard = async (req: Request, client: bp.Client, ctx: IntegrationContext, logger: bp.Logger) => {
   const query = queryString.parse(req.query)
@@ -11,7 +11,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: Integra
 
   let { accessToken, wabaId, phoneNumberId } = await getCredentialsState(client, ctx)
 
-  if (wizardStep == 'start-confirm') {
+  if (wizardStep === 'start-confirm') {
     return generateButtonDialog({
       title: 'Reset Configuration',
       description:
@@ -23,7 +23,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: Integra
     })
   }
 
-  if (wizardStep == 'setup') {
+  if (wizardStep === 'setup') {
     await client.configureIntegration({
       identifier: ctx.webhookId,
     })
@@ -49,7 +49,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: Integra
 
   const oauthClient = new MetaOauthClient(logger)
 
-  if (wizardStep == 'get-access-token') {
+  if (wizardStep === 'get-access-token') {
     const code = query['code'] as string
     if (code) {
       accessToken = await oauthClient.getAccessToken(code)
@@ -63,11 +63,11 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: Integra
     throw new Error('Access token not available, please try again.')
   }
 
-  if (wizardStep == 'verify-waba') {
+  if (wizardStep === 'verify-waba') {
     wabaId = (query['wabaId'] as string) || wabaId
     if (!wabaId || query['force-step']) {
       const businesses = await oauthClient.getWhatsappBusinessesFromToken(accessToken)
-      if (businesses.length == 1) {
+      if (businesses.length === 1) {
         wabaId = businesses[0]?.id
       } else {
         return generateSelectDialog({
@@ -92,11 +92,11 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: Integra
     throw new Error("Couldn't get the Whatsapp Business Account")
   }
 
-  if (wizardStep == 'verify-number') {
+  if (wizardStep === 'verify-number') {
     phoneNumberId = (query['phoneNumberId'] as string) || phoneNumberId
     if (!phoneNumberId || query['force-step']) {
       const phoneNumbers = await oauthClient.getWhatsappNumbersFromBusiness(wabaId, accessToken)
-      if (phoneNumbers.length == 1) {
+      if (phoneNumbers.length === 1) {
         phoneNumberId = phoneNumbers[0]?.id
       } else {
         return generateSelectDialog({
@@ -121,7 +121,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: Integra
     throw new Error("Couldn't get the Default Number")
   }
 
-  if (wizardStep == 'wrap-up') {
+  if (wizardStep === 'wrap-up') {
     await client.configureIntegration({
       identifier: wabaId,
     })
