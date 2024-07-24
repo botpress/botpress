@@ -44,5 +44,4 @@ jobs:
           openai_secrets: '--secrets OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}'
           groq_secrets: '--secrets GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}'
           whatsapp_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_WHATSAPP_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_WHATSAPP_CLIENT_SECRET }} --secrets ACCESS_TOKEN=${{ secrets.PRODUCTION_WHATSAPP_ACCESS_TOKEN }} --secrets NUMBER_PIN=${{ secrets.PRODUCTION_WHATSAPP_NUMBER_PIN }}'
-          extra_filter: "-F '!charts' -F '!webbrowser'"
           anthropic_secrets: '--secrets ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}'
