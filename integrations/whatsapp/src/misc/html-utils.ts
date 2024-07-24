@@ -152,7 +152,7 @@ export const generateSelectDialog = ({
                       )
                       .join('')}
                     <div class="form-group">
-                        <label for="${select.key}">${description}:</label>
+                        <label for="${select.key}">${description}</label>
                         <div>
                             ${select.options
                               .map(
