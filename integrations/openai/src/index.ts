@@ -120,7 +120,7 @@ export default new bp.Integration({
         defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
       })
     },
-    generateImage: async ({ input }) => {
+    generateImage: async ({ input, client }) => {
       const imageModelId = (input.model?.id ?? DEFAULT_IMAGE_MODEL_ID) as ImageModelId
       const imageModel = imageModels[imageModelId]
       if (!imageModel) {
@@ -153,15 +153,26 @@ export default new bp.Integration({
         response_format: 'url',
       })
 
-      const imageUrl = result.data[0]?.url
-
-      if (!imageUrl) {
+      const temporaryImageUrl = result.data[0]?.url
+      if (!temporaryImageUrl) {
         throw new Error('No image was returned by OpenAI')
       }
 
+      // File storage is billed to the workspace of the bot that called this action.
+      const { file } = await client.uploadFile({
+        key: temporaryImageUrl,
+        url: temporaryImageUrl,
+        contentType: 'image/png',
+        accessPolicies: ['public_content'],
+        tags: {
+          source: 'integration:openai',
+        },
+        // TODO: set a user-defined file expiry once it's supported so storage costs are minimized, if desired expiry is short enough we can also just directly pass the temporary URL provided by OpenAI
+      })
+
       return {
         model: imageModelId,
-        imageUrl,
+        imageUrl: file.url,
         cost: imageModel.costPerImage,
       }
     },
