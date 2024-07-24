@@ -19,7 +19,6 @@ export default new IntegrationDefinition({
     },
     imageGenerationParams: {
       schema: z.object({
-        id: z.string(), // TODO: remove
         style: z
           .enum(['natural', 'vivid'])
           .default('vivid')
