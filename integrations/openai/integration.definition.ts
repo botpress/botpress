@@ -1,15 +1,30 @@
 import { IntegrationDefinition, interfaces, z } from '@botpress/sdk'
-import { modelId } from 'src/schemas'
+import { languageModelId } from 'src/schemas'
 
 export default new IntegrationDefinition({
-  name: 'openai',
-  version: '2.2.2',
+  name: 'openai-next',
+  version: '2.3.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
     modelRef: {
       schema: z.object({
-        id: modelId,
+        id: languageModelId,
+      }),
+    },
+    imageModelRef: {
+      schema: z.object({
+        id: z.string(),
+      }),
+    },
+    imageGenerationParams: {
+      schema: z.object({
+        id: z.string(), // TODO: remove
+        style: z
+          .enum(['natural', 'vivid'])
+          .default('vivid')
+          .describe('Image style - Only supported by DALL-E 3 models'),
+        user: z.string().optional().describe('User ID to associate with the image, for abuse detection purposes'),
       }),
     },
   },
@@ -18,6 +33,9 @@ export default new IntegrationDefinition({
       description: 'OpenAI API key',
     },
   },
-}).extend(interfaces.llm, ({ modelRef }) => ({
-  modelRef,
-}))
+})
+  .extend(interfaces.llm, ({ modelRef }) => ({ modelRef }))
+  .extend(interfaces.textToImage, ({ imageModelRef, imageGenerationParams }) => ({
+    imageModelRef,
+    imageGenerationParams,
+  }))

@@ -9,7 +9,7 @@ const anthropic = new Anthropic({
   apiKey: bp.secrets.ANTHROPIC_API_KEY,
 })
 
-const models: Record<ModelId, interfaces.llm.ModelDetails> = {
+const languageModels: Record<ModelId, interfaces.llm.ModelDetails> = {
   // Reference: https://docs.anthropic.com/en/docs/about-claude/models
   'claude-3-5-sonnet-20240620': {
     name: 'Claude 3.5 Sonnet',
@@ -41,13 +41,13 @@ export default new bp.Integration({
   actions: {
     generateContent: async ({ input, logger }) => {
       return await generateContent<ModelId>(<llm.GenerateContentInput>input, anthropic, logger, {
-        models,
+        models: languageModels,
         defaultModel: 'claude-3-5-sonnet-20240620',
       })
     },
-    listModels: async ({}) => {
+    listLanguageModels: async ({}) => {
       return {
-        models: Object.entries(models).map(([id, model]) => ({ id: <ModelId>id, ...model })),
+        models: Object.entries(languageModels).map(([id, model]) => ({ id: <ModelId>id, ...model })),
       }
     },
   },

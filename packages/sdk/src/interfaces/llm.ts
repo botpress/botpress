@@ -54,11 +54,11 @@ const ModelSchema = ModelRefSchema.extend({
   name: z.string(),
   input: z.object({
     maxTokens: z.number().int(),
-    costPer1MTokens: z.number(),
+    costPer1MTokens: z.number().describe('Cost per 1 million tokens, in U.S. dollars'),
   }),
   output: z.object({
     maxTokens: z.number().int(),
-    costPer1MTokens: z.number(),
+    costPer1MTokens: z.number().describe('Cost per 1 million tokens, in U.S. dollars'),
   }),
 })
 
@@ -140,7 +140,7 @@ const GenerateContentOutputSchema = z.object({
 
 export const llm = new InterfaceDeclaration({
   name: 'llm',
-  version: '1.0.0',
+  version: '2.0.0',
   entities: {
     modelRef: {
       schema: ModelRefSchema,
@@ -156,7 +156,7 @@ export const llm = new InterfaceDeclaration({
         schema: () => GenerateContentOutputSchema,
       },
     },
-    listModels: {
+    listLanguageModels: {
       input: {
         schema: () => z.object({}),
       },
