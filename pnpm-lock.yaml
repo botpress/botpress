@@ -485,8 +485,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       openai:
-        specifier: ^4.50.0
-        version: 4.50.0
+        specifier: ^4.53.0
+        version: 4.53.0
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -813,8 +813,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
       openai:
-        specifier: ^4.50.0
-        version: 4.50.0
+        specifier: ^4.53.0
+        version: 4.53.0
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -1483,6 +1483,19 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  interfaces/text-to-image:
+    dependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   interfaces/updatable:
     dependencies:
       '@botpress/sdk':
@@ -1742,8 +1755,8 @@ importers:
         specifier: workspace:*
         version: link:../sdk
       openai:
-        specifier: ^4.50.0
-        version: 4.50.0
+        specifier: ^4.53.0
+        version: 4.53.0
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -10023,8 +10036,8 @@ packages:
       is-wsl: 2.2.0
     dev: false
 
-  /openai@4.50.0:
-    resolution: {integrity: sha512-2ADkNIU6Q589oYHr5pn9k7SbUcrBTK9X0rIXrYqwMVSoqOj1yK9/1OO0ExaWsqOOpD7o58UmRjeKlx9gKAcuKQ==}
+  /openai@4.53.0:
+    resolution: {integrity: sha512-XoMaJsSLuedW5eoMEMmZbdNoXgML3ujcU5KfwRnC6rnbmZkHE2Q4J/SArwhqCxQRqJwHnQUj1LpiROmKPExZJA==}
     hasBin: true
     dependencies:
       '@types/node': 18.19.10

@@ -9,7 +9,7 @@ const groqClient = new OpenAI({
   apiKey: bp.secrets.GROQ_API_KEY,
 })
 
-const models: Record<ModelId, interfaces.llm.ModelDetails> = {
+const languageModels: Record<ModelId, interfaces.llm.ModelDetails> = {
   // Reference:
   //  https://console.groq.com/docs/models
   //  https://wow.groq.com/
@@ -77,13 +77,13 @@ export default new bp.Integration({
     generateContent: async ({ input, logger }) => {
       return await llm.openai.generateContent<ModelId>(<llm.GenerateContentInput>input, groqClient, logger, {
         provider: 'groq',
-        models,
+        models: languageModels,
         defaultModel: 'mixtral-8x7b-32768',
       })
     },
-    listModels: async ({}) => {
+    listLanguageModels: async ({}) => {
       return {
-        models: Object.entries(models).map(([id, model]) => ({ id: <ModelId>id, ...model })),
+        models: Object.entries(languageModels).map(([id, model]) => ({ id: <ModelId>id, ...model })),
       }
     },
   },
