@@ -43,7 +43,6 @@ jobs:
           linear_secrets: '' # secrets should already exst
           slack_secrets: '' # secrets should already exist
           charts_secrets: '--secrets QUICKCHARTS_API_KEY=${{ secrets.QUICKCHARTS_API_KEY }}'
-          webbrowser_secrets: '--secrets EXTRACT_CONTENT_KEY=${{ secrets.EXTRACT_CONTENT_KEY }} --secrets SCREENSHOT_API_KEY=${{ secrets.SCREENSHOT_API_KEY }}'
           whatsapp_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_WHATSAPP_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_WHATSAPP_CLIENT_SECRET }} --secrets ACCESS_TOKEN=${{ secrets.STAGING_WHATSAPP_ACCESS_TOKEN }} --secrets NUMBER_PIN=${{ secrets.STAGING_WHATSAPP_NUMBER_PIN }}'
           pdf_secrets: '--secrets PDFSHIFT_API_KEY=${{ secrets.PDFSHIFT_API_KEY }}'
           browser_secrets: '--secrets FIRECRAWL_API_KEY=${{ secrets.FIRECRAWL_API_KEY }} --secrets SCREENSHOT_API_KEY=${{ secrets.SCREENSHOT_API_KEY }}'

@@ -115,8 +115,6 @@ runs:
                 base_command="$base_command ${{ inputs.charts_secrets }}"
             elif [ $integration == "whatsapp" ]; then
                 base_command="$base_command ${{ inputs.whatsapp_secrets }}"
-            elif [ $integration == "webbrowser" ]; then
-                base_command="$base_command ${{ inputs.webbrowser_secrets }}"
             elif [ $integration == "pdf-generator" ]; then
                 base_command="$base_command ${{ inputs.pdf_secrets }}"
             elif [ $integration == "browser" ]; then
