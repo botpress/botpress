@@ -15,7 +15,7 @@ const ImageModelSchema = z.object({
 
 const ImageGenerationParamsSchema = z
   .object({
-    id: z.string(),
+    id: z.string(), // TODO: remove
   })
   .describe('Model-specific parameters for image generation')
 

@@ -2,7 +2,7 @@ import { IntegrationDefinition, interfaces, z } from '@botpress/sdk'
 import { languageModelId } from 'src/schemas'
 
 export default new IntegrationDefinition({
-  name: 'openai-next',
+  name: 'openai',
   version: '2.3.0',
   readme: 'hub.md',
   icon: 'icon.svg',
