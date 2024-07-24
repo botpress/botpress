@@ -182,7 +182,7 @@ export default new bp.Integration({
 
 function getOpenAIImageGenerationParams(modelId: ImageModelId): {
   model: Images.ImageGenerateParams['model']
-  quality: Images.ImageGenerateParams['quality']
+  quality?: Images.ImageGenerateParams['quality']
 } {
   switch (modelId) {
     case 'dall-e-3-standard-1024':
@@ -194,11 +194,11 @@ function getOpenAIImageGenerationParams(modelId: ImageModelId): {
     case 'dall-e-3-hd-1792':
       return { model: 'dall-e-3', quality: 'hd' }
     case 'dall-e-2-256':
-      return { model: 'dall-e-2', quality: 'standard' }
+      return { model: 'dall-e-2' }
     case 'dall-e-2-512':
-      return { model: 'dall-e-2', quality: 'standard' }
+      return { model: 'dall-e-2' }
     case 'dall-e-2-1024':
-      return { model: 'dall-e-2', quality: 'standard' }
+      return { model: 'dall-e-2' }
     default:
       throw new Error(`Invalid model ID: ${modelId}`)
   }
