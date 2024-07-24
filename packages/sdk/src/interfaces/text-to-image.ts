@@ -35,6 +35,7 @@ const GenerateContentInputBaseSchema = GenerateImageInputSchema(ImageModelRefSch
 const GenerateImageOutputSchema = z.object({
   model: z.string().describe('Model name used'),
   imageUrl: z.string().describe('Temporary URL of generated image'),
+  cost: z.number().describe('Cost of the image generation, in U.S. dollars'),
 })
 
 export const textToImage = new InterfaceDeclaration({

@@ -162,6 +162,7 @@ export default new bp.Integration({
       return {
         model: imageModelId,
         imageUrl,
+        cost: imageModel.costPerImage,
       }
     },
     listLanguageModels: async ({}) => {
