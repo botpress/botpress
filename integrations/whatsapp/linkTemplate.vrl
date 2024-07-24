@@ -1,13 +1,4 @@
 webhookId = to_string!(.webhookId)
 webhookUrl = to_string!(.webhookUrl)
-env = to_string!(.env)
 
-clientId = "863177262278394"
-configId = "1535672497288913"
-
-if env == "production" {
-    clientId = "1198248357833460"
-    configId = "1620101672166859"
-}
-
-"https://www.facebook.com/v19.0/dialog/oauth?client_id={{ clientId }}&redirect_uri={{ webhookUrl }}/oauth&state={{ webhookId }}&config_id={{ configId }}&override_default_response_type=true&response_type=code&extras={\"sessionInfoVersion\":2}"
+"{{ webhookUrl }}/{{ webhookId }}?wizard-step=start-confirm"

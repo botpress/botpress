@@ -113,6 +113,7 @@ export default new IntegrationDefinition({
       schema: z.object({
         accessToken: z.string().optional(),
         phoneNumberId: z.string().optional(),
+        wabaId: z.string().optional(),
       }),
     },
   },

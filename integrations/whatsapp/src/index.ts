@@ -11,10 +11,12 @@ import * as card from './message-types/card'
 import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
-import { getAccessToken, getPhoneNumberId, getSecret, handleOauth } from './misc/whatsapp'
+import { getAccessToken, getPhoneNumberId, getSecret } from './misc/whatsapp'
 import * as outgoing from './outgoing-message'
 import { WhatsAppPayload } from './whatsapp-types'
 import * as bp from '.botpress'
+import { getInterstitialUrl, redirectTo } from './misc/html-utils'
+import { handleWizard } from './misc/wizard'
 
 const integration = new bp.Integration({
   register: async () => {},
@@ -127,13 +129,13 @@ const integration = new bp.Integration({
     },
   },
   handler: async ({ req, client, ctx, logger }) => {
-    if (req.path === '/oauth') {
+    if (req.query?.includes('code') || req.query?.includes('wizard-step')) {
       try {
-        return handleOauth(req, client, ctx, logger)
+        return await handleWizard(req, client, ctx, logger)
       } catch (err: any) {
-        const errorMessage = '(OAuth registration) Error: ' + err.response?.data || err.message
+        const errorMessage = '(OAuth registration) Error: ' + err.message
         logger.forBot().error(errorMessage)
-        return { status: 500, body: errorMessage }
+        return redirectTo(getInterstitialUrl(false, errorMessage))
       }
     }
 

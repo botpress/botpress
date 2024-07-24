@@ -1,4 +1,4 @@
-import { IntegrationContext, Request, z } from '@botpress/sdk'
+import { IntegrationContext, z } from '@botpress/sdk'
 import axios from 'axios'
 import * as bp from '.botpress'
 
@@ -16,7 +16,7 @@ export class MetaOauthClient {
     const query = new URLSearchParams({
       client_id: this.clientId,
       client_secret: this.clientSecret,
-      redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
+      redirect_uri: `${process.env.BP_WEBHOOK_URL}/integration/global/meta/whatsapp`,
       code,
     })
 
@@ -30,18 +30,36 @@ export class MetaOauthClient {
     return data.access_token
   }
 
-  async getWhatsappBusinessIdFromToken(inputToken: string) {
+  async getWhatsappBusinessesFromToken(inputToken: string): Promise<{ id: string; name: string }[]> {
     const query = new URLSearchParams({
       input_token: inputToken,
       access_token: bp.secrets.ACCESS_TOKEN,
     })
 
-    const { data } = await axios.get(`https://graph.facebook.com/${this.version}/debug_token?${query.toString()}`)
+    const { data: dataDebugToken } = await axios.get(
+      `https://graph.facebook.com/${this.version}/debug_token?${query.toString()}`
+    )
 
-    return data.data.granular_scopes[0].target_ids[0]
+    const businessIds = dataDebugToken.data.granular_scopes.find(
+      (item: { scope: string; target_ids: string[] }) => item.scope == 'whatsapp_business_messaging'
+    ).target_ids
+
+    const { data: dataBusinesses } = await axios.get(
+      `https://graph.facebook.com/${this.version}/?ids=${businessIds.join()}&fields=id,name`,
+      {
+        headers: {
+          Authorization: `Bearer ${inputToken}`,
+        },
+      }
+    )
+
+    return Object.keys(dataBusinesses).map((key) => dataBusinesses[key])
   }
 
-  async getWhatsappNumberIdFromBusiness(businessId: string, accessToken: string) {
+  async getWhatsappNumbersFromBusiness(
+    businessId: string,
+    accessToken: string
+  ): Promise<{ id: string; verifiedName: string }[]> {
     const query = new URLSearchParams({
       access_token: accessToken,
     })
@@ -50,7 +68,10 @@ export class MetaOauthClient {
       `https://graph.facebook.com/${this.version}/${businessId}/phone_numbers?${query.toString()}`
     )
 
-    return data.data[0].id
+    return data.data.map((item: { id: string; verified_name: string }) => ({
+      id: item.id,
+      verifiedName: item.verified_name,
+    }))
   }
 
   async registerNumber(numberId: string, accessToken: string) {
@@ -100,41 +121,6 @@ export class MetaOauthClient {
   }
 }
 
-export const handleOauth = async (req: Request, client: bp.Client, ctx: IntegrationContext, logger: bp.Logger) => {
-  const oauthClient = new MetaOauthClient(logger)
-
-  const query = new URLSearchParams(req.query)
-  const code = query.get('code')
-
-  if (!code) {
-    throw new Error('Handler received an empty code')
-  }
-
-  const accessToken = await oauthClient.getAccessToken(code)
-
-  const wabaId = await oauthClient.getWhatsappBusinessIdFromToken(accessToken)
-
-  await client.configureIntegration({
-    identifier: wabaId,
-  })
-
-  const phoneNumberId = await oauthClient.getWhatsappNumberIdFromBusiness(wabaId, accessToken)
-
-  // For now these will be async since we have a 5 sec timeout on the webhook
-  void oauthClient.registerNumber(phoneNumberId, accessToken)
-  void oauthClient.subscribeToWebhooks(wabaId, accessToken)
-
-  await client.setState({
-    type: 'integration',
-    name: 'credentials',
-    id: ctx.integrationId,
-    payload: {
-      accessToken,
-      phoneNumberId,
-    },
-  })
-}
-
 export const getAccessToken = async (client: bp.Client, ctx: IntegrationContext) => {
   if (ctx.configuration.useManualConfiguration) {
     return ctx.configuration.accessToken
@@ -166,4 +152,12 @@ export const getPhoneNumberId = async (client: bp.Client, ctx: IntegrationContex
     state: { payload },
   } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
   return payload.phoneNumberId
+}
+
+export const getOAuthConfigId = () => {
+  if (process.env.BP_WEBHOOK_URL?.includes('dev')) {
+    return '1535672497288913'
+  }
+
+  return '1620101672166859'
 }
