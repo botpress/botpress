@@ -59,7 +59,7 @@ export class MetaOauthClient {
   async getWhatsappNumbersFromBusiness(
     businessId: string,
     accessToken: string
-  ): Promise<{ id: string; verifiedName: string }[]> {
+  ): Promise<{ id: string; verifiedName: string; displayPhoneNumber: string }[]> {
     const query = new URLSearchParams({
       access_token: accessToken,
     })
@@ -68,9 +68,10 @@ export class MetaOauthClient {
       `https://graph.facebook.com/${this.version}/${businessId}/phone_numbers?${query.toString()}`
     )
 
-    return data.data.map((item: { id: string; verified_name: string }) => ({
+    return data.data.map((item: { id: string; verified_name: string; display_phone_number: string }) => ({
       id: item.id,
       verifiedName: item.verified_name,
+      displayPhoneNumber: item.display_phone_number
     }))
   }
 
@@ -90,9 +91,12 @@ export class MetaOauthClient {
         throw new Error('No Success')
       }
     } catch (e: any) {
-      this.logger
-        .forBot()
-        .error(`(OAuth registration) Error registering the provided number Id: ${e.message} -> ${e.response?.data}`)
+      // 403 -> Number already registered
+      if(e.response?.status !== 403) {
+        this.logger
+          .forBot()
+          .error(`(OAuth registration) Error registering the provided number Id: ${e.message} -> ${JSON.stringify(e.response?.data)}`)
+      }
     }
   }
 

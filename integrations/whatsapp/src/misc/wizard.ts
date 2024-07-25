@@ -105,7 +105,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: Integra
           settings: { targetUrl: `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}` },
           select: {
             key: 'phoneNumberId',
-            options: phoneNumbers.map((phoneNumber) => ({ id: phoneNumber.id, display: phoneNumber.verifiedName })),
+            options: phoneNumbers.map((phoneNumber) => ({ id: phoneNumber.id, display: `${phoneNumber.displayPhoneNumber} (${phoneNumber.verifiedName})` })),
           },
           additionalData: [{ key: 'wizard-step', value: 'verify-number' }],
         })
