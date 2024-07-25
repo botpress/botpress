@@ -1,10 +1,10 @@
+import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
 import { interfaces } from '@botpress/sdk'
 import OpenAI from 'openai'
+import { ImageGenerateParams, Images } from 'openai/resources'
 import { LanguageModelId, ImageModelId } from './schemas'
 import * as bp from '.botpress'
-import { InvalidPayloadError } from '@botpress/client'
-import { ImageGenerateParams, Images } from 'openai/resources'
 
 const openAIClient = new OpenAI({
   apiKey: bp.secrets.OPENAI_API_KEY,

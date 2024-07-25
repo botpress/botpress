@@ -3,7 +3,7 @@ import { languageModelId } from 'src/schemas'
 
 export default new IntegrationDefinition({
   name: 'openai',
-  version: '4.0.0',
+  version: '4.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {

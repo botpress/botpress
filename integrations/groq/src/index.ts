@@ -1,8 +1,8 @@
 import { llm } from '@botpress/common'
+import { interfaces } from '@botpress/sdk'
 import OpenAI from 'openai'
 import { ModelId } from './schemas'
 import * as bp from '.botpress'
-import { interfaces } from '@botpress/sdk'
 
 const groqClient = new OpenAI({
   baseURL: 'https://api.groq.com/openai/v1',

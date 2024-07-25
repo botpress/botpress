@@ -1,5 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
-import { MessageCreateParams } from '@anthropic-ai/sdk/resources/messages'
+import { MessageCreateParams, MessageCreateParamsNonStreaming } from '@anthropic-ai/sdk/resources/messages'
 import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
 import { z, IntegrationLogger, interfaces } from '@botpress/sdk'
@@ -59,23 +59,29 @@ export async function generateContent<M extends string>(
     messages.push(await mapToAnthropicMessage(message))
   }
 
-  let response: Anthropic.Messages.Message
+  let response: Anthropic.Messages.Message | undefined
+
+  const request: MessageCreateParamsNonStreaming = {
+    model: modelId,
+    max_tokens: input.maxTokens || model.output.maxTokens,
+    temperature: input.temperature,
+    top_p: input.topP,
+    system: input.systemPrompt,
+    stop_sequences: input.stopSequences,
+    metadata: {
+      user_id: input.userId,
+    },
+    tools: mapToAnthropicTools(input),
+    tool_choice: mapToAnthropicToolChoice(input.toolChoice),
+    messages,
+  }
+
+  if (input.debug) {
+    logger.forBot().info('Request being sent to Anthropic:', request)
+  }
 
   try {
-    response = await anthropic.messages.create({
-      model: modelId,
-      max_tokens: input.maxTokens || model.output.maxTokens,
-      temperature: input.temperature,
-      top_p: input.topP,
-      system: input.systemPrompt,
-      stop_sequences: input.stopSequences,
-      metadata: {
-        user_id: input.userId,
-      },
-      tools: mapToAnthropicTools(input),
-      tool_choice: mapToAnthropicToolChoice(input.toolChoice),
-      messages,
-    })
+    response = await anthropic.messages.create(request)
   } catch (err: any) {
     if (err instanceof Anthropic.APIError) {
       const parsedInnerError = AnthropicInnerErrorSchema.safeParse(err.error)
@@ -92,6 +98,10 @@ export async function generateContent<M extends string>(
     // Fallback
     logger.forBot().error(err.message)
     throw err
+  } finally {
+    if (input.debug && response) {
+      logger.forBot().info('Response received from Anthropic:', response)
+    }
   }
 
   const { input_tokens: inputTokens, output_tokens: outputTokens } = response.usage
