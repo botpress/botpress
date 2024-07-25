@@ -1,3 +1,5 @@
+import SelectPage from './pages/select'
+
 export const generateHtml = ({
   header,
   body,
