@@ -181,6 +181,44 @@ const openTicket = {
   },
 } satisfies NonNullable<IntegrationDefinitionProps['actions']>[string]
 
+const makeApiRequest = {
+  title: 'Make API Request',
+  description: 'Make request to Zendesk API',
+  input: {
+    schema: z.object({
+      method: z.string().describe('HTTP Method'),
+      path: z.string().describe('URL Path (https://<subdomain>.zendesk.com/api/PATH)'),
+      headers: z.string().optional().describe('Headers (JSON)'),
+      params: z.string().optional().describe('Query Params (JSON)'),
+      requestBody: z.string().optional().describe('Request Body (JSON)'),
+    }),
+  },
+  ui: {
+    method: {
+      title: 'HTTP Method',
+    },
+    path: {
+      title: 'URL Path (https://<subdomain>.zendesk.com/api/PATH)',
+    },
+    headers: {
+      title: 'Headers (JSON)',
+    },
+    params: {
+      title: 'Params (JSON)',
+    },
+    requestBody: {
+      title: 'Request Body (JSON)',
+    },
+  },
+  output: {
+    schema: z.object({
+      success: z.boolean(),
+      error: z.string().optional(),
+      data: z.object({}).passthrough().optional(),
+    }),
+  },
+}
+
 export const actions = {
   getTicket,
   findCustomer,
@@ -191,4 +229,5 @@ export const actions = {
   setConversationRequester,
   createUser,
   openTicket,
+  makeApiRequest,
 } satisfies IntegrationDefinitionProps['actions']
