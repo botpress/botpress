@@ -147,6 +147,40 @@ const setConversationRequester = {
   },
 } satisfies NonNullable<IntegrationDefinitionProps['actions']>[string]
 
+const createUser = {
+  title: 'Create User',
+  description: 'Create a user in Zendesk',
+  input: {
+    schema: z.object({
+      name: z.string().optional(),
+      pictureUrl: z.string().optional(),
+      email: z.string().optional(),
+    }),
+  },
+  output: {
+    schema: z.object({
+      userId: z.string(),
+    }),
+  },
+} satisfies NonNullable<IntegrationDefinitionProps['actions']>[string]
+
+const openTicket = {
+  title: 'Open Ticket',
+  description: 'Open a ticket in Zendesk',
+  input: {
+    schema: z.object({
+      userId: z.string(),
+      title: z.string(),
+      description: z.string().optional(),
+    }),
+  },
+  output: {
+    schema: z.object({
+      conversationId: z.string(),
+    }),
+  },
+} satisfies NonNullable<IntegrationDefinitionProps['actions']>[string]
+
 export const actions = {
   getTicket,
   findCustomer,
@@ -155,4 +189,6 @@ export const actions = {
   listAgents,
   getTicketConversation,
   setConversationRequester,
+  createUser,
+  openTicket,
 } satisfies IntegrationDefinitionProps['actions']
