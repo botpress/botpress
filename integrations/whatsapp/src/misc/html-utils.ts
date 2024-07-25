@@ -52,23 +52,23 @@ export const redirectTo = async (url: string) => {
 }
 
 export const generateButtonDialog = (props: Parameters<typeof ButtonDialogPage>[0] & { title: string }) => {
-  const jsxElement = React.createElement(React.Fragment, {}, [ButtonDialogPage(props)])
-  const htmlBody = renderToStaticMarkup(jsxElement)
-
   return generateHtml({
-    body: he.decode(htmlBody),
+    body: renderReactComponentAsString(ButtonDialogPage(props)),
     options: { title: props.title },
   })
 }
 
 export const generateSelectDialog = (props: Parameters<typeof SelectDialogPage>[0]) => {
-  const jsxElement = React.createElement(React.Fragment, {}, [SelectDialogPage(props)])
-  const htmlBody = renderToStaticMarkup(jsxElement)
-
   return generateHtml({
-    body: he.decode(htmlBody),
+    body: renderReactComponentAsString(SelectDialogPage(props)),
     options: { title: props.title },
   })
+}
+
+export const renderReactComponentAsString = (Component: JSX.Element) => {
+  const jsxElement = React.createElement(React.Fragment, {}, [Component])
+  const htmlBody = renderToStaticMarkup(jsxElement)
+  return he.decode(htmlBody)
 }
 
 export const getInterstitialUrl = (success: boolean, message?: string) => {
