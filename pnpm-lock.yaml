@@ -1309,18 +1309,9 @@ importers:
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
-      '@types/he':
-        specifier: ^1.2.3
-        version: 1.2.3
       '@types/node':
         specifier: ^18.13.0
         version: 18.16.16
-      '@types/react':
-        specifier: ^18.3.3
-        version: 18.3.3
-      '@types/react-dom':
-        specifier: ^18.3.0
-        version: 18.3.0
       esbuild:
         specifier: ^0.15.18
         version: 0.15.18
@@ -4552,10 +4543,6 @@ packages:
       '@types/node': 18.19.10
     dev: true
 
-  /@types/he@1.2.3:
-    resolution: {integrity: sha512-q67/qwlxblDzEDvzHhVkwc1gzVWxaNxeyHUBF4xElrvjL11O+Ytze+1fGpBHlr/H9myiBUaUXNnNPmBHxxfAcA==}
-    dev: true
-
   /@types/is-stream@1.1.0:
     resolution: {integrity: sha512-jkZatu4QVbR60mpIzjINmtS1ZF4a/FqdTUTBeQDVOQ2PYyidtwFKr0B5G6ERukKwliq+7mIXvxyppwzG5EgRYg==}
     dependencies:
@@ -4684,29 +4671,12 @@ packages:
       kleur: 3.0.3
     dev: true
 
-  /@types/prop-types@15.7.12:
-    resolution: {integrity: sha512-5zvhXYtRNRluoE/jAp4GVsSduVUzNWKkOZrCDBWYtE7biZywwdC2AcEzg+cSMLFRfVgeAFqpfNabiPjxFddV1Q==}
-    dev: true
-
   /@types/qs@6.9.7:
     resolution: {integrity: sha512-FGa1F62FT09qcrueBA6qYTrJPVDzah9a+493+o2PCXsesWHIn27G98TsSMs3WPNbZIEj4+VJf6saSFpvD+3Zsw==}
 
   /@types/range-parser@1.2.4:
     resolution: {integrity: sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==}
     dev: false
-
-  /@types/react-dom@18.3.0:
-    resolution: {integrity: sha512-EhwApuTmMBmXuFOikhQLIBUn6uFg81SwLMOAUgodJF14SOBOCMdU04gDoYi0WOJJHD144TL32z4yDqCW3dnkQg==}
-    dependencies:
-      '@types/react': 18.3.3
-    dev: true
-
-  /@types/react@18.3.3:
-    resolution: {integrity: sha512-hti/R0pS0q1/xx+TsI73XIqk26eBsISZ2R0wUijXIngRK9R/e7Xw/cXVxQK7R5JjW+SV4zGcn5hXjudkN/pLIw==}
-    dependencies:
-      '@types/prop-types': 15.7.12
-      csstype: 3.1.3
-    dev: true
 
   /@types/responselike@1.0.0:
     resolution: {integrity: sha512-85Y2BjiufFzaMIlvJDvTTB8Fxl2xfLo4HgmHzVBz08w4wDePCTjYw66PdrolO0kzli3yam/YCgRufyo1DdQVTA==}
@@ -6171,10 +6141,6 @@ packages:
     resolution: {integrity: sha512-HTUrgRJ7r4dsZKU6GjmpfRK1O76h97Z8MfS1G0FozR+oF2kG6Vfe8JE6zwrkbxigziPHinCJ+gCPjA9EaBDtRw==}
     engines: {node: '>= 6'}
     dev: false
-
-  /csstype@3.1.3:
-    resolution: {integrity: sha512-M1uQkMl8rQK/szD0LNhtqxIPLpimGm8sOBwU7lLnCpSbTyY3yeU1Vc7l4KT5zT4s/yOxHH5O7tIuuLOCnLADRw==}
-    dev: true
 
   /d@1.0.1:
     resolution: {integrity: sha512-m62ShEObQ39CfralilEQRjH6oAMtNCV1xJyEx5LpRYUVN+EviphDgUc/F3hnYbADmkiNs67Y+3ylmlG7Lnu+FA==}
