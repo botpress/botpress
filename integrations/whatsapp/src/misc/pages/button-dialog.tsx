@@ -19,18 +19,20 @@ export default ({
             switch (button.action) {
               case 'NAVIGATE':
                 return (
-                  <a href={button.payload} className={`btn btn-${button.type}`}>
+                  <a key={button.display} href={button.payload} className={`btn btn-${button.type}`}>
                     {button.display}
                   </a>
                 )
               case 'CLOSE_WINDOW':
-                // interactive attributes are not being rendered right now
                 return (
-                  <span
-                    dangerouslySetInnerHTML={{
-                      __html: `<a href="javascript:void(0);" onclick="window.close()" class="btn btn-${button.type}">${button.display}</a>`,
-                    }}
-                  />
+                  <a
+                    key={button.display}
+                    href="javascript:void(0);"
+                    onclick="window.close()"
+                    className={`btn btn-${button.type}`}
+                  >
+                    {button.display}
+                  </a>
                 )
               default:
                 return ''

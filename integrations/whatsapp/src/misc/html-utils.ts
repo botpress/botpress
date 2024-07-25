@@ -1,6 +1,4 @@
-import he from 'he'
-import React from 'react'
-import { renderToStaticMarkup } from 'react-dom/server'
+import { render } from 'preact-render-to-string'
 import ButtonDialogPage from './pages/button-dialog'
 import SelectDialogPage from './pages/select-dialog'
 
@@ -53,22 +51,16 @@ export const redirectTo = async (url: string) => {
 
 export const generateButtonDialog = (props: Parameters<typeof ButtonDialogPage>[0] & { title: string }) => {
   return generateHtml({
-    body: renderReactComponentAsString(ButtonDialogPage(props)),
+    body: render(ButtonDialogPage(props)),
     options: { title: props.title },
   })
 }
 
 export const generateSelectDialog = (props: Parameters<typeof SelectDialogPage>[0]) => {
   return generateHtml({
-    body: renderReactComponentAsString(SelectDialogPage(props)),
+    body: render(SelectDialogPage(props)),
     options: { title: props.title },
   })
-}
-
-export const renderReactComponentAsString = (Component: JSX.Element) => {
-  const jsxElement = React.createElement(React.Fragment, {}, [Component])
-  const htmlBody = renderToStaticMarkup(jsxElement)
-  return he.decode(htmlBody)
 }
 
 export const getInterstitialUrl = (success: boolean, message?: string) => {

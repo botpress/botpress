@@ -20,13 +20,13 @@ export default ({
         <h1 className="text-center">{title}</h1>
         <form action={settings.targetUrl} method="GET">
           {additionalData.map((data) => (
-            <input type="hidden" name={data.key} value={data.value} />
+            <input key={data.key} type="hidden" name={data.key} value={data.value} />
           ))}
           <div className="form-group">
             <label htmlFor={select.key}>{description}</label>
             <div>
               {select.options.map((option) => (
-                <div className="form-check">
+                <div key={option.id} className="form-check">
                   <input
                     className="form-check-input"
                     type="radio"
