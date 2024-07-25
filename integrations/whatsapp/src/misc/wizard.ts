@@ -37,7 +37,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: Integra
         bp.secrets.CLIENT_ID +
         '&redirect_uri=' +
         process.env.BP_WEBHOOK_URL +
-        '/integration/global/meta/whatsapp' +
+        '/integration/global/whatsapp' +
         '&state=' +
         ctx.webhookId +
         '&config_id=' +

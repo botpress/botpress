@@ -16,7 +16,7 @@ export class MetaOauthClient {
     const query = new URLSearchParams({
       client_id: this.clientId,
       client_secret: this.clientSecret,
-      redirect_uri: `${process.env.BP_WEBHOOK_URL}/integration/global/meta/whatsapp`,
+      redirect_uri: `${process.env.BP_WEBHOOK_URL}/integration/global/whatsapp`,
       code,
     })
 
