@@ -157,13 +157,17 @@ const patchCredentialsState = async (
 }
 
 const getCredentialsState = async (client: bp.Client, ctx: IntegrationContext) => {
-  return (
-    (
-      await client.getState({
-        type: 'integration',
-        name: 'credentials',
-        id: ctx.integrationId,
-      })
-    )?.state?.payload || {}
-  )
+  try {
+    return (
+      (
+        await client.getState({
+          type: 'integration',
+          name: 'credentials',
+          id: ctx.integrationId,
+        })
+      )?.state?.payload || {}
+    )
+  } catch (e) {
+    return {}
+  }
 }
