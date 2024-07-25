@@ -4,9 +4,23 @@ import { z } from '../zui'
 
 export const hitl = new InterfaceDeclaration({
   name: 'hitl',
-  version: '0.0.1',
+  version: '0.1.0',
   entities: {},
-  events: {},
+  events: {
+    ticketAssigned: {
+      schema: () =>
+        z.object({
+          conversationId: z.string(),
+          userId: z.string(),
+        }),
+    },
+    ticketClosed: {
+      schema: () =>
+        z.object({
+          conversationId: z.string(),
+        }),
+    },
+  },
   actions: {
     createUser: {
       input: {
@@ -38,6 +52,17 @@ export const hitl = new InterfaceDeclaration({
           z.object({
             conversationId: z.string(),
           }),
+      },
+    },
+    closeTicket: {
+      input: {
+        schema: () =>
+          z.object({
+            conversationId: z.string(),
+          }),
+      },
+      output: {
+        schema: () => z.object({}),
       },
     },
   },
