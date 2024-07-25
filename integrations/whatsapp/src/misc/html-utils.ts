@@ -1,8 +1,8 @@
-import SelectDialogPage from './pages/select-dialog'
-import ButtonDialogPage from './pages/button-dialog'
+import he from 'he'
 import React from 'react'
 import { renderToStaticMarkup } from 'react-dom/server'
-import he from 'he'
+import ButtonDialogPage from './pages/button-dialog'
+import SelectDialogPage from './pages/select-dialog'
 
 export const generateHtml = ({
   header,
