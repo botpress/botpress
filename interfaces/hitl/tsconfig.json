@@ -1,8 +1,0 @@
-{
-  "extends": "../../tsconfig.json",
-  "compilerOptions": {
-    "baseUrl": ".",
-    "outDir": "dist"
-  },
-  "include": ["interface.definition.ts"]
-}
