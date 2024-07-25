@@ -305,7 +305,7 @@ function mapToOpenAITools(tools: GenerateContentInput['tools']) {
     function: {
       name: tool.function.name,
       description: tool.function.description,
-      parameters: tool.function.inputSchema,
+      parameters: tool.function.argumentsSchema,
     },
   }))
 
