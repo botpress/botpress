@@ -71,7 +71,7 @@ export class MetaOauthClient {
     return data.data.map((item: { id: string; verified_name: string; display_phone_number: string }) => ({
       id: item.id,
       verifiedName: item.verified_name,
-      displayPhoneNumber: item.display_phone_number
+      displayPhoneNumber: item.display_phone_number,
     }))
   }
 
@@ -92,10 +92,14 @@ export class MetaOauthClient {
       }
     } catch (e: any) {
       // 403 -> Number already registered
-      if(e.response?.status !== 403) {
+      if (e.response?.status !== 403) {
         this.logger
           .forBot()
-          .error(`(OAuth registration) Error registering the provided number Id: ${e.message} -> ${JSON.stringify(e.response?.data)}`)
+          .error(
+            `(OAuth registration) Error registering the provided number Id: ${e.message} -> ${JSON.stringify(
+              e.response?.data
+            )}`
+          )
       }
     }
   }
