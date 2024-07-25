@@ -1,9 +1,9 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { llm } from '@botpress/common'
+import { interfaces } from '@botpress/sdk'
 import { generateContent } from './actions/generate-content'
 import { ModelId } from './schemas'
 import * as bp from '.botpress'
-import { interfaces } from '@botpress/sdk'
 
 const anthropic = new Anthropic({
   apiKey: bp.secrets.ANTHROPIC_API_KEY,
@@ -40,10 +40,15 @@ export default new bp.Integration({
   unregister: async () => {},
   actions: {
     generateContent: async ({ input, logger }) => {
-      return await generateContent<ModelId>(<llm.GenerateContentInput>input, anthropic, logger, {
-        models: languageModels,
-        defaultModel: 'claude-3-5-sonnet-20240620',
-      })
+      try {
+        return await generateContent<ModelId>(<llm.GenerateContentInput>input, anthropic, logger, {
+          models: languageModels,
+          defaultModel: 'claude-3-5-sonnet-20240620',
+        })
+      } catch (err: any) {
+        logger.forBot().error(err.message)
+        throw err
+      }
     },
     listLanguageModels: async ({}) => {
       return {

@@ -1,10 +1,10 @@
+import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
 import { interfaces } from '@botpress/sdk'
 import OpenAI from 'openai'
+import { ImageGenerateParams, Images } from 'openai/resources'
 import { LanguageModelId, ImageModelId } from './schemas'
 import * as bp from '.botpress'
-import { InvalidPayloadError } from '@botpress/client'
-import { ImageGenerateParams, Images } from 'openai/resources'
 
 const openAIClient = new OpenAI({
   apiKey: bp.secrets.OPENAI_API_KEY,
@@ -114,11 +114,21 @@ export default new bp.Integration({
   unregister: async () => {},
   actions: {
     generateContent: async ({ input, logger }) => {
-      return await llm.openai.generateContent<LanguageModelId>(<llm.GenerateContentInput>input, openAIClient, logger, {
-        provider: 'openai',
-        models: languageModels,
-        defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
-      })
+      try {
+        return await llm.openai.generateContent<LanguageModelId>(
+          <llm.GenerateContentInput>input,
+          openAIClient,
+          logger,
+          {
+            provider: 'openai',
+            models: languageModels,
+            defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
+          }
+        )
+      } catch (err: any) {
+        logger.forBot().error(err.message)
+        throw err
+      }
     },
     generateImage: async ({ input, client }) => {
       const imageModelId = (input.model?.id ?? DEFAULT_IMAGE_MODEL_ID) as ImageModelId

@@ -1,8 +1,8 @@
 import { llm } from '@botpress/common'
+import { interfaces } from '@botpress/sdk'
 import OpenAI from 'openai'
 import { ModelId } from './schemas'
 import * as bp from '.botpress'
-import { interfaces } from '@botpress/sdk'
 
 const groqClient = new OpenAI({
   baseURL: 'https://api.groq.com/openai/v1',
@@ -75,11 +75,16 @@ export default new bp.Integration({
   unregister: async () => {},
   actions: {
     generateContent: async ({ input, logger }) => {
-      return await llm.openai.generateContent<ModelId>(<llm.GenerateContentInput>input, groqClient, logger, {
-        provider: 'groq',
-        models: languageModels,
-        defaultModel: 'mixtral-8x7b-32768',
-      })
+      try {
+        return await llm.openai.generateContent<ModelId>(<llm.GenerateContentInput>input, groqClient, logger, {
+          provider: 'groq',
+          models: languageModels,
+          defaultModel: 'mixtral-8x7b-32768',
+        })
+      } catch (err: any) {
+        logger.forBot().error(err.message)
+        throw err
+      }
     },
     listLanguageModels: async ({}) => {
       return {
