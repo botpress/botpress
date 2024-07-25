@@ -104,9 +104,9 @@ const GenerateContentInputSchema = <S extends z.ZodSchema>(modelRefSchema: S) =>
         z.object({
           type: z.literal('function'),
           function: z.object({
-            name: z.string(),
+            name: z.string().describe('Function name'),
             description: z.string().optional(),
-            inputSchema: z.object({}).passthrough().optional(),
+            argumentsSchema: z.object({}).passthrough().optional().describe('JSON schema of the function arguments'),
           }),
         })
       )
@@ -140,7 +140,7 @@ const GenerateContentOutputSchema = z.object({
 
 export const llm = new InterfaceDeclaration({
   name: 'llm',
-  version: '2.0.0',
+  version: '3.0.0',
   entities: {
     modelRef: {
       schema: ModelRefSchema,

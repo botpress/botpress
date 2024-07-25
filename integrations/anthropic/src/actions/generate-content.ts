@@ -241,7 +241,7 @@ function mapToAnthropicTools(input: llm.GenerateContentInput): Anthropic.Tool[] 
       <Anthropic.Tool>{
         name: tool.function.name,
         description: tool.function.description,
-        input_schema: tool.function.inputSchema,
+        input_schema: tool.function.argumentsSchema,
       }
   )
 
