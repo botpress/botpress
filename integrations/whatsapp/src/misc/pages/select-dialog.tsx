@@ -15,15 +15,15 @@ export default ({
   additionalData?: { key: string; value: string }[]
 }) => {
   return (
-    <div className="container">
-      <div className="form-container">
-        <h1 className="text-center">${title}</h1>
+    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100%' }}>
+      <div style={{ width: '100%', maxWidth: 500 }}>
+        <h1 className="text-center">{title}</h1>
         <form action={settings.targetUrl} method="GET">
           {additionalData.map((data) => (
             <input type="hidden" name={data.key} value={data.value} />
           ))}
           <div className="form-group">
-            <label htmlFor="${select.key}">${description}</label>
+            <label htmlFor={select.key}>{description}</label>
             <div>
               {select.options.map((option) => (
                 <div className="form-check">

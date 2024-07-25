@@ -1,4 +1,8 @@
-import SelectPage from './pages/select'
+import SelectDialogPage from './pages/select-dialog'
+import ButtonDialogPage from './pages/button-dialog'
+import React from 'react'
+import { renderToStaticMarkup } from 'react-dom/server'
+import he from 'he'
 
 export const generateHtml = ({
   header,
@@ -47,135 +51,23 @@ export const redirectTo = async (url: string) => {
   })
 }
 
-export const generateButtonDialog = ({
-  title,
-  description,
-  buttons = [],
-}: {
-  title: string
-  description: string
-  buttons: {
-    display: string
-    type: 'primary' | 'secondary'
-    action: 'NAVIGATE' | 'CLOSE_WINDOW'
-    payload?: any
-  }[]
-}) => {
+export const generateButtonDialog = (props: Parameters<typeof ButtonDialogPage>[0] & { title: string }) => {
+  const jsxElement = React.createElement(React.Fragment, {}, [ButtonDialogPage(props)])
+  const htmlBody = renderToStaticMarkup(jsxElement)
+
   return generateHtml({
-    header: `
-      <style>
-          html, body {
-            height: 100%;
-          }
-        .container {
-          display: flex;
-          justify-content: center;
-          align-items: center;
-          height: 100%;
-        }
-        .dialog-box {
-          text-align: center;
-          max-width: 400px;
-          width: 100%;
-        }
-        .dialog-box > div {
-          column-gap: 5px;
-          display: flex;
-          justify-content: center;
-        }
-      </style>
-    `,
-    body: `
-      <div class="container">
-        <div class="dialog-box">
-          <p>${description}</p>
-          <div>
-            ${buttons
-              .map((button) => {
-                switch (button.action) {
-                  case 'NAVIGATE':
-                    return `<a href="${button.payload}" class="btn btn-${button.type}">${button.display}</a>`
-                  case 'CLOSE_WINDOW':
-                    return `<a href="javascript:void(0);" onclick="window.close()" class="btn btn-${button.type}">${button.display}</a>`
-                  default:
-                    return ''
-                }
-              })
-              .join('')}
-          </div>
-        </div>
-      </div>
-    `,
-    options: { title },
+    body: he.decode(htmlBody),
+    options: { title: props.title },
   })
 }
 
-export const generateSelectDialog = ({
-  title,
-  description,
-  select,
-  settings,
-  additionalData = [],
-}: {
-  title: string
-  description: string
-  select: {
-    key: string
-    options: { id: string; display: string }[]
-  }
-  settings: { targetUrl: string }
-  additionalData?: { key: string; value: string }[]
-}) => {
+export const generateSelectDialog = (props: Parameters<typeof SelectDialogPage>[0]) => {
+  const jsxElement = React.createElement(React.Fragment, {}, [SelectDialogPage(props)])
+  const htmlBody = renderToStaticMarkup(jsxElement)
+
   return generateHtml({
-    header: `
-      <style>
-        .container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100%;
-        }
-        .form-container {
-            width: 100%;
-            max-width: 500px;
-        }
-      </style>
-    `,
-    body: `
-        <div class="container">
-            <div class="form-container">
-                <h1 class="text-center">${title}</h1>
-                <form action="${settings.targetUrl}" method="GET">
-                    ${additionalData
-                      .map(
-                        (data) => `
-                      <input type="hidden" name="${data.key}" value="${data.value}" />
-                    `
-                      )
-                      .join('')}
-                    <div class="form-group">
-                        <label for="${select.key}">${description}</label>
-                        <div>
-                            ${select.options
-                              .map(
-                                (option) => `
-                                <div class="form-check">
-                                    <input class="form-check-input" type="radio" id="${option.id}" name="${select.key}" value="${option.id}">
-                                    <label class="form-check-label" for="${option.id}">
-                                        ${option.display}
-                                    </label>
-                                </div>
-                            `
-                              )
-                              .join('')}
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-block">Submit</button>
-                </form>
-            </div>
-        </div>
-    `,
-    options: { title },
+    body: he.decode(htmlBody),
+    options: { title: props.title },
   })
 }
 
