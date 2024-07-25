@@ -100,7 +100,7 @@ export async function generateContent<M extends string>(
     throw err
   } finally {
     if (input.debug && response) {
-      logger.forBot().info(`Response received from Anthropic:`, response)
+      logger.forBot().info('Response received from Anthropic:', response)
     }
   }
 
