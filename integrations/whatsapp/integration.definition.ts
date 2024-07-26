@@ -28,8 +28,10 @@ const TagsForCreatingConversation = {
   },
 }
 
+export const INTEGRATION_NAME = 'whatsapp'
+
 export default new IntegrationDefinition({
-  name: 'whatsapp',
+  name: INTEGRATION_NAME,
   version: '2.0.5',
   title: 'WhatsApp',
   description: 'This integration allows your bot to interact with WhatsApp.',
@@ -133,3 +135,11 @@ export default new IntegrationDefinition({
     },
   },
 })
+
+export const getOAuthConfigId = () => {
+  if (process.env.BP_WEBHOOK_URL?.includes('dev')) {
+    return '1535672497288913'
+  }
+
+  return '1620101672166859'
+}

@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { channel } from 'integration.definition'
+import { channel, INTEGRATION_NAME } from 'integration.definition'
 import * as crypto from 'node:crypto'
 import queryString from 'query-string'
 import WhatsAppAPI from 'whatsapp-api-js'
@@ -242,3 +242,7 @@ export default sentryHelpers.wrapIntegration(integration, {
   environment: bp.secrets.SENTRY_ENVIRONMENT,
   release: bp.secrets.SENTRY_RELEASE,
 })
+
+export const getGlobalWebhookUrl = () => {
+  return `${process.env.BP_WEBHOOK_URL}/integration/global/${INTEGRATION_NAME}`
+}

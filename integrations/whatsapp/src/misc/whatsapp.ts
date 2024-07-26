@@ -1,5 +1,6 @@
 import { IntegrationContext, z } from '@botpress/sdk'
 import axios from 'axios'
+import { getGlobalWebhookUrl } from '../index'
 import * as bp from '.botpress'
 
 export class MetaOauthClient {
@@ -16,7 +17,7 @@ export class MetaOauthClient {
     const query = new URLSearchParams({
       client_id: this.clientId,
       client_secret: this.clientSecret,
-      redirect_uri: `${process.env.BP_WEBHOOK_URL}/integration/global/whatsapp`,
+      redirect_uri: getGlobalWebhookUrl(),
       code,
     })
 
@@ -161,12 +162,4 @@ export const getPhoneNumberId = async (client: bp.Client, ctx: IntegrationContex
     state: { payload },
   } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
   return payload.phoneNumberId
-}
-
-export const getOAuthConfigId = () => {
-  if (process.env.BP_WEBHOOK_URL?.includes('dev')) {
-    return '1535672497288913'
-  }
-
-  return '1620101672166859'
 }

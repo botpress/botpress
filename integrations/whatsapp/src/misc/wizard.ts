@@ -1,8 +1,10 @@
 import { IntegrationContext, Request } from '@botpress/sdk'
 import queryString from 'query-string'
 import * as bp from '../../.botpress'
+import { getOAuthConfigId } from '../../integration.definition'
+import { getGlobalWebhookUrl } from '../index'
 import { generateButtonDialog, generateSelectDialog, getInterstitialUrl, redirectTo } from './html-utils'
-import { getOAuthConfigId, MetaOauthClient } from './whatsapp'
+import { MetaOauthClient } from './whatsapp'
 
 export const handleWizard = async (req: Request, client: bp.Client, ctx: IntegrationContext, logger: bp.Logger) => {
   const query = queryString.parse(req.query)
@@ -36,8 +38,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: Integra
         'client_id=' +
         bp.secrets.CLIENT_ID +
         '&redirect_uri=' +
-        process.env.BP_WEBHOOK_URL +
-        '/integration/global/whatsapp' +
+        getGlobalWebhookUrl() +
         '&state=' +
         ctx.webhookId +
         '&config_id=' +
