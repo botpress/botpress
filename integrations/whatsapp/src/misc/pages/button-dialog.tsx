@@ -28,6 +28,8 @@ export default ({
                   <a
                     key={button.display}
                     href="javascript:void(0);"
+                    // @ts-ignore
+                    // To allow interaction, not supported on SSR, use html attribute
                     onclick="window.close()"
                     className={`btn btn-${button.type}`}
                   >
