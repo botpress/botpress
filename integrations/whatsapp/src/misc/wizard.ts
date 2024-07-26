@@ -101,7 +101,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: Integra
       } else {
         return generateSelectDialog({
           title: 'Select the default number',
-          description: 'Choose a number from the current Whatsapp Business Account to use as default:',
+          description: 'Choose a phone number from the current WhatsApp Business Account to use as default:',
           settings: { targetUrl: `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}` },
           select: {
             key: 'phoneNumberId',
