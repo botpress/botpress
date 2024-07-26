@@ -44,7 +44,7 @@ export const redirectTo = async (url: string) => {
         window.location = "${encodeURI(url)}"
       </script>
     `,
-    body: '<p>You are being redirected, please wait</p>',
+    body: '<p>You are being redirected, please wait...</p>',
     options: { title: 'Redirecting' },
   })
 }
