@@ -80,7 +80,7 @@ export async function generateContent<M extends string>(
   }
 
   if (input.debug) {
-    logger.forBot().info(`Request being sent to ${props.provider}:`, request)
+    logger.forBot().info(`Request being sent to ${props.provider}: ` + JSON.stringify(request, null, 2))
   }
 
   try {
@@ -101,7 +101,7 @@ export async function generateContent<M extends string>(
     throw err
   } finally {
     if (input.debug && response) {
-      logger.forBot().info(`Response received from ${props.provider}:`, response)
+      logger.forBot().info(`Response received from ${props.provider}: ` + JSON.stringify(response, null, 2))
     }
   }
 
