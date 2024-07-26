@@ -15,7 +15,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: Integra
     return generateButtonDialog({
       title: 'Reset Configuration',
       description:
-        'This Wizard will reset your integration configuration, so the bot will stop working for this channel, continue?',
+        'This wizard will reset your configuration, so the bot will stop working on WhatsApp until a new configuration is put in place, continue?',
       buttons: [
         { display: 'Yes', type: 'primary', action: 'NAVIGATE', payload: `${req.path}?wizard-step=setup` },
         { display: 'No', type: 'secondary', action: 'CLOSE_WINDOW' },
