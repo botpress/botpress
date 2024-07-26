@@ -96,7 +96,7 @@ export class MetaOauthClient {
         this.logger
           .forBot()
           .error(
-            `(OAuth registration) Error registering the provided number Id: ${e.message} -> ${JSON.stringify(
+            `(OAuth registration) Error registering the provided phone number ID: ${e.message} -> ${JSON.stringify(
               e.response?.data
             )}`
           )
