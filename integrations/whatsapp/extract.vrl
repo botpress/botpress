@@ -5,7 +5,7 @@ query_string, err = to_string(.query)
 
 if length(query_string) > 0 {
   desired_field = "state"
-  pairs, err = split(.query, "&")
+  pairs = split(query_string, "&")
   result = ""
 
   for_each(pairs) -> |_index, value| {
