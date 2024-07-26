@@ -77,7 +77,7 @@ export async function generateContent<M extends string>(
   }
 
   if (input.debug) {
-    logger.forBot().info('Request being sent to Anthropic:', request)
+    logger.forBot().info('Request being sent to Anthropic: ' + JSON.stringify(request, null, 2))
   }
 
   try {
@@ -100,7 +100,7 @@ export async function generateContent<M extends string>(
     throw err
   } finally {
     if (input.debug && response) {
-      logger.forBot().info('Response received from Anthropic:', response)
+      logger.forBot().info('Response received from Anthropic: ' + JSON.stringify(response, null, 2))
     }
   }
 
