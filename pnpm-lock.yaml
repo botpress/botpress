@@ -1287,6 +1287,15 @@ importers:
       '@botpress/sdk-addons':
         specifier: workspace:*
         version: link:../../packages/sdk-addons
+      axios:
+        specifier: ^1.6.2
+        version: 1.6.8
+      preact:
+        specifier: ^10.23.1
+        version: 10.23.1
+      preact-render-to-string:
+        specifier: ^6.5.7
+        version: 6.5.7(preact@10.23.1)
       query-string:
         specifier: ^6.14.1
         version: 6.14.1
@@ -10161,6 +10170,18 @@ packages:
       nanoid: 3.3.6
       picocolors: 1.0.0
       source-map-js: 1.0.2
+
+  /preact-render-to-string@6.5.7(preact@10.23.1):
+    resolution: {integrity: sha512-nACZDdv/ZZciuldVYMcfGqr61DKJeaAfPx96hn6OXoBGhgtU2yGQkA0EpTzWH4SvnwF0syLsL4WK7AIp3Ruc1g==}
+    peerDependencies:
+      preact: '>=10'
+    dependencies:
+      preact: 10.23.1
+    dev: false
+
+  /preact@10.23.1:
+    resolution: {integrity: sha512-O5UdRsNh4vdZaTieWe3XOgSpdMAmkIYBCT3VhQDlKrzyCm8lUYsk0fmVEvoQQifoOjFRTaHZO69ylrzTW2BH+A==}
+    dev: false
 
   /prelude-ls@1.2.1:
     resolution: {integrity: sha512-vkcDPrRZo1QZLbn5RLGPpg/WmIQ65qoWWhcGKf/b5eplkkarX0m9z8ppCat4mlOqUsWpyNuYgO3VRyrYHSzX5g==}

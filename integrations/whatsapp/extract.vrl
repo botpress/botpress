@@ -1,0 +1,30 @@
+metaId = null
+
+# Convert .query to a string to ensure it's treated correctly
+query_string, err = to_string(.query)
+
+if length(query_string) > 0 {
+  desired_field = "state"
+  pairs = split(query_string, "&")
+  result = ""
+
+  for_each(pairs) -> |_index, value| {
+    # Split the pair into key and value
+    key_value = split(value, "=")
+    key = key_value[0]
+    value = key_value[1]
+
+    # Check if the key matches the desired field
+    if key == desired_field {
+        result = value
+    }
+   }
+  metaId = result
+} else {
+    body = parse_json!(.body)
+    if body.object == "whatsapp_business_account"  {
+        metaId = body.entry[0].id
+    }
+}
+
+metaId
