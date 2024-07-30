@@ -9,6 +9,9 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+    },
     schema: z.object({}).passthrough(),
   },
   channels: {
