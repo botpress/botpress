@@ -1,4 +1,4 @@
-import axios, { Axios } from 'axios'
+import axios, { Axios, AxiosRequestConfig } from 'axios'
 import type { ZendeskUser, ZendeskTicket } from './definitions/schemas'
 import { ConditionsData, getTriggerTemplate, type TriggerNames } from './triggers'
 import * as bp from '.botpress'
@@ -140,6 +140,15 @@ class ZendeskApi {
   public async getUser(userId: number | string): Promise<ZendeskUser> {
     const { data } = await this.client.get<{ user: ZendeskUser }>(`/api/v2/users/${userId}.json`)
     return data.user
+  }
+  public async makeRequest(requestConfig: AxiosRequestConfig) {
+    const { data, headers, status } = await this.client.request(requestConfig)
+
+    return {
+      data,
+      headers: headers as Record<string, string>,
+      status,
+    }
   }
 }
 
