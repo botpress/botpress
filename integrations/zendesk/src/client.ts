@@ -141,10 +141,14 @@ class ZendeskApi {
     const { data } = await this.client.get<{ user: ZendeskUser }>(`/api/v2/users/${userId}.json`)
     return data.user
   }
-
   public async makeRequest(requestConfig: AxiosRequestConfig) {
-    const { data: responseData } = await this.client.request(requestConfig)
-    return responseData
+    const { data, headers, status } = await this.client.request(requestConfig)
+
+    return {
+      data,
+      headers: headers as Record<string, string>,
+      status,
+    }
   }
 }
 
