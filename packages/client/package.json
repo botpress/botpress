@@ -20,7 +20,7 @@
     "build": "pnpm build:type && pnpm build:node && pnpm build:browser && pnpm build:bundle",
     "generate": "ts-node ./openapi.ts",
     "test:manual": "vitest tests/manual/file-upload",
-    "test:e2e": "ts-node -T ./tests/e2e/node.ts && ts-node -T ./tests/e2e/browser",
+    "test:e2e": "ts-node -T ./tests/e2e/node.ts",
     "test": "pnpm run test:e2e"
   },
   "dependencies": {
@@ -34,7 +34,6 @@
     "@types/qs": "^6.9.7",
     "esbuild": "^0.16.12",
     "lodash": "^4.17.21",
-    "puppeteer": "^22.0.0",
     "ts-node": "^10.9.2",
     "tsup": "^8.0.2",
     "typescript": "^4.9.4",

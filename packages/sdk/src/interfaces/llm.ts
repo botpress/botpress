@@ -43,6 +43,7 @@ const MessageSchema = z.object({
       )
     )
     .optional()
+    .nullable()
     .describe(
       'Required unless `type` is "tool_call". If `type` is "multipart", this field must be an array of content objects. If `type` is "tool_result" then this field should be the result of the tool call (a plain string or a JSON-encoded array or object). If `type` is "tool_call" then the `toolCalls` field should be used instead.'
     ),
@@ -104,9 +105,9 @@ const GenerateContentInputSchema = <S extends z.ZodSchema>(modelRefSchema: S) =>
         z.object({
           type: z.literal('function'),
           function: z.object({
-            name: z.string(),
+            name: z.string().describe('Function name'),
             description: z.string().optional(),
-            inputSchema: z.object({}).passthrough().optional(),
+            argumentsSchema: z.object({}).passthrough().optional().describe('JSON schema of the function arguments'),
           }),
         })
       )
@@ -114,6 +115,7 @@ const GenerateContentInputSchema = <S extends z.ZodSchema>(modelRefSchema: S) =>
     // TODO: an object with options doesn't seem to be supported by the Studio as it's not rendering correctly, the dropdown for "type" is not working and it's sending a blank value instead which causes a schema validation error unless an empty value is allowed in the `type` enum
     toolChoice: ToolChoiceSchema.optional(), // note: Gemini doesn't support this but we can just ignore it there
     userId: z.string().optional(),
+    debug: z.boolean().optional().describe('Set to `true` to output debug information to the bot logs'),
   })
 
 const GenerateContentInputBaseSchema = GenerateContentInputSchema(ModelRefSchema)
@@ -140,7 +142,7 @@ const GenerateContentOutputSchema = z.object({
 
 export const llm = new InterfaceDeclaration({
   name: 'llm',
-  version: '2.0.0',
+  version: '3.1.0',
   entities: {
     modelRef: {
       schema: ModelRefSchema,

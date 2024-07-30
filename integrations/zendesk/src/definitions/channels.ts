@@ -1,9 +1,15 @@
-import { IntegrationDefinitionProps } from '@botpress/sdk'
+import { IntegrationDefinitionProps, messages, z } from '@botpress/sdk'
 
 export const channels = {
   ticket: {
     title: 'Zendesk Ticket',
-    messages: {}, // defined by the HITL interface
+    messages: {
+      text: {
+        schema: messages.defaults.text.schema.extend({
+          userId: z.string().optional().describe('Allows sending a message pretending to be a certain user'),
+        }),
+      },
+    },
     message: {
       tags: {
         id: {},

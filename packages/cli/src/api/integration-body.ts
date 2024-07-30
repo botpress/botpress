@@ -85,6 +85,8 @@ export const prepareUpdateIntegrationBody = (
 
   const channels = prepareUpdateIntegrationChannelsBody(localIntegration.channels ?? {}, remoteIntegration.channels)
 
+  const interfaces = utils.records.setNullOnMissingValues(localIntegration.interfaces, remoteIntegration.interfaces)
+
   return {
     ...localIntegration,
     actions,
@@ -93,6 +95,7 @@ export const prepareUpdateIntegrationBody = (
     entities,
     user,
     channels,
+    interfaces,
   }
 }
 

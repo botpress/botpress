@@ -8,6 +8,7 @@ import {
   ChatCompletionContentPart,
   ChatCompletionContentPartImage,
   ChatCompletionContentPartText,
+  ChatCompletionCreateParamsNonStreaming,
   ChatCompletionMessageParam,
   ChatCompletionMessageToolCall,
   ChatCompletionToolChoiceOption,
@@ -24,18 +25,18 @@ export async function generateContent<M extends string>(
   input: GenerateContentInput,
   openAIClient: OpenAI,
   logger: IntegrationLogger,
-  params: {
+  props: {
     provider: string
     models: Record<M, interfaces.llm.ModelDetails>
     defaultModel: M
   }
 ): Promise<GenerateContentOutput> {
-  const modelId = (input.model?.id || params.defaultModel) as M
-  const model = params.models[modelId]
+  const modelId = (input.model?.id || props.defaultModel) as M
+  const model = props.models[modelId]
   if (!model) {
     throw new InvalidPayloadError(
       `Model ID "${modelId}" is not allowed by this integration, supported model IDs are: ${Object.keys(
-        params.models
+        props.models
       ).join(', ')}`
     )
   }
@@ -62,29 +63,35 @@ export async function generateContent<M extends string>(
     })
   }
 
-  let response: OpenAI.Chat.Completions.ChatCompletion
+  let response: OpenAI.Chat.Completions.ChatCompletion | undefined
+
+  const request: ChatCompletionCreateParamsNonStreaming = {
+    model: modelId,
+    max_tokens: input.maxTokens || undefined, // note: ignore a zero value as the Studio doesn't support empty number inputs and is defaulting this to 0
+    temperature: input.temperature,
+    top_p: input.topP,
+    response_format: input.responseFormat === 'json_object' ? { type: 'json_object' } : undefined,
+    // TODO: the Studio is adding an empty item by default in the action input form
+    stop: input.stopSequences?.filter((x) => x.trim()), // don't send empty values
+    user: input.userId || undefined, // don't send a blank string value
+    messages,
+    tool_choice: mapToOpenAIToolChoice(input.toolChoice),
+    tools: mapToOpenAITools(input.tools),
+  }
+
+  if (input.debug) {
+    logger.forBot().info(`Request being sent to ${props.provider}: ` + JSON.stringify(request, null, 2))
+  }
 
   try {
-    response = await openAIClient.chat.completions.create({
-      model: modelId,
-      max_tokens: input.maxTokens || undefined, // note: ignore a zero value as the Studio doesn't support empty number inputs and is defaulting this to 0
-      temperature: input.temperature,
-      top_p: input.topP,
-      response_format: input.responseFormat === 'json_object' ? { type: 'json_object' } : undefined,
-      // TODO: the Studio is adding an empty item by default in the action input form
-      stop: input.stopSequences?.filter((x) => x.trim()), // don't send empty values
-      user: input.userId || undefined, // don't send a blank string value
-      messages,
-      tool_choice: mapToOpenAIToolChoice(input.toolChoice),
-      tools: mapToOpenAITools(input.tools),
-    })
+    response = await openAIClient.chat.completions.create(request)
   } catch (err: any) {
     if (err instanceof OpenAI.APIError) {
       const parsedInnerError = OpenAIInnerErrorSchema.safeParse(err.error)
       if (parsedInnerError.success) {
         logger
           .forBot()
-          .error(`${params.provider} error ${err.status} (${err.type}:${err.code}) - ${parsedInnerError.data.message}`)
+          .error(`${props.provider} error ${err.status} (${err.type}:${err.code}) - ${parsedInnerError.data.message}`)
         throw err
       }
     }
@@ -92,13 +99,17 @@ export async function generateContent<M extends string>(
     // Fallback
     logger.forBot().error(err.message)
     throw err
+  } finally {
+    if (input.debug && response) {
+      logger.forBot().info(`Response received from ${props.provider}: ` + JSON.stringify(response, null, 2))
+    }
   }
 
-  const { inputTokens, outputTokens } = getTokenUsage(response, logger, params.provider)
+  const { inputTokens, outputTokens } = getTokenUsage(response, logger, props.provider)
 
   return <GenerateContentOutput>{
     id: response.id,
-    provider: params.provider,
+    provider: props.provider,
     model: response.model,
     choices: response.choices.map((choice) => ({
       role: choice.message.role,
@@ -106,7 +117,7 @@ export async function generateContent<M extends string>(
       content: choice.message.content,
       index: choice.index,
       stopReason: mapToStopReason(choice.finish_reason),
-      toolCalls: mapToToolCalls(choice.message.tool_calls, logger, params.provider),
+      toolCalls: mapToToolCalls(choice.message.tool_calls, logger, props.provider),
     })),
     usage: {
       inputTokens,
@@ -305,7 +316,7 @@ function mapToOpenAITools(tools: GenerateContentInput['tools']) {
     function: {
       name: tool.function.name,
       description: tool.function.description,
-      parameters: tool.function.inputSchema,
+      parameters: tool.function.argumentsSchema,
     },
   }))
 
