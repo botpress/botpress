@@ -16,3 +16,6 @@ export const imageModelId = z.enum([
   'dall-e-2-1024',
 ])
 export type ImageModelId = z.infer<typeof imageModelId>
+
+export const speechToTextModelId = z.enum(['whisper-1'])
+export type SpeechToTextModelId = z.infer<typeof speechToTextModelId>

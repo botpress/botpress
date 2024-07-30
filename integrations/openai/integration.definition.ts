@@ -3,7 +3,7 @@ import { languageModelId } from 'src/schemas'
 
 export default new IntegrationDefinition({
   name: 'openai',
-  version: '5.0.0',
+  version: '6.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -13,6 +13,11 @@ export default new IntegrationDefinition({
       }),
     },
     imageModelRef: {
+      schema: z.object({
+        id: z.string(),
+      }),
+    },
+    speechToTextModelRef: {
       schema: z.object({
         id: z.string(),
       }),
@@ -38,3 +43,4 @@ export default new IntegrationDefinition({
     imageModelRef,
     imageGenerationParams,
   }))
+  .extend(interfaces.speechToText, ({ speechToTextModelRef }) => ({ speechToTextModelRef }))

@@ -1,6 +1,6 @@
 {
-  "name": "@botpresshub/llm",
-  "description": "LLM interface for Botpress integrations",
+  "name": "@botpresshub/speech-to-text",
+  "description": "Speech-to-text interface for Botpress integrations",
   "private": true,
   "scripts": {
     "check:type": "tsc --noEmit",

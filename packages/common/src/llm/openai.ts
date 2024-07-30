@@ -135,12 +135,12 @@ function getTokenUsage(
 ) {
   const inputTokens = response.usage?.prompt_tokens
   if (!inputTokens) {
-    logger.forBot().error(`Received invalid input token count of "${inputTokens}" from "${provider}" LLM provider`)
+    logger.forBot().error(`Received invalid input token count of "${inputTokens}" from ${provider}`)
   }
 
   const outputTokens = response.usage?.completion_tokens
   if (!outputTokens) {
-    logger.forBot().error(`Received invalid output token count of "${outputTokens}" from "${provider}" LLM provider`)
+    logger.forBot().error(`Received invalid output token count of "${outputTokens}" from ${provider}`)
   }
 
   return {
@@ -356,7 +356,7 @@ function mapToToolCalls(
         logger
           .forBot()
           .warn(
-            `Received invalid JSON from "${provider}" LLM provider for arguments in a tool call of function "${openAIToolCall.function.name}", a \`null\` value for arguments will be passed instead - JSON parser error: ${err} / Invalid JSON received: ${openAIToolCall.function.arguments}`
+            `Received invalid JSON from ${provider} for arguments in a generateContent tool call of function "${openAIToolCall.function.name}", a \`null\` value for arguments will be passed instead - JSON parser error: ${err} / Invalid JSON received: ${openAIToolCall.function.arguments}`
           )
         toolCallArguments = null
       }
@@ -370,7 +370,7 @@ function mapToToolCalls(
         },
       })
     } else {
-      logger.forBot().warn(`Ignored unsupported tool call type "${openAIToolCall.type}" from OpenAI`)
+      logger.forBot().warn(`Ignored unsupported tool call type "${openAIToolCall.type}" from ${provider}`)
     }
 
     return toolCalls
