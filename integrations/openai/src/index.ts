@@ -9,6 +9,12 @@ import * as bp from '.botpress'
 const DEFAULT_LANGUAGE_MODEL_ID: LanguageModelId = 'gpt-4o-mini-2024-07-18'
 const DEFAULT_IMAGE_MODEL_ID: ImageModelId = 'dall-e-3-standard-1024'
 
+const getOpenAIClient = (ctx: bp.Context) =>
+  new OpenAI({
+    apiKey: ctx.configuration.apiKey ?? bp.secrets.OPENAI_API_KEY,
+    baseURL: ctx.configuration.url,
+  })
+
 // References:
 //  https://platform.openai.com/docs/models
 //  https://openai.com/api/pricing/
@@ -110,10 +116,7 @@ export default new bp.Integration({
   unregister: async () => {},
   actions: {
     generateContent: async ({ input, logger, ctx }) => {
-      const openAIClient = new OpenAI({
-        apiKey: ctx.configuration.apiKey ?? bp.secrets.OPENAI_API_KEY,
-        baseURL: ctx.configuration.url,
-      })
+      const openAIClient = getOpenAIClient(ctx)
 
       return await llm.openai.generateContent<LanguageModelId>(<llm.GenerateContentInput>input, openAIClient, logger, {
         provider: 'openai',
@@ -122,10 +125,7 @@ export default new bp.Integration({
       })
     },
     generateImage: async ({ input, client, ctx }) => {
-      const openAIClient = new OpenAI({
-        apiKey: ctx.configuration.apiKey ?? bp.secrets.OPENAI_API_KEY,
-        baseURL: ctx.configuration.url,
-      })
+      const openAIClient = getOpenAIClient(ctx)
 
       const imageModelId = (input.model?.id ?? DEFAULT_IMAGE_MODEL_ID) as ImageModelId
       const imageModel = imageModels[imageModelId]
