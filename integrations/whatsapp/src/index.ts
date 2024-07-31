@@ -1,5 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { IntegrationContext, Request } from '@botpress/sdk'
 import { channel, INTEGRATION_NAME } from 'integration.definition'
 import * as crypto from 'node:crypto'
 import queryString from 'query-string'
@@ -129,6 +130,10 @@ const integration = new bp.Integration({
     },
   },
   handler: async ({ req, client, ctx, logger }) => {
+    if (detectIdentifierIssue(req, ctx)) {
+      return redirectTo(getInterstitialUrl(false, 'Not allowed'))
+    }
+
     if (req.query?.includes('code') || req.query?.includes('wizard-step')) {
       try {
         return await handleWizard(req, client, ctx, logger)
@@ -187,7 +192,7 @@ const integration = new bp.Integration({
 
     const secret = getSecret(ctx)
     // For testing purposes, if you send the secret in the header it's possible to disable signature check
-    if (req.headers['x-secret'] !== secret) {
+    if (secret?.length && req.headers['x-secret'] !== secret) {
       const signature = req.headers['x-hub-signature-256']
 
       if (!signature) {
@@ -198,7 +203,8 @@ const integration = new bp.Integration({
         const signatureHash = signature.split('=')[1]
         const expectedHash = crypto.createHmac('sha256', secret).update(req.body).digest('hex')
         if (signatureHash !== expectedHash) {
-          const errorMessage = "Couldn't validate the request signature."
+          const errorMessage =
+            "Couldn't validate the request signature, please verify the client secret configuration property!"
           logger.forBot().error(errorMessage)
           return { status: 401, body: errorMessage }
         }
@@ -245,4 +251,14 @@ export default sentryHelpers.wrapIntegration(integration, {
 
 export const getGlobalWebhookUrl = () => {
   return `${process.env.BP_WEBHOOK_URL}/integration/global/${INTEGRATION_NAME}`
+}
+
+export const detectIdentifierIssue = (req: Request, ctx: IntegrationContext) => {
+  /* because of the wizard, we need to accept the query param "state" as an identifier
+   * but we need to prevent anyone of using anything other than the webhookId there for security reasons
+   */
+
+  const query = queryString.parse(req.query)
+
+  return !!(query['state']?.length && query['state'] !== ctx.webhookId)
 }
