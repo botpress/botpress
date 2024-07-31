@@ -204,7 +204,7 @@ const integration = new bp.Integration({
         const expectedHash = crypto.createHmac('sha256', secret).update(req.body).digest('hex')
         if (signatureHash !== expectedHash) {
           const errorMessage =
-            "Couldn't validate the request signature, please verify the client secret configuration property!"
+            "Couldn't validate the request signature, please verify the client secret configuration property."
           logger.forBot().error(errorMessage)
           return { status: 401, body: errorMessage }
         }
