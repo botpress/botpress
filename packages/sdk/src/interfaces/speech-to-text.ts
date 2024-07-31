@@ -18,7 +18,7 @@ const TranscribeAudioInputSchema = <TModelRef extends z.ZodSchema>(imageModelRef
       .string()
       .url()
       .describe(
-        `URL of the audio file to transcribe. The URL should return a content-type header in order to detect the audio format. Supported audio formats supported are: mp3, mp4, mpeg, mpga, m4a, wav, webm`
+        'URL of the audio file to transcribe. The URL should return a content-type header in order to detect the audio format. Supported audio formats supported are: mp3, mp4, mpeg, mpga, m4a, wav, webm'
       ),
     language: z
       .string()

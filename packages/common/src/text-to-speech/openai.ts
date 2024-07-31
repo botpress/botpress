@@ -1,7 +1,7 @@
+import { InvalidPayloadError } from '@botpress/client'
+import { IntegrationLogger, interfaces } from '@botpress/sdk'
 import OpenAI from 'openai'
 import { TranscribeAudioInput, TranscribeAudioOutput } from './types'
-import { IntegrationLogger, interfaces } from '@botpress/sdk'
-import { InvalidPayloadError } from '@botpress/client'
 
 export async function transcribeAudio<M extends string>(
   input: TranscribeAudioInput,
