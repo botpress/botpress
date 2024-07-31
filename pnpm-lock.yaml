@@ -1479,7 +1479,7 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
-  interfaces/text-to-image:
+  interfaces/speech-to-text:
     dependencies:
       '@botpress/sdk':
         specifier: workspace:*
@@ -1492,7 +1492,7 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
-  interfaces/text-to-speech:
+  interfaces/text-to-image:
     dependencies:
       '@botpress/sdk':
         specifier: workspace:*
