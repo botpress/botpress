@@ -7,6 +7,7 @@ import { getTicketConversation } from './get-ticket-conversation'
 import { listAgents } from './list-agents'
 import { openTicket } from './open-ticket'
 import { setConversationRequester } from './set-conversation-requester'
+import { callApi } from './call-api'
 import * as bp from '.botpress'
 
 export default {
@@ -19,4 +20,5 @@ export default {
   getTicketConversation,
   setConversationRequester,
   openTicket,
+  callApi,
 } satisfies bp.IntegrationProps['actions']
