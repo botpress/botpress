@@ -1508,10 +1508,10 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.24.2
+        specifier: 0.25.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 0.8.39
+        specifier: 0.8.40
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1623,10 +1623,10 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.24.2
+        specifier: 0.25.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.39
+        specifier: 0.8.40
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1642,10 +1642,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.24.2
+        specifier: 0.25.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.39
+        specifier: 0.8.40
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1661,10 +1661,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 0.24.2
+        specifier: 0.25.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.39
+        specifier: 0.8.40
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1680,10 +1680,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 0.24.2
+        specifier: 0.25.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.8.39
+        specifier: 0.8.40
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -1715,8 +1715,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.34.2
-        version: 0.34.2(openapi-types@12.1.3)
+        specifier: 0.37.0
+        version: 0.37.0(openapi-types@12.1.3)
       '@types/qs':
         specifier: ^6.9.7
         version: 6.9.7
@@ -1761,7 +1761,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.24.2
+        specifier: 0.25.0
         version: link:../client
       '@bpinternal/zui':
         specifier: 0.9.3
@@ -1832,11 +1832,6 @@ packages:
     transitivePeerDependencies:
       - encoding
     dev: false
-
-  /@apidevtools/openapi-schemas@2.1.0:
-    resolution: {integrity: sha512-Zc1AlqrJlX3SlpupFGpiLi2EbteyP7fXmUOGup6/DnkRgjP9bgMM/ag+n91rsv0U1Gpz0H3VILA/o3bW7Ua6BQ==}
-    engines: {node: '>=10'}
-    dev: true
 
   /@apidevtools/swagger-methods@3.0.2:
     resolution: {integrity: sha512-QAkD5kK2b1WfjDS/UQn/qQkbwF31uqRjPTrsCs5ZG9BQGAkjwvqGFjjPqAuzac/IYzpPtRzjCP1WrTuAIjMrXg==}
@@ -2335,13 +2330,14 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.34.2(openapi-types@12.1.3):
-    resolution: {integrity: sha512-/yaGpc1/yEPPLKZ1F994LZHKGrg19BiSQ+gvlKcr91j/CoWoY4GvgWlEdLU0Rt/D0uBOsPTp4OqiYwMW2mKkEg==}
+  /@botpress/api@0.37.0(openapi-types@12.1.3):
+    resolution: {integrity: sha512-lRXl2Laurwgx7fXjZevr5WAV6RsDDWy4IcgqCZqeIu+18LRfM65vG+YbUZnpCGOTc/C+Rz6NT26WhjWRcshPdA==}
     dependencies:
-      '@bpinternal/opapi': 0.10.17(openapi-types@12.1.3)
+      '@bpinternal/opapi': 0.10.20(openapi-types@12.1.3)
     transitivePeerDependencies:
       - debug
       - openapi-types
+      - supports-color
     dev: true
 
   /@botpress/messaging-base@1.2.0:
@@ -2409,19 +2405,20 @@ packages:
       regex-parser: 2.2.11
     dev: true
 
-  /@bpinternal/opapi@0.10.17(openapi-types@12.1.3):
-    resolution: {integrity: sha512-915A0cARgr1IFjfA+S3HWgZsHePOOADw552HrNbyKqSD31ibcWFRTVUwahyjNp+e4dTdSUXyMcelmrr4GsRHQA==}
-    engines: {node: '>=16.0.0', pnpm: '>=9'}
+  /@bpinternal/opapi@0.10.20(openapi-types@12.1.3):
+    resolution: {integrity: sha512-plTaVl+FvRCdMlsju5HMGEY0kHcXv3RZAHCAImaAaR0mwEjpUBB4sJFsptx+BaCyyyau4Ty8s+xdgbxh6IB+iQ==}
+    engines: {node: '>=16.0.0', pnpm: 9.1.0}
     dependencies:
       '@anatine/zod-openapi': 1.12.1(openapi3-ts@2.0.2)(zod@3.22.4)
-      '@readme/openapi-parser': 2.5.1(openapi-types@12.1.3)
-      axios: 1.6.8
+      '@readme/openapi-parser': 2.6.0(openapi-types@12.1.3)
+      axios: 1.7.2
       chalk: 4.1.2
       decompress: 4.2.1
       execa: 8.0.1
       json-schema-to-typescript: 13.1.2
+      json-schema-to-zod: 1.1.1
       lodash: 4.17.21
-      openapi-typescript: 6.7.5
+      openapi-typescript: 6.7.6
       openapi3-ts: 2.0.2
       radash: 12.1.0
       tsconfig-paths: 4.2.0
@@ -2431,6 +2428,7 @@ packages:
     transitivePeerDependencies:
       - debug
       - openapi-types
+      - supports-color
     dev: true
 
   /@bpinternal/tunnel@0.1.1:
@@ -4035,21 +4033,26 @@ packages:
       js-yaml: 4.1.0
     dev: true
 
-  /@readme/openapi-parser@2.5.1(openapi-types@12.1.3):
-    resolution: {integrity: sha512-p9ndWhwjtP+DEiOOF6jeNMpdmYIPM4nl+JEIdnQNdq7b68esI024x7HiYACZpaYaSvISDSyKc7aiRJx4K4IDhg==}
+  /@readme/openapi-parser@2.6.0(openapi-types@12.1.3):
+    resolution: {integrity: sha512-pyFJXezWj9WI1O+gdp95CoxfY+i+Uq3kKk4zXIFuRAZi9YnHpHOpjumWWr67wkmRTw19Hskh9spyY0Iyikf3fA==}
     engines: {node: '>=18'}
     peerDependencies:
       openapi-types: '>=7'
     dependencies:
-      '@apidevtools/openapi-schemas': 2.1.0
       '@apidevtools/swagger-methods': 3.0.2
       '@jsdevtools/ono': 7.1.3
       '@readme/better-ajv-errors': 1.6.0(ajv@8.16.0)
       '@readme/json-schema-ref-parser': 1.2.0
+      '@readme/openapi-schemas': 3.1.0
       ajv: 8.16.0
       ajv-draft-04: 1.0.0(ajv@8.16.0)
       call-me-maybe: 1.0.2
       openapi-types: 12.1.3
+    dev: true
+
+  /@readme/openapi-schemas@3.1.0:
+    resolution: {integrity: sha512-9FC/6ho8uFa8fV50+FPy/ngWN53jaUu4GRXlAjcxIRrzhltJnpKkBG2Tp0IDraFJeWrOpk84RJ9EMEEYzaI1Bw==}
+    engines: {node: '>=18'}
     dev: true
 
   /@rollup/rollup-android-arm-eabi@4.13.2:
@@ -5193,7 +5196,6 @@ packages:
 
   /asap@2.0.6:
     resolution: {integrity: sha512-BSHWgDSAiKs50o2Re8ppvp3seVHXSRM44cdSsT9FfNEUUZLOGWVCsiWaRPWM1Znn+mqZ1OfVZ3z3DWEzSp7hRA==}
-    dev: false
 
   /asn1@0.2.6:
     resolution: {integrity: sha512-ix/FxPn0MDjeyJ7i/yoHGFt/EX6LyNbxSEhPPXODPL+KB0VPk86UYfL0lMdy+KCnv+fmvIzySwaK5COwqVbWTQ==}
@@ -5342,6 +5344,7 @@ packages:
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
+    dev: false
 
   /axios@1.7.2:
     resolution: {integrity: sha512-2A8QhOMrbomlDuiLeK9XibIBzuHeRcqqNOHp0Cyp5EoJ1IFDh+XZH3A6BkXtv0K4gFGCI0Y4BM7B1wOEi0Rmgw==}
@@ -5351,7 +5354,6 @@ packages:
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
-    dev: false
 
   /babel-jest@29.5.0(@babel/core@7.22.5):
     resolution: {integrity: sha512-mA4eCDh5mSo2EcA9xQjVTpmbbNk32Zb3Q3QFQsNhaK56Q+yoXowzFodLux30HRgyOho5rsQ6B0P9QpMkvvnJ0Q==}
@@ -5958,7 +5960,6 @@ packages:
 
   /component-emitter@1.3.0:
     resolution: {integrity: sha512-Rd3se6QB+sO1TwqZjscQrurpEPIfO0/yYnSin6Q/rD3mOutHvUrCAhJub3r90uNb+SESBuE0QYoB90YdfatsRg==}
-    dev: false
 
   /concat-map@0.0.1:
     resolution: {integrity: sha512-/Srv4dswyQNBfohGpz9o6Yb3Gz3SrUDqBH5rTuhGR7ahtlbYKnVxw2bCFMRljaA7EXHaXZ8wsHdodFvbkhKmqg==}
@@ -5998,7 +5999,6 @@ packages:
 
   /cookiejar@2.1.4:
     resolution: {integrity: sha512-LDx6oHrK+PhzLKJU9j5S7/Y3jM/mUHvD/DeI1WQmJn652iPC5Y4TBzC9l+5OMOXlyTTA+SmVUPm0HQUwpD5Jqw==}
-    dev: false
 
   /core-util-is@1.0.2:
     resolution: {integrity: sha512-3lqz5YjWTYnW6dlDa5TLaTCcShfar1e40rmcJVwCBJC6mWlFuj0eCHIElmG1g5kyuJ/GD+8Wn4FFCcz4gJPfaQ==}
@@ -6234,6 +6234,13 @@ packages:
   /detect-newline@3.1.0:
     resolution: {integrity: sha512-TLz+x/vEXm/Y7P7wn1EJFNLxYpUD4TgMosxY6fAVJUnJMbupHBOncxyWUG9OpTaH9EBD7uFI5LfEgmMOc54DsA==}
     engines: {node: '>=8'}
+    dev: true
+
+  /dezalgo@1.0.4:
+    resolution: {integrity: sha512-rXSP0bf+5n0Qonsb+SVVfNfIsimO4HEtmnIpPHY8Q1UCzKlQrDMfdobr8nJOOsRgWCyMRqeSBQzmWUMq7zvVig==}
+    dependencies:
+      asap: 2.0.6
+      wrappy: 1.0.2
     dev: true
 
   /diff-sequences@29.4.3:
@@ -7248,7 +7255,6 @@ packages:
 
   /fast-safe-stringify@2.1.1:
     resolution: {integrity: sha512-W+KJc2dmILlPplD/H4K9l9LcAHAfPtP6BY84uVLXQ6Evcz9Lcg33Y2z1IVblT6xdY54PXYVHEv+0Wpq8Io6zkA==}
-    dev: false
 
   /fast-text-encoding@1.0.6:
     resolution: {integrity: sha512-VhXlQgj9ioXCqGstD37E/HBeqEGV/qOD/kmbVG8h5xKBYvM1L3lR1Zn4555cQ8GkYbJa8aJSipLPndE1k6zK2w==}
@@ -7491,6 +7497,15 @@ packages:
     resolution: {integrity: sha512-KcpbcpuLNOwrEjnbpMC0gS+X8ciDoZE1kkqzat4a8vrprf+s9pKNQ/QIwWfbfs4ltgmFl3MD177SNTkve3BwGQ==}
     deprecated: 'Please upgrade to latest, formidable@v2 or formidable@v3! Check these notes: https://bit.ly/2ZEqIau'
     dev: false
+
+  /formidable@2.1.2:
+    resolution: {integrity: sha512-CM3GuJ57US06mlpQ47YcunuUZ9jpm8Vx+P2CGt2j7HpgkKZO/DJYQ0Bobim8G6PFQmK5lOqOOdUXboU+h73A4g==}
+    dependencies:
+      dezalgo: 1.0.4
+      hexoid: 1.0.0
+      once: 1.4.0
+      qs: 6.11.0
+    dev: true
 
   /forwarded@0.2.0:
     resolution: {integrity: sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow==}
@@ -7891,6 +7906,12 @@ packages:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
     dev: false
 
+  /graphlib@2.1.8:
+    resolution: {integrity: sha512-jcLLfkpoVGmH7/InMC/1hIvOPSUh38oJtGhvrOFGzioE1DZ+0YW16RgmOJhHiuWTvGiJQ9Z1Ik43JvkRPRvE+A==}
+    dependencies:
+      lodash: 4.17.21
+    dev: true
+
   /graphql@15.8.0:
     resolution: {integrity: sha512-5gghUc24tP9HRznNpV2+FIoq3xKkj5dTQqf4v0CpdPbFVwFkWoxOM+o+2OC9ZSvjEMTjfmG9QT+gcvggTwW1zw==}
     engines: {node: '>= 10.x'}
@@ -7970,6 +7991,11 @@ packages:
     engines: {node: '>= 0.4.0'}
     dependencies:
       function-bind: 1.1.1
+
+  /hexoid@1.0.0:
+    resolution: {integrity: sha512-QFLV0taWQOZtvIRIAdBChesmogZrtuXvVWsFHZTk2SU+anspqZ2vMnoLg7IE1+Uk16N19APic1BuF8bC8c2m5g==}
+    engines: {node: '>=8'}
+    dev: true
 
   /html-escaper@2.0.2:
     resolution: {integrity: sha512-H2iMtd0I4Mt5eYiapRdIDjp+XzelXQ0tFE4JS7YFwFevXXMmOp9myNrUvCg0D6ws8iqkRPBfKHgbwig1SmlLfg==}
@@ -8967,6 +8993,23 @@ packages:
     resolution: {integrity: sha512-xyFwyhro/JEof6Ghe2iz2NcXoj2sloNsWr/XsERDK/oiPCfaNhl5ONfp+jQdAZRQQ0IJWNzH9zIZF7li91kh2w==}
     dev: true
 
+  /json-refs@3.0.15:
+    resolution: {integrity: sha512-0vOQd9eLNBL18EGl5yYaO44GhixmImes2wiYn9Z3sag3QnehWrYWlB9AFtMxCL2Bj3fyxgDYkxGFEU/chlYssw==}
+    engines: {node: '>=0.8'}
+    hasBin: true
+    dependencies:
+      commander: 4.1.1
+      graphlib: 2.1.8
+      js-yaml: 3.14.1
+      lodash: 4.17.21
+      native-promise-only: 0.8.1
+      path-loader: 1.0.12
+      slash: 3.0.0
+      uri-js: 4.4.1
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
+
   /json-schema-to-typescript@11.0.2:
     resolution: {integrity: sha512-XRyeXBJeo/IH4eTP5D1ptX78vCvH86nMDt2k3AxO28C3uYWEDmy4mgPyMpb8bLJ/pJMElOGuQbnKR5Y6NSh3QQ==}
     engines: {node: '>=12.0.0'}
@@ -9007,6 +9050,17 @@ packages:
       mkdirp: 1.0.4
       mz: 2.7.0
       prettier: 2.8.8
+    dev: true
+
+  /json-schema-to-zod@1.1.1:
+    resolution: {integrity: sha512-YhU/zVhEMUBQE5/tOWPEcajdjEIpWFHVitQz0A7knERlzldw705dhImXiwgWKvkivU4GkF6C1efREzAFDKXvmQ==}
+    hasBin: true
+    dependencies:
+      '@types/json-schema': 7.0.15
+      json-refs: 3.0.15
+      prettier: 2.8.8
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /json-schema-traverse@0.4.1:
@@ -9474,7 +9528,6 @@ packages:
   /methods@1.1.2:
     resolution: {integrity: sha512-iclAHeNqNm68zFtnZ0e+1L2yUIdvzNoauKU4WBA3VvH/vPFieF7qfRlwUZU+DA9P9bPXIS90ulxoUoCH23sV2w==}
     engines: {node: '>= 0.6'}
-    dev: false
 
   /micromatch@4.0.5:
     resolution: {integrity: sha512-DMy+ERcEW2q8Z2Po+WNXuw3c5YaUSFjAO5GsJqfEl7UjvtIuFKO6ZrKvcItdy98dwFI2N1tg3zNIdKaQT+aNdA==}
@@ -9503,7 +9556,6 @@ packages:
     resolution: {integrity: sha512-USPkMeET31rOMiarsBNIHZKLGgvKc/LrjofAnBlOttf5ajRvqiRA8QsenbcooctK6d6Ts6aqZXBA+XbkKthiQg==}
     engines: {node: '>=4.0.0'}
     hasBin: true
-    dev: false
 
   /mimic-fn@2.1.0:
     resolution: {integrity: sha512-OqbOk5oEQeAZ8WXWydlu9HJjz9WVdEIvamMCcXmuqUYjTknH/sqsWvhQ3vgwKFRR1HpjvNBKQ37nbJgYzGqGcg==}
@@ -9592,6 +9644,10 @@ packages:
     resolution: {integrity: sha512-BGcqMMJuToF7i1rt+2PWSNVnWIkGCU78jBG3RxO/bZlnZPK2Cmi2QaffxGO/2RvWi9sL+FAiRiXMgsyxQ1DIDA==}
     engines: {node: ^10 || ^12 || ^13.7 || ^14 || >=15.0.1}
     hasBin: true
+
+  /native-promise-only@0.8.1:
+    resolution: {integrity: sha512-zkVhZUA3y8mbz652WrL5x0fB0ehrBkulWT3TomAQ9iDtyXZvzKeEA6GPxAItBYeNYl5yngKRX612qHOhvMkDeg==}
+    dev: true
 
   /natural-compare-lite@1.4.0:
     resolution: {integrity: sha512-Tj+HTDSJJKaZnfiuw+iaF9skdPpTo2GtEly5JHnWV/hfv2Qj/9RKsGISQtLh2ox3l5EAGw487hnBee0sIJ6v2g==}
@@ -9837,8 +9893,8 @@ packages:
     resolution: {integrity: sha512-N4YtSYJqghVu4iek2ZUvcN/0aqH1kRDuNqzcycDxhOUpg7GdvLa2F3DgS6yBNhInhv2r/6I0Flkn7CqL8+nIcw==}
     dev: true
 
-  /openapi-typescript@6.7.5:
-    resolution: {integrity: sha512-ZD6dgSZi0u1QCP55g8/2yS5hNJfIpgqsSGHLxxdOjvY7eIrXzj271FJEQw33VwsZ6RCtO/NOuhxa7GBWmEudyA==}
+  /openapi-typescript@6.7.6:
+    resolution: {integrity: sha512-c/hfooPx+RBIOPM09GSxABOZhYPblDoyaGhqBkD/59vtpN21jEuWKDlM0KYTvqJVlSYjKs0tBcIdeXKChlSPtw==}
     hasBin: true
     dependencies:
       ansi-colors: 4.1.3
@@ -10015,6 +10071,15 @@ packages:
   /path-key@4.0.0:
     resolution: {integrity: sha512-haREypq7xkM7ErfgIyA0z+Bj4AGKlMSdlQE2jvJo6huWD1EdkKYV+G/T4nq0YEF2vgTT8kqMFKo1uHn950r4SQ==}
     engines: {node: '>=12'}
+    dev: true
+
+  /path-loader@1.0.12:
+    resolution: {integrity: sha512-n7oDG8B+k/p818uweWrOixY9/Dsr89o2TkCm6tOTex3fpdo2+BFDgR+KpB37mGKBRsBAlR8CIJMFN0OEy/7hIQ==}
+    dependencies:
+      native-promise-only: 0.8.1
+      superagent: 7.1.6
+    transitivePeerDependencies:
+      - supports-color
     dev: true
 
   /path-parse@1.0.7:
@@ -11046,6 +11111,26 @@ packages:
     transitivePeerDependencies:
       - supports-color
     dev: false
+
+  /superagent@7.1.6:
+    resolution: {integrity: sha512-gZkVCQR1gy/oUXr+kxJMLDjla434KmSOKbx5iGD30Ql+AkJQ/YlPKECJy2nhqOsHLjGHzoDTXNSjhnvWhzKk7g==}
+    engines: {node: '>=6.4.0 <13 || >=14'}
+    deprecated: Please upgrade to v9.0.0+ as we have fixed a public vulnerability with formidable dependency. Note that v9.0.0+ requires Node.js v14.18.0+. See https://github.com/ladjs/superagent/pull/1800 for insight. This project is supported and maintained by the team at Forward Email @ https://forwardemail.net
+    dependencies:
+      component-emitter: 1.3.0
+      cookiejar: 2.1.4
+      debug: 4.3.4
+      fast-safe-stringify: 2.1.1
+      form-data: 4.0.0
+      formidable: 2.1.2
+      methods: 1.1.2
+      mime: 2.6.0
+      qs: 6.11.0
+      readable-stream: 3.6.2
+      semver: 7.5.4
+    transitivePeerDependencies:
+      - supports-color
+    dev: true
 
   /supports-color@5.5.0:
     resolution: {integrity: sha512-QjVjwdXIt408MIiAqCX4oUKsgU2EqAGzs2Ppkm4aQYbjm+ZEWEcW4SfFNTr4uMNZma0ey4f5lgLrkB0aX0QMow==}
