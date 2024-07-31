@@ -2,7 +2,7 @@ webhookId = to_string!(.webhookId)
 webhookUrl = to_string!(.webhookUrl)
 env = to_string!(.env)
 
-clientId = "364cc18b5fd2edc8abc3b7113e6a7908
+clientId = "364cc18b5fd2edc8abc3b7113e6a7908"
 
 if env == "production" {
   clientId = "be8aaf51ad3d057ed5870c5729926929"
