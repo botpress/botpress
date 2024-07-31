@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
-import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { IntegrationContext, Request } from '@botpress/sdk'
+import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { channel, INTEGRATION_NAME } from 'integration.definition'
 import * as crypto from 'node:crypto'
 import queryString from 'query-string'
@@ -192,7 +192,7 @@ const integration = new bp.Integration({
 
     const secret = getSecret(ctx)
     // For testing purposes, if you send the secret in the header it's possible to disable signature check
-    if (secret?.length && req.headers['x-secret'] !== secret) {
+    if (secret && req.headers['x-secret'] !== secret) {
       const signature = req.headers['x-hub-signature-256']
 
       if (!signature) {

@@ -145,12 +145,15 @@ export const getAccessToken = async (client: bp.Client, ctx: IntegrationContext)
   return accessToken
 }
 
-export const getSecret = (ctx: IntegrationContext) => {
+export const getSecret = (ctx: IntegrationContext): string | undefined => {
+  let value
   if (ctx.configuration.useManualConfiguration) {
-    return ctx.configuration.clientSecret
+    value = ctx.configuration.clientSecret
+  } else {
+    value = bp.secrets.CLIENT_SECRET
   }
 
-  return bp.secrets.CLIENT_SECRET
+  return value?.length && value
 }
 
 export const getPhoneNumberId = async (client: bp.Client, ctx: IntegrationContext) => {
