@@ -34,7 +34,7 @@ export async function transcribeAudio<M extends string>(
       language: input.language,
       prompt: input.prompt,
       temperature: input.temperature,
-      response_format: 'verbose_json',
+      response_format: 'verbose_json', // This is needed primarily to get the duration of the audio to calculate the cost of the transcription to bill it as AI Spend to the bot, and secondarily to provide a breakdown of the transcription rather than just a single piece of text for the whole audio.
     })
   } catch (err: any) {
     if (err instanceof OpenAI.APIError) {
