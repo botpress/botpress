@@ -6,6 +6,12 @@ export default new IntegrationDefinition({
   version: '5.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
+  configuration: {
+    schema: z.object({
+      url: z.string().optional().describe('Base URL for the OpenAI API'),
+      apiKey: z.string().optional().describe('OpenAI API key'),
+    }),
+  },
   entities: {
     modelRef: {
       schema: z.object({
