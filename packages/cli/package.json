@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cli",
-  "version": "0.8.46",
+  "version": "0.8.47",
   "description": "Botpress CLI",
   "scripts": {
     "build": "pnpm run bundle && pnpm run template:gen",
@@ -20,8 +20,8 @@
   },
   "main": "dist/index.js",
   "dependencies": {
-    "@botpress/client": "0.25.0",
-    "@botpress/sdk": "0.8.40",
+    "@botpress/client": "0.25.1",
+    "@botpress/sdk": "0.8.41",
     "@bpinternal/const": "^0.0.20",
     "@bpinternal/tunnel": "^0.1.1",
     "@bpinternal/yargs-extra": "^0.0.3",
