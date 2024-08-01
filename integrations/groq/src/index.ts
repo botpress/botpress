@@ -1,7 +1,7 @@
-import { llm } from '@botpress/common'
+import { llm, textToSpeech } from '@botpress/common'
 import { interfaces } from '@botpress/sdk'
 import OpenAI from 'openai'
-import { ModelId } from './schemas'
+import { ModelId, SpeechToTextModelId } from './schemas'
 import * as bp from '.botpress'
 
 const groqClient = new OpenAI({
@@ -70,20 +70,47 @@ const languageModels: Record<ModelId, interfaces.llm.ModelDetails> = {
   },
 }
 
+const speechToTextModels: Record<SpeechToTextModelId, interfaces.speechToText.SpeechToTextModelDetails> = {
+  'whisper-large-v3': {
+    name: 'Whisper V2',
+    costPerMinute: 0.0005,
+  },
+}
+
+const provider = 'Groq'
+
 export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
     generateContent: async ({ input, logger }) => {
       return await llm.openai.generateContent<ModelId>(<llm.GenerateContentInput>input, groqClient, logger, {
-        provider: 'groq',
+        provider,
         models: languageModels,
         defaultModel: 'mixtral-8x7b-32768',
+      })
+    },
+    transcribeAudio: async ({ input, logger }) => {
+      return await textToSpeech.openai.transcribeAudio(input, groqClient, logger, {
+        provider,
+        models: speechToTextModels,
+        defaultModel: 'whisper-large-v3',
       })
     },
     listLanguageModels: async ({}) => {
       return {
         models: Object.entries(languageModels).map(([id, model]) => ({ id: <ModelId>id, ...model })),
+      }
+    },
+    listSpeechToTextModels: async ({}) => {
+      return {
+        models: [
+          {
+            id: 'whisper-1',
+            name: 'Whisper V2',
+            costPerMinute: 0.006,
+          },
+        ],
       }
     },
   },

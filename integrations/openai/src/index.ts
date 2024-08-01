@@ -1,9 +1,9 @@
 import { InvalidPayloadError } from '@botpress/client'
-import { llm } from '@botpress/common'
+import { llm, textToSpeech } from '@botpress/common'
 import { interfaces } from '@botpress/sdk'
 import OpenAI from 'openai'
 import { ImageGenerateParams, Images } from 'openai/resources'
-import { LanguageModelId, ImageModelId } from './schemas'
+import { LanguageModelId, ImageModelId, SpeechToTextModelId } from './schemas'
 import * as bp from '.botpress'
 
 const openAIClient = new OpenAI({
@@ -109,13 +109,22 @@ const imageModels: Record<ImageModelId, interfaces.textToImage.ImageModelDetails
   },
 }
 
+const speechToTextModels: Record<SpeechToTextModelId, interfaces.speechToText.SpeechToTextModelDetails> = {
+  'whisper-1': {
+    name: 'Whisper V2',
+    costPerMinute: 0.006,
+  },
+}
+
+const provider = 'OpenAI'
+
 export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
     generateContent: async ({ input, logger }) => {
       return await llm.openai.generateContent<LanguageModelId>(<llm.GenerateContentInput>input, openAIClient, logger, {
-        provider: 'openai',
+        provider,
         models: languageModels,
         defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
       })
@@ -176,6 +185,13 @@ export default new bp.Integration({
         cost: imageModel.costPerImage,
       }
     },
+    transcribeAudio: async ({ input, logger }) => {
+      return await textToSpeech.openai.transcribeAudio(input, openAIClient, logger, {
+        provider,
+        models: speechToTextModels,
+        defaultModel: 'whisper-1',
+      })
+    },
     listLanguageModels: async ({}) => {
       return {
         models: Object.entries(languageModels).map(([id, model]) => ({ id: <LanguageModelId>id, ...model })),
@@ -184,6 +200,11 @@ export default new bp.Integration({
     listImageModels: async ({}) => {
       return {
         models: Object.entries(imageModels).map(([id, model]) => ({ id: <ImageModelId>id, ...model })),
+      }
+    },
+    listSpeechToTextModels: async ({}) => {
+      return {
+        models: Object.entries(speechToTextModels).map(([id, model]) => ({ id: <ImageModelId>id, ...model })),
       }
     },
   },

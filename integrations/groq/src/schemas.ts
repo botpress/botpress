@@ -6,3 +6,6 @@ export const modelId = z
   .placeholder('mixtral-8x7b-32768')
 
 export type ModelId = z.infer<typeof modelId>
+
+export const speechToTextModelId = z.enum(['whisper-large-v3'])
+export type SpeechToTextModelId = z.infer<typeof speechToTextModelId>
