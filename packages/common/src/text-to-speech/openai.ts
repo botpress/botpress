@@ -55,7 +55,8 @@ export async function transcribeAudio<M extends string>(
     throw new Error(message)
   }
 
-  const cost = Math.ceil(result.data.duration) * model.costPerMinute
+  // Note: duration is in seconds
+  const cost = (result.data.duration / 60) * model.costPerMinute
 
   return {
     model: modelId,
