@@ -41,5 +41,4 @@ export const user = {
     email: {},
     role: {},
   },
-  creation: { enabled: true, requiredTags: [] },
 } satisfies IntegrationDefinitionProps['user']
