@@ -17,9 +17,20 @@ import {
 } from 'openai/resources'
 import { GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './types'
 
-const OpenAIInnerErrorSchema = z.object({
-  message: z.string(),
-})
+const OpenAIErrorSchema = z
+  .object({
+    type: z.string(),
+    code: z.string(),
+    message: z.string(),
+    error: z
+      .object({
+        message: z.string(),
+      })
+      .optional()
+      .describe('Inner error'),
+    failed_generation: z.string().optional(),
+  })
+  .strip() // IMPORTANT: This is so we can safely log the OpenAI error log as-is, to avoid leaking other sensitive information the error response may include.
 
 export async function generateContent<M extends string>(
   input: GenerateContentInput,
@@ -87,11 +98,17 @@ export async function generateContent<M extends string>(
     response = await openAIClient.chat.completions.create(request)
   } catch (err: any) {
     if (err instanceof OpenAI.APIError) {
-      const parsedInnerError = OpenAIInnerErrorSchema.safeParse(err.error)
-      if (parsedInnerError.success) {
-        logger
-          .forBot()
-          .error(`${props.provider} error ${err.status} (${err.type}:${err.code}) - ${parsedInnerError.data.message}`)
+      const parsedError = OpenAIErrorSchema.safeParse(err)
+      if (parsedError.success) {
+        if (input.debug) {
+          logger.forBot().error(`Error received from ${props.provider}: ${JSON.stringify(parsedError.data, null, 2)}`)
+        }
+
+        const message = `${props.provider} error ${err.status} (${err.type}:${err.code}): ${
+          parsedError.data.error?.message ?? err.message
+        }`
+        logger.forBot().error(message)
+
         throw err
       }
     }
@@ -135,12 +152,12 @@ function getTokenUsage(
 ) {
   const inputTokens = response.usage?.prompt_tokens
   if (!inputTokens) {
-    logger.forBot().error(`Received invalid input token count of "${inputTokens}" from "${provider}" LLM provider`)
+    logger.forBot().error(`Received invalid input token count of "${inputTokens}" from ${provider}`)
   }
 
   const outputTokens = response.usage?.completion_tokens
   if (!outputTokens) {
-    logger.forBot().error(`Received invalid output token count of "${outputTokens}" from "${provider}" LLM provider`)
+    logger.forBot().error(`Received invalid output token count of "${outputTokens}" from ${provider}`)
   }
 
   return {
@@ -356,7 +373,7 @@ function mapToToolCalls(
         logger
           .forBot()
           .warn(
-            `Received invalid JSON from "${provider}" LLM provider for arguments in a tool call of function "${openAIToolCall.function.name}", a \`null\` value for arguments will be passed instead - JSON parser error: ${err} / Invalid JSON received: ${openAIToolCall.function.arguments}`
+            `Received invalid JSON from ${provider} for arguments in a generateContent tool call of function "${openAIToolCall.function.name}", a \`null\` value for arguments will be passed instead - JSON parser error: ${err} / Invalid JSON received: ${openAIToolCall.function.arguments}`
           )
         toolCallArguments = null
       }
@@ -370,7 +387,7 @@ function mapToToolCalls(
         },
       })
     } else {
-      logger.forBot().warn(`Ignored unsupported tool call type "${openAIToolCall.type}" from OpenAI`)
+      logger.forBot().warn(`Ignored unsupported tool call type "${openAIToolCall.type}" from ${provider}`)
     }
 
     return toolCalls

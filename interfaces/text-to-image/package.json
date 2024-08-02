@@ -1,6 +1,6 @@
 {
   "name": "@botpresshub/text-to-image",
-  "description": "Text-to-image interface for Botpress",
+  "description": "Text-to-image interface for Botpress integrations",
   "private": true,
   "scripts": {
     "check:type": "tsc --noEmit",
