@@ -12,10 +12,10 @@ const withUserId = <S extends z.AnyZodObject>(s: { schema: S }) => ({
 
 export const hitl = new InterfaceDeclaration({
   name: 'hitl',
-  version: '0.1.0',
+  version: '0.2.0',
   entities: {},
   events: {
-    agentAssigned: {
+    hitlAssigned: {
       schema: () =>
         z.object({
           conversationId: z.string(),

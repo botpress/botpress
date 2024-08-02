@@ -25,7 +25,7 @@ export const executeTicketAssigned = async ({
   })
 
   await client.createEvent({
-    type: 'agentAssigned',
+    type: 'hitlAssigned',
     payload: {
       conversationId: conversation.id,
       userId: user.id,

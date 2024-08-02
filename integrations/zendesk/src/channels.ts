@@ -34,8 +34,7 @@ export default {
         const conversationTags = Tags.of(props.conversation, props.logger)
         const ticketId = conversationTags.get('id')
 
-        const bpUserId = userId || props.user.id
-
+        const bpUserId = userId ?? props.user.id
         const { user } = await client.getUser({ id: bpUserId })
         const userTags = Tags.of(user, props.logger)
         const zendeskAuthorId = userTags.get('id')
