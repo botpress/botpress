@@ -17,7 +17,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   switch (zendeskTrigger.type) {
     case 'newMessage':
       const { conversation } = await client.getOrCreateConversation({
-        channel: 'ticket',
+        channel: 'hitl',
         tags: {
           id: zendeskTrigger.ticketId,
         },
@@ -25,9 +25,9 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
 
       if (!zendeskTrigger.currentUser.externalId?.length) {
         const { user: newUser } = await client.getOrCreateUser({
+          name: zendeskTrigger.currentUser.name,
           tags: {
             id: zendeskTrigger.currentUser.id,
-            name: zendeskTrigger.currentUser.name,
             email: zendeskTrigger.currentUser.email,
             role: zendeskTrigger.currentUser.role,
           },
@@ -47,7 +47,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
       const messageWithoutAuthor = zendeskTrigger.comment.split('\n').slice(3).join('\n')
 
       await client.createMessage({
-        tags: { origin: 'zendesk' },
+        tags: {},
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
