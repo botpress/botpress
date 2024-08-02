@@ -1,5 +1,6 @@
 import { IntegrationProps } from '../.botpress/implementation'
 import { getZendeskClient } from './client'
+import { syncZendeskArticlesToBotpressKB } from './misc/syncZendeskKbToBpKb'
 import { Triggers } from './triggers'
 
 export const register: IntegrationProps['register'] = async ({ client, ctx, webhookUrl, logger }) => {
@@ -47,6 +48,10 @@ export const register: IntegrationProps['register'] = async ({ client, ctx, webh
         triggerIds: triggersCreated,
       },
     })
+  }
+
+  if (ctx.configuration.syncKnowledgeBaseWithBot) {
+    await syncZendeskArticlesToBotpressKB({ ctx, client, logger })
   }
 }
 
