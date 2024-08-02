@@ -17,9 +17,20 @@ import {
 } from 'openai/resources'
 import { GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './types'
 
-const OpenAIInnerErrorSchema = z.object({
-  message: z.string(),
-})
+const OpenAIErrorSchema = z
+  .object({
+    type: z.string(),
+    code: z.string(),
+    message: z.string(),
+    error: z
+      .object({
+        message: z.string(),
+      })
+      .optional()
+      .describe('Inner error'),
+    failed_generation: z.string().optional(),
+  })
+  .strip() // IMPORTANT: This is so we can safely log the OpenAI error log as-is, to avoid leaking other sensitive information the error response may include.
 
 export async function generateContent<M extends string>(
   input: GenerateContentInput,
@@ -87,11 +98,17 @@ export async function generateContent<M extends string>(
     response = await openAIClient.chat.completions.create(request)
   } catch (err: any) {
     if (err instanceof OpenAI.APIError) {
-      const parsedInnerError = OpenAIInnerErrorSchema.safeParse(err.error)
-      if (parsedInnerError.success) {
-        logger
-          .forBot()
-          .error(`${props.provider} error ${err.status} (${err.type}:${err.code}) - ${parsedInnerError.data.message}`)
+      const parsedError = OpenAIErrorSchema.safeParse(err)
+      if (parsedError.success) {
+        if (input.debug) {
+          logger.forBot().error(`Error received from ${props.provider}: ${JSON.stringify(parsedError.data, null, 2)}`)
+        }
+
+        const message = `${props.provider} error ${err.status} (${err.type}:${err.code}): ${
+          parsedError.data.error?.message ?? err.message
+        }`
+        logger.forBot().error(message)
+
         throw err
       }
     }
