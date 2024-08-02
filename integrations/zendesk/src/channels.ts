@@ -26,30 +26,18 @@ class Tags<T extends Record<string, string>> {
 }
 
 export default {
-  ticket: {
+  hitl: {
     messages: {
-      text: async ({ client, ...props }) => {
+      text: async ({ client, ...props }: bp.AnyMessageProps) => {
         const { text, userId } = props.payload
 
         const conversationTags = Tags.of(props.conversation, props.logger)
-        const conversationRequesterId = conversationTags.find('requesterId')
         const ticketId = conversationTags.get('id')
 
-        let zendeskAuthorId: string
-        if (userId) {
-          // the bot is sending a message on behalf of another user
-          const { user } = await client.getUser({ id: userId })
-          const userTags = Tags.of(user, props.logger)
-          zendeskAuthorId = userTags.get('id')
-        } else if (conversationRequesterId) {
-          // the bot is sending a message on behalf of the user who opened the ticket
-          zendeskAuthorId = conversationRequesterId
-        } else {
-          // the bot is sending a message as itself
-          const { user } = await client.getUser({ id: props.user.id })
-          const userTags = Tags.of(user, props.logger)
-          zendeskAuthorId = userTags.get('id')
-        }
+        const bpUserId = userId ?? props.user.id
+        const { user } = await client.getUser({ id: bpUserId })
+        const userTags = Tags.of(user, props.logger)
+        const zendeskAuthorId = userTags.get('id')
 
         return await getZendeskClient(props.ctx.configuration).createComment(ticketId, zendeskAuthorId, text)
       },
