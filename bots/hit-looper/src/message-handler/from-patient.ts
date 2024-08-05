@@ -46,7 +46,7 @@ export const patientMessageHandler: MessageHandler = async (props) => {
       const {
         output: { conversationId: downstreamConversationId },
       } = await client.callAction({
-        type: 'zendesk:startHitl',
+        type: 'zendesk:openTicket',
         input: {
           title: `Hitl request ${Date.now()}`,
           description: 'I need help.',

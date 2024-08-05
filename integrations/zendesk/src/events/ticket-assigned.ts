@@ -8,27 +8,14 @@ export const executeTicketAssigned = async ({
   zendeskTrigger: TriggerPayload
   client: bp.Client
 }) => {
-  const { ticketId, agent } = zendeskTrigger
-
-  const { conversation } = await client.getOrCreateConversation({
-    channel: 'hitl',
-    tags: {
-      id: ticketId,
-    },
-  })
-
-  const { user } = await client.getOrCreateUser({
-    name: agent.name,
-    tags: {
-      email: agent.email,
-    },
-  })
-
   await client.createEvent({
-    type: 'hitlAssigned',
+    type: 'ticketAssigned',
     payload: {
-      conversationId: conversation.id,
-      userId: user.id,
+      type: zendeskTrigger.type,
+      ticketId: zendeskTrigger.ticketId,
+      status: zendeskTrigger.status,
+      comment: zendeskTrigger.comment,
+      agent: zendeskTrigger.agent,
     },
   })
 }

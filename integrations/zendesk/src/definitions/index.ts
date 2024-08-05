@@ -1,9 +1,8 @@
 import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 
 export { actions } from './actions'
+export { events } from './events'
 export { channels } from './channels'
-
-export const events = {} satisfies IntegrationDefinitionProps['events']
 
 export const configuration = {
   schema: z.object({
@@ -44,6 +43,7 @@ export const states = {
 export const user = {
   tags: {
     id: {},
+    name: {},
     email: {},
     role: {},
   },

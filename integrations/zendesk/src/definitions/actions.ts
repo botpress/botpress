@@ -1,6 +1,27 @@
 import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 import { ticketSchema, userSchema } from './schemas'
 
+const getTicketConversation = {
+  title: 'Get Ticket Conversation',
+  description: 'Proactively create or get a botpress conversation on a zendesk ticket',
+  input: {
+    schema: z.object({
+      ticketId: z.string().describe('The ID of the ticket'),
+    }),
+    ui: {
+      ticketId: {
+        title: 'Ticket id',
+      },
+    },
+  },
+  output: {
+    schema: z.object({
+      conversationId: z.string().describe('The ID of the conversation'),
+      tags: z.record(z.string()).describe('The tags of the conversation'),
+    }),
+  },
+}
+
 const createTicket = {
   title: 'Create Ticket',
   description: 'Creates a new ticket in Zendesk',
@@ -111,6 +132,55 @@ const listAgents = {
   },
 }
 
+const setConversationRequester = {
+  title: 'Set Conversation Requester',
+  description:
+    'Assign a requester to a conversation. Every outgoing message in the conversation will then be sent as this requester instead of your bot.',
+  input: {
+    schema: z.object({
+      conversationId: z.string().describe('The Botpress conversation Id to assign the requester to'),
+      requesterId: z.string().describe('The Zendesk requester Id to assign to the conversation'),
+    }),
+  },
+  output: {
+    schema: z.object({}),
+  },
+} satisfies NonNullable<IntegrationDefinitionProps['actions']>[string]
+
+const createUser = {
+  title: 'Create User',
+  description: 'Create a user in Zendesk',
+  input: {
+    schema: z.object({
+      name: z.string().optional(),
+      pictureUrl: z.string().optional(),
+      email: z.string().optional(),
+    }),
+  },
+  output: {
+    schema: z.object({
+      userId: z.string(),
+    }),
+  },
+} satisfies NonNullable<IntegrationDefinitionProps['actions']>[string]
+
+const openTicket = {
+  title: 'Open Ticket',
+  description: 'Open a ticket in Zendesk',
+  input: {
+    schema: z.object({
+      userId: z.string(),
+      title: z.string(),
+      description: z.string().optional(),
+    }),
+  },
+  output: {
+    schema: z.object({
+      conversationId: z.string(),
+    }),
+  },
+} satisfies NonNullable<IntegrationDefinitionProps['actions']>[string]
+
 const callApi = {
   title: 'Call API',
   description: 'Call Zendesk API',
@@ -138,5 +208,9 @@ export const actions = {
   createTicket,
   closeTicket,
   listAgents,
+  getTicketConversation,
+  setConversationRequester,
+  createUser,
+  openTicket,
   callApi,
 } satisfies IntegrationDefinitionProps['actions']

@@ -53,7 +53,6 @@ type MessagePayload<
   conversation: Merge<
     Conversation,
     {
-      channel: TChannel
       tags: ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
     }
   >

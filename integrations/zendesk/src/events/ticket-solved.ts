@@ -8,19 +8,13 @@ export const executeTicketSolved = async ({
   zendeskTrigger: TriggerPayload
   client: bp.Client
 }) => {
-  const { ticketId } = zendeskTrigger
-
-  const { conversation } = await client.getOrCreateConversation({
-    channel: 'hitl',
-    tags: {
-      id: ticketId,
-    },
-  })
-
   await client.createEvent({
-    type: 'hitlStopped',
+    type: 'ticketSolved',
     payload: {
-      conversationId: conversation.id,
+      type: zendeskTrigger.type,
+      ticketId: zendeskTrigger.ticketId,
+      status: zendeskTrigger.status,
+      comment: zendeskTrigger.comment,
     },
   })
 }

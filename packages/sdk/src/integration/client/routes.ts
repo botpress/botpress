@@ -15,7 +15,6 @@ type ConversationResponse<
   conversation: Merge<
     Awaited<Res<Client['getConversation']>>['conversation'],
     {
-      channel: ChannelName
       tags: ToTags<keyof TIntegration['channels'][ChannelName]['conversation']['tags']>
     }
   >
