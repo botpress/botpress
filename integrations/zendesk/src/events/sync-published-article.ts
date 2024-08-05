@@ -18,6 +18,7 @@ export const synPublishedArticle = async ({
       id: `${zendeskTrigger.detail.id}`,
     },
   })
+  const existingFile = existingFiles.files[0]
 
   const requestConfig = {
     method: 'get',
@@ -29,23 +30,27 @@ export const synPublishedArticle = async ({
 
   const zendeskClient = getZendeskClient(ctx.configuration)
 
-  const { data: zendeskArticle } = await zendeskClient.makeRequest(requestConfig)
+  const {
+    data: { article: zendeskArticle },
+  } = await zendeskClient.makeRequest(requestConfig)
+
   console.log(zendeskArticle, 'znd')
-  // await client.deleteFile({ id: existingFiles.files[0]?.id })
 
-  // const kbId = ctx.configuration.knowledgeBaseId
+  const kbId = ctx.configuration.knowledgeBaseId
 
-  // await client.uploadFile({
-  //   key: `${kbId}/${article.id}.html`,
-  //   accessPolicies: [],
-  //   content: article.body,
-  //   index: true,
-  //   tags: {
-  //     source: 'knowledge-base',
-  //     kbId,
-  //     title: article.title,
-  //     labels: article.label_names.join(' '),
-  //     id: `${article.id}`,
-  //   },
-  // })
+  const j = await client.uploadFile({
+    key: existingFile?.key,
+    accessPolicies: [],
+    content: zendeskArticle.body,
+    index: true,
+    tags: {
+      source: 'knowledge-base',
+      kbId,
+      title: zendeskArticle.title,
+      labels: zendeskArticle.label_names.join(' '),
+      id: `${zendeskArticle.id}`,
+    },
+  })
+
+  console.log(j, 'uploaded')
 }
