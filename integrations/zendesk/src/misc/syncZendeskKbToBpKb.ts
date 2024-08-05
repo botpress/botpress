@@ -68,6 +68,7 @@ export const syncZendeskArticlesToBotpressKB = async (props: { ctx: Context; cli
           kbId,
           title: article.title,
           labels: article.label_names.join(' '),
+          id: `${article.id}`,
         },
       })
     }

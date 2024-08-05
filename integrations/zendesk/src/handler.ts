@@ -1,4 +1,5 @@
 import { getZendeskClient } from './client'
+import { synPublishedArticle } from './events/sync-published-article'
 import { executeTicketAssigned } from './events/ticket-assigned'
 import { executeTicketSolved } from './events/ticket-solved'
 import type { TriggerPayload } from './triggers'
@@ -60,6 +61,10 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
       return await executeTicketAssigned({ zendeskTrigger, client })
     case 'ticketSolved':
       return await executeTicketSolved({ zendeskTrigger, client })
+
+    case 'zen:event-type:article.published':
+      await synPublishedArticle({ zendeskTrigger, client, ctx })
+      break
 
     default:
       logger.forBot().warn('Unsupported trigger type: ' + zendeskTrigger.type)
