@@ -2,7 +2,7 @@ import { getZendeskClient } from 'src/client'
 import type { TriggerPayload } from 'src/triggers'
 import * as bp from '.botpress'
 
-export const synPublishedArticle = async ({
+export const articlePublished = async ({
   zendeskTrigger,
   client,
   ctx,
@@ -11,11 +11,10 @@ export const synPublishedArticle = async ({
   client: bp.Client
   ctx: bp.Context
 }) => {
-  console.log(zendeskTrigger, 'trigga')
-
+  console.log(zendeskTrigger)
   const existingFiles = await client.listFiles({
     tags: {
-      id: `${zendeskTrigger.detail.id}`,
+      zendeskId: `${zendeskTrigger.detail.id}`,
     },
   })
   const existingFile = existingFiles.files[0]
@@ -38,8 +37,8 @@ export const synPublishedArticle = async ({
 
   const kbId = ctx.configuration.knowledgeBaseId
 
-  const j = await client.uploadFile({
-    key: existingFile?.key,
+  await client.uploadFile({
+    key: existingFile?.key || `${kbId}/${zendeskArticle.id}.html`,
     accessPolicies: [],
     content: zendeskArticle.body,
     index: true,
@@ -48,9 +47,7 @@ export const synPublishedArticle = async ({
       kbId,
       title: zendeskArticle.title,
       labels: zendeskArticle.label_names.join(' '),
-      id: `${zendeskArticle.id}`,
+      zendeskId: `${zendeskArticle.id}`,
     },
   })
-
-  console.log(j, 'uploaded')
 }

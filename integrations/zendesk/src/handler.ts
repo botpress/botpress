@@ -1,5 +1,6 @@
 import { getZendeskClient } from './client'
-import { synPublishedArticle } from './events/sync-published-article'
+import { articlePublished } from './events/article-published'
+import { articleUnpublished } from './events/article-unpublished'
 import { executeTicketAssigned } from './events/ticket-assigned'
 import { executeTicketSolved } from './events/ticket-solved'
 import type { TriggerPayload } from './triggers'
@@ -63,7 +64,11 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
       return await executeTicketSolved({ zendeskTrigger, client })
 
     case 'zen:event-type:article.published':
-      await synPublishedArticle({ zendeskTrigger, client, ctx })
+      await articlePublished({ zendeskTrigger, client, ctx })
+      break
+
+    case 'zen:event-type:article.unpublished':
+      await articleUnpublished({ zendeskTrigger, client, logger })
       break
 
     default:

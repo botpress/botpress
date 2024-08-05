@@ -73,4 +73,16 @@ export const unregister: IntegrationProps['unregister'] = async ({ ctx, client }
       await zendeskClient.deleteTrigger(trigger)
     }
   }
+
+  if (ctx.configuration.syncKnowledgeBaseWithBot) {
+    const existingFiles = await client.listFiles({
+      tags: {
+        kbId: ctx.configuration.knowledgeBaseId,
+      },
+    })
+
+    for (const file of existingFiles.files) {
+      await client.deleteFile({ id: file.id })
+    }
+  }
 }
