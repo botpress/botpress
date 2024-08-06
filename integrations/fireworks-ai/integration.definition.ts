@@ -1,15 +1,15 @@
 import { IntegrationDefinition, interfaces, z } from '@botpress/sdk'
-import { modelId } from 'src/schemas'
+import { languageModelId } from 'src/schemas'
 
 export default new IntegrationDefinition({
-  name: 'groq',
-  version: '6.0.2',
+  name: 'fireworks-ai',
+  version: '0.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
     modelRef: {
       schema: z.object({
-        id: modelId,
+        id: languageModelId,
       }),
     },
     speechToTextModelRef: {
@@ -19,12 +19,10 @@ export default new IntegrationDefinition({
     },
   },
   secrets: {
-    GROQ_API_KEY: {
-      description: 'Groq API key',
+    FIREWORKS_AI_API_KEY: {
+      description: 'Fireworks AI API key',
     },
   },
 })
-  .extend(interfaces.llm, ({ modelRef }) => ({
-    modelRef,
-  }))
+  .extend(interfaces.llm, ({ modelRef }) => ({ modelRef }))
   .extend(interfaces.speechToText, ({ speechToTextModelRef }) => ({ speechToTextModelRef }))
