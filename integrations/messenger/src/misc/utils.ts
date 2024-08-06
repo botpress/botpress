@@ -1,6 +1,6 @@
 import { IntegrationContext } from '@botpress/sdk'
 import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
-import { getCredentials } from 'src/utils/oauth'
+import { getCredentials } from 'src/misc/client'
 import { Card, Carousel, Choice, Dropdown, Location, MessengerAttachment } from './types'
 import * as bp from '.botpress'
 

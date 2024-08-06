@@ -1,8 +1,10 @@
-import { z, IntegrationDefinition, messages } from '@botpress/sdk'
+import { z, IntegrationDefinition, messages, Request, IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
+export const INTEGRATION_NAME = 'messenger'
+
 export default new IntegrationDefinition({
-  name: 'messenger',
+  name: INTEGRATION_NAME,
   version: '2.0.0',
   title: 'Messenger',
   description: 'This integration allows your bot to interact with Messenger.',
@@ -19,11 +21,24 @@ export default new IntegrationDefinition({
     },
     schema: z.object({
       useManualConfiguration: z.boolean().optional().describe('Skip oAuth and supply details from a Meta App'),
+      verifyToken: z.string().optional().describe('Token used for verification when subscribing to webhooks'),
+      accessToken: z
+        .string()
+        .optional()
+        .describe('Access Token from a System Account that has permission to the Meta app'),
       clientId: z.string().optional(),
-      clientSecret: z.string().optional(),
-      verifyToken: z.string().optional(),
-      pageId: z.string().optional(),
-      accessToken: z.string().optional(),
+      clientSecret: z.string().optional().describe('Meta app secret used for webhook signature check'),
+      pageId: z.string().optional().describe('Id from the Facebook page'),
+    }).hidden((formData) => {
+      const showConfig = !formData?.useManualConfiguration
+
+      return {
+        verifyToken: showConfig,
+        accessToken: showConfig,
+        clientId: showConfig,
+        clientSecret: showConfig,
+        pageId: showConfig,
+      }
     }),
   },
   identifier: {
@@ -47,7 +62,8 @@ export default new IntegrationDefinition({
     oauth: {
       type: 'integration',
       schema: z.object({
-        accessToken: z.string(),
+        accessToken: z.string().optional(),
+        pageId: z.string().optional()
       }),
     },
   },
@@ -67,3 +83,14 @@ export default new IntegrationDefinition({
     tags: { id: {} }
   },
 })
+
+export const getOAuthConfigId = () => {
+  return 505750508672935
+  //return 1573997113497422
+  /*if (process.env.BP_WEBHOOK_URL?.includes('dev')) {
+    return '1573997113497422'
+  }
+
+  return '1573997113497422'*/
+}
+

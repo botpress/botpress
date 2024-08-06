@@ -1,13 +1,11 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
-
+    "jsx": "react-jsx",
+    "jsxImportSource": "preact",
     "baseUrl": ".",
     "outDir": "dist",
-    "jsx": "react",
-    "jsxFactory": "React.createElement",
-    "jsxImportSource": "react",
-    "moduleResolution": "Bundler"
+    "types": ["preact"]
   },
   "include": [
     ".botpress/**/*", "src/**/*", "integration.definition.ts"]
