@@ -96,6 +96,9 @@ export class Client extends gen.Client implements types.IClient {
     try {
       await axios.put(file.uploadUrl, buffer, {
         maxBodyLength: Infinity,
+        headers: {
+          'Content-Type': file.contentType,
+        },
       })
     } catch (err: any) {
       throw new errors.UploadFileError(`Failed to upload file: ${err.message}`, <AxiosError>err, file)
