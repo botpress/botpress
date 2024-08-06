@@ -765,13 +765,19 @@ importers:
         version: 18.3.3
       axios:
         specifier: ^1.6.2
-        version: 1.7.2
+        version: 1.6.2
       messaging-api-messenger:
         specifier: ^1.1.0
         version: 1.1.0
       mustache:
         specifier: ^4.2.0
         version: 4.2.0
+      preact:
+        specifier: ^10.23.1
+        version: 10.23.1
+      preact-render-to-string:
+        specifier: ^6.5.7
+        version: 6.5.7(preact@10.23.1)
       query-string:
         specifier: ^6.14.1
         version: 6.14.1
@@ -5414,6 +5420,16 @@ packages:
     resolution: {integrity: sha512-vfBmhDpKafglh0EldBEbVuoe7DyAavGSLWhuSm5ZSEKQnHhBf0xAAwybbNH1IkrJNGnS/VG4I5yxig1pCEXE4g==}
     dependencies:
       follow-redirects: 1.15.2
+      form-data: 4.0.0
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /axios@1.6.2:
+    resolution: {integrity: sha512-7i24Ri4pmDRfJTR7LDBhsOTtcm+9kjX5WiY1X3wIisx6G9So3pfMkEiU7emUBe46oceVImccTEM3k6C5dbVW8A==}
+    dependencies:
+      follow-redirects: 1.15.6(debug@4.3.4)
       form-data: 4.0.0
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
