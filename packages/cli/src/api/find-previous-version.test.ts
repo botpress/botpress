@@ -20,6 +20,7 @@ class IntegrationFixtureCreator {
       description: 'description',
       title: 'title',
       iconUrl: 'iconUrl',
+      verificationStatus: 'approved',
     }
   }
 }
