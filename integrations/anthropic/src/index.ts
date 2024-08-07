@@ -15,7 +15,7 @@ const languageModels: Record<ModelId, interfaces.llm.ModelDetails> = {
     name: 'Claude 3.5 Sonnet',
     description:
       'Claude 3.5 Sonnet delivers better-than-Opus capabilities, faster-than-Sonnet speeds, at the same Sonnet prices. Sonnet is particularly good at coding, data science, visual processing, and agentic tasks.',
-    tags: ['recommended', 'vision', 'general-purpose', 'agents', 'coding', 'function-calling'],
+    tags: ['recommended', 'vision', 'general-purpose', 'agents', 'coding', 'function-calling', 'storytelling'],
     input: {
       costPer1MTokens: 3,
       maxTokens: 200_000,

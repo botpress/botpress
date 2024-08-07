@@ -65,6 +65,7 @@ const ModelSchema = ModelRefSchema.extend({
       'agents',
       'function-calling',
       'roleplay',
+      'storytelling',
     ])
   ),
   input: z.object({

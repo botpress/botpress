@@ -146,7 +146,7 @@ const languageModels: Record<LanguageModelId, interfaces.llm.ModelDetails> = {
     name: 'MythoMax L2 13b',
     description:
       'MythoMax L2 is designed to excel at both roleplaying and storytelling, and is an improved variant of the previous MythoMix model, combining the MythoLogic-L2 and Huginn models.',
-    tags: ['roleplay', 'low-cost'],
+    tags: ['roleplay', 'storytelling', 'low-cost'],
     input: {
       costPer1MTokens: 0.2,
       maxTokens: 4096,
