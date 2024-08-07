@@ -9,6 +9,7 @@ import { executeAgentMessage } from './events/agent-message'
 import { executeQueueUpdated } from './events/queue-updated'
 import type { TriggerPayload } from './triggers'
 import { IntegrationProps } from '.botpress'
+import { executeConversationTransferred } from './events/conversation-transferred'
 
 export const handler: IntegrationProps['handler'] = async ({ req, client, logger }) => {
   if (!req.body) {
@@ -35,6 +36,11 @@ export const handler: IntegrationProps['handler'] = async ({ req, client, logger
 
     const botpressConversationId = linkedConversation.tags.botpressConversationId
 
+    if(!botpressConversationId) {
+      logger.forBot().error('Botpress conversation does not exist')
+      throw new Error('Botpress conversation does not exist')
+    }
+
     switch (trigger.type) {
       case 'data':
 
@@ -48,6 +54,7 @@ export const handler: IntegrationProps['handler'] = async ({ req, client, logger
             case 'ChatRequestFail': void executeConversationRequestFailed({ botpressConversationId, message, client }); break
             case 'ChatRequestSuccess': void executeConversationRequestSuccess({ botpressConversationId, client }); break
             case 'ChatEstablished': void executeConversationAssigned({ botpressConversationId, message, client }); break
+            case 'ChatTransferred': void executeConversationTransferred({ botpressConversationId, message, client }); break
             case 'ChatMessage': void  executeAgentMessage({ botpressConversationId,message: { text: message.text }, client }); break
             case 'AgentTyping': void executeAgentTyping({ botpressConversationId, client }); break
             case 'AgentNotTyping': void executeAgentNotTyping({ botpressConversationId, client }); break

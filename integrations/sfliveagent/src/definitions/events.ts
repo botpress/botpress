@@ -38,6 +38,16 @@ const onConversationAssigned = {
   ui: {},
 }
 
+const onConversationTransferred = {
+  title: 'The conversation has been transferred to another Agent',
+  description: 'Triggered when the conversation has been transferred to another Agent',
+  schema: z.object({
+    botpressConversationId: z.string(),
+    agentName: z.string(),
+  }),
+  ui: {},
+}
+
 const onConversationEnded = {
   title: 'The Conversation with the LiveAgent has ended',
   description: 'Triggered when the conversation with the LiveAgent has ended',
@@ -83,6 +93,7 @@ export const events = {
   onAgentNotTyping,
   onAgentMessage,
   onConversationAssigned,
+  onConversationTransferred,
   onConversationEnded,
   onConversationRequestFailed,
   onConversationRequestSuccess,
