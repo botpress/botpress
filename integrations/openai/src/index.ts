@@ -64,7 +64,7 @@ const languageModels: Record<LanguageModelId, interfaces.llm.ModelDetails> = {
     name: 'GPT-4 Turbo',
     description:
       'GPT-4 is a large multimodal model (accepting text or image inputs and outputting text) that can solve difficult problems with greater accuracy than any of our previous models, thanks to its broader general knowledge and advanced reasoning capabilities.',
-    tags: ['general-purpose', 'coding', 'agents', 'function-calling', 'deprecated'],
+    tags: ['deprecated', 'general-purpose', 'coding', 'agents', 'function-calling'],
     input: {
       costPer1MTokens: 10,
       maxTokens: 128_000,
@@ -78,7 +78,7 @@ const languageModels: Record<LanguageModelId, interfaces.llm.ModelDetails> = {
     name: 'GPT-3.5 Turbo',
     description:
       'GPT-3.5 Turbo can understand and generate natural language or code and has been optimized for chat but works well for non-chat tasks as well.',
-    tags: ['general-purpose', 'low-cost', 'deprecated'],
+    tags: ['deprecated', 'general-purpose', 'low-cost'],
     input: {
       costPer1MTokens: 0.5,
       maxTokens: 128_000,
