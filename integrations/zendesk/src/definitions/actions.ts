@@ -132,6 +132,21 @@ const callApi = {
   },
 }
 
+const syncKb = {
+  title: 'Sync Knowledge Base',
+  description: 'Sync Zendesk knowledge base to bot knowledge base',
+  input: {
+    schema: z.object({
+      knowledgeBaseId: z.string().describe('ID of the bot knowledge base you want to sync with'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      success: z.boolean(),
+    }),
+  },
+}
+
 export const actions = {
   getTicket,
   findCustomer,
@@ -139,4 +154,5 @@ export const actions = {
   closeTicket,
   listAgents,
   callApi,
+  syncKb,
 } satisfies IntegrationDefinitionProps['actions']
