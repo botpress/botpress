@@ -25,7 +25,7 @@ const makeUsername = (email: string) => {
   return email.endsWith('/token') ? email : `${email}/token`
 }
 
-class ZendeskApi {
+export class ZendeskApi {
   private client: Axios
   constructor(organizationDomain: string, email: string, password: string) {
     this.client = axios.create({
@@ -152,5 +152,5 @@ class ZendeskApi {
   }
 }
 
-export const getZendeskClient = (config: bp.configuration.Configuration) =>
+export const getZendeskClient = (config: bp.configuration.Configuration): ZendeskApi =>
   new ZendeskApi(config.organizationSubdomain, config.email, config.apiToken)

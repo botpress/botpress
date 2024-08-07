@@ -1,17 +1,25 @@
 import { getZendeskClient } from 'src/client'
 import type { TriggerPayload } from 'src/triggers'
 import * as bp from '.botpress'
+import { stringifyProperties } from 'src/misc/utils'
+import { ZendeskArticle } from 'src/misc/syncZendeskKbToBpKb'
 
 export const articlePublished = async ({
   zendeskTrigger,
   client,
   ctx,
+  logger,
 }: {
   zendeskTrigger: TriggerPayload
   client: bp.Client
   ctx: bp.Context
+  logger: bp.Logger
 }) => {
-  console.log(zendeskTrigger)
+  const kbId = ctx.configuration.knowledgeBaseId
+  if (!kbId) {
+    logger.forBot().error('Knowledge base id was not provided')
+    return
+  }
   const existingFiles = await client.listFiles({
     tags: {
       zendeskId: `${zendeskTrigger.detail.id}`,
@@ -19,35 +27,26 @@ export const articlePublished = async ({
   })
   const existingFile = existingFiles.files[0]
 
-  const requestConfig = {
-    method: 'get',
-    url: `/api/v2/help_center/articles/${zendeskTrigger.detail.id}`,
-    params: {
-      per_page: 1,
-    },
-  }
-
   const zendeskClient = getZendeskClient(ctx.configuration)
 
-  const {
-    data: { article: zendeskArticle },
-  } = await zendeskClient.makeRequest(requestConfig)
+  const response: { data: { article: ZendeskArticle } } = await zendeskClient.makeRequest({
+    method: 'get',
+    url: `/api/v2/help_center/articles/${zendeskTrigger.detail.id}`,
+  })
 
-  console.log(zendeskArticle, 'znd')
+  const { body: articleBody, id: articleId, ...articleMeta } = response.data.article
 
-  const kbId = ctx.configuration.knowledgeBaseId
-
+  //if file exists - update, otherwise create new file
   await client.uploadFile({
-    key: existingFile?.key || `${kbId}/${zendeskArticle.id}.html`,
+    key: existingFile?.key || `${articleId}.html`,
     accessPolicies: [],
-    content: zendeskArticle.body,
+    content: articleBody || ' ',
     index: true,
     tags: {
       source: 'knowledge-base',
       kbId,
-      title: zendeskArticle.title,
-      labels: zendeskArticle.label_names.join(' '),
-      zendeskId: `${zendeskArticle.id}`,
+      zendeskId: `${articleId}`,
+      ...stringifyProperties(articleMeta),
     },
   })
 }

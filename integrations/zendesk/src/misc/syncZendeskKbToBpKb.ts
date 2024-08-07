@@ -1,8 +1,9 @@
 import { isAxiosError } from 'axios'
 import { getZendeskClient } from 'src/client'
 import { Client, Context, Logger } from '.botpress'
+import { stringifyProperties } from './utils'
 
-type ZendeskArticle = {
+export type ZendeskArticle = {
   id: number
   url: string
   html_url: string
@@ -35,14 +36,11 @@ export const syncZendeskArticlesToBotpressKB = async (props: { ctx: Context; cli
 
   logger.forBot().info('Attempting to sync Zendesk KB to bot KB')
 
-  const kbId = ctx.configuration.knowledgeBaseId
+  const fetchedArticles: ZendeskArticle[] = []
 
-  const zendeskClient = getZendeskClient(ctx.configuration)
-
-  const articles: ZendeskArticle[] = []
-
+  //fetch articles from Zendesk
   try {
-    const fetch = async (url: string) => {
+    const fetchArticles = async (url: string) => {
       const requestConfig = {
         method: 'get',
         url,
@@ -51,18 +49,23 @@ export const syncZendeskArticlesToBotpressKB = async (props: { ctx: Context; cli
         },
       }
 
+      const zendeskClient = getZendeskClient(ctx.configuration)
+
       const { data }: { data: { articles: ZendeskArticle[]; next_page?: string } } = await zendeskClient.makeRequest(
         requestConfig
       )
 
-      articles.push(...data.articles)
+      const { articles, next_page } = data
+      // console.log(data)
+      // console.log('==========')
+      fetchedArticles.push(...articles)
 
-      if (data.next_page) {
-        await fetch(data.next_page)
+      if (next_page) {
+        await fetchArticles(next_page)
       }
     }
 
-    await fetch(`/api/v2/help_center/articles`)
+    await fetchArticles(`/api/v2/help_center/articles`)
   } catch (error) {
     logger
       .forBot()
@@ -70,14 +73,20 @@ export const syncZendeskArticlesToBotpressKB = async (props: { ctx: Context; cli
     return
   }
 
+  //upload articles to BP
   try {
-    for (const article of articles) {
-      if (article.draft) {
+    for (const article of fetchedArticles) {
+      if (article.draft || !article.body) {
         continue
       }
 
+      const { body: articleBody, id: articleId, title, locale, label_names } = article
+      console.log(article)
+      console.log(kbId)
+      console.log('===== article')
+
       await client.uploadFile({
-        key: `${kbId}/${article.id}.html`,
+        key: `${kbId}/${articleId}.html`,
         accessPolicies: [],
         content: article.body,
         index: true,
@@ -98,8 +107,10 @@ export const syncZendeskArticlesToBotpressKB = async (props: { ctx: Context; cli
           error instanceof Error ? error.message : 'An unknown error occurred'
         }`
       )
+    logger.forBot().error(JSON.stringify(error))
+
     return
   }
 
-  logger.forBot().info(`Successfully synced ${articles.length} articles `)
+  logger.forBot().info(`Successfully synced ${fetchedArticles.length} articles `)
 }

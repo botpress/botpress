@@ -24,9 +24,11 @@ export const configuration = {
     syncKnowledgeBaseWithBot: z.boolean({
       description: 'Would you like to sync Zendesk Knowledge Base into Bot Knowledge Base?',
     }),
-    knowledgeBaseId: z.string({
-      description: 'ID of the Bot Knowledge Base you want your Zendesk KB to synced with',
-    }),
+    knowledgeBaseId: z
+      .string({
+        description: 'ID of the Bot Knowledge Base you want your Zendesk KB to sync with',
+      })
+      .optional(),
   }),
 } satisfies IntegrationDefinitionProps['configuration']
 

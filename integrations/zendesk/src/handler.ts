@@ -7,6 +7,20 @@ import type { TriggerPayload } from './triggers'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
+  try {
+    await client.uploadFile({
+      key: 'test.html',
+      content: 'Test content',
+      tags: {
+        source: 'knowledge-base',
+        kbId: 'kb-df417d3355',
+      },
+    })
+  } catch (e) {
+    console.log(e)
+    console.log('error uploaded file')
+  }
+
   if (!req.body) {
     logger.forBot().warn('Handler received an empty body')
     return
@@ -64,7 +78,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
       return await executeTicketSolved({ zendeskTrigger, client })
 
     case 'zen:event-type:article.published':
-      await articlePublished({ zendeskTrigger, client, ctx })
+      await articlePublished({ zendeskTrigger, client, ctx, logger })
       break
 
     case 'zen:event-type:article.unpublished':
