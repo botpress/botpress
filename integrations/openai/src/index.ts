@@ -26,11 +26,22 @@ const languageModels: Record<LanguageModelId, interfaces.llm.ModelDetails> = {
     },
     output: {
       costPer1MTokens: 0.6,
-      maxTokens: 16_000,
+      maxTokens: 16_384,
+    },
+  },
+  'gpt-4o-2024-08-06': {
+    name: 'GPT-4o (August 2024)',
+    input: {
+      costPer1MTokens: 2.5,
+      maxTokens: 128_000,
+    },
+    output: {
+      costPer1MTokens: 10,
+      maxTokens: 16_384,
     },
   },
   'gpt-4o-2024-05-13': {
-    name: 'GPT-4o',
+    name: 'GPT-4o (May 2024)',
     input: {
       costPer1MTokens: 5,
       maxTokens: 128_000,
@@ -52,7 +63,7 @@ const languageModels: Record<LanguageModelId, interfaces.llm.ModelDetails> = {
     },
   },
   'gpt-3.5-turbo-0125': {
-    name: 'GPT-3.5',
+    name: 'GPT-3.5 Turbo',
     input: {
       costPer1MTokens: 0.5,
       maxTokens: 128_000,
