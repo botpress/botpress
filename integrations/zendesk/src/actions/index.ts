@@ -6,6 +6,7 @@ import { findCustomer } from './find-customer'
 import { getTicket } from './get-ticket'
 import { startHitl, stopHitl } from './hitl'
 import { listAgents } from './list-agents'
+import { syncKb } from './sync-kb'
 import * as bp from '.botpress'
 
 export default {
@@ -18,4 +19,5 @@ export default {
   callApi,
   startHitl,
   stopHitl,
+  syncKb,
 } satisfies bp.IntegrationProps['actions']

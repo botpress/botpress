@@ -1,5 +1,5 @@
 import axios, { Axios, AxiosRequestConfig } from 'axios'
-import type { ZendeskUser, ZendeskTicket } from './definitions/schemas'
+import type { ZendeskUser, ZendeskTicket, ZendeskWebhook } from './definitions/schemas'
 import { ConditionsData, getTriggerTemplate, type TriggerNames } from './triggers'
 import * as bp from '.botpress'
 
@@ -141,6 +141,30 @@ class ZendeskApi {
     const { data } = await this.client.get<{ user: ZendeskUser }>(`/api/v2/users/${userId}.json`)
     return data.user
   }
+
+  public async createArticleWebhook(webhookUrl: string, webhookId: string): Promise<void> {
+    await this.client.post('/api/v2/webhooks', {
+      webhook: {
+        endpoint: `${webhookUrl}/article-event`,
+        http_method: 'POST',
+        name: `bpc_article_event_${webhookId}`,
+        request_format: 'json',
+        status: 'active',
+        subscriptions: ['zen:event-type:article.published', 'zen:event-type:article.unpublished'],
+      },
+    })
+  }
+
+  public async deleteWebhook(webhookId: string): Promise<void> {
+    await this.client.delete(`/api/v2/webhooks/${webhookId}`).catch(() => {})
+  }
+
+  public async findWebhooks(params?: Record<string, string>): Promise<ZendeskWebhook[]> {
+    const { data } = await this.client.get(`/api/v2/webhooks`, { params })
+
+    return data.webhooks
+  }
+
   public async makeRequest(requestConfig: AxiosRequestConfig) {
     const { data, headers, status } = await this.client.request(requestConfig)
 
@@ -152,5 +176,5 @@ class ZendeskApi {
   }
 }
 
-export const getZendeskClient = (config: bp.configuration.Configuration) =>
+export const getZendeskClient = (config: bp.configuration.Configuration): ZendeskApi =>
   new ZendeskApi(config.organizationSubdomain, config.email, config.apiToken)
