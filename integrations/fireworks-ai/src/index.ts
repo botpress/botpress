@@ -144,7 +144,8 @@ const languageModels: Record<LanguageModelId, interfaces.llm.ModelDetails> = {
   },
   'accounts/fireworks/models/mythomax-l2-13b': {
     name: 'MythoMax L2 13b',
-    description: 'An improved, potentially even perfected variant of MythoMix.',
+    description:
+      'MythoMax L2 is designed to excel at both roleplaying and storytelling, and is an improved variant of the previous MythoMix model, combining the MythoLogic-L2 and Huginn models.',
     tags: ['roleplay', 'low-cost'],
     input: {
       costPer1MTokens: 0.2,
@@ -157,8 +158,9 @@ const languageModels: Record<LanguageModelId, interfaces.llm.ModelDetails> = {
   },
   'accounts/fireworks/models/qwen2-72b-instruct': {
     name: 'Qwen2 72b Instruct',
-    description: 'Qwen2 is the new series of Qwen large language models.',
-    tags: ['general-purpose'],
+    description:
+      'Qwen 2 is the latest large language model series developed by the Qwen team at Alibaba Cloud. Key features and capabilities of Qwen 2 include multilingual proficiency with a particular strength in Asian languages, and enhanced performance in coding, mathematics, and long context understanding',
+    tags: ['general-purpose', 'function-calling'],
     input: {
       costPer1MTokens: 0.9,
       maxTokens: 32_768,
