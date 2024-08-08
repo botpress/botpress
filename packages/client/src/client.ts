@@ -61,7 +61,28 @@ export class Client extends gen.Client implements types.IClient {
       throw new errors.UploadFileError('No content was provided for the file')
     }
 
-    const buffer = content instanceof Buffer ? content : Buffer.from(content)
+    let buffer: ArrayBuffer | Buffer | Blob
+    let size: number
+
+    if (typeof content === 'string') {
+      const encoder = new TextEncoder()
+      const uint8Array = encoder.encode(content)
+      // Uint8Array is supported by both Node.js and browsers. Buffer.from() is easier but Buffer is only available in Node.js.
+      buffer = uint8Array
+      size = uint8Array.byteLength
+    } else if (content instanceof Uint8Array) {
+      // This supports Buffer too as it's a subclass of Uint8Array
+      buffer = content
+      size = buffer.byteLength
+    } else if (content instanceof ArrayBuffer) {
+      buffer = content
+      size = buffer.byteLength
+    } else if (content instanceof Blob) {
+      buffer = content
+      size = content.size
+    } else {
+      throw new errors.UploadFileError('The provided content is not supported')
+    }
 
     const { file } = await this.upsertFile({
       key,
@@ -69,12 +90,15 @@ export class Client extends gen.Client implements types.IClient {
       index,
       accessPolicies,
       contentType,
-      size: buffer.byteLength,
+      size,
     })
 
     try {
       await axios.put(file.uploadUrl, buffer, {
         maxBodyLength: Infinity,
+        headers: {
+          'Content-Type': file.contentType,
+        },
       })
     } catch (err: any) {
       throw new errors.UploadFileError(`Failed to upload file: ${err.message}`, <AxiosError>err, file)

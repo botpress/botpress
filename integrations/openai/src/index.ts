@@ -22,17 +22,37 @@ const languageModels: Record<LanguageModelId, interfaces.llm.ModelDetails> = {
   // IMPORTANT: Only full model names should be supported here, as the short model names can be pointed by OpenAI at any time to a newer model with different pricing.
   'gpt-4o-mini-2024-07-18': {
     name: 'GPT-4o Mini',
+    description:
+      "GPT-4o mini (“o” for “omni”) is OpenAI's most advanced model in the small models category, and their cheapest model yet. It is multimodal (accepting text or image inputs and outputting text), has higher intelligence than gpt-3.5-turbo but is just as fast. It is meant to be used for smaller tasks, including vision tasks. It's recommended to choose gpt-4o-mini where you would have previously used gpt-3.5-turbo as this model is more capable and cheaper.",
+    tags: ['recommended', 'vision', 'low-cost', 'general-purpose', 'function-calling'],
     input: {
       costPer1MTokens: 0.15,
       maxTokens: 128_000,
     },
     output: {
       costPer1MTokens: 0.6,
-      maxTokens: 16_000,
+      maxTokens: 16_384,
+    },
+  },
+  'gpt-4o-2024-08-06': {
+    name: 'GPT-4o (August 2024)',
+    description:
+      "GPT-4o (“o” for “omni”) is OpenAI's most advanced model. It is multimodal (accepting text or image inputs and outputting text), and it has the same high intelligence as GPT-4 Turbo but is cheaper and more efficient.",
+    tags: ['recommended', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
+    input: {
+      costPer1MTokens: 2.5,
+      maxTokens: 128_000,
+    },
+    output: {
+      costPer1MTokens: 10,
+      maxTokens: 16_384,
     },
   },
   'gpt-4o-2024-05-13': {
-    name: 'GPT-4o',
+    name: 'GPT-4o (May 2024)',
+    description:
+      "GPT-4o (“o” for “omni”) is OpenAI's most advanced model. It is multimodal (accepting text or image inputs and outputting text), and it has the same high intelligence as GPT-4 Turbo but is cheaper and more efficient.",
+    tags: ['vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
     input: {
       costPer1MTokens: 5,
       maxTokens: 128_000,
@@ -44,6 +64,9 @@ const languageModels: Record<LanguageModelId, interfaces.llm.ModelDetails> = {
   },
   'gpt-4-turbo-2024-04-09': {
     name: 'GPT-4 Turbo',
+    description:
+      'GPT-4 is a large multimodal model (accepting text or image inputs and outputting text) that can solve difficult problems with greater accuracy than any of our previous models, thanks to its broader general knowledge and advanced reasoning capabilities.',
+    tags: ['deprecated', 'general-purpose', 'coding', 'agents', 'function-calling'],
     input: {
       costPer1MTokens: 10,
       maxTokens: 128_000,
@@ -54,7 +77,10 @@ const languageModels: Record<LanguageModelId, interfaces.llm.ModelDetails> = {
     },
   },
   'gpt-3.5-turbo-0125': {
-    name: 'GPT-3.5',
+    name: 'GPT-3.5 Turbo',
+    description:
+      'GPT-3.5 Turbo can understand and generate natural language or code and has been optimized for chat but works well for non-chat tasks as well.',
+    tags: ['deprecated', 'general-purpose', 'low-cost'],
     input: {
       costPer1MTokens: 0.5,
       maxTokens: 128_000,

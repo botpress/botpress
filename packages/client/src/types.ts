@@ -23,7 +23,7 @@ export type {
 } from './gen/models'
 
 type UploadFileInput = Omit<UpsertFileInput, 'size'> & {
-  content?: Buffer | string
+  content?: ArrayBuffer | Buffer | Blob | Uint8Array | string
   url?: string
 }
 type UploadFileOutput = UpsertFileResponse

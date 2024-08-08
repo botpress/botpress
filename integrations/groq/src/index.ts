@@ -15,6 +15,9 @@ const languageModels: Record<ModelId, interfaces.llm.ModelDetails> = {
   //  https://wow.groq.com/
   'llama3-8b-8192': {
     name: 'LLaMA3 8B',
+    description:
+      'Meta developed and released the Meta Llama 3 family of large language models (LLMs), a collection of pretrained and instruction tuned generative text models in 8 and 70B sizes. The Llama 3 instruction tuned models are optimized for dialogue use cases and outperform many of the available open source chat models on common industry benchmarks.',
+    tags: ['low-cost', 'general-purpose'],
     input: {
       costPer1MTokens: 0.05,
       maxTokens: 8192,
@@ -26,6 +29,9 @@ const languageModels: Record<ModelId, interfaces.llm.ModelDetails> = {
   },
   'llama3-70b-8192': {
     name: 'LLaMA3 70B',
+    tags: ['general-purpose'],
+    description:
+      'Meta developed and released the Meta Llama 3 family of large language models (LLMs), a collection of pretrained and instruction tuned generative text models in 8 and 70B sizes. The Llama 3 instruction tuned models are optimized for dialogue use cases and outperform many of the available open source chat models on common industry benchmarks.',
     input: {
       costPer1MTokens: 0.59,
       maxTokens: 8192,
@@ -37,6 +43,9 @@ const languageModels: Record<ModelId, interfaces.llm.ModelDetails> = {
   },
   'mixtral-8x7b-32768': {
     name: 'Mixtral 8x7B',
+    tags: ['low-cost', 'general-purpose'],
+    description:
+      'Mistral MoE 8x7B Instruct v0.1 model with Sparse Mixture of Experts. Fine tuned for instruction following',
     input: {
       costPer1MTokens: 0.24,
       maxTokens: 32768,
@@ -48,6 +57,9 @@ const languageModels: Record<ModelId, interfaces.llm.ModelDetails> = {
   },
   'gemma-7b-it': {
     name: 'Gemma 7B',
+    description:
+      'Gemma is a family of lightweight, state-of-the-art open models from Google, built from the same research and technology used to create the Gemini models. They are text-to-text, decoder-only large language models, available in English, with open weights, pre-trained variants, and instruction-tuned variants. Gemma models are well-suited for a variety of text generation tasks, including question answering, summarization, and reasoning.',
+    tags: ['deprecated', 'low-cost'],
     input: {
       costPer1MTokens: 0.07,
       maxTokens: 8192,
@@ -59,6 +71,10 @@ const languageModels: Record<ModelId, interfaces.llm.ModelDetails> = {
   },
   'gemma2-9b-it': {
     name: 'Gemma2 9B',
+    description:
+      'Redesigned for outsized performance and unmatched efficiency, Gemma 2 optimizes for blazing-fast inference on diverse hardware. Gemma is a family of lightweight, state-of-the-art open models from Google, built from the same research and technology used to create the Gemini models. They are text-to-text, decoder-only large language models, available in English, with open weights, pre-trained variants, and instruction-tuned variants. Gemma models are well-suited for a variety of text generation tasks, including question answering, summarization, and reasoning.',
+    tags: ['low-cost', 'general-purpose'],
+
     input: {
       costPer1MTokens: 0.2,
       maxTokens: 8192,
