@@ -11,7 +11,7 @@ const DEFAULT_IMAGE_MODEL_ID: ImageModelId = 'dall-e-3-standard-1024'
 
 const getOpenAIClient = (ctx: bp.Context) =>
   new OpenAI({
-    apiKey: ctx.configuration.apiKey ?? bp.secrets.OPENAI_API_KEY,
+    apiKey: ctx.configuration.apiKey,
     baseURL: ctx.configuration.url,
   })
 

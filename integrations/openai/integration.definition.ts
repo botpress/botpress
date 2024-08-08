@@ -8,8 +8,8 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
-      url: z.string().optional().describe('Base URL for the OpenAI API'),
-      apiKey: z.string().optional().describe('OpenAI API key'),
+      url: z.string().describe('Base URL for the OpenAI API'),
+      apiKey: z.string().describe('OpenAI API key'),
     }),
   },
   entities: {
@@ -36,11 +36,6 @@ export default new IntegrationDefinition({
           .describe('Image style - Only supported by DALL-E 3 models'),
         user: z.string().optional().describe('User ID to associate with the image, for abuse detection purposes'),
       }),
-    },
-  },
-  secrets: {
-    OPENAI_API_KEY: {
-      description: 'OpenAI API key',
     },
   },
 })
