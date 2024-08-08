@@ -43,6 +43,7 @@ export class Client extends gen.Client implements types.IClient {
     accessPolicies,
     content,
     url,
+    expiresAt,
   }: types.ClientInputs['uploadFile']): Promise<types.ClientOutputs['uploadFile']> => {
     if (url && content) {
       throw new errors.UploadFileError('Cannot provide both content and URL, please provide only one of them')
@@ -91,6 +92,7 @@ export class Client extends gen.Client implements types.IClient {
       accessPolicies,
       contentType,
       size,
+      expiresAt,
     })
 
     try {
