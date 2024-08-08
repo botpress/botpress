@@ -53,6 +53,21 @@ const ModelRefSchema = z.object({ id: z.string() })
 
 const ModelSchema = ModelRefSchema.extend({
   name: z.string(),
+  description: z.string(),
+  tags: z.array(
+    z.enum([
+      'recommended',
+      'deprecated',
+      'general-purpose',
+      'low-cost',
+      'vision',
+      'coding',
+      'agents',
+      'function-calling',
+      'roleplay',
+      'storytelling',
+    ])
+  ),
   input: z.object({
     maxTokens: z.number().int(),
     costPer1MTokens: z.number().describe('Cost per 1 million tokens, in U.S. dollars'),
@@ -142,7 +157,7 @@ const GenerateContentOutputSchema = z.object({
 
 export const llm = new InterfaceDeclaration({
   name: 'llm',
-  version: '3.1.0',
+  version: '4.0.0',
   entities: {
     modelRef: {
       schema: ModelRefSchema,
