@@ -1,8 +1,8 @@
-import { Logger, Client, Context } from '.botpress'
 import { ZendeskArticle } from 'src/definitions/schemas'
 import { getZendeskClient } from 'src/client'
 import { ZendeskEvent } from 'src/webhookEvents'
 import { getUploadArticlePayload } from 'src/misc/utils'
+import { Logger, Client, Context } from '.botpress'
 
 export const articlePublished = async (props: {
   event: ZendeskEvent

@@ -1,6 +1,7 @@
 import axios, { Axios, AxiosRequestConfig } from 'axios'
 import type { ZendeskUser, ZendeskTicket, ZendeskWebhook } from './definitions/schemas'
 import { ConditionsData, getTriggerTemplate, type TriggerNames } from './triggers'
+import { ZendeskEventType } from './webhookEvents'
 import * as bp from '.botpress'
 
 export type TicketRequester =
@@ -150,7 +151,7 @@ class ZendeskApi {
         name: `bpc_article_event_${webhookId}`,
         request_format: 'json',
         status: 'active',
-        subscriptions: ['zen:event-type:article.published', 'zen:event-type:article.unpublished'],
+        subscriptions: [ZendeskEventType.ArticlePublished, ZendeskEventType.ArticleUnpublished],
       },
     })
   }

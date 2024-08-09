@@ -1,5 +1,5 @@
-import { Client, Logger, Context } from '.botpress'
 import { ZendeskEvent } from 'src/webhookEvents'
+import { Client, Logger, Context } from '.botpress'
 
 export const articleUnpublished = async ({
   event,
@@ -12,7 +12,6 @@ export const articleUnpublished = async ({
   logger: Logger
   ctx: Context
 }) => {
-  console.log(event, 'evemttt')
   if (ctx.configuration.syncKnowledgeBaseWithBot) {
     const existingFiles = await client.listFiles({
       tags: {

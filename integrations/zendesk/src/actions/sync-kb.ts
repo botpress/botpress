@@ -1,7 +1,7 @@
-import * as bp from '.botpress'
 import * as sdk from '@botpress/sdk'
 import { uploadArticlesToKb } from 'src/misc/upload-articles-to-kb'
 import { deleteKbArticles } from 'src/misc/utils'
+import * as bp from '.botpress'
 
 export const syncKb: bp.IntegrationProps['actions']['syncKb'] = async ({ ctx, input, client, logger }) => {
   try {

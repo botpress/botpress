@@ -1,7 +1,7 @@
 import { getZendeskClient } from 'src/client'
-import { Client, Context, Logger } from '.botpress'
 import { getUploadArticlePayload } from 'src/misc/utils'
 import { ZendeskArticle } from 'src/definitions/schemas'
+import { Client, Context, Logger } from '.botpress'
 
 export const uploadArticlesToKb = async (props: { ctx: Context; client: Client; logger: Logger; kbId: string }) => {
   const { ctx, client, logger, kbId } = props
