@@ -26,7 +26,7 @@ export const uploadArticlesToKb = async (props: { ctx: Context; client: Client; 
         await fetchArticles(next_page)
       }
     }
-    await fetchArticles(`/api/v2/help_center/articles`)
+    await fetchArticles('/api/v2/help_center/articles')
   } catch (error) {
     logger
       .forBot()
@@ -57,5 +57,5 @@ export const uploadArticlesToKb = async (props: { ctx: Context; client: Client; 
     return
   }
 
-  logger.forBot().info(`Successfully synced Zendesk KB to BP KB`)
+  logger.forBot().info('Successfully synced Zendesk KB to BP KB')
 }

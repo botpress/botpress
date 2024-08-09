@@ -160,7 +160,7 @@ class ZendeskApi {
   }
 
   public async findWebhooks(params?: Record<string, string>): Promise<ZendeskWebhook[]> {
-    const { data } = await this.client.get(`/api/v2/webhooks`, { params })
+    const { data } = await this.client.get('/api/v2/webhooks', { params })
 
     return data.webhooks
   }

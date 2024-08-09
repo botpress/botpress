@@ -23,7 +23,7 @@ export const articleUnpublished = async ({
     const existingFile = existingFiles.files[0]
 
     if (!existingFile) {
-      logger.forBot().error(`Article not found in the BP KB`)
+      logger.forBot().error('Article not found in the BP KB')
       return
     }
 
