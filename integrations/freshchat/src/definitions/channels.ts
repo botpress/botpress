@@ -3,15 +3,9 @@ import { z } from '@botpress/sdk'
 
 // This is not used
 export const channels = {
-  channel: {
+  hitl: {
     title: 'Freshchat',
-    messages: {
-      text: {
-        schema: z.object({
-          text: z.string()
-        })
-      },
-    },
+    messages: {},
     message: {
       tags: {},
     },
