@@ -1,12 +1,35 @@
 import { getZendeskClient } from './client'
 import { executeTicketAssigned } from './events/ticket-assigned'
 import { executeTicketSolved } from './events/ticket-solved'
+import { articlePublished } from './events/article-published'
+import { articleUnpublished } from './events/article-unpublished'
+import { ZendeskEvent, ZendeskEventType } from './webhookEvents'
 import type { TriggerPayload } from './triggers'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
   if (!req.body) {
     logger.forBot().warn('Handler received an empty body')
+    return
+  }
+
+  if (req.path === '/article-event' && req.method === 'POST') {
+    const event: ZendeskEvent = JSON.parse(req.body)
+
+    logger.forBot().info('Received event of type: ' + event.type)
+
+    switch (event.type) {
+      case ZendeskEventType.ArticlePublished:
+        await articlePublished({ event, client, ctx, logger })
+        break
+      case ZendeskEventType.ArticleUnpublished:
+        await articleUnpublished({ event, client, ctx, logger })
+        break
+      default:
+        logger.forBot().warn('Unsupported event type: ' + event.type)
+        break
+    }
+
     return
   }
 
