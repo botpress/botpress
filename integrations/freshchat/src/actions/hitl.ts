@@ -22,7 +22,7 @@ export const startHITL: bp.IntegrationProps['actions']['startHitl'] = async ({ c
     throw new Error('Failed to create freshchat user')
   }
 
-  const freshchatConversation = await freshchatClient.createConversation({ userId: freshchatUser.id, transcript: input.description })
+  const freshchatConversation = await freshchatClient.createConversation({ userId: freshchatUser.id as string, transcript: input.description })
 
   const { conversation } = await client.getOrCreateConversation({
     channel: 'hitl',
@@ -46,7 +46,7 @@ export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ ctx
     return {}
   }
 
-  const freshchatClient = getFreshchatClient({ ...ctx.configuration })
+  //const freshchatClient = getFreshchatClient({ ...ctx.configuration })
 
   //TODO
 

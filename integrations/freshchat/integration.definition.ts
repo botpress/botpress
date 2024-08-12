@@ -1,12 +1,6 @@
-import { IntegrationDefinition, IntegrationDefinitionProps, interfaces } from '@botpress/sdk'
+import { IntegrationDefinition, interfaces } from '@botpress/sdk'
 import { INTEGRATION_NAME } from './src/const'
-import { actions, events, configuration, channels, states } from './src/definitions'
-
-export const user = {
-  tags: {
-    id: {},
-  },
-} satisfies IntegrationDefinitionProps['user']
+import { actions, events, configuration, channels, states, user } from './src/definitions'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
