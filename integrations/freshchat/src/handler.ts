@@ -12,28 +12,6 @@ export const handler: IntegrationProps['handler'] = async ({ ctx, req, logger, c
   //https://crmsupport.freshworks.com/en/support/solutions/articles/50000004461-freshchat-webhooks-payload-structure-and-authentication
   const freshchatEvent= JSON.parse(req.body) as FreshchatEvent<any>
 
-  const getLinkedConversationDetails = async (freshchatConversationId: string) => {
-    const linkedConversationsList = await client.listConversations({
-      tags: {
-        freshchatConversationId,
-      }
-    })
-
-    const conversation = linkedConversationsList.conversations[0]
-
-    if(!conversation) {
-      throw new Error(`No conversation linked for freshchat conversation: ${freshchatConversationId}`)
-    }
-
-    console.log(`Got conversation using freshchatConversationId: ${freshchatConversationId}`, conversation)
-
-    return {
-      botpressConversationId: conversation.tags.botpressConversationId,
-      botpressUserId: ctx.botUserId,
-      freshchatConversationId,
-    }
-  }
-
   switch (freshchatEvent.action) {
     case 'message_create':
       const messageCreateEvent = freshchatEvent as MessageCreateFreshchatEvent

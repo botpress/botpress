@@ -1,1 +1,1 @@
-export const INTEGRATION_NAME = 'bp_studio_bots/freshchat'
+export const INTEGRATION_NAME = 'freshchat'

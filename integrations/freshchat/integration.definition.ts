@@ -4,7 +4,7 @@ import { actions, events, configuration, channels, states } from './src/definiti
 
 export const user = {
   tags: {
-    freshchatUserId: {},
+    id: {},
   },
 } satisfies IntegrationDefinitionProps['user']
 

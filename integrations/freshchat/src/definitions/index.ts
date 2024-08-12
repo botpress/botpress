@@ -13,6 +13,6 @@ export const configuration = {
 
 export const user = {
   tags: {
-    freshchatUserId: z.string(),
+    id: z.string(),
   }
 } satisfies IntegrationDefinitionProps['user']

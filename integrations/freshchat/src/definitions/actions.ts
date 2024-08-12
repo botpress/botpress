@@ -2,7 +2,7 @@ import { ActionDefinition } from 'src/schemas'
 import { z } from '@botpress/sdk'
 import {
   FreshchatUserSchema,
-  FreshchatConversationSchema, FreshchatConversation
+  FreshchatConversationSchema
 } from './schemas'
 
 const createConversation: ActionDefinition = {
