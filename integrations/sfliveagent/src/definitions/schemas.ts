@@ -1,13 +1,13 @@
 import { z } from '@botpress/sdk'
 
 export const AxiosBasicCredentialsSchema = z.object({
-  username: z.string(),
-  password: z.string(),
+  username: z.string().optional(),
+  password: z.string().optional(),
 })
 
 export const AxiosProxyConfigSchema = z.object({
-  host: z.string(),
-  port: z.number(),
+  host: z.string().optional(),
+  port: z.number().optional(),
   auth: AxiosBasicCredentialsSchema.optional(),
   protocol: z.string().optional(),
 })
@@ -24,11 +24,17 @@ export const SFLiveagentConfigSchema = z
     liveAgentId: z.string().optional(),
     buttonId: z.string(),
     waitAgentTimeout: z.string().default('10s'),
-    messageHistory: z.array(z.string()).default([]),
+    messageHistory: z.array(z.string()).default([]).optional(),
     chatHistoryMessageCount: z.number().default(10),
     apiVersion: z.number().default(34),
     useProxy: z.boolean().default(false),
     proxy: AxiosProxyConfigSchema.optional(),
+  }).hidden((formData) => {
+    const showProxyConfig = !formData?.useProxy
+
+    return {
+      proxy: showProxyConfig
+    }
   })
 
 export type SFLiveagentConfig = z.infer<typeof SFLiveagentConfigSchema>
