@@ -51,7 +51,7 @@ const endConversationSession = {
   input: {
     schema: z.object({
       liveAgentSessionKey: z.string().describe('Key from the Chasitor conversation session'),
-      reason: EndConversationReasonSchema
+      reason: z.string().default('UNKNOWN').describe('any reason for the chat to end')
     }),
     ui: {},
   },

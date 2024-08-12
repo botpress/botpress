@@ -18,7 +18,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "axios": "^1.4.0",
+    "axios": "^1.7.3",
     "lodash": "^4.17.21",
     "zod": "^3.21.4"
   },

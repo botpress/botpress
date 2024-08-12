@@ -7,11 +7,21 @@ class ChasitorApi {
   private session?: LiveAgentSession
   private client: Axios
   constructor(private config: SFLiveagentConfig, session?: LiveAgentSession) {
+
+    let proxyConfig = {}
+
+    if(config.useProxy) {
+      proxyConfig = {
+        withCredentials: true,
+        proxy: config.proxy
+      }
+    }
+
     this.client = axios.create({
       baseURL: config.endpoint,
-      withCredentials: true,
-      proxy: config.proxy
+      ...proxyConfig
     })
+
     this.session = session
 
     // Fill default values
