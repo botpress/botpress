@@ -1,6 +1,5 @@
 
 import { IntegrationProps } from '.botpress'
-import * as console from 'node:console'
 
 export const handler: IntegrationProps['handler'] = async ({ ctx, req, logger, client }) => {
   if (!req.body) {
@@ -32,7 +31,7 @@ export const handler: IntegrationProps['handler'] = async ({ ctx, req, logger, c
       botpressConversationId: conversation.tags.botpressConversationId,
       botpressUserId: ctx.botUserId,
       freshchatConversationId,
-    };
+    }
   }
 
   switch (freshchatEvent.action) {
@@ -40,45 +39,86 @@ export const handler: IntegrationProps['handler'] = async ({ ctx, req, logger, c
       const messageCreateEvent = freshchatEvent as MessageCreateFreshchatEvent
 
       // Message from the user, not agent, skip
-      if(messageCreateEvent.actor.actor_type == "user") {
-        return;
+      if(messageCreateEvent.actor.actor_type === 'user') {
+        return
       }
 
       console.log('Received message create event', messageCreateEvent)
 
-      const details = await getLinkedConversationDetails (messageCreateEvent.data.message.conversation_id)
+      //const details = await getLinkedConversationDetails (messageCreateEvent.data.message.conversation_id)
+
+      const freshchatConversationId = messageCreateEvent.data.message.conversation_id
+
+      const { conversation } = await client.getOrCreateConversation({
+        channel: 'hitl',
+        tags: {
+          id: freshchatConversationId,
+        },
+      })
+
+      const { user } = await client.getOrCreateUser({
+        tags: {
+          id: messageCreateEvent.actor.actor_id,
+        },
+      })
 
       for(const messagePart of messageCreateEvent.data.message.message_parts) {
-        await client.createEvent({
-          type: 'onAgentMessage',
-          payload: {
-            ...details,
-            message: { text: messagePart.text.content },
-          }
+        await client.createMessage({
+          tags: {},
+          type: 'text',
+          userId: user.id,
+          conversationId: conversation.id,
+          payload: { text: messagePart.text.content  },
         })
       }
-      break;
+      break
     case 'conversation_assignment':
-      const conversationAssignmentEvent = freshchatEvent as ConversationAssignmentFreshchatEvent;
+      const conversationAssignmentEvent = freshchatEvent as ConversationAssignmentFreshchatEvent
 
-      await client.createEvent({
-        type: 'onConversationAssignment',
-        payload: {
-          ...await getLinkedConversationDetails (conversationAssignmentEvent.data.assignment.conversation.conversation_id)
-        }
+      const freshchatConversationId = conversationAssignmentEvent.data.assignment.conversation.conversation_id
+
+      const { conversation } = await client.getOrCreateConversation({
+        channel: 'hitl',
+        tags: {
+          id: freshchatConversationId,
+        },
       })
 
-      break;
+      const { user } = await client.getOrCreateUser({
+        tags: {
+          id: conversationAssignmentEvent.data.assignment.conversation.assigned_agent_id,
+        },
+      })
+
+      await client.createEvent({
+        type: 'hitlAssigned',
+        payload: {
+          conversationId: conversation.id,
+          userId: user.id,
+        },
+      })
+
+      break
     case 'conversation_resolution':
-      const conversationResolutionEvent = freshchatEvent as ConversationResolutionFreshchatEvent;
+      const conversationResolutionEvent = freshchatEvent as ConversationResolutionFreshchatEvent
+
+      const freshchatConversationId = conversationResolutionEvent.data.resolve.conversation.conversation_id
+
+      const { conversation } = await client.getOrCreateConversation({
+        channel: 'hitl',
+        tags: {
+          id: freshchatConversationId,
+        },
+      })
 
       await client.createEvent({
-        type: 'onConversationResolution',
+        type: 'hitlStopped',
         payload: {
-          ...await getLinkedConversationDetails (conversationResolutionEvent.data.resolve.conversation.conversation_id)
-        }
+          conversationId: conversation.id,
+        },
       })
-    break;
+
+    break
     default:
       logger.forBot().warn('Invalid Freshchat event of type: ' + freshchatEvent.action)
   }
