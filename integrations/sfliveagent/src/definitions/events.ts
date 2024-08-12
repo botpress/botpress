@@ -23,7 +23,7 @@ const onAgentMessage = {
   description: 'Triggered when there is a Agent message',
   schema: z.object({
     botpressConversationId: z.string(),
-    message: z.object({ text: z.string() }),
+    message: z.object({ text: z.string(), name: z.string() }),
   }),
   ui: {},
 }

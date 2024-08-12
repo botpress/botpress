@@ -6,7 +6,7 @@ export const executeAgentMessage = async ({
   message
 }: {
   botpressConversationId: string
-  message: { text: string }
+  message: { text: string; name: string }
   client: bp.Client
 }) => {
   await client.createEvent({

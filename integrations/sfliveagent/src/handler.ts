@@ -55,7 +55,7 @@ export const handler: IntegrationProps['handler'] = async ({ req, client, logger
             case 'ChatRequestSuccess': void executeConversationRequestSuccess({ botpressConversationId, client }); break
             case 'ChatEstablished': void executeConversationAssigned({ botpressConversationId, message, client }); break
             case 'ChatTransferred': void executeConversationTransferred({ botpressConversationId, message, client }); break
-            case 'ChatMessage': void  executeAgentMessage({ botpressConversationId,message: { text: message.text }, client }); break
+            case 'ChatMessage': void  executeAgentMessage({ botpressConversationId, message, client }); break
             case 'AgentTyping': void executeAgentTyping({ botpressConversationId, client }); break
             case 'AgentNotTyping': void executeAgentNotTyping({ botpressConversationId, client }); break
             case 'QueueUpdate': void executeQueueUpdated({ botpressConversationId, message, client }); break
