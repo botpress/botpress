@@ -39,9 +39,9 @@ export const startChat: IntegrationProps['actions']['startChat'] = async ({ ctx,
     const salesforceClient = getSalesforceClient({ ...ctx.configuration as SFLiveagentConfig }, liveAgentSession)
 
     await salesforceClient.startChat({ userName })
-  } catch (e) {
-    logger.forBot().error('Failed to start chat: ' + e.message)
-    return { success: false, message: 'Failed to startChat: ' + e.message }
+  } catch (err) {
+    logger.forBot().error('Failed to start chat: ' + err.message)
+    return { success: false, message: 'Failed to startChat: ' + err.message }
   }
 
   return { success: true }

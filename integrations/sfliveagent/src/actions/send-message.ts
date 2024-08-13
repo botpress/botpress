@@ -46,7 +46,7 @@ export const sendMessage: IntegrationProps['actions']['sendMessage'] = async ({ 
     const salesforceClient = getSalesforceClient({ ...ctx.configuration as SFLiveagentConfig}, liveAgentSession)
     await salesforceClient.sendMessage(payload.text)
   } catch (err) {
-    logger.forBot().error('Failed to create conversation session: ' + e.message)
+    logger.forBot().error('Failed to create conversation session: ' + err.message)
 
     if((err as AxiosError)?.response?.status === 403) {
       // Session is no longer valid

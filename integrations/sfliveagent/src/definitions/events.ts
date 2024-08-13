@@ -53,7 +53,7 @@ const onConversationEnded = {
   description: 'Triggered when the conversation with the LiveAgent has ended',
   schema: z.object({
     botpressConversationId: z.string(),
-    reason: z.string(), //EndConversationReasonSchema
+    reason: z.string()
   }),
   ui: {},
 }

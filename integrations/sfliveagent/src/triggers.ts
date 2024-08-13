@@ -19,5 +19,5 @@ export type ChatRequestSuccessMessage = {  }
 export type QueueUpdateMessage = { estimatedWaitTime: number; position: number }
 export type ChatMessageMessage = { name: string; text: string }
 export type AgentTypingMessage = { }
-export type ChatEndedMessage = { reason: EndConversationReason }
+export type ChatEndedMessage = { reason: string }
 export type AgentNotTypingMessage = { }
