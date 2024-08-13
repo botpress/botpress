@@ -22,6 +22,15 @@ const GenerateImageInputSchema = <TModelRef extends z.ZodSchema, TParams extends
     model: imageModelRefSchema.optional().describe('Model to use for image generation'),
     prompt: z.string(),
     size: z.string().optional(),
+    expiration: z
+      .number()
+      .int()
+      .min(30)
+      .max(90)
+      .optional()
+      .describe(
+        'Expiration of the generated image in days, after which the image will be automatically deleted to free up storage space in your account. The default is to keep the image indefinitely (no expiration). The minimum is 30 days and the maximum is 90 days.'
+      ),
     params: paramsSchema.optional(),
   })
 
@@ -35,7 +44,7 @@ const GenerateImageOutputSchema = z.object({
 
 export const textToImage = new InterfaceDeclaration({
   name: 'textToImage',
-  version: '1.0.0',
+  version: '1.1.0',
   entities: {
     imageModelRef: {
       schema: ImageModelRefSchema,
