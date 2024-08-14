@@ -4,6 +4,7 @@ import { interfaces } from '@botpress/sdk'
 import OpenAI from 'openai'
 import { ImageGenerateParams, Images } from 'openai/resources'
 import { LanguageModelId, ImageModelId, SpeechToTextModelId } from './schemas'
+import crypto from 'crypto'
 import * as bp from '.botpress'
 
 const openAIClient = new OpenAI({
@@ -142,6 +143,8 @@ const speechToTextModels: Record<SpeechToTextModelId, interfaces.speechToText.Sp
   },
 }
 
+const SECONDS_IN_A_DAY = 24 * 60 * 60
+
 const provider = 'OpenAI'
 
 export default new bp.Integration({
@@ -193,16 +196,20 @@ export default new bp.Integration({
         throw new Error('No image was returned by OpenAI')
       }
 
+      const expiresAt = input.expiration
+        ? new Date(Date.now() + input.expiration * SECONDS_IN_A_DAY * 1000).toISOString()
+        : undefined
+
       // File storage is billed to the workspace of the bot that called this action.
       const { file } = await client.uploadFile({
-        key: temporaryImageUrl,
+        key: generateImageKey('openai-generateImage-', input, '.png'),
         url: temporaryImageUrl,
         contentType: 'image/png',
         accessPolicies: ['public_content'],
         tags: {
-          source: 'integration:openai',
+          source: 'integration:openai:generateImage',
         },
-        // TODO: set a user-defined file expiry once it's supported so storage costs are minimized, if desired expiry is short enough we can also just directly pass the temporary URL provided by OpenAI
+        expiresAt,
       })
 
       return {
@@ -237,6 +244,16 @@ export default new bp.Integration({
   channels: {},
   handler: async () => {},
 })
+
+function generateImageKey(prefix: string, input: bp.actions.generateImage.input.Input, suffix?: string) {
+  const json = JSON.stringify(input)
+  const hash = crypto.createHash('sha1')
+
+  hash.update(json)
+  const hexHash = hash.digest('hex')
+
+  return prefix + Date.now() + '_' + hexHash + suffix
+}
 
 function getOpenAIImageGenerationParams(modelId: ImageModelId): {
   model: Images.ImageGenerateParams['model']
