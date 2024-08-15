@@ -15,3 +15,11 @@ For instance:
 
 Username: `jdoe@example.com/token`
 Password: `API_TOKEN`
+
+### Knowledge Base Sync
+
+1.  Toggle the "Sync Knowledge Base With Bot" option to start syncing.
+2.  Enter the ID of the desired knowledge base where your Zendesk articles will be stored.
+3.  Enable the integration to complete the setup.
+
+Once these steps are completed, your Zendesk articles will automatically sync to the specified knowledge base in Botpress. You can manually sync by using the "Sync KB" action.
