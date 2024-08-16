@@ -3,6 +3,7 @@ import { languageModelId } from 'src/schemas'
 
 export default new IntegrationDefinition({
   name: 'fireworks-ai',
+  title: 'Fireworks AI',
   version: '0.2.0',
   readme: 'hub.md',
   icon: 'icon.svg',
