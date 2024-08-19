@@ -5,6 +5,7 @@ import https from 'https'
 import * as config from './config'
 import * as errors from './errors'
 import * as gen from './gen'
+import { Lister } from './lister'
 import * as types from './types'
 
 const _100mb = 100 * 1024 * 1024
@@ -30,6 +31,10 @@ export class Client extends gen.Client implements types.IClient {
     super(axiosInstance)
 
     this.config = clientConfig
+  }
+
+  public get list() {
+    return new Lister(this)
   }
 
   /**
