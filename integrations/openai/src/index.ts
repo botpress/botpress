@@ -1,10 +1,10 @@
 import { InvalidPayloadError } from '@botpress/client'
 import { llm, textToSpeech } from '@botpress/common'
 import { interfaces } from '@botpress/sdk'
+import crypto from 'crypto'
 import OpenAI from 'openai'
 import { ImageGenerateParams, Images } from 'openai/resources'
 import { LanguageModelId, ImageModelId, SpeechToTextModelId } from './schemas'
-import crypto from 'crypto'
 import * as bp from '.botpress'
 
 const openAIClient = new OpenAI({
