@@ -1,4 +1,5 @@
 import axios, { AxiosError } from 'axios'
+import axiosRetry from 'axios-retry'
 import { isNode } from 'browser-or-node'
 import http from 'http'
 import https from 'https'
@@ -29,6 +30,10 @@ export class Client extends gen.Client implements types.IClient {
       httpsAgent: isNode ? new https.Agent({ keepAlive: true }) : undefined,
     })
     super(axiosInstance)
+
+    if (clientProps.retry) {
+      axiosRetry(axiosInstance, clientProps.retry)
+    }
 
     this.config = clientConfig
   }
