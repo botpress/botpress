@@ -1,4 +1,5 @@
 import { isApiError, Client, type Conversation, type Message, type User, RuntimeError } from '@botpress/client'
+import { retryConfig } from '../retry'
 import { Request, Response, parseBody } from '../serve'
 import { Cast, Merge } from '../type-utils'
 import { IntegrationSpecificClient } from './client'
@@ -136,9 +137,12 @@ export const integrationHandler =
   async (req: Request): Promise<Response | void> => {
     const ctx = extractContext(req.headers)
 
-    const client = new IntegrationSpecificClient<TIntegration>(
-      new Client({ botId: ctx.botId, integrationId: ctx.integrationId })
-    )
+    const vanillaClient = new Client({
+      botId: ctx.botId,
+      integrationId: ctx.integrationId,
+      retry: retryConfig,
+    })
+    const client = new IntegrationSpecificClient<TIntegration>(vanillaClient)
 
     const props = {
       ctx,

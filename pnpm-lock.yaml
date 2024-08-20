@@ -1559,10 +1559,10 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.28.0
+        specifier: 0.29.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 0.10.8
+        specifier: 0.10.9
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1674,10 +1674,10 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.28.0
+        specifier: 0.29.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.10.8
+        specifier: 0.10.9
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1693,10 +1693,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.28.0
+        specifier: 0.29.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.10.8
+        specifier: 0.10.9
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1712,10 +1712,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 0.28.0
+        specifier: 0.29.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.10.8
+        specifier: 0.10.9
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1731,10 +1731,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 0.28.0
+        specifier: 0.29.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.10.8
+        specifier: 0.10.9
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -1755,6 +1755,9 @@ importers:
       axios:
         specifier: ^1.6.1
         version: 1.6.1
+      axios-retry:
+        specifier: ^4.5.0
+        version: 4.5.0(axios@1.6.1)
       browser-or-node:
         specifier: ^2.1.1
         version: 2.1.1
@@ -1812,7 +1815,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.28.0
+        specifier: 0.29.0
         version: link:../client
       '@bpinternal/zui':
         specifier: 0.9.3
@@ -5296,6 +5299,15 @@ packages:
       - debug
     dev: false
 
+  /axios-retry@4.5.0(axios@1.6.1):
+    resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
+    peerDependencies:
+      axios: 0.x || 1.x
+    dependencies:
+      axios: 1.6.1
+      is-retry-allowed: 2.2.0
+    dev: false
+
   /axios@0.21.4(debug@4.3.4):
     resolution: {integrity: sha512-ut5vewkiu8jjGBdqpM44XxjuCjq9LAKeHVmoVfHVzy8eHgxxq8SbAVQNovDA8mVi05kP0Ea/n/UzcSHcTJQfNg==}
     dependencies:
@@ -8363,6 +8375,11 @@ packages:
     dependencies:
       call-bind: 1.0.2
       has-tostringtag: 1.0.0
+    dev: false
+
+  /is-retry-allowed@2.2.0:
+    resolution: {integrity: sha512-XVm7LOeLpTW4jV19QSH38vkswxoLud8sQ57YwJVTPWdiaI9I8keEhGFpBlslyVsgdQy4Opg8QOLb8YRgsyZiQg==}
+    engines: {node: '>=10'}
     dev: false
 
   /is-set@2.0.2:
