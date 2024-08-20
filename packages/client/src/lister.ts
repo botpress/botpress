@@ -23,10 +23,16 @@ class AsyncCollection<T> {
     } while (nextToken)
   }
 
-  public async collect() {
+  public async collect(props: { limit?: number } = {}) {
+    const limit = props.limit ?? Number.POSITIVE_INFINITY
     const arr: T[] = []
+    let count = 0
     for await (const item of this) {
       arr.push(item)
+      count++
+      if (count >= limit) {
+        break
+      }
     }
     return arr
   }
