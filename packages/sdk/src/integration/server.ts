@@ -189,17 +189,13 @@ export const integrationHandler =
         return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
       }
 
-      if (thrown instanceof Error) {
-        // prints the error in the integration logs
-        console.error(thrown)
+      // prints the error in the integration logs
+      console.error(thrown)
 
-        const runtimeError = new RuntimeError(
-          'An unexpected error occurred in the integration. Bot owners: Check logs for more informations. Integration owners: throw a RuntimeError to return a custom error message instead.'
-        )
-        return { status: 400, body: JSON.stringify(runtimeError.toJSON()) }
-      }
-
-      throw thrown
+      const runtimeError = new RuntimeError(
+        'An unexpected error occurred in the integration. Bot owners: Check logs for more informations. Integration owners: throw a RuntimeError to return a custom error message instead.'
+      )
+      return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
     }
   }
 
