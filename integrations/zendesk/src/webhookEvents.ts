@@ -1,7 +1,4 @@
-export enum ZendeskEventType {
-  ArticlePublished = 'zen:event-type:article.published',
-  ArticleUnpublished = 'zen:event-type:article.unpublished',
-}
+export type ZendeskEventType = 'zen:event-type:article.published' | 'zen:event-type:article.unpublished'
 
 export type ZendeskEvent = {
   account_id: number
@@ -13,6 +10,6 @@ export type ZendeskEvent = {
   id: string
   subject: string
   time: string
-  type: string
+  type: ZendeskEventType
   zendesk_event_version: string
 }
