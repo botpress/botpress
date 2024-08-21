@@ -3,7 +3,7 @@ import { articlePublished } from './events/article-published'
 import { articleUnpublished } from './events/article-unpublished'
 import { executeTicketAssigned } from './events/ticket-assigned'
 import { executeTicketSolved } from './events/ticket-solved'
-import { ZendeskEvent, ZendeskEventType } from './webhookEvents'
+import { ZendeskEvent } from './webhookEvents'
 import type { TriggerPayload } from './triggers'
 import * as bp from '.botpress'
 
@@ -19,10 +19,10 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
     logger.forBot().info('Received event of type: ' + event.type)
 
     switch (event.type) {
-      case ZendeskEventType.ArticlePublished:
+      case 'zen:event-type:article.published':
         await articlePublished({ event, client, ctx, logger })
         break
-      case ZendeskEventType.ArticleUnpublished:
+      case 'zen:event-type:article.unpublished':
         await articleUnpublished({ event, client, ctx, logger })
         break
       default:
