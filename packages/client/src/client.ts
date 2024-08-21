@@ -1,10 +1,12 @@
 import axios, { AxiosError } from 'axios'
+import axiosRetry from 'axios-retry'
 import { isNode } from 'browser-or-node'
 import http from 'http'
 import https from 'https'
 import * as config from './config'
 import * as errors from './errors'
 import * as gen from './gen'
+import { Lister } from './lister'
 import * as types from './types'
 
 const _100mb = 100 * 1024 * 1024
@@ -29,7 +31,15 @@ export class Client extends gen.Client implements types.IClient {
     })
     super(axiosInstance)
 
+    if (clientProps.retry) {
+      axiosRetry(axiosInstance, clientProps.retry)
+    }
+
     this.config = clientConfig
+  }
+
+  public get list() {
+    return new Lister(this)
   }
 
   /**

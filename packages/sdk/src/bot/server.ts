@@ -1,5 +1,6 @@
 import * as client from '@botpress/client'
 import { log } from '../log'
+import { retryConfig } from '../retry'
 import { Request, Response, parseBody } from '../serve'
 import { BotSpecificClient } from './client'
 import * as types from './client/types'
@@ -59,7 +60,11 @@ export const botHandler =
       log.info(`Received ${ctx.operation} operation for bot ${ctx.botId} of type ${ctx.type}`)
     }
 
-    const botClient = new BotSpecificClient<TBot>(new client.Client({ botId: ctx.botId }))
+    const vanillaClient = new client.Client({
+      botId: ctx.botId,
+      retry: retryConfig,
+    })
+    const botClient = new BotSpecificClient<TBot>(vanillaClient)
 
     const props: ServerProps<TBot> = {
       req,
