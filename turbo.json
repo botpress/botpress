@@ -45,11 +45,6 @@
       "outputs": [".botpress/**"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/discord#build": {
-      "inputs": ["integration.definition.ts", "src/**"],
-      "outputs": [".botpress/**"],
-      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
-    },
     "@botpresshub/fireworks-ai#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
