@@ -65,7 +65,7 @@ const interfaceRef = {
 
 const sourceMap = { type: 'boolean', description: 'Generate sourcemaps', default: false } satisfies CommandOption
 
-const noMinify = { type: 'boolean', description: 'Do not minify the output', default: false } satisfies CommandOption
+const minify = { type: 'boolean', description: 'Do not minify the output', default: true } satisfies CommandOption
 
 const dev = {
   type: 'boolean',
@@ -132,13 +132,13 @@ const generateSchema = {
 const bundleSchema = {
   ...projectSchema,
   sourceMap,
-  noMinify,
+  minify,
 } satisfies CommandSchema
 
 const buildSchema = {
   ...projectSchema,
   sourceMap,
-  noMinify,
+  minify,
 } satisfies CommandSchema
 
 const readSchema = {
@@ -159,7 +159,7 @@ const deploySchema = {
   noBuild,
   createNewBot: { type: 'boolean', description: 'Create a new bot when deploying. Only used when deploying a bot' },
   sourceMap,
-  noMinify,
+  minify,
   public: isPublic,
   allowDeprecated: {
     type: 'boolean',
@@ -173,7 +173,7 @@ const devSchema = {
   ...credentialsSchema,
   ...secretsSchema,
   sourceMap,
-  noMinify,
+  minify,
   port,
   tunnelUrl: {
     type: 'string',

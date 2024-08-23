@@ -10,9 +10,9 @@ const entryPoint = consts.defaultEntrypoint
 const outDir = consts.defaultOutputFolder
 const allowDeprecated = false
 const isPublic = false
-const noMinify = false
+const minify = true
 export default {
-  noMinify,
+  minify,
   noBuild,
   secrets,
   sourceMap,
