@@ -65,7 +65,7 @@ const interfaceRef = {
 
 const sourceMap = { type: 'boolean', description: 'Generate sourcemaps', default: false } satisfies CommandOption
 
-const minify = { type: 'boolean', description: 'Do not minify the output', default: true } satisfies CommandOption
+const minify = { type: 'boolean', description: 'Minify the bundled code', default: true } satisfies CommandOption
 
 const dev = {
   type: 'boolean',
