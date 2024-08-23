@@ -20,9 +20,7 @@
     "test:watch": "vitest",
     "check:type": "tsc --noEmit",
     "check:format": "prettier --check src/",
-    "fix:format": "prettier --write src/",
-    "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "fix:format": "prettier --write src/"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.2",
@@ -50,8 +48,7 @@
     "vite": "^5.2.6",
     "vitest": "1.6.0"
   },
-  "dependencies": {
-  },
+  "dependencies": {},
   "peerDependencies": {
     "react": "^18.2.0"
   },
