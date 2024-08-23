@@ -3,8 +3,8 @@ import { articlePublished } from './events/article-published'
 import { articleUnpublished } from './events/article-unpublished'
 import { executeTicketAssigned } from './events/ticket-assigned'
 import { executeTicketSolved } from './events/ticket-solved'
-import { ZendeskEvent } from './webhookEvents'
 import type { TriggerPayload } from './triggers'
+import { ZendeskEvent } from './webhookEvents'
 import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
