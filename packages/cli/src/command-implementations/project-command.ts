@@ -159,6 +159,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       outfile: '',
       entrypoint: rel.interfaceDefinition,
       write: false,
+      minify: false,
     })
 
     const artifact = outputFiles[0]

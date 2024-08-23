@@ -41,6 +41,7 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
       logLevel,
       write: true,
       sourcemap: this.argv.sourceMap,
+      minify: this.argv.minify,
     })
 
     line.success(`Bundle available at ${chalk.grey(rel.outDir)}`)
