@@ -1559,10 +1559,10 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.29.0
+        specifier: 0.29.1
         version: link:../client
       '@botpress/sdk':
-        specifier: 0.10.9
+        specifier: 0.10.10
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1674,10 +1674,10 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.29.0
+        specifier: 0.29.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.10.9
+        specifier: 0.10.10
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1693,10 +1693,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.29.0
+        specifier: 0.29.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.10.9
+        specifier: 0.10.10
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1712,10 +1712,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 0.29.0
+        specifier: 0.29.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.10.9
+        specifier: 0.10.10
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1731,10 +1731,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 0.29.0
+        specifier: 0.29.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.10.9
+        specifier: 0.10.10
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -1769,8 +1769,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.39.0
-        version: 0.39.0(openapi-types@12.1.3)
+        specifier: 0.39.1
+        version: 0.39.1(openapi-types@12.1.3)
       '@types/qs':
         specifier: ^6.9.7
         version: 6.9.7
@@ -1815,7 +1815,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.29.0
+        specifier: 0.29.1
         version: link:../client
       '@bpinternal/zui':
         specifier: 0.9.3
@@ -2384,10 +2384,10 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.39.0(openapi-types@12.1.3):
-    resolution: {integrity: sha512-/ykf8s2qydvZh8Tj4qe2DI5mmcFU/8kY4r/YO088CnM/o5qD+XoDBmslrzt6r19c1MfceN2J53NBnwfoFUrZng==}
+  /@botpress/api@0.39.1(openapi-types@12.1.3):
+    resolution: {integrity: sha512-paTfxw5vN6FwHgSLBLwLzVPzYbbtuMD7jUDjWz7P017L2OzpFlBzkc2ijwGqkNLXGHehlb3S1X30Vu8oUfN9Lw==}
     dependencies:
-      '@bpinternal/opapi': 0.10.20(openapi-types@12.1.3)
+      '@bpinternal/opapi': 0.10.22(openapi-types@12.1.3)
     transitivePeerDependencies:
       - debug
       - openapi-types
@@ -2459,8 +2459,8 @@ packages:
       regex-parser: 2.2.11
     dev: true
 
-  /@bpinternal/opapi@0.10.20(openapi-types@12.1.3):
-    resolution: {integrity: sha512-plTaVl+FvRCdMlsju5HMGEY0kHcXv3RZAHCAImaAaR0mwEjpUBB4sJFsptx+BaCyyyau4Ty8s+xdgbxh6IB+iQ==}
+  /@bpinternal/opapi@0.10.22(openapi-types@12.1.3):
+    resolution: {integrity: sha512-Un1H3WteDK5PqyvtG5KFw/pe6t5w9eTvhC7j/j8uQnEJR6OreaSj29a5QnEbI2MB375ti6OIUgF0ipbV8KeQIw==}
     engines: {node: '>=16.0.0', pnpm: 9.1.0}
     dependencies:
       '@anatine/zod-openapi': 1.12.1(openapi3-ts@2.0.2)(zod@3.22.4)
