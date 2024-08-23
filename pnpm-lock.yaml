@@ -319,40 +319,6 @@ importers:
         specifier: ^4.9.5
         version: 4.9.5
 
-  integrations/discord:
-    dependencies:
-      '@botpress/client':
-        specifier: workspace:*
-        version: link:../../packages/client
-      '@botpress/sdk':
-        specifier: workspace:*
-        version: link:../../packages/sdk
-      '@botpress/sdk-addons':
-        specifier: workspace:*
-        version: link:../../packages/sdk-addons
-    devDependencies:
-      '@botpress/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
-      '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
-      '@types/node':
-        specifier: ^18.11.17
-        version: 18.16.16
-      esbuild:
-        specifier: ^0.15.18
-        version: 0.15.18
-      nodemon:
-        specifier: ^2.0.20
-        version: 2.0.22
-      ts-node:
-        specifier: ^10.9.1
-        version: 10.9.1(@types/node@18.16.16)(typescript@4.9.5)
-      typescript:
-        specifier: ^4.9.4
-        version: 4.9.5
-
   integrations/fireworks-ai:
     dependencies:
       '@botpress/client':

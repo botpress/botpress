@@ -1,7 +1,8 @@
-import { RetryConfig } from '@botpress/client'
+import { RetryConfig, axiosRetry } from '@botpress/client'
 
 export const retryConfig: RetryConfig = {
   retries: 3,
-  retryCondition: ({ response }) => response?.status !== undefined && [429, 502].includes(response?.status),
+  retryCondition: (err) =>
+    axiosRetry.isNetworkOrIdempotentRequestError(err) || [429, 502].includes(err.response?.status ?? 0),
   retryDelay: (retryCount) => retryCount * 1000,
 }
