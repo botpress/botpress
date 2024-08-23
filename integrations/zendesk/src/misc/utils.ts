@@ -1,5 +1,5 @@
-import * as bp from '.botpress'
 import { ZendeskArticle } from 'src/definitions/schemas'
+import * as bp from '.botpress'
 
 export const stringifyProperties = (obj: Record<string, any>) => {
   const result: Record<string, string> = {}

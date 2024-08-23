@@ -1,8 +1,8 @@
 import { IntegrationProps } from '../.botpress/implementation'
 import { getZendeskClient } from './client'
-import { Triggers } from './triggers'
 import { uploadArticlesToKb } from './misc/upload-articles-to-kb'
 import { deleteKbArticles } from './misc/utils'
+import { Triggers } from './triggers'
 
 export const register: IntegrationProps['register'] = async ({ client, ctx, webhookUrl, logger }) => {
   try {
