@@ -133,7 +133,7 @@ export type BaseType = 'number' | 'string' | 'boolean' | 'object' | 'array' | 'd
 export const containerTypes = ['object', 'array', 'discriminatedUnion'] as const
 export type ContainerType = (typeof containerTypes)[number]
 
-export type DefaultComponentDefinitions = {
+export type EmptyComponentDefinitions = {
   number: {}
   string: {}
   boolean: {}
@@ -197,7 +197,7 @@ export type AsBaseType<T> = T extends BaseType ? T : never
 export type SchemaContext<
   Type extends BaseType,
   ID extends keyof UI[Type],
-  UI extends UIComponentDefinitions = DefaultComponentDefinitions,
+  UI extends UIComponentDefinitions = EmptyComponentDefinitions,
 > = {
   type: Type
   id: ID
@@ -215,7 +215,7 @@ export type FormError = {
 export type ZuiReactComponentBaseProps<
   Type extends BaseType,
   ID extends keyof UI[Type],
-  UI extends UIComponentDefinitions = DefaultComponentDefinitions,
+  UI extends UIComponentDefinitions = EmptyComponentDefinitions,
 > = {
   type: Type
   componentID: ID
@@ -252,7 +252,7 @@ export type ZuiReactArrayChildProps =
 export type ZuiReactDiscriminatedUnionComponentProps<
   Type extends ContainerType,
   ID extends keyof UI[Type],
-  UI extends UIComponentDefinitions = DefaultComponentDefinitions,
+  UI extends UIComponentDefinitions = EmptyComponentDefinitions,
 > = ZuiReactComponentBaseProps<Type, ID, UI> & {
   discriminatorKey: string | null
   discriminatorLabel: string
@@ -265,7 +265,7 @@ export type ZuiReactDiscriminatedUnionComponentProps<
 export type ZuiReactObjectComponentProps<
   Type extends ContainerType,
   ID extends keyof UI[Type],
-  UI extends UIComponentDefinitions = DefaultComponentDefinitions,
+  UI extends UIComponentDefinitions = EmptyComponentDefinitions,
 > = ZuiReactComponentBaseProps<Type, ID, UI> & {
   children: JSX.Element | JSX.Element[]
 }
@@ -273,7 +273,7 @@ export type ZuiReactObjectComponentProps<
 export type ZuiReactArrayComponentProps<
   Type extends ContainerType,
   ID extends keyof UI[Type],
-  UI extends UIComponentDefinitions = DefaultComponentDefinitions,
+  UI extends UIComponentDefinitions = EmptyComponentDefinitions,
 > = ZuiReactComponentBaseProps<Type, ID, UI> & {
   children: JSX.Element | JSX.Element[]
   addItem: (initialData?: any) => void
@@ -283,7 +283,7 @@ export type ZuiReactArrayComponentProps<
 export type ZuiReactControlComponentProps<
   Type extends BaseType,
   ID extends keyof UI[Type],
-  UI extends UIComponentDefinitions = DefaultComponentDefinitions,
+  UI extends UIComponentDefinitions = EmptyComponentDefinitions,
 > = ZuiReactComponentBaseProps<Type, ID, UI> & {
   description?: string
   required: boolean
@@ -293,7 +293,7 @@ export type ZuiReactControlComponentProps<
 export type ZuiReactComponentProps<
   Type extends BaseType,
   ID extends keyof UI[Type],
-  UI extends UIComponentDefinitions = DefaultComponentDefinitions,
+  UI extends UIComponentDefinitions = EmptyComponentDefinitions,
 > = Type extends 'object'
   ? ZuiReactObjectComponentProps<Type, ID, UI>
   : Type extends 'array'
@@ -305,10 +305,10 @@ export type ZuiReactComponentProps<
 export type ZuiReactComponent<
   Type extends BaseType,
   ID extends keyof UI[Type],
-  UI extends UIComponentDefinitions = DefaultComponentDefinitions,
+  UI extends UIComponentDefinitions = EmptyComponentDefinitions,
 > = FC<ZuiReactComponentProps<Type, ID, UI>>
 
-export type ZuiComponentMap<UI extends UIComponentDefinitions = DefaultComponentDefinitions> = {
+export type ZuiComponentMap<UI extends UIComponentDefinitions = EmptyComponentDefinitions> = {
   [T in BaseType]: {
     [K in keyof UI[T]]: ZuiReactComponent<T, K, UI>
   } & {
@@ -325,10 +325,9 @@ export type ParseSchema<I> = I extends infer U
     : object
   : never
 
+export type Merge<A, B> = Omit<A, keyof B> & B
 export type MergeUIComponentDefinitions<T extends UIComponentDefinitions, U extends UIComponentDefinitions> = {
-  [Type in BaseType]: {
-    [K in keyof (T[Type] & U[Type])]: (T[Type] & U[Type])[K]
-  }
+  [Type in BaseType]: Merge<T[Type], U[Type]>
 }
 
 export type DeepPartial<T> = T extends object ? { [K in keyof T]?: DeepPartial<T[K]> } : T

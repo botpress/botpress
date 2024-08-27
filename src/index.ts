@@ -7,22 +7,7 @@ import {
   TypescriptGenerationOptions,
 } from './transforms/zui-to-typescript-next'
 
-export type {
-  BaseType,
-  UIComponentDefinitions,
-  ZuiComponentMap,
-  AsBaseType,
-  ZuiReactComponent,
-  DefaultComponentDefinitions,
-  ZuiReactComponentProps,
-  JSONSchema,
-  JSONSchemaOfType,
-  MergeUIComponentDefinitions,
-  FormValidation,
-  FormError,
-} from './ui/types'
-export type { BoundaryFallbackComponent } from './ui/ErrorBoundary'
-export { ZuiForm, type ZuiFormProps } from './ui'
+export * from './ui'
 export * from './z'
 
 export const transforms = {

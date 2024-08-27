@@ -1,6 +1,6 @@
 import React from 'react'
 import { fireEvent, render } from '@testing-library/react'
-import { ZuiForm, ZuiFormProps, getSchemaType } from './index'
+import { ZuiForm, ZuiFormProps } from './index'
 import { resolveDiscriminatedSchema, resolveDiscriminator } from './hooks/useDiscriminator'
 import { ZuiComponentMap } from '../index'
 import { ObjectSchema, JSONSchema, ZuiReactComponentBaseProps, BaseType, UIComponentDefinitions } from './types'
@@ -8,6 +8,7 @@ import { FC, PropsWithChildren, useState } from 'react'
 import { vi } from 'vitest'
 import { z as zui } from '../z/index'
 import { zuiKey } from './constants'
+import { getSchemaType } from './utils'
 
 const TestId = (type: BaseType, path: string[], subpath?: string) =>
   `${type}:${path.length > 0 ? path.join('.') : ''}${subpath ? `:${subpath}` : ''}`

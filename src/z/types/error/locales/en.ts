@@ -1,6 +1,6 @@
 import { type ZodErrorMap, util, ZodIssueCode, ZodParsedType } from '../../index'
 
-const errorMap: ZodErrorMap = (issue, _ctx) => {
+export const errorMap: ZodErrorMap = (issue, _ctx) => {
   let message: string
   switch (issue.code) {
     case ZodIssueCode.invalid_type:

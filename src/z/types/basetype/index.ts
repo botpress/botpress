@@ -4,7 +4,7 @@ import type {
   ZodKindToBaseType,
   JSONSchema,
   ParseSchema,
-  DefaultComponentDefinitions,
+  EmptyComponentDefinitions,
   ZuiExtensionObject,
 } from '../../../ui/types'
 import { zuiKey } from '../../../ui/constants'
@@ -526,7 +526,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    * The type of component to use to display the field and its options
    */
   displayAs<
-    UI extends UIComponentDefinitions = DefaultComponentDefinitions,
+    UI extends UIComponentDefinitions = EmptyComponentDefinitions,
     Type extends BaseType = ZodKindToBaseType<this['_def']>,
   >(options: ParseSchema<UI[Type][keyof UI[Type]]>): this {
     this._def[zuiKey] ??= {}
