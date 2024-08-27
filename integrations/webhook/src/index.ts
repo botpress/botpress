@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import qs from 'qs'
 import * as bp from '.botpress'
@@ -15,12 +16,12 @@ const isMethod = (method: string): method is Method => method in methods
 const integration = new bp.Integration({
   handler: async ({ req, client, ctx }) => {
     if (ctx.configuration.secret && req.headers['x-bp-secret'] !== ctx.configuration.secret) {
-      throw new Error('Invalid secret')
+      throw new RuntimeError('The provided secret is invalid.')
     }
 
     const method = req.method.toUpperCase()
     if (!isMethod(method)) {
-      throw new Error('Invalid method')
+      throw new RuntimeError('Only GET and POST methods are supported.')
     }
 
     const query = req.query ? qs.parse(req.query) : {}
