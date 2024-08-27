@@ -14,7 +14,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@bpinternal/zui": "0.9.3",
+    "@bpinternal/zui": "0.10.0",
     "@botpress/client": "0.29.1"
   },
   "devDependencies": {
