@@ -12,7 +12,11 @@ export const typingIndicator = new InterfaceDeclaration({
         schema: () =>
           z.object({
             conversationId: z.string(),
-            timeout: z.number().optional(),
+            messageId: z.string().describe('The message ID to which the typing indicator should be attached'),
+            timeout: z
+              .number()
+              .optional()
+              .describe('The timeout in milliseconds after which the typing indicator should stop'),
           }),
       },
       output: {
@@ -24,6 +28,7 @@ export const typingIndicator = new InterfaceDeclaration({
         schema: () =>
           z.object({
             conversationId: z.string(),
+            messageId: z.string().describe('The message ID from which the typing indicator should be removed'),
           }),
       },
       output: {

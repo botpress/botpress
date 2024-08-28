@@ -1,4 +1,5 @@
 import { axios } from '@botpress/client'
+import { RuntimeError } from '@botpress/sdk'
 import { AssertionError, ok } from 'assert'
 import _ from 'lodash'
 import { Context, Markup, Telegraf, Telegram } from 'telegraf'
@@ -48,10 +49,20 @@ export function getChat(conversation: MessageHandlerProps['conversation']): stri
   const chat = conversation.tags.chatId
 
   if (!chat) {
-    throw Error(`No chat found for conversation ${conversation.id}`)
+    throw new RuntimeError(`No chat found for conversation ${conversation.id}`)
   }
 
   return chat
+}
+
+export function getMessageId(message: MessageHandlerProps['message']): number {
+  const messageId = message.tags.id
+
+  if (!messageId) {
+    throw new RuntimeError(`No message ID found for message ${message.id}`)
+  }
+
+  return Number(messageId)
 }
 
 export const getUserNameFromTelegramUser = (telegramUser: User) => {
