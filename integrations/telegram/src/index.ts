@@ -26,7 +26,19 @@ const integration = new bp.Integration({
     const telegraf = new Telegraf(ctx.configuration.botToken)
     await telegraf.telegram.deleteWebhook({ drop_pending_updates: true })
   },
-  actions: {},
+  actions: {
+    startTypingIndicator: async ({ input, ctx, client }) => {
+      const telegraf = new Telegraf(ctx.configuration.botToken)
+      const { conversation } = await client.getConversation({ id: input.conversationId })
+      const chat = getChat(conversation)
+      await telegraf.telegram.sendChatAction(chat, 'typing')
+      return {}
+    },
+    stopTypingIndicator: async ({}) => {
+      // Telegram does not support stopping typing indicators
+      return {}
+    },
+  },
   channels: {
     channel: {
       messages: {
