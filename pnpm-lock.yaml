@@ -1784,8 +1784,8 @@ importers:
         specifier: 0.29.1
         version: link:../client
       '@bpinternal/zui':
-        specifier: 0.9.3
-        version: 0.9.3(react@18.3.1)
+        specifier: 0.10.0
+        version: 0.10.0(react@18.3.1)
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -2475,8 +2475,8 @@ packages:
       yn: 4.0.0
     dev: false
 
-  /@bpinternal/zui@0.9.3(react@18.3.1):
-    resolution: {integrity: sha512-aTJ2Lptet3/0MFoMFgMEj268ilE33DZwaMAvy0wf1LjweP9bfCddEMMO3bvJtAWYkuLCFMT4ZLAmKPyKvEnfBg==}
+  /@bpinternal/zui@0.10.0(react@18.3.1):
+    resolution: {integrity: sha512-iltVlwY3izpGCe995JFRmLemh6bAdg3BojpFTocXxS3P6K5XpzfBJUoPfeg3CMBgn6hRIEWxBF5rCqhnMKad9w==}
     engines: {node: '>=16.0.0', pnpm: 9.1.0}
     peerDependencies:
       react: ^18.2.0
