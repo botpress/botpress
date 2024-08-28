@@ -3,7 +3,7 @@ import { Client, errorFrom } from '../../src'
 const main = async () => {
   const client = new Client()
   await client
-    .getAccount()
+    .getAccount({})
     .then(() => {
       throw new Error('Expected to reject')
     })

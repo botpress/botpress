@@ -65,7 +65,7 @@ _This step can be executed in any directory and git repository of your choice. Y
 
 You can then modify both the definition and implementation of your integration respectively located in the `integration.definition.ts` and `src/index.ts` files.
 
-For more information on how to develop an integration, please refer to the [Documentation](https://botpress.com/docs/developers/).
+For more information on how to develop an integration, please refer to the [Documentation](https://botpress.com/docs/getting-started-1).
 
 ### Integration Deployment
 

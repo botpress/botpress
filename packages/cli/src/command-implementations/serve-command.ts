@@ -15,17 +15,21 @@ export class ServeCommand extends ProjectCommand<ServeCommandDefinition> {
       throw new errors.NoBundleFoundError()
     }
 
-    const integrationDef = await this.readIntegrationDefinitionFromFS()
-    if (integrationDef) {
+    const projectDef = await this.readProjectDefinitionFromFS()
+    if (projectDef.type === 'interface') {
+      throw new errors.BotpressCLIError('An interface project has no implementation to serve.')
+    }
+
+    if (projectDef.type === 'integration') {
       // TODO: store secrets in local cache to avoid prompting every time
-      const secretEnvVariables = await this.promptSecrets(integrationDef, this.argv, { formatEnv: true })
+      const secretEnvVariables = await this.promptSecrets(projectDef.definition, this.argv, { formatEnv: true })
       const nonNullSecretEnvVariables = utils.records.filterValues(secretEnvVariables, utils.guards.is.notNull)
       for (const [key, value] of Object.entries(nonNullSecretEnvVariables)) {
         process.env[key] = value
       }
     }
 
-    this.logger.log(`Serving ${integrationDef ? 'integration' : 'bot'}...`)
+    this.logger.log(`Serving ${projectDef.type}...`)
 
     const { default: serveable } = utils.require.requireJsFile<{ default: Serveable }>(outfile)
     const server = await serveable.start(this.argv.port)

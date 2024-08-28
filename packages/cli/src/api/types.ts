@@ -17,6 +17,10 @@ export type PrivateIntegration = client.Integration & { workspaceId: string }
 export type Integration = client.Integration & { workspaceId?: string }
 export type IntegrationSummary = client.ClientOutputs['listIntegrations']['integrations'][number]
 
+export type BotSummary = client.ClientOutputs['listBots']['bots'][number]
+
+export type Interface = client.Interface
+
 export type BaseOperation = (...args: any[]) => Promise<any>
 export type Operations = {
   [K in keyof client.Client as client.Client[K] extends BaseOperation ? K : never]: client.Client[K]

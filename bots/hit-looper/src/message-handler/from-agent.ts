@@ -7,28 +7,31 @@ export const agentMessageHandler: MessageHandler = async (props) => {
     return
   }
 
-  const { client, conversation: downstream, message } = props
+  const { client, conversation: downstreamConversation, message } = props
   const respond = mkRespond(props)
 
-  const flow = await getOrCreateFlow({ client, conversationId: downstream.id }, { hitlEnabled: true })
+  const flow = await getOrCreateFlow({ client, conversationId: downstreamConversation.id }, { hitlEnabled: true })
   if (!flow.hitlEnabled) {
-    await respond({ conversationId: downstream.id, text: 'Hitl is not enabled so nobody is reading your messages' })
+    await respond({
+      conversationId: downstreamConversation.id,
+      text: 'Hitl is not enabled so nobody is reading your messages',
+    })
     return
   }
 
-  const upstream = downstream.tags['upstream']
-  if (!upstream) {
+  const upstreamConversationId = downstreamConversation.tags['upstream']
+  if (!upstreamConversationId) {
     throw new Error('Downstream conversation was not binded to upstream conversation')
   }
 
   if (message.payload.text.trim() === '/stop_hitl') {
-    await setFlow({ client, conversationId: downstream.id }, { hitlEnabled: false })
-    await setFlow({ client, conversationId: upstream }, { hitlEnabled: false })
+    await setFlow({ client, conversationId: downstreamConversation.id }, { hitlEnabled: false })
+    await setFlow({ client, conversationId: upstreamConversationId }, { hitlEnabled: false })
 
     const disabledMsg = 'Hitl has been disabled'
-    await respond({ conversationId: downstream.id, text: disabledMsg })
-    await respond({ conversationId: upstream, text: disabledMsg })
+    await respond({ conversationId: downstreamConversation.id, text: disabledMsg })
+    await respond({ conversationId: upstreamConversationId, text: disabledMsg })
     return
   }
-  await respond({ conversationId: upstream, text: message.payload.text })
+  await respond({ conversationId: upstreamConversationId, text: message.payload.text })
 }

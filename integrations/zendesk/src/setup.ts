@@ -1,5 +1,7 @@
 import { IntegrationProps } from '../.botpress/implementation'
 import { getZendeskClient } from './client'
+import { uploadArticlesToKb } from './misc/upload-articles-to-kb'
+import { deleteKbArticles } from './misc/utils'
 import { Triggers } from './triggers'
 
 export const register: IntegrationProps['register'] = async ({ client, ctx, webhookUrl, logger }) => {
@@ -16,6 +18,8 @@ export const register: IntegrationProps['register'] = async ({ client, ctx, webh
     logger.forBot().error('Could not create webhook subscription')
     return
   }
+
+  await zendeskClient.createArticleWebhook(webhookUrl, ctx.webhookId)
 
   const user = await zendeskClient.createOrUpdateUser({
     role: 'end-user',
@@ -48,9 +52,17 @@ export const register: IntegrationProps['register'] = async ({ client, ctx, webh
       },
     })
   }
+
+  if (ctx.configuration.syncKnowledgeBaseWithBot) {
+    if (!ctx.configuration.knowledgeBaseId) {
+      logger.forBot().error('No KB id provided')
+      return
+    }
+    await uploadArticlesToKb({ ctx, client, logger, kbId: ctx.configuration.knowledgeBaseId })
+  }
 }
 
-export const unregister: IntegrationProps['unregister'] = async ({ ctx, client }) => {
+export const unregister: IntegrationProps['unregister'] = async ({ ctx, client, logger }) => {
   const zendeskClient = getZendeskClient(ctx.configuration)
 
   const { state } = await client.getState({
@@ -67,5 +79,21 @@ export const unregister: IntegrationProps['unregister'] = async ({ ctx, client }
     for (const trigger of state.payload.triggerIds) {
       await zendeskClient.deleteTrigger(trigger)
     }
+  }
+
+  const articleWebhooks = await zendeskClient.findWebhooks({
+    'filter[name_contains]': `bpc_article_event_${ctx.webhookId}`,
+  })
+
+  for (const articleWebhook of articleWebhooks) {
+    await zendeskClient.deleteWebhook(articleWebhook.id)
+  }
+
+  if (ctx.configuration.syncKnowledgeBaseWithBot) {
+    if (!ctx.configuration.knowledgeBaseId) {
+      logger.forBot().error('Knowledge base id was not provided')
+      return
+    }
+    await deleteKbArticles(ctx.configuration.knowledgeBaseId, client)
   }
 }

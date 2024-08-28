@@ -1,5 +1,4 @@
 import { IntegrationContext } from '@botpress/sdk'
-import { IssueUpdated } from '../definitions/events'
 import { LinearIssueEvent } from '../misc/linear'
 import { getUserAndConversation } from '../misc/utils'
 import * as bp from '.botpress'
@@ -11,8 +10,10 @@ type IssueProps = {
   ctx: IntegrationContext<bp.configuration.Configuration>
 }
 
+type IssueUpdated = bp.events.issueUpdated.IssueUpdated
+
 export const fireIssueUpdated = async ({ linearEvent, client, ctx }: IssueProps) => {
-  const payload = {
+  const payload: Omit<IssueUpdated, 'conversationId' | 'userId'> = {
     title: linearEvent.data.title,
     priority: linearEvent.data.priority,
     status: linearEvent.data.state.name,
@@ -35,7 +36,7 @@ export const fireIssueUpdated = async ({ linearEvent, client, ctx }: IssueProps)
     targets: {
       issue: { id: linearEvent.data.id },
     },
-  } satisfies Omit<IssueUpdated, 'conversationId' | 'userId'>
+  }
 
   const { conversationId, userId } = await getUserAndConversation({
     linearIssueId: linearEvent.data.id,

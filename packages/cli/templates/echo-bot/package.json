@@ -1,12 +1,12 @@
 {
   "name": "@bp-templates/echo-bot",
   "scripts": {
-    "type:check": "tsc --noEmit"
+    "check:type": "tsc --noEmit"
   },
   "private": true,
   "dependencies": {
-    "@botpress/client": "0.21.0",
-    "@botpress/sdk": "0.8.24"
+    "@botpress/client": "0.29.1",
+    "@botpress/sdk": "0.10.12"
   },
   "devDependencies": {
     "@types/node": "^18.11.17",

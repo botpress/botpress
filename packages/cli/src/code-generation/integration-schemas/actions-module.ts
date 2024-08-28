@@ -40,8 +40,9 @@ export class ActionModule extends ReExportTypeModule {
     const inputModule = await ActionInputModule.create(action.input)
     const outputModule = await ActionOutputModule.create(action.output)
 
+    const exportName = strings.typeName(actionName)
     const inst = new ActionModule({
-      exportName: strings.typeName(actionName),
+      exportName,
     })
 
     inst.pushDep(inputModule)

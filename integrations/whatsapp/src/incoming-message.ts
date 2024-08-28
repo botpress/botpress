@@ -69,7 +69,7 @@ export async function handleIncomingMessage(
       } else if (message.image) {
         logger.forBot().debug('Received image message from Whatsapp:', message.button)
 
-        const imageUrl = await getWhatsAppMediaUrl(message.image.id, ctx)
+        const imageUrl = await getWhatsAppMediaUrl(message.image.id, client, ctx)
 
         await client.createMessage({
           tags: { id: message.id },
@@ -81,7 +81,7 @@ export async function handleIncomingMessage(
       } else if (message.audio) {
         logger.forBot().debug('Received audio message from Whatsapp:', message.button)
 
-        const audioUrl = await getWhatsAppMediaUrl(message.audio.id, ctx)
+        const audioUrl = await getWhatsAppMediaUrl(message.audio.id, client, ctx)
 
         await client.createMessage({
           tags: { id: message.id },
@@ -93,7 +93,7 @@ export async function handleIncomingMessage(
       } else if (message.document) {
         logger.forBot().debug('Received document message from Whatsapp:', message.button)
 
-        const documentUrl = await getWhatsAppMediaUrl(message.document.id, ctx)
+        const documentUrl = await getWhatsAppMediaUrl(message.document.id, client, ctx)
 
         await client.createMessage({
           tags: { id: message.id },

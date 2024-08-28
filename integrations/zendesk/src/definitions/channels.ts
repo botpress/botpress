@@ -1,34 +1,15 @@
-import { z, IntegrationDefinitionProps } from '@botpress/sdk'
+import { IntegrationDefinitionProps } from '@botpress/sdk'
 
 export const channels = {
-  ticket: {
+  hitl: {
     title: 'Zendesk Ticket',
-    messages: {
-      text: {
-        schema: z.object({
-          text: z.string(),
-        }),
-      },
-    },
-    message: {
-      tags: {
-        id: {},
-        origin: {
-          title: 'zendesk or botpress',
-          description: 'The origin of the message',
-        },
-      },
-    },
+    messages: {}, // defined by the integration
     conversation: {
       tags: {
         id: {
           title: 'Zendesk Ticket ID',
         },
-        requesterId: {
-          title: 'Zendesk Requester ID',
-        },
       },
-      creation: { enabled: true, requiredTags: ['id'] },
     },
   },
 } satisfies IntegrationDefinitionProps['channels']

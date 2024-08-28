@@ -4,16 +4,16 @@
   "scripts": {
     "build": "turbo build",
     "bump": "depsynky bump && pnpm -w install",
-    "type:check": "pnpm -r --stream type:check",
-    "format:check": "prettier --check .",
-    "format:fix": "prettier --write .",
-    "lint:check": "eslint ./ --ext .ts --ext .tsx",
-    "lint:fix": "eslint --fix ./ --ext .ts --ext .tsx",
-    "dep:check": "depsynky check",
-    "dep:fix": "depsynky sync",
-    "check": "pnpm dep:check && pnpm format:check && pnpm lint:check && pnpm type:check",
     "test": "pnpm vitest --run",
-    "fix": "pnpm dep:fix && pnpm format:fix && pnpm lint:fix"
+    "check:type": "pnpm -r --stream check:type",
+    "check:format": "prettier --check .",
+    "fix:format": "prettier --write .",
+    "check:lint": "eslint ./ --ext .ts --ext .tsx",
+    "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx",
+    "check:dep": "depsynky check",
+    "fix:dep": "depsynky sync",
+    "check": "pnpm check:dep && pnpm check:format && pnpm check:lint && pnpm check:type",
+    "fix": "pnpm fix:dep && pnpm fix:format && pnpm fix:lint"
   },
   "dependencies": {
     "@botpress/cli": "workspace:*",

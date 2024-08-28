@@ -19,6 +19,8 @@ export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) ex
 
 export type ValueOf<T> = T[keyof T]
 
+export type Writable<T> = { -readonly [K in keyof T]: T[K] }
+
 export type Inspect<T> = { [K in keyof T]: T[K] }
 
 export type KeyBy<T, Key extends keyof T> = {

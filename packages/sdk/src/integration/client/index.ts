@@ -68,6 +68,7 @@ export class IntegrationSpecificClient<TIntegration extends BaseIntegration> {
 
   public configureIntegration: routes.ConfigureIntegration<TIntegration> = (x) => this.client.configureIntegration(x)
 
+  public uploadFile: routes.UploadFile<TIntegration> = (x) => this.client.uploadFile(x)
   public upsertFile: routes.UpsertFile<TIntegration> = (x) => this.client.upsertFile(x)
   public deleteFile: routes.DeleteFile<TIntegration> = (x) => this.client.deleteFile(x)
   public listFiles: routes.ListFiles<TIntegration> = (x) => this.client.listFiles(x)

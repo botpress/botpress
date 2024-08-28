@@ -47,6 +47,8 @@ export const deleteEventOutputSchema = z
 export const listEventsInputSchema = z
   .object({
     count: z.number().min(1).max(2500).default(100).describe('The maximum number of events to return.'),
+    pageToken: z.string().optional().describe('Token specifying which result page to return.'),
+    timeMin: z.string().optional().describe('The minimum start time of events to return.'),
   })
   .partial()
 
@@ -60,6 +62,10 @@ export const listEventsOutputSchema = z.object({
         })
         .partial()
     )
-    .optional()
     .describe('The list of calendar events.'),
+  nextPageToken: z
+    .string()
+    .nullable()
+    .optional()
+    .describe('Token used to access the next page of this result. Omitted if no further results are available.'),
 })

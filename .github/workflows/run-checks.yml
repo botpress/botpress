@@ -16,8 +16,8 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup
         uses: ./.github/actions/setup
-      - run: pnpm run format:check
-      - run: pnpm run lint:check
-      - run: pnpm run type:check
-      - run: pnpm run dep:check
+      - run: pnpm run check:format
+      - run: pnpm run check:lint
+      - run: pnpm run check:type
+      - run: pnpm run check:dep
       - run: pnpm run test

@@ -1,13 +1,8 @@
 import { z } from '@botpress/sdk'
 import * as botpress from '.botpress'
 
-const telegram = new botpress.telegram.Telegram({
-  enabled: true,
-})
-
-const zendesk = new botpress.zendesk.Zendesk({
-  enabled: true,
-})
+const telegram = new botpress.telegram.Telegram()
+const zendesk = new botpress.zendesk.Zendesk()
 
 export const bot = new botpress.Bot({
   integrations: {
@@ -27,6 +22,18 @@ export const bot = new botpress.Bot({
   },
   events: {},
   recurringEvents: {},
+  user: {
+    tags: {
+      downstream: {
+        title: 'Downstream User ID',
+        description: 'ID of the downstream user binded to the upstream one',
+      },
+      upstream: {
+        title: 'Upstream User ID',
+        description: 'ID of the upstream user binded to the downstream one',
+      },
+    },
+  },
   conversation: {
     tags: {
       downstream: {

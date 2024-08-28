@@ -19,4 +19,4 @@ export default {
   listUsers,
   markAsDuplicate,
   createIssue,
-} satisfies bp.IntegrationProps['actions']
+} satisfies Partial<bp.IntegrationProps['actions']>

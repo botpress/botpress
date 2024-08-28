@@ -21,6 +21,7 @@ export const prepareCreateIntegrationBody = (integration: sdk.IntegrationDefinit
   user: integration.user,
   identifier: integration.identifier,
   secrets: undefined,
+  interfaces: {},
   configuration: integration.configuration
     ? {
         ...integration.configuration,
@@ -84,6 +85,8 @@ export const prepareUpdateIntegrationBody = (
 
   const channels = prepareUpdateIntegrationChannelsBody(localIntegration.channels ?? {}, remoteIntegration.channels)
 
+  const interfaces = utils.records.setNullOnMissingValues(localIntegration.interfaces, remoteIntegration.interfaces)
+
   return {
     ...localIntegration,
     actions,
@@ -92,6 +95,7 @@ export const prepareUpdateIntegrationBody = (
     entities,
     user,
     channels,
+    interfaces,
   }
 }
 

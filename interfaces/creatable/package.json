@@ -1,0 +1,17 @@
+{
+  "name": "@botpresshub/creatable",
+  "description": "Creatable interface for Botpress",
+  "private": true,
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "deploy": "pnpm bp deploy"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@botpress/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "typescript": "^4.9.4"
+  }
+}

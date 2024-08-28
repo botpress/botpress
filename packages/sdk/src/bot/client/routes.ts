@@ -136,6 +136,7 @@ export type CallAction<TBot extends BaseBot> = <ActionType extends keyof types.E
   output: Cast<types.EnumerateActions<TBot>[ActionType], types.IntegrationInstanceActionDefinition>['output']
 }>
 
+export type UploadFile<_TBot extends BaseBot> = Client['uploadFile']
 export type UpsertFile<_TBot extends BaseBot> = Client['upsertFile']
 export type DeleteFile<_TBot extends BaseBot> = Client['deleteFile']
 export type ListFiles<_TBot extends BaseBot> = Client['listFiles']

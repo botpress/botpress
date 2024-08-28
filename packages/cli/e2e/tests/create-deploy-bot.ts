@@ -34,7 +34,7 @@ export const createDeployBot: Test = {
     await utils.npmInstall({ workDir: botDir }).then(utils.handleExitCode)
     await impl.build({ ...argv, workDir: botDir }).then(utils.handleExitCode)
     await impl.login({ ...argv }).then(utils.handleExitCode)
-    await impl.bots.subcommands.create({ ...argv, name: botName }).then(utils.handleExitCode)
+    await impl.bots.subcommands.create({ ...argv, name: botName, ifNotExists: false }).then(utils.handleExitCode)
 
     const bot = await fetchBot(client, botName)
     if (!bot) {

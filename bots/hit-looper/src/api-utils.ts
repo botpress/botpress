@@ -3,7 +3,7 @@ import { MessageHandlerProps, Client } from './types'
 
 export const mkRespond =
   ({ client, ctx }: MessageHandlerProps) =>
-  async ({ conversationId, text }: { conversationId: string; text: string }) => {
+  async ({ conversationId, text, userId }: { conversationId: string; text: string; userId?: string }) => {
     await client.createMessage({
       conversationId,
       userId: ctx.botId,
@@ -11,6 +11,7 @@ export const mkRespond =
       type: 'text',
       payload: {
         text,
+        userId,
       },
     })
   }

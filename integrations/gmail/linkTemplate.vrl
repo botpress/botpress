@@ -1,0 +1,11 @@
+webhookId = to_string!(.webhookId)
+webhookUrl = to_string!(.webhookUrl)
+env = to_string!(.env)
+
+clientId = "293378330844-okgoo9h35i54bbfsdn7ugp1gslemgdcv.apps.googleusercontent.com"
+
+if env == "production" {
+  clientId = "348984595962-u6at0g0ej8d4ke7ojmepr7osa55jf8qm.apps.googleusercontent.com"
+}
+
+"https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/gmail.send%20https%3A//www.googleapis.com/auth/gmail.readonly&access_type=offline&include_granted_scopes=true&response_type=code&prompt=consent&state={{ webhookId }}&redirect_uri={{ webhookUrl }}/oauth&client_id={{ clientId }}"

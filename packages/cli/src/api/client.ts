@@ -4,7 +4,16 @@ import { formatIntegrationRef, ApiIntegrationRef as IntegrationRef, NameIntegrat
 import type { Logger } from '../logger'
 import { findPreviousIntegrationVersion } from './find-previous-version'
 import * as paging from './paging'
-import { ApiClientProps, PublicIntegration, PrivateIntegration, Integration, Requests, Responses } from './types'
+import {
+  ApiClientProps,
+  PublicIntegration,
+  PrivateIntegration,
+  Integration,
+  Requests,
+  Responses,
+  Interface,
+  BotSummary,
+} from './types'
 
 export * from './types'
 
@@ -82,6 +91,13 @@ export class ApiClient {
     return this.validateStatus(() => this.client.getPublicIntegration(ref).then((r) => r.integration), 404)
   }
 
+  public async findPublicInterface(ref: IntegrationRef): Promise<Interface | undefined> {
+    if (ref.type === 'id') {
+      return this.validateStatus(() => this.client.getInterface(ref).then((r) => r.interface), 404)
+    }
+    return this.validateStatus(() => this.client.getInterfaceByName(ref).then((r) => r.interface), 404)
+  }
+
   public async testLogin(): Promise<void> {
     await this.client.listBots({})
   }
@@ -108,5 +124,11 @@ export class ApiClient {
       return
     }
     return this.findIntegration({ type: 'id', id: previous.id })
+  }
+
+  public async findBotByName(name: string): Promise<BotSummary | undefined> {
+    // api does not allow filtering bots by name
+    const allBots = await this.listAllPages(this.client.listBots, (r) => r.bots)
+    return allBots.find((b) => b.name === name)
   }
 }

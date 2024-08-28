@@ -16,36 +16,60 @@ describe('uploadFile', () => {
     token: 'bp_pat_abcdefghijklmnopqrstuvwxyz0123456789',
   })
 
-  it('works with a buffer', async () => {
+  const testContent = 'aaa'
+
+  async function test(content: Buffer | ArrayBuffer | Uint8Array | Blob | string) {
     const response = await client.uploadFile({
       key: 'test.txt',
-      content: Buffer.from('aaa'),
+      content: content as any,
     })
 
     expect(response.file.key).toBe('test.txt')
-    expect(response.file.status).toBe('upload_completed')
     expect(response.file.url, 'File URL should have been returned').toBeTruthy()
+
+    const fetchedContent = await fetch(response.file.url).then((res) => res.text())
+    expect(fetchedContent).toBe(testContent)
+  }
+
+  it('works with a string', async () => {
+    await test(testContent)
   })
 
-  it('works with plain text', async () => {
-    const response = await client.uploadFile({
-      key: 'test.txt',
-      content: 'aaa',
-    })
+  it('works with a Uint8Array', async () => {
+    const encoder = new TextEncoder()
+    const uint8Array = encoder.encode(testContent)
+    await test(uint8Array)
+  })
 
-    expect(response.file.key).toBe('test.txt')
-    expect(response.file.status).toBe('upload_completed')
-    expect(response.file.url, 'File URL should have been returned').toBeTruthy()
+  it('works with a Buffer', async () => {
+    const buffer = Buffer.from(testContent)
+    await test(buffer)
+  })
+
+  it('works with an ArrayBuffer', async () => {
+    const encoder = new TextEncoder()
+    const uint8Array = encoder.encode(testContent)
+    const arrayBuffer = uint8Array.buffer
+    await test(arrayBuffer)
+  })
+
+  it('works with a Blob', async () => {
+    const blob = new Blob([testContent], { type: 'text/plain' })
+    await test(blob)
   })
 
   it('works with a URL', async () => {
+    const sourceUrl = 'https://docs.botpress.cloud/docs/content/whatsapp-banner.png'
+
     const response = await client.uploadFile({
       key: 'whatsapp-banner.png',
-      url: 'https://docs.botpress.cloud/docs/content/whatsapp-banner.png',
+      url: sourceUrl,
     })
 
     expect(response.file.key).toBe('whatsapp-banner.png')
-    expect(response.file.status).toBe('upload_completed')
     expect(response.file.url, 'File URL should have been returned').toBeTruthy()
+
+    const download = await fetch(response.file.url)
+    expect(download.status).toBe(200)
   })
 })

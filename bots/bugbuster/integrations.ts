@@ -3,7 +3,7 @@ import * as pathlib from 'path'
 
 const rootDir = pathlib.resolve(__dirname, '..', '..')
 const integrationsDir = pathlib.join(rootDir, 'integrations')
-const integrations = ['linear', 'github', 'slack']
+const integrations = ['github', 'slack']
 
 const main = async () => {
   for (const integration of integrations) {

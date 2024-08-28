@@ -9,6 +9,11 @@ input:
     options:
       - staging
       - production
+  extra_filter:
+    type: string
+    description: 'Pnpm additional filters to select integrations to deploy'
+    required: false
+    default: ''
   force:
     type: boolean
     description: 'Force re-deploying integrations'
@@ -31,6 +36,24 @@ input:
     required: false
   slack_secrets:
     description: 'Slack secrets'
+    required: false
+  whatsapp_secrets:
+    description: 'Whatsapp secrets'
+    required: false
+  charts_secrets:
+    description: 'Charts secrets'
+    required: false
+  pdf_secrets:
+    description: 'PDF secrets'
+    required: false
+  browser_secrets:
+    description: 'Browser secrets'
+    required: false
+  openai_secrets:
+    description: 'OpenAI secrets'
+    required: false
+  groq_secrets:
+    description: 'Groq secrets'
     required: false
 
 runs:
@@ -73,7 +96,9 @@ runs:
         # deploy
 
         redeploy=${{ inputs.force == 'true' && 1 || 0 }}
-        integration_paths=$(pnpm list -F "@botpresshub/*" -F "!asana" -F "!trello" -F "!webchat" --json | jq -r "map(".path") | .[]")
+        all_filters="-F '{integrations/*}' -F '!asana' -F '!trello' -F '!webchat' ${{ inputs.extra_filter }}"
+        list_integrations_cmd="pnpm list $all_filters --json"
+        integration_paths=$(eval $list_integrations_cmd | jq -r "map(".path") | .[]")
 
         for integration_path in $integration_paths; do
             integration=$(basename $integration_path)
@@ -86,6 +111,22 @@ runs:
                 base_command="$base_command ${{ inputs.linear_secrets }}"
             elif [ $integration == "slack" ]; then
                 base_command="$base_command ${{ inputs.slack_secrets }}"
+            elif [ $integration == "charts" ]; then
+                base_command="$base_command ${{ inputs.charts_secrets }}"
+            elif [ $integration == "whatsapp" ]; then
+                base_command="$base_command ${{ inputs.whatsapp_secrets }}"
+            elif [ $integration == "pdf-generator" ]; then
+                base_command="$base_command ${{ inputs.pdf_secrets }}"
+            elif [ $integration == "browser" ]; then
+                base_command="$base_command ${{ inputs.browser_secrets }}"
+            elif [ $integration == "openai" ]; then
+                base_command="$base_command ${{ inputs.openai_secrets }}"
+            elif [ $integration == "groq" ]; then
+                base_command="$base_command ${{ inputs.groq_secrets }}"
+            elif [ $integration == "anthropic" ]; then
+                base_command="$base_command ${{ inputs.anthropic_secrets }}"
+            elif [ $integration == "fireworks-ai" ]; then
+                base_command="$base_command ${{ inputs.fireworks_ai_secrets }}"
             fi
             
             if [ $exists -eq 0 ]; then
