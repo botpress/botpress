@@ -1,1 +1,3 @@
+<iframe src="https://www.youtube.com/embed/pOIrLMpZZqc"></iframe>
+
 The Messenger integration empowers your chatbot to seamlessly interact with Facebook Messenger, one of the most popular messaging platforms. Connect your AI-powered chatbot to Messenger and engage with your audience in real-time conversations. With this integration, you can automate customer support, provide personalized recommendations, send notifications, and handle inquiries directly within Messenger. Leverage Messenger's rich features, including text, images, buttons, quick replies, and more, to create dynamic and engaging chatbot experiences. Take your customer engagement to the next level with the Messenger Integration for Botpress.
