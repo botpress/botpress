@@ -1,0 +1,5 @@
+[defaults]
+project=integration-trello
+
+[auth]
+dsn=https://3eff74f9ec846c8b60bca9e10cef6a02@o363631.ingest.sentry.io/4505750271688704
