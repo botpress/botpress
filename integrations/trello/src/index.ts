@@ -62,7 +62,7 @@ const getContainer = (ctx: bp.Context) =>
   initializeContainer({
     apiKey: ctx.configuration.trelloApiKey,
     token: ctx.configuration.trelloApiToken,
-    boardName: ctx.configuration.trelloBoardName,
+    boardName: ctx.configuration.trelloBoardId,
   })
 
 export default new bp.Integration({
@@ -81,6 +81,19 @@ export default new bp.Integration({
   },
 
   actions: {
+    async getBoardId({ ctx, input }) {
+      const container = getContainer(ctx)
+      const cardCreationService = container.resolve<ICardCreationService>(DIToken.CardCreationService)
+      const { boardName } = input
+
+      try {
+        const newCard = await cardCreationService.createCard(cardName, cardBody ?? '', listName)
+        return { message: `Card created successfully. Card ID: ${newCard.id}` }
+      } catch (error) {
+        throw new sdk.RuntimeError(`Unable to create card with name ${cardName} in list ${listName}: ${error}`)
+      }
+    },
+
     async createCard({ ctx, input }) {
       const container = getContainer(ctx)
       const cardCreationService = container.resolve<ICardCreationService>(DIToken.CardCreationService)
