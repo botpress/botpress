@@ -97,10 +97,10 @@ export default new bp.Integration({
     async moveCardUp({ ctx, input }) {
       const container = getContainer(ctx)
       const cardUpdateService = container.resolve<ICardUpdateService>(DIToken.CardUpdateService)
-      const { listName, cardName } = input
+      const { listName, cardName, moveUpByNSpaces } = input
 
       try {
-        await cardUpdateService.moveCardVertically(listName, cardName, 1)
+        await cardUpdateService.moveCardVertically(listName, cardName, moveUpByNSpaces ?? 1)
       } catch (error) {
         throw new sdk.RuntimeError(`Unable to reposition card with name ${cardName}: ${error}`)
       }
@@ -111,10 +111,10 @@ export default new bp.Integration({
     async moveCardDown({ ctx, input }) {
       const container = getContainer(ctx)
       const cardUpdateService = container.resolve<ICardUpdateService>(DIToken.CardUpdateService)
-      const { listName, cardName } = input
+      const { listName, cardName, moveDownByNSpaces } = input
 
       try {
-        await cardUpdateService.moveCardVertically(listName, cardName, -1)
+        await cardUpdateService.moveCardVertically(listName, cardName, -(moveDownByNSpaces ?? 1))
       } catch (error) {
         throw new sdk.RuntimeError(`Unable to reposition card with name ${cardName}: ${error}`)
       }
