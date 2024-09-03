@@ -1538,10 +1538,10 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.29.2
+        specifier: 0.29.3
         version: link:../client
       '@botpress/sdk':
-        specifier: 0.10.14
+        specifier: 0.10.15
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1653,10 +1653,10 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.29.2
+        specifier: 0.29.3
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.10.14
+        specifier: 0.10.15
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1672,10 +1672,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.29.2
+        specifier: 0.29.3
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.10.14
+        specifier: 0.10.15
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1691,10 +1691,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 0.29.2
+        specifier: 0.29.3
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.10.14
+        specifier: 0.10.15
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1710,10 +1710,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 0.29.2
+        specifier: 0.29.3
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.10.14
+        specifier: 0.10.15
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -1748,8 +1748,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.39.1
-        version: 0.39.1(openapi-types@12.1.3)
+        specifier: 0.40.1
+        version: 0.40.1(openapi-types@12.1.3)
       '@types/qs':
         specifier: ^6.9.7
         version: 6.9.7
@@ -1794,7 +1794,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.29.2
+        specifier: 0.29.3
         version: link:../client
       '@bpinternal/zui':
         specifier: 0.10.0
@@ -2363,8 +2363,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.39.1(openapi-types@12.1.3):
-    resolution: {integrity: sha512-paTfxw5vN6FwHgSLBLwLzVPzYbbtuMD7jUDjWz7P017L2OzpFlBzkc2ijwGqkNLXGHehlb3S1X30Vu8oUfN9Lw==}
+  /@botpress/api@0.40.1(openapi-types@12.1.3):
+    resolution: {integrity: sha512-brn/BBVDZiKsBjdAHhJiW0ylGtEmThM/Yye+fThUwpkJ+adncL4MGUEm+pqDsaBI9pWth6I/eYlJDVTgIAesuA==}
     dependencies:
       '@bpinternal/opapi': 0.10.22(openapi-types@12.1.3)
     transitivePeerDependencies:
