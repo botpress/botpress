@@ -7,7 +7,7 @@
   "private": true,
   "dependencies": {
     "@botpress/client": "0.29.2",
-    "@botpress/sdk": "0.10.13"
+    "@botpress/sdk": "0.10.14"
   },
   "devDependencies": {
     "@types/node": "^18.11.17",

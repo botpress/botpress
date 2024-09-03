@@ -9,7 +9,7 @@ import { BaseIntegration } from './generic'
 import { IntegrationLogger, integrationLogger } from './logger'
 
 type CommonArgs<TIntegration extends BaseIntegration> = {
-  ctx: IntegrationContext<TIntegration['configuration']>
+  ctx: IntegrationContext<TIntegration>
   client: IntegrationSpecificClient<TIntegration>
   logger: IntegrationLogger
 }
@@ -135,7 +135,7 @@ type ServerProps<TIntegration extends BaseIntegration> = CommonArgs<TIntegration
 export const integrationHandler =
   <TIntegration extends BaseIntegration>(instance: IntegrationHandlers<TIntegration>) =>
   async (req: Request): Promise<Response | void> => {
-    const ctx = extractContext(req.headers)
+    const ctx = extractContext<TIntegration>(req.headers)
 
     const vanillaClient = new Client({
       botId: ctx.botId,

@@ -1,4 +1,4 @@
-import { z, IntegrationContext, isApiError } from '@botpress/sdk'
+import { z, isApiError } from '@botpress/sdk'
 import {
   TriggerSubscriber,
   ZapierTriggersStateName,
@@ -6,25 +6,21 @@ import {
   ZapierTriggersState,
   Client,
 } from './types'
-import type { Configuration } from '.botpress/implementation/configuration'
+import * as bp from '.botpress'
 
-export async function unsubscribeZapierHook(url: string, ctx: IntegrationContext<Configuration>, client: Client) {
+export async function unsubscribeZapierHook(url: string, ctx: bp.Context, client: Client) {
   let subscribers = await getTriggerSubscribers(ctx, client)
   subscribers = subscribers.filter((x) => x.url !== url)
   await saveTriggerSubscribers(subscribers, ctx, client)
   console.info(`Zapier hook ${url} was unsubscribed`)
 }
 
-export async function getTriggerSubscribers(ctx: IntegrationContext<Configuration>, client: Client) {
+export async function getTriggerSubscribers(ctx: bp.Context, client: Client) {
   const state = await getTriggersState(ctx, client)
   return state.subscribers
 }
 
-export async function saveTriggerSubscribers(
-  subscribers: TriggerSubscriber[],
-  ctx: IntegrationContext<Configuration>,
-  client: Client
-) {
+export async function saveTriggerSubscribers(subscribers: TriggerSubscriber[], ctx: bp.Context, client: Client) {
   await client.setState({
     type: 'integration',
     name: ZapierTriggersStateName,
@@ -33,7 +29,7 @@ export async function saveTriggerSubscribers(
   })
 }
 
-export async function getTriggersState(ctx: IntegrationContext<Configuration>, client: Client) {
+export async function getTriggersState(ctx: bp.Context, client: Client) {
   const defaultState = buildTriggersState()
 
   return await client

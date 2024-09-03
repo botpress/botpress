@@ -1,5 +1,4 @@
 import { RuntimeError } from '@botpress/client'
-import type { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
 import * as bp from '.botpress'
@@ -349,7 +348,7 @@ export async function sendViberMessage({ conversation, ctx, ack, payload }: Send
   return data
 }
 
-async function getUserDetails({ ctx, id }: { ctx: IntegrationContext; id: string }) {
+async function getUserDetails({ ctx, id }: { ctx: bp.Context; id: string }) {
   const { data } = await axios.post(
     'https://chatapi.viber.com/pa/get_user_details',
     { id },

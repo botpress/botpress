@@ -7,6 +7,7 @@ import {
   operationHeader,
   webhookIdHeader,
 } from '../const'
+import { BaseIntegration } from './generic'
 
 export const integrationOperationSchema = z.enum([
   'webhook_received',
@@ -21,16 +22,18 @@ export const integrationOperationSchema = z.enum([
 
 export type IntegrationOperation = z.infer<typeof integrationOperationSchema>
 
-export type IntegrationContext<Configuration = any> = {
+export type IntegrationContext<TIntegration extends BaseIntegration = BaseIntegration> = {
   botId: string
   botUserId: string
   integrationId: string
   webhookId: string
   operation: IntegrationOperation
-  configuration: Configuration
+  configuration: TIntegration['configuration']
 }
 
-export const extractContext = (headers: Record<string, string | undefined>): IntegrationContext => {
+export const extractContext = <TIntegration extends BaseIntegration>(
+  headers: Record<string, string | undefined>
+): IntegrationContext<TIntegration> => {
   const botId = headers[botIdHeader]
   const botUserId = headers[botUserIdHeader]
   const integrationId = headers[integrationIdHeader]

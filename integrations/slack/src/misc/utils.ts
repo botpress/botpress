@@ -1,4 +1,4 @@
-import type { IntegrationContext, Request } from '@botpress/sdk'
+import type { Request } from '@botpress/sdk'
 import { ChatPostMessageArguments, WebClient } from '@slack/web-api'
 import axios from 'axios'
 import * as crypto from 'crypto'
@@ -86,7 +86,7 @@ export class SlackOauthClient {
   }
 }
 
-export async function onOAuth(req: Request, client: bp.Client, ctx: IntegrationContext) {
+export async function onOAuth(req: Request, client: bp.Client, ctx: bp.Context) {
   const slackOAuthClient = new SlackOauthClient()
 
   const query = queryString.parse(req.query)

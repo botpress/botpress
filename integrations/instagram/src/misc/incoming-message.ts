@@ -1,15 +1,10 @@
-import { IntegrationContext } from '@botpress/sdk'
 import { InstagramMessage, IntegrationLogger } from './types'
 import { getUserProfile } from './utils'
 import * as bp from '.botpress'
 
 export async function handleMessage(
   message: InstagramMessage,
-  {
-    client,
-    ctx,
-    logger,
-  }: { client: bp.Client; ctx: IntegrationContext<bp.configuration.Configuration>; logger: IntegrationLogger }
+  { client, ctx, logger }: { client: bp.Client; ctx: bp.Context; logger: IntegrationLogger }
 ) {
   if (message?.message?.text) {
     logger.forBot().debug('Received text message from Instagram:', message.message.text)
