@@ -64,7 +64,6 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const readmeFileContent = await this._readMediaFile('readme', readmeRelativeFilePath)
     const identifierExtractScriptFileContent = await this._readFile(identifier?.extractScript)
     const fallbackHandlerScriptFileContent = await this._readFile(identifier?.fallbackHandlerScript)
-    const identifierLinkTemplateFileContent = await this._readFile(configuration?.identifier?.linkTemplateScript)
 
     const integration = await api.findIntegration({ type: 'name', name, version })
     if (integration && integration.workspaceId !== api.workspaceId) {
@@ -93,6 +92,11 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       return
     }
 
+    const configurations: CreateIntegrationBody['configurations'] = {}
+    for (const [key, config] of Object.entries(integrationDef.configurations ?? {})) {
+      configurations[key] = await this._readConfigDefinition(config)
+    }
+
     let createBody: CreateIntegrationBody = prepareCreateIntegrationBody(integrationDef)
     createBody = {
       ...createBody,
@@ -100,13 +104,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       code,
       icon: iconFileContent,
       readme: readmeFileContent,
-      configuration: {
-        ...createBody.configuration,
-        identifier: {
-          ...(createBody.configuration?.identifier ?? {}),
-          linkTemplateScript: identifierLinkTemplateFileContent,
-        },
-      },
+      configuration: await this._readConfigDefinition(configuration),
+      configurations,
       identifier: {
         extractScript: identifierExtractScriptFileContent,
         fallbackHandlerScript: fallbackHandlerScriptFileContent,
@@ -495,5 +494,30 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
 
     return interfaces
+  }
+
+  private async _readConfigDefinition(config: undefined): Promise<undefined>
+  private async _readConfigDefinition(
+    config: NonNullable<sdk.IntegrationDefinition['configuration']>
+  ): Promise<NonNullable<CreateIntegrationBody['configuration']>>
+  private async _readConfigDefinition(
+    config: sdk.IntegrationDefinition['configuration']
+  ): Promise<CreateIntegrationBody['configuration']>
+  private async _readConfigDefinition(
+    config: sdk.IntegrationDefinition['configuration']
+  ): Promise<CreateIntegrationBody['configuration']> {
+    if (!config?.identifier) {
+      return config
+    }
+
+    const identifierLinkTemplateFileContent = await this._readFile(config.identifier.linkTemplateScript)
+
+    return {
+      ...config,
+      identifier: {
+        ...config.identifier,
+        linkTemplateScript: identifierLinkTemplateFileContent,
+      },
+    }
   }
 }

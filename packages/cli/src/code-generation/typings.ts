@@ -7,12 +7,14 @@ export type IntegrationDefinition = Pick<
   'name' | 'version' | 'channels' | 'states' | 'events' | 'actions' | 'user' | 'entities'
 > & {
   id: string | null
-  configuration: Omit<Integration['configuration'], 'identifier'>
+  configuration: Pick<Integration['configuration'], 'schema'>
+  configurations: Record<string, Pick<Integration['configuration'], 'schema'>>
 }
 
 type Def<T> = NonNullable<T>
 
 export type ConfigurationDefinition = Def<IntegrationDefinition['configuration']>
+export type ConfigurationsDefinition = Def<IntegrationDefinition['configurations']>
 export type ChannelDefinition = Def<IntegrationDefinition['channels']>[string]
 export type MessageDefinition = Def<ChannelDefinition['messages']>[string]
 export type ActionDefinition = Def<IntegrationDefinition['actions']>[string]

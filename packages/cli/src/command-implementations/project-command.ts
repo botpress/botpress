@@ -80,7 +80,11 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     return _([...fetchedInstances, ...remoteInstances])
       .keyBy((i) => i.id)
-      .mapValues(({ enabled, configuration }) => ({ enabled, configuration }))
+      .mapValues(({ enabled, configurationType, configuration }) => ({
+        enabled,
+        configurationType: configurationType ?? null,
+        configuration,
+      }))
       .value()
   }
 
