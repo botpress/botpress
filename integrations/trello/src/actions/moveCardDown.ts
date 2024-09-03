@@ -1,9 +1,10 @@
 import { ICardUpdateService } from 'src/interfaces/services/ICardUpdateService'
 import { getContainer, DIToken } from 'src/iocContainer'
 import { moveCardDownInputSchema } from 'src/schemas/actions'
+import { wrapWithTryCatch } from 'src/utils'
 import * as bp from '../../.botpress'
 
-export const moveCardDown: bp.IntegrationProps['actions']['moveCardDown'] = async ({ ctx, input }) => {
+const moveCardDown: bp.IntegrationProps['actions']['moveCardDown'] = async ({ ctx, input }) => {
   const container = getContainer(ctx)
   const cardUpdateService = container.resolve<ICardUpdateService>(DIToken.CardUpdateService)
   const { cardId, moveDownByNSpaces } = moveCardDownInputSchema.parse(input)
@@ -12,3 +13,5 @@ export const moveCardDown: bp.IntegrationProps['actions']['moveCardDown'] = asyn
 
   return { message: 'Card successfully moved down' }
 }
+
+export default wrapWithTryCatch(moveCardDown, 'Failed to move the card down')

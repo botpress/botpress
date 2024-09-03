@@ -1,9 +1,10 @@
 import { IListQueryService } from 'src/interfaces/services/IListQueryService'
 import { getContainer, DIToken } from 'src/iocContainer'
 import { getListIdInputSchema } from 'src/schemas/actions'
+import { wrapWithTryCatch } from 'src/utils'
 import * as bp from '../../.botpress'
 
-export const getListId: bp.IntegrationProps['actions']['getListId'] = async ({ ctx, input }) => {
+const getListId: bp.IntegrationProps['actions']['getListId'] = async ({ ctx, input }) => {
   const container = getContainer(ctx)
   const listQueryService = container.resolve<IListQueryService>(DIToken.ListQueryService)
   const { boardId, listName } = getListIdInputSchema.parse(input)
@@ -11,3 +12,5 @@ export const getListId: bp.IntegrationProps['actions']['getListId'] = async ({ c
   const matchingLists = await listQueryService.getListsByName(boardId, listName)
   return { lists: matchingLists }
 }
+
+export default wrapWithTryCatch(getListId, 'Failed to retrieve the list ID')
