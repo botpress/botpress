@@ -1,4 +1,24 @@
-import { z, IntegrationDefinition, messages } from '@botpress/sdk'
+import { IntegrationDefinition, messages } from '@botpress/sdk'
+import { TrelloConfigSchema } from 'src/schemas'
+import {
+  addCardCommentInputSchema,
+  addCardCommentOutputSchema,
+  createCardInputSchema,
+  createCardOutputSchema,
+  getBoardIdInputSchema,
+  getBoardIdOutputSchema,
+  getCardIdInputSchema,
+  getCardIdOutputSchema,
+  getListIdInputSchema,
+  getListIdOutputSchema,
+  moveCardDownInputSchema,
+  moveCardDownOutputSchema,
+  moveCardToListInputSchema,
+  moveCardToListOutputSchema,
+  moveCardUpInputSchema,
+  moveCardUpOutputSchema,
+} from 'src/schemas/actions'
+import { webhookStateSchema } from 'src/schemas/states'
 import { integrationName } from './package.json'
 
 export default new IntegrationDefinition({
@@ -10,94 +30,84 @@ export default new IntegrationDefinition({
     "Boost your chatbot's capabilities with Trello. Easily update cards, add comments, create new cards, and read board members from your chatbot",
   icon: 'icon.svg',
   actions: {
+    getBoardId: {
+      title: 'Get board ID by name',
+      description: 'Get the unique identifier of a board by name',
+      input: {
+        schema: getBoardIdInputSchema,
+      },
+      output: {
+        schema: getBoardIdOutputSchema,
+      },
+    },
+    getListId: {
+      title: 'Get list ID by name',
+      description: 'Get the unique identifier of a list by name',
+      input: {
+        schema: getListIdInputSchema,
+      },
+      output: {
+        schema: getListIdOutputSchema,
+      },
+    },
+    getCardId: {
+      title: 'Get card ID by name',
+      description: 'Get the unique identifier of a card by name',
+      input: {
+        schema: getCardIdInputSchema,
+      },
+      output: {
+        schema: getCardIdOutputSchema,
+      },
+    },
     createCard: {
       title: 'Create new card',
       description: 'Create a card and add it to a list',
       input: {
-        schema: z.object({
-          listName: z.string().describe('Name of the list in which to insert the new card'),
-          cardName: z.string().describe('Name of the new card'),
-          cardBody: z.string().optional().describe('Body text of the new card'),
-        }),
+        schema: createCardInputSchema,
       },
       output: {
-        schema: z.object({
-          message: z.string(),
-        }),
+        schema: createCardOutputSchema,
       },
     },
     moveCardUp: {
       title: 'Move card up',
       description: 'Move a card n spaces up',
       input: {
-        schema: z.object({
-          listName: z.string().describe('Name of the list in which to move the card'),
-          cardName: z.string().describe('Name of the card to move'),
-          moveUpByNSpaces: z
-            .number()
-            .min(1)
-            .describe('Number of spaces by which to move the card up')
-            .optional()
-            .default(1),
-        }),
+        schema: moveCardUpInputSchema,
       },
       output: {
-        schema: z.object({
-          message: z.string(),
-        }),
+        schema: moveCardUpOutputSchema,
       },
     },
     moveCardDown: {
       title: 'Move card down',
       description: 'Move a card n spaces down',
       input: {
-        schema: z.object({
-          listName: z.string().describe('Name of the list in which to move the card'),
-          cardName: z.string().describe('Name of the card to move'),
-          moveDownByNSpaces: z
-            .number()
-            .min(1)
-            .describe('Number of spaces by which to move the card down')
-            .optional()
-            .default(1),
-        }),
+        schema: moveCardDownInputSchema,
       },
       output: {
-        schema: z.object({
-          message: z.string(),
-        }),
+        schema: moveCardDownOutputSchema,
       },
     },
     moveCardToList: {
       title: 'Move card to another list',
       description: 'Move a card to another list within the same board',
       input: {
-        schema: z.object({
-          currentListName: z.string().describe('Name of the list from which the card will be moved'),
-          cardName: z.string().describe('Name of the card to move'),
-          newListName: z.string().describe('Name of the new list in which the card will be moved'),
-        }),
+        schema: moveCardToListInputSchema,
       },
       output: {
-        schema: z.object({
-          message: z.string(),
-        }),
+        schema: moveCardToListOutputSchema,
       },
     },
     addCardComment: {
       title: 'Add card comment',
       description: 'Add a new comment to a card',
       input: {
-        schema: z.object({
-          listName: z.string().describe('Name of the list that contains the card'),
-          cardName: z.string().describe('Name of the card to move'),
-          commentBody: z.string().describe('The body text of the comment'),
-        }),
+        schema: addCardCommentInputSchema,
       },
       output: {
-        schema: z.object({
-          message: z.string(),
-        }),
+        schema: addCardCommentOutputSchema,
       },
     },
   },
@@ -149,22 +159,12 @@ export default new IntegrationDefinition({
     },
   },
   configuration: {
-    schema: z.object({
-      trelloApiKey: z.string().describe('Can be obtained by creating an application on Trello').secret(),
-      trelloApiToken: z.string().describe('Can be obtained by granting access to the application on Trello').secret(),
-      trelloBoardName: z.string().describe('Display name of the board on Trello'),
-    }),
+    schema: TrelloConfigSchema,
   },
   states: {
     webhookState: {
       type: 'integration',
-      schema: z.object({
-        trelloWebhookId: z
-          .string()
-          .or(z.null())
-          .describe('Unique id of the webhook that is created upon integration registration')
-          .default(null),
-      }),
+      schema: webhookStateSchema,
     },
   },
 })
