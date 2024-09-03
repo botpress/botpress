@@ -1,2 +1,4 @@
 .botpress
 node_modules/
+pnpm-lock.*
+package-lock.json

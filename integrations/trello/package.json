@@ -12,7 +12,7 @@
     "@typescript-eslint/parser": "^5.62.0",
     "eslint": "^8.57.0",
     "eslint-config-prettier": "^8.10.0",
-    "eslint-plugin-import": "^2.29.1",
+    "eslint-plugin-import": "^2.30.0",
     "eslint-plugin-jsdoc": "^39.9.1",
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-unused-imports": "^2.0.0",
@@ -22,7 +22,7 @@
     "tsyringe": "^4.8.0"
   },
   "devDependencies": {
-    "@types/node": "^18.19.47",
+    "@types/node": "^18.19.48",
     "ts-node": "^10.9.2",
     "typescript": "^4.9.5"
   }
