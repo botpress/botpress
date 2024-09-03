@@ -84,6 +84,22 @@ export default new IntegrationDefinition({
         }),
       },
     },
+    addCardComment: {
+      title: 'Add card comment',
+      description: 'Add a new comment to a card',
+      input: {
+        schema: z.object({
+          listName: z.string().describe('Name of the list that contains the card'),
+          cardName: z.string().describe('Name of the card to move'),
+          commentBody: z.string().describe('The body text of the comment'),
+        }),
+      },
+      output: {
+        schema: z.object({
+          message: z.string(),
+        }),
+      },
+    },
   },
   channels: {
     cardComments: {

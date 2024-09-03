@@ -2,6 +2,7 @@ import * as sdk from '@botpress/sdk'
 import * as bp from '../.botpress'
 import { ICardCommentCreationService } from './interfaces/services/ICardCommentCreationService'
 import { ICardCreationService } from './interfaces/services/ICardCreationService'
+import { ICardQueryService } from './interfaces/services/ICardQueryService'
 import { ICardUpdateService } from './interfaces/services/ICardUpdateService'
 import { DIToken, initializeContainer } from './iocContainer'
 import { WebhookManager } from './webhookManager'
@@ -135,27 +136,45 @@ export default new bp.Integration({
 
       return { message: 'Card successfully moved to the new list' }
     },
+
+    async addCardComment({ ctx, input }) {
+      const container = getContainer(ctx)
+      const cardCommentCreationService = container.resolve<ICardCommentCreationService>(DIToken.CardUpdateService)
+      const cardQueryService = container.resolve<ICardQueryService>(DIToken.CardQueryService)
+      const { listName, cardName, commentBody } = input
+
+      try {
+        const card = await cardQueryService.getCardByName(listName, cardName)
+        await cardCommentCreationService.createComment(card.id, commentBody)
+      } catch (error) {
+        throw new sdk.RuntimeError(`Unable to add comment to card ${cardName}: ${error}`)
+      }
+
+      return { message: 'Comment successfully added to card' }
+    },
   },
   channels: {
     cardComments: {
       messages: {
         text: async ({ ctx, conversation, ack, payload, client }) => {
           const container = getContainer(ctx)
-          const cardCommentCreationService = container.resolve<ICardCommentCreationService>(DIToken.CardCommentCreationService)
+          const cardCommentCreationService = container.resolve<ICardCommentCreationService>(
+            DIToken.CardCommentCreationService
+          )
 
           const commentId = await cardCommentCreationService.createComment(conversation.tags.cardId!, payload.text)
 
           await client.updateConversation({
             id: conversation.id,
             tags: {
-              lastCommentId: commentId
-            }
+              lastCommentId: commentId,
+            },
           })
 
           await ack({ tags: { commentId } })
-        }
-      }
-    }
+        },
+      },
+    },
   },
   async handler({ req, client, ctx, logger }) {
     if (!req.body) {
@@ -188,7 +207,17 @@ export default new bp.Integration({
     const messageAuthorId: string = body!.action.memberCreator.id
     const messageAuthorName: string = body!.action.memberCreator.fullName
     const messageAuthorAvatar: string = body!.action.memberCreator.avatarUrl + '/50.png'
-    const messageData = { cardId, cardName, listId, listName, messageId, messageText, messageAuthorId, messageAuthorName, messageAuthorAvatar }
+    const messageData = {
+      cardId,
+      cardName,
+      listId,
+      listName,
+      messageId,
+      messageText,
+      messageAuthorId,
+      messageAuthorName,
+      messageAuthorAvatar,
+    }
 
     await handleCardComment(client, logger, messageData)
   },
