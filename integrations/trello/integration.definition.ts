@@ -28,11 +28,17 @@ export default new IntegrationDefinition({
     },
     moveCardUp: {
       title: 'Move card up',
-      description: 'Move a card 1 space up',
+      description: 'Move a card n spaces up',
       input: {
         schema: z.object({
           listName: z.string().describe('Name of the list in which to move the card'),
           cardName: z.string().describe('Name of the card to move'),
+          moveUpByNSpaces: z
+            .number()
+            .min(1)
+            .describe('Number of spaces by which to move the card up')
+            .optional()
+            .default(1),
         }),
       },
       output: {
@@ -43,11 +49,17 @@ export default new IntegrationDefinition({
     },
     moveCardDown: {
       title: 'Move card down',
-      description: 'Move a card 1 space down',
+      description: 'Move a card n spaces down',
       input: {
         schema: z.object({
           listName: z.string().describe('Name of the list in which to move the card'),
           cardName: z.string().describe('Name of the card to move'),
+          moveDownByNSpaces: z
+            .number()
+            .min(1)
+            .describe('Number of spaces by which to move the card down')
+            .optional()
+            .default(1),
         }),
       },
       output: {
