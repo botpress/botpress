@@ -1,6 +1,7 @@
 import { ICardCommentCreationService } from 'src/interfaces/services/ICardCommentCreationService'
 import { getContainer, DIToken } from 'src/iocContainer'
 import { addCardCommentInputSchema } from 'src/schemas/actions'
+import { wrapWithTryCatch } from 'src/utils'
 import * as bp from '../../.botpress'
 
 export const addCardComment: bp.IntegrationProps['actions']['addCardComment'] = async ({ ctx, input }) => {
@@ -12,3 +13,5 @@ export const addCardComment: bp.IntegrationProps['actions']['addCardComment'] = 
 
   return { message: 'Comment successfully added to the card', newCommentId }
 }
+
+export default wrapWithTryCatch(addCardComment, 'Failed to add a comment to the card')

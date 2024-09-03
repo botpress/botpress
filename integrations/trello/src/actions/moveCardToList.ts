@@ -1,9 +1,10 @@
 import { ICardUpdateService } from 'src/interfaces/services/ICardUpdateService'
 import { getContainer, DIToken } from 'src/iocContainer'
 import { moveCardToListInputSchema } from 'src/schemas/actions'
+import { wrapWithTryCatch } from 'src/utils'
 import * as bp from '../../.botpress'
 
-export const moveCardToList: bp.IntegrationProps['actions']['moveCardToList'] = async ({ ctx, input }) => {
+const moveCardToList: bp.IntegrationProps['actions']['moveCardToList'] = async ({ ctx, input }) => {
   const container = getContainer(ctx)
   const cardUpdateService = container.resolve<ICardUpdateService>(DIToken.CardUpdateService)
   const { cardId, newListId } = moveCardToListInputSchema.parse(input)
@@ -12,3 +13,5 @@ export const moveCardToList: bp.IntegrationProps['actions']['moveCardToList'] = 
 
   return { message: 'Card successfully moved to the new list' }
 }
+
+export default wrapWithTryCatch(moveCardToList, 'Failed to move the card to the new list')
