@@ -1,4 +1,3 @@
-import { IntegrationContext } from '@botpress/sdk'
 import { LinearIssueEvent } from '../misc/linear'
 import { getUserAndConversation } from '../misc/utils'
 import * as bp from '.botpress'
@@ -7,7 +6,7 @@ import { Client } from '.botpress'
 type IssueProps = {
   linearEvent: LinearIssueEvent
   client: Client
-  ctx: IntegrationContext<bp.configuration.Configuration>
+  ctx: bp.Context
 }
 
 type IssueUpdated = bp.events.issueUpdated.IssueUpdated

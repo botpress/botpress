@@ -1,4 +1,4 @@
-import { IntegrationContext, z } from '@botpress/sdk'
+import { z } from '@botpress/sdk'
 import axios from 'axios'
 import { getGlobalWebhookUrl } from '../index'
 import * as bp from '.botpress'
@@ -131,9 +131,9 @@ export class MetaOauthClient {
   }
 }
 
-export const getAccessToken = async (client: bp.Client, ctx: IntegrationContext) => {
+export const getAccessToken = async (client: bp.Client, ctx: bp.Context): Promise<string> => {
   if (ctx.configuration.useManualConfiguration) {
-    return ctx.configuration.accessToken
+    return ctx.configuration.accessToken as string
   }
 
   const {
@@ -142,21 +142,21 @@ export const getAccessToken = async (client: bp.Client, ctx: IntegrationContext)
     },
   } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
 
-  return accessToken
+  return accessToken as string
 }
 
-export const getSecret = (ctx: IntegrationContext): string | undefined => {
-  let value
+export const getSecret = (ctx: bp.Context): string | undefined => {
+  let value: string | undefined
   if (ctx.configuration.useManualConfiguration) {
     value = ctx.configuration.clientSecret
   } else {
     value = bp.secrets.CLIENT_SECRET
   }
 
-  return value?.length && value
+  return value?.length ? value : undefined
 }
 
-export const getPhoneNumberId = async (client: bp.Client, ctx: IntegrationContext) => {
+export const getPhoneNumberId = async (client: bp.Client, ctx: bp.Context) => {
   if (ctx.configuration.useManualConfiguration) {
     return ctx.configuration.phoneNumberId
   }

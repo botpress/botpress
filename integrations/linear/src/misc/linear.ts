@@ -1,4 +1,4 @@
-import { z, IntegrationContext, Request } from '@botpress/sdk'
+import { z, Request } from '@botpress/sdk'
 import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
 import queryString from 'query-string'
@@ -137,7 +137,7 @@ export class LinearOauthClient {
   }
 }
 
-export const handleOauth = async (req: Request, client: bp.Client, ctx: IntegrationContext) => {
+export const handleOauth = async (req: Request, client: bp.Client, ctx: bp.Context) => {
   const linearOauthClient = new LinearOauthClient()
 
   const query = queryString.parse(req.query)

@@ -1,14 +1,12 @@
-import type { IntegrationContext } from '@botpress/sdk'
 import { Client } from '@notionhq/client'
 import type { GetDatabaseResponse } from '@notionhq/client/build/src/api-endpoints'
 import { NOTION_PROPERTY_STRINGIFIED_TYPE_MAP } from './notion.constants'
 import type { NotionPagePropertyTypes } from './notion.types'
-import { configuration } from '.botpress'
+import * as bp from '.botpress'
 
 // TODO: Write a decorator to achieve this
-type BotpressIntegrationContext = IntegrationContext<configuration.Configuration>
 
-export function getNotionClient(integrationContext: BotpressIntegrationContext) {
+export function getNotionClient(integrationContext: bp.Context) {
   return new Client({
     auth: integrationContext.configuration.authToken,
   })
@@ -22,7 +20,7 @@ export function getNotionClient(integrationContext: BotpressIntegrationContext) 
  * @returns
  */
 export function addPageToDb(
-  integrationContext: BotpressIntegrationContext,
+  integrationContext: bp.Context,
   databaseId: string,
   properties: Record<NotionPagePropertyTypes, any>
 ) {
@@ -40,7 +38,7 @@ export function addPageToDb(
  * @param messageBody
  * @returns
  */
-export function addCommentToPage(integrationContext: BotpressIntegrationContext, blockId: string, messageBody: string) {
+export function addCommentToPage(integrationContext: bp.Context, blockId: string, messageBody: string) {
   const notion = getNotionClient(integrationContext)
   return notion.comments.create({
     parent: { page_id: blockId },
@@ -55,11 +53,7 @@ export function addCommentToPage(integrationContext: BotpressIntegrationContext,
   })
 }
 
-export function addCommentToDiscussion(
-  integrationContext: BotpressIntegrationContext,
-  discussionId: string,
-  messageBody: string
-) {
+export function addCommentToDiscussion(integrationContext: bp.Context, discussionId: string, messageBody: string) {
   const notion = getNotionClient(integrationContext)
   return notion.comments.create({
     discussion_id: discussionId,
@@ -74,7 +68,7 @@ export function addCommentToDiscussion(
   })
 }
 
-export function getAllCommentsForBlock(integrationContext: BotpressIntegrationContext, blockId: string) {
+export function getAllCommentsForBlock(integrationContext: bp.Context, blockId: string) {
   const notion = getNotionClient(integrationContext)
   return notion.comments.list({ block_id: blockId })
 }
@@ -85,12 +79,12 @@ export function getAllCommentsForBlock(integrationContext: BotpressIntegrationCo
  * - a page
  * - a block
  */
-export function deleteBlock(integrationContext: BotpressIntegrationContext, blockId: string) {
+export function deleteBlock(integrationContext: bp.Context, blockId: string) {
   const notion = getNotionClient(integrationContext)
   return notion.blocks.delete({ block_id: blockId })
 }
 
-export function getDb(integrationContext: BotpressIntegrationContext, databaseId: string) {
+export function getDb(integrationContext: bp.Context, databaseId: string) {
   const notion = getNotionClient(integrationContext)
   return notion.databases.retrieve({ database_id: databaseId })
 }
