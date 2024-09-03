@@ -1,5 +1,6 @@
-import { List } from '../entities/List'
+import { Board } from '../../schemas/entities/Board'
+import { List } from '../../schemas/entities/List'
 
 export type IListQueryService = {
-    getListByName(name: string): Promise<List>
+  getListsByName(boardId: Board['id'], name: List['name']): Promise<List[]>
 }

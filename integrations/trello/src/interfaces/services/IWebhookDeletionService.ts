@@ -1,3 +1,5 @@
+import { TrelloID } from 'src/schemas'
+
 export type IWebhookDeletionService = {
-    deleteWebhook(id: string): Promise<void>
+  deleteWebhook(id: TrelloID): Promise<void>
 }

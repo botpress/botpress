@@ -1,10 +1,10 @@
 import 'reflect-metadata'
 import { TrelloClient } from 'trello.js'
 import { inject, injectable } from 'tsyringe'
-import { Board } from '../interfaces/entities/Board'
-import { List } from '../interfaces/entities/List'
 import { IBoardRepository } from '../interfaces/repositories/IBoardRepository'
 import { DIToken } from '../iocContainer'
+import { Board } from '../schemas/entities/Board'
+import { List } from '../schemas/entities/List'
 import { BaseRepository } from './BaseRepository'
 
 

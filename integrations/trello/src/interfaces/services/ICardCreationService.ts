@@ -1,5 +1,6 @@
-import { Card } from '../entities/Card'
+import { Card } from '../../schemas/entities/Card'
+import { List } from '../../schemas/entities/List'
 
 export type ICardCreationService = {
-    createCard(name: string, description: string, listName: string): Promise<Card>
+  createCard(name: Card['name'], description: Card['description'], listId: List['id']): Promise<Card>
 }

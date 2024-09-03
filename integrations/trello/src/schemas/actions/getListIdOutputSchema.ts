@@ -1,8 +1,8 @@
 import { z } from '@botpress/sdk'
-import { TrelloIDSchema } from '..'
+import ListSchema from '../entities/List'
 
 export const getListIdOutputSchema = z
   .object({
-    lists: z.array(TrelloIDSchema.describe('Unique identifier of the list')),
+    lists: z.array(ListSchema),
   })
   .describe('Output schema for getting a list ID from its name')
