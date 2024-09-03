@@ -1,5 +1,6 @@
-import { Board } from '../entities/Board'
+import { Board } from '../../schemas/entities/Board'
 
 export type IBoardQueryService = {
-    getMainBoard(): Promise<Board>
+  getUserBoards(): Promise<Board[]>
+  getBoardsByName(boardName: Board['name']): Promise<Board[]>
 }

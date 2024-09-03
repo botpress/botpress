@@ -1,10 +1,16 @@
-import * as sdk from '@botpress/sdk'
 import * as bp from '../.botpress'
+import {
+  getBoardId,
+  getCardId,
+  getListId,
+  createCard,
+  moveCardUp,
+  moveCardDown,
+  moveCardToList,
+  addCardComment,
+} from './actions'
 import { ICardCommentCreationService } from './interfaces/services/ICardCommentCreationService'
-import { ICardCreationService } from './interfaces/services/ICardCreationService'
-import { ICardQueryService } from './interfaces/services/ICardQueryService'
-import { ICardUpdateService } from './interfaces/services/ICardUpdateService'
-import { DIToken, initializeContainer } from './iocContainer'
+import { DIToken, getContainer } from './iocContainer'
 import { WebhookManager } from './webhookManager'
 
 type TrelloMessageData = {
@@ -58,13 +64,6 @@ const handleCardComment = async (client: bp.Client, logger: bp.Logger, messageDa
   })
 }
 
-const getContainer = (ctx: bp.Context) =>
-  initializeContainer({
-    apiKey: ctx.configuration.trelloApiKey,
-    token: ctx.configuration.trelloApiToken,
-    boardName: ctx.configuration.trelloBoardId,
-  })
-
 export default new bp.Integration({
   async register({ ctx, webhookUrl, client, logger }) {
     const container = getContainer(ctx)
@@ -81,90 +80,14 @@ export default new bp.Integration({
   },
 
   actions: {
-    async getBoardId({ ctx, input }) {
-      const container = getContainer(ctx)
-      const cardCreationService = container.resolve<ICardCreationService>(DIToken.CardCreationService)
-      const { boardName } = input
-
-      try {
-        const newCard = await cardCreationService.createCard(cardName, cardBody ?? '', listName)
-        return { message: `Card created successfully. Card ID: ${newCard.id}` }
-      } catch (error) {
-        throw new sdk.RuntimeError(`Unable to create card with name ${cardName} in list ${listName}: ${error}`)
-      }
-    },
-
-    async createCard({ ctx, input }) {
-      const container = getContainer(ctx)
-      const cardCreationService = container.resolve<ICardCreationService>(DIToken.CardCreationService)
-
-      const { listName, cardName, cardBody } = input
-
-      try {
-        const newCard = await cardCreationService.createCard(cardName, cardBody ?? '', listName)
-        return { message: `Card created successfully. Card ID: ${newCard.id}` }
-      } catch (error) {
-        throw new sdk.RuntimeError(`Unable to create card with name ${cardName} in list ${listName}: ${error}`)
-      }
-    },
-
-    async moveCardUp({ ctx, input }) {
-      const container = getContainer(ctx)
-      const cardUpdateService = container.resolve<ICardUpdateService>(DIToken.CardUpdateService)
-      const { listName, cardName, moveUpByNSpaces } = input
-
-      try {
-        await cardUpdateService.moveCardVertically(listName, cardName, moveUpByNSpaces ?? 1)
-      } catch (error) {
-        throw new sdk.RuntimeError(`Unable to reposition card with name ${cardName}: ${error}`)
-      }
-
-      return { message: 'Card successfully moved up' }
-    },
-
-    async moveCardDown({ ctx, input }) {
-      const container = getContainer(ctx)
-      const cardUpdateService = container.resolve<ICardUpdateService>(DIToken.CardUpdateService)
-      const { listName, cardName, moveDownByNSpaces } = input
-
-      try {
-        await cardUpdateService.moveCardVertically(listName, cardName, -(moveDownByNSpaces ?? 1))
-      } catch (error) {
-        throw new sdk.RuntimeError(`Unable to reposition card with name ${cardName}: ${error}`)
-      }
-
-      return { message: 'Card successfully moved down' }
-    },
-
-    async moveCardToList({ ctx, input }) {
-      const container = getContainer(ctx)
-      const cardUpdateService = container.resolve<ICardUpdateService>(DIToken.CardUpdateService)
-      const { currentListName, newListName, cardName } = input
-
-      try {
-        await cardUpdateService.moveCardToOtherList(currentListName, cardName, newListName)
-      } catch (error) {
-        throw new sdk.RuntimeError(`Unable to move card from list ${currentListName} to list ${newListName}: ${error}`)
-      }
-
-      return { message: 'Card successfully moved to the new list' }
-    },
-
-    async addCardComment({ ctx, input }) {
-      const container = getContainer(ctx)
-      const cardCommentCreationService = container.resolve<ICardCommentCreationService>(DIToken.CardUpdateService)
-      const cardQueryService = container.resolve<ICardQueryService>(DIToken.CardQueryService)
-      const { listName, cardName, commentBody } = input
-
-      try {
-        const card = await cardQueryService.getCardByName(listName, cardName)
-        await cardCommentCreationService.createComment(card.id, commentBody)
-      } catch (error) {
-        throw new sdk.RuntimeError(`Unable to add comment to card ${cardName}: ${error}`)
-      }
-
-      return { message: 'Comment successfully added to card' }
-    },
+    getBoardId,
+    getListId,
+    getCardId,
+    createCard,
+    moveCardUp,
+    moveCardDown,
+    moveCardToList,
+    addCardComment,
   },
   channels: {
     cardComments: {

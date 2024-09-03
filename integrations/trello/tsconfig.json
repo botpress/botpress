@@ -4,7 +4,8 @@
     "baseUrl": ".",
     "outDir": "dist",
     "experimentalDecorators": true,
-    "emitDecoratorMetadata": true
+    "emitDecoratorMetadata": true,
+    "strict": true
   },
   "include": [".botpress/**/*", "src/**/*", "integration.definition.ts"]
 }

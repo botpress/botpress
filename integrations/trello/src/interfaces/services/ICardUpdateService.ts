@@ -1,4 +1,7 @@
+import { Card } from '../../schemas/entities/Card'
+import { List } from '../../schemas/entities/List'
+
 export type ICardUpdateService = {
-    moveCardVertically(listName: string, cardName: string, nbPositions: number): Promise<void>
-    moveCardToOtherList(listName: string, cardName: string, newListName: string): Promise<void>
+  moveCardVertically(cardId: Card['id'], nbPositions: number): Promise<void>
+  moveCardToOtherList(cardId: Card['id'], newListId: List['id']): Promise<void>
 }

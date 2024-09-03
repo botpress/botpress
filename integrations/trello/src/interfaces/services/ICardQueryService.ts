@@ -1,5 +1,6 @@
-import { Card } from '../entities/Card'
+import { Card } from '../../schemas/entities/Card'
+import { List } from '../../schemas/entities/List'
 
 export type ICardQueryService = {
-    getCardByName(listName: string, cardName: string): Promise<Card>
+  getCardsByName(listId: List['id'], cardName: Card['name']): Promise<Card[]>
 }

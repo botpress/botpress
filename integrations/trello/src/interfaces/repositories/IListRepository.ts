@@ -1,7 +1,7 @@
-import { Card } from '../entities/Card'
-import { List } from '../entities/List'
+import { Card } from '../../schemas/entities/Card'
+import { List } from '../../schemas/entities/List'
 
 export type IListRepository = {
-    getList(listId: List['id']): Promise<List>
-    getCardsInList(listId: List['id']): Promise<Card[]>
+  getList(listId: List['id']): Promise<List>
+  getCardsInList(listId: List['id']): Promise<Card[]>
 }

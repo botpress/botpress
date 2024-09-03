@@ -1,7 +1,7 @@
-import { Board } from '../entities/Board'
-import { List } from '../entities/List'
+import { Board } from '../../schemas/entities/Board'
+import { List } from '../../schemas/entities/List'
 
 export type IBoardRepository = {
-    getAllBoards(): Promise<Board[]>
-    getListsInBoard(boardId: Board['id']): Promise<List[]>
+  getAllBoards(): Promise<Board[]>
+  getListsInBoard(boardId: Board['id']): Promise<List[]>
 }

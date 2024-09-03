@@ -1,9 +1,9 @@
 import 'reflect-metadata'
 import { TrelloClient } from 'trello.js'
 import { inject, injectable } from 'tsyringe'
-import { Card } from '../interfaces/entities/Card'
 import { ICardCommentRepository } from '../interfaces/repositories/ICardCommentRepository'
 import { DIToken } from '../iocContainer'
+import { Card } from '../schemas/entities/Card'
 import { BaseRepository } from './BaseRepository'
 
 @injectable()
