@@ -8,6 +8,7 @@ import {
   moveCardDown,
   moveCardToList,
   addCardComment,
+  updateCard,
 } from './actions'
 import { ICardCommentCreationService } from './interfaces/services/ICardCommentCreationService'
 import { DIToken, getContainer } from './iocContainer'
@@ -80,14 +81,15 @@ export default new bp.Integration({
   },
 
   actions: {
-    getBoardId,
-    getListId,
-    getCardId,
+    addCardComment,
     createCard,
-    moveCardUp,
+    getBoardId,
+    getCardId,
+    getListId,
     moveCardDown,
     moveCardToList,
-    addCardComment,
+    moveCardUp,
+    updateCard,
   },
   channels: {
     cardComments: {

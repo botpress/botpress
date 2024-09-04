@@ -7,6 +7,11 @@ export const CardSchema = z.object({
   description: z.string(),
   listId: TrelloIDSchema,
   verticalPosition: z.number(),
+  isClosed: z.boolean(),
+  isCompleted: z.boolean(),
+  dueDate: z.date().optional(),
+  labelIds: z.array(TrelloIDSchema),
+  memberIds: z.array(TrelloIDSchema),
 })
 
 export type Card = z.infer<typeof CardSchema>
