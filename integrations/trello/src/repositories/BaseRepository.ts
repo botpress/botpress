@@ -5,6 +5,6 @@ export abstract class BaseRepository {
     constructor(protected trelloClient: TrelloClient) { }
 
     protected handleError(operation: string, error: unknown): never {
-        throw new TrelloOperationError(`Error during ${operation}`, error)
+        throw new TrelloOperationError(`Error during ${operation}: ${error}`, error)
     }
 }

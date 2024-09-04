@@ -11,6 +11,6 @@ export const wrapWithTryCatch = <T extends (...args: any[]) => Promise<any>>(fn:
     try {
       return await fn(...args)
     } catch (error) {
-      throw new RuntimeError(`${errorMessage}: ${error}`)
+      throw new RuntimeError(`${errorMessage}: ${error}`, error as Error)
     }
   }) as T
