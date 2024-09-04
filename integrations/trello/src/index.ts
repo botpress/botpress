@@ -1,8 +1,8 @@
 import * as bp from '../.botpress'
 import {
-  getBoardId,
-  getCardId,
-  getListId,
+  getBoardsByName,
+  getCardsByName,
+  getListsByName,
   createCard,
   moveCardUp,
   moveCardDown,
@@ -83,9 +83,9 @@ export default new bp.Integration({
   actions: {
     addCardComment,
     createCard,
-    getBoardId,
-    getCardId,
-    getListId,
+    getBoardsByName,
+    getCardsByName,
+    getListsByName,
     moveCardDown,
     moveCardToList,
     moveCardUp,

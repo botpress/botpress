@@ -9,7 +9,7 @@ export const CardSchema = z.object({
   verticalPosition: z.number(),
   isClosed: z.boolean(),
   isCompleted: z.boolean(),
-  dueDate: z.date().optional(),
+  dueDate: z.string().datetime().optional(),
   labelIds: z.array(TrelloIDSchema),
   memberIds: z.array(TrelloIDSchema),
 })

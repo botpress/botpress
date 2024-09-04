@@ -26,7 +26,7 @@ const updateCard: bp.IntegrationProps['actions']['updateCard'] = async ({ ctx, i
     bodyText,
     closedState,
     completeState,
-    dueDate: dueDate ? new Date(dueDate) : undefined,
+    dueDate,
     membersToAdd: membersToAdd ? extractFromCsv(membersToAdd) : undefined,
     membersToRemove: membersToRemove ? extractFromCsv(membersToRemove) : undefined,
     labelsToAdd: labelsToAdd ? extractFromCsv(labelsToAdd) : undefined,

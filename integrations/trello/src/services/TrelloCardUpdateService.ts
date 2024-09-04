@@ -77,7 +77,7 @@ export class TrelloCardUpdateService implements ICardUpdateService {
       description: modifications.bodyText ?? card.description,
       isClosed: modifications.closedState ? modifications.closedState === 'archived' : card.isClosed,
       isCompleted: modifications.completeState ? modifications.completeState === 'complete' : card.isCompleted,
-      dueDate: modifications.dueDate ? new Date(modifications.dueDate) : card.dueDate,
+      dueDate: modifications.dueDate ?? card.dueDate,
       labelIds: [...card.labelIds, ...(modifications.labelsToAdd ?? [])].filter(
         (labelId) => !modifications.labelsToRemove?.includes(labelId)
       ),
