@@ -16,9 +16,14 @@ export class TrelloBoardRepository extends BaseRepository implements IBoardRepos
 
     async getAllBoards(): Promise<Board[]> {
         try {
-            return await this.trelloClient.members.getMemberBoards({
-                id: 'me'
+            const boards = await this.trelloClient.members.getMemberBoards({
+              id: 'me',
             })
+
+            return boards.map((board) => ({
+              id: board.id,
+              name: board.name!,
+            }))
         } catch (error) {
             this.handleError('getAllBoards', error)
         }
@@ -26,9 +31,14 @@ export class TrelloBoardRepository extends BaseRepository implements IBoardRepos
 
     async getListsInBoard(boardId: Board['id']): Promise<List[]> {
         try {
-            return await this.trelloClient.boards.getBoardLists({
-                id: boardId
+            const lists = await this.trelloClient.boards.getBoardLists({
+              id: boardId,
             })
+
+            return lists.map((list) => ({
+              id: list.id,
+              name: list.name,
+            }))
         } catch (error) {
             this.handleError(`getListsInBoard for board ${boardId}`, error)
         }

@@ -16,9 +16,14 @@ export class TrelloListRepository extends BaseRepository implements IListReposit
 
     async getList(listId: List['id']): Promise<List> {
         try {
-            return await this.trelloClient.lists.getList({
-                id: listId
+            const list: List = await this.trelloClient.lists.getList({
+              id: listId,
             })
+
+            return {
+              id: list.id,
+              name: list.name,
+            }
         } catch (error) {
             this.handleError(`getList for id ${listId}`, error)
         }
@@ -26,9 +31,17 @@ export class TrelloListRepository extends BaseRepository implements IListReposit
 
     async getCardsInList(listId: List['id']): Promise<Card[]> {
         try {
-            return await this.trelloClient.lists.getListCards({
-                id: listId
+            const cards = await this.trelloClient.lists.getListCards({
+              id: listId,
             })
+
+            return cards.map((card) => ({
+              id: card.id,
+              name: card.name,
+              description: card.desc,
+              listId: card.idList,
+              verticalPosition: card.pos,
+            }))
         } catch (error) {
             this.handleError(`getCardsInList for list ${listId}`, error)
         }
