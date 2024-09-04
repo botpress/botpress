@@ -14,7 +14,7 @@ const findConversation = async (
 export const startChat: IntegrationProps['actions']['startChat'] = async ({ ctx, client, input, logger }) => {
 
   try {
-    const { liveAgentSessionKey, userName } = input
+    const { liveAgentSessionKey, ...rest } = input
 
     logger.forBot().error('will start chat using key: ' + liveAgentSessionKey)
 
@@ -36,10 +36,10 @@ export const startChat: IntegrationProps['actions']['startChat'] = async ({ ctx,
       name: 'liveAgentSession'
     })
 
-    const salesforceClient = getSalesforceClient({ ...ctx.configuration as SFLiveagentConfig }, liveAgentSession)
+    const salesforceClient = getSalesforceClient(logger, { ...ctx.configuration as SFLiveagentConfig }, liveAgentSession)
 
-    await salesforceClient.startChat({ userName })
-  } catch (err) {
+    await salesforceClient.startChat(rest)
+  } catch (err: any) {
     logger.forBot().error('Failed to start chat: ' + err.message)
     return { success: false, message: 'Failed to startChat: ' + err.message }
   }

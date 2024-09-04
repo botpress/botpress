@@ -15,12 +15,12 @@ const findConversation = async (
 
 export const sendMessage: IntegrationProps['actions']['sendMessage'] = async ({ ctx, client, input, logger }) => {
 
-  let payload;
-  let linkedConversation;
+  let payload
+  let linkedConversation
 
   try {
     payload = JSON.parse(input.payload)
-  } catch (e) {
+  } catch (e: any) {
     payload = { text: 'invalid payload from user message: ' + e.message }
   }
 
@@ -43,9 +43,9 @@ export const sendMessage: IntegrationProps['actions']['sendMessage'] = async ({ 
       name: 'liveAgentSession'
     })
 
-    const salesforceClient = getSalesforceClient({ ...ctx.configuration as SFLiveagentConfig}, liveAgentSession)
+    const salesforceClient = getSalesforceClient(logger, { ...ctx.configuration as SFLiveagentConfig}, liveAgentSession)
     await salesforceClient.sendMessage(payload.text)
-  } catch (err) {
+  } catch (err: any) {
     logger.forBot().error('Failed to create conversation session: ' + err.message)
 
     if((err as AxiosError)?.response?.status === 403) {

@@ -1,12 +1,13 @@
 import axios, { Axios } from 'axios'
 import { type SFLiveagentConfig, type CreateSessionResponse, type CreatePollingResponse, type LiveAgentSession, SFLiveagentConfigSchema } from './definitions/schemas'
 import { EndConversationReason } from './events/conversation-ended'
-import { secrets } from '.botpress'
+import { secrets, Logger } from '.botpress'
+import { StartChatInput } from './definitions/actions'
 
 class ChasitorApi {
   private session?: LiveAgentSession
   private client: Axios
-  constructor(private config: SFLiveagentConfig, session?: LiveAgentSession) {
+  constructor(private logger: Logger, private config: SFLiveagentConfig, session?: LiveAgentSession) {
 
     let proxyConfig = {}
 
@@ -46,33 +47,53 @@ class ChasitorApi {
     return this.session
   }
 
-  public async startChat(opts?: { userName: string }) {
+  public async startChat(opts: StartChatInput) {
+
+    opts?.prechatDetails.forEach((item, index) => {
+      try {
+        const parsedItem = JSON.parse(item)
+        if(typeof parsedItem !== 'object') {
+          throw new Error('array item is not an object')
+        }
+        opts.prechatDetails[index] = parsedItem
+      } catch (e: any) {
+        opts?.prechatDetails.splice(index, 1)
+        this.logger.forBot().warn(`Failed to parse prechatDetail for startChat (item: ${item}): ${e.message}` )
+      }
+    })
+
+    opts?.prechatEntities.forEach((item, index) => {
+      try {
+        const parsedItem = JSON.parse(item)
+        if(typeof parsedItem !== 'object') {
+          throw new Error('array item is not an object (check docs for ChasitorInit: https://developer.salesforce.com/docs/atlas.en-us.live_agent_rest.meta/live_agent_rest/live_agent_rest_request_bodies.htm)')
+        }
+        opts.prechatEntities[index] = parsedItem
+      } catch (e: any) {
+        opts?.prechatEntities.splice(index, 1)
+        this.logger.forBot().warn(`Failed to parse prechatEntities for startChat (item: ${item}): ${e.message}` )
+      }
+    })
+
+    if(!opts?.buttonId) {
+      opts.buttonId = this.config.buttonId
+    }
+
+    if(!opts?.sessionId?.length) {
+      delete opts.sessionId
+    }
+
+    this.logger.forBot().error("Creating chat with")
+    this.logger.forBot().error({...this.config,
+      screenResolution: '1900x1080',
+      isPost: true,
+      ...opts,})
+
     const { data } = await this.client.post('/rest/Chasitor/ChasitorInit', {
       ...this.config,
-      userAgent: 'BotpressSFLA/1.0.0',
-      language: 'en-US',
       screenResolution: '1900x1080',
-      visitorName: opts?.userName || 'Anonymous Visitor',
-      prechatDetails: [
-        {
-          label: 'LiveAgent ID',
-          value: '',
-          entityMaps: [
-            {
-              entityName: 'Contact',
-              fieldName: 'Id',
-              isFastFillable: false,
-              isAutoQueryable: true,
-              isExactMatchable: true
-            }
-          ],
-          transcriptFields: [],
-          displayToAgent: true
-        }
-      ],
-      prechatEntities: [],
-      receiveQueueUpdates: true,
-      isPost: true
+      isPost: true,
+      ...opts,
     })
     return data
   }
@@ -140,5 +161,5 @@ class ChasitorApi {
   }
 }
 
-export const getSalesforceClient = (config: SFLiveagentConfig, session?: LiveAgentSession) =>
-  new ChasitorApi(config, session)
+export const getSalesforceClient = (logger: Logger, config: SFLiveagentConfig, session?: LiveAgentSession) =>
+  new ChasitorApi(logger,config, session)

@@ -20,12 +20,12 @@ export const listenConversation: IntegrationProps['actions']['listenConversation
 
     if(!liveAgentSessionKey?.length) {
       logger.forBot().error(`Invalid Live Agent Session Key for listen: ${liveAgentSessionKey}, please specify a valid one.`)
-      return { success: false };
+      return { success: false }
     }
 
     if(!botpressConversationId?.length) {
       logger.forBot().error(`Invalid Botpress conversation for listen: ${botpressConversationId}, please specify a valid one.`)
-      return { success: false };
+      return { success: false }
     }
 
     // get the webhook url from this integration
@@ -52,8 +52,8 @@ export const listenConversation: IntegrationProps['actions']['listenConversation
       name: 'liveAgentSession'
     })
 
-    const salesforceClient = getSalesforceClient({ ...ctx.configuration as SFLiveagentConfig }, liveAgentSession)
-    let pollingKey;
+    const salesforceClient = getSalesforceClient(logger,{ ...ctx.configuration as SFLiveagentConfig }, liveAgentSession)
+    let pollingKey
 
     try {
       // Start Polling Session using our transport-translator service
@@ -63,10 +63,10 @@ export const listenConversation: IntegrationProps['actions']['listenConversation
       if(!pollingKey) {
         throw new Error('Polling Key not valid')
       }
-    } catch(e) {
-      salesforceClient.endSession('POLLING_SERVER_FAILED')
+    } catch(e: any) {
+      await salesforceClient.endSession('POLLING_SERVER_FAILED')
 
-      return { success: false, message: 'Failed to create Polling Session: ' + e.message }
+      return { success: false, message: 'Failed to end Polling Session: ' + e.message }
     }
 
     await client.updateConversation({
@@ -77,7 +77,7 @@ export const listenConversation: IntegrationProps['actions']['listenConversation
         botpressConversationId
       }
     })
-  } catch (e) {
+  } catch (e: any) {
     logger.forBot().error('Failed to create conversation session: ' + e.message)
     return { success: false, message: 'Failed to listenConversation: ' + e.message }
   }

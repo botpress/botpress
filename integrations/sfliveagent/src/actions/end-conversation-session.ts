@@ -30,7 +30,7 @@ export const endConversationSession: IntegrationProps['actions']['endConversatio
       name: 'liveAgentSession'
     })
 
-    const salesforceClient = getSalesforceClient({...ctx.configuration as SFLiveagentConfig}, liveAgentSession)
+    const salesforceClient = getSalesforceClient(logger,{...ctx.configuration as SFLiveagentConfig}, liveAgentSession)
     await salesforceClient.endSession(input.reason)
   } catch (e) {
     logger.forBot().error('Failed to create conversation session: ' + e.message)

@@ -16,7 +16,7 @@ export const createConversationSession: IntegrationProps['actions']['createConve
 
     console.log({pollingMSState})
 
-    const salesforceClient = getSalesforceClient({ ...ctx.configuration as SFLiveagentConfig })
+    const salesforceClient = getSalesforceClient(logger,{ ...ctx.configuration as SFLiveagentConfig })
 
     await salesforceClient.createSession()
 
@@ -47,7 +47,7 @@ export const createConversationSession: IntegrationProps['actions']['createConve
     console.log('Set State')
 
     return { success: true, liveAgentSessionKey: session.sessionKey }
-  } catch (e) {
+  } catch (e: any) {
     logger.forBot().error('Failed to create conversation session: ' + e.message)
     return { success: false, message: 'Failed to create conversation session: ' + e.message }
   }
