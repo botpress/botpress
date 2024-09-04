@@ -17,6 +17,8 @@ import {
   moveCardToListOutputSchema,
   moveCardUpInputSchema,
   moveCardUpOutputSchema,
+  updateCardInputSchema,
+  updateCardOutputSchema,
 } from 'src/schemas/actions'
 import { webhookStateSchema } from 'src/schemas/states'
 import { integrationName } from './package.json'
@@ -108,6 +110,16 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: addCardCommentOutputSchema,
+      },
+    },
+    updateCard: {
+      title: 'Update card',
+      description: 'Update the details of a card',
+      input: {
+        schema: updateCardInputSchema,
+      },
+      output: {
+        schema: updateCardOutputSchema,
       },
     },
   },

@@ -14,3 +14,12 @@ export const wrapWithTryCatch = <T extends (...args: any[]) => Promise<any>>(fn:
       throw new RuntimeError(`${errorMessage}: ${error}`, error as Error)
     }
   }) as T
+
+export const createCsvRegex = (expression: RegExp, separators = ',; ') =>
+  new RegExp(`^(?:${expression.source}(?:[${separators}]+|$))+$`)
+
+export const extractFromCsv = (csv: string, separators = ',; ') =>
+  csv
+    .split(new RegExp(`[${separators}]+`))
+    .map((s) => s.trim())
+    .filter((s) => s.length > 0)

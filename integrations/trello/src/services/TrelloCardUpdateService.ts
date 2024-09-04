@@ -2,7 +2,7 @@ import 'reflect-metadata'
 import { inject, injectable } from 'tsyringe'
 import { ICardRepository } from '../interfaces/repositories/ICardRepository'
 import { IListRepository } from '../interfaces/repositories/IListRepository'
-import { ICardUpdateService } from '../interfaces/services/ICardUpdateService'
+import { CardModificationRequest, ICardUpdateService } from '../interfaces/services/ICardUpdateService'
 import { DIToken } from '../iocContainer'
 import { Card } from '../schemas/entities/Card'
 import { nameCompare } from '../utils'
@@ -66,5 +66,26 @@ export class TrelloCardUpdateService implements ICardUpdateService {
     card.listId = newList.id
 
     await this.cardRepository.updateCard(card)
+  }
+
+  async updateCard(cardId: Card['id'], modifications: Partial<CardModificationRequest>): Promise<void> {
+    const card = await this.cardRepository.getCard(cardId)
+
+    const cardData: Partial<Card> & Pick<Card, 'id'> = {
+      id: cardId,
+      name: modifications.name ?? card.name,
+      description: modifications.bodyText ?? card.description,
+      isClosed: modifications.closedState ? modifications.closedState === 'archived' : card.isClosed,
+      isCompleted: modifications.completeState ? modifications.completeState === 'complete' : card.isCompleted,
+      dueDate: modifications.dueDate ? new Date(modifications.dueDate) : card.dueDate,
+      labelIds: [...card.labelIds, ...(modifications.labelsToAdd ?? [])].filter(
+        (labelId) => !modifications.labelsToRemove?.includes(labelId)
+      ),
+      memberIds: [...card.memberIds, ...(modifications.membersToAdd ?? [])].filter(
+        (memberId) => !modifications.membersToRemove?.includes(memberId)
+      ),
+    }
+
+    await this.cardRepository.updateCard(cardData)
   }
 }
