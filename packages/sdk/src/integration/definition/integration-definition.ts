@@ -164,7 +164,9 @@ export class IntegrationDefinition<
     self.events = utils.mergeRecords(self.events ?? {}, resolved.events, this._mergeEvents)
 
     const entityNames = Object.values(interfaceTypeArguments).map((e) => e.name)
-    const key = `${interfaceDeclaration.name}<${entityNames.join(',')}>`
+
+    const key =
+      entityNames.length === 0 ? interfaceDeclaration.name : `${interfaceDeclaration.name}<${entityNames.join(',')}>`
     this.interfaces[key] = implementStatement
 
     return this
