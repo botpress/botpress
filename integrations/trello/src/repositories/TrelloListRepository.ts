@@ -41,7 +41,7 @@ export class TrelloListRepository extends BaseRepository implements IListReposit
         description: card.desc,
         listId: card.idList,
         verticalPosition: card.pos,
-        dueDate: card.due ? new Date(card.due) : undefined,
+        dueDate: card.due,
         isClosed: card.closed,
         isCompleted: card.dueComplete,
         labelIds: card.idLabels as TrelloID[],

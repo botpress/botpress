@@ -1,7 +1,7 @@
 import { z } from '@botpress/sdk'
 import ListSchema from '../entities/List'
 
-export const getListIdOutputSchema = z
+export const getListsByNameOutputSchema = z
   .object({
     lists: z.array(ListSchema),
   })

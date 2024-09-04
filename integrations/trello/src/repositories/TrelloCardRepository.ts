@@ -29,7 +29,7 @@ export class TrelloCardRepository extends BaseRepository implements ICardReposit
         verticalPosition: card.pos,
         isClosed: card.closed,
         isCompleted: card.dueComplete,
-        dueDate: card.due ? new Date(card.due) : undefined,
+        dueDate: card.due,
         labelIds: card.idLabels as TrelloID[],
         memberIds: card.idMembers as TrelloID[],
       }
@@ -72,7 +72,7 @@ export class TrelloCardRepository extends BaseRepository implements ICardReposit
         pos: card.verticalPosition,
         closed: card.isClosed,
         dueComplete: card.isCompleted,
-        due: card.dueDate?.toISOString(),
+        due: card.dueDate,
         idLabels: card.labelIds,
         idMembers: card.memberIds,
       }) as Pick<UpdateCard, 'id'>
@@ -86,7 +86,7 @@ export class TrelloCardRepository extends BaseRepository implements ICardReposit
         verticalPosition: updatedCard.pos,
         isClosed: updatedCard.closed,
         isCompleted: updatedCard.dueComplete,
-        dueDate: updatedCard.due ? new Date(updatedCard.due) : undefined,
+        dueDate: updatedCard.due,
         labelIds: updatedCard.idLabels as TrelloID[],
         memberIds: updatedCard.idMembers as TrelloID[],
       }

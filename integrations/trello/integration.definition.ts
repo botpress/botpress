@@ -5,12 +5,12 @@ import {
   addCardCommentOutputSchema,
   createCardInputSchema,
   createCardOutputSchema,
-  getBoardIdInputSchema,
-  getBoardIdOutputSchema,
-  getCardIdInputSchema,
-  getCardIdOutputSchema,
-  getListIdInputSchema,
-  getListIdOutputSchema,
+  getBoardsByNameInputSchema,
+  getBoardsByNameOutputSchema,
+  getCardsByNameInputSchema,
+  getCardsByNameOutputSchema,
+  getListsByNameInputSchema,
+  getListsByNameOutputSchema,
   moveCardDownInputSchema,
   moveCardDownOutputSchema,
   moveCardToListInputSchema,
@@ -32,34 +32,34 @@ export default new IntegrationDefinition({
     "Boost your chatbot's capabilities with Trello. Easily update cards, add comments, create new cards, and read board members from your chatbot",
   icon: 'icon.svg',
   actions: {
-    getBoardId: {
-      title: 'Get board ID by name',
-      description: 'Get the unique identifier of a board by name',
+    getBoardsByName: {
+      title: 'Get boards by name',
+      description: 'Find all boards whose display name match this name',
       input: {
-        schema: getBoardIdInputSchema,
+        schema: getBoardsByNameInputSchema,
       },
       output: {
-        schema: getBoardIdOutputSchema,
+        schema: getBoardsByNameOutputSchema,
       },
     },
-    getListId: {
-      title: 'Get list ID by name',
-      description: 'Get the unique identifier of a list by name',
+    getListsByName: {
+      title: 'Get lists by name',
+      description: 'Find all lists whose display name match this name',
       input: {
-        schema: getListIdInputSchema,
+        schema: getListsByNameInputSchema,
       },
       output: {
-        schema: getListIdOutputSchema,
+        schema: getListsByNameOutputSchema,
       },
     },
-    getCardId: {
-      title: 'Get card ID by name',
-      description: 'Get the unique identifier of a card by name',
+    getCardsByName: {
+      title: 'Find cards by name name',
+      description: 'Find all lists whose display name match this name',
       input: {
-        schema: getCardIdInputSchema,
+        schema: getCardsByNameInputSchema,
       },
       output: {
-        schema: getCardIdOutputSchema,
+        schema: getCardsByNameOutputSchema,
       },
     },
     createCard: {
