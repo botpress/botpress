@@ -1,7 +1,7 @@
 import { z } from '@botpress/sdk'
 import CardSchema from '../entities/Card'
 
-export const getCardsByNameOutputSchema = z
+export const getCardsByDisplayNameOutputSchema = z
   .object({
     cards: z.array(CardSchema),
   })

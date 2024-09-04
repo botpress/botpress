@@ -15,7 +15,7 @@ export class TrelloCardRepository extends BaseRepository implements ICardReposit
     super(trelloClient)
   }
 
-  async getCard(cardId: Card['id']): Promise<Card> {
+  async getCardById(cardId: Card['id']): Promise<Card> {
     try {
       const card = await this.trelloClient.cards.getCard({
         id: cardId,
@@ -29,7 +29,7 @@ export class TrelloCardRepository extends BaseRepository implements ICardReposit
         verticalPosition: card.pos,
         isClosed: card.closed,
         isCompleted: card.dueComplete,
-        dueDate: card.due,
+        dueDate: card.due ?? undefined,
         labelIds: card.idLabels as TrelloID[],
         memberIds: card.idMembers as TrelloID[],
       }
@@ -56,6 +56,7 @@ export class TrelloCardRepository extends BaseRepository implements ICardReposit
         isCompleted: newCard.dueComplete,
         labelIds: newCard.idLabels as TrelloID[],
         memberIds: newCard.idMembers as TrelloID[],
+        dueDate: newCard.due ?? undefined,
       }
     } catch (error) {
       this.handleError('createCard', error)
@@ -86,7 +87,7 @@ export class TrelloCardRepository extends BaseRepository implements ICardReposit
         verticalPosition: updatedCard.pos,
         isClosed: updatedCard.closed,
         isCompleted: updatedCard.dueComplete,
-        dueDate: updatedCard.due,
+        dueDate: updatedCard.due ?? undefined,
         labelIds: updatedCard.idLabels as TrelloID[],
         memberIds: updatedCard.idMembers as TrelloID[],
       }

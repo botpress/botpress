@@ -14,7 +14,7 @@ export class TrelloListRepository extends BaseRepository implements IListReposit
     super(trelloClient)
   }
 
-  async getList(listId: List['id']): Promise<List> {
+  async getListById(listId: List['id']): Promise<List> {
     try {
       const list: List = await this.trelloClient.lists.getList({
         id: listId,
@@ -41,7 +41,7 @@ export class TrelloListRepository extends BaseRepository implements IListReposit
         description: card.desc,
         listId: card.idList,
         verticalPosition: card.pos,
-        dueDate: card.due,
+        dueDate: card.due ?? undefined,
         isClosed: card.closed,
         isCompleted: card.dueComplete,
         labelIds: card.idLabels as TrelloID[],

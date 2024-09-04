@@ -19,7 +19,7 @@ export class TrelloCardUpdateService implements ICardUpdateService {
       return
     }
 
-    const card = await this.cardRepository.getCard(cardId)
+    const card = await this.cardRepository.getCardById(cardId)
     const cardsInList = await this.listRepository.getCardsInList(card.listId)
     const cardIndex = cardsInList.findIndex((c) => nameCompare(c.name, card.name))
 
@@ -60,8 +60,8 @@ export class TrelloCardUpdateService implements ICardUpdateService {
   }
 
   async moveCardToOtherList(cardId: string, newListId: string): Promise<void> {
-    const card = await this.cardRepository.getCard(cardId)
-    const newList = await this.listRepository.getList(newListId)
+    const card = await this.cardRepository.getCardById(cardId)
+    const newList = await this.listRepository.getListById(newListId)
 
     card.listId = newList.id
 
@@ -69,7 +69,7 @@ export class TrelloCardUpdateService implements ICardUpdateService {
   }
 
   async updateCard(cardId: Card['id'], modifications: Partial<CardModificationRequest>): Promise<void> {
-    const card = await this.cardRepository.getCard(cardId)
+    const card = await this.cardRepository.getCardById(cardId)
 
     const cardData: Partial<Card> & Pick<Card, 'id'> = {
       id: cardId,
