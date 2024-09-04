@@ -61,6 +61,8 @@ export const speechToText = new InterfaceDeclaration({
   },
   actions: {
     transcribeAudio: {
+      billable: true,
+      cacheable: true,
       input: {
         schema: ({ speechToTextModelRef }) => TranscribeAudioInputSchema(speechToTextModelRef),
       },

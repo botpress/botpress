@@ -58,6 +58,8 @@ export const textToImage = new InterfaceDeclaration({
   },
   actions: {
     generateImage: {
+      billable: true,
+      cacheable: true,
       input: {
         schema: ({ imageModelRef, imageGenerationParams }) =>
           GenerateImageInputSchema(imageModelRef, imageGenerationParams),

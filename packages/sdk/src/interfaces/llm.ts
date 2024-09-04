@@ -169,6 +169,8 @@ export const llm = new InterfaceDeclaration({
   events: {},
   actions: {
     generateContent: {
+      billable: true,
+      cacheable: true,
       input: {
         schema: ({ modelRef }) => GenerateContentInputSchema(modelRef),
       },
