@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
 
-export const getBoardsByNameInputSchema = z
+export const getBoardsByDisplayNameInputSchema = z
   .object({
     boardName: z.string().describe('Display name of the board'),
   })

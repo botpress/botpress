@@ -1,8 +1,8 @@
 import { z } from '@botpress/sdk'
 import BoardSchema from '../entities/Board'
 
-export const getBoardsByNameOutputSchema = z
+export const getAllBoardsOutputSchema = z
   .object({
     boards: z.array(BoardSchema),
   })
-  .describe('Output schema for getting a board ID from its name')
+  .describe('Output schema for getting all boards')

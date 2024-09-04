@@ -1,7 +1,7 @@
 import { z } from '@botpress/sdk'
 import { TrelloIDSchema } from '..'
 
-export const getListsByNameInputSchema = z
+export const getListsByDisplayNameInputSchema = z
   .object({
     boardId: TrelloIDSchema.describe('Unique identifier of the board'),
     listName: z.string().describe('Display name of the list'),
