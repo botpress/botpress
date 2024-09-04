@@ -215,7 +215,10 @@ export default new bp.Integration({
       return {
         model: imageModelId,
         imageUrl: file.url,
-        cost: imageModel.costPerImage,
+        cost: imageModel.costPerImage, // DEPRECATED
+        botpress: {
+          cost: imageModel.costPerImage,
+        },
       }
     },
     transcribeAudio: async ({ input, logger }) => {

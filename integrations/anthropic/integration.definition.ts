@@ -4,7 +4,7 @@ import { modelId } from 'src/schemas'
 export default new IntegrationDefinition({
   name: 'anthropic',
   title: 'Anthropic',
-  version: '3.1.1',
+  version: '3.2.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {

@@ -100,6 +100,9 @@ export async function generateContent<M extends string>(
   }
 
   const { input_tokens: inputTokens, output_tokens: outputTokens } = response.usage
+  const inputCost = calculateTokenCost(model.input.costPer1MTokens, inputTokens)
+  const outputCost = calculateTokenCost(model.output.costPer1MTokens, outputTokens)
+  const cost = inputCost + outputCost
 
   const content = response.content
     .filter((x): x is Anthropic.TextBlock => x.type === 'text') // Claude models only return "text" or "tool_use" blocks at the moment.
@@ -123,10 +126,10 @@ export async function generateContent<M extends string>(
     ],
     usage: {
       inputTokens,
-      inputCost: calculateTokenCost(model.input.costPer1MTokens, inputTokens),
-      outputTokens,
-      outputCost: calculateTokenCost(model.output.costPer1MTokens, outputTokens),
+      inputCost: outputTokens,
+      outputCost,
     },
+    botpress: { cost },
   }
 }
 
