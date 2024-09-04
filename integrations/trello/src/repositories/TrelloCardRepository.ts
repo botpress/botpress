@@ -34,11 +34,19 @@ export class TrelloCardRepository extends BaseRepository implements ICardReposit
 
     async createCard(card: Omit<Card, 'id' | 'verticalPosition'>): Promise<Card> {
         try {
-            return await this.trelloClient.cards.createCard({
-                idList: card.listId,
-                name: card.name,
-                desc: card.description,
+            const newCard = await this.trelloClient.cards.createCard({
+              idList: card.listId,
+              name: card.name,
+              desc: card.description,
             })
+
+            return {
+              id: newCard.id,
+              name: newCard.name,
+              description: newCard.desc,
+              listId: newCard.idList,
+              verticalPosition: newCard.pos,
+            }
         } catch (error) {
             this.handleError('createCard', error)
         }
@@ -46,13 +54,23 @@ export class TrelloCardRepository extends BaseRepository implements ICardReposit
 
     async updateCard(card: Pick<Card, 'id'> & Partial<Card>): Promise<Card> {
         try {
-            return await this.trelloClient.cards.updateCard(keepOnlySetProperties({
+            const updatedCard = await this.trelloClient.cards.updateCard(
+              keepOnlySetProperties({
                 id: card.id,
                 name: card.name,
                 desc: card.description,
                 idList: card.listId,
                 pos: card.verticalPosition,
-            }) as Pick<UpdateCard, 'id'>)
+              }) as Pick<UpdateCard, 'id'>
+            )
+
+            return {
+              id: updatedCard.id,
+              name: updatedCard.name,
+              description: updatedCard.desc,
+              listId: updatedCard.idList,
+              verticalPosition: updatedCard.pos,
+            }
         } catch (error) {
             this.handleError(`updateCard for id ${card.id}`, error)
         }
