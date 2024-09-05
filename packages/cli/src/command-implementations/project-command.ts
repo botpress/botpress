@@ -278,6 +278,31 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return envVariables
   }
 
+  protected async readIntegrationConfigDefinition<C extends client.ClientInputs['createIntegration']['configuration']>(
+    config: C
+  ): Promise<C> {
+    if (!config?.identifier) {
+      return config
+    }
+    return {
+      ...config,
+      identifier: {
+        ...config.identifier,
+        linkTemplateScript: await this.readProjectFile(config.identifier.linkTemplateScript),
+      },
+    }
+  }
+
+  protected readProjectFile = async (filePath: string | undefined): Promise<string | undefined> => {
+    if (!filePath) {
+      return undefined
+    }
+    const absoluteFilePath = utils.path.absoluteFrom(this.projectPaths.abs.workDir, filePath)
+    return fs.promises.readFile(absoluteFilePath, 'utf-8').catch((thrown) => {
+      throw errors.BotpressCLIError.wrap(thrown, `Could not read file "${absoluteFilePath}"`)
+    })
+  }
+
   private _parseArgvSecrets(argvSecrets: string[]): Record<string, string> {
     const parsed: Record<string, string> = {}
     for (const secret of argvSecrets) {

@@ -18,6 +18,8 @@ export const configuration = {
 
 export const configurations = {
   apiKey: {
+    title: 'API Key',
+    description: 'Configure Linear with an API Key.',
     schema: z.object({
       apiKey: z.string().describe('The API key for Linear'),
     }),
