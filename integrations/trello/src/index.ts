@@ -1,3 +1,5 @@
+import { z } from '@botpress/sdk'
+import events from 'definitions/events'
 import * as bp from '../.botpress'
 import {
   getBoardsByDisplayName,
@@ -21,6 +23,8 @@ import {
 } from './actions'
 import { ICardCommentCreationService } from './interfaces/services/ICardCommentCreationService'
 import { DIToken, getContainer } from './iocContainer'
+import commentCardEventSchema from './schemas/webhookEvents/commentCardEventSchema'
+import { genericWebhookEvent, genericWebhookEventSchema } from './schemas/webhookEvents/genericWebhookEventSchema'
 import { WebhookManager } from './webhookManager'
 
 type TrelloMessageData = {
@@ -36,8 +40,6 @@ type TrelloMessageData = {
 }
 
 const handleCardComment = async (client: bp.Client, logger: bp.Logger, messageData: TrelloMessageData) => {
-  logger.forBot().info('Handling action', messageData)
-
   const { conversation } = await client.getOrCreateConversation({
     channel: 'cardComments',
     tags: {
@@ -47,8 +49,6 @@ const handleCardComment = async (client: bp.Client, logger: bp.Logger, messageDa
       listName: messageData.listName,
     },
   })
-
-  logger.forBot().info('Conversation', conversation)
 
   if (conversation.tags.lastCommentId === messageData.messageId) {
     logger.forBot().info('Ignoring message as it was sent by ourselves')
@@ -72,6 +72,49 @@ const handleCardComment = async (client: bp.Client, logger: bp.Logger, messageDa
     conversationId: conversation.id,
     payload: { text: messageData.messageText },
   })
+}
+
+const handleIncomingEvent = async ({
+  event,
+  client,
+  logger,
+}: {
+  event: genericWebhookEvent
+  client: bp.Client
+  logger: bp.Logger
+}) => {
+  if (event.action.type === 'commentCard') {
+    const cardCreationEvent = commentCardEventSchema.parse(event)
+
+    await handleCardComment(client, logger, {
+      cardId: cardCreationEvent.action.data.card.id,
+      cardName: cardCreationEvent.action.data.card.name,
+      listId: cardCreationEvent.action.data.list?.id ?? '',
+      listName: cardCreationEvent.action.data.list?.name ?? '',
+      messageId: cardCreationEvent.action.id,
+      messageText: cardCreationEvent.action.data.text,
+      messageAuthorId: cardCreationEvent.action.memberCreator.id,
+      messageAuthorName: cardCreationEvent.action.memberCreator.fullName,
+      messageAuthorAvatar: cardCreationEvent.action.memberCreator.avatarUrl + '/50.png',
+    })
+  }
+
+  if (Reflect.ownKeys(bp.events).includes(event.action.type)) {
+    const eventSchema = genericWebhookEventSchema.merge(
+      z.object({
+        action: genericWebhookEventSchema.shape.action.merge(
+          z.object({
+            data: events[event.action.type].schema,
+          })
+        ),
+      })
+    )
+    const validatedData = eventSchema.passthrough().parse(event).action.data
+
+    await client.createEvent({ type: event.action.type, payload: validatedData })
+  } else {
+    logger.forBot().debug('Ignoring unsupported event type', event.action.type)
+  }
 }
 
 export default new bp.Integration({
@@ -145,36 +188,18 @@ export default new bp.Integration({
     })
 
     const body = JSON.parse(req.body)
+    const { success, error, data } = genericWebhookEventSchema.passthrough().safeParse(body)
 
-    if (body?.webhook?.id !== state.payload.trelloWebhookId) {
-      return logger.forBot().warn('Webhook request ignored: not properly authenticated')
+    if (!success) {
+      logger.forBot().warn('Webhook request ignored: invalid body', error)
+      return
     }
 
-    if (body?.action?.type !== 'commentCard') {
-      return logger.forBot().debug(`Unhandled webhook action type: ${body?.action?.type}`)
+    if (data.webhook.id !== state.payload.trelloWebhookId) {
+      logger.forBot().warn('Webhook request ignored: not properly authenticated')
+      return
     }
 
-    const cardId: string = body!.action.data.card.id
-    const cardName: string = body!.action.data.card.name
-    const listId: string = body!.action.data.list.id
-    const listName: string = body!.action.data.list.name
-    const messageId: string = body!.action.id
-    const messageText: string = body!.action.data.text
-    const messageAuthorId: string = body!.action.memberCreator.id
-    const messageAuthorName: string = body!.action.memberCreator.fullName
-    const messageAuthorAvatar: string = body!.action.memberCreator.avatarUrl + '/50.png'
-    const messageData = {
-      cardId,
-      cardName,
-      listId,
-      listName,
-      messageId,
-      messageText,
-      messageAuthorId,
-      messageAuthorName,
-      messageAuthorAvatar,
-    }
-
-    await handleCardComment(client, logger, messageData)
+    await handleIncomingEvent({ event: data as genericWebhookEvent, client, logger })
   },
 })
