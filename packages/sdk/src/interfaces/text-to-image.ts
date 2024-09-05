@@ -39,12 +39,15 @@ const GenerateContentInputBaseSchema = GenerateImageInputSchema(ImageModelRefSch
 const GenerateImageOutputSchema = z.object({
   model: z.string().describe('Model name used'),
   imageUrl: z.string().describe('Temporary URL of generated image'),
-  cost: z.number().describe('Cost of the image generation, in U.S. dollars'),
+  cost: z.number().describe('Cost of the image generation, in U.S. dollars (DEPRECATED)'),
+  botpress: z.object({
+    cost: z.number().describe('Cost of the image generation, in U.S. dollars'),
+  }),
 })
 
 export const textToImage = new InterfaceDeclaration({
   name: 'textToImage',
-  version: '1.1.0',
+  version: '2.1.0',
   entities: {
     imageModelRef: {
       schema: ImageModelRefSchema,
@@ -55,6 +58,8 @@ export const textToImage = new InterfaceDeclaration({
   },
   actions: {
     generateImage: {
+      billable: true,
+      cacheable: true,
       input: {
         schema: ({ imageModelRef, imageGenerationParams }) =>
           GenerateImageInputSchema(imageModelRef, imageGenerationParams),
