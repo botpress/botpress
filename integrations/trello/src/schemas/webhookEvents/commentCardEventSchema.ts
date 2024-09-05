@@ -38,4 +38,5 @@ export const commentCardEventSchema = genericWebhookEventSchema.merge(
   })
 )
 
+export type CommentCardEvent = z.infer<typeof commentCardEventSchema>
 export default commentCardEventSchema

@@ -1,7 +1,11 @@
 import { webhookStateSchema } from '../src/schemas/states'
 
+export enum States {
+  webhookState = 'webhookState',
+}
+
 export const states = {
-  webhookState: {
+  [States.webhookState]: {
     type: 'integration',
     schema: webhookStateSchema,
   },
