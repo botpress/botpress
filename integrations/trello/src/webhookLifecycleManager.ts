@@ -1,12 +1,13 @@
 import * as sdk from '@botpress/sdk'
+import { States } from 'definitions/states'
 import { DependencyContainer } from 'tsyringe'
 import * as bp from '../.botpress'
+import { integrationName } from '../package.json'
 import { IWebhookCreationService } from './interfaces/services/IWebhookCreationService'
 import { IWebhookDeletionService } from './interfaces/services/IWebhookDeletionService'
 import { DIToken } from './iocContainer'
 
-export class WebhookManager {
-  private readonly WEBHOOK_DESCRIPTION = 'Botpress integration'
+export class WebhookLifecycleManager {
   ctx: bp.Context
   client: bp.Client
   container: DependencyContainer
@@ -37,7 +38,7 @@ export class WebhookManager {
     try {
       const webhookState = await this.client.getState({
         type: 'integration',
-        name: 'webhookState',
+        name: States.webhookState,
         id: this.ctx.integrationId,
       })
 
@@ -54,7 +55,7 @@ export class WebhookManager {
 
     try {
       const webhookId = await webhookCreationService.createWebhook(
-        this.WEBHOOK_DESCRIPTION,
+        integrationName,
         webhookUrl,
         this.ctx.configuration.trelloBoardId!
       )
@@ -67,7 +68,7 @@ export class WebhookManager {
   private async setWebhookId(webhookId: string) {
     await this.client.setState({
       type: 'integration',
-      name: 'webhookState',
+      name: States.webhookState,
       id: this.ctx.integrationId,
       payload: {
         trelloWebhookId: webhookId,
