@@ -15,6 +15,7 @@ import {
   EntityDefinition,
   MessageDefinition,
   InterfaceImplementationStatement,
+  AdditionalConfigurationDefinition,
 } from './types'
 
 export type IntegrationDefinitionProps<
@@ -40,7 +41,9 @@ export type IntegrationDefinitionProps<
   }
 
   configuration?: ConfigurationDefinition<TConfig>
-  configurations?: { [K in keyof TConfigs]: ConfigurationDefinition<TConfigs[K]> }
+  configurations?: {
+    [K in keyof TConfigs]: AdditionalConfigurationDefinition<TConfigs[K]>
+  }
 
   events?: { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
 

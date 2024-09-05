@@ -47,14 +47,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     integrationDef = await this._manageWorkspaceHandle(api, integrationDef)
 
-    const {
-      name,
-      version,
-      icon: iconRelativeFilePath,
-      readme: readmeRelativeFilePath,
-      identifier,
-      configuration,
-    } = integrationDef
+    const { name, version, icon: iconRelativeFilePath, readme: readmeRelativeFilePath, identifier } = integrationDef
 
     if (iconRelativeFilePath && !iconRelativeFilePath.toLowerCase().endsWith('.svg')) {
       throw new errors.BotpressCLIError('Icon must be an SVG file')
@@ -62,8 +55,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     const iconFileContent = await this._readMediaFile('icon', iconRelativeFilePath)
     const readmeFileContent = await this._readMediaFile('readme', readmeRelativeFilePath)
-    const identifierExtractScriptFileContent = await this._readFile(identifier?.extractScript)
-    const fallbackHandlerScriptFileContent = await this._readFile(identifier?.fallbackHandlerScript)
+    const identifierExtractScriptFileContent = await this.readProjectFile(identifier?.extractScript)
+    const fallbackHandlerScriptFileContent = await this.readProjectFile(identifier?.fallbackHandlerScript)
 
     const integration = await api.findIntegration({ type: 'name', name, version })
     if (integration && integration.workspaceId !== api.workspaceId) {
@@ -92,11 +85,6 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       return
     }
 
-    const configurations: CreateIntegrationBody['configurations'] = {}
-    for (const [key, config] of Object.entries(integrationDef.configurations ?? {})) {
-      configurations[key] = await this._readConfigDefinition(config)
-    }
-
     let createBody: CreateIntegrationBody = prepareCreateIntegrationBody(integrationDef)
     createBody = {
       ...createBody,
@@ -104,8 +92,10 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       code,
       icon: iconFileContent,
       readme: readmeFileContent,
-      configuration: await this._readConfigDefinition(configuration),
-      configurations,
+      configuration: await this.readIntegrationConfigDefinition(createBody.configuration),
+      configurations: await utils.promises.awaitRecord(
+        utils.records.mapValues(createBody.configurations ?? {}, this.readIntegrationConfigDefinition)
+      ),
       identifier: {
         extractScript: identifierExtractScriptFileContent,
         fallbackHandlerScript: fallbackHandlerScriptFileContent,
@@ -255,17 +245,6 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     } else {
       throw new errors.BotpressCLIError(errorMessage)
     }
-  }
-
-  private _readFile = async (filePath: string | undefined): Promise<string | undefined> => {
-    if (!filePath) {
-      return undefined
-    }
-
-    const absoluteFilePath = utils.path.absoluteFrom(this.projectPaths.abs.workDir, filePath)
-    return fs.promises.readFile(absoluteFilePath, 'utf-8').catch((thrown) => {
-      throw errors.BotpressCLIError.wrap(thrown, `Could not read file "${absoluteFilePath}"`)
-    })
   }
 
   private _readMediaFile = async (
@@ -494,30 +473,5 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
 
     return interfaces
-  }
-
-  private async _readConfigDefinition(config: undefined): Promise<undefined>
-  private async _readConfigDefinition(
-    config: NonNullable<sdk.IntegrationDefinition['configuration']>
-  ): Promise<NonNullable<CreateIntegrationBody['configuration']>>
-  private async _readConfigDefinition(
-    config: sdk.IntegrationDefinition['configuration']
-  ): Promise<CreateIntegrationBody['configuration']>
-  private async _readConfigDefinition(
-    config: sdk.IntegrationDefinition['configuration']
-  ): Promise<CreateIntegrationBody['configuration']> {
-    if (!config?.identifier) {
-      return config
-    }
-
-    const identifierLinkTemplateFileContent = await this._readFile(config.identifier.linkTemplateScript)
-
-    return {
-      ...config,
-      identifier: {
-        ...config.identifier,
-        linkTemplateScript: identifierLinkTemplateFileContent,
-      },
-    }
   }
 }
