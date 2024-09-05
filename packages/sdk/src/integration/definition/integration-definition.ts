@@ -2,7 +2,7 @@ import { Writable } from '../../type-utils'
 import * as utils from '../../utils'
 import { z } from '../../zui'
 import { SchemaStore, BrandedSchema, createStore, isBranded, getName } from './branded-schema'
-import { BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates, BaseEntities } from './generic'
+import { BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates, BaseEntities, BaseConfigs } from './generic'
 import { InterfaceDeclaration, InterfaceResolveInput } from './interface-declaration'
 import {
   ConfigurationDefinition,
@@ -19,6 +19,7 @@ import {
 
 export type IntegrationDefinitionProps<
   TConfig extends BaseConfig = BaseConfig,
+  TConfigs extends BaseConfigs = BaseConfigs,
   TEvents extends BaseEvents = BaseEvents,
   TActions extends BaseActions = BaseActions,
   TChannels extends BaseChannels = BaseChannels,
@@ -39,6 +40,8 @@ export type IntegrationDefinitionProps<
   }
 
   configuration?: ConfigurationDefinition<TConfig>
+  configurations?: { [K in keyof TConfigs]: ConfigurationDefinition<TConfigs[K]> }
+
   events?: { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
 
   actions?: {
@@ -72,6 +75,7 @@ type ExtensionBuilder<TIntegrationEntities extends BaseEntities, TInterfaceEntit
 
 export class IntegrationDefinition<
   TConfig extends BaseConfig = BaseConfig,
+  TConfigs extends BaseConfigs = BaseConfigs,
   TEvents extends BaseEvents = BaseEvents,
   TActions extends BaseActions = BaseActions,
   TChannels extends BaseChannels = BaseChannels,
@@ -85,6 +89,7 @@ export class IntegrationDefinition<
   public readonly icon: this['props']['icon']
   public readonly readme: this['props']['readme']
   public readonly configuration: this['props']['configuration']
+  public readonly configurations: this['props']['configurations']
   public readonly events: this['props']['events']
   public readonly actions: this['props']['actions']
   public readonly channels: this['props']['channels']
@@ -97,7 +102,15 @@ export class IntegrationDefinition<
   public readonly interfaces: Record<string, InterfaceImplementationStatement> = {}
 
   public constructor(
-    public readonly props: IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates, TEntities>
+    public readonly props: IntegrationDefinitionProps<
+      TConfig,
+      TConfigs,
+      TEvents,
+      TActions,
+      TChannels,
+      TStates,
+      TEntities
+    >
   ) {
     this.name = props.name
     this.version = props.version
@@ -107,6 +120,7 @@ export class IntegrationDefinition<
     this.identifier = props.identifier
     this.description = props.description
     this.configuration = props.configuration
+    this.configurations = props.configurations
     this.events = props.events
     this.actions = props.actions
     this.channels = props.channels
@@ -117,9 +131,9 @@ export class IntegrationDefinition<
   }
 
   public clone(
-    props: Partial<IntegrationDefinitionProps<TConfig, TEvents, TActions, TChannels, TStates, TEntities>>
-  ): IntegrationDefinition<TConfig, TEvents, TActions, TChannels, TStates, TEntities> {
-    const clone = new IntegrationDefinition<TConfig, TEvents, TActions, TChannels, TStates, TEntities>({
+    props: Partial<IntegrationDefinitionProps<TConfig, TConfigs, TEvents, TActions, TChannels, TStates, TEntities>>
+  ): IntegrationDefinition<TConfig, TConfigs, TEvents, TActions, TChannels, TStates, TEntities> {
+    const clone = new IntegrationDefinition<TConfig, TConfigs, TEvents, TActions, TChannels, TStates, TEntities>({
       ...this,
       ...props,
     })

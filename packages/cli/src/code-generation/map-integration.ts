@@ -15,6 +15,7 @@ export namespace from {
         creation: i.user?.creation ?? { enabled: false, requiredTags: [] },
       },
       configuration: i.configuration ? _mapSchema(i.configuration) : { schema: {} },
+      configurations: i.configurations ? utils.records.mapValues(i.configurations, _mapSchema) : {},
       events: i.events ? utils.records.mapValues(i.events, _mapSchema) : {},
       states: i.states ? utils.records.mapValues(i.states, _mapSchema) : {},
       actions: i.actions
@@ -40,8 +41,8 @@ export namespace from {
   }
 
   export const client = (i: client.Integration): types.IntegrationDefinition => {
-    const { id, name, version, configuration, channels, states, events, actions, user, entities } = i
-    return { id, name, version, configuration, channels, states, events, actions, user, entities }
+    const { id, name, version, configuration, configurations, channels, states, events, actions, user, entities } = i
+    return { id, name, version, configuration, configurations, channels, states, events, actions, user, entities }
   }
 
   const _mapSchema = <T extends { schema: z.ZodObject<any> }>(

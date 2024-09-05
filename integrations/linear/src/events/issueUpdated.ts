@@ -43,6 +43,7 @@ export const fireIssueUpdated = async ({ linearEvent, client, ctx }: IssueProps)
     integrationId: ctx.integrationId,
     forceUpdate: true,
     client,
+    ctx,
   })
 
   await client.createEvent({

@@ -18,8 +18,12 @@ export const getIssueFields = (issue: Issue): z.infer<typeof issueSchema> => ({
   updatedAt: issue.updatedAt.toISOString(),
 })
 
-export const getIssue: bp.IntegrationProps['actions']['getIssue'] = async ({ client, ctx, input: { issueId } }) => {
-  const linearClient = await getLinearClient(client, ctx.integrationId)
+export const getIssue: bp.IntegrationProps['actions']['getIssue'] = async (args) => {
+  const {
+    ctx,
+    input: { issueId },
+  } = args
+  const linearClient = await getLinearClient(args, ctx.integrationId)
   const issue = await linearClient.issue(issueId)
 
   return getIssueFields(issue)
