@@ -15,8 +15,6 @@ const integration = new bp.Integration({
   actions: {
     ...actions,
     issueList: async (props) => {
-      console.log('CONFIG', { type: props.ctx.configurationType, config: props.ctx.configuration })
-
       const count = 20
       const startCursor = props.input.nextToken
       const res = await actions.listIssues({
