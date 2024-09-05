@@ -4,8 +4,12 @@ import { userProfileSchema } from '../definitions/schemas'
 import { getLinearClient } from '../misc/utils'
 import * as bp from '.botpress'
 
-export const getUser: bp.IntegrationProps['actions']['getUser'] = async ({ client, ctx, input: { linearUserId } }) => {
-  const linearClient = await getLinearClient(client, ctx.integrationId)
+export const getUser: bp.IntegrationProps['actions']['getUser'] = async (args) => {
+  const {
+    ctx,
+    input: { linearUserId },
+  } = args
+  const linearClient = await getLinearClient(args, ctx.integrationId)
   const user = await linearClient.user(linearUserId)
 
   return userProfileSchema.parse({

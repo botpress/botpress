@@ -124,7 +124,11 @@ export class LinearOauthClient {
     }
   }
 
-  async getLinearClient(client: bp.Client, integrationId: string) {
+  async getLinearClient(client: bp.Client, ctx: bp.Context, integrationId: string) {
+    if (ctx.configurationType === 'apiKey') {
+      return new LinearClient({ apiKey: ctx.configuration.apiKey })
+    }
+
     const {
       state: { payload },
     } = await client.getState({

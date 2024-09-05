@@ -41,6 +41,7 @@ export const fireIssueCreated = async ({ linearEvent, client, ctx }: IssueProps)
     linearUserId: linearEvent.data.creatorId,
     integrationId: ctx.integrationId,
     client,
+    ctx,
   })
 
   await client.createEvent({
