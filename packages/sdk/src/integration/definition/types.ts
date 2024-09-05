@@ -47,6 +47,8 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   description?: string
   input: SchemaDefinition<TAction>
   output: SchemaDefinition<AnyZodObject> // cannot infer both input and output types (typescript limitation)
+  billable?: boolean
+  cacheable?: boolean
 }
 
 export type StateDefinition<TState extends BaseStates[string] = BaseStates[string]> = SchemaDefinition<TState> & {

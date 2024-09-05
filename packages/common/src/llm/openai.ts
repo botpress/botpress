@@ -121,6 +121,9 @@ export async function generateContent<M extends string>(
   }
 
   const { inputTokens, outputTokens } = getTokenUsage(response, logger, props.provider)
+  const inputCost = calculateTokenCost(model.input.costPer1MTokens, inputTokens)
+  const outputCost = calculateTokenCost(model.output.costPer1MTokens, outputTokens)
+  const cost = inputCost + outputCost
 
   return <GenerateContentOutput>{
     id: response.id,
@@ -136,10 +139,11 @@ export async function generateContent<M extends string>(
     })),
     usage: {
       inputTokens,
-      inputCost: calculateTokenCost(model.input.costPer1MTokens, inputTokens),
+      inputCost,
       outputTokens,
-      outputCost: calculateTokenCost(model.output.costPer1MTokens, outputTokens),
+      outputCost,
     },
+    botpress: { cost },
   }
 }
 

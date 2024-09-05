@@ -45,12 +45,15 @@ const TranscribeAudioBaseSchema = TranscribeAudioInputSchema(SpeechModelRefSchem
 
 const TranscribeAudioOutputSchema = OpenAITranscribeAudioOutputSchema.extend({
   model: z.string().describe('Model name used'),
-  cost: z.number().describe('Total cost of this transcription, in U.S. dollars'),
+  cost: z.number().optional().describe('Total cost of the transcription, in U.S. dollars (DEPRECATED)'),
+  botpress: z.object({
+    cost: z.number().describe('Total cost of the transcription, in U.S. dollars'),
+  }),
 })
 
 export const speechToText = new InterfaceDeclaration({
   name: 'speechToText',
-  version: '1.0.0',
+  version: '2.0.0',
   entities: {
     speechToTextModelRef: {
       schema: SpeechModelRefSchema,
@@ -58,6 +61,8 @@ export const speechToText = new InterfaceDeclaration({
   },
   actions: {
     transcribeAudio: {
+      billable: true,
+      cacheable: true,
       input: {
         schema: ({ speechToTextModelRef }) => TranscribeAudioInputSchema(speechToTextModelRef),
       },
