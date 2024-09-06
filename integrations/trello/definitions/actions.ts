@@ -1,3 +1,4 @@
+import { IntegrationDefinitionProps } from '@botpress/sdk'
 import {
   addCardCommentInputSchema,
   addCardCommentOutputSchema,
@@ -37,7 +38,7 @@ import {
   updateCardOutputSchema,
 } from '../src/schemas/actions'
 
-export const actions = {
+export const actions: IntegrationDefinitionProps['actions'] = {
   getBoardsByDisplayName: {
     title: 'Get boards by name',
     description: 'Find all boards whose display name match this name',

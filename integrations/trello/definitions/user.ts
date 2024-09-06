@@ -1,4 +1,6 @@
-export const user = {
+import { IntegrationDefinitionProps } from '@botpress/sdk'
+
+export const user: IntegrationDefinitionProps['user'] = {
   tags: {
     userId: {
       title: 'User ID',

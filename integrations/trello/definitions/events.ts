@@ -1,3 +1,4 @@
+import { IntegrationDefinitionProps } from '@botpress/sdk'
 import { addAttachmentToCardEventSchema } from '../src/schemas/webhookEvents/addAttachmentToCardEventSchema'
 import { addLabelToCardEventSchema } from '../src/schemas/webhookEvents/addLabelToCardEventSchema'
 import { addMemberToCardEventSchema } from '../src/schemas/webhookEvents/addMemberToCardEventSchema'
@@ -36,7 +37,7 @@ export enum TrelloEvent {
   deleteAttachmentFromCard = 'deleteAttachmentFromCard',
 }
 
-export const events = {
+export const events: IntegrationDefinitionProps['events'] = {
   [TrelloEvent.addMemberToCard]: {
     title: 'Member added to card',
     description: 'Triggered when a member is added to a card',

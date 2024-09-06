@@ -1,6 +1,6 @@
-import { messages } from '@botpress/sdk'
+import { IntegrationDefinitionProps, messages } from '@botpress/sdk'
 
-export const channels = {
+export const channels: IntegrationDefinitionProps['channels'] = {
   cardComments: {
     messages: {
       text: messages.defaults.text,
