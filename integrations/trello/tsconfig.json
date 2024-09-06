@@ -5,7 +5,16 @@
     "outDir": "dist",
     "experimentalDecorators": true,
     "emitDecoratorMetadata": true,
-    "strict": true
+    "strict": true,
+    "noImplicitAny": true,
+    "noPropertyAccessFromIndexSignature": true,
+    "noUncheckedIndexedAccess": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
   },
-  "include": [".botpress/**/*", "src/**/*", "integration.definition.ts"]
+  "include": [
+    ".botpress/**/*",
+    "src/**/*",
+    "integration.definition.ts"
+  ]
 }

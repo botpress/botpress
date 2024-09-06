@@ -11,11 +11,11 @@ import { BaseRepository } from './BaseRepository'
 
 @injectable()
 export class TrelloCardRepository extends BaseRepository implements ICardRepository {
-  constructor(@inject(DIToken.TrelloClient) trelloClient: TrelloClient) {
+  public constructor(@inject(DIToken.TrelloClient) trelloClient: TrelloClient) {
     super(trelloClient)
   }
 
-  async getCardById(cardId: Card['id']): Promise<Card> {
+  public async getCardById(cardId: Card['id']): Promise<Card> {
     try {
       const card = await this.trelloClient.cards.getCard({
         id: cardId,
@@ -38,7 +38,7 @@ export class TrelloCardRepository extends BaseRepository implements ICardReposit
     }
   }
 
-  async createCard(card: Pick<Card, 'name' | 'description' | 'listId'>): Promise<Card> {
+  public async createCard(card: Pick<Card, 'name' | 'description' | 'listId'>): Promise<Card> {
     try {
       const newCard = await this.trelloClient.cards.createCard({
         idList: card.listId,
@@ -63,7 +63,7 @@ export class TrelloCardRepository extends BaseRepository implements ICardReposit
     }
   }
 
-  async updateCard(card: Pick<Card, 'id'> & Partial<Card>): Promise<Card> {
+  public async updateCard(card: Pick<Card, 'id'> & Partial<Card>): Promise<Card> {
     try {
       const updatedProperties = keepOnlySetProperties({
         id: card.id,

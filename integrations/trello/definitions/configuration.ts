@@ -1,6 +1,6 @@
 import { IntegrationDefinitionProps } from '@botpress/sdk'
 import { TrelloConfigSchema } from '../src/schemas'
 
-export const configuration: IntegrationDefinitionProps['configuration'] = {
+export const configuration = {
   schema: TrelloConfigSchema,
-}
+} as const satisfies NonNullable<IntegrationDefinitionProps['configuration']>

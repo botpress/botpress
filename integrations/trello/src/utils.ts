@@ -1,11 +1,12 @@
 import { RuntimeError } from '@botpress/sdk'
 
-export const keepOnlySetProperties = (obj: object) => Object.fromEntries(Object.entries(obj).filter(([_, v]) => !!v))
+export const keepOnlySetProperties = (obj: object) => Object.fromEntries(Object.entries(obj).filter(([, v]) => !!v))
 
 export const canonicalize = (identifier: string) => identifier.trim().toUpperCase().normalize()
 
 export const nameCompare = (name1: string, name2: string) => canonicalize(name1) === canonicalize(name2)
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const wrapWithTryCatch = <T extends (...args: any[]) => Promise<any>>(fn: T, errorMessage: string): T =>
   (async (...args: Parameters<T>): Promise<ReturnType<T>> => {
     try {

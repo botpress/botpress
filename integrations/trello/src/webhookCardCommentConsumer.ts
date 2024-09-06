@@ -20,12 +20,12 @@ export class WebhookCardCommentConsumer {
   private conversation!: Awaited<ReturnType<bp.Client['getOrCreateConversation']>>['conversation']
   private user!: Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user']
 
-  constructor(client: bp.HandlerProps['client'], event: CommentCardEvent) {
+  public constructor(client: bp.HandlerProps['client'], event: CommentCardEvent) {
     this.client = client
     this.cardCommentEvent = event
   }
 
-  async consumeComment() {
+  public async consumeComment() {
     this.extractMessageDataFromEvent()
     await Promise.all([this.getOrCreateConversation(), this.getOrCreateUser()])
 
@@ -47,7 +47,7 @@ export class WebhookCardCommentConsumer {
       messageAuthorId: this.cardCommentEvent.action.memberCreator.id,
       messageAuthorName: this.cardCommentEvent.action.memberCreator.fullName,
       messageAuthorAvatar: this.cardCommentEvent.action.memberCreator.avatarUrl + '/50.png',
-    }
+    } as const satisfies TrelloMessageData
   }
 
   private async getOrCreateConversation() {

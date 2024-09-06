@@ -10,11 +10,11 @@ import { BaseRepository } from './BaseRepository'
 
 @injectable()
 export class TrelloListRepository extends BaseRepository implements IListRepository {
-  constructor(@inject(DIToken.TrelloClient) trelloClient: TrelloClient) {
+  public constructor(@inject(DIToken.TrelloClient) trelloClient: TrelloClient) {
     super(trelloClient)
   }
 
-  async getListById(listId: List['id']): Promise<List> {
+  public async getListById(listId: List['id']): Promise<List> {
     try {
       const list: List = await this.trelloClient.lists.getList({
         id: listId,
@@ -29,7 +29,7 @@ export class TrelloListRepository extends BaseRepository implements IListReposit
     }
   }
 
-  async getCardsInList(listId: List['id']): Promise<Card[]> {
+  public async getCardsInList(listId: List['id']): Promise<Card[]> {
     try {
       const cards = await this.trelloClient.lists.getListCards({
         id: listId,

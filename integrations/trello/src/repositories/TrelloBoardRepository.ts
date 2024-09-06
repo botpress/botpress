@@ -11,11 +11,11 @@ import { BaseRepository } from './BaseRepository'
 
 @injectable()
 export class TrelloBoardRepository extends BaseRepository implements IBoardRepository {
-  constructor(@inject(DIToken.TrelloClient) trelloClient: TrelloClient) {
+  public constructor(@inject(DIToken.TrelloClient) trelloClient: TrelloClient) {
     super(trelloClient)
   }
 
-  async getBoardMembers(boardId: Board['id']): Promise<Member[]> {
+  public async getBoardMembers(boardId: Board['id']): Promise<Member[]> {
     try {
       const members: { id: TrelloID; fullName: string; username: string }[] =
         await this.trelloClient.boards.getBoardMembers({
@@ -32,7 +32,7 @@ export class TrelloBoardRepository extends BaseRepository implements IBoardRepos
     }
   }
 
-  async getBoardById(boardId: Board['id']): Promise<Board> {
+  public async getBoardById(boardId: Board['id']): Promise<Board> {
     try {
       const board = await this.trelloClient.boards.getBoard({
         id: boardId,
@@ -40,14 +40,14 @@ export class TrelloBoardRepository extends BaseRepository implements IBoardRepos
 
       return {
         id: board.id,
-        name: board.name!,
+        name: board.name ?? '',
       }
     } catch (error) {
       this.handleError(`getBoardById for board ${boardId}`, error)
     }
   }
 
-  async getAllBoards(): Promise<Board[]> {
+  public async getAllBoards(): Promise<Board[]> {
     try {
       const boards = await this.trelloClient.members.getMemberBoards({
         id: 'me',
@@ -55,14 +55,14 @@ export class TrelloBoardRepository extends BaseRepository implements IBoardRepos
 
       return boards.map((board) => ({
         id: board.id,
-        name: board.name!,
+        name: board.name ?? '',
       }))
     } catch (error) {
       this.handleError('getAllBoards', error)
     }
   }
 
-  async getListsInBoard(boardId: Board['id']): Promise<List[]> {
+  public async getListsInBoard(boardId: Board['id']): Promise<List[]> {
     try {
       const lists = await this.trelloClient.boards.getBoardLists({
         id: boardId,

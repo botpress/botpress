@@ -5,9 +5,9 @@ export enum States {
   webhookState = 'webhookState',
 }
 
-export const states: IntegrationDefinitionProps['states'] = {
+export const states = {
   [States.webhookState]: {
     type: 'integration',
     schema: webhookStateSchema,
   },
-}
+} as const satisfies NonNullable<IntegrationDefinitionProps['states']>

@@ -37,7 +37,7 @@ export enum TrelloEvent {
   deleteAttachmentFromCard = 'deleteAttachmentFromCard',
 }
 
-export const events: IntegrationDefinitionProps['events'] = {
+export const events = {
   [TrelloEvent.addMemberToCard]: {
     title: 'Member added to card',
     description: 'Triggered when a member is added to a card',
@@ -123,4 +123,4 @@ export const events: IntegrationDefinitionProps['events'] = {
     description: 'Triggered when an attachment is deleted from a card',
     schema: deleteAttachmentFromCardEventSchema.shape.action.shape.data,
   },
-}
+} as const satisfies NonNullable<IntegrationDefinitionProps['events']>

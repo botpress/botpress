@@ -11,20 +11,20 @@ import { nameCompare } from '../utils'
 
 @injectable()
 export class TrelloListQueryService implements IListQueryService {
-  constructor(
+  public constructor(
     @inject(DIToken.BoardRepository) private boardRepository: IBoardRepository,
     @inject(DIToken.ListRepository) private listRepository: IListRepository
   ) {}
 
-  async getListById(listId: List['id']): Promise<List> {
+  public async getListById(listId: List['id']): Promise<List> {
     return await this.listRepository.getListById(listId)
   }
 
-  async getCardsInList(listId: List['id']): Promise<Card[]> {
+  public async getCardsInList(listId: List['id']): Promise<Card[]> {
     return await this.listRepository.getCardsInList(listId)
   }
 
-  async getListsByDisplayName(boardId: Board['id'], name: List['name']): Promise<List[]> {
+  public async getListsByDisplayName(boardId: Board['id'], name: List['name']): Promise<List[]> {
     const allLists = await this.boardRepository.getListsInBoard(boardId)
     return allLists.filter((l) => nameCompare(l.name, name))
   }
