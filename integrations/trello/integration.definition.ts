@@ -1,13 +1,13 @@
-import { IntegrationDefinition } from '@botpress/sdk'
+import { IntegrationDefinition, interfaces } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
-import { events, states, actions, channels, user, configuration } from './definitions'
+import { events, states, actions, channels, user, configuration, entities } from './definitions'
 import { integrationName } from './package.json'
 
 export default new IntegrationDefinition({
   name: integrationName,
   title: 'Trello',
-  version: '1.0.7',
+  version: '1.1.0',
   readme: 'hub.md',
   description:
     "Boost your chatbot's capabilities with Trello. Easily update cards, add comments, create new cards, and read board members from your chatbot",
@@ -18,7 +18,8 @@ export default new IntegrationDefinition({
   configuration,
   states,
   events,
+  entities,
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
   },
-})
+}).extend(interfaces.listable, (entities) => ({ item: entities['card'] }))
