@@ -22,4 +22,18 @@ export default new IntegrationDefinition({
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
   },
-}).extend(interfaces.listable, (entities) => ({ item: entities['card'] }))
+})
+  .extend(interfaces.listable, (entities) => ({ item: entities['card'] }))
+  .extend(interfaces.readable, (entities) => ({ item: entities['card'] }))
+
+// .extend(interfaces.listable, (entities) => ({ item: entities['list'] }))
+// .extend(interfaces.readable, (entities) => ({ item: entities['list'] }))
+
+// .extend(interfaces.listable, (entities) => ({ item: entities['board'] }))
+// .extend(interfaces.readable, (entities) => ({ item: entities['board'] }))
+
+// .extend(interfaces.listable, (entities) => ({ item: entities['boardMember'] }))
+// .extend(interfaces.readable, (entities) => ({ item: entities['boardMember'] }))
+
+// .extend(interfaces.listable, (entities) => ({ item: entities['cardMember'] }))
+// .extend(interfaces.readable, (entities) => ({ item: entities['cardMember'] }))

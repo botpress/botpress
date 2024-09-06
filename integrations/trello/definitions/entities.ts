@@ -4,7 +4,7 @@ import { CardSchema } from 'src/schemas/entities/card'
 import { ListSchema } from 'src/schemas/entities/list'
 import { MemberSchema } from 'src/schemas/entities/member'
 
-export const entities: IntegrationDefinitionProps['entities'] = {
+export const entities = {
   card: {
     title: 'Card',
     description: 'A card in a Trello list',
@@ -30,4 +30,4 @@ export const entities: IntegrationDefinitionProps['entities'] = {
     description: 'A member assigned to a Trello card',
     schema: MemberSchema,
   },
-} as const
+} as const satisfies IntegrationDefinitionProps['entities']
