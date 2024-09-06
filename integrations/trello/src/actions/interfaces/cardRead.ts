@@ -1,14 +1,12 @@
 import { cardReadInputSchema } from 'src/schemas/actions/interfaces/cardReadInputSchema'
-import * as bp from '../../../.botpress'
-import { wrapWithTryCatch } from '../../utils'
-import { getCardById } from '../getCardById'
+import { wrapActionAndInjectServices } from 'src/utils'
 
-const cardRead: bp.IntegrationProps['actions']['cardRead'] = async ({ ctx, input, client, logger }) => {
-  const { id: cardId } = cardReadInputSchema.parse(input)
-  const { card: item } = await getCardById({ ctx, input: { cardId }, client, logger, type: 'getCardById' })
+export const cardRead = wrapActionAndInjectServices<'cardRead'>({
+  async action({ input }, { cardRepository }) {
+    const { id: cardId } = cardReadInputSchema.parse(input)
+    const item = await cardRepository.getCardById(cardId)
 
-  return { item, meta: {} }
-}
-
-const wrapped = wrapWithTryCatch(cardRead, 'Failed to retrieve the cards')
-export { wrapped as cardRead }
+    return { item, meta: {} }
+  },
+  errorMessage: 'Failed to retrieve the card',
+})
