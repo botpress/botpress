@@ -8,19 +8,19 @@ import { IWebhookDeletionService } from './interfaces/services/IWebhookDeletionS
 import { DIToken } from './iocContainer'
 
 export class WebhookLifecycleManager {
-  ctx: bp.Context
-  client: bp.Client
-  container: DependencyContainer
-  logger: bp.Logger
+  private ctx: bp.Context
+  private client: bp.Client
+  private container: DependencyContainer
+  private logger: bp.Logger
 
-  constructor(ctx: bp.Context, client: bp.Client, container: DependencyContainer, logger: bp.Logger) {
+  public constructor(ctx: bp.Context, client: bp.Client, container: DependencyContainer, logger: bp.Logger) {
     this.ctx = ctx
     this.client = client
     this.container = container
     this.logger = logger
   }
 
-  async registerTrelloWebhookIfNotExists(webhookUrl: string) {
+  public async registerTrelloWebhookIfNotExists(webhookUrl: string) {
     if (!this.ctx.configuration.trelloBoardId) {
       this.logger.forBot().warn('No Trello board id provided. Skipping webhook registration...')
       return
@@ -57,7 +57,7 @@ export class WebhookLifecycleManager {
       const webhookId = await webhookCreationService.createWebhook(
         integrationName,
         webhookUrl,
-        this.ctx.configuration.trelloBoardId!
+        this.ctx.configuration.trelloBoardId as string
       )
       await this.setWebhookId(webhookId)
     } catch (error) {
@@ -76,7 +76,7 @@ export class WebhookLifecycleManager {
     })
   }
 
-  async unregisterTrelloWebhookIfExists() {
+  public async unregisterTrelloWebhookIfExists() {
     const webhookId = await this.getWebhookId()
 
     if (!webhookId) {

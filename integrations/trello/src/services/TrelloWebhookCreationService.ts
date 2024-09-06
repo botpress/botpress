@@ -7,9 +7,9 @@ import { DIToken } from '../iocContainer'
 
 @injectable()
 export class TrelloWebhookCreationService implements IWebhookCreationService {
-  constructor(@inject(DIToken.WebhookRepository) private webhookRepository: IWebhookRepository) {}
+  public constructor(@inject(DIToken.WebhookRepository) private webhookRepository: IWebhookRepository) {}
 
-  async createWebhook(description: string, url: string, trelloBoardId: Board['id']): Promise<string> {
+  public async createWebhook(description: string, url: string, trelloBoardId: Board['id']): Promise<string> {
     const newWebhook = await this.webhookRepository.createWebhook(description, url, trelloBoardId)
 
     return newWebhook

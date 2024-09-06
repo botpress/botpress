@@ -6,11 +6,9 @@ import { DIToken } from '../iocContainer'
 
 @injectable()
 export class TrelloWebhookDeletionService implements IWebhookDeletionService {
-    constructor(
-        @inject(DIToken.WebhookRepository) private webhookRepository: IWebhookRepository,
-    ) { }
+  public constructor(@inject(DIToken.WebhookRepository) private webhookRepository: IWebhookRepository) {}
 
-    async deleteWebhook(id: string): Promise<void> {
-        await this.webhookRepository.deleteWebhook(id)
-    }
+  public async deleteWebhook(id: string): Promise<void> {
+    await this.webhookRepository.deleteWebhook(id)
+  }
 }

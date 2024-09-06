@@ -1,4 +1,5 @@
 import 'reflect-metadata'
+import assert from 'assert'
 import { inject, injectable } from 'tsyringe'
 import { ICardRepository } from '../interfaces/repositories/ICardRepository'
 import { IListRepository } from '../interfaces/repositories/IListRepository'
@@ -9,12 +10,12 @@ import { nameCompare } from '../utils'
 
 @injectable()
 export class TrelloCardUpdateService implements ICardUpdateService {
-  constructor(
+  public constructor(
     @inject(DIToken.CardRepository) private cardRepository: ICardRepository,
     @inject(DIToken.ListRepository) private listRepository: IListRepository
   ) {}
 
-  async moveCardVertically(cardId: string, nbPositions: number): Promise<void> {
+  public async moveCardVertically(cardId: string, nbPositions: number): Promise<void> {
     if (nbPositions === 0) {
       return
     }
@@ -38,8 +39,11 @@ export class TrelloCardUpdateService implements ICardUpdateService {
       )
     }
 
-    const card = cards[cardIndex]!
-    const cardAtNewPosition = cards[cardIndex - nbPositions]!
+    const card = cards[cardIndex]
+    const cardAtNewPosition = cards[cardIndex - nbPositions]
+
+    assert(card, 'Card to move must exist')
+    assert(cardAtNewPosition, 'Card to swap with must exist')
 
     card.verticalPosition = cardAtNewPosition.verticalPosition - 1
     return card
@@ -52,14 +56,17 @@ export class TrelloCardUpdateService implements ICardUpdateService {
       )
     }
 
-    const card = cards[cardIndex]!
-    const cardAtNewPosition = cards[cardIndex + nbPositions]!
+    const card = cards[cardIndex]
+    const cardAtNewPosition = cards[cardIndex + nbPositions]
+
+    assert(card, 'Card to move must exist')
+    assert(cardAtNewPosition, 'Card to swap with must exist')
 
     card.verticalPosition = cardAtNewPosition.verticalPosition + 1
     return card
   }
 
-  async moveCardToOtherList(cardId: string, newListId: string): Promise<void> {
+  public async moveCardToOtherList(cardId: string, newListId: string): Promise<void> {
     const card = await this.cardRepository.getCardById(cardId)
     const newList = await this.listRepository.getListById(newListId)
 
@@ -68,7 +75,7 @@ export class TrelloCardUpdateService implements ICardUpdateService {
     await this.cardRepository.updateCard(card)
   }
 
-  async updateCard(cardId: Card['id'], modifications: Partial<CardModificationRequest>): Promise<void> {
+  public async updateCard(cardId: Card['id'], modifications: Partial<CardModificationRequest>): Promise<void> {
     const card = await this.cardRepository.getCardById(cardId)
 
     const cardData: Partial<Card> & Pick<Card, 'id'> = {
@@ -84,7 +91,7 @@ export class TrelloCardUpdateService implements ICardUpdateService {
       memberIds: [...card.memberIds, ...(modifications.membersToAdd ?? [])].filter(
         (memberId) => !modifications.membersToRemove?.includes(memberId)
       ),
-    }
+    } as const
 
     await this.cardRepository.updateCard(cardData)
   }

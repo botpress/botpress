@@ -7,14 +7,14 @@ import { Card } from '../schemas/entities/Card'
 
 @injectable()
 export class TrelloCardCreationService implements ICardCreationService {
-  constructor(@inject(DIToken.CardRepository) private cardRepository: ICardRepository) {}
+  public constructor(@inject(DIToken.CardRepository) private cardRepository: ICardRepository) {}
 
-  async createCard(name: string, description: string, listId: string): Promise<Card> {
-    const card = {
+  public async createCard(name: string, description: string, listId: string): Promise<Card> {
+    const card: Pick<Card, 'name' | 'description' | 'listId'> = {
       name,
       description,
       listId,
-    }
+    } as const
 
     return await this.cardRepository.createCard(card)
   }

@@ -1,6 +1,6 @@
 import { IntegrationDefinitionProps, messages } from '@botpress/sdk'
 
-export const channels: IntegrationDefinitionProps['channels'] = {
+export const channels = {
   cardComments: {
     messages: {
       text: messages.defaults.text,
@@ -38,4 +38,4 @@ export const channels: IntegrationDefinitionProps['channels'] = {
       },
     },
   },
-}
+} as const satisfies NonNullable<IntegrationDefinitionProps['channels']>

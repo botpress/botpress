@@ -1,3 +1,4 @@
+import assert from 'assert'
 import { ICardCommentCreationService } from 'src/interfaces/services/ICardCommentCreationService'
 import { DIToken, getContainer } from 'src/iocContainer'
 import * as bp from '../../../.botpress'
@@ -12,7 +13,9 @@ export const textMessagePublish = async ({
   const container = getContainer(ctx)
   const cardCommentCreationService = container.resolve<ICardCommentCreationService>(DIToken.CardCommentCreationService)
 
-  const commentId = await cardCommentCreationService.createComment(conversation.tags.cardId!, payload.text)
+  assert(conversation.tags.cardId, 'Card id must be set')
+
+  const commentId = await cardCommentCreationService.createComment(conversation.tags.cardId, payload.text)
 
   await client.updateConversation({
     id: conversation.id,

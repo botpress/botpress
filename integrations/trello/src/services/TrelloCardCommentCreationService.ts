@@ -7,11 +7,9 @@ import { Card } from '../schemas/entities/Card'
 
 @injectable()
 export class TrelloCardCommentCreationService implements ICardCommentCreationService {
-    constructor(
-        @inject(DIToken.CardCommentRepository) private cardCommentRepository: ICardCommentRepository,
-    ) { }
+  public constructor(@inject(DIToken.CardCommentRepository) private cardCommentRepository: ICardCommentRepository) {}
 
-    async createComment(cardId: Card['id'], commentBody: string): Promise<string> {
-        return await this.cardCommentRepository.createComment(cardId, commentBody)
-    }
+  public async createComment(cardId: Card['id'], commentBody: string): Promise<string> {
+    return await this.cardCommentRepository.createComment(cardId, commentBody)
+  }
 }

@@ -38,7 +38,7 @@ import {
   updateCardOutputSchema,
 } from '../src/schemas/actions'
 
-export const actions: IntegrationDefinitionProps['actions'] = {
+export const actions = {
   getBoardsByDisplayName: {
     title: 'Get boards by name',
     description: 'Find all boards whose display name match this name',
@@ -219,4 +219,4 @@ export const actions: IntegrationDefinitionProps['actions'] = {
       schema: getMemberByIdOrUsernameOutputSchema,
     },
   },
-}
+} as const satisfies NonNullable<IntegrationDefinitionProps['actions']>

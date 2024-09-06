@@ -13,13 +13,13 @@ export class WebhookEventConsumer {
   private rawRequest: bp.HandlerProps['req']
   private parsedWebhookEvent!: genericWebhookEvent
 
-  constructor({ req, client, ctx }: bp.HandlerProps) {
+  public constructor({ req, client, ctx }: bp.HandlerProps) {
     this.ctx = ctx
     this.client = client
     this.rawRequest = req
   }
 
-  async consumeWebhookEvent() {
+  public async consumeWebhookEvent() {
     this.ensureBodyIsPresent()
     this.parseWebhookEvent()
     await this.ensureWebhookIsAuthenticated()
@@ -33,7 +33,7 @@ export class WebhookEventConsumer {
   }
 
   private parseWebhookEvent() {
-    const body = JSON.parse(this.rawRequest.body!)
+    const body = JSON.parse(this.rawRequest.body as string)
     const { success, error, data } = genericWebhookEventSchema.passthrough().safeParse(body)
 
     if (!success) {
@@ -79,7 +79,7 @@ export class WebhookEventConsumer {
       z.object({
         action: genericWebhookEventSchema.shape.action.merge(
           z.object({
-            data: events![this.parsedWebhookEvent.action.type]!.schema,
+            data: events[this.parsedWebhookEvent.action.type].schema,
           })
         ),
       })
