@@ -87,12 +87,14 @@ class ChasitorApi {
     this.logger.forBot().error({...this.config,
       screenResolution: '1900x1080',
       isPost: true,
+      visitorName: opts?.userName?.length && opts?.userName || 'Anonymous Visitor',
       ...opts,})
 
     const { data } = await this.client.post('/rest/Chasitor/ChasitorInit', {
       ...this.config,
       screenResolution: '1900x1080',
       isPost: true,
+      visitorName: opts?.userName?.length && opts?.userName || 'Anonymous Visitor',
       ...opts,
     })
     return data
