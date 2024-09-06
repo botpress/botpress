@@ -13,4 +13,5 @@ const getCardById: bp.IntegrationProps['actions']['getCardById'] = async ({ ctx,
   return { card }
 }
 
-export default wrapWithTryCatch(getCardById, 'Failed to retrieve the card')
+const wrapped = wrapWithTryCatch(getCardById, 'Failed to retrieve the card')
+export { wrapped as getCardById }

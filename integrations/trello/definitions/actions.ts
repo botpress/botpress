@@ -220,5 +220,3 @@ export const actions: IntegrationDefinitionProps['actions'] = {
     },
   },
 }
-
-export default actions

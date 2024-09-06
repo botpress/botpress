@@ -124,5 +124,3 @@ export const events: IntegrationDefinitionProps['events'] = {
     schema: deleteAttachmentFromCardEventSchema.shape.action.shape.data,
   },
 }
-
-export default events

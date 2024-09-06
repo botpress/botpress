@@ -39,4 +39,4 @@ export const deleteCommentEventSchema = genericWebhookEventSchema.merge(
   })
 )
 
-export default deleteCommentEventSchema
+

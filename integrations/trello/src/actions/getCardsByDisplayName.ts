@@ -13,4 +13,5 @@ const getCardsByDisplayName: bp.IntegrationProps['actions']['getCardsByDisplayNa
   return { cards: matchingCards }
 }
 
-export default wrapWithTryCatch(getCardsByDisplayName, 'Failed to retrieve the cards')
+const wrapped = wrapWithTryCatch(getCardsByDisplayName, 'Failed to retrieve the cards')
+export { wrapped as getCardsByDisplayName }

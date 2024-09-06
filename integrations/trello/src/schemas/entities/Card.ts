@@ -15,5 +15,3 @@ export const CardSchema = z.object({
 })
 
 export type Card = z.infer<typeof CardSchema>
-
-export default CardSchema

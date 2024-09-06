@@ -82,4 +82,4 @@ export const updateCardEventSchema = genericWebhookEventSchema.merge(
   })
 )
 
-export default updateCardEventSchema
+

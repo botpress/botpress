@@ -31,4 +31,4 @@ export const voteOnCardEventSchema = genericWebhookEventSchema.merge(
   })
 )
 
-export default voteOnCardEventSchema
+

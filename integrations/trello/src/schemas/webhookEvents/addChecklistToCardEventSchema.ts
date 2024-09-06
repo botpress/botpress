@@ -35,4 +35,4 @@ export const addChecklistToCardEventSchema = genericWebhookEventSchema.merge(
   })
 )
 
-export default addChecklistToCardEventSchema
+

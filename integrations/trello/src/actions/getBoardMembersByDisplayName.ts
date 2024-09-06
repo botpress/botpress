@@ -16,4 +16,5 @@ const getBoardMembersByDisplayName: bp.IntegrationProps['actions']['getBoardMemb
   return { members: matchingMembers }
 }
 
-export default wrapWithTryCatch(getBoardMembersByDisplayName, 'Failed to retrieve the board members')
+const wrapped = wrapWithTryCatch(getBoardMembersByDisplayName, 'Failed to retrieve the board members')
+export { wrapped as getBoardMembersByDisplayName }

@@ -13,4 +13,5 @@ const getListsByDisplayName: bp.IntegrationProps['actions']['getListsByDisplayNa
   return { lists: matchingLists }
 }
 
-export default wrapWithTryCatch(getListsByDisplayName, 'Failed to retrieve the lists')
+const wrapped = wrapWithTryCatch(getListsByDisplayName, 'Failed to retrieve the lists')
+export { wrapped as getListsByDisplayName }

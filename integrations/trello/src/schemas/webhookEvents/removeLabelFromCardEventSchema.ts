@@ -36,4 +36,4 @@ export const removeLabelFromCardEventSchema = genericWebhookEventSchema.merge(
   })
 )
 
-export default removeLabelFromCardEventSchema
+

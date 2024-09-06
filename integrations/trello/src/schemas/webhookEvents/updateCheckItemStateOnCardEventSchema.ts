@@ -46,4 +46,4 @@ export const updateCheckItemStateOnCardEventSchema = genericWebhookEventSchema.m
   })
 )
 
-export default updateCheckItemStateOnCardEventSchema
+

@@ -39,5 +39,3 @@ export const channels: IntegrationDefinitionProps['channels'] = {
     },
   },
 }
-
-export default channels
