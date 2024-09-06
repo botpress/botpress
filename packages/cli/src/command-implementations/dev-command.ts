@@ -243,9 +243,14 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying dev integration ${chalk.bold(integrationDef.name)}...`)
 
-    const createIntegrationBody: CreateIntegrationBody = {
-      ...prepareCreateIntegrationBody(integrationDef),
+    let createIntegrationBody: CreateIntegrationBody = prepareCreateIntegrationBody(integrationDef)
+    createIntegrationBody = {
+      ...createIntegrationBody,
       url: externalUrl,
+      configuration: await this.readIntegrationConfigDefinition(createIntegrationBody.configuration),
+      configurations: await utils.promises.awaitRecord(
+        utils.records.mapValues(createIntegrationBody.configurations ?? {}, this.readIntegrationConfigDefinition)
+      ),
     }
 
     if (integration) {

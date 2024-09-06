@@ -9,6 +9,8 @@ export const states = {
       expiresAt: z.string(),
     }),
   },
+
+  // TODO: delete these 2 states when the backend stop considering state deletion as breaking change
   configuration: {
     type: 'integration',
     schema: z.object({

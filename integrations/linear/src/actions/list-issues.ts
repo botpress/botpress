@@ -4,12 +4,12 @@ import { getLinearClient } from '../misc/utils'
 import { getIssueFields } from './get-issue'
 import * as bp from '.botpress'
 
-export const listIssues: bp.IntegrationProps['actions']['listIssues'] = async ({
-  client,
-  ctx,
-  input: { count, startCursor, startDate, teamId },
-}) => {
-  const linearClient = await getLinearClient(client, ctx.integrationId)
+export const listIssues: bp.IntegrationProps['actions']['listIssues'] = async (args) => {
+  const {
+    ctx,
+    input: { count, startCursor, startDate, teamId },
+  } = args
+  const linearClient = await getLinearClient(args, ctx.integrationId)
 
   const query = await linearClient.issues({
     orderBy: LinearDocument.PaginationOrderBy.UpdatedAt,

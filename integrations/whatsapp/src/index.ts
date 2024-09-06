@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/client'
-import { IntegrationContext, Request } from '@botpress/sdk'
+import { Request } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { channel, INTEGRATION_NAME } from 'integration.definition'
 import * as crypto from 'node:crypto'
@@ -253,7 +253,7 @@ export const getGlobalWebhookUrl = () => {
   return `${process.env.BP_WEBHOOK_URL}/integration/global/${INTEGRATION_NAME}`
 }
 
-export const detectIdentifierIssue = (req: Request, ctx: IntegrationContext) => {
+export const detectIdentifierIssue = (req: Request, ctx: bp.Context) => {
   /* because of the wizard, we need to accept the query param "state" as an identifier
    * but we need to prevent anyone of using anything other than the webhookId there for security reasons
    */

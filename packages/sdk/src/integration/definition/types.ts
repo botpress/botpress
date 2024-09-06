@@ -1,6 +1,15 @@
 import { SchemaDefinition } from '../../schema'
 import { AnyZodObject } from '../../type-utils'
-import { BaseConfig, BaseEvents, BaseActions, BaseMessages, BaseChannels, BaseStates, BaseEntities } from './generic'
+import {
+  BaseConfig,
+  BaseEvents,
+  BaseActions,
+  BaseMessages,
+  BaseChannels,
+  BaseStates,
+  BaseEntities,
+  BaseConfigs,
+} from './generic'
 
 export type TagDefinition = {
   title?: string
@@ -13,6 +22,12 @@ export type ConfigurationDefinition<TConfig extends BaseConfig = BaseConfig> = S
     linkTemplateScript?: string
   }
 }
+
+export type AdditionalConfigurationDefinition<TConfig extends BaseConfigs[string] = BaseConfigs[string]> =
+  ConfigurationDefinition<TConfig> & {
+    title?: string
+    description?: string
+  }
 
 export type EventDefinition<TEvent extends BaseEvents[string] = BaseEvents[string]> = SchemaDefinition<TEvent> & {
   title?: string
@@ -47,6 +62,8 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   description?: string
   input: SchemaDefinition<TAction>
   output: SchemaDefinition<AnyZodObject> // cannot infer both input and output types (typescript limitation)
+  billable?: boolean
+  cacheable?: boolean
 }
 
 export type StateDefinition<TState extends BaseStates[string] = BaseStates[string]> = SchemaDefinition<TState> & {

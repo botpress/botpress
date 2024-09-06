@@ -1,4 +1,3 @@
-import { IntegrationContext } from '@botpress/sdk'
 import { MessengerMessage } from './types'
 import { getMessengerClient } from './utils'
 import * as bp from '.botpress'
@@ -7,11 +6,7 @@ type IntegrationLogger = bp.Logger
 
 export async function handleMessage(
   message: MessengerMessage,
-  {
-    client,
-    ctx,
-    logger,
-  }: { client: bp.Client; ctx: IntegrationContext<bp.configuration.Configuration>; logger: IntegrationLogger }
+  { client, ctx, logger }: { client: bp.Client; ctx: bp.Context; logger: IntegrationLogger }
 ) {
   const { sender, recipient, message: textMessage, postback } = message
 

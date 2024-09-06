@@ -16,6 +16,16 @@ export const configuration = {
   }),
 } satisfies IntegrationDefinitionProps['configuration']
 
+export const configurations = {
+  apiKey: {
+    title: 'API Key',
+    description: 'Configure Linear with an API Key.',
+    schema: z.object({
+      apiKey: z.string().describe('The API key for Linear'),
+    }),
+  },
+} satisfies IntegrationDefinitionProps['configurations']
+
 export const channels = {
   issue: {
     messages: messages.defaults,

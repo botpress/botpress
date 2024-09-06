@@ -1014,8 +1014,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       telegraf:
-        specifier: ^4.11.2
-        version: 4.12.2
+        specifier: ^4.16.3
+        version: 4.16.3
       zod:
         specifier: ^3.20.6
         version: 3.22.4
@@ -1509,6 +1509,19 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  interfaces/typing-indicator:
+    dependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   interfaces/updatable:
     dependencies:
       '@botpress/sdk':
@@ -1525,10 +1538,10 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.29.1
+        specifier: 0.29.4
         version: link:../client
       '@botpress/sdk':
-        specifier: 0.10.11
+        specifier: 0.11.1
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1640,10 +1653,10 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.29.1
+        specifier: 0.29.4
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.10.11
+        specifier: 0.11.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1659,10 +1672,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.29.1
+        specifier: 0.29.4
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.10.11
+        specifier: 0.11.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1678,10 +1691,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 0.29.1
+        specifier: 0.29.4
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.10.11
+        specifier: 0.11.1
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1697,10 +1710,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 0.29.1
+        specifier: 0.29.4
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.10.11
+        specifier: 0.11.1
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -1735,8 +1748,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.39.1
-        version: 0.39.1(openapi-types@12.1.3)
+        specifier: 0.40.5
+        version: 0.40.5(openapi-types@12.1.3)
       '@types/qs':
         specifier: ^6.9.7
         version: 6.9.7
@@ -1781,11 +1794,11 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.29.1
+        specifier: 0.29.4
         version: link:../client
       '@bpinternal/zui':
-        specifier: 0.9.3
-        version: 0.9.3(react@18.3.1)
+        specifier: 0.10.0
+        version: 0.10.0(react@18.3.1)
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -2350,8 +2363,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.39.1(openapi-types@12.1.3):
-    resolution: {integrity: sha512-paTfxw5vN6FwHgSLBLwLzVPzYbbtuMD7jUDjWz7P017L2OzpFlBzkc2ijwGqkNLXGHehlb3S1X30Vu8oUfN9Lw==}
+  /@botpress/api@0.40.5(openapi-types@12.1.3):
+    resolution: {integrity: sha512-Xz3/yi1txyZRmmTAfttKxtFrzCfDsJaoNne+NY9o7eQgjz1sVXbCOxnWUXLLf71RVqte6CMWjwdz59IBMu67lA==}
     dependencies:
       '@bpinternal/opapi': 0.10.22(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -2475,8 +2488,8 @@ packages:
       yn: 4.0.0
     dev: false
 
-  /@bpinternal/zui@0.9.3(react@18.3.1):
-    resolution: {integrity: sha512-aTJ2Lptet3/0MFoMFgMEj268ilE33DZwaMAvy0wf1LjweP9bfCddEMMO3bvJtAWYkuLCFMT4ZLAmKPyKvEnfBg==}
+  /@bpinternal/zui@0.10.0(react@18.3.1):
+    resolution: {integrity: sha512-iltVlwY3izpGCe995JFRmLemh6bAdg3BojpFTocXxS3P6K5XpzfBJUoPfeg3CMBgn6hRIEWxBF5rCqhnMKad9w==}
     engines: {node: '>=16.0.0', pnpm: 9.1.0}
     peerDependencies:
       react: ^18.2.0
@@ -4390,6 +4403,10 @@ packages:
     engines: {node: '>=6'}
     dependencies:
       defer-to-connect: 1.1.3
+    dev: false
+
+  /@telegraf/types@7.1.0:
+    resolution: {integrity: sha512-kGevOIbpMcIlCDeorKGpwZmdH7kHbqlk/Yj6dEpJMKEQw5lk0KVQY0OLXaCswy8GqlIVLd5625OB+rAntP9xVw==}
     dev: false
 
   /@tokenizer/token@0.3.0:
@@ -11207,19 +11224,19 @@ packages:
       xtend: 4.0.2
     dev: true
 
-  /telegraf@4.12.2:
-    resolution: {integrity: sha512-PgwqI4wD86cMqVfFtEM9JkGGnMHgvgLJbReZMmwW4z35QeOi4DvbdItONld4bPnYn3A1jcO0SRKs0BXmR+x+Ew==}
+  /telegraf@4.16.3:
+    resolution: {integrity: sha512-yjEu2NwkHlXu0OARWoNhJlIjX09dRktiMQFsM678BAH/PEPVwctzL67+tvXqLCRQQvm3SDtki2saGO9hLlz68w==}
     engines: {node: ^12.20.0 || >=14.13.1}
     hasBin: true
     dependencies:
+      '@telegraf/types': 7.1.0
       abort-controller: 3.0.0
       debug: 4.3.4
       mri: 1.2.0
-      node-fetch: 2.6.11
+      node-fetch: 2.7.0
       p-timeout: 4.1.0
       safe-compare: 1.1.4
       sandwich-stream: 2.0.2
-      typegram: 4.3.0
     transitivePeerDependencies:
       - encoding
       - supports-color
@@ -11789,10 +11806,6 @@ packages:
       call-bind: 1.0.2
       for-each: 0.3.3
       is-typed-array: 1.1.10
-    dev: false
-
-  /typegram@4.3.0:
-    resolution: {integrity: sha512-pS4STyOZoJ++Mwa9GPMTNjOwEzMkxFfFt1By6IbMOJfheP0utMP/H1ga6J9R4DTjAYBr0UDn4eQg++LpWBvcAg==}
     dev: false
 
   /typescript@4.9.5:

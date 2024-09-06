@@ -1,9 +1,9 @@
-import { z, IntegrationDefinition, messages } from '@botpress/sdk'
+import { z, IntegrationDefinition, messages, interfaces } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'telegram',
-  version: '0.4.5',
+  version: '0.5.1',
   title: 'Telegram',
   description: 'This integration allows your bot to interact with Telegram.',
   icon: 'icon.svg',
@@ -32,4 +32,4 @@ export default new IntegrationDefinition({
     },
     creation: { enabled: true, requiredTags: ['id'] },
   },
-})
+}).extend(interfaces.typingIndicator, () => ({}))

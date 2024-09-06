@@ -2,6 +2,7 @@ export type BaseIntegration = {
   name: string
   version: string
   configuration: any
+  configurations: Record<string, any>
   actions: Record<string, Record<'input' | 'output', any>>
   channels: Record<
     string,

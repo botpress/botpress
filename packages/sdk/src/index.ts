@@ -18,6 +18,7 @@ export {
   InterfaceDeclarationProps,
   TagDefinition,
   ConfigurationDefinition,
+  AdditionalConfigurationDefinition,
   EventDefinition,
   ChannelDefinition,
   MessageDefinition,

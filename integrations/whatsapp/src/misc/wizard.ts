@@ -1,4 +1,4 @@
-import { IntegrationContext, Request } from '@botpress/sdk'
+import { Request } from '@botpress/sdk'
 import queryString from 'query-string'
 import * as bp from '../../.botpress'
 import { getOAuthConfigId } from '../../integration.definition'
@@ -6,7 +6,7 @@ import { getGlobalWebhookUrl } from '../index'
 import { generateButtonDialog, generateSelectDialog, getInterstitialUrl, redirectTo } from './html-utils'
 import { MetaOauthClient } from './whatsapp'
 
-export const handleWizard = async (req: Request, client: bp.Client, ctx: IntegrationContext, logger: bp.Logger) => {
+export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Context, logger: bp.Logger) => {
   const query = queryString.parse(req.query)
 
   let wizardStep = query['wizard-step'] || (query['code'] && 'get-access-token') || 'get-access-token'
@@ -141,7 +141,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: Integra
 // client.patchState is not working correctly
 const patchCredentialsState = async (
   client: bp.Client,
-  ctx: IntegrationContext,
+  ctx: bp.Context,
   newState: Partial<typeof bp.states.credentials>
 ) => {
   const currentState = await getCredentialsState(client, ctx)
@@ -157,7 +157,7 @@ const patchCredentialsState = async (
   })
 }
 
-const getCredentialsState = async (client: bp.Client, ctx: IntegrationContext) => {
+const getCredentialsState = async (client: bp.Client, ctx: bp.Context) => {
   try {
     return (
       (
