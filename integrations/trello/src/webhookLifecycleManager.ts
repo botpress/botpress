@@ -55,7 +55,7 @@ export class WebhookLifecycleManager {
 
     try {
       const webhookId = await webhookCreationService.createWebhook(
-        integrationName,
+        integrationName + this.ctx.integrationId,
         webhookUrl,
         this.ctx.configuration.trelloBoardId as string
       )

@@ -20,16 +20,17 @@ export class WebhookEventConsumer {
   }
 
   public async consumeWebhookEvent() {
-    this.ensureBodyIsPresent()
+    if (!this.ensureBodyIsPresent()) {
+      return
+    }
+
     this.parseWebhookEvent()
     await this.ensureWebhookIsAuthenticated()
     await this.handleWebhookEvent()
   }
 
   private ensureBodyIsPresent() {
-    if (!this.rawRequest.body) {
-      throw new RuntimeError('No body found in the webhook request')
-    }
+    return this.rawRequest.body?.length ?? 0 > 0
   }
 
   private parseWebhookEvent() {
