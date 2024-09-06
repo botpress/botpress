@@ -1,9 +1,9 @@
-import type * as client from '@botpress/client'
 import chalk from 'chalk'
 import _ from 'lodash'
+import { ApiClient, Integration } from 'src/api/client'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
-import { parseIntegrationRef } from '../integration-ref'
+import { NameIntegrationRef, parseIntegrationRef } from '../integration-ref'
 import { GlobalCommand } from './global-command'
 
 export type GetIntegrationCommandDefinition = typeof commandDefinitions.integrations.subcommands.get
@@ -73,7 +73,27 @@ export class DeleteIntegrationCommand extends GlobalCommand<DeleteIntegrationCom
       throw new errors.BotpressCLIError('Cannot delete local integration')
     }
 
-    let integration: client.Integration | undefined
+    let integrationId: string | undefined
+    if (parsedRef.type === 'id') {
+      integrationId = parsedRef.id
+    } else {
+      const integration = await this._findIntegration(api, parsedRef)
+      integrationId = integration.id
+    }
+
+    try {
+      await api.client.deleteIntegration({ id: integrationId })
+    } catch (thrown) {
+      throw errors.BotpressCLIError.wrap(thrown, `Could not delete integration ${this.argv.integrationRef}`)
+    }
+
+    this.logger.success(`Integration ${chalk.bold(this.argv.integrationRef)} deleted`)
+    return
+  }
+
+  private _findIntegration = async (api: ApiClient, parsedRef: NameIntegrationRef) => {
+    let integration: Integration | undefined
+
     try {
       integration = await api.findPrivateIntegration(parsedRef)
     } catch (thrown) {
@@ -89,13 +109,6 @@ export class DeleteIntegrationCommand extends GlobalCommand<DeleteIntegrationCom
       throw new errors.BotpressCLIError(`Integration ${this.argv.integrationRef} not found`)
     }
 
-    try {
-      await api.client.deleteIntegration({ id: integration.id })
-    } catch (thrown) {
-      throw errors.BotpressCLIError.wrap(thrown, `Could not delete integration ${this.argv.integrationRef}`)
-    }
-
-    this.logger.success(`Integration ${chalk.bold(this.argv.integrationRef)} deleted`)
-    return
+    return integration
   }
 }
