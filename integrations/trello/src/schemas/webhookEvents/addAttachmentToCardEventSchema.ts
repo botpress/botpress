@@ -45,4 +45,4 @@ export const addAttachmentToCardEventSchema = genericWebhookEventSchema.merge(
   })
 )
 
-export default addAttachmentToCardEventSchema
+

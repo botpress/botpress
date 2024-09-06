@@ -7,5 +7,3 @@ export const BoardSchema = z.object({
 })
 
 export type Board = z.infer<typeof BoardSchema>
-
-export default BoardSchema

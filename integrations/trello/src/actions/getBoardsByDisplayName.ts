@@ -13,4 +13,5 @@ const getBoardsByDisplayName: bp.IntegrationProps['actions']['getBoardsByDisplay
   return { boards: matchingBoards }
 }
 
-export default wrapWithTryCatch(getBoardsByDisplayName, 'Failed to retrieve the boards')
+const wrapped = wrapWithTryCatch(getBoardsByDisplayName, 'Failed to retrieve the boards')
+export { wrapped as getBoardsByDisplayName }

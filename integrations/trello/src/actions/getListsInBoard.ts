@@ -13,4 +13,5 @@ const getListsInBoard: bp.IntegrationProps['actions']['getListsInBoard'] = async
   return { lists: matchingLists }
 }
 
-export default wrapWithTryCatch(getListsInBoard, 'Failed to retrieve the lists')
+const wrapped = wrapWithTryCatch(getListsInBoard, 'Failed to retrieve the lists')
+export { wrapped as getListsInBoard }

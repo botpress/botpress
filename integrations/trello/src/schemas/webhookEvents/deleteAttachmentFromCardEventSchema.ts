@@ -42,4 +42,4 @@ export const deleteAttachmentFromCardEventSchema = genericWebhookEventSchema.mer
   })
 )
 
-export default deleteAttachmentFromCardEventSchema
+

@@ -7,5 +7,3 @@ export const ListSchema = z.object({
 })
 
 export type List = z.infer<typeof ListSchema>
-
-export default ListSchema

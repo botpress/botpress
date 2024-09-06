@@ -35,4 +35,4 @@ export const deleteCardEventSchema = genericWebhookEventSchema.merge(
   })
 )
 
-export default deleteCardEventSchema
+

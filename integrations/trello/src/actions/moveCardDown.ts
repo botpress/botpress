@@ -14,4 +14,5 @@ const moveCardDown: bp.IntegrationProps['actions']['moveCardDown'] = async ({ ct
   return { message: 'Card successfully moved down' }
 }
 
-export default wrapWithTryCatch(moveCardDown, 'Failed to move the card down')
+const wrapped = wrapWithTryCatch(moveCardDown, 'Failed to move the card down')
+export { wrapped as moveCardDown }

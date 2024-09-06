@@ -36,4 +36,4 @@ export const addLabelToCardEventSchema = genericWebhookEventSchema.merge(
   })
 )
 
-export default addLabelToCardEventSchema
+

@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import CardSchema from '../entities/Card'
+import { CardSchema } from '../entities/Card'
 
 export const getCardByIdOutputSchema = z
   .object({

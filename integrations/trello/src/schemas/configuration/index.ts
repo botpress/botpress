@@ -8,5 +8,3 @@ export const TrelloConfigSchema = z.object({
 })
 
 export type TrelloConfig = z.infer<typeof TrelloConfigSchema>
-
-export default TrelloConfigSchema

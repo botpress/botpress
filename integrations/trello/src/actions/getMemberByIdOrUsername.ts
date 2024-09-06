@@ -13,4 +13,5 @@ const getMemberByIdOrUsername: bp.IntegrationProps['actions']['getMemberByIdOrUs
   return { member }
 }
 
-export default wrapWithTryCatch(getMemberByIdOrUsername, 'Failed to retrieve the member')
+const wrapped = wrapWithTryCatch(getMemberByIdOrUsername, 'Failed to retrieve the member')
+export { wrapped as getMemberByIdOrUsername }

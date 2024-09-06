@@ -8,5 +8,3 @@ export const MemberSchema = z.object({
 })
 
 export type Member = z.infer<typeof MemberSchema>
-
-export default MemberSchema

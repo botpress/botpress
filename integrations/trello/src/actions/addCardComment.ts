@@ -4,7 +4,7 @@ import { addCardCommentInputSchema } from 'src/schemas/actions'
 import { wrapWithTryCatch } from 'src/utils'
 import * as bp from '../../.botpress'
 
-export const addCardComment: bp.IntegrationProps['actions']['addCardComment'] = async ({ ctx, input }) => {
+const addCardComment: bp.IntegrationProps['actions']['addCardComment'] = async ({ ctx, input }) => {
   const container = getContainer(ctx)
   const cardCommentCreationService = container.resolve<ICardCommentCreationService>(DIToken.CardCommentCreationService)
   const { cardId, commentBody } = addCardCommentInputSchema.parse(input)
@@ -14,4 +14,5 @@ export const addCardComment: bp.IntegrationProps['actions']['addCardComment'] = 
   return { message: 'Comment successfully added to the card', newCommentId }
 }
 
-export default wrapWithTryCatch(addCardComment, 'Failed to add a comment to the card')
+const wrapped = wrapWithTryCatch(addCardComment, 'Failed to add a comment to the card')
+export { wrapped as addCardComment }

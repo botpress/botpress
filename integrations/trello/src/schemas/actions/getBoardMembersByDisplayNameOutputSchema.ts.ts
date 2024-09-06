@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import MemberSchema from '../entities/Member'
+import { MemberSchema } from '../entities/Member'
 
 export const getBoardMembersByDisplayNameOutputSchema = z
   .object({

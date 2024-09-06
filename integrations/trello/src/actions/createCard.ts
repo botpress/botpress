@@ -15,4 +15,5 @@ const createCard: bp.IntegrationProps['actions']['createCard'] = async ({ ctx, i
   return { message: `Card created successfully. Card ID: ${newCard.id}`, newCardId: newCard.id }
 }
 
-export default wrapWithTryCatch(createCard, 'Failed to create the new card')
+const wrapped = wrapWithTryCatch(createCard, 'Failed to create the new card')
+export { wrapped as createCard }

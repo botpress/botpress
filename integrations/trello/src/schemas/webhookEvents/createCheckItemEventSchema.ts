@@ -46,4 +46,4 @@ export const createCheckItemEventSchema = genericWebhookEventSchema.merge(
   })
 )
 
-export default createCheckItemEventSchema
+

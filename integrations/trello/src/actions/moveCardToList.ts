@@ -14,4 +14,5 @@ const moveCardToList: bp.IntegrationProps['actions']['moveCardToList'] = async (
   return { message: 'Card successfully moved to the new list' }
 }
 
-export default wrapWithTryCatch(moveCardToList, 'Failed to move the card to the new list')
+const wrapped = wrapWithTryCatch(moveCardToList, 'Failed to move the card to the new list')
+export { wrapped as moveCardToList }

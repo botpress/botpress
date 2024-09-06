@@ -35,4 +35,4 @@ export const addMemberToCardEventSchema = genericWebhookEventSchema.merge(
   })
 )
 
-export default addMemberToCardEventSchema
+

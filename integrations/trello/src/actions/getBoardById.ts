@@ -13,4 +13,5 @@ const getBoardById: bp.IntegrationProps['actions']['getBoardById'] = async ({ ct
   return { board }
 }
 
-export default wrapWithTryCatch(getBoardById, 'Failed to retrieve the board')
+const wrapped = wrapWithTryCatch(getBoardById, 'Failed to retrieve the board')
+export { wrapped as getBoardById }

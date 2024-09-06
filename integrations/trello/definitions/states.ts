@@ -11,5 +11,3 @@ export const states: IntegrationDefinitionProps['states'] = {
     schema: webhookStateSchema,
   },
 }
-
-export default states

@@ -36,4 +36,5 @@ const updateCard: bp.IntegrationProps['actions']['updateCard'] = async ({ ctx, i
   return { message: 'Card updated successfully.' }
 }
 
-export default wrapWithTryCatch(updateCard, 'Failed to update the card')
+const wrapped = wrapWithTryCatch(updateCard, 'Failed to update the card')
+export { wrapped as updateCard }

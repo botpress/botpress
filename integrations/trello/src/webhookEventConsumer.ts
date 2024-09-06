@@ -3,7 +3,7 @@ import { z } from '@botpress/sdk'
 import { events, TrelloEvent } from 'definitions/events'
 import { States } from 'definitions/states'
 import * as bp from '../.botpress'
-import commentCardEventSchema from './schemas/webhookEvents/commentCardEventSchema'
+import { commentCardEventSchema } from './schemas/webhookEvents/commentCardEventSchema'
 import { genericWebhookEventSchema, type genericWebhookEvent } from './schemas/webhookEvents/genericWebhookEventSchema'
 import { WebhookCardCommentConsumer } from './webhookCardCommentConsumer'
 
@@ -79,7 +79,7 @@ export class WebhookEventConsumer {
       z.object({
         action: genericWebhookEventSchema.shape.action.merge(
           z.object({
-            data: events[this.parsedWebhookEvent.action.type].schema,
+            data: events![this.parsedWebhookEvent.action.type]!.schema,
           })
         ),
       })

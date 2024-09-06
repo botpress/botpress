@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import BoardSchema from '../entities/Board'
+import { BoardSchema } from '../entities/Board'
 
 export const getAllBoardsOutputSchema = z
   .object({

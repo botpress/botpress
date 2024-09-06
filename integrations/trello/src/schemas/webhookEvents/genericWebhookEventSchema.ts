@@ -40,4 +40,4 @@ type allSupportedEvents = keyof typeof bp.events
 export type genericWebhookEvent = Omit<z.infer<typeof genericWebhookEventSchema>, 'action'> & {
   action: Omit<z.infer<typeof genericWebhookEventSchema.shape.action>, 'type'> & { type: allSupportedEvents }
 }
-export default genericWebhookEventSchema
+

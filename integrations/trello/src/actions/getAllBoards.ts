@@ -11,4 +11,5 @@ const getAllBoards: bp.IntegrationProps['actions']['getAllBoards'] = async ({ ct
   return { boards }
 }
 
-export default wrapWithTryCatch(getAllBoards, 'Failed to retrieve the list of all boards')
+const wrapped = wrapWithTryCatch(getAllBoards, 'Failed to retrieve the list of all boards')
+export { wrapped as getAllBoards }

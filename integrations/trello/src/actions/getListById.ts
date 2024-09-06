@@ -13,4 +13,5 @@ const getListById: bp.IntegrationProps['actions']['getListById'] = async ({ ctx,
   return { list }
 }
 
-export default wrapWithTryCatch(getListById, 'Failed to retrieve the list')
+const wrapped = wrapWithTryCatch(getListById, 'Failed to retrieve the list')
+export { wrapped as getListById }
