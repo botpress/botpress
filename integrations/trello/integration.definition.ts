@@ -27,6 +27,7 @@ export default new IntegrationDefinition({
   .extend(interfaces.readable, (entities) => ({ item: entities['card'] }))
   .extend(interfaces.updatable, (entities) => ({ item: entities['card'] }))
   .extend(interfaces.creatable, (entities) => ({ item: entities['card'] }))
+  .extend(interfaces.deletable, (entities) => ({ item: entities['card'] }))
 
   .extend(interfaces.listable, (entities) => ({ item: entities['list'] }))
   .extend(interfaces.readable, (entities) => ({ item: entities['list'] }))

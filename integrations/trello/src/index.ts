@@ -32,6 +32,7 @@ import {
   cardmemberRead,
   cardCreate,
   cardUpdate,
+  cardDelete,
 } from './actions'
 import { textMessagePublish } from './channels/cardComments/text'
 import { WebhookEventConsumer } from './webhookEventConsumer'
@@ -76,6 +77,7 @@ const integration = new bp.Integration({
     cardRead,
     cardCreate,
     cardUpdate,
+    cardDelete,
     listList,
     listRead,
     boardList,
