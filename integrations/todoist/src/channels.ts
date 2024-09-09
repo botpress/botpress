@@ -3,7 +3,6 @@ import { getAccessToken, NO_ACCESS_TOKEN_ERROR } from './auth'
 import { Client } from './client'
 import { IntegrationProps } from '.botpress'
 
-
 const comments: IntegrationProps['channels']['comments'] = {
   messages: {
     text: async ({ conversation, ctx, ack, payload, logger, client }) => {
