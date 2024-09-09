@@ -86,12 +86,10 @@ export default new IntegrationDefinition({
 })
 
 export const getOAuthConfigId = () => {
-  return 505750508672935
-  //return 1573997113497422
-  /*if (process.env.BP_WEBHOOK_URL?.includes('dev')) {
-    return '1573997113497422'
+  if (process.env.BP_WEBHOOK_URL?.includes('dev')) {
+    return 505750508672935
   }
 
-  return '1573997113497422'*/
+  return 506253762185261
 }
 
