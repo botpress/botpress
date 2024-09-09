@@ -127,6 +127,8 @@ runs:
                 base_command="$base_command ${{ inputs.anthropic_secrets }}"
             elif [ $integration == "fireworks-ai" ]; then
                 base_command="$base_command ${{ inputs.fireworks_ai_secrets }}"
+            elif [ $integration == "cerebras" ]; then
+                base_command="$base_command ${{ inputs.cerebras_secrets }}"
             fi
             
             if [ $exists -eq 0 ]; then
