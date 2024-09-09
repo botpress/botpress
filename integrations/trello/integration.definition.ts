@@ -29,8 +29,8 @@ export default new IntegrationDefinition({
   .extend(interfaces.listable, (entities) => ({ item: entities['list'] }))
   .extend(interfaces.readable, (entities) => ({ item: entities['list'] }))
 
-// .extend(interfaces.listable, (entities) => ({ item: entities['board'] }))
-// .extend(interfaces.readable, (entities) => ({ item: entities['board'] }))
+  .extend(interfaces.listable, (entities) => ({ item: entities['board'] }))
+  .extend(interfaces.readable, (entities) => ({ item: entities['board'] }))
 
 // .extend(interfaces.listable, (entities) => ({ item: entities['boardMember'] }))
 // .extend(interfaces.readable, (entities) => ({ item: entities['boardMember'] }))

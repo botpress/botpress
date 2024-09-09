@@ -23,6 +23,8 @@ import {
   cardRead,
   listList,
   listRead,
+  boardList,
+  boardRead,
 } from './actions'
 import { textMessagePublish } from './channels/cardComments/text'
 import { WebhookEventConsumer } from './webhookEventConsumer'
@@ -66,8 +68,8 @@ const integration = new bp.Integration({
     cardRead,
     listList,
     listRead,
-    // boardList,
-    // boardRead,
+    boardList,
+    boardRead,
     // boardMemberList,
     // boardMemberRead,
     // cardMemberList,
