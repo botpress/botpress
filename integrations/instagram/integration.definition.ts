@@ -32,6 +32,6 @@ export default new IntegrationDefinition({
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
   user: {
     tags: { id: {} },
-    // creation: { enabled: true, requiredTags: ['id'] },
+    creation: { enabled: true, requiredTags: ['id'] },
   },
 })
