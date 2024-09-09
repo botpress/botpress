@@ -1,4 +1,4 @@
-import { llm, textToSpeech } from '@botpress/common'
+import { llm } from '@botpress/common'
 import { interfaces } from '@botpress/sdk'
 import OpenAI from 'openai'
 import { ModelId } from './schemas'
