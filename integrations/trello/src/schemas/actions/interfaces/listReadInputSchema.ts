@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { ListSchema } from 'src/schemas/entities/List'
+import { ListSchema } from 'src/schemas/entities/list'
 
 export const listReadInputSchema = z
   .object({

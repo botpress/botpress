@@ -1,10 +1,28 @@
 import { TrelloID } from 'src/schemas'
+import { Member } from 'src/schemas/entities/member'
 import { UpdateCard } from 'trello.js/out/api/parameters'
 import { Card } from '../schemas/entities/card'
 import { keepOnlySetProperties } from '../utils'
 import { BaseRepository } from './baseRepository'
 
 export class TrelloCardRepository extends BaseRepository {
+  public async getCardMembers(cardId: Card['id']): Promise<Member[]> {
+    try {
+      const members: { id: TrelloID; fullName: string; username: string }[] =
+        await this.trelloClient.cards.getCardMembers({
+          id: cardId,
+        })
+
+      return members.map((member) => ({
+        id: member.id,
+        username: member.username,
+        fullName: member.fullName,
+      }))
+    } catch (error) {
+      this.handleError(`getCardMembers for id ${cardId}`, error)
+    }
+  }
+
   public async getCardById(cardId: Card['id']): Promise<Card> {
     try {
       const card = await this.trelloClient.cards.getCard({

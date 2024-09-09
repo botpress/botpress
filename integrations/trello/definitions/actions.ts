@@ -16,6 +16,8 @@ import {
   getBoardsByDisplayNameOutputSchema,
   getCardByIdInputSchema,
   getCardByIdOutputSchema,
+  getCardMembersInputSchema,
+  getCardMembersOutputSchema,
   getCardsByDisplayNameInputSchema,
   getCardsByDisplayNameOutputSchema,
   getCardsInListInputSchema,
@@ -207,6 +209,16 @@ export const actions = {
     },
     output: {
       schema: getCardByIdOutputSchema,
+    },
+  },
+  getCardMembers: {
+    title: 'Get card members',
+    description: 'Get all members of a card',
+    input: {
+      schema: getCardMembersInputSchema,
+    },
+    output: {
+      schema: getCardMembersOutputSchema,
     },
   },
   getMemberByIdOrUsername: {

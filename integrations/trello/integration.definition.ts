@@ -35,5 +35,5 @@ export default new IntegrationDefinition({
   .extend(interfaces.listable, (entities) => ({ item: entities['boardMember'] }))
   .extend(interfaces.readable, (entities) => ({ item: entities['boardMember'] }))
 
-// .extend(interfaces.listable, (entities) => ({ item: entities['cardMember'] }))
-// .extend(interfaces.readable, (entities) => ({ item: entities['cardMember'] }))
+  .extend(interfaces.listable, (entities) => ({ item: entities['cardMember'] }))
+  .extend(interfaces.readable, (entities) => ({ item: entities['cardMember'] }))
