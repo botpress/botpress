@@ -9,14 +9,14 @@
   },
   "private": true,
   "dependencies": {
-    "@botpress/sdk": "0.11.1",
+    "@botpress/sdk": "workspace:*",
     "@doist/todoist-api-typescript": "^3.0.3",
     "axios": "^1.7.4",
     "query-string": "^9.1.0",
     "verror": "^1.10.1"
   },
   "devDependencies": {
-    "@botpress/cli": "0.9.1",
+    "@botpress/cli": "workspace:*",
     "@types/node": "^18.11.17",
     "nodemon": "^3.1.4",
     "prettier": "^3.3.3",
