@@ -63,6 +63,7 @@ export default new IntegrationDefinition({
       type: 'integration',
       schema: z.object({
         accessToken: z.string().optional(),
+        pageToken: z.string().optional(),
         pageId: z.string().optional()
       }),
     },

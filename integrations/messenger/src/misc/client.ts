@@ -58,6 +58,27 @@ export class MetaClient {
 
     return Object.keys(dataBusinesses).map((key) => dataBusinesses[key])
   }
+
+  async getPageToken(accessToken: string, pageId: string): Promise<string> {
+    const query = new URLSearchParams({
+      access_token: accessToken,
+    })
+
+    const res = await axios.get(`https://graph.facebook.com/me/accounts?${query.toString()}`)
+    const data = z
+      .object({
+        data: z.array(z.any())
+      })
+      .parse(res.data)
+
+    const pageToken = data.data.find((item: { id: string, access_token: string }) => item.id == pageId).access_token
+
+    if(!pageToken) {
+      throw new Error('Unable to find the page token for the specified page')
+    }
+
+    return pageToken
+  }
 }
 
 export const getPageId = async (client: bp.Client, ctx: IntegrationContext) => {
@@ -77,12 +98,12 @@ export async function getCredentials(client: bp.Client, ctx: IntegrationContext)
     return ctx.configuration
   }
 
-  // Otherwise use the access token obtained from the OAuth flow and stored in the state
+  // Otherwise use the page token obtained from the OAuth flow and stored in the state
   const { state } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
 
-  if(!state.payload.accessToken) {
+  if(!state.payload.pageToken) {
     throw new Error('There is no access token, please reauthorize')
   }
 
-  return { accessToken: state.payload.accessToken, clientSecret: bp.secrets.CLIENT_SECRET, clientId: bp.secrets.CLIENT_ID }
+  return { accessToken: state.payload.pageToken, clientSecret: bp.secrets.CLIENT_SECRET, clientId: bp.secrets.CLIENT_ID }
 }

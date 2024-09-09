@@ -94,11 +94,13 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: Integra
   }
 
   if (wizardStep === 'wrap-up') {
+    const pageToken = await metaClient.getPageToken(accessToken, pageId)
+
+    await patchCredentialsState(client, ctx, { pageToken })
+
     await client.configureIntegration({
       identifier: pageId,
     })
-
-    //await oauthClient.subscribeToWebhooks(wabaId, accessToken)
 
     return redirectTo(getInterstitialUrl(true))
   }
