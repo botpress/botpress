@@ -37,8 +37,6 @@ export class MetaClient {
       access_token: bp.secrets.ACCESS_TOKEN,
     })
 
-    console.log({inputToken})
-
     const { data: dataDebugToken } = await axios.get(
       `https://graph.facebook.com/${this.version}/debug_token?${query.toString()}`
     )
@@ -59,37 +57,54 @@ export class MetaClient {
     return Object.keys(dataBusinesses).map((key) => dataBusinesses[key])
   }
 
-  async getPageToken(accessToken: string, pageId: string): Promise<string> {
+  async getPageToken(accessToken: string, pageId: string) {
     const query = new URLSearchParams({
       access_token: accessToken,
+      fields: 'access_token,name'
     })
 
-    const res = await axios.get(`https://graph.facebook.com/me/accounts?${query.toString()}`)
+    const res = await axios.get(`https://graph.facebook.com/${pageId}?${query.toString()}`)
     const data = z
       .object({
-        data: z.array(z.any())
+        access_token: z.string(),
+        name: z.string(),
+        id: z.string()
       })
       .parse(res.data)
 
-    const pageToken = data.data.find((item: { id: string, access_token: string }) => item.id == pageId).access_token
-
-    if(!pageToken) {
+    if(!data.access_token) {
       throw new Error('Unable to find the page token for the specified page')
     }
 
-    return pageToken
-  }
-}
-
-export const getPageId = async (client: bp.Client, ctx: IntegrationContext) => {
-  if (ctx.configuration.useManualConfiguration) {
-    return ctx.configuration.pageId
+    return data.access_token
   }
 
-  const {
-    state: { payload },
-  } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
-  return payload.pageId
+  async subscribeToWebhooks(pageToken: string, pageId: string) {
+    try {
+      const { data } = await axios.post(
+        `https://graph.facebook.com/${this.version}/${pageId}/subscribed_apps`,
+        {
+          subscribed_fields: [ "messages", "messaging_postbacks" ]
+        },
+        {
+          headers: {
+            Authorization: 'Bearer ' + pageToken,
+          },
+        }
+      )
+
+      if (!data.success) {
+        throw new Error('No Success')
+      }
+    } catch (e: any) {
+      this.logger
+        .forBot()
+        .error(
+          `(OAuth registration) Error subscribing to webhooks for Page ${pageId}: ${e.message} -> ${e.response?.data}`
+        )
+      throw new Error('Issue subscribing to Webhooks for Page, please try again.')
+    }
+  }
 }
 
 export async function getCredentials(client: bp.Client, ctx: IntegrationContext): Promise<{accessToken: string; clientSecret: string; clientId: string}> {

@@ -95,8 +95,8 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: Integra
 
   if (wizardStep === 'wrap-up') {
     const pageToken = await metaClient.getPageToken(accessToken, pageId)
-
     await patchCredentialsState(client, ctx, { pageToken })
+    await metaClient.subscribeToWebhooks(pageToken, pageId)
 
     await client.configureIntegration({
       identifier: pageId,
