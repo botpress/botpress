@@ -1,21 +1,22 @@
 {
-  "name": "botpress_todoist",
+  "name": "@botpresshub/todoist",
   "scripts": {
-    "check:type": "tsc --noEmit",
-    "login": "bp login",
-    "start": "nodemon --watch \"./*\" --ext \"ts\" --exec \"bp deploy -y\"",
-    "deploy": "bp deploy"
+    "start": "pnpm bp serve",
+    "build": "pnpm bp build",
+    "deploy": "pnpm bp deploy",
+    "login": "pnpm bp login",
+    "check:type": "tsc --noEmit"
   },
   "private": true,
   "dependencies": {
-    "@botpress/sdk": "0.10.17",
+    "@botpress/sdk": "0.11.1",
     "@doist/todoist-api-typescript": "^3.0.3",
     "axios": "^1.7.4",
     "query-string": "^9.1.0",
     "verror": "^1.10.1"
   },
   "devDependencies": {
-    "@botpress/cli": "0.8.66",
+    "@botpress/cli": "0.9.1",
     "@types/node": "^18.11.17",
     "nodemon": "^3.1.4",
     "prettier": "^3.3.3",

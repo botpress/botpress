@@ -1,4 +1,3 @@
-import { configuration } from '.botpress'
 import { z, IntegrationDefinition, messages, interfaces } from '@botpress/sdk'
 
 const ItemDefinition = z.object({
@@ -101,7 +100,8 @@ export default new IntegrationDefinition({
     },
     taskPriorityChanged: {
       title: 'Task Priority Changed',
-      description: 'The priority of a task has been changed. The old priority is only available if the bot user is at the origin of the change',
+      description:
+        'The priority of a task has been changed. The old priority is only available if the bot user is at the origin of the change',
       schema: z.object({
         id: z.string(),
         newPriority: z.number(),

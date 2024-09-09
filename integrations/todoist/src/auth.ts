@@ -1,8 +1,8 @@
-import * as bp from '.botpress'
 import { IntegrationContext, Request, RuntimeError } from '@botpress/sdk'
-import { Client } from './client'
-import queryString from 'query-string'
 import axios from 'axios'
+import queryString from 'query-string'
+import { Client } from './client'
+import * as bp from '.botpress'
 
 export const NO_ACCESS_TOKEN_ERROR =
   'No access token found. Please authenticate with Todoist first or manually set an access token.'
@@ -38,7 +38,7 @@ export async function handleOAuth(req: Request, client: bp.Client, ctx: Integrat
     identifier: userId,
   })
 
-  await client.updateUser({ 
+  await client.updateUser({
     id: ctx.botUserId,
     tags: {
       id: userId,

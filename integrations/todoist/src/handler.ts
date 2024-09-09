@@ -1,7 +1,7 @@
-import * as bp from '.botpress'
-import { NoteEvent, ItemAddedEvent, ItemCompletedEvent, ItemUpdatedEvent, eventSchema } from './types'
-import { Priority } from './client'
 import { handleOAuth } from './auth'
+import { Priority } from './client'
+import { NoteEvent, ItemAddedEvent, ItemCompletedEvent, ItemUpdatedEvent, eventSchema } from './types'
+import * as bp from '.botpress'
 
 const RESPONSE_OK = {
   status: 200,
@@ -22,13 +22,13 @@ async function handleNoteEvent(event: NoteEvent, { client }: bp.HandlerProps) {
   })
 
   await client.getOrCreateMessage({
-    tags: { 
+    tags: {
       id: commentId,
     },
     type: 'text',
     userId: user.id,
     conversationId: conversation.id,
-    payload: { 
+    payload: {
       text: event.event_data.content,
     },
   })
@@ -41,7 +41,7 @@ async function handleItemAdded(event: ItemAddedEvent, { client }: bp.HandlerProp
     channel: 'comments',
     tags: { id: event.event_data.id },
   })
-  
+
   await client.createEvent({
     type: 'taskAdded',
     payload: {
@@ -50,7 +50,7 @@ async function handleItemAdded(event: ItemAddedEvent, { client }: bp.HandlerProp
       description: event.event_data.description,
       priority: event.event_data.priority,
     },
-    conversationId: conversation.id, 
+    conversationId: conversation.id,
   })
 
   return RESPONSE_OK
@@ -85,7 +85,7 @@ async function handleItemCompleted(event: ItemCompletedEvent, { client }: bp.Han
     channel: 'comments',
     tags: { id: event.event_data.id },
   })
-  
+
   await client.createEvent({
     type: 'taskCompleted',
     payload: {
@@ -95,14 +95,14 @@ async function handleItemCompleted(event: ItemCompletedEvent, { client }: bp.Han
       description: event.event_data.description,
       priority: event.event_data.priority,
     },
-    conversationId: conversation.id, 
+    conversationId: conversation.id,
   })
 
   return RESPONSE_OK
 }
 
 export const handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerProps) => {
-  let { req, logger, ctx, client } = props
+  const { req, logger, ctx, client } = props
   if (req.path.startsWith('/oauth')) {
     let response = RESPONSE_OK
     await handleOAuth(req, client, ctx).catch((err) => {

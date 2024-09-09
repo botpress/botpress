@@ -51,13 +51,13 @@ export class Client {
     const project = await api.getProjects()
     // Assume there will be only one inbox project and it'll have the user
     // associated with the API token as its sole collaborator
-    const inbox = project.filter(project => project.isInboxProject)[0]
+    const inbox = project.filter((project) => project.isInboxProject)[0]
     if (!inbox) {
       throw new RuntimeError('Inbox project not found')
     }
 
     const user = (await api.getProjectCollaborators(inbox.id))[0]
-    if(!user) {
+    if (!user) {
       throw new RuntimeError('User owner of Inbox project not found')
     }
     return user.id
@@ -92,7 +92,7 @@ export class Client {
       projectId: args.project_id,
       parentId: args.parentTaskId,
     })
-    return { 
+    return {
       id: task.id,
       content: task.content,
       description: task.description,
@@ -111,7 +111,7 @@ export class Client {
     const api = new TodoistApi(this.apiToken)
     const comment = await api.addComment({
       taskId: task_id,
-      content: content,
+      content,
     })
     return {
       id: comment.id,

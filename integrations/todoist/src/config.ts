@@ -1,5 +1,5 @@
+import { IntegrationContext } from '@botpress/sdk'
 import * as bp from '.botpress'
-import { IntegrationContext, z } from '@botpress/sdk'
 
 type StateConfiguration = bp.states.configuration.Configuration
 
@@ -26,6 +26,6 @@ export async function setStateConfiguration(client: bp.Client, ctx: IntegrationC
     type: 'integration',
     name: 'configuration',
     id: ctx.integrationId,
-    payload: config
+    payload: config,
   })
 }

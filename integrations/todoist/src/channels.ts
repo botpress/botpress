@@ -1,8 +1,8 @@
-import { IntegrationProps } from '.botpress'
-import { Client } from './client'
-import { getAccessToken, NO_ACCESS_TOKEN_ERROR } from './auth'
-
 import { RuntimeError } from '@botpress/sdk'
+import { getAccessToken, NO_ACCESS_TOKEN_ERROR } from './auth'
+import { Client } from './client'
+import { IntegrationProps } from '.botpress'
+
 
 const comments: IntegrationProps['channels']['comments'] = {
   messages: {

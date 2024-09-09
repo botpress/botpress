@@ -1,8 +1,8 @@
-import * as bp from '.botpress'
 import { RuntimeError } from '@botpress/sdk'
-import { Client, Priority } from './client'
 import { getAccessToken, NO_ACCESS_TOKEN_ERROR } from './auth'
+import { Client, Priority } from './client'
 import { emptyStrToUndefined } from './utils'
+import * as bp from '.botpress'
 
 const taskCreate: bp.IntegrationProps['actions']['taskCreate'] = async ({ input, ctx, client }) => {
   const accessToken = await getAccessToken(client, ctx)
@@ -11,7 +11,7 @@ const taskCreate: bp.IntegrationProps['actions']['taskCreate'] = async ({ input,
   }
 
   const { content, description, priority, projectId, parentTaskId } = input.item
-  console.log('taskCreate', JSON.stringify(input))
+
   const todoistClient = new Client(accessToken)
   const task = await todoistClient.createTask({
     content,
@@ -20,12 +20,12 @@ const taskCreate: bp.IntegrationProps['actions']['taskCreate'] = async ({ input,
     project_id: emptyStrToUndefined(projectId),
     parentTaskId: emptyStrToUndefined(parentTaskId),
   })
- 
+
   return {
     item: {
-      ...task, 
+      ...task,
     },
-  } 
+  }
 }
 
 const changeTaskPriority: bp.IntegrationProps['actions']['changeTaskPriority'] = async ({ input, ctx, client }) => {

@@ -1,3 +1,3 @@
 export const emptyStrToUndefined = (value: any) => {
-    return value === '' ? undefined : value
+  return value === '' ? undefined : value
 }
