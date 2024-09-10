@@ -1,7 +1,7 @@
 import { TrelloID } from 'src/schemas'
-import { Card } from '../schemas/entities/Card'
-import { List } from '../schemas/entities/List'
-import { BaseRepository } from './BaseRepository'
+import { Card } from '../schemas/entities/card'
+import { List } from '../schemas/entities/list'
+import { BaseRepository } from './baseRepository'
 
 export class TrelloListRepository extends BaseRepository {
   public async getListById(listId: List['id']): Promise<List> {

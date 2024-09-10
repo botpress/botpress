@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
-import { getServices, Services } from './iocContainer'
+import { getServices, Services } from './services/servicesContainer'
 import { IntegrationProps } from '.botpress'
 
 export const keepOnlySetProperties = (obj: object) => Object.fromEntries(Object.entries(obj).filter(([, v]) => !!v))

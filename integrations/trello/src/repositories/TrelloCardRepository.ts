@@ -1,8 +1,8 @@
 import { TrelloID } from 'src/schemas'
 import { UpdateCard } from 'trello.js/out/api/parameters'
-import { Card } from '../schemas/entities/Card'
+import { Card } from '../schemas/entities/card'
 import { keepOnlySetProperties } from '../utils'
-import { BaseRepository } from './BaseRepository'
+import { BaseRepository } from './baseRepository'
 
 export class TrelloCardRepository extends BaseRepository {
   public async getCardById(cardId: Card['id']): Promise<Card> {

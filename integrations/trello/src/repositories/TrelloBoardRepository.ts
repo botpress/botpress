@@ -1,8 +1,8 @@
 import { TrelloID } from 'src/schemas'
-import { Member } from 'src/schemas/entities/Member'
-import { Board } from '../schemas/entities/Board'
-import { List } from '../schemas/entities/List'
-import { BaseRepository } from './BaseRepository'
+import { Member } from 'src/schemas/entities/member'
+import { Board } from '../schemas/entities/board'
+import { List } from '../schemas/entities/list'
+import { BaseRepository } from './baseRepository'
 
 export class TrelloBoardRepository extends BaseRepository {
   public async getBoardMembers(boardId: Board['id']): Promise<Member[]> {
