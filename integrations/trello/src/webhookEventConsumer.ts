@@ -4,7 +4,11 @@ import { events, TrelloEvent } from 'definitions/events'
 import { States } from 'definitions/states'
 import * as bp from '../.botpress'
 import { commentCardEventSchema } from './schemas/webhookEvents/commentCardEventSchema'
-import { genericWebhookEventSchema, type genericWebhookEvent } from './schemas/webhookEvents/genericWebhookEventSchema'
+import {
+  allSupportedEvents,
+  genericWebhookEventSchema,
+  type genericWebhookEvent,
+} from './schemas/webhookEvents/genericWebhookEventSchema'
 import { WebhookCardCommentConsumer } from './webhookCardCommentConsumer'
 
 export class WebhookEventConsumer {
@@ -41,7 +45,7 @@ export class WebhookEventConsumer {
       throw new RuntimeError('Invalid webhook event body', error)
     }
 
-    this.parsedWebhookEvent = data as genericWebhookEvent
+    this.parsedWebhookEvent = { ...data, action: { ...data.action, type: data.action.type as allSupportedEvents } }
   }
 
   private async ensureWebhookIsAuthenticated() {
@@ -72,7 +76,7 @@ export class WebhookEventConsumer {
   }
 
   private async publishEventToBotpress() {
-    if (!Reflect.ownKeys(bp.events).includes(this.parsedWebhookEvent.action.type)) {
+    if (!Reflect.has(TrelloEvent, this.parsedWebhookEvent.action.type)) {
       return
     }
 
