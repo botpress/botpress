@@ -1,20 +1,10 @@
-import 'reflect-metadata'
 import { TrelloID } from 'src/schemas'
-import { TrelloClient } from 'trello.js'
 import { UpdateCard } from 'trello.js/out/api/parameters'
-import { inject, injectable } from 'tsyringe'
-import { ICardRepository } from '../interfaces/repositories/ICardRepository'
-import { DIToken } from '../iocContainer'
 import { Card } from '../schemas/entities/Card'
 import { keepOnlySetProperties } from '../utils'
 import { BaseRepository } from './BaseRepository'
 
-@injectable()
-export class TrelloCardRepository extends BaseRepository implements ICardRepository {
-  public constructor(@inject(DIToken.TrelloClient) trelloClient: TrelloClient) {
-    super(trelloClient)
-  }
-
+export class TrelloCardRepository extends BaseRepository {
   public async getCardById(cardId: Card['id']): Promise<Card> {
     try {
       const card = await this.trelloClient.cards.getCard({

@@ -1,18 +1,13 @@
-import 'reflect-metadata'
-import { ICardRepository } from 'src/interfaces/repositories/ICardRepository'
+import { TrelloCardRepository } from 'src/repositories/TrelloCardRepository'
+import { TrelloListRepository } from 'src/repositories/TrelloListRepository'
 import { List } from 'src/schemas/entities/List'
-import { inject, injectable } from 'tsyringe'
-import { IListRepository } from '../interfaces/repositories/IListRepository'
-import { ICardQueryService } from '../interfaces/services/ICardQueryService'
-import { DIToken } from '../iocContainer'
 import { Card } from '../schemas/entities/Card'
 import { nameCompare } from '../utils'
 
-@injectable()
-export class TrelloCardQueryService implements ICardQueryService {
+export class TrelloCardQueryService {
   public constructor(
-    @inject(DIToken.ListRepository) private listRepository: IListRepository,
-    @inject(DIToken.CardRepository) private cardRepository: ICardRepository
+    private readonly listRepository: TrelloListRepository,
+    private readonly cardRepository: TrelloCardRepository
   ) {}
 
   public async getCardById(cardId: Card['id']): Promise<Card> {

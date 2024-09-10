@@ -1,16 +1,11 @@
-import 'reflect-metadata'
+import { TrelloBoardRepository } from 'src/repositories/TrelloBoardRepository'
 import { List } from 'src/schemas/entities/List'
 import { Member } from 'src/schemas/entities/Member'
-import { inject, injectable } from 'tsyringe'
-import { IBoardRepository } from '../interfaces/repositories/IBoardRepository'
-import { IBoardQueryService } from '../interfaces/services/IBoardQueryService'
-import { DIToken } from '../iocContainer'
 import { Board } from '../schemas/entities/Board'
 import { nameCompare } from '../utils'
 
-@injectable()
-export class TrelloBoardQueryService implements IBoardQueryService {
-  public constructor(@inject(DIToken.BoardRepository) private boardRepository: IBoardRepository) {}
+export class TrelloBoardQueryService {
+  public constructor(private readonly boardRepository: TrelloBoardRepository) {}
 
   public async getBoardMembersByDisplayName(boardId: Board['id'], memberName: Member['fullName']): Promise<Member[]> {
     const members = await this.boardRepository.getBoardMembers(boardId)

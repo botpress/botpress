@@ -14,16 +14,14 @@ type TrelloMessageData = {
 }
 
 export class WebhookCardCommentConsumer {
-  private client: bp.HandlerProps['client']
-  private cardCommentEvent: CommentCardEvent
   private messageData!: TrelloMessageData
   private conversation!: Awaited<ReturnType<bp.Client['getOrCreateConversation']>>['conversation']
   private user!: Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user']
 
-  public constructor(client: bp.HandlerProps['client'], event: CommentCardEvent) {
-    this.client = client
-    this.cardCommentEvent = event
-  }
+  public constructor(
+    private readonly client: bp.HandlerProps['client'],
+    private readonly cardCommentEvent: CommentCardEvent
+  ) {}
 
   public async consumeComment() {
     this.extractMessageDataFromEvent()

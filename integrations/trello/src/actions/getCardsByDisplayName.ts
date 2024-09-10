@@ -1,17 +1,12 @@
-import { ICardQueryService } from 'src/interfaces/services/ICardQueryService'
-import { getContainer, DIToken } from 'src/iocContainer'
 import { getCardsByDisplayNameInputSchema } from 'src/schemas/actions'
-import { wrapWithTryCatch } from 'src/utils'
-import * as bp from '../../.botpress'
+import { wrapActionAndInjectServices } from 'src/utils'
 
-const getCardsByDisplayName: bp.IntegrationProps['actions']['getCardsByDisplayName'] = async ({ ctx, input }) => {
-  const container = getContainer(ctx)
-  const cardQueryService = container.resolve<ICardQueryService>(DIToken.CardQueryService)
-  const { listId, cardName } = getCardsByDisplayNameInputSchema.parse(input)
+export const getCardsByDisplayName = wrapActionAndInjectServices<'getCardsByDisplayName'>({
+  async action({ input }, { cardQueryService }) {
+    const { listId, cardName } = getCardsByDisplayNameInputSchema.parse(input)
 
-  const matchingCards = await cardQueryService.getCardsByDisplayName(listId, cardName)
-  return { cards: matchingCards }
-}
-
-const wrapped = wrapWithTryCatch(getCardsByDisplayName, 'Failed to retrieve the cards')
-export { wrapped as getCardsByDisplayName }
+    const matchingCards = await cardQueryService.getCardsByDisplayName(listId, cardName)
+    return { cards: matchingCards }
+  },
+  errorMessage: 'Failed to retrieve the cards',
+})

@@ -1,17 +1,12 @@
-import { IBoardQueryService } from 'src/interfaces/services/IBoardQueryService'
-import { getContainer, DIToken } from 'src/iocContainer'
 import { getAllBoardMembersInputSchema } from 'src/schemas/actions'
-import { wrapWithTryCatch } from 'src/utils'
-import * as bp from '../../.botpress'
+import { wrapActionAndInjectServices } from 'src/utils'
 
-const getAllBoardMembers: bp.IntegrationProps['actions']['getAllBoardMembers'] = async ({ ctx, input }) => {
-  const container = getContainer(ctx)
-  const boardQueryService = container.resolve<IBoardQueryService>(DIToken.BoardQueryService)
-  const { boardId } = getAllBoardMembersInputSchema.parse(input)
+export const getAllBoardMembers = wrapActionAndInjectServices<'getAllBoardMembers'>({
+  async action({ input }, { boardRepository }) {
+    const { boardId } = getAllBoardMembersInputSchema.parse(input)
 
-  const members = await boardQueryService.getBoardMembers(boardId)
-  return { members }
-}
-
-const wrapped = wrapWithTryCatch(getAllBoardMembers, 'Failed to retrieve the members of the board')
-export { wrapped as getAllBoardMembers }
+    const members = await boardRepository.getBoardMembers(boardId)
+    return { members }
+  },
+  errorMessage: 'Failed to retrieve the members of the board',
+})

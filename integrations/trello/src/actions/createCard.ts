@@ -1,19 +1,17 @@
-import { ICardCreationService } from 'src/interfaces/services/ICardCreationService'
-import { getContainer, DIToken } from 'src/iocContainer'
 import { createCardInputSchema } from 'src/schemas/actions'
-import { wrapWithTryCatch } from 'src/utils'
-import * as bp from '../../.botpress'
+import { wrapActionAndInjectServices } from 'src/utils'
 
-const createCard: bp.IntegrationProps['actions']['createCard'] = async ({ ctx, input }) => {
-  const container = getContainer(ctx)
-  const cardCreationService = container.resolve<ICardCreationService>(DIToken.CardCreationService)
+export const createCard = wrapActionAndInjectServices<'createCard'>({
+  async action({ input }, { cardRepository }) {
+    const { listId, cardName, cardBody } = createCardInputSchema.parse(input)
 
-  const { listId, cardName, cardBody } = createCardInputSchema.parse(input)
+    const newCard = await cardRepository.createCard({
+      name: cardName,
+      description: cardBody ?? '',
+      listId,
+    })
 
-  const newCard = await cardCreationService.createCard(cardName, cardBody ?? '', listId)
-
-  return { message: `Card created successfully. Card ID: ${newCard.id}`, newCardId: newCard.id }
-}
-
-const wrapped = wrapWithTryCatch(createCard, 'Failed to create the new card')
-export { wrapped as createCard }
+    return { message: `Card created successfully. Card ID: ${newCard.id}`, newCardId: newCard.id }
+  },
+  errorMessage: 'Failed to create the new card',
+})

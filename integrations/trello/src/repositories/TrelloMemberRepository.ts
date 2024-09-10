@@ -1,17 +1,8 @@
-import 'reflect-metadata'
 import assert from 'assert'
-import { TrelloClient } from 'trello.js'
-import { inject, injectable } from 'tsyringe'
-import { IMemberRepository } from '../interfaces/repositories/IMemberRepository'
-import { DIToken } from '../iocContainer'
 import { Member } from '../schemas/entities/Member'
 import { BaseRepository } from './BaseRepository'
 
-@injectable()
-export class TrelloMemberRepository extends BaseRepository implements IMemberRepository {
-  public constructor(@inject(DIToken.TrelloClient) trelloClient: TrelloClient) {
-    super(trelloClient)
-  }
+export class TrelloMemberRepository extends BaseRepository {
   public async getMemberByIdOrUsername(memberId: Member['id'] | Member['username']): Promise<Member> {
     try {
       const member = await this.trelloClient.members.getMember({

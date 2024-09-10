@@ -1,23 +1,23 @@
 import * as sdk from '@botpress/sdk'
 import { States } from 'definitions/states'
-import { DependencyContainer } from 'tsyringe'
 import * as bp from '../.botpress'
 import { integrationName } from '../package.json'
-import { IWebhookCreationService } from './interfaces/services/IWebhookCreationService'
-import { IWebhookDeletionService } from './interfaces/services/IWebhookDeletionService'
-import { DIToken } from './iocContainer'
+import { getServices } from './iocContainer'
+import { TrelloWebhookCreationService } from './services/TrelloWebhookCreationService'
+import { TrelloWebhookDeletionService } from './services/TrelloWebhookDeletionService'
 
 export class WebhookLifecycleManager {
-  private ctx: bp.Context
-  private client: bp.Client
-  private container: DependencyContainer
-  private logger: bp.Logger
+  private readonly webhookCreationService: TrelloWebhookCreationService
+  private readonly webhookDeletionService: TrelloWebhookDeletionService
 
-  public constructor(ctx: bp.Context, client: bp.Client, container: DependencyContainer, logger: bp.Logger) {
-    this.ctx = ctx
-    this.client = client
-    this.container = container
-    this.logger = logger
+  public constructor(
+    private readonly ctx: bp.Context,
+    private readonly client: bp.Client,
+    private readonly logger: bp.Logger
+  ) {
+    const { webhookCreationService, webhookDeletionService } = getServices(ctx)
+    this.webhookCreationService = webhookCreationService
+    this.webhookDeletionService = webhookDeletionService
   }
 
   public async registerTrelloWebhookIfNotExists(webhookUrl: string) {
@@ -49,12 +49,10 @@ export class WebhookLifecycleManager {
   }
 
   private async registerTrelloWebhook(webhookUrl: string) {
-    const webhookCreationService = this.container.resolve<IWebhookCreationService>(DIToken.WebhookCreationService)
-
     this.logger.forBot().info('Registering Trello webhook...')
 
     try {
-      const webhookId = await webhookCreationService.createWebhook(
+      const webhookId = await this.webhookCreationService.createWebhook(
         integrationName + this.ctx.integrationId,
         webhookUrl,
         this.ctx.configuration.trelloBoardId as string
@@ -88,12 +86,10 @@ export class WebhookLifecycleManager {
   }
 
   private async unregisterTrelloWebhook(webhookId: string) {
-    const webhookDeletionService = this.container.resolve<IWebhookDeletionService>(DIToken.WebhookDeletionService)
-
     this.logger.forBot().info(`Unregistering webhook id ${webhookId} on Trello...`)
 
     try {
-      await webhookDeletionService.deleteWebhook(webhookId)
+      await this.webhookDeletionService.deleteWebhook(webhookId)
     } catch (_) {
       // We do not care about webhook deletion failures
       this.logger.forBot().warn(`Webhook id ${webhookId} is already unregistered`)

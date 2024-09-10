@@ -1,17 +1,12 @@
-import { IBoardQueryService } from 'src/interfaces/services/IBoardQueryService'
-import { getContainer, DIToken } from 'src/iocContainer'
 import { getBoardsByDisplayNameInputSchema } from 'src/schemas/actions'
-import { wrapWithTryCatch } from 'src/utils'
-import * as bp from '../../.botpress'
+import { wrapActionAndInjectServices } from 'src/utils'
 
-const getBoardsByDisplayName: bp.IntegrationProps['actions']['getBoardsByDisplayName'] = async ({ ctx, input }) => {
-  const container = getContainer(ctx)
-  const boardQueryService = container.resolve<IBoardQueryService>(DIToken.BoardQueryService)
-  const { boardName } = getBoardsByDisplayNameInputSchema.parse(input)
+export const getBoardsByDisplayName = wrapActionAndInjectServices<'getBoardsByDisplayName'>({
+  async action({ input }, { boardQueryService }) {
+    const { boardName } = getBoardsByDisplayNameInputSchema.parse(input)
 
-  const matchingBoards = await boardQueryService.getBoardsByDisplayName(boardName)
-  return { boards: matchingBoards }
-}
-
-const wrapped = wrapWithTryCatch(getBoardsByDisplayName, 'Failed to retrieve the boards')
-export { wrapped as getBoardsByDisplayName }
+    const matchingBoards = await boardQueryService.getBoardsByDisplayName(boardName)
+    return { boards: matchingBoards }
+  },
+  errorMessage: 'Failed to retrieve the boards',
+})

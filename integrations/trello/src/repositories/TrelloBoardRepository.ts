@@ -1,20 +1,10 @@
-import 'reflect-metadata'
 import { TrelloID } from 'src/schemas'
 import { Member } from 'src/schemas/entities/Member'
-import { TrelloClient } from 'trello.js'
-import { inject, injectable } from 'tsyringe'
-import { IBoardRepository } from '../interfaces/repositories/IBoardRepository'
-import { DIToken } from '../iocContainer'
 import { Board } from '../schemas/entities/Board'
 import { List } from '../schemas/entities/List'
 import { BaseRepository } from './BaseRepository'
 
-@injectable()
-export class TrelloBoardRepository extends BaseRepository implements IBoardRepository {
-  public constructor(@inject(DIToken.TrelloClient) trelloClient: TrelloClient) {
-    super(trelloClient)
-  }
-
+export class TrelloBoardRepository extends BaseRepository {
   public async getBoardMembers(boardId: Board['id']): Promise<Member[]> {
     try {
       const members: { id: TrelloID; fullName: string; username: string }[] =

@@ -1,13 +1,8 @@
-import 'reflect-metadata'
-import { inject, injectable } from 'tsyringe'
-import { ICardCommentRepository } from '../interfaces/repositories/ICardCommentRepository'
-import { ICardCommentCreationService } from '../interfaces/services/ICardCommentCreationService'
-import { DIToken } from '../iocContainer'
+import { TrelloCardCommentRepository } from 'src/repositories/TrelloCardCommentRepository'
 import { Card } from '../schemas/entities/Card'
 
-@injectable()
-export class TrelloCardCommentCreationService implements ICardCommentCreationService {
-  public constructor(@inject(DIToken.CardCommentRepository) private cardCommentRepository: ICardCommentRepository) {}
+export class TrelloCardCommentCreationService {
+  public constructor(private readonly cardCommentRepository: TrelloCardCommentRepository) {}
 
   public async createComment(cardId: Card['id'], commentBody: string): Promise<string> {
     return await this.cardCommentRepository.createComment(cardId, commentBody)

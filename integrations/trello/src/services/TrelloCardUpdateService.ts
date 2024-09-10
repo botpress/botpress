@@ -1,18 +1,25 @@
-import 'reflect-metadata'
 import assert from 'assert'
-import { inject, injectable } from 'tsyringe'
-import { ICardRepository } from '../interfaces/repositories/ICardRepository'
-import { IListRepository } from '../interfaces/repositories/IListRepository'
-import { CardModificationRequest, ICardUpdateService } from '../interfaces/services/ICardUpdateService'
-import { DIToken } from '../iocContainer'
+import { TrelloCardRepository } from 'src/repositories/TrelloCardRepository'
+import { TrelloListRepository } from 'src/repositories/TrelloListRepository'
 import { Card } from '../schemas/entities/Card'
 import { nameCompare } from '../utils'
 
-@injectable()
-export class TrelloCardUpdateService implements ICardUpdateService {
+export type CardModificationRequest = {
+  bodyText: Card['description']
+  closedState: 'open' | 'archived'
+  completeState: 'complete' | 'incomplete'
+  dueDate: Card['dueDate']
+  labelsToAdd: Card['labelIds']
+  labelsToRemove: Card['labelIds']
+  membersToAdd: Card['memberIds']
+  membersToRemove: Card['memberIds']
+  name: Card['name']
+}
+
+export class TrelloCardUpdateService {
   public constructor(
-    @inject(DIToken.CardRepository) private cardRepository: ICardRepository,
-    @inject(DIToken.ListRepository) private listRepository: IListRepository
+    private readonly cardRepository: TrelloCardRepository,
+    private readonly listRepository: TrelloListRepository
   ) {}
 
   public async moveCardVertically(cardId: string, nbPositions: number): Promise<void> {

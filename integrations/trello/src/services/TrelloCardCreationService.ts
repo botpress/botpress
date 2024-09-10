@@ -1,13 +1,8 @@
-import 'reflect-metadata'
-import { inject, injectable } from 'tsyringe'
-import { ICardRepository } from '../interfaces/repositories/ICardRepository'
-import { ICardCreationService } from '../interfaces/services/ICardCreationService'
-import { DIToken } from '../iocContainer'
+import { TrelloCardRepository } from 'src/repositories/TrelloCardRepository'
 import { Card } from '../schemas/entities/Card'
 
-@injectable()
-export class TrelloCardCreationService implements ICardCreationService {
-  public constructor(@inject(DIToken.CardRepository) private cardRepository: ICardRepository) {}
+export class TrelloCardCreationService {
+  public constructor(private readonly cardRepository: TrelloCardRepository) {}
 
   public async createCard(name: string, description: string, listId: string): Promise<Card> {
     const card: Pick<Card, 'name' | 'description' | 'listId'> = {
