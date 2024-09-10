@@ -41,5 +41,3 @@ export const deleteAttachmentFromCardEventSchema = genericWebhookEventSchema.mer
     ),
   })
 )
-
-

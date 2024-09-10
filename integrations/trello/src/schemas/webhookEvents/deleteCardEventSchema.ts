@@ -34,5 +34,3 @@ export const deleteCardEventSchema = genericWebhookEventSchema.merge(
     ),
   })
 )
-
-

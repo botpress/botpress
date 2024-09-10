@@ -34,5 +34,3 @@ export const removeMemberFromCardEventSchema = genericWebhookEventSchema.merge(
     ),
   })
 )
-
-

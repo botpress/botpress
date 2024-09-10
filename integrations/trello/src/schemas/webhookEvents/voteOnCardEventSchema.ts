@@ -30,5 +30,3 @@ export const voteOnCardEventSchema = genericWebhookEventSchema.merge(
     ),
   })
 )
-
-

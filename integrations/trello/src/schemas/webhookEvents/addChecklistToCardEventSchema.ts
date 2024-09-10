@@ -34,5 +34,3 @@ export const addChecklistToCardEventSchema = genericWebhookEventSchema.merge(
     ),
   })
 )
-
-
