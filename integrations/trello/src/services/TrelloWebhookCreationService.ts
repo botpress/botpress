@@ -1,13 +1,8 @@
-import 'reflect-metadata'
+import { TrelloWebhookRepository } from 'src/repositories/TrelloWebhookRepository'
 import { Board } from 'src/schemas/entities/Board'
-import { inject, injectable } from 'tsyringe'
-import { IWebhookRepository } from '../interfaces/repositories/IWebhookRepository'
-import { IWebhookCreationService } from '../interfaces/services/IWebhookCreationService'
-import { DIToken } from '../iocContainer'
 
-@injectable()
-export class TrelloWebhookCreationService implements IWebhookCreationService {
-  public constructor(@inject(DIToken.WebhookRepository) private webhookRepository: IWebhookRepository) {}
+export class TrelloWebhookCreationService {
+  public constructor(private readonly webhookRepository: TrelloWebhookRepository) {}
 
   public async createWebhook(description: string, url: string, trelloBoardId: Board['id']): Promise<string> {
     const newWebhook = await this.webhookRepository.createWebhook(description, url, trelloBoardId)

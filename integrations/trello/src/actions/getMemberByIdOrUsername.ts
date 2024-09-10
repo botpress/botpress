@@ -1,17 +1,12 @@
-import { IMemberQueryService } from 'src/interfaces/services/IMemberQueryService'
-import { getContainer, DIToken } from 'src/iocContainer'
 import { getMemberByIdOrUsernameInputSchema } from 'src/schemas/actions'
-import { wrapWithTryCatch } from 'src/utils'
-import * as bp from '../../.botpress'
+import { wrapActionAndInjectServices } from 'src/utils'
 
-const getMemberByIdOrUsername: bp.IntegrationProps['actions']['getMemberByIdOrUsername'] = async ({ ctx, input }) => {
-  const container = getContainer(ctx)
-  const memberQueryService = container.resolve<IMemberQueryService>(DIToken.MemberQueryService)
-  const { memberIdOrUsername } = getMemberByIdOrUsernameInputSchema.parse(input)
+export const getMemberByIdOrUsername = wrapActionAndInjectServices<'getMemberByIdOrUsername'>({
+  async action({ input }, { memberQueryService }) {
+    const { memberIdOrUsername } = getMemberByIdOrUsernameInputSchema.parse(input)
 
-  const member = await memberQueryService.getMemberByIdOrUsername(memberIdOrUsername)
-  return { member }
-}
-
-const wrapped = wrapWithTryCatch(getMemberByIdOrUsername, 'Failed to retrieve the member')
-export { wrapped as getMemberByIdOrUsername }
+    const member = await memberQueryService.getMemberByIdOrUsername(memberIdOrUsername)
+    return { member }
+  },
+  errorMessage: 'Failed to retrieve the member',
+})

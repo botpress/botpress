@@ -1,17 +1,7 @@
-import 'reflect-metadata'
 import assert from 'assert'
-import { TrelloClient } from 'trello.js'
-import { inject, injectable } from 'tsyringe'
-import { IWebhookRepository } from '../interfaces/repositories/IWebhookRepository'
-import { DIToken } from '../iocContainer'
 import { BaseRepository } from './BaseRepository'
 
-@injectable()
-export class TrelloWebhookRepository extends BaseRepository implements IWebhookRepository {
-  public constructor(@inject(DIToken.TrelloClient) trelloClient: TrelloClient) {
-    super(trelloClient)
-  }
-
+export class TrelloWebhookRepository extends BaseRepository {
   public async createWebhook(description: string, url: string, modelId: string): Promise<string> {
     try {
       const webhook = await this.trelloClient.webhooks.createWebhook({

@@ -1,19 +1,9 @@
-import 'reflect-metadata'
 import { TrelloID } from 'src/schemas'
-import { TrelloClient } from 'trello.js'
-import { inject, injectable } from 'tsyringe'
-import { IListRepository } from '../interfaces/repositories/IListRepository'
-import { DIToken } from '../iocContainer'
 import { Card } from '../schemas/entities/Card'
 import { List } from '../schemas/entities/List'
 import { BaseRepository } from './BaseRepository'
 
-@injectable()
-export class TrelloListRepository extends BaseRepository implements IListRepository {
-  public constructor(@inject(DIToken.TrelloClient) trelloClient: TrelloClient) {
-    super(trelloClient)
-  }
-
+export class TrelloListRepository extends BaseRepository {
   public async getListById(listId: List['id']): Promise<List> {
     try {
       const list: List = await this.trelloClient.lists.getList({

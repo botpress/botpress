@@ -1,12 +1,7 @@
-import 'reflect-metadata'
-import { inject, injectable } from 'tsyringe'
-import { IWebhookRepository } from '../interfaces/repositories/IWebhookRepository'
-import { IWebhookDeletionService } from '../interfaces/services/IWebhookDeletionService'
-import { DIToken } from '../iocContainer'
+import { TrelloWebhookRepository } from 'src/repositories/TrelloWebhookRepository'
 
-@injectable()
-export class TrelloWebhookDeletionService implements IWebhookDeletionService {
-  public constructor(@inject(DIToken.WebhookRepository) private webhookRepository: IWebhookRepository) {}
+export class TrelloWebhookDeletionService {
+  public constructor(private readonly webhookRepository: TrelloWebhookRepository) {}
 
   public async deleteWebhook(id: string): Promise<void> {
     await this.webhookRepository.deleteWebhook(id)

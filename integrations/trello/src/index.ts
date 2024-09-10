@@ -20,21 +20,18 @@ import {
   getMemberByIdOrUsername,
 } from './actions'
 import { textMessagePublish } from './channels/cardComments/text'
-import { getContainer } from './iocContainer'
 import { WebhookEventConsumer } from './webhookEventConsumer'
 import { WebhookLifecycleManager } from './webhookLifecycleManager'
 
 export default new bp.Integration({
   async register({ ctx, webhookUrl, client, logger }) {
-    const container = getContainer(ctx)
-    const integration = new WebhookLifecycleManager(ctx, client, container, logger)
+    const integration = new WebhookLifecycleManager(ctx, client, logger)
 
     await integration.registerTrelloWebhookIfNotExists(webhookUrl)
   },
 
   async unregister({ ctx, client, logger }) {
-    const container = getContainer(ctx)
-    const integration = new WebhookLifecycleManager(ctx, client, container, logger)
+    const integration = new WebhookLifecycleManager(ctx, client, logger)
 
     await integration.unregisterTrelloWebhookIfExists()
   },

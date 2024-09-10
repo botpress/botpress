@@ -8,9 +8,9 @@ import { genericWebhookEventSchema, type genericWebhookEvent } from './schemas/w
 import { WebhookCardCommentConsumer } from './webhookCardCommentConsumer'
 
 export class WebhookEventConsumer {
-  private ctx: bp.HandlerProps['ctx']
-  private client: bp.HandlerProps['client']
-  private rawRequest: bp.HandlerProps['req']
+  private readonly ctx: bp.HandlerProps['ctx']
+  private readonly client: bp.HandlerProps['client']
+  private readonly rawRequest: bp.HandlerProps['req']
   private parsedWebhookEvent!: genericWebhookEvent
 
   public constructor({ req, client, ctx }: bp.HandlerProps) {
