@@ -5,7 +5,7 @@ import { States } from 'definitions/states'
 import * as bp from '../.botpress'
 import { commentCardEventSchema } from './schemas/webhookEvents/commentCardEventSchema'
 import {
-  allSupportedEvents,
+  type allSupportedEvents,
   genericWebhookEventSchema,
   type genericWebhookEvent,
 } from './schemas/webhookEvents/genericWebhookEventSchema'
