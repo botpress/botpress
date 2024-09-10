@@ -17,25 +17,25 @@ import { updateCheckItemStateOnCardEventSchema } from '../src/schemas/webhookEve
 import { updateCommentEventSchema } from '../src/schemas/webhookEvents/updateCommentEventSchema'
 import { voteOnCardEventSchema } from '../src/schemas/webhookEvents/voteOnCardEventSchema'
 
-export enum TrelloEvent {
-  addMemberToCard = 'addMemberToCard',
-  commentCard = 'commentCard',
-  createCard = 'createCard',
-  deleteCard = 'deleteCard',
-  removeMemberFromCard = 'removeMemberFromCard',
-  updateCard = 'updateCard',
-  updateCheckItemStateOnCard = 'updateCheckItemStateOnCard',
-  addLabelToCard = 'addLabelToCard',
-  createCheckItem = 'createCheckItem',
-  deleteCheckItem = 'deleteCheckItem',
-  deleteComment = 'deleteComment',
-  removeLabelFromCard = 'removeLabelFromCard',
-  updateCheckItem = 'updateCheckItem',
-  updateComment = 'updateComment',
-  voteOnCard = 'voteOnCard',
-  addAttachmentToCard = 'addAttachmentToCard',
-  deleteAttachmentFromCard = 'deleteAttachmentFromCard',
-}
+export const TrelloEvent = {
+  addMemberToCard: 'addMemberToCard',
+  commentCard: 'commentCard',
+  createCard: 'createCard',
+  deleteCard: 'deleteCard',
+  removeMemberFromCard: 'removeMemberFromCard',
+  updateCard: 'updateCard',
+  updateCheckItemStateOnCard: 'updateCheckItemStateOnCard',
+  addLabelToCard: 'addLabelToCard',
+  createCheckItem: 'createCheckItem',
+  deleteCheckItem: 'deleteCheckItem',
+  deleteComment: 'deleteComment',
+  removeLabelFromCard: 'removeLabelFromCard',
+  updateCheckItem: 'updateCheckItem',
+  updateComment: 'updateComment',
+  voteOnCard: 'voteOnCard',
+  addAttachmentToCard: 'addAttachmentToCard',
+  deleteAttachmentFromCard: 'deleteAttachmentFromCard',
+} as const
 
 export const events = {
   [TrelloEvent.addMemberToCard]: {

@@ -1,8 +1,8 @@
 import { z } from '@botpress/sdk'
+import { TrelloEvent } from 'definitions/events'
 import { TrelloIDSchema } from '..'
-import * as bp from '../../../.botpress'
 
-const allSupportedEvents: string[] = Reflect.ownKeys(bp.events).map((e) => e.toString())
+const allSupportedEvents: string[] = Reflect.ownKeys(TrelloEvent).map((e) => e.toString())
 
 export const genericWebhookEventSchema = z.object({
   action: z.object({
@@ -36,7 +36,7 @@ export const genericWebhookEventSchema = z.object({
   }),
 })
 
-type allSupportedEvents = keyof typeof bp.events
+export type allSupportedEvents = keyof typeof TrelloEvent
 export type genericWebhookEvent = Omit<z.infer<typeof genericWebhookEventSchema>, 'action'> & {
   action: Omit<z.infer<typeof genericWebhookEventSchema.shape.action>, 'type'> & { type: allSupportedEvents }
 }
