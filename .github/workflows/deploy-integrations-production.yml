@@ -47,5 +47,4 @@ jobs:
           anthropic_secrets: '--secrets ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}'
           fireworks_ai_secrets: '--secrets FIREWORKS_AI_API_KEY=${{ secrets.FIREWORKS_AI_API_KEY }}'
           cerebras_secrets: '--secrets CEREBRAS_API_KEY=${{ secrets.CEREBRAS_API_KEY }}'
-          messenger_secrets: '--secrets APP_ID=${{ secrets.PRODUCTION_MESSENGER_APP_ID }} --secrets APP_SECRET=${{ secrets.PRODUCTION_MESSENGER_APP_SECRET  }}'
-          messenger_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_MESSENGER_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_MESSENGER_CLIENT_SECRET  }}'
+          messenger_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_MESSENGER_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_MESSENGER_CLIENT_SECRET  }} --secrets ACCESS_TOKEN=${{ secrets.PRODUCTION_MESSENGER_ACCESS_TOKEN  }}'
