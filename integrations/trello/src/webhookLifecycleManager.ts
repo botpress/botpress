@@ -2,22 +2,19 @@ import * as sdk from '@botpress/sdk'
 import { States } from 'definitions/states'
 import * as bp from '../.botpress'
 import { integrationName } from '../package.json'
-import { getServices } from './iocContainer'
-import { TrelloWebhookCreationService } from './services/TrelloWebhookCreationService'
-import { TrelloWebhookDeletionService } from './services/TrelloWebhookDeletionService'
+import { TrelloWebhookRepository } from './repositories'
+import { getServices } from './services/servicesContainer'
 
 export class WebhookLifecycleManager {
-  private readonly webhookCreationService: TrelloWebhookCreationService
-  private readonly webhookDeletionService: TrelloWebhookDeletionService
+  private readonly webhookRepository: TrelloWebhookRepository
 
   public constructor(
     private readonly ctx: bp.Context,
     private readonly client: bp.Client,
     private readonly logger: bp.Logger
   ) {
-    const { webhookCreationService, webhookDeletionService } = getServices(ctx)
-    this.webhookCreationService = webhookCreationService
-    this.webhookDeletionService = webhookDeletionService
+    const { webhookRepository } = getServices(ctx)
+    this.webhookRepository = webhookRepository
   }
 
   public async registerTrelloWebhookIfNotExists(webhookUrl: string) {
@@ -52,7 +49,7 @@ export class WebhookLifecycleManager {
     this.logger.forBot().info('Registering Trello webhook...')
 
     try {
-      const webhookId = await this.webhookCreationService.createWebhook(
+      const webhookId = await this.webhookRepository.createWebhook(
         integrationName + this.ctx.integrationId,
         webhookUrl,
         this.ctx.configuration.trelloBoardId as string
@@ -89,7 +86,7 @@ export class WebhookLifecycleManager {
     this.logger.forBot().info(`Unregistering webhook id ${webhookId} on Trello...`)
 
     try {
-      await this.webhookDeletionService.deleteWebhook(webhookId)
+      await this.webhookRepository.deleteWebhook(webhookId)
     } catch (_) {
       // We do not care about webhook deletion failures
       this.logger.forBot().warn(`Webhook id ${webhookId} is already unregistered`)

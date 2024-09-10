@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { BaseRepository } from './BaseRepository'
+import { BaseRepository } from './baseRepository'
 
 export class TrelloWebhookRepository extends BaseRepository {
   public async createWebhook(description: string, url: string, modelId: string): Promise<string> {

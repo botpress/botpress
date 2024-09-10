@@ -1,6 +1,6 @@
 import assert from 'assert'
-import { Member } from '../schemas/entities/Member'
-import { BaseRepository } from './BaseRepository'
+import { Member } from '../schemas/entities/member'
+import { BaseRepository } from './baseRepository'
 
 export class TrelloMemberRepository extends BaseRepository {
   public async getMemberByIdOrUsername(memberId: Member['id'] | Member['username']): Promise<Member> {

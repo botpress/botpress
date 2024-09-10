@@ -1,6 +1,6 @@
 import assert from 'assert'
-import { Card } from '../schemas/entities/Card'
-import { BaseRepository } from './BaseRepository'
+import { Card } from '../schemas/entities/card'
+import { BaseRepository } from './baseRepository'
 
 export class TrelloCardCommentRepository extends BaseRepository {
   public async createComment(cardId: Card['id'], commentBody: string): Promise<string> {

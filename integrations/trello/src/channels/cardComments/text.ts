@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { getServices } from 'src/iocContainer'
+import { getServices } from 'src/services'
 import * as bp from '../../../.botpress'
 
 export const textMessagePublish = async ({
@@ -9,11 +9,11 @@ export const textMessagePublish = async ({
   payload,
   client,
 }: bp.MessageProps['cardComments']['text']) => {
-  const { cardCommentCreationService } = getServices(ctx)
+  const { cardCommentRepository } = getServices(ctx)
 
   assert(conversation.tags.cardId, 'Card id must be set')
 
-  const commentId = await cardCommentCreationService.createComment(conversation.tags.cardId, payload.text)
+  const commentId = await cardCommentRepository.createComment(conversation.tags.cardId, payload.text)
 
   await client.updateConversation({
     id: conversation.id,

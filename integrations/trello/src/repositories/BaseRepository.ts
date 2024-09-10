@@ -1,5 +1,5 @@
 import { TrelloClient } from 'trello.js'
-import { TrelloOperationError } from '../errors/TrelloOperationError'
+import { TrelloOperationError } from '../errors/trelloOperationError'
 
 export abstract class BaseRepository {
   public constructor(protected readonly trelloClient: TrelloClient) {}
