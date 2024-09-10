@@ -2,15 +2,13 @@ import { z } from '@botpress/sdk'
 import { TrelloEvent } from 'definitions/events'
 import { TrelloIDSchema } from '..'
 
-const allSupportedEvents: string[] = Reflect.ownKeys(TrelloEvent).map((e) => e.toString())
-
 export const genericWebhookEventSchema = z.object({
   action: z.object({
     id: TrelloIDSchema.describe('Unique identifier of the action'),
     idMemberCreator: TrelloIDSchema.describe('Unique identifier of the member who initiated the action'),
     type: z
       .string()
-      .refine((e) => allSupportedEvents.includes(e))
+      .refine((e) => Reflect.ownKeys(TrelloEvent).includes(e))
       .describe('Type of the action'),
     date: z.string().datetime().describe('Date of the action'),
     data: z.any(),
@@ -40,4 +38,3 @@ export type allSupportedEvents = keyof typeof TrelloEvent
 export type genericWebhookEvent = Omit<z.infer<typeof genericWebhookEventSchema>, 'action'> & {
   action: Omit<z.infer<typeof genericWebhookEventSchema.shape.action>, 'type'> & { type: allSupportedEvents }
 }
-
