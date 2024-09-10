@@ -51,5 +51,3 @@ export const updateCheckItemEventSchema = genericWebhookEventSchema.merge(
     ),
   })
 )
-
-

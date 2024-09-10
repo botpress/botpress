@@ -44,5 +44,3 @@ export const updateCommentEventSchema = genericWebhookEventSchema.merge(
     ),
   })
 )
-
-

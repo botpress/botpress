@@ -19,13 +19,14 @@ following:
 - Access to a Trello workspace.
 
 - API key generated from Trello.
-    - To generate an API key, you will need to create an application on Trello.
-      Follow the official instructions here: [Trello - API Introduction].
+
+  - To generate an API key, you will need to create an application on Trello.
+    Follow the official instructions here: [Trello - API Introduction].
 
 - API token generated from Trello.
-    - Once you have created your application, you may grant it access to one or
-      several of your Trello workspaces. Trello will then generate the API token
-      for you.
+  - Once you have created your application, you may grant it access to one or
+    several of your Trello workspaces. Trello will then generate the API token
+    for you.
 
 ## Enable Integration
 

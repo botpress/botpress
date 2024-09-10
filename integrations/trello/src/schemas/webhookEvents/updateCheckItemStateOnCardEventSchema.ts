@@ -45,5 +45,3 @@ export const updateCheckItemStateOnCardEventSchema = genericWebhookEventSchema.m
     ),
   })
 )
-
-

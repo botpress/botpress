@@ -8,11 +8,7 @@
     "noPropertyAccessFromIndexSignature": true,
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true,
+    "noUnusedParameters": true
   },
-  "include": [
-    ".botpress/**/*",
-    "src/**/*",
-    "integration.definition.ts"
-  ]
+  "include": [".botpress/**/*", "src/**/*", "integration.definition.ts"]
 }

@@ -1,6 +1,6 @@
 module.exports = {
   rules: {
-    "@typescript-eslint/explicit-member-accessibility": "error",
+    '@typescript-eslint/explicit-member-accessibility': 'error',
     '@typescript-eslint/adjacent-overload-signatures': 'error',
     '@typescript-eslint/array-type': 'error',
     '@typescript-eslint/ban-tslint-comment': 'error',
