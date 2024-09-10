@@ -12,6 +12,7 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
+    "@botpress/sdk-addons": "workspace:*",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
     "eslint": "^8.57.0",
@@ -24,7 +25,9 @@
     "trello.js": "^1.2.7"
   },
   "devDependencies": {
-    "@types/node": "^18.19.48",
+    "@botpress/cli": "workspace:*",
+    "@sentry/cli": "^2.36.1",
+    "@types/node": "^18.19.50",
     "ts-node": "^10.9.2",
     "typescript": "^4.9.5"
   }
