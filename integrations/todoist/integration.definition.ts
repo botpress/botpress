@@ -9,7 +9,7 @@ const ItemDefinition = z.object({
 })
 
 export default new IntegrationDefinition({
-  name: 'sebastien_poitras/botpress-todoist',
+  name: 'todoist',
   version: '0.0.1',
   readme: 'README.md',
   icon: 'icon.svg',
@@ -138,11 +138,11 @@ export default new IntegrationDefinition({
   },
   secrets: {
     CLIENT_ID: {
-      optional: true,
+      optional: false,
       description: 'Client ID in the App Management page of your Todoist app',
     },
     CLIENT_SECRET: {
-      optional: true,
+      optional: false,
       description: 'Client Secret in the App Management page of your Todoist app',
     },
   },
