@@ -8,7 +8,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
     id: input.userId,
   })
 
-  const ticket = await zendeskClient.createTicket(input.title, input.description ?? '...', {
+  const ticket = await zendeskClient.createTicket(input.title ?? 'New Ticket', input.description ?? '...', {
     name: user.name ?? 'Unknown User',
     email: user.tags.email ?? 'unknown@noemail.com',
   })
