@@ -2,6 +2,8 @@
   "name": "trello",
   "integrationName": "trello",
   "scripts": {
+    "build": "pnpm bp build",
+    "deploy": "pnpm bp deploy",
     "check:type": "tsc --noEmit",
     "check:format": "prettier --check .",
     "fix:format": "prettier --write .",
