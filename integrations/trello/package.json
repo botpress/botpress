@@ -1,5 +1,5 @@
 {
-  "name": "trello",
+  "name": "@botpresshub/trello",
   "integrationName": "trello",
   "scripts": {
     "build": "pnpm bp build",
