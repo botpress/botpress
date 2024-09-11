@@ -55,6 +55,12 @@ input:
   groq_secrets:
     description: 'Groq secrets'
     required: false
+  todoist_secrets:
+    description: 'Todoist secrets'
+    required: false
+  cerebras_secrets:
+    description: 'Cerebras secrets'
+    required: false
 
 runs:
   using: 'composite'
@@ -127,6 +133,8 @@ runs:
                 base_command="$base_command ${{ inputs.anthropic_secrets }}"
             elif [ $integration == "fireworks-ai" ]; then
                 base_command="$base_command ${{ inputs.fireworks_ai_secrets }}"
+            elif [ $integration == "todoist" ]; then
+                base_command="$base_command ${{ inputs.todoist_secrets }}"
             elif [ $integration == "cerebras" ]; then
                 base_command="$base_command ${{ inputs.cerebras_secrets }}"
             fi
