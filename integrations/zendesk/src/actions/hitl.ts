@@ -10,10 +10,14 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
   })
 
   try {
-    const ticket = await zendeskClient.createTicket(input.title, input.description ?? '...', {
-      name: user.name ?? 'Unknown User',
-      email: user.tags.email ?? 'unknown@noemail.com',
-    })
+    const ticket = await zendeskClient.createTicket(
+      input.title ?? 'Untitled Ticket',
+      input.description ?? 'Someone opened a ticket using your Botpress chatbot',
+      {
+        name: user.name ?? 'Unknown User',
+        email: user.tags.email ?? 'unknown@noemail.com',
+      }
+    )
 
     const { conversation } = await client.getOrCreateConversation({
       channel: 'hitl',
