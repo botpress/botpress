@@ -1,9 +1,8 @@
-import { addCardCommentInputSchema } from 'src/schemas/actions'
 import { wrapActionAndInjectServices } from 'src/utils'
 
 export const addCardComment = wrapActionAndInjectServices<'addCardComment'>({
   async action({ input }, { cardCommentRepository }) {
-    const { cardId, commentBody } = addCardCommentInputSchema.parse(input)
+    const { cardId, commentBody } = input
 
     const newCommentId = await cardCommentRepository.createComment(cardId, commentBody)
 

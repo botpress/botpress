@@ -1,9 +1,8 @@
-import { moveCardUpInputSchema } from 'src/schemas/actions'
 import { wrapActionAndInjectServices } from 'src/utils'
 
 export const moveCardUp = wrapActionAndInjectServices<'moveCardUp'>({
   async action({ input }, { cardUpdateService }) {
-    const { cardId, moveUpByNSpaces } = moveCardUpInputSchema.parse(input)
+    const { cardId, moveUpByNSpaces } = input
 
     await cardUpdateService.moveCardVertically(cardId, moveUpByNSpaces ?? 1)
     return { message: 'Card successfully moved up' }

@@ -1,4 +1,3 @@
-import { updateCardInputSchema } from 'src/schemas/actions'
 import { extractFromCsv, wrapActionAndInjectServices } from 'src/utils'
 
 export const updateCard = wrapActionAndInjectServices<'updateCard'>({
@@ -14,7 +13,7 @@ export const updateCard = wrapActionAndInjectServices<'updateCard'>({
       membersToAdd,
       membersToRemove,
       name,
-    } = updateCardInputSchema.parse(input)
+    } = input
 
     await cardUpdateService.updateCard(cardId, {
       name,
