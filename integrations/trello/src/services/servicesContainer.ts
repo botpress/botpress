@@ -1,3 +1,4 @@
+import { TrelloConfig } from 'definitions/schemas'
 import { TrelloClient } from 'trello.js'
 import * as bp from '../../.botpress'
 import {
@@ -8,7 +9,6 @@ import {
   TrelloMemberRepository,
   TrelloWebhookRepository,
 } from '../repositories'
-import { TrelloConfig } from '../schemas'
 import { TrelloCardQueryService, TrelloBoardQueryService, TrelloCardUpdateService, TrelloListQueryService } from '.'
 
 const initializeServices = (config: TrelloConfig) => {

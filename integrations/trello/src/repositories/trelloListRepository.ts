@@ -1,6 +1,4 @@
-import { TrelloID } from 'src/schemas'
-import { Card } from '../schemas/entities/card'
-import { List } from '../schemas/entities/list'
+import { List, Card, TrelloID } from 'definitions/schemas'
 import { BaseRepository } from './baseRepository'
 
 export class TrelloListRepository extends BaseRepository {

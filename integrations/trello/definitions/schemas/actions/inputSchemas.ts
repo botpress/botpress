@@ -1,10 +1,6 @@
 import { z } from '@botpress/sdk'
 import { createCsvRegex } from 'src/utils'
-import { BoardSchema } from '../entities/board'
-import { CardSchema } from '../entities/card'
-import { ListSchema } from '../entities/list'
-import { MemberSchema } from '../entities/member'
-import { trelloIdRegex } from '../primitives/trelloId'
+import { BoardSchema, CardSchema, ListSchema, MemberSchema, trelloIdRegex } from '../entities'
 
 const GENERIC_SHEMAS = {
   noInput: z.object({}),

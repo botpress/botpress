@@ -1,6 +1,5 @@
-import { TrelloID } from 'src/schemas'
+import { Card, Member, TrelloID } from 'definitions/schemas'
 import { UpdateCard } from 'trello.js/out/api/parameters'
-import { Card } from '../schemas/entities/card'
 import { keepOnlySetProperties } from '../utils'
 import { BaseRepository } from './baseRepository'
 
@@ -21,7 +20,7 @@ export class TrelloCardRepository extends BaseRepository {
         isCompleted: card.dueComplete,
         dueDate: card.due ?? undefined,
         labelIds: card.idLabels as TrelloID[],
-        memberIds: card.idMembers as TrelloID[],
+        memberIds: card.idMembers as Member['id'][],
       }
     } catch (error) {
       this.handleError(`getCard for id ${cardId}`, error)
@@ -45,7 +44,7 @@ export class TrelloCardRepository extends BaseRepository {
         isClosed: newCard.closed,
         isCompleted: newCard.dueComplete,
         labelIds: newCard.idLabels as TrelloID[],
-        memberIds: newCard.idMembers as TrelloID[],
+        memberIds: newCard.idMembers as Member['id'][],
         dueDate: newCard.due ?? undefined,
       }
     } catch (error) {
@@ -79,7 +78,7 @@ export class TrelloCardRepository extends BaseRepository {
         isCompleted: updatedCard.dueComplete,
         dueDate: updatedCard.due ?? undefined,
         labelIds: updatedCard.idLabels as TrelloID[],
-        memberIds: updatedCard.idMembers as TrelloID[],
+        memberIds: updatedCard.idMembers as Member['id'][],
       }
     } catch (error) {
       this.handleError(`updateCard for id ${card.id}`, error)

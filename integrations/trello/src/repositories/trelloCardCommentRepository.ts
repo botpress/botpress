@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { Card } from '../schemas/entities/card'
+import { Card } from 'definitions/schemas'
 import { BaseRepository } from './baseRepository'
 
 export class TrelloCardCommentRepository extends BaseRepository {

@@ -1,5 +1,5 @@
 import { IntegrationDefinitionProps } from '@botpress/sdk'
-import { TrelloConfigSchema } from '../src/schemas'
+import { TrelloConfigSchema } from './schemas'
 
 export const configuration = {
   schema: TrelloConfigSchema,

@@ -1,14 +1,14 @@
 import { RuntimeError } from '@botpress/client'
 import { z } from '@botpress/sdk'
 import { events, TRELLO_EVENTS } from 'definitions/events'
-import { States } from 'definitions/states'
-import * as bp from '../.botpress'
-import { commentCardEventSchema } from './schemas/webhookEvents/commentCardEventSchema'
 import {
   type allSupportedEvents,
   genericWebhookEventSchema,
   type genericWebhookEvent,
-} from './schemas/webhookEvents/genericWebhookEventSchema'
+  commentCardEventSchema,
+} from 'definitions/schemas'
+import { States } from 'definitions/states'
+import * as bp from '../.botpress'
 import { WebhookCardCommentConsumer } from './webhookCardCommentConsumer'
 
 export class WebhookEventConsumer {

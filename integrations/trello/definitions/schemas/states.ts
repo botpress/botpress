@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { TrelloIDSchema } from '..'
+import { TrelloIDSchema } from './entities'
 
 export const webhookStateSchema = z
   .object({

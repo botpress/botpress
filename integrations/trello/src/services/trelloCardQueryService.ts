@@ -1,6 +1,5 @@
+import { List, Card } from 'definitions/schemas'
 import { TrelloListRepository } from 'src/repositories/trelloListRepository'
-import { List } from 'src/schemas/entities/list'
-import { Card } from '../schemas/entities/card'
 import { nameCompare } from '../utils'
 
 export class TrelloCardQueryService {

@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { Member } from '../schemas/entities/member'
+import { Member } from 'definitions/schemas'
 import { BaseRepository } from './baseRepository'
 
 export class TrelloMemberRepository extends BaseRepository {

@@ -36,7 +36,7 @@ import {
   moveCardUpOutputSchema,
   updateCardInputSchema,
   updateCardOutputSchema,
-} from '../src/schemas/actions'
+} from './schemas'
 
 export const actions = {
   getBoardsByDisplayName: {

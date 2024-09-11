@@ -1,41 +1,24 @@
 import { IntegrationDefinitionProps } from '@botpress/sdk'
-import { addAttachmentToCardEventSchema } from '../src/schemas/webhookEvents/addAttachmentToCardEventSchema'
-import { addLabelToCardEventSchema } from '../src/schemas/webhookEvents/addLabelToCardEventSchema'
-import { addMemberToCardEventSchema } from '../src/schemas/webhookEvents/addMemberToCardEventSchema'
-import { commentCardEventSchema } from '../src/schemas/webhookEvents/commentCardEventSchema'
-import { createCardEventSchema } from '../src/schemas/webhookEvents/createCardEventSchema'
-import { createCheckItemEventSchema } from '../src/schemas/webhookEvents/createCheckItemEventSchema'
-import { deleteAttachmentFromCardEventSchema } from '../src/schemas/webhookEvents/deleteAttachmentFromCardEventSchema'
-import { deleteCardEventSchema } from '../src/schemas/webhookEvents/deleteCardEventSchema'
-import { deleteCheckItemEventSchema } from '../src/schemas/webhookEvents/deleteCheckItemEventSchema'
-import { deleteCommentEventSchema } from '../src/schemas/webhookEvents/deleteCommentEventSchema'
-import { removeLabelFromCardEventSchema } from '../src/schemas/webhookEvents/removeLabelFromCardEventSchema'
-import { removeMemberFromCardEventSchema } from '../src/schemas/webhookEvents/removeMemberFromCardEventSchema'
-import { updateCardEventSchema } from '../src/schemas/webhookEvents/updateCardEventSchema'
-import { updateCheckItemEventSchema } from '../src/schemas/webhookEvents/updateCheckItemEventSchema'
-import { updateCheckItemStateOnCardEventSchema } from '../src/schemas/webhookEvents/updateCheckItemStateOnCardEventSchema'
-import { updateCommentEventSchema } from '../src/schemas/webhookEvents/updateCommentEventSchema'
-import { voteOnCardEventSchema } from '../src/schemas/webhookEvents/voteOnCardEventSchema'
-
-export const TRELLO_EVENTS = {
-  addMemberToCard: 'addMemberToCard',
-  commentCard: 'commentCard',
-  createCard: 'createCard',
-  deleteCard: 'deleteCard',
-  removeMemberFromCard: 'removeMemberFromCard',
-  updateCard: 'updateCard',
-  updateCheckItemStateOnCard: 'updateCheckItemStateOnCard',
-  addLabelToCard: 'addLabelToCard',
-  createCheckItem: 'createCheckItem',
-  deleteCheckItem: 'deleteCheckItem',
-  deleteComment: 'deleteComment',
-  removeLabelFromCard: 'removeLabelFromCard',
-  updateCheckItem: 'updateCheckItem',
-  updateComment: 'updateComment',
-  voteOnCard: 'voteOnCard',
-  addAttachmentToCard: 'addAttachmentToCard',
-  deleteAttachmentFromCard: 'deleteAttachmentFromCard',
-} as const
+import {
+  TRELLO_EVENTS,
+  addMemberToCardEventSchema,
+  commentCardEventSchema,
+  createCardEventSchema,
+  deleteCardEventSchema,
+  removeMemberFromCardEventSchema,
+  updateCardEventSchema,
+  updateCheckItemStateOnCardEventSchema,
+  addLabelToCardEventSchema,
+  createCheckItemEventSchema,
+  deleteCheckItemEventSchema,
+  deleteCommentEventSchema,
+  removeLabelFromCardEventSchema,
+  updateCheckItemEventSchema,
+  updateCommentEventSchema,
+  voteOnCardEventSchema,
+  addAttachmentToCardEventSchema,
+  deleteAttachmentFromCardEventSchema,
+} from './schemas/webhookEvents'
 
 export const events = {
   [TRELLO_EVENTS.addMemberToCard]: {
@@ -124,3 +107,5 @@ export const events = {
     schema: deleteAttachmentFromCardEventSchema.shape.action.shape.data,
   },
 } as const satisfies NonNullable<IntegrationDefinitionProps['events']>
+
+export { TRELLO_EVENTS }

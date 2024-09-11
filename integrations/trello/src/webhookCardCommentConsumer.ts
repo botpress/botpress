@@ -1,5 +1,5 @@
+import { CommentCardEvent } from 'definitions/schemas'
 import * as bp from '../.botpress'
-import { CommentCardEvent } from './schemas/webhookEvents/commentCardEventSchema'
 
 type TrelloMessageData = {
   cardId: string

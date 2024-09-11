@@ -1,7 +1,7 @@
 import assert from 'assert'
+import { Card } from 'definitions/schemas'
 import { TrelloCardRepository } from 'src/repositories/trelloCardRepository'
 import { TrelloListRepository } from 'src/repositories/trelloListRepository'
-import { Card } from '../schemas/entities/card'
 import { nameCompare } from '../utils'
 
 export type CardModificationRequest = {

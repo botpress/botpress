@@ -1,5 +1,5 @@
 import { IntegrationDefinitionProps } from '@botpress/sdk'
-import { webhookStateSchema } from '../src/schemas/states'
+import { webhookStateSchema } from './schemas'
 
 export const States = {
   webhookState: 'webhookState',
