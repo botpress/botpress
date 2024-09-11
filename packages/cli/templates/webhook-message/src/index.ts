@@ -11,7 +11,7 @@ const reqBodySchema = sdk.z.object({
 export default new bp.Integration({
   register: async () => {
     /**
-     * This is called when a bot installs the integration.
+     * This is called when an integration configuration is saved.
      * You should use this handler to instanciate ressources in the external service and ensure that the configuration is valid.
      */
     throw new sdk.RuntimeError('Invalid configuration') // replace this with your own validation logic

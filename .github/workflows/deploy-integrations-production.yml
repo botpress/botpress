@@ -47,3 +47,4 @@ jobs:
           anthropic_secrets: '--secrets ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}'
           fireworks_ai_secrets: '--secrets FIREWORKS_AI_API_KEY=${{ secrets.FIREWORKS_AI_API_KEY }}'
           todoist_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_TODOIST_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_TODOIST_CLIENT_SECRET }}'
+          cerebras_secrets: '--secrets CEREBRAS_API_KEY=${{ secrets.CEREBRAS_API_KEY }}'

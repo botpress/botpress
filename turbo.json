@@ -50,6 +50,11 @@
       "outputs": [".botpress/**"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
+    "@botpresshub/cerebras#build": {
+      "inputs": ["integration.definition.ts", "src/**"],
+      "outputs": [".botpress/**"],
+      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+    },
     "@botpresshub/github#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
