@@ -1,6 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import { z } from '@botpress/sdk'
-import { events, TrelloEvent } from 'definitions/events'
+import { events, TRELLO_EVENTS } from 'definitions/events'
 import { States } from 'definitions/states'
 import * as bp from '../.botpress'
 import { commentCardEventSchema } from './schemas/webhookEvents/commentCardEventSchema'
@@ -65,7 +65,7 @@ export class WebhookEventConsumer {
   }
 
   private async handleCardComments() {
-    if (this.parsedWebhookEvent.action.type !== TrelloEvent.commentCard) {
+    if (this.parsedWebhookEvent.action.type !== TRELLO_EVENTS.commentCard) {
       return
     }
 
@@ -76,7 +76,7 @@ export class WebhookEventConsumer {
   }
 
   private async publishEventToBotpress() {
-    if (!Reflect.has(TrelloEvent, this.parsedWebhookEvent.action.type)) {
+    if (!Reflect.has(TRELLO_EVENTS, this.parsedWebhookEvent.action.type)) {
       return
     }
 
