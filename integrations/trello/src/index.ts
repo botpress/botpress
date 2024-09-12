@@ -26,15 +26,15 @@ import { WebhookLifecycleManager } from './webhookLifecycleManager'
 
 const integration = new bp.Integration({
   async register({ ctx, webhookUrl, client, logger }) {
-    const integration = new WebhookLifecycleManager(ctx, client, logger)
+    const webhookLifecycleManager = new WebhookLifecycleManager(ctx, client, logger)
 
-    await integration.registerTrelloWebhookIfNotExists(webhookUrl)
+    await webhookLifecycleManager.registerTrelloWebhookIfNotExists(webhookUrl)
   },
 
   async unregister({ ctx, client, logger }) {
-    const integration = new WebhookLifecycleManager(ctx, client, logger)
+    const webhookLifecycleManager = new WebhookLifecycleManager(ctx, client, logger)
 
-    await integration.unregisterTrelloWebhookIfExists()
+    await webhookLifecycleManager.unregisterTrelloWebhookIfExists()
   },
 
   actions: {
