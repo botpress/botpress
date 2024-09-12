@@ -15,7 +15,7 @@ export class WebhookEventConsumer {
   private readonly ctx: bp.HandlerProps['ctx']
   private readonly client: bp.HandlerProps['client']
   private readonly rawRequest: bp.HandlerProps['req']
-  private parsedWebhookEvent!: genericWebhookEvent
+  private parsedWebhookEvent?: genericWebhookEvent
 
   public constructor({ req, client, ctx }: bp.HandlerProps) {
     this.ctx = ctx
@@ -55,7 +55,7 @@ export class WebhookEventConsumer {
       id: this.ctx.integrationId,
     })
 
-    if (this.parsedWebhookEvent.webhook.id !== state.payload.trelloWebhookId) {
+    if (this.parsedWebhookEvent?.webhook.id !== state.payload.trelloWebhookId) {
       throw new RuntimeError('Webhook request is not properly authenticated')
     }
   }
@@ -65,7 +65,7 @@ export class WebhookEventConsumer {
   }
 
   private async handleCardComments() {
-    if (this.parsedWebhookEvent.action.type !== TRELLO_EVENTS.commentCard) {
+    if (!this.parsedWebhookEvent || this.parsedWebhookEvent.action.type !== TRELLO_EVENTS.commentCard) {
       return
     }
 
@@ -76,7 +76,7 @@ export class WebhookEventConsumer {
   }
 
   private async publishEventToBotpress() {
-    if (!Reflect.has(TRELLO_EVENTS, this.parsedWebhookEvent.action.type)) {
+    if (!this.parsedWebhookEvent || !Reflect.has(TRELLO_EVENTS, this.parsedWebhookEvent.action.type)) {
       return
     }
 

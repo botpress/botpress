@@ -14,9 +14,9 @@ type TrelloMessageData = {
 }
 
 export class WebhookCardCommentConsumer {
-  private messageData!: TrelloMessageData
-  private conversation!: Awaited<ReturnType<bp.Client['getOrCreateConversation']>>['conversation']
-  private user!: Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user']
+  private messageData?: TrelloMessageData
+  private conversation?: Awaited<ReturnType<bp.Client['getOrCreateConversation']>>['conversation']
+  private user?: Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user']
 
   public constructor(
     private readonly client: bp.HandlerProps['client'],
@@ -52,10 +52,10 @@ export class WebhookCardCommentConsumer {
     const { conversation } = await this.client.getOrCreateConversation({
       channel: 'cardComments',
       tags: {
-        cardId: this.messageData.cardId,
-        cardName: this.messageData.cardName,
-        listId: this.messageData.listId,
-        listName: this.messageData.listName,
+        cardId: this.messageData?.cardId,
+        cardName: this.messageData?.cardName,
+        listId: this.messageData?.listId,
+        listName: this.messageData?.listName,
       },
     })
 
@@ -65,28 +65,28 @@ export class WebhookCardCommentConsumer {
   private async getOrCreateUser() {
     const { user } = await this.client.getOrCreateUser({
       tags: {
-        userId: this.messageData.messageAuthorId,
+        userId: this.messageData?.messageAuthorId,
       },
-      name: this.messageData.messageAuthorName,
-      pictureUrl: this.messageData.messageAuthorAvatar,
+      name: this.messageData?.messageAuthorName,
+      pictureUrl: this.messageData?.messageAuthorAvatar,
     })
 
     this.user = user
   }
 
   private checkIfMessageWasSentByOurselvesAndShouldBeIgnored() {
-    return this.conversation.tags.lastCommentId === this.messageData.messageId
+    return this.conversation?.tags.lastCommentId === this.messageData?.messageId
   }
 
   private async createMessage() {
     await this.client.createMessage({
       tags: {
-        commentId: this.messageData.messageId,
+        commentId: this.messageData?.messageId,
       },
       type: 'text',
-      userId: this.user.id,
-      conversationId: this.conversation.id,
-      payload: { text: this.messageData.messageText },
+      userId: this.user?.id ?? '',
+      conversationId: this.conversation?.id ?? '',
+      payload: { text: this.messageData?.messageText ?? '' },
     })
   }
 }
