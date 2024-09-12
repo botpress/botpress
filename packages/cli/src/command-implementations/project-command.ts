@@ -108,15 +108,19 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   protected async readProjectDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'integrationDefinition' | 'interfaceDefinition'> = this.projectPaths
   ): Promise<ProjectDefinition> {
-    const integrationDefinition = await this._readIntegrationDefinitionFromFS(projectPaths)
-    if (integrationDefinition) {
-      return { type: 'integration', definition: integrationDefinition }
+    try {
+      const integrationDefinition = await this._readIntegrationDefinitionFromFS(projectPaths)
+      if (integrationDefinition) {
+        return { type: 'integration', definition: integrationDefinition }
+      }
+      const interfaceDefinition = await this._readInterfaceDefinitionFromFS(projectPaths)
+      if (interfaceDefinition) {
+        return { type: 'interface', definition: interfaceDefinition }
+      }
+      return { type: 'bot', definition: null }
+    } catch (readError: unknown) {
+      throw new errors.BotpressCLIError(`Error while reading project definition: ${(readError as Error).message}`)
     }
-    const interfaceDefinition = await this._readInterfaceDefinitionFromFS(projectPaths)
-    if (interfaceDefinition) {
-      return { type: 'interface', definition: interfaceDefinition }
-    }
-    return { type: 'bot', definition: null }
   }
 
   private async _readIntegrationDefinitionFromFS(
@@ -134,6 +138,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       outfile: '',
       entrypoint: rel.integrationDefinition,
       write: false,
+      minify: false,
     })
 
     const artifact = outputFiles[0]
