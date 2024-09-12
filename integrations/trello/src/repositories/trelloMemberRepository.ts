@@ -1,17 +1,12 @@
-import assert from 'assert'
 import { Member } from 'definitions/schemas'
 import { BaseRepository } from './baseRepository'
 
 export class TrelloMemberRepository extends BaseRepository {
   public async getMemberByIdOrUsername(memberId: Member['id'] | Member['username']): Promise<Member> {
     try {
-      const member = await this.trelloClient.members.getMember({
+      const member = (await this.trelloClient.members.getMember({
         id: memberId,
-      })
-
-      assert(member.id, 'Member id is not present')
-      assert(member.username, 'Member username is not be present')
-      assert(member.fullName, 'Member fullName is not be present')
+      })) satisfies Required<Pick<Member, 'id' | 'username' | 'fullName'>> & Member
 
       return {
         id: member.id,
