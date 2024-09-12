@@ -118,8 +118,8 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         return { type: 'interface', definition: interfaceDefinition }
       }
       return { type: 'bot', definition: null }
-    } catch (readError: unknown) {
-      throw new errors.BotpressCLIError(`Error while reading project definition: ${(readError as Error).message}`)
+    } catch (thrown: unknown) {
+      throw errors.BotpressCLIError.wrap(thrown, 'Error while reading project definition')
     }
   }
 

@@ -18,24 +18,37 @@ export const requireJsCode = <T>(code: string): T => {
     // @ts-ignore
     m._compile(code, filename)
     return m.exports
-  } catch (compileError: unknown) {
-    throw _injectStackTrace(compileError as Error, code, filename)
+  } catch (thrown: unknown) {
+    const error = thrown instanceof Error ? thrown : new Error(`${thrown}`)
+    throw _injectStackTrace(error, code, filename)
   }
 }
 
 const STACK_TRACE_SURROUNDING_LINES = 3
 
-const _injectStackTrace = (compileError: Error, code: string, filename: string) => {
+const _injectStackTrace = (compileError: Error, code: string, filename: string): Error => {
   if (!compileError.stack || !compileError.stack.includes(`${filename}:`)) {
     return compileError
   }
 
   // Extract line and column from the stack trace:
   const [, locationInfo] = compileError.stack.split(`${filename}:`, 2)
-  const [lineNoStr, _rest] = locationInfo!.split(':', 2)
-  const columnStr = _rest!.split(')', 1)[0]
-  const lineNo = parseInt(lineNoStr!)
-  const column = parseInt(columnStr!)
+  if (!locationInfo) {
+    return compileError
+  }
+
+  const [lineNoStr, _rest] = locationInfo.split(':', 2)
+  if (!lineNoStr || !_rest) {
+    return compileError
+  }
+
+  const [columnStr] = _rest.split(')', 1)
+  if (!columnStr) {
+    return compileError
+  }
+
+  const lineNo = parseInt(lineNoStr)
+  const column = parseInt(columnStr)
 
   // Build the stack trace:
   const allLines = code.split('\n')
