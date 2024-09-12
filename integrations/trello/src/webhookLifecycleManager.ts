@@ -88,7 +88,6 @@ export class WebhookLifecycleManager {
     try {
       await this.webhookRepository.deleteWebhook(webhookId)
     } catch (_) {
-      // We do not care about webhook deletion failures
       this.logger.forBot().warn(`Webhook id ${webhookId} is already unregistered`)
     }
 
