@@ -132,6 +132,7 @@ export class InterfaceDeclaration<
 
       const newActionName = this._rename(entities, actionName)
       actions[newActionName] = {
+        ...action,
         input: { schema: resolvedInputSchema },
         output: { schema: resolvedOutputSchema },
       }
@@ -142,7 +143,7 @@ export class InterfaceDeclaration<
     for (const [eventName, event] of utils.pairs(this.events)) {
       const resolvedEventSchema = this._dereference(event.schema, entities)
       const newEventName = this._rename(entities, eventName)
-      events[newEventName] = { schema: resolvedEventSchema }
+      events[newEventName] = { ...event, schema: resolvedEventSchema }
       implementStatement.events[eventName] = { name: newEventName }
     }
 
@@ -151,9 +152,9 @@ export class InterfaceDeclaration<
       const messages: Record<string, { schema: AnyZodObject }> = {}
       for (const [messageName, message] of utils.pairs(channel.messages)) {
         const resolvedMessageSchema = this._dereference(message.schema, entities)
-        messages[messageName] = { schema: resolvedMessageSchema }
+        messages[messageName] = { ...message, schema: resolvedMessageSchema }
       }
-      channels[channelName] = { messages }
+      channels[channelName] = { ...channel, messages }
     }
 
     const resolved = {

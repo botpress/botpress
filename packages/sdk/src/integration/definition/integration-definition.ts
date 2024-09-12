@@ -191,8 +191,8 @@ export class IntegrationDefinition<
 
   private _mergeActions = (a: ActionDefinition, b: ActionDefinition): ActionDefinition => {
     return {
-      title: b.title ?? a.title,
-      description: b.description ?? a.description,
+      ...a,
+      ...b,
       input: {
         schema: a.input.schema.merge(b.input.schema),
       },
@@ -204,8 +204,8 @@ export class IntegrationDefinition<
 
   private _mergeEvents = (a: EventDefinition, b: EventDefinition): EventDefinition => {
     return {
-      title: b.title ?? a.title,
-      description: b.description ?? a.description,
+      ...a,
+      ...b,
       schema: a.schema.merge(b.schema),
     }
   }
@@ -213,10 +213,8 @@ export class IntegrationDefinition<
   private _mergeChannels = (a: ChannelDefinition, b: ChannelDefinition): ChannelDefinition => {
     const messages = utils.mergeRecords(a.messages, b.messages, this._mergeMessage)
     return {
-      title: b.title ?? a.title,
-      description: b.description ?? a.description,
-      conversation: b.conversation ?? a.conversation,
-      message: b.message ?? a.message,
+      ...a,
+      ...b,
       messages,
     }
   }
