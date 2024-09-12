@@ -72,4 +72,17 @@ describe('uploadFile', () => {
     const download = await fetch(response.file.url)
     expect(download.status).toBe(200)
   })
+
+  it('public URL is immediately accessible when requested', async () => {
+    const sourceUrl = 'https://docs.botpress.cloud/docs/content/whatsapp-banner.png'
+
+    const response = await client.uploadFile({
+      key: 'whatsapp-banner.png',
+      url: sourceUrl,
+      publicContentImmediatelyAccessible: true,
+    })
+
+    const download = await fetch(response.file.url)
+    expect(download.status).toBe(200)
+  })
 })
