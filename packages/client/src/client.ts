@@ -107,12 +107,18 @@ export class Client extends gen.Client implements types.IClient {
       publicContentImmediatelyAccessible,
     })
 
+    const headers: Record<string, string> = {
+      'Content-Type': file.contentType,
+    }
+
+    if (publicContentImmediatelyAccessible) {
+      headers['x-amz-tagging'] = 'public=true'
+    }
+
     try {
       await axios.put(file.uploadUrl, buffer, {
         maxBodyLength: Infinity,
-        headers: {
-          'Content-Type': file.contentType,
-        },
+        headers,
       })
     } catch (err: any) {
       throw new errors.UploadFileError(`Failed to upload file: ${err.message}`, <AxiosError>err, file)
