@@ -43,7 +43,6 @@ export const channel = {
   message: { tags: messageTags },
   conversation: {
     tags: { ...convoTags },
-    creation: { enabled: true, requiredTags: ['id'] },
   },
 } satisfies ChannelDef
 
@@ -54,7 +53,6 @@ export const dm = {
   message: { tags: messageTags },
   conversation: {
     tags: { ...convoTags },
-    creation: { enabled: true, requiredTags: ['id'] },
   },
 } satisfies ChannelDef
 
@@ -65,6 +63,5 @@ export const thread = {
   message: { tags: messageTags },
   conversation: {
     tags: { ...convoTags, thread: {} },
-    creation: { enabled: true, requiredTags: ['id'] },
   },
 } satisfies ChannelDef

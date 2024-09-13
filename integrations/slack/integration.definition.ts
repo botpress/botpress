@@ -193,7 +193,6 @@ export default new IntegrationDefinition({
   },
   user: {
     tags: userTags,
-    creation: { enabled: true, requiredTags: ['id'] },
   },
   identifier: {
     extractScript: 'extract.vrl',
