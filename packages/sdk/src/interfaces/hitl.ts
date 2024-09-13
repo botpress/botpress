@@ -1,6 +1,6 @@
 import { InterfaceDeclaration } from '../integration'
 import * as messages from '../message'
-import z, { ZodTypeAny } from '../zui'
+import z from '../zui'
 
 const withUserId = <S extends z.AnyZodObject>(s: { schema: S }) => ({
   ...s,
@@ -10,17 +10,9 @@ const withUserId = <S extends z.AnyZodObject>(s: { schema: S }) => ({
     }),
 })
 
-type Tuple<T> = [T, T, ...T[]]
-const messagePayloadSchemas: ZodTypeAny[] = Object.values(messages.defaults).map((d) => d.schema)
-const messageSchema = z.object({
-  userId: z.string(),
-  type: z.enum(Object.keys(messages.defaults) as Tuple<string>),
-  payload: z.union(messagePayloadSchemas as Tuple<ZodTypeAny>),
-})
-
 export const hitl = new InterfaceDeclaration({
   name: 'hitl',
-  version: '0.3.0',
+  version: '0.4.0',
   entities: {},
   events: {
     hitlAssigned: {
@@ -61,7 +53,6 @@ export const hitl = new InterfaceDeclaration({
             userId: z.string(),
             title: z.string(),
             description: z.string().optional(),
-            messageHistory: z.array(messageSchema).optional(),
           }),
       },
       output: {
