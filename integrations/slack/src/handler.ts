@@ -12,8 +12,8 @@ import {
   respondInteractive,
   getUserAndConversation,
   getConfig,
-  validateRequestSignature,
-  getOAuthAccessToken,
+  getSigningSecret,
+  SlackEventSignatureValidator,
 } from './misc/utils'
 import * as bp from '.botpress'
 
@@ -26,17 +26,12 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
     })
   }
 
-  const isOAuthConfigured = !!(await getOAuthAccessToken(client, ctx))
+  const signingSecret = await getSigningSecret(client, ctx)
+  const isSignatureValid = new SlackEventSignatureValidator(signingSecret, req, logger).isEventProperlyAuthenticated()
 
-  if (isOAuthConfigured) {
-    const isSignatureValid = validateRequestSignature({ req, logger })
-
-    if (!isSignatureValid) {
-      logger.forBot().error('Handler received a request with an invalid signature')
-      return
-    }
-  } else {
-    logger.forBot().debug('OAuth is not configured, skipping signature validation')
+  if (!isSignatureValid) {
+    logger.forBot().error('Handler received a request with an invalid signature')
+    return
   }
 
   if (!req.body) {
