@@ -210,6 +210,7 @@ export default new bp.Integration({
           source: 'integration:openai:generateImage',
         },
         expiresAt,
+        publicContentImmediatelyAccessible: true,
       })
 
       return {
