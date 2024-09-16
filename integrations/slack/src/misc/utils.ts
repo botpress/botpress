@@ -253,6 +253,21 @@ export const getUserAndConversation = async (
   }
 }
 
+export const getMessageFromSlackEvent = async (
+  client: Client,
+  event: { item: { type: string; channel?: string; ts?: string } }
+) => {
+  if (event.item.type !== 'message' || !event.item.channel || !event.item.ts) {
+    return undefined
+  }
+
+  const { messages } = await client.listMessages({
+    tags: { ts: event.item.ts, channelId: event.item.channel },
+  })
+
+  return messages[0]
+}
+
 export const getSlackUserProfile = async (botToken: string, slackUserId: string) => {
   const slackClient = new WebClient(botToken)
   const { profile } = await slackClient.users.profile.get({ user: slackUserId })
