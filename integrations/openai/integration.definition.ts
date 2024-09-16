@@ -3,7 +3,8 @@ import { languageModelId } from 'src/schemas'
 
 const TextToSpeechModels = ['tts-1', 'tts-1-hd'] as const
 type TextToSpeechModel = (typeof TextToSpeechModels)[number]
-export const TexttoSpeechModelPricePer1MCharacters: Record<TextToSpeechModel, number> = {
+export const TextToSpeechPricePer1MCharacters: Record<TextToSpeechModel, number> = {
+  // Price is in U.S. dollars
   'tts-1': 15,
   'tts-1-hd': 30,
 }

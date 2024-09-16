@@ -7,7 +7,7 @@ import { ImageGenerateParams, Images } from 'openai/resources'
 import { LanguageModelId, ImageModelId, SpeechToTextModelId } from './schemas'
 import * as bp from '.botpress'
 import { SpeechCreateParams } from 'openai/resources/audio/speech'
-import { TexttoSpeechModelPricePer1MCharacters } from 'integration.definition'
+import { TextToSpeechPricePer1MCharacters } from 'integration.definition'
 
 const openAIClient = new OpenAI({
   apiKey: bp.secrets.OPENAI_API_KEY,
@@ -261,7 +261,7 @@ export default new bp.Integration({
         expiresAt,
       })
 
-      const cost = (input.input.length / 1_000_000) * TexttoSpeechModelPricePer1MCharacters[model]
+      const cost = (input.input.length / 1_000_000) * TextToSpeechPricePer1MCharacters[model]
 
       return {
         audioUrl: file.url,
