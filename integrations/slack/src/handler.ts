@@ -1,4 +1,4 @@
-import type { GenericMessageEvent, ReactionAddedEvent } from '@slack/bolt'
+import type { GenericMessageEvent, ReactionAddedEvent } from '@slack/types'
 import { executeMessageReceived } from './events/message-received'
 import { executeReactionAdded } from './events/reaction-added'
 import {

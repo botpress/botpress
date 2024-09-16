@@ -1,4 +1,4 @@
-import { ReactionAddedEvent } from '@slack/bolt'
+import { ReactionAddedEvent } from '@slack/types'
 
 import { Client } from '../misc/types'
 import { getMessageFromSlackEvent, getUserAndConversation } from '../misc/utils'

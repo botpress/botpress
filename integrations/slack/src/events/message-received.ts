@@ -1,4 +1,4 @@
-import { GenericMessageEvent } from '@slack/bolt'
+import { GenericMessageEvent } from '@slack/types'
 import { Client, IntegrationCtx, IntegrationLogger } from '../misc/types'
 import { getAccessToken, getSlackUserProfile, getUserAndConversation } from '../misc/utils'
 
