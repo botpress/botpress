@@ -90,16 +90,16 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   const event: ReactionAddedEvent | GenericMessageEvent = data.event
   logger.forBot().debug(`Handler received request of type ${data.event.type}`)
 
+  if (event.user === botUserId) {
+    return
+  }
+
   switch (event.type) {
     case 'message':
       return executeMessageReceived({ slackEvent: event, client, ctx, logger })
 
     case 'reaction_added':
-      if (event.user !== botUserId) {
-        return executeReactionAdded({ slackEvent: event, client })
-      }
-
-      return
+      return executeReactionAdded({ slackEvent: event, client })
 
     default:
       return
