@@ -44,19 +44,23 @@ export default new IntegrationDefinition({
     configuration: {
       type: 'integration',
       schema: z.object({
-        botUserId: z.string().optional(),
+        botUserId: z.string().optional().title('Bot User ID').describe('The ID of the bot user'),
       }),
     },
     sync: {
       type: 'integration',
       schema: z.object({
-        usersLastSyncTs: z.number().optional(),
+        usersLastSyncTs: z
+          .number()
+          .optional()
+          .title('Users Last Sync Timestamp')
+          .describe('The timestamp of the last sync'),
       }),
     },
     credentials: {
       type: 'integration',
       schema: z.object({
-        accessToken: z.string(),
+        accessToken: z.string().secret().title('OAuth token').describe('The Bot User OAuth Token'),
       }),
     },
   },
@@ -78,14 +82,21 @@ export default new IntegrationDefinition({
       title: 'Reaction Added',
       description: 'Triggered when a reaction is added to a message',
       schema: z.object({
-        reaction: z.string(),
-        userId: z.string().optional(),
-        conversationId: z.string().optional(),
-        targets: z.object({
-          dm: z.record(z.string()).optional(),
-          channel: z.record(z.string()).optional(),
-          thread: z.record(z.string()).optional(),
-        }),
+        reaction: z.string().title('Reaction').describe('The reaction that was added'),
+        userId: z.string().optional().title('User ID').describe('The ID of the user who added the reaction'),
+        conversationId: z.string().optional().title('Conversation ID').describe('The ID of the conversation'),
+        targets: z
+          .object({
+            dm: z.record(z.string()).optional().title('DMs').describe('The DMs targeted by the reaction'),
+            channel: z
+              .record(z.string())
+              .optional()
+              .title('Channels')
+              .describe('The channels targeted by the reaction'),
+            thread: z.record(z.string()).optional().title('Threads').describe('The threads targeted by the reaction'),
+          })
+          .title('Targets')
+          .describe('The targets of the reaction'),
       }),
       ui: {},
     },
