@@ -6,6 +6,8 @@ import OpenAI from 'openai'
 import { ImageGenerateParams, Images } from 'openai/resources'
 import { LanguageModelId, ImageModelId, SpeechToTextModelId } from './schemas'
 import * as bp from '.botpress'
+import { SpeechCreateParams } from 'openai/resources/audio/speech'
+import { TextToSpeechPricePer1MCharacters } from 'integration.definition'
 
 const openAIClient = new OpenAI({
   apiKey: bp.secrets.OPENAI_API_KEY,
@@ -202,7 +204,7 @@ export default new bp.Integration({
 
       // File storage is billed to the workspace of the bot that called this action.
       const { file } = await client.uploadFile({
-        key: generateImageKey('openai-generateImage-', input, '.png'),
+        key: generateFileKey('openai-generateImage-', input, '.png'),
         url: temporaryImageUrl,
         contentType: 'image/png',
         accessPolicies: ['public_content'],
@@ -229,6 +231,43 @@ export default new bp.Integration({
         defaultModel: 'whisper-1',
       })
     },
+    generateSpeech: async ({ input, client }) => {
+      const model = input.model ?? 'tts-1'
+
+      const params: SpeechCreateParams = {
+        model,
+        input: input.input,
+        voice: input.voice ?? 'alloy',
+        response_format: input.format ?? 'mp3',
+        speed: input.speed ?? 1,
+      }
+
+      const response = await openAIClient.audio.speech.create(params)
+
+      const key = generateFileKey('openai-generateSpeech-', input, `.${params.response_format}`)
+
+      const expiresAt = input.expiration
+        ? new Date(Date.now() + input.expiration * SECONDS_IN_A_DAY * 1000).toISOString()
+        : undefined
+
+      const { file } = await client.uploadFile({
+        key,
+        content: await response.arrayBuffer(),
+        accessPolicies: ['public_content'],
+        publicContentImmediatelyAccessible: true,
+        tags: {
+          source: 'integration:openai:generateSpeech',
+        },
+        expiresAt,
+      })
+
+      const cost = (input.input.length / 1_000_000) * TextToSpeechPricePer1MCharacters[model]
+
+      return {
+        audioUrl: file.url,
+        botpress: { cost },
+      }
+    },
     listLanguageModels: async ({}) => {
       return {
         models: Object.entries(languageModels).map(([id, model]) => ({ id: <LanguageModelId>id, ...model })),
@@ -249,7 +288,7 @@ export default new bp.Integration({
   handler: async () => {},
 })
 
-function generateImageKey(prefix: string, input: bp.actions.generateImage.input.Input, suffix?: string) {
+function generateFileKey(prefix: string, input: object, suffix?: string) {
   const json = JSON.stringify(input)
   const hash = crypto.createHash('sha1')
 
