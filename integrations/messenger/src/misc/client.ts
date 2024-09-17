@@ -1,4 +1,4 @@
-import { IntegrationContext, z } from '@botpress/sdk'
+import { z } from '@botpress/sdk'
 import axios from 'axios'
 import { getGlobalWebhookUrl } from '../index'
 import * as bp from '.botpress'
@@ -142,7 +142,7 @@ export class MetaClient {
 
 export async function getCredentials(
   client: bp.Client,
-  ctx: IntegrationContext
+  ctx: bp.Context
 ): Promise<{ accessToken: string; clientSecret: string; clientId: string }> {
   if (ctx.configuration.useManualConfiguration) {
     // Use access token from configuration if manual configuration is enabled
