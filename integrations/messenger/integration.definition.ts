@@ -1,4 +1,4 @@
-import { z, IntegrationDefinition, messages, Request, IntegrationContext } from '@botpress/sdk'
+import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export const INTEGRATION_NAME = 'messenger'

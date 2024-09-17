@@ -1,15 +1,15 @@
 import { RuntimeError } from '@botpress/client'
+import { IntegrationContext, Request } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import queryString from 'query-string'
+import { INTEGRATION_NAME } from '../integration.definition'
+import { getInterstitialUrl, redirectTo } from './misc/html-utils'
 import { handleMessage } from './misc/incoming-message'
 import { sendMessage } from './misc/outgoing-message'
 import { MessengerPayload } from './misc/types'
 import { formatGoogleMapLink, getCarouselMessage, getChoiceMessage, getMessengerClient } from './misc/utils'
-import * as bp from '.botpress'
-import { getInterstitialUrl, redirectTo } from './misc/html-utils'
 import { handleWizard } from './misc/wizard'
-import { INTEGRATION_NAME } from '../integration.definition'
-import { IntegrationContext, Request } from '@botpress/sdk'
+import * as bp from '.botpress'
 
 const integration = new bp.Integration({
   register: async () => {},
