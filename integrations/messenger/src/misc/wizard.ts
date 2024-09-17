@@ -109,11 +109,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
 }
 
 // client.patchState is not working correctly
-const patchCredentialsState = async (
-  client: bp.Client,
-  ctx: bp.Context,
-  newState: Partial<typeof bp.states.oauth>
-) => {
+const patchCredentialsState = async (client: bp.Client, ctx: bp.Context, newState: Partial<typeof bp.states.oauth>) => {
   const currentState = await getCredentialsState(client, ctx)
 
   await client.setState({
