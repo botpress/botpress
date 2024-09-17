@@ -145,8 +145,11 @@ export async function getCredentials(
   ctx: bp.Context
 ): Promise<{ accessToken: string; clientSecret: string; clientId: string }> {
   if (ctx.configuration.useManualConfiguration) {
-    // Use access token from configuration if manual configuration is enabled
-    return ctx.configuration
+    return {
+      accessToken: ctx.configuration.accessToken || '',
+      clientSecret: ctx.configuration.clientSecret || '',
+      clientId: ctx.configuration.clientId || '',
+    }
   }
 
   // Otherwise use the page token obtained from the OAuth flow and stored in the state
