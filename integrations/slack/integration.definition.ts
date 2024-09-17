@@ -98,7 +98,25 @@ export default new IntegrationDefinition({
           .title('Targets')
           .describe('The targets of the reaction'),
       }),
-      ui: {},
+    },
+    memberJoinedWorkspace: {
+      title: 'Member Joined Workspace',
+      description: 'Triggered when a member joins the workspace',
+      schema: z.object({
+        userId: z.string().title('Botpress ID').describe('The Botpress ID of the user who joined the workspace'),
+        target: z
+          .object({
+            userId: z.string().title('Slack ID').describe('The Slack ID of the user who joined the workspace'),
+            userName: z.string().title('Username').describe('The username of the user who joined the workspace'),
+            userRealName: z.string().title('Real name').describe('The real name of the user who joined the workspace'),
+            userDisplayName: z
+              .string()
+              .title('Display name')
+              .describe('The display name of the user who joined the workspace'),
+          })
+          .title('Target')
+          .describe('Slack user who joined the workspace'),
+      }),
     },
   },
   secrets: {
