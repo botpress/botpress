@@ -1,6 +1,60 @@
 import { mkRespond } from 'src/api-utils'
 import { getOrCreateFlow, setFlow } from '../flow-state'
-import { MessageHandler } from '../types'
+import { Client, ClientOutputs, MessageHandler } from '../types'
+import * as bp from '.botpress'
+
+type User = ClientOutputs['getUser']['user']
+type StartHitlInput = bp.zendesk.actions.startHitl.input.Input
+type MessageHistoryElement = NonNullable<StartHitlInput['messageHistory']>[number]
+
+class UserLinker {
+  public constructor(private _users: Record<string, User>, private _client: Client) {}
+
+  public async linkUsers(upstreamUserId: string): Promise<string> {
+    let upstreamUser = this._users[upstreamUserId]
+    if (!upstreamUser) {
+      const { user: fetchedUser } = await this._client.getUser({ id: upstreamUserId })
+      this._users[upstreamUserId] = fetchedUser
+      upstreamUser = fetchedUser
+    }
+
+    if (upstreamUser.tags.downstream) {
+      return upstreamUser.tags.downstream
+    }
+
+    const downstreamUserId = await this._linkUser(upstreamUser)
+    return downstreamUserId
+  }
+
+  private async _linkUser(upstreamUser: User): Promise<string> {
+    const {
+      output: { userId: downstreamUserId },
+    } = await this._client.callAction({
+      type: 'zendesk:createUser',
+      input: {
+        name: upstreamUser.name,
+        pictureUrl: upstreamUser.pictureUrl,
+        email: upstreamUser.tags.email,
+      },
+    })
+
+    await this._client.updateUser({
+      id: upstreamUser.id,
+      tags: {
+        downstream: downstreamUserId,
+      },
+    })
+
+    await this._client.updateUser({
+      id: downstreamUserId,
+      tags: {
+        upstream: upstreamUser.id,
+      },
+    })
+
+    return downstreamUserId
+  }
+}
 
 export const patientMessageHandler: MessageHandler = async (props) => {
   if (props.message.type !== 'text') {
@@ -15,33 +69,30 @@ export const patientMessageHandler: MessageHandler = async (props) => {
     { hitlEnabled: false }
   )
 
+  const users = new UserLinker(
+    {
+      [upstreamUser.id]: upstreamUser,
+    },
+    client
+  )
+
   if (!upstreamFlow.hitlEnabled) {
     if (message.payload.text.trim() === '/start_hitl') {
-      const {
-        output: { userId: downstreamUserId },
-      } = await client.callAction({
-        // TODO: get these from the user or the upstream integration
-        type: 'zendesk:createUser',
-        input: {
-          name: 'John Doe',
-          pictureUrl: 'https://en.wikipedia.org/wiki/Steve_(Minecraft)#/media/File:Steve_(Minecraft).png',
-          email: 'john.doe@foobar.com',
-        },
+      const downstreamUserId = await users.linkUsers(upstreamUser.id)
+
+      const { messages: upstreamMessages } = await client.listMessages({
+        conversationId: upstreamConversation.id,
       })
 
-      await client.updateUser({
-        id: upstreamUser.id,
-        tags: {
-          downstream: downstreamUserId,
-        },
-      })
-
-      await client.updateUser({
-        id: downstreamUserId,
-        tags: {
-          upstream: upstreamUser.id,
-        },
-      })
+      const messageHistory: MessageHistoryElement[] = []
+      for (const message of upstreamMessages) {
+        const isBot = message.userId === props.ctx.botId // TODO: use the bot user id instead of bot id
+        messageHistory.push({
+          source: isBot ? { type: 'bot' } : { type: 'user', userId: message.userId },
+          type: message.type,
+          payload: message.payload,
+        } as MessageHistoryElement)
+      }
 
       const {
         output: { conversationId: downstreamConversationId },
@@ -51,6 +102,7 @@ export const patientMessageHandler: MessageHandler = async (props) => {
           title: `Hitl request ${Date.now()}`,
           description: 'I need help.',
           userId: downstreamUserId,
+          messageHistory,
         },
       })
 

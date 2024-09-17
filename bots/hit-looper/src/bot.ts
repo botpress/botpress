@@ -1,10 +1,23 @@
 import { z } from '@botpress/sdk'
-import * as botpress from '.botpress'
+import * as bp from '.botpress'
+import * as secrets from '.botpress/secrets'
 
-const telegram = new botpress.telegram.Telegram()
-const zendesk = new botpress.zendesk.Zendesk()
+const telegram = new bp.telegram.Telegram({
+  enabled: true,
+  config: {
+    botToken: secrets.TELEGRAM_BOT_TOKEN,
+  },
+})
+const zendesk = new bp.zendesk.Zendesk({
+  enabled: true,
+  config: {
+    apiToken: secrets.ZENDESK_API_TOKEN,
+    email: secrets.ZENDESK_EMAIL,
+    organizationSubdomain: secrets.ZENDESK_ORGANIZATION_SUBDOMAIN,
+  },
+})
 
-export const bot = new botpress.Bot({
+export const bot = new bp.Bot({
   integrations: {
     telegram,
     zendesk,
