@@ -12,7 +12,7 @@ const withUserId = <S extends z.AnyZodObject>(s: { schema: S }) => ({
 
 export const hitl = new InterfaceDeclaration({
   name: 'hitl',
-  version: '0.2.0',
+  version: '0.4.0',
   entities: {},
   events: {
     hitlAssigned: {

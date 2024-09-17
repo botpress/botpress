@@ -1,6 +1,12 @@
 import { WebClient } from '@slack/web-api'
 import { CreateConversationFunction, CreateUserFunction, RegisterFunction, UnregisterFunction } from './misc/types'
-import { getAccessToken, getDirectMessageForUser, isUserId, saveConfig } from './misc/utils'
+import {
+  getAccessToken,
+  getDirectMessageForUser,
+  isUserId,
+  saveConfig,
+  updateBotpressBotNameAndAvatar,
+} from './misc/utils'
 
 export type SyncState = { usersLastSyncTs?: number }
 export type Configuration = { botUserId?: string }
@@ -19,6 +25,8 @@ export const register: RegisterFunction = async ({ client, ctx, logger }) => {
   const configuration: Configuration = { botUserId: identity.user_id }
 
   await saveConfig(client, ctx, configuration)
+
+  await updateBotpressBotNameAndAvatar(client, ctx)
 }
 
 export const unregister: UnregisterFunction = async () => {

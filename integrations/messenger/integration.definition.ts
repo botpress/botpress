@@ -19,27 +19,29 @@ export default new IntegrationDefinition({
         title: 'Use Manual Configuration',
       },
     },
-    schema: z.object({
-      useManualConfiguration: z.boolean().optional().describe('Skip oAuth and supply details from a Meta App'),
-      verifyToken: z.string().optional().describe('Token used for verification when subscribing to webhooks'),
-      accessToken: z
-        .string()
-        .optional()
-        .describe('Access Token from a System Account that has permission to the Meta app'),
-      clientId: z.string().optional(),
-      clientSecret: z.string().optional().describe('Meta app secret used for webhook signature check'),
-      pageId: z.string().optional().describe('Id from the Facebook page'),
-    }).hidden((formData) => {
-      const showConfig = !formData?.useManualConfiguration
+    schema: z
+      .object({
+        useManualConfiguration: z.boolean().optional().describe('Skip oAuth and supply details from a Meta App'),
+        verifyToken: z.string().optional().describe('Token used for verification when subscribing to webhooks'),
+        accessToken: z
+          .string()
+          .optional()
+          .describe('Access Token from a System Account that has permission to the Meta app'),
+        clientId: z.string().optional(),
+        clientSecret: z.string().optional().describe('Meta app secret used for webhook signature check'),
+        pageId: z.string().optional().describe('Id from the Facebook page'),
+      })
+      .hidden((formData) => {
+        const showConfig = !formData?.useManualConfiguration
 
-      return {
-        verifyToken: showConfig,
-        accessToken: showConfig,
-        clientId: showConfig,
-        clientSecret: showConfig,
-        pageId: showConfig,
-      }
-    }),
+        return {
+          verifyToken: showConfig,
+          accessToken: showConfig,
+          clientId: showConfig,
+          clientSecret: showConfig,
+          pageId: showConfig,
+        }
+      }),
   },
   identifier: {
     extractScript: 'extract.vrl',
@@ -52,7 +54,7 @@ export default new IntegrationDefinition({
         tags: { id: {}, recipientId: {}, senderId: {} },
       },
       conversation: {
-        tags: { id: {}, recipientId: {}, senderId: {} }
+        tags: { id: {}, recipientId: {}, senderId: {} },
       },
     },
   },
@@ -64,7 +66,7 @@ export default new IntegrationDefinition({
       schema: z.object({
         accessToken: z.string().optional(),
         pageToken: z.string().optional(),
-        pageId: z.string().optional()
+        pageId: z.string().optional(),
       }),
     },
   },
@@ -78,10 +80,10 @@ export default new IntegrationDefinition({
     },
     ACCESS_TOKEN: {
       description: 'Access token for internal Meta App',
-    }
+    },
   },
   user: {
-    tags: { id: {} }
+    tags: { id: {} },
   },
 })
 
@@ -92,4 +94,3 @@ export const getOAuthConfigId = () => {
 
   return 506253762185261
 }
-

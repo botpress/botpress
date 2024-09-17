@@ -90,7 +90,6 @@ const integration = new bp.Integration({
     },
   },
   handler: async ({ req, client, ctx, logger }) => {
-
     if (detectIdentifierIssue(req, ctx)) {
       return redirectTo(getInterstitialUrl(false, 'Not allowed'))
     }
