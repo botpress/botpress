@@ -1,6 +1,10 @@
 import type { SlackEvent } from '@slack/types'
+import { executeMemberJoinedChannel } from './events/member-joined-channel'
+import { executeMemberLeftChannel } from './events/member-left-channel'
 import { executeMessageReceived } from './events/message-received'
 import { executeReactionAdded } from './events/reaction-added'
+import { executeReactionRemoved } from './events/reaction-removed'
+import { executeTeamJoin } from './events/team-join'
 import {
   isInteractiveRequest,
   onOAuth,
@@ -12,8 +16,6 @@ import {
   getOAuthAccessToken,
 } from './misc/utils'
 import * as bp from '.botpress'
-import { executeTeamJoin } from './events/team-join'
-import { executeReactionRemoved } from './events/reaction-removed'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
   logger.forBot().debug('Handler received request from Slack with payload:', req.body)
@@ -108,6 +110,12 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
 
     case 'team_join':
       return executeTeamJoin({ slackEvent: event, client })
+
+    case 'member_joined_channel':
+      return executeMemberJoinedChannel({ slackEvent: event, client })
+
+    case 'member_left_channel':
+      return executeMemberLeftChannel({ slackEvent: event, client })
 
     default:
       return

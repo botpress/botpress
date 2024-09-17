@@ -132,6 +132,52 @@ export default new IntegrationDefinition({
           .describe('Slack user who joined the workspace'),
       }),
     },
+    memberJoinedChannel: {
+      title: 'Member Joined Channel',
+      description: 'Triggered when a member joins a channel',
+      schema: z.object({
+        botpressUserId: z
+          .string()
+          .title('Botpress user ID')
+          .describe('The Botpress ID of the user who joined the channel'),
+        botpressConversationId: z
+          .string()
+          .title('Botpress Channel ID')
+          .describe('The Botpress ID of the channel the user joined'),
+        inviterBotpressUserId: z
+          .string()
+          .optional()
+          .title('Botpress Inviter User ID')
+          .describe('The Botpress ID of the user who invited the new member'),
+        targets: z.object({
+          slackUserId: z.string().title('Slack User ID').describe('The Slack ID of the user who joined the channel'),
+          slackChannelId: z.string().title('Slack Channel ID').describe('The Slack ID of the channel the user joined'),
+          slackInviterId: z
+            .string()
+            .optional()
+            .title('Slack Inviter ID')
+            .describe('The Slack ID of the user who invited the new member'),
+        }),
+      }),
+    },
+    memberLeftChannel: {
+      title: 'Member Left Channel',
+      description: 'Triggered when a member leaves a channel',
+      schema: z.object({
+        botpressUserId: z
+          .string()
+          .title('Botpress user ID')
+          .describe('The Botpress ID of the user who left the channel'),
+        botpressConversationId: z
+          .string()
+          .title('Botpress Channel ID')
+          .describe('The Botpress ID of the channel the user left'),
+        targets: z.object({
+          slackUserId: z.string().title('Slack User ID').describe('The Slack ID of the user who left the channel'),
+          slackChannelId: z.string().title('Slack Channel ID').describe('The Slack ID of the channel the user left'),
+        }),
+      }),
+    },
   },
   secrets: {
     CLIENT_ID: {
