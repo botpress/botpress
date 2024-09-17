@@ -87,10 +87,10 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
     }
   }
 
-  const event: ReactionAddedEvent | GenericMessageEvent = data.event
+  const event: SlackEvent = data.event
   logger.forBot().debug(`Handler received request of type ${data.event.type}`)
 
-  if (event.user === botUserId) {
+  if ('user' in event && event.user === botUserId) {
     return
   }
 
