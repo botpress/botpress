@@ -99,6 +99,20 @@ export default new IntegrationDefinition({
           .describe('The targets of the reaction'),
       }),
     },
+    reactionRemoved: {
+      title: 'Reaction Removed',
+      description: 'Triggered when a reaction is removed from a message',
+      schema: z.object({
+        reaction: z.string(),
+        userId: z.string().optional(),
+        conversationId: z.string().optional(),
+        targets: z.object({
+          dm: z.record(z.string()).optional(),
+          channel: z.record(z.string()).optional(),
+          thread: z.record(z.string()).optional(),
+        }),
+      }),
+    },
     memberJoinedWorkspace: {
       title: 'Member Joined Workspace',
       description: 'Triggered when a member joins the workspace',

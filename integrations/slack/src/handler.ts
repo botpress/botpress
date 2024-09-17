@@ -13,6 +13,7 @@ import {
 } from './misc/utils'
 import * as bp from '.botpress'
 import { executeTeamJoin } from './events/team-join'
+import { executeReactionRemoved } from './events/reaction-removed'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
   logger.forBot().debug('Handler received request from Slack with payload:', req.body)
@@ -101,6 +102,9 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
 
     case 'reaction_added':
       return executeReactionAdded({ slackEvent: event, client })
+
+    case 'reaction_removed':
+      return executeReactionRemoved({ slackEvent: event, client })
 
     case 'team_join':
       return executeTeamJoin({ slackEvent: event, client })
