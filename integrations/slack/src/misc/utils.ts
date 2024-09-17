@@ -217,12 +217,19 @@ export const respondInteractive = async (body: InteractiveBody): Promise<string>
   }
 }
 
-export const getUserAndConversation = async (
-  props: {
-    slackUserId: string
-    slackChannelId: string
-    slackThreadId?: string
-  },
+export const getBotpressUserFromSlackUser = async (props: { slackUserId: string }, client: Client) => {
+  const { user } = await client.getOrCreateUser({
+    tags: { id: props.slackUserId },
+  })
+
+  return {
+    botpressUser: user,
+    botpressUserId: user.id,
+  }
+}
+
+export const getBotpressConversationFromSlackThread = async (
+  props: { slackChannelId: string; slackThreadId?: string },
   client: Client
 ) => {
   let conversation: Conversation
@@ -242,14 +249,38 @@ export const getUserAndConversation = async (
     conversation = resp.conversation
   }
 
-  const { user } = await client.getOrCreateUser({
-    tags: { id: props.slackUserId },
-  })
+  return {
+    botpressConversation: conversation,
+    botpressConversationId: conversation.id,
+  }
+}
+
+/**
+ * @deprecated Use `getBotpressUserFromSlackUser` and `getBotpressConversationFromSlackThread` instead
+ */
+export const getUserAndConversation = async (
+  {
+    slackUserId,
+    slackChannelId,
+    slackThreadId,
+  }: {
+    slackUserId: string
+    slackChannelId: string
+    slackThreadId?: string
+  },
+  client: Client
+) => {
+  const { botpressUser, botpressUserId } = await getBotpressUserFromSlackUser({ slackUserId }, client)
+  const { botpressConversation, botpressConversationId } = await getBotpressConversationFromSlackThread(
+    { slackChannelId, slackThreadId },
+    client
+  )
 
   return {
-    user,
-    userId: user.id,
-    conversationId: conversation.id,
+    user: botpressUser,
+    userId: botpressUserId,
+    conversation: botpressConversation,
+    conversationId: botpressConversationId,
   }
 }
 
