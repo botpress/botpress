@@ -46,7 +46,7 @@ export class MetaClient {
       (item: { scope: string; target_ids: string[] }) => item.scope === 'pages_messaging'
     )
 
-    if(scope.target_ids) {
+    if (scope.target_ids) {
       const ids = scope.target_ids
 
       const { data: dataBusinesses } = await axios.get(
@@ -67,7 +67,7 @@ export class MetaClient {
   async getPageToken(accessToken: string, pageId: string) {
     const query = new URLSearchParams({
       access_token: accessToken,
-      fields: 'access_token,name'
+      fields: 'access_token,name',
     })
 
     const res = await axios.get(`${this.baseGraphApiUrl}/${pageId}?${query.toString()}`)
@@ -75,11 +75,11 @@ export class MetaClient {
       .object({
         access_token: z.string(),
         name: z.string(),
-        id: z.string()
+        id: z.string(),
       })
       .parse(res.data)
 
-    if(!data.access_token) {
+    if (!data.access_token) {
       throw new Error('Unable to find the page token for the specified page')
     }
 
@@ -91,7 +91,7 @@ export class MetaClient {
       const { data } = await axios.post(
         `${this.baseGraphApiUrl}/${this.version}/${pageId}/subscribed_apps`,
         {
-          subscribed_fields: [ 'messages', 'messaging_postbacks' ]
+          subscribed_fields: ['messages', 'messaging_postbacks'],
         },
         {
           headers: {
@@ -118,7 +118,7 @@ export class MetaClient {
 
     const query = new URLSearchParams({
       access_token: userToken,
-      fields: 'id,name'
+      fields: 'id,name',
     })
     let url = `${this.baseGraphApiUrl}/${this.version}/me/accounts?${query.toString()}`
 
@@ -140,7 +140,10 @@ export class MetaClient {
   }
 }
 
-export async function getCredentials(client: bp.Client, ctx: IntegrationContext): Promise<{accessToken: string; clientSecret: string; clientId: string}> {
+export async function getCredentials(
+  client: bp.Client,
+  ctx: IntegrationContext
+): Promise<{ accessToken: string; clientSecret: string; clientId: string }> {
   if (ctx.configuration.useManualConfiguration) {
     // Use access token from configuration if manual configuration is enabled
     return ctx.configuration
@@ -149,11 +152,13 @@ export async function getCredentials(client: bp.Client, ctx: IntegrationContext)
   // Otherwise use the page token obtained from the OAuth flow and stored in the state
   const { state } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
 
-  if(!state.payload.pageToken) {
+  if (!state.payload.pageToken) {
     throw new Error('There is no access token, please reauthorize')
   }
 
-  return { accessToken: state.payload.pageToken, clientSecret: bp.secrets.CLIENT_SECRET, clientId: bp.secrets.CLIENT_ID }
+  return {
+    accessToken: state.payload.pageToken,
+    clientSecret: bp.secrets.CLIENT_SECRET,
+    clientId: bp.secrets.CLIENT_ID,
+  }
 }
-
-
