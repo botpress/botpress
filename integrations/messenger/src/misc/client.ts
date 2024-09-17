@@ -7,6 +7,7 @@ export class MetaClient {
   private clientId: string
   private clientSecret: string
   private version: string = 'v19.0'
+  private baseGraphApiUrl = 'https://graph.facebook.com'
 
   constructor(private logger: bp.Logger) {
     this.clientId = bp.secrets.CLIENT_ID
@@ -21,7 +22,7 @@ export class MetaClient {
       code,
     })
 
-    const res = await axios.get(`https://graph.facebook.com/${this.version}/oauth/access_token?${query.toString()}`)
+    const res = await axios.get(`${this.baseGraphApiUrl}/${this.version}/oauth/access_token?${query.toString()}`)
     const data = z
       .object({
         access_token: z.string(),
@@ -38,23 +39,29 @@ export class MetaClient {
     })
 
     const { data: dataDebugToken } = await axios.get(
-      `https://graph.facebook.com/${this.version}/debug_token?${query.toString()}`
+      `${this.baseGraphApiUrl}/${this.version}/debug_token?${query.toString()}`
     )
 
-    const ids = dataDebugToken.data.granular_scopes.find(
+    const scope = dataDebugToken.data.granular_scopes.find(
       (item: { scope: string; target_ids: string[] }) => item.scope === 'pages_messaging'
-    ).target_ids
-
-    const { data: dataBusinesses } = await axios.get(
-      `https://graph.facebook.com/${this.version}/?ids=${ids.join()}&fields=id,name`,
-      {
-        headers: {
-          Authorization: `Bearer ${inputToken}`,
-        },
-      }
     )
 
-    return Object.keys(dataBusinesses).map((key) => dataBusinesses[key])
+    if(scope.target_ids) {
+      const ids = scope.target_ids
+
+      const { data: dataBusinesses } = await axios.get(
+        `${this.baseGraphApiUrl}/${this.version}/?ids=${ids.join()}&fields=id,name`,
+        {
+          headers: {
+            Authorization: `Bearer ${inputToken}`,
+          },
+        }
+      )
+
+      return Object.keys(dataBusinesses).map((key) => dataBusinesses[key])
+    } else {
+      return this.getUserManagedPages(inputToken)
+    }
   }
 
   async getPageToken(accessToken: string, pageId: string) {
@@ -63,7 +70,7 @@ export class MetaClient {
       fields: 'access_token,name'
     })
 
-    const res = await axios.get(`https://graph.facebook.com/${pageId}?${query.toString()}`)
+    const res = await axios.get(`${this.baseGraphApiUrl}/${pageId}?${query.toString()}`)
     const data = z
       .object({
         access_token: z.string(),
@@ -82,9 +89,9 @@ export class MetaClient {
   async subscribeToWebhooks(pageToken: string, pageId: string) {
     try {
       const { data } = await axios.post(
-        `https://graph.facebook.com/${this.version}/${pageId}/subscribed_apps`,
+        `${this.baseGraphApiUrl}/${this.version}/${pageId}/subscribed_apps`,
         {
-          subscribed_fields: [ "messages", "messaging_postbacks" ]
+          subscribed_fields: [ 'messages', 'messaging_postbacks' ]
         },
         {
           headers: {
@@ -105,6 +112,32 @@ export class MetaClient {
       throw new Error('Issue subscribing to Webhooks for Page, please try again.')
     }
   }
+
+  async getUserManagedPages(userToken: string) {
+    let allPages: { id: string; name: string }[] = []
+
+    const query = new URLSearchParams({
+      access_token: userToken,
+      fields: 'id,name'
+    })
+    let url = `${this.baseGraphApiUrl}/${this.version}/me/accounts?${query.toString()}`
+
+    try {
+      while (url) {
+        const response = await axios.get(url)
+
+        // Add the pages to the allPages array
+        allPages = allPages.concat(response.data.data)
+
+        // Check if there's a next page
+        url = response.data.paging && response.data.paging.next ? response.data.paging.next : null
+      }
+
+      return allPages
+    } catch (err: any) {
+      throw new Error('Error fetching pages:' + err.response ? err.response.data : err.message)
+    }
+  }
 }
 
 export async function getCredentials(client: bp.Client, ctx: IntegrationContext): Promise<{accessToken: string; clientSecret: string; clientId: string}> {
@@ -122,3 +155,5 @@ export async function getCredentials(client: bp.Client, ctx: IntegrationContext)
 
   return { accessToken: state.payload.pageToken, clientSecret: bp.secrets.CLIENT_SECRET, clientId: bp.secrets.CLIENT_ID }
 }
+
+

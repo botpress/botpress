@@ -68,8 +68,8 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: Integra
     pageId = (query['pageId'] as string) || pageId
     if (!pageId || query['force-step']) {
       const pages = await metaClient.getFacebookPagesFromToken(accessToken)
-      if (pages.length === 1) {
-        pageId = pages[0]?.id
+      if(!pages.length) {
+        throw new Error('You need to manage at least one Facebook Page')
       } else {
         return generateSelectDialog({
           title: 'Select Page',
