@@ -147,7 +147,7 @@ const syncKb = {
   },
 }
 
-const messageSourceSchema = z.discriminatedUnion('type', [
+const messageSourceSchema = z.union([
   z.object({ type: z.literal('user'), userId: z.string() }),
   z.object({ type: z.literal('bot') }),
 ])
@@ -155,17 +155,13 @@ const messageSourceSchema = z.discriminatedUnion('type', [
 type Tuple<T> = [T, T, ...T[]]
 const messagePayloadSchemas: AnyZodObject[] = Object.entries(messages.defaults).map(([k, v]) =>
   z.object({
+    source: messageSourceSchema,
     type: z.literal(k),
     payload: v.schema,
   })
 )
 
-const messageSchema = z.intersection(
-  z.object({
-    source: messageSourceSchema,
-  }),
-  z.union(messagePayloadSchemas as Tuple<AnyZodObject>)
-)
+const messageSchema = z.union(messagePayloadSchemas as Tuple<AnyZodObject>)
 
 const startHitl = {
   title: 'Start HITL',

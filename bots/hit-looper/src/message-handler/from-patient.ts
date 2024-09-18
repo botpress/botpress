@@ -1,4 +1,6 @@
+/* eslint-disable max-lines-per-function */
 import { mkRespond } from 'src/api-utils'
+import util from 'util'
 import { getOrCreateFlow, setFlow } from '../flow-state'
 import { Client, ClientOutputs, MessageHandler } from '../types'
 import * as bp from '.botpress'
@@ -26,6 +28,12 @@ class UserLinker {
     return downstreamUserId
   }
 
+  public debug() {
+    const pairs = Object.entries(this._users).map(([id, { pictureUrl: _, ...user }]) => [id, user])
+    const users = Object.fromEntries(pairs)
+    console.info('Users:', util.inspect(users, { depth: null, colors: true }))
+  }
+
   private async _linkUser(upstreamUser: User): Promise<string> {
     const {
       output: { userId: downstreamUserId },
@@ -38,12 +46,13 @@ class UserLinker {
       },
     })
 
-    await this._client.updateUser({
+    const { user: updatedUser } = await this._client.updateUser({
       id: upstreamUser.id,
       tags: {
         downstream: downstreamUserId,
       },
     })
+    this._users[upstreamUser.id] = updatedUser
 
     await this._client.updateUser({
       id: downstreamUserId,
@@ -86,9 +95,18 @@ export const patientMessageHandler: MessageHandler = async (props) => {
 
       const messageHistory: MessageHistoryElement[] = []
       for (const message of upstreamMessages) {
-        const isBot = message.direction === 'outgoing'
+        let source: MessageHistoryElement['source']
+        if (message.direction === 'outgoing') {
+          source = { type: 'bot' }
+        } else {
+          source = {
+            type: 'user',
+            userId: await users.linkUsers(message.userId),
+          }
+        }
+
         messageHistory.push({
-          source: isBot ? { type: 'bot' } : { type: 'user', userId: message.userId },
+          source,
           type: message.type,
           payload: message.payload,
         } as MessageHistoryElement)
@@ -155,6 +173,29 @@ export const patientMessageHandler: MessageHandler = async (props) => {
       conversationId: upstreamConversation.id,
       text: 'Something went wrong, you are not connected to a human agent...',
     })
+    return
+  }
+
+  if (message.payload.text.trim() === '/stop_hitl') {
+    try {
+      await respond({
+        conversationId: upstreamConversation.id,
+        text: 'Closing ticket...',
+      })
+      await props.client.callAction({
+        type: 'zendesk:stopHitl',
+        input: {
+          conversationId: downstreamConversationId,
+        },
+      })
+      await respond({
+        conversationId: upstreamConversation.id,
+        text: 'Ticket closed...',
+      })
+    } finally {
+      await setFlow({ client, conversationId: upstreamConversation.id }, { hitlEnabled: false })
+      await setFlow({ client, conversationId: downstreamConversationId }, { hitlEnabled: false })
+    }
     return
   }
 
