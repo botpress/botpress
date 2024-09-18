@@ -21,11 +21,18 @@ export const prepareCreateIntegrationBody = (integration: sdk.IntegrationDefinit
   user: integration.user,
   identifier: integration.identifier,
   secrets: undefined,
+  interfaces: {},
   configuration: integration.configuration
     ? {
         ...integration.configuration,
         schema: utils.schema.mapZodToJsonSchema(integration.configuration),
       }
+    : undefined,
+  configurations: integration.configurations
+    ? utils.records.mapValues(integration.configurations, (configuration) => ({
+        ...configuration,
+        schema: utils.schema.mapZodToJsonSchema(configuration),
+      }))
     : undefined,
   events: integration.events
     ? utils.records.mapValues(integration.events, (event) => ({
@@ -84,6 +91,13 @@ export const prepareUpdateIntegrationBody = (
 
   const channels = prepareUpdateIntegrationChannelsBody(localIntegration.channels ?? {}, remoteIntegration.channels)
 
+  const interfaces = utils.records.setNullOnMissingValues(localIntegration.interfaces, remoteIntegration.interfaces)
+
+  const configurations = utils.records.setNullOnMissingValues(
+    localIntegration.configurations,
+    remoteIntegration.configurations
+  )
+
   return {
     ...localIntegration,
     actions,
@@ -92,6 +106,8 @@ export const prepareUpdateIntegrationBody = (
     entities,
     user,
     channels,
+    interfaces,
+    configurations,
   }
 }
 

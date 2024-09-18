@@ -1,7 +1,8 @@
-import axios, { Axios } from 'axios'
-import type { ZendeskUser, ZendeskTicket } from './definitions/schemas'
+import axios, { Axios, AxiosRequestConfig } from 'axios'
+import type { ZendeskUser, ZendeskTicket, ZendeskWebhook } from './definitions/schemas'
 import { ConditionsData, getTriggerTemplate, type TriggerNames } from './triggers'
-import type * as botpress from '.botpress'
+import type { ZendeskEventType } from './webhookEvents'
+import * as bp from '.botpress'
 
 export type TicketRequester =
   | {
@@ -123,7 +124,7 @@ class ZendeskApi {
     return online ? data.users.filter((user) => user.user_fields?.availability === 'online') : data.users
   }
 
-  public async createOrUpdateUser(fields: object): Promise<ZendeskUser> {
+  public async createOrUpdateUser(fields: Partial<ZendeskUser>): Promise<ZendeskUser> {
     const { data } = await this.client.post<{ user: ZendeskUser }>('/api/v2/users/create_or_update', {
       user: fields,
     })
@@ -141,7 +142,42 @@ class ZendeskApi {
     const { data } = await this.client.get<{ user: ZendeskUser }>(`/api/v2/users/${userId}.json`)
     return data.user
   }
+
+  public async createArticleWebhook(webhookUrl: string, webhookId: string): Promise<void> {
+    const subscriptions: ZendeskEventType[] = ['zen:event-type:article.published', 'zen:event-type:article.unpublished']
+
+    await this.client.post('/api/v2/webhooks', {
+      webhook: {
+        endpoint: `${webhookUrl}/article-event`,
+        http_method: 'POST',
+        name: `bpc_article_event_${webhookId}`,
+        request_format: 'json',
+        status: 'active',
+        subscriptions,
+      },
+    })
+  }
+
+  public async deleteWebhook(webhookId: string): Promise<void> {
+    await this.client.delete(`/api/v2/webhooks/${webhookId}`).catch(() => {})
+  }
+
+  public async findWebhooks(params?: Record<string, string>): Promise<ZendeskWebhook[]> {
+    const { data } = await this.client.get('/api/v2/webhooks', { params })
+
+    return data.webhooks
+  }
+
+  public async makeRequest(requestConfig: AxiosRequestConfig) {
+    const { data, headers, status } = await this.client.request(requestConfig)
+
+    return {
+      data,
+      headers: headers as Record<string, string>,
+      status,
+    }
+  }
 }
 
-export const getZendeskClient = (config: botpress.configuration.Configuration) =>
+export const getZendeskClient = (config: bp.configuration.Configuration): ZendeskApi =>
   new ZendeskApi(config.organizationSubdomain, config.email, config.apiToken)

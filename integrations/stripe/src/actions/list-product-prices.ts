@@ -1,8 +1,8 @@
 import type { Product } from 'src/misc/custom-types'
 import { getClient } from '../client'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const listProductPrices: Implementation['actions']['listProductPrices'] = async ({ ctx, logger }) => {
+export const listProductPrices: IntegrationProps['actions']['listProductPrices'] = async ({ ctx, logger }) => {
   const StripeClient = getClient(ctx.configuration)
   let response
   try {

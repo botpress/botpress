@@ -11,10 +11,9 @@ import {
   validateRequestSignature,
   getOAuthAccessToken,
 } from './misc/utils'
+import * as bp from '.botpress'
 
-import * as botpress from '.botpress'
-
-export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
+export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
   logger.forBot().debug('Handler received request from Slack with payload:', req.body)
   if (req.path.startsWith('/oauth')) {
     return onOAuth(req, client, ctx).catch((err) => {

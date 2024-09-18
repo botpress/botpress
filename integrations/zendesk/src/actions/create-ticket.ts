@@ -1,8 +1,8 @@
 import { transformTicket } from 'src/definitions/schemas'
 import { getZendeskClient } from '../client'
-import { IntegrationProps } from '.botpress'
+import * as bp from '.botpress'
 
-export const createTicket: IntegrationProps['actions']['createTicket'] = async ({ ctx, input }) => {
+export const createTicket: bp.IntegrationProps['actions']['createTicket'] = async ({ ctx, input }) => {
   const zendeskClient = getZendeskClient(ctx.configuration)
   const ticket = await zendeskClient.createTicket(input.subject, input.comment, {
     name: input.requesterName,

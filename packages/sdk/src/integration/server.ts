@@ -1,4 +1,5 @@
 import { isApiError, Client, type Conversation, type Message, type User, RuntimeError } from '@botpress/client'
+import { retryConfig } from '../retry'
 import { Request, Response, parseBody } from '../serve'
 import { Cast, Merge } from '../type-utils'
 import { IntegrationSpecificClient } from './client'
@@ -8,7 +9,7 @@ import { BaseIntegration } from './generic'
 import { IntegrationLogger, integrationLogger } from './logger'
 
 type CommonArgs<TIntegration extends BaseIntegration> = {
-  ctx: IntegrationContext<TIntegration['configuration']>
+  ctx: IntegrationContext<TIntegration>
   client: IntegrationSpecificClient<TIntegration>
   logger: IntegrationLogger
 }
@@ -53,6 +54,7 @@ type MessagePayload<
   conversation: Merge<
     Conversation,
     {
+      channel: TChannel
       tags: ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
     }
   >
@@ -133,11 +135,14 @@ type ServerProps<TIntegration extends BaseIntegration> = CommonArgs<TIntegration
 export const integrationHandler =
   <TIntegration extends BaseIntegration>(instance: IntegrationHandlers<TIntegration>) =>
   async (req: Request): Promise<Response | void> => {
-    const ctx = extractContext(req.headers)
+    const ctx = extractContext<TIntegration>(req.headers)
 
-    const client = new IntegrationSpecificClient<TIntegration>(
-      new Client({ botId: ctx.botId, integrationId: ctx.integrationId })
-    )
+    const vanillaClient = new Client({
+      botId: ctx.botId,
+      integrationId: ctx.integrationId,
+      retry: retryConfig,
+    })
+    const client = new IntegrationSpecificClient<TIntegration>(vanillaClient)
 
     const props = {
       ctx,
@@ -181,9 +186,19 @@ export const integrationHandler =
     } catch (thrown) {
       if (isApiError(thrown)) {
         const runtimeError = new RuntimeError(thrown.message, thrown)
+        integrationLogger.forBot().error(runtimeError.message)
+
         return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
       }
-      throw thrown
+
+      // prints the error in the integration logs
+      console.error(thrown)
+
+      const runtimeError = new RuntimeError(
+        'An unexpected error occurred in the integration. Bot owners: Check logs for more informations. Integration owners: throw a RuntimeError to return a custom error message instead.'
+      )
+      integrationLogger.forBot().error(runtimeError.message)
+      return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
     }
   }
 

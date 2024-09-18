@@ -59,27 +59,31 @@ Then, in the directory of your choice, create a new integration:
 bp init
 ```
 
-This command will generate a integration from one of the proposed templates.
+This command will generate an integration from one of the proposed templates.
 
 _This step can be executed in any directory and git repository of your choice. You don't have to fork this repository to create an integration._
 
 You can then modify both the definition and implementation of your integration respectively located in the `integration.definition.ts` and `src/index.ts` files.
 
-For more information on how to develop an integration, please refer to the [Documentation](https://botpress.com/docs/developers/).
+For more information on how to develop an integration, please refer to the [Documentation](https://botpress.com/docs/getting-started-1).
 
-Once your integration is ready, you can deploy it to your workspace using the following command:
+### Integration Deployment
+
+To try out your integration, you can deploy its current version to your workspace using the Botpress CLI:
 
 ```sh
 bp deploy
 ```
 
-This will deploy your integration to your workspace and make it available to all your bots.
+This will deploy your integration's current version to your workspace and make it available to all your bots. If this version is already deployed, it will be updated. Otherwise, a new version will be created.
 
-### Making your Integration Public
+By default, all integrations are private to the workspace they have been deployed in. When you are ready to share your version with the community, you can make it public by running:
 
-By default, all integrations are private to the workspace they have been deployed in.
+```sh
+bp deploy --public
+```
 
-To submit your integration to the Botpress Hub and make it publicly available to the community, please make a pull request to this repository by following these [Integration Contribution guidelines](./integrations).
+This will make your integration available to all Botpress users on the [Botpress Hub](https://app.botpress.cloud/hub). Once a version of your integration is public, it cannot be updated again.
 
 ## Bots
 
@@ -97,7 +101,7 @@ It is also used internally by the Botress team since the Studio and CLI both use
 | -------------------------------------------------------------------- | ----------------------------------------------- | -------------------------------------------------- | ---------------------- |
 | [`@botpress/cli`](https://www.npmjs.com/package/@botpress/cli)       | Build and deploy private or public integrations | [Docs](https://botpress.com/docs/integration/cli/) | [Code](./packages/cli) |
 | [`@botpress/client`](https://www.npmjs.com/package/@botpress/client) | Type-safe client to consume the Botpress APIs   | [Docs]()                                           | [Code]()               |
-| [`@botpress/sdk`](https://www.npmjs.com/package/@botpress/sdk)       | Internal package used by to build integrations  | [Docs]()                                           | [Code]()               |
+| [`@botpress/sdk`](https://www.npmjs.com/package/@botpress/sdk)       | SDK used by to build integrations               | [Docs]()                                           | [Code]()               |
 
 ## Agents
 
@@ -112,7 +116,6 @@ The development environment requires the following tools to be installed:
 - [`git`](https://git-scm.com/): Git is a free and open source distributed version control system.
 - [`node`](https://nodejs.org/en/): Node.js® is a JavaScript runtime built on Chrome's V8 JavaScript engine.
 - [`pnpm`](https://pnpm.io/): PNPM is a fast, disk space efficient package manager.
-- [`tilt`](https://tilt.dev/): Tilt is a toolkit for fixing the pains of microservice development.
 
 ### Building from sources
 
@@ -121,8 +124,11 @@ The development environment requires the following tools to be installed:
 git clone https://github.com/botpress/botpress.git
 cd botpress
 
-# Build Sources
-tilt ci
+# Install dependencies
+pnpm install
+
+# Build all packages
+pnpm run build
 
 # Run Checks
 pnpm run check

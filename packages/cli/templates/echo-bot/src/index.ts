@@ -1,5 +1,5 @@
 import { Bot, z } from '@botpress/sdk'
-// import * as botpress from '.botpress' /** uncomment to get generated code */
+// import * as bp from '.botpress' /** uncomment to get generated code */
 
 const bot = new Bot({
   integrations: {},

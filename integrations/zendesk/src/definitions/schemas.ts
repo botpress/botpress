@@ -69,3 +69,43 @@ export const transformUser = (ticket: ZendeskUser): User => {
     updatedAt: ticket.updated_at,
   }
 }
+
+export type ZendeskArticle = {
+  id: number
+  url: string
+  html_url: string
+  author_id: number
+  comments_disabled: boolean
+  draft: boolean
+  promoted: boolean
+  position: number
+  vote_sum: number
+  vote_count: number
+  section_id: number
+  created_at: string
+  updated_at: string
+  name: string
+  title: string
+  source_locale: string
+  locale: string
+  outdated: boolean
+  outdated_locales: string[]
+  edited_at: string
+  user_segment_id: number | null
+  permission_group_id: number
+  content_tag_ids: number[]
+  label_names: string[]
+  body: string
+}
+
+export type ZendeskWebhook = {
+  id: string
+  name: string
+  status: string
+  subscriptions: string[]
+  created_at: string
+  created_by: string
+  endpoint: string
+  http_method: string
+  request_format: string
+}

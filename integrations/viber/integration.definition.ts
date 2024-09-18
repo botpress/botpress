@@ -3,16 +3,16 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'viber',
-  version: '0.4.1',
+  version: '0.4.3',
   title: 'Viber',
   description: 'This integration allows your bot to interact with Viber.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      authToken: z.string(),
-      botName: z.string(),
-      botAvatar: z.string(),
+      authToken: z.string().min(1),
+      botName: z.string().min(1),
+      botAvatar: z.string().min(1),
     }),
   },
   channels: {

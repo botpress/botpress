@@ -1,27 +1,6 @@
 import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 import { ticketSchema, userSchema } from './schemas'
 
-const getTicketConversation = {
-  title: 'Get Ticket Conversation',
-  description: 'Proactively create or get a botpress conversation on a zendesk ticket',
-  input: {
-    schema: z.object({
-      ticketId: z.string().describe('The ID of the ticket'),
-    }),
-    ui: {
-      ticketId: {
-        title: 'Ticket id',
-      },
-    },
-  },
-  output: {
-    schema: z.object({
-      conversationId: z.string().describe('The ID of the conversation'),
-      tags: z.record(z.string()).describe('The tags of the conversation'),
-    }),
-  },
-}
-
 const createTicket = {
   title: 'Create Ticket',
   description: 'Creates a new ticket in Zendesk',
@@ -132,20 +111,41 @@ const listAgents = {
   },
 }
 
-const setConversationRequester = {
-  title: 'Set Conversation Requester',
-  description:
-    'Assign a requester to a conversation. Every outgoing message in the conversation will then be sent as this requester instead of your bot.',
+const callApi = {
+  title: 'Call API',
+  description: 'Call Zendesk API',
   input: {
     schema: z.object({
-      conversationId: z.string().describe('The Botpress conversation Id to assign the requester to'),
-      requesterId: z.string().describe('The Zendesk requester Id to assign to the conversation'),
+      method: z.enum(['GET', 'POST', 'PUT', 'PATCH', 'DELETE']).describe('HTTP Method'),
+      path: z.string().describe('URL Path (https://<subdomain>.zendesk.com/api/v2/PATH)'),
+      headers: z.string().optional().describe('Headers (JSON)'),
+      params: z.string().optional().describe('Query Params (JSON)'),
+      requestBody: z.string().optional().describe('Request Body (JSON)'),
     }),
   },
   output: {
-    schema: z.object({}),
+    schema: z.object({
+      status: z.number(),
+      headers: z.record(z.string()),
+      data: z.record(z.string(), z.any()),
+    }),
   },
-} satisfies NonNullable<IntegrationDefinitionProps['actions']>[string]
+}
+
+const syncKb = {
+  title: 'Sync Knowledge Base',
+  description: 'Sync Zendesk knowledge base to bot knowledge base',
+  input: {
+    schema: z.object({
+      knowledgeBaseId: z.string().describe('ID of the bot knowledge base you want to sync with'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      success: z.boolean(),
+    }),
+  },
+}
 
 export const actions = {
   getTicket,
@@ -153,6 +153,6 @@ export const actions = {
   createTicket,
   closeTicket,
   listAgents,
-  getTicketConversation,
-  setConversationRequester,
+  callApi,
+  syncKb,
 } satisfies IntegrationDefinitionProps['actions']

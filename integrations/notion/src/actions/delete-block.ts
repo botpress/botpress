@@ -1,7 +1,7 @@
 import * as notion from '../notion'
-import type { IntegrationProps } from '.botpress'
+import * as bp from '.botpress'
 
-export const deleteBlock: IntegrationProps['actions']['deleteBlock'] = async ({ ctx, input }) => {
+export const deleteBlock: bp.IntegrationProps['actions']['deleteBlock'] = async ({ ctx, input }) => {
   try {
     const response = await notion.deleteBlock(ctx, input.blockId)
     if (response) {

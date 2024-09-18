@@ -1,6 +1,5 @@
 import { LinearWebhooks, LINEAR_WEBHOOK_SIGNATURE_HEADER, LINEAR_WEBHOOK_TS_FIELD } from '@linear/sdk'
 
-import { getUser } from './actions/get-user'
 import { fireIssueCreated } from './events/issueCreated'
 import { fireIssueUpdated } from './events/issueUpdated'
 import { LinearEvent, handleOauth } from './misc/linear'
@@ -61,21 +60,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
       linearUserId,
       integrationId: ctx.integrationId,
       client,
-    })
-
-    const linearUser = await getUser({
-      client,
       ctx,
-      input: { linearUserId },
-      type: 'getUser',
-      logger,
-    })
-
-    await client.setState({
-      id: userId as string, // TODO: fix this
-      type: 'user',
-      name: 'profile',
-      payload: linearUser,
     })
 
     await client.createMessage({

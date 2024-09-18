@@ -4,7 +4,7 @@ import { renderCard } from './misc/renderer'
 import { Channels } from './misc/types'
 import { getSlackTarget, notEmpty, sendSlackMessage } from './misc/utils'
 
-const defaultMessages: Channels['channel']['messages'] = {
+const defaultMessages = {
   text: async ({ client, payload, ctx, conversation, ack, logger }) => {
     const parsed = textSchema.parse(payload)
     logger.forBot().debug('Sending text message to Slack chat:', payload)
@@ -209,7 +209,7 @@ const defaultMessages: Channels['channel']['messages'] = {
   bloc: () => {
     throw new RuntimeError('Not implemented')
   },
-}
+} satisfies Channels['channel']['messages'] & Channels['dm']['messages'] & Channels['thread']['messages']
 
 export default {
   channel: { messages: defaultMessages },

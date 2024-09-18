@@ -1,7 +1,7 @@
 import { getClient } from '../client'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const listPaymentLinks: Implementation['actions']['listPaymentLinks'] = async ({ ctx, logger }) => {
+export const listPaymentLinks: IntegrationProps['actions']['listPaymentLinks'] = async ({ ctx, logger }) => {
   const StripeClient = getClient(ctx.configuration)
   let response
   try {

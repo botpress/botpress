@@ -1,11 +1,11 @@
 {
   "name": "@botpress/sdk",
-  "version": "0.8.5",
+  "version": "0.11.3",
   "description": "Botpress SDK",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "scripts": {
-    "type:check": "tsc --noEmit",
+    "check:type": "tsc --noEmit",
     "build:type": "tsc --emitDeclarationOnly --declaration",
     "build:node": "ts-node -T build.ts",
     "build": "pnpm build:type && pnpm build:node"
@@ -14,8 +14,8 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@bpinternal/zui": "0.7.2",
-    "@botpress/client": "0.15.0"
+    "@bpinternal/zui": "0.10.0",
+    "@botpress/client": "0.30.1"
   },
   "devDependencies": {
     "@types/node": "^18.11.17",

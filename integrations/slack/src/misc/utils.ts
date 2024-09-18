@@ -1,4 +1,4 @@
-import type { IntegrationContext, Request } from '@botpress/sdk'
+import type { Request } from '@botpress/sdk'
 import { ChatPostMessageArguments, WebClient } from '@slack/web-api'
 import axios from 'axios'
 import * as crypto from 'crypto'
@@ -86,7 +86,7 @@ export class SlackOauthClient {
   }
 }
 
-export async function onOAuth(req: Request, client: bp.Client, ctx: IntegrationContext) {
+export async function onOAuth(req: Request, client: bp.Client, ctx: bp.Context) {
   const slackOAuthClient = new SlackOauthClient()
 
   const query = queryString.parse(req.query)
@@ -140,20 +140,20 @@ const isValidUrl = (str: string) => {
 }
 
 const getOptionalProps = (ctx: IntegrationCtx, logger: IntegrationLogger) => {
+  const props = {
+    username: ctx.configuration.botName?.trim(),
+    icon_url: undefined as string | undefined,
+  }
+
   if (ctx.configuration.botAvatarUrl) {
     if (isValidUrl(ctx.configuration.botAvatarUrl)) {
-      return {
-        username: ctx.configuration.botName,
-        icon_url: ctx.configuration.botAvatarUrl,
-      }
+      props.icon_url = ctx.configuration.botAvatarUrl
     } else {
       logger.forBot().warn('Invalid bot avatar URL')
     }
   }
 
-  return {
-    username: ctx.configuration.botName?.trim() !== '' ? ctx.configuration.botName : undefined,
-  }
+  return props
 }
 
 export async function sendSlackMessage(
@@ -336,4 +336,33 @@ export const validateRequestSignature = ({ req, logger }: { req: Request; logger
     logger.forBot().error('An error occurred while verifying the request signature')
     return false
   }
+}
+
+const updateBotpressBotName = async (client: Client, ctx: IntegrationCtx) => {
+  const { botName } = ctx.configuration
+  const trimmedName = botName?.trim()
+
+  if (trimmedName) {
+    await client.updateUser({
+      id: ctx.botUserId,
+      name: trimmedName,
+      tags: {},
+    })
+  }
+}
+
+const updateBotpressBotAvatar = async (client: Client, ctx: IntegrationCtx) => {
+  const { botAvatarUrl } = ctx.configuration
+
+  if (botAvatarUrl && isValidUrl(botAvatarUrl)) {
+    await client.updateUser({
+      id: ctx.botUserId,
+      pictureUrl: botAvatarUrl && isValidUrl(botAvatarUrl) ? botAvatarUrl?.trim() : undefined,
+      tags: {},
+    })
+  }
+}
+
+export const updateBotpressBotNameAndAvatar = (client: Client, ctx: IntegrationCtx) => {
+  return Promise.all([updateBotpressBotName(client, ctx), updateBotpressBotAvatar(client, ctx)])
 }

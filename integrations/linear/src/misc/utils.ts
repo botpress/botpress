@@ -1,11 +1,15 @@
 import { Comment, Issue, IssueLabel, LinearClient, Team } from '@linear/sdk'
 import { LinearOauthClient } from './linear'
 import { AckFunction, MessageHandlerProps } from './types'
-import { Client } from '.botpress'
+import * as bp from '.botpress'
 
-export function getLinearClient(client: Client, integrationId: string) {
+export type LinearClientProps = {
+  client: bp.Client
+  ctx: bp.Context
+}
+export function getLinearClient({ client, ctx }: LinearClientProps, integrationId: string) {
   const linearOauthClient = new LinearOauthClient()
-  return linearOauthClient.getLinearClient(client, integrationId)
+  return linearOauthClient.getLinearClient(client, ctx, integrationId)
 }
 
 export function dateToString(obj: Date | undefined) {
@@ -52,14 +56,25 @@ export function toReturnedIssueLabel(issueLabel: IssueLabel) {
   }
 }
 
-export async function createComment({ ctx, client, conversation, ack, content }: any) {
-  const linearClient = await getLinearClient(client, ctx.integrationId)
+type ValueOf<T> = T[keyof T]
+type CreateCommentProps = Omit<ValueOf<bp.MessageProps['issue']>, 'payload'> & { content: string }
+export async function createComment(args: CreateCommentProps) {
+  const { ctx, conversation, ack, content } = args
+  const linearClient = await getLinearClient(args, ctx.integrationId)
   const issueId = getIssueId(conversation)
+
+  let createAsUser: string | undefined = undefined
+  let displayIconUrl: string | undefined = undefined
+  if (ctx.configurationType === null) {
+    createAsUser = ctx.configuration.displayName
+    displayIconUrl = ctx.configuration.avatarUrl
+  }
+
   const res = await linearClient.createComment({
     issueId,
     body: content,
-    createAsUser: ctx.configuration.displayName,
-    displayIconUrl: ctx.configuration.avatarUrl,
+    createAsUser,
+    displayIconUrl,
   })
   const comment = await res.comment
   if (!comment) {
@@ -103,7 +118,8 @@ export const getIssueTags = async (issue: Issue) => {
 export const getUserAndConversation = async (props: {
   linearUserId: string
   linearIssueId: string
-  client: Client
+  client: bp.Client
+  ctx: bp.Context
   integrationId: string
   forceUpdate?: boolean
 }): Promise<{ conversationId: string; userId?: string }> => {
@@ -114,7 +130,7 @@ export const getUserAndConversation = async (props: {
     },
   })
 
-  const linearClient = await getLinearClient(props.client, props.integrationId)
+  const linearClient = await getLinearClient(props, props.integrationId)
 
   // TODO: better way to know if the conversation was just created
   if (props.forceUpdate || !conversation.tags.url) {

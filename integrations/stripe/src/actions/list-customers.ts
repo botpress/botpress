@@ -1,9 +1,9 @@
 import type { Customer } from 'src/misc/custom-types'
 import { getClient } from '../client'
 import { listCustomersInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const listCustomers: Implementation['actions']['listCustomers'] = async ({ ctx, logger, input }) => {
+export const listCustomers: IntegrationProps['actions']['listCustomers'] = async ({ ctx, logger, input }) => {
   const validatedInput = listCustomersInputSchema.parse(input)
   const StripeClient = getClient(ctx.configuration)
   let response

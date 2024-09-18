@@ -1,8 +1,8 @@
 import { transformTicket } from 'src/definitions/schemas'
 import { getZendeskClient } from '../client'
-import { IntegrationProps } from '.botpress'
+import * as bp from '.botpress'
 
-export const closeTicket: IntegrationProps['actions']['closeTicket'] = async ({ ctx, input }) => {
+export const closeTicket: bp.IntegrationProps['actions']['closeTicket'] = async ({ ctx, input }) => {
   const originalTicket = await getZendeskClient(ctx.configuration).getTicket(input.ticketId)
 
   const ticket = await getZendeskClient(ctx.configuration).updateTicket(input.ticketId, {

@@ -1,0 +1,2 @@
+webhookId = to_string!(.webhookId)
+"https://todoist.com/oauth/authorize?client_id=1256a409d4264480a42c3b3d436b0e7d&state={{ webhookId }}&scope=data:read_write,data:delete"

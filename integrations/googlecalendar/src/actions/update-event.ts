@@ -1,22 +1,26 @@
-import { getClient } from 'src/client'
-import { parseError } from 'src/misc/utils'
-import { IntegrationProps } from '../misc/types'
+import sync from './sync'
+import * as bp from '.botpress'
 
-export const updateEvent: IntegrationProps['actions']['updateEvent'] = async ({ logger, ctx, input }) => {
-  try {
-    const { calendar } = await getClient(ctx.configuration)
-
-    await calendar.events.patch({
-      calendarId: ctx.configuration.calendarId,
-      eventId: input.eventId,
-      requestBody: {
-        ...input,
+export const updateEvent: bp.IntegrationProps['actions']['updateEvent'] = async (props) => {
+  const { client, ctx, input, logger } = props
+  const output = await sync.eventUpdate({
+    type: 'eventUpdate',
+    client,
+    ctx,
+    logger,
+    input: {
+      id: input.eventId,
+      item: {
+        id: input.eventId,
+        description: input.description ?? undefined,
+        summary: input.summary,
+        location: input.location ?? undefined,
+        startDateTime: input.startDateTime,
+        endDateTime: input.endDateTime,
       },
-    })
-    return { success: true }
-  } catch (error) {
-    const err = parseError(error)
-    logger.forBot().error('Error while updating events ', err.message)
-    throw err
+    },
+  })
+  return {
+    eventId: output.item.id,
   }
 }

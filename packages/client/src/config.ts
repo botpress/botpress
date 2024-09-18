@@ -1,4 +1,5 @@
 import { isBrowser, isNode } from 'browser-or-node'
+import * as types from './types'
 
 const defaultApiUrl = 'https://api.botpress.cloud'
 const defaultTimeout = 60_000
@@ -9,26 +10,7 @@ const integrationIdEnvName = 'BP_INTEGRATION_ID'
 const workspaceIdEnvName = 'BP_WORKSPACE_ID'
 const tokenEnvName = 'BP_TOKEN'
 
-type Headers = Record<string, string | string[]>
-
-export type ClientProps = {
-  integrationId?: string
-  workspaceId?: string
-  botId?: string
-  token?: string
-  apiUrl?: string
-  timeout?: number
-  headers?: Headers
-}
-
-export type ClientConfig = {
-  apiUrl: string
-  headers: Headers
-  withCredentials: boolean
-  timeout: number
-}
-
-export function getClientConfig(clientProps: ClientProps): ClientConfig {
+export function getClientConfig(clientProps: types.ClientProps): types.ClientConfig {
   const props = readEnvConfig(clientProps)
 
   let headers: Record<string, string | string[]> = {}
@@ -65,7 +47,7 @@ export function getClientConfig(clientProps: ClientProps): ClientConfig {
   }
 }
 
-function readEnvConfig(props: ClientProps): ClientProps {
+function readEnvConfig(props: types.ClientProps): types.ClientProps {
   if (isBrowser) {
     return getBrowserConfig(props)
   }
@@ -77,8 +59,8 @@ function readEnvConfig(props: ClientProps): ClientProps {
   return props
 }
 
-function getNodeConfig(props: ClientProps): ClientProps {
-  const config: ClientProps = {
+function getNodeConfig(props: types.ClientProps): types.ClientProps {
+  const config: types.ClientProps = {
     ...props,
     apiUrl: props.apiUrl ?? process.env[apiUrlEnvName],
     botId: props.botId ?? process.env[botIdEnvName],
@@ -95,6 +77,6 @@ function getNodeConfig(props: ClientProps): ClientProps {
   return config
 }
 
-function getBrowserConfig(props: ClientProps): ClientProps {
+function getBrowserConfig(props: types.ClientProps): types.ClientProps {
   return props
 }

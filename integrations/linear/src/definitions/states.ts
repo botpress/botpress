@@ -1,5 +1,5 @@
 import { z, IntegrationDefinitionProps } from '@botpress/sdk'
-import { UserProfile } from './schemas'
+import { userProfileSchema } from './schemas'
 
 export const states = {
   credentials: {
@@ -9,6 +9,8 @@ export const states = {
       expiresAt: z.string(),
     }),
   },
+
+  // TODO: delete these 2 states when the backend stop considering state deletion as breaking change
   configuration: {
     type: 'integration',
     schema: z.object({
@@ -17,7 +19,7 @@ export const states = {
   },
   profile: {
     type: 'user',
-    schema: UserProfile,
+    schema: userProfileSchema,
     ui: {
       admin: { title: 'Is admin?' },
       archivedAt: { title: 'Archived at' },

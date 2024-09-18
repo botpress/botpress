@@ -1,13 +1,7 @@
 import { RuntimeError } from '@botpress/client'
-import type { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios from 'axios'
 import * as bp from '.botpress'
-
-type Channels = bp.Integration['channels']
-type Messages = Channels[keyof Channels]['messages']
-type MessageHandler = Messages[keyof Messages]
-type MessageHandlerProps = Parameters<MessageHandler>[0]
 
 const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx }) => {
@@ -299,7 +293,7 @@ export default sentryHelpers.wrapIntegration(integration, {
   release: bp.secrets.SENTRY_RELEASE,
 })
 
-type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'> & {
+type SendMessageProps = Pick<bp.AnyMessageProps, 'ctx' | 'conversation' | 'ack'> & {
   payload: any // TODO: type this
 }
 
@@ -354,7 +348,7 @@ export async function sendViberMessage({ conversation, ctx, ack, payload }: Send
   return data
 }
 
-async function getUserDetails({ ctx, id }: { ctx: IntegrationContext; id: string }) {
+async function getUserDetails({ ctx, id }: { ctx: bp.Context; id: string }) {
   const { data } = await axios.post(
     'https://chatapi.viber.com/pa/get_user_details',
     { id },

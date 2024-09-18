@@ -6,7 +6,12 @@ import { ProjectCommand } from './project-command'
 export type BundleCommandDefinition = typeof commandDefinitions.bundle
 export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
   public async run(): Promise<void> {
-    const integrationDef = await this.readIntegrationDefinitionFromFS()
+    const { type: projectType, definition: integrationDef } = await this.readProjectDefinitionFromFS()
+
+    if (projectType === 'interface') {
+      this.logger.success('Interface projects have nothing to bundle.')
+      return
+    }
 
     const abs = this.projectPaths.abs
     const rel = this.projectPaths.rel('workDir')
@@ -36,6 +41,7 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
       logLevel,
       write: true,
       sourcemap: this.argv.sourceMap,
+      minify: this.argv.minify,
     })
 
     line.success(`Bundle available at ${chalk.grey(rel.outDir)}`)

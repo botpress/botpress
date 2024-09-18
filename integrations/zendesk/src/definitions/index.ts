@@ -1,20 +1,55 @@
 import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 
 export { actions } from './actions'
-export { events } from './events'
 export { channels } from './channels'
+
+export const events = {
+  articlePublished: {
+    title: 'Article Published',
+    description: 'Triggered when an article is published',
+    schema: z.object({
+      articleId: z.string(),
+      articleTitle: z.string(),
+    }),
+    ui: {},
+  },
+  articleUnpublished: {
+    title: 'Article Unpublished',
+    description: 'Triggered when an article is unpublished',
+    schema: z.object({
+      articleId: z.string(),
+    }),
+    ui: {},
+  },
+} satisfies IntegrationDefinitionProps['events']
 
 export const configuration = {
   schema: z.object({
-    organizationSubdomain: z.string({
-      description: 'Your zendesk organization subdomain. e.g. botpress7281',
-    }),
-    email: z.string({
-      description: 'Your zendesk account email. e.g. john.doe@botpress.com',
-    }),
-    apiToken: z.string({
-      description: 'Zendesk API Token',
-    }),
+    organizationSubdomain: z
+      .string({
+        description: 'Your zendesk organization subdomain. e.g. botpress7281',
+      })
+      .min(1),
+    email: z
+      .string({
+        description: 'Your zendesk account email. e.g. john.doe@botpress.com',
+      })
+      .email(),
+    apiToken: z
+      .string({
+        description: 'Zendesk API Token',
+      })
+      .min(1),
+    syncKnowledgeBaseWithBot: z
+      .boolean({
+        description: 'Would you like to sync Zendesk Knowledge Base into Bot Knowledge Base?',
+      })
+      .optional(),
+    knowledgeBaseId: z
+      .string({
+        description: 'ID of the Knowledge Base you wish to synchronize with your Zendesk KB',
+      })
+      .optional(),
   }),
 } satisfies IntegrationDefinitionProps['configuration']
 
@@ -31,9 +66,7 @@ export const states = {
 export const user = {
   tags: {
     id: {},
-    name: {},
     email: {},
     role: {},
   },
-  creation: { enabled: true, requiredTags: [] },
 } satisfies IntegrationDefinitionProps['user']

@@ -1,5 +1,5 @@
 import type { ChatPostMessageArguments } from '@slack/web-api'
-import type { channels } from '.botpress'
+import { channels } from '.botpress'
 
 type Card = channels.channel.card.Card
 type CardAction = channels.channel.card.Card['actions'][number]

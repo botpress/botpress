@@ -1,9 +1,9 @@
 import Stripe from 'stripe'
 import { getClient } from '../client'
 import { createSubsLinkInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const createSubsLink: Implementation['actions']['createSubsLink'] = async ({ ctx, logger, input }) => {
+export const createSubsLink: IntegrationProps['actions']['createSubsLink'] = async ({ ctx, logger, input }) => {
   const validatedInput = createSubsLinkInputSchema.parse(input)
   const StripeClient = getClient(ctx.configuration)
   let response

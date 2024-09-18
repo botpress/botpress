@@ -1,13 +1,15 @@
 import { getIssueTags, getLinearClient, getTeam } from '../misc/utils'
 import { getIssueFields } from './get-issue'
-import { IntegrationProps } from '.botpress'
+import * as bp from '.botpress'
 
-export const createIssue: IntegrationProps['actions']['createIssue'] = async ({
-  ctx,
-  client,
-  input: { title, description, priority, teamName, labels, project },
-}) => {
-  const linearClient = await getLinearClient(client, ctx.integrationId)
+export const createIssue: bp.IntegrationProps['actions']['createIssue'] = async (args) => {
+  const {
+    ctx,
+    client,
+    input: { title, description, priority, teamName, labels, project },
+  } = args
+
+  const linearClient = await getLinearClient(args, ctx.integrationId)
 
   const team = await getTeam(linearClient, undefined, teamName)
 
@@ -18,6 +20,13 @@ export const createIssue: IntegrationProps['actions']['createIssue'] = async ({
   const labelIds = labels ? await team.findLabelIds(labels) : undefined
   const projectId = project ? await team.findProjectId(project) : undefined
 
+  let createAsUser: string | undefined = undefined
+  let displayIconUrl: string | undefined = undefined
+  if (ctx.configurationType === null) {
+    createAsUser = ctx.configuration.displayName
+    displayIconUrl = ctx.configuration.avatarUrl
+  }
+
   const { issue: issueFetch } = await linearClient.createIssue({
     title,
     description,
@@ -25,8 +34,8 @@ export const createIssue: IntegrationProps['actions']['createIssue'] = async ({
     teamId: team.id,
     labelIds,
     projectId,
-    createAsUser: ctx.configuration.displayName,
-    displayIconUrl: ctx.configuration.avatarUrl,
+    createAsUser,
+    displayIconUrl,
   })
 
   const fullIssue = await issueFetch

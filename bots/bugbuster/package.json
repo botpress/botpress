@@ -1,13 +1,10 @@
 {
-  "name": "bugbuster",
+  "name": "@bp-bots/bugbuster",
   "scripts": {
-    "type:check": "tsc --noEmit",
+    "check:type": "tsc --noEmit",
     "integrations": "es-node ./integrations.ts"
   },
-  "keywords": [],
   "private": true,
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*"

@@ -1,17 +1,18 @@
 import bluebird from 'bluebird'
-import { casing } from '../../utils'
 import { GENERATED_HEADER, INDEX_FILE } from '../const'
 import { jsonSchemaToTypeScriptType, stringifySingleLine } from '../generators'
 import { Module, ModuleDef, ReExportTypeModule } from '../module'
+import * as strings from '../strings'
 import type * as types from '../typings'
 
 export class MessageModule extends Module {
   public static async create(name: string, message: types.MessageDefinition): Promise<MessageModule> {
     const schema = message.schema
+    const exportName = strings.typeName(name)
     const def: ModuleDef = {
       path: `${name}.ts`,
-      exportName: casing.to.pascalCase(name),
-      content: await jsonSchemaToTypeScriptType(schema, name),
+      exportName,
+      content: await jsonSchemaToTypeScriptType(schema, exportName),
     }
     return new MessageModule(def)
   }
@@ -25,7 +26,7 @@ export class MessagesModule extends ReExportTypeModule {
     )
 
     const inst = new MessagesModule({
-      exportName: 'Messages',
+      exportName: strings.typeName('messages'),
     })
     inst.pushDep(...messageModules)
     return inst
@@ -37,9 +38,10 @@ export class ChannelModule extends Module {
     const messagesModule = await MessagesModule.create(channel)
     messagesModule.unshift('messages')
 
+    const exportName = strings.typeName(channelName)
     const inst = new ChannelModule(messagesModule, channel, {
       path: INDEX_FILE,
-      exportName: `Channel${casing.to.pascalCase(channelName)}`,
+      exportName,
       content: '',
     })
 
@@ -75,7 +77,9 @@ export class ChannelsModule extends ReExportTypeModule {
       const mod = await ChannelModule.create(channelName, channel)
       return mod.unshift(channelName)
     })
-    const inst = new ChannelsModule({ exportName: 'Channels' })
+
+    const exportName = strings.typeName('channels')
+    const inst = new ChannelsModule({ exportName })
     inst.pushDep(...channelModules)
     return inst
   }

@@ -1,8 +1,8 @@
 import { WebClient } from '@slack/web-api'
 import { getAccessToken } from '../misc/utils'
-import type * as botpress from '.botpress'
+import * as bp from '.botpress'
 
-export const startDmConversation: botpress.IntegrationProps['actions']['startDmConversation'] = async ({
+export const startDmConversation: bp.IntegrationProps['actions']['startDmConversation'] = async ({
   ctx,
   client,
   input,

@@ -1,8 +1,8 @@
 import { Activity, ConversationReference, TurnContext } from 'botbuilder'
 import { authorizeRequest } from './signature'
-import * as botpress from '.botpress'
+import * as bp from '.botpress'
 
-export const handler: botpress.IntegrationProps['handler'] = async ({ req, client }) => {
+export const handler: bp.IntegrationProps['handler'] = async ({ req, client }) => {
   await authorizeRequest(req)
 
   if (!req.body) {

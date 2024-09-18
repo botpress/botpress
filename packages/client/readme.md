@@ -15,23 +15,31 @@ pnpm add @botpress/client # for pnpm
 ```ts
 import { Client } from '@botpress/client'
 
-type ListBotsResponse = Awaited<ReturnType<Client['listBots']>>
-type Bot = ListBotsResponse['bots'][number]
+// 0. Type definitions for each operation's IO
+type GetBotInput = ClientInputs['getBot']
+type GetBotOutput = ClientOutputs['getBot']
 
 const main = async () => {
   const token = 'your-token'
   const workspaceId = 'your-workspace-id'
-  const client = new Client({ token, workspaceId })
+  const botId = 'your-bot-id'
+  const client = new Client({ token, workspaceId, botId })
 
-  const allBots: Bot[] = []
-  let nextToken: string | undefined
-  do {
-    const resp = await client.listBots({ nextToken })
-    nextToken = resp.meta.nextToken
-    allBots.push(...resp.bots)
-  } while (nextToken)
+  // 1. plain operations
+  const { bot } = await client.getBot({ id: botId })
+  console.log('### bot', bot)
 
-  console.log(allBots)
+  // 2. list utils with `.collect()` function
+  const [latestConversation] = await client.list
+    .conversations({ sortField: 'createdAt', sortDirection: 'desc', integrationName: 'telegram' })
+    .collect({ limit: 1 })
+  console.log('### latestConversation', latestConversation)
+
+  // 3. list utils with async generator and `for await` syntax
+  for await (const message of client.list.messages({ conversationId: latestConversation.id })) {
+    console.log(`### [${message.userId}]`, message.payload)
+  }
 }
+
 void main()
 ```

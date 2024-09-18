@@ -9,6 +9,16 @@ input:
     options:
       - staging
       - production
+  extra_filter:
+    type: string
+    description: 'Pnpm additional filters to select integrations to deploy'
+    required: false
+    default: ''
+  force:
+    type: boolean
+    description: 'Force re-deploying integrations'
+    default: false
+    required: false
   sentry_auth_token:
     description: 'Sentry auth token'
     required: true
@@ -18,30 +28,39 @@ input:
   cloud_ops_workspace_id:
     description: 'Cloud Ops workspace id'
     required: true
-  gmail_client_id:
-    description: 'Gmail client id'
-    required: true
-  gmail_client_secret:
-    description: 'Gmail client secret'
-    required: true
-  gmail_topic_name:
-    description: 'Gmail topic name'
-    required: true
-  linear_client_id:
-    description: 'Linear client id'
-    required: true
-  linear_client_secret:
-    description: 'Linear client secret'
-    required: true
-  linear_webhook_signing_secret:
-    description: 'Linear webhook signing secret'
-    required: true
-  slack_client_id:
-    description: 'Slack client id'
-    required: true
-  slack_client_secret:
-    description: 'Slack client secret'
-    required: true
+  gmail_secrets:
+    description: 'Gmail secrets'
+    required: false
+  linear_secrets:
+    description: 'Linear secrets'
+    required: false
+  slack_secrets:
+    description: 'Slack secrets'
+    required: false
+  whatsapp_secrets:
+    description: 'Whatsapp secrets'
+    required: false
+  charts_secrets:
+    description: 'Charts secrets'
+    required: false
+  pdf_secrets:
+    description: 'PDF secrets'
+    required: false
+  browser_secrets:
+    description: 'Browser secrets'
+    required: false
+  openai_secrets:
+    description: 'OpenAI secrets'
+    required: false
+  groq_secrets:
+    description: 'Groq secrets'
+    required: false
+  todoist_secrets:
+    description: 'Todoist secrets'
+    required: false
+  cerebras_secrets:
+    description: 'Cerebras secrets'
+    required: false
 
 runs:
   using: 'composite'
@@ -82,23 +101,49 @@ runs:
 
         # deploy
 
-        integration_paths=$(pnpm list -F "@botpresshub/*" -F "!asana" -F "!trello" -F "!webchat" --json | jq -r "map(".path") | .[]")
+        redeploy=${{ inputs.force == 'true' && 1 || 0 }}
+        all_filters="-F '{integrations/*}' -F '!asana' -F '!trello' -F '!webchat' ${{ inputs.extra_filter }}"
+        list_integrations_cmd="pnpm list $all_filters --json"
+        integration_paths=$(eval $list_integrations_cmd | jq -r "map(".path") | .[]")
 
         for integration_path in $integration_paths; do
             integration=$(basename $integration_path)
             exists=$(./.github/scripts/integration-exists.sh $integration)
 
-            base_command="bp deploy -v -y --noBuild --public --allowDeprecated"
+            base_command="bp deploy -v -y --noBuild --public"
             if [ $integration == "gmail" ]; then
-                base_command="$base_command --secrets CLIENT_ID=${{ inputs.gmail_client_id }} --secrets CLIENT_SECRET=${{ inputs.gmail_client_secret }} --secrets TOPIC_NAME=${{ inputs.gmail_topic_name }}"
+                base_command="$base_command ${{ inputs.gmail_secrets }}"
             elif [ $integration == "linear" ]; then
-                base_command="$base_command --secrets CLIENT_ID=${{ inputs.linear_client_id }} --secrets CLIENT_SECRET=${{ inputs.linear_client_secret }} --secrets WEBHOOK_SIGNING_SECRET=${{ inputs.linear_webhook_signing_secret }}"
+                base_command="$base_command ${{ inputs.linear_secrets }}"
             elif [ $integration == "slack" ]; then
-                base_command="$base_command --secrets CLIENT_ID=${{ inputs.slack_client_id }} --secrets CLIENT_SECRET=${{ inputs.slack_client_secret }} --secrets SIGNING_SECRET=${{ inputs.slack_signing_secret }}"
+                base_command="$base_command ${{ inputs.slack_secrets }}"
+            elif [ $integration == "charts" ]; then
+                base_command="$base_command ${{ inputs.charts_secrets }}"
+            elif [ $integration == "whatsapp" ]; then
+                base_command="$base_command ${{ inputs.whatsapp_secrets }}"
+            elif [ $integration == "pdf-generator" ]; then
+                base_command="$base_command ${{ inputs.pdf_secrets }}"
+            elif [ $integration == "browser" ]; then
+                base_command="$base_command ${{ inputs.browser_secrets }}"
+            elif [ $integration == "openai" ]; then
+                base_command="$base_command ${{ inputs.openai_secrets }}"
+            elif [ $integration == "groq" ]; then
+                base_command="$base_command ${{ inputs.groq_secrets }}"
+            elif [ $integration == "anthropic" ]; then
+                base_command="$base_command ${{ inputs.anthropic_secrets }}"
+            elif [ $integration == "fireworks-ai" ]; then
+                base_command="$base_command ${{ inputs.fireworks_ai_secrets }}"
+            elif [ $integration == "todoist" ]; then
+                base_command="$base_command ${{ inputs.todoist_secrets }}"
+            elif [ $integration == "cerebras" ]; then
+                base_command="$base_command ${{ inputs.cerebras_secrets }}"
             fi
             
             if [ $exists -eq 0 ]; then
                 echo -e "\nDeploying integration: ### $integration ###\n"
+                pnpm retry -n 2 -- pnpm -F $integration -c exec -- "$base_command"
+            elif [ $redeploy -eq 1 ]; then
+                echo -e "\nRe-deploying integration: ### $integration ###\n"
                 pnpm retry -n 2 -- pnpm -F $integration -c exec -- "$base_command"
             else
                 echo -e "\nSkipping integration: ### $integration ###\n"

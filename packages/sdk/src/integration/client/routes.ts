@@ -15,6 +15,7 @@ type ConversationResponse<
   conversation: Merge<
     Awaited<Res<Client['getConversation']>>['conversation'],
     {
+      channel: ChannelName
       tags: ToTags<keyof TIntegration['channels'][ChannelName]['conversation']['tags']>
     }
   >
@@ -225,6 +226,9 @@ type StateResponse<TIntegration extends BaseIntegration, TState extends keyof TI
       payload: TIntegration['states'][TState]
     }
   >
+  meta: {
+    cached: boolean
+  }
 }
 
 export type GetState<TIntegration extends BaseIntegration> = <TState extends keyof TIntegration['states']>(
@@ -267,3 +271,10 @@ export type PatchState<TIntegration extends BaseIntegration> = <TState extends k
 ) => Promise<StateResponse<TIntegration, TState>>
 
 export type ConfigureIntegration<_TIntegration extends BaseIntegration> = Client['configureIntegration']
+
+export type UploadFile<_TIntegration extends BaseIntegration> = Client['uploadFile']
+export type UpsertFile<_TIntegration extends BaseIntegration> = Client['upsertFile']
+export type DeleteFile<_TIntegration extends BaseIntegration> = Client['deleteFile']
+export type ListFiles<_TIntegration extends BaseIntegration> = Client['listFiles']
+export type GetFile<_TIntegration extends BaseIntegration> = Client['getFile']
+export type UpdateFileMetadata<_TIntegration extends BaseIntegration> = Client['updateFileMetadata']

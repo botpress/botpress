@@ -29,7 +29,7 @@ export type InstagramMessage = {
   }
 }
 
-export type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
+export type IntegrationLogger = bp.Logger
 export type InstagramUserProfile = MessengerTypes.User & { username: string }
 
 export type Carousel = bp.channels.channel.carousel.Carousel

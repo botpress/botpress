@@ -1,9 +1,9 @@
 import { addCommentToTaskInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
 import { getClient } from '../utils'
 
-export const addCommentToTask: Implementation['actions']['addCommentToTask'] = async ({ ctx, input, logger }) => {
+export const addCommentToTask: IntegrationProps['actions']['addCommentToTask'] = async ({ ctx, input, logger }) => {
   const validatedInput = addCommentToTaskInputSchema.parse(input)
   const asanaClient = getClient(ctx.configuration)
   let response

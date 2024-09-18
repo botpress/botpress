@@ -3,15 +3,15 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'intercom',
-  version: '0.4.1',
+  version: '0.4.3',
   title: 'Intercom',
   description: 'This integration allows your bot to interact with Intercom.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      accessToken: z.string(),
-      adminId: z.string(),
+      accessToken: z.string().min(1),
+      adminId: z.string().min(1),
     }),
   },
   channels: {

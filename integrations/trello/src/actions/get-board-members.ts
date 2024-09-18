@@ -1,11 +1,11 @@
 import { Models } from 'trello.js'
 
 import { getBoardMembersInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
 import { getClient } from '../utils'
 
-export const getBoardMembers: Implementation['actions']['getBoardMembers'] = async ({ ctx, input, logger }) => {
+export const getBoardMembers: IntegrationProps['actions']['getBoardMembers'] = async ({ ctx, input, logger }) => {
   const validatedInput = getBoardMembersInputSchema.parse(input)
 
   const trelloClient = getClient(ctx.configuration)

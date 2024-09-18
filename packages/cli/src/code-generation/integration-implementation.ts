@@ -2,7 +2,9 @@ import { GENERATED_HEADER, INDEX_FILE } from './const'
 import { stringifySingleLine } from './generators'
 import { ActionsModule } from './integration-schemas/actions-module'
 import { ChannelsModule } from './integration-schemas/channels-module'
-import { ConfigurationModule } from './integration-schemas/configuration-module'
+import { DefaultConfigurationModule } from './integration-schemas/configuration-module'
+import { ConfigurationsModule } from './integration-schemas/configurations-module'
+import { EntitiesModule } from './integration-schemas/entities-module'
 import { EventsModule } from './integration-schemas/events-module'
 import { StatesModule } from './integration-schemas/states-module'
 import { Module, ModuleDef } from './module'
@@ -10,8 +12,11 @@ import * as types from './typings'
 
 export class IntegrationImplementationIndexModule extends Module {
   public static async create(integration: types.IntegrationDefinition): Promise<IntegrationImplementationIndexModule> {
-    const configModule = await ConfigurationModule.create(integration.configuration ?? { schema: {} })
-    configModule.unshift('configuration')
+    const defaultConfigModule = await DefaultConfigurationModule.create(integration.configuration ?? { schema: {} })
+    defaultConfigModule.unshift('configuration')
+
+    const configurationsModule = await ConfigurationsModule.create(integration.configurations ?? {})
+    configurationsModule.unshift('configurations')
 
     const actionsModule = await ActionsModule.create(integration.actions ?? {})
     actionsModule.unshift('actions')
@@ -25,13 +30,18 @@ export class IntegrationImplementationIndexModule extends Module {
     const statesModule = await StatesModule.create(integration.states ?? {})
     statesModule.unshift('states')
 
+    const entitiesModule = await EntitiesModule.create(integration.entities ?? {})
+    entitiesModule.unshift('entities')
+
     const inst = new IntegrationImplementationIndexModule(
       integration,
-      configModule,
+      defaultConfigModule,
+      configurationsModule,
       actionsModule,
       channelsModule,
       eventsModule,
       statesModule,
+      entitiesModule,
       {
         path: INDEX_FILE,
         exportName: 'Integration',
@@ -39,21 +49,25 @@ export class IntegrationImplementationIndexModule extends Module {
       }
     )
 
-    inst.pushDep(configModule)
+    inst.pushDep(defaultConfigModule)
+    inst.pushDep(configurationsModule)
     inst.pushDep(actionsModule)
     inst.pushDep(channelsModule)
     inst.pushDep(eventsModule)
     inst.pushDep(statesModule)
+    inst.pushDep(entitiesModule)
     return inst
   }
 
   private constructor(
     private integration: types.IntegrationDefinition,
-    private configModule: ConfigurationModule,
+    private defaultConfigModule: DefaultConfigurationModule,
+    private configurationsModule: ConfigurationsModule,
     private actionsModule: ActionsModule,
     private channelsModule: ChannelsModule,
     private eventsModule: EventsModule,
     private statesModule: StatesModule,
+    private entitiesModule: EntitiesModule,
     def: ModuleDef
   ) {
     super(def)
@@ -62,38 +76,60 @@ export class IntegrationImplementationIndexModule extends Module {
   public override get content(): string {
     let content = GENERATED_HEADER
 
-    const { configModule, actionsModule, channelsModule, eventsModule, statesModule, integration } = this
+    const {
+      defaultConfigModule,
+      configurationsModule,
+      actionsModule,
+      channelsModule,
+      eventsModule,
+      statesModule,
+      entitiesModule,
+      integration,
+    } = this
 
-    const configImport = configModule.import(this)
+    const defaultConfigImport = defaultConfigModule.import(this)
+    const configurationsImport = configurationsModule.import(this)
     const actionsImport = actionsModule.import(this)
     const channelsImport = channelsModule.import(this)
     const eventsImport = eventsModule.import(this)
     const statesImport = statesModule.import(this)
+    const entitiesImport = entitiesModule.import(this)
 
     content += [
       GENERATED_HEADER,
       'import * as sdk from "@botpress/sdk"',
       '',
-      `import type * as ${configModule.name} from "./${configImport}"`,
+      `import type * as ${defaultConfigModule.name} from "./${defaultConfigImport}"`,
+      `import type * as ${configurationsModule.name} from "./${configurationsImport}"`,
       `import type * as ${actionsModule.name} from "./${actionsImport}"`,
       `import type * as ${channelsModule.name} from "./${channelsImport}"`,
       `import type * as ${eventsModule.name} from "./${eventsImport}"`,
       `import type * as ${statesModule.name} from "./${statesImport}"`,
-      `export * as ${configModule.name} from "./${configImport}"`,
+      `import type * as ${entitiesModule.name} from "./${entitiesImport}"`,
+      `export * as ${defaultConfigModule.name} from "./${defaultConfigImport}"`,
+      `export * as ${configurationsModule.name} from "./${configurationsImport}"`,
       `export * as ${actionsModule.name} from "./${actionsImport}"`,
       `export * as ${channelsModule.name} from "./${channelsImport}"`,
       `export * as ${eventsModule.name} from "./${eventsImport}"`,
       `export * as ${statesModule.name} from "./${statesImport}"`,
+      `export * as ${entitiesModule.name} from "./${entitiesImport}"`,
+      '',
+      '// type utils',
+      'type Cast<X, Y> = X extends Y ? X : Y',
+      'type ValueOf<T> = T[keyof T]',
+      'type AsyncFunction = (...args: any[]) => Promise<any>',
       '',
       'type TIntegration = {',
       `  name: "${integration.name}"`,
       `  version: "${integration.version}"`,
-      `  configuration: ${configModule.name}.${configModule.exports}`,
+      `  configuration: ${defaultConfigModule.name}.${defaultConfigModule.exports}`,
+      `  configurations: ${configurationsModule.name}.${configurationsModule.exports}`,
       `  actions: ${actionsModule.name}.${actionsModule.exports}`,
       `  channels: ${channelsModule.name}.${channelsModule.exports}`,
       `  events: ${eventsModule.name}.${eventsModule.exports}`,
       `  states: ${statesModule.name}.${statesModule.exports}`,
       `  user: ${stringifySingleLine(integration.user)}`,
+      `  entities: ${entitiesModule.name}.${entitiesModule.exports}`,
       '}',
       '',
       'export type IntegrationProps = sdk.IntegrationProps<TIntegration>',
@@ -101,6 +137,44 @@ export class IntegrationImplementationIndexModule extends Module {
       'export class Integration extends sdk.Integration<TIntegration> {}',
       '',
       'export type Client = sdk.IntegrationSpecificClient<TIntegration>',
+      '',
+      '// extra types',
+      '',
+      "export type HandlerProps = Parameters<IntegrationProps['handler']>[0]",
+      '',
+      'export type ActionProps = {',
+      "  [K in keyof IntegrationProps['actions']]: Parameters<IntegrationProps['actions'][K]>[0]",
+      '}',
+      'export type AnyActionProps = ValueOf<ActionProps>',
+      '',
+      'export type MessageProps = {',
+      "  [TChannel in keyof IntegrationProps['channels']]: {",
+      "    [TMessage in keyof IntegrationProps['channels'][TChannel]['messages']]: Parameters<",
+      "      IntegrationProps['channels'][TChannel]['messages'][TMessage]",
+      '    >[0]',
+      '  }',
+      '}',
+      'export type AnyMessageProps = ValueOf<ValueOf<MessageProps>>',
+      '',
+      "export type Context = HandlerProps['ctx']",
+      "export type Logger = HandlerProps['logger']",
+      '',
+      'export type AckFunctions = {',
+      '  [TChannel in keyof MessageProps]: {',
+      "    [TMessage in keyof MessageProps[TChannel]]: Cast<MessageProps[TChannel][TMessage], AnyMessageProps>['ack']",
+      '  }',
+      '}',
+      'export type AnyAckFunction = ValueOf<ValueOf<AckFunctions>>',
+      '',
+      'export type ClientOperation = ValueOf<{',
+      '  [K in keyof Client as Client[K] extends AsyncFunction ? K : never]: K',
+      '}>',
+      'export type ClientRequests = {',
+      '  [K in ClientOperation]: Parameters<Client[K]>[0]',
+      '}',
+      'export type ClientResponses = {',
+      '  [K in ClientOperation]: Awaited<ReturnType<Client[K]>>',
+      '}',
     ].join('\n')
 
     return content

@@ -4,7 +4,7 @@ import * as body from '../interactive/body'
 import * as button from '../interactive/button'
 import * as types from '../types'
 import { chunkArray, truncate } from '../util'
-import type { channels } from '.botpress'
+import { channels } from '.botpress'
 
 type Choice = channels.channel.choice.Choice
 type Option = Choice['options'][number]

@@ -1,8 +1,8 @@
 import { WebClient } from '@slack/web-api'
 import Fuse from 'fuse.js'
 import { Target } from '../definitions/actions'
-import { Implementation } from '../misc/types'
 import { getAccessToken } from '../misc/utils'
+import * as bp from '.botpress'
 
 const fuse = new Fuse<Target>([], {
   shouldSort: true,
@@ -16,7 +16,7 @@ const fuse = new Fuse<Target>([], {
   keys: ['displayName'],
 })
 
-export const findTarget: Implementation['actions']['findTarget'] = async ({
+export const findTarget: bp.IntegrationProps['actions']['findTarget'] = async ({
   client: botpressClient,
   ctx,
   input,

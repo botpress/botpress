@@ -3,7 +3,7 @@ import { Text, Interactive, ActionList, ListSection, Row } from 'whatsapp-api-js
 import * as body from '../interactive/body'
 import * as types from '../types'
 import { chunkArray, truncate } from '../util'
-import type { channels } from '.botpress'
+import { channels } from '.botpress'
 
 type Dropdown = channels.channel.dropdown.Dropdown
 

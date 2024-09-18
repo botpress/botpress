@@ -1,35 +1,21 @@
 import * as client from '@botpress/client'
 import _ from 'lodash'
-import { formatIntegrationRef, ApiIntegrationRef as IntegrationRef } from '../integration-ref'
+import { formatIntegrationRef, ApiIntegrationRef as IntegrationRef, NameIntegrationRef } from '../integration-ref'
 import type { Logger } from '../logger'
+import { findPreviousIntegrationVersion } from './find-previous-version'
 import * as paging from './paging'
+import {
+  ApiClientProps,
+  PublicIntegration,
+  PrivateIntegration,
+  Integration,
+  Requests,
+  Responses,
+  Interface,
+  BotSummary,
+} from './types'
 
-export type PageLister<R extends object> = (t: { nextToken?: string }) => Promise<R & { meta: { nextToken?: string } }>
-
-export type ApiClientProps = {
-  apiUrl: string
-  token: string
-  workspaceId: string
-}
-
-export type ApiClientFactory = {
-  newClient: (props: ApiClientProps, logger: Logger) => ApiClient
-}
-
-type PublicIntegration = client.Integration
-type PrivateIntegration = client.Integration & { workspaceId: string }
-type Integration = client.Integration & { workspaceId?: string }
-
-type BaseOperation = (...args: any[]) => Promise<any>
-type Operations = {
-  [K in keyof client.Client as client.Client[K] extends BaseOperation ? K : never]: client.Client[K]
-}
-type Requests = {
-  [K in keyof Operations]: Parameters<Operations[K]>[0]
-}
-type Responses = {
-  [K in keyof Operations]: ReturnType<Operations[K]>
-}
+export * from './types'
 
 /**
  * This class is used to wrap the Botpress API and provide a more convenient way to interact with it.
@@ -105,6 +91,13 @@ export class ApiClient {
     return this.validateStatus(() => this.client.getPublicIntegration(ref).then((r) => r.integration), 404)
   }
 
+  public async findPublicInterface(ref: IntegrationRef): Promise<Interface | undefined> {
+    if (ref.type === 'id') {
+      return this.validateStatus(() => this.client.getInterface(ref).then((r) => r.interface), 404)
+    }
+    return this.validateStatus(() => this.client.getInterfaceByName(ref).then((r) => r.interface), 404)
+  }
+
   public async testLogin(): Promise<void> {
     await this.client.listBots({})
   }
@@ -123,5 +116,19 @@ export class ApiClient {
       }
       throw err
     }
+  }
+
+  public async findPreviousIntegrationVersion(ref: NameIntegrationRef): Promise<Integration | undefined> {
+    const previous = await findPreviousIntegrationVersion(this.client, ref)
+    if (!previous) {
+      return
+    }
+    return this.findIntegration({ type: 'id', id: previous.id })
+  }
+
+  public async findBotByName(name: string): Promise<BotSummary | undefined> {
+    // api does not allow filtering bots by name
+    const allBots = await this.listAllPages(this.client.listBots, (r) => r.bots)
+    return allBots.find((b) => b.name === name)
   }
 }

@@ -3,18 +3,18 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'messenger',
-  version: '0.4.1',
+  version: '0.4.5',
   title: 'Messenger',
   description: 'This integration allows your bot to interact with Messenger.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      appId: z.string(),
-      appSecret: z.string(),
-      verifyToken: z.string(),
-      pageId: z.string(),
-      accessToken: z.string(),
+      appId: z.string().min(1),
+      appSecret: z.string().min(1),
+      verifyToken: z.string().min(1),
+      pageId: z.string().min(1),
+      accessToken: z.string().min(1),
     }),
   },
   channels: {

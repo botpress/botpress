@@ -18,7 +18,7 @@ export const createPaymentLinkInputSchema = z.object({
   unit_amount: z.number().title('Unit Price').optional().default(0).describe('The unit price in cents'),
   currency: z.string().optional().default('usd').describe('The currency in which the price will be expressed'),
   quantity: z.number().optional().default(1).describe('The quantity of the product being purchased'),
-  adjustableQuantity: z.boolean().optional().default(false).describe('Wether or not the quantity can be adjusted'),
+  adjustableQuantity: z.boolean().optional().default(false).describe('Whether or not the quantity can be adjusted'),
   adjustableQuantityMaximum: z
     .number()
     .title('Max Quantity')
@@ -68,7 +68,7 @@ export const createSubsLinkInputSchema = z.object({
   unit_amount: z.number().optional().default(0).describe('The unit price in cents'),
   currency: z.string().optional().default('usd').describe('The currency in which the price is expressed'),
   quantity: z.number().optional().default(1).describe('The quantity of the subscription being purchased'),
-  adjustableQuantity: z.boolean().optional().default(false).describe('Wether or not the quantity can be adjusted'),
+  adjustableQuantity: z.boolean().optional().default(false).describe('Whether or not the quantity can be adjusted'),
   adjustableQuantityMaximum: z
     .number()
     .title('Max Quantity')

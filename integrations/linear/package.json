@@ -5,7 +5,7 @@
     "start": "pnpm bp serve",
     "build": "pnpm bp build",
     "login": "pnpm bp login",
-    "type:check": "tsc --noEmit"
+    "check:type": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",

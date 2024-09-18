@@ -9,7 +9,7 @@ export default {
     subcommands: {
       create: { description: 'Create new bot', schema: config.schemas.createBot, alias: 'new' },
       get: { description: 'Get bot', schema: config.schemas.getBot },
-      delete: { description: 'Delete bot', schema: config.schemas.deleteBot },
+      delete: { description: 'Delete bot', schema: config.schemas.deleteBot, alias: 'rm' },
       list: { description: 'List bots', schema: config.schemas.listBots, alias: 'ls' },
     },
   },
@@ -17,8 +17,16 @@ export default {
     description: 'Integration related commands',
     subcommands: {
       get: { description: 'Get integration', schema: config.schemas.getIntegration },
-      delete: { description: 'Delete integration', schema: config.schemas.deleteIntegration },
+      delete: { description: 'Delete integration', schema: config.schemas.deleteIntegration, alias: 'rm' },
       list: { description: 'List integrations', schema: config.schemas.listIntegrations, alias: 'ls' },
+    },
+  },
+  interfaces: {
+    description: 'Interface related commands',
+    subcommands: {
+      get: { description: 'Get interface', schema: config.schemas.getInterface },
+      delete: { description: 'Delete interface', schema: config.schemas.deleteInterface, alias: 'rm' },
+      list: { description: 'List interfaces', schema: config.schemas.listInterfaces, alias: 'ls' },
     },
   },
   init: { description: 'Initialize a new project', schema: config.schemas.init },

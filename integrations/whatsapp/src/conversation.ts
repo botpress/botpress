@@ -4,10 +4,11 @@ import WhatsAppAPI from 'whatsapp-api-js'
 import { AtLeastOne } from 'whatsapp-api-js/lib/types/utils'
 import { BodyComponent, BodyParameter, Language, Template } from 'whatsapp-api-js/messages'
 import { ServerErrorResponse, ServerMessageResponse } from 'whatsapp-api-js/types'
+import { getAccessToken, getPhoneNumberId } from './misc/whatsapp'
 import * as types from './types'
-import * as botpress from '.botpress'
+import * as bp from '.botpress'
 
-type Channels = botpress.channels.Channels
+type Channels = bp.channels.Channels
 
 const TemplateVariablesSchema = z.array(z.string().or(z.number()))
 
@@ -21,7 +22,7 @@ export async function startConversation(
     templateVariablesJson?: string
   },
   dependencies: {
-    client: botpress.Client
+    client: bp.Client
     ctx: types.IntegrationCtx
     logger: types.Logger
   }
@@ -82,7 +83,7 @@ export async function startConversation(
     },
   })
 
-  const whatsapp = new WhatsAppAPI({ token: ctx.configuration.accessToken, secure: false })
+  const whatsapp = new WhatsAppAPI({ token: await getAccessToken(client, ctx), secure: false })
 
   const language = new Language(templateLanguage)
 
@@ -123,14 +124,19 @@ export async function startConversation(
 /**
  * This handler is for allowing bots to start conversations by calling `client.createConversation()` directly.
  */
-export const createConversationHandler: botpress.IntegrationProps['createConversation'] = async ({
+export const createConversationHandler: bp.IntegrationProps['createConversation'] = async ({
   client,
   channel,
   tags,
   ctx,
   logger,
 }) => {
-  const phoneNumberId = tags.phoneNumberId || ctx.configuration.phoneNumberId
+  const phoneNumberId: string | undefined = tags.phoneNumberId || (await getPhoneNumberId(client, ctx))
+
+  if (!phoneNumberId) {
+    throw new Error('phoneNumberId is required')
+  }
+
   const userPhone = tags.userPhone || ''
   const templateName = tags.templateName || ''
   const templateLanguage = tags.templateLanguage

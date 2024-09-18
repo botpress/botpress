@@ -3,15 +3,15 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'twilio',
-  version: '0.4.1',
+  version: '0.4.3',
   title: 'Twilio',
   description: 'This integration allows your bot to interact with Twilio.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      accountSID: z.string(),
-      authToken: z.string(),
+      accountSID: z.string().min(1),
+      authToken: z.string().min(1),
     }),
   },
   channels: {

@@ -17,7 +17,7 @@ const INTEGRATION_NAME = 'mailchimp'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   title: 'Mailchimp',
-  version: '0.3.2',
+  version: '0.3.4',
   readme: 'hub.md',
   icon: 'icon.svg',
   description:
@@ -25,8 +25,8 @@ export default new IntegrationDefinition({
   channels: {},
   configuration: {
     schema: z.object({
-      apiKey: z.string().describe('Your API Key'),
-      serverPrefix: z.string().describe('Your Server Prefix'),
+      apiKey: z.string().min(1).describe('Your API Key'),
+      serverPrefix: z.string().min(1).describe('Your Server Prefix'),
     }),
   },
   actions: {

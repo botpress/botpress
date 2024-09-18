@@ -7,6 +7,8 @@ import * as errors from '../errors'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
 
+type ProjectType = 'bot' | 'integration'
+
 export type InitCommandDefinition = typeof commandDefinitions.init
 export class InitCommand extends GlobalCommand<InitCommandDefinition> {
   public async run(): Promise<void> {
@@ -24,28 +26,62 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
       projectType = promptedType
     }
 
-    let name = this.argv.name
-    if (!name) {
-      const defaultName = projectType === 'bot' ? consts.echoBotDirName : consts.emptyIntegrationDirName
-      const promptMessage = `What is the name of your ${projectType}?`
-      const promptedName = await this.prompt.text(promptMessage, { initial: defaultName })
-      if (!promptedName) {
-        throw new errors.ParamRequiredError('Project Name')
-      }
-      name = promptedName
-    }
-
     const workDir = utils.path.absoluteFrom(utils.path.cwd(), this.argv.workDir)
 
     if (projectType === 'bot') {
-      await this._copy({ srcDir: this.globalPaths.abs.echoBotTemplate, destDir: workDir, name })
-      this.logger.success(`Bot project initialized in ${chalk.bold(workDir)}`)
+      await this._initBot({ workDir })
       return
     }
 
-    await this._copy({ srcDir: this.globalPaths.abs.emptyIntegrationTemplate, destDir: workDir, name })
+    await this._initIntegration({ workDir })
+    return
+  }
+
+  private _initBot = async (args: { workDir: string }) => {
+    const { workDir } = args
+    const name = await this._getName('bot', consts.echoBotDirName)
+    await this._copy({ srcDir: this.globalPaths.abs.echoBotTemplate, destDir: workDir, name })
+    this.logger.success(`Bot project initialized in ${chalk.bold(workDir)}`)
+  }
+
+  private _initIntegration = async (args: { workDir: string }) => {
+    const { workDir } = args
+
+    const template = await this.prompt.select('Which template do you want to use?', {
+      choices: [
+        { title: 'Empty Integration', value: consts.emptyIntegrationDirName },
+        { title: 'Hello World', value: consts.helloWorldIntegrationDirName },
+        { title: 'Webhook Message', value: consts.webhookMessageIntegrationDirName },
+      ],
+      default: consts.emptyIntegrationDirName,
+    })
+
+    let srcDirPath: string
+    if (template === consts.helloWorldIntegrationDirName) {
+      srcDirPath = this.globalPaths.abs.helloWorldIntegrationTemplate
+    } else if (template === consts.webhookMessageIntegrationDirName) {
+      srcDirPath = this.globalPaths.abs.webhookMessageIntegrationTemplate
+    } else {
+      srcDirPath = this.globalPaths.abs.emptyIntegrationTemplate
+    }
+
+    const name = await this._getName('integration', template ?? consts.emptyIntegrationDirName)
+
+    await this._copy({ srcDir: srcDirPath, destDir: workDir, name })
     this.logger.success(`Integration project initialized in ${chalk.bold(this.argv.workDir)}`)
     return
+  }
+
+  private _getName = async (projectType: ProjectType, defaultName: string): Promise<string> => {
+    if (this.argv.name) {
+      return this.argv.name
+    }
+    const promptMessage = `What is the name of your ${projectType}?`
+    const promptedName = await this.prompt.text(promptMessage, { initial: defaultName })
+    if (!promptedName) {
+      throw new errors.ParamRequiredError('Project Name')
+    }
+    return promptedName
   }
 
   private _copy = async (props: { srcDir: string; destDir: string; name: string }) => {

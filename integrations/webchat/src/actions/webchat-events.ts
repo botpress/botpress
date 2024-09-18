@@ -1,36 +1,36 @@
 import { z } from '@botpress/sdk'
 import { send } from '../handler'
 import { triggerSchema } from '../misc/messaging/triggers'
-import { Implementation } from '../misc/types'
+import { IntegrationProps } from '../misc/types'
 
-type Actions = Exclude<keyof Implementation['actions'], 'getUserData'>
-type Props = Parameters<Implementation['actions'][Actions]>[0]
+type Actions = Exclude<keyof IntegrationProps['actions'], 'getUserData'>
+type Props = Parameters<IntegrationProps['actions'][Actions]>[0]
 
-export const customEvent: Implementation['actions']['customEvent'] = async (props) =>
+export const customEvent: IntegrationProps['actions']['customEvent'] = async (props) =>
   sendTrigger(props)({
     type: 'custom-event',
     event: JSON.parse(props.input.event),
   })
 
-export const showWebchat: Implementation['actions']['showWebchat'] = async (props) =>
+export const showWebchat: IntegrationProps['actions']['showWebchat'] = async (props) =>
   sendTrigger(props)({
     type: 'webchat-visibility',
     visibility: 'show',
   })
 
-export const hideWebchat: Implementation['actions']['hideWebchat'] = async (props) =>
+export const hideWebchat: IntegrationProps['actions']['hideWebchat'] = async (props) =>
   sendTrigger(props)({
     type: 'webchat-visibility',
     visibility: 'hide',
   })
 
-export const toggleWebchat: Implementation['actions']['toggleWebchat'] = async (props) =>
+export const toggleWebchat: IntegrationProps['actions']['toggleWebchat'] = async (props) =>
   sendTrigger(props)({
     type: 'webchat-visibility',
     visibility: 'toggle',
   })
 
-export const configWebchat: Implementation['actions']['configWebchat'] = async (props) =>
+export const configWebchat: IntegrationProps['actions']['configWebchat'] = async (props) =>
   sendTrigger(props)({
     type: 'webchat-config',
     config: JSON.parse(props.input.config),
