@@ -86,7 +86,7 @@ export const patientMessageHandler: MessageHandler = async (props) => {
 
       const messageHistory: MessageHistoryElement[] = []
       for (const message of upstreamMessages) {
-        const isBot = message.userId === props.ctx.botId // TODO: use the bot user id instead of bot id
+        const isBot = message.direction === 'outgoing'
         messageHistory.push({
           source: isBot ? { type: 'bot' } : { type: 'user', userId: message.userId },
           type: message.type,
