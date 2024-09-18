@@ -1600,10 +1600,10 @@ importers:
   packages/cli:
     dependencies:
       '@botpress/client':
-        specifier: 0.30.1
+        specifier: 0.30.2
         version: link:../client
       '@botpress/sdk':
-        specifier: 0.11.3
+        specifier: 0.11.4
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1715,10 +1715,10 @@ importers:
   packages/cli/templates/echo-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.30.1
+        specifier: 0.30.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.11.3
+        specifier: 0.11.4
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1734,10 +1734,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.30.1
+        specifier: 0.30.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.11.3
+        specifier: 0.11.4
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1753,10 +1753,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 0.30.1
+        specifier: 0.30.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.11.3
+        specifier: 0.11.4
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1772,10 +1772,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 0.30.1
+        specifier: 0.30.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 0.11.3
+        specifier: 0.11.4
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -1856,7 +1856,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.30.1
+        specifier: 0.30.2
         version: link:../client
       '@bpinternal/zui':
         specifier: 0.10.0
