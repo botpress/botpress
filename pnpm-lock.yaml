@@ -828,6 +828,12 @@ importers:
 
   integrations/openai:
     dependencies:
+      '@azure/identity':
+        specifier: ^4.4.1
+        version: 4.4.1
+      '@azure/openai':
+        specifier: 2.0.0-beta.2
+        version: 2.0.0-beta.2
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
@@ -1888,11 +1894,32 @@ packages:
     resolution: {integrity: sha512-QAkD5kK2b1WfjDS/UQn/qQkbwF31uqRjPTrsCs5ZG9BQGAkjwvqGFjjPqAuzac/IYzpPtRzjCP1WrTuAIjMrXg==}
     dev: true
 
+  /@azure-rest/core-client@2.2.0:
+    resolution: {integrity: sha512-2uPSZPRb2TRyYONl5IcsWhX7C1xbm6Gof/tcLlDnYg7fCVcEfASfySKZ9OTHxhNeFgo79LhrT6juEoxTHvrXkQ==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      '@azure/abort-controller': 2.1.2
+      '@azure/core-auth': 1.4.0
+      '@azure/core-rest-pipeline': 1.11.0
+      '@azure/core-tracing': 1.0.1
+      '@azure/core-util': 1.3.2
+      tslib: 2.7.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
   /@azure/abort-controller@1.1.0:
     resolution: {integrity: sha512-TrRLIoSQVzfAJX9H1JeFjzAoDGcoK1IYX1UImfceTZpsyYfWr09Ss1aHW1y5TrrR3iq6RZLBwJ3E24uwPhwahw==}
     engines: {node: '>=12.0.0'}
     dependencies:
       tslib: 2.6.2
+    dev: false
+
+  /@azure/abort-controller@2.1.2:
+    resolution: {integrity: sha512-nBrLsEWm4J2u5LpAPjxADTlq3trDgVZZXHNKabeXZtpq3d3AbN/KGO82R87rdDz5/lYB024rtEf10/q0urNgsA==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      tslib: 2.7.0
     dev: false
 
   /@azure/core-auth@1.4.0:
@@ -1901,6 +1928,15 @@ packages:
     dependencies:
       '@azure/abort-controller': 1.1.0
       tslib: 2.6.2
+    dev: false
+
+  /@azure/core-auth@1.8.0:
+    resolution: {integrity: sha512-YvFMowkXzLbXNM11yZtVLhUCmuG0ex7JKOH366ipjmHBhL3vpDcPAeWF+jf0X+jVXwFqo3UhsWUq4kH0ZPdu/g==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      '@azure/abort-controller': 2.1.2
+      '@azure/core-util': 1.3.2
+      tslib: 2.7.0
     dev: false
 
   /@azure/core-client@1.7.3:
@@ -1913,7 +1949,22 @@ packages:
       '@azure/core-tracing': 1.0.1
       '@azure/core-util': 1.3.2
       '@azure/logger': 1.0.4
-      tslib: 2.6.2
+      tslib: 2.7.0
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  /@azure/core-client@1.9.2:
+    resolution: {integrity: sha512-kRdry/rav3fUKHl/aDLd/pDLcB+4pOFwPPTVEExuMyaI5r+JBbMWqRbCY1pn5BniDaU3lRxO9eaQ1AmSMehl/w==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      '@azure/abort-controller': 2.1.2
+      '@azure/core-auth': 1.8.0
+      '@azure/core-rest-pipeline': 1.11.0
+      '@azure/core-tracing': 1.0.1
+      '@azure/core-util': 1.10.0
+      '@azure/logger': 1.0.4
+      tslib: 2.7.0
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -1942,6 +1993,14 @@ packages:
       tslib: 2.6.2
     dev: false
 
+  /@azure/core-util@1.10.0:
+    resolution: {integrity: sha512-dqLWQsh9Nro1YQU+405POVtXnwrIVqPyfUzc4zXCbThTg7+vNNaiMkwbX9AMXKyoFYFClxmB3s25ZFr3+jZkww==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      '@azure/abort-controller': 2.1.2
+      tslib: 2.7.0
+    dev: false
+
   /@azure/core-util@1.3.2:
     resolution: {integrity: sha512-2bECOUh88RvL1pMZTcc6OzfobBeWDBf5oBbhjIhT1MV9otMVWCzpOJkkiKtrnO88y5GGBelgY8At73KGAdbkeQ==}
     engines: {node: '>=14.0.0'}
@@ -1968,8 +2027,30 @@ packages:
       jws: 4.0.0
       open: 8.4.2
       stoppable: 1.1.0
-      tslib: 2.6.2
+      tslib: 2.7.0
       uuid: 8.3.2
+    transitivePeerDependencies:
+      - supports-color
+    dev: false
+
+  /@azure/identity@4.4.1:
+    resolution: {integrity: sha512-DwnG4cKFEM7S3T+9u05NstXU/HN0dk45kPOinUyNKsn5VWwpXd9sbPKEg6kgJzGbm1lMuhx9o31PVbCtM5sfBA==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      '@azure/abort-controller': 1.1.0
+      '@azure/core-auth': 1.8.0
+      '@azure/core-client': 1.9.2
+      '@azure/core-rest-pipeline': 1.11.0
+      '@azure/core-tracing': 1.0.1
+      '@azure/core-util': 1.3.2
+      '@azure/logger': 1.0.4
+      '@azure/msal-browser': 3.23.0
+      '@azure/msal-node': 2.13.1
+      events: 3.3.0
+      jws: 4.0.0
+      open: 8.4.2
+      stoppable: 1.1.0
+      tslib: 2.7.0
     transitivePeerDependencies:
       - supports-color
     dev: false
@@ -2000,12 +2081,25 @@ packages:
   /@azure/msal-browser@2.37.1:
     resolution: {integrity: sha512-EoKQISEpIY39Ru1OpWkeFZBcwp6Y0bG81bVmdyy4QJebPPDdVzfm62PSU0XFIRc3bqjZ4PBKBLMYLuo9NZYAow==}
     engines: {node: '>=0.8.0'}
+    deprecated: A newer major version of this library is available. Please upgrade to the latest available version.
     dependencies:
       '@azure/msal-common': 13.1.0
     dev: false
 
+  /@azure/msal-browser@3.23.0:
+    resolution: {integrity: sha512-+QgdMvaeEpdtgRTD7AHHq9aw8uga7mXVHV1KshO1RQ2uI5B55xJ4aEpGlg/ga3H+0arEVcRfT4ZVmX7QLXiCVw==}
+    engines: {node: '>=0.8.0'}
+    dependencies:
+      '@azure/msal-common': 14.14.2
+    dev: false
+
   /@azure/msal-common@13.1.0:
     resolution: {integrity: sha512-wj+ULrRB0HTuMmtrMjg8j3guCx32GE2BCPbsMCZkHgL1BZetC3o/Su5UJEQMX1HNc9CrIaQNx5WaKWHygYDe0g==}
+    engines: {node: '>=0.8.0'}
+    dev: false
+
+  /@azure/msal-common@14.14.2:
+    resolution: {integrity: sha512-XV0P5kSNwDwCA/SjIxTe9mEAsKB0NqGNSuaVrkCCE2lAyBr/D6YtD80Vkdp4tjWnPFwjzkwldjr1xU/facOJog==}
     engines: {node: '>=0.8.0'}
     dev: false
 
@@ -2017,10 +2111,30 @@ packages:
   /@azure/msal-node@1.17.3:
     resolution: {integrity: sha512-slsa+388bQQWnWH1V91KL+zV57rIp/0OQFfF0EmVMY8gnEIkAnpWWFUVBTTMbxEyjEFMk5ZW9xiHvHBcYFHzDw==}
     engines: {node: 10 || 12 || 14 || 16 || 18}
+    deprecated: A newer major version of this library is available. Please upgrade to the latest available version.
     dependencies:
       '@azure/msal-common': 13.1.0
       jsonwebtoken: 9.0.2
       uuid: 8.3.2
+    dev: false
+
+  /@azure/msal-node@2.13.1:
+    resolution: {integrity: sha512-sijfzPNorKt6+9g1/miHwhj6Iapff4mPQx1azmmZExgzUROqWTM1o3ACyxDja0g47VpowFy/sxTM/WsuCyXTiw==}
+    engines: {node: '>=16'}
+    dependencies:
+      '@azure/msal-common': 14.14.2
+      jsonwebtoken: 9.0.2
+      uuid: 8.3.2
+    dev: false
+
+  /@azure/openai@2.0.0-beta.2:
+    resolution: {integrity: sha512-cElfZcBno4h3OWxZPvqqqtDUQ7jcGANlzF1oC9bigRiKe/0bAfBmOSYqPyb6Gaf+ngBVo9IWJs/5ZWNAVSvkqQ==}
+    engines: {node: '>=18.0.0'}
+    dependencies:
+      '@azure-rest/core-client': 2.2.0
+      tslib: 2.7.0
+    transitivePeerDependencies:
+      - supports-color
     dev: false
 
   /@babel/cli@7.22.5(@babel/core@7.22.5):
@@ -11566,6 +11680,10 @@ packages:
 
   /tslib@2.6.2:
     resolution: {integrity: sha512-AEYxH93jGFPn/a2iVAwW87VuUIkR1FVUKB77NwMF7nBTDkDrrT/Hpt/IrCJ0QXhW27jTBDcf5ZY7w6RiqTMw2Q==}
+    dev: false
+
+  /tslib@2.7.0:
+    resolution: {integrity: sha512-gLXCKdN1/j47AiHiOkJN69hJmcbGTHI0ImLmbYLHykhgeN0jVGola9yVjFgzCUklsZQMW55o+dW7IXv3RCXDzA==}
     dev: false
 
   /tsscmp@1.0.6:

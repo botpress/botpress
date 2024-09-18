@@ -8,8 +8,9 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
-      url: z.string().describe('Base URL for the OpenAI API'),
-      apiKey: z.string().describe('OpenAI API key'),
+      url: z.string().describe('Base URL for the Azure OpenAI API'),
+      apiKey: z.string().describe('Azure OpenAI API key'),
+      apiVersion: z.string().describe('Azure API version'),
     }),
   },
   entities: {

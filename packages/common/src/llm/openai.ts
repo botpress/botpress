@@ -1,7 +1,7 @@
 import { InvalidPayloadError } from '@botpress/client'
 import { z, IntegrationLogger, interfaces } from '@botpress/sdk'
 import assert from 'assert'
-import OpenAI from 'openai'
+import OpenAI, { AzureOpenAI } from 'openai'
 import {
   ChatCompletion,
   ChatCompletionAssistantMessageParam,
@@ -34,7 +34,7 @@ const OpenAIErrorSchema = z
 
 export async function generateContent<M extends string>(
   input: GenerateContentInput,
-  openAIClient: OpenAI,
+  openAIClient: OpenAI | AzureOpenAI,
   logger: IntegrationLogger,
   props: {
     provider: string

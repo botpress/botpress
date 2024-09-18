@@ -1,7 +1,7 @@
 import { InvalidPayloadError } from '@botpress/client'
 import { llm, textToSpeech } from '@botpress/common'
 import { interfaces } from '@botpress/sdk'
-import OpenAI from 'openai'
+import { AzureOpenAI } from 'openai'
 import { ImageGenerateParams, Images } from 'openai/resources'
 import { LanguageModelId, ImageModelId, SpeechToTextModelId } from './schemas'
 import * as bp from '.botpress'
@@ -9,10 +9,11 @@ import * as bp from '.botpress'
 const DEFAULT_LANGUAGE_MODEL_ID: LanguageModelId = 'gpt-4o-mini-2024-07-18'
 const DEFAULT_IMAGE_MODEL_ID: ImageModelId = 'dall-e-3-standard-1024'
 
-const getOpenAIClient = (ctx: bp.Context) =>
-  new OpenAI({
+const getOpenAIClient = (ctx: bp.Context): AzureOpenAI =>
+  new AzureOpenAI({
+    endpoint: ctx.configuration.url,
     apiKey: ctx.configuration.apiKey,
-    baseURL: ctx.configuration.url,
+    apiVersion: ctx.configuration.apiVersion,
   })
 
 // References:
@@ -217,7 +218,9 @@ export default new bp.Integration({
         cost: imageModel.costPerImage,
       }
     },
-    transcribeAudio: async ({ input, logger }) => {
+    transcribeAudio: async ({ input, logger, ctx }) => {
+      const openAIClient = getOpenAIClient(ctx)
+
       return await textToSpeech.openai.transcribeAudio(input, openAIClient, logger, {
         provider,
         models: speechToTextModels,
