@@ -25,6 +25,8 @@ const StartChatInputSchema = z.object({
   sessionId: z.string().describe('The chat visitor’s Chat session ID').optional(),
   userAgent: z.string().describe('The chat visitor’s browser user agent.').optional().default('BotpressSFLA/1.0.0'),
   language: z.string().describe('The chat visitor’s spoken language.').default('en-US'),
+  contactId: z.string().describe('Id from the contact to be associated with this chat session.').default(''),
+  caseId: z.string().describe('Id from the case to be associated with this chat session.').default(''),
   prechatDetails: z.array(z.string()).describe('The pre-chat information that was provided by the chat visitor').default([]),
   prechatEntities: z.array(z.string()).describe('The records created, searched for, or both depending on what EntityFieldsMaps has enabled').default([]),
   buttonOverrides: z.array(z.string()).describe(`The button override is an ordered list of routing targets and overrides the buttonId, agentId, and doFallback modes. The possible options are:

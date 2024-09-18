@@ -49,28 +49,74 @@ class ChasitorApi {
 
   public async startChat(opts: StartChatInput) {
 
-    opts?.prechatDetails.forEach((item, index) => {
+    const prechatDetails = []
+    const prechatEntities = []
+
+    if(opts.contactId.length) {
+      prechatDetails.push({ label: "ContactId", value: opts.contactId, transcriptFields: ["ContactId__c"], displayToAgent: "true" })
+      prechatEntities.push(
+        {
+          entityName: "Contact",
+          showOnCreate: "true",
+          linkToEntityName: "Contact",
+          linkToEntityField: "Id",
+          saveToTranscript: "Contact",
+          entityFieldsMaps: [
+            {
+              fieldName: "Id",
+              label: "ContactId",
+              doFind: "true",
+              isExactMatch: "true",
+              doCreate: "false"
+            }
+          ]
+        }
+      )
+    }
+
+    if(opts.caseId.length) {
+      prechatDetails.push({ label: "CaseId", value: opts.caseId, transcriptFields: ["CaseId__c"], displayToAgent: "true" })
+      prechatEntities.push(
+        {
+          entityName: "Case",
+          showOnCreate: "true",
+          linkToEntityName: "Case",
+          linkToEntityField: "Id",
+          saveToTranscript: "Case",
+          entityFieldsMaps: [
+            {
+              fieldName: "Id",
+              label: "CaseId",
+              doFind: "true",
+              isExactMatch: "true",
+              doCreate: "false"
+            }
+          ]
+        }
+      )
+    }
+
+    opts?.prechatDetails.forEach((item: string) => {
       try {
         const parsedItem = JSON.parse(item)
         if(typeof parsedItem !== 'object') {
           throw new Error('array item is not an object')
         }
-        opts.prechatDetails[index] = parsedItem
+        prechatDetails.push(parsedItem)
       } catch (e: any) {
-        opts?.prechatDetails.splice(index, 1)
         this.logger.forBot().warn(`Failed to parse prechatDetail for startChat (item: ${item}): ${e.message}` )
       }
     })
 
-    opts?.prechatEntities.forEach((item, index) => {
+
+    opts?.prechatEntities.forEach((item: string) => {
       try {
         const parsedItem = JSON.parse(item)
         if(typeof parsedItem !== 'object') {
           throw new Error('array item is not an object (check docs for ChasitorInit: https://developer.salesforce.com/docs/atlas.en-us.live_agent_rest.meta/live_agent_rest/live_agent_rest_request_bodies.htm)')
         }
-        opts.prechatEntities[index] = parsedItem
+        prechatEntities.push(parsedItem)
       } catch (e: any) {
-        opts?.prechatEntities.splice(index, 1)
         this.logger.forBot().warn(`Failed to parse prechatEntities for startChat (item: ${item}): ${e.message}` )
       }
     })
@@ -88,7 +134,10 @@ class ChasitorApi {
       screenResolution: '1900x1080',
       isPost: true,
       visitorName: opts?.userName?.length && opts?.userName || 'Anonymous Visitor',
-      ...opts,})
+      ...opts,
+      prechatDetails,
+      prechatEntities,
+    })
 
     const { data } = await this.client.post('/rest/Chasitor/ChasitorInit', {
       ...this.config,
@@ -96,6 +145,8 @@ class ChasitorApi {
       isPost: true,
       visitorName: opts?.userName?.length && opts?.userName || 'Anonymous Visitor',
       ...opts,
+      prechatDetails,
+      prechatEntities,
     })
     return data
   }
