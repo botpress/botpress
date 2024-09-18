@@ -17,7 +17,19 @@ export abstract class BaseLinter {
     this.results = await this.spectral.run(this.spectralDocument)
   }
 
-  public getResults() {
+  public logResults(logger: Logger) {
+    this.getSortedResults().forEach((result) => {
+      const message = `${result.path}: ${result.message}`
+
+      this.logResultMessage(logger, message, +result.severity)
+    })
+  }
+
+  private getSortedResults() {
+    return this.getResults().sort((a, b) => (a.path > b.path ? 1 : a.path < b.path ? -1 : 0))
+  }
+
+  private getResults() {
     return this.results.map((result) => ({
       message: result.message,
       path: this.simplifyPath(result.path),
@@ -25,12 +37,8 @@ export abstract class BaseLinter {
     }))
   }
 
-  public logResults(logger: Logger) {
-    this.getResults().forEach((result) => {
-      const message = `${result.path}: ${result.message}`
-
-      this.logResultMessage(logger, message, +result.severity)
-    })
+  private simplifyPath(path: (string | number)[]) {
+    return path.join('.').replaceAll('.properties.', '.').replaceAll('.x-zui', '')
   }
 
   private logResultMessage(logger: Logger, message: string, severity: number) {
@@ -47,9 +55,5 @@ export abstract class BaseLinter {
       default:
         logger.debug(message)
     }
-  }
-
-  private simplifyPath(path: (string | number)[]) {
-    return path.join('.').replaceAll('.properties.', '.').replaceAll('.x-zui', '')
   }
 }
