@@ -14,7 +14,7 @@ export const listenConversation: IntegrationProps['actions']['listenConversation
   }
 
   try {
-    const { botpressConversationId, liveAgentSessionKey } = input;
+    const { botpressConversationId, botpressUserId,  liveAgentSessionKey } = input;
 
     console.log('Will listen conversation:  ', { botpressConversationId, liveAgentSessionKey })
 
@@ -74,7 +74,8 @@ export const listenConversation: IntegrationProps['actions']['listenConversation
       tags: {
         pollingKey,
         liveAgentSessionKey,
-        botpressConversationId
+        botpressConversationId,
+        botpressUserId
       }
     })
   } catch (e: any) {

@@ -29,6 +29,9 @@ export const channels = {
         },
         botpressConversationId: {
           title: 'Id from the origin conversation',
+        },
+        botpressUserId: {
+          title: 'Id from the user that will be listening',
         }
       }
     },

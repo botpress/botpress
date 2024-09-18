@@ -60,7 +60,7 @@ const listenConversation = {
   title: 'Listen Chasitor Conversation Session',
   description: 'The supplied Botpress conversation will listen events from the supplied Chasitor Session',
   input: {
-    schema: z.object({ botpressConversationId: z.string(), liveAgentSessionKey: z.string() }),
+    schema: z.object({ botpressConversationId: z.string(), botpressUserId: z.string(), liveAgentSessionKey: z.string() }),
     ui: {},
   },
   output: {
