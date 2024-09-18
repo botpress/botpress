@@ -20,7 +20,7 @@ export abstract class BaseLinter {
   public getResults() {
     return this.results.map((result) => ({
       message: result.message,
-      path: this.adjustPath(result.path),
+      path: this.simplifyPath(result.path),
       severity: +result.severity,
     }))
   }
@@ -29,11 +29,11 @@ export abstract class BaseLinter {
     this.getResults().forEach((result) => {
       const message = `${result.path}: ${result.message}`
 
-      this.logMessage(logger, message, +result.severity)
+      this.logResultMessage(logger, message, +result.severity)
     })
   }
 
-  private logMessage(logger: Logger, message: string, severity: number) {
+  private logResultMessage(logger: Logger, message: string, severity: number) {
     switch (severity) {
       case 0:
         logger.error(message)
@@ -49,7 +49,7 @@ export abstract class BaseLinter {
     }
   }
 
-  private adjustPath(path: (string | number)[]) {
+  private simplifyPath(path: (string | number)[]) {
     return path.join('.').replaceAll('.properties.', '.').replaceAll('.x-zui', '')
   }
 }
