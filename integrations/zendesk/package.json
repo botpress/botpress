@@ -13,6 +13,7 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "axios": "^1.4.0",
+    "axios-retry": "^4.5.0",
     "lodash": "^4.17.21"
   },
   "devDependencies": {

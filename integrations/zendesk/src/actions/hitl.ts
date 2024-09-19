@@ -70,44 +70,39 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
     throw new sdk.RuntimeError(`User ${user.id} not linked in Zendesk`)
   }
 
-  try {
-    const ticket = await zendeskClient.createTicket(
-      input.title ?? 'Untitled Ticket',
-      input.description ?? 'Someone opened a ticket using your Botpress chatbot',
-      { id: zendeskAuthorId }
-    )
+  const ticket = await zendeskClient.createTicket(
+    input.title ?? 'Untitled Ticket',
+    input.description ?? 'Someone opened a ticket using your Botpress chatbot',
+    { id: zendeskAuthorId }
+  )
 
-    const zendeskTicketId = `${ticket.id}`
-    const { conversation } = await client.getOrCreateConversation({
-      channel: 'hitl',
-      tags: {
-        id: zendeskTicketId,
-      },
-    })
+  const zendeskTicketId = `${ticket.id}`
+  const { conversation } = await client.getOrCreateConversation({
+    channel: 'hitl',
+    tags: {
+      id: zendeskTicketId,
+    },
+  })
 
-    const users = new UserFinder(client)
+  const users = new UserFinder(client)
 
-    for (const message of input.messageHistory ?? []) {
-      const userId = message.source.type === 'user' ? message.source.userId : ctx.botUserId
-      const user = await users.findUser(userId)
-      if (!user) {
-        throw new sdk.RuntimeError(`User ${userId} not found`)
-      }
-
-      const zendeskAuthorId = user.tags.id
-      if (!zendeskAuthorId) {
-        throw new sdk.RuntimeError(`User ${userId} not linked in Zendesk`)
-      }
-
-      await zendeskClient.createComment(zendeskTicketId, zendeskAuthorId, toText(message))
+  for (const message of input.messageHistory ?? []) {
+    const userId = message.source.type === 'user' ? message.source.userId : ctx.botUserId
+    const user = await users.findUser(userId)
+    if (!user) {
+      throw new sdk.RuntimeError(`User ${userId} not found`)
     }
 
-    return {
-      conversationId: conversation.id,
+    const zendeskAuthorId = user.tags.id
+    if (!zendeskAuthorId) {
+      throw new sdk.RuntimeError(`User ${userId} not linked in Zendesk`)
     }
-  } catch (err) {
-    console.error(err)
-    throw new sdk.RuntimeError(`Failed to create ticket: ${err}`)
+
+    await zendeskClient.createComment(zendeskTicketId, zendeskAuthorId, toText(message))
+  }
+
+  return {
+    conversationId: conversation.id,
   }
 }
 
@@ -122,9 +117,9 @@ export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ ctx
   }
 
   const zendeskClient = getZendeskClient(ctx.configuration)
-  const originalTicket = await zendeskClient.getTicket(ticketId)
 
   try {
+    const originalTicket = await zendeskClient.getTicket(ticketId)
     await zendeskClient.updateTicket(ticketId, {
       comment: {
         body: input.reason,

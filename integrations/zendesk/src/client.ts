@@ -1,4 +1,5 @@
-import axios, { Axios, AxiosRequestConfig } from 'axios'
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
+import axiosRetry from 'axios-retry'
 import type { ZendeskUser, ZendeskTicket, ZendeskWebhook } from './definitions/schemas'
 import { summarizeAxiosError } from './misc/axios-utils'
 import { ConditionsData, getTriggerTemplate, type TriggerNames } from './triggers'
@@ -27,8 +28,10 @@ const makeUsername = (email: string) => {
   return email.endsWith('/token') ? email : `${email}/token`
 }
 
+type AxiosRetryClient = Parameters<typeof axiosRetry>[0]
+
 class ZendeskApi {
-  private client: Axios
+  private client: AxiosInstance
   constructor(organizationDomain: string, email: string, password: string) {
     this.client = axios.create({
       baseURL: makeBaseUrl(organizationDomain),
@@ -36,6 +39,15 @@ class ZendeskApi {
       auth: {
         username: makeUsername(email),
         password,
+      },
+    })
+
+    axiosRetry(this.client as AxiosRetryClient, {
+      retries: 3,
+      retryDelay: axiosRetry.exponentialDelay,
+      retryCondition: (error) => {
+        const rateLimitReached = error.response?.status === 429
+        return axiosRetry.isNetworkOrIdempotentRequestError(error) || rateLimitReached
       },
     })
   }

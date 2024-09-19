@@ -88,11 +88,14 @@ export const patientMessageHandler: MessageHandler = async (props) => {
 
   if (!upstreamFlow.hitlEnabled) {
     if (message.payload.text.trim() === '/start_hitl') {
+      respond({ conversationId: upstreamConversation.id, text: 'Transferring you to a human agent...' })
+
       const downstreamUserId = await users.getDownstreamUserId(upstreamUser.id)
 
       const { messages: upstreamMessages } = await client.listMessages({
         conversationId: upstreamConversation.id,
       })
+      upstreamMessages.reverse() // TODO: use createdAt to sort instead of reverse
 
       const messageHistory: MessageHistoryElement[] = []
       for (const message of upstreamMessages) {
@@ -138,7 +141,7 @@ export const patientMessageHandler: MessageHandler = async (props) => {
 
       await setFlow({ client, conversationId: upstreamConversation.id }, { hitlEnabled: true })
       await setFlow({ client, conversationId: downstreamConversationId }, { hitlEnabled: true })
-      await respond({ conversationId: upstreamConversation.id, text: 'Transfering you to a human agent...' })
+      await respond({ conversationId: upstreamConversation.id, text: 'You are now connected to a human agent.' })
       return
     }
 

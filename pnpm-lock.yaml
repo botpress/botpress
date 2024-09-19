@@ -1444,6 +1444,9 @@ importers:
       axios:
         specifier: ^1.4.0
         version: 1.4.0
+      axios-retry:
+        specifier: ^4.5.0
+        version: 4.5.0(axios@1.4.0)
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
@@ -5375,6 +5378,15 @@ packages:
     resolution: {integrity: sha512-8PJDLJv7qTTMMwdnbMvrLYuvB47M81wRtxQmEdV5w4rgbTXTt+vtPkXwajOfOdSyv/wZICJOC+/UhXH4aQ/R+w==}
     dependencies:
       '@babel/runtime': 7.24.7
+      is-retry-allowed: 2.2.0
+    dev: false
+
+  /axios-retry@4.5.0(axios@1.4.0):
+    resolution: {integrity: sha512-aR99oXhpEDGo0UuAlYcn2iGRds30k366Zfa05XWScR9QaQD4JYiP3/1Qt1u7YlefUOK+cn0CcwoL1oefavQUlQ==}
+    peerDependencies:
+      axios: 0.x || 1.x
+    dependencies:
+      axios: 1.4.0
       is-retry-allowed: 2.2.0
     dev: false
 
