@@ -1,10 +1,14 @@
 import { RuntimeError } from '@botpress/client'
+import { Request } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import queryString from 'query-string'
+import { INTEGRATION_NAME } from '../integration.definition'
+import { getInterstitialUrl, redirectTo } from './misc/html-utils'
 import { handleMessage } from './misc/incoming-message'
 import { sendMessage } from './misc/outgoing-message'
 import { MessengerPayload } from './misc/types'
 import { formatGoogleMapLink, getCarouselMessage, getChoiceMessage, getMessengerClient } from './misc/utils'
+import { handleWizard } from './misc/wizard'
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({
@@ -86,6 +90,20 @@ const integration = new bp.Integration({
     },
   },
   handler: async ({ req, client, ctx, logger }) => {
+    if (detectIdentifierIssue(req, ctx)) {
+      return redirectTo(getInterstitialUrl(false, 'Not allowed'))
+    }
+
+    if (req.query?.includes('code') || req.query?.includes('wizard-step')) {
+      try {
+        return await handleWizard(req, client, ctx, logger)
+      } catch (err: any) {
+        const errorMessage = '(OAuth registration) Error: ' + err.message
+        logger.forBot().error(errorMessage)
+        return redirectTo(getInterstitialUrl(false, errorMessage))
+      }
+    }
+
     logger.forBot().debug('Handler received request from Messenger with payload:', req.body)
 
     if (req.query) {
@@ -149,7 +167,7 @@ const integration = new bp.Integration({
       return
     }
 
-    const messengerClient = getMessengerClient(ctx.configuration)
+    const messengerClient = await getMessengerClient(client, ctx)
     const profile = await messengerClient.getUserProfile(userId)
 
     const { user } = await client.getOrCreateUser({ tags: { id: `${profile.id}` } })
@@ -166,7 +184,7 @@ const integration = new bp.Integration({
       return
     }
 
-    const messengerClient = getMessengerClient(ctx.configuration)
+    const messengerClient = await getMessengerClient(client, ctx)
     const profile = await messengerClient.getUserProfile(userId)
 
     const { conversation } = await client.getOrCreateConversation({
@@ -187,3 +205,17 @@ export default sentryHelpers.wrapIntegration(integration, {
   environment: bp.secrets.SENTRY_ENVIRONMENT,
   release: bp.secrets.SENTRY_RELEASE,
 })
+
+export const getGlobalWebhookUrl = () => {
+  return `${process.env.BP_WEBHOOK_URL}/integration/global/${INTEGRATION_NAME}`
+}
+
+export const detectIdentifierIssue = (req: Request, ctx: bp.Context) => {
+  /* because of the wizard, we need to accept the query param "state" as an identifier
+   * but we need to prevent anyone of using anything other than the webhookId there for security reasons
+   */
+
+  const query = queryString.parse(req.query)
+
+  return !!(query['state']?.length && query['state'] !== ctx.webhookId)
+}
