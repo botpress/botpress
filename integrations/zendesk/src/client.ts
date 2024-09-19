@@ -1,6 +1,6 @@
-import { z } from '@botpress/sdk'
 import axios, { Axios, AxiosRequestConfig } from 'axios'
 import type { ZendeskUser, ZendeskTicket, ZendeskWebhook } from './definitions/schemas'
+import { summarizeAxiosError } from './misc/axios-utils'
 import { ConditionsData, getTriggerTemplate, type TriggerNames } from './triggers'
 import type { ZendeskEventType } from './webhookEvents'
 import * as bp from '.botpress'
@@ -27,74 +27,6 @@ const makeUsername = (email: string) => {
   return email.endsWith('/token') ? email : `${email}/token`
 }
 
-type AxiosSummaryErrorProps = {
-  request: {
-    method: string
-    baseUrl: string
-    path: string
-    query: string
-  } | null
-  response: {
-    status: number
-    statusText: string
-    data: unknown
-  }
-}
-class AxiosSummaryError extends Error {
-  constructor(props: AxiosSummaryErrorProps) {
-    const { request, response } = props
-    const requestLine = request ? `${request.method} ${request.baseUrl}${request.path}${request.query}` : ''
-    const message = [
-      `Zendesk API error: ${response.status} ${response.statusText}`,
-      requestLine,
-      `Response: ${JSON.stringify(response.data)}`,
-    ]
-      .filter((x) => x)
-      .join('\n')
-    super(message)
-  }
-}
-
-const axiosRequestSchema = z.object({
-  method: z.string(),
-  baseURL: z.string(),
-  path: z.string(),
-  params: z.record(z.string()).optional(),
-})
-const parseRequest = (request: any): AxiosSummaryErrorProps['request'] => {
-  // for some reason request is not properly typed in axios error
-  const parseResult = axiosRequestSchema.safeParse(request)
-  if (!parseResult.success) {
-    return null
-  }
-  const { method, baseURL, path, params } = parseResult.data
-  return {
-    method,
-    baseUrl: baseURL,
-    path,
-    query: params ? `?${new URLSearchParams(params).toString()}` : '',
-  }
-}
-
-/**
- * Axios Requests are too verbose and can pollute logs.
- * This function summarizes the error for better readability.
- */
-const summerizeAxiosError = (thrown: unknown): never => {
-  if (!axios.isAxiosError(thrown)) {
-    throw thrown
-  }
-  const { response, request } = thrown
-  throw new AxiosSummaryError({
-    request: parseRequest(request),
-    response: {
-      status: response?.status ?? 0,
-      statusText: response?.statusText ?? '',
-      data: response?.data ?? {},
-    },
-  })
-}
-
 class ZendeskApi {
   private client: Axios
   constructor(organizationDomain: string, email: string, password: string) {
@@ -111,14 +43,14 @@ class ZendeskApi {
   public async findCustomers(query: string): Promise<ZendeskUser[]> {
     const { data } = await this.client
       .get<{ users: ZendeskUser[] }>(`/api/v2/users/search.json?query=${query}`)
-      .catch(summerizeAxiosError)
+      .catch(summarizeAxiosError)
     return data.users
   }
 
   public async getTicket(ticketId: string) {
     const { data } = await this.client
       .get<{ ticket: ZendeskTicket }>(`/api/v2/tickets/${ticketId}.json`)
-      .catch(summerizeAxiosError)
+      .catch(summarizeAxiosError)
     return data.ticket
   }
 
@@ -133,7 +65,7 @@ class ZendeskApi {
           ...requesterPayload,
         },
       })
-      .catch(summerizeAxiosError)
+      .catch(summarizeAxiosError)
 
     return data.ticket
   }
@@ -150,7 +82,7 @@ class ZendeskApi {
           subscriptions: ['conditional_ticket_events'],
         },
       })
-      .catch(summerizeAxiosError)
+      .catch(summarizeAxiosError)
 
     return data.webhook?.id
   }
@@ -169,17 +101,17 @@ class ZendeskApi {
           title: `bpc_${name}`,
         },
       })
-      .catch(summerizeAxiosError)
+      .catch(summarizeAxiosError)
 
     return `${data.trigger.id}`
   }
 
   public async deleteTrigger(triggerId: string): Promise<void> {
-    await this.client.delete(`/api/v2/triggers/${triggerId}.json`).catch(summerizeAxiosError)
+    await this.client.delete(`/api/v2/triggers/${triggerId}.json`).catch(summarizeAxiosError)
   }
 
   public async unsubscribeWebhook(subscriptionId: string): Promise<void> {
-    await this.client.delete(`/api/v2/webhooks/${subscriptionId}`).catch(summerizeAxiosError)
+    await this.client.delete(`/api/v2/webhooks/${subscriptionId}`).catch(summarizeAxiosError)
   }
 
   public async createComment(ticketId: string, authorId: string, content: string): Promise<void> {
@@ -188,7 +120,7 @@ class ZendeskApi {
         body: content,
         author_id: authorId,
       },
-    }).catch(summerizeAxiosError)
+    }).catch(summarizeAxiosError)
   }
 
   public async updateTicket(ticketId: string | number, updateFields: object): Promise<ZendeskTicket> {
@@ -196,14 +128,14 @@ class ZendeskApi {
       .put<{ ticket: ZendeskTicket }>(`/api/v2/tickets/${ticketId}.json`, {
         ticket: updateFields,
       })
-      .catch(summerizeAxiosError)
+      .catch(summarizeAxiosError)
     return data.ticket
   }
 
   public async getAgents(online?: boolean): Promise<ZendeskUser[]> {
     const { data } = await this.client
       .get<{ users: ZendeskUser[] }>('/api/v2/users.json?role[]=agent&role[]=admin')
-      .catch(summerizeAxiosError)
+      .catch(summarizeAxiosError)
     return online ? data.users.filter((user) => user.user_fields?.availability === 'online') : data.users
   }
 
@@ -212,7 +144,7 @@ class ZendeskApi {
       .post<{ user: ZendeskUser }>('/api/v2/users/create_or_update', {
         user: fields,
       })
-      .catch(summerizeAxiosError)
+      .catch(summarizeAxiosError)
     return data.user
   }
 
@@ -221,14 +153,14 @@ class ZendeskApi {
       .put<{ user: ZendeskUser }>(`/api/v2/users/${userId}.json`, {
         user: fields,
       })
-      .catch(summerizeAxiosError)
+      .catch(summarizeAxiosError)
     return data.user
   }
 
   public async getUser(userId: number | string): Promise<ZendeskUser> {
     const { data } = await this.client
       .get<{ user: ZendeskUser }>(`/api/v2/users/${userId}.json`)
-      .catch(summerizeAxiosError)
+      .catch(summarizeAxiosError)
     return data.user
   }
 
@@ -246,21 +178,21 @@ class ZendeskApi {
           subscriptions,
         },
       })
-      .catch(summerizeAxiosError)
+      .catch(summarizeAxiosError)
   }
 
   public async deleteWebhook(webhookId: string): Promise<void> {
-    await this.client.delete(`/api/v2/webhooks/${webhookId}`).catch(summerizeAxiosError)
+    await this.client.delete(`/api/v2/webhooks/${webhookId}`).catch(summarizeAxiosError)
   }
 
   public async findWebhooks(params?: Record<string, string>): Promise<ZendeskWebhook[]> {
-    const { data } = await this.client.get('/api/v2/webhooks', { params }).catch(summerizeAxiosError)
+    const { data } = await this.client.get('/api/v2/webhooks', { params }).catch(summarizeAxiosError)
 
     return data.webhooks
   }
 
   public async makeRequest(requestConfig: AxiosRequestConfig) {
-    const { data, headers, status } = await this.client.request(requestConfig).catch(summerizeAxiosError)
+    const { data, headers, status } = await this.client.request(requestConfig).catch(summarizeAxiosError)
 
     return {
       data,

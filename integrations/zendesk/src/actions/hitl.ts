@@ -5,6 +5,7 @@ import * as bp from '.botpress'
 type User = bp.ClientResponses['getUser']['user']
 type MessageHistoryElement = NonNullable<bp.actions.startHitl.input.Input['messageHistory']>[number]
 
+// TODO: actually send images and other media to Zendesk instead of converting to text
 const toText = (el: MessageHistoryElement): string => {
   switch (el.type) {
     case 'text':

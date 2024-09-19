@@ -1,6 +1,5 @@
 /* eslint-disable max-lines-per-function */
 import { mkRespond } from 'src/api-utils'
-import util from 'util'
 import { getOrCreateFlow, setFlow } from '../flow-state'
 import { Client, ClientOutputs, MessageHandler } from '../types'
 import * as bp from '.botpress'
@@ -12,7 +11,7 @@ type MessageHistoryElement = NonNullable<StartHitlInput['messageHistory']>[numbe
 class UserLinker {
   public constructor(private _users: Record<string, User>, private _client: Client) {}
 
-  public async linkUsers(upstreamUserId: string): Promise<string> {
+  public async getDownstreamUserId(upstreamUserId: string): Promise<string> {
     let upstreamUser = this._users[upstreamUserId]
     if (!upstreamUser) {
       const { user: fetchedUser } = await this._client.getUser({ id: upstreamUserId })
@@ -24,17 +23,17 @@ class UserLinker {
       return upstreamUser.tags.downstream
     }
 
-    const downstreamUserId = await this._linkUser(upstreamUser)
+    const {
+      downstreamUser: { id: downstreamUserId },
+      upstreamUser: updatedUpstreamUser,
+    } = await this._linkUser(upstreamUser)
+
+    this._users[upstreamUserId] = updatedUpstreamUser
+
     return downstreamUserId
   }
 
-  public debug() {
-    const pairs = Object.entries(this._users).map(([id, { pictureUrl: _, ...user }]) => [id, user])
-    const users = Object.fromEntries(pairs)
-    console.info('Users:', util.inspect(users, { depth: null, colors: true }))
-  }
-
-  private async _linkUser(upstreamUser: User): Promise<string> {
+  private async _linkUser(upstreamUser: User) {
     const {
       output: { userId: downstreamUserId },
     } = await this._client.callAction({
@@ -46,22 +45,24 @@ class UserLinker {
       },
     })
 
-    const { user: updatedUser } = await this._client.updateUser({
+    const { user: updatedUpstreamUser } = await this._client.updateUser({
       id: upstreamUser.id,
       tags: {
         downstream: downstreamUserId,
       },
     })
-    this._users[upstreamUser.id] = updatedUser
 
-    await this._client.updateUser({
+    const { user: updatedDownstreamUser } = await this._client.updateUser({
       id: downstreamUserId,
       tags: {
         upstream: upstreamUser.id,
       },
     })
 
-    return downstreamUserId
+    return {
+      upstreamUser: updatedUpstreamUser,
+      downstreamUser: updatedDownstreamUser,
+    }
   }
 }
 
@@ -87,7 +88,7 @@ export const patientMessageHandler: MessageHandler = async (props) => {
 
   if (!upstreamFlow.hitlEnabled) {
     if (message.payload.text.trim() === '/start_hitl') {
-      const downstreamUserId = await users.linkUsers(upstreamUser.id)
+      const downstreamUserId = await users.getDownstreamUserId(upstreamUser.id)
 
       const { messages: upstreamMessages } = await client.listMessages({
         conversationId: upstreamConversation.id,
@@ -95,16 +96,13 @@ export const patientMessageHandler: MessageHandler = async (props) => {
 
       const messageHistory: MessageHistoryElement[] = []
       for (const message of upstreamMessages) {
-        let source: MessageHistoryElement['source']
-        if (message.direction === 'outgoing') {
-          source = { type: 'bot' }
-        } else {
-          source = {
-            type: 'user',
-            userId: await users.linkUsers(message.userId),
-          }
-        }
-
+        const source =
+          message.direction === 'outgoing'
+            ? { type: 'bot' }
+            : {
+                type: 'user',
+                userId: await users.getDownstreamUserId(message.userId),
+              }
         messageHistory.push({
           source,
           type: message.type,
