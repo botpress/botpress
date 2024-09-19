@@ -5,6 +5,7 @@ const onAgentTyping = {
   description: 'Triggered when the agent is typing',
   schema: z.object({
     botpressConversationId: z.string(),
+    botpressUserId: z.string(),
   }),
   ui: {},
 }
@@ -14,6 +15,7 @@ const onAgentNotTyping = {
   description: 'Triggered when the agent stopped typing',
   schema: z.object({
     botpressConversationId: z.string(),
+    botpressUserId: z.string(),
   }),
   ui: {},
 }
@@ -23,6 +25,7 @@ const onAgentMessage = {
   description: 'Triggered when there is a Agent message',
   schema: z.object({
     botpressConversationId: z.string(),
+    botpressUserId: z.string(),
     message: z.object({ text: z.string(), name: z.string() }),
   }),
   ui: {},
@@ -33,6 +36,7 @@ const onConversationAssigned = {
   description: 'Triggered when the agent is answering the conversation',
   schema: z.object({
     botpressConversationId: z.string(),
+    botpressUserId: z.string(),
     agentName: z.string(),
   }),
   ui: {},
@@ -43,6 +47,7 @@ const onConversationTransferred = {
   description: 'Triggered when the conversation has been transferred to another Agent',
   schema: z.object({
     botpressConversationId: z.string(),
+    botpressUserId: z.string(),
     agentName: z.string(),
   }),
   ui: {},
@@ -53,6 +58,7 @@ const onConversationEnded = {
   description: 'Triggered when the conversation with the LiveAgent has ended',
   schema: z.object({
     botpressConversationId: z.string(),
+    botpressUserId: z.string(),
     reason: z.string()
   }),
   ui: {},
@@ -63,6 +69,7 @@ const onConversationRequestFailed = {
   description: 'Triggered when there was an issue starting a session with LiveAgent',
   schema: z.object({
     botpressConversationId: z.string(),
+    botpressUserId: z.string(),
     reason: z.string()
   }),
   ui: {},
@@ -73,6 +80,7 @@ const onConversationRequestSuccess = {
   description: 'Triggered when the session with LiveAgent starts',
   schema: z.object({
     botpressConversationId: z.string(),
+    botpressUserId: z.string(),
   }),
   ui: {},
 }
@@ -82,6 +90,7 @@ const onQueueUpdated = {
   description: 'Triggered when a update about the queue is received',
   schema: z.object({
     botpressConversationId: z.string(),
+    botpressUserId: z.string(),
     estimatedWaitTime: z.number(),
     position: z.number()
   }),

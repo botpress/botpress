@@ -1,13 +1,14 @@
-import { Conversation } from '@botpress/client'
 import { ChatRequestFailMessage } from 'src/triggers'
 import * as bp from '.botpress'
 
 export const executeConversationRequestFailed = async ({
   botpressConversationId,
+  botpressUserId,
   message,
   client,
 }: {
   botpressConversationId: string
+  botpressUserId: string
   message: ChatRequestFailMessage
   client: bp.Client
 }) => {
@@ -15,6 +16,7 @@ export const executeConversationRequestFailed = async ({
     type: 'onConversationRequestFailed',
     payload: {
       botpressConversationId,
+      botpressUserId,
       reason: message.reason
     },
   })

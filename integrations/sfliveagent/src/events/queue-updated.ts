@@ -1,13 +1,14 @@
-import { Conversation } from '@botpress/client'
 import { QueueUpdateMessage } from 'src/triggers'
 import * as bp from '.botpress'
 
 export const executeQueueUpdated = async ({
   botpressConversationId,
+  botpressUserId,
   message,
   client,
 }: {
   botpressConversationId: string
+  botpressUserId: string
   message: QueueUpdateMessage
   client: bp.Client
 }) => {
@@ -15,6 +16,7 @@ export const executeQueueUpdated = async ({
     type: 'onQueueUpdated',
     payload: {
       botpressConversationId,
+      botpressUserId,
       estimatedWaitTime: message.estimatedWaitTime,
       position: message.position
     },

@@ -3,10 +3,12 @@ import * as bp from '.botpress'
 
 export const executeConversationTransferred = async ({
   botpressConversationId,
+  botpressUserId,
   message,
   client,
 }: {
   botpressConversationId: string
+  botpressUserId: string
   message: ChatTransferredMessage
   client: bp.Client
 }) => {
@@ -14,6 +16,7 @@ export const executeConversationTransferred = async ({
     type: 'onConversationTransferred',
     payload: {
       botpressConversationId,
+      botpressUserId,
       agentName: message.name
     },
   })

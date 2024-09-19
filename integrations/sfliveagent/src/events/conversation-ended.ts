@@ -1,4 +1,3 @@
-import { Conversation } from '@botpress/client'
 import { z } from '@botpress/sdk'
 import * as bp from '.botpress'
 
@@ -8,10 +7,12 @@ export type EndConversationReason = z.output<typeof EndConversationReasonSchema>
 
 export const executeConversationEnded = async ({
   botpressConversationId,
+  botpressUserId,
   client,
   reason = 'UNKNOWN'
 }: {
   botpressConversationId: string
+  botpressUserId: string
   client: bp.Client
   reason?: EndConversationReason
 }) => {
@@ -19,6 +20,7 @@ export const executeConversationEnded = async ({
     type: 'onConversationEnded',
     payload: {
       botpressConversationId,
+      botpressUserId,
       reason
     },
   })

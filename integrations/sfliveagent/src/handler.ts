@@ -1,4 +1,3 @@
-
 import { executeAgentNotTyping } from './events/agent-not-typing'
 import { executeAgentTyping } from './events/agent-typing'
 import { executeConversationAssigned } from './events/conversation-assigned'
@@ -35,6 +34,7 @@ export const handler: IntegrationProps['handler'] = async ({ req, client, logger
     console.log('Got conversation:', linkedConversation)
 
     const botpressConversationId = linkedConversation.tags.botpressConversationId
+    const botpressUserId  = linkedConversation.tags.botpressUserId || ''
 
     if(!botpressConversationId) {
       logger.forBot().error('Botpress conversation does not exist')
@@ -51,15 +51,15 @@ export const handler: IntegrationProps['handler'] = async ({ req, client, logger
           const { type, message } = payloadMessage
           // Process Message
           switch(type) {
-            case 'ChatRequestFail': void executeConversationRequestFailed({ botpressConversationId, message, client }); break
-            case 'ChatRequestSuccess': void executeConversationRequestSuccess({ botpressConversationId, client }); break
-            case 'ChatEstablished': void executeConversationAssigned({ botpressConversationId, message, client }); break
-            case 'ChatTransferred': void executeConversationTransferred({ botpressConversationId, message, client }); break
-            case 'ChatMessage': void  executeAgentMessage({ botpressConversationId, message, client }); break
-            case 'AgentTyping': void executeAgentTyping({ botpressConversationId, client }); break
-            case 'AgentNotTyping': void executeAgentNotTyping({ botpressConversationId, client }); break
-            case 'QueueUpdate': void executeQueueUpdated({ botpressConversationId, message, client }); break
-            case 'ChatEnded': void executeConversationEnded({ botpressConversationId, client, reason: message.reason === 'agent' ? 'AGENT_ENDED' : message.reason }); break
+            case 'ChatRequestFail': void executeConversationRequestFailed({ botpressConversationId, botpressUserId, message, client }); break
+            case 'ChatRequestSuccess': void executeConversationRequestSuccess({ botpressConversationId, botpressUserId, client }); break
+            case 'ChatEstablished': void executeConversationAssigned({ botpressConversationId, botpressUserId, message, client }); break
+            case 'ChatTransferred': void executeConversationTransferred({ botpressConversationId, botpressUserId, message, client }); break
+            case 'ChatMessage': void  executeAgentMessage({ botpressConversationId, botpressUserId, message, client }); break
+            case 'AgentTyping': void executeAgentTyping({ botpressConversationId, botpressUserId, client }); break
+            case 'AgentNotTyping': void executeAgentNotTyping({ botpressConversationId, botpressUserId, client }); break
+            case 'QueueUpdate': void executeQueueUpdated({ botpressConversationId, botpressUserId, message, client }); break
+            case 'ChatEnded': void executeConversationEnded({ botpressConversationId, botpressUserId, client, reason: message.reason === 'agent' ? 'AGENT_ENDED' : message.reason }); break
             default:
               logger.forBot().error('Unsupported message type: ' + JSON.stringify({ type, message }, null, 2))
           }
