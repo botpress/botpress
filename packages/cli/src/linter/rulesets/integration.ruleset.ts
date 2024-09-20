@@ -133,7 +133,7 @@ export const INTEGRATION_RULSESET = {
     'consider-migrating-to-configurations': {
       description:
         'Consider migrating to the new multiple configuration format: move your configuration from "configuration" to "configurations" and remove the "configuration" property',
-      severity: 'hint',
+      severity: 'off',
       given: '$',
       then: [
         { field: 'configuration', function: falsy },

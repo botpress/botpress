@@ -672,31 +672,6 @@ describeRule('events-must-have-a-description', (lint) => {
   })
 })
 
-describeRule('consider-migrating-to-configurations', (lint) => {
-  test('truthy configuration and missing configurations should trigger', async () => {
-    // arrange
-    const definition = { configuration: { schema: {} } } as const
-
-    // act
-    const results = await lint(definition)
-
-    // assert
-    expect(results.length).toBeGreaterThan(0)
-    expect(results[0]?.message).toContain('configuration')
-  })
-
-  test('truthy configurations should not trigger', async () => {
-    // arrange
-    const definition = { configurations: { [CONFIG_NAME]: { schema: {} } } } as const
-
-    // act
-    const results = await lint(definition)
-
-    // assert
-    expect(results).toHaveLength(0)
-  })
-})
-
 describeRule('configuration-fields-must-have-a-title', (lint) => {
   test('missing title should trigger', async () => {
     // arrange
