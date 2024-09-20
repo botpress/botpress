@@ -194,6 +194,28 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  integrations/airtable:
+    dependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      airtable:
+        specifier: ^0.12.2
+        version: 0.12.2
+      axios:
+        specifier: ^1.5.0
+        version: 1.6.7
+    devDependencies:
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.16.16
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.1(@types/node@18.16.16)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   integrations/anthropic:
     dependencies:
       '@anthropic-ai/sdk':
@@ -1050,9 +1072,6 @@ importers:
       telegraf:
         specifier: ^4.16.3
         version: 4.16.3
-      zod:
-        specifier: ^3.20.6
-        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -2541,7 +2560,7 @@ packages:
       browser-or-node: 2.1.1
       isomorphic-ws: 5.0.0(ws@8.13.0)
       ws: 8.13.0
-      zod: 3.22.4
+      zod: 3.20.6
     transitivePeerDependencies:
       - bufferutil
       - utf-8-validate
@@ -4989,6 +5008,10 @@ packages:
       event-target-shim: 5.0.1
     dev: false
 
+  /abortcontroller-polyfill@1.7.5:
+    resolution: {integrity: sha512-JMJ5soJWP18htbbxJjG7bG6yuI6pRhgJ0scHHTfkUjf6wjP912xZWvM+A4sJK3gqd9E8fcPbDnOefbA9Th/FIQ==}
+    dev: false
+
   /acorn-jsx@5.3.2(acorn@8.10.0):
     resolution: {integrity: sha512-rq9s+JNhf0IChjtDXxllJ7g41oZk5SlXtp0LHwyA5cejwn7vKmKp4pPri6YEePv2PU65sAsegbXtIinmDFDXgQ==}
     peerDependencies:
@@ -5051,6 +5074,19 @@ packages:
     dependencies:
       clean-stack: 2.2.0
       indent-string: 4.0.0
+    dev: false
+
+  /airtable@0.12.2:
+    resolution: {integrity: sha512-HS3VytUBTKj8A0vPl7DDr5p/w3IOGv6RXL0fv7eczOWAtj9Xe8ri4TAiZRXoOyo+Z/COADCj+oARFenbxhmkIg==}
+    engines: {node: '>=8.0.0'}
+    dependencies:
+      '@types/node': 10.17.60
+      abort-controller: 3.0.0
+      abortcontroller-polyfill: 1.7.5
+      lodash: 4.17.21
+      node-fetch: 2.7.0
+    transitivePeerDependencies:
+      - encoding
     dev: false
 
   /ajv-draft-04@1.0.0(ajv@8.16.0):
@@ -12327,5 +12363,10 @@ packages:
     resolution: {integrity: sha512-UzIwO92D0dSFwIRyyqAfRXICITLjF0IP8tRbEK/un7adirMssWZx8xF/1hZNE7t61knWZ+lhEuUvxlu2MO8qqA==}
     dev: false
 
+  /zod@3.20.6:
+    resolution: {integrity: sha512-oyu0m54SGCtzh6EClBVqDDlAYRz4jrVtKwQ7ZnsEmMI9HnzuZFj8QFwAY1M5uniIYACdGvv0PBWPF2kO0aNofA==}
+    dev: false
+
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
+    dev: true
