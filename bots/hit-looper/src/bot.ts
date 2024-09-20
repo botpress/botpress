@@ -1,10 +1,10 @@
 import { z } from '@botpress/sdk'
-import * as botpress from '.botpress'
+import * as bp from '.botpress'
 
-const telegram = new botpress.telegram.Telegram()
-const zendesk = new botpress.zendesk.Zendesk()
+const telegram = new bp.telegram.Telegram()
+const zendesk = new bp.zendesk.Zendesk()
 
-export const bot = new botpress.Bot({
+export const bot = new bp.Bot({
   integrations: {
     telegram,
     zendesk,

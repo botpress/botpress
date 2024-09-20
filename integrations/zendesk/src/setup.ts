@@ -72,12 +72,16 @@ export const unregister: IntegrationProps['unregister'] = async ({ ctx, client, 
   })
 
   if (state.payload.subscriptionId?.length) {
-    await zendeskClient.unsubscribeWebhook(state.payload.subscriptionId)
+    await zendeskClient.unsubscribeWebhook(state.payload.subscriptionId).catch((err) => {
+      logger.forBot().error('Could not unsubscribe webhook', err)
+    })
   }
 
   if (state.payload.triggerIds?.length) {
     for (const trigger of state.payload.triggerIds) {
-      await zendeskClient.deleteTrigger(trigger)
+      await zendeskClient.deleteTrigger(trigger).catch((err) => {
+        logger.forBot().error('Could not delete trigger', err)
+      })
     }
   }
 
@@ -86,7 +90,9 @@ export const unregister: IntegrationProps['unregister'] = async ({ ctx, client, 
   })
 
   for (const articleWebhook of articleWebhooks) {
-    await zendeskClient.deleteWebhook(articleWebhook.id)
+    await zendeskClient.deleteWebhook(articleWebhook.id).catch((err) => {
+      logger.forBot().error('Could not delete article webhook', err)
+    })
   }
 
   if (ctx.configuration.syncKnowledgeBaseWithBot) {

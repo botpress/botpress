@@ -1,6 +1,6 @@
 import { InterfaceDeclaration } from '../integration'
 import * as messages from '../message'
-import z from '../zui'
+import z, { AnyZodObject } from '../zui'
 
 const withUserId = <S extends z.AnyZodObject>(s: { schema: S }) => ({
   ...s,
@@ -9,6 +9,22 @@ const withUserId = <S extends z.AnyZodObject>(s: { schema: S }) => ({
       userId: z.string().optional().describe('Allows sending a message pretending to be a certain user'),
     }),
 })
+
+const messageSourceSchema = z.union([
+  z.object({ type: z.literal('user'), userId: z.string() }),
+  z.object({ type: z.literal('bot') }),
+])
+
+type Tuple<T> = [T, T, ...T[]]
+const messagePayloadSchemas: AnyZodObject[] = Object.entries(messages.defaults).map(([k, v]) =>
+  z.object({
+    source: messageSourceSchema,
+    type: z.literal(k),
+    payload: v.schema,
+  })
+)
+
+const messageSchema = z.union(messagePayloadSchemas as Tuple<AnyZodObject>)
 
 export const hitl = new InterfaceDeclaration({
   name: 'hitl',
@@ -53,6 +69,10 @@ export const hitl = new InterfaceDeclaration({
             userId: z.string(),
             title: z.string(),
             description: z.string().optional(),
+            messageHistory: z
+              .array(messageSchema)
+              .optional()
+              .describe('Message history to display in the HITL session'),
           }),
       },
       output: {

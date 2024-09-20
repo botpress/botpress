@@ -28,7 +28,7 @@ class Tags<T extends Record<string, string>> {
 export default {
   hitl: {
     messages: {
-      text: async ({ client, ...props }: bp.AnyMessageProps) => {
+      text: async ({ client, ...props }) => {
         const { text, userId } = props.payload
 
         const conversationTags = Tags.of(props.conversation, props.logger)
