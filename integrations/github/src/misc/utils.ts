@@ -1,118 +1,162 @@
-import type { Conversation } from '@botpress/client'
-import type { WebhookEvent } from '@octokit/webhooks-types'
-import { INTEGRATION_NAME } from '../const'
-import {
-  isDiscussionCommentCreatedEvent,
-  isDiscussionCreatedEvent,
-  isIssueCommentCreatedEvent,
-  isIssueOpenedEvent,
-  isPullRequestCommentCreatedEvent,
-  isPullRequestOpenedEvent,
-} from './guards'
+import { RuntimeError } from '@botpress/client'
+import { GitHubClient } from './github-client'
+
 import * as types from './types'
 
-type CommonMessage = { content: string; conversationId: number; userId: number; messageId: number }
+export const getTagOrThrowException = <R extends Record<string, string>>(tags: R, name: Extract<keyof R, string>) => {
+  const value = tags[name]
 
-type PullRequestMessage = CommonMessage & { channel: 'pullRequest' }
-type IssueMessage = CommonMessage & { channel: 'issue' }
-type DiscussionMessage = CommonMessage & { channel: 'discussion' }
-
-type GithubMessage = PullRequestMessage | IssueMessage | DiscussionMessage
-
-export const parseGithubEvent = (event: WebhookEvent): GithubMessage | undefined => {
-  if (isPullRequestOpenedEvent(event)) {
-    return {
-      content: event.pull_request.body ?? '',
-      conversationId: event.pull_request.number,
-      userId: event.pull_request.user.id,
-      messageId: event.pull_request.id,
-      channel: 'pullRequest',
-    }
+  if (!value) {
+    throw new Error(`Missing tag ${name}`)
   }
 
-  if (isPullRequestCommentCreatedEvent(event)) {
-    return {
-      content: event.comment.body,
-      conversationId: event.issue.number,
-      userId: event.comment.user.id,
-      messageId: event.comment.id,
-      channel: 'pullRequest',
-    }
-  }
-
-  if (isIssueOpenedEvent(event)) {
-    return {
-      content: event.issue.body ?? '',
-      conversationId: event.issue.number,
-      userId: event.issue.user.id,
-      messageId: event.issue.id,
-      channel: 'issue',
-    }
-  }
-
-  if (isIssueCommentCreatedEvent(event)) {
-    return {
-      content: event.comment.body ?? '',
-      conversationId: event.issue.number,
-      userId: event.comment.user.id,
-      messageId: event.comment.id,
-      channel: 'issue',
-    }
-  }
-
-  if (isDiscussionCommentCreatedEvent(event)) {
-    return {
-      content: event.comment.body ?? '',
-      conversationId: event.discussion.number,
-      userId: event.comment.user.id,
-      messageId: event.comment.id,
-      channel: 'discussion',
-    }
-  }
-
-  if (isDiscussionCreatedEvent(event)) {
-    return {
-      content: event.discussion.body ?? '',
-      conversationId: event.discussion.number,
-      userId: event.discussion.user.id,
-      messageId: event.discussion.id,
-      channel: 'discussion',
-    }
-  }
-
-  return
+  return value
 }
 
-export function getConversationId(conversation: Conversation): number {
-  const id = getTag(conversation.tags, 'number')
-
-  if (!id) {
-    throw Error(`No chat found for conversation ${conversation.id}`)
-  }
-
-  return Number(id)
+type GitHubUser = {
+  login: string
+  avatar_url: string
+  html_url: string
+  node_id: string
+  id: number
 }
-
-export async function ackMessage(messageId: number, ack: types.AckFunction) {
-  await ack({ tags: { id: messageId.toString() } })
-}
-
-export const getTag = (tags: Record<string, string>, name: string) => {
-  return tags[`${INTEGRATION_NAME}:${name}`]
-}
-
-export const getUserAndConversation = async (
-  props: { githubUserId: string | number; githubChannelId: string | number; githubChannel: 'pullRequest' },
+export const getOrCreateBotpressUserFromGithubUser = async ({
+  githubUser,
+  client,
+}: {
+  githubUser: GitHubUser
   client: types.Client
-) => {
-  const { conversation } = await client.getOrCreateConversation({
-    channel: props.githubChannel,
-    tags: { number: props.githubChannelId.toString() },
+}) => {
+  const { users } = await client.listUsers({
+    tags: {
+      nodeId: githubUser.node_id,
+    },
   })
-  const { user } = await client.getOrCreateUser({ tags: { id: props.githubUserId.toString() } })
 
-  return {
-    userId: user.id,
-    conversationId: conversation.id,
+  if (users.length && users[0]) {
+    return users[0]
   }
+
+  const { user } = await client.createUser({
+    name: githubUser.login,
+    pictureUrl: githubUser.avatar_url,
+    tags: {
+      handle: githubUser.login,
+      nodeId: githubUser.node_id,
+      id: githubUser.id.toString(),
+      profileUrl: githubUser.html_url,
+    },
+  })
+
+  return user
+}
+
+type GitHubPullRequest = {
+  number: number
+  node_id: string
+  html_url: string
+  repository: {
+    id: number
+    name: string
+    node_id: string
+    owner: {
+      id: number
+      login: string
+      html_url: string
+    }
+    html_url: string
+  }
+}
+export const getOrCreateBotpressConversationFromGithubPR = async ({
+  githubPullRequest,
+  client,
+}: {
+  githubPullRequest: GitHubPullRequest
+  client: types.Client
+}) => {
+  const { conversations } = await client.listConversations({
+    tags: {
+      // @ts-ignore: there seems to be a bug with ToTags<keyof AllChannels<TIntegration>['conversation']['tags']> :
+      // it only contains _shared_ tags, as opposed to containing _all_ tags
+      pullRequestNodeId: githubPullRequest.node_id,
+      channel: 'pullRequest',
+    },
+  })
+
+  if (conversations.length && conversations[0]) {
+    return conversations[0]
+  }
+
+  const { conversation } = await client.createConversation({
+    channel: 'pullRequest',
+    tags: {
+      channel: 'pullRequest',
+      pullRequestNodeId: githubPullRequest.node_id,
+      pullRequestNumber: githubPullRequest.number.toString(),
+      pullRequestUrl: githubPullRequest.html_url,
+      repoId: githubPullRequest.repository.id.toString(),
+      repoName: githubPullRequest.repository.name,
+      repoNodeId: githubPullRequest.repository.node_id,
+      repoOwnerId: githubPullRequest.repository.owner.id.toString(),
+      repoOwnerName: githubPullRequest.repository.owner.login,
+      repoOwnerUrl: githubPullRequest.repository.owner.html_url,
+      repoUrl: githubPullRequest.repository.html_url,
+    },
+  })
+
+  return conversation
+}
+
+export const configureOrganizationHandle = async ({
+  ctx,
+  client,
+  gh,
+}: {
+  ctx: types.Context
+  client: types.Client
+  gh: GitHubClient
+}) => {
+  const { organizationHandle } = await gh.getAuthenticatedEntity()
+
+  await client.setState({
+    type: 'integration',
+    name: 'configuration',
+    id: ctx.integrationId,
+    payload: {
+      organizationHandle,
+    },
+  })
+}
+
+const _saveInstallationId = async ({
+  ctx,
+  client,
+  installationId,
+}: {
+  ctx: types.Context
+  client: types.Client
+  installationId: number
+}) => {
+  await client.setState({
+    type: 'integration',
+    name: 'configuration',
+    id: ctx.integrationId,
+    payload: {
+      githubInstallationId: installationId,
+    },
+  })
+}
+
+export const handleOauth = async (req: types.Request, client: types.Client, ctx: types.Context) => {
+  const parsedQueryString = new URLSearchParams(req.query)
+  const installationIdStr = parsedQueryString.get('installation_id')
+
+  if (!installationIdStr) {
+    throw new RuntimeError('Missing installation_id in query string')
+  }
+
+  const installationId = Number(installationIdStr)
+
+  await _saveInstallationId({ ctx, client, installationId })
+  await client.configureIntegration({ identifier: installationIdStr })
 }

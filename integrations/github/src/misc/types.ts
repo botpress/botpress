@@ -1,7 +1,9 @@
 import * as sdk from '@botpress/sdk'
 import * as bp from '.botpress'
 
+export type Context = bp.Context
 export type Client = bp.Client
+export type Request = sdk.Request
 export type User = bp.ClientResponses['getUser']['user']
 export type Message = bp.ClientResponses['createMessage']['message']
 export type Conversation = bp.ClientResponses['getConversation']['conversation']

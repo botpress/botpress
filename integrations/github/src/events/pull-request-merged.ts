@@ -1,14 +1,17 @@
 import { PullRequestClosedEvent } from '@octokit/webhooks-types'
-import { Client } from '../misc/types'
-import { getUserAndConversation } from '../misc/utils'
+import { getOrCreateBotpressConversationFromGithubPR, getOrCreateBotpressUserFromGithubUser } from '../misc/utils'
+import { HandlerProps } from '.botpress'
 
 export const firePullRequesMerged = async ({
   githubEvent,
   client,
-}: {
+}: HandlerProps & {
   githubEvent: PullRequestClosedEvent
-  client: Client
 }) => {
+  const githubPullRequest = { ...githubEvent.pull_request, repository: githubEvent.repository }
+  const conversation = await getOrCreateBotpressConversationFromGithubPR({ githubPullRequest, client })
+  const user = await getOrCreateBotpressUserFromGithubUser({ githubUser: githubEvent.pull_request.user, client })
+
   await client.createEvent({
     type: 'pullRequestMerged',
     payload: {
@@ -19,14 +22,10 @@ export const firePullRequesMerged = async ({
       targets: {
         pullRequest: githubEvent.pull_request.number.toString(),
       },
-      ...(await getUserAndConversation(
-        {
-          githubUserId: githubEvent.pull_request.user.id,
-          githubChannelId: githubEvent.pull_request.number,
-          githubChannel: 'pullRequest',
-        },
-        client
-      )),
+      conversationId: conversation.id,
+      userId: user.id,
     },
+    conversationId: conversation.id,
+    userId: user.id,
   })
 }
