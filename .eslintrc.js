@@ -54,14 +54,7 @@ module.exports = {
     'no-debugger': 'error',
     'no-sparse-arrays': 'error',
     'no-unreachable': 'error',
-    'max-lines-per-function': [
-      'error',
-      {
-        max: 120,
-        skipBlankLines: true,
-        skipComments: true,
-      },
-    ],
+    'max-lines-per-function': 'off',
     'default-case': 'error',
     'default-case-last': 'error',
     'max-depth': 'error',

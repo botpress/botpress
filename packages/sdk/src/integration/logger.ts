@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import util from 'util'
 
 const serializeForBotMessage = (args: Parameters<typeof util.format>) => {

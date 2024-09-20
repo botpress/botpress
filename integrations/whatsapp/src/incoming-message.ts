@@ -1,4 +1,3 @@
-/* eslint-disable max-lines-per-function */
 import * as types from './types'
 import { getWhatsAppMediaUrl } from './util'
 import { WhatsAppMessage, WhatsAppValue } from './whatsapp-types'

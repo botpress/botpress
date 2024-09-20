@@ -124,7 +124,6 @@ const integration = new bp.Integration({
       },
     },
   },
-  // eslint-disable-next-line max-lines-per-function
   handler: async (props) => {
     console.info('handler received a request')
 
