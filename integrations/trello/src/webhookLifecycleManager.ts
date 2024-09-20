@@ -6,37 +6,37 @@ import { TrelloWebhookRepository } from './repositories'
 import { getServices } from './services/servicesContainer'
 
 export class WebhookLifecycleManager {
-  private readonly webhookRepository: TrelloWebhookRepository
+  private readonly _webhookRepository: TrelloWebhookRepository
 
   public constructor(
-    private readonly ctx: bp.Context,
-    private readonly client: bp.Client,
-    private readonly logger: bp.Logger
+    private readonly _ctx: bp.Context,
+    private readonly _client: bp.Client,
+    private readonly _logger: bp.Logger
   ) {
-    const { webhookRepository } = getServices(ctx)
-    this.webhookRepository = webhookRepository
+    const { webhookRepository } = getServices(_ctx)
+    this._webhookRepository = webhookRepository
   }
 
   public async registerTrelloWebhookIfNotExists(webhookUrl: string) {
-    if (!this.ctx.configuration.trelloBoardId) {
-      this.logger.forBot().warn('No Trello board id provided. Skipping webhook registration...')
+    if (!this._ctx.configuration.trelloBoardId) {
+      this._logger.forBot().warn('No Trello board id provided. Skipping webhook registration...')
       return
     }
 
-    if (await this.getWebhookId()) {
-      this.logger.forBot().debug('Webhook already registered. Skipping registration...')
+    if (await this._getWebhookId()) {
+      this._logger.forBot().debug('Webhook already registered. Skipping registration...')
       return
     }
 
-    await this.registerTrelloWebhook(webhookUrl)
+    await this._registerTrelloWebhook(webhookUrl)
   }
 
-  private async getWebhookId() {
+  private async _getWebhookId() {
     try {
-      const webhookState = await this.client.getState({
+      const webhookState = await this._client.getState({
         type: 'integration',
         name: States.webhookState,
-        id: this.ctx.integrationId,
+        id: this._ctx.integrationId,
       })
 
       return webhookState.state.payload.trelloWebhookId ?? null
@@ -45,26 +45,26 @@ export class WebhookLifecycleManager {
     }
   }
 
-  private async registerTrelloWebhook(webhookUrl: string) {
-    this.logger.forBot().info('Registering Trello webhook...')
+  private async _registerTrelloWebhook(webhookUrl: string) {
+    this._logger.forBot().info('Registering Trello webhook...')
 
     try {
-      const webhookId = await this.webhookRepository.createWebhook(
-        integrationName + this.ctx.integrationId,
+      const webhookId = await this._webhookRepository.createWebhook(
+        integrationName + this._ctx.integrationId,
         webhookUrl,
-        this.ctx.configuration.trelloBoardId as string
+        this._ctx.configuration.trelloBoardId as string
       )
-      await this.setWebhookId(webhookId)
+      await this._setWebhookId(webhookId)
     } catch (error) {
       throw new sdk.RuntimeError(`Unable to register Trello webhook: ${error}`)
     }
   }
 
-  private async setWebhookId(webhookId: string) {
-    await this.client.setState({
+  private async _setWebhookId(webhookId: string) {
+    await this._client.setState({
       type: 'integration',
       name: States.webhookState,
-      id: this.ctx.integrationId,
+      id: this._ctx.integrationId,
       payload: {
         trelloWebhookId: webhookId,
       },
@@ -72,26 +72,26 @@ export class WebhookLifecycleManager {
   }
 
   public async unregisterTrelloWebhookIfExists() {
-    const webhookId = await this.getWebhookId()
+    const webhookId = await this._getWebhookId()
 
     if (!webhookId) {
-      this.logger.forBot().warn('No webhook is currently registered for this integration. Skipping unregistration...')
+      this._logger.forBot().warn('No webhook is currently registered for this integration. Skipping unregistration...')
       return
     }
 
-    await this.unregisterTrelloWebhook(webhookId)
+    await this._unregisterTrelloWebhook(webhookId)
   }
 
-  private async unregisterTrelloWebhook(webhookId: string) {
-    this.logger.forBot().info(`Unregistering webhook id ${webhookId} on Trello...`)
+  private async _unregisterTrelloWebhook(webhookId: string) {
+    this._logger.forBot().info(`Unregistering webhook id ${webhookId} on Trello...`)
 
     try {
-      await this.webhookRepository.deleteWebhook(webhookId)
+      await this._webhookRepository.deleteWebhook(webhookId)
     } catch (_) {
-      this.logger.forBot().warn(`Webhook id ${webhookId} is already unregistered`)
+      this._logger.forBot().warn(`Webhook id ${webhookId} is already unregistered`)
     }
 
-    this.logger.forBot().info(`Webhook id ${webhookId} unregistered`)
-    await this.setWebhookId('')
+    this._logger.forBot().info(`Webhook id ${webhookId} unregistered`)
+    await this._setWebhookId('')
   }
 }

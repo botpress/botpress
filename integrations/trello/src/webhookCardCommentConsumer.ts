@@ -15,38 +15,38 @@ type TrelloMessageData = {
 
 export class WebhookCardCommentConsumer {
   public constructor(
-    private readonly client: bp.HandlerProps['client'],
-    private readonly cardCommentEvent: CommentCardEvent
+    private readonly _client: bp.HandlerProps['client'],
+    private readonly _cardCommentEvent: CommentCardEvent
   ) {}
 
   public async consumeComment() {
-    const messageData = this.extractMessageDataFromEvent()
-    const conversation = await this.getOrCreateConversation(messageData)
-    const user = await this.getOrCreateUser(messageData)
+    const messageData = this._extractMessageDataFromEvent()
+    const conversation = await this._getOrCreateConversation(messageData)
+    const user = await this._getOrCreateUser(messageData)
 
-    if (this.checkIfMessageWasSentByOurselvesAndShouldBeIgnored(conversation, messageData)) {
+    if (this._checkIfMessageWasSentByOurselvesAndShouldBeIgnored(conversation, messageData)) {
       return
     }
 
-    await this.createMessage(user, conversation, messageData)
+    await this._createMessage(user, conversation, messageData)
   }
 
-  private extractMessageDataFromEvent() {
+  private _extractMessageDataFromEvent() {
     return {
-      cardId: this.cardCommentEvent.action.data.card.id,
-      cardName: this.cardCommentEvent.action.data.card.name,
-      listId: this.cardCommentEvent.action.data.list?.id ?? '',
-      listName: this.cardCommentEvent.action.data.list?.name ?? '',
-      messageId: this.cardCommentEvent.action.id,
-      messageText: this.cardCommentEvent.action.data.text,
-      messageAuthorId: this.cardCommentEvent.action.memberCreator.id,
-      messageAuthorName: this.cardCommentEvent.action.memberCreator.fullName,
-      messageAuthorAvatar: this.cardCommentEvent.action.memberCreator.avatarUrl + '/50.png',
+      cardId: this._cardCommentEvent.action.data.card.id,
+      cardName: this._cardCommentEvent.action.data.card.name,
+      listId: this._cardCommentEvent.action.data.list?.id ?? '',
+      listName: this._cardCommentEvent.action.data.list?.name ?? '',
+      messageId: this._cardCommentEvent.action.id,
+      messageText: this._cardCommentEvent.action.data.text,
+      messageAuthorId: this._cardCommentEvent.action.memberCreator.id,
+      messageAuthorName: this._cardCommentEvent.action.memberCreator.fullName,
+      messageAuthorAvatar: this._cardCommentEvent.action.memberCreator.avatarUrl + '/50.png',
     } as const satisfies TrelloMessageData
   }
 
-  private async getOrCreateConversation(messageData: TrelloMessageData) {
-    const { conversation } = await this.client.getOrCreateConversation({
+  private async _getOrCreateConversation(messageData: TrelloMessageData) {
+    const { conversation } = await this._client.getOrCreateConversation({
       channel: 'cardComments',
       tags: {
         cardId: messageData.cardId,
@@ -59,8 +59,8 @@ export class WebhookCardCommentConsumer {
     return conversation
   }
 
-  private async getOrCreateUser(messageData: TrelloMessageData) {
-    const { user } = await this.client.getOrCreateUser({
+  private async _getOrCreateUser(messageData: TrelloMessageData) {
+    const { user } = await this._client.getOrCreateUser({
       tags: {
         userId: messageData.messageAuthorId,
       },
@@ -71,19 +71,19 @@ export class WebhookCardCommentConsumer {
     return user
   }
 
-  private checkIfMessageWasSentByOurselvesAndShouldBeIgnored(
+  private _checkIfMessageWasSentByOurselvesAndShouldBeIgnored(
     conversation: Awaited<ReturnType<bp.Client['getOrCreateConversation']>>['conversation'],
     messageData: TrelloMessageData
   ) {
     return conversation.tags.lastCommentId === messageData.messageId
   }
 
-  private async createMessage(
+  private async _createMessage(
     user: Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user'],
     conversation: Awaited<ReturnType<bp.Client['getOrCreateConversation']>>['conversation'],
     messageData: TrelloMessageData
   ) {
-    await this.client.createMessage({
+    await this._client.createMessage({
       tags: {
         commentId: messageData.messageId,
       },

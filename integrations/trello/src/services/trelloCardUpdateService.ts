@@ -18,8 +18,8 @@ export type CardModificationRequest = {
 
 export class TrelloCardUpdateService {
   public constructor(
-    private readonly cardRepository: TrelloCardRepository,
-    private readonly listRepository: TrelloListRepository
+    private readonly _cardRepository: TrelloCardRepository,
+    private readonly _listRepository: TrelloListRepository
   ) {}
 
   public async moveCardVertically(cardId: string, nbPositions: number): Promise<void> {
@@ -27,19 +27,19 @@ export class TrelloCardUpdateService {
       return
     }
 
-    const card = await this.cardRepository.getCardById(cardId)
-    const cardsInList = await this.listRepository.getCardsInList(card.listId)
+    const card = await this._cardRepository.getCardById(cardId)
+    const cardsInList = await this._listRepository.getCardsInList(card.listId)
     const cardIndex = cardsInList.findIndex((c) => nameCompare(c.name, card.name))
 
     const updatedCard =
       nbPositions > 0
-        ? this.moveCardUp(cardsInList, cardIndex, nbPositions)
-        : this.moveCardDown(cardsInList, cardIndex, -nbPositions)
+        ? this._moveCardUp(cardsInList, cardIndex, nbPositions)
+        : this._moveCardDown(cardsInList, cardIndex, -nbPositions)
 
-    await this.cardRepository.updateCard(updatedCard)
+    await this._cardRepository.updateCard(updatedCard)
   }
 
-  private moveCardUp(cards: Card[], cardIndex: number, nbPositions: number): Card {
+  private _moveCardUp(cards: Card[], cardIndex: number, nbPositions: number): Card {
     if (cardIndex - nbPositions < 0) {
       throw new Error(
         `Impossible to move the card up by ${nbPositions} positions, as it would put the card out of bounds`
@@ -56,7 +56,7 @@ export class TrelloCardUpdateService {
     return card
   }
 
-  private moveCardDown(cards: Card[], cardIndex: number, nbPositions: number): Card {
+  private _moveCardDown(cards: Card[], cardIndex: number, nbPositions: number): Card {
     if (cardIndex + nbPositions >= cards.length) {
       throw new Error(
         `Impossible to move the card down by ${nbPositions} positions, as it would put the card out of bounds`
@@ -74,16 +74,16 @@ export class TrelloCardUpdateService {
   }
 
   public async moveCardToOtherList(cardId: string, newListId: string): Promise<void> {
-    const card = await this.cardRepository.getCardById(cardId)
-    const newList = await this.listRepository.getListById(newListId)
+    const card = await this._cardRepository.getCardById(cardId)
+    const newList = await this._listRepository.getListById(newListId)
 
     card.listId = newList.id
 
-    await this.cardRepository.updateCard(card)
+    await this._cardRepository.updateCard(card)
   }
 
   public async updateCard(cardId: Card['id'], modifications: Partial<CardModificationRequest>): Promise<void> {
-    const card = await this.cardRepository.getCardById(cardId)
+    const card = await this._cardRepository.getCardById(cardId)
 
     const cardData: Partial<Card> & Pick<Card, 'id'> = {
       id: cardId,
@@ -100,6 +100,6 @@ export class TrelloCardUpdateService {
       ),
     } as const
 
-    await this.cardRepository.updateCard(cardData)
+    await this._cardRepository.updateCard(cardData)
   }
 }

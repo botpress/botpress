@@ -12,71 +12,71 @@ import * as bp from '../.botpress'
 import { WebhookCardCommentConsumer } from './webhookCardCommentConsumer'
 
 export class WebhookEventConsumer {
-  private readonly ctx: bp.HandlerProps['ctx']
-  private readonly client: bp.HandlerProps['client']
-  private readonly rawRequest: bp.HandlerProps['req']
-  private parsedWebhookEvent?: genericWebhookEvent
+  private readonly _ctx: bp.HandlerProps['ctx']
+  private readonly _client: bp.HandlerProps['client']
+  private readonly _rawRequest: bp.HandlerProps['req']
+  private _parsedWebhookEvent?: genericWebhookEvent
 
   public constructor({ req, client, ctx }: bp.HandlerProps) {
-    this.ctx = ctx
-    this.client = client
-    this.rawRequest = req
+    this._ctx = ctx
+    this._client = client
+    this._rawRequest = req
   }
 
   public async consumeWebhookEvent() {
-    if (!this.ensureBodyIsPresent()) {
+    if (!this._ensureBodyIsPresent()) {
       return
     }
 
-    this.parseWebhookEvent()
-    await this.ensureWebhookIsAuthenticated()
-    await this.handleWebhookEvent()
+    this._parseWebhookEvent()
+    await this._ensureWebhookIsAuthenticated()
+    await this._handleWebhookEvent()
   }
 
-  private ensureBodyIsPresent() {
-    return this.rawRequest.body?.length ?? 0 > 0
+  private _ensureBodyIsPresent() {
+    return this._rawRequest.body?.length ?? 0 > 0
   }
 
-  private parseWebhookEvent() {
-    const body = JSON.parse(this.rawRequest.body as string)
+  private _parseWebhookEvent() {
+    const body = JSON.parse(this._rawRequest.body as string)
     const { success, error, data } = genericWebhookEventSchema.passthrough().safeParse(body)
 
     if (!success) {
       throw new RuntimeError('Invalid webhook event body', error)
     }
 
-    this.parsedWebhookEvent = { ...data, action: { ...data.action, type: data.action.type as allSupportedEvents } }
+    this._parsedWebhookEvent = { ...data, action: { ...data.action, type: data.action.type as allSupportedEvents } }
   }
 
-  private async ensureWebhookIsAuthenticated() {
-    const { state } = await this.client.getState({
+  private async _ensureWebhookIsAuthenticated() {
+    const { state } = await this._client.getState({
       type: 'integration',
       name: States.webhookState,
-      id: this.ctx.integrationId,
+      id: this._ctx.integrationId,
     })
 
-    if (this.parsedWebhookEvent?.webhook.id !== state.payload.trelloWebhookId) {
+    if (this._parsedWebhookEvent?.webhook.id !== state.payload.trelloWebhookId) {
       throw new RuntimeError('Webhook request is not properly authenticated')
     }
   }
 
-  private async handleWebhookEvent() {
-    await Promise.allSettled([this.handleCardComments(), this.publishEventToBotpress()])
+  private async _handleWebhookEvent() {
+    await Promise.allSettled([this._handleCardComments(), this._publishEventToBotpress()])
   }
 
-  private async handleCardComments() {
-    if (!this.parsedWebhookEvent || this.parsedWebhookEvent.action.type !== TRELLO_EVENTS.commentCard) {
+  private async _handleCardComments() {
+    if (!this._parsedWebhookEvent || this._parsedWebhookEvent.action.type !== TRELLO_EVENTS.commentCard) {
       return
     }
 
-    const cardCreationEvent = commentCardEventSchema.parse(this.parsedWebhookEvent)
+    const cardCreationEvent = commentCardEventSchema.parse(this._parsedWebhookEvent)
 
-    const consumer = new WebhookCardCommentConsumer(this.client, cardCreationEvent)
+    const consumer = new WebhookCardCommentConsumer(this._client, cardCreationEvent)
     await consumer.consumeComment()
   }
 
-  private async publishEventToBotpress() {
-    if (!this.parsedWebhookEvent || !Reflect.has(TRELLO_EVENTS, this.parsedWebhookEvent.action.type)) {
+  private async _publishEventToBotpress() {
+    if (!this._parsedWebhookEvent || !Reflect.has(TRELLO_EVENTS, this._parsedWebhookEvent.action.type)) {
       return
     }
 
@@ -84,13 +84,13 @@ export class WebhookEventConsumer {
       z.object({
         action: genericWebhookEventSchema.shape.action.merge(
           z.object({
-            data: events[this.parsedWebhookEvent.action.type].schema,
+            data: events[this._parsedWebhookEvent.action.type].schema,
           })
         ),
       })
     )
-    const validatedData = eventSchema.passthrough().parse(this.parsedWebhookEvent).action.data
+    const validatedData = eventSchema.passthrough().parse(this._parsedWebhookEvent).action.data
 
-    await this.client.createEvent({ type: this.parsedWebhookEvent.action.type, payload: validatedData })
+    await this._client.createEvent({ type: this._parsedWebhookEvent.action.type, payload: validatedData })
   }
 }
