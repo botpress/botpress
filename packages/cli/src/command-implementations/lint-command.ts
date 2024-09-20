@@ -12,7 +12,7 @@ export class LintCommand extends ProjectCommand<LintCommandDefinition> {
 
     switch (projectDef.type) {
       case 'integration':
-        return this.runLintForIntegration(projectDef.definition)
+        return this._runLintForIntegration(projectDef.definition)
       case 'bot':
         throw new errors.BotpressCLIError('Bot linting is not yet implemented')
       case 'interface':
@@ -22,7 +22,7 @@ export class LintCommand extends ProjectCommand<LintCommandDefinition> {
     }
   }
 
-  private async runLintForIntegration(definition: IntegrationDefinition): Promise<void> {
+  private async _runLintForIntegration(definition: IntegrationDefinition): Promise<void> {
     const parsedIntegrationDefinition = prepareCreateIntegrationBody(definition)
     const linter = new IntegrationLinter(parsedIntegrationDefinition)
 

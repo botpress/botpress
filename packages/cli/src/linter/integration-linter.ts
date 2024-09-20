@@ -7,47 +7,47 @@ import { INTEGRATION_RULSESET } from './rulesets/integration.ruleset'
 type ProblemSeverity = 0 | 1 | 2 | 3
 
 export class IntegrationLinter {
-  private readonly spectral: Spectral
-  private readonly spectralDocument: Document<unknown, JsonParserResult<unknown>>
-  private results: ISpectralDiagnostic[] = []
+  private readonly _spectral: Spectral
+  private readonly _spectralDocument: Document<unknown, JsonParserResult<unknown>>
+  private _results: ISpectralDiagnostic[] = []
 
   public constructor(definition: CreateIntegrationBody) {
     const json = JSON.stringify(definition).replaceAll('"$ref":', '"_$ref":')
-    this.spectralDocument = new Document(json, JsonParser)
-    this.spectral = new Spectral()
+    this._spectralDocument = new Document(json, JsonParser)
+    this._spectral = new Spectral()
 
-    this.spectral.setRuleset(INTEGRATION_RULSESET)
+    this._spectral.setRuleset(INTEGRATION_RULSESET)
   }
 
   public async lint(): Promise<void> {
-    this.results = await this.spectral.run(this.spectralDocument)
+    this._results = await this._spectral.run(this._spectralDocument)
   }
 
   public logResults(logger: Logger) {
     for (const result of this.getSortedResults()) {
       const message = `${result.path}: ${result.message}`
 
-      this.logResultMessage(logger, message, result.severity)
+      this._logResultMessage(logger, message, result.severity)
     }
   }
 
   public getSortedResults() {
-    return this.getResults().sort((a, b) => (a.path > b.path ? 1 : a.path < b.path ? -1 : 0))
+    return this._getResults().sort((a, b) => (a.path > b.path ? 1 : a.path < b.path ? -1 : 0))
   }
 
-  private getResults() {
-    return this.results.map((result) => ({
+  private _getResults() {
+    return this._results.map((result) => ({
       message: result.message,
-      path: this.simplifyPath(result.path),
+      path: this._simplifyPath(result.path),
       severity: result.severity as ProblemSeverity,
     }))
   }
 
-  private simplifyPath(path: (string | number)[]) {
+  private _simplifyPath(path: (string | number)[]) {
     return path.join('.').replaceAll('.properties.', '.').replaceAll('.x-zui', '')
   }
 
-  private logResultMessage(logger: Logger, message: string, severity: ProblemSeverity) {
+  private _logResultMessage(logger: Logger, message: string, severity: ProblemSeverity) {
     const logLevelMapping = {
       0: logger.error,
       1: logger.warn,
@@ -55,6 +55,6 @@ export class IntegrationLinter {
       3: logger.debug,
     } as const
 
-    logLevelMapping[severity](message)
+    logLevelMapping[severity].call(logger, message)
   }
 }
