@@ -1,18 +1,18 @@
 {
   "name": "@botpresshub/airtable",
+  "description": "Airtable integration for Botpress",
+  "private": true,
   "scripts": {
     "start": "pnpm bp serve",
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
-    "type:check": "tsc --noEmit",
-    "test": "echo \"Tests not implemented yet.\""
+    "login": "pnpm bp login",
+    "check:type": "tsc --noEmit"
   },
   "keywords": [],
-  "private": true,
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "airtable": "^0.12.2",
     "axios": "^1.5.0"

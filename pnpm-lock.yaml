@@ -196,9 +196,6 @@ importers:
 
   integrations/airtable:
     dependencies:
-      '@botpress/client':
-        specifier: workspace:*
-        version: link:../../packages/client
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
