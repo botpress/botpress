@@ -1,7 +1,7 @@
-import { ReactionAddedEvent } from '@slack/bolt'
+import { ReactionAddedEvent } from '@slack/types'
 
 import { Client } from '../misc/types'
-import { getUserAndConversation } from '../misc/utils'
+import { getMessageFromSlackEvent, getUserAndConversation } from '../misc/utils'
 
 export const executeReactionAdded = async ({
   slackEvent,
@@ -15,6 +15,8 @@ export const executeReactionAdded = async ({
     client
   )
 
+  const message = await getMessageFromSlackEvent(client, slackEvent)
+
   await client.createEvent({
     type: 'reactionAdded',
     payload: {
@@ -27,5 +29,8 @@ export const executeReactionAdded = async ({
       userId,
       conversationId,
     },
+    conversationId,
+    userId,
+    messageId: message?.id,
   })
 }
