@@ -5,17 +5,25 @@ import { createDeployBot } from './tests/create-deploy-bot'
 import { createDeployIntegration } from './tests/create-deploy-integration'
 import { devBot } from './tests/dev-bot'
 import { requiredSecrets } from './tests/integration-secrets'
+import { prependWorkspaceHandle, enforceWorkspaceHandle } from './tests/manage-workspace-handle'
 import { Test } from './typings'
 import { sleep, TmpDirectory } from './utils'
 
-const tests: Test[] = [createDeployBot, createDeployIntegration, devBot, requiredSecrets]
+const tests: Test[] = [
+  createDeployBot,
+  createDeployIntegration,
+  devBot,
+  requiredSecrets,
+  prependWorkspaceHandle,
+  enforceWorkspaceHandle,
+]
 
 const timeout = (ms: number) =>
   sleep(ms).then(() => {
     throw new Error(`Timeout after ${ms}ms`)
   })
 
-const TIMEOUT = 20_000
+const TIMEOUT = 30_000
 
 const configSchema = {
   timeout: {
@@ -31,6 +39,10 @@ const configSchema = {
     type: 'string',
   },
   workspaceId: {
+    type: 'string',
+    demandOption: true,
+  },
+  workspaceHandle: {
     type: 'string',
     demandOption: true,
   },

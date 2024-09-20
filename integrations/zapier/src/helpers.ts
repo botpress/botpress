@@ -1,6 +1,4 @@
-import { ResourceNotFoundError } from '@botpress/client'
-import type { IntegrationContext } from '@botpress/sdk'
-import { z } from 'zod'
+import { z, isApiError } from '@botpress/sdk'
 import {
   TriggerSubscriber,
   ZapierTriggersStateName,
@@ -8,25 +6,21 @@ import {
   ZapierTriggersState,
   Client,
 } from './types'
-import type { Configuration } from '.botpress/implementation/configuration'
+import * as bp from '.botpress'
 
-export async function unsubscribeZapierHook(url: string, ctx: IntegrationContext<Configuration>, client: Client) {
+export async function unsubscribeZapierHook(url: string, ctx: bp.Context, client: Client) {
   let subscribers = await getTriggerSubscribers(ctx, client)
   subscribers = subscribers.filter((x) => x.url !== url)
   await saveTriggerSubscribers(subscribers, ctx, client)
   console.info(`Zapier hook ${url} was unsubscribed`)
 }
 
-export async function getTriggerSubscribers(ctx: IntegrationContext<Configuration>, client: Client) {
+export async function getTriggerSubscribers(ctx: bp.Context, client: Client) {
   const state = await getTriggersState(ctx, client)
   return state.subscribers
 }
 
-export async function saveTriggerSubscribers(
-  subscribers: TriggerSubscriber[],
-  ctx: IntegrationContext<Configuration>,
-  client: Client
-) {
+export async function saveTriggerSubscribers(subscribers: TriggerSubscriber[], ctx: bp.Context, client: Client) {
   await client.setState({
     type: 'integration',
     name: ZapierTriggersStateName,
@@ -35,7 +29,7 @@ export async function saveTriggerSubscribers(
   })
 }
 
-export async function getTriggersState(ctx: IntegrationContext<Configuration>, client: Client) {
+export async function getTriggersState(ctx: bp.Context, client: Client) {
   const defaultState = buildTriggersState()
 
   return await client
@@ -47,7 +41,7 @@ export async function getTriggersState(ctx: IntegrationContext<Configuration>, c
     .then((res) => ZapierTriggersStateSchema.parse(res.state.payload))
     .catch((e) => {
       // TODO: Remove hard-coded "No State found" message check once the bridge client correctly receives the ResourceNotFoundError
-      if (e instanceof ResourceNotFoundError || e.message === 'No State found') {
+      if ((isApiError(e) && e.type === 'ResourceNotFound') || e.message === 'No State found') {
         console.info("Zapier triggers state doesn't exist yet and will be initialized")
         return defaultState
       } else if (e instanceof z.ZodError) {

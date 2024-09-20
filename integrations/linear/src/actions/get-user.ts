@@ -1,14 +1,18 @@
-import z from 'zod'
+import { z } from '@botpress/sdk'
 
-import { UserProfile } from '../definitions/schemas'
+import { userProfileSchema } from '../definitions/schemas'
 import { getLinearClient } from '../misc/utils'
-import { IntegrationProps } from '.botpress'
+import * as bp from '.botpress'
 
-export const getUser: IntegrationProps['actions']['getUser'] = async ({ client, ctx, input: { linearUserId } }) => {
-  const linearClient = await getLinearClient(client, ctx.integrationId)
+export const getUser: bp.IntegrationProps['actions']['getUser'] = async (args) => {
+  const {
+    ctx,
+    input: { linearUserId },
+  } = args
+  const linearClient = await getLinearClient(args, ctx.integrationId)
   const user = await linearClient.user(linearUserId)
 
-  return UserProfile.parse({
+  return userProfileSchema.parse({
     linearId: user.id,
     name: user.name,
     email: user.email,
@@ -22,5 +26,5 @@ export const getUser: IntegrationProps['actions']['getUser'] = async ({ client, 
     archivedAt: user.archivedAt?.toISOString(),
     description: user.description,
     timezone: user.timezone,
-  } satisfies z.infer<typeof UserProfile>)
+  } satisfies z.infer<typeof userProfileSchema>)
 }

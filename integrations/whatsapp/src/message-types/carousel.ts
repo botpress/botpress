@@ -1,5 +1,5 @@
 import * as card from './card'
-import type { channels } from '.botpress'
+import { channels } from '.botpress'
 
 export type Carousel = channels.channel.carousel.Carousel
 

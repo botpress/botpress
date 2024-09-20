@@ -14,10 +14,10 @@ jobs:
       NODE_OPTIONS: '--max_old_space_size=8192'
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Tilt
-        uses: ./.github/actions/setup-tilt
-      - run: pnpm run format:check
-      - run: pnpm run lint:check
-      - run: pnpm run type:check
-      - run: pnpm run dep:check
+      - name: Setup
+        uses: ./.github/actions/setup
+      - run: pnpm run check:format
+      - run: pnpm run check:lint
+      - run: pnpm run check:type
+      - run: pnpm run check:dep
       - run: pnpm run test

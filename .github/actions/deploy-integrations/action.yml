@@ -9,6 +9,16 @@ input:
     options:
       - staging
       - production
+  extra_filter:
+    type: string
+    description: 'Pnpm additional filters to select integrations to deploy'
+    required: false
+    default: ''
+  force:
+    type: boolean
+    description: 'Force re-deploying integrations'
+    default: false
+    required: false
   sentry_auth_token:
     description: 'Sentry auth token'
     required: true
@@ -18,30 +28,42 @@ input:
   cloud_ops_workspace_id:
     description: 'Cloud Ops workspace id'
     required: true
-  gmail_client_id:
-    description: 'Gmail client id'
-    required: true
-  gmail_client_secret:
-    description: 'Gmail client secret'
-    required: true
-  gmail_topic_name:
-    description: 'Gmail topic name'
-    required: true
-  linear_client_id:
-    description: 'Linear client id'
-    required: true
-  linear_client_secret:
-    description: 'Linear client secret'
-    required: true
-  linear_webhook_signing_secret:
-    description: 'Linear webhook signing secret'
-    required: true
-  slack_client_id:
-    description: 'Slack client id'
-    required: true
-  slack_client_secret:
-    description: 'Slack client secret'
-    required: true
+  gmail_secrets:
+    description: 'Gmail secrets'
+    required: false
+  linear_secrets:
+    description: 'Linear secrets'
+    required: false
+  slack_secrets:
+    description: 'Slack secrets'
+    required: false
+  whatsapp_secrets:
+    description: 'Whatsapp secrets'
+    required: false
+  charts_secrets:
+    description: 'Charts secrets'
+    required: false
+  pdf_secrets:
+    description: 'PDF secrets'
+    required: false
+  browser_secrets:
+    description: 'Browser secrets'
+    required: false
+  openai_secrets:
+    description: 'OpenAI secrets'
+    required: false
+  groq_secrets:
+    description: 'Groq secrets'
+    required: false
+  todoist_secrets:
+    description: 'Todoist secrets'
+    required: false
+  cerebras_secrets:
+    description: 'Cerebras secrets'
+    required: false
+  messenger_secrets:
+    description: 'Messenger secrets'
+    required: false
 
 runs:
   using: 'composite'
@@ -82,57 +104,53 @@ runs:
 
         # deploy
 
-        echo "### Deploying integration @botpresshub/dalle ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/dalle -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/discord ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/discord -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/googlecalendar ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/googlecalendar -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/github ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/github -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/gmail ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/gmail -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/gsheets ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/gsheets -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/instagram ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/instagram -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/intercom ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/intercom -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/line ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/line -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/linear ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/linear -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/make ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/make -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/messenger ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/messenger -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/mailchimp ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/mailchimp -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/notion ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/notion -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/slack ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/slack -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/sunco ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/sunco -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/teams ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/teams -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/telegram ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/telegram -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/twilio ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/twilio -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/viber ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/viber -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/vonage ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/vonage -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/webchat ###"
-        echo "webchat disabled"
-        echo "### Deploying integration @botpresshub/webhook ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/webhook -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/whatsapp ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/whatsapp -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/zapier ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/zapier -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/zendesk ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/zendesk -c exec -- 'bp deploy -v -y --noBuild'
-        echo "### Deploying integration @botpresshub/stripe ###"
-        pnpm retry -n 3 -- pnpm -r --stream -F @botpresshub/stripe -c exec -- 'bp deploy -v -y --noBuild'
+        redeploy=${{ inputs.force == 'true' && 1 || 0 }}
+        all_filters="-F '{integrations/*}' -F '!asana' -F '!trello' -F '!webchat' ${{ inputs.extra_filter }}"
+        list_integrations_cmd="pnpm list $all_filters --json"
+        integration_paths=$(eval $list_integrations_cmd | jq -r "map(".path") | .[]")
+
+        for integration_path in $integration_paths; do
+            integration=$(basename $integration_path)
+            exists=$(./.github/scripts/integration-exists.sh $integration)
+
+            base_command="bp deploy -v -y --noBuild --public"
+            if [ $integration == "gmail" ]; then
+                base_command="$base_command ${{ inputs.gmail_secrets }}"
+            elif [ $integration == "linear" ]; then
+                base_command="$base_command ${{ inputs.linear_secrets }}"
+            elif [ $integration == "slack" ]; then
+                base_command="$base_command ${{ inputs.slack_secrets }}"
+            elif [ $integration == "charts" ]; then
+                base_command="$base_command ${{ inputs.charts_secrets }}"
+            elif [ $integration == "whatsapp" ]; then
+                base_command="$base_command ${{ inputs.whatsapp_secrets }}"
+            elif [ $integration == "pdf-generator" ]; then
+                base_command="$base_command ${{ inputs.pdf_secrets }}"
+            elif [ $integration == "browser" ]; then
+                base_command="$base_command ${{ inputs.browser_secrets }}"
+            elif [ $integration == "openai" ]; then
+                base_command="$base_command ${{ inputs.openai_secrets }}"
+            elif [ $integration == "groq" ]; then
+                base_command="$base_command ${{ inputs.groq_secrets }}"
+            elif [ $integration == "anthropic" ]; then
+                base_command="$base_command ${{ inputs.anthropic_secrets }}"
+            elif [ $integration == "messenger" ]; then
+                base_command="$base_command ${{ inputs.messenger_secrets }}"
+            elif [ $integration == "fireworks-ai" ]; then
+                base_command="$base_command ${{ inputs.fireworks_ai_secrets }}"
+            elif [ $integration == "todoist" ]; then
+                base_command="$base_command ${{ inputs.todoist_secrets }}"
+            elif [ $integration == "cerebras" ]; then
+                base_command="$base_command ${{ inputs.cerebras_secrets }}"
+            fi
+            
+            if [ $exists -eq 0 ]; then
+                echo -e "\nDeploying integration: ### $integration ###\n"
+                pnpm retry -n 2 -- pnpm -F $integration -c exec -- "$base_command"
+            elif [ $redeploy -eq 1 ]; then
+                echo -e "\nRe-deploying integration: ### $integration ###\n"
+                pnpm retry -n 2 -- pnpm -F $integration -c exec -- "$base_command"
+            else
+                echo -e "\nSkipping integration: ### $integration ###\n"
+            fi
+        done

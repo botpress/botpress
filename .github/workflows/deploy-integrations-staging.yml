@@ -5,7 +5,13 @@ on:
     branches:
       - master
 
-  workflow_dispatch: {}
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Force re-deploying integrations'
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   id-token: write
@@ -16,21 +22,34 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Setup Tilt
-        uses: ./.github/actions/setup-tilt
+      - name: Setup
+        uses: ./.github/actions/setup
+      - name: Deploy Interfaces
+        uses: ./.github/actions/deploy-interfaces
+        with:
+          environment: 'staging'
+          force: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force == 'true' }}
+          token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
+          cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}
       - name: Deploy Integrations
         uses: ./.github/actions/deploy-integrations
         with:
           environment: 'staging'
+          force: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force == 'true' }}
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}
-          gmail_client_id: ${{ secrets.STAGING_GMAIL_CLIENT_ID }}
-          gmail_client_secret: ${{ secrets.STAGING_GMAIL_CLIENT_SECRET }}
-          gmail_topic_name: ${{ secrets.STAGING_GMAIL_TOPIC_NAME }}
-          linear_client_id: ${{ secrets.STAGING_LINEAR_CLIENT_ID }}
-          linear_client_secret: ${{ secrets.STAGING_LINEAR_CLIENT_SECRET }}
-          linear_webhook_signing_secret: ${{ secrets.STAGING_LINEAR_WEBHOOK_SIGNING_SECRET }}
-          slack_client_id: ${{ secrets.STAGING_SLACK_CLIENT_ID }}
-          slack_client_secret: ${{ secrets.STAGING_SLACK_CLIENT_SECRET }}
-          slack_signing_secret: ${{ secrets.STAGING_SLACK_SIGNING_SECRET }}
+          gmail_secrets: '' # secrets should already exist
+          linear_secrets: '' # secrets should already exst
+          slack_secrets: '' # secrets should already exist
+          charts_secrets: '--secrets QUICKCHARTS_API_KEY=${{ secrets.QUICKCHARTS_API_KEY }}'
+          whatsapp_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_WHATSAPP_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_WHATSAPP_CLIENT_SECRET }} --secrets ACCESS_TOKEN=${{ secrets.STAGING_WHATSAPP_ACCESS_TOKEN }} --secrets NUMBER_PIN=${{ secrets.STAGING_WHATSAPP_NUMBER_PIN }}'
+          pdf_secrets: '--secrets PDFSHIFT_API_KEY=${{ secrets.PDFSHIFT_API_KEY }}'
+          browser_secrets: '--secrets FIRECRAWL_API_KEY=${{ secrets.FIRECRAWL_API_KEY }} --secrets SCREENSHOT_API_KEY=${{ secrets.SCREENSHOT_API_KEY }}'
+          openai_secrets: '--secrets OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}'
+          groq_secrets: '--secrets GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}'
+          anthropic_secrets: '--secrets ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}'
+          fireworks_ai_secrets: '--secrets FIREWORKS_AI_API_KEY=${{ secrets.FIREWORKS_AI_API_KEY }}'
+          todoist_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_TODOIST_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_TODOIST_CLIENT_SECRET }}'
+          cerebras_secrets: '--secrets CEREBRAS_API_KEY=${{ secrets.CEREBRAS_API_KEY }}'
+          messenger_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_MESSENGER_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_MESSENGER_CLIENT_SECRET  }} --secrets ACCESS_TOKEN=${{ secrets.STAGING_MESSENGER_ACCESS_TOKEN  }}'

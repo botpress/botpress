@@ -1,4 +1,4 @@
-import { RuntimeError } from '@botpress/client'
+import { RuntimeError } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 import axios, { isAxiosError } from 'axios'

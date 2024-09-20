@@ -11,8 +11,27 @@ const integration = new bp.Integration({
   unregister,
   handler,
   createConversation,
-  actions,
   channels,
+  actions: {
+    ...actions,
+    issueList: async (props) => {
+      const count = 20
+      const startCursor = props.input.nextToken
+      const res = await actions.listIssues({
+        ...props,
+        type: 'listIssues',
+        input: {
+          count,
+          startCursor,
+        },
+      })
+      return {
+        // eslint-disable-next-line unused-imports/no-unused-vars
+        items: res.issues.map(({ linearIds, ...item }) => item),
+        meta: { nextToken: res.nextCursor },
+      }
+    },
+  },
 })
 
 export default sentryHelpers.wrapIntegration(integration, {

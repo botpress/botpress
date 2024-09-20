@@ -1,6 +1,7 @@
 import { fireChargeFailed } from 'src/events/charge-failed'
 import { fireInvoicePaymentFailed } from 'src/events/invoice-payment-failed'
 import { firePaymentIntentFailed } from 'src/events/payment-intent-failed'
+import { fireSubscriptionCreated } from 'src/events/subscription-created'
 import { fireSubscriptionDeleted } from 'src/events/subscription-deleted'
 import { fireSubscriptionUpdated } from 'src/events/subscription-updated'
 import Stripe from 'stripe'
@@ -22,6 +23,9 @@ export const handler: Handler = async ({ req, client, logger }) => {
       break
     case 'payment_intent.payment_failed':
       await firePaymentIntentFailed({ stripeEvent, client, logger })
+      break
+    case 'customer.subscription.created':
+      await fireSubscriptionCreated({ stripeEvent, client, logger })
       break
     case 'customer.subscription.deleted':
       await fireSubscriptionDeleted({ stripeEvent, client, logger })

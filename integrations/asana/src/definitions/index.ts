@@ -1,13 +1,12 @@
-import type { IntegrationDefinitionProps } from '@botpress/sdk'
-import z from 'zod'
+import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 
 export { actions } from './actions'
 export { channels } from './channels'
 
 export const configuration = {
   schema: z.object({
-    apiToken: z.string().describe('API Token'),
-    workspaceGid: z.string().describe('Workspace Global ID'),
+    apiToken: z.string().min(1).describe('API Token'),
+    workspaceGid: z.string().min(1).describe('Workspace Global ID'),
   }),
 } satisfies IntegrationDefinitionProps['configuration']
 

@@ -1,6 +1,8 @@
-import { IntegrationContext } from '@botpress/sdk'
+import { RuntimeError } from '@botpress/client'
+import { Request } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { channel } from 'integration.definition'
+import { channel, INTEGRATION_NAME } from 'integration.definition'
+import * as crypto from 'node:crypto'
 import queryString from 'query-string'
 import WhatsAppAPI from 'whatsapp-api-js'
 import { Audio, Document, Image, Location, Text, Video } from 'whatsapp-api-js/messages'
@@ -10,23 +12,28 @@ import * as card from './message-types/card'
 import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
+import { getInterstitialUrl, redirectTo } from './misc/html-utils'
+import { getAccessToken, getPhoneNumberId, getSecret } from './misc/whatsapp'
+import { handleWizard } from './misc/wizard'
 import * as outgoing from './outgoing-message'
 import { WhatsAppPayload } from './whatsapp-types'
 import * as bp from '.botpress'
-import { Configuration } from '.botpress/implementation/configuration'
-
-export type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
-export type IntegrationCtx = IntegrationContext<Configuration>
 
 const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
     startConversation: async ({ ctx, input, client, logger }) => {
+      const phoneNumberId: string | undefined = input.senderPhoneNumberId || (await getPhoneNumberId(client, ctx))
+
+      if (!phoneNumberId) {
+        throw new Error('phoneNumberId is required')
+      }
+
       const conversation = await startConversation(
         {
           channel,
-          phoneNumberId: input.senderPhoneNumberId || ctx.configuration.phoneNumberId,
+          phoneNumberId,
           userPhone: input.userPhone,
           templateName: input.templateName,
           templateLanguage: input.templateLanguage,
@@ -72,7 +79,8 @@ const integration = new bp.Integration({
           })
         },
         file: async ({ payload, ...props }) => {
-          const extension = payload.fileUrl.includes('.') ? payload.fileUrl.split('.').pop()?.toLowerCase() ?? '' : ''
+          const url = new URL(payload.fileUrl)
+          const extension = url.pathname.includes('.') ? url.pathname.split('.').pop()?.toLowerCase() ?? '' : ''
           const filename = 'file' + (extension ? `.${extension}` : '')
 
           await outgoing.send({
@@ -115,10 +123,27 @@ const integration = new bp.Integration({
             })
           }
         },
+        bloc: () => {
+          throw new RuntimeError('Not implemented')
+        },
       },
     },
   },
   handler: async ({ req, client, ctx, logger }) => {
+    if (detectIdentifierIssue(req, ctx)) {
+      return redirectTo(getInterstitialUrl(false, 'Not allowed'))
+    }
+
+    if (req.query?.includes('code') || req.query?.includes('wizard-step')) {
+      try {
+        return await handleWizard(req, client, ctx, logger)
+      } catch (err: any) {
+        const errorMessage = '(OAuth registration) Error: ' + err.message
+        logger.forBot().error(errorMessage)
+        return redirectTo(getInterstitialUrl(false, errorMessage))
+      }
+    }
+
     if (req.body) {
       logger.forBot().debug('Handler received request from Whatsapp with payload:', req.body)
     } else {
@@ -165,6 +190,27 @@ const integration = new bp.Integration({
       return
     }
 
+    const secret = getSecret(ctx)
+    // For testing purposes, if you send the secret in the header it's possible to disable signature check
+    if (secret && req.headers['x-secret'] !== secret) {
+      const signature = req.headers['x-hub-signature-256']
+
+      if (!signature) {
+        const errorMessage = 'Couldn\'t find "x-hub-signature-256" in headers.'
+        logger.forBot().error(errorMessage)
+        return { status: 401, body: errorMessage }
+      } else {
+        const signatureHash = signature.split('=')[1]
+        const expectedHash = crypto.createHmac('sha256', secret).update(req.body).digest('hex')
+        if (signatureHash !== expectedHash) {
+          const errorMessage =
+            "Couldn't validate the request signature, please verify the client secret configuration property."
+          logger.forBot().error(errorMessage)
+          return { status: 401, body: errorMessage }
+        }
+      }
+    }
+
     try {
       const data = JSON.parse(req.body) as WhatsAppPayload
 
@@ -176,7 +222,8 @@ const integration = new bp.Integration({
           }
 
           for (const message of change.value.messages) {
-            const accessToken = ctx.configuration.accessToken
+            const accessToken = await getAccessToken(client, ctx)
+
             const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
 
             const phoneNumberId = change.value.metadata.phone_number_id
@@ -201,3 +248,17 @@ export default sentryHelpers.wrapIntegration(integration, {
   environment: bp.secrets.SENTRY_ENVIRONMENT,
   release: bp.secrets.SENTRY_RELEASE,
 })
+
+export const getGlobalWebhookUrl = () => {
+  return `${process.env.BP_WEBHOOK_URL}/integration/global/${INTEGRATION_NAME}`
+}
+
+export const detectIdentifierIssue = (req: Request, ctx: bp.Context) => {
+  /* because of the wizard, we need to accept the query param "state" as an identifier
+   * but we need to prevent anyone of using anything other than the webhookId there for security reasons
+   */
+
+  const query = queryString.parse(req.query)
+
+  return !!(query['state']?.length && query['state'] !== ctx.webhookId)
+}

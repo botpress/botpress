@@ -1,9 +1,10 @@
 {
   "name": "@botpresshub/dalle",
   "scripts": {
-    "type:check": "tsc --noEmit",
+    "check:type": "tsc --noEmit",
     "version": "bp --version",
     "login": "bp login",
+    "build": "bp build",
     "dev": "bp dev",
     "gen": "bp gen",
     "deploy": "bp deploy"
@@ -15,8 +16,7 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "axios": "^1.6.7",
-    "zod": "^3.20.6"
+    "axios": "^1.6.7"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

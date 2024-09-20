@@ -5,8 +5,7 @@
     "start": "pnpm bp serve",
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
-    "type:check": "tsc --noEmit",
-    "test": "echo \"Tests not implemented yet.\""
+    "check:type": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
@@ -14,14 +13,13 @@
   "dependencies": {
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "@slack/bolt": "^3.13.1",
+    "@slack/types": "^2.13.1",
     "@slack/web-api": "^6.8.0",
     "axios": "^1.3.4",
     "fuse.js": "^6.6.2",
     "lodash": "^4.17.21",
     "query-string": "^6.14.1",
-    "verror": "^1.10.1",
-    "zod": "^3.20.6"
+    "verror": "^1.10.1"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

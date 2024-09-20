@@ -1,8 +1,8 @@
 import { getClient } from '../client'
 import { retrieveCustomerByIdInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const retrieveCustomerById: Implementation['actions']['retrieveCustomerById'] = async ({
+export const retrieveCustomerById: IntegrationProps['actions']['retrieveCustomerById'] = async ({
   ctx,
   logger,
   input,

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Botpress V12
+    url: https://github.com/botpress/v12
+    about: If you're experiencing issues when using the on premise version of Botpress, please report the issue on the v12 repo.
+  - name: Botpress Cloud
+    url: https://discord.gg/botpress
+    about: If you're experiencing issues when using Botpress Cloud or have any question regarding Botpress Cloud but you're not sure about the nature of the issue, please report the issue on our Discord Server.

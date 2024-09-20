@@ -1,6 +1,6 @@
+import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import queryString from 'query-string'
-import { idTag } from './const'
 import { handleMessage } from './misc/incoming-message'
 import { sendMessage } from './misc/outgoing-message'
 import { InstagramPayload } from './misc/types'
@@ -79,6 +79,9 @@ const integration = new bp.Integration({
             props.logger.forBot().debug('Sending choice message from bot to Instagram:', choiceMessage)
             return instagram.sendMessage(recipientId, getChoiceMessage(payload))
           }),
+        bloc: () => {
+          throw new RuntimeError('Not implemented')
+        },
       },
     },
   },
@@ -141,8 +144,7 @@ const integration = new bp.Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags[idTag]
-
+    const userId = tags.id
     if (!userId) {
       return
     }
@@ -150,7 +152,7 @@ const integration = new bp.Integration({
     const messengerClient = getMessengerClient(ctx.configuration)
     const profile = await messengerClient.getUserProfile(userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { [idTag]: `${profile.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { id: `${profile.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -159,8 +161,7 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const userId = tags[idTag]
-
+    const userId = tags.id
     if (!userId) {
       return
     }
@@ -170,7 +171,7 @@ const integration = new bp.Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { [idTag]: `${profile.id}` },
+      tags: { id: `${profile.id}` },
     })
 
     return {

@@ -1,11 +1,9 @@
-import { IntegrationDefinition } from '@botpress/sdk'
+import { z, IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { z } from 'zod'
-import { INTEGRATION_NAME } from './src/const'
 
 export default new IntegrationDefinition({
-  name: INTEGRATION_NAME,
-  version: '0.2.0',
+  name: 'webhook',
+  version: '0.4.2',
   title: 'Webhook',
   description:
     'Connect your chatbot to your systems with webhooks. Send and receive data from external systems and trigger workflows effortlessly.',

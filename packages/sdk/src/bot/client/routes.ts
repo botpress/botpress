@@ -78,7 +78,7 @@ export type SetState<TBot extends BaseBot> = <TState extends keyof TBot['states'
     Arg<Client['setState']>,
     {
       name: Cast<TState, string> // TODO: use state name to infer state type (cannot be done until there is a bot.definition.ts file)
-      payload: TBot['states'][TState]
+      payload: TBot['states'][TState] | null
     }
   >
 ) => Promise<{
@@ -135,3 +135,11 @@ export type CallAction<TBot extends BaseBot> = <ActionType extends keyof types.E
 ) => Promise<{
   output: Cast<types.EnumerateActions<TBot>[ActionType], types.IntegrationInstanceActionDefinition>['output']
 }>
+
+export type UploadFile<_TBot extends BaseBot> = Client['uploadFile']
+export type UpsertFile<_TBot extends BaseBot> = Client['upsertFile']
+export type DeleteFile<_TBot extends BaseBot> = Client['deleteFile']
+export type ListFiles<_TBot extends BaseBot> = Client['listFiles']
+export type GetFile<_TBot extends BaseBot> = Client['getFile']
+export type UpdateFileMetadata<_TBot extends BaseBot> = Client['updateFileMetadata']
+export type SearchFiles<_TBot extends BaseBot> = Client['searchFiles']

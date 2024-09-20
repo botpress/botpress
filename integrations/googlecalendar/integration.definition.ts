@@ -1,5 +1,4 @@
-import { IntegrationDefinition } from '@botpress/sdk'
-import { z } from 'zod'
+import { z, IntegrationDefinition, interfaces } from '@botpress/sdk'
 import { INTEGRATION_NAME } from './src/const'
 import {
   listEventsInputSchema,
@@ -15,7 +14,7 @@ import { updateEventUi, deleteEventUi, createEventUi } from './src/misc/custom-u
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '0.2.0',
+  version: '0.4.1',
   description:
     "Elevate your chatbot's capabilities with the Botpress integration for Google Calendar. Seamlessly sync your chatbot with Google Calendar to effortlessly manage events, appointments, and schedules",
   title: 'Google Calendar',
@@ -25,15 +24,36 @@ export default new IntegrationDefinition({
     schema: z.object({
       calendarId: z
         .string()
+        .min(1)
         .describe('The ID of the Google Calendar to interact with. You can find it in your Google Calendar settings.'),
       privateKey: z
         .string()
+        .min(1)
         .describe('The private key from the Google service account. You can get it from the downloaded JSON file.'),
       clientEmail: z
         .string()
         .email()
         .describe('The client email from the Google service account. You can get it from the downloaded JSON file.'),
     }),
+  },
+  entities: {
+    event: {
+      schema: z.object({
+        id: z.string().describe('The ID of the calendar event.'),
+        summary: z.string().optional().describe('The event title/summary.'),
+        description: z.string().optional().describe('The event description.'),
+        location: z.string().optional().describe('The event location.'),
+        startDateTime: z
+          .string()
+          .optional()
+          .describe('The start date and time in RFC3339 format (e.g., "2023-12-31T10:00:00.000Z").'),
+        endDateTime: z
+          .string()
+          .optional()
+          .describe('The end date and time in RFC3339 format (e.g., "2023-12-31T12:00:00.000Z").'),
+      }),
+      ui: {},
+    },
   },
   actions: {
     listEvents: {
@@ -78,3 +98,18 @@ export default new IntegrationDefinition({
     },
   },
 })
+  .extend(interfaces.listable, (entities) => ({
+    item: entities.event,
+  }))
+  .extend(interfaces.creatable, (entities) => ({
+    item: entities.event,
+  }))
+  .extend(interfaces.readable, (entities) => ({
+    item: entities.event,
+  }))
+  .extend(interfaces.updatable, (entities) => ({
+    item: entities.event,
+  }))
+  .extend(interfaces.deletable, (entities) => ({
+    item: entities.event,
+  }))

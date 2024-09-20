@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from '@botpress/sdk'
 
 const HttpMethodSchema = z.union([
   z.literal('GET'),
@@ -129,7 +129,7 @@ const listSchema = z.object({
   double_optin: z.boolean(),
   has_welcome: z.boolean(),
   marketing_permissions: z.boolean(),
-  modules: z.array(z.unknown()),
+  modules: z.array(z.any()),
   stats: statsSchema,
   _links: z.array(linkSchema),
 })

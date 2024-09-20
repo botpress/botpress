@@ -1,7 +1,7 @@
 import * as notion from '../notion'
-import type { IntegrationProps } from '.botpress'
+import * as bp from '.botpress'
 
-export const addCommentToPage: IntegrationProps['actions']['addCommentToPage'] = async ({ ctx, input }) => {
+export const addCommentToPage: bp.IntegrationProps['actions']['addCommentToPage'] = async ({ ctx, input }) => {
   try {
     const response = await notion.addCommentToPage(ctx, input.pageId, input.commentBody)
     if (response) {

@@ -1,4 +1,5 @@
-import { Client, RuntimeError, type Conversation, type Message, type User } from '@botpress/client'
+import { isApiError, Client, type Conversation, type Message, type User, RuntimeError } from '@botpress/client'
+import { retryConfig } from '../retry'
 import { Request, Response, parseBody } from '../serve'
 import { Cast, Merge } from '../type-utils'
 import { IntegrationSpecificClient } from './client'
@@ -7,10 +8,8 @@ import { extractContext, type IntegrationContext } from './context'
 import { BaseIntegration } from './generic'
 import { IntegrationLogger, integrationLogger } from './logger'
 
-type PrefixConfig<TIntegration extends BaseIntegration> = { enforcePrefix: TIntegration['name'] }
-
 type CommonArgs<TIntegration extends BaseIntegration> = {
-  ctx: IntegrationContext<TIntegration['configuration']>
+  ctx: IntegrationContext<TIntegration>
   client: IntegrationSpecificClient<TIntegration>
   logger: IntegrationLogger
 }
@@ -29,8 +28,9 @@ type ActionArgs<TIntegration extends BaseIntegration, T extends string, I> = Com
   ActionPayload<T, I>
 
 type CreateUserPayload<TIntegration extends BaseIntegration> = {
-  tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
+  tags: ToTags<keyof TIntegration['user']['tags']>
 }
+
 type CreateUserArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> & CreateUserPayload<TIntegration>
 
 type CreateConversationPayload<
@@ -38,8 +38,9 @@ type CreateConversationPayload<
   TChannel extends keyof TIntegration['channels'] = keyof TIntegration['channels']
 > = {
   channel: TChannel
-  tags: ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags'], PrefixConfig<TIntegration>>
+  tags: ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
 }
+
 type CreateConversationArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> &
   CreateConversationPayload<TIntegration>
 
@@ -53,31 +54,31 @@ type MessagePayload<
   conversation: Merge<
     Conversation,
     {
-      tags: ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags'], PrefixConfig<TIntegration>>
+      channel: TChannel
+      tags: ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
     }
   >
   message: Merge<
     Message,
     {
-      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
     }
   >
   user: Merge<
     User,
     {
-      tags: ToTags<keyof TIntegration['user']['tags'], PrefixConfig<TIntegration>>
+      tags: ToTags<keyof TIntegration['user']['tags']>
     }
   >
 }
+
 type MessageArgs<
   TIntegration extends BaseIntegration,
   TChannel extends keyof TIntegration['channels'],
   TMessage extends keyof TIntegration['channels'][TChannel]['messages']
 > = CommonArgs<TIntegration> &
   MessagePayload<TIntegration, TChannel, TMessage> & {
-    ack: (props: {
-      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags'], PrefixConfig<TIntegration>>
-    }) => Promise<void>
+    ack: (props: { tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']> }) => Promise<void>
   }
 
 export type RegisterFunction<TIntegration extends BaseIntegration> = (
@@ -134,11 +135,14 @@ type ServerProps<TIntegration extends BaseIntegration> = CommonArgs<TIntegration
 export const integrationHandler =
   <TIntegration extends BaseIntegration>(instance: IntegrationHandlers<TIntegration>) =>
   async (req: Request): Promise<Response | void> => {
-    const ctx = extractContext(req.headers)
+    const ctx = extractContext<TIntegration>(req.headers)
 
-    const client = new IntegrationSpecificClient<TIntegration>(
-      new Client({ botId: ctx.botId, integrationId: ctx.integrationId })
-    )
+    const vanillaClient = new Client({
+      botId: ctx.botId,
+      integrationId: ctx.integrationId,
+      retry: retryConfig,
+    })
+    const client = new IntegrationSpecificClient<TIntegration>(vanillaClient)
 
     const props = {
       ctx,
@@ -179,12 +183,22 @@ export const integrationHandler =
           throw new Error(`Unknown operation ${ctx.operation}`)
       }
       return response ? { ...response, status: response.status ?? 200 } : { status: 200 }
-    } catch (e) {
-      if (e instanceof RuntimeError) {
-        return { status: e.code, body: JSON.stringify(e.toJSON()) }
-      } else {
-        throw e
+    } catch (thrown) {
+      if (isApiError(thrown)) {
+        const runtimeError = new RuntimeError(thrown.message, thrown)
+        integrationLogger.forBot().error(runtimeError.message)
+
+        return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
       }
+
+      // prints the error in the integration logs
+      console.error(thrown)
+
+      const runtimeError = new RuntimeError(
+        'An unexpected error occurred in the integration. Bot owners: Check logs for more informations. Integration owners: throw a RuntimeError to return a custom error message instead.'
+      )
+      integrationLogger.forBot().error(runtimeError.message)
+      return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
     }
   }
 
@@ -278,10 +292,11 @@ const onMessageCreated = async <TIntegration extends BaseIntegration>({
     throw new Error(`Message of type ${type} not found in channel ${conversation.channel}`)
   }
 
-  const ack = async ({ tags }: { tags: Record<string, string> }) => {
+  type UpdateMessageProps = Parameters<(typeof client)['updateMessage']>[0]
+  const ack = async ({ tags }: Pick<UpdateMessageProps, 'tags'>) => {
     await client.updateMessage({
       id: message.id,
-      tags: tags as any, // TODO: fix this
+      tags,
     })
   }
 

@@ -1,15 +1,13 @@
-import type { Conversation } from '@botpress/client'
-import type { AckFunction } from '@botpress/sdk'
+import { RuntimeError } from '@botpress/client'
+import { z } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { Client, ReplyToConversationMessageType } from 'intercom-client'
-import { z } from 'zod'
-import { emailTag, idTag } from './const'
 import * as html from './html.utils'
+import * as types from './types'
 import * as bp from '.botpress'
 
 type Card = bp.channels.channel.card.Card
 type Location = bp.channels.channel.location.Location
-type Configuration = bp.configuration.Configuration
 
 type IntercomMessage = z.infer<typeof conversationSourceSchema>
 
@@ -59,7 +57,7 @@ const integration = new bp.Integration({
           await sendMessage({
             body: payload.text,
             conversation,
-            configuration: ctx.configuration,
+            ctx,
             ack,
           })
         },
@@ -67,7 +65,7 @@ const integration = new bp.Integration({
           await sendMessage({
             body: '',
             conversation,
-            configuration: ctx.configuration,
+            ctx,
             ack,
             attachmentUrls: [payload.imageUrl],
           })
@@ -76,7 +74,7 @@ const integration = new bp.Integration({
           await sendMessage({
             body: payload.markdown,
             conversation,
-            configuration: ctx.configuration,
+            ctx,
             ack,
           })
         },
@@ -84,7 +82,7 @@ const integration = new bp.Integration({
           await sendMessage({
             body: '',
             conversation,
-            configuration: ctx.configuration,
+            ctx,
             ack,
             attachmentUrls: [payload.audioUrl],
           })
@@ -93,7 +91,7 @@ const integration = new bp.Integration({
           await sendMessage({
             body: '',
             conversation,
-            configuration: ctx.configuration,
+            ctx,
             ack,
             attachmentUrls: [payload.videoUrl],
           })
@@ -102,7 +100,7 @@ const integration = new bp.Integration({
           await sendMessage({
             body: '',
             conversation,
-            configuration: ctx.configuration,
+            ctx,
             ack,
             attachmentUrls: [payload.fileUrl],
           })
@@ -111,7 +109,7 @@ const integration = new bp.Integration({
           await sendMessage({
             body: formatGoogleMapLink(payload),
             conversation,
-            configuration: ctx.configuration,
+            ctx,
             ack,
           })
         },
@@ -121,7 +119,7 @@ const integration = new bp.Integration({
           await sendMessage({
             body: carousel,
             conversation,
-            configuration: ctx.configuration,
+            ctx,
             ack,
           })
         },
@@ -129,7 +127,7 @@ const integration = new bp.Integration({
           await sendMessage({
             body: createCard(payload),
             conversation,
-            configuration: ctx.configuration,
+            ctx,
             ack,
           })
         },
@@ -145,7 +143,7 @@ const integration = new bp.Integration({
           await sendMessage({
             body: message,
             conversation,
-            configuration: ctx.configuration,
+            ctx,
             ack,
           })
         },
@@ -161,9 +159,12 @@ const integration = new bp.Integration({
           await sendMessage({
             body: message,
             conversation,
-            configuration: ctx.configuration,
+            ctx,
             ack,
           })
+        },
+        bloc: () => {
+          throw new RuntimeError('Not implemented')
         },
       },
     },
@@ -208,7 +209,7 @@ const integration = new bp.Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        [idTag]: `${conversationId}`,
+        id: `${conversationId}`,
       },
     })
 
@@ -235,13 +236,13 @@ const integration = new bp.Integration({
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          [idTag]: `${authorId}`,
-          [emailTag]: `${email}`,
+          id: `${authorId}`,
+          email: `${email}`,
         },
       })
 
       await client.createMessage({
-        tags: { [idTag]: `${messageId}` },
+        tags: { id: `${messageId}` },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
@@ -261,8 +262,7 @@ const integration = new bp.Integration({
     return
   },
   createUser: async ({ client, tags, ctx }) => {
-    const userId = tags[idTag]
-
+    const userId = tags.id
     if (!userId) {
       return
     }
@@ -271,7 +271,7 @@ const integration = new bp.Integration({
     const contact = await intercomClient.contacts.find({ id: userId })
 
     const { user } = await client.getOrCreateUser({
-      tags: { [idTag]: `${contact.id}`, [emailTag]: `${contact.email}` },
+      tags: { id: `${contact.id}`, email: `${contact.email}` },
     })
 
     return {
@@ -281,8 +281,7 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const conversationId = tags[idTag]
-
+    const conversationId = tags.id
     if (!conversationId) {
       return
     }
@@ -292,7 +291,7 @@ const integration = new bp.Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { [idTag]: `${chat.id}` },
+      tags: { id: `${chat.id}` },
     })
 
     return {
@@ -309,27 +308,24 @@ export default sentryHelpers.wrapIntegration(integration, {
   release: bp.secrets.SENTRY_RELEASE,
 })
 
-async function sendMessage(props: {
-  body: string
-  conversation: Conversation
-  ack: AckFunction
-  configuration: Configuration
-  attachmentUrls?: string[]
-}) {
-  const { body, attachmentUrls, configuration, conversation, ack } = props
+async function sendMessage(
+  props: Pick<types.MessageHandlerProps, 'conversation' | 'ctx' | 'ack'> & { body: string; attachmentUrls?: string[] }
+) {
+  const { body, attachmentUrls, ctx, conversation, ack } = props
+  const { configuration } = ctx
   const client = new Client({ tokenAuth: { token: configuration.accessToken } })
 
   const {
     conversation_parts: { conversation_parts: conversationParts },
   } = await client.conversations.replyByIdAsAdmin({
-    id: conversation.tags[idTag] ?? '',
+    id: conversation.tags.id ?? '',
     adminId: configuration.adminId,
     messageType: ReplyToConversationMessageType.COMMENT,
     body,
     attachmentUrls,
   })
 
-  await ack({ tags: { [idTag]: `${conversationParts.at(-1)?.id ?? ''}` } })
+  await ack({ tags: { id: `${conversationParts.at(-1)?.id ?? ''}` } })
 }
 
 function composeMessage(...parts: string[]) {

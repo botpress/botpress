@@ -1,7 +1,8 @@
-import zodToJsonSchema from '@bpinternal/zod-to-json-schema'
-import type { JsonSchema7Type } from '@bpinternal/zod-to-json-schema/src/parseDef'
-import type { JsonSchema7ObjectType } from '@bpinternal/zod-to-json-schema/src/parsers/object'
-import { z } from 'zod'
+import { z, transforms } from '@botpress/sdk'
+
+type ZuiToJsonSchema = typeof transforms.zuiToJsonSchema
+type JsonSchema = ReturnType<ZuiToJsonSchema>
+type ObjectJsonSchema = Extract<JsonSchema, { type: 'object' }>
 
 type SchemaOptions = {
   title?: string
@@ -13,27 +14,27 @@ type SchemaDefinition = {
   ui?: Record<string, SchemaOptions | undefined>
 }
 
-const isObjectSchema = (schema: JsonSchema7Type): schema is JsonSchema7ObjectType => (schema as any)?.type === 'object'
+const isObjectSchema = (schema: JsonSchema): schema is ObjectJsonSchema => schema.type === 'object'
 
-export function mapZodToJsonSchema(definition: SchemaDefinition): ReturnType<typeof zodToJsonSchema> {
-  const schema = zodToJsonSchema(definition.schema, { errorMessages: true })
+export function mapZodToJsonSchema(definition: SchemaDefinition): ReturnType<typeof transforms.zuiToJsonSchema> {
+  const schema = transforms.zuiToJsonSchema(definition.schema, { target: 'jsonSchema7' })
   if (!isObjectSchema(schema) || !definition.ui) {
     return schema
   }
 
   for (const [key, value] of Object.entries(definition.ui ?? {})) {
-    const property = schema.properties?.[key] as (JsonSchema7Type & { title?: string; examples?: any[] }) | undefined
+    const property = schema.properties?.[key]
 
     if (!property) {
       continue
     }
 
     if (!!value?.title) {
-      property.title = value.title
+      ;(property as any).title = value.title
     }
 
     if (!!value?.examples) {
-      property.examples = value.examples
+      ;(property as any).examples = value.examples
     }
   }
 

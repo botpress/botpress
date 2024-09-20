@@ -1,9 +1,9 @@
+import { z } from '@botpress/sdk'
 import { Issue } from '@linear/sdk'
 
-import { z } from 'zod'
 import { issueSchema } from '../definitions/schemas'
 import { getLinearClient } from '../misc/utils'
-import { IntegrationProps } from '.botpress'
+import * as bp from '.botpress'
 
 export const getIssueFields = (issue: Issue): z.infer<typeof issueSchema> => ({
   id: issue.id,
@@ -18,8 +18,12 @@ export const getIssueFields = (issue: Issue): z.infer<typeof issueSchema> => ({
   updatedAt: issue.updatedAt.toISOString(),
 })
 
-export const getIssue: IntegrationProps['actions']['getIssue'] = async ({ client, ctx, input: { issueId } }) => {
-  const linearClient = await getLinearClient(client, ctx.integrationId)
+export const getIssue: bp.IntegrationProps['actions']['getIssue'] = async (args) => {
+  const {
+    ctx,
+    input: { issueId },
+  } = args
+  const linearClient = await getLinearClient(args, ctx.integrationId)
   const issue = await linearClient.issue(issueId)
 
   return getIssueFields(issue)

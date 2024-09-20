@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from '@botpress/sdk'
 
 import { TrelloIDSchema, LimitsObjectSchema, MemberPrefsSchema } from './sub-schemas'
 

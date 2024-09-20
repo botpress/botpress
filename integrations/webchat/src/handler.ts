@@ -8,9 +8,9 @@ import { NewMessage, NewUser, incomingEventSchema } from './misc/messaging/incom
 import { OutgoingMessage } from './misc/messaging/outgoing-message'
 import { Client, IntegrationCtx } from './misc/types'
 import { getTag, getUserAndConversation } from './misc/utils'
-import * as botpress from '.botpress'
+import * as bp from '.botpress'
 
-export const handler: botpress.IntegrationProps['handler'] = async ({ req, client }) => {
+export const handler: bp.IntegrationProps['handler'] = async ({ req, client }) => {
   if (!req.body) {
     console.warn('Handler received an empty body')
     return
@@ -68,7 +68,7 @@ async function handleUpdateUser(newUser: NewUser, client: Client) {
     type: 'user',
     id: user.id,
     name: USER_DATA_STATE_NAME,
-    payload: newUser.userData ?? (null as any), // TODO: fix typing
+    payload: newUser.userData ?? null,
   })
 }
 

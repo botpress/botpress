@@ -1,8 +1,10 @@
-import type { GenericMessageEvent, ReactionAddedEvent } from '@slack/bolt'
-
-import { channelIdTag, userIdTag } from './const'
+import type { SlackEvent } from '@slack/types'
+import { executeMemberJoinedChannel } from './events/member-joined-channel'
+import { executeMemberLeftChannel } from './events/member-left-channel'
 import { executeMessageReceived } from './events/message-received'
 import { executeReactionAdded } from './events/reaction-added'
+import { executeReactionRemoved } from './events/reaction-removed'
+import { executeTeamJoin } from './events/team-join'
 import {
   isInteractiveRequest,
   onOAuth,
@@ -13,10 +15,9 @@ import {
   validateRequestSignature,
   getOAuthAccessToken,
 } from './misc/utils'
+import * as bp from '.botpress'
 
-import * as botpress from '.botpress'
-
-export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
+export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
   logger.forBot().debug('Handler received request from Slack with payload:', req.body)
   if (req.path.startsWith('/oauth')) {
     return onOAuth(req, client, ctx).catch((err) => {
@@ -67,7 +68,11 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, 
     )
 
     await client.getOrCreateMessage({
-      tags: { ts: body.message.ts, [userIdTag]: body.user.id, [channelIdTag]: body.channel.id },
+      tags: {
+        ts: body.message.ts,
+        userId: body.user.id,
+        channelId: body.channel.id,
+      },
       type: 'text',
       payload: { text: actionValue },
       userId,
@@ -86,19 +91,31 @@ export const handler: botpress.IntegrationProps['handler'] = async ({ req, ctx, 
     }
   }
 
-  const event: ReactionAddedEvent | GenericMessageEvent = data.event
+  const event: SlackEvent = data.event
   logger.forBot().debug(`Handler received request of type ${data.event.type}`)
+
+  if ('user' in event && event.user === botUserId) {
+    return
+  }
 
   switch (event.type) {
     case 'message':
       return executeMessageReceived({ slackEvent: event, client, ctx, logger })
 
     case 'reaction_added':
-      if (event.user !== botUserId) {
-        return executeReactionAdded({ slackEvent: event, client })
-      }
+      return executeReactionAdded({ slackEvent: event, client })
 
-      return
+    case 'reaction_removed':
+      return executeReactionRemoved({ slackEvent: event, client })
+
+    case 'team_join':
+      return executeTeamJoin({ slackEvent: event, client })
+
+    case 'member_joined_channel':
+      return executeMemberJoinedChannel({ slackEvent: event, client })
+
+    case 'member_left_channel':
+      return executeMemberLeftChannel({ slackEvent: event, client })
 
     default:
       return

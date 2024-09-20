@@ -1,3 +1,4 @@
+import * as sdk from '@botpress/sdk'
 import {
   createTaskInputSchema,
   createTaskOutputSchema,
@@ -10,6 +11,9 @@ import {
 } from '../misc/custom-schemas'
 import { createTaskUi, updateTaskUi, findUserUi, addCommentToTaskUi } from '../misc/custom-uis'
 
+type SdkActions = NonNullable<sdk.IntegrationDefinitionProps['actions']>
+type SdkAction = SdkActions[string]
+
 const createTask = {
   title: 'Create Task',
   description: 'Create Task',
@@ -20,7 +24,7 @@ const createTask = {
   output: {
     schema: createTaskOutputSchema,
   },
-}
+} satisfies SdkAction
 
 const updateTask = {
   title: 'Update Task',
@@ -32,7 +36,7 @@ const updateTask = {
   output: {
     schema: updateTaskOutputSchema,
   },
-}
+} satisfies SdkAction
 
 const findUser = {
   title: 'Find User',
@@ -44,7 +48,7 @@ const findUser = {
   output: {
     schema: findUserOutputSchema,
   },
-}
+} satisfies SdkAction
 
 const addCommentToTask = {
   title: 'Add Comment to Task',
@@ -56,11 +60,11 @@ const addCommentToTask = {
   output: {
     schema: addCommentToTaskOutputSchema,
   },
-}
+} satisfies SdkAction
 
 export const actions = {
   createTask,
   updateTask,
   findUser,
   addCommentToTask,
-}
+} satisfies SdkActions

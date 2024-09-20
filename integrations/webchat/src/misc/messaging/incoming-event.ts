@@ -1,4 +1,4 @@
-import { z } from 'zod'
+import { z } from '@botpress/sdk'
 
 export const triggerSchema = z.object({ type: z.literal('trigger'), payload: z.record(z.any()) })
 const messageSchema = z.object({ type: z.custom<Exclude<string, 'trigger'>>() }).passthrough()

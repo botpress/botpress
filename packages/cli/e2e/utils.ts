@@ -3,6 +3,7 @@ import fs from 'fs'
 import _ from 'lodash'
 import pathlib from 'path'
 import tmp from 'tmp'
+import * as uuid from 'uuid'
 
 type PackageJson = {
   name: string
@@ -71,3 +72,5 @@ export const handleExitCode = ({ exitCode }: { exitCode: number }) => {
     throw new Error(`Command exited with code ${exitCode}`)
   }
 }
+
+export const getUUID = () => uuid.v4().replace(/-/g, '')

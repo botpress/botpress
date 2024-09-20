@@ -1,6 +1,5 @@
 {
   "name": "@botpresshub/zapier",
-  "version": "0.1.0",
   "description": "Zapier integration for Botpress",
   "private": true,
   "scripts": {
@@ -8,7 +7,7 @@
     "build": "pnpm bp build",
     "login": "pnpm bp login",
     "deploy": "pnpm bp deploy",
-    "type:check": "tsc --noEmit",
+    "check:type": "tsc --noEmit",
     "test": "jest"
   },
   "keywords": [],
@@ -19,8 +18,7 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "axios": "^1.6.3",
-    "uuid": "^9.0.0",
-    "zod": "^3.20.6"
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

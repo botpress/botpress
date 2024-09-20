@@ -1,7 +1,8 @@
 {
   "name": "@botpresshub/notion",
   "scripts": {
-    "type:check": "tsc --noEmit"
+    "check:type": "tsc --noEmit",
+    "build": "pnpm bp build"
   },
   "keywords": [],
   "private": true,
@@ -11,8 +12,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "@notionhq/client": "^2.2.7",
-    "zod": "^3.20.6"
+    "@notionhq/client": "^2.2.7"
   },
   "devDependencies": {
     "@tsconfig/node18-strictest": "^1.0.0",

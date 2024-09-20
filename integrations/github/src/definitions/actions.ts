@@ -1,5 +1,4 @@
-import { IntegrationDefinitionProps } from '@botpress/sdk'
-import z from 'zod'
+import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 
 const Channels = ['pullRequest', 'discussion', 'issue'] as const
 

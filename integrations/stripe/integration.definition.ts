@@ -1,5 +1,4 @@
-import { IntegrationDefinition } from '@botpress/sdk'
-import { z } from 'zod'
+import { IntegrationDefinition, z } from '@botpress/sdk'
 import {
   createCustomerInputSchema,
   createCustomerOutputSchema,
@@ -28,23 +27,12 @@ import {
   paymentIntentFailedSchema,
   subscriptionDeletedSchema,
   subscriptionUpdatedSchema,
+  subscriptionCreatedSchema,
 } from './src/misc/custom-schemas'
-import {
-  createCustomerUi,
-  createOrRetrieveCustomerUi,
-  createPaymentLinkUi,
-  createSubsLinkUi,
-  deactivatePaymentLinkUi,
-  findPaymentLinkUi,
-  listCustomersUi,
-  listPaymentLinksUi,
-  retrieveCustomerByIdUi,
-  searchCustomersUi,
-} from './src/misc/custom-uis'
 
 export default new IntegrationDefinition({
   name: 'stripe',
-  version: '0.2.0',
+  version: '0.4.4',
   title: 'Stripe',
   readme: 'hub.md',
   icon: 'icon.svg',
@@ -52,7 +40,7 @@ export default new IntegrationDefinition({
     'Enhance your chatbot with Stripe to manage payments, subscriptions, and customers seamlessly. Execute workflows on charge failures and subscription updates easily',
   configuration: {
     schema: z.object({
-      apiKey: z.string().describe('API Key'),
+      apiKey: z.string().min(1).describe('API Key'),
       apiVersion: z.string().optional().default('2023-10-16').describe('API Version (optional) (default: 2023-10-16)'),
     }),
   },
@@ -73,6 +61,12 @@ export default new IntegrationDefinition({
       description:
         'This event occurs when a subscription is updated in Stripe. For example when the subscription is cancelled, but does not terminate immediately cancel_at_period_end goes to true.',
     },
+    subscriptionCreated: {
+      schema: subscriptionCreatedSchema,
+      title: 'Subscription Created',
+      description:
+        'This event occurs when a subscription is created in Stripe. For example when the subscription is cancelled, but does not terminate immediately cancel_at_period_end goes to true.',
+    },
     invoicePaymentFailed: {
       schema: invoicePaymentFailedSchema,
       title: 'Invoice Payment Failed',
@@ -82,6 +76,13 @@ export default new IntegrationDefinition({
       schema: paymentIntentFailedSchema,
       title: 'Payment Intent Failed',
       description: 'This event occurs when a payment intent fails in Stripe.',
+    },
+  },
+  user: {
+    tags: {
+      id: {
+        title: 'Stripe customer ID',
+      },
     },
   },
   channels: {},
@@ -98,7 +99,6 @@ export default new IntegrationDefinition({
       title: 'Create Payment Link',
       input: {
         schema: createPaymentLinkInputSchema,
-        ui: createPaymentLinkUi,
       },
       output: {
         schema: createPaymentLinkOutputSchema,
@@ -108,7 +108,6 @@ export default new IntegrationDefinition({
       title: 'List Product Prices',
       input: {
         schema: listProductPricesInputSchema,
-        ui: {},
       },
       output: {
         schema: listProductPricesOutputSchema,
@@ -118,7 +117,6 @@ export default new IntegrationDefinition({
       title: 'Create Subscription Payment Link',
       input: {
         schema: createSubsLinkInputSchema,
-        ui: createSubsLinkUi,
       },
       output: {
         schema: createSubsLinkOutputSchema,
@@ -128,7 +126,6 @@ export default new IntegrationDefinition({
       title: 'List Payment Links',
       input: {
         schema: listPaymentLinksInputSchema,
-        ui: listPaymentLinksUi,
       },
       output: {
         schema: listPaymentLinksOutputSchema,
@@ -138,7 +135,6 @@ export default new IntegrationDefinition({
       title: 'Find Payment Link',
       input: {
         schema: findPaymentLinkInputSchema,
-        ui: findPaymentLinkUi,
       },
       output: {
         schema: findPaymentLinkOutputSchema,
@@ -148,7 +144,6 @@ export default new IntegrationDefinition({
       title: 'Deactivate Payment Link',
       input: {
         schema: deactivatePaymentLinkInputSchema,
-        ui: deactivatePaymentLinkUi,
       },
       output: {
         schema: deactivatePaymentLinkOutputSchema,
@@ -158,7 +153,6 @@ export default new IntegrationDefinition({
       title: 'List Customers By Email',
       input: {
         schema: listCustomersInputSchema,
-        ui: listCustomersUi,
       },
       output: {
         schema: listCustomersOutputSchema,
@@ -168,7 +162,6 @@ export default new IntegrationDefinition({
       title: 'Search Customers By Fields',
       input: {
         schema: searchCustomersInputSchema,
-        ui: searchCustomersUi,
       },
       output: {
         schema: searchCustomersOutputSchema,
@@ -178,7 +171,6 @@ export default new IntegrationDefinition({
       title: 'Create Customer',
       input: {
         schema: createCustomerInputSchema,
-        ui: createCustomerUi,
       },
       output: {
         schema: createCustomerOutputSchema,
@@ -188,7 +180,6 @@ export default new IntegrationDefinition({
       title: 'Create Or Retrieve Customer',
       input: {
         schema: createOrRetrieveCustomerInputSchema,
-        ui: createOrRetrieveCustomerUi,
       },
       output: {
         schema: createOrRetrieveCustomerOutputSchema,
@@ -198,7 +189,6 @@ export default new IntegrationDefinition({
       title: 'Retrieve Customer By ID',
       input: {
         schema: retrieveCustomerByIdInputSchema,
-        ui: retrieveCustomerByIdUi,
       },
       output: {
         schema: retrieveCustomerByIdOutputSchema,

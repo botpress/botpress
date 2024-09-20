@@ -1,5 +1,3 @@
-import type { Conversation } from '@botpress/client'
-import type { IntegrationContext, AckFunction } from '@botpress/sdk'
 import WhatsAppAPI from 'whatsapp-api-js'
 import {
   Text,
@@ -15,8 +13,9 @@ import {
   Reaction,
 } from 'whatsapp-api-js/messages'
 import { ServerErrorResponse, ServerSentMessageResponse } from 'whatsapp-api-js/types'
-import { IntegrationCtx, IntegrationLogger } from '.'
-import { INTEGRATION_NAME, phoneNumberIdTag, userPhoneTag } from './const'
+import * as bp from '../.botpress'
+import { getAccessToken } from './misc/whatsapp'
+import * as types from './types'
 import { sleep } from './util'
 
 export type OutgoingMessage =
@@ -32,22 +31,21 @@ export type OutgoingMessage =
   | Template
   | Reaction
 
-export async function send({
-  ctx,
-  conversation,
-  message,
-  ack,
-  logger,
-}: {
-  ctx: IntegrationCtx
-  conversation: Conversation
-  ack: AckFunction
+export type SendMessageProps = {
+  client: bp.Client
+  ctx: types.MessageHandlerProps['ctx']
+  conversation: types.MessageHandlerProps['conversation']
+  ack: types.MessageHandlerProps['ack']
+  logger: types.MessageHandlerProps['logger']
   message: OutgoingMessage
-  logger: IntegrationLogger
-}) {
-  const whatsapp = new WhatsAppAPI({ token: ctx.configuration.accessToken, secure: false })
-  const phoneNumberId = conversation.tags[phoneNumberIdTag]
-  const to = conversation.tags[userPhoneTag]
+}
+
+export async function send({ client, ctx, conversation, message, ack, logger }: SendMessageProps) {
+  const accessToken = await getAccessToken(client, ctx)
+
+  const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
+  const phoneNumberId = conversation.tags.phoneNumberId
+  const to = conversation.tags.userPhone
   const messageType = message._type
 
   if (!phoneNumberId) {
@@ -78,7 +76,7 @@ export async function send({
 
   if (messageId) {
     logger.forBot().debug(`Successfully sent ${messageType} message from bot to Whatsapp:`, message)
-    await ack({ tags: { [`${INTEGRATION_NAME}:id`]: messageId } })
+    await ack({ tags: { id: messageId } })
   } else {
     logger
       .forBot()
@@ -91,24 +89,19 @@ export async function send({
 }
 
 export async function sendMany({
+  client,
   ctx,
   conversation,
   ack,
   generator,
   logger,
-}: {
-  ctx: IntegrationContext
-  conversation: Conversation
-  ack: AckFunction
-  generator: Generator<OutgoingMessage, void, unknown>
-  logger: IntegrationLogger
-}) {
+}: Omit<SendMessageProps, 'message'> & { generator: Generator<OutgoingMessage, void, unknown> }) {
   try {
     for (const message of generator) {
       // Sending multiple messages in sequence does not guarantee delivery order on the client-side.
       // In order for messages to appear in order on the client side, adding some sleep in between each seems to work.
       await sleep(1000)
-      await send({ ctx, conversation, ack, message, logger })
+      await send({ ctx, conversation, ack, message, logger, client })
     }
   } catch (err) {
     logger.forBot().error('Failed to generate messages for sending to Whatsapp. Reason:', err)

@@ -7,7 +7,7 @@ import { Handler } from './typings'
  */
 export const handleSyncIssuesRequest: Handler<'syncIssuesRequest'> = async (props) => {
   try {
-    const { client, ctx } = props
+    const { client } = props
     const {
       output: { targets: githubIssues },
     } = await client.callAction({
@@ -42,20 +42,12 @@ export const handleSyncIssuesRequest: Handler<'syncIssuesRequest'> = async (prop
     ].join('\n')
     console.info(message)
 
-    const state = await listeners.readListeners(props)
-    console.info(`Sending message to ${state.conversationIds.length} conversation(s)`)
-
-    for (const conversationId of state.conversationIds) {
-      await client.createMessage({
-        conversationId,
-        userId: ctx.botId,
-        tags: {},
-        type: 'text',
-        payload: {
-          text: message,
-        },
-      })
-    }
+    await listeners.notifyListeners(props, {
+      type: 'text',
+      payload: {
+        text: message,
+      },
+    })
   } catch (thrown) {
     // If recurring event fails to many times, bridge stops sending it... We don't want that
     const err = thrown instanceof Error ? thrown : new Error(`${thrown}`)

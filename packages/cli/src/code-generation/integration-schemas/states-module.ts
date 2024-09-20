@@ -1,16 +1,17 @@
 import bluebird from 'bluebird'
-import { casing } from '../../utils'
 import { jsonSchemaToTypeScriptType } from '../generators'
 import { Module, ModuleDef, ReExportTypeModule } from '../module'
+import * as strings from '../strings'
 import type * as types from '../typings'
 
 export class StateModule extends Module {
   public static async create(name: string, state: types.StateDefinition): Promise<StateModule> {
     const schema = state.schema
+    const exportName = strings.typeName(name)
     const def: ModuleDef = {
       path: `${name}.ts`,
-      exportName: casing.to.pascalCase(name),
-      content: await jsonSchemaToTypeScriptType(schema, name),
+      exportName,
+      content: await jsonSchemaToTypeScriptType(schema, exportName),
     }
     return new StateModule(def)
   }
@@ -23,7 +24,7 @@ export class StatesModule extends ReExportTypeModule {
     )
 
     const inst = new StatesModule({
-      exportName: 'States',
+      exportName: strings.typeName('states'),
     })
     inst.pushDep(...stateModules)
     return inst

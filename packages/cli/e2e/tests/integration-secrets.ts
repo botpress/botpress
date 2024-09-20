@@ -33,11 +33,15 @@ const appendSecretDefinition = (originalTsContent: string, secrets: SecretDef): 
 
 export const requiredSecrets: Test = {
   name: 'cli should require required secrets',
-  handler: async ({ tmpDir, dependencies, ...creds }) => {
+  handler: async ({ tmpDir, workspaceHandle, dependencies, ...creds }) => {
     const botpressHomeDir = pathlib.join(tmpDir, '.botpresshome')
     const baseDir = pathlib.join(tmpDir, 'integrations')
-    const integrationName = `myintegration-${uuid.v4()}`.replace(/-/g, '')
-    const integrationDir = pathlib.join(baseDir, integrationName)
+
+    const integrationSuffix = uuid.v4().replace(/-/g, '')
+    const name = `myintegration${integrationSuffix}`
+    const integrationName = `${workspaceHandle}/${name}`
+    const integrationDirName = `${workspaceHandle}-${name}`
+    const integrationDir = pathlib.join(baseDir, integrationDirName)
 
     const definitionPath = pathlib.join(integrationDir, 'integration.definition.ts')
 

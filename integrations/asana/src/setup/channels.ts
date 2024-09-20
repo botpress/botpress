@@ -42,6 +42,9 @@ export const channels: Channels = {
       dropdown: async () => {
         throw new NotImplementedError()
       },
+      bloc: async () => {
+        throw new NotImplementedError()
+      },
     },
   },
 }

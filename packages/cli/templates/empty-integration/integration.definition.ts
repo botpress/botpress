@@ -1,12 +1,9 @@
-import { IntegrationDefinition, messages } from '@botpress/sdk'
-import { name, integrationName } from './package.json'
+import { IntegrationDefinition } from '@botpress/sdk'
+import { integrationName } from './package.json'
 
 export default new IntegrationDefinition({
-  name: integrationName ?? name,
-  version: '0.2.0',
-  channels: {
-    channel: {
-      messages: { ...messages.defaults },
-    },
-  },
+  name: integrationName,
+  version: '0.0.1',
+  readme: 'hub.md',
+  icon: 'icon.svg',
 })

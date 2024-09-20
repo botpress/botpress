@@ -1,8 +1,8 @@
 import { getClient } from '../client'
 import { deactivatePaymentLinkInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
-export const deactivatePaymentLink: Implementation['actions']['deactivatePaymentLink'] = async ({
+export const deactivatePaymentLink: IntegrationProps['actions']['deactivatePaymentLink'] = async ({
   ctx,
   logger,
   input,

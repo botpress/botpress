@@ -1,5 +1,4 @@
 import type { Conversation } from '@botpress/client'
-import type { AckFunction } from '@botpress/sdk'
 import type { WebhookEvent } from '@octokit/webhooks-types'
 import { INTEGRATION_NAME } from '../const'
 import {
@@ -10,7 +9,7 @@ import {
   isPullRequestCommentCreatedEvent,
   isPullRequestOpenedEvent,
 } from './guards'
-import { Client } from './types'
+import * as types from './types'
 
 type CommonMessage = { content: string; conversationId: number; userId: number; messageId: number }
 
@@ -94,7 +93,7 @@ export function getConversationId(conversation: Conversation): number {
   return Number(id)
 }
 
-export async function ackMessage(messageId: number, ack: AckFunction) {
+export async function ackMessage(messageId: number, ack: types.AckFunction) {
   await ack({ tags: { id: messageId.toString() } })
 }
 
@@ -104,7 +103,7 @@ export const getTag = (tags: Record<string, string>, name: string) => {
 
 export const getUserAndConversation = async (
   props: { githubUserId: string | number; githubChannelId: string | number; githubChannel: 'pullRequest' },
-  client: Client
+  client: types.Client
 ) => {
   const { conversation } = await client.getOrCreateConversation({
     channel: props.githubChannel,

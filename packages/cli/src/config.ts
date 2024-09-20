@@ -52,17 +52,30 @@ const botRef = {
 
 const integrationRef = {
   type: 'string',
-  description: 'The integration ID or name with optionnal version. Ex: teams or teams@0.2.0',
+  description: 'The integration ID or name with optional version. Ex: teams or teams@0.2.0',
   demandOption: true,
   positional: true,
   idx: 0,
 } satisfies CommandOption
 
+const interfaceRef = {
+  ...integrationRef,
+  description: 'The interface ID or name with optional version. Ex: teams or teams@0.2.0',
+} satisfies CommandOption
+
 const sourceMap = { type: 'boolean', description: 'Generate sourcemaps', default: false } satisfies CommandOption
+
+const minify = { type: 'boolean', description: 'Minify the bundled code', default: true } satisfies CommandOption
 
 const dev = {
   type: 'boolean',
   description: 'List only dev bots / dev integrations',
+  default: false,
+} satisfies CommandOption
+
+const isPublic = {
+  type: 'boolean',
+  description: 'Weither or not to deploy the integration publicly',
   default: false,
 } satisfies CommandOption
 
@@ -119,11 +132,17 @@ const generateSchema = {
 const bundleSchema = {
   ...projectSchema,
   sourceMap,
+  minify,
 } satisfies CommandSchema
 
 const buildSchema = {
   ...projectSchema,
   sourceMap,
+  minify,
+} satisfies CommandSchema
+
+const readSchema = {
+  ...projectSchema,
 } satisfies CommandSchema
 
 const serveSchema = {
@@ -140,6 +159,8 @@ const deploySchema = {
   noBuild,
   createNewBot: { type: 'boolean', description: 'Create a new bot when deploying. Only used when deploying a bot' },
   sourceMap,
+  minify,
+  public: isPublic,
   allowDeprecated: {
     type: 'boolean',
     description: 'Allow deprecated features in the project',
@@ -152,6 +173,7 @@ const devSchema = {
   ...credentialsSchema,
   ...secretsSchema,
   sourceMap,
+  minify,
   port,
   tunnelUrl: {
     type: 'string',
@@ -181,6 +203,11 @@ const createBotSchema = {
   ...globalSchema,
   ...credentialsSchema,
   name: { type: 'string', description: 'The name of the bot to create' },
+  ifNotExists: {
+    type: 'boolean',
+    description: 'Do not create if a bot with the same name already exists',
+    default: false,
+  },
 } satisfies CommandSchema
 
 const getBotSchema = {
@@ -221,6 +248,23 @@ const deleteIntegrationSchema = {
   integrationRef,
 } satisfies CommandSchema
 
+const getInterfaceSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+  interfaceRef,
+} satisfies CommandSchema
+
+const listInterfacesSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+} satisfies CommandSchema
+
+const deleteInterfaceSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+  interfaceRef,
+} satisfies CommandSchema
+
 const initSchema = {
   ...globalSchema,
   workDir,
@@ -245,10 +289,14 @@ export const schemas = {
   getIntegration: getIntegrationSchema,
   listIntegrations: listIntegrationsSchema,
   deleteIntegration: deleteIntegrationSchema,
+  getInterface: getInterfaceSchema,
+  listInterfaces: listInterfacesSchema,
+  deleteInterface: deleteInterfaceSchema,
   init: initSchema,
   generate: generateSchema,
   bundle: bundleSchema,
   build: buildSchema,
+  read: readSchema,
   serve: serveSchema,
   deploy: deploySchema,
   add: addSchema,

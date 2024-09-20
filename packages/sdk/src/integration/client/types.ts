@@ -32,6 +32,4 @@ export type WithPrefix<TTags extends string, TPrefix extends PrefixConfig = null
   ? Join<[TPrefix['enforcePrefix'], ':', TTags]>
   : TTags
 
-export type ToTags<TTags extends string | number | symbol, TPrefix extends PrefixConfig = null> = AsTags<
-  Partial<Record<WithPrefix<Cast<TTags, string>, TPrefix>, string>>
->
+export type ToTags<TTags extends string | number | symbol> = AsTags<Partial<Record<Cast<TTags, string>, string>>>

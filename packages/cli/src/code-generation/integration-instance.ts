@@ -3,7 +3,9 @@ import { GENERATED_HEADER, INDEX_FILE } from './const'
 import { stringifySingleLine } from './generators'
 import { ActionsModule } from './integration-schemas/actions-module'
 import { ChannelsModule } from './integration-schemas/channels-module'
-import { ConfigurationModule } from './integration-schemas/configuration-module'
+import { DefaultConfigurationModule } from './integration-schemas/configuration-module'
+import { ConfigurationsModule } from './integration-schemas/configurations-module'
+import { EntitiesModule } from './integration-schemas/entities-module'
 import { EventsModule } from './integration-schemas/events-module'
 import { StatesModule } from './integration-schemas/states-module'
 import { Module, ModuleDef } from './module'
@@ -13,8 +15,11 @@ export class IntegrationInstanceIndexModule extends Module {
   public static async create(integration: types.IntegrationDefinition): Promise<IntegrationInstanceIndexModule> {
     const { name } = integration
 
-    const configModule = await ConfigurationModule.create(integration.configuration ?? { schema: {} })
-    configModule.unshift('configuration')
+    const defaultConfigModule = await DefaultConfigurationModule.create(integration.configuration ?? { schema: {} })
+    defaultConfigModule.unshift('configuration')
+
+    const configurationsModule = await ConfigurationsModule.create(integration.configurations ?? {})
+    configurationsModule.unshift('configurations')
 
     const actionsModule = await ActionsModule.create(integration.actions ?? {})
     actionsModule.unshift('actions')
@@ -28,15 +33,20 @@ export class IntegrationInstanceIndexModule extends Module {
     const statesModule = await StatesModule.create(integration.states ?? {})
     statesModule.unshift('states')
 
+    const entitiesModule = await EntitiesModule.create(integration.entities ?? {})
+    entitiesModule.unshift('entities')
+
     const exportName = casing.to.pascalCase(name)
 
     const inst = new IntegrationInstanceIndexModule(
       integration,
-      configModule,
+      defaultConfigModule,
+      configurationsModule,
       actionsModule,
       channelsModule,
       eventsModule,
       statesModule,
+      entitiesModule,
       {
         path: INDEX_FILE,
         content: '',
@@ -44,39 +54,55 @@ export class IntegrationInstanceIndexModule extends Module {
       }
     )
 
-    inst.pushDep(configModule)
+    inst.pushDep(defaultConfigModule)
+    inst.pushDep(configurationsModule)
     inst.pushDep(actionsModule)
     inst.pushDep(channelsModule)
     inst.pushDep(eventsModule)
     inst.pushDep(statesModule)
+    inst.pushDep(entitiesModule)
 
     return inst
   }
 
   private constructor(
     private integration: types.IntegrationDefinition,
-    private configModule: ConfigurationModule,
+    private defaultConfigModule: DefaultConfigurationModule,
+    private configurationsModule: ConfigurationsModule,
     private actionsModule: ActionsModule,
     private channelsModule: ChannelsModule,
     private eventsModule: EventsModule,
     private statesModule: StatesModule,
+    private entitiesModule: EntitiesModule,
     def: ModuleDef
   ) {
     super(def)
   }
 
   public override get content(): string {
-    const { configModule, actionsModule, channelsModule, eventsModule, statesModule, integration } = this
+    const {
+      defaultConfigModule,
+      configurationsModule,
+      actionsModule,
+      channelsModule,
+      eventsModule,
+      statesModule,
+      entitiesModule,
+      integration,
+    } = this
 
-    const configImport = configModule.import(this)
+    const defaultConfigImport = defaultConfigModule.import(this)
+    const configurationsImport = configurationsModule.import(this)
     const actionsImport = actionsModule.import(this)
     const channelsImport = channelsModule.import(this)
     const eventsImport = eventsModule.import(this)
     const statesImport = statesModule.import(this)
+    const entitiesImport = entitiesModule.import(this)
 
     const { name, version, id } = integration
     const className = casing.to.pascalCase(name)
     const propsName = `${className}Props`
+    const configName = `${className}Config`
 
     const integrationId = id === null ? 'null' : `'${id}'`
 
@@ -84,44 +110,64 @@ export class IntegrationInstanceIndexModule extends Module {
       GENERATED_HEADER,
       "import type { IntegrationInstance } from '@botpress/sdk'",
       '',
-      `import type * as ${configModule.name} from "./${configImport}"`,
+      `import type * as ${defaultConfigModule.name} from "./${defaultConfigImport}"`,
+      `import type * as ${configurationsModule.name} from "./${configurationsImport}"`,
       `import type * as ${actionsModule.name} from "./${actionsImport}"`,
       `import type * as ${channelsModule.name} from "./${channelsImport}"`,
       `import type * as ${eventsModule.name} from "./${eventsImport}"`,
       `import type * as ${statesModule.name} from "./${statesImport}"`,
-      `export * as ${configModule.name} from "./${configImport}"`,
+      `import type * as ${entitiesModule.name} from "./${entitiesImport}"`,
+      `export * as ${defaultConfigModule.name} from "./${defaultConfigImport}"`,
+      `export * as ${configurationsModule.name} from "./${configurationsImport}"`,
       `export * as ${actionsModule.name} from "./${actionsImport}"`,
       `export * as ${channelsModule.name} from "./${channelsImport}"`,
       `export * as ${eventsModule.name} from "./${eventsImport}"`,
       `export * as ${statesModule.name} from "./${statesImport}"`,
+      `export * as ${entitiesModule.name} from "./${entitiesImport}"`,
+      '',
+      '// type utils',
+      'type ValueOf<T> = T[keyof T]',
+      '',
+      `export type ${configName} = {`,
+      '  configType?: null',
+      `  config?: ${defaultConfigModule.name}.${defaultConfigModule.exports}`,
+      '} | ValueOf<{',
+      `  [K in keyof ${configurationsModule.name}.${configurationsModule.exports}]: {`,
+      '    configType: K',
+      `    config?: ${configurationsModule.name}.${configurationsModule.exports}[K]`,
+      '  }',
+      '}>',
       '',
       `export type ${propsName} = {`,
       '  enabled?: boolean',
-      `  config?: ${configModule.name}.${configModule.exports}`,
-      '}',
+      `} & ${configName}`,
       '',
       `export type T${className} = {`,
       `  name: '${name}'`,
       `  version: '${version}'`,
-      `  configuration: ${configModule.name}.${configModule.exports}`,
+      `  configuration: ${defaultConfigModule.name}.${defaultConfigModule.exports}`,
+      `  configurations: ${configurationsModule.name}.${configurationsModule.exports}`,
       `  actions: ${actionsModule.name}.${actionsModule.exports}`,
       `  channels: ${channelsModule.name}.${channelsModule.exports}`,
       `  events: ${eventsModule.name}.${eventsModule.exports}`,
       `  states: ${statesModule.name}.${statesModule.exports}`,
       `  user: ${stringifySingleLine(this.integration.user)}`,
+      `  entities: ${entitiesModule.name}.${entitiesModule.exports}`,
       '}',
       '',
-      `export class ${className} implements IntegrationInstance<'${name}'> {`,
+      `export class ${className} implements IntegrationInstance<T${className}> {`,
       '',
       `  public readonly name = '${name}'`,
       `  public readonly version = '${version}'`,
       `  public readonly id = ${integrationId}`,
       '',
       '  public readonly enabled?: boolean',
-      `  public readonly configuration?: ${configModule.name}.${configModule.exports}`,
+      `  public readonly configurationType?: ${configName}['configType']`,
+      `  public readonly configuration?: ${configName}['config']`,
       '',
       `  constructor(props?: ${propsName}) {`,
       '    this.enabled = props?.enabled',
+      '    this.configurationType = props?.configType',
       '    this.configuration = props?.config',
       '  }',
       '}',

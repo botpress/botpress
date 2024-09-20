@@ -1,48 +1,46 @@
-import '@botpress/client'
+import * as sdk from '@botpress/sdk'
 import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 import { getZendeskClient } from './client'
-import { idTag, requesterIdTag } from './const'
-import { IntegrationProps } from '.botpress'
+import * as bp from '.botpress'
 
-class TagStore<T extends Record<string, string>> {
-  constructor(private _t: { tags: T }, private _logger: IntegrationLogger) {}
+class Tags<T extends Record<string, string>> {
+  private constructor(private _t: { tags: T }, private _logger: IntegrationLogger) {}
 
-  public find(key: keyof T) {
+  public static of<T extends Record<string, string>>(t: { tags: T }, logger: IntegrationLogger) {
+    return new Tags(t, logger)
+  }
+
+  public find(key: keyof T): string | undefined {
     return this._t.tags[key]
   }
 
-  public get(key: keyof T) {
+  public get(key: keyof T): string {
     const value = this.find(key)
     if (!value) {
       const msg = `Could not find tag ${key as string}`
       this._logger.forBot().error(msg)
-      throw new Error(`Could not find tag ${key as string}`)
+      throw new sdk.RuntimeError(`Could not find tag ${key as string}`)
     }
     return value
   }
 }
 
 export default {
-  ticket: {
+  hitl: {
     messages: {
-      text: async ({ client, ...props }) => {
-        const conversationTags = new TagStore(props.conversation, props.logger)
-        const ticketId = conversationTags.get(idTag)
+      text: async ({ client, ...props }: bp.AnyMessageProps) => {
+        const { text, userId } = props.payload
 
-        const { user } = await client.getUser({
-          id: props.user.id,
-        })
+        const conversationTags = Tags.of(props.conversation, props.logger)
+        const ticketId = conversationTags.get('id')
 
-        const userTags = new TagStore(user, props.logger)
+        const bpUserId = userId ?? props.user.id
+        const { user } = await client.getUser({ id: bpUserId })
+        const userTags = Tags.of(user, props.logger)
+        const zendeskAuthorId = userTags.get('id')
 
-        const zendeskAuthorId = conversationTags.find(requesterIdTag) ?? userTags.get(idTag)
-
-        return await getZendeskClient(props.ctx.configuration).createComment(
-          ticketId,
-          zendeskAuthorId,
-          props.payload.text
-        )
+        return await getZendeskClient(props.ctx.configuration).createComment(ticketId, zendeskAuthorId, text)
       },
     },
   },
-} satisfies IntegrationProps['channels']
+} satisfies bp.IntegrationProps['channels']

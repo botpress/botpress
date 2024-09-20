@@ -1,5 +1,5 @@
 import type { Client, Integration } from '@botpress/client'
-import * as sdk from '@botpress/sdk'
+import type * as sdk from '@botpress/sdk'
 import * as utils from '../utils'
 
 export type CreateIntegrationBody = Parameters<Client['createIntegration']>[0]
@@ -12,13 +12,27 @@ type Channels = Integration['channels']
 type Channel = Integration['channels'][string]
 
 export const prepareCreateIntegrationBody = (integration: sdk.IntegrationDefinition): CreateIntegrationBody => ({
-  ...integration,
+  name: integration.name,
+  version: integration.version,
+  title: integration.title,
+  description: integration.description,
+  icon: integration.icon,
+  readme: integration.readme,
+  user: integration.user,
+  identifier: integration.identifier,
   secrets: undefined,
+  interfaces: {},
   configuration: integration.configuration
     ? {
         ...integration.configuration,
         schema: utils.schema.mapZodToJsonSchema(integration.configuration),
       }
+    : undefined,
+  configurations: integration.configurations
+    ? utils.records.mapValues(integration.configurations, (configuration) => ({
+        ...configuration,
+        schema: utils.schema.mapZodToJsonSchema(configuration),
+      }))
     : undefined,
   events: integration.events
     ? utils.records.mapValues(integration.events, (event) => ({
@@ -77,6 +91,13 @@ export const prepareUpdateIntegrationBody = (
 
   const channels = prepareUpdateIntegrationChannelsBody(localIntegration.channels ?? {}, remoteIntegration.channels)
 
+  const interfaces = utils.records.setNullOnMissingValues(localIntegration.interfaces, remoteIntegration.interfaces)
+
+  const configurations = utils.records.setNullOnMissingValues(
+    localIntegration.configurations,
+    remoteIntegration.configurations
+  )
+
   return {
     ...localIntegration,
     actions,
@@ -85,6 +106,8 @@ export const prepareUpdateIntegrationBody = (
     entities,
     user,
     channels,
+    interfaces,
+    configurations,
   }
 }
 

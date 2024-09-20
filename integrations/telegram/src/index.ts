@@ -1,11 +1,22 @@
+import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { ok } from 'assert/strict'
+
 import { Markup, Telegraf } from 'telegraf'
 import type { User } from 'telegraf/typings/core/types/typegram'
-import { chatIdTag, idTag, fromUserIdTag, fromUserNameTag } from './const'
-import { getUserPictureDataUri, getUserNameFromTelegramUser, getChat, sendCard, ackMessage } from './misc/utils'
-import * as bp from '.botpress'
 
-export type IntegrationLogger = Parameters<bp.IntegrationProps['handler']>[0]['logger']
+import { TelegramMessage } from './misc/types'
+import {
+  getUserPictureDataUri,
+  getUserNameFromTelegramUser,
+  getChat,
+  sendCard,
+  ackMessage,
+  convertTelegramMessageToBotpressMessage,
+  wrapHandler,
+  getMessageId,
+} from './misc/utils'
+import * as bp from '.botpress'
 
 const integration = new bp.Integration({
   register: async ({ webhookUrl, ctx }) => {
@@ -16,7 +27,33 @@ const integration = new bp.Integration({
     const telegraf = new Telegraf(ctx.configuration.botToken)
     await telegraf.telegram.deleteWebhook({ drop_pending_updates: true })
   },
-  actions: {},
+  actions: {
+    startTypingIndicator: async ({ input, ctx, client }) => {
+      const telegraf = new Telegraf(ctx.configuration.botToken)
+      const { conversation } = await client.getConversation({ id: input.conversationId })
+      const { message } = await client.getMessage({ id: input.messageId })
+
+      const chat = getChat(conversation)
+      const messageId = getMessageId(message)
+
+      await telegraf.telegram.sendChatAction(chat, 'typing')
+      await telegraf.telegram.setMessageReaction(chat, messageId, [{ type: 'emoji', emoji: '👀' }])
+
+      return {}
+    },
+    stopTypingIndicator: async ({ input, ctx, client }) => {
+      const telegraf = new Telegraf(ctx.configuration.botToken)
+      const { conversation } = await client.getConversation({ id: input.conversationId })
+      const { message } = await client.getMessage({ id: input.messageId })
+
+      const chat = getChat(conversation)
+      const messageId = getMessageId(message)
+
+      await telegraf.telegram.setMessageReaction(chat, messageId, [])
+
+      return {}
+    },
+  },
   channels: {
     channel: {
       messages: {
@@ -105,77 +142,50 @@ const integration = new bp.Integration({
           const message = await client.telegram.sendMessage(chat, payload.text, Markup.keyboard(buttons).oneTime())
           await ackMessage(message, ack)
         },
+        bloc: () => {
+          throw new RuntimeError('Not implemented')
+        },
       },
     },
   },
-  handler: async ({ req, client, ctx, logger }) => {
+  handler: wrapHandler(async ({ req, client, ctx, logger }) => {
     logger.forBot().debug('Handler received request from Telegram with payload:', req.body)
 
-    if (!req.body) {
-      logger.forBot().warn('Handler received an empty body, so the message was ignored')
-      return
-    }
+    ok(req.body, 'Handler received an empty body, so the message was ignored')
 
     const data = JSON.parse(req.body)
 
-    if (data.my_chat_member) {
-      logger.forBot().warn('Handler received a chat member update, so the message was ignored')
-      return
-    }
+    ok(!data.my_chat_member, 'Handler received a chat member update, so the message was ignored')
+    ok(!data.channel_post, 'Handler received a channel post, so the message was ignored')
+    ok(!data.edited_channel_post, 'Handler received an edited channel post, so the message was ignored')
+    ok(!data.edited_message, 'Handler received an edited message, so the message was ignored')
+    ok(data.message, 'Handler received a non-message update, so the event was ignored')
 
-    if (data.channel_post) {
-      logger.forBot().warn('Handler received a channel post, so the message was ignored')
-      return
-    }
+    const message = data.message as TelegramMessage
+    const conversationId = message.chat.id
+    const userId = message.from?.id
+    const messageId = message.message_id
 
-    if (data.edited_channel_post) {
-      logger.forBot().warn('Handler received an edited channel post, so the message was ignored')
-      return
-    }
+    ok(!message.from?.is_bot, 'Handler received a message from a bot, so the message was ignored')
+    ok(conversationId, 'Handler received message with empty "chat.id" value')
+    ok(userId, 'Handler received message with empty "from.id" value')
+    ok(messageId, 'Handler received an empty message id')
 
-    if (data.edited_message) {
-      logger.forBot().warn('Handler received an edited message, so the message was ignored')
-      return
-    }
-
-    if (data.message.from.is_bot) {
-      logger.forBot().warn('Handler received a message from a bot, so the message was ignored')
-      return
-    }
-
-    if (!data.message.text) {
-      logger.forBot().warn('Request body does not contain a text message, so the message was ignored')
-      return
-    }
-
-    const conversationId = data.message.chat.id
-
-    if (!conversationId) {
-      throw new Error('Handler received message with empty "chat.id" value')
-    }
-
-    const userId = data.message.from?.id
-    const chatId = data.message.chat?.id
-
-    if (!userId) {
-      throw new Error('Handler received message with empty "from.id" value')
-    }
-
-    const userName = getUserNameFromTelegramUser(data.message.from as User)
+    const userName = getUserNameFromTelegramUser(message.from as User)
 
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        [idTag]: conversationId.toString(),
-        [fromUserIdTag]: userId.toString(),
-        [fromUserNameTag]: userName,
-        ...(chatId && { [chatIdTag]: chatId.toString() }),
+        id: conversationId.toString(),
+        fromUserId: userId.toString(),
+        fromUserName: userName,
+        chatId: conversationId.toString(),
       },
     })
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        [idTag]: userId.toString(),
+        id: userId.toString(),
       },
       ...(userName && { name: userName }),
     })
@@ -194,31 +204,35 @@ const integration = new bp.Integration({
     if (userFieldsToUpdate.pictureUrl || userFieldsToUpdate.name) {
       await client.updateUser({
         ...user,
+        tags: {
+          id: user.tags.id,
+        },
         ...(userFieldsToUpdate.pictureUrl && { pictureUrl: userFieldsToUpdate.pictureUrl }),
         ...(userFieldsToUpdate.name && { name: userFieldsToUpdate.name }),
       })
     }
 
-    const messageId = data.message.message_id
+    const telegraf = new Telegraf(ctx.configuration.botToken)
+    const bpMessage = await convertTelegramMessageToBotpressMessage({
+      message,
+      telegram: telegraf.telegram,
+    })
 
-    if (!messageId) {
-      throw new Error('Handler received an empty message id')
-    }
+    logger.forBot().debug(`Received message from user ${userId}: ${JSON.stringify(message, null, 2)}`)
 
-    logger.forBot().debug(`Received message from user ${userId}: ${data.message.text}`)
     await client.createMessage({
       tags: {
-        [idTag]: messageId.toString(),
-        ...(chatId && { [chatIdTag]: chatId.toString() }),
+        id: messageId.toString(),
+        chatId: conversationId.toString(),
       },
-      type: 'text',
+      ...bpMessage,
       userId: user.id,
       conversationId: conversation.id,
-      payload: { text: data.message.text },
     })
-  },
+  }),
   createUser: async ({ client, tags, ctx }) => {
-    const userId = Number(tags[idTag])
+    const strId = tags.id
+    const userId = Number(strId)
 
     if (isNaN(userId)) {
       return
@@ -227,7 +241,7 @@ const integration = new bp.Integration({
     const telegraf = new Telegraf(ctx.configuration.botToken)
     const member = await telegraf.telegram.getChatMember(userId, userId)
 
-    const { user } = await client.getOrCreateUser({ tags: { [idTag]: `${member.user.id}` } })
+    const { user } = await client.getOrCreateUser({ tags: { id: `${member.user.id}` } })
 
     return {
       body: JSON.stringify({ user: { id: user.id } }),
@@ -236,8 +250,7 @@ const integration = new bp.Integration({
     }
   },
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const chatId = tags[idTag]
-
+    const chatId = tags.id
     if (!chatId) {
       return
     }
@@ -247,7 +260,7 @@ const integration = new bp.Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { [idTag]: chat.id.toString() },
+      tags: { id: chat.id.toString() },
     })
 
     return {

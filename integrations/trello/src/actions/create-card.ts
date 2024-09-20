@@ -1,9 +1,9 @@
 import { createCardInputSchema } from '../misc/custom-schemas'
-import type { Implementation } from '../misc/types'
+import type { IntegrationProps } from '../misc/types'
 
 import { getClient } from '../utils'
 
-export const createCard: Implementation['actions']['createCard'] = async ({ ctx, input, logger }) => {
+export const createCard: IntegrationProps['actions']['createCard'] = async ({ ctx, input, logger }) => {
   const validatedInput = createCardInputSchema.parse(input)
 
   const trelloClient = getClient(ctx.configuration)

@@ -1,13 +1,9 @@
 import { IntegrationDefinitionProps } from '@botpress/sdk'
-import { z } from 'zod'
-import { LinearIssue, targets } from '../definitions/schemas'
-
-export type IssueCreated = z.infer<typeof issueCreated.schema>
-export type IssueUpdated = z.infer<typeof issueUpdated.schema>
+import { issueEventSchema, targets } from '../definitions/schemas'
 
 const issueCreated = {
   title: 'Issue Created',
-  schema: LinearIssue.extend({
+  schema: issueEventSchema.extend({
     targets,
   }),
   ui: {},
@@ -15,7 +11,7 @@ const issueCreated = {
 
 const issueUpdated = {
   title: 'Issue Updated',
-  schema: LinearIssue.extend({
+  schema: issueEventSchema.extend({
     targets,
   }),
   ui: {},

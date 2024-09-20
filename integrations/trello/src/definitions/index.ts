@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from '@botpress/sdk'
 
 import { actions } from './actions'
 import { channels } from './channels'
@@ -8,8 +8,8 @@ export { channels }
 
 export const configuration = {
   schema: z.object({
-    apiKey: z.string().describe('API Key for Trello'),
-    token: z.string().describe('API Token for Trello'),
+    apiKey: z.string().min(1).describe('API Key for Trello'),
+    token: z.string().min(1).describe('API Token for Trello'),
   }),
 }
 

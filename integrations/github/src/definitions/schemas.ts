@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from '@botpress/sdk'
 
 export const TargetsSchema = z.object({
   pullRequest: z.string().optional(),

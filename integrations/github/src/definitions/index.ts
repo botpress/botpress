@@ -1,5 +1,4 @@
-import { IntegrationDefinitionProps } from '@botpress/sdk'
-import { z } from 'zod'
+import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 
 export { actions } from './actions'
 export { events } from './events'
@@ -7,9 +6,9 @@ export { channels } from './channels'
 
 export const configuration = {
   schema: z.object({
-    owner: z.string(),
-    repo: z.string(),
-    token: z.string(),
+    owner: z.string().min(1),
+    repo: z.string().min(1),
+    token: z.string().min(1),
   }),
 } satisfies IntegrationDefinitionProps['configuration']
 

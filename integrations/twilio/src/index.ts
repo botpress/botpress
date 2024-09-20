@@ -1,8 +1,8 @@
-import type { Conversation } from '@botpress/client'
+import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import queryString from 'query-string'
 import { Twilio } from 'twilio'
-import { activePhoneTag, idTag, userPhoneTag } from './const'
+import * as types from './types'
 import * as bp from '.botpress'
 
 type Channels = bp.Integration['channels']
@@ -47,6 +47,9 @@ const integration = new bp.Integration({
         choice: async (props) => {
           await sendMessage({ ...props, text: renderChoiceMessage(props.payload) })
         },
+        bloc: () => {
+          throw new RuntimeError('Not implemented')
+        },
       },
     },
   },
@@ -75,14 +78,14 @@ const integration = new bp.Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        [userPhoneTag]: userPhone,
-        [activePhoneTag]: activePhone,
+        userPhone,
+        activePhone,
       },
     })
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        [userPhoneTag]: userPhone,
+        userPhone,
       },
     })
 
@@ -99,7 +102,7 @@ const integration = new bp.Integration({
     }
 
     await client.createMessage({
-      tags: { [idTag]: messageSid },
+      tags: { id: messageSid },
       type: 'text',
       userId: user.id,
       conversationId: conversation.id,
@@ -110,8 +113,7 @@ const integration = new bp.Integration({
   },
 
   createUser: async ({ client, tags, ctx }) => {
-    const userPhone = tags[userPhoneTag]
-
+    const userPhone = tags.userPhone
     if (!userPhone) {
       return
     }
@@ -120,7 +122,7 @@ const integration = new bp.Integration({
     const phone = await twilioClient.lookups.phoneNumbers(userPhone).fetch()
 
     const { user } = await client.getOrCreateUser({
-      tags: { [userPhoneTag]: `${phone.phoneNumber}` },
+      tags: { userPhone: `${phone.phoneNumber}` },
     })
 
     return {
@@ -131,9 +133,8 @@ const integration = new bp.Integration({
   },
 
   createConversation: async ({ client, channel, tags, ctx }) => {
-    const userPhone = tags[userPhoneTag]
-    const activePhone = tags[activePhoneTag]
-
+    const userPhone = tags.userPhone
+    const activePhone = tags.activePhone
     if (!(userPhone && activePhone)) {
       return
     }
@@ -143,7 +144,7 @@ const integration = new bp.Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { [userPhoneTag]: `${phone.phoneNumber}`, [activePhoneTag]: activePhone },
+      tags: { userPhone: `${phone.phoneNumber}`, activePhone },
     })
 
     return {
@@ -176,9 +177,9 @@ function renderCard(card: Card, total?: string): string {
     .join('\n')}`
 }
 
-function getPhoneNumbers(conversation: Conversation) {
-  const to = conversation.tags?.[userPhoneTag]
-  const from = conversation.tags?.[activePhoneTag]
+function getPhoneNumbers(conversation: types.Conversation) {
+  const to = conversation.tags?.userPhone
+  const from = conversation.tags?.activePhone
 
   if (!to) {
     throw new Error('Invalid to phone number')
@@ -200,5 +201,5 @@ async function sendMessage({ ctx, conversation, ack, mediaUrl, text }: SendMessa
   const twilioClient = new Twilio(ctx.configuration.accountSID, ctx.configuration.authToken)
   const { to, from } = getPhoneNumbers(conversation)
   const { sid } = await twilioClient.messages.create({ to, from, mediaUrl, body: text })
-  await ack({ tags: { [idTag]: sid } })
+  await ack({ tags: { id: sid } })
 }

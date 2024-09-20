@@ -1,6 +1,6 @@
-import { RuntimeError } from '@botpress/client'
-import { getMailchimpClient, parseError } from 'src/utils'
+import { RuntimeError } from '@botpress/sdk'
 import { sendMassEmailCampaignInputSchema, sendMassEmailCampaignOutputSchema } from '../misc/custom-schemas'
+import { getMailchimpClient, parseError } from '../utils'
 import * as bp from '.botpress'
 
 export const sendMassEmailCampaign: bp.IntegrationProps['actions']['sendMassEmailCampaign'] = async ({

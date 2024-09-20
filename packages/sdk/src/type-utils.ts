@@ -1,4 +1,4 @@
-import type { z } from 'zod'
+import type z from './zui'
 
 export type AnyZodObject = z.ZodObject<any>
 export type Merge<A extends object, B extends object> = Omit<A, keyof B> & B
@@ -18,6 +18,8 @@ export type Split<S extends string | number | symbol, D extends string> = S exte
 export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never
 
 export type ValueOf<T> = T[keyof T]
+
+export type Writable<T> = { -readonly [K in keyof T]: T[K] }
 
 export type Inspect<T> = { [K in keyof T]: T[K] }
 

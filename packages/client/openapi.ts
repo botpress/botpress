@@ -1,5 +1,5 @@
 import { api as publicOpenapi } from '@botpress/api'
 
-const openapiGeneratorEndpoint = process.env.OPENAPI_GENERATOR_ENDPOINT ?? 'http://api.openapi-generator.tech'
-
-void publicOpenapi.exportClient('./src/gen', openapiGeneratorEndpoint)
+void publicOpenapi.exportClient('./src/gen', {
+  generator: 'opapi',
+})

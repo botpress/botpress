@@ -8,21 +8,24 @@ export const fireSubscriptionDeleted = async ({
   client,
   logger,
 }: {
-  stripeEvent: Stripe.Event
+  stripeEvent: Stripe.CustomerSubscriptionDeletedEvent
   client: Client
   logger: IntegrationLogger
 }) => {
   const { user } = await client.getOrCreateUser({
     tags: {
-      id: (stripeEvent.data.object as { customer: string })?.customer || '',
+      id:
+        typeof stripeEvent.data.object.customer === 'string'
+          ? stripeEvent.data.object.customer
+          : stripeEvent.data.object.customer?.id,
     },
   })
 
-  logger.forBot().debug('Triggering subscription updated event')
+  logger.forBot().debug('Triggering subscription deleted event')
 
   const payload = {
     origin: 'stripe',
-    userId: user?.id || '',
+    userId: user.id,
     data: { type: stripeEvent.type, object: { ...stripeEvent.data.object } },
   } satisfies Events['subscriptionDeleted']
 

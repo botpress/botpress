@@ -1,11 +1,10 @@
-import { IntegrationDefinitionProps, messages } from '@botpress/sdk'
-import { z } from 'zod'
+import { z, IntegrationDefinitionProps, messages } from '@botpress/sdk'
 import { issueSchema } from './schemas'
 
 export { actions } from './actions'
 export { events } from './events'
 export { states } from './states'
-export { UserProfile } from './schemas'
+export * as schemas from './schemas'
 
 export const configuration = {
   identifier: {
@@ -16,6 +15,16 @@ export const configuration = {
     avatarUrl: z.string().optional().describe('The web address for the profile picture'),
   }),
 } satisfies IntegrationDefinitionProps['configuration']
+
+export const configurations = {
+  apiKey: {
+    title: 'API Key',
+    description: 'Configure Linear with an API Key.',
+    schema: z.object({
+      apiKey: z.string().describe('The API key for Linear'),
+    }),
+  },
+} satisfies IntegrationDefinitionProps['configurations']
 
 export const channels = {
   issue: {

@@ -4,6 +4,7 @@ export type TestProps = {
   logger: Logger
   tmpDir: string
   workspaceId: string
+  workspaceHandle: string
   token: string
   apiUrl: string
   tunnelUrl: string

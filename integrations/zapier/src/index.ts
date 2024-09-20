@@ -1,8 +1,6 @@
-import type { IntegrationContext } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import axios, { isAxiosError } from 'axios'
 import { constants } from 'http2'
-import type { Configuration } from '../.botpress/implementation/configuration'
 import { getTriggerSubscribers, saveTriggerSubscribers, unsubscribeZapierHook } from './helpers'
 import { Client, TriggerRequestBody, IntegrationEvent, IntegrationEventSchema, EventSchema, Event } from './types'
 import * as bp from '.botpress'
@@ -75,7 +73,7 @@ export default sentryHelpers.wrapIntegration(integration, {
   release: bp.secrets.SENTRY_RELEASE,
 })
 
-async function handleIntegrationEvent(event: IntegrationEvent, ctx: IntegrationContext<Configuration>, client: Client) {
+async function handleIntegrationEvent(event: IntegrationEvent, ctx: bp.Context, client: Client) {
   console.info('Received integration event: ', event)
 
   let subscribers = await getTriggerSubscribers(ctx, client)

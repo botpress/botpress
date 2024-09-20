@@ -1,13 +1,11 @@
-import type { Conversation } from '@botpress/client'
-import type { AckFunction, IntegrationContext, Request } from '@botpress/sdk'
+import type { Request } from '@botpress/sdk'
 import { ChatPostMessageArguments, WebClient } from '@slack/web-api'
 import axios from 'axios'
 import * as crypto from 'crypto'
 import queryString from 'query-string'
 import VError from 'verror'
-import { INTEGRATION_NAME } from '../const'
 import { Configuration, SyncState } from '../setup'
-import { Client, IntegrationCtx, IntegrationLogger } from './types'
+import { AckFunction, Client, IntegrationCtx, IntegrationLogger, Conversation } from './types'
 import * as bp from '.botpress'
 
 type InteractiveBody = {
@@ -88,7 +86,7 @@ export class SlackOauthClient {
   }
 }
 
-export async function onOAuth(req: Request, client: bp.Client, ctx: IntegrationContext) {
+export async function onOAuth(req: Request, client: bp.Client, ctx: bp.Context) {
   const slackOAuthClient = new SlackOauthClient()
 
   const query = queryString.parse(req.query)
@@ -122,8 +120,8 @@ export async function onOAuth(req: Request, client: bp.Client, ctx: IntegrationC
 }
 
 export const getSlackTarget = (conversation: Conversation) => {
-  const channel = getTag(conversation.tags, 'id')
-  const thread = getTag(conversation.tags, 'thread')
+  const channel = conversation.tags.id
+  const thread = (conversation.tags as Record<string, string>).thread // TODO: fix cast in SDK typings
 
   if (!channel) {
     throw Error(`No channel found for conversation ${conversation.id}`)
@@ -142,20 +140,20 @@ const isValidUrl = (str: string) => {
 }
 
 const getOptionalProps = (ctx: IntegrationCtx, logger: IntegrationLogger) => {
+  const props = {
+    username: ctx.configuration.botName?.trim(),
+    icon_url: undefined as string | undefined,
+  }
+
   if (ctx.configuration.botAvatarUrl) {
     if (isValidUrl(ctx.configuration.botAvatarUrl)) {
-      return {
-        username: ctx.configuration.botName,
-        icon_url: ctx.configuration.botAvatarUrl,
-      }
+      props.icon_url = ctx.configuration.botAvatarUrl
     } else {
       logger.forBot().warn('Invalid bot avatar URL')
     }
   }
 
-  return {
-    username: ctx.configuration.botName?.trim() !== '' ? ctx.configuration.botName : undefined,
-  }
+  return props
 }
 
 export async function sendSlackMessage(
@@ -219,16 +217,19 @@ export const respondInteractive = async (body: InteractiveBody): Promise<string>
   }
 }
 
-export const getTag = (tags: Record<string, string>, name: string) => {
-  return tags[`${INTEGRATION_NAME}:${name}`]
+export const getBotpressUserFromSlackUser = async (props: { slackUserId: string }, client: Client) => {
+  const { user } = await client.getOrCreateUser({
+    tags: { id: props.slackUserId },
+  })
+
+  return {
+    botpressUser: user,
+    botpressUserId: user.id,
+  }
 }
 
-export const getUserAndConversation = async (
-  props: {
-    slackUserId: string
-    slackChannelId: string
-    slackThreadId?: string
-  },
+export const getBotpressConversationFromSlackThread = async (
+  props: { slackChannelId: string; slackThreadId?: string },
   client: Client
 ) => {
   let conversation: Conversation
@@ -248,15 +249,54 @@ export const getUserAndConversation = async (
     conversation = resp.conversation
   }
 
-  const { user } = await client.getOrCreateUser({
-    tags: { id: props.slackUserId },
-  })
+  return {
+    botpressConversation: conversation,
+    botpressConversationId: conversation.id,
+  }
+}
+
+/**
+ * @deprecated Use `getBotpressUserFromSlackUser` and `getBotpressConversationFromSlackThread` instead
+ */
+export const getUserAndConversation = async (
+  {
+    slackUserId,
+    slackChannelId,
+    slackThreadId,
+  }: {
+    slackUserId: string
+    slackChannelId: string
+    slackThreadId?: string
+  },
+  client: Client
+) => {
+  const { botpressUser, botpressUserId } = await getBotpressUserFromSlackUser({ slackUserId }, client)
+  const { botpressConversation, botpressConversationId } = await getBotpressConversationFromSlackThread(
+    { slackChannelId, slackThreadId },
+    client
+  )
 
   return {
-    user,
-    userId: user.id,
-    conversationId: conversation.id,
+    user: botpressUser,
+    userId: botpressUserId,
+    conversation: botpressConversation,
+    conversationId: botpressConversationId,
   }
+}
+
+export const getMessageFromSlackEvent = async (
+  client: Client,
+  event: { item: { type: string; channel?: string; ts?: string } }
+) => {
+  if (event.item.type !== 'message' || !event.item.channel || !event.item.ts) {
+    return undefined
+  }
+
+  const { messages } = await client.listMessages({
+    tags: { ts: event.item.ts, channelId: event.item.channel },
+  })
+
+  return messages[0]
 }
 
 export const getSlackUserProfile = async (botToken: string, slackUserId: string) => {
@@ -342,4 +382,33 @@ export const validateRequestSignature = ({ req, logger }: { req: Request; logger
     logger.forBot().error('An error occurred while verifying the request signature')
     return false
   }
+}
+
+const updateBotpressBotName = async (client: Client, ctx: IntegrationCtx) => {
+  const { botName } = ctx.configuration
+  const trimmedName = botName?.trim()
+
+  if (trimmedName) {
+    await client.updateUser({
+      id: ctx.botUserId,
+      name: trimmedName,
+      tags: {},
+    })
+  }
+}
+
+const updateBotpressBotAvatar = async (client: Client, ctx: IntegrationCtx) => {
+  const { botAvatarUrl } = ctx.configuration
+
+  if (botAvatarUrl && isValidUrl(botAvatarUrl)) {
+    await client.updateUser({
+      id: ctx.botUserId,
+      pictureUrl: botAvatarUrl && isValidUrl(botAvatarUrl) ? botAvatarUrl?.trim() : undefined,
+      tags: {},
+    })
+  }
+}
+
+export const updateBotpressBotNameAndAvatar = (client: Client, ctx: IntegrationCtx) => {
+  return Promise.all([updateBotpressBotName(client, ctx), updateBotpressBotAvatar(client, ctx)])
 }

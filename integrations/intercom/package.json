@@ -1,14 +1,12 @@
 {
   "name": "@botpresshub/intercom",
-  "version": "0.2.0",
   "description": "Intercom integration for Botpress",
   "private": true,
   "scripts": {
     "start": "pnpm bp serve --port 7009",
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
-    "type:check": "tsc --noEmit",
-    "test": "echo \"Tests not implemented yet.\""
+    "check:type": "tsc --noEmit"
   },
   "keywords": [],
   "author": "",
@@ -18,8 +16,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "intercom-client": "^4.0.0",
-    "zod": "^3.20.6"
+    "intercom-client": "^4.0.0"
   },
   "devDependencies": {
     "@sentry/cli": "^2.18.1",

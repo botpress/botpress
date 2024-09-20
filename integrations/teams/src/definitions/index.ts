@@ -1,12 +1,11 @@
-import { IntegrationDefinitionProps, messages } from '@botpress/sdk'
-import { z } from 'zod'
+import { z, IntegrationDefinitionProps, messages } from '@botpress/sdk'
 
 export { states } from './states'
 
 export const configuration = {
   schema: z.object({
-    appId: z.string(),
-    appPassword: z.string(),
+    appId: z.string().min(1),
+    appPassword: z.string().min(1),
     tenantId: z.string().optional(),
   }),
 } satisfies IntegrationDefinitionProps['configuration']

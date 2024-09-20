@@ -1,12 +1,15 @@
-import { z } from 'zod'
+import { z } from '@bpinternal/zui'
 import {
   botIdHeader,
   botUserIdHeader,
   configurationHeader,
+  configurationTypeHeader,
   integrationIdHeader,
   operationHeader,
   webhookIdHeader,
 } from '../const'
+import { ValueOf } from '../type-utils'
+import { BaseIntegration } from './generic'
 
 export const integrationOperationSchema = z.enum([
   'webhook_received',
@@ -21,20 +24,34 @@ export const integrationOperationSchema = z.enum([
 
 export type IntegrationOperation = z.infer<typeof integrationOperationSchema>
 
-export type IntegrationContext<Configuration = any> = {
+type IntegrationContextConfig<TIntegration extends BaseIntegration> =
+  | {
+      configurationType: null
+      configuration: TIntegration['configuration']
+    }
+  | ValueOf<{
+      [TConfigType in keyof TIntegration['configurations']]: {
+        configurationType: TConfigType
+        configuration: TIntegration['configurations'][TConfigType]
+      }
+    }>
+
+export type IntegrationContext<TIntegration extends BaseIntegration = BaseIntegration> = {
   botId: string
   botUserId: string
   integrationId: string
   webhookId: string
   operation: IntegrationOperation
-  configuration: Configuration
-}
+} & IntegrationContextConfig<TIntegration>
 
-export const extractContext = (headers: Record<string, string | undefined>): IntegrationContext => {
+export const extractContext = <TIntegration extends BaseIntegration>(
+  headers: Record<string, string | undefined>
+): IntegrationContext<TIntegration> => {
   const botId = headers[botIdHeader]
   const botUserId = headers[botUserIdHeader]
   const integrationId = headers[integrationIdHeader]
   const webhookId = headers[webhookIdHeader]
+  const configurationType = headers[configurationTypeHeader]
   const base64Configuration = headers[configurationHeader]
   const operation = integrationOperationSchema.parse(headers[operationHeader])
 
@@ -68,6 +85,7 @@ export const extractContext = (headers: Record<string, string | undefined>): Int
     integrationId,
     webhookId,
     operation,
+    configurationType: configurationType ?? null,
     configuration: base64Configuration ? JSON.parse(Buffer.from(base64Configuration, 'base64').toString('utf-8')) : {},
-  }
+  } as IntegrationContext<TIntegration>
 }

@@ -1,8 +1,6 @@
 import { addCommentToDiscussion, addCommentToPage, addPageToDb, deleteBlock, getDb } from './actions'
 import * as bp from '.botpress'
 
-console.info('starting integration')
-
 class NotImplementedError extends Error {
   constructor() {
     super('Not implemented')

@@ -1,8 +1,7 @@
-import { IntegrationContext, Request } from '@botpress/sdk'
+import { z, Request } from '@botpress/sdk'
 import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
 import queryString from 'query-string'
-import { z } from 'zod'
 import * as bp from '.botpress'
 
 type BaseEvent = {
@@ -125,7 +124,11 @@ export class LinearOauthClient {
     }
   }
 
-  async getLinearClient(client: bp.Client, integrationId: string) {
+  async getLinearClient(client: bp.Client, ctx: bp.Context, integrationId: string) {
+    if (ctx.configurationType === 'apiKey') {
+      return new LinearClient({ apiKey: ctx.configuration.apiKey })
+    }
+
     const {
       state: { payload },
     } = await client.getState({
@@ -138,7 +141,7 @@ export class LinearOauthClient {
   }
 }
 
-export const handleOauth = async (req: Request, client: bp.Client, ctx: IntegrationContext) => {
+export const handleOauth = async (req: Request, client: bp.Client, ctx: bp.Context) => {
   const linearOauthClient = new LinearOauthClient()
 
   const query = queryString.parse(req.query)

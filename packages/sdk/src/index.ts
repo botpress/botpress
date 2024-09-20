@@ -1,6 +1,10 @@
 export * as messages from './message'
+export * as interfaces from './interfaces'
 export * from './const'
 export * from './serve'
+export * from './zui'
+
+export { isApiError, RuntimeError } from '@botpress/client'
 
 export {
   IntegrationDefinition,
@@ -8,12 +12,21 @@ export {
   IntegrationImplementation as Integration,
   IntegrationImplementationProps as IntegrationProps,
   IntegrationContext,
+  IntegrationLogger,
   IntegrationSpecificClient,
+  InterfaceDeclaration,
+  InterfaceDeclarationProps,
+  TagDefinition,
+  ConfigurationDefinition,
+  AdditionalConfigurationDefinition,
+  EventDefinition,
+  ChannelDefinition,
+  MessageDefinition,
+  ActionDefinition,
+  StateDefinition,
+  UserDefinition,
+  SecretDefinition,
+  EntityDefinition,
 } from './integration'
 
 export { Bot, BotProps, BotContext, BotSpecificClient, IntegrationInstance } from './bot'
-
-/**
- * @deprecated Infer type of integration message handlers instead
- */
-export type AckFunction = (props: { tags: Record<string, string> }) => Promise<void>

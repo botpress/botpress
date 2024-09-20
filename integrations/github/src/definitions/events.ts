@@ -1,5 +1,4 @@
-import { IntegrationDefinitionProps } from '@botpress/sdk'
-import z from 'zod'
+import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 
 import { INTEGRATION_NAME } from '../const'
 import { TargetsSchema } from './schemas'

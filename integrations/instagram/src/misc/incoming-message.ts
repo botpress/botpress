@@ -1,31 +1,25 @@
-import { IntegrationContext } from '@botpress/sdk'
-import { idTag, recipientIdTag, senderIdTag } from 'src/const'
 import { InstagramMessage, IntegrationLogger } from './types'
 import { getUserProfile } from './utils'
 import * as bp from '.botpress'
 
 export async function handleMessage(
   message: InstagramMessage,
-  {
-    client,
-    ctx,
-    logger,
-  }: { client: bp.Client; ctx: IntegrationContext<bp.configuration.Configuration>; logger: IntegrationLogger }
+  { client, ctx, logger }: { client: bp.Client; ctx: bp.Context; logger: IntegrationLogger }
 ) {
   if (message?.message?.text) {
     logger.forBot().debug('Received text message from Instagram:', message.message.text)
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        [idTag]: message.sender.id,
-        [senderIdTag]: message.sender.id,
-        [recipientIdTag]: message.recipient.id,
+        id: message.sender.id,
+        senderId: message.sender.id,
+        recipientId: message.recipient.id,
       },
     })
 
     const { user } = await client.getOrCreateUser({
       tags: {
-        [idTag]: message.sender.id,
+        id: message.sender.id,
       },
     })
 
@@ -50,9 +44,9 @@ export async function handleMessage(
     await client.createMessage({
       type: 'text',
       tags: {
-        [idTag]: message.message.mid,
-        [senderIdTag]: message.sender.id,
-        [recipientIdTag]: message.recipient.id,
+        id: message.message.mid,
+        senderId: message.sender.id,
+        recipientId: message.recipient.id,
       },
       userId: user.id,
       conversationId: conversation.id,

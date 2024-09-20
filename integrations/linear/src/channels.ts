@@ -1,5 +1,6 @@
+import { RuntimeError } from '@botpress/client'
 import { createComment, getCardContent } from './misc/utils'
-import { IntegrationProps } from '.botpress'
+import * as bp from '.botpress'
 
 export default {
   issue: {
@@ -18,6 +19,9 @@ export default {
       },
       dropdown: ({ payload, ...props }) => createComment({ ...props, content: payload.text }),
       choice: ({ payload, ...props }) => createComment({ ...props, content: payload.text }),
+      bloc: () => {
+        throw new RuntimeError('Not implemented')
+      },
     },
   },
-} satisfies IntegrationProps['channels']
+} satisfies bp.IntegrationProps['channels']

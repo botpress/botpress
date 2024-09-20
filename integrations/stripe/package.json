@@ -4,8 +4,7 @@
     "start": "pnpm bp serve",
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
-    "type:check": "tsc --noEmit",
-    "test": "echo \"Tests not implemented yet.\""
+    "check:type": "tsc --noEmit"
   },
   "keywords": [],
   "private": true,
@@ -14,7 +13,6 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "zod": "3.20.6",
     "stripe": "^13.5.0"
   },
   "devDependencies": {
