@@ -1,4 +1,3 @@
-/* eslint-disable unused-imports/no-unused-vars */
 import { Client } from '@botpress/client'
 import { bot, EventHandlerProps, IssueState, MessageHandlerProps } from './bot'
 import { EventEmitter } from './event-emitter'
@@ -136,6 +135,7 @@ bot.message(async (props) => {
       limit: 10,
     })
 
+    /* eslint-disable unused-imports/no-unused-vars */
     const issues: string[] = rows.map(({ computed, stale, similarity, ...r }) =>
       Object.entries(r)
         .map(([k, v]) => `${k}: ${v}`)

@@ -1,4 +1,3 @@
-/* eslint-disable max-lines-per-function */
 import { mkRespond } from 'src/api-utils'
 import { getOrCreateFlow, setFlow } from '../flow-state'
 import { Client, ClientOutputs, MessageHandler } from '../types'
