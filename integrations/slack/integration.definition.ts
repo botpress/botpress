@@ -18,7 +18,7 @@ export default new IntegrationDefinition({
   name: 'slack',
   title: 'Slack',
   description: 'This integration allows your bot to interact with Slack.',
-  version: '0.4.4',
+  version: '0.5.2',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
@@ -44,19 +44,23 @@ export default new IntegrationDefinition({
     configuration: {
       type: 'integration',
       schema: z.object({
-        botUserId: z.string().optional(),
+        botUserId: z.string().optional().title('Bot User ID').describe('The ID of the bot user'),
       }),
     },
     sync: {
       type: 'integration',
       schema: z.object({
-        usersLastSyncTs: z.number().optional(),
+        usersLastSyncTs: z
+          .number()
+          .optional()
+          .title('Users Last Sync Timestamp')
+          .describe('The timestamp of the last sync'),
       }),
     },
     credentials: {
       type: 'integration',
       schema: z.object({
-        accessToken: z.string(),
+        accessToken: z.string().secret().title('OAuth token').describe('The Bot User OAuth Token'),
       }),
     },
   },
@@ -78,6 +82,27 @@ export default new IntegrationDefinition({
       title: 'Reaction Added',
       description: 'Triggered when a reaction is added to a message',
       schema: z.object({
+        reaction: z.string().title('Reaction').describe('The reaction that was added'),
+        userId: z.string().optional().title('User ID').describe('The ID of the user who added the reaction'),
+        conversationId: z.string().optional().title('Conversation ID').describe('The ID of the conversation'),
+        targets: z
+          .object({
+            dm: z.record(z.string()).optional().title('DMs').describe('The DMs targeted by the reaction'),
+            channel: z
+              .record(z.string())
+              .optional()
+              .title('Channels')
+              .describe('The channels targeted by the reaction'),
+            thread: z.record(z.string()).optional().title('Threads').describe('The threads targeted by the reaction'),
+          })
+          .title('Targets')
+          .describe('The targets of the reaction'),
+      }),
+    },
+    reactionRemoved: {
+      title: 'Reaction Removed',
+      description: 'Triggered when a reaction is removed from a message',
+      schema: z.object({
         reaction: z.string(),
         userId: z.string().optional(),
         conversationId: z.string().optional(),
@@ -87,7 +112,71 @@ export default new IntegrationDefinition({
           thread: z.record(z.string()).optional(),
         }),
       }),
-      ui: {},
+    },
+    memberJoinedWorkspace: {
+      title: 'Member Joined Workspace',
+      description: 'Triggered when a member joins the workspace',
+      schema: z.object({
+        userId: z.string().title('Botpress ID').describe('The Botpress ID of the user who joined the workspace'),
+        target: z
+          .object({
+            userId: z.string().title('Slack ID').describe('The Slack ID of the user who joined the workspace'),
+            userName: z.string().title('Username').describe('The username of the user who joined the workspace'),
+            userRealName: z.string().title('Real name').describe('The real name of the user who joined the workspace'),
+            userDisplayName: z
+              .string()
+              .title('Display name')
+              .describe('The display name of the user who joined the workspace'),
+          })
+          .title('Target')
+          .describe('Slack user who joined the workspace'),
+      }),
+    },
+    memberJoinedChannel: {
+      title: 'Member Joined Channel',
+      description: 'Triggered when a member joins a channel',
+      schema: z.object({
+        botpressUserId: z
+          .string()
+          .title('Botpress user ID')
+          .describe('The Botpress ID of the user who joined the channel'),
+        botpressConversationId: z
+          .string()
+          .title('Botpress Channel ID')
+          .describe('The Botpress ID of the channel the user joined'),
+        inviterBotpressUserId: z
+          .string()
+          .optional()
+          .title('Botpress Inviter User ID')
+          .describe('The Botpress ID of the user who invited the new member'),
+        targets: z.object({
+          slackUserId: z.string().title('Slack User ID').describe('The Slack ID of the user who joined the channel'),
+          slackChannelId: z.string().title('Slack Channel ID').describe('The Slack ID of the channel the user joined'),
+          slackInviterId: z
+            .string()
+            .optional()
+            .title('Slack Inviter ID')
+            .describe('The Slack ID of the user who invited the new member'),
+        }),
+      }),
+    },
+    memberLeftChannel: {
+      title: 'Member Left Channel',
+      description: 'Triggered when a member leaves a channel',
+      schema: z.object({
+        botpressUserId: z
+          .string()
+          .title('Botpress user ID')
+          .describe('The Botpress ID of the user who left the channel'),
+        botpressConversationId: z
+          .string()
+          .title('Botpress Channel ID')
+          .describe('The Botpress ID of the channel the user left'),
+        targets: z.object({
+          slackUserId: z.string().title('Slack User ID').describe('The Slack ID of the user who left the channel'),
+          slackChannelId: z.string().title('Slack Channel ID').describe('The Slack ID of the channel the user left'),
+        }),
+      }),
     },
   },
   secrets: {
@@ -104,7 +193,6 @@ export default new IntegrationDefinition({
   },
   user: {
     tags: userTags,
-    creation: { enabled: true, requiredTags: ['id'] },
   },
   identifier: {
     extractScript: 'extract.vrl',

@@ -1,7 +1,7 @@
 import type { Channels } from '../misc/types'
 
 class NotImplementedError extends Error {
-  constructor() {
+  public constructor() {
     super('Not implemented')
   }
 }

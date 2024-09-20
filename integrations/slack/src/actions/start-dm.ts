@@ -44,7 +44,7 @@ export const startDmConversation: bp.IntegrationProps['actions']['startDmConvers
       title: `DM with ${user.name}`,
       id: channel.id,
     },
-  } as any)
+  })
 
   await client.updateUser({
     id: user.id,

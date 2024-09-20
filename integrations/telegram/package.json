@@ -18,8 +18,7 @@
     "@botpress/sdk-addons": "workspace:*",
     "@sentry/node": "7.53.1",
     "lodash": "^4.17.21",
-    "telegraf": "^4.16.3",
-    "zod": "^3.20.6"
+    "telegraf": "^4.16.3"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

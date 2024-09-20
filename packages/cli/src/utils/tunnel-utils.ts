@@ -54,7 +54,7 @@ export class TunnelSupervisor {
     }
   }>()
 
-  constructor(private _tunnelUrl: string, private _tunnelId: string, private _logger: Logger) {}
+  public constructor(private _tunnelUrl: string, private _tunnelId: string, private _logger: Logger) {}
 
   public async start(): Promise<void> {
     if (this._closed) {

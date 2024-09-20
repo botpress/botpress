@@ -127,6 +127,16 @@ module.exports = {
       'error',
       { vars: 'all', varsIgnorePattern: '^_', args: 'after-used', argsIgnorePattern: '^_' },
     ],
+    "@typescript-eslint/naming-convention": [
+     "warn",
+     {
+       "selector": "memberLike",
+       "modifiers": ["private"],
+       "format": ["camelCase"],
+       "leadingUnderscore": "require"
+     }
+   ],
+   "@typescript-eslint/explicit-member-accessibility": "warn",
   },
   parser: '@typescript-eslint/parser',
 }

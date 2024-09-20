@@ -1,4 +1,4 @@
-import { z } from '@botpress/sdk'
+import { ActionDefinition, z } from '@botpress/sdk'
 
 type Channel = 'dm' | 'channel'
 
@@ -13,81 +13,62 @@ export const addReaction = {
   description: 'Add a reaction to a message',
   input: {
     schema: z.object({
-      name: z.string().describe('The name of the reaction to add'),
-      messageId: z.string().describe('The ID of the message, ex: {{event.messageId}}'),
+      name: z
+        .string()
+        .title('Reaction name')
+        .describe('The name of the reaction to add, ex: thumbsup')
+        .placeholder('thumbsup'),
+      messageId: z.string().title('Message ID').describe('The ID of the message, ex: {{event.messageId}}'),
     }),
-    ui: {
-      name: {
-        title: 'Reaction Name',
-        examples: ['thumbsup', 'thumbsdown', 'heart', 'smile', 'laughing', 'confused', 'tada', 'party'],
-      },
-      messageId: {
-        title: 'Message Id',
-        examples: ['{{event.messageId}}'],
-      },
-    },
   },
   output: {
     schema: z.object({}),
   },
-}
+} as const satisfies ActionDefinition
 
 export const findTarget = {
   title: 'Find Target',
   description: 'Find a target in Slack (ex: a channel, a user to send a dm, etc)',
   input: {
     schema: z.object({
-      query: z.string().min(2).describe('What to search for, ex name of a channel, a user, etc.'),
-      channel: z.enum(['dm', 'channel']).describe('Which channel to look into, ex: dm, channel'),
+      query: z.string().min(2).title('Search Query').describe('What to search for, ex name of a channel, a user, etc.'),
+      channel: z.enum(['dm', 'channel']).title('Channel Name').describe('Which channel to look into, ex: dm, channel'),
     }),
-    ui: {
-      query: {
-        title: 'Search Query',
-      },
-      channel: {
-        title: 'Channel Name',
-      },
-    },
   },
   output: {
     schema: z.object({
-      targets: z.array(
-        z.object({
-          displayName: z.string(),
-          tags: z.record(z.string()),
-          channel: z.enum(['dm', 'channel']),
-        })
-      ),
+      targets: z
+        .array(
+          z.object({
+            displayName: z.string().title('Display Name').describe('The display name of the target'),
+            tags: z.record(z.string()).title('Tags').describe('The tags of the target'),
+            channel: z.enum(['dm', 'channel']).title('Channel type').describe('The type of channel of the target'),
+          })
+        )
+        .title('Targets')
+        .describe('The matching targets'),
     }),
   },
-}
+} as const satisfies ActionDefinition
 
 export const retrieveMessage = {
   title: 'Retrieve Message',
   description: 'Retrieve a message from Slack',
   input: {
     schema: z.object({
-      ts: z.string().describe('The timestamp of the message to retrieve'),
-      channel: z.string().describe('The channel of the message to retrieve'),
+      ts: z.string().title('Timestamp').describe('The timestamp of the message to retrieve'),
+      channel: z.string().title('Channel').describe('The channel of the message to retrieve'),
     }),
-    ui: {
-      ts: {
-        title: 'Timestamp',
-      },
-      channel: {
-        title: 'Channel',
-      },
-    },
   },
   output: {
     schema: z.object({
-      type: z.string(),
-      user: z.string(),
-      ts: z.string(),
-      text: z.string(),
+      type: z.string().title('Type').describe('The type of the message'),
+      user: z.string().title('User').describe('The user who sent the message'),
+      ts: z.string().title('Timestamp').describe('The timestamp of the message'),
+      text: z.string().title('Text').describe('The text of the message'),
     }),
   },
-}
+} as const satisfies ActionDefinition
 
 export const syncMembers = {
   title: 'Sync Members',
@@ -97,49 +78,36 @@ export const syncMembers = {
     schema: z.object({}),
   },
   output: {
-    schema: z.object({ syncedCount: z.number() }),
+    schema: z.object({ syncedCount: z.number().title('Synced Count').describe('The number of members synced') }),
   },
-}
+} as const satisfies ActionDefinition
 
 export const startDmConversation = {
   title: 'Start DM Conversation',
   description: 'Initiate a conversation with a user in a DM',
   input: {
     schema: z.object({
-      slackUserId: z.string().describe('The ID of the user to initiate the conversation with'),
+      slackUserId: z.string().title('User ID').describe('The ID of the user to initiate the conversation with'),
     }),
-    ui: {
-      slackUserId: {
-        title: 'User Id',
-      },
-    },
   },
   output: {
     schema: z.object({
-      userId: z.string(),
-      conversationId: z.string(),
+      userId: z.string().title('User ID').describe('The ID of the user'),
+      conversationId: z.string().title('Conversation ID').describe('The ID of the new conversation'),
     }),
   },
-}
+} as const satisfies ActionDefinition
 
 export const updateChannelTopic = {
   title: 'Update Channel Topic',
   description: 'Update the topic of a channel',
   input: {
     schema: z.object({
-      topic: z.string().describe('The new topic of the channel'),
-      channelId: z.string().describe('The channel id of the target channel'),
+      topic: z.string().title('New Topic').describe('The new topic of the channel'),
+      channelId: z.string().title('Channel ID').describe('The channel id of the target channel'),
     }),
-    ui: {
-      topic: {
-        title: 'New Topic',
-      },
-      channelId: {
-        title: 'Channel id',
-      },
-    },
   },
   output: {
     schema: z.object({}),
   },
-}
+} as const satisfies ActionDefinition
