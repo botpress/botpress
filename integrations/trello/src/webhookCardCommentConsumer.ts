@@ -14,28 +14,25 @@ type TrelloMessageData = {
 }
 
 export class WebhookCardCommentConsumer {
-  private messageData?: TrelloMessageData
-  private conversation?: Awaited<ReturnType<bp.Client['getOrCreateConversation']>>['conversation']
-  private user?: Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user']
-
   public constructor(
     private readonly client: bp.HandlerProps['client'],
     private readonly cardCommentEvent: CommentCardEvent
   ) {}
 
   public async consumeComment() {
-    this.extractMessageDataFromEvent()
-    await Promise.all([this.getOrCreateConversation(), this.getOrCreateUser()])
+    const messageData = this.extractMessageDataFromEvent()
+    const conversation = await this.getOrCreateConversation(messageData)
+    const user = await this.getOrCreateUser(messageData)
 
-    if (this.checkIfMessageWasSentByOurselvesAndShouldBeIgnored()) {
+    if (this.checkIfMessageWasSentByOurselvesAndShouldBeIgnored(conversation, messageData)) {
       return
     }
 
-    await this.createMessage()
+    await this.createMessage(user, conversation, messageData)
   }
 
   private extractMessageDataFromEvent() {
-    this.messageData = {
+    return {
       cardId: this.cardCommentEvent.action.data.card.id,
       cardName: this.cardCommentEvent.action.data.card.name,
       listId: this.cardCommentEvent.action.data.list?.id ?? '',
@@ -48,45 +45,52 @@ export class WebhookCardCommentConsumer {
     } as const satisfies TrelloMessageData
   }
 
-  private async getOrCreateConversation() {
+  private async getOrCreateConversation(messageData: TrelloMessageData) {
     const { conversation } = await this.client.getOrCreateConversation({
       channel: 'cardComments',
       tags: {
-        cardId: this.messageData?.cardId,
-        cardName: this.messageData?.cardName,
-        listId: this.messageData?.listId,
-        listName: this.messageData?.listName,
+        cardId: messageData.cardId,
+        cardName: messageData.cardName,
+        listId: messageData.listId,
+        listName: messageData.listName,
       },
     })
 
-    this.conversation = conversation
+    return conversation
   }
 
-  private async getOrCreateUser() {
+  private async getOrCreateUser(messageData: TrelloMessageData) {
     const { user } = await this.client.getOrCreateUser({
       tags: {
-        userId: this.messageData?.messageAuthorId,
+        userId: messageData.messageAuthorId,
       },
-      name: this.messageData?.messageAuthorName,
-      pictureUrl: this.messageData?.messageAuthorAvatar,
+      name: messageData.messageAuthorName,
+      pictureUrl: messageData.messageAuthorAvatar,
     })
 
-    this.user = user
+    return user
   }
 
-  private checkIfMessageWasSentByOurselvesAndShouldBeIgnored() {
-    return this.conversation?.tags.lastCommentId === this.messageData?.messageId
+  private checkIfMessageWasSentByOurselvesAndShouldBeIgnored(
+    conversation: Awaited<ReturnType<bp.Client['getOrCreateConversation']>>['conversation'],
+    messageData: TrelloMessageData
+  ) {
+    return conversation.tags.lastCommentId === messageData.messageId
   }
 
-  private async createMessage() {
+  private async createMessage(
+    user: Awaited<ReturnType<bp.Client['getOrCreateUser']>>['user'],
+    conversation: Awaited<ReturnType<bp.Client['getOrCreateConversation']>>['conversation'],
+    messageData: TrelloMessageData
+  ) {
     await this.client.createMessage({
       tags: {
-        commentId: this.messageData?.messageId,
+        commentId: messageData.messageId,
       },
       type: 'text',
-      userId: this.user?.id ?? '',
-      conversationId: this.conversation?.id ?? '',
-      payload: { text: this.messageData?.messageText ?? '' },
+      userId: user.id,
+      conversationId: conversation.id,
+      payload: { text: messageData.messageText },
     })
   }
 }
