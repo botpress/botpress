@@ -15,8 +15,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "airtable": "^0.12.2",
-    "axios": "^1.5.0",
-    "zod": "3.20.6"
+    "axios": "^1.5.0"
   },
   "devDependencies": {
     "@types/node": "^18.11.17",

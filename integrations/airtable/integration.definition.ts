@@ -1,5 +1,4 @@
-import { IntegrationDefinition } from '@botpress/sdk'
-import { z } from 'zod'
+import { z, IntegrationDefinition } from '@botpress/sdk'
 import {
   createRecordInputSchema,
   createRecordOutputSchema,
@@ -12,15 +11,12 @@ import {
   updateTableInputSchema,
   updateTableOutputSchema,
 } from './src/misc/custom-schemas'
-import { createRecordUi, createTableUi, getTableRecordsUi, updateRecordUi, updateTableUi } from './src/misc/custom-uis'
-
-const INTEGRATION_NAME = 'airtable'
 
 export default new IntegrationDefinition({
-  name: INTEGRATION_NAME,
+  name: 'airtable',
   title: 'Airtable',
-  version: '0.2.0',
-  readme: 'readme.md',
+  version: '0.0.1',
+  readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
@@ -42,7 +38,6 @@ export default new IntegrationDefinition({
       title: 'Get Records of the Table',
       input: {
         schema: getTableRecordsInputSchema,
-        ui: getTableRecordsUi,
       },
       output: {
         schema: getTableRecordsOutputSchema,
@@ -52,7 +47,6 @@ export default new IntegrationDefinition({
       title: 'Create Table',
       input: {
         schema: createTableInputSchema,
-        ui: createTableUi,
       },
       output: {
         schema: createTableOutputSchema,
@@ -62,7 +56,6 @@ export default new IntegrationDefinition({
       title: 'Update Table',
       input: {
         schema: updateTableInputSchema,
-        ui: updateTableUi,
       },
       output: {
         schema: updateTableOutputSchema,
@@ -72,7 +65,6 @@ export default new IntegrationDefinition({
       title: 'Create Record',
       input: {
         schema: createRecordInputSchema,
-        ui: createRecordUi,
       },
       output: {
         schema: createRecordOutputSchema,
@@ -82,7 +74,6 @@ export default new IntegrationDefinition({
       title: 'Update Record',
       input: {
         schema: updateRecordInputSchema,
-        ui: updateRecordUi,
       },
       output: {
         schema: updateRecordOutputSchema,

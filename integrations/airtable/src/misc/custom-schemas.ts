@@ -1,4 +1,4 @@
-import z from 'zod'
+import { z } from '@botpress/sdk'
 import { tableSchema, recordSchema } from './sub-schemas'
 
 export const getTableRecordsInputSchema = z.object({

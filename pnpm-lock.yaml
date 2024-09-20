@@ -208,9 +208,6 @@ importers:
       axios:
         specifier: ^1.5.0
         version: 1.6.7
-      zod:
-        specifier: 3.20.6
-        version: 3.20.6
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -1078,9 +1075,6 @@ importers:
       telegraf:
         specifier: ^4.16.3
         version: 4.16.3
-      zod:
-        specifier: ^3.20.6
-        version: 3.22.4
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -12378,3 +12372,4 @@ packages:
 
   /zod@3.22.4:
     resolution: {integrity: sha512-iC+8Io04lddc+mVqQ9AZ7OQ2MrUKGN+oIQyq1vemgt46jwCwLfhq7/pwnBnNXXXZb8VTVLKwp9EDkx+ryxIWmg==}
+    dev: true
