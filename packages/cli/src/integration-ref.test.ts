@@ -1,5 +1,4 @@
-import { describe } from 'node:test'
-import { test, expect } from 'vitest'
+import { test, expect, describe } from 'vitest'
 import { formatIntegrationRef, IntegrationRef, parseIntegrationRef } from './integration-ref'
 
 const path = '/my/path'
