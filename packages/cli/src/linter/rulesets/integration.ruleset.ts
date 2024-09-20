@@ -2,7 +2,7 @@ import { RulesetDefinition } from '@stoplight/spectral-core'
 import { falsy, truthy } from '@stoplight/spectral-functions'
 import { truthyWithMessage } from '../spectral-functions'
 
-export const INTEGRATION_RULSESET: RulesetDefinition = {
+export const INTEGRATION_RULSESET = {
   extends: [],
   rules: {
     'integration-title-must-be-present': {
@@ -17,13 +17,13 @@ export const INTEGRATION_RULSESET: RulesetDefinition = {
       given: '$',
       then: [{ field: 'description', function: truthy }],
     },
-    'interation-must-have-an-icon': {
+    'integration-must-have-an-icon': {
       description: 'The integration must have an icon',
       severity: 'error',
       given: '$',
       then: [{ field: 'icon', function: truthy }],
     },
-    'interation-must-have-a-readme-file': {
+    'integration-must-have-a-readme-file': {
       description: 'The integration must have a readme file',
       severity: 'error',
       given: '$',
@@ -136,15 +136,15 @@ export const INTEGRATION_RULSESET: RulesetDefinition = {
       severity: 'hint',
       given: '$',
       then: [
-        { field: 'configuration', function: truthy },
-        { field: 'configurations', function: falsy },
+        { field: 'configuration', function: falsy },
+        { field: 'configurations', function: truthy },
       ],
     },
-    'configuration-fields-must-have-title': {
+    'configuration-fields-must-have-a-title': {
       description: 'All configuration fields must have a title',
       message: '{{description}}: {{property}} must provide a non-empty title by using .title() in its Zod schema',
       severity: 'error',
-      given: "$.configuration.schema..*[?(@.type==='object')].properties[*].x-zui",
+      given: '$.configuration.schema..properties[*].x-zui',
       then: [
         {
           field: 'title',
@@ -198,7 +198,7 @@ export const INTEGRATION_RULSESET: RulesetDefinition = {
       description: 'All user tags should have a title',
       message: '{{description}}: {{error}} should have a non-empty title',
       severity: 'warn',
-      given: '$.users.tags[*]',
+      given: '$.user.tags[*]',
       then: [
         {
           field: 'title',
@@ -210,7 +210,7 @@ export const INTEGRATION_RULSESET: RulesetDefinition = {
       description: 'All user tags must have a description',
       message: '{{description}}: {{error}} must have a non-empty description',
       severity: 'error',
-      given: '$.users.tags[*]',
+      given: '$.user.tags[*]',
       then: [
         {
           field: 'description',
@@ -294,14 +294,14 @@ export const INTEGRATION_RULSESET: RulesetDefinition = {
       description:
         'Legacy ZUI title fields (ui.title) should be removed. Please use .title() in your Zod schemas instead',
       severity: 'error',
-      given: '$..*[?(@.schema)].ui..[?(@.title)]',
-      then: [{ field: 'title', function: falsy }],
+      given: '$..ui[*].title',
+      then: [{ function: falsy }],
     },
     'legacy-zui-examples-should-be-removed': {
       description: 'Legacy ZUI examples fields (ui.examples) should be removed. There are currently no alternatives',
-      severity: 'off',
-      given: '$..*[?(@.schema)].ui..[?(@.examples)]',
-      then: [{ field: 'examples', function: falsy }],
+      severity: 'hint',
+      given: '$..ui[*].examples',
+      then: [{ function: falsy }],
     },
   },
-}
+} as const satisfies RulesetDefinition

@@ -1,7 +1,7 @@
 import { Spectral, Document, ISpectralDiagnostic } from '@stoplight/spectral-core'
 import { Json as JsonParser, JsonParserResult } from '@stoplight/spectral-parsers'
-import { Logger } from '../logger'
 import { CreateIntegrationBody } from '../api/integration-body'
+import { Logger } from '../logger'
 import { INTEGRATION_RULSESET } from './rulesets/integration.ruleset'
 
 type ProblemSeverity = 0 | 1 | 2 | 3
@@ -31,7 +31,7 @@ export class IntegrationLinter {
     }
   }
 
-  private getSortedResults() {
+  public getSortedResults() {
     return this.getResults().sort((a, b) => (a.path > b.path ? 1 : a.path < b.path ? -1 : 0))
   }
 
