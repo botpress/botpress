@@ -49,12 +49,16 @@ export class ChannelModule extends Module {
     return inst
   }
 
-  private constructor(private messageModules: MessageModule, private channel: types.ChannelDefinition, def: ModuleDef) {
+  private constructor(
+    private _messageModules: MessageModule,
+    private _channel: types.ChannelDefinition,
+    def: ModuleDef
+  ) {
     super(def)
   }
 
   public override get content() {
-    const { messageModules } = this
+    const { _messageModules: messageModules } = this
     const messageImport = messageModules.import(this)
 
     return [
@@ -64,8 +68,8 @@ export class ChannelModule extends Module {
       '',
       `export type ${this.exports} = {`,
       `  messages: ${messageModules.exports}`,
-      `  message: ${stringifySingleLine(this.channel.message)}`,
-      `  conversation: ${stringifySingleLine(this.channel.conversation)}`,
+      `  message: ${stringifySingleLine(this._channel.message)}`,
+      `  conversation: ${stringifySingleLine(this._channel.conversation)}`,
       '}',
     ].join('\n')
   }

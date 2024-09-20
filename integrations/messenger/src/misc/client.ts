@@ -4,25 +4,25 @@ import { getGlobalWebhookUrl } from '../index'
 import * as bp from '.botpress'
 
 export class MetaClient {
-  private clientId: string
-  private clientSecret: string
-  private version: string = 'v19.0'
-  private baseGraphApiUrl = 'https://graph.facebook.com'
+  private _clientId: string
+  private _clientSecret: string
+  private _version: string = 'v19.0'
+  private _baseGraphApiUrl = 'https://graph.facebook.com'
 
-  constructor(private logger: bp.Logger) {
-    this.clientId = bp.secrets.CLIENT_ID
-    this.clientSecret = bp.secrets.CLIENT_SECRET
+  public constructor(private _logger: bp.Logger) {
+    this._clientId = bp.secrets.CLIENT_ID
+    this._clientSecret = bp.secrets.CLIENT_SECRET
   }
 
-  async getAccessToken(code: string) {
+  public async getAccessToken(code: string) {
     const query = new URLSearchParams({
-      client_id: this.clientId,
-      client_secret: this.clientSecret,
+      client_id: this._clientId,
+      client_secret: this._clientSecret,
       redirect_uri: getGlobalWebhookUrl(),
       code,
     })
 
-    const res = await axios.get(`${this.baseGraphApiUrl}/${this.version}/oauth/access_token?${query.toString()}`)
+    const res = await axios.get(`${this._baseGraphApiUrl}/${this._version}/oauth/access_token?${query.toString()}`)
     const data = z
       .object({
         access_token: z.string(),
@@ -32,14 +32,14 @@ export class MetaClient {
     return data.access_token
   }
 
-  async getFacebookPagesFromToken(inputToken: string): Promise<{ id: string; name: string }[]> {
+  public async getFacebookPagesFromToken(inputToken: string): Promise<{ id: string; name: string }[]> {
     const query = new URLSearchParams({
       input_token: inputToken,
       access_token: bp.secrets.ACCESS_TOKEN,
     })
 
     const { data: dataDebugToken } = await axios.get(
-      `${this.baseGraphApiUrl}/${this.version}/debug_token?${query.toString()}`
+      `${this._baseGraphApiUrl}/${this._version}/debug_token?${query.toString()}`
     )
 
     const scope = dataDebugToken.data.granular_scopes.find(
@@ -50,7 +50,7 @@ export class MetaClient {
       const ids = scope.target_ids
 
       const { data: dataBusinesses } = await axios.get(
-        `${this.baseGraphApiUrl}/${this.version}/?ids=${ids.join()}&fields=id,name`,
+        `${this._baseGraphApiUrl}/${this._version}/?ids=${ids.join()}&fields=id,name`,
         {
           headers: {
             Authorization: `Bearer ${inputToken}`,
@@ -64,13 +64,13 @@ export class MetaClient {
     }
   }
 
-  async getPageToken(accessToken: string, pageId: string) {
+  public async getPageToken(accessToken: string, pageId: string) {
     const query = new URLSearchParams({
       access_token: accessToken,
       fields: 'access_token,name',
     })
 
-    const res = await axios.get(`${this.baseGraphApiUrl}/${pageId}?${query.toString()}`)
+    const res = await axios.get(`${this._baseGraphApiUrl}/${pageId}?${query.toString()}`)
     const data = z
       .object({
         access_token: z.string(),
@@ -86,10 +86,10 @@ export class MetaClient {
     return data.access_token
   }
 
-  async subscribeToWebhooks(pageToken: string, pageId: string) {
+  public async subscribeToWebhooks(pageToken: string, pageId: string) {
     try {
       const { data } = await axios.post(
-        `${this.baseGraphApiUrl}/${this.version}/${pageId}/subscribed_apps`,
+        `${this._baseGraphApiUrl}/${this._version}/${pageId}/subscribed_apps`,
         {
           subscribed_fields: ['messages', 'messaging_postbacks'],
         },
@@ -104,7 +104,7 @@ export class MetaClient {
         throw new Error('No Success')
       }
     } catch (e: any) {
-      this.logger
+      this._logger
         .forBot()
         .error(
           `(OAuth registration) Error subscribing to webhooks for Page ${pageId}: ${e.message} -> ${e.response?.data}`
@@ -113,14 +113,14 @@ export class MetaClient {
     }
   }
 
-  async getUserManagedPages(userToken: string) {
+  public async getUserManagedPages(userToken: string) {
     let allPages: { id: string; name: string }[] = []
 
     const query = new URLSearchParams({
       access_token: userToken,
       fields: 'id,name',
     })
-    let url = `${this.baseGraphApiUrl}/${this.version}/me/accounts?${query.toString()}`
+    let url = `${this._baseGraphApiUrl}/${this._version}/me/accounts?${query.toString()}`
 
     try {
       while (url) {

@@ -19,40 +19,40 @@ import {
 } from '../misc/custom-schemas'
 
 export class MailchimpApi {
-  private client: MailchimpClient
-  private logger?: IntegrationLogger
-  constructor(apiKey: string, serverPrefix: string, logger?: IntegrationLogger) {
-    this.client = mailchimp
-    this.client.setConfig({
+  private _client: MailchimpClient
+  private _logger?: IntegrationLogger
+  public constructor(apiKey: string, serverPrefix: string, logger?: IntegrationLogger) {
+    this._client = mailchimp
+    this._client.setConfig({
       apiKey,
       server: serverPrefix,
     })
-    this.logger = logger
+    this._logger = logger
   }
 
   public getAllCampaigns = async (input: getAllCampaignsInputType): Promise<getAllCampaignsOutputType> => {
-    const response = await this.client.campaigns?.list(input)
+    const response = await this._client.campaigns?.list(input)
 
     return getAllCampaignsOutputSchema.parse(response)
   }
 
   public getAllLists = async (input: getAllListsInputType): Promise<getAllListsOutputType> => {
-    const response = await this.client.lists.getAllLists(input)
+    const response = await this._client.lists.getAllLists(input)
 
     return getAllListsOutputSchema.parse(response)
   }
 
   public addCustomerToList = async (listId: string, customer: Customer): Promise<addCustomerFullOutputType> => {
-    this.logger?.forBot().debug('Adding customer to list', { listId, customer })
+    this._logger?.forBot().debug('Adding customer to list', { listId, customer })
 
     const existing = await this.getListCustomer(listId, customer.email)
 
     if (existing) {
-      this.logger?.forBot().debug('Customer already exists in list', { existing })
+      this._logger?.forBot().debug('Customer already exists in list', { existing })
       return addCustomerFullOutputSchema.parse(existing)
     }
 
-    const listResponse = await this.client.lists.addListMember(
+    const listResponse = await this._client.lists.addListMember(
       listId,
       {
         email_address: customer.email,
@@ -82,9 +82,9 @@ export class MailchimpApi {
     campaignId: string,
     customer: Customer
   ): Promise<addCustomerFullOutputType> => {
-    this.logger?.forBot().debug('Adding customer to campaign list', { campaignId, customer })
-    const listId = await this.getCampaignListID(campaignId)
-    this.logger?.forBot().debug('Found Campaign list ID', { listId })
+    this._logger?.forBot().debug('Adding customer to campaign list', { campaignId, customer })
+    const listId = await this._getCampaignListID(campaignId)
+    this._logger?.forBot().debug('Found Campaign list ID', { listId })
 
     if (!listId) {
       throw new RuntimeError(`Campaign ${campaignId} does not have an associated list`)
@@ -93,10 +93,10 @@ export class MailchimpApi {
     const existing = await this.getListCustomer(listId, customer.email)
 
     if (existing) {
-      this.logger?.forBot().debug('Customer already exists in list', { existing })
+      this._logger?.forBot().debug('Customer already exists in list', { existing })
       return addCustomerFullOutputSchema.parse(existing)
     }
-    this.logger?.forBot().debug('Customer does not exist in list, adding', { customer })
+    this._logger?.forBot().debug('Customer does not exist in list, adding', { customer })
     return this.addCustomerToList(listId, customer)
   }
 
@@ -105,15 +105,15 @@ export class MailchimpApi {
     customerEmail: string
   ): Promise<lists.MembersSuccessResponse | null> => {
     try {
-      const response = await this.client.lists.getListMember(listId, customerEmail)
-      this.logger?.forBot().debug('Found customer in list', { response })
+      const response = await this._client.lists.getListMember(listId, customerEmail)
+      this._logger?.forBot().debug('Found customer in list', { response })
       if (isMailchimpError(response)) {
         throw response
       }
       return response as lists.MembersSuccessResponse
     } catch (error) {
       if ((error as mailchimp.ErrorResponse).status === 404) {
-        this.logger?.forBot().debug('Customer does not exist in list', { customerEmail })
+        this._logger?.forBot().debug('Customer does not exist in list', { customerEmail })
         return null
       } else {
         throw error
@@ -122,7 +122,7 @@ export class MailchimpApi {
   }
 
   public getCampaignListCustomer = async (campaignId: string, customerEmail: string) => {
-    const listId = await this.getCampaignListID(campaignId)
+    const listId = await this._getCampaignListID(campaignId)
     if (!listId) {
       throw new RuntimeError(`Campaign ${campaignId} does not have an associated list, is the ID correct? `)
     }
@@ -138,16 +138,16 @@ export class MailchimpApi {
       path: `/campaigns/${campaignId}/actions/send`,
     }))
 
-    const response = await this.client.batches?.start({
+    const response = await this._client.batches?.start({
       operations,
     })
 
     return response
   }
 
-  private getCampaignListID = async (campaignId: string): Promise<string | null> => {
+  private _getCampaignListID = async (campaignId: string): Promise<string | null> => {
     try {
-      const campaignResponse = await this.client.campaigns?.get(campaignId)
+      const campaignResponse = await this._client.campaigns?.get(campaignId)
       return campaignResponse?.recipients.list_id || null
     } catch (error: any) {
       if (isMailchimpError(error)) {

@@ -1,33 +1,33 @@
 import { TrelloClient, Models, Parameters } from 'trello.js'
 
 export class TrelloApi {
-  private client: TrelloClient
+  private _client: TrelloClient
 
-  constructor(apiKey: string, token: string) {
-    this.client = new TrelloClient({
+  public constructor(apiKey: string, token: string) {
+    this._client = new TrelloClient({
       key: apiKey,
       token,
     })
   }
 
-  async createCard(card: Parameters.CreateCard): Promise<Models.Card> {
-    return await this.client.cards.createCard(card)
+  public async createCard(card: Parameters.CreateCard): Promise<Models.Card> {
+    return await this._client.cards.createCard(card)
   }
 
-  async updateCard(card: Parameters.UpdateCard): Promise<Models.Card> {
-    return await this.client.cards.updateCard(card)
+  public async updateCard(card: Parameters.UpdateCard): Promise<Models.Card> {
+    return await this._client.cards.updateCard(card)
   }
 
-  async addCommentToCard(comment: Parameters.AddCardComment): Promise<Models.Action> {
-    return await this.client.cards.addCardComment(comment)
+  public async addCommentToCard(comment: Parameters.AddCardComment): Promise<Models.Action> {
+    return await this._client.cards.addCardComment(comment)
   }
 
-  async getMember(memberId: string): Promise<Models.Member> {
-    return await this.client.members.getMember({ id: memberId })
+  public async getMember(memberId: string): Promise<Models.Member> {
+    return await this._client.members.getMember({ id: memberId })
   }
 
-  async getBoardMembers(boardId: string): Promise<Models.Member[]> {
-    const members = await this.client.boards.getBoardMembers({ id: boardId })
+  public async getBoardMembers(boardId: string): Promise<Models.Member[]> {
+    const members = await this._client.boards.getBoardMembers({ id: boardId })
     return members as Models.Member[]
   }
 }

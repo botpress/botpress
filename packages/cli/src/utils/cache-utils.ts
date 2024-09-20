@@ -4,7 +4,7 @@ import pathlib from 'path'
 export class FSKeyValueCache<T extends Object> {
   private _initialized = false
 
-  constructor(private _filepath: string) {}
+  public constructor(private _filepath: string) {}
 
   public async init(): Promise<void> {
     if (this._initialized) {

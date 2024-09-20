@@ -34,7 +34,7 @@ export class Logger extends BaseLogger {
 class SingleLineLogger extends BaseLogger {
   private _commited = false
 
-  constructor(opts: LoggerOptions) {
+  public constructor(opts: LoggerOptions) {
     super(opts)
   }
 

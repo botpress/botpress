@@ -41,73 +41,73 @@ class AsyncCollection<T> {
 // lots of repeated code here, but I prefer using vertical selection than to make the code more complex - fleur
 
 export class Lister {
-  public constructor(private client: gen.Client) {}
+  public constructor(private _client: gen.Client) {}
   public readonly conversations = (props: ListInputs['listConversations']) =>
     new AsyncCollection(({ nextToken }) =>
-      this.client.listConversations({ nextToken, ...props }).then((r) => ({ ...r, items: r.conversations }))
+      this._client.listConversations({ nextToken, ...props }).then((r) => ({ ...r, items: r.conversations }))
     )
   public readonly participants = (props: ListInputs['listParticipants']) =>
     new AsyncCollection(({ nextToken }) =>
-      this.client.listParticipants({ nextToken, ...props }).then((r) => ({ ...r, items: r.participants }))
+      this._client.listParticipants({ nextToken, ...props }).then((r) => ({ ...r, items: r.participants }))
     )
   public readonly events = (props: ListInputs['listEvents']) =>
     new AsyncCollection(({ nextToken }) =>
-      this.client.listEvents({ nextToken, ...props }).then((r) => ({ ...r, items: r.events }))
+      this._client.listEvents({ nextToken, ...props }).then((r) => ({ ...r, items: r.events }))
     )
   public readonly messages = (props: ListInputs['listMessages']) =>
     new AsyncCollection(({ nextToken }) =>
-      this.client.listMessages({ nextToken, ...props }).then((r) => ({ ...r, items: r.messages }))
+      this._client.listMessages({ nextToken, ...props }).then((r) => ({ ...r, items: r.messages }))
     )
   public readonly users = (props: ListInputs['listUsers']) =>
     new AsyncCollection(({ nextToken }) =>
-      this.client.listUsers({ nextToken, ...props }).then((r) => ({ ...r, items: r.users }))
+      this._client.listUsers({ nextToken, ...props }).then((r) => ({ ...r, items: r.users }))
     )
   public readonly tasks = (props: ListInputs['listTasks']) =>
     new AsyncCollection(({ nextToken }) =>
-      this.client.listTasks({ nextToken, ...props }).then((r) => ({ ...r, items: r.tasks }))
+      this._client.listTasks({ nextToken, ...props }).then((r) => ({ ...r, items: r.tasks }))
     )
   public readonly publicIntegrations = (props: ListInputs['listPublicIntegrations']) =>
     new AsyncCollection(({ nextToken }) =>
-      this.client.listPublicIntegrations({ nextToken, ...props }).then((r) => ({ ...r, items: r.integrations }))
+      this._client.listPublicIntegrations({ nextToken, ...props }).then((r) => ({ ...r, items: r.integrations }))
     )
   public readonly bots = (props: ListInputs['listBots']) =>
     new AsyncCollection(({ nextToken }) =>
-      this.client.listBots({ nextToken, ...props }).then((r) => ({ ...r, items: r.bots }))
+      this._client.listBots({ nextToken, ...props }).then((r) => ({ ...r, items: r.bots }))
     )
   public readonly botIssues = (props: ListInputs['listBotIssues']) =>
     new AsyncCollection(({ nextToken }) =>
-      this.client.listBotIssues({ nextToken, ...props }).then((r) => ({ ...r, items: r.issues }))
+      this._client.listBotIssues({ nextToken, ...props }).then((r) => ({ ...r, items: r.issues }))
     )
   public readonly workspaces = (props: ListInputs['listWorkspaces']) =>
     new AsyncCollection(({ nextToken }) =>
-      this.client.listWorkspaces({ nextToken, ...props }).then((r) => ({ ...r, items: r.workspaces }))
+      this._client.listWorkspaces({ nextToken, ...props }).then((r) => ({ ...r, items: r.workspaces }))
     )
   public readonly publicWorkspaces = (props: ListInputs['listPublicWorkspaces']) =>
     new AsyncCollection(({ nextToken }) =>
-      this.client.listPublicWorkspaces({ nextToken, ...props }).then((r) => ({ ...r, items: r.workspaces }))
+      this._client.listPublicWorkspaces({ nextToken, ...props }).then((r) => ({ ...r, items: r.workspaces }))
     )
   public readonly workspaceMembers = (props: ListInputs['listWorkspaceMembers']) =>
     new AsyncCollection(({ nextToken }) =>
-      this.client.listWorkspaceMembers({ nextToken, ...props }).then((r) => ({ ...r, items: r.members }))
+      this._client.listWorkspaceMembers({ nextToken, ...props }).then((r) => ({ ...r, items: r.members }))
     )
   public readonly integrations = (props: ListInputs['listIntegrations']) =>
     new AsyncCollection(({ nextToken }) =>
-      this.client.listIntegrations({ nextToken, ...props }).then((r) => ({ ...r, items: r.integrations }))
+      this._client.listIntegrations({ nextToken, ...props }).then((r) => ({ ...r, items: r.integrations }))
     )
   public readonly interfaces = (props: ListInputs['listInterfaces']) =>
     new AsyncCollection(({ nextToken }) =>
-      this.client.listInterfaces({ nextToken, ...props }).then((r) => ({ ...r, items: r.interfaces }))
+      this._client.listInterfaces({ nextToken, ...props }).then((r) => ({ ...r, items: r.interfaces }))
     )
   public readonly activities = (props: ListInputs['listActivities']) =>
     new AsyncCollection(({ nextToken }) =>
-      this.client.listActivities({ nextToken, ...props }).then((r) => ({ ...r, items: r.activities }))
+      this._client.listActivities({ nextToken, ...props }).then((r) => ({ ...r, items: r.activities }))
     )
   public readonly files = (props: ListInputs['listFiles']) =>
     new AsyncCollection(({ nextToken }) =>
-      this.client.listFiles({ nextToken, ...props }).then((r) => ({ ...r, items: r.files }))
+      this._client.listFiles({ nextToken, ...props }).then((r) => ({ ...r, items: r.files }))
     )
   public readonly filePassages = (props: ListInputs['listFilePassages']) =>
     new AsyncCollection(({ nextToken }) =>
-      this.client.listFilePassages({ nextToken, ...props }).then((r) => ({ ...r, items: r.passages }))
+      this._client.listFilePassages({ nextToken, ...props }).then((r) => ({ ...r, items: r.passages }))
     )
 }

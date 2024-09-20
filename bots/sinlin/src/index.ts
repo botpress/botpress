@@ -51,14 +51,14 @@ type IssueEvents = {
 }
 
 class LinearIssueSource extends EventEmitter<IssueEvents> implements DataSource<LinearIssue> {
-  public constructor(private props: EventHandlerProps | MessageHandlerProps) {
+  public constructor(private _props: EventHandlerProps | MessageHandlerProps) {
     super()
   }
 
   public async list(input: {
     nextToken?: string | undefined
   }): Promise<{ items: LinearIssue[]; meta: { nextToken?: string | undefined } }> {
-    const { output } = await this.props.client.callAction({
+    const { output } = await this._props.client.callAction({
       type: 'linear:issueList',
       input,
     })
