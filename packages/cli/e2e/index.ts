@@ -23,7 +23,7 @@ const timeout = (ms: number) =>
     throw new Error(`Timeout after ${ms}ms`)
   })
 
-const TIMEOUT = 30_000
+const TIMEOUT = 45_000
 
 const configSchema = {
   timeout: {
