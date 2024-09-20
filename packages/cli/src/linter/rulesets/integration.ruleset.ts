@@ -304,4 +304,4 @@ export const INTEGRATION_RULSESET = {
       then: [{ function: falsy }],
     },
   },
-} as const satisfies RulesetDefinition
+} satisfies RulesetDefinition
