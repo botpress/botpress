@@ -1,31 +1,33 @@
 import { IssueCommentCreatedEvent } from '@octokit/webhooks-types'
-import { Client } from '../misc/types'
-import { getUserAndConversation } from '../misc/utils'
+import { getOrCreateBotpressConversationFromGithubPR, getOrCreateBotpressUserFromGithubUser } from '../misc/utils'
+import { HandlerProps } from '.botpress'
 
 export const firePullRequestCommentCreated = async ({
   githubEvent,
   client,
-}: {
+  ctx,
+}: HandlerProps & {
   githubEvent: IssueCommentCreatedEvent
-  client: Client
 }) => {
+  const githubPullRequest = { ...githubEvent.issue, repository: githubEvent.repository }
+  const conversation = await getOrCreateBotpressConversationFromGithubPR({ githubPullRequest, client })
+  const user = await getOrCreateBotpressUserFromGithubUser({ githubUser: githubEvent.comment.user, client })
+
+  if (user.id === ctx.botUserId) {
+    return
+  }
+
   await client.createMessage({
-    tags: { id: githubEvent.comment.id.toString() },
+    tags: {
+      commentId: githubEvent.comment.id.toString(),
+      commentNodeId: githubEvent.comment.node_id,
+      commentUrl: githubEvent.comment.html_url,
+    },
     type: 'text',
     payload: {
       text: githubEvent.comment.body,
-      // TODO: declare in definition
-      // targets: {
-      //   pullRequest: githubEvent.issue.number.toString(),
-      // },
     },
-    ...(await getUserAndConversation(
-      {
-        githubUserId: githubEvent.comment.user.id,
-        githubChannelId: githubEvent.issue.number,
-        githubChannel: 'pullRequest',
-      },
-      client
-    )),
+    conversationId: conversation.id,
+    userId: user.id,
   })
 }
