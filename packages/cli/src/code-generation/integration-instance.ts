@@ -66,14 +66,14 @@ export class IntegrationInstanceIndexModule extends Module {
   }
 
   private constructor(
-    private integration: types.IntegrationDefinition,
-    private defaultConfigModule: DefaultConfigurationModule,
-    private configurationsModule: ConfigurationsModule,
-    private actionsModule: ActionsModule,
-    private channelsModule: ChannelsModule,
-    private eventsModule: EventsModule,
-    private statesModule: StatesModule,
-    private entitiesModule: EntitiesModule,
+    private _integration: types.IntegrationDefinition,
+    private _defaultConfigModule: DefaultConfigurationModule,
+    private _configurationsModule: ConfigurationsModule,
+    private _actionsModule: ActionsModule,
+    private _channelsModule: ChannelsModule,
+    private _eventsModule: EventsModule,
+    private _statesModule: StatesModule,
+    private _entitiesModule: EntitiesModule,
     def: ModuleDef
   ) {
     super(def)
@@ -81,14 +81,14 @@ export class IntegrationInstanceIndexModule extends Module {
 
   public override get content(): string {
     const {
-      defaultConfigModule,
-      configurationsModule,
-      actionsModule,
-      channelsModule,
-      eventsModule,
-      statesModule,
-      entitiesModule,
-      integration,
+      _defaultConfigModule: defaultConfigModule,
+      _configurationsModule: configurationsModule,
+      _actionsModule: actionsModule,
+      _channelsModule: channelsModule,
+      _eventsModule: eventsModule,
+      _statesModule: statesModule,
+      _entitiesModule: entitiesModule,
+      _integration: integration,
     } = this
 
     const defaultConfigImport = defaultConfigModule.import(this)
@@ -151,7 +151,7 @@ export class IntegrationInstanceIndexModule extends Module {
       `  channels: ${channelsModule.name}.${channelsModule.exports}`,
       `  events: ${eventsModule.name}.${eventsModule.exports}`,
       `  states: ${statesModule.name}.${statesModule.exports}`,
-      `  user: ${stringifySingleLine(this.integration.user)}`,
+      `  user: ${stringifySingleLine(this._integration.user)}`,
       `  entities: ${entitiesModule.name}.${entitiesModule.exports}`,
       '}',
       '',

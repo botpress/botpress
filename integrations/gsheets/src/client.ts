@@ -7,11 +7,11 @@ export function getClient(config: Configuration) {
 }
 
 export class GoogleSheetsApi {
-  private sheets: sheets_v4.Sheets
-  private spreadsheetId: string
+  private _sheets: sheets_v4.Sheets
+  private _spreadsheetId: string
 
-  constructor(spreadsheetId: string, privateKey: string, clientEmail: string) {
-    this.spreadsheetId = spreadsheetId
+  public constructor(spreadsheetId: string, privateKey: string, clientEmail: string) {
+    this._spreadsheetId = spreadsheetId
 
     const jwtClient = new JWT({
       email: clientEmail,
@@ -19,30 +19,20 @@ export class GoogleSheetsApi {
       scopes: ['https://www.googleapis.com/auth/spreadsheets'],
     })
 
-    this.sheets = google.sheets({ version: 'v4', auth: jwtClient })
+    this._sheets = google.sheets({ version: 'v4', auth: jwtClient })
   }
 
-  async getValues(range: string): Promise<sheets_v4.Schema$ValueRange> {
-    const response = await this.sheets.spreadsheets.values.get({
-      spreadsheetId: this.spreadsheetId,
+  public async getValues(range: string): Promise<sheets_v4.Schema$ValueRange> {
+    const response = await this._sheets.spreadsheets.values.get({
+      spreadsheetId: this._spreadsheetId,
       range,
     })
     return response.data
   }
 
-  async updateValues(range: string, values: any[][]): Promise<sheets_v4.Schema$UpdateValuesResponse> {
-    const response = await this.sheets.spreadsheets.values.update({
-      spreadsheetId: this.spreadsheetId,
-      range,
-      valueInputOption: 'USER_ENTERED',
-      requestBody: { values },
-    })
-    return response.data
-  }
-
-  async appendValues(range: string, values: any[][]): Promise<sheets_v4.Schema$AppendValuesResponse> {
-    const response = await this.sheets.spreadsheets.values.append({
-      spreadsheetId: this.spreadsheetId,
+  public async updateValues(range: string, values: any[][]): Promise<sheets_v4.Schema$UpdateValuesResponse> {
+    const response = await this._sheets.spreadsheets.values.update({
+      spreadsheetId: this._spreadsheetId,
       range,
       valueInputOption: 'USER_ENTERED',
       requestBody: { values },
@@ -50,25 +40,37 @@ export class GoogleSheetsApi {
     return response.data
   }
 
-  async clearValues(range: string): Promise<sheets_v4.Schema$ClearValuesResponse> {
-    const response = await this.sheets.spreadsheets.values.clear({
-      spreadsheetId: this.spreadsheetId,
+  public async appendValues(range: string, values: any[][]): Promise<sheets_v4.Schema$AppendValuesResponse> {
+    const response = await this._sheets.spreadsheets.values.append({
+      spreadsheetId: this._spreadsheetId,
+      range,
+      valueInputOption: 'USER_ENTERED',
+      requestBody: { values },
+    })
+    return response.data
+  }
+
+  public async clearValues(range: string): Promise<sheets_v4.Schema$ClearValuesResponse> {
+    const response = await this._sheets.spreadsheets.values.clear({
+      spreadsheetId: this._spreadsheetId,
       range,
     })
     return response.data
   }
 
-  async batchUpdate(requests: sheets_v4.Schema$Request[]): Promise<sheets_v4.Schema$BatchUpdateSpreadsheetResponse> {
-    const response = await this.sheets.spreadsheets.batchUpdate({
-      spreadsheetId: this.spreadsheetId,
+  public async batchUpdate(
+    requests: sheets_v4.Schema$Request[]
+  ): Promise<sheets_v4.Schema$BatchUpdateSpreadsheetResponse> {
+    const response = await this._sheets.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
       requestBody: { requests },
     })
     return response.data
   }
 
-  async getSpreadsheet(fields: string): Promise<sheets_v4.Schema$Spreadsheet> {
-    const response = await this.sheets.spreadsheets.get({
-      spreadsheetId: this.spreadsheetId,
+  public async getSpreadsheet(fields: string): Promise<sheets_v4.Schema$Spreadsheet> {
+    const response = await this._sheets.spreadsheets.get({
+      spreadsheetId: this._spreadsheetId,
       fields,
     })
     return response.data

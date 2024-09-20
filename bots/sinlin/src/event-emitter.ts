@@ -1,10 +1,10 @@
 export class EventEmitter<E extends object> {
-  private listeners: {
+  private _listeners: {
     [K in keyof E]?: ((event: E[K]) => void)[]
   } = {}
 
   public emit<K extends keyof E>(type: K, event: E[K]) {
-    const listeners = this.listeners[type]
+    const listeners = this._listeners[type]
     if (!listeners) {
       return
     }
@@ -22,14 +22,14 @@ export class EventEmitter<E extends object> {
   }
 
   public on<K extends keyof E>(type: K, listener: (event: E[K]) => void) {
-    if (!this.listeners[type]) {
-      this.listeners[type] = []
+    if (!this._listeners[type]) {
+      this._listeners[type] = []
     }
-    this.listeners[type]!.push(listener)
+    this._listeners[type]!.push(listener)
   }
 
   public off<K extends keyof E>(type: K, listener: (event: E[K]) => void) {
-    const listeners = this.listeners[type]
+    const listeners = this._listeners[type]
     if (!listeners) {
       return
     }

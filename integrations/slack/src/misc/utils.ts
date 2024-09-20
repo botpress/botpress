@@ -54,20 +54,20 @@ const oauthHeaders = {
 } as const
 
 export class SlackOauthClient {
-  private clientId: string
-  private clientSecret: string
+  private _clientId: string
+  private _clientSecret: string
 
-  constructor() {
-    this.clientId = bp.secrets.CLIENT_ID
-    this.clientSecret = bp.secrets.CLIENT_SECRET
+  public constructor() {
+    this._clientId = bp.secrets.CLIENT_ID
+    this._clientSecret = bp.secrets.CLIENT_SECRET
   }
 
-  async getAccessToken(code: string) {
+  public async getAccessToken(code: string) {
     const res = await axios.post(
       'https://slack.com/api/oauth.v2.access',
       {
-        client_id: this.clientId,
-        client_secret: this.clientSecret,
+        client_id: this._clientId,
+        client_secret: this._clientSecret,
         redirect_uri: `${process.env.BP_WEBHOOK_URL}/oauth`,
         code,
       },

@@ -4,7 +4,7 @@ import { getAccessToken } from './misc/whatsapp'
 import { IntegrationCtx, Client } from './types'
 
 export class UnreachableCaseError extends Error {
-  constructor(val: never) {
+  public constructor(val: never) {
     super(`Unreachable case: ${val}`)
   }
 }

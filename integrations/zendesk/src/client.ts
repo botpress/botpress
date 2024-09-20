@@ -27,9 +27,9 @@ const makeUsername = (email: string) => {
 }
 
 class ZendeskApi {
-  private client: Axios
-  constructor(organizationDomain: string, email: string, password: string) {
-    this.client = axios.create({
+  private _client: Axios
+  public constructor(organizationDomain: string, email: string, password: string) {
+    this._client = axios.create({
       baseURL: makeBaseUrl(organizationDomain),
       withCredentials: true,
       auth: {
@@ -40,19 +40,19 @@ class ZendeskApi {
   }
 
   public async findCustomers(query: string): Promise<ZendeskUser[]> {
-    const { data } = await this.client.get<{ users: ZendeskUser[] }>(`/api/v2/users/search.json?query=${query}`)
+    const { data } = await this._client.get<{ users: ZendeskUser[] }>(`/api/v2/users/search.json?query=${query}`)
     return data.users
   }
 
   public async getTicket(ticketId: string) {
-    const { data } = await this.client.get<{ ticket: ZendeskTicket }>(`/api/v2/tickets/${ticketId}.json`)
+    const { data } = await this._client.get<{ ticket: ZendeskTicket }>(`/api/v2/tickets/${ticketId}.json`)
     return data.ticket
   }
 
   public async createTicket(subject: string, comment: string, requester: TicketRequester): Promise<ZendeskTicket> {
     const requesterPayload = 'id' in requester ? { requester_id: requester.id } : { requester }
 
-    const { data } = await this.client.post<{ ticket: ZendeskTicket }>('/api/v2/tickets.json', {
+    const { data } = await this._client.post<{ ticket: ZendeskTicket }>('/api/v2/tickets.json', {
       ticket: {
         subject,
         comment: { body: comment },
@@ -64,7 +64,7 @@ class ZendeskApi {
   }
 
   public async subscribeWebhook(webhookUrl: string): Promise<string> {
-    const { data } = await this.client.post<{ webhook: { id: string } }>('/api/v2/webhooks', {
+    const { data } = await this._client.post<{ webhook: { id: string } }>('/api/v2/webhooks', {
       webhook: {
         name: 'bpc_integration_webhook',
         status: 'active',
@@ -79,7 +79,7 @@ class ZendeskApi {
   }
 
   public async createTrigger(name: TriggerNames, subscriptionId: string, conditions: ConditionsData): Promise<string> {
-    const { data } = await this.client.post<{ trigger: Trigger }>('/api/v2/triggers.json', {
+    const { data } = await this._client.post<{ trigger: Trigger }>('/api/v2/triggers.json', {
       trigger: {
         actions: [
           {
@@ -96,11 +96,11 @@ class ZendeskApi {
   }
 
   public async deleteTrigger(triggerId: string): Promise<void> {
-    await this.client.delete(`/api/v2/triggers/${triggerId}.json`).catch(() => {})
+    await this._client.delete(`/api/v2/triggers/${triggerId}.json`).catch(() => {})
   }
 
   public async unsubscribeWebhook(subscriptionId: string): Promise<void> {
-    await this.client.delete(`/api/v2/webhooks/${subscriptionId}`).catch(() => {}) // Do not add .json here
+    await this._client.delete(`/api/v2/webhooks/${subscriptionId}`).catch(() => {}) // Do not add .json here
   }
 
   public async createComment(ticketId: string, authorId: string, content: string): Promise<void> {
@@ -113,40 +113,40 @@ class ZendeskApi {
   }
 
   public async updateTicket(ticketId: string | number, updateFields: object): Promise<ZendeskTicket> {
-    const { data } = await this.client.put<{ ticket: ZendeskTicket }>(`/api/v2/tickets/${ticketId}.json`, {
+    const { data } = await this._client.put<{ ticket: ZendeskTicket }>(`/api/v2/tickets/${ticketId}.json`, {
       ticket: updateFields,
     })
     return data.ticket
   }
 
   public async getAgents(online?: boolean): Promise<ZendeskUser[]> {
-    const { data } = await this.client.get<{ users: ZendeskUser[] }>('/api/v2/users.json?role[]=agent&role[]=admin')
+    const { data } = await this._client.get<{ users: ZendeskUser[] }>('/api/v2/users.json?role[]=agent&role[]=admin')
     return online ? data.users.filter((user) => user.user_fields?.availability === 'online') : data.users
   }
 
   public async createOrUpdateUser(fields: Partial<ZendeskUser>): Promise<ZendeskUser> {
-    const { data } = await this.client.post<{ user: ZendeskUser }>('/api/v2/users/create_or_update', {
+    const { data } = await this._client.post<{ user: ZendeskUser }>('/api/v2/users/create_or_update', {
       user: fields,
     })
     return data.user
   }
 
   public async updateUser(userId: number | string, fields: object): Promise<ZendeskUser> {
-    const { data } = await this.client.put<{ user: ZendeskUser }>(`/api/v2/users/${userId}.json`, {
+    const { data } = await this._client.put<{ user: ZendeskUser }>(`/api/v2/users/${userId}.json`, {
       user: fields,
     })
     return data.user
   }
 
   public async getUser(userId: number | string): Promise<ZendeskUser> {
-    const { data } = await this.client.get<{ user: ZendeskUser }>(`/api/v2/users/${userId}.json`)
+    const { data } = await this._client.get<{ user: ZendeskUser }>(`/api/v2/users/${userId}.json`)
     return data.user
   }
 
   public async createArticleWebhook(webhookUrl: string, webhookId: string): Promise<void> {
     const subscriptions: ZendeskEventType[] = ['zen:event-type:article.published', 'zen:event-type:article.unpublished']
 
-    await this.client.post('/api/v2/webhooks', {
+    await this._client.post('/api/v2/webhooks', {
       webhook: {
         endpoint: `${webhookUrl}/article-event`,
         http_method: 'POST',
@@ -159,17 +159,17 @@ class ZendeskApi {
   }
 
   public async deleteWebhook(webhookId: string): Promise<void> {
-    await this.client.delete(`/api/v2/webhooks/${webhookId}`).catch(() => {})
+    await this._client.delete(`/api/v2/webhooks/${webhookId}`).catch(() => {})
   }
 
   public async findWebhooks(params?: Record<string, string>): Promise<ZendeskWebhook[]> {
-    const { data } = await this.client.get('/api/v2/webhooks', { params })
+    const { data } = await this._client.get('/api/v2/webhooks', { params })
 
     return data.webhooks
   }
 
   public async makeRequest(requestConfig: AxiosRequestConfig) {
-    const { data, headers, status } = await this.client.request(requestConfig)
+    const { data, headers, status } = await this._client.request(requestConfig)
 
     return {
       data,

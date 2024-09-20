@@ -151,12 +151,12 @@ class InteractiveCtaUrl implements ClientTypedMessageComponent {
   public readonly name: string
   public readonly parameters: { url: string; display_text: string }
 
-  constructor(url: string, displayText: string) {
+  public constructor(url: string, displayText: string) {
     this.name = 'cta_url'
     this.parameters = { url, display_text: displayText }
   }
 
-  get _type() {
+  public get _type() {
     return this.name
   }
 }
