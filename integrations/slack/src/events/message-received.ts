@@ -18,9 +18,7 @@ export const executeMessageReceived = async ({
     return
   }
 
-  // prevents the bot from answering to other bots
-  // TODO: check if this is still the desired behaviour. there could be some use
-  //       cases where the bot should answer to other bots
+  // Prevent the bot from answering to other Slack bots:
   if (slackEvent.bot_id) {
     return
   }
