@@ -1,4 +1,4 @@
-import { z, IntegrationDefinitionProps, ActionDefinition, interfaces, messages, AnyZodObject } from '@botpress/sdk'
+import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 import { ticketSchema, userSchema } from './schemas'
 
 const createTicket = {
@@ -147,36 +147,6 @@ const syncKb = {
   },
 }
 
-const messageSourceSchema = z.union([
-  z.object({ type: z.literal('user'), userId: z.string() }),
-  z.object({ type: z.literal('bot') }),
-])
-
-type Tuple<T> = [T, T, ...T[]]
-const messagePayloadSchemas: AnyZodObject[] = Object.entries(messages.defaults).map(([k, v]) =>
-  z.object({
-    source: messageSourceSchema,
-    type: z.literal(k),
-    payload: v.schema,
-  })
-)
-
-const messageSchema = z.union(messagePayloadSchemas as Tuple<AnyZodObject>)
-
-const startHitl = {
-  title: 'Start HITL',
-  description: 'Start a HITL session',
-  input: {
-    schema: interfaces.hitl.actions.startHitl.input.schema({}).extend({
-      // custom field added to `startHitl` action input (not required by the hitl interface)
-      messageHistory: z.array(messageSchema).optional().describe('Message history to display in the HITL session'),
-    }),
-  },
-  output: {
-    schema: interfaces.hitl.actions.startHitl.output.schema({}),
-  },
-} satisfies ActionDefinition
-
 export const actions = {
   getTicket,
   findCustomer,
@@ -185,5 +155,4 @@ export const actions = {
   listAgents,
   callApi,
   syncKb,
-  startHitl,
 } satisfies IntegrationDefinitionProps['actions']
