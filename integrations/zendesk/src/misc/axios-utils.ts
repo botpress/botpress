@@ -14,7 +14,7 @@ type AxiosSummaryErrorProps = {
 }
 
 class AxiosSummaryError extends Error {
-  constructor(props: AxiosSummaryErrorProps) {
+  public constructor(props: AxiosSummaryErrorProps) {
     const { request, response } = props
 
     const messageLines = ['Zendesk API error']
