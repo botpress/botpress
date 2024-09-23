@@ -2,7 +2,7 @@ import { RulesetDefinition } from '@stoplight/spectral-core'
 import { falsy, truthy } from '@stoplight/spectral-functions'
 import { truthyWithMessage } from '../spectral-functions'
 
-export const INTEGRATION_RULSESET = {
+export const INTEGRATION_RULESET = {
   extends: [],
   rules: {
     'integration-title-must-be-present': {

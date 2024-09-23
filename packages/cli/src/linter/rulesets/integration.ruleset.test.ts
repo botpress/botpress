@@ -1,5 +1,5 @@
 import { test, expect, describe } from 'vitest'
-import { INTEGRATION_RULSESET } from './integration.ruleset'
+import { INTEGRATION_RULESET } from './integration.ruleset'
 import { Document, ISpectralDiagnostic, Spectral } from '@stoplight/spectral-core'
 import { Json as JsonParser } from '@stoplight/spectral-parsers'
 import { CreateIntegrationBody } from 'src/api/integration-body'
@@ -14,12 +14,12 @@ type RecursivePartial<T> = {
 type PartialIntegration = RecursivePartial<CreateIntegrationBody>
 
 const describeRule = (
-  ruleName: keyof (typeof INTEGRATION_RULSESET)['rules'],
+  ruleName: keyof (typeof INTEGRATION_RULESET)['rules'],
   fn: (lint: (definition: PartialIntegration) => Promise<ISpectralDiagnostic[]>) => void
 ) =>
   describe.concurrent(ruleName, () => {
     const spectral = new Spectral()
-    spectral.setRuleset({ rules: { [ruleName]: INTEGRATION_RULSESET.rules[ruleName] } })
+    spectral.setRuleset({ rules: { [ruleName]: INTEGRATION_RULESET.rules[ruleName] } })
 
     const lintFn = (definition: PartialIntegration) =>
       spectral.run(new Document(JSON.stringify(definition), JsonParser))

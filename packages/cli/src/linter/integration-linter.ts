@@ -2,7 +2,7 @@ import { Spectral, Document, ISpectralDiagnostic } from '@stoplight/spectral-cor
 import { Json as JsonParser, JsonParserResult } from '@stoplight/spectral-parsers'
 import { CreateIntegrationBody } from '../api/integration-body'
 import { Logger } from '../logger'
-import { INTEGRATION_RULSESET } from './rulesets/integration.ruleset'
+import { INTEGRATION_RULESET } from './rulesets/integration.ruleset'
 
 type ProblemSeverity = 0 | 1 | 2 | 3
 
@@ -16,7 +16,7 @@ export class IntegrationLinter {
     this._spectralDocument = new Document(json, JsonParser)
     this._spectral = new Spectral()
 
-    this._spectral.setRuleset(INTEGRATION_RULSESET)
+    this._spectral.setRuleset(INTEGRATION_RULESET)
   }
 
   public async lint(): Promise<void> {
