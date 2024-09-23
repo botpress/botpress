@@ -38,4 +38,5 @@ export default {
   deploy: { description: 'Deploy your project to the cloud', schema: config.schemas.deploy },
   add: { description: 'Install an integration in your bot', schema: config.schemas.add },
   dev: { description: 'Run your project in dev mode', schema: config.schemas.dev },
+  lint: { description: 'EXPERIMENTAL: Lint an integration definition', schema: config.schemas.lint },
 } satisfies DefinitionTree
