@@ -4,9 +4,9 @@ import axios from 'axios'
 import * as crypto from 'crypto'
 import queryString from 'query-string'
 import VError from 'verror'
+import * as bp from '../../.botpress'
 import { Configuration, SyncState } from '../setup'
 import { AckFunction, Client, IntegrationCtx, IntegrationLogger, Conversation } from './types'
-import * as bp from '.botpress'
 
 type InteractiveBody = {
   response_url: string
@@ -86,6 +86,14 @@ export class SlackOauthClient {
   }
 }
 
+export const saveCredentials = async (
+  client: Client,
+  ctx: IntegrationCtx,
+  credentials: bp.states.credentials.Credentials
+) => {
+  await client.setState({ type: 'integration', name: 'credentials', id: ctx.integrationId, payload: credentials })
+}
+
 export async function onOAuth(req: Request, client: bp.Client, ctx: bp.Context) {
   const slackOAuthClient = new SlackOauthClient()
 
@@ -98,14 +106,7 @@ export async function onOAuth(req: Request, client: bp.Client, ctx: bp.Context) 
 
   const accessToken = await slackOAuthClient.getAccessToken(code)
 
-  await client.setState({
-    type: 'integration',
-    name: 'credentials',
-    id: ctx.integrationId,
-    payload: {
-      accessToken,
-    },
-  })
+  await saveCredentials(client, ctx, { accessToken, signingSecret: bp.secrets.SIGNING_SECRET })
 
   const slackClient = new WebClient(accessToken)
   const { team } = await slackClient.team.info()
@@ -336,51 +337,77 @@ export const getSyncState = async (client: Client, ctx: IntegrationCtx): Promise
   return payload as SyncState
 }
 
-export const getOAuthAccessToken = async (client: Client, ctx: IntegrationCtx) => {
-  const { state } = await client
-    .getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
-    .catch(() => ({
-      state: { payload: {} as any },
-    }))
+const getCredentials = async (client: Client, ctx: IntegrationCtx) => {
+  const {
+    state: { payload: credentials },
+  } = await client.getState({ type: 'integration', name: 'credentials', id: ctx.integrationId })
 
-  return state.payload.accessToken
+  return credentials
 }
 
 export const getAccessToken = async (client: Client, ctx: IntegrationCtx) => {
-  if (ctx.configuration.botToken) {
+  if (ctx.configurationType === 'botToken') {
     return ctx.configuration.botToken
   }
 
-  return getOAuthAccessToken(client, ctx)
+  return (await getCredentials(client, ctx)).accessToken
 }
 
-export const validateRequestSignature = ({ req, logger }: { req: Request; logger: IntegrationLogger }): boolean => {
-  const signingSecret = bp.secrets.SIGNING_SECRET
+export const getSigningSecret = async (client: Client, ctx: IntegrationCtx) => {
+  if (ctx.configurationType === 'botToken') {
+    return (await getCredentials(client, ctx)).signingSecret
+  }
+  return bp.secrets.SIGNING_SECRET
+}
 
-  const timestamp = req.headers['x-slack-request-timestamp']
-  const slackSignature = req.headers['x-slack-signature'] as string
+export class SlackEventSignatureValidator {
+  public constructor(
+    private readonly signingSecret: string,
+    private readonly request: Request,
+    private readonly logger: IntegrationLogger
+  ) {}
 
-  if (!timestamp || !slackSignature) {
-    logger.forBot().error('Request signature verification failed: missing timestamp or signature')
-    return false
+  public isEventProperlyAuthenticated(): boolean {
+    return this.validateHeadersArePresent() && this.validateTimestamp() && this.validateSignature()
   }
 
-  const fiveMinutesAgo = Math.floor(Date.now() / 1000) - 60 * 5
+  private validateHeadersArePresent(): boolean {
+    const timestamp = this.request.headers['x-slack-request-timestamp']
+    const slackSignature = this.request.headers['x-slack-signature']
 
-  const isTimestampTooOld = parseInt(timestamp) < fiveMinutesAgo
-  if (isTimestampTooOld) {
-    logger.forBot().error('Request signature verification failed: timestamp is too old')
-    return false
+    if (!timestamp || !slackSignature) {
+      this.logger.forBot().error('Request signature verification failed: missing timestamp or signature')
+      return false
+    }
+
+    return true
   }
 
-  const sigBasestring = `v0:${timestamp}:${req.body}`
-  const mySignature = 'v0=' + crypto.createHmac('sha256', signingSecret).update(sigBasestring).digest('hex')
+  private validateTimestamp(): boolean {
+    const fiveMinutesAgo = Math.floor(Date.now() / 1000) - 60 * 5
+    const timestamp = this.request.headers['x-slack-request-timestamp'] as string
 
-  try {
-    return crypto.timingSafeEqual(Buffer.from(mySignature, 'utf8'), Buffer.from(slackSignature, 'utf8'))
-  } catch (error) {
-    logger.forBot().error('An error occurred while verifying the request signature')
-    return false
+    if (parseInt(timestamp) < fiveMinutesAgo) {
+      this.logger.forBot().error('Request signature verification failed: timestamp is too old')
+      return false
+    }
+
+    return true
+  }
+
+  private validateSignature(): boolean {
+    const sigBasestring = `v0:${this.request.headers['x-slack-request-timestamp']}:${this.request.body}`
+    const mySignature = 'v0=' + crypto.createHmac('sha256', this.signingSecret).update(sigBasestring).digest('hex')
+
+    try {
+      return crypto.timingSafeEqual(
+        Buffer.from(mySignature, 'utf8'),
+        Buffer.from(this.request.headers['x-slack-signature'] as string, 'utf8')
+      )
+    } catch (error) {
+      this.logger.forBot().error('An error occurred while verifying the request signature')
+      return false
+    }
   }
 }
 

@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import { WebClient } from '@slack/web-api'
 import { CreateConversationFunction, CreateUserFunction, RegisterFunction, UnregisterFunction } from './misc/types'
 import {
@@ -5,6 +6,7 @@ import {
   getDirectMessageForUser,
   isUserId,
   saveConfig,
+  saveCredentials,
   updateBotpressBotNameAndAvatar,
 } from './misc/utils'
 
@@ -13,6 +15,19 @@ export type Configuration = { botUserId?: string }
 
 export const register: RegisterFunction = async ({ client, ctx, logger }) => {
   logger.forBot().debug('Registering Slack integration')
+
+  if (ctx.configurationType === 'botToken') {
+    if (!ctx.configuration.botToken || !ctx.configuration.signingSecret) {
+      throw new RuntimeError(
+        'Missing configuration: the Bot Token and Signing Secret are both required when using manual configuration'
+      )
+    }
+    await saveCredentials(client, ctx, {
+      accessToken: ctx.configuration.botToken,
+      signingSecret: ctx.configuration.signingSecret,
+    })
+  }
+
   const accessToken = await getAccessToken(client, ctx)
 
   if (!accessToken) {

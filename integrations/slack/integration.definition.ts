@@ -14,31 +14,47 @@ import {
   userTags,
 } from './src/definitions'
 
+const sharedConfig = {
+  botAvatarUrl: z
+    .string()
+    .url()
+    .optional()
+    .title('Bot avatar URL')
+    .describe("URL for the image used as the Slack bot's avatar"),
+  botName: z.string().optional().title('Bot name').describe('Name displayed as the sender in Slack conversations'),
+}
+
 export default new IntegrationDefinition({
   name: 'slack',
   title: 'Slack',
   description: 'This integration allows your bot to interact with Slack.',
-  version: '0.5.2',
+  version: '0.6.0',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
     },
-    ui: {
-      botName: {
-        title: 'Bot Name (displayed as the sender in Slack conversations)',
-      },
-      botAvatarUrl: {
-        title: "Bot Avatar URL (URL for the image used as the Slack bot's avatar)",
-      },
+    schema: z.object({ ...sharedConfig }),
+  },
+  configurations: {
+    botToken: {
+      title: 'Manual configuration',
+      description: 'Configure by manually supplying the bot token and signing secret',
+      schema: z.object({
+        botToken: z
+          .string()
+          .secret()
+          .title('Slack Bot User OAuth Token')
+          .describe('Available in the app admin panel under OAuth & Permissions'),
+        signingSecret: z
+          .string()
+          .secret()
+          .title('Slack Signing Secret')
+          .describe('Available in the app admin panel under Basic Info'),
+        ...sharedConfig,
+      }),
     },
-    schema: z.object({
-      botToken: z.string().optional(), // TODO revert once the multiple configuration is available
-      signingSecret: z.string().optional(), // TODO revert once the multiple configuration is available
-      botAvatarUrl: z.string().url().optional(),
-      botName: z.string().optional(),
-    }),
   },
   states: {
     configuration: {
@@ -60,7 +76,8 @@ export default new IntegrationDefinition({
     credentials: {
       type: 'integration',
       schema: z.object({
-        accessToken: z.string().secret().title('OAuth token').describe('The Bot User OAuth Token'),
+        accessToken: z.string().secret().describe('The Bot User OAuth Token'),
+        signingSecret: z.string().secret().describe('The Slack Signing Secret'),
       }),
     },
   },
