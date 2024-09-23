@@ -6,7 +6,7 @@ import { Triggers } from './triggers'
 
 export const register: IntegrationProps['register'] = async ({ client, ctx, webhookUrl, logger }) => {
   try {
-    await unregister({ ctx, client, webhookUrl, logger })
+    unregister && await unregister({ ctx, client, webhookUrl, logger })
   } catch (err) {
     // silent catch since if it's the first time, there's nothing to unregister
   }
