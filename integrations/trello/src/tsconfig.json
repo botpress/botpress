@@ -1,0 +1,9 @@
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "..",
+    "outDir": "../dist",
+    "noPropertyAccessFromIndexSignature": true
+  },
+  "include": ["**/*", "../integration.definition.ts", "../definitions/**/*"]
+}
