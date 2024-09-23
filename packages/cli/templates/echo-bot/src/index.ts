@@ -1,15 +1,6 @@
-import { Bot, z } from '@botpress/sdk'
-// import * as bp from '.botpress' /** uncomment to get generated code */
+import * as bp from '.botpress'
 
-const bot = new Bot({
-  integrations: {},
-  configuration: {
-    schema: z.object({}),
-  },
-  states: {},
-  events: {},
-  recurringEvents: {},
-})
+const bot = new bp.Bot({})
 
 bot.message(async ({ message, client, ctx }) => {
   console.info('Received message', message)

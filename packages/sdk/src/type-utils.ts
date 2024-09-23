@@ -27,6 +27,20 @@ export type KeyBy<T, Key extends keyof T> = {
   [TInstance in Cast<T[Key], string>]: Extract<T, { [K in Key]: TInstance }>
 }
 
+export type SafeOmit<T, K extends keyof T> = Omit<T, K>
+
+export type Simplify<T> = T extends (...args: infer A) => infer R
+  ? (...args: Simplify<A>) => Simplify<R>
+  : T extends Promise<infer R>
+  ? Promise<Simplify<R>>
+  : T extends Buffer
+  ? Buffer
+  : T extends object
+  ? T extends infer O
+    ? { [K in keyof O]: Simplify<O[K]> }
+    : never
+  : T
+
 // tests
 
 type IsEqual<T, U> = T extends U ? (U extends T ? true : false) : false

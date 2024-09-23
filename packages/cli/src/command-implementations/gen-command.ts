@@ -1,5 +1,7 @@
-import type { IntegrationDefinition } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import chalk from 'chalk'
+import fslib from 'fs'
+import pathlib from 'path'
 import * as codegen from '../code-generation'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
@@ -10,12 +12,20 @@ export type GenerateCommandDefinition = typeof commandDefinitions.generate
 export class GenerateCommand extends ProjectCommand<GenerateCommandDefinition> {
   public async run(): Promise<void> {
     const projectDef = await this.readProjectDefinitionFromFS()
-    if (projectDef.type !== 'integration') {
-      this.logger.warn(`No typings to generate for ${projectDef.type} projects`)
+    if (projectDef.type === 'interface') {
+      this.logger.success('Interface projects have no code to generate since they have no implementation.')
       return
     }
+    if (projectDef.type === 'integration') {
+      return await this._generateIntegration(projectDef.definition)
+    }
+    if (projectDef.type === 'bot') {
+      return await this._generateBot(projectDef.definition)
+    }
+    throw new errors.UnsupportedProjectType()
+  }
 
-    const { definition: integrationDef } = projectDef
+  private async _generateIntegration(integrationDef: sdk.IntegrationDefinition): Promise<void> {
     this._validateSecrets(integrationDef)
 
     const line = this.logger.line()
@@ -26,10 +36,7 @@ export class GenerateCommand extends ProjectCommand<GenerateCommandDefinition> {
     const fromWorkDir = this.projectPaths.rel('workDir')
     const fromOutDir = this.projectPaths.rel('outDir')
 
-    const typingFiles = await codegen.generateIntegrationImplementationTypings(
-      integrationDef,
-      fromOutDir.implementationDir
-    )
+    const typingFiles = await codegen.generateIntegrationTypings(integrationDef, fromOutDir.implementationDir)
 
     const secretFiles = await codegen.generateIntegrationSecrets(integrationDef, fromOutDir.secretsDir)
 
@@ -37,12 +44,39 @@ export class GenerateCommand extends ProjectCommand<GenerateCommandDefinition> {
 
     const generatedFiles = [...typingFiles, ...secretFiles, indexFile]
 
-    await this.writeGeneratedFilesToOutFolder(generatedFiles)
+    await this._writeGeneratedFilesToOutFolder(generatedFiles)
 
     line.success(`Typings available at ${chalk.grey(fromWorkDir.outDir)}`)
   }
 
-  private _validateSecrets(integrationDef: IntegrationDefinition): void {
+  private async _generateBot(botDefinition: sdk.BotDefinition): Promise<void> {
+    const line = this.logger.line()
+
+    line.started('Generating typings for bot...')
+
+    const fromWorkDir = this.projectPaths.rel('workDir')
+    const fromOutDir = this.projectPaths.rel('outDir')
+
+    const typingFiles = await codegen.generateBotTypings(botDefinition, fromOutDir.implementationDir)
+    const indexFile = await codegen.generateBotIndex(fromOutDir.implementationDir)
+
+    const generatedFiles = [...typingFiles, indexFile]
+
+    await this._writeGeneratedFilesToOutFolder(generatedFiles)
+
+    line.success(`Typings available at ${chalk.grey(fromWorkDir.outDir)}`)
+  }
+
+  private async _writeGeneratedFilesToOutFolder(files: codegen.File[]) {
+    for (const file of files) {
+      const filePath = utils.path.absoluteFrom(this.projectPaths.abs.outDir, file.path)
+      const dirPath = pathlib.dirname(filePath)
+      await fslib.promises.mkdir(dirPath, { recursive: true })
+      await fslib.promises.writeFile(filePath, file.content)
+    }
+  }
+
+  private _validateSecrets(integrationDef: sdk.IntegrationDefinition): void {
     const { secrets } = integrationDef
     if (!secrets) {
       return

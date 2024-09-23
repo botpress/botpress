@@ -3,7 +3,9 @@
   "description": "Hello-world bot",
   "private": true,
   "scripts": {
-    "check:type": "tsc --noEmit"
+    "check:type": "tsc --noEmit",
+    "build": "bp build",
+    "integrations": "echo 'nothing to install'"
   },
   "dependencies": {
     "@botpress/cli": "workspace:*",

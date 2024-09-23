@@ -3,13 +3,16 @@
   "description": "A bot that syncs issues from Linear to Botpress tables",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "integrations": "es-node ./integrations.ts"
+    "build": "bp build",
+    "integrations": "echo 'nothing to install'"
   },
   "private": true,
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "lodash": "^4.17.21"
+    "lodash": "^4.17.21",
+    "@botpresshub/linear": "workspace:*",
+    "@botpresshub/telegram": "workspace:*"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

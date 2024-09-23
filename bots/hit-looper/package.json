@@ -2,7 +2,8 @@
   "name": "@bp-bots/hit-looper",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "integrations": "es-node ./integrations.ts"
+    "build": "bp build",
+    "integrations": "echo 'nothing to install'"
   },
   "keywords": [],
   "private": true,
@@ -10,7 +11,9 @@
   "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*"
+    "@botpress/sdk": "workspace:*",
+    "@botpresshub/telegram": "workspace:*",
+    "@botpresshub/zendesk": "workspace:*"
   },
   "devDependencies": {
     "@bpinternal/es-node": "^0.0.5",

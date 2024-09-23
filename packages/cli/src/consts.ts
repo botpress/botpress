@@ -35,13 +35,14 @@ export const fromHomeDir = {
 export const fromWorkDir = {
   integrationDefinition: 'integration.definition.ts',
   interfaceDefinition: 'interface.definition.ts',
+  botDefinition: 'bot.definition.ts',
 }
 
 export const fromOutDir = {
   distDir: 'dist',
   outFile: pathlib.join('dist', 'index.js'),
   installDir: 'installations',
-  implementationDir: 'implementation',
+  implementationDir: 'implementation', // TODO: rename to typings
   secretsDir: 'secrets',
   projectCacheFile: 'project.cache.json',
 }

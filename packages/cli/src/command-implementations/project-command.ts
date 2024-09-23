@@ -5,7 +5,6 @@ import bluebird from 'bluebird'
 import chalk from 'chalk'
 import fs from 'fs'
 import _ from 'lodash'
-import pathlib from 'path'
 import semver from 'semver'
 import { ApiClient } from '../api/client'
 import * as codegen from '../code-generation'
@@ -25,14 +24,16 @@ type ConfigurableProjectPaths = { entryPoint: string; outDir: string; workDir: s
 type ConstantProjectPaths = typeof consts.fromOutDir & typeof consts.fromWorkDir
 type AllProjectPaths = ConfigurableProjectPaths & ConstantProjectPaths
 
-type RemoteIntegrationInstance = utils.types.Merge<sdk.IntegrationInstance<any>, { id: string }>
-type LocalIntegrationInstance = utils.types.Merge<sdk.IntegrationInstance<any>, { id: null }>
+type IntegrationInstance = NonNullable<sdk.BotDefinition['integrations']>[string]
+type RemoteIntegrationInstance = utils.types.Merge<IntegrationInstance, { id: string }>
+type LocalIntegrationInstance = utils.types.Merge<IntegrationInstance, { id: null }>
+type BotIntegrationRequest = NonNullable<NonNullable<client.ClientInputs['updateBot']['integrations']>[string]>
 
 export type ProjectType = ProjectDefinition['type']
 export type ProjectDefinition =
   | { type: 'integration'; definition: sdk.IntegrationDefinition }
   | { type: 'interface'; definition: sdk.InterfaceDeclaration }
-  | { type: 'bot'; definition: null }
+  | { type: 'bot'; definition: sdk.BotDefinition }
 
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   public constructor(argv: CommandArgv<ProjectCommandDefinition>) {
@@ -63,13 +64,16 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return new utils.cache.FSKeyValueCache<ProjectCache>(this.projectPaths.abs.projectCacheFile)
   }
 
-  protected async fetchBotIntegrationInstances(bot: sdk.Bot, api: ApiClient) {
-    const integrationList = _(bot.props.integrations).values().filter(utils.guards.is.defined).value()
+  protected async fetchBotIntegrationInstances(
+    botDefinition: sdk.BotDefinition,
+    api: ApiClient
+  ): Promise<Record<string, BotIntegrationRequest>> {
+    const integrationList = _(botDefinition.integrations).values().filter(utils.guards.is.defined).value()
 
     const { remoteInstances, localInstances } = this._splitApiAndLocalIntegrationInstances(integrationList)
 
     const fetchedInstances: RemoteIntegrationInstance[] = await bluebird.map(localInstances, async (instance) => {
-      const ref: IntegrationRef = { type: 'name', name: instance.name, version: instance.version }
+      const ref: IntegrationRef = { type: 'name', name: instance.definition.name, version: instance.definition.version }
       const integration = await api.findIntegration(ref)
       if (!integration) {
         const formattedRef = formatIntegrationRef(ref)
@@ -88,7 +92,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       .value()
   }
 
-  private _splitApiAndLocalIntegrationInstances(instances: sdk.IntegrationInstance<any>[]): {
+  private _splitApiAndLocalIntegrationInstances(instances: IntegrationInstance[]): {
     remoteInstances: RemoteIntegrationInstance[]
     localInstances: LocalIntegrationInstance[]
   } {
@@ -106,7 +110,9 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   }
 
   protected async readProjectDefinitionFromFS(
-    projectPaths: utils.path.PathStore<'workDir' | 'integrationDefinition' | 'interfaceDefinition'> = this.projectPaths
+    projectPaths: utils.path.PathStore<
+      'workDir' | 'integrationDefinition' | 'interfaceDefinition' | 'botDefinition'
+    > = this.projectPaths
   ): Promise<ProjectDefinition> {
     try {
       const integrationDefinition = await this._readIntegrationDefinitionFromFS(projectPaths)
@@ -117,10 +123,14 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       if (interfaceDefinition) {
         return { type: 'interface', definition: interfaceDefinition }
       }
-      return { type: 'bot', definition: null }
+      const botDefinition = await this._readBotDefinitionFromFS(projectPaths)
+      if (botDefinition) {
+        return { type: 'bot', definition: botDefinition }
+      }
     } catch (thrown: unknown) {
       throw errors.BotpressCLIError.wrap(thrown, 'Error while reading project definition')
     }
+    throw new errors.BotpressCLIError('Could not find project definition')
   }
 
   private async _readIntegrationDefinitionFromFS(
@@ -181,13 +191,32 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return definition
   }
 
-  protected async writeGeneratedFilesToOutFolder(files: codegen.File[]) {
-    for (const file of files) {
-      const filePath = utils.path.absoluteFrom(this.projectPaths.abs.outDir, file.path)
-      const dirPath = pathlib.dirname(filePath)
-      await fs.promises.mkdir(dirPath, { recursive: true })
-      await fs.promises.writeFile(filePath, file.content)
+  private async _readBotDefinitionFromFS(
+    projectPaths: utils.path.PathStore<'workDir' | 'botDefinition'> = this.projectPaths
+  ): Promise<sdk.BotDefinition | undefined> {
+    const abs = projectPaths.abs
+    const rel = projectPaths.rel('workDir')
+
+    if (!fs.existsSync(abs.botDefinition)) {
+      return
     }
+
+    const { outputFiles } = await utils.esbuild.buildEntrypoint({
+      cwd: abs.workDir,
+      outfile: '',
+      entrypoint: rel.botDefinition,
+      write: false,
+      minify: false,
+    })
+
+    const artifact = outputFiles[0]
+    if (!artifact) {
+      throw new errors.BotpressCLIError('Could not read bot definition')
+    }
+
+    const { default: definition } = utils.require.requireJsCode<{ default: sdk.BotDefinition }>(artifact.text)
+
+    return definition
   }
 
   protected displayWebhookUrls(bot: client.Bot) {

@@ -34,7 +34,10 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     if (projectDef.type === 'interface') {
       return this._deployInterface(api, projectDef.definition)
     }
-    return this._deployBot(api, this.argv.botId, this.argv.createNewBot)
+    if (projectDef.type === 'bot') {
+      return this._deployBot(api, projectDef.definition, this.argv.botId, this.argv.createNewBot)
+    }
+    throw new errors.UnsupportedProjectType()
   }
 
   private async _runBuild() {
@@ -261,10 +264,14 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     })
   }
 
-  private async _deployBot(api: ApiClient, argvBotId: string | undefined, argvCreateNew: boolean | undefined) {
+  private async _deployBot(
+    api: ApiClient,
+    botDefinition: sdk.BotDefinition,
+    argvBotId: string | undefined,
+    argvCreateNew: boolean | undefined
+  ) {
     const outfile = this.projectPaths.abs.outFile
     const code = await fs.promises.readFile(outfile, 'utf-8')
-    const { default: botImpl } = utils.require.requireJsFile<{ default: sdk.Bot }>(outfile)
 
     let bot: client.Bot
     if (argvBotId && argvCreateNew) {
@@ -290,10 +297,10 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying bot ${chalk.bold(bot.name)}...`)
 
-    const integrationInstances = await this.fetchBotIntegrationInstances(botImpl, api)
+    const integrationInstances = await this.fetchBotIntegrationInstances(botDefinition, api)
     const updateBotBody = prepareUpdateBotBody(
       {
-        ...prepareCreateBotBody(botImpl),
+        ...prepareCreateBotBody(botDefinition),
         id: bot.id,
         code,
         integrations: integrationInstances,

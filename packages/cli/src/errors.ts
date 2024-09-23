@@ -153,3 +153,10 @@ export class InvalidInterfaceReferenceError extends BotpressCLIError {
     super(message)
   }
 }
+
+export class UnsupportedProjectType extends BotpressCLIError {
+  public constructor() {
+    const message = 'Unsupported project type.'
+    super(message)
+  }
+}

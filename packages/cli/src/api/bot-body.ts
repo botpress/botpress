@@ -5,7 +5,7 @@ import * as utils from '../utils'
 export type CreateBotBody = Parameters<client.Client['createBot']>[0]
 export type UpdateBotBody = Parameters<client.Client['updateBot']>[0]
 
-export const prepareCreateBotBody = (bot: sdk.Bot): CreateBotBody => ({
+export const prepareCreateBotBody = (bot: sdk.BotDefinition): CreateBotBody => ({
   ...bot.props,
   configuration: bot.props.configuration
     ? {

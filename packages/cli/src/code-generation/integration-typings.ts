@@ -10,8 +10,8 @@ import { StatesModule } from './integration-schemas/states-module'
 import { Module, ModuleDef } from './module'
 import * as types from './typings'
 
-export class IntegrationImplementationIndexModule extends Module {
-  public static async create(integration: types.IntegrationDefinition): Promise<IntegrationImplementationIndexModule> {
+export class IntegrationTypingsIndexModule extends Module {
+  public static async create(integration: types.IntegrationDefinition): Promise<IntegrationTypingsIndexModule> {
     const defaultConfigModule = await DefaultConfigurationModule.create(integration.configuration ?? { schema: {} })
     defaultConfigModule.unshift('configuration')
 
@@ -33,7 +33,7 @@ export class IntegrationImplementationIndexModule extends Module {
     const entitiesModule = await EntitiesModule.create(integration.entities ?? {})
     entitiesModule.unshift('entities')
 
-    const inst = new IntegrationImplementationIndexModule(
+    const inst = new IntegrationTypingsIndexModule(
       integration,
       defaultConfigModule,
       configurationsModule,

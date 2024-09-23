@@ -71,6 +71,12 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@botpresshub/github':
+        specifier: workspace:*
+        version: link:../../integrations/github
+      '@botpresshub/slack':
+        specifier: workspace:*
+        version: link:../../integrations/slack
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -127,6 +133,12 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@botpresshub/telegram':
+        specifier: workspace:*
+        version: link:../../integrations/telegram
+      '@botpresshub/zendesk':
+        specifier: workspace:*
+        version: link:../../integrations/zendesk
     devDependencies:
       '@bpinternal/es-node':
         specifier: ^0.0.5
@@ -149,6 +161,12 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@botpresshub/gsheets':
+        specifier: workspace:*
+        version: link:../../integrations/gsheets
+      '@botpresshub/telegram':
+        specifier: workspace:*
+        version: link:../../integrations/telegram
     devDependencies:
       '@bpinternal/es-node':
         specifier: ^0.0.5
@@ -171,6 +189,12 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@botpresshub/linear':
+        specifier: workspace:*
+        version: link:../../integrations/linear
+      '@botpresshub/telegram':
+        specifier: workspace:*
+        version: link:../../integrations/telegram
       lodash:
         specifier: ^4.17.21
         version: 4.17.21

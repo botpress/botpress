@@ -2,12 +2,15 @@
   "name": "@bp-bots/bugbuster",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "integrations": "es-node ./integrations.ts"
+    "build": "bp build",
+    "integrations": "echo 'nothing to install'"
   },
   "private": true,
   "dependencies": {
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*"
+    "@botpress/sdk": "workspace:*",
+    "@botpresshub/github": "workspace:*",
+    "@botpresshub/slack": "workspace:*"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
