@@ -118,8 +118,8 @@ export type ChannelFunctions<TIntegration extends BaseIntegration> = {
 }
 
 export type IntegrationHandlers<TIntegration extends BaseIntegration> = {
-  register: RegisterFunction<TIntegration>
-  unregister: UnregisterFunction<TIntegration>
+  register?: RegisterFunction<TIntegration>
+  unregister?: UnregisterFunction<TIntegration>
   webhook: WebhookFunction<TIntegration>
   createUser?: CreateUserFunction<TIntegration>
   createConversation?: CreateConversationFunction<TIntegration>

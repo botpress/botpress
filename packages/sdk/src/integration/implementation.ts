@@ -13,8 +13,8 @@ import {
 } from './server'
 
 export type IntegrationImplementationProps<TIntegration extends BaseIntegration = BaseIntegration> = {
-  register: RegisterFunction<TIntegration>
-  unregister: UnregisterFunction<TIntegration>
+  register?: RegisterFunction<TIntegration>
+  unregister?: UnregisterFunction<TIntegration>
   handler: WebhookFunction<TIntegration>
   /**
    * @deprecated
@@ -32,8 +32,8 @@ export class IntegrationImplementation<TIntegration extends BaseIntegration = Ba
   public readonly props: IntegrationImplementationProps<TIntegration>
   public readonly actions: IntegrationImplementationProps<TIntegration>['actions']
   public readonly channels: IntegrationImplementationProps<TIntegration>['channels']
-  public readonly register: IntegrationImplementationProps<TIntegration>['register']
-  public readonly unregister: IntegrationImplementationProps<TIntegration>['unregister']
+  public readonly register?: IntegrationImplementationProps<TIntegration>['register']
+  public readonly unregister?: IntegrationImplementationProps<TIntegration>['unregister']
   public readonly createUser: IntegrationImplementationProps<TIntegration>['createUser']
   public readonly createConversation: IntegrationImplementationProps<TIntegration>['createConversation']
   public readonly webhook: IntegrationImplementationProps<TIntegration>['handler']
