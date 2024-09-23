@@ -56,11 +56,17 @@ export const wrapIntegration = <T extends Tof<Integration>>(integration: Integra
   }, {} as ChannelFunctions)
 
   const integrationProps: IntegrationProps<T> = {
-    register: wrapFunction(integration.props.register),
-    unregister: wrapFunction(integration.props.unregister),
     handler: wrapFunction(integration.props.handler),
     actions,
     channels,
+  }
+
+  if(integration.props.register) {
+    integrationProps.register = wrapFunction(integration.props.register)
+  }
+
+  if(integration.props.unregister) {
+    integrationProps.unregister = wrapFunction(integration.props.unregister)
   }
 
   if (integration.props.createUser) {
