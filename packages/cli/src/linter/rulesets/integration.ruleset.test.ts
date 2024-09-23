@@ -1288,3 +1288,89 @@ describeRule('legacy-zui-examples-should-be-removed', (lint) => {
     expect(results[0]?.message).toContain('examples')
   })
 })
+
+describeRule('state-fields-should-have-title', (lint) => {
+  test('missing title should trigger', async () => {
+    // arrange
+    const definition = {
+      states: { [STATE_NAME]: { schema: { properties: { [PARAM_NAME]: { [ZUI]: {} } } } } },
+    } as const
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['states', STATE_NAME, 'schema', 'properties', PARAM_NAME, ZUI])
+  })
+
+  test('empty title should trigger', async () => {
+    // arrange
+    const definition = {
+      states: { [STATE_NAME]: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: EMPTY_STRING } } } } } },
+    } as const
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['states', STATE_NAME, 'schema', 'properties', PARAM_NAME, ZUI, 'title'])
+  })
+
+  test('valid title should not trigger', async () => {
+    // arrange
+    const definition = {
+      states: { [STATE_NAME]: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: TRUTHY_STRING } } } } } },
+    } as const
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+})
+
+describeRule('state-fields-must-have-description', (lint) => {
+  test('missing description should trigger', async () => {
+    // arrange
+    const definition = {
+      states: { [STATE_NAME]: { schema: { properties: { [PARAM_NAME]: {} } } } },
+    } as const
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['states', STATE_NAME, 'schema', 'properties', PARAM_NAME])
+  })
+
+  test('empty description should trigger', async () => {
+    // arrange
+    const definition = {
+      states: { [STATE_NAME]: { schema: { properties: { [PARAM_NAME]: { description: EMPTY_STRING } } } } },
+    } as const
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['states', STATE_NAME, 'schema', 'properties', PARAM_NAME, 'description'])
+  })
+
+  test('valid description should not trigger', async () => {
+    // arrange
+    const definition = {
+      states: { [STATE_NAME]: { schema: { properties: { [PARAM_NAME]: { description: TRUTHY_STRING } } } } },
+    } as const
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+})

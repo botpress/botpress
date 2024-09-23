@@ -303,5 +303,30 @@ export const INTEGRATION_RULESET = {
       given: '$..ui[*].examples',
       then: [{ function: falsy }],
     },
+    'state-fields-should-have-title': {
+      description: 'All state fields SHOULD have a title',
+      message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
+      severity: 'warn',
+      given: '$.states[*].schema..properties[*]',
+      then: [
+        {
+          field: 'x-zui.title',
+          function: truthyWithMessage(({ path }) => `field "${path.at(-3)}" of state "${path[1]}"`),
+        },
+      ],
+    },
+    'state-fields-must-have-description': {
+      description: 'All state fields MUST have a description',
+      message:
+        '{{description}}: {{error}} SHOULD provide a non-empty description by using .describe() in its Zod schema',
+      severity: 'error',
+      given: '$.states[*].schema..properties[*]',
+      then: [
+        {
+          field: 'description',
+          function: truthyWithMessage(({ path }) => `field "${path.at(-2)}" of state "${path[1]}"`),
+        },
+      ],
+    },
   },
 } satisfies RulesetDefinition
