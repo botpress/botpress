@@ -12,8 +12,6 @@ import { handleWizard } from './misc/wizard'
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({
-  register: async () => {},
-  unregister: async () => {},
   actions: {},
   channels: {
     channel: {

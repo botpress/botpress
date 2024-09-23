@@ -20,8 +20,6 @@ import { WhatsAppPayload } from './whatsapp-types'
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({
-  register: async () => {},
-  unregister: async () => {},
   actions: {
     startConversation: async ({ ctx, input, client, logger }) => {
       const phoneNumberId: string | undefined = input.senderPhoneNumberId || (await getPhoneNumberId(client, ctx))
