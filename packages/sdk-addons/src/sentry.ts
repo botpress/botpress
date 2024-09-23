@@ -61,11 +61,11 @@ export const wrapIntegration = <T extends Tof<Integration>>(integration: Integra
     channels,
   }
 
-  if(integration.props.register) {
+  if (integration.props.register) {
     integrationProps.register = wrapFunction(integration.props.register)
   }
 
-  if(integration.props.unregister) {
+  if (integration.props.unregister) {
     integrationProps.unregister = wrapFunction(integration.props.unregister)
   }
 
