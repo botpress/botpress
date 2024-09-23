@@ -136,19 +136,19 @@ const mockLogger = {
   debug: vi.fn((message) => void message),
 }
 
-const lintDefinition = async (definition: ConstructorParameters<typeof IntegrationDefinition>[0]) => {
+const lintDefinition = async (definition: IntegrationDefinitionProps) => {
   const integrationDefinition = new IntegrationDefinition(definition)
   const linter = new IntegrationLinter(prepareCreateIntegrationBody(integrationDefinition))
   await linter.lint()
   return linter
 }
 
-const lintDefinitionAndReturnResults = async (definition: ConstructorParameters<typeof IntegrationDefinition>[0]) => {
+const lintDefinitionAndReturnResults = async (definition: IntegrationDefinitionProps) => {
   const linter = await lintDefinition(definition)
   return linter.getSortedResults()
 }
 
-const lintDefinitionAndLogResults = async (definition: ConstructorParameters<typeof IntegrationDefinition>[0]) => {
+const lintDefinitionAndLogResults = async (definition: IntegrationDefinitionProps) => {
   const linter = await lintDefinition(definition)
   linter.logResults(mockLogger as any)
 }
