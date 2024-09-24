@@ -1,12 +1,11 @@
-import * as sdk from '@botpress/sdk'
 import * as utils from '../../utils'
 import { jsonSchemaToTypeScriptType } from '../generators'
 import { Module, ReExportTypeModule } from '../module'
 import * as strings from '../strings'
+import * as types from '../typings'
 
-type BotStateDefinition = NonNullable<sdk.BotDefinition['states']>[string]
 export class StateModule extends Module {
-  public constructor(name: string, private _state: BotStateDefinition) {
+  public constructor(name: string, private _state: types.bot.StateDefinition) {
     super({
       path: `${name}.ts`,
       exportName: strings.typeName(name),
@@ -20,11 +19,11 @@ export class StateModule extends Module {
 }
 
 export class StatesModule extends ReExportTypeModule {
-  public constructor(states: Record<string, BotStateDefinition>) {
-    super({
-      exportName: strings.typeName('states'),
-    })
-    const stateModules = Object.entries(states).map(([stateName, state]) => new StateModule(stateName, state))
-    this.pushDep(...stateModules)
+  public constructor(states: Record<string, types.bot.StateDefinition>) {
+    super({ exportName: strings.typeName('states') })
+    for (const [stateName, state] of Object.entries(states)) {
+      const module = new StateModule(stateName, state)
+      this.pushDep(module)
+    }
   }
 }

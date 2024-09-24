@@ -3,7 +3,6 @@ import { BotTypingsIndexModule } from './bot-typings'
 import { INDEX_FILE } from './const'
 import { IntegrationSecretIndexModule } from './integration-secret'
 import { IntegrationTypingsIndexModule } from './integration-typings'
-import * as mapIntegration from './map-integration'
 import type * as types from './typings'
 
 export { File } from './typings'
@@ -14,8 +13,7 @@ export const generateIntegrationTypings = async (
   sdkIntegrationDefinition: sdk.IntegrationDefinition,
   typingsPath: string
 ): Promise<types.File[]> => {
-  const integration = mapIntegration.from.sdk(sdkIntegrationDefinition)
-  const indexModule = new IntegrationTypingsIndexModule(integration)
+  const indexModule = new IntegrationTypingsIndexModule(sdkIntegrationDefinition)
   indexModule.unshift(typingsPath)
   return indexModule.flatten()
 }

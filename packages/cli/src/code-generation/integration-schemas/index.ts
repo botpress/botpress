@@ -36,7 +36,7 @@ export class IntegrationTypingsModule extends Module {
       exportName: 'TIntegration',
     })
 
-    const defaultConfigModule = new DefaultConfigurationModule(_integration.configuration ?? { schema: {} })
+    const defaultConfigModule = new DefaultConfigurationModule(_integration.configuration)
     defaultConfigModule.unshift('configuration')
 
     const configurationsModule = new ConfigurationsModule(_integration.configurations ?? {})
@@ -93,6 +93,11 @@ export class IntegrationTypingsModule extends Module {
     const statesImport = statesModule.import(this)
     const entitiesImport = entitiesModule.import(this)
 
+    const user = {
+      tags: this._integration.user?.tags ?? {},
+      creation: this._integration.user?.creation ?? { enabled: false, requiredTags: [] },
+    }
+
     content += [
       GENERATED_HEADER,
       `import type * as ${defaultConfigModule.name} from "./${defaultConfigImport}"`,
@@ -113,7 +118,7 @@ export class IntegrationTypingsModule extends Module {
       'export type TIntegration = {',
       `  name: "${this._integration.name}"`,
       `  version: "${this._integration.version}"`,
-      `  user: ${stringifySingleLine(this._integration.user)}`,
+      `  user: ${stringifySingleLine(user)}`,
       `  configuration: ${defaultConfigModule.name}.${defaultConfigModule.exportName}`,
       `  configurations: ${configurationsModule.name}.${configurationsModule.exportName}`,
       `  actions: ${actionsModule.name}.${actionsModule.exportName}`,

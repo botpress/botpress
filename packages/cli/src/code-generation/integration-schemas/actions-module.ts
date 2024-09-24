@@ -1,10 +1,11 @@
+import * as utils from '../../utils'
 import { jsonSchemaToTypeScriptType } from '../generators'
 import { Module, ReExportTypeModule } from '../module'
 import * as strings from '../strings'
 import type * as types from '../typings'
 
-type ActionInput = types.ActionDefinition['input']
-type ActionOutput = types.ActionDefinition['output']
+type ActionInput = types.integration.ActionDefinition['input']
+type ActionOutput = types.integration.ActionDefinition['output']
 
 export class ActionInputModule extends Module {
   public constructor(private _input: ActionInput) {
@@ -14,7 +15,8 @@ export class ActionInputModule extends Module {
   }
 
   public async getContent() {
-    return await jsonSchemaToTypeScriptType(this._input.schema, this.exportName)
+    const jsonSchema = utils.schema.mapZodToJsonSchema(this._input)
+    return await jsonSchemaToTypeScriptType(jsonSchema, this.exportName)
   }
 }
 
@@ -26,12 +28,13 @@ export class ActionOutputModule extends Module {
   }
 
   public async getContent() {
-    return await jsonSchemaToTypeScriptType(this._output.schema, this.exportName)
+    const jsonSchema = utils.schema.mapZodToJsonSchema(this._output)
+    return await jsonSchemaToTypeScriptType(jsonSchema, this.exportName)
   }
 }
 
 export class ActionModule extends ReExportTypeModule {
-  public constructor(actionName: string, action: types.ActionDefinition) {
+  public constructor(actionName: string, action: types.integration.ActionDefinition) {
     super({ exportName: strings.typeName(actionName) })
 
     const inputModule = new ActionInputModule(action.input)
@@ -43,7 +46,7 @@ export class ActionModule extends ReExportTypeModule {
 }
 
 export class ActionsModule extends ReExportTypeModule {
-  public constructor(actions: Record<string, types.ActionDefinition>) {
+  public constructor(actions: Record<string, types.integration.ActionDefinition>) {
     super({ exportName: strings.typeName('actions') })
     for (const [actionName, action] of Object.entries(actions)) {
       const module = new ActionModule(actionName, action)
