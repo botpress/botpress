@@ -6,6 +6,10 @@ import { sendMessage } from './misc/outgoing-message'
 import { InstagramPayload } from './misc/types'
 import { formatGoogleMapLink, getCarouselMessage, getChoiceMessage, getMessengerClient } from './misc/utils'
 import * as bp from '.botpress'
+import { Request } from '@botpress/sdk'
+import { getInterstitialUrl, redirectTo } from './misc/html-utils'
+import { handleWizard } from './misc/wizard'
+import { INTEGRATION_NAME } from '../integration.definition'
 
 const integration = new bp.Integration({
   register: async () => {},
@@ -86,10 +90,24 @@ const integration = new bp.Integration({
     },
   },
   handler: async ({ req, client, ctx, logger }) => {
+    if (detectIdentifierIssue(req, ctx)) {
+      return redirectTo(getInterstitialUrl(false, 'Not allowed'))
+    }
+
+    if (req.query?.includes('code') || req.query?.includes('wizard-step')) {
+      try {
+        return await handleWizard(req, client, ctx, logger)
+      } catch (err: any) {
+        const errorMessage = '(OAuth registration) Error: ' + err.message
+        logger.forBot().error(errorMessage)
+        return redirectTo(getInterstitialUrl(false, errorMessage))
+      }
+    }
+
     logger.forBot().debug('Handler received request from Instagram with payload:', req.body)
 
     if (req.query) {
-      const query = queryString.parse(req.query)
+      const query: Record<string, string | string[] | null> = queryString.parse(req.query)
 
       const mode = query['hub.mode']
       const token = query['hub.verify_token']
@@ -187,3 +205,17 @@ export default sentryHelpers.wrapIntegration(integration, {
   environment: bp.secrets.SENTRY_ENVIRONMENT,
   release: bp.secrets.SENTRY_RELEASE,
 })
+
+export const getGlobalWebhookUrl = () => {
+  return `${process.env.BP_WEBHOOK_URL}/integration/global/${INTEGRATION_NAME}`
+}
+
+export const detectIdentifierIssue = (req: Request, ctx: bp.Context) => {
+  /* because of the wizard, we need to accept the query param "state" as an identifier
+   * but we need to prevent anyone of using anything other than the webhookId there for security reasons
+   */
+
+  const query = queryString.parse(req.query)
+
+  return !!(query['state']?.length && query['state'] !== ctx.webhookId)
+}
