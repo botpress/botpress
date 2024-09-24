@@ -1,14 +1,14 @@
-import { Integration } from '@botpress/client'
+import * as client from '@botpress/client'
 
 export type File = { path: string; content: string }
 
 export type IntegrationDefinition = Pick<
-  Integration,
+  client.Integration,
   'name' | 'version' | 'channels' | 'states' | 'events' | 'actions' | 'user' | 'entities'
 > & {
   id: string | null
-  configuration: Pick<Integration['configuration'], 'schema'>
-  configurations: Record<string, Pick<Integration['configuration'], 'schema'>>
+  configuration: Pick<client.Integration['configuration'], 'schema'>
+  configurations: Record<string, Pick<client.Integration['configuration'], 'schema'>>
 }
 
 type Def<T> = NonNullable<T>

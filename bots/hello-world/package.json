@@ -10,7 +10,8 @@
   "dependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*"
+    "@botpress/sdk": "workspace:*",
+    "@botpresshub/whatsapp": "workspace:*"
   },
   "devDependencies": {
     "@types/json-schema": "^7.0.11",

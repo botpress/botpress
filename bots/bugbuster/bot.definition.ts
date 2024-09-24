@@ -2,15 +2,13 @@ import * as sdk from '@botpress/sdk'
 import github from '@botpresshub/github/integration.definition'
 import slack from '@botpresshub/slack/integration.definition'
 
-const listenersSchema = sdk.z.object({
-  conversationIds: sdk.z.array(sdk.z.string()),
-})
-
 export default new sdk.BotDefinition({
   states: {
     listeners: {
       type: 'bot',
-      schema: listenersSchema,
+      schema: sdk.z.object({
+        conversationIds: sdk.z.array(sdk.z.string()),
+      }),
     },
   },
   events: {
@@ -26,5 +24,13 @@ export default new sdk.BotDefinition({
     },
   },
 })
-  .add(github, {})
-  .add(slack, {})
+  .add(github, {
+    enabled: true,
+    configurationType: null,
+    configuration: { owner: 'botpress', repo: 'botpress', token: '$TOKEN' },
+  })
+  .add(slack, {
+    enabled: true,
+    configurationType: null,
+    configuration: {},
+  })

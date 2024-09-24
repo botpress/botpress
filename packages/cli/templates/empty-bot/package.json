@@ -1,5 +1,5 @@
 {
-  "name": "@bp-templates/echo-bot",
+  "name": "@bp-templates/empty-bot",
   "scripts": {
     "check:type": "tsc --noEmit"
   },

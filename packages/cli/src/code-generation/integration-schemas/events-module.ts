@@ -1,33 +1,26 @@
-import bluebird from 'bluebird'
 import { jsonSchemaToTypeScriptType } from '../generators'
-import { Module, ModuleDef, ReExportTypeModule } from '../module'
+import { Module, ReExportTypeModule } from '../module'
 import * as strings from '../strings'
 import type * as types from '../typings'
 
 export class EventModule extends Module {
-  public static async create(name: string, event: types.EventDefinition): Promise<EventModule> {
+  public constructor(name: string, private _event: types.EventDefinition) {
     const eventName = name
-    const schema = event.schema
     const exportName = strings.typeName(eventName)
-    const def: ModuleDef = {
-      path: `${name}.ts`,
-      exportName,
-      content: await jsonSchemaToTypeScriptType(schema, exportName),
-    }
-    return new EventModule(def)
+    super({ path: `${name}.ts`, exportName })
+  }
+
+  public async getContent() {
+    return await jsonSchemaToTypeScriptType(this._event.schema, this.exportName)
   }
 }
 
 export class EventsModule extends ReExportTypeModule {
-  public static async create(events: Record<string, types.EventDefinition>): Promise<EventsModule> {
-    const eventModules = await bluebird.map(Object.entries(events), async ([eventName, event]) =>
-      EventModule.create(eventName, event)
-    )
-
-    const inst = new EventsModule({
-      exportName: strings.typeName('events'),
-    })
-    inst.pushDep(...eventModules)
-    return inst
+  public constructor(events: Record<string, types.EventDefinition>) {
+    super({ exportName: strings.typeName('events') })
+    for (const [eventName, event] of Object.entries(events)) {
+      const module = new EventModule(eventName, event)
+      this.pushDep(module)
+    }
   }
 }

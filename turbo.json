@@ -16,8 +16,8 @@
       "dependsOn": ["@botpress/client#build"]
     },
     "@botpress/cli#build": {
-      "inputs": ["src/**"],
-      "outputs": ["dist/**"],
+      "inputs": ["src/**", "templates/**"],
+      "outputs": ["dist/**", "templates/*/.botpress"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build"]
     },
     "@botpresshub/airtable#build": {

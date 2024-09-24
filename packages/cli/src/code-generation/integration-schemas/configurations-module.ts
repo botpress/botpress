@@ -1,44 +1,33 @@
-import bluebird from 'bluebird'
 import { jsonSchemaToTypeScriptType } from '../generators'
-import { Module, ModuleDef, ReExportTypeModule } from '../module'
+import { Module, ReExportTypeModule } from '../module'
 import * as strings from '../strings'
 import type * as types from '../typings'
 
 export class ConfigurationModule extends Module {
-  public static async create(name: string, configuration: types.ConfigurationDefinition): Promise<ConfigurationModule> {
+  public constructor(name: string, private _configuration: types.ConfigurationDefinition) {
     const configurationName = name
-    const schema = configuration.schema
     const exportName = strings.typeName(`${configurationName}Config`)
-
-    let content: string
-    if (schema) {
-      content = await jsonSchemaToTypeScriptType(schema, exportName)
-    } else {
-      content = `export type ${exportName} = Record<string, never>;`
-    }
-
-    const def: ModuleDef = {
+    super({
       path: `${name}.ts`,
       exportName,
-      content,
+    })
+  }
+
+  public async getContent(): Promise<string> {
+    const { schema } = this._configuration
+    if (!schema) {
+      return `export type ${this.exportName} = Record<string, never>;`
     }
-    return new ConfigurationModule(def)
+    return await jsonSchemaToTypeScriptType(schema, this.exportName)
   }
 }
 
 export class ConfigurationsModule extends ReExportTypeModule {
-  public static async create(
-    configurations: Record<string, types.ConfigurationDefinition>
-  ): Promise<ConfigurationsModule> {
-    const configurationModules = await bluebird.map(
-      Object.entries(configurations),
-      async ([configurationName, configuration]) => ConfigurationModule.create(configurationName, configuration)
-    )
-
-    const inst = new ConfigurationsModule({
-      exportName: strings.typeName('configurations'),
-    })
-    inst.pushDep(...configurationModules)
-    return inst
+  public constructor(configurations: Record<string, types.ConfigurationDefinition>) {
+    super({ exportName: strings.typeName('configurations') })
+    for (const [configurationName, configuration] of Object.entries(configurations)) {
+      const module = new ConfigurationModule(configurationName, configuration)
+      this.pushDep(module)
+    }
   }
 }

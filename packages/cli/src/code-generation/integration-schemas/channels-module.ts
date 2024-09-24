@@ -1,73 +1,56 @@
-import bluebird from 'bluebird'
 import { GENERATED_HEADER, INDEX_FILE } from '../const'
 import { jsonSchemaToTypeScriptType, stringifySingleLine } from '../generators'
-import { Module, ModuleDef, ReExportTypeModule } from '../module'
+import { Module, ReExportTypeModule } from '../module'
 import * as strings from '../strings'
 import type * as types from '../typings'
 
-export class MessageModule extends Module {
-  public static async create(name: string, message: types.MessageDefinition): Promise<MessageModule> {
-    const schema = message.schema
-    const exportName = strings.typeName(name)
-    const def: ModuleDef = {
+class MessageModule extends Module {
+  public constructor(name: string, private _message: types.MessageDefinition) {
+    super({
       path: `${name}.ts`,
-      exportName,
-      content: await jsonSchemaToTypeScriptType(schema, exportName),
+      exportName: strings.typeName(name),
+    })
+  }
+
+  public async getContent() {
+    return await jsonSchemaToTypeScriptType(this._message.schema, this.exportName)
+  }
+}
+
+class MessagesModule extends ReExportTypeModule {
+  public constructor(channel: types.ChannelDefinition) {
+    super({ exportName: strings.typeName('messages') })
+    for (const [messageName, message] of Object.entries(channel.messages ?? {})) {
+      const module = new MessageModule(messageName, message)
+      this.pushDep(module)
     }
-    return new MessageModule(def)
   }
 }
 
-export class MessagesModule extends ReExportTypeModule {
-  public static async create(channel: types.ChannelDefinition): Promise<MessagesModule> {
-    const messages = channel.messages ?? {}
-    const messageModules = await bluebird.map(Object.entries(messages), ([messageName, message]) =>
-      MessageModule.create(messageName, message)
-    )
+class ChannelModule extends Module {
+  private _messagesModule: MessagesModule
 
-    const inst = new MessagesModule({
-      exportName: strings.typeName('messages'),
-    })
-    inst.pushDep(...messageModules)
-    return inst
-  }
-}
-
-export class ChannelModule extends Module {
-  public static async create(channelName: string, channel: types.ChannelDefinition): Promise<ChannelModule> {
-    const messagesModule = await MessagesModule.create(channel)
-    messagesModule.unshift('messages')
-
-    const exportName = strings.typeName(channelName)
-    const inst = new ChannelModule(messagesModule, channel, {
+  public constructor(channelName: string, private _channel: types.ChannelDefinition) {
+    super({
       path: INDEX_FILE,
-      exportName,
-      content: '',
+      exportName: strings.typeName(channelName),
     })
 
-    inst.pushDep(messagesModule)
-    return inst
+    this._messagesModule = new MessagesModule(_channel)
+    this._messagesModule.unshift('messages')
+    this.pushDep(this._messagesModule)
   }
 
-  private constructor(
-    private _messageModules: MessageModule,
-    private _channel: types.ChannelDefinition,
-    def: ModuleDef
-  ) {
-    super(def)
-  }
-
-  public override get content() {
-    const { _messageModules: messageModules } = this
-    const messageImport = messageModules.import(this)
+  public async getContent() {
+    const messageImport = this._messagesModule.import(this)
 
     return [
       GENERATED_HEADER,
-      `import { ${messageModules.exports} } from './${messageImport}'`,
+      `import { ${this._messagesModule.exportName} } from './${messageImport}'`,
       `export * from './${messageImport}'`,
       '',
-      `export type ${this.exports} = {`,
-      `  messages: ${messageModules.exports}`,
+      `export type ${this.exportName} = {`,
+      `  messages: ${this._messagesModule.exportName}`,
       `  message: ${stringifySingleLine(this._channel.message)}`,
       `  conversation: ${stringifySingleLine(this._channel.conversation)}`,
       '}',
@@ -76,15 +59,12 @@ export class ChannelModule extends Module {
 }
 
 export class ChannelsModule extends ReExportTypeModule {
-  public static async create(channels: Record<string, types.ChannelDefinition>): Promise<ChannelsModule> {
-    const channelModules = await bluebird.map(Object.entries(channels), async ([channelName, channel]) => {
-      const mod = await ChannelModule.create(channelName, channel)
-      return mod.unshift(channelName)
-    })
-
-    const exportName = strings.typeName('channels')
-    const inst = new ChannelsModule({ exportName })
-    inst.pushDep(...channelModules)
-    return inst
+  public constructor(channels: Record<string, types.ChannelDefinition>) {
+    super({ exportName: strings.typeName('channels') })
+    for (const [channelName, channel] of Object.entries(channels)) {
+      const module = new ChannelModule(channelName, channel)
+      module.unshift(channelName)
+      this.pushDep(module)
+    }
   }
 }

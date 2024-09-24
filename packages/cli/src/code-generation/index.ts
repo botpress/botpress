@@ -15,7 +15,7 @@ export const generateIntegrationTypings = async (
   typingsPath: string
 ): Promise<types.File[]> => {
   const integration = mapIntegration.from.sdk(sdkIntegrationDefinition)
-  const indexModule = await IntegrationTypingsIndexModule.create(integration)
+  const indexModule = new IntegrationTypingsIndexModule(integration)
   indexModule.unshift(typingsPath)
   return indexModule.flatten()
 }
@@ -24,7 +24,7 @@ export const generateIntegrationSecrets = async (
   sdkIntegrationDefinition: sdk.IntegrationDefinition,
   secretsPath: string
 ): Promise<types.File[]> => {
-  const indexModule = await IntegrationSecretIndexModule.create(sdkIntegrationDefinition)
+  const indexModule = new IntegrationSecretIndexModule(sdkIntegrationDefinition)
   indexModule.unshift(secretsPath)
   return indexModule.flatten()
 }
@@ -43,7 +43,7 @@ export const generateBotTypings = async (
   sdkBotDefinition: sdk.BotDefinition,
   typingsPath: string
 ): Promise<types.File[]> => {
-  const indexModule = await BotTypingsIndexModule.create(sdkBotDefinition)
+  const indexModule = new BotTypingsIndexModule(sdkBotDefinition)
   indexModule.unshift(typingsPath)
   return indexModule.flatten()
 }

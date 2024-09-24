@@ -6,10 +6,14 @@ import { Module } from './module'
 export const secretEnvVariableName = (secretName: string) => `SECRET_${casing.to.screamingSnakeCase(secretName)}`
 
 export class IntegrationSecretIndexModule extends Module {
-  public static async create(integration: IntegrationDefinition): Promise<IntegrationSecretIndexModule> {
+  public constructor(private _integration: IntegrationDefinition) {
+    super({ exportName: 'secrets', path: INDEX_FILE })
+  }
+
+  public async getContent() {
     let content = GENERATED_HEADER
     content += 'class Secrets {\n'
-    for (const [secretName, { optional }] of Object.entries(integration.secrets ?? {})) {
+    for (const [secretName, { optional }] of Object.entries(this._integration.secrets ?? {})) {
       const envVariableName = secretEnvVariableName(secretName)
       const fieldName = casing.to.screamingSnakeCase(secretName)
 
@@ -28,6 +32,6 @@ export class IntegrationSecretIndexModule extends Module {
     }
     content += '}\n'
     content += 'export const secrets = new Secrets()\n'
-    return new IntegrationSecretIndexModule({ content, exportName: 'secrets', path: INDEX_FILE })
+    return content
   }
 }

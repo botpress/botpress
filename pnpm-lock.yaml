@@ -105,6 +105,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@botpresshub/whatsapp':
+        specifier: workspace:*
+        version: link:../../integrations/whatsapp
     devDependencies:
       '@types/json-schema':
         specifier: ^7.0.11
@@ -1767,7 +1770,7 @@ importers:
         specifier: ^10.9.1
         version: 10.9.1(@types/node@18.16.16)(typescript@4.9.5)
 
-  packages/cli/templates/echo-bot:
+  packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
         specifier: 0.30.2
@@ -1778,10 +1781,10 @@ importers:
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
-        version: 18.16.16
+        version: 18.19.10
       ts-node:
         specifier: ^10.9.1
-        version: 10.9.1(@types/node@18.16.16)(typescript@4.9.5)
+        version: 10.9.2(@types/node@18.19.10)(typescript@4.9.5)
       typescript:
         specifier: ^4.9.4
         version: 4.9.5

@@ -41,5 +41,19 @@ export default new sdk.BotDefinition({
     },
   },
 })
-  .add(telegram, {})
-  .add(zendesk, {})
+  .add(telegram, {
+    enabled: true,
+    configurationType: null,
+    configuration: {
+      botToken: '$BOT_TOKEN',
+    },
+  })
+  .add(zendesk, {
+    enabled: true,
+    configurationType: null,
+    configuration: {
+      apiToken: '$API_TOKEN',
+      email: '$EMAIL',
+      organizationSubdomain: '$ORGANIZATION_SUBDOMAIN',
+    },
+  })
