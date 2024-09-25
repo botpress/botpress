@@ -274,8 +274,12 @@ ${opts.join(' | ')}`
       return sUnwrapZod(def.getter(), newConfig)
 
     case z.ZodFirstPartyTypeKind.ZodLiteral:
+      if (typeof def.value === 'bigint') {
+        throw new Error('BigInt literals are not supported yet')
+      }
+      const value: string = typeof def.value === 'string' ? escapeString(def.value) : `${def.value}`
       return `${getMultilineComment(def.description)}
-${escapeString((schema as z.ZodLiteral<any>).value)}`.trim()
+${value}`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodEnum:
       const values = def.values.map(escapeString)

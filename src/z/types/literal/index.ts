@@ -12,12 +12,12 @@ import {
   Primitive,
 } from '../index'
 
-export interface ZodLiteralDef<T = any> extends ZodTypeDef {
+export interface ZodLiteralDef<T extends Primitive = Primitive> extends ZodTypeDef {
   value: T
   typeName: ZodFirstPartyTypeKind.ZodLiteral
 }
 
-export class ZodLiteral<T> extends ZodType<T, ZodLiteralDef<T>> {
+export class ZodLiteral<T extends Primitive> extends ZodType<T, ZodLiteralDef<T>> {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     if (input.data !== this._def.value) {
       const ctx = this._getOrReturnCtx(input)

@@ -32,5 +32,5 @@ export function parseLiteralDef(def: ZodLiteralDef, refs: Refs): JsonSchema7Lite
   return {
     type: parsedType === 'bigint' ? 'integer' : parsedType,
     const: def.value,
-  }
+  } as JsonSchema7LiteralType
 }
