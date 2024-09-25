@@ -36,6 +36,7 @@ class KeyValue {
   constructor(
     public key: string,
     public value: z.Schema,
+    public optional: boolean = false,
   ) {}
 }
 
@@ -121,14 +122,15 @@ declare const ${schema.identifier}: ${typings};`)
       if (innerType instanceof z.Schema && !innerType.description && schema.value.description) {
         innerType = innerType?.describe(schema.value.description)
       }
-      return sUnwrapZod(new KeyValue(schema.key + '?', innerType), newConfig)
+      return sUnwrapZod(new KeyValue(schema.key, innerType, true), newConfig)
     }
 
     const description = getMultilineComment(schema.value._def.description)
     const delimiter = description?.trim().length > 0 ? '\n' : ''
     const withoutDesc = schema.value.describe('')
 
-    return `${delimiter}${description}${delimiter}${schema.key}: ${sUnwrapZod(withoutDesc, newConfig)}${delimiter}`
+    const optionalModifier = schema.optional ? '?' : ''
+    return `${delimiter}${description}${delimiter}${schema.key}${optionalModifier}: ${sUnwrapZod(withoutDesc, newConfig)}${delimiter}`
   }
 
   if (schema instanceof FnParameters) {

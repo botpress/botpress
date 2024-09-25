@@ -533,6 +533,22 @@ describe('objects', () => {
 
     expect(typings).toBeValidTypeScript()
   })
+
+  it('chaining optionals only make properties optional once', async () => {
+    const schema = z
+      .object({
+        foo: z.string().optional().optional(),
+      })
+      .partial()
+
+    const typings = toTypescript(schema)
+    const expected = `
+      {
+        foo?: string
+      }
+    `
+    expect(typings).toMatchWithoutFormatting(expected)
+  })
 })
 
 function getTypingVariations(type: z.ZodType, opts?: { declaration?: boolean; maxDepth?: number }): string[] {
