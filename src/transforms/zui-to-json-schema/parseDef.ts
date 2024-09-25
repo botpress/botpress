@@ -223,7 +223,7 @@ const addMeta = (def: ZodTypeDef, refs: Refs, jsonSchema: JsonSchema7Type): Json
     }
   }
 
-  Object.assign(jsonSchema, { [zuiKey]: { ...def[zuiKey], ...(jsonSchema as any)[zuiKey] } || {} })
+  Object.assign(jsonSchema, { [zuiKey]: { ...def[zuiKey], ...(jsonSchema as any)[zuiKey] } })
 
   return jsonSchema
 }
