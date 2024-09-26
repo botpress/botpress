@@ -1,5 +1,4 @@
-import * as utils from '../../utils'
-import { jsonSchemaToTypeScriptType } from '../generators'
+import { zuiSchemaToTypeScriptType } from '../generators'
 import { Module, ReExportTypeModule } from '../module'
 import * as strings from '../strings'
 import type * as types from '../typings'
@@ -14,13 +13,12 @@ export class ConfigurationModule extends Module {
     })
   }
 
-  public async getContent(): Promise<string> {
+  public async getContent() {
     const { schema } = this._configuration
     if (!schema) {
       return `export type ${this.exportName} = Record<string, never>;`
     }
-    const jsonSchema = utils.schema.mapZodToJsonSchema({ schema })
-    return await jsonSchemaToTypeScriptType(jsonSchema, this.exportName)
+    return zuiSchemaToTypeScriptType(schema, this.exportName)
   }
 }
 

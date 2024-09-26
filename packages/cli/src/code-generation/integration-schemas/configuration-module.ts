@@ -1,6 +1,5 @@
-import * as utils from '../../utils'
 import { INDEX_FILE } from '../const'
-import { jsonSchemaToTypeScriptType } from '../generators'
+import { zuiSchemaToTypeScriptType } from '../generators'
 import { Module } from '../module'
 import * as strings from '../strings'
 import type * as types from '../typings'
@@ -15,14 +14,13 @@ export class DefaultConfigurationModule extends Module {
     })
   }
 
-  public async getContent(): Promise<string> {
+  public async getContent() {
     if (!this._configuration) {
       return [
         '/** Default Configuration of the Integration */',
         'export type Configuration = Record<string, never>;',
       ].join('\n')
     }
-    const jsonSchema = utils.schema.mapZodToJsonSchema(this._configuration)
-    return await jsonSchemaToTypeScriptType(jsonSchema, this.exportName)
+    return zuiSchemaToTypeScriptType(this._configuration.schema, this.exportName)
   }
 }

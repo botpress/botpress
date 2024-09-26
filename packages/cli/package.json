@@ -41,6 +41,7 @@
     "lodash": "^4.17.21",
     "prompts": "^2.4.2",
     "radash": "^9.5.0",
+    "prettier": "2.8.8",
     "semver": "^7.3.8",
     "typescript": "^4.9.4",
     "uuid": "^9.0.0",

@@ -1,7 +1,22 @@
-import { JSONSchema4 } from 'json-schema'
+import { AnyZodObject } from '@botpress/sdk'
 import { compile } from 'json-schema-to-typescript'
+import * as prettier from 'prettier'
+import * as utils from '../utils'
 
-export const jsonSchemaToTypeScriptType = async (jsonSchema: JSONSchema4, name: string): Promise<string> => {
+export type GeneratorType = 'zui' | 'jsonSchemaToTypescript'
+
+export const zuiSchemaToTypeScriptType = async (
+  zuiSchema: AnyZodObject,
+  name: string,
+  type: GeneratorType = 'jsonSchemaToTypescript'
+): Promise<string> => {
+  if (type === 'zui') {
+    let code = zuiSchema.toTypescript()
+    code = `export type ${name} = ${code}`
+    code = await prettier.format(code, { parser: 'typescript' })
+    return code
+  }
+  const jsonSchema = utils.schema.mapZodToJsonSchema({ schema: zuiSchema })
   const code = await compile(jsonSchema, name, { unknownAny: false })
   return code
 }

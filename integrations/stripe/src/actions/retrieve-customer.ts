@@ -1,25 +1,26 @@
 import { getClient } from '../client'
 import { retrieveCustomerByIdInputSchema } from '../misc/custom-schemas'
-import type { IntegrationProps } from '../misc/types'
+import * as bp from '.botpress'
 
-export const retrieveCustomerById: IntegrationProps['actions']['retrieveCustomerById'] = async ({
+export const retrieveCustomerById: bp.IntegrationProps['actions']['retrieveCustomerById'] = async ({
   ctx,
   logger,
   input,
 }) => {
   const validatedInput = retrieveCustomerByIdInputSchema.parse(input)
   const StripeClient = getClient(ctx.configuration)
-  let response
+
   try {
     const customer = await StripeClient.retrieveCustomer(validatedInput.id)
-    response = {
-      customer,
+    if (customer.deleted) {
+      logger.forBot().info(`Customer not found - Retrieve Customer - ${validatedInput.id}`)
+      return {}
     }
-    logger.forBot().info(`Successful - Retrieve Customer - ${customer.id}`)
-  } catch (error) {
-    response = {}
-    logger.forBot().debug(`'Create or Retrieve Customer' exception ${JSON.stringify(error)}`)
-  }
 
-  return response
+    logger.forBot().info(`Successful - Retrieve Customer - ${customer.id}`)
+    return customer
+  } catch (error) {
+    logger.forBot().debug(`'Create or Retrieve Customer' exception ${JSON.stringify(error)}`)
+    return {}
+  }
 }

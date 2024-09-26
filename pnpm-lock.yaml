@@ -1714,6 +1714,9 @@ importers:
       lodash:
         specifier: ^4.17.21
         version: 4.17.21
+      prettier:
+        specifier: 2.8.8
+        version: 2.8.8
       prompts:
         specifier: ^2.4.2
         version: 2.4.2
@@ -1917,8 +1920,8 @@ importers:
         specifier: 0.30.2
         version: link:../client
       '@bpinternal/zui':
-        specifier: 0.10.0
-        version: 0.10.0(react@18.3.1)
+        specifier: 0.10.3
+        version: 0.10.3(react@18.3.1)
     devDependencies:
       '@types/node':
         specifier: ^18.11.17
@@ -2607,9 +2610,9 @@ packages:
       yn: 4.0.0
     dev: false
 
-  /@bpinternal/zui@0.10.0(react@18.3.1):
-    resolution: {integrity: sha512-iltVlwY3izpGCe995JFRmLemh6bAdg3BojpFTocXxS3P6K5XpzfBJUoPfeg3CMBgn6hRIEWxBF5rCqhnMKad9w==}
-    engines: {node: '>=16.0.0', pnpm: 9.1.0}
+  /@bpinternal/zui@0.10.3(react@18.3.1):
+    resolution: {integrity: sha512-diSySnh3t8LxHADwEG3HoNV9xtB1D/24cTShKR8BTygCjr1D/6O85ExbnYRCOUsFStluCh8QLT5JVasSju3IUg==}
+    engines: {node: '>=16.0.0', pnpm: 8.6.2}
     peerDependencies:
       react: ^18.2.0
     dependencies:
@@ -4657,6 +4660,7 @@ packages:
 
   /@types/json-schema@7.0.12:
     resolution: {integrity: sha512-Hr5Jfhc9eYOQNPYO5WLDq/n4jqijdHNlDXjuAQkkt+mWdQR+XJToOHrsD4cPaMXpn6KO7y2+wM8AZEs8VpBLVA==}
+    dev: true
 
   /@types/json-schema@7.0.15:
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
@@ -4930,7 +4934,7 @@ packages:
       eslint: ^6.0.0 || ^7.0.0 || ^8.0.0
     dependencies:
       '@eslint-community/eslint-utils': 4.4.0(eslint@8.41.0)
-      '@types/json-schema': 7.0.12
+      '@types/json-schema': 7.0.15
       '@types/semver': 7.5.0
       '@typescript-eslint/scope-manager': 5.59.8
       '@typescript-eslint/types': 5.59.8
@@ -9039,7 +9043,7 @@ packages:
     hasBin: true
     dependencies:
       '@bcherny/json-schema-ref-parser': 9.0.9
-      '@types/json-schema': 7.0.12
+      '@types/json-schema': 7.0.15
       '@types/lodash': 4.14.195
       '@types/prettier': 2.7.3
       cli-color: 2.0.3

@@ -1,6 +1,5 @@
-import * as utils from '../../utils'
 import { GENERATED_HEADER, INDEX_FILE } from '../const'
-import { jsonSchemaToTypeScriptType, stringifySingleLine } from '../generators'
+import { zuiSchemaToTypeScriptType, stringifySingleLine } from '../generators'
 import { Module, ReExportTypeModule } from '../module'
 import * as strings from '../strings'
 import type * as types from '../typings'
@@ -14,8 +13,7 @@ class MessageModule extends Module {
   }
 
   public async getContent() {
-    const jsonSchema = utils.schema.mapZodToJsonSchema(this._message)
-    return await jsonSchemaToTypeScriptType(jsonSchema, this.exportName)
+    return zuiSchemaToTypeScriptType(this._message.schema, this.exportName)
   }
 }
 
