@@ -11,8 +11,15 @@ import {
   isIssueOpenedEvent,
   isPingEvent,
   isPullRequestCommentCreatedEvent,
+  isPullRequestReviewCommentCreatedEvent,
+  isPullRequestReviewCommentReplyCreatedEvent,
+  isPullRequestReviewSubmittedEvent,
   isPullRequestMergedEvent,
   isPullRequestOpenedEvent,
+  isIssueCommentCreatedEvent,
+  isDiscussionCreatedEvent,
+  isDiscussionCommentCreatedEvent,
+  isDiscussionCommentReplyCreatedEvent,
 } from './misc/guards'
 
 import { handleOauth } from './misc/utils'
@@ -24,9 +31,16 @@ type WebhookEventHandlerEntry<T extends WebhookEvent> = Readonly<
 const EVENT_HANDLERS: Readonly<WebhookEventHandlerEntry<any>[]> = [
   [isPingEvent, () => {}],
   [isIssueOpenedEvent, fireIssueOpened],
+  [isIssueCommentCreatedEvent, () => {}],
   [isPullRequestOpenedEvent, firePullRequestOpened],
   [isPullRequestMergedEvent, firePullRequesMerged],
   [isPullRequestCommentCreatedEvent, firePullRequestCommentCreated],
+  [isPullRequestReviewCommentCreatedEvent, () => {}],
+  [isPullRequestReviewCommentReplyCreatedEvent, () => {}],
+  [isPullRequestReviewSubmittedEvent, () => {}],
+  [isDiscussionCreatedEvent, () => {}],
+  [isDiscussionCommentCreatedEvent, () => {}],
+  [isDiscussionCommentReplyCreatedEvent, () => {}],
 ] as const
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {

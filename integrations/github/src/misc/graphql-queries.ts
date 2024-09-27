@@ -33,6 +33,33 @@ export const GRAPHQL_QUERIES = {
       }
     },
   },
+
+  addDiscussionCommentReply: {
+    query: `
+      mutation AddDiscussionComment($discussionNodeId: ID!, $body: String!, replyToCommentNodeId: ID!) {
+        addDiscussionComment(input: {discussionId: $discussionNodeId, body: $body, replyToId: $replyToCommentNodeId}) {
+          comment {
+            id
+            databaseId
+            url
+          }
+        }
+      }`,
+    [QUERY_INPUT]: {} as {
+      discussionNodeId: string
+      replyToCommentNodeId: string
+      body: string
+    },
+    [QUERY_RESPONSE]: {} as {
+      addDiscussionComment: {
+        comment: {
+          id: string
+          databaseId: number
+          url: string
+        }
+      }
+    },
+  },
 } as const satisfies Record<string, GraphQLQuery<object, object>>
 
 export type GRAPHQL_QUERIES = typeof GRAPHQL_QUERIES

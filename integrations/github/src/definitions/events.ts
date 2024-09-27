@@ -1,6 +1,5 @@
 import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 
-import { INTEGRATION_NAME } from '../const'
 import { TargetsSchema } from './schemas'
 
 export type PullRequestOpened = z.infer<typeof pullRequestOpened.schema>
@@ -9,7 +8,6 @@ export type IssueOpened = z.infer<typeof issueOpened.schema>
 
 const pullRequestOpened = {
   schema: z.object({
-    type: z.literal(`${INTEGRATION_NAME}:pullRequestOpened`).optional(),
     id: z.number(),
     title: z.string(),
     content: z.string(),
@@ -23,7 +21,6 @@ const pullRequestOpened = {
 
 export const pullRequestMerged = {
   schema: z.object({
-    type: z.literal(`${INTEGRATION_NAME}:pullRequestMerged`).optional(),
     id: z.number(),
     title: z.string(),
     content: z.string(),

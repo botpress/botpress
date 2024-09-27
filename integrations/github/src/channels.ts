@@ -35,6 +35,41 @@ export default {
       }),
     },
   },
+  pullRequestReviewComment: {
+    messages: {
+      text: wrapChannel<'pullRequestReviewComment'>(
+        async ({ conversation, payload, ack, client, owner, repo, octokit }) => {
+          console.info(`Sending a text message on channel pull request review comment with content ${payload.text}`)
+
+          const comment = await octokit.rest.pulls.createReviewComment({
+            body: payload.text,
+            owner,
+            repo,
+            pull_number: +getTagOrThrowException(conversation.tags, 'pullRequestNumber'),
+            commit_id: getTagOrThrowException(conversation.tags, 'commitBeingReviewed'),
+            line: +getTagOrThrowException(conversation.tags, 'lineBeingReviewed'),
+            in_reply_to: +getTagOrThrowException(conversation.tags, 'lastCommentId'),
+            path: getTagOrThrowException(conversation.tags, 'fileBeingReviewed'),
+          })
+
+          await ack({
+            tags: {
+              commentNodeId: comment.data.node_id,
+              commentId: comment.data.id.toString(),
+              commentUrl: comment.data.html_url,
+            },
+          })
+
+          await client.updateConversation({
+            id: conversation.id,
+            tags: {
+              lastCommentId: comment.data.id.toString(),
+            } as typeof conversation.tags,
+          })
+        }
+      ),
+    },
+  },
   discussion: {
     messages: {
       text: wrapChannel<'discussion'>(async ({ conversation, payload, ack, octokit }) => {
@@ -44,6 +79,25 @@ export default {
           addDiscussionComment: { comment },
         } = await octokit.executeGraphqlQuery('addDiscussionComment', {
           discussionNodeId: getTagOrThrowException(conversation.tags, 'discussionNodeId'),
+          body: payload.text,
+        })
+
+        await ack({
+          tags: { commentId: comment.databaseId.toString(), commentNodeId: comment.id, commentUrl: comment.url },
+        })
+      }),
+    },
+  },
+  discussionComment: {
+    messages: {
+      text: wrapChannel<'discussionComment'>(async ({ conversation, message, payload, ack, octokit }) => {
+        console.info(`Sending a text message on channel discussion thread with content ${payload.text}`)
+
+        const {
+          addDiscussionComment: { comment },
+        } = await octokit.executeGraphqlQuery('addDiscussionCommentReply', {
+          discussionNodeId: getTagOrThrowException(conversation.tags, 'discussionNodeId'),
+          replyToCommentNodeId: getTagOrThrowException(message.tags, 'commentNodeId'),
           body: payload.text,
         })
 
