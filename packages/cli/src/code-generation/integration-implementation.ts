@@ -1,17 +1,18 @@
-import { GENERATED_HEADER, INDEX_FILE } from './const'
-import { IntegrationTypingsModule } from './integration-schemas'
+import * as sdk from '@botpress/sdk'
+import * as consts from './const'
+import { IntegrationTypingsModule } from './integration-typings'
 import { Module } from './module'
-import * as types from './typings'
 
-export class IntegrationTypingsIndexModule extends Module {
+export class IntegrationImplementationModule extends Module {
   private _typingsModule: IntegrationTypingsModule
 
-  public constructor(integration: types.IntegrationDefinition) {
+  public constructor(integration: sdk.IntegrationDefinition) {
     super({
-      path: INDEX_FILE,
+      path: consts.INDEX_FILE,
       exportName: 'Integration',
     })
-    this._typingsModule = new IntegrationTypingsModule(integration, { fileName: 'typings.ts' })
+    this._typingsModule = new IntegrationTypingsModule(integration)
+    this._typingsModule.unshift('typings')
     this.pushDep(this._typingsModule)
   }
 
@@ -21,9 +22,9 @@ export class IntegrationTypingsIndexModule extends Module {
     const typingsImport = this._typingsModule.import(this)
 
     content += [
-      GENERATED_HEADER,
+      consts.GENERATED_HEADER,
       'import * as sdk from "@botpress/sdk"',
-      `import type * as ${this._typingsModule.name} from "./${typingsImport}"`,
+      `import * as ${this._typingsModule.name} from "./${typingsImport}"`,
       `export * from "./${typingsImport}"`,
       '',
       `type TIntegration = ${this._typingsModule.name}.${this._typingsModule.exportName}`,

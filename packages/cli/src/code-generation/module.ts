@@ -1,8 +1,8 @@
 import { posix as pathlib } from 'path'
 import * as utils from '../utils'
-import { GENERATED_HEADER, INDEX_FILE } from './const'
+import * as consts from './const'
 import * as strings from './strings'
-import type { File } from './typings'
+import { File } from './typings'
 
 export type ModuleProps = {
   path: string
@@ -21,7 +21,7 @@ export abstract class Module {
    */
   public get name(): string {
     const basename = pathlib.basename(this.path)
-    if (basename === INDEX_FILE) {
+    if (basename === consts.INDEX_FILE) {
       const dirname = pathlib.basename(pathlib.dirname(this.path))
       return dirname
     }
@@ -83,12 +83,12 @@ export class ReExportTypeModule extends Module {
   protected constructor(def: { exportName: string }) {
     super({
       ...def,
-      path: INDEX_FILE,
+      path: consts.INDEX_FILE,
     })
   }
 
   public async getContent(): Promise<string> {
-    let content = GENERATED_HEADER
+    let content = consts.GENERATED_HEADER
 
     for (const m of this.deps) {
       const { name } = m

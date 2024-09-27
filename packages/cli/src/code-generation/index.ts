@@ -1,19 +1,19 @@
-import type * as sdk from '@botpress/sdk'
-import { BotTypingsIndexModule } from './bot-typings'
+import * as sdk from '@botpress/sdk'
+import { BotImplementationModule } from './bot-implementation'
 import { INDEX_FILE } from './const'
+import { IntegrationImplementationModule } from './integration-implementation'
 import { IntegrationSecretIndexModule } from './integration-secret'
-import { IntegrationTypingsIndexModule } from './integration-typings'
-import type * as types from './typings'
+import * as types from './typings'
 
 export { File } from './typings'
 export { secretEnvVariableName } from './integration-secret'
 export const INTEGRATION_JSON = 'integration.json'
 
-export const generateIntegrationTypings = async (
+export const generateIntegrationImplementation = async (
   sdkIntegrationDefinition: sdk.IntegrationDefinition,
   typingsPath: string
 ): Promise<types.File[]> => {
-  const indexModule = new IntegrationTypingsIndexModule(sdkIntegrationDefinition)
+  const indexModule = new IntegrationImplementationModule(sdkIntegrationDefinition)
   indexModule.unshift(typingsPath)
   return indexModule.flatten()
 }
@@ -37,11 +37,11 @@ export const generateIntegrationIndex = async (typingsPath: string, secretsPath:
   }
 }
 
-export const generateBotTypings = async (
+export const generateBotImplementation = async (
   sdkBotDefinition: sdk.BotDefinition,
   typingsPath: string
 ): Promise<types.File[]> => {
-  const indexModule = new BotTypingsIndexModule(sdkBotDefinition)
+  const indexModule = new BotImplementationModule(sdkBotDefinition)
   indexModule.unshift(typingsPath)
   return indexModule.flatten()
 }

@@ -13,7 +13,7 @@ export type TagDefinition = {
 
 export type StateType = 'conversation' | 'user' | 'bot'
 
-export type StateDefinition<TState extends BaseStates[string]> = SchemaDefinition<TState> & {
+export type StateDefinition<TState extends BaseStates[string] = BaseStates[string]> = SchemaDefinition<TState> & {
   type: StateType
   expiry?: number
 }
@@ -26,7 +26,7 @@ export type RecurringEventDefinition<TEvents extends BaseEvents> = {
   }
 }[keyof TEvents]
 
-export type EventDefinition<TEvent extends BaseEvents[string]> = SchemaDefinition<TEvent>
+export type EventDefinition<TEvent extends BaseEvents[string] = BaseEvents[string]> = SchemaDefinition<TEvent>
 
 export type ConfigurationDefinition = SchemaDefinition
 

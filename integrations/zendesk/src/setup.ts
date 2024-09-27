@@ -1,10 +1,10 @@
-import { IntegrationProps } from '../.botpress/implementation'
 import { getZendeskClient } from './client'
 import { uploadArticlesToKb } from './misc/upload-articles-to-kb'
 import { deleteKbArticles } from './misc/utils'
 import { Triggers } from './triggers'
+import * as bp from '.botpress'
 
-export const register: IntegrationProps['register'] = async ({ client, ctx, webhookUrl, logger }) => {
+export const register: bp.IntegrationProps['register'] = async ({ client, ctx, webhookUrl, logger }) => {
   try {
     await unregister({ ctx, client, webhookUrl, logger })
   } catch (err) {
@@ -62,7 +62,7 @@ export const register: IntegrationProps['register'] = async ({ client, ctx, webh
   }
 }
 
-export const unregister: IntegrationProps['unregister'] = async ({ ctx, client, logger }) => {
+export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, client, logger }) => {
   const zendeskClient = getZendeskClient(ctx.configuration)
 
   const { state } = await client.getState({

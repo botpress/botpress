@@ -1,9 +1,9 @@
 import * as sdk from '@botpress/sdk'
-import { BotTypingsModule } from './bot-schemas'
+import { BotTypingsModule } from './bot-typings'
 import * as consts from './const'
 import { Module } from './module'
 
-export class BotTypingsIndexModule extends Module {
+export class BotImplementationModule extends Module {
   private _typingsModule: BotTypingsModule
 
   public constructor(bot: sdk.BotDefinition) {
@@ -12,7 +12,8 @@ export class BotTypingsIndexModule extends Module {
       path: consts.INDEX_FILE,
     })
 
-    this._typingsModule = new BotTypingsModule(bot, { fileName: 'typings.ts' })
+    this._typingsModule = new BotTypingsModule(bot)
+    this._typingsModule.unshift('typings')
     this.pushDep(this._typingsModule)
   }
 
@@ -22,7 +23,7 @@ export class BotTypingsIndexModule extends Module {
     return [
       consts.GENERATED_HEADER,
       'import * as sdk from "@botpress/sdk"',
-      `import type * as ${this._typingsModule.name} from "./${typingsImport}"`,
+      `import * as ${this._typingsModule.name} from "./${typingsImport}"`,
       `export * from "./${typingsImport}"`,
       '',
       `type TBot = ${this._typingsModule.name}.${this._typingsModule.exportName}`,

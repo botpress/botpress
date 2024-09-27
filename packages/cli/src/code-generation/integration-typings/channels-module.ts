@@ -1,11 +1,11 @@
+import * as sdk from '@botpress/sdk'
 import { GENERATED_HEADER, INDEX_FILE } from '../const'
 import { zuiSchemaToTypeScriptType, stringifySingleLine } from '../generators'
 import { Module, ReExportTypeModule } from '../module'
 import * as strings from '../strings'
-import type * as types from '../typings'
 
 class MessageModule extends Module {
-  public constructor(name: string, private _message: types.integration.MessageDefinition) {
+  public constructor(name: string, private _message: sdk.MessageDefinition) {
     super({
       path: `${name}.ts`,
       exportName: strings.typeName(name),
@@ -18,7 +18,7 @@ class MessageModule extends Module {
 }
 
 class MessagesModule extends ReExportTypeModule {
-  public constructor(channel: types.integration.ChannelDefinition) {
+  public constructor(channel: sdk.ChannelDefinition) {
     super({ exportName: strings.typeName('messages') })
     for (const [messageName, message] of Object.entries(channel.messages ?? {})) {
       const module = new MessageModule(messageName, message)
@@ -30,7 +30,7 @@ class MessagesModule extends ReExportTypeModule {
 class ChannelModule extends Module {
   private _messagesModule: MessagesModule
 
-  public constructor(channelName: string, private _channel: types.integration.ChannelDefinition) {
+  public constructor(channelName: string, private _channel: sdk.ChannelDefinition) {
     super({
       path: INDEX_FILE,
       exportName: strings.typeName(channelName),
@@ -68,7 +68,7 @@ class ChannelModule extends Module {
 }
 
 export class ChannelsModule extends ReExportTypeModule {
-  public constructor(channels: Record<string, types.integration.ChannelDefinition>) {
+  public constructor(channels: Record<string, sdk.ChannelDefinition>) {
     super({ exportName: strings.typeName('channels') })
     for (const [channelName, channel] of Object.entries(channels)) {
       const module = new ChannelModule(channelName, channel)

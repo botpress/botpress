@@ -36,7 +36,7 @@ export class GenerateCommand extends ProjectCommand<GenerateCommandDefinition> {
     const fromWorkDir = this.projectPaths.rel('workDir')
     const fromOutDir = this.projectPaths.rel('outDir')
 
-    const typingFiles = await codegen.generateIntegrationTypings(integrationDef, fromOutDir.implementationDir)
+    const typingFiles = await codegen.generateIntegrationImplementation(integrationDef, fromOutDir.implementationDir)
 
     const secretFiles = await codegen.generateIntegrationSecrets(integrationDef, fromOutDir.secretsDir)
 
@@ -57,7 +57,7 @@ export class GenerateCommand extends ProjectCommand<GenerateCommandDefinition> {
     const fromWorkDir = this.projectPaths.rel('workDir')
     const fromOutDir = this.projectPaths.rel('outDir')
 
-    const typingFiles = await codegen.generateBotTypings(botDefinition, fromOutDir.implementationDir)
+    const typingFiles = await codegen.generateBotImplementation(botDefinition, fromOutDir.implementationDir)
     const indexFile = await codegen.generateBotIndex(fromOutDir.implementationDir)
 
     const generatedFiles = [...typingFiles, indexFile]

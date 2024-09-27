@@ -1,11 +1,11 @@
+import * as sdk from '@botpress/sdk'
 import { INDEX_FILE } from '../const'
 import { zuiSchemaToTypeScriptType } from '../generators'
 import { Module } from '../module'
 import * as strings from '../strings'
-import type * as types from '../typings'
 
 export class DefaultConfigurationModule extends Module {
-  public constructor(private _configuration: types.integration.ConfigurationDefinition | undefined) {
+  public constructor(private _configuration: sdk.ConfigurationDefinition | undefined) {
     const name = 'configuration'
     const exportName = strings.typeName(name)
     super({

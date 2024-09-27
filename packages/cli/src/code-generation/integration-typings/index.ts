@@ -1,7 +1,7 @@
+import * as sdk from '@botpress/sdk'
 import { GENERATED_HEADER, INDEX_FILE } from '../const'
 import { stringifySingleLine } from '../generators'
 import { Module } from '../module'
-import * as types from '../typings'
 import { ActionsModule } from './actions-module'
 import { ChannelsModule } from './channels-module'
 import { DefaultConfigurationModule } from './configuration-module'
@@ -20,19 +20,12 @@ type IntegrationTypingsModuleDependencies = {
   entitiesModule: EntitiesModule
 }
 
-export type IntegrationTypingsModuleProps = {
-  fileName: string
-}
-
 export class IntegrationTypingsModule extends Module {
   private _dependencies: IntegrationTypingsModuleDependencies
 
-  public constructor(
-    private _integration: types.IntegrationDefinition,
-    props: Partial<IntegrationTypingsModuleProps> = {}
-  ) {
+  public constructor(private _integration: sdk.IntegrationDefinition) {
     super({
-      path: props.fileName ?? INDEX_FILE,
+      path: INDEX_FILE,
       exportName: 'TIntegration',
     })
 
@@ -100,13 +93,13 @@ export class IntegrationTypingsModule extends Module {
 
     content += [
       GENERATED_HEADER,
-      `import type * as ${defaultConfigModule.name} from "./${defaultConfigImport}"`,
-      `import type * as ${configurationsModule.name} from "./${configurationsImport}"`,
-      `import type * as ${actionsModule.name} from "./${actionsImport}"`,
-      `import type * as ${channelsModule.name} from "./${channelsImport}"`,
-      `import type * as ${eventsModule.name} from "./${eventsImport}"`,
-      `import type * as ${statesModule.name} from "./${statesImport}"`,
-      `import type * as ${entitiesModule.name} from "./${entitiesImport}"`,
+      `import * as ${defaultConfigModule.name} from "./${defaultConfigImport}"`,
+      `import * as ${configurationsModule.name} from "./${configurationsImport}"`,
+      `import * as ${actionsModule.name} from "./${actionsImport}"`,
+      `import * as ${channelsModule.name} from "./${channelsImport}"`,
+      `import * as ${eventsModule.name} from "./${eventsImport}"`,
+      `import * as ${statesModule.name} from "./${statesImport}"`,
+      `import * as ${entitiesModule.name} from "./${entitiesImport}"`,
       `export * as ${defaultConfigModule.name} from "./${defaultConfigImport}"`,
       `export * as ${configurationsModule.name} from "./${configurationsImport}"`,
       `export * as ${actionsModule.name} from "./${actionsImport}"`,

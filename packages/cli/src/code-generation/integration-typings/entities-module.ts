@@ -1,10 +1,10 @@
+import * as sdk from '@botpress/sdk'
 import { zuiSchemaToTypeScriptType } from '../generators'
 import { Module, ReExportTypeModule } from '../module'
 import * as strings from '../strings'
-import type * as types from '../typings'
 
 export class EntityModule extends Module {
-  public constructor(name: string, private _entity: types.integration.EntityDefinition) {
+  public constructor(name: string, private _entity: sdk.EntityDefinition) {
     const entityName = name
     const exportName = strings.typeName(entityName)
     super({ path: `${name}.ts`, exportName })
@@ -16,7 +16,7 @@ export class EntityModule extends Module {
 }
 
 export class EntitiesModule extends ReExportTypeModule {
-  public constructor(entities: Record<string, types.integration.EntityDefinition>) {
+  public constructor(entities: Record<string, sdk.EntityDefinition>) {
     super({ exportName: strings.typeName('entities') })
 
     for (const [entityName, entity] of Object.entries(entities)) {

@@ -1,17 +1,17 @@
-import type { IntegrationDefinition } from '@botpress/sdk'
+import { IntegrationDefinition } from '@botpress/sdk'
 import { casing } from '../utils'
-import { GENERATED_HEADER, INDEX_FILE } from './const'
+import * as consts from './const'
 import { Module } from './module'
 
 export const secretEnvVariableName = (secretName: string) => `SECRET_${casing.to.screamingSnakeCase(secretName)}`
 
 export class IntegrationSecretIndexModule extends Module {
   public constructor(private _integration: IntegrationDefinition) {
-    super({ exportName: 'secrets', path: INDEX_FILE })
+    super({ exportName: 'secrets', path: consts.INDEX_FILE })
   }
 
   public async getContent() {
-    let content = GENERATED_HEADER
+    let content = consts.GENERATED_HEADER
     content += 'class Secrets {\n'
     for (const [secretName, { optional }] of Object.entries(this._integration.secrets ?? {})) {
       const envVariableName = secretEnvVariableName(secretName)

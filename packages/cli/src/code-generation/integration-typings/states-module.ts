@@ -1,10 +1,10 @@
+import * as sdk from '@botpress/sdk'
 import { zuiSchemaToTypeScriptType } from '../generators'
 import { Module, ReExportTypeModule } from '../module'
 import * as strings from '../strings'
-import type * as types from '../typings'
 
 export class StateModule extends Module {
-  public constructor(name: string, private _state: types.integration.StateDefinition) {
+  public constructor(name: string, private _state: sdk.StateDefinition) {
     super({
       path: `${name}.ts`,
       exportName: strings.typeName(name),
@@ -17,7 +17,7 @@ export class StateModule extends Module {
 }
 
 export class StatesModule extends ReExportTypeModule {
-  public constructor(states: Record<string, types.integration.StateDefinition>) {
+  public constructor(states: Record<string, sdk.StateDefinition>) {
     super({ exportName: strings.typeName('states') })
     for (const [stateName, state] of Object.entries(states)) {
       const module = new StateModule(stateName, state)

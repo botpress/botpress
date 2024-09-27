@@ -1,10 +1,10 @@
+import * as sdk from '@botpress/sdk'
 import { zuiSchemaToTypeScriptType } from '../generators'
 import { Module, ReExportTypeModule } from '../module'
 import * as strings from '../strings'
-import type * as types from '../typings'
 
-type ActionInput = types.integration.ActionDefinition['input']
-type ActionOutput = types.integration.ActionDefinition['output']
+type ActionInput = sdk.ActionDefinition['input']
+type ActionOutput = sdk.ActionDefinition['output']
 
 export class ActionInputModule extends Module {
   public constructor(private _input: ActionInput) {
@@ -31,7 +31,7 @@ export class ActionOutputModule extends Module {
 }
 
 export class ActionModule extends ReExportTypeModule {
-  public constructor(actionName: string, action: types.integration.ActionDefinition) {
+  public constructor(actionName: string, action: sdk.ActionDefinition) {
     super({ exportName: strings.typeName(actionName) })
 
     const inputModule = new ActionInputModule(action.input)
@@ -43,7 +43,7 @@ export class ActionModule extends ReExportTypeModule {
 }
 
 export class ActionsModule extends ReExportTypeModule {
-  public constructor(actions: Record<string, types.integration.ActionDefinition>) {
+  public constructor(actions: Record<string, sdk.ActionDefinition>) {
     super({ exportName: strings.typeName('actions') })
     for (const [actionName, action] of Object.entries(actions)) {
       const module = new ActionModule(actionName, action)

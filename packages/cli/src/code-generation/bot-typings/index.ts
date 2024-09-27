@@ -1,6 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import * as consts from '../const'
-import { IntegrationTypingsModule } from '../integration-schemas'
+import { IntegrationTypingsModule } from '../integration-typings'
 import { Module, ReExportTypeModule } from '../module'
 import { EventsModule } from './events-module'
 import { StatesModule } from './states-module'
@@ -8,7 +8,7 @@ import { StatesModule } from './states-module'
 class BotIntegrationsModule extends ReExportTypeModule {
   public constructor(bot: sdk.BotDefinition) {
     super({
-      exportName: 'TIntegrations',
+      exportName: 'Integrations',
     })
 
     for (const [alias, integration] of Object.entries(bot.integrations ?? {})) {
@@ -25,16 +25,13 @@ type BotTypingsIndexDependencies = {
   statesModule: StatesModule
 }
 
-export type BotTypingsModuleProps = {
-  fileName: string
-}
 export class BotTypingsModule extends Module {
   private _dependencies: BotTypingsIndexDependencies
 
-  public constructor(bot: sdk.BotDefinition, props: Partial<BotTypingsModuleProps> = {}) {
+  public constructor(bot: sdk.BotDefinition) {
     super({
       exportName: 'TBot',
-      path: props.fileName ?? consts.INDEX_FILE,
+      path: consts.INDEX_FILE,
     })
 
     const integrationsModule = new BotIntegrationsModule(bot)
