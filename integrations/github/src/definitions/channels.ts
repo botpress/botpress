@@ -115,6 +115,44 @@ export const channels = {
       text,
     },
   },
+  pullRequestReviewComment: {
+    title: 'Pull Request Review Comment',
+    description: 'A comment on a pull request review in a GitHub repository',
+    conversation: {
+      tags: {
+        ...COMMON_TAGS.repository,
+        ...COMMON_TAGS.pullRequest,
+        fileBeingReviewed: {
+          title: 'File under review',
+          description: 'The file being reviewed',
+        },
+        commitBeingReviewed: {
+          title: 'Commit under review',
+          description: 'The commit being reviewed',
+        },
+        lineBeingReviewed: {
+          title: 'Line under review',
+          description: 'The line being reviewed',
+        },
+        lastCommentId: {
+          title: 'Last Comment ID',
+          description: 'The ID of the last comment posted on the review thread',
+        },
+        reviewThreadUrl: {
+          title: 'Review Thread URL',
+          description: 'URL of the review thread',
+        },
+      },
+    },
+    message: {
+      tags: {
+        ...COMMON_TAGS.comment,
+      },
+    },
+    messages: {
+      text,
+    },
+  },
   issue: {
     conversation: {
       tags: {
@@ -152,6 +190,32 @@ export const channels = {
         channel: {
           title: 'Channel name',
           description: 'Workaround for the SDK',
+        },
+      },
+    },
+    message: {
+      tags: {
+        ...COMMON_TAGS.comment,
+      },
+    },
+    messages: {
+      text,
+    },
+  },
+  discussionComment: {
+    title: 'Discussion Comment',
+    description: 'A comment thread on a discussion in a GitHub repository',
+    conversation: {
+      tags: {
+        ...COMMON_TAGS.repository,
+        ...COMMON_TAGS.discussion,
+        parentCommentId: {
+          title: 'Parent Comment ID',
+          description: 'The ID of the parent comment from which this comment thread originates',
+        },
+        parentCommentNodeId: {
+          title: 'Parent Comment Node ID',
+          description: 'The Node ID of the parent comment from which this comment thread originates',
         },
       },
     },
