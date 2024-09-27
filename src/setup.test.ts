@@ -1,5 +1,6 @@
 import { expect } from 'vitest'
 import { Project, Diagnostic } from 'ts-morph'
+import { format } from 'prettier'
 
 export function isValidTypescript(
   code: string,
@@ -31,11 +32,17 @@ expect.extend({
   },
 })
 
+const formatTs = async (code: string): Promise<string> => {
+  code = code.replace(/\s+/g, ' ')
+  code = await format(code, { parser: 'typescript' })
+  return code
+}
+
 expect.extend({
-  toMatchWithoutFormatting(received: string, expected: string, _) {
+  async toMatchWithoutFormatting(received: string, expected: string, _) {
     const { isNot } = this
-    const transformedReceived = received.replace(/\s+/g, '')
-    const transformedExpected = expected.replace(/\s+/g, '')
+    const transformedReceived = await formatTs(received)
+    const transformedExpected = await formatTs(expected)
 
     return {
       pass: transformedExpected === transformedReceived,
