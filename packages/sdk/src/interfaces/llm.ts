@@ -131,6 +131,12 @@ const GenerateContentInputSchema = <S extends z.ZodSchema>(modelRefSchema: S) =>
     toolChoice: ToolChoiceSchema.optional(), // note: Gemini doesn't support this but we can just ignore it there
     userId: z.string().optional(),
     debug: z.boolean().optional().describe('Set to `true` to output debug information to the bot logs'),
+    meta: z
+      .object({
+        promptCategory: z.string().optional(),
+        integrationName: z.string().optional(),
+      })
+      .optional(),
   })
 
 const GenerateContentInputBaseSchema = GenerateContentInputSchema(ModelRefSchema)
@@ -160,7 +166,7 @@ const GenerateContentOutputSchema = z.object({
 
 export const llm = new InterfaceDeclaration({
   name: 'llm',
-  version: '5.0.0',
+  version: '5.1.0',
   entities: {
     modelRef: {
       schema: ModelRefSchema,
