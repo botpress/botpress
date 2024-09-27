@@ -7,6 +7,8 @@ import { fireIssueOpened } from './events/issue-opened'
 import { firePullRequestCommentCreated } from './events/pull-request-comment-created'
 import { firePullRequesMerged } from './events/pull-request-merged'
 import { firePullRequestOpened } from './events/pull-request-opened'
+import { firePullRequestReviewCommentCreated } from './events/pull-request-review-comment-created'
+import { firePullRequestReviewCommentReplied } from './events/pull-request-review-comment-replied'
 import { GithubSettings } from './misc/github-settings'
 import {
   isIssueOpenedEvent,
@@ -36,8 +38,8 @@ const EVENT_HANDLERS: Readonly<WebhookEventHandlerEntry<any>[]> = [
   [isPullRequestOpenedEvent, firePullRequestOpened],
   [isPullRequestMergedEvent, firePullRequesMerged],
   [isPullRequestCommentCreatedEvent, firePullRequestCommentCreated],
-  [isPullRequestReviewCommentCreatedEvent, () => {}],
-  [isPullRequestReviewCommentReplyCreatedEvent, () => {}],
+  [isPullRequestReviewCommentCreatedEvent, firePullRequestReviewCommentCreated],
+  [isPullRequestReviewCommentReplyCreatedEvent, firePullRequestReviewCommentReplied],
   [isPullRequestReviewSubmittedEvent, () => {}],
   [isDiscussionCreatedEvent, () => {}],
   [isDiscussionCommentCreatedEvent, () => {}],
