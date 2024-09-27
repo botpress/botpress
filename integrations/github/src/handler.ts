@@ -2,6 +2,7 @@ import { verify as verifyWebhook } from '@octokit/webhooks-methods'
 import type { WebhookEvent } from '@octokit/webhooks-types'
 
 import { GITHUB_SIGNATURE_HEADER } from './const'
+import { fireIssueCommentCreated } from './events/issue-comment-created'
 import { fireIssueOpened } from './events/issue-opened'
 import { firePullRequestCommentCreated } from './events/pull-request-comment-created'
 import { firePullRequesMerged } from './events/pull-request-merged'
@@ -31,7 +32,7 @@ type WebhookEventHandlerEntry<T extends WebhookEvent> = Readonly<
 const EVENT_HANDLERS: Readonly<WebhookEventHandlerEntry<any>[]> = [
   [isPingEvent, () => {}],
   [isIssueOpenedEvent, fireIssueOpened],
-  [isIssueCommentCreatedEvent, () => {}],
+  [isIssueCommentCreatedEvent, fireIssueCommentCreated],
   [isPullRequestOpenedEvent, firePullRequestOpened],
   [isPullRequestMergedEvent, firePullRequesMerged],
   [isPullRequestCommentCreatedEvent, firePullRequestCommentCreated],

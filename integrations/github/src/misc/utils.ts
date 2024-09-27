@@ -107,6 +107,44 @@ export const getOrCreateBotpressConversationFromGithubPR = async ({
   return conversation
 }
 
+export const getOrCreateBotpressConversationFromGithubIssue = async ({
+  githubIssue,
+  client,
+}: {
+  githubIssue: GitHubPullRequest
+  client: types.Client
+}) => {
+  const { conversations } = await client.listConversations({
+    tags: {
+      // @ts-ignore: there seems to be a bug with ToTags<keyof AllChannels<TIntegration>['conversation']['tags']> :
+      // it only contains _shared_ tags, as opposed to containing _all_ tags
+      issueNodeId: githubIssue.node_id,
+    },
+  })
+
+  if (conversations.length && conversations[0]) {
+    return conversations[0]
+  }
+
+  const { conversation } = await client.createConversation({
+    channel: 'issue',
+    tags: {
+      issueNodeId: githubIssue.node_id,
+      issueNumber: githubIssue.number.toString(),
+      issueUrl: githubIssue.html_url,
+      repoId: githubIssue.repository.id.toString(),
+      repoName: githubIssue.repository.name,
+      repoNodeId: githubIssue.repository.node_id,
+      repoOwnerId: githubIssue.repository.owner.id.toString(),
+      repoOwnerName: githubIssue.repository.owner.login,
+      repoOwnerUrl: githubIssue.repository.owner.html_url,
+      repoUrl: githubIssue.repository.html_url,
+    },
+  })
+
+  return conversation
+}
+
 export const configureOrganizationHandle = async ({
   ctx,
   client,
