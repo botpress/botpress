@@ -33,6 +33,12 @@ const listenersSchema = z.object({
   conversationIds: z.array(z.string()),
 })
 
+const BOT_CONFIGURATION_SCHEMA = z.object({
+  githubRepoToWatch: z.string().title('GitHub Repository to Watch').describe('The repository to watch for issues'),
+})
+
+export type BotConfiguration = z.infer<typeof BOT_CONFIGURATION_SCHEMA>
+
 export const bot = new bp.Bot({
   integrations: {
     github,
@@ -43,6 +49,9 @@ export const bot = new bp.Bot({
       type: 'bot',
       schema: listenersSchema,
     },
+  },
+  configuration: {
+    schema: BOT_CONFIGURATION_SCHEMA,
   },
   events: {
     syncIssuesRequest: {

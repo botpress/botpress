@@ -1,3 +1,4 @@
+import { getBotConfig } from 'src/misc/config'
 import * as listeners from '../listeners'
 import { Handler } from './typings'
 
@@ -7,7 +8,9 @@ import { Handler } from './typings'
  */
 export const handleSyncIssuesRequest: Handler<'syncIssuesRequest'> = async (props) => {
   try {
-    const { client } = props
+    const { client, ctx } = props
+    const { githubRepoToWatch } = getBotConfig({ ctx })
+
     const {
       output: { targets: githubIssues },
     } = await client.callAction({
@@ -15,6 +18,7 @@ export const handleSyncIssuesRequest: Handler<'syncIssuesRequest'> = async (prop
       input: {
         channel: 'issue',
         query: '',
+        repo: githubRepoToWatch,
       },
     })
 
