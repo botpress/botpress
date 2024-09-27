@@ -107,6 +107,25 @@ export const getOrCreateBotpressConversationFromGithubPR = async ({
   return conversation
 }
 
+export const configureBotpressNameAndAvatar = async ({
+  ctx,
+  client,
+  gh,
+}: {
+  ctx: types.Context
+  client: types.Client
+  gh: GitHubClient
+}) => {
+  const { id, name, avatarUrl, nodeId, handle, url } = await gh.getAuthenticatedEntity()
+
+  await client.updateUser({
+    id: ctx.botUserId,
+    tags: { id, handle, nodeId, profileUrl: url },
+    name,
+    pictureUrl: avatarUrl,
+  })
+}
+
 export const configureOrganizationHandle = async ({
   ctx,
   client,
