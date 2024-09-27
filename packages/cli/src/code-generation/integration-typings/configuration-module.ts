@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import { INDEX_FILE } from '../const'
+import { INDEX_FILE } from '../consts'
 import { zuiSchemaToTypeScriptType } from '../generators'
 import { Module } from '../module'
 import * as strings from '../strings'

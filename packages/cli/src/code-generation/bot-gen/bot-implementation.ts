@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
-import { BotTypingsModule } from './bot-typings'
-import * as consts from './const'
-import { Module } from './module'
+import { BotTypingsModule } from '../bot-typings'
+import * as consts from '../consts'
+import { Module } from '../module'
 
 export class BotImplementationModule extends Module {
   private _typingsModule: BotTypingsModule

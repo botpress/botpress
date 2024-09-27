@@ -2,7 +2,7 @@ import { AnyZodObject } from '@botpress/sdk'
 import { compile } from 'json-schema-to-typescript'
 import * as prettier from 'prettier'
 import * as utils from '../utils'
-import * as consts from './const'
+import * as consts from './consts'
 
 export type GeneratorType = 'zui' | 'jsonSchemaToTypescript'
 

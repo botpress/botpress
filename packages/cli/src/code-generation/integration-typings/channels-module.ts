@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import { GENERATED_HEADER, INDEX_FILE } from '../const'
+import { GENERATED_HEADER, INDEX_FILE } from '../consts'
 import { zuiSchemaToTypeScriptType, stringifySingleLine } from '../generators'
 import { Module, ReExportTypeModule } from '../module'
 import * as strings from '../strings'

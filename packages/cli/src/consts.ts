@@ -41,8 +41,7 @@ export const fromWorkDir = {
 export const fromOutDir = {
   distDir: 'dist',
   outFile: pathlib.join('dist', 'index.js'),
-  installDir: 'installations',
-  implementationDir: 'implementation', // TODO: rename to typings
+  implementationDir: 'implementation',
   secretsDir: 'secrets',
   projectCacheFile: 'project.cache.json',
 }

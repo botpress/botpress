@@ -1,7 +1,7 @@
 import { IntegrationDefinition } from '@botpress/sdk'
-import { casing } from '../utils'
-import * as consts from './const'
-import { Module } from './module'
+import { casing } from '../../utils'
+import * as consts from '../consts'
+import { Module } from '../module'
 
 export const secretEnvVariableName = (secretName: string) => `SECRET_${casing.to.screamingSnakeCase(secretName)}`
 

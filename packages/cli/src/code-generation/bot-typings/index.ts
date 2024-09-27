@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import * as consts from '../const'
+import * as consts from '../consts'
 import { IntegrationTypingsModule } from '../integration-typings'
 import { Module, ReExportTypeModule } from '../module'
 import { EventsModule } from './events-module'

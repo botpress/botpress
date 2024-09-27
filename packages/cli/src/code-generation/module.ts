@@ -1,6 +1,6 @@
 import { posix as pathlib } from 'path'
 import * as utils from '../utils'
-import * as consts from './const'
+import * as consts from './consts'
 import * as strings from './strings'
 import { File } from './typings'
 

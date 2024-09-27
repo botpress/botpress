@@ -34,15 +34,8 @@ export class GenerateCommand extends ProjectCommand<GenerateCommandDefinition> {
     line.started(`Generating typings for integration ${chalk.bold(name)}...`)
 
     const fromWorkDir = this.projectPaths.rel('workDir')
-    const fromOutDir = this.projectPaths.rel('outDir')
 
-    const typingFiles = await codegen.generateIntegrationImplementation(integrationDef, fromOutDir.implementationDir)
-
-    const secretFiles = await codegen.generateIntegrationSecrets(integrationDef, fromOutDir.secretsDir)
-
-    const indexFile = await codegen.generateIntegrationIndex(fromOutDir.implementationDir, fromOutDir.secretsDir)
-
-    const generatedFiles = [...typingFiles, ...secretFiles, indexFile]
+    const generatedFiles = await codegen.generateIntegration(integrationDef)
 
     await this._writeGeneratedFilesToOutFolder(generatedFiles)
 
@@ -55,12 +48,8 @@ export class GenerateCommand extends ProjectCommand<GenerateCommandDefinition> {
     line.started('Generating typings for bot...')
 
     const fromWorkDir = this.projectPaths.rel('workDir')
-    const fromOutDir = this.projectPaths.rel('outDir')
 
-    const typingFiles = await codegen.generateBotImplementation(botDefinition, fromOutDir.implementationDir)
-    const indexFile = await codegen.generateBotIndex(fromOutDir.implementationDir)
-
-    const generatedFiles = [...typingFiles, indexFile]
+    const generatedFiles = await codegen.generateBot(botDefinition)
 
     await this._writeGeneratedFilesToOutFolder(generatedFiles)
 
