@@ -1,6 +1,5 @@
 import type { Client, Interface } from '@botpress/client'
 import type * as sdk from '@botpress/sdk'
-import { AnyZodObject, GenericZuiSchema, z } from '@botpress/sdk'
 import * as utils from '../utils'
 
 export type CreateInterfaceBody = Parameters<Client['createInterface']>[0]
@@ -18,7 +17,7 @@ export const prepareCreateInterfaceBody = (intrface: sdk.InterfaceDeclaration): 
   events: intrface.events
     ? utils.records.mapValues(intrface.events, (event) => ({
         ...event,
-        schema: utils.schema.mapZodToJsonSchema(_dereference(intrface, event)),
+        schema: utils.schema.mapZodToJsonSchema(event),
       }))
     : {},
   actions: intrface.actions
@@ -26,11 +25,11 @@ export const prepareCreateInterfaceBody = (intrface: sdk.InterfaceDeclaration): 
         ...action,
         input: {
           ...action.input,
-          schema: utils.schema.mapZodToJsonSchema(_dereference(intrface, action.input)),
+          schema: utils.schema.mapZodToJsonSchema(action.input),
         },
         output: {
           ...action.output,
-          schema: utils.schema.mapZodToJsonSchema(_dereference(intrface, action.output)),
+          schema: utils.schema.mapZodToJsonSchema(action.output),
         },
       }))
     : {},
@@ -49,12 +48,4 @@ export const prepareUpdateInterfaceBody = (
     actions,
     events,
   }
-}
-
-const _dereference = (
-  intrface: sdk.InterfaceDeclaration,
-  { schema }: { schema: GenericZuiSchema<Record<string, z.ZodRef>, AnyZodObject> }
-): { schema: AnyZodObject } => {
-  const typeArguments = utils.records.mapValues(intrface.entities, (_, entityName) => z.ref(entityName))
-  return { schema: schema(typeArguments) }
 }
