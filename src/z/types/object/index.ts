@@ -1,3 +1,4 @@
+import { unique } from '../../utils'
 import {
   ZodArray,
   ZodEnum,
@@ -142,7 +143,7 @@ export class ZodObject<
     for (const key in shape) {
       refs.push(...shape[key]!.getReferences())
     }
-    return refs
+    return unique(refs)
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {

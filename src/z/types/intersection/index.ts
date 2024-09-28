@@ -1,3 +1,4 @@
+import { unique } from '../../utils'
 import {
   ZodIssueCode,
   RawCreateParams,
@@ -85,7 +86,7 @@ export class ZodIntersection<T extends ZodTypeAny, U extends ZodTypeAny> extends
   }
 
   getReferences(): string[] {
-    return [...this._def.left.getReferences(), ...this._def.right.getReferences()]
+    return unique([...this._def.left.getReferences(), ...this._def.right.getReferences()])
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {

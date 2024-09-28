@@ -1,3 +1,4 @@
+import { unique } from '../../utils'
 import {
   ZodIssueCode,
   ParseInputLazyPath,
@@ -45,7 +46,7 @@ export class ZodMap<Key extends ZodTypeAny = ZodTypeAny, Value extends ZodTypeAn
   }
 
   getReferences(): string[] {
-    return [...this._def.keyType.getReferences(), ...this._def.valueType.getReferences()]
+    return unique([...this._def.keyType.getReferences(), ...this._def.valueType.getReferences()])
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {

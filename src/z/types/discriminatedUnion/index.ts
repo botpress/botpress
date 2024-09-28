@@ -1,3 +1,4 @@
+import { unique } from '../../utils'
 import {
   ZodBranded,
   ZodCatch,
@@ -104,7 +105,7 @@ export class ZodDiscriminatedUnion<
   }
 
   getReferences(): string[] {
-    return this.options.flatMap((option) => option.getReferences())
+    return unique(this.options.flatMap((option) => option.getReferences()))
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {

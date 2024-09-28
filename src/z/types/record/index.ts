@@ -1,3 +1,4 @@
+import { unique } from '../../utils'
 import {
   BRAND,
   ZodIssueCode,
@@ -59,7 +60,7 @@ export class ZodRecord<Key extends KeySchema = ZodString, Value extends ZodTypeA
   }
 
   getReferences(): string[] {
-    return [...this._def.keyType.getReferences(), ...this._def.valueType.getReferences()]
+    return unique([...this._def.keyType.getReferences(), ...this._def.valueType.getReferences()])
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {

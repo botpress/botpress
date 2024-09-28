@@ -1,3 +1,4 @@
+import { unique } from '../../utils'
 import {
   defaultErrorMap,
   getErrorMap,
@@ -55,7 +56,7 @@ export class ZodFunction<Args extends ZodTuple<any, any>, Returns extends ZodTyp
   }
 
   getReferences(): string[] {
-    return [...this._def.args.getReferences(), ...this._def.returns.getReferences()]
+    return unique([...this._def.args.getReferences(), ...this._def.returns.getReferences()])
   }
 
   _parse(input: ParseInput): ParseReturnType<any> {

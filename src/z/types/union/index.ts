@@ -1,3 +1,4 @@
+import { unique } from '../../utils'
 import {
   RawCreateParams,
   ZodFirstPartyTypeKind,
@@ -42,9 +43,11 @@ export class ZodUnion<T extends ZodUnionOptions> extends ZodType<
   }
 
   getReferences(): string[] {
-    return this._def.options.reduce<string[]>((acc, option) => {
-      return [...acc, ...option.getReferences()]
-    }, [])
+    return unique(
+      this._def.options.reduce<string[]>((acc, option) => {
+        return [...acc, ...option.getReferences()]
+      }, []),
+    )
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {

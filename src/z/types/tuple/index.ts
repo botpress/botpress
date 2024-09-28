@@ -1,3 +1,4 @@
+import { unique } from '../../utils'
 import {
   ZodIssueCode,
   ParseInputLazyPath,
@@ -57,10 +58,10 @@ export class ZodTuple<
   }
 
   getReferences(): string[] {
-    return [
+    return unique([
       ...this._def.items.flatMap((item) => item.getReferences()),
       ...(this._def.rest ? this._def.rest.getReferences() : []),
-    ]
+    ])
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {

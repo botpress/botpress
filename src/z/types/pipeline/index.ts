@@ -1,3 +1,4 @@
+import { unique } from '../../utils'
 import {
   ZodFirstPartyTypeKind,
   ZodType,
@@ -29,7 +30,7 @@ export class ZodPipeline<A extends ZodTypeAny, B extends ZodTypeAny> extends Zod
   }
 
   getReferences(): string[] {
-    return [...this._def.in.getReferences(), ...this._def.out.getReferences()]
+    return unique([...this._def.in.getReferences(), ...this._def.out.getReferences()])
   }
 
   _parse(input: ParseInput): ParseReturnType<any> {

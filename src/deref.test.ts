@@ -120,9 +120,19 @@ describe('dereference', () => {
     const result = derefSchema.safeParse('astring')
     expect(result.success).toBe(true)
   })
+  test('should treat multiple references with the same uri as the same reference', () => {
+    const refSchema = z.object({
+      foo,
+      bar: z.ref('foo'),
+      baz: z.ref('foo'),
+    })
+    const derefSchema = refSchema.dereference(deref)
+    const result = derefSchema.safeParse({ foo: 'astring', bar: 'astring', baz: 'astring' })
+    expect(result.success).toBe(true)
+  })
 })
 
-describe('getRegerences', () => {
+describe('getReferences', () => {
   test('array', () => {
     const refSchema = z.array(bar)
     const refs = refSchema.getReferences()
@@ -203,5 +213,14 @@ describe('getRegerences', () => {
     const refSchema = z.union([foo, bar, baz])
     const refs = refSchema.getReferences()
     expect(refs).toEqual(['foo', 'bar', 'baz'])
+  })
+  test('should treat multiple references with the same uri as the same reference', () => {
+    const refSchema = z.object({
+      foo,
+      bar: z.ref('foo'),
+      baz: z.ref('foo'),
+    })
+    const refs = refSchema.getReferences()
+    expect(refs).toEqual(['foo'])
   })
 })
