@@ -535,8 +535,7 @@ describe.concurrent('objects', () => {
     await expect(typings).toMatchWithoutFormatting(expected)
   })
 
-  // TODO: fix this test
-  it.skip('chaining nullable optional should still be optional', async () => {
+  it('chaining optional nullable should still be optional', async () => {
     const schema = z.object({
       foo: z.string().optional().nullable(),
     })

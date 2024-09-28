@@ -129,7 +129,9 @@ declare const ${schema.identifier}: ${typings};`)
     const delimiter = description?.trim().length > 0 ? '\n' : ''
     const withoutDesc = schema.value.describe('')
 
-    const optionalModifier = schema.optional ? '?' : ''
+    // either we are children of a z.ZodOptional or there is a z.ZodOptional in the children
+    const isOptional = schema.optional || schema.value.isOptional()
+    const optionalModifier = isOptional ? '?' : ''
     return `${delimiter}${description}${delimiter}${schema.key}${optionalModifier}: ${sUnwrapZod(withoutDesc, newConfig)}${delimiter}`
   }
 
