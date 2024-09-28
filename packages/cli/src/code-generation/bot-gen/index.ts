@@ -14,7 +14,7 @@ const generateBotImplementation = async (
 
 const generateBotIndex = async (implPath: string): Promise<types.File> => {
   let content = ''
-  content += `export * from '../${implPath}'\n`
+  content += `export * from './${implPath}'\n`
   return {
     path: consts.INDEX_FILE,
     content,

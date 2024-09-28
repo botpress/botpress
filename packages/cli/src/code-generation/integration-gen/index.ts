@@ -24,8 +24,8 @@ const generateIntegrationSecrets = async (
 
 const generateIntegrationIndex = async (implPath: string, secretsPath: string): Promise<types.File> => {
   let content = ''
-  content += `export * from '../${implPath}'\n`
-  content += `export * from '../${secretsPath}'\n`
+  content += `export * from './${implPath}'\n`
+  content += `export * from './${secretsPath}'\n`
   return {
     path: consts.INDEX_FILE,
     content,
