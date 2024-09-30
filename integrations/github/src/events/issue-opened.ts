@@ -1,8 +1,12 @@
 import { IssuesOpenedEvent } from '@octokit/webhooks-types'
+import { wrapEvent } from 'src/misc/event-wrapper'
+import { getOrCreateBotpressConversationFromGithubIssue } from 'src/misc/utils'
 import { IssueOpened } from '../definitions/events'
-import { Client } from '../misc/types'
 
-export const fireIssueOpened = async ({ githubEvent, client }: { githubEvent: IssuesOpenedEvent; client: Client }) => {
+export const fireIssueOpened = wrapEvent<IssuesOpenedEvent>(async ({ githubEvent, client, user }) => {
+  const githubIssue = { ...githubEvent.issue, repository: githubEvent.repository }
+  const conversation = await getOrCreateBotpressConversationFromGithubIssue({ githubIssue, client })
+
   const payload: IssueOpened = {
     id: githubEvent.issue.id,
     number: githubEvent.issue.number,
@@ -17,5 +21,7 @@ export const fireIssueOpened = async ({ githubEvent, client }: { githubEvent: Is
   await client.createEvent({
     type: 'issueOpened',
     payload,
+    userId: user.id,
+    conversationId: conversation.id,
   })
-}
+})

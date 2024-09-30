@@ -7,7 +7,7 @@ export default {
       text: wrapChannelAndInjectOctokit('pullRequest', {
         async channel({ conversation, payload, ack, owner, repo, octokit }) {
           await _createIssueComment({
-            issueNumber: +_getTagOrThrowException(conversation.tags, 'pullRequestNumber'),
+            issueNumber: _getIntTagOrThrowException(conversation.tags, 'pullRequestNumber'),
             commentBody: payload.text,
             ack,
             owner,
@@ -25,7 +25,7 @@ export default {
           console.info(`Sending a text message on channel issue with content ${payload.text}`)
 
           await _createIssueComment({
-            issueNumber: +_getTagOrThrowException(conversation.tags, 'issueNumber'),
+            issueNumber: _getIntTagOrThrowException(conversation.tags, 'issueNumber'),
             commentBody: payload.text,
             ack,
             owner,
@@ -38,19 +38,17 @@ export default {
   },
   pullRequestReviewComment: {
     messages: {
-      text: wrapChannel<'pullRequestReviewComment'>(
-        async ({ conversation, payload, ack, client, owner, repo, octokit }) => {
-          console.info(`Sending a text message on channel pull request review comment with content ${payload.text}`)
-
+      text: wrapChannelAndInjectOctokit('pullRequestReviewComment', {
+        async channel({ conversation, payload, ack, client, owner, repo, octokit }) {
           const comment = await octokit.rest.pulls.createReviewComment({
             body: payload.text,
             owner,
             repo,
-            pull_number: +getTagOrThrowException(conversation.tags, 'pullRequestNumber'),
-            commit_id: getTagOrThrowException(conversation.tags, 'commitBeingReviewed'),
-            line: +getTagOrThrowException(conversation.tags, 'lineBeingReviewed'),
-            in_reply_to: +getTagOrThrowException(conversation.tags, 'lastCommentId'),
-            path: getTagOrThrowException(conversation.tags, 'fileBeingReviewed'),
+            pull_number: _getIntTagOrThrowException(conversation.tags, 'pullRequestNumber'),
+            commit_id: _getStrTagOrThrowException(conversation.tags, 'commitBeingReviewed'),
+            line: _getIntTagOrThrowException(conversation.tags, 'lineBeingReviewed'),
+            in_reply_to: _getIntTagOrThrowException(conversation.tags, 'lastCommentId'),
+            path: _getStrTagOrThrowException(conversation.tags, 'fileBeingReviewed'),
           })
 
           await ack({
@@ -67,8 +65,8 @@ export default {
               lastCommentId: comment.data.id.toString(),
             } as typeof conversation.tags,
           })
-        }
-      ),
+        },
+      }),
     },
   },
   discussion: {
@@ -78,7 +76,7 @@ export default {
           const {
             addDiscussionComment: { comment },
           } = await octokit.executeGraphqlQuery('addDiscussionComment', {
-            discussionNodeId: _getTagOrThrowException(conversation.tags, 'discussionNodeId'),
+            discussionNodeId: _getStrTagOrThrowException(conversation.tags, 'discussionNodeId'),
             body: payload.text,
           })
 
@@ -91,20 +89,22 @@ export default {
   },
   discussionComment: {
     messages: {
-      text: wrapChannel<'discussionComment'>(async ({ conversation, message, payload, ack, octokit }) => {
-        console.info(`Sending a text message on channel discussion thread with content ${payload.text}`)
+      text: wrapChannelAndInjectOctokit('discussionComment', {
+        async channel({ conversation, message, payload, ack, octokit }) {
+          console.info(`Sending a text message on channel discussion thread with content ${payload.text}`)
 
-        const {
-          addDiscussionComment: { comment },
-        } = await octokit.executeGraphqlQuery('addDiscussionCommentReply', {
-          discussionNodeId: getTagOrThrowException(conversation.tags, 'discussionNodeId'),
-          replyToCommentNodeId: getTagOrThrowException(message.tags, 'commentNodeId'),
-          body: payload.text,
-        })
+          const {
+            addDiscussionComment: { comment },
+          } = await octokit.executeGraphqlQuery('addDiscussionCommentReply', {
+            discussionNodeId: _getStrTagOrThrowException(conversation.tags, 'discussionNodeId'),
+            replyToCommentNodeId: _getStrTagOrThrowException(message.tags, 'commentNodeId'),
+            body: payload.text,
+          })
 
-        await ack({
-          tags: { commentId: comment.databaseId.toString(), commentNodeId: comment.id, commentUrl: comment.url },
-        })
+          await ack({
+            tags: { commentId: comment.databaseId.toString(), commentNodeId: comment.id, commentUrl: comment.url },
+          })
+        },
       }),
     },
   },
@@ -128,7 +128,7 @@ const _createIssueComment = async ({
   await ack({ tags: { commentNodeId: data.node_id, commentId: data.id.toString(), commentUrl: data.html_url } })
 }
 
-const _getTagOrThrowException = <R extends Record<string, string>>(tags: R, name: Extract<keyof R, string>) => {
+const _getStrTagOrThrowException = <R extends Record<string, string>>(tags: R, name: Extract<keyof R, string>) => {
   const value = tags[name]
 
   if (!value) {
@@ -137,3 +137,6 @@ const _getTagOrThrowException = <R extends Record<string, string>>(tags: R, name
 
   return value
 }
+
+const _getIntTagOrThrowException = <R extends Record<string, string>>(tags: R, name: Extract<keyof R, string>) =>
+  parseInt(_getStrTagOrThrowException(tags, name))

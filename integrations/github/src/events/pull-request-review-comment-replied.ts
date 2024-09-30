@@ -1,20 +1,9 @@
 import { PullRequestReviewCommentCreatedEvent } from '@octokit/webhooks-types'
-import { getOrCreateBotpressUserFromGithubUser } from '../misc/utils'
-import { HandlerProps } from '.botpress'
+import { wrapEvent } from 'src/misc/event-wrapper'
 
-export const firePullRequestReviewCommentReplied = async ({
-  githubEvent,
-  client,
-  ctx,
-}: HandlerProps & {
-  githubEvent: PullRequestReviewCommentCreatedEvent & { comment: { in_reply_to_id: number } }
-}) => {
-  const user = await getOrCreateBotpressUserFromGithubUser({ githubUser: githubEvent.comment.user, client })
-
-  if (user.id === ctx.botUserId) {
-    return
-  }
-
+export const firePullRequestReviewCommentReplied = wrapEvent<
+  PullRequestReviewCommentCreatedEvent & { comment: { in_reply_to_id: number } }
+>(async ({ githubEvent, client, user }) => {
   const { conversations } = await client.listConversations({
     tags: {
       // @ts-ignore: there seems to be a bug with ToTags<keyof AllChannels<TIntegration>['conversation']['tags']> :
@@ -43,4 +32,4 @@ export const firePullRequestReviewCommentReplied = async ({
     conversationId: conversations[0].id,
     userId: user.id,
   })
-}
+})
