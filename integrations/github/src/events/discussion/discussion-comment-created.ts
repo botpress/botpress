@@ -3,7 +3,7 @@ import { wrapEvent } from 'src/misc/event-wrapper'
 import { getOrCreateDiscussionConversation } from './shared'
 
 export const fireDiscussionCommentCreated = wrapEvent<DiscussionCommentCreatedEvent>(
-  async ({ githubEvent, client, user }) => {
+  async ({ githubEvent, client, eventSender }) => {
     const conversation = await getOrCreateDiscussionConversation({
       githubEvent: githubEvent as DiscussionEvent,
       client,
@@ -20,7 +20,7 @@ export const fireDiscussionCommentCreated = wrapEvent<DiscussionCommentCreatedEv
         text: githubEvent.comment.body,
       },
       conversationId: conversation.id,
-      userId: user.id,
+      userId: eventSender.botpressUser,
     })
   }
 )

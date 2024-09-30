@@ -1,3 +1,4 @@
+import { RuntimeError } from '@botpress/client'
 import {
   User as GitHubUser,
   Issue as GitHubIssue,
@@ -8,8 +9,7 @@ import {
 } from '@octokit/webhooks-types'
 
 import { User, Issue, PullRequest, Discussion, Repository, Label } from 'src/definitions/entities'
-import { Client, Logger } from '.botpress'
-import { RuntimeError } from '@botpress/client'
+import { Client } from '.botpress'
 
 abstract class BaseEntityMapper<G extends object, B extends object> {
   public constructor(protected readonly client: Client) {}
@@ -86,7 +86,7 @@ class LabelEntityMapper extends BaseEntityMapper<GitHubLabel, Label> {
     return {
       id: githubLabel.id,
       nodeId: githubLabel.node_id,
-      url: githubLabel.url,
+      url: githubLabel.url.replace('api.github.com/repos', 'github.com'),
       name: githubLabel.name,
     }
   }

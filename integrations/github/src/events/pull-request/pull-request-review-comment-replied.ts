@@ -4,7 +4,7 @@ import { getConversationFromTags } from 'src/misc/utils'
 
 export const firePullRequestReviewCommentReplied = wrapEvent<
   PullRequestReviewCommentCreatedEvent & { comment: { in_reply_to_id: number } }
->(async ({ githubEvent, client, user }) => {
+>(async ({ githubEvent, client, eventSender }) => {
   const conversation = await getConversationFromTags<'pullRequestReviewComment'>(client, {
     pullRequestNodeId: githubEvent.pull_request.node_id,
     fileBeingReviewed: githubEvent.comment.path,
@@ -27,6 +27,6 @@ export const firePullRequestReviewCommentReplied = wrapEvent<
       text: githubEvent.comment.body,
     },
     conversationId: conversation.id,
-    userId: user.id,
+    userId: eventSender.botpressUser,
   })
 })

@@ -6,7 +6,7 @@ import { Client } from '.botpress'
 type DiscussionCommentRepliedEvent = DiscussionCommentCreatedEvent & { comment: { parent_id: number } }
 
 export const fireDiscussionCommentReplied = wrapEvent<DiscussionCommentRepliedEvent>(
-  async ({ githubEvent, client, user }) => {
+  async ({ githubEvent, client, eventSender }) => {
     const conversation =
       (await getConversationFromTags<'discussionComment'>(client, {
         discussionNodeId: githubEvent.discussion.node_id,
@@ -24,7 +24,7 @@ export const fireDiscussionCommentReplied = wrapEvent<DiscussionCommentRepliedEv
         text: githubEvent.comment.body,
       },
       conversationId: conversation.id,
-      userId: user.id,
+      userId: eventSender.botpressUser,
     })
   }
 )
