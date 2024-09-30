@@ -213,10 +213,6 @@ export const channels = {
           title: 'Parent Comment ID',
           description: 'The ID of the parent comment from which this comment thread originates',
         },
-        parentCommentNodeId: {
-          title: 'Parent Comment Node ID',
-          description: 'The Node ID of the parent comment from which this comment thread originates',
-        },
       },
     },
     message: {

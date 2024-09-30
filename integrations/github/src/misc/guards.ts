@@ -46,7 +46,7 @@ export const isIssueOpenedEvent = (event: WebhookEvent): event is IssuesOpenedEv
   'issue' in event && event.action === 'opened'
 
 export const isDiscussionCreatedEvent = (event: WebhookEvent): event is DiscussionCreatedEvent =>
-  'discussion' in event && event.action === 'created'
+  'discussion' in event && event.action === 'created' && !('comment' in event)
 
 export const isDiscussionCommentCreatedEvent = (event: WebhookEvent): event is DiscussionCommentCreatedEvent =>
   'discussion' in event && 'comment' in event && event.action === 'created' && !event.comment.parent_id

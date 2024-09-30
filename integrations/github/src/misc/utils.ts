@@ -130,3 +130,103 @@ export const getOrCreateBotpressConversationFromGithubIssue = async ({
 
   return conversation
 }
+
+type GitHubDiscussion = GitHubPullRequest & {
+  id: number
+  category: {
+    id: number
+    name: string
+    node_id: string
+  }
+}
+
+export const getOrCreateBotpressConversationFromGithubDiscussion = async ({
+  githubDiscussion,
+  client,
+}: {
+  githubDiscussion: GitHubDiscussion
+  client: types.Client
+}) => {
+  const { conversations } = await client.listConversations({
+    tags: {
+      // @ts-ignore: there seems to be a bug with ToTags<keyof AllChannels<TIntegration>['conversation']['tags']> :
+      // it only contains _shared_ tags, as opposed to containing _all_ tags
+      discussionNodeId: githubDiscussion.node_id,
+    },
+  })
+
+  if (conversations.length && conversations[0]) {
+    return conversations[0]
+  }
+
+  const { conversation } = await client.createConversation({
+    channel: 'discussion',
+    tags: {
+      discussionNodeId: githubDiscussion.node_id,
+      discussionNumber: githubDiscussion.number.toString(),
+      discussionUrl: githubDiscussion.html_url,
+      discussionId: githubDiscussion.id.toString(),
+      discussionCategoryId: githubDiscussion.category.id.toString(),
+      discussionCategoryName: githubDiscussion.category.name,
+      discussionCategoryNodeId: githubDiscussion.category.node_id,
+      repoId: githubDiscussion.repository.id.toString(),
+      repoName: githubDiscussion.repository.name,
+      repoNodeId: githubDiscussion.repository.node_id,
+      repoOwnerId: githubDiscussion.repository.owner.id.toString(),
+      repoOwnerName: githubDiscussion.repository.owner.login,
+      repoOwnerUrl: githubDiscussion.repository.owner.html_url,
+      repoUrl: githubDiscussion.repository.html_url,
+    },
+  })
+
+  return conversation
+}
+
+type GitHubDiscussionReply = GitHubDiscussion & {
+  comment: {
+    parent_id: number
+  }
+}
+
+export const getOrCreateBotpressConversationFromGithubDiscussionReply = async ({
+  githubDiscussion,
+  client,
+}: {
+  githubDiscussion: GitHubDiscussionReply
+  client: types.Client
+}) => {
+  const { conversations } = await client.listConversations({
+    tags: {
+      // @ts-ignore: there seems to be a bug with ToTags<keyof AllChannels<TIntegration>['conversation']['tags']> :
+      // it only contains _shared_ tags, as opposed to containing _all_ tags
+      discussionNodeId: githubDiscussion.node_id,
+    },
+  })
+
+  if (conversations.length && conversations[0]) {
+    return conversations[0]
+  }
+
+  const { conversation } = await client.createConversation({
+    channel: 'discussionComment',
+    tags: {
+      discussionNodeId: githubDiscussion.node_id,
+      discussionNumber: githubDiscussion.number.toString(),
+      discussionUrl: githubDiscussion.html_url,
+      discussionId: githubDiscussion.id.toString(),
+      discussionCategoryId: githubDiscussion.category.id.toString(),
+      discussionCategoryName: githubDiscussion.category.name,
+      discussionCategoryNodeId: githubDiscussion.category.node_id,
+      parentCommentId: githubDiscussion.comment.parent_id.toString(),
+      repoId: githubDiscussion.repository.id.toString(),
+      repoName: githubDiscussion.repository.name,
+      repoNodeId: githubDiscussion.repository.node_id,
+      repoOwnerId: githubDiscussion.repository.owner.id.toString(),
+      repoOwnerName: githubDiscussion.repository.owner.login,
+      repoOwnerUrl: githubDiscussion.repository.owner.html_url,
+      repoUrl: githubDiscussion.repository.html_url,
+    },
+  })
+
+  return conversation
+}
