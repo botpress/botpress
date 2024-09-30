@@ -1,18 +1,14 @@
-import { User, WebhookEvent } from '@octokit/webhooks-types'
+import { User as GitHubSender, WebhookEvent } from '@octokit/webhooks-types'
+import { User } from 'src/definitions/entities'
+import { mapping } from './entity-mapping'
 import { GitHubClient } from './github-client'
 import * as bp from '.botpress'
 
-type GitHubUser = {
-  login: string
-  avatar_url: string
-  html_url: string
-  node_id: string
-  id: number
-}
 type ExtraEventProps<E extends WebhookEvent> = {
-  user: Awaited<ReturnType<typeof _getOrCreateBotpressUserFromGithubUser>>
-  getOctokit: () => Promise<GitHubClient>
   githubEvent: E
+  getOctokit: () => Promise<GitHubClient>
+  mapping: ReturnType<typeof mapping>
+  eventSender: User
 }
 type IncomingEventProps<E extends WebhookEvent> = bp.HandlerProps & { githubEvent: E }
 type WrapEventFunction = <E extends WebhookEvent>(
@@ -26,47 +22,17 @@ export const wrapEvent: WrapEventFunction = (fn) => async (props) => {
     return
   }
 
-  const user = await _getOrCreateBotpressUserFromGithubUser({ githubUser: githubEvent.sender, client })
+  const mappingHelper = mapping(client)
+  const eventSender = await mappingHelper.mapUser(githubEvent.sender)
 
-  if (user.id === ctx.botUserId) {
+  if (eventSender.botpressUser === ctx.botUserId) {
     return
   }
 
   const getOctokit = async () => GitHubClient.create({ ctx, client })
 
-  await fn({ ...props, user, getOctokit, githubEvent })
+  await fn({ ...props, eventSender, getOctokit, githubEvent, mapping: mappingHelper })
 }
 
-const _isValidSender = (event: WebhookEvent): event is WebhookEvent & { sender: User } =>
+const _isValidSender = (event: WebhookEvent): event is WebhookEvent & { sender: GitHubSender } =>
   'sender' in event && ['User', 'Organization'].includes(event.sender?.type ?? '')
-
-const _getOrCreateBotpressUserFromGithubUser = async ({
-  githubUser,
-  client,
-}: {
-  githubUser: GitHubUser
-  client: bp.Client
-}) => {
-  const { users } = await client.listUsers({
-    tags: {
-      nodeId: githubUser.node_id,
-    },
-  })
-
-  if (users.length && users[0]) {
-    return users[0]
-  }
-
-  const { user } = await client.createUser({
-    name: githubUser.login,
-    pictureUrl: githubUser.avatar_url,
-    tags: {
-      handle: githubUser.login,
-      nodeId: githubUser.node_id,
-      id: githubUser.id.toString(),
-      profileUrl: githubUser.html_url,
-    },
-  })
-
-  return user
-}

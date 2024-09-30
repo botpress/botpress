@@ -2,7 +2,7 @@ import { PullRequestReviewCommentCreatedEvent } from '@octokit/webhooks-types'
 import { wrapEvent } from 'src/misc/event-wrapper'
 
 export const firePullRequestReviewCommentCreated = wrapEvent<PullRequestReviewCommentCreatedEvent>(
-  async ({ githubEvent, client, user }) => {
+  async ({ githubEvent, client, eventSender }) => {
     const { conversation } = await client.createConversation({
       channel: 'pullRequestReviewComment',
       tags: {
@@ -35,7 +35,7 @@ export const firePullRequestReviewCommentCreated = wrapEvent<PullRequestReviewCo
         text: githubEvent.comment.body,
       },
       conversationId: conversation.id,
-      userId: user.id,
+      userId: eventSender.botpressUser,
     })
   }
 )
