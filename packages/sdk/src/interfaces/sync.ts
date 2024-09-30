@@ -4,14 +4,7 @@ import z from '../zui'
 const baseItem = z.object({ id: z.string() })
 const withId = (schema: z.ZodTypeAny) => z.intersection(schema, baseItem)
 
-const capitalize = (s: string) => s[0]!.toUpperCase() + s.slice(1)
-const camelCase = (...parts: string[]) => {
-  const [first, ...rest] = parts.filter((s) => s.length > 0).map((s) => s.toLowerCase())
-  if (!first) {
-    return ''
-  }
-  return [first, ...rest.map(capitalize)].join('')
-}
+const templateName = '{{camelCase item}}{{pascalCase name}}'
 
 const nextToken = z.string().optional()
 export const listable = new InterfaceDeclaration({
@@ -37,7 +30,7 @@ export const listable = new InterfaceDeclaration({
       },
     },
   },
-  templateName: (name, props) => camelCase(props.item, name), // issueList
+  templateName,
 })
 
 export const creatable = new InterfaceDeclaration({
@@ -66,7 +59,7 @@ export const creatable = new InterfaceDeclaration({
       },
     },
   },
-  templateName: (name, props) => camelCase(props.item, name), // issueCreate, issueCreated
+  templateName,
 })
 
 export const readable = new InterfaceDeclaration({
@@ -88,7 +81,7 @@ export const readable = new InterfaceDeclaration({
       },
     },
   },
-  templateName: (name, props) => camelCase(props.item, name), // issueRead
+  templateName,
 })
 
 export const updatable = new InterfaceDeclaration({
@@ -117,7 +110,7 @@ export const updatable = new InterfaceDeclaration({
       },
     },
   },
-  templateName: (name, props) => camelCase(props.item, name), // issueUpdate, issueUpdated
+  templateName,
 })
 
 export const deletable = new InterfaceDeclaration({
@@ -143,5 +136,5 @@ export const deletable = new InterfaceDeclaration({
       },
     },
   },
-  templateName: (name, props) => camelCase(props.item, name), // issueDelete, issueDeleted
+  templateName,
 })

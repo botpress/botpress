@@ -1,3 +1,4 @@
+import * as templating from '../../templating'
 import * as utils from '../../utils'
 import z, { AnyZodObject, GenericZuiSchema, ZodRef } from '../../zui'
 import { BaseActions, BaseChannels, BaseEntities, BaseEvents } from './generic'
@@ -66,7 +67,7 @@ export type InterfaceDeclarationProps<
     [K in keyof TChannels]: GenericChannelDefinition<TEntities, TChannels[K]>
   }
 
-  templateName?: (name: string, props: InterfaceTemplateNameProps<TEntities>) => string
+  templateName?: string
 }
 
 export type InterfaceResolveInput<TEntities extends BaseEntities = BaseEntities> = {
@@ -79,11 +80,13 @@ export type InterfaceResolveInput<TEntities extends BaseEntities = BaseEntities>
 }
 
 export type InterfaceResolveOutput<
+  TEntities extends BaseEntities = BaseEntities,
   TActions extends BaseActions = BaseActions,
-  TEvents extends BaseEvents = BaseEvents
+  TEvents extends BaseEvents = BaseEvents,
+  TChannels extends BaseChannels = BaseChannels
 > = {
   resolved: ResolvedInterface<TActions, TEvents>
-  implementStatement: InterfaceImplementationStatement
+  implementStatement: InterfaceImplementationStatement<TEntities, TActions, TEvents, TChannels>
 }
 
 export class InterfaceDeclaration<
@@ -159,7 +162,9 @@ export class InterfaceDeclaration<
     this.channels = channels as this['channels']
   }
 
-  public resolve(props: InterfaceResolveInput<TEntities>): InterfaceResolveOutput<TActions, TEvents> {
+  public resolve(
+    props: InterfaceResolveInput<TEntities>
+  ): InterfaceResolveOutput<TEntities, TActions, TEvents, TChannels> {
     const { entities } = props
 
     const implementStatement: InterfaceImplementationStatement = {
@@ -168,6 +173,7 @@ export class InterfaceDeclaration<
       entities: utils.mapValues(entities, (entity) => ({ name: entity.name })), // { item: { name: 'issue' } }
       actions: {},
       events: {},
+      channels: {},
     }
 
     const actions: Record<string, ActionDefinition> = {}
@@ -208,16 +214,22 @@ export class InterfaceDeclaration<
       channels[channelName] = { ...channel, messages }
     }
 
-    const resolved = {
-      actions: actions as ResolvedInterface<TActions, TEvents>['actions'],
-      events: events as ResolvedInterface<TActions, TEvents>['events'],
-      channels: channels as ResolvedInterface<TActions, TEvents>['channels'],
+    const resolved: ResolvedInterface<TActions, TEvents, TChannels> = {
+      actions: actions as ResolvedInterface<TActions, TEvents, TChannels>['actions'],
+      events: events as ResolvedInterface<TActions, TEvents, TChannels>['events'],
+      channels: channels as ResolvedInterface<TActions, TEvents, TChannels>['channels'],
     }
 
     // TODO: ensure the resolved interface contains no-more references
+
     return {
       resolved,
-      implementStatement,
+      implementStatement: implementStatement as InterfaceImplementationStatement<
+        TEntities,
+        TActions,
+        TEvents,
+        TChannels
+      >,
     }
   }
 
@@ -231,10 +243,9 @@ export class InterfaceDeclaration<
 
   private _rename(entities: InterfaceResolveInput<TEntities>['entities'], name: string): string {
     if (!this.templateName) {
-      return name
+      return name as string
     }
-
     const templateProps = utils.mapValues(entities, (entity) => entity.name) as Record<keyof TEntities, string>
-    return this.templateName(name, templateProps)
+    return templating.formatHandleBars(this.templateName, { ...templateProps, name })
   }
 }
