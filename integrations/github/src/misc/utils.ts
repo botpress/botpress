@@ -1,5 +1,6 @@
 import { RuntimeError } from '@botpress/client'
 import { GitHubClient } from './github-client'
+import * as bp from '.botpress'
 
 import * as types from './types'
 
@@ -25,39 +26,29 @@ export const getOrCreateBotpressConversationFromGithubPR = async ({
 }: {
   githubPullRequest: GitHubPullRequest
   client: types.Client
-}) => {
-  const { conversations } = await client.listConversations({
-    tags: {
-      // @ts-ignore: there seems to be a bug with ToTags<keyof AllChannels<TIntegration>['conversation']['tags']> :
-      // it only contains _shared_ tags, as opposed to containing _all_ tags
-      pullRequestNodeId: githubPullRequest.node_id,
-      channel: 'pullRequest',
-    },
-  })
-
-  if (conversations.length && conversations[0]) {
-    return conversations[0]
-  }
-
-  const { conversation } = await client.createConversation({
+}) =>
+  (await getConversationFromTags<'pullRequest'>(client, {
     channel: 'pullRequest',
-    tags: {
+    pullRequestNodeId: githubPullRequest.node_id,
+  })) ??
+  (
+    await client.createConversation({
       channel: 'pullRequest',
-      pullRequestNodeId: githubPullRequest.node_id,
-      pullRequestNumber: githubPullRequest.number.toString(),
-      pullRequestUrl: githubPullRequest.html_url,
-      repoId: githubPullRequest.repository.id.toString(),
-      repoName: githubPullRequest.repository.name,
-      repoNodeId: githubPullRequest.repository.node_id,
-      repoOwnerId: githubPullRequest.repository.owner.id.toString(),
-      repoOwnerName: githubPullRequest.repository.owner.login,
-      repoOwnerUrl: githubPullRequest.repository.owner.html_url,
-      repoUrl: githubPullRequest.repository.html_url,
-    },
-  })
-
-  return conversation
-}
+      tags: {
+        channel: 'pullRequest',
+        pullRequestNodeId: githubPullRequest.node_id,
+        pullRequestNumber: githubPullRequest.number.toString(),
+        pullRequestUrl: githubPullRequest.html_url,
+        repoId: githubPullRequest.repository.id.toString(),
+        repoName: githubPullRequest.repository.name,
+        repoNodeId: githubPullRequest.repository.node_id,
+        repoOwnerId: githubPullRequest.repository.owner.id.toString(),
+        repoOwnerName: githubPullRequest.repository.owner.login,
+        repoOwnerUrl: githubPullRequest.repository.owner.html_url,
+        repoUrl: githubPullRequest.repository.html_url,
+      },
+    })
+  ).conversation
 
 export const getOrCreateBotpressConversationFromGithubIssue = async ({
   githubIssue,
@@ -65,37 +56,25 @@ export const getOrCreateBotpressConversationFromGithubIssue = async ({
 }: {
   githubIssue: GitHubPullRequest
   client: types.Client
-}) => {
-  const { conversations } = await client.listConversations({
-    tags: {
-      // @ts-ignore: there seems to be a bug with ToTags<keyof AllChannels<TIntegration>['conversation']['tags']> :
-      // it only contains _shared_ tags, as opposed to containing _all_ tags
-      issueNodeId: githubIssue.node_id,
-    },
-  })
-
-  if (conversations.length && conversations[0]) {
-    return conversations[0]
-  }
-
-  const { conversation } = await client.createConversation({
-    channel: 'issue',
-    tags: {
-      issueNodeId: githubIssue.node_id,
-      issueNumber: githubIssue.number.toString(),
-      issueUrl: githubIssue.html_url,
-      repoId: githubIssue.repository.id.toString(),
-      repoName: githubIssue.repository.name,
-      repoNodeId: githubIssue.repository.node_id,
-      repoOwnerId: githubIssue.repository.owner.id.toString(),
-      repoOwnerName: githubIssue.repository.owner.login,
-      repoOwnerUrl: githubIssue.repository.owner.html_url,
-      repoUrl: githubIssue.repository.html_url,
-    },
-  })
-
-  return conversation
-}
+}) =>
+  (await getConversationFromTags<'issue'>(client, { issueNodeId: githubIssue.node_id })) ??
+  (
+    await client.createConversation({
+      channel: 'issue',
+      tags: {
+        issueNodeId: githubIssue.node_id,
+        issueNumber: githubIssue.number.toString(),
+        issueUrl: githubIssue.html_url,
+        repoId: githubIssue.repository.id.toString(),
+        repoName: githubIssue.repository.name,
+        repoNodeId: githubIssue.repository.node_id,
+        repoOwnerId: githubIssue.repository.owner.id.toString(),
+        repoOwnerName: githubIssue.repository.owner.login,
+        repoOwnerUrl: githubIssue.repository.owner.html_url,
+        repoUrl: githubIssue.repository.html_url,
+      },
+    })
+  ).conversation
 
 type GitHubDiscussion = GitHubPullRequest & {
   id: number
@@ -112,41 +91,29 @@ export const getOrCreateBotpressConversationFromGithubDiscussion = async ({
 }: {
   githubDiscussion: GitHubDiscussion
   client: types.Client
-}) => {
-  const { conversations } = await client.listConversations({
-    tags: {
-      // @ts-ignore: there seems to be a bug with ToTags<keyof AllChannels<TIntegration>['conversation']['tags']> :
-      // it only contains _shared_ tags, as opposed to containing _all_ tags
-      discussionNodeId: githubDiscussion.node_id,
-    },
-  })
-
-  if (conversations.length && conversations[0]) {
-    return conversations[0]
-  }
-
-  const { conversation } = await client.createConversation({
-    channel: 'discussion',
-    tags: {
-      discussionNodeId: githubDiscussion.node_id,
-      discussionNumber: githubDiscussion.number.toString(),
-      discussionUrl: githubDiscussion.html_url,
-      discussionId: githubDiscussion.id.toString(),
-      discussionCategoryId: githubDiscussion.category.id.toString(),
-      discussionCategoryName: githubDiscussion.category.name,
-      discussionCategoryNodeId: githubDiscussion.category.node_id,
-      repoId: githubDiscussion.repository.id.toString(),
-      repoName: githubDiscussion.repository.name,
-      repoNodeId: githubDiscussion.repository.node_id,
-      repoOwnerId: githubDiscussion.repository.owner.id.toString(),
-      repoOwnerName: githubDiscussion.repository.owner.login,
-      repoOwnerUrl: githubDiscussion.repository.owner.html_url,
-      repoUrl: githubDiscussion.repository.html_url,
-    },
-  })
-
-  return conversation
-}
+}) =>
+  (await getConversationFromTags<'discussion'>(client, { discussionNodeId: githubDiscussion.node_id })) ??
+  (
+    await client.createConversation({
+      channel: 'discussion',
+      tags: {
+        discussionNodeId: githubDiscussion.node_id,
+        discussionNumber: githubDiscussion.number.toString(),
+        discussionUrl: githubDiscussion.html_url,
+        discussionId: githubDiscussion.id.toString(),
+        discussionCategoryId: githubDiscussion.category.id.toString(),
+        discussionCategoryName: githubDiscussion.category.name,
+        discussionCategoryNodeId: githubDiscussion.category.node_id,
+        repoId: githubDiscussion.repository.id.toString(),
+        repoName: githubDiscussion.repository.name,
+        repoNodeId: githubDiscussion.repository.node_id,
+        repoOwnerId: githubDiscussion.repository.owner.id.toString(),
+        repoOwnerName: githubDiscussion.repository.owner.login,
+        repoOwnerUrl: githubDiscussion.repository.owner.html_url,
+        repoUrl: githubDiscussion.repository.html_url,
+      },
+    })
+  ).conversation
 
 type GitHubDiscussionReply = GitHubDiscussion & {
   comment: {
@@ -160,42 +127,30 @@ export const getOrCreateBotpressConversationFromGithubDiscussionReply = async ({
 }: {
   githubDiscussion: GitHubDiscussionReply
   client: types.Client
-}) => {
-  const { conversations } = await client.listConversations({
-    tags: {
-      // @ts-ignore: there seems to be a bug with ToTags<keyof AllChannels<TIntegration>['conversation']['tags']> :
-      // it only contains _shared_ tags, as opposed to containing _all_ tags
-      discussionNodeId: githubDiscussion.node_id,
-    },
-  })
-
-  if (conversations.length && conversations[0]) {
-    return conversations[0]
-  }
-
-  const { conversation } = await client.createConversation({
-    channel: 'discussionComment',
-    tags: {
-      discussionNodeId: githubDiscussion.node_id,
-      discussionNumber: githubDiscussion.number.toString(),
-      discussionUrl: githubDiscussion.html_url,
-      discussionId: githubDiscussion.id.toString(),
-      discussionCategoryId: githubDiscussion.category.id.toString(),
-      discussionCategoryName: githubDiscussion.category.name,
-      discussionCategoryNodeId: githubDiscussion.category.node_id,
-      parentCommentId: githubDiscussion.comment.parent_id.toString(),
-      repoId: githubDiscussion.repository.id.toString(),
-      repoName: githubDiscussion.repository.name,
-      repoNodeId: githubDiscussion.repository.node_id,
-      repoOwnerId: githubDiscussion.repository.owner.id.toString(),
-      repoOwnerName: githubDiscussion.repository.owner.login,
-      repoOwnerUrl: githubDiscussion.repository.owner.html_url,
-      repoUrl: githubDiscussion.repository.html_url,
-    },
-  })
-
-  return conversation
-}
+}) =>
+  (await getConversationFromTags<'discussionComment'>(client, { discussionNodeId: githubDiscussion.node_id })) ??
+  (
+    await client.createConversation({
+      channel: 'discussionComment',
+      tags: {
+        discussionNodeId: githubDiscussion.node_id,
+        discussionNumber: githubDiscussion.number.toString(),
+        discussionUrl: githubDiscussion.html_url,
+        discussionId: githubDiscussion.id.toString(),
+        discussionCategoryId: githubDiscussion.category.id.toString(),
+        discussionCategoryName: githubDiscussion.category.name,
+        discussionCategoryNodeId: githubDiscussion.category.node_id,
+        parentCommentId: githubDiscussion.comment.parent_id.toString(),
+        repoId: githubDiscussion.repository.id.toString(),
+        repoName: githubDiscussion.repository.name,
+        repoNodeId: githubDiscussion.repository.node_id,
+        repoOwnerId: githubDiscussion.repository.owner.id.toString(),
+        repoOwnerName: githubDiscussion.repository.owner.login,
+        repoOwnerUrl: githubDiscussion.repository.owner.html_url,
+        repoUrl: githubDiscussion.repository.html_url,
+      },
+    })
+  ).conversation
 
 export const configureOrganizationHandle = async ({
   ctx,
@@ -249,4 +204,15 @@ export const handleOauth = async (req: types.Request, client: types.Client, ctx:
 
   await _saveInstallationId({ ctx, client, installationId })
   await client.configureIntegration({ identifier: installationIdStr })
+}
+
+export const getConversationFromTags = async <E extends keyof types.Channels>(
+  client: types.Client,
+  tags: Partial<{ channel: E } & Record<keyof bp.channels.Channels[E]['conversation']['tags'], string>>
+) => {
+  const { conversations } = await client.listConversations({
+    tags,
+  })
+
+  return conversations.length === 1 ? conversations[0] ?? null : null
 }

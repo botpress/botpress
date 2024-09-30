@@ -1,21 +1,18 @@
 import { PullRequestReviewCommentCreatedEvent } from '@octokit/webhooks-types'
 import { wrapEvent } from 'src/misc/event-wrapper'
+import { getConversationFromTags } from 'src/misc/utils'
 
 export const firePullRequestReviewCommentReplied = wrapEvent<
   PullRequestReviewCommentCreatedEvent & { comment: { in_reply_to_id: number } }
 >(async ({ githubEvent, client, user }) => {
-  const { conversations } = await client.listConversations({
-    tags: {
-      // @ts-ignore: there seems to be a bug with ToTags<keyof AllChannels<TIntegration>['conversation']['tags']> :
-      // it only contains _shared_ tags, as opposed to containing _all_ tags
-      pullRequestNodeId: githubEvent.pull_request.node_id,
-      fileBeingReviewed: githubEvent.comment.path,
-      commitBeingReviewed: githubEvent.comment.commit_id,
-      lastCommentId: githubEvent.comment.in_reply_to_id.toString(),
-    },
+  const conversation = await getConversationFromTags<'pullRequestReviewComment'>(client, {
+    pullRequestNodeId: githubEvent.pull_request.node_id,
+    fileBeingReviewed: githubEvent.comment.path,
+    commitBeingReviewed: githubEvent.comment.commit_id,
+    lastCommentId: githubEvent.comment.in_reply_to_id.toString(),
   })
 
-  if (!conversations[0]) {
+  if (!conversation) {
     return
   }
 
@@ -29,7 +26,7 @@ export const firePullRequestReviewCommentReplied = wrapEvent<
     payload: {
       text: githubEvent.comment.body,
     },
-    conversationId: conversations[0].id,
+    conversationId: conversation.id,
     userId: user.id,
   })
 })

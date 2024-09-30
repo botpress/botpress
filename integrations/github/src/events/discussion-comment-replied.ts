@@ -1,6 +1,6 @@
 import { DiscussionCommentCreatedEvent } from '@octokit/webhooks-types'
 import { wrapEvent } from 'src/misc/event-wrapper'
-import { getOrCreateBotpressConversationFromGithubDiscussionReply } from '../misc/utils'
+import { getConversationFromTags, getOrCreateBotpressConversationFromGithubDiscussionReply } from '../misc/utils'
 import { Client } from '.botpress'
 
 export const fireDiscussionCommentReplied = wrapEvent<DiscussionCommentCreatedEvent>(
@@ -9,16 +9,10 @@ export const fireDiscussionCommentReplied = wrapEvent<DiscussionCommentCreatedEv
       return
     }
 
-    const { conversations } = await client.listConversations({
-      tags: {
-        // @ts-ignore: there seems to be a bug with ToTags<keyof AllChannels<TIntegration>['conversation']['tags']> :
-        // it only contains _shared_ tags, as opposed to containing _all_ tags
-        discussionNodeId: githubEvent.discussion.node_id,
-        parentCommentId: githubEvent.comment.parent_id.toString(),
-      },
+    let conversation = await getConversationFromTags<'discussionComment'>(client, {
+      discussionNodeId: githubEvent.discussion.node_id,
+      parentCommentId: githubEvent.comment.parent_id.toString(),
     })
-
-    let conversation = conversations[0]
 
     if (!conversation) {
       conversation = await _createDiscussionConversation({ githubEvent, client })
