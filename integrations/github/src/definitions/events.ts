@@ -1,53 +1,34 @@
-import { z, IntegrationDefinitionProps } from '@botpress/sdk'
+import { z, IntegrationDefinitionProps, EventDefinition, ZodTypeAny } from '@botpress/sdk'
+import { Issue, PullRequest, User } from './entities'
 
-import { TargetsSchema } from './schemas'
-
-export type PullRequestOpened = z.infer<typeof pullRequestOpened.schema>
-export type PullRequestMerged = z.infer<typeof pullRequestMerged.schema>
-export type IssueOpened = z.infer<typeof issueOpened.schema>
+const COMMON_EVENT_FIELDS = {
+  sender: {
+    eventSender: User.title('Sender').describe('The user who triggered the event'),
+  },
+} as const satisfies Record<string, Record<string, ZodTypeAny>>
 
 const pullRequestOpened = {
   schema: z.object({
-    id: z.number(),
-    title: z.string(),
-    content: z.string(),
-    baseBranch: z.string().optional(),
-    userId: z.string().optional(),
-    conversationId: z.string().optional(),
-    targets: TargetsSchema,
+    pullRequest: PullRequest,
+    ...COMMON_EVENT_FIELDS.sender,
   }),
-  ui: {},
-}
+} as const satisfies EventDefinition
 
 export const pullRequestMerged = {
   schema: z.object({
-    id: z.number(),
-    title: z.string(),
-    content: z.string(),
-    baseBranch: z.string().optional(),
-    userId: z.string().optional(),
-    conversationId: z.string().optional(),
-    targets: TargetsSchema,
+    pullRequest: PullRequest,
+    ...COMMON_EVENT_FIELDS.sender,
   }),
-  ui: {},
-}
+} as const satisfies EventDefinition
 
 export const issueOpened = {
   title: 'Issue opened',
   description: 'Triggered when an issue is opened',
-  schema: z
-    .object({
-      id: z.number(),
-      issueUrl: z.string(),
-      repoUrl: z.string(),
-      number: z.number(),
-      title: z.string(),
-      content: z.string().nullable(),
-      repositoryName: z.string(),
-      repositoryOwner: z.string(),
-    })
-    .passthrough(),
-} satisfies NonNullable<IntegrationDefinitionProps['events']>[string]
+  schema: z.object({
+    issue: Issue,
+    ...COMMON_EVENT_FIELDS.sender,
+  }),
+} as const satisfies EventDefinition
 
 export const events = {
   pullRequestOpened,
