@@ -3,6 +3,7 @@ import type { WebhookEvent } from '@octokit/webhooks-types'
 
 import { GITHUB_SIGNATURE_HEADER } from './const'
 import { fireDiscussionCommentCreated } from './events/discussion-comment-created'
+import { fireDiscussionCommentReplied } from './events/discussion-comment-replied'
 import { fireIssueCommentCreated } from './events/issue-comment-created'
 import { fireIssueOpened } from './events/issue-opened'
 import { firePullRequestCommentCreated } from './events/pull-request-comment-created'
@@ -28,7 +29,6 @@ import {
 
 import { handleOauth } from './misc/utils'
 import * as bp from '.botpress'
-import { fireDiscussionCommentReplied } from './events/discussion-comment-replied'
 
 type WebhookEventHandlerEntry<T extends WebhookEvent> = Readonly<
   [(event: WebhookEvent) => event is T, (props: bp.HandlerProps & { githubEvent: T }) => Promise<void> | void]

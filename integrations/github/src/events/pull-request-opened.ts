@@ -1,17 +1,11 @@
 import { PullRequestOpenedEvent } from '@octokit/webhooks-types'
 
-import { getOrCreateBotpressConversationFromGithubPR, getOrCreateBotpressUserFromGithubUser } from '../misc/utils'
-import { HandlerProps } from '.botpress'
+import { wrapEvent } from 'src/misc/event-wrapper'
+import { getOrCreateBotpressConversationFromGithubPR } from '../misc/utils'
 
-export const firePullRequestOpened = async ({
-  githubEvent,
-  client,
-}: HandlerProps & {
-  githubEvent: PullRequestOpenedEvent
-}) => {
+export const firePullRequestOpened = wrapEvent<PullRequestOpenedEvent>(async ({ githubEvent, client, user }) => {
   const githubPullRequest = { ...githubEvent.pull_request, repository: githubEvent.repository }
   const conversation = await getOrCreateBotpressConversationFromGithubPR({ githubPullRequest, client })
-  const user = await getOrCreateBotpressUserFromGithubUser({ githubUser: githubEvent.pull_request.user, client })
 
   await client.createEvent({
     type: 'pullRequestOpened',
@@ -29,4 +23,4 @@ export const firePullRequestOpened = async ({
     conversationId: conversation.id,
     userId: user.id,
   })
-}
+})

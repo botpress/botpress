@@ -1,6 +1,5 @@
 import { ExtraChannelProps, wrapChannel } from './misc/channel-wrapper'
 import { AckFunction, Channels } from './misc/types'
-import { getTagOrThrowException } from './misc/utils'
 
 export default {
   pullRequest: {
@@ -9,7 +8,7 @@ export default {
         console.info(`Sending a text message on channel pull request with content ${payload.text}`)
 
         await _createIssueComment({
-          issueNumber: +getTagOrThrowException(conversation.tags, 'pullRequestNumber'),
+          issueNumber: _getIntTagOrThrowException(conversation.tags, 'pullRequestNumber'),
           commentBody: payload.text,
           ack,
           owner,
@@ -25,7 +24,7 @@ export default {
         console.info(`Sending a text message on channel issue with content ${payload.text}`)
 
         await _createIssueComment({
-          issueNumber: +getTagOrThrowException(conversation.tags, 'issueNumber'),
+          issueNumber: _getIntTagOrThrowException(conversation.tags, 'issueNumber'),
           commentBody: payload.text,
           ack,
           owner,
@@ -45,11 +44,11 @@ export default {
             body: payload.text,
             owner,
             repo,
-            pull_number: +getTagOrThrowException(conversation.tags, 'pullRequestNumber'),
-            commit_id: getTagOrThrowException(conversation.tags, 'commitBeingReviewed'),
-            line: +getTagOrThrowException(conversation.tags, 'lineBeingReviewed'),
-            in_reply_to: +getTagOrThrowException(conversation.tags, 'lastCommentId'),
-            path: getTagOrThrowException(conversation.tags, 'fileBeingReviewed'),
+            pull_number: _getIntTagOrThrowException(conversation.tags, 'pullRequestNumber'),
+            commit_id: _getStrTagOrThrowException(conversation.tags, 'commitBeingReviewed'),
+            line: _getIntTagOrThrowException(conversation.tags, 'lineBeingReviewed'),
+            in_reply_to: _getIntTagOrThrowException(conversation.tags, 'lastCommentId'),
+            path: _getStrTagOrThrowException(conversation.tags, 'fileBeingReviewed'),
           })
 
           await ack({
@@ -78,7 +77,7 @@ export default {
         const {
           addDiscussionComment: { comment },
         } = await octokit.executeGraphqlQuery('addDiscussionComment', {
-          discussionNodeId: getTagOrThrowException(conversation.tags, 'discussionNodeId'),
+          discussionNodeId: _getStrTagOrThrowException(conversation.tags, 'discussionNodeId'),
           body: payload.text,
         })
 
@@ -96,8 +95,8 @@ export default {
         const {
           addDiscussionComment: { comment },
         } = await octokit.executeGraphqlQuery('addDiscussionCommentReply', {
-          discussionNodeId: getTagOrThrowException(conversation.tags, 'discussionNodeId'),
-          replyToCommentNodeId: getTagOrThrowException(message.tags, 'commentNodeId'),
+          discussionNodeId: _getStrTagOrThrowException(conversation.tags, 'discussionNodeId'),
+          replyToCommentNodeId: _getStrTagOrThrowException(message.tags, 'commentNodeId'),
           body: payload.text,
         })
 
@@ -126,3 +125,16 @@ const _createIssueComment = async ({
 
   await ack({ tags: { commentNodeId: data.node_id, commentId: data.id.toString(), commentUrl: data.html_url } })
 }
+
+const _getStrTagOrThrowException = <R extends Record<string, string>>(tags: R, name: Extract<keyof R, string>) => {
+  const value = tags[name]
+
+  if (!value) {
+    throw new Error(`Missing tag ${name}`)
+  }
+
+  return value
+}
+
+const _getIntTagOrThrowException = <R extends Record<string, string>>(tags: R, name: Extract<keyof R, string>) =>
+  parseInt(_getStrTagOrThrowException(tags, name))

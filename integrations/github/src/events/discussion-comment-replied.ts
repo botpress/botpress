@@ -1,8 +1,6 @@
 import { DiscussionCommentCreatedEvent } from '@octokit/webhooks-types'
 import { wrapEvent } from 'src/misc/event-wrapper'
-import {
-  getOrCreateBotpressConversationFromGithubDiscussionReply,
-} from '../misc/utils'
+import { getOrCreateBotpressConversationFromGithubDiscussionReply } from '../misc/utils'
 import { Client } from '.botpress'
 
 export const fireDiscussionCommentReplied = wrapEvent<DiscussionCommentCreatedEvent>(

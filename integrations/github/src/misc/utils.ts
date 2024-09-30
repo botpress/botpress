@@ -3,54 +3,6 @@ import { GitHubClient } from './github-client'
 
 import * as types from './types'
 
-export const getTagOrThrowException = <R extends Record<string, string>>(tags: R, name: Extract<keyof R, string>) => {
-  const value = tags[name]
-
-  if (!value) {
-    throw new Error(`Missing tag ${name}`)
-  }
-
-  return value
-}
-
-type GitHubUser = {
-  login: string
-  avatar_url: string
-  html_url: string
-  node_id: string
-  id: number
-}
-export const getOrCreateBotpressUserFromGithubUser = async ({
-  githubUser,
-  client,
-}: {
-  githubUser: GitHubUser
-  client: types.Client
-}) => {
-  const { users } = await client.listUsers({
-    tags: {
-      nodeId: githubUser.node_id,
-    },
-  })
-
-  if (users.length && users[0]) {
-    return users[0]
-  }
-
-  const { user } = await client.createUser({
-    name: githubUser.login,
-    pictureUrl: githubUser.avatar_url,
-    tags: {
-      handle: githubUser.login,
-      nodeId: githubUser.node_id,
-      id: githubUser.id.toString(),
-      profileUrl: githubUser.html_url,
-    },
-  })
-
-  return user
-}
-
 type GitHubPullRequest = {
   number: number
   node_id: string
