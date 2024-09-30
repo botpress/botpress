@@ -1,10 +1,9 @@
 import { IssueCommentCreatedEvent } from '@octokit/webhooks-types'
 import { wrapEvent } from 'src/misc/event-wrapper'
-import { getOrCreateBotpressConversationFromGithubIssue } from '../misc/utils'
+import { getOrCreateBotpressConversationFromGithubIssue } from './shared'
 
 export const fireIssueCommentCreated = wrapEvent<IssueCommentCreatedEvent>(async ({ githubEvent, client, user }) => {
-  const githubIssue = { ...githubEvent.issue, repository: githubEvent.repository }
-  const conversation = await getOrCreateBotpressConversationFromGithubIssue({ githubIssue, client })
+  const conversation = await getOrCreateBotpressConversationFromGithubIssue({ githubEvent, client })
 
   await client.createMessage({
     tags: {

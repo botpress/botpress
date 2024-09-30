@@ -2,15 +2,16 @@ import { verify as verifyWebhook } from '@octokit/webhooks-methods'
 import type { WebhookEvent } from '@octokit/webhooks-types'
 
 import { GITHUB_SIGNATURE_HEADER } from './const'
-import { fireDiscussionCommentCreated } from './events/discussion-comment-created'
-import { fireDiscussionCommentReplied } from './events/discussion-comment-replied'
-import { fireIssueCommentCreated } from './events/issue-comment-created'
-import { fireIssueOpened } from './events/issue-opened'
-import { firePullRequestCommentCreated } from './events/pull-request-comment-created'
-import { firePullRequesMerged } from './events/pull-request-merged'
-import { firePullRequestOpened } from './events/pull-request-opened'
-import { firePullRequestReviewCommentCreated } from './events/pull-request-review-comment-created'
-import { firePullRequestReviewCommentReplied } from './events/pull-request-review-comment-replied'
+import { fireDiscussionCommentCreated } from './events/discussion/discussion-comment-created'
+import { fireDiscussionCommentReplied } from './events/discussion/discussion-comment-replied'
+import { fireDiscussionCreated } from './events/discussion/discussion-created'
+import { fireIssueCommentCreated } from './events/issue/issue-comment-created'
+import { fireIssueOpened } from './events/issue/issue-opened'
+import { firePullRequestCommentCreated } from './events/pull-request/pull-request-comment-created'
+import { firePullRequesMerged } from './events/pull-request/pull-request-merged'
+import { firePullRequestOpened } from './events/pull-request/pull-request-opened'
+import { firePullRequestReviewCommentCreated } from './events/pull-request/pull-request-review-comment-created'
+import { firePullRequestReviewCommentReplied } from './events/pull-request/pull-request-review-comment-replied'
 import { GithubSettings } from './misc/github-settings'
 import {
   isIssueOpenedEvent,
@@ -43,7 +44,7 @@ const EVENT_HANDLERS: Readonly<WebhookEventHandlerEntry<any>[]> = [
   [isPullRequestReviewCommentCreatedEvent, firePullRequestReviewCommentCreated],
   [isPullRequestReviewCommentReplyCreatedEvent, firePullRequestReviewCommentReplied],
   [isPullRequestReviewSubmittedEvent, () => {}],
-  [isDiscussionCreatedEvent, () => {}],
+  [isDiscussionCreatedEvent, fireDiscussionCreated],
   [isDiscussionCommentCreatedEvent, fireDiscussionCommentCreated],
   [isDiscussionCommentReplyCreatedEvent, fireDiscussionCommentReplied],
 ] as const
