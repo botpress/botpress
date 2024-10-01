@@ -23,7 +23,7 @@ export class LintCommand extends ProjectCommand<LintCommandDefinition> {
   }
 
   private async _runLintForIntegration(definition: IntegrationDefinition): Promise<void> {
-    const parsedIntegrationDefinition = prepareCreateIntegrationBody(definition)
+    const parsedIntegrationDefinition = prepareCreateIntegrationBody(definition, { dereference: true })
     const linter = new IntegrationLinter(parsedIntegrationDefinition)
 
     await linter.lint()

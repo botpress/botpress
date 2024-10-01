@@ -20,6 +20,7 @@
   },
   "main": "dist/index.js",
   "dependencies": {
+    "@apidevtools/json-schema-ref-parser": "^11.7.0",
     "@botpress/client": "0.31.0",
     "@botpress/sdk": "0.11.6",
     "@bpinternal/const": "^0.0.20",
@@ -45,6 +46,7 @@
     "prompts": "^2.4.2",
     "radash": "^9.5.0",
     "semver": "^7.3.8",
+    "synckit": "^0.9.1",
     "typescript": "^4.9.4",
     "uuid": "^9.0.0",
     "verror": "^1.10.1",
