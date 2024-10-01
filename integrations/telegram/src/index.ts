@@ -84,9 +84,15 @@ const integration = new bp.Integration({
         audio: async ({ payload, ctx, conversation, ack, logger }) => {
           const client = new Telegraf(ctx.configuration.botToken)
           const chat = getChat(conversation)
-          logger.forBot().debug(`Sending audio message to Telegram chat ${chat}:`, payload.audioUrl)
-          const message = await client.telegram.sendAudio(chat, payload.audioUrl)
-          await ackMessage(message, ack)
+          logger.forBot().debug(`Sending audio voice to Telegram chat ${chat}:`, payload.audioUrl)
+          try {
+            const message = await client.telegram.sendVoice(chat, payload.audioUrl, { caption: payload.caption })
+            await ackMessage(message, ack)
+          } catch (error) {
+            // If the audio file is too large to be voice, Telegram should send it as an audio file, but if for some reason it doesn't, we can send it as an audio file
+            const message = await client.telegram.sendAudio(chat, payload.audioUrl, { caption: payload.caption })
+            await ackMessage(message, ack)
+          }
         },
         video: async ({ payload, ctx, conversation, ack, logger }) => {
           const client = new Telegraf(ctx.configuration.botToken)
