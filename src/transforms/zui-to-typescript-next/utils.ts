@@ -26,6 +26,17 @@ export const toPropertyKey = (key: string) => {
   return escapeString(key)
 }
 
+const capitalize = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1)
+
+export const toTypeArgumentName = (name: string) => {
+  const nonAlphaNumeric = /[^a-zA-Z0-9_]/g
+  const tokens = name
+    .split(nonAlphaNumeric)
+    .map(capitalize)
+    .filter((t) => !!t)
+  return tokens.join('')
+}
+
 export const getMultilineComment = (description?: string) => {
   const descLines = (description ?? '').split('\n').filter((l) => l.trim().length > 0)
   return descLines.length === 0

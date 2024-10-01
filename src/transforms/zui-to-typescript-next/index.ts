@@ -1,5 +1,5 @@
 import z, { util } from '../../z'
-import { escapeString, getMultilineComment, toPropertyKey } from './utils'
+import { escapeString, getMultilineComment, toPropertyKey, toTypeArgumentName } from './utils'
 
 const Primitives = [
   'string',
@@ -16,7 +16,9 @@ const Primitives = [
   'object',
 ]
 
-export class UntitledDeclarationError extends Error {
+export abstract class ZuiToTypescriptError extends Error {}
+
+export class UntitledDeclarationError extends ZuiToTypescriptError {
   constructor(message: string) {
     super(message)
     this.name = 'UntitledDeclarationError'
@@ -24,6 +26,17 @@ export class UntitledDeclarationError extends Error {
 
   static isUntitledDeclarationError(err: Error): err is UntitledDeclarationError {
     return err.name === 'UntitledDeclarationError'
+  }
+}
+
+export class UnrepresentableGenericError extends ZuiToTypescriptError {
+  constructor(message: string) {
+    super(message)
+    this.name = 'UnrepresentableGenericError'
+  }
+
+  static isUnrepresentableGenericError(err: Error): err is UnrepresentableGenericError {
+    return err.name === 'UnrepresentableGenericError'
   }
 }
 
@@ -49,41 +62,43 @@ class FnReturn {
 }
 
 class Declaration {
-  constructor(
-    public schema: z.Schema,
-    public identifier: string,
-  ) {}
+  constructor(public props: DeclarationProps) {}
 }
 
+type DeclarationProps =
+  | {
+      type: 'variable'
+      schema: z.Schema
+      identifier: string
+    }
+  | {
+      type: 'type'
+      schema: z.Schema
+      identifier: string
+      args: string[] // type arguments / generics
+    }
+  | {
+      type: 'none'
+      schema: z.Schema
+    }
+
+export type TypescriptDeclarationType = DeclarationProps['type']
 export type TypescriptGenerationOptions = {
-  declaration?: boolean
   formatter?: (typing: string) => string
+} & {
+  declaration?: boolean | TypescriptDeclarationType
 }
 
 type SchemaTypes = z.Schema | KeyValue | FnParameters | Declaration | null
 
-type InternalOptions = TypescriptGenerationOptions & {
+type InternalOptions = {
   parent?: SchemaTypes
 }
 
-export function toTypescript(schema: z.Schema, options?: TypescriptGenerationOptions): string {
-  options ??= {}
-  options.declaration ??= false
+export function toTypescript(schema: z.Schema, options: TypescriptGenerationOptions = {}): string {
+  const wrappedSchema: Declaration = getDeclarationProps(schema, options)
 
-  let wrappedSchema: z.Schema | Declaration = schema
-
-  if (options?.declaration) {
-    if (schema instanceof z.Schema) {
-      const title = 'title' in schema.ui ? (schema.ui.title as string) : null
-      if (!title) {
-        throw new UntitledDeclarationError('Only schemas with "title" Zui property can be declared.')
-      }
-
-      wrappedSchema = new Declaration(schema, title)
-    }
-  }
-
-  let dts = sUnwrapZod(wrappedSchema, { ...options })
+  let dts = sUnwrapZod(wrappedSchema, {})
 
   if (options.formatter) {
     dts = options.formatter(dts)
@@ -93,27 +108,17 @@ export function toTypescript(schema: z.Schema, options?: TypescriptGenerationOpt
 }
 
 function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | null, config: InternalOptions): string {
-  const newConfig = {
+  const newConfig: InternalOptions = {
     ...config,
-    declaration: false,
     parent: schema,
   }
+
   if (schema === null) {
     return ''
   }
 
   if (schema instanceof Declaration) {
-    const description = getMultilineComment(schema.schema.description)
-    const withoutDesc = schema.schema.describe('')
-    const typings = sUnwrapZod(withoutDesc, { ...newConfig, declaration: true })
-
-    if (schema.schema instanceof z.ZodFunction) {
-      return stripSpaces(`${description}
-declare function ${schema.identifier}${typings};`)
-    }
-
-    return stripSpaces(`${description}
-declare const ${schema.identifier}: ${typings};`)
+    return unwrapDeclaration(schema, newConfig)
   }
 
   if (schema instanceof KeyValue) {
@@ -266,11 +271,6 @@ ${opts.join(' | ')}`
       const input = sUnwrapZod(new FnParameters(def.args), newConfig)
       const output = sUnwrapZod(new FnReturn(def.returns), newConfig)
 
-      if (config?.declaration) {
-        return `${getMultilineComment(def.description)}
-(${input}): ${output}`
-      }
-
       return `${getMultilineComment(def.description)}
 (${input}) => ${output}`
 
@@ -296,22 +296,10 @@ ${value}`.trim()
       return sUnwrapZod(def.values, newConfig)
 
     case z.ZodFirstPartyTypeKind.ZodOptional:
-      if (config?.declaration || config?.parent instanceof z.ZodRecord || config?.parent instanceof z.ZodObject) {
-        return `${sUnwrapZod(def.innerType, newConfig)} | undefined`
-      }
-
-      if (
-        config?.parent instanceof z.ZodDefault ||
-        config?.parent instanceof z.ZodNullable ||
-        config?.parent instanceof z.ZodOptional
-      ) {
-        return `${sUnwrapZod(def.innerType, newConfig)} | undefined`
-      }
-
-      return `${sUnwrapZod(def.innerType, newConfig)}?`
+      return `${sUnwrapZod(def.innerType, newConfig)} | undefined`
 
     case z.ZodFirstPartyTypeKind.ZodNullable:
-      return `${sUnwrapZod((schema as z.ZodNullable<any>).unwrap(), newConfig)} | null`
+      return `${sUnwrapZod(def.innerType, newConfig)} | null`
 
     case z.ZodFirstPartyTypeKind.ZodDefault:
       return sUnwrapZod(def.innerType, newConfig)
@@ -335,8 +323,7 @@ ${value}`.trim()
       return `readonly ${sUnwrapZod(def.innerType, newConfig)}`
 
     case z.ZodFirstPartyTypeKind.ZodRef:
-      // TODO: should be represented as a type argument <T>
-      throw new Error('ZodRef cannot be transformed to TypeScript yet')
+      return toTypeArgumentName(def.uri)
 
     case z.ZodFirstPartyTypeKind.ZodTemplateLiteral:
       const inner = def.parts
@@ -350,7 +337,7 @@ ${value}`.trim()
           if (typeof p === 'boolean' || typeof p === 'number') {
             return `${p}`
           }
-          return '${' + sUnwrapZod(p, { ...newConfig, declaration: false }) + '}'
+          return '${' + sUnwrapZod(p, { ...newConfig }) + '}'
         })
         .join('')
 
@@ -359,4 +346,64 @@ ${value}`.trim()
     default:
       util.assertNever(def)
   }
+}
+
+const unwrapDeclaration = (declaration: Declaration, options: InternalOptions): string => {
+  if (declaration.props.type === 'none') {
+    return sUnwrapZod(declaration.props.schema, options)
+  }
+
+  const description = getMultilineComment(declaration.props.schema.description)
+  const withoutDesc = declaration.props.schema.describe('')
+  const typings = sUnwrapZod(withoutDesc, options)
+
+  if (declaration.props.type === 'variable') {
+    return stripSpaces(`${description}declare const ${declaration.props.identifier}: ${typings};`)
+  }
+
+  const generics =
+    declaration.props.args.length > 0 ? `<${declaration.props.args.map(toTypeArgumentName).join(', ')}>` : ''
+  return stripSpaces(`${description}type ${declaration.props.identifier}${generics} = ${typings};`)
+}
+
+const getDeclarationType = (options: TypescriptGenerationOptions): TypescriptDeclarationType => {
+  if (!options.declaration) {
+    return 'none'
+  }
+  if (options.declaration === true) {
+    return 'variable'
+  }
+  return options.declaration
+}
+
+const getDeclarationProps = (schema: z.Schema, options: TypescriptGenerationOptions): Declaration => {
+  const declarationType = getDeclarationType(options)
+  const args = schema.getReferences()
+
+  if (declarationType === 'none') {
+    if (args.length > 0) {
+      throw new UnrepresentableGenericError(
+        'ZodRefs are only supported when generating "type" declaration. Please set "declaration" option to "type".',
+      )
+    }
+
+    return new Declaration({ type: 'none', schema })
+  }
+
+  const title = 'title' in schema.ui ? (schema.ui.title as string) : null
+  if (!title) {
+    throw new UntitledDeclarationError('Only schemas with "title" Zui property can be declared.')
+  }
+
+  if (declarationType === 'variable') {
+    if (args.length > 0) {
+      throw new UnrepresentableGenericError(
+        'ZodRefs are only supported when generating "type" declaration. Please set "declaration" option to "type".',
+      )
+    }
+
+    return new Declaration({ type: 'variable', identifier: title, schema })
+  }
+
+  return new Declaration({ type: 'type', identifier: title, schema, args })
 }

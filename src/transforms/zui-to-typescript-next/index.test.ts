@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { UntitledDeclarationError, toTypescript as toTs } from '.'
+import { UnrepresentableGenericError, UntitledDeclarationError, toTypescript as toTs } from '.'
 import z, { ZodType } from '../../z'
 
 const toTypescript = (schema: ZodType): string => {
@@ -20,6 +20,24 @@ describe.concurrent('functions', () => {
     expect(() => toTs(fn, { declaration: true })).toThrowError(UntitledDeclarationError)
   })
 
+  it('type delcaration works', async () => {
+    const fn = z
+      .function()
+      .args(z.object({ a: z.number(), b: z.number() }))
+      .returns(z.number())
+      .title('add')
+      .describe('Add two numbers together.\nThis is a multiline description')
+
+    const typings = toTs(fn, { declaration: 'type' })
+    await expect(typings).toMatchWithoutFormatting(`
+      /**
+       * Add two numbers together.
+       * This is a multiline description
+       */
+        type add = (arg0: { a: number; b: number }) => number;
+      `)
+  })
+
   it('function with multi-line description', async () => {
     const fn = z
       .function()
@@ -35,7 +53,7 @@ describe.concurrent('functions', () => {
        * Add two numbers together.
        * This is a multiline description
        */
-      declare function add(arg0: { a: number; b: number }): number;
+      declare const add: (arg0: { a: number; b: number }) => number;
     `)
   })
 
@@ -44,7 +62,7 @@ describe.concurrent('functions', () => {
 
     const typings = toTypescript(fn)
 
-    await expect(typings).toMatchWithoutFormatting('declare function fn(): unknown;')
+    await expect(typings).toMatchWithoutFormatting('declare const fn: () => unknown;')
   })
 
   it('function with no args and void return', async () => {
@@ -52,7 +70,7 @@ describe.concurrent('functions', () => {
 
     const typings = toTypescript(fn)
 
-    await expect(typings).toMatchWithoutFormatting('declare function fn(): void;')
+    await expect(typings).toMatchWithoutFormatting('declare const fn: () => void;')
   })
 
   it('async function returning union', async () => {
@@ -63,7 +81,7 @@ describe.concurrent('functions', () => {
 
     const typings = toTypescript(fn)
 
-    await expect(typings).toMatchWithoutFormatting('declare function fn(): Promise<number | string>;')
+    await expect(typings).toMatchWithoutFormatting('declare const fn: () => Promise<number | string>;')
   })
 
   it('function with multiple args', async () => {
@@ -82,7 +100,7 @@ describe.concurrent('functions', () => {
     const typings = toTypescript(fn)
 
     await expect(typings).toMatchWithoutFormatting(`
-      declare function fn(
+      declare const fn: (
         arg0: {
           a?: number;
           /** This is B parameter */
@@ -91,14 +109,14 @@ describe.concurrent('functions', () => {
         /** This is a number */
         arg1: number,
         arg2: [string, /** This is a number */ number]
-      ): unknown;
+      ) => unknown;
     `)
   })
 
   it('function with optional args', async () => {
     const fn = z.function().title('fn').args(z.string().optional())
     const typings = toTypescript(fn)
-    await expect(typings).toMatchWithoutFormatting('declare function fn(arg0?: string): unknown;')
+    await expect(typings).toMatchWithoutFormatting('declare const fn: (arg0?: string) => unknown;')
   })
 
   it('string literals', async () => {
@@ -162,7 +180,7 @@ describe.concurrent('functions', () => {
   it('function with named args', async () => {
     const fn = z.function().title('fn').args(z.string().title('firstName').optional())
     const typings = toTypescript(fn)
-    await expect(typings).toMatchWithoutFormatting('declare function fn(firstName?: string): unknown;')
+    await expect(typings).toMatchWithoutFormatting('declare const fn: (firstName?: string) => unknown;')
   })
 
   it('mix of named and unnammed params', async () => {
@@ -172,11 +190,11 @@ describe.concurrent('functions', () => {
       .args(z.string().title('firstName').optional(), z.number(), z.object({ a: z.string() }).title('obj'))
     const typings = toTypescript(fn)
     await expect(typings).toMatchWithoutFormatting(`
-        declare function fn(
+        declare const fn: (
           firstName?: string,
           arg1: number,
           obj: { a: string }
-        ): unknown;
+        ) => unknown;
       `)
   })
 
@@ -189,10 +207,10 @@ describe.concurrent('functions', () => {
 
     const typings = toTypescript(fn)
     await expect(typings).toMatchWithoutFormatting(`
-      declare function fn(
+      declare const fn: (
         arg0?: string | null,
         arg1?: number
-      ): string | null | undefined;
+      ) => string | null | undefined;
     `)
   })
 })
@@ -201,6 +219,14 @@ describe.concurrent('objects', () => {
   it('title mandatory to declare', async () => {
     const obj = z.object({ a: z.number(), b: z.string() })
     expect(() => toTs(obj, { declaration: true })).toThrowError()
+  })
+
+  it('type declaration works', async () => {
+    const obj = z.object({ a: z.number(), b: z.string() }).title('MyObject')
+
+    const typings = toTs(obj, { declaration: 'type' })
+
+    await expect(typings).toMatchWithoutFormatting('type MyObject = { a: number; b: string };')
   })
 
   it('normal object', async () => {
@@ -461,7 +487,7 @@ describe.concurrent('objects', () => {
     const typings = toTypescript(fn)
 
     await expect(typings).toMatchWithoutFormatting(
-      'declare function MyObject(arg0: Array<{ a: number; b: string }>): unknown;',
+      'declare const MyObject: (arg0: Array<{ a: number; b: string }>) => unknown;',
     )
   })
 
@@ -470,10 +496,10 @@ describe.concurrent('objects', () => {
     const typings = toTypescript(fn)
 
     await expect(typings).toMatchWithoutFormatting(`
-        declare function MyObject(
+        declare const MyObject: (
           /** This is an array of numbers */
           arg0: number[]
-        ): unknown;
+        ) => unknown;
       `)
   })
 
@@ -547,5 +573,29 @@ describe.concurrent('objects', () => {
           }
         `
     await expect(typings).toMatchWithoutFormatting(expected)
+  })
+})
+
+describe.concurrent('generics', () => {
+  it("can't generate a generic type without type declaration", async () => {
+    const schema = z.object({ a: z.string(), b: z.ref('T') }).title('MyObject')
+    expect(() => toTs(schema, { declaration: true })).toThrowError(UnrepresentableGenericError)
+    expect(() => toTs(schema, { declaration: false })).toThrowError(UnrepresentableGenericError)
+    expect(() => toTs(schema, { declaration: 'variable' })).toThrowError(UnrepresentableGenericError)
+    expect(() => toTs(schema, { declaration: 'none' })).toThrowError(UnrepresentableGenericError)
+  })
+
+  it('can generate a generic type', async () => {
+    const schema = z.object({ a: z.string(), b: z.ref('T') }).title('MyObject')
+    const typings = toTs(schema, { declaration: 'type' })
+
+    await expect(typings).toMatchWithoutFormatting('type MyObject<T> = { a: string; b: T };')
+  })
+
+  it('can generate a generic type by formating ref Uri', async () => {
+    const schema = z.object({ a: z.string(), b: z.ref('#/$defs/T') }).title('MyObject')
+    const typings = toTs(schema, { declaration: 'type' })
+
+    await expect(typings).toMatchWithoutFormatting('type MyObject<DefsT> = { a: string; b: DefsT };')
   })
 })

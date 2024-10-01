@@ -1,6 +1,6 @@
 import { isValidTypescript } from '../../setup.test'
 import { expect } from 'vitest'
-import { escapeString } from './utils'
+import { escapeString, toTypeArgumentName } from './utils'
 
 describe('Typescript Checker', () => {
   it('passes successfully on valid string definition', () => {
@@ -76,5 +76,18 @@ Hey world
       \`\`\`
       ""
     `)
+  })
+})
+
+describe('toTypeArgumentName', () => {
+  it('converts a valid key to a property key', () => {
+    expect(toTypeArgumentName('T')).toBe('T')
+    expect(toTypeArgumentName('TName')).toBe('TName')
+  })
+
+  it('converts an invalid key to a property key', () => {
+    expect(toTypeArgumentName('T-Name')).toBe('TName')
+    expect(toTypeArgumentName('t Name')).toBe('TName')
+    expect(toTypeArgumentName('#/t/Name')).toBe('TName')
   })
 })
