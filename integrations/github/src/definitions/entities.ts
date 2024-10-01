@@ -15,7 +15,7 @@ const NAMED_ENTITY = (name: string = 'entity') =>
 
 const USER_OR_ORG = (name: string = 'user') =>
   ({
-    ...ENTITY(name),
+    ...NAMED_ENTITY(name),
     handle: z.string().title('Handle').describe(`The handle of the ${name}`),
     botpressUser: z
       .string()
@@ -38,13 +38,15 @@ const REPOSITORY_BRANCH = {
 
 const LABEL = NAMED_ENTITY('label')
 
-const REPOSITORY_SUBENTITY = (name: string = 'entity') => ({
-  ...NAMED_ENTITY(name),
-  repository: z.object(REPOSITORY).title('Repository').describe(`The repository the ${name} belongs to`),
-  body: z.string().title('Body').describe(`The body of the ${name}`),
-  number: z.number().title('Number').describe(`The ${name} number`),
-  labels: z.array(z.object(LABEL)).title('Labels').describe(`The labels associated with the ${name}`),
-})
+const REPOSITORY_SUBENTITY = (name: string = 'entity') =>
+  ({
+    ...NAMED_ENTITY(name),
+    repository: z.object(REPOSITORY).title('Repository').describe(`The repository the ${name} belongs to`),
+    body: z.string().title('Body').describe(`The body of the ${name}`),
+    number: z.number().title('Number').describe(`The ${name} number`),
+    labels: z.array(z.object(LABEL)).title('Labels').describe(`The labels associated with the ${name}`),
+    author: z.object(USER_OR_ORG('author')).title('Author').describe(`The author of the ${name}`),
+  } as const)
 
 const ISSUE_OR_PR = (name: string = 'issue') =>
   ({
@@ -68,6 +70,17 @@ const DISCUSSION = {
   category: z.object(NAMED_ENTITY('category')).title('Category').describe('The category of the discussion'),
 } as const
 
+const PULL_REQUEST_REVIEW_STATES = ['APPROVED', 'CHANGES_REQUESTED', 'COMMENTED', 'DISMISSED'] as const
+
+const PULL_REQUEST_REVIEW = {
+  ...ENTITY('pull request review'),
+  pullRequest: z.object(PULL_REQUEST).title('Pull Request').describe('The pull request being reviewed'),
+  commitId: z.string().title('Commit ID').describe('The commit ID of the review'),
+  state: z.enum(PULL_REQUEST_REVIEW_STATES).title('State').describe('The state of the review'),
+  author: z.object(USER_OR_ORG('review author')).title('Author').describe('The author of the review'),
+  body: z.string().title('Body').describe('The body of the review'),
+} as const
+
 export const User = z.object(USER)
 export type User = z.infer<typeof User>
 
@@ -85,3 +98,6 @@ export type Label = z.infer<typeof Label>
 
 export const Discussion = z.object(DISCUSSION)
 export type Discussion = z.infer<typeof Discussion>
+
+export const PullRequestReview = z.object(PULL_REQUEST_REVIEW)
+export type PullRequestReview = z.infer<typeof PullRequestReview>
