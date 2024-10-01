@@ -154,6 +154,8 @@ export const channels = {
     },
   },
   issue: {
+    title: 'Issue',
+    description: 'An issue in a GitHub repository',
     conversation: {
       tags: {
         ...COMMON_TAGS.repository,

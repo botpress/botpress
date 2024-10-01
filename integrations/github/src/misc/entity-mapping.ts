@@ -6,9 +6,10 @@ import {
   Discussion as GitHubDiscussion,
   Repository as GitHubRepository,
   Label as GitHubLabel,
+  PullRequestReview as GitHubPullRequestReview,
 } from '@octokit/webhooks-types'
 
-import { User, Issue, PullRequest, Discussion, Repository, Label } from 'src/definitions/entities'
+import { User, Issue, PullRequest, Discussion, Repository, Label, PullRequestReview } from 'src/definitions/entities'
 import { Client } from '.botpress'
 
 abstract class BaseEntityMapper<G extends object, B extends object> {
@@ -32,6 +33,7 @@ abstract class BaseEntityMapper<G extends object, B extends object> {
 class UserEntityMapper extends BaseEntityMapper<GitHubUser, User> {
   protected async map(githubUser: GitHubUser): Promise<User> {
     return {
+      name: githubUser.name ?? githubUser.login,
       handle: githubUser.login,
       id: githubUser.id,
       nodeId: githubUser.node_id,
@@ -112,6 +114,7 @@ class IssueEntityMapper extends BaseEntityMapper<GitHubIssue, Issue> {
       name: githubIssue.title,
       body: githubIssue.body ?? '',
       repository: await this._repositoryEntityMapper.tryMap(githubRepository),
+      author: await this._userEntityMapper.tryMap(githubIssue.user),
     }
   }
 }
@@ -146,6 +149,7 @@ class PullRequestEntityMapper extends BaseEntityMapper<GitHubPullRequest, PullRe
         label: githubPullRequest.base.label,
         repository: await this._repositoryEntityMapper.tryMap(githubPullRequest.base.repo!),
       },
+      author: await this._userEntityMapper.tryMap(githubPullRequest.user),
     }
   }
 }
@@ -154,7 +158,8 @@ class DiscussionEntityMapper extends BaseEntityMapper<GitHubDiscussion, Discussi
   public constructor(
     client: Client,
     private readonly _repositoryEntityMapper: RepositoryEntityMapper,
-    private readonly _labelEntityMapper: LabelEntityMapper
+    private readonly _labelEntityMapper: LabelEntityMapper,
+    private readonly _userEntityMapper: UserEntityMapper
   ) {
     super(client)
   }
@@ -178,11 +183,53 @@ class DiscussionEntityMapper extends BaseEntityMapper<GitHubDiscussion, Discussi
         name: githubDiscussion.category.name,
         url: `${githubRepository.html_url}/discussions/categories/${githubDiscussion.category.slug}`,
       },
+      author: await this._userEntityMapper.tryMap(githubDiscussion.user),
+    }
+  }
+}
+
+class PullRequestReviewEntityMapper extends BaseEntityMapper<GitHubPullRequestReview, PullRequestReview> {
+  public constructor(
+    client: Client,
+    private readonly _userEntityMapper: UserEntityMapper,
+    private readonly _pullRequestEntityMapper: PullRequestEntityMapper
+  ) {
+    super(client)
+  }
+  protected async map(
+    githubPullRequestReview: GitHubPullRequestReview,
+    githubPullRequest: GitHubPullRequest
+  ): Promise<PullRequestReview> {
+    return {
+      id: githubPullRequestReview.id,
+      nodeId: githubPullRequestReview.node_id,
+      url: githubPullRequestReview.html_url,
+      body: githubPullRequestReview.body ?? '',
+      author: await this._userEntityMapper.tryMap(githubPullRequestReview.user),
+      commitId: githubPullRequestReview.commit_id,
+      pullRequest: await this._pullRequestEntityMapper.tryMap(githubPullRequest),
+      state: githubPullRequestReview.state.toUpperCase() as Uppercase<typeof githubPullRequestReview.state>,
     }
   }
 }
 
 export const mapping = (client: Client) => {
+  const mappers = _initializeMappers(client)
+
+  const mappingFunctions = {
+    mapDiscussion: mappers.discussionEntityMapper.tryMap.bind(mappers.discussionEntityMapper),
+    mapIssue: mappers.issueEntityMapper.tryMap.bind(mappers.issueEntityMapper),
+    mapLabel: mappers.labelEntityMapper.tryMap.bind(mappers.labelEntityMapper),
+    mapPullRequest: mappers.pullRequestEntityMapper.tryMap.bind(mappers.pullRequestEntityMapper),
+    mapPullRequestReview: mappers.pullRequestReviewEntityMapper.tryMap.bind(mappers.pullRequestReviewEntityMapper),
+    mapRepository: mappers.repositoryEntityMapper.tryMap.bind(mappers.repositoryEntityMapper),
+    mapUser: mappers.userEntityMapper.tryMap.bind(mappers.userEntityMapper),
+  } as const
+
+  return mappingFunctions
+}
+
+const _initializeMappers = (client: Client) => {
   const userEntityMapper = new UserEntityMapper(client)
   const repositoryEntityMapper = new RepositoryEntityMapper(client, userEntityMapper)
   const labelEntityMapper = new LabelEntityMapper(client)
@@ -193,17 +240,25 @@ export const mapping = (client: Client) => {
     userEntityMapper,
     repositoryEntityMapper
   )
-  const discussionEntityMapper = new DiscussionEntityMapper(client, repositoryEntityMapper, labelEntityMapper)
+  const discussionEntityMapper = new DiscussionEntityMapper(
+    client,
+    repositoryEntityMapper,
+    labelEntityMapper,
+    userEntityMapper
+  )
+  const pullRequestReviewEntityMapper = new PullRequestReviewEntityMapper(
+    client,
+    userEntityMapper,
+    pullRequestEntityMapper
+  )
 
   return {
-    mapUser: async (githubUser: GitHubUser) => userEntityMapper.tryMap(githubUser),
-    mapRepository: async (githubRepository: GitHubRepository) => repositoryEntityMapper.tryMap(githubRepository),
-    mapLabel: async (githubLabel: GitHubLabel) => labelEntityMapper.tryMap(githubLabel),
-    mapIssue: async (githubIssue: GitHubIssue, repository: GitHubRepository) =>
-      issueEntityMapper.tryMap(githubIssue, repository),
-    mapPullRequest: async (githubPullRequest: GitHubPullRequest, repository: GitHubRepository) =>
-      pullRequestEntityMapper.tryMap(githubPullRequest, repository),
-    mapDiscussion: async (githubDiscussion: GitHubDiscussion, repository: GitHubRepository) =>
-      discussionEntityMapper.tryMap(githubDiscussion, repository),
+    discussionEntityMapper,
+    issueEntityMapper,
+    labelEntityMapper,
+    pullRequestEntityMapper,
+    pullRequestReviewEntityMapper,
+    repositoryEntityMapper,
+    userEntityMapper,
   }
 }

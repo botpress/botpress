@@ -13,6 +13,7 @@ import { firePullRequesMerged } from './events/pull-request/pull-request-merged'
 import { firePullRequestOpened } from './events/pull-request/pull-request-opened'
 import { firePullRequestReviewCommentCreated } from './events/pull-request/pull-request-review-comment-created'
 import { firePullRequestReviewCommentReplied } from './events/pull-request/pull-request-review-comment-replied'
+import { firePullRequestReviewSubmitted } from './events/pull-request/pull-request-review-submitted'
 import { GithubSettings } from './misc/github-settings'
 import {
   isIssueOpenedEvent,
@@ -43,7 +44,7 @@ const EVENT_HANDLERS: Readonly<WebhookEventHandlerEntry<any>[]> = [
   [isPullRequestCommentCreatedEvent, firePullRequestCommentCreated],
   [isPullRequestReviewCommentCreatedEvent, firePullRequestReviewCommentCreated],
   [isPullRequestReviewCommentReplyCreatedEvent, firePullRequestReviewCommentReplied],
-  [isPullRequestReviewSubmittedEvent, () => {}],
+  [isPullRequestReviewSubmittedEvent, firePullRequestReviewSubmitted],
   [isDiscussionCreatedEvent, fireDiscussionCreated],
   [isDiscussionCommentCreatedEvent, fireDiscussionCommentCreated],
   [isDiscussionCommentReplyCreatedEvent, fireDiscussionCommentReplied],
