@@ -1,8 +1,9 @@
 import { describe, expect, test } from 'vitest'
 import { ZodTypeAny, z } from '../../z/index'
 import { zuiKey } from '../../ui/constants'
-import { jsonSchemaToZui, traverseZodDefinitions } from '.'
+import { jsonSchemaToZodStr, jsonSchemaToZui, traverseZodDefinitions } from '.'
 import { zuiToJsonSchema } from '../zui-to-json-schema/zui-extension'
+import { JSONSchema7 } from 'json-schema'
 
 const testZuiConversion = (zuiObject: ZodTypeAny) => {
   const jsonSchema = zuiToJsonSchema(zuiObject)
@@ -176,5 +177,45 @@ describe('Coercion deserialization', () => {
     const schema = z.coerce.bigint().toJsonSchema()
     const asZui = jsonSchemaToZui(schema)
     expect(asZui._def[zuiKey]?.coerce).toStrictEqual(true)
+  })
+
+  it('should convert unresolved refs to zod refs', async () => {
+    const schema: JSONSchema7 = {
+      type: 'object',
+      properties: {
+        foo: { $ref: '#Foo' },
+      },
+      required: ['foo'],
+    }
+    const zStr = jsonSchemaToZodStr(schema)
+    await expect(zStr).toMatchWithoutFormatting(`
+      z.object({ foo: z.ref("#Foo") })
+    `)
+  })
+
+  // TODO: decide if we want to support dereferencing; if not, remove this test, otherwise fix it
+  it.skip('should resolve local refs', async () => {
+    const schema: JSONSchema7 = {
+      $defs: {
+        Foo: {
+          type: 'string',
+          enum: ['foo'],
+        },
+        Bar: {
+          type: 'string',
+          enum: ['bar'],
+        },
+      },
+      type: 'object',
+      properties: {
+        foo: { $ref: '#/$defs/Foo' },
+        bar: { $ref: '#/$defs/Bar' },
+      },
+      required: ['foo', 'bar'],
+    }
+    const zStr = jsonSchemaToZodStr(schema)
+    await expect(zStr).toMatchWithoutFormatting(`
+      z.object({ foo: z.literal("foo"), bar: z.literal("bar") })
+    `)
   })
 })

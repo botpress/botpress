@@ -23,8 +23,9 @@ import { zuiKey } from '../../ui/constants'
 import { JsonSchema7Type } from '../zui-to-json-schema/parseDef'
 import { parseSchema } from './parsers/parseSchema'
 import { ZuiExtensionObject } from '../../ui/types'
+import { JSONSchemaExtended } from './types'
 
-const jsonSchemaToZodStr = (schema: any): string => {
+export const jsonSchemaToZodStr = (schema: JSONSchemaExtended): string => {
   return parseSchema(schema, {
     seen: new Map(),
     path: [],

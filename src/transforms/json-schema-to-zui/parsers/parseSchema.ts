@@ -14,6 +14,7 @@ import { parseObject } from './parseObject'
 import { parseString } from './parseString'
 import { parseOneOf } from './parseOneOf'
 import { parseNullable } from './parseNullable'
+import { parseRef } from './parseRef'
 import { ParserSelector, Refs, JsonSchemaObject, JsonSchema, Serializable, JSONSchemaExtended } from '../types'
 import { parseDiscriminator } from './parseDiscriminator'
 
@@ -113,6 +114,8 @@ const selectParser: ParserSelector = (schema, refs) => {
     return parseNull(schema)
   } else if (its.a.conditional(schema)) {
     return parseIfThenElse(schema, refs)
+  } else if (its.a.ref(schema)) {
+    return parseRef(schema)
   } else {
     return parseDefault(schema)
   }
@@ -173,5 +176,6 @@ export const its = {
     ): x is JsonSchemaObject & {
       oneOf: JsonSchema[]
     } => x.oneOf !== undefined,
+    ref: (x: JsonSchemaObject): x is JsonSchemaObject & { $ref: string } => x.$ref !== undefined,
   },
 }
