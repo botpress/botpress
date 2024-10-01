@@ -17,7 +17,7 @@ export const generateIntegrationImplementationTypings = async (
   sdkIntegration: sdk.IntegrationDefinition,
   implementationTypingsPath: string
 ): Promise<types.File[]> => {
-  const integration = mapIntegration.from.sdk(sdkIntegration)
+  const integration = await mapIntegration.from.sdk(sdkIntegration)
   const indexModule = await IntegrationImplementationIndexModule.create(integration)
   indexModule.unshift(implementationTypingsPath)
   return indexModule.flatten()
@@ -59,7 +59,7 @@ export const generateIntegrationInstance = async (
   if ('id' in anyIntegration) {
     integration = mapIntegration.from.client(anyIntegration)
   } else {
-    integration = mapIntegration.from.sdk(anyIntegration)
+    integration = await mapIntegration.from.sdk(anyIntegration)
   }
 
   const indexModule = await IntegrationInstanceIndexModule.create(integration)
