@@ -43,7 +43,7 @@ const getIssue = {
     }),
   },
   output: {
-    schema: issueSchema,
+    schema: issueSchema.title('Issue').describe('The issue found'),
   },
 } as const satisfies ActionDefinition
 
@@ -86,124 +86,121 @@ const userSchema = z.object({
 
 const listUsers = {
   title: 'List Users',
+  description: 'List users from Linear',
   input: {
     schema: z.object({
-      count: z.number().optional().default(10).describe('The number of users to return'),
-      startCursor: z.string().optional().describe('The cursor to start from'),
+      count: z.number().optional().default(10).title('Fetch Amount').describe('The number of users to return'),
+      startCursor: z.string().optional().title('Start Cursor').describe('The cursor to start from'),
     }),
   },
   output: {
     schema: z.object({
-      users: z.array(userSchema),
-      nextCursor: z.string().optional(),
+      users: z.array(userSchema).title('Users').describe('The list of matching users'),
+      nextCursor: z.string().optional().title('Next Cursor').describe('The cursor to fetch the next page'),
     }),
   },
-}
+} as const satisfies ActionDefinition
 
 const listTeams = {
   title: 'List Teams',
+  description: 'List teams from Linear',
   input: {
     schema: z.object({}),
   },
   output: {
     schema: z.object({
-      teams: z.array(
-        z.object({
-          id: z.string(),
-          name: z.string(),
-          description: z.string().optional(),
-          icon: z.string().optional(),
-        })
-      ),
+      teams: z
+        .array(
+          z.object({
+            id: z.string().title('ID').describe('The unique identifier of the entity'),
+            name: z.string().title('Name').describe("The team's name"),
+            description: z.string().optional().title('Description').describe("The team's description"),
+            icon: z.string().optional().title('Icon').describe('The icon of the team'),
+          })
+        )
+        .title('Teams')
+        .describe('The list of teams'),
     }),
   },
-}
+} as const satisfies ActionDefinition
 
 const markAsDuplicate = {
   title: 'Mark Issue as Duplicate',
+  description: 'Mark an issue as a duplicate of another',
   input: {
     schema: z.object({
-      issueId: z.string().describe('The issue ID on Linear. Ex: {{event.payload.linearIds.issueId}}'),
-      relatedIssueId: z.string().describe('The ID of the existing issue on Linear'),
+      issueId: z.string().title('Issue ID').describe('The issue ID on Linear. Ex: {{event.payload.linearIds.issueId}}'),
+      relatedIssueId: z.string().title('Related Issue ID').describe('The ID of the existing issue on Linear'),
     }),
   },
   output: {
     schema: z.object({}),
   },
-}
+} as const satisfies ActionDefinition
 
 const getUser = {
   title: 'Get User Profile',
   description: 'Get a user profile from Linear',
   input: {
     schema: z.object({
-      linearUserId: z.string().describe("The user's ID on Linear. Ex: {{event.payload.linearIds.creatorId}}"),
+      linearUserId: z
+        .string()
+        .title('User ID')
+        .describe("The user's ID on Linear. Ex: {{event.payload.linearIds.creatorId}}"),
     }),
   },
   output: {
-    schema: userProfileSchema,
+    schema: userProfileSchema.title('User').describe('The user profile'),
   },
-}
+} as const satisfies ActionDefinition
 
 const updateIssue = {
   title: 'Update Issue',
+  description: 'Update an issue on Linear',
   input: {
     schema: z.object({
-      issueId: z.string(),
-      priority: z.number().optional().describe('0 = none, 1 = urgent, 2 = high, 3 = medium, 4 = low'),
-      teamName: z.string().optional().describe('Type a name to change the assigned team of the issue'),
+      issueId: z.string().title('Issue ID').describe('The issue ID on Linear. Example: {{event.payload.id}}'),
+      priority: z.number().optional().title('Priority').describe('0 = none, 1 = urgent, 2 = high, 3 = medium, 4 = low'),
+      teamName: z
+        .string()
+        .optional()
+        .title('Move to team...')
+        .describe('Type a name to change the assigned team of the issue'),
       labels: z
         .array(z.string())
         .optional()
         .default(['type/dx'])
+        .title('Set labels')
         .describe('One or multiple labels to assign to this issue'),
-      project: z.string().optional().describe('A project to associate to this issue'),
+      project: z.string().optional().title('Associate to project...').describe('A project to associate to this issue'),
     }),
-    ui: {
-      issueId: {
-        title: 'Issue ID',
-        examples: ['{{event.payload.id}}'],
-      },
-      priority: {
-        title: 'Priority',
-      },
-      teamName: {
-        title: 'Move to team...',
-      },
-      labels: {
-        title: 'Set labels',
-      },
-      project: {
-        title: 'Associate to project...',
-      },
-    },
   },
   output: {
     schema: z.object({
-      issue: issueSchema.optional(),
+      issue: issueSchema.optional().title('Issue').describe('The updated issue'),
     }),
   },
-}
+} as const satisfies ActionDefinition
 
 const createIssue = {
   title: 'Create Issue',
+  description: 'Create an issue on Linear',
   input: {
     schema: z.object({
-      title: z.string().min(1),
-      description: z.string().describe('The content of the issue'),
-      priority: z.number().optional().describe('0 = none, 1 = urgent, 2 = high, 3 = medium, 4 = low'),
-      teamName: z.string().describe('Name of the team to assign the issue to'),
-      labels: z.array(z.string()).optional().describe('One or multiple labels to assign to this issue'),
-      project: z.string().optional().describe('A project to associate to this issue'),
+      title: z.string().min(1).title('Title').describe("The issue's title"),
+      description: z.string().title('Description').describe('The content of the issue'),
+      priority: z.number().optional().title('Priority').describe('0 = none, 1 = urgent, 2 = high, 3 = medium, 4 = low'),
+      teamName: z.string().title('Team Name').describe('Name of the team to assign the issue to'),
+      labels: z.array(z.string()).optional().title('Labels').describe('One or multiple labels to assign to this issue'),
+      project: z.string().optional().title('Project').describe('A project to associate to this issue'),
     }),
-    ui: {},
   },
   output: {
     schema: z.object({
-      issue: issueSchema,
+      issue: issueSchema.title('Issue').describe('The created issue'),
     }),
   },
-} satisfies NonNullable<IntegrationDefinitionProps['actions']>[string]
+} as const satisfies ActionDefinition
 
 export const actions = {
   findTarget,
@@ -215,4 +212,4 @@ export const actions = {
   getUser,
   updateIssue,
   createIssue,
-} satisfies IntegrationDefinitionProps['actions']
+} as const satisfies IntegrationDefinitionProps['actions']

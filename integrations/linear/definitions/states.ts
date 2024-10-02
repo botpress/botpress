@@ -5,8 +5,8 @@ export const states = {
   credentials: {
     type: 'integration',
     schema: z.object({
-      accessToken: z.string(),
-      expiresAt: z.string(),
+      accessToken: z.string().title('Access Token').describe('The access token for Linear'),
+      expiresAt: z.string().title('Expires At').describe('The time when the access token expires'),
     }),
   },
 
@@ -14,26 +14,11 @@ export const states = {
   configuration: {
     type: 'integration',
     schema: z.object({
-      botUserId: z.string().optional(),
+      botUserId: z.string().optional().title('Bot User ID').describe('The ID of the bot user'),
     }),
   },
   profile: {
     type: 'user',
     schema: userProfileSchema,
-    ui: {
-      admin: { title: 'Is admin?' },
-      archivedAt: { title: 'Archived at' },
-      avatarUrl: { title: 'Avatar URL' },
-      createdAt: { title: 'Created at' },
-      description: { title: 'Profile Description' },
-      displayName: { title: 'Display Name', examples: ['louis.moreau', 'sylvain.perron'] },
-      guest: { title: 'Is a guest?' },
-      email: { title: 'User Email' },
-      isMe: { title: 'Is me?' },
-      url: { title: 'Profile URL' },
-      timezone: { title: 'Timezone', examples: ['Europe/Paris'] },
-      name: { title: 'Full Name', examples: ['Louis Moreau', 'Sylvain Perron'] },
-      linearId: { title: 'Linear User ID' },
-    },
   },
 } satisfies IntegrationDefinitionProps['states']
