@@ -6,6 +6,7 @@ import type {
   ParseSchema,
   EmptyComponentDefinitions,
   ZuiExtensionObject,
+  ZuiMetadata,
 } from '../../../ui/types'
 import { zuiKey } from '../../../ui/constants'
 import {
@@ -480,45 +481,56 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
 
   // BOTPRESS EXTENSIONS
 
-  private _setZuiMeta(key: string, value: any) {
-    const def = this._def as KindToDef<any>
-    const serializedValue = typeof value === 'function' ? value.toString() : value
-    switch (def.typeName) {
-      case ZodFirstPartyTypeKind.ZodNullable:
-      case ZodFirstPartyTypeKind.ZodDefault:
-      case ZodFirstPartyTypeKind.ZodOptional:
-      case ZodFirstPartyTypeKind.ZodReadonly:
-        def.innerType._def[zuiKey] = {
-          ...def.innerType._def[zuiKey],
-          [key]: serializedValue,
-        }
-        break
-      case ZodFirstPartyTypeKind.ZodEffects:
-        def.schema._def[zuiKey] = {
-          ...def.schema._def[zuiKey],
-          [key]: serializedValue,
-        }
-        break
-      default:
-        def[zuiKey] = {
-          ...def[zuiKey],
-          [key]: serializedValue,
-        }
+  /** append metadata to object */
+  metadata(data: Record<string, ZuiMetadata>): this {
+    for (const [key, value] of Object.entries(data)) {
+      this._def[zuiKey] = {
+        ...this._def[zuiKey],
+        [key]: value,
+      }
+    }
+    return this
+  }
+
+  /** get metadata of object */
+  getMetadata(): Record<string, ZuiMetadata> {
+    return { ...this._def[zuiKey] }
+  }
+
+  /** set metadata of object */
+  setMetadata(data: Record<string, ZuiMetadata>): void {
+    this._def[zuiKey] = { ...data }
+  }
+
+  /**
+   * @deprecated use `getMetadata` instead
+   */
+  get ui(): Record<string, ZuiMetadata> {
+    const root = this._getMetadataRoot()
+    return { ...root._def[zuiKey] }
+  }
+
+  private _setZuiMeta(key: string, value: ZuiMetadata) {
+    const root = this._getMetadataRoot()
+    root._def[zuiKey] = {
+      ...root._def[zuiKey],
+      [key]: value,
     }
   }
 
-  get ui(): object {
+  private _getMetadataRoot(): ZodType {
+    // TODO: this kind of logic should be handled in the UI layer, not here
     const def = this._def as KindToDef<any>
     switch (def.typeName) {
       case ZodFirstPartyTypeKind.ZodNullable:
       case ZodFirstPartyTypeKind.ZodDefault:
       case ZodFirstPartyTypeKind.ZodOptional:
       case ZodFirstPartyTypeKind.ZodReadonly:
-        return def.innerType.ui
+        return def.innerType
       case ZodFirstPartyTypeKind.ZodEffects:
-        return def.schema.ui
+        return def.schema
       default:
-        return def[zuiKey] || {}
+        return this
     }
   }
 
@@ -547,9 +559,17 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    * @default false
    */
   hidden<T extends any = this['_output']>(
-    hidden?: boolean | ((shape: T | null) => util.DeepPartialBoolean<T> | boolean),
+    value?: boolean | ((shape: T | null) => util.DeepPartialBoolean<T> | boolean),
   ): this {
-    this._setZuiMeta('hidden', typeof hidden === 'undefined' ? true : hidden)
+    let data: ZuiMetadata
+    if (value === undefined) {
+      data = true
+    } else if (typeof value === 'function') {
+      data = value.toString()
+    } else {
+      data = value
+    }
+    this._setZuiMeta('hidden', data)
     return this
   }
 
@@ -558,9 +578,17 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
    * @default false
    */
   disabled<T extends any = this['_output']>(
-    disabled?: boolean | ((shape: T | null) => util.DeepPartialBoolean<T> | boolean),
+    value?: boolean | ((shape: T | null) => util.DeepPartialBoolean<T> | boolean),
   ): this {
-    this._setZuiMeta('disabled', typeof disabled === 'undefined' ? true : disabled)
+    let data: ZuiMetadata
+    if (value === undefined) {
+      data = true
+    } else if (typeof value === 'function') {
+      data = value.toString()
+    } else {
+      data = value
+    }
+    this._setZuiMeta('disabled', data)
     return this
   }
 

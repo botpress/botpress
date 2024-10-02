@@ -2,6 +2,8 @@ import { ZodEnumDef, ZodIssueCode, z } from '../z/index'
 import type { FC } from 'react'
 import { zuiKey } from './constants'
 
+export type ZuiMetadata = string | number | boolean | null | undefined | ZuiMetadata[] | { [key: string]: ZuiMetadata }
+
 export type ZuiExtensionObject = {
   tooltip?: boolean
   displayAs?: [string, any]
@@ -11,6 +13,7 @@ export type ZuiExtensionObject = {
   placeholder?: string
   secret?: boolean
   coerce?: boolean
+  [key: string]: ZuiMetadata
 }
 
 export type SerializedFunction = string
