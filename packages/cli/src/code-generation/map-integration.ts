@@ -5,7 +5,7 @@ import * as utils from '../utils'
 import * as types from './typings'
 
 export namespace from {
-  export const sdk = (i: sdk.IntegrationDefinition): types.IntegrationDefinition => {
+  export const sdk = async (i: sdk.IntegrationDefinition): Promise<types.IntegrationDefinition> => {
     return {
       id: null,
       name: i.name,
@@ -14,18 +14,18 @@ export namespace from {
         tags: i.user?.tags ?? {},
         creation: i.user?.creation ?? { enabled: false, requiredTags: [] },
       },
-      configuration: i.configuration ? _mapSchema(i.configuration) : { schema: {} },
-      configurations: i.configurations ? utils.records.mapValues(i.configurations, _mapSchema) : {},
-      events: i.events ? utils.records.mapValues(i.events, _mapSchema) : {},
-      states: i.states ? utils.records.mapValues(i.states, _mapSchema) : {},
+      configuration: i.configuration ? await _mapSchema(i.configuration) : { schema: {} },
+      configurations: i.configurations ? await utils.records.mapValuesAsync(i.configurations, _mapSchema) : {},
+      events: i.events ? await utils.records.mapValuesAsync(i.events, _mapSchema) : {},
+      states: i.states ? await utils.records.mapValuesAsync(i.states, _mapSchema) : {},
       actions: i.actions
-        ? utils.records.mapValues(i.actions, (a) => ({
-            input: _mapSchema(a.input),
-            output: _mapSchema(a.output),
+        ? await utils.records.mapValuesAsync(i.actions, async (a) => ({
+            input: await _mapSchema(a.input),
+            output: await _mapSchema(a.output),
           }))
         : {},
       channels: i.channels
-        ? utils.records.mapValues(i.channels, (c) => ({
+        ? await utils.records.mapValuesAsync(i.channels, async (c) => ({
             conversation: {
               tags: c.conversation?.tags ?? {},
               creation: c.conversation?.creation ?? { enabled: false, requiredTags: [] },
@@ -33,10 +33,10 @@ export namespace from {
             message: {
               tags: c.message?.tags ?? {},
             },
-            messages: utils.records.mapValues(c.messages, _mapSchema),
+            messages: await utils.records.mapValuesAsync(c.messages, _mapSchema),
           }))
         : {},
-      entities: i.entities ? utils.records.mapValues(i.entities, _mapSchema) : {},
+      entities: i.entities ? await utils.records.mapValuesAsync(i.entities, _mapSchema) : {},
     }
   }
 
@@ -45,10 +45,10 @@ export namespace from {
     return { id, name, version, configuration, configurations, channels, states, events, actions, user, entities }
   }
 
-  const _mapSchema = <T extends { schema: z.ZodObject<any> }>(
+  const _mapSchema = async <T extends { schema: z.ZodObject<any> }>(
     x: T
-  ): utils.types.Merge<T, { schema: ReturnType<typeof utils.schema.mapZodToJsonSchema> }> => ({
+  ): Promise<utils.types.Merge<T, { schema: Awaited<ReturnType<typeof utils.schema.mapZodToJsonSchema>> }>> => ({
     ...x,
-    schema: utils.schema.mapZodToJsonSchema(x),
+    schema: await utils.schema.mapZodToJsonSchema(x),
   })
 }

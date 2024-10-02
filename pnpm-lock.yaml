@@ -1651,6 +1651,9 @@ importers:
 
   packages/cli:
     dependencies:
+      '@apidevtools/json-schema-ref-parser':
+        specifier: ^11.7.0
+        version: 11.7.0
       '@botpress/client':
         specifier: 0.31.0
         version: link:../client
@@ -1987,6 +1990,15 @@ packages:
       web-streams-polyfill: 3.3.3
     transitivePeerDependencies:
       - encoding
+    dev: false
+
+  /@apidevtools/json-schema-ref-parser@11.7.0:
+    resolution: {integrity: sha512-pRrmXMCwnmrkS3MLgAIW5dXRzeTv6GLjkjb4HmxNnvAKXN1Nfzp4KmGADBQvlVUcqi+a5D+hfGDLLnd5NnYxog==}
+    engines: {node: '>= 16'}
+    dependencies:
+      '@jsdevtools/ono': 7.1.3
+      '@types/json-schema': 7.0.15
+      js-yaml: 4.1.0
     dev: false
 
   /@apidevtools/swagger-methods@3.0.2:

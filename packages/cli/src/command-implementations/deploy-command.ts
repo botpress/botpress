@@ -85,7 +85,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       return
     }
 
-    let createBody: CreateIntegrationBody = prepareCreateIntegrationBody(integrationDef)
+    let createBody: CreateIntegrationBody = await prepareCreateIntegrationBody(integrationDef)
     createBody = {
       ...createBody,
       interfaces: await this._formatInterfacesImplStatements(api, integrationDef),
@@ -167,7 +167,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       return
     }
 
-    const createBody: CreateInterfaceBody = prepareCreateInterfaceBody(interfaceDeclaration)
+    const createBody: CreateInterfaceBody = await prepareCreateInterfaceBody(interfaceDeclaration)
 
     const startedMessage = `Deploying interface ${chalk.bold(name)} v${version}...`
     const successMessage = 'Interface deployed'
@@ -293,7 +293,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const integrationInstances = await this.fetchBotIntegrationInstances(botImpl, api)
     const updateBotBody = prepareUpdateBotBody(
       {
-        ...prepareCreateBotBody(botImpl),
+        ...(await prepareCreateBotBody(botImpl)),
         id: bot.id,
         code,
         integrations: integrationInstances,

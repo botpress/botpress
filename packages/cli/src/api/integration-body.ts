@@ -1,5 +1,6 @@
 import type { Client, Integration } from '@botpress/client'
 import type * as sdk from '@botpress/sdk'
+import { ZodToJsonOptions } from 'src/utils/schema-utils'
 import * as utils from '../utils'
 
 export type CreateIntegrationBody = Parameters<Client['createIntegration']>[0]
@@ -11,7 +12,10 @@ type UpdateIntegrationChannelBody = UpdateIntegrationChannelsBody[string]
 type Channels = Integration['channels']
 type Channel = Integration['channels'][string]
 
-export const prepareCreateIntegrationBody = (integration: sdk.IntegrationDefinition): CreateIntegrationBody => ({
+export const prepareCreateIntegrationBody = async (
+  integration: sdk.IntegrationDefinition,
+  options: ZodToJsonOptions = {}
+): Promise<CreateIntegrationBody> => ({
   name: integration.name,
   version: integration.version,
   title: integration.title,
@@ -25,53 +29,53 @@ export const prepareCreateIntegrationBody = (integration: sdk.IntegrationDefinit
   configuration: integration.configuration
     ? {
         ...integration.configuration,
-        schema: utils.schema.mapZodToJsonSchema(integration.configuration),
+        schema: await utils.schema.mapZodToJsonSchema(integration.configuration, options),
       }
     : undefined,
   configurations: integration.configurations
-    ? utils.records.mapValues(integration.configurations, (configuration) => ({
+    ? await utils.records.mapValuesAsync(integration.configurations, async (configuration) => ({
         ...configuration,
-        schema: utils.schema.mapZodToJsonSchema(configuration),
+        schema: await utils.schema.mapZodToJsonSchema(configuration, options),
       }))
     : undefined,
   events: integration.events
-    ? utils.records.mapValues(integration.events, (event) => ({
+    ? await utils.records.mapValuesAsync(integration.events, async (event) => ({
         ...event,
-        schema: utils.schema.mapZodToJsonSchema(event),
+        schema: await utils.schema.mapZodToJsonSchema(event, options),
       }))
     : undefined,
   actions: integration.actions
-    ? utils.records.mapValues(integration.actions, (action) => ({
+    ? await utils.records.mapValuesAsync(integration.actions, async (action) => ({
         ...action,
         input: {
           ...action.input,
-          schema: utils.schema.mapZodToJsonSchema(action.input),
+          schema: await utils.schema.mapZodToJsonSchema(action.input, options),
         },
         output: {
           ...action.output,
-          schema: utils.schema.mapZodToJsonSchema(action.output),
+          schema: await utils.schema.mapZodToJsonSchema(action.output, options),
         },
       }))
     : undefined,
   channels: integration.channels
-    ? utils.records.mapValues(integration.channels, (channel) => ({
+    ? await utils.records.mapValuesAsync(integration.channels, async (channel) => ({
         ...channel,
-        messages: utils.records.mapValues(channel.messages, (message) => ({
+        messages: await utils.records.mapValuesAsync(channel.messages, async (message) => ({
           ...message,
-          schema: utils.schema.mapZodToJsonSchema(message),
+          schema: await utils.schema.mapZodToJsonSchema(message, options),
         })),
       }))
     : undefined,
   states: integration.states
-    ? utils.records.mapValues(integration.states, (state) => ({
+    ? await utils.records.mapValuesAsync(integration.states, async (state) => ({
         ...state,
-        schema: utils.schema.mapZodToJsonSchema(state),
+        schema: await utils.schema.mapZodToJsonSchema(state, options),
       }))
     : undefined,
   entities: integration.entities
-    ? utils.records.mapValues(integration.entities, (entity) => ({
+    ? await utils.records.mapValuesAsync(integration.entities, async (entity) => ({
         ...entity,
-        schema: utils.schema.mapZodToJsonSchema(entity),
+        schema: await utils.schema.mapZodToJsonSchema(entity, options),
       }))
     : undefined,
 })

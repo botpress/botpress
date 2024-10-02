@@ -243,7 +243,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying dev integration ${chalk.bold(integrationDef.name)}...`)
 
-    let createIntegrationBody: CreateIntegrationBody = prepareCreateIntegrationBody(integrationDef)
+    let createIntegrationBody: CreateIntegrationBody = await prepareCreateIntegrationBody(integrationDef)
     createIntegrationBody = {
       ...createIntegrationBody,
       url: externalUrl,
@@ -322,7 +322,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const integrationInstances = await this.fetchBotIntegrationInstances(botImpl, api)
     const updateBotBody = prepareUpdateBotBody(
       {
-        ...prepareCreateBotBody(botImpl),
+        ...(await prepareCreateBotBody(botImpl)),
         id: bot.id,
         url: externalUrl,
         integrations: integrationInstances,

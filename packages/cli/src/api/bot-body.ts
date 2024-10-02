@@ -5,24 +5,24 @@ import * as utils from '../utils'
 export type CreateBotBody = Parameters<client.Client['createBot']>[0]
 export type UpdateBotBody = Parameters<client.Client['updateBot']>[0]
 
-export const prepareCreateBotBody = (bot: sdk.Bot): CreateBotBody => ({
+export const prepareCreateBotBody = async (bot: sdk.Bot): Promise<CreateBotBody> => ({
   ...bot.props,
   configuration: bot.props.configuration
     ? {
         ...bot.props.configuration,
-        schema: utils.schema.mapZodToJsonSchema(bot.props.configuration),
+        schema: await utils.schema.mapZodToJsonSchema(bot.props.configuration),
       }
     : undefined,
   events: bot.props.events
-    ? utils.records.mapValues(bot.props.events, (event) => ({
+    ? await utils.records.mapValuesAsync(bot.props.events, async (event) => ({
         ...event,
-        schema: utils.schema.mapZodToJsonSchema(event),
+        schema: await utils.schema.mapZodToJsonSchema(event),
       }))
     : undefined,
   states: bot.props.states
-    ? utils.records.mapValues(bot.props.states, (state) => ({
+    ? await utils.records.mapValuesAsync(bot.props.states, async (state) => ({
         ...state,
-        schema: utils.schema.mapZodToJsonSchema(state),
+        schema: await utils.schema.mapZodToJsonSchema(state),
       }))
     : undefined,
 })

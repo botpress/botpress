@@ -6,31 +6,31 @@ import * as utils from '../utils'
 export type CreateInterfaceBody = Parameters<Client['createInterface']>[0]
 export type UpdateInterfaceBody = Parameters<Client['updateInterface']>[0]
 
-export const prepareCreateInterfaceBody = (intrface: sdk.InterfaceDeclaration): CreateInterfaceBody => ({
+export const prepareCreateInterfaceBody = async (intrface: sdk.InterfaceDeclaration): Promise<CreateInterfaceBody> => ({
   name: intrface.name,
   version: intrface.version,
   entities: intrface.entities
-    ? utils.records.mapValues(intrface.entities, (entity) => ({
+    ? await utils.records.mapValuesAsync(intrface.entities, async (entity) => ({
         ...entity,
-        schema: utils.schema.mapZodToJsonSchema(entity),
+        schema: await utils.schema.mapZodToJsonSchema(entity),
       }))
     : {},
   events: intrface.events
-    ? utils.records.mapValues(intrface.events, (event) => ({
+    ? await utils.records.mapValuesAsync(intrface.events, async (event) => ({
         ...event,
-        schema: utils.schema.mapZodToJsonSchema(_dereference(intrface, event)),
+        schema: await utils.schema.mapZodToJsonSchema(_dereference(intrface, event)),
       }))
     : {},
   actions: intrface.actions
-    ? utils.records.mapValues(intrface.actions, (action) => ({
+    ? await utils.records.mapValuesAsync(intrface.actions, async (action) => ({
         ...action,
         input: {
           ...action.input,
-          schema: utils.schema.mapZodToJsonSchema(_dereference(intrface, action.input)),
+          schema: await utils.schema.mapZodToJsonSchema(_dereference(intrface, action.input)),
         },
         output: {
           ...action.output,
-          schema: utils.schema.mapZodToJsonSchema(_dereference(intrface, action.output)),
+          schema: await utils.schema.mapZodToJsonSchema(_dereference(intrface, action.output)),
         },
       }))
     : {},
