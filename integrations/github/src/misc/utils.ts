@@ -1,5 +1,3 @@
-import { RuntimeError } from '@botpress/client'
-import { GitHubClient } from './github-client'
 import * as types from './types'
 import * as bp from '.botpress'
 
