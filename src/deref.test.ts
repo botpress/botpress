@@ -120,6 +120,14 @@ describe('dereference', () => {
     const result = derefSchema.safeParse('astring')
     expect(result.success).toBe(true)
   })
+  test('default', () => {
+    const refSchema = z.array(foo).default([])
+    const derefSchema = refSchema.dereference(deref)
+
+    expect(derefSchema.safeParse(['astring']).success).toBe(true)
+    expect(derefSchema.safeParse([111111111]).success).toBe(false)
+    expect(derefSchema.safeParse(undefined).success).toBe(true)
+  })
   test('should treat multiple references with the same uri as the same reference', () => {
     const refSchema = z.object({
       foo,

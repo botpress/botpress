@@ -39,6 +39,13 @@ export class ZodDefault<T extends ZodTypeAny> extends ZodType<
     return this._def.innerType
   }
 
+  dereference(defs: Record<string, ZodTypeAny>): ZodTypeAny {
+    return new ZodDefault({
+      ...this._def,
+      innerType: this._def.innerType.dereference(defs),
+    })
+  }
+
   static create = <T extends ZodTypeAny>(
     type: T,
     params: RawCreateParams & {
