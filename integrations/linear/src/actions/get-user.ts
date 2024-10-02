@@ -1,6 +1,6 @@
 import { z } from '@botpress/sdk'
 
-import { userProfileSchema } from '../definitions/schemas'
+import { userProfileSchema } from '../../definitions/schemas'
 import { getLinearClient } from '../misc/utils'
 import * as bp from '.botpress'
 

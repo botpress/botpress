@@ -1,5 +1,5 @@
 import { IntegrationDefinitionProps } from '@botpress/sdk'
-import { issueEventSchema, targets } from '../definitions/schemas'
+import { issueEventSchema, targets } from './schemas'
 
 const issueCreated = {
   title: 'Issue Created',
