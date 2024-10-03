@@ -22,6 +22,11 @@ export const configurations = {
     description: 'Configure Linear with an API Key.',
     schema: z.object({
       apiKey: z.string().describe('The API key for Linear'),
+      webhookSigningSecret: z
+        .string()
+        .secret()
+        .title('Webhook Signing Secret')
+        .describe('The secret key for verifying incoming Linear webhook events'),
     }),
   },
 } satisfies IntegrationDefinitionProps['configurations']

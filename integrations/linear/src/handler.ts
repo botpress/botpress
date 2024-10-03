@@ -1,3 +1,4 @@
+import { Request, RuntimeError } from '@botpress/sdk'
 import { LinearWebhooks, LINEAR_WEBHOOK_SIGNATURE_HEADER, LINEAR_WEBHOOK_TS_FIELD } from '@linear/sdk'
 
 import { fireIssueCreated } from './events/issueCreated'
@@ -21,15 +22,11 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   const linearEvent: LinearEvent = JSON.parse(req.body)
   linearEvent.type = linearEvent.type.toLowerCase() as LinearEvent['type']
 
-  const webhookSignatureHeader = req.headers[LINEAR_WEBHOOK_SIGNATURE_HEADER]
-  if (!webhookSignatureHeader) {
-    return
+  if (!_isWebhookProperlyAuthenticated({ req, linearEvent, ctx })) {
+    throw new RuntimeError(
+      'Webhook event is not properly authenticated. Please ensure the webhook signing secret is correct.'
+    )
   }
-
-  // Verify the request, it will throw an error in case of not coming from linear
-  const webhook = new LinearWebhooks(bp.secrets.WEBHOOK_SIGNING_SECRET)
-  // are we sure it throws? it returns a boolean , add char to test this
-  webhook.verify(Buffer.from(req.body), webhookSignatureHeader, linearEvent[LINEAR_WEBHOOK_TS_FIELD])
 
   // ============ EVENTS ==============
   if (linearEvent.type === 'issue' && linearEvent.action === 'create') {
@@ -72,3 +69,28 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
     })
   }
 }
+
+const _isWebhookProperlyAuthenticated = ({
+  req,
+  linearEvent,
+  ctx,
+}: {
+  req: Request
+  linearEvent: LinearEvent
+  ctx: bp.Context
+}) => {
+  const webhookSignatureHeader = req.headers[LINEAR_WEBHOOK_SIGNATURE_HEADER]
+
+  if (!webhookSignatureHeader || !req.body) {
+    return
+  }
+
+  const webhookHandler = new LinearWebhooks(_getWebhookSigningSecret({ ctx }))
+  const bodyBuffer = Buffer.from(req.body)
+  const timeStampHeader = linearEvent[LINEAR_WEBHOOK_TS_FIELD]
+
+  return webhookHandler.verify(bodyBuffer, webhookSignatureHeader, timeStampHeader)
+}
+
+const _getWebhookSigningSecret = ({ ctx }: { ctx: bp.Context }) =>
+  ctx.configurationType === 'apiKey' ? ctx.configuration.webhookSigningSecret : bp.secrets.WEBHOOK_SIGNING_SECRET
