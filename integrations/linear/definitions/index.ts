@@ -1,10 +1,4 @@
-import {
-  z,
-  IntegrationDefinitionProps,
-  messages,
-  ConfigurationDefinition,
-  AdditionalConfigurationDefinition,
-} from '@botpress/sdk'
+import { z, IntegrationDefinitionProps, messages, ConfigurationDefinition } from '@botpress/sdk'
 import { issueSchema } from './schemas'
 
 export { actions } from './actions'
