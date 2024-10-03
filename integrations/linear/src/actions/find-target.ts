@@ -1,6 +1,6 @@
 import { IssueConnection } from '@linear/sdk'
 
-import { Target } from '../definitions/actions'
+import { Target } from '../../definitions/actions'
 import { getLinearClient } from '../misc/utils'
 import * as bp from '.botpress'
 

@@ -1,7 +1,7 @@
 import { z } from '@botpress/sdk'
 import { Issue } from '@linear/sdk'
 
-import { issueSchema } from '../definitions/schemas'
+import { issueSchema } from '../../definitions/schemas'
 import { getLinearClient } from '../misc/utils'
 import * as bp from '.botpress'
 
