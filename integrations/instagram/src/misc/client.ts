@@ -32,7 +32,9 @@ export class MetaClient {
     return data.access_token
   }
 
-  public async getFacebookPagesFromToken(inputToken: string): Promise<{ id: string; name: string }[]> {
+  public async getTargetsFromToken(inputToken: string, scopeName: string): Promise<{ id: string; name: string }[]> {
+
+    console.log('getTargetsFromToken', { inputToken, scopeName })
     const query = new URLSearchParams({
       input_token: inputToken,
       access_token: bp.secrets.ACCESS_TOKEN,
@@ -43,7 +45,7 @@ export class MetaClient {
     )
 
     const scope = dataDebugToken.data.granular_scopes.find(
-      (item: { scope: string; target_ids: string[] }) => item.scope === 'pages_messaging'
+      (item: { scope: string; target_ids: string[] }) => item.scope === scopeName
     )
 
     if (scope.target_ids) {
@@ -59,31 +61,43 @@ export class MetaClient {
       )
 
       return Object.keys(dataBusinesses).map((key) => dataBusinesses[key])
-    } else {
-      return this.getUserManagedPages(inputToken)
     }
+
+    throw new Error('The targets need to be individually selected')
   }
 
-  public async getPageToken(accessToken: string, pageId: string) {
+  public async getPageIdAndTokenFromIGAccount(accessToken: string, instagramId: string) {
+    console.log('getPageIdAndTokenFromIGAccount, Will get pages')
+    // Get all pages from token, so we can get the one for the selected instagramId
+    const pages = await this.getTargetsFromToken(accessToken, 'pages_show_list')
+
+    console.log('got pages: ',  { pages })
     const query = new URLSearchParams({
       access_token: accessToken,
-      fields: 'access_token,name',
+      fields: 'id,instagram_business_account,access_token',
+      ids: pages.map(page => page.id).join()
     })
 
-    const res = await axios.get(`${this._baseGraphApiUrl}/${pageId}?${query.toString()}`)
+    console.log('Will get info from pages for instagramId',  { accessToken,  instagramId, url: `${this._baseGraphApiUrl}/${this._version}/?${query.toString()}`})
+    const res = await axios.get(`${this._baseGraphApiUrl}/${this._version}/?${query.toString()}`)
     const data = z
-      .object({
+      .record(z.string(),z.object({
         access_token: z.string(),
-        name: z.string(),
+        instagram_business_account: z.object({ id: z.string() }),
         id: z.string(),
-      })
+      }))
       .parse(res.data)
 
-    if (!data.access_token) {
-      throw new Error('Unable to find the page token for the specified page')
+    for (const key in data) {
+      if (data.hasOwnProperty(key)) {
+        const value = data[key];
+        if(value?.instagram_business_account?.id === instagramId) {
+          return value
+        }
+      }
     }
 
-    return data.access_token
+    throw new Error ('You need to also give permission to the Facebook page linked to the Business Account, please restart the wizard and try again.')
   }
 
   public async subscribeToWebhooks(pageToken: string, pageId: string) {

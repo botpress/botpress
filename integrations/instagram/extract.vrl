@@ -22,7 +22,7 @@ if length(query_string) > 0 {
   metaId = result
 } else {
     body = parse_json!(.body)
-    if body.object == "page"  {
+    if body.object == "instagram"  {
         metaId = body.entry[0].id
     }
 }
