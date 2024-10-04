@@ -1,12 +1,12 @@
 import { IssueCommentCreatedEvent } from '@octokit/webhooks-types'
 import { getOrCreateBotpressConversationFromGithubPR, getOrCreateBotpressUserFromGithubUser } from '../misc/utils'
-import { HandlerProps } from '.botpress'
+import * as bp from '.botpress'
 
 export const firePullRequestCommentCreated = async ({
   githubEvent,
   client,
   ctx,
-}: HandlerProps & {
+}: bp.HandlerProps & {
   githubEvent: IssueCommentCreatedEvent
 }) => {
   const githubPullRequest = { ...githubEvent.issue, repository: githubEvent.repository }

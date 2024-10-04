@@ -7,21 +7,16 @@ type Actions = {
   [K in keyof IntegrationProps['actions']]: IntegrationProps['actions'][K]
 }
 type ActionInjections = { octokit: GitHubClient; owner: string }
-type ActionWithInjections = {
-  [K in keyof Actions]: (
-    props: Parameters<Actions[K]>[0] & ActionInjections,
-    input: Parameters<Actions[K]>[0]['input']
-  ) => ReturnType<Actions[K]>
-}
-
-const tryCatch = async <T>(fn: () => Promise<T>, errorMessage: string): Promise<T> => {
-  try {
-    return await fn()
-  } catch (thrown: unknown) {
-    console.error(`Error: ${errorMessage}`, thrown)
-    throw new RuntimeError(errorMessage)
+type ActionKey = keyof Actions
+type BaseActionParams<A extends ActionKey> = Parameters<Actions[A]>[0]
+type ActionParamsWithInjections<A extends ActionKey> = BaseActionParams<A> & ActionInjections
+type WrapActionFunction = <A extends ActionKey>(
+  actionName: A,
+  impl: {
+    action: (props: ActionParamsWithInjections<A>, input: BaseActionParams<A>['input']) => ReturnType<Actions[A]>
+    errorMessage: string
   }
-}
+) => (props: BaseActionParams<A>) => any
 
 /**
  * @example
@@ -32,24 +27,25 @@ const tryCatch = async <T>(fn: () => Promise<T>, errorMessage: string): Promise<
  *   errorMessage: 'Failed to create issue'
  * })
  */
-export const wrapActionAndInjectOctokit = <K extends keyof Actions>(
-  actionName: K,
-  {
-    action,
-    errorMessage,
-  }: {
-    action: ActionWithInjections[K]
-    errorMessage: string
-  }
-): Actions[K] =>
-  (async (props: Parameters<Actions[K]>[0]) => {
+export const wrapActionAndInjectOctokit: WrapActionFunction =
+  (actionName, { action, errorMessage }) =>
+  async (props) => {
     const octokit = await GitHubClient.create({ ctx: props.ctx, client: props.client })
     const owner = await GithubSettings.getOrganizationHandle({ ctx: props.ctx, client: props.client })
     const injections = { octokit, owner }
 
-    return tryCatch(() => {
+    return _tryCatch(() => {
       props.logger.forBot().debug(`Running action "${actionName}" for owner "${owner}" [bot id: ${props.ctx.botId}]`)
 
       return action({ ...props, ...injections }, props.input)
     }, errorMessage)
-  }) as unknown as Actions[K]
+  }
+
+const _tryCatch = async <T>(fn: () => Promise<T>, errorMessage: string): Promise<T> => {
+  try {
+    return await fn()
+  } catch (thrown: unknown) {
+    console.error(`Action Error: ${errorMessage}`, thrown)
+    throw new RuntimeError(errorMessage)
+  }
+}

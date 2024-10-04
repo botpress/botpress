@@ -3,14 +3,12 @@ import { RuntimeError } from '@botpress/client'
 import * as types from './types'
 import { secrets } from '.botpress'
 
-export class GithubSettings {
-  private constructor() {}
-
-  public static getWebhookSecret({ ctx }: { ctx: types.Context }) {
+export namespace GithubSettings {
+  export function getWebhookSecret({ ctx }: { ctx: types.Context }) {
     return ctx.configurationType === null ? secrets.GITHUB_WEBHOOK_SECRET : ctx.configuration.githubWebhookSecret
   }
 
-  public static async getOrganizationHandle({ ctx, client }: { ctx: types.Context; client: types.Client }) {
+  export async function getOrganizationHandle({ ctx, client }: { ctx: types.Context; client: types.Client }) {
     const { state } = await client.getState({ type: 'integration', name: 'configuration', id: ctx.integrationId })
 
     if (!state.payload.organizationHandle) {
@@ -20,10 +18,10 @@ export class GithubSettings {
     return state.payload.organizationHandle
   }
 
-  public static getAppSettings({ ctx, client }: { ctx: types.Context; client: types.Client }) {
-    const appId = this._getAppId({ ctx })
-    const privateKey = this._getAppPrivateKey({ ctx })
-    const installationId = this._getAppInstallationId({ ctx, client })
+  export function getAppSettings({ ctx, client }: { ctx: types.Context; client: types.Client }) {
+    const appId = _getAppId({ ctx })
+    const privateKey = _getAppPrivateKey({ ctx })
+    const installationId = _getAppInstallationId({ ctx, client })
 
     return {
       appId,
@@ -32,15 +30,16 @@ export class GithubSettings {
     }
   }
 
-  private static _getAppId({ ctx }: { ctx: types.Context }) {
+  function _getAppId({ ctx }: { ctx: types.Context }) {
     return ctx.configurationType === 'manualApp' ? ctx.configuration.githubAppId : secrets.GITHUB_APP_ID
   }
-  private static _getAppPrivateKey({ ctx }: { ctx: types.Context }) {
+  function _getAppPrivateKey({ ctx }: { ctx: types.Context }) {
     return ctx.configurationType === 'manualApp'
       ? _fixRSAPrivateKey(ctx.configuration.githubAppPrivateKey)
       : secrets.GITHUB_PRIVATE_KEY
   }
-  private static async _getAppInstallationId({ ctx, client }: { ctx: types.Context; client: types.Client }) {
+
+  async function _getAppInstallationId({ ctx, client }: { ctx: types.Context; client: types.Client }) {
     if (ctx.configurationType === 'manualApp') {
       return ctx.configuration.githubAppInstallationId
     }

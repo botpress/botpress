@@ -1,11 +1,11 @@
 import { PullRequestClosedEvent } from '@octokit/webhooks-types'
 import { getOrCreateBotpressConversationFromGithubPR, getOrCreateBotpressUserFromGithubUser } from '../misc/utils'
-import { HandlerProps } from '.botpress'
+import * as bp from '.botpress'
 
 export const firePullRequesMerged = async ({
   githubEvent,
   client,
-}: HandlerProps & {
+}: bp.HandlerProps & {
   githubEvent: PullRequestClosedEvent
 }) => {
   const githubPullRequest = { ...githubEvent.pull_request, repository: githubEvent.repository }

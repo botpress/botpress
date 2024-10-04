@@ -1,3 +1,4 @@
+import { Request, RuntimeError } from '@botpress/sdk'
 import { verify as verifyWebhook } from '@octokit/webhooks-methods'
 import type { WebhookEvent } from '@octokit/webhooks-types'
 
@@ -15,7 +16,6 @@ import {
   isPullRequestOpenedEvent,
 } from './misc/guards'
 
-import { handleOauth } from './misc/utils'
 import * as bp from '.botpress'
 
 type WebhookEventHandlerEntry<T extends WebhookEvent> = Readonly<
@@ -45,9 +45,42 @@ const _isOauthRequest = ({ req }: bp.HandlerProps) => req.path === '/oauth'
 
 const _handleOauthRequest = async ({ req, client, ctx, logger }: bp.HandlerProps) => {
   logger.forBot().info('Handling incoming OAuth callback')
-  return handleOauth(req, client, ctx).catch((err) => {
+  return _handleOauth(req, client, ctx).catch((err) => {
     logger.forBot().error('Error while processing OAuth callback', err.response?.data || err.message)
     throw err
+  })
+}
+
+const _handleOauth = async (req: Request, client: bp.Client, ctx: bp.Context) => {
+  const parsedQueryString = new URLSearchParams(req.query)
+  const installationIdStr = parsedQueryString.get('installation_id')
+
+  if (!installationIdStr) {
+    throw new RuntimeError('Missing installation_id in query string')
+  }
+
+  const installationId = Number(installationIdStr)
+
+  await _saveInstallationId({ ctx, client, installationId })
+  await client.configureIntegration({ identifier: installationIdStr })
+}
+
+const _saveInstallationId = async ({
+  ctx,
+  client,
+  installationId,
+}: {
+  ctx: bp.Context
+  client: bp.Client
+  installationId: number
+}) => {
+  await client.setState({
+    type: 'integration',
+    name: 'configuration',
+    id: ctx.integrationId,
+    payload: {
+      githubInstallationId: installationId,
+    },
   })
 }
 
