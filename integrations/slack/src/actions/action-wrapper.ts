@@ -1,7 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
 import { WebClient, ErrorCode } from '@slack/web-api'
-import { IntegrationProps } from '.botpress'
 import { getAccessToken } from '../misc/utils'
+import { IntegrationProps } from '.botpress'
 
 type Actions = {
   [K in keyof IntegrationProps['actions']]: IntegrationProps['actions'][K]
@@ -38,7 +38,7 @@ const _redactSlackError = (error: Error, genericErrorMessage: string): RuntimeEr
         errorMessage += `: ${error.message}.\n\nError details:\n${JSON.stringify((error as any).data ?? {})}`
         break
       case ErrorCode.RateLimitedError:
-        errorMessage += `: Slack rate limited the request. Please try again later.`
+        errorMessage += ': Slack rate limited the request. Please try again later.'
         break
       default:
         console.warn(`Unhandled Slack error code: ${error.code}`, error)

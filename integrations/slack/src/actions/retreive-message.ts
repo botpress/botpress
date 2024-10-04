@@ -1,45 +1,42 @@
 import { WebClient } from '@slack/web-api'
+import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
 import { getAccessToken } from '../misc/utils'
-import * as bp from '.botpress'
 
-export const retrieveMessage: bp.IntegrationProps['actions']['retrieveMessage'] = async ({
-  client,
-  ctx,
-  input,
-  logger,
-}) => {
-  logger.forBot().debug('Received action retrieveMessage with input:', input)
-  const accessToken = await getAccessToken(client, ctx)
-  const slackClient = new WebClient(accessToken)
+export const retrieveMessage = wrapActionAndInjectSlackClient('retrieveMessage', {
+  async action({ client, ctx, logger }, { ts, channel }) {
+    const accessToken = await getAccessToken(client, ctx)
+    const slackClient = new WebClient(accessToken)
 
-  const response = await slackClient.conversations.history({
-    limit: 1,
-    inclusive: true,
-    latest: input.ts,
-    channel: input.channel,
-  })
+    const response = await slackClient.conversations.history({
+      limit: 1,
+      inclusive: true,
+      latest: ts,
+      channel,
+    })
 
-  if (!response.ok) {
-    logger.forBot().error('Could not retrieve message', response.error)
-    throw new Error(`Could not retrieve message: ${response.error}`)
-  }
+    if (!response.ok) {
+      logger.forBot().error('Could not retrieve message', response.error)
+      throw new Error(`Could not retrieve message: ${response.error}`)
+    }
 
-  const message = response.messages?.[0]
+    const message = response.messages?.[0]
 
-  if (!message) {
-    logger.forBot().error('No message found')
-    throw new Error('No message found')
-  }
+    if (!message) {
+      logger.forBot().error('No message found')
+      throw new Error('No message found')
+    }
 
-  if (!message.type || !message.ts || !message.user || !message.text) {
-    logger.forBot().error('Message is missing required fields')
-    throw new Error('Message is missing required fields')
-  }
+    if (!message.type || !message.ts || !message.user || !message.text) {
+      logger.forBot().error('Message is missing required fields')
+      throw new Error('Message is missing required fields')
+    }
 
-  return {
-    type: message.type,
-    ts: message.ts,
-    user: message.user,
-    text: message.text,
-  }
-}
+    return {
+      type: message.type,
+      ts: message.ts,
+      user: message.user,
+      text: message.text,
+    }
+  },
+  errorMessage: 'Failed to retrieve message',
+})

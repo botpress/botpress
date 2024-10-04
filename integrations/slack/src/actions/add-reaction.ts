@@ -1,25 +1,22 @@
-import { WebClient } from '@slack/web-api'
-import { getAccessToken } from '../misc/utils'
-import * as bp from '.botpress'
+import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
 
-export const addReaction: bp.IntegrationProps['actions']['addReaction'] = async ({ ctx, client, logger, input }) => {
-  logger.forBot().debug('Received action addReaction with input:', input)
-  const accessToken = await getAccessToken(client, ctx)
-  const slackClient = new WebClient(accessToken)
+export const addReaction = wrapActionAndInjectSlackClient('addReaction', {
+  async action({ client, logger, slackClient }, { messageId, name }) {
+    if (messageId) {
+      const { message } = await client.getMessage({ id: messageId })
+      const { conversation } = await client.getConversation({ id: message.conversationId })
 
-  if (input.messageId) {
-    const { message } = await client.getMessage({ id: input.messageId })
-    const { conversation } = await client.getConversation({ id: message.conversationId })
+      const addReactionArgs = {
+        name,
+        channel: conversation.tags.id,
+        timestamp: message.tags.ts,
+      }
 
-    const addReactionArgs = {
-      name: input.name,
-      channel: conversation.tags.id,
-      timestamp: message.tags.ts,
+      logger.forBot().debug('Sending reaction to Slack:', addReactionArgs)
+      await slackClient.reactions.add(addReactionArgs)
     }
 
-    logger.forBot().debug('Sending reaction to Slack:', addReactionArgs)
-    await slackClient.reactions.add(addReactionArgs)
-  }
-
-  return {}
-}
+    return {}
+  },
+  errorMessage: 'Failed to add reaction',
+})
