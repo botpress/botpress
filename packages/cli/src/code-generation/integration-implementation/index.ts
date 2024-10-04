@@ -1,10 +1,10 @@
 import * as sdk from '@botpress/sdk'
 import * as consts from '../consts'
-import { IntegrationImplementationModule } from '../integration-gen/integration-implementation'
-import { IntegrationSecretIndexModule } from '../integration-gen/integration-secret'
 import * as types from '../typings'
+import { IntegrationImplementationModule } from './integration-implementation'
+import { IntegrationSecretIndexModule } from './integration-secret'
 
-const generateIntegrationImplementation = async (
+const generateIntegrationImplementationCls = async (
   sdkIntegrationDefinition: sdk.IntegrationDefinition,
   implPath: string
 ): Promise<types.File[]> => {
@@ -32,12 +32,12 @@ const generateIntegrationIndex = async (implPath: string, secretsPath: string): 
   }
 }
 
-export const generateIntegration = async (
+export const generateIntegrationImplementation = async (
   sdkIntegrationDefinition: sdk.IntegrationDefinition
 ): Promise<types.File[]> => {
   const implPath = consts.fromOutDir.implementationDir
   const secretsPath = consts.fromOutDir.secretsDir
-  const implFiles = await generateIntegrationImplementation(sdkIntegrationDefinition, implPath)
+  const implFiles = await generateIntegrationImplementationCls(sdkIntegrationDefinition, implPath)
   const secretFiles = await generateIntegrationSecrets(sdkIntegrationDefinition, secretsPath)
   const indexFile = await generateIntegrationIndex(implPath, secretsPath)
   return [...implFiles, ...secretFiles, indexFile]

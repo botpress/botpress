@@ -3,7 +3,7 @@ import * as consts from '../consts'
 import * as types from '../typings'
 import { BotImplementationModule } from './bot-implementation'
 
-const generateBotImplementation = async (
+const generateBotImplementationCls = async (
   sdkBotDefinition: sdk.BotDefinition,
   implPath: string
 ): Promise<types.File[]> => {
@@ -21,9 +21,9 @@ const generateBotIndex = async (implPath: string): Promise<types.File> => {
   }
 }
 
-export const generateBot = async (sdkBotDefinition: sdk.BotDefinition): Promise<types.File[]> => {
+export const generateBotImplementation = async (sdkBotDefinition: sdk.BotDefinition): Promise<types.File[]> => {
   const implPath = consts.fromOutDir.implementationDir
-  const typingFiles = await generateBotImplementation(sdkBotDefinition, implPath)
+  const typingFiles = await generateBotImplementationCls(sdkBotDefinition, implPath)
   const indexFile = await generateBotIndex(implPath)
   return [...typingFiles, indexFile]
 }

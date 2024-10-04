@@ -1,4 +1,6 @@
+import * as refParser from '@apidevtools/json-schema-ref-parser'
 import { z, transforms } from '@botpress/sdk'
+import { JSONSchema7 } from 'json-schema'
 
 type ZuiToJsonSchema = typeof transforms.zuiToJsonSchema
 type JsonSchema = ReturnType<ZuiToJsonSchema>
@@ -39,4 +41,8 @@ export function mapZodToJsonSchema(definition: SchemaDefinition): ReturnType<typ
   }
 
   return schema
+}
+
+export const dereferenceSchema = (schema: JSONSchema7): Promise<JSONSchema7> => {
+  return refParser.dereference(schema)
 }

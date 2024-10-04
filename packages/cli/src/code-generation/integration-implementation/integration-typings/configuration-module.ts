@@ -1,8 +1,8 @@
 import * as sdk from '@botpress/sdk'
-import { INDEX_FILE } from '../consts'
-import { zuiSchemaToTypeScriptType } from '../generators'
-import { Module } from '../module'
-import * as strings from '../strings'
+import { INDEX_FILE } from '../../consts'
+import { zuiSchemaToTypeScriptType } from '../../generators'
+import { Module } from '../../module'
+import * as strings from '../../strings'
 
 export class DefaultConfigurationModule extends Module {
   public constructor(private _configuration: sdk.ConfigurationDefinition | undefined) {

@@ -7,6 +7,7 @@ import { CLI_ROOT_DIR } from './root'
 export const defaultBotpressHome = pathlib.join(os.homedir(), '.botpress')
 
 export const defaultOutputFolder = '.botpress'
+export const defaultInstallPath = 'bp_modules'
 export const defaultEntrypoint = pathlib.join('src', 'index.ts')
 export const defaultBotpressApiUrl = 'https://api.botpress.cloud'
 export const defaultBotpressAppUrl = 'https://app.botpress.cloud'

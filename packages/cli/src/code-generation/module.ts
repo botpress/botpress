@@ -112,3 +112,37 @@ export class ReExportTypeModule extends Module {
     return content
   }
 }
+
+export class ReExportVariableModule extends Module {
+  protected constructor(def: { exportName: string }) {
+    super({
+      ...def,
+      path: consts.INDEX_FILE,
+    })
+  }
+
+  public async getContent(): Promise<string> {
+    let content = consts.GENERATED_HEADER
+
+    for (const m of this.deps) {
+      const { name } = m
+      const importAlias = strings.importAlias(name)
+      const importFrom = m.import(this)
+      content += `import * as ${importAlias} from "./${importFrom}";\n`
+      content += `export * as ${importAlias} from "./${importFrom}";\n`
+    }
+
+    content += '\n'
+
+    content += `export const ${this.exportName} = {\n`
+    for (const { name, exportName: exports } of this.deps) {
+      const importAlias = strings.importAlias(name)
+      content += `  "${name}": ${importAlias}.${exports},\n`
+    }
+    content += '}'
+
+    content += '\n'
+
+    return content
+  }
+}

@@ -183,8 +183,13 @@ const devSchema = {
 } satisfies CommandSchema
 
 const addSchema = {
-  ...projectSchema,
+  ...globalSchema,
   ...credentialsSchema,
+  installPath: {
+    type: 'string',
+    description: 'The path where to install the integration',
+    default: consts.defaultInstallPath,
+  },
   integrationRef,
 } satisfies CommandSchema
 

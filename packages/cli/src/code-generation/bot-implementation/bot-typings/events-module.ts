@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
-import { zuiSchemaToTypeScriptType } from '../generators'
-import { Module, ReExportTypeModule } from '../module'
-import * as strings from '../strings'
+import { zuiSchemaToTypeScriptType } from '../../generators'
+import { Module, ReExportTypeModule } from '../../module'
+import * as strings from '../../strings'
 
 export class EventModule extends Module {
   public constructor(name: string, private _event: sdk.BotEventDefinition) {

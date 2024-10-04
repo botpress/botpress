@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
-import { zuiSchemaToTypeScriptType } from '../generators'
-import { Module, ReExportTypeModule } from '../module'
-import * as strings from '../strings'
+import { zuiSchemaToTypeScriptType } from '../../generators'
+import { Module, ReExportTypeModule } from '../../module'
+import * as strings from '../../strings'
 
 type ActionInput = sdk.ActionDefinition['input']
 type ActionOutput = sdk.ActionDefinition['output']

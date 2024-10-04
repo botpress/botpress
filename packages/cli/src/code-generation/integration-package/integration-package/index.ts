@@ -1,7 +1,6 @@
-import * as sdk from '@botpress/sdk'
-import { GENERATED_HEADER, INDEX_FILE } from '../consts'
-import { stringifySingleLine } from '../generators'
-import { Module } from '../module'
+import { GENERATED_HEADER, INDEX_FILE } from '../../consts'
+import { stringifySingleLine } from '../../generators'
+import { Module } from '../../module'
 import { ActionsModule } from './actions-module'
 import { ChannelsModule } from './channels-module'
 import { DefaultConfigurationModule } from './configuration-module'
@@ -9,8 +8,9 @@ import { ConfigurationsModule } from './configurations-module'
 import { EntitiesModule } from './entities-module'
 import { EventsModule } from './events-module'
 import { StatesModule } from './states-module'
+import * as types from './typings'
 
-type IntegrationTypingsModuleDependencies = {
+type IntegrationPackageModuleDependencies = {
   defaultConfigModule: DefaultConfigurationModule
   configurationsModule: ConfigurationsModule
   actionsModule: ActionsModule
@@ -20,10 +20,10 @@ type IntegrationTypingsModuleDependencies = {
   entitiesModule: EntitiesModule
 }
 
-export class IntegrationTypingsModule extends Module {
-  private _dependencies: IntegrationTypingsModuleDependencies
+export class IntegrationPackageModule extends Module {
+  private _dependencies: IntegrationPackageModuleDependencies
 
-  public constructor(private _integration: sdk.IntegrationDefinition) {
+  public constructor(private _integration: types.ApiIntegrationDefinition) {
     super({
       path: INDEX_FILE,
       exportName: 'TIntegration',
@@ -93,6 +93,8 @@ export class IntegrationTypingsModule extends Module {
 
     content += [
       GENERATED_HEADER,
+      'import * as sdk from "@botpress/sdk"',
+      '',
       `import * as ${defaultConfigModule.name} from "./${defaultConfigImport}"`,
       `import * as ${configurationsModule.name} from "./${configurationsImport}"`,
       `import * as ${actionsModule.name} from "./${actionsImport}"`,
@@ -108,18 +110,18 @@ export class IntegrationTypingsModule extends Module {
       `export * as ${statesModule.name} from "./${statesImport}"`,
       `export * as ${entitiesModule.name} from "./${entitiesImport}"`,
       '',
-      'export type TIntegration = {',
-      `  name: "${this._integration.name}"`,
-      `  version: "${this._integration.version}"`,
-      `  user: ${stringifySingleLine(user)}`,
-      `  configuration: ${defaultConfigModule.name}.${defaultConfigModule.exportName}`,
-      `  configurations: ${configurationsModule.name}.${configurationsModule.exportName}`,
-      `  actions: ${actionsModule.name}.${actionsModule.exportName}`,
-      `  channels: ${channelsModule.name}.${channelsModule.exportName}`,
-      `  events: ${eventsModule.name}.${eventsModule.exportName}`,
-      `  states: ${statesModule.name}.${statesModule.exportName}`,
-      `  entities: ${entitiesModule.name}.${entitiesModule.exportName}`,
-      '}',
+      'export default new sdk.IntegrationDefinition({',
+      `  name: "${this._integration.name}",`,
+      `  version: "${this._integration.version}",`,
+      `  user: ${stringifySingleLine(user)},`,
+      `  configuration: ${defaultConfigModule.name}.${defaultConfigModule.exportName},`,
+      `  configurations: ${configurationsModule.name}.${configurationsModule.exportName},`,
+      `  actions: ${actionsModule.name}.${actionsModule.exportName},`,
+      `  channels: ${channelsModule.name}.${channelsModule.exportName},`,
+      `  events: ${eventsModule.name}.${eventsModule.exportName},`,
+      `  states: ${statesModule.name}.${statesModule.exportName},`,
+      `  entities: ${entitiesModule.name}.${entitiesModule.exportName},`,
+      '})',
     ].join('\n')
 
     return content
