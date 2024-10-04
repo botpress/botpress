@@ -36,33 +36,24 @@ const _createDiscussionReplyConversation = async ({
   githubEvent: DiscussionCommentRepliedEvent
   client: Client
 }) => {
-  // The octokit type for this event is not complete: it lacks the category
-  // node id, but it's present in the event payload and documented in the
-  // GitHub API docs. We thus cast the event to add the missing property.
-  // A PR to fix the type in the octokit library has been submitted and is
-  // pending review: https://github.com/octokit/webhooks/pull/960
-  const castedEvent = githubEvent as DiscussionCommentRepliedEvent & {
-    discussion: { category: { node_id: string } }
-  }
-
   const { conversation } = await client.createConversation({
     channel: 'discussionComment',
     tags: {
-      discussionNodeId: castedEvent.discussion.node_id,
-      discussionNumber: castedEvent.discussion.number.toString(),
-      discussionUrl: castedEvent.discussion.html_url,
-      discussionId: castedEvent.discussion.id.toString(),
-      discussionCategoryId: castedEvent.discussion.category.id.toString(),
-      discussionCategoryName: castedEvent.discussion.category.name,
-      discussionCategoryNodeId: castedEvent.discussion.category.node_id,
-      parentCommentId: castedEvent.comment.parent_id.toString(),
-      repoId: castedEvent.repository.id.toString(),
-      repoName: castedEvent.repository.name,
-      repoNodeId: castedEvent.repository.node_id,
-      repoOwnerId: castedEvent.repository.owner.id.toString(),
-      repoOwnerName: castedEvent.repository.owner.login,
-      repoOwnerUrl: castedEvent.repository.owner.html_url,
-      repoUrl: castedEvent.repository.html_url,
+      discussionNodeId: githubEvent.discussion.node_id,
+      discussionNumber: githubEvent.discussion.number.toString(),
+      discussionUrl: githubEvent.discussion.html_url,
+      discussionId: githubEvent.discussion.id.toString(),
+      discussionCategoryId: githubEvent.discussion.category.id.toString(),
+      discussionCategoryName: githubEvent.discussion.category.name,
+      discussionCategoryNodeId: githubEvent.discussion.category.node_id,
+      parentCommentId: githubEvent.comment.parent_id.toString(),
+      repoId: githubEvent.repository.id.toString(),
+      repoName: githubEvent.repository.name,
+      repoNodeId: githubEvent.repository.node_id,
+      repoOwnerId: githubEvent.repository.owner.id.toString(),
+      repoOwnerName: githubEvent.repository.owner.login,
+      repoOwnerUrl: githubEvent.repository.owner.html_url,
+      repoUrl: githubEvent.repository.html_url,
     },
   })
 
