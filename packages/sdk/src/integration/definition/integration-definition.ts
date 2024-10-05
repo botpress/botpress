@@ -1,9 +1,10 @@
+import { InterfacePackage } from '../../package'
 import { Writable } from '../../type-utils'
 import * as utils from '../../utils'
 import { z } from '../../zui'
 import { SchemaStore, BrandedSchema, createStore, isBranded, getName } from './branded-schema'
 import { BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates, BaseEntities, BaseConfigs } from './generic'
-import { InterfaceDeclaration, InterfaceResolveInput } from './interface-declaration'
+import { EntitiesOfPackage, InterfaceDeclaration, InterfaceResolveInput } from './interface-declaration'
 import {
   ConfigurationDefinition,
   EventDefinition,
@@ -146,16 +147,17 @@ export class IntegrationDefinition<
     return clone
   }
 
-  public extend<E extends BaseEntities>(
-    interfaceDeclaration: InterfaceDeclaration<E>,
-    builder: ExtensionBuilder<TEntities, E>
+  public extend<P extends InterfacePackage>(
+    interfacePkg: P,
+    builder: ExtensionBuilder<TEntities, EntitiesOfPackage<P>>
   ): this {
+    const interfaceDeclaration = InterfaceDeclaration.fromPackage(interfacePkg)
     const extensionBuilderOutput = builder(createStore(this.entities))
     const unbrandedEntity = utils.pairs(extensionBuilderOutput).find(([_k, e]) => !isBranded(e))
     if (unbrandedEntity) {
       // this means the user tried providing a plain schema without referencing an entity from the integration
       throw new Error(
-        `Cannot extend interface "${interfaceDeclaration.name}" with entity "${unbrandedEntity[0]}"; the provided schema is not part of the integration's entities.`
+        `Cannot extend interface "${interfacePkg.definition.name}" with entity "${unbrandedEntity[0]}"; the provided schema is not part of the integration's entities.`
       )
     }
 
@@ -165,7 +167,7 @@ export class IntegrationDefinition<
     }))
 
     const { resolved, implementStatement } = interfaceDeclaration.resolve({
-      entities: interfaceTypeArguments as InterfaceResolveInput<E>['entities'],
+      entities: interfaceTypeArguments as InterfaceResolveInput<EntitiesOfPackage<P>>['entities'],
     })
 
     const self = this as Writable<IntegrationDefinition>

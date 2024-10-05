@@ -1,5 +1,20 @@
-import { IntegrationDefinition, interfaces, z } from '@botpress/sdk'
+import { IntegrationDefinition, InterfacePackage, interfaces, z } from '@botpress/sdk'
 import { languageModelId } from 'src/schemas'
+
+const llmPkg = {
+  type: 'interface',
+  definition: interfaces.llm,
+} satisfies InterfacePackage
+
+const sttPkg = {
+  type: 'interface',
+  definition: interfaces.speechToText,
+} satisfies InterfacePackage
+
+const ttiPkg = {
+  type: 'interface',
+  definition: interfaces.textToImage,
+} satisfies InterfacePackage
 
 const TextToSpeechModels = ['tts-1', 'tts-1-hd'] as const
 type TextToSpeechModel = (typeof TextToSpeechModels)[number]
@@ -79,9 +94,9 @@ export default new IntegrationDefinition({
     },
   },
 })
-  .extend(interfaces.llm, ({ modelRef }) => ({ modelRef }))
-  .extend(interfaces.textToImage, ({ imageModelRef, imageGenerationParams }) => ({
+  .extend(llmPkg, ({ modelRef }) => ({ modelRef }))
+  .extend(ttiPkg, ({ imageModelRef, imageGenerationParams }) => ({
     imageModelRef,
     imageGenerationParams,
   }))
-  .extend(interfaces.speechToText, ({ speechToTextModelRef }) => ({ speechToTextModelRef }))
+  .extend(sttPkg, ({ speechToTextModelRef }) => ({ speechToTextModelRef }))

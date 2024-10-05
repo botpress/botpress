@@ -1,4 +1,4 @@
-import { z, IntegrationDefinition, interfaces } from '@botpress/sdk'
+import { z, IntegrationDefinition, interfaces, InterfacePackage } from '@botpress/sdk'
 import { INTEGRATION_NAME } from './src/const'
 import {
   listEventsInputSchema,
@@ -11,6 +11,31 @@ import {
   deleteEventOutputSchema,
 } from './src/misc/custom-schemas'
 import { updateEventUi, deleteEventUi, createEventUi } from './src/misc/custom-uis'
+
+const listablePkg = {
+  type: 'interface',
+  definition: interfaces.listable,
+} satisfies InterfacePackage
+
+const creatablePkg = {
+  type: 'interface',
+  definition: interfaces.creatable,
+} satisfies InterfacePackage
+
+const readablePkg = {
+  type: 'interface',
+  definition: interfaces.readable,
+} satisfies InterfacePackage
+
+const updatablePkg = {
+  type: 'interface',
+  definition: interfaces.updatable,
+} satisfies InterfacePackage
+
+const deletablePkg = {
+  type: 'interface',
+  definition: interfaces.deletable,
+} satisfies InterfacePackage
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
@@ -98,18 +123,18 @@ export default new IntegrationDefinition({
     },
   },
 })
-  .extend(interfaces.listable, (entities) => ({
+  .extend(listablePkg, (entities) => ({
     item: entities.event,
   }))
-  .extend(interfaces.creatable, (entities) => ({
+  .extend(creatablePkg, (entities) => ({
     item: entities.event,
   }))
-  .extend(interfaces.readable, (entities) => ({
+  .extend(readablePkg, (entities) => ({
     item: entities.event,
   }))
-  .extend(interfaces.updatable, (entities) => ({
+  .extend(updatablePkg, (entities) => ({
     item: entities.event,
   }))
-  .extend(interfaces.deletable, (entities) => ({
+  .extend(deletablePkg, (entities) => ({
     item: entities.event,
   }))

@@ -1,5 +1,10 @@
-import { IntegrationDefinition, interfaces, z } from '@botpress/sdk'
+import { IntegrationDefinition, InterfacePackage, interfaces, z } from '@botpress/sdk'
 import { modelId } from 'src/schemas'
+
+const llmPkg = {
+  type: 'interface',
+  definition: interfaces.llm,
+} satisfies InterfacePackage
 
 export default new IntegrationDefinition({
   name: 'cerebras',
@@ -19,6 +24,6 @@ export default new IntegrationDefinition({
       description: 'Cerebras API key',
     },
   },
-}).extend(interfaces.llm, ({ modelRef }) => ({
+}).extend(llmPkg, ({ modelRef }) => ({
   modelRef,
 }))

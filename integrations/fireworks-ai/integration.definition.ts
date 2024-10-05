@@ -1,5 +1,15 @@
-import { IntegrationDefinition, interfaces, z } from '@botpress/sdk'
+import { IntegrationDefinition, InterfacePackage, interfaces, z } from '@botpress/sdk'
 import { languageModelId } from 'src/schemas'
+
+const llmPkg = {
+  type: 'interface',
+  definition: interfaces.llm,
+} satisfies InterfacePackage
+
+const sttPkg = {
+  type: 'interface',
+  definition: interfaces.speechToText,
+} satisfies InterfacePackage
 
 export default new IntegrationDefinition({
   name: 'fireworks-ai',
@@ -25,5 +35,5 @@ export default new IntegrationDefinition({
     },
   },
 })
-  .extend(interfaces.llm, ({ modelRef }) => ({ modelRef }))
-  .extend(interfaces.speechToText, ({ speechToTextModelRef }) => ({ speechToTextModelRef }))
+  .extend(llmPkg, ({ modelRef }) => ({ modelRef }))
+  .extend(sttPkg, ({ speechToTextModelRef }) => ({ speechToTextModelRef }))

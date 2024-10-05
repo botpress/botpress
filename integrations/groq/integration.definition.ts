@@ -1,5 +1,15 @@
-import { IntegrationDefinition, interfaces, z } from '@botpress/sdk'
+import { IntegrationDefinition, InterfacePackage, interfaces, z } from '@botpress/sdk'
 import { modelId } from 'src/schemas'
+
+const llmPkg = {
+  type: 'interface',
+  definition: interfaces.llm,
+} satisfies InterfacePackage
+
+const sttPkg = {
+  type: 'interface',
+  definition: interfaces.speechToText,
+} satisfies InterfacePackage
 
 export default new IntegrationDefinition({
   name: 'groq',
@@ -25,7 +35,7 @@ export default new IntegrationDefinition({
     },
   },
 })
-  .extend(interfaces.llm, ({ modelRef }) => ({
+  .extend(llmPkg, ({ modelRef }) => ({
     modelRef,
   }))
-  .extend(interfaces.speechToText, ({ speechToTextModelRef }) => ({ speechToTextModelRef }))
+  .extend(sttPkg, ({ speechToTextModelRef }) => ({ speechToTextModelRef }))

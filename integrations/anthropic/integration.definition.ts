@@ -1,5 +1,10 @@
-import { z, IntegrationDefinition, interfaces } from '@botpress/sdk'
+import { z, IntegrationDefinition, interfaces, InterfacePackage } from '@botpress/sdk'
 import { modelId } from 'src/schemas'
+
+const llmPkg = {
+  type: 'interface',
+  definition: interfaces.llm,
+} satisfies InterfacePackage
 
 export default new IntegrationDefinition({
   name: 'anthropic',
@@ -19,6 +24,6 @@ export default new IntegrationDefinition({
       description: 'Anthropic API key',
     },
   },
-}).extend(interfaces.llm, ({ modelRef }) => ({
+}).extend(llmPkg, ({ modelRef }) => ({
   modelRef,
 }))

@@ -1,3 +1,5 @@
+export * from './type-utils'
+
 export const unique = <T>(array: T[]): T[] => Array.from(new Set(array))
 export const pairs = <K extends string, V>(obj: Record<K, V>) => Object.entries(obj) as [K, V][]
 export const values = <K extends string, V>(obj: Record<K, V>) => Object.values(obj) as V[]

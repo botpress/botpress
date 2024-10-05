@@ -54,5 +54,4 @@ export {
   //
   IntegrationPackage,
   InterfacePackage,
-  BotPackage,
 } from './package'

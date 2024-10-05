@@ -1,6 +1,11 @@
-import { IntegrationDefinition, interfaces } from '@botpress/sdk'
+import { IntegrationDefinition, InterfacePackage, interfaces } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { actions, events, configuration, channels, states, user } from './src/definitions'
+
+const hitlPkg = {
+  type: 'interface',
+  definition: interfaces.hitl,
+} satisfies InterfacePackage
 
 export default new IntegrationDefinition({
   name: 'zendesk',
@@ -17,4 +22,4 @@ export default new IntegrationDefinition({
   actions,
   events,
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
-}).extend(interfaces.hitl, () => ({}))
+}).extend(hitlPkg, () => ({}))

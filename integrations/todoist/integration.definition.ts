@@ -1,4 +1,9 @@
-import { z, IntegrationDefinition, messages, interfaces } from '@botpress/sdk'
+import { z, IntegrationDefinition, messages, interfaces, InterfacePackage } from '@botpress/sdk'
+
+const creatablePkg = {
+  type: 'interface',
+  definition: interfaces.creatable,
+} satisfies InterfacePackage
 
 const ItemDefinition = z.object({
   id: z.string(),
@@ -161,4 +166,4 @@ export default new IntegrationDefinition({
       }),
     },
   },
-}).extend(interfaces.creatable, ({ task }) => ({ item: task }))
+}).extend(creatablePkg, ({ task }) => ({ item: task }))

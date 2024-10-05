@@ -1,3 +1,4 @@
+import { InterfacePackage } from '../../package'
 import * as templating from '../../templating'
 import * as utils from '../../utils'
 import z, { AnyZodObject, GenericZuiSchema, ZodRef } from '../../zui'
@@ -70,6 +71,10 @@ export type InterfaceDeclarationProps<
   templateName?: string
 }
 
+export type EntitiesOfPackage<TPackage extends InterfacePackage> = {
+  [K in keyof TPackage['definition']['entities']]: NonNullable<TPackage['definition']['entities']>[K]['schema']
+}
+
 export type InterfaceResolveInput<TEntities extends BaseEntities = BaseEntities> = {
   entities: {
     [K in keyof TEntities]: {
@@ -103,8 +108,27 @@ export class InterfaceDeclaration<
   public readonly actions: { [K in keyof TActions]: ActionDefinition<TActions[K]> }
   public readonly channels: { [K in keyof TChannels]: ChannelDefinition<TChannels[K]> }
 
-  // TODO: replace this function by a template string system
   public readonly templateName: this['props']['templateName']
+
+  public static fromPackage<P extends InterfacePackage>(pkg: P): InterfaceDeclaration<EntitiesOfPackage<P>> {
+    const { definition } = pkg
+    const instance = new InterfaceDeclaration({
+      name: definition.name,
+      version: definition.version,
+      templateName: definition.templateName,
+      entities: {},
+      events: {},
+      actions: {},
+      channels: {},
+    }) as utils.Writable<InterfaceDeclaration>
+
+    instance.entities = definition.entities ?? {}
+    instance.events = definition.events ?? {}
+    instance.actions = definition.actions ?? {}
+    instance.channels = definition.channels ?? {}
+
+    return instance as InterfaceDeclaration<EntitiesOfPackage<P>>
+  }
 
   public constructor(public readonly props: InterfaceDeclarationProps<TEntities, TActions, TEvents, TChannels>) {
     this.name = props.name
