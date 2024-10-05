@@ -2,6 +2,15 @@ import * as sdk from '@botpress/sdk'
 import gsheets from '@botpresshub/gsheets/integration.definition'
 import telegram from '@botpresshub/telegram/integration.definition'
 
+const gsheetsPkg = {
+  type: 'integration',
+  definition: gsheets,
+} satisfies sdk.IntegrationPackage
+const telegramPkg = {
+  type: 'integration',
+  definition: telegram,
+} satisfies sdk.IntegrationPackage
+
 export default new sdk.BotDefinition({
   events: {},
   recurringEvents: {},
@@ -18,5 +27,19 @@ export default new sdk.BotDefinition({
     },
   },
 })
-  .add(gsheets, {})
-  .add(telegram, {})
+  .add(gsheetsPkg, {
+    enabled: true,
+    configurationType: null,
+    configuration: {
+      clientEmail: '$CLIENT_EMAIL',
+      privateKey: '$PRIVATE_KEY',
+      spreadsheetId: '$SPREADSHEET_ID',
+    },
+  })
+  .add(telegramPkg, {
+    enabled: true,
+    configurationType: null,
+    configuration: {
+      botToken: '$BOT_TOKEN',
+    },
+  })

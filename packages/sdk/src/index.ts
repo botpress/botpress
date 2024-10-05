@@ -4,7 +4,11 @@ export * from './const'
 export * from './serve'
 export * from './zui'
 
-export { isApiError, RuntimeError } from '@botpress/client'
+export {
+  //
+  isApiError,
+  RuntimeError,
+} from '@botpress/client'
 
 export {
   IntegrationDefinition,
@@ -45,3 +49,10 @@ export {
   ConversationDefinition as BotConversationDefinition,
   MessageDefinition as BotMessageDefinition,
 } from './bot'
+
+export {
+  //
+  IntegrationPackage,
+  InterfacePackage,
+  BotPackage,
+} from './package'

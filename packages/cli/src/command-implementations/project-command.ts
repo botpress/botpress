@@ -26,7 +26,7 @@ type AllProjectPaths = ConfigurableProjectPaths & ConstantProjectPaths
 
 type IntegrationInstance = NonNullable<sdk.BotDefinition['integrations']>[string]
 type RemoteIntegrationInstance = utils.types.Merge<IntegrationInstance, { id: string }>
-type LocalIntegrationInstance = utils.types.Merge<IntegrationInstance, { id: null }>
+type LocalIntegrationInstance = utils.types.Merge<IntegrationInstance, { uri?: string }>
 type BotIntegrationRequest = NonNullable<NonNullable<client.ClientInputs['updateBot']['integrations']>[string]>
 
 export type ProjectType = ProjectDefinition['type']
@@ -98,11 +98,11 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   } {
     const remoteInstances: RemoteIntegrationInstance[] = []
     const localInstances: LocalIntegrationInstance[] = []
-    for (const { id, ...instance } of instances) {
-      if (id) {
-        remoteInstances.push({ ...instance, id })
+    for (const instance of instances) {
+      if ('id' in instance) {
+        remoteInstances.push(instance)
       } else {
-        localInstances.push({ ...instance, id: null })
+        localInstances.push(instance)
       }
     }
 

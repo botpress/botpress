@@ -11,7 +11,7 @@ const port = {
 const workDir = {
   type: 'string',
   description: 'The path to the project',
-  default: process.cwd(),
+  default: consts.defaultWorkDir,
 } satisfies CommandOption
 
 const noBuild = {

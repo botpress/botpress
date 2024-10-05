@@ -2,6 +2,16 @@ import * as sdk from '@botpress/sdk'
 import telegram from '@botpresshub/telegram/integration.definition'
 import zendesk from '@botpresshub/zendesk/integration.definition'
 
+const telegramPkg = {
+  type: 'integration',
+  definition: telegram,
+} satisfies sdk.IntegrationPackage
+
+const zendeskPkg = {
+  type: 'integration',
+  definition: zendesk,
+} satisfies sdk.IntegrationPackage
+
 export default new sdk.BotDefinition({
   configuration: {
     schema: sdk.z.object({}),
@@ -41,14 +51,14 @@ export default new sdk.BotDefinition({
     },
   },
 })
-  .add(telegram, {
+  .add(telegramPkg, {
     enabled: true,
     configurationType: null,
     configuration: {
       botToken: '$BOT_TOKEN',
     },
   })
-  .add(zendesk, {
+  .add(zendeskPkg, {
     enabled: true,
     configurationType: null,
     configuration: {

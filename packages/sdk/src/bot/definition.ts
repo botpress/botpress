@@ -1,4 +1,4 @@
-import { IntegrationDefinition } from '../integration'
+import { IntegrationPackage } from '../package'
 import { SchemaDefinition } from '../schema'
 import { ValueOf, Writable } from '../type-utils'
 import z, { AnyZodObject } from '../zui'
@@ -18,7 +18,7 @@ export type StateDefinition<TState extends BaseStates[string] = BaseStates[strin
   expiry?: number
 }
 
-export type RecurringEventDefinition<TEvents extends BaseEvents> = {
+export type RecurringEventDefinition<TEvents extends BaseEvents = BaseEvents> = {
   [K in keyof TEvents]: {
     type: K
     payload: z.infer<TEvents[K]>
@@ -42,22 +42,20 @@ export type MessageDefinition = {
   tags?: Record<string, TagDefinition>
 }
 
-export type IntegrationConfigInstance<I extends IntegrationDefinition = IntegrationDefinition> =
+export type IntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage> =
   | {
       configurationType: null
-      configuration: z.infer<NonNullable<I['configuration']>['schema']>
+      configuration: z.infer<NonNullable<I['definition']['configuration']>['schema']>
     }
   | ValueOf<{
-      [K in keyof NonNullable<I['configurations']>]: {
+      [K in keyof NonNullable<I['definition']['configurations']>]: {
         configurationType: K
-        configuration: z.infer<NonNullable<I['configurations']>[K]['schema']>
+        configuration: z.infer<NonNullable<I['definition']['configurations']>[K]['schema']>
       }
     }>
 
-export type IntegrationInstance<I extends IntegrationDefinition = IntegrationDefinition> = {
+export type IntegrationInstance<I extends IntegrationPackage = IntegrationPackage> = I & {
   enabled: boolean
-  id: string | null
-  definition: I
 } & IntegrationConfigInstance<I>
 
 export type BotDefinitionProps<TStates extends BaseStates = BaseStates, TEvents extends BaseEvents = BaseEvents> = {
@@ -77,9 +75,8 @@ export type BotDefinitionProps<TStates extends BaseStates = BaseStates, TEvents 
   recurringEvents?: Record<string, RecurringEventDefinition<TEvents>>
 }
 
-type IntegrationInstallProps<I extends IntegrationDefinition = IntegrationDefinition> = {
+type IntegrationInstallProps<I extends IntegrationPackage = IntegrationPackage> = {
   enabled: boolean
-  id?: string
 } & IntegrationConfigInstance<I>
 
 export class BotDefinition<TStates extends BaseStates = BaseStates, TEvents extends BaseEvents = BaseEvents> {
@@ -102,16 +99,15 @@ export class BotDefinition<TStates extends BaseStates = BaseStates, TEvents exte
     this.recurringEvents = props.recurringEvents
   }
 
-  public add<I extends IntegrationDefinition>(integrationDef: I, installProps: IntegrationInstallProps<I>): this {
+  public add<I extends IntegrationPackage>(integrationPkg: I, installProps: IntegrationInstallProps<I>): this {
     const self = this as Writable<BotDefinition>
     if (!self.integrations) {
       self.integrations = {}
     }
 
-    self.integrations[integrationDef.name] = {
+    self.integrations[integrationPkg.definition.name] = {
       enabled: installProps.enabled,
-      id: installProps.id ?? null,
-      definition: integrationDef,
+      ...integrationPkg,
       configurationType: installProps.configurationType as string,
       configuration: installProps.configuration,
     }

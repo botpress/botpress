@@ -23,7 +23,7 @@ type IntegrationTypingsModuleDependencies = {
 export class IntegrationTypingsModule extends Module {
   private _dependencies: IntegrationTypingsModuleDependencies
 
-  public constructor(private _integration: sdk.IntegrationDefinition) {
+  public constructor(private _integration: sdk.IntegrationPackage['definition']) {
     super({
       path: INDEX_FILE,
       exportName: 'TIntegration',

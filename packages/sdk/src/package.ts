@@ -1,0 +1,75 @@
+import * as bot from './bot'
+import * as integration from './integration'
+import * as types from './type-utils'
+
+type PackageReference =
+  | {
+      id: string // package installed from the botpress api
+    }
+  | {
+      uri?: string // package installed locally or from npm
+    }
+
+type IntegrationPackageDefinition = {
+  name: string
+  version: string
+  configuration?: integration.ConfigurationDefinition
+  configurations?: Record<string, integration.AdditionalConfigurationDefinition>
+  events?: Record<string, integration.EventDefinition>
+  actions?: Record<string, integration.ActionDefinition>
+  channels?: Record<string, integration.ChannelDefinition>
+  states?: Record<string, integration.StateDefinition>
+  user?: integration.UserDefinition
+  secrets?: Record<string, integration.SecretDefinition>
+  entities?: Record<string, integration.EntityDefinition>
+}
+
+type InterfacePackageDefinition = {
+  name: string
+  version: string
+  templateName?: string
+  entities?: Record<string, integration.EntityDefinition>
+  events?: Record<string, integration.EventDefinition>
+  actions?: Record<string, integration.ActionDefinition>
+  channels?: Record<string, integration.ChannelDefinition>
+}
+
+type BotPackageDefinition = {
+  user?: bot.UserDefinition
+  conversation?: bot.ConversationDefinition
+  message?: bot.MessageDefinition
+  states?: Record<string, bot.StateDefinition>
+  configuration?: bot.ConfigurationDefinition
+  events?: Record<string, bot.EventDefinition>
+  recurringEvents?: Record<string, bot.RecurringEventDefinition>
+}
+
+export type IntegrationPackage = PackageReference & {
+  type: 'integration'
+  definition: IntegrationPackageDefinition
+  implementation?: null
+}
+
+export type InterfacePackage = PackageReference & {
+  type: 'interface'
+  definition: InterfacePackageDefinition
+  implementation?: null
+}
+
+export type BotPackage = PackageReference & {
+  type: 'bot'
+  definition: BotPackageDefinition
+  implementation?: null
+}
+
+export type Package = IntegrationPackage | InterfacePackage | BotPackage
+
+type _test_expect_integration_definition_to_be_valid_package = types.Expect<
+  types.Extends<integration.IntegrationDefinition, IntegrationPackageDefinition>
+>
+type _test_expect_interface_definition_to_be_valid_package = types.Expect<
+  types.Extends<integration.InterfaceDeclaration, InterfacePackageDefinition>
+>
+type _test_expect_bot_definition_to_be_valid_package = types.Expect<
+  types.Extends<bot.BotDefinition, BotPackageDefinition>
+>

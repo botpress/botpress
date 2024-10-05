@@ -43,8 +43,9 @@ export type Simplify<T> = T extends (...args: infer A) => infer R
 
 // tests
 
-type IsEqual<T, U> = T extends U ? (U extends T ? true : false) : false
-type Expect<T extends true> = T
+export type Extends<T, U> = T extends U ? true : false
+export type IsEqual<T, U> = T extends U ? (U extends T ? true : false) : false
+export type Expect<T extends true> = T
 
 type _test_keyby = Expect<
   IsEqual<
