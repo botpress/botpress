@@ -87,11 +87,18 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   }
 
   private async _install(installPath: utils.path.AbsolutePath, files: codegen.File[]): Promise<void> {
-    for (const file of files) {
-      const filePath = utils.path.absoluteFrom(installPath, file.path)
-      const dirPath = pathlib.dirname(filePath)
-      await fslib.promises.mkdir(dirPath, { recursive: true })
-      await fslib.promises.writeFile(filePath, file.content)
+    const line = this.logger.line()
+    line.started(`Installing ${files.length} files to "${installPath}"`)
+    try {
+      for (const file of files) {
+        const filePath = utils.path.absoluteFrom(installPath, file.path)
+        const dirPath = pathlib.dirname(filePath)
+        await fslib.promises.mkdir(dirPath, { recursive: true })
+        await fslib.promises.writeFile(filePath, file.content)
+      }
+      line.success(`Installed ${files.length} files to "${installPath}"`)
+    } finally {
+      line.commit()
     }
   }
 

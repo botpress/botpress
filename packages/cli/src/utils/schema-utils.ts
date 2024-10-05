@@ -43,6 +43,12 @@ export function mapZodToJsonSchema(definition: SchemaDefinition): ReturnType<typ
   return schema
 }
 
-export const dereferenceSchema = (schema: JSONSchema7): Promise<JSONSchema7> => {
-  return refParser.dereference(schema)
+export const dereferenceSchema = async (schema: JSONSchema7): Promise<JSONSchema7> => {
+  return refParser.dereference(schema, {
+    resolve: {
+      external: false,
+      file: false,
+      http: false,
+    },
+  })
 }

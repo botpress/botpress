@@ -33,19 +33,48 @@ export const prepareCreateInterfaceBody = (intrface: sdk.InterfaceDeclaration): 
         },
       }))
     : {},
+  channels: intrface.channels
+    ? utils.records.mapValues(intrface.channels, (channel) => ({
+        ...channel,
+        messages: utils.records.mapValues(channel.messages, (message) => ({
+          ...message,
+          schema: utils.schema.mapZodToJsonSchema(message),
+        })),
+      }))
+    : {},
+  nameTemplate: intrface.templateName
+    ? {
+        script: intrface.templateName,
+        language: 'handlebars',
+      }
+    : undefined,
 })
 
 export const prepareUpdateInterfaceBody = (
-  localInterface: UpdateInterfaceBody,
+  localInterface: CreateInterfaceBody & { id: string },
   remoteInterface: Interface
 ): UpdateInterfaceBody => {
   const actions = utils.records.setNullOnMissingValues(localInterface.actions, remoteInterface.actions)
   const events = utils.records.setNullOnMissingValues(localInterface.events, remoteInterface.events)
   const entities = utils.records.setNullOnMissingValues(localInterface.entities, remoteInterface.entities)
+
+  const currentChannels: UpdateInterfaceBody['channels'] = localInterface.channels
+    ? utils.records.mapValues(localInterface.channels, (channel, channelName) => ({
+        ...channel,
+        messages: utils.records.setNullOnMissingValues(
+          channel?.messages,
+          remoteInterface.channels[channelName]?.messages
+        ),
+      }))
+    : undefined
+
+  const channels = utils.records.setNullOnMissingValues(currentChannels, remoteInterface.channels)
+
   return {
     ...localInterface,
     entities,
     actions,
     events,
+    channels,
   }
 }
