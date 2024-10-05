@@ -1,6 +1,8 @@
+import * as sdk from '@botpress/sdk'
 import * as fslib from 'fs'
 import * as pathlib from 'path'
 import * as apiUtils from '../api'
+import { prepareCreateIntegrationBody, prepareCreateInterfaceBody } from '../api'
 import * as codegen from '../code-generation'
 import type commandDefinitions from '../command-definitions'
 import * as consts from '../consts'
@@ -104,5 +106,109 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
   private async _uninstall(installPath: utils.path.AbsolutePath): Promise<void> {
     await fslib.promises.rm(installPath, { recursive: true })
+  }
+
+  private _mapSdkToApiIntegration = (
+    integration: sdk.IntegrationDefinition
+  ): utils.types.SafeOmit<apiUtils.Integration, 'id'> => {
+    const defaultIntegration: utils.types.SafeOmit<apiUtils.Integration, 'id'> = {
+      title: '',
+      description: '',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      identifier: {},
+      url: '',
+      name: '',
+      version: '0.0.0',
+      dev: false,
+      interfaces: {},
+      configuration: { identifier: { required: false } },
+      configurations: {},
+      channels: {},
+      states: {},
+      events: {},
+      actions: {},
+      user: { creation: { enabled: false, requiredTags: [] }, tags: {} },
+      entities: {},
+      iconUrl: '',
+      readmeUrl: '',
+      public: false,
+      verificationStatus: 'pending',
+      secrets: [],
+    }
+
+    const requestBody = prepareCreateIntegrationBody(integration)
+    return {
+      ...defaultIntegration,
+      ...requestBody,
+      secrets: requestBody.secrets ? Object.keys(requestBody.secrets) : defaultIntegration.secrets,
+      interfaces: requestBody.interfaces
+        ? ({
+            // TODO: implement
+          } as any)
+        : defaultIntegration.interfaces,
+      configuration: requestBody.configuration
+        ? ({
+            // TODO: implement
+          } as any)
+        : defaultIntegration.configuration,
+      configurations: requestBody.configurations
+        ? ({
+            // TODO: implement
+          } as any)
+        : defaultIntegration.configurations,
+      channels: requestBody.channels
+        ? ({
+            // TODO: implement
+          } as any)
+        : defaultIntegration.channels,
+      user: requestBody.user
+        ? ({
+            // TODO: implement
+          } as any)
+        : defaultIntegration.user,
+    }
+  }
+
+  private _mapSdkToApiInterface = (
+    intrface: sdk.InterfaceDeclaration
+  ): utils.types.SafeOmit<apiUtils.Interface, 'id'> => {
+    const defaultInterface: utils.types.SafeOmit<apiUtils.Interface, 'id'> = {
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      name: '',
+      version: '0.0.0',
+      nameTemplate: undefined,
+      actions: {},
+      channels: {},
+      entities: {},
+      events: {},
+    }
+
+    const requestBody = prepareCreateInterfaceBody(intrface)
+    return {
+      ...defaultInterface,
+      ...requestBody,
+      actions: requestBody.actions
+        ? ({
+            // TODO: implement
+          } as any)
+        : defaultInterface.actions,
+      channels: requestBody.channels
+        ? ({
+            // TODO: implement
+          } as any)
+        : defaultInterface.channels,
+      entities: requestBody.entities
+        ? ({
+            // TODO: implement
+          } as any)
+        : defaultInterface.entities,
+      events: requestBody.events
+        ? ({
+            // TODO: implement
+          } as any)
+        : defaultInterface.events,
+    }
   }
 }
