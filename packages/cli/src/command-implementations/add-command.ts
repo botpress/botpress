@@ -1,31 +1,45 @@
 import * as fslib from 'fs'
 import * as pathlib from 'path'
+import * as apiUtils from '../api'
 import * as codegen from '../code-generation'
 import type commandDefinitions from '../command-definitions'
 import * as consts from '../consts'
 import * as errors from '../errors'
-import { parseIntegrationRef } from '../integration-ref'
+import * as pkgRef from '../package-ref'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
+
+type InstallablePackage =
+  | {
+      type: 'integration'
+      name: string
+      integration: apiUtils.Integration
+    }
+  | {
+      type: 'interface'
+      name: string
+      interface: apiUtils.Interface
+    }
 
 export type AddCommandDefinition = typeof commandDefinitions.add
 export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   public async run(): Promise<void> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
-    const parsedRef = parseIntegrationRef(this.argv.integrationRef)
+    const parsedRef = pkgRef.parsePackageRef(this.argv.integrationRef)
     if (!parsedRef) {
-      throw new errors.InvalidIntegrationReferenceError(this.argv.integrationRef)
-    }
-    if (parsedRef.type === 'path') {
-      throw new errors.BotpressCLIError('Cannot install local integrations yet')
+      throw new errors.InvalidPackageReferenceError(this.argv.integrationRef)
     }
 
-    const integration = await api.findIntegration(parsedRef)
-    if (!integration) {
-      throw new errors.BotpressCLIError(`Integration "${this.argv.integrationRef}" not found`)
+    const targetPackage =
+      parsedRef.type === 'path'
+        ? await this._findLocalPackage(parsedRef)
+        : await this._findRemotePackage(api, parsedRef)
+
+    if (!targetPackage) {
+      throw new errors.BotpressCLIError(`Package "${this.argv.integrationRef}" not found`)
     }
 
-    const packageName = integration.name // TODO: eventually replace name by alias (with argv --alias)
+    const packageName = targetPackage.name // TODO: eventually replace name by alias (with argv --alias)
     const baseInstallPath = utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath)
     const installPath = utils.path.join(baseInstallPath, consts.installDirName, packageName)
 
@@ -41,8 +55,35 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       await this._uninstall(installPath)
     }
 
-    const files = await codegen.generateIntegrationPackage(integration)
+    let files: codegen.File[]
+    if (targetPackage.type === 'integration') {
+      const { integration } = targetPackage
+      files = await codegen.generateIntegrationPackage(integration)
+    } else {
+      const { interface: intrface } = targetPackage
+      files = await codegen.generateInterfacePackage(intrface)
+    }
+
     await this._install(installPath, files)
+  }
+
+  private async _findRemotePackage(
+    api: apiUtils.ApiClient,
+    ref: pkgRef.ApiPackageRef
+  ): Promise<InstallablePackage | undefined> {
+    const integration = await api.findIntegration(ref)
+    if (integration) {
+      return { type: 'integration', integration, name: integration.name }
+    }
+    const intrface = await api.findPublicInterface(ref)
+    if (intrface) {
+      return { type: 'interface', interface: intrface, name: intrface.name }
+    }
+    return
+  }
+
+  private async _findLocalPackage(_ref: pkgRef.LocalPackageRef): Promise<InstallablePackage | undefined> {
+    throw new errors.BotpressCLIError('Cannot install local packages yet')
   }
 
   private async _install(installPath: utils.path.AbsolutePath, files: codegen.File[]): Promise<void> {

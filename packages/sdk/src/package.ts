@@ -1,4 +1,3 @@
-import * as bot from './bot'
 import * as integration from './integration'
 import * as types from './type-utils'
 
@@ -34,16 +33,6 @@ type InterfacePackageDefinition = {
   channels?: Record<string, integration.ChannelDefinition>
 }
 
-type BotPackageDefinition = {
-  user?: bot.UserDefinition
-  conversation?: bot.ConversationDefinition
-  message?: bot.MessageDefinition
-  states?: Record<string, bot.StateDefinition>
-  configuration?: bot.ConfigurationDefinition
-  events?: Record<string, bot.EventDefinition>
-  recurringEvents?: Record<string, bot.RecurringEventDefinition>
-}
-
 export type IntegrationPackage = PackageReference & {
   type: 'integration'
   definition: IntegrationPackageDefinition
@@ -56,20 +45,11 @@ export type InterfacePackage = PackageReference & {
   implementation?: null
 }
 
-export type BotPackage = PackageReference & {
-  type: 'bot'
-  definition: BotPackageDefinition
-  implementation?: null
-}
-
-export type Package = IntegrationPackage | InterfacePackage | BotPackage
+export type Package = IntegrationPackage | InterfacePackage
 
 type _test_expect_integration_definition_to_be_valid_package = types.Expect<
   types.Extends<integration.IntegrationDefinition, IntegrationPackageDefinition>
 >
 type _test_expect_interface_definition_to_be_valid_package = types.Expect<
   types.Extends<integration.InterfaceDeclaration, InterfacePackageDefinition>
->
-type _test_expect_bot_definition_to_be_valid_package = types.Expect<
-  types.Extends<bot.BotDefinition, BotPackageDefinition>
 >

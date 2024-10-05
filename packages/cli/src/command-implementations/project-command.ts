@@ -11,7 +11,7 @@ import * as codegen from '../code-generation'
 import type * as config from '../config'
 import * as consts from '../consts'
 import * as errors from '../errors'
-import { formatIntegrationRef, IntegrationRef } from '../integration-ref'
+import { formatPackageRef, PackageRef } from '../package-ref'
 import { validateIntegrationDefinition } from '../sdk/validate-integration'
 import type { CommandArgv, CommandDefinition } from '../typings'
 import * as utils from '../utils'
@@ -73,10 +73,10 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const { remoteInstances, localInstances } = this._splitApiAndLocalIntegrationInstances(integrationList)
 
     const fetchedInstances: RemoteIntegrationInstance[] = await bluebird.map(localInstances, async (instance) => {
-      const ref: IntegrationRef = { type: 'name', name: instance.definition.name, version: instance.definition.version }
+      const ref: PackageRef = { type: 'name', name: instance.definition.name, version: instance.definition.version }
       const integration = await api.findIntegration(ref)
       if (!integration) {
-        const formattedRef = formatIntegrationRef(ref)
+        const formattedRef = formatPackageRef(ref)
         throw new errors.BotpressCLIError(`Integration "${formattedRef}" not found`)
       }
       return { ...instance, id: integration.id }

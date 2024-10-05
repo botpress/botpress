@@ -1,28 +1,28 @@
 import semver from 'semver'
 import * as utils from './utils'
 
-export type UUIDIntegrationRef = {
+export type UUIDPackageRef = {
   type: 'id'
   id: string
 }
 
-export type NameIntegrationRef = {
+export type NamePackageRef = {
   type: 'name'
   name: string
   version: string
 }
 
-export type LocalPathIntegrationRef = {
+export type LocalPackageRef = {
   type: 'path'
   path: utils.path.AbsolutePath
 }
 
-export type ApiIntegrationRef = UUIDIntegrationRef | NameIntegrationRef
-export type IntegrationRef = ApiIntegrationRef | LocalPathIntegrationRef
+export type ApiPackageRef = UUIDPackageRef | NamePackageRef
+export type PackageRef = ApiPackageRef | LocalPackageRef
 
 const LATEST_TAG = 'latest'
 
-export const formatIntegrationRef = (ref: IntegrationRef): string => {
+export const formatPackageRef = (ref: PackageRef): string => {
   if (ref.type === 'path') {
     return ref.path
   }
@@ -32,7 +32,7 @@ export const formatIntegrationRef = (ref: IntegrationRef): string => {
   return `${ref.name}@${ref.version}`
 }
 
-export const parseIntegrationRef = (ref: string): IntegrationRef | undefined => {
+export const parsePackageRef = (ref: string): PackageRef | undefined => {
   if (!ref) {
     return
   }

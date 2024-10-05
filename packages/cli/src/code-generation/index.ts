@@ -3,3 +3,4 @@ export { secretEnvVariableName } from './integration-implementation/integration-
 export { generateBotImplementation } from './bot-implementation'
 export { generateIntegrationImplementation } from './integration-implementation'
 export { generateIntegrationPackage } from './integration-package'
+export { generateInterfacePackage } from './interface-package'
