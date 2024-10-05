@@ -1,7 +1,6 @@
 import { GENERATED_HEADER, INDEX_FILE } from '../../consts'
 import { stringifySingleLine } from '../../generators'
 import { Module } from '../../module'
-import * as strings from '../../strings'
 import { ActionsModule } from './actions-module'
 import { ChannelsModule } from './channels-module'
 import { DefaultConfigurationModule } from './configuration-module'
@@ -21,13 +20,13 @@ type IntegrationPackageModuleDependencies = {
   entitiesModule: EntitiesModule
 }
 
-export class IntegrationPackageModule extends Module {
+export class IntegrationPackageDefinitionModule extends Module {
   private _dependencies: IntegrationPackageModuleDependencies
 
   public constructor(private _integration: types.ApiIntegrationDefinition) {
     super({
       path: INDEX_FILE,
-      exportName: strings.varName(_integration.name),
+      exportName: 'definition',
     })
 
     const defaultConfigModule = new DefaultConfigurationModule(_integration.configuration)
@@ -111,7 +110,7 @@ export class IntegrationPackageModule extends Module {
       `export * as ${statesModule.name} from "./${statesImport}"`,
       `export * as ${entitiesModule.name} from "./${entitiesImport}"`,
       '',
-      'const definition = {',
+      `export const ${this.exportName} = {`,
       `  name: "${this._integration.name}",`,
       `  version: "${this._integration.version}",`,
       `  user: ${stringifySingleLine(user)},`,
@@ -123,12 +122,6 @@ export class IntegrationPackageModule extends Module {
       `  states: ${statesModule.name}.${statesModule.exportName},`,
       `  entities: ${entitiesModule.name}.${entitiesModule.exportName},`,
       '} satisfies sdk.IntegrationPackage["definition"]',
-      '',
-      `export const ${this.exportName} = {`,
-      '  type: "integration",',
-      `  id: "${this._integration.id}",`,
-      '  definition,',
-      '} satisfies sdk.IntegrationPackage',
     ].join('\n')
 
     return content

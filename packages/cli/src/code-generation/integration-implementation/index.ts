@@ -22,7 +22,7 @@ const generateIntegrationSecrets = async (
   return indexModule.flatten()
 }
 
-const generateIntegrationIndex = async (implPath: string, secretsPath: string): Promise<types.File> => {
+const generateIntegrationImplementationIndex = async (implPath: string, secretsPath: string): Promise<types.File> => {
   let content = ''
   content += `export * from './${implPath}'\n`
   content += `export * from './${secretsPath}'\n`
@@ -39,6 +39,6 @@ export const generateIntegrationImplementation = async (
   const secretsPath = consts.fromOutDir.secretsDir
   const implFiles = await generateIntegrationImplementationCls(sdkIntegrationDefinition, implPath)
   const secretFiles = await generateIntegrationSecrets(sdkIntegrationDefinition, secretsPath)
-  const indexFile = await generateIntegrationIndex(implPath, secretsPath)
+  const indexFile = await generateIntegrationImplementationIndex(implPath, secretsPath)
   return [...implFiles, ...secretFiles, indexFile]
 }

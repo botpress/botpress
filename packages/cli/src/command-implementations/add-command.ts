@@ -25,13 +25,14 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       throw new errors.BotpressCLIError(`Integration "${this.argv.integrationRef}" not found`)
     }
 
+    const packageName = integration.name // TODO: eventually replace name by alias (with argv --alias)
     const baseInstallPath = utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath)
-    const installPath = utils.path.join(baseInstallPath, consts.installDirName, integration.name) // TODO: eventually replace name by alias (with argv --alias)
+    const installPath = utils.path.join(baseInstallPath, consts.installDirName, packageName)
 
     const alreadyInstalled = fslib.existsSync(installPath)
     if (alreadyInstalled) {
-      this.logger.warn(`Integration with name "${integration.name}" already installed.`)
-      const res = await this.prompt.confirm('Do you want to overwrite the existing instance?')
+      this.logger.warn(`Package with name "${packageName}" already installed.`)
+      const res = await this.prompt.confirm('Do you want to overwrite the existing package?')
       if (!res) {
         this.logger.log('Aborted')
         return
@@ -54,6 +55,6 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   }
 
   private async _uninstall(installPath: utils.path.AbsolutePath): Promise<void> {
-    await fslib.promises.rmdir(installPath, { recursive: true })
+    await fslib.promises.rm(installPath, { recursive: true })
   }
 }
