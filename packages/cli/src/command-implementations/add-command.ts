@@ -1,8 +1,7 @@
-import * as sdk from '@botpress/sdk'
 import * as fslib from 'fs'
 import * as pathlib from 'path'
 import * as apiUtils from '../api'
-import { prepareCreateIntegrationBody, prepareCreateInterfaceBody } from '../api'
+import { ApiClient } from '../api'
 import * as codegen from '../code-generation'
 import type commandDefinitions from '../command-definitions'
 import * as consts from '../consts'
@@ -10,17 +9,18 @@ import * as errors from '../errors'
 import * as pkgRef from '../package-ref'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
+import { ProjectCommand, ProjectCommandDefinition, ProjectDefinition } from './project-command'
 
 type InstallablePackage =
   | {
       type: 'integration'
       name: string
-      integration: apiUtils.Integration
+      pkg: codegen.IntegrationInstallablePackage
     }
   | {
       type: 'interface'
       name: string
-      interface: apiUtils.Interface
+      pkg: codegen.InterfaceInstallablePackage
     }
 
 export type AddCommandDefinition = typeof commandDefinitions.add
@@ -59,11 +59,9 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
     let files: codegen.File[]
     if (targetPackage.type === 'integration') {
-      const { integration } = targetPackage
-      files = await codegen.generateIntegrationPackage(integration)
+      files = await codegen.generateIntegrationPackage(targetPackage.pkg)
     } else {
-      const { interface: intrface } = targetPackage
-      files = await codegen.generateInterfacePackage(intrface)
+      files = await codegen.generateInterfacePackage(targetPackage.pkg)
     }
 
     await this._install(installPath, files)
@@ -75,17 +73,36 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   ): Promise<InstallablePackage | undefined> {
     const integration = await api.findIntegration(ref)
     if (integration) {
-      return { type: 'integration', integration, name: integration.name }
+      return { type: 'integration', name: integration.name, pkg: { source: 'remote', integration } }
     }
     const intrface = await api.findPublicInterface(ref)
     if (intrface) {
-      return { type: 'interface', interface: intrface, name: intrface.name }
+      return { type: 'interface', name: intrface.name, pkg: { source: 'remote', interface: intrface } }
     }
     return
   }
 
-  private async _findLocalPackage(_ref: pkgRef.LocalPackageRef): Promise<InstallablePackage | undefined> {
-    throw new errors.BotpressCLIError('Cannot install local packages yet')
+  private async _findLocalPackage(ref: pkgRef.LocalPackageRef): Promise<InstallablePackage | undefined> {
+    const absPath = utils.path.absoluteFrom(utils.path.cwd(), ref.path)
+    const projectDefinition = await this._readProject(absPath)
+    if (projectDefinition?.type === 'integration') {
+      return {
+        type: 'integration',
+        name: projectDefinition.definition.name,
+        pkg: { source: 'local', path: absPath },
+      }
+    }
+    if (projectDefinition?.type === 'interface') {
+      return {
+        type: 'interface',
+        name: projectDefinition.definition.name,
+        pkg: { source: 'local', path: absPath },
+      }
+    }
+    if (projectDefinition?.type === 'bot') {
+      throw new errors.BotpressCLIError('Cannot install a bot as a package')
+    }
+    return
   }
 
   private async _install(installPath: utils.path.AbsolutePath, files: codegen.File[]): Promise<void> {
@@ -108,107 +125,30 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     await fslib.promises.rm(installPath, { recursive: true })
   }
 
-  private _mapSdkToApiIntegration = (
-    integration: sdk.IntegrationDefinition
-  ): utils.types.SafeOmit<apiUtils.Integration, 'id'> => {
-    const defaultIntegration: utils.types.SafeOmit<apiUtils.Integration, 'id'> = {
-      title: '',
-      description: '',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      identifier: {},
-      url: '',
-      name: '',
-      version: '0.0.0',
-      dev: false,
-      interfaces: {},
-      configuration: { identifier: { required: false } },
-      configurations: {},
-      channels: {},
-      states: {},
-      events: {},
-      actions: {},
-      user: { creation: { enabled: false, requiredTags: [] }, tags: {} },
-      entities: {},
-      iconUrl: '',
-      readmeUrl: '',
-      public: false,
-      verificationStatus: 'pending',
-      secrets: [],
+  private async _readProject(workDir: utils.path.AbsolutePath): Promise<ProjectDefinition | undefined> {
+    // this is a hack to avoid refactoring the project command class
+    class AnyProjectCommand extends ProjectCommand<ProjectCommandDefinition> {
+      public async run(): Promise<void> {
+        throw new errors.BotpressCLIError('Not implemented')
+      }
+
+      public async readProjectDefinitionFromFS(): Promise<ProjectDefinition> {
+        return super.readProjectDefinitionFromFS()
+      }
     }
 
-    const requestBody = prepareCreateIntegrationBody(integration)
-    return {
-      ...defaultIntegration,
-      ...requestBody,
-      secrets: requestBody.secrets ? Object.keys(requestBody.secrets) : defaultIntegration.secrets,
-      interfaces: requestBody.interfaces
-        ? ({
-            // TODO: implement
-          } as any)
-        : defaultIntegration.interfaces,
-      configuration: requestBody.configuration
-        ? ({
-            // TODO: implement
-          } as any)
-        : defaultIntegration.configuration,
-      configurations: requestBody.configurations
-        ? ({
-            // TODO: implement
-          } as any)
-        : defaultIntegration.configurations,
-      channels: requestBody.channels
-        ? ({
-            // TODO: implement
-          } as any)
-        : defaultIntegration.channels,
-      user: requestBody.user
-        ? ({
-            // TODO: implement
-          } as any)
-        : defaultIntegration.user,
-    }
-  }
+    const cmd = new AnyProjectCommand(ApiClient, this.prompt, this.logger, {
+      ...this.argv,
+      entryPoint: consts.defaultEntrypoint,
+      outDir: consts.defaultOutputFolder,
+      workDir,
+    })
 
-  private _mapSdkToApiInterface = (
-    intrface: sdk.InterfaceDeclaration
-  ): utils.types.SafeOmit<apiUtils.Interface, 'id'> => {
-    const defaultInterface: utils.types.SafeOmit<apiUtils.Interface, 'id'> = {
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      name: '',
-      version: '0.0.0',
-      nameTemplate: undefined,
-      actions: {},
-      channels: {},
-      entities: {},
-      events: {},
-    }
-
-    const requestBody = prepareCreateInterfaceBody(intrface)
-    return {
-      ...defaultInterface,
-      ...requestBody,
-      actions: requestBody.actions
-        ? ({
-            // TODO: implement
-          } as any)
-        : defaultInterface.actions,
-      channels: requestBody.channels
-        ? ({
-            // TODO: implement
-          } as any)
-        : defaultInterface.channels,
-      entities: requestBody.entities
-        ? ({
-            // TODO: implement
-          } as any)
-        : defaultInterface.entities,
-      events: requestBody.events
-        ? ({
-            // TODO: implement
-          } as any)
-        : defaultInterface.events,
-    }
+    return cmd.readProjectDefinitionFromFS().catch((thrown) => {
+      if (thrown instanceof errors.ProjectDefinitionNotFoundError) {
+        return undefined
+      }
+      throw thrown
+    })
   }
 }

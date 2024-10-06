@@ -1,47 +1,60 @@
-import * as client from '@botpress/client'
+import * as utils from '../../utils'
 import * as consts from '../consts'
-import { Module } from '../module'
-import * as strings from '../strings'
 import * as types from '../typings'
 import { IntegrationPackageDefinitionModule } from './integration-package-definition'
 
-class IntegrationPackageModule extends Module {
-  private _definitionModule: IntegrationPackageDefinitionModule
-
-  public constructor(private _integration: client.Integration) {
-    super({
-      path: consts.INDEX_FILE,
-      exportName: strings.varName(_integration.name),
-    })
-
-    this._definitionModule = new IntegrationPackageDefinitionModule(_integration)
-    this._definitionModule.unshift('definition')
-    this.pushDep(this._definitionModule)
-  }
-
-  public async getContent(): Promise<string> {
-    const definitionModule = this._definitionModule
-    const definitionImport = definitionModule.import(this)
-
-    return [
-      consts.GENERATED_HEADER,
-      'import * as sdk from "@botpress/sdk"',
-      '',
-      `import * as ${definitionModule.name} from "./${definitionImport}"`,
-      `export * as ${definitionModule.name} from "./${definitionImport}"`,
-      '',
-      `export const ${this.exportName} = {`,
-      '  type: "integration",',
-      `  id: "${this._integration.id}",`,
-      `  definition: ${definitionModule.name}.${definitionModule.exportName},`,
-      '} satisfies sdk.IntegrationPackage',
-    ].join('\n')
-  }
+const generateIntegrationPackageModule = (
+  definitionImport: string,
+  pkg: types.IntegrationInstallablePackage
+): string => {
+  const refLine = pkg.source === 'local' ? `uri: "${pkg.path}"` : `id: "${pkg.integration.id}"`
+  return [
+    consts.GENERATED_HEADER,
+    'import * as sdk from "@botpress/sdk"',
+    '',
+    `import definition from "${definitionImport}"`,
+    '',
+    'export default {',
+    '  type: "integration",',
+    `  ${refLine},`,
+    '  definition,',
+    '} satisfies sdk.IntegrationPackage',
+  ].join('\n')
 }
 
-export const generateIntegrationPackage = async (
-  apiIntegrationDefinition: client.Integration
+const generateIntegrationPackageFromRemote = async (
+  pkg: Extract<types.IntegrationInstallablePackage, { source: 'remote' }>
 ): Promise<types.File[]> => {
-  const integrationDefModule = new IntegrationPackageModule(apiIntegrationDefinition)
-  return await integrationDefModule.flatten()
+  const definitionDir = 'definition'
+  const definitionModule = new IntegrationPackageDefinitionModule(pkg.integration)
+  definitionModule.unshift(definitionDir)
+
+  const definitionFiles = await definitionModule.flatten()
+  return [
+    ...definitionFiles,
+    {
+      path: consts.INDEX_FILE,
+      content: generateIntegrationPackageModule(`./${definitionDir}`, pkg),
+    },
+  ]
+}
+
+const generateIntegrationPackageFromLocal = async (
+  pkg: Extract<types.IntegrationInstallablePackage, { source: 'local' }>
+): Promise<types.File[]> => {
+  let definitionImport: string = utils.path.join(pkg.path, consts.fromWorkDir.integrationDefinition)
+  definitionImport = utils.path.rmExtension(definitionImport)
+  return [
+    {
+      path: consts.INDEX_FILE,
+      content: generateIntegrationPackageModule(definitionImport, pkg),
+    },
+  ]
+}
+
+export const generateIntegrationPackage = async (pkg: types.IntegrationInstallablePackage): Promise<types.File[]> => {
+  if (pkg.source === 'remote') {
+    return generateIntegrationPackageFromRemote(pkg)
+  }
+  return generateIntegrationPackageFromLocal(pkg)
 }

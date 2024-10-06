@@ -1,4 +1,4 @@
-import { GENERATED_HEADER, INDEX_FILE } from '../../consts'
+import * as consts from '../../consts'
 import { stringifySingleLine } from '../../generators'
 import { Module } from '../../module'
 import { ActionsModule } from './actions-module'
@@ -25,8 +25,8 @@ export class IntegrationPackageDefinitionModule extends Module {
 
   public constructor(private _integration: types.ApiIntegrationDefinition) {
     super({
-      path: INDEX_FILE,
-      exportName: 'definition',
+      path: consts.INDEX_FILE,
+      exportName: consts.DEFAULT_EXPORT_NAME,
     })
 
     const defaultConfigModule = new DefaultConfigurationModule(_integration.configuration)
@@ -92,7 +92,7 @@ export class IntegrationPackageDefinitionModule extends Module {
     }
 
     content += [
-      GENERATED_HEADER,
+      consts.GENERATED_HEADER,
       'import * as sdk from "@botpress/sdk"',
       '',
       `import * as ${defaultConfigModule.name} from "./${defaultConfigImport}"`,
@@ -110,7 +110,7 @@ export class IntegrationPackageDefinitionModule extends Module {
       `export * as ${statesModule.name} from "./${statesImport}"`,
       `export * as ${entitiesModule.name} from "./${entitiesImport}"`,
       '',
-      `export const ${this.exportName} = {`,
+      'export default {',
       `  name: "${this._integration.name}",`,
       `  version: "${this._integration.version}",`,
       `  user: ${stringifySingleLine(user)},`,

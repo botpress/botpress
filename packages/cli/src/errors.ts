@@ -153,3 +153,10 @@ export class UnsupportedProjectType extends BotpressCLIError {
     super(message)
   }
 }
+
+export class ProjectDefinitionNotFoundError extends BotpressCLIError {
+  public constructor(workdir: string) {
+    const message = `No project definition found at "${workdir}".`
+    super(message)
+  }
+}

@@ -14,7 +14,7 @@ export type NamePackageRef = {
 
 export type LocalPackageRef = {
   type: 'path'
-  path: utils.path.AbsolutePath
+  path: string
 }
 
 export type ApiPackageRef = UUIDPackageRef | NamePackageRef
@@ -41,7 +41,7 @@ export const parsePackageRef = (ref: string): PackageRef | undefined => {
     return { type: 'id', id: ref }
   }
 
-  if (utils.path.isAbsolute(ref)) {
+  if (utils.path.isPath(ref)) {
     return { type: 'path', path: ref }
   }
 

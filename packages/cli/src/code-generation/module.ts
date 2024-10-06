@@ -29,6 +29,10 @@ export abstract class Module {
     return withoutExtension
   }
 
+  public get isDefaultExport(): boolean {
+    return this._def.exportName === consts.DEFAULT_EXPORT_NAME
+  }
+
   public get exportName(): string {
     return this._def.exportName
   }

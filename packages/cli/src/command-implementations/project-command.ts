@@ -109,11 +109,8 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return { remoteInstances, localInstances }
   }
 
-  protected async readProjectDefinitionFromFS(
-    projectPaths: utils.path.PathStore<
-      'workDir' | 'integrationDefinition' | 'interfaceDefinition' | 'botDefinition'
-    > = this.projectPaths
-  ): Promise<ProjectDefinition> {
+  protected async readProjectDefinitionFromFS(): Promise<ProjectDefinition> {
+    const projectPaths = this.projectPaths
     try {
       const integrationDefinition = await this._readIntegrationDefinitionFromFS(projectPaths)
       if (integrationDefinition) {
@@ -130,11 +127,12 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     } catch (thrown: unknown) {
       throw errors.BotpressCLIError.wrap(thrown, 'Error while reading project definition')
     }
-    throw new errors.BotpressCLIError('Could not find project definition')
+
+    throw new errors.ProjectDefinitionNotFoundError(this.projectPaths.abs.workDir)
   }
 
   private async _readIntegrationDefinitionFromFS(
-    projectPaths: utils.path.PathStore<'workDir' | 'integrationDefinition'> = this.projectPaths
+    projectPaths: utils.path.PathStore<'workDir' | 'integrationDefinition'>
   ): Promise<sdk.IntegrationDefinition | undefined> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
@@ -164,7 +162,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   }
 
   private async _readInterfaceDefinitionFromFS(
-    projectPaths: utils.path.PathStore<'workDir' | 'interfaceDefinition'> = this.projectPaths
+    projectPaths: utils.path.PathStore<'workDir' | 'interfaceDefinition'>
   ): Promise<sdk.InterfaceDeclaration | undefined> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
@@ -192,7 +190,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   }
 
   private async _readBotDefinitionFromFS(
-    projectPaths: utils.path.PathStore<'workDir' | 'botDefinition'> = this.projectPaths
+    projectPaths: utils.path.PathStore<'workDir' | 'botDefinition'>
   ): Promise<sdk.BotDefinition | undefined> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')

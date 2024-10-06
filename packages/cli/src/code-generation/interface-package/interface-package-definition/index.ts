@@ -1,4 +1,4 @@
-import { GENERATED_HEADER, INDEX_FILE } from '../../consts'
+import * as consts from '../../consts'
 import { Module } from '../../module'
 import { ActionsModule } from './actions-module'
 import { ChannelsModule } from './channels-module'
@@ -18,8 +18,8 @@ export class InterfacePackageDefinitionModule extends Module {
 
   public constructor(private _interface: types.ApiInterfaceDefinition) {
     super({
-      path: INDEX_FILE,
-      exportName: 'definition',
+      path: consts.INDEX_FILE,
+      exportName: consts.DEFAULT_EXPORT_NAME,
     })
 
     const actionsModule = new ActionsModule(_interface.actions ?? {})
@@ -60,7 +60,7 @@ export class InterfacePackageDefinitionModule extends Module {
       this._interface.nameTemplate === undefined ? 'undefined' : `"${this._interface.nameTemplate.script}"`
 
     content += [
-      GENERATED_HEADER,
+      consts.GENERATED_HEADER,
       'import * as sdk from "@botpress/sdk"',
       '',
       `import * as ${actionsModule.name} from "./${actionsImport}"`,
@@ -72,7 +72,7 @@ export class InterfacePackageDefinitionModule extends Module {
       `export * as ${eventsModule.name} from "./${eventsImport}"`,
       `export * as ${entitiesModule.name} from "./${entitiesImport}"`,
       '',
-      `export const ${this.exportName} = {`,
+      'export default {',
       `  name: "${this._interface.name}",`,
       `  version: "${this._interface.version}",`,
       `  actions: ${actionsModule.name}.${actionsModule.exportName},`,
