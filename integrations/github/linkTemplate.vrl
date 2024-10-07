@@ -1,0 +1,10 @@
+webhookId = to_string!(.webhookId)
+env = to_string!(.env)
+
+appName = "botpress-staging"
+
+if env == "production" {
+  appName = "botpress"
+}
+
+"https://github.com/apps/{{ appName }}/installations/select_target?state={{ webhookId }}"
