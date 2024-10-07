@@ -125,7 +125,7 @@ export async function generateContent<M extends string>(
   const outputCost = calculateTokenCost(model.output.costPer1MTokens, outputTokens)
   const cost = inputCost + outputCost
 
-  return <GenerateContentOutput>{
+  return {
     id: response.id,
     provider: props.provider,
     model: response.model,
