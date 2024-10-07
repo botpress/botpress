@@ -20,7 +20,9 @@
     "test:watch": "vitest",
     "check:type": "tsc --noEmit",
     "check:format": "prettier --check src/",
-    "fix:format": "prettier --write src/"
+    "fix:format": "prettier --write src/",
+    "check": "pnpm run check:format && pnpm run check:type",
+    "fix": "pnpm run fix:format"
   },
   "devDependencies": {
     "@testing-library/jest-dom": "^6.4.2",
@@ -37,7 +39,7 @@
     "benchmark": "^2.1.4",
     "jsdom": "^24.0.0",
     "local-ref-resolver": "^0.2.0",
-    "prettier": "^3.0.0",
+    "prettier": "^3.3.3",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "storybook": "^8.0.9",
