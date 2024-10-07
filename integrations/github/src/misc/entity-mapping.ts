@@ -1,4 +1,4 @@
-import { RuntimeError } from '@botpress/client'
+import * as sdk from '@botpress/sdk'
 import {
   User as GitHubUser,
   Issue as GitHubIssue,
@@ -10,27 +10,29 @@ import {
 } from '@octokit/webhooks-types'
 
 import { User, Issue, PullRequest, Discussion, Repository, Label, PullRequestReview } from 'src/definitions/entities'
-import { Client } from '.botpress'
+import * as bp from '.botpress'
 
 abstract class BaseEntityMapper<G extends object, B extends object> {
-  public constructor(protected readonly client: Client) {}
-
   protected abstract map(_entity: G, ..._args: unknown[]): Promise<B>
+
+  public async mapEach(entities: G[]): Promise<B[]> {
+    return Promise.all(entities.map((entity) => this.tryMap(entity)))
+  }
 
   public async tryMap(entity: G, ...args: unknown[]): Promise<B> {
     try {
       return await this.map(entity, ...args)
     } catch (thrown: unknown) {
-      throw new RuntimeError(`Failed to map entity: ${thrown}`)
+      throw new sdk.RuntimeError(`Failed to map entity: ${thrown}`)
     }
-  }
-
-  public async mapEach(entities: G[]): Promise<B[]> {
-    return Promise.all(entities.map((entity) => this.tryMap(entity)))
   }
 }
 
 class UserEntityMapper extends BaseEntityMapper<GitHubUser, User> {
+  public constructor(protected readonly client: bp.Client) {
+    super()
+  }
+
   protected async map(githubUser: GitHubUser): Promise<User> {
     return {
       name: githubUser.name ?? githubUser.login,
@@ -69,8 +71,8 @@ class UserEntityMapper extends BaseEntityMapper<GitHubUser, User> {
 }
 
 class RepositoryEntityMapper extends BaseEntityMapper<GitHubRepository, Repository> {
-  public constructor(client: Client, private readonly _userEntityMapper: UserEntityMapper) {
-    super(client)
+  public constructor(private readonly _userEntityMapper: UserEntityMapper) {
+    super()
   }
   protected async map(githubRepository: GitHubRepository): Promise<Repository> {
     return {
@@ -96,12 +98,11 @@ class LabelEntityMapper extends BaseEntityMapper<GitHubLabel, Label> {
 
 class IssueEntityMapper extends BaseEntityMapper<GitHubIssue, Issue> {
   public constructor(
-    client: Client,
     private readonly _labelEntityMapper: LabelEntityMapper,
     private readonly _userEntityMapper: UserEntityMapper,
     private readonly _repositoryEntityMapper: RepositoryEntityMapper
   ) {
-    super(client)
+    super()
   }
   protected async map(githubIssue: GitHubIssue, githubRepository: GitHubRepository): Promise<Issue> {
     return {
@@ -121,12 +122,11 @@ class IssueEntityMapper extends BaseEntityMapper<GitHubIssue, Issue> {
 
 class PullRequestEntityMapper extends BaseEntityMapper<GitHubPullRequest, PullRequest> {
   public constructor(
-    client: Client,
     private readonly _labelEntityMapper: LabelEntityMapper,
     private readonly _userEntityMapper: UserEntityMapper,
     private readonly _repositoryEntityMapper: RepositoryEntityMapper
   ) {
-    super(client)
+    super()
   }
   protected async map(githubPullRequest: GitHubPullRequest, githubRepository: GitHubRepository): Promise<PullRequest> {
     return {
@@ -156,12 +156,11 @@ class PullRequestEntityMapper extends BaseEntityMapper<GitHubPullRequest, PullRe
 
 class DiscussionEntityMapper extends BaseEntityMapper<GitHubDiscussion, Discussion> {
   public constructor(
-    client: Client,
     private readonly _repositoryEntityMapper: RepositoryEntityMapper,
     private readonly _labelEntityMapper: LabelEntityMapper,
     private readonly _userEntityMapper: UserEntityMapper
   ) {
-    super(client)
+    super()
   }
   protected async map(githubDiscussion_: GitHubDiscussion, githubRepository: GitHubRepository): Promise<Discussion> {
     const githubDiscussion = githubDiscussion_ as GitHubDiscussion & {
@@ -190,11 +189,10 @@ class DiscussionEntityMapper extends BaseEntityMapper<GitHubDiscussion, Discussi
 
 class PullRequestReviewEntityMapper extends BaseEntityMapper<GitHubPullRequestReview, PullRequestReview> {
   public constructor(
-    client: Client,
     private readonly _userEntityMapper: UserEntityMapper,
     private readonly _pullRequestEntityMapper: PullRequestEntityMapper
   ) {
-    super(client)
+    super()
   }
   protected async map(
     githubPullRequestReview: GitHubPullRequestReview,
@@ -213,7 +211,7 @@ class PullRequestReviewEntityMapper extends BaseEntityMapper<GitHubPullRequestRe
   }
 }
 
-export const mapping = (client: Client) => {
+export const mapping = (client: bp.Client) => {
   const mappers = _initializeMappers(client)
 
   const mappingFunctions = {
@@ -229,28 +227,18 @@ export const mapping = (client: Client) => {
   return mappingFunctions
 }
 
-const _initializeMappers = (client: Client) => {
+const _initializeMappers = (client: bp.Client) => {
   const userEntityMapper = new UserEntityMapper(client)
-  const repositoryEntityMapper = new RepositoryEntityMapper(client, userEntityMapper)
-  const labelEntityMapper = new LabelEntityMapper(client)
-  const issueEntityMapper = new IssueEntityMapper(client, labelEntityMapper, userEntityMapper, repositoryEntityMapper)
+  const repositoryEntityMapper = new RepositoryEntityMapper(userEntityMapper)
+  const labelEntityMapper = new LabelEntityMapper()
+  const issueEntityMapper = new IssueEntityMapper(labelEntityMapper, userEntityMapper, repositoryEntityMapper)
   const pullRequestEntityMapper = new PullRequestEntityMapper(
-    client,
     labelEntityMapper,
     userEntityMapper,
     repositoryEntityMapper
   )
-  const discussionEntityMapper = new DiscussionEntityMapper(
-    client,
-    repositoryEntityMapper,
-    labelEntityMapper,
-    userEntityMapper
-  )
-  const pullRequestReviewEntityMapper = new PullRequestReviewEntityMapper(
-    client,
-    userEntityMapper,
-    pullRequestEntityMapper
-  )
+  const discussionEntityMapper = new DiscussionEntityMapper(repositoryEntityMapper, labelEntityMapper, userEntityMapper)
+  const pullRequestReviewEntityMapper = new PullRequestReviewEntityMapper(userEntityMapper, pullRequestEntityMapper)
 
   return {
     discussionEntityMapper,

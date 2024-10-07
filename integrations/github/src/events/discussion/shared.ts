@@ -1,13 +1,13 @@
 import { DiscussionEvent } from '@octokit/webhooks-types'
 import { getConversationFromTags } from 'src/misc/utils'
-import { Client } from '.botpress'
+import * as bp from '.botpress'
 
 export const getOrCreateDiscussionConversation = async ({
   githubEvent,
   client,
 }: {
   githubEvent: DiscussionEvent
-  client: Client
+  client: bp.Client
 }) =>
   (await getConversationFromTags<'discussion'>(client, {
     channel: 'discussion',
@@ -19,7 +19,7 @@ const _createDiscussionConversation = async ({
   client,
 }: {
   githubEvent: DiscussionEvent
-  client: Client
+  client: bp.Client
 }) => {
   // The octokit type for discussion events is incomplete: it lacks the category
   // node id, but it's present in the event payload and documented in the

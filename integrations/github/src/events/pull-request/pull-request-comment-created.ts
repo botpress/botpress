@@ -2,8 +2,8 @@ import { IssueCommentCreatedEvent } from '@octokit/webhooks-types'
 import { wrapEvent } from 'src/misc/event-wrapper'
 import { getOrCreatePullRequestConversation } from './shared'
 
-export const firePullRequestCommentCreated = wrapEvent<IssueCommentCreatedEvent>(
-  async ({ githubEvent, client, eventSender }) => {
+export const firePullRequestCommentCreated = wrapEvent<IssueCommentCreatedEvent>({
+  async event({ githubEvent, client, eventSender }) {
     const conversation = await getOrCreatePullRequestConversation({
       githubEvent: {
         ...githubEvent,
@@ -25,5 +25,6 @@ export const firePullRequestCommentCreated = wrapEvent<IssueCommentCreatedEvent>
       conversationId: conversation.id,
       userId: eventSender.botpressUser,
     })
-  }
-)
+  },
+  errorMessage: 'Failed to handle pull request comment created event',
+})

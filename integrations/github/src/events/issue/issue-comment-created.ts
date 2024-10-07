@@ -2,8 +2,8 @@ import { IssueCommentCreatedEvent } from '@octokit/webhooks-types'
 import { wrapEvent } from 'src/misc/event-wrapper'
 import { getOrCreateBotpressConversationFromGithubIssue } from './shared'
 
-export const fireIssueCommentCreated = wrapEvent<IssueCommentCreatedEvent>(
-  async ({ githubEvent, client, eventSender }) => {
+export const fireIssueCommentCreated = wrapEvent<IssueCommentCreatedEvent>({
+  async event({ githubEvent, client, eventSender }) {
     const conversation = await getOrCreateBotpressConversationFromGithubIssue({ githubEvent, client })
 
     await client.createMessage({
@@ -19,5 +19,6 @@ export const fireIssueCommentCreated = wrapEvent<IssueCommentCreatedEvent>(
       conversationId: conversation.id,
       userId: eventSender.botpressUser,
     })
-  }
-)
+  },
+  errorMessage: 'Failed to handle issue comment created event',
+})

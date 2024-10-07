@@ -1,5 +1,5 @@
 import { getConversationFromTags } from 'src/misc/utils'
-import { Client } from '.botpress'
+import * as bp from '.botpress'
 
 type GitHubPullRequest = {
   pull_request: {
@@ -25,7 +25,7 @@ export const getOrCreatePullRequestConversation = async ({
   client,
 }: {
   githubEvent: GitHubPullRequest
-  client: Client
+  client: bp.Client
 }) =>
   (await getConversationFromTags<'pullRequest'>(client, {
     channel: 'pullRequest',
@@ -37,7 +37,7 @@ const _createPullRequestConversation = async ({
   client,
 }: {
   githubEvent: GitHubPullRequest
-  client: Client
+  client: bp.Client
 }) => {
   const { conversation } = await client.createConversation({
     channel: 'pullRequest',

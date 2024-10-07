@@ -1,4 +1,4 @@
-import { Request, RuntimeError } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import { verify as verifyWebhook } from '@octokit/webhooks-methods'
 import type { WebhookEvent } from '@octokit/webhooks-types'
 
@@ -72,12 +72,12 @@ const _handleOauthRequest = async ({ req, client, ctx, logger }: bp.HandlerProps
   })
 }
 
-const _handleOauth = async (req: Request, client: bp.Client, ctx: bp.Context) => {
+const _handleOauth = async (req: sdk.Request, client: bp.Client, ctx: bp.Context) => {
   const parsedQueryString = new URLSearchParams(req.query)
   const installationIdStr = parsedQueryString.get('installation_id')
 
   if (!installationIdStr) {
-    throw new RuntimeError('Missing installation_id in query string')
+    throw new sdk.RuntimeError('Missing installation_id in query string')
   }
 
   const installationId = Number(installationIdStr)

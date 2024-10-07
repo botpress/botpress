@@ -2,8 +2,8 @@ import { DiscussionCommentCreatedEvent, DiscussionEvent } from '@octokit/webhook
 import { wrapEvent } from 'src/misc/event-wrapper'
 import { getOrCreateDiscussionConversation } from './shared'
 
-export const fireDiscussionCommentCreated = wrapEvent<DiscussionCommentCreatedEvent>(
-  async ({ githubEvent, client, eventSender }) => {
+export const fireDiscussionCommentCreated = wrapEvent<DiscussionCommentCreatedEvent>({
+  async event({ githubEvent, client, eventSender }) {
     const conversation = await getOrCreateDiscussionConversation({
       githubEvent: githubEvent as DiscussionEvent,
       client,
@@ -22,5 +22,6 @@ export const fireDiscussionCommentCreated = wrapEvent<DiscussionCommentCreatedEv
       conversationId: conversation.id,
       userId: eventSender.botpressUser,
     })
-  }
-)
+  },
+  errorMessage: 'Failed to handle discussion comment created event',
+})

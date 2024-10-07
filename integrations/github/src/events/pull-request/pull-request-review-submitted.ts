@@ -2,8 +2,8 @@ import { PullRequestReviewSubmittedEvent } from '@octokit/webhooks-types'
 import { wrapEvent } from 'src/misc/event-wrapper'
 import { getOrCreatePullRequestConversation } from './shared'
 
-export const firePullRequestReviewSubmitted = wrapEvent<PullRequestReviewSubmittedEvent>(
-  async ({ githubEvent, client, eventSender, mapping }) => {
+export const firePullRequestReviewSubmitted = wrapEvent<PullRequestReviewSubmittedEvent>({
+  async event({ githubEvent, client, eventSender, mapping }) {
     const conversation = await getOrCreatePullRequestConversation({
       githubEvent: {
         ...githubEvent,
@@ -40,5 +40,6 @@ export const firePullRequestReviewSubmitted = wrapEvent<PullRequestReviewSubmitt
       messageId,
       userId: eventSender.botpressUser,
     })
-  }
-)
+  },
+  errorMessage: 'Failed to handle pull request review submitted event',
+})

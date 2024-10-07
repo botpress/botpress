@@ -1,12 +1,12 @@
 import { DiscussionCommentCreatedEvent } from '@octokit/webhooks-types'
 import { wrapEvent } from 'src/misc/event-wrapper'
 import { getConversationFromTags } from '../../misc/utils'
-import { Client } from '.botpress'
+import * as bp from '.botpress'
 
 type DiscussionCommentRepliedEvent = DiscussionCommentCreatedEvent & { comment: { parent_id: number } }
 
-export const fireDiscussionCommentReplied = wrapEvent<DiscussionCommentRepliedEvent>(
-  async ({ githubEvent, client, eventSender }) => {
+export const fireDiscussionCommentReplied = wrapEvent<DiscussionCommentRepliedEvent>({
+  async event({ githubEvent, client, eventSender }) {
     const conversation =
       (await getConversationFromTags<'discussionComment'>(client, {
         discussionNodeId: githubEvent.discussion.node_id,
@@ -26,15 +26,16 @@ export const fireDiscussionCommentReplied = wrapEvent<DiscussionCommentRepliedEv
       conversationId: conversation.id,
       userId: eventSender.botpressUser,
     })
-  }
-)
+  },
+  errorMessage: 'Failed to handle discussion comment replied event',
+})
 
 const _createDiscussionReplyConversation = async ({
   githubEvent,
   client,
 }: {
   githubEvent: DiscussionCommentRepliedEvent
-  client: Client
+  client: bp.Client
 }) => {
   const { conversation } = await client.createConversation({
     channel: 'discussionComment',

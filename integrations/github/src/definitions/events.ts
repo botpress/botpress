@@ -1,4 +1,5 @@
-import { z, IntegrationDefinitionProps, EventDefinition, ZodTypeAny } from '@botpress/sdk'
+import { z, ZodTypeAny } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import { Issue, PullRequest, User, PullRequestReview } from './entities'
 
 const COMMON_EVENT_FIELDS = {
@@ -14,7 +15,7 @@ const pullRequestOpened = {
     pullRequest: PullRequest.title('Pull Request').describe('The pull request that was opened'),
     ...COMMON_EVENT_FIELDS.sender,
   }),
-} as const satisfies EventDefinition
+} as const satisfies sdk.EventDefinition
 
 export const pullRequestMerged = {
   title: 'Pull Request merged',
@@ -23,7 +24,7 @@ export const pullRequestMerged = {
     pullRequest: PullRequest.title('Pull Request').describe('The pull request that was merged'),
     ...COMMON_EVENT_FIELDS.sender,
   }),
-} as const satisfies EventDefinition
+} as const satisfies sdk.EventDefinition
 
 export const issueOpened = {
   title: 'Issue opened',
@@ -32,7 +33,7 @@ export const issueOpened = {
     issue: Issue.title('Issue').describe('The issue that was opened'),
     ...COMMON_EVENT_FIELDS.sender,
   }),
-} as const satisfies EventDefinition
+} as const satisfies sdk.EventDefinition
 
 export const pullRequestReviewSubmitted = {
   title: 'Pull Request review submitted',
@@ -41,11 +42,11 @@ export const pullRequestReviewSubmitted = {
     review: PullRequestReview.title('Review').describe('The review that was submitted'),
     ...COMMON_EVENT_FIELDS.sender,
   }),
-} as const satisfies EventDefinition
+} as const satisfies sdk.EventDefinition
 
 export const events = {
   issueOpened,
   pullRequestMerged,
   pullRequestOpened,
   pullRequestReviewSubmitted,
-} as const satisfies IntegrationDefinitionProps['events']
+} as const satisfies sdk.IntegrationDefinitionProps['events']

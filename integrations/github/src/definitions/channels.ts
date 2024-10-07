@@ -1,5 +1,5 @@
-import { IntegrationDefinitionProps, messages, TagDefinition } from '@botpress/sdk'
-const { text } = messages.defaults
+import * as sdk from '@botpress/sdk'
+const { text } = sdk.messages.defaults
 
 const COMMON_TAGS = {
   repository: {
@@ -90,7 +90,7 @@ const COMMON_TAGS = {
       description: 'URL of the comment',
     },
   },
-} as const satisfies Record<string, Record<string, TagDefinition>>
+} as const satisfies Record<string, Record<string, sdk.TagDefinition>>
 
 export const channels = {
   pullRequest: {
@@ -226,4 +226,4 @@ export const channels = {
       text,
     },
   },
-} as const satisfies IntegrationDefinitionProps['channels']
+} as const satisfies sdk.IntegrationDefinitionProps['channels']
