@@ -14,6 +14,7 @@ export const handleSyncIssuesRequest: Handler<'syncIssuesRequest'> = async (prop
       type: 'github:findTarget',
       input: {
         channel: 'issue',
+        repo: 'botpress',
         query: '',
       },
     })
