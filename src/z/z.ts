@@ -62,31 +62,31 @@ export type ZodFirstPartySchemaTypes =
   | ZodUnknown
   | ZodNever
   | ZodVoid
-  | ZodArray<any, any>
-  | ZodObject<any, any, any>
-  | ZodUnion<any>
-  | ZodDiscriminatedUnion<any, any>
-  | ZodIntersection<any, any>
-  | ZodTuple<any, any>
-  | ZodRecord<any, any>
-  | ZodMap<any>
-  | ZodSet<any>
-  | ZodFunction<any, any>
-  | ZodLazy<any>
-  | ZodLiteral<any>
-  | ZodEnum<any>
-  | ZodEffects<any, any, any>
-  | ZodNativeEnum<any>
-  | ZodOptional<any>
-  | ZodNullable<any>
-  | ZodDefault<any>
-  | ZodCatch<any>
-  | ZodPromise<any>
-  | ZodBranded<any, any>
-  | ZodPipeline<any, any>
-  | ZodReadonly<any>
+  | ZodArray
+  | ZodObject
+  | ZodUnion
+  | ZodDiscriminatedUnion
+  | ZodIntersection
+  | ZodTuple
+  | ZodRecord
+  | ZodMap
+  | ZodSet
+  | ZodFunction
+  | ZodLazy
+  | ZodLiteral
+  | ZodEnum
+  | ZodEffects
+  | ZodNativeEnum
+  | ZodOptional
+  | ZodNullable
+  | ZodDefault
+  | ZodCatch
+  | ZodPromise
+  | ZodBranded
+  | ZodPipeline
+  | ZodReadonly
   | ZodSymbol
-  | ZodTemplateLiteral<any>
+  | ZodTemplateLiteral
   | ZodRef
 
 // requires TS 4.4+
@@ -123,6 +123,7 @@ const intersectionType = ZodIntersection.create
 const tupleType = ZodTuple.create
 const recordType = ZodRecord.create
 const refType = ZodRef.create
+const readonlyType = ZodReadonly.create
 const mapType = ZodMap.create
 const setType = ZodSet.create
 const functionType = ZodFunction.create
@@ -134,6 +135,7 @@ const promiseType = ZodPromise.create
 const effectsType = ZodEffects.create
 const optionalType = ZodOptional.create
 const nullableType = ZodNullable.create
+const defaultType = ZodDefault.create
 const preprocessType = ZodEffects.createWithPreprocess
 const pipelineType = ZodPipeline.create
 const templateLiteralType = ZodTemplateLiteral.create
@@ -166,6 +168,7 @@ export {
   bigIntType as bigint,
   booleanType as boolean,
   dateType as date,
+  defaultType as default,
   discriminatedUnionType as discriminatedUnion,
   effectsType as effect,
   enumType as enum,
@@ -191,6 +194,7 @@ export {
   promiseType as promise,
   recordType as record,
   refType as ref,
+  readonlyType as readonly,
   setType as set,
   strictObjectType as strictObject,
   stringType as string,

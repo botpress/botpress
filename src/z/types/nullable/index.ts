@@ -18,7 +18,7 @@ export interface ZodNullableDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTy
 
 export type ZodNullableType<T extends ZodTypeAny> = ZodNullable<T>
 
-export class ZodNullable<T extends ZodTypeAny> extends ZodType<
+export class ZodNullable<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   T['_output'] | null,
   ZodNullableDef<T>,
   T['_input'] | null

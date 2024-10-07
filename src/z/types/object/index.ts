@@ -110,7 +110,7 @@ function deepPartialify(schema: ZodTypeAny): any {
 }
 
 export class ZodObject<
-  T extends ZodRawShape,
+  T extends ZodRawShape = ZodRawShape,
   UnknownKeys extends UnknownKeysParam = UnknownKeysParam,
   Catchall extends ZodTypeAny = ZodTypeAny,
   Output = objectOutputType<T, Catchall, UnknownKeys>,

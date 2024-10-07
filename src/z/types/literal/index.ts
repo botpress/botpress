@@ -17,7 +17,7 @@ export interface ZodLiteralDef<T extends Primitive = Primitive> extends ZodTypeD
   typeName: ZodFirstPartyTypeKind.ZodLiteral
 }
 
-export class ZodLiteral<T extends Primitive> extends ZodType<T, ZodLiteralDef<T>> {
+export class ZodLiteral<T extends Primitive = Primitive> extends ZodType<T, ZodLiteralDef<T>> {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     if (input.data !== this._def.value) {
       const ctx = this._getOrReturnCtx(input)

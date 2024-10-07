@@ -16,7 +16,7 @@ export interface ZodLazyDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTypeDe
   typeName: ZodFirstPartyTypeKind.ZodLazy
 }
 
-export class ZodLazy<T extends ZodTypeAny> extends ZodType<output<T>, ZodLazyDef<T>, input<T>> {
+export class ZodLazy<T extends ZodTypeAny = ZodTypeAny> extends ZodType<output<T>, ZodLazyDef<T>, input<T>> {
   get schema(): T {
     return this._def.getter()
   }

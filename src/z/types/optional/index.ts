@@ -18,7 +18,7 @@ export interface ZodOptionalDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTy
 
 export type ZodOptionalType<T extends ZodTypeAny> = ZodOptional<T>
 
-export class ZodOptional<T extends ZodTypeAny> extends ZodType<
+export class ZodOptional<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   T['_output'] | undefined,
   ZodOptionalDef<T>,
   T['_input'] | undefined

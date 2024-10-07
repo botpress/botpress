@@ -30,7 +30,7 @@ export type arrayOutputType<
   Cardinality extends ArrayCardinality = 'many',
 > = Cardinality extends 'atleastone' ? [T['_output'], ...T['_output'][]] : T['_output'][]
 
-export class ZodArray<T extends ZodTypeAny, Cardinality extends ArrayCardinality = 'many'> extends ZodType<
+export class ZodArray<T extends ZodTypeAny = ZodTypeAny, Cardinality extends ArrayCardinality = 'many'> extends ZodType<
   arrayOutputType<T, Cardinality>,
   ZodArrayDef<T>,
   Cardinality extends 'atleastone' ? [T['_input'], ...T['_input'][]] : T['_input'][]

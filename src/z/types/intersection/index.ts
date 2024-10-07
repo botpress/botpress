@@ -72,7 +72,7 @@ function mergeValues(a: any, b: any): { valid: true; data: any } | { valid: fals
   }
 }
 
-export class ZodIntersection<T extends ZodTypeAny, U extends ZodTypeAny> extends ZodType<
+export class ZodIntersection<T extends ZodTypeAny = ZodTypeAny, U extends ZodTypeAny = ZodTypeAny> extends ZodType<
   T['_output'] & U['_output'],
   ZodIntersectionDef<T, U>,
   T['_input'] & U['_input']

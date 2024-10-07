@@ -95,6 +95,14 @@ type InternalOptions = {
   parent?: SchemaTypes
 }
 
+// TODO: rename this transform to `toTypescriptType`
+
+/**
+ *
+ * @param schema zui schema
+ * @param options generation options
+ * @returns a string of the TypeScript **type** representing the schema
+ */
 export function toTypescript(schema: z.Schema, options: TypescriptGenerationOptions = {}): string {
   const wrappedSchema: Declaration = getDeclarationProps(schema, options)
 
@@ -223,7 +231,7 @@ function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | n
       return `Array<${item}>`
 
     case z.ZodFirstPartyTypeKind.ZodObject:
-      const props = Object.entries((schema as z.ZodObject<any>).shape).map(([key, value]) => {
+      const props = Object.entries(def.shape()).map(([key, value]) => {
         if (value instanceof z.Schema) {
           return sUnwrapZod(new KeyValue(toPropertyKey(key), value), newConfig)
         }
@@ -232,14 +240,14 @@ function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | n
 
       return `{ ${props.join('; ')} }`
     case z.ZodFirstPartyTypeKind.ZodUnion:
-      const options = ((schema as z.ZodUnion<any>).options as z.ZodSchema[]).map((option) => {
+      const options = def.options.map((option) => {
         return sUnwrapZod(option, newConfig)
       })
       return `${getMultilineComment(def.description)}
 ${options.join(' | ')}`
 
     case z.ZodFirstPartyTypeKind.ZodDiscriminatedUnion:
-      const opts = ((schema as z.ZodDiscriminatedUnion<any, any>).options as z.ZodSchema[]).map((option) => {
+      const opts = def.options.map((option) => {
         return sUnwrapZod(option, newConfig)
       })
       return `${getMultilineComment(schema._def.description)}
@@ -281,7 +289,7 @@ ${opts.join(' | ')}`
       if (typeof def.value === 'bigint') {
         throw new Error('BigInt literals are not supported yet')
       }
-      const value: string = typeof def.value === 'string' ? escapeString(def.value) : `${def.value}`
+      const value: string = typeof def.value === 'string' ? escapeString(def.value) : String(def.value)
       return `${getMultilineComment(def.description)}
 ${value}`.trim()
 
@@ -293,7 +301,7 @@ ${value}`.trim()
       return sUnwrapZod(def.schema, newConfig)
 
     case z.ZodFirstPartyTypeKind.ZodNativeEnum:
-      return sUnwrapZod(def.values, newConfig)
+      throw new Error('ZodNativeEnum cannot be transformed to TypeScript type yet')
 
     case z.ZodFirstPartyTypeKind.ZodOptional:
       return `${sUnwrapZod(def.innerType, newConfig)} | undefined`
@@ -305,10 +313,10 @@ ${value}`.trim()
       return sUnwrapZod(def.innerType, newConfig)
 
     case z.ZodFirstPartyTypeKind.ZodCatch:
-      return sUnwrapZod((schema as z.ZodCatch<any>).removeCatch(), newConfig)
+      return sUnwrapZod(def.innerType, newConfig)
 
     case z.ZodFirstPartyTypeKind.ZodPromise:
-      return `Promise<${sUnwrapZod((schema as z.ZodPromise<any>).unwrap(), newConfig)}>`
+      return `Promise<${sUnwrapZod(def.type, newConfig)}>`
 
     case z.ZodFirstPartyTypeKind.ZodBranded:
       return sUnwrapZod(def.type, newConfig)

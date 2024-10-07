@@ -25,10 +25,8 @@ import {
   ParseReturnType,
 } from '../index'
 
-export interface ZodFunctionDef<
-  Args extends ZodTuple<any, any> = ZodTuple<any, any>,
-  Returns extends ZodTypeAny = ZodTypeAny,
-> extends ZodTypeDef {
+export interface ZodFunctionDef<Args extends ZodTuple<any, any> = ZodTuple, Returns extends ZodTypeAny = ZodTypeAny>
+  extends ZodTypeDef {
   args: Args
   returns: Returns
   typeName: ZodFirstPartyTypeKind.ZodFunction
@@ -40,7 +38,10 @@ export type OuterTypeOfFunction<Args extends ZodTuple<any, any>, Returns extends
 export type InnerTypeOfFunction<Args extends ZodTuple<any, any>, Returns extends ZodTypeAny> =
   Args['_output'] extends Array<any> ? (...args: Args['_output']) => Returns['_input'] : never
 
-export class ZodFunction<Args extends ZodTuple<any, any>, Returns extends ZodTypeAny> extends ZodType<
+export class ZodFunction<
+  Args extends ZodTuple<any, any> = ZodTuple,
+  Returns extends ZodTypeAny = ZodTypeAny,
+> extends ZodType<
   OuterTypeOfFunction<Args, Returns>,
   ZodFunctionDef<Args, Returns>,
   InnerTypeOfFunction<Args, Returns>

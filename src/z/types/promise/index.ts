@@ -19,7 +19,7 @@ export interface ZodPromiseDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTyp
   typeName: ZodFirstPartyTypeKind.ZodPromise
 }
 
-export class ZodPromise<T extends ZodTypeAny> extends ZodType<
+export class ZodPromise<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   Promise<T['_output']>,
   ZodPromiseDef<T>,
   Promise<T['_input']>

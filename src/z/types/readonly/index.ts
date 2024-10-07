@@ -37,7 +37,7 @@ export interface ZodReadonlyDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTy
   typeName: ZodFirstPartyTypeKind.ZodReadonly
 }
 
-export class ZodReadonly<T extends ZodTypeAny> extends ZodType<
+export class ZodReadonly<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   MakeReadonly<T['_output']>,
   ZodReadonlyDef<T>,
   MakeReadonly<T['_input']>

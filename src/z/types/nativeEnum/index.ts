@@ -21,7 +21,7 @@ export interface ZodNativeEnumDef<T extends EnumLike = EnumLike> extends ZodType
 
 export type EnumLike = { [k: string]: string | number; [nu: number]: string }
 
-export class ZodNativeEnum<T extends EnumLike> extends ZodType<T[keyof T], ZodNativeEnumDef<T>> {
+export class ZodNativeEnum<T extends EnumLike = EnumLike> extends ZodType<T[keyof T], ZodNativeEnumDef<T>> {
   _parse(input: ParseInput): ParseReturnType<T[keyof T]> {
     const nativeEnumValues = util.getValidEnumValues(this._def.values)
 

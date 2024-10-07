@@ -54,7 +54,10 @@ export function createZodEnum(values: [string, ...string[]], params?: RawCreateP
   })
 }
 
-export class ZodEnum<T extends [string, ...string[]]> extends ZodType<T[number], ZodEnumDef<T>> {
+export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> extends ZodType<
+  T[number],
+  ZodEnumDef<T>
+> {
   _parse(input: ParseInput): ParseReturnType<this['_output']> {
     if (typeof input.data !== 'string') {
       const ctx = this._getOrReturnCtx(input)

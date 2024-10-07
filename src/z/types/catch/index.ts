@@ -18,7 +18,7 @@ export interface ZodCatchDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTypeD
   typeName: ZodFirstPartyTypeKind.ZodCatch
 }
 
-export class ZodCatch<T extends ZodTypeAny> extends ZodType<
+export class ZodCatch<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   T['_output'],
   ZodCatchDef<T>,
   unknown // any input will pass validation // T["_input"]

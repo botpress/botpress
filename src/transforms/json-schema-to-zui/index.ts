@@ -24,6 +24,7 @@ import { JsonSchema7Type } from '../zui-to-json-schema/parseDef'
 import { parseSchema } from './parsers/parseSchema'
 import { ZuiExtensionObject } from '../../ui/types'
 import { JSONSchemaExtended } from './types'
+import { evalZuiString } from '../common/eval-zui-string'
 
 export const jsonSchemaToZodStr = (schema: JSONSchemaExtended): string => {
   return parseSchema(schema, {
@@ -35,7 +36,7 @@ export const jsonSchemaToZodStr = (schema: JSONSchemaExtended): string => {
 const jsonSchemaToZod = (schema: any): ZodTypeAny => {
   let code = jsonSchemaToZodStr(schema)
   code = code.replaceAll('errors: z.ZodError[]', 'errors')
-  return new Function('z', `return ${code}`)(z) as ZodTypeAny
+  return evalZuiString(code)
 }
 
 const applyZuiPropsRecursively = (zodField: ZodTypeAny, jsonSchemaField: any) => {

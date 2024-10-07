@@ -49,7 +49,8 @@ import {
 } from '../index'
 import type { ZuiSchemaOptions } from '../../../transforms/zui-to-json-schema/zui-extension'
 import type { ObjectToZuiOptions } from '../../../transforms/object-to-zui'
-import { TypescriptGenerationOptions, toTypescript } from '../../../transforms/zui-to-typescript-next'
+import { TypescriptGenerationOptions, toTypescript } from '../../../transforms/zui-to-typescript-type'
+import { toTypescriptSchema } from '../../../transforms/zui-to-typescript-schema'
 
 export type RefinementCtx = {
   addIssue: (arg: IssueData) => void
@@ -430,7 +431,7 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
       innerType: this,
       defaultValue: defaultValueFunc,
       typeName: ZodFirstPartyTypeKind.ZodDefault,
-    }) as any
+    })
   }
 
   brand<B extends string | number | symbol>(brand?: B): ZodBranded<this, B>
@@ -604,8 +605,22 @@ export abstract class ZodType<Output = any, Def extends ZodTypeDef = ZodTypeDef,
     return zuiToJsonSchema(this, opts)
   }
 
+  /**
+   *
+   * @param options generation options
+   * @returns a string of the TypeScript type representing the schema
+   */
   toTypescript(opts?: TypescriptGenerationOptions): string {
     return toTypescript(this, opts)
+  }
+
+  /**
+   *
+   * @param options generation options
+   * @returns a typescript program (a string) that would construct the given schema if executed
+   */
+  toTypescriptSchema(): string {
+    return toTypescriptSchema(this)
   }
 
   async toTypescriptAsync(

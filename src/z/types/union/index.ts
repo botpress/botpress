@@ -18,14 +18,14 @@ import {
   SyncParseReturnType,
 } from '../index'
 
+type DefaultZodUnionOptions = Readonly<[ZodTypeAny, ZodTypeAny, ...ZodTypeAny[]]>
 export type ZodUnionOptions = Readonly<[ZodTypeAny, ...ZodTypeAny[]]>
-export interface ZodUnionDef<T extends ZodUnionOptions = Readonly<[ZodTypeAny, ZodTypeAny, ...ZodTypeAny[]]>>
-  extends ZodTypeDef {
+export interface ZodUnionDef<T extends ZodUnionOptions = DefaultZodUnionOptions> extends ZodTypeDef {
   options: T
   typeName: ZodFirstPartyTypeKind.ZodUnion
 }
 
-export class ZodUnion<T extends ZodUnionOptions> extends ZodType<
+export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extends ZodType<
   T[number]['_output'],
   ZodUnionDef<T>,
   T[number]['_input']

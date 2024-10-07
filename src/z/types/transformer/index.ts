@@ -41,7 +41,7 @@ export interface ZodEffectsDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTyp
   effect: Effect<any>
 }
 
-export class ZodEffects<T extends ZodTypeAny, Output = output<T>, Input = input<T>> extends ZodType<
+export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, Input = input<T>> extends ZodType<
   Output,
   ZodEffectsDef<T>,
   Input
