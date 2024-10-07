@@ -210,7 +210,7 @@
       "outputs": [".botpress/**"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@bp-bots/bugbuster#integrations": {
+    "@bp-bots/bugbuster#add:integrations": {
       "cache": false,
       "dependsOn": [
         "@botpress/cli#build",
@@ -222,50 +222,59 @@
     "@bp-bots/bugbuster#build": {
       "cache": false,
       "dependsOn": [
-        "@bp-bots/bugbuster#integrations",
+        "@bp-bots/bugbuster#add:integrations",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
+    "@bp-bots/hello-world#add:integrations": {
+      "cache": false,
+      "dependsOn": ["@botpress/cli#build", "@botpresshub/telegram#build"]
+    },
     "@bp-bots/hello-world#build": {
       "cache": false,
-      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+      "dependsOn": [
+        "@bp-bots/hello-world#add:integrations",
+        "@botpress/client#build",
+        "@botpress/sdk#build",
+        "@botpress/cli#build"
+      ]
     },
-    "@bp-bots/hit-looper#integrations": {
+    "@bp-bots/hit-looper#add:integrations": {
       "cache": false,
       "dependsOn": ["@botpress/cli#build", "@botpresshub/telegram#build", "@botpresshub/zendesk#build"]
     },
     "@bp-bots/hit-looper#build": {
       "cache": false,
       "dependsOn": [
-        "@bp-bots/hit-looper#integrations",
+        "@bp-bots/hit-looper#add:integrations",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@bp-bots/sheetzy#integrations": {
+    "@bp-bots/sheetzy#add:integrations": {
       "cache": false,
       "dependsOn": ["@botpress/cli#build", "@botpresshub/telegram#build", "@botpresshub/gsheets#build"]
     },
     "@bp-bots/sheetzy#build": {
       "cache": false,
       "dependsOn": [
-        "@bp-bots/sheetzy#integrations",
+        "@bp-bots/sheetzy#add:integrations",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@bp-bots/sinlin#integrations": {
+    "@bp-bots/sinlin#add:integrations": {
       "cache": false,
       "dependsOn": ["@botpress/cli#build", "@botpresshub/telegram#build", "@botpresshub/linear#build"]
     },
     "@bp-bots/sinlin#build": {
       "cache": false,
       "dependsOn": [
-        "@bp-bots/sinlin#integrations",
+        "@bp-bots/sinlin#add:integrations",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"

@@ -3,14 +3,12 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp build",
-    "integrations": "echo 'nothing to install'"
+    "add:integrations": "bp add ../../integrations/github -y && bp add ../../integrations/slack -y"
   },
   "private": true,
   "dependencies": {
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*",
-    "@botpresshub/github": "workspace:*",
-    "@botpresshub/slack": "workspace:*"
+    "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

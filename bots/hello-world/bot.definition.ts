@@ -1,12 +1,7 @@
 import * as sdk from '@botpress/sdk'
-import whatsapp from '@botpresshub/whatsapp/integration.definition'
+import whatsapp from './bp_modules/whatsapp'
 
-const whatsappPkg = {
-  type: 'integration',
-  definition: whatsapp,
-} satisfies sdk.IntegrationPackage
-
-export default new sdk.BotDefinition({}).add(whatsappPkg, {
+export default new sdk.BotDefinition({}).add(whatsapp, {
   enabled: true,
   configurationType: null,
   configuration: {},

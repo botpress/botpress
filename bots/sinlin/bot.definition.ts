@@ -1,9 +1,6 @@
 import * as sdk from '@botpress/sdk'
-import linear from '@botpresshub/linear/integration.definition'
-import telegram from '@botpresshub/telegram/integration.definition'
-
-const linearPkg = { type: 'integration', definition: linear } satisfies sdk.IntegrationPackage
-const telegramPkg = { type: 'integration', definition: telegram } satisfies sdk.IntegrationPackage
+import linear from './bp_modules/linear'
+import telegram from './bp_modules/telegram'
 
 export default new sdk.BotDefinition({
   configuration: {
@@ -33,12 +30,12 @@ export default new sdk.BotDefinition({
     },
   },
 })
-  .add(linearPkg, {
+  .add(linear, {
     enabled: true,
     configurationType: null,
     configuration: {},
   })
-  .add(telegramPkg, {
+  .add(telegram, {
     enabled: true,
     configurationType: null,
     configuration: { botToken: '$BOT_TOKEN' },

@@ -4,15 +4,13 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp build",
-    "integrations": "echo 'nothing to install'"
+    "add:integrations": "bp add ../../integrations/linear -y && bp add ../../integrations/telegram -y"
   },
   "private": true,
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "lodash": "^4.17.21",
-    "@botpresshub/linear": "workspace:*",
-    "@botpresshub/telegram": "workspace:*"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

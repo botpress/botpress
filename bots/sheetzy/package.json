@@ -3,7 +3,7 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp build",
-    "integrations": "echo 'nothing to install'"
+    "add:integrations": "bp add ../../integrations/gsheets -y && bp add ../../integrations/telegram -y"
   },
   "keywords": [],
   "private": true,
@@ -11,9 +11,7 @@
   "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*",
-    "@botpresshub/gsheets": "workspace:*",
-    "@botpresshub/telegram": "workspace:*"
+    "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
     "@bpinternal/es-node": "^0.0.5",

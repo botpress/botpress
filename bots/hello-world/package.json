@@ -5,13 +5,12 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp build",
-    "integrations": "echo 'nothing to install'"
+    "add:integrations": "bp add ../../integrations/whatsapp -y"
   },
   "dependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*",
-    "@botpresshub/whatsapp": "workspace:*"
+    "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
     "@types/json-schema": "^7.0.11",

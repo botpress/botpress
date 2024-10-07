@@ -1,16 +1,6 @@
 import * as sdk from '@botpress/sdk'
-import github from '@botpresshub/github/integration.definition'
-import slack from '@botpresshub/slack/integration.definition'
-
-const githubPkg = {
-  type: 'integration',
-  definition: github,
-} satisfies sdk.IntegrationPackage
-
-const slackPkg = {
-  type: 'integration',
-  definition: slack,
-} satisfies sdk.IntegrationPackage
+import github from './bp_modules/github'
+import slack from './bp_modules/slack'
 
 export default new sdk.BotDefinition({
   states: {
@@ -34,12 +24,12 @@ export default new sdk.BotDefinition({
     },
   },
 })
-  .add(githubPkg, {
+  .add(github, {
     enabled: true,
     configurationType: null,
     configuration: { owner: 'botpress', repo: 'botpress', token: '$TOKEN' },
   })
-  .add(slackPkg, {
+  .add(slack, {
     enabled: true,
     configurationType: null,
     configuration: {},
