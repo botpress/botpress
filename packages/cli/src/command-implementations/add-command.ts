@@ -1,6 +1,5 @@
 import * as fslib from 'fs'
 import * as pathlib from 'path'
-import * as apiUtils from '../api'
 import { ApiClient } from '../api'
 import * as codegen from '../code-generation'
 import type commandDefinitions from '../command-definitions'
@@ -26,16 +25,13 @@ type InstallablePackage =
 export type AddCommandDefinition = typeof commandDefinitions.add
 export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   public async run(): Promise<void> {
-    const api = await this.ensureLoginAndCreateClient(this.argv)
     const parsedRef = pkgRef.parsePackageRef(this.argv.integrationRef)
     if (!parsedRef) {
       throw new errors.InvalidPackageReferenceError(this.argv.integrationRef)
     }
 
     const targetPackage =
-      parsedRef.type === 'path'
-        ? await this._findLocalPackage(parsedRef)
-        : await this._findRemotePackage(api, parsedRef)
+      parsedRef.type === 'path' ? await this._findLocalPackage(parsedRef) : await this._findRemotePackage(parsedRef)
 
     if (!targetPackage) {
       throw new errors.BotpressCLIError(`Package "${this.argv.integrationRef}" not found`)
@@ -67,10 +63,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     await this._install(installPath, files)
   }
 
-  private async _findRemotePackage(
-    api: apiUtils.ApiClient,
-    ref: pkgRef.ApiPackageRef
-  ): Promise<InstallablePackage | undefined> {
+  private async _findRemotePackage(ref: pkgRef.ApiPackageRef): Promise<InstallablePackage | undefined> {
+    const api = await this.ensureLoginAndCreateClient(this.argv)
     const integration = await api.findIntegration(ref)
     if (integration) {
       return { type: 'integration', name: integration.name, pkg: { source: 'remote', integration } }
