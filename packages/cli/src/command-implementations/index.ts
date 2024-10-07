@@ -16,6 +16,7 @@ import type { GlobalCommand, GlobalCommandDefinition } from './global-command'
 import { InitCommand } from './init-command'
 import * as integrations from './integration-commands'
 import * as interfaces from './interface-commands'
+import { LintCommand } from './lint-command'
 import { LoginCommand } from './login-command'
 import { LogoutCommand } from './logout-command'
 import { ReadCommand } from './read-command'
@@ -67,4 +68,5 @@ export default {
   deploy: getHandler(DeployCommand),
   add: getHandler(AddCommand),
   dev: getHandler(DevCommand),
+  lint: getHandler(LintCommand),
 } satisfies ImplementationTree<typeof commandDefinitions>

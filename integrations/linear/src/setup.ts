@@ -7,7 +7,3 @@ export const register: bp.IntegrationProps['register'] = async () => {
 export const unregister: bp.IntegrationProps['unregister'] = async () => {
   // nothing to unregister
 }
-
-export const createConversation: bp.IntegrationProps['createConversation'] = async ({ client, channel, tags }) => {
-  await client.createConversation({ channel, tags })
-}

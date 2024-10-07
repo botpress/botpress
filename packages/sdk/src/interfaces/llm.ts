@@ -130,7 +130,20 @@ const GenerateContentInputSchema = <S extends z.ZodSchema>(modelRefSchema: S) =>
     // TODO: an object with options doesn't seem to be supported by the Studio as it's not rendering correctly, the dropdown for "type" is not working and it's sending a blank value instead which causes a schema validation error unless an empty value is allowed in the `type` enum
     toolChoice: ToolChoiceSchema.optional(), // note: Gemini doesn't support this but we can just ignore it there
     userId: z.string().optional(),
-    debug: z.boolean().optional().describe('Set to `true` to output debug information to the bot logs'),
+    debug: z.boolean().optional().hidden().describe('Set to `true` to output debug information to the bot logs'),
+    meta: z
+      .object({
+        promptCategory: z
+          .string()
+          .optional()
+          .describe('Category of the prompt, e.g. cards/ai-generate, cards/ai-task, nodes/autonomous, etc.'),
+        integrationName: z
+          .string()
+          .optional()
+          .describe('Name of the integration that originally received the message that initiated this action'),
+      })
+      .optional()
+      .hidden(),
   })
 
 const GenerateContentInputBaseSchema = GenerateContentInputSchema(ModelRefSchema)
@@ -160,7 +173,7 @@ const GenerateContentOutputSchema = z.object({
 
 export const llm = new InterfaceDeclaration({
   name: 'llm',
-  version: '5.0.0',
+  version: '5.1.0',
   entities: {
     modelRef: {
       schema: ModelRefSchema,

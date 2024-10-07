@@ -10,7 +10,7 @@ export class ReadCommand extends ProjectCommand<ReadCommandDefinition> {
   public async run(): Promise<void> {
     const projectDef = await this.readProjectDefinitionFromFS()
     if (projectDef.type === 'integration') {
-      const parsed = prepareCreateIntegrationBody(projectDef.definition)
+      const parsed = await prepareCreateIntegrationBody(projectDef.definition)
       parsed.interfaces = utils.records.mapValues(projectDef.definition.interfaces, (iface) => ({
         id: '...', // need to be logged in to get this id
         ...iface,
@@ -19,7 +19,7 @@ export class ReadCommand extends ProjectCommand<ReadCommandDefinition> {
       return
     }
     if (projectDef.type === 'interface') {
-      const parsed = prepareCreateInterfaceBody(projectDef.definition)
+      const parsed = await prepareCreateInterfaceBody(projectDef.definition)
       this.logger.json(parsed)
       return
     }

@@ -277,6 +277,10 @@ const initSchema = {
   name: { type: 'string', description: 'The name of the project' },
 } satisfies CommandSchema
 
+const lintSchema = {
+  ...projectSchema,
+} satisfies CommandSchema
+
 // exports
 
 export const schemas = {
@@ -306,4 +310,5 @@ export const schemas = {
   deploy: deploySchema,
   add: addSchema,
   dev: devSchema,
+  lint: lintSchema,
 } as const

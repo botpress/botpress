@@ -8,7 +8,7 @@ const typingIndicatorPkg = {
 
 export default new IntegrationDefinition({
   name: 'telegram',
-  version: '0.5.2',
+  version: '0.5.3',
   title: 'Telegram',
   description: 'This integration allows your bot to interact with Telegram.',
   icon: 'icon.svg',
@@ -20,7 +20,15 @@ export default new IntegrationDefinition({
   },
   channels: {
     channel: {
-      messages: messages.defaults,
+      messages: {
+        ...messages.defaults,
+        audio: {
+          ...messages.defaults.audio,
+          schema: messages.defaults.audio.schema.extend({
+            caption: z.string().optional().describe('The caption/transcription of the audio message'),
+          }),
+        },
+      },
       message: { tags: { id: {}, chatId: {} } },
       conversation: {
         tags: { id: {}, fromUserId: {}, fromUserName: {}, chatId: {} },

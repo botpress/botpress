@@ -28,7 +28,7 @@ export default new IntegrationDefinition({
   name: 'slack',
   title: 'Slack',
   description: 'This integration allows your bot to interact with Slack.',
-  version: '1.0.0',
+  version: '1.0.1',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

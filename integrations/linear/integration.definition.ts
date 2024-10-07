@@ -1,6 +1,6 @@
 import { IntegrationDefinition, InterfacePackage, interfaces } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { actions, channels, events, configuration, configurations, user, states, entities } from './src/definitions'
+import { actions, channels, events, configuration, configurations, user, states, entities } from './definitions'
 
 const listablePkg = {
   type: 'interface',
@@ -9,7 +9,7 @@ const listablePkg = {
 
 export default new IntegrationDefinition({
   name: 'linear',
-  version: '0.5.1',
+  version: '1.0.0',
   title: 'Linear',
   description:
     'Elevate project management with Linear. Update, create, and track issues effortlessly. Improve collaboration with workflow actions like marking duplicates, managing teams and connect your chatbot directly in discussions',

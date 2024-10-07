@@ -1,5 +1,4 @@
-import { describe } from 'node:test'
-import { test, expect } from 'vitest'
+import { test, expect, describe } from 'vitest'
 import { formatPackageRef, PackageRef, parsePackageRef } from './package-ref'
 
 const path = '/my/path'

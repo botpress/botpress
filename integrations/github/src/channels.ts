@@ -1,92 +1,85 @@
-import { Octokit } from 'octokit'
-import { Channels } from './misc/types'
-import { ackMessage, getConversationId } from './misc/utils'
+import { ChannelInjections, wrapChannelAndInjectOctokit } from './misc/channel-wrapper'
+import { AckFunction, Channels } from './misc/types'
 
 export default {
   pullRequest: {
     messages: {
-      text: async ({ ctx, conversation, payload, ack }) => {
-        console.info(`Sending a text message on channel pull request with content ${payload.text}`)
-        const { owner, repo, token } = ctx.configuration
-        const octokit = new Octokit({ auth: token })
-
-        const prNumber = getConversationId(conversation)
-        const comment = await octokit.rest.issues.createComment({
-          owner,
-          repo,
-          issue_number: prNumber,
-          body: payload.text,
-        })
-        await ackMessage(comment.data.id, ack)
-      },
-    },
-  },
-  discussion: {
-    messages: {
-      text: async ({ ctx, conversation, payload, ack }) => {
-        console.info(`Sending a text message on channel discussion with content ${payload.text}`)
-        const { owner, repo, token } = ctx.configuration
-        const octokit = new Octokit({ auth: token })
-
-        const discussionNumber = getConversationId(conversation)
-
-        // Currently, there is no rest API to create a repo discussion comment
-        const {
-          repository: {
-            discussion: { id: discussionId },
-          },
-        } = await octokit.graphql<{ repository: { discussion: { id: string } } }>(
-          `query ($owner:String!,$repo:String!,$discussionNumber:Int!){
-            repository(owner:$owner,name:$repo) {
-              discussion(number:$discussionNumber) {
-                id
-              }
-            }
-          }`,
-          {
+      text: wrapChannelAndInjectOctokit('pullRequest', {
+        async channel({ conversation, payload, ack, owner, repo, octokit }) {
+          await _createIssueComment({
+            issueNumber: +_getTagOrThrowException(conversation.tags, 'pullRequestNumber'),
+            commentBody: payload.text,
+            ack,
             owner,
             repo,
-            discussionNumber,
-          }
-        )
-        const {
-          addDiscussionComment: {
-            comment: { databaseId },
-          },
-        } = await octokit.graphql<{ addDiscussionComment: { comment: { databaseId: number } } }>(
-          `mutation ($discussionId: ID!, $body: String!) {
-            addDiscussionComment(input: {discussionId: $discussionId, body: $body}) {
-              comment {
-                databaseId
-              }
-            }
-          }`,
-          {
-            discussionId,
-            body: payload.text,
-          }
-        )
-
-        await ackMessage(databaseId, ack)
-      },
+            octokit,
+          })
+        },
+      }),
     },
   },
   issue: {
     messages: {
-      text: async ({ ctx, conversation, payload, ack }) => {
-        console.info(`Sending a text message on channel issue with content ${payload.text}`)
-        const { owner, repo, token } = ctx.configuration
-        const octokit = new Octokit({ auth: token })
+      text: wrapChannelAndInjectOctokit('issue', {
+        async channel({ conversation, payload, ack, owner, repo, octokit }) {
+          console.info(`Sending a text message on channel issue with content ${payload.text}`)
 
-        const issueNumber = getConversationId(conversation)
-        const comment = await octokit.rest.issues.createComment({
-          owner,
-          repo,
-          issue_number: issueNumber,
-          body: payload.text,
-        })
-        await ackMessage(comment.data.id, ack)
-      },
+          await _createIssueComment({
+            issueNumber: +_getTagOrThrowException(conversation.tags, 'issueNumber'),
+            commentBody: payload.text,
+            ack,
+            owner,
+            repo,
+            octokit,
+          })
+        },
+      }),
+    },
+  },
+  discussion: {
+    messages: {
+      text: wrapChannelAndInjectOctokit('discussion', {
+        async channel({ conversation, payload, ack, octokit }) {
+          const {
+            addDiscussionComment: { comment },
+          } = await octokit.executeGraphqlQuery('addDiscussionComment', {
+            discussionNodeId: _getTagOrThrowException(conversation.tags, 'discussionNodeId'),
+            body: payload.text,
+          })
+
+          await ack({
+            tags: { commentId: comment.databaseId.toString(), commentNodeId: comment.id, commentUrl: comment.url },
+          })
+        },
+      }),
     },
   },
 } satisfies Channels
+
+const _createIssueComment = async ({
+  issueNumber,
+  commentBody,
+  ack,
+  owner,
+  repo,
+  octokit,
+}: { issueNumber: number; commentBody: string; ack: AckFunction } & ChannelInjections) => {
+  const { data } = await octokit.rest.issues.createComment({
+    owner,
+    repo,
+    issue_number: issueNumber,
+    body: commentBody,
+  })
+
+  await ack({ tags: { commentNodeId: data.node_id, commentId: data.id.toString(), commentUrl: data.html_url } })
+}
+
+const _getTagOrThrowException = <R extends Record<string, string>>(tags: R, name: Extract<keyof R, string>) => {
+  const value = tags[name]
+
+  if (!value) {
+    throw new Error(`Missing tag ${name}`)
+  }
+
+  return value
+}

@@ -1,1 +1,8 @@
-parse_json!(.body).installation.organization.id
+# This is only used to extract the installation id if the integration was
+# installed using Botpress's own GitHub app
+
+# If the installation was done using a custom GitHub App or a PAT, the webhook
+# is configured by the bot owner and uses the Botpress-provided webhook URL, so
+# it does not use the /integration/global/github route
+
+to_string!(parse_json!(.body).installation.id)

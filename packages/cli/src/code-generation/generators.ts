@@ -22,7 +22,7 @@ export const zuiSchemaToTypeScriptType = async (
       code,
     ].join('\n')
   }
-  const jsonSchema = utils.schema.mapZodToJsonSchema({ schema: zuiSchema })
+  const jsonSchema = await utils.schema.mapZodToJsonSchema({ schema: zuiSchema })
   const code = await compile(jsonSchema, name, { unknownAny: false })
   return code
 }
