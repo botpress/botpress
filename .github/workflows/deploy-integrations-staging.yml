@@ -53,3 +53,4 @@ jobs:
           todoist_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_TODOIST_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_TODOIST_CLIENT_SECRET }}'
           cerebras_secrets: '--secrets CEREBRAS_API_KEY=${{ secrets.CEREBRAS_API_KEY }}'
           messenger_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_MESSENGER_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_MESSENGER_CLIENT_SECRET  }} --secrets ACCESS_TOKEN=${{ secrets.STAGING_MESSENGER_ACCESS_TOKEN  }}'
+          github_secrets: '--secrets GITHUB_APP_ID=${{ secrets.STAGING_GITHUB_APP_ID }} --secrets GITHUB_PRIVATE_KEY=${{ secrets.STAGING_GITHUB_PRIVATE_KEY }} --secrets GITHUB_WEBHOOK_SECRET=${{ secrets.STAGING_GITHUB_WEBHOOK_SECRET }}'
