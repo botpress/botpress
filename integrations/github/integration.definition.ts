@@ -7,7 +7,7 @@ import { actions, events, configuration, configurations, channels, user, secrets
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   title: 'GitHub',
-  version: '1.0.0',
+  version: '1.0.1',
   icon: 'icon.svg',
   readme: 'hub.md',
   description: 'Github integration for Botpress',
