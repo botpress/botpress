@@ -10,7 +10,7 @@ const hitlPkg = {
 export default new IntegrationDefinition({
   name: 'zendesk',
   title: 'Zendesk',
-  version: '1.0.5',
+  version: '1.0.6',
   icon: 'icon.svg',
   description:
     'Optimize your support workflow using Zendesk. Seamlessly integrate your chatbot into Zendesk chat, enabling you to trigger workflows from ticket updates. Easily manage tickets, access conversations, and engage with customers',

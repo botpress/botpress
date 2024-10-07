@@ -15,7 +15,7 @@ const ItemDefinition = z.object({
 
 export default new IntegrationDefinition({
   name: 'todoist',
-  version: '0.0.1',
+  version: '0.0.2',
   readme: 'README.md',
   icon: 'icon.svg',
   channels: {

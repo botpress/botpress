@@ -8,7 +8,7 @@ const typingIndicatorPkg = {
 
 export default new IntegrationDefinition({
   name: 'telegram',
-  version: '0.5.3',
+  version: '0.5.4',
   title: 'Telegram',
   description: 'This integration allows your bot to interact with Telegram.',
   icon: 'icon.svg',

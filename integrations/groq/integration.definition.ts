@@ -14,7 +14,7 @@ const sttPkg = {
 export default new IntegrationDefinition({
   name: 'groq',
   title: 'Groq',
-  version: '6.3.0',
+  version: '6.3.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {

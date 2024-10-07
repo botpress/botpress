@@ -9,7 +9,7 @@ const llmPkg = {
 export default new IntegrationDefinition({
   name: 'cerebras',
   title: 'Cerebras',
-  version: '0.2.0',
+  version: '0.2.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {

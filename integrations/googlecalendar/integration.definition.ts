@@ -39,7 +39,7 @@ const deletablePkg = {
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '0.4.1',
+  version: '0.4.2',
   description:
     "Elevate your chatbot's capabilities with the Botpress integration for Google Calendar. Seamlessly sync your chatbot with Google Calendar to effortlessly manage events, appointments, and schedules",
   title: 'Google Calendar',
