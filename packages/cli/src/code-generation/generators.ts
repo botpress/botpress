@@ -27,15 +27,20 @@ export const zuiSchemaToTypeScriptType = async (
   return code
 }
 
-export const jsonSchemaToTypescriptZuiSchema = async (schema: JSONSchema7, name: string): Promise<string> => {
+export const jsonSchemaToTypescriptZuiSchema = async (
+  schema: JSONSchema7,
+  name: string,
+  extraProps: Record<string, string> = {}
+): Promise<string> => {
   schema = await utils.schema.dereferenceSchema(schema)
   const zuiSchema = sdk.z.fromJsonSchema(schema)
   let code = [
     consts.GENERATED_HEADER,
     'import { z } from "@botpress/sdk"',
-    `export const ${name} = {
-      schema: ${zuiSchema.toTypescriptSchema()}
-    }`,
+    `export const ${name} = {`,
+    ...Object.entries(extraProps).map(([key, value]) => `  ${key}: ${value},`),
+    `  schema: ${zuiSchema.toTypescriptSchema()}`,
+    '}',
   ].join('\n')
   code = prettier.format(code, { parser: 'typescript' })
   return code

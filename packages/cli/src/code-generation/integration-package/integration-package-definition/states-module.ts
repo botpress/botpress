@@ -12,7 +12,9 @@ export class StateModule extends Module {
   }
 
   public async getContent() {
-    return jsonSchemaToTypescriptZuiSchema(this._state.schema, this.exportName)
+    return jsonSchemaToTypescriptZuiSchema(this._state.schema, this.exportName, {
+      type: `"${this._state.type}" as const`,
+    })
   }
 }
 
