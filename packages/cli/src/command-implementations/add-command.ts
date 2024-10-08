@@ -25,16 +25,19 @@ type InstallablePackage =
 export type AddCommandDefinition = typeof commandDefinitions.add
 export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   public async run(): Promise<void> {
-    const parsedRef = pkgRef.parsePackageRef(this.argv.integrationRef)
+    const parsedRef = pkgRef.parsePackageRef(this.argv.packageRef)
     if (!parsedRef) {
-      throw new errors.InvalidPackageReferenceError(this.argv.integrationRef)
+      throw new errors.InvalidPackageReferenceError(this.argv.packageRef)
     }
 
     const targetPackage =
       parsedRef.type === 'path' ? await this._findLocalPackage(parsedRef) : await this._findRemotePackage(parsedRef)
 
     if (!targetPackage) {
-      throw new errors.BotpressCLIError(`Package "${this.argv.integrationRef}" not found`)
+      const notFoundMessage = this.argv.packageType
+        ? `Could not find package "${this.argv.packageRef}" of type "${this.argv.packageType}"`
+        : `Could not find package "${this.argv.packageRef}"`
+      throw new errors.BotpressCLIError(notFoundMessage)
     }
 
     const packageName = targetPackage.name // TODO: eventually replace name by alias (with argv --alias)
@@ -65,13 +68,17 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
   private async _findRemotePackage(ref: pkgRef.ApiPackageRef): Promise<InstallablePackage | undefined> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
-    const integration = await api.findIntegration(ref)
-    if (integration) {
-      return { type: 'integration', name: integration.name, pkg: { source: 'remote', integration } }
+    if (this._pkgCouldBe('integration')) {
+      const integration = await api.findIntegration(ref)
+      if (integration) {
+        return { type: 'integration', name: integration.name, pkg: { source: 'remote', integration } }
+      }
     }
-    const intrface = await api.findPublicInterface(ref)
-    if (intrface) {
-      return { type: 'interface', name: intrface.name, pkg: { source: 'remote', interface: intrface } }
+    if (this._pkgCouldBe('interface')) {
+      const intrface = await api.findPublicInterface(ref)
+      if (intrface) {
+        return { type: 'interface', name: intrface.name, pkg: { source: 'remote', interface: intrface } }
+      }
     }
     return
   }
@@ -79,14 +86,14 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   private async _findLocalPackage(ref: pkgRef.LocalPackageRef): Promise<InstallablePackage | undefined> {
     const absPath = utils.path.absoluteFrom(utils.path.cwd(), ref.path)
     const projectDefinition = await this._readProject(absPath)
-    if (projectDefinition?.type === 'integration') {
+    if (this._pkgCouldBe('integration') && projectDefinition?.type === 'integration') {
       return {
         type: 'integration',
         name: projectDefinition.definition.name,
         pkg: { source: 'local', path: absPath },
       }
     }
-    if (projectDefinition?.type === 'interface') {
+    if (this._pkgCouldBe('interface') && projectDefinition?.type === 'interface') {
       return {
         type: 'interface',
         name: projectDefinition.definition.name,
@@ -144,5 +151,12 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       }
       throw thrown
     })
+  }
+
+  private _pkgCouldBe = (pkgType: InstallablePackage['type']) => {
+    if (!this.argv.packageType) {
+      return true
+    }
+    return this.argv.packageType === pkgType
   }
 }
