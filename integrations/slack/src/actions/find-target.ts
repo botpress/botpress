@@ -1,5 +1,6 @@
 import Fuse from 'fuse.js'
 import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
+import { SlackScopes } from 'src/misc/slack-scopes'
 import { Target } from '../definitions/actions'
 
 const fuse = new Fuse<Target>([], {
@@ -15,10 +16,16 @@ const fuse = new Fuse<Target>([], {
 })
 
 export const findTarget = wrapActionAndInjectSlackClient('findTarget', {
-  async action({ slackClient }, { channel, query }) {
+  async action({ slackClient, client, ctx }, { channel, query }) {
     const targets: Target[] = []
 
     const queryUsers = async (cursor?: string) => {
+      await SlackScopes.ensureHasAllScopes({
+        client,
+        ctx,
+        requiredScopes: ['users:read'],
+        operation: 'users.list',
+      })
       const list = await slackClient.users.list({ cursor, limit: 200 })
       const users = (list.members || [])
         .filter((x) => !x.deleted)
@@ -39,6 +46,12 @@ export const findTarget = wrapActionAndInjectSlackClient('findTarget', {
     }
 
     const queryChannels = async (types: string, cursor?: string) => {
+      await SlackScopes.ensureHasAllScopes({
+        client,
+        ctx,
+        requiredScopes: ['channels:read'],
+        operation: 'conversations.list',
+      })
       const list = await slackClient.conversations.list({ exclude_archived: true, cursor, limit: 200, types })
 
       const channels =

@@ -19,7 +19,11 @@ const tryCatch = async <T>(fn: () => Promise<T>, errorMessage: string): Promise<
     return await fn()
   } catch (thrown: unknown) {
     const error = thrown instanceof Error ? thrown : new Error(`${thrown}`)
-    console.error(`Error: ${errorMessage}`, error)
+
+    // log the unredacted error to the @botpresshub integration logs:
+    console.error(errorMessage, error)
+
+    // log the redacted error to the bot logs & studio:
     throw _redactSlackError(error, errorMessage)
   }
 }

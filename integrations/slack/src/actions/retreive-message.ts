@@ -1,11 +1,19 @@
 import { WebClient } from '@slack/web-api'
 import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
+import { SlackScopes } from 'src/misc/slack-scopes'
 import { getAccessToken } from '../misc/utils'
 
 export const retrieveMessage = wrapActionAndInjectSlackClient('retrieveMessage', {
   async action({ client, ctx, logger }, { ts, channel }) {
     const accessToken = await getAccessToken(client, ctx)
     const slackClient = new WebClient(accessToken)
+
+    await SlackScopes.ensureHasAllScopes({
+      client,
+      ctx,
+      requiredScopes: ['channels:history', 'groups:history', 'im:history', 'mpim:history'],
+      operation: 'conversations.history',
+    })
 
     const response = await slackClient.conversations.history({
       limit: 1,

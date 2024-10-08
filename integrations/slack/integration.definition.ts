@@ -80,6 +80,13 @@ export default new IntegrationDefinition({
         signingSecret: z.string().secret().describe('The Slack Signing Secret'),
       }),
     },
+    tokenMetadata: {
+      type: 'integration',
+      schema: z.object({
+        scopes: z.array(z.string()).title('Scopes').describe('The scopes granted to the token'),
+        lastRefresh: z.string().datetime().title('Last Refresh').describe('The timestamp of the last token refresh'),
+      }),
+    },
   },
   channels: {
     channel,

@@ -3,6 +3,7 @@ import { isApiError } from '@botpress/sdk'
 import { Member } from '@slack/web-api/dist/response/UsersListResponse'
 import { chain, mapKeys, isEqual } from 'lodash'
 import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
+import { SlackScopes } from 'src/misc/slack-scopes'
 import { getSyncState, saveSyncState } from 'src/misc/utils'
 import { userTags } from '../definitions/index'
 import * as bp from '.botpress'
@@ -14,6 +15,12 @@ export const syncMembers = wrapActionAndInjectSlackClient('syncMembers', {
 
     const allMembers: Member[] = []
     const getAllMembers = async (cursor?: string) => {
+      await SlackScopes.ensureHasAllScopes({
+        client,
+        ctx,
+        requiredScopes: ['users:read'],
+        operation: 'users.list',
+      })
       const res = await slackClient.users.list({ cursor })
       allMembers.push(...(res.members ?? []))
       if (res.response_metadata?.next_cursor) {

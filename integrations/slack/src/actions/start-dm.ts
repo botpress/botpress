@@ -1,7 +1,8 @@
 import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
+import { SlackScopes } from 'src/misc/slack-scopes'
 
 export const startDmConversation = wrapActionAndInjectSlackClient('startDmConversation', {
-  async action({ client, slackClient }, { slackUserId }) {
+  async action({ client, slackClient, ctx }, { slackUserId }) {
     const { user } = await client.getOrCreateUser({
       tags: {
         id: slackUserId,
@@ -14,6 +15,13 @@ export const startDmConversation = wrapActionAndInjectSlackClient('startDmConver
         userId: user.id,
       }
     }
+
+    await SlackScopes.ensureHasAllScopes({
+      client,
+      ctx,
+      requiredScopes: ['im:write'],
+      operation: 'conversations.open',
+    })
 
     const { ok, channel } = await slackClient.conversations.open({
       users: slackUserId,

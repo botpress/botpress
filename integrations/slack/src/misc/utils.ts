@@ -35,8 +35,6 @@ export function notEmpty<TValue>(value: TValue | null | undefined): value is TVa
   return value !== null && value !== undefined
 }
 
-export const isUserId = (id: string) => id.startsWith('U')
-
 function getTags(message: SlackMessage) {
   const tags: Record<string, string> = {}
 
@@ -176,13 +174,6 @@ export async function sendSlackMessage(
   await ack({ tags: getTags(message) })
 
   return message
-}
-
-export const getDirectMessageForUser = async (userId: string, botToken: string) => {
-  const client = new WebClient(botToken)
-  const conversation = await client.conversations.open({ users: userId })
-
-  return conversation.channel?.id
 }
 
 export const isInteractiveRequest = (req: Request) => {
