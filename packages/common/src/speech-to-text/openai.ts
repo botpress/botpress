@@ -1,7 +1,8 @@
 import { InvalidPayloadError } from '@botpress/client'
-import { IntegrationLogger, interfaces } from '@botpress/sdk'
+import { IntegrationLogger } from '@botpress/sdk'
 import OpenAI from 'openai'
-import { TranscribeAudioInput, TranscribeAudioOutput } from './types'
+import * as stt from '.'
+import { SpeechToTextModelDetails, TranscribeAudioInput, TranscribeAudioOutput } from './types'
 
 export async function transcribeAudio<M extends string>(
   input: TranscribeAudioInput,
@@ -9,7 +10,7 @@ export async function transcribeAudio<M extends string>(
   logger: IntegrationLogger,
   props: {
     provider: string
-    models: Record<M, interfaces.speechToText.SpeechToTextModelDetails>
+    models: Record<M, SpeechToTextModelDetails>
     defaultModel: M
   }
 ): Promise<TranscribeAudioOutput> {
@@ -48,7 +49,7 @@ export async function transcribeAudio<M extends string>(
   }
 
   // Note: OpenAI client doesn't have typings for the verbose JSON response format
-  const result = interfaces.schemas.speechToText.OpenAITranscribeAudioOutputSchema.passthrough().safeParse(response)
+  const result = stt.schemas.OpenAITranscribeAudioOutputSchema.passthrough().safeParse(response)
   if (!result.success) {
     const message = `Failed to parse speech-to-text response from ${props.provider}: ${result.error.message}`
     logger.forBot().error(message)

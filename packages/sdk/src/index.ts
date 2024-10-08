@@ -1,5 +1,4 @@
 export * as messages from './message'
-export * as interfaces from './interfaces'
 export * from './const'
 export * from './serve'
 export * from './zui'

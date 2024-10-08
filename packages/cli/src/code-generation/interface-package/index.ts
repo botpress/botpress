@@ -9,7 +9,7 @@ const generateInterfacePackageModule = (definitionImport: string, pkg: types.Int
     consts.GENERATED_HEADER,
     'import * as sdk from "@botpress/sdk"',
     '',
-    `import definition from "./${definitionImport}"`,
+    `import definition from "${definitionImport}"`,
     '',
     'export default {',
     '  type: "interface",',

@@ -1,11 +1,7 @@
-import { IntegrationDefinition, InterfacePackage, interfaces } from '@botpress/sdk'
+import { IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import listable from './bp_modules/listable'
 import { actions, channels, events, configuration, configurations, user, states, entities } from './definitions'
-
-const listablePkg = {
-  type: 'interface',
-  definition: interfaces.listable,
-} satisfies InterfacePackage
 
 export default new IntegrationDefinition({
   name: 'linear',
@@ -38,6 +34,6 @@ export default new IntegrationDefinition({
     },
     ...sentryHelpers.COMMON_SECRET_NAMES,
   },
-}).extend(listablePkg, (entities) => ({
+}).extend(listable, (entities) => ({
   item: entities.issue,
 }))

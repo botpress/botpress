@@ -1570,6 +1570,9 @@ importers:
 
   interfaces/llm:
     dependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -1577,6 +1580,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.19.50
       typescript:
         specifier: ^4.9.4
         version: 4.9.5
@@ -1596,6 +1602,9 @@ importers:
 
   interfaces/speech-to-text:
     dependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -1603,12 +1612,18 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.19.50
       typescript:
         specifier: ^4.9.4
         version: 4.9.5
 
   interfaces/text-to-image:
     dependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -1616,6 +1631,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.19.50
       typescript:
         specifier: ^4.9.4
         version: 4.9.5

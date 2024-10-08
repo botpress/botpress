@@ -1,7 +1,6 @@
-import { InterfaceDeclaration } from '../integration/definition'
-import z from '../zui'
+import { z } from '@botpress/sdk'
 
-const ToolCallSchema = z.object({
+export const ToolCallSchema = z.object({
   id: z.string(),
   type: z.enum(['function']),
   function: z.object({
@@ -13,13 +12,13 @@ const ToolCallSchema = z.object({
   }),
 })
 
-const ToolChoiceSchema = z.object({
+export const ToolChoiceSchema = z.object({
   // TODO: remove empty value from enum once Studio issue is fixed
   type: z.enum(['auto', 'specific', 'any', 'none', '']).optional(), // note: Claude doesn't support "none" but we can simply strip out the tools when `type` is "none"
   functionName: z.string().optional().describe('Required if `type` is "specific"'),
 })
 
-const MessageSchema = z.object({
+export const MessageSchema = z.object({
   role: z.enum(['user', 'assistant']),
   type: z.enum(['text', 'tool_calls', 'tool_result', 'multipart']).default('text'),
   toolCalls: z.array(ToolCallSchema).optional().describe('Required if `type` is "tool_calls"'),
@@ -49,9 +48,9 @@ const MessageSchema = z.object({
     ),
 })
 
-const ModelRefSchema = z.object({ id: z.string() })
+export const ModelRefSchema = z.object({ id: z.string() })
 
-const ModelSchema = ModelRefSchema.extend({
+export const ModelSchema = ModelRefSchema.extend({
   name: z.string(),
   description: z.string(),
   tags: z.array(
@@ -78,7 +77,7 @@ const ModelSchema = ModelRefSchema.extend({
   }),
 })
 
-const GenerateContentInputSchema = <S extends z.ZodSchema>(modelRefSchema: S) =>
+export const GenerateContentInputSchema = <S extends z.ZodSchema>(modelRefSchema: S) =>
   z.object({
     model: modelRefSchema.describe('Model to use for content generation').optional(),
     systemPrompt: z.string().optional().describe('Optional system prompt to guide the model'),
@@ -146,9 +145,9 @@ const GenerateContentInputSchema = <S extends z.ZodSchema>(modelRefSchema: S) =>
       .hidden(),
   })
 
-const GenerateContentInputBaseSchema = GenerateContentInputSchema(ModelRefSchema)
+export const GenerateContentInputBaseSchema = GenerateContentInputSchema(ModelRefSchema)
 
-const GenerateContentOutputSchema = z.object({
+export const GenerateContentOutputSchema = z.object({
   id: z.string().describe('Response ID from LLM provider'),
   provider: z.string().describe('LLM provider name'),
   model: z.string().describe('Model name'),
@@ -170,46 +169,3 @@ const GenerateContentOutputSchema = z.object({
     cost: z.number().describe('Total cost of the content generation, in U.S. dollars'),
   }),
 })
-
-export const llm = new InterfaceDeclaration({
-  name: 'llm',
-  version: '5.1.0',
-  entities: {
-    modelRef: {
-      schema: ModelRefSchema,
-    },
-  },
-  events: {},
-  actions: {
-    generateContent: {
-      billable: true,
-      cacheable: true,
-      input: {
-        schema: ({ modelRef }) => GenerateContentInputSchema(modelRef),
-      },
-      output: {
-        schema: () => GenerateContentOutputSchema,
-      },
-    },
-    listLanguageModels: {
-      input: {
-        schema: () => z.object({}),
-      },
-      output: {
-        schema: ({ modelRef }) =>
-          z.object({
-            models: z.array(z.intersection(ModelSchema, modelRef)),
-          }),
-      },
-    },
-  },
-})
-
-export namespace llm {
-  export type GenerateContentInput = z.infer<typeof GenerateContentInputBaseSchema>
-  export type GenerateContentOutput = z.infer<typeof GenerateContentOutputSchema>
-  export type ToolCall = z.infer<typeof ToolCallSchema>
-  export type Message = z.infer<typeof MessageSchema>
-  export type Model = z.infer<typeof ModelSchema>
-  export type ModelDetails = Omit<Model, 'id'>
-}

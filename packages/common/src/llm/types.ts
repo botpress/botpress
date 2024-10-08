@@ -1,6 +1,9 @@
-import * as sdk from '@botpress/sdk'
+import { z } from '@botpress/sdk'
+import * as schemas from './schemas'
 
-export type GenerateContentInput = sdk.interfaces.llm.GenerateContentInput
-export type GenerateContentOutput = sdk.interfaces.llm.GenerateContentOutput
-export type ToolCall = sdk.interfaces.llm.ToolCall
-export type Message = sdk.interfaces.llm.Message
+export type GenerateContentInput = z.infer<typeof schemas.GenerateContentInputBaseSchema>
+export type GenerateContentOutput = z.infer<typeof schemas.GenerateContentOutputSchema>
+export type ToolCall = z.infer<typeof schemas.ToolCallSchema>
+export type Message = z.infer<typeof schemas.MessageSchema>
+export type Model = z.infer<typeof schemas.ModelSchema>
+export type ModelDetails = Omit<Model, 'id'>
