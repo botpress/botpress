@@ -1,6 +1,6 @@
 import { IntegrationPackage } from '../package'
 import { SchemaDefinition } from '../schema'
-import { ValueOf, Writable } from '../type-utils'
+import { ValueOf, Writable } from '../utils/type-utils'
 import z, { AnyZodObject } from '../zui'
 
 type BaseStates = Record<string, AnyZodObject>
@@ -44,19 +44,19 @@ export type MessageDefinition = {
 
 export type IntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage> =
   | {
+      enabled: boolean
       configurationType: null
       configuration: z.infer<NonNullable<I['definition']['configuration']>['schema']>
     }
   | ValueOf<{
       [K in keyof NonNullable<I['definition']['configurations']>]: {
+        enabled: boolean
         configurationType: K
         configuration: z.infer<NonNullable<I['definition']['configurations']>[K]['schema']>
       }
     }>
 
-export type IntegrationInstance<I extends IntegrationPackage = IntegrationPackage> = I & {
-  enabled: boolean
-} & IntegrationConfigInstance<I>
+export type IntegrationInstance = IntegrationPackage & IntegrationConfigInstance
 
 export type BotDefinitionProps<TStates extends BaseStates = BaseStates, TEvents extends BaseEvents = BaseEvents> = {
   integrations?: {
@@ -74,10 +74,6 @@ export type BotDefinitionProps<TStates extends BaseStates = BaseStates, TEvents 
   }
   recurringEvents?: Record<string, RecurringEventDefinition<TEvents>>
 }
-
-type IntegrationInstallProps<I extends IntegrationPackage = IntegrationPackage> = {
-  enabled: boolean
-} & IntegrationConfigInstance<I>
 
 export class BotDefinition<TStates extends BaseStates = BaseStates, TEvents extends BaseEvents = BaseEvents> {
   public readonly integrations: this['props']['integrations']
@@ -99,17 +95,17 @@ export class BotDefinition<TStates extends BaseStates = BaseStates, TEvents exte
     this.recurringEvents = props.recurringEvents
   }
 
-  public add<I extends IntegrationPackage>(integrationPkg: I, installProps: IntegrationInstallProps<I>): this {
+  public add<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this {
     const self = this as Writable<BotDefinition>
     if (!self.integrations) {
       self.integrations = {}
     }
 
     self.integrations[integrationPkg.definition.name] = {
-      enabled: installProps.enabled,
+      enabled: config.enabled,
       ...integrationPkg,
-      configurationType: installProps.configurationType as string,
-      configuration: installProps.configuration,
+      configurationType: config.configurationType as string,
+      configuration: config.configuration,
     }
     return this
   }

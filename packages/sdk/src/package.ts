@@ -1,5 +1,5 @@
 import * as integration from './integration'
-import * as types from './type-utils'
+import * as utils from './utils'
 
 type PackageReference =
   | {
@@ -21,6 +21,7 @@ type IntegrationPackageDefinition = {
   user?: integration.UserDefinition
   secrets?: Record<string, integration.SecretDefinition>
   entities?: Record<string, integration.EntityDefinition>
+  interfaces?: Record<string, integration.InterfaceInstance>
 }
 
 type InterfacePackageDefinition = {
@@ -47,9 +48,9 @@ export type InterfacePackage = PackageReference & {
 
 export type Package = IntegrationPackage | InterfacePackage
 
-type _test_expect_integration_definition_to_be_valid_package = types.Expect<
-  types.Extends<integration.IntegrationDefinition, IntegrationPackageDefinition>
+type _test_expect_integration_definition_to_be_valid_package = utils.types.Expect<
+  utils.types.Extends<integration.IntegrationDefinition, IntegrationPackageDefinition>
 >
-type _test_expect_interface_definition_to_be_valid_package = types.Expect<
-  types.Extends<integration.InterfaceDeclaration, InterfacePackageDefinition>
+type _test_expect_interface_definition_to_be_valid_package = utils.types.Expect<
+  utils.types.Extends<integration.InterfaceDeclaration, InterfacePackageDefinition>
 >

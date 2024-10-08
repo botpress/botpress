@@ -12,7 +12,7 @@ import type * as config from '../config'
 import * as consts from '../consts'
 import * as errors from '../errors'
 import { formatPackageRef, PackageRef } from '../package-ref'
-import { validateIntegrationDefinition } from '../sdk/validate-integration'
+import { validateIntegrationDefinition, resolveInterfaces, resolveBotInterfaces } from '../sdk'
 import type { CommandArgv, CommandDefinition } from '../typings'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
@@ -154,10 +154,9 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       throw new errors.BotpressCLIError('Could not read integration definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: sdk.IntegrationDefinition }>(artifact.text)
-
+    let { default: definition } = utils.require.requireJsCode<{ default: sdk.IntegrationDefinition }>(artifact.text)
+    definition = resolveInterfaces(definition)
     validateIntegrationDefinition(definition)
-
     return definition
   }
 
@@ -213,8 +212,8 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
 
     const { default: definition } = utils.require.requireJsCode<{ default: sdk.BotDefinition }>(artifact.text)
-
-    return definition
+    // TODO: validate bot definition
+    return resolveBotInterfaces(definition)
   }
 
   protected displayWebhookUrls(bot: client.Bot) {

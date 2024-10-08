@@ -1,5 +1,5 @@
 import { SchemaDefinition } from '../../schema'
-import { AnyZodObject } from '../../type-utils'
+import { AnyZodObject } from '../../zui'
 import {
   BaseConfig,
   BaseEvents,
