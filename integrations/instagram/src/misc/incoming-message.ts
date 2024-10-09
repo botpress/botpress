@@ -1,5 +1,5 @@
 import { InstagramMessage, IntegrationLogger } from './types'
-import { getUserProfile } from './utils'
+import { getMessengerClient, getUserProfile } from './utils'
 import * as bp from '.botpress'
 
 export async function handleMessage(
@@ -25,7 +25,8 @@ export async function handleMessage(
 
     if (!user.pictureUrl || !user.name) {
       try {
-        const userProfile = await getUserProfile(message.sender.id, ctx.configuration, logger)
+        const messengerClient = await getMessengerClient(client, ctx)
+        const userProfile = await getUserProfile(messengerClient, message.sender.id, logger)
 
         logger.forBot().debug('Fetched latest Instagram user profile: ', userProfile)
 

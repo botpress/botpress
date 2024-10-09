@@ -10,10 +10,15 @@ import {
   Location,
 } from './types'
 import * as bp from '.botpress'
+import { getCredentials } from './client'
 
-export function getMessengerClient(configuration: bp.configuration.Configuration) {
+export async function getMessengerClient(client: bp.Client, ctx: bp.Context) {
+  const { accessToken, clientId, clientSecret } = await getCredentials(client, ctx)
+
   return new MessengerClient({
-    accessToken: configuration.accessToken,
+    accessToken,
+    appSecret: clientSecret,
+    appId: clientId,
   })
 }
 
@@ -93,11 +98,10 @@ export function getChoiceMessage(payload: Choice | Dropdown): MessengerTypes.Tex
 }
 
 export const getUserProfile = async (
+  messengerClient: MessengerClient,
   userId: string,
-  configuration: bp.configuration.Configuration,
   logger: IntegrationLogger
 ) => {
-  const messengerClient = getMessengerClient(configuration)
   try {
     return (await messengerClient.getUserProfile(userId, {
       // username is an available field for instagram ids -> https://developers.facebook.com/docs/instagram-basic-display-api/guides/getting-profiles-and-media

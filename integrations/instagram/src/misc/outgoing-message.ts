@@ -7,13 +7,13 @@ type Messages = Channels[keyof Channels]['messages']
 type MessageHandler = Messages[keyof Messages]
 type MessageHandlerProps = Parameters<MessageHandler>[0]
 
-type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack'>
+type SendMessageProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'ack' | 'client'>
 
 export async function sendMessage(
-  { ack, ctx, conversation }: SendMessageProps,
+  { ack, ctx, client, conversation }: SendMessageProps,
   send: (client: MessengerClient, recipientId: string) => Promise<{ messageId: string }>
 ) {
-  const messengerClient = getMessengerClient(ctx.configuration)
+  const messengerClient = await getMessengerClient(client, ctx)
   const recipientId = getRecipientId(conversation)
   const message = await send(messengerClient, recipientId)
   await ack({

@@ -17,7 +17,10 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "messaging-api-messenger": "^1.1.0",
-    "query-string": "^6.14.1"
+    "query-string": "^6.14.1",
+    "preact": "^10.23.1",
+    "preact-render-to-string": "^6.5.7",
+    "axios": "^1.6.2"
   },
   "devDependencies": {
     "@sentry/cli": "^2.18.1",
