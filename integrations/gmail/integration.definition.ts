@@ -3,7 +3,7 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'gmail',
-  version: '0.4.3',
+  version: '0.4.4',
   title: 'Gmail',
   description: 'This integration allows your bot to interact with Gmail.',
   icon: 'icon.svg',
@@ -54,6 +54,9 @@ export default new IntegrationDefinition({
         lastHistoryId: z.string().optional(),
       }),
     },
+  },
+  identifier: {
+    extractScript: 'extract.vrl',
   },
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
