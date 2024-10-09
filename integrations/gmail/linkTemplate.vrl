@@ -2,7 +2,7 @@ webhookId = to_string!(.webhookId)
 webhookUrl = to_string!(.webhookUrl)
 env = to_string!(.env)
 
-clientId = "293378330844-okgoo9h35i54bbfsdn7ugp1gslemgdcv.apps.googleusercontent.com"
+clientId = "498444171125-5r2u44kldnvq5ui8skrvjq7a4u0dccnd.apps.googleusercontent.com"
 
 if env == "production" {
   clientId = "348984595962-u6at0g0ej8d4ke7ojmepr7osa55jf8qm.apps.googleusercontent.com"
