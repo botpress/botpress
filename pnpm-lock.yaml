@@ -403,8 +403,8 @@ importers:
         specifier: ^3.0.2
         version: 3.0.3
       '@octokit/webhooks-types':
-        specifier: ^6.10.0
-        version: 6.11.0
+        specifier: ^7.6.1
+        version: 7.6.1
       fuse.js:
         specifier: ^6.6.2
         version: 6.6.2
@@ -4233,6 +4233,10 @@ packages:
 
   /@octokit/webhooks-types@6.11.0:
     resolution: {integrity: sha512-AanzbulOHljrku1NGfafxdpTCfw2ENaWzH01N2vqQM+cUFbk868Cgh0xylz0JIM9BoKbfI++bdD6EYX0Q/UTEw==}
+    dev: false
+
+  /@octokit/webhooks-types@7.6.1:
+    resolution: {integrity: sha512-S8u2cJzklBC0FgTwWVLaM8tMrDuDMVE4xiTK4EYXM9GntyvrdbSoxqDQa+Fh57CCNApyIpyeqPhhFEmHPfrXgw==}
     dev: false
 
   /@octokit/webhooks@10.9.1:

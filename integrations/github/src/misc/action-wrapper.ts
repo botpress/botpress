@@ -1,10 +1,10 @@
-import { RuntimeError } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import { GitHubClient } from './github-client'
 import { GithubSettings } from './github-settings'
-import { IntegrationProps } from '.botpress'
+import * as bp from '.botpress'
 
 type Actions = {
-  [K in keyof IntegrationProps['actions']]: IntegrationProps['actions'][K]
+  [K in keyof bp.IntegrationProps['actions']]: bp.IntegrationProps['actions'][K]
 }
 type ActionInjections = { octokit: GitHubClient; owner: string }
 type ActionKey = keyof Actions
@@ -46,6 +46,6 @@ const _tryCatch = async <T>(fn: () => Promise<T>, errorMessage: string): Promise
     return await fn()
   } catch (thrown: unknown) {
     console.error(`Action Error: ${errorMessage}`, thrown)
-    throw new RuntimeError(errorMessage)
+    throw new sdk.RuntimeError(errorMessage)
   }
 }

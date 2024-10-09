@@ -1,4 +1,4 @@
-import { RuntimeError } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import { GitHubClient } from './github-client'
 import { GithubSettings } from './github-settings'
 import * as bp from '.botpress'
@@ -45,6 +45,6 @@ const _tryCatch = async <T>(fn: () => Promise<T>, errorMessage: string): Promise
     return await fn()
   } catch (thrown: unknown) {
     console.error(`Channel Error: ${errorMessage}`, thrown)
-    throw new RuntimeError(errorMessage)
+    throw new sdk.RuntimeError(errorMessage)
   }
 }

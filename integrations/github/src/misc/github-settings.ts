@@ -1,18 +1,18 @@
-import { RuntimeError } from '@botpress/client'
+import * as sdk from '@botpress/client'
 
 import * as types from './types'
-import { secrets } from '.botpress'
+import * as bp from '.botpress'
 
 export namespace GithubSettings {
   export function getWebhookSecret({ ctx }: { ctx: types.Context }) {
-    return ctx.configurationType === null ? secrets.GITHUB_WEBHOOK_SECRET : ctx.configuration.githubWebhookSecret
+    return ctx.configurationType === null ? bp.secrets.GITHUB_WEBHOOK_SECRET : ctx.configuration.githubWebhookSecret
   }
 
   export async function getOrganizationHandle({ ctx, client }: { ctx: types.Context; client: types.Client }) {
     const { state } = await client.getState({ type: 'integration', name: 'configuration', id: ctx.integrationId })
 
     if (!state.payload.organizationHandle) {
-      throw new RuntimeError('Organization handle not found. Please complete the authorization flow and try again.')
+      throw new sdk.RuntimeError('Organization handle not found. Please complete the authorization flow and try again.')
     }
 
     return state.payload.organizationHandle
@@ -31,11 +31,11 @@ export namespace GithubSettings {
   }
 
   function _getAppId({ ctx }: { ctx: types.Context }) {
-    return ctx.configurationType === 'manualApp' ? ctx.configuration.githubAppId : secrets.GITHUB_APP_ID
+    return ctx.configurationType === 'manualApp' ? ctx.configuration.githubAppId : bp.secrets.GITHUB_APP_ID
   }
   function _getAppPrivateKey({ ctx }: { ctx: types.Context }) {
     return _fixRSAPrivateKey(
-      ctx.configurationType === 'manualApp' ? ctx.configuration.githubAppPrivateKey : secrets.GITHUB_PRIVATE_KEY
+      ctx.configurationType === 'manualApp' ? ctx.configuration.githubAppPrivateKey : bp.secrets.GITHUB_PRIVATE_KEY
     )
   }
 
@@ -47,7 +47,9 @@ export namespace GithubSettings {
     const { state } = await client.getState({ type: 'integration', name: 'configuration', id: ctx.integrationId })
 
     if (!state.payload.githubInstallationId) {
-      throw new RuntimeError('GitHub installation ID not found. Please complete the authorization flow and try again.')
+      throw new sdk.RuntimeError(
+        'GitHub installation ID not found. Please complete the authorization flow and try again.'
+      )
     }
 
     return state.payload.githubInstallationId

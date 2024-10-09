@@ -1,4 +1,4 @@
-import { RuntimeError } from '@botpress/client'
+import * as sdk from '@botpress/client'
 import { App as OctokitApp, Octokit } from 'octokit'
 import { GithubSettings } from './github-settings'
 import { GRAPHQL_QUERIES, QUERY_INPUT, QUERY_RESPONSE } from './graphql-queries'
@@ -56,7 +56,7 @@ export class GitHubClient {
     const firstRepo = repos.data.repositories[0]
 
     if (!firstRepo) {
-      throw new RuntimeError('No repositories found for the authenticated app')
+      throw new sdk.RuntimeError('No repositories found for the authenticated app')
     }
 
     return {
@@ -77,7 +77,7 @@ export class GitHubClient {
     const firstRepo = repos.data[0]
 
     if (!firstRepo) {
-      throw new RuntimeError('No repositories found for the authenticated user')
+      throw new sdk.RuntimeError('No repositories found for the authenticated user')
     }
 
     return {
@@ -108,13 +108,13 @@ const _getOctokitForApp = async ({ ctx, client }: { ctx: types.Context; client: 
     const octokitApp = new OctokitApp({ appId, privateKey })
     return await octokitApp.getInstallationOctokit(await installationId)
   } catch (_) {
-    throw new RuntimeError('Failed to authenticate with GitHub. Please check your credentials and try again.')
+    throw new sdk.RuntimeError('Failed to authenticate with GitHub. Please check your credentials and try again.')
   }
 }
 
 const _getOctokitForPAT = ({ ctx }: { ctx: types.Context }) => {
   if (ctx.configurationType !== 'manualPAT') {
-    throw new RuntimeError('Invalid configuration type')
+    throw new sdk.RuntimeError('Invalid configuration type')
   }
 
   return new Octokit({ auth: ctx.configuration.personalAccessToken })

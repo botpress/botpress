@@ -1,5 +1,5 @@
-import { IntegrationDefinitionProps, messages, TagDefinition } from '@botpress/sdk'
-const { text } = messages.defaults
+import * as sdk from '@botpress/sdk'
+const { text } = sdk.messages.defaults
 
 const COMMON_TAGS = {
   repository: {
@@ -90,7 +90,7 @@ const COMMON_TAGS = {
       description: 'URL of the comment',
     },
   },
-} as const satisfies Record<string, Record<string, TagDefinition>>
+} as const satisfies Record<string, Record<string, sdk.TagDefinition>>
 
 export const channels = {
   pullRequest: {
@@ -115,7 +115,47 @@ export const channels = {
       text,
     },
   },
+  pullRequestReviewComment: {
+    title: 'Pull Request Review Comment',
+    description: 'A comment on a pull request review in a GitHub repository',
+    conversation: {
+      tags: {
+        ...COMMON_TAGS.repository,
+        ...COMMON_TAGS.pullRequest,
+        fileBeingReviewed: {
+          title: 'File under review',
+          description: 'The file being reviewed',
+        },
+        commitBeingReviewed: {
+          title: 'Commit under review',
+          description: 'The commit being reviewed',
+        },
+        lineBeingReviewed: {
+          title: 'Line under review',
+          description: 'The line being reviewed',
+        },
+        lastCommentId: {
+          title: 'Last Comment ID',
+          description: 'The ID of the last comment posted on the review thread',
+        },
+        reviewThreadUrl: {
+          title: 'Review Thread URL',
+          description: 'URL of the review thread',
+        },
+      },
+    },
+    message: {
+      tags: {
+        ...COMMON_TAGS.comment,
+      },
+    },
+    messages: {
+      text,
+    },
+  },
   issue: {
+    title: 'Issue',
+    description: 'An issue in a GitHub repository',
     conversation: {
       tags: {
         ...COMMON_TAGS.repository,
@@ -164,4 +204,26 @@ export const channels = {
       text,
     },
   },
-} as const satisfies IntegrationDefinitionProps['channels']
+  discussionComment: {
+    title: 'Discussion Comment',
+    description: 'A comment thread on a discussion in a GitHub repository',
+    conversation: {
+      tags: {
+        ...COMMON_TAGS.repository,
+        ...COMMON_TAGS.discussion,
+        parentCommentId: {
+          title: 'Parent Comment ID',
+          description: 'The ID of the parent comment from which this comment thread originates',
+        },
+      },
+    },
+    message: {
+      tags: {
+        ...COMMON_TAGS.comment,
+      },
+    },
+    messages: {
+      text,
+    },
+  },
+} as const satisfies sdk.IntegrationDefinitionProps['channels']
