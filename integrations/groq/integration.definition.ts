@@ -1,7 +1,7 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import { modelId } from 'src/schemas'
 import llm from './bp_modules/llm'
-import stt from './bp_modules/speechToText'
+import stt from './bp_modules/speech-to-text'
 
 export default new IntegrationDefinition({
   name: 'groq',
