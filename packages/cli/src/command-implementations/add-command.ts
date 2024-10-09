@@ -42,7 +42,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
     const packageName = targetPackage.name // TODO: eventually replace name by alias (with argv --alias)
     const baseInstallPath = utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath)
-    const installPath = utils.path.join(baseInstallPath, consts.installDirName, packageName)
+    const packageDirName = utils.casing.to.kebabCase(packageName)
+    const installPath = utils.path.join(baseInstallPath, consts.installDirName, packageDirName)
 
     const alreadyInstalled = fslib.existsSync(installPath)
     if (alreadyInstalled) {
