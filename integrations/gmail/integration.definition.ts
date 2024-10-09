@@ -55,6 +55,9 @@ export default new IntegrationDefinition({
       }),
     },
   },
+  identifier: {
+    extractScript: 'extract.vrl',
+  },
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
     CLIENT_ID: { description: 'Gmail Client ID' },
