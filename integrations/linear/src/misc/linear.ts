@@ -1,4 +1,4 @@
-import { z, Request } from '@botpress/sdk'
+import { z, Request, RuntimeError } from '@botpress/sdk'
 import { LinearClient } from '@linear/sdk'
 import axios from 'axios'
 import queryString from 'query-string'
@@ -165,5 +165,14 @@ export const handleOauth = async (req: Request, client: bp.Client, ctx: bp.Conte
 
   const linearClient = new LinearClient({ accessToken })
   const organization = await linearClient.organization
-  await client.configureIntegration({ identifier: organization.id })
+
+  try {
+    await client.configureIntegration({ identifier: organization.id })
+  } catch (_: unknown) {
+    throw new RuntimeError(
+      'Unable to configure the integration because the Linear workspace is already registered to another Botpress bot. ' +
+        'The conflicting bot may be part of another Botpress workspace. ' +
+        "Please reach out to our support team if you're unable to find the conflicting bot."
+    )
+  }
 }
