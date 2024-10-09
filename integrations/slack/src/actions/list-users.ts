@@ -1,11 +1,64 @@
 import { User } from '@botpress/client'
 import { isApiError } from '@botpress/sdk'
-import { WebClient } from '@slack/web-api'
 import { Member } from '@slack/web-api/dist/response/UsersListResponse'
 import { chain, mapKeys, isEqual } from 'lodash'
-import { getAccessToken, getSyncState, saveSyncState } from 'src/misc/utils'
+import { wrapActionAndInjectSlackClient } from 'src/actions/action-wrapper'
+import { SlackScopes } from 'src/misc/slack-scopes'
+import { getSyncState, saveSyncState } from 'src/misc/utils'
 import { userTags } from '../definitions/index'
 import * as bp from '.botpress'
+
+export const syncMembers = wrapActionAndInjectSlackClient('syncMembers', {
+  async action({ logger, ctx, client, slackClient }, {}) {
+    let { usersLastSyncTs } = await getSyncState(client, ctx)
+    logger.forBot().debug(`Last sync timestamp for Slack users: ${usersLastSyncTs}`)
+
+    const allMembers: Member[] = []
+    const getAllMembers = async (cursor?: string) => {
+      await SlackScopes.ensureHasAllScopes({
+        client,
+        ctx,
+        requiredScopes: ['users:read'],
+        operation: 'users.list',
+      })
+      const res = await slackClient.users.list({ cursor })
+      allMembers.push(...(res.members ?? []))
+      if (res.response_metadata?.next_cursor) {
+        logger.forBot().debug(`Fetching next page of Slack members... (${allMembers.length}/?)`)
+        await getAllMembers(res.response_metadata.next_cursor)
+      }
+    }
+
+    await getAllMembers()
+
+    const membersToSync = chain(allMembers)
+      .sortBy((x) => x.updated, 'asc')
+      .filter((x) => !x.deleted)
+      .filter((x) => (x.updated ?? 0) > (usersLastSyncTs ?? -1))
+      .value()
+
+    logger.forBot().debug(`Found ${membersToSync.length}/${allMembers.length} members to sync in Slack workspace`)
+
+    for (const slackMember of membersToSync) {
+      logger
+        .forBot()
+        .debug('Syncing Slack user to Botpress...', { user: slackMember.name, updated: slackMember.updated })
+      try {
+        const user = await syncSlackUserToBotpressUser(slackMember, client)
+        logger.forBot().debug(`Synced Slack user ${user.name} (${user.id})`)
+        usersLastSyncTs = Math.max(usersLastSyncTs ?? 0, slackMember.updated ?? 0)
+        await saveSyncState(client, ctx, { usersLastSyncTs })
+      } catch (err) {
+        logger.forBot().error(`Failed to sync Slack user ${slackMember.name}`, err)
+      }
+    }
+
+    logger.forBot().debug(`Synced ${membersToSync.length} Slack users to Botpress`)
+
+    return { syncedCount: membersToSync.length }
+  },
+  errorMessage: 'Failed to sync Slack users',
+})
 
 const syncSlackUserToBotpressUser = async (member: Member, botpressClient: bp.Client): Promise<User> => {
   try {
@@ -59,52 +112,4 @@ const syncSlackUserToBotpressUser = async (member: Member, botpressClient: bp.Cl
     }
     throw err
   }
-}
-
-export const syncMembers: bp.IntegrationProps['actions']['syncMembers'] = async ({
-  client: botpressClient,
-  ctx,
-  logger,
-}) => {
-  let { usersLastSyncTs } = await getSyncState(botpressClient, ctx)
-  logger.forBot().debug(`Last sync timestamp for Slack users: ${usersLastSyncTs}`)
-
-  const accessToken = await getAccessToken(botpressClient, ctx)
-  const client = new WebClient(accessToken)
-
-  const allMembers: Member[] = []
-  const getAllMembers = async (cursor?: string) => {
-    const res = await client.users.list({ cursor })
-    allMembers.push(...(res.members ?? []))
-    if (res.response_metadata?.next_cursor) {
-      logger.forBot().debug(`Fetching next page of Slack members... (${allMembers.length}/?)`)
-      await getAllMembers(res.response_metadata.next_cursor)
-    }
-  }
-
-  await getAllMembers()
-
-  const membersToSync = chain(allMembers)
-    .sortBy((x) => x.updated, 'asc')
-    .filter((x) => !x.deleted)
-    .filter((x) => (x.updated ?? 0) > (usersLastSyncTs ?? -1))
-    .value()
-
-  logger.forBot().debug(`Found ${membersToSync.length}/${allMembers.length} members to sync in Slack workspace`)
-
-  for (const slackMember of membersToSync) {
-    logger.forBot().debug('Syncing Slack user to Botpress...', { user: slackMember.name, updated: slackMember.updated })
-    try {
-      const user = await syncSlackUserToBotpressUser(slackMember, botpressClient)
-      logger.forBot().debug(`Synced Slack user ${user.name} (${user.id})`)
-      usersLastSyncTs = Math.max(usersLastSyncTs ?? 0, slackMember.updated ?? 0)
-      await saveSyncState(botpressClient, ctx, { usersLastSyncTs })
-    } catch (err) {
-      logger.forBot().error(`Failed to sync Slack user ${slackMember.name}`, err)
-    }
-  }
-
-  logger.forBot().debug(`Synced ${membersToSync.length} Slack users to Botpress`)
-
-  return { syncedCount: membersToSync.length }
 }
