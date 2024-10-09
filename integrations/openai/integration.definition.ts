@@ -1,9 +1,8 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { languageModelId } from 'src/schemas'
-
 import llm from './bp_modules/llm'
 import stt from './bp_modules/speech-to-text'
-import tti from './bp_modules/textToImage'
+import tti from './bp_modules/text-to-image'
+import { languageModelId } from './src/schemas'
 
 const TextToSpeechModels = ['tts-1', 'tts-1-hd'] as const
 type TextToSpeechModel = (typeof TextToSpeechModels)[number]
