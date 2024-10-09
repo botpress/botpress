@@ -7,7 +7,8 @@
     "build": "bp build",
     "dev": "bp dev",
     "gen": "bp gen",
-    "deploy": "bp deploy"
+    "deploy": "bp deploy",
+    "add:interfaces": "echo 'no interfaces to add'"
   },
   "keywords": [],
   "private": true,

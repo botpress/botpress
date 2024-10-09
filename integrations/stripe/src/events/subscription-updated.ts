@@ -1,7 +1,9 @@
-import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 import Stripe from 'stripe'
-import { Client } from '.botpress'
-import { Events } from '.botpress/implementation/events'
+import * as bp from '.botpress'
+
+type Client = bp.Client
+type Events = bp.events.Events
+type IntegrationLogger = bp.Logger
 
 export const fireSubscriptionUpdated = async ({
   stripeEvent,

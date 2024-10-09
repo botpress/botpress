@@ -1,4 +1,5 @@
-import { z, IntegrationDefinition, messages, interfaces } from '@botpress/sdk'
+import { z, IntegrationDefinition, messages } from '@botpress/sdk'
+import creatable from './bp_modules/creatable'
 
 const ItemDefinition = z.object({
   id: z.string(),
@@ -10,7 +11,7 @@ const ItemDefinition = z.object({
 
 export default new IntegrationDefinition({
   name: 'todoist',
-  version: '0.0.1',
+  version: '0.0.2',
   readme: 'README.md',
   icon: 'icon.svg',
   channels: {
@@ -161,4 +162,4 @@ export default new IntegrationDefinition({
       }),
     },
   },
-}).extend(interfaces.creatable, ({ task }) => ({ item: task }))
+}).extend(creatable, ({ task }) => ({ item: task }))

@@ -4,7 +4,8 @@
     "start": "pnpm bp serve",
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
-    "check:type": "tsc --noEmit"
+    "check:type": "tsc --noEmit",
+    "add:interfaces": "bp add ../../interfaces/llm -y && bp add ../../interfaces/speech-to-text -y"
   },
   "private": true,
   "dependencies": {

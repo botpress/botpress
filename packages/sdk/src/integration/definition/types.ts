@@ -1,5 +1,5 @@
 import { SchemaDefinition } from '../../schema'
-import { AnyZodObject } from '../../type-utils'
+import { AnyZodObject } from '../../zui'
 import {
   BaseConfig,
   BaseEvents,
@@ -102,10 +102,16 @@ export type ResolvedInterface<
   channels: { [K in keyof TChannels]: ChannelDefinition<TChannels[K]> }
 }
 
-export type InterfaceImplementationStatement = {
+export type InterfaceImplementationStatement<
+  TEntities extends BaseEntities = BaseEntities,
+  TActions extends BaseActions = BaseActions,
+  TEvents extends BaseEvents = BaseEvents,
+  TChannels extends BaseChannels = BaseChannels
+> = {
   name: string
   version: string
-  entities: Record<string, { name: string }>
-  actions: Record<string, { name: string }>
-  events: Record<string, { name: string }>
+  entities: { [K in keyof TEntities]: { name: string } }
+  actions: { [K in keyof TActions]: { name: string } }
+  events: { [K in keyof TEvents]: { name: string } }
+  channels: { [K in keyof TChannels]: { name: string } }
 }

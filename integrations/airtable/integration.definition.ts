@@ -15,7 +15,7 @@ import {
 export default new IntegrationDefinition({
   name: 'airtable',
   title: 'Airtable',
-  version: '0.0.1',
+  version: '0.0.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {

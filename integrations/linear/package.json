@@ -5,7 +5,8 @@
     "start": "pnpm bp serve",
     "build": "pnpm bp build",
     "login": "pnpm bp login",
-    "check:type": "tsc --noEmit"
+    "check:type": "tsc --noEmit",
+    "add:interfaces": "bp add ../../interfaces/listable -y"
   },
   "keywords": [],
   "author": "",

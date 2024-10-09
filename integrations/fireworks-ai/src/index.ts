@@ -1,5 +1,4 @@
-import { llm, textToSpeech } from '@botpress/common'
-import { interfaces } from '@botpress/sdk'
+import { llm, speechToText } from '@botpress/common'
 import OpenAI from 'openai'
 import { LanguageModelId, ImageModelId, SpeechToTextModelId } from './schemas'
 import * as bp from '.botpress'
@@ -14,7 +13,7 @@ const DEFAULT_LANGUAGE_MODEL_ID: LanguageModelId = 'accounts/fireworks/models/ll
 // References:
 //  https://fireworks.ai/models
 //  https://fireworks.ai/pricing
-const languageModels: Record<LanguageModelId, interfaces.llm.ModelDetails> = {
+const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
   'accounts/fireworks/models/llama-v3p1-405b-instruct': {
     name: 'Llama 3.1 405B Instruct',
     description:
@@ -186,7 +185,7 @@ const languageModels: Record<LanguageModelId, interfaces.llm.ModelDetails> = {
   },
 }
 
-const speechToTextModels: Record<SpeechToTextModelId, interfaces.speechToText.SpeechToTextModelDetails> = {
+const speechToTextModels: Record<SpeechToTextModelId, speechToText.SpeechToTextModelDetails> = {
   'whisper-v3': {
     name: 'Whisper V3',
     costPerMinute: 0.004,
@@ -212,7 +211,7 @@ export default new bp.Integration({
       )
     },
     transcribeAudio: async ({ input, logger }) => {
-      return await textToSpeech.openai.transcribeAudio(input, fireworksAIClient, logger, {
+      return await speechToText.openai.transcribeAudio(input, fireworksAIClient, logger, {
         provider,
         models: speechToTextModels,
         defaultModel: 'whisper-v3',

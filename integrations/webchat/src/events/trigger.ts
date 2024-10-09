@@ -1,6 +1,8 @@
 import { triggerSchema } from '../misc/messaging/incoming-event'
 import { Client } from '../misc/types'
-import { Events } from '.botpress/implementation/events'
+import * as bp from '.botpress'
+
+type Events = bp.events.Events
 
 export const handleTrigger = async ({
   userId,

@@ -1,6 +1,5 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { llm } from '@botpress/common'
-import { interfaces } from '@botpress/sdk'
 import { generateContent } from './actions/generate-content'
 import { ModelId } from './schemas'
 import * as bp from '.botpress'
@@ -9,7 +8,7 @@ const anthropic = new Anthropic({
   apiKey: bp.secrets.ANTHROPIC_API_KEY,
 })
 
-const languageModels: Record<ModelId, interfaces.llm.ModelDetails> = {
+const languageModels: Record<ModelId, llm.ModelDetails> = {
   // Reference: https://docs.anthropic.com/en/docs/about-claude/models
   'claude-3-5-sonnet-20240620': {
     name: 'Claude 3.5 Sonnet',

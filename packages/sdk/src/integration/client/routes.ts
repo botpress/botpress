@@ -1,5 +1,5 @@
 import { Client } from '@botpress/client'
-import { Merge, Cast, ValueOf } from '../../type-utils'
+import { Merge, Cast, ValueOf } from '../../utils/type-utils'
 import { BaseIntegration } from '../generic'
 import { GetChannelByName, ToTags, WithPrefix } from './types'
 

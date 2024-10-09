@@ -42,7 +42,7 @@ const setIssueState = async (props: EventHandlerProps | MessageHandlerProps, sta
   })
 }
 
-type LinearIssue = bp.linear.entities.issue.Issue
+type LinearIssue = bp.integrations.linear.entities.issue.Issue
 type IssueEvents = {
   created: { event: { item: LinearIssue }; state: IssueState }
   updated: { event: { item: LinearIssue }; state: IssueState }

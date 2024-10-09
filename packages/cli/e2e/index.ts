@@ -4,6 +4,7 @@ import * as consts from '../src/consts'
 import { createDeployBot } from './tests/create-deploy-bot'
 import { createDeployIntegration } from './tests/create-deploy-integration'
 import { devBot } from './tests/dev-bot'
+import { addIntegration } from './tests/install-package'
 import { requiredSecrets } from './tests/integration-secrets'
 import { prependWorkspaceHandle, enforceWorkspaceHandle } from './tests/manage-workspace-handle'
 import { Test } from './typings'
@@ -16,6 +17,7 @@ const tests: Test[] = [
   requiredSecrets,
   prependWorkspaceHandle,
   enforceWorkspaceHandle,
+  addIntegration,
 ]
 
 const timeout = (ms: number) =>

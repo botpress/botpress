@@ -1,4 +1,4 @@
-import { Cast, Join } from '../../type-utils'
+import { Cast, Join } from '../../utils/type-utils'
 import { BaseIntegration } from '../generic'
 
 export type ConfigurationDefinition = BaseIntegration['configuration']

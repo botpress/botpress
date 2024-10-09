@@ -1,6 +1,7 @@
-import { MessageHandlerProps, bot } from './bot'
+import { bot } from './bot'
 import { handleNewIssue, handleSyncIssuesRequest } from './handlers'
 import * as listeners from './listeners'
+import * as bp from '.botpress'
 
 bot.event(async (props) => {
   const { event } = props
@@ -13,7 +14,7 @@ bot.event(async (props) => {
   }
 })
 
-const respond = async (props: MessageHandlerProps, text: string) => {
+const respond = async (props: bp.MessageHandlerProps, text: string) => {
   const { client, ctx, message } = props
   await client.createMessage({
     type: 'text',

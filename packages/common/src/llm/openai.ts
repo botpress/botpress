@@ -1,5 +1,5 @@
 import { InvalidPayloadError, RuntimeError } from '@botpress/client'
-import { z, IntegrationLogger, interfaces } from '@botpress/sdk'
+import { z, IntegrationLogger } from '@botpress/sdk'
 import assert from 'assert'
 import OpenAI from 'openai'
 import {
@@ -15,7 +15,7 @@ import {
   ChatCompletionToolMessageParam,
   ChatCompletionUserMessageParam,
 } from 'openai/resources'
-import { GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './types'
+import { GenerateContentInput, GenerateContentOutput, ToolCall, Message, ModelDetails } from './types'
 
 const OpenAIErrorSchema = z
   .object({
@@ -38,7 +38,7 @@ export async function generateContent<M extends string>(
   logger: IntegrationLogger,
   props: {
     provider: string
-    models: Record<M, interfaces.llm.ModelDetails>
+    models: Record<M, ModelDetails>
     defaultModel: M
   }
 ): Promise<GenerateContentOutput> {

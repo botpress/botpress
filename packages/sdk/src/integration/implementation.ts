@@ -29,7 +29,6 @@ export type IntegrationImplementationProps<TIntegration extends BaseIntegration 
 }
 
 export class IntegrationImplementation<TIntegration extends BaseIntegration = BaseIntegration> {
-  public readonly props: IntegrationImplementationProps<TIntegration>
   public readonly actions: IntegrationImplementationProps<TIntegration>['actions']
   public readonly channels: IntegrationImplementationProps<TIntegration>['channels']
   public readonly register: IntegrationImplementationProps<TIntegration>['register']
@@ -38,8 +37,7 @@ export class IntegrationImplementation<TIntegration extends BaseIntegration = Ba
   public readonly createConversation: IntegrationImplementationProps<TIntegration>['createConversation']
   public readonly webhook: IntegrationImplementationProps<TIntegration>['handler']
 
-  public constructor(props: IntegrationImplementationProps<TIntegration>) {
-    this.props = props
+  public constructor(public readonly props: IntegrationImplementationProps<TIntegration>) {
     this.actions = props.actions
     this.channels = props.channels
     this.register = props.register

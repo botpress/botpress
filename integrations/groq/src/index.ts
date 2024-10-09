@@ -1,5 +1,4 @@
-import { llm, textToSpeech } from '@botpress/common'
-import { interfaces } from '@botpress/sdk'
+import { llm, speechToText } from '@botpress/common'
 import OpenAI from 'openai'
 import { ModelId, SpeechToTextModelId } from './schemas'
 import * as bp from '.botpress'
@@ -9,7 +8,7 @@ const groqClient = new OpenAI({
   apiKey: bp.secrets.GROQ_API_KEY,
 })
 
-const languageModels: Record<ModelId, interfaces.llm.ModelDetails> = {
+const languageModels: Record<ModelId, llm.ModelDetails> = {
   // Reference:
   //  https://console.groq.com/docs/models
   //  https://wow.groq.com/
@@ -86,7 +85,7 @@ const languageModels: Record<ModelId, interfaces.llm.ModelDetails> = {
   },
 }
 
-const speechToTextModels: Record<SpeechToTextModelId, interfaces.speechToText.SpeechToTextModelDetails> = {
+const speechToTextModels: Record<SpeechToTextModelId, speechToText.SpeechToTextModelDetails> = {
   'whisper-large-v3': {
     name: 'Whisper V2',
     costPerMinute: 0.0005,
@@ -107,7 +106,7 @@ export default new bp.Integration({
       })
     },
     transcribeAudio: async ({ input, logger }) => {
-      return await textToSpeech.openai.transcribeAudio(input, groqClient, logger, {
+      return await speechToText.openai.transcribeAudio(input, groqClient, logger, {
         provider,
         models: speechToTextModels,
         defaultModel: 'whisper-large-v3',

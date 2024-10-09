@@ -39,8 +39,8 @@ export class InitCommand extends GlobalCommand<InitCommandDefinition> {
 
   private _initBot = async (args: { workDir: string }) => {
     const { workDir } = args
-    const name = await this._getName('bot', consts.echoBotDirName)
-    await this._copy({ srcDir: this.globalPaths.abs.echoBotTemplate, destDir: workDir, name })
+    const name = await this._getName('bot', consts.emptyBotDirName)
+    await this._copy({ srcDir: this.globalPaths.abs.emptyBotTemplate, destDir: workDir, name })
     this.logger.success(`Bot project initialized in ${chalk.bold(workDir)}`)
   }
 

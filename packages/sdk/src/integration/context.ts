@@ -8,7 +8,7 @@ import {
   operationHeader,
   webhookIdHeader,
 } from '../const'
-import { ValueOf } from '../type-utils'
+import { ValueOf } from '../utils/type-utils'
 import { BaseIntegration } from './generic'
 
 export const integrationOperationSchema = z.enum([

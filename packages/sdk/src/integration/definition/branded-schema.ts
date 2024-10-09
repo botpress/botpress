@@ -26,12 +26,12 @@ export const createStore = <TSchemas extends BaseSchemas>(
   if (!props) {
     return {} as SchemaStore<TSchemas>
   }
-  const store: SchemaStore<BaseSchemas> = utils.mapValues(props, (e, k) => ({ ...e, [schemaName]: k }))
+  const store: SchemaStore<BaseSchemas> = utils.records.mapValues(props, (e, k) => ({ ...e, [schemaName]: k }))
   return store as SchemaStore<TSchemas>
 }
 
-export const isBranded = (schema: BrandedSchema): boolean => {
-  return schema[schemaName] !== undefined
+export const isBranded = (schema: BrandedSchema | { schema: z.ZodSchema }): schema is BrandedSchema => {
+  return schemaName in schema && schema[schemaName] !== undefined
 }
 
 export const getName = (schema: BrandedSchema): string => {

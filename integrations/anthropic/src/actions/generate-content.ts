@@ -2,7 +2,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { MessageCreateParams, MessageCreateParamsNonStreaming } from '@anthropic-ai/sdk/resources/messages'
 import { InvalidPayloadError, RuntimeError } from '@botpress/client'
 import { llm } from '@botpress/common'
-import { z, IntegrationLogger, interfaces } from '@botpress/sdk'
+import { z, IntegrationLogger } from '@botpress/sdk'
 import assert from 'assert'
 
 // Reference: https://docs.anthropic.com/en/api/errors
@@ -16,7 +16,7 @@ export async function generateContent<M extends string>(
   anthropic: Anthropic,
   logger: IntegrationLogger,
   params: {
-    models: Record<M, interfaces.llm.ModelDetails>
+    models: Record<M, llm.ModelDetails>
     defaultModel: M
   }
 ): Promise<llm.GenerateContentOutput> {

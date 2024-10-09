@@ -8,10 +8,12 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@botpress/sdk": "workspace:*"
+    "@botpress/sdk": "workspace:*",
+    "@botpress/common": "workspace:*"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
+    "@types/node": "^18.11.17",
     "typescript": "^4.9.4"
   }
 }

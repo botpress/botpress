@@ -3,7 +3,8 @@
   "description": "A bot that syncs issues from Linear to Botpress tables",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "integrations": "es-node ./integrations.ts"
+    "build": "bp build",
+    "add:integrations": "bp add ../../integrations/linear -y && bp add ../../integrations/telegram -y"
   },
   "private": true,
   "dependencies": {

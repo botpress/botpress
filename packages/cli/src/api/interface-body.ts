@@ -1,6 +1,5 @@
 import type { Client, Interface } from '@botpress/client'
 import type * as sdk from '@botpress/sdk'
-import { AnyZodObject, GenericZuiSchema, z } from '@botpress/sdk'
 import * as utils from '../utils'
 
 export type CreateInterfaceBody = Parameters<Client['createInterface']>[0]
@@ -18,7 +17,7 @@ export const prepareCreateInterfaceBody = async (intrface: sdk.InterfaceDeclarat
   events: intrface.events
     ? await utils.records.mapValuesAsync(intrface.events, async (event) => ({
         ...event,
-        schema: await utils.schema.mapZodToJsonSchema(_dereference(intrface, event)),
+        schema: await utils.schema.mapZodToJsonSchema(event),
       }))
     : {},
   actions: intrface.actions
@@ -26,35 +25,56 @@ export const prepareCreateInterfaceBody = async (intrface: sdk.InterfaceDeclarat
         ...action,
         input: {
           ...action.input,
-          schema: await utils.schema.mapZodToJsonSchema(_dereference(intrface, action.input)),
+          schema: await utils.schema.mapZodToJsonSchema(action.input),
         },
         output: {
           ...action.output,
-          schema: await utils.schema.mapZodToJsonSchema(_dereference(intrface, action.output)),
+          schema: await utils.schema.mapZodToJsonSchema(action.output),
         },
       }))
     : {},
+  channels: intrface.channels
+    ? await utils.records.mapValuesAsync(intrface.channels, async (channel) => ({
+        ...channel,
+        messages: await utils.records.mapValuesAsync(channel.messages, async (message) => ({
+          ...message,
+          schema: await utils.schema.mapZodToJsonSchema(message),
+        })),
+      }))
+    : {},
+  nameTemplate: intrface.templateName
+    ? {
+        script: intrface.templateName,
+        language: 'handlebars',
+      }
+    : undefined,
 })
 
 export const prepareUpdateInterfaceBody = (
-  localInterface: UpdateInterfaceBody,
+  localInterface: CreateInterfaceBody & { id: string },
   remoteInterface: Interface
 ): UpdateInterfaceBody => {
   const actions = utils.records.setNullOnMissingValues(localInterface.actions, remoteInterface.actions)
   const events = utils.records.setNullOnMissingValues(localInterface.events, remoteInterface.events)
   const entities = utils.records.setNullOnMissingValues(localInterface.entities, remoteInterface.entities)
+
+  const currentChannels: UpdateInterfaceBody['channels'] = localInterface.channels
+    ? utils.records.mapValues(localInterface.channels, (channel, channelName) => ({
+        ...channel,
+        messages: utils.records.setNullOnMissingValues(
+          channel?.messages,
+          remoteInterface.channels[channelName]?.messages
+        ),
+      }))
+    : undefined
+
+  const channels = utils.records.setNullOnMissingValues(currentChannels, remoteInterface.channels)
+
   return {
     ...localInterface,
     entities,
     actions,
     events,
+    channels,
   }
-}
-
-const _dereference = (
-  intrface: sdk.InterfaceDeclaration,
-  { schema }: { schema: GenericZuiSchema<Record<string, z.ZodRef>, AnyZodObject> }
-): { schema: AnyZodObject } => {
-  const typeArguments = utils.records.mapValues(intrface.entities, (_, entityName) => z.ref(entityName))
-  return { schema: schema(typeArguments) }
 }

@@ -4,7 +4,7 @@ import { Client, ClientOutputs, MessageHandler } from '../types'
 import * as bp from '.botpress'
 
 type User = ClientOutputs['getUser']['user']
-type StartHitlInput = bp.zendesk.actions.startHitl.input.Input
+type StartHitlInput = bp.integrations.zendesk.actions.startHitl.input.Input
 type MessageHistoryElement = NonNullable<StartHitlInput['messageHistory']>[number]
 
 class UserLinker {

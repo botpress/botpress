@@ -1,7 +1,8 @@
-import { BotListeners, EventHandlerProps, ClientInputs } from './bot'
+import * as bp from '.botpress'
 
-type Props = Omit<EventHandlerProps, 'event'>
-type Message = Pick<ClientInputs['createMessage'], 'type' | 'payload'>
+type Props = Omit<bp.EventHandlerProps, 'event'>
+type Message = Pick<bp.ClientInputs['createMessage'], 'type' | 'payload'>
+type BotListeners = bp.states.listeners.Listeners
 
 const emptyListeners: BotListeners = {
   conversationIds: [],

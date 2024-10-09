@@ -1,6 +1,5 @@
 import { InvalidPayloadError } from '@botpress/client'
-import { llm, textToSpeech } from '@botpress/common'
-import { interfaces } from '@botpress/sdk'
+import { llm, speechToText, textToImage } from '@botpress/common'
 import crypto from 'crypto'
 import { TextToSpeechPricePer1MCharacters } from 'integration.definition'
 import OpenAI from 'openai'
@@ -19,7 +18,7 @@ const DEFAULT_IMAGE_MODEL_ID: ImageModelId = 'dall-e-3-standard-1024'
 // References:
 //  https://platform.openai.com/docs/models
 //  https://openai.com/api/pricing/
-const languageModels: Record<LanguageModelId, interfaces.llm.ModelDetails> = {
+const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
   // IMPORTANT: Only full model names should be supported here, as the short model names can be pointed by OpenAI at any time to a newer model with different pricing.
   'gpt-4o-mini-2024-07-18': {
     name: 'GPT-4o Mini',
@@ -93,7 +92,7 @@ const languageModels: Record<LanguageModelId, interfaces.llm.ModelDetails> = {
   },
 }
 
-const imageModels: Record<ImageModelId, interfaces.textToImage.ImageModelDetails> = {
+const imageModels: Record<ImageModelId, textToImage.ImageModelDetails> = {
   'dall-e-3-standard-1024': {
     name: 'DALL-E 3 Standard 1024',
     costPerImage: 0.04,
@@ -138,7 +137,7 @@ const imageModels: Record<ImageModelId, interfaces.textToImage.ImageModelDetails
   },
 }
 
-const speechToTextModels: Record<SpeechToTextModelId, interfaces.speechToText.SpeechToTextModelDetails> = {
+const speechToTextModels: Record<SpeechToTextModelId, speechToText.SpeechToTextModelDetails> = {
   'whisper-1': {
     name: 'Whisper V2',
     costPerMinute: 0.006,
@@ -225,7 +224,7 @@ export default new bp.Integration({
       }
     },
     transcribeAudio: async ({ input, logger }) => {
-      return await textToSpeech.openai.transcribeAudio(input, openAIClient, logger, {
+      return await speechToText.openai.transcribeAudio(input, openAIClient, logger, {
         provider,
         models: speechToTextModels,
         defaultModel: 'whisper-1',

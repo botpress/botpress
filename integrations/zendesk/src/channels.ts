@@ -1,7 +1,8 @@
 import * as sdk from '@botpress/sdk'
-import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 import { getZendeskClient } from './client'
 import * as bp from '.botpress'
+
+type IntegrationLogger = bp.Logger
 
 class Tags<T extends Record<string, string>> {
   private constructor(private _t: { tags: T }, private _logger: IntegrationLogger) {}

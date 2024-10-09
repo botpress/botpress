@@ -2,7 +2,8 @@
   "name": "@botpresshub/zendesk",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "build": "pnpm bp build"
+    "build": "pnpm bp build",
+    "add:interfaces": "bp add ../../interfaces/hitl -y"
   },
   "keywords": [],
   "private": true,

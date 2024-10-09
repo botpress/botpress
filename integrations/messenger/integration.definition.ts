@@ -5,7 +5,7 @@ export const INTEGRATION_NAME = 'messenger'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.0.1',
+  version: '2.0.2',
   title: 'Messenger',
   description: 'This integration allows your bot to interact with Messenger.',
   icon: 'icon.svg',

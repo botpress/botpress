@@ -1,8 +1,36 @@
-import { JSONSchema4 } from 'json-schema'
-import { compile } from 'json-schema-to-typescript'
+import * as sdk from '@botpress/sdk'
+import { JSONSchema7 } from 'json-schema'
+import * as prettier from 'prettier'
+import * as utils from '../utils'
+import * as consts from './consts'
 
-export const jsonSchemaToTypeScriptType = async (jsonSchema: JSONSchema4, name: string): Promise<string> => {
-  const code = await compile(jsonSchema, name, { unknownAny: false })
+export const zuiSchemaToTypeScriptType = async (zuiSchema: sdk.z.AnyZodObject, name: string): Promise<string> => {
+  let code = zuiSchema.toTypescript()
+  code = `export type ${name} = ${code}`
+  code = prettier.format(code, { parser: 'typescript' })
+  return [
+    //
+    consts.GENERATED_HEADER,
+    code,
+  ].join('\n')
+}
+
+export const jsonSchemaToTypescriptZuiSchema = async (
+  schema: JSONSchema7,
+  name: string,
+  extraProps: Record<string, string> = {}
+): Promise<string> => {
+  schema = await utils.schema.dereferenceSchema(schema)
+  const zuiSchema = sdk.z.fromJsonSchema(schema)
+  let code = [
+    consts.GENERATED_HEADER,
+    'import { z } from "@botpress/sdk"',
+    `export const ${name} = {`,
+    ...Object.entries(extraProps).map(([key, value]) => `  ${key}: ${value},`),
+    `  schema: ${zuiSchema.toTypescriptSchema()}`,
+    '}',
+  ].join('\n')
+  code = prettier.format(code, { parser: 'typescript' })
   return code
 }
 

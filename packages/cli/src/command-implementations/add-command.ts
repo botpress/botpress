@@ -1,159 +1,163 @@
-import type * as client from '@botpress/client'
-import type * as sdk from '@botpress/sdk'
-import bluebird from 'bluebird'
-import chalk from 'chalk'
-import * as fs from 'fs'
+import * as fslib from 'fs'
 import * as pathlib from 'path'
+import { ApiClient } from '../api'
 import * as codegen from '../code-generation'
 import type commandDefinitions from '../command-definitions'
 import * as consts from '../consts'
 import * as errors from '../errors'
-import {
-  ApiIntegrationRef,
-  formatIntegrationRef,
-  LocalPathIntegrationRef,
-  parseIntegrationRef,
-} from '../integration-ref'
+import * as pkgRef from '../package-ref'
 import * as utils from '../utils'
-import { ProjectCommand } from './project-command'
+import { GlobalCommand } from './global-command'
+import { ProjectCommand, ProjectCommandDefinition, ProjectDefinition } from './project-command'
 
-type IntegrationInstallDir = codegen.IntegrationInstanceJson & {
-  dirname: string
-}
+type InstallablePackage =
+  | {
+      type: 'integration'
+      name: string
+      pkg: codegen.IntegrationInstallablePackage
+    }
+  | {
+      type: 'interface'
+      name: string
+      pkg: codegen.InterfaceInstallablePackage
+    }
 
 export type AddCommandDefinition = typeof commandDefinitions.add
-export class AddCommand extends ProjectCommand<AddCommandDefinition> {
+export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   public async run(): Promise<void> {
-    const projectDef = await this.readProjectDefinitionFromFS()
-    if (projectDef.type !== 'bot') {
-      throw new errors.ExclusiveBotFeatureError()
-    }
-
-    const integrationRef = this.argv.integrationRef
-
-    const parsedRef = parseIntegrationRef(integrationRef)
+    const parsedRef = pkgRef.parsePackageRef(this.argv.packageRef)
     if (!parsedRef) {
-      throw new errors.InvalidIntegrationReferenceError(integrationRef)
+      throw new errors.InvalidPackageReferenceError(this.argv.packageRef)
     }
 
-    const integration =
-      parsedRef.type === 'path'
-        ? await this._fetchLocalIntegrationOrInterface(parsedRef)
-        : await this._fetchApiIntegration(parsedRef)
+    const targetPackage =
+      parsedRef.type === 'path' ? await this._findLocalPackage(parsedRef) : await this._findRemotePackage(parsedRef)
 
-    const allInstances = await this._listIntegrationInstances()
-    const existingInstance = allInstances.find((i) => i.name === integration.name)
-    if (existingInstance) {
-      this.logger.warn(`Integration with name "${integration.name}" already installed.`)
-      const res = await this.prompt.confirm('Do you want to overwrite the existing instance?')
+    if (!targetPackage) {
+      const notFoundMessage = this.argv.packageType
+        ? `Could not find package "${this.argv.packageRef}" of type "${this.argv.packageType}"`
+        : `Could not find package "${this.argv.packageRef}"`
+      throw new errors.BotpressCLIError(notFoundMessage)
+    }
+
+    const packageName = targetPackage.name // TODO: eventually replace name by alias (with argv --alias)
+    const baseInstallPath = utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath)
+    const packageDirName = utils.casing.to.kebabCase(packageName)
+    const installPath = utils.path.join(baseInstallPath, consts.installDirName, packageDirName)
+
+    const alreadyInstalled = fslib.existsSync(installPath)
+    if (alreadyInstalled) {
+      this.logger.warn(`Package with name "${packageName}" already installed.`)
+      const res = await this.prompt.confirm('Do you want to overwrite the existing package?')
       if (!res) {
         this.logger.log('Aborted')
         return
       }
 
-      await this._uninstallIntegration(existingInstance)
+      await this._uninstall(installPath)
     }
 
-    await this._generateIntegrationInstance(integration)
-  }
-
-  private _fetchLocalIntegrationOrInterface = async (
-    integrationOrInterfaceRef: LocalPathIntegrationRef
-  ): Promise<sdk.IntegrationDefinition> => {
-    this.logger.warn(
-      'Installing integration from a local path. There is no guarantee that the integration is deployed with the expected schemas.'
-    )
-
-    const workDir = integrationOrInterfaceRef.path
-    const pathStore = new utils.path.PathStore<'workDir' | 'integrationDefinition' | 'interfaceDefinition'>({
-      workDir,
-      integrationDefinition: utils.path.absoluteFrom(workDir, consts.fromWorkDir.integrationDefinition),
-      interfaceDefinition: utils.path.absoluteFrom(workDir, consts.fromWorkDir.interfaceDefinition),
-    })
-
-    const projectDef = await this.readProjectDefinitionFromFS(pathStore)
-    if (projectDef.type === 'bot') {
-      throw new errors.BotpressCLIError(`Integration definition not found at ${workDir}`)
-    } else if (projectDef.type === 'interface') {
-      throw new errors.BotpressCLIError('Installing interfaces is not supported yet')
+    let files: codegen.File[]
+    if (targetPackage.type === 'integration') {
+      files = await codegen.generateIntegrationPackage(targetPackage.pkg)
+    } else {
+      files = await codegen.generateInterfacePackage(targetPackage.pkg)
     }
 
-    return projectDef.definition
+    await this._install(installPath, files)
   }
 
-  private _fetchApiIntegration = async (integrationRef: ApiIntegrationRef): Promise<client.Integration> => {
+  private async _findRemotePackage(ref: pkgRef.ApiPackageRef): Promise<InstallablePackage | undefined> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
-    const integration = await api.findIntegration(integrationRef)
-    if (integration) {
-      return integration
-    }
-
-    const intrface = await api.findPublicInterface(integrationRef)
-    if (intrface) {
-      throw new errors.BotpressCLIError('Installing interfaces is not supported yet')
-    }
-
-    const formattedRef = formatIntegrationRef(integrationRef)
-    throw new errors.BotpressCLIError(`Integration "${formattedRef}" not found`)
-  }
-
-  private async _listIntegrationInstances(): Promise<IntegrationInstallDir[]> {
-    const installPath = this.projectPaths.abs.installDir
-    if (!fs.existsSync(installPath)) {
-      this.logger.debug('Install path does not exist. Skipping listing of integration instances')
-      return []
-    }
-
-    const allFiles = await fs.promises.readdir(installPath)
-    const allPaths = allFiles.map((name) => pathlib.join(installPath, name))
-    const directories = await bluebird.filter(allPaths, async (path) => {
-      const stat = await fs.promises.stat(path)
-      return stat.isDirectory()
-    })
-
-    let jsons = directories.map((root) => ({ root, json: pathlib.join(root, codegen.INTEGRATION_JSON) }))
-    jsons = jsons.filter(({ json: x }) => fs.existsSync(x))
-
-    return bluebird.map(jsons, async ({ root, json }) => {
-      const content: string = await fs.promises.readFile(json, 'utf-8')
-      const { name, version, id } = JSON.parse(content) as codegen.IntegrationInstanceJson
-      const dirname = pathlib.basename(root)
-      return {
-        dirname,
-        id,
-        name,
-        version,
+    if (this._pkgCouldBe('integration')) {
+      const integration = await api.findIntegration(ref)
+      if (integration) {
+        return { type: 'integration', name: integration.name, pkg: { source: 'remote', integration } }
       }
+    }
+    if (this._pkgCouldBe('interface')) {
+      const intrface = await api.findPublicInterface(ref)
+      if (intrface) {
+        return { type: 'interface', name: intrface.name, pkg: { source: 'remote', interface: intrface } }
+      }
+    }
+    return
+  }
+
+  private async _findLocalPackage(ref: pkgRef.LocalPackageRef): Promise<InstallablePackage | undefined> {
+    const absPath = utils.path.absoluteFrom(utils.path.cwd(), ref.path)
+    const projectDefinition = await this._readProject(absPath)
+    if (this._pkgCouldBe('integration') && projectDefinition?.type === 'integration') {
+      return {
+        type: 'integration',
+        name: projectDefinition.definition.name,
+        pkg: { source: 'local', path: absPath },
+      }
+    }
+    if (this._pkgCouldBe('interface') && projectDefinition?.type === 'interface') {
+      return {
+        type: 'interface',
+        name: projectDefinition.definition.name,
+        pkg: { source: 'local', path: absPath },
+      }
+    }
+    if (projectDefinition?.type === 'bot') {
+      throw new errors.BotpressCLIError('Cannot install a bot as a package')
+    }
+    return
+  }
+
+  private async _install(installPath: utils.path.AbsolutePath, files: codegen.File[]): Promise<void> {
+    const line = this.logger.line()
+    line.started(`Installing ${files.length} files to "${installPath}"`)
+    try {
+      for (const file of files) {
+        const filePath = utils.path.absoluteFrom(installPath, file.path)
+        const dirPath = pathlib.dirname(filePath)
+        await fslib.promises.mkdir(dirPath, { recursive: true })
+        await fslib.promises.writeFile(filePath, file.content)
+      }
+      line.success(`Installed ${files.length} files to "${installPath}"`)
+    } finally {
+      line.commit()
+    }
+  }
+
+  private async _uninstall(installPath: utils.path.AbsolutePath): Promise<void> {
+    await fslib.promises.rm(installPath, { recursive: true })
+  }
+
+  private async _readProject(workDir: utils.path.AbsolutePath): Promise<ProjectDefinition | undefined> {
+    // this is a hack to avoid refactoring the project command class
+    class AnyProjectCommand extends ProjectCommand<ProjectCommandDefinition> {
+      public async run(): Promise<void> {
+        throw new errors.BotpressCLIError('Not implemented')
+      }
+
+      public async readProjectDefinitionFromFS(): Promise<ProjectDefinition> {
+        return super.readProjectDefinitionFromFS()
+      }
+    }
+
+    const cmd = new AnyProjectCommand(ApiClient, this.prompt, this.logger, {
+      ...this.argv,
+      entryPoint: consts.defaultEntrypoint,
+      outDir: consts.defaultOutputFolder,
+      workDir,
+    })
+
+    return cmd.readProjectDefinitionFromFS().catch((thrown) => {
+      if (thrown instanceof errors.ProjectDefinitionNotFoundError) {
+        return undefined
+      }
+      throw thrown
     })
   }
 
-  private async _uninstallIntegration(instance: IntegrationInstallDir) {
-    const installDir = this.projectPaths.abs.installDir
-    const instancePath = pathlib.join(installDir, instance.dirname)
-    await fs.promises.rm(instancePath, { recursive: true })
-    await this._generateBotIndex()
-  }
-
-  private async _generateIntegrationInstance(integration: client.Integration | sdk.IntegrationDefinition) {
-    const line = this.logger.line()
-
-    const { name, version } = integration
-    line.started(`Installing ${chalk.bold(name)} v${version}...`)
-
-    const instanceFiles = await codegen.generateIntegrationInstance(
-      integration,
-      this.projectPaths.rel('outDir').installDir
-    )
-    await this.writeGeneratedFilesToOutFolder(instanceFiles)
-    await this._generateBotIndex()
-
-    const rel = this.projectPaths.rel('workDir')
-    line.success(`Installed integration available at ${chalk.grey(rel.outDir)}`)
-  }
-
-  private async _generateBotIndex() {
-    const allInstances = await this._listIntegrationInstances()
-    const indexFile = await codegen.generateBotIndex(this.projectPaths.rel('outDir').installDir, allInstances)
-    await this.writeGeneratedFilesToOutFolder([indexFile])
+  private _pkgCouldBe = (pkgType: InstallablePackage['type']) => {
+    if (!this.argv.packageType) {
+      return true
+    }
+    return this.argv.packageType === pkgType
   }
 }

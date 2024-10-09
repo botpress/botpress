@@ -1,4 +1,9 @@
-import { z, IntegrationDefinition, interfaces } from '@botpress/sdk'
+import { z, IntegrationDefinition } from '@botpress/sdk'
+import creatable from './bp_modules/creatable'
+import deletable from './bp_modules/deletable'
+import listable from './bp_modules/listable'
+import readable from './bp_modules/readable'
+import updatable from './bp_modules/updatable'
 import { INTEGRATION_NAME } from './src/const'
 import {
   listEventsInputSchema,
@@ -14,7 +19,7 @@ import { updateEventUi, deleteEventUi, createEventUi } from './src/misc/custom-u
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '0.4.1',
+  version: '0.4.2',
   description:
     "Elevate your chatbot's capabilities with the Botpress integration for Google Calendar. Seamlessly sync your chatbot with Google Calendar to effortlessly manage events, appointments, and schedules",
   title: 'Google Calendar',
@@ -98,18 +103,18 @@ export default new IntegrationDefinition({
     },
   },
 })
-  .extend(interfaces.listable, (entities) => ({
+  .extend(listable, (entities) => ({
     item: entities.event,
   }))
-  .extend(interfaces.creatable, (entities) => ({
+  .extend(creatable, (entities) => ({
     item: entities.event,
   }))
-  .extend(interfaces.readable, (entities) => ({
+  .extend(readable, (entities) => ({
     item: entities.event,
   }))
-  .extend(interfaces.updatable, (entities) => ({
+  .extend(updatable, (entities) => ({
     item: entities.event,
   }))
-  .extend(interfaces.deletable, (entities) => ({
+  .extend(deletable, (entities) => ({
     item: entities.event,
   }))
