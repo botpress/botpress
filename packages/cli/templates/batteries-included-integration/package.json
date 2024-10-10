@@ -1,0 +1,19 @@
+{
+  "name": "@bp-templates/batteries-included",
+  "integrationName": "batteries-included",
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/sdk": "^0.11.8",
+    "axios": "^1.7.7"
+  },
+  "devDependencies": {
+    "@botpress/cli": "^0.11.5",
+    "@botpress/client": "^0.33.0",
+    "@types/node": "^18.11.17",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
+  }
+}
