@@ -1,5 +1,6 @@
 import z, { util } from '../../z'
 import { escapeString, getMultilineComment, toPropertyKey, toTypeArgumentName } from './utils'
+import * as errors from '../common/errors'
 
 const Primitives = [
   'string',
@@ -15,30 +16,6 @@ const Primitives = [
   'symbol',
   'object',
 ]
-
-export abstract class ZuiToTypescriptError extends Error {}
-
-export class UntitledDeclarationError extends ZuiToTypescriptError {
-  constructor(message: string) {
-    super(message)
-    this.name = 'UntitledDeclarationError'
-  }
-
-  static isUntitledDeclarationError(err: Error): err is UntitledDeclarationError {
-    return err.name === 'UntitledDeclarationError'
-  }
-}
-
-export class UnrepresentableGenericError extends ZuiToTypescriptError {
-  constructor(message: string) {
-    super(message)
-    this.name = 'UnrepresentableGenericError'
-  }
-
-  static isUnrepresentableGenericError(err: Error): err is UnrepresentableGenericError {
-    return err.name === 'UnrepresentableGenericError'
-  }
-}
 
 const isPrimitive = (type: string) => Primitives.includes(type)
 const isArrayOfPrimitives = (type: string) => Primitives.map((p) => `${p}[]`).includes(type)
@@ -287,7 +264,7 @@ ${opts.join(' | ')}`
 
     case z.ZodFirstPartyTypeKind.ZodLiteral:
       if (typeof def.value === 'bigint') {
-        throw new Error('BigInt literals are not supported yet')
+        throw new errors.UnsupportedZuiToTypescriptTypeError(`${z.ZodFirstPartyTypeKind.ZodLiteral}<bigint>`)
       }
       const value: string = typeof def.value === 'string' ? escapeString(def.value) : String(def.value)
       return `${getMultilineComment(def.description)}
@@ -301,7 +278,7 @@ ${value}`.trim()
       return sUnwrapZod(def.schema, newConfig)
 
     case z.ZodFirstPartyTypeKind.ZodNativeEnum:
-      throw new Error('ZodNativeEnum cannot be transformed to TypeScript type yet')
+      throw new errors.UnsupportedZuiToTypescriptTypeError(z.ZodFirstPartyTypeKind.ZodNativeEnum)
 
     case z.ZodFirstPartyTypeKind.ZodOptional:
       return `${sUnwrapZod(def.innerType, newConfig)} | undefined`
@@ -390,9 +367,7 @@ const getDeclarationProps = (schema: z.Schema, options: TypescriptGenerationOpti
 
   if (declarationType === 'none') {
     if (args.length > 0) {
-      throw new UnrepresentableGenericError(
-        'ZodRefs are only supported when generating "type" declaration. Please set "declaration" option to "type".',
-      )
+      throw new errors.UnrepresentableGenericError()
     }
 
     return new Declaration({ type: 'none', schema })
@@ -400,14 +375,12 @@ const getDeclarationProps = (schema: z.Schema, options: TypescriptGenerationOpti
 
   const title = 'title' in schema.ui ? (schema.ui.title as string) : null
   if (!title) {
-    throw new UntitledDeclarationError('Only schemas with "title" Zui property can be declared.')
+    throw new errors.UntitledDeclarationError()
   }
 
   if (declarationType === 'variable') {
     if (args.length > 0) {
-      throw new UnrepresentableGenericError(
-        'ZodRefs are only supported when generating "type" declaration. Please set "declaration" option to "type".',
-      )
+      throw new errors.UnrepresentableGenericError()
     }
 
     return new Declaration({ type: 'variable', identifier: title, schema })

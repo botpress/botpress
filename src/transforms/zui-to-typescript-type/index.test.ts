@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { UnrepresentableGenericError, UntitledDeclarationError, toTypescript as toTs } from '.'
+import { toTypescript as toTs } from '.'
 import z, { ZodType } from '../../z'
+import * as errors from '../common/errors'
 
 const toTypescript = (schema: ZodType): string => {
   const hasTitle = 'title' in schema.ui
@@ -17,7 +18,7 @@ describe.concurrent('functions', () => {
       .args(z.object({ a: z.number(), b: z.number() }))
       .returns(z.number())
       .describe('Add two numbers together.\nThis is a multiline description')
-    expect(() => toTs(fn, { declaration: true })).toThrowError(UntitledDeclarationError)
+    expect(() => toTs(fn, { declaration: true })).toThrowError(errors.ZuiToTypescriptTypeError)
   })
 
   it('type delcaration works', async () => {
@@ -579,10 +580,10 @@ describe.concurrent('objects', () => {
 describe.concurrent('generics', () => {
   it("can't generate a generic type without type declaration", async () => {
     const schema = z.object({ a: z.string(), b: z.ref('T') }).title('MyObject')
-    expect(() => toTs(schema, { declaration: true })).toThrowError(UnrepresentableGenericError)
-    expect(() => toTs(schema, { declaration: false })).toThrowError(UnrepresentableGenericError)
-    expect(() => toTs(schema, { declaration: 'variable' })).toThrowError(UnrepresentableGenericError)
-    expect(() => toTs(schema, { declaration: 'none' })).toThrowError(UnrepresentableGenericError)
+    expect(() => toTs(schema, { declaration: true })).toThrowError(errors.UnrepresentableGenericError)
+    expect(() => toTs(schema, { declaration: false })).toThrowError(errors.UnrepresentableGenericError)
+    expect(() => toTs(schema, { declaration: 'variable' })).toThrowError(errors.UnrepresentableGenericError)
+    expect(() => toTs(schema, { declaration: 'none' })).toThrowError(errors.UnrepresentableGenericError)
   })
 
   it('can generate a generic type', async () => {

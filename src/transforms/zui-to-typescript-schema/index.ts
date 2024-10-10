@@ -1,8 +1,7 @@
 import z, { util, ZodError } from '../../z'
 import { escapeString, getMultilineComment } from '../zui-to-typescript-type/utils'
 import { mapValues, toTypesriptPrimitive } from './utils'
-
-export type TypescriptExpressionGenerationOptions = {}
+import * as errors from '../common/errors'
 
 /**
  *
@@ -10,7 +9,7 @@ export type TypescriptExpressionGenerationOptions = {}
  * @param options generation options
  * @returns a typescript program that would construct the given schema if executed
  */
-export function toTypescriptSchema(schema: z.Schema, _options?: TypescriptExpressionGenerationOptions): string {
+export function toTypescriptSchema(schema: z.Schema): string {
   let wrappedSchema: z.Schema = schema
   let dts = sUnwrapZod(wrappedSchema)
   return dts
@@ -125,10 +124,10 @@ function sUnwrapZod(schema: z.Schema): string {
       return `${getMultilineComment(def.description)}z.enum([${values.join(', ')}])`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodEffects:
-      throw new Error('ZodEffects cannot be transformed to TypeScript expression yet')
+      throw new errors.UnsupportedZuiToTypescriptSchemaError(z.ZodFirstPartyTypeKind.ZodEffects)
 
     case z.ZodFirstPartyTypeKind.ZodNativeEnum:
-      throw new Error('ZodNativeEnum cannot be transformed to TypeScript expression yet')
+      throw new errors.UnsupportedZuiToTypescriptSchemaError(z.ZodFirstPartyTypeKind.ZodNativeEnum)
 
     case z.ZodFirstPartyTypeKind.ZodOptional:
       return `${getMultilineComment(def.description)}z.optional(${sUnwrapZod(def.innerType)})`.trim()
@@ -149,13 +148,13 @@ function sUnwrapZod(schema: z.Schema): string {
       return `${getMultilineComment(def.description)}z.promise(${sUnwrapZod(def.type)})`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodBranded:
-      throw new Error('ZodBranded cannot be transformed to TypeScript expression yet')
+      throw new errors.UnsupportedZuiToTypescriptSchemaError(z.ZodFirstPartyTypeKind.ZodBranded)
 
     case z.ZodFirstPartyTypeKind.ZodPipeline:
-      throw new Error('ZodPipeline cannot be transformed to TypeScript expression yet')
+      throw new errors.UnsupportedZuiToTypescriptSchemaError(z.ZodFirstPartyTypeKind.ZodPipeline)
 
     case z.ZodFirstPartyTypeKind.ZodSymbol:
-      throw new Error('ZodSymbol cannot be transformed to TypeScript expression yet')
+      throw new errors.UnsupportedZuiToTypescriptSchemaError(z.ZodFirstPartyTypeKind.ZodSymbol)
 
     case z.ZodFirstPartyTypeKind.ZodReadonly:
       return `${getMultilineComment(def.description)}z.readonly(${sUnwrapZod(def.innerType)})`.trim()
@@ -165,7 +164,7 @@ function sUnwrapZod(schema: z.Schema): string {
       return `${getMultilineComment(def.description)}z.ref(${uri})`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodTemplateLiteral:
-      throw new Error('ZodTemplateLiteral cannot be transformed to TypeScript expression yet')
+      throw new errors.UnsupportedZuiToTypescriptSchemaError(z.ZodFirstPartyTypeKind.ZodTemplateLiteral)
 
     default:
       util.assertNever(def)

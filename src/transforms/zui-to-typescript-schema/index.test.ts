@@ -1,17 +1,24 @@
 import { describe, expect } from 'vitest'
 import { toTypescriptSchema as toTypescript } from '.'
 import { evalZuiString } from '../common/eval-zui-string'
+import * as errors from '../common/errors'
 
 const assert = (_expected: string) => ({
   toGenerateItself: async () => {
-    const schema = evalZuiString(_expected)
-    const actual = toTypescript(schema)
+    const evalResult = evalZuiString(_expected)
+    if (!evalResult.sucess) {
+      throw new Error(evalResult.error)
+    }
+    const actual = toTypescript(evalResult.value)
     await expect(actual).toMatchWithoutFormatting(_expected)
   },
   toThrowErrorWhenGenerating: async () => {
-    const schema = evalZuiString(_expected)
-    const fn = () => toTypescript(schema)
-    expect(fn).toThrowError()
+    const evalResult = evalZuiString(_expected)
+    if (!evalResult.sucess) {
+      throw new Error(evalResult.error)
+    }
+    const fn = () => toTypescript(evalResult.value)
+    expect(fn).toThrowError(errors.ZuiToTypescriptSchemaError)
   },
 })
 

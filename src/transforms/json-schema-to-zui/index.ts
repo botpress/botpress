@@ -25,6 +25,7 @@ import { parseSchema } from './parsers/parseSchema'
 import { ZuiExtensionObject } from '../../ui/types'
 import { JSONSchemaExtended } from './types'
 import { evalZuiString } from '../common/eval-zui-string'
+import * as errors from '../common/errors'
 
 export const jsonSchemaToZodStr = (schema: JSONSchemaExtended): string => {
   return parseSchema(schema, {
@@ -36,7 +37,11 @@ export const jsonSchemaToZodStr = (schema: JSONSchemaExtended): string => {
 const jsonSchemaToZod = (schema: any): ZodTypeAny => {
   let code = jsonSchemaToZodStr(schema)
   code = code.replaceAll('errors: z.ZodError[]', 'errors')
-  return evalZuiString(code)
+  const evaluationResult = evalZuiString(code)
+  if (!evaluationResult.sucess) {
+    throw new errors.JsonSchemaToZuiError(evaluationResult.error)
+  }
+  return evaluationResult.value
 }
 
 const applyZuiPropsRecursively = (zodField: ZodTypeAny, jsonSchemaField: any) => {
@@ -226,7 +231,7 @@ export const traverseZodDefinitions = (
       cb(ZodFirstPartyTypeKind.ZodDefault, def, path)
       break
     default:
-      throw new Error(`Unknown Zod type: ${(def as any).typeName}`)
+      throw new errors.JsonSchemaToZuiError(`Unknown Zod type: ${(def as any).typeName}`)
   }
 }
 

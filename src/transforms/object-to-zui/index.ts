@@ -1,4 +1,5 @@
 import { z, SomeZodObject, ZodTypeAny } from '../../z/index'
+import * as errors from '../common/errors'
 
 // Using a basic regex do determine if it's a date or not to avoid using another lib for that
 const dateTimeRegex =
@@ -8,7 +9,7 @@ export type ObjectToZuiOptions = { optional?: boolean; nullable?: boolean; passt
 
 export const objectToZui = (obj: any, opts?: ObjectToZuiOptions, isRoot = true): ZodTypeAny => {
   if (typeof obj !== 'object') {
-    throw new Error('Input must be an object')
+    throw new errors.ObjectToZuiError('Input must be an object')
   }
 
   const applyOptions = (zodType: any) => {
@@ -53,7 +54,7 @@ export const objectToZui = (obj: any, opts?: ObjectToZuiOptions, isRoot = true):
           }
           break
         default:
-          throw new Error(`Unsupported type for key ${key}`)
+          throw new errors.ObjectToZuiError(`Unsupported type for key ${key}`)
       }
     }
     return acc

@@ -32,6 +32,7 @@ import { Refs, Seen } from './Refs'
 import { parseReadonlyDef } from './parsers/readonly'
 import { zuiKey } from '../../ui/constants'
 import { JsonSchema7RefType, parseRefDef } from './parsers/ref'
+import * as errors from '../common/errors'
 
 type JsonSchema7Meta = {
   default?: any
@@ -204,7 +205,7 @@ const selectParser = (def: any, typeName: ZodFirstPartyTypeKind, refs: Refs): Js
     case ZodFirstPartyTypeKind.ZodPipeline:
       return parsePipelineDef(def, refs)
     case ZodFirstPartyTypeKind.ZodTemplateLiteral:
-      throw new Error('Template literals are not supported yet')
+      throw new errors.UnsupportedZuiToJsonSchemaError(ZodFirstPartyTypeKind.ZodTemplateLiteral)
     case ZodFirstPartyTypeKind.ZodFunction:
     case ZodFirstPartyTypeKind.ZodVoid:
     case ZodFirstPartyTypeKind.ZodSymbol:
