@@ -145,6 +145,7 @@ export default new IntegrationDefinition({
     },
     SEGMENT_KEY: {
       description: 'Tracking key for general product analytics',
+      optional: true,
     },
   },
 })
