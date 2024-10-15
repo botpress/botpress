@@ -85,6 +85,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       return
     }
 
+    this.logger.debug('Preparing integration request body...')
+
     let createBody: CreateIntegrationBody = await prepareCreateIntegrationBody(integrationDef)
     createBody = {
       ...createBody,
@@ -126,7 +128,15 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       })
       line.success(successMessage)
     } else {
+      this.logger.debug(`looking for previous version of integration "${name}"`)
       const previousVersion = await api.findPreviousIntegrationVersion({ type: 'name', name, version })
+
+      if (previousVersion) {
+        this.logger.debug(`previous version found: ${previousVersion.version}`)
+      } else {
+        this.logger.debug('no previous version found')
+      }
+
       const knownSecrets = previousVersion?.secrets
 
       const createSecrets = await this.promptSecrets(integrationDef, this.argv, { knownSecrets })
