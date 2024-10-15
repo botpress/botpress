@@ -16,12 +16,12 @@ export const trackIntegrationEvent = async (
   eventName: string,
   eventProps: Record<string, any> = {}
 ): Promise<void> => {
-  if (!analytics) {
-    return
-  }
 
   await new Promise((resolve) => {
     try {
+      if (analytics === undefined) {
+        return
+      }
       analytics.track(
         {
           userId: botId,
@@ -34,7 +34,7 @@ export const trackIntegrationEvent = async (
             version: integrationDefinition.version,
           },
         },
-        (err?: unknown, ctx) => {
+        (err?: unknown) => {
           if (err) {
             console.log('Error tracking event', err)
           }
@@ -50,11 +50,11 @@ export const trackIntegrationEvent = async (
 
 // Identify bot function
 export const identifyBot = async (botId: string, traits: Record<string, any>): Promise<void> => {
-  if (!analytics) {
-    return
-  }
   await new Promise((resolve) => {
     try {
+      if (analytics === undefined) {
+        return
+      }
       analytics.identify(
         {
           userId: botId,
