@@ -309,9 +309,10 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     line.started(`Deploying bot ${chalk.bold(bot.name)}...`)
 
     const integrationInstances = await this.fetchBotIntegrationInstances(botDefinition, api)
+    const createBotBody = await prepareCreateBotBody(botDefinition)
     const updateBotBody = prepareUpdateBotBody(
       {
-        ...(await prepareCreateBotBody(botDefinition)),
+        ...createBotBody,
         id: bot.id,
         code,
         integrations: integrationInstances,
