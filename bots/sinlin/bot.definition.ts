@@ -32,11 +32,9 @@ export default new sdk.BotDefinition({
 })
   .add(linear, {
     enabled: true,
-    configurationType: null,
     configuration: {},
   })
   .add(telegram, {
     enabled: true,
-    configurationType: null,
     configuration: { botToken: '$BOT_TOKEN' },
   })

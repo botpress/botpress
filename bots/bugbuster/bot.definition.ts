@@ -26,11 +26,9 @@ export default new sdk.BotDefinition({
 })
   .add(github, {
     enabled: true,
-    configurationType: null,
-    configuration: { owner: 'botpress', repo: 'botpress', token: '$TOKEN' },
+    configuration: {},
   })
   .add(slack, {
     enabled: true,
-    configurationType: null,
     configuration: {},
   })

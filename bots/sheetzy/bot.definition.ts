@@ -20,7 +20,6 @@ export default new sdk.BotDefinition({
 })
   .add(gsheets, {
     enabled: true,
-    configurationType: null,
     configuration: {
       clientEmail: '$CLIENT_EMAIL',
       privateKey: '$PRIVATE_KEY',
@@ -29,7 +28,6 @@ export default new sdk.BotDefinition({
   })
   .add(telegram, {
     enabled: true,
-    configurationType: null,
     configuration: {
       botToken: '$BOT_TOKEN',
     },

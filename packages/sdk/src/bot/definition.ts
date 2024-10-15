@@ -42,19 +42,20 @@ export type MessageDefinition = {
   tags?: Record<string, TagDefinition>
 }
 
-export type IntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage> =
+export type IntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage> = {
+  enabled: boolean
+} & (
   | {
-      enabled: boolean
-      configurationType: null
+      configurationType?: null
       configuration: z.infer<NonNullable<I['definition']['configuration']>['schema']>
     }
   | ValueOf<{
       [K in keyof NonNullable<I['definition']['configurations']>]: {
-        enabled: boolean
         configurationType: K
         configuration: z.infer<NonNullable<I['definition']['configurations']>[K]['schema']>
       }
     }>
+)
 
 export type IntegrationInstance = IntegrationPackage & IntegrationConfigInstance
 
