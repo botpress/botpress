@@ -5,7 +5,7 @@ import * as bp from '.botpress'
 // safely initialize analytics instance
 let analytics: Analytics | undefined
 try {
-  analytics = new Analytics({ writeKey: bp.secrets.SEGMENT_KEY, flushAt: 1 })
+  analytics = new Analytics({ writeKey: bp.secrets.SEGMENT_KEY, flushAt: 1, httpRequestTimeout: 2000 })
 } catch (error) {
   console.error('Could not initialize Segment analytics instance.')
 }
