@@ -35,11 +35,11 @@ export default new sdk.BotDefinition({
     enabled: true,
     configurationType: 'apiKey',
     configuration: {
-      apiKey: genenv.LINEAR_API_KEY,
-      webhookSigningSecret: genenv.LINEAR_WEBHOOK_SIGNING_SECRET,
+      apiKey: genenv.SINLIN_LINEAR_API_KEY,
+      webhookSigningSecret: genenv.SINLIN_LINEAR_WEBHOOK_SIGNING_SECRET,
     },
   })
   .add(telegram, {
     enabled: true,
-    configuration: { botToken: genenv.TELEGRAM_BOT_TOKEN },
+    configuration: { botToken: genenv.SINLIN_TELEGRAM_BOT_TOKEN },
   })

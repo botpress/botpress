@@ -45,14 +45,14 @@ export default new sdk.BotDefinition({
   .add(telegram, {
     enabled: true,
     configuration: {
-      botToken: genenv.TELEGRAM_BOT_TOKEN,
+      botToken: genenv.HITLOOPER_TELEGRAM_BOT_TOKEN,
     },
   })
   .add(zendesk, {
     enabled: true,
     configuration: {
-      apiToken: genenv.ZENDESK_API_TOKEN,
-      email: genenv.ZENDESK_EMAIL,
-      organizationSubdomain: genenv.ZENDESK_ORGANIZATION_SUBDOMAIN,
+      apiToken: genenv.HITLOOPER_ZENDESK_API_TOKEN,
+      email: genenv.HITLOOPER_ZENDESK_EMAIL,
+      organizationSubdomain: genenv.HITLOOPER_ZENDESK_ORGANIZATION_SUBDOMAIN,
     },
   })

@@ -1,7 +1,7 @@
 {
   "name": "@bp-bots/hit-looper",
   "scripts": {
-    "postinstall": "genenv -o ./.genenv/index.ts -e TELEGRAM_BOT_TOKEN -e ZENDESK_API_TOKEN -e ZENDESK_EMAIL -e ZENDESK_ORGANIZATION_SUBDOMAIN",
+    "postinstall": "genenv -o ./.genenv/index.ts -e HITLOOPER_TELEGRAM_BOT_TOKEN -e HITLOOPER_ZENDESK_API_TOKEN -e HITLOOPER_ZENDESK_EMAIL -e HITLOOPER_ZENDESK_ORGANIZATION_SUBDOMAIN",
     "check:type": "tsc --noEmit",
     "build": "bp build",
     "add:integrations": "bp add ../../integrations/telegram -y && bp add ../../integrations/zendesk -y"

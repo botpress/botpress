@@ -22,14 +22,14 @@ export default new sdk.BotDefinition({
   .add(gsheets, {
     enabled: true,
     configuration: {
-      clientEmail: genenv.GSHEETS_CLIENT_EMAIL,
-      privateKey: genenv.GSHEETS_PRIVATE_KEY,
-      spreadsheetId: genenv.GSHEETS_SPREADSHEET_ID,
+      clientEmail: genenv.SHEETZY_GSHEETS_CLIENT_EMAIL,
+      privateKey: genenv.SHEETZY_GSHEETS_PRIVATE_KEY,
+      spreadsheetId: genenv.SHEETZY_GSHEETS_SPREADSHEET_ID,
     },
   })
   .add(telegram, {
     enabled: true,
     configuration: {
-      botToken: genenv.TELEGRAM_BOT_TOKEN,
+      botToken: genenv.SHEETZY_TELEGRAM_BOT_TOKEN,
     },
   })

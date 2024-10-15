@@ -1,7 +1,7 @@
 {
   "name": "@bp-bots/sheetzy",
   "scripts": {
-    "postinstall": "genenv -o ./.genenv/index.ts -e TELEGRAM_BOT_TOKEN -e GSHEETS_CLIENT_EMAIL -e GSHEETS_PRIVATE_KEY -e GSHEETS_SPREADSHEET_ID",
+    "postinstall": "genenv -o ./.genenv/index.ts -e SHEETZY_TELEGRAM_BOT_TOKEN -e SHEETZY_GSHEETS_CLIENT_EMAIL -e SHEETZY_GSHEETS_PRIVATE_KEY -e SHEETZY_GSHEETS_SPREADSHEET_ID",
     "check:type": "tsc --noEmit",
     "build": "bp build",
     "add:integrations": "bp add ../../integrations/gsheets -y && bp add ../../integrations/telegram -y"
