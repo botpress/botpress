@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import * as genenv from './.genenv'
 import gsheets from './bp_modules/gsheets'
 import telegram from './bp_modules/telegram'
 
@@ -21,14 +22,14 @@ export default new sdk.BotDefinition({
   .add(gsheets, {
     enabled: true,
     configuration: {
-      clientEmail: '$CLIENT_EMAIL',
-      privateKey: '$PRIVATE_KEY',
-      spreadsheetId: '$SPREADSHEET_ID',
+      clientEmail: genenv.GSHEETS_CLIENT_EMAIL,
+      privateKey: genenv.GSHEETS_PRIVATE_KEY,
+      spreadsheetId: genenv.GSHEETS_SPREADSHEET_ID,
     },
   })
   .add(telegram, {
     enabled: true,
     configuration: {
-      botToken: '$BOT_TOKEN',
+      botToken: genenv.TELEGRAM_BOT_TOKEN,
     },
   })

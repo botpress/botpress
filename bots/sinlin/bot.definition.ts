@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import * as genenv from './.genenv'
 import linear from './bp_modules/linear'
 import telegram from './bp_modules/telegram'
 
@@ -32,9 +33,13 @@ export default new sdk.BotDefinition({
 })
   .add(linear, {
     enabled: true,
-    configuration: {},
+    configurationType: 'apiKey',
+    configuration: {
+      apiKey: genenv.LINEAR_API_KEY,
+      webhookSigningSecret: genenv.LINEAR_WEBHOOK_SIGNING_SECRET,
+    },
   })
   .add(telegram, {
     enabled: true,
-    configuration: { botToken: '$BOT_TOKEN' },
+    configuration: { botToken: genenv.TELEGRAM_BOT_TOKEN },
   })

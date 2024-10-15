@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import * as genenv from './.genenv'
 import telegram from './bp_modules/telegram'
 import zendesk from './bp_modules/zendesk'
 
@@ -44,14 +45,14 @@ export default new sdk.BotDefinition({
   .add(telegram, {
     enabled: true,
     configuration: {
-      botToken: '$BOT_TOKEN',
+      botToken: genenv.TELEGRAM_BOT_TOKEN,
     },
   })
   .add(zendesk, {
     enabled: true,
     configuration: {
-      apiToken: '$API_TOKEN',
-      email: '$EMAIL',
-      organizationSubdomain: '$ORGANIZATION_SUBDOMAIN',
+      apiToken: genenv.ZENDESK_API_TOKEN,
+      email: genenv.ZENDESK_EMAIL,
+      organizationSubdomain: genenv.ZENDESK_ORGANIZATION_SUBDOMAIN,
     },
   })

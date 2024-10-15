@@ -2,6 +2,7 @@
   "name": "@bp-bots/sinlin",
   "description": "A bot that syncs issues from Linear to Botpress tables",
   "scripts": {
+    "postinstall": "genenv -o ./.genenv/index.ts -e TELEGRAM_BOT_TOKEN -e LINEAR_API_KEY -e LINEAR_WEBHOOK_SIGNING_SECRET",
     "check:type": "tsc --noEmit",
     "build": "bp build",
     "add:integrations": "bp add ../../integrations/linear -y && bp add ../../integrations/telegram -y"
@@ -14,7 +15,7 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@bpinternal/es-node": "^0.0.5",
+    "@bpinternal/genenv": "0.0.1",
     "@types/lodash": "^4.14.191",
     "@types/node": "^18.11.17",
     "execa": "^8.0.1",
