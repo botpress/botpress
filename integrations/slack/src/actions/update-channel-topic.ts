@@ -1,24 +1,18 @@
-import { WebClient } from '@slack/web-api'
-import { getAccessToken } from 'src/misc/utils'
-import { Integration } from '.botpress'
+import { SlackScopes } from 'src/misc/slack-scopes'
+import { wrapActionAndInjectSlackClient } from './action-wrapper'
 
-export const updateChannelTopic: Integration['actions']['updateChannelTopic'] = async ({
-  logger,
-  client,
-  input,
-  ctx,
-}) => {
-  logger.forBot().debug('Received action updateChannelTopic with input:', input)
+export const updateChannelTopic = wrapActionAndInjectSlackClient('updateChannelTopic', {
+  async action({ slackClient, client, ctx }, { channelId, topic }) {
+    await SlackScopes.ensureHasAllScopes({
+      client,
+      ctx,
+      requiredScopes: ['channels:write', 'groups:write', 'mpim:write', 'im:write'],
+      operation: 'conversations.setTopic',
+    })
 
-  const { channelId, topic } = input
-
-  try {
-    const accessToken = await getAccessToken(client, ctx)
-    const slackClient = new WebClient(accessToken)
     await slackClient.conversations.setTopic({ channel: channelId, topic })
+
     return {}
-  } catch (err) {
-    logger.forBot().error('Could not update channel topic', err)
-    throw new Error(`Could not update channel topic: ${err}`)
-  }
-}
+  },
+  errorMessage: 'Failed to update channel topic',
+})

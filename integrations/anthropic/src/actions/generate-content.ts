@@ -109,7 +109,7 @@ export async function generateContent<M extends string>(
     .map((content) => content.text)
     .join('\n\n')
 
-  return <llm.GenerateContentOutput>{
+  return {
     id: response.id,
     provider: 'anthropic',
     model: response.model,
@@ -126,7 +126,8 @@ export async function generateContent<M extends string>(
     ],
     usage: {
       inputTokens,
-      inputCost: outputTokens,
+      inputCost,
+      outputTokens,
       outputCost,
     },
     botpress: { cost },

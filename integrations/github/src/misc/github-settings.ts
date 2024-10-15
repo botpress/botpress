@@ -34,9 +34,9 @@ export namespace GithubSettings {
     return ctx.configurationType === 'manualApp' ? ctx.configuration.githubAppId : secrets.GITHUB_APP_ID
   }
   function _getAppPrivateKey({ ctx }: { ctx: types.Context }) {
-    return ctx.configurationType === 'manualApp'
-      ? _fixRSAPrivateKey(ctx.configuration.githubAppPrivateKey)
-      : secrets.GITHUB_PRIVATE_KEY
+    return _fixRSAPrivateKey(
+      ctx.configurationType === 'manualApp' ? ctx.configuration.githubAppPrivateKey : secrets.GITHUB_PRIVATE_KEY
+    )
   }
 
   async function _getAppInstallationId({ ctx, client }: { ctx: types.Context; client: types.Client }) {
@@ -60,7 +60,14 @@ export namespace GithubSettings {
  * UI. This means that the RSA private key gets mangled when pasted in the UI.
  * This function fixes the private key by adding newlines where necessary.
  *
- * FIXME: Remove this workaround once ZUI gets support for multi-line inputs.
+ * Multi-line secrets are also broken in the GitHub Actions deployment
+ * pipelines, because they are being pasted verbatim into a bash script, thus
+ * breaking the script because each line is interpreted as a separate command.
+ * This means this function is also useful for fixing the private key in the
+ * GitHub repository secrets.
+ *
+ * FIXME: Remove this workaround once ZUI gets support for multi-line inputs and
+ * our GitHub Actions pipelines get support for multi-line secrets.
  */
 const _fixRSAPrivateKey = (key: string) => {
   const parts = key.trim().split('-----')
