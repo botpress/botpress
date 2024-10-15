@@ -36,5 +36,5 @@ jobs:
               bot_name=$(basename $bot_path)
               echo -e "\nDeploying bot: ### $bot_name ###\n"
               bot_id=$(pnpm bp bots new --name $bot_name --json --if-not-exists | jq -r ".id")
-              pnpm retry -n 2 -- pnpm -F $bot_name -c exec -- "bp deploy -v -y --botId $bot_id"
+              pnpm retry -n 2 -- pnpm -F $bot_name -c exec -- "pnpm bp deploy -v -y --botId $bot_id"
           done
