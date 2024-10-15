@@ -16,7 +16,6 @@ export const trackIntegrationEvent = async (
   eventName: string,
   eventProps: Record<string, any> = {}
 ): Promise<void> => {
-
   await new Promise((resolve) => {
     try {
       if (analytics === undefined) {

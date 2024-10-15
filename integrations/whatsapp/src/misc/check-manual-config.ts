@@ -1,6 +1,4 @@
-export async function checkManualConfiguration(
-  accessToken: string,
-) {
+export async function checkManualConfiguration(accessToken: string) {
   // get appId first
   const appResponse = await fetch('https://graph.facebook.com/app', {
     method: 'GET',
