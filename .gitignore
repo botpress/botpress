@@ -12,3 +12,5 @@ __snapshots__
 .botpresshome
 .botpresshome.*
 .turbo
+.genenv/
+.genenv.*
