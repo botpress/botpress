@@ -3,6 +3,11 @@ import * as genenv from './.genenv'
 import github from './bp_modules/github'
 import slack from './bp_modules/slack'
 
+console.log({
+  GITHUB_TOKEN: genenv.GITHUB_TOKEN,
+  GITHUB_WEBHOOK_SECRET: genenv.GITHUB_WEBHOOK_SECRET,
+})
+
 export default new sdk.BotDefinition({
   states: {
     listeners: {
