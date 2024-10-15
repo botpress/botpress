@@ -1,3 +1,4 @@
+import { listIssues } from '../list-issues'
 import * as listeners from '../listeners'
 import { Handler } from './typings'
 
@@ -7,17 +8,7 @@ import { Handler } from './typings'
  */
 export const handleSyncIssuesRequest: Handler<'syncIssuesRequest'> = async (props) => {
   try {
-    const { client } = props
-    const {
-      output: { targets: githubIssues },
-    } = await client.callAction({
-      type: 'github:findTarget',
-      input: {
-        channel: 'issue',
-        repo: 'botpress',
-        query: '',
-      },
-    })
+    const githubIssues = await listIssues(props)
 
     const unassignedIssues = githubIssues
       .map((issue) =>

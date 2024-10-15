@@ -1,5 +1,6 @@
 import { bot } from './bot'
 import { handleNewIssue, handleSyncIssuesRequest } from './handlers'
+import { listIssues } from './list-issues'
 import * as listeners from './listeners'
 import * as bp from '.botpress'
 
@@ -48,6 +49,10 @@ bot.message(async (props) => {
     state.conversationIds = state.conversationIds.filter((id) => id !== message.conversationId)
     await listeners.writeListeners(props, state)
     return await respond(props, 'Stopped listening.')
+  } else if (message.type === 'text' && message.payload.text === '#list') {
+    const githubIssues = await listIssues(props)
+    const message = ['Here are the issues in GitHub:', ...githubIssues.map((i) => `\t${i.displayName}`)].join('\n')
+    return await respond(props, message)
   }
 
   await client.createMessage({

@@ -15,8 +15,10 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_WEBHOOK_SECRET: ${{ secrets.BUGBUSTER_GITHUB_WEBHOOK_SECRET }}
+          BUGBUSTER_GITHUB_TOKEN: ${{ secrets.BUGBUSTER_GITHUB_TOKEN }}
+          BUGBUSTER_GITHUB_WEBHOOK_SECRET: ${{ secrets.BUGBUSTER_GITHUB_WEBHOOK_SECRET }}
+          BUGBUSTER_SLACK_BOT_TOKEN: ${{ secrets.BUGBUSTER_SLACK_BOT_TOKEN }}
+          BUGBUSTER_SLACK_SIGNING_SECRET: ${{ secrets.BUGBUSTER_SLACK_SIGNING_SECRET }}
         uses: ./.github/actions/setup
       - name: Deploy Bots
         run: |

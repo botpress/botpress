@@ -29,11 +29,16 @@ export default new sdk.BotDefinition({
     enabled: true,
     configurationType: 'manualPAT',
     configuration: {
-      personalAccessToken: genenv.GITHUB_TOKEN,
-      githubWebhookSecret: genenv.GITHUB_WEBHOOK_SECRET,
+      personalAccessToken: genenv.BUGBUSTER_GITHUB_TOKEN,
+      githubWebhookSecret: genenv.BUGBUSTER_GITHUB_WEBHOOK_SECRET,
     },
   })
   .add(slack, {
     enabled: true,
-    configuration: {},
+    configurationType: 'botToken',
+    configuration: {
+      botToken: genenv.BUGBUSTER_SLACK_BOT_TOKEN,
+      signingSecret: genenv.BUGBUSTER_SLACK_SIGNING_SECRET,
+      botName: 'BugBuster',
+    },
   })
