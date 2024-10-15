@@ -35,13 +35,13 @@ export const trackIntegrationEvent = async (
         },
         (err?: unknown) => {
           if (err) {
-            console.log('Error tracking event', err)
+            console.error('Error tracking event', err)
           }
           resolve(true)
         }
       )
     } catch (error) {
-      console.log('Error tracking bot event', error)
+      console.error('Error tracking bot event', error)
       resolve(true)
     }
   })
@@ -61,13 +61,13 @@ export const identifyBot = async (botId: string, traits: Record<string, any>): P
         },
         (err?: unknown) => {
           if (err) {
-            console.log('Error identifying bot', err)
+            console.error('Error identifying bot', err)
           }
           resolve(true)
         }
       )
     } catch (error) {
-      console.log('Error identifying bot', error)
+      console.error('Error identifying bot', error)
       resolve(true)
     }
   })
