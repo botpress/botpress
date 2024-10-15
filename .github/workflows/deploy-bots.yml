@@ -1,8 +1,6 @@
 name: Deploy Bots
 
-on:
-  - workflow_dispatch
-  - pull_request # tmp remove this once the PR is merged
+on: workflow_dispatch
 
 permissions:
   id-token: write
