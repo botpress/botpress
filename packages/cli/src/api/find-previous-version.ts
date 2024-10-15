@@ -10,7 +10,7 @@ export const findPreviousIntegrationVersion = async (
 ): Promise<IntegrationSummary | undefined> => {
   const { name, version: targetVersion } = ref
   const allVersions = await paging.listAllPages(
-    async () => client.listIntegrations({ name }),
+    async ({ nextToken }) => client.listIntegrations({ name, nextToken }),
     (r) => r.integrations
   )
 

@@ -1,19 +1,33 @@
-import { Request, RuntimeError } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import { verify as verifyWebhook } from '@octokit/webhooks-methods'
 import type { WebhookEvent } from '@octokit/webhooks-types'
 
 import { GITHUB_SIGNATURE_HEADER } from './const'
-import { fireIssueOpened } from './events/issue-opened'
-import { firePullRequestCommentCreated } from './events/pull-request-comment-created'
-import { firePullRequesMerged } from './events/pull-request-merged'
-import { firePullRequestOpened } from './events/pull-request-opened'
+import { fireDiscussionCommentCreated } from './events/discussion/discussion-comment-created'
+import { fireDiscussionCommentReplied } from './events/discussion/discussion-comment-replied'
+import { fireDiscussionCreated } from './events/discussion/discussion-created'
+import { fireIssueCommentCreated } from './events/issue/issue-comment-created'
+import { fireIssueOpened } from './events/issue/issue-opened'
+import { firePullRequestCommentCreated } from './events/pull-request/pull-request-comment-created'
+import { firePullRequesMerged } from './events/pull-request/pull-request-merged'
+import { firePullRequestOpened } from './events/pull-request/pull-request-opened'
+import { firePullRequestReviewCommentCreated } from './events/pull-request/pull-request-review-comment-created'
+import { firePullRequestReviewCommentReplied } from './events/pull-request/pull-request-review-comment-replied'
+import { firePullRequestReviewSubmitted } from './events/pull-request/pull-request-review-submitted'
 import { GithubSettings } from './misc/github-settings'
 import {
   isIssueOpenedEvent,
   isPingEvent,
   isPullRequestCommentCreatedEvent,
+  isPullRequestReviewCommentCreatedEvent,
+  isPullRequestReviewCommentReplyCreatedEvent,
+  isPullRequestReviewSubmittedEvent,
   isPullRequestMergedEvent,
   isPullRequestOpenedEvent,
+  isIssueCommentCreatedEvent,
+  isDiscussionCreatedEvent,
+  isDiscussionCommentCreatedEvent,
+  isDiscussionCommentReplyCreatedEvent,
 } from './misc/guards'
 
 import * as bp from '.botpress'
@@ -24,9 +38,16 @@ type WebhookEventHandlerEntry<T extends WebhookEvent> = Readonly<
 const EVENT_HANDLERS: Readonly<WebhookEventHandlerEntry<any>[]> = [
   [isPingEvent, () => {}],
   [isIssueOpenedEvent, fireIssueOpened],
+  [isIssueCommentCreatedEvent, fireIssueCommentCreated],
   [isPullRequestOpenedEvent, firePullRequestOpened],
   [isPullRequestMergedEvent, firePullRequesMerged],
   [isPullRequestCommentCreatedEvent, firePullRequestCommentCreated],
+  [isPullRequestReviewCommentCreatedEvent, firePullRequestReviewCommentCreated],
+  [isPullRequestReviewCommentReplyCreatedEvent, firePullRequestReviewCommentReplied],
+  [isPullRequestReviewSubmittedEvent, firePullRequestReviewSubmitted],
+  [isDiscussionCreatedEvent, fireDiscussionCreated],
+  [isDiscussionCommentCreatedEvent, fireDiscussionCommentCreated],
+  [isDiscussionCommentReplyCreatedEvent, fireDiscussionCommentReplied],
 ] as const
 
 export const handler: bp.IntegrationProps['handler'] = async (props) => {
@@ -51,12 +72,12 @@ const _handleOauthRequest = async ({ req, client, ctx, logger }: bp.HandlerProps
   })
 }
 
-const _handleOauth = async (req: Request, client: bp.Client, ctx: bp.Context) => {
+const _handleOauth = async (req: sdk.Request, client: bp.Client, ctx: bp.Context) => {
   const parsedQueryString = new URLSearchParams(req.query)
   const installationIdStr = parsedQueryString.get('installation_id')
 
   if (!installationIdStr) {
-    throw new RuntimeError('Missing installation_id in query string')
+    throw new sdk.RuntimeError('Missing installation_id in query string')
   }
 
   const installationId = Number(installationIdStr)
