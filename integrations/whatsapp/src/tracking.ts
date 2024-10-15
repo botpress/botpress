@@ -7,7 +7,7 @@ let analytics: Analytics | undefined
 try {
   analytics = new Analytics({ writeKey: bp.secrets.SEGMENT_KEY, flushAt: 1 })
 } catch (error) {
-  console.log('Could not initialize analytics instance. Check your analytics configuration')
+  console.error('Could not initialize Segment analytics instance.')
 }
 
 // Track event function
