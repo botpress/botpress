@@ -23,3 +23,5 @@ dist
 .botpresshome
 .botpresshome.*
 bp_modules
+.genenv/
+.genenv.*
