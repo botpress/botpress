@@ -2,16 +2,16 @@ import type * as client from '@botpress/client'
 import chalk from 'chalk'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
-import { parseIntegrationRef } from '../integration-ref'
+import { parsePackageRef } from '../package-ref'
 import { GlobalCommand } from './global-command'
 
 export type GetInterfaceCommandDefinition = typeof commandDefinitions.interfaces.subcommands.get
 export class GetInterfaceCommand extends GlobalCommand<GetInterfaceCommandDefinition> {
   public async run(): Promise<void> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
-    const parsedRef = parseIntegrationRef(this.argv.interfaceRef)
+    const parsedRef = parsePackageRef(this.argv.interfaceRef)
     if (!parsedRef) {
-      throw new errors.InvalidInterfaceReferenceError(this.argv.interfaceRef)
+      throw new errors.InvalidPackageReferenceError(this.argv.interfaceRef)
     }
     if (parsedRef.type === 'path') {
       throw new errors.BotpressCLIError('Cannot get local interface')
@@ -54,9 +54,9 @@ export type DeleteInterfaceCommandDefinition = typeof commandDefinitions.interfa
 export class DeleteInterfaceCommand extends GlobalCommand<DeleteInterfaceCommandDefinition> {
   public async run(): Promise<void> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
-    const parsedRef = parseIntegrationRef(this.argv.interfaceRef)
+    const parsedRef = parsePackageRef(this.argv.interfaceRef)
     if (!parsedRef) {
-      throw new errors.InvalidInterfaceReferenceError(this.argv.interfaceRef)
+      throw new errors.InvalidPackageReferenceError(this.argv.interfaceRef)
     }
     if (parsedRef.type === 'path') {
       throw new errors.BotpressCLIError('Cannot delete local interface')

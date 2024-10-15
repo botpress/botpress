@@ -1,10 +1,12 @@
-import { IntegrationDefinition, interfaces, z } from '@botpress/sdk'
+import { IntegrationDefinition, z } from '@botpress/sdk'
 import { languageModelId } from 'src/schemas'
+import llm from './bp_modules/llm'
+import stt from './bp_modules/speech-to-text'
 
 export default new IntegrationDefinition({
   name: 'fireworks-ai',
   title: 'Fireworks AI',
-  version: '0.4.0',
+  version: '0.4.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -25,5 +27,5 @@ export default new IntegrationDefinition({
     },
   },
 })
-  .extend(interfaces.llm, ({ modelRef }) => ({ modelRef }))
-  .extend(interfaces.speechToText, ({ speechToTextModelRef }) => ({ speechToTextModelRef }))
+  .extend(llm, ({ modelRef }) => ({ modelRef }))
+  .extend(stt, ({ speechToTextModelRef }) => ({ speechToTextModelRef }))

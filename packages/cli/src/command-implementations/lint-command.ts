@@ -3,6 +3,7 @@ import { prepareCreateIntegrationBody } from '../api/integration-body'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import { IntegrationLinter } from '../linter/integration-linter'
+import { getImplementationStatements } from '../sdk'
 import { ProjectCommand } from './project-command'
 
 export type LintCommandDefinition = typeof commandDefinitions.lint
@@ -45,7 +46,8 @@ export class LintCommand extends ProjectCommand<LintCommandDefinition> {
     const actionNames = new Set<string>()
     const eventNames = new Set<string>()
 
-    for (const iface of Object.values(definition.interfaces)) {
+    const interfacesStatements = getImplementationStatements(definition)
+    for (const iface of Object.values(interfacesStatements)) {
       for (const actionDefinition of Object.values(iface.actions)) {
         actionNames.add(actionDefinition.name)
       }

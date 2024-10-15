@@ -2,7 +2,8 @@
   "name": "@bp-bots/bugbuster",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "integrations": "es-node ./integrations.ts"
+    "build": "bp build",
+    "add:integrations": "bp add ../../integrations/github -y && bp add ../../integrations/slack -y"
   },
   "private": true,
   "dependencies": {

@@ -26,6 +26,7 @@ export const updateEventInputSchema = eventSchema.extend({
 
 export const updateEventOutputSchema = z
   .object({
+    eventId: z.string().describe('The ID of the updated calendar event.'),
     success: z.boolean().describe('Indicates whether the event update was successful.'),
   })
   .partial()
@@ -39,6 +40,7 @@ export const deleteEventInputSchema = z
 
 export const deleteEventOutputSchema = z
   .object({
+    eventId: z.string().describe('The ID of the updated calendar event.'),
     success: z.boolean().describe('Indicates whether the event deletion was successful.'),
   })
   .partial()
