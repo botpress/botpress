@@ -18,7 +18,9 @@ type InferToolsFromToolset<
   IP extends sdk.IntegrationProps<TIntegration>,
   TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never
 > = {
-  [Tool in keyof Toolset]: Toolset[Tool] extends ToolFactory<infer ReturnType, IP, TIntegration> ? ReturnType : never
+  [Tool in keyof Toolset]: Toolset[Tool] extends ToolFactory<infer ReturnType, IP, TIntegration>
+    ? Awaited<ReturnType>
+    : never
 }
 
 /**
@@ -50,7 +52,7 @@ export const createChannelWrapper =
   <
     IP extends sdk.IntegrationProps<TIntegration>,
     TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never,
-    CHANNELS extends Record<string, { messages: Record<string, (...args: any) => any> }> = IP['channels']
+    CHANNELS extends IP['channels'] = IP['channels']
   >() =>
   <TOOLSET extends Record<string, ToolFactory<any, IP, TIntegration>>>(toolset: TOOLSET) =>
   /**

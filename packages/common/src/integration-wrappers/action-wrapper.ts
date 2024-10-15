@@ -1,11 +1,25 @@
 import * as sdk from '@botpress/sdk'
+import { BaseIntegration } from '@botpress/sdk/dist/integration/generic'
 import { ValueOf } from '@botpress/sdk/dist/type-utils'
 
-type CommonActionProps = Parameters<ValueOf<sdk.IntegrationProps['actions']>>[0]
-type ToolFactory<ReturnType> = (props: CommonActionProps) => ReturnType
+type CommonActionProps<
+  IP extends sdk.IntegrationProps<TIntegration>,
+  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never
+> = Parameters<ValueOf<IP['actions']>>[0]
+type ToolFactory<
+  ReturnType,
+  IP extends sdk.IntegrationProps<TIntegration>,
+  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never
+> = (props: CommonActionProps<IP, TIntegration>) => ReturnType | Promise<ReturnType>
 
-type InferToolsFromToolset<Toolset> = {
-  [Tool in keyof Toolset]: Toolset[Tool] extends ToolFactory<infer ReturnType> ? ReturnType : never
+type InferToolsFromToolset<
+  Toolset,
+  IP extends sdk.IntegrationProps<TIntegration>,
+  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never
+> = {
+  [Tool in keyof Toolset]: Toolset[Tool] extends ToolFactory<infer ReturnType, IP, TIntegration>
+    ? Awaited<ReturnType>
+    : never
 }
 
 /**
@@ -31,8 +45,12 @@ type InferToolsFromToolset<Toolset> = {
  * })
  */
 export const createActionWrapper =
-  <IP extends sdk.IntegrationProps, ACTIONS extends Record<string, (...args: any) => any> = IP['actions']>() =>
-  <TOOLSET extends Record<string, ToolFactory<any>>>(toolset: TOOLSET) =>
+  <
+    IP extends sdk.IntegrationProps<TIntegration>,
+    TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never,
+    ACTIONS extends IP['actions'] = IP['actions']
+  >() =>
+  <TOOLSET extends Record<string, ToolFactory<any, IP, TIntegration>>>(toolset: TOOLSET) =>
   /**
    * Wraps an action handler with the tools provided in the toolset.
    *
@@ -44,16 +62,24 @@ export const createActionWrapper =
    *   implementation may access this tool by doing `props.apiClient`, or by
    *   destructuring the props object.
    */
-  <ANAME extends keyof ACTIONS, ACTION extends ACTIONS[ANAME], APROPS extends Parameters<ACTION>[0]>(
+  <ANAME extends keyof ACTIONS, AFUNC extends ACTIONS[ANAME], APROPS extends Parameters<AFUNC>[0]>(
     _actionName: ANAME,
-    actionImpl: (props: APROPS & InferToolsFromToolset<TOOLSET>) => ReturnType<ACTION>
-  ): ACTION => {
-    const createTools = (props: APROPS) =>
-      Object.fromEntries(Object.entries(toolset).map(([tool, factory]) => [tool, factory(props)]))
+    actionImpl: (
+      props: APROPS & InferToolsFromToolset<TOOLSET, IP, TIntegration>,
+      input: APROPS['input']
+    ) => ReturnType<AFUNC>
+  ): AFUNC =>
+    (async (props: APROPS) => {
+      const tools: Record<string, any> = {}
+      for (const [tool, factory] of Object.entries(toolset)) {
+        tools[tool] = await factory(props)
+      }
 
-    return ((props: APROPS) =>
-      actionImpl({
-        ...props,
-        ...createTools(props),
-      } as APROPS & InferToolsFromToolset<TOOLSET>)) as ACTION
-  }
+      return await actionImpl(
+        {
+          ...props,
+          ...tools,
+        } as APROPS & InferToolsFromToolset<TOOLSET, IP, TIntegration>,
+        props.input
+      )
+    }) as AFUNC

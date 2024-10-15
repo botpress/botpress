@@ -1,45 +1,37 @@
-import { ChannelInjections, wrapChannelAndInjectOctokit } from './misc/channel-wrapper'
-import { AckFunction, Channels } from './misc/types'
+import { ChannelProps, wrapChannelAndInjectOctokit } from './misc/channel-wrapper'
+import { Channels } from './misc/types'
 
 export default {
   pullRequest: {
     messages: {
-      text: wrapChannelAndInjectOctokit('pullRequest', {
-        async channel({ conversation, payload, ack, owner, repo, octokit }) {
-          await _createIssueComment({
-            issueNumber: _getIntTagOrThrowException(conversation.tags, 'pullRequestNumber'),
-            commentBody: payload.text,
-            ack,
-            owner,
-            repo,
-            octokit,
-          })
-        },
+      text: wrapChannelAndInjectOctokit('pullRequest', 'text', async (props) => {
+        await _createIssueComment({
+          issueNumber: _getIntTagOrThrowException(props.conversation.tags, 'pullRequestNumber'),
+          commentBody: props.payload.text,
+          ...props,
+        })
       }),
     },
   },
   issue: {
     messages: {
-      text: wrapChannelAndInjectOctokit('issue', {
-        async channel({ conversation, payload, ack, owner, repo, octokit }) {
-          console.info(`Sending a text message on channel issue with content ${payload.text}`)
+      text: wrapChannelAndInjectOctokit('issue', 'text', async (props) => {
+        console.info(`Sending a text message on channel issue with content ${props.payload.text}`)
 
-          await _createIssueComment({
-            issueNumber: _getIntTagOrThrowException(conversation.tags, 'issueNumber'),
-            commentBody: payload.text,
-            ack,
-            owner,
-            repo,
-            octokit,
-          })
-        },
+        await _createIssueComment({
+          issueNumber: _getIntTagOrThrowException(props.conversation.tags, 'issueNumber'),
+          commentBody: props.payload.text,
+          ...props,
+        })
       }),
     },
   },
   pullRequestReviewComment: {
     messages: {
-      text: wrapChannelAndInjectOctokit('pullRequestReviewComment', {
-        async channel({ conversation, payload, ack, client, owner, repo, octokit }) {
+      text: wrapChannelAndInjectOctokit(
+        'pullRequestReviewComment',
+        'text',
+        async ({ conversation, payload, ack, client, owner, repo, octokit }) => {
           const comment = await octokit.rest.pulls.createReviewComment({
             body: payload.text,
             owner,
@@ -65,32 +57,32 @@ export default {
               lastCommentId: comment.data.id.toString(),
             } as typeof conversation.tags,
           })
-        },
-      }),
+        }
+      ),
     },
   },
   discussion: {
     messages: {
-      text: wrapChannelAndInjectOctokit('discussion', {
-        async channel({ conversation, payload, ack, octokit }) {
-          const {
-            addDiscussionComment: { comment },
-          } = await octokit.executeGraphqlQuery('addDiscussionComment', {
-            discussionNodeId: _getStrTagOrThrowException(conversation.tags, 'discussionNodeId'),
-            body: payload.text,
-          })
+      text: wrapChannelAndInjectOctokit('discussion', 'text', async ({ conversation, payload, ack, octokit }) => {
+        const {
+          addDiscussionComment: { comment },
+        } = await octokit.executeGraphqlQuery('addDiscussionComment', {
+          discussionNodeId: _getStrTagOrThrowException(conversation.tags, 'discussionNodeId'),
+          body: payload.text,
+        })
 
-          await ack({
-            tags: { commentId: comment.databaseId.toString(), commentNodeId: comment.id, commentUrl: comment.url },
-          })
-        },
+        await ack({
+          tags: { commentId: comment.databaseId.toString(), commentNodeId: comment.id, commentUrl: comment.url },
+        })
       }),
     },
   },
   discussionComment: {
     messages: {
-      text: wrapChannelAndInjectOctokit('discussionComment', {
-        async channel({ conversation, message, payload, ack, octokit }) {
+      text: wrapChannelAndInjectOctokit(
+        'discussionComment',
+        'text',
+        async ({ conversation, message, payload, ack, octokit }) => {
           console.info(`Sending a text message on channel discussion thread with content ${payload.text}`)
 
           const {
@@ -104,8 +96,8 @@ export default {
           await ack({
             tags: { commentId: comment.databaseId.toString(), commentNodeId: comment.id, commentUrl: comment.url },
           })
-        },
-      }),
+        }
+      ),
     },
   },
 } satisfies Channels
@@ -117,7 +109,7 @@ const _createIssueComment = async ({
   owner,
   repo,
   octokit,
-}: { issueNumber: number; commentBody: string; ack: AckFunction } & ChannelInjections) => {
+}: { issueNumber: number; commentBody: string } & ChannelProps) => {
   const { data } = await octokit.rest.issues.createComment({
     owner,
     repo,
