@@ -14,6 +14,27 @@ const pullRequestOpened = {
   schema: z.object({
     pullRequest: PullRequest.title('Pull Request').describe('The pull request that was opened'),
     ...COMMON_EVENT_FIELDS.sender,
+
+    // The following fields have been kept for backwards compatibility.
+    // TODO: Remove these fields in the next major version :
+    type: z.literal('github:pullRequestOpened').optional().title('DEPRECATED: type'),
+    id: z.number().title('DEPRECATED: id').describe('use pullRequest.id instead'),
+    title: z.string().title('DEPRECATED: title').describe('use pullRequest.name instead'),
+    content: z.string().title('DEPRECATED: content').describe('use pullRequest.body instead'),
+    baseBranch: z.string().optional().title('DEPRECATED: baseBranch').describe('use pullRequest.source.ref instead'),
+    userId: z.string().optional().title('DEPRECATED: userId').describe('use pullRequest.author.id instead'),
+    conversationId: z
+      .string()
+      .optional()
+      .title('DEPRECATED: conversationId')
+      .describe('use the conversation id associated with the event instead'),
+    targets: z
+      .object({
+        pullRequest: z.string().optional().title('DEPRECATED: pullRequest').describe('use pullRequest.number instead'),
+        issue: z.string().optional().title('DEPRECATED: issue'),
+        discussion: z.string().optional().title('DEPRECATED: discussion'),
+      })
+      .title('DEPRECATED: targets'),
   }),
 } as const satisfies sdk.EventDefinition
 
@@ -23,6 +44,27 @@ export const pullRequestMerged = {
   schema: z.object({
     pullRequest: PullRequest.title('Pull Request').describe('The pull request that was merged'),
     ...COMMON_EVENT_FIELDS.sender,
+
+    // The following fields have been kept for backwards compatibility.
+    // TODO: Remove these fields in the next major version :
+    type: z.literal('github:pullRequestMerged').optional().title('DEPRECATED: type'),
+    id: z.number().title('DEPRECATED: id').describe('use pullRequest.id instead'),
+    title: z.string().title('DEPRECATED: title').describe('use pullRequest.name instead'),
+    content: z.string().title('DEPRECATED: content').describe('use pullRequest.body instead'),
+    baseBranch: z.string().optional().title('DEPRECATED: baseBranch').describe('use pullRequest.source.ref instead'),
+    userId: z.string().optional().title('DEPRECATED: userId').describe('use pullRequest.author.id instead'),
+    conversationId: z
+      .string()
+      .optional()
+      .title('DEPRECATED: conversationId')
+      .describe('use the conversation id associated with the event instead'),
+    targets: z
+      .object({
+        pullRequest: z.string().optional().title('DEPRECATED: pullRequest').describe('use pullRequest.number instead'),
+        issue: z.string().optional().title('DEPRECATED: issue'),
+        discussion: z.string().optional().title('DEPRECATED: discussion'),
+      })
+      .title('DEPRECATED: targets'),
   }),
 } as const satisfies sdk.EventDefinition
 
