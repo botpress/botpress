@@ -88,7 +88,7 @@ const integration = new bp.Integration({
         image: async ({ payload, ...props }) => {
           await outgoing.send({
             ...props,
-            message: new Image(payload.imageUrl, false),
+            message: new Image(payload.imageUrl.trim(), false),
           })
         },
         markdown: async ({ payload, ...props }) => {
@@ -100,23 +100,23 @@ const integration = new bp.Integration({
         audio: async ({ payload, ...props }) => {
           await outgoing.send({
             ...props,
-            message: new Audio(payload.audioUrl, false),
+            message: new Audio(payload.audioUrl.trim(), false),
           })
         },
         video: async ({ payload, ...props }) => {
           await outgoing.send({
             ...props,
-            message: new Video(payload.videoUrl, false),
+            message: new Video(payload.videoUrl.trim(), false),
           })
         },
         file: async ({ payload, ...props }) => {
-          const url = new URL(payload.fileUrl)
+          const url = new URL(payload.fileUrl.trim())
           const extension = url.pathname.includes('.') ? url.pathname.split('.').pop()?.toLowerCase() ?? '' : ''
           const filename = 'file' + (extension ? `.${extension}` : '')
 
           await outgoing.send({
             ...props,
-            message: new Document(payload.fileUrl, false, payload.title, filename),
+            message: new Document(payload.fileUrl.trim(), false, payload.title, filename),
           })
         },
         location: async ({ payload, ...props }) => {
