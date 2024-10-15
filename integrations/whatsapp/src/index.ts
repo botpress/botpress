@@ -35,8 +35,8 @@ const integration = new bp.Integration({
 
     if (accessToken && clientSecret && phoneNumberId && verifyToken) {
       // let's check the credentials
-      const manuallyConfigured = await checkManualConfiguration(accessToken)
-      if (!manuallyConfigured) {
+      const isValidConfiguration = await checkManualConfiguration(accessToken)
+      if (!isValidConfiguration) {
         await trackIntegrationEvent(input.ctx.botId, 'manualSetupStep', {
           status: 'failure',
         })
