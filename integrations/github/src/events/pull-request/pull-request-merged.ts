@@ -11,6 +11,17 @@ export const firePullRequesMerged = wrapEvent<PullRequestClosedEvent>({
       payload: {
         pullRequest: await mapping.mapPullRequest(githubEvent.pull_request, githubEvent.repository),
         eventSender,
+
+        // The following fields have been kept for backwards compatibility.
+        // TODO: Remove these fields in the next major version
+        type: 'github:pullRequestMerged',
+        baseBranch: githubEvent.pull_request.base.ref,
+        content: githubEvent.pull_request.body?.toString() ?? '',
+        conversationId: conversation.id,
+        id: githubEvent.pull_request.id,
+        targets: { pullRequest: githubEvent.pull_request.number.toString() },
+        title: githubEvent.pull_request.title,
+        userId: githubEvent.pull_request.user.login,
       },
       conversationId: conversation.id,
       userId: eventSender.botpressUser,
