@@ -1,4 +1,5 @@
-import { z, IntegrationDefinitionProps, ZodRawShape } from '@botpress/sdk'
+import { z, ZodRawShape } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 
 export { actions } from './actions'
 export { events } from './events'
@@ -10,7 +11,7 @@ export const configuration = {
     required: true,
   },
   schema: z.object({}),
-} as const satisfies IntegrationDefinitionProps['configuration']
+} as const satisfies sdk.IntegrationDefinitionProps['configuration']
 
 const webhookSecret = {
   githubWebhookSecret: z
@@ -61,7 +62,7 @@ export const configurations = {
       ...webhookSecret,
     }),
   },
-} as const satisfies IntegrationDefinitionProps['configurations']
+} as const satisfies sdk.IntegrationDefinitionProps['configurations']
 
 export const user = {
   tags: {
@@ -82,7 +83,7 @@ export const user = {
       description: "The URL of the user's profile",
     },
   },
-} satisfies IntegrationDefinitionProps['user']
+} satisfies sdk.IntegrationDefinitionProps['user']
 
 export const states = {
   configuration: {
@@ -101,9 +102,9 @@ export const states = {
         .describe('The handle of the organization that owns the repositories'),
     }),
   },
-} satisfies IntegrationDefinitionProps['states']
+} satisfies sdk.IntegrationDefinitionProps['states']
 
-export const secrets: IntegrationDefinitionProps['secrets'] = {
+export const secrets: sdk.IntegrationDefinitionProps['secrets'] = {
   GITHUB_APP_ID: {
     description: 'GitHub App ID for the Botpress GitHub App. This is not the client id',
   },

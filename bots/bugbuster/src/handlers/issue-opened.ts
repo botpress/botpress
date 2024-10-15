@@ -6,7 +6,11 @@ export const handleNewIssue: Handler<'github:issueOpened'> = async (props, event
 
   console.info('Received GitHub issue', githubIssue)
 
-  const message = ['The following issue was just created in GitHub:', githubIssue.title, githubIssue.content].join('\n')
+  const message = [
+    'The following issue was just created in GitHub:',
+    githubIssue.issue.name,
+    githubIssue.issue.body,
+  ].join('\n')
 
   await listener.notifyListeners(props, {
     type: 'text',
