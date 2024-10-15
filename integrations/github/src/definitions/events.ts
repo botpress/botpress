@@ -32,6 +32,20 @@ export const issueOpened = {
   schema: z.object({
     issue: Issue.title('Issue').describe('The issue that was opened'),
     ...COMMON_EVENT_FIELDS.sender,
+
+    // The following fields have been kept for backwards compatibility.
+    // TODO: Remove these fields in the next major version :
+    id: z.number().title('DEPRECATED: id').describe('use issue.id instead'),
+    issueUrl: z.string().title('DEPRECATED: issueUrl').describe('use issue.url instead'),
+    repoUrl: z.string().title('DEPRECATED: repoUrl').describe('use issue.repository.url instead'),
+    number: z.number().title('DEPRECATED: number').describe('use issue.number instead'),
+    title: z.string().title('DEPRECATED: title').describe('use issue.name instead'),
+    content: z.string().nullable().title('DEPRECATED: content').describe('use issue.body instead'),
+    repositoryName: z.string().title('DEPRECATED: repositoryName').describe('use issue.repository.name instead'),
+    repositoryOwner: z
+      .string()
+      .title('DEPRECATED: repositoryOwner')
+      .describe('use issue.repository.owner.handle instead'),
   }),
 } as const satisfies sdk.EventDefinition
 
