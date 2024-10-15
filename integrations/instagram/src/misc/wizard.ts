@@ -1,10 +1,9 @@
-import { Request } from '@botpress/sdk'
+import { Request, RuntimeError } from '@botpress/sdk'
 import queryString from 'query-string'
 import * as bp from '../../.botpress'
-import { getOAuthConfigId } from '../../integration.definition'
 import { getGlobalWebhookUrl } from '../index'
 import { MetaClient } from './client'
-import { generateButtonDialog, generateSelectDialog, getInterstitialUrl, redirectTo } from './html-utils'
+import { generateButtonDialog, getInterstitialUrl, redirectTo } from './html-utils'
 
 export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Context, logger: bp.Logger) => {
   const query = queryString.parse(req.query)
@@ -12,7 +11,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
   let wizardStep = query['wizard-step'] || (query['code'] && 'get-access-token') || 'get-access-token'
 
   let instagramId = (query['instagramId'] as string)
-  let { accessToken, pageId, pageToken } = await getCredentialsState(client, ctx)
+  let { accessToken} = await getCredentialsState(client, ctx)
 
   if (wizardStep === 'start-confirm') {
     return generateButtonDialog({
@@ -35,17 +34,14 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
     await patchCredentialsState(client, ctx, { accessToken: undefined, pageId: undefined })
 
     return redirectTo(
-      'https://www.facebook.com/v19.0/dialog/oauth?' +
-        'client_id=' +
+      'https://www.instagram.com/oauth/authorize?enable_fb_login=1&force_authentication=0' +
+        '&client_id=' +
         bp.secrets.CLIENT_ID +
         '&redirect_uri=' +
         getGlobalWebhookUrl() +
         '&state=' +
         ctx.webhookId +
-        '&config_id=' +
-        getOAuthConfigId() +
-        '&override_default_response_type=true' +
-        '&response_type=code'
+        '&response_type=code&scope=instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish'
     )
   }
 
@@ -54,62 +50,43 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
   if (wizardStep === 'get-access-token') {
     const code = query['code'] as string
     if (code) {
-      accessToken = await metaClient.getAccessToken(code)
-      console.log('Got access token:', accessToken)
+      console.log('Code is: ' + code)
+      accessToken = await metaClient.getAccessTokenFromCode(code)
+      console.log('Got access token:', { accessToken })
       await patchCredentialsState(client, ctx, { accessToken })
     }
 
-    wizardStep = 'verify-instagramId'
+    wizardStep = 'get-instagram-id'
   }
 
   if (!accessToken) {
-    throw new Error('Access token not available, please try again.')
+    throw new RuntimeError('Access token not available, please try again.')
   }
 
-  // We don't save the instagramId, bet we need it to get the pageId/token
-  if(wizardStep === 'verify-instagramId' || !pageId || !pageToken) {
-    if(instagramId) {
-      console.log('got instagram', {instagramId})
-      const page = await metaClient.getPageIdAndTokenFromIGAccount(accessToken, instagramId)
-      pageId = page.id
-      pageToken = page.access_token
-      await patchCredentialsState(client, ctx, { pageId, pageToken })
-      await client.configureIntegration({
-        identifier: instagramId,
-      })
-
-      console.log('Got page token:', { pageId, pageToken })
-      //await metaClient.subscribeToWebhooks(pageToken, pageId)
-    } else {
-      const targets = await metaClient.getTargetsFromToken(accessToken, 'instagram_manage_messages')
-      if (!targets.length) {
-        throw new Error('You need to manage at least one Business Instagram Account')
-      } else {
-        return generateSelectDialog({
-          title: 'Select Instagram Business Account',
-          description: 'Choose a Instagram Business Account to use in this bot:',
-          settings: { targetUrl: `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}` },
-          select: {
-            key: 'instagramId',
-            options: targets.map((target) => ({ id: target.id, display: target.name })),
-          },
-          additionalData: [{ key: 'wizard-step', value: 'verify-instagramId' }],
-        })
-      }
-    }
+  if (wizardStep === 'get-instagram-id') {
+    const profile = await metaClient.getUserProfile('me', ['user_id'])
+    instagramId = profile.user_id
+    console.log('Got instagramId:', { instagramId })
+    await patchCredentialsState(client, ctx, { instagramId })
 
     wizardStep = 'wrap-up'
   }
 
-  if (!pageId || !pageToken) {
-    throw new Error("Couldn't get the Facebook Page Id or Token")
+  if (!instagramId) {
+    throw new RuntimeError('Instagram Id not available, please try again.')
   }
 
   if (wizardStep === 'wrap-up') {
+    console.log('Will subscribe')
+    await metaClient.subscribeToWebhooks(accessToken)
+    await client.configureIntegration({
+      identifier: instagramId
+    })
+    console.log('subscribed')
     return redirectTo(getInterstitialUrl(true))
   }
 
-  throw new Error('Failed to wrap up')
+  throw new RuntimeError('Failed to wrap up')
 }
 
 // client.patchState is not working correctly

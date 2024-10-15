@@ -19,6 +19,7 @@ export type InstagramMessage = {
   message?: {
     mid: string
     text: string
+    is_echo: boolean
     quick_reply?: { payload: string }
     attachments?: { type: string; payload: { url: string } }[]
   }

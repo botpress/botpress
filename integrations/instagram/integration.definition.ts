@@ -29,7 +29,7 @@ export default new IntegrationDefinition({
           .describe('Access Token from a System Account that has permission to the Meta app'),
         clientId: z.string().optional(),
         clientSecret: z.string().optional().describe('Meta app secret used for webhook signature check'),
-        pageId: z.string().optional().describe('Id from the Facebook page'),
+        instagramId: z.string().optional().describe('Id from the Instagram user'),
       })
       .hidden((formData) => {
         const showConfig = !formData?.useManualConfiguration
@@ -39,7 +39,7 @@ export default new IntegrationDefinition({
           accessToken: showConfig,
           clientId: showConfig,
           clientSecret: showConfig,
-          pageId: showConfig,
+          instagramId: showConfig,
         }
       })
   },
@@ -48,8 +48,7 @@ export default new IntegrationDefinition({
       type: 'integration',
       schema: z.object({
         accessToken: z.string().optional(),
-        pageToken: z.string().optional(),
-        pageId: z.string().optional(),
+        instagramId: z.string().optional(),
       }),
     },
   },
@@ -86,11 +85,3 @@ export default new IntegrationDefinition({
     creation: { enabled: true, requiredTags: ['id'] },
   }
 })
-
-export const getOAuthConfigId = () => {
-  if (process.env.BP_WEBHOOK_URL?.includes('dev')) {
-    return 1092427135645494
-  }
-
-  return 0
-}

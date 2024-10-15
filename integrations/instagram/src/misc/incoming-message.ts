@@ -1,5 +1,5 @@
+import { getCredentials, MetaClient } from './client'
 import { InstagramMessage, IntegrationLogger } from './types'
-import { getMessengerClient, getUserProfile } from './utils'
 import * as bp from '.botpress'
 
 export async function handleMessage(
@@ -23,24 +23,23 @@ export async function handleMessage(
       },
     })
 
-    if (!user.pictureUrl || !user.name) {
+    if (!user.name || !user.pictureUrl) {
       try {
-        const messengerClient = await getMessengerClient(client, ctx)
-        const userProfile = await getUserProfile(messengerClient, message.sender.id, logger)
+        const { accessToken } = await getCredentials(client, ctx)
+        const metaClient = new MetaClient(logger, { accessToken })
+        const userProfile = await metaClient.getUserProfile(message.sender.id, ['profile_pic'])
 
         logger.forBot().debug('Fetched latest Instagram user profile: ', userProfile)
 
-        const fieldsToUpdate = {
-          pictureUrl: userProfile?.profilePic,
-          name: userProfile?.name || userProfile?.username,
-        }
-        if (fieldsToUpdate.pictureUrl || fieldsToUpdate.name) {
-          await client.updateUser({ ...user, ...fieldsToUpdate })
+        if (userProfile?.name) {
+          await client.updateUser({ ...user, name: userProfile?.name, pictureUrl: userProfile?.profile_pic })
         }
       } catch (error) {
         logger.forBot().error('Error while fetching user profile from Instagram', error)
       }
     }
+
+    console.log('Will Create Message', {message, user, conversation})
 
     await client.createMessage({
       type: 'text',

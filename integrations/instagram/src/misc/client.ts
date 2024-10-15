@@ -1,116 +1,80 @@
-import { z } from '@botpress/sdk'
+import { RuntimeError, z } from '@botpress/sdk'
 import axios from 'axios'
 import { getGlobalWebhookUrl } from '../index'
 import * as bp from '.botpress'
+import qs from 'qs'
+
+type InstagramClientConfig = { accessToken?: string; instagramId?: string }
 
 export class MetaClient {
   private _clientId: string
   private _clientSecret: string
-  private _version: string = 'v19.0'
-  private _baseGraphApiUrl = 'https://graph.facebook.com'
+  private _version: string = 'v21.0'
+  private _baseGraphApiUrl = 'https://graph.instagram.com'
 
-  public constructor(private _logger: bp.Logger) {
+  public constructor(private _logger: bp.Logger, private _authConfig?: InstagramClientConfig) {
     this._clientId = bp.secrets.CLIENT_ID
     this._clientSecret = bp.secrets.CLIENT_SECRET
   }
 
-  public async getAccessToken(code: string) {
-    const query = new URLSearchParams({
+  public async getAccessTokenFromCode(code: string) {
+    const formData = {
       client_id: this._clientId,
       client_secret: this._clientSecret,
+      grant_type: 'authorization_code',
       redirect_uri: getGlobalWebhookUrl(),
       code,
+    }
+
+    console.log('Getting short lived token with: ', { formData })
+
+    let res = await axios.post('https://api.instagram.com/oauth/access_token',
+      qs.stringify(formData),
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        }
+      }
+    )
+
+    console.log('Short lived request', { res })
+
+    const shortLivedTokenData = z
+      .object({
+        access_token: z.string()
+      })
+      .parse(res.data)
+
+
+    const query = new URLSearchParams({
+      grant_type: 'ig_exchange_token',
+      client_secret: this._clientSecret,
+      access_token: shortLivedTokenData.access_token
     })
 
-    const res = await axios.get(`${this._baseGraphApiUrl}/${this._version}/oauth/access_token?${query.toString()}`)
-    const data = z
+    console.log('Will ask long with data: ', { query, url: `${this._baseGraphApiUrl}/access_token?${query.toString()}` })
+
+    res = await axios.get(`${this._baseGraphApiUrl}/access_token?${query.toString()}`)
+
+    console.log('Long lived request', { res })
+
+    const longLivedTokenData = z
       .object({
         access_token: z.string(),
       })
       .parse(res.data)
 
-    return data.access_token
+    console.log('returning long lived access token:', { long: longLivedTokenData.access_token  })
+
+    return longLivedTokenData.access_token
   }
 
-  public async getTargetsFromToken(inputToken: string, scopeName: string): Promise<{ id: string; name: string }[]> {
-
-    console.log('getTargetsFromToken', { inputToken, scopeName })
-    const query = new URLSearchParams({
-      input_token: inputToken,
-      access_token: bp.secrets.ACCESS_TOKEN,
-    })
-
-    const { data: dataDebugToken } = await axios.get(
-      `${this._baseGraphApiUrl}/${this._version}/debug_token?${query.toString()}`
-    )
-
-    const scope = dataDebugToken.data.granular_scopes.find(
-      (item: { scope: string; target_ids: string[] }) => item.scope === scopeName
-    )
-
-    if (scope.target_ids) {
-      const ids = scope.target_ids
-
-      const { data: dataBusinesses } = await axios.get(
-        `${this._baseGraphApiUrl}/${this._version}/?ids=${ids.join()}&fields=id,name`,
-        {
-          headers: {
-            Authorization: `Bearer ${inputToken}`,
-          },
-        }
-      )
-
-      return Object.keys(dataBusinesses).map((key) => dataBusinesses[key])
-    }
-
-    throw new Error('The targets need to be individually selected')
-  }
-
-  public async getPageIdAndTokenFromIGAccount(accessToken: string, instagramId: string) {
-    console.log('getPageIdAndTokenFromIGAccount, Will get pages')
-    // Get all pages from token, so we can get the one for the selected instagramId
-    const pages = await this.getTargetsFromToken(accessToken, 'pages_show_list')
-
-    console.log('got pages: ',  { pages })
-    const query = new URLSearchParams({
-      access_token: accessToken,
-      fields: 'id,instagram_business_account,access_token',
-      ids: pages.map(page => page.id).join()
-    })
-
-    console.log('Will get info from pages for instagramId',  { accessToken,  instagramId, url: `${this._baseGraphApiUrl}/${this._version}/?${query.toString()}`})
-    const res = await axios.get(`${this._baseGraphApiUrl}/${this._version}/?${query.toString()}`)
-    const data = z
-      .record(z.string(),z.object({
-        access_token: z.string(),
-        instagram_business_account: z.object({ id: z.string() }),
-        id: z.string(),
-      }))
-      .parse(res.data)
-
-    for (const key in data) {
-      if (data.hasOwnProperty(key)) {
-        const value = data[key];
-        if(value?.instagram_business_account?.id === instagramId) {
-          return value
-        }
-      }
-    }
-
-    throw new Error ('You need to also give permission to the Facebook page linked to the Business Account, please restart the wizard and try again.')
-  }
-
-  public async subscribeToWebhooks(pageToken: string, pageId: string) {
+  public async subscribeToWebhooks(accessToken: string) {
     try {
       const { data } = await axios.post(
-        `${this._baseGraphApiUrl}/${this._version}/${pageId}/subscribed_apps`,
+        `${this._baseGraphApiUrl}/me/subscribed_apps?access_token=${accessToken}`,
         {
           subscribed_fields: ['messages', 'messaging_postbacks'],
-        },
-        {
-          headers: {
-            Authorization: 'Bearer ' + pageToken,
-          },
         }
       )
 
@@ -121,45 +85,123 @@ export class MetaClient {
       this._logger
         .forBot()
         .error(
-          `(OAuth registration) Error subscribing to webhooks for Page ${pageId}: ${e.message} -> ${e.response?.data}`
+          `(OAuth registration) Error subscribing to webhooks: ${e.message} -> ${e.response?.data}`
         )
       throw new Error('Issue subscribing to Webhooks for Page, please try again.')
     }
   }
 
-  public async getUserManagedPages(userToken: string) {
-    let allPages: { id: string; name: string }[] = []
-
+  public async getUserProfile(instagramId: string, additionalFields: string[] = []) {
     const query = new URLSearchParams({
-      access_token: userToken,
-      fields: 'id,name',
+      access_token: this._getAccessToken(),
+      fields: ['id','name','username', ...additionalFields].join(),
     })
-    let url = `${this._baseGraphApiUrl}/${this._version}/me/accounts?${query.toString()}`
 
-    try {
-      while (url) {
-        const response = await axios.get(url)
+    const url = `${this._baseGraphApiUrl}/${this._version}/${instagramId}?${query.toString()}`
 
-        // Add the pages to the allPages array
-        allPages = allPages.concat(response.data.data)
+    console.log('querying user', { url, query})
 
-        // Check if there's a next page
-        url = response.data.paging && response.data.paging.next ? response.data.paging.next : null
-      }
+    const response = await axios.get<{ id: string; name: string; username: string } & Record<string, any>>(url)
 
-      return allPages
-    } catch (err: any) {
-      throw new Error('Error fetching pages:' + err.response ? err.response.data : err.message)
+    return response.data
+  }
+
+
+  public setAuthConfig(newConfig: InstagramClientConfig) {
+    this._authConfig = { ...this._authConfig, ...newConfig }
+  }
+
+  private _getAccessToken () {
+    if(!this._authConfig?.accessToken) {
+      throw new RuntimeError('The Instagram meta client is messing the accessToken')
     }
+
+    return this._authConfig.accessToken
+  }
+
+  private _getInstagramId () {
+    if(!this._authConfig?.instagramId) {
+      throw new RuntimeError('The Instagram meta client is messing the instagramId')
+    }
+
+    return this._authConfig.instagramId
+  }
+
+  public async sendMessage(toInstagramId: string, message: any) {
+    const url = `${this._baseGraphApiUrl}/${this._version}/${this._getInstagramId()}/messages`
+
+    const response = await axios.post<{recipient_id: string; message_id: string}>(url, {
+      recipient:{
+        id: toInstagramId
+      },
+      message
+    }, {
+      headers: {
+        'Authorization': 'Bearer ' + this._getAccessToken()
+      }
+    })
+
+    return response.data
+  }
+
+  public async sendTextMessage(toInstagramId: string, text: string) {
+    return this.sendMessage(toInstagramId, {
+      text
+    })
+  }
+
+  public async sendImageMessage(toInstagramId: string, imageUrl: string) {
+    return this.sendMessage(toInstagramId, {
+      attachment: {
+        type: 'image',
+        payload: {
+          url: imageUrl
+        }
+      }
+    })
+  }
+
+  public async sendAudioMessage(toInstagramId: string, audioUrl: string) {
+    return this.sendMessage(toInstagramId, {
+      attachment: {
+        type: 'audio',
+        payload: {
+          url: audioUrl
+        }
+      }
+    })
+  }
+
+  public async sendVideoMessage(toInstagramId: string, videoUrl: string) {
+    return this.sendMessage(toInstagramId, {
+      attachment: {
+        type: 'video',
+        payload: {
+          url: videoUrl
+        }
+      }
+    })
+  }
+
+  public async sendFileMessage(toInstagramId: string, fileUrl: string) {
+    return this.sendMessage(toInstagramId, {
+      attachment: {
+        type: 'file',
+        payload: {
+          url: fileUrl
+        }
+      }
+    })
   }
 }
 
 export async function getCredentials(
   client: bp.Client,
   ctx: bp.Context
-): Promise<{ accessToken: string; clientSecret: string; clientId: string }> {
+): Promise<{ instagramId?: string; accessToken: string; clientSecret: string; clientId: string }> {
   if (ctx.configuration.useManualConfiguration) {
     return {
+      instagramId: ctx.configuration.instagramId || '',
       accessToken: ctx.configuration.accessToken || '',
       clientSecret: ctx.configuration.clientSecret || '',
       clientId: ctx.configuration.clientId || '',
@@ -169,13 +211,26 @@ export async function getCredentials(
   // Otherwise use the page token obtained from the OAuth flow and stored in the state
   const { state } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
 
-  if (!state.payload.pageToken) {
+  if (!state.payload.accessToken) {
     throw new Error('There is no access token, please reauthorize')
   }
 
   return {
-    accessToken: state.payload.pageToken,
+    instagramId: state.payload.instagramId,
+    accessToken: state.payload.accessToken,
     clientSecret: bp.secrets.CLIENT_SECRET,
     clientId: bp.secrets.CLIENT_ID,
   }
+}
+
+export const getInstagramId = async (client: bp.Client, ctx: bp.Context) => {
+  console.log('Get instagram Id ', { client, ctx })
+  if (ctx.configuration.useManualConfiguration) {
+    return ctx.configuration.instagramId
+  }
+
+  const {
+    state: { payload },
+  } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
+  return payload.instagramId
 }
