@@ -1,10 +1,11 @@
-import { IntegrationDefinition, interfaces, z } from '@botpress/sdk'
+import { IntegrationDefinition, z } from '@botpress/sdk'
 import { modelId } from 'src/schemas'
+import llm from './bp_modules/llm'
 
 export default new IntegrationDefinition({
   name: 'cerebras',
   title: 'Cerebras',
-  version: '0.2.0',
+  version: '0.2.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -19,6 +20,6 @@ export default new IntegrationDefinition({
       description: 'Cerebras API key',
     },
   },
-}).extend(interfaces.llm, ({ modelRef }) => ({
+}).extend(llm, ({ modelRef }) => ({
   modelRef,
 }))

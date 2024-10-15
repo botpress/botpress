@@ -1,22 +1,19 @@
 import { posix as pathlib } from 'path'
 import * as utils from '../utils'
-import { GENERATED_HEADER, INDEX_FILE } from './const'
+import * as consts from './consts'
 import * as strings from './strings'
-import type { File } from './typings'
+import { File } from './typings'
 
-export type ModuleDef = File & {
+export type ModuleProps = {
+  path: string
   exportName: string
 }
 
-export abstract class Module implements File {
+export abstract class Module {
   private _localDependencies: Module[] = []
 
   public get path(): string {
     return this._def.path
-  }
-
-  public get content(): string {
-    return this._def.content
   }
 
   /**
@@ -24,7 +21,7 @@ export abstract class Module implements File {
    */
   public get name(): string {
     const basename = pathlib.basename(this.path)
-    if (basename === INDEX_FILE) {
+    if (basename === consts.INDEX_FILE) {
       const dirname = pathlib.basename(pathlib.dirname(this.path))
       return dirname
     }
@@ -32,7 +29,11 @@ export abstract class Module implements File {
     return withoutExtension
   }
 
-  public get exports(): string {
+  public get isDefaultExport(): boolean {
+    return this._def.exportName === consts.DEFAULT_EXPORT_NAME
+  }
+
+  public get exportName(): string {
     return this._def.exportName
   }
 
@@ -40,7 +41,9 @@ export abstract class Module implements File {
     return [...this._localDependencies]
   }
 
-  protected constructor(private _def: ModuleDef) {}
+  protected constructor(private _def: ModuleProps) {}
+
+  public abstract getContent(): Promise<string>
 
   public pushDep(...dependencies: Module[]): this {
     this._localDependencies.push(...dependencies)
@@ -56,8 +59,21 @@ export abstract class Module implements File {
     return this
   }
 
-  public flatten(): File[] {
-    return [this, ...this._localDependencies.flatMap((d) => d.flatten())]
+  public async toFile(): Promise<File> {
+    return {
+      path: this.path,
+      content: await this.getContent(),
+    }
+  }
+
+  public async flatten(): Promise<File[]> {
+    const self = await this.toFile()
+    const allFiles: File[] = [self]
+    for (const dep of this._localDependencies) {
+      const depFiles = await dep.flatten()
+      allFiles.push(...depFiles)
+    }
+    return allFiles
   }
 
   public import(base: Module): string {
@@ -71,13 +87,12 @@ export class ReExportTypeModule extends Module {
   protected constructor(def: { exportName: string }) {
     super({
       ...def,
-      path: INDEX_FILE,
-      content: '',
+      path: consts.INDEX_FILE,
     })
   }
 
-  public override get content(): string {
-    let content = GENERATED_HEADER
+  public async getContent(): Promise<string> {
+    let content = consts.GENERATED_HEADER
 
     for (const m of this.deps) {
       const { name } = m
@@ -89,10 +104,44 @@ export class ReExportTypeModule extends Module {
 
     content += '\n'
 
-    content += `export type ${this.exports} = {\n`
-    for (const { name, exports } of this.deps) {
+    content += `export type ${this.exportName} = {\n`
+    for (const { name, exportName: exports } of this.deps) {
       const importAlias = strings.importAlias(name)
       content += `  "${name}": ${importAlias}.${exports};\n`
+    }
+    content += '}'
+
+    content += '\n'
+
+    return content
+  }
+}
+
+export class ReExportVariableModule extends Module {
+  protected constructor(def: { exportName: string }) {
+    super({
+      ...def,
+      path: consts.INDEX_FILE,
+    })
+  }
+
+  public async getContent(): Promise<string> {
+    let content = consts.GENERATED_HEADER
+
+    for (const m of this.deps) {
+      const { name } = m
+      const importAlias = strings.importAlias(name)
+      const importFrom = m.import(this)
+      content += `import * as ${importAlias} from "./${importFrom}";\n`
+      content += `export * as ${importAlias} from "./${importFrom}";\n`
+    }
+
+    content += '\n'
+
+    content += `export const ${this.exportName} = {\n`
+    for (const { name, exportName: exports } of this.deps) {
+      const importAlias = strings.importAlias(name)
+      content += `  "${name}": ${importAlias}.${exports},\n`
     }
     content += '}'
 

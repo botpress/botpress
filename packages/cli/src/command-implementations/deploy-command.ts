@@ -1,5 +1,5 @@
 import type * as client from '@botpress/client'
-import type * as sdk from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import chalk from 'chalk'
 import * as fs from 'fs'
 import semver from 'semver'
@@ -13,6 +13,7 @@ import {
 import { CreateInterfaceBody, prepareCreateInterfaceBody, prepareUpdateInterfaceBody } from '../api/interface-body'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
+import { getImplementationStatements } from '../sdk'
 import * as utils from '../utils'
 import { BuildCommand } from './build-command'
 import { ProjectCommand } from './project-command'
@@ -34,7 +35,10 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     if (projectDef.type === 'interface') {
       return this._deployInterface(api, projectDef.definition)
     }
-    return this._deployBot(api, this.argv.botId, this.argv.createNewBot)
+    if (projectDef.type === 'bot') {
+      return this._deployBot(api, projectDef.definition, this.argv.botId, this.argv.createNewBot)
+    }
+    throw new errors.UnsupportedProjectType()
   }
 
   private async _runBuild() {
@@ -271,10 +275,14 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     })
   }
 
-  private async _deployBot(api: ApiClient, argvBotId: string | undefined, argvCreateNew: boolean | undefined) {
+  private async _deployBot(
+    api: ApiClient,
+    botDefinition: sdk.BotDefinition,
+    argvBotId: string | undefined,
+    argvCreateNew: boolean | undefined
+  ) {
     const outfile = this.projectPaths.abs.outFile
     const code = await fs.promises.readFile(outfile, 'utf-8')
-    const { default: botImpl } = utils.require.requireJsFile<{ default: sdk.Bot }>(outfile)
 
     let bot: client.Bot
     if (argvBotId && argvCreateNew) {
@@ -300,10 +308,11 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying bot ${chalk.bold(bot.name)}...`)
 
-    const integrationInstances = await this.fetchBotIntegrationInstances(botImpl, api)
+    const integrationInstances = await this.fetchBotIntegrationInstances(botDefinition, api)
+    const createBotBody = await prepareCreateBotBody(botDefinition)
     const updateBotBody = prepareUpdateBotBody(
       {
-        ...(await prepareCreateBotBody(botImpl)),
+        ...createBotBody,
         id: bot.id,
         code,
         integrations: integrationInstances,
@@ -394,7 +403,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         throw new errors.BotpressCLIError(workspaceHandleIsMandatoryMsg)
       }
       const newName = `${remoteHandle}/${localName}`
-      return integration.clone({ name: newName })
+      return new sdk.IntegrationDefinition({ ...integration, name: newName })
     }
 
     if (localHandle && !remoteHandle) {
@@ -443,7 +452,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     this.logger.success(`Handle "${claimedHandle}" is yours!`)
     const newName = `${claimedHandle}/${localName}`
-    return integration.clone({ name: newName })
+    return new sdk.IntegrationDefinition({ ...integration, name: newName })
   }
 
   private _parseIntegrationName = (integrationName: string): { name: string; workspaceHandle?: string } => {
@@ -465,23 +474,28 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     api: ApiClient,
     integration: sdk.IntegrationDefinition
   ): Promise<CreateIntegrationBody['interfaces']> => {
-    const interfacesEntries = Object.entries(integration.interfaces)
-    if (!interfacesEntries.length) {
-      return undefined
-    }
-
+    const interfacesStatements = getImplementationStatements(integration)
     const interfaces: NonNullable<CreateIntegrationBody['interfaces']> = {}
-    for (const [key, i] of interfacesEntries) {
-      const { name, version, entities, actions, events } = i
-      const intrface = await api.findPublicInterface({ type: 'name', name, version })
-      if (!intrface) {
-        throw new errors.BotpressCLIError(`Could not find interface "${name}@${version}"`)
-      }
-      const { id } = intrface
-
-      interfaces[key] = { id, entities, actions, events }
+    for (const [key, i] of Object.entries(interfacesStatements)) {
+      const { name, version, entities, actions, events, channels } = i
+      const id = await this._getInterfaceId(api, { id: i.id, name, version })
+      interfaces[key] = { id, entities, actions, events, channels }
     }
 
     return interfaces
+  }
+
+  private _getInterfaceId = async (
+    api: ApiClient,
+    ref: { id?: string; name: string; version: string }
+  ): Promise<string> => {
+    if (ref.id) {
+      return ref.id
+    }
+    const intrface = await api.findPublicInterface({ type: 'name', name: ref.name, version: ref.version })
+    if (!intrface) {
+      throw new errors.BotpressCLIError(`Could not find interface "${ref.name}@${ref.version}"`)
+    }
+    return intrface.id
   }
 }

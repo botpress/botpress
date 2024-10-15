@@ -1,5 +1,5 @@
 import * as client from '@botpress/client'
-import { Join, UnionToIntersection, Merge, ValueOf, Split, Cast } from '../../type-utils'
+import { Join, UnionToIntersection, Merge, ValueOf, Split, Cast } from '../../utils/type-utils'
 import { BaseBot } from '../generic'
 
 /**

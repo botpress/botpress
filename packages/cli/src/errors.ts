@@ -140,16 +140,23 @@ export class ParamRequiredError extends BotpressCLIError {
   }
 }
 
-export class InvalidIntegrationReferenceError extends BotpressCLIError {
+export class InvalidPackageReferenceError extends BotpressCLIError {
   public constructor(ref: string) {
-    const message = `Invalid integration reference "${ref}".`
+    const message = `Invalid package reference "${ref}".`
     super(message)
   }
 }
 
-export class InvalidInterfaceReferenceError extends BotpressCLIError {
-  public constructor(ref: string) {
-    const message = `Invalid interface reference "${ref}".`
+export class UnsupportedProjectType extends BotpressCLIError {
+  public constructor() {
+    const message = 'Unsupported project type.'
+    super(message)
+  }
+}
+
+export class ProjectDefinitionNotFoundError extends BotpressCLIError {
+  public constructor(workdir: string) {
+    const message = `No project definition found at "${workdir}".`
     super(message)
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cli",
-  "version": "0.11.6",
+  "version": "1.0.0",
   "description": "Botpress CLI",
   "scripts": {
     "build": "pnpm run bundle && pnpm run template:gen",
@@ -22,7 +22,7 @@
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^11.7.0",
     "@botpress/client": "0.33.0",
-    "@botpress/sdk": "0.11.8",
+    "@botpress/sdk": "1.0.0",
     "@bpinternal/const": "^0.0.20",
     "@bpinternal/tunnel": "^0.1.1",
     "@bpinternal/yargs-extra": "^0.0.3",
@@ -40,9 +40,10 @@
     "chokidar": "^3.5.3",
     "dotenv": "^16.4.4",
     "esbuild": "^0.15.18",
-    "json-schema-to-typescript": "^11.0.2",
+    "handlebars": "^4.7.8",
     "latest-version": "5.1.0",
     "lodash": "^4.17.21",
+    "prettier": "2.8.8",
     "prompts": "^2.4.2",
     "radash": "^9.5.0",
     "semver": "^7.3.8",
@@ -54,7 +55,7 @@
   "devDependencies": {
     "@bpinternal/log4bot": "^0.0.4",
     "@types/bluebird": "^3.5.38",
-    "@types/json-schema": "^7.0.11",
+    "@types/json-schema": "^7.0.12",
     "@types/prompts": "^2.0.14",
     "@types/semver": "^7.3.11",
     "@types/tmp": "^0.2.3",

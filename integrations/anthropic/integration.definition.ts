@@ -1,10 +1,11 @@
-import { z, IntegrationDefinition, interfaces } from '@botpress/sdk'
+import { z, IntegrationDefinition } from '@botpress/sdk'
 import { modelId } from 'src/schemas'
+import llm from './bp_modules/llm'
 
 export default new IntegrationDefinition({
   name: 'anthropic',
   title: 'Anthropic',
-  version: '3.3.1',
+  version: '3.3.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -19,6 +20,6 @@ export default new IntegrationDefinition({
       description: 'Anthropic API key',
     },
   },
-}).extend(interfaces.llm, ({ modelRef }) => ({
+}).extend(llm, ({ modelRef }) => ({
   modelRef,
 }))

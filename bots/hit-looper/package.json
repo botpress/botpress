@@ -2,7 +2,8 @@
   "name": "@bp-bots/hit-looper",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "integrations": "es-node ./integrations.ts"
+    "build": "bp build",
+    "add:integrations": "bp add ../../integrations/telegram -y && bp add ../../integrations/zendesk -y"
   },
   "keywords": [],
   "private": true,
