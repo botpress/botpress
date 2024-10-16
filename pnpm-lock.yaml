@@ -393,6 +393,9 @@ importers:
 
   integrations/github:
     dependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -422,8 +425,8 @@ importers:
         specifier: ^2.18.1
         version: 2.18.1
       '@types/node':
-        specifier: ^18.11.17
-        version: 18.16.16
+        specifier: ^18.19.10
+        version: 18.19.50
       typescript:
         specifier: ^4.9.4
         version: 4.9.5
@@ -4457,7 +4460,7 @@ packages:
       '@slack/logger': 3.0.0
       '@slack/types': 2.8.0
       '@types/is-stream': 1.1.0
-      '@types/node': 18.19.10
+      '@types/node': 18.19.50
       axios: 0.27.2
       eventemitter3: 3.1.2
       form-data: 2.5.1
@@ -4863,7 +4866,7 @@ packages:
   /@types/jsonwebtoken@9.0.3:
     resolution: {integrity: sha512-b0jGiOgHtZ2jqdPgPnP6WLCXZk1T8p06A/vPGzUvxpFGgKMbjXJDjC5m52ErqBnIuWZFgGoIJyRdeG5AyreJjA==}
     dependencies:
-      '@types/node': 18.19.10
+      '@types/node': 18.19.50
 
   /@types/keyv@3.1.4:
     resolution: {integrity: sha512-BQ5aZNSCpj7D6K2ksrRCTmKRLEpnPvWDiLPfoGyhZ++8YtiK9d/3DBKPJgry359X/P1PfruyYwvnvwFjuEiEIg==}
@@ -4929,7 +4932,7 @@ packages:
   /@types/nodemailer@6.4.8:
     resolution: {integrity: sha512-oVsJSCkqViCn8/pEu2hfjwVO+Gb3e+eTWjg3PcjeFKRItfKpKwHphQqbYmPQrlMk+op7pNNWPbsJIEthpFN/OQ==}
     dependencies:
-      '@types/node': 18.19.10
+      '@types/node': 18.19.50
     dev: true
 
   /@types/prettier@2.7.3:
@@ -11985,7 +11988,7 @@ packages:
     resolution: {integrity: sha512-yPxVJxUzP1QHhHeFnYjJl48QwDS1+5befcL7ju7+t+i88D5r0rbsL+GkCCS6zgcU+TiV5bF9eMGcKyJfLf8BZQ==}
     engines: {node: '>=12.*'}
     dependencies:
-      '@types/node': 18.19.10
+      '@types/node': 18.19.50
       qs: 6.11.0
     dev: false
 
