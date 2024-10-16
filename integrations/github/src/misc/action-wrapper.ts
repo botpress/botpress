@@ -1,12 +1,12 @@
+import { createActionWrapper } from '@botpress/common'
+import { wrapAsyncFnWithTryCatch } from './error-handling'
 import { GitHubClient } from './github-client'
 import { GithubSettings } from './github-settings'
 import * as bp from '.botpress'
-import { createActionWrapper } from '@botpress/common'
-import { wrapWithTryCatch } from './error-handling'
 
 export const wrapActionAndInjectOctokit: typeof _wrapActionAndInjectTools = (meta, actionImpl) =>
   _wrapActionAndInjectTools(meta, (props) =>
-    wrapWithTryCatch(() => {
+    wrapAsyncFnWithTryCatch(() => {
       props.logger
         .forBot()
         .debug(`Running action "${meta.actionName}" for owner "${props.owner}" [bot id: ${props.ctx.botId}]`)

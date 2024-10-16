@@ -1,14 +1,14 @@
 import { createChannelWrapper } from '@botpress/common'
+import { wrapAsyncFnWithTryCatch } from './error-handling'
 import { GitHubClient } from './github-client'
 import { GithubSettings } from './github-settings'
 import * as bp from '.botpress'
-import { wrapWithTryCatch } from './error-handling'
 
 export type ChannelProps = Parameters<Parameters<typeof _wrapChannelAndInjectTools>[1]>[0]
 
 export const wrapChannelAndInjectOctokit: typeof _wrapChannelAndInjectTools = (meta, channelImpl) =>
   _wrapChannelAndInjectTools(meta, (props) =>
-    wrapWithTryCatch(async () => {
+    wrapAsyncFnWithTryCatch(async () => {
       props.logger
         .forBot()
         .debug(
