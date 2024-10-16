@@ -5,7 +5,7 @@ import * as strings from '../../strings'
 import * as types from './typings'
 
 export class DefaultConfigurationModule extends Module {
-  public constructor(private _configuration: types.ApiConfigurationDefinition | undefined) {
+  public constructor(private _configuration: types.ApiConfigurationDefinition) {
     const name = 'configuration'
     const exportName = strings.varName(name)
     super({
@@ -15,7 +15,7 @@ export class DefaultConfigurationModule extends Module {
   }
 
   public async getContent() {
-    if (!this._configuration?.schema) {
+    if (!this._configuration.schema) {
       return [
         //
         '/** Default Configuration of the Integration */',
