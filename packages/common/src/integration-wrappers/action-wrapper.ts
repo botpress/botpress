@@ -17,7 +17,7 @@ type InferToolsFromToolset<
   IP extends sdk.IntegrationProps<TIntegration>,
   TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never
 > = {
-  [Tool in keyof Toolset]: Toolset[Tool] extends ToolFactory<infer ReturnType, IP, TIntegration>
+  [Tool in Extract<keyof Toolset, string>]: Toolset[Tool] extends ToolFactory<infer ReturnType, IP, TIntegration>
     ? Awaited<ReturnType>
     : never
 }
@@ -31,16 +31,24 @@ type InferToolsFromToolset<
  * import * as bp from '.botpress'
  *
  * const wrapAction = createActionWrapper<bp.IntegrationProps>()({
- *   apiClient: ({ ctx }) => new ApiClient(ctx),
+ *   toolFactories: {
+ *     apiClient: ({ ctx }) => new ApiClient(ctx),
+ *   },
+ *   extraMetadata: {} as {
+ *     errorMessage: string
+ *   },
  * })
  *
  * export default const integration = new bp.Integration({
  *   actions: {
- *     actionName: wrapAction('actionName', async ({ apiClient, input: { payload } }) => {
- *       const { id } = await apiClient.doSomething(payload)
+ *     actionName: wrapAction(
+ *       { actionName: 'actionName', errorMessage: 'Failed to execute action' },
+ *       async ({ apiClient, input: { payload } }) => {
+ *         const { id } = await apiClient.doSomething(payload)
  *
- *       return { id }
- *     })
+ *         return { id }
+ *       }
+ *     )
  *   },
  * })
  */
@@ -50,11 +58,17 @@ export const createActionWrapper =
     TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never,
     ACTIONS extends IP['actions'] = IP['actions']
   >() =>
-  <TOOLSET extends Record<string, ToolFactory<any, IP, TIntegration>>>(toolset: TOOLSET) =>
+  <TOOLSET extends Record<string, ToolFactory<any, IP, TIntegration>>, EXTRAMETA extends Record<string, any> = {}>({
+    toolFactories,
+    extraMetadata: _,
+  }: {
+    toolFactories: TOOLSET
+    extraMetadata?: EXTRAMETA
+  }) =>
   /**
    * Wraps an action handler with the tools provided in the toolset.
    *
-   * @param _actionName - The name of the action.
+   * @param _metadata - The metadata of the action.
    * @param actionImpl - The implementation of the action handler.
    *   This is a function that receives as its first parameter the generic props
    *   for actions (ctx, client, logger, etc.), as well as the tools provided by
@@ -62,8 +76,8 @@ export const createActionWrapper =
    *   implementation may access this tool by doing `props.apiClient`, or by
    *   destructuring the props object.
    */
-  <ANAME extends keyof ACTIONS, AFUNC extends ACTIONS[ANAME], APROPS extends Parameters<AFUNC>[0]>(
-    _actionName: ANAME,
+  <ANAME extends Extract<keyof ACTIONS, string>, AFUNC extends ACTIONS[ANAME], APROPS extends Parameters<AFUNC>[0]>(
+    _metadata: { actionName: ANAME } & EXTRAMETA,
     actionImpl: (
       props: APROPS & InferToolsFromToolset<TOOLSET, IP, TIntegration>,
       input: APROPS['input']
@@ -71,7 +85,7 @@ export const createActionWrapper =
   ): AFUNC =>
     (async (props: APROPS) => {
       const tools: Record<string, any> = {}
-      for (const [tool, factory] of Object.entries(toolset)) {
+      for (const [tool, factory] of Object.entries(toolFactories)) {
         tools[tool] = await factory(props)
       }
 

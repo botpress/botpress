@@ -16,7 +16,7 @@ const fuse = new Fuse<Target>([], {
 })
 
 export const findTarget = wrapActionAndInjectOctokit(
-  'findTarget',
+  { actionName: 'findTarget', errorMessage: 'Failed to find target' },
   async ({ octokit, owner }, { repo, query, channel }) => {
     const targets: Target[] = []
 

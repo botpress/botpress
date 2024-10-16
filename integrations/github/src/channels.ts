@@ -4,7 +4,7 @@ import { Channels } from './misc/types'
 export default {
   pullRequest: {
     messages: {
-      text: wrapChannelAndInjectOctokit('pullRequest', 'text', async (props) => {
+      text: wrapChannelAndInjectOctokit({ channelName: 'pullRequest', messageType: 'text' }, async (props) => {
         await _createIssueComment({
           issueNumber: _getIntTagOrThrowException(props.conversation.tags, 'pullRequestNumber'),
           commentBody: props.payload.text,
@@ -15,7 +15,7 @@ export default {
   },
   issue: {
     messages: {
-      text: wrapChannelAndInjectOctokit('issue', 'text', async (props) => {
+      text: wrapChannelAndInjectOctokit({ channelName: 'issue', messageType: 'text' }, async (props) => {
         console.info(`Sending a text message on channel issue with content ${props.payload.text}`)
 
         await _createIssueComment({
@@ -29,8 +29,7 @@ export default {
   pullRequestReviewComment: {
     messages: {
       text: wrapChannelAndInjectOctokit(
-        'pullRequestReviewComment',
-        'text',
+        { channelName: 'pullRequestReviewComment', messageType: 'text' },
         async ({ conversation, payload, ack, client, owner, repo, octokit }) => {
           const comment = await octokit.rest.pulls.createReviewComment({
             body: payload.text,
@@ -63,25 +62,27 @@ export default {
   },
   discussion: {
     messages: {
-      text: wrapChannelAndInjectOctokit('discussion', 'text', async ({ conversation, payload, ack, octokit }) => {
-        const {
-          addDiscussionComment: { comment },
-        } = await octokit.executeGraphqlQuery('addDiscussionComment', {
-          discussionNodeId: _getStrTagOrThrowException(conversation.tags, 'discussionNodeId'),
-          body: payload.text,
-        })
+      text: wrapChannelAndInjectOctokit(
+        { channelName: 'discussion', messageType: 'text' },
+        async ({ conversation, payload, ack, octokit }) => {
+          const {
+            addDiscussionComment: { comment },
+          } = await octokit.executeGraphqlQuery('addDiscussionComment', {
+            discussionNodeId: _getStrTagOrThrowException(conversation.tags, 'discussionNodeId'),
+            body: payload.text,
+          })
 
-        await ack({
-          tags: { commentId: comment.databaseId.toString(), commentNodeId: comment.id, commentUrl: comment.url },
-        })
-      }),
+          await ack({
+            tags: { commentId: comment.databaseId.toString(), commentNodeId: comment.id, commentUrl: comment.url },
+          })
+        }
+      ),
     },
   },
   discussionComment: {
     messages: {
       text: wrapChannelAndInjectOctokit(
-        'discussionComment',
-        'text',
+        { channelName: 'discussionComment', messageType: 'text' },
         async ({ conversation, message, payload, ack, octokit }) => {
           console.info(`Sending a text message on channel discussion thread with content ${payload.text}`)
 

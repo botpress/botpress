@@ -18,7 +18,7 @@ type InferToolsFromToolset<
   IP extends sdk.IntegrationProps<TIntegration>,
   TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never
 > = {
-  [Tool in keyof Toolset]: Toolset[Tool] extends ToolFactory<infer ReturnType, IP, TIntegration>
+  [Tool in Extract<keyof Toolset, string>]: Toolset[Tool] extends ToolFactory<infer ReturnType, IP, TIntegration>
     ? Awaited<ReturnType>
     : never
 }
@@ -32,17 +32,22 @@ type InferToolsFromToolset<
  * import * as bp from '.botpress'
  *
  * const wrapChannel = createChannelWrapper<bp.IntegrationProps>()({
- *   apiClient: async ({ ctx }) => await ApiClient.create(ctx),
+ *   toolFactories: {
+ *     apiClient: ({ ctx }) => new ApiClient(ctx),
+ *   },
  * })
  *
  * export default const integration = new bp.Integration({
  *   channels: {
  *     channelName: {
  *       messages: {
- *         text: wrapChannel('channelName', 'text', async ({ ack, payload, apiClient }) => {
- *           const newMsg = await apiClient.sendTextMessage(text)
- *           await ack({ tags: { msgId: newMsg.id } })
- *         })
+ *         text: wrapChannel(
+ *           { channelName: 'channelName', messageType: 'text' },
+ *           async ({ ack, payload, apiClient }) => {
+ *             const newMsg = await apiClient.sendTextMessage(text)
+ *             await ack({ tags: { msgId: newMsg.id } })
+ *           }
+ *         )
  *       }
  *     }
  *   },
@@ -54,12 +59,17 @@ export const createChannelWrapper =
     TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never,
     CHANNELS extends IP['channels'] = IP['channels']
   >() =>
-  <TOOLSET extends Record<string, ToolFactory<any, IP, TIntegration>>>(toolset: TOOLSET) =>
+  <TOOLSET extends Record<string, ToolFactory<any, IP, TIntegration>>, EXTRAMETA extends Record<string, any> = {}>({
+    toolFactories,
+    extraMetadata: _,
+  }: {
+    toolFactories: TOOLSET
+    extraMetadata?: EXTRAMETA
+  }) =>
   /**
    * Wraps a channel message handler with the tools provided in the toolset.
    *
-   * @param _channelName - The name of the channel.
-   * @param _messageType - The type of the message (text, image, etc.).
+   * @param _metadata - The metadata of the channel.
    * @param channelImpl - The implementation of the channel message handler.
    *   This is a function that receives as its first parameter the generic props
    *   for channels (ctx, client, logger, ack, etc.), as well as the tools
@@ -68,18 +78,17 @@ export const createChannelWrapper =
    *   doing `props.apiClient`, or by destructuring the props object.
    */
   <
-    CNAME extends keyof CHANNELS,
-    MTYPE extends keyof CHANNELS[CNAME]['messages'],
+    CNAME extends Extract<keyof CHANNELS, string>,
+    MTYPE extends Extract<keyof CHANNELS[CNAME]['messages'], string>,
     CFUNC extends CHANNELS[CNAME]['messages'][MTYPE],
     CFUNCPROPS extends Parameters<CFUNC>[0]
   >(
-    _channelName: CNAME,
-    _messageType: MTYPE,
+    _metadata: { channelName: CNAME; messageType: MTYPE } & EXTRAMETA,
     channelImpl: (props: CFUNCPROPS & InferToolsFromToolset<TOOLSET, IP, TIntegration>) => Promise<void>
   ): CFUNC =>
     (async (props: CFUNCPROPS) => {
       const tools: Record<string, any> = {}
-      for (const [tool, factory] of Object.entries(toolset)) {
+      for (const [tool, factory] of Object.entries(toolFactories)) {
         tools[tool] = await factory(props)
       }
 
