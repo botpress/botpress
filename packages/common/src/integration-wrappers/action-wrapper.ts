@@ -1,6 +1,9 @@
 import * as sdk from '@botpress/sdk'
-import { BaseIntegration } from '@botpress/sdk/dist/integration/generic'
-import { ValueOf } from '@botpress/sdk/dist/type-utils'
+
+// this type is not exported by the sdk: it's a placeholder for the integration type
+type BaseIntegration = never
+
+type ValueOf<T> = T[Extract<keyof T, string>]
 
 type CommonActionProps<
   IP extends sdk.IntegrationProps<TIntegration>,
