@@ -2,22 +2,90 @@ name: Run Checks
 
 on: pull_request
 
+env:
+  NODE_OPTIONS: '--max_old_space_size=8192'
+
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  run-checks:
+  setup:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
-    env:
-      NODE_OPTIONS: '--max_old_space_size=8192'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup
         uses: ./.github/actions/setup
-      - run: pnpm run check:format
-      - run: pnpm run check:lint
-      - run: pnpm run check:type
-      - run: pnpm run check:dep
+      - name: Cache entire workspace
+        uses: actions/cache/save@v4
+        with:
+          path: |
+            **/dist
+            **/.botpress
+            **/bp_modules
+            **/gen
+          key: ${{ github.sha }}-workspace-${{ github.run_number }}
+
+  checks:
+    needs: setup
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: true
+      matrix:
+        check: [format, lint, type, dep]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8.6.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          check-latest: true
+          cache: 'pnpm'
+      - name: Install dependencies
+        shell: bash
+        run: pnpm i --frozen-lockfile
+      - name: Restore workspace
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            **/dist
+            **/.botpress
+            **/bp_modules
+            **/gen
+          key: ${{ github.sha }}-workspace-${{ github.run_number }}
+      - run: pnpm run check:${{ matrix.check }}
+
+  run-tests:
+    needs: setup
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 8.6.2
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+          check-latest: true
+          cache: 'pnpm'
+      - name: Install dependencies
+        shell: bash
+        run: pnpm i --frozen-lockfile
+      - name: Restore workspace
+        uses: actions/cache/restore@v4
+        with:
+          path: |
+            **/dist
+            **/.botpress
+            **/bp_modules
+            **/gen
+          key: ${{ github.sha }}-workspace-${{ github.run_number }}
       - run: pnpm run test
+
+  all-checks:
+    needs: [checks, run-tests]
+    runs-on: ubuntu-latest
+    steps:
+      - run: echo "All checks completed successfully"
