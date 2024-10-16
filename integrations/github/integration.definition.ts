@@ -1,21 +1,25 @@
-import { IntegrationDefinition } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 import { INTEGRATION_NAME } from './src/const'
-import { actions, events, configuration, channels, user, states } from './src/definitions'
+import { actions, events, configuration, configurations, channels, user, secrets, states } from './src/definitions'
 
-export default new IntegrationDefinition({
+export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
   title: 'GitHub',
-  version: '0.3.3',
+  version: '1.1.2',
   icon: 'icon.svg',
   readme: 'hub.md',
   description: 'Github integration for Botpress',
   configuration,
+  configurations,
   actions,
   events,
   channels,
   user,
   states,
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  identifier: {
+    extractScript: 'extract.vrl',
+  },
+  secrets: { ...secrets, ...sentryHelpers.COMMON_SECRET_NAMES },
 })

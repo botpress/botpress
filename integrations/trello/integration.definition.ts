@@ -7,7 +7,7 @@ import { integrationName } from './package.json'
 export default new IntegrationDefinition({
   name: integrationName,
   title: 'Trello',
-  version: '1.0.7',
+  version: '1.0.8',
   readme: 'hub.md',
   description:
     "Boost your chatbot's capabilities with Trello. Easily update cards, add comments, create new cards, and read board members from your chatbot",

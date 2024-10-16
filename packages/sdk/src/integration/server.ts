@@ -1,7 +1,7 @@
 import { isApiError, Client, type Conversation, type Message, type User, RuntimeError } from '@botpress/client'
 import { retryConfig } from '../retry'
 import { Request, Response, parseBody } from '../serve'
-import { Cast, Merge } from '../type-utils'
+import { Cast, Merge } from '../utils/type-utils'
 import { IntegrationSpecificClient } from './client'
 import { ToTags } from './client/types'
 import { extractContext, type IntegrationContext } from './context'

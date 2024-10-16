@@ -83,5 +83,5 @@ export default new IntegrationDefinition({
   user: {
     tags: { id: {} },
     creation: { enabled: true, requiredTags: ['id'] },
-  }
+  },
 })

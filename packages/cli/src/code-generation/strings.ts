@@ -5,3 +5,4 @@ const apply = (str: string, ...transforms: StrTransform[]) => transforms.reduce(
 
 export const typeName = (name: string) => apply(name, utils.casing.to.pascalCase)
 export const importAlias = (name: string) => apply(name, utils.casing.to.camelCase)
+export const varName = (name: string) => apply(name, utils.casing.to.camelCase)

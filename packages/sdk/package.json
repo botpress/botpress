@@ -1,6 +1,6 @@
 {
   "name": "@botpress/sdk",
-  "version": "0.11.5",
+  "version": "1.0.0",
   "description": "Botpress SDK",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -14,15 +14,14 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@bpinternal/zui": "0.10.0",
-    "@botpress/client": "0.30.2"
+    "@botpress/client": "0.33.0",
+    "@bpinternal/zui": "0.12.0"
   },
   "devDependencies": {
     "@types/node": "^18.11.17",
     "esbuild": "^0.16.10",
     "ts-node": "^10.9.1",
     "tsup": "^8.0.2",
-    "type-fest": "^3.4.0",
     "typescript": "^4.9.4"
   }
 }

@@ -35,8 +35,6 @@ export function notEmpty<TValue>(value: TValue | null | undefined): value is TVa
   return value !== null && value !== undefined
 }
 
-export const isUserId = (id: string) => id.startsWith('U')
-
 function getTags(message: SlackMessage) {
   const tags: Record<string, string> = {}
 
@@ -176,13 +174,6 @@ export async function sendSlackMessage(
   await ack({ tags: getTags(message) })
 
   return message
-}
-
-export const getDirectMessageForUser = async (userId: string, botToken: string) => {
-  const client = new WebClient(botToken)
-  const conversation = await client.conversations.open({ users: userId })
-
-  return conversation.channel?.id
 }
 
 export const isInteractiveRequest = (req: Request) => {
@@ -362,50 +353,50 @@ export const getSigningSecret = async (client: Client, ctx: IntegrationCtx) => {
 
 export class SlackEventSignatureValidator {
   public constructor(
-    private readonly signingSecret: string,
-    private readonly request: Request,
-    private readonly logger: IntegrationLogger
+    private readonly _signingSecret: string,
+    private readonly _request: Request,
+    private readonly _logger: IntegrationLogger
   ) {}
 
   public isEventProperlyAuthenticated(): boolean {
-    return this.validateHeadersArePresent() && this.validateTimestamp() && this.validateSignature()
+    return this._validateHeadersArePresent() && this._validateTimestamp() && this._validateSignature()
   }
 
-  private validateHeadersArePresent(): boolean {
-    const timestamp = this.request.headers['x-slack-request-timestamp']
-    const slackSignature = this.request.headers['x-slack-signature']
+  private _validateHeadersArePresent(): boolean {
+    const timestamp = this._request.headers['x-slack-request-timestamp']
+    const slackSignature = this._request.headers['x-slack-signature']
 
     if (!timestamp || !slackSignature) {
-      this.logger.forBot().error('Request signature verification failed: missing timestamp or signature')
+      this._logger.forBot().error('Request signature verification failed: missing timestamp or signature')
       return false
     }
 
     return true
   }
 
-  private validateTimestamp(): boolean {
+  private _validateTimestamp(): boolean {
     const fiveMinutesAgo = Math.floor(Date.now() / 1000) - 60 * 5
-    const timestamp = this.request.headers['x-slack-request-timestamp'] as string
+    const timestamp = this._request.headers['x-slack-request-timestamp'] as string
 
     if (parseInt(timestamp) < fiveMinutesAgo) {
-      this.logger.forBot().error('Request signature verification failed: timestamp is too old')
+      this._logger.forBot().error('Request signature verification failed: timestamp is too old')
       return false
     }
 
     return true
   }
 
-  private validateSignature(): boolean {
-    const sigBasestring = `v0:${this.request.headers['x-slack-request-timestamp']}:${this.request.body}`
-    const mySignature = 'v0=' + crypto.createHmac('sha256', this.signingSecret).update(sigBasestring).digest('hex')
+  private _validateSignature(): boolean {
+    const sigBasestring = `v0:${this._request.headers['x-slack-request-timestamp']}:${this._request.body}`
+    const mySignature = 'v0=' + crypto.createHmac('sha256', this._signingSecret).update(sigBasestring).digest('hex')
 
     try {
       return crypto.timingSafeEqual(
         Buffer.from(mySignature, 'utf8'),
-        Buffer.from(this.request.headers['x-slack-signature'] as string, 'utf8')
+        Buffer.from(this._request.headers['x-slack-signature'] as string, 'utf8')
       )
     } catch (error) {
-      this.logger.forBot().error('An error occurred while verifying the request signature')
+      this._logger.forBot().error('An error occurred while verifying the request signature')
       return false
     }
   }

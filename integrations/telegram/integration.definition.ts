@@ -1,9 +1,10 @@
-import { z, IntegrationDefinition, messages, interfaces } from '@botpress/sdk'
+import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import typingIndicator from './bp_modules/typing-indicator'
 
 export default new IntegrationDefinition({
   name: 'telegram',
-  version: '0.5.2',
+  version: '0.5.4',
   title: 'Telegram',
   description: 'This integration allows your bot to interact with Telegram.',
   icon: 'icon.svg',
@@ -15,7 +16,15 @@ export default new IntegrationDefinition({
   },
   channels: {
     channel: {
-      messages: messages.defaults,
+      messages: {
+        ...messages.defaults,
+        audio: {
+          ...messages.defaults.audio,
+          schema: messages.defaults.audio.schema.extend({
+            caption: z.string().optional().describe('The caption/transcription of the audio message'),
+          }),
+        },
+      },
       message: { tags: { id: {}, chatId: {} } },
       conversation: {
         tags: { id: {}, fromUserId: {}, fromUserName: {}, chatId: {} },
@@ -32,4 +41,4 @@ export default new IntegrationDefinition({
     },
     creation: { enabled: true, requiredTags: ['id'] },
   },
-}).extend(interfaces.typingIndicator, () => ({}))
+}).extend(typingIndicator, () => ({}))

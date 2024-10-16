@@ -1,5 +1,4 @@
 import { llm } from '@botpress/common'
-import { interfaces } from '@botpress/sdk'
 import OpenAI from 'openai'
 import { ModelId } from './schemas'
 import * as bp from '.botpress'
@@ -9,7 +8,7 @@ const cerebrasClient = new OpenAI({
   apiKey: bp.secrets.CEREBRAS_API_KEY,
 })
 
-const languageModels: Record<ModelId, interfaces.llm.ModelDetails> = {
+const languageModels: Record<ModelId, llm.ModelDetails> = {
   // Reference: https://inference-docs.cerebras.ai/introduction
   'llama3.1-8b': {
     name: 'Llama 3.1 8B',

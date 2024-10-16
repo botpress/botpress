@@ -1,6 +1,7 @@
-import { z, IntegrationDefinitionProps } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
+import { z } from '@botpress/sdk'
 
-const Channels = ['pullRequest', 'discussion', 'issue'] as const
+const Channels = ['pullRequest', 'issue'] as const
 
 export type Target = {
   displayName: string
@@ -13,6 +14,7 @@ const findTarget = {
     schema: z.object({
       query: z.string(),
       channel: z.enum(Channels),
+      repo: z.string().title('Repository').describe('The repository name'),
     }),
   },
   output: {
@@ -30,4 +32,4 @@ const findTarget = {
 
 export const actions = {
   findTarget,
-} satisfies IntegrationDefinitionProps['actions']
+} satisfies sdk.IntegrationDefinitionProps['actions']

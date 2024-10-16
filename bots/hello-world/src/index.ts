@@ -1,6 +1,6 @@
-import { Bot } from '@botpress/sdk'
+import * as bp from '.botpress'
 
-const bot = new Bot({})
+const bot = new bp.Bot({})
 
 bot.message(async ({ message, client, ctx }) => {
   console.info('Received message', message)
