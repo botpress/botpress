@@ -1,0 +1,40 @@
+name: Deploy Bots
+
+on: workflow_dispatch
+
+permissions:
+  id-token: write
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup
+        env:
+          BUGBUSTER_GITHUB_TOKEN: ${{ secrets.BUGBUSTER_GITHUB_TOKEN }}
+          BUGBUSTER_GITHUB_WEBHOOK_SECRET: ${{ secrets.BUGBUSTER_GITHUB_WEBHOOK_SECRET }}
+          BUGBUSTER_SLACK_BOT_TOKEN: ${{ secrets.BUGBUSTER_SLACK_BOT_TOKEN }}
+          BUGBUSTER_SLACK_SIGNING_SECRET: ${{ secrets.BUGBUSTER_SLACK_SIGNING_SECRET }}
+        uses: ./.github/actions/setup
+      - name: Deploy Bots
+        run: |
+          api_url="https://api.botpress.cloud"
+
+          # login
+
+          echo "### Logging in to $api_url ###"
+          pnpm bp login -y --api-url $api_url --workspaceId "${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}" --token "${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}"
+
+          # deploy
+
+          bots="pnpm list -F bugbuster --json"
+          bot_paths=$(eval $bots | jq -r "map(".path") | .[]")
+
+          for bot_path in $bot_paths; do
+              bot_name=$(basename $bot_path)
+              echo -e "\nDeploying bot: ### $bot_name ###\n"
+              bot_id=$(pnpm bp bots new --name $bot_name --json --if-not-exists | jq -r ".id")
+              pnpm retry -n 2 -- pnpm -F $bot_name -c exec -- "pnpm bp deploy -v -y --botId $bot_id"
+          done

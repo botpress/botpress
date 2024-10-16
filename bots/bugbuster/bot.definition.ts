@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import * as genenv from './.genenv'
 import github from './bp_modules/github'
 import slack from './bp_modules/slack'
 
@@ -26,9 +27,18 @@ export default new sdk.BotDefinition({
 })
   .add(github, {
     enabled: true,
-    configuration: {},
+    configurationType: 'manualPAT',
+    configuration: {
+      personalAccessToken: genenv.BUGBUSTER_GITHUB_TOKEN,
+      githubWebhookSecret: genenv.BUGBUSTER_GITHUB_WEBHOOK_SECRET,
+    },
   })
   .add(slack, {
     enabled: true,
-    configuration: {},
+    configurationType: 'botToken',
+    configuration: {
+      botToken: genenv.BUGBUSTER_SLACK_BOT_TOKEN,
+      signingSecret: genenv.BUGBUSTER_SLACK_SIGNING_SECRET,
+      botName: 'BugBuster',
+    },
   })
