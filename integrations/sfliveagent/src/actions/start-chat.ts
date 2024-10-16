@@ -1,7 +1,7 @@
 import { getSalesforceClient } from 'src/client'
 import { SFLiveagentConfig } from 'src/definitions/schemas'
 import { IntegrationProps } from '.botpress'
-import { Conversation } from '@botpress/client'
+import { Conversation, RuntimeError } from '@botpress/client'
 
 const findConversation = async (
   { client }: any,
@@ -16,7 +16,7 @@ export const startChat: IntegrationProps['actions']['startChat'] = async ({ ctx,
   try {
     const { liveAgentSessionKey, ...rest } = input
 
-    logger.forBot().error('will start chat using key: ' + liveAgentSessionKey)
+    logger.forBot().debug('will start chat using key: ' + liveAgentSessionKey)
 
     const linkedConversation = await findConversation({ client }, {
       tags: { liveAgentSessionKey }
@@ -27,7 +27,7 @@ export const startChat: IntegrationProps['actions']['startChat'] = async ({ ctx,
     console.log('Start Chat, found conversation: ', { linkedConversation })
 
     if(!linkedConversation || !linkedConversation.tags.botpressConversationId) {
-      throw new Error('Linked conversation does not exist')
+      throw new RuntimeError('Linked conversation does not exist')
     }
 
     const { state: { payload: liveAgentSession } } = await client.getState({

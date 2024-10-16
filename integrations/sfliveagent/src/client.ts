@@ -3,6 +3,7 @@ import { type SFLiveagentConfig, type CreateSessionResponse, type CreatePollingR
 import { EndConversationReason } from './events/conversation-ended'
 import { secrets, Logger } from '.botpress'
 import { StartChatInput } from './definitions/actions'
+import { RuntimeError } from '@botpress/client'
 
 class ChasitorApi {
   private session?: LiveAgentSession
@@ -129,8 +130,8 @@ class ChasitorApi {
       delete opts.sessionId
     }
 
-    this.logger.forBot().error("Creating chat with")
-    this.logger.forBot().error({...this.config,
+    this.logger.forBot().debug("Creating chat with")
+    this.logger.forBot().debug({...this.config,
       screenResolution: '1900x1080',
       isPost: true,
       visitorName: opts?.userName?.length && opts?.userName || 'Anonymous Visitor',
@@ -164,7 +165,7 @@ class ChasitorApi {
   public async startPolling(opts?: { webhook: { url: string } }): Promise<CreatePollingResponse | undefined> {
 
     if(!this.session) {
-      throw new Error('Tried to start a pooling Session but doesn\'t have a Chasitor Session')
+      throw new RuntimeError('Tried to start a pooling Session but doesn\'t have a Chasitor Session')
     }
 
     const { data } = await axios.post<CreatePollingResponse>(secrets.POOLING_URL, {
@@ -195,7 +196,7 @@ class ChasitorApi {
 
   public async sendMessage(message: string) {
     if(!this.session) {
-      throw new Error('Tried to send message to a session that is not initilized yet')
+      throw new RuntimeError('Tried to send message to a session that is not initilized yet')
     }
 
     await this.client.post('/rest/Chasitor/ChatMessage', { text: message })
@@ -203,7 +204,7 @@ class ChasitorApi {
 
   public async endSession(reason: EndConversationReason) {
     if(!this.session) {
-      throw new Error('Tried to end a session that is not initilized yet')
+      throw new RuntimeError('Tried to end a session that is not initilized yet')
     }
 
     await this.client.post('/rest/Chasitor/ChatEnd', {

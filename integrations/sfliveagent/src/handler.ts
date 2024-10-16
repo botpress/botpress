@@ -9,6 +9,7 @@ import { executeQueueUpdated } from './events/queue-updated'
 import type { TriggerPayload } from './triggers'
 import { IntegrationProps } from '.botpress'
 import { executeConversationTransferred } from './events/conversation-transferred'
+import { RuntimeError } from '@botpress/client'
 
 export const handler: IntegrationProps['handler'] = async ({ req, client, logger }) => {
   if (!req.body) {
@@ -19,6 +20,10 @@ export const handler: IntegrationProps['handler'] = async ({ req, client, logger
   console.log('Got Data on handler:', JSON.stringify(req.body))
 
   const trigger = JSON.parse(req.body) as TriggerPayload
+
+  if(trigger.type == 'data ' && ( !trigger.payload || !(trigger.payload as unknown as string)?.length)) {
+    return
+  }
 
   if(['data', 'polling_start', 'polling_end', 'error'].includes(trigger.type)) {
 
@@ -38,7 +43,7 @@ export const handler: IntegrationProps['handler'] = async ({ req, client, logger
 
     if(!botpressConversationId) {
       logger.forBot().error('Botpress conversation does not exist')
-      throw new Error('Botpress conversation does not exist')
+      throw new RuntimeError('Botpress conversation does not exist')
     }
 
     switch (trigger.type) {
@@ -69,7 +74,7 @@ export const handler: IntegrationProps['handler'] = async ({ req, client, logger
 
       case 'error':
         // If you start the polling session with debug enabled
-        logger.forBot().error('Got a debug error from the polling session: ' + JSON.stringify({ trigger, response: trigger.payload?.response }, null, 2))
+        logger.forBot().debug('Got a debug error from the polling session: ' + JSON.stringify({ trigger, response: trigger.payload?.response }, null, 2))
         return
       case 'polling_start':
         return

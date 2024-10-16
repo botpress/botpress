@@ -3,7 +3,7 @@ import { IntegrationProps } from '../../.botpress'
 import { SFLiveagentConfig } from '../definitions/schemas'
 import { AxiosError } from 'axios'
 import { executeConversationEnded } from '../events/conversation-ended'
-import { Conversation } from '@botpress/client'
+import { Conversation, RuntimeError } from '@botpress/client'
 
 const findConversation = async (
   { client }: any,
@@ -34,7 +34,7 @@ export const sendMessage: IntegrationProps['actions']['sendMessage'] = async ({ 
     console.log('Got Linked conversation while sendingMessage: ', {linkedConversation})
 
     if(!linkedConversation || !linkedConversation.tags.botpressConversationId) {
-      throw new Error('Linked conversation does not exist')
+      throw new RuntimeError('Linked conversation does not exist')
     }
 
     const { state: { payload: liveAgentSession } } = await client.getState({

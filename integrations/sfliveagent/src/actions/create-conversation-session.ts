@@ -1,6 +1,7 @@
 import { getSalesforceClient } from 'src/client'
 import { SFLiveagentConfig } from 'src/definitions/schemas'
 import { IntegrationProps } from '.botpress'
+import { RuntimeError } from '@botpress/client'
 
 export const createConversationSession: IntegrationProps['actions']['createConversationSession'] = async ({ ctx, client, logger }) => {
 
@@ -25,7 +26,7 @@ export const createConversationSession: IntegrationProps['actions']['createConve
     console.log('got session', {session})
 
     if(!session) {
-      throw new Error('Failed to create Session')
+      throw new RuntimeError('Failed to create Session')
     }
 
     const { conversation } = await client.createConversation({

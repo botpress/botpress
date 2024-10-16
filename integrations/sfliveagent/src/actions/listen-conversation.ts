@@ -1,7 +1,7 @@
 import { getSalesforceClient } from '../client'
 import { SFLiveagentConfig } from '../definitions/schemas'
 import { IntegrationProps } from '../../.botpress'
-import { Conversation } from '@botpress/client'
+import { Conversation, RuntimeError } from '@botpress/client'
 
 export const listenConversation: IntegrationProps['actions']['listenConversation'] = async ({ ctx, client, input, logger }) => {
 
@@ -43,7 +43,7 @@ export const listenConversation: IntegrationProps['actions']['listenConversation
     console.log('found conversation: ', { liveAgentSessionKey })
 
     if(!linkedConversation || !linkedConversation.tags.liveAgentSessionKey) {
-      throw new Error('Linked conversation does not exist')
+      throw new RuntimeError('Linked conversation does not exist')
     }
 
     const { state: { payload: liveAgentSession } } = await client.getState({
@@ -61,7 +61,7 @@ export const listenConversation: IntegrationProps['actions']['listenConversation
       pollingKey = salesforceClient.getCurrentSession()?.pollingKey
 
       if(!pollingKey) {
-        throw new Error('Polling Key not valid')
+        throw new RuntimeError('Polling Key not valid')
       }
     } catch(e: any) {
       await salesforceClient.endSession('POLLING_SERVER_FAILED')
