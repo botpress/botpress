@@ -1,8 +1,10 @@
 {
   "name": "@bp-bots/sheetzy",
   "scripts": {
+    "postinstall": "genenv -o ./.genenv/index.ts -e SHEETZY_TELEGRAM_BOT_TOKEN -e SHEETZY_GSHEETS_CLIENT_EMAIL -e SHEETZY_GSHEETS_PRIVATE_KEY -e SHEETZY_GSHEETS_SPREADSHEET_ID",
     "check:type": "tsc --noEmit",
-    "integrations": "es-node ./integrations.ts"
+    "build": "bp build",
+    "add:integrations": "bp add ../../integrations/gsheets -y && bp add ../../integrations/telegram -y"
   },
   "keywords": [],
   "private": true,
@@ -13,7 +15,7 @@
     "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
-    "@bpinternal/es-node": "^0.0.5",
+    "@bpinternal/genenv": "0.0.1",
     "@types/node": "^18.11.17",
     "execa": "^8.0.1",
     "typescript": "^4.9.4"

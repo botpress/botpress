@@ -1,5 +1,5 @@
 import { InvalidPayloadError, RuntimeError } from '@botpress/client'
-import { z, IntegrationLogger, interfaces } from '@botpress/sdk'
+import { z, IntegrationLogger } from '@botpress/sdk'
 import assert from 'assert'
 import OpenAI from 'openai'
 import {
@@ -15,7 +15,7 @@ import {
   ChatCompletionToolMessageParam,
   ChatCompletionUserMessageParam,
 } from 'openai/resources'
-import { GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './types'
+import { GenerateContentInput, GenerateContentOutput, ToolCall, Message, ModelDetails } from './types'
 
 const OpenAIErrorSchema = z
   .object({
@@ -38,7 +38,7 @@ export async function generateContent<M extends string>(
   logger: IntegrationLogger,
   props: {
     provider: string
-    models: Record<M, interfaces.llm.ModelDetails>
+    models: Record<M, ModelDetails>
     defaultModel: M
   }
 ): Promise<GenerateContentOutput> {
@@ -120,12 +120,14 @@ export async function generateContent<M extends string>(
     }
   }
 
-  const { inputTokens, outputTokens } = getTokenUsage(response, logger, props.provider)
+  const inputTokens = response.usage?.prompt_tokens || 0
+  const outputTokens = response.usage?.completion_tokens || 0
+
   const inputCost = calculateTokenCost(model.input.costPer1MTokens, inputTokens)
   const outputCost = calculateTokenCost(model.output.costPer1MTokens, outputTokens)
   const cost = inputCost + outputCost
 
-  return <GenerateContentOutput>{
+  return {
     id: response.id,
     provider: props.provider,
     model: response.model,
@@ -144,27 +146,6 @@ export async function generateContent<M extends string>(
       outputCost,
     },
     botpress: { cost },
-  }
-}
-
-function getTokenUsage(
-  response: { usage?: { prompt_tokens?: number; completion_tokens?: number } },
-  logger: IntegrationLogger,
-  provider: string
-) {
-  const inputTokens = response.usage?.prompt_tokens
-  if (!inputTokens) {
-    logger.forBot().error(`Received invalid input token count of "${inputTokens}" from ${provider}`)
-  }
-
-  const outputTokens = response.usage?.completion_tokens
-  if (!outputTokens) {
-    logger.forBot().error(`Received invalid output token count of "${outputTokens}" from ${provider}`)
-  }
-
-  return {
-    inputTokens: inputTokens || 0,
-    outputTokens: outputTokens || 0,
   }
 }
 

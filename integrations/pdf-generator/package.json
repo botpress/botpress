@@ -2,7 +2,8 @@
   "name": "@botpresshub/pdf-generator",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "build": "pnpm bp build"
+    "build": "pnpm bp build",
+    "add:interfaces": "echo 'no interfaces to add'"
   },
   "private": true,
   "dependencies": {

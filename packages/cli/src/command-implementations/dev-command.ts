@@ -17,7 +17,7 @@ import * as errors from '../errors'
 import * as utils from '../utils'
 import { Worker } from '../worker'
 import { BuildCommand } from './build-command'
-import { ProjectCommand } from './project-command'
+import { ProjectCommand, ProjectDefinition } from './project-command'
 
 const DEFAULT_BOT_PORT = 8075
 const DEFAULT_INTEGRATION_PORT = 8076
@@ -25,7 +25,7 @@ const TUNNEL_HELLO_INTERVAL = 5000
 
 export type DevCommandDefinition = typeof commandDefinitions.dev
 export class DevCommand extends ProjectCommand<DevCommandDefinition> {
-  private _initialDef: sdk.IntegrationDefinition | undefined = undefined
+  private _initialDef: ProjectDefinition | undefined = undefined
 
   public async run(): Promise<void> {
     this.logger.warn('This command is experimental and subject to breaking changes without notice.')
@@ -36,8 +36,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     if (projectDef.type === 'interface') {
       throw new errors.BotpressCLIError('This feature is not available for interfaces.')
     }
-
-    this._initialDef = projectDef.definition ?? undefined
+    this._initialDef = projectDef
 
     let env: Record<string, string> = {
       ...process.env,
@@ -46,10 +45,10 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     }
 
     let defaultPort = DEFAULT_BOT_PORT
-    if (this._initialDef) {
+    if (this._initialDef.type === 'integration') {
       defaultPort = DEFAULT_INTEGRATION_PORT
       // TODO: store secrets in local cache to avoid prompting every time
-      const secretEnvVariables = await this.promptSecrets(this._initialDef, this.argv, { formatEnv: true })
+      const secretEnvVariables = await this.promptSecrets(this._initialDef.definition, this.argv, { formatEnv: true })
       const nonNullSecretEnvVariables = utils.records.filterValues(secretEnvVariables, utils.guards.is.notNull)
       env = { ...env, ...nonNullSecretEnvVariables }
     }
@@ -173,20 +172,25 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
 
   private _deploy = async (api: ApiClient, tunnelUrl: string) => {
     const projectDef = await this.readProjectDefinitionFromFS()
+
     if (projectDef.type === 'interface') {
       throw new errors.BotpressCLIError('This feature is not available for interfaces.')
     }
-
     if (projectDef.type === 'integration') {
       this._checkSecrets(projectDef.definition)
-      await this._deployDevIntegration(api, tunnelUrl, projectDef.definition)
-    } else {
-      await this._deployDevBot(api, tunnelUrl)
+      return await this._deployDevIntegration(api, tunnelUrl, projectDef.definition)
     }
+    if (projectDef.type === 'bot') {
+      return await this._deployDevBot(api, tunnelUrl, projectDef.definition)
+    }
+    throw new errors.UnsupportedProjectType()
   }
 
   private _checkSecrets(integrationDef: sdk.IntegrationDefinition) {
-    const initialSecrets = this._initialDef?.secrets ?? {}
+    if (this._initialDef?.type !== 'integration') {
+      return
+    }
+    const initialSecrets = this._initialDef?.definition.secrets ?? {}
     const currentSecrets = integrationDef.secrets ?? {}
     const newSecrets = Object.keys(currentSecrets).filter((s) => !initialSecrets[s])
     if (newSecrets.length > 0) {
@@ -243,7 +247,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying dev integration ${chalk.bold(integrationDef.name)}...`)
 
-    let createIntegrationBody: CreateIntegrationBody = prepareCreateIntegrationBody(integrationDef)
+    let createIntegrationBody: CreateIntegrationBody = await prepareCreateIntegrationBody(integrationDef)
     createIntegrationBody = {
       ...createIntegrationBody,
       url: externalUrl,
@@ -276,7 +280,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     await this.projectCache.set('devId', integration.id)
   }
 
-  private async _deployDevBot(api: ApiClient, externalUrl: string): Promise<void> {
+  private async _deployDevBot(api: ApiClient, externalUrl: string, botDef: sdk.BotDefinition): Promise<void> {
     const devId = await this.projectCache.get('devId')
 
     let bot: client.Bot | undefined = undefined
@@ -313,16 +317,13 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       await this.projectCache.set('devId', bot.id)
     }
 
-    const outfile = this.projectPaths.abs.outFile
-    const { default: botImpl } = utils.require.requireJsFile<{ default: sdk.Bot }>(outfile)
-
     const updateLine = this.logger.line()
     updateLine.started('Deploying dev bot...')
 
-    const integrationInstances = await this.fetchBotIntegrationInstances(botImpl, api)
+    const integrationInstances = await this.fetchBotIntegrationInstances(botDef, api)
     const updateBotBody = prepareUpdateBotBody(
       {
-        ...prepareCreateBotBody(botImpl),
+        ...(await prepareCreateBotBody(botDef)),
         id: bot.id,
         url: externalUrl,
         integrations: integrationInstances,

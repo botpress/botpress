@@ -36,8 +36,8 @@ export class BotpressCLIError extends VError {
 
   private readonly _debug: string[]
 
-  constructor(error: BotpressCLIError, message: string)
-  constructor(message: string)
+  public constructor(error: BotpressCLIError, message: string)
+  public constructor(message: string)
   public constructor(first: BotpressCLIError | string, second?: string) {
     if (typeof first === 'string') {
       super(first)
@@ -62,21 +62,21 @@ export class BotpressCLIError extends VError {
 }
 
 export class ExclusiveBotFeatureError extends BotpressCLIError {
-  constructor() {
+  public constructor() {
     const message = 'This feature is only available for bots. This project is an integration or interface.'
     super(message)
   }
 }
 
 export class ExclusiveIntegrationFeatureError extends BotpressCLIError {
-  constructor() {
+  public constructor() {
     const message = 'This feature is only available for integration. This project is a bot or interface.'
     super(message)
   }
 }
 
 export class HTTPError extends BotpressCLIError {
-  constructor(public readonly status: number | undefined, message: string) {
+  public constructor(public readonly status: number | undefined, message: string) {
     super(message)
   }
 
@@ -106,50 +106,57 @@ export class HTTPError extends BotpressCLIError {
 }
 
 export class NoBundleFoundError extends BotpressCLIError {
-  constructor() {
+  public constructor() {
     const message = 'No bundle found. Please run `bp bundle` first.'
     super(message)
   }
 }
 
 export class NoBotsFoundError extends BotpressCLIError {
-  constructor() {
+  public constructor() {
     const message = `No Bot found in your Workspace. Please create one first at ${consts.defaultBotpressAppUrl}.`
     super(message)
   }
 }
 
 export class NoWorkspacesFoundError extends BotpressCLIError {
-  constructor() {
+  public constructor() {
     const message = 'No Workspace found. Please create one first.'
     super(message)
   }
 }
 
 export class NotLoggedInError extends BotpressCLIError {
-  constructor() {
+  public constructor() {
     const message = 'Not logged in. Please run `bp login` first.'
     super(message)
   }
 }
 
 export class ParamRequiredError extends BotpressCLIError {
-  constructor(param: string) {
+  public constructor(param: string) {
     const message = `${param} is required.`
     super(message)
   }
 }
 
-export class InvalidIntegrationReferenceError extends BotpressCLIError {
-  constructor(ref: string) {
-    const message = `Invalid integration reference "${ref}".`
+export class InvalidPackageReferenceError extends BotpressCLIError {
+  public constructor(ref: string) {
+    const message = `Invalid package reference "${ref}".`
     super(message)
   }
 }
 
-export class InvalidInterfaceReferenceError extends BotpressCLIError {
-  constructor(ref: string) {
-    const message = `Invalid interface reference "${ref}".`
+export class UnsupportedProjectType extends BotpressCLIError {
+  public constructor() {
+    const message = 'Unsupported project type.'
+    super(message)
+  }
+}
+
+export class ProjectDefinitionNotFoundError extends BotpressCLIError {
+  public constructor(workdir: string) {
+    const message = `No project definition found at "${workdir}".`
     super(message)
   }
 }

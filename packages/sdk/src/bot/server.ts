@@ -5,6 +5,7 @@ import { Request, Response, parseBody } from '../serve'
 import { BotSpecificClient } from './client'
 import * as types from './client/types'
 import { BotContext, extractContext } from './context'
+import { StateType } from './definition'
 import { BaseBot } from './generic'
 
 type CommonArgs<TBot extends BaseBot> = {
@@ -31,8 +32,6 @@ type EventArgs<TBot extends BaseBot> = CommonArgs<TBot> & EventPayload<TBot>
 
 type StateExpiredPayload = { state: client.State }
 type StateExpiredArgs<TBot extends BaseBot> = CommonArgs<TBot> & StateExpiredPayload
-
-export type StateType = 'conversation' | 'user' | 'bot'
 
 export type MessageHandler<TBot extends BaseBot> = (args: MessageArgs<TBot>) => Promise<void>
 

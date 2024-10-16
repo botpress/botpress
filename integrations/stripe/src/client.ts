@@ -2,22 +2,22 @@ import Stripe from 'stripe'
 import { Configuration } from './misc/types'
 
 export class StripeApi {
-  private stripe: Stripe
+  private _stripe: Stripe
 
-  constructor(apiKey: string, apiVersion?: string) {
+  public constructor(apiKey: string, apiVersion?: string) {
     // @ts-ignore
-    this.stripe = new Stripe(apiKey, { apiVersion: apiVersion || '2023-08-16' })
+    this._stripe = new Stripe(apiKey, { apiVersion: apiVersion || '2023-08-16' })
   }
 
-  async createProduct(name: string) {
-    const product = await this.stripe.products.create({
+  public async createProduct(name: string) {
+    const product = await this._stripe.products.create({
       name,
     })
     return product
   }
 
-  async listProducts(startingAfter?: string) {
-    const products = await this.stripe.products.list({
+  public async listProducts(startingAfter?: string) {
+    const products = await this._stripe.products.list({
       active: true,
       limit: 100,
       starting_after: startingAfter,
@@ -26,7 +26,7 @@ export class StripeApi {
     return products
   }
 
-  async listAllProductsBasic(startingAfter?: string) {
+  public async listAllProductsBasic(startingAfter?: string) {
     let products = await this.listProducts(startingAfter)
     const productsBasic = products.data.map((product) => {
       return { id: product.id, name: product.name }
@@ -40,8 +40,8 @@ export class StripeApi {
     return productsBasic
   }
 
-  async createPrice(product: string, unit_amount: number, currency: string) {
-    const price = await this.stripe.prices.create({
+  public async createPrice(product: string, unit_amount: number, currency: string) {
+    const price = await this._stripe.prices.create({
       product,
       unit_amount,
       currency,
@@ -49,13 +49,13 @@ export class StripeApi {
     return price
   }
 
-  async createSubsPrice(
+  public async createSubsPrice(
     product: string,
     unit_amount: number,
     currency: string,
     recurring: Stripe.PriceCreateParams.Recurring
   ) {
-    const price = await this.stripe.prices.create({
+    const price = await this._stripe.prices.create({
       product,
       unit_amount,
       currency,
@@ -64,8 +64,8 @@ export class StripeApi {
     return price
   }
 
-  async listPrices(productId?: string, isExpand: boolean = false, startingAfter?: string) {
-    const prices = await this.stripe.prices.list({
+  public async listPrices(productId?: string, isExpand: boolean = false, startingAfter?: string) {
+    const prices = await this._stripe.prices.list({
       active: true,
       limit: 100,
       product: productId,
@@ -75,7 +75,7 @@ export class StripeApi {
     return prices
   }
 
-  async listAllPricesBasic(productId?: string, isExpand: boolean = false, startingAfter?: string) {
+  public async listAllPricesBasic(productId?: string, isExpand: boolean = false, startingAfter?: string) {
     let prices = await this.listPrices(productId, isExpand, startingAfter)
     const pricesBasic = prices.data.map((price) => {
       return {
@@ -107,15 +107,15 @@ export class StripeApi {
     return pricesBasic
   }
 
-  async createPaymentLink(lineItem: Stripe.PaymentLinkCreateParams.LineItem) {
-    const paymentLink = await this.stripe.paymentLinks.create({
+  public async createPaymentLink(lineItem: Stripe.PaymentLinkCreateParams.LineItem) {
+    const paymentLink = await this._stripe.paymentLinks.create({
       line_items: [lineItem],
     })
     return paymentLink
   }
 
-  async listPaymentLink(startingAfter?: string) {
-    const paymentLink = await this.stripe.paymentLinks.list({
+  public async listPaymentLink(startingAfter?: string) {
+    const paymentLink = await this._stripe.paymentLinks.list({
       active: true,
       limit: 100,
       starting_after: startingAfter,
@@ -123,7 +123,7 @@ export class StripeApi {
     return paymentLink
   }
 
-  async listAllPaymentLinksBasic(startingAfter?: string) {
+  public async listAllPaymentLinksBasic(startingAfter?: string) {
     let paymentLinks = await this.listPaymentLink(startingAfter)
     const paymentLinksBasic = paymentLinks.data.map((paymentLink) => {
       return { id: paymentLink.id, url: paymentLink.url }
@@ -137,26 +137,26 @@ export class StripeApi {
     return paymentLinksBasic
   }
 
-  async createSubsLink(
+  public async createSubsLink(
     lineItem: Stripe.PaymentLinkCreateParams.LineItem,
     subscriptionData: Stripe.PaymentLinkCreateParams.SubscriptionData | undefined
   ) {
-    const paymentLink = await this.stripe.paymentLinks.create({
+    const paymentLink = await this._stripe.paymentLinks.create({
       line_items: [lineItem],
       subscription_data: subscriptionData,
     })
     return paymentLink
   }
 
-  async deactivatePaymentLink(paymentLinkId: string) {
-    const paymentLink = this.stripe.paymentLinks.update(paymentLinkId, {
+  public async deactivatePaymentLink(paymentLinkId: string) {
+    const paymentLink = this._stripe.paymentLinks.update(paymentLinkId, {
       active: false,
     })
     return paymentLink
   }
 
-  async listCustomer(email?: string, startingAfter?: string) {
-    const customers = await this.stripe.customers.list({
+  public async listCustomer(email?: string, startingAfter?: string) {
+    const customers = await this._stripe.customers.list({
       email,
       limit: 100,
       starting_after: startingAfter,
@@ -164,7 +164,7 @@ export class StripeApi {
     return customers
   }
 
-  async listAllCustomerBasic(email?: string, startingAfter?: string) {
+  public async listAllCustomerBasic(email?: string, startingAfter?: string) {
     let customers = await this.listCustomer(email, startingAfter)
     const customersBasic = customers.data.map((customer) => {
       return {
@@ -196,7 +196,7 @@ export class StripeApi {
     return customersBasic
   }
 
-  async searchCustomers(email?: string, name?: string, phone?: string) {
+  public async searchCustomers(email?: string, name?: string, phone?: string) {
     const queryParts: string[] = []
 
     if (email) {
@@ -214,7 +214,7 @@ export class StripeApi {
     const query = queryParts.join(' AND ')
     const limit = 100
 
-    let response = await this.stripe.customers.search({
+    let response = await this._stripe.customers.search({
       query,
       limit,
     })
@@ -222,7 +222,7 @@ export class StripeApi {
     const customers = response.data
     while (response.has_more) {
       const page = response.next_page || undefined
-      response = await this.stripe.customers.search({
+      response = await this._stripe.customers.search({
         query,
         limit,
         page,
@@ -232,18 +232,18 @@ export class StripeApi {
     return customers
   }
 
-  async createCustomer(params: Stripe.CustomerCreateParams) {
-    const customer = await this.stripe.customers.create(params)
+  public async createCustomer(params: Stripe.CustomerCreateParams) {
+    const customer = await this._stripe.customers.create(params)
     return customer
   }
 
-  async createWebhook(webhookData: Stripe.WebhookEndpointCreateParams) {
-    const webhook = await this.stripe.webhookEndpoints.create(webhookData)
+  public async createWebhook(webhookData: Stripe.WebhookEndpointCreateParams) {
+    const webhook = await this._stripe.webhookEndpoints.create(webhookData)
     return webhook
   }
 
-  async listWebhooks(startingAfter?: string) {
-    const webhooks = await this.stripe.webhookEndpoints.list({
+  public async listWebhooks(startingAfter?: string) {
+    const webhooks = await this._stripe.webhookEndpoints.list({
       limit: 100,
       starting_after: startingAfter,
     })
@@ -251,7 +251,7 @@ export class StripeApi {
     return webhooks
   }
 
-  async listAllWebhooksBasic(startingAfter?: string) {
+  public async listAllWebhooksBasic(startingAfter?: string) {
     let webhooks = await this.listWebhooks(startingAfter)
     const webhooksBasic = webhooks.data.map((webhook) => {
       return {
@@ -271,7 +271,7 @@ export class StripeApi {
     return webhooksBasic
   }
 
-  async createOrRetrieveWebhookId(webhookData: Stripe.WebhookEndpointCreateParams) {
+  public async createOrRetrieveWebhookId(webhookData: Stripe.WebhookEndpointCreateParams) {
     const webhooks = await this.listAllWebhooksBasic()
     let webhook = webhooks.find((w) => w.url === webhookData.url)
     if (!webhook) {
@@ -280,13 +280,13 @@ export class StripeApi {
     return webhook.id
   }
 
-  async deleteWebhook(webhookId: string) {
-    const response = await this.stripe.webhookEndpoints.del(webhookId)
+  public async deleteWebhook(webhookId: string) {
+    const response = await this._stripe.webhookEndpoints.del(webhookId)
     return response
   }
 
-  async retrieveCustomer(id: string) {
-    const customer = await this.stripe.customers.retrieve(id)
+  public async retrieveCustomer(id: string) {
+    const customer = await this._stripe.customers.retrieve(id)
     return customer
   }
 }

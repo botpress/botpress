@@ -39,14 +39,18 @@ export type SyncerState = {
 const TABLE_RESERVED_KEYWORDS = ['id', 'createdAt', 'updatedAt']
 
 export class Syncer<T extends BaseItem> {
-  public constructor(private dataSource: DataSource<T>, private client: client.Client, private options: SyncerOptions) {
-    dataSource.on('created', this._onCreated)
-    dataSource.on('updated', this._onUpdated)
-    dataSource.on('deleted', this._onDeleted)
+  public constructor(
+    private _dataSource: DataSource<T>,
+    private _client: client.Client,
+    private _options: SyncerOptions
+  ) {
+    _dataSource.on('created', this._onCreated)
+    _dataSource.on('updated', this._onUpdated)
+    _dataSource.on('deleted', this._onDeleted)
   }
 
   public async sync(state: SyncerState): Promise<SyncerState> {
-    const { items, meta } = await this.dataSource.list(state)
+    const { items, meta } = await this._dataSource.list(state)
     state = await this._upsert(state, items)
     return { ...state, nextToken: meta.nextToken }
   }
@@ -75,8 +79,8 @@ export class Syncer<T extends BaseItem> {
     }
 
     const rows = items.map(this._escapeObject)
-    const { errors } = await this.client.upsertTableRows({
-      table: this.options.tableName,
+    const { errors } = await this._client.upsertTableRows({
+      table: this._options.tableName,
       rows,
       keyColumn: '_id',
     })
@@ -94,8 +98,8 @@ export class Syncer<T extends BaseItem> {
       return state ?? {}
     }
 
-    await this.client.deleteTableRows({
-      table: this.options.tableName,
+    await this._client.deleteTableRows({
+      table: this._options.tableName,
       filter: { id: { $eq: id } },
     })
 
@@ -104,11 +108,11 @@ export class Syncer<T extends BaseItem> {
 
   private _createTableIfNotExists = async (model: object): Promise<void> => {
     const escapedModel = this._escapeObject(model)
-    const { tables } = await this.client.listTables({})
-    const existingTable = tables.find((table) => table.name === this.options.tableName)
+    const { tables } = await this._client.listTables({})
+    const existingTable = tables.find((table) => table.name === this._options.tableName)
     if (!existingTable) {
-      await this.client.createTable({
-        name: this.options.tableName,
+      await this._client.createTable({
+        name: this._options.tableName,
         schema: escapedModel, // should pass a json schema here, but the code generation of the CLI doesn't support it yet
       })
     }

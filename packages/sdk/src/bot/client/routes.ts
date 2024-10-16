@@ -1,5 +1,5 @@
 import { Client } from '@botpress/client'
-import { Cast, Merge } from '../../type-utils'
+import { Cast, Merge } from '../../utils/type-utils'
 import { BaseBot } from '../generic'
 import * as types from './types'
 

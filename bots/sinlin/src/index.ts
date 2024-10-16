@@ -1,4 +1,3 @@
-/* eslint-disable unused-imports/no-unused-vars */
 import { Client } from '@botpress/client'
 import { bot, EventHandlerProps, IssueState, MessageHandlerProps } from './bot'
 import { EventEmitter } from './event-emitter'
@@ -43,7 +42,7 @@ const setIssueState = async (props: EventHandlerProps | MessageHandlerProps, sta
   })
 }
 
-type LinearIssue = bp.linear.entities.issue.Issue
+type LinearIssue = bp.integrations.linear.entities.issue.Issue
 type IssueEvents = {
   created: { event: { item: LinearIssue }; state: IssueState }
   updated: { event: { item: LinearIssue }; state: IssueState }
@@ -51,14 +50,14 @@ type IssueEvents = {
 }
 
 class LinearIssueSource extends EventEmitter<IssueEvents> implements DataSource<LinearIssue> {
-  public constructor(private props: EventHandlerProps | MessageHandlerProps) {
+  public constructor(private _props: EventHandlerProps | MessageHandlerProps) {
     super()
   }
 
   public async list(input: {
     nextToken?: string | undefined
   }): Promise<{ items: LinearIssue[]; meta: { nextToken?: string | undefined } }> {
-    const { output } = await this.props.client.callAction({
+    const { output } = await this._props.client.callAction({
       type: 'linear:issueList',
       input,
     })
@@ -136,6 +135,7 @@ bot.message(async (props) => {
       limit: 10,
     })
 
+    /* eslint-disable unused-imports/no-unused-vars */
     const issues: string[] = rows.map(({ computed, stale, similarity, ...r }) =>
       Object.entries(r)
         .map(([k, v]) => `${k}: ${v}`)

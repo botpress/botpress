@@ -1,25 +1,22 @@
-import { describe, it, expect, vi } from 'vitest'
-import { validateRequestSignature } from './utils'
+import { describe, it, expect } from 'vitest'
 import * as crypto from 'crypto'
+import { SlackEventSignatureValidator } from './utils'
+
+const VALID_SIGNING_SECRET = 'valid-signing-secret'
+const INVALID_SIGNING_SECRET = 'invalid-signing-secret'
+
+const mockedLogger = { forBot: () => ({ error: console.error }) } as any
 
 const generateSlackSignature = (secret: string, timestamp: string, body: any) => {
   const sigBasestring = `v0:${timestamp}:${body}`
   return 'v0=' + crypto.createHmac('sha256', secret).update(sigBasestring).digest('hex')
 }
 
-const mockedLogger = { forBot: () => ({ error: console.error }) } as any
-
-vi.mock('.botpress', () => ({
-  secrets: {
-    SIGNING_SECRET: 'valid-signing-secret',
-  },
-}))
-
-describe('validateRequestSignature', () => {
+describe('SlackEventSignatureValidator', () => {
   it('validates a legitimate Slack request', () => {
     const timestamp = Math.floor(Date.now() / 1000).toString()
     const body = {}
-    const signature = generateSlackSignature('valid-signing-secret', timestamp, body)
+    const signature = generateSlackSignature(VALID_SIGNING_SECRET, timestamp, body)
 
     const mockRequest = {
       headers: {
@@ -29,13 +26,19 @@ describe('validateRequestSignature', () => {
       body,
     }
 
-    expect(validateRequestSignature({ req: mockRequest as any, logger: mockedLogger })).toBe(true)
+    expect(
+      new SlackEventSignatureValidator(
+        VALID_SIGNING_SECRET,
+        mockRequest as any,
+        mockedLogger
+      ).isEventProperlyAuthenticated()
+    ).toBe(true)
   })
 
   it('invalidates a 6 min old legitimate Slack request', () => {
     const timestamp = (Math.floor(Date.now() / 1000) - 60 * 6).toString()
     const body = {}
-    const signature = generateSlackSignature('valid-signing-secret', timestamp, body)
+    const signature = generateSlackSignature(VALID_SIGNING_SECRET, timestamp, body)
 
     const mockRequest = {
       headers: {
@@ -45,13 +48,19 @@ describe('validateRequestSignature', () => {
       body,
     }
 
-    expect(validateRequestSignature({ req: mockRequest as any, logger: mockedLogger })).toBe(false)
+    expect(
+      new SlackEventSignatureValidator(
+        VALID_SIGNING_SECRET,
+        mockRequest as any,
+        mockedLogger
+      ).isEventProperlyAuthenticated()
+    ).toBe(false)
   })
 
   it('invalidates a request with an incorrect signature', () => {
     const timestamp = Math.floor(Date.now() / 1000).toString()
     const body = {}
-    const invalidSignature = generateSlackSignature('invalid-secret', timestamp, body)
+    const invalidSignature = generateSlackSignature(INVALID_SIGNING_SECRET, timestamp, body)
 
     const mockRequest = {
       headers: {
@@ -61,10 +70,16 @@ describe('validateRequestSignature', () => {
       body,
     }
 
-    expect(validateRequestSignature({ req: mockRequest as any, logger: mockedLogger })).toBe(false)
+    expect(
+      new SlackEventSignatureValidator(
+        VALID_SIGNING_SECRET,
+        mockRequest as any,
+        mockedLogger
+      ).isEventProperlyAuthenticated()
+    ).toBe(false)
   })
 
-  it('with a signature of a different length', () => {
+  it('invalidates a request with a signature of a different length', () => {
     const timestamp = Math.floor(Date.now() / 1000).toString()
     const body = {}
 
@@ -76,6 +91,12 @@ describe('validateRequestSignature', () => {
       body,
     }
 
-    expect(validateRequestSignature({ req: mockRequest as any, logger: mockedLogger })).toBe(false)
+    expect(
+      new SlackEventSignatureValidator(
+        VALID_SIGNING_SECRET,
+        mockRequest as any,
+        mockedLogger
+      ).isEventProperlyAuthenticated()
+    ).toBe(false)
   })
 })

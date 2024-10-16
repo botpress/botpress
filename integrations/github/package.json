@@ -5,7 +5,8 @@
     "start": "pnpm bp serve",
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
-    "check:type": "tsc --noEmit"
+    "check:type": "tsc --noEmit",
+    "add:interfaces": "echo 'no interfaces to add'"
   },
   "keywords": [],
   "author": "",
@@ -14,7 +15,7 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "@octokit/webhooks-methods": "^3.0.2",
-    "@octokit/webhooks-types": "^6.10.0",
+    "@octokit/webhooks-types": "^7.6.1",
     "fuse.js": "^6.6.2",
     "octokit": "^2.0.19"
   },

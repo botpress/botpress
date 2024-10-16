@@ -1,4 +1,4 @@
-import { AnyZodObject } from '../../type-utils'
+import { AnyZodObject } from '../../zui'
 
 export type BaseConfig = AnyZodObject
 export type BaseConfigs = Record<string, BaseConfig>

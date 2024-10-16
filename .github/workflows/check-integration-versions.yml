@@ -14,8 +14,6 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup
         uses: ./.github/actions/setup
-        with:
-          filter: '@botpress/*'
       - name: Login to Botpress
         run: pnpm bp login -y --token ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }} --workspace-id ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
       - name: Get changed files
@@ -28,13 +26,19 @@ jobs:
         run: |
           modified_integrations=$(echo -e "${{ steps.changed-files.outputs.all_changed_files }}" | awk -F'/' '{print $2}' | sort -u)
 
+          should_fail=0
+
           for integration in $modified_integrations; do
             echo "Checking $integration"
             exists=$(./.github/scripts/integration-exists.sh $integration)
 
             if [ $exists -ne 0 ]; then
               echo "Integration $integration is already deployed publicly with the same version. Please update the version of your integration."
-              exit 1
+              should_fail=1
             fi
-
           done
+
+          if [ $should_fail -ne 0 ]; then
+            echo "Please update the version of your integration before pushing your changes."
+            exit 1
+          fi

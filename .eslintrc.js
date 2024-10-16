@@ -9,7 +9,7 @@ module.exports = {
   },
   extends: ['prettier'],
   parser: '@typescript-eslint/parser',
-  ignorePatterns: ['*.d.ts', '*.test.ts', '*.js', 'cdk.out/', 'dist/', 'node_modules/', '.botpress/', '**/src/gen/'],
+  ignorePatterns: ['*.d.ts', '*.test.ts', '*.js', 'cdk.out/', 'dist/', 'node_modules/', 'bp_modules', '.botpress/', '**/src/gen/'],
   plugins: [
     'eslint-plugin-import',
     'eslint-plugin-jsdoc',
@@ -54,14 +54,7 @@ module.exports = {
     'no-debugger': 'error',
     'no-sparse-arrays': 'error',
     'no-unreachable': 'error',
-    'max-lines-per-function': [
-      'error',
-      {
-        max: 120,
-        skipBlankLines: true,
-        skipComments: true,
-      },
-    ],
+    'max-lines-per-function': 'off',
     'default-case': 'error',
     'default-case-last': 'error',
     'max-depth': 'error',
@@ -127,6 +120,16 @@ module.exports = {
       'error',
       { vars: 'all', varsIgnorePattern: '^_', args: 'after-used', argsIgnorePattern: '^_' },
     ],
+    "@typescript-eslint/naming-convention": [
+     "warn",
+     {
+       "selector": "memberLike",
+       "modifiers": ["private"],
+       "format": ["camelCase"],
+       "leadingUnderscore": "require"
+     }
+   ],
+   "@typescript-eslint/explicit-member-accessibility": "warn",
   },
   parser: '@typescript-eslint/parser',
 }

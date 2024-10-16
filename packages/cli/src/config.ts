@@ -11,7 +11,7 @@ const port = {
 const workDir = {
   type: 'string',
   description: 'The path to the project',
-  default: process.cwd(),
+  default: consts.defaultWorkDir,
 } satisfies CommandOption
 
 const noBuild = {
@@ -50,17 +50,30 @@ const botRef = {
   idx: 0,
 } satisfies CommandOption
 
-const integrationRef = {
+const packageType = {
   type: 'string',
-  description: 'The integration ID or name with optional version. Ex: teams or teams@0.2.0',
+  description:
+    'Either an integration or an interface; helps disambiguate the package type in case both an integration and an interface have the same reference.',
+  choices: ['integration', 'interface'] as const,
+} satisfies CommandOption
+
+const packageRef = {
+  type: 'string',
+  description:
+    'The package ID or name with optional version. The package can be either an integration or an interface. Ex: teams, teams@0.2.0, llm@5.1.0',
   demandOption: true,
   positional: true,
   idx: 0,
 } satisfies CommandOption
 
+const integrationRef = {
+  ...packageRef,
+  description: 'The integration ID or name with optional version. Ex: teams or teams@0.2.0',
+} satisfies CommandOption
+
 const interfaceRef = {
-  ...integrationRef,
-  description: 'The interface ID or name with optional version. Ex: teams or teams@0.2.0',
+  ...packageRef,
+  description: 'The interface ID or name and version. Ex: llm@5.1.0',
 } satisfies CommandOption
 
 const sourceMap = { type: 'boolean', description: 'Generate sourcemaps', default: false } satisfies CommandOption
@@ -183,9 +196,15 @@ const devSchema = {
 } satisfies CommandSchema
 
 const addSchema = {
-  ...projectSchema,
+  ...globalSchema,
   ...credentialsSchema,
-  integrationRef,
+  packageRef,
+  packageType,
+  installPath: {
+    type: 'string',
+    description: 'The path where to install the integration',
+    default: consts.defaultInstallPath,
+  },
 } satisfies CommandSchema
 
 const loginSchema = {
@@ -272,6 +291,10 @@ const initSchema = {
   name: { type: 'string', description: 'The name of the project' },
 } satisfies CommandSchema
 
+const lintSchema = {
+  ...projectSchema,
+} satisfies CommandSchema
+
 // exports
 
 export const schemas = {
@@ -301,4 +324,5 @@ export const schemas = {
   deploy: deploySchema,
   add: addSchema,
   dev: devSchema,
+  lint: lintSchema,
 } as const

@@ -1,4 +1,4 @@
-import { RuntimeError } from '@botpress/client'
+import * as sdk from '@botpress/sdk'
 import { getZendeskClient } from '../client'
 import * as bp from '.botpress'
 
@@ -8,30 +8,29 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
   const { user } = await client.getUser({
     id: input.userId,
   })
+  const zendeskAuthorId = user.tags.id
+  if (!zendeskAuthorId) {
+    throw new sdk.RuntimeError(`User ${user.id} not linked in Zendesk`)
+  }
 
-  try {
-    const ticket = await zendeskClient.createTicket(
-      input.title ?? 'Untitled Ticket',
-      input.description ?? 'Someone opened a ticket using your Botpress chatbot',
-      {
-        name: user.name ?? 'Unknown User',
-        email: user.tags.email ?? 'unknown@noemail.com',
-      }
-    )
+  const ticket = await zendeskClient.createTicket(
+    input.title ?? 'Untitled Ticket',
+    input.description ?? 'Someone opened a ticket using your Botpress chatbot',
+    { id: zendeskAuthorId }
+  )
 
-    const { conversation } = await client.getOrCreateConversation({
-      channel: 'hitl',
-      tags: {
-        id: `${ticket.id}`,
-      },
-    })
+  const zendeskTicketId = `${ticket.id}`
+  const { conversation } = await client.getOrCreateConversation({
+    channel: 'hitl',
+    tags: {
+      id: zendeskTicketId,
+    },
+  })
 
-    return {
-      conversationId: conversation.id,
-    }
-  } catch (err) {
-    console.error(err)
-    throw new RuntimeError(`Failed to create ticket: ${err}`)
+  // TODO: possibly display the message history
+
+  return {
+    conversationId: conversation.id,
   }
 }
 
@@ -46,9 +45,9 @@ export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ ctx
   }
 
   const zendeskClient = getZendeskClient(ctx.configuration)
-  const originalTicket = await zendeskClient.getTicket(ticketId)
 
   try {
+    const originalTicket = await zendeskClient.getTicket(ticketId)
     await zendeskClient.updateTicket(ticketId, {
       comment: {
         body: input.reason,
@@ -58,7 +57,7 @@ export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ ctx
     })
     return {}
   } catch (err) {
-    console.error(err)
-    throw new RuntimeError(`Failed to close ticket: ${err}`)
+    console.error('Could not close ticket', err)
+    throw new sdk.RuntimeError(`Failed to close ticket: ${err}`)
   }
 }

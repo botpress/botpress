@@ -1,10 +1,10 @@
-import { IntegrationProps } from '../.botpress/implementation'
 import { getZendeskClient } from './client'
 import { uploadArticlesToKb } from './misc/upload-articles-to-kb'
 import { deleteKbArticles } from './misc/utils'
 import { Triggers } from './triggers'
+import * as bp from '.botpress'
 
-export const register: IntegrationProps['register'] = async ({ client, ctx, webhookUrl, logger }) => {
+export const register: bp.IntegrationProps['register'] = async ({ client, ctx, webhookUrl, logger }) => {
   try {
     await unregister({ ctx, client, webhookUrl, logger })
   } catch (err) {
@@ -62,7 +62,7 @@ export const register: IntegrationProps['register'] = async ({ client, ctx, webh
   }
 }
 
-export const unregister: IntegrationProps['unregister'] = async ({ ctx, client, logger }) => {
+export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, client, logger }) => {
   const zendeskClient = getZendeskClient(ctx.configuration)
 
   const { state } = await client.getState({
@@ -72,12 +72,16 @@ export const unregister: IntegrationProps['unregister'] = async ({ ctx, client, 
   })
 
   if (state.payload.subscriptionId?.length) {
-    await zendeskClient.unsubscribeWebhook(state.payload.subscriptionId)
+    await zendeskClient.unsubscribeWebhook(state.payload.subscriptionId).catch((err) => {
+      logger.forBot().error('Could not unsubscribe webhook', err)
+    })
   }
 
   if (state.payload.triggerIds?.length) {
     for (const trigger of state.payload.triggerIds) {
-      await zendeskClient.deleteTrigger(trigger)
+      await zendeskClient.deleteTrigger(trigger).catch((err) => {
+        logger.forBot().error('Could not delete trigger', err)
+      })
     }
   }
 
@@ -86,7 +90,9 @@ export const unregister: IntegrationProps['unregister'] = async ({ ctx, client, 
   })
 
   for (const articleWebhook of articleWebhooks) {
-    await zendeskClient.deleteWebhook(articleWebhook.id)
+    await zendeskClient.deleteWebhook(articleWebhook.id).catch((err) => {
+      logger.forBot().error('Could not delete article webhook', err)
+    })
   }
 
   if (ctx.configuration.syncKnowledgeBaseWithBot) {
