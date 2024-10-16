@@ -1,11 +1,5 @@
 name: Setup
-description: install dependencies and build
-
-inputs:
-  filter:
-    type: string
-    description: 'packages to build'
-    required: false
+description: checkout and install dependencies
 
 runs:
   using: 'composite'
@@ -13,7 +7,7 @@ runs:
     - uses: pnpm/action-setup@v4
       with:
         version: 8.6.2
-    - uses: actions/setup-node@v3
+    - uses: actions/setup-node@v4
       with:
         node-version: '18.x'
         check-latest: true
@@ -21,12 +15,3 @@ runs:
     - name: Install dependencies
       shell: bash
       run: pnpm i --frozen-lockfile
-    - name: Build
-      shell: bash
-      run: |
-        filter="${{ inputs.filter }}"
-        if [ -z "$filter" ]; then
-          pnpm build
-        else
-          pnpm build --filter $filter
-        fi

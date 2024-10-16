@@ -11,9 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup
-        uses: ./.github/actions/setup
+        uses: ./.github/actions/setup-and-build
       - name: Login to Botpress
         run: pnpm bp login -y --token ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }} --workspace-id ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
       - name: Get changed files

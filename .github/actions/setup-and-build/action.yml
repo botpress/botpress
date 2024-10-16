@@ -1,0 +1,22 @@
+name: Setup
+description: install dependencies and build
+
+inputs:
+  filter:
+    description: 'packages to build'
+    required: false
+
+runs:
+  using: 'composite'
+  steps:
+    - name: Setup
+      uses: ./.github/actions/setup
+    - name: Build
+      shell: bash
+      run: |
+        filter="${{ inputs.filter }}"
+        if [ -z "$filter" ]; then
+          pnpm build
+        else
+          pnpm build --filter $filter
+        fi
