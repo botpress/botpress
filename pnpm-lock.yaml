@@ -600,9 +600,6 @@ importers:
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.16
-      '@types/q':
-        specifier: ^1.5.8
-        version: 1.5.8
       '@types/qs':
         specifier: ^6.9.7
         version: 6.9.7
@@ -4959,10 +4956,6 @@ packages:
     dependencies:
       '@types/node': 18.19.50
       kleur: 3.0.3
-    dev: true
-
-  /@types/q@1.5.8:
-    resolution: {integrity: sha512-hroOstUScF6zhIi+5+x0dzqrHA1EJi+Irri6b1fxolMTqqHIV/Cg77EtnQcZqZCu8hR3mX2BzIxN4/GzI68Kfw==}
     dev: true
 
   /@types/qs@6.9.7:

@@ -1,7 +1,5 @@
-import { MessengerClient } from 'messaging-api-messenger'
-import { getMessengerClient } from './utils'
 import * as bp from '.botpress'
-import { getCredentials, getInstagramId, MetaClient } from './client'
+import { getCredentials, MetaClient } from './client'
 import { RuntimeError } from '@botpress/client'
 
 type Channels = bp.Integration['channels']
@@ -39,7 +37,7 @@ function getRecipientId(conversation: SendMessageProps['conversation']): string 
   const recipientId = conversation.tags.id
 
   if (!recipientId) {
-    throw Error(`No recipient id found for user ${conversation.id}`)
+    throw new RuntimeError(`No recipient id found for user ${conversation.id}`)
   }
 
   return recipientId
