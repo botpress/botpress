@@ -64,6 +64,11 @@ export class BotSpecificClient<TBot extends BaseBot> {
   public updateFileMetadata: routes.UpdateFileMetadata<TBot> = (x) => this._client.updateFileMetadata(x)
   public searchFiles: routes.SearchFiles<TBot> = (x) => this._client.searchFiles(x)
 
+  public createWorkflow: routes.CreateWorkflow<TBot> = (x) => this._client.createWorkflow(x)
+  public updateWorkflow: routes.UpdateWorkflow<TBot> = (x) => this._client.updateWorkflow(x)
+  public listWorkflows: routes.ListWorkflows<TBot> = (x) => this._client.listWorkflows(x)
+  public getWorkflow: routes.GetWorkflow<TBot> = (x) => this._client.getWorkflow(x)
+
   /**
    * @deprecated Use `callAction` to delegate the conversation creation to an integration.
    */
