@@ -1,24 +1,29 @@
-import { MessengerClient, MessengerTypes } from 'messaging-api-messenger'
+import { MessengerClient } from 'messaging-api-messenger'
+import { getCredentials } from './client'
 import {
   Card,
   Carousel,
   Choice,
-  Dropdown,
-  InstagramAttachment,
+  Dropdown, GenericTemplateElement, GenericTemplateMessage,
+  InstagramAction,
   InstagramUserProfile,
   IntegrationLogger,
-  Location,
+  Location, TextMessageWithQuickReplies
 } from './types'
 import * as bp from '.botpress'
 
-export function getMessengerClient(configuration: bp.configuration.Configuration) {
+export async function getMessengerClient(client: bp.Client, ctx: bp.Context) {
+  const { accessToken, clientId, clientSecret } = await getCredentials(client, ctx)
+
   return new MessengerClient({
-    accessToken: configuration.accessToken,
+    accessToken,
+    appSecret: clientSecret,
+    appId: clientId,
   })
 }
 
-export function formatCardElement(payload: Card) {
-  const buttons: InstagramAttachment[] = []
+export function formatCardElement(payload: Card): GenericTemplateElement {
+  const buttons: InstagramAction[] = []
 
   payload.actions.forEach((action) => {
     switch (action.action) {
@@ -59,33 +64,34 @@ export function formatGoogleMapLink(payload: Location) {
   return `https://www.google.com/maps/search/?api=1&query=${payload.latitude},${payload.longitude}`
 }
 
-export function getCarouselMessage(payload: Carousel): MessengerTypes.AttachmentMessage {
+export function getCarouselMessage(payload: Carousel): GenericTemplateMessage {
   return {
     attachment: {
       type: 'template',
       payload: {
-        templateType: 'generic',
+        template_type: 'generic',
         elements: payload.items.map(formatCardElement),
       },
     },
   }
 }
 
-export function getChoiceMessage(payload: Choice | Dropdown): MessengerTypes.TextMessage {
+
+export function getChoiceMessage(payload: Choice | Dropdown): TextMessageWithQuickReplies {
   if (!payload.options.length) {
     return { text: payload.text }
   }
 
   if (payload.options.length > 13) {
     return {
-      text: `${payload.text}\n\n${payload.options.map((o, idx) => `${idx + 1}. ${o.label}`).join('\n')}`,
+      text: `${payload.text}\n\n${payload.options.map((o) => `- ${o.label}`).join('\n')}`,
     }
   }
 
   return {
     text: payload.text,
-    quickReplies: payload.options.map((option) => ({
-      contentType: 'text',
+    quick_replies: payload.options.map((option) => ({
+      content_type: 'text',
       title: option.label,
       payload: option.value,
     })),
@@ -93,11 +99,10 @@ export function getChoiceMessage(payload: Choice | Dropdown): MessengerTypes.Tex
 }
 
 export const getUserProfile = async (
+  messengerClient: MessengerClient,
   userId: string,
-  configuration: bp.configuration.Configuration,
   logger: IntegrationLogger
 ) => {
-  const messengerClient = getMessengerClient(configuration)
   try {
     return (await messengerClient.getUserProfile(userId, {
       // username is an available field for instagram ids -> https://developers.facebook.com/docs/instagram-basic-display-api/guides/getting-profiles-and-media
