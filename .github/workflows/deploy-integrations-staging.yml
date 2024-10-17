@@ -43,7 +43,7 @@ jobs:
           linear_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_LINEAR_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_LINEAR_CLIENT_SECRET }} --secrets WEBHOOK_SIGNING_SECRET=${{ secrets.STAGING_LINEAR_WEBHOOK_SIGNING_SECRET }}'
           slack_secrets: --secrets CLIENT_ID=${{ secrets.STAGING_SLACK_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_SLACK_CLIENT_SECRET }} --secrets SIGNING_SECRET=${{ secrets.STAGING_SLACK_SIGNING_SECRET }}
           charts_secrets: '--secrets QUICKCHARTS_API_KEY=${{ secrets.QUICKCHARTS_API_KEY }}'
-          whatsapp_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_WHATSAPP_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_WHATSAPP_CLIENT_SECRET }} --secrets ACCESS_TOKEN=${{ secrets.STAGING_WHATSAPP_ACCESS_TOKEN }} --secrets NUMBER_PIN=${{ secrets.STAGING_WHATSAPP_NUMBER_PIN }}'
+          whatsapp_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_WHATSAPP_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_WHATSAPP_CLIENT_SECRET }} --secrets ACCESS_TOKEN=${{ secrets.STAGING_WHATSAPP_ACCESS_TOKEN }} --secrets NUMBER_PIN=${{ secrets.STAGING_WHATSAPP_NUMBER_PIN }} --secrets SEGMENT_KEY=${{ secrets.STAGING_WHATSAPP_SEGMENT_KEY }}'
           pdf_secrets: '--secrets PDFSHIFT_API_KEY=${{ secrets.PDFSHIFT_API_KEY }}'
           browser_secrets: '--secrets FIRECRAWL_API_KEY=${{ secrets.FIRECRAWL_API_KEY }} --secrets SCREENSHOT_API_KEY=${{ secrets.SCREENSHOT_API_KEY }}'
           openai_secrets: '--secrets OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}'

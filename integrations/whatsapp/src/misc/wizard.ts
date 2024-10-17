@@ -1,5 +1,6 @@
 import { Request } from '@botpress/sdk'
 import queryString from 'query-string'
+import { trackIntegrationEvent } from 'src/tracking'
 import * as bp from '../../.botpress'
 import { getOAuthConfigId } from '../../integration.definition'
 import { getGlobalWebhookUrl } from '../index'
@@ -14,6 +15,12 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
   let { accessToken, wabaId, phoneNumberId } = await getCredentialsState(client, ctx)
 
   if (wizardStep === 'start-confirm') {
+    // Tracking the reset confirmation step
+    await trackIntegrationEvent(ctx.botId, 'oauthSetupStep', {
+      step: wizardStep,
+      status: 'started',
+    })
+
     return generateButtonDialog({
       title: 'Reset Configuration',
       description:
@@ -23,9 +30,19 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
         { display: 'No', type: 'secondary', action: 'CLOSE_WINDOW' },
       ],
     })
+  } else {
+    await trackIntegrationEvent(ctx.botId, 'oauthSetupStep', {
+      step: wizardStep,
+    })
   }
 
   if (wizardStep === 'setup') {
+    // Tracking the setup step
+    await trackIntegrationEvent(ctx.botId, 'oauthSetupStep', {
+      step: wizardStep,
+      status: 'setup-started',
+    })
+
     await client.configureIntegration({
       identifier: ctx.webhookId,
     })
@@ -51,6 +68,9 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
   const oauthClient = new MetaOauthClient(logger)
 
   if (wizardStep === 'get-access-token') {
+    await trackIntegrationEvent(ctx.botId, 'oauthSetupStep', {
+      step: wizardStep,
+    })
     const code = query['code'] as string
     if (code) {
       accessToken = await oauthClient.getAccessToken(code)
@@ -66,6 +86,12 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
 
   if (wizardStep === 'verify-waba') {
     wabaId = (query['wabaId'] as string) || wabaId
+
+    // Tracking WABA selection
+    await trackIntegrationEvent(ctx.botId, 'oauthSetupStep', {
+      step: wizardStep,
+    })
+
     if (!wabaId || query['force-step']) {
       const businesses = await oauthClient.getWhatsappBusinessesFromToken(accessToken)
       if (businesses.length === 1) {
@@ -95,6 +121,12 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
 
   if (wizardStep === 'verify-number') {
     phoneNumberId = (query['phoneNumberId'] as string) || phoneNumberId
+
+    // Tracking number verification
+    await trackIntegrationEvent(ctx.botId, 'oauthSetupStep', {
+      step: wizardStep,
+    })
+
     if (!phoneNumberId || query['force-step']) {
       const phoneNumbers = await oauthClient.getWhatsappNumbersFromBusiness(wabaId, accessToken)
       if (phoneNumbers.length === 1) {
@@ -126,6 +158,12 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
   }
 
   if (wizardStep === 'wrap-up') {
+    // Tracking completion
+    await trackIntegrationEvent(ctx.botId, 'oauthSetupStep', {
+      step: 'wrap-up',
+      status: 'completed',
+    })
+
     await client.configureIntegration({
       identifier: wabaId,
     })

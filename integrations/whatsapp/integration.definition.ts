@@ -32,7 +32,7 @@ export const INTEGRATION_NAME = 'whatsapp'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.0.8',
+  version: '2.0.9',
   title: 'WhatsApp',
   description: 'This integration allows your bot to interact with WhatsApp.',
   icon: 'icon.svg',
@@ -142,6 +142,10 @@ export default new IntegrationDefinition({
     },
     NUMBER_PIN: {
       description: '6 Digits Pin used for phone number registration',
+    },
+    SEGMENT_KEY: {
+      description: 'Tracking key for general product analytics',
+      optional: true,
     },
   },
 })
