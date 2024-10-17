@@ -9,5 +9,18 @@ export const handler = async (props: bp.HandlerProps) => {
     return handleOAuthCallback(props)
   }
 
+  if (!(await _isWebhookEventProperlyAuthenticated(props))) {
+    throw new Error('Incoming webhook event is not properly authenticated')
+  }
+
   await handleIncomingEmail(props)
+}
+
+const _isWebhookEventProperlyAuthenticated = async (props: bp.HandlerProps) => _isSharedSecretValid(props)
+
+const _isSharedSecretValid = ({ req }: bp.HandlerProps) => {
+  const searchParams = new URLSearchParams(req.query)
+  const sharedSecret = searchParams.get('shared_secret')
+
+  return sharedSecret === bp.secrets.WEBHOOK_SHARED_SECRET
 }
