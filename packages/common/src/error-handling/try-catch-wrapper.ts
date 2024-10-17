@@ -1,5 +1,7 @@
 import * as sdk from '@botpress/sdk'
 
+type RedactFn = (originalError: Error, customErrorMessage: string) => sdk.RuntimeError
+
 /**
  * Creates a wrapper function for asynchronous functions that catches errors and
  * redacts them using a provided redactor function.
@@ -24,7 +26,7 @@ import * as sdk from '@botpress/sdk'
  * ```
  */
 export const createAsyncFnWrapperWithErrorRedaction =
-  <RedactFn extends (originalError: Error, customErrorMessage: string) => sdk.RuntimeError>(redactorFn: RedactFn) =>
+  (redactorFn: RedactFn) =>
   /**
    * Wraps an async function with a try-catch block that catches any errors and
    * logs them as a `sdk.RuntimeError` after redacting them with a redactor
@@ -45,3 +47,21 @@ export const createAsyncFnWrapperWithErrorRedaction =
       }
     }) as WrappedFn
   }
+
+/**
+ * Default error redactor that logs the original error to the integration logs
+ * and returns a generic error message to the user.
+ *
+ * @param error - The original error
+ * @param customMessage - The custom error message that is returned to the user
+ * @returns a `sdk.RuntimeError` with the custom error message
+ */
+export const defaultErrorRedactor: RedactFn = (error: Error, customMessage: string) => {
+  // By default, we log the original error to the integration logs with a call
+  // to `console.warn` and return a generic error message to the user, because
+  // we cannot trust the original error message to be safe to expose, as it may
+  // contain sensitive information.
+
+  console.warn(customMessage, error)
+  return error instanceof sdk.RuntimeError ? error : new sdk.RuntimeError(customMessage)
+}
