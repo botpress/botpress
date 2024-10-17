@@ -17,9 +17,9 @@ jobs:
   deploy-production:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup
-        uses: ./.github/actions/setup
+        uses: ./.github/actions/setup-and-build
       - name: Deploy Interfaces
         uses: ./.github/actions/deploy-interfaces
         with:

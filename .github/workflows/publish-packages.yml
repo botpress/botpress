@@ -17,9 +17,9 @@ jobs:
     env:
       NODE_OPTIONS: '--max_old_space_size=8192'
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
       - name: Setup
-        uses: ./.github/actions/setup
+        uses: ./.github/actions/setup-and-build
         with:
           filter: '@botpress/*'
       - name: Publish Client
