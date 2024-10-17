@@ -1,6 +1,6 @@
-import cheerio from 'cheerio'
 // @ts-ignore
 import parseMessage from 'gmail-api-parse-message'
+import { parse as parseHtml } from 'node-html-parser'
 import { GoogleClient } from '../google-api'
 import { decodeBase64URL } from '../utils/string-utils'
 import * as bp from '.botpress'
@@ -151,12 +151,19 @@ const _processMessage = async (
 
   let content = message.textPlain ?? message.snippet
 
-  try {
-    const $ = cheerio.load(message.textHtml)
-    $('.gmail_quote').remove() // Remove previous quoted messages in the thread
-    content = $.text()
-  } catch (e) {
-    console.error('Error while parsing html content', e)
+  if (message.textHtml) {
+    try {
+      // Extract the body from the message:
+      const bodyNode = parseHtml(message.textHtml).querySelector('body')
+
+      // Remove previous quoted messages in the thread:
+      bodyNode?.querySelectorAll('.gmail_quote')?.forEach((m) => m.remove())
+
+      // Extract the text content from the body, if any:
+      content = bodyNode?.structuredText ?? content
+    } catch (thrown) {
+      console.error('Error while parsing html content', thrown)
+    }
   }
 
   console.info('getOrCreateMessage', { threadId, userEmail, content, inReplyTo })
