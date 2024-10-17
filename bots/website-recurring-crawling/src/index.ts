@@ -1,5 +1,4 @@
-import { Bot, z } from '@botpress/sdk'
-// import * as bp from '.botpress' /** uncomment to get generated code */
+import * as bp from '.botpress'
 
 // Static data available in the Bot
 const pages = [
@@ -53,32 +52,90 @@ const pages = [
   'https://botpress.com/developers',
 ]
 
-const bot = new Bot({
-  integrations: {},
-  configuration: {
-    schema: z.object({}),
-  },
-  states: {},
-  events: {
-    // Defines an event that will trigger the recrawl of the website pages
-    websiteCrawl: {
-      schema: z.object({}),
-    },
-  },
-  recurringEvents: {
-    websiteCrawl: {
-      payload: {},
-      type: 'websiteCrawl',
-      schedule: {
-        cron: '0 0 * * *', // Every day
-      },
-    },
-  },
-})
+const bot = new bp.Bot({})
+
+const crawlPage = async (page: string, client: bp.Client) => {
+  // TODO update the page with the crawled data
+  // const { output } = await client.callAction({}) call the scraping integration
+  // await client.updateFile({ output.data })
+}
+
+const continueCrawl = async (workflowId: string, client: bp.Client) => {
+  const { state } = await client
+    .getState({
+      id: workflowId,
+      name: 'crawling',
+      type: 'workflow',
+    } as any)
+    .catch((err) => {
+      if ((err as any).type !== 'ResourceNotFound') {
+        throw err
+      }
+
+      return client.setState({
+        id: workflowId,
+        name: 'crawling',
+        type: 'workflow',
+        payload: {
+          iterator: undefined,
+          errors: 0,
+        },
+      } as any)
+    })
+
+  let iterator = (state as any).payload.iterator ?? 0
+
+  // If we have finished set the workflow to completed
+  if (iterator + 1 >= pages.length) {
+    await client.updateWorkflow({
+      id: workflowId,
+      status: 'completed',
+    })
+  }
+
+  for (let i = iterator; i < pages.length; i++) {
+    const page = pages[i]
+
+    if (!page) {
+      continue
+    }
+
+    await crawlPage(page, client)
+
+    // Save state every 10 pages
+    if (i % 10 === 0) {
+      await client.setState({
+        id: workflowId,
+        type: 'workflow',
+        payload: {
+          iterator: i,
+          errors: 0,
+        },
+      } as any)
+    }
+  }
+
+  // All the pages have been crawled so we can set the workflow to completed
+  await client.updateWorkflow({
+    id: workflowId,
+    status: 'completed',
+  })
+}
 
 bot.event(async ({ event, client }) => {
   if (event.type === 'websiteCrawl') {
-    // Creates a new workflow to crawl all pages
+    // Creates a new workflow to crawl all pages this workflow will continue until all pages are crawled
+    const { workflow } = await client.createWorkflow({
+      name: 'website-crawl',
+      status: 'in_progress',
+      eventId: event.id,
+      timeoutAt: new Date(Date.now() + 1000 * 60 * 60 * 6).toISOString(), // 6 hours to complete
+    })
+
+    await continueCrawl(workflow.id, client)
+  } else if (event.type === 'workflow_update') {
+    const workflowId = (event as any).payload.workflow.id
+    await continueCrawl(workflowId, client)
   }
 })
 

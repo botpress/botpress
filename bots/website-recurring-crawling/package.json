@@ -1,13 +1,13 @@
 {
-  "name": "website_crawl",
-  "integrationName": "website-crawl",
+  "name": "website_recurring_crawling",
+  "integrationName": "website-recurring-crawling",
   "scripts": {
     "check:type": "tsc --noEmit"
   },
   "private": true,
   "dependencies": {
-    "@botpress/client": "0.26.4",
-    "@botpress/sdk": "0.10.5"
+    "@botpress/client": "0.33.1",
+    "@botpress/sdk": "1.0.1"
   },
   "devDependencies": {
     "@types/node": "^18.11.17",
