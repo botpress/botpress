@@ -55,9 +55,15 @@ const pages = [
 const bot = new bp.Bot({})
 
 const crawlPage = async (page: string, client: bp.Client) => {
-  // TODO update the page with the crawled data
-  // const { output } = await client.callAction({}) call the scraping integration
-  // await client.updateFile({ output.data })
+  // Call the website indexer integration to index the content of the page
+  // I know this is done this way right now but I would change the way we do it and index in the bot instead of in the integration
+  // This way the bot can own its own files
+  await client.callAction({
+    type: 'website-indexer:indexUrls',
+    input: {
+      indexUrls: [page],
+    },
+  } as any)
 }
 
 const continueCrawl = async (workflowId: string, client: bp.Client) => {
@@ -77,13 +83,13 @@ const continueCrawl = async (workflowId: string, client: bp.Client) => {
         name: 'crawling',
         type: 'workflow',
         payload: {
-          iterator: undefined,
+          iterator: 0,
           errors: 0,
         },
       } as any)
     })
 
-  let iterator = (state as any).payload.iterator ?? 0
+  let iterator = (state as any).payload.iterator
 
   // If we have finished set the workflow to completed
   if (iterator + 1 >= pages.length) {
@@ -93,6 +99,8 @@ const continueCrawl = async (workflowId: string, client: bp.Client) => {
     })
   }
 
+  let errors = (state as any).payload.errors
+
   for (let i = iterator; i < pages.length; i++) {
     const page = pages[i]
 
@@ -100,7 +108,9 @@ const continueCrawl = async (workflowId: string, client: bp.Client) => {
       continue
     }
 
-    await crawlPage(page, client)
+    await crawlPage(page, client).catch(() => {
+      errors++
+    })
 
     // Save state every 10 pages
     if (i % 10 === 0) {
@@ -109,9 +119,19 @@ const continueCrawl = async (workflowId: string, client: bp.Client) => {
         type: 'workflow',
         payload: {
           iterator: i,
-          errors: 0,
+          errors,
         },
       } as any)
+    }
+
+    // After 10 errors we set the workflow to failed
+    // This will prevent the workflow from continuing forever
+    if (errors > 10) {
+      await client.updateWorkflow({
+        id: workflowId,
+        status: 'failed',
+        failureReason: 'Too many errors',
+      })
     }
   }
 
@@ -135,6 +155,15 @@ bot.event(async ({ event, client }) => {
     await continueCrawl(workflow.id, client)
   } else if (event.type === 'workflow_update') {
     const workflowId = (event as any).payload.workflow.id
+
+    // Every time the workflow receives a workflow_continue event we need to update the workflow status to in_progress
+    // Otherwise the workflow will be marked as failed
+    await client.updateWorkflow({
+      id: workflowId,
+      eventId: event.id,
+      status: 'in_progress',
+    })
+
     await continueCrawl(workflowId, client)
   }
 })
