@@ -194,6 +194,25 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  bots/website-crawl:
+    dependencies:
+      '@botpress/client':
+        specifier: 0.26.4
+        version: 0.26.4
+      '@botpress/sdk':
+        specifier: 0.10.5
+        version: 0.10.5(react@18.3.1)
+    devDependencies:
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.19.50
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.2(@types/node@18.19.50)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   integrations/airtable:
     dependencies:
       '@botpress/sdk':
@@ -1998,7 +2017,7 @@ packages:
   /@anthropic-ai/sdk@0.24.0:
     resolution: {integrity: sha512-iMb1bQimQrSw/Rq6duPiuCJ7uvlSciq5PWp17jVOfy5dK2EJY36ol10ttwb+Zf6yzkKHMdt+vNIpznj/HsPXOg==}
     dependencies:
-      '@types/node': 18.19.10
+      '@types/node': 18.19.50
       '@types/node-fetch': 2.6.4
       abort-controller: 3.0.0
       agentkeepalive: 4.5.0
@@ -2516,6 +2535,17 @@ packages:
       - supports-color
     dev: true
 
+  /@botpress/client@0.26.4:
+    resolution: {integrity: sha512-tlVbMiE2pB5Z2PAinTgGVmFxiG+hGW+WgU2zHWctSXDMvQXeN+SDug4ECtT0KKwMvIwNNgEFStHH85MxGx7Qtg==}
+    dependencies:
+      axios: 1.7.4
+      browser-or-node: 2.1.1
+      qs: 6.11.0
+      type-fest: 3.11.1
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
   /@botpress/messaging-base@1.2.0:
     resolution: {integrity: sha512-7cjHeD1Ti4cvDmyUV2D2CFKR1kPYv+eFPgXaJOksvrEoNZ1SrqXbHR9l26ndaAz0TuoX3Wc9l4Q7i5sBoHE44Q==}
     dev: false
@@ -2529,6 +2559,16 @@ packages:
       joi: 17.9.2
     transitivePeerDependencies:
       - debug
+    dev: false
+
+  /@botpress/sdk@0.10.5(react@18.3.1):
+    resolution: {integrity: sha512-dbY5VlReiK8h5DanKbIUl8m6NqttfDxD3Q0H6vE2r223z72TV4BhgTiIaLwTqa2jGWpH38dDjS0rnkOwcTooFg==}
+    dependencies:
+      '@botpress/client': 0.26.4
+      '@bpinternal/zui': 0.9.3(react@18.3.1)
+    transitivePeerDependencies:
+      - debug
+      - react
     dev: false
 
   /@bpinternal/const@0.0.20:
@@ -2647,6 +2687,15 @@ packages:
   /@bpinternal/zui@0.12.0(react@18.3.1):
     resolution: {integrity: sha512-ztSLi+XuFT9WSURqwA3aWvMw3OH28PQNBGCr7/+TGm8xEqov9paoQUQXqsavF/RwHZFT9IYkPkcSkZ3qc8deZg==}
     engines: {node: '>=16.0.0', pnpm: 8.6.2}
+    peerDependencies:
+      react: ^18.2.0
+    dependencies:
+      react: 18.3.1
+    dev: false
+
+  /@bpinternal/zui@0.9.3(react@18.3.1):
+    resolution: {integrity: sha512-aTJ2Lptet3/0MFoMFgMEj268ilE33DZwaMAvy0wf1LjweP9bfCddEMMO3bvJtAWYkuLCFMT4ZLAmKPyKvEnfBg==}
+    engines: {node: '>=16.0.0', pnpm: 9.1.0}
     peerDependencies:
       react: ^18.2.0
     dependencies:
@@ -10802,7 +10851,7 @@ packages:
     resolution: {integrity: sha512-XoMaJsSLuedW5eoMEMmZbdNoXgML3ujcU5KfwRnC6rnbmZkHE2Q4J/SArwhqCxQRqJwHnQUj1LpiROmKPExZJA==}
     hasBin: true
     dependencies:
-      '@types/node': 18.19.10
+      '@types/node': 18.19.50
       '@types/node-fetch': 2.6.4
       abort-controller: 3.0.0
       agentkeepalive: 4.5.0
