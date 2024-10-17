@@ -6,4 +6,5 @@ export const secrets = {
   CLIENT_ID: { description: 'Gmail Client ID' },
   CLIENT_SECRET: { description: 'Gmail Client Secret' },
   TOPIC_NAME: {},
+  WEBHOOK_SHARED_SECRET: {},
 } as const satisfies sdk.IntegrationDefinitionProps['secrets']
