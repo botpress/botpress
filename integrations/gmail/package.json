@@ -7,6 +7,10 @@
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
     "check:type": "tsc --noEmit",
+    "check:format": "prettier --check .",
+    "fix:format": "prettier --write .",
+    "check:lint": "eslint ./ --ext .ts --ext .tsx",
+    "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx",
     "add:interfaces": "echo 'no interfaces to add'"
   },
   "keywords": [],
@@ -14,8 +18,9 @@
   "license": "MIT",
   "dependencies": {
     "@botpress/cli": "workspace:*",
-    "@botpress/sdk": "workspace:*",
     "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "cheerio": "1.0.0-rc.12",
     "gmail-api-parse-message": "^2.1.2",
@@ -26,7 +31,7 @@
   },
   "devDependencies": {
     "@sentry/cli": "^2.18.1",
-    "@types/node": "^18.11.17",
+    "@types/node": "^18.19.10",
     "@types/nodemailer": "^6.4.4",
     "esbuild": "^0.15.18",
     "nodemon": "^2.0.20",
