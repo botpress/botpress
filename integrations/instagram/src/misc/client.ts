@@ -222,15 +222,3 @@ export async function getCredentials(
     clientId: bp.secrets.CLIENT_ID,
   }
 }
-
-export const getInstagramId = async (client: bp.Client, ctx: bp.Context) => {
-  console.log('Get instagram Id ', { client, ctx })
-  if (ctx.configuration.useManualConfiguration) {
-    return ctx.configuration.instagramId
-  }
-
-  const {
-    state: { payload },
-  } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
-  return payload.instagramId
-}

@@ -18,7 +18,6 @@
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "axios": "^1.6.2",
-    "messaging-api-messenger": "^1.1.0",
     "preact": "^10.23.1",
     "preact-render-to-string": "^6.5.7",
     "qs": "^6.11.0",

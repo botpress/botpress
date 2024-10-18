@@ -45,13 +45,14 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
     )
   }
 
-  const metaClient = new MetaClient(logger)
+  const metaClient = new MetaClient(logger,  { accessToken, instagramId })
 
   if (wizardStep === 'get-access-token') {
     const code = query['code'] as string
     if (code) {
       console.log('Code is: ' + code)
       accessToken = await metaClient.getAccessTokenFromCode(code)
+      metaClient.setAuthConfig({ accessToken })
       console.log('Got access token:', { accessToken })
       await patchCredentialsState(client, ctx, { accessToken })
     }
@@ -68,7 +69,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
     instagramId = profile.user_id
     console.log('Got instagramId:', { instagramId })
     await patchCredentialsState(client, ctx, { instagramId })
-
+    metaClient.setAuthConfig({ instagramId })
     wizardStep = 'wrap-up'
   }
 
