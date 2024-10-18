@@ -12,15 +12,46 @@ import * as card from './message-types/card'
 import * as carousel from './message-types/carousel'
 import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
+import { checkManualConfiguration } from './misc/check-manual-config'
 import { getInterstitialUrl, redirectTo } from './misc/html-utils'
 import { getAccessToken, getPhoneNumberId, getSecret } from './misc/whatsapp'
 import { handleWizard } from './misc/wizard'
 import * as outgoing from './outgoing-message'
+import { identifyBot, trackIntegrationEvent } from './tracking'
 import { WhatsAppPayload } from './whatsapp-types'
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({
-  register: async () => {},
+  register: async (input) => {
+    const { useManualConfiguration, accessToken, clientSecret, phoneNumberId, verifyToken } = input.ctx.configuration
+
+    await identifyBot(input.ctx.botId, {
+      [INTEGRATION_NAME + 'OauthType']: useManualConfiguration ? 'manual' : 'oauth',
+    })
+
+    if (!useManualConfiguration) {
+      return // nothing more to do if we're not using manual configuration
+    }
+
+    if (accessToken && clientSecret && phoneNumberId && verifyToken) {
+      // let's check the credentials
+      const isValidConfiguration = await checkManualConfiguration(accessToken)
+      if (!isValidConfiguration) {
+        await trackIntegrationEvent(input.ctx.botId, 'manualSetupStep', {
+          status: 'failure',
+        })
+        throw new RuntimeError('Error! Please check your credentials and webhook.')
+      }
+      await trackIntegrationEvent(input.ctx.botId, 'manualSetupStep', {
+        status: 'success',
+      })
+    } else {
+      await trackIntegrationEvent(input.ctx.botId, 'manualSetupStep', {
+        status: 'incomplete',
+      })
+      throw new RuntimeError('Error! Please add the missing fields and save.')
+    }
+  },
   unregister: async () => {},
   actions: {
     startConversation: async ({ ctx, input, client, logger }) => {
@@ -57,7 +88,7 @@ const integration = new bp.Integration({
         image: async ({ payload, ...props }) => {
           await outgoing.send({
             ...props,
-            message: new Image(payload.imageUrl, false),
+            message: new Image(payload.imageUrl.trim(), false),
           })
         },
         markdown: async ({ payload, ...props }) => {
@@ -69,23 +100,23 @@ const integration = new bp.Integration({
         audio: async ({ payload, ...props }) => {
           await outgoing.send({
             ...props,
-            message: new Audio(payload.audioUrl, false),
+            message: new Audio(payload.audioUrl.trim(), false),
           })
         },
         video: async ({ payload, ...props }) => {
           await outgoing.send({
             ...props,
-            message: new Video(payload.videoUrl, false),
+            message: new Video(payload.videoUrl.trim(), false),
           })
         },
         file: async ({ payload, ...props }) => {
-          const url = new URL(payload.fileUrl)
+          const url = new URL(payload.fileUrl.trim())
           const extension = url.pathname.includes('.') ? url.pathname.split('.').pop()?.toLowerCase() ?? '' : ''
           const filename = 'file' + (extension ? `.${extension}` : '')
 
           await outgoing.send({
             ...props,
-            message: new Document(payload.fileUrl, false, payload.title, filename),
+            message: new Document(payload.fileUrl.trim(), false, payload.title, filename),
           })
         },
         location: async ({ payload, ...props }) => {
