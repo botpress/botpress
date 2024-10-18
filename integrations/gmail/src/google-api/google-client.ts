@@ -1,13 +1,12 @@
 import * as sdk from '@botpress/sdk'
 import { google } from 'googleapis'
+import { GmailClient, GoogleOAuth2Client } from './types'
 import * as bp from '.botpress'
-
-type Gmail = ReturnType<typeof google.gmail>
 
 const GLOBAL_OAUTH_ENDPOINT = `${process.env.BP_WEBHOOK_URL}/oauth` as const
 
 export class GoogleClient {
-  private constructor(private readonly _gmail: Gmail) {}
+  private constructor(private readonly _gmail: GmailClient) {}
 
   public static async create({
     client,
@@ -111,7 +110,7 @@ export class GoogleClient {
   private static async _exchangeAuthorizationCodeForRefreshToken(authorizationCode: string) {
     const oauth2Client = this._getOAuthClient()
     const { tokens } = await oauth2Client.getToken({
-      code: authorizationCode.toString(),
+      code: authorizationCode,
     })
 
     if (!tokens.refresh_token) {
@@ -121,7 +120,7 @@ export class GoogleClient {
     return tokens.refresh_token
   }
 
-  private static _getOAuthClient() {
+  private static _getOAuthClient(): GoogleOAuth2Client {
     return new google.auth.OAuth2(bp.secrets.CLIENT_ID, bp.secrets.CLIENT_SECRET, GLOBAL_OAUTH_ENDPOINT)
   }
 }
