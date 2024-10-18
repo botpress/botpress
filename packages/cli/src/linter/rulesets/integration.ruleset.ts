@@ -328,5 +328,17 @@ export const INTEGRATION_RULESET = {
         },
       ],
     },
+    'secrets-must-have-a-description': {
+      description: 'All secrets MUST have a description',
+      message: '{{description}}: {{error}} MUST have a non-empty description',
+      severity: 'error',
+      given: '$.secrets[*]',
+      then: [
+        {
+          field: 'description',
+          function: truthyWithMessage(({ path }) => `secret "${path[1]}"`),
+        },
+      ],
+    },
   },
 } satisfies RulesetDefinition

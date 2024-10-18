@@ -1,8 +1,13 @@
+import * as sdk from '@botpress/sdk'
 import { Spectral, Document, ISpectralDiagnostic } from '@stoplight/spectral-core'
 import { Json as JsonParser, JsonParserResult } from '@stoplight/spectral-parsers'
 import { CreateIntegrationBody } from '../api/integration-body'
 import { Logger } from '../logger'
 import { INTEGRATION_RULESET } from './rulesets/integration.ruleset'
+
+// The CreateIntegrationBody type does not contain the descriptions for the secrets
+export type AggregateIntegrationBody = Omit<CreateIntegrationBody, 'secrets'> &
+  Pick<sdk.IntegrationDefinitionProps, 'secrets'>
 
 type ProblemSeverity = 0 | 1 | 2 | 3
 
@@ -11,7 +16,7 @@ export class IntegrationLinter {
   private readonly _spectralDocument: Document<unknown, JsonParserResult<unknown>>
   private _results: ISpectralDiagnostic[] = []
 
-  public constructor(definition: CreateIntegrationBody) {
+  public constructor(definition: AggregateIntegrationBody) {
     const json = JSON.stringify(definition).replaceAll('"$ref":', '"_$ref":')
     this._spectralDocument = new Document(json, JsonParser)
     this._spectral = new Spectral()
