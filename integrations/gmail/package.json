@@ -22,10 +22,10 @@
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "cheerio": "1.0.0-rc.12",
     "gmail-api-parse-message": "^2.1.2",
     "googleapis": "^112.0.0",
     "js-base64": "^3.7.5",
+    "node-html-parser": "^6",
     "nodemailer": "^6.7.2",
     "query-string": "^6.14.1"
   },
