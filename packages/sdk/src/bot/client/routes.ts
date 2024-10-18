@@ -143,3 +143,8 @@ export type ListFiles<_TBot extends BaseBot> = Client['listFiles']
 export type GetFile<_TBot extends BaseBot> = Client['getFile']
 export type UpdateFileMetadata<_TBot extends BaseBot> = Client['updateFileMetadata']
 export type SearchFiles<_TBot extends BaseBot> = Client['searchFiles']
+
+export type CreateWorkflow<_TBot extends BaseBot> = Client['createWorkflow']
+export type UpdateWorkflow<_TBot extends BaseBot> = Client['updateWorkflow']
+export type ListWorkflows<_TBot extends BaseBot> = Client['listWorkflows']
+export type GetWorkflow<_TBot extends BaseBot> = Client['getWorkflow']
