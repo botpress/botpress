@@ -2,7 +2,6 @@ import { test, expect, describe, vi } from 'vitest'
 import { prepareCreateIntegrationBody } from '../api/integration-body'
 import { IntegrationLinter } from './integration-linter'
 import { IntegrationDefinition, IntegrationDefinitionProps, z } from '@botpress/sdk'
-import { Logger } from 'src/logger'
 
 const EMPTY_STRING = ''
 const TRUTHY_STRING = 'truthy'
@@ -14,6 +13,7 @@ const TAG_NAME = 'tagName'
 const CHANNEL_NAME = 'channelName'
 const STATE_NAME = 'stateName'
 const MESSAGE_TYPE = 'text'
+const SECRET_NAME = 'SECRET_NAME'
 
 const VALID_INTEGRATION = {
   name: TRUTHY_STRING,
@@ -127,6 +127,11 @@ const VALID_INTEGRATION = {
         .describe(TRUTHY_STRING),
     },
   },
+  secrets: {
+    [SECRET_NAME]: {
+      description: TRUTHY_STRING,
+    },
+  },
 } as const satisfies IntegrationDefinitionProps
 
 const mockLogger = {
@@ -138,7 +143,8 @@ const mockLogger = {
 
 const lintDefinition = async (definition: IntegrationDefinitionProps) => {
   const integrationDefinition = new IntegrationDefinition(definition)
-  const linter = new IntegrationLinter(await prepareCreateIntegrationBody(integrationDefinition))
+  const integrationBody = await prepareCreateIntegrationBody(integrationDefinition)
+  const linter = new IntegrationLinter({ ...integrationBody, secrets: integrationDefinition.secrets })
   await linter.lint()
   return linter
 }
