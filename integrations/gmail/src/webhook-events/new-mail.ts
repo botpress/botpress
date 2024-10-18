@@ -109,7 +109,7 @@ const _processMessage = async (
   const replyTo = message.headers['reply-to']
   const inReplyTo = message.headers['message-id']
   const from = message.headers['from']
-  const userEmail = replyTo ?? /(?<=\<)(.*?)(?=\>)/.exec(from)?.[0] ?? from
+  const { name: senderName, email: userEmail } = _extractNameAndEmailFromSender(replyTo ?? from)
   console.info('userEmail', userEmail)
 
   if (userEmail === emailAddress) {
@@ -147,6 +147,7 @@ const _processMessage = async (
     tags: {
       id: `${userEmail}`,
     },
+    name: senderName,
   })
 
   let content = message.textPlain ?? message.snippet
@@ -186,3 +187,11 @@ const _processMessage = async (
 }
 
 const _fakeHistoryId = (historyId: string) => `${+historyId - 100}`
+
+const _extractNameAndEmailFromSender = (sender: string) => {
+  const [nameAndWhitespaces, potentialEmail] = sender.trim().split('<')
+  const name = nameAndWhitespaces?.trimEnd() ?? ''
+  const email = potentialEmail ? potentialEmail.split('>')[0] ?? '' : name
+
+  return { name: name || email, email }
+}
