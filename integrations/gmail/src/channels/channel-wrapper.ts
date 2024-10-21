@@ -1,6 +1,7 @@
 import { createChannelWrapper } from '@botpress/common'
 import { GoogleClient, wrapWithTryCatch } from '../google-api'
 import * as bp from '.botpress'
+import * as sdk from '@botpress/sdk'
 
 export const wrapChannel: typeof _injectTools = (meta, channelImpl) =>
   _injectTools(meta, (props) =>
@@ -18,6 +19,20 @@ const _injectTools = createChannelWrapper<bp.IntegrationProps>()({
   toolFactories: {
     async googleClient({ client, ctx }) {
       return await GoogleClient.create({ client, ctx })
+    },
+
+    async inReplyTo({ client, conversation }) {
+      const { state } = await client.getState({
+        type: 'conversation',
+        name: 'thread',
+        id: conversation.id,
+      })
+
+      if (!state.payload.inReplyTo) {
+        throw new sdk.RuntimeError('Attempting to reply to a message, but no inReplyTo tag was found')
+      }
+
+      return state.payload.inReplyTo
     },
   },
 })
