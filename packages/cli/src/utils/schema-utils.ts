@@ -22,7 +22,7 @@ export async function mapZodToJsonSchema(
   definition: SchemaDefinition
 ): Promise<ReturnType<typeof transforms.zuiToJsonSchema>> {
   let schema = transforms.zuiToJsonSchema(definition.schema, { target: 'jsonSchema7' })
-  schema = (await dereference(schema)) as typeof schema
+  schema = (await dereferenceSchema(schema)) as typeof schema
 
   if (!isObjectSchema(schema) || !definition.ui) {
     return schema
