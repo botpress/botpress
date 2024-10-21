@@ -1,6 +1,5 @@
 import type { Client, Integration } from '@botpress/client'
 import type * as sdk from '@botpress/sdk'
-import { ZodToJsonOptions } from 'src/utils/schema-utils'
 import * as utils from '../utils'
 
 export type CreateIntegrationBody = Parameters<Client['createIntegration']>[0]
@@ -13,8 +12,7 @@ type Channels = Integration['channels']
 type Channel = Integration['channels'][string]
 
 export const prepareCreateIntegrationBody = async (
-  integration: sdk.IntegrationDefinition,
-  options: ZodToJsonOptions = {}
+  integration: sdk.IntegrationDefinition
 ): Promise<CreateIntegrationBody> => ({
   name: integration.name,
   version: integration.version,
@@ -29,19 +27,19 @@ export const prepareCreateIntegrationBody = async (
   configuration: integration.configuration
     ? {
         ...integration.configuration,
-        schema: await utils.schema.mapZodToJsonSchema(integration.configuration, options),
+        schema: await utils.schema.mapZodToJsonSchema(integration.configuration),
       }
     : undefined,
   configurations: integration.configurations
     ? await utils.records.mapValuesAsync(integration.configurations, async (configuration) => ({
         ...configuration,
-        schema: await utils.schema.mapZodToJsonSchema(configuration, options),
+        schema: await utils.schema.mapZodToJsonSchema(configuration),
       }))
     : undefined,
   events: integration.events
     ? await utils.records.mapValuesAsync(integration.events, async (event) => ({
         ...event,
-        schema: await utils.schema.mapZodToJsonSchema(event, options),
+        schema: await utils.schema.mapZodToJsonSchema(event),
       }))
     : undefined,
   actions: integration.actions
@@ -49,11 +47,11 @@ export const prepareCreateIntegrationBody = async (
         ...action,
         input: {
           ...action.input,
-          schema: await utils.schema.mapZodToJsonSchema(action.input, options),
+          schema: await utils.schema.mapZodToJsonSchema(action.input),
         },
         output: {
           ...action.output,
-          schema: await utils.schema.mapZodToJsonSchema(action.output, options),
+          schema: await utils.schema.mapZodToJsonSchema(action.output),
         },
       }))
     : undefined,
@@ -62,20 +60,20 @@ export const prepareCreateIntegrationBody = async (
         ...channel,
         messages: await utils.records.mapValuesAsync(channel.messages, async (message) => ({
           ...message,
-          schema: await utils.schema.mapZodToJsonSchema(message, options),
+          schema: await utils.schema.mapZodToJsonSchema(message),
         })),
       }))
     : undefined,
   states: integration.states
     ? await utils.records.mapValuesAsync(integration.states, async (state) => ({
         ...state,
-        schema: await utils.schema.mapZodToJsonSchema(state, options),
+        schema: await utils.schema.mapZodToJsonSchema(state),
       }))
     : undefined,
   entities: integration.entities
     ? await utils.records.mapValuesAsync(integration.entities, async (entity) => ({
         ...entity,
-        schema: await utils.schema.mapZodToJsonSchema(entity, options),
+        schema: await utils.schema.mapZodToJsonSchema(entity),
       }))
     : undefined,
 })
