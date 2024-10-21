@@ -2,7 +2,7 @@ import { test, expect, describe } from 'vitest'
 import { INTEGRATION_RULESET } from './integration.ruleset'
 import { Document, ISpectralDiagnostic, Spectral } from '@stoplight/spectral-core'
 import { Json as JsonParser } from '@stoplight/spectral-parsers'
-import { CreateIntegrationBody } from 'src/api/integration-body'
+import { AggregateIntegrationBody } from '../integration-linter'
 
 type RecursivePartial<T> = {
   [P in keyof T]?: T[P] extends (infer U)[]
@@ -11,7 +11,7 @@ type RecursivePartial<T> = {
     ? RecursivePartial<T[P]>
     : T[P]
 }
-type PartialIntegration = RecursivePartial<CreateIntegrationBody>
+type PartialIntegration = RecursivePartial<AggregateIntegrationBody>
 
 const describeRule = (
   ruleName: keyof (typeof INTEGRATION_RULESET)['rules'],
@@ -36,6 +36,7 @@ const PARAM_NAME = 'paramName'
 const TAG_NAME = 'tagName'
 const CHANNEL_NAME = 'channelName'
 const STATE_NAME = 'stateName'
+const SECRET_NAME = 'SECRET_NAME'
 const MESSAGE_TYPE = 'text'
 const ZUI = 'x-zui'
 const LEGACY_ZUI = 'ui'
@@ -1366,6 +1367,41 @@ describeRule('state-fields-must-have-description', (lint) => {
     const definition = {
       states: { [STATE_NAME]: { schema: { properties: { [PARAM_NAME]: { description: TRUTHY_STRING } } } } },
     } as const
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+})
+
+describeRule('secrets-must-have-a-description', (lint) => {
+  test('missing description should trigger', async () => {
+    // arrange
+    const definition = { secrets: { [SECRET_NAME]: {} } } as const
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+  })
+
+  test('empty description should trigger', async () => {
+    // arrange
+    const definition = { secrets: { [SECRET_NAME]: { description: EMPTY_STRING } } } as const
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+  })
+
+  test('valid description should not trigger', async () => {
+    // arrange
+    const definition = { secrets: { [SECRET_NAME]: { description: TRUTHY_STRING } } } as const
 
     // act
     const results = await lint(definition)
