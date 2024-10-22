@@ -6,6 +6,7 @@
     "build": "pnpm bp build",
     "login": "pnpm bp login",
     "check:type": "tsc --noEmit",
+    "check:bplint": "pnpm bp lint",
     "add:interfaces": "bp add ../../interfaces/listable -y"
   },
   "keywords": [],
