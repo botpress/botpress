@@ -2,7 +2,7 @@ import sync from './sync'
 import * as bp from '.botpress'
 
 export const listEvents: bp.IntegrationProps['actions']['listEvents'] = async (props) => {
-  const { client, ctx, input, logger } = props
+  const { client, ctx, input, logger, metadata } = props
 
   const output = await sync.eventList(
     {
@@ -10,6 +10,7 @@ export const listEvents: bp.IntegrationProps['actions']['listEvents'] = async (p
       client,
       ctx,
       logger,
+      metadata,
       input: {
         nextToken: input.pageToken,
       },

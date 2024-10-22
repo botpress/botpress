@@ -98,19 +98,23 @@ export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
-    generateContent: async ({ input, logger }) => {
-      return await llm.openai.generateContent<ModelId>(<llm.GenerateContentInput>input, groqClient, logger, {
+    generateContent: async ({ input, logger, metadata }) => {
+      const output = await llm.openai.generateContent<ModelId>(<llm.GenerateContentInput>input, groqClient, logger, {
         provider,
         models: languageModels,
         defaultModel: 'mixtral-8x7b-32768',
       })
+      metadata.setCost(output.botpress.cost)
+      return output
     },
-    transcribeAudio: async ({ input, logger }) => {
-      return await speechToText.openai.transcribeAudio(input, groqClient, logger, {
+    transcribeAudio: async ({ input, logger, metadata }) => {
+      const output = await speechToText.openai.transcribeAudio(input, groqClient, logger, {
         provider,
         models: speechToTextModels,
         defaultModel: 'whisper-large-v3',
       })
+      metadata.setCost(output.botpress.cost)
+      return output
     },
     listLanguageModels: async ({}) => {
       return {

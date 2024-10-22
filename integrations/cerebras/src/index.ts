@@ -46,12 +46,19 @@ export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
-    generateContent: async ({ input, logger }) => {
-      return await llm.openai.generateContent<ModelId>(<llm.GenerateContentInput>input, cerebrasClient, logger, {
-        provider,
-        models: languageModels,
-        defaultModel: 'llama3.1-70b',
-      })
+    generateContent: async ({ input, logger, metadata }) => {
+      const output = await llm.openai.generateContent<ModelId>(
+        <llm.GenerateContentInput>input,
+        cerebrasClient,
+        logger,
+        {
+          provider,
+          models: languageModels,
+          defaultModel: 'llama3.1-70b',
+        }
+      )
+      metadata.setCost(output.botpress.cost)
+      return output
     },
     listLanguageModels: async ({}) => {
       return {

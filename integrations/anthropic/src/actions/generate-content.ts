@@ -130,7 +130,9 @@ export async function generateContent<M extends string>(
       outputTokens,
       outputCost,
     },
-    botpress: { cost },
+    botpress: {
+      cost, // DEPRECATED
+    },
   }
 }
 

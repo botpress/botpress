@@ -2,6 +2,7 @@ import { isApiError, Client, type Conversation, type Message, type User, Runtime
 import { retryConfig } from '../retry'
 import { Request, Response, parseBody } from '../serve'
 import { Cast, Merge } from '../utils/type-utils'
+import { ActionMetadataStore } from './action-metadata'
 import { IntegrationSpecificClient } from './client'
 import { ToTags } from './client/types'
 import { extractContext, type IntegrationContext } from './context'
@@ -23,7 +24,8 @@ type UnregisterArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegrat
 type WebhookPayload = { req: Request }
 type WebhookArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> & WebhookPayload
 
-type ActionPayload<T extends string, I> = { type: T; input: I }
+type ActionMetadata = { setCost: (cost: number) => void }
+type ActionPayload<T extends string, I> = { type: T; input: I; metadata: ActionMetadata }
 type ActionArgs<TIntegration extends BaseIntegration, T extends string, I> = CommonArgs<TIntegration> &
   ActionPayload<T, I>
 
@@ -322,9 +324,11 @@ const onActionTriggered = async <TIntegration extends BaseIntegration>({
     throw new Error(`Action ${type} not found`)
   }
 
-  const output = await action({ ctx, input, client, type, logger })
+  const metadata = new ActionMetadataStore()
+  const output = await action({ ctx, input, client, type, logger, metadata })
 
+  const response = { output, metadata: metadata.toJSON() }
   return {
-    body: JSON.stringify({ output }),
+    body: JSON.stringify(response),
   }
 }
