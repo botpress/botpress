@@ -40,6 +40,10 @@ export class IntegrationLinter {
     return this._getResults().sort((a, b) => (a.path > b.path ? 1 : a.path < b.path ? -1 : 0))
   }
 
+  public hasErrors() {
+    return this._results.some((result) => result.severity === 0)
+  }
+
   private _getResults() {
     return this._results.map((result) => ({
       message: result.message,
