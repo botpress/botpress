@@ -108,10 +108,10 @@ const _IconButton = ({ icon, text, href }: { icon: react.ReactNode; text: string
 )
 
 const _AudioMessage = ({ audioUrl, title: text }: { audioUrl: string; title: string }) =>
-  _IconButton({ icon: '➤', text, href: audioUrl })
+  _IconButton({ icon: <span style={{ fontSize: '1.3em', lineHeight: '100%' }}>⯈</span>, text, href: audioUrl })
 
 const _VideoMessage = ({ videoUrl, title: text }: { videoUrl: string; title: string }) =>
-  _IconButton({ icon: '➤', text, href: videoUrl })
+  _IconButton({ icon: <span style={{ fontSize: '1.3em', lineHeight: '100%' }}>⯈</span>, text, href: videoUrl })
 
 const _FileDownloadMessage = ({ fileUrl, title: text }: { fileUrl: string; title: string }) =>
   _IconButton({ icon: '🡳', text, href: fileUrl })
