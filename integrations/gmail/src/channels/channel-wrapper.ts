@@ -1,7 +1,7 @@
 import { createChannelWrapper } from '@botpress/common'
+import * as sdk from '@botpress/sdk'
 import { GoogleClient, wrapWithTryCatch } from '../google-api'
 import * as bp from '.botpress'
-import * as sdk from '@botpress/sdk'
 
 export const wrapChannel: typeof _injectTools = (meta, channelImpl) =>
   _injectTools(meta, (props) =>
