@@ -11,6 +11,7 @@ import {
   Heading,
   Markdown,
   Text,
+  Section,
 } from '@react-email/components'
 import MailComposer from 'nodemailer/lib/mail-composer'
 import type Mail from 'nodemailer/lib/mailer'
@@ -24,32 +25,25 @@ export const composeRawEmail = async (options: Mail.Options) => {
   return encodeBase64URL(message)
 }
 
-export const generateImageMessage = ({ imageUrl, altText }: { imageUrl: string; altText: string }) =>
-  _renderMessage(<_ImageMessage imageUrl={imageUrl} altText={altText} />)
+export const generateImageMessage = (props: Parameters<typeof _ImageMessage>[0]) => _renderMessage(_ImageMessage(props))
 
-export const generateAudioMessage = ({ audioUrl, title }: { audioUrl: string; title: string }) =>
-  _renderMessage(<_AudioMessage audioUrl={audioUrl} title={title} />)
+export const generateAudioMessage = (props: Parameters<typeof _AudioMessage>[0]) => _renderMessage(_AudioMessage(props))
 
-export const generateVideoMessage = ({ videoUrl, title }: { videoUrl: string; title: string }) =>
-  _renderMessage(<_VideoMessage videoUrl={videoUrl} title={title} />)
+export const generateVideoMessage = (props: Parameters<typeof _VideoMessage>[0]) => _renderMessage(_VideoMessage(props))
 
-export const generateFileDownloadMessage = ({ fileUrl, title }: { fileUrl: string; title: string }) =>
-  _renderMessage(<_fileDownloadMessage fileUrl={fileUrl} title={title} />)
+export const generateFileDownloadMessage = (props: Parameters<typeof _FileDownloadMessage>[0]) =>
+  _renderMessage(_FileDownloadMessage(props))
 
 export const generateMarkdownMessage = ({ markdown }: { markdown: string }) =>
   _renderMessage(<Markdown>{markdown}</Markdown>)
 
-export const generateLocationMessage = ({
-  latitude,
-  longitude,
-  address,
-  title,
-}: {
-  latitude: number
-  longitude: number
-  address?: string
-  title?: string
-}) => _renderMessage(<_LocationMessage latitude={latitude} longitude={longitude} address={address} title={title} />)
+export const generateCardMessage = (props: Parameters<typeof _CardMessage>[0]) => _renderMessage(_CardMessage(props))
+
+export const generateCarouselMessage = (props: Parameters<typeof _CarouselMessage>[0]) =>
+  _renderMessage(_CarouselMessage(props))
+
+export const generateLocationMessage = (props: Parameters<typeof _LocationMessage>[0]) =>
+  _renderMessage(_LocationMessage(props))
 
 const _renderMessage = (message: react.ReactNode) => renderToString(<_BaseMessage>{message}</_BaseMessage>)
 
@@ -119,7 +113,7 @@ const _AudioMessage = ({ audioUrl, title: text }: { audioUrl: string; title: str
 const _VideoMessage = ({ videoUrl, title: text }: { videoUrl: string; title: string }) =>
   _IconButton({ icon: '➤', text, href: videoUrl })
 
-const _fileDownloadMessage = ({ fileUrl, title: text }: { fileUrl: string; title: string }) =>
+const _FileDownloadMessage = ({ fileUrl, title: text }: { fileUrl: string; title: string }) =>
   _IconButton({ icon: '🡳', text, href: fileUrl })
 
 const _LocationMessage = ({
@@ -155,3 +149,113 @@ const _LocationMessage = ({
     </>
   )
 }
+
+const _CardMessage = ({
+  title,
+  subtitle,
+  imageUrl,
+  actions,
+}: {
+  title: string
+  subtitle: string
+  imageUrl: string
+  actions: {
+    action: 'postback' | 'url' | 'say'
+    label: string
+    value: string
+  }[]
+}) => (
+  <Container>
+    <Img
+      alt="banner image"
+      height="320"
+      src={imageUrl}
+      style={{
+        width: '100%',
+        borderRadius: 12,
+        objectFit: 'cover',
+      }}
+      role="presentation"
+    />
+    <Section
+      style={{
+        marginTop: 24,
+        textAlign: 'center',
+      }}
+    >
+      <Text
+        style={{
+          marginTop: 16,
+          marginBottom: 16,
+          fontSize: 18,
+          lineHeight: '28px',
+          fontWeight: 600,
+          color: 'rgb(79,70,229)',
+        }}
+      >
+        {subtitle}
+      </Text>
+      <Heading
+        as="h1"
+        style={{
+          margin: '0px',
+          marginTop: 8,
+          marginBottom: 16,
+          fontSize: 36,
+          lineHeight: '36px',
+          fontWeight: 600,
+          color: 'rgb(17,24,39)',
+        }}
+      >
+        {title}
+      </Heading>
+      <table
+        style={{
+          width: 'auto',
+          margin: '0 auto',
+        }}
+      >
+        {actions.map(({ label, value }) => (
+          <tr>
+            <td>
+              <Button
+                href={value}
+                style={{
+                  marginTop: 16,
+                  borderRadius: 8,
+                  backgroundColor: 'rgb(79,70,229)',
+                  paddingLeft: 40,
+                  paddingRight: 40,
+                  paddingTop: 12,
+                  paddingBottom: 12,
+                  fontWeight: 600,
+                  color: 'rgb(255,255,255)',
+                  display: 'block',
+                }}
+              >
+                {label}
+              </Button>
+            </td>
+          </tr>
+        ))}
+      </table>
+    </Section>
+  </Container>
+)
+
+const _CarouselMessage = ({
+  cards,
+}: {
+  cards: {
+    title: string
+    subtitle: string
+    imageUrl: string
+    actions: { action: 'postback' | 'url' | 'say'; label: string; value: string }[]
+  }[]
+}) => (
+  <>
+    {cards.map((cardProps) => (
+      <div style={{ marginBottom: '6em' }}>{_CardMessage(cardProps)}</div>
+    ))}
+  </>
+)
