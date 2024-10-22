@@ -3,6 +3,8 @@ import { GoogleClient } from '../google-api'
 import {
   composeRawEmail,
   generateAudioMessage,
+  generateCardMessage,
+  generateCarouselMessage,
   generateFileDownloadMessage,
   generateImageMessage,
   generateLocationMessage,
@@ -102,11 +104,33 @@ export const channels = {
           htmlContent,
         })
       }),
-      card: wrapChannel({ channelName: 'channel', messageType: 'card' }, () => {
-        throw new sdk.RuntimeError('This message type is not yet implemented')
+      card: wrapChannel({ channelName: 'channel', messageType: 'card' }, async (props) => {
+        const { title, subtitle, imageUrl, actions } = props.payload
+
+        const htmlContent = generateCardMessage({ title, subtitle: subtitle ?? '', imageUrl: imageUrl ?? '', actions })
+        const textContent = `${title}\n${subtitle}\n\n${actions.map((a) => `${a.label}: ${a.value}`).join('\n')}`
+
+        await _sendEmailReply({
+          ...props,
+          textContent,
+          htmlContent,
+        })
       }),
-      carousel: wrapChannel({ channelName: 'channel', messageType: 'carousel' }, () => {
-        throw new sdk.RuntimeError('This message type is not yet implemented')
+      carousel: wrapChannel({ channelName: 'channel', messageType: 'carousel' }, async (props) => {
+        const { items: cards } = props.payload
+
+        const htmlContent = generateCarouselMessage({
+          cards: cards.map((c) => ({ ...c, subtitle: c.subtitle ?? '', imageUrl: c.imageUrl ?? '' })),
+        })
+        const textContent = cards
+          .map((c) => `${c.title}\n${c.subtitle}\n\n${c.actions.map((a) => `${a.label}: ${a.value}`).join('\n')}`)
+          .join('\n\n\n')
+
+        await _sendEmailReply({
+          ...props,
+          textContent,
+          htmlContent,
+        })
       }),
       dropdown: wrapChannel({ channelName: 'channel', messageType: 'dropdown' }, () => {
         throw new sdk.RuntimeError('This message type is not yet implemented')
