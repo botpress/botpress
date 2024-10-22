@@ -17,6 +17,16 @@ export const handler = async (props: bp.HandlerProps) => {
   await handleIncomingEmail(props)
 }
 
+/*
+  NOTE: the JWT validation process can be somewhat expensive, because we have to
+        fetch Google's public certs and cache them. This means we'd rather not
+        perform this validation for bogus request, so we short-circuit the
+        validation process by first checking whether a specific string is
+        present in the query parameters, as suggested by Google. On subsequent
+        non-bogus webhook events, validation is quicker though because we use
+        the cert cache rather than poking Google every time for its certs.
+*/
+
 const _isWebhookEventProperlyAuthenticated = async (props: bp.HandlerProps) =>
   _isSharedSecretValid(props) && (await _isJWTValid(props))
 
