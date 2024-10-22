@@ -1,4 +1,17 @@
-import { Body, Container, Head, Html, Img, Link, Button, Row, Column, Heading, Markdown } from '@react-email/components'
+import {
+  Body,
+  Container,
+  Head,
+  Html,
+  Img,
+  Link,
+  Button,
+  Row,
+  Column,
+  Heading,
+  Markdown,
+  Text,
+} from '@react-email/components'
 import MailComposer from 'nodemailer/lib/mail-composer'
 import type Mail from 'nodemailer/lib/mailer'
 import * as react from 'react'
@@ -25,6 +38,18 @@ export const generateFileDownloadMessage = ({ fileUrl, title }: { fileUrl: strin
 
 export const generateMarkdownMessage = ({ markdown }: { markdown: string }) =>
   _renderMessage(<Markdown>{markdown}</Markdown>)
+
+export const generateLocationMessage = ({
+  latitude,
+  longitude,
+  address,
+  title,
+}: {
+  latitude: number
+  longitude: number
+  address?: string
+  title?: string
+}) => _renderMessage(<_LocationMessage latitude={latitude} longitude={longitude} address={address} title={title} />)
 
 const _renderMessage = (message: react.ReactNode) => renderToString(<_BaseMessage>{message}</_BaseMessage>)
 
@@ -58,18 +83,17 @@ const _primaryButtonStyle = {
   color: 'rgb(255,255,255)',
 } as const
 
+const _primaryHeadingStyle = {
+  fontSize: '24px',
+  lineHeight: '36px',
+  fontWeight: 600,
+  color: 'rgb(17,24,39)',
+  textAlign: 'center',
+} as const
+
 const _ImageMessage = ({ imageUrl, altText }: { imageUrl: string; altText: string }) => (
   <>
-    <Heading
-      as="h1"
-      style={{
-        fontSize: '24px',
-        lineHeight: '36px',
-        fontWeight: 600,
-        color: 'rgb(17,24,39)',
-        textAlign: 'center',
-      }}
-    >
+    <Heading as="h1" style={_primaryHeadingStyle}>
       {altText}
     </Heading>
     <Link href={imageUrl}>
@@ -97,3 +121,37 @@ const _VideoMessage = ({ videoUrl, title: text }: { videoUrl: string; title: str
 
 const _fileDownloadMessage = ({ fileUrl, title: text }: { fileUrl: string; title: string }) =>
   _IconButton({ icon: '🡳', text, href: fileUrl })
+
+const _LocationMessage = ({
+  latitude,
+  longitude,
+  address,
+  title,
+}: {
+  latitude: number
+  longitude: number
+  address?: string
+  title?: string
+}) => {
+  const previewUrl = `https://staticmap.maptoolkit.net/?size=350x250&zoom=16&marker=center:${latitude},${longitude}`
+  const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${address ?? `${latitude},${longitude}`}`
+
+  return (
+    <>
+      {title && (
+        <Heading as="h1" style={_primaryHeadingStyle}>
+          {title}
+        </Heading>
+      )}
+      <Link href={googleMapsUrl}>
+        <Img alt={address} height={250} width={350} src={previewUrl} style={{ borderRadius: 12, margin: '0 auto' }} />
+      </Link>
+      {address && <Text style={{ textAlign: 'center' }}>{address}</Text>}
+      <Container style={{ marginTop: '1em', textAlign: 'center' }}>
+        <Button href={googleMapsUrl} style={_primaryButtonStyle}>
+          Open in Google Maps
+        </Button>
+      </Container>
+    </>
+  )
+}
