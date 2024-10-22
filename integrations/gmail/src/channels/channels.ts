@@ -5,6 +5,7 @@ import {
   generateAudioMessage,
   generateFileDownloadMessage,
   generateImageMessage,
+  generateLocationMessage,
   generateMarkdownMessage,
   generateVideoMessage,
 } from '../utils/mail-composing'
@@ -90,8 +91,16 @@ export const channels = {
           htmlContent,
         })
       }),
-      location: wrapChannel({ channelName: 'channel', messageType: 'location' }, () => {
-        throw new sdk.RuntimeError('This message type is not yet implemented')
+      location: wrapChannel({ channelName: 'channel', messageType: 'location' }, async (props) => {
+        const { latitude, longitude, address, title } = props.payload
+        const htmlContent = generateLocationMessage({ latitude, longitude, address, title })
+        const textContent = `https://www.google.com/maps/search/?api=1&query=${latitude},${longitude}`
+
+        await _sendEmailReply({
+          ...props,
+          textContent,
+          htmlContent,
+        })
       }),
       card: wrapChannel({ channelName: 'channel', messageType: 'card' }, () => {
         throw new sdk.RuntimeError('This message type is not yet implemented')
