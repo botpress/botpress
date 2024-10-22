@@ -1,5 +1,15 @@
 import * as sdk from '@botpress/sdk'
-import { configuration, identifier, channels, user, states, actions, events, secrets } from './definitions'
+import {
+  configuration,
+  configurations,
+  identifier,
+  channels,
+  user,
+  states,
+  actions,
+  events,
+  secrets,
+} from './definitions'
 
 export default new sdk.IntegrationDefinition({
   name: 'gmail',
@@ -9,6 +19,7 @@ export default new sdk.IntegrationDefinition({
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration,
+  configurations,
   identifier,
   channels,
   user,
