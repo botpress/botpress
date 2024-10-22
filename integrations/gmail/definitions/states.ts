@@ -26,4 +26,13 @@ export const states = {
         .describe('The last history ID processed by the integration'),
     }),
   },
+  googlePublicCertCache: {
+    type: 'integration',
+    schema: z.object({
+      certificates: z
+        .string()
+        .title('Certificates JSON')
+        .describe('The certs used by Google for federated sign-on, stringified as JSON'),
+    }),
+  },
 } as const satisfies sdk.IntegrationDefinitionProps['states']
