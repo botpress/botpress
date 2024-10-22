@@ -155,13 +155,15 @@ const _processMessage = async (
   if (message.textHtml) {
     try {
       // Extract the body from the message:
-      const bodyNode = parseHtml(message.textHtml).querySelector('body')
+      const rootNode = parseHtml(message.textHtml)
+      const bodyNode = rootNode.querySelector('body')
+      const messageRoot = bodyNode ?? rootNode
 
       // Remove previous quoted messages in the thread:
-      bodyNode?.querySelectorAll('.gmail_quote')?.forEach((m) => m.remove())
+      messageRoot.querySelectorAll('.gmail_quote')?.forEach((m) => m.remove())
 
-      // Extract the text content from the body, if any:
-      content = bodyNode?.structuredText ?? content
+      // Extract the text content:
+      content = messageRoot.structuredText
     } catch (thrown) {
       console.error('Error while parsing html content', thrown)
     }
