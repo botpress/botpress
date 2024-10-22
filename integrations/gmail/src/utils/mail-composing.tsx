@@ -1,9 +1,9 @@
+import { Body, Container, Head, Html, Img, Link, Button, Row, Column, Heading, Markdown } from '@react-email/components'
 import MailComposer from 'nodemailer/lib/mail-composer'
 import type Mail from 'nodemailer/lib/mailer'
-import { encodeBase64URL } from './string-utils'
-import { Body, Container, Head, Html, Img, Link, Button, Row, Column, Heading, Text } from '@react-email/components'
-import { renderToString } from 'react-dom/server'
 import * as react from 'react'
+import { renderToString } from 'react-dom/server'
+import { encodeBase64URL } from './string-utils'
 
 export const composeRawEmail = async (options: Mail.Options) => {
   const mailComposer = new MailComposer(options)
@@ -22,6 +22,9 @@ export const generateVideoMessage = ({ videoUrl, title }: { videoUrl: string; ti
 
 export const generateFileDownloadMessage = ({ fileUrl, title }: { fileUrl: string; title: string }) =>
   _renderMessage(<_fileDownloadMessage fileUrl={fileUrl} title={title} />)
+
+export const generateMarkdownMessage = ({ markdown }: { markdown: string }) =>
+  _renderMessage(<Markdown>{markdown}</Markdown>)
 
 const _renderMessage = (message: react.ReactNode) => renderToString(<_BaseMessage>{message}</_BaseMessage>)
 

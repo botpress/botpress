@@ -5,6 +5,7 @@ import {
   generateAudioMessage,
   generateFileDownloadMessage,
   generateImageMessage,
+  generateMarkdownMessage,
   generateVideoMessage,
 } from '../utils/mail-composing'
 import { wrapChannel } from './channel-wrapper'
@@ -78,8 +79,16 @@ export const channels = {
           textContent: content,
         })
       }),
-      markdown: wrapChannel({ channelName: 'channel', messageType: 'markdown' }, () => {
-        throw new sdk.RuntimeError('This message type is not yet implemented')
+      markdown: wrapChannel({ channelName: 'channel', messageType: 'markdown' }, async (props) => {
+        const { markdown } = props.payload
+        const htmlContent = generateMarkdownMessage({ markdown })
+        const textContent = markdown
+
+        await _sendEmailReply({
+          ...props,
+          textContent,
+          htmlContent,
+        })
       }),
       location: wrapChannel({ channelName: 'channel', messageType: 'location' }, () => {
         throw new sdk.RuntimeError('This message type is not yet implemented')
