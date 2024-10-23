@@ -95,7 +95,7 @@ To set up the Gmail integration manually, you must create a Google Cloud Platfor
 
 1. In the Google Cloud Console, navigate to the `Pub/Sub` section.
 2. Click on `Topics` in the left sidebar.
-3. From the topic list, find the topic you created earlier and click the <kbd>⋮</kbd> button to the far right.
+3. From the topic list, find the topic you created earlier and click the triple-dot <kbd>⋮</kbd> button to the far right.
 4. Select `View permissions` from the dropdown menu.
 5. Click the `Add principal` button.
 6. Under `Add principals`, enter `gmail-api-push@system.gserviceaccount.com`.
@@ -170,6 +170,7 @@ To set up the Gmail integration manually, you must create a Google Cloud Platfor
 4. Enter the **shared secret** you generated earlier.
 5. Enter the **service account email address** you created earlier.
 6. Enter the **authorization code** you obtained earlier.
+   > Unfortunately, the authorization code is only valid for a short period of time. If the code has expired, you will need to repeat the steps outlined in the `Authorizing the OAuth application` section. If the authorization code is not expired, it will be exchanged for a refresh token, which will be used to authenticate the integration.
 7. Save the configuration and enable the integration.
 
 ## Limitations
