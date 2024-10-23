@@ -1,22 +1,23 @@
 import { google } from 'googleapis'
+import { IntegrationConfig } from 'src/config/integration-config'
 import { MS_IN_12_HOURS } from 'src/utils/datetime-utils'
 import { GoogleOAuth2Client, GoogleCerts, LoginTicketPayload } from './types'
 import * as bp from '.botpress'
 
 const CERT_CACHE_STATE_NAME = 'googlePublicCertCache'
 const ALLOWED_ISSUERS = ['https://accounts.google.com']
-const REQUIRED_AUDIENCE = bp.secrets.WEBHOOK_SHARED_SECRET
-const REQUIRED_RECIPIENT = bp.secrets.WEBHOOK_SERVICE_ACCOUNT
 
 export class JWTVerifier {
   private readonly _oauth2Client: GoogleOAuth2Client
   private readonly _client: bp.Client
   private readonly _ctx: bp.Context
+  private readonly _logger: bp.Logger
 
-  public constructor({ ctx, client }: { ctx: bp.Context; client: bp.Client }) {
+  public constructor({ ctx, client, logger }: { ctx: bp.Context; client: bp.Client; logger: bp.Logger }) {
     this._oauth2Client = new google.auth.OAuth2()
     this._client = client
     this._ctx = ctx
+    this._logger = logger
   }
 
   public async isJWTProperlySigned(token: string): Promise<boolean> {
@@ -42,10 +43,12 @@ export class JWTVerifier {
   }
 
   private async _getLoginTicketPayload(certificates: GoogleCerts, token: string): Promise<LoginTicketPayload> {
+    const requiredAudience = IntegrationConfig.getPubSubWebhookSharedSecret({ ctx: this._ctx })
+
     const loginTicket = await this._oauth2Client.verifySignedJwtWithCertsAsync(
       token,
       certificates,
-      REQUIRED_AUDIENCE,
+      requiredAudience,
       ALLOWED_ISSUERS
     )
 
@@ -53,8 +56,15 @@ export class JWTVerifier {
   }
 
   private _validatePayload(payload: LoginTicketPayload): boolean {
-    if (!payload?.email_verified || payload.email !== REQUIRED_RECIPIENT) {
-      console.error('Invalid or unverified email in JWT payload')
+    const requiredRecipient = IntegrationConfig.getPubSubWebhookServiceAccount({ ctx: this._ctx })
+
+    if (!payload?.email_verified || payload.email !== requiredRecipient) {
+      console.error('Invalid or unverified email in JWT payload', payload?.email)
+      this._logger
+        .forBot()
+        .error(
+          'Received a webhook event with an invalid service account. Please ensure that the service account used is the same one configured in the integration settings.'
+        )
       return false
     }
 
