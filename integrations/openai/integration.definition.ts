@@ -15,7 +15,7 @@ export const TextToSpeechPricePer1MCharacters: Record<TextToSpeechModel, number>
 export default new IntegrationDefinition({
   name: 'openai',
   title: 'OpenAI',
-  version: '6.6.2',
+  version: '7.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
