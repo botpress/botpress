@@ -2,7 +2,7 @@
   "name": "@botpresshub/charts",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm bp lint",
+    "check:integrationlint": "pnpm bp lint",
     "build": "pnpm bp build",
     "add:interfaces": "echo 'no interfaces to add'"
   },
