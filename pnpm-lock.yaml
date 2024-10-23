@@ -1679,10 +1679,10 @@ importers:
         specifier: ^11.7.0
         version: 11.7.0
       '@botpress/client':
-        specifier: 0.33.1
+        specifier: 0.33.2
         version: link:../client
       '@botpress/sdk':
-        specifier: 1.0.1
+        specifier: 1.0.2
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1806,10 +1806,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.33.1
+        specifier: 0.33.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 1.0.1
+        specifier: 1.0.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1825,10 +1825,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.33.1
+        specifier: 0.33.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 1.0.1
+        specifier: 1.0.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1844,10 +1844,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 0.33.1
+        specifier: 0.33.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 1.0.1
+        specifier: 1.0.2
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1863,10 +1863,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 0.33.1
+        specifier: 0.33.2
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 1.0.1
+        specifier: 1.0.2
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -1947,7 +1947,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.33.1
+        specifier: 0.33.2
         version: link:../client
       '@bpinternal/zui':
         specifier: 0.12.0
@@ -5477,7 +5477,7 @@ packages:
     resolution: {integrity: sha512-RZNwNclF7+MS/8bDg70amg32dyeZGZxiDuQmZxKLAlQjr3jGyLx+4Kkk58UO7D2QdgFIQCovuSuZESne6RG6XQ==}
     engines: {node: '>= 6.0.0'}
     dependencies:
-      debug: 4.3.4
+      debug: 4.3.4(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
@@ -6314,7 +6314,6 @@ packages:
     dependencies:
       base64-js: 1.5.1
       ieee754: 1.2.1
-    dev: false
 
   /bundle-require@4.0.2(esbuild@0.19.12):
     resolution: {integrity: sha512-jwzPOChofl67PSTW2SGubV9HBQAhhR2i6nskiOThauo9dzwDUgOWQScFVaJkjEfYX+UXiD+LEx8EblQMc2wIag==}
@@ -6727,17 +6726,6 @@ packages:
     dependencies:
       ms: 2.1.3
       supports-color: 5.5.0
-
-  /debug@4.3.4:
-    resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}
-    engines: {node: '>=6.0'}
-    peerDependencies:
-      supports-color: '*'
-    peerDependenciesMeta:
-      supports-color:
-        optional: true
-    dependencies:
-      ms: 2.1.2
 
   /debug@4.3.4(supports-color@5.5.0):
     resolution: {integrity: sha512-PRWFHuSU3eDtQJPvnNY7Jcket1j0t5OuOsFzPPzsekD52Zl8qUfFIPEiswXqIvHWGVHOgX+7G/vCNNhehwxfkQ==}
@@ -8963,7 +8951,7 @@ packages:
     engines: {node: '>= 6'}
     dependencies:
       agent-base: 6.0.2
-      debug: 4.3.4
+      debug: 4.3.4(supports-color@5.5.0)
     transitivePeerDependencies:
       - supports-color
 
