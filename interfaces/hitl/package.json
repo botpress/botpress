@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "check:type": "tsc --noEmit",
+    "check:interfacelint": "bp lint",
     "deploy": "pnpm bp deploy"
   },
   "license": "MIT",

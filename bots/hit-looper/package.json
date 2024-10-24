@@ -3,6 +3,7 @@
   "scripts": {
     "postinstall": "genenv -o ./.genenv/index.ts -e HITLOOPER_TELEGRAM_BOT_TOKEN -e HITLOOPER_ZENDESK_API_TOKEN -e HITLOOPER_ZENDESK_EMAIL -e HITLOOPER_ZENDESK_ORGANIZATION_SUBDOMAIN",
     "check:type": "tsc --noEmit",
+    "check:botlint": "bp lint",
     "build": "bp build",
     "add:integrations": "bp add ../../integrations/telegram -y && bp add ../../integrations/zendesk -y"
   },
