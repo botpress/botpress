@@ -1,10 +1,12 @@
-import { type IntegrationDefinition, type BotDefinition } from '@botpress/sdk'
+import { type IntegrationDefinition, type BotDefinition, type InterfaceDeclaration } from '@botpress/sdk'
 import { prepareCreateBotBody } from '../api/bot-body'
 import { prepareCreateIntegrationBody } from '../api/integration-body'
+import { prepareCreateInterfaceBody } from '../api/interface-body'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import { BotLinter } from '../linter/bot-linter'
 import { IntegrationLinter } from '../linter/integration-linter'
+import { InterfaceLinter } from '../linter/interface-linter'
 import { getImplementationStatements } from '../sdk'
 import { ProjectCommand } from './project-command'
 
@@ -19,10 +21,24 @@ export class LintCommand extends ProjectCommand<LintCommandDefinition> {
       case 'bot':
         return this._runLintForBot(projectDef.definition)
       case 'interface':
-        throw new errors.BotpressCLIError('Interface linting is not yet implemented')
+        return this._runLintForInterface(projectDef.definition)
       default:
         throw new errors.BotpressCLIError('Unsupported project type')
     }
+  }
+
+  private async _runLintForInterface(definition: InterfaceDeclaration): Promise<void> {
+    const parsedInterfaceDefinition = await prepareCreateInterfaceBody(definition)
+    const linter = new InterfaceLinter(parsedInterfaceDefinition)
+
+    await linter.lint()
+    linter.logResults(this.logger)
+
+    if (linter.hasErrors()) {
+      throw new errors.BotpressCLIError('Interface definition contains linting errors')
+    }
+
+    this.logger.success('Interface definition is valid')
   }
 
   private async _runLintForBot(definition: BotDefinition): Promise<void> {
