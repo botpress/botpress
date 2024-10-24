@@ -5,7 +5,7 @@ import llm from './bp_modules/llm'
 export default new IntegrationDefinition({
   name: 'anthropic',
   title: 'Anthropic',
-  version: '3.3.2',
+  version: '3.3.3',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
