@@ -327,7 +327,7 @@ const onActionTriggered = async <TIntegration extends BaseIntegration>({
   const metadata = new ActionMetadataStore()
   const output = await action({ ctx, input, client, type, logger, metadata })
 
-  const response = { output, metadata: metadata.toJSON() }
+  const response = { output, meta: metadata.toJSON() }
   return {
     body: JSON.stringify(response),
   }
