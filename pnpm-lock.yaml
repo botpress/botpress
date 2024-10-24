@@ -1679,7 +1679,7 @@ importers:
         specifier: ^11.7.0
         version: 11.7.0
       '@botpress/client':
-        specifier: 0.33.1
+        specifier: 0.33.2
         version: link:../client
       '@botpress/sdk':
         specifier: 1.1.0
@@ -1806,7 +1806,7 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.33.1
+        specifier: 0.33.2
         version: link:../../../client
       '@botpress/sdk':
         specifier: 1.1.0
@@ -1825,7 +1825,7 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.33.1
+        specifier: 0.33.2
         version: link:../../../client
       '@botpress/sdk':
         specifier: 1.1.0
@@ -1844,7 +1844,7 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 0.33.1
+        specifier: 0.33.2
         version: link:../../../client
       '@botpress/sdk':
         specifier: 1.1.0
@@ -1863,7 +1863,7 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 0.33.1
+        specifier: 0.33.2
         version: link:../../../client
       '@botpress/sdk':
         specifier: 1.1.0
@@ -1947,7 +1947,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.33.1
+        specifier: 0.33.2
         version: link:../client
       '@bpinternal/zui':
         specifier: 0.12.0

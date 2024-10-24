@@ -215,7 +215,9 @@ export default new bp.Integration({
         contentType: 'image/png',
         accessPolicies: ['public_content'],
         tags: {
-          source: 'integration:openai:generateImage',
+          source: 'integration',
+          integration: 'openai',
+          action: 'generateImage',
         },
         expiresAt,
         publicContentImmediatelyAccessible: true,
@@ -267,7 +269,9 @@ export default new bp.Integration({
         accessPolicies: ['public_content'],
         publicContentImmediatelyAccessible: true,
         tags: {
-          source: 'integration:openai:generateSpeech',
+          source: 'integration',
+          integration: 'openai',
+          action: 'generateSpeech',
         },
         expiresAt,
       })
