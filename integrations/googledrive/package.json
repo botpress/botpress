@@ -6,12 +6,13 @@
     "login": "bp login",
     "start": "nodemon --watch \"./*\" --ext \"ts\" --exec \"bp deploy -y\"",
     "deploy": "bp deploy"
-
   },
   "private": true,
   "dependencies": {
     "@botpress/client": "0.33.1",
-    "@botpress/sdk": "1.0.1"
+    "@botpress/sdk": "1.0.1",
+    "google-auth-library": "^9.0.0",
+    "googleapis": "^144.0.0"
   },
   "devDependencies": {
     "@botpress/cli": "^1.2.1",

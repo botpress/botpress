@@ -525,6 +525,12 @@ importers:
       '@botpress/sdk':
         specifier: 1.0.1
         version: 1.0.1(react@18.3.1)
+      google-auth-library:
+        specifier: ^9.0.0
+        version: 9.0.0
+      googleapis:
+        specifier: ^144.0.0
+        version: 144.0.0
     devDependencies:
       '@botpress/cli':
         specifier: ^1.2.1
@@ -5431,6 +5437,10 @@ packages:
 
   googleapis@126.0.1:
     resolution: {integrity: sha512-4N8LLi+hj6ytK3PhE52KcM8iSGhJjtXnCDYB4fp6l+GdLbYz4FoDmx074WqMbl7iYMDN87vqD/8drJkhxW92mQ==}
+    engines: {node: '>=14.0.0'}
+
+  googleapis@144.0.0:
+    resolution: {integrity: sha512-ELcWOXtJxjPX4vsKMh+7V+jZvgPwYMlEhQFiu2sa9Qmt5veX8nwXPksOWGGN6Zk4xCiLygUyaz7xGtcMO+Onxw==}
     engines: {node: '>=14.0.0'}
 
   gopd@1.0.1:
@@ -12336,6 +12346,14 @@ snapshots:
       - supports-color
 
   googleapis@126.0.1:
+    dependencies:
+      google-auth-library: 9.0.0
+      googleapis-common: 7.0.1
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+
+  googleapis@144.0.0:
     dependencies:
       google-auth-library: 9.0.0
       googleapis-common: 7.0.1
