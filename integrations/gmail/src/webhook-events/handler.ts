@@ -1,3 +1,4 @@
+import { IntegrationConfig } from 'src/config/integration-config'
 import { JWTVerifier } from 'src/google-api'
 import { handleIncomingEmail } from './new-mail'
 import { handleOAuthCallback } from './oauth-callback'
@@ -30,22 +31,36 @@ export const handler = async (props: bp.HandlerProps) => {
 const _isWebhookEventProperlyAuthenticated = async (props: bp.HandlerProps) =>
   _isSharedSecretValid(props) && (await _isJWTValid(props))
 
-const _isSharedSecretValid = ({ req }: bp.HandlerProps) => {
+const _isSharedSecretValid = ({ req, ctx, logger }: bp.HandlerProps) => {
   const searchParams = new URLSearchParams(req.query)
   const sharedSecret = searchParams.get('shared_secret')
 
-  return sharedSecret === bp.secrets.WEBHOOK_SHARED_SECRET
+  if (sharedSecret !== IntegrationConfig.getPubSubWebhookSharedSecret({ ctx })) {
+    logger
+      .forBot()
+      .error(
+        'Received a webhook event with an invalid shared secret. Please ensure that the Pub/Sub subscription URL contains the same shared secret as the one configured in the integration settings.'
+      )
+    return false
+  }
+
+  return true
 }
 
-const _isJWTValid = async ({ req, client, ctx }: bp.HandlerProps) => {
+const _isJWTValid = async ({ req, client, ctx, logger }: bp.HandlerProps) => {
   const authorizationHeader = req.headers.authorization
 
   if (!authorizationHeader?.startsWith('Bearer ')) {
+    logger
+      .forBot()
+      .error(
+        'Received a webhook event without authentication. Please ensure that the Pub/Sub subscription is authenticated with a service account.'
+      )
     return false
   }
 
   const bearerToken = authorizationHeader.slice(7)
-  const jwtVerifier = new JWTVerifier({ client, ctx })
+  const jwtVerifier = new JWTVerifier({ client, ctx, logger })
 
   return await jwtVerifier.isJWTProperlySigned(bearerToken)
 }

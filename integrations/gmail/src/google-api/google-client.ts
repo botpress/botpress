@@ -1,12 +1,11 @@
 import * as sdk from '@botpress/sdk'
 import { google } from 'googleapis'
+import { IntegrationConfig } from 'src/config/integration-config'
 import { GmailClient, GoogleOAuth2Client } from './types'
 import * as bp from '.botpress'
 
-const GLOBAL_OAUTH_ENDPOINT = `${process.env.BP_WEBHOOK_URL}/oauth` as const
-
 export class GoogleClient {
-  private constructor(private readonly _gmail: GmailClient) {}
+  private constructor(private readonly _gmail: GmailClient, private readonly _topicName: string) {}
 
   public static async create({
     client,
@@ -19,12 +18,13 @@ export class GoogleClient {
   }) {
     const token = refreshToken ?? (await this._getRefreshTokenFromStates({ client, ctx }))
 
-    const oauth2Client = this._getOAuthClient()
+    const oauth2Client = this._getOAuthClient({ ctx })
     oauth2Client.setCredentials({ refresh_token: token })
 
     const gmailClient = google.gmail({ version: 'v1', auth: oauth2Client })
+    const topicName = IntegrationConfig.getPubSubTopicName({ ctx })
 
-    return new GoogleClient(gmailClient)
+    return new GoogleClient(gmailClient, topicName)
   }
 
   public static async createFromAuthorizationCode({
@@ -36,7 +36,7 @@ export class GoogleClient {
     ctx: bp.Context
     authorizationCode: string
   }) {
-    const refreshToken = await this._exchangeAuthorizationCodeForRefreshToken(authorizationCode)
+    const refreshToken = await this._exchangeAuthorizationCodeForRefreshToken({ ctx, authorizationCode })
 
     await this._saveRefreshTokenIntoStates({ client, ctx, refreshToken })
 
@@ -46,7 +46,7 @@ export class GoogleClient {
   public async watchIncomingMail() {
     await this._gmail.users.watch({
       userId: 'me',
-      requestBody: { topicName: bp.secrets.TOPIC_NAME },
+      requestBody: { topicName: this._topicName },
     })
   }
 
@@ -107,20 +107,49 @@ export class GoogleClient {
     })
   }
 
-  private static async _exchangeAuthorizationCodeForRefreshToken(authorizationCode: string) {
-    const oauth2Client = this._getOAuthClient()
-    const { tokens } = await oauth2Client.getToken({
-      code: authorizationCode,
-    })
+  private static async _exchangeAuthorizationCodeForRefreshToken({
+    ctx,
+    authorizationCode,
+  }: {
+    ctx: bp.Context
+    authorizationCode: string
+  }) {
+    const refreshToken = await this._getRefreshToken({ ctx, authorizationCode })
 
-    if (!tokens.refresh_token) {
+    if (!refreshToken) {
       throw new sdk.RuntimeError('Unable to obtain refresh token. Please try the OAuth flow again.')
     }
 
-    return tokens.refresh_token
+    return refreshToken
   }
 
-  private static _getOAuthClient(): GoogleOAuth2Client {
-    return new google.auth.OAuth2(bp.secrets.CLIENT_ID, bp.secrets.CLIENT_SECRET, GLOBAL_OAUTH_ENDPOINT)
+  private static async _getRefreshToken({ ctx, authorizationCode }: { ctx: bp.Context; authorizationCode: string }) {
+    const oauth2Client = this._getOAuthClient({ ctx })
+
+    try {
+      const response = await oauth2Client.getToken(authorizationCode)
+      return response.tokens.refresh_token ?? null
+    } catch (thrown) {
+      this._handleRefreshTokenError({ ctx, thrown })
+    }
+
+    return null
+  }
+
+  private static _handleRefreshTokenError({ ctx, thrown }: { ctx: bp.Context; thrown: unknown }) {
+    console.error('Error exchanging authorization code for refresh token', thrown)
+
+    if (ctx.configurationType === 'customApp') {
+      throw new sdk.RuntimeError(
+        'Unable to exchange authorization code for refresh token: this may be due to an expired authorization code.' +
+          'Please try the OAuth flow again and update the integration settings with the new authorization code.'
+      )
+    }
+  }
+
+  private static _getOAuthClient({ ctx }: { ctx: bp.Context }): GoogleOAuth2Client {
+    const { clientId, clientSecret, endpoint } = IntegrationConfig.getOAuthConfig({ ctx })
+
+    return new google.auth.OAuth2(clientId, clientSecret, endpoint)
   }
 }
