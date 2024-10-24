@@ -1,7 +1,7 @@
 import { test, expect, describe, vi } from 'vitest'
 import { prepareCreateIntegrationBody } from '../api/integration-body'
 import { IntegrationLinter } from './integration-linter'
-import { IntegrationDefinition, IntegrationDefinitionProps, z } from '@botpress/sdk'
+import { IntegrationDefinition, type IntegrationDefinitionProps, z } from '@botpress/sdk'
 
 const EMPTY_STRING = ''
 const TRUTHY_STRING = 'truthy'

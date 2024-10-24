@@ -1,31 +1,10 @@
-import { test, expect, describe } from 'vitest'
-import { INTEGRATION_RULESET } from './integration.ruleset'
-import { Document, ISpectralDiagnostic, Spectral } from '@stoplight/spectral-core'
-import { Json as JsonParser } from '@stoplight/spectral-parsers'
-import { AggregateIntegrationBody } from '../integration-linter'
+import { test, expect } from 'vitest'
+import { INTEGRATION_RULESET } from '../rulesets/integration.ruleset'
+import { type AggregateIntegrationBody } from '../integration-linter'
+import { createDescribeRule, type RecursivePartial } from './common'
 
-type RecursivePartial<T> = {
-  [P in keyof T]?: T[P] extends (infer U)[]
-    ? RecursivePartial<U>[]
-    : T[P] extends object | undefined
-    ? RecursivePartial<T[P]>
-    : T[P]
-}
 type PartialIntegration = RecursivePartial<AggregateIntegrationBody>
-
-const describeRule = (
-  ruleName: keyof (typeof INTEGRATION_RULESET)['rules'],
-  fn: (lint: (definition: PartialIntegration) => Promise<ISpectralDiagnostic[]>) => void
-) =>
-  describe.concurrent(ruleName, () => {
-    const spectral = new Spectral()
-    spectral.setRuleset({ rules: { [ruleName]: INTEGRATION_RULESET.rules[ruleName] } })
-
-    const lintFn = (definition: PartialIntegration) =>
-      spectral.run(new Document(JSON.stringify(definition), JsonParser))
-
-    fn(lintFn)
-  })
+const describeRule = createDescribeRule<AggregateIntegrationBody>()(INTEGRATION_RULESET)
 
 const EMPTY_STRING = ''
 const TRUTHY_STRING = 'truthy'
@@ -44,7 +23,7 @@ const LEGACY_ZUI = 'ui'
 describeRule('integration-title-must-be-present', (lint) => {
   test('missing title should trigger', async () => {
     // arrange
-    const definition = {} as const
+    const definition = {} as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -56,7 +35,7 @@ describeRule('integration-title-must-be-present', (lint) => {
 
   test('empty title should trigger', async () => {
     // arrange
-    const definition = { title: EMPTY_STRING } as const
+    const definition = { title: EMPTY_STRING } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -68,7 +47,7 @@ describeRule('integration-title-must-be-present', (lint) => {
 
   test('valid title should not trigger', async () => {
     // arrange
-    const definition = { title: TRUTHY_STRING } as const
+    const definition = { title: TRUTHY_STRING } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -81,7 +60,7 @@ describeRule('integration-title-must-be-present', (lint) => {
 describeRule('integration-description-must-be-present', (lint) => {
   test('missing description should trigger', async () => {
     // arrange
-    const definition = {} as const
+    const definition = {} as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -93,7 +72,7 @@ describeRule('integration-description-must-be-present', (lint) => {
 
   test('empty description should trigger', async () => {
     // arrange
-    const definition = { description: EMPTY_STRING } as const
+    const definition = { description: EMPTY_STRING } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -105,7 +84,7 @@ describeRule('integration-description-must-be-present', (lint) => {
 
   test('valid description should not trigger', async () => {
     // arrange
-    const definition = { description: TRUTHY_STRING } as const
+    const definition = { description: TRUTHY_STRING } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -118,7 +97,7 @@ describeRule('integration-description-must-be-present', (lint) => {
 describeRule('integration-must-have-an-icon', (lint) => {
   test('missing icon should trigger', async () => {
     // arrange
-    const definition = {} as const
+    const definition = {} as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -130,7 +109,7 @@ describeRule('integration-must-have-an-icon', (lint) => {
 
   test('empty icon should trigger', async () => {
     // arrange
-    const definition = { icon: EMPTY_STRING } as const
+    const definition = { icon: EMPTY_STRING } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -142,7 +121,7 @@ describeRule('integration-must-have-an-icon', (lint) => {
 
   test('valid icon should not trigger', async () => {
     // arrange
-    const definition = { icon: TRUTHY_STRING } as const
+    const definition = { icon: TRUTHY_STRING } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -155,7 +134,7 @@ describeRule('integration-must-have-an-icon', (lint) => {
 describeRule('integration-must-have-a-readme-file', (lint) => {
   test('missing readme should trigger', async () => {
     // arrange
-    const definition = {} as const
+    const definition = {} as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -167,7 +146,7 @@ describeRule('integration-must-have-a-readme-file', (lint) => {
 
   test('empty readme should trigger', async () => {
     // arrange
-    const definition = { readme: EMPTY_STRING } as const
+    const definition = { readme: EMPTY_STRING } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -179,7 +158,7 @@ describeRule('integration-must-have-a-readme-file', (lint) => {
 
   test('valid readme should not trigger', async () => {
     // arrange
-    const definition = { readme: TRUTHY_STRING } as const
+    const definition = { readme: TRUTHY_STRING } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -192,7 +171,7 @@ describeRule('integration-must-have-a-readme-file', (lint) => {
 describeRule('actions-should-have-a-title', (lint) => {
   test('missing title should trigger', async () => {
     // arrange
-    const definition = { actions: { [ACTION_NAME]: {} } } as const
+    const definition = { actions: { [ACTION_NAME]: {} } } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -205,7 +184,7 @@ describeRule('actions-should-have-a-title', (lint) => {
 
   test('empty title should trigger', async () => {
     // arrange
-    const definition = { actions: { [ACTION_NAME]: { title: EMPTY_STRING } } } as const
+    const definition = { actions: { [ACTION_NAME]: { title: EMPTY_STRING } } } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -218,7 +197,7 @@ describeRule('actions-should-have-a-title', (lint) => {
 
   test('valid title should not trigger', async () => {
     // arrange
-    const definition = { actions: { [ACTION_NAME]: { title: TRUTHY_STRING } } } as const
+    const definition = { actions: { [ACTION_NAME]: { title: TRUTHY_STRING } } } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -231,7 +210,7 @@ describeRule('actions-should-have-a-title', (lint) => {
 describeRule('actions-must-have-a-description', (lint) => {
   test('missing description should trigger', async () => {
     // arrange
-    const definition = { actions: { [ACTION_NAME]: {} } } as const
+    const definition = { actions: { [ACTION_NAME]: {} } } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -244,7 +223,9 @@ describeRule('actions-must-have-a-description', (lint) => {
 
   test('empty description should trigger', async () => {
     // arrange
-    const definition = { actions: { [ACTION_NAME]: { description: EMPTY_STRING } } } as const
+    const definition = {
+      actions: { [ACTION_NAME]: { description: EMPTY_STRING } },
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -257,7 +238,9 @@ describeRule('actions-must-have-a-description', (lint) => {
 
   test('valid description should not trigger', async () => {
     // arrange
-    const definition = { actions: { [ACTION_NAME]: { description: TRUTHY_STRING } } } as const
+    const definition = {
+      actions: { [ACTION_NAME]: { description: TRUTHY_STRING } },
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -272,7 +255,7 @@ describeRule('action-inputparams-should-have-a-title', (lint) => {
     // arrange
     const definition = {
       actions: { [ACTION_NAME]: { input: { schema: { properties: { [PARAM_NAME]: { [ZUI]: {} } } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -289,7 +272,7 @@ describeRule('action-inputparams-should-have-a-title', (lint) => {
       actions: {
         [ACTION_NAME]: { input: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: EMPTY_STRING } } } } } },
       },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -315,7 +298,7 @@ describeRule('action-inputparams-should-have-a-title', (lint) => {
       actions: {
         [ACTION_NAME]: { input: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: TRUTHY_STRING } } } } } },
       },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -330,7 +313,7 @@ describeRule('action-inputparams-must-have-a-description', (lint) => {
     // arrange
     const definition = {
       actions: { [ACTION_NAME]: { input: { schema: { properties: { [PARAM_NAME]: {} } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -347,7 +330,7 @@ describeRule('action-inputparams-must-have-a-description', (lint) => {
       actions: {
         [ACTION_NAME]: { input: { schema: { properties: { [PARAM_NAME]: { description: EMPTY_STRING } } } } },
       },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -372,7 +355,7 @@ describeRule('action-inputparams-must-have-a-description', (lint) => {
       actions: {
         [ACTION_NAME]: { input: { schema: { properties: { [PARAM_NAME]: { description: TRUTHY_STRING } } } } },
       },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -387,7 +370,7 @@ describeRule('action-outputparams-should-have-a-title', (lint) => {
     // arrange
     const definition = {
       actions: { [ACTION_NAME]: { output: { schema: { properties: { [PARAM_NAME]: { [ZUI]: {} } } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -404,7 +387,7 @@ describeRule('action-outputparams-should-have-a-title', (lint) => {
       actions: {
         [ACTION_NAME]: { output: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: EMPTY_STRING } } } } } },
       },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -430,7 +413,7 @@ describeRule('action-outputparams-should-have-a-title', (lint) => {
       actions: {
         [ACTION_NAME]: { output: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: TRUTHY_STRING } } } } } },
       },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -445,7 +428,7 @@ describeRule('action-outputparams-must-have-a-description', (lint) => {
     // arrange
     const definition = {
       actions: { [ACTION_NAME]: { output: { schema: { properties: { [PARAM_NAME]: {} } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -462,7 +445,7 @@ describeRule('action-outputparams-must-have-a-description', (lint) => {
       actions: {
         [ACTION_NAME]: { output: { schema: { properties: { [PARAM_NAME]: { description: EMPTY_STRING } } } } },
       },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -487,7 +470,7 @@ describeRule('action-outputparams-must-have-a-description', (lint) => {
       actions: {
         [ACTION_NAME]: { output: { schema: { properties: { [PARAM_NAME]: { description: TRUTHY_STRING } } } } },
       },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -502,7 +485,7 @@ describeRule('event-outputparams-should-have-title', (lint) => {
     // arrange
     const definition = {
       events: { [EVENT_NAME]: { schema: { properties: { [PARAM_NAME]: { [ZUI]: {} } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -519,7 +502,7 @@ describeRule('event-outputparams-should-have-title', (lint) => {
       events: {
         [EVENT_NAME]: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: EMPTY_STRING } } } } },
       },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -536,7 +519,7 @@ describeRule('event-outputparams-should-have-title', (lint) => {
       events: {
         [EVENT_NAME]: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: TRUTHY_STRING } } } } },
       },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -551,7 +534,7 @@ describeRule('event-outputparams-must-have-description', (lint) => {
     // arrange
     const definition = {
       events: { [EVENT_NAME]: { schema: { properties: { [PARAM_NAME]: {} } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -568,7 +551,7 @@ describeRule('event-outputparams-must-have-description', (lint) => {
       events: {
         [EVENT_NAME]: { schema: { properties: { [PARAM_NAME]: { description: EMPTY_STRING } } } },
       },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -585,7 +568,7 @@ describeRule('event-outputparams-must-have-description', (lint) => {
       events: {
         [EVENT_NAME]: { schema: { properties: { [PARAM_NAME]: { description: TRUTHY_STRING } } } },
       },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -598,7 +581,7 @@ describeRule('event-outputparams-must-have-description', (lint) => {
 describeRule('events-must-have-a-title', (lint) => {
   test('missing title should trigger', async () => {
     // arrange
-    const definition = { events: { [EVENT_NAME]: {} } } as const
+    const definition = { events: { [EVENT_NAME]: {} } } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -611,7 +594,7 @@ describeRule('events-must-have-a-title', (lint) => {
 
   test('empty title should trigger', async () => {
     // arrange
-    const definition = { events: { [EVENT_NAME]: { title: EMPTY_STRING } } } as const
+    const definition = { events: { [EVENT_NAME]: { title: EMPTY_STRING } } } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -624,7 +607,7 @@ describeRule('events-must-have-a-title', (lint) => {
 
   test('valid title should not trigger', async () => {
     // arrange
-    const definition = { events: { [EVENT_NAME]: { title: TRUTHY_STRING } } } as const
+    const definition = { events: { [EVENT_NAME]: { title: TRUTHY_STRING } } } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -637,7 +620,7 @@ describeRule('events-must-have-a-title', (lint) => {
 describeRule('events-must-have-a-description', (lint) => {
   test('missing description should trigger', async () => {
     // arrange
-    const definition = { events: { [EVENT_NAME]: {} } } as const
+    const definition = { events: { [EVENT_NAME]: {} } } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -650,7 +633,7 @@ describeRule('events-must-have-a-description', (lint) => {
 
   test('empty description should trigger', async () => {
     // arrange
-    const definition = { events: { [EVENT_NAME]: { description: EMPTY_STRING } } } as const
+    const definition = { events: { [EVENT_NAME]: { description: EMPTY_STRING } } } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -663,7 +646,9 @@ describeRule('events-must-have-a-description', (lint) => {
 
   test('valid description should not trigger', async () => {
     // arrange
-    const definition = { events: { [EVENT_NAME]: { description: TRUTHY_STRING } } } as const
+    const definition = {
+      events: { [EVENT_NAME]: { description: TRUTHY_STRING } },
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -676,7 +661,9 @@ describeRule('events-must-have-a-description', (lint) => {
 describeRule('configuration-fields-must-have-a-title', (lint) => {
   test('missing title should trigger', async () => {
     // arrange
-    const definition = { configuration: { schema: { properties: { [PARAM_NAME]: { [ZUI]: {} } } } } } as const
+    const definition = {
+      configuration: { schema: { properties: { [PARAM_NAME]: { [ZUI]: {} } } } },
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -691,7 +678,7 @@ describeRule('configuration-fields-must-have-a-title', (lint) => {
     // arrange
     const definition = {
       configuration: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: EMPTY_STRING } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -706,7 +693,52 @@ describeRule('configuration-fields-must-have-a-title', (lint) => {
     // arrange
     const definition = {
       configuration: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: TRUTHY_STRING } } } } },
-    } as const
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(0)
+  })
+})
+
+describeRule('configuration-fields-must-have-a-description', (lint) => {
+  test('missing description should trigger', async () => {
+    // arrange
+    const definition = {
+      configuration: { schema: { properties: { [PARAM_NAME]: {} } } },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['configuration', 'schema', 'properties', PARAM_NAME])
+    expect(results[0]?.message).toContain('description')
+  })
+
+  test('empty description should trigger', async () => {
+    // arrange
+    const definition = {
+      configuration: { schema: { properties: { [PARAM_NAME]: { description: EMPTY_STRING } } } },
+    } as const satisfies PartialIntegration
+
+    // act
+    const results = await lint(definition)
+
+    // assert
+    expect(results).toHaveLength(1)
+    expect(results[0]?.path).toEqual(['configuration', 'schema', 'properties', PARAM_NAME, 'description'])
+    expect(results[0]?.message).toContain('description')
+  })
+
+  test('valid description should not trigger', async () => {
+    // arrange
+    const definition = {
+      configuration: { schema: { properties: { [PARAM_NAME]: { description: TRUTHY_STRING } } } },
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -721,7 +753,7 @@ describeRule('multiple-configurations-must-have-a-title', (lint) => {
     // arrange
     const definition = {
       configurations: { [CONFIG_NAME]: {} },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -736,7 +768,7 @@ describeRule('multiple-configurations-must-have-a-title', (lint) => {
     // arrange
     const definition = {
       configurations: { [CONFIG_NAME]: { title: EMPTY_STRING } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -751,7 +783,7 @@ describeRule('multiple-configurations-must-have-a-title', (lint) => {
     // arrange
     const definition = {
       configurations: { [CONFIG_NAME]: { title: TRUTHY_STRING } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -766,7 +798,7 @@ describeRule('multiple-configurations-must-have-a-description', (lint) => {
     // arrange
     const definition = {
       configurations: { [CONFIG_NAME]: {} },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -781,7 +813,7 @@ describeRule('multiple-configurations-must-have-a-description', (lint) => {
     // arrange
     const definition = {
       configurations: { [CONFIG_NAME]: { description: EMPTY_STRING } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -796,7 +828,7 @@ describeRule('multiple-configurations-must-have-a-description', (lint) => {
     // arrange
     const definition = {
       configurations: { [CONFIG_NAME]: { description: TRUTHY_STRING } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -811,7 +843,7 @@ describeRule('multipes-configurations-fields-must-have-a-title', (lint) => {
     // arrange
     const definition = {
       configurations: { [CONFIG_NAME]: { schema: { properties: { [PARAM_NAME]: { [ZUI]: {} } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -828,7 +860,7 @@ describeRule('multipes-configurations-fields-must-have-a-title', (lint) => {
       configurations: {
         [CONFIG_NAME]: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: EMPTY_STRING } } } } },
       },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -845,7 +877,7 @@ describeRule('multipes-configurations-fields-must-have-a-title', (lint) => {
       configurations: {
         [CONFIG_NAME]: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: TRUTHY_STRING } } } } },
       },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -860,7 +892,7 @@ describeRule('multipes-configurations-fields-must-have-a-description', (lint) =>
     // arrange
     const definition = {
       configurations: { [CONFIG_NAME]: { schema: { properties: { [PARAM_NAME]: {} } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -877,7 +909,7 @@ describeRule('multipes-configurations-fields-must-have-a-description', (lint) =>
       configurations: {
         [CONFIG_NAME]: { schema: { properties: { [PARAM_NAME]: { description: EMPTY_STRING } } } },
       },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -894,7 +926,7 @@ describeRule('multipes-configurations-fields-must-have-a-description', (lint) =>
       configurations: {
         [CONFIG_NAME]: { schema: { properties: { [PARAM_NAME]: { description: TRUTHY_STRING } } } },
       },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -907,7 +939,7 @@ describeRule('multipes-configurations-fields-must-have-a-description', (lint) =>
 describeRule('user-tags-should-have-a-title', (lint) => {
   test('missing title should trigger', async () => {
     // arrange
-    const definition = { user: { tags: { [TAG_NAME]: {} } } } as const
+    const definition = { user: { tags: { [TAG_NAME]: {} } } } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -920,7 +952,7 @@ describeRule('user-tags-should-have-a-title', (lint) => {
 
   test('empty title should trigger', async () => {
     // arrange
-    const definition = { user: { tags: { [TAG_NAME]: { title: EMPTY_STRING } } } } as const
+    const definition = { user: { tags: { [TAG_NAME]: { title: EMPTY_STRING } } } } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -933,7 +965,9 @@ describeRule('user-tags-should-have-a-title', (lint) => {
 
   test('valid title should not trigger', async () => {
     // arrange
-    const definition = { user: { tags: { [TAG_NAME]: { title: TRUTHY_STRING } } } } as const
+    const definition = {
+      user: { tags: { [TAG_NAME]: { title: TRUTHY_STRING } } },
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -946,7 +980,7 @@ describeRule('user-tags-should-have-a-title', (lint) => {
 describeRule('user-tags-must-have-a-description', (lint) => {
   test('missing description should trigger', async () => {
     // arrange
-    const definition = { user: { tags: { [TAG_NAME]: {} } } } as const
+    const definition = { user: { tags: { [TAG_NAME]: {} } } } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -959,7 +993,9 @@ describeRule('user-tags-must-have-a-description', (lint) => {
 
   test('empty description should trigger', async () => {
     // arrange
-    const definition = { user: { tags: { [TAG_NAME]: { description: EMPTY_STRING } } } } as const
+    const definition = {
+      user: { tags: { [TAG_NAME]: { description: EMPTY_STRING } } },
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -972,7 +1008,9 @@ describeRule('user-tags-must-have-a-description', (lint) => {
 
   test('valid description should not trigger', async () => {
     // arrange
-    const definition = { user: { tags: { [TAG_NAME]: { description: TRUTHY_STRING } } } } as const
+    const definition = {
+      user: { tags: { [TAG_NAME]: { description: TRUTHY_STRING } } },
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -985,7 +1023,7 @@ describeRule('user-tags-must-have-a-description', (lint) => {
 describeRule('channels-should-have-a-title', (lint) => {
   test('missing title should trigger', async () => {
     // arrange
-    const definition = { channels: { [CHANNEL_NAME]: {} } } as const
+    const definition = { channels: { [CHANNEL_NAME]: {} } } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -998,7 +1036,7 @@ describeRule('channels-should-have-a-title', (lint) => {
 
   test('empty title should trigger', async () => {
     // arrange
-    const definition = { channels: { [CHANNEL_NAME]: { title: EMPTY_STRING } } } as const
+    const definition = { channels: { [CHANNEL_NAME]: { title: EMPTY_STRING } } } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1011,7 +1049,7 @@ describeRule('channels-should-have-a-title', (lint) => {
 
   test('valid title should not trigger', async () => {
     // arrange
-    const definition = { channels: { [CHANNEL_NAME]: { title: TRUTHY_STRING } } } as const
+    const definition = { channels: { [CHANNEL_NAME]: { title: TRUTHY_STRING } } } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1024,7 +1062,7 @@ describeRule('channels-should-have-a-title', (lint) => {
 describeRule('channels-must-have-a-description', (lint) => {
   test('missing description should trigger', async () => {
     // arrange
-    const definition = { channels: { [CHANNEL_NAME]: {} } } as const
+    const definition = { channels: { [CHANNEL_NAME]: {} } } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1037,7 +1075,9 @@ describeRule('channels-must-have-a-description', (lint) => {
 
   test('empty description should trigger', async () => {
     // arrange
-    const definition = { channels: { [CHANNEL_NAME]: { description: EMPTY_STRING } } } as const
+    const definition = {
+      channels: { [CHANNEL_NAME]: { description: EMPTY_STRING } },
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1050,7 +1090,9 @@ describeRule('channels-must-have-a-description', (lint) => {
 
   test('valid description should not trigger', async () => {
     // arrange
-    const definition = { channels: { [CHANNEL_NAME]: { description: TRUTHY_STRING } } } as const
+    const definition = {
+      channels: { [CHANNEL_NAME]: { description: TRUTHY_STRING } },
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1063,7 +1105,9 @@ describeRule('channels-must-have-a-description', (lint) => {
 describeRule('channels-conversation-tags-should-have-a-title', (lint) => {
   test('missing title should trigger', async () => {
     // arrange
-    const definition = { channels: { [CHANNEL_NAME]: { conversation: { tags: { [TAG_NAME]: {} } } } } } as const
+    const definition = {
+      channels: { [CHANNEL_NAME]: { conversation: { tags: { [TAG_NAME]: {} } } } },
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1078,7 +1122,7 @@ describeRule('channels-conversation-tags-should-have-a-title', (lint) => {
     // arrange
     const definition = {
       channels: { [CHANNEL_NAME]: { conversation: { tags: { [TAG_NAME]: { title: EMPTY_STRING } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1093,7 +1137,7 @@ describeRule('channels-conversation-tags-should-have-a-title', (lint) => {
     // arrange
     const definition = {
       channels: { [CHANNEL_NAME]: { conversation: { tags: { [TAG_NAME]: { title: TRUTHY_STRING } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1106,7 +1150,9 @@ describeRule('channels-conversation-tags-should-have-a-title', (lint) => {
 describeRule('channels-conversation-tags-must-have-a-description', (lint) => {
   test('missing description should trigger', async () => {
     // arrange
-    const definition = { channels: { [CHANNEL_NAME]: { conversation: { tags: { [TAG_NAME]: {} } } } } } as const
+    const definition = {
+      channels: { [CHANNEL_NAME]: { conversation: { tags: { [TAG_NAME]: {} } } } },
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1121,7 +1167,7 @@ describeRule('channels-conversation-tags-must-have-a-description', (lint) => {
     // arrange
     const definition = {
       channels: { [CHANNEL_NAME]: { conversation: { tags: { [TAG_NAME]: { description: EMPTY_STRING } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1136,7 +1182,7 @@ describeRule('channels-conversation-tags-must-have-a-description', (lint) => {
     // arrange
     const definition = {
       channels: { [CHANNEL_NAME]: { conversation: { tags: { [TAG_NAME]: { description: TRUTHY_STRING } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1149,7 +1195,9 @@ describeRule('channels-conversation-tags-must-have-a-description', (lint) => {
 describeRule('channels-message-tags-should-have-a-title', (lint) => {
   test('missing title should trigger', async () => {
     // arrange
-    const definition = { channels: { [CHANNEL_NAME]: { message: { tags: { [TAG_NAME]: {} } } } } } as const
+    const definition = {
+      channels: { [CHANNEL_NAME]: { message: { tags: { [TAG_NAME]: {} } } } },
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1164,7 +1212,7 @@ describeRule('channels-message-tags-should-have-a-title', (lint) => {
     // arrange
     const definition = {
       channels: { [CHANNEL_NAME]: { message: { tags: { [TAG_NAME]: { title: EMPTY_STRING } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1179,7 +1227,7 @@ describeRule('channels-message-tags-should-have-a-title', (lint) => {
     // arrange
     const definition = {
       channels: { [CHANNEL_NAME]: { message: { tags: { [TAG_NAME]: { title: TRUTHY_STRING } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1192,7 +1240,9 @@ describeRule('channels-message-tags-should-have-a-title', (lint) => {
 describeRule('channels-message-tags-must-have-a-description', (lint) => {
   test('missing description should trigger', async () => {
     // arrange
-    const definition = { channels: { [CHANNEL_NAME]: { message: { tags: { [TAG_NAME]: {} } } } } } as const
+    const definition = {
+      channels: { [CHANNEL_NAME]: { message: { tags: { [TAG_NAME]: {} } } } },
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1207,7 +1257,7 @@ describeRule('channels-message-tags-must-have-a-description', (lint) => {
     // arrange
     const definition = {
       channels: { [CHANNEL_NAME]: { message: { tags: { [TAG_NAME]: { description: EMPTY_STRING } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1222,7 +1272,7 @@ describeRule('channels-message-tags-must-have-a-description', (lint) => {
     // arrange
     const definition = {
       channels: { [CHANNEL_NAME]: { message: { tags: { [TAG_NAME]: { description: TRUTHY_STRING } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1250,7 +1300,7 @@ describeRule('legacy-zui-title-should-be-removed', (lint) => {
         },
       },
       states: { [STATE_NAME]: { [LEGACY_ZUI]: { [PARAM_NAME]: { title: TRUTHY_STRING } }, schema: {} } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1279,7 +1329,7 @@ describeRule('legacy-zui-examples-should-be-removed', (lint) => {
         },
       },
       states: { [STATE_NAME]: { [LEGACY_ZUI]: { [PARAM_NAME]: { examples: [TRUTHY_STRING] } }, schema: {} } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1295,7 +1345,7 @@ describeRule('state-fields-should-have-title', (lint) => {
     // arrange
     const definition = {
       states: { [STATE_NAME]: { schema: { properties: { [PARAM_NAME]: { [ZUI]: {} } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1309,7 +1359,7 @@ describeRule('state-fields-should-have-title', (lint) => {
     // arrange
     const definition = {
       states: { [STATE_NAME]: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: EMPTY_STRING } } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1323,7 +1373,7 @@ describeRule('state-fields-should-have-title', (lint) => {
     // arrange
     const definition = {
       states: { [STATE_NAME]: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: TRUTHY_STRING } } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1338,7 +1388,7 @@ describeRule('state-fields-must-have-description', (lint) => {
     // arrange
     const definition = {
       states: { [STATE_NAME]: { schema: { properties: { [PARAM_NAME]: {} } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1352,7 +1402,7 @@ describeRule('state-fields-must-have-description', (lint) => {
     // arrange
     const definition = {
       states: { [STATE_NAME]: { schema: { properties: { [PARAM_NAME]: { description: EMPTY_STRING } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1366,7 +1416,7 @@ describeRule('state-fields-must-have-description', (lint) => {
     // arrange
     const definition = {
       states: { [STATE_NAME]: { schema: { properties: { [PARAM_NAME]: { description: TRUTHY_STRING } } } } },
-    } as const
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1379,7 +1429,7 @@ describeRule('state-fields-must-have-description', (lint) => {
 describeRule('secrets-must-have-a-description', (lint) => {
   test('missing description should trigger', async () => {
     // arrange
-    const definition = { secrets: { [SECRET_NAME]: {} } } as const
+    const definition = { secrets: { [SECRET_NAME]: {} } } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1390,7 +1440,9 @@ describeRule('secrets-must-have-a-description', (lint) => {
 
   test('empty description should trigger', async () => {
     // arrange
-    const definition = { secrets: { [SECRET_NAME]: { description: EMPTY_STRING } } } as const
+    const definition = {
+      secrets: { [SECRET_NAME]: { description: EMPTY_STRING } },
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
@@ -1401,7 +1453,9 @@ describeRule('secrets-must-have-a-description', (lint) => {
 
   test('valid description should not trigger', async () => {
     // arrange
-    const definition = { secrets: { [SECRET_NAME]: { description: TRUTHY_STRING } } } as const
+    const definition = {
+      secrets: { [SECRET_NAME]: { description: TRUTHY_STRING } },
+    } as const satisfies PartialIntegration
 
     // act
     const results = await lint(definition)
