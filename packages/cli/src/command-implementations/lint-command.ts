@@ -1,12 +1,12 @@
 import { type IntegrationDefinition, type BotDefinition } from '@botpress/sdk'
+import { prepareCreateBotBody } from '../api/bot-body'
 import { prepareCreateIntegrationBody } from '../api/integration-body'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
-import { IntegrationLinter } from '../linter/integration-linter'
 import { BotLinter } from '../linter/bot-linter'
+import { IntegrationLinter } from '../linter/integration-linter'
 import { getImplementationStatements } from '../sdk'
 import { ProjectCommand } from './project-command'
-import { prepareCreateBotBody } from '../api/bot-body'
 
 export type LintCommandDefinition = typeof commandDefinitions.lint
 export class LintCommand extends ProjectCommand<LintCommandDefinition> {

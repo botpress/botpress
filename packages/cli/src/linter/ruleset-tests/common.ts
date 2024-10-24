@@ -1,6 +1,6 @@
-import { describe } from 'vitest'
 import { Document, type ISpectralDiagnostic, Spectral, type RuleDefinition } from '@stoplight/spectral-core'
 import { Json as JsonParser } from '@stoplight/spectral-parsers'
+import { describe } from 'vitest'
 
 export type RecursivePartial<T> = {
   [P in Extract<keyof T, string>]?: T[P] extends (infer U)[]
