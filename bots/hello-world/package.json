@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "check:type": "tsc --noEmit",
-    "check:botlint": "bp lint",
+    "check:bplint": "pnpm exec bp lint",
     "build": "bp build",
     "add:integrations": "bp add ../../integrations/whatsapp -y"
   },

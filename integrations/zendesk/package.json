@@ -2,7 +2,7 @@
   "name": "@botpresshub/zendesk",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "check:integrationlint": "pnpm bp lint",
+    "check:bplint": "pnpm exec bp lint",
     "build": "pnpm bp build",
     "add:interfaces": "bp add ../../interfaces/hitl -y"
   },

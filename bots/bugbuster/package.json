@@ -3,7 +3,7 @@
   "scripts": {
     "postinstall": "genenv -o ./.genenv/index.ts -e BUGBUSTER_GITHUB_TOKEN -e BUGBUSTER_GITHUB_WEBHOOK_SECRET -e BUGBUSTER_SLACK_BOT_TOKEN -e BUGBUSTER_SLACK_SIGNING_SECRET",
     "check:type": "tsc --noEmit",
-    "check:botlint": "bp lint",
+    "check:bplint": "pnpm exec bp lint",
     "build": "bp build",
     "add:integrations": "bp add ../../integrations/github -y && bp add ../../integrations/slack -y"
   },

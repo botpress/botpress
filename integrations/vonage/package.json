@@ -7,7 +7,7 @@
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
     "check:type": "tsc --noEmit",
-    "check:integrationlint": "pnpm bp lint",
+    "check:bplint": "pnpm exec bp lint",
     "add:interfaces": "echo 'no interfaces to add'"
   },
   "keywords": [],

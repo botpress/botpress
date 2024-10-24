@@ -2,7 +2,7 @@
   "name": "@botpresshub/dalle",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "check:integrationlint": "pnpm bp lint",
+    "check:bplint": "pnpm exec bp lint",
     "version": "bp --version",
     "login": "bp login",
     "build": "bp build",
