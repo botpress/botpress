@@ -1,4 +1,4 @@
-import { RulesetDefinition } from '@stoplight/spectral-core'
+import { type RulesetDefinition } from '@stoplight/spectral-core'
 import { falsy, truthy } from '@stoplight/spectral-functions'
 import { truthyWithMessage } from '../spectral-functions'
 
@@ -149,6 +149,19 @@ export const INTEGRATION_RULESET = {
         {
           field: 'title',
           function: truthyWithMessage(({ path }) => `configuration parameter "${path.at(-3)}"`),
+        },
+      ],
+    },
+    'configuration-fields-must-have-a-description': {
+      description: 'All configuration fields MUST have a description',
+      message:
+        '{{description}}: {{property}} MUST provide a non-empty description by using .describe() in its Zod schema',
+      severity: 'error',
+      given: '$.configuration.schema..properties[*]',
+      then: [
+        {
+          field: 'description',
+          function: truthyWithMessage(({ path }) => `configuration parameter "${path.at(-2)}"`),
         },
       ],
     },

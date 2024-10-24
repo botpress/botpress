@@ -1,5 +1,4 @@
-import { it, expect } from 'vitest'
-import { describe } from 'node:test'
+import { it, expect, describe } from 'vitest'
 import { dereferenceSchema } from './schema-utils'
 import { JSONSchema7 } from 'json-schema'
 
