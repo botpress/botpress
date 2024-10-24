@@ -34,7 +34,6 @@ import {
   ZodSet,
   ZodString,
   ZodSymbol,
-  ZodTemplateLiteral,
   ZodTuple,
   ZodType,
   ZodUndefined,
@@ -86,7 +85,6 @@ export type ZodFirstPartySchemaTypes =
   | ZodPipeline
   | ZodReadonly
   | ZodSymbol
-  | ZodTemplateLiteral
   | ZodRef
 
 // requires TS 4.4+
@@ -138,7 +136,6 @@ const nullableType = ZodNullable.create
 const defaultType = ZodDefault.create
 const preprocessType = ZodEffects.createWithPreprocess
 const pipelineType = ZodPipeline.create
-const templateLiteralType = ZodTemplateLiteral.create
 const ostring = () => stringType().optional()
 const onumber = () => numberType().optional()
 const oboolean = () => booleanType().optional()
@@ -155,11 +152,6 @@ export const coerce = {
     })) as (typeof ZodBoolean)['create'],
   bigint: ((arg) => ZodBigInt.create({ ...arg, coerce: true })) as (typeof ZodBigInt)['create'],
   date: ((arg) => ZodDate.create({ ...arg, coerce: true })) as (typeof ZodDate)['create'],
-  templateLiteral: ((arg) =>
-    ZodTemplateLiteral.create({
-      ...arg,
-      coerce: true,
-    })) as (typeof ZodTemplateLiteral)['create'],
 }
 
 export {
@@ -199,7 +191,6 @@ export {
   strictObjectType as strictObject,
   stringType as string,
   symbolType as symbol,
-  templateLiteralType as templateLiteral,
   effectsType as transformer,
   tupleType as tuple,
   undefinedType as undefined,

@@ -1,5 +1,5 @@
 import { errorMap as defaultErrorMap } from './locales/en'
-import { TypeOf, ZodType, ZodFirstPartyTypeKind, ZodParsedType, util, Primitive } from '../index'
+import { TypeOf, ZodType, ZodParsedType, util, Primitive } from '../index'
 
 type allKeys<T> = T extends any ? keyof T : never
 
@@ -325,35 +325,6 @@ export type ErrorMapCtx = {
 
 export type ZodErrorMap = (issue: ZodIssueOptionalMessage, _ctx: ErrorMapCtx) => { message: string }
 
-export class ZodTemplateLiteralUnsupportedTypeError extends Error {
-  constructor() {
-    super('Unsupported zod type!')
-
-    const actualProto = new.target.prototype
-    if (Object.setPrototypeOf) {
-      // eslint-disable-next-line ban/ban
-      Object.setPrototypeOf(this, actualProto)
-    } else {
-      ;(this as any).__proto__ = actualProto
-    }
-    this.name = 'ZodTemplateLiteralUnsupportedTypeError'
-  }
-}
-
-export class ZodTemplateLiteralUnsupportedCheckError extends Error {
-  constructor(typeKind: ZodFirstPartyTypeKind, check: string) {
-    super(`${typeKind}'s "${check}" check is not supported in template literals!`)
-
-    const actualProto = new.target.prototype
-    if (Object.setPrototypeOf) {
-      // eslint-disable-next-line ban/ban
-      Object.setPrototypeOf(this, actualProto)
-    } else {
-      ;(this as any).__proto__ = actualProto
-    }
-    this.name = 'ZodTemplateLiteralUnsupportedCheckError'
-  }
-}
 let overrideErrorMap = defaultErrorMap
 export { defaultErrorMap }
 

@@ -26,7 +26,6 @@ import type {
   ZodReadonlyDef,
   ZodRecordDef,
   ZodStringDef,
-  ZodTemplateLiteralDef,
   ZodEffectsDef,
   ZodTupleDef,
   ZodUndefinedDef,
@@ -45,7 +44,6 @@ export type ZodDef =
   | ZodNullDef
   | ZodDefaultDef
   | ZodCatchDef
-  | ZodTemplateLiteralDef
   | ZodReadonlyDef
   | ZodDiscriminatedUnionDef<any>
   | ZodBrandedDef<any>
@@ -108,7 +106,6 @@ export enum ZodFirstPartyTypeKind {
   ZodPromise = 'ZodPromise',
   ZodBranded = 'ZodBranded',
   ZodPipeline = 'ZodPipeline',
-  ZodTemplateLiteral = 'ZodTemplateLiteral',
   ZodReadonly = 'ZodReadonly',
 }
 
@@ -176,8 +173,6 @@ export type KindToDef<T extends ZodFirstPartyTypeKind> = T extends ZodFirstParty
                                                               ? ZodBrandedDef<any>
                                                               : T extends ZodFirstPartyTypeKind.ZodPipeline
                                                                 ? ZodPipelineDef<any, any>
-                                                                : T extends ZodFirstPartyTypeKind.ZodTemplateLiteral
-                                                                  ? ZodTemplateLiteralDef
-                                                                  : T extends ZodFirstPartyTypeKind.ZodReadonly
-                                                                    ? ZodReadonlyDef
-                                                                    : never
+                                                                : T extends ZodFirstPartyTypeKind.ZodReadonly
+                                                                  ? ZodReadonlyDef
+                                                                  : never

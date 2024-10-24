@@ -310,24 +310,6 @@ ${value}`.trim()
     case z.ZodFirstPartyTypeKind.ZodRef:
       return toTypeArgumentName(def.uri)
 
-    case z.ZodFirstPartyTypeKind.ZodTemplateLiteral:
-      const inner = def.parts
-        .map((p) => {
-          if (typeof p === 'undefined' || p === null) {
-            return ''
-          }
-          if (typeof p === 'string') {
-            return p
-          }
-          if (typeof p === 'boolean' || typeof p === 'number') {
-            return `${p}`
-          }
-          return '${' + sUnwrapZod(p, { ...newConfig }) + '}'
-        })
-        .join('')
-
-      return `\`${inner}\``
-
     default:
       util.assertNever(def)
   }

@@ -163,9 +163,6 @@ function sUnwrapZod(schema: z.Schema): string {
       const uri = escapeString(def.uri)
       return `${getMultilineComment(def.description)}z.ref(${uri})`.trim()
 
-    case z.ZodFirstPartyTypeKind.ZodTemplateLiteral:
-      throw new errors.UnsupportedZuiToTypescriptSchemaError(z.ZodFirstPartyTypeKind.ZodTemplateLiteral)
-
     default:
       util.assertNever(def)
   }

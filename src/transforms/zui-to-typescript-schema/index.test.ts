@@ -194,8 +194,4 @@ describe('toTypescriptZuiString', () => {
     const schema = `z.ref("#item")`
     await assert(schema).toGenerateItself()
   })
-  test('templateLiteral', async () => {
-    const schema = `z.templateLiteral()`
-    await assert(schema).toThrowErrorWhenGenerating()
-  })
 })
