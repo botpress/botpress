@@ -44,11 +44,13 @@ export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
-    generateContent: async ({ input, logger }) => {
-      return await generateContent<ModelId>(<llm.GenerateContentInput>input, anthropic, logger, {
+    generateContent: async ({ input, logger, metadata }) => {
+      const output = await generateContent<ModelId>(<llm.GenerateContentInput>input, anthropic, logger, {
         models: languageModels,
         defaultModel: 'claude-3-5-sonnet-20240620',
       })
+      metadata.setCost(output.botpress.cost)
+      return output
     },
     listLanguageModels: async ({}) => {
       return {

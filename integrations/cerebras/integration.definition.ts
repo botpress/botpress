@@ -5,7 +5,7 @@ import llm from './bp_modules/llm'
 export default new IntegrationDefinition({
   name: 'cerebras',
   title: 'Cerebras',
-  version: '0.2.1',
+  version: '0.2.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
