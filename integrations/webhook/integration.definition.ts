@@ -3,7 +3,7 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'webhook',
-  version: '0.4.3',
+  version: '0.5.0',
   title: 'Webhook',
   description:
     'Connect your chatbot to your systems with webhooks. Send and receive data from external systems and trigger workflows effortlessly.',
@@ -18,7 +18,7 @@ export default new IntegrationDefinition({
     event: {
       schema: z
         .object({
-          body: z.record(z.any()),
+          body: z.any(),
           query: z.record(z.any()),
           path: z.string(),
           method: z.enum(['GET', 'POST']),
