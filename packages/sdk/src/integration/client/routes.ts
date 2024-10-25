@@ -32,11 +32,14 @@ export type GetConversation<TIntegration extends BaseIntegration> = (
   x: Arg<Client['getConversation']>
 ) => Promise<ConversationResponse<TIntegration>>
 
-export type ListConversations<TIntegration extends BaseIntegration> = (
+export type ListConversations<TIntegration extends BaseIntegration> = <
+  ChannelName extends keyof TIntegration['channels']
+>(
   x: Merge<
     Arg<Client['listConversations']>,
     {
-      tags?: ToTags<keyof AllChannels<TIntegration>['conversation']['tags']>
+      channel?: Cast<ChannelName, string>
+      tags?: ToTags<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags']>
     }
   >
 ) => Res<Client['listConversations']> // TODO: response should contain the tags
