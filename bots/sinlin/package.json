@@ -6,7 +6,7 @@
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
     "build": "bp build",
-    "add:integrations": "bp add ../../integrations/linear -y && bp add ../../integrations/telegram -y"
+    "add:integrations": "ts-node -T ./integrations.ts"
   },
   "private": true,
   "dependencies": {

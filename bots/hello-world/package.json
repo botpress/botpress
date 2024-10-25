@@ -6,7 +6,7 @@
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
     "build": "bp build",
-    "add:integrations": "bp add ../../integrations/whatsapp -y"
+    "add:integrations": "ts-node -T ./integrations.ts"
   },
   "dependencies": {
     "@botpress/cli": "workspace:*",

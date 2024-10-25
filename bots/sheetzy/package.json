@@ -5,7 +5,7 @@
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
     "build": "bp build",
-    "add:integrations": "bp add ../../integrations/gsheets -y && bp add ../../integrations/telegram -y"
+    "add:integrations": "ts-node -T ./integrations.ts"
   },
   "keywords": [],
   "private": true,
