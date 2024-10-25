@@ -141,8 +141,6 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
     const cmd = new AnyProjectCommand(ApiClient, this.prompt, this.logger, {
       ...this.argv,
-      entryPoint: consts.defaultEntrypoint,
-      outDir: consts.defaultOutputFolder,
       workDir,
     })
 

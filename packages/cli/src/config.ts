@@ -121,8 +121,6 @@ const globalSchema = {
 
 const projectSchema = {
   ...globalSchema,
-  entryPoint: { type: 'string', description: 'The entry point of the project', default: consts.defaultEntrypoint },
-  outDir: { type: 'string', description: 'The output directory', default: consts.defaultOutputFolder },
   workDir,
 } satisfies CommandSchema
 
