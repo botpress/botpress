@@ -102,6 +102,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      qs:
+        specifier: ^6.11.0
+        version: 6.11.0
     devDependencies:
       '@botpress/common':
         specifier: workspace:*
@@ -112,6 +115,9 @@ importers:
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.16
+      '@types/qs':
+        specifier: ^6.9.7
+        version: 6.9.7
       esbuild:
         specifier: ^0.15.18
         version: 0.15.18
