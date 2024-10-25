@@ -6,5 +6,5 @@ const interfaceNames = ['llm', 'speech-to-text', 'text-to-image']
 
 for (const interfaceName of interfaceNames) {
   const interfacePath = path.resolve(path.join('..', '..', 'interfaces', interfaceName))
-  runCommand(`bp add ${interfacePath} -y`, { workDir: __dirname })
+  runCommand(`pnpm exec bp add ${interfacePath} -y`, { workDir: __dirname })
 }
