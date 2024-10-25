@@ -17,7 +17,8 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
       - run: pnpm run check:format
-      - run: pnpm run check:lint
+      - run: pnpm run check:eslint
+      # - run: pnpm run check:bplint
       - run: pnpm run check:type
       - run: pnpm run check:dep
       - run: pnpm run test

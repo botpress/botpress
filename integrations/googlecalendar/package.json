@@ -6,6 +6,7 @@
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
     "check:type": "tsc --noEmit",
+    "check:bplint": "pnpm exec bp lint",
     "add:interfaces": "bp add ../../interfaces/creatable -y && bp add ../../interfaces/deletable -y && bp add ../../interfaces/listable -y && bp add ../../interfaces/readable -y && bp add ../../interfaces/updatable -y"
   },
   "keywords": [],

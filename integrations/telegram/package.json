@@ -8,6 +8,7 @@
     "deploy": "pnpm bp deploy",
     "login": "pnpm bp login",
     "check:type": "tsc --noEmit",
+    "check:bplint": "pnpm exec bp lint",
     "add:interfaces": "bp add ../../interfaces/typing-indicator -y"
   },
   "keywords": [],

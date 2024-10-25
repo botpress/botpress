@@ -8,6 +8,7 @@
     "login": "pnpm bp login",
     "deploy": "pnpm bp deploy",
     "check:type": "tsc --noEmit",
+    "check:bplint": "pnpm exec bp lint",
     "test": "jest",
     "add:interfaces": "echo 'no interfaces to add'"
   },
