@@ -14,13 +14,13 @@ const listFiles: bp.IntegrationProps['actions']['listFiles'] = async ({ ctx }) =
 
   // TODO: S'assurer que tous les fields sont retournés (Zod schema?)
 
-  const driveFilesAndFoldersReduced = listResponse.data.files
-  if (!driveFilesAndFoldersReduced) {
+  const driveFilesAndFoldersPartial = listResponse.data.files
+  if (!driveFilesAndFoldersPartial) {
     throw new RuntimeError('No files were returned by the API')
   }
 
   const getsResponse = await Promise.all(
-    driveFilesAndFoldersReduced.map(async (fileInfosReduced) => {
+    driveFilesAndFoldersPartial.map(async (fileInfosReduced) => {
       if (!fileInfosReduced.id) {
         throw new RuntimeError('File ID is missing')
       }
@@ -32,7 +32,6 @@ const listFiles: bp.IntegrationProps['actions']['listFiles'] = async ({ ctx }) =
     })
   )
   const driveFilesAndFoldersComplete = getsResponse.map((getResponse) => getResponse.data)
-
   const driveFolders = driveFilesAndFoldersComplete.filter(isFolder)
   const driveFoldersMap = new Map(driveFolders.map((folder) => [folder.id!, folder])) // TODO: Enlever le ! et gérer les erreurs
 
