@@ -6,7 +6,7 @@
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
     "build": "bp build",
-    "add:integrations": "bp add ../../integrations/linear -y && bp add ../../integrations/telegram -y"
+    "add:integrations": "ts-node -T ./integrations.ts"
   },
   "private": true,
   "dependencies": {
@@ -20,6 +20,7 @@
     "@types/lodash": "^4.14.191",
     "@types/node": "^18.11.17",
     "execa": "^8.0.1",
-    "typescript": "^4.9.4"
+    "typescript": "^4.9.4",
+    "@botpress/common": "workspace:*"
   }
 }
