@@ -17,8 +17,6 @@ export {
   IntegrationContext,
   IntegrationLogger,
   IntegrationSpecificClient,
-  InterfaceDeclaration,
-  InterfaceDeclarationProps,
   TagDefinition,
   ConfigurationDefinition,
   AdditionalConfigurationDefinition,
@@ -48,6 +46,12 @@ export {
   ConversationDefinition as BotConversationDefinition,
   MessageDefinition as BotMessageDefinition,
 } from './bot'
+
+export {
+  //
+  InterfaceDeclaration,
+  InterfaceDeclarationProps,
+} from './interface'
 
 export {
   //
