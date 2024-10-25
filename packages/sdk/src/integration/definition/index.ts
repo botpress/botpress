@@ -15,8 +15,6 @@ import {
   AdditionalConfigurationDefinition,
 } from './types'
 
-export * from './types'
-
 export type InterfaceInstance = InterfacePackage & {
   entities: Record<
     string,
