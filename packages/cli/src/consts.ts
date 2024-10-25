@@ -14,7 +14,6 @@ export const defaultTunnelUrl = 'https://tunnel.botpress.cloud'
 // not configurable
 
 export const cliRootDir = CLI_ROOT_DIR
-
 export const emptyBotDirName = 'empty-bot'
 export const emptyIntegrationDirName = 'empty-integration'
 export const helloWorldIntegrationDirName = 'hello-world'

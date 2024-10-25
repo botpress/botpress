@@ -36,7 +36,7 @@ export default {
   read: { description: 'Read and parse an integration definition', schema: config.schemas.read },
   serve: { description: 'Serve your project locally', schema: config.schemas.serve },
   deploy: { description: 'Deploy your project to the cloud', schema: config.schemas.deploy },
-  add: { description: 'Install an integration in your bot', schema: config.schemas.add },
+  add: { description: 'Install a package; could be an integration or an interface', schema: config.schemas.add },
   dev: { description: 'Run your project in dev mode', schema: config.schemas.dev },
   lint: { description: 'EXPERIMENTAL: Lint an integration definition', schema: config.schemas.lint },
 } satisfies DefinitionTree

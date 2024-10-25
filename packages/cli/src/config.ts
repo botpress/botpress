@@ -200,7 +200,7 @@ const addSchema = {
   packageType,
   installPath: {
     type: 'string',
-    description: 'The path where to install the integration',
+    description: 'The path where to install the package',
     default: consts.defaultInstallPath,
   },
 } satisfies CommandSchema
