@@ -1,4 +1,4 @@
-import { ActionDefinition, ChannelDefinition, EntityDefinition, EventDefinition } from '../integration/definition/types'
+import { ActionDefinition, ChannelDefinition, EntityDefinition, EventDefinition } from '../integration/definition'
 import * as utils from '../utils'
 import z, { AnyZodObject, GenericZuiSchema, ZodRef } from '../zui'
 
