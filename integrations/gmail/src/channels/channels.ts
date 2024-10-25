@@ -19,7 +19,7 @@ export const channels = {
     messages: {
       image: wrapChannel({ channelName: 'channel', messageType: 'image' }, (props) => {
         const { imageUrl, title: altText } = props.payload
-        const htmlContent = generateImageMessage({ imageUrl, altText })
+        const htmlContent = generateImageMessage({ imageUrl, altText: altText ?? 'image' })
         const textContent = `Image:\n${imageUrl}`
 
         return _sendEmailReply({
@@ -30,7 +30,7 @@ export const channels = {
       }),
       audio: wrapChannel({ channelName: 'channel', messageType: 'audio' }, (props) => {
         const { audioUrl, title } = props.payload
-        const htmlContent = generateAudioMessage({ audioUrl, title })
+        const htmlContent = generateAudioMessage({ audioUrl, title: title ?? 'Play audio file' })
         const textContent = `Audio file:\n${audioUrl}`
 
         return _sendEmailReply({
@@ -41,7 +41,7 @@ export const channels = {
       }),
       video: wrapChannel({ channelName: 'channel', messageType: 'video' }, (props) => {
         const { videoUrl, title } = props.payload
-        const htmlContent = generateVideoMessage({ videoUrl, title })
+        const htmlContent = generateVideoMessage({ videoUrl, title: title ?? 'Play video file' })
         const textContent = `Video file:\n${videoUrl}`
 
         return _sendEmailReply({
@@ -52,7 +52,7 @@ export const channels = {
       }),
       file: wrapChannel({ channelName: 'channel', messageType: 'file' }, (props) => {
         const { fileUrl, title } = props.payload
-        const htmlContent = generateFileDownloadMessage({ fileUrl, title })
+        const htmlContent = generateFileDownloadMessage({ fileUrl, title: title ?? 'Download file' })
         const textContent = `Linked file:\n${fileUrl}`
 
         return _sendEmailReply({

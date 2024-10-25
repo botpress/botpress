@@ -8,22 +8,22 @@ export const channels = {
       ...sdk.messages.defaults,
       image: {
         schema: sdk.messages.defaults.image.schema.extend({
-          title: sdk.z.string().title('Alt text').describe('Alt text for the image'),
+          title: sdk.z.string().optional().title('Alt text').describe('Alt text for the image'),
         }),
       },
       audio: {
         schema: sdk.messages.defaults.audio.schema.extend({
-          title: sdk.z.string().title('Title').describe('Title for the audio file'),
+          title: sdk.z.string().optional().title('Title').describe('Title for the audio file'),
         }),
       },
       video: {
         schema: sdk.messages.defaults.video.schema.extend({
-          title: sdk.z.string().title('Title').describe('Title for the video file'),
+          title: sdk.z.string().optional().title('Title').describe('Title for the video file'),
         }),
       },
       file: {
         schema: sdk.messages.defaults.file.schema.extend({
-          title: sdk.z.string().title('Title').describe('Title for the file'),
+          title: sdk.z.string().optional().title('Title').describe('Title for the file'),
         }),
       },
     },
