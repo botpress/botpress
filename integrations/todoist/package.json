@@ -7,7 +7,7 @@
     "login": "pnpm bp login",
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
-    "add:interfaces": "bp add ../../interfaces/creatable -y"
+    "add:interfaces": "ts-node -T ./interfaces.ts"
   },
   "private": true,
   "dependencies": {

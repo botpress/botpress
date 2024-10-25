@@ -4,7 +4,7 @@
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
     "build": "pnpm bp build",
-    "add:interfaces": "bp add ../../interfaces/hitl -y"
+    "add:interfaces": "ts-node -T ./interfaces.ts"
   },
   "keywords": [],
   "private": true,

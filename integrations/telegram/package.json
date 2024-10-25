@@ -9,7 +9,7 @@
     "login": "pnpm bp login",
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
-    "add:interfaces": "bp add ../../interfaces/typing-indicator -y"
+    "add:interfaces": "ts-node -T ./interfaces.ts"
   },
   "keywords": [],
   "author": "",
