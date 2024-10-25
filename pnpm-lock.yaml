@@ -75,6 +75,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
@@ -100,6 +103,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@types/json-schema':
         specifier: ^7.0.11
         version: 7.0.12
@@ -128,6 +134,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
@@ -150,6 +159,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
@@ -178,6 +190,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
@@ -206,6 +221,9 @@ importers:
         specifier: ^1.5.0
         version: 1.6.7
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.16
@@ -259,6 +277,9 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -284,6 +305,9 @@ importers:
         specifier: ^1.7.2
         version: 1.7.2
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@types/node':
         specifier: ^18.11.17
         version: 18.19.10
@@ -328,6 +352,9 @@ importers:
         specifier: ^1.7.2
         version: 1.7.2
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@types/node':
         specifier: ^18.11.17
         version: 18.19.10
@@ -356,6 +383,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@types/node':
         specifier: ^18.19.10
         version: 18.19.10
@@ -507,6 +537,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.16
@@ -557,6 +590,9 @@ importers:
         specifier: ^126.0.1
         version: 126.0.1
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.0
@@ -588,6 +624,9 @@ importers:
         specifier: ^6.14.1
         version: 6.14.1
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -625,6 +664,9 @@ importers:
         specifier: ^4.0.0
         version: 4.0.0
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -665,6 +707,9 @@ importers:
         specifier: ^1.0.1
         version: 1.0.1
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -711,6 +756,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -733,6 +781,9 @@ importers:
         specifier: ^3.0.80
         version: 3.0.80
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@types/mailchimp__mailchimp_marketing':
         specifier: 3.0.10
         version: 3.0.10
@@ -761,6 +812,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@types/node':
         specifier: ^18.19.10
         version: 18.19.10
@@ -804,6 +858,9 @@ importers:
         specifier: ^6.14.1
         version: 6.14.1
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -838,6 +895,9 @@ importers:
         specifier: ^2.2.7
         version: 2.2.7
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@tsconfig/node18-strictest':
         specifier: ^1.0.0
         version: 1.0.0
@@ -891,6 +951,9 @@ importers:
         specifier: ^13.0.2
         version: 13.0.2
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@types/node':
         specifier: ^18.11.17
         version: 18.19.10
@@ -937,6 +1000,9 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -965,6 +1031,9 @@ importers:
         specifier: ^13.5.0
         version: 13.11.0
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@types/node':
         specifier: ^18.11.17
         version: 18.16.16
@@ -990,6 +1059,9 @@ importers:
         specifier: ^9.12.0
         version: 9.14.0(@babel/core@7.22.5)
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -1036,6 +1108,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -1082,6 +1157,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -1125,6 +1203,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@types/node':
         specifier: ^18.11.17
         version: 18.19.10
@@ -1183,6 +1264,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.36.1
         version: 2.36.1
@@ -1217,6 +1301,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -1254,6 +1341,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -1291,6 +1381,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -1328,6 +1421,9 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -1359,6 +1455,9 @@ importers:
         specifier: ^6.11.0
         version: 6.11.0
     devDependencies:
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -1414,6 +1513,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -1454,6 +1556,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -1509,6 +1614,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
