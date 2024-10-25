@@ -4,7 +4,8 @@ import * as types from '../typings'
 import { InterfacePackageDefinitionModule } from './interface-package-definition'
 
 const generateInterfacePackageModule = (definitionImport: string, pkg: types.InterfaceInstallablePackage): string => {
-  const refLine = pkg.source === 'local' ? `uri: "${utils.path.win32.escapeBackslashes(pkg.path)}"` : `id: "${pkg.interface.id}"`
+  const refLine =
+    pkg.source === 'local' ? `uri: "${utils.path.win32.escapeBackslashes(pkg.path)}"` : `id: "${pkg.interface.id}"`
   return [
     consts.GENERATED_HEADER,
     'import * as sdk from "@botpress/sdk"',
