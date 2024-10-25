@@ -1,4 +1,5 @@
 import * as integration from './integration'
+import * as intrface from './interface'
 import * as utils from './utils'
 
 type PackageReference =
@@ -52,5 +53,5 @@ type _test_expect_integration_definition_to_be_valid_package = utils.types.Expec
   utils.types.Extends<integration.IntegrationDefinition, IntegrationPackageDefinition>
 >
 type _test_expect_interface_definition_to_be_valid_package = utils.types.Expect<
-  utils.types.Extends<integration.InterfaceDeclaration, InterfacePackageDefinition>
+  utils.types.Extends<intrface.InterfaceDeclaration, InterfacePackageDefinition>
 >

@@ -1,7 +1,12 @@
-import * as utils from '../../utils'
-import z, { AnyZodObject, GenericZuiSchema, ZodRef } from '../../zui'
-import { BaseActions, BaseChannels, BaseEntities, BaseEvents } from './generic'
-import { ActionDefinition, ChannelDefinition, EntityDefinition, EventDefinition } from './types'
+import { ActionDefinition, ChannelDefinition, EntityDefinition, EventDefinition } from '../integration/definition'
+import * as utils from '../utils'
+import z, { AnyZodObject, GenericZuiSchema, ZodRef } from '../zui'
+
+type BaseEvents = Record<string, AnyZodObject>
+type BaseActions = Record<string, AnyZodObject>
+type BaseMessages = Record<string, AnyZodObject>
+type BaseChannels = Record<string, BaseMessages>
+type BaseEntities = Record<string, AnyZodObject>
 
 type EntityReferences<TEntities extends BaseEntities> = {
   [K in keyof TEntities]: ZodRef
