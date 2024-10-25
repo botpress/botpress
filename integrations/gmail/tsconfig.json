@@ -3,7 +3,7 @@
   "compilerOptions": {
     "jsx": "react-jsx",
     "jsxImportSource": "react",
-    "lib": ["DOM"],
+    "lib": ["es2022", "DOM"],
     "baseUrl": ".",
     "outDir": "dist"
   },
