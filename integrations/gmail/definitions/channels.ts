@@ -4,7 +4,29 @@ export const channels = {
   channel: {
     title: 'Email thread',
     description: 'Messages in an email thread',
-    messages: sdk.messages.defaults,
+    messages: {
+      ...sdk.messages.defaults,
+      image: {
+        schema: sdk.messages.defaults.image.schema.extend({
+          title: sdk.z.string().title('Alt text').describe('Alt text for the image'),
+        }),
+      },
+      audio: {
+        schema: sdk.messages.defaults.audio.schema.extend({
+          title: sdk.z.string().title('Title').describe('Title for the audio file'),
+        }),
+      },
+      video: {
+        schema: sdk.messages.defaults.video.schema.extend({
+          title: sdk.z.string().title('Title').describe('Title for the video file'),
+        }),
+      },
+      file: {
+        schema: sdk.messages.defaults.file.schema.extend({
+          title: sdk.z.string().title('Title').describe('Title for the file'),
+        }),
+      },
+    },
     message: {
       tags: {
         id: { title: 'Gmail ID', description: 'The unique identifier of the message on Gmail' },
