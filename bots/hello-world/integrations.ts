@@ -5,5 +5,5 @@ const { runCommand } = common.cmd
 const integrationNames: string[] = ['whatsapp']
 for (const integrationName of integrationNames) {
   const integrationPath = path.resolve(path.join('..', '..', 'integrations', integrationName))
-  runCommand(`bp add ${integrationPath} -y`, { workDir: __dirname })
+  runCommand(`pnpm exec bp add ${integrationPath} -y`, { workDir: __dirname })
 }
