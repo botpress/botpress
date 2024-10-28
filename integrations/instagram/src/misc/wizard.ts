@@ -41,7 +41,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
         getGlobalWebhookUrl() +
         '&state=' +
         ctx.webhookId +
-        '&response_type=code&scope=instagram_business_basic,instagram_business_manage_messages,instagram_business_manage_comments,instagram_business_content_publish'
+        '&response_type=code&scope=instagram_business_basic,instagram_business_manage_messages'
     )
   }
 
