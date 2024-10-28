@@ -1,7 +1,7 @@
 import type { Server } from 'node:http'
 import { serve } from '../serve'
-import { BaseBot } from './generic'
 import { botHandler, MessageHandler, EventHandler, StateExpiredHandler } from './server'
+import { BaseBot } from './types'
 
 type BotState<TBot extends BaseBot = BaseBot> = {
   messageHandlers: MessageHandler<TBot>[]

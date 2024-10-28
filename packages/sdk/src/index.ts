@@ -14,7 +14,6 @@ export {
   IntegrationDefinitionProps,
   IntegrationImplementation as Integration,
   IntegrationImplementationProps as IntegrationProps,
-  IntegrationContext,
   IntegrationLogger,
   IntegrationSpecificClient,
   TagDefinition,
@@ -29,6 +28,13 @@ export {
   SecretDefinition,
   EntityDefinition,
 } from './integration'
+
+export {
+  /**
+   * @deprecated use Context exported from '.botpress' instead
+   */
+  IntegrationContext,
+} from './integration/server'
 
 export {
   BotDefinition,

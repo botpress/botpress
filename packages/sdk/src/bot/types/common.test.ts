@@ -1,8 +1,8 @@
-import { MakeChannel, MakeIntegration } from '../../integration/generic'
+import { MakeChannel, MakeIntegration } from '../../integration/types/generic'
 import { test } from 'vitest'
 import * as utils from '../../utils/type-utils'
-import { BaseBot, MakeBot } from '../generic'
-import * as types from './types'
+import { BaseBot, MakeBot } from './generic'
+import * as types from './common'
 
 type FooBarBazIntegration = MakeIntegration<{
   actions: {

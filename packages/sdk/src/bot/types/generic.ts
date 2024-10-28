@@ -1,5 +1,5 @@
-import { BaseIntegration } from '../integration/generic'
-import * as utils from '../utils/type-utils'
+import { BaseIntegration } from '../../integration/types/generic'
+import * as utils from '../../utils/type-utils'
 
 export type BaseIntegrations = Record<string, BaseIntegration>
 export type BaseBot = {

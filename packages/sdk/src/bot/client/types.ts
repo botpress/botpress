@@ -1,137 +1,162 @@
-import * as client from '@botpress/client'
-import { Join, UnionToIntersection, Merge, ValueOf, Split, Cast, ToSealedRecord } from '../../utils/type-utils'
-import { BaseBot } from '../generic'
+import { Client, Event as ClientEvent, Message as ClientMessage } from '@botpress/client'
+import { Cast, Merge, ValueOf } from '../../utils/type-utils'
+import * as types from '../types/common'
+import { BaseBot } from '../types/generic'
 
-/**
- * 0. Definitions
- */
+type Arg<F extends (...args: any[]) => any> = Parameters<F>[number]
+type Res<F extends (...args: any[]) => any> = ReturnType<F>
 
-export type EventDefinition = BaseBot['events'][string]
-export type StateDefinition = BaseBot['states'][string]
-
-export type IntegrationInstanceDefinition = BaseBot['integrations'][string]
-export type IntegrationInstanceConfigurationDefinition = IntegrationInstanceDefinition['configuration']
-export type IntegrationInstanceActionDefinition = IntegrationInstanceDefinition['actions'][string]
-export type IntegrationInstanceChannelDefinition = IntegrationInstanceDefinition['channels'][string]
-export type IntegrationInstanceMessageDefinition = IntegrationInstanceChannelDefinition['messages'][string]
-export type IntegrationInstanceEventDefinition = IntegrationInstanceDefinition['events'][string]
-export type IntegrationInstanceStateDefinition = IntegrationInstanceDefinition['states'][string]
-export type IntegrationInstanceUserDefinition = IntegrationInstanceDefinition['user']
-
-/**
- * 1. Enumerations
- */
-
-type ActionKey<TIntegrationName extends string, TActionName extends string> = string extends TIntegrationName
-  ? string
-  : string extends TActionName
-  ? string
-  : Join<[TIntegrationName, ':', TActionName]>
-
-export type EnumerateActions<TBot extends BaseBot> = ToSealedRecord<
-  UnionToIntersection<
-    {
-      [TIntegrationName in keyof TBot['integrations']]: {
-        [TActionName in keyof TBot['integrations'][TIntegrationName]['actions'] as ActionKey<
-          Cast<TIntegrationName, string>,
-          Cast<TActionName, string>
-        >]: TBot['integrations'][TIntegrationName]['actions'][TActionName]
-      }
-    }[keyof TBot['integrations']]
-  > & {}
->
-
-type EventKey<TIntegrationName extends string, TEventName extends string> = string extends TIntegrationName
-  ? string
-  : string extends TEventName
-  ? string
-  : Join<[TIntegrationName, ':', TEventName]>
-
-export type EnumerateEvents<TBot extends BaseBot> = ToSealedRecord<
-  UnionToIntersection<
-    {
-      [TIntegrationName in keyof TBot['integrations']]: {
-        [TEventName in keyof TBot['integrations'][TIntegrationName]['events'] as EventKey<
-          Cast<TIntegrationName, string>,
-          Cast<TEventName, string>
-        >]: TBot['integrations'][TIntegrationName]['events'][TEventName]
-      }
-    }[keyof TBot['integrations']]
-  > & {
-    [TEventName in keyof TBot['events']]: TBot['events'][TEventName]
-  }
->
-
-type ChannelKey<TIntegrationName extends string, TChannelName extends string> = string extends TIntegrationName
-  ? string
-  : string extends TChannelName
-  ? string
-  : Join<[TIntegrationName, ':', TChannelName]>
-
-export type EnumerateChannels<TBot extends BaseBot> = ToSealedRecord<
-  UnionToIntersection<
-    {
-      [TIntegrationName in keyof TBot['integrations']]: {
-        [TChannelName in keyof TBot['integrations'][TIntegrationName]['channels'] as ChannelKey<
-          Cast<TIntegrationName, string>,
-          Cast<TChannelName, string>
-        >]: TBot['integrations'][TIntegrationName]['channels'][TChannelName]
-      }
-    }[keyof TBot['integrations']]
-  > & {}
->
-
-type MessageKey<
-  TIntegrationName extends string,
-  TChannelName extends string,
-  TMessageName extends string
-> = string extends TIntegrationName
-  ? string
-  : string extends TChannelName
-  ? string
-  : string extends TMessageName
-  ? string
-  : Join<[TIntegrationName, ':', TChannelName, ':', TMessageName]>
-
-export type EnumerateMessages<TBot extends BaseBot> = ToSealedRecord<
-  UnionToIntersection<
-    {
-      [TIntegrationName in keyof TBot['integrations']]: {
-        [TChannelName in keyof TBot['integrations'][TIntegrationName]['channels']]: {
-          [TMessageName in keyof TBot['integrations'][TIntegrationName]['channels'][TChannelName]['messages'] as MessageKey<
-            Cast<TIntegrationName, string>,
-            Cast<TChannelName, string>,
-            Cast<TMessageName, string>
-          >]: TBot['integrations'][TIntegrationName]['channels'][TChannelName]['messages'][TMessageName]
-        }
-      }[keyof TBot['integrations'][TIntegrationName]['channels']]
-    }[keyof TBot['integrations']]
-  > & {}
->
-
-export type GetMessages<TBot extends BaseBot> = {
-  [K in keyof EnumerateMessages<TBot> as Cast<Split<K, ':'>[2], string>]: EnumerateMessages<TBot>[K]
-}
-
-/**
- * 2. Responses
- */
-
-export type EventResponse<TBot extends BaseBot> = {
+type EventResponse<TBot extends BaseBot> = {
   event: {
-    [K in keyof EnumerateEvents<TBot>]: Merge<client.Event, { type: K; payload: EnumerateEvents<TBot>[K] }>
-  }[keyof EnumerateEvents<TBot>]
+    [K in keyof types.EnumerateEvents<TBot>]: Merge<ClientEvent, { type: K; payload: types.EnumerateEvents<TBot>[K] }>
+  }[keyof types.EnumerateEvents<TBot>]
 }
 
-export type MessageResponse<
+type MessageResponse<
   TBot extends BaseBot,
-  TMessage extends keyof GetMessages<TBot> = keyof GetMessages<TBot>
+  TMessage extends keyof types.GetMessages<TBot> = keyof types.GetMessages<TBot>
 > = {
   // TODO: use bot definiton message property to infer allowed tags (cannot be done until there is a bot.definition.ts file)
   message: ValueOf<{
-    [K in keyof GetMessages<TBot> as K extends TMessage ? K : never]: Merge<
-      client.Message,
-      { type: K; payload: GetMessages<TBot>[K] }
+    [K in keyof types.GetMessages<TBot> as K extends TMessage ? K : never]: Merge<
+      ClientMessage,
+      { type: K; payload: types.GetMessages<TBot>[K] }
     >
   }>
 }
+
+export type CreateConversation<_TBot extends BaseBot> = Client['createConversation']
+export type GetConversation<_TBot extends BaseBot> = Client['getConversation']
+export type ListConversations<_TBot extends BaseBot> = Client['listConversations']
+export type GetOrCreateConversation<_TBot extends BaseBot> = Client['getOrCreateConversation']
+export type UpdateConversation<_TBot extends BaseBot> = Client['updateConversation']
+export type DeleteConversation<_TBot extends BaseBot> = Client['deleteConversation']
+
+export type ListParticipants<_TBot extends BaseBot> = Client['listParticipants']
+export type AddParticipant<_TBot extends BaseBot> = Client['addParticipant']
+export type GetParticipant<_TBot extends BaseBot> = Client['getParticipant']
+export type RemoveParticipant<_TBot extends BaseBot> = Client['removeParticipant']
+
+export type GetEvent<TBot extends BaseBot> = (x: Arg<Client['getEvent']>) => Promise<EventResponse<TBot>>
+export type ListEvents<_TBot extends BaseBot> = Client['listEvents'] // TODO: type properly
+
+export type CreateMessage<TBot extends BaseBot> = <TMessage extends keyof types.GetMessages<TBot>>(
+  x: Merge<
+    Arg<Client['createMessage']>,
+    {
+      type: Cast<TMessage, string>
+      payload: Cast<types.GetMessages<TBot>[TMessage], Record<string, any>>
+      // TODO: use bot definiton message property to infer allowed tags (cannot be done until there is a bot.definition.ts file)
+    }
+  >
+) => Promise<MessageResponse<TBot, TMessage>>
+
+export type GetOrCreateMessage<TBot extends BaseBot> = <TMessage extends keyof types.GetMessages<TBot>>(
+  x: Merge<
+    Arg<Client['getOrCreateMessage']>,
+    {
+      type: Cast<TMessage, string>
+      payload: Cast<types.GetMessages<TBot>[TMessage], Record<string, any>>
+      // TODO: use bot definiton message property to infer allowed tags (cannot be done until there is a bot.definition.ts file)
+    }
+  >
+) => Promise<MessageResponse<TBot, TMessage>>
+
+export type GetMessage<TBot extends BaseBot> = (x: Arg<Client['getMessage']>) => Promise<MessageResponse<TBot>>
+export type UpdateMessage<TBot extends BaseBot> = (x: Arg<Client['updateMessage']>) => Promise<MessageResponse<TBot>>
+export type ListMessages<_TBot extends BaseBot> = Client['listMessages'] // TODO: type properly
+export type DeleteMessage<_TBot extends BaseBot> = Client['deleteMessage']
+
+export type CreateUser<_TBot extends BaseBot> = Client['createUser']
+export type GetUser<_TBot extends BaseBot> = Client['getUser']
+export type ListUsers<_TBot extends BaseBot> = Client['listUsers']
+export type GetOrCreateUser<_TBot extends BaseBot> = Client['getOrCreateUser']
+export type UpdateUser<_TBot extends BaseBot> = Client['updateUser']
+export type DeleteUser<_TBot extends BaseBot> = Client['deleteUser']
+
+export type GetState<TBot extends BaseBot> = <TState extends keyof TBot['states']>(
+  x: Merge<
+    Arg<Client['getState']>,
+    {
+      name: Cast<TState, string> // TODO: use state name to infer state type (cannot be done until there is a bot.definition.ts file)
+    }
+  >
+) => Promise<{
+  state: Merge<
+    Awaited<Res<Client['getState']>>['state'],
+    {
+      payload: TBot['states'][TState]
+    }
+  >
+}>
+
+export type SetState<TBot extends BaseBot> = <TState extends keyof TBot['states']>(
+  x: Merge<
+    Arg<Client['setState']>,
+    {
+      name: Cast<TState, string> // TODO: use state name to infer state type (cannot be done until there is a bot.definition.ts file)
+      payload: TBot['states'][TState] | null
+    }
+  >
+) => Promise<{
+  state: Merge<
+    Awaited<Res<Client['setState']>>['state'],
+    {
+      payload: TBot['states'][TState]
+    }
+  >
+}>
+
+export type GetOrSetState<TBot extends BaseBot> = <TState extends keyof TBot['states']>(
+  x: Merge<
+    Arg<Client['getOrSetState']>,
+    {
+      name: Cast<TState, string> // TODO: use state name to infer state type (cannot be done until there is a bot.definition.ts file)
+      payload: TBot['states'][TState]
+    }
+  >
+) => Promise<{
+  state: Merge<
+    Awaited<Res<Client['getOrSetState']>>['state'],
+    {
+      payload: TBot['states'][TState]
+    }
+  >
+}>
+
+export type PatchState<TBot extends BaseBot> = <TState extends keyof TBot['states']>(
+  x: Merge<
+    Arg<Client['patchState']>,
+    {
+      name: Cast<TState, string> // TODO: use state name to infer state type (cannot be done until there is a bot.definition.ts file)
+      payload: Partial<TBot['states'][TState]>
+    }
+  >
+) => Promise<{
+  state: Merge<
+    Awaited<Res<Client['patchState']>>['state'],
+    {
+      payload: TBot['states'][TState]
+    }
+  >
+}>
+
+export type CallAction<TBot extends BaseBot> = <ActionType extends keyof types.EnumerateActions<TBot>>(
+  x: Merge<
+    Arg<Client['callAction']>,
+    {
+      type: Cast<ActionType, string>
+      input: Cast<types.EnumerateActions<TBot>[ActionType], types.IntegrationInstanceActionDefinition>['input']
+    }
+  >
+) => Promise<{
+  output: Cast<types.EnumerateActions<TBot>[ActionType], types.IntegrationInstanceActionDefinition>['output']
+}>
+
+export type UploadFile<_TBot extends BaseBot> = Client['uploadFile']
+export type UpsertFile<_TBot extends BaseBot> = Client['upsertFile']
+export type DeleteFile<_TBot extends BaseBot> = Client['deleteFile']
+export type ListFiles<_TBot extends BaseBot> = Client['listFiles']
+export type GetFile<_TBot extends BaseBot> = Client['getFile']
+export type UpdateFileMetadata<_TBot extends BaseBot> = Client['updateFileMetadata']
+export type SearchFiles<_TBot extends BaseBot> = Client['searchFiles']
