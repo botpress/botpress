@@ -144,7 +144,7 @@ export async function getCredentials(
   client: bp.Client,
   ctx: bp.Context
 ): Promise<{ accessToken: string; clientSecret: string; clientId: string }> {
-  if (ctx.configuration.useManualConfiguration) {
+  if (ctx.configurationType === 'manualApp') {
     return {
       accessToken: ctx.configuration.accessToken || '',
       clientSecret: ctx.configuration.clientSecret || '',

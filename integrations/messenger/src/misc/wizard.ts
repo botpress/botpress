@@ -102,6 +102,22 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
       identifier: pageId,
     })
 
+    return generateButtonDialog({
+      title: 'Configuration Complete',
+      description: `Your configuration is now complete and the selected Facebook page will start answering as this bot, you can open it on Messenger and test it.
+
+          Here are some things to verify if you are unable to talk with your bot on Messenger.
+
+          - Confirm if are talking with the page that was selected for this bot
+          - Double check if you published this bot
+        `,
+      buttons: [
+        { display: 'Okay', type: 'primary', action: 'NAVIGATE', payload: `${req.path}?wizard-step=wrap-up-finish` },
+      ],
+    })
+  }
+
+  if (wizardStep === 'wrap-up-finish') {
     return redirectTo(getInterstitialUrl(true))
   }
 

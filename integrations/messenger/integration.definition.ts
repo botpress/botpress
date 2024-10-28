@@ -5,7 +5,7 @@ export const INTEGRATION_NAME = 'messenger'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.0.2',
+  version: '2.1.0',
   title: 'Messenger',
   description: 'This integration allows your bot to interact with Messenger.',
   icon: 'icon.svg',
@@ -13,35 +13,25 @@ export default new IntegrationDefinition({
   configuration: {
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
+      required: true,
     },
-    ui: {
-      useManualConfiguration: {
-        title: 'Use Manual Configuration',
-      },
-    },
-    schema: z
-      .object({
-        useManualConfiguration: z.boolean().optional().describe('Skip oAuth and supply details from a Meta App'),
-        verifyToken: z.string().optional().describe('Token used for verification when subscribing to webhooks'),
+    schema: z.object({}),
+  },
+  configurations: {
+    manualApp: {
+      title: 'Manual Configuration',
+      description: 'Manual Configuration, use your own Meta app (for advanced use cases only)',
+      schema: z.object({
+        verifyToken: z.string().min(1).describe('Token used for verification when subscribing to webhooks'),
         accessToken: z
           .string()
-          .optional()
+          .min(1)
           .describe('Access Token from a System Account that has permission to the Meta app'),
         clientId: z.string().optional(),
         clientSecret: z.string().optional().describe('Meta app secret used for webhook signature check'),
-        pageId: z.string().optional().describe('Id from the Facebook page'),
-      })
-      .hidden((formData) => {
-        const showConfig = !formData?.useManualConfiguration
-
-        return {
-          verifyToken: showConfig,
-          accessToken: showConfig,
-          clientId: showConfig,
-          clientSecret: showConfig,
-          pageId: showConfig,
-        }
+        pageId: z.string().min(1).describe('Id from the Facebook page'),
       }),
+    },
   },
   identifier: {
     extractScript: 'extract.vrl',
