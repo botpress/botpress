@@ -49,9 +49,9 @@ export type InterfacePackage = PackageReference & {
 
 export type Package = IntegrationPackage | InterfacePackage
 
-type _test_expect_integration_definition_to_be_valid_package = utils.types.Expect<
-  utils.types.Extends<integration.IntegrationDefinition, IntegrationPackageDefinition>
+type _test_expect_integration_definition_to_be_valid_package = utils.types.AssertTrue<
+  utils.types.AssertExtends<IntegrationPackageDefinition, integration.IntegrationDefinition>
 >
-type _test_expect_interface_definition_to_be_valid_package = utils.types.Expect<
-  utils.types.Extends<intrface.InterfaceDeclaration, InterfacePackageDefinition>
+type _test_expect_interface_definition_to_be_valid_package = utils.types.AssertTrue<
+  utils.types.AssertExtends<InterfacePackageDefinition, intrface.InterfaceDeclaration>
 >
