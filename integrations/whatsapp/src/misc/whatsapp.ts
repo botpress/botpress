@@ -132,7 +132,7 @@ export class MetaOauthClient {
 }
 
 export const getAccessToken = async (client: bp.Client, ctx: bp.Context): Promise<string> => {
-  if (ctx.configuration.useManualConfiguration) {
+  if (ctx.configurationType === 'manualApp') {
     return ctx.configuration.accessToken as string
   }
 
@@ -147,7 +147,7 @@ export const getAccessToken = async (client: bp.Client, ctx: bp.Context): Promis
 
 export const getSecret = (ctx: bp.Context): string | undefined => {
   let value: string | undefined
-  if (ctx.configuration.useManualConfiguration) {
+  if (ctx.configurationType === 'manualApp') {
     value = ctx.configuration.clientSecret
   } else {
     value = bp.secrets.CLIENT_SECRET
@@ -157,7 +157,7 @@ export const getSecret = (ctx: bp.Context): string | undefined => {
 }
 
 export const getPhoneNumberId = async (client: bp.Client, ctx: bp.Context) => {
-  if (ctx.configuration.useManualConfiguration) {
+  if (ctx.configurationType === 'manualApp') {
     return ctx.configuration.phoneNumberId
   }
 

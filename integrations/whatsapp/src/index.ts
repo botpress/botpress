@@ -188,7 +188,7 @@ const integration = new bp.Integration({
       const token = query['hub.verify_token']
       const challenge = query['hub.challenge']
 
-      if (mode === 'subscribe') {
+      if (mode === 'subscribe' && ctx.configurationType === 'manualApp') {
         if (token === ctx.configuration.verifyToken) {
           if (!challenge) {
             logger.forBot().warn('Returning HTTP 400 as no challenge parameter was received in query string of request')

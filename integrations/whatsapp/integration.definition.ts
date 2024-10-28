@@ -32,44 +32,37 @@ export const INTEGRATION_NAME = 'whatsapp'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.0.9',
+  version: '2.1.0',
   title: 'WhatsApp',
   description: 'This integration allows your bot to interact with WhatsApp.',
   icon: 'icon.svg',
   readme: 'hub.md',
+  configurations: {
+    'manualApp': {
+      title: 'Manual Configuration',
+      description: 'Use your own Meta app, for advanced use cases only',
+      ui: {
+        phoneNumberId: {
+          title: 'Default Phone Number ID for starting conversations',
+        },
+      },
+      schema: z
+        .object({
+          verifyToken: z.string().describe('Token used for verification when subscribing to webhooks'),
+          accessToken: z
+            .string()
+            .describe('Access Token from a System Account that has permission to the Meta app'),
+          clientSecret: z.string().optional().describe('Meta app secret used for webhook signature check'),
+          phoneNumberId: z.string().describe('Default Phone used for starting conversations'),
+        })
+    }
+  },
   configuration: {
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
+      required: true
     },
-    ui: {
-      phoneNumberId: {
-        title: 'Default Phone Number ID for starting conversations',
-      },
-      useManualConfiguration: {
-        title: 'Use Manual Configuration',
-      },
-    },
-    schema: z
-      .object({
-        useManualConfiguration: z.boolean().optional().describe('Skip oAuth and supply details from a Meta App'),
-        verifyToken: z.string().optional().describe('Token used for verification when subscribing to webhooks'),
-        accessToken: z
-          .string()
-          .optional()
-          .describe('Access Token from a System Account that has permission to the Meta app'),
-        clientSecret: z.string().optional().describe('Meta app secret used for webhook signature check'),
-        phoneNumberId: z.string().optional().describe('Default Phone used for starting conversations'),
-      })
-      .hidden((formData) => {
-        const showConfig = !formData?.useManualConfiguration
-
-        return {
-          verifyToken: showConfig,
-          accessToken: showConfig,
-          clientSecret: showConfig,
-          phoneNumberId: showConfig,
-        }
-      }),
+    schema: z.object({})
   },
   identifier: {
     extractScript: 'extract.vrl',
