@@ -22,12 +22,17 @@ export default new IntegrationDefinition({
       title: 'Manual Configuration',
       description: 'Manual Configuration, use your own Meta app (for advanced use cases only)',
       schema: z.object({
-        verifyToken: z.string().min(1).describe('Token used for verification when subscribing to webhooks'),
+        verifyToken: z
+          .string()
+          .min(1)
+          .describe(
+            'Token used for verification when subscribing to webhooks on the Meta app (type any random string)'
+          ),
         accessToken: z
           .string()
           .min(1)
           .describe('Access Token from a System Account that has permission to the Meta app'),
-        clientId: z.string().optional(),
+        clientId: z.string().min(1).describe('Meta app client id'),
         clientSecret: z.string().optional().describe('Meta app secret used for webhook signature check'),
         pageId: z.string().min(1).describe('Id from the Facebook page'),
       }),

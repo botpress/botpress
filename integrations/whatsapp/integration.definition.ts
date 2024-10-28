@@ -47,10 +47,18 @@ export default new IntegrationDefinition({
         },
       },
       schema: z.object({
-        verifyToken: z.string().min(1).describe('Token used for verification when subscribing to webhooks'),
-        accessToken: z.string().min(1).describe('Access Token from a System Account that has permission to the Meta app'),
+        verifyToken: z
+          .string()
+          .min(1)
+          .describe(
+            'Token used for verification when subscribing to webhooks on the Meta app (type any random string)'
+          ),
+        accessToken: z
+          .string()
+          .min(1)
+          .describe('Access Token from a System Account that has permission to the Meta app'),
         clientSecret: z.string().optional().describe('Meta app secret used for webhook signature check'),
-        phoneNumberId: z.string().min(1).describe('Default Phone used for starting conversations'),
+        phoneNumberId: z.string().min(1).describe('Default Phone id used for starting conversations'),
       }),
     },
   },
