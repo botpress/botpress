@@ -38,31 +38,28 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   readme: 'hub.md',
   configurations: {
-    'manualApp': {
+    manualApp: {
       title: 'Manual Configuration',
-      description: 'Use your own Meta app, for advanced use cases only',
+      description: 'Manual Configuration, use your own Meta app (for advanced use cases only)',
       ui: {
         phoneNumberId: {
           title: 'Default Phone Number ID for starting conversations',
         },
       },
-      schema: z
-        .object({
-          verifyToken: z.string().describe('Token used for verification when subscribing to webhooks'),
-          accessToken: z
-            .string()
-            .describe('Access Token from a System Account that has permission to the Meta app'),
-          clientSecret: z.string().optional().describe('Meta app secret used for webhook signature check'),
-          phoneNumberId: z.string().describe('Default Phone used for starting conversations'),
-        })
-    }
+      schema: z.object({
+        verifyToken: z.string().min(1).describe('Token used for verification when subscribing to webhooks'),
+        accessToken: z.string().min(1).describe('Access Token from a System Account that has permission to the Meta app'),
+        clientSecret: z.string().optional().describe('Meta app secret used for webhook signature check'),
+        phoneNumberId: z.string().min(1).describe('Default Phone used for starting conversations'),
+      }),
+    },
   },
   configuration: {
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
-      required: true
+      required: true,
     },
-    schema: z.object({})
+    schema: z.object({}),
   },
   identifier: {
     extractScript: 'extract.vrl',

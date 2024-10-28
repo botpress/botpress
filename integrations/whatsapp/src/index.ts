@@ -23,7 +23,7 @@ import * as bp from '.botpress'
 
 const integration = new bp.Integration({
   register: async (input) => {
-    const { useManualConfiguration, accessToken, clientSecret, phoneNumberId, verifyToken } = input.ctx.configuration
+    const useManualConfiguration = input.ctx.configurationType === 'manualApp'
 
     await identifyBot(input.ctx.botId, {
       [INTEGRATION_NAME + 'OauthType']: useManualConfiguration ? 'manual' : 'oauth',
@@ -32,6 +32,9 @@ const integration = new bp.Integration({
     if (!useManualConfiguration) {
       return // nothing more to do if we're not using manual configuration
     }
+
+    const { accessToken, clientSecret, phoneNumberId, verifyToken } = input.ctx
+      .configuration as bp.configurations.manualApp.ManualAppConfig
 
     if (accessToken && clientSecret && phoneNumberId && verifyToken) {
       // let's check the credentials

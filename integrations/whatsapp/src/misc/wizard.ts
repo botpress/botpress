@@ -170,6 +170,24 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
     await oauthClient.registerNumber(phoneNumberId, accessToken)
     await oauthClient.subscribeToWebhooks(wabaId, accessToken)
 
+    return generateButtonDialog({
+      title: 'Configuration Complete',
+      description: `Your configuration is now complete and the selected WhatsApp number will start answering as this bot, you can add the number to your personal contacts and test it.
+
+          Here are some things to verify if you are unable to talk with your bot on WhatsApp.
+
+          - Confirm if you added the correct number (With country and area code)
+          - Double check if you published this bot
+          - Wait a few hours (3-4) for Meta to process the Setup
+          - Verify if your display name was not denied by Meta (you will get an email in the Facebook accounts email address)
+        `,
+      buttons: [
+        { display: 'Okay', type: 'primary', action: 'NAVIGATE', payload: `${req.path}?wizard-step=wrap-up-finish` },
+      ],
+    })
+  }
+
+  if (wizardStep === 'wrap-up-finish') {
     return redirectTo(getInterstitialUrl(true))
   }
 
