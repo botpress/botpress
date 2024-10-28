@@ -1,135 +1,27 @@
-import { isApiError, Client, type Conversation, type Message, type User, RuntimeError } from '@botpress/client'
-import { retryConfig } from '../retry'
-import { Request, Response, parseBody } from '../serve'
-import { Cast, Merge } from '../utils/type-utils'
+import { isApiError, Client, RuntimeError } from '@botpress/client'
+import { retryConfig } from '../../retry'
+import { Request, Response, parseBody } from '../../serve'
+import { IntegrationSpecificClient } from '../client'
+import { BaseIntegration } from '../types'
 import { ActionMetadataStore } from './action-metadata'
-import { IntegrationSpecificClient } from './client'
-import { ToTags } from './client/types'
-import { extractContext, type IntegrationContext } from './context'
-import { BaseIntegration } from './generic'
-import { IntegrationLogger, integrationLogger } from './logger'
+import { extractContext } from './context'
+import { integrationLogger } from './logger'
+import {
+  CommonHandlerProps,
+  IntegrationHandlers,
+  WebhookPayload,
+  ActionPayload,
+  MessagePayload,
+  RegisterPayload,
+  CreateUserPayload,
+  UnregisterPayload,
+  CreateConversationPayload,
+  IntegrationContext,
+} from './types'
 
-type CommonArgs<TIntegration extends BaseIntegration> = {
-  ctx: IntegrationContext<TIntegration>
-  client: IntegrationSpecificClient<TIntegration>
-  logger: IntegrationLogger
-}
+export * from './types'
 
-type RegisterPayload = { webhookUrl: string }
-type RegisterArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> & RegisterPayload
-
-type UnregisterPayload = { webhookUrl: string }
-type UnregisterArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> & UnregisterPayload
-
-type WebhookPayload = { req: Request }
-type WebhookArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> & WebhookPayload
-
-type ActionMetadata = { setCost: (cost: number) => void }
-type ActionPayload<T extends string, I> = { type: T; input: I; metadata: ActionMetadata }
-type ActionArgs<TIntegration extends BaseIntegration, T extends string, I> = CommonArgs<TIntegration> &
-  ActionPayload<T, I>
-
-type CreateUserPayload<TIntegration extends BaseIntegration> = {
-  tags: ToTags<keyof TIntegration['user']['tags']>
-}
-
-type CreateUserArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> & CreateUserPayload<TIntegration>
-
-type CreateConversationPayload<
-  TIntegration extends BaseIntegration,
-  TChannel extends keyof TIntegration['channels'] = keyof TIntegration['channels']
-> = {
-  channel: TChannel
-  tags: ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
-}
-
-type CreateConversationArgs<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> &
-  CreateConversationPayload<TIntegration>
-
-type MessagePayload<
-  TIntegration extends BaseIntegration,
-  TChannel extends keyof TIntegration['channels'],
-  TMessage extends keyof TIntegration['channels'][TChannel]['messages']
-> = {
-  type: TMessage
-  payload: TIntegration['channels'][TChannel]['messages'][TMessage]
-  conversation: Merge<
-    Conversation,
-    {
-      channel: TChannel
-      tags: ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
-    }
-  >
-  message: Merge<
-    Message,
-    {
-      tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
-    }
-  >
-  user: Merge<
-    User,
-    {
-      tags: ToTags<keyof TIntegration['user']['tags']>
-    }
-  >
-}
-
-type MessageArgs<
-  TIntegration extends BaseIntegration,
-  TChannel extends keyof TIntegration['channels'],
-  TMessage extends keyof TIntegration['channels'][TChannel]['messages']
-> = CommonArgs<TIntegration> &
-  MessagePayload<TIntegration, TChannel, TMessage> & {
-    ack: (props: { tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']> }) => Promise<void>
-  }
-
-export type RegisterFunction<TIntegration extends BaseIntegration> = (
-  props: RegisterArgs<TIntegration>
-) => Promise<void>
-
-export type UnregisterFunction<TIntegration extends BaseIntegration> = (
-  props: UnregisterArgs<TIntegration>
-) => Promise<void>
-
-export type WebhookFunction<TIntegration extends BaseIntegration> = (
-  props: WebhookArgs<TIntegration>
-) => Promise<Response | void>
-
-export type ActionFunctions<TIntegration extends BaseIntegration> = {
-  [ActionType in keyof TIntegration['actions']]: (
-    props: ActionArgs<TIntegration, Cast<ActionType, string>, TIntegration['actions'][ActionType]['input']>
-  ) => Promise<TIntegration['actions'][ActionType]['output']>
-}
-
-export type CreateUserFunction<TIntegration extends BaseIntegration> = (
-  props: CreateUserArgs<TIntegration>
-) => Promise<Response | void>
-
-export type CreateConversationFunction<TIntegration extends BaseIntegration> = (
-  props: CreateConversationArgs<TIntegration>
-) => Promise<Response | void>
-
-export type ChannelFunctions<TIntegration extends BaseIntegration> = {
-  [ChannelName in keyof TIntegration['channels']]: {
-    messages: {
-      [MessageType in keyof TIntegration['channels'][ChannelName]['messages']]: (
-        props: CommonArgs<TIntegration> & MessageArgs<TIntegration, ChannelName, MessageType>
-      ) => Promise<void>
-    }
-  }
-}
-
-export type IntegrationHandlers<TIntegration extends BaseIntegration> = {
-  register: RegisterFunction<TIntegration>
-  unregister: UnregisterFunction<TIntegration>
-  webhook: WebhookFunction<TIntegration>
-  createUser?: CreateUserFunction<TIntegration>
-  createConversation?: CreateConversationFunction<TIntegration>
-  actions: ActionFunctions<TIntegration>
-  channels: ChannelFunctions<TIntegration>
-}
-
-type ServerProps<TIntegration extends BaseIntegration> = CommonArgs<TIntegration> & {
+type ServerProps<TIntegration extends BaseIntegration> = CommonHandlerProps<TIntegration> & {
   req: Request
   instance: IntegrationHandlers<TIntegration>
 }
@@ -137,7 +29,7 @@ type ServerProps<TIntegration extends BaseIntegration> = CommonArgs<TIntegration
 export const integrationHandler =
   <TIntegration extends BaseIntegration>(instance: IntegrationHandlers<TIntegration>) =>
   async (req: Request): Promise<Response | void> => {
-    const ctx = extractContext<TIntegration>(req.headers)
+    const ctx = extractContext(req.headers) as IntegrationContext<TIntegration>
 
     const vanillaClient = new Client({
       botId: ctx.botId,

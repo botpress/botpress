@@ -1,4 +1,4 @@
-import * as utils from '../utils/type-utils'
+import * as utils from '../../utils/type-utils'
 
 export type BaseIntegration = {
   name: string

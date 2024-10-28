@@ -1,57 +1,21 @@
 import * as client from '@botpress/client'
-import { log } from '../log'
-import { retryConfig } from '../retry'
-import { Request, Response, parseBody } from '../serve'
-import { BotSpecificClient } from './client'
-import * as types from './client/types'
-import { BotContext, extractContext } from './context'
-import { StateType } from './definition'
-import { BaseBot } from './generic'
+import { log } from '../../log'
+import { retryConfig } from '../../retry'
+import { Request, Response, parseBody } from '../../serve'
+import { BotSpecificClient } from '../client'
+import { BaseBot } from '../types/generic'
+import { extractContext } from './context'
+import * as types from './types'
 
-type CommonArgs<TBot extends BaseBot> = {
-  ctx: BotContext
-  client: BotSpecificClient<TBot>
-}
+export * from './types'
 
-type MessagePayload<TBot extends BaseBot> = {
-  user: client.User
-  conversation: client.Conversation
-  message: types.MessageResponse<TBot>['message']
-  event: client.Event
-  states: {
-    [TState in keyof TBot['states']]: {
-      type: StateType
-      payload: TBot['states'][TState]
-    }
-  }
-}
-type MessageArgs<TBot extends BaseBot> = CommonArgs<TBot> & MessagePayload<TBot>
-
-type EventPayload<TBot extends BaseBot> = types.EventResponse<TBot>
-type EventArgs<TBot extends BaseBot> = CommonArgs<TBot> & EventPayload<TBot>
-
-type StateExpiredPayload = { state: client.State }
-type StateExpiredArgs<TBot extends BaseBot> = CommonArgs<TBot> & StateExpiredPayload
-
-export type MessageHandler<TBot extends BaseBot> = (args: MessageArgs<TBot>) => Promise<void>
-
-export type EventHandler<TBot extends BaseBot> = (args: EventArgs<TBot>) => Promise<void>
-
-export type StateExpiredHandler<TBot extends BaseBot> = (args: StateExpiredArgs<TBot>) => Promise<void>
-
-export type BotHandlers<TBot extends BaseBot> = {
-  messageHandlers: MessageHandler<TBot>[]
-  eventHandlers: EventHandler<TBot>[]
-  stateExpiredHandlers: StateExpiredHandler<TBot>[]
-}
-
-type ServerProps<TBot extends BaseBot> = CommonArgs<TBot> & {
+type ServerProps<TBot extends BaseBot> = types.CommonHandlerProps<TBot> & {
   req: Request
-  instance: BotHandlers<TBot>
+  instance: types.BotHandlers<TBot>
 }
 
 export const botHandler =
-  <TBot extends BaseBot>(instance: BotHandlers<TBot>) =>
+  <TBot extends BaseBot>(instance: types.BotHandlers<TBot>) =>
   async (req: Request): Promise<Response | void> => {
     const ctx = extractContext(req.headers)
 
@@ -100,12 +64,12 @@ const onUnregister = async <TBot extends BaseBot>(_: ServerProps<TBot>) => {}
 const onEventReceived = async <TBot extends BaseBot>({ ctx, req, client, instance }: ServerProps<TBot>) => {
   log.debug(`Received event ${ctx.type}`)
 
-  const body = parseBody<EventPayload<TBot>>(req)
+  const body = parseBody<types.EventPayload<TBot>>(req)
   const event = body.event as client.Event
 
   switch (ctx.type) {
     case 'message_created':
-      const messagePayload: MessagePayload<TBot> = {
+      const messagePayload: types.MessagePayload<TBot> = {
         user: event.payload.user,
         conversation: event.payload.conversation,
         message: event.payload.message,
@@ -124,7 +88,7 @@ const onEventReceived = async <TBot extends BaseBot>({ ctx, req, client, instanc
       )
       break
     case 'state_expired':
-      const statePayload: StateExpiredPayload = { state: event.payload.state }
+      const statePayload: types.StateExpiredPayload<TBot> = { state: event.payload.state }
       await Promise.all(
         instance.stateExpiredHandlers.map((handler) =>
           handler({
@@ -136,7 +100,7 @@ const onEventReceived = async <TBot extends BaseBot>({ ctx, req, client, instanc
       )
       break
     default:
-      const eventPayload = { event: body.event } as EventPayload<TBot>
+      const eventPayload = { event: body.event } as types.EventPayload<TBot>
       await Promise.all(
         instance.eventHandlers.map((handler) =>
           handler({

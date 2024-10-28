@@ -7,9 +7,8 @@ import {
   integrationIdHeader,
   operationHeader,
   webhookIdHeader,
-} from '../const'
-import { ValueOf } from '../utils/type-utils'
-import { BaseIntegration } from './generic'
+} from '../../const'
+import { IntegrationContext } from './types'
 
 export const integrationOperationSchema = z.enum([
   'webhook_received',
@@ -22,31 +21,7 @@ export const integrationOperationSchema = z.enum([
   'create_conversation',
 ])
 
-export type IntegrationOperation = z.infer<typeof integrationOperationSchema>
-
-type IntegrationContextConfig<TIntegration extends BaseIntegration> =
-  | {
-      configurationType: null
-      configuration: TIntegration['configuration']
-    }
-  | ValueOf<{
-      [TConfigType in keyof TIntegration['configurations']]: {
-        configurationType: TConfigType
-        configuration: TIntegration['configurations'][TConfigType]
-      }
-    }>
-
-export type IntegrationContext<TIntegration extends BaseIntegration = BaseIntegration> = {
-  botId: string
-  botUserId: string
-  integrationId: string
-  webhookId: string
-  operation: IntegrationOperation
-} & IntegrationContextConfig<TIntegration>
-
-export const extractContext = <TIntegration extends BaseIntegration>(
-  headers: Record<string, string | undefined>
-): IntegrationContext<TIntegration> => {
+export const extractContext = (headers: Record<string, string | undefined>): IntegrationContext => {
   const botId = headers[botIdHeader]
   const botUserId = headers[botUserIdHeader]
   const integrationId = headers[integrationIdHeader]
@@ -87,5 +62,5 @@ export const extractContext = <TIntegration extends BaseIntegration>(
     operation,
     configurationType: configurationType ?? null,
     configuration: base64Configuration ? JSON.parse(Buffer.from(base64Configuration, 'base64').toString('utf-8')) : {},
-  } as IntegrationContext<TIntegration>
+  }
 }

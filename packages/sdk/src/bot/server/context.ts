@@ -1,19 +1,8 @@
 import { z } from '@bpinternal/zui'
-import { botIdHeader, configurationHeader, operationHeader, typeHeader } from '../const'
+import { botIdHeader, configurationHeader, operationHeader, typeHeader } from '../../const'
+import { BotContext } from './types'
 
-export const botOperationSchema = z.enum(['event_received', 'register', 'unregister', 'ping', 'action_triggered'])
-
-export type BotOperation = z.infer<typeof botOperationSchema>
-
-export type BotContext = {
-  botId: string
-  type: string
-  operation: BotOperation
-  configuration: {
-    payload: string
-  }
-}
-
+const botOperationSchema = z.enum(['event_received', 'register', 'unregister', 'ping', 'action_triggered'])
 export const extractContext = (headers: Record<string, string | undefined>): BotContext => {
   const botId = headers[botIdHeader]
   const base64Configuration = headers[configurationHeader]
