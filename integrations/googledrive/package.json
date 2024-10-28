@@ -5,7 +5,8 @@
     "check:type": "tsc --noEmit",
     "login": "bp login",
     "start": "nodemon --watch \"./*\" --ext \"ts\" --exec \"bp deploy -y\"",
-    "deploy": "bp deploy"
+    "deploy": "bp deploy",
+    "build": "bp build"
   },
   "private": true,
   "dependencies": {
