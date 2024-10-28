@@ -253,7 +253,10 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       url: externalUrl,
       configuration: await this.readIntegrationConfigDefinition(createIntegrationBody.configuration),
       configurations: await utils.promises.awaitRecord(
-        utils.records.mapValues(createIntegrationBody.configurations ?? {}, this.readIntegrationConfigDefinition)
+        utils.records.mapValues(
+          createIntegrationBody.configurations ?? {},
+          this.readIntegrationConfigDefinition.bind(this)
+        )
       ),
     }
 

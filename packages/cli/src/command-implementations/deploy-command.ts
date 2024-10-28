@@ -100,7 +100,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       readme: readmeFileContent,
       configuration: await this.readIntegrationConfigDefinition(createBody.configuration),
       configurations: await utils.promises.awaitRecord(
-        utils.records.mapValues(createBody.configurations ?? {}, this.readIntegrationConfigDefinition)
+        utils.records.mapValues(createBody.configurations ?? {}, this.readIntegrationConfigDefinition.bind(this))
       ),
       identifier: {
         extractScript: identifierExtractScriptFileContent,
