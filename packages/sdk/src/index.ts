@@ -30,8 +30,10 @@ export {
 } from './integration'
 
 export {
-  /** @deprecated */
-  IntegrationContext, // TODO: remove
+  /**
+   * @deprecated use Context exported from '.botpress' instead
+   */
+  IntegrationContext,
 } from './integration/server'
 
 export {
