@@ -3,10 +3,10 @@ import { drive_v3 } from 'googleapis'
 import { getClient } from './client'
 import * as bp from '.botpress'
 
-const listFiles: bp.IntegrationProps['actions']['listFiles'] = async ({ ctx }) => {
-  const client = await getClient(ctx)
+const listFiles: bp.IntegrationProps['actions']['listFiles'] = async ({ client, ctx }) => {
+  const googleClient = await getClient({ client, ctx })
 
-  const listResponse = await client.files.list({
+  const listResponse = await googleClient.files.list({
     corpora: 'user', // TODO: Limit to the configured drive
     // TODO: Shared drives
     // TODO: Support pagination
@@ -24,7 +24,7 @@ const listFiles: bp.IntegrationProps['actions']['listFiles'] = async ({ ctx }) =
       if (!fileInfosReduced.id) {
         throw new RuntimeError('File ID is missing')
       }
-      return await client.files.get({
+      return await googleClient.files.get({
         fileId: fileInfosReduced.id,
         fields: 'id, name, mimeType, parents',
         // TODO: Shared drives

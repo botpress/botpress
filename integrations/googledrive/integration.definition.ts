@@ -7,15 +7,10 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl'
+    },
     schema: z.object({
-      privateKey: z
-        .string()
-        .min(1)
-        .describe('The private key from the Google service account. You can get it from the downloaded JSON file.'),
-      clientEmail: z
-        .string()
-        .min(1)
-        .describe('The client email from the Google service account. You can get it from the downloaded JSON file.'),
       driveId: z.string().min(1).describe('The ID of the Google Drive to be accessed by the bot.'),
     }),
   },
@@ -37,5 +32,24 @@ export default new IntegrationDefinition({
         }),
       },
     },
+  },
+  states:{
+    configuration: {
+      type: 'integration',
+      schema: z.object({
+        refreshToken: z
+          .string()
+          .title('Refresh token')
+          .describe('The refresh token to use to authenticate with Google. It gets exchanged for a bearer token')
+      })
+    }
+  },
+  secrets: {
+    CLIENT_ID: {
+      description: 'The client ID in your Google Cloud Credentials',
+    },
+    CLIENT_SECRET: {
+      description: 'The client secret associated with your client ID',
+    }
   },
 })

@@ -1,0 +1,5 @@
+webhookId = to_string!(.webhookId)
+webhookUrl = to_string!(.webhookUrl)
+
+clientId = "498444171125-5r2u44kldnvq5ui8skrvjq7a4u0dccnd.apps.googleusercontent.com"
+"https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/drive&access_type=offline&include_granted_scopes=true&response_type=code&prompt=consent&state={{ webhookId }}&redirect_uri={{ webhookUrl }}/oauth&client_id={{ clientId }}"
