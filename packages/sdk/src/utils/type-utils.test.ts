@@ -1,32 +1,32 @@
 import { test } from 'vitest'
-import * as types from './type-utils'
+import * as utils from './type-utils'
 
 test('join should concatenate strings', () => {
-  type A = types.Join<['a', 'b', 'c']>
+  type A = utils.Join<['a', 'b', 'c']>
   type B = 'abc'
-  type _assertion = types.AssertAll<
+  type _assertion = utils.AssertAll<
     [
       //
-      types.AssertExtends<A, B>,
-      types.AssertExtends<B, A>
+      utils.AssertExtends<A, B>,
+      utils.AssertExtends<B, A>
     ]
   >
 })
 
 test('split should split strings', () => {
-  type A = types.Split<'a.b.c', '.'>
+  type A = utils.Split<'a.b.c', '.'>
   type B = ['a', 'b', 'c']
-  type _assertion = types.AssertAll<
+  type _assertion = utils.AssertAll<
     [
       //
-      types.AssertExtends<A, B>,
-      types.AssertExtends<B, A>
+      utils.AssertExtends<A, B>,
+      utils.AssertExtends<B, A>
     ]
   >
 })
 
 test('union to intersection should merge unions', () => {
-  type A = types.UnionToIntersection<
+  type A = utils.UnionToIntersection<
     | {
         name: string
       }
@@ -38,17 +38,17 @@ test('union to intersection should merge unions', () => {
     name: string
     age: number
   }
-  type _assertion = types.AssertAll<
+  type _assertion = utils.AssertAll<
     [
       //
-      types.AssertExtends<A, B>,
-      types.AssertExtends<B, A>
+      utils.AssertExtends<A, B>,
+      utils.AssertExtends<B, A>
     ]
   >
 })
 
 test('stricten record should remove string index signature', () => {
-  type A = types.StrictenRecord<{
+  type A = utils.ToSealedRecord<{
     name: string
     age: number
     [key: string]: any
@@ -57,35 +57,35 @@ test('stricten record should remove string index signature', () => {
     name: string
     age: number
   }
-  type _assertion = types.AssertAll<
+  type _assertion = utils.AssertAll<
     [
       //
-      types.AssertExtends<A, B>,
-      types.AssertExtends<B, A>
+      utils.AssertExtends<A, B>,
+      utils.AssertExtends<B, A>
     ]
   >
 })
 
 test('default should return value if defined', () => {
-  type A = types.Default<'foo', 'default'>
+  type A = utils.Default<'foo', 'default'>
   type B = 'foo'
-  type _assertion = types.AssertAll<
+  type _assertion = utils.AssertAll<
     [
       //
-      types.AssertExtends<A, B>,
-      types.AssertExtends<B, A>
+      utils.AssertExtends<A, B>,
+      utils.AssertExtends<B, A>
     ]
   >
 })
 
 test('default should return default value if undefined', () => {
-  type A = types.Default<undefined, 'default'>
+  type A = utils.Default<undefined, 'default'>
   type B = 'default'
-  type _assertion = types.AssertAll<
+  type _assertion = utils.AssertAll<
     [
       //
-      types.AssertExtends<A, B>,
-      types.AssertExtends<B, A>
+      utils.AssertExtends<A, B>,
+      utils.AssertExtends<B, A>
     ]
   >
 })

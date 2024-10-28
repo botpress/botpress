@@ -26,6 +26,6 @@ export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) ex
 /**
  * removes string index signature from Record
  */
-export type StrictenRecord<R extends Record<string, any>> = {
+export type ToSealedRecord<R extends Record<string, any>> = {
   [K in keyof R as string extends K ? never : K]: R[K]
 }

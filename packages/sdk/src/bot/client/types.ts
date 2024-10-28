@@ -1,5 +1,5 @@
 import * as client from '@botpress/client'
-import { Join, UnionToIntersection, Merge, ValueOf, Split, Cast, StrictenRecord } from '../../utils/type-utils'
+import { Join, UnionToIntersection, Merge, ValueOf, Split, Cast, ToSealedRecord } from '../../utils/type-utils'
 import { BaseBot } from '../generic'
 
 /**
@@ -28,20 +28,17 @@ type ActionKey<TIntegrationName extends string, TActionName extends string> = st
   ? string
   : Join<[TIntegrationName, ':', TActionName]>
 
-export type EnumerateActions<TBot extends BaseBot> = StrictenRecord<
-  Cast<
-    UnionToIntersection<
-      {
-        [TIntegrationName in keyof TBot['integrations']]: {
-          [TActionName in keyof TBot['integrations'][TIntegrationName]['actions'] as ActionKey<
-            Cast<TIntegrationName, string>,
-            Cast<TActionName, string>
-          >]: TBot['integrations'][TIntegrationName]['actions'][TActionName]
-        }
-      }[keyof TBot['integrations']]
-    >,
-    Record<string, any>
-  >
+export type EnumerateActions<TBot extends BaseBot> = ToSealedRecord<
+  UnionToIntersection<
+    {
+      [TIntegrationName in keyof TBot['integrations']]: {
+        [TActionName in keyof TBot['integrations'][TIntegrationName]['actions'] as ActionKey<
+          Cast<TIntegrationName, string>,
+          Cast<TActionName, string>
+        >]: TBot['integrations'][TIntegrationName]['actions'][TActionName]
+      }
+    }[keyof TBot['integrations']]
+  > & {}
 >
 
 type EventKey<TIntegrationName extends string, TEventName extends string> = string extends TIntegrationName
@@ -50,7 +47,7 @@ type EventKey<TIntegrationName extends string, TEventName extends string> = stri
   ? string
   : Join<[TIntegrationName, ':', TEventName]>
 
-export type EnumerateEvents<TBot extends BaseBot> = StrictenRecord<
+export type EnumerateEvents<TBot extends BaseBot> = ToSealedRecord<
   UnionToIntersection<
     {
       [TIntegrationName in keyof TBot['integrations']]: {
@@ -71,20 +68,17 @@ type ChannelKey<TIntegrationName extends string, TChannelName extends string> = 
   ? string
   : Join<[TIntegrationName, ':', TChannelName]>
 
-export type EnumerateChannels<TBot extends BaseBot> = StrictenRecord<
-  Cast<
-    UnionToIntersection<
-      {
-        [TIntegrationName in keyof TBot['integrations']]: {
-          [TChannelName in keyof TBot['integrations'][TIntegrationName]['channels'] as ChannelKey<
-            Cast<TIntegrationName, string>,
-            Cast<TChannelName, string>
-          >]: TBot['integrations'][TIntegrationName]['channels'][TChannelName]
-        }
-      }[keyof TBot['integrations']]
-    >,
-    Record<string, any>
-  >
+export type EnumerateChannels<TBot extends BaseBot> = ToSealedRecord<
+  UnionToIntersection<
+    {
+      [TIntegrationName in keyof TBot['integrations']]: {
+        [TChannelName in keyof TBot['integrations'][TIntegrationName]['channels'] as ChannelKey<
+          Cast<TIntegrationName, string>,
+          Cast<TChannelName, string>
+        >]: TBot['integrations'][TIntegrationName]['channels'][TChannelName]
+      }
+    }[keyof TBot['integrations']]
+  > & {}
 >
 
 type MessageKey<
@@ -99,23 +93,20 @@ type MessageKey<
   ? string
   : Join<[TIntegrationName, ':', TChannelName, ':', TMessageName]>
 
-export type EnumerateMessages<TBot extends BaseBot> = StrictenRecord<
-  Cast<
-    UnionToIntersection<
-      {
-        [TIntegrationName in keyof TBot['integrations']]: {
-          [TChannelName in keyof TBot['integrations'][TIntegrationName]['channels']]: {
-            [TMessageName in keyof TBot['integrations'][TIntegrationName]['channels'][TChannelName]['messages'] as MessageKey<
-              Cast<TIntegrationName, string>,
-              Cast<TChannelName, string>,
-              Cast<TMessageName, string>
-            >]: TBot['integrations'][TIntegrationName]['channels'][TChannelName]['messages'][TMessageName]
-          }
-        }[keyof TBot['integrations'][TIntegrationName]['channels']]
-      }[keyof TBot['integrations']]
-    >,
-    Record<string, any>
-  >
+export type EnumerateMessages<TBot extends BaseBot> = ToSealedRecord<
+  UnionToIntersection<
+    {
+      [TIntegrationName in keyof TBot['integrations']]: {
+        [TChannelName in keyof TBot['integrations'][TIntegrationName]['channels']]: {
+          [TMessageName in keyof TBot['integrations'][TIntegrationName]['channels'][TChannelName]['messages'] as MessageKey<
+            Cast<TIntegrationName, string>,
+            Cast<TChannelName, string>,
+            Cast<TMessageName, string>
+          >]: TBot['integrations'][TIntegrationName]['channels'][TChannelName]['messages'][TMessageName]
+        }
+      }[keyof TBot['integrations'][TIntegrationName]['channels']]
+    }[keyof TBot['integrations']]
+  > & {}
 >
 
 export type GetMessages<TBot extends BaseBot> = {
