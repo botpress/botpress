@@ -290,7 +290,20 @@ export type PatchState<TIntegration extends common.BaseIntegration> = <TState ex
   >
 ) => Promise<StateResponse<TIntegration, TState>>
 
-export type ConfigureIntegration<_TIntegration extends common.BaseIntegration> = client.Client['configureIntegration']
+export type ConfigureIntegration<TIntegration extends common.BaseIntegration> = <
+  TConfigType extends keyof TIntegration['configurations'] | null = null
+>(
+  _: utils.Merge<
+    Omit<Arg<client.Client['configureIntegration']>, 'configuration'>,
+    {
+      configuration?: Partial<
+        TConfigType extends keyof TIntegration['configurations']
+          ? TIntegration['configurations'][TConfigType]
+          : TIntegration['configuration']
+      >
+    }
+  >
+) => ReturnType<client.Client['configureIntegration']>
 
 export type UploadFile<_TIntegration extends common.BaseIntegration> = client.Client['uploadFile']
 export type UpsertFile<_TIntegration extends common.BaseIntegration> = client.Client['upsertFile']
