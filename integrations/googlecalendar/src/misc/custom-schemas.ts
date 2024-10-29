@@ -9,9 +9,26 @@ const eventSchema = z.object({
   location: z.string().nullable().optional().describe('The event location.'),
   startDateTime: z.string().describe('The start date and time in RFC3339 format (e.g., "2023-12-31T10:00:00.000Z").'),
   endDateTime: z.string().describe('The end date and time in RFC3339 format (e.g., "2023-12-31T12:00:00.000Z").'),
+  attendees: z
+    .array(z.object({ email: z.string().email() }))
+    .optional()
+    .describe('Event attendees as an array of objects like { email: user@email.com }'),
+  conferenceData: z
+    .object({ createRequest: z.object({ requestId: z.string() }) })
+    .optional()
+    .describe(
+      "An Id to use to request a Google Meet conferencing link. Must be a nested object like {createRequest: { requestId: 'abc123'}}"
+    ),
 })
 
-export const createEventInputSchema = eventSchema
+export const createEventInputSchema = eventSchema.extend({
+  sendUpdates: z
+    .enum(['all', 'externalOnly', 'none'])
+    .default('none')
+    .describe(
+      "Options to send email invitations to attendees. Default is no invitations, other options include 'all' to send invites to all parties, or 'externalOnly' to send invites only to attendees outside your organization"
+    ),
+})
 
 export const createEventOutputSchema = z
   .object({

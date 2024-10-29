@@ -2,12 +2,16 @@ node_modules
 bp_modules
 dist
 gen
+flake.nix
+flake.lock
 local/data
 .DS_Store
 *.tsbuildinfo
 __snapshots__
 .ignore.me.*
+.direnv/
 .env
+.envrc
 .botpress
 .botpresshome
 .botpresshome.*

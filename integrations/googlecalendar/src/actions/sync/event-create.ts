@@ -37,6 +37,9 @@ export const eventCreate = (async (props: EventCreateProps) => {
           // The replaceAll is used to remove the extra quotes from the input created by the studio
           dateTime: item.endDateTime?.replaceAll('"', ''),
         },
+        attendees: input.attendees,
+        sendUpdates: input.sendUpdates,
+        conferenceData: input.conferenceData,
       },
     })
     return {

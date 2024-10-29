@@ -16,6 +16,9 @@ export const createEvent: bp.IntegrationProps['actions']['createEvent'] = async 
         location: input.location ?? undefined,
         startDateTime: input.startDateTime,
         endDateTime: input.endDateTime,
+        attendees: input.attendees,
+        sendUpdates: input.sendUpdates,
+        conferenceData: input.conferenceData,
       },
     },
   })
