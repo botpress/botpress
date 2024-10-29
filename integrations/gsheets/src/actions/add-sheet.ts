@@ -1,7 +1,7 @@
 import { getClient } from '../client'
-import type { IntegrationProps } from '../misc/types'
+import * as bp from '.botpress'
 
-export const addSheet: IntegrationProps['actions']['addSheet'] = async ({ ctx, input, logger }) => {
+export const addSheet: bp.IntegrationProps['actions']['addSheet'] = async ({ ctx, input, logger }) => {
   logger.forBot().debug('Calling action "addSheet" with input:', input)
   const GoogleSheetsClient = getClient(ctx.configuration)
 

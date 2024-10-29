@@ -1,13 +1,13 @@
 import { getClient } from '../client'
-import type { IntegrationProps } from '../misc/types'
+import * as bp from '.botpress'
 
-export const clearValues: IntegrationProps['actions']['clearValues'] = async ({ ctx, input, logger }) => {
+export const clearValues: bp.IntegrationProps['actions']['clearValues'] = async ({ ctx, input, logger }) => {
   logger.forBot().debug('Calling action "clearValues" with input:', input)
   const GoogleSheetsClient = getClient(ctx.configuration)
   let response
 
   try {
-    response = await GoogleSheetsClient.clearValues(input.range)
+    response = await GoogleSheetsClient.clearValues(input.range, input.majorDimension)
     logger.forBot().info(`Successful - Clear Values - ${response?.clearedRange}`)
   } catch (error) {
     response = {}
