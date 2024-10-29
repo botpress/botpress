@@ -17,9 +17,9 @@ export const createEvent: bp.IntegrationProps['actions']['createEvent'] = async 
         startDateTime: input.startDateTime,
         endDateTime: input.endDateTime,
         attendees: input.attendees,
-        sendUpdates: input.sendUpdates,
         conferenceData: input.conferenceData,
       },
+      sendUpdates: input.sendUpdates,
     },
   })
   return {

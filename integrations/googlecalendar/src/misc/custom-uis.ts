@@ -35,6 +35,10 @@ export const createEventUi = {
     title: 'Location',
     examples: ['Meeting Room'],
   },
+  sendUpdates: {
+    title: 'Send Updates',
+    examples: ['all', 'externalOnly', 'none'],
+  },
 } satisfies UiOf<typeof schemas.createEventInputSchema>
 
 export const updateEventUi = {

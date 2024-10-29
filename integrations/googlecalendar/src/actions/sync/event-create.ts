@@ -13,6 +13,7 @@ type EventCreateProps = Merge<
       EventCreateInput,
       {
         item: Omit<EventCreateInput['item'], 'id'>
+        sendUpdates?: bp.actions.createEvent.input.Input['sendUpdates']
       }
     >
   }
@@ -37,10 +38,10 @@ export const eventCreate = (async (props: EventCreateProps) => {
           // The replaceAll is used to remove the extra quotes from the input created by the studio
           dateTime: item.endDateTime?.replaceAll('"', ''),
         },
-        attendees: input.attendees,
-        sendUpdates: input.sendUpdates,
-        conferenceData: input.conferenceData,
+        attendees: input.item.attendees,
+        conferenceData: input.item.conferenceData,
       },
+      sendUpdates: input.sendUpdates,
     })
     return {
       item: mapEvent(response.data),

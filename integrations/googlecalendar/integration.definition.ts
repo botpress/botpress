@@ -56,6 +56,16 @@ export default new IntegrationDefinition({
           .string()
           .optional()
           .describe('The end date and time in RFC3339 format (e.g., "2023-12-31T12:00:00.000Z").'),
+        attendees: z
+          .array(z.object({ email: z.string().optional() }))
+          .optional()
+          .describe('Event attendees as an array of objects like { email: user@email.com }'),
+        conferenceData: z
+          .object({ createRequest: z.object({ requestId: z.string().optional() }).optional() })
+          .optional()
+          .describe(
+            "An Id to use to request a Google Meet conferencing link. Must be a nested object like {createRequest: { requestId: 'abc123'}}"
+          ),
       }),
       ui: {},
     },
