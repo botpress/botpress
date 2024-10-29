@@ -5,8 +5,8 @@ export type Schema = ActionDefinitions[string]['input']['schema']
 
 const eventSchema = z.object({
   summary: z.string().describe('The event title/summary.'),
-  description: z.string().nullable().optional().describe('The event description.'),
-  location: z.string().nullable().optional().describe('The event location.'),
+  description: z.string().optional().describe('The event description.'),
+  location: z.string().optional().describe('The event location.'),
   startDateTime: z.string().describe('The start date and time in RFC3339 format (e.g., "2023-12-31T10:00:00.000Z").'),
   endDateTime: z.string().describe('The end date and time in RFC3339 format (e.g., "2023-12-31T12:00:00.000Z").'),
   attendees: z
@@ -77,7 +77,13 @@ export const listEventsOutputSchema = z.object({
       z
         .object({
           eventId: z.string().nullable().describe('The ID of the calendar event.'),
-          event: eventSchema.describe('The calendar event data.'),
+          event: z
+            .object({
+              ...eventSchema.shape,
+              description: z.string().nullable().optional().describe('The event description.'),
+              location: z.string().nullable().optional().describe('The event location.'),
+            })
+            .describe('The calendar event data.'),
         })
         .partial()
     )
