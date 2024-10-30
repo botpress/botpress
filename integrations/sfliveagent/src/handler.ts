@@ -9,7 +9,15 @@ import { executeQueueUpdated } from './events/queue-updated'
 import type { TriggerPayload } from './triggers'
 import { IntegrationProps } from '.botpress'
 import { executeConversationTransferred } from './events/conversation-transferred'
-import { RuntimeError } from '@botpress/client'
+import { Conversation, RuntimeError } from '@botpress/client'
+
+export const findConversation = async (
+  { client }: any,
+  arg: { tags: any }
+): Promise<Conversation | undefined> => {
+  const { conversations } = await client.listConversations(arg)
+  return conversations[0]
+}
 
 export const handler: IntegrationProps['handler'] = async ({ req, client, logger }) => {
   if (!req.body) {
@@ -25,16 +33,19 @@ export const handler: IntegrationProps['handler'] = async ({ req, client, logger
     return
   }
 
-  if(['data', 'polling_start', 'polling_end', 'error'].includes(trigger.type)) {
+  if(['data', 'polling_end', 'error'].includes(trigger.type)) {
 
     console.log('will try to get using the following tags: ', { pollingKey: trigger.transport.key })
 
-    const { conversation: linkedConversation } = await client.getOrCreateConversation({
-      channel: 'channel',
+    const linkedConversation = await findConversation({ client }, {
       tags: {
         pollingKey: trigger.transport.key
       },
     })
+
+    if(!linkedConversation) {
+      throw new RuntimeError("Couldn't find the linked conversation in the handler")
+    }
 
     console.log('Got conversation:', linkedConversation)
 
@@ -42,7 +53,6 @@ export const handler: IntegrationProps['handler'] = async ({ req, client, logger
     const botpressUserId  = linkedConversation.tags.botpressUserId || ''
 
     if(!botpressConversationId) {
-      logger.forBot().error('Botpress conversation does not exist')
       throw new RuntimeError('Botpress conversation does not exist')
     }
 

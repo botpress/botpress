@@ -19,7 +19,7 @@ const createConversationSession = {
 }
 
 const StartChatInputSchema = z.object({
-  userName: z.string().describe('The chat user name').default('Anonymous Visitor'),
+  userName: z.string().describe('The chat user name').optional().default('Anonymous Visitor'),
   buttonId: z.string().describe('Button Id, use the one from config as default').optional(),
   agentId: z.string().describe('The ID of the agent of a direct-to-agent chat request. For normal chat requests, leave this field empty').optional(),
   sessionId: z.string().describe('The chat visitor’s Chat session ID').optional(),
@@ -60,7 +60,7 @@ const listenConversation = {
   title: 'Listen Chasitor Conversation Session',
   description: 'The supplied Botpress conversation will listen events from the supplied Chasitor Session',
   input: {
-    schema: z.object({ botpressConversationId: z.string(), botpressUserId: z.string(), liveAgentSessionKey: z.string() }),
+    schema: z.object({ botpressConversationId: z.string(), botpressUserId: z.string().optional(), liveAgentSessionKey: z.string() }),
     ui: {},
   },
   output: {

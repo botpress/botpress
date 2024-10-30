@@ -5,7 +5,7 @@ import { actions, events, configuration, channels, states } from './src/definiti
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   title: 'SalesForce LiveAgent',
-  version: '0.0.6',
+  version: '0.0.7',
   icon: 'icon.svg',
   description: 'This integration allows your bot to interact with Salesforce LiveAgent.',
   readme: 'hub.md',

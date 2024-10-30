@@ -3,15 +3,8 @@ import { IntegrationProps } from '../../.botpress'
 import { SFLiveagentConfig } from '../definitions/schemas'
 import { AxiosError } from 'axios'
 import { executeConversationEnded } from '../events/conversation-ended'
-import { Conversation, RuntimeError } from '@botpress/client'
-
-const findConversation = async (
-  { client }: any,
-  arg: { tags: any }
-): Promise<Conversation | undefined> => {
-  const { conversations } = await client.listConversations(arg)
-  return conversations[0]
-}
+import { RuntimeError } from '@botpress/client'
+import { findConversation } from '../handler'
 
 export const sendMessage: IntegrationProps['actions']['sendMessage'] = async ({ ctx, client, input, logger }) => {
 
@@ -46,12 +39,16 @@ export const sendMessage: IntegrationProps['actions']['sendMessage'] = async ({ 
     const salesforceClient = getSalesforceClient(logger, { ...ctx.configuration as SFLiveagentConfig}, liveAgentSession)
     await salesforceClient.sendMessage(payload.text)
   } catch (err: any) {
-    logger.forBot().error('Failed to create conversation session: ' + err.message)
+    logger.forBot().error('Failed to send message: ' + err.message)
 
     if((err as AxiosError)?.response?.status === 403) {
       // Session is no longer valid
-      if(linkedConversation && linkedConversation.tags.botpressConversationId) {
-        void executeConversationEnded({ botpressConversationId: linkedConversation.tags.botpressConversationId, client, reason: 'INVALID_SESSION' })
+      try {
+        if(linkedConversation && linkedConversation.tags.botpressConversationId) {
+          void executeConversationEnded({ botpressConversationId: linkedConversation.tags.botpressConversationId, botpressUserId: linkedConversation.tags.botpressUserId || '', client, reason: 'INVALID_SESSION' })
+        }
+      } catch (e) {
+        logger.forBot().error('Failed to finish invalid session: ' + err.message)
       }
     }
 
