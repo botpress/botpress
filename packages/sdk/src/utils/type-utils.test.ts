@@ -1,6 +1,42 @@
 import { test } from 'vitest'
 import * as utils from './type-utils'
 
+test('SafeCast should not cast if T extends U', () => {
+  type A = utils.SafeCast<'foo', string>
+  type B = 'foo'
+  type _assertion = utils.AssertAll<
+    [
+      //
+      utils.AssertExtends<A, B>,
+      utils.AssertExtends<B, A>
+    ]
+  >
+})
+
+test('SafeCast should not cast to U is T is not U', () => {
+  type A = utils.SafeCast<'foo', number>
+  type B = number
+  type _assertion = utils.AssertAll<
+    [
+      //
+      utils.AssertExtends<A, B>,
+      utils.AssertExtends<B, A>
+    ]
+  >
+})
+
+test('SafeCast should cast to U if T is never', () => {
+  type A = utils.SafeCast<never, string>
+  type B = string
+  type _assertion = utils.AssertAll<
+    [
+      //
+      utils.AssertExtends<A, B>,
+      utils.AssertExtends<B, A>
+    ]
+  >
+})
+
 test('join should concatenate strings', () => {
   type A = utils.Join<['a', 'b', 'c']>
   type B = 'abc'

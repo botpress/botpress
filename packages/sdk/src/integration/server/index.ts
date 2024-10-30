@@ -20,6 +20,7 @@ import {
 } from './types'
 
 export * from './types'
+export * from './logger'
 
 type ServerProps<TIntegration extends BaseIntegration> = CommonHandlerProps<TIntegration> & {
   req: Request

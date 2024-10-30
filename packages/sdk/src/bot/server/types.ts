@@ -1,7 +1,6 @@
 import * as client from '@botpress/client'
-import { Merge, ValueOf } from '../../utils/type-utils'
+import * as utils from '../../utils/type-utils'
 import { BotSpecificClient } from '../client'
-import { StateType } from '../definition'
 import * as types from '../types'
 
 export type BotOperation = 'event_received' | 'register' | 'unregister' | 'ping' | 'action_triggered'
@@ -16,7 +15,10 @@ export type BotContext = {
 
 export type EventRequest<TBot extends types.BaseBot> = {
   event: {
-    [K in keyof types.EnumerateEvents<TBot>]: Merge<client.Event, { type: K; payload: types.EnumerateEvents<TBot>[K] }>
+    [K in keyof types.EnumerateEvents<TBot>]: utils.Merge<
+      client.Event,
+      { type: K; payload: types.EnumerateEvents<TBot>[K] }
+    >
   }[keyof types.EnumerateEvents<TBot>]
 }
 
@@ -25,8 +27,8 @@ export type MessageRequest<
   TMessage extends keyof types.GetMessages<TBot> = keyof types.GetMessages<TBot>
 > = {
   // TODO: use bot definiton message property to infer allowed tags (cannot be done until there is a bot.definition.ts file)
-  message: ValueOf<{
-    [K in keyof types.GetMessages<TBot> as K extends TMessage ? K : never]: Merge<
+  message: utils.ValueOf<{
+    [K in keyof types.GetMessages<TBot> as K extends TMessage ? K : never]: utils.Merge<
       client.Message,
       { type: K; payload: types.GetMessages<TBot>[K] }
     >
@@ -44,7 +46,7 @@ export type MessagePayload<TBot extends types.BaseBot> = MessageRequest<TBot> & 
   event: client.Event
   states: {
     [TState in keyof TBot['states']]: {
-      type: StateType
+      type: 'user' | 'conversation' | 'bot'
       payload: TBot['states'][TState]
     }
   }

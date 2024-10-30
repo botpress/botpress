@@ -1,13 +1,15 @@
-import { BaseIntegration } from '../../integration/types/generic'
+import { BaseIntegration } from '../../integration/types'
 import * as utils from '../../utils/type-utils'
 
-export type BaseIntegrations = Record<string, BaseIntegration>
 export type BaseBot = {
-  integrations: BaseIntegrations
+  integrations: Record<string, BaseIntegration>
   events: Record<string, any>
   states: Record<string, any>
 }
 
+/**
+ * Usefull for tests, allows to create a bot with only the properties you want to override
+ */
 export type MakeBot<B extends Partial<BaseBot>> = {
   integrations: utils.Default<B['integrations'], BaseBot['integrations']>
   events: utils.Default<B['events'], BaseBot['events']>

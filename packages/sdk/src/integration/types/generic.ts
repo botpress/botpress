@@ -34,12 +34,18 @@ export type BaseIntegration = {
   entities: Record<string, any>
 }
 
+/**
+ * Usefull for tests, allows to create a channel with only the properties you want to override
+ */
 export type MakeChannel<C extends Partial<BaseIntegration['channels'][string]>> = {
   messages: utils.Default<C['messages'], BaseIntegration['channels'][string]['messages']>
   message: utils.Default<C['message'], BaseIntegration['channels'][string]['message']>
   conversation: utils.Default<C['conversation'], BaseIntegration['channels'][string]['conversation']>
 }
 
+/**
+ * Usefull for tests, allows to create an integration with only the properties you want to override
+ */
 export type MakeIntegration<I extends Partial<BaseIntegration>> = {
   name: utils.Default<I['name'], BaseIntegration['name']>
   version: utils.Default<I['version'], BaseIntegration['version']>
