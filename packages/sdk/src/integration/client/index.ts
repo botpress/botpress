@@ -1,5 +1,5 @@
-import { Client } from '@botpress/client'
-import { BaseIntegration } from '../types'
+import * as client from '@botpress/client'
+import * as common from '../types'
 import * as types from './types'
 
 export * from './types'
@@ -7,8 +7,8 @@ export * from './types'
 /**
  * Just like the regular botpress client, but typed with the integration's properties.
  */
-export class IntegrationSpecificClient<TIntegration extends BaseIntegration> {
-  public constructor(private readonly _client: Client) {}
+export class IntegrationSpecificClient<TIntegration extends common.BaseIntegration> {
+  public constructor(private readonly _client: client.Client) {}
 
   public createConversation: types.CreateConversation<TIntegration> = ((x) =>
     this._client.createConversation(x)) as types.CreateConversation<TIntegration>

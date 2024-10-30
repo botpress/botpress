@@ -3,19 +3,19 @@ import { log } from '../../log'
 import { retryConfig } from '../../retry'
 import { Request, Response, parseBody } from '../../serve'
 import { BotSpecificClient } from '../client'
-import { BaseBot } from '../types/generic'
+import * as common from '../types'
 import { extractContext } from './context'
 import * as types from './types'
 
 export * from './types'
 
-type ServerProps<TBot extends BaseBot> = types.CommonHandlerProps<TBot> & {
+type ServerProps<TBot extends common.BaseBot> = types.CommonHandlerProps<TBot> & {
   req: Request
   instance: types.BotHandlers<TBot>
 }
 
 export const botHandler =
-  <TBot extends BaseBot>(instance: types.BotHandlers<TBot>) =>
+  <TBot extends common.BaseBot>(instance: types.BotHandlers<TBot>) =>
   async (req: Request): Promise<Response | void> => {
     const ctx = extractContext(req.headers)
 
@@ -58,10 +58,10 @@ export const botHandler =
     return { status: 200 }
   }
 
-const onPing = async <TBot extends BaseBot>(_: ServerProps<TBot>) => {}
-const onRegister = async <TBot extends BaseBot>(_: ServerProps<TBot>) => {}
-const onUnregister = async <TBot extends BaseBot>(_: ServerProps<TBot>) => {}
-const onEventReceived = async <TBot extends BaseBot>({ ctx, req, client, instance }: ServerProps<TBot>) => {
+const onPing = async <TBot extends common.BaseBot>(_: ServerProps<TBot>) => {}
+const onRegister = async <TBot extends common.BaseBot>(_: ServerProps<TBot>) => {}
+const onUnregister = async <TBot extends common.BaseBot>(_: ServerProps<TBot>) => {}
+const onEventReceived = async <TBot extends common.BaseBot>({ ctx, req, client, instance }: ServerProps<TBot>) => {
   log.debug(`Received event ${ctx.type}`)
 
   const body = parseBody<types.EventPayload<TBot>>(req)
