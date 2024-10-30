@@ -10,13 +10,13 @@
   },
   "private": true,
   "dependencies": {
-    "@botpress/client": "0.33.1",
-    "@botpress/sdk": "1.0.1",
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "google-auth-library": "^9.0.0",
     "googleapis": "^144.0.0"
   },
   "devDependencies": {
-    "@botpress/cli": "^1.2.1",
+    "@botpress/cli": "workspace:*",
     "@types/node": "^18.11.17",
     "nodemon": "^3.1.7",
     "ts-node": "^10.9.1",
