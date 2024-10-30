@@ -19,6 +19,5 @@ export const handleOAuth = async ({ req, client, ctx }: bp.HandlerProps) => {
       return
     }
 
-    console.info('code', authorizationCode) // TODO: Remove
     await updateRefreshTokenFromAuthorizationCode({ authorizationCode, client, ctx })
 }
