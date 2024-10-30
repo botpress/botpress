@@ -4,6 +4,7 @@ import * as sdk from '@botpress/sdk'
 export { actions } from './actions'
 export { events } from './events'
 export { channels } from './channels'
+import { multiLineString } from './zui'
 
 export const configuration = {
   identifier: {
@@ -34,13 +35,12 @@ export const configurations = {
         .min(1)
         .title('GitHub App ID')
         .describe('Can be found in the GitHub App settings. OAuth apps are not supported.'),
-      githubAppPrivateKey: z
-        .string()
+      githubAppPrivateKey: multiLineString
         .min(1)
         .secret()
         .title('GitHub App Private Key')
         .describe('The raw contents of the RSA private key. Can be downloaded from the GitHub App settings.')
-        .placeholder('-----BEGIN RSA PRIVATE KEY----- ...'),
+        .placeholder('-----BEGIN RSA PRIVATE KEY-----\n\n...\n\n-----END RSA PRIVATE KEY-----'),
       githubAppInstallationId: z
         .number()
         .positive()
