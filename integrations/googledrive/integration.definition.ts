@@ -15,20 +15,25 @@ export default new IntegrationDefinition({
     }),
   },
   actions: {
-    listFiles: {
+    listFiles: { // TODO: Implement listable
       title: 'List Files',
       description: 'List files in a Google Drive',
       input: {
-        schema: z.object({}),
+        schema: z.object({
+          nextToken: z.string().optional().describe('The token to use to get the next page of results'),
+        }),
       },
       output: {
         schema: z.object({
-          files: z.array(
+          items: z.array(
             z.object({
               id: z.string().min(1),
               name: z.string().min(1),
             })
-          ),
+          ).describe('The list of files in the Google Drive. Results may be paginated, if set, use nextToken to get additional results'),
+          meta: z.object({
+            nextToken: z.string().optional().describe('The token to use to get the next page of results'),
+          }),
         }),
       },
     },
@@ -41,6 +46,15 @@ export default new IntegrationDefinition({
           .string()
           .title('Refresh token')
           .describe('The refresh token to use to authenticate with Google. It gets exchanged for a bearer token')
+      })
+    },
+    list: {
+      type: 'integration',
+      schema: z.object({
+        knownFilesMapJson: z
+          .string()
+          .title('Serialized map of known files')
+          .describe('Serialized map of known files (keys are file IDs and values are GoogleDriveFile objects)')
       })
     }
   },
