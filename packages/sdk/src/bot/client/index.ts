@@ -51,4 +51,21 @@ export class BotSpecificClient<TBot extends common.BaseBot> implements types.Cli
   public getFile: types.GetFile<TBot> = (x) => this._client.getFile(x)
   public updateFileMetadata: types.UpdateFileMetadata<TBot> = (x) => this._client.updateFileMetadata(x)
   public searchFiles: types.SearchFiles<TBot> = (x) => this._client.searchFiles(x)
+
+  /**
+   * @deprecated Use `callAction` to delegate the conversation creation to an integration.
+   */
+  public createConversation: types.CreateConversation<TBot> = (x) => this._client.createConversation(x)
+  /**
+   * @deprecated Use `callAction` to delegate the conversation creation to an integration.
+   */
+  public getOrCreateConversation: types.GetOrCreateConversation<TBot> = (x) => this._client.getOrCreateConversation(x)
+  /**
+   * @deprecated Use `callAction` to delegate the user creation to an integration.
+   */
+  public createUser: types.CreateUser<TBot> = (x) => this._client.createUser(x)
+  /**
+   * @deprecated Use `callAction` to delegate the user creation to an integration.
+   */
+  public getOrCreateUser: types.GetOrCreateUser<TBot> = (x) => this._client.getOrCreateUser(x)
 }
