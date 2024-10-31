@@ -61,7 +61,7 @@ const carouselSchema = z.object({
   items: z.array(cardSchema),
 })
 
-const blocSchema = z.discriminatedUnion('type', [
+const blocSchema = z.union([
   z.object({ type: z.literal('text'), payload: textMessageSchema }),
   z.object({ type: z.literal('markdown'), payload: markdownMessageSchema }),
   z.object({ type: z.literal('image'), payload: imageMessageSchema }),
