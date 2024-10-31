@@ -11,18 +11,19 @@ const TRUTHY_STRING = 'truthy'
 const ACTION_NAME = 'actionName'
 const EVENT_NAME = 'eventName'
 const PARAM_NAME = 'paramName'
+const PROPERTIES_PARAM = 'properties'
+const PARAM_NAMES = [PARAM_NAME, PROPERTIES_PARAM] as const
 const CHANNEL_NAME = 'channelName'
-const STATE_NAME = 'stateName'
 const ENTITY_NAME = 'entityName'
 const MESSAGE_TYPE = 'text'
 const ZUI = 'x-zui'
 const LEGACY_ZUI = 'ui'
 
 describeRule('action-inputparams-should-have-a-title', (lint) => {
-  test('missing title should trigger', async () => {
+  test.each(PARAM_NAMES)('missing title should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
-      actions: { [ACTION_NAME]: { input: { schema: { properties: { [PARAM_NAME]: { [ZUI]: {} } } } } } },
+      actions: { [ACTION_NAME]: { input: { schema: { properties: { [paramName]: { [ZUI]: {} } } } } } },
     } as const satisfies PartialInterface
 
     // act
@@ -30,15 +31,15 @@ describeRule('action-inputparams-should-have-a-title', (lint) => {
 
     // assert
     expect(results).toHaveLength(1)
-    expect(results[0]?.path).toEqual(['actions', ACTION_NAME, 'input', 'schema', 'properties', PARAM_NAME, ZUI])
+    expect(results[0]?.path).toEqual(['actions', ACTION_NAME, 'input', 'schema', 'properties', paramName, ZUI])
     expect(results[0]?.message).toContain('title')
   })
 
-  test('empty title should trigger', async () => {
+  test.each(PARAM_NAMES)('empty title should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       actions: {
-        [ACTION_NAME]: { input: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: EMPTY_STRING } } } } } },
+        [ACTION_NAME]: { input: { schema: { properties: { [paramName]: { [ZUI]: { title: EMPTY_STRING } } } } } },
       },
     } as const satisfies PartialInterface
 
@@ -47,24 +48,15 @@ describeRule('action-inputparams-should-have-a-title', (lint) => {
 
     // assert
     expect(results).toHaveLength(1)
-    expect(results[0]?.path).toEqual([
-      'actions',
-      ACTION_NAME,
-      'input',
-      'schema',
-      'properties',
-      PARAM_NAME,
-      ZUI,
-      'title',
-    ])
+    expect(results[0]?.path).toEqual(['actions', ACTION_NAME, 'input', 'schema', 'properties', paramName, ZUI, 'title'])
     expect(results[0]?.message).toContain('title')
   })
 
-  test('valid title should not trigger', async () => {
+  test.each(PARAM_NAMES)('valid title should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       actions: {
-        [ACTION_NAME]: { input: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: TRUTHY_STRING } } } } } },
+        [ACTION_NAME]: { input: { schema: { properties: { [paramName]: { [ZUI]: { title: TRUTHY_STRING } } } } } },
       },
     } as const satisfies PartialInterface
 
@@ -77,10 +69,10 @@ describeRule('action-inputparams-should-have-a-title', (lint) => {
 })
 
 describeRule('action-inputparams-must-have-a-description', (lint) => {
-  test('missing description should trigger', async () => {
+  test.each(PARAM_NAMES)('missing description should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
-      actions: { [ACTION_NAME]: { input: { schema: { properties: { [PARAM_NAME]: {} } } } } },
+      actions: { [ACTION_NAME]: { input: { schema: { properties: { [paramName]: {} } } } } },
     } as const satisfies PartialInterface
 
     // act
@@ -88,15 +80,15 @@ describeRule('action-inputparams-must-have-a-description', (lint) => {
 
     // assert
     expect(results).toHaveLength(1)
-    expect(results[0]?.path).toEqual(['actions', ACTION_NAME, 'input', 'schema', 'properties', PARAM_NAME])
+    expect(results[0]?.path).toEqual(['actions', ACTION_NAME, 'input', 'schema', 'properties', paramName])
     expect(results[0]?.message).toContain('description')
   })
 
-  test('empty description should trigger', async () => {
+  test.each(PARAM_NAMES)('empty description should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       actions: {
-        [ACTION_NAME]: { input: { schema: { properties: { [PARAM_NAME]: { description: EMPTY_STRING } } } } },
+        [ACTION_NAME]: { input: { schema: { properties: { [paramName]: { description: EMPTY_STRING } } } } },
       },
     } as const satisfies PartialInterface
 
@@ -111,17 +103,17 @@ describeRule('action-inputparams-must-have-a-description', (lint) => {
       'input',
       'schema',
       'properties',
-      PARAM_NAME,
+      paramName,
       'description',
     ])
     expect(results[0]?.message).toContain('description')
   })
 
-  test('valid description should not trigger', async () => {
+  test.each(PARAM_NAMES)('valid description should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       actions: {
-        [ACTION_NAME]: { input: { schema: { properties: { [PARAM_NAME]: { description: TRUTHY_STRING } } } } },
+        [ACTION_NAME]: { input: { schema: { properties: { [paramName]: { description: TRUTHY_STRING } } } } },
       },
     } as const satisfies PartialInterface
 
@@ -134,10 +126,10 @@ describeRule('action-inputparams-must-have-a-description', (lint) => {
 })
 
 describeRule('action-outputparams-should-have-a-title', (lint) => {
-  test('missing title should trigger', async () => {
+  test.each(PARAM_NAMES)('missing title should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
-      actions: { [ACTION_NAME]: { output: { schema: { properties: { [PARAM_NAME]: { [ZUI]: {} } } } } } },
+      actions: { [ACTION_NAME]: { output: { schema: { properties: { [paramName]: { [ZUI]: {} } } } } } },
     } as const satisfies PartialInterface
 
     // act
@@ -145,15 +137,15 @@ describeRule('action-outputparams-should-have-a-title', (lint) => {
 
     // assert
     expect(results).toHaveLength(1)
-    expect(results[0]?.path).toEqual(['actions', ACTION_NAME, 'output', 'schema', 'properties', PARAM_NAME, ZUI])
+    expect(results[0]?.path).toEqual(['actions', ACTION_NAME, 'output', 'schema', 'properties', paramName, ZUI])
     expect(results[0]?.message).toContain('title')
   })
 
-  test('empty title should trigger', async () => {
+  test.each(PARAM_NAMES)('empty title should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       actions: {
-        [ACTION_NAME]: { output: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: EMPTY_STRING } } } } } },
+        [ACTION_NAME]: { output: { schema: { properties: { [paramName]: { [ZUI]: { title: EMPTY_STRING } } } } } },
       },
     } as const satisfies PartialInterface
 
@@ -168,18 +160,18 @@ describeRule('action-outputparams-should-have-a-title', (lint) => {
       'output',
       'schema',
       'properties',
-      PARAM_NAME,
+      paramName,
       ZUI,
       'title',
     ])
     expect(results[0]?.message).toContain('title')
   })
 
-  test('valid title should not trigger', async () => {
+  test.each(PARAM_NAMES)('valid title should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       actions: {
-        [ACTION_NAME]: { output: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: TRUTHY_STRING } } } } } },
+        [ACTION_NAME]: { output: { schema: { properties: { [paramName]: { [ZUI]: { title: TRUTHY_STRING } } } } } },
       },
     } as const satisfies PartialInterface
 
@@ -192,10 +184,10 @@ describeRule('action-outputparams-should-have-a-title', (lint) => {
 })
 
 describeRule('action-outputparams-must-have-a-description', (lint) => {
-  test('missing description should trigger', async () => {
+  test.each(PARAM_NAMES)('missing description should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
-      actions: { [ACTION_NAME]: { output: { schema: { properties: { [PARAM_NAME]: {} } } } } },
+      actions: { [ACTION_NAME]: { output: { schema: { properties: { [paramName]: {} } } } } },
     } as const satisfies PartialInterface
 
     // act
@@ -203,15 +195,15 @@ describeRule('action-outputparams-must-have-a-description', (lint) => {
 
     // assert
     expect(results).toHaveLength(1)
-    expect(results[0]?.path).toEqual(['actions', ACTION_NAME, 'output', 'schema', 'properties', PARAM_NAME])
+    expect(results[0]?.path).toEqual(['actions', ACTION_NAME, 'output', 'schema', 'properties', paramName])
     expect(results[0]?.message).toContain('description')
   })
 
-  test('empty description should trigger', async () => {
+  test.each(PARAM_NAMES)('empty description should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       actions: {
-        [ACTION_NAME]: { output: { schema: { properties: { [PARAM_NAME]: { description: EMPTY_STRING } } } } },
+        [ACTION_NAME]: { output: { schema: { properties: { [paramName]: { description: EMPTY_STRING } } } } },
       },
     } as const satisfies PartialInterface
 
@@ -226,17 +218,17 @@ describeRule('action-outputparams-must-have-a-description', (lint) => {
       'output',
       'schema',
       'properties',
-      PARAM_NAME,
+      paramName,
       'description',
     ])
     expect(results[0]?.message).toContain('description')
   })
 
-  test('valid description should not trigger', async () => {
+  test.each(PARAM_NAMES)('valid description should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       actions: {
-        [ACTION_NAME]: { output: { schema: { properties: { [PARAM_NAME]: { description: TRUTHY_STRING } } } } },
+        [ACTION_NAME]: { output: { schema: { properties: { [paramName]: { description: TRUTHY_STRING } } } } },
       },
     } as const satisfies PartialInterface
 
@@ -249,10 +241,10 @@ describeRule('action-outputparams-must-have-a-description', (lint) => {
 })
 
 describeRule('event-outputparams-should-have-title', (lint) => {
-  test('missing title should trigger', async () => {
+  test.each(PARAM_NAMES)('missing title should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
-      events: { [EVENT_NAME]: { schema: { properties: { [PARAM_NAME]: { [ZUI]: {} } } } } },
+      events: { [EVENT_NAME]: { schema: { properties: { [paramName]: { [ZUI]: {} } } } } },
     } as const satisfies PartialInterface
 
     // act
@@ -260,15 +252,15 @@ describeRule('event-outputparams-should-have-title', (lint) => {
 
     // assert
     expect(results).toHaveLength(1)
-    expect(results[0]?.path).toEqual(['events', EVENT_NAME, 'schema', 'properties', PARAM_NAME, ZUI])
+    expect(results[0]?.path).toEqual(['events', EVENT_NAME, 'schema', 'properties', paramName, ZUI])
     expect(results[0]?.message).toContain('title')
   })
 
-  test('empty title should trigger', async () => {
+  test.each(PARAM_NAMES)('empty title should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       events: {
-        [EVENT_NAME]: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: EMPTY_STRING } } } } },
+        [EVENT_NAME]: { schema: { properties: { [paramName]: { [ZUI]: { title: EMPTY_STRING } } } } },
       },
     } as const satisfies PartialInterface
 
@@ -277,15 +269,15 @@ describeRule('event-outputparams-should-have-title', (lint) => {
 
     // assert
     expect(results).toHaveLength(1)
-    expect(results[0]?.path).toEqual(['events', EVENT_NAME, 'schema', 'properties', PARAM_NAME, ZUI, 'title'])
+    expect(results[0]?.path).toEqual(['events', EVENT_NAME, 'schema', 'properties', paramName, ZUI, 'title'])
     expect(results[0]?.message).toContain('title')
   })
 
-  test('valid title should not trigger', async () => {
+  test.each(PARAM_NAMES)('valid title should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       events: {
-        [EVENT_NAME]: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: TRUTHY_STRING } } } } },
+        [EVENT_NAME]: { schema: { properties: { [paramName]: { [ZUI]: { title: TRUTHY_STRING } } } } },
       },
     } as const satisfies PartialInterface
 
@@ -298,10 +290,10 @@ describeRule('event-outputparams-should-have-title', (lint) => {
 })
 
 describeRule('event-outputparams-must-have-description', (lint) => {
-  test('missing description should trigger', async () => {
+  test.each(PARAM_NAMES)('missing description should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
-      events: { [EVENT_NAME]: { schema: { properties: { [PARAM_NAME]: {} } } } },
+      events: { [EVENT_NAME]: { schema: { properties: { [paramName]: {} } } } },
     } as const satisfies PartialInterface
 
     // act
@@ -309,15 +301,15 @@ describeRule('event-outputparams-must-have-description', (lint) => {
 
     // assert
     expect(results).toHaveLength(1)
-    expect(results[0]?.path).toEqual(['events', EVENT_NAME, 'schema', 'properties', PARAM_NAME])
+    expect(results[0]?.path).toEqual(['events', EVENT_NAME, 'schema', 'properties', paramName])
     expect(results[0]?.message).toContain('description')
   })
 
-  test('empty description should trigger', async () => {
+  test.each(PARAM_NAMES)('empty description should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       events: {
-        [EVENT_NAME]: { schema: { properties: { [PARAM_NAME]: { description: EMPTY_STRING } } } },
+        [EVENT_NAME]: { schema: { properties: { [paramName]: { description: EMPTY_STRING } } } },
       },
     } as const satisfies PartialInterface
 
@@ -326,15 +318,15 @@ describeRule('event-outputparams-must-have-description', (lint) => {
 
     // assert
     expect(results).toHaveLength(1)
-    expect(results[0]?.path).toEqual(['events', EVENT_NAME, 'schema', 'properties', PARAM_NAME, 'description'])
+    expect(results[0]?.path).toEqual(['events', EVENT_NAME, 'schema', 'properties', paramName, 'description'])
     expect(results[0]?.message).toContain('description')
   })
 
-  test('valid description should not trigger', async () => {
+  test.each(PARAM_NAMES)('valid description should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       events: {
-        [EVENT_NAME]: { schema: { properties: { [PARAM_NAME]: { description: TRUTHY_STRING } } } },
+        [EVENT_NAME]: { schema: { properties: { [paramName]: { description: TRUTHY_STRING } } } },
       },
     } as const satisfies PartialInterface
 
@@ -347,19 +339,19 @@ describeRule('event-outputparams-must-have-description', (lint) => {
 })
 
 describeRule('legacy-zui-title-should-be-removed', (lint) => {
-  test('legacy zui title should trigger', async () => {
+  test.each(PARAM_NAMES)('legacy zui title should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       actions: {
-        [ACTION_NAME]: { input: { [LEGACY_ZUI]: { [PARAM_NAME]: { title: TRUTHY_STRING } }, schema: {} } },
+        [ACTION_NAME]: { input: { [LEGACY_ZUI]: { [paramName]: { title: TRUTHY_STRING } }, schema: {} } },
       },
-      events: { [EVENT_NAME]: { [LEGACY_ZUI]: { [PARAM_NAME]: { title: TRUTHY_STRING } }, schema: {} } },
+      events: { [EVENT_NAME]: { [LEGACY_ZUI]: { [paramName]: { title: TRUTHY_STRING } }, schema: {} } },
       channels: {
         [CHANNEL_NAME]: {
-          messages: { [MESSAGE_TYPE]: { [LEGACY_ZUI]: { [PARAM_NAME]: { title: TRUTHY_STRING } }, schema: {} } },
+          messages: { [MESSAGE_TYPE]: { [LEGACY_ZUI]: { [paramName]: { title: TRUTHY_STRING } }, schema: {} } },
         },
       },
-      entities: { [ENTITY_NAME]: { [LEGACY_ZUI]: { [PARAM_NAME]: { title: TRUTHY_STRING } }, schema: {} } },
+      entities: { [ENTITY_NAME]: { [LEGACY_ZUI]: { [paramName]: { title: TRUTHY_STRING } }, schema: {} } },
     } as const satisfies PartialInterface
 
     // act
@@ -372,19 +364,19 @@ describeRule('legacy-zui-title-should-be-removed', (lint) => {
 })
 
 describeRule('legacy-zui-examples-should-be-removed', (lint) => {
-  test('legacy zui examples should trigger', async () => {
+  test.each(PARAM_NAMES)('legacy zui examples should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       actions: {
-        [ACTION_NAME]: { input: { [LEGACY_ZUI]: { [PARAM_NAME]: { examples: [TRUTHY_STRING] } }, schema: {} } },
+        [ACTION_NAME]: { input: { [LEGACY_ZUI]: { [paramName]: { examples: [TRUTHY_STRING] } }, schema: {} } },
       },
-      events: { [EVENT_NAME]: { [LEGACY_ZUI]: { [PARAM_NAME]: { examples: [TRUTHY_STRING] } }, schema: {} } },
+      events: { [EVENT_NAME]: { [LEGACY_ZUI]: { [paramName]: { examples: [TRUTHY_STRING] } }, schema: {} } },
       channels: {
         [CHANNEL_NAME]: {
-          messages: { [MESSAGE_TYPE]: { [LEGACY_ZUI]: { [PARAM_NAME]: { examples: [TRUTHY_STRING] } }, schema: {} } },
+          messages: { [MESSAGE_TYPE]: { [LEGACY_ZUI]: { [paramName]: { examples: [TRUTHY_STRING] } }, schema: {} } },
         },
       },
-      entities: { [ENTITY_NAME]: { [LEGACY_ZUI]: { [PARAM_NAME]: { examples: [TRUTHY_STRING] } }, schema: {} } },
+      entities: { [ENTITY_NAME]: { [LEGACY_ZUI]: { [paramName]: { examples: [TRUTHY_STRING] } }, schema: {} } },
     } as const satisfies PartialInterface
 
     // act
@@ -487,10 +479,10 @@ describeRule('entities-must-have-a-description', (lint) => {
 })
 
 describeRule('entity-fields-should-have-a-title', (lint) => {
-  test('missing title should trigger', async () => {
+  test.each(PARAM_NAMES)('missing title should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
-      entities: { [ENTITY_NAME]: { schema: { properties: { [PARAM_NAME]: { [ZUI]: {} } } } } },
+      entities: { [ENTITY_NAME]: { schema: { properties: { [paramName]: { [ZUI]: {} } } } } },
     } as const satisfies PartialInterface
 
     // act
@@ -498,15 +490,15 @@ describeRule('entity-fields-should-have-a-title', (lint) => {
 
     // assert
     expect(results).toHaveLength(1)
-    expect(results[0]?.path).toEqual(['entities', ENTITY_NAME, 'schema', 'properties', PARAM_NAME, ZUI])
+    expect(results[0]?.path).toEqual(['entities', ENTITY_NAME, 'schema', 'properties', paramName, ZUI])
     expect(results[0]?.message).toContain('title')
   })
 
-  test('empty title should trigger', async () => {
+  test.each(PARAM_NAMES)('empty title should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       entities: {
-        [ENTITY_NAME]: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: EMPTY_STRING } } } } },
+        [ENTITY_NAME]: { schema: { properties: { [paramName]: { [ZUI]: { title: EMPTY_STRING } } } } },
       },
     } as const satisfies PartialInterface
 
@@ -515,15 +507,15 @@ describeRule('entity-fields-should-have-a-title', (lint) => {
 
     // assert
     expect(results).toHaveLength(1)
-    expect(results[0]?.path).toEqual(['entities', ENTITY_NAME, 'schema', 'properties', PARAM_NAME, ZUI, 'title'])
+    expect(results[0]?.path).toEqual(['entities', ENTITY_NAME, 'schema', 'properties', paramName, ZUI, 'title'])
     expect(results[0]?.message).toContain('title')
   })
 
-  test('valid title should not trigger', async () => {
+  test.each(PARAM_NAMES)('valid title should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       entities: {
-        [ENTITY_NAME]: { schema: { properties: { [PARAM_NAME]: { [ZUI]: { title: TRUTHY_STRING } } } } },
+        [ENTITY_NAME]: { schema: { properties: { [paramName]: { [ZUI]: { title: TRUTHY_STRING } } } } },
       },
     } as const satisfies PartialInterface
 
@@ -536,10 +528,10 @@ describeRule('entity-fields-should-have-a-title', (lint) => {
 })
 
 describeRule('entity-fields-must-have-a-description', (lint) => {
-  test('missing description should trigger', async () => {
+  test.each(PARAM_NAMES)('missing description should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
-      entities: { [ENTITY_NAME]: { schema: { properties: { [PARAM_NAME]: {} } } } },
+      entities: { [ENTITY_NAME]: { schema: { properties: { [paramName]: {} } } } },
     } as const satisfies PartialInterface
 
     // act
@@ -547,15 +539,15 @@ describeRule('entity-fields-must-have-a-description', (lint) => {
 
     // assert
     expect(results).toHaveLength(1)
-    expect(results[0]?.path).toEqual(['entities', ENTITY_NAME, 'schema', 'properties', PARAM_NAME])
+    expect(results[0]?.path).toEqual(['entities', ENTITY_NAME, 'schema', 'properties', paramName])
     expect(results[0]?.message).toContain('description')
   })
 
-  test('empty description should trigger', async () => {
+  test.each(PARAM_NAMES)('empty description should trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       entities: {
-        [ENTITY_NAME]: { schema: { properties: { [PARAM_NAME]: { description: EMPTY_STRING } } } },
+        [ENTITY_NAME]: { schema: { properties: { [paramName]: { description: EMPTY_STRING } } } },
       },
     } as const satisfies PartialInterface
 
@@ -564,15 +556,15 @@ describeRule('entity-fields-must-have-a-description', (lint) => {
 
     // assert
     expect(results).toHaveLength(1)
-    expect(results[0]?.path).toEqual(['entities', ENTITY_NAME, 'schema', 'properties', PARAM_NAME, 'description'])
+    expect(results[0]?.path).toEqual(['entities', ENTITY_NAME, 'schema', 'properties', paramName, 'description'])
     expect(results[0]?.message).toContain('description')
   })
 
-  test('valid description should not trigger', async () => {
+  test.each(PARAM_NAMES)('valid description should not trigger (%s)', async (paramName) => {
     // arrange
     const definition = {
       entities: {
-        [ENTITY_NAME]: { schema: { properties: { [PARAM_NAME]: { description: TRUTHY_STRING } } } },
+        [ENTITY_NAME]: { schema: { properties: { [paramName]: { description: TRUTHY_STRING } } } },
       },
     } as const satisfies PartialInterface
 
