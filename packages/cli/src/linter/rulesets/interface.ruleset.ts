@@ -9,7 +9,7 @@ export const INTERFACE_RULESET = {
       description: 'All action input parameters SHOULD have a title',
       message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
-      given: '$.actions[*].input.schema..properties[*].x-zui',
+      given: '$.actions[*].input..schema.properties[*].x-zui',
       then: [
         {
           field: 'title',
@@ -21,7 +21,7 @@ export const INTERFACE_RULESET = {
       description: 'All action input parameters MUST have a description',
       message: '{{description}}: {{error}} MUST provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
-      given: '$.actions[*].input.schema..properties[*]',
+      given: '$.actions[*].input..schema.properties[*]',
       then: [
         {
           field: 'description',
@@ -33,7 +33,7 @@ export const INTERFACE_RULESET = {
       description: 'All action output parameters SHOULD have a title',
       message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
-      given: '$.actions[*].output.schema..properties[*].x-zui',
+      given: '$.actions[*].output..schema.properties[*].x-zui',
       then: [
         {
           field: 'title',
@@ -45,7 +45,7 @@ export const INTERFACE_RULESET = {
       description: 'All action output parameters MUST have a description',
       message: '{{description}}: {{error}} MUST provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
-      given: '$.actions[*].output.schema..properties[*]',
+      given: '$.actions[*].output..schema.properties[*]',
       then: [
         {
           field: 'description',
@@ -57,7 +57,7 @@ export const INTERFACE_RULESET = {
       description: 'All event output parameters SHOULD have a title',
       message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
-      given: '$.events[*].schema..properties[*]',
+      given: '$.events[*]..schema.properties[*]',
       then: [
         {
           field: 'x-zui.title',
@@ -70,7 +70,7 @@ export const INTERFACE_RULESET = {
       message:
         '{{description}}: {{error}} SHOULD provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
-      given: '$.events[*].schema..properties[*]',
+      given: '$.events[*]..schema.properties[*]',
       then: [
         {
           field: 'description',
@@ -109,7 +109,7 @@ export const INTERFACE_RULESET = {
       description: 'All entity fields SHOULD have a title',
       message: '{{description}}: {{error}} SHOULD provide a non-empty title by using .title() in its Zod schema',
       severity: 'warn',
-      given: '$.entities[*].schema..properties[*]',
+      given: '$.entities[*]..schema.properties[*]',
       then: [
         {
           field: 'x-zui.title',
@@ -121,7 +121,7 @@ export const INTERFACE_RULESET = {
       description: 'All entity fields MUST have a description',
       message: '{{description}}: {{error}} MUST provide a non-empty description by using .describe() in its Zod schema',
       severity: 'error',
-      given: '$.entities[*].schema..properties[*]',
+      given: '$.entities[*]..schema.properties[*]',
       then: [
         {
           field: 'description',
