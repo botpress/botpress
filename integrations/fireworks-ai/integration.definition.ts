@@ -9,6 +9,9 @@ export default new IntegrationDefinition({
   version: '0.4.2',
   readme: 'hub.md',
   icon: 'icon.svg',
+  configuration: {
+    schema: z.any() as unknown as z.AnyZodObject, // TODO: remove this and bump a major
+  },
   entities: {
     modelRef: {
       schema: z.object({
