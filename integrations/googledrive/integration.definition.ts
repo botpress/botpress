@@ -37,6 +37,43 @@ export default new IntegrationDefinition({
         }),
       },
     },
+    listFolders: { // TODO: Implement listable
+      title: 'List folders',
+      description: 'List files in a Google Drive',
+      input: {
+        schema: z.object({
+          nextToken: z.string().optional().describe('The token to use to get the next page of results'),
+        })
+      },
+      output: {
+        schema: z.object({
+          items: z.array(
+            z.object({
+              id: z.string().min(1),
+              name: z.string().min(1)
+            })
+          ).describe('The list of folders in the Google Drive. Results may be paginated, if set, use nextToken to get additional results'),
+          meta: z.object({
+            nextToken: z.string().optional().describe('The token to use to get the next page of results')
+          })
+        })
+      }
+    },
+    createFile: { // TODO: Implement creatable
+      title: 'Create File',
+      description: 'Create an empty file in a Google Drive',
+      input: {
+        schema: z.object({
+          name: z.string().min(1),
+        }),
+      },
+      output: {
+        schema: z.object({
+          id: z.string().min(1),
+          name: z.string().min(1),
+        }).describe('The file created in GoogleDrive'),
+      },
+    },
   },
   states:{
     configuration: {
