@@ -1,4 +1,4 @@
-import { getClient } from './client'
+import { getClient } from './google-api/client'
 import * as bp from '.botpress'
 
 export const register: bp.IntegrationProps['register'] = async ({ logger, ctx }) => {

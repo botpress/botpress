@@ -1,6 +1,6 @@
 import { JWT } from 'google-auth-library'
 import { google, sheets_v4 } from 'googleapis'
-import { MajorDimension } from '../definitions/actions'
+import { MajorDimension } from '../../definitions/actions'
 import * as bp from '.botpress'
 
 export function getClient(config: bp.Context['configuration']) {
