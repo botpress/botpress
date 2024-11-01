@@ -5,6 +5,8 @@ import * as bp from '.botpress'
 
 const PAGE_SIZE = 10
 const FOLDER_MIMETYPE = 'application/vnd.google-apps.folder'
+const GOOGLE_API_FILE_FIELDS = 'id, name, mimeType, parents'
+const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageToken`
 
 type FilesMap = Record<string, GoogleDriveFile>
 type ListActionProps = bp.ActionProps['listFiles'] | bp.ActionProps['listFolders']
@@ -33,19 +35,14 @@ const listFiles: bp.IntegrationProps['actions']['listFiles'] = async (props) => 
   await saveFilesMap(filesMap, client, ctx)
 
   const nonFolderFilesIds = newFilesIds
-    .map((id) => {
-      const file = filesMap[id]
-      if (!file) {
-        throw new RuntimeError(`Could not find file in known files map with ID ${id}`)
-      }
-      return file
-    })
+    .map((id) => getFile(id, filesMap))
     .filter((f) => !isFolder(f))
     .map((f) => f.id)
 
   const items = nonFolderFilesIds.map((id) => ({
     id,
     name: getFilePath(id, filesMap),
+    parentId: getParentId(id, filesMap)
   }))
 
   return {
@@ -57,6 +54,7 @@ const listFiles: bp.IntegrationProps['actions']['listFiles'] = async (props) => 
 }
 
 const listFolders: bp.IntegrationProps['actions']['listFolders'] = async (props) => {
+  // TODO: Always add My Drive
   const { input, client, ctx } = props
   if (!input.nextToken) {
     // Invalidate the known files map if starting from the beginning
@@ -75,6 +73,7 @@ const listFolders: bp.IntegrationProps['actions']['listFolders'] = async (props)
   const items = newFilesIds.map((id) => ({
     id,
     name: getFilePath(id, filesMap),
+    parentId: getParentId(id, filesMap)
   }))
   return {
     items,
@@ -102,7 +101,7 @@ const updateFilesMapFromNextPage = async ({
   // TODO: Support shared drive
   const listResponse = await googleClient.files.list({
     corpora: 'user', // TODO: Limit to the configured drive if optional driveId is provided
-    fields: 'files(id, name, mimeType, parents), nextPageToken',
+    fields: GOOGLE_API_FILELIST_FIELDS,
     q: searchQuery,
     pageToken: nextToken,
     pageSize: PAGE_SIZE,
@@ -156,13 +155,28 @@ const loadFilesMap = async (client: bp.Client, ctx: bp.Context): Promise<FilesMa
 }
 
 const validateDriveFile = (driveFile: UnvalidatedGoogleDriveFile): GoogleDriveFile => {
-  if (!driveFile.id) {
+  const { id, name } = driveFile
+  if (!id) {
     throw new RuntimeError('File ID is missing in Schema$File from the API response')
+  }
+
+  if(!name) {
+    throw new RuntimeError(`Name is missing in Schema$File from the API response for file with ID=${driveFile.id}`)
+  }
+
+  let parentId: string | undefined = undefined
+  if(driveFile.parents){
+    parentId = driveFile.parents[0]
+    if(!parentId) {
+      throw new RuntimeError(`Empty parent ID array in Schema$File from the API response for file with name=${driveFile.name}`)
+    }
   }
 
   return {
     ...driveFile,
-    id: driveFile.id,
+    id,
+    name,
+    parentId
   }
 }
 
@@ -175,17 +189,16 @@ const isFolder = (file: GoogleDriveFile): boolean => {
 }
 
 /**
- * @returns GoogleDriveFile received from the API
+ * @returns Validated GoogleDriveFile received from the API
  */
-const getFile = async (
+const getFileFromGoogleDrive = async (
   fileId: string,
   client: GoogleDriveClient
 ): Promise<GoogleDriveFile> => {
   const response = await client.files.get({
     fileId,
-    fields: 'id, name, mimeType, parents',
+    fields: GOOGLE_API_FILE_FIELDS,
   })
-  console.log('getFile', response)
   return validateDriveFile(response.data)
 }
 
@@ -198,17 +211,14 @@ const addParentsToFilesMap = async (
   filesMap: FilesMap,
   client: GoogleDriveClient
 ): Promise<string[]> => {
-  if (!file.parents) {
+  if (!file.parentId) {
     return []
   }
-  const [parentId] = file.parents // We only support one parent per file
-  if (!parentId) {
-    throw new RuntimeError(`Empty parent ID array for file ${file.name}`)
-  }
+
   const newFilesIds: string[] = []
-  let parent = filesMap[parentId]
+  let parent = filesMap[file.parentId]
   if (!parent) {
-    parent = await getFile(parentId, client)
+    parent = await getFileFromGoogleDrive(file.parentId, client)
     filesMap[parent.id] = parent
     newFilesIds.push(parent.id)
   }
@@ -217,22 +227,26 @@ const addParentsToFilesMap = async (
   return newFilesIds
 }
 
-const getFilePath = (fileId: string, knownFilesMap: FilesMap): string => {
-  const file = knownFilesMap[fileId]
-  if (!file) {
-    throw new RuntimeError(`Could not find file in known files map with ID ${fileId}`)
-  }
-
-  if (!file.parents) {
+const getFilePath = (fileId: string, filesMap: FilesMap): string => {
+  const file = getFile(fileId, filesMap)
+  if (!file.parentId) {
     return `/${file.name}`
   }
 
-  const [parentId] = file.parents // We only support one parent per file
-  if (!parentId) {
-    throw new RuntimeError(`Empty parent ID array for file ${file.name}`)
-  }
+  return `${getFilePath(file.parentId, filesMap)}/${file.name}`
+}
 
-  return `${getFilePath(parentId, knownFilesMap)}/${file.name}`
+const getFile = (fileId: string, filesMap: FilesMap): GoogleDriveFile => {
+  const file = filesMap[fileId]
+  if(!file) {
+    throw new RuntimeError(`Couldn't get file from files map with ID=${fileId}`)
+  }
+  return file
+}
+
+const getParentId = (fileId: string, filesMap: FilesMap): string | undefined => {
+  const file = getFile(fileId, filesMap)
+  return file.parentId
 }
 
 export default {
