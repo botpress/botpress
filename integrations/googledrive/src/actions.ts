@@ -11,11 +11,28 @@ const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageTo
 type FilesMap = Record<string, GoogleDriveFile>
 type ListActionProps = bp.ActionProps['listFiles'] | bp.ActionProps['listFolders']
 
-const createFile: bp.IntegrationProps['actions']['createFile'] = async () => {
+const createFile: bp.IntegrationProps['actions']['createFile'] = async (props) => {
+  const { client, ctx, input } = props
+  const { name: inName, parentId: inParentId } = input
+  if(inName.length <= 0){
+    throw new RuntimeError('File name cannnot be empty for file')
+  }
+
+  const googleClient = await getClient({client, ctx})
+  const response = await googleClient.files.create({
+    fields: GOOGLE_API_FILE_FIELDS,
+    requestBody: {
+      name: inName,
+      parents: inParentId ? [inParentId] : undefined
+    },
+    media: undefined // TODO: Add option to upload data in create? (Is there any other way besides create or update?)
+  })
+
+  const { id, name, parentId } = validateDriveFile(response.data)
   return {
-    // TODO: Implement completely once listFolders is complete
-    id: 'id',
-    name: 'name',
+    id,
+    name,
+    parentId
   }
 }
 
