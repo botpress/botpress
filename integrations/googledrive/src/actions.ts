@@ -14,26 +14,36 @@ type ListActionProps = bp.ActionProps['listFiles'] | bp.ActionProps['listFolders
 const createFile: bp.IntegrationProps['actions']['createFile'] = async (props) => {
   const { client, ctx, input } = props
   const { name: inName, parentId: inParentId } = input
-  if(inName.length <= 0){
+  if (inName.length <= 0) {
     throw new RuntimeError('File name cannnot be empty for file')
   }
 
-  const googleClient = await getClient({client, ctx})
+  const googleClient = await getClient({ client, ctx })
   const response = await googleClient.files.create({
     fields: GOOGLE_API_FILE_FIELDS,
     requestBody: {
       name: inName,
-      parents: inParentId ? [inParentId] : undefined
+      parents: inParentId ? [inParentId] : undefined,
     },
-    media: undefined // TODO: Add option to upload data in create? (Is there any other way besides create or update?)
+    media: undefined, // TODO: Add option to upload data in create? (Is there any other way besides create or update?)
   })
 
   const { id, name, parentId } = validateDriveFile(response.data)
   return {
     id,
     name,
-    parentId
+    parentId,
   }
+}
+
+const deleteFile: bp.IntegrationProps['actions']['deleteFile'] = async (props) => {
+  const { client, ctx, input } = props
+  const fileId = input.id.trim()
+  const googleClient = await getClient({ client, ctx })
+  await googleClient.files.delete({
+    fileId,
+  })
+  return {}
 }
 
 const listFiles: bp.IntegrationProps['actions']['listFiles'] = async (props) => {
@@ -59,7 +69,7 @@ const listFiles: bp.IntegrationProps['actions']['listFiles'] = async (props) => 
   const items = nonFolderFilesIds.map((id) => ({
     id,
     name: getFilePath(id, filesMap),
-    parentId: getParentId(id, filesMap)
+    parentId: getParentId(id, filesMap),
   }))
 
   return {
@@ -90,7 +100,7 @@ const listFolders: bp.IntegrationProps['actions']['listFolders'] = async (props)
   const items = newFilesIds.map((id) => ({
     id,
     name: getFilePath(id, filesMap),
-    parentId: getParentId(id, filesMap)
+    parentId: getParentId(id, filesMap),
   }))
   return {
     items,
@@ -177,15 +187,17 @@ const validateDriveFile = (driveFile: UnvalidatedGoogleDriveFile): GoogleDriveFi
     throw new RuntimeError('File ID is missing in Schema$File from the API response')
   }
 
-  if(!name) {
+  if (!name) {
     throw new RuntimeError(`Name is missing in Schema$File from the API response for file with ID=${driveFile.id}`)
   }
 
   let parentId: string | undefined = undefined
-  if(driveFile.parents){
+  if (driveFile.parents) {
     parentId = driveFile.parents[0]
-    if(!parentId) {
-      throw new RuntimeError(`Empty parent ID array in Schema$File from the API response for file with name=${driveFile.name}`)
+    if (!parentId) {
+      throw new RuntimeError(
+        `Empty parent ID array in Schema$File from the API response for file with name=${driveFile.name}`
+      )
     }
   }
 
@@ -193,7 +205,7 @@ const validateDriveFile = (driveFile: UnvalidatedGoogleDriveFile): GoogleDriveFi
     ...driveFile,
     id,
     name,
-    parentId
+    parentId,
   }
 }
 
@@ -208,10 +220,7 @@ const isFolder = (file: GoogleDriveFile): boolean => {
 /**
  * @returns Validated GoogleDriveFile received from the API
  */
-const getFileFromGoogleDrive = async (
-  fileId: string,
-  client: GoogleDriveClient
-): Promise<GoogleDriveFile> => {
+const getFileFromGoogleDrive = async (fileId: string, client: GoogleDriveClient): Promise<GoogleDriveFile> => {
   const response = await client.files.get({
     fileId,
     fields: GOOGLE_API_FILE_FIELDS,
@@ -255,7 +264,7 @@ const getFilePath = (fileId: string, filesMap: FilesMap): string => {
 
 const getFile = (fileId: string, filesMap: FilesMap): GoogleDriveFile => {
   const file = filesMap[fileId]
-  if(!file) {
+  if (!file) {
     throw new RuntimeError(`Couldn't get file from files map with ID=${fileId}`)
   }
   return file
@@ -270,4 +279,5 @@ export default {
   listFiles,
   listFolders,
   createFile,
+  deleteFile,
 } as const satisfies bp.IntegrationProps['actions']

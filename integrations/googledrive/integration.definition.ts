@@ -71,6 +71,18 @@ export default new IntegrationDefinition({
         schema: fileSchema.describe('The file created in GoogleDrive'),
       },
     },
+    deleteFile: {
+      title: 'Delete File',
+      description: 'Deletes a file in a GoogleDrive',
+      input: {
+        schema: z.object({
+          id: z.string().min(1),
+        }),
+      },
+      output: {
+        schema: z.object({}),
+      },
+    },
   },
   states: {
     configuration: {
