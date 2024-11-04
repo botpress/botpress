@@ -1,6 +1,12 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import { integrationName } from './package.json'
-import { fileSchema, fileCreateArgSchema, fileUpdateArgSchema, folderSchema } from './src/schemas'
+import {
+  fileSchema,
+  fileCreateArgSchema,
+  fileUpdateArgSchema,
+  fileUploadDataArgSchema,
+  folderSchema,
+} from './src/schemas'
 
 export default new IntegrationDefinition({
   name: integrationName,
@@ -13,7 +19,7 @@ export default new IntegrationDefinition({
     },
     schema: z.object({
       driveId: z.string().min(1).describe('The ID of the Google Drive to be accessed by the bot.'),
-    }),
+    }), // TODO: Implement
   },
   actions: {
     listFiles: {
@@ -93,6 +99,16 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: fileSchema,
+      },
+    },
+    uploadFileData: {
+      title: 'Upload file data',
+      description: 'Upload data to a file data in a Google Drive',
+      input: {
+        schema: fileUploadDataArgSchema,
+      },
+      output: {
+        schema: z.object({}),
       },
     },
     deleteFile: {

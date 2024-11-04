@@ -1,4 +1,6 @@
 import { RuntimeError } from '@botpress/client'
+import axios from 'axios'
+import { Stream } from 'stream'
 import { getClient } from './client'
 import { GoogleDriveClient, GoogleDriveFile, UnvalidatedGoogleDriveFile } from './types'
 import * as bp from '.botpress'
@@ -143,6 +145,27 @@ const deleteFile: bp.IntegrationProps['actions']['deleteFile'] = async (props) =
   return {}
 }
 
+const uploadFileData: bp.IntegrationProps['actions']['uploadFileData'] = async (props) => {
+  const { client, ctx, input } = props
+  const { id: fileId, url, mimeType } = input
+  const googleClient = await getClient({ client, ctx })
+
+  const downloadBpFileResp = await axios.get<Stream>(url, {
+    responseType: 'stream',
+  })
+  const downloadStream = downloadBpFileResp.data
+
+  await googleClient.files.update({
+    fileId,
+    media: {
+      body: downloadStream,
+      mimeType,
+    },
+  })
+
+  return {}
+}
+
 const updateFilesMapFromNextPage = async ({
   filesMap,
   nextToken,
@@ -173,14 +196,14 @@ const updateFilesMapFromNextPage = async ({
     throw new RuntimeError('No files were returned by the API')
   }
   const files = validateDriveFiles(unvalidatedDriveFiles)
-  files.forEach((driveFile) => {
-    filesMap[driveFile.id] = driveFile
+  files.forEach((file) => {
+    filesMap[file.id] = file
   })
 
   const newFilesIds: string[] = files.map((f) => f.id)
-  for (const driveFile of files) {
+  for (const file of files) {
     // Fetch missing parent files immediately in order to be able to reconstruct every new file's path
-    const newParentFilesIds = await addParentsToFilesMap(driveFile, filesMap, googleClient)
+    const newParentFilesIds = await addParentsToFilesMap(file, filesMap, googleClient)
     newFilesIds.push(...newParentFilesIds)
   }
 
@@ -315,4 +338,5 @@ export default {
   readFile,
   updateFile,
   deleteFile,
+  uploadFileData,
 } as const satisfies bp.IntegrationProps['actions']
