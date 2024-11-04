@@ -36,6 +36,27 @@ const createFile: bp.IntegrationProps['actions']['createFile'] = async (props) =
   }
 }
 
+const updateFile: bp.IntegrationProps['actions']['updateFile'] = async (props) => {
+  const { client, ctx, input } = props
+  const { id: fileId, name: inName, parentId: inParentId } = input
+  const addParents = inParentId ? `${inParentId}` : undefined
+  const googleClient = await getClient({ client, ctx })
+  const response = await googleClient.files.update({
+    fields: GOOGLE_API_FILE_FIELDS,
+    fileId,
+    addParents, // Removes old parents
+    requestBody: {
+      name: inName,
+    },
+  })
+  const { id, name, parentId } = validateDriveFile(response.data)
+  return {
+    id,
+    name,
+    parentId,
+  }
+}
+
 const deleteFile: bp.IntegrationProps['actions']['deleteFile'] = async (props) => {
   const { client, ctx, input } = props
   const fileId = input.id.trim()
@@ -279,5 +300,6 @@ export default {
   listFiles,
   listFolders,
   createFile,
+  updateFile,
   deleteFile,
 } as const satisfies bp.IntegrationProps['actions']

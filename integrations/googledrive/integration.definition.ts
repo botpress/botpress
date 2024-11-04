@@ -1,6 +1,6 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import { integrationName } from './package.json'
-import { fileSchema, fileCreateArgSchema, folderSchema } from './src/schemas'
+import { fileSchema, fileCreateArgSchema, fileUpdateArgSchema, folderSchema } from './src/schemas'
 
 export default new IntegrationDefinition({
   name: integrationName,
@@ -69,6 +69,17 @@ export default new IntegrationDefinition({
       },
       output: {
         schema: fileSchema.describe('The file created in GoogleDrive'),
+      },
+    },
+    updateFile: {
+      // TODO: Implement updatable
+      title: 'Update File',
+      description: "Update a file's metadata in a Google Drive",
+      input: {
+        schema: fileUpdateArgSchema,
+      },
+      output: {
+        schema: fileSchema,
       },
     },
     deleteFile: {
