@@ -6,12 +6,9 @@ import stt from './bp_modules/speech-to-text'
 export default new IntegrationDefinition({
   name: 'fireworks-ai',
   title: 'Fireworks AI',
-  version: '0.4.2',
+  version: '0.5.0',
   readme: 'hub.md',
   icon: 'icon.svg',
-  configuration: {
-    schema: z.any() as unknown as z.AnyZodObject, // TODO: remove this and bump a major
-  },
   entities: {
     modelRef: {
       schema: z.object({
