@@ -57,11 +57,22 @@ export const createAsyncFnWrapperWithErrorRedaction =
  * @returns a `sdk.RuntimeError` with the custom error message
  */
 export const defaultErrorRedactor: RedactFn = (error: Error, customMessage: string) => {
+  // If the error is already a `sdk.RuntimeError`, we return it as-is, since it
+  // should already have been redacted.
+
+  if (error instanceof sdk.RuntimeError) {
+    return error
+  }
+
+  // Otherwise, we proceed with redaction:
   // By default, we log the original error to the integration logs with a call
   // to `console.warn` and return a generic error message to the user, because
   // we cannot trust the original error message to be safe to expose, as it may
   // contain sensitive information.
 
+  // Integrations are free to provide their own redactor function if they want
+  // to expose more information to the user or log the error differently.
+
   console.warn(customMessage, error)
-  return error instanceof sdk.RuntimeError ? error : new sdk.RuntimeError(customMessage)
+  return new sdk.RuntimeError(customMessage)
 }
