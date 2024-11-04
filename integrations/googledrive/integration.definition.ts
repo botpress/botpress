@@ -68,7 +68,20 @@ export default new IntegrationDefinition({
         schema: fileCreateArgSchema,
       },
       output: {
-        schema: fileSchema.describe('The file created in GoogleDrive'),
+        schema: fileSchema.describe('The file created in Google Drive'),
+      },
+    },
+    readFile: {
+      // TODO: Implement readable
+      title: 'Read File',
+      description: "Read a file's metadata in a Google Drive",
+      input: {
+        schema: z.object({
+          id: z.string().min(1),
+        }),
+      },
+      output: {
+        schema: fileSchema,
       },
     },
     updateFile: {
@@ -84,7 +97,7 @@ export default new IntegrationDefinition({
     },
     deleteFile: {
       title: 'Delete File',
-      description: 'Deletes a file in a GoogleDrive',
+      description: 'Deletes a file in a Google Drive',
       input: {
         schema: z.object({
           id: z.string().min(1),

@@ -11,62 +11,6 @@ const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageTo
 type FilesMap = Record<string, GoogleDriveFile>
 type ListActionProps = bp.ActionProps['listFiles'] | bp.ActionProps['listFolders']
 
-const createFile: bp.IntegrationProps['actions']['createFile'] = async (props) => {
-  const { client, ctx, input } = props
-  const { name: inName, parentId: inParentId } = input
-  if (inName.length <= 0) {
-    throw new RuntimeError('File name cannnot be empty for file')
-  }
-
-  const googleClient = await getClient({ client, ctx })
-  const response = await googleClient.files.create({
-    fields: GOOGLE_API_FILE_FIELDS,
-    requestBody: {
-      name: inName,
-      parents: inParentId ? [inParentId] : undefined,
-    },
-    media: undefined, // TODO: Add option to upload data in create? (Is there any other way besides create or update?)
-  })
-
-  const { id, name, parentId } = validateDriveFile(response.data)
-  return {
-    id,
-    name,
-    parentId,
-  }
-}
-
-const updateFile: bp.IntegrationProps['actions']['updateFile'] = async (props) => {
-  const { client, ctx, input } = props
-  const { id: fileId, name: inName, parentId: inParentId } = input
-  const addParents = inParentId ? `${inParentId}` : undefined
-  const googleClient = await getClient({ client, ctx })
-  const response = await googleClient.files.update({
-    fields: GOOGLE_API_FILE_FIELDS,
-    fileId,
-    addParents, // Removes old parents
-    requestBody: {
-      name: inName,
-    },
-  })
-  const { id, name, parentId } = validateDriveFile(response.data)
-  return {
-    id,
-    name,
-    parentId,
-  }
-}
-
-const deleteFile: bp.IntegrationProps['actions']['deleteFile'] = async (props) => {
-  const { client, ctx, input } = props
-  const fileId = input.id.trim()
-  const googleClient = await getClient({ client, ctx })
-  await googleClient.files.delete({
-    fileId,
-  })
-  return {}
-}
-
 const listFiles: bp.IntegrationProps['actions']['listFiles'] = async (props) => {
   const { client, ctx, input } = props
   if (!input.nextToken) {
@@ -129,6 +73,74 @@ const listFolders: bp.IntegrationProps['actions']['listFolders'] = async (props)
       nextToken,
     },
   }
+}
+
+const createFile: bp.IntegrationProps['actions']['createFile'] = async (props) => {
+  const { client, ctx, input } = props
+  const { name: inName, parentId: inParentId } = input
+  if (inName.length <= 0) {
+    throw new RuntimeError('File name cannnot be empty for file')
+  }
+
+  const googleClient = await getClient({ client, ctx })
+  const response = await googleClient.files.create({
+    fields: GOOGLE_API_FILE_FIELDS,
+    requestBody: {
+      name: inName,
+      parents: inParentId ? [inParentId] : undefined,
+    },
+    media: undefined, // TODO: Add option to upload data in create? (Is there any other way besides create or update?)
+  })
+
+  const { id, name, parentId } = validateDriveFile(response.data)
+  return {
+    id,
+    name,
+    parentId,
+  }
+}
+
+const readFile: bp.IntegrationProps['actions']['readFile'] = async (props) => {
+  const { client, ctx, input } = props
+  const { id: inId } = input
+  const googleClient = await getClient({ client, ctx })
+  const { id, name, parentId } = await getFileFromGoogleDrive(inId, googleClient)
+  return {
+    id,
+    name,
+    parentId,
+  }
+}
+
+const updateFile: bp.IntegrationProps['actions']['updateFile'] = async (props) => {
+  const { client, ctx, input } = props
+  const { id: fileId, name: inName, parentId: inParentId } = input
+  const addParents = inParentId ? `${inParentId}` : undefined
+  const googleClient = await getClient({ client, ctx })
+  const response = await googleClient.files.update({
+    fields: GOOGLE_API_FILE_FIELDS,
+    fileId,
+    addParents, // Removes old parents
+    requestBody: {
+      name: inName,
+    },
+  })
+  const { id, name, parentId } = validateDriveFile(response.data)
+  return {
+    id,
+    name,
+    parentId,
+  }
+}
+
+const deleteFile: bp.IntegrationProps['actions']['deleteFile'] = async (props) => {
+  const { client, ctx, input } = props
+  const fileId = input.id
+  const googleClient = await getClient({ client, ctx })
+  await googleClient.files.delete({
+    fileId,
+  })
+  return {}
 }
 
 const updateFilesMapFromNextPage = async ({
@@ -300,6 +312,7 @@ export default {
   listFiles,
   listFolders,
   createFile,
+  readFile,
   updateFile,
   deleteFile,
 } as const satisfies bp.IntegrationProps['actions']
