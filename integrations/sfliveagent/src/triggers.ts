@@ -5,7 +5,7 @@ export type TriggerPayload = {
   transport: {
     key: string
   }
-  payload: { messages: { type: MessageTypes; message: Message }[] }
+  payload: { messages: { type: MessageTypes; message: Message }[] } | string
 }
 
 export type MessageTypes = 'ChatEstablished' | 'ChatRequestFail' | 'ChatRequestSuccess' | 'ChatTransferred' | 'QueueUpdate' | 'ChatMessage' | 'AgentTyping' | 'ChatEnded' | 'AgentNotTyping'

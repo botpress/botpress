@@ -11,6 +11,14 @@ export const executeAgentMessage = async ({
   message: { text: string; name: string }
   client: bp.Client
 }) => {
+
+  console.log('Executing Trigger executeAgentMessage for conversation of Botpress: ' + JSON.stringify({
+    botpressConversationId,
+    botpressUserId,
+    message
+  }, null, 2)
+  )
+
   await client.createEvent({
     type: 'onAgentMessage',
     payload: {

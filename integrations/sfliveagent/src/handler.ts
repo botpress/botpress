@@ -19,23 +19,37 @@ export const findConversation = async (
   return conversations[0]
 }
 
+function getRandomInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 export const handler: IntegrationProps['handler'] = async ({ req, client, logger }) => {
+  const executionNumber = getRandomInt(1000, 9999);
+
   if (!req.body) {
-    logger.forBot().warn('Handler received an empty body')
+    logger.forBot().warn(`${executionNumber}: Handler received an empty body`)
     return
   }
 
-  console.log('Got Data on handler:', JSON.stringify(req.body))
-
   const trigger = JSON.parse(req.body) as TriggerPayload
 
-  if(trigger.type == 'data ' && ( !trigger.payload || !(trigger.payload as unknown as string)?.length)) {
+  if(typeof trigger.payload !== 'string' || trigger.payload.length) {
+    console.log(`${executionNumber}: Got Data on handler:`, JSON.stringify(req.body))
+  }
+
+  if(trigger.type == 'polling_start' || (trigger.type == 'data' && (!trigger.payload || (typeof trigger.payload == 'string' && !trigger.payload.length)))) {
+    if(typeof trigger.payload == 'string' && !trigger.payload.length) {
+      return
+    }
+    console.log(`${executionNumber}: Ignoring sf event of type: ${trigger.type} with definition ${JSON.stringify(trigger, null, 2)}`)
     return
   }
 
   if(['data', 'polling_end', 'error'].includes(trigger.type)) {
 
-    console.log('will try to get using the following tags: ', { pollingKey: trigger.transport.key })
+    console.log(`${executionNumber}: will try to get using the following tags: `, { pollingKey: trigger.transport.key })
 
     const linkedConversation = await findConversation({ client }, {
       tags: {
@@ -44,16 +58,16 @@ export const handler: IntegrationProps['handler'] = async ({ req, client, logger
     })
 
     if(!linkedConversation) {
-      throw new RuntimeError("Couldn't find the linked conversation in the handler")
+      throw new RuntimeError(`${executionNumber}: Couldn't find the linked conversation in the handler`)
     }
 
-    console.log('Got conversation:', linkedConversation)
+    console.log(`${executionNumber}: Got conversation:`, linkedConversation)
 
     const botpressConversationId = linkedConversation.tags.botpressConversationId
     const botpressUserId  = linkedConversation.tags.botpressUserId || ''
 
     if(!botpressConversationId) {
-      throw new RuntimeError('Botpress conversation does not exist')
+      throw new RuntimeError(`${executionNumber}: Botpress conversation does not exist on linked conversation ${linkedConversation.id}`)
     }
 
     switch (trigger.type) {
@@ -76,7 +90,7 @@ export const handler: IntegrationProps['handler'] = async ({ req, client, logger
             case 'QueueUpdate': void executeQueueUpdated({ botpressConversationId, botpressUserId, message, client }); break
             case 'ChatEnded': void executeConversationEnded({ botpressConversationId, botpressUserId, client, reason: message.reason === 'agent' ? 'AGENT_ENDED' : message.reason }); break
             default:
-              logger.forBot().error('Unsupported message type: ' + JSON.stringify({ type, message }, null, 2))
+              logger.forBot().error(`${executionNumber}: Unsupported message type: ` + JSON.stringify({ type, message }, null, 2))
           }
         }
 
@@ -84,7 +98,7 @@ export const handler: IntegrationProps['handler'] = async ({ req, client, logger
 
       case 'error':
         // If you start the polling session with debug enabled
-        logger.forBot().debug('Got a debug error from the polling session: ' + JSON.stringify({ trigger, response: trigger.payload?.response }, null, 2))
+        logger.forBot().debug(`${executionNumber}: Got a debug error from the polling session: ` + JSON.stringify({ trigger, response: trigger.payload?.response }, null, 2))
         return
       case 'polling_start':
         return
@@ -93,6 +107,6 @@ export const handler: IntegrationProps['handler'] = async ({ req, client, logger
       default: break
     }
   } else {
-    logger.forBot().warn('Unsupported trigger type: ' + trigger.type)
+    logger.forBot().warn(`${executionNumber}: Unsupported trigger type: ` + trigger.type)
   }
 }

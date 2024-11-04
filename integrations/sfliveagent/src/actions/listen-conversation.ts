@@ -54,20 +54,24 @@ export const listenConversation: IntegrationProps['actions']['listenConversation
       }
     } catch(e: any) {
       await salesforceClient.endSession('POLLING_SERVER_FAILED')
+      throw new Error('Failed to end Polling Session: ' + e.message)
+    }
 
-      return { success: false, message: 'Failed to end Polling Session: ' + e.message }
+    const tags = {
+      pollingKey,
+      liveAgentSessionKey,
+      botpressConversationId,
+      botpressUserId
     }
 
     await client.updateConversation({
       id: linkedConversation.id,
-      tags: {
-        pollingKey,
-        liveAgentSessionKey,
-        botpressConversationId,
-        botpressUserId
-      }
+      tags
     })
+
+    logger.forBot().info(`Conversation ${botpressConversationId} is now listening to liveAgentSessionKey ${liveAgentSessionKey} using linked conversation ${linkedConversation.id}, tags ${JSON.stringify(tags, null, 2)}`)
   } catch (e: any) {
+    console.log('Failed to create conversation session: ' + e.message)
     logger.forBot().error('Failed to create conversation session: ' + e.message)
     return { success: false, message: 'Failed to listenConversation: ' + e.message }
   }

@@ -16,8 +16,17 @@ export const executeConversationEnded = async ({
   client: bp.Client
   reason?: EndConversationReason
 }) => {
+
+  console.log('Executing Trigger onConversationEnded for conversation of Botpress: ' + JSON.stringify({
+    botpressConversationId,
+    botpressUserId,
+    reason
+  }, null, 2)
+  )
+
   await client.createEvent({
     type: 'onConversationEnded',
+    conversationId: botpressConversationId,
     payload: {
       botpressConversationId,
       botpressUserId,

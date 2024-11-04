@@ -46,6 +46,7 @@ export const createConversationSession: IntegrationProps['actions']['createConve
     })
 
     console.log('Set State')
+    logger.forBot().info(`New LiveAgent session created -> liveAgentSessionKey ${session.sessionKey}`)
 
     return { success: true, liveAgentSessionKey: session.sessionKey }
   } catch (e: any) {

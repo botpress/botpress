@@ -12,8 +12,17 @@ export const executeConversationTransferred = async ({
   message: ChatTransferredMessage
   client: bp.Client
 }) => {
+
+  console.log('Executing Trigger onConversationTransferred for conversation of Botpress: ' + JSON.stringify({
+    botpressConversationId,
+    botpressUserId,
+    agentName: message.name
+  }, null, 2)
+  )
+
   await client.createEvent({
     type: 'onConversationTransferred',
+    conversationId: botpressConversationId,
     payload: {
       botpressConversationId,
       botpressUserId,

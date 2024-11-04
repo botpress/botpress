@@ -12,8 +12,17 @@ export const executeConversationRequestFailed = async ({
   message: ChatRequestFailMessage
   client: bp.Client
 }) => {
+
+  console.log('Executing Trigger onConversationRequestFailed for conversation of Botpress: ' + JSON.stringify({
+    botpressConversationId,
+    botpressUserId,
+    reason: message.reason
+  }, null, 2)
+  )
+
   await client.createEvent({
     type: 'onConversationRequestFailed',
+    conversationId: botpressConversationId,
     payload: {
       botpressConversationId,
       botpressUserId,

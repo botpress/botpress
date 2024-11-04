@@ -12,8 +12,17 @@ export const executeQueueUpdated = async ({
   message: QueueUpdateMessage
   client: bp.Client
 }) => {
+  console.log('Executing Trigger onQueueUpdated for conversation of Botpress: ' + JSON.stringify({
+    botpressConversationId,
+    botpressUserId,
+    estimatedWaitTime: message.estimatedWaitTime,
+    position: message.position
+  }, null, 2)
+  )
+
   await client.createEvent({
     type: 'onQueueUpdated',
+    conversationId: botpressConversationId,
     payload: {
       botpressConversationId,
       botpressUserId,
