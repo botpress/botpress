@@ -5,7 +5,6 @@ import { getAuthenticatedOAuth2Client, exchangeAuthCodeAndSaveRefreshToken } fro
 import * as bp from '.botpress'
 
 type GoogleSheetsClient = ReturnType<typeof google.sheets>
-type GoogleDriveClient = ReturnType<typeof google.drive>
 type GoogleOAuth2Client = InstanceType<(typeof google.auth)['OAuth2']>
 
 type Range = { rangeA1: string; majorDimension?: MajorDimension }
@@ -13,14 +12,12 @@ type ValueRange = { values: any[][] } & Range
 
 export class GoogleClient {
   private readonly _sheetsClient: GoogleSheetsClient
-  private readonly _driveClient: GoogleDriveClient
   private readonly _spreadsheetId: string
 
   private constructor({ spreadsheetId, oauthClient }: { spreadsheetId: string; oauthClient: GoogleOAuth2Client }) {
     this._spreadsheetId = spreadsheetId
 
     this._sheetsClient = google.sheets({ version: 'v4', auth: oauthClient })
-    this._driveClient = google.drive({ version: 'v3', auth: oauthClient })
   }
 
   public static async create({ ctx, client }: { ctx: bp.Context; client: bp.Client }) {
@@ -42,16 +39,6 @@ export class GoogleClient {
     authorizationCode: string
   }) {
     await exchangeAuthCodeAndSaveRefreshToken({ ctx, client, authorizationCode })
-  }
-
-  @handleErrors('Failed to get about')
-  public async getNameAndAvatarOfDriveUser() {
-    const { data } = await this._driveClient.about.get({ fields: 'user' })
-
-    return {
-      name: data.user?.displayName ?? undefined,
-      pictureUrl: data.user?.photoLink ?? undefined,
-    }
   }
 
   @handleErrors('Failed to get values from spreadsheet range')

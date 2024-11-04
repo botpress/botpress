@@ -8,4 +8,4 @@ if env == "production" {
   clientId = "225318133116-rm2n5rnpj4r6s6mj48dg2rl26gjss6n6.apps.googleusercontent.com"
 }
 
-"https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/drive.metadata.readonly%20https%3A//www.googleapis.com/auth/spreadsheets&access_type=offline&response_type=code&prompt=consent&state={{ webhookId }}&redirect_uri={{ webhookUrl }}/oauth&client_id={{ clientId }}"
+"https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/spreadsheets&access_type=offline&response_type=code&prompt=consent&state={{ webhookId }}&redirect_uri={{ webhookUrl }}/oauth&client_id={{ clientId }}"
