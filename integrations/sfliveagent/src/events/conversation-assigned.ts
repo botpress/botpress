@@ -22,8 +22,6 @@ export const executeConversationAssigned = async ({
 
   await client.createEvent({
     type: 'onConversationAssigned',
-    conversationId: botpressConversationId,
-    userId: botpressUserId,
     payload: {
       botpressConversationId,
       botpressUserId,

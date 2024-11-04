@@ -22,7 +22,6 @@ export const executeConversationRequestFailed = async ({
 
   await client.createEvent({
     type: 'onConversationRequestFailed',
-    conversationId: botpressConversationId,
     payload: {
       botpressConversationId,
       botpressUserId,

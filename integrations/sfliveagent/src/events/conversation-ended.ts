@@ -26,7 +26,6 @@ export const executeConversationEnded = async ({
 
   await client.createEvent({
     type: 'onConversationEnded',
-    conversationId: botpressConversationId,
     payload: {
       botpressConversationId,
       botpressUserId,

@@ -11,7 +11,6 @@ export const executeAgentNotTyping = async ({
 }) => {
   await client.createEvent({
     type: 'onAgentNotTyping',
-    conversationId: botpressConversationId,
     payload: {
       botpressConversationId,
       botpressUserId

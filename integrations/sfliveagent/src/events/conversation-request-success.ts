@@ -18,7 +18,6 @@ export const executeConversationRequestSuccess = async ({
 
   await client.createEvent({
     type: 'onConversationRequestSuccess',
-    conversationId: botpressConversationId,
     payload: {
       botpressConversationId,
       botpressUserId

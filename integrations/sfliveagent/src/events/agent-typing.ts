@@ -11,7 +11,6 @@ export const executeAgentTyping = async ({
 }) => {
   await client.createEvent({
     type: 'onAgentTyping',
-    conversationId: botpressConversationId,
     payload: {
       botpressConversationId,
       botpressUserId

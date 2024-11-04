@@ -22,8 +22,6 @@ export const executeQueueUpdated = async ({
 
   await client.createEvent({
     type: 'onQueueUpdated',
-    conversationId: botpressConversationId,
-    userId: botpressUserId,
     payload: {
       botpressConversationId,
       botpressUserId,
