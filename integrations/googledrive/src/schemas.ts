@@ -6,6 +6,7 @@ const hasId = z.object({
 export const fileAttrSchema = z.object({
   name: z.string().min(1),
   parentId: z.string().min(1).optional(),
+  mimeType: z.string().min(1).optional(),
 })
 export const fileSchema = hasId.merge(fileAttrSchema)
 export const fileCreateArgSchema = fileAttrSchema
@@ -21,6 +22,7 @@ export const fileUploadDataArgSchema = hasId.merge(
     mimeType: z
       .string()
       .min(1)
+      .optional()
       .describe('Media type of the uploaded content. This will override any previously set media type.'),
   })
 )

@@ -101,16 +101,6 @@ export default new IntegrationDefinition({
         schema: fileSchema,
       },
     },
-    uploadFileData: {
-      title: 'Upload file data',
-      description: 'Upload data to a file data in a Google Drive',
-      input: {
-        schema: fileUploadDataArgSchema,
-      },
-      output: {
-        schema: z.object({}),
-      },
-    },
     deleteFile: {
       title: 'Delete File',
       description: 'Deletes a file in a Google Drive',
@@ -118,6 +108,16 @@ export default new IntegrationDefinition({
         schema: z.object({
           id: z.string().min(1),
         }),
+      },
+      output: {
+        schema: z.object({}),
+      },
+    },
+    uploadFileData: {
+      title: 'Upload file data',
+      description: 'Upload data to a file data in a Google Drive',
+      input: {
+        schema: fileUploadDataArgSchema,
       },
       output: {
         schema: z.object({}),

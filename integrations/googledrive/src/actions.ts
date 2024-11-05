@@ -33,11 +33,13 @@ const listFiles: bp.IntegrationProps['actions']['listFiles'] = async (props) => 
     .filter((f) => !isFolder(f))
     .map((f) => f.id)
 
-  const items = nonFolderFilesIds.map((id) => ({
-    id,
-    name: getFilePath(id, filesMap),
-    parentId: getParentId(id, filesMap),
-  }))
+  const items = nonFolderFilesIds.map((id) => {
+    const file = getFile(id, filesMap)
+    return {
+      ...file,
+      name: getFilePath(id, filesMap),
+    }
+  })
 
   return {
     items,
@@ -64,11 +66,13 @@ const listFolders: bp.IntegrationProps['actions']['listFolders'] = async (props)
   })
   await saveFilesMap(filesMap, client, ctx)
 
-  const items = newFilesIds.map((id) => ({
-    id,
-    name: getFilePath(id, filesMap),
-    parentId: getParentId(id, filesMap),
-  }))
+  const items = newFilesIds.map((id) => {
+    const file = getFile(id, filesMap)
+    return {
+      ...file,
+      name: getFilePath(id, filesMap),
+    }
+  })
   return {
     items,
     meta: {
@@ -79,7 +83,7 @@ const listFolders: bp.IntegrationProps['actions']['listFolders'] = async (props)
 
 const createFile: bp.IntegrationProps['actions']['createFile'] = async (props) => {
   const { client, ctx, input } = props
-  const { name: inName, parentId: inParentId } = input
+  const { name: inName, parentId: inParentId, mimeType } = input
   if (inName.length <= 0) {
     throw new RuntimeError('File name cannnot be empty for file')
   }
@@ -90,49 +94,36 @@ const createFile: bp.IntegrationProps['actions']['createFile'] = async (props) =
     requestBody: {
       name: inName,
       parents: inParentId ? [inParentId] : undefined,
+      mimeType,
     },
     media: undefined, // TODO: Add option to upload data in create? (Is there any other way besides create or update?)
   })
 
-  const { id, name, parentId } = validateDriveFile(response.data)
-  return {
-    id,
-    name,
-    parentId,
-  }
+  return validateDriveFile(response.data)
 }
 
 const readFile: bp.IntegrationProps['actions']['readFile'] = async (props) => {
   const { client, ctx, input } = props
   const { id: inId } = input
   const googleClient = await getClient({ client, ctx })
-  const { id, name, parentId } = await getFileFromGoogleDrive(inId, googleClient)
-  return {
-    id,
-    name,
-    parentId,
-  }
+  return await getFileFromGoogleDrive(inId, googleClient)
 }
 
 const updateFile: bp.IntegrationProps['actions']['updateFile'] = async (props) => {
   const { client, ctx, input } = props
-  const { id: fileId, name: inName, parentId: inParentId } = input
-  const addParents = inParentId ? `${inParentId}` : undefined
+  const { id: fileId, name, parentId, mimeType } = input
+  const addParents = parentId ? `${parentId}` : undefined
   const googleClient = await getClient({ client, ctx })
   const response = await googleClient.files.update({
     fields: GOOGLE_API_FILE_FIELDS,
     fileId,
     addParents, // Removes old parents
     requestBody: {
-      name: inName,
+      name,
+      mimeType,
     },
   })
-  const { id, name, parentId } = validateDriveFile(response.data)
-  return {
-    id,
-    name,
-    parentId,
-  }
+  return validateDriveFile(response.data)
 }
 
 const deleteFile: bp.IntegrationProps['actions']['deleteFile'] = async (props) => {
@@ -257,11 +248,14 @@ const validateDriveFile = (driveFile: UnvalidatedGoogleDriveFile): GoogleDriveFi
     }
   }
 
+  const mimeType = driveFile.mimeType ?? undefined
+
   return {
     ...driveFile,
     id,
     name,
     parentId,
+    mimeType,
   }
 }
 
@@ -324,11 +318,6 @@ const getFile = (fileId: string, filesMap: FilesMap): GoogleDriveFile => {
     throw new RuntimeError(`Couldn't get file from files map with ID=${fileId}`)
   }
   return file
-}
-
-const getParentId = (fileId: string, filesMap: FilesMap): string | undefined => {
-  const file = getFile(fileId, filesMap)
-  return file.parentId
 }
 
 export default {
