@@ -39,25 +39,17 @@ const getValues = {
     }),
   },
   output: {
-    schema: z
-      .object({
-        range: _commonFields.range
-          .nullable()
-          .describe(
-            'The range the values cover, in A1 notation. This range indicates the entire requested range, even though the values will exclude trailing rows and columns. (e.g. "Sheet1!A1:B2")'
-          ),
-        majorDimension: _commonFields.majorDimension
-          .nullable()
-          .describe(
-            'If it equals "ROWS", then the values are returned in rows. If it equals "COLUMNS", then the values are returned in columns.'
-          ),
-        values: _commonFields.values
-          .nullable()
-          .describe(
-            'The data that was read. This is an array of arrays, the outer array representing all the data and each inner array representing a major dimension (a row or column). Each item in the inner array corresponds with one cell. (e.g. [["a", "b"], ["c", "d"]])'
-          ),
-      })
-      .partial(),
+    schema: z.object({
+      range: _commonFields.range.describe(
+        'The range the values cover, in A1 notation. This range indicates the entire requested range, even though the values will exclude trailing rows and columns. (e.g. "Sheet1!A1:B2")'
+      ),
+      majorDimension: _commonFields.majorDimension.describe(
+        'If it equals "ROWS", then the values are returned in rows. If it equals "COLUMNS", then the values are returned in columns.'
+      ),
+      values: _commonFields.values.describe(
+        'The data that was read. This is an array of arrays, the outer array representing all the data and each inner array representing a major dimension (a row or column). Each item in the inner array corresponds with one cell. (e.g. [["a", "b"], ["c", "d"]])'
+      ),
+    }),
   },
 } as const satisfies ActionDef
 
@@ -78,31 +70,22 @@ const updateValues = {
     }),
   },
   output: {
-    schema: z
-      .object({
-        spreadsheetId: z
-          .string()
-          .title('Spreadsheet ID')
-          .nullable()
-          .describe('The spreadsheet the updates were applied to.'),
-        updatedRange: z
-          .string()
-          .title('Updated Range')
-          .nullable()
-          .describe('The range (in A1 notation) that updates were applied to.'),
-        updatedRows: z
-          .number()
-          .title('Updated Rows')
-          .nullable()
-          .describe('The number of rows where at least one cell in the row was updated.'),
-        updatedColumns: z
-          .number()
-          .title('Updated Columns')
-          .nullable()
-          .describe('The number of columns where at least one cell in the column was updated.'),
-        updatedCells: z.number().title('Updated Cells').nullable().describe('The number of cells updated.'),
-      })
-      .partial(),
+    schema: z.object({
+      spreadsheetId: z.string().title('Spreadsheet ID').describe('The spreadsheet the updates were applied to.'),
+      updatedRange: z
+        .string()
+        .title('Updated Range')
+        .describe('The range (in A1 notation) that updates were applied to.'),
+      updatedRows: z
+        .number()
+        .title('Updated Rows')
+        .describe('The number of rows where at least one cell in the row was updated.'),
+      updatedColumns: z
+        .number()
+        .title('Updated Columns')
+        .describe('The number of columns where at least one cell in the column was updated.'),
+      updatedCells: z.number().title('Updated Cells').describe('The number of cells updated.'),
+    }),
   },
 } as const satisfies ActionDef
 
@@ -126,15 +109,9 @@ const appendValues = {
     }),
   },
   output: {
-    schema: z
-      .object({
-        spreadsheetId: z
-          .string()
-          .title('Spreadsheet ID')
-          .nullable()
-          .describe('The spreadsheet the updates were applied to.'),
-      })
-      .partial(),
+    schema: z.object({
+      spreadsheetId: z.string().title('Spreadsheet ID').describe('The spreadsheet the updates were applied to.'),
+    }),
   },
 } as const satisfies ActionDef
 
@@ -148,20 +125,10 @@ const clearValues = {
     }),
   },
   output: {
-    schema: z
-      .object({
-        spreadsheetId: z
-          .string()
-          .title('Spreadsheet ID')
-          .nullable()
-          .describe('The spreadsheet the updates were applied to.'),
-        clearedRange: z
-          .string()
-          .title('Cleared Range')
-          .nullable()
-          .describe('The range (in A1 notation) that was cleared.'),
-      })
-      .partial(),
+    schema: z.object({
+      spreadsheetId: z.string().title('Spreadsheet ID').describe('The spreadsheet the updates were applied to.'),
+      clearedRange: z.string().title('Cleared Range').describe('The range (in A1 notation) that was cleared.'),
+    }),
   },
 } as const satisfies ActionDef
 
@@ -176,7 +143,6 @@ const getInfoSpreadsheet = {
         .describe(
           'The fields to include in the response when retrieving spreadsheet properties and metadata. This is a list of field names. (eg. spreadsheetId, properties.title, sheets.properties.sheetId, sheets.properties.title)'
         ),
-      properties: z.any().optional().title('Properties').describe('The properties of the spreadsheet.'),
     }),
   },
   output: {
@@ -210,11 +176,15 @@ const addSheet = {
     }),
   },
   output: {
-    schema: z
-      .object({
-        spreadsheetId: z.string().title('Spreadsheet ID').nullable().describe('The spreadsheet ID of the new sheet.'),
-      })
-      .partial(),
+    schema: z.object({
+      spreadsheetId: z.string().title('Spreadsheet ID').describe('The spreadsheet ID of the new sheet.'),
+      newSheet: z.object({
+        sheetId: z.number().title('Sheet ID').describe('The ID of the new sheet.'),
+        title: z.string().title('Title').describe('The title of the new sheet.'),
+        index: z.number().title('Index').describe('The index of the new sheet within the spreadsheet.'),
+        isHidden: z.boolean().title('Is Hidden').describe('Whether the new sheet is hidden.'),
+      }),
+    }),
   },
 } as const satisfies ActionDef
 

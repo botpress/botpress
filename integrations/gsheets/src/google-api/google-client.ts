@@ -3,6 +3,7 @@ import { MajorDimension } from '../../definitions/actions'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { getAuthenticatedOAuth2Client, exchangeAuthCodeAndSaveRefreshToken } from './oauth-client'
 import * as bp from '.botpress'
+import { ResponseMapping } from './mapping/response-mapping'
 
 type GoogleSheetsClient = ReturnType<typeof google.sheets>
 type GoogleOAuth2Client = InstanceType<(typeof google.auth)['OAuth2']>
@@ -49,7 +50,7 @@ export class GoogleClient {
       range: rangeA1,
       majorDimension: majorDimension ?? 'ROWS',
     })
-    return response.data
+    return ResponseMapping.mapValueRange(response.data)
   }
 
   @handleErrors('Failed to update values in spreadsheet range')
@@ -60,7 +61,7 @@ export class GoogleClient {
       valueInputOption: 'USER_ENTERED',
       requestBody: { range: rangeA1, values, majorDimension },
     })
-    return response.data
+    return ResponseMapping.mapUpdateValues(response.data)
   }
 
   @handleErrors('Failed to append values to spreadsheet range')
@@ -71,7 +72,7 @@ export class GoogleClient {
       valueInputOption: 'USER_ENTERED',
       requestBody: { range: rangeA1, values, majorDimension },
     })
-    return response.data
+    return ResponseMapping.mapAppendValues(response.data)
   }
 
   @handleErrors('Failed to clear values from spreadsheet range')
@@ -81,7 +82,7 @@ export class GoogleClient {
       range: rangeA1,
       requestBody: { range: rangeA1 },
     })
-    return response.data
+    return ResponseMapping.mapClearValues(response.data)
   }
 
   @handleErrors('Failed to create new sheet in spreadsheet')
@@ -100,7 +101,7 @@ export class GoogleClient {
         ],
       },
     })
-    return response.data
+    return ResponseMapping.mapAddSheet(response.data)
   }
 
   @handleErrors('Failed to get spreadsheet metadata')
