@@ -38,6 +38,98 @@ While this integration allows you to interact with a single Google Spreadsheet, 
 
 The range field uses the same notation as Google Sheets. For example, to interact with a sheet named `Sheet1`, you would use the range `Sheet1!A1:B2`.
 
+## Key concepts
+
+### Spreadsheet
+
+A spreadsheet is the primary object in Google Sheets. It can contain multiple _sheets_, each with structured information contained in _cells_. Each spreadsheet has a unique identifier called the _Spreadsheet ID_.
+
+### Spreadsheet ID
+
+The Spreadsheet ID is a unique identifier for a Google _spreadsheet_. It is a long string of characters that can be found in the URL when editing a spreadsheet. The ID is located between `/spreadsheets/d/` and `/edit`.
+
+### Sheet
+
+A sheet is a page or tab within a _spreadsheet_ that contains a grid of _cells_. Each sheet has a unique name and can contain data, formulas, and formatting.
+
+### Range, A1 notation
+
+The range specifies the sheet and cell range to interact with in the Google Spreadsheet. The range must be given in _A1 notation_, which uses the following format: `SheetName!A1:B2`. The range includes the sheet name followed by an exclamation mark and the cell range.
+
+While the sheet name is optional, it is recommended to include it to avoid ambiguity when interacting with multiple sheets within the same spreadsheet. If it is omitted, the first visible sheet is used.
+
+#### A1 notation examples
+
+- `Sheet1!A1:B2` refers to all the cells in the first two rows and columns of Sheet1.
+- `Sheet1!A:A` refers to all the cells in the first column of Sheet1.
+- `Sheet1!1:2` refers to all the cells in the first two rows of Sheet1.
+- `Sheet1!A5:A` refers to all the cells of the first column of Sheet 1, from row 5 onward.
+- `A1:B2` refers to all the cells in the first two rows and columns of the first visible sheet.
+- `Sheet1` refers to all the cells in Sheet1.
+- `'Mike's_Data'!A1:D5` refers to all the cells in the first five rows and four columns of a sheet named "Mike's_Data."
+- `'My Custom Sheet'!A:A` refers to all the cells in the first column of a sheet named "My Custom Sheet."
+- `'My Custom Sheet'` refers to all the cells in "My Custom Sheet".
+- `MyNamedRange` refers to all the cells in the named range "MyNamedRange".
+
+> **Please note:** single quotes are required for sheet names with spaces, special characters, or an alphanumeric combination.
+
+### Major dimension
+
+The major dimension specifies whether the data is arranged in rows or columns. The major dimension can be either `ROWS` or `COLUMNS`. When performing operations like updating or retrieving values, you can optionally specify the major dimension. If not specified, it defaults to `ROWS`.
+
+For example, assuming the range `Sheet1!A1:F3` contains the following data:
+
+|       | **A** | **B** | **C** | **D** | **E** | **F** |
+| ----- | ----- | ----- | ----- | ----- | ----- | ----- |
+| **1** | 1     | 2     | 3     | 4     | 5     | 6     |
+| **2** | 7     | 8     | 9     | 10    | 11    | 12    |
+| **3** | 13    | 14    | 15    | 16    | 17    | 18    |
+
+If the major dimension is set to `ROWS`, the data will be returned as follows:
+
+```json
+{
+  "values": [
+    ["1", "2", "3", "4", "5", "6"],
+    ["7", "8", "9", "10", "11", "12"],
+    ["13", "14", "15", "16", "17", "18"]
+  ]
+}
+```
+
+If the major dimension is set to `COLUMNS`, the data will be returned as follows:
+
+```json
+{
+  "values": [
+    ["1", "7", "13"],
+    ["2", "8", "14"],
+    ["3", "9", "15"],
+    ["4", "10", "16"],
+    ["5", "11", "17"],
+    ["6", "12", "18"]
+  ]
+}
+```
+
+### Values
+
+The values array contains the data retrieved from the Google Spreadsheet. The data is returned as an array of arrays, with each inner array representing a _major dimension_ (a row or column) of data.
+
+> **Important**: the values are always returned as strings, regardless of the original data type in the spreadsheet. Likewise, when updating values, you must provide the data as strings. Google Sheets will then automatically convert the data to the appropriate type.
+
+The values array accepts all data types supported by Google Sheets, including text, numbers, dates, and formulas.
+
+For example, if you want to update the range `Sheet1!A3:A6` with the values `1`, `2`, `3`, and the formula `=SUM(A3:A5)`, you would provide the following data:
+
+```json
+{
+  "range": "Sheet1!A3:A6",
+  "majorDimension": "ROWS",
+  "values": [["1", "2", "3", "=SUM(Sheet1!A3:A5)"]]
+}
+```
+
 ## Limitations
 
 Standard Google Sheets API limitations apply to the Google Sheets integration in Botpress. These limitations include rate limits, payload size restrictions, and other constraints imposed by the Google Cloud platform. Ensure that your chatbot adheres to these limitations to maintain optimal performance and reliability.
