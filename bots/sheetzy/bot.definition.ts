@@ -21,6 +21,7 @@ export default new sdk.BotDefinition({
 })
   .add(gsheets, {
     enabled: true,
+    configurationType: 'serviceAccountKey',
     configuration: {
       clientEmail: genenv.SHEETZY_GSHEETS_CLIENT_EMAIL,
       privateKey: genenv.SHEETZY_GSHEETS_PRIVATE_KEY,
