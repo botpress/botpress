@@ -9,12 +9,15 @@ export const fileAttrSchema = z.object({
   mimeType: z.string().min(1),
   path: z.string().min(1),
 })
-export const editableFileAttrSchema = fileAttrSchema.omit({
-  path: true,
+export const creatableFileAttrSchema = fileAttrSchema.omit({
+  path: true, // Computed from individual files received by API
+})
+export const updatableFileAttrSchema = creatableFileAttrSchema.omit({
+  mimeType: true, // Content type cannot be changed unless new content is uploaded
 })
 export const fileSchema = hasId.merge(fileAttrSchema)
-export const fileCreateArgSchema = editableFileAttrSchema
-export const fileUpdateArgSchema = hasId.merge(editableFileAttrSchema.partial())
+export const fileCreateArgSchema = creatableFileAttrSchema
+export const fileUpdateArgSchema = hasId.merge(updatableFileAttrSchema.partial())
 // URL is used instead of ID because an integration can't access all files of a bot
 // using the files API
 export const fileUploadDataArgSchema = hasId.merge(

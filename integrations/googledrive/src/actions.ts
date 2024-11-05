@@ -102,7 +102,7 @@ const readFile: bp.IntegrationProps['actions']['readFile'] = async (props) => {
 
 const updateFile: bp.IntegrationProps['actions']['updateFile'] = async (props) => {
   const { client, ctx, input } = props
-  const { id: fileId, name, parentId, mimeType } = input
+  const { id: fileId, name, parentId } = input
   const addParents = parentId ? `${parentId}` : undefined
   const googleClient = await getClient({ client, ctx })
   const response = await googleClient.files.update({
@@ -111,7 +111,6 @@ const updateFile: bp.IntegrationProps['actions']['updateFile'] = async (props) =
     addParents, // Removes old parents
     requestBody: {
       name,
-      mimeType,
     },
   })
 
