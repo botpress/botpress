@@ -7,7 +7,8 @@ import * as bp from '.botpress'
 type GoogleSheetsClient = ReturnType<typeof google.sheets>
 type GoogleOAuth2Client = InstanceType<(typeof google.auth)['OAuth2']>
 
-type Range = { rangeA1: string; majorDimension?: MajorDimension }
+type RangeOnly = { rangeA1: string }
+type Range = { majorDimension?: MajorDimension } & RangeOnly
 type ValueRange = { values: any[][] } & Range
 
 export class GoogleClient {
@@ -74,11 +75,11 @@ export class GoogleClient {
   }
 
   @handleErrors('Failed to clear values from spreadsheet range')
-  public async clearValuesFromSpreadsheetRange({ rangeA1, majorDimension }: Range) {
+  public async clearValuesFromSpreadsheetRange({ rangeA1 }: RangeOnly) {
     const response = await this._sheetsClient.spreadsheets.values.clear({
       spreadsheetId: this._spreadsheetId,
       range: rangeA1,
-      requestBody: { range: rangeA1, majorDimension },
+      requestBody: { range: rangeA1 },
     })
     return response.data
   }
