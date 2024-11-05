@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/client'
 import axios from 'axios'
 import { Stream } from 'stream'
 import { getClient } from './client'
-import { GoogleDriveClient, GoogleDriveFile, UnvalidatedGoogleDriveFile } from './types'
+import { GoogleDriveClient, GoogleDriveFile, UnvalidatedGoogleDriveFile, File } from './types'
 import * as bp from '.botpress'
 
 const PAGE_SIZE = 10
@@ -10,7 +10,7 @@ const FOLDER_MIMETYPE = 'application/vnd.google-apps.folder'
 const GOOGLE_API_FILE_FIELDS = 'id, name, mimeType, parents'
 const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageToken`
 
-type FilesMap = Record<string, GoogleDriveFile>
+type GoogleDriveFilesMap = Record<string, GoogleDriveFile>
 type ListActionProps = bp.ActionProps['listFiles'] | bp.ActionProps['listFolders']
 
 const listFiles: bp.IntegrationProps['actions']['listFiles'] = async (props) => {
@@ -29,17 +29,11 @@ const listFiles: bp.IntegrationProps['actions']['listFiles'] = async (props) => 
   await saveFilesMap(filesMap, client, ctx)
 
   const nonFolderFilesIds = newFilesIds
-    .map((id) => getFile(id, filesMap))
+    .map((id) => getDriveFile(id, filesMap))
     .filter((f) => !isFolder(f))
     .map((f) => f.id)
 
-  const items = nonFolderFilesIds.map((id) => {
-    const file = getFile(id, filesMap)
-    return {
-      ...file,
-      name: getFilePath(id, filesMap),
-    }
-  })
+  const items = nonFolderFilesIds.map((id) => getFile(id, filesMap))
 
   return {
     items,
@@ -66,13 +60,7 @@ const listFolders: bp.IntegrationProps['actions']['listFolders'] = async (props)
   })
   await saveFilesMap(filesMap, client, ctx)
 
-  const items = newFilesIds.map((id) => {
-    const file = getFile(id, filesMap)
-    return {
-      ...file,
-      name: getFilePath(id, filesMap),
-    }
-  })
+  const items = newFilesIds.map((id) => getFile(id, filesMap))
   return {
     items,
     meta: {
@@ -96,17 +84,20 @@ const createFile: bp.IntegrationProps['actions']['createFile'] = async (props) =
       parents: inParentId ? [inParentId] : undefined,
       mimeType,
     },
-    media: undefined, // TODO: Add option to upload data in create? (Is there any other way besides create or update?)
+    media: undefined, // Data is uploaded using the 'uploadFileData' action
   })
 
-  return validateDriveFile(response.data)
+  const driveFile = validateDriveFile(response.data)
+  return await getFileFromDriveFile(driveFile, googleClient)
 }
 
 const readFile: bp.IntegrationProps['actions']['readFile'] = async (props) => {
   const { client, ctx, input } = props
-  const { id: inId } = input
+  const { id } = input
   const googleClient = await getClient({ client, ctx })
-  return await getFileFromGoogleDrive(inId, googleClient)
+
+  const driveFile = await getFileFromGoogleDrive(id, googleClient)
+  return await getFileFromDriveFile(driveFile, googleClient)
 }
 
 const updateFile: bp.IntegrationProps['actions']['updateFile'] = async (props) => {
@@ -123,7 +114,9 @@ const updateFile: bp.IntegrationProps['actions']['updateFile'] = async (props) =
       mimeType,
     },
   })
-  return validateDriveFile(response.data)
+
+  const driveFile = validateDriveFile(response.data)
+  return await getFileFromDriveFile(driveFile, googleClient)
 }
 
 const deleteFile: bp.IntegrationProps['actions']['deleteFile'] = async (props) => {
@@ -163,7 +156,7 @@ const updateFilesMapFromNextPage = async ({
   props: { client, ctx },
   searchQuery,
 }: {
-  filesMap: FilesMap
+  filesMap: GoogleDriveFilesMap
   nextToken?: string
   props: ListActionProps
   searchQuery?: string
@@ -204,7 +197,7 @@ const updateFilesMapFromNextPage = async ({
   }
 }
 
-const saveFilesMap = async (filesMap: FilesMap, client: bp.Client, ctx: bp.Context) => {
+const saveFilesMap = async (filesMap: GoogleDriveFilesMap, client: bp.Client, ctx: bp.Context) => {
   await client.setState({
     id: ctx.integrationId,
     type: 'integration',
@@ -215,7 +208,7 @@ const saveFilesMap = async (filesMap: FilesMap, client: bp.Client, ctx: bp.Conte
   })
 }
 
-const loadFilesMap = async (client: bp.Client, ctx: bp.Context): Promise<FilesMap> => {
+const loadFilesMap = async (client: bp.Client, ctx: bp.Context): Promise<GoogleDriveFilesMap> => {
   const getStateResponse = await client.getOrSetState({
     id: ctx.integrationId,
     type: 'integration',
@@ -224,12 +217,12 @@ const loadFilesMap = async (client: bp.Client, ctx: bp.Context): Promise<FilesMa
       filesMap: JSON.stringify({}),
     },
   })
-  const map: FilesMap = JSON.parse(getStateResponse.state.payload.filesMap)
+  const map: GoogleDriveFilesMap = JSON.parse(getStateResponse.state.payload.filesMap)
   return map
 }
 
 const validateDriveFile = (driveFile: UnvalidatedGoogleDriveFile): GoogleDriveFile => {
-  const { id, name } = driveFile
+  const { id, name, mimeType } = driveFile
   if (!id) {
     throw new RuntimeError('File ID is missing in Schema$File from the API response')
   }
@@ -238,17 +231,17 @@ const validateDriveFile = (driveFile: UnvalidatedGoogleDriveFile): GoogleDriveFi
     throw new RuntimeError(`Name is missing in Schema$File from the API response for file with ID=${driveFile.id}`)
   }
 
+  if (!mimeType) {
+    throw new RuntimeError(`MIME type is missing in Schema$File from the API response for file with name=${name}`)
+  }
+
   let parentId: string | undefined = undefined
   if (driveFile.parents) {
     parentId = driveFile.parents[0]
     if (!parentId) {
-      throw new RuntimeError(
-        `Empty parent ID array in Schema$File from the API response for file with name=${driveFile.name}`
-      )
+      throw new RuntimeError(`Empty parent ID array in Schema$File from the API response for file with name=${name}`)
     }
   }
-
-  const mimeType = driveFile.mimeType ?? undefined
 
   return {
     ...driveFile,
@@ -263,7 +256,7 @@ const validateDriveFiles = (driveFiles: UnvalidatedGoogleDriveFile[]): GoogleDri
   return driveFiles.map((file) => validateDriveFile(file))
 }
 
-const isFolder = (file: GoogleDriveFile): boolean => {
+const isFolder = (file: GoogleDriveFile | File): boolean => {
   return file.mimeType === FOLDER_MIMETYPE
 }
 
@@ -279,12 +272,11 @@ const getFileFromGoogleDrive = async (fileId: string, client: GoogleDriveClient)
 }
 
 /**
- *
  * @returns Parent files IDs that needed to be fetched from the Google Drive API
  */
 const addParentsToFilesMap = async (
   file: GoogleDriveFile,
-  filesMap: FilesMap,
+  filesMap: GoogleDriveFilesMap,
   client: GoogleDriveClient
 ): Promise<string[]> => {
   if (!file.parentId) {
@@ -303,8 +295,8 @@ const addParentsToFilesMap = async (
   return newFilesIds
 }
 
-const getFilePath = (fileId: string, filesMap: FilesMap): string => {
-  const file = getFile(fileId, filesMap)
+const getFilePath = (id: string, filesMap: GoogleDriveFilesMap): string => {
+  const file = getDriveFile(id, filesMap)
   if (!file.parentId) {
     return `/${file.name}`
   }
@@ -312,12 +304,33 @@ const getFilePath = (fileId: string, filesMap: FilesMap): string => {
   return `${getFilePath(file.parentId, filesMap)}/${file.name}`
 }
 
-const getFile = (fileId: string, filesMap: FilesMap): GoogleDriveFile => {
-  const file = filesMap[fileId]
-  if (!file) {
-    throw new RuntimeError(`Couldn't get file from files map with ID=${fileId}`)
+const getFile = (id: string, filesMap: GoogleDriveFilesMap): File => {
+  const driveFile = getDriveFile(id, filesMap)
+  const file: File = {
+    ...driveFile,
+    path: getFilePath(id, filesMap),
   }
   return file
+}
+
+const getDriveFile = (id: string, filesMap: GoogleDriveFilesMap): GoogleDriveFile => {
+  const file = filesMap[id]
+  if (!file) {
+    throw new RuntimeError(`Couldn't get file from files map with ID=${id}`)
+  }
+  return file
+}
+
+const getFileFromDriveFile = async (
+  driveFile: GoogleDriveFile,
+  googleClient: GoogleDriveClient,
+  filesMap?: GoogleDriveFilesMap
+) => {
+  const validFilesMap = filesMap ?? {}
+  const { id } = driveFile
+  validFilesMap[id] = driveFile // Set if not already set
+  await addParentsToFilesMap(driveFile, validFilesMap, googleClient)
+  return getFile(id, validFilesMap)
 }
 
 export default {
