@@ -1,6 +1,6 @@
 import { createActionWrapper } from '@botpress/common'
-import { getClient } from '../google-api/client'
 import { wrapAsyncFnWithTryCatch } from '../google-api/error-handling'
+import { GoogleClient } from '../google-api/google-client'
 import * as bp from '.botpress'
 
 export const wrapAction: typeof _wrapAction = (meta, actionImpl) =>
@@ -16,7 +16,7 @@ export const wrapAction: typeof _wrapAction = (meta, actionImpl) =>
 
 const _wrapAction = createActionWrapper<bp.IntegrationProps>()({
   toolFactories: {
-    gsheetsClient: ({ ctx }) => getClient(ctx.configuration),
+    googleClient: GoogleClient.create,
   },
   extraMetadata: {} as {
     errorMessageWhenFailed: string

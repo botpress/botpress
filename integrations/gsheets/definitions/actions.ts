@@ -7,10 +7,13 @@ type ActionDef = ActionDefinitions[string]
 const MAJOR_DIMENSION = ['ROWS', 'COLUMNS'] as const
 export type MajorDimension = (typeof MAJOR_DIMENSION)[number]
 
-const _sheetsValue = z.any().title('Value').describe('Represents the value of a single cell')
+const _sheetsValue = z
+  .string()
+  .title('Stringified value')
+  .describe('Represents the value of a single cell. This is a stringified number, string or boolean value')
 
 const _commonFields = {
-  range: z.string().title('Range'),
+  range: z.string().title('Range').placeholder("'Sheet name'!A1:F8"),
   majorDimension: z.enum(MAJOR_DIMENSION).title('Major Dimension').default('ROWS'),
   values: z
     .array(
@@ -27,7 +30,7 @@ const getValues = {
   description: 'Returns the values of a range in the spreadsheet.',
   input: {
     schema: z.object({
-      range: _commonFields.range.describe('The A1 notation of the values to retrieve. (e.g. "Sheet1!A1:B2")'),
+      range: _commonFields.range.describe('The A1 notation of the range to retrieve. (e.g. "Sheet1!A1:B2")'),
       majorDimension: _commonFields.majorDimension
         .optional()
         .describe(
@@ -63,7 +66,7 @@ const updateValues = {
   description: 'Sets values in a range in the spreadsheet.',
   input: {
     schema: z.object({
-      range: _commonFields.range.describe('The A1 notation of the values to update. (e.g. "Sheet1!A1:B2")'),
+      range: _commonFields.range.describe('The A1 notation of the range to update. (e.g. "Sheet1!A1:B2")'),
       majorDimension: _commonFields.majorDimension
         .optional()
         .describe(
@@ -142,11 +145,6 @@ const clearValues = {
   input: {
     schema: z.object({
       range: _commonFields.range.describe('The A1 notation of the range to clear. (e.g. "Sheet1!A1:B2")'),
-      majorDimension: _commonFields.majorDimension
-        .optional()
-        .describe(
-          'If it equals "ROWS", then the values are cleared as rows. If it equals "COLUMNS", then the values are cleared as columns.'
-        ),
     }),
   },
   output: {
