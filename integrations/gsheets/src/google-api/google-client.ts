@@ -112,6 +112,22 @@ export class GoogleClient {
     return meta.sheets?.map(ResponseMapping.mapSheet) ?? []
   }
 
+  @handleErrors('Failed to delete sheet from spreadsheet')
+  public async deleteSheetFromSpreadsheet({ sheetId }: { sheetId: number }) {
+    await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            deleteSheet: {
+              sheetId,
+            },
+          },
+        ],
+      },
+    })
+  }
+
   @handleErrors('Failed to get spreadsheet metadata')
   public async getSpreadsheetMetadata({ fields }: { fields?: string } = {}) {
     const response = await this._sheetsClient.spreadsheets.get({

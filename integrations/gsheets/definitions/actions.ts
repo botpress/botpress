@@ -188,6 +188,19 @@ const addSheet = {
   },
 } as const satisfies ActionDef
 
+const deleteSheet = {
+  title: 'Delete Sheet',
+  description: 'Deletes a sheet from the spreadsheet.',
+  input: {
+    schema: z.object({
+      sheetId: z.number().title('Sheet ID').describe('The ID of the sheet to delete.'),
+    }),
+  },
+  output: {
+    schema: z.object({}),
+  },
+} as const satisfies ActionDef
+
 const getAllSheetsInSpreadsheet = {
   title: 'Get All Sheets in Spreadsheet',
   description: 'Returns all sheets in the spreadsheet.',
@@ -223,5 +236,6 @@ export const actions = {
   clearValues,
   getInfoSpreadsheet,
   addSheet,
+  deleteSheet,
   getAllSheetsInSpreadsheet,
 } as const satisfies ActionDefinitions
