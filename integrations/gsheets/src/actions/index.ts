@@ -1,6 +1,7 @@
 import { addSheet } from './implementations/add-sheet'
 import { appendValues } from './implementations/append-values'
 import { clearValues } from './implementations/clear-values'
+import { createNamedRangeInSheet } from './implementations/create-named-range-in-sheet'
 import { deleteSheet } from './implementations/delete-sheet'
 import { getAllSheetsInSpreadsheet } from './implementations/get-all-sheets-in-spreadsheet'
 import { getInfoSpreadsheet } from './implementations/get-info-spread-sheet'
@@ -19,6 +20,7 @@ export default {
   addSheet,
   appendValues,
   clearValues,
+  createNamedRangeInSheet,
   deleteSheet,
   getAllSheetsInSpreadsheet,
   getInfoSpreadsheet,
@@ -31,4 +33,4 @@ export default {
   setSheetVisibility,
   unprotectRange,
   updateValues,
-} satisfies bp.IntegrationProps['actions']
+} as const satisfies bp.IntegrationProps['actions']

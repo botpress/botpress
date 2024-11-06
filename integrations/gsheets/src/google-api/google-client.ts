@@ -1,9 +1,10 @@
 import { google } from 'googleapis'
 import { MajorDimension } from '../../definitions/actions'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
+import { A1NotationParser } from './gsheets-helpers/a1-parser'
+import { ResponseMapping } from './mapping/response-mapping'
 import { getAuthenticatedOAuth2Client, exchangeAuthCodeAndSaveRefreshToken } from './oauth-client'
 import * as bp from '.botpress'
-import { ResponseMapping } from './mapping/response-mapping'
 
 type GoogleSheetsClient = ReturnType<typeof google.sheets>
 type GoogleOAuth2Client = InstanceType<(typeof google.auth)['OAuth2']>
@@ -261,6 +262,39 @@ export class GoogleClient {
         ],
       },
     })
+  }
+
+  @handleErrors('Failed to create named range in sheet')
+  public async createNamedRangeInSheet({
+    sheetId,
+    rangeName,
+    a1Notation,
+  }: {
+    sheetId: number
+    rangeName: string
+    a1Notation: string
+  }) {
+    const response = await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            addNamedRange: {
+              namedRange: {
+                name: rangeName,
+                range: {
+                  sheetId,
+                  ...A1NotationParser.parse(a1Notation),
+                },
+              },
+            },
+          },
+        ],
+      },
+    })
+
+    const namedRangeId = response.data.replies?.[0]?.addNamedRange?.namedRange?.namedRangeId ?? ''
+    return { namedRangeId }
   }
 
   public async getSpreadsheetSummary(): Promise<string> {

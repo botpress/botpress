@@ -395,10 +395,30 @@ const unprotectRange = {
   },
 } as const satisfies ActionDef
 
+const createNamedRangeInSheet = {
+  title: 'Create Named Range in Sheet',
+  description: 'Creates a named range in a sheet.',
+  input: {
+    schema: z.object({
+      sheetId: z.number().title('Sheet ID').describe('The ID of the sheet to create the named range in.'),
+      rangeName: z.string().title('Name').describe('The name of the named range.'),
+      rangeA1: _commonFields.range.describe(
+        'The A1 notation of the range to associate with the named range. (e.g. "Sheet1!A1:B2")'
+      ),
+    }),
+  },
+  output: {
+    schema: z.object({
+      namedRangeId: z.string().title('Named Range ID').describe('The ID of the new named range.'),
+    }),
+  },
+} as const satisfies ActionDef
+
 export const actions = {
   addSheet,
   appendValues,
   clearValues,
+  createNamedRangeInSheet,
   deleteSheet,
   getAllSheetsInSpreadsheet,
   getInfoSpreadsheet,
