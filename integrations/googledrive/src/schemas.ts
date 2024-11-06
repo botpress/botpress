@@ -8,9 +8,11 @@ export const fileAttrSchema = z.object({
   parentId: z.string().min(1).optional(),
   mimeType: z.string().min(1),
   path: z.string().min(1),
+  size: z.number().nonnegative(),
 })
 export const creatableFileAttrSchema = fileAttrSchema.omit({
   path: true, // Computed from individual files received by API
+  size: true, // Computed when uploading data
 })
 export const updatableFileAttrSchema = creatableFileAttrSchema.omit({
   mimeType: true, // Content type cannot be changed unless new content is uploaded
@@ -31,6 +33,11 @@ export const fileUploadDataArgSchema = hasId.merge(
       .min(1)
       .optional()
       .describe('Media type of the uploaded content. This will override any previously set media type.'),
+  })
+)
+export const fileDownloadDataArgSchema = hasId.merge(
+  z.object({
+    index: z.boolean(),
   })
 )
 

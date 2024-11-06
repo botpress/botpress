@@ -1,13 +1,13 @@
 import { RuntimeError } from '@botpress/client'
-import axios from 'axios'
+import axios, { AxiosError } from 'axios'
 import { Stream } from 'stream'
 import { getClient } from './client'
+import { FOLDER_MIMETYPE, SHORTCUT_MIMETYPE } from './constants'
 import { GoogleDriveClient, GoogleDriveFile, UnvalidatedGoogleDriveFile, File } from './types'
 import * as bp from '.botpress'
 
 const PAGE_SIZE = 10
-const FOLDER_MIMETYPE = 'application/vnd.google-apps.folder'
-const GOOGLE_API_FILE_FIELDS = 'id, name, mimeType, parents'
+const GOOGLE_API_FILE_FIELDS = 'id, name, mimeType, parents, size'
 const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageToken`
 
 type GoogleDriveFilesMap = Record<string, GoogleDriveFile>
@@ -149,6 +149,49 @@ const uploadFileData: bp.IntegrationProps['actions']['uploadFileData'] = async (
   return {}
 }
 
+const downloadFileData: bp.IntegrationProps['actions']['downloadFileData'] = async (props) => {
+  const { client, ctx, input } = props
+  const { id: fileId, index } = input
+  const googleClient = await getClient({ client, ctx })
+  // TODO: Must use export in case of a Google Workspace document
+  const { mimeType: contentType, sizeInt: optionalSize } = await getFileFromGoogleDrive(fileId, googleClient)
+  const size = optionalSize ?? 0
+  const fileDownloadResponse = await googleClient.files.get(
+    {
+      fileId,
+      alt: 'media',
+    },
+    {
+      responseType: 'stream',
+    }
+  )
+  const fileDownloadStream = fileDownloadResponse.data
+  const { file: bpFile } = await client.upsertFile({
+    key: fileId,
+    size,
+    contentType,
+    index,
+  })
+  const { id: bpFileId, uploadUrl } = bpFile
+
+  const headers = {
+    'Content-Type': contentType,
+    'Content-Length': size,
+  }
+  await axios
+    .put(uploadUrl, fileDownloadStream, {
+      maxBodyLength: size,
+      headers,
+    })
+    .catch((reason: AxiosError) => {
+      throw new RuntimeError(`Error uploading file to botpress file API: ${reason}`)
+    })
+
+  return {
+    bpFileId,
+  }
+}
+
 const updateFilesMapFromNextPage = async ({
   filesMap,
   nextToken,
@@ -221,7 +264,7 @@ const loadFilesMap = async (client: bp.Client, ctx: bp.Context): Promise<GoogleD
 }
 
 const validateDriveFile = (driveFile: UnvalidatedGoogleDriveFile): GoogleDriveFile => {
-  const { id, name, mimeType } = driveFile
+  const { id, name, mimeType, size: sizeStr } = driveFile
   if (!id) {
     throw new RuntimeError('File ID is missing in Schema$File from the API response')
   }
@@ -234,6 +277,21 @@ const validateDriveFile = (driveFile: UnvalidatedGoogleDriveFile): GoogleDriveFi
     throw new RuntimeError(`MIME type is missing in Schema$File from the API response for file with name=${name}`)
   }
 
+  // TODO: Refactor file type validation
+  const isNormalFileType = mimeType !== FOLDER_MIMETYPE && mimeType !== SHORTCUT_MIMETYPE
+  let sizeInt = 0
+  if (isNormalFileType) {
+    if (!sizeStr) {
+      throw new RuntimeError(`Size is missing in Schema$File from the API response for file with name=${name}`)
+    }
+    sizeInt = parseInt(sizeStr)
+    if (isNaN(sizeInt)) {
+      throw new RuntimeError(
+        `Invalid size returned in Schema$File from the API response for file with name=${name} (size=${sizeStr})`
+      )
+    }
+  }
+
   let parentId: string | undefined = undefined
   if (driveFile.parents) {
     parentId = driveFile.parents[0]
@@ -243,11 +301,11 @@ const validateDriveFile = (driveFile: UnvalidatedGoogleDriveFile): GoogleDriveFi
   }
 
   return {
-    ...driveFile,
     id,
     name,
     parentId,
     mimeType,
+    sizeInt,
   }
 }
 
@@ -305,11 +363,11 @@ const getFilePath = (id: string, filesMap: GoogleDriveFilesMap): string => {
 
 const getFile = (id: string, filesMap: GoogleDriveFilesMap): File => {
   const driveFile = getDriveFile(id, filesMap)
-  const file: File = {
+  return {
     ...driveFile,
     path: getFilePath(id, filesMap),
+    size: driveFile.sizeInt ?? 0, // Zero if not present //TODO: Better modelize types to ensure size is set on normal files but not on folders|shortcut
   }
-  return file
 }
 
 const getDriveFile = (id: string, filesMap: GoogleDriveFilesMap): GoogleDriveFile => {
@@ -340,4 +398,5 @@ export default {
   updateFile,
   deleteFile,
   uploadFileData,
+  downloadFileData,
 } as const satisfies bp.IntegrationProps['actions']

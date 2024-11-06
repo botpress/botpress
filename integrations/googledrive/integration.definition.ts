@@ -5,6 +5,7 @@ import {
   fileCreateArgSchema,
   fileUpdateArgSchema,
   fileUploadDataArgSchema,
+  fileDownloadDataArgSchema,
   folderSchema,
 } from './src/schemas'
 
@@ -115,12 +116,24 @@ export default new IntegrationDefinition({
     },
     uploadFileData: {
       title: 'Upload file data',
-      description: 'Upload data to a file data in a Google Drive',
+      description: 'Upload data to a file in a Google Drive',
       input: {
         schema: fileUploadDataArgSchema,
       },
       output: {
         schema: z.object({}),
+      },
+    },
+    downloadFileData: {
+      title: 'Download file data',
+      description: 'Download data from a file in a Google Drive',
+      input: {
+        schema: fileDownloadDataArgSchema,
+      },
+      output: {
+        schema: z.object({
+          bpFileId: z.string().min(1),
+        }),
       },
     },
   },
