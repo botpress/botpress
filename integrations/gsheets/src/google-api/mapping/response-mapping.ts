@@ -4,7 +4,7 @@ export namespace ResponseMapping {
   export const mapValueRange = (response: sheets_v4.Schema$ValueRange) =>
     ({
       range: response.range ?? '',
-      majorDimension: response.majorDimension ?? 'ROWS',
+      majorDimension: response.majorDimension === 'COLUMNS' ? 'COLUMNS' : 'ROWS',
       values: _stringifyValues(response.values ?? []),
     } as const)
 

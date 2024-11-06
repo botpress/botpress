@@ -168,6 +168,26 @@ export class GoogleClient {
     })
   }
 
+  @handleErrors('Failed to move sheet to new index')
+  public async moveSheetToIndex({ sheetId, newIndex }: { sheetId: number; newIndex: number }) {
+    await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            updateSheetProperties: {
+              properties: {
+                sheetId,
+                index: newIndex,
+              },
+              fields: 'index',
+            },
+          },
+        ],
+      },
+    })
+  }
+
   @handleErrors('Failed to get spreadsheet metadata')
   public async getSpreadsheetMetadata({ fields }: { fields?: string } = {}) {
     const response = await this._sheetsClient.spreadsheets.get({

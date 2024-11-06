@@ -257,6 +257,20 @@ const setSheetVisibility = {
   },
 } as const satisfies ActionDef
 
+const moveSheetHorizontally = {
+  title: 'Move Sheet Horizontally',
+  description: 'Moves a sheet to a new index in the spreadsheet.',
+  input: {
+    schema: z.object({
+      sheetId: z.number().title('Sheet ID').describe('The ID of the sheet to move.'),
+      newIndex: z.number().title('New Index').describe('The new index of the sheet within the spreadsheet.'),
+    }),
+  },
+  output: {
+    schema: z.object({}),
+  },
+} as const satisfies ActionDef
+
 export const actions = {
   addSheet,
   appendValues,
@@ -265,6 +279,7 @@ export const actions = {
   getAllSheetsInSpreadsheet,
   getInfoSpreadsheet,
   getValues,
+  moveSheetHorizontally,
   renameSheet,
   setSheetVisibility,
   updateValues,

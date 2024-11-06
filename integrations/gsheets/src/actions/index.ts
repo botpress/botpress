@@ -5,6 +5,7 @@ import { deleteSheet } from './implementations/delete-sheet'
 import { getAllSheetsInSpreadsheet } from './implementations/get-all-sheets-in-spreadsheet'
 import { getInfoSpreadsheet } from './implementations/get-info-spread-sheet'
 import { getValues } from './implementations/get-values'
+import { moveSheetHorizontally } from './implementations/move-sheet-horizontally'
 import { renameSheet } from './implementations/rename-sheet'
 import { setSheetVisibility } from './implementations/set-sheet-visibility'
 import { updateValues } from './implementations/update-values'
@@ -18,6 +19,7 @@ export default {
   getAllSheetsInSpreadsheet,
   getInfoSpreadsheet,
   getValues,
+  moveSheetHorizontally,
   renameSheet,
   setSheetVisibility,
   updateValues,
