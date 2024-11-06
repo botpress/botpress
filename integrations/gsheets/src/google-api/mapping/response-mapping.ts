@@ -56,10 +56,10 @@ export namespace ResponseMapping {
   export const mapGridRange = (gridRange: sheets_v4.Schema$GridRange) =>
     ({
       sheetId: gridRange.sheetId ?? 0,
-      startRowIndex: gridRange.startRowIndex ?? 0,
-      endRowIndex: gridRange.endRowIndex ?? 0,
-      startColumnIndex: gridRange.startColumnIndex ?? 0,
-      endColumnIndex: gridRange.endColumnIndex ?? 0,
+      startRowIndex: gridRange.startRowIndex ?? undefined,
+      endRowIndex: gridRange.endRowIndex ?? undefined,
+      startColumnIndex: gridRange.startColumnIndex ?? undefined,
+      endColumnIndex: gridRange.endColumnIndex ?? undefined,
     } as const)
 
   export const mapProtectedRange = (protectedRange: sheets_v4.Schema$ProtectedRange) =>

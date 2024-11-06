@@ -352,16 +352,26 @@ const getProtectedRanges = {
             range: z
               .object({
                 sheetId: z.number().title('Sheet ID').describe('The ID of the sheet.'),
-                startRowIndex: z.number().title('Start Row Index').describe('The start row (inclusive) of the range'),
-                endRowIndex: z.number().title('End Row Index').describe('The end row (exclusive) of the range'),
+                startRowIndex: z
+                  .number()
+                  .title('Start Row Index')
+                  .optional()
+                  .describe('The start row (inclusive) of the range, or not set if unbounded'),
+                endRowIndex: z
+                  .number()
+                  .title('End Row Index')
+                  .optional()
+                  .describe('The end row (exclusive) of the range, or not set if unbounded'),
                 startColumnIndex: z
                   .number()
                   .title('Start Column Index')
-                  .describe('The start column (inclusive) of the range'),
+                  .optional()
+                  .describe('The start column (inclusive) of the range, or not set if unbounded'),
                 endColumnIndex: z
                   .number()
                   .title('End Column Index')
-                  .describe('The end column (exclusive) of the range'),
+                  .optional()
+                  .describe('The end column (exclusive) of the range, or not set if unbounded'),
               })
               .title('Range')
               .describe('The range of the protected range.'),
