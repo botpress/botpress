@@ -8,6 +8,7 @@ import { getNamedRanges } from './implementations/get-named-ranges'
 import { getProtectedRanges } from './implementations/get-protected-ranges'
 import { getValues } from './implementations/get-values'
 import { moveSheetHorizontally } from './implementations/move-sheet-horizontally'
+import { protectNamedRange } from './implementations/protect-named-range'
 import { renameSheet } from './implementations/rename-sheet'
 import { setSheetVisibility } from './implementations/set-sheet-visibility'
 import { updateValues } from './implementations/update-values'
@@ -24,6 +25,7 @@ export default {
   getProtectedRanges,
   getValues,
   moveSheetHorizontally,
+  protectNamedRange,
   renameSheet,
   setSheetVisibility,
   updateValues,

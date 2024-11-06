@@ -271,6 +271,31 @@ const moveSheetHorizontally = {
   },
 } as const satisfies ActionDef
 
+const protectNamedRange = {
+  title: 'Protect Named Range',
+  description: 'Creates a protected range from a named range, preventing modification.',
+  input: {
+    schema: z.object({
+      namedRangeId: z.string().title('Named Range ID').describe('The ID of the named range to protect.'),
+      warningOnly: z
+        .boolean()
+        .title('Warning Only')
+        .optional()
+        .describe('Whether the protection displays a warning but still allows editing.'),
+      requestingUserCanEdit: z
+        .boolean()
+        .title('Requesting User Can Edit')
+        .optional()
+        .describe('Whether the user adding the protection can edit the protected range.'),
+    }),
+  },
+  output: {
+    schema: z.object({
+      protectedRangeId: z.number().title('Protected Range ID').describe('The ID of the new protected range.'),
+    }),
+  },
+} as const satisfies ActionDef
+
 const getNamedRanges = {
   title: 'Get Named Ranges',
   description: 'Returns all named ranges in the spreadsheet.',
@@ -368,6 +393,7 @@ export const actions = {
   getProtectedRanges,
   getValues,
   moveSheetHorizontally,
+  protectNamedRange,
   renameSheet,
   setSheetVisibility,
   updateValues,

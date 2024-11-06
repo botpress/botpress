@@ -220,6 +220,33 @@ export class GoogleClient {
     )
   }
 
+  @handleErrors('Failed to protect named range')
+  public async protectNamedRange({
+    namedRangeId,
+    requestingUserCanEdit,
+    warningOnly,
+  }: {
+    namedRangeId: string
+    requestingUserCanEdit?: boolean
+    warningOnly?: boolean
+  }) {
+    const reponse = await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            addProtectedRange: {
+              protectedRange: { namedRangeId, requestingUserCanEdit, warningOnly },
+            },
+          },
+        ],
+      },
+    })
+
+    const protectedRangeId = reponse.data.replies?.[0]?.addProtectedRange?.protectedRange?.protectedRangeId ?? 0
+    return { protectedRangeId }
+  }
+
   public async getSpreadsheetSummary(): Promise<string> {
     const { properties, sheets } = await this.getSpreadsheetMetadata()
 
