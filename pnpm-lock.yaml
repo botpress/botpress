@@ -540,6 +540,31 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
+  integrations/google-ai:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@google/generative-ai':
+        specifier: ^0.21.0
+        version: 0.21.0
+    devDependencies:
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.19.50
+      ts-node:
+        specifier: ^10.9.1
+        version: 10.9.2(@types/node@18.19.50)(typescript@4.9.5)
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
   integrations/googlecalendar:
     dependencies:
       '@botpress/client':
@@ -3715,6 +3740,11 @@ packages:
     resolution: {integrity: sha512-vBZP4NlzfOlerQTnba4aqZoMhE/a9HY7HRqoOPaETQcSQuWEIyZMHGfVu6w9wGtGK5fED5qRs2DteVCjOH60sA==}
     engines: {node: '>=14'}
     dev: true
+
+  /@google/generative-ai@0.21.0:
+    resolution: {integrity: sha512-7XhUbtnlkSEZK15kN3t+tzIMxsbKm/dSkKBFalj+20NvPKe1kBY7mR2P7vuijEn+f06z5+A8bVGKO0v39cr6Wg==}
+    engines: {node: '>=18.0.0'}
+    dev: false
 
   /@graphql-typed-document-node/core@3.2.0(graphql@15.8.0):
     resolution: {integrity: sha512-mB9oAsNCm9aM3/SOv4YtBMqZbYj10R7dkq8byBqxGY/ncFwhf2oQzMV+LCRlWoDSEBJ3COiR1yeDvMtsoOsuFQ==}

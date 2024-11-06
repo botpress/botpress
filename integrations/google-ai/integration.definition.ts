@@ -1,25 +1,23 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { modelId } from 'src/schemas'
+import { languageModelId } from 'src/schemas'
 import llm from './bp_modules/llm'
 
 export default new IntegrationDefinition({
-  name: 'cerebras',
-  title: 'Cerebras',
-  version: '1.0.0',
+  name: 'google-ai',
+  title: 'Google AI',
+  version: '0.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
     modelRef: {
       schema: z.object({
-        id: modelId,
+        id: languageModelId,
       }),
     },
   },
   secrets: {
-    CEREBRAS_API_KEY: {
-      description: 'Cerebras API key',
+    GOOGLE_AI_API_KEY: {
+      description: 'Google AI API key',
     },
   },
-}).extend(llm, ({ modelRef }) => ({
-  modelRef,
-}))
+}).extend(llm, ({ modelRef }) => ({ modelRef }))
