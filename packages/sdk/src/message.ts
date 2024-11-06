@@ -75,9 +75,12 @@ const blocsSchema = z.object({
   items: z.array(blocSchema),
 })
 
+/**
+ * @deprecated use `text` instead
+ */
+export const markdown = { schema: markdownMessageSchema }
 export const defaults = {
   text: { schema: textMessageSchema },
-  markdown: { schema: markdownMessageSchema },
   image: { schema: imageMessageSchema },
   audio: { schema: audioMessageSchema },
   video: { schema: videoMessageSchema },

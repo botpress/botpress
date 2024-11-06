@@ -4,7 +4,7 @@ import typingIndicator from './bp_modules/typing-indicator'
 
 export default new IntegrationDefinition({
   name: 'telegram',
-  version: '0.5.4',
+  version: '0.5.5',
   title: 'Telegram',
   description: 'This integration allows your bot to interact with Telegram.',
   icon: 'icon.svg',
@@ -18,6 +18,7 @@ export default new IntegrationDefinition({
     channel: {
       messages: {
         ...messages.defaults,
+        markdown: messages.markdown,
         audio: {
           ...messages.defaults.audio,
           schema: messages.defaults.audio.schema.extend({

@@ -3,7 +3,7 @@ import { configuration, identifier, channels, user, states, actions, events, sec
 
 export default new sdk.IntegrationDefinition({
   name: 'gmail',
-  version: '0.5.1',
+  version: '0.5.2',
   title: 'Gmail',
   description: 'This integration allows your bot to interact with Gmail.',
   icon: 'icon.svg',
