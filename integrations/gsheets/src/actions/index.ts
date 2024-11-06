@@ -5,6 +5,7 @@ import { deleteSheet } from './implementations/delete-sheet'
 import { getAllSheetsInSpreadsheet } from './implementations/get-all-sheets-in-spreadsheet'
 import { getInfoSpreadsheet } from './implementations/get-info-spread-sheet'
 import { getNamedRanges } from './implementations/get-named-ranges'
+import { getProtectedRanges } from './implementations/get-protected-ranges'
 import { getValues } from './implementations/get-values'
 import { moveSheetHorizontally } from './implementations/move-sheet-horizontally'
 import { renameSheet } from './implementations/rename-sheet'
@@ -20,6 +21,7 @@ export default {
   getAllSheetsInSpreadsheet,
   getInfoSpreadsheet,
   getNamedRanges,
+  getProtectedRanges,
   getValues,
   moveSheetHorizontally,
   renameSheet,

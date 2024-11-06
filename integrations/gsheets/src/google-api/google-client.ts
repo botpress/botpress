@@ -207,6 +207,19 @@ export class GoogleClient {
     return response.data.namedRanges?.map(ResponseMapping.mapNamedRange) ?? []
   }
 
+  @handleErrors('Failed to get protected ranges of spreadsheet')
+  public async getProtectedRanges() {
+    const response = await this._sheetsClient.spreadsheets.get({
+      spreadsheetId: this._spreadsheetId,
+      fields: 'sheets.protectedRanges',
+    })
+
+    return (
+      response.data.sheets?.flatMap((sheet) => sheet.protectedRanges?.map(ResponseMapping.mapProtectedRange) ?? []) ??
+      []
+    )
+  }
+
   public async getSpreadsheetSummary(): Promise<string> {
     const { properties, sheets } = await this.getSpreadsheetMetadata()
 

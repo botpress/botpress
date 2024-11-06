@@ -308,6 +308,55 @@ const getNamedRanges = {
   },
 } as const satisfies ActionDef
 
+const getProtectedRanges = {
+  title: 'Get Protected Ranges',
+  description: 'Returns all protected ranges in the spreadsheet.',
+  input: {
+    schema: z.object({}),
+  },
+  output: {
+    schema: z.object({
+      protectedRanges: z
+        .array(
+          z.object({
+            protectedRangeId: z.number().title('Protected Range ID').describe('The ID of the protected range.'),
+            namedRangeId: z
+              .string()
+              .title('Named Range ID')
+              .describe('The ID of the named range, if the protected range is backed by a named range.'),
+            range: z
+              .object({
+                sheetId: z.number().title('Sheet ID').describe('The ID of the sheet.'),
+                startRowIndex: z.number().title('Start Row Index').describe('The start row (inclusive) of the range'),
+                endRowIndex: z.number().title('End Row Index').describe('The end row (exclusive) of the range'),
+                startColumnIndex: z
+                  .number()
+                  .title('Start Column Index')
+                  .describe('The start column (inclusive) of the range'),
+                endColumnIndex: z
+                  .number()
+                  .title('End Column Index')
+                  .describe('The end column (exclusive) of the range'),
+              })
+              .title('Range')
+              .describe('The range of the protected range.'),
+            description: z.string().title('Description').describe('The description of the protected range.'),
+            warningOnly: z
+              .boolean()
+              .title('Warning Only')
+              .describe('Whether the protection displays a warning but still allows editing.'),
+            requestingUserCanEdit: z
+              .boolean()
+              .title('Requesting User Can Edit')
+              .describe('Whether the user adding the protection can edit the protected range.'),
+          })
+        )
+        .title('Protected Ranges')
+        .describe('The protected ranges defined in the spreadsheet.'),
+    }),
+  },
+} as const satisfies ActionDef
+
 export const actions = {
   addSheet,
   appendValues,
@@ -316,6 +365,7 @@ export const actions = {
   getAllSheetsInSpreadsheet,
   getInfoSpreadsheet,
   getNamedRanges,
+  getProtectedRanges,
   getValues,
   moveSheetHorizontally,
   renameSheet,

@@ -62,6 +62,15 @@ export namespace ResponseMapping {
       endColumnIndex: gridRange.endColumnIndex ?? 0,
     } as const)
 
+  export const mapProtectedRange = (protectedRange: sheets_v4.Schema$ProtectedRange) =>
+    ({
+      protectedRangeId: protectedRange.protectedRangeId ?? 0,
+      namedRangeId: protectedRange.namedRangeId ?? '',
+      range: mapGridRange(protectedRange.range ?? {}),
+      description: protectedRange.description ?? '',
+      warningOnly: protectedRange.warningOnly ?? false,
+      requestingUserCanEdit: protectedRange.requestingUserCanEdit ?? false,
+    } as const)
 }
 
 const _stringifyValues = (values: any[][]) => values.map((majorDimension) => majorDimension.map(String))
