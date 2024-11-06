@@ -84,7 +84,7 @@ export const createActionWrapper =
     actionImpl: (
       props: APROPS & InferToolsFromToolset<TOOLSET, IP, TIntegration>,
       input: APROPS['input']
-    ) => ReturnType<AFUNC>
+    ) => VoidIfEmptyRecord<ReturnType<AFUNC>>
   ): AFUNC =>
     (async (props: APROPS) => {
       const tools: Record<string, any> = {}
@@ -92,11 +92,16 @@ export const createActionWrapper =
         tools[tool] = await factory(props)
       }
 
-      return await actionImpl(
-        {
-          ...props,
-          ...tools,
-        } as APROPS & InferToolsFromToolset<TOOLSET, IP, TIntegration>,
-        props.input
+      return (
+        (await actionImpl(
+          {
+            ...props,
+            ...tools,
+          } as APROPS & InferToolsFromToolset<TOOLSET, IP, TIntegration>,
+          props.input
+        )) ?? {}
       )
     }) as AFUNC
+
+type IsEmptyRecord<T> = T extends Record<string, never> ? (keyof T extends never ? true : false) : false
+type VoidIfEmptyRecord<T extends Promise<any>> = IsEmptyRecord<Awaited<T>> extends true ? T | Promise<void> : T
