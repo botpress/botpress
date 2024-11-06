@@ -149,8 +149,8 @@ async function buildContents(input: llm.GenerateContentInput): Promise<Content[]
 
       try {
         functionResponse = JSON.parse(message.content)
-      } catch (err) {
-        throw new InvalidPayloadError('Failed to parse `content` property for tool result as JSON')
+      } catch (err: any) {
+        throw new InvalidPayloadError(`Failed to parse \`content\` property for tool result as JSON: ${err.message}`)
       }
 
       if (typeof functionResponse !== 'object') {
