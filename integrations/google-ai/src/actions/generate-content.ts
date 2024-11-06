@@ -63,7 +63,7 @@ export async function generateContent<M extends string>(
   const outputCost = calculateTokenCost(model.output.costPer1MTokens, outputTokens)
   const cost = inputCost + outputCost
 
-  return {
+  const output = {
     id: crypto.randomUUID(), // Google AI doesn't provide a response ID, so we just generate a random one for simplicity.
     provider: 'google-ai',
     model: modelId,
@@ -76,6 +76,12 @@ export async function generateContent<M extends string>(
       outputCost,
     },
   }
+
+  if (input.debug) {
+    logger.forBot().info('Action output: ' + JSON.stringify(output, null, 2))
+  }
+
+  return output
 }
 
 async function buildGenerateContentRequest(input: llm.GenerateContentInput): Promise<GenerateContentRequest> {
@@ -104,8 +110,14 @@ async function buildContents(input: llm.GenerateContentInput): Promise<Content[]
       if (!message.content) {
         throw new InvalidPayloadError('`content` property is required when message type is "text" or "multipart"')
       }
-      for (const content of message.content) {
-        parts.push(await buildContentPart(content))
+      if (typeof message.content === 'string') {
+        parts.push(await buildContentPart(message.content))
+      } else if (Array.isArray(message.content)) {
+        for (const content of message.content) {
+          parts.push(await buildContentPart(content))
+        }
+      } else {
+        throw new InvalidPayloadError('`content` property must be a string or an array of strings or content objects')
       }
     } else if (message.type === 'tool_calls') {
       if (!message.toolCalls) {
@@ -268,12 +280,27 @@ function buildTools(input: llm.GenerateContentInput): Tool[] | undefined {
 
 type Choice = llm.GenerateContentOutput['choices'][0]
 
-function mapCandidate(candidate: GenerateContentCandidate): Choice {
-  const choice: Partial<Choice> = {
-    index: candidate.index,
+function mapCandidate(candidate: GenerateContentCandidate, index: number): Choice {
+  const choice = <Choice>{
+    index,
     role: 'assistant',
     type: 'multipart',
+    content: [],
     stopReason: mapFinishReason(candidate.finishReason),
+  }
+
+  const functionCalls = candidate.content.parts.filter((x) => !!x.functionCall).map((x) => x.functionCall)
+  const functionResponses = candidate.content.parts.filter((x) => !!x.functionResponse).map((x) => x.functionResponse)
+
+  if (
+    candidate.content.parts.length === 1 &&
+    candidate.content.parts[0]!.text &&
+    functionCalls.length === 0 &&
+    functionResponses.length === 0
+  ) {
+    choice.type = 'text'
+    choice.content = candidate.content.parts[0]!.text
+    return choice
   }
 
   choice.content = []
@@ -290,7 +317,6 @@ function mapCandidate(candidate: GenerateContentCandidate): Choice {
     }
   }
 
-  const functionCalls = candidate.content.parts.filter((x) => !!x.functionCall).map((x) => x.functionCall)
   if (functionCalls.length > 0) {
     choice.toolCalls = functionCalls.map((functionCall) => ({
       id: functionCall.name, // Google AI doesn't generate tool call IDs so we just use the function name as the ID.
@@ -302,12 +328,11 @@ function mapCandidate(candidate: GenerateContentCandidate): Choice {
     }))
   }
 
-  const functionResponses = candidate.content.parts.filter((x) => !!x.functionResponse).map((x) => x.functionResponse)
   if (functionResponses.length > 0) {
     choice.toolResultCallId = functionResponses[0]!.name
   }
 
-  return choice as Choice
+  return choice
 }
 
 function mapFinishReason(finishReason: FinishReason | undefined): Choice['stopReason'] {
