@@ -33,12 +33,17 @@ export namespace ResponseMapping {
   export const mapAddSheet = (response: sheets_v4.Schema$BatchUpdateSpreadsheetResponse) =>
     ({
       spreadsheetId: response.spreadsheetId ?? '',
-      newSheet: {
-        sheetId: response.replies?.[0]?.addSheet?.properties?.sheetId ?? 0,
-        title: response.replies?.[0]?.addSheet?.properties?.title ?? '',
-        index: response.replies?.[0]?.addSheet?.properties?.index ?? 0,
-        isHidden: response.replies?.[0]?.addSheet?.properties?.hidden ?? false,
-      },
+      newSheet: mapSheet(response.replies?.[0]?.addSheet ?? {}),
+    } as const)
+
+  export const mapSheet = (sheet: sheets_v4.Schema$Sheet) =>
+    ({
+      sheetId: sheet.properties?.sheetId ?? 0,
+      title: sheet.properties?.title ?? '',
+      index: sheet.properties?.index ?? 0,
+      isHidden: sheet.properties?.hidden ?? false,
+      hasProtectedRanges: (sheet.protectedRanges?.length ?? 0) > 0,
+      isFullyProtected: sheet.protectedRanges?.every((range) => range.unprotectedRanges === undefined) ?? false,
     } as const)
 }
 

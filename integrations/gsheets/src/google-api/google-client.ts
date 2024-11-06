@@ -104,6 +104,14 @@ export class GoogleClient {
     return ResponseMapping.mapAddSheet(response.data)
   }
 
+  @handleErrors('Failed to get sheets from spreadsheet')
+  public async getAllSheetsInSpreadsheet() {
+    const meta = await this.getSpreadsheetMetadata({
+      fields: 'sheets.properties,sheets.protectedRanges.unprotectedRanges',
+    })
+    return meta.sheets?.map(ResponseMapping.mapSheet) ?? []
+  }
+
   @handleErrors('Failed to get spreadsheet metadata')
   public async getSpreadsheetMetadata({ fields }: { fields?: string } = {}) {
     const response = await this._sheetsClient.spreadsheets.get({

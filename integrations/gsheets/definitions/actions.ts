@@ -188,6 +188,34 @@ const addSheet = {
   },
 } as const satisfies ActionDef
 
+const getAllSheetsInSpreadsheet = {
+  title: 'Get All Sheets in Spreadsheet',
+  description: 'Returns all sheets in the spreadsheet.',
+  input: {
+    schema: z.object({}),
+  },
+  output: {
+    schema: z.object({
+      sheets: z
+        .array(
+          z.object({
+            sheetId: z.number().title('Sheet ID').describe('The ID of the sheet.'),
+            title: z.string().title('Title').describe('The name of the sheet.'),
+            index: z.number().title('Index').describe('The index of the sheet within the spreadsheet.'),
+            isHidden: z.boolean().title('Is Hidden').describe('Whether the sheet is hidden.'),
+            hasProtectedRanges: z
+              .boolean()
+              .title('Has Protected Ranges')
+              .describe('Whether the sheet has protected ranges.'),
+            isFullyProtected: z.boolean().title('Is Protected').describe('Whether the entire sheet is protected.'),
+          })
+        )
+        .title('Sheets')
+        .describe('The sheets present in the spreadsheet.'),
+    }),
+  },
+} as const satisfies ActionDef
+
 export const actions = {
   getValues,
   updateValues,
@@ -195,4 +223,5 @@ export const actions = {
   clearValues,
   getInfoSpreadsheet,
   addSheet,
+  getAllSheetsInSpreadsheet,
 } as const satisfies ActionDefinitions
