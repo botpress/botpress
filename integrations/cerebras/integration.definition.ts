@@ -5,12 +5,9 @@ import llm from './bp_modules/llm'
 export default new IntegrationDefinition({
   name: 'cerebras',
   title: 'Cerebras',
-  version: '0.2.2',
+  version: '1.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
-  configuration: {
-    schema: z.any() as unknown as z.AnyZodObject, // TODO: remove this and bump
-  },
   entities: {
     modelRef: {
       schema: z.object({
