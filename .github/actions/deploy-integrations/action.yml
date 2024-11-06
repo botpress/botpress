@@ -152,6 +152,8 @@ runs:
                 base_command="$base_command ${{ inputs.cerebras_secrets }}"
             elif [ $integration == "github" ]; then
                 base_command="$base_command ${{ inputs.github_secrets }}"
+            elif [ $integration == "google-ai" ]; then
+                base_command="$base_command ${{ inputs.google_ai_secrets }}"
             fi
 
             if [ $exists -eq 0 ]; then

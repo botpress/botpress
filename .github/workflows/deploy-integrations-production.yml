@@ -51,3 +51,4 @@ jobs:
           cerebras_secrets: '--secrets CEREBRAS_API_KEY=${{ secrets.CEREBRAS_API_KEY }}'
           messenger_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_MESSENGER_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_MESSENGER_CLIENT_SECRET  }} --secrets ACCESS_TOKEN=${{ secrets.PRODUCTION_MESSENGER_ACCESS_TOKEN  }}'
           github_secrets: "--secrets GITHUB_APP_ID=${{ secrets.PRODUCTION_GITHUB_APP_ID }} --secrets 'GITHUB_PRIVATE_KEY=${{ secrets.PRODUCTION_GITHUB_PRIVATE_KEY }}' --secrets GITHUB_WEBHOOK_SECRET=${{ secrets.PRODUCTION_GITHUB_WEBHOOK_SECRET }}"
+          google_ai_secrets: '--secrets GOOGLE_AI_API_KEY=${{ secrets.GOOGLE_AI_API_KEY }}'
