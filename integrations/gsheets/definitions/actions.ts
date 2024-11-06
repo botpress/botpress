@@ -309,22 +309,8 @@ const getNamedRanges = {
           z.object({
             namedRangeId: z.string().title('Named Range ID').describe('The ID of the named range.'),
             name: z.string().title('Name').describe('The name of the named range.'),
-            range: z
-              .object({
-                sheetId: z.number().title('Sheet ID').describe('The ID of the sheet.'),
-                startRowIndex: z.number().title('Start Row Index').describe('The start row (inclusive) of the range'),
-                endRowIndex: z.number().title('End Row Index').describe('The end row (exclusive) of the range'),
-                startColumnIndex: z
-                  .number()
-                  .title('Start Column Index')
-                  .describe('The start column (inclusive) of the range'),
-                endColumnIndex: z
-                  .number()
-                  .title('End Column Index')
-                  .describe('The end column (exclusive) of the range'),
-              })
-              .title('Range')
-              .describe('The range of the named range.'),
+            range: _commonFields.range.describe('The range of the named range in A1 notation. (e.g. "A1:B2")'),
+            sheetId: z.number().title('Sheet ID').describe('The ID of the sheet the named range applies to.'),
           })
         )
         .title('Named Ranges')
@@ -349,32 +335,8 @@ const getProtectedRanges = {
               .string()
               .title('Named Range ID')
               .describe('The ID of the named range, if the protected range is backed by a named range.'),
-            range: z
-              .object({
-                sheetId: z.number().title('Sheet ID').describe('The ID of the sheet.'),
-                startRowIndex: z
-                  .number()
-                  .title('Start Row Index')
-                  .optional()
-                  .describe('The start row (inclusive) of the range, or not set if unbounded'),
-                endRowIndex: z
-                  .number()
-                  .title('End Row Index')
-                  .optional()
-                  .describe('The end row (exclusive) of the range, or not set if unbounded'),
-                startColumnIndex: z
-                  .number()
-                  .title('Start Column Index')
-                  .optional()
-                  .describe('The start column (inclusive) of the range, or not set if unbounded'),
-                endColumnIndex: z
-                  .number()
-                  .title('End Column Index')
-                  .optional()
-                  .describe('The end column (exclusive) of the range, or not set if unbounded'),
-              })
-              .title('Range')
-              .describe('The range of the protected range.'),
+            range: _commonFields.range.describe('The range of the protected range in A1 notation. (e.g. "A1:B2")'),
+            sheetId: z.number().title('Sheet ID').describe('The ID of the sheet the protected range applies to.'),
             description: z.string().title('Description').describe('The description of the protected range.'),
             warningOnly: z
               .boolean()

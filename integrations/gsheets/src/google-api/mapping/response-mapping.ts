@@ -1,4 +1,5 @@
 import type { sheets_v4 } from 'googleapis'
+import { A1Converter } from '../gsheets-helpers/a1-converter'
 
 export namespace ResponseMapping {
   export const mapValueRange = (response: sheets_v4.Schema$ValueRange) =>
@@ -50,23 +51,16 @@ export namespace ResponseMapping {
     ({
       namedRangeId: namedRange.namedRangeId ?? '',
       name: namedRange.name ?? '',
-      range: mapGridRange(namedRange.range ?? {}),
-    } as const)
-
-  export const mapGridRange = (gridRange: sheets_v4.Schema$GridRange) =>
-    ({
-      sheetId: gridRange.sheetId ?? 0,
-      startRowIndex: gridRange.startRowIndex ?? undefined,
-      endRowIndex: gridRange.endRowIndex ?? undefined,
-      startColumnIndex: gridRange.startColumnIndex ?? undefined,
-      endColumnIndex: gridRange.endColumnIndex ?? undefined,
+      range: A1Converter.gridRangeToA1(namedRange.range ?? {}),
+      sheetId: namedRange.range?.sheetId ?? 0,
     } as const)
 
   export const mapProtectedRange = (protectedRange: sheets_v4.Schema$ProtectedRange) =>
     ({
       protectedRangeId: protectedRange.protectedRangeId ?? 0,
       namedRangeId: protectedRange.namedRangeId ?? '',
-      range: mapGridRange(protectedRange.range ?? {}),
+      range: A1Converter.gridRangeToA1(protectedRange.range ?? {}),
+      sheetId: protectedRange.range?.sheetId ?? 0,
       description: protectedRange.description ?? '',
       warningOnly: protectedRange.warningOnly ?? false,
       requestingUserCanEdit: protectedRange.requestingUserCanEdit ?? false,
