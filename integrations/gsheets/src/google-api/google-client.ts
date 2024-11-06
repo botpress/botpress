@@ -148,6 +148,26 @@ export class GoogleClient {
     })
   }
 
+  @handleErrors('Failed to set sheet visibility')
+  public async setSheetVisibility({ sheetId, isHidden }: { sheetId: number; isHidden: boolean }) {
+    await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            updateSheetProperties: {
+              properties: {
+                sheetId,
+                hidden: isHidden,
+              },
+              fields: 'hidden',
+            },
+          },
+        ],
+      },
+    })
+  }
+
   @handleErrors('Failed to get spreadsheet metadata')
   public async getSpreadsheetMetadata({ fields }: { fields?: string } = {}) {
     const response = await this._sheetsClient.spreadsheets.get({

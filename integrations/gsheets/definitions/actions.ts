@@ -243,6 +243,20 @@ const getAllSheetsInSpreadsheet = {
   },
 } as const satisfies ActionDef
 
+const setSheetVisibility = {
+  title: 'Set Sheet Visibility',
+  description: 'Sets the visibility of a sheet in the spreadsheet.',
+  input: {
+    schema: z.object({
+      sheetId: z.number().title('Sheet ID').describe('The ID of the sheet to set visibility.'),
+      isHidden: z.boolean().title('Is Hidden').describe('Whether the sheet is hidden.'),
+    }),
+  },
+  output: {
+    schema: z.object({}),
+  },
+} as const satisfies ActionDef
+
 export const actions = {
   addSheet,
   appendValues,
@@ -252,5 +266,6 @@ export const actions = {
   getInfoSpreadsheet,
   getValues,
   renameSheet,
+  setSheetVisibility,
   updateValues,
 } as const satisfies ActionDefinitions
