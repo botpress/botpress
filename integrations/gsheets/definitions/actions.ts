@@ -201,6 +201,20 @@ const deleteSheet = {
   },
 } as const satisfies ActionDef
 
+const renameSheet = {
+  title: 'Rename Sheet',
+  description: 'Renames a sheet in the spreadsheet.',
+  input: {
+    schema: z.object({
+      sheetId: z.number().title('Sheet ID').describe('The ID of the sheet to rename.'),
+      newTitle: z.string().title('New Title').describe('The new title of the sheet.'),
+    }),
+  },
+  output: {
+    schema: z.object({}),
+  },
+} as const satisfies ActionDef
+
 const getAllSheetsInSpreadsheet = {
   title: 'Get All Sheets in Spreadsheet',
   description: 'Returns all sheets in the spreadsheet.',
@@ -230,12 +244,13 @@ const getAllSheetsInSpreadsheet = {
 } as const satisfies ActionDef
 
 export const actions = {
-  getValues,
-  updateValues,
+  addSheet,
   appendValues,
   clearValues,
-  getInfoSpreadsheet,
-  addSheet,
   deleteSheet,
   getAllSheetsInSpreadsheet,
+  getInfoSpreadsheet,
+  getValues,
+  renameSheet,
+  updateValues,
 } as const satisfies ActionDefinitions

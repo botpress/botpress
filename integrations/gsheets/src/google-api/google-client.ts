@@ -128,6 +128,26 @@ export class GoogleClient {
     })
   }
 
+  @handleErrors('Failed to rename sheet in spreadsheet')
+  public async renameSheetInSpreadsheet({ sheetId, newTitle }: { sheetId: number; newTitle: string }) {
+    await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            updateSheetProperties: {
+              properties: {
+                sheetId,
+                title: newTitle,
+              },
+              fields: 'title',
+            },
+          },
+        ],
+      },
+    })
+  }
+
   @handleErrors('Failed to get spreadsheet metadata')
   public async getSpreadsheetMetadata({ fields }: { fields?: string } = {}) {
     const response = await this._sheetsClient.spreadsheets.get({
