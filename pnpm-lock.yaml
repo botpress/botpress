@@ -632,12 +632,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      google-auth-library:
-        specifier: ^9.0.0
-        version: 9.0.0
       googleapis:
-        specifier: ^126.0.1
-        version: 126.0.1
+        specifier: ^144.0.0
+        version: 144.0.0
     devDependencies:
       '@types/node':
         specifier: ^18.19.10
@@ -1833,10 +1830,10 @@ importers:
         specifier: ^11.7.0
         version: 11.7.0
       '@botpress/client':
-        specifier: 0.34.0
+        specifier: 0.34.1
         version: link:../client
       '@botpress/sdk':
-        specifier: 1.2.2
+        specifier: 1.2.3
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1960,10 +1957,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.34.0
+        specifier: 0.34.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 1.2.2
+        specifier: 1.2.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1979,10 +1976,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.34.0
+        specifier: 0.34.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 1.2.2
+        specifier: 1.2.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1998,10 +1995,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 0.34.0
+        specifier: 0.34.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 1.2.2
+        specifier: 1.2.3
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -2017,10 +2014,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 0.34.0
+        specifier: 0.34.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 1.2.2
+        specifier: 1.2.3
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2101,7 +2098,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.34.0
+        specifier: 0.34.1
         version: link:../client
       '@bpinternal/zui':
         specifier: 0.12.0
@@ -9656,6 +9653,17 @@ packages:
       - supports-color
     dev: false
 
+  /googleapis@144.0.0:
+    resolution: {integrity: sha512-ELcWOXtJxjPX4vsKMh+7V+jZvgPwYMlEhQFiu2sa9Qmt5veX8nwXPksOWGGN6Zk4xCiLygUyaz7xGtcMO+Onxw==}
+    engines: {node: '>=14.0.0'}
+    dependencies:
+      google-auth-library: 9.0.0
+      googleapis-common: 7.0.1
+    transitivePeerDependencies:
+      - encoding
+      - supports-color
+    dev: false
+
   /gopd@1.0.1:
     resolution: {integrity: sha512-d65bNlIadxvpb/A2abVdlqKqV563juRnZ1Wtk6s1sIR8uNsXR70xqIzVqxVf1eTqDunwT2MkczEeaezCKTZhwA==}
     dependencies:
@@ -14416,7 +14424,7 @@ packages:
       acorn-walk: 8.2.0
       cac: 6.7.14
       chai: 4.3.10
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.7
       local-pkg: 0.4.3
       magic-string: 0.30.1
       pathe: 1.1.1

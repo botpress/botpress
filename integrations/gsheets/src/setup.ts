@@ -1,16 +1,12 @@
-import { getClient } from './google-api/client'
+import { GoogleClient } from './google-api/google-client'
 import * as bp from '.botpress'
 
-export const register: bp.IntegrationProps['register'] = async ({ logger, ctx }) => {
+export const register: bp.IntegrationProps['register'] = async ({ logger, ctx, client }) => {
   logger.forBot().info('Registering Google Sheets integration')
-  try {
-    const gsheetsClient = getClient(ctx.configuration)
-    const summary = await gsheetsClient.getSpreadsheetSummary()
-    logger.forBot().info(`Successfully connected to Google Sheets: ${summary}`)
-  } catch (thrown) {
-    logger.forBot().error(`Failed to connect to Google Sheets: ${thrown}`)
-    throw thrown
-  }
+
+  const gsheetsClient = await GoogleClient.create({ ctx, client })
+  const summary = await gsheetsClient.getSpreadsheetSummary()
+  logger.forBot().info(`Successfully connected to Google Sheets: ${summary}`)
 }
 
 export const unregister: bp.IntegrationProps['unregister'] = async () => {}

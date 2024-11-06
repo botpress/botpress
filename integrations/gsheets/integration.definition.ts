@@ -14,7 +14,7 @@ import {
 
 export default new sdk.IntegrationDefinition({
   name: 'gsheets',
-  version: '0.3.5',
+  version: '1.0.0',
   description: 'Seamlessly connect your Botpress chatbot with Google Sheets for easy data writing and retrieval',
   title: 'Google Sheets',
   readme: 'hub.md',
