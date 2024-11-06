@@ -4,6 +4,7 @@ import { IntegrationLogger } from '@botpress/sdk'
 import {
   Content,
   FinishReason,
+  FunctionCall,
   FunctionCallingConfig,
   FunctionCallingMode,
   FunctionDeclarationSchema,
@@ -291,7 +292,7 @@ function mapCandidate(candidate: GenerateContentCandidate, index: number): Choic
     stopReason: mapFinishReason(candidate.finishReason),
   }
 
-  const functionCalls = candidate.content.parts.filter((x) => !!x.functionCall).map((x) => x.functionCall)
+  const functionCalls = candidate.content.parts.map((x) => x.functionCall).filter((x): x is FunctionCall => !!x)
   const functionResponses = candidate.content.parts.filter((x) => !!x.functionResponse).map((x) => x.functionResponse)
 
   if (
@@ -331,6 +332,7 @@ function mapCandidate(candidate: GenerateContentCandidate, index: number): Choic
   }
 
   if (functionResponses.length > 0) {
+    // Function responses can be an array but in theory we only send one response at a time.
     choice.toolResultCallId = functionResponses[0]!.name
   }
 
