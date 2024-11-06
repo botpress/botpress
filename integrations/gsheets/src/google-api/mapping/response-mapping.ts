@@ -45,6 +45,23 @@ export namespace ResponseMapping {
       hasProtectedRanges: (sheet.protectedRanges?.length ?? 0) > 0,
       isFullyProtected: sheet.protectedRanges?.every((range) => range.unprotectedRanges === undefined) ?? false,
     } as const)
+
+  export const mapNamedRange = (namedRange: sheets_v4.Schema$NamedRange) =>
+    ({
+      namedRangeId: namedRange.namedRangeId ?? '',
+      name: namedRange.name ?? '',
+      range: mapGridRange(namedRange.range ?? {}),
+    } as const)
+
+  export const mapGridRange = (gridRange: sheets_v4.Schema$GridRange) =>
+    ({
+      sheetId: gridRange.sheetId ?? 0,
+      startRowIndex: gridRange.startRowIndex ?? 0,
+      endRowIndex: gridRange.endRowIndex ?? 0,
+      startColumnIndex: gridRange.startColumnIndex ?? 0,
+      endColumnIndex: gridRange.endColumnIndex ?? 0,
+    } as const)
+
 }
 
 const _stringifyValues = (values: any[][]) => values.map((majorDimension) => majorDimension.map(String))

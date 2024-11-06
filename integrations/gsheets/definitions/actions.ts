@@ -271,6 +271,43 @@ const moveSheetHorizontally = {
   },
 } as const satisfies ActionDef
 
+const getNamedRanges = {
+  title: 'Get Named Ranges',
+  description: 'Returns all named ranges in the spreadsheet.',
+  input: {
+    schema: z.object({}),
+  },
+  output: {
+    schema: z.object({
+      namedRanges: z
+        .array(
+          z.object({
+            namedRangeId: z.string().title('Named Range ID').describe('The ID of the named range.'),
+            name: z.string().title('Name').describe('The name of the named range.'),
+            range: z
+              .object({
+                sheetId: z.number().title('Sheet ID').describe('The ID of the sheet.'),
+                startRowIndex: z.number().title('Start Row Index').describe('The start row (inclusive) of the range'),
+                endRowIndex: z.number().title('End Row Index').describe('The end row (exclusive) of the range'),
+                startColumnIndex: z
+                  .number()
+                  .title('Start Column Index')
+                  .describe('The start column (inclusive) of the range'),
+                endColumnIndex: z
+                  .number()
+                  .title('End Column Index')
+                  .describe('The end column (exclusive) of the range'),
+              })
+              .title('Range')
+              .describe('The range of the named range.'),
+          })
+        )
+        .title('Named Ranges')
+        .describe('The named ranges defined in the spreadsheet.'),
+    }),
+  },
+} as const satisfies ActionDef
+
 export const actions = {
   addSheet,
   appendValues,
@@ -278,6 +315,7 @@ export const actions = {
   deleteSheet,
   getAllSheetsInSpreadsheet,
   getInfoSpreadsheet,
+  getNamedRanges,
   getValues,
   moveSheetHorizontally,
   renameSheet,

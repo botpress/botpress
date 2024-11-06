@@ -197,6 +197,16 @@ export class GoogleClient {
     return response.data
   }
 
+  @handleErrors('Failed to get named ranges of spreadsheet')
+  public async getNamedRanges() {
+    const response = await this._sheetsClient.spreadsheets.get({
+      spreadsheetId: this._spreadsheetId,
+      fields: 'namedRanges',
+    })
+
+    return response.data.namedRanges?.map(ResponseMapping.mapNamedRange) ?? []
+  }
+
   public async getSpreadsheetSummary(): Promise<string> {
     const { properties, sheets } = await this.getSpreadsheetMetadata()
 
