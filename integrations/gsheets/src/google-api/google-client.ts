@@ -247,6 +247,22 @@ export class GoogleClient {
     return { protectedRangeId }
   }
 
+  @handleErrors('Failed to unprotect named range')
+  public async unprotectRange({ protectedRangeId }: { protectedRangeId: number }) {
+    await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            deleteProtectedRange: {
+              protectedRangeId,
+            },
+          },
+        ],
+      },
+    })
+  }
+
   public async getSpreadsheetSummary(): Promise<string> {
     const { properties, sheets } = await this.getSpreadsheetMetadata()
 

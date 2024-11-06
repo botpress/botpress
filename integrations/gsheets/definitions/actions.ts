@@ -382,6 +382,19 @@ const getProtectedRanges = {
   },
 } as const satisfies ActionDef
 
+const unprotectRange = {
+  title: 'Unprotect Range',
+  description: 'Removes protection from a protected range in the spreadsheet.',
+  input: {
+    schema: z.object({
+      protectedRangeId: z.number().title('Protected Range ID').describe('The ID of the protected range to unprotect.'),
+    }),
+  },
+  output: {
+    schema: z.object({}),
+  },
+} as const satisfies ActionDef
+
 export const actions = {
   addSheet,
   appendValues,
@@ -396,5 +409,6 @@ export const actions = {
   protectNamedRange,
   renameSheet,
   setSheetVisibility,
+  unprotectRange,
   updateValues,
 } as const satisfies ActionDefinitions
