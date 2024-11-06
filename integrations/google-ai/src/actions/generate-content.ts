@@ -195,25 +195,27 @@ async function buildContentPart(
         throw new InvalidPayloadError('`url` is required when part type is "image"')
       }
 
+      let response: Response
       let buffer: Buffer
-      try {
-        const response = await fetch(content.url)
-        buffer = Buffer.from(await response.arrayBuffer())
 
-        if (!content.mimeType) {
-          const contentTypeHeader = response.headers.get('content-type')
-          if (contentTypeHeader) {
-            content.mimeType = contentTypeHeader
-          } else {
-            throw new InvalidPayloadError(
-              `Could not automatically retrieve MIME type from response headers of provided image URL ${content.url}. Please provide the \`mimeType\` property in the message content for this image URL.`
-            )
-          }
-        }
+      try {
+        response = await fetch(content.url)
+        buffer = Buffer.from(await response.arrayBuffer())
       } catch (err: any) {
         throw new InvalidPayloadError(
           `Failed to retrieve image in message content from the provided URL: ${content.url} (Error: ${err.message})`
         )
+      }
+
+      if (!content.mimeType) {
+        const contentTypeHeader = response.headers.get('content-type')
+        if (contentTypeHeader) {
+          content.mimeType = contentTypeHeader
+        } else {
+          throw new InvalidPayloadError(
+            `Could not automatically retrieve MIME type from response headers of provided image URL ${content.url}. Please provide the \`mimeType\` property in the message content for this image URL.`
+          )
+        }
       }
 
       return {

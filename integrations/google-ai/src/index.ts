@@ -1,8 +1,8 @@
-import { GoogleGenerativeAI } from '@google/generative-ai'
 import { llm } from '@botpress/common'
+import { GoogleGenerativeAI } from '@google/generative-ai'
+import { generateContent } from './actions/generate-content'
 import { LanguageModelId } from './schemas'
 import * as bp from '.botpress'
-import { generateContent } from './actions/generate-content'
 
 const googleAIClient = new GoogleGenerativeAI(bp.secrets.GOOGLE_AI_API_KEY)
 
