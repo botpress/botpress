@@ -1,6 +1,8 @@
 import { google } from 'googleapis'
 import { MajorDimension } from '../../definitions/actions'
+import { A1NotationParser } from './a1-notation-utils/a1-parser'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
+import { ResponseMapping } from './mapping/response-mapping'
 import { getAuthenticatedOAuth2Client, exchangeAuthCodeAndSaveRefreshToken } from './oauth-client'
 import * as bp from '.botpress'
 
@@ -49,7 +51,7 @@ export class GoogleClient {
       range: rangeA1,
       majorDimension: majorDimension ?? 'ROWS',
     })
-    return response.data
+    return ResponseMapping.mapValueRange(response.data)
   }
 
   @handleErrors('Failed to update values in spreadsheet range')
@@ -60,7 +62,7 @@ export class GoogleClient {
       valueInputOption: 'USER_ENTERED',
       requestBody: { range: rangeA1, values, majorDimension },
     })
-    return response.data
+    return ResponseMapping.mapUpdateValues(response.data)
   }
 
   @handleErrors('Failed to append values to spreadsheet range')
@@ -71,7 +73,7 @@ export class GoogleClient {
       valueInputOption: 'USER_ENTERED',
       requestBody: { range: rangeA1, values, majorDimension },
     })
-    return response.data
+    return ResponseMapping.mapAppendValues(response.data)
   }
 
   @handleErrors('Failed to clear values from spreadsheet range')
@@ -81,7 +83,7 @@ export class GoogleClient {
       range: rangeA1,
       requestBody: { range: rangeA1 },
     })
-    return response.data
+    return ResponseMapping.mapClearValues(response.data)
   }
 
   @handleErrors('Failed to create new sheet in spreadsheet')
@@ -100,7 +102,91 @@ export class GoogleClient {
         ],
       },
     })
-    return response.data
+    return ResponseMapping.mapAddSheet(response.data)
+  }
+
+  @handleErrors('Failed to get sheets from spreadsheet')
+  public async getAllSheetsInSpreadsheet() {
+    const meta = await this.getSpreadsheetMetadata({
+      fields: 'sheets.properties,sheets.protectedRanges.unprotectedRanges',
+    })
+    return meta.sheets?.map(ResponseMapping.mapSheet) ?? []
+  }
+
+  @handleErrors('Failed to delete sheet from spreadsheet')
+  public async deleteSheetFromSpreadsheet({ sheetId }: { sheetId: number }) {
+    await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            deleteSheet: {
+              sheetId,
+            },
+          },
+        ],
+      },
+    })
+  }
+
+  @handleErrors('Failed to rename sheet in spreadsheet')
+  public async renameSheetInSpreadsheet({ sheetId, newTitle }: { sheetId: number; newTitle: string }) {
+    await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            updateSheetProperties: {
+              properties: {
+                sheetId,
+                title: newTitle,
+              },
+              fields: 'title',
+            },
+          },
+        ],
+      },
+    })
+  }
+
+  @handleErrors('Failed to set sheet visibility')
+  public async setSheetVisibility({ sheetId, isHidden }: { sheetId: number; isHidden: boolean }) {
+    await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            updateSheetProperties: {
+              properties: {
+                sheetId,
+                hidden: isHidden,
+              },
+              fields: 'hidden',
+            },
+          },
+        ],
+      },
+    })
+  }
+
+  @handleErrors('Failed to move sheet to new index')
+  public async moveSheetToIndex({ sheetId, newIndex }: { sheetId: number; newIndex: number }) {
+    await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            updateSheetProperties: {
+              properties: {
+                sheetId,
+                index: newIndex,
+              },
+              fields: 'index',
+            },
+          },
+        ],
+      },
+    })
   }
 
   @handleErrors('Failed to get spreadsheet metadata')
@@ -110,6 +196,105 @@ export class GoogleClient {
       fields,
     })
     return response.data
+  }
+
+  @handleErrors('Failed to get named ranges of spreadsheet')
+  public async getNamedRanges() {
+    const response = await this._sheetsClient.spreadsheets.get({
+      spreadsheetId: this._spreadsheetId,
+      fields: 'namedRanges',
+    })
+
+    return response.data.namedRanges?.map(ResponseMapping.mapNamedRange) ?? []
+  }
+
+  @handleErrors('Failed to get protected ranges of spreadsheet')
+  public async getProtectedRanges() {
+    const response = await this._sheetsClient.spreadsheets.get({
+      spreadsheetId: this._spreadsheetId,
+      fields: 'sheets.protectedRanges',
+    })
+
+    return (
+      response.data.sheets?.flatMap((sheet) => sheet.protectedRanges?.map(ResponseMapping.mapProtectedRange) ?? []) ??
+      []
+    )
+  }
+
+  @handleErrors('Failed to protect named range')
+  public async protectNamedRange({
+    namedRangeId,
+    requestingUserCanEdit,
+    warningOnly,
+  }: {
+    namedRangeId: string
+    requestingUserCanEdit?: boolean
+    warningOnly?: boolean
+  }) {
+    const reponse = await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            addProtectedRange: {
+              protectedRange: { namedRangeId, requestingUserCanEdit, warningOnly },
+            },
+          },
+        ],
+      },
+    })
+
+    const protectedRangeId = reponse.data.replies?.[0]?.addProtectedRange?.protectedRange?.protectedRangeId ?? 0
+    return { protectedRangeId }
+  }
+
+  @handleErrors('Failed to unprotect named range')
+  public async unprotectRange({ protectedRangeId }: { protectedRangeId: number }) {
+    await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            deleteProtectedRange: {
+              protectedRangeId,
+            },
+          },
+        ],
+      },
+    })
+  }
+
+  @handleErrors('Failed to create named range in sheet')
+  public async createNamedRangeInSheet({
+    sheetId,
+    rangeName,
+    a1Notation,
+  }: {
+    sheetId: number
+    rangeName: string
+    a1Notation: string
+  }) {
+    const response = await this._sheetsClient.spreadsheets.batchUpdate({
+      spreadsheetId: this._spreadsheetId,
+      requestBody: {
+        requests: [
+          {
+            addNamedRange: {
+              namedRange: {
+                name: rangeName,
+                range: {
+                  sheetId,
+                  ...A1NotationParser.parse(a1Notation),
+                },
+              },
+            },
+          },
+        ],
+      },
+    })
+
+    const namedRangeId = response.data.replies?.[0]?.addNamedRange?.namedRange?.namedRangeId ?? ''
+    return { namedRangeId }
   }
 
   public async getSpreadsheetSummary(): Promise<string> {
