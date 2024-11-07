@@ -7,6 +7,7 @@ const cardSchema = messages.defaults.card.schema.extend({
 
 const defaults = {
   ...messages.defaults,
+  markdown: messages.markdown,
   carousel: { schema: z.object({ items: z.array(cardSchema) }) },
   card: { schema: cardSchema },
 } as const
