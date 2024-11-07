@@ -9,13 +9,13 @@ import * as types from './types'
 
 export * from './types'
 
-type ServerProps<TBot extends common.BaseBot> = types.CommonHandlerProps<TBot> & {
+type ServerProps = types.CommonHandlerProps<common.BaseBot> & {
   req: Request
-  instance: types.BotHandlers<TBot>
+  instance: types.BotHandlers<common.BaseBot>
 }
 
 export const botHandler =
-  <TBot extends common.BaseBot>(instance: types.BotHandlers<TBot>) =>
+  (instance: types.BotHandlers<common.BaseBot>) =>
   async (req: Request): Promise<Response | void> => {
     const ctx = extractContext(req.headers)
 
@@ -27,9 +27,9 @@ export const botHandler =
       botId: ctx.botId,
       retry: retryConfig,
     })
-    const botClient = new BotSpecificClient<TBot>(vanillaClient)
+    const botClient = new BotSpecificClient<common.BaseBot>(vanillaClient)
 
-    const props: ServerProps<TBot> = {
+    const props: ServerProps = {
       req,
       ctx,
       client: botClient,
@@ -40,16 +40,16 @@ export const botHandler =
       case 'action_triggered':
         throw new Error(`Operation ${ctx.operation} not supported yet`)
       case 'event_received':
-        await onEventReceived<TBot>(props as ServerProps<TBot>)
+        await onEventReceived(props)
         break
       case 'register':
-        await onRegister<TBot>(props as ServerProps<TBot>)
+        await onRegister(props)
         break
       case 'unregister':
-        await onUnregister<TBot>(props as ServerProps<TBot>)
+        await onUnregister(props)
         break
       case 'ping':
-        await onPing<TBot>(props as ServerProps<TBot>)
+        await onPing(props)
         break
       default:
         throw new Error(`Unknown operation ${ctx.operation}`)
@@ -58,18 +58,18 @@ export const botHandler =
     return { status: 200 }
   }
 
-const onPing = async <TBot extends common.BaseBot>(_: ServerProps<TBot>) => {}
-const onRegister = async <TBot extends common.BaseBot>(_: ServerProps<TBot>) => {}
-const onUnregister = async <TBot extends common.BaseBot>(_: ServerProps<TBot>) => {}
-const onEventReceived = async <TBot extends common.BaseBot>({ ctx, req, client, instance }: ServerProps<TBot>) => {
+const onPing = async (_: ServerProps) => {}
+const onRegister = async (_: ServerProps) => {}
+const onUnregister = async (_: ServerProps) => {}
+const onEventReceived = async ({ ctx, req, client, instance }: ServerProps) => {
   log.debug(`Received event ${ctx.type}`)
 
-  const body = parseBody<types.EventPayload<TBot>>(req)
+  const body = parseBody<types.EventPayload<common.BaseBot>>(req)
   const event = body.event as client.Event
 
   switch (ctx.type) {
     case 'message_created':
-      const messagePayload: types.MessagePayload<TBot> = {
+      const messagePayload: types.MessagePayload<common.BaseBot> = {
         user: event.payload.user,
         conversation: event.payload.conversation,
         message: event.payload.message,
@@ -88,7 +88,7 @@ const onEventReceived = async <TBot extends common.BaseBot>({ ctx, req, client, 
       )
       break
     case 'state_expired':
-      const statePayload: types.StateExpiredPayload<TBot> = { state: event.payload.state }
+      const statePayload: types.StateExpiredPayload<common.BaseBot> = { state: event.payload.state }
       await Promise.all(
         instance.stateExpiredHandlers.map((handler) =>
           handler({
@@ -100,7 +100,7 @@ const onEventReceived = async <TBot extends common.BaseBot>({ ctx, req, client, 
       )
       break
     default:
-      const eventPayload = { event: body.event } as types.EventPayload<TBot>
+      const eventPayload = { event: body.event } as types.EventPayload<common.BaseBot>
       await Promise.all(
         instance.eventHandlers.map((handler) =>
           handler({
