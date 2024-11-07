@@ -130,6 +130,359 @@ For example, if you want to update the range `Sheet1!A3:A6` with the values `1`,
 }
 ```
 
+## Usage
+
+### Inserting, modifying, and retrieving values from cells
+
+#### Inserting rows at the end of a table
+
+To insert a new row of data at the end of a table, you can use the _Append Values_ action. This action appends a new row of data after all other rows of data.
+
+To use this action, you must specify the range of one of the rows in the table. This could be the header row or any other row of the table. The action will then find the last row of the table and append the new data after it.
+
+For example, if you have a table with the following data in a sheet called `Sheet1`:
+
+|       | **A**  | **B** | **C**  |
+| ----- | ------ | ----- | ------ |
+| **1** | _Name_ | _Age_ | _City_ |
+| **2** | John   | 30    | NY     |
+| **3** | Alice  | 25    | LA     |
+
+To append a new row with the data `Mike`, `35`, `SF`, you could use the following configuration:
+
+```json
+{
+  "range": "Sheet1!A1:C1",
+  "majorDimension": "ROWS",
+  "values": [["Mike", "35", "SF"]]
+}
+```
+
+You can insert multiple rows at once by providing multiple rows of data in the `values` field. For example, to append two new rows with the data `Mike`, `35`, `SF` and `Jane`, `28`, `Chicago`, you could use the following configuration:
+
+```json
+{
+  "range": "Sheet1!A1:C1",
+  "majorDimension": "ROWS",
+  "values": [
+    ["Mike", "35", "SF"],
+    ["Jane", "28", "Chicago"]
+  ]
+}
+```
+
+#### Inserting columns at the end of a table
+
+If you have a table in which data is arranged in columns instead of rows, you can still use the _Append Values_ action to append new columns of data at the end of the table.
+
+For example, if you have a table with the following data in a sheet called `Sheet1`:
+
+|       | **A**  | **B** | **C** |
+| ----- | ------ | ----- | ----- |
+| **1** | _Name_ | John  | Alice |
+| **2** | _Age_  | 30    | 25    |
+| **3** | _City_ | NY    | LA    |
+
+To append a new column with the data `Mike`, `35`, `SF`, you could use the following configuration:
+
+```json
+{
+  "range": "Sheet1!A1:A3",
+  "majorDimension": "COLUMNS",
+  "values": [["Mike", "35", "SF"]]
+}
+```
+
+The _Major Dimension_ field is the field that determines whether the data is arranged in rows or columns. If you are appending columns, set the _Major Dimension_ field to `COLUMNS`.
+
+#### Obtaining values from a cell range
+
+To retrieve values from a cell range, you can use the _Get Values_ action. This action retrieves the values from the specified range in the Google Spreadsheet.
+
+For example, if you have the following data in a sheet called `Sheet1`:
+
+|       | **A** | **B** | **C** | **D** |
+| ----- | ----- | ----- | ----- | ----- |
+| **1** | 1     | 2     | 3     | 4     |
+| **2** | 5     | 6     | 7     | 8     |
+| **3** | 9     | 10    | 11    | 12    |
+
+To retrieve the values from the range `Sheet1!A1:C3`, you could use the following configuration:
+
+```json
+{
+  "range": "Sheet1!A1:C3",
+  "majorDimension": "ROWS"
+}
+```
+
+The values will be returned in the following format:
+
+```json
+{
+  "values": [
+    ["1", "2", "3"],
+    ["5", "6", "7"],
+    ["9", "10", "11"]
+  ]
+}
+```
+
+> If your data is arranged as columns instead of rows, you can set the _Major Dimension_ field to `COLUMNS`.
+
+#### Updating values in a cell range
+
+To change values instead of appending new ones, you can use the _Update Values_ action. This action updates the values in the specified range in the Google Spreadsheet.
+
+For example, if you have the following data in a sheet called `Sheet1`:
+
+|       | **A**  | **B** | **C**  | **D**    |
+| ----- | ------ | ----- | ------ | -------- |
+| **1** | _Name_ | _Age_ | _City_ | _Job_    |
+| **2** | John   | 30    | NY     | Engineer |
+| **3** | Alice  | 25    | LA     | Designer |
+
+To change Alice's age to `26` and job to `Developer`, you could use the following configuration:
+
+```json
+{
+  "range": "Sheet1!B3:C3",
+  "majorDimension": "ROWS",
+  "values": [["26", "LA", "Developer"]]
+}
+```
+
+If instead you want to change the city of both John and Alice to `SF`, you could use the following configuration:
+
+```json
+{
+  "range": "Sheet1!C2:C3",
+  "majorDimension": "ROWS",
+  "values": [["SF"], ["SF"]]
+}
+```
+
+This is equivalent to:
+
+```json
+{
+  "range": "Sheet1!C2:C3",
+  "majorDimension": "COLUMNS",
+  "values": [["SF", "SF"]]
+}
+```
+
+### Creating and manipulating sheets
+
+#### Creating a new sheet
+
+To create a new sheet in the Google Spreadsheet, you can use the _Add Sheet_ action. This action creates a new sheet with the specified name and places it at the end of the list of sheets.
+
+#### Obtaining the list of all sheets
+
+To retrieve the list of all sheets in the Google Spreadsheet, you can use the _Get All Sheets in Spreadsheet_ action. This action returns the names and id of all sheets in the spreadsheet.
+
+It will return a JSON object with the following structure:
+
+```json
+{
+  "sheets": [
+    {
+      "sheetId": 904893745,
+      "title": "Time sheet",
+      "index": 0,
+      "isHidden": false,
+      "hasProtectedRanges": false,
+      "isFullyProtected": false
+    },
+    {
+      "sheetId": 937004904,
+      "title": "Stats",
+      "index": 1,
+      "isHidden": false,
+      "hasProtectedRanges": true,
+      "isFullyProtected": false
+    }
+  ]
+}
+```
+
+#### Moving a sheet horizontally
+
+If you want a sheet to appear before or after another sheet, you can use the _Move Sheet Horizontally_ action. This action moves the specified sheet to the specified position in the list of sheets.
+
+> To use this action, you must first retrieve the id of the sheet you want to move using the _Get All Sheets in Spreadsheet_ action.
+
+For example, if you want to move the sheet named `Stats` to the first position in the list of sheets, you could use the following configuration:
+
+```json
+{
+  "sheetId": 937004904,
+  "newIndex": 0
+}
+```
+
+When changing the order of sheets, the new position is based on their current order. For example, if you have three sheets (S1, S2, S3) and you want to move S1 to be after S2, you would set the index to 2. A request to change a sheet's position will be ignored if the new index is the same as the current index or if it is one more than the current index.
+
+### Working with named ranges
+
+When working with large or complex spreadsheets, it can be helpful to define named ranges for specific cell ranges. Named ranges provide a convenient way to reference a specific cell range by a meaningful name.
+
+#### Creating a named range
+
+To create a new named range in the Google Spreadsheet, you can use the _Create Named Range in Sheet_ action. This action creates a new named range with the specified name and range.
+
+> To use this action, you must first retrieve the id of the sheet you want to move using the _Get All Sheets in Spreadsheet_ action.
+
+For example, if you want to create a named range called `MyNamedRange` that refers to the range `Sheet1!A1:B2`, you could use the following configuration:
+
+```json
+{
+  "sheetId": 937004904, // The id the sheet; not its name
+  "name": "MyNamedRange",
+  "range": "Sheet1!A1:B2"
+}
+```
+
+Once the named range is created, you can reference it by name in other actions that require a range.
+
+#### Obtaining the list of all named ranges
+
+To retrieve the list of all named ranges in the Google Spreadsheet, you can use the _Get Named Ranges_ action. This action returns the names, ids, and ranges of all named ranges in the spreadsheet.
+
+For example, if you have two named ranges in the spreadsheet, `MyRange` and `NamedRange1`, the action would return data similar to the following:
+
+```json
+{
+  "namedRanges": [
+    {
+      "namedRangeId": "1001473037",
+      "name": "MyRange",
+      "range": "A1",
+      "sheetId": 206659759
+    },
+    {
+      "namedRangeId": "lkk0nrl90uiy",
+      "name": "NamedRange1",
+      "range": "F28:F32",
+      "sheetId": 937004904
+    }
+  ]
+}
+```
+
+### Working with protected ranges
+
+Google Sheets allows you to protect specific ranges of cells to prevent them from being edited. Protected ranges can be useful when you want to ensure that certain data remains unchanged.
+
+#### Protecting a named range
+
+To created a protected range from a previously-defined named range, you can use the _Protect Named Range_ action. This action creates a protected range from the specified named range.
+
+> To use this action, you must first retrieve the id of the named range you want to protect using the _Get Named Ranges_ action.
+
+For example, if you have a named range called `MyNamedRange`, you could use the following configuration to protect this range:
+
+```json
+{
+  "namedRangeId": "1001473037",
+  "warningOnly": false,
+  "requestingUserCanEdit": true
+}
+```
+
+In the above example, the `warningOnly` field specifies whether a warning should be displayed when users try to edit the protected range. If this mode is activated, users are still able to edit the range if they dismiss the warning.
+The `requestingUserCanEdit` field specifies whether the user who requested the protection can edit the protected range, regardless of the `warningOnly` option.
+
+#### Obtaining the list of all protected ranges
+
+To retrieve the list of all protected ranges in the Google Spreadsheet, you can use the _Get Protected Ranges_ action. This action returns the ids, ranges, and permissions of all protected ranges in the spreadsheet.
+
+```json
+{
+  "protectedRanges": [
+    {
+      "protectedRangeId": 1815142986,
+      "namedRangeId": "",
+      "range": ":",
+      "sheetId": 937004904,
+      "description": "",
+      "warningOnly": true,
+      "requestingUserCanEdit": true
+    },
+    {
+      "protectedRangeId": 640323292,
+      "namedRangeId": "lkk0nrl90uiy",
+      "range": "F28:F32",
+      "sheetId": 937004904,
+      "description": "",
+      "warningOnly": false,
+      "requestingUserCanEdit": true
+    }
+  ]
+}
+```
+
+In the above example, the first protect range is a warning-only range that covers the entire sheet with id `937004904`, while the second protected range is a range that covers the entirety of the _named range_ with id `lkk0nrl90uiy`.
+
+#### Unprotecting a range
+
+To remove protection from a previously protected range, you can use the _Unprotect Range_ action. This action removes the protection from the specified range.
+
+> To use this action, you must first retrieve the id of the protected range you want to unprotect using the _Get Protected Ranges_ action.
+
+For example, if you have a protected range with the id `1815142986`, you could use the following configuration to unprotect this range:
+
+```json
+{
+  "protectedRangeId": 1815142986
+}
+```
+
+### Working with formulas
+
+When inserting or updating values in a cell range, you can include formulas in the data. Google Sheets will automatically interpret the data as a formula and store it in the cell.
+Please make sure to include the `=` sign at the beginning of the formula to indicate that it is a formula.
+
+### Querying metadata
+
+To obtain metadata about the spreadsheet or its sheets, you can use the _Get Info of a SpreadSheet_ action. In the _Field name_ field, you can specify the metadata you want to retrieve.
+
+For example, to retrieve the title, locale, and time zone of the spreadsheet, you could use the following configuration:
+
+```json
+{
+  "fields": ["properties.title", "properties.locale", "properties.timeZone"]
+}
+```
+
+The action will return an object with the requested metadata:
+
+```json
+{
+  "properties": {
+    "title": "My Spreadsheet",
+    "locale": "en_US",
+    "timeZone": "America/New_York"
+  }
+}
+```
+
+> Note: Using wildcards to retrieve all metadata fields is supported, but it is not recommended as it can quickly exhaust your API limits. For instance, you could use `*` to fetch all metadata fields or `sheets.properties.*` to fetch all property fields of all sheets.
+
+Here are some examples of metadata fields you can query:
+
+- `properties.title`: The title of the spreadsheet.
+- `properties.locale`: The locale of the spreadsheet.
+- `properties.timeZone`: The time zone of the spreadsheet.
+- `properties.autoRecalc`: The auto-recalculation setting of the spreadsheet.
+- `properties.defaultFormat`: The default format of the spreadsheet.
+- `sheets.properties.title`: The title of all sheets.
+- `sheets.properties.sheetId`: The ID of all sheets.
+- `sheets.properties.gridProperties.rowCount`: The number of rows in all sheets.
+- `sheets.properties.gridProperties.columnCount`: The number of columns in all sheets.
+- `namedRanges.namedRangeId`: The ID of all named ranges.
+
 ## Limitations
 
 Standard Google Sheets API limitations apply to the Google Sheets integration in Botpress. These limitations include rate limits, payload size restrictions, and other constraints imposed by the Google Cloud platform. Ensure that your chatbot adheres to these limitations to maintain optimal performance and reliability.
