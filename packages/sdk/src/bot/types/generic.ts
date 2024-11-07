@@ -1,5 +1,7 @@
-import { BaseIntegration } from '../../integration/types'
+import { BaseIntegration } from '../../integration/types/generic'
 import * as utils from '../../utils/type-utils'
+
+export * from '../../integration/types/generic'
 
 export type BaseBot = {
   integrations: Record<string, BaseIntegration>
@@ -16,4 +18,4 @@ export type MakeBot<B extends Partial<BaseBot>> = {
   states: utils.Default<B['states'], BaseBot['states']>
 }
 
-type _MakeBot_creates_a_TBot = utils.AssertExtends<BaseBot, MakeBot<{}>>
+type _MakeBot_creates_a_TBot = utils.AssertExtends<MakeBot<{}>, BaseBot>

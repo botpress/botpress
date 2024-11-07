@@ -10,7 +10,7 @@ export type IsEquivalent<X, Y> = IsExtend<X, Y> extends true ? IsExtend<Y, X> : 
 export type IsIdentical<X, Y> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? true : false
 export type IsEqual<X, Y> = IsIdentical<Normalize<X>, Normalize<Y>>
 
-export type AssertExtends<A, _B extends A> = true
+export type AssertExtends<_A extends B, B> = true
 export type AssertTrue<_T extends true> = true
 export type AssertAll<_T extends true[]> = true
 

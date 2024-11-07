@@ -59,5 +59,5 @@ export type MakeIntegration<I extends Partial<BaseIntegration>> = {
   entities: utils.Default<I['entities'], BaseIntegration['entities']>
 }
 
-type _MakeChannel_creates_a_TChannel = utils.AssertExtends<BaseIntegration['channels'][string], MakeChannel<{}>>
-type _MakeIntegration_creates_a_TIntegration = utils.AssertExtends<BaseIntegration, MakeIntegration<{}>>
+type _MakeChannel_creates_a_TChannel = utils.AssertExtends<MakeChannel<{}>, BaseIntegration['channels'][string]>
+type _MakeIntegration_creates_a_TIntegration = utils.AssertExtends<MakeIntegration<{}>, BaseIntegration>
