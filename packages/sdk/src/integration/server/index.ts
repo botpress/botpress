@@ -16,28 +16,27 @@ import {
   CreateUserPayload,
   UnregisterPayload,
   CreateConversationPayload,
-  IntegrationContext,
 } from './types'
 
 export * from './types'
 export * from './logger'
 
-type ServerProps<TIntegration extends BaseIntegration> = CommonHandlerProps<TIntegration> & {
+type ServerProps = CommonHandlerProps<BaseIntegration> & {
   req: Request
-  instance: IntegrationHandlers<TIntegration>
+  instance: IntegrationHandlers<BaseIntegration>
 }
 
 export const integrationHandler =
-  <TIntegration extends BaseIntegration>(instance: IntegrationHandlers<TIntegration>) =>
+  (instance: IntegrationHandlers<BaseIntegration>) =>
   async (req: Request): Promise<Response | void> => {
-    const ctx = extractContext(req.headers) as IntegrationContext<TIntegration>
+    const ctx = extractContext(req.headers)
 
     const vanillaClient = new Client({
       botId: ctx.botId,
       integrationId: ctx.integrationId,
       retry: retryConfig,
     })
-    const client = new IntegrationSpecificClient<TIntegration>(vanillaClient)
+    const client = new IntegrationSpecificClient<BaseIntegration>(vanillaClient)
 
     const props = {
       ctx,
@@ -51,28 +50,28 @@ export const integrationHandler =
       let response: Response | void
       switch (ctx.operation) {
         case 'webhook_received':
-          response = await onWebhook<TIntegration>(props)
+          response = await onWebhook(props)
           break
         case 'register':
-          response = await onRegister<TIntegration>(props)
+          response = await onRegister(props)
           break
         case 'unregister':
-          response = await onUnregister<TIntegration>(props)
+          response = await onUnregister(props)
           break
         case 'message_created':
-          response = await onMessageCreated<TIntegration>(props)
+          response = await onMessageCreated(props)
           break
         case 'action_triggered':
-          response = await onActionTriggered<TIntegration>(props)
+          response = await onActionTriggered(props)
           break
         case 'ping':
-          response = await onPing<TIntegration>(props)
+          response = await onPing(props)
           break
         case 'create_user':
-          response = await onCreateUser<TIntegration>(props)
+          response = await onCreateUser(props)
           break
         case 'create_conversation':
-          response = await onCreateConversation<TIntegration>(props)
+          response = await onCreateConversation(props)
           break
         default:
           throw new Error(`Unknown operation ${ctx.operation}`)
@@ -97,26 +96,14 @@ export const integrationHandler =
     }
   }
 
-const onPing = async <TIntegration extends BaseIntegration>(_: ServerProps<TIntegration>) => {}
+const onPing = async (_: ServerProps) => {}
 
-const onWebhook = async <TIntegration extends BaseIntegration>({
-  client,
-  ctx,
-  req: incomingRequest,
-  logger,
-  instance,
-}: ServerProps<TIntegration>) => {
+const onWebhook = async ({ client, ctx, req: incomingRequest, logger, instance }: ServerProps) => {
   const { req } = parseBody<WebhookPayload>(incomingRequest)
   return instance.webhook({ client, ctx, req, logger })
 }
 
-const onRegister = async <TIntegration extends BaseIntegration>({
-  client,
-  ctx,
-  req,
-  logger,
-  instance,
-}: ServerProps<TIntegration>) => {
+const onRegister = async ({ client, ctx, req, logger, instance }: ServerProps) => {
   if (!instance.register) {
     return
   }
@@ -124,13 +111,7 @@ const onRegister = async <TIntegration extends BaseIntegration>({
   await instance.register({ client, ctx, webhookUrl, logger })
 }
 
-const onUnregister = async <TIntegration extends BaseIntegration>({
-  client,
-  ctx,
-  req,
-  logger,
-  instance,
-}: ServerProps<TIntegration>) => {
+const onUnregister = async ({ client, ctx, req, logger, instance }: ServerProps) => {
   if (!instance.unregister) {
     return
   }
@@ -138,42 +119,24 @@ const onUnregister = async <TIntegration extends BaseIntegration>({
   await instance.unregister({ ctx, webhookUrl, client, logger })
 }
 
-const onCreateUser = async <TIntegration extends BaseIntegration>({
-  client,
-  ctx,
-  req,
-  logger,
-  instance,
-}: ServerProps<TIntegration>) => {
+const onCreateUser = async ({ client, ctx, req, logger, instance }: ServerProps) => {
   if (!instance.createUser) {
     return
   }
-  const { tags } = parseBody<CreateUserPayload<TIntegration>>(req)
+  const { tags } = parseBody<CreateUserPayload<BaseIntegration>>(req)
   return await instance.createUser({ ctx, client, tags, logger })
 }
 
-const onCreateConversation = async <TIntegration extends BaseIntegration>({
-  client,
-  ctx,
-  req,
-  logger,
-  instance,
-}: ServerProps<TIntegration>) => {
+const onCreateConversation = async ({ client, ctx, req, logger, instance }: ServerProps) => {
   if (!instance.createConversation) {
     return
   }
-  const { channel, tags } = parseBody<CreateConversationPayload<TIntegration>>(req)
+  const { channel, tags } = parseBody<CreateConversationPayload<BaseIntegration>>(req)
   return await instance.createConversation({ ctx, client, channel, tags, logger })
 }
 
-const onMessageCreated = async <TIntegration extends BaseIntegration>({
-  ctx,
-  req,
-  client,
-  logger,
-  instance,
-}: ServerProps<TIntegration>) => {
-  const { conversation, user, type, payload, message } = parseBody<MessagePayload<TIntegration, string, string>>(req)
+const onMessageCreated = async ({ ctx, req, client, logger, instance }: ServerProps) => {
+  const { conversation, user, type, payload, message } = parseBody<MessagePayload<BaseIntegration, string, string>>(req)
 
   const channelHandler = instance.channels[conversation.channel]
 
@@ -198,13 +161,7 @@ const onMessageCreated = async <TIntegration extends BaseIntegration>({
   await messageHandler({ ctx, conversation, message, user, type, client, payload, ack, logger })
 }
 
-const onActionTriggered = async <TIntegration extends BaseIntegration>({
-  req,
-  ctx,
-  client,
-  logger,
-  instance,
-}: ServerProps<TIntegration>) => {
+const onActionTriggered = async ({ req, ctx, client, logger, instance }: ServerProps) => {
   const { input, type } = parseBody<ActionPayload<string, any>>(req)
 
   if (!type) {
