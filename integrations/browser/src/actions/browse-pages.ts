@@ -14,6 +14,8 @@ type FireCrawlResponse = {
   returnCode: number
 }
 
+const COST_PER_PAGE = 0.0015
+
 const getPageContent = async (url: string, logger: any): Promise<{ content: string; url: string }> => {
   const startTime = Date.now()
   const { data } = await axios.post<FireCrawlResponse>(
@@ -33,11 +35,13 @@ const getPageContent = async (url: string, logger: any): Promise<{ content: stri
   return { content: data.data.content, url }
 }
 
-export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async ({ input, logger }) => {
+export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async ({ input, logger, metadata }) => {
   const startTime = Date.now()
 
   try {
     const pageContentPromises = await Promise.allSettled(input.urls.map((url) => getPageContent(url, logger)))
+
+    metadata.setCost(input.urls.length * COST_PER_PAGE)
 
     return {
       results: pageContentPromises
