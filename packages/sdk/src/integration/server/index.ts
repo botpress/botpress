@@ -16,7 +16,6 @@ import {
   CreateUserPayload,
   UnregisterPayload,
   CreateConversationPayload,
-  IntegrationContext,
 } from './types'
 
 export * from './types'
@@ -30,7 +29,7 @@ type ServerProps = CommonHandlerProps<BaseIntegration> & {
 export const integrationHandler =
   (instance: IntegrationHandlers<BaseIntegration>) =>
   async (req: Request): Promise<Response | void> => {
-    const ctx = extractContext(req.headers) as IntegrationContext<BaseIntegration>
+    const ctx = extractContext(req.headers)
 
     const vanillaClient = new Client({
       botId: ctx.botId,

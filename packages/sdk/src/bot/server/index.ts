@@ -65,7 +65,7 @@ const onEventReceived = async ({ ctx, req, client, instance }: ServerProps) => {
   log.debug(`Received event ${ctx.type}`)
 
   const body = parseBody<types.EventPayload<common.BaseBot>>(req)
-  const event = body.event as client.Event
+  const event = body.event
 
   switch (ctx.type) {
     case 'message_created':
@@ -100,7 +100,7 @@ const onEventReceived = async ({ ctx, req, client, instance }: ServerProps) => {
       )
       break
     default:
-      const eventPayload = { event: body.event } as types.EventPayload<common.BaseBot>
+      const eventPayload = { event: body.event }
       await Promise.all(
         instance.eventHandlers.map((handler) =>
           handler({
