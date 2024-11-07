@@ -18,9 +18,7 @@ export default new IntegrationDefinition({
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
     },
-    schema: z.object({
-      driveId: z.string().min(1).describe('The ID of the Google Drive to be accessed by the bot.'),
-    }), // TODO: Implement
+    schema: z.object({}),
   },
   actions: {
     listFiles: {

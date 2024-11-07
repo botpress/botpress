@@ -62,6 +62,9 @@ export class FilesMap {
     return this._getGenericFile(id)
   }
 
+  /**
+   * @throws {RuntimeError} ID must correspond to a file compatible with BaseNormalFile
+   */
   public getFile(id: string): BaseNormalFile {
     const file = this._getGenericFile(id)
     if (file.type !== 'normal') {
@@ -70,6 +73,9 @@ export class FilesMap {
     return file
   }
 
+  /**
+   * @throws {RuntimeError} ID must correspond to a file compatible with FolderNormalFile
+   */
   public getFolder(id: string): BaseFolderFile {
     const file = this._getGenericFile(id)
     if (file.type !== 'folder') {

@@ -6,8 +6,6 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
   if (req.path.startsWith('/oauth')) {
     return await handleOAuth(props)
   }
-
-  return { status: 404 } // TODO: Nothing by default?
 }
 
 export const handleOAuth = async ({ req, client, ctx }: bp.HandlerProps) => {

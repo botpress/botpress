@@ -74,7 +74,7 @@ export class Client {
     const { newFilesIds, nextToken: newNextToken } = await this._updateFilesMapFromNextPage({
       filesMap,
       nextToken,
-      searchQuery: `mimeType = \'${FOLDER_MIMETYPE}\'`,
+      searchQuery: `mimeType = '${FOLDER_MIMETYPE}'`,
     })
     await filesMap.save()
     const itemsPromises = newFilesIds
@@ -118,7 +118,7 @@ export class Client {
     const response = await this._googleClient.files.update({
       fields: GOOGLE_API_FILE_FIELDS,
       fileId,
-      addParents, // Removes old parents
+      addParents, // Also removes old parents
       requestBody: {
         name,
       },
@@ -239,9 +239,8 @@ export class Client {
     newFilesIds: string[]
     nextToken?: string
   }> {
-    // TODO: Support shared drive
     const listResponse = await this._googleClient.files.list({
-      corpora: 'user', // TODO: Limit to the configured drive if optional driveId is provided
+      corpora: 'user',
       fields: GOOGLE_API_FILELIST_FIELDS,
       q: searchQuery,
       pageToken: nextToken,
