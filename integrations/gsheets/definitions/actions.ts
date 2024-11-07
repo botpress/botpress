@@ -178,12 +178,15 @@ const addSheet = {
   output: {
     schema: z.object({
       spreadsheetId: z.string().title('Spreadsheet ID').describe('The spreadsheet ID of the new sheet.'),
-      newSheet: z.object({
-        sheetId: z.number().title('Sheet ID').describe('The ID of the new sheet.'),
-        title: z.string().title('Title').describe('The title of the new sheet.'),
-        index: z.number().title('Index').describe('The index of the new sheet within the spreadsheet.'),
-        isHidden: z.boolean().title('Is Hidden').describe('Whether the new sheet is hidden.'),
-      }),
+      newSheet: z
+        .object({
+          sheetId: z.number().title('Sheet ID').describe('The ID of the new sheet.'),
+          title: z.string().title('Title').describe('The title of the new sheet.'),
+          index: z.number().title('Index').describe('The index of the new sheet within the spreadsheet.'),
+          isHidden: z.boolean().title('Is Hidden').describe('Whether the new sheet is hidden.'),
+        })
+        .title('New Sheet')
+        .describe('The new sheet that was added to the spreadsheet.'),
     }),
   },
 } as const satisfies ActionDef
