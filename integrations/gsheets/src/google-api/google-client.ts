@@ -1,7 +1,7 @@
 import { google } from 'googleapis'
 import { MajorDimension } from '../../definitions/actions'
+import { A1NotationParser } from './a1-notation-utils/a1-parser'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
-import { A1NotationParser } from './gsheets-helpers/a1-parser'
 import { ResponseMapping } from './mapping/response-mapping'
 import { getAuthenticatedOAuth2Client, exchangeAuthCodeAndSaveRefreshToken } from './oauth-client'
 import * as bp from '.botpress'

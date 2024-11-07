@@ -1,5 +1,5 @@
 import type { sheets_v4 } from 'googleapis'
-import { A1Converter } from '../gsheets-helpers/a1-converter'
+import { A1Converter } from '../a1-notation-utils/a1-converter'
 
 export namespace ResponseMapping {
   export const mapValueRange = (response: sheets_v4.Schema$ValueRange) =>
