@@ -1,7 +1,8 @@
 import { Client as DriveClient } from './client'
+import { wrapWithTryCatch } from './error-handling'
 import * as bp from '.botpress'
 
-const listFiles: bp.IntegrationProps['actions']['listFiles'] = async (props) => {
+const listFiles: bp.IntegrationProps['actions']['listFiles'] = wrapWithTryCatch(async (props) => {
   const { client, ctx, input } = props
   const { nextToken } = input
   const driveClient = await DriveClient.client({
@@ -9,9 +10,9 @@ const listFiles: bp.IntegrationProps['actions']['listFiles'] = async (props) => 
     ctx,
   })
   return await driveClient.listFiles(nextToken)
-}
+}, 'Error listing files')
 
-const listFolders: bp.IntegrationProps['actions']['listFolders'] = async (props) => {
+const listFolders: bp.IntegrationProps['actions']['listFolders'] = wrapWithTryCatch(async (props) => {
   const { client, ctx, input } = props
   const { nextToken } = input
   const driveClient = await DriveClient.client({
@@ -19,18 +20,18 @@ const listFolders: bp.IntegrationProps['actions']['listFolders'] = async (props)
     ctx,
   })
   return driveClient.listFolders(nextToken)
-}
+}, 'Error listing folders')
 
-const createFile: bp.IntegrationProps['actions']['createFile'] = async (props) => {
+const createFile: bp.IntegrationProps['actions']['createFile'] = wrapWithTryCatch(async (props) => {
   const { client, ctx, input } = props
   const driveClient = await DriveClient.client({
     client,
     ctx,
   })
   return driveClient.createFile(input)
-}
+}, 'Error creating file')
 
-const readFile: bp.IntegrationProps['actions']['readFile'] = async (props) => {
+const readFile: bp.IntegrationProps['actions']['readFile'] = wrapWithTryCatch(async (props) => {
   const { client, ctx, input } = props
   const { id } = input
   const driveClient = await DriveClient.client({
@@ -38,18 +39,18 @@ const readFile: bp.IntegrationProps['actions']['readFile'] = async (props) => {
     ctx,
   })
   return driveClient.readFile(id)
-}
+}, 'Error reading file')
 
-const updateFile: bp.IntegrationProps['actions']['updateFile'] = async (props) => {
+const updateFile: bp.IntegrationProps['actions']['updateFile'] = wrapWithTryCatch(async (props) => {
   const { client, ctx, input } = props
   const driveClient = await DriveClient.client({
     client,
     ctx,
   })
   return driveClient.updateFile(input)
-}
+}, 'Error updating file')
 
-const deleteFile: bp.IntegrationProps['actions']['deleteFile'] = async (props) => {
+const deleteFile: bp.IntegrationProps['actions']['deleteFile'] = wrapWithTryCatch(async (props) => {
   const { client, ctx, input } = props
   const { id } = input
   const driveClient = await DriveClient.client({
@@ -58,9 +59,9 @@ const deleteFile: bp.IntegrationProps['actions']['deleteFile'] = async (props) =
   })
   await driveClient.deleteFile(id)
   return {}
-}
+}, 'Error deleting file')
 
-const uploadFileData: bp.IntegrationProps['actions']['uploadFileData'] = async (props) => {
+const uploadFileData: bp.IntegrationProps['actions']['uploadFileData'] = wrapWithTryCatch(async (props) => {
   const { client, ctx, input } = props
   const driveClient = await DriveClient.client({
     client,
@@ -68,16 +69,16 @@ const uploadFileData: bp.IntegrationProps['actions']['uploadFileData'] = async (
   })
   await driveClient.uploadFileData(input)
   return {}
-}
+}, 'Error uploading file')
 
-const downloadFileData: bp.IntegrationProps['actions']['downloadFileData'] = async (props) => {
+const downloadFileData: bp.IntegrationProps['actions']['downloadFileData'] = wrapWithTryCatch(async (props) => {
   const { client, ctx, input } = props
   const driveClient = await DriveClient.client({
     client,
     ctx,
   })
   return driveClient.downloadFileData(input)
-}
+}, 'Error downloading file')
 
 export default {
   listFiles,

@@ -12,6 +12,7 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
+    "@botpress/common": "workspace:*",
     "axios": "^1.7.7",
     "google-auth-library": "^9.0.0",
     "googleapis": "^144.0.0"

@@ -522,6 +522,9 @@ importers:
       '@botpress/client':
         specifier: workspace:*
         version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
