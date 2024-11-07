@@ -32,7 +32,7 @@ export const INTEGRATION_NAME = 'whatsapp'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.0.9',
+  version: '2.0.10',
   title: 'WhatsApp',
   description: 'This integration allows your bot to interact with WhatsApp.',
   icon: 'icon.svg',
@@ -77,7 +77,7 @@ export default new IntegrationDefinition({
   },
   channels: {
     [channel]: {
-      messages: messages.defaults,
+      messages: { ...messages.defaults, markdown: messages.markdown },
       message: {
         tags: {
           id: {},

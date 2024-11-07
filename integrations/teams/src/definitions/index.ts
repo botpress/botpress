@@ -12,7 +12,7 @@ export const configuration = {
 
 export const channels = {
   channel: {
-    messages: messages.defaults,
+    messages: { ...messages.defaults, markdown: messages.markdown },
     message: {
       tags: {
         id: {},
