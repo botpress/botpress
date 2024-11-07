@@ -376,7 +376,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const headers: TunnelResponse['headers'] = {}
     for (const key in res) {
       if (typeof res[key] === 'string' || typeof res[key] === 'number') {
-        headers[key] = res[key]
+        headers[key] = String(res[key])
       }
     }
     return headers
