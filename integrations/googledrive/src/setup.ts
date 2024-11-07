@@ -1,4 +1,4 @@
-import { getOAuthClient } from './client'
+import { getOAuthClient } from './auth'
 
 export const register = async () => {
   // TODO: Verification auth?

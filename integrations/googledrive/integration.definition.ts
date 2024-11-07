@@ -2,10 +2,10 @@ import { IntegrationDefinition, z } from '@botpress/sdk'
 import { integrationName } from './package.json'
 import {
   fileSchema,
-  fileCreateArgSchema,
-  fileUpdateArgSchema,
-  fileUploadDataArgSchema,
-  fileDownloadDataArgSchema,
+  createFileArgSchema,
+  updateFileArgSchema,
+  uploadFileDataArgSchema,
+  downloadFileDataArgSchema,
   folderSchema,
 } from './src/schemas'
 
@@ -72,7 +72,7 @@ export default new IntegrationDefinition({
       title: 'Create File',
       description: 'Create an empty file in a Google Drive',
       input: {
-        schema: fileCreateArgSchema,
+        schema: createFileArgSchema,
       },
       output: {
         schema: fileSchema.describe('The file created in Google Drive'),
@@ -96,13 +96,14 @@ export default new IntegrationDefinition({
       title: 'Update File',
       description: "Update a file's metadata in a Google Drive",
       input: {
-        schema: fileUpdateArgSchema,
+        schema: updateFileArgSchema,
       },
       output: {
         schema: fileSchema,
       },
     },
     deleteFile: {
+      // TODO: Implement deletable
       title: 'Delete File',
       description: 'Deletes a file in a Google Drive',
       input: {
@@ -118,7 +119,7 @@ export default new IntegrationDefinition({
       title: 'Upload file data',
       description: 'Upload data to a file in a Google Drive',
       input: {
-        schema: fileUploadDataArgSchema,
+        schema: uploadFileDataArgSchema,
       },
       output: {
         schema: z.object({}),
@@ -128,7 +129,7 @@ export default new IntegrationDefinition({
       title: 'Download file data',
       description: 'Download data from a file in a Google Drive',
       input: {
-        schema: fileDownloadDataArgSchema,
+        schema: downloadFileDataArgSchema,
       },
       output: {
         schema: z.object({
