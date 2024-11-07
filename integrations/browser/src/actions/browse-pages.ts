@@ -41,12 +41,16 @@ export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async 
   try {
     const pageContentPromises = await Promise.allSettled(input.urls.map((url) => getPageContent(url, logger)))
 
-    metadata.setCost(input.urls.length * COST_PER_PAGE)
+    const results = pageContentPromises
+      .filter((promise): promise is PromiseFulfilledResult<any> => promise.status === 'fulfilled')
+      .map((result) => result.value)
+
+    const cost = input.urls.length * COST_PER_PAGE
+    metadata.setCost(cost)
 
     return {
-      results: pageContentPromises
-        .filter((promise): promise is PromiseFulfilledResult<any> => promise.status === 'fulfilled')
-        .map((result) => result.value),
+      results,
+      botpress: { cost },
     }
   } catch (err) {
     logger.forBot().error('There was an error while browsing the page.', err)
