@@ -496,20 +496,6 @@
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/webchat#add:interfaces": {
-      "cache": false,
-      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
-    },
-    "@botpresshub/webchat#build": {
-      "inputs": ["integration.definition.ts", "src/**"],
-      "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/webchat#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
-    },
     "@botpresshub/webhook#add:interfaces": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]

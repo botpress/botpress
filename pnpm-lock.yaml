@@ -1452,37 +1452,6 @@ importers:
         specifier: ^4.9.4
         version: 4.9.5
 
-  integrations/webchat:
-    dependencies:
-      '@botpress/messaging-client':
-        specifier: 1.2.1
-        version: 1.2.1
-      '@botpress/sdk':
-        specifier: workspace:*
-        version: link:../../packages/sdk
-      '@botpress/sdk-addons':
-        specifier: workspace:*
-        version: link:../../packages/sdk-addons
-    devDependencies:
-      '@botpress/cli':
-        specifier: workspace:*
-        version: link:../../packages/cli
-      '@botpress/client':
-        specifier: workspace:*
-        version: link:../../packages/client
-      '@botpress/common':
-        specifier: workspace:*
-        version: link:../../packages/common
-      '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
-      '@types/node':
-        specifier: ^18.11.17
-        version: 18.16.16
-      typescript:
-        specifier: ^4.9.4
-        version: 4.9.5
-
   integrations/webhook:
     dependencies:
       '@botpress/cli':
@@ -2679,21 +2648,6 @@ packages:
       - supports-color
     dev: true
 
-  /@botpress/messaging-base@1.2.0:
-    resolution: {integrity: sha512-7cjHeD1Ti4cvDmyUV2D2CFKR1kPYv+eFPgXaJOksvrEoNZ1SrqXbHR9l26ndaAz0TuoX3Wc9l4Q7i5sBoHE44Q==}
-    dev: false
-
-  /@botpress/messaging-client@1.2.1:
-    resolution: {integrity: sha512-/aoxQsyGL+09yrmyQRVSjveiV/jk9nTaEej74ks1LMrOh4f7g04rsdUZXQ+3IXEqKneXm83LPrKtqm3sYVVi8Q==}
-    dependencies:
-      '@botpress/messaging-base': 1.2.0
-      axios: 0.21.4(debug@4.3.7)
-      cookie: 0.4.2
-      joi: 17.9.2
-    transitivePeerDependencies:
-      - debug
-    dev: false
-
   /@bpinternal/const@0.0.20:
     resolution: {integrity: sha512-AVeQy25M9eXMvjnLZVbFmr++qkONYrwW7qLXD9q9ccD4WLEgMmJZ6e+BSUnwPEBQ8LiqWQXf/YJ1MJxoVkcyNw==}
     dependencies:
@@ -3758,16 +3712,6 @@ packages:
       graphql: ^0.8.0 || ^0.9.0 || ^0.10.0 || ^0.11.0 || ^0.12.0 || ^0.13.0 || ^14.0.0 || ^15.0.0 || ^16.0.0 || ^17.0.0
     dependencies:
       graphql: 15.8.0
-    dev: false
-
-  /@hapi/hoek@9.3.0:
-    resolution: {integrity: sha512-/c6rf4UJlmHlC9b5BaNvzAcFv7HZ2QHaV0D4/HNlBdvFnvQq8RI4kYdhyPCl7Xj+oWvTWQ8ujhqS53LIgAe6KQ==}
-    dev: false
-
-  /@hapi/topo@5.1.0:
-    resolution: {integrity: sha512-foQZKJig7Ob0BMAYBfcJk8d77QtOe7Wo4ox7ff1lQYoNNAb6jwcY1ncdoy2e9wQZzvNy7ODZCYJkK8kzmcAnAg==}
-    dependencies:
-      '@hapi/hoek': 9.3.0
     dev: false
 
   /@humanwhocodes/config-array@0.11.10:
@@ -5188,20 +5132,6 @@ packages:
     dependencies:
       '@sentry/types': 7.53.1
       tslib: 1.14.1
-    dev: false
-
-  /@sideway/address@4.1.4:
-    resolution: {integrity: sha512-7vwq+rOHVWjyXxVlR76Agnvhy8I9rpzjosTESvmhNeXOXdZZB15Fl+TI9x1SiHZH5Jv2wTGduSxFDIaq0m3DUw==}
-    dependencies:
-      '@hapi/hoek': 9.3.0
-    dev: false
-
-  /@sideway/formula@3.0.1:
-    resolution: {integrity: sha512-/poHZJJVjx3L+zVD6g9KgHfYnb443oi7wLu/XKojDviHy6HOEOA6z1Trk5aR1dGcmPenJEgb2sK2I80LeS3MIg==}
-    dev: false
-
-  /@sideway/pinpoint@2.0.0:
-    resolution: {integrity: sha512-RNiOoTPkptFtSVzQevY/yWtZwf/RxyVnPy/OcA9HBM3MlGDnBEYL5B41H0MTn0Uec8Hi+2qUtTfG2WWZBmMejQ==}
     dev: false
 
   /@sinclair/typebox@0.25.24:
@@ -10753,16 +10683,6 @@ packages:
       - supports-color
       - ts-node
     dev: true
-
-  /joi@17.9.2:
-    resolution: {integrity: sha512-Itk/r+V4Dx0V3c7RLFdRh12IOjySm2/WGPMubBT92cQvRfYZhPM2W0hZlctjj72iES8jsRCwp7S/cRmWBnJ4nw==}
-    dependencies:
-      '@hapi/hoek': 9.3.0
-      '@hapi/topo': 5.1.0
-      '@sideway/address': 4.1.4
-      '@sideway/formula': 3.0.1
-      '@sideway/pinpoint': 2.0.0
-    dev: false
 
   /jose@4.15.2:
     resolution: {integrity: sha512-IY73F228OXRl9ar3jJagh7Vnuhj/GzBunPiZP13K0lOl7Am9SoWW3kEzq3MCllJMTtZqHTiDXQvoRd4U95aU6A==}
