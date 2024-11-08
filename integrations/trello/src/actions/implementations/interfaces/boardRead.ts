@@ -1,5 +1,5 @@
-import { wrapAction } from '../../action-wrapper'
 import * as sdk from '@botpress/sdk'
+import { wrapAction } from '../../action-wrapper'
 
 export const boardRead = wrapAction({ actionName: 'boardRead' }, async ({ trelloClient }, { id: boardId }) => {
   if (!boardId) {

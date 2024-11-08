@@ -1,5 +1,5 @@
-import { wrapAction } from '../../action-wrapper'
 import * as sdk from '@botpress/sdk'
+import { wrapAction } from '../../action-wrapper'
 
 export const cardDelete = wrapAction({ actionName: 'cardDelete' }, async ({ trelloClient }, { id: cardId }) => {
   if (!cardId) {

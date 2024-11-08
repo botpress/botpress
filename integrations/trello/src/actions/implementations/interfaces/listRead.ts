@@ -1,5 +1,5 @@
-import { wrapAction } from '../../action-wrapper'
 import * as sdk from '@botpress/sdk'
+import { wrapAction } from '../../action-wrapper'
 
 export const listRead = wrapAction({ actionName: 'listRead' }, async ({ trelloClient }, { id: listId }) => {
   if (!listId) {
