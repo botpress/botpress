@@ -1,6 +1,5 @@
 {
   "name": "googledrive",
-  "integrationName": "sebastienpoitras/googledrive",
   "scripts": {
     "check:type": "tsc --noEmit",
     "login": "bp login",

@@ -1,5 +1,4 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
-import { integrationName } from './package.json'
 import {
   fileSchema,
   createFileArgSchema,
@@ -15,7 +14,7 @@ import {
 } from './src/schemas'
 
 export default new IntegrationDefinition({
-  name: integrationName,
+  name: 'googledrive',
   version: '0.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
