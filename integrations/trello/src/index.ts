@@ -21,6 +21,8 @@ import {
   getMemberByIdOrUsername,
   cardList,
   cardRead,
+  cardCreate,
+  cardUpdate,
   listList,
   listRead,
   boardList,
@@ -63,6 +65,8 @@ const integration = new bp.Integration({
     // interfaces:
     cardList,
     cardRead,
+    cardCreate,
+    cardUpdate,
     listList,
     listRead,
     boardList,

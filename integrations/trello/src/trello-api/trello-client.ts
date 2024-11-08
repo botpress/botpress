@@ -68,12 +68,12 @@ export class TrelloClient {
   }
 
   @handleErrors('Failed to create card')
-  public async createCard({ card }: { card: Pick<Card, 'name' | 'description' | 'listId'> }): Promise<Card> {
-    const newCard = await this._trelloJs.cards.createCard({
-      idList: card.listId,
-      name: card.name,
-      desc: card.description,
-    })
+  public async createCard({
+    card,
+  }: {
+    card: Pick<Card, 'name' | 'description' | 'listId'> & Partial<Card>
+  }): Promise<Card> {
+    const newCard = await this._trelloJs.cards.createCard(RequestMapping.mapCreateCard(card))
 
     return ResponseMapping.mapCard(newCard)
   }

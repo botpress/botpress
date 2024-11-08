@@ -2,7 +2,7 @@ import * as common from '@botpress/common'
 import * as path from 'path'
 
 const { runCommand } = common.cmd
-const interfaceNames: string[] = ['listable', 'readable']
+const interfaceNames: string[] = ['listable', 'readable', 'creatable', 'updatable']
 
 for (const interfaceName of interfaceNames) {
   const interfacePath = path.resolve(path.join('..', '..', 'interfaces', interfaceName))

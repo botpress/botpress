@@ -20,6 +20,8 @@ export { getAllCardMembers } from './implementations/getAllCardMembers'
 
 export { cardList } from './implementations/interfaces/cardList'
 export { cardRead } from './implementations/interfaces/cardRead'
+export { cardCreate } from './implementations/interfaces/cardCreate'
+export { cardUpdate } from './implementations/interfaces/cardUpdate'
 export { boardList } from './implementations/interfaces/boardList'
 export { boardRead } from './implementations/interfaces/boardRead'
 export { listList } from './implementations/interfaces/listList'
