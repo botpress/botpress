@@ -16,6 +16,7 @@ export { moveCardDown } from './implementations/moveCardDown'
 export { moveCardToList } from './implementations/moveCardToList'
 export { moveCardUp } from './implementations/moveCardUp'
 export { updateCard } from './implementations/updateCard'
+export { getAllCardMembers } from './implementations/getAllCardMembers'
 
 export { cardList } from './implementations/interfaces/cardList'
 export { cardRead } from './implementations/interfaces/cardRead'

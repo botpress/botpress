@@ -146,7 +146,6 @@ export const getBoardMembersByDisplayNameInputSchema = GENERIC_SHEMAS.hasBoardId
     })
   )
   .describe('Input schema for getting a member from its name')
-
 export const getBoardByIdInputSchema = GENERIC_SHEMAS.hasBoardId.describe(
   'Input schema for getting a board from its ID'
 )
@@ -155,4 +154,8 @@ export const getAllBoardsInputSchema = GENERIC_SHEMAS.noInput.describe('Input sc
 
 export const getAllBoardMembersInputSchema = GENERIC_SHEMAS.hasBoardId.describe(
   'Input schema for getting all members of a board'
+)
+
+export const getAllCardMembersInputSchema = GENERIC_SHEMAS.hasCardId.describe(
+  'Input schema for getting all members of a card'
 )
