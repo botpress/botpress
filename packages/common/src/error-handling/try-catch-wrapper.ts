@@ -76,3 +76,27 @@ export const defaultErrorRedactor: RedactFn = (error: Error, customMessage: stri
   console.warn(customMessage, error)
   return new sdk.RuntimeError(customMessage)
 }
+
+/**
+ * Creates an error handling decorator that wraps a class method using a
+ * try-catch handler created by `createAsyncFnWrapperWithErrorRedaction`.
+ *
+ * @param asyncFnWrapperWithErrorRedaction - The try-catch wrapper function to use
+ * @returns A decorator function to wrap class methods to add error handling
+ */
+export const createErrorHandlingDecorator =
+  (asyncFnWrapperWithErrorRedaction: ReturnType<typeof createAsyncFnWrapperWithErrorRedaction>) =>
+  /**
+   * Wraps a class method with a try-catch block that catches any errors and
+   * applies the error redaction logic to them.
+   *
+   * @param errorMessage - A custom error message to log if an error occurs
+   * @returns the original method, but wrapped with a try-catch block
+   */
+  (errorMessage: string) =>
+  (_target: unknown, _propertyKey: string, descriptor: PropertyDescriptor): void => {
+    const _originalMethod: (...args: unknown[]) => Promise<unknown> = descriptor.value
+    descriptor.value = function (...args: unknown[]) {
+      return asyncFnWrapperWithErrorRedaction(_originalMethod.bind(this), errorMessage).apply(this, args)
+    }
+  }
