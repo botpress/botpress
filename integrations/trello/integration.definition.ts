@@ -1,11 +1,11 @@
 /* bplint-disable */
-import { IntegrationDefinition } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
-import { events, states, actions, channels, user, configuration } from './definitions'
+import { events, states, actions, channels, user, configuration, entities } from './definitions'
 import { integrationName } from './package.json'
 
-export default new IntegrationDefinition({
+export default new sdk.IntegrationDefinition({
   name: integrationName,
   title: 'Trello',
   version: '1.0.9',
@@ -19,6 +19,7 @@ export default new IntegrationDefinition({
   configuration,
   states,
   events,
+  entities,
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
   },
