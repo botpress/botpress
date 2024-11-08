@@ -7,7 +7,9 @@
     "noImplicitAny": true,
     "noUncheckedIndexedAccess": true,
     "noUnusedLocals": true,
-    "noUnusedParameters": true
+    "noUnusedParameters": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": [".botpress/**/*", "src/**/*", "integration.definition.ts", "definitions/**/*"]
 }
