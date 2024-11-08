@@ -89,8 +89,7 @@ export class Client {
     }
   }
 
-  public async createFile(input: CreateFileArgs): Promise<File> {
-    const { name, parentId, mimeType } = input
+  public async createFile({ name, parentId, mimeType }: CreateFileArgs): Promise<File> {
     const response = await this._googleClient.files.create({
       fields: GOOGLE_API_FILE_FIELDS,
       requestBody: {
@@ -112,8 +111,7 @@ export class Client {
     return await this._getCompleteFileFromBaseFile(file)
   }
 
-  public async updateFile(input: UpdateFileArgs): Promise<File> {
-    const { id: fileId, name, parentId } = input
+  public async updateFile({ id: fileId, name, parentId }: UpdateFileArgs): Promise<File> {
     const addParents = parentId ? `${parentId}` : undefined
     const response = await this._googleClient.files.update({
       fields: GOOGLE_API_FILE_FIELDS,
@@ -133,8 +131,7 @@ export class Client {
     })
   }
 
-  public async uploadFileData(input: UploadFileDataArgs) {
-    const { id: fileId, url, mimeType } = input
+  public async uploadFileData({ id: fileId, url, mimeType }: UploadFileDataArgs) {
     const downloadBpFileResp = await axios.get<Stream>(url, {
       responseType: 'stream',
     })
@@ -149,8 +146,7 @@ export class Client {
     })
   }
 
-  public async downloadFileData(input: DownloadFileDataArgs): Promise<DownloadFileDataOutput> {
-    const { id: fileId, index } = input
+  public async downloadFileData({ id: fileId, index }: DownloadFileDataArgs): Promise<DownloadFileDataOutput> {
     // TODO: Must use export in case of a Google Workspace document
     const file = await this._getFileFromGoogleDrive(fileId)
     if (file.type !== 'normal') {
