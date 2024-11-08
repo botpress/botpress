@@ -1,7 +1,7 @@
 import type { Server } from 'node:http'
 import { serve } from '../serve'
-import { BaseBot } from './generic'
 import { botHandler, MessageHandler, EventHandler, StateExpiredHandler } from './server'
+import { BaseBot } from './types'
 
 type BotState<TBot extends BaseBot = BaseBot> = {
   messageHandlers: MessageHandler<TBot>[]
@@ -32,6 +32,6 @@ export class BotImplementation<TBot extends BaseBot = BaseBot> {
     this._state.stateExpiredHandlers.push(handler)
   }
 
-  public readonly handler = botHandler(this._state)
+  public readonly handler = botHandler(this._state as any as BotState<BaseBot>)
   public readonly start = (port?: number): Promise<Server> => serve(this.handler, port)
 }

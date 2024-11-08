@@ -14,11 +14,8 @@ export {
   IntegrationDefinitionProps,
   IntegrationImplementation as Integration,
   IntegrationImplementationProps as IntegrationProps,
-  IntegrationContext,
   IntegrationLogger,
   IntegrationSpecificClient,
-  InterfaceDeclaration,
-  InterfaceDeclarationProps,
   TagDefinition,
   ConfigurationDefinition,
   AdditionalConfigurationDefinition,
@@ -31,6 +28,13 @@ export {
   SecretDefinition,
   EntityDefinition,
 } from './integration'
+
+export {
+  /**
+   * @deprecated use Context exported from '.botpress' instead
+   */
+  IntegrationContext,
+} from './integration/server'
 
 export {
   BotDefinition,
@@ -48,6 +52,12 @@ export {
   ConversationDefinition as BotConversationDefinition,
   MessageDefinition as BotMessageDefinition,
 } from './bot'
+
+export {
+  //
+  InterfaceDeclaration,
+  InterfaceDeclarationProps,
+} from './interface'
 
 export {
   //

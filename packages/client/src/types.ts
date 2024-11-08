@@ -21,6 +21,7 @@ export type {
   Column,
   Row,
   Usage,
+  Workflow,
 } from './gen/models'
 
 type UploadFileInput = Omit<UpsertFileInput, 'size'> & {

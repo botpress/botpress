@@ -3,7 +3,7 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'line',
-  version: '0.4.4',
+  version: '0.4.5',
   title: 'Line',
   description: 'This integration allows your bot to interact with Line.',
   icon: 'icon.svg',
@@ -16,7 +16,7 @@ export default new IntegrationDefinition({
   },
   channels: {
     channel: {
-      messages: messages.defaults,
+      messages: { ...messages.defaults, markdown: messages.markdown },
       message: {
         tags: { msgId: {} },
       },

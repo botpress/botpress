@@ -31,6 +31,9 @@ input:
   gmail_secrets:
     description: 'Gmail secrets'
     required: false
+  gsheets_secrets:
+    description: 'Google Sheets secrets'
+    required: false
   linear_secrets:
     description: 'Linear secrets'
     required: false
@@ -108,7 +111,7 @@ runs:
         # deploy
 
         redeploy=${{ inputs.force == 'true' && 1 || 0 }}
-        all_filters="-F '{integrations/*}' -F '!asana' -F '!trello' -F '!webchat' ${{ inputs.extra_filter }}"
+        all_filters="-F '{integrations/*}' -F '!asana' ${{ inputs.extra_filter }}"
         list_integrations_cmd="pnpm list $all_filters --json"
         integration_paths=$(eval $list_integrations_cmd | jq -r "map(".path") | .[]")
 
@@ -119,6 +122,8 @@ runs:
             base_command="bp deploy -v -y --noBuild --public"
             if [ $integration == "gmail" ]; then
                 base_command="$base_command ${{ inputs.gmail_secrets }}"
+            elif [ $integration == "gsheets" ]; then
+                base_command="$base_command ${{ inputs.gsheets_secrets }}"
             elif [ $integration == "linear" ]; then
                 base_command="$base_command ${{ inputs.linear_secrets }}"
             elif [ $integration == "slack" ]; then
@@ -147,6 +152,8 @@ runs:
                 base_command="$base_command ${{ inputs.cerebras_secrets }}"
             elif [ $integration == "github" ]; then
                 base_command="$base_command ${{ inputs.github_secrets }}"
+            elif [ $integration == "google-ai" ]; then
+                base_command="$base_command ${{ inputs.google_ai_secrets }}"
             fi
 
             if [ $exists -eq 0 ]; then

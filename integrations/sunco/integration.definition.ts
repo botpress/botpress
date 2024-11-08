@@ -3,7 +3,7 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'sunco',
-  version: '0.4.4',
+  version: '0.4.5',
   title: 'Sunshine Conversations',
   description: 'This integration allows your bot to interact with Sunshine Conversations.',
   icon: 'icon.svg',
@@ -18,7 +18,7 @@ export default new IntegrationDefinition({
   },
   channels: {
     channel: {
-      messages: messages.defaults,
+      messages: { ...messages.defaults, markdown: messages.markdown },
       message: { tags: { id: {} } },
       conversation: { tags: { id: {} }, creation: { enabled: true, requiredTags: ['id'] } },
     },

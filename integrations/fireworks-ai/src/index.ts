@@ -198,8 +198,8 @@ export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
-    generateContent: async ({ input, logger }) => {
-      return await llm.openai.generateContent<LanguageModelId>(
+    generateContent: async ({ input, logger, metadata }) => {
+      const output = await llm.openai.generateContent<LanguageModelId>(
         <llm.GenerateContentInput>input,
         fireworksAIClient,
         logger,
@@ -209,13 +209,17 @@ export default new bp.Integration({
           defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
         }
       )
+      metadata.setCost(output.botpress.cost)
+      return output
     },
-    transcribeAudio: async ({ input, logger }) => {
-      return await speechToText.openai.transcribeAudio(input, fireworksAIClient, logger, {
+    transcribeAudio: async ({ input, logger, metadata }) => {
+      const output = await speechToText.openai.transcribeAudio(input, fireworksAIClient, logger, {
         provider,
         models: speechToTextModels,
         defaultModel: 'whisper-v3',
       })
+      metadata.setCost(output.botpress.cost)
+      return output
     },
     listLanguageModels: async ({}) => {
       return {

@@ -253,7 +253,10 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       url: externalUrl,
       configuration: await this.readIntegrationConfigDefinition(createIntegrationBody.configuration),
       configurations: await utils.promises.awaitRecord(
-        utils.records.mapValues(createIntegrationBody.configurations ?? {}, this.readIntegrationConfigDefinition)
+        utils.records.mapValues(
+          createIntegrationBody.configurations ?? {},
+          this.readIntegrationConfigDefinition.bind(this)
+        )
       ),
     }
 
@@ -274,7 +277,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
       integration = resp.integration
     }
 
-    line.success(`Dev Integration deployed with id "${integration.id}"`)
+    line.success(`Dev Integration deployed with id "${integration.id}" at "${externalUrl}"`)
     line.commit()
 
     await this.projectCache.set('devId', integration.id)
@@ -312,7 +315,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
         })
 
       bot = resp.bot
-      createLine.success(`Dev Bot created with id "${bot.id}"`)
+      createLine.log('Dev Bot created')
       createLine.commit()
       await this.projectCache.set('devId', bot.id)
     }
@@ -334,7 +337,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const { bot: updatedBot } = await api.client.updateBot(updateBotBody).catch((thrown) => {
       throw errors.BotpressCLIError.wrap(thrown, 'Could not deploy dev bot')
     })
-    updateLine.success(`Dev Bot deployed with id "${updatedBot.id}"`)
+    updateLine.success(`Dev Bot deployed with id "${updatedBot.id}" at "${externalUrl}"`)
     updateLine.commit()
 
     this.displayWebhookUrls(updatedBot)
@@ -373,7 +376,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const headers: TunnelResponse['headers'] = {}
     for (const key in res) {
       if (typeof res[key] === 'string' || typeof res[key] === 'number') {
-        headers[key] = res[key]
+        headers[key] = String(res[key])
       }
     }
     return headers

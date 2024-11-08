@@ -6,7 +6,8 @@
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
     "check:type": "tsc --noEmit",
-    "add:interfaces": "bp add ../../interfaces/creatable -y && bp add ../../interfaces/deletable -y && bp add ../../interfaces/listable -y && bp add ../../interfaces/readable -y && bp add ../../interfaces/updatable -y"
+    "check:bplint": "pnpm exec bp lint",
+    "add:interfaces": "ts-node -T ./interfaces.ts"
   },
   "keywords": [],
   "author": "",
@@ -21,6 +22,6 @@
     "@botpress/cli": "workspace:*",
     "@types/node": "^18.11.17",
     "googleapis-common": "^7.0.1",
-    "typescript": "^4.9.4"
+    "@botpress/common": "workspace:*"
   }
 }

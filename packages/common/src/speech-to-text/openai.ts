@@ -65,6 +65,8 @@ export async function transcribeAudio<M extends string>(
     duration: result.data.duration,
     segments: result.data.segments,
     cost, // DEPRECATED
-    botpress: { cost },
+    botpress: {
+      cost, // DEPRECATED
+    },
   }
 }

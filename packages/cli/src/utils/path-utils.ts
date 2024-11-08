@@ -14,6 +14,7 @@ export namespace win32 {
   export const isPath = (path: string) => isAbsolutePath(path) || isRelativePath(path)
   export const isRelativePath = (path: string) => path.startsWith('.\\') || path.startsWith('..\\')
   export const isAbsolutePath = (path: string): path is AbsolutePath => /^[a-zA-Z]:\\/.test(path) // bp cli does not allow omitting the drive letter
+  export const escapeBackslashes = (path: string) => (path.includes('\\\\') ? path : path.replaceAll('\\', '\\\\')) // idempotent function
 }
 
 export type AbsolutePath = posix.AbsolutePath | win32.AbsolutePath

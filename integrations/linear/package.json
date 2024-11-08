@@ -6,7 +6,8 @@
     "build": "pnpm bp build",
     "login": "pnpm bp login",
     "check:type": "tsc --noEmit",
-    "add:interfaces": "bp add ../../interfaces/listable -y"
+    "check:bplint": "pnpm exec bp lint",
+    "add:interfaces": "ts-node -T ./interfaces.ts"
   },
   "keywords": [],
   "author": "",
@@ -24,6 +25,6 @@
     "@botpress/cli": "workspace:*",
     "@sentry/cli": "^2.18.1",
     "@types/node": "^18.11.17",
-    "typescript": "^4.9.4"
+    "@botpress/common": "workspace:*"
   }
 }

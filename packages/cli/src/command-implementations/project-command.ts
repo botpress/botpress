@@ -20,8 +20,8 @@ import { GlobalCommand } from './global-command'
 export type ProjectCommandDefinition = CommandDefinition<typeof config.schemas.project>
 export type ProjectCache = { botId: string; devId: string }
 
-type ConfigurableProjectPaths = { entryPoint: string; outDir: string; workDir: string }
-type ConstantProjectPaths = typeof consts.fromOutDir & typeof consts.fromWorkDir
+type ConfigurableProjectPaths = { workDir: string }
+type ConstantProjectPaths = typeof consts.fromWorkDir
 type AllProjectPaths = ConfigurableProjectPaths & ConstantProjectPaths
 
 type IntegrationInstance = NonNullable<sdk.BotDefinition['integrations']>[string]
@@ -38,13 +38,8 @@ export type ProjectDefinition =
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   public constructor(argv: CommandArgv<ProjectCommandDefinition>) {
     const absWorkDir = utils.path.absoluteFrom(utils.path.cwd(), argv.workDir)
-    const absEntrypoint = utils.path.absoluteFrom(absWorkDir, argv.entryPoint)
-    const absOutDir = utils.path.absoluteFrom(absWorkDir, argv.outDir)
     super({
       workDir: absWorkDir,
-      entryPoint: absEntrypoint,
-      outDir: absOutDir,
-      ..._.mapValues(consts.fromOutDir, (p) => utils.path.absoluteFrom(absOutDir, p)),
       ..._.mapValues(consts.fromWorkDir, (p) => utils.path.absoluteFrom(absWorkDir, p)),
     })
   }

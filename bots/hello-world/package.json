@@ -4,17 +4,21 @@
   "private": true,
   "scripts": {
     "check:type": "tsc --noEmit",
+    "check:bplint": "pnpm exec bp lint",
     "build": "bp build",
-    "add:integrations": "bp add ../../integrations/whatsapp -y"
+    "add:integrations": "ts-node -T ./integrations.ts"
   },
   "dependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
-    "@botpress/sdk": "workspace:*"
+    "@botpress/sdk": "workspace:*",
+    "qs": "^6.11.0"
   },
   "devDependencies": {
+    "@botpress/common": "workspace:*",
     "@types/json-schema": "^7.0.11",
     "@types/node": "^18.11.17",
+    "@types/qs": "^6.9.7",
     "esbuild": "^0.15.18",
     "nodemon": "^2.0.20",
     "ts-node": "^10.9.1",

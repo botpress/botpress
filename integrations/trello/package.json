@@ -5,6 +5,7 @@
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
     "check:type": "tsc --noEmit",
+    "check:bplint": "pnpm exec bp lint",
     "check:format": "prettier --check .",
     "fix:format": "prettier --write .",
     "check:lint": "eslint ./ --ext .ts --ext .tsx",
@@ -14,6 +15,7 @@
   "private": true,
   "dependencies": {
     "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
@@ -32,6 +34,6 @@
     "@sentry/cli": "^2.36.1",
     "@types/node": "^18.19.50",
     "ts-node": "^10.9.2",
-    "typescript": "^4.9.5"
+    "@botpress/common": "workspace:*"
   }
 }

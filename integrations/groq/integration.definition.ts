@@ -6,7 +6,7 @@ import stt from './bp_modules/speech-to-text'
 export default new IntegrationDefinition({
   name: 'groq',
   title: 'Groq',
-  version: '6.3.1',
+  version: '7.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {

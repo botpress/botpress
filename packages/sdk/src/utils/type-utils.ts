@@ -1,10 +1,18 @@
 export type ValueOf<T> = T[keyof T]
 export type Merge<A extends object, B extends object> = Omit<A, keyof B> & B
 export type Cast<T, U> = T extends U ? T : U
+export type SafeCast<T, U> = [T] extends [never] ? U : Cast<T, U>
 export type Writable<T> = { -readonly [K in keyof T]: T[K] }
-export type Extends<T, U> = T extends U ? true : false
-export type IsEqual<T, U> = T extends U ? (U extends T ? true : false) : false
-export type Expect<T extends true> = T
+export type Default<T, U> = undefined extends T ? U : T
+
+export type IsExtend<X, Y> = X extends Y ? true : false
+export type IsEquivalent<X, Y> = IsExtend<X, Y> extends true ? IsExtend<Y, X> : false
+export type IsIdentical<X, Y> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? true : false
+export type IsEqual<X, Y> = IsIdentical<Normalize<X>, Normalize<Y>>
+
+export type AssertExtends<_A extends B, B> = true
+export type AssertTrue<_T extends true> = true
+export type AssertAll<_T extends true[]> = true
 
 export type Join<S extends (string | number | symbol)[]> = S extends [infer H, ...infer T]
   ? `${Cast<H, string>}${Join<Cast<T, string[]>>}`
@@ -18,23 +26,21 @@ export type Split<S extends string | number | symbol, D extends string> = S exte
 
 export type UnionToIntersection<U> = (U extends any ? (k: U) => void : never) extends (k: infer I) => void ? I : never
 
-type _test_join = Expect<IsEqual<Join<['a', 'b', 'c']>, 'abc'>>
+/**
+ * removes string index signature from Record
+ */
+export type ToSealedRecord<R extends Record<string, any>> = {
+  [K in keyof R as string extends K ? never : K]: R[K]
+}
 
-type _test_split = Expect<IsEqual<Split<'a.b.c', '.'>, ['a', 'b', 'c']>>
-
-type _test_union_to_intersection = Expect<
-  IsEqual<
-    UnionToIntersection<
-      | {
-          name: string
-        }
-      | {
-          age: number
-        }
-    >,
-    {
-      name: string
-      age: number
-    }
-  >
->
+export type Normalize<T> = T extends (...args: infer A) => infer R
+  ? (...args: Normalize<A>) => Normalize<R>
+  : T extends Promise<infer R>
+  ? Promise<Normalize<R>>
+  : T extends Buffer
+  ? Buffer
+  : T extends object
+  ? T extends infer O
+    ? { [K in keyof O]: Normalize<O[K]> }
+    : never
+  : T

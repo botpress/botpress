@@ -1,6 +1,9 @@
 {
   "extends": "../../tsconfig.json",
   "compilerOptions": {
+    "jsx": "react-jsx",
+    "jsxImportSource": "react",
+    "lib": ["es2022", "DOM"],
     "baseUrl": ".",
     "outDir": "dist"
   },

@@ -1,6 +1,5 @@
 import { z } from '@botpress/sdk'
-import { createCsvRegex } from 'src/utils'
-import { BoardSchema, CardSchema, ListSchema, MemberSchema, trelloIdRegex } from '../entities'
+import { BoardSchema, CardSchema, ListSchema, MemberSchema, TrelloIDSchema } from '../entities'
 
 const GENERIC_SHEMAS = {
   noInput: z.object({}),
@@ -48,29 +47,25 @@ export const updateCardInputSchema = GENERIC_SHEMAS.hasCardId
         )
         .optional(),
       membersToAdd: z
-        .string()
-        .regex(createCsvRegex(trelloIdRegex))
+        .array(TrelloIDSchema)
         .optional()
         .describe(
           'Members to add to the card (Optional). This should be a CSV list of member IDs. Leave empty to keep the current members.'
         ),
       membersToRemove: z
-        .string()
-        .regex(createCsvRegex(trelloIdRegex))
+        .array(TrelloIDSchema)
         .optional()
         .describe(
           'Members to remove from the card (Optional). This should be a CSV list of member IDs. Leave empty to keep the current members.'
         ),
       labelsToAdd: z
-        .string()
-        .regex(createCsvRegex(trelloIdRegex))
+        .array(TrelloIDSchema)
         .optional()
         .describe(
           'Labels to add to the card (Optional). This should be a CSV list of label IDs. Leave empty to keep the current labels.'
         ),
       labelsToRemove: z
-        .string()
-        .regex(createCsvRegex(trelloIdRegex))
+        .array(TrelloIDSchema)
         .optional()
         .describe(
           'Labels to remove from the card (Optional). This should be a CSV list of label IDs. Leave empty to keep the current labels.'
