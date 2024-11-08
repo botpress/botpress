@@ -6,7 +6,12 @@ import {
   updateFileArgSchema,
   uploadFileDataArgSchema,
   downloadFileDataArgSchema,
-  folderSchema,
+  listFolderOutputSchema,
+  listFileOutputSchema,
+  readFileArgSchema,
+  listItemsInputSchema,
+  deleteFileArgSchema,
+  downloadFileDataOutputSchema,
 } from './src/schemas'
 
 export default new IntegrationDefinition({
@@ -24,51 +29,29 @@ export default new IntegrationDefinition({
     listFiles: {
       // TODO: Implement listable
       title: 'List Files',
-      description: 'List files in a Google Drive',
+      description: 'List files in Google Drive',
       input: {
-        schema: z.object({
-          nextToken: z.string().optional().describe('The token to use to get the next page of results'),
-        }),
+        schema: listItemsInputSchema,
       },
       output: {
-        schema: z.object({
-          items: z
-            .array(fileSchema)
-            .describe(
-              'The list of files in the Google Drive. Results may be paginated, if set, use nextToken to get additional results'
-            ),
-          meta: z.object({
-            nextToken: z.string().optional().describe('The token to use to get the next page of results'),
-          }),
-        }),
+        schema: listFileOutputSchema,
       },
     },
     listFolders: {
       // TODO: Implement listable
       title: 'List folders',
-      description: 'List files in a Google Drive',
+      description: 'List files in Google Drive',
       input: {
-        schema: z.object({
-          nextToken: z.string().optional().describe('The token to use to get the next page of results'),
-        }),
+        schema: listItemsInputSchema,
       },
       output: {
-        schema: z.object({
-          items: z
-            .array(folderSchema)
-            .describe(
-              'The list of folders in the Google Drive. Results may be paginated, if set, use nextToken to get additional results'
-            ),
-          meta: z.object({
-            nextToken: z.string().optional().describe('The token to use to get the next page of results'),
-          }),
-        }),
+        schema: listFolderOutputSchema,
       },
     },
     createFile: {
       // TODO: Implement creatable
       title: 'Create File',
-      description: 'Create an empty file in a Google Drive',
+      description: 'Create an empty file in Google Drive',
       input: {
         schema: createFileArgSchema,
       },
@@ -81,33 +64,29 @@ export default new IntegrationDefinition({
       title: 'Read File',
       description: "Read a file's metadata in a Google Drive",
       input: {
-        schema: z.object({
-          id: z.string().min(1),
-        }),
+        schema: readFileArgSchema,
       },
       output: {
-        schema: fileSchema,
+        schema: fileSchema.describe('The file read from Google Drive'),
       },
     },
     updateFile: {
       // TODO: Implement updatable
       title: 'Update File',
-      description: "Update a file's metadata in a Google Drive",
+      description: "Update a file's metadata in Google Drive",
       input: {
         schema: updateFileArgSchema,
       },
       output: {
-        schema: fileSchema,
+        schema: fileSchema.describe('The file updated in Google Drive'),
       },
     },
     deleteFile: {
       // TODO: Implement deletable
       title: 'Delete File',
-      description: 'Deletes a file in a Google Drive',
+      description: 'Deletes a file in Google Drive',
       input: {
-        schema: z.object({
-          id: z.string().min(1),
-        }),
+        schema: deleteFileArgSchema,
       },
       output: {
         schema: z.object({}),
@@ -115,7 +94,7 @@ export default new IntegrationDefinition({
     },
     uploadFileData: {
       title: 'Upload file data',
-      description: 'Upload data to a file in a Google Drive',
+      description: 'Upload data to a file in Google Drive',
       input: {
         schema: uploadFileDataArgSchema,
       },
@@ -125,14 +104,12 @@ export default new IntegrationDefinition({
     },
     downloadFileData: {
       title: 'Download file data',
-      description: 'Download data from a file in a Google Drive',
+      description: 'Download data from a file in Google Drive',
       input: {
         schema: downloadFileDataArgSchema,
       },
       output: {
-        schema: z.object({
-          bpFileId: z.string().min(1),
-        }),
+        schema: downloadFileDataOutputSchema,
       },
     },
   },
