@@ -64,7 +64,7 @@ export type UpdateConversation<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
     Arg<client.Client['updateConversation']>,
     {
-      tags: common.ToTags<keyof AllChannels<TIntegration>['conversation']['tags']>
+      tags?: common.ToTags<keyof AllChannels<TIntegration>['conversation']['tags']>
     }
   >
 ) => Promise<ConversationResponse<TIntegration>>
@@ -106,7 +106,7 @@ export type ListEvents<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
     Arg<client.Client['listEvents']>,
     {
-      type: WithPrefix<utils.Cast<keyof TIntegration['events'], string>, TIntegration['name']>
+      type?: WithPrefix<utils.Cast<keyof TIntegration['events'], string>, TIntegration['name']>
     }
   >
 ) => Res<client.Client['listEvents']>
@@ -181,7 +181,7 @@ export type ListMessages<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
     Arg<client.Client['listMessages']>,
     {
-      tags: common.ToTags<keyof AllChannels<TIntegration>['message']['tags']>
+      tags?: common.ToTags<keyof AllChannels<TIntegration>['message']['tags']>
     }
   >
 ) => Res<client.Client['listMessages']> // TODO: response should contain the tags
@@ -214,7 +214,7 @@ export type ListUsers<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
     Arg<client.Client['listUsers']>,
     {
-      tags: common.ToTags<keyof TIntegration['user']['tags']>
+      tags?: common.ToTags<keyof TIntegration['user']['tags']>
     }
   >
 ) => Res<client.Client['listUsers']>
@@ -232,7 +232,7 @@ export type UpdateUser<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
     Arg<client.Client['updateUser']>,
     {
-      tags: common.ToTags<keyof TIntegration['user']['tags']>
+      tags?: common.ToTags<keyof TIntegration['user']['tags']>
     }
   >
 ) => Promise<UserResponse<TIntegration>>
@@ -298,3 +298,50 @@ export type DeleteFile<_TIntegration extends common.BaseIntegration> = client.Cl
 export type ListFiles<_TIntegration extends common.BaseIntegration> = client.Client['listFiles']
 export type GetFile<_TIntegration extends common.BaseIntegration> = client.Client['getFile']
 export type UpdateFileMetadata<_TIntegration extends common.BaseIntegration> = client.Client['updateFileMetadata']
+
+export type ClientOperations<TIntegration extends common.BaseIntegration> = {
+  createConversation: CreateConversation<TIntegration>
+  getConversation: GetConversation<TIntegration>
+  listConversations: ListConversations<TIntegration>
+  getOrCreateConversation: GetOrCreateConversation<TIntegration>
+  updateConversation: UpdateConversation<TIntegration>
+  deleteConversation: DeleteConversation<TIntegration>
+  listParticipants: ListParticipants<TIntegration>
+  addParticipant: AddParticipant<TIntegration>
+  getParticipant: GetParticipant<TIntegration>
+  removeParticipant: RemoveParticipant<TIntegration>
+  createEvent: CreateEvent<TIntegration>
+  getEvent: GetEvent<TIntegration>
+  listEvents: ListEvents<TIntegration>
+  createMessage: CreateMessage<TIntegration>
+  getOrCreateMessage: GetOrCreateMessage<TIntegration>
+  getMessage: GetMessage<TIntegration>
+  updateMessage: UpdateMessage<TIntegration>
+  listMessages: ListMessages<TIntegration>
+  deleteMessage: DeleteMessage<TIntegration>
+  createUser: CreateUser<TIntegration>
+  getUser: GetUser<TIntegration>
+  listUsers: ListUsers<TIntegration>
+  getOrCreateUser: GetOrCreateUser<TIntegration>
+  updateUser: UpdateUser<TIntegration>
+  deleteUser: DeleteUser<TIntegration>
+  getState: GetState<TIntegration>
+  setState: SetState<TIntegration>
+  getOrSetState: GetOrSetState<TIntegration>
+  patchState: PatchState<TIntegration>
+  configureIntegration: ConfigureIntegration<TIntegration>
+  uploadFile: UploadFile<TIntegration>
+  upsertFile: UpsertFile<TIntegration>
+  deleteFile: DeleteFile<TIntegration>
+  listFiles: ListFiles<TIntegration>
+  getFile: GetFile<TIntegration>
+  updateFileMetadata: UpdateFileMetadata<TIntegration>
+}
+
+export type ClientInputs<TIntegration extends common.BaseIntegration> = {
+  [K in keyof ClientOperations<TIntegration>]: Arg<ClientOperations<TIntegration>[K]>
+}
+
+export type ClientOutputs<TIntegration extends common.BaseIntegration> = {
+  [K in keyof ClientOperations<TIntegration>]: Awaited<Res<ClientOperations<TIntegration>[K]>>
+}
