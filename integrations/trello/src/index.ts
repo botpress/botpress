@@ -19,6 +19,7 @@ import {
   getListById,
   getListsInBoard,
   getMemberByIdOrUsername,
+  cardList,
 } from './actions'
 import { channels } from './channels/publisher-dispatcher'
 import { handler } from './webhook-events'
@@ -47,6 +48,9 @@ const integration = new bp.Integration({
     moveCardToList,
     moveCardUp,
     updateCard,
+
+    // interfaces:
+    cardList,
   },
 
   channels,

@@ -10,7 +10,7 @@
     "fix:format": "prettier --write .",
     "check:lint": "eslint ./ --ext .ts --ext .tsx",
     "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx",
-    "add:interfaces": "echo 'no interfaces to add'"
+    "add:interfaces": "ts-node -T ./interfaces.ts"
   },
   "private": true,
   "dependencies": {
