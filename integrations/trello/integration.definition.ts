@@ -4,6 +4,7 @@ import listable from './bp_modules/listable'
 import readable from './bp_modules/readable'
 import creatable from './bp_modules/creatable'
 import updatable from './bp_modules/updatable'
+import deletable from './bp_modules/deletable'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 import { events, states, actions, channels, user, configuration, entities } from './definitions'
@@ -38,6 +39,9 @@ export default new sdk.IntegrationDefinition({
     item: entities.card,
   }))
   .extend(updatable, (entities) => ({
+    item: entities.card,
+  }))
+  .extend(deletable, (entities) => ({
     item: entities.card,
   }))
   .extend(listable, (entities) => ({
