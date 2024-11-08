@@ -18,3 +18,4 @@ export { moveCardUp } from './implementations/moveCardUp'
 export { updateCard } from './implementations/updateCard'
 
 export { cardList } from './implementations/interfaces/cardList'
+export { cardRead } from './implementations/interfaces/cardRead'

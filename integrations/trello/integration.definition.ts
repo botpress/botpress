@@ -1,6 +1,7 @@
 /* bplint-disable */
 import * as sdk from '@botpress/sdk'
 import listable from './bp_modules/listable'
+import readable from './bp_modules/readable'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 import { events, states, actions, channels, user, configuration, entities } from './definitions'
@@ -24,6 +25,10 @@ export default new sdk.IntegrationDefinition({
   secrets: {
     ...sentryHelpers.COMMON_SECRET_NAMES,
   },
-}).extend(listable, (entities) => ({
-  item: entities.card,
-}))
+})
+  .extend(listable, (entities) => ({
+    item: entities.card,
+  }))
+  .extend(readable, (entities) => ({
+    item: entities.card,
+  }))
