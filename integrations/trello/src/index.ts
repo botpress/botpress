@@ -21,6 +21,14 @@ import {
   getMemberByIdOrUsername,
   cardList,
   cardRead,
+  listList,
+  listRead,
+  boardList,
+  boardRead,
+  cardMemberList,
+  cardMemberRead,
+  boardMemberList,
+  boardMemberRead,
 } from './actions'
 import { channels } from './channels/publisher-dispatcher'
 import { handler } from './webhook-events'
@@ -53,6 +61,14 @@ const integration = new bp.Integration({
     // interfaces:
     cardList,
     cardRead,
+    listList,
+    listRead,
+    boardList,
+    boardRead,
+    cardMemberList,
+    cardMemberRead,
+    boardMemberList,
+    boardMemberRead,
   },
 
   channels,

@@ -1,0 +1,14 @@
+import { wrapAction } from '../../action-wrapper'
+import * as sdk from '@botpress/sdk'
+
+export const boardMemberRead = wrapAction(
+  { actionName: 'boardMemberRead' },
+  async ({ trelloClient }, { id: boardMemberId }) => {
+    if (!boardMemberId) {
+      throw new sdk.RuntimeError('Member ID is required: make sure the id parameter contains the member ID')
+    }
+
+    const item = await trelloClient.getMemberByIdOrUsername({ memberId: boardMemberId })
+    return { item, meta: {} }
+  }
+)

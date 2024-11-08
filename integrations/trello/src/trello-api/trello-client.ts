@@ -137,4 +137,13 @@ export class TrelloClient {
       id,
     })
   }
+
+  @handleErrors('Failed to get card members')
+  public async getCardMembers({ cardId }: { cardId: Card['id'] }): Promise<Member[]> {
+    const members: TrelloJsModels.Member[] = await this._trelloJs.cards.getCardMembers({
+      id: cardId,
+    })
+
+    return members.map(ResponseMapping.mapMember)
+  }
 }

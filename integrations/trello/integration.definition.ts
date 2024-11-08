@@ -32,3 +32,27 @@ export default new sdk.IntegrationDefinition({
   .extend(readable, (entities) => ({
     item: entities.card,
   }))
+  .extend(listable, (entities) => ({
+    item: entities.list,
+  }))
+  .extend(readable, (entities) => ({
+    item: entities.list,
+  }))
+  .extend(listable, (entities) => ({
+    item: entities.board,
+  }))
+  .extend(readable, (entities) => ({
+    item: entities.board,
+  }))
+  .extend(listable, (entities) => ({
+    item: entities.boardMember,
+  }))
+  .extend(readable, (entities) => ({
+    item: entities.boardMember,
+  }))
+  .extend(listable, (entities) => ({
+    item: entities.cardMember,
+  }))
+  .extend(readable, (entities) => ({
+    item: entities.cardMember,
+  }))
