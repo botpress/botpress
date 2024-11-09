@@ -8,7 +8,7 @@ type GetChannelByName<
 > = utils.Cast<TIntegration['channels'][TChannelName], common.ChannelDefinition>
 
 /**
- * @deprecated Integration's should no longer use tag prefixes
+ * @deprecated Integration's should no longer use their name as prefix for event types of tags.
  */
 type WithPrefix<TTags extends string, TPrefix extends string> = TTags | utils.Join<[TPrefix, ':', TTags]>
 
@@ -80,7 +80,7 @@ type EventResponse<TIntegration extends common.BaseIntegration, TEvent extends k
   event: utils.Merge<
     Awaited<Res<client.Client['getEvent']>>['event'],
     {
-      type: TEvent
+      type: WithPrefix<utils.Cast<TEvent, string>, TIntegration['name']>
       payload: TIntegration['events'][TEvent]
     }
   >
