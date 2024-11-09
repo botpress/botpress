@@ -14,6 +14,11 @@ type WithRequiredPrefix<TTags extends string, TPrefix extends string> = string e
   ? string
   : utils.Join<[TPrefix, ':', TTags]>
 
+/**
+ * @deprecated Integration's should no longer use their name as prefix for event types or tags.
+ */
+type WithOptionalPrefix<TTags extends string, TPrefix extends string> = TTags | WithRequiredPrefix<TTags, TPrefix>
+
 type Arg<F extends (...args: any[]) => any> = Parameters<F>[number]
 type Res<F extends (...args: any[]) => any> = ReturnType<F>
 
@@ -92,7 +97,7 @@ export type CreateEvent<TIntegration extends common.BaseIntegration> = <TEvent e
   x: utils.Merge<
     Arg<client.Client['createEvent']>,
     {
-      type: utils.Cast<TEvent, string>
+      type: WithOptionalPrefix<utils.Cast<TEvent, string>, TIntegration['name']>
       payload: TIntegration['events'][TEvent]
     }
   >
