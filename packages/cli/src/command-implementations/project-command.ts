@@ -29,11 +29,15 @@ type RemoteIntegrationInstance = utils.types.Merge<IntegrationInstance, { id: st
 type LocalIntegrationInstance = utils.types.Merge<IntegrationInstance, { uri?: string }>
 type BotIntegrationRequest = NonNullable<NonNullable<client.ClientInputs['updateBot']['integrations']>[string]>
 
+type LintIgnoredConfig = { bpLintDisabled?: boolean }
+
 export type ProjectType = ProjectDefinition['type']
-export type ProjectDefinition =
-  | { type: 'integration'; definition: sdk.IntegrationDefinition }
-  | { type: 'interface'; definition: sdk.InterfaceDeclaration }
-  | { type: 'bot'; definition: sdk.BotDefinition }
+export type ProjectDefinition = LintIgnoredConfig &
+  (
+    | { type: 'integration'; definition: sdk.IntegrationDefinition }
+    | { type: 'interface'; definition: sdk.InterfaceDeclaration }
+    | { type: 'bot'; definition: sdk.BotDefinition }
+  )
 
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
   public constructor(argv: CommandArgv<ProjectCommandDefinition>) {
@@ -109,15 +113,15 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     try {
       const integrationDefinition = await this._readIntegrationDefinitionFromFS(projectPaths)
       if (integrationDefinition) {
-        return { type: 'integration', definition: integrationDefinition }
+        return { type: 'integration', ...integrationDefinition }
       }
       const interfaceDefinition = await this._readInterfaceDefinitionFromFS(projectPaths)
       if (interfaceDefinition) {
-        return { type: 'interface', definition: interfaceDefinition }
+        return { type: 'interface', ...interfaceDefinition }
       }
       const botDefinition = await this._readBotDefinitionFromFS(projectPaths)
       if (botDefinition) {
-        return { type: 'bot', definition: botDefinition }
+        return { type: 'bot', ...botDefinition }
       }
     } catch (thrown: unknown) {
       throw errors.BotpressCLIError.wrap(thrown, 'Error while reading project definition')
@@ -128,13 +132,16 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   private async _readIntegrationDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'integrationDefinition'>
-  ): Promise<sdk.IntegrationDefinition | undefined> {
+  ): Promise<({ definition: sdk.IntegrationDefinition } & LintIgnoredConfig) | undefined> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
     if (!fs.existsSync(abs.integrationDefinition)) {
       return
     }
+
+    const tsContent = await fs.promises.readFile(abs.integrationDefinition, 'utf-8')
+    const bpLintDisabled = tsContent.startsWith('/* bplint-disable */')
 
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
       cwd: abs.workDir,
@@ -152,18 +159,21 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     let { default: definition } = utils.require.requireJsCode<{ default: sdk.IntegrationDefinition }>(artifact.text)
     definition = resolveInterfaces(definition)
     validateIntegrationDefinition(definition)
-    return definition
+    return { definition, bpLintDisabled }
   }
 
   private async _readInterfaceDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'interfaceDefinition'>
-  ): Promise<sdk.InterfaceDeclaration | undefined> {
+  ): Promise<({ definition: sdk.InterfaceDeclaration } & LintIgnoredConfig) | undefined> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
     if (!fs.existsSync(abs.interfaceDefinition)) {
       return
     }
+
+    const tsContent = await fs.promises.readFile(abs.interfaceDefinition, 'utf-8')
+    const bpLintDisabled = tsContent.startsWith('/* bplint-disable */')
 
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
       cwd: abs.workDir,
@@ -180,18 +190,21 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const { default: definition } = utils.require.requireJsCode<{ default: sdk.InterfaceDeclaration }>(artifact.text)
 
-    return definition
+    return { definition, bpLintDisabled }
   }
 
   private async _readBotDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'botDefinition'>
-  ): Promise<sdk.BotDefinition | undefined> {
+  ): Promise<({ definition: sdk.BotDefinition } & LintIgnoredConfig) | undefined> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
     if (!fs.existsSync(abs.botDefinition)) {
       return
     }
+
+    const tsContent = await fs.promises.readFile(abs.botDefinition, 'utf-8')
+    const bpLintDisabled = tsContent.startsWith('/* bplint-disable */')
 
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
       cwd: abs.workDir,
@@ -206,9 +219,11 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       throw new errors.BotpressCLIError('Could not read bot definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: sdk.BotDefinition }>(artifact.text)
+    let { default: definition } = utils.require.requireJsCode<{ default: sdk.BotDefinition }>(artifact.text)
     // TODO: validate bot definition
-    return resolveBotInterfaces(definition)
+
+    definition = resolveBotInterfaces(definition)
+    return { definition, bpLintDisabled }
   }
 
   protected displayWebhookUrls(bot: client.Bot) {

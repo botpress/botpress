@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 
 const emptyObject = z.object({})

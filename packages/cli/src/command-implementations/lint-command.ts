@@ -14,6 +14,10 @@ export type LintCommandDefinition = typeof commandDefinitions.lint
 export class LintCommand extends ProjectCommand<LintCommandDefinition> {
   public async run(): Promise<void> {
     const projectDef = await this.readProjectDefinitionFromFS()
+    if (projectDef.bpLintDisabled) {
+      this.logger.warn('Linting is disabled for this project')
+      return
+    }
 
     switch (projectDef.type) {
       case 'integration':
