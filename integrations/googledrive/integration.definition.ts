@@ -125,10 +125,7 @@ export default new IntegrationDefinition({
     list: {
       type: 'integration',
       schema: z.object({
-        filesMap: z
-          .string()
-          .title('Serialized map of known files')
-          .describe('Serialized map of known files (keys are file IDs and values are GoogleDriveFile objects)'),
+        filesMap: z.string().title('Files cache').describe('Serialized map of known files'),
       }),
     },
   },
