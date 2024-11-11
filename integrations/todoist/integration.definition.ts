@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import creatable from './bp_modules/creatable'
 

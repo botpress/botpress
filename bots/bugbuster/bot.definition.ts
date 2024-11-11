@@ -8,13 +8,13 @@ export default new sdk.BotDefinition({
     listeners: {
       type: 'bot',
       schema: sdk.z.object({
-        conversationIds: sdk.z.array(sdk.z.string()),
+        conversationIds: sdk.z.array(sdk.z.string()).title('Conversation IDs').describe('List of conversation IDs'),
       }),
     },
   },
   events: {
     syncIssuesRequest: {
-      schema: sdk.z.object({}),
+      schema: sdk.z.object({}).title('Sync Issues Request').describe('Request to sync issues'),
     },
   },
   recurringEvents: {
