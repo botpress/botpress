@@ -59,7 +59,6 @@
     "type": "git",
     "url": "https://github.com/botpress/packages"
   },
-  "keywords": [],
   "author": "Botpress, Inc.",
   "license": "MIT",
   "engines": {
