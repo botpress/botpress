@@ -3,16 +3,16 @@ import { baseGenericFileSchema } from './schemas'
 import { BaseFolderFile, BaseGenericFile, BaseNormalFile } from './types'
 import * as bp from '.botpress'
 
-const filesMapImplSchema = z.record(z.string(), baseGenericFileSchema)
-type FilesMapImpl = z.infer<typeof filesMapImplSchema>
+const filesMapImpl = z.record(z.string(), baseGenericFileSchema)
+type FilesMap = z.infer<typeof filesMapImpl>
 
-export class FilesMap {
-  private _cachedMap: FilesMapImpl
+export class FilesCache {
+  private _map: FilesMap
   public constructor(private _client: bp.Client, private _ctx: bp.Context) {
-    this._cachedMap = {}
+    this._map = {}
   }
 
-  public static async load({ client, ctx }: { client: bp.Client; ctx: bp.Context }): Promise<FilesMap> {
+  public static async load({ client, ctx }: { client: bp.Client; ctx: bp.Context }): Promise<FilesCache> {
     const getStateResponse = await client.getOrSetState({
       id: ctx.integrationId,
       type: 'integration',
@@ -21,13 +21,13 @@ export class FilesMap {
         filesMap: JSON.stringify({}),
       },
     })
-    const parseResult = filesMapImplSchema.safeParse(JSON.parse(getStateResponse.state.payload.filesMap))
+    const parseResult = filesMapImpl.safeParse(JSON.parse(getStateResponse.state.payload.filesMap))
     if (parseResult.error) {
       throw new RuntimeError(`Error parsing saved files map: ${parseResult.error.message}`)
     }
     const cachedMap = parseResult.data
-    const map = new FilesMap(client, ctx)
-    map._cachedMap = cachedMap
+    const map = new FilesCache(client, ctx)
+    map._map = cachedMap
     return map
   }
 
@@ -37,21 +37,21 @@ export class FilesMap {
       type: 'integration',
       name: 'list',
       payload: {
-        filesMap: JSON.stringify(this._cachedMap),
+        filesMap: JSON.stringify(this._map),
       },
     })
   }
 
   public has(id: string): boolean {
-    return this._cachedMap[id] !== undefined
+    return this._map[id] !== undefined
   }
 
   public set(file: BaseGenericFile) {
-    this._cachedMap[file.id] = file
+    this._map[file.id] = file
   }
 
   private _getGenericFile(id: string): BaseGenericFile {
-    const file = this._cachedMap[id]
+    const file = this._map[id]
     if (!file) {
       throw new RuntimeError(`Couldn't get file from files map with ID=${id}`)
     }
@@ -74,12 +74,12 @@ export class FilesMap {
   }
 
   /**
-   * @throws {RuntimeError} ID must correspond to a file compatible with FolderNormalFile
+   * @throws {RuntimeError} ID must correspond to a file compatible with BaseFolderFile
    */
   public getFolder(id: string): BaseFolderFile {
     const file = this._getGenericFile(id)
     if (file.type !== 'folder') {
-      throw new RuntimeError(`Attempted to get file with ID=${file.id} as a normal file but is type ${file.type}`)
+      throw new RuntimeError(`Attempted to get file with ID=${file.id} as a folder file but is type ${file.type}`)
     }
     return file
   }

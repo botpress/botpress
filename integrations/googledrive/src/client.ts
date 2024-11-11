@@ -2,8 +2,8 @@ import { RuntimeError } from '@botpress/sdk'
 import axios, { AxiosError } from 'axios'
 import { Stream } from 'stream'
 import { getAuthenticatedGoogleClient } from './auth'
-import { FOLDER_MIMETYPE } from './constants'
-import { FilesMap } from './files-map'
+import { FOLDER_MIMETYPE, SHORTCUT_MIMETYPE } from './constants'
+import { FilesCache } from './files-cache'
 import {
   BaseGenericFile,
   GoogleDriveClient,
@@ -44,20 +44,20 @@ export class Client {
   }
 
   public async listFiles(nextToken?: string): Promise<ListFileOutput> {
-    const filesMap = nextToken
-      ? await FilesMap.load({ client: this._client, ctx: this._ctx })
-      : new FilesMap(this._client, this._ctx) // Invalidate map when starting from scratch
+    const filesCache = nextToken
+      ? await FilesCache.load({ client: this._client, ctx: this._ctx })
+      : new FilesCache(this._client, this._ctx) // Invalidate cache when starting from scratch
 
-    const { newFilesIds, nextToken: newNextToken } = await this._updateFilesMapFromNextPage({
-      filesMap,
+    const { newFilesIds, nextToken: newNextToken } = await this._fetchFilesAndUpdateCache({
+      filesCache,
       nextToken,
+      searchQuery: `mimeType != '${FOLDER_MIMETYPE}' and mimeType != '${SHORTCUT_MIMETYPE}'`,
     })
     const itemsPromises = newFilesIds
-      .map((id) => filesMap.get(id))
-      .filter((f) => f.type === 'normal')
-      .map((f) => this._getCompleteFileFromBaseFile(f, filesMap))
+      .map((id) => filesCache.getFile(id))
+      .map((f) => this._getCompleteFileFromBaseFile(f, filesCache))
     const items = await Promise.all(itemsPromises)
-    await filesMap.save()
+    await filesCache.save()
     return {
       items,
       meta: {
@@ -67,19 +67,19 @@ export class Client {
   }
 
   public async listFolders(nextToken?: string): Promise<ListFolderOutput> {
-    const filesMap = nextToken
-      ? await FilesMap.load({ client: this._client, ctx: this._ctx })
-      : new FilesMap(this._client, this._ctx) // Invalidate map when starting from scratch
+    const filesCache = nextToken
+      ? await FilesCache.load({ client: this._client, ctx: this._ctx })
+      : new FilesCache(this._client, this._ctx) // Invalidate cache when starting from scratch
 
-    const { newFilesIds, nextToken: newNextToken } = await this._updateFilesMapFromNextPage({
-      filesMap,
+    const { newFilesIds, nextToken: newNextToken } = await this._fetchFilesAndUpdateCache({
+      filesCache,
       nextToken,
       searchQuery: `mimeType = '${FOLDER_MIMETYPE}'`,
     })
-    await filesMap.save()
+    await filesCache.save()
     const itemsPromises = newFilesIds
-      .map((id) => filesMap.getFolder(id))
-      .map((f) => this._getCompleteFolderFromBaseFolder(f, filesMap))
+      .map((id) => filesCache.getFolder(id))
+      .map((f) => this._getCompleteFolderFromBaseFolder(f, filesCache))
     const items = await Promise.all(itemsPromises)
     return {
       items,
@@ -148,7 +148,7 @@ export class Client {
 
   public async downloadFileData({ id: fileId, index }: DownloadFileDataArgs): Promise<DownloadFileDataOutput> {
     // TODO: Must use export in case of a Google Workspace document
-    const file = await this._getFileFromGoogleDrive(fileId)
+    const file = await this._fetchFile(fileId)
     if (file.type !== 'normal') {
       throw new RuntimeError(`Attempted to download a file of type ${file.type}`)
     }
@@ -193,9 +193,9 @@ export class Client {
   /**
    * Removes internal fields and adds computed attributes
    */
-  private async _getCompleteFileFromBaseFile(file: BaseNormalFile, optionalFilesMap?: FilesMap): Promise<File> {
+  private async _getCompleteFileFromBaseFile(file: BaseNormalFile, optionalFilesCache?: FilesCache): Promise<File> {
     const genericFile = convertNormalFileToGeneric(file)
-    const { filesMap } = await this._addParentsToFilesMap(genericFile, optionalFilesMap)
+    const { filesCache } = await this._addParentsToFilesCache(genericFile, optionalFilesCache)
     const { id, mimeType, name, parentId, size } = file
     return {
       id,
@@ -203,32 +203,35 @@ export class Client {
       name,
       parentId,
       size,
-      path: this._getFilePath(id, filesMap),
+      path: this._getFilePath(id, filesCache),
     }
   }
 
   /**
    * Removes internal fields and adds computed attributes
    */
-  private async _getCompleteFolderFromBaseFolder(file: BaseFolderFile, optionalFilesMap?: FilesMap): Promise<Folder> {
+  private async _getCompleteFolderFromBaseFolder(
+    file: BaseFolderFile,
+    optionalFilesCache?: FilesCache
+  ): Promise<Folder> {
     const genericFile = convertFolderFileToGeneric(file)
-    const { filesMap } = await this._addParentsToFilesMap(genericFile, optionalFilesMap)
+    const { filesCache } = await this._addParentsToFilesCache(genericFile, optionalFilesCache)
     const { id, mimeType, name, parentId } = file
     return {
       id,
       mimeType,
       name,
       parentId,
-      path: this._getFilePath(id, filesMap),
+      path: this._getFilePath(id, filesCache),
     }
   }
 
-  private async _updateFilesMapFromNextPage({
-    filesMap,
+  private async _fetchFilesAndUpdateCache({
+    filesCache,
     nextToken,
     searchQuery,
   }: {
-    filesMap: FilesMap
+    filesCache: FilesCache
     nextToken?: string
     searchQuery?: string
   }): Promise<{
@@ -250,15 +253,9 @@ export class Client {
     }
     const files = validateGenericFiles(unvalidatedDriveFiles)
     files.forEach((file) => {
-      filesMap.set(file)
+      filesCache.set(file)
     })
-
     const newFilesIds: string[] = files.map((f) => f.id)
-    for (const file of files) {
-      // Fetch missing parent files immediately in order to be able to reconstruct every new file's path
-      const { newFilesIds: newParentFilesIds } = await this._addParentsToFilesMap(file, filesMap)
-      newFilesIds.push(...newParentFilesIds)
-    }
 
     return {
       newFilesIds,
@@ -266,37 +263,37 @@ export class Client {
     }
   }
 
-  private _addParentsToFilesMap = async (
+  private _addParentsToFilesCache = async (
     file: BaseGenericFile,
-    optionalFilesMap?: FilesMap
+    optionalFilesCache?: FilesCache
   ): Promise<{
     newFilesIds: string[]
-    filesMap: FilesMap
+    filesCache: FilesCache
   }> => {
-    const filesMap = optionalFilesMap ?? new FilesMap(this._client, this._ctx)
-    filesMap.set(file) // Set if not already set
+    const filesCache = optionalFilesCache ?? new FilesCache(this._client, this._ctx)
+    filesCache.set(file) // Set if not already set
 
     const { parentId } = file
     if (!parentId) {
-      return { newFilesIds: [], filesMap }
+      return { newFilesIds: [], filesCache }
     }
 
     const newFilesIds: string[] = []
     let parent: BaseGenericFile | undefined
-    if (filesMap.has(parentId)) {
-      parent = filesMap.get(parentId)
+    if (filesCache.has(parentId)) {
+      parent = filesCache.get(parentId)
     }
     if (!parent) {
-      parent = await this._getFileFromGoogleDrive(parentId)
-      filesMap.set(parent)
+      parent = await this._fetchFile(parentId)
+      filesCache.set(parent)
       newFilesIds.push(parent.id)
     }
-    const { newFilesIds: parentNewFilesIds } = await this._addParentsToFilesMap(parent, filesMap)
+    const { newFilesIds: parentNewFilesIds } = await this._addParentsToFilesCache(parent, filesCache)
     newFilesIds.push(...parentNewFilesIds)
-    return { newFilesIds, filesMap }
+    return { newFilesIds, filesCache }
   }
 
-  private async _getFileFromGoogleDrive(id: string): Promise<BaseGenericFile> {
+  private async _fetchFile(id: string): Promise<BaseGenericFile> {
     const response = await this._googleClient.files.get({
       fileId: id,
       fields: GOOGLE_API_FILE_FIELDS,
@@ -304,12 +301,12 @@ export class Client {
     return validateGenericFile(response.data)
   }
 
-  private _getFilePath = (id: string, filesMap: FilesMap): string => {
-    const file = filesMap.get(id)
+  private _getFilePath = (id: string, filesCache: FilesCache): string => {
+    const file = filesCache.get(id)
     if (!file.parentId) {
       return `/${file.name}`
     }
 
-    return `${this._getFilePath(file.parentId, filesMap)}/${file.name}`
+    return `${this._getFilePath(file.parentId, filesCache)}/${file.name}`
   }
 }
