@@ -39,7 +39,7 @@ export default new IntegrationDefinition({
     listFolders: {
       // TODO: Implement listable
       title: 'List folders',
-      description: 'List files in Google Drive',
+      description: 'List folders in Google Drive',
       input: {
         schema: listItemsInputSchema,
       },

@@ -22,9 +22,9 @@ import {
 import {
   convertFolderFileToGeneric,
   convertNormalFileToGeneric,
-  validateGenericFile,
-  validateGenericFiles,
-  validateNormalFile,
+  parseGenericFile,
+  parseGenericFiles,
+  parseNormalFile,
 } from './validation'
 import * as bp from '.botpress'
 
@@ -35,7 +35,7 @@ const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageTo
 export class Client {
   private constructor(private _client: bp.Client, private _ctx: bp.Context, private _googleClient: GoogleDriveClient) {}
 
-  public static async client({ client, ctx }: { client: bp.Client; ctx: bp.Context }): Promise<Client> {
+  public static async create({ client, ctx }: { client: bp.Client; ctx: bp.Context }): Promise<Client> {
     const googleClient = await getAuthenticatedGoogleClient({
       client,
       ctx,
@@ -48,13 +48,13 @@ export class Client {
       ? await FilesCache.load({ client: this._client, ctx: this._ctx })
       : new FilesCache(this._client, this._ctx) // Invalidate cache when starting from scratch
 
-    const { newFilesIds, nextToken: newNextToken } = await this._fetchFilesAndUpdateCache({
+    const { newFiles, newNextToken } = await this._fetchFilesAndUpdateCache({
       filesCache,
       nextToken,
       searchQuery: `mimeType != '${FOLDER_MIMETYPE}' and mimeType != '${SHORTCUT_MIMETYPE}'`,
     })
-    const itemsPromises = newFilesIds
-      .map((id) => filesCache.getFile(id))
+    const itemsPromises = newFiles
+      .filter((f) => f.type === 'normal')
       .map((f) => this._getCompleteFileFromBaseFile(f, filesCache))
     const items = await Promise.all(itemsPromises)
     await filesCache.save()
@@ -71,14 +71,14 @@ export class Client {
       ? await FilesCache.load({ client: this._client, ctx: this._ctx })
       : new FilesCache(this._client, this._ctx) // Invalidate cache when starting from scratch
 
-    const { newFilesIds, nextToken: newNextToken } = await this._fetchFilesAndUpdateCache({
+    const { newFiles, newNextToken } = await this._fetchFilesAndUpdateCache({
       filesCache,
       nextToken,
       searchQuery: `mimeType = '${FOLDER_MIMETYPE}'`,
     })
     await filesCache.save()
-    const itemsPromises = newFilesIds
-      .map((id) => filesCache.getFolder(id))
+    const itemsPromises = newFiles
+      .filter((f) => f.type === 'folder')
       .map((f) => this._getCompleteFolderFromBaseFolder(f, filesCache))
     const items = await Promise.all(itemsPromises)
     return {
@@ -98,7 +98,7 @@ export class Client {
         mimeType,
       },
     })
-    const file = validateNormalFile(response.data)
+    const file = parseNormalFile(response.data)
     return await this._getCompleteFileFromBaseFile(file)
   }
 
@@ -107,7 +107,7 @@ export class Client {
       fileId: id,
       fields: GOOGLE_API_FILE_FIELDS,
     })
-    const file = validateNormalFile(response.data)
+    const file = parseNormalFile(response.data)
     return await this._getCompleteFileFromBaseFile(file)
   }
 
@@ -121,7 +121,7 @@ export class Client {
         name,
       },
     })
-    const file = validateNormalFile(response.data)
+    const file = parseNormalFile(response.data)
     return await this._getCompleteFileFromBaseFile(file)
   }
 
@@ -236,8 +236,8 @@ export class Client {
     nextToken?: string
     searchQuery?: string
   }): Promise<{
-    newFilesIds: string[]
-    nextToken?: string
+    newFiles: BaseGenericFile[]
+    newNextToken?: string
   }> {
     const listResponse = await this._googleClient.files.list({
       corpora: 'user',
@@ -252,15 +252,14 @@ export class Client {
     if (!unvalidatedDriveFiles) {
       throw new RuntimeError('No files were returned by the API')
     }
-    const files = validateGenericFiles(unvalidatedDriveFiles)
-    files.forEach((file) => {
-      filesCache.set(file)
-    })
-    const newFilesIds: string[] = files.map((f) => f.id)
+    const newFiles = parseGenericFiles(unvalidatedDriveFiles)
+    for (const newFile of newFiles) {
+      filesCache.set(newFile)
+    }
 
     return {
-      newFilesIds,
-      nextToken: newNextToken,
+      newFiles,
+      newNextToken,
     }
   }
 
@@ -268,7 +267,7 @@ export class Client {
     file: BaseGenericFile,
     optionalFilesCache?: FilesCache
   ): Promise<{
-    newFilesIds: string[]
+    newFiles: BaseGenericFile[]
     filesCache: FilesCache
   }> => {
     const filesCache = optionalFilesCache ?? new FilesCache(this._client, this._ctx)
@@ -276,22 +275,19 @@ export class Client {
 
     const { parentId } = file
     if (!parentId) {
-      return { newFilesIds: [], filesCache }
+      return { newFiles: [], filesCache }
     }
 
-    const newFilesIds: string[] = []
-    let parent: BaseGenericFile | undefined
-    if (filesCache.has(parentId)) {
-      parent = filesCache.get(parentId)
-    }
+    const newFiles: BaseGenericFile[] = []
+    let parent = filesCache.find(parentId)
     if (!parent) {
       parent = await this._fetchFile(parentId)
       filesCache.set(parent)
-      newFilesIds.push(parent.id)
+      newFiles.push(parent)
     }
-    const { newFilesIds: parentNewFilesIds } = await this._addParentsToFilesCache(parent, filesCache)
-    newFilesIds.push(...parentNewFilesIds)
-    return { newFilesIds, filesCache }
+    const { newFiles: parentNewFiles } = await this._addParentsToFilesCache(parent, filesCache)
+    newFiles.push(...parentNewFiles)
+    return { newFiles, filesCache }
   }
 
   private async _fetchFile(id: string): Promise<BaseGenericFile> {
@@ -299,7 +295,7 @@ export class Client {
       fileId: id,
       fields: GOOGLE_API_FILE_FIELDS,
     })
-    return validateGenericFile(response.data)
+    return parseGenericFile(response.data)
   }
 
   private _getFilePath = (id: string, filesCache: FilesCache): string => {

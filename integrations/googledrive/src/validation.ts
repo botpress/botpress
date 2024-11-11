@@ -24,29 +24,29 @@ export const convertFolderFileToGeneric = (file: BaseFolderFile): BaseGenericFil
   }
 }
 
-export const validateGenericFiles = (files: UnvalidatedGoogleDriveFile[]): BaseGenericFile[] => {
-  return files.map((f) => validateGenericFile(f))
+export const parseGenericFiles = (files: UnvalidatedGoogleDriveFile[]): BaseGenericFile[] => {
+  return files.map((f) => parseGenericFile(f))
 }
 
-export const validateGenericFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseGenericFile => {
-  const { mimeType } = validateCommonFileAttr(unvalidatedFile)
+export const parseGenericFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseGenericFile => {
+  const { mimeType } = parseCommonFileAttr(unvalidatedFile)
   let file: BaseGenericFile
   switch (mimeType) {
     case FOLDER_MIMETYPE:
       file = {
-        ...validateFolderFile(unvalidatedFile),
+        ...parseFolderFile(unvalidatedFile),
         type: 'folder',
       }
       break
     case SHORTCUT_MIMETYPE:
       file = {
-        ...validateShortcutFile(unvalidatedFile),
+        ...parseShortcutFile(unvalidatedFile),
         type: 'shortcut',
       }
       break
     default:
       file = {
-        ...validateNormalFile(unvalidatedFile),
+        ...parseNormalFile(unvalidatedFile),
         type: 'normal',
       }
       break
@@ -55,8 +55,8 @@ export const validateGenericFile = (unvalidatedFile: UnvalidatedGoogleDriveFile)
   return file
 }
 
-export const validateNormalFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseNormalFile => {
-  const commmonFileAttr = validateCommonFileAttr(unvalidatedFile)
+export const parseNormalFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseNormalFile => {
+  const commmonFileAttr = parseCommonFileAttr(unvalidatedFile)
   const { size: sizeStr } = unvalidatedFile
   if (!sizeStr) {
     throw new RuntimeError(
@@ -81,7 +81,7 @@ export const validateNormalFile = (unvalidatedFile: UnvalidatedGoogleDriveFile):
   return parseResult.data
 }
 
-const validateCommonFileAttr = (unvalidatedFile: UnvalidatedGoogleDriveFile): CommonFileAttr => {
+const parseCommonFileAttr = (unvalidatedFile: UnvalidatedGoogleDriveFile): CommonFileAttr => {
   const { id, name, mimeType } = unvalidatedFile
   if (!id) {
     throw new RuntimeError('File ID is missing in Schema$File from the API response')
@@ -113,8 +113,8 @@ const validateCommonFileAttr = (unvalidatedFile: UnvalidatedGoogleDriveFile): Co
   }
 }
 
-const validateFolderFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseFolderFile => {
-  const commmonFileAttr = validateCommonFileAttr(unvalidatedFile)
+const parseFolderFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseFolderFile => {
+  const commmonFileAttr = parseCommonFileAttr(unvalidatedFile)
   const parseResult = baseFolderFileSchema.safeParse(commmonFileAttr)
   if (parseResult.error) {
     throw new RuntimeError('Error validating Schema$File received from the API response')
@@ -122,8 +122,8 @@ const validateFolderFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseFo
   return parseResult.data
 }
 
-const validateShortcutFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseShortcutFile => {
-  const commmonFileAttr = validateCommonFileAttr(unvalidatedFile)
+const parseShortcutFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseShortcutFile => {
+  const commmonFileAttr = parseCommonFileAttr(unvalidatedFile)
   const parseResult = baseShortcutFileSchema.safeParse(commmonFileAttr)
   if (parseResult.error) {
     throw new RuntimeError('Error validating Schema$File received from the API response')

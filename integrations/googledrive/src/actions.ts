@@ -4,7 +4,7 @@ import * as bp from '.botpress'
 
 const listFiles: bp.IntegrationProps['actions']['listFiles'] = wrapWithTryCatch(async ({ client, ctx, input }) => {
   const { nextToken } = input
-  const driveClient = await DriveClient.client({
+  const driveClient = await DriveClient.create({
     client,
     ctx,
   })
@@ -13,7 +13,7 @@ const listFiles: bp.IntegrationProps['actions']['listFiles'] = wrapWithTryCatch(
 
 const listFolders: bp.IntegrationProps['actions']['listFolders'] = wrapWithTryCatch(async ({ client, ctx, input }) => {
   const { nextToken } = input
-  const driveClient = await DriveClient.client({
+  const driveClient = await DriveClient.create({
     client,
     ctx,
   })
@@ -21,7 +21,7 @@ const listFolders: bp.IntegrationProps['actions']['listFolders'] = wrapWithTryCa
 }, 'Error listing folders')
 
 const createFile: bp.IntegrationProps['actions']['createFile'] = wrapWithTryCatch(async ({ client, ctx, input }) => {
-  const driveClient = await DriveClient.client({
+  const driveClient = await DriveClient.create({
     client,
     ctx,
   })
@@ -30,7 +30,7 @@ const createFile: bp.IntegrationProps['actions']['createFile'] = wrapWithTryCatc
 
 const readFile: bp.IntegrationProps['actions']['readFile'] = wrapWithTryCatch(async ({ client, ctx, input }) => {
   const { id } = input
-  const driveClient = await DriveClient.client({
+  const driveClient = await DriveClient.create({
     client,
     ctx,
   })
@@ -38,7 +38,7 @@ const readFile: bp.IntegrationProps['actions']['readFile'] = wrapWithTryCatch(as
 }, 'Error reading file')
 
 const updateFile: bp.IntegrationProps['actions']['updateFile'] = wrapWithTryCatch(async ({ client, ctx, input }) => {
-  const driveClient = await DriveClient.client({
+  const driveClient = await DriveClient.create({
     client,
     ctx,
   })
@@ -47,7 +47,7 @@ const updateFile: bp.IntegrationProps['actions']['updateFile'] = wrapWithTryCatc
 
 const deleteFile: bp.IntegrationProps['actions']['deleteFile'] = wrapWithTryCatch(async ({ client, ctx, input }) => {
   const { id } = input
-  const driveClient = await DriveClient.client({
+  const driveClient = await DriveClient.create({
     client,
     ctx,
   })
@@ -57,7 +57,7 @@ const deleteFile: bp.IntegrationProps['actions']['deleteFile'] = wrapWithTryCatc
 
 const uploadFileData: bp.IntegrationProps['actions']['uploadFileData'] = wrapWithTryCatch(
   async ({ client, ctx, input }) => {
-    const driveClient = await DriveClient.client({
+    const driveClient = await DriveClient.create({
       client,
       ctx,
     })
@@ -69,7 +69,7 @@ const uploadFileData: bp.IntegrationProps['actions']['uploadFileData'] = wrapWit
 
 const downloadFileData: bp.IntegrationProps['actions']['downloadFileData'] = wrapWithTryCatch(
   async ({ client, ctx, input }) => {
-    const driveClient = await DriveClient.client({
+    const driveClient = await DriveClient.create({
       client,
       ctx,
     })

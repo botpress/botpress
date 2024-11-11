@@ -3,8 +3,8 @@ import { baseGenericFileSchema } from './schemas'
 import { BaseFolderFile, BaseGenericFile, BaseNormalFile } from './types'
 import * as bp from '.botpress'
 
-const filesMapImpl = z.record(z.string(), baseGenericFileSchema)
-type FilesMap = z.infer<typeof filesMapImpl>
+const filesMapSchema = z.record(z.string(), baseGenericFileSchema)
+type FilesMap = z.infer<typeof filesMapSchema>
 
 export class FilesCache {
   private _map: FilesMap
@@ -21,14 +21,24 @@ export class FilesCache {
         filesMap: JSON.stringify({}),
       },
     })
-    const parseResult = filesMapImpl.safeParse(JSON.parse(getStateResponse.state.payload.filesMap))
-    if (parseResult.error) {
-      throw new RuntimeError(`Error parsing saved files map: ${parseResult.error.message}`)
+    const cache = new FilesCache(client, ctx)
+    cache._map = this._deserializeMap(getStateResponse.state.payload.filesMap) ?? {}
+    return cache
+  }
+
+  private static _deserializeMap(serializedMap: string): FilesMap | undefined {
+    let deserializedObject = undefined
+    try {
+      deserializedObject = JSON.parse(serializedMap)
+    } catch (e) {
+      return undefined
     }
-    const cachedMap = parseResult.data
-    const map = new FilesCache(client, ctx)
-    map._map = cachedMap
-    return map
+
+    const parseResult = filesMapSchema.safeParse(deserializedObject)
+    if (parseResult.error) {
+      return undefined
+    }
+    return parseResult.data
   }
 
   public async save() {
@@ -42,8 +52,8 @@ export class FilesCache {
     })
   }
 
-  public has(id: string): boolean {
-    return this._map[id] !== undefined
+  public find(id: string): BaseGenericFile | undefined {
+    return this._map[id]
   }
 
   public set(file: BaseGenericFile) {
