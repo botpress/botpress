@@ -147,7 +147,8 @@ export class Client {
   }
 
   public async downloadFileData({ id: fileId, index }: DownloadFileDataArgs): Promise<DownloadFileDataOutput> {
-    // TODO: Must use export in case of a Google Workspace document
+    // TODO: Must use export in case of a Google Workspace document.
+    // TODO: Need to map Google Workspace MIME types to the File's API supported MIME types
     const file = await this._fetchFile(fileId)
     if (file.type !== 'normal') {
       throw new RuntimeError(`Attempted to download a file of type ${file.type}`)
