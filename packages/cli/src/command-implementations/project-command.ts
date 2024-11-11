@@ -140,8 +140,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       return
     }
 
-    const tsContent = await fs.promises.readFile(abs.integrationDefinition, 'utf-8')
-    const bpLintDisabled = tsContent.startsWith('/* bplint-disable */')
+    const bpLintDisabled = await this._isBpLintDisabled(abs.integrationDefinition)
 
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
       cwd: abs.workDir,
@@ -172,8 +171,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       return
     }
 
-    const tsContent = await fs.promises.readFile(abs.interfaceDefinition, 'utf-8')
-    const bpLintDisabled = tsContent.startsWith('/* bplint-disable */')
+    const bpLintDisabled = await this._isBpLintDisabled(abs.interfaceDefinition)
 
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
       cwd: abs.workDir,
@@ -203,8 +201,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       return
     }
 
-    const tsContent = await fs.promises.readFile(abs.botDefinition, 'utf-8')
-    const bpLintDisabled = tsContent.startsWith('/* bplint-disable */')
+    const bpLintDisabled = await this._isBpLintDisabled(abs.botDefinition)
 
     const { outputFiles } = await utils.esbuild.buildEntrypoint({
       cwd: abs.workDir,
@@ -224,6 +221,12 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     definition = resolveBotInterfaces(definition)
     return { definition, bpLintDisabled }
+  }
+
+  private async _isBpLintDisabled(definitionPath: string): Promise<boolean> {
+    const tsContent = await fs.promises.readFile(definitionPath, 'utf-8')
+    const regex = /\/\* bplint-disable \*\//
+    return regex.test(tsContent)
   }
 
   protected displayWebhookUrls(bot: client.Bot) {
