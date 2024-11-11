@@ -28,6 +28,9 @@ input:
   cloud_ops_workspace_id:
     description: 'Cloud Ops workspace id'
     required: true
+  googledrive_secrets:
+    description: 'Google Drive secrets'
+    required: false
   gmail_secrets:
     description: 'Gmail secrets'
     required: false
@@ -120,7 +123,9 @@ runs:
             exists=$(./.github/scripts/integration-exists.sh $integration)
 
             base_command="bp deploy -v -y --noBuild --public"
-            if [ $integration == "gmail" ]; then
+            if [ $integration == "googledrive" ]; then
+                base_command="$base_command ${{ inputs.googledrive_secrets }}"
+            elif [ $integration == "gmail" ]; then
                 base_command="$base_command ${{ inputs.gmail_secrets }}"
             elif [ $integration == "gsheets" ]; then
                 base_command="$base_command ${{ inputs.gsheets_secrets }}"
