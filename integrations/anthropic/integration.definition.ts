@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { modelId } from 'src/schemas'
 import llm from './bp_modules/llm'

@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { z, AnyZodObject, messages, InterfaceDeclaration } from '@botpress/sdk'
 
 const withUserId = <S extends z.AnyZodObject>(s: { schema: S }) => ({

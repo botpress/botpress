@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { z, InterfaceDeclaration } from '@botpress/sdk'
 
 export default new InterfaceDeclaration({

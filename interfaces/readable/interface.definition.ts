@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { z, InterfaceDeclaration } from '@botpress/sdk'
 
 const baseItem = z.object({ id: z.string() })

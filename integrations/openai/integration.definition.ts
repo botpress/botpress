@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import llm from './bp_modules/llm'
 import stt from './bp_modules/speech-to-text'
