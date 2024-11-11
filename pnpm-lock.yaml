@@ -566,6 +566,34 @@ importers:
         specifier: ^7.0.1
         version: 7.0.1
 
+  integrations/googledrive:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      axios:
+        specifier: ^1.7.7
+        version: 1.7.7
+      google-auth-library:
+        specifier: ^9.0.0
+        version: 9.0.0
+      googleapis:
+        specifier: ^144.0.0
+        version: 144.0.0
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.19.50
+
   integrations/groq:
     dependencies:
       '@botpress/client':
@@ -2690,8 +2718,8 @@ packages:
     peerDependencies:
       type-fest: ^4.12.0
     dependencies:
-      axios: 1.7.4
-      axios-case-converter: 1.1.1(axios@1.7.4)
+      axios: 1.7.7
+      axios-case-converter: 1.1.1(axios@1.7.7)
       axios-retry: 3.9.1
       runtypes: 6.7.0
       ts-custom-error: 3.3.1
@@ -3549,7 +3577,7 @@ packages:
     engines: {node: ^12.22.0 || ^14.17.0 || >=16.0.0}
     dependencies:
       ajv: 6.12.6
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.7
       espree: 9.5.2
       globals: 13.20.0
       ignore: 5.2.4
@@ -3611,7 +3639,7 @@ packages:
     engines: {node: '>=10.10.0'}
     dependencies:
       '@humanwhocodes/object-schema': 1.2.1
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.7
       minimatch: 3.1.2
     transitivePeerDependencies:
       - supports-color
@@ -5791,7 +5819,7 @@ packages:
     dependencies:
       '@typescript-eslint/typescript-estree': 5.59.8(typescript@5.6.3)
       '@typescript-eslint/utils': 5.59.8(eslint@8.41.0)(typescript@5.6.3)
-      debug: 4.3.4(supports-color@5.5.0)
+      debug: 4.3.7
       eslint: 8.41.0
       tsutils: 3.21.0(typescript@5.6.3)
       typescript: 5.6.3
@@ -6459,12 +6487,12 @@ packages:
     resolution: {integrity: sha512-NmWvPnx0F1SfrQbYwOi7OeaNGokp9XhzNioJ/CSBs8Qa4vxug81mhJEAVZwxXuBmYB5KDRfMq/F3RR0BIU7sWg==}
     dev: false
 
-  /axios-case-converter@1.1.1(axios@1.7.4):
+  /axios-case-converter@1.1.1(axios@1.7.7):
     resolution: {integrity: sha512-v13pB7cYryh/7f4TKxN/gniD2hwqPQcjip29Hk3J9iwsnA37Rht2Hkn5VyrxynxlKdMNSIfGk6I9D6G28oTRyQ==}
     peerDependencies:
       axios: '>=1.0.0 <2.0.0'
     dependencies:
-      axios: 1.7.4
+      axios: 1.7.7
       camel-case: 4.1.2
       header-case: 2.0.4
       snake-case: 3.0.4
@@ -6628,6 +6656,16 @@ packages:
 
   /axios@1.7.4:
     resolution: {integrity: sha512-DukmaFRnY6AzAALSH4J2M3k6PkaC+MfaAGdEERRWcC9q3/TWQwLpHR8ZRLKTdQ3aBDL64EdluRDjJqKw+BPZEw==}
+    dependencies:
+      follow-redirects: 1.15.6(debug@4.3.7)
+      form-data: 4.0.0
+      proxy-from-env: 1.1.0
+    transitivePeerDependencies:
+      - debug
+    dev: false
+
+  /axios@1.7.7:
+    resolution: {integrity: sha512-S4kL7XrjgBmvdGut0sN3yJxqYzrDOnivkBiN0OFs6hLiUam3UPvswUo0kqGyhqUZGEOytHyumEdXsAkgCOUf3Q==}
     dependencies:
       follow-redirects: 1.15.6(debug@4.3.7)
       form-data: 4.0.0
@@ -13238,7 +13276,7 @@ packages:
   /trello.js@1.2.7:
     resolution: {integrity: sha512-fFk5pQ8UvnTkGgLfSHKDpmejIx460yiSjG99hjvnj4XLdGsrmSNTKTTiD8or+2uAQ6+mJgq8q4Ztj34r7z0qFQ==}
     dependencies:
-      axios: 1.7.4
+      axios: 1.7.7
       form-data: 4.0.0
       tslib: 2.6.2
     transitivePeerDependencies:

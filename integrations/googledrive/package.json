@@ -1,0 +1,23 @@
+{
+  "name": "@botpresshub/googledrive",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "login": "bp login",
+    "deploy": "bp deploy",
+    "build": "bp build",
+    "add:interfaces": "echo 'no interfaces to add'"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "axios": "^1.7.7",
+    "google-auth-library": "^9.0.0",
+    "googleapis": "^144.0.0"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@types/node": "^18.11.17"
+  }
+}

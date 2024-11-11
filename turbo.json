@@ -188,6 +188,20 @@
         "@botpress/cli#build"
       ]
     },
+    "@botpresshub/googledrive#add:interfaces": {
+      "cache": false,
+      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+    },
+    "@botpresshub/googledrive#build": {
+      "inputs": ["integration.definition.ts", "src/**"],
+      "outputs": [".botpress/**"],
+      "dependsOn": [
+        "@botpresshub/googledrive#add:interfaces",
+        "@botpress/client#build",
+        "@botpress/sdk#build",
+        "@botpress/cli#build"
+      ]
+    },
     "@botpresshub/groq#add:interfaces": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
