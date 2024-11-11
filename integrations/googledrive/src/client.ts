@@ -298,12 +298,12 @@ export class Client {
     return parseGenericFile(response.data)
   }
 
-  private _getFilePath = (id: string, filesCache: FilesCache): string => {
+  private _getFilePath = (id: string, filesCache: FilesCache): string[] => {
     const file = filesCache.get(id)
     if (!file.parentId) {
-      return `/${file.name}`
+      return [file.name]
     }
 
-    return `${this._getFilePath(file.parentId, filesCache)}/${file.name}`
+    return [...this._getFilePath(file.parentId, filesCache), file.name]
   }
 }

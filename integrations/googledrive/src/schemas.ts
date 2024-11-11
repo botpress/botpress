@@ -39,11 +39,13 @@ export const baseGenericFileSchema = z.discriminatedUnion('type', [
 // Entities
 const computedFileAttrSchema = z.object({
   path: z
-    .string()
-    .min(1)
-    .describe(
-      "The path of the file. The path is made of the file name appendend to the path of its parent file. Names are separated with a '/' character."
-    ),
+    .array(
+      z
+        .string()
+        .min(1)
+        .describe("A component of the path of the file. It corresponds to the name of one of it's parents.")
+    )
+    .describe("An array of the path's components sorted by level (root to leaf)"),
 })
 export const fileSchema = baseNormalFileSchema.merge(computedFileAttrSchema)
 export const folderSchema = baseFolderFileSchema.merge(computedFileAttrSchema)
