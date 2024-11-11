@@ -15,7 +15,9 @@ export class LintCommand extends ProjectCommand<LintCommandDefinition> {
   public async run(): Promise<void> {
     const projectDef = await this.readProjectDefinitionFromFS()
     if (projectDef.bpLintDisabled) {
-      this.logger.warn('Linting is disabled for this project')
+      this.logger.warn(
+        'Linting is disabled for this project because of a bplint directive. To enable linting, remove the "bplint-disable" directive from the project definition file'
+      )
       return
     }
 
