@@ -8,9 +8,16 @@ type GetChannelByName<
 > = utils.Cast<TIntegration['channels'][TChannelName], common.ChannelDefinition>
 
 /**
- * @deprecated Integration's should no longer use tag prefixes
+ * @deprecated Integration's should no longer use their name as prefix for event types or tags.
  */
-type WithPrefix<TTags extends string, TPrefix extends string> = TTags | utils.Join<[TPrefix, ':', TTags]>
+type WithRequiredPrefix<TTags extends string, TPrefix extends string> = string extends TTags
+  ? string
+  : utils.Join<[TPrefix, ':', TTags]>
+
+/**
+ * @deprecated Integration's should no longer use their name as prefix for event types or tags.
+ */
+type WithOptionalPrefix<TTags extends string, TPrefix extends string> = TTags | WithRequiredPrefix<TTags, TPrefix>
 
 type Arg<F extends (...args: any[]) => any> = Parameters<F>[number]
 type Res<F extends (...args: any[]) => any> = ReturnType<F>
@@ -80,7 +87,7 @@ type EventResponse<TIntegration extends common.BaseIntegration, TEvent extends k
   event: utils.Merge<
     Awaited<Res<client.Client['getEvent']>>['event'],
     {
-      type: TEvent
+      type: WithRequiredPrefix<utils.Cast<TEvent, string>, TIntegration['name']>
       payload: TIntegration['events'][TEvent]
     }
   >
@@ -90,7 +97,7 @@ export type CreateEvent<TIntegration extends common.BaseIntegration> = <TEvent e
   x: utils.Merge<
     Arg<client.Client['createEvent']>,
     {
-      type: WithPrefix<utils.Cast<TEvent, string>, TIntegration['name']>
+      type: WithOptionalPrefix<utils.Cast<TEvent, string>, TIntegration['name']>
       payload: TIntegration['events'][TEvent]
     }
   >
@@ -106,7 +113,7 @@ export type ListEvents<TIntegration extends common.BaseIntegration> = (
   x: utils.Merge<
     Arg<client.Client['listEvents']>,
     {
-      type?: WithPrefix<utils.Cast<keyof TIntegration['events'], string>, TIntegration['name']>
+      type?: WithRequiredPrefix<utils.Cast<keyof TIntegration['events'], string>, TIntegration['name']>
     }
   >
 ) => Res<client.Client['listEvents']>
@@ -119,6 +126,7 @@ type MessageResponse<
   message: utils.Merge<
     Awaited<Res<client.Client['createMessage']>>['message'],
     {
+      type: utils.Cast<TMessage, string>
       payload: TIntegration['channels'][TChannel]['messages'][TMessage]
       tags: common.ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']>
     }
