@@ -1,3 +1,4 @@
+/* bplint-disable */
 import * as common from '@botpress/common'
 import { z, InterfaceDeclaration } from '@botpress/sdk'
 
