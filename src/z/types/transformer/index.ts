@@ -212,5 +212,28 @@ export class ZodEffects<T extends ZodTypeAny = ZodTypeAny, Output = output<T>, I
       ...processCreateParams(params),
     })
   }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodEffects)) return false
+    if (!this._def.schema.isEqual(schema._def.schema)) return false
+
+    if (this._def.effect.type === 'refinement') {
+      if (schema._def.effect.type !== 'refinement') return false
+      return util.compareFunctions(this._def.effect.refinement, schema._def.effect.refinement)
+    }
+
+    if (this._def.effect.type === 'transform') {
+      if (schema._def.effect.type !== 'transform') return false
+      return util.compareFunctions(this._def.effect.transform, schema._def.effect.transform)
+    }
+
+    if (this._def.effect.type === 'preprocess') {
+      if (schema._def.effect.type !== 'preprocess') return false
+      return util.compareFunctions(this._def.effect.transform, schema._def.effect.transform)
+    }
+
+    util.assertNever(this._def.effect)
+    return false
+  }
 }
 export { ZodEffects as ZodTransformer }

@@ -123,4 +123,11 @@ export class ZodRecord<Key extends KeySchema = ZodString, Value extends ZodTypeA
       ...processCreateParams(second),
     })
   }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodRecord)) return false
+    if (!this._def.keyType.isEqual(schema._def.keyType)) return false
+    if (!this._def.valueType.isEqual(schema._def.valueType)) return false
+    return true
+  }
 }

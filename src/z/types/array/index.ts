@@ -15,6 +15,7 @@ import {
   ParseReturnType,
   ParseStatus,
 } from '../index'
+import isEqual from 'lodash/isEqual'
 
 export interface ZodArrayDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTypeDef {
   type: T
@@ -44,6 +45,19 @@ export class ZodArray<T extends ZodTypeAny = ZodTypeAny, Cardinality extends Arr
 
   getReferences(): string[] {
     return this._def.type.getReferences()
+  }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodArray)) {
+      return false
+    }
+    return (
+      // message is not considered for equality
+      isEqual(this._def.exactLength?.value, schema._def.exactLength?.value) &&
+      isEqual(this._def.maxLength?.value, schema._def.maxLength?.value) &&
+      isEqual(this._def.minLength?.value, schema._def.minLength?.value) &&
+      this._def.type.isEqual(schema._def.type)
+    )
   }
 
   _parse(input: ParseInput): ParseReturnType<this['_output']> {

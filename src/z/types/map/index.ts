@@ -116,4 +116,11 @@ export class ZodMap<Key extends ZodTypeAny = ZodTypeAny, Value extends ZodTypeAn
       ...processCreateParams(params),
     })
   }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodMap)) return false
+    if (!this._def.keyType.isEqual(schema._def.keyType)) return false
+    if (!this._def.valueType.isEqual(schema._def.valueType)) return false
+    return true
+  }
 }

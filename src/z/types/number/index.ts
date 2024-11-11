@@ -15,6 +15,7 @@ import {
   ParseReturnType,
   ParseStatus,
 } from '../index'
+import { CustomSet } from '../utils/custom-set'
 
 export type ZodNumberCheck =
   | { kind: 'min'; value: number; inclusive: boolean; message?: string }
@@ -283,5 +284,12 @@ export class ZodNumber extends ZodType<number, ZodNumberDef> {
       }
     }
     return Number.isFinite(min) && Number.isFinite(max)
+  }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodNumber)) return false
+    const thisChecks = new CustomSet<ZodNumberCheck>(this._def.checks)
+    const thatChecks = new CustomSet<ZodNumberCheck>(schema._def.checks)
+    return thisChecks.isEqual(thatChecks)
   }
 }

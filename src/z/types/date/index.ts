@@ -1,3 +1,4 @@
+import _ from 'lodash'
 import {
   ZodIssueCode,
   processCreateParams,
@@ -15,6 +16,7 @@ import {
   ZodType,
   RawCreateParams,
 } from '../index'
+import { CustomSet } from '../utils/custom-set'
 
 export type ZodDateCheck =
   | { kind: 'min'; value: number; message?: string }
@@ -143,5 +145,12 @@ export class ZodDate extends ZodType<Date, ZodDateDef> {
       typeName: ZodFirstPartyTypeKind.ZodDate,
       ...processCreateParams(params),
     })
+  }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodDate)) return false
+    const thisChecks = new CustomSet<ZodDateCheck>(this._def.checks)
+    const thatChecks = new CustomSet<ZodDateCheck>(schema._def.checks)
+    return thisChecks.isEqual(thatChecks) && this._def.coerce === schema._def.coerce
   }
 }

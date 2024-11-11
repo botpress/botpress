@@ -198,4 +198,12 @@ export class ZodFunction<
       ...processCreateParams(params),
     }) as any
   }
+
+  isEqual(schema: ZodType): boolean {
+    return (
+      schema instanceof ZodFunction &&
+      this._def.args.isEqual(schema._def.args) &&
+      this._def.returns.isEqual(schema._def.returns)
+    )
+  }
 }

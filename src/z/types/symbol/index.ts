@@ -39,4 +39,8 @@ export class ZodSymbol extends ZodType<symbol, ZodSymbolDef, symbol> {
       ...processCreateParams(params),
     })
   }
+
+  isEqual(schema: ZodType): boolean {
+    return schema instanceof ZodSymbol
+  }
 }

@@ -2,196 +2,193 @@ import { describe, expect } from 'vitest'
 import { toTypescriptSchema as toTypescript } from '.'
 import { evalZuiString } from '../common/eval-zui-string'
 import * as errors from '../common/errors'
+import z, { ZodType } from '../../z'
 
-const assert = (_expected: string) => ({
+const assert = (source: ZodType) => ({
   toGenerateItself: async () => {
-    const evalResult = evalZuiString(_expected)
+    const actual = toTypescript(source)
+    const evalResult = evalZuiString(actual)
     if (!evalResult.sucess) {
       throw new Error(evalResult.error)
     }
-    const actual = toTypescript(evalResult.value)
-    await expect(actual).toMatchWithoutFormatting(_expected)
+    const destination = evalResult.value
+    expect(source.isEqual(destination)).toBe(true)
   },
   toThrowErrorWhenGenerating: async () => {
-    const evalResult = evalZuiString(_expected)
-    if (!evalResult.sucess) {
-      throw new Error(evalResult.error)
-    }
-    const fn = () => toTypescript(evalResult.value)
+    const fn = () => toTypescript(source)
     expect(fn).toThrowError(errors.ZuiToTypescriptSchemaError)
   },
 })
 
 describe('toTypescriptZuiString', () => {
   test('string', async () => {
-    const schema = `z.string()`
+    const schema = z.string()
     await assert(schema).toGenerateItself()
   })
   test('number', async () => {
-    const schema = `z.number()`
+    const schema = z.number()
     await assert(schema).toGenerateItself()
   })
   test('nan', async () => {
-    const schema = `z.nan()`
+    const schema = z.nan()
     await assert(schema).toGenerateItself()
   })
   test('bigint', async () => {
-    const schema = `z.bigint()`
+    const schema = z.bigint()
     await assert(schema).toGenerateItself()
   })
   test('boolean', async () => {
-    const schema = `z.boolean()`
+    const schema = z.boolean()
     await assert(schema).toGenerateItself()
   })
   test('date', async () => {
-    const schema = `z.date()`
+    const schema = z.date()
     await assert(schema).toGenerateItself()
   })
   test('undefined', async () => {
-    const schema = `z.undefined()`
+    const schema = z.undefined()
     await assert(schema).toGenerateItself()
   })
   test('null', async () => {
-    const schema = `z.null()`
+    const schema = z.null()
     await assert(schema).toGenerateItself()
   })
   test('any', async () => {
-    const schema = `z.any()`
+    const schema = z.any()
     await assert(schema).toGenerateItself()
   })
   test('unknown', async () => {
-    const schema = `z.unknown()`
+    const schema = z.unknown()
     await assert(schema).toGenerateItself()
   })
   test('never', async () => {
-    const schema = `z.never()`
+    const schema = z.never()
     await assert(schema).toGenerateItself()
   })
   test('void', async () => {
-    const schema = `z.void()`
+    const schema = z.void()
     await assert(schema).toGenerateItself()
   })
   test('array', async () => {
-    const schema = `z.array(z.string())`
+    const schema = z.array(z.string())
     await assert(schema).toGenerateItself()
   })
   test('object', async () => {
-    const schema = `z.object({
+    const schema = z.object({
       a: z.string(),
       b: z.number(),
-    })`
+    })
     await assert(schema).toGenerateItself()
   })
   test('union', async () => {
-    const schema = `z.union([z.string(), z.number(), z.boolean()])`
+    const schema = z.union([z.string(), z.number(), z.boolean()])
     await assert(schema).toGenerateItself()
   })
   test('discriminatedUnion', async () => {
-    const schema = `z.discriminatedUnion("type", [
-      z.object({ type: z.literal("A"), a: z.string() }),
-      z.object({ type: z.literal("B"), b: z.number() }),
-    ])`
+    const schema = z.discriminatedUnion('type', [
+      z.object({ type: z.literal('A'), a: z.string() }),
+      z.object({ type: z.literal('B'), b: z.number() }),
+    ])
     await assert(schema).toGenerateItself()
   })
   test('intersection', async () => {
-    const schema = `z.intersection(z.object({ a: z.string() }), z.object({ b: z.number() }))`
+    const schema = z.intersection(z.object({ a: z.string() }), z.object({ b: z.number() }))
     await assert(schema).toGenerateItself()
   })
   test('tuple', async () => {
-    const schema = `z.tuple([z.string(), z.number()])`
+    const schema = z.tuple([z.string(), z.number()])
     await assert(schema).toGenerateItself()
   })
   test('record', async () => {
-    const schema = `z.record(z.string(), z.number())`
+    const schema = z.record(z.string(), z.number())
     await assert(schema).toGenerateItself()
   })
   test('map', async () => {
-    const schema = `z.map(z.string(), z.number())`
+    const schema = z.map(z.string(), z.number())
     await assert(schema).toGenerateItself()
   })
   test('set', async () => {
-    const schema = `z.set(z.string())`
+    const schema = z.set(z.string())
     await assert(schema).toGenerateItself()
   })
   test('function with no argument', async () => {
-    const schema = `z.function().returns(z.void())`
+    const schema = z.function().returns(z.void())
     await assert(schema).toGenerateItself()
   })
   test('function with multiple arguments', async () => {
-    const schema = `z.function().args(z.number(), z.string()).returns(z.boolean())`
+    const schema = z.function().args(z.number(), z.string()).returns(z.boolean())
     await assert(schema).toGenerateItself()
   })
   test('lazy', async () => {
-    const schema = `z.lazy(() => z.string())`
+    const schema = z.lazy(() => z.string())
     await assert(schema).toGenerateItself()
   })
   test('literal string', async () => {
-    const schema = `z.literal("banana")`
+    const schema = z.literal('banana')
     await assert(schema).toGenerateItself()
   })
   test('literal number', async () => {
-    const schema = `z.literal(42)`
+    const schema = z.literal(42)
     await assert(schema).toGenerateItself()
   })
   test('literal boolean', async () => {
-    const schema = `z.literal(true)`
+    const schema = z.literal(true)
     await assert(schema).toGenerateItself()
   })
   test('enum', async () => {
-    const schema = `z.enum(["banana", "apple", "orange"])`
+    const schema = z.enum(['banana', 'apple', 'orange'])
     await assert(schema).toGenerateItself()
   })
   test('effects', async () => {
-    const schema = `z.string().transform((s) => s.toUpperCase())`
+    const schema = z.string().transform((s) => s.toUpperCase())
     await assert(schema).toThrowErrorWhenGenerating()
   })
   test('nativeEnum', async () => {
-    const schema = `z.nativeEnum({
-        Banana: 'banana',
-        Apple: 'apple',
-        Orange: 'orange',
-      })
-    `
+    const schema = z.nativeEnum({
+      Banana: 'banana',
+      Apple: 'apple',
+      Orange: 'orange',
+    })
     await assert(schema).toThrowErrorWhenGenerating()
   })
   test('optional', async () => {
-    const schema = `z.optional(z.string())`
+    const schema = z.optional(z.string())
     await assert(schema).toGenerateItself()
   })
   test('nullable', async () => {
-    const schema = `z.nullable(z.string())`
+    const schema = z.nullable(z.string())
     await assert(schema).toGenerateItself()
   })
   test('default', async () => {
-    const schema = `z.string().default('banana')` // TODO: should use `z.default(z.string(), 'banana')` for uniformity
+    const schema = z.string().default('banana')
     await assert(schema).toGenerateItself()
   })
   test('catch', async () => {
-    const schema = `z.string().catch('banana')` // TODO: should use `z.catch(z.string(), 'banana')` for uniformity
-    await assert(schema).toGenerateItself()
+    const schema = z.string().catch('banana')
+    await assert(schema).toThrowErrorWhenGenerating()
   })
   test('promise', async () => {
-    const schema = `z.promise(z.string())`
+    const schema = z.promise(z.string())
     await assert(schema).toGenerateItself()
   })
   test('branded', async () => {
-    const schema = `z.string().brand('MyString')` // TODO: should use `z.brand(z.string(), 'MyString')` for uniformity
+    const schema = z.string().brand('MyString')
     await assert(schema).toThrowErrorWhenGenerating()
   })
   test('pipeline', async () => {
-    const schema = `z.pipeline(z.string(), z.number())`
+    const schema = z.pipeline(z.string(), z.number())
     await assert(schema).toThrowErrorWhenGenerating()
   })
   test('symbol', async () => {
-    const schema = `z.symbol()`
+    const schema = z.symbol()
     await assert(schema).toThrowErrorWhenGenerating()
   })
   test('readonly', async () => {
-    const schema = `z.readonly(z.string())`
+    const schema = z.readonly(z.string())
     await assert(schema).toGenerateItself()
   })
   test('ref', async () => {
-    const schema = `z.ref("#item")`
+    const schema = z.ref('#item')
     await assert(schema).toGenerateItself()
   })
 })

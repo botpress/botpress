@@ -1,3 +1,4 @@
+import isEqual from 'lodash/isEqual'
 import {
   ZodIssueCode,
   RawCreateParams,
@@ -41,5 +42,10 @@ export class ZodLiteral<T extends Primitive = Primitive> extends ZodType<T, ZodL
       typeName: ZodFirstPartyTypeKind.ZodLiteral,
       ...processCreateParams(params),
     })
+  }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodLiteral)) return false
+    return isEqual(this._def.value, schema._def.value)
   }
 }

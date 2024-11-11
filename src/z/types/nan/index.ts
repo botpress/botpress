@@ -38,4 +38,8 @@ export class ZodNaN extends ZodType<number, ZodNaNDef> {
       ...processCreateParams(params),
     })
   }
+
+  isEqual(schema: ZodType): boolean {
+    return schema instanceof ZodNaN
+  }
 }

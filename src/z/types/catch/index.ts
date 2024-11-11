@@ -10,11 +10,13 @@ import {
   ParseContext,
   ParseInput,
   ParseReturnType,
+  util,
 } from '../index'
 
+export type CatchFn<Y> = (ctx: { error: ZodError; input: unknown }) => Y
 export interface ZodCatchDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTypeDef {
   innerType: T
-  catchValue: (ctx: { error: ZodError; input: unknown }) => T['_input']
+  catchValue: CatchFn<T['_output']>
   typeName: ZodFirstPartyTypeKind.ZodCatch
 }
 
@@ -81,7 +83,7 @@ export class ZodCatch<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   static create = <T extends ZodTypeAny>(
     type: T,
     params: RawCreateParams & {
-      catch: T['_output'] | (() => T['_output'])
+      catch: T['_output'] | CatchFn<T['_output']>
     },
   ): ZodCatch<T> => {
     return new ZodCatch({
@@ -90,5 +92,13 @@ export class ZodCatch<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
       catchValue: typeof params.catch === 'function' ? params.catch : () => params.catch,
       ...processCreateParams(params),
     })
+  }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodCatch)) return false
+    return (
+      this._def.innerType.isEqual(schema._def.innerType) &&
+      util.compareFunctions(this._def.catchValue, schema._def.catchValue)
+    )
   }
 }

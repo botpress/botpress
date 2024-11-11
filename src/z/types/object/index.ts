@@ -28,6 +28,7 @@ import {
   partialUtil,
   createZodEnum,
 } from '../index'
+import { CustomSet } from '../utils/custom-set'
 
 export type UnknownKeysParam = 'passthrough' | 'strict' | 'strip'
 
@@ -582,6 +583,22 @@ export class ZodObject<
 
   keyof(): ZodEnum<enumUtil.UnionToTupleString<keyof T>> {
     return createZodEnum(util.objectKeys(this.shape) as [string, ...string[]]) as any
+  }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodObject)) return false
+    if (!this._def.catchall.isEqual(schema._def.catchall)) return false
+    if (this._def.unknownKeys !== schema._def.unknownKeys) return false
+
+    const thisShape = this._def.shape()
+    const thatShape = schema._def.shape()
+
+    type Property = [string, ZodTypeAny]
+    const compare = (a: Property, b: Property) => a[0] === b[0] && a[1].isEqual(b[1])
+    const thisProps = new CustomSet<Property>(Object.entries(thisShape), { compare })
+    const thatProps = new CustomSet<Property>(Object.entries(thatShape), { compare })
+
+    return thisProps.isEqual(thatProps)
   }
 
   static create = <T extends ZodRawShape>(shape: T, params?: RawCreateParams): ZodObject<T, 'strip'> => {

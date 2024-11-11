@@ -38,4 +38,8 @@ export class ZodVoid extends ZodType<void, ZodVoidDef> {
       ...processCreateParams(params),
     })
   }
+
+  isEqual(schema: ZodType): boolean {
+    return schema instanceof ZodVoid
+  }
 }

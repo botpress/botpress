@@ -39,4 +39,8 @@ export class ZodUndefined extends ZodType<undefined, ZodUndefinedDef> {
       ...processCreateParams(params),
     })
   }
+
+  isEqual(schema: ZodType): boolean {
+    return schema instanceof ZodUndefined
+  }
 }

@@ -44,4 +44,9 @@ export class ZodBoolean extends ZodType<boolean, ZodBooleanDef> {
       ...processCreateParams(params),
     })
   }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodBoolean)) return false
+    return this._def.coerce === schema._def.coerce
+  }
 }

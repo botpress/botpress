@@ -32,4 +32,9 @@ export class ZodBranded<T extends ZodTypeAny = ZodTypeAny, B extends Key = Key> 
   unwrap() {
     return this._def.type
   }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodBranded)) return false
+    return this._def.type.isEqual(schema._def.type)
+  }
 }

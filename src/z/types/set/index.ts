@@ -137,4 +137,18 @@ export class ZodSet<Value extends ZodTypeAny = ZodTypeAny> extends ZodType<
       ...processCreateParams(params),
     })
   }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodSet)) return false
+
+    const thisMin = this._def.minSize?.value
+    const thatMin = schema._def.minSize?.value
+    if (thisMin !== thatMin) return false // min message is not important for equality
+
+    const thisMax = this._def.maxSize?.value
+    const thatMax = schema._def.maxSize?.value
+    if (thisMax !== thatMax) return false // max message is not important for equality
+
+    return this._def.valueType.isEqual(schema._def.valueType)
+  }
 }

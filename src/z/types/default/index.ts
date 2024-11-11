@@ -1,3 +1,4 @@
+import isEqual from 'lodash/isEqual'
 import {
   RawCreateParams,
   ZodFirstPartyTypeKind,
@@ -57,5 +58,13 @@ export class ZodDefault<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
       defaultValue: typeof value === 'function' ? value : () => value as any,
       ...processCreateParams(params),
     }) as any
+  }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodDefault)) return false
+    return (
+      this._def.innerType.isEqual(schema._def.innerType) &&
+      isEqual(this._def.defaultValue(), schema._def.defaultValue())
+    )
   }
 }

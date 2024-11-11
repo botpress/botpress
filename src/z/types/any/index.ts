@@ -25,4 +25,8 @@ export class ZodAny extends ZodType<any, ZodAnyDef> {
       ...processCreateParams(params),
     })
   }
+
+  public isEqual(schema: ZodType) {
+    return schema instanceof ZodAny
+  }
 }

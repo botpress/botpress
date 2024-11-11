@@ -17,6 +17,7 @@ import {
   ParseReturnType,
   ParseStatus,
 } from '../index'
+import { CustomSet } from '../utils/custom-set'
 
 export type IpVersion = 'v4' | 'v6'
 export type ZodStringCheck =
@@ -546,5 +547,12 @@ export class ZodString extends ZodType<string, ZodStringDef> {
       coerce: params?.coerce ?? false,
       ...processCreateParams(params),
     })
+  }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodString)) return false
+    const thisChecks = new CustomSet<ZodStringCheck>(this._def.checks)
+    const thatChecks = new CustomSet<ZodStringCheck>(schema._def.checks)
+    return thisChecks.isEqual(thatChecks)
   }
 }

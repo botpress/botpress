@@ -72,4 +72,9 @@ export class ZodReadonly<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
   unwrap() {
     return this._def.innerType
   }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodReadonly)) return false
+    return this._def.innerType.isEqual(schema._def.innerType)
+  }
 }

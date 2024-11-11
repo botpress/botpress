@@ -53,4 +53,9 @@ export class ZodRef extends ZodType<ZodRefOutput, ZodRefDef> {
   public override isNullable(): boolean {
     return false
   }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodRef)) return false
+    return this._def.uri === schema._def.uri
+  }
 }

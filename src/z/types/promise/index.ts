@@ -69,4 +69,9 @@ export class ZodPromise<T extends ZodTypeAny = ZodTypeAny> extends ZodType<
       ...processCreateParams(params),
     })
   }
+
+  isEqual(schema: ZodTypeAny): boolean {
+    if (!(schema instanceof ZodPromise)) return false
+    return this._def.type.isEqual(schema._def.type)
+  }
 }

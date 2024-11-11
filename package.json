@@ -31,6 +31,7 @@
     "@types/benchmark": "^2.1.5",
     "@types/jest": "^29.5.12",
     "@types/json-schema": "^7.0.15",
+    "@types/lodash": "^4.17.13",
     "@types/node": "^20.12.6",
     "@types/react": "^18.2.48",
     "@vitejs/plugin-react-swc": "^3.6.0",
@@ -65,5 +66,8 @@
     "node": ">=16.0.0",
     "pnpm": "8.6.2"
   },
-  "packageManager": "pnpm@8.6.2"
+  "packageManager": "pnpm@8.6.2",
+  "dependencies": {
+    "lodash": "^4.17.21"
+  }
 }

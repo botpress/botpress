@@ -18,6 +18,7 @@ import {
   ParseReturnType,
   SyncParseReturnType,
 } from '../index'
+import { CustomSet } from '../utils/custom-set'
 
 export interface ZodIntersectionDef<T extends ZodTypeAny = ZodTypeAny, U extends ZodTypeAny = ZodTypeAny>
   extends ZodTypeDef {
@@ -155,5 +156,14 @@ export class ZodIntersection<T extends ZodTypeAny = ZodTypeAny, U extends ZodTyp
       typeName: ZodFirstPartyTypeKind.ZodIntersection,
       ...processCreateParams(params),
     })
+  }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodIntersection)) return false
+
+    const compare = (a: ZodType, b: ZodType) => a.isEqual(b)
+    const thisItems = new CustomSet<ZodType>([this._def.left, this._def.right], { compare })
+    const thatItems = new CustomSet<ZodType>([schema._def.left, schema._def.right], { compare })
+    return thisItems.isEqual(thatItems)
   }
 }

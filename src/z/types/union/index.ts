@@ -17,6 +17,7 @@ import {
   ParseReturnType,
   SyncParseReturnType,
 } from '../index'
+import { CustomSet } from '../utils/custom-set'
 
 type DefaultZodUnionOptions = Readonly<[ZodTypeAny, ZodTypeAny, ...ZodTypeAny[]]>
 export type ZodUnionOptions = Readonly<[ZodTypeAny, ...ZodTypeAny[]]>
@@ -158,5 +159,15 @@ export class ZodUnion<T extends ZodUnionOptions = DefaultZodUnionOptions> extend
       typeName: ZodFirstPartyTypeKind.ZodUnion,
       ...processCreateParams(params),
     })
+  }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodUnion)) return false
+
+    const compare = (a: ZodType, b: ZodType) => a.isEqual(b)
+    const thisOptions = new CustomSet<ZodType>([...this._def.options], { compare })
+    const thatOptions = new CustomSet<ZodType>([...schema._def.options], { compare })
+
+    return thisOptions.isEqual(thatOptions)
   }
 }

@@ -86,4 +86,11 @@ export class ZodPipeline<A extends ZodTypeAny = ZodTypeAny, B extends ZodTypeAny
       typeName: ZodFirstPartyTypeKind.ZodPipeline,
     })
   }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodPipeline)) return false
+    if (!this._def.in.isEqual(schema._def.in)) return false
+    if (!this._def.out.isEqual(schema._def.out)) return false
+    return true
+  }
 }

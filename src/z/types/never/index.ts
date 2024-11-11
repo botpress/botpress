@@ -32,4 +32,8 @@ export class ZodNever extends ZodType<never, ZodNeverDef> {
       ...processCreateParams(params),
     })
   }
+
+  isEqual(schema: ZodType): boolean {
+    return schema instanceof ZodNever
+  }
 }

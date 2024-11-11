@@ -34,4 +34,9 @@ export class ZodLazy<T extends ZodTypeAny = ZodTypeAny> extends ZodType<output<T
       ...processCreateParams(params),
     })
   }
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodLazy)) return false
+    return this._def.getter().isEqual(schema._def.getter())
+  }
 }

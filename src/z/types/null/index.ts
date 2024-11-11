@@ -37,4 +37,8 @@ export class ZodNull extends ZodType<null, ZodNullDef> {
       ...processCreateParams(params),
     })
   }
+
+  isEqual(schema: ZodType): boolean {
+    return schema instanceof ZodNull
+  }
 }

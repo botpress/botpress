@@ -12,6 +12,7 @@ import {
   ParseInput,
   ParseReturnType,
 } from '../index'
+import { CustomSet } from '../utils/custom-set'
 
 export type ArrayKeys = keyof any[]
 export type Indices<T> = Exclude<keyof T, ArrayKeys>
@@ -133,4 +134,11 @@ export class ZodEnum<T extends [string, ...string[]] = [string, ...string[]]> ex
   }
 
   static create = createZodEnum
+
+  isEqual(schema: ZodType): boolean {
+    if (!(schema instanceof ZodEnum)) return false
+    const thisValues = new CustomSet<string>(this._def.values)
+    const thatValues = new CustomSet<string>(schema._def.values)
+    return thisValues.isEqual(thatValues)
+  }
 }
