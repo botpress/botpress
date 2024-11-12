@@ -6,7 +6,7 @@ export default new IntegrationDefinition({
   name: 'twilio',
   version: '0.4.5',
   title: 'Twilio',
-  description: 'This integration allows your bot to interact with Twilio.',
+  description: 'Send and receive messages, voice calls, emails, SMS, and more.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

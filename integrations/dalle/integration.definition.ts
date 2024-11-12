@@ -11,7 +11,7 @@ export default new IntegrationDefinition({
   version: '0.3.3',
   icon: 'icon.svg',
   title: 'DALL-E (Deprecated)',
-  description: 'Integrate DALL-E to generate stunning and unique images directly within your chatbot conversations',
+  description: 'Integrate DALL-E to generate images directly within your chatbot conversations.',
   readme: 'hub.md',
   configuration: {
     schema: z.object({

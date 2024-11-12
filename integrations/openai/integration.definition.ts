@@ -16,6 +16,8 @@ export const TextToSpeechPricePer1MCharacters: Record<TextToSpeechModel, number>
 export default new IntegrationDefinition({
   name: 'openai',
   title: 'OpenAI',
+  description:
+    'Gain access to OpenAI models for text generation, speech synthesis, audio transcription, and image generation.',
   version: '7.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',

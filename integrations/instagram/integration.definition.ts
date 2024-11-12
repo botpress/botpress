@@ -6,7 +6,7 @@ export default new IntegrationDefinition({
   name: 'instagram',
   version: '0.4.5',
   title: 'Instagram',
-  description: 'This integration allows your bot to interact with Instagram.',
+  description: 'Automate interactions, manage comments, and send/receive messages all in real-time.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

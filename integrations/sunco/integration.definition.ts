@@ -6,7 +6,7 @@ export default new IntegrationDefinition({
   name: 'sunco',
   version: '0.4.5',
   title: 'Sunshine Conversations',
-  description: 'This integration allows your bot to interact with Sunshine Conversations.',
+  description: 'Give your bot access to a powerful omnichannel messaging platform.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

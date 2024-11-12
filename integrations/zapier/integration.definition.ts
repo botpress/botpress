@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   version: '0.3.3',
   title: 'Zapier',
   description:
-    "Trigger workflows from Zapier or let Zapier trigger your workflows to automate tasks and enhance your chatbot's capabilities.",
+    "Trigger workflows from Zapier or let Zapier trigger your workflows to automate tasks and enhance your bot's capabilities.",
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

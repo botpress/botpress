@@ -5,7 +5,7 @@ export default new sdk.IntegrationDefinition({
   name: 'gmail',
   version: '0.5.2',
   title: 'Gmail',
-  description: 'This integration allows your bot to interact with Gmail.',
+  description: "Send, receive, and manage emails directly within your bot's workflow.",
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration,

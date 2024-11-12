@@ -11,7 +11,7 @@ export default new sdk.IntegrationDefinition({
   version: '1.1.4',
   icon: 'icon.svg',
   readme: 'hub.md',
-  description: 'Github integration for Botpress',
+  description: 'Manage GitHub issues, pull requests, and repositories.',
   configuration,
   configurations,
   actions,

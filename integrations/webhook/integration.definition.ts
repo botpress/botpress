@@ -6,8 +6,7 @@ export default new IntegrationDefinition({
   name: 'webhook',
   version: '1.0.0',
   title: 'Webhook',
-  description:
-    'Connect your chatbot to your systems with webhooks. Send and receive data from external systems and trigger workflows effortlessly.',
+  description: 'Use webhooks to send and receive data from external systems and trigger workflows.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

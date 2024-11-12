@@ -7,6 +7,8 @@ import stt from './bp_modules/speech-to-text'
 export default new IntegrationDefinition({
   name: 'fireworks-ai',
   title: 'Fireworks AI',
+  description:
+    'Choose from curated Fireworks AI models for content generation, chat completions, and audio transcription.',
   version: '1.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',

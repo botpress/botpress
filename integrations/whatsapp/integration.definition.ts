@@ -35,7 +35,7 @@ export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: '2.0.10',
   title: 'WhatsApp',
-  description: 'This integration allows your bot to interact with WhatsApp.',
+  description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

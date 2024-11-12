@@ -10,8 +10,7 @@ export default new IntegrationDefinition({
   version: '0.3.6',
   title: 'Asana',
   readme: 'hub.md',
-  description:
-    "Maximize productivity with Asana. Connect your bot to your Asana inbox, effortlessly create and update tasks, add comments, and locate users—all within your bot's workflow",
+  description: 'Connect your bot to your Asana inbox, create and update tasks, add comments, and locate users.',
   icon: 'icon.svg',
   configuration,
   channels,
