@@ -213,11 +213,11 @@ export type ClientOutputs<TBot extends common.BaseBot> = {
 }
 
 type ClientHooksBefore = {
-  [K in client.Operation]?: (c: client.Client, x: client.ClientInputs[K]) => Promise<client.ClientInputs[K]>
+  [K in client.Operation]?: (x: client.ClientInputs[K]) => Promise<client.ClientInputs[K]>
 }
 
 type ClientHooksAfter = {
-  [K in client.Operation]?: (c: client.Client, x: client.ClientOutputs[K]) => Promise<client.ClientOutputs[K]>
+  [K in client.Operation]?: (x: client.ClientOutputs[K]) => Promise<client.ClientOutputs[K]>
 }
 
 export type ClientHooks = {

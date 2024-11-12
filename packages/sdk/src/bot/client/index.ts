@@ -8,7 +8,7 @@ export * from './types'
  * Just like the regular botpress client, but typed with the bot's properties.
  */
 export class BotSpecificClient<TBot extends common.BaseBot> implements types.ClientOperations<TBot> {
-  public constructor(private _client: client.Client, private _hooks: types.ClientHooks) {}
+  public constructor(private _client: client.Client, private _hooks: types.ClientHooks = { before: {}, after: {} }) {}
 
   public getConversation: types.GetConversation<TBot> = ((x) =>
     this._run('getConversation', x)) as types.GetConversation<TBot>
@@ -76,14 +76,14 @@ export class BotSpecificClient<TBot extends common.BaseBot> implements types.Cli
   ): Promise<client.ClientOutputs[K]> => {
     const before = this._hooks.before[operation]
     if (before) {
-      req = await before(this._client, req)
+      req = await before(req)
     }
 
     let res = (await this._client[operation](req as any)) as client.ClientOutputs[K]
 
     const after = this._hooks.after[operation]
     if (after) {
-      res = await after(this._client, res)
+      res = await after(res)
     }
 
     return res

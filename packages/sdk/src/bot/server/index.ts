@@ -27,7 +27,60 @@ export const botHandler =
       botId: ctx.botId,
       retry: retryConfig,
     })
-    const botClient = new BotSpecificClient<common.BaseBot>(vanillaClient)
+    const botClient = new BotSpecificClient<common.BaseBot>(vanillaClient, {
+      before: {
+        createMessage: async (req) => {
+          for (const plugin of instance.plugins) {
+            const pluginOutput = await plugin.run.before_outgoing_message(req.type, {
+              client: new BotSpecificClient(vanillaClient),
+              ctx,
+              data: req,
+            })
+            req = pluginOutput.data
+          }
+
+          return req
+        },
+        callAction: async (req) => {
+          for (const plugin of instance.plugins) {
+            const pluginOutput = await plugin.run.before_call_action(req.type, {
+              client: new BotSpecificClient(vanillaClient),
+              ctx,
+              data: req,
+            })
+            req = pluginOutput.data
+          }
+
+          return req
+        },
+      },
+      after: {
+        createMessage: async (res) => {
+          for (const plugin of instance.plugins) {
+            const pluginOutput = await plugin.run.after_outgoing_message(res.message.type, {
+              client: new BotSpecificClient(vanillaClient),
+              ctx,
+              data: res,
+            })
+            res = pluginOutput.data
+          }
+
+          return res
+        },
+        callAction: async (res) => {
+          for (const plugin of instance.plugins) {
+            const pluginOutput = await plugin.run.after_call_action(res.output.type, {
+              client: new BotSpecificClient(vanillaClient),
+              ctx,
+              data: res,
+            })
+            res = pluginOutput.data
+          }
+
+          return res
+        },
+      },
+    })
 
     const props: ServerProps = {
       req,
@@ -65,50 +118,88 @@ const onEventReceived = async ({ ctx, req, client, instance }: ServerProps) => {
   log.debug(`Received event ${ctx.type}`)
 
   const body = parseBody<types.EventPayload<common.BaseBot>>(req)
-  const event = body.event
 
-  switch (ctx.type) {
-    case 'message_created':
-      const messagePayload: types.MessagePayload<common.BaseBot> = {
-        user: event.payload.user,
-        conversation: event.payload.conversation,
-        message: event.payload.message,
-        states: event.payload.states,
-        event,
-      }
+  if (ctx.type === 'message_created') {
+    const event = body.event
+    let message: types.MessagePayload<common.BaseBot>['message'] = event.payload.message
 
-      await Promise.all(
-        instance.messageHandlers.map((handler) =>
-          handler({
-            client,
-            ctx,
-            ...messagePayload,
-          })
-        )
+    for (const plugin of instance.plugins) {
+      const pluginOutput = await plugin.run.before_incoming_message(message.type, {
+        client,
+        ctx,
+        data: message,
+      })
+      message = pluginOutput.data
+    }
+
+    await Promise.all(
+      instance.messageHandlers.map((handler) =>
+        handler({
+          client,
+          ctx,
+          event,
+          message,
+          user: event.payload.user,
+          conversation: event.payload.conversation,
+          states: event.payload.states,
+        })
       )
-      break
-    case 'state_expired':
-      const statePayload: types.StateExpiredPayload<common.BaseBot> = { state: event.payload.state }
-      await Promise.all(
-        instance.stateExpiredHandlers.map((handler) =>
-          handler({
-            client,
-            ctx,
-            ...statePayload,
-          })
-        )
-      )
-      break
-    default:
-      const eventPayload = { event: body.event }
-      await Promise.all(
-        instance.eventHandlers.map((handler) =>
-          handler({
-            client,
-            ctx,
-            ...eventPayload,
-          })
-        )
-      )
+    )
+
+    for (const plugin of instance.plugins) {
+      const pluginOutput = await plugin.run.after_incoming_message(message.type, {
+        client,
+        ctx,
+        data: message,
+      })
+      message = pluginOutput.data
+    }
+
+    return
   }
+  if (ctx.type === 'state_expired') {
+    const event = body.event
+    const statePayload: types.StateExpiredPayload<common.BaseBot> = { state: event.payload.state }
+    await Promise.all(
+      instance.stateExpiredHandlers.map((handler) =>
+        handler({
+          client,
+          ctx,
+          ...statePayload,
+        })
+      )
+    )
+    return
+  }
+
+  let event = body.event
+  for (const plugin of instance.plugins) {
+    const pluginOutput = await plugin.run.before_incoming_event(event.type, {
+      client,
+      ctx,
+      data: event,
+    })
+    event = pluginOutput.data
+  }
+
+  await Promise.all(
+    instance.eventHandlers.map((handler) =>
+      handler({
+        client,
+        ctx,
+        event,
+      })
+    )
+  )
+
+  for (const plugin of instance.plugins) {
+    const pluginOutput = await plugin.run.after_incoming_event(event.type, {
+      client,
+      ctx,
+      data: event,
+    })
+    event = pluginOutput.data
+  }
+
+  return
 }

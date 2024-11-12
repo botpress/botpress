@@ -1,4 +1,5 @@
 import type { Server } from 'node:http'
+import { PluginImplementation } from '../plugin'
 import { serve } from '../serve'
 import { botHandler, MessageHandler, EventHandler, StateExpiredHandler } from './server'
 import { BaseBot } from './types'
@@ -7,6 +8,7 @@ type BotState<TBot extends BaseBot = BaseBot> = {
   messageHandlers: MessageHandler<TBot>[]
   eventHandlers: EventHandler<TBot>[]
   stateExpiredHandlers: StateExpiredHandler<TBot>[]
+  plugins: PluginImplementation[]
 }
 
 export type BotImplementationProps<_TBot extends BaseBot = BaseBot> = {
@@ -18,6 +20,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot> {
     messageHandlers: [],
     eventHandlers: [],
     stateExpiredHandlers: [],
+    plugins: [],
   }
 
   public constructor(public readonly props: BotImplementationProps<TBot>) {}

@@ -1,4 +1,5 @@
 import * as client from '@botpress/client'
+import { PluginImplementation } from '../../plugin'
 import * as utils from '../../utils/type-utils'
 import { BotSpecificClient } from '../client'
 import * as types from '../types'
@@ -66,4 +67,5 @@ export type BotHandlers<TBot extends types.BaseBot> = {
   messageHandlers: MessageHandler<TBot>[]
   eventHandlers: EventHandler<TBot>[]
   stateExpiredHandlers: StateExpiredHandler<TBot>[]
+  plugins: PluginImplementation[]
 }
