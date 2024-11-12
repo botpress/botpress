@@ -1,4 +1,4 @@
-import { IntegrationPackage } from '../package'
+import { IntegrationPackage, PluginPackage } from '../package'
 import { SchemaDefinition } from '../schema'
 import { ValueOf, Writable } from '../utils/type-utils'
 import z, { AnyZodObject } from '../zui'
@@ -108,6 +108,11 @@ export class BotDefinition<TStates extends BaseStates = BaseStates, TEvents exte
       configurationType: config.configurationType as string,
       configuration: config.configuration,
     }
+    return this
+  }
+
+  public use<P extends PluginPackage>(_pluginPkg: P): this {
+    // TODO: implement this
     return this
   }
 }

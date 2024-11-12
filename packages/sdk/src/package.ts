@@ -1,5 +1,6 @@
 import * as integration from './integration'
 import * as intrface from './interface'
+import * as plugin from './plugin'
 import * as utils from './utils'
 
 type PackageReference =
@@ -35,6 +36,16 @@ type InterfacePackageDefinition = {
   channels?: Record<string, integration.ChannelDefinition>
 }
 
+type PluginPackageDefinition = {
+  user?: plugin.UserDefinition
+  conversation?: plugin.ConversationDefinition
+  message?: plugin.MessageDefinition
+  states?: Record<string, plugin.StateDefinition>
+  configuration?: plugin.ConfigurationDefinition
+  events?: Record<string, plugin.EventDefinition>
+  recurringEvents?: Record<string, plugin.RecurringEventDefinition>
+}
+
 export type IntegrationPackage = PackageReference & {
   type: 'integration'
   definition: IntegrationPackageDefinition
@@ -47,6 +58,14 @@ export type InterfacePackage = PackageReference & {
   implementation?: null
 }
 
+export type PluginPackage = PackageReference & {
+  type: 'plugin'
+  definition: PluginPackageDefinition
+  implementation: {
+    code: string
+  }
+}
+
 export type Package = IntegrationPackage | InterfacePackage
 
 type _test_expect_integration_definition_to_be_valid_package = utils.types.AssertTrue<
@@ -54,4 +73,7 @@ type _test_expect_integration_definition_to_be_valid_package = utils.types.Asser
 >
 type _test_expect_interface_definition_to_be_valid_package = utils.types.AssertTrue<
   utils.types.AssertExtends<intrface.InterfaceDeclaration, InterfacePackageDefinition>
+>
+type _test_expect_plugin_definition_to_be_valid_package = utils.types.AssertTrue<
+  utils.types.AssertExtends<plugin.PluginDefinition, PluginPackageDefinition>
 >

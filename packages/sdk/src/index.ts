@@ -60,7 +60,15 @@ export {
 } from './interface'
 
 export {
+  PluginDefinition,
+  PluginDefinitionProps,
+  PluginImplementation as Plugin,
+  PluginImplementationProps as PluginProps,
+} from './plugin'
+
+export {
   //
   IntegrationPackage,
   InterfacePackage,
+  PluginPackage,
 } from './package'
