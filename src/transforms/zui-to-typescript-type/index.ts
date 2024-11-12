@@ -305,7 +305,7 @@ ${value}`.trim()
       return `${getMultilineComment(def.description)} symbol`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodReadonly:
-      return `readonly ${sUnwrapZod(def.innerType, newConfig)}`
+      return `Readonly<${sUnwrapZod(def.innerType, newConfig)}>`
 
     case z.ZodFirstPartyTypeKind.ZodRef:
       return toTypeArgumentName(def.uri)
