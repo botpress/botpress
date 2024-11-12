@@ -211,3 +211,16 @@ export type ClientInputs<TBot extends common.BaseBot> = {
 export type ClientOutputs<TBot extends common.BaseBot> = {
   [K in keyof ClientOperations<TBot>]: Awaited<Res<ClientOperations<TBot>[K]>>
 }
+
+type ClientHooksBefore = {
+  [K in client.Operation]?: (c: client.Client, x: client.ClientInputs[K]) => Promise<client.ClientInputs[K]>
+}
+
+type ClientHooksAfter = {
+  [K in client.Operation]?: (c: client.Client, x: client.ClientOutputs[K]) => Promise<client.ClientOutputs[K]>
+}
+
+export type ClientHooks = {
+  before: ClientHooksBefore
+  after: ClientHooksAfter
+}
