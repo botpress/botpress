@@ -2027,6 +2027,25 @@ importers:
         specifier: ^7.53.1
         version: 7.53.1
 
+  plugins/logger:
+    dependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      qs:
+        specifier: ^6.11.0
+        version: 6.11.0
+    devDependencies:
+      typescript:
+        specifier: ^4.9.4
+        version: 4.9.5
+
 packages:
 
   /@ampproject/remapping@2.2.1:

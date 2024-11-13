@@ -28,6 +28,11 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
       return await this._bundle(line)
     }
 
+    if (projectDef.type === 'plugin') {
+      line.started('Bundling plugin...')
+      return await this._bundle(line)
+    }
+
     throw new errors.UnsupportedProjectType()
   }
 

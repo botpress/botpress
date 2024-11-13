@@ -60,6 +60,7 @@ export type IntegrationConfigInstance<I extends IntegrationPackage = Integration
 export type IntegrationInstance = IntegrationPackage & IntegrationConfigInstance
 
 export type PluginDefinitionProps<TStates extends BaseStates = BaseStates, TEvents extends BaseEvents = BaseEvents> = {
+  name: string
   integrations?: {
     [K: string]: IntegrationInstance
   }
@@ -77,6 +78,7 @@ export type PluginDefinitionProps<TStates extends BaseStates = BaseStates, TEven
 }
 
 export class PluginDefinition<TStates extends BaseStates = BaseStates, TEvents extends BaseEvents = BaseEvents> {
+  public readonly name: this['props']['name']
   public readonly integrations: this['props']['integrations']
   public readonly user: this['props']['user']
   public readonly conversation: this['props']['conversation']
@@ -86,6 +88,7 @@ export class PluginDefinition<TStates extends BaseStates = BaseStates, TEvents e
   public readonly events: this['props']['events']
   public readonly recurringEvents: this['props']['recurringEvents']
   public constructor(public readonly props: PluginDefinitionProps<TStates, TEvents>) {
+    this.name = props.name
     this.integrations = props.integrations
     this.user = props.user
     this.conversation = props.conversation

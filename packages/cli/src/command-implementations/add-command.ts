@@ -21,6 +21,11 @@ type InstallablePackage =
       name: string
       pkg: codegen.InterfaceInstallablePackage
     }
+  | {
+      type: 'plugin'
+      name: string
+      pkg: codegen.PluginInstallablePackage
+    }
 
 export type AddCommandDefinition = typeof commandDefinitions.add
 export class AddCommand extends GlobalCommand<AddCommandDefinition> {
@@ -60,8 +65,12 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     let files: codegen.File[]
     if (targetPackage.type === 'integration') {
       files = await codegen.generateIntegrationPackage(targetPackage.pkg)
-    } else {
+    } else if (targetPackage.type === 'interface') {
       files = await codegen.generateInterfacePackage(targetPackage.pkg)
+    } else if (targetPackage.type === 'plugin') {
+      files = await codegen.generatePluginPackage(targetPackage.pkg)
+    } else {
+      throw new errors.BotpressCLIError('Invalid package type')
     }
 
     await this._install(installPath, files)
@@ -81,6 +90,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         return { type: 'interface', name: intrface.name, pkg: { source: 'remote', interface: intrface } }
       }
     }
+    // plugins can't be installed remotely for now
     return
   }
 
@@ -101,10 +111,30 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         pkg: { source: 'local', path: absPath },
       }
     }
+    if (this._pkgCouldBe('plugin') && projectDefinition?.type === 'plugin') {
+      let implementation = await this._readImplementation(absPath)
+      implementation = Buffer.from(implementation, 'utf-8').toString('base64')
+      return {
+        type: 'plugin',
+        name: projectDefinition.definition.name,
+        pkg: { source: 'local', path: absPath, implementation },
+      }
+    }
     if (projectDefinition?.type === 'bot') {
       throw new errors.BotpressCLIError('Cannot install a bot as a package')
     }
+
     return
+  }
+
+  private async _readImplementation(absPath: utils.path.AbsolutePath): Promise<string> {
+    const implementationPath = utils.path.join(absPath, consts.fromWorkDir.outFile)
+    if (!fslib.existsSync(implementationPath)) {
+      throw new errors.BotpressCLIError(
+        `Implementation file not found: "${implementationPath}". Please build the project before installing.`
+      )
+    }
+    return await fslib.promises.readFile(implementationPath, 'utf8')
   }
 
   private async _install(installPath: utils.path.AbsolutePath, files: codegen.File[]): Promise<void> {

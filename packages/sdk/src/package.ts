@@ -37,6 +37,7 @@ type InterfacePackageDefinition = {
 }
 
 type PluginPackageDefinition = {
+  name: string
   user?: plugin.UserDefinition
   conversation?: plugin.ConversationDefinition
   message?: plugin.MessageDefinition

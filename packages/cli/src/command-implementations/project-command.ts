@@ -24,7 +24,7 @@ type ConfigurableProjectPaths = { workDir: string }
 type ConstantProjectPaths = typeof consts.fromWorkDir
 type AllProjectPaths = ConfigurableProjectPaths & ConstantProjectPaths
 
-type IntegrationInstance = NonNullable<sdk.BotDefinition['integrations']>[string]
+type IntegrationInstance = NonNullable<sdk.PluginDefinition['integrations']>[string]
 type RemoteIntegrationInstance = utils.types.Merge<IntegrationInstance, { id: string }>
 type LocalIntegrationInstance = utils.types.Merge<IntegrationInstance, { uri?: string }>
 type BotIntegrationRequest = NonNullable<NonNullable<client.ClientInputs['updateBot']['integrations']>[string]>
@@ -37,6 +37,7 @@ export type ProjectDefinition = LintIgnoredConfig &
     | { type: 'integration'; definition: sdk.IntegrationDefinition }
     | { type: 'interface'; definition: sdk.InterfaceDeclaration }
     | { type: 'bot'; definition: sdk.BotDefinition }
+    | { type: 'plugin'; definition: sdk.PluginDefinition }
   )
 
 class ProjectPaths extends utils.path.PathStore<keyof AllProjectPaths> {
@@ -122,6 +123,10 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       const botDefinition = await this._readBotDefinitionFromFS(projectPaths)
       if (botDefinition) {
         return { type: 'bot', ...botDefinition }
+      }
+      const pluginDefinition = await this._readPluginDefinitionFromFS(projectPaths)
+      if (pluginDefinition) {
+        return { type: 'plugin', ...pluginDefinition }
       }
     } catch (thrown: unknown) {
       throw errors.BotpressCLIError.wrap(thrown, 'Error while reading project definition')
@@ -220,6 +225,36 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     // TODO: validate bot definition
 
     definition = resolveBotInterfaces(definition)
+    return { definition, bpLintDisabled }
+  }
+
+  private async _readPluginDefinitionFromFS(
+    projectPaths: utils.path.PathStore<'workDir' | 'pluginDefinition'>
+  ): Promise<({ definition: sdk.PluginDefinition } & LintIgnoredConfig) | undefined> {
+    const abs = projectPaths.abs
+    const rel = projectPaths.rel('workDir')
+
+    if (!fs.existsSync(abs.pluginDefinition)) {
+      return
+    }
+
+    const bpLintDisabled = await this._isBpLintDisabled(abs.pluginDefinition)
+
+    const { outputFiles } = await utils.esbuild.buildEntrypoint({
+      cwd: abs.workDir,
+      outfile: '',
+      entrypoint: rel.pluginDefinition,
+      write: false,
+      minify: false,
+    })
+
+    const artifact = outputFiles[0]
+    if (!artifact) {
+      throw new errors.BotpressCLIError('Could not read plugin definition')
+    }
+
+    const { default: definition } = utils.require.requireJsCode<{ default: sdk.PluginDefinition }>(artifact.text)
+
     return { definition, bpLintDisabled }
   }
 

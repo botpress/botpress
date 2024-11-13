@@ -566,6 +566,20 @@
         "@botpress/cli#build"
       ]
     },
+    "@bp-plugins/logger#add:interfaces": {
+      "cache": false,
+      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+    },
+    "@bp-plugins/logger#build": {
+      "inputs": ["plugin.definition.ts", "src/**"],
+      "outputs": [".botpress/**"],
+      "dependsOn": [
+        "@bp-plugins/logger#add:interfaces",
+        "@botpress/client#build",
+        "@botpress/sdk#build",
+        "@botpress/cli#build"
+      ]
+    },
     "@bp-bots/bugbuster#add:integrations": {
       "cache": false,
       "dependsOn": [
@@ -586,7 +600,12 @@
     },
     "@bp-bots/hello-world#add:integrations": {
       "cache": false,
-      "dependsOn": ["@botpress/cli#build", "@botpresshub/telegram#build"]
+      "dependsOn": [
+        "@botpress/cli#build",
+        "@botpresshub/whatsapp#build",
+        "@botpresshub/webhook#build",
+        "@bp-plugins/logger#build"
+      ]
     },
     "@bp-bots/hello-world#build": {
       "cache": false,

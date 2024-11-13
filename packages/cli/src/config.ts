@@ -54,7 +54,7 @@ const packageType = {
   type: 'string',
   description:
     'Either an integration or an interface; helps disambiguate the package type in case both an integration and an interface have the same reference.',
-  choices: ['integration', 'interface'] as const,
+  choices: ['integration', 'interface', 'plugin'] as const,
 } satisfies CommandOption
 
 const packageRef = {

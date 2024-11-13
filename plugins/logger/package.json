@@ -1,0 +1,19 @@
+{
+  "name": "@bp-plugins/logger",
+  "description": "Logger plugin for Botpress",
+  "private": true,
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "build": "bp build",
+    "add:interfaces": "echo 'no interfaces to add'"
+  },
+  "dependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "qs": "^6.11.0"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.4"
+  }
+}

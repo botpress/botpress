@@ -6,9 +6,9 @@ const truncate = (str: string, maxLength: number = 500): string =>
 
 const bot = new bp.Bot({})
 
-bot.message(async ({ message, client, ctx }) => {
-  console.info('Received message', message)
+bot.use(bp.logger)
 
+bot.message(async ({ message, client, ctx }) => {
   await client.createMessage({
     conversationId: message.conversationId,
     userId: ctx.botId,
@@ -18,8 +18,6 @@ bot.message(async ({ message, client, ctx }) => {
       text: 'Hello world!',
     },
   })
-
-  console.info('text message sent')
 })
 
 bot.event(async ({ event }) => {

@@ -57,9 +57,13 @@ export type IntegrationConfigInstance<I extends IntegrationPackage = Integration
     }>
 )
 
+export type PluginInstance = PluginPackage
 export type IntegrationInstance = IntegrationPackage & IntegrationConfigInstance
 
 export type BotDefinitionProps<TStates extends BaseStates = BaseStates, TEvents extends BaseEvents = BaseEvents> = {
+  plugins?: {
+    [K: string]: PluginInstance
+  }
   integrations?: {
     [K: string]: IntegrationInstance
   }
@@ -77,6 +81,7 @@ export type BotDefinitionProps<TStates extends BaseStates = BaseStates, TEvents 
 }
 
 export class BotDefinition<TStates extends BaseStates = BaseStates, TEvents extends BaseEvents = BaseEvents> {
+  public readonly plugins: this['props']['plugins']
   public readonly integrations: this['props']['integrations']
   public readonly user: this['props']['user']
   public readonly conversation: this['props']['conversation']
@@ -86,6 +91,7 @@ export class BotDefinition<TStates extends BaseStates = BaseStates, TEvents exte
   public readonly events: this['props']['events']
   public readonly recurringEvents: this['props']['recurringEvents']
   public constructor(public readonly props: BotDefinitionProps<TStates, TEvents>) {
+    this.plugins = props.plugins
     this.integrations = props.integrations
     this.user = props.user
     this.conversation = props.conversation
@@ -111,8 +117,13 @@ export class BotDefinition<TStates extends BaseStates = BaseStates, TEvents exte
     return this
   }
 
-  public use<P extends PluginPackage>(_pluginPkg: P): this {
-    // TODO: implement this
+  public use<P extends PluginPackage>(pluginPkg: P): this {
+    const self = this as Writable<BotDefinition>
+    if (!self.plugins) {
+      self.plugins = {}
+    }
+
+    self.plugins[pluginPkg.definition.name] = pluginPkg
     return this
   }
 }

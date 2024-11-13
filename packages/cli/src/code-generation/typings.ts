@@ -22,3 +22,10 @@ export type InterfaceInstallablePackage =
       source: 'local'
       path: utils.path.AbsolutePath
     }
+
+export type PluginInstallablePackage = {
+  // plugins can't be installed remotely
+  source: 'local'
+  path: utils.path.AbsolutePath
+  implementation: string
+}
