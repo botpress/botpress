@@ -1,4 +1,3 @@
-import { BotSpecificClient } from '../bot'
 import * as types from './types'
 
 export type PluginImplementationProps<_TPlugin extends types.BasePlugin = types.BasePlugin> = {
@@ -137,27 +136,20 @@ export class PluginImplementation<TPlugin extends types.BasePlugin = types.BaseP
     type: T,
     input: types.HookInputs<TPlugin>[H][T]
   ): Promise<types.HookOutputs<TPlugin>[H][T]> => {
-    return this._runAny(hook, type as string, {
-      client: input.client as unknown as BotSpecificClient<types.BasePlugin>,
-      ctx: input.ctx,
-      data: input.data,
-    }) as Promise<types.HookOutputs<TPlugin>[H][T]>
-  }
-
-  private readonly _runAny = async (
-    hook: types.HookType,
-    type: string,
-    input: types.HookInputs<types.BasePlugin>[types.HookType][string]
-  ): Promise<types.HookOutputs<types.BasePlugin>[types.HookType][string]> => {
     const { client, ctx, data } = input
-    const hooks = this._hooks[hook] as types.HookImplementationsMap<types.BasePlugin>[types.HookType]
-    const handlers = hooks[type] as types.HookImplementations<types.BasePlugin>[types.HookType][string][] | undefined
+    const hooks = this._hooks[hook]
+    const handlers = hooks[type]
     if (!handlers) {
-      return { data }
+      return { data } as types.HookOutputs<TPlugin>[H][T]
     }
-    const result: types.HookOutputs<types.BasePlugin>[types.HookType][string] = { data: input }
+    const result = { data } as types.HookOutputs<TPlugin>[H][T]
     for (const handler of handlers) {
-      const output = await handler({ data: result.data, client, ctx })
+      const input = {
+        data: result.data,
+        client,
+        ctx,
+      } as types.HookInputs<TPlugin>[H][T]
+      const output = await handler(input as any) // TODO: fix this type cast
       if (!output) {
         continue
       }

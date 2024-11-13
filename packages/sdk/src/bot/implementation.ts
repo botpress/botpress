@@ -25,6 +25,9 @@ export class BotImplementation<TBot extends BaseBot = BaseBot> {
 
   public constructor(public readonly props: BotImplementationProps<TBot>) {}
 
+  public readonly use = (plugin: PluginImplementation): void => {
+    this._state.plugins.push(plugin)
+  }
   public readonly message = (handler: MessageHandler<TBot>): void => {
     this._state.messageHandlers.push(handler)
   }
