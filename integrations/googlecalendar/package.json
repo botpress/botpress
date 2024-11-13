@@ -14,14 +14,14 @@
   "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "google-auth-library": "^9.0.0",
-    "googleapis": "^126.0.1"
+    "googleapis": "^144.0.0"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@types/node": "^18.11.17",
-    "googleapis-common": "^7.0.1",
-    "@botpress/common": "workspace:*"
+    "@types/node": "^18.19.10",
+    "ts-node": "^10.9.1",
+    "typescript": "^4.9.4"
   }
 }
