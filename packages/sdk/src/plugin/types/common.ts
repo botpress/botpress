@@ -11,10 +11,14 @@ type IncomingEvents<TPlugin extends BasePlugin> = {
     client.Event,
     { type: K; payload: bot.EnumerateEvents<TPlugin>[K] }
   >
+} & {
+  '*': client.Event
 }
 
 type IncomingMessages<TPlugin extends BasePlugin> = {
   [K in keyof bot.GetMessages<TPlugin>]: utils.Merge<client.Message, { type: K; payload: bot.GetMessages<TPlugin>[K] }>
+} & {
+  '*': client.Message
 }
 
 type OutgoingMessageRequests<TPlugin extends BasePlugin> = {
@@ -22,6 +26,8 @@ type OutgoingMessageRequests<TPlugin extends BasePlugin> = {
     client.ClientInputs['createMessage'],
     { type: K; payload: bot.GetMessages<TPlugin>[K] }
   >
+} & {
+  '*': client.ClientInputs['createMessage']
 }
 
 type OutgoingMessageResponses<TPlugin extends BasePlugin> = {
@@ -31,6 +37,8 @@ type OutgoingMessageResponses<TPlugin extends BasePlugin> = {
       message: utils.Merge<client.Message, { type: K; payload: bot.GetMessages<TPlugin>[K] }>
     }
   >
+} & {
+  '*': client.ClientOutputs['createMessage']
 }
 
 type CallActionRequests<TPlugin extends BasePlugin> = {
@@ -38,6 +46,8 @@ type CallActionRequests<TPlugin extends BasePlugin> = {
     client.ClientInputs['callAction'],
     { type: K; input: bot.EnumerateActionInputs<TPlugin>[K] }
   >
+} & {
+  '*': client.ClientInputs['callAction']
 }
 
 type CallActionResponses<TPlugin extends BasePlugin> = {
@@ -45,12 +55,13 @@ type CallActionResponses<TPlugin extends BasePlugin> = {
     client.ClientOutputs['callAction'],
     { output: bot.EnumerateActionOutputs<TPlugin>[K] }
   >
+} & {
+  '*': client.ClientOutputs['callAction']
 }
 
 /**
  * TODO:
  * - add concept of stoppable / un-stoppable hooks (e.g. before_incoming_message  Vs before_outgoing_message)
- * - add "*" type for all hooks
  * - add "before_register", "after_register", "before_state_expired", "after_state_expired" hooks
  */
 export type HookDefinitions<TPlugin extends BasePlugin> = {

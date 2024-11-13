@@ -138,10 +138,9 @@ export class PluginImplementation<TPlugin extends types.BasePlugin = types.BaseP
   ): Promise<types.HookOutputs<TPlugin>[H][T]> => {
     const { client, ctx, data } = input
     const hooks = this._hooks[hook]
-    const handlers = hooks[type]
-    if (!handlers) {
-      return { data } as types.HookOutputs<TPlugin>[H][T]
-    }
+    const scopedHandlers = hooks[type] ?? []
+    const globalHandlers = hooks['*'] ?? []
+    const handlers = [...scopedHandlers, ...globalHandlers]
     const result = { data } as types.HookOutputs<TPlugin>[H][T]
     for (const handler of handlers) {
       const input = {
