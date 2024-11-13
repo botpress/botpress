@@ -28,6 +28,7 @@ import {
 } from './validation'
 import * as bp from '.botpress'
 
+const MYDRIVE_ID_ALIAS = 'root'
 const PAGE_SIZE = 10
 const GOOGLE_API_FILE_FIELDS = 'id, name, mimeType, parents, size'
 const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageToken`
@@ -67,7 +68,8 @@ export class Client {
   }
 
   public async listFolders(nextToken?: string): Promise<ListFolderOutput> {
-    const filesCache = nextToken
+    const isFirstRequest = nextToken === undefined
+    const filesCache = isFirstRequest
       ? await FilesCache.load({ client: this._client, ctx: this._ctx })
       : new FilesCache(this._client, this._ctx) // Invalidate cache when starting from scratch
 
@@ -76,6 +78,13 @@ export class Client {
       nextToken,
       searchQuery: `mimeType = '${FOLDER_MIMETYPE}'`,
     })
+    if (isFirstRequest) {
+      // My Drive is not returned by list operation but needs to be part of list
+      const myDriveFile = await this._fetchFile(MYDRIVE_ID_ALIAS)
+      newFiles.push(myDriveFile)
+      filesCache.set(myDriveFile)
+    }
+
     await filesCache.save()
     const itemsPromises = newFiles
       .filter((f) => f.type === 'folder')

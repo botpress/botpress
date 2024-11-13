@@ -1,14 +1,24 @@
-import { createEvent } from './create-event'
-import { deleteEvent } from './delete-event'
-import { listEvents } from './list-events'
-import sync from './sync'
-import { updateEvent } from './update-event'
+import { createEvent } from './implementations/create-event'
+import { deleteEvent } from './implementations/delete-event'
+import { eventCreate } from './implementations/interfaces/event-create'
+import { eventDelete } from './implementations/interfaces/event-delete'
+import { eventList } from './implementations/interfaces/event-list'
+import { eventRead } from './implementations/interfaces/event-read'
+import { eventUpdate } from './implementations/interfaces/event-update'
+
+import { listEvents } from './implementations/list-events'
+import { updateEvent } from './implementations/update-event'
 import * as bp from '.botpress'
 
-export default {
-  ...sync,
+export const actions = {
+  eventCreate,
+  eventDelete,
+  eventList,
+  eventRead,
+  eventUpdate,
+
   createEvent,
-  updateEvent,
   deleteEvent,
   listEvents,
-} satisfies bp.IntegrationProps['actions']
+  updateEvent,
+} as const satisfies bp.IntegrationProps['actions']

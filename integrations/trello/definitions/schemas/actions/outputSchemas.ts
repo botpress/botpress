@@ -99,3 +99,7 @@ export const moveCardToListOutputSchema = GENERIC_SHEMAS.hasMessage.describe(
   'Output schema for moving a card to a list'
 )
 export const updateCardOutputSchema = GENERIC_SHEMAS.hasMessage.describe('Output schema for updating a card')
+
+export const getAllCardMembersOutputSchema = GENERIC_SHEMAS.outputsMembers.describe(
+  'Output schema for getting all members of a card'
+)
