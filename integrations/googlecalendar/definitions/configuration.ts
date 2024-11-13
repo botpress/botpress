@@ -8,7 +8,12 @@ const _commonConfig = {
     .describe('The ID of the Google Calendar to interact with. You can find it in your Google Calendar settings.'),
 } as const
 
-export const configuration = undefined satisfies sdk.IntegrationDefinitionProps['configuration']
+export const configuration = {
+  schema: z.object({
+    ..._commonConfig,
+  }),
+  identifier: { linkTemplateScript: 'linkTemplate.vrl', required: true },
+} as const satisfies sdk.IntegrationDefinitionProps['configuration']
 
 export const identifier = undefined satisfies sdk.IntegrationDefinitionProps['identifier']
 

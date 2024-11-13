@@ -1,7 +1,7 @@
 import { google } from 'googleapis'
 import { handleErrorsDecorator as handleErrors } from './error-handling'
 import { RequestMapping, ResponseMapping } from './mapping'
-import { getAuthenticatedOAuth2Client } from './oauth-client'
+import { exchangeAuthCodeAndSaveRefreshToken, getAuthenticatedOAuth2Client } from './oauth-client'
 import { CreateEventRequest, GoogleCalendarClient, GoogleOAuth2Client, Event, UpdateEventRequest } from './types'
 import * as bp from '.botpress'
 
@@ -22,6 +22,18 @@ export class GoogleClient {
       oauthClient: oauth2Client,
       calendarId: ctx.configuration.calendarId,
     })
+  }
+
+  public static async authenticateWithAuthorizationCode({
+    ctx,
+    client,
+    authorizationCode,
+  }: {
+    ctx: bp.Context
+    client: bp.Client
+    authorizationCode: string
+  }) {
+    await exchangeAuthCodeAndSaveRefreshToken({ ctx, client, authorizationCode })
   }
 
   @handleErrors('Failed to get calendar summary')
