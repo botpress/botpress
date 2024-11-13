@@ -29,8 +29,8 @@ import {
 } from './validation'
 import * as bp from '.botpress'
 
-type FileStreamUploadInput = Parameters<bp.Client['upsertFile']>[0]
-type FileBufferUploadInput = Omit<Parameters<bp.Client['uploadFile']>[0], 'content'>
+type FileStreamUploadParams = Parameters<bp.Client['upsertFile']>[0]
+type FileBufferUploadParams = Omit<Parameters<bp.Client['uploadFile']>[0], 'content'>
 
 const MAX_EXPORT_FILE_SIZE = 10000000 // 10MB, as per the Google Drive API doc
 const PAGE_SIZE = 10
@@ -316,7 +316,7 @@ export class Client {
   /**
    * @returns The Botpress file ID of the newly uploaded file
    */
-  private async _uploadBufferToBpFiles(buffer: Buffer, params: FileBufferUploadInput): Promise<string> {
+  private async _uploadBufferToBpFiles(buffer: Buffer, params: FileBufferUploadParams): Promise<string> {
     const { file } = await this._client.uploadFile({
       ...params,
       content: buffer,
@@ -328,7 +328,7 @@ export class Client {
   /**
    * @returns The Botpress file ID of the newly uploaded file
    */
-  private async _uploadStreamToBpFiles(stream: Readable, params: FileStreamUploadInput): Promise<string> {
+  private async _uploadStreamToBpFiles(stream: Readable, params: FileStreamUploadParams): Promise<string> {
     const { file } = await this._client.upsertFile(params)
     const { contentType, size } = params
     const { id, uploadUrl } = file
