@@ -38,6 +38,7 @@ jobs:
           extra_filter: "-F '!googledrive'"
           gmail_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_GMAIL_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_GMAIL_CLIENT_SECRET }} --secrets TOPIC_NAME=${{ secrets.PRODUCTION_GMAIL_TOPIC_NAME }} --secrets WEBHOOK_SHARED_SECRET=${{ secrets.PRODUCTION_GMAIL_WEBHOOK_SHARED_SECRET }} --secrets WEBHOOK_SERVICE_ACCOUNT=${{ secrets.PRODUCTION_GMAIL_WEBHOOK_SERVICE_ACCOUNT }}'
           gsheets_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_GSHEETS_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_GSHEETS_CLIENT_SECRET }}'
+          googlecalendar_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_GOOGLECALENDAR_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_GOOGLECALENDAR_CLIENT_SECRET }}'
           linear_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_LINEAR_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_LINEAR_CLIENT_SECRET }} --secrets WEBHOOK_SIGNING_SECRET=${{ secrets.PRODUCTION_LINEAR_WEBHOOK_SIGNING_SECRET }}'
           slack_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_SLACK_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_SLACK_CLIENT_SECRET }} --secrets SIGNING_SECRET=${{ secrets.PRODUCTION_SLACK_SIGNING_SECRET }}'
           charts_secrets: '--secrets QUICKCHARTS_API_KEY=${{ secrets.QUICKCHARTS_API_KEY }}'
