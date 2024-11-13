@@ -6,7 +6,8 @@ import llm from './bp_modules/llm'
 export default new IntegrationDefinition({
   name: 'google-ai',
   title: 'Google AI',
-  version: '0.1.0',
+  description: 'Gain access to Gemini models for content generation, chat responses, and advanced language tasks.',
+  version: '0.1.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {

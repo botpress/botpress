@@ -4,9 +4,9 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'intercom',
-  version: '0.4.5',
+  version: '0.4.6',
   title: 'Intercom',
-  description: 'This integration allows your bot to interact with Intercom.',
+  description: 'Engage with customers in realtime with personalized messaging.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

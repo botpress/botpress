@@ -6,10 +6,9 @@ const anyObject = z.object({}).passthrough()
 
 export default new IntegrationDefinition({
   name: 'notion',
-  description:
-    'Supercharge your productivity with Notion integration. Add pages and comments, manage databases, and engage in discussions—all within your chatbot',
+  description: 'Add pages and comments, manage databases, and engage in discussions — all within your chatbot.',
   title: 'Notion',
-  version: '0.3.3',
+  version: '0.3.4',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

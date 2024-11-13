@@ -28,8 +28,8 @@ const sharedConfig = {
 export default new IntegrationDefinition({
   name: 'slack',
   title: 'Slack',
-  description: 'This integration allows your bot to interact with Slack.',
-  version: '1.0.3',
+  description: 'Automate interactions with your team.',
+  version: '1.0.4',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

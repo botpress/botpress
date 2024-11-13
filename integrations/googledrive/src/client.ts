@@ -33,6 +33,7 @@ type FileStreamUploadParams = Parameters<bp.Client['upsertFile']>[0]
 type FileBufferUploadParams = Omit<Parameters<bp.Client['uploadFile']>[0], 'content'>
 
 const MAX_EXPORT_FILE_SIZE = 10000000 // 10MB, as per the Google Drive API doc
+const MYDRIVE_ID_ALIAS = 'root'
 const PAGE_SIZE = 10
 const GOOGLE_API_EXPORTFORMATS_FIELDS = 'exportFormats'
 const GOOGLE_API_FILE_FIELDS = 'id, name, mimeType, parents, size'
@@ -73,7 +74,8 @@ export class Client {
   }
 
   public async listFolders(nextToken?: string): Promise<ListFolderOutput> {
-    const filesCache = nextToken
+    const isFirstRequest = nextToken === undefined
+    const filesCache = isFirstRequest
       ? await FilesCache.load({ client: this._client, ctx: this._ctx })
       : new FilesCache(this._client, this._ctx) // Invalidate cache when starting from scratch
 
@@ -82,6 +84,13 @@ export class Client {
       nextToken,
       searchQuery: `mimeType = '${APP_GOOGLE_FOLDER_MIMETYPE}'`,
     })
+    if (isFirstRequest) {
+      // My Drive is not returned by list operation but needs to be part of list
+      const myDriveFile = await this._fetchFile(MYDRIVE_ID_ALIAS)
+      newFiles.push(myDriveFile)
+      filesCache.set(myDriveFile)
+    }
+
     await filesCache.save()
     const itemsPromises = newFiles
       .filter((f) => f.type === 'folder')
