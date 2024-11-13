@@ -349,7 +349,7 @@ export class Client {
     return id
   }
 
-  private async _fetchExportFormats(): Promise<Record<string, string[]>> {
+  private async _fetchExportFormatMap(): Promise<Record<string, string[]>> {
     const response = await this._googleClient.about.get({
       fields: GOOGLE_API_EXPORTFORMATS_FIELDS,
     })
@@ -364,8 +364,8 @@ export class Client {
    * @returns The export type to use, or undefined if the file cannot be exported
    */
   private async _findExportType(originalContentType: string): Promise<string | undefined> {
-    const exportFormats = await this._fetchExportFormats()
-    const exportContentTypes = exportFormats[originalContentType]
+    const exportFormatMap = await this._fetchExportFormatMap()
+    const exportContentTypes = exportFormatMap[originalContentType]
     if (!exportContentTypes) {
       return undefined
     }
