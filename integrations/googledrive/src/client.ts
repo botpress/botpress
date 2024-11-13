@@ -2,15 +2,8 @@ import { RuntimeError } from '@botpress/sdk'
 import axios, { AxiosError } from 'axios'
 import { Readable, Stream } from 'stream'
 import { getAuthenticatedGoogleClient } from './auth'
-import {
-  APPLICATION_PDF_MIMETYPE,
-  GOOGLE_DOCS_MIMETYPE,
-  GOOGLE_FOLDER_MIMETYPE,
-  GOOGLE_SHEETS_MIMETYPE,
-  GOOGLE_SHORTCUT_MIMETYPE,
-  GOOGLE_SLIDES_MIMETYPE,
-} from './constants'
 import { FilesCache } from './files-cache'
+import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE, INDEXABLE_MIMETYPES } from './mime-types'
 import {
   BaseGenericFile,
   GoogleDriveClient,
@@ -41,16 +34,9 @@ type FileBufferUploadInput = Omit<Parameters<bp.Client['uploadFile']>[0], 'conte
 
 const MAX_EXPORT_FILE_SIZE = 10000000 // 10MB, as per the Google Drive API doc
 const PAGE_SIZE = 10
+const GOOGLE_API_EXPORTFORMATS_FIELDS = 'exportFormats'
 const GOOGLE_API_FILE_FIELDS = 'id, name, mimeType, parents, size'
 const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageToken`
-
-// TODO: Get associations automatically from the Drive API
-type GoogleToBpTypeExportMap = Record<string, string>
-const googleToBpTypeExportMap: GoogleToBpTypeExportMap = {
-  [GOOGLE_DOCS_MIMETYPE]: APPLICATION_PDF_MIMETYPE,
-  [GOOGLE_SHEETS_MIMETYPE]: APPLICATION_PDF_MIMETYPE,
-  [GOOGLE_SLIDES_MIMETYPE]: APPLICATION_PDF_MIMETYPE,
-}
 
 export class Client {
   private constructor(private _client: bp.Client, private _ctx: bp.Context, private _googleClient: GoogleDriveClient) {}
@@ -71,7 +57,7 @@ export class Client {
     const { newFiles, newNextToken } = await this._fetchFilesAndUpdateCache({
       filesCache,
       nextToken,
-      searchQuery: `mimeType != '${GOOGLE_FOLDER_MIMETYPE}' and mimeType != '${GOOGLE_SHORTCUT_MIMETYPE}'`,
+      searchQuery: `mimeType != '${APP_GOOGLE_FOLDER_MIMETYPE}' and mimeType != '${APP_GOOGLE_SHORTCUT_MIMETYPE}'`,
     })
     const itemsPromises = newFiles
       .filter((f) => f.type === 'normal')
@@ -94,7 +80,7 @@ export class Client {
     const { newFiles, newNextToken } = await this._fetchFilesAndUpdateCache({
       filesCache,
       nextToken,
-      searchQuery: `mimeType = '${GOOGLE_FOLDER_MIMETYPE}'`,
+      searchQuery: `mimeType = '${APP_GOOGLE_FOLDER_MIMETYPE}'`,
     })
     await filesCache.save()
     const itemsPromises = newFiles
@@ -172,12 +158,11 @@ export class Client {
       throw new RuntimeError(`Attempted to download a file of type ${file.type}`)
     }
 
-    const exportType = googleToBpTypeExportMap[file.mimeType]
+    const exportType = await this._findExportType(file.mimeType)
     const isExport = exportType !== undefined
-    const contentType = isExport ? exportType : file.mimeType
     const uploadParams = {
       key: file.id,
-      contentType,
+      contentType: isExport ? exportType : file.mimeType,
       index,
     }
     let bpFileId: string | undefined
@@ -186,7 +171,6 @@ export class Client {
       const fileDownloadBuffer = await streamToBuffer(fileDownloadStream, MAX_EXPORT_FILE_SIZE)
       bpFileId = await this._uploadBufferToBpFiles(fileDownloadBuffer, uploadParams)
     } else {
-      // Download file leaving type as-is
       const fileDownloadStream = await this._fetchFileData(file)
       bpFileId = await this._uploadStreamToBpFiles(fileDownloadStream, {
         ...uploadParams,
@@ -363,6 +347,43 @@ export class Client {
       })
 
     return id
+  }
+
+  private async _fetchExportFormats(): Promise<Record<string, string[]>> {
+    const response = await this._googleClient.about.get({
+      fields: GOOGLE_API_EXPORTFORMATS_FIELDS,
+    })
+    const { exportFormats } = response.data
+    if (!exportFormats) {
+      throw new RuntimeError('Export formats are missing in Schema$About from the API response')
+    }
+    return exportFormats
+  }
+
+  /**
+   * @returns The export type to use, or undefined if the file cannot be exported
+   */
+  private async _findExportType(originalContentType: string): Promise<string | undefined> {
+    const exportFormats = await this._fetchExportFormats()
+    const exportContentTypes = exportFormats[originalContentType]
+    if (!exportContentTypes) {
+      return undefined
+    }
+
+    let exportContentType = exportContentTypes[0] // Default
+    if (!exportContentType) {
+      return undefined
+    }
+
+    for (const indexableType of INDEXABLE_MIMETYPES) {
+      // Check if can be exported to an indexable type
+      if (exportContentTypes.includes(indexableType)) {
+        exportContentType = indexableType
+        break
+      }
+    }
+
+    return exportContentType
   }
 
   private _getFilePath = (id: string, filesCache: FilesCache): string[] => {

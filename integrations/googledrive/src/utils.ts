@@ -2,12 +2,12 @@ import { Readable } from 'stream'
 
 export const streamToBuffer = (stream: Readable, maxBufferSize: number): Promise<Buffer> => {
   return new Promise((resolve, reject) => {
-    const chunkArray: Uint8Array[] = []
-    let currentSize = 0
+    const chunkArray: Buffer[] = []
+    let size = 0
     stream
-      .on('data', (chunk: Uint8Array) => {
-        currentSize += chunk.length
-        if (currentSize > maxBufferSize) {
+      .on('data', (chunk: Buffer) => {
+        size += chunk.length
+        if (size > maxBufferSize) {
           reject(`Max buffer size exceeded while converting stream to buffer (${maxBufferSize})`)
         }
         chunkArray.push(chunk)
