@@ -375,10 +375,10 @@ export class Client {
       return undefined
     }
 
-    for (const indexableType of INDEXABLE_MIMETYPES) {
+    for (const indexableContentType of INDEXABLE_MIMETYPES) {
       // Check if can be exported to an indexable type
-      if (exportContentTypes.includes(indexableType)) {
-        exportContentType = indexableType
+      if (exportContentTypes.includes(indexableContentType)) {
+        exportContentType = indexableContentType
         break
       }
     }
