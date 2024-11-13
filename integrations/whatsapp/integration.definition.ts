@@ -33,7 +33,7 @@ export const INTEGRATION_NAME = 'whatsapp'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.0.11',
+  version: '2.1.0',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
