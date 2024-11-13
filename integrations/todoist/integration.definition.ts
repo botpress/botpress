@@ -12,7 +12,9 @@ const ItemDefinition = z.object({
 
 export default new IntegrationDefinition({
   name: 'todoist',
-  version: '0.0.2',
+  title: 'Todoist',
+  description: 'Create and modify tasks, post comments and more.',
+  version: '0.0.3',
   readme: 'README.md',
   icon: 'icon.svg',
   channels: {

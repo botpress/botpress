@@ -8,9 +8,8 @@ import { actions, entities, configuration, configurations, identifier, events, s
 
 export default new sdk.IntegrationDefinition({
   name: 'googlecalendar',
-  version: '1.0.0',
-  description:
-    "Elevate your chatbot's capabilities with the Botpress integration for Google Calendar. Seamlessly sync your chatbot with Google Calendar to effortlessly manage events, appointments, and schedules",
+  version: '1.0.1',
+  description: 'Sync with your calendar to manage events, appointments, and schedules directly within the chatbot.',
   title: 'Google Calendar',
   readme: 'hub.md',
   icon: 'icon.svg',

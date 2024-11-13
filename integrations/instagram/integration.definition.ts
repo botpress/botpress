@@ -4,9 +4,9 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'instagram',
-  version: '0.4.5',
+  version: '0.4.6',
   title: 'Instagram',
-  description: 'This integration allows your bot to interact with Instagram.',
+  description: 'Automate interactions, manage comments, and send/receive messages all in real-time.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

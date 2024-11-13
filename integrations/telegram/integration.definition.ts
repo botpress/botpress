@@ -5,9 +5,9 @@ import typingIndicator from './bp_modules/typing-indicator'
 
 export default new IntegrationDefinition({
   name: 'telegram',
-  version: '0.5.5',
+  version: '0.5.6',
   title: 'Telegram',
-  description: 'This integration allows your bot to interact with Telegram.',
+  description: 'Engage with your audience in real-time.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

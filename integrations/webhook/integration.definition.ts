@@ -4,10 +4,9 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'webhook',
-  version: '1.0.0',
+  version: '1.0.1',
   title: 'Webhook',
-  description:
-    'Connect your chatbot to your systems with webhooks. Send and receive data from external systems and trigger workflows effortlessly.',
+  description: 'Use webhooks to send and receive data from external systems and trigger workflows.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
