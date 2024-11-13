@@ -6,7 +6,9 @@ import llm from './bp_modules/llm'
 export default new IntegrationDefinition({
   name: 'cerebras',
   title: 'Cerebras',
-  version: '1.0.0',
+  description:
+    'Get access to a curated list of Cerebras models for content generation and chat completions within your bot.',
+  version: '1.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {

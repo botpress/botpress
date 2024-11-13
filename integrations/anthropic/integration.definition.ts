@@ -6,7 +6,8 @@ import llm from './bp_modules/llm'
 export default new IntegrationDefinition({
   name: 'anthropic',
   title: 'Anthropic',
-  version: '4.0.0',
+  description: 'Access a curated list of Claude models to set as your chosen LLM.',
+  version: '4.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
