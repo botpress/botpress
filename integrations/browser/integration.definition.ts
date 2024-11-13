@@ -5,7 +5,7 @@ import { actionDefinitions } from 'src/definitions/actions'
 export default new IntegrationDefinition({
   name: 'browser',
   title: 'Browser',
-  version: '0.1.0',
+  version: '0.1.1',
   description:
     'Capture screenshots and retrieve web page content with metadata for automated browsing and data extraction.',
   readme: 'hub.md',

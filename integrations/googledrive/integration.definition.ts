@@ -17,7 +17,7 @@ export default new IntegrationDefinition({
   name: 'googledrive',
   title: 'Google Drive',
   description: 'Access and manage your Google Drive files from your bot.',
-  version: '0.0.1',
+  version: '0.0.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {

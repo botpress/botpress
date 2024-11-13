@@ -14,7 +14,7 @@ export default new IntegrationDefinition({
   name: 'todoist',
   title: 'Todoist',
   description: 'Create and modify tasks, post comments and more.',
-  version: '0.0.2',
+  version: '0.0.3',
   readme: 'README.md',
   icon: 'icon.svg',
   channels: {

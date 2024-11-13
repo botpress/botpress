@@ -3,7 +3,7 @@ import { configuration, identifier, channels, user, states, actions, events, sec
 
 export default new sdk.IntegrationDefinition({
   name: 'gmail',
-  version: '0.5.2',
+  version: '0.5.3',
   title: 'Gmail',
   description: "Send, receive, and manage emails directly within your bot's workflow.",
   icon: 'icon.svg',

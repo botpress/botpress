@@ -8,7 +8,7 @@ const modelDescription = 'Model to use for image generation. Defaults to "dall-e
 
 export default new IntegrationDefinition({
   name: 'dalle',
-  version: '0.3.3',
+  version: '0.3.4',
   icon: 'icon.svg',
   title: 'DALL-E (Deprecated)',
   description: 'Integrate DALL-E to generate images directly within your chatbot conversations.',

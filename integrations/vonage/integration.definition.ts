@@ -4,7 +4,7 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'vonage',
-  version: '0.4.5',
+  version: '0.4.6',
   title: 'Vonage',
   description: 'Send and receive SMS messages.',
   icon: 'icon.svg',
