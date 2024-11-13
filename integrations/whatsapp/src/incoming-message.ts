@@ -90,7 +90,7 @@ export async function handleIncomingMessage(
           conversationId: conversation.id,
         })
       } else if (message.document) {
-        logger.forBot().debug('Received document message from Whatsapp:', message.button)
+        logger.forBot().debug('Received document message from Whatsapp:', message)
 
         const documentUrl = await getWhatsAppMediaUrl(message.document.id, client, ctx)
 
@@ -103,6 +103,18 @@ export async function handleIncomingMessage(
               filename: message.document.filename,
             },
           },
+          userId: user.id,
+          conversationId: conversation.id,
+        })
+      } else if (message.video) {
+        logger.forBot().debug('Received video message from Whatsapp:', message)
+
+        const videoUrl = await getWhatsAppMediaUrl(message.video.id, client, ctx)
+
+        await client.createMessage({
+          tags: { id: message.id },
+          type: 'video',
+          payload: { videoUrl },
           userId: user.id,
           conversationId: conversation.id,
         })

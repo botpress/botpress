@@ -260,7 +260,7 @@ const integration = new bp.Integration({
             const phoneNumberId = change.value.metadata.phone_number_id
 
             await whatsapp.markAsRead(phoneNumberId, message.id)
-
+            console.log('marked as read')
             await handleIncomingMessage(message, change.value, ctx, client, logger)
           }
         }
