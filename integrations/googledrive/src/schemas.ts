@@ -1,5 +1,5 @@
 import { z } from '@botpress/sdk'
-import { FOLDER_MIMETYPE, SHORTCUT_MIMETYPE } from './constants'
+import { GOOGLE_FOLDER_MIMETYPE, GOOGLE_SHORTCUT_MIMETYPE } from './constants'
 
 export const ID_DESCRIPTION = 'The ID of the Google Drive file'
 
@@ -20,11 +20,11 @@ export const baseNormalFileSchema = commonFileAttrSchema.extend({
 })
 
 export const baseFolderFileSchema = commonFileAttrSchema.extend({
-  mimeType: z.literal(FOLDER_MIMETYPE),
+  mimeType: z.literal(GOOGLE_FOLDER_MIMETYPE),
 })
 
 export const baseShortcutFileSchema = commonFileAttrSchema.extend({
-  mimeType: z.literal(SHORTCUT_MIMETYPE),
+  mimeType: z.literal(GOOGLE_SHORTCUT_MIMETYPE),
 })
 
 /* Used to represent a generic file, closer to what is received by the API.
