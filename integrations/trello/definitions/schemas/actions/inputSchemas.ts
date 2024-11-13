@@ -20,6 +20,15 @@ export const createCardInputSchema = z
     listId: ListSchema.shape.id.describe('ID of the list in which to insert the new card'),
     cardName: CardSchema.shape.name.describe('Name of the new card'),
     cardBody: CardSchema.shape.description.optional().describe('Body text of the new card'),
+    members: z
+      .array(TrelloIDSchema)
+      .optional()
+      .describe('Members to add to the card (Optional). This should be a list of member IDs.'),
+    labels: z
+      .array(TrelloIDSchema)
+      .optional()
+      .describe('Labels to add to the card (Optional). This should be a list of label IDs.'),
+    dueDate: CardSchema.shape.dueDate.optional().describe('The due date of the card in ISO 8601 format (Optional).'),
   })
   .describe('Input schema for creating a new card')
 
@@ -50,25 +59,25 @@ export const updateCardInputSchema = GENERIC_SHEMAS.hasCardId
         .array(TrelloIDSchema)
         .optional()
         .describe(
-          'Members to add to the card (Optional). This should be a CSV list of member IDs. Leave empty to keep the current members.'
+          'Members to add to the card (Optional). This should be a list of member IDs. Leave empty to keep the current members.'
         ),
       membersToRemove: z
         .array(TrelloIDSchema)
         .optional()
         .describe(
-          'Members to remove from the card (Optional). This should be a CSV list of member IDs. Leave empty to keep the current members.'
+          'Members to remove from the card (Optional). This should be a list of member IDs. Leave empty to keep the current members.'
         ),
       labelsToAdd: z
         .array(TrelloIDSchema)
         .optional()
         .describe(
-          'Labels to add to the card (Optional). This should be a CSV list of label IDs. Leave empty to keep the current labels.'
+          'Labels to add to the card (Optional). This should be a list of label IDs. Leave empty to keep the current labels.'
         ),
       labelsToRemove: z
         .array(TrelloIDSchema)
         .optional()
         .describe(
-          'Labels to remove from the card (Optional). This should be a CSV list of label IDs. Leave empty to keep the current labels.'
+          'Labels to remove from the card (Optional). This should be a list of label IDs. Leave empty to keep the current labels.'
         ),
       dueDate: CardSchema.shape.dueDate
         .optional()
@@ -146,7 +155,6 @@ export const getBoardMembersByDisplayNameInputSchema = GENERIC_SHEMAS.hasBoardId
     })
   )
   .describe('Input schema for getting a member from its name')
-
 export const getBoardByIdInputSchema = GENERIC_SHEMAS.hasBoardId.describe(
   'Input schema for getting a board from its ID'
 )
@@ -155,4 +163,8 @@ export const getAllBoardsInputSchema = GENERIC_SHEMAS.noInput.describe('Input sc
 
 export const getAllBoardMembersInputSchema = GENERIC_SHEMAS.hasBoardId.describe(
   'Input schema for getting all members of a board'
+)
+
+export const getAllCardMembersInputSchema = GENERIC_SHEMAS.hasCardId.describe(
+  'Input schema for getting all members of a card'
 )
