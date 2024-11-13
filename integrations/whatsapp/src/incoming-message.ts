@@ -107,7 +107,7 @@ export async function handleIncomingMessage(
           conversationId: conversation.id,
         })
       } else if (message.video) {
-        logger.forBot().debug('Received video message from Whatsapp:', message)
+        logger.forBot().debug('Received video message from Whatsapp:', message.video)
 
         const videoUrl = await getWhatsAppMediaUrl(message.video.id, client, ctx)
 
