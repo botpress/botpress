@@ -1,6 +1,7 @@
 /* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import creatable from './bp_modules/creatable'
+import { entities } from './definitions'
 
 const ItemDefinition = z.object({
   id: z.string(),
@@ -153,16 +154,5 @@ export default new IntegrationDefinition({
   identifier: {
     extractScript: 'extract.vrl',
   },
-  entities: {
-    task: {
-      schema: z.object({
-        id: z.string(),
-        content: z.string(),
-        description: z.string(),
-        priority: z.number(),
-        projectId: z.string(),
-        parentTaskId: z.string().optional(),
-      }),
-    },
-  },
+  entities,
 }).extend(creatable, ({ task }) => ({ item: task }))
