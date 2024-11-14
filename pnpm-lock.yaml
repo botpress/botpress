@@ -549,6 +549,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@botpress/sdk-addons':
+        specifier: workspace:*
+        version: link:../../packages/sdk-addons
       googleapis:
         specifier: ^144.0.0
         version: 144.0.0
@@ -556,6 +559,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@sentry/cli':
+        specifier: ^2.18.1
+        version: 2.36.1
       '@types/node':
         specifier: ^18.19.10
         version: 18.19.50
