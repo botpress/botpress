@@ -1,5 +1,11 @@
 import z, { util } from '../../z'
-import { escapeString, getMultilineComment, toPropertyKey, toTypeArgumentName } from './utils'
+import {
+  primitiveToTypescriptValue,
+  getMultilineComment,
+  toPropertyKey,
+  toTypeArgumentName,
+  primitiveToTypscriptLiteralType,
+} from './utils'
 import * as errors from '../common/errors'
 
 const Primitives = [
@@ -263,15 +269,12 @@ ${opts.join(' | ')}`
       return sUnwrapZod(def.getter(), newConfig)
 
     case z.ZodFirstPartyTypeKind.ZodLiteral:
-      if (typeof def.value === 'bigint') {
-        throw new errors.UnsupportedZuiToTypescriptTypeError(`${z.ZodFirstPartyTypeKind.ZodLiteral}<bigint>`)
-      }
-      const value: string = typeof def.value === 'string' ? escapeString(def.value) : String(def.value)
+      const value: string = primitiveToTypscriptLiteralType(def.value)
       return `${getMultilineComment(def.description)}
 ${value}`.trim()
 
     case z.ZodFirstPartyTypeKind.ZodEnum:
-      const values = def.values.map(escapeString)
+      const values = def.values.map(primitiveToTypescriptValue)
       return values.join(' | ')
 
     case z.ZodFirstPartyTypeKind.ZodEffects:

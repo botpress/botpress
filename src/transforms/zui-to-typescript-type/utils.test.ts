@@ -1,6 +1,6 @@
 import { isValidTypescript } from '../../setup.test'
 import { expect } from 'vitest'
-import { escapeString, toTypeArgumentName } from './utils'
+import { toTypeArgumentName, primitiveToTypescriptValue } from './utils'
 
 describe('Typescript Checker', () => {
   it('passes successfully on valid string definition', () => {
@@ -48,34 +48,62 @@ const d: { a: string } = { a: 1 }
   })
 })
 
-describe('Escape String', () => {
-  it('escapes a string containing nothing special', () => {
-    expect(escapeString('hello')).toBe("'hello'")
+describe('primitiveToTypscriptLiteral', () => {
+  it('converts a string to a valid typescript string value', () => {
+    const input: string = 'hello'
+    const tsValue: string = primitiveToTypescriptValue(input)
+    const actual = eval(tsValue)
+    expect(typeof actual).toEqual('string')
+    expect(actual).toEqual(input)
   })
-
-  it('escapes a string containing single quotes', () => {
-    expect(escapeString("'hello'")).toMatchInlineSnapshot(`"'\\'hello\\''"`)
+  it('converts a number to a valid typescript number value', () => {
+    const input: number = 42
+    const tsValue: string = primitiveToTypescriptValue(input)
+    const actual = eval(tsValue)
+    expect(typeof actual).toEqual('number')
+    expect(actual).toEqual(input)
   })
-
-  it('escapes a string containing double quotes', () => {
-    const world = 'world'
-    expect(escapeString(`"Hey ${world}"`)).toMatchInlineSnapshot(`"'"Hey world"'"`)
+  it('converts a boolean to a valid typescript boolean value', () => {
+    const input: boolean = true
+    const tsValue: string = primitiveToTypescriptValue(input)
+    const actual = eval(tsValue)
+    expect(typeof actual).toEqual('boolean')
+    expect(actual).toEqual(input)
   })
-
-  it('escapes a string containing double quotes', () => {
-    expect(
-      escapeString(`
-\`\`\`
-Hey world
-\`\`\`
-`),
-    ).toMatchInlineSnapshot(`
-      ""
-      \`\`\`
-      Hey world
-      \`\`\`
-      ""
-    `)
+  it('converts a null to a valid typescript null value', () => {
+    const input: null = null
+    const tsValue: string = primitiveToTypescriptValue(input)
+    const actual = eval(tsValue)
+    expect(typeof actual).toEqual('object') // null is an object in javascript
+    expect(actual).toEqual(input)
+  })
+  it('converts a symbol with name to a valid typescript symbol value', () => {
+    const input: symbol = Symbol('hello')
+    const tsValue: string = primitiveToTypescriptValue(input)
+    const actual = eval(tsValue)
+    expect(typeof actual).toEqual('symbol')
+    expect(actual.description).toEqual(input.description)
+  })
+  it('converts a symbol without name to a valid typescript symbol value', () => {
+    const input: symbol = Symbol()
+    const tsValue: string = primitiveToTypescriptValue(input)
+    const actual = eval(tsValue)
+    expect(typeof actual).toEqual('symbol')
+    expect(actual.description).toEqual(input.description)
+  })
+  it('converts a undefined to a valid typescript undefined value', () => {
+    const input: undefined = undefined
+    const tsValue: string = primitiveToTypescriptValue(input)
+    const actual = eval(tsValue)
+    expect(typeof actual).toEqual('undefined')
+    expect(actual).toEqual(input)
+  })
+  it('converts a bigint to a valid typescript bigint value', () => {
+    const input: bigint = BigInt(42)
+    const tsValue: string = primitiveToTypescriptValue(input)
+    const actual = eval(tsValue)
+    expect(typeof actual).toEqual('bigint')
+    expect(actual).toEqual(input)
   })
 })
 

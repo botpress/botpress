@@ -2,16 +2,20 @@ import { describe, expect } from 'vitest'
 import { toTypescriptSchema as toTypescript } from '.'
 import { evalZuiString } from '../common/eval-zui-string'
 import * as errors from '../common/errors'
-import z, { ZodType } from '../../z'
+import z, { ZodLiteral, ZodSchema, ZodType } from '../../z'
+
+const evalZui = (source: string): ZodSchema => {
+  const evalResult = evalZuiString(source)
+  if (!evalResult.sucess) {
+    throw new Error(`${evalResult.error}: ${source}`)
+  }
+  return evalResult.value
+}
 
 const assert = (source: ZodType) => ({
   toGenerateItself: async () => {
     const actual = toTypescript(source)
-    const evalResult = evalZuiString(actual)
-    if (!evalResult.sucess) {
-      throw new Error(evalResult.error)
-    }
-    const destination = evalResult.value
+    const destination = evalZui(actual)
     expect(source.isEqual(destination)).toBe(true)
   },
   toThrowErrorWhenGenerating: async () => {
@@ -131,8 +135,29 @@ describe('toTypescriptZuiString', () => {
     const schema = z.literal(42)
     await assert(schema).toGenerateItself()
   })
+  test('literal symbol', async () => {
+    const source = z.literal(Symbol('banana'))
+    const dest = evalZui(toTypescript(source)) as ZodLiteral
+
+    expect(dest instanceof ZodLiteral).toBe(true)
+    const value = dest.value as symbol
+    expect(typeof value).toBe('symbol')
+    expect(value.description).toBe('banana')
+  })
+  test('literal bigint', async () => {
+    const schema = z.literal(BigInt(42))
+    await assert(schema).toGenerateItself()
+  })
   test('literal boolean', async () => {
     const schema = z.literal(true)
+    await assert(schema).toGenerateItself()
+  })
+  test('literal null', async () => {
+    const schema = z.literal(null)
+    await assert(schema).toGenerateItself()
+  })
+  test('literal undefined', async () => {
+    const schema = z.literal(undefined)
     await assert(schema).toGenerateItself()
   })
   test('enum', async () => {
@@ -160,8 +185,11 @@ describe('toTypescriptZuiString', () => {
     await assert(schema).toGenerateItself()
   })
   test('default', async () => {
-    const schema = z.string().default('banana')
-    await assert(schema).toGenerateItself()
+    const schema1 = z.string().default('banana')
+    await assert(schema1).toGenerateItself()
+
+    const schema2 = z.string().array().default(['banana'])
+    await assert(schema2).toGenerateItself()
   })
   test('catch', async () => {
     const schema = z.string().catch('banana')

@@ -61,7 +61,7 @@ export class ZuiToTypescriptTypeError extends ZuiTransformError {
   }
 }
 export class UnsupportedZuiToTypescriptTypeError extends ZuiToTypescriptTypeError {
-  public constructor(type: ZodFirstPartyTypeKind | string) {
+  public constructor(type: ZodFirstPartyTypeKind) {
     super(`Zod type ${type} cannot be transformed to TypeScript type.`)
   }
 }

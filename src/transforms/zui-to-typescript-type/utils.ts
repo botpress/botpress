@@ -1,21 +1,49 @@
 import { camelCase, deburr } from '../../ui/utils'
+import { Primitive } from '../../z'
 
-export function escapeString(str: string) {
-  if (typeof str !== 'string') {
-    return ''
+/**
+ * @returns a valid typescript literal type usable in `type MyType = ${x}`
+ */
+export function primitiveToTypscriptLiteralType(x: Primitive): string {
+  if (typeof x === 'symbol') {
+    return 'symbol' // there's no way to represent a symbol literal in a single line with typescript
   }
-
-  // Use String.raw to get the raw string with escapes preserved
-  const rawStr = String.raw`${str}`
-
-  // Determine the appropriate quote style
-  if (rawStr.includes('`')) {
-    return `"${rawStr.replace(/"/g, '\\"')}"`
-  } else if (rawStr.includes("'")) {
-    return `'${rawStr.replace(/'/g, "\\'")}'`
-  } else {
-    return `'${rawStr}'`
+  if (typeof x === 'bigint') {
+    const str = x.toString()
+    return `${str}n`
   }
+  return primitiveToTypescriptValue(x)
+}
+
+/**
+ * @returns a valid typescript primitive value usable in `const myValue = ${x}`
+ */
+export function primitiveToTypescriptValue(x: Primitive): string {
+  if (typeof x === 'undefined') {
+    return 'undefined'
+  }
+  if (typeof x === 'symbol') {
+    if (x.description) {
+      return `Symbol(${primitiveToTypescriptValue(x.description)})`
+    }
+    return 'Symbol()'
+  }
+  if (typeof x === 'bigint') {
+    const str = x.toString()
+    return `BigInt(${str})`
+  }
+  return JSON.stringify(x)
+}
+
+/**
+ * @returns a valid typescript value usable in `const myValue = ${x}`
+ */
+export function unknownToTypescriptValue(x: unknown): string {
+  if (typeof x === 'undefined') {
+    return 'undefined'
+  }
+  // will fail or not behave as expected if x contains a symbol or a bigint
+  return JSON.stringify(x)
 }
 
 export const toPropertyKey = (key: string) => {
@@ -23,7 +51,7 @@ export const toPropertyKey = (key: string) => {
     return key
   }
 
-  return escapeString(key)
+  return primitiveToTypescriptValue(key)
 }
 
 const capitalize = (s: string): string => s.charAt(0).toUpperCase() + s.slice(1)
