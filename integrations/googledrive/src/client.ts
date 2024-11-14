@@ -1,9 +1,9 @@
 import { RuntimeError } from '@botpress/sdk'
 import axios, { AxiosError } from 'axios'
-import { Stream } from 'stream'
+import { Readable, Stream } from 'stream'
 import { getAuthenticatedGoogleClient } from './auth'
-import { FOLDER_MIMETYPE, SHORTCUT_MIMETYPE } from './constants'
 import { FilesCache } from './files-cache'
+import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE, INDEXABLE_MIMETYPES } from './mime-types'
 import {
   BaseGenericFile,
   GoogleDriveClient,
@@ -19,6 +19,7 @@ import {
   DownloadFileDataArgs,
   DownloadFileDataOutput,
 } from './types'
+import { streamToBuffer } from './utils'
 import {
   convertFolderFileToGeneric,
   convertNormalFileToGeneric,
@@ -28,8 +29,13 @@ import {
 } from './validation'
 import * as bp from '.botpress'
 
+type FileStreamUploadParams = Parameters<bp.Client['upsertFile']>[0]
+type FileBufferUploadParams = Omit<Parameters<bp.Client['uploadFile']>[0], 'content'>
+
+const MAX_EXPORT_FILE_SIZE = 10000000 // 10MB, as per the Google Drive API doc
 const MYDRIVE_ID_ALIAS = 'root'
 const PAGE_SIZE = 10
+const GOOGLE_API_EXPORTFORMATS_FIELDS = 'exportFormats'
 const GOOGLE_API_FILE_FIELDS = 'id, name, mimeType, parents, size'
 const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageToken`
 
@@ -52,7 +58,7 @@ export class Client {
     const { newFiles, newNextToken } = await this._fetchFilesAndUpdateCache({
       filesCache,
       nextToken,
-      searchQuery: `mimeType != '${FOLDER_MIMETYPE}' and mimeType != '${SHORTCUT_MIMETYPE}'`,
+      searchQuery: `mimeType != '${APP_GOOGLE_FOLDER_MIMETYPE}' and mimeType != '${APP_GOOGLE_SHORTCUT_MIMETYPE}'`,
     })
     const itemsPromises = newFiles
       .filter((f) => f.type === 'normal')
@@ -76,7 +82,7 @@ export class Client {
     const { newFiles, newNextToken } = await this._fetchFilesAndUpdateCache({
       filesCache,
       nextToken,
-      searchQuery: `mimeType = '${FOLDER_MIMETYPE}'`,
+      searchQuery: `mimeType = '${APP_GOOGLE_FOLDER_MIMETYPE}'`,
     })
     if (isFirstRequest) {
       // My Drive is not returned by list operation but needs to be part of list
@@ -156,48 +162,30 @@ export class Client {
   }
 
   public async downloadFileData({ id: fileId, index }: DownloadFileDataArgs): Promise<DownloadFileDataOutput> {
-    // TODO: Must use export in case of a Google Workspace document.
-    // TODO: Need to map Google Workspace MIME types to the File's API supported MIME types
     const file = await this._fetchFile(fileId)
     if (file.type !== 'normal') {
       throw new RuntimeError(`Attempted to download a file of type ${file.type}`)
     }
 
-    const { mimeType: contentType, size } = file
-    const fileDownloadResponse = await this._googleClient.files.get(
-      {
-        fileId,
-        alt: 'media',
-      },
-      {
-        responseType: 'stream',
-      }
-    )
-    const fileDownloadStream = fileDownloadResponse.data
-    const { file: bpFile } = await this._client.upsertFile({
-      key: fileId,
-      size,
-      contentType,
+    const exportType = await this._findExportType(file.mimeType)
+    const uploadParams = {
+      key: file.id,
+      contentType: exportType ?? file.mimeType,
       index,
-    })
-    const { id: bpFileId, uploadUrl } = bpFile
-
-    const headers = {
-      'Content-Type': contentType,
-      'Content-Length': size,
     }
-    await axios
-      .put(uploadUrl, fileDownloadStream, {
-        maxBodyLength: size,
-        headers,
+    let bpFileId: string
+    if (exportType) {
+      const fileDownloadStream = await this._exportFileData(file, exportType)
+      const fileDownloadBuffer = await streamToBuffer(fileDownloadStream, MAX_EXPORT_FILE_SIZE)
+      bpFileId = await this._uploadBufferToBpFiles(fileDownloadBuffer, uploadParams)
+    } else {
+      const fileDownloadStream = await this._fetchFileData(file)
+      bpFileId = await this._uploadStreamToBpFiles(fileDownloadStream, {
+        ...uploadParams,
+        size: file.size,
       })
-      .catch((reason: AxiosError) => {
-        throw new RuntimeError(`Error uploading file to botpress file API: ${reason}`)
-      })
-
-    return {
-      bpFileId,
     }
+    return { bpFileId }
   }
 
   /**
@@ -305,6 +293,94 @@ export class Client {
       fields: GOOGLE_API_FILE_FIELDS,
     })
     return parseGenericFile(response.data)
+  }
+
+  private async _fetchFileData({ id: fileId }: BaseNormalFile): Promise<Readable> {
+    const fileDownloadResponse = await this._googleClient.files.get(
+      {
+        fileId,
+        alt: 'media',
+      },
+      {
+        responseType: 'stream',
+      }
+    )
+    return fileDownloadResponse.data
+  }
+
+  private async _exportFileData({ id: fileId }: BaseNormalFile, mimeType: string): Promise<Readable> {
+    const fileExportResponse = await this._googleClient.files.export(
+      {
+        fileId,
+        mimeType,
+      },
+      {
+        responseType: 'stream',
+      }
+    )
+    return fileExportResponse.data
+  }
+
+  /**
+   * @returns The Botpress file ID of the newly uploaded file
+   */
+  private async _uploadBufferToBpFiles(buffer: Buffer, params: FileBufferUploadParams): Promise<string> {
+    const { file } = await this._client.uploadFile({
+      ...params,
+      content: buffer,
+    })
+
+    return file.id
+  }
+
+  /**
+   * @returns The Botpress file ID of the newly uploaded file
+   */
+  private async _uploadStreamToBpFiles(stream: Readable, params: FileStreamUploadParams): Promise<string> {
+    const { file } = await this._client.upsertFile(params)
+    const { contentType, size } = params
+    const { id, uploadUrl } = file
+
+    const headers = {
+      'Content-Type': contentType,
+      'Content-Length': size,
+    }
+    await axios
+      .put(uploadUrl, stream, {
+        maxBodyLength: size,
+        headers,
+      })
+      .catch((reason: AxiosError) => {
+        throw new RuntimeError(`Error uploading file to botpress file API: ${reason}`)
+      })
+
+    return id
+  }
+
+  private async _fetchExportFormatMap(): Promise<Record<string, string[]>> {
+    const response = await this._googleClient.about.get({
+      fields: GOOGLE_API_EXPORTFORMATS_FIELDS,
+    })
+    const { exportFormats } = response.data
+    if (!exportFormats) {
+      throw new RuntimeError('Export formats are missing in Schema$About from the API response')
+    }
+    return exportFormats
+  }
+
+  /**
+   * @returns The export type to use, or undefined if the file cannot be exported
+   */
+  private async _findExportType(originalContentType: string): Promise<string | undefined> {
+    const exportFormatMap = await this._fetchExportFormatMap()
+    const exportContentTypes = exportFormatMap[originalContentType]
+    if (!exportContentTypes) {
+      return undefined
+    }
+
+    const indexableContentType = INDEXABLE_MIMETYPES.find((type) => exportContentTypes.includes(type))
+
+    return indexableContentType ?? exportContentTypes[0]
   }
 
   private _getFilePath = (id: string, filesCache: FilesCache): string[] => {
