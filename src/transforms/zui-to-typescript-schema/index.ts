@@ -1,10 +1,6 @@
 import mapValues from 'lodash/mapValues'
 import z, { util } from '../../z'
-import {
-  primitiveToTypescriptValue,
-  getMultilineComment,
-  unknownToTypescriptValue,
-} from '../zui-to-typescript-type/utils'
+import { primitiveToTypescriptValue, getMultilineComment, unknownToTypescriptValue } from '../common/utils'
 import * as errors from '../common/errors'
 
 /**

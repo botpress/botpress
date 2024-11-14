@@ -5,7 +5,7 @@ import {
   toPropertyKey,
   toTypeArgumentName,
   primitiveToTypscriptLiteralType,
-} from './utils'
+} from '../common/utils'
 import * as errors from '../common/errors'
 
 const Primitives = [
