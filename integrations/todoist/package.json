@@ -7,16 +7,17 @@
   },
   "private": true,
   "dependencies": {
+    "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@doist/todoist-api-typescript": "^3.0.3",
-    "axios": "^1.7.4",
-    "query-string": "^9.1.0",
-    "verror": "^1.10.1"
+    "axios": "^1.7.4"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
-    "@botpresshub/creatable": "workspace:*"
+    "@botpresshub/creatable": "workspace:*",
+    "@types/node": "^18.19.10",
+    "ts-node": "^10.9.1"
   },
   "bpDependencies": {
     "creatable": "../../interfaces/creatable"
