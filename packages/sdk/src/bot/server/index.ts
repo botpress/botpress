@@ -11,11 +11,11 @@ export * from './types'
 
 type ServerProps = types.CommonHandlerProps<common.BaseBot> & {
   req: Request
-  instance: types.BotHandlers<common.BaseBot>
+  bot: types.BotHandlers<common.BaseBot>
 }
 
 export const botHandler =
-  (instance: types.BotHandlers<common.BaseBot>) =>
+  (bot: types.BotHandlers<common.BaseBot>) =>
   async (req: Request): Promise<Response | void> => {
     const ctx = extractContext(req.headers)
 
@@ -33,7 +33,7 @@ export const botHandler =
       req,
       ctx,
       client: botClient,
-      instance,
+      bot,
     }
 
     switch (ctx.operation) {
@@ -61,54 +61,50 @@ export const botHandler =
 const onPing = async (_: ServerProps) => {}
 const onRegister = async (_: ServerProps) => {}
 const onUnregister = async (_: ServerProps) => {}
-const onEventReceived = async ({ ctx, req, client, instance }: ServerProps) => {
+const onEventReceived = async ({ ctx, req, client, bot }: ServerProps) => {
   log.debug(`Received event ${ctx.type}`)
 
   const body = parseBody<types.EventPayload<common.BaseBot>>(req)
   const event = body.event
 
-  switch (ctx.type) {
-    case 'message_created':
-      const messagePayload: types.MessagePayload<common.BaseBot> = {
-        user: event.payload.user,
-        conversation: event.payload.conversation,
-        message: event.payload.message,
-        states: event.payload.states,
-        event,
-      }
+  if (ctx.type === 'message_created') {
+    const message: client.Message = event.payload.message
+    const messagePayload: types.MessagePayload<common.BaseBot> = {
+      user: event.payload.user,
+      conversation: event.payload.conversation,
+      states: event.payload.states,
+      message,
+      event,
+    }
 
-      await Promise.all(
-        instance.messageHandlers.map((handler) =>
-          handler({
-            client,
-            ctx,
-            ...messagePayload,
-          })
-        )
-      )
-      break
-    case 'state_expired':
-      const statePayload: types.StateExpiredPayload<common.BaseBot> = { state: event.payload.state }
-      await Promise.all(
-        instance.stateExpiredHandlers.map((handler) =>
-          handler({
-            client,
-            ctx,
-            ...statePayload,
-          })
-        )
-      )
-      break
-    default:
-      const eventPayload = { event: body.event }
-      await Promise.all(
-        instance.eventHandlers.map((handler) =>
-          handler({
-            client,
-            ctx,
-            ...eventPayload,
-          })
-        )
-      )
+    for (const handler of bot.messageHandlers) {
+      await handler({
+        ...messagePayload,
+        client,
+        ctx,
+      })
+    }
+    return
+  }
+
+  if (ctx.type === 'state_expired') {
+    const statePayload: types.StateExpiredPayload<common.BaseBot> = { state: event.payload.state }
+    for (const handler of bot.stateExpiredHandlers) {
+      await handler({
+        ...statePayload,
+        client,
+        ctx,
+      })
+    }
+    return
+  }
+
+  const eventPayload = { event: body.event }
+  for (const handler of bot.eventHandlers) {
+    await handler({
+      ...eventPayload,
+      client,
+      ctx,
+    })
   }
 }
