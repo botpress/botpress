@@ -106,6 +106,18 @@ export async function handleIncomingMessage(
           userId: user.id,
           conversationId: conversation.id,
         })
+      } else if (message.video) {
+        logger.forBot().debug('Received video message from Whatsapp:', message.video)
+
+        const videoUrl = await getWhatsAppMediaUrl(message.video.id, client, ctx)
+
+        await client.createMessage({
+          tags: { id: message.id },
+          type: 'video',
+          payload: { videoUrl },
+          userId: user.id,
+          conversationId: conversation.id,
+        })
       } else if (message.interactive) {
         if (message.interactive.type === 'button_reply') {
           logger.forBot().debug('Received button reply from Whatsapp:', message.interactive.button_reply)
