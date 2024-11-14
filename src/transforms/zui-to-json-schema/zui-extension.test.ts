@@ -13,32 +13,30 @@ describe('zuiToJsonSchema', () => {
 
     const jsonSchema = zuiToJsonSchema(schema)
 
-    expect(jsonSchema).toMatchInlineSnapshot(`
-      {
-        "additionalProperties": false,
-        "properties": {
-          "age": {
-            "default": 20,
-            "description": "Age in years",
-            "maximum": 100,
-            "minimum": 0,
-            "type": "number",
-            "${zuiKey}": {
-              "title": "Age",
-            },
-          },
-          "name": {
-            "default": "No Name",
-            "type": "string",
-            "${zuiKey}": {
-              "title": "Name",
-            },
+    expect(jsonSchema).toEqual({
+      additionalProperties: false,
+      properties: {
+        age: {
+          default: 20,
+          description: 'Age in years',
+          maximum: 100,
+          minimum: 0,
+          type: 'number',
+          [zuiKey]: {
+            title: 'Age',
           },
         },
-        "type": "object",
-        "x-zui": {},
-      }
-    `)
+        name: {
+          default: 'No Name',
+          type: 'string',
+          [zuiKey]: {
+            title: 'Name',
+          },
+        },
+      },
+      type: 'object',
+      [zuiKey]: {},
+    })
   })
 
   test('enums', () => {
@@ -72,42 +70,36 @@ describe('zuiToJsonSchema', () => {
     })
 
     const jsonSchema = zuiToJsonSchema(schema)
-    expect(jsonSchema).toMatchInlineSnapshot(`
-      {
-        "additionalProperties": false,
-        "properties": {
-          "testExample": {
-            "nullable": true,
-            "type": "string",
-            "${zuiKey}": {
-              "displayAs": [
-                "customstringcomponent",
-                {
-                  "multiline": true,
-                },
-              ],
-            },
+    expect(jsonSchema).toEqual({
+      additionalProperties: false,
+      properties: {
+        testExample: {
+          nullable: true,
+          type: 'string',
+          [zuiKey]: {
+            displayAs: [
+              'customstringcomponent',
+              {
+                multiline: true,
+              },
+            ],
           },
         },
-        "required": [
-          "testExample",
-        ],
-        "type": "object",
-        "x-zui": {},
-      }
-    `)
+      },
+      required: ['testExample'],
+      type: 'object',
+      [zuiKey]: {},
+    })
   })
 
   test('examples are available on json schema', () => {
     const schema = z.string()
 
     const jsonSchema = zuiToJsonSchema(schema, { $schemaUrl: false })
-    expect(jsonSchema).toMatchInlineSnapshot(`
-      {
-        "type": "string",
-        "x-zui": {},
-      }
-    `)
+    expect(jsonSchema).toEqual({
+      type: 'string',
+      [zuiKey]: {},
+    })
   })
 
   test('record with a value works', () => {
@@ -130,58 +122,47 @@ describe('zuiToJsonSchema', () => {
     const schema = z.record(z.string(), z.number().max(30), {}).describe('hello')
 
     const jsonSchema = zuiToJsonSchema(schema, { $schemaUrl: false })
-    expect(jsonSchema).toMatchInlineSnapshot(`
-      {
-        "additionalProperties": {
-          "maximum": 30,
-          "type": "number",
-          "x-zui": {},
-        },
-        "description": "hello",
-        "type": "object",
-        "x-zui": {},
-      }
-    `)
+    expect(jsonSchema).toEqual({
+      additionalProperties: {
+        maximum: 30,
+        type: 'number',
+        [zuiKey]: {},
+      },
+      description: 'hello',
+      type: 'object',
+      [zuiKey]: {},
+    })
   })
 
   test('record with second parameter', () => {
     const schema = z.object({})
 
     const jsonSchema = zuiToJsonSchema(schema, { $schemaUrl: 'http://schema.com' })
-    expect(jsonSchema).toMatchInlineSnapshot(`
-      {
-        "$schema": "http://schema.com",
-        "additionalProperties": false,
-        "properties": {},
-        "type": "object",
-        "x-zui": {},
-      }
-    `)
+    expect(jsonSchema).toEqual({
+      $schema: 'http://schema.com',
+      additionalProperties: false,
+      properties: {},
+      type: 'object',
+      [zuiKey]: {},
+    })
   })
 
   test('record with second parameter', () => {
     const schema = z.object({ multipleTypes: z.union([z.string(), z.number()]) })
 
     const jsonSchema = zuiToJsonSchema(schema, { $schemaUrl: false })
-    expect(jsonSchema).toMatchInlineSnapshot(`
-      {
-        "additionalProperties": false,
-        "properties": {
-          "multipleTypes": {
-            "type": [
-              "string",
-              "number",
-            ],
-            "x-zui": {},
-          },
+    expect(jsonSchema).toEqual({
+      additionalProperties: false,
+      properties: {
+        multipleTypes: {
+          type: ['string', 'number'],
+          [zuiKey]: {},
         },
-        "required": [
-          "multipleTypes",
-        ],
-        "type": "object",
-        "x-zui": {},
-      }
-    `)
+      },
+      required: ['multipleTypes'],
+      type: 'object',
+      [zuiKey]: {},
+    })
   })
 
   test('validate array of objects', async () => {
@@ -196,34 +177,29 @@ describe('zuiToJsonSchema', () => {
       .describe('Array of objects with validation')
 
     const jsonSchema = zuiToJsonSchema(arrayWithObjects, { target: 'openApi3' })
-    expect(jsonSchema).toMatchInlineSnapshot(`
-      {
-        "description": "Array of objects with validation",
-        "items": {
-          "additionalProperties": false,
-          "properties": {
-            "id": {
-              "type": "number",
-              "x-zui": {},
-            },
-            "title": {
-              "minLength": 5,
-              "type": "string",
-              "x-zui": {},
-            },
+    expect(jsonSchema).toEqual({
+      description: 'Array of objects with validation',
+      items: {
+        additionalProperties: false,
+        properties: {
+          id: {
+            type: 'number',
+            [zuiKey]: {},
           },
-          "required": [
-            "id",
-            "title",
-          ],
-          "type": "object",
-          "x-zui": {},
+          title: {
+            minLength: 5,
+            type: 'string',
+            [zuiKey]: {},
+          },
         },
-        "minItems": 1,
-        "type": "array",
-        "x-zui": {},
-      }
-    `)
+        required: ['id', 'title'],
+        type: 'object',
+        [zuiKey]: {},
+      },
+      minItems: 1,
+      type: 'array',
+      [zuiKey]: {},
+    })
   })
 
   test('oneOf', () => {
@@ -233,57 +209,45 @@ describe('zuiToJsonSchema', () => {
     ])
 
     const jsonSchema = zuiToJsonSchema(schema)
-    expect(jsonSchema).toMatchInlineSnapshot(`
-      {
-        "anyOf": [
-          {
-            "additionalProperties": false,
-            "properties": {
-              "kek": {
-                "enum": [
-                  "A",
-                ],
-                "type": "string",
-                "x-zui": {},
-              },
-              "lel": {
-                "type": "boolean",
-                "x-zui": {},
-              },
+    expect(jsonSchema).toEqual({
+      anyOf: [
+        {
+          additionalProperties: false,
+          properties: {
+            kek: {
+              enum: ['A'],
+              type: 'string',
+              [zuiKey]: {},
             },
-            "required": [
-              "kek",
-              "lel",
-            ],
-            "type": "object",
-            "x-zui": {},
-          },
-          {
-            "additionalProperties": false,
-            "properties": {
-              "kek": {
-                "enum": [
-                  "B",
-                ],
-                "type": "string",
-                "x-zui": {},
-              },
-              "lel": {
-                "type": "number",
-                "x-zui": {},
-              },
+            lel: {
+              type: 'boolean',
+              [zuiKey]: {},
             },
-            "required": [
-              "kek",
-              "lel",
-            ],
-            "type": "object",
-            "x-zui": {},
           },
-        ],
-        "x-zui": {},
-      }
-    `)
+          required: ['kek', 'lel'],
+          type: 'object',
+          [zuiKey]: {},
+        },
+        {
+          additionalProperties: false,
+          properties: {
+            kek: {
+              enum: ['B'],
+              type: 'string',
+              [zuiKey]: {},
+            },
+            lel: {
+              type: 'number',
+              [zuiKey]: {},
+            },
+          },
+          required: ['kek', 'lel'],
+          type: 'object',
+          [zuiKey]: {},
+        },
+      ],
+      [zuiKey]: {},
+    })
   })
 
   test('oneOf with discriminator', () => {
@@ -293,60 +257,48 @@ describe('zuiToJsonSchema', () => {
     ])
 
     const jsonSchema = zuiToJsonSchema(schema, { target: 'openApi3', discriminator: true, unionStrategy: 'oneOf' })
-    expect(jsonSchema).toMatchInlineSnapshot(`
-      {
-        "discriminator": {
-          "propertyName": "kek",
+    expect(jsonSchema).toEqual({
+      discriminator: {
+        propertyName: 'kek',
+      },
+      oneOf: [
+        {
+          additionalProperties: false,
+          properties: {
+            kek: {
+              enum: ['A'],
+              type: 'string',
+              [zuiKey]: {},
+            },
+            lel: {
+              type: 'boolean',
+              [zuiKey]: {},
+            },
+          },
+          required: ['kek', 'lel'],
+          type: 'object',
+          [zuiKey]: {},
         },
-        "oneOf": [
-          {
-            "additionalProperties": false,
-            "properties": {
-              "kek": {
-                "enum": [
-                  "A",
-                ],
-                "type": "string",
-                "x-zui": {},
-              },
-              "lel": {
-                "type": "boolean",
-                "x-zui": {},
-              },
+        {
+          additionalProperties: false,
+          properties: {
+            kek: {
+              enum: ['B'],
+              type: 'string',
+              [zuiKey]: {},
             },
-            "required": [
-              "kek",
-              "lel",
-            ],
-            "type": "object",
-            "x-zui": {},
-          },
-          {
-            "additionalProperties": false,
-            "properties": {
-              "kek": {
-                "enum": [
-                  "B",
-                ],
-                "type": "string",
-                "x-zui": {},
-              },
-              "lel": {
-                "type": "number",
-                "x-zui": {},
-              },
+            lel: {
+              type: 'number',
+              [zuiKey]: {},
             },
-            "required": [
-              "kek",
-              "lel",
-            ],
-            "type": "object",
-            "x-zui": {},
           },
-        ],
-        "x-zui": {},
-      }
-    `)
+          required: ['kek', 'lel'],
+          type: 'object',
+          [zuiKey]: {},
+        },
+      ],
+      [zuiKey]: {},
+    })
   })
 
   test('lazy schemas', () => {
@@ -357,66 +309,57 @@ describe('zuiToJsonSchema', () => {
       }),
     )
 
-    expect(schema.toJsonSchema()).toMatchInlineSnapshot(`
-    {
-      "additionalProperties": false,
-      "properties": {
-        "type": {
-          "type": "string",
-          "x-zui": {
-            "title": "Type",
+    expect(schema.toJsonSchema()).toEqual({
+      additionalProperties: false,
+      properties: {
+        type: {
+          type: 'string',
+          [zuiKey]: {
+            title: 'Type',
           },
         },
-        "value": {
-          "type": "number",
-          "x-zui": {
-            "hidden": true,
+        value: {
+          type: 'number',
+          [zuiKey]: {
+            hidden: true,
           },
         },
       },
-      "required": [
-        "type",
-        "value",
-      ],
-      "type": "object",
-      "x-zui": {},
-    }
-  `)
+      required: ['type', 'value'],
+      type: 'object',
+      [zuiKey]: {},
+    })
   })
 
   test('array of array', () => {
     const schema = z.array(z.array(z.string().disabled()))
 
     const jsonSchema = zuiToJsonSchema(schema)
-    expect(jsonSchema).toMatchInlineSnapshot(`
-      {
-        "items": {
-          "items": {
-            "type": "string",
-            "${zuiKey}": {
-              "disabled": true,
-            },
+    expect(jsonSchema).toEqual({
+      items: {
+        items: {
+          type: 'string',
+          [zuiKey]: {
+            disabled: true,
           },
-          "type": "array",
-          "x-zui": {},
         },
-        "type": "array",
-        "x-zui": {},
-      }
-    `)
+        type: 'array',
+        [zuiKey]: {},
+      },
+      type: 'array',
+      [zuiKey]: {},
+    })
   })
 
   test('generic is transformed to a ref', () => {
     const T = z.ref('T').disabled()
     const TJsonSchema = zuiToJsonSchema(T)
-    expect(TJsonSchema).toMatchInlineSnapshot(`
-      {
-        "$ref": "T",
-        "${zuiKey}": {
-          "disabled": true,
-        },
-      }
-    `)
+    expect(TJsonSchema).toEqual({
+      $ref: 'T',
+      [zuiKey]: {
+        disabled: true,
+      },
+    })
 
     const schema = z.object({
       description: z.string(),
@@ -424,29 +367,24 @@ describe('zuiToJsonSchema', () => {
     })
 
     const jsonSchema = zuiToJsonSchema(schema)
-    expect(jsonSchema).toMatchInlineSnapshot(`
-      {
-        "additionalProperties": false,
-        "properties": {
-          "data": {
-            "$ref": "T",
-            "${zuiKey}": {
-              "disabled": true,
-            },
-          },
-          "description": {
-            "type": "string",
-            "x-zui": {},
+    expect(jsonSchema).toEqual({
+      additionalProperties: false,
+      properties: {
+        data: {
+          $ref: 'T',
+          [zuiKey]: {
+            disabled: true,
           },
         },
-        "required": [
-          "description",
-          "data",
-        ],
-        "type": "object",
-        "x-zui": {},
-      }
-    `)
+        description: {
+          type: 'string',
+          [zuiKey]: {},
+        },
+      },
+      required: ['description', 'data'],
+      type: 'object',
+      [zuiKey]: {},
+    })
   })
 })
 
@@ -455,72 +393,59 @@ describe('coercion serialization', () => {
     it('serializes coerced dates correctly', () => {
       const schema = z.coerce.date().displayAs({ id: 'doood', params: {} } as never)
       const serialized = schema.toJsonSchema()
-      expect(serialized).toMatchInlineSnapshot(`
-      {
-        "format": "date-time",
-        "type": "string",
-        "x-zui": {
-          "coerce": true,
-          "displayAs": [
-            "doood",
-            {},
-          ],
+      expect(serialized).toEqual({
+        format: 'date-time',
+        type: 'string',
+        [zuiKey]: {
+          coerce: true,
+          displayAs: ['doood', {}],
         },
-      }
-    `)
+      })
     })
 
     it('serializes coerced strings correctly', () => {
       const schema = z.coerce.string()
       const serialized = schema.toJsonSchema()
-      expect(serialized).toMatchInlineSnapshot(`
-      {
-        "type": "string",
-        "x-zui": {
-          "coerce": true,
+      expect(serialized).toEqual({
+        type: 'string',
+        [zuiKey]: {
+          coerce: true,
         },
-      }
-    `)
+      })
     })
 
     it('serializes coerced bigints correctly', () => {
       const schema = z.coerce.bigint()
       const serialized = schema.toJsonSchema()
-      expect(serialized).toMatchInlineSnapshot(`
-      {
-        "format": "int64",
-        "type": "integer",
-        "x-zui": {
-          "coerce": true,
+      expect(serialized).toEqual({
+        format: 'int64',
+        type: 'integer',
+        [zuiKey]: {
+          coerce: true,
         },
-      }
-    `)
+      })
     })
 
     it('serializes coerced booleans correctly', () => {
       const schema = z.coerce.boolean()
       const serialized = schema.toJsonSchema()
-      expect(serialized).toMatchInlineSnapshot(`
-      {
-        "type": "boolean",
-        "x-zui": {
-          "coerce": true,
+      expect(serialized).toEqual({
+        type: 'boolean',
+        [zuiKey]: {
+          coerce: true,
         },
-      }
-    `)
+      })
     })
 
     it('serializes coerced numbers correctly', () => {
       const schema = z.coerce.number()
       const serialized = schema.toJsonSchema()
-      expect(serialized).toMatchInlineSnapshot(`
-      {
-        "type": "number",
-        "x-zui": {
-          "coerce": true,
+      expect(serialized).toEqual({
+        type: 'number',
+        [zuiKey]: {
+          coerce: true,
         },
-      }
-    `)
+      })
     })
   }
 })

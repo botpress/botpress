@@ -35,51 +35,49 @@ describe('object-to-zui', () => {
     const schema = z.fromObject(obj, { optional: true }).toJsonSchema()
     z.fromJsonSchema(schema).parse(obj)
 
-    expect(schema).toMatchInlineSnapshot(`
-      {
-        "additionalProperties": false,
-        "properties": {
-          "address": {
-            "additionalProperties": false,
-            "properties": {
-              "city": {
-                "type": "string",
-                "x-zui": {},
-              },
-              "state": {
-                "type": "string",
-                "x-zui": {},
-              },
-              "street": {
-                "type": "string",
-                "x-zui": {},
-              },
+    expect(schema).toEqual({
+      additionalProperties: false,
+      properties: {
+        address: {
+          additionalProperties: false,
+          properties: {
+            city: {
+              type: 'string',
+              'x-zui': {},
             },
-            "type": "object",
-            "x-zui": {},
+            state: {
+              type: 'string',
+              'x-zui': {},
+            },
+            street: {
+              type: 'string',
+              'x-zui': {},
+            },
           },
-          "age": {
-            "type": "number",
-            "x-zui": {},
-          },
-          "birthDate": {
-            "format": "date-time",
-            "type": "string",
-            "x-zui": {},
-          },
-          "isAdmin": {
-            "type": "boolean",
-            "x-zui": {},
-          },
-          "name": {
-            "type": "string",
-            "x-zui": {},
-          },
+          type: 'object',
+          'x-zui': {},
         },
-        "type": "object",
-        "x-zui": {},
-      }
-    `)
+        age: {
+          type: 'number',
+          'x-zui': {},
+        },
+        birthDate: {
+          format: 'date-time',
+          type: 'string',
+          'x-zui': {},
+        },
+        isAdmin: {
+          type: 'boolean',
+          'x-zui': {},
+        },
+        name: {
+          type: 'string',
+          'x-zui': {},
+        },
+      },
+      type: 'object',
+      'x-zui': {},
+    })
   })
 
   test('should handle null values correctly', () => {
