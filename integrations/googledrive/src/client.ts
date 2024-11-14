@@ -168,14 +168,13 @@ export class Client {
     }
 
     const exportType = await this._findExportType(file.mimeType)
-    const isExport = exportType !== undefined
     const uploadParams = {
       key: file.id,
-      contentType: isExport ? exportType : file.mimeType,
+      contentType: exportType ?? file.mimeType,
       index,
     }
-    let bpFileId: string | undefined
-    if (isExport) {
+    let bpFileId: string
+    if (exportType) {
       const fileDownloadStream = await this._exportFileData(file, exportType)
       const fileDownloadBuffer = await streamToBuffer(fileDownloadStream, MAX_EXPORT_FILE_SIZE)
       bpFileId = await this._uploadBufferToBpFiles(fileDownloadBuffer, uploadParams)
@@ -379,20 +378,9 @@ export class Client {
       return undefined
     }
 
-    let exportContentType = exportContentTypes[0] // Default
-    if (!exportContentType) {
-      return undefined
-    }
+    const indexableContentType = INDEXABLE_MIMETYPES.find((type) => exportContentTypes.includes(type))
 
-    for (const indexableContentType of INDEXABLE_MIMETYPES) {
-      // Check if can be exported to an indexable type
-      if (exportContentTypes.includes(indexableContentType)) {
-        exportContentType = indexableContentType
-        break
-      }
-    }
-
-    return exportContentType
+    return indexableContentType ?? exportContentTypes[0]
   }
 
   private _getFilePath = (id: string, filesCache: FilesCache): string[] => {
