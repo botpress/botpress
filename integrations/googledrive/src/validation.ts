@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/sdk'
-import { FOLDER_MIMETYPE, SHORTCUT_MIMETYPE } from './constants'
+import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE } from './mime-types'
 import { baseFolderFileSchema, baseNormalFileSchema, baseShortcutFileSchema } from './schemas'
 import {
   BaseFolderFile,
@@ -32,13 +32,13 @@ export const parseGenericFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): B
   const { mimeType } = parseCommonFileAttr(unvalidatedFile)
   let file: BaseGenericFile
   switch (mimeType) {
-    case FOLDER_MIMETYPE:
+    case APP_GOOGLE_FOLDER_MIMETYPE:
       file = {
         ...parseFolderFile(unvalidatedFile),
         type: 'folder',
       }
       break
-    case SHORTCUT_MIMETYPE:
+    case APP_GOOGLE_SHORTCUT_MIMETYPE:
       file = {
         ...parseShortcutFile(unvalidatedFile),
         type: 'shortcut',
