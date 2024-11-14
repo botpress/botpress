@@ -13,34 +13,25 @@ export type BotContext = {
   }
 }
 
-export type EventRequest<TBot extends types.BaseBot> = {
-  event: {
-    [K in keyof types.EnumerateEvents<TBot>]: utils.Merge<
-      client.Event,
-      { type: K; payload: types.EnumerateEvents<TBot>[K] }
-    >
-  }[keyof types.EnumerateEvents<TBot>]
-}
+export type BotEvent<TBot extends types.BaseBot> = utils.ValueOf<{
+  [K in keyof types.EnumerateEvents<TBot>]: utils.Merge<
+    client.Event,
+    { type: K; payload: types.EnumerateEvents<TBot>[K] }
+  >
+}>
 
-export type MessageRequest<
-  TBot extends types.BaseBot,
-  TMessage extends keyof types.GetMessages<TBot> = keyof types.GetMessages<TBot>
-> = {
-  // TODO: use bot definiton message property to infer allowed tags (cannot be done until there is a bot.definition.ts file)
-  message: utils.ValueOf<{
-    [K in keyof types.GetMessages<TBot> as K extends TMessage ? K : never]: utils.Merge<
-      client.Message,
-      { type: K; payload: types.GetMessages<TBot>[K] }
-    >
-  }>
-}
+export type BotMessage<TBot extends types.BaseBot> = utils.ValueOf<{
+  // TODO: use bot definiton message property to infer allowed tags
+  [K in keyof types.GetMessages<TBot>]: utils.Merge<client.Message, { type: K; payload: types.GetMessages<TBot>[K] }>
+}>
 
 export type CommonHandlerProps<TBot extends types.BaseBot> = {
   ctx: BotContext
   client: BotSpecificClient<TBot>
 }
 
-export type MessagePayload<TBot extends types.BaseBot> = MessageRequest<TBot> & {
+export type MessagePayload<TBot extends types.BaseBot> = {
+  message: BotMessage<TBot>
   user: client.User
   conversation: client.Conversation
   event: client.Event
@@ -54,7 +45,7 @@ export type MessagePayload<TBot extends types.BaseBot> = MessageRequest<TBot> & 
 export type MessageHandlerProps<TBot extends types.BaseBot> = CommonHandlerProps<TBot> & MessagePayload<TBot>
 export type MessageHandler<TBot extends types.BaseBot> = (args: MessageHandlerProps<TBot>) => Promise<void>
 
-export type EventPayload<TBot extends types.BaseBot> = EventRequest<TBot>
+export type EventPayload<TBot extends types.BaseBot> = { event: BotEvent<TBot> }
 export type EventHandlerProps<TBot extends types.BaseBot> = CommonHandlerProps<TBot> & EventPayload<TBot>
 export type EventHandler<TBot extends types.BaseBot> = (args: EventHandlerProps<TBot>) => Promise<void>
 
