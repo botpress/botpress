@@ -1,6 +1,5 @@
 import { IntegrationContext, Request, RuntimeError } from '@botpress/sdk'
 import axios from 'axios'
-import queryString from 'query-string'
 import { Client } from './client'
 import * as bp from '.botpress'
 
@@ -8,8 +7,10 @@ export const NO_ACCESS_TOKEN_ERROR =
   'No access token found. Please authenticate with Todoist first or manually set an access token.'
 
 export async function handleOAuth(req: Request, client: bp.Client, ctx: IntegrationContext) {
-  const { code } = queryString.parse(req.query)
-  if (typeof code !== 'string') {
+  const searchParams = new URLSearchParams(req.query)
+  const code = searchParams.get('code')
+
+  if (!code) {
     throw new RuntimeError('Invalid OAuth code received from Todoist')
   }
 
