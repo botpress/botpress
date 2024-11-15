@@ -4,7 +4,7 @@ import { z, InterfaceDeclaration } from '@botpress/sdk'
 
 export default new InterfaceDeclaration({
   name: 'llm',
-  version: '5.1.0',
+  version: '6.0.0',
   entities: {
     modelRef: {
       schema: common.llm.schemas.ModelRefSchema,
