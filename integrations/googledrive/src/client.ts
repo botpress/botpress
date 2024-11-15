@@ -177,6 +177,7 @@ export class Client {
   }
 
   public async uploadFileData({ id: fileId, url, mimeType }: UploadFileDataArgs) {
+    // TODO: Extract file download logic outside client
     const downloadBpFileResp = await axios.get<Stream>(url, {
       responseType: 'stream',
     })
@@ -204,6 +205,7 @@ export class Client {
       index,
     }
     let bpFileId: string
+    // TODO: Extract file upload logic outside client
     if (exportType) {
       const fileDownloadStream = await this._exportFileData(file, exportType)
       const fileDownloadBuffer = await streamToBuffer(fileDownloadStream, MAX_EXPORT_FILE_SIZE_BYTES)
@@ -224,7 +226,6 @@ export class Client {
         .forBot()
         .debug(`Watching ${item.mimeType === APP_GOOGLE_FOLDER_MIMETYPE ? 'folder' : 'file'} ${item.name} (${item.id})`)
 
-      // TODO: Remove previous watch if it exists
       const absoluteExpirationTimeMs: number = Date.now() + MAX_RESOURCE_WATCH_EXPIRATION_DELAY_MS
       await this._googleClient.files.watch({
         fileId: item.id,
@@ -236,6 +237,7 @@ export class Client {
           expiration: absoluteExpirationTimeMs.toString(),
         },
       })
+      // TODO: Remove previous watch if it exists
     })
   }
 
