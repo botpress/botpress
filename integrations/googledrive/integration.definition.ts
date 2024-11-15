@@ -5,8 +5,8 @@ import {
   updateFileArgSchema,
   uploadFileDataArgSchema,
   downloadFileDataArgSchema,
-  listFolderOutputSchema,
-  listFileOutputSchema,
+  listFoldersOutputSchema,
+  listFilesOutputSchema,
   readFileArgSchema,
   listItemsInputSchema,
   deleteFileArgSchema,
@@ -35,7 +35,7 @@ export default new IntegrationDefinition({
         schema: listItemsInputSchema,
       },
       output: {
-        schema: listFileOutputSchema,
+        schema: listFilesOutputSchema,
       },
     },
     listFolders: {
@@ -46,7 +46,7 @@ export default new IntegrationDefinition({
         schema: listItemsInputSchema,
       },
       output: {
-        schema: listFolderOutputSchema,
+        schema: listFoldersOutputSchema,
       },
     },
     createFile: {

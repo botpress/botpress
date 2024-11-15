@@ -12,6 +12,10 @@ export class FilesCache {
     this._map = {}
   }
 
+  public clear() {
+    this._map = {}
+  }
+
   public static async load({ client, ctx }: { client: bp.Client; ctx: bp.Context }): Promise<FilesCache> {
     const getStateResponse = await client.getOrSetState({
       id: ctx.integrationId,

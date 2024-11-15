@@ -78,8 +78,9 @@ export const deleteFileArgSchema = z.object({ id: z.string().describe(ID_DESCRIP
 export const listItemsInputSchema = z.object({
   nextToken: z.string().optional().describe('The token to use to get the next page of results'),
 })
-export const listFileOutputSchema = createListOutputSchema(fileSchema)
-export const listFolderOutputSchema = createListOutputSchema(folderSchema)
+export const listItemsOutputSchema = createListOutputSchema(z.any())
+export const listFilesOutputSchema = createListOutputSchema(fileSchema)
+export const listFoldersOutputSchema = createListOutputSchema(folderSchema)
 
 // URL is used instead of ID because an integration can't access all files of a bot
 // using the files API
