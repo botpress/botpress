@@ -2,7 +2,6 @@ import type { Assertion, AsymmetricMatchersContaining } from 'vitest'
 
 interface CustomMatchers<R = unknown> {
   toMatchWithoutFormatting: (expected: string) => Promise<R>
-  toBeValidTypeScript: () => R
 }
 
 declare module 'vitest' {

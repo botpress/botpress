@@ -500,7 +500,38 @@ describe.concurrent('objects', () => {
 
     const typings = toTypescript(obj)
 
-    expect(typings).toBeValidTypeScript() // TODO: change that to a proper `toMatchWithoutFormatting` check
+    await expect(typings).toMatchWithoutFormatting(`
+      declare const payment:
+        | {
+            type: 'Credit Card';
+            /** This is the card number */
+            cardNumber: string;
+            /** This is the expiration date */
+            expirationDate: string;
+            /** This is the brand of the card */
+            brand?: 'Visa' | 'Mastercard' | 'American Express' | null | undefined;
+          }
+        | {
+            type: 'PayPal';
+            /** This is the paypal account's email address */
+            email: string;
+          }
+        | {
+            type: 'Bitcoin';
+            /** This is the bitcoin address */
+            address: string;
+          }
+        | {
+            type: 'Bank Transfer';
+            /** This is the bank account number */
+            accountNumber: string;
+          }
+        | {
+            type: 'Cash';
+            /** This is the amount of cash */
+            amount: number;
+          }
+    `)
   })
 
   it('zod lazy', async () => {

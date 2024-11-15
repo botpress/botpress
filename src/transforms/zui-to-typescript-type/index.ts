@@ -215,10 +215,7 @@ function sUnwrapZod(schema: z.Schema | KeyValue | FnParameters | Declaration | n
 
     case z.ZodFirstPartyTypeKind.ZodObject:
       const props = Object.entries(def.shape()).map(([key, value]) => {
-        if (value instanceof z.Schema) {
-          return sUnwrapZod(new KeyValue(toPropertyKey(key), value), newConfig)
-        }
-        return `${key}: unknown`
+        return sUnwrapZod(new KeyValue(toPropertyKey(key), value), newConfig)
       })
 
       return `{ ${props.join('; ')} }`
