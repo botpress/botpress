@@ -36,6 +36,11 @@ export const baseGenericFileSchema = z.discriminatedUnion('type', [
   baseShortcutFileSchema.extend({ type: z.literal('shortcut') }),
 ])
 
+export const baseFileChannelSchema = z.object({
+  channelId: z.string().min(1).describe('The ID of the channel'),
+  resourceId: z.string().min(1).describe('The ID of the watched resource (different from the file ID)'),
+})
+
 // Entities
 const computedFileAttrSchema = z.object({
   path: z
@@ -49,6 +54,10 @@ const computedFileAttrSchema = z.object({
 })
 export const fileSchema = baseNormalFileSchema.merge(computedFileAttrSchema)
 export const folderSchema = baseFolderFileSchema.merge(computedFileAttrSchema)
+
+export const fileChannelSchema = baseFileChannelSchema.extend({
+  fileId: z.string().min(1).describe(ID_DESCRIPTION),
+})
 
 // Action args/outputs
 function createListOutputSchema<T extends z.ZodTypeAny>(itemSchema: T) {

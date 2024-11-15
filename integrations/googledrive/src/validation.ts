@@ -2,11 +2,13 @@ import { RuntimeError } from '@botpress/sdk'
 import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE } from './mime-types'
 import { baseFolderFileSchema, baseNormalFileSchema, baseShortcutFileSchema } from './schemas'
 import {
+  BaseFileChannel,
   BaseFolderFile,
   BaseGenericFile,
   BaseNormalFile,
   BaseShortcutFile,
   CommonFileAttr,
+  UnvalidatedGoogleDriveChannel,
   UnvalidatedGoogleDriveFile,
 } from './types'
 
@@ -21,6 +23,22 @@ export const convertFolderFileToGeneric = (file: BaseFolderFile): BaseGenericFil
   return {
     type: 'folder',
     ...file,
+  }
+}
+
+export const parseChannel = (channel: UnvalidatedGoogleDriveChannel): BaseFileChannel => {
+  const { resourceId, id: channelId } = channel
+  if (!resourceId) {
+    throw new RuntimeError('Resource ID is missing in Schema$Channel from the API response')
+  }
+
+  if (!channelId) {
+    throw new RuntimeError('Channel ID is missing in Schema$Channel from the API response')
+  }
+
+  return {
+    channelId,
+    resourceId,
   }
 }
 

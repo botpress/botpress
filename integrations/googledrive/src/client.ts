@@ -21,11 +21,14 @@ import {
   DownloadFileDataOutput,
   ListItemsInput,
   ListItemsOutput,
+  NonDiscriminatedGenericFile,
+  FileChannel,
 } from './types'
 import { listItemsAndProcess, ListFunction, streamToBuffer } from './utils'
 import {
   convertFolderFileToGeneric,
   convertNormalFileToGeneric,
+  parseChannel,
   parseGenericFile,
   parseGenericFiles,
   parseNormalFile,
@@ -220,14 +223,15 @@ export class Client {
     return { bpFileId }
   }
 
-  private async _watchAllItems<T extends BaseFolderFile | BaseNormalFile>(listFn: ListFunction<T>) {
+  private async _watchAllItems<T extends NonDiscriminatedGenericFile>(listFn: ListFunction<T>) {
+    const channels: FileChannel[] = []
     await listItemsAndProcess(listFn, async (item) => {
       this._logger
         .forBot()
         .debug(`Watching ${item.mimeType === APP_GOOGLE_FOLDER_MIMETYPE ? 'folder' : 'file'} ${item.name} (${item.id})`)
 
       const absoluteExpirationTimeMs: number = Date.now() + MAX_RESOURCE_WATCH_EXPIRATION_DELAY_MS
-      await this._googleClient.files.watch({
+      const repsonse = await this._googleClient.files.watch({
         fileId: item.id,
         requestBody: {
           id: uuidv4(),
@@ -237,16 +241,20 @@ export class Client {
           expiration: absoluteExpirationTimeMs.toString(),
         },
       })
-      // TODO: Remove previous watch if it exists
+      channels.push({
+        ...parseChannel(repsonse.data),
+        fileId: item.id,
+      })
     })
+    return channels
   }
 
-  public async watchAllFiles() {
-    await this._watchAllItems(this._listBaseFiles.bind(this))
+  public async watchAllFiles(): Promise<FileChannel[]> {
+    return await this._watchAllItems(this._listBaseFiles.bind(this))
   }
 
-  public async watchAllFolders() {
-    await this._watchAllItems(this._listBaseFolders.bind(this))
+  public async watchAllFolders(): Promise<FileChannel[]> {
+    return await this._watchAllItems(this._listBaseFolders.bind(this))
   }
 
   /**
