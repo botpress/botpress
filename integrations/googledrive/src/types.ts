@@ -8,13 +8,15 @@ import {
   fileSchema,
   folderSchema,
   commonFileAttrSchema,
-  listFileOutputSchema,
-  listFolderOutputSchema,
+  listFilesOutputSchema,
+  listFoldersOutputSchema,
   createFileArgSchema,
   updateFileArgSchema,
   uploadFileDataArgSchema,
   downloadFileDataArgSchema,
   downloadFileDataOutputSchema,
+  listItemsOutputSchema,
+  listItemsInputSchema,
 } from './schemas'
 
 export type GoogleDriveClient = drive_v3.Drive
@@ -31,8 +33,10 @@ export type NonDiscriminatedGenericFile = BaseNormalFile | BaseFolderFile | Base
 export type File = z.infer<typeof fileSchema>
 export type Folder = z.infer<typeof folderSchema>
 
-export type ListFileOutput = z.infer<typeof listFileOutputSchema>
-export type ListFolderOutput = z.infer<typeof listFolderOutputSchema>
+export type ListItemsInput = z.infer<typeof listItemsInputSchema>
+export type ListItemsOutput<T extends any> = z.infer<typeof listItemsOutputSchema> & { items: T[] }
+export type ListFilesOutput = z.infer<typeof listFilesOutputSchema>
+export type ListFoldersOutput = z.infer<typeof listFoldersOutputSchema>
 export type CreateFileArgs = z.infer<typeof createFileArgSchema>
 export type UpdateFileArgs = z.infer<typeof updateFileArgSchema>
 export type UploadFileDataArgs = z.infer<typeof uploadFileDataArgSchema>
