@@ -382,8 +382,8 @@ export class Client {
     }
 
     const indexableContentType = INDEXABLE_MIMETYPES.find((type) => exportContentTypes.includes(type))
-
-    return indexableContentType ?? exportContentTypes[0]
+    const defaultContentType = exportContentTypes[0]
+    return indexableContentType ?? defaultContentType
   }
 
   private _getFilePath = (id: string): string[] => {
