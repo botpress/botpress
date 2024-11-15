@@ -1,4 +1,7 @@
 import { Readable } from 'stream'
+import { ListItemsInput, ListItemsOutput } from './types'
+
+export type ListFunction<T> = (input: ListItemsInput) => Promise<ListItemsOutput<T>>
 
 export const streamToBuffer = (stream: Readable, maxBufferSize: number): Promise<Buffer> => {
   return new Promise((resolve, reject) => {
@@ -19,4 +22,15 @@ export const streamToBuffer = (stream: Readable, maxBufferSize: number): Promise
         reject(err)
       })
   })
+}
+
+export const listItemsAndProcess = async <T>(listFn: ListFunction<T>, processFn: (item: T) => Promise<void>) => {
+  let nextToken: string | undefined = undefined
+  do {
+    const { items, meta } = await listFn({ nextToken })
+    for (const item of items) {
+      await processFn(item)
+    }
+    nextToken = meta.nextToken
+  } while (nextToken)
 }

@@ -1,6 +1,7 @@
 import { RuntimeError } from '@botpress/sdk'
 import axios, { AxiosError } from 'axios'
 import { Readable, Stream } from 'stream'
+import { v4 as uuidv4 } from 'uuid'
 import { getAuthenticatedGoogleClient } from './auth'
 import { FilesCache } from './files-cache'
 import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE, INDEXABLE_MIMETYPES } from './mime-types'
@@ -21,7 +22,7 @@ import {
   ListItemsInput,
   ListItemsOutput,
 } from './types'
-import { streamToBuffer } from './utils'
+import { listItemsAndProcess, ListFunction, streamToBuffer } from './utils'
 import {
   convertFolderFileToGeneric,
   convertNormalFileToGeneric,
@@ -34,7 +35,8 @@ import * as bp from '.botpress'
 type FileStreamUploadParams = Parameters<bp.Client['upsertFile']>[0]
 type FileBufferUploadParams = Omit<Parameters<bp.Client['uploadFile']>[0], 'content'>
 
-const MAX_EXPORT_FILE_SIZE = 10000000 // 10MB, as per the Google Drive API doc
+const MAX_RESOURCE_WATCH_EXPIRATION_DELAY_MS = 86400 * 1000 // 24 hours
+const MAX_EXPORT_FILE_SIZE_BYTES = 10000000 // 10MB, as per the Google Drive API doc
 const MYDRIVE_ID_ALIAS = 'root'
 const PAGE_SIZE = 10
 const GOOGLE_API_EXPORTFORMATS_FIELDS = 'exportFormats'
@@ -46,16 +48,25 @@ export class Client {
     private _client: bp.Client,
     private _ctx: bp.Context,
     private _googleClient: GoogleDriveClient,
-    private _filesCache: FilesCache
+    private _filesCache: FilesCache,
+    private _logger: bp.Logger
   ) {}
 
-  public static async create({ client, ctx }: { client: bp.Client; ctx: bp.Context }): Promise<Client> {
+  public static async create({
+    client,
+    ctx,
+    logger,
+  }: {
+    client: bp.Client
+    ctx: bp.Context
+    logger: bp.Logger
+  }): Promise<Client> {
     const googleClient = await getAuthenticatedGoogleClient({
       client,
       ctx,
     })
     const filesCache = await FilesCache.load({ client, ctx }) // TODO: Give option to prevent cache loading and saving
-    return new Client(client, ctx, googleClient, filesCache)
+    return new Client(client, ctx, googleClient, filesCache, logger)
   }
 
   public async listFiles({ nextToken }: ListItemsInput): Promise<ListFilesOutput> {
@@ -205,6 +216,35 @@ export class Client {
       })
     }
     return { bpFileId }
+  }
+
+  private async _watchAllItems<T extends BaseFolderFile | BaseNormalFile>(listFn: ListFunction<T>) {
+    await listItemsAndProcess(listFn, async (item) => {
+      this._logger
+        .forBot()
+        .debug(`Watching ${item.mimeType === APP_GOOGLE_FOLDER_MIMETYPE ? 'folder' : 'file'} ${item.name} (${item.id})`)
+
+      // TODO: Remove previous watch if it exists
+      const absoluteExpirationTimeMs: number = Date.now() + MAX_RESOURCE_WATCH_EXPIRATION_DELAY_MS
+      await this._googleClient.files.watch({
+        fileId: item.id,
+        requestBody: {
+          id: uuidv4(),
+          type: 'web_hook',
+          address: `${process.env.BP_WEBHOOK_URL}/${this._ctx.webhookId}`,
+          token: item.id,
+          expiration: absoluteExpirationTimeMs.toString(),
+        },
+      })
+    })
+  }
+
+  public async watchAllFiles() {
+    await this._watchAllItems(this._listBaseFiles.bind(this))
+  }
+
+  public async watchAllFolders() {
+    await this._watchAllItems(this._listBaseFolders.bind(this))
   }
 
   /**
