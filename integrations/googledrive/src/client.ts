@@ -285,9 +285,9 @@ export class Client {
     return parents
   }
 
-  private async _fetchFile(id: string, refreshCache?: boolean): Promise<BaseGenericFile> {
+  private async _fetchFile(id: string): Promise<BaseGenericFile> {
     let file = this._filesCache.find(id)
-    if (!file || refreshCache) {
+    if (!file) {
       const response = await this._googleClient.files.get({
         fileId: id,
         fields: GOOGLE_API_FILE_FIELDS,
