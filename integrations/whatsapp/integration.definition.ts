@@ -33,7 +33,7 @@ export const INTEGRATION_NAME = 'whatsapp'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.1.0',
+  version: '2.1.1',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -78,7 +78,15 @@ export default new IntegrationDefinition({
   },
   channels: {
     [channel]: {
-      messages: { ...messages.defaults, markdown: messages.markdown },
+      messages: {
+        ...messages.defaults,
+        markdown: messages.markdown,
+        file: {
+          schema: messages.defaults.file.schema.extend({
+            filename: z.string().optional(),
+          }),
+        },
+      },
       message: {
         tags: {
           id: {},

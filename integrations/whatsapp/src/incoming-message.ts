@@ -96,12 +96,10 @@ export async function handleIncomingMessage(
 
         await client.createMessage({
           tags: { id: message.id },
-          type: 'document' as any, // Note: We cast this to avoid defining a custom message type which would involve having to support it as an outgoing message as well.
+          type: 'file',
           payload: {
-            document: {
-              documentUrl,
-              filename: message.document.filename,
-            },
+            fileUrl: documentUrl,
+            filename: message.document.filename,
           },
           userId: user.id,
           conversationId: conversation.id,
