@@ -52,7 +52,7 @@ export namespace Task {
       .title('Priority')
       .min(1)
       .max(4)
-      .describe('Task priority from 1 (lowest, default value) to 4 (urgent).'),
+      .describe('Task priority from 1 (urgent) to 4 (lowest, default value).'),
     dueDate: z
       .string()
       .title('Due Date')

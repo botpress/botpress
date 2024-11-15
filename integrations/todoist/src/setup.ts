@@ -1,18 +1,20 @@
-import { getAccessToken } from './auth'
-import { Client } from './client'
-import { setStateConfiguration } from './config'
 import * as bp from '.botpress'
+import { TodoistClient } from './todoist-api'
 
 export const register: bp.IntegrationProps['register'] = async ({ logger, client, ctx }) => {
   logger.forBot().info('Registering Todoist integration')
-  const accessToken = await getAccessToken(client, ctx)
-  if (!accessToken) {
-    return
-  }
 
-  const todoistClient = new Client(accessToken)
-  const userId = await todoistClient.getUserId()
-  await setStateConfiguration(client, ctx, { botUserId: userId })
+  const todoistClient = await TodoistClient.create({ client, ctx })
+  const userId = await todoistClient.getAuthenticatedUserId()
+
+  await client.setState({
+    id: ctx.integrationId,
+    type: 'integration',
+    name: 'configuration',
+    payload: {
+      botUserId: userId,
+    },
+  })
 }
 
 export const unregister: bp.IntegrationProps['unregister'] = async ({ logger }) => {

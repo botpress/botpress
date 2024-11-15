@@ -6,8 +6,9 @@ import { Project } from './project'
 import { Section } from './section'
 import { SharedLabel } from './shared-label'
 import { Task } from './task'
+import { Color } from './color'
 
-export type { Comment, PersonalLabel, Project, Section, SharedLabel, Task }
+export { Comment, PersonalLabel, Project, Section, SharedLabel, Task, Color }
 
 export const entities = {
   task: {
