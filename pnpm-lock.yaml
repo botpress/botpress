@@ -592,6 +592,9 @@ importers:
       googleapis:
         specifier: ^144.0.0
         version: 144.0.0
+      uuid:
+        specifier: ^9.0.0
+        version: 9.0.0
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -599,6 +602,9 @@ importers:
       '@types/node':
         specifier: ^18.11.17
         version: 18.19.50
+      '@types/uuid':
+        specifier: ^9.0.1
+        version: 9.0.1
 
   integrations/groq:
     dependencies:
