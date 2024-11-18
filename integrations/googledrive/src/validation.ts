@@ -75,7 +75,7 @@ export const parseGenericFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): B
 
 export const parseNormalFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseNormalFile => {
   const commmonFileAttr = parseCommonFileAttr(unvalidatedFile)
-  const { size: sizeStr } = unvalidatedFile
+  const { size: sizeStr, version } = unvalidatedFile
   if (!sizeStr) {
     throw new RuntimeError(
       `Size is missing in Schema$File from the API response for file with name=${commmonFileAttr.name}`
@@ -89,9 +89,16 @@ export const parseNormalFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): Ba
     )
   }
 
+  if (!version) {
+    throw new RuntimeError(
+      `Version is missing in Schema$File from the API response for file with name=${commmonFileAttr.name}`
+    )
+  }
+
   const parseResult = baseNormalFileSchema.safeParse({
     ...commmonFileAttr,
     size,
+    version,
   })
   if (parseResult.error) {
     throw new RuntimeError('Error validating Schema$File received from the API response')

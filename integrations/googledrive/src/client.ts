@@ -43,7 +43,7 @@ const MAX_EXPORT_FILE_SIZE_BYTES = 10000000 // 10MB, as per the Google Drive API
 const MYDRIVE_ID_ALIAS = 'root'
 const PAGE_SIZE = 10
 const GOOGLE_API_EXPORTFORMATS_FIELDS = 'exportFormats'
-const GOOGLE_API_FILE_FIELDS = 'id, name, mimeType, parents, size'
+const GOOGLE_API_FILE_FIELDS = 'id, name, mimeType, parents, size, version'
 const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageToken`
 
 export class Client {
@@ -283,13 +283,14 @@ export class Client {
   private async _getCompleteFileFromBaseFile(file: BaseNormalFile): Promise<File> {
     const genericFile = convertNormalFileToGeneric(file)
     await this._getOrFetchParents(genericFile)
-    const { id, mimeType, name, parentId, size } = file
+    const { id, mimeType, name, parentId, size, version } = file
     return {
       id,
       mimeType,
       name,
       parentId,
       size,
+      version,
       path: this._getFilePath(id),
     }
   }

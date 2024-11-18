@@ -17,6 +17,12 @@ export const commonFileAttrSchema = z.object({
 
 export const baseNormalFileSchema = commonFileAttrSchema.extend({
   size: z.number().nonnegative().describe('The size in bytes of the file'),
+  version: z
+    .string()
+    .min(1)
+    .describe(
+      'A monotonically increasing version number incremented on every change of the file. May be incremented by server-side changes not visible to the user'
+    ),
 })
 
 export const baseFolderFileSchema = commonFileAttrSchema.extend({
