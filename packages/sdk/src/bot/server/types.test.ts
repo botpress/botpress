@@ -96,7 +96,7 @@ type EmptyBot = common.MakeBot<{
 }>
 
 test('MessageRequest with implemented bot should be strict type', () => {
-  type Actual = types.BotMessage<FooBarBazBot>
+  type Actual = types.IncomingMessage<FooBarBazBot>
   type MessageFoo = utils.Merge<client.Message, { type: 'messageFoo'; payload: { foo: string } }>
   type MessageBar = utils.Merge<client.Message, { type: 'messageBar'; payload: { bar: number } }>
   type MessageBaz = utils.Merge<client.Message, { type: 'messageBaz'; payload: { baz: boolean } }>
@@ -111,7 +111,7 @@ test('MessageRequest with implemented bot should be strict type', () => {
 })
 
 test('MessageRequest with empty bot should be never', () => {
-  type Actual = types.BotMessage<EmptyBot>
+  type Actual = types.IncomingMessage<EmptyBot>
   type Expected = never // TODO: should be Merge<client.Message, { type: never; payload: never }>
   type _assertion = utils.AssertAll<
     [
@@ -123,7 +123,7 @@ test('MessageRequest with empty bot should be never', () => {
 })
 
 test('MessageRequest with base bot should be any record', () => {
-  type Actual = types.BotMessage<common.BaseBot>
+  type Actual = types.IncomingMessage<common.BaseBot>
   type Expected = utils.Merge<client.Message, { type: string; payload: any }> // TODO: should be { message: Record<string, any> }
   type _assertion = utils.AssertAll<
     [

@@ -6,9 +6,16 @@ const truncate = (str: string, maxLength: number = 500): string =>
 
 const bot = new bp.Bot({})
 
-bot.message(async ({ message, client, ctx }) => {
-  console.info('Received message', message)
+bot.hook.before_incoming_event('*', async (x) => console.info('before_incoming_event', x.data))
+bot.hook.before_incoming_message('*', async (x) => console.info('before_incoming_message', x.data))
+bot.hook.before_outgoing_message('*', async (x) => console.info('before_outgoing_message', x.data))
+bot.hook.before_call_action('*', async (x) => console.info('before_call_action', x.data))
+bot.hook.after_incoming_event('*', async (x) => console.info('after_incoming_event', x.data))
+bot.hook.after_incoming_message('*', async (x) => console.info('after_incoming_message', x.data))
+bot.hook.after_outgoing_message('*', async (x) => console.info('after_outgoing_message', x.data))
+bot.hook.after_call_action('*', async (x) => console.info('after_call_action', x.data))
 
+bot.message(async ({ message, client, ctx }) => {
   await client.createMessage({
     conversationId: message.conversationId,
     userId: ctx.botId,
@@ -18,8 +25,6 @@ bot.message(async ({ message, client, ctx }) => {
       text: 'Hello world!',
     },
   })
-
-  console.info('text message sent')
 })
 
 bot.event(async ({ event }) => {
