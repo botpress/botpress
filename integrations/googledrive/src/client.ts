@@ -68,7 +68,7 @@ export class Client {
       client,
       ctx,
     })
-    const filesCache = await FilesCache.load({ client, ctx }) // TODO: Give option to prevent cache loading and saving
+    const filesCache = await FilesCache.load({ client, ctx, logger }) // TODO: Give option to prevent cache loading and saving
     return new Client(client, ctx, googleClient, filesCache, logger)
   }
 
@@ -223,12 +223,10 @@ export class Client {
     return { bpFileId }
   }
 
-  private async _watchAllItems<T extends NonDiscriminatedGenericFile>(listFn: ListFunction<T>) {
+  private async _watchAllListableGenericFiles<T extends NonDiscriminatedGenericFile>(listFn: ListFunction<T>) {
     const channels: FileChannel[] = []
     await listItemsAndProcess(listFn, async (item) => {
-      this._logger
-        .forBot()
-        .debug(`Watching ${item.mimeType === APP_GOOGLE_FOLDER_MIMETYPE ? 'folder' : 'file'} ${item.name} (${item.id})`)
+      this._logger.forBot().debug(`Watching file '${item.name}' (${item.id})`)
 
       const absoluteExpirationTimeMs: number = Date.now() + MAX_RESOURCE_WATCH_EXPIRATION_DELAY_MS
       const repsonse = await this._googleClient.files.watch({
@@ -249,12 +247,34 @@ export class Client {
     return channels
   }
 
+  public async watchAll(): Promise<FileChannel[]> {
+    return [...(await this.watchAllFiles()), ...(await this.watchAllFolders())]
+  }
+
   public async watchAllFiles(): Promise<FileChannel[]> {
-    return await this._watchAllItems(this._listBaseFiles.bind(this))
+    return await this._watchAllListableGenericFiles(this._listBaseFiles.bind(this))
   }
 
   public async watchAllFolders(): Promise<FileChannel[]> {
-    return await this._watchAllItems(this._listBaseFolders.bind(this))
+    return await this._watchAllListableGenericFiles(this._listBaseFolders.bind(this))
+  }
+
+  public async unwatch(channels: FileChannel | FileChannel[]) {
+    if (!Array.isArray(channels)) {
+      channels = [channels]
+    }
+    for (const channel of channels) {
+      const { id, resourceId, fileId } = channel
+      const file = this._filesCache.find(fileId)
+      const fileName = file?.name ?? '[unknown]'
+      this._logger.forBot().debug(`Unwatching file '${fileName}' (${fileId})`)
+      await this._googleClient.channels.stop({
+        requestBody: {
+          id,
+          resourceId,
+        },
+      })
+    }
   }
 
   /**
