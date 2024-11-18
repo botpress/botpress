@@ -5,6 +5,7 @@ import z, { AnyZodObject } from '../zui'
 
 type BaseStates = Record<string, AnyZodObject>
 type BaseEvents = Record<string, AnyZodObject>
+type BaseActions = Record<string, AnyZodObject>
 
 export type TagDefinition = {
   title?: string
@@ -42,6 +43,13 @@ export type MessageDefinition = {
   tags?: Record<string, TagDefinition>
 }
 
+export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[string]> = {
+  title?: string
+  description?: string
+  input: SchemaDefinition<TAction>
+  output: SchemaDefinition<AnyZodObject> // cannot infer both input and output types (typescript limitation)
+}
+
 export type IntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage> = {
   enabled: boolean
 } & (
@@ -59,7 +67,11 @@ export type IntegrationConfigInstance<I extends IntegrationPackage = Integration
 
 export type IntegrationInstance = IntegrationPackage & IntegrationConfigInstance
 
-export type BotDefinitionProps<TStates extends BaseStates = BaseStates, TEvents extends BaseEvents = BaseEvents> = {
+export type BotDefinitionProps<
+  TStates extends BaseStates = BaseStates,
+  TEvents extends BaseEvents = BaseEvents,
+  TActions extends BaseActions = BaseActions
+> = {
   integrations?: {
     [K: string]: IntegrationInstance
   }
@@ -74,9 +86,16 @@ export type BotDefinitionProps<TStates extends BaseStates = BaseStates, TEvents 
     [K in keyof TEvents]: EventDefinition<TEvents[K]>
   }
   recurringEvents?: Record<string, RecurringEventDefinition<TEvents>>
+  actions?: {
+    [K in keyof TActions]: ActionDefinition<TActions[K]>
+  }
 }
 
-export class BotDefinition<TStates extends BaseStates = BaseStates, TEvents extends BaseEvents = BaseEvents> {
+export class BotDefinition<
+  TStates extends BaseStates = BaseStates,
+  TEvents extends BaseEvents = BaseEvents,
+  TActions extends BaseActions = BaseActions
+> {
   public readonly integrations: this['props']['integrations']
   public readonly user: this['props']['user']
   public readonly conversation: this['props']['conversation']
@@ -85,7 +104,8 @@ export class BotDefinition<TStates extends BaseStates = BaseStates, TEvents exte
   public readonly configuration: this['props']['configuration']
   public readonly events: this['props']['events']
   public readonly recurringEvents: this['props']['recurringEvents']
-  public constructor(public readonly props: BotDefinitionProps<TStates, TEvents>) {
+  public readonly actions: this['props']['actions']
+  public constructor(public readonly props: BotDefinitionProps<TStates, TEvents, TActions>) {
     this.integrations = props.integrations
     this.user = props.user
     this.conversation = props.conversation
@@ -94,6 +114,7 @@ export class BotDefinition<TStates extends BaseStates = BaseStates, TEvents exte
     this.configuration = props.configuration
     this.events = props.events
     this.recurringEvents = props.recurringEvents
+    this.actions = props.actions
   }
 
   public add<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this {

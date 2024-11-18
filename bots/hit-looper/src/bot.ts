@@ -1,2 +1,2 @@
 import * as bp from '.botpress'
-export const bot = new bp.Bot({})
+export const bot = new bp.Bot({ actions: {} })

@@ -4,7 +4,14 @@ import * as bp from '.botpress'
 const truncate = (str: string, maxLength: number = 500): string =>
   str.length > maxLength ? `${str.slice(0, maxLength)}...` : str
 
-const bot = new bp.Bot({})
+const bot = new bp.Bot({
+  actions: {
+    sayHello: async ({ input }) => {
+      const name = input?.name || 'world'
+      return { message: `Hello, ${name}!` }
+    },
+  },
+})
 
 bot.hook.before_incoming_event('*', async (x) => console.info('before_incoming_event', x.data))
 bot.hook.before_incoming_message('*', async (x) => console.info('before_incoming_message', x.data))
