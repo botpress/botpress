@@ -65,6 +65,7 @@ export type OutgoingCallActionResponse<TBot extends types.BaseBot> = utils.Value
 export type CommonHandlerProps<TBot extends types.BaseBot> = {
   ctx: BotContext
   client: BotSpecificClient<TBot>
+  self: BotHandlers<TBot>
 }
 
 export type MessagePayload<TBot extends types.BaseBot> = {
@@ -91,7 +92,7 @@ export type StateExpiredHandlerProps<TBot extends types.BaseBot> = CommonHandler
 export type StateExpiredHandler<TBot extends types.BaseBot> = (args: StateExpiredHandlerProps<TBot>) => Promise<void>
 
 export type ActionHandlerPayloads<TBot extends types.BaseBot> = {
-  [K in keyof TBot['actions']]: { type: K; input: TBot['actions'][K]['input'] }
+  [K in keyof TBot['actions']]: { type?: K; input: TBot['actions'][K]['input'] }
 }
 export type ActionHandlerProps<TBot extends types.BaseBot> = {
   [K in keyof TBot['actions']]: CommonHandlerProps<TBot> & ActionHandlerPayloads<TBot>[K]

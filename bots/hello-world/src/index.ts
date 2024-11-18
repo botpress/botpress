@@ -7,7 +7,7 @@ const truncate = (str: string, maxLength: number = 500): string =>
 const bot = new bp.Bot({
   actions: {
     sayHello: async ({ input }) => {
-      const name = input?.name || 'world'
+      const name = input?.name || 'World'
       return { message: `Hello, ${name}!` }
     },
   },
@@ -22,14 +22,17 @@ bot.hook.after_incoming_message('*', async (x) => console.info('after_incoming_m
 bot.hook.after_outgoing_message('*', async (x) => console.info('after_outgoing_message', x.data))
 bot.hook.after_call_action('*', async (x) => console.info('after_call_action', x.data))
 
-bot.message(async ({ message, client, ctx }) => {
+bot.message(async (props) => {
+  const { message, client, ctx, self } = props
+
+  const { message: response } = await self.actionHandlers.sayHello({ ...props, input: {} })
   await client.createMessage({
     conversationId: message.conversationId,
     userId: ctx.botId,
     tags: {},
     type: 'text',
     payload: {
-      text: 'Hello world!',
+      text: response,
     },
   })
 })

@@ -12,7 +12,6 @@ export * from './types'
 
 type ServerProps = types.CommonHandlerProps<common.BaseBot> & {
   req: Request
-  bot: types.BotHandlers<common.BaseBot>
 }
 
 const SUCCESS_RESPONSE = { status: 200 }
@@ -81,7 +80,7 @@ export const botHandler =
       req,
       ctx,
       client: botClient,
-      bot,
+      self: bot,
     }
 
     switch (ctx.operation) {
@@ -109,7 +108,7 @@ const onRegister = async (_: ServerProps): Promise<Response> => SUCCESS_RESPONSE
 
 const onUnregister = async (_: ServerProps): Promise<Response> => SUCCESS_RESPONSE
 
-const onEventReceived = async ({ ctx, req, client, bot }: ServerProps): Promise<Response> => {
+const onEventReceived = async ({ ctx, req, client, self }: ServerProps): Promise<Response> => {
   log.debug(`Received event ${ctx.type}`)
 
   const body = parseBody<types.EventPayload<common.BaseBot>>(req)
@@ -117,7 +116,7 @@ const onEventReceived = async ({ ctx, req, client, bot }: ServerProps): Promise<
   if (ctx.type === 'message_created') {
     const event = body.event
     let message: client.Message = event.payload.message
-    for (const handler of bot.hooks.before_incoming_message[message.type] ?? []) {
+    for (const handler of self.hooks.before_incoming_message[message.type] ?? []) {
       const hookOutput = await handler({
         client,
         ctx,
@@ -133,15 +132,16 @@ const onEventReceived = async ({ ctx, req, client, bot }: ServerProps): Promise<
       message,
       event,
     }
-    for (const handler of bot.messageHandlers) {
+    for (const handler of self.messageHandlers) {
       await handler({
         ...messagePayload,
         client,
         ctx,
+        self,
       })
     }
 
-    for (const handler of bot.hooks.after_incoming_message[message.type] ?? []) {
+    for (const handler of self.hooks.after_incoming_message[message.type] ?? []) {
       const hookOutput = await handler({
         client,
         ctx,
@@ -156,18 +156,19 @@ const onEventReceived = async ({ ctx, req, client, bot }: ServerProps): Promise<
   if (ctx.type === 'state_expired') {
     const event = body.event
     const statePayload: types.StateExpiredPayload<common.BaseBot> = { state: event.payload.state }
-    for (const handler of bot.stateExpiredHandlers) {
+    for (const handler of self.stateExpiredHandlers) {
       await handler({
         ...statePayload,
         client,
         ctx,
+        self,
       })
     }
     return SUCCESS_RESPONSE
   }
 
   let event = body.event
-  for (const handler of bot.hooks.before_incoming_event[event.type] ?? []) {
+  for (const handler of self.hooks.before_incoming_event[event.type] ?? []) {
     const hookOutput = await handler({
       client,
       ctx,
@@ -177,15 +178,16 @@ const onEventReceived = async ({ ctx, req, client, bot }: ServerProps): Promise<
   }
 
   const eventPayload = { event }
-  for (const handler of bot.eventHandlers) {
+  for (const handler of self.eventHandlers) {
     await handler({
       ...eventPayload,
       client,
       ctx,
+      self,
     })
   }
 
-  for (const handler of bot.hooks.after_incoming_event[event.type] ?? []) {
+  for (const handler of self.hooks.after_incoming_event[event.type] ?? []) {
     const hookOutput = await handler({
       client,
       ctx,
@@ -197,7 +199,7 @@ const onEventReceived = async ({ ctx, req, client, bot }: ServerProps): Promise<
   return SUCCESS_RESPONSE
 }
 
-const onActionTriggered = async ({ ctx, req, client, bot }: ServerProps): Promise<Response> => {
+const onActionTriggered = async ({ ctx, req, client, self }: ServerProps): Promise<Response> => {
   type AnyActionPayload = utils.ValueOf<types.ActionHandlerPayloads<common.BaseBot>>
   const { input, type } = parseBody<AnyActionPayload>(req)
 
@@ -205,13 +207,13 @@ const onActionTriggered = async ({ ctx, req, client, bot }: ServerProps): Promis
     throw new Error('Missing action type')
   }
 
-  const action = bot.actionHandlers[type]
+  const action = self.actionHandlers[type]
 
   if (!action) {
     throw new Error(`Action ${type} not found`)
   }
 
-  const output = await action({ ctx, input, client, type })
+  const output = await action({ ctx, input, client, type, self })
 
   const response = { output }
   return {

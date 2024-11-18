@@ -1,6 +1,7 @@
 import * as sdk from '@botpress/sdk'
+import * as env from './.genenv'
+import telegram from './bp_modules/telegram'
 import webhook from './bp_modules/webhook'
-import whatsapp from './bp_modules/whatsapp'
 
 export default new sdk.BotDefinition({
   actions: {
@@ -16,9 +17,11 @@ export default new sdk.BotDefinition({
     },
   },
 })
-  .add(whatsapp, {
+  .add(telegram, {
     enabled: true,
-    configuration: {},
+    configuration: {
+      botToken: env.HELLO_WORLD_TELEGRAM_BOT_TOKEN,
+    },
   })
   .add(webhook, {
     enabled: true,
