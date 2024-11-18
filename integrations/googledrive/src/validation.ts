@@ -27,17 +27,17 @@ export const convertFolderFileToGeneric = (file: BaseFolderFile): BaseGenericFil
 }
 
 export const parseChannel = (channel: UnvalidatedGoogleDriveChannel): BaseFileChannel => {
-  const { resourceId, id: channelId } = channel
+  const { id, resourceId } = channel
   if (!resourceId) {
     throw new RuntimeError('Resource ID is missing in Schema$Channel from the API response')
   }
 
-  if (!channelId) {
+  if (!id) {
     throw new RuntimeError('Channel ID is missing in Schema$Channel from the API response')
   }
 
   return {
-    channelId,
+    id,
     resourceId,
   }
 }

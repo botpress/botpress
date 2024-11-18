@@ -37,7 +37,7 @@ export const baseGenericFileSchema = z.discriminatedUnion('type', [
 ])
 
 export const baseFileChannelSchema = z.object({
-  channelId: z.string().min(1).describe('The ID of the channel'),
+  id: z.string().min(1).describe('The ID of the channel'),
   resourceId: z.string().min(1).describe('The ID of the watched resource (different from the file ID)'),
 })
 
@@ -111,4 +111,9 @@ export const downloadFileDataOutputSchema = z.object({
     .string()
     .min(1)
     .describe('The Botpress file ID corresponding to the file that was uploaded from Google Drive to the Files API'),
+})
+export const syncFilesOutputSchema = z.object({
+  newFilesIds: z.string().array().describe('The IDs of the files that were not previously known'),
+  deletedFilesIds: z.string().array().describe('The IDs of files that were deleted'),
+  updatedFilesIds: z.string().array().describe('The IDs of files that were updated'),
 })

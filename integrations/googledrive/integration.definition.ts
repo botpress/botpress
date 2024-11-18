@@ -11,6 +11,7 @@ import {
   listItemsInputSchema,
   deleteFileArgSchema,
   downloadFileDataOutputSchema,
+  syncFilesOutputSchema,
 } from './src/schemas'
 
 export default new IntegrationDefinition({
@@ -113,6 +114,17 @@ export default new IntegrationDefinition({
         schema: downloadFileDataOutputSchema,
       },
     },
+    // TODO: Rename to something more meaningful/accurate
+    syncFiles: {
+      title: 'Sync Files',
+      description: 'Sync files between Google Drive and Botpress files',
+      input: {
+        schema: z.object({}),
+      },
+      output: {
+        schema: syncFilesOutputSchema,
+      },
+    },
   },
   states: {
     configuration: {
@@ -124,10 +136,19 @@ export default new IntegrationDefinition({
           .describe('The refresh token to use to authenticate with Google. It gets exchanged for a bearer token'),
       }),
     },
-    list: {
+    filesCache: {
       type: 'integration',
       schema: z.object({
-        filesMap: z.string().title('Files cache').describe('Serialized map of known files'),
+        filesCache: z.string().title('Files cache').describe('Serialized map of known files'),
+      }),
+    },
+    filesChannels: {
+      type: 'integration',
+      schema: z.object({
+        filesChannels: z
+          .string()
+          .title('Files change subscription channels')
+          .describe('Serialized set of channels for file change subscriptions'),
       }),
     },
   },

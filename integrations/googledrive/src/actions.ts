@@ -1,14 +1,15 @@
 import { createActionWrapper } from '@botpress/common'
 import { Client as DriveClient } from './client'
 import { wrapWithTryCatch } from './error-handling'
+import { FileChannelsStore } from './file-channels-store'
 import * as bp from '.botpress'
 
 const injectToolsAndMetadata = createActionWrapper<bp.IntegrationProps>()({
   toolFactories: {
-    driveClient: ({ client, ctx }) => DriveClient.create({ client, ctx }),
+    driveClient: ({ client, ctx, logger }) => DriveClient.create({ client, ctx, logger }),
   },
   extraMetadata: {
-    errorMessage: 'Placeholder error message',
+    errorMessage: 'Placeholder error message', // TODO: Specify extraMetadata shape instead of providing placeholder values?
   },
 })
 
@@ -77,6 +78,21 @@ const downloadFileData: bp.IntegrationProps['actions']['downloadFileData'] = wra
   }
 )
 
+const syncFiles: bp.IntegrationProps['actions']['syncFiles'] = wrapAction(
+  { actionName: 'syncFiles', errorMessage: 'Error syncing files' },
+  async ({ client, ctx, logger, driveClient }) => {
+    // TODO: Decide on a common way to handle stores and caches (inside or outside client, load/save/invalidation)
+    // TODO: If possible, unify file cache and file channels store to keep a unique source of truth for known files
+    const fileChannelsStore = await FileChannelsStore.load({ client, ctx, logger })
+    const channels = await driveClient.watchAll()
+    const { newChannels, deletedChannels } = await fileChannelsStore.setAll(channels)
+    await fileChannelsStore.save()
+    driveClient.unwatch(deletedChannels)
+    const newFilesIds = newChannels.map((channel) => channel.fileId) // TODO: Keep normal files only
+    const deletedFilesIds = deletedChannels.map((channel) => channel.fileId) // TODO: Keep normal files only
+    const updatedFilesIds: string[] = [] // TODO: Base update status on metadata or content change
+    return { newFilesIds, deletedFilesIds, updatedFilesIds }
+  }
 )
 
 export default {
@@ -88,4 +104,5 @@ export default {
   deleteFile,
   uploadFileData,
   downloadFileData,
+  syncFiles,
 } as const satisfies bp.IntegrationProps['actions']
