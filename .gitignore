@@ -7,7 +7,7 @@ local/data
 *.tsbuildinfo
 __snapshots__
 .ignore.me.*
-.env
+.env*
 .botpress
 .botpresshome
 .botpresshome.*
