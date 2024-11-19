@@ -106,6 +106,9 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@bpinternal/genenv':
+        specifier: 0.0.1
+        version: 0.0.1
       '@types/json-schema':
         specifier: ^7.0.11
         version: 7.0.12
@@ -1743,7 +1746,7 @@ importers:
         specifier: 0.35.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 1.4.0
+        specifier: 1.5.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1867,7 +1870,7 @@ importers:
         specifier: 0.35.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 1.4.0
+        specifier: 1.5.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1886,7 +1889,7 @@ importers:
         specifier: 0.35.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 1.4.0
+        specifier: 1.5.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1905,7 +1908,7 @@ importers:
         specifier: 0.35.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 1.4.0
+        specifier: 1.5.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1924,7 +1927,7 @@ importers:
         specifier: 0.35.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 1.4.0
+        specifier: 1.5.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8

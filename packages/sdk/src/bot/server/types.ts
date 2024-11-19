@@ -41,14 +41,14 @@ type OutgoingMessageResponses<TBot extends types.BaseBot> = {
   >
 }
 
-type CallActionRequests<TBot extends types.BaseBot> = {
+type OutgoingCallActionRequests<TBot extends types.BaseBot> = {
   [K in keyof types.EnumerateActionInputs<TBot>]: utils.Merge<
     client.ClientInputs['callAction'],
     { type: K; input: types.EnumerateActionInputs<TBot>[K] }
   >
 }
 
-type CallActionResponses<TBot extends types.BaseBot> = {
+type OutgoingCallActionResponses<TBot extends types.BaseBot> = {
   [K in keyof types.EnumerateActionOutputs<TBot>]: utils.Merge<
     client.ClientOutputs['callAction'],
     { output: types.EnumerateActionOutputs<TBot>[K] }
@@ -59,12 +59,13 @@ export type IncomingEvent<TBot extends types.BaseBot> = utils.ValueOf<IncomingEv
 export type IncomingMessage<TBot extends types.BaseBot> = utils.ValueOf<IncomingMessages<TBot>>
 export type OutgoingMessageRequest<TBot extends types.BaseBot> = utils.ValueOf<OutgoingMessageRequests<TBot>>
 export type OutgoingMessageResponse<TBot extends types.BaseBot> = utils.ValueOf<OutgoingMessageResponses<TBot>>
-export type CallActionRequest<TBot extends types.BaseBot> = utils.ValueOf<CallActionRequests<TBot>>
-export type CallActionResponse<TBot extends types.BaseBot> = utils.ValueOf<CallActionResponses<TBot>>
+export type OutgoingCallActionRequest<TBot extends types.BaseBot> = utils.ValueOf<OutgoingCallActionRequests<TBot>>
+export type OutgoingCallActionResponse<TBot extends types.BaseBot> = utils.ValueOf<OutgoingCallActionResponses<TBot>>
 
 export type CommonHandlerProps<TBot extends types.BaseBot> = {
   ctx: BotContext
   client: BotSpecificClient<TBot>
+  self: BotHandlers<TBot>
 }
 
 export type MessagePayload<TBot extends types.BaseBot> = {
@@ -90,6 +91,16 @@ export type StateExpiredPayload<_TBot extends types.BaseBot> = { state: client.S
 export type StateExpiredHandlerProps<TBot extends types.BaseBot> = CommonHandlerProps<TBot> & StateExpiredPayload<TBot>
 export type StateExpiredHandler<TBot extends types.BaseBot> = (args: StateExpiredHandlerProps<TBot>) => Promise<void>
 
+export type ActionHandlerPayloads<TBot extends types.BaseBot> = {
+  [K in keyof TBot['actions']]: { type?: K; input: TBot['actions'][K]['input'] }
+}
+export type ActionHandlerProps<TBot extends types.BaseBot> = {
+  [K in keyof TBot['actions']]: CommonHandlerProps<TBot> & ActionHandlerPayloads<TBot>[K]
+}
+export type ActionHandlers<TBot extends types.BaseBot> = {
+  [K in keyof TBot['actions']]: (props: ActionHandlerProps<TBot>[K]) => Promise<TBot['actions'][K]['output']>
+}
+
 /**
  * TODO:
  * - add concept of stoppable / un-stoppable hooks (e.g. before_incoming_message  Vs before_outgoing_message)
@@ -99,11 +110,11 @@ export type HookDefinitions<TBot extends types.BaseBot> = {
   before_incoming_event: IncomingEvents<TBot> & { '*': IncomingEvent<TBot> }
   before_incoming_message: IncomingMessages<TBot> & { '*': IncomingMessage<TBot> }
   before_outgoing_message: OutgoingMessageRequests<TBot> & { '*': OutgoingMessageRequest<TBot> }
-  before_call_action: CallActionRequests<TBot> & { '*': CallActionRequest<TBot> }
+  before_call_action: OutgoingCallActionRequests<TBot> & { '*': OutgoingCallActionRequest<TBot> }
   after_incoming_event: IncomingEvents<TBot> & { '*': IncomingEvent<TBot> }
   after_incoming_message: IncomingMessages<TBot> & { '*': IncomingMessage<TBot> }
   after_outgoing_message: OutgoingMessageResponses<TBot> & { '*': OutgoingMessageResponse<TBot> }
-  after_call_action: CallActionResponses<TBot> & { '*': CallActionResponse<TBot> }
+  after_call_action: OutgoingCallActionResponses<TBot> & { '*': OutgoingCallActionResponse<TBot> }
 }
 
 export type HookInputs<TBot extends types.BaseBot> = {
@@ -139,6 +150,7 @@ export type HookImplementationsMap<TBot extends types.BaseBot> = {
 }
 
 export type BotHandlers<TBot extends types.BaseBot> = {
+  actionHandlers: ActionHandlers<TBot>
   messageHandlers: MessageHandler<TBot>[]
   eventHandlers: EventHandler<TBot>[]
   stateExpiredHandlers: StateExpiredHandler<TBot>[]

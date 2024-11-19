@@ -4,7 +4,14 @@ import * as bp from '.botpress'
 const truncate = (str: string, maxLength: number = 500): string =>
   str.length > maxLength ? `${str.slice(0, maxLength)}...` : str
 
-const bot = new bp.Bot({})
+const bot = new bp.Bot({
+  actions: {
+    sayHello: async ({ input }) => {
+      const name = input?.name || 'World'
+      return { message: `Hello, ${name}!` }
+    },
+  },
+})
 
 bot.hook.before_incoming_event('*', async (x) => console.info('before_incoming_event', x.data))
 bot.hook.before_incoming_message('*', async (x) => console.info('before_incoming_message', x.data))
@@ -15,14 +22,17 @@ bot.hook.after_incoming_message('*', async (x) => console.info('after_incoming_m
 bot.hook.after_outgoing_message('*', async (x) => console.info('after_outgoing_message', x.data))
 bot.hook.after_call_action('*', async (x) => console.info('after_call_action', x.data))
 
-bot.message(async ({ message, client, ctx }) => {
+bot.message(async (props) => {
+  const { message, client, ctx, self } = props
+
+  const { message: response } = await self.actionHandlers.sayHello({ ...props, input: {} })
   await client.createMessage({
     conversationId: message.conversationId,
     userId: ctx.botId,
     tags: {},
     type: 'text',
     payload: {
-      text: 'Hello world!',
+      text: response,
     },
   })
 })
