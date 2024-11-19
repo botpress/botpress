@@ -1,7 +1,7 @@
-import { MakeBot } from './bot/types/generic'
-import { MakeChannel, MakeIntegration } from './integration/types/generic'
+import { DefaultBot } from './bot/types/generic'
+import { DefaultChannel, DefaultIntegration } from './integration/types/generic'
 
-export type FooBarBazIntegration = MakeIntegration<{
+export type FooBarBazIntegration = DefaultIntegration<{
   actions: {
     doFoo: {
       input: {
@@ -40,21 +40,21 @@ export type FooBarBazIntegration = MakeIntegration<{
     }
   }
   channels: {
-    channelFoo: MakeChannel<{
+    channelFoo: DefaultChannel<{
       messages: {
         messageFoo: {
           foo: string
         }
       }
     }>
-    channelBar: MakeChannel<{
+    channelBar: DefaultChannel<{
       messages: {
         messageBar: {
           bar: number
         }
       }
     }>
-    channelBaz: MakeChannel<{
+    channelBaz: DefaultChannel<{
       messages: {
         messageBaz: {
           baz: boolean
@@ -64,13 +64,13 @@ export type FooBarBazIntegration = MakeIntegration<{
   }
 }>
 
-export type FooBarBazBot = MakeBot<{
+export type FooBarBazBot = DefaultBot<{
   integrations: {
     fooBarBaz: FooBarBazIntegration
   }
 }>
 
-export type EmptyBot = MakeBot<{
+export type EmptyBot = DefaultBot<{
   integrations: {}
   events: {}
   states: {}

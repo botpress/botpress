@@ -1,27 +1,26 @@
 import * as utils from '../../utils/type-utils'
 
+export type BaseChannel = {
+  messages: Record<string, any>
+  message: {
+    tags: Record<string, any>
+  }
+  conversation: {
+    tags: Record<string, any>
+    creation: {
+      enabled: boolean
+      requiredTags: string[]
+    }
+  }
+}
+
 export type BaseIntegration = {
   name: string
   version: string
   configuration: any
   configurations: Record<string, any>
   actions: Record<string, Record<'input' | 'output', any>>
-  channels: Record<
-    string,
-    {
-      messages: Record<string, any>
-      message: {
-        tags: Record<string, any>
-      }
-      conversation: {
-        tags: Record<string, any>
-        creation: {
-          enabled: boolean
-          requiredTags: string[]
-        }
-      }
-    }
-  >
+  channels: Record<string, BaseChannel>
   events: Record<string, any>
   states: Record<string, any>
   user: {
@@ -34,19 +33,13 @@ export type BaseIntegration = {
   entities: Record<string, any>
 }
 
-/**
- * Usefull for tests, allows to create a channel with only the properties you want to override
- */
-export type MakeChannel<C extends Partial<BaseIntegration['channels'][string]>> = {
+export type DefaultChannel<C extends Partial<BaseIntegration['channels'][string]>> = {
   messages: utils.Default<C['messages'], BaseIntegration['channels'][string]['messages']>
   message: utils.Default<C['message'], BaseIntegration['channels'][string]['message']>
   conversation: utils.Default<C['conversation'], BaseIntegration['channels'][string]['conversation']>
 }
 
-/**
- * Usefull for tests, allows to create an integration with only the properties you want to override
- */
-export type MakeIntegration<I extends Partial<BaseIntegration>> = {
+export type DefaultIntegration<I extends Partial<BaseIntegration>> = {
   name: utils.Default<I['name'], BaseIntegration['name']>
   version: utils.Default<I['version'], BaseIntegration['version']>
   configuration: utils.Default<I['configuration'], BaseIntegration['configuration']>
@@ -59,5 +52,5 @@ export type MakeIntegration<I extends Partial<BaseIntegration>> = {
   entities: utils.Default<I['entities'], BaseIntegration['entities']>
 }
 
-type _MakeChannel_creates_a_TChannel = utils.AssertExtends<MakeChannel<{}>, BaseIntegration['channels'][string]>
-type _MakeIntegration_creates_a_TIntegration = utils.AssertExtends<MakeIntegration<{}>, BaseIntegration>
+type _MakeChannel_creates_a_TChannel = utils.AssertExtends<DefaultChannel<{}>, BaseChannel>
+type _MakeIntegration_creates_a_TIntegration = utils.AssertExtends<DefaultIntegration<{}>, BaseIntegration>
