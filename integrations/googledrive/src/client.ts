@@ -158,11 +158,10 @@ export class Client {
   }
 
   public async readFile(id: string): Promise<File> {
-    const response = await this._googleClient.files.get({
-      fileId: id,
-      fields: GOOGLE_API_FILE_FIELDS,
-    })
-    const file = parseNormalFile(response.data)
+    const file = await this._fetchFile(id)
+    if (file.type !== 'normal') {
+      throw new RuntimeError(`Attempted to read a file of type ${file.type}`)
+    }
     return await this._getCompleteFileFromBaseFile(file)
   }
 
@@ -272,8 +271,6 @@ export class Client {
    * Removes internal fields and adds computed attributes
    */
   private async _getCompleteFileFromBaseFile(file: BaseNormalFile): Promise<File> {
-    const genericFile = convertNormalFileToGeneric(file)
-    await this._getOrFetchParents(genericFile)
     const { id, mimeType, name, parentId, size } = file
     return {
       id,
@@ -281,7 +278,7 @@ export class Client {
       name,
       parentId,
       size,
-      path: this._getFilePath(id),
+      path: await this._getFilePath(convertNormalFileToGeneric(file)),
     }
   }
 
@@ -289,15 +286,13 @@ export class Client {
    * Removes internal fields and adds computed attributes
    */
   private async _getCompleteFolderFromBaseFolder(file: BaseFolderFile): Promise<Folder> {
-    const genericFile = convertFolderFileToGeneric(file)
-    await this._getOrFetchParents(genericFile)
     const { id, mimeType, name, parentId } = file
     return {
       id,
       mimeType,
       name,
       parentId,
-      path: this._getFilePath(id),
+      path: await this._getFilePath(convertFolderFileToGeneric(file)),
     }
   }
 
@@ -329,32 +324,20 @@ export class Client {
     }
   }
 
-  private _getOrFetchParents = async (file: BaseGenericFile): Promise<BaseGenericFile[]> => {
-    this._filesCache.set(file) // Set if not already set
-
-    const { parentId } = file
-    if (!parentId) {
-      return []
+  private async _getOrFetchFile(id: string): Promise<BaseGenericFile> {
+    let file = this._filesCache.find(id)
+    if (!file) {
+      file = await this._fetchFile(id)
     }
-
-    let parent = this._filesCache.find(parentId)
-    if (!parent) {
-      parent = await this._fetchFile(parentId)
-    }
-    const parents: BaseGenericFile[] = [parent]
-    parents.push(...(await this._getOrFetchParents(parent)))
-    return parents
+    return file
   }
 
   private async _fetchFile(id: string): Promise<BaseGenericFile> {
-    let file = this._filesCache.find(id)
-    if (!file) {
-      const response = await this._googleClient.files.get({
-        fileId: id,
-        fields: GOOGLE_API_FILE_FIELDS,
-      })
-      file = parseGenericFile(response.data)
-    }
+    const response = await this._googleClient.files.get({
+      fileId: id,
+      fields: GOOGLE_API_FILE_FIELDS,
+    })
+    const file = parseGenericFile(response.data)
     this._filesCache.set(file)
     return file
   }
@@ -411,12 +394,12 @@ export class Client {
     return indexableContentType ?? defaultContentType
   }
 
-  private _getFilePath = (id: string): string[] => {
-    const file = this._filesCache.get(id)
+  private _getFilePath = async (file: BaseGenericFile): Promise<string[]> => {
     if (!file.parentId) {
       return [file.name]
     }
 
-    return [...this._getFilePath(file.parentId), file.name]
+    const parent = await this._getOrFetchFile(file.parentId)
+    return [...(await this._getFilePath(parent)), file.name]
   }
 }
