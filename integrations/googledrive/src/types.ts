@@ -18,7 +18,6 @@ import {
   listItemsOutputSchema,
   listItemsInputSchema,
   fileChannelSchema,
-  baseFileChannelSchema,
 } from './schemas'
 
 export type GoogleDriveClient = drive_v3.Drive
@@ -31,7 +30,6 @@ export type BaseNormalFile = z.infer<typeof baseNormalFileSchema>
 export type BaseFolderFile = z.infer<typeof baseFolderFileSchema>
 export type BaseShortcutFile = z.infer<typeof baseShortcutFileSchema>
 export type NonDiscriminatedGenericFile = BaseNormalFile | BaseFolderFile | BaseShortcutFile
-export type BaseFileChannel = z.infer<typeof baseFileChannelSchema>
 
 export type File = z.infer<typeof fileSchema>
 export type Folder = z.infer<typeof folderSchema>

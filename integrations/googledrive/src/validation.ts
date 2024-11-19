@@ -2,7 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE } from './mime-types'
 import { baseFolderFileSchema, baseNormalFileSchema, baseShortcutFileSchema } from './schemas'
 import {
-  BaseFileChannel,
+  FileChannel,
   BaseFolderFile,
   BaseGenericFile,
   BaseNormalFile,
@@ -26,7 +26,7 @@ export const convertFolderFileToGeneric = (file: BaseFolderFile): BaseGenericFil
   }
 }
 
-export const parseChannel = (channel: UnvalidatedGoogleDriveChannel): BaseFileChannel => {
+export const parseChannel = (channel: UnvalidatedGoogleDriveChannel): FileChannel => {
   const { id, resourceId } = channel
   if (!resourceId) {
     throw new RuntimeError('Resource ID is missing in Schema$Channel from the API response')
@@ -75,7 +75,7 @@ export const parseGenericFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): B
 
 export const parseNormalFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseNormalFile => {
   const commmonFileAttr = parseCommonFileAttr(unvalidatedFile)
-  const { size: sizeStr, version } = unvalidatedFile
+  const { size: sizeStr } = unvalidatedFile
   if (!sizeStr) {
     throw new RuntimeError(
       `Size is missing in Schema$File from the API response for file with name=${commmonFileAttr.name}`
@@ -89,16 +89,9 @@ export const parseNormalFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): Ba
     )
   }
 
-  if (!version) {
-    throw new RuntimeError(
-      `Version is missing in Schema$File from the API response for file with name=${commmonFileAttr.name}`
-    )
-  }
-
   const parseResult = baseNormalFileSchema.safeParse({
     ...commmonFileAttr,
     size,
-    version,
   })
   if (parseResult.error) {
     throw new RuntimeError('Error validating Schema$File received from the API response')

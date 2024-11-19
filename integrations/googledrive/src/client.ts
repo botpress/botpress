@@ -43,7 +43,7 @@ const MAX_EXPORT_FILE_SIZE_BYTES = 10000000 // 10MB, as per the Google Drive API
 const MYDRIVE_ID_ALIAS = 'root'
 const PAGE_SIZE = 10
 const GOOGLE_API_EXPORTFORMATS_FIELDS = 'exportFormats'
-const GOOGLE_API_FILE_FIELDS = 'id, name, mimeType, parents, size, version'
+const GOOGLE_API_FILE_FIELDS = 'id, name, mimeType, parents, size'
 const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageToken`
 
 export class Client {
@@ -226,8 +226,6 @@ export class Client {
   private async _watchAllListableGenericFiles<T extends NonDiscriminatedGenericFile>(listFn: ListFunction<T>) {
     const channels: FileChannel[] = []
     await listItemsAndProcess(listFn, async (item) => {
-      this._logger.forBot().debug(`Watching file '${item.name}' (${item.id})`)
-
       const absoluteExpirationTimeMs: number = Date.now() + MAX_RESOURCE_WATCH_EXPIRATION_DELAY_MS
       const repsonse = await this._googleClient.files.watch({
         fileId: item.id,
@@ -235,14 +233,13 @@ export class Client {
           id: uuidv4(),
           type: 'web_hook',
           address: `${process.env.BP_WEBHOOK_URL}/${this._ctx.webhookId}`,
-          token: item.id,
+          token: item.id, // TODO: Add secret to verify incoming notifications
           expiration: absoluteExpirationTimeMs.toString(),
         },
       })
-      channels.push({
-        ...parseChannel(repsonse.data),
-        fileId: item.id,
-      })
+      const channel = parseChannel(repsonse.data)
+      this._logger.forBot().debug(`Watching file '${item.name}' (${item.id}): channel ID = ${channel.id}`)
+      channels.push(channel)
     })
     return channels
   }
@@ -263,18 +260,11 @@ export class Client {
     if (!Array.isArray(channels)) {
       channels = [channels]
     }
-    for (const channel of channels) {
-      const { id, resourceId, fileId } = channel
-      const file = this._filesCache.find(fileId)
-      const fileName = file?.name ?? '[unknown]'
-      this._logger.forBot().debug(`Unwatching file '${fileName}' (${fileId})`)
-      await this._googleClient.channels.stop({
-        requestBody: {
-          id,
-          resourceId,
-        },
-      })
-    }
+    const unwatchPromises = channels.map((channel) => {
+      this._logger.forBot().debug(`Unwatching file with channel ID = ${channel.id}`)
+      return this._googleClient.channels.stop({ requestBody: channel })
+    })
+    await Promise.all(unwatchPromises)
   }
 
   /**
@@ -283,14 +273,13 @@ export class Client {
   private async _getCompleteFileFromBaseFile(file: BaseNormalFile): Promise<File> {
     const genericFile = convertNormalFileToGeneric(file)
     await this._getOrFetchParents(genericFile)
-    const { id, mimeType, name, parentId, size, version } = file
+    const { id, mimeType, name, parentId, size } = file
     return {
       id,
       mimeType,
       name,
       parentId,
       size,
-      version,
       path: this._getFilePath(id),
     }
   }

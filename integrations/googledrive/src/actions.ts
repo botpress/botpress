@@ -78,20 +78,16 @@ const downloadFileData: bp.IntegrationProps['actions']['downloadFileData'] = wra
   }
 )
 
-const syncFiles: bp.IntegrationProps['actions']['syncFiles'] = wrapAction(
-  { actionName: 'syncFiles', errorMessage: 'Error syncing files' },
+const syncChannels: bp.IntegrationProps['actions']['syncChannels'] = wrapAction(
+  { actionName: 'syncChannels', errorMessage: 'Error syncing channels' },
   async ({ client, ctx, logger, driveClient }) => {
-    // TODO: Decide on a common way to handle stores and caches (inside or outside client, load/save/invalidation)
-    // TODO: If possible, unify file cache and file channels store to keep a unique source of truth for known files
     const fileChannelsStore = await FileChannelsStore.load({ client, ctx, logger })
-    const channels = await driveClient.watchAll()
-    const { newChannels, deletedChannels } = await fileChannelsStore.setAll(channels)
+    const newChannels = await driveClient.watchAll()
+    const oldChannels = await fileChannelsStore.setAll(newChannels)
     await fileChannelsStore.save()
-    driveClient.unwatch(deletedChannels)
-    const newFilesIds = newChannels.map((channel) => channel.fileId) // TODO: Keep normal files only
-    const deletedFilesIds = deletedChannels.map((channel) => channel.fileId) // TODO: Keep normal files only
-    const updatedFilesIds: string[] = [] // TODO: Base update status on metadata or content change
-    return { newFilesIds, deletedFilesIds, updatedFilesIds }
+    driveClient.unwatch(oldChannels)
+    logger.forBot().debug(`Channels synced: ${newChannels.length} new channels, ${oldChannels.length} removed channels`)
+    return {}
   }
 )
 
@@ -104,5 +100,5 @@ export default {
   deleteFile,
   uploadFileData,
   downloadFileData,
-  syncFiles,
+  syncChannels,
 } as const satisfies bp.IntegrationProps['actions']

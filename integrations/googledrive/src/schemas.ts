@@ -17,12 +17,6 @@ export const commonFileAttrSchema = z.object({
 
 export const baseNormalFileSchema = commonFileAttrSchema.extend({
   size: z.number().nonnegative().describe('The size in bytes of the file'),
-  version: z
-    .string()
-    .min(1)
-    .describe(
-      'A monotonically increasing version number incremented on every change of the file. May be incremented by server-side changes not visible to the user'
-    ),
 })
 
 export const baseFolderFileSchema = commonFileAttrSchema.extend({
@@ -42,11 +36,6 @@ export const baseGenericFileSchema = z.discriminatedUnion('type', [
   baseShortcutFileSchema.extend({ type: z.literal('shortcut') }),
 ])
 
-export const baseFileChannelSchema = z.object({
-  id: z.string().min(1).describe('The ID of the channel'),
-  resourceId: z.string().min(1).describe('The ID of the watched resource (different from the file ID)'),
-})
-
 // Entities
 const computedFileAttrSchema = z.object({
   path: z
@@ -60,9 +49,9 @@ const computedFileAttrSchema = z.object({
 })
 export const fileSchema = baseNormalFileSchema.merge(computedFileAttrSchema)
 export const folderSchema = baseFolderFileSchema.merge(computedFileAttrSchema)
-
-export const fileChannelSchema = baseFileChannelSchema.extend({
-  fileId: z.string().min(1).describe(ID_DESCRIPTION),
+export const fileChannelSchema = z.object({
+  id: z.string().min(1).describe('The ID of the channel'),
+  resourceId: z.string().min(1).describe('The ID of the watched resource (different from the file ID)'),
 })
 
 // Action args/outputs
@@ -117,9 +106,4 @@ export const downloadFileDataOutputSchema = z.object({
     .string()
     .min(1)
     .describe('The Botpress file ID corresponding to the file that was uploaded from Google Drive to the Files API'),
-})
-export const syncFilesOutputSchema = z.object({
-  newFilesIds: z.string().array().describe('The IDs of the files that were not previously known'),
-  deletedFilesIds: z.string().array().describe('The IDs of files that were deleted'),
-  updatedFilesIds: z.string().array().describe('The IDs of files that were updated'),
 })

@@ -11,7 +11,6 @@ import {
   listItemsInputSchema,
   deleteFileArgSchema,
   downloadFileDataOutputSchema,
-  syncFilesOutputSchema,
 } from './src/schemas'
 
 export default new IntegrationDefinition({
@@ -114,15 +113,14 @@ export default new IntegrationDefinition({
         schema: downloadFileDataOutputSchema,
       },
     },
-    // TODO: Rename to something more meaningful/accurate
-    syncFiles: {
-      title: 'Sync Files',
-      description: 'Sync files between Google Drive and Botpress files',
+    syncChannels: {
+      title: 'Sync Channels',
+      description: 'Sync channels for file change subscriptions',
       input: {
         schema: z.object({}),
       },
       output: {
-        schema: syncFilesOutputSchema,
+        schema: z.object({}),
       },
     },
   },
