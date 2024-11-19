@@ -10,14 +10,11 @@ export type BaseBot = {
   actions: Record<string, Record<'input' | 'output', any>>
 }
 
-/**
- * Usefull for tests, allows to create a bot with only the properties you want to override
- */
-export type MakeBot<B extends Partial<BaseBot>> = {
+export type DefaultBot<B extends Partial<BaseBot>> = {
   integrations: utils.Default<B['integrations'], BaseBot['integrations']>
   events: utils.Default<B['events'], BaseBot['events']>
   states: utils.Default<B['states'], BaseBot['states']>
   actions: utils.Default<B['actions'], BaseBot['actions']>
 }
 
-type _MakeBot_creates_a_TBot = utils.AssertExtends<MakeBot<{}>, BaseBot>
+type _MakeBot_creates_a_TBot = utils.AssertExtends<DefaultBot<{}>, BaseBot>

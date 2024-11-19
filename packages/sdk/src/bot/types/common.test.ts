@@ -1,7 +1,7 @@
-import { MakeChannel, MakeIntegration } from '../../integration/types/generic'
+import { DefaultChannel, DefaultIntegration } from '../../integration/types/generic'
 import { test } from 'vitest'
 import * as utils from '../../utils/type-utils'
-import { BaseBot, MakeBot } from './generic'
+import { BaseBot, DefaultBot } from './generic'
 import * as types from './common'
 import { FooBarBazBot, EmptyBot, FooBarBazIntegration } from '../../fixtures'
 
@@ -88,7 +88,7 @@ test('EnumerateActionOutputs should enumerate action inputs', () => {
 })
 
 test('EnumerateEvents should enumerate events', () => {
-  type Bot = MakeBot<{
+  type Bot = DefaultBot<{
     integrations: {
       fooBarBaz: FooBarBazIntegration
     }
@@ -117,7 +117,7 @@ test('EnumerateEvents should enumerate events', () => {
 })
 
 test('EnumerateEvents with only integration events should enumerate only integration events', () => {
-  type Bot = MakeBot<{
+  type Bot = DefaultBot<{
     integrations: {
       fooBarBaz: FooBarBazIntegration
     }
@@ -141,7 +141,7 @@ test('EnumerateEvents with only integration events should enumerate only integra
 })
 
 test('EnumerateEvents with only bot events should enumerate only bot events', () => {
-  type Bot = MakeBot<{
+  type Bot = DefaultBot<{
     integrations: {}
     events: {
       onQux: {
@@ -285,23 +285,23 @@ test('EnumerateMessages should return record if TBot is BaseBot', () => {
 })
 
 test('GetMessages should return union of all channels per message', () => {
-  type Bot = MakeBot<{
+  type Bot = DefaultBot<{
     integrations: {
-      toto: MakeIntegration<{
+      toto: DefaultIntegration<{
         channels: {
-          a: MakeChannel<{
+          a: DefaultChannel<{
             messages: {
               a: null
               x: string
             }
           }>
-          b: MakeChannel<{
+          b: DefaultChannel<{
             messages: {
               b: null
               x: number
             }
           }>
-          c: MakeChannel<{
+          c: DefaultChannel<{
             messages: {
               c: null
               x: boolean
