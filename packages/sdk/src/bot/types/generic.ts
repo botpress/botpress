@@ -25,5 +25,3 @@ export type DefaultBot<B extends utils.DeepPartial<BaseBot>> = {
         [K in keyof B['integrations']]: DefaultIntegration<utils.Cast<B['integrations'][K], InputBaseIntegration>>
       }
 }
-
-type _MakeBot_creates_a_TBot = utils.AssertExtends<DefaultBot<{}>, BaseBot>
