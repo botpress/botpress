@@ -27,14 +27,46 @@ export const baseShortcutFileSchema = commonFileAttrSchema.extend({
   mimeType: z.literal(APP_GOOGLE_SHORTCUT_MIMETYPE),
 })
 
+const _fileTypesArray = ['normal', 'folder', 'shortcut'] as const
+export const fileTypesEnumSchema = z.enum(_fileTypesArray)
+const _fileTypes = fileTypesEnumSchema.Enum
+
 /* Used to represent a generic file, closer to what is received by the API.
 Type is added to enable discrimination and remove/add access to properties
 depending on file type. */
 export const baseGenericFileSchema = z.discriminatedUnion('type', [
-  baseNormalFileSchema.extend({ type: z.literal('normal') }),
-  baseFolderFileSchema.extend({ type: z.literal('folder') }),
-  baseShortcutFileSchema.extend({ type: z.literal('shortcut') }),
+  baseNormalFileSchema.extend({ type: z.literal(_fileTypes.normal) }),
+  baseFolderFileSchema.extend({ type: z.literal(_fileTypes.folder) }),
+  baseShortcutFileSchema.extend({ type: z.literal(_fileTypes.shortcut) }),
 ])
+
+const notificationTypesSchema = z.union([
+  z.literal('sync'),
+  z.literal('add'),
+  z.literal('remove'),
+  z.literal('update'),
+  z.literal('trash'),
+  z.literal('untrash'),
+  z.literal('change'),
+])
+const updateDetailTypesSchema = z.union([
+  z.literal('content'),
+  z.literal('properties'),
+  z.literal('parents'),
+  z.literal('children'),
+  z.literal('permissions'),
+])
+export const notificationSchema = z.object({
+  headers: z.object({
+    'x-goog-resource-state': notificationTypesSchema,
+    'x-goog-changed': z
+      .string()
+      .optional() // May be present on 'update' notifications
+      .transform((details) => details?.split(',') ?? [])
+      .pipe(z.array(updateDetailTypesSchema)),
+    'x-goog-channel-token': z.string(),
+  }),
+})
 
 // Entities
 const computedFileAttrSchema = z.object({
