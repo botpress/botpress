@@ -1,7 +1,7 @@
 import { DefaultBot } from './bot/types/generic'
 import { DefaultChannel, DefaultIntegration } from './integration/types/generic'
 
-export type FooBarBazIntegration = DefaultIntegration<{
+type _FooBarBazIntegration = {
   actions: {
     doFoo: {
       input: {
@@ -62,11 +62,13 @@ export type FooBarBazIntegration = DefaultIntegration<{
       }
     }>
   }
-}>
+}
+
+export type FooBarBazIntegration = DefaultIntegration<_FooBarBazIntegration>
 
 export type FooBarBazBot = DefaultBot<{
   integrations: {
-    fooBarBaz: FooBarBazIntegration
+    fooBarBaz: _FooBarBazIntegration
   }
 }>
 
