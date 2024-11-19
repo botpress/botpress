@@ -1,5 +1,4 @@
 import { RuntimeError } from '@botpress/sdk'
-import axios, { AxiosError } from 'axios'
 import { Readable, Stream } from 'stream'
 import { v4 as uuidv4 } from 'uuid'
 import { getAuthenticatedGoogleClient } from './auth'
@@ -16,9 +15,6 @@ import {
   ListFoldersOutput,
   CreateFileArgs,
   UpdateFileArgs,
-  UploadFileDataArgs,
-  DownloadFileDataArgs,
-  DownloadFileDataOutput,
   ListItemsInput,
   ListItemsOutput,
   NonDiscriminatedGenericFile,
@@ -35,8 +31,19 @@ import {
 } from './validation'
 import * as bp from '.botpress'
 
-type FileStreamUploadParams = Parameters<bp.Client['upsertFile']>[0]
-type FileBufferUploadParams = Omit<Parameters<bp.Client['uploadFile']>[0], 'content'>
+type DownloadFileDataClientOutput = {
+  mimeType: string
+  dataSize: number
+} & (
+  | {
+      dataType: 'buffer'
+      data: Buffer
+    }
+  | {
+      dataType: 'stream'
+      data: Readable
+    }
+)
 
 const MAX_RESOURCE_WATCH_EXPIRATION_DELAY_MS = 86400 * 1000 // 24 hours
 const MAX_EXPORT_FILE_SIZE_BYTES = 10000000 // 10MB, as per the Google Drive API doc
@@ -179,48 +186,42 @@ export class Client {
     })
   }
 
-  public async uploadFileData({ id: fileId, url, mimeType }: UploadFileDataArgs) {
-    // TODO: Extract file download logic outside client
-    const downloadBpFileResp = await axios.get<Stream>(url, {
-      responseType: 'stream',
-    })
-    const downloadStream = downloadBpFileResp.data
-
+  public async uploadFileData({ id, mimeType, data }: { id: string; mimeType?: string; data: Stream }) {
     await this._googleClient.files.update({
-      fileId,
+      fileId: id,
       media: {
-        body: downloadStream,
+        body: data,
         mimeType,
       },
     })
   }
 
-  public async downloadFileData({ id: fileId, index }: DownloadFileDataArgs): Promise<DownloadFileDataOutput> {
-    const file = await this._fetchFile(fileId)
+  public async downloadFileData({ id }: { id: string }): Promise<DownloadFileDataClientOutput> {
+    const file = await this._fetchFile(id)
     if (file.type !== 'normal') {
       throw new RuntimeError(`Attempted to download a file of type ${file.type}`)
     }
 
     const exportType = await this._findExportType(file.mimeType)
-    const uploadParams = {
-      key: file.id,
-      contentType: exportType ?? file.mimeType,
-      index,
-    }
-    let bpFileId: string
-    // TODO: Extract file upload logic outside client
+    let output: DownloadFileDataClientOutput
     if (exportType) {
       const fileDownloadStream = await this._exportFileData(file, exportType)
-      const fileDownloadBuffer = await streamToBuffer(fileDownloadStream, MAX_EXPORT_FILE_SIZE_BYTES)
-      bpFileId = await this._uploadBufferToBpFiles(fileDownloadBuffer, uploadParams)
+      const buffer = await streamToBuffer(fileDownloadStream, MAX_EXPORT_FILE_SIZE_BYTES)
+      output = {
+        mimeType: exportType,
+        dataSize: buffer.length,
+        dataType: 'buffer',
+        data: buffer,
+      }
     } else {
-      const fileDownloadStream = await this._fetchFileData(file)
-      bpFileId = await this._uploadStreamToBpFiles(fileDownloadStream, {
-        ...uploadParams,
-        size: file.size,
-      })
+      output = {
+        mimeType: file.mimeType,
+        dataSize: file.size,
+        dataType: 'stream',
+        data: await this._fetchFileData(file),
+      }
     }
-    return { bpFileId }
+    return output
   }
 
   private async _watchAllListableGenericFiles<T extends NonDiscriminatedGenericFile>(listFn: ListFunction<T>) {
@@ -382,42 +383,6 @@ export class Client {
       }
     )
     return fileExportResponse.data
-  }
-
-  /**
-   * @returns The Botpress file ID of the newly uploaded file
-   */
-  private async _uploadBufferToBpFiles(buffer: Buffer, params: FileBufferUploadParams): Promise<string> {
-    const { file } = await this._client.uploadFile({
-      ...params,
-      content: buffer,
-    })
-
-    return file.id
-  }
-
-  /**
-   * @returns The Botpress file ID of the newly uploaded file
-   */
-  private async _uploadStreamToBpFiles(stream: Readable, params: FileStreamUploadParams): Promise<string> {
-    const { file } = await this._client.upsertFile(params)
-    const { contentType, size } = params
-    const { id, uploadUrl } = file
-
-    const headers = {
-      'Content-Type': contentType,
-      'Content-Length': size,
-    }
-    await axios
-      .put(uploadUrl, stream, {
-        maxBodyLength: size,
-        headers,
-      })
-      .catch((reason: AxiosError) => {
-        throw new RuntimeError(`Error uploading file to botpress file API: ${reason}`)
-      })
-
-    return id
   }
 
   private async _fetchExportFormatMap(): Promise<Record<string, string[]>> {

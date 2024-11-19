@@ -1,4 +1,7 @@
 import { createActionWrapper } from '@botpress/common'
+import { RuntimeError } from '@botpress/sdk'
+import axios, { AxiosError } from 'axios'
+import { Stream } from 'stream'
 import { Client as DriveClient } from './client'
 import { wrapWithTryCatch } from './error-handling'
 import { FileChannelsStore } from './file-channels-store'
@@ -66,15 +69,54 @@ const deleteFile: bp.IntegrationProps['actions']['deleteFile'] = wrapAction(
 const uploadFileData: bp.IntegrationProps['actions']['uploadFileData'] = wrapAction(
   { actionName: 'uploadFileData', errorMessage: 'Error uploading file' },
   async ({ driveClient, input }) => {
-    await driveClient.uploadFileData(input)
+    const { id, url, mimeType } = input
+    const { data } = await axios.get<Stream>(url, {
+      responseType: 'stream',
+    })
+    await driveClient.uploadFileData({ id, mimeType, data })
     return {}
   }
 )
 
 const downloadFileData: bp.IntegrationProps['actions']['downloadFileData'] = wrapAction(
   { actionName: 'downloadFileData', errorMessage: 'Error downloading file' },
-  async ({ driveClient, input }) => {
-    return await driveClient.downloadFileData(input)
+  async ({ client, driveClient, input }) => {
+    const { id, index } = input
+    const content = await driveClient.downloadFileData({ id })
+    const { mimeType, dataSize, dataType, data } = content
+    const uploadParams = {
+      key: id,
+      contentType: mimeType,
+      index,
+    }
+    let bpFileId: string
+    if (dataType === 'stream') {
+      const upsertResp = await client.upsertFile({
+        ...uploadParams,
+        size: dataSize,
+      })
+      const { uploadUrl } = upsertResp.file
+      bpFileId = upsertResp.file.id
+      const headers = {
+        'Content-Type': mimeType,
+        'Content-Length': dataSize,
+      }
+      await axios
+        .put(uploadUrl, data, {
+          maxBodyLength: dataSize,
+          headers,
+        })
+        .catch((reason: AxiosError) => {
+          throw new RuntimeError(`Error uploading file stream to ${uploadUrl}: ${reason}`)
+        })
+    } else {
+      const uploadResp = await client.uploadFile({
+        ...uploadParams,
+        content: data,
+      })
+      bpFileId = uploadResp.file.id
+    }
+    return { bpFileId }
   }
 )
 
