@@ -204,6 +204,7 @@ export class Client {
     const exportType = await this._findExportType(file.mimeType)
     let output: DownloadFileDataClientOutput
     if (exportType) {
+      // File size is unknown when exporting, download all data to buffer to know size
       const fileDownloadStream = await this._exportFileData(file, exportType)
       const buffer = await streamToBuffer(fileDownloadStream, MAX_EXPORT_FILE_SIZE_BYTES)
       output = {
