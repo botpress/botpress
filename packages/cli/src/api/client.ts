@@ -109,6 +109,16 @@ export class ApiClient {
       .catch(this._returnUndefinedOnError('ResourceNotFound'))
   }
 
+  public async fetchIntegrationInterfaces(integration: Integration): Promise<Interface[]> {
+    if (!integration.interfaces) {
+      return []
+    }
+    const interfacePairs = Object.entries(integration.interfaces)
+    return await Promise.all(
+      interfacePairs.map(([_key, i]) => this.client.getInterface({ id: i.id }).then((r) => r.interface))
+    )
+  }
+
   public async testLogin(): Promise<void> {
     await this.client.listBots({})
   }

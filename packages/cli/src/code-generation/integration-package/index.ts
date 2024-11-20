@@ -27,7 +27,7 @@ const generateIntegrationPackageFromRemote = async (
   pkg: Extract<types.IntegrationInstallablePackage, { source: 'remote' }>
 ): Promise<types.File[]> => {
   const definitionDir = 'definition'
-  const definitionModule = new IntegrationPackageDefinitionModule(pkg.integration)
+  const definitionModule = new IntegrationPackageDefinitionModule(pkg.integration, pkg.interfaces)
   definitionModule.unshift(definitionDir)
 
   const definitionFiles = await definitionModule.flatten()

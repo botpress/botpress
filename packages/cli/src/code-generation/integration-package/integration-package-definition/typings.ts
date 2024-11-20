@@ -1,4 +1,5 @@
 import * as client from '@botpress/client'
+export type ApiInterfaceDefinition = client.Interface
 export type ApiIntegrationDefinition = client.Integration
 export type ApiActionDefinition = ApiIntegrationDefinition['actions'][string]
 export type ApiChannelDefinition = ApiIntegrationDefinition['channels'][string]
@@ -7,3 +8,7 @@ export type ApiConfigurationDefinition = ApiIntegrationDefinition['configuration
 export type ApiEntityDefinition = ApiIntegrationDefinition['entities'][string]
 export type ApiEventDefinition = ApiIntegrationDefinition['events'][string]
 export type ApiStateDefinition = ApiIntegrationDefinition['states'][string]
+export type ApiInterfaceInstance = {
+  statement: ApiIntegrationDefinition['interfaces'][string]
+  definition: client.Interface
+}

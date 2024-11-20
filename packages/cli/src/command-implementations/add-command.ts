@@ -72,7 +72,8 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     if (this._pkgCouldBe('integration')) {
       const integration = await api.findIntegration(ref)
       if (integration) {
-        return { type: 'integration', name: integration.name, pkg: { source: 'remote', integration } }
+        const interfaces = await api.fetchIntegrationInterfaces(integration)
+        return { type: 'integration', name: integration.name, pkg: { source: 'remote', integration, interfaces } }
       }
     }
     if (this._pkgCouldBe('interface')) {

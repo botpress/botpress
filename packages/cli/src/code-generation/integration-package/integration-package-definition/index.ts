@@ -1,3 +1,5 @@
+import _ from 'lodash'
+import { BotpressCLIError } from '../../../errors'
 import * as consts from '../../consts'
 import { stringifySingleLine } from '../../generators'
 import { Module } from '../../module'
@@ -7,6 +9,7 @@ import { DefaultConfigurationModule } from './configuration-module'
 import { ConfigurationsModule } from './configurations-module'
 import { EntitiesModule } from './entities-module'
 import { EventsModule } from './events-module'
+import { InterfacesModule } from './interfaces-module'
 import { StatesModule } from './states-module'
 import * as types from './typings'
 
@@ -18,12 +21,16 @@ type IntegrationPackageModuleDependencies = {
   eventsModule: EventsModule
   statesModule: StatesModule
   entitiesModule: EntitiesModule
+  interfacesModule: InterfacesModule
 }
 
 export class IntegrationPackageDefinitionModule extends Module {
   private _dependencies: IntegrationPackageModuleDependencies
 
-  public constructor(private _integration: types.ApiIntegrationDefinition) {
+  public constructor(
+    private _integration: types.ApiIntegrationDefinition,
+    private _interfaces: types.ApiInterfaceDefinition[]
+  ) {
     super({
       path: consts.INDEX_FILE,
       exportName: consts.DEFAULT_EXPORT_NAME,
@@ -50,6 +57,20 @@ export class IntegrationPackageDefinitionModule extends Module {
     const entitiesModule = new EntitiesModule(_integration.entities ?? {})
     entitiesModule.unshift('entities')
 
+    const interfaceInstances = _.mapValues(_integration.interfaces, (i): types.ApiInterfaceInstance => {
+      const definition = _interfaces.find((d) => d.id === i.id)
+      if (!definition) {
+        throw new BotpressCLIError(`Interface definition with id "${i.id}" not found`) // this should never happen
+      }
+      return {
+        definition,
+        statement: i,
+      }
+    })
+
+    const interfacesModule = new InterfacesModule(interfaceInstances)
+    interfacesModule.unshift('interfaces')
+
     this._dependencies = {
       defaultConfigModule,
       configurationsModule,
@@ -58,6 +79,7 @@ export class IntegrationPackageDefinitionModule extends Module {
       eventsModule,
       statesModule,
       entitiesModule,
+      interfacesModule,
     }
 
     for (const dep of Object.values(this._dependencies)) {
@@ -76,6 +98,7 @@ export class IntegrationPackageDefinitionModule extends Module {
       eventsModule,
       statesModule,
       entitiesModule,
+      interfacesModule,
     } = this._dependencies
 
     const defaultConfigImport = defaultConfigModule.import(this)
@@ -85,6 +108,7 @@ export class IntegrationPackageDefinitionModule extends Module {
     const eventsImport = eventsModule.import(this)
     const statesImport = statesModule.import(this)
     const entitiesImport = entitiesModule.import(this)
+    const interfacesImport = interfacesModule.import(this)
 
     const user = {
       tags: this._integration.user?.tags ?? {},
@@ -102,6 +126,8 @@ export class IntegrationPackageDefinitionModule extends Module {
       `import * as ${eventsModule.name} from "./${eventsImport}"`,
       `import * as ${statesModule.name} from "./${statesImport}"`,
       `import * as ${entitiesModule.name} from "./${entitiesImport}"`,
+      `import * as ${interfacesModule.name} from "./${interfacesImport}"`,
+      '',
       `export * as ${defaultConfigModule.name} from "./${defaultConfigImport}"`,
       `export * as ${configurationsModule.name} from "./${configurationsImport}"`,
       `export * as ${actionsModule.name} from "./${actionsImport}"`,
@@ -109,6 +135,7 @@ export class IntegrationPackageDefinitionModule extends Module {
       `export * as ${eventsModule.name} from "./${eventsImport}"`,
       `export * as ${statesModule.name} from "./${statesImport}"`,
       `export * as ${entitiesModule.name} from "./${entitiesImport}"`,
+      `export * as ${interfacesModule.name} from "./${interfacesImport}"`,
       '',
       'export default {',
       `  name: "${this._integration.name}",`,
@@ -121,6 +148,7 @@ export class IntegrationPackageDefinitionModule extends Module {
       `  events: ${eventsModule.name}.${eventsModule.exportName},`,
       `  states: ${statesModule.name}.${statesModule.exportName},`,
       `  entities: ${entitiesModule.name}.${entitiesModule.exportName},`,
+      `  interfaces: ${interfacesModule.name}.${interfacesModule.exportName},`,
       '} satisfies sdk.IntegrationPackage["definition"]',
     ].join('\n')
 

@@ -7,6 +7,7 @@ export type IntegrationInstallablePackage =
   | {
       source: 'remote'
       integration: client.Integration
+      interfaces: client.Interface[]
     }
   | {
       source: 'local'
