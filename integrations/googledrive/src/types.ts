@@ -20,6 +20,8 @@ import {
   fileChannelSchema,
 } from './schemas'
 
+type Overwrite<T, NewT> = Omit<T, keyof NewT> & NewT
+
 export type GoogleDriveClient = drive_v3.Drive
 export type UnvalidatedGoogleDriveFile = drive_v3.Schema$File
 export type UnvalidatedGoogleDriveChannel = drive_v3.Schema$Channel
@@ -36,7 +38,7 @@ export type Folder = z.infer<typeof folderSchema>
 export type FileChannel = z.infer<typeof fileChannelSchema>
 
 export type ListItemsInput = z.infer<typeof listItemsInputSchema>
-export type ListItemsOutput<T extends any> = z.infer<typeof listItemsOutputSchema> & { items: T[] }
+export type ListItemsOutput<T> = Overwrite<z.infer<typeof listItemsOutputSchema>, { items: T[] }>
 export type ListFilesOutput = z.infer<typeof listFilesOutputSchema>
 export type ListFoldersOutput = z.infer<typeof listFoldersOutputSchema>
 export type CreateFileArgs = z.infer<typeof createFileArgSchema>
