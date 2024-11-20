@@ -2,14 +2,15 @@ import { RuntimeError } from '@botpress/sdk'
 import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE } from './mime-types'
 import { baseFolderFileSchema, baseNormalFileSchema, baseShortcutFileSchema } from './schemas'
 import {
-  FileChannel,
   BaseFolderFile,
   BaseGenericFile,
   BaseNormalFile,
   BaseShortcutFile,
   CommonFileAttr,
-  UnvalidatedGoogleDriveChannel,
   UnvalidatedGoogleDriveFile,
+  FileType,
+  UnvalidatedGoogleDriveChannel,
+  FileChannel,
 } from './types'
 
 export const convertNormalFileToGeneric = (file: BaseNormalFile): BaseGenericFile => {
@@ -42,6 +43,17 @@ export const parseChannel = (channel: UnvalidatedGoogleDriveChannel): FileChanne
   }
 }
 
+export const getFileTypeFromMimeType = (mimeType: string): FileType => {
+  switch (mimeType) {
+    case APP_GOOGLE_FOLDER_MIMETYPE:
+      return 'folder'
+    case APP_GOOGLE_SHORTCUT_MIMETYPE:
+      return 'shortcut'
+    default:
+      return 'normal'
+  }
+}
+
 export const parseGenericFiles = (files: UnvalidatedGoogleDriveFile[]): BaseGenericFile[] => {
   return files.map((f) => parseGenericFile(f))
 }
@@ -49,23 +61,24 @@ export const parseGenericFiles = (files: UnvalidatedGoogleDriveFile[]): BaseGene
 export const parseGenericFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseGenericFile => {
   const { mimeType } = parseCommonFileAttr(unvalidatedFile)
   let file: BaseGenericFile
-  switch (mimeType) {
-    case APP_GOOGLE_FOLDER_MIMETYPE:
+  const type = getFileTypeFromMimeType(mimeType)
+  switch (type) {
+    case 'folder':
       file = {
         ...parseFolderFile(unvalidatedFile),
-        type: 'folder',
+        type,
       }
       break
-    case APP_GOOGLE_SHORTCUT_MIMETYPE:
+    case 'shortcut':
       file = {
         ...parseShortcutFile(unvalidatedFile),
-        type: 'shortcut',
+        type,
       }
       break
     default:
       file = {
         ...parseNormalFile(unvalidatedFile),
-        type: 'normal',
+        type,
       }
       break
   }

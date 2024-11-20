@@ -28,7 +28,7 @@ const wrapAction: typeof injectToolsAndMetadata = (meta, actionImpl) =>
       return actionOutput.then(async (actionOutput) => {
         await filesCache.save()
         return actionOutput
-      }) as ReturnType<typeof actionImpl> // TODO: Find way to remove cast?
+      }) as ReturnType<typeof actionImpl> // TODO: Find way to use async functions in wrapper without cast?
     }, `Action Error: ${meta.errorMessage}`)()
   )
 
@@ -50,6 +50,7 @@ const createFile: bp.IntegrationProps['actions']['createFile'] = wrapAction(
   { actionName: 'createFile', errorMessage: 'Error creating file' },
   async ({ driveClient, input }) => {
     return await driveClient.createFile(input)
+    // TODO: Execute 'file created' event routine and make sure events aren't processed twice
   }
 )
 
@@ -71,6 +72,7 @@ const deleteFile: bp.IntegrationProps['actions']['deleteFile'] = wrapAction(
   { actionName: 'deleteFile', errorMessage: 'Error deleting file' },
   async ({ driveClient, input }) => {
     await driveClient.deleteFile(input.id)
+    // TODO: Execute 'file deleted' event routine and make sure events aren't processed twice
     return {}
   }
 )

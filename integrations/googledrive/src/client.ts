@@ -2,6 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { Readable, Stream } from 'stream'
 import { v4 as uuidv4 } from 'uuid'
 import { getAuthenticatedGoogleClient } from './auth'
+import { serializeToken } from './file-notification-token'
 import { FilesCache } from './files-cache'
 import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE, INDEXABLE_MIMETYPES } from './mime-types'
 import {
@@ -20,10 +21,11 @@ import {
   NonDiscriminatedGenericFile,
   FileChannel,
 } from './types'
-import { listItemsAndProcess, ListFunction, streamToBuffer } from './utils'
+import { listItemsAndProcess, ListFunction, streamToBuffer, ListItemsInputWithArgs, listAllItems } from './utils'
 import {
   convertFolderFileToGeneric,
   convertNormalFileToGeneric,
+  getFileTypeFromMimeType,
   parseChannel,
   parseGenericFile,
   parseGenericFiles,
@@ -147,6 +149,12 @@ export class Client {
     }
   }
 
+  public async getChildren(folderId: string): Promise<BaseGenericFile[]> {
+    return await listAllItems(this._listBaseGenericFiles.bind(this), {
+      searchQuery: `'${folderId}' in parents`,
+    })
+  }
+
   public async createFile({ name, parentId, mimeType }: CreateFileArgs): Promise<File> {
     const response = await this._googleClient.files.create({
       fields: GOOGLE_API_FILE_FIELDS,
@@ -233,17 +241,25 @@ export class Client {
     const channels: FileChannel[] = []
     await listItemsAndProcess(listFn, async (item) => {
       const absoluteExpirationTimeMs: number = Date.now() + MAX_RESOURCE_WATCH_EXPIRATION_DELAY_MS
-      const repsonse = await this._googleClient.files.watch({
+      const { id: fileId, mimeType } = item
+      const token = serializeToken(
+        {
+          fileId,
+          fileType: getFileTypeFromMimeType(mimeType),
+        },
+        'placeholder_secret' // TODO: Add secret to sign the token
+      )
+      const response = await this._googleClient.files.watch({
         fileId: item.id,
         requestBody: {
           id: uuidv4(),
           type: 'web_hook',
           address: `${process.env.BP_WEBHOOK_URL}/${this._ctx.webhookId}`,
-          token: item.id, // TODO: Add secret to verify incoming notifications
+          token,
           expiration: absoluteExpirationTimeMs.toString(),
         },
       })
-      const channel = parseChannel(repsonse.data)
+      const channel = parseChannel(response.data)
       this._logger.forBot().debug(`Watching file '${item.name}' (${item.id}): channel ID = ${channel.id}`)
       channels.push(channel)
     })

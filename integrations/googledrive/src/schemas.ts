@@ -30,6 +30,11 @@ export const baseShortcutFileSchema = commonFileAttrSchema.extend({
 const _fileTypesArray = ['normal', 'folder', 'shortcut'] as const
 export const fileTypesEnumSchema = z.enum(_fileTypesArray)
 const _fileTypes = fileTypesEnumSchema.Enum
+export const fileTypesUnionSchema = z.union([
+  z.literal(_fileTypes.normal),
+  z.literal(_fileTypes.folder),
+  z.literal(_fileTypes.shortcut),
+])
 
 /* Used to represent a generic file, closer to what is received by the API.
 Type is added to enable discrimination and remove/add access to properties

@@ -94,6 +94,11 @@ export class FilesCache {
     return this._getGenericFile(id)
   }
 
+  public getAll(filterFn?: (file: BaseGenericFile) => boolean): BaseGenericFile[] {
+    const allFiles = Object.values(this._map)
+    return filterFn ? allFiles.filter(filterFn) : allFiles
+  }
+
   /**
    * @throws {RuntimeError} ID must correspond to a file compatible with BaseNormalFile
    */
