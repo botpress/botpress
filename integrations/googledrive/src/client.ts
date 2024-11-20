@@ -84,7 +84,7 @@ export class Client {
   }
 
   public async listFiles({ nextToken }: ListItemsInput): Promise<ListFilesOutput> {
-    const { items: baseFiles, meta } = await this._listBaseFiles({ nextToken })
+    const { items: baseFiles, meta } = await this._listBaseNormalFiles({ nextToken })
     const completeFilesPromises = baseFiles.map((f) => this._getCompleteFileFromBaseFile(f))
     const items = await Promise.all(completeFilesPromises)
     return {
@@ -93,10 +93,15 @@ export class Client {
     }
   }
 
-  private async _listBaseFiles({ nextToken }: ListItemsInput): Promise<ListItemsOutput<BaseNormalFile>> {
-    const { newFiles, newNextToken } = await this._fetchFiles({
+  private async _listBaseNormalFiles({ nextToken }: ListItemsInput): Promise<ListItemsOutput<BaseNormalFile>> {
+    const {
+      items: newFiles,
+      meta: { nextToken: newNextToken },
+    } = await this._listBaseGenericFiles({
       nextToken,
-      searchQuery: `mimeType != '${APP_GOOGLE_FOLDER_MIMETYPE}' and mimeType != '${APP_GOOGLE_SHORTCUT_MIMETYPE}'`,
+      args: {
+        searchQuery: `mimeType != '${APP_GOOGLE_FOLDER_MIMETYPE}' and mimeType != '${APP_GOOGLE_SHORTCUT_MIMETYPE}'`,
+      },
     })
     const items = newFiles.filter((f) => f.type === 'normal')
     return {
@@ -108,7 +113,7 @@ export class Client {
   }
 
   public async listFolders({ nextToken }: ListItemsInput): Promise<ListFoldersOutput> {
-    const { items: baseFolders, meta } = await this._listBaseFolders({ nextToken })
+    const { items: baseFolders, meta } = await this._listBaseFolderFiles({ nextToken })
 
     const completeFoldersPromises = baseFolders.map((f) => this._getCompleteFolderFromBaseFolder(f))
     const items = await Promise.all(completeFoldersPromises)
@@ -118,10 +123,15 @@ export class Client {
     }
   }
 
-  private async _listBaseFolders({ nextToken }: ListItemsInput): Promise<ListItemsOutput<BaseFolderFile>> {
-    const { newFiles, newNextToken } = await this._fetchFiles({
+  private async _listBaseFolderFiles({ nextToken }: ListItemsInput): Promise<ListItemsOutput<BaseFolderFile>> {
+    const {
+      items: newFiles,
+      meta: { nextToken: newNextToken },
+    } = await this._listBaseGenericFiles({
       nextToken,
-      searchQuery: `mimeType = '${APP_GOOGLE_FOLDER_MIMETYPE}'`,
+      args: {
+        searchQuery: `mimeType = '${APP_GOOGLE_FOLDER_MIMETYPE}'`,
+      },
     })
     if (nextToken === undefined) {
       // My Drive is not returned by list operation but needs to be part of list, so we add it to first page
@@ -245,11 +255,11 @@ export class Client {
   }
 
   public async watchAllFiles(): Promise<FileChannel[]> {
-    return await this._watchAllListableGenericFiles(this._listBaseFiles.bind(this))
+    return await this._watchAllListableGenericFiles(this._listBaseNormalFiles.bind(this))
   }
 
   public async watchAllFolders(): Promise<FileChannel[]> {
-    return await this._watchAllListableGenericFiles(this._listBaseFolders.bind(this))
+    return await this._watchAllListableGenericFiles(this._listBaseFolderFiles.bind(this))
   }
 
   public async unwatch(channels: FileChannel | FileChannel[]) {
@@ -292,10 +302,11 @@ export class Client {
     }
   }
 
-  private async _fetchFiles({ nextToken, searchQuery }: { nextToken?: string; searchQuery?: string }): Promise<{
-    newFiles: BaseGenericFile[]
-    newNextToken?: string
-  }> {
+  private async _listBaseGenericFiles({
+    nextToken,
+    args,
+  }: ListItemsInputWithArgs<{ searchQuery?: string }>): Promise<ListItemsOutput<BaseGenericFile>> {
+    const searchQuery = args?.searchQuery
     const listResponse = await this._googleClient.files.list({
       corpora: 'user',
       fields: GOOGLE_API_FILELIST_FIELDS,
@@ -315,8 +326,10 @@ export class Client {
     }
 
     return {
-      newFiles,
-      newNextToken,
+      items: newFiles,
+      meta: {
+        nextToken: newNextToken,
+      },
     }
   }
 
