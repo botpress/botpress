@@ -78,6 +78,10 @@ export class FilesCache {
     this._map[file.id] = file
   }
 
+  public remove(id: string) {
+    delete this._map[id]
+  }
+
   private _getGenericFile(id: string): BaseGenericFile {
     const file = this._map[id]
     if (!file) {

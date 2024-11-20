@@ -5,11 +5,13 @@ import { Stream } from 'stream'
 import { Client as DriveClient } from './client'
 import { wrapWithTryCatch } from './error-handling'
 import { FileChannelsStore } from './file-channels-store'
+import { FilesCache } from './files-cache'
 import * as bp from '.botpress'
 
 const injectToolsAndMetadata = createActionWrapper<bp.IntegrationProps>()({
   toolFactories: {
     driveClient: ({ client, ctx, logger }) => DriveClient.create({ client, ctx, logger }),
+    filesCache: async ({ client, ctx, logger }) => await FilesCache.load({ client, ctx, logger }),
   },
   extraMetadata: {
     errorMessage: 'Placeholder error message', // TODO: Specify extraMetadata shape instead of providing placeholder values?
@@ -19,7 +21,14 @@ const injectToolsAndMetadata = createActionWrapper<bp.IntegrationProps>()({
 const wrapAction: typeof injectToolsAndMetadata = (meta, actionImpl) =>
   injectToolsAndMetadata(meta, (props) =>
     wrapWithTryCatch(() => {
-      return actionImpl(props as Parameters<typeof actionImpl>[0], props.input) //TODO: Find way to remove cast?
+      const actionProps = props as Parameters<typeof actionImpl>[0] //TODO: Find way to remove cast?
+      const { driveClient, filesCache } = actionProps
+      driveClient.setCache(filesCache)
+      const actionOutput = actionImpl(actionProps, actionProps.input)
+      return actionOutput.then(async (actionOutput) => {
+        await filesCache.save()
+        return actionOutput
+      }) as ReturnType<typeof actionImpl> // TODO: Find way to remove cast?
     }, `Action Error: ${meta.errorMessage}`)()
   )
 

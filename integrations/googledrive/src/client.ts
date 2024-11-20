@@ -75,19 +75,18 @@ export class Client {
       client,
       ctx,
     })
-    const filesCache = await FilesCache.load({ client, ctx, logger }) // TODO: Give option to prevent cache loading and saving
+    const filesCache = new FilesCache(client, ctx, logger)
     return new Client(client, ctx, googleClient, filesCache, logger)
   }
 
-  public async listFiles({ nextToken }: ListItemsInput): Promise<ListFilesOutput> {
-    if (!nextToken) {
-      this._filesCache.clear() // Invalidate cache when starting from scratch
-    }
+  public setCache(filesCache: FilesCache) {
+    this._filesCache = filesCache
+  }
 
+  public async listFiles({ nextToken }: ListItemsInput): Promise<ListFilesOutput> {
     const { items: baseFiles, meta } = await this._listBaseFiles({ nextToken })
     const completeFilesPromises = baseFiles.map((f) => this._getCompleteFileFromBaseFile(f))
     const items = await Promise.all(completeFilesPromises)
-    await this._filesCache.save()
     return {
       items,
       meta,
@@ -109,16 +108,10 @@ export class Client {
   }
 
   public async listFolders({ nextToken }: ListItemsInput): Promise<ListFoldersOutput> {
-    const isFirstRequest = nextToken === undefined
-    if (isFirstRequest) {
-      this._filesCache.clear() // Invalidate cache when starting from scratch
-    }
-
     const { items: baseFolders, meta } = await this._listBaseFolders({ nextToken })
 
     const completeFoldersPromises = baseFolders.map((f) => this._getCompleteFolderFromBaseFolder(f))
     const items = await Promise.all(completeFoldersPromises)
-    await this._filesCache.save()
     return {
       items,
       meta,
@@ -154,6 +147,7 @@ export class Client {
       },
     })
     const file = parseNormalFile(response.data)
+    this._filesCache.set(convertNormalFileToGeneric(file))
     return await this._getCompleteFileFromBaseFile(file)
   }
 
@@ -176,6 +170,7 @@ export class Client {
       },
     })
     const file = parseNormalFile(response.data)
+    this._filesCache.set(convertNormalFileToGeneric(file))
     return await this._getCompleteFileFromBaseFile(file)
   }
 
