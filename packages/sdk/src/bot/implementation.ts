@@ -9,9 +9,9 @@ import {
   EventHandlers,
   StateExpiredHandlersMap,
   StateExpiredHandlers,
-  HookImplementationsMap,
+  HookHandlersMap,
   HookDefinitions,
-  HookImplementations,
+  HookHandlers,
   ActionHandlers,
   BotHandlers,
 } from './server'
@@ -26,7 +26,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot> implements BotHan
   public readonly messageHandlers: MessageHandlersMap<TBot> = {}
   public readonly eventHandlers: EventHandlersMap<TBot> = {}
   public readonly stateExpiredHandlers: StateExpiredHandlersMap<TBot> = {}
-  public readonly hookHandlers: HookImplementationsMap<TBot> = {
+  public readonly hookHandlers: HookHandlersMap<TBot> = {
     before_incoming_event: {},
     before_incoming_message: {},
     before_outgoing_message: {},
@@ -62,7 +62,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot> implements BotHan
   public readonly hook = {
     beforeIncomingEvent: <T extends keyof HookDefinitions<TBot>['before_incoming_event']>(
       type: T,
-      handler: HookImplementations<TBot>['before_incoming_event'][T]
+      handler: HookHandlers<TBot>['before_incoming_event'][T]
     ) => {
       this.hookHandlers.before_incoming_event[type] = utils.arrays.safePush(
         this.hookHandlers.before_incoming_event[type],
@@ -71,7 +71,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot> implements BotHan
     },
     beforeIncomingMessage: <T extends keyof HookDefinitions<TBot>['before_incoming_message']>(
       type: T,
-      handler: HookImplementations<TBot>['before_incoming_message'][T]
+      handler: HookHandlers<TBot>['before_incoming_message'][T]
     ) => {
       this.hookHandlers.before_incoming_message[type] = utils.arrays.safePush(
         this.hookHandlers.before_incoming_message[type],
@@ -80,7 +80,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot> implements BotHan
     },
     beforeOutgoingMessage: <T extends keyof HookDefinitions<TBot>['before_outgoing_message']>(
       type: T,
-      handler: HookImplementations<TBot>['before_outgoing_message'][T]
+      handler: HookHandlers<TBot>['before_outgoing_message'][T]
     ) => {
       this.hookHandlers.before_outgoing_message[type] = utils.arrays.safePush(
         this.hookHandlers.before_outgoing_message[type],
@@ -89,7 +89,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot> implements BotHan
     },
     beforeOutgoingCallAction: <T extends keyof HookDefinitions<TBot>['before_outgoing_call_action']>(
       type: T,
-      handler: HookImplementations<TBot>['before_outgoing_call_action'][T]
+      handler: HookHandlers<TBot>['before_outgoing_call_action'][T]
     ) => {
       this.hookHandlers.before_outgoing_call_action[type] = utils.arrays.safePush(
         this.hookHandlers.before_outgoing_call_action[type],
@@ -98,7 +98,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot> implements BotHan
     },
     afterIncomingEvent: <T extends keyof HookDefinitions<TBot>['after_incoming_event']>(
       type: T,
-      handler: HookImplementations<TBot>['after_incoming_event'][T]
+      handler: HookHandlers<TBot>['after_incoming_event'][T]
     ) => {
       this.hookHandlers.after_incoming_event[type] = utils.arrays.safePush(
         this.hookHandlers.after_incoming_event[type],
@@ -107,7 +107,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot> implements BotHan
     },
     afterIncomingMessage: <T extends keyof HookDefinitions<TBot>['after_incoming_message']>(
       type: T,
-      handler: HookImplementations<TBot>['after_incoming_message'][T]
+      handler: HookHandlers<TBot>['after_incoming_message'][T]
     ) => {
       this.hookHandlers.after_incoming_message[type] = utils.arrays.safePush(
         this.hookHandlers.after_incoming_message[type],
@@ -116,7 +116,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot> implements BotHan
     },
     afterOutgoingMessage: <T extends keyof HookDefinitions<TBot>['after_outgoing_message']>(
       type: T,
-      handler: HookImplementations<TBot>['after_outgoing_message'][T]
+      handler: HookHandlers<TBot>['after_outgoing_message'][T]
     ) => {
       this.hookHandlers.after_outgoing_message[type] = utils.arrays.safePush(
         this.hookHandlers.after_outgoing_message[type],
@@ -125,13 +125,65 @@ export class BotImplementation<TBot extends BaseBot = BaseBot> implements BotHan
     },
     afterOutgoingCallAction: <T extends keyof HookDefinitions<TBot>['after_outgoing_call_action']>(
       type: T,
-      handler: HookImplementations<TBot>['after_outgoing_call_action'][T]
+      handler: HookHandlers<TBot>['after_outgoing_call_action'][T]
     ) => {
       this.hookHandlers.after_outgoing_call_action[type] = utils.arrays.safePush(
         this.hookHandlers.after_outgoing_call_action[type],
         handler
       )
     },
+  }
+
+  public readonly use = (botLike: BotHandlers<TBot>): void => {
+    type AnyEventHandler = utils.types.ValueOf<EventHandlers<BaseBot>>
+    type AnyMessageHandler = utils.types.ValueOf<MessageHandlers<BaseBot>>
+    type AnyStateExpiredHandler = utils.types.ValueOf<StateExpiredHandlers<BaseBot>>
+    type AnyHookHandler = utils.types.ValueOf<utils.types.ValueOf<HookHandlers<BaseBot>>>
+
+    type AnyEventHandlers = Record<string, AnyEventHandler[] | undefined>
+    type AnyMessageHandlers = Record<string, AnyMessageHandler[] | undefined>
+    type AnyStateExpiredHandlers = Record<string, AnyStateExpiredHandler[] | undefined>
+    type AnyHookHandlers = Record<string, Record<string, AnyHookHandler[] | undefined>>
+
+    const thisEventHandlers = this.eventHandlers as AnyEventHandlers
+    const thisMessageHandlers = this.messageHandlers as AnyMessageHandlers
+    const thisStateExpiredHandlers = this.stateExpiredHandlers as AnyStateExpiredHandlers
+    const thisHookHandlers = this.hookHandlers as AnyHookHandlers
+
+    const thatEventHandlers = botLike.eventHandlers as AnyEventHandlers
+    const thatMessageHandlers = botLike.messageHandlers as AnyMessageHandlers
+    const thatStateExpiredHandlers = botLike.stateExpiredHandlers as AnyStateExpiredHandlers
+    const thatHookHandlers = botLike.hookHandlers as AnyHookHandlers
+
+    for (const [type, handlers] of Object.entries(thatEventHandlers)) {
+      if (!handlers) {
+        continue
+      }
+      thisEventHandlers[type] = utils.arrays.safePush(thisEventHandlers[type], ...handlers)
+    }
+
+    for (const [type, handlers] of Object.entries(thatMessageHandlers)) {
+      if (!handlers) {
+        continue
+      }
+      thisMessageHandlers[type] = utils.arrays.safePush(thisMessageHandlers[type], ...handlers)
+    }
+
+    for (const [type, handlers] of Object.entries(thatStateExpiredHandlers)) {
+      if (!handlers) {
+        continue
+      }
+      thisStateExpiredHandlers[type] = utils.arrays.safePush(thisStateExpiredHandlers[type], ...handlers)
+    }
+
+    for (const [hook, types] of Object.entries(thatHookHandlers)) {
+      for (const [type, handlers] of Object.entries(types)) {
+        if (!handlers) {
+          continue
+        }
+        thisHookHandlers[hook]![type] = utils.arrays.safePush(thisHookHandlers[hook]![type], ...handlers)
+      }
+    }
   }
 
   public readonly handler = botHandler(this as BotHandlers<any>)

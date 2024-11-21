@@ -171,7 +171,7 @@ export type HookOutputs<TBot extends types.BaseBot> = {
   }
 }
 
-export type HookImplementations<TBot extends types.BaseBot> = {
+export type HookHandlers<TBot extends types.BaseBot> = {
   [H in keyof HookDefinitions<TBot>]: {
     [T in keyof HookDefinitions<TBot>[H]]: (
       input: HookInputs<TBot>[H][T]
@@ -191,9 +191,9 @@ export type StateExpiredHandlersMap<TBot extends types.BaseBot> = {
   [T in keyof IncomingStates<TBot>]?: StateExpiredHandlers<TBot>[T][]
 }
 
-export type HookImplementationsMap<TBot extends types.BaseBot> = {
+export type HookHandlersMap<TBot extends types.BaseBot> = {
   [H in keyof HookDefinitions<TBot>]: {
-    [T in keyof HookDefinitions<TBot>[H]]?: HookImplementations<TBot>[H][T][]
+    [T in keyof HookDefinitions<TBot>[H]]?: HookHandlers<TBot>[H][T][]
   }
 }
 
@@ -202,5 +202,5 @@ export type BotHandlers<TBot extends types.BaseBot> = {
   messageHandlers: MessageHandlersMap<TBot>
   eventHandlers: EventHandlersMap<TBot>
   stateExpiredHandlers: StateExpiredHandlersMap<TBot>
-  hookHandlers: HookImplementationsMap<TBot>
+  hookHandlers: HookHandlersMap<TBot>
 }

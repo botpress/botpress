@@ -1,5 +1,6 @@
 import * as integration from './integration'
 import * as intrface from './interface'
+import * as plugin from './plugin'
 import * as utils from './utils'
 
 type PackageReference =
@@ -35,6 +36,25 @@ type InterfacePackageDefinition = {
   channels?: Record<string, integration.ChannelDefinition>
 }
 
+type PluginPackageDefinition = {
+  name: string
+  version: string
+  integrations?: Record<
+    string,
+    {
+      definition: { name: string; version: string }
+    }
+  >
+  user?: plugin.UserDefinition
+  conversation?: plugin.ConversationDefinition
+  message?: plugin.MessageDefinition
+  states?: Record<string, plugin.StateDefinition>
+  configuration?: plugin.ConfigurationDefinition
+  events?: Record<string, plugin.EventDefinition>
+  recurringEvents?: Record<string, plugin.RecurringEventDefinition>
+  actions?: Record<string, plugin.ActionDefinition>
+}
+
 export type IntegrationPackage = PackageReference & {
   type: 'integration'
   definition: IntegrationPackageDefinition
@@ -47,11 +67,27 @@ export type InterfacePackage = PackageReference & {
   implementation?: null
 }
 
-export type Package = IntegrationPackage | InterfacePackage
+export type PluginPackage = PackageReference & {
+  type: 'plugin'
+  definition: PluginPackageDefinition
+  implementation?: {
+    code: string
+  }
+}
 
-type _test_expect_integration_definition_to_be_valid_package = utils.types.AssertTrue<
-  utils.types.AssertExtends<integration.IntegrationDefinition, IntegrationPackageDefinition>
+export type Package = IntegrationPackage | InterfacePackage | PluginPackage
+
+type _test_expect_integration_definition_to_be_valid_package = utils.types.AssertExtends<
+  integration.IntegrationDefinition,
+  IntegrationPackageDefinition
 >
-type _test_expect_interface_definition_to_be_valid_package = utils.types.AssertTrue<
-  utils.types.AssertExtends<intrface.InterfaceDeclaration, InterfacePackageDefinition>
+
+type _test_expect_interface_definition_to_be_valid_package = utils.types.AssertExtends<
+  intrface.InterfaceDeclaration,
+  InterfacePackageDefinition
+>
+
+type _test_expect_plugin_definition_to_be_valid_package = utils.types.AssertExtends<
+  plugin.PluginDefinition,
+  PluginPackageDefinition
 >

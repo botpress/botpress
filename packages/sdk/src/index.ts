@@ -64,6 +64,13 @@ export {
 
 export {
   //
+  PluginDefinition,
+  PluginImplementation as Plugin,
+} from './plugin'
+
+export {
+  //
   IntegrationPackage,
   InterfacePackage,
+  PluginPackage,
 } from './package'
