@@ -3,9 +3,12 @@ import { serve } from '../serve'
 import * as utils from '../utils'
 import {
   botHandler,
-  MessageHandler,
-  EventHandler,
-  StateExpiredHandler,
+  MessageHandlersMap,
+  MessageHandlers,
+  EventHandlersMap,
+  EventHandlers,
+  StateExpiredHandlersMap,
+  StateExpiredHandlers,
   HookImplementationsMap,
   HookDefinitions,
   HookImplementations,
@@ -18,92 +21,116 @@ export type BotImplementationProps<TBot extends BaseBot = BaseBot> = {
   actions: ActionHandlers<TBot>
 }
 
-export class BotImplementation<TBot extends BaseBot = BaseBot> {
+export class BotImplementation<TBot extends BaseBot = BaseBot> implements BotHandlers<TBot> {
   public readonly actionHandlers: ActionHandlers<TBot>
-  public readonly messageHandlers: MessageHandler<TBot>[] = []
-  public readonly eventHandlers: EventHandler<TBot>[] = []
-  public readonly stateExpiredHandlers: StateExpiredHandler<TBot>[] = []
-  public readonly hooks: HookImplementationsMap<TBot> = {
+  public readonly messageHandlers: MessageHandlersMap<TBot> = {}
+  public readonly eventHandlers: EventHandlersMap<TBot> = {}
+  public readonly stateExpiredHandlers: StateExpiredHandlersMap<TBot> = {}
+  public readonly hookHandlers: HookImplementationsMap<TBot> = {
     before_incoming_event: {},
     before_incoming_message: {},
     before_outgoing_message: {},
-    before_call_action: {},
+    before_outgoing_call_action: {},
     after_incoming_event: {},
     after_incoming_message: {},
     after_outgoing_message: {},
-    after_call_action: {},
+    after_outgoing_call_action: {},
   }
 
   public constructor(public readonly props: BotImplementationProps<TBot>) {
     this.actionHandlers = props.actions
   }
 
-  public readonly message = (handler: MessageHandler<TBot>): void => {
-    this.messageHandlers.push(handler)
+  public readonly message = <T extends keyof MessageHandlersMap<TBot>>(
+    type: T,
+    handler: MessageHandlers<TBot>[T]
+  ): void => {
+    this.messageHandlers[type] = utils.arrays.safePush(this.messageHandlers[type], handler)
   }
 
-  public readonly event = (handler: EventHandler<TBot>): void => {
-    this.eventHandlers.push(handler)
+  public readonly event = <T extends keyof EventHandlersMap<TBot>>(type: T, handler: EventHandlers<TBot>[T]): void => {
+    this.eventHandlers[type] = utils.arrays.safePush(this.eventHandlers[type], handler)
   }
 
-  public readonly stateExpired = (handler: StateExpiredHandler<TBot>): void => {
-    this.stateExpiredHandlers.push(handler)
+  public readonly stateExpired = <T extends keyof StateExpiredHandlersMap<TBot>>(
+    type: T,
+    handler: StateExpiredHandlers<TBot>[T]
+  ): void => {
+    this.stateExpiredHandlers[type] = utils.arrays.safePush(this.stateExpiredHandlers[type], handler)
   }
 
   public readonly hook = {
-    before_incoming_event: <T extends keyof HookDefinitions<TBot>['before_incoming_event']>(
+    beforeIncomingEvent: <T extends keyof HookDefinitions<TBot>['before_incoming_event']>(
       type: T,
       handler: HookImplementations<TBot>['before_incoming_event'][T]
     ) => {
-      this.hooks.before_incoming_event[type] = utils.arrays.safePush(this.hooks.before_incoming_event[type], handler)
+      this.hookHandlers.before_incoming_event[type] = utils.arrays.safePush(
+        this.hookHandlers.before_incoming_event[type],
+        handler
+      )
     },
-    before_incoming_message: <T extends keyof HookDefinitions<TBot>['before_incoming_message']>(
+    beforeIncomingMessage: <T extends keyof HookDefinitions<TBot>['before_incoming_message']>(
       type: T,
       handler: HookImplementations<TBot>['before_incoming_message'][T]
     ) => {
-      this.hooks.before_incoming_message[type] = utils.arrays.safePush(
-        this.hooks.before_incoming_message[type],
+      this.hookHandlers.before_incoming_message[type] = utils.arrays.safePush(
+        this.hookHandlers.before_incoming_message[type],
         handler
       )
     },
-    before_outgoing_message: <T extends keyof HookDefinitions<TBot>['before_outgoing_message']>(
+    beforeOutgoingMessage: <T extends keyof HookDefinitions<TBot>['before_outgoing_message']>(
       type: T,
       handler: HookImplementations<TBot>['before_outgoing_message'][T]
     ) => {
-      this.hooks.before_outgoing_message[type] = utils.arrays.safePush(
-        this.hooks.before_outgoing_message[type],
+      this.hookHandlers.before_outgoing_message[type] = utils.arrays.safePush(
+        this.hookHandlers.before_outgoing_message[type],
         handler
       )
     },
-    before_call_action: <T extends keyof HookDefinitions<TBot>['before_call_action']>(
+    beforeOutgoingCallAction: <T extends keyof HookDefinitions<TBot>['before_outgoing_call_action']>(
       type: T,
-      handler: HookImplementations<TBot>['before_call_action'][T]
+      handler: HookImplementations<TBot>['before_outgoing_call_action'][T]
     ) => {
-      this.hooks.before_call_action[type] = utils.arrays.safePush(this.hooks.before_call_action[type], handler)
+      this.hookHandlers.before_outgoing_call_action[type] = utils.arrays.safePush(
+        this.hookHandlers.before_outgoing_call_action[type],
+        handler
+      )
     },
-    after_incoming_event: <T extends keyof HookDefinitions<TBot>['after_incoming_event']>(
+    afterIncomingEvent: <T extends keyof HookDefinitions<TBot>['after_incoming_event']>(
       type: T,
       handler: HookImplementations<TBot>['after_incoming_event'][T]
     ) => {
-      this.hooks.after_incoming_event[type] = utils.arrays.safePush(this.hooks.after_incoming_event[type], handler)
+      this.hookHandlers.after_incoming_event[type] = utils.arrays.safePush(
+        this.hookHandlers.after_incoming_event[type],
+        handler
+      )
     },
-    after_incoming_message: <T extends keyof HookDefinitions<TBot>['after_incoming_message']>(
+    afterIncomingMessage: <T extends keyof HookDefinitions<TBot>['after_incoming_message']>(
       type: T,
       handler: HookImplementations<TBot>['after_incoming_message'][T]
     ) => {
-      this.hooks.after_incoming_message[type] = utils.arrays.safePush(this.hooks.after_incoming_message[type], handler)
+      this.hookHandlers.after_incoming_message[type] = utils.arrays.safePush(
+        this.hookHandlers.after_incoming_message[type],
+        handler
+      )
     },
-    after_outgoing_message: <T extends keyof HookDefinitions<TBot>['after_outgoing_message']>(
+    afterOutgoingMessage: <T extends keyof HookDefinitions<TBot>['after_outgoing_message']>(
       type: T,
       handler: HookImplementations<TBot>['after_outgoing_message'][T]
     ) => {
-      this.hooks.after_outgoing_message[type] = utils.arrays.safePush(this.hooks.after_outgoing_message[type], handler)
+      this.hookHandlers.after_outgoing_message[type] = utils.arrays.safePush(
+        this.hookHandlers.after_outgoing_message[type],
+        handler
+      )
     },
-    after_call_action: <T extends keyof HookDefinitions<TBot>['after_call_action']>(
+    afterOutgoingCallAction: <T extends keyof HookDefinitions<TBot>['after_outgoing_call_action']>(
       type: T,
-      handler: HookImplementations<TBot>['after_call_action'][T]
+      handler: HookImplementations<TBot>['after_outgoing_call_action'][T]
     ) => {
-      this.hooks.after_call_action[type] = utils.arrays.safePush(this.hooks.after_call_action[type], handler)
+      this.hookHandlers.after_outgoing_call_action[type] = utils.arrays.safePush(
+        this.hookHandlers.after_outgoing_call_action[type],
+        handler
+      )
     },
   }
 

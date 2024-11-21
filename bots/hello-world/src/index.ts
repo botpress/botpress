@@ -13,16 +13,16 @@ const bot = new bp.Bot({
   },
 })
 
-bot.hook.before_incoming_event('*', async (x) => console.info('before_incoming_event', x.data))
-bot.hook.before_incoming_message('*', async (x) => console.info('before_incoming_message', x.data))
-bot.hook.before_outgoing_message('*', async (x) => console.info('before_outgoing_message', x.data))
-bot.hook.before_call_action('*', async (x) => console.info('before_call_action', x.data))
-bot.hook.after_incoming_event('*', async (x) => console.info('after_incoming_event', x.data))
-bot.hook.after_incoming_message('*', async (x) => console.info('after_incoming_message', x.data))
-bot.hook.after_outgoing_message('*', async (x) => console.info('after_outgoing_message', x.data))
-bot.hook.after_call_action('*', async (x) => console.info('after_call_action', x.data))
+bot.hook.beforeIncomingEvent('*', async (x) => console.info('before_incoming_event', x.data))
+bot.hook.beforeIncomingMessage('*', async (x) => console.info('before_incoming_message', x.data))
+bot.hook.beforeOutgoingMessage('*', async (x) => console.info('before_outgoing_message', x.data))
+bot.hook.beforeOutgoingCallAction('*', async (x) => console.info('before_call_action', x.data))
+bot.hook.afterIncomingEvent('*', async (x) => console.info('after_incoming_event', x.data))
+bot.hook.afterIncomingMessage('*', async (x) => console.info('after_incoming_message', x.data))
+bot.hook.afterOutgoingMessage('*', async (x) => console.info('after_outgoing_message', x.data))
+bot.hook.afterOutgoingCallAction('*', async (x) => console.info('after_call_action', x.data))
 
-bot.message(async (props) => {
+bot.message('*', async (props) => {
   const { message, client, ctx, self } = props
 
   const { message: response } = await self.actionHandlers.sayHello({ ...props, input: {} })
@@ -37,14 +37,12 @@ bot.message(async (props) => {
   })
 })
 
-bot.event(async ({ event }) => {
-  if (event.type === 'webhook:event') {
-    const { body, method, path, query } = event.payload
-    const queryString = qs.stringify(query)
-    const fullPath = queryString ? `${path}?${queryString}` : path
-    const debug = truncate(`${method} ${fullPath} ${JSON.stringify(body)}`)
-    console.debug('Received webhook request:', debug)
-  }
+bot.event('webhook:event', async ({ event }) => {
+  const { body, method, path, query } = event.payload
+  const queryString = qs.stringify(query)
+  const fullPath = queryString ? `${path}?${queryString}` : path
+  const debug = truncate(`${method} ${fullPath} ${JSON.stringify(body)}`)
+  console.debug('Received webhook request:', debug)
 })
 
 export default bot
