@@ -57,7 +57,6 @@ const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageTo
 
 export class Client {
   private constructor(
-    private _client: bp.Client,
     private _ctx: bp.Context,
     private _googleClient: GoogleDriveClient,
     private _filesCache: FilesCache,
@@ -78,7 +77,7 @@ export class Client {
       ctx,
     })
     const filesCache = new FilesCache(client, ctx, logger)
-    return new Client(client, ctx, googleClient, filesCache, logger)
+    return new Client(ctx, googleClient, filesCache, logger)
   }
 
   public setCache(filesCache: FilesCache) {
