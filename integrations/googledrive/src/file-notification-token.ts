@@ -4,19 +4,14 @@ import { fileTypesUnionSchema } from './schemas'
 const tokenSchema = z.object({
   fileId: z.string().min(1),
   fileType: fileTypesUnionSchema,
-  signature: z.string().min(1),
 })
 export type Token = z.infer<typeof tokenSchema>
-export type TokenInfos = Omit<Token, 'signature'>
 
-export const serializeToken = (tokenInfos: TokenInfos, _secret: string) => {
-  return JSON.stringify({
-    ...tokenInfos,
-    signature: 'signature', // TODO: Sign file ID
-  })
+export const serializeToken = (token: Token) => {
+  return JSON.stringify(token)
 }
 
-export const deserializeToken = (serializedToken: string, _secret: string): Token | undefined => {
+export const deserializeToken = (serializedToken: string): Token | undefined => {
   let parsedObject: any
   try {
     parsedObject = JSON.parse(serializedToken)
@@ -27,6 +22,5 @@ export const deserializeToken = (serializedToken: string, _secret: string): Toke
   if (!tokenParseResult.success) {
     return undefined
   }
-  // TODO: Verify signature
   return tokenParseResult.data
 }

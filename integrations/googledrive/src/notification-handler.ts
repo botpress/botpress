@@ -15,7 +15,7 @@ export class NotificationHandler {
     const type = notification.headers['x-goog-resource-state']
     const changes = notification.headers['x-goog-changed']
     const serializedToken = notification.headers['x-goog-channel-token']
-    const token = deserializeToken(serializedToken, 'placeholder_secret') // TODO: Use secret to sign the fileID
+    const token = deserializeToken(serializedToken)
     if (!token) {
       console.error('Invalid notification token:', token)
       return
