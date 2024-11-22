@@ -1,3 +1,4 @@
+import * as utils from '../utils'
 import {
   MessageHandlersMap,
   MessageHandlers,
@@ -10,9 +11,8 @@ import {
   HookHandlers,
   ActionHandlers,
   BotHandlers,
-} from '../bot/server'
-import * as utils from '../utils'
-import { BasePlugin } from './generic'
+} from './server/types'
+import { BasePlugin } from './types/generic'
 
 export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> = {
   actions: ActionHandlers<TPlugin>

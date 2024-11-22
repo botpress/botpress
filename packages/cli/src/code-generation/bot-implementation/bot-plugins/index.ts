@@ -54,6 +54,7 @@ export class BotPluginsIndexModule extends mod.Module {
 
     return [
       consts.GENERATED_HEADER,
+      'import * as sdk from "@botpress/sdk"',
       ...modules.map(({ importAlias, importFrom }) => `import * as ${importAlias} from "./${importFrom}";`),
       ...modules.map(({ importAlias, importFrom }) => `export * as ${importAlias} from "./${importFrom}";`),
       '',
@@ -62,7 +63,9 @@ export class BotPluginsIndexModule extends mod.Module {
       '}',
       '',
       'export type TPlugins = {',
-      ...modules.map(({ module, importAlias }) => `  "${module.pluginName}": ${importAlias}.TPlugin;`),
+      ...modules.map(
+        ({ module, importAlias }) => `  "${module.pluginName}": sdk.DefaultPlugin<${importAlias}.TPlugin>;`
+      ),
       '}',
     ].join('\n')
   }

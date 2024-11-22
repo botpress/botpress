@@ -1,5 +1,5 @@
-import { BaseIntegration, DefaultIntegration, InputBaseIntegration } from '../integration/types/generic'
-import * as utils from '../utils/type-utils'
+import { BaseIntegration, DefaultIntegration, InputBaseIntegration } from '../../integration/types/generic'
+import * as utils from '../../utils/type-utils'
 
 export type BaseAction = {
   input: any
@@ -11,6 +11,7 @@ export type BasePlugin = {
   events: Record<string, any>
   states: Record<string, any>
   actions: Record<string, BaseAction>
+  unknownDefinitions: true
 }
 
 export type InputBasePlugin = utils.DeepPartial<BasePlugin>
@@ -18,6 +19,7 @@ export type DefaultPlugin<B extends utils.DeepPartial<BasePlugin>> = {
   events: utils.Default<B['events'], BasePlugin['events']>
   states: utils.Default<B['states'], BasePlugin['states']>
   actions: utils.Default<B['actions'], BasePlugin['actions']>
+  unknownDefinitions: utils.Default<B['unknownDefinitions'], BasePlugin['unknownDefinitions']>
   integrations: undefined extends B['integrations']
     ? BasePlugin['integrations']
     : {
