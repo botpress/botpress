@@ -3,6 +3,7 @@
   "description": "Hello-world bot",
   "private": true,
   "scripts": {
+    "postinstall": "genenv -o ./.genenv/index.ts -e HELLO_WORLD_TELEGRAM_BOT_TOKEN",
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
     "build": "bp build",
@@ -16,6 +17,7 @@
   },
   "devDependencies": {
     "@botpress/common": "workspace:*",
+    "@bpinternal/genenv": "0.0.1",
     "@types/json-schema": "^7.0.11",
     "@types/node": "^18.11.17",
     "@types/qs": "^6.9.7",

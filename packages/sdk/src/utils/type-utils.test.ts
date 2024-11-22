@@ -134,3 +134,32 @@ test('default should return default value if undefined', () => {
     ]
   >
 })
+
+test('deep partial should make all properties optional', () => {
+  type Actual = utils.DeepPartial<{
+    name: string
+    age: number
+    address: readonly {
+      street: string
+      city: string
+    }[]
+    data: Promise<Buffer>
+  }>
+  type Expected = {
+    name?: string
+    age?: number
+    address?: readonly {
+      street?: string
+      city?: string
+    }[]
+    data?: Promise<Buffer>
+  }
+  type _assertion = utils.AssertAll<
+    [
+      //
+      utils.AssertExtends<Actual, Expected>,
+      utils.AssertExtends<Expected, Actual>,
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+    ]
+  >
+})

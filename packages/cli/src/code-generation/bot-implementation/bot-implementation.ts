@@ -26,7 +26,7 @@ export class BotImplementationModule extends Module {
       `import * as ${this._typingsModule.name} from "./${typingsImport}"`,
       `export * from "./${typingsImport}"`,
       '',
-      `type TBot = ${this._typingsModule.name}.${this._typingsModule.exportName}`,
+      `type TBot = sdk.DefaultBot<${this._typingsModule.name}.${this._typingsModule.exportName}>`,
       '',
       'export class Bot extends sdk.Bot<TBot> {}',
       '',

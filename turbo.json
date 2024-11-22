@@ -586,7 +586,7 @@
     },
     "@bp-bots/hello-world#add:integrations": {
       "cache": false,
-      "dependsOn": ["@botpress/cli#build", "@botpresshub/telegram#build"]
+      "dependsOn": ["@botpress/cli#build", "@botpresshub/telegram#build", "@botpresshub/webhook#build"]
     },
     "@bp-bots/hello-world#build": {
       "cache": false,

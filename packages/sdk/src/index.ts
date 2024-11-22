@@ -10,6 +10,7 @@ export {
 } from '@botpress/client'
 
 export {
+  DefaultIntegration,
   IntegrationDefinition,
   IntegrationDefinitionProps,
   IntegrationImplementation as Integration,
@@ -37,6 +38,7 @@ export {
 } from './integration/server'
 
 export {
+  DefaultBot,
   BotDefinition,
   BotDefinitionProps,
   BotImplementation as Bot,
@@ -51,6 +53,7 @@ export {
   UserDefinition as BotUserDefinition,
   ConversationDefinition as BotConversationDefinition,
   MessageDefinition as BotMessageDefinition,
+  ActionDefinition as BotActionDefinition,
 } from './bot'
 
 export {

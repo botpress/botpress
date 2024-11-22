@@ -1,6 +1,6 @@
 {
   "name": "@botpress/sdk",
-  "version": "1.3.2",
+  "version": "1.6.1",
   "description": "Botpress SDK",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",

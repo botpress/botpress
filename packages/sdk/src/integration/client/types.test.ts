@@ -1,5 +1,5 @@
 import * as client from '@botpress/client'
-import { MakeChannel, MakeIntegration, BaseIntegration } from '../types'
+import { DefaultChannel, DefaultIntegration, BaseIntegration } from '../types'
 import { describe, test } from 'vitest'
 import * as utils from '../../utils/type-utils'
 import * as types from './types'
