@@ -12,7 +12,7 @@ import type * as config from '../config'
 import * as consts from '../consts'
 import * as errors from '../errors'
 import { formatPackageRef, PackageRef } from '../package-ref'
-import { validateIntegrationDefinition, resolveInterfaces, resolveBotInterfaces } from '../sdk'
+import { validateIntegrationDefinition, resolveInterfaces, resolveBotInterfaces, validateBotDefinition } from '../sdk'
 import type { CommandArgv, CommandDefinition } from '../typings'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
@@ -222,9 +222,8 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
 
     let { default: definition } = utils.require.requireJsCode<{ default: sdk.BotDefinition }>(artifact.text)
-    // TODO: validate bot definition
-
     definition = resolveBotInterfaces(definition)
+    validateBotDefinition(definition)
     return { definition, bpLintDisabled }
   }
 
