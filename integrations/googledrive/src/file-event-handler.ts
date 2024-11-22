@@ -13,12 +13,11 @@ export class FileEventHandler {
   ) {}
 
   public async handleFileCreated(file: GenericFile) {
-    this._filesCache.set(file) // TODO: Convert to BaseGenericFile beforehand?
+    this._filesCache.set(file) // GenericFile is compatible with BaseGenericFile
     const channel = await this._driveClient.tryWatch(file.id)
     if (channel) {
       this._fileChannelsCache.set(channel)
     }
-    // FIXME: Handle duplication of events (looks like handler is called concurrently when multiple channels are created on a folder)
     if (file.type === 'normal') {
       await this._client.createEvent({
         type: 'fileCreated',
