@@ -18,6 +18,14 @@ When using this configuration mode, a Botpress-managed Google Drive application 
 2. Follow the on-screen instructions to connect your Botpress chatbot to Google Drive.
 3. Once the connection is established, you can save the configuration and enable the integration.
 
+# Using the integration
+
+Use the available actions to manage your files and download/upload content from and to Google Drive.
+
+Use the available triggers to know when a file or folder was created or deleted.
+
+Use the 'syncChannels' action to create and update subscription channels on all available files and folders. These channels are what allow your bot to be notified on resource creation and deletion. The channels are valid up to one day. Make sure this action is called once a day to prevent event loss. Calling this action too often may result in errors and events being lost due to the Google Drive subscription creation rate limit.
+
 # Limitations
 
 Standard Google Drive API limitations apply to the Google Drive integration in Botpress. These limitations include rate limits, file size restrictions, and other constraints imposed by the Google Drive platform. Ensure that your bot adheres to these limitations to maintain optimal performance and reliability.
