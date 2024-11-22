@@ -1,5 +1,6 @@
 import { updateRefreshTokenFromAuthorizationCode } from './auth'
 import { Client } from './client'
+import { FileChannelsCache } from './file-channels-cache'
 import { FileEventHandler } from './file-event-handler'
 import { FilesCache } from './files-cache'
 import { NotificationHandler } from './notification-handler'
@@ -23,10 +24,12 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
 
   const driveClient = await Client.create({ client, ctx, logger })
   const filesCache = await FilesCache.load({ client, ctx, logger })
-  const fileEventHandler = new FileEventHandler(driveClient, filesCache)
+  const fileChannelsCache = await FileChannelsCache.load({ client, ctx, logger })
+  const fileEventHandler = new FileEventHandler(client, driveClient, filesCache, fileChannelsCache)
   const notificationHandler = new NotificationHandler(driveClient, filesCache, fileEventHandler)
   await notificationHandler.handle(notifParseResult.data)
   await filesCache.save()
+  await fileChannelsCache.save()
 }
 
 export const handleOAuth = async ({ req, client, ctx }: bp.HandlerProps) => {

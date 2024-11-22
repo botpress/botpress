@@ -11,6 +11,9 @@ import {
   listItemsInputSchema,
   deleteFileArgSchema,
   downloadFileDataOutputSchema,
+  fileDeletedEventSchema,
+  folderSchema,
+  folderDeletedEventSchema,
 } from './src/schemas'
 
 export default new IntegrationDefinition({
@@ -122,6 +125,28 @@ export default new IntegrationDefinition({
       output: {
         schema: z.object({}),
       },
+    },
+  },
+  events: {
+    fileCreated: {
+      title: 'File Created',
+      description: 'Triggered when a file is created in Google Drive',
+      schema: fileSchema,
+    },
+    fileDeleted: {
+      title: 'File Deleted',
+      description: 'Triggered when a file is deleted in Google Drive',
+      schema: fileDeletedEventSchema,
+    },
+    folderCreated: {
+      title: 'Folder Created',
+      description: 'Triggered when a folder is created in Google Drive',
+      schema: folderSchema,
+    },
+    folderDeleted: {
+      title: 'Folder Deleted',
+      description: 'Triggered when a folder is deleted in Google Drive',
+      schema: folderDeletedEventSchema,
     },
   },
   states: {

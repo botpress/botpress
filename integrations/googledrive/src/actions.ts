@@ -4,14 +4,17 @@ import axios, { AxiosError } from 'axios'
 import { Stream } from 'stream'
 import { Client as DriveClient } from './client'
 import { wrapWithTryCatch } from './error-handling'
-import { FileChannelsStore } from './file-channels-store'
+import { FileChannelsCache } from './file-channels-cache'
+import { FileEventHandler } from './file-event-handler'
 import { FilesCache } from './files-cache'
+import { convertNormalToGeneric } from './validation'
 import * as bp from '.botpress'
 
 const injectToolsAndMetadata = createActionWrapper<bp.IntegrationProps>()({
   toolFactories: {
     driveClient: ({ client, ctx, logger }) => DriveClient.create({ client, ctx, logger }),
     filesCache: async ({ client, ctx, logger }) => await FilesCache.load({ client, ctx, logger }),
+    fileChannelsCache: async ({ client, ctx, logger }) => await FileChannelsCache.load({ client, ctx, logger }),
   },
   extraMetadata: {
     errorMessage: 'Placeholder error message', // TODO: Specify extraMetadata shape instead of providing placeholder values?
@@ -48,9 +51,12 @@ const listFolders: bp.IntegrationProps['actions']['listFolders'] = wrapAction(
 
 const createFile: bp.IntegrationProps['actions']['createFile'] = wrapAction(
   { actionName: 'createFile', errorMessage: 'Error creating file' },
-  async ({ driveClient, input }) => {
-    return await driveClient.createFile(input)
-    // TODO: Execute 'file created' event routine and make sure events aren't processed twice
+  async ({ client, driveClient, filesCache, fileChannelsCache, input }) => {
+    const newFile = await driveClient.createFile(input)
+    const eventHandler = new FileEventHandler(client, driveClient, filesCache, fileChannelsCache)
+    await eventHandler.handleFileCreated(convertNormalToGeneric(newFile))
+    await fileChannelsCache.save()
+    return newFile
   }
 )
 
@@ -70,9 +76,14 @@ const updateFile: bp.IntegrationProps['actions']['updateFile'] = wrapAction(
 
 const deleteFile: bp.IntegrationProps['actions']['deleteFile'] = wrapAction(
   { actionName: 'deleteFile', errorMessage: 'Error deleting file' },
-  async ({ driveClient, input }) => {
+  async ({ client, driveClient, filesCache, fileChannelsCache, input }) => {
     await driveClient.deleteFile(input.id)
-    // TODO: Execute 'file deleted' event routine and make sure events aren't processed twice
+    const oldFile = filesCache.find(input.id)
+    const eventHandler = new FileEventHandler(client, driveClient, filesCache, fileChannelsCache)
+    if (oldFile) {
+      await eventHandler.handleFileDeleted(oldFile)
+    }
+    await fileChannelsCache.save()
     return {}
   }
 )
@@ -133,12 +144,11 @@ const downloadFileData: bp.IntegrationProps['actions']['downloadFileData'] = wra
 
 const syncChannels: bp.IntegrationProps['actions']['syncChannels'] = wrapAction(
   { actionName: 'syncChannels', errorMessage: 'Error syncing channels' },
-  async ({ client, ctx, logger, driveClient }) => {
-    const fileChannelsStore = await FileChannelsStore.load({ client, ctx, logger })
-    const newChannels = await driveClient.watchAll()
-    const oldChannels = await fileChannelsStore.setAll(newChannels)
-    await fileChannelsStore.save()
-    driveClient.unwatch(oldChannels)
+  async ({ logger, driveClient, fileChannelsCache }) => {
+    const { fileChannels: newChannels } = await driveClient.tryWatchAll()
+    const oldChannels = fileChannelsCache.setAll(newChannels)
+    await fileChannelsCache.save()
+    await driveClient.tryUnwatch(oldChannels)
     logger.forBot().debug(`Channels synced: ${newChannels.length} new channels, ${oldChannels.length} removed channels`)
     return {}
   }

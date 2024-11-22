@@ -1,18 +1,20 @@
 import { z } from '@botpress/sdk'
 import { fileChannelSchema } from './schemas'
+import { FileChannel } from './types'
 import * as bp from '.botpress'
 
-const fileChannelsSchema = z.array(fileChannelSchema)
+const fileChannelsSchema = z.record(z.string(), fileChannelSchema)
 type FileChannels = z.infer<typeof fileChannelsSchema>
-export class FileChannelsStore {
+type FileChannelsArray = FileChannel[]
+export class FileChannelsCache {
   private _channels: FileChannels
 
   public constructor(private _client: bp.Client, private _ctx: bp.Context, private _logger: bp.Logger) {
-    this._channels = FileChannelsStore._getEmpty()
+    this._channels = FileChannelsCache._getEmpty()
   }
 
   public clear() {
-    this._channels = FileChannelsStore._getEmpty()
+    this._channels = FileChannelsCache._getEmpty()
   }
 
   public static async load({ client, ctx, logger }: { client: bp.Client; ctx: bp.Context; logger: bp.Logger }) {
@@ -25,7 +27,7 @@ export class FileChannelsStore {
       },
     })
     const serializedChannels = getStateResponse.state.payload.filesChannels
-    const fileChannels = new FileChannelsStore(client, ctx, logger)
+    const fileChannels = new FileChannelsCache(client, ctx, logger)
     fileChannels._channels = fileChannels._deserializeChannels(serializedChannels) ?? this._getEmpty()
     return fileChannels
   }
@@ -36,7 +38,7 @@ export class FileChannelsStore {
       type: 'integration',
       name: 'filesChannels',
       payload: {
-        filesChannels: FileChannelsStore._serializeChannels(this._channels),
+        filesChannels: FileChannelsCache._serializeChannels(this._channels),
       },
     })
   }
@@ -63,19 +65,35 @@ export class FileChannelsStore {
   }
 
   private static _getEmpty(): FileChannels {
-    return []
+    return {}
+  }
+
+  public remove(fileId: string): FileChannel | undefined {
+    const channel = this._channels[fileId]
+    delete this._channels[fileId]
+    return channel
+  }
+
+  /**
+   * @returns Channel that was replaced
+   */
+  public set(channel: FileChannel): FileChannel | undefined {
+    const oldChannel = this._channels[channel.fileId]
+    this._channels[channel.fileId] = channel
+    return oldChannel
   }
 
   /**
    * @returns Channels that were replaced
    */
-  public setAll(channels: FileChannels): FileChannels {
-    const oldChannels = this._channels
-    this._channels = [...channels]
-    return oldChannels
+  public setAll(channels: FileChannelsArray): FileChannelsArray {
+    const newChannels = Object.fromEntries(channels.map((channel) => [channel.fileId, channel]))
+    const oldChannels = { ...this._channels }
+    this._channels = newChannels
+    return Object.values(oldChannels)
   }
 
-  public getAll(): FileChannels {
-    return this._channels
+  public getAll(): FileChannelsArray {
+    return Object.values(this._channels)
   }
 }

@@ -2,7 +2,7 @@ import { Client } from './client'
 import { FileEventHandler } from './file-event-handler'
 import { deserializeToken, Token } from './file-notification-token'
 import { FilesCache } from './files-cache'
-import { BaseGenericFile, Notification } from './types'
+import { Notification } from './types'
 
 export class NotificationHandler {
   public constructor(
@@ -17,7 +17,7 @@ export class NotificationHandler {
     const serializedToken = notification.headers['x-goog-channel-token']
     const token = deserializeToken(serializedToken, 'placeholder_secret') // TODO: Use secret to sign the fileID
     if (!token) {
-      // Ignore invalid notification
+      console.error('Invalid notification token:', token)
       return
     }
     if (type === 'update') {
@@ -35,21 +35,19 @@ export class NotificationHandler {
     if (token.fileType !== 'folder') {
       return
     }
-    const currentChildrenMap = new Map<string, BaseGenericFile>()
     const currentChildren = await this._driveClient.getChildren(token.fileId)
     for (const child of currentChildren) {
       if (!this._filesCache.find(child.id)) {
         await this._fileEventHandler.handleFileCreated(child)
       }
-      currentChildrenMap.set(child.id, child)
     }
   }
 
   private async _handleRemoveNotif(token: Token) {
-    const file = this._filesCache.find(token.fileId)
-    if (!file) {
+    const baseFile = this._filesCache.find(token.fileId)
+    if (!baseFile) {
       return
     }
-    await this._fileEventHandler.handleFileDeleted(file)
+    await this._fileEventHandler.handleFileDeleted(baseFile)
   }
 }

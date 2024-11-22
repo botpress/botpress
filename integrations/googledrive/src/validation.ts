@@ -10,24 +10,34 @@ import {
   UnvalidatedGoogleDriveFile,
   FileType,
   UnvalidatedGoogleDriveChannel,
-  FileChannel,
+  BaseFileChannel,
+  File,
+  GenericFile,
 } from './types'
 
-export const convertNormalFileToGeneric = (file: BaseNormalFile): BaseGenericFile => {
+// TODO: Find a way to generalize conversion to generic file
+export const convertNormalToGeneric = (file: File): GenericFile => {
   return {
     type: 'normal',
     ...file,
   }
 }
 
-export const convertFolderFileToGeneric = (file: BaseFolderFile): BaseGenericFile => {
+export const convertBaseNormalToBaseGeneric = (file: BaseNormalFile): BaseGenericFile => {
+  return {
+    type: 'normal',
+    ...file,
+  }
+}
+
+export const convertBaseFolderToBaseGeneric = (file: BaseFolderFile): BaseGenericFile => {
   return {
     type: 'folder',
     ...file,
   }
 }
 
-export const parseChannel = (channel: UnvalidatedGoogleDriveChannel): FileChannel => {
+export const parseChannel = (channel: UnvalidatedGoogleDriveChannel): BaseFileChannel => {
   const { id, resourceId } = channel
   if (!resourceId) {
     throw new RuntimeError('Resource ID is missing in Schema$Channel from the API response')
@@ -54,30 +64,30 @@ export const getFileTypeFromMimeType = (mimeType: string): FileType => {
   }
 }
 
-export const parseGenericFiles = (files: UnvalidatedGoogleDriveFile[]): BaseGenericFile[] => {
-  return files.map((f) => parseGenericFile(f))
+export const parseBaseGenerics = (files: UnvalidatedGoogleDriveFile[]): BaseGenericFile[] => {
+  return files.map((f) => parseBaseGeneric(f))
 }
 
-export const parseGenericFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseGenericFile => {
+export const parseBaseGeneric = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseGenericFile => {
   const { mimeType } = parseCommonFileAttr(unvalidatedFile)
   let file: BaseGenericFile
   const type = getFileTypeFromMimeType(mimeType)
   switch (type) {
     case 'folder':
       file = {
-        ...parseFolderFile(unvalidatedFile),
+        ...parseBaseFolder(unvalidatedFile),
         type,
       }
       break
     case 'shortcut':
       file = {
-        ...parseShortcutFile(unvalidatedFile),
+        ...parseBaseShortcut(unvalidatedFile),
         type,
       }
       break
     default:
       file = {
-        ...parseNormalFile(unvalidatedFile),
+        ...parseBaseNormal(unvalidatedFile),
         type,
       }
       break
@@ -86,7 +96,7 @@ export const parseGenericFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): B
   return file
 }
 
-export const parseNormalFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseNormalFile => {
+export const parseBaseNormal = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseNormalFile => {
   const commmonFileAttr = parseCommonFileAttr(unvalidatedFile)
   const { size: sizeStr } = unvalidatedFile
   if (!sizeStr) {
@@ -144,7 +154,7 @@ const parseCommonFileAttr = (unvalidatedFile: UnvalidatedGoogleDriveFile): Commo
   }
 }
 
-const parseFolderFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseFolderFile => {
+const parseBaseFolder = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseFolderFile => {
   const commmonFileAttr = parseCommonFileAttr(unvalidatedFile)
   const parseResult = baseFolderFileSchema.safeParse(commmonFileAttr)
   if (parseResult.error) {
@@ -153,7 +163,7 @@ const parseFolderFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseFolde
   return parseResult.data
 }
 
-const parseShortcutFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseShortcutFile => {
+const parseBaseShortcut = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseShortcutFile => {
   const commmonFileAttr = parseCommonFileAttr(unvalidatedFile)
   const parseResult = baseShortcutFileSchema.safeParse(commmonFileAttr)
   if (parseResult.error) {

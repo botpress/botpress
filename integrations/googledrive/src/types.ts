@@ -20,6 +20,9 @@ import {
   fileChannelSchema,
   notificationSchema,
   fileTypesUnionSchema,
+  baseChannelSchema,
+  genericFileSchema,
+  shortcutSchema,
 } from './schemas'
 
 type Overwrite<T, NewT> = Omit<T, keyof NewT> & NewT
@@ -33,12 +36,15 @@ export type BaseGenericFile = z.infer<typeof baseGenericFileSchema>
 export type BaseNormalFile = z.infer<typeof baseNormalFileSchema>
 export type BaseFolderFile = z.infer<typeof baseFolderFileSchema>
 export type BaseShortcutFile = z.infer<typeof baseShortcutFileSchema>
-export type NonDiscriminatedGenericFile = BaseNormalFile | BaseFolderFile | BaseShortcutFile
+export type NonDiscriminatedBaseGenericFile = BaseNormalFile | BaseFolderFile | BaseShortcutFile
+export type BaseFileChannel = z.infer<typeof baseChannelSchema>
 export type FileType = z.infer<typeof fileTypesUnionSchema>
 export type Notification = z.infer<typeof notificationSchema>
 
 export type File = z.infer<typeof fileSchema>
 export type Folder = z.infer<typeof folderSchema>
+export type Shortcut = z.infer<typeof shortcutSchema>
+export type GenericFile = z.infer<typeof genericFileSchema>
 export type FileChannel = z.infer<typeof fileChannelSchema>
 
 export type ListItemsInput = z.infer<typeof listItemsInputSchema>

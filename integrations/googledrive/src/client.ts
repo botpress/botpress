@@ -2,6 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { Readable, Stream } from 'stream'
 import { v4 as uuidv4 } from 'uuid'
 import { getAuthenticatedGoogleClient } from './auth'
+import { wrapWithTryCatchNotFound, wrapWithTryCatchRateLimit } from './error-handling'
 import { serializeToken } from './file-notification-token'
 import { FilesCache } from './files-cache'
 import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE, INDEXABLE_MIMETYPES } from './mime-types'
@@ -18,18 +19,19 @@ import {
   UpdateFileArgs,
   ListItemsInput,
   ListItemsOutput,
-  NonDiscriminatedGenericFile,
+  NonDiscriminatedBaseGenericFile,
   FileChannel,
+  GenericFile,
 } from './types'
 import { listItemsAndProcess, ListFunction, streamToBuffer, ListItemsInputWithArgs, listAllItems } from './utils'
 import {
-  convertFolderFileToGeneric,
-  convertNormalFileToGeneric,
+  convertBaseFolderToBaseGeneric,
+  convertBaseNormalToBaseGeneric,
   getFileTypeFromMimeType,
   parseChannel,
-  parseGenericFile,
-  parseGenericFiles,
-  parseNormalFile,
+  parseBaseGeneric,
+  parseBaseGenerics,
+  parseBaseNormal,
 } from './validation'
 import * as bp from '.botpress'
 
@@ -46,6 +48,10 @@ type DownloadFileDataClientOutput = {
       data: Readable
     }
 )
+type TryWatchAllOutput = {
+  fileChannels: FileChannel[]
+  hasError: boolean
+}
 
 const MAX_RESOURCE_WATCH_EXPIRATION_DELAY_MS = 86400 * 1000 // 24 hours
 const MAX_EXPORT_FILE_SIZE_BYTES = 10000000 // 10MB, as per the Google Drive API doc
@@ -54,7 +60,6 @@ const PAGE_SIZE = 10
 const GOOGLE_API_EXPORTFORMATS_FIELDS = 'exportFormats'
 const GOOGLE_API_FILE_FIELDS = 'id, name, mimeType, parents, size'
 const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageToken`
-
 export class Client {
   private constructor(
     private _ctx: bp.Context,
@@ -104,6 +109,7 @@ export class Client {
         searchQuery: `mimeType != '${APP_GOOGLE_FOLDER_MIMETYPE}' and mimeType != '${APP_GOOGLE_SHORTCUT_MIMETYPE}'`,
       },
     })
+
     const items = newFiles.filter((f) => f.type === 'normal')
     return {
       items,
@@ -148,10 +154,11 @@ export class Client {
     }
   }
 
-  public async getChildren(folderId: string): Promise<BaseGenericFile[]> {
-    return await listAllItems(this._listBaseGenericFiles.bind(this), {
+  public async getChildren(folderId: string): Promise<GenericFile[]> {
+    const files = await listAllItems(this._listBaseGenericFiles.bind(this), {
       searchQuery: `'${folderId}' in parents`,
     })
+    return await Promise.all(files.map((f) => this._getCompleteFile(f)))
   }
 
   public async createFile({ name, parentId, mimeType }: CreateFileArgs): Promise<File> {
@@ -163,9 +170,14 @@ export class Client {
         mimeType,
       },
     })
-    const file = parseNormalFile(response.data)
-    this._filesCache.set(convertNormalFileToGeneric(file))
+    const file = parseBaseNormal(response.data)
+    this._filesCache.set(convertBaseNormalToBaseGeneric(file))
     return await this._getCompleteFileFromBaseFile(file)
+  }
+
+  public async readGenericFile(id: string): Promise<GenericFile> {
+    const file = await this._fetchFile(id)
+    return await this._getCompleteFile(file)
   }
 
   public async readFile(id: string): Promise<File> {
@@ -186,8 +198,8 @@ export class Client {
         name,
       },
     })
-    const file = parseNormalFile(response.data)
-    this._filesCache.set(convertNormalFileToGeneric(file))
+    const file = parseBaseNormal(response.data)
+    this._filesCache.set(convertBaseNormalToBaseGeneric(file))
     return await this._getCompleteFileFromBaseFile(file)
   }
 
@@ -236,45 +248,79 @@ export class Client {
     return output
   }
 
-  private async _watchAllListableGenericFiles<T extends NonDiscriminatedGenericFile>(listFn: ListFunction<T>) {
-    const channels: FileChannel[] = []
+  private async _tryWatchAllListableGenericFiles<T extends NonDiscriminatedBaseGenericFile>(
+    listFn: ListFunction<T>
+  ): Promise<TryWatchAllOutput> {
+    const fileChannels: FileChannel[] = []
+    let hasError = false
     await listItemsAndProcess(listFn, async (item) => {
-      const absoluteExpirationTimeMs: number = Date.now() + MAX_RESOURCE_WATCH_EXPIRATION_DELAY_MS
-      const { id: fileId, mimeType } = item
-      const token = serializeToken(
-        {
-          fileId,
-          fileType: getFileTypeFromMimeType(mimeType),
-        },
-        'placeholder_secret' // TODO: Add secret to sign the token
-      )
-      const response = await this._googleClient.files.watch({
-        fileId: item.id,
-        requestBody: {
-          id: uuidv4(),
-          type: 'web_hook',
-          address: `${process.env.BP_WEBHOOK_URL}/${this._ctx.webhookId}`,
-          token,
-          expiration: absoluteExpirationTimeMs.toString(),
-        },
-      })
-      const channel = parseChannel(response.data)
-      this._logger.forBot().debug(`Watching file '${item.name}' (${item.id}): channel ID = ${channel.id}`)
-      channels.push(channel)
+      const channel = await wrapWithTryCatchRateLimit(() => this._watch(item), this._logger)
+      if (channel) {
+        fileChannels.push(channel)
+      } else {
+        hasError = true
+      }
     })
-    return channels
+    return {
+      fileChannels,
+      hasError,
+    }
   }
 
-  public async watchAll(): Promise<FileChannel[]> {
-    return [...(await this.watchAllFiles()), ...(await this.watchAllFolders())]
+  public async watch(id: string): Promise<FileChannel> {
+    const file = await this._fetchFile(id)
+    return await this._watch(file)
   }
 
-  public async watchAllFiles(): Promise<FileChannel[]> {
-    return await this._watchAllListableGenericFiles(this._listBaseNormalFiles.bind(this))
+  /**
+   * @returns Channel if successful, undefined if the subscription rate limit is exceeded
+   */
+  public async tryWatch(id: string): Promise<FileChannel | undefined> {
+    return await wrapWithTryCatchRateLimit(() => this.watch(id), this._logger)
   }
 
-  public async watchAllFolders(): Promise<FileChannel[]> {
-    return await this._watchAllListableGenericFiles(this._listBaseFolderFiles.bind(this))
+  private async _watch(file: NonDiscriminatedBaseGenericFile): Promise<FileChannel> {
+    const absoluteExpirationTimeMs: number = Date.now() + MAX_RESOURCE_WATCH_EXPIRATION_DELAY_MS
+    const { id: fileId, mimeType } = file
+    const token = serializeToken(
+      {
+        fileId,
+        fileType: getFileTypeFromMimeType(mimeType),
+      },
+      'placeholder_secret' // TODO: Add secret to sign the token
+    )
+    const response = await this._googleClient.files.watch({
+      fileId,
+      requestBody: {
+        id: uuidv4(),
+        type: 'web_hook',
+        address: `${process.env.BP_WEBHOOK_URL}/${this._ctx.webhookId}`,
+        token,
+        expiration: absoluteExpirationTimeMs.toString(),
+      },
+    })
+    const baseChannel = parseChannel(response.data)
+    this._logger.forBot().debug(`Watching file '${file.name}' (${file.id}): channel ID = ${baseChannel.id}`)
+    return {
+      ...baseChannel,
+      fileId,
+    }
+  }
+
+  public async tryWatchAllFiles(): Promise<TryWatchAllOutput> {
+    return await this._tryWatchAllListableGenericFiles(this._listBaseNormalFiles.bind(this))
+  }
+
+  public async tryWatchAllFolders(): Promise<TryWatchAllOutput> {
+    return await this._tryWatchAllListableGenericFiles(this._listBaseFolderFiles.bind(this))
+  }
+
+  public async tryWatchAll(): Promise<TryWatchAllOutput> {
+    const [normalFilesResult, foldersResult] = await Promise.all([this.tryWatchAllFiles(), this.tryWatchAllFolders()])
+    return {
+      fileChannels: [...normalFilesResult.fileChannels, ...foldersResult.fileChannels],
+      hasError: normalFilesResult.hasError || foldersResult.hasError,
+    }
   }
 
   public async unwatch(channels: FileChannel | FileChannel[]) {
@@ -282,10 +328,21 @@ export class Client {
       channels = [channels]
     }
     const unwatchPromises = channels.map((channel) => {
-      this._logger.forBot().debug(`Unwatching file with channel ID = ${channel.id}`)
-      return this._googleClient.channels.stop({ requestBody: channel })
+      const fileName = this._filesCache.find(channel.fileId)?.name ?? '[unknown]'
+      this._logger.forBot().debug(`Unwatching file ${fileName} (${channel.fileId}) with channel ID = ${channel.id}`)
+      const { id, resourceId } = channel
+      return this._googleClient.channels.stop({
+        requestBody: {
+          id,
+          resourceId,
+        },
+      })
     })
     await Promise.all(unwatchPromises)
+  }
+
+  public async tryUnwatch(channels: FileChannel | FileChannel[]) {
+    await wrapWithTryCatchNotFound(() => this.unwatch(channels), this._logger)
   }
 
   /**
@@ -299,7 +356,7 @@ export class Client {
       name,
       parentId,
       size,
-      path: await this._getFilePath(convertNormalFileToGeneric(file)),
+      path: await this._getFilePath(convertBaseNormalToBaseGeneric(file)),
     }
   }
 
@@ -313,7 +370,14 @@ export class Client {
       mimeType,
       name,
       parentId,
-      path: await this._getFilePath(convertFolderFileToGeneric(file)),
+      path: await this._getFilePath(convertBaseFolderToBaseGeneric(file)),
+    }
+  }
+
+  private async _getCompleteFile(file: BaseGenericFile): Promise<GenericFile> {
+    return {
+      ...file,
+      path: await this._getFilePath(file),
     }
   }
 
@@ -335,7 +399,7 @@ export class Client {
     if (!unvalidatedDriveFiles) {
       throw new RuntimeError('No files were returned by the API')
     }
-    const newFiles = parseGenericFiles(unvalidatedDriveFiles)
+    const newFiles = parseBaseGenerics(unvalidatedDriveFiles)
     for (const newFile of newFiles) {
       this._filesCache.set(newFile)
     }
@@ -361,7 +425,7 @@ export class Client {
       fileId: id,
       fields: GOOGLE_API_FILE_FIELDS,
     })
-    const file = parseGenericFile(response.data)
+    const file = parseBaseGeneric(response.data)
     this._filesCache.set(file)
     return file
   }
