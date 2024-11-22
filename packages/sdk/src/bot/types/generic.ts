@@ -15,7 +15,8 @@ export type BaseBot = {
   actions: Record<string, BaseAction>
 }
 
-export type DefaultBot<B extends utils.DeepPartial<BaseBot>> = {
+export type InputBaseBot = utils.DeepPartial<BaseBot>
+export type DefaultBot<B extends InputBaseBot> = {
   events: utils.Default<B['events'], BaseBot['events']>
   states: utils.Default<B['states'], BaseBot['states']>
   actions: utils.Default<B['actions'], BaseBot['actions']>

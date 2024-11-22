@@ -22,3 +22,9 @@ export type InterfaceInstallablePackage =
       source: 'local'
       path: utils.path.AbsolutePath
     }
+
+export type PluginInstallablePackage = {
+  source: 'local'
+  path: utils.path.AbsolutePath
+  implementationCode: string
+}

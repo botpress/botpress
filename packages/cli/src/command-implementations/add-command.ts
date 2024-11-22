@@ -21,6 +21,11 @@ type InstallablePackage =
       name: string
       pkg: codegen.InterfaceInstallablePackage
     }
+  | {
+      type: 'plugin'
+      name: string
+      pkg: codegen.PluginInstallablePackage
+    }
 
 export type AddCommandDefinition = typeof commandDefinitions.add
 export class AddCommand extends GlobalCommand<AddCommandDefinition> {
@@ -60,8 +65,13 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     let files: codegen.File[]
     if (targetPackage.type === 'integration') {
       files = await codegen.generateIntegrationPackage(targetPackage.pkg)
-    } else {
+    } else if (targetPackage.type === 'interface') {
       files = await codegen.generateInterfacePackage(targetPackage.pkg)
+    } else if (targetPackage.type === 'plugin') {
+      files = await codegen.generatePluginPackage(targetPackage.pkg)
+    } else {
+      type _assertion = utils.types.AssertNever<typeof targetPackage>
+      throw new errors.BotpressCLIError('Invalid package type')
     }
 
     await this._install(installPath, files)
@@ -86,7 +96,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
   private async _findLocalPackage(ref: pkgRef.LocalPackageRef): Promise<InstallablePackage | undefined> {
     const absPath = utils.path.absoluteFrom(utils.path.cwd(), ref.path)
-    const projectDefinition = await this._readProject(absPath)
+    const { definition: projectDefinition, implementation: projectImplementation } = await this._readProject(absPath)
     if (this._pkgCouldBe('integration') && projectDefinition?.type === 'integration') {
       return {
         type: 'integration',
@@ -94,6 +104,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         pkg: { source: 'local', path: absPath },
       }
     }
+
     if (this._pkgCouldBe('interface') && projectDefinition?.type === 'interface') {
       return {
         type: 'interface',
@@ -101,6 +112,25 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         pkg: { source: 'local', path: absPath },
       }
     }
+
+    if (this._pkgCouldBe('plugin') && projectDefinition?.type === 'plugin') {
+      if (!projectImplementation) {
+        throw new errors.BotpressCLIError(
+          'Plugin implementation not found; Please build the plugin project before installing'
+        )
+      }
+
+      return {
+        type: 'plugin',
+        name: projectDefinition.definition.name,
+        pkg: {
+          source: 'local',
+          path: absPath,
+          implementationCode: projectImplementation,
+        },
+      }
+    }
+
     if (projectDefinition?.type === 'bot') {
       throw new errors.BotpressCLIError('Cannot install a bot as a package')
     }
@@ -127,7 +157,10 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     await fslib.promises.rm(installPath, { recursive: true })
   }
 
-  private async _readProject(workDir: utils.path.AbsolutePath): Promise<ProjectDefinition | undefined> {
+  private async _readProject(workDir: utils.path.AbsolutePath): Promise<{
+    definition?: ProjectDefinition
+    implementation?: string
+  }> {
     // this is a hack to avoid refactoring the project command class
     class AnyProjectCommand extends ProjectCommand<ProjectCommandDefinition> {
       public async run(): Promise<void> {
@@ -144,12 +177,20 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       workDir,
     })
 
-    return cmd.readProjectDefinitionFromFS().catch((thrown) => {
+    const definition = await cmd.readProjectDefinitionFromFS().catch((thrown) => {
       if (thrown instanceof errors.ProjectDefinitionNotFoundError) {
         return undefined
       }
       throw thrown
     })
+
+    const implementationAbsPath = utils.path.join(workDir, consts.fromWorkDir.outFile)
+    if (!fslib.existsSync(implementationAbsPath)) {
+      return { definition }
+    }
+
+    const implementation = await fslib.promises.readFile(implementationAbsPath, 'utf8')
+    return { definition, implementation }
   }
 
   private _pkgCouldBe = (pkgType: InstallablePackage['type']) => {

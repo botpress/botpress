@@ -70,9 +70,7 @@ export type InterfacePackage = PackageReference & {
 export type PluginPackage = PackageReference & {
   type: 'plugin'
   definition: PluginPackageDefinition
-  implementation?: {
-    code: string
-  }
+  implementation: Buffer
 }
 
 export type Package = IntegrationPackage | InterfacePackage | PluginPackage

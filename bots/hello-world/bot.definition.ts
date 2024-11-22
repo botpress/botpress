@@ -1,5 +1,6 @@
 import * as sdk from '@botpress/sdk'
 import * as env from './.genenv'
+import logger from './bp_modules/logger'
 import telegram from './bp_modules/telegram'
 import webhook from './bp_modules/webhook'
 
@@ -25,5 +26,8 @@ export default new sdk.BotDefinition({
   })
   .add(webhook, {
     enabled: true,
+    configuration: {},
+  })
+  .plug(logger, {
     configuration: {},
   })

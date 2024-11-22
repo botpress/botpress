@@ -1,4 +1,5 @@
 import type { Server } from 'node:http'
+import { BasePlugin, PluginImplementation } from '../plugin'
 import { serve } from '../serve'
 import * as utils from '../utils'
 import {
@@ -14,14 +15,20 @@ import {
   HookHandlers,
   ActionHandlers,
   BotHandlers,
+  UnimplementedActionHandlers,
 } from './server'
 import { BaseBot } from './types'
 
-export type BotImplementationProps<TBot extends BaseBot = BaseBot> = {
-  actions: ActionHandlers<TBot>
+export type BotImplementationProps<TBot extends BaseBot = BaseBot, TPlugins extends Record<string, BasePlugin> = {}> = {
+  actions: UnimplementedActionHandlers<TBot, TPlugins>
+  plugins: {
+    [K in keyof TPlugins]: PluginImplementation<TPlugins[K]>
+  }
 }
 
-export class BotImplementation<TBot extends BaseBot = BaseBot> implements BotHandlers<TBot> {
+export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends Record<string, BasePlugin> = {}>
+  implements BotHandlers<TBot>
+{
   public readonly actionHandlers: ActionHandlers<TBot>
   public readonly messageHandlers: MessageHandlersMap<TBot> = {}
   public readonly eventHandlers: EventHandlersMap<TBot> = {}
@@ -37,8 +44,11 @@ export class BotImplementation<TBot extends BaseBot = BaseBot> implements BotHan
     after_outgoing_call_action: {},
   }
 
-  public constructor(public readonly props: BotImplementationProps<TBot>) {
-    this.actionHandlers = props.actions
+  public constructor(public readonly props: BotImplementationProps<TBot, TPlugins>) {
+    this.actionHandlers = props.actions as ActionHandlers<TBot>
+    for (const plugin of Object.values(props.plugins)) {
+      this._use(plugin)
+    }
   }
 
   public readonly message = <T extends keyof MessageHandlersMap<TBot>>(
@@ -134,26 +144,34 @@ export class BotImplementation<TBot extends BaseBot = BaseBot> implements BotHan
     },
   }
 
-  public readonly use = (botLike: BotHandlers<TBot>): void => {
+  private readonly _use = (botLike: BotHandlers<any>): void => {
+    type AnyActionHandler = utils.types.ValueOf<ActionHandlers<BaseBot>>
     type AnyEventHandler = utils.types.ValueOf<EventHandlers<BaseBot>>
     type AnyMessageHandler = utils.types.ValueOf<MessageHandlers<BaseBot>>
     type AnyStateExpiredHandler = utils.types.ValueOf<StateExpiredHandlers<BaseBot>>
     type AnyHookHandler = utils.types.ValueOf<utils.types.ValueOf<HookHandlers<BaseBot>>>
 
+    type AnyActionHandlers = Record<string, AnyActionHandler>
     type AnyEventHandlers = Record<string, AnyEventHandler[] | undefined>
     type AnyMessageHandlers = Record<string, AnyMessageHandler[] | undefined>
     type AnyStateExpiredHandlers = Record<string, AnyStateExpiredHandler[] | undefined>
     type AnyHookHandlers = Record<string, Record<string, AnyHookHandler[] | undefined>>
 
+    const thisActionHandlers = this.actionHandlers as unknown as AnyActionHandlers // TODO: rm this unknown cast
     const thisEventHandlers = this.eventHandlers as AnyEventHandlers
     const thisMessageHandlers = this.messageHandlers as AnyMessageHandlers
     const thisStateExpiredHandlers = this.stateExpiredHandlers as AnyStateExpiredHandlers
     const thisHookHandlers = this.hookHandlers as AnyHookHandlers
 
+    const thatActionHandlers = botLike.actionHandlers as AnyActionHandlers
     const thatEventHandlers = botLike.eventHandlers as AnyEventHandlers
     const thatMessageHandlers = botLike.messageHandlers as AnyMessageHandlers
     const thatStateExpiredHandlers = botLike.stateExpiredHandlers as AnyStateExpiredHandlers
     const thatHookHandlers = botLike.hookHandlers as AnyHookHandlers
+
+    for (const [type, actionHandler] of Object.entries(thatActionHandlers)) {
+      thisActionHandlers[type] = actionHandler
+    }
 
     for (const [type, handlers] of Object.entries(thatEventHandlers)) {
       if (!handlers) {

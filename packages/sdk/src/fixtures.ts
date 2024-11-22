@@ -70,6 +70,16 @@ export type FooBarBazBot = DefaultBot<{
   integrations: {
     fooBarBaz: _FooBarBazIntegration
   }
+  actions: {
+    act: {
+      input: {
+        arguments: Record<string, unknown>
+      }
+      output: {
+        result: unknown
+      }
+    }
+  }
 }>
 
 export type EmptyBot = DefaultBot<{

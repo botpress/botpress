@@ -13,15 +13,6 @@ const bot = new bp.Bot({
   },
 })
 
-bot.hook.beforeIncomingEvent('*', async (x) => console.info('before_incoming_event', x.data))
-bot.hook.beforeIncomingMessage('*', async (x) => console.info('before_incoming_message', x.data))
-bot.hook.beforeOutgoingMessage('*', async (x) => console.info('before_outgoing_message', x.data))
-bot.hook.beforeOutgoingCallAction('*', async (x) => console.info('before_call_action', x.data))
-bot.hook.afterIncomingEvent('*', async (x) => console.info('after_incoming_event', x.data))
-bot.hook.afterIncomingMessage('*', async (x) => console.info('after_incoming_message', x.data))
-bot.hook.afterOutgoingMessage('*', async (x) => console.info('after_outgoing_message', x.data))
-bot.hook.afterOutgoingCallAction('*', async (x) => console.info('after_call_action', x.data))
-
 bot.message('*', async (props) => {
   const { message, client, ctx, self } = props
 

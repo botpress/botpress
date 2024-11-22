@@ -1,4 +1,5 @@
 import * as client from '@botpress/client'
+import * as plugin from '../../plugin'
 import * as utils from '../../utils/type-utils'
 import { BotSpecificClient } from '../client'
 import * as types from '../types'
@@ -203,4 +204,34 @@ export type BotHandlers<TBot extends types.BaseBot> = {
   eventHandlers: EventHandlersMap<TBot>
   stateExpiredHandlers: StateExpiredHandlersMap<TBot>
   hookHandlers: HookHandlersMap<TBot>
+}
+
+// plugins
+
+type ImplementedActions<
+  _TBot extends types.BaseBot,
+  TPlugins extends Record<string, plugin.BasePlugin>
+> = utils.UnionToIntersection<
+  utils.ValueOf<{
+    [K in keyof TPlugins]: TPlugins[K]['actions']
+  }>
+>
+
+type UnimplementedActions<TBot extends types.BaseBot, TPlugins extends Record<string, plugin.BasePlugin>> = Omit<
+  TBot['actions'],
+  keyof ImplementedActions<TBot, TPlugins>
+>
+
+export type ImplementedActionHandlers<
+  TBot extends types.BaseBot,
+  TPlugins extends Record<string, plugin.BasePlugin>
+> = {
+  [K in keyof ImplementedActions<TBot, TPlugins>]: ActionHandlers<TBot>[utils.Cast<K, keyof ActionHandlers<TBot>>]
+}
+
+export type UnimplementedActionHandlers<
+  TBot extends types.BaseBot,
+  TPlugins extends Record<string, plugin.BasePlugin>
+> = {
+  [K in keyof UnimplementedActions<TBot, TPlugins>]: ActionHandlers<TBot>[utils.Cast<K, keyof ActionHandlers<TBot>>]
 }

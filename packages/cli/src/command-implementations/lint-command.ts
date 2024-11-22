@@ -29,7 +29,7 @@ export class LintCommand extends ProjectCommand<LintCommandDefinition> {
       case 'interface':
         return this._runLintForInterface(projectDef.definition)
       default:
-        throw new errors.BotpressCLIError('Unsupported project type')
+        throw new errors.UnsupportedProjectType()
     }
   }
 

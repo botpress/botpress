@@ -3,6 +3,7 @@ import * as client from '@botpress/client'
 import * as utils from '../../utils/type-utils'
 import * as common from '../types'
 import * as types from './types'
+import * as plugin from '../../plugin'
 import { FooBarBazBot, EmptyBot } from '../../fixtures'
 
 test('MessageRequest with implemented bot should be strict type', () => {
@@ -40,6 +41,39 @@ test('MessageRequest with base bot should be any record', () => {
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
       utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+    ]
+  >
+})
+
+test('Bot should only require to implement actions that are not already implemented by plugins', () => {
+  type DoSomethingPlugin = plugin.DefaultPlugin<{
+    actions: {
+      doSomething: {
+        input: { x: number }
+        output: { y: number }
+      }
+    }
+  }>
+  type MakeSomethingPlugin = plugin.DefaultPlugin<{
+    actions: {
+      makeSomething: {
+        input: { x1: number; x2: number }
+        output: { z: number }
+      }
+    }
+  }>
+  type Plugins = { do: DoSomethingPlugin; make: MakeSomethingPlugin }
+
+  type ActualImplementedActions = types.ImplementedActionHandlers<FooBarBazBot, Plugins>
+  type ActualUnimplementedActions = types.UnimplementedActionHandlers<FooBarBazBot, Plugins>
+
+  type ExpectedImplementedActions = 'doSomething' | 'makeSomething'
+  type ExpectedUnimplementedActions = 'act'
+
+  type _assertion = utils.AssertAll<
+    [
+      utils.AssertTrue<utils.IsEqual<keyof ActualImplementedActions, ExpectedImplementedActions>>,
+      utils.AssertTrue<utils.IsEqual<keyof ActualUnimplementedActions, ExpectedUnimplementedActions>>
     ]
   >
 })

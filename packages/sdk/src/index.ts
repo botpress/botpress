@@ -64,6 +64,7 @@ export {
 
 export {
   //
+  DefaultPlugin,
   PluginDefinition,
   PluginImplementation as Plugin,
 } from './plugin'

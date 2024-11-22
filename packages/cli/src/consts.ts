@@ -37,6 +37,7 @@ export const fromOutDir = {
   distDir: distDirName,
   outFile: pathlib.join(distDirName, 'index.js'),
   implementationDir: 'implementation',
+  pluginsDir: 'plugins',
   secretsDir: 'secrets',
   projectCacheFile: 'project.cache.json',
 }
@@ -45,11 +46,13 @@ export const fromWorkDir = {
   integrationDefinition: 'integration.definition.ts',
   interfaceDefinition: 'interface.definition.ts',
   botDefinition: 'bot.definition.ts',
+  pluginDefinition: 'plugin.definition.ts',
   entryPoint: pathlib.join('src', 'index.ts'),
   outDir: outDirName,
   distDir: pathlib.join(outDirName, fromOutDir.distDir),
   outFile: pathlib.join(outDirName, fromOutDir.outFile),
   implementationDir: pathlib.join(outDirName, fromOutDir.implementationDir),
+  pluginsDir: pathlib.join(outDirName, fromOutDir.pluginsDir),
   secretsDir: pathlib.join(outDirName, fromOutDir.secretsDir),
   projectCacheFile: pathlib.join(outDirName, fromOutDir.projectCacheFile),
 }
