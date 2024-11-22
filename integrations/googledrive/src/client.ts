@@ -19,7 +19,7 @@ import {
   UpdateFileArgs,
   ListItemsInput,
   ListItemsOutput,
-  NonDiscriminatedBaseGenericFile,
+  BaseGenericFileUnion,
   FileChannel,
   GenericFile,
 } from './types'
@@ -248,7 +248,7 @@ export class Client {
     return output
   }
 
-  private async _tryWatchAllListableGenericFiles<T extends NonDiscriminatedBaseGenericFile>(
+  private async _tryWatchAllListableGenericFiles<T extends BaseGenericFileUnion>(
     listFn: ListFunction<T>
   ): Promise<TryWatchAllOutput> {
     const fileChannels: FileChannel[] = []
@@ -279,7 +279,7 @@ export class Client {
     return await wrapWithTryCatchRateLimit(() => this.watch(id), this._logger)
   }
 
-  private async _watch(file: NonDiscriminatedBaseGenericFile): Promise<FileChannel> {
+  private async _watch(file: BaseGenericFileUnion): Promise<FileChannel> {
     const absoluteExpirationTimeMs: number = Date.now() + MAX_RESOURCE_WATCH_EXPIRATION_DELAY_MS
     const { id: fileId, mimeType } = file
     const token = serializeToken(
@@ -316,10 +316,10 @@ export class Client {
   }
 
   public async tryWatchAll(): Promise<TryWatchAllOutput> {
-    const [normalFilesResult, foldersResult] = await Promise.all([this.tryWatchAllFiles(), this.tryWatchAllFolders()])
+    const [filesResult, foldersResult] = await Promise.all([this.tryWatchAllFiles(), this.tryWatchAllFolders()])
     return {
-      fileChannels: [...normalFilesResult.fileChannels, ...foldersResult.fileChannels],
-      hasError: normalFilesResult.hasError || foldersResult.hasError,
+      fileChannels: [...filesResult.fileChannels, ...foldersResult.fileChannels],
+      hasError: filesResult.hasError || foldersResult.hasError,
     }
   }
 
