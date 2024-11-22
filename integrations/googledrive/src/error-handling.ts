@@ -61,7 +61,7 @@ export const wrapWithTryCatchRateLimit = <T>(fn: () => Promise<T>, logger?: bp.L
       throw e
     }
     if (logger) {
-      logger.forBot().error('Subscription rate limit exceeded. Retry operation later.')
+      logger.forBot().warn('Subscription rate limit exceeded. Retry operation later.')
     }
   })
 }
