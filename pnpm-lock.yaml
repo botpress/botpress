@@ -2036,6 +2036,31 @@ importers:
         specifier: ^7.53.1
         version: 7.53.1
 
+  plugins/analytics:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@bpinternal/genenv':
+        specifier: 0.0.1
+        version: 0.0.1
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.19.50
+      execa:
+        specifier: ^8.0.1
+        version: 8.0.1
+
   plugins/logger:
     dependencies:
       '@botpress/client':

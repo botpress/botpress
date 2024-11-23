@@ -571,6 +571,11 @@
       "outputs": [".botpress/**"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
+    "@botpresshub/analytics#build": {
+      "inputs": ["plugin.definition.ts", "src/**"],
+      "outputs": [".botpress/**"],
+      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+    },
     "@bp-bots/bugbuster#add:integrations": {
       "cache": false,
       "dependsOn": [

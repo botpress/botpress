@@ -52,6 +52,8 @@ export class BotSpecificClient<TBot extends common.BaseBot> implements types.Cli
   public updateFileMetadata: types.UpdateFileMetadata<TBot> = ((x) =>
     this._run('updateFileMetadata', x)) as types.UpdateFileMetadata<TBot>
   public searchFiles: types.SearchFiles<TBot> = ((x) => this._run('searchFiles', x)) as types.SearchFiles<TBot>
+  public trackAnalytics: types.TrackAnalytics<TBot> = ((x) =>
+    this._run('trackAnalytics', x)) as types.TrackAnalytics<TBot>
 
   /**
    * @deprecated Use `callAction` to delegate the conversation creation to an integration.

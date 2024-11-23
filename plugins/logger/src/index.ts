@@ -1,12 +1,7 @@
 import * as bp from '.botpress'
 
 const plugin = new bp.Plugin({
-  actions: {
-    log: async ({ input }) => {
-      console.info('###', input.message, '###')
-      return {}
-    },
-  },
+  actions: {},
 })
 
 plugin.hook.beforeIncomingEvent('*', async (x) => console.info('before_incoming_event', x.data))

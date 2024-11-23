@@ -1,0 +1,20 @@
+{
+  "name": "@botpresshub/analytics",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "build": "bp build",
+    "add:integrations": "ts-node -T ./integrations.ts"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@bpinternal/genenv": "0.0.1",
+    "@types/node": "^18.11.17",
+    "execa": "^8.0.1",
+    "@botpress/common": "workspace:*"
+  }
+}
