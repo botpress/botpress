@@ -566,15 +566,28 @@
         "@botpress/cli#build"
       ]
     },
+    "@botpresshub/logger#add:integrations": {},
     "@botpresshub/logger#build": {
       "inputs": ["plugin.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
+    "@botpresshub/analytics#add:integrations": {},
     "@botpresshub/analytics#build": {
       "inputs": ["plugin.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+    },
+    "@botpresshub/personality#add:integrations": {},
+    "@botpresshub/personality#build": {
+      "inputs": ["plugin.definition.ts", "src/**"],
+      "outputs": [".botpress/**"],
+      "dependsOn": [
+        "@botpress/client#build",
+        "@botpress/sdk#build",
+        "@botpress/cli#build",
+        "@botpresshub/personality#add:integrations"
+      ]
     },
     "@bp-bots/bugbuster#add:integrations": {
       "cache": false,

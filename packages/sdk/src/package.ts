@@ -11,9 +11,12 @@ type PackageReference =
       uri?: string // package installed locally or from npm
     }
 
-type IntegrationPackageDefinition = {
+type PackageDefinitionReference = {
   name: string
   version: string
+}
+
+type IntegrationPackageDefinition = PackageDefinitionReference & {
   configuration?: integration.ConfigurationDefinition
   configurations?: Record<string, integration.AdditionalConfigurationDefinition>
   events?: Record<string, integration.EventDefinition>
@@ -23,12 +26,10 @@ type IntegrationPackageDefinition = {
   user?: integration.UserDefinition
   secrets?: Record<string, integration.SecretDefinition>
   entities?: Record<string, integration.EntityDefinition>
-  interfaces?: Record<string, integration.InterfaceInstance>
+  interfaces?: Record<string, { definition: PackageDefinitionReference }>
 }
 
-type InterfacePackageDefinition = {
-  name: string
-  version: string
+type InterfacePackageDefinition = PackageDefinitionReference & {
   templateName?: string
   entities?: Record<string, integration.EntityDefinition>
   events?: Record<string, integration.EventDefinition>
@@ -36,15 +37,9 @@ type InterfacePackageDefinition = {
   channels?: Record<string, integration.ChannelDefinition>
 }
 
-type PluginPackageDefinition = {
-  name: string
-  version: string
-  integrations?: Record<
-    string,
-    {
-      definition: { name: string; version: string }
-    }
-  >
+type PluginPackageDefinition = PackageDefinitionReference & {
+  integrations?: Record<string, { definition: PackageDefinitionReference }>
+  interfaces?: Record<string, { definition: PackageDefinitionReference }>
   user?: plugin.UserDefinition
   conversation?: plugin.ConversationDefinition
   message?: plugin.MessageDefinition

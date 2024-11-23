@@ -9,8 +9,9 @@ import {
   ActionDefinition,
   IntegrationConfigInstance,
   IntegrationInstance,
+  InterfaceInstance,
 } from '../bot/definition'
-import { IntegrationPackage } from '../package'
+import { IntegrationPackage, InterfacePackage } from '../package'
 import { Writable } from '../utils/type-utils'
 import { AnyZodObject } from '../zui'
 
@@ -41,6 +42,9 @@ export type PluginDefinitionProps<
   integrations?: {
     [K: string]: IntegrationInstance
   }
+  interfaces?: {
+    [K: string]: InterfaceInstance
+  }
   user?: UserDefinition
   conversation?: ConversationDefinition
   message?: MessageDefinition
@@ -66,6 +70,8 @@ export class PluginDefinition<
   public readonly version: this['props']['version']
 
   public readonly integrations: this['props']['integrations']
+  public readonly interfaces: this['props']['interfaces']
+
   public readonly user: this['props']['user']
   public readonly conversation: this['props']['conversation']
   public readonly message: this['props']['message']
@@ -78,6 +84,7 @@ export class PluginDefinition<
     this.name = props.name
     this.version = props.version
     this.integrations = props.integrations
+    this.interfaces = props.interfaces
     this.user = props.user
     this.conversation = props.conversation
     this.message = props.message
@@ -88,7 +95,7 @@ export class PluginDefinition<
     this.actions = props.actions
   }
 
-  public add<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this {
+  public addIntegration<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this {
     const self = this as Writable<PluginDefinition>
     if (!self.integrations) {
       self.integrations = {}
@@ -100,6 +107,16 @@ export class PluginDefinition<
       configurationType: config.configurationType as string,
       configuration: config.configuration,
     }
+    return this
+  }
+
+  public addInterface<I extends InterfacePackage>(interfacePkg: I): this {
+    const self = this as Writable<PluginDefinition>
+    if (!self.interfaces) {
+      self.interfaces = {}
+    }
+
+    self.interfaces[interfacePkg.definition.name] = interfacePkg
     return this
   }
 }

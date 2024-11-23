@@ -1,6 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import * as consts from '../../consts'
 import { IntegrationTypingsModule } from '../../integration-implementation/integration-typings'
+import { InterfaceTypingsModule } from '../../interface-implementation'
 import { Module, ReExportTypeModule } from '../../module'
 import { ActionsModule } from './actions-module'
 import { EventsModule } from './events-module'
@@ -20,8 +21,23 @@ class PluginIntegrationsModule extends ReExportTypeModule {
   }
 }
 
+class PluginInterfacesModule extends ReExportTypeModule {
+  public constructor(plugin: sdk.PluginDefinition | sdk.PluginPackage['definition']) {
+    super({
+      exportName: 'Interfaces',
+    })
+
+    for (const [alias, intrface] of Object.entries(plugin.interfaces ?? {})) {
+      const interfaceModule = new InterfaceTypingsModule(intrface.definition)
+      interfaceModule.unshift(alias)
+      this.pushDep(interfaceModule)
+    }
+  }
+}
+
 type PluginTypingsIndexDependencies = {
   integrationsModule: PluginIntegrationsModule
+  interfacesModule: PluginInterfacesModule
   eventsModule: EventsModule
   statesModule: StatesModule
   actionsModule: ActionsModule
@@ -40,6 +56,10 @@ export class PluginTypingsModule extends Module {
     integrationsModule.unshift('integrations')
     this.pushDep(integrationsModule)
 
+    const interfacesModule = new PluginInterfacesModule(plugin)
+    interfacesModule.unshift('interfaces')
+    this.pushDep(interfacesModule)
+
     const eventsModule = new EventsModule(plugin.events ?? {})
     eventsModule.unshift('events')
     this.pushDep(eventsModule)
@@ -54,6 +74,7 @@ export class PluginTypingsModule extends Module {
 
     this._dependencies = {
       integrationsModule,
+      interfacesModule,
       eventsModule,
       statesModule,
       actionsModule,
@@ -61,9 +82,10 @@ export class PluginTypingsModule extends Module {
   }
 
   public async getContent() {
-    const { integrationsModule, eventsModule, statesModule, actionsModule } = this._dependencies
+    const { integrationsModule, interfacesModule, eventsModule, statesModule, actionsModule } = this._dependencies
 
     const integrationsImport = integrationsModule.import(this)
+    const interfacesImport = interfacesModule.import(this)
     const eventsImport = eventsModule.import(this)
     const statesImport = statesModule.import(this)
     const actionsImport = actionsModule
@@ -71,17 +93,20 @@ export class PluginTypingsModule extends Module {
     return [
       consts.GENERATED_HEADER,
       `import * as ${integrationsModule.name} from './${integrationsImport}'`,
+      `import * as ${interfacesModule.name} from './${interfacesImport}'`,
       `import * as ${eventsModule.name} from './${eventsModule.name}'`,
       `import * as ${statesModule.name} from './${statesModule.name}'`,
       `import * as ${actionsModule.name} from './${actionsImport.name}'`,
       '',
       `export * as ${integrationsModule.name} from './${integrationsImport}'`,
+      `export * as ${interfacesModule.name} from './${interfacesImport}'`,
       `export * as ${eventsModule.name} from './${eventsImport}'`,
       `export * as ${statesModule.name} from './${statesImport}'`,
       `export * as ${actionsModule.name} from './${actionsImport.name}'`,
       '',
       'export type TPlugin = {',
       `  integrations: ${integrationsModule.name}.${integrationsModule.exportName}`,
+      `  interfaces: ${interfacesModule.name}.${interfacesModule.exportName}`,
       `  events: ${eventsModule.name}.${eventsModule.exportName}`,
       `  states: ${statesModule.name}.${statesModule.exportName}`,
       `  actions: ${actionsModule.name}.${actionsModule.exportName}`,

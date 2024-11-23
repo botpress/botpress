@@ -101,9 +101,13 @@ export type OutgoingCallActionResponses<TBot extends types.BaseBot> = _OutgoingC
   '*': AnyOutgoingCallActionResponse<TBot>
 }
 
+export type BotClient<TBot extends types.BaseBot> = TBot['unknownDefinitions'] extends true
+  ? BotSpecificClient<types.BaseBot>
+  : BotSpecificClient<TBot>
+
 export type CommonHandlerProps<TBot extends types.BaseBot> = {
   ctx: BotContext
-  client: BotSpecificClient<TBot>
+  client: BotClient<TBot>
   self: BotHandlers<TBot>
 }
 
@@ -171,7 +175,7 @@ export type HookDefinitions<TBot extends types.BaseBot> = {
 export type HookInputs<TBot extends types.BaseBot> = {
   [H in keyof HookDefinitions<TBot>]: {
     [T in keyof HookDefinitions<TBot>[H]]: {
-      client: BotSpecificClient<TBot>
+      client: BotClient<TBot>
       ctx: BotContext
       data: HookDefinitions<TBot>[H][T]
     }

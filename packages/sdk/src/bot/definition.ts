@@ -1,4 +1,4 @@
-import { IntegrationPackage, PluginPackage } from '../package'
+import { IntegrationPackage, InterfacePackage, PluginPackage } from '../package'
 import { SchemaDefinition } from '../schema'
 import { ValueOf, Writable } from '../utils/type-utils'
 import z, { AnyZodObject } from '../zui'
@@ -67,10 +67,15 @@ export type IntegrationConfigInstance<I extends IntegrationPackage = Integration
 
 export type PluginConfigInstance<P extends PluginPackage = PluginPackage> = {
   configuration: z.infer<NonNullable<P['definition']['configuration']>['schema']>
+  interfaces: {
+    // TODO: this configuration should be strongly typed so that only the integrations that implement the interface are allowed
+    [I in keyof NonNullable<P['definition']['interfaces']>]: { name: string; version: string }
+  }
 }
 
 export type IntegrationInstance = IntegrationPackage & IntegrationConfigInstance
 export type PluginInstance = PluginPackage & PluginConfigInstance
+export type InterfaceInstance = InterfacePackage
 
 export type BotDefinitionProps<
   TStates extends BaseStates = BaseStates,
@@ -149,8 +154,9 @@ export class BotDefinition<
     }
 
     self.plugins[pluginPkg.definition.name] = {
-      configuration: config.configuration,
       ...pluginPkg,
+      configuration: config.configuration,
+      interfaces: config.interfaces,
     }
 
     self.user = this._mergeUser(self.user, pluginPkg.definition.user)
