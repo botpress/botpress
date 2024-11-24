@@ -2,7 +2,7 @@ import * as sdk from '@botpress/sdk'
 import _ from 'lodash'
 import * as utils from '../utils'
 
-type InterfaceInstance = NonNullable<sdk.IntegrationDefinition['interfaces']>[number]
+type InterfaceExtensionInstance = NonNullable<sdk.IntegrationDefinition['interfaces']>[string]
 type ResolvedInterface = {
   actions: Record<string, sdk.ActionDefinition>
   events: Record<string, sdk.EventDefinition>
@@ -18,10 +18,8 @@ type InterfaceImplStatement = {
   channels: Record<string, { name: string }>
 }
 
-export const resolveInterfaces = <I extends sdk.IntegrationDefinition | sdk.IntegrationPackage['definition']>(
-  integration: I
-): I => {
-  const self = integration as utils.types.Writable<I>
+export const resolveInterfaces = (integration: sdk.IntegrationDefinition): sdk.IntegrationDefinition => {
+  const self = integration as utils.types.Writable<sdk.IntegrationDefinition>
   if (!self.interfaces) {
     return integration
   }
@@ -97,7 +95,7 @@ const _mergeMessage = (a: sdk.MessageDefinition, b: sdk.MessageDefinition): sdk.
 }
 
 const _resolveInterface = (
-  intrface: InterfaceInstance
+  intrface: InterfaceExtensionInstance
 ): { resolved: ResolvedInterface; statement: InterfaceImplStatement } => {
   const id = 'id' in intrface ? intrface.id : undefined
   const {
@@ -155,7 +153,7 @@ const _resolveInterface = (
   return { resolved, statement }
 }
 
-const _rename = (intrface: InterfaceInstance, name: string) => {
+const _rename = (intrface: InterfaceExtensionInstance, name: string) => {
   if (!intrface.definition.templateName) {
     return name
   }

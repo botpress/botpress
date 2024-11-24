@@ -9,7 +9,7 @@ test('BasePlugin is a BaseBot', () => {
 
 test('DefaulPlugin with empty input should return a valid BasePlugin', () => {
   type Default = DefaultPlugin<{}>
-  type _assertion = utils.AssertExtends<Default, BaseBot>
+  type _assertion = utils.AssertExtends<Default, BasePlugin>
 })
 
 test('DefaulPlugin with missing key should return a valid BasePlugin', () => {
@@ -20,5 +20,5 @@ test('DefaulPlugin with missing key should return a valid BasePlugin', () => {
       }
     }
   }>
-  type _assertion = utils.AssertExtends<Default, BaseBot>
+  type _assertion = utils.AssertExtends<Default, BasePlugin>
 })

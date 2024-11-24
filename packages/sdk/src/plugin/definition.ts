@@ -25,7 +25,7 @@ export {
   MessageDefinition,
   ActionDefinition,
   IntegrationConfigInstance,
-  IntegrationInstance,
+  IntegrationInstance as IntegrationInstance,
 } from '../bot/definition'
 
 type BaseStates = Record<string, AnyZodObject>

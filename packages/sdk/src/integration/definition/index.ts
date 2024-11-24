@@ -17,7 +17,7 @@ import {
 
 export * from './types'
 
-export type InterfaceInstance = InterfacePackage & {
+export type InterfaceExtensionInstance = InterfacePackage & {
   entities: Record<
     string,
     {
@@ -76,7 +76,7 @@ export type IntegrationDefinitionProps<
     [K in keyof TEntities]: EntityDefinition<TEntities[K]>
   }
 
-  interfaces?: Record<string, InterfaceInstance>
+  interfaces?: Record<string, InterfaceExtensionInstance>
 }
 
 type EntitiesOfPackage<TPackage extends InterfacePackage> = {
