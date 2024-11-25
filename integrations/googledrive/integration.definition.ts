@@ -5,12 +5,17 @@ import {
   updateFileArgSchema,
   uploadFileDataArgSchema,
   downloadFileDataArgSchema,
-  listFolderOutputSchema,
-  listFileOutputSchema,
+  listFoldersOutputSchema,
+  listFilesOutputSchema,
   readFileArgSchema,
   listItemsInputSchema,
   deleteFileArgSchema,
   downloadFileDataOutputSchema,
+  fileDeletedEventSchema,
+  folderSchema,
+  folderDeletedEventSchema,
+  baseDiscriminatedFileSchema,
+  fileChannelSchema,
 } from './src/schemas'
 
 export default new IntegrationDefinition({
@@ -35,7 +40,7 @@ export default new IntegrationDefinition({
         schema: listItemsInputSchema,
       },
       output: {
-        schema: listFileOutputSchema,
+        schema: listFilesOutputSchema,
       },
     },
     listFolders: {
@@ -46,7 +51,7 @@ export default new IntegrationDefinition({
         schema: listItemsInputSchema,
       },
       output: {
-        schema: listFolderOutputSchema,
+        schema: listFoldersOutputSchema,
       },
     },
     createFile: {
@@ -113,6 +118,38 @@ export default new IntegrationDefinition({
         schema: downloadFileDataOutputSchema,
       },
     },
+    syncChannels: {
+      title: 'Sync Channels',
+      description: 'Sync channels for file change subscriptions',
+      input: {
+        schema: z.object({}),
+      },
+      output: {
+        schema: z.object({}),
+      },
+    },
+  },
+  events: {
+    fileCreated: {
+      title: 'File Created',
+      description: 'Triggered when a file is created in Google Drive',
+      schema: fileSchema,
+    },
+    fileDeleted: {
+      title: 'File Deleted',
+      description: 'Triggered when a file is deleted in Google Drive',
+      schema: fileDeletedEventSchema,
+    },
+    folderCreated: {
+      title: 'Folder Created',
+      description: 'Triggered when a folder is created in Google Drive',
+      schema: folderSchema,
+    },
+    folderDeleted: {
+      title: 'Folder Deleted',
+      description: 'Triggered when a folder is deleted in Google Drive',
+      schema: folderDeletedEventSchema,
+    },
   },
   states: {
     configuration: {
@@ -124,10 +161,22 @@ export default new IntegrationDefinition({
           .describe('The refresh token to use to authenticate with Google. It gets exchanged for a bearer token'),
       }),
     },
-    list: {
+    filesCache: {
       type: 'integration',
       schema: z.object({
-        filesMap: z.string().title('Files cache').describe('Serialized map of known files'),
+        filesCache: z
+          .record(z.string(), baseDiscriminatedFileSchema)
+          .title('Files cache')
+          .describe('Map of known files'),
+      }),
+    },
+    filesChannelsCache: {
+      type: 'integration',
+      schema: z.object({
+        filesChannelsCache: z
+          .record(z.string(), fileChannelSchema)
+          .title('Files change subscription channels')
+          .describe('Serialized set of channels for file change subscriptions'),
       }),
     },
   },

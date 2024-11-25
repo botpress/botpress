@@ -1,9 +1,9 @@
 import { RuntimeError, z } from '@botpress/sdk'
-import { baseGenericFileSchema } from './schemas'
-import { BaseFolderFile, BaseGenericFile, BaseNormalFile } from './types'
+import { baseDiscriminatedFileSchema } from './schemas'
+import { BaseFolderFile, BaseDiscriminatedFile, BaseNormalFile } from './types'
 import * as bp from '.botpress'
 
-const filesMapSchema = z.record(z.string(), baseGenericFileSchema)
+const filesMapSchema = z.record(z.string(), baseDiscriminatedFileSchema)
 type FilesMap = z.infer<typeof filesMapSchema>
 
 export class FilesCache {
@@ -12,55 +12,52 @@ export class FilesCache {
     this._map = {}
   }
 
+  public clear() {
+    this._map = {}
+  }
+
   public static async load({ client, ctx }: { client: bp.Client; ctx: bp.Context }): Promise<FilesCache> {
     const getStateResponse = await client.getOrSetState({
       id: ctx.integrationId,
       type: 'integration',
-      name: 'list',
+      name: 'filesCache',
       payload: {
-        filesMap: JSON.stringify({}),
+        filesCache: FilesCache._getEmpty(),
       },
     })
     const cache = new FilesCache(client, ctx)
-    cache._map = this._deserializeMap(getStateResponse.state.payload.filesMap) ?? {}
+    cache._map = getStateResponse.state.payload.filesCache
     return cache
-  }
-
-  private static _deserializeMap(serializedMap: string): FilesMap | undefined {
-    let deserializedObject = undefined
-    try {
-      deserializedObject = JSON.parse(serializedMap)
-    } catch (e) {
-      return undefined
-    }
-
-    const parseResult = filesMapSchema.safeParse(deserializedObject)
-    if (parseResult.error) {
-      return undefined
-    }
-    return parseResult.data
   }
 
   public async save() {
     await this._client.setState({
       id: this._ctx.integrationId,
       type: 'integration',
-      name: 'list',
+      name: 'filesCache',
       payload: {
-        filesMap: JSON.stringify(this._map),
+        filesCache: this._map,
       },
     })
   }
 
-  public find(id: string): BaseGenericFile | undefined {
+  private static _getEmpty(): FilesMap {
+    return {}
+  }
+
+  public find(id: string): BaseDiscriminatedFile | undefined {
     return this._map[id]
   }
 
-  public set(file: BaseGenericFile) {
+  public set(file: BaseDiscriminatedFile) {
     this._map[file.id] = file
   }
 
-  private _getGenericFile(id: string): BaseGenericFile {
+  public remove(id: string) {
+    delete this._map[id]
+  }
+
+  private _getGenericFile(id: string): BaseDiscriminatedFile {
     const file = this._map[id]
     if (!file) {
       throw new RuntimeError(`Couldn't get file from files map with ID=${id}`)
@@ -68,8 +65,13 @@ export class FilesCache {
     return file
   }
 
-  public get(id: string): BaseGenericFile {
+  public get(id: string): BaseDiscriminatedFile {
     return this._getGenericFile(id)
+  }
+
+  public getAll(filterFn?: (file: BaseDiscriminatedFile) => boolean): BaseDiscriminatedFile[] {
+    const allFiles = Object.values(this._map)
+    return filterFn ? allFiles.filter(filterFn) : allFiles
   }
 
   /**

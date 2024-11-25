@@ -1,38 +1,56 @@
 import { z } from '@botpress/sdk'
 import { google, drive_v3 } from 'googleapis'
 import {
-  baseGenericFileSchema,
+  baseDiscriminatedFileSchema,
   baseNormalFileSchema,
   baseFolderFileSchema,
   baseShortcutFileSchema,
   fileSchema,
   folderSchema,
   commonFileAttrSchema,
-  listFileOutputSchema,
-  listFolderOutputSchema,
+  listFilesOutputSchema,
+  listFoldersOutputSchema,
   createFileArgSchema,
   updateFileArgSchema,
   uploadFileDataArgSchema,
   downloadFileDataArgSchema,
   downloadFileDataOutputSchema,
+  listItemsOutputSchema,
+  listItemsInputSchema,
+  fileChannelSchema,
+  notificationSchema,
+  fileTypesUnionSchema,
+  baseChannelSchema,
+  genericFileSchema,
+  shortcutSchema,
 } from './schemas'
+
+type Overwrite<T, NewT> = Omit<T, keyof NewT> & NewT
 
 export type GoogleDriveClient = drive_v3.Drive
 export type UnvalidatedGoogleDriveFile = drive_v3.Schema$File
-export type UnvalidatedGoogleDriveDrive = drive_v3.Schema$Drive
+export type UnvalidatedGoogleDriveChannel = drive_v3.Schema$Channel
 
 export type CommonFileAttr = z.infer<typeof commonFileAttrSchema>
-export type BaseGenericFile = z.infer<typeof baseGenericFileSchema>
+export type BaseDiscriminatedFile = z.infer<typeof baseDiscriminatedFileSchema>
 export type BaseNormalFile = z.infer<typeof baseNormalFileSchema>
 export type BaseFolderFile = z.infer<typeof baseFolderFileSchema>
 export type BaseShortcutFile = z.infer<typeof baseShortcutFileSchema>
-export type NonDiscriminatedGenericFile = BaseNormalFile | BaseFolderFile | BaseShortcutFile
+export type BaseGenericFileUnion = BaseNormalFile | BaseFolderFile | BaseShortcutFile
+export type BaseFileChannel = z.infer<typeof baseChannelSchema>
+export type FileType = z.infer<typeof fileTypesUnionSchema>
+export type Notification = z.infer<typeof notificationSchema>
 
 export type File = z.infer<typeof fileSchema>
 export type Folder = z.infer<typeof folderSchema>
+export type Shortcut = z.infer<typeof shortcutSchema>
+export type GenericFile = z.infer<typeof genericFileSchema>
+export type FileChannel = z.infer<typeof fileChannelSchema>
 
-export type ListFileOutput = z.infer<typeof listFileOutputSchema>
-export type ListFolderOutput = z.infer<typeof listFolderOutputSchema>
+export type ListItemsInput = z.infer<typeof listItemsInputSchema>
+export type ListItemsOutput<T> = Overwrite<z.infer<typeof listItemsOutputSchema>, { items: T[] }>
+export type ListFilesOutput = z.infer<typeof listFilesOutputSchema>
+export type ListFoldersOutput = z.infer<typeof listFoldersOutputSchema>
 export type CreateFileArgs = z.infer<typeof createFileArgSchema>
 export type UpdateFileArgs = z.infer<typeof updateFileArgSchema>
 export type UploadFileDataArgs = z.infer<typeof uploadFileDataArgSchema>

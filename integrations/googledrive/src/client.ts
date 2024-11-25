@@ -1,70 +1,114 @@
 import { RuntimeError } from '@botpress/sdk'
-import axios, { AxiosError } from 'axios'
 import { Readable, Stream } from 'stream'
+import { v4 as uuidv4 } from 'uuid'
 import { getAuthenticatedGoogleClient } from './auth'
+import { handleNotFoundError, handleRateLimitError } from './error-handling'
+import { serializeToken } from './file-notification-token'
 import { FilesCache } from './files-cache'
 import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE, INDEXABLE_MIMETYPES } from './mime-types'
 import {
-  BaseGenericFile,
+  BaseDiscriminatedFile,
   GoogleDriveClient,
   BaseNormalFile,
   File,
   BaseFolderFile,
   Folder,
-  ListFileOutput,
-  ListFolderOutput,
+  ListFilesOutput,
+  ListFoldersOutput,
   CreateFileArgs,
   UpdateFileArgs,
-  UploadFileDataArgs,
-  DownloadFileDataArgs,
-  DownloadFileDataOutput,
+  ListItemsInput,
+  ListItemsOutput,
+  BaseGenericFileUnion,
+  FileChannel,
+  GenericFile,
 } from './types'
-import { streamToBuffer } from './utils'
+import { listItemsAndProcess, ListFunction, streamToBuffer, ListItemsInputWithArgs, listAllItems } from './utils'
 import {
-  convertFolderFileToGeneric,
-  convertNormalFileToGeneric,
-  parseGenericFile,
-  parseGenericFiles,
-  parseNormalFile,
+  getFileTypeFromMimeType,
+  parseChannel,
+  parseBaseGeneric,
+  parseBaseGenerics,
+  parseBaseNormal,
 } from './validation'
 import * as bp from '.botpress'
 
-type FileStreamUploadParams = Parameters<bp.Client['upsertFile']>[0]
-type FileBufferUploadParams = Omit<Parameters<bp.Client['uploadFile']>[0], 'content'>
+type DownloadFileDataClientOutput = {
+  mimeType: string
+  dataSize: number
+} & (
+  | {
+      dataType: 'buffer'
+      data: Buffer
+    }
+  | {
+      dataType: 'stream'
+      data: Readable
+    }
+)
+type TryWatchAllOutput = {
+  fileChannels: FileChannel[]
+  hasError: boolean
+}
 
-const MAX_EXPORT_FILE_SIZE = 10000000 // 10MB, as per the Google Drive API doc
+const MAX_RESOURCE_WATCH_EXPIRATION_DELAY_MS = 86400 * 1000 // 24 hours
+const MAX_EXPORT_FILE_SIZE_BYTES = 10000000 // 10MB, as per the Google Drive API doc
 const MYDRIVE_ID_ALIAS = 'root'
 const PAGE_SIZE = 10
 const GOOGLE_API_EXPORTFORMATS_FIELDS = 'exportFormats'
 const GOOGLE_API_FILE_FIELDS = 'id, name, mimeType, parents, size'
 const GOOGLE_API_FILELIST_FIELDS = `files(${GOOGLE_API_FILE_FIELDS}), nextPageToken`
-
 export class Client {
-  private constructor(private _client: bp.Client, private _ctx: bp.Context, private _googleClient: GoogleDriveClient) {}
+  private constructor(
+    private _ctx: bp.Context,
+    private _googleClient: GoogleDriveClient,
+    private _filesCache: FilesCache,
+    private _logger: bp.Logger
+  ) {}
 
-  public static async create({ client, ctx }: { client: bp.Client; ctx: bp.Context }): Promise<Client> {
+  public static async create({
+    client,
+    ctx,
+    logger,
+  }: {
+    client: bp.Client
+    ctx: bp.Context
+    logger: bp.Logger
+  }): Promise<Client> {
     const googleClient = await getAuthenticatedGoogleClient({
       client,
       ctx,
     })
-    return new Client(client, ctx, googleClient)
+    const filesCache = new FilesCache(client, ctx)
+    return new Client(ctx, googleClient, filesCache, logger)
   }
 
-  public async listFiles(nextToken?: string): Promise<ListFileOutput> {
-    const filesCache = nextToken
-      ? await FilesCache.load({ client: this._client, ctx: this._ctx })
-      : new FilesCache(this._client, this._ctx) // Invalidate cache when starting from scratch
+  public setCache(filesCache: FilesCache) {
+    this._filesCache = filesCache
+  }
 
-    const { newFiles, newNextToken } = await this._fetchFilesAndUpdateCache({
-      filesCache,
+  public async listFiles({ nextToken }: ListItemsInput): Promise<ListFilesOutput> {
+    const { items: baseFiles, meta } = await this._listBaseNormalFiles({ nextToken })
+    const completeFilesPromises = baseFiles.map((f) => this._getCompleteFileFromBaseFile(f))
+    const items = await Promise.all(completeFilesPromises)
+    return {
+      items,
+      meta,
+    }
+  }
+
+  private async _listBaseNormalFiles({ nextToken }: ListItemsInput): Promise<ListItemsOutput<BaseNormalFile>> {
+    const {
+      items: newFiles,
+      meta: { nextToken: newNextToken },
+    } = await this._listBaseGenericFiles({
       nextToken,
-      searchQuery: `mimeType != '${APP_GOOGLE_FOLDER_MIMETYPE}' and mimeType != '${APP_GOOGLE_SHORTCUT_MIMETYPE}'`,
+      args: {
+        searchQuery: `mimeType != '${APP_GOOGLE_FOLDER_MIMETYPE}' and mimeType != '${APP_GOOGLE_SHORTCUT_MIMETYPE}'`,
+      },
     })
-    const itemsPromises = newFiles
-      .filter((f) => f.type === 'normal')
-      .map((f) => this._getCompleteFileFromBaseFile(f, filesCache))
-    const items = await Promise.all(itemsPromises)
-    await filesCache.save()
+
+    const items = newFiles.filter((f) => f.type === 'normal')
     return {
       items,
       meta: {
@@ -73,35 +117,46 @@ export class Client {
     }
   }
 
-  public async listFolders(nextToken?: string): Promise<ListFolderOutput> {
-    const isFirstRequest = nextToken === undefined
-    const filesCache = isFirstRequest
-      ? await FilesCache.load({ client: this._client, ctx: this._ctx })
-      : new FilesCache(this._client, this._ctx) // Invalidate cache when starting from scratch
+  public async listFolders({ nextToken }: ListItemsInput): Promise<ListFoldersOutput> {
+    const { items: baseFolders, meta } = await this._listBaseFolderFiles({ nextToken })
 
-    const { newFiles, newNextToken } = await this._fetchFilesAndUpdateCache({
-      filesCache,
+    const completeFoldersPromises = baseFolders.map((f) => this._getCompleteFolderFromBaseFolder(f))
+    const items = await Promise.all(completeFoldersPromises)
+    return {
+      items,
+      meta,
+    }
+  }
+
+  private async _listBaseFolderFiles({ nextToken }: ListItemsInput): Promise<ListItemsOutput<BaseFolderFile>> {
+    const {
+      items: newFiles,
+      meta: { nextToken: newNextToken },
+    } = await this._listBaseGenericFiles({
       nextToken,
-      searchQuery: `mimeType = '${APP_GOOGLE_FOLDER_MIMETYPE}'`,
+      args: {
+        searchQuery: `mimeType = '${APP_GOOGLE_FOLDER_MIMETYPE}'`,
+      },
     })
-    if (isFirstRequest) {
-      // My Drive is not returned by list operation but needs to be part of list
+    if (nextToken === undefined) {
+      // My Drive is not returned by list operation but needs to be part of list, so we add it to first page
       const myDriveFile = await this._fetchFile(MYDRIVE_ID_ALIAS)
       newFiles.push(myDriveFile)
-      filesCache.set(myDriveFile)
     }
-
-    await filesCache.save()
-    const itemsPromises = newFiles
-      .filter((f) => f.type === 'folder')
-      .map((f) => this._getCompleteFolderFromBaseFolder(f, filesCache))
-    const items = await Promise.all(itemsPromises)
+    const items = newFiles.filter((f) => f.type === 'folder')
     return {
       items,
       meta: {
         nextToken: newNextToken,
       },
     }
+  }
+
+  public async getChildren(folderId: string): Promise<GenericFile[]> {
+    const files = await listAllItems(this._listBaseGenericFiles.bind(this), {
+      searchQuery: `'${folderId}' in parents`,
+    })
+    return await Promise.all(files.map((f) => this._getCompleteFile(f)))
   }
 
   public async createFile({ name, parentId, mimeType }: CreateFileArgs): Promise<File> {
@@ -113,16 +168,21 @@ export class Client {
         mimeType,
       },
     })
-    const file = parseNormalFile(response.data)
+    const file = parseBaseNormal(response.data)
+    this._filesCache.set({ type: 'normal', ...file })
     return await this._getCompleteFileFromBaseFile(file)
   }
 
+  public async readGenericFile(id: string): Promise<GenericFile> {
+    const file = await this._fetchFile(id)
+    return await this._getCompleteFile(file)
+  }
+
   public async readFile(id: string): Promise<File> {
-    const response = await this._googleClient.files.get({
-      fileId: id,
-      fields: GOOGLE_API_FILE_FIELDS,
-    })
-    const file = parseNormalFile(response.data)
+    const file = await this._fetchFile(id)
+    if (file.type !== 'normal') {
+      throw new RuntimeError(`Attempted to read a file of type ${file.type}`)
+    }
     return await this._getCompleteFileFromBaseFile(file)
   }
 
@@ -136,7 +196,8 @@ export class Client {
         name,
       },
     })
-    const file = parseNormalFile(response.data)
+    const file = parseBaseNormal(response.data)
+    this._filesCache.set({ type: 'normal', ...file })
     return await this._getCompleteFileFromBaseFile(file)
   }
 
@@ -146,54 +207,155 @@ export class Client {
     })
   }
 
-  public async uploadFileData({ id: fileId, url, mimeType }: UploadFileDataArgs) {
-    const downloadBpFileResp = await axios.get<Stream>(url, {
-      responseType: 'stream',
-    })
-    const downloadStream = downloadBpFileResp.data
-
+  public async uploadFileData({ id, mimeType, data }: { id: string; mimeType?: string; data: Stream }) {
     await this._googleClient.files.update({
-      fileId,
+      fileId: id,
       media: {
-        body: downloadStream,
+        body: data,
         mimeType,
       },
     })
   }
 
-  public async downloadFileData({ id: fileId, index }: DownloadFileDataArgs): Promise<DownloadFileDataOutput> {
-    const file = await this._fetchFile(fileId)
+  public async downloadFileData({ id }: { id: string }): Promise<DownloadFileDataClientOutput> {
+    const file = await this._fetchFile(id)
     if (file.type !== 'normal') {
       throw new RuntimeError(`Attempted to download a file of type ${file.type}`)
     }
 
     const exportType = await this._findExportType(file.mimeType)
-    const uploadParams = {
-      key: file.id,
-      contentType: exportType ?? file.mimeType,
-      index,
-    }
-    let bpFileId: string
+    let output: DownloadFileDataClientOutput
     if (exportType) {
+      // File size is unknown when exporting, download all data to buffer to know size
       const fileDownloadStream = await this._exportFileData(file, exportType)
-      const fileDownloadBuffer = await streamToBuffer(fileDownloadStream, MAX_EXPORT_FILE_SIZE)
-      bpFileId = await this._uploadBufferToBpFiles(fileDownloadBuffer, uploadParams)
+      const buffer = await streamToBuffer(fileDownloadStream, MAX_EXPORT_FILE_SIZE_BYTES)
+      output = {
+        mimeType: exportType,
+        dataSize: buffer.length,
+        dataType: 'buffer',
+        data: buffer,
+      }
     } else {
-      const fileDownloadStream = await this._fetchFileData(file)
-      bpFileId = await this._uploadStreamToBpFiles(fileDownloadStream, {
-        ...uploadParams,
-        size: file.size,
-      })
+      output = {
+        mimeType: file.mimeType,
+        dataSize: file.size,
+        dataType: 'stream',
+        data: await this._fetchFileData(file),
+      }
     }
-    return { bpFileId }
+    return output
+  }
+
+  private _getRateLimitErrorHandler(): (error: unknown) => Promise<undefined> {
+    return async (error: unknown) => {
+      return handleRateLimitError(error, this._logger)
+    }
+  }
+
+  private _getNotFoundErrorHandler(): (error: unknown) => Promise<undefined> {
+    return async (error: unknown) => {
+      return handleNotFoundError(error, this._logger)
+    }
+  }
+
+  private async _tryWatchAllListableGenericFiles<T extends BaseGenericFileUnion>(
+    listFn: ListFunction<T>
+  ): Promise<TryWatchAllOutput> {
+    const fileChannels: FileChannel[] = []
+    let hasError = false
+    await listItemsAndProcess(listFn, async (item) => {
+      const channel = await this._watch(item).catch(this._getRateLimitErrorHandler())
+      if (channel) {
+        fileChannels.push(channel)
+      } else {
+        hasError = true
+      }
+    })
+    return {
+      fileChannels,
+      hasError,
+    }
+  }
+
+  public async watch(id: string): Promise<FileChannel> {
+    const file = await this._fetchFile(id)
+    return await this._watch(file)
+  }
+
+  /**
+   * @returns Channel if successful, undefined if the subscription rate limit is exceeded
+   */
+  public async tryWatch(id: string): Promise<FileChannel | undefined> {
+    return await this.watch(id).catch(this._getRateLimitErrorHandler())
+  }
+
+  private async _watch(file: BaseGenericFileUnion): Promise<FileChannel> {
+    const absoluteExpirationTimeMs: number = Date.now() + MAX_RESOURCE_WATCH_EXPIRATION_DELAY_MS
+    const { id: fileId, mimeType } = file
+    const token = serializeToken({
+      fileId,
+      fileType: getFileTypeFromMimeType(mimeType),
+    })
+    const response = await this._googleClient.files.watch({
+      fileId,
+      requestBody: {
+        id: uuidv4(),
+        type: 'web_hook',
+        address: `${process.env.BP_WEBHOOK_URL}/${this._ctx.webhookId}`,
+        token,
+        expiration: absoluteExpirationTimeMs.toString(),
+      },
+    })
+    const baseChannel = parseChannel(response.data)
+    this._logger.forBot().debug(`Watching file '${file.name}' (${file.id}): channel ID = ${baseChannel.id}`)
+    return {
+      ...baseChannel,
+      fileId,
+    }
+  }
+
+  public async tryWatchAllFiles(): Promise<TryWatchAllOutput> {
+    return await this._tryWatchAllListableGenericFiles(this._listBaseNormalFiles.bind(this))
+  }
+
+  public async tryWatchAllFolders(): Promise<TryWatchAllOutput> {
+    return await this._tryWatchAllListableGenericFiles(this._listBaseFolderFiles.bind(this))
+  }
+
+  public async tryWatchAll(): Promise<TryWatchAllOutput> {
+    const [filesResult, foldersResult] = await Promise.all([this.tryWatchAllFiles(), this.tryWatchAllFolders()])
+    return {
+      fileChannels: [...filesResult.fileChannels, ...foldersResult.fileChannels],
+      hasError: filesResult.hasError || foldersResult.hasError,
+    }
+  }
+
+  public async unwatch(channels: FileChannel | FileChannel[]) {
+    if (!Array.isArray(channels)) {
+      channels = [channels]
+    }
+    const unwatchPromises = channels.map((channel) => {
+      const fileName = this._filesCache.find(channel.fileId)?.name ?? '[unknown]'
+      this._logger.forBot().debug(`Unwatching file ${fileName} (${channel.fileId}) with channel ID = ${channel.id}`)
+      const { id, resourceId } = channel
+      return this._googleClient.channels.stop({
+        requestBody: {
+          id,
+          resourceId,
+        },
+      })
+    })
+    await Promise.all(unwatchPromises)
+  }
+
+  public async tryUnwatch(channels: FileChannel | FileChannel[]) {
+    await this.unwatch(channels).catch(this._getNotFoundErrorHandler())
   }
 
   /**
    * Removes internal fields and adds computed attributes
    */
-  private async _getCompleteFileFromBaseFile(file: BaseNormalFile, optionalFilesCache?: FilesCache): Promise<File> {
-    const genericFile = convertNormalFileToGeneric(file)
-    const { filesCache } = await this._addParentsToFilesCache(genericFile, optionalFilesCache)
+  private async _getCompleteFileFromBaseFile(file: BaseNormalFile): Promise<File> {
     const { id, mimeType, name, parentId, size } = file
     return {
       id,
@@ -201,41 +363,36 @@ export class Client {
       name,
       parentId,
       size,
-      path: this._getFilePath(id, filesCache),
+      path: await this._getFilePath({ type: 'normal', ...file }),
     }
   }
 
   /**
    * Removes internal fields and adds computed attributes
    */
-  private async _getCompleteFolderFromBaseFolder(
-    file: BaseFolderFile,
-    optionalFilesCache?: FilesCache
-  ): Promise<Folder> {
-    const genericFile = convertFolderFileToGeneric(file)
-    const { filesCache } = await this._addParentsToFilesCache(genericFile, optionalFilesCache)
+  private async _getCompleteFolderFromBaseFolder(file: BaseFolderFile): Promise<Folder> {
     const { id, mimeType, name, parentId } = file
     return {
       id,
       mimeType,
       name,
       parentId,
-      path: this._getFilePath(id, filesCache),
+      path: await this._getFilePath({ type: 'folder', ...file }),
     }
   }
 
-  private async _fetchFilesAndUpdateCache({
-    filesCache,
+  private async _getCompleteFile(file: BaseDiscriminatedFile): Promise<GenericFile> {
+    return {
+      ...file,
+      path: await this._getFilePath(file),
+    }
+  }
+
+  private async _listBaseGenericFiles({
     nextToken,
-    searchQuery,
-  }: {
-    filesCache: FilesCache
-    nextToken?: string
-    searchQuery?: string
-  }): Promise<{
-    newFiles: BaseGenericFile[]
-    newNextToken?: string
-  }> {
+    args,
+  }: ListItemsInputWithArgs<{ searchQuery?: string }>): Promise<ListItemsOutput<BaseDiscriminatedFile>> {
+    const searchQuery = args?.searchQuery
     const listResponse = await this._googleClient.files.list({
       corpora: 'user',
       fields: GOOGLE_API_FILELIST_FIELDS,
@@ -249,50 +406,35 @@ export class Client {
     if (!unvalidatedDriveFiles) {
       throw new RuntimeError('No files were returned by the API')
     }
-    const newFiles = parseGenericFiles(unvalidatedDriveFiles)
+    const newFiles = parseBaseGenerics(unvalidatedDriveFiles)
     for (const newFile of newFiles) {
-      filesCache.set(newFile)
+      this._filesCache.set(newFile)
     }
 
     return {
-      newFiles,
-      newNextToken,
+      items: newFiles,
+      meta: {
+        nextToken: newNextToken,
+      },
     }
   }
 
-  private _addParentsToFilesCache = async (
-    file: BaseGenericFile,
-    optionalFilesCache?: FilesCache
-  ): Promise<{
-    newFiles: BaseGenericFile[]
-    filesCache: FilesCache
-  }> => {
-    const filesCache = optionalFilesCache ?? new FilesCache(this._client, this._ctx)
-    filesCache.set(file) // Set if not already set
-
-    const { parentId } = file
-    if (!parentId) {
-      return { newFiles: [], filesCache }
+  private async _getOrFetchFile(id: string): Promise<BaseDiscriminatedFile> {
+    let file = this._filesCache.find(id)
+    if (!file) {
+      file = await this._fetchFile(id)
     }
-
-    const newFiles: BaseGenericFile[] = []
-    let parent = filesCache.find(parentId)
-    if (!parent) {
-      parent = await this._fetchFile(parentId)
-      filesCache.set(parent)
-      newFiles.push(parent)
-    }
-    const { newFiles: parentNewFiles } = await this._addParentsToFilesCache(parent, filesCache)
-    newFiles.push(...parentNewFiles)
-    return { newFiles, filesCache }
+    return file
   }
 
-  private async _fetchFile(id: string): Promise<BaseGenericFile> {
+  private async _fetchFile(id: string): Promise<BaseDiscriminatedFile> {
     const response = await this._googleClient.files.get({
       fileId: id,
       fields: GOOGLE_API_FILE_FIELDS,
     })
-    return parseGenericFile(response.data)
+    const file = parseBaseGeneric(response.data)
+    this._filesCache.set(file)
+    return file
   }
 
   private async _fetchFileData({ id: fileId }: BaseNormalFile): Promise<Readable> {
@@ -321,42 +463,6 @@ export class Client {
     return fileExportResponse.data
   }
 
-  /**
-   * @returns The Botpress file ID of the newly uploaded file
-   */
-  private async _uploadBufferToBpFiles(buffer: Buffer, params: FileBufferUploadParams): Promise<string> {
-    const { file } = await this._client.uploadFile({
-      ...params,
-      content: buffer,
-    })
-
-    return file.id
-  }
-
-  /**
-   * @returns The Botpress file ID of the newly uploaded file
-   */
-  private async _uploadStreamToBpFiles(stream: Readable, params: FileStreamUploadParams): Promise<string> {
-    const { file } = await this._client.upsertFile(params)
-    const { contentType, size } = params
-    const { id, uploadUrl } = file
-
-    const headers = {
-      'Content-Type': contentType,
-      'Content-Length': size,
-    }
-    await axios
-      .put(uploadUrl, stream, {
-        maxBodyLength: size,
-        headers,
-      })
-      .catch((reason: AxiosError) => {
-        throw new RuntimeError(`Error uploading file to botpress file API: ${reason}`)
-      })
-
-    return id
-  }
-
   private async _fetchExportFormatMap(): Promise<Record<string, string[]>> {
     const response = await this._googleClient.about.get({
       fields: GOOGLE_API_EXPORTFORMATS_FIELDS,
@@ -379,16 +485,16 @@ export class Client {
     }
 
     const indexableContentType = INDEXABLE_MIMETYPES.find((type) => exportContentTypes.includes(type))
-
-    return indexableContentType ?? exportContentTypes[0]
+    const defaultContentType = exportContentTypes[0]
+    return indexableContentType ?? defaultContentType
   }
 
-  private _getFilePath = (id: string, filesCache: FilesCache): string[] => {
-    const file = filesCache.get(id)
+  private _getFilePath = async (file: BaseDiscriminatedFile): Promise<string[]> => {
     if (!file.parentId) {
       return [file.name]
     }
 
-    return [...this._getFilePath(file.parentId, filesCache), file.name]
+    const parent = await this._getOrFetchFile(file.parentId)
+    return [...(await this._getFilePath(parent)), file.name]
   }
 }

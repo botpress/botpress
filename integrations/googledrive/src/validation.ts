@@ -3,51 +3,68 @@ import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE } from './mime
 import { baseFolderFileSchema, baseNormalFileSchema, baseShortcutFileSchema } from './schemas'
 import {
   BaseFolderFile,
-  BaseGenericFile,
+  BaseDiscriminatedFile,
   BaseNormalFile,
   BaseShortcutFile,
   CommonFileAttr,
   UnvalidatedGoogleDriveFile,
+  FileType,
+  UnvalidatedGoogleDriveChannel,
+  BaseFileChannel,
 } from './types'
 
-export const convertNormalFileToGeneric = (file: BaseNormalFile): BaseGenericFile => {
+export const parseChannel = (channel: UnvalidatedGoogleDriveChannel): BaseFileChannel => {
+  const { id, resourceId } = channel
+  if (!resourceId) {
+    throw new RuntimeError('Resource ID is missing in Schema$Channel from the API response')
+  }
+
+  if (!id) {
+    throw new RuntimeError('Channel ID is missing in Schema$Channel from the API response')
+  }
+
   return {
-    type: 'normal',
-    ...file,
+    id,
+    resourceId,
   }
 }
 
-export const convertFolderFileToGeneric = (file: BaseFolderFile): BaseGenericFile => {
-  return {
-    type: 'folder',
-    ...file,
-  }
-}
-
-export const parseGenericFiles = (files: UnvalidatedGoogleDriveFile[]): BaseGenericFile[] => {
-  return files.map((f) => parseGenericFile(f))
-}
-
-export const parseGenericFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseGenericFile => {
-  const { mimeType } = parseCommonFileAttr(unvalidatedFile)
-  let file: BaseGenericFile
+export const getFileTypeFromMimeType = (mimeType: string): FileType => {
   switch (mimeType) {
     case APP_GOOGLE_FOLDER_MIMETYPE:
+      return 'folder'
+    case APP_GOOGLE_SHORTCUT_MIMETYPE:
+      return 'shortcut'
+    default:
+      return 'normal'
+  }
+}
+
+export const parseBaseGenerics = (files: UnvalidatedGoogleDriveFile[]): BaseDiscriminatedFile[] => {
+  return files.map((f) => parseBaseGeneric(f))
+}
+
+export const parseBaseGeneric = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseDiscriminatedFile => {
+  const { mimeType } = parseCommonFileAttr(unvalidatedFile)
+  let file: BaseDiscriminatedFile
+  const type = getFileTypeFromMimeType(mimeType)
+  switch (type) {
+    case 'folder':
       file = {
-        ...parseFolderFile(unvalidatedFile),
-        type: 'folder',
+        ...parseBaseFolder(unvalidatedFile),
+        type,
       }
       break
-    case APP_GOOGLE_SHORTCUT_MIMETYPE:
+    case 'shortcut':
       file = {
-        ...parseShortcutFile(unvalidatedFile),
-        type: 'shortcut',
+        ...parseBaseShortcut(unvalidatedFile),
+        type,
       }
       break
     default:
       file = {
-        ...parseNormalFile(unvalidatedFile),
-        type: 'normal',
+        ...parseBaseNormal(unvalidatedFile),
+        type,
       }
       break
   }
@@ -55,7 +72,7 @@ export const parseGenericFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): B
   return file
 }
 
-export const parseNormalFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseNormalFile => {
+export const parseBaseNormal = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseNormalFile => {
   const commmonFileAttr = parseCommonFileAttr(unvalidatedFile)
   const { size: sizeStr } = unvalidatedFile
   if (!sizeStr) {
@@ -113,7 +130,7 @@ const parseCommonFileAttr = (unvalidatedFile: UnvalidatedGoogleDriveFile): Commo
   }
 }
 
-const parseFolderFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseFolderFile => {
+const parseBaseFolder = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseFolderFile => {
   const commmonFileAttr = parseCommonFileAttr(unvalidatedFile)
   const parseResult = baseFolderFileSchema.safeParse(commmonFileAttr)
   if (parseResult.error) {
@@ -122,7 +139,7 @@ const parseFolderFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseFolde
   return parseResult.data
 }
 
-const parseShortcutFile = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseShortcutFile => {
+const parseBaseShortcut = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseShortcutFile => {
   const commmonFileAttr = parseCommonFileAttr(unvalidatedFile)
   const parseResult = baseShortcutFileSchema.safeParse(commmonFileAttr)
   if (parseResult.error) {

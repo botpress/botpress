@@ -1,11 +1,10 @@
 import { z } from '@botpress/sdk'
 import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE } from './mime-types'
 
-export const ID_DESCRIPTION = 'The ID of the Google Drive file'
-
 // Utility schemas
+export const fileIdSchema = z.string().min(1).describe('The ID of the Google Drive file')
 export const commonFileAttrSchema = z.object({
-  id: z.string().min(1).describe(ID_DESCRIPTION),
+  id: fileIdSchema,
   name: z.string().min(1).describe('The name of the file'),
   parentId: z
     .string()
@@ -27,14 +26,56 @@ export const baseShortcutFileSchema = commonFileAttrSchema.extend({
   mimeType: z.literal(APP_GOOGLE_SHORTCUT_MIMETYPE),
 })
 
+const _fileTypesArray = ['normal', 'folder', 'shortcut'] as const
+export const fileTypesEnumSchema = z.enum(_fileTypesArray)
+const _fileTypes = fileTypesEnumSchema.Enum
+export const fileTypesUnionSchema = z.union([
+  z.literal(_fileTypes.normal),
+  z.literal(_fileTypes.folder),
+  z.literal(_fileTypes.shortcut),
+])
+
 /* Used to represent a generic file, closer to what is received by the API.
 Type is added to enable discrimination and remove/add access to properties
 depending on file type. */
-export const baseGenericFileSchema = z.discriminatedUnion('type', [
-  baseNormalFileSchema.extend({ type: z.literal('normal') }),
-  baseFolderFileSchema.extend({ type: z.literal('folder') }),
-  baseShortcutFileSchema.extend({ type: z.literal('shortcut') }),
+export const baseDiscriminatedFileSchema = z.discriminatedUnion('type', [
+  baseNormalFileSchema.extend({ type: z.literal(_fileTypes.normal) }),
+  baseFolderFileSchema.extend({ type: z.literal(_fileTypes.folder) }),
+  baseShortcutFileSchema.extend({ type: z.literal(_fileTypes.shortcut) }),
 ])
+
+export const baseChannelSchema = z.object({
+  id: z.string().min(1).describe('The ID of the channel'),
+  resourceId: z.string().min(1).describe('The ID of the watched resource (different from the file ID)'),
+})
+
+const notificationTypesSchema = z.union([
+  z.literal('sync'),
+  z.literal('add'),
+  z.literal('remove'),
+  z.literal('update'),
+  z.literal('trash'),
+  z.literal('untrash'),
+  z.literal('change'),
+])
+const updateDetailTypesSchema = z.union([
+  z.literal('content'),
+  z.literal('properties'),
+  z.literal('parents'),
+  z.literal('children'),
+  z.literal('permissions'),
+])
+export const notificationSchema = z.object({
+  headers: z.object({
+    'x-goog-resource-state': notificationTypesSchema,
+    'x-goog-changed': z
+      .string()
+      .optional() // May be present on 'update' notifications
+      .transform((details) => details?.split(',') ?? [])
+      .pipe(z.array(updateDetailTypesSchema)),
+    'x-goog-channel-token': z.string(),
+  }),
+})
 
 // Entities
 const computedFileAttrSchema = z.object({
@@ -49,6 +90,15 @@ const computedFileAttrSchema = z.object({
 })
 export const fileSchema = baseNormalFileSchema.merge(computedFileAttrSchema)
 export const folderSchema = baseFolderFileSchema.merge(computedFileAttrSchema)
+export const shortcutSchema = baseShortcutFileSchema.merge(computedFileAttrSchema)
+export const genericFileSchema = z.discriminatedUnion('type', [
+  fileSchema.extend({ type: z.literal(_fileTypes.normal) }),
+  folderSchema.extend({ type: z.literal(_fileTypes.folder) }),
+  shortcutSchema.extend({ type: z.literal(_fileTypes.shortcut) }),
+])
+export const fileChannelSchema = baseChannelSchema.extend({
+  fileId: fileIdSchema,
+})
 
 // Action args/outputs
 function createListOutputSchema<T extends z.ZodTypeAny>(itemSchema: T) {
@@ -70,16 +120,17 @@ function createListOutputSchema<T extends z.ZodTypeAny>(itemSchema: T) {
 export const createFileArgSchema = commonFileAttrSchema.omit({
   id: true, // Unknown at creation time
 })
-export const readFileArgSchema = z.object({ id: z.string().describe(ID_DESCRIPTION) })
+export const readFileArgSchema = z.object({ id: fileIdSchema })
 export const updateFileArgSchema = commonFileAttrSchema.omit({
   mimeType: true, // Cannot be changed unless data is uploaded with a new type
 })
-export const deleteFileArgSchema = z.object({ id: z.string().describe(ID_DESCRIPTION) })
+export const deleteFileArgSchema = z.object({ id: fileIdSchema })
 export const listItemsInputSchema = z.object({
   nextToken: z.string().optional().describe('The token to use to get the next page of results'),
 })
-export const listFileOutputSchema = createListOutputSchema(fileSchema)
-export const listFolderOutputSchema = createListOutputSchema(folderSchema)
+export const listItemsOutputSchema = createListOutputSchema(z.any())
+export const listFilesOutputSchema = createListOutputSchema(fileSchema)
+export const listFoldersOutputSchema = createListOutputSchema(folderSchema)
 
 // URL is used instead of ID because an integration can't access all files of a bot
 // using the files API
@@ -101,4 +152,11 @@ export const downloadFileDataOutputSchema = z.object({
     .string()
     .min(1)
     .describe('The Botpress file ID corresponding to the file that was uploaded from Google Drive to the Files API'),
+})
+
+export const fileDeletedEventSchema = z.object({
+  id: fileIdSchema,
+})
+export const folderDeletedEventSchema = z.object({
+  id: fileIdSchema,
 })
