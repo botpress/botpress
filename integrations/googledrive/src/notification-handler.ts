@@ -3,6 +3,7 @@ import { FileEventHandler } from './file-event-handler'
 import { deserializeToken, Token } from './file-notification-token'
 import { FilesCache } from './files-cache'
 import { Notification } from './types'
+import * as bp from '.botpress'
 
 export class NotificationHandler {
   public constructor(
@@ -15,7 +16,7 @@ export class NotificationHandler {
     const type = notification.headers['x-goog-resource-state']
     const changes = notification.headers['x-goog-changed']
     const serializedToken = notification.headers['x-goog-channel-token']
-    const token = deserializeToken(serializedToken)
+    const token = deserializeToken(serializedToken, bp.secrets.WEBHOOK_SECRET)
     if (!token) {
       console.error('Invalid notification token:', token)
       return

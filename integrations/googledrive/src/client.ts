@@ -292,10 +292,13 @@ export class Client {
   private async _watch(file: BaseGenericFileUnion): Promise<FileChannel> {
     const absoluteExpirationTimeMs: number = Date.now() + MAX_RESOURCE_WATCH_EXPIRATION_DELAY_MS
     const { id: fileId, mimeType } = file
-    const token = serializeToken({
-      fileId,
-      fileType: getFileTypeFromMimeType(mimeType),
-    })
+    const token = serializeToken(
+      {
+        fileId,
+        fileType: getFileTypeFromMimeType(mimeType),
+      },
+      bp.secrets.WEBHOOK_SECRET
+    )
     const response = await this._googleClient.files.watch({
       fileId,
       requestBody: {
