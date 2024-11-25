@@ -5,7 +5,7 @@ import * as utils from '../utils'
 export type CreateInterfaceBody = Parameters<Client['createInterface']>[0]
 export type UpdateInterfaceBody = Parameters<Client['updateInterface']>[0]
 
-export const prepareCreateInterfaceBody = async (intrface: sdk.InterfaceDeclaration): Promise<CreateInterfaceBody> => ({
+export const prepareCreateInterfaceBody = async (intrface: sdk.InterfaceDefinition): Promise<CreateInterfaceBody> => ({
   name: intrface.name,
   version: intrface.version,
   entities: intrface.entities

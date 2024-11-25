@@ -37,7 +37,7 @@ type GenericActionDefinition<
   output: { schema: GenericZuiSchema<EntityReferences<TEntities>, AnyZodObject> }
 }
 
-export type InterfaceDeclarationProps<
+export type InterfaceDefinitionProps<
   TEntities extends BaseEntities = BaseEntities,
   TActions extends BaseActions = BaseActions,
   TEvents extends BaseEntities = BaseEntities,
@@ -63,7 +63,7 @@ export type InterfaceDeclarationProps<
   templateName?: string
 }
 
-export class InterfaceDeclaration<
+export class InterfaceDefinition<
   TEntities extends BaseEntities = BaseEntities,
   TActions extends BaseActions = BaseActions,
   TEvents extends BaseEvents = BaseEvents,
@@ -79,7 +79,7 @@ export class InterfaceDeclaration<
 
   public readonly templateName: this['props']['templateName']
 
-  public constructor(public readonly props: InterfaceDeclarationProps<TEntities, TActions, TEvents, TChannels>) {
+  public constructor(public readonly props: InterfaceDefinitionProps<TEntities, TActions, TEvents, TChannels>) {
     this.name = props.name
     this.version = props.version
     this.entities = props.entities ?? ({} as this['entities'])

@@ -151,15 +151,3 @@ export class ReExportVariableModule extends Module {
     return content
   }
 }
-
-export class SingleFileModule extends Module {
-  private _content: string
-  public constructor(def: ModuleProps & { content: string }) {
-    super(def)
-    this._content = def.content
-  }
-
-  public async getContent(): Promise<string> {
-    return this._content
-  }
-}

@@ -159,7 +159,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
   }
 
-  private async _deployInterface(api: ApiClient, interfaceDeclaration: sdk.InterfaceDeclaration) {
+  private async _deployInterface(api: ApiClient, interfaceDeclaration: sdk.InterfaceDefinition) {
     if (!api.isBotpressWorkspace) {
       throw new errors.BotpressCLIError('Your workspace is not allowed to deploy interfaces.')
     }

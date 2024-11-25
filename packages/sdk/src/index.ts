@@ -58,8 +58,8 @@ export {
 
 export {
   //
-  InterfaceDeclaration,
-  InterfaceDeclarationProps,
+  InterfaceDefinition,
+  InterfaceDefinitionProps,
 } from './interface'
 
 export {

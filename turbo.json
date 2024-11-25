@@ -566,15 +566,34 @@
         "@botpress/cli#build"
       ]
     },
+    "@botpresshub/logger#add:integrations": {
+      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+    },
     "@botpresshub/logger#build": {
       "inputs": ["plugin.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
+      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+    },
+    "@botpresshub/analytics#add:integrations": {
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/analytics#build": {
       "inputs": ["plugin.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+    },
+    "@botpresshub/personality#add:integrations": {
+      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+    },
+    "@botpresshub/personality#build": {
+      "inputs": ["plugin.definition.ts", "src/**"],
+      "outputs": [".botpress/**"],
+      "dependsOn": [
+        "@botpress/client#build",
+        "@botpress/sdk#build",
+        "@botpress/cli#build",
+        "@botpresshub/personality#add:integrations"
+      ]
     },
     "@bp-bots/bugbuster#add:integrations": {
       "cache": false,

@@ -18,7 +18,16 @@ export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> =
   actions: ActionHandlers<TPlugin>
 }
 
+export type PluginRuntimeProps<TPlugin extends BasePlugin = BasePlugin> = {
+  configuration: TPlugin['configuration']
+  interfaces: {
+    [K in keyof TPlugin['interfaces']]: { name: string; version: string }
+  }
+}
+
 export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> implements BotHandlers<TPlugin> {
+  private _runtimeProps: PluginRuntimeProps<TPlugin> | undefined
+
   public readonly actionHandlers: ActionHandlers<TPlugin>
   public readonly messageHandlers: MessageHandlersMap<TPlugin> = {}
   public readonly eventHandlers: EventHandlersMap<TPlugin> = {}
@@ -36,6 +45,20 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
 
   public constructor(public readonly props: PluginImplementationProps<TPlugin>) {
     this.actionHandlers = props.actions
+  }
+
+  public initialize(config: PluginRuntimeProps<TPlugin>): this {
+    this._runtimeProps = config
+    return this
+  }
+
+  public get config(): PluginRuntimeProps<TPlugin> {
+    if (!this._runtimeProps) {
+      throw new Error(
+        'Plugin not correctly initialized. This is likely a bug with code generation that you have no control over. Please contact the dev team.'
+      )
+    }
+    return this._runtimeProps
   }
 
   public readonly message = <T extends keyof MessageHandlersMap<TPlugin>>(
