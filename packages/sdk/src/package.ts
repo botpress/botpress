@@ -76,7 +76,7 @@ type _test_expect_integration_definition_to_be_valid_package = utils.types.Asser
 >
 
 type _test_expect_interface_definition_to_be_valid_package = utils.types.AssertExtends<
-  intrface.InterfaceDeclaration,
+  intrface.InterfaceDefinition,
   InterfacePackageDefinition
 >
 

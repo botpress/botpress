@@ -1,5 +1,5 @@
 /* bplint-disable */
-import { z, AnyZodObject, messages, InterfaceDeclaration } from '@botpress/sdk'
+import { z, AnyZodObject, messages, InterfaceDefinition } from '@botpress/sdk'
 
 const withUserId = <S extends z.AnyZodObject>(s: { schema: S }) => ({
   ...s,
@@ -30,7 +30,7 @@ const messagePayloadSchemas: AnyZodObject[] = Object.entries(allMessages).map(([
 
 const messageSchema = z.union(messagePayloadSchemas as Tuple<AnyZodObject>)
 
-export default new InterfaceDeclaration({
+export default new InterfaceDefinition({
   name: 'hitl',
   version: '0.4.0',
   entities: {},

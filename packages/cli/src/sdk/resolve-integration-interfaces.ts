@@ -2,7 +2,7 @@ import * as sdk from '@botpress/sdk'
 import _ from 'lodash'
 import * as utils from '../utils'
 
-type InterfaceExtensionInstance = NonNullable<sdk.IntegrationDefinition['interfaces']>[string]
+type InterfaceExtension = NonNullable<sdk.IntegrationDefinition['interfaces']>[string]
 type ResolvedInterface = {
   actions: Record<string, sdk.ActionDefinition>
   events: Record<string, sdk.EventDefinition>
@@ -95,7 +95,7 @@ const _mergeMessage = (a: sdk.MessageDefinition, b: sdk.MessageDefinition): sdk.
 }
 
 const _resolveInterface = (
-  intrface: InterfaceExtensionInstance
+  intrface: InterfaceExtension
 ): { resolved: ResolvedInterface; statement: InterfaceImplStatement } => {
   const id = 'id' in intrface ? intrface.id : undefined
   const {
@@ -153,7 +153,7 @@ const _resolveInterface = (
   return { resolved, statement }
 }
 
-const _rename = (intrface: InterfaceExtensionInstance, name: string) => {
+const _rename = (intrface: InterfaceExtension, name: string) => {
   if (!intrface.definition.templateName) {
     return name
   }

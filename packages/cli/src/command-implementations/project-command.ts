@@ -35,7 +35,7 @@ export type ProjectType = ProjectDefinition['type']
 export type ProjectDefinition = LintIgnoredConfig &
   (
     | { type: 'integration'; definition: sdk.IntegrationDefinition }
-    | { type: 'interface'; definition: sdk.InterfaceDeclaration }
+    | { type: 'interface'; definition: sdk.InterfaceDefinition }
     | { type: 'bot'; definition: sdk.BotDefinition }
     | { type: 'plugin'; definition: sdk.PluginDefinition }
   )
@@ -168,7 +168,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   private async _readInterfaceDefinitionFromFS(
     projectPaths: utils.path.PathStore<'workDir' | 'interfaceDefinition'>
-  ): Promise<({ definition: sdk.InterfaceDeclaration } & LintIgnoredConfig) | undefined> {
+  ): Promise<({ definition: sdk.InterfaceDefinition } & LintIgnoredConfig) | undefined> {
     const abs = projectPaths.abs
     const rel = projectPaths.rel('workDir')
 
@@ -191,7 +191,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       throw new errors.BotpressCLIError('Could not read interface definition')
     }
 
-    const { default: definition } = utils.require.requireJsCode<{ default: sdk.InterfaceDeclaration }>(artifact.text)
+    const { default: definition } = utils.require.requireJsCode<{ default: sdk.InterfaceDefinition }>(artifact.text)
 
     return { definition, bpLintDisabled }
   }
