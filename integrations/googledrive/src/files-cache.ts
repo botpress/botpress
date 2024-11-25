@@ -1,14 +1,14 @@
 import { RuntimeError, z } from '@botpress/sdk'
-import { baseGenericFileSchema } from './schemas'
-import { BaseFolderFile, BaseGenericFile, BaseNormalFile } from './types'
+import { baseDiscriminatedFileSchema } from './schemas'
+import { BaseFolderFile, BaseDiscriminatedFile, BaseNormalFile } from './types'
 import * as bp from '.botpress'
 
-const filesMapSchema = z.record(z.string(), baseGenericFileSchema)
+const filesMapSchema = z.record(z.string(), baseDiscriminatedFileSchema)
 type FilesMap = z.infer<typeof filesMapSchema>
 
 export class FilesCache {
   private _map: FilesMap
-  public constructor(private _client: bp.Client, private _ctx: bp.Context, private _logger: bp.Logger) {
+  public constructor(private _client: bp.Client, private _ctx: bp.Context) {
     this._map = {}
   }
 
@@ -16,25 +16,17 @@ export class FilesCache {
     this._map = {}
   }
 
-  public static async load({
-    client,
-    ctx,
-    logger,
-  }: {
-    client: bp.Client
-    ctx: bp.Context
-    logger: bp.Logger
-  }): Promise<FilesCache> {
+  public static async load({ client, ctx }: { client: bp.Client; ctx: bp.Context }): Promise<FilesCache> {
     const getStateResponse = await client.getOrSetState({
       id: ctx.integrationId,
       type: 'integration',
       name: 'filesCache',
       payload: {
-        filesCache: this._serializeMap({}),
+        filesCache: FilesCache._getEmpty(),
       },
     })
-    const cache = new FilesCache(client, ctx, logger)
-    cache._map = cache._deserializeMap(getStateResponse.state.payload.filesCache) ?? {}
+    const cache = new FilesCache(client, ctx)
+    cache._map = getStateResponse.state.payload.filesCache
     return cache
   }
 
@@ -44,37 +36,20 @@ export class FilesCache {
       type: 'integration',
       name: 'filesCache',
       payload: {
-        filesCache: FilesCache._serializeMap(this._map),
+        filesCache: this._map,
       },
     })
   }
 
-  private static _serializeMap(map: FilesMap): string {
-    return JSON.stringify(map)
+  private static _getEmpty(): FilesMap {
+    return {}
   }
 
-  private _deserializeMap(serializedMap: string): FilesMap | undefined {
-    let deserializedObject = undefined
-    try {
-      deserializedObject = JSON.parse(serializedMap)
-    } catch (e) {
-      this._logger.forBot().error(`Error parsing files cache JSON: ${e}`)
-      return undefined
-    }
-
-    const parseResult = filesMapSchema.safeParse(deserializedObject)
-    if (parseResult.error) {
-      this._logger.forBot().error(`Error parsing files cache Object: ${parseResult.error.toString()}`)
-      return undefined
-    }
-    return parseResult.data
-  }
-
-  public find(id: string): BaseGenericFile | undefined {
+  public find(id: string): BaseDiscriminatedFile | undefined {
     return this._map[id]
   }
 
-  public set(file: BaseGenericFile) {
+  public set(file: BaseDiscriminatedFile) {
     this._map[file.id] = file
   }
 
@@ -82,7 +57,7 @@ export class FilesCache {
     delete this._map[id]
   }
 
-  private _getGenericFile(id: string): BaseGenericFile {
+  private _getGenericFile(id: string): BaseDiscriminatedFile {
     const file = this._map[id]
     if (!file) {
       throw new RuntimeError(`Couldn't get file from files map with ID=${id}`)
@@ -90,11 +65,11 @@ export class FilesCache {
     return file
   }
 
-  public get(id: string): BaseGenericFile {
+  public get(id: string): BaseDiscriminatedFile {
     return this._getGenericFile(id)
   }
 
-  public getAll(filterFn?: (file: BaseGenericFile) => boolean): BaseGenericFile[] {
+  public getAll(filterFn?: (file: BaseDiscriminatedFile) => boolean): BaseDiscriminatedFile[] {
     const allFiles = Object.values(this._map)
     return filterFn ? allFiles.filter(filterFn) : allFiles
   }

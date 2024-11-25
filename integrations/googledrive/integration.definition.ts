@@ -14,6 +14,8 @@ import {
   fileDeletedEventSchema,
   folderSchema,
   folderDeletedEventSchema,
+  baseDiscriminatedFileSchema,
+  fileChannelSchema,
 } from './src/schemas'
 
 export default new IntegrationDefinition({
@@ -162,14 +164,17 @@ export default new IntegrationDefinition({
     filesCache: {
       type: 'integration',
       schema: z.object({
-        filesCache: z.string().title('Files cache').describe('Serialized map of known files'),
+        filesCache: z
+          .record(z.string(), baseDiscriminatedFileSchema)
+          .title('Files cache')
+          .describe('Map of known files'),
       }),
     },
-    filesChannels: {
+    filesChannelsCache: {
       type: 'integration',
       schema: z.object({
-        filesChannels: z
-          .string()
+        filesChannelsCache: z
+          .record(z.string(), fileChannelSchema)
           .title('Files change subscription channels')
           .describe('Serialized set of channels for file change subscriptions'),
       }),

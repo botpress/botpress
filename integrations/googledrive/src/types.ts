@@ -1,7 +1,7 @@
 import { z } from '@botpress/sdk'
 import { google, drive_v3 } from 'googleapis'
 import {
-  baseGenericFileSchema,
+  baseDiscriminatedFileSchema,
   baseNormalFileSchema,
   baseFolderFileSchema,
   baseShortcutFileSchema,
@@ -32,7 +32,7 @@ export type UnvalidatedGoogleDriveFile = drive_v3.Schema$File
 export type UnvalidatedGoogleDriveChannel = drive_v3.Schema$Channel
 
 export type CommonFileAttr = z.infer<typeof commonFileAttrSchema>
-export type BaseGenericFile = z.infer<typeof baseGenericFileSchema>
+export type BaseDiscriminatedFile = z.infer<typeof baseDiscriminatedFileSchema>
 export type BaseNormalFile = z.infer<typeof baseNormalFileSchema>
 export type BaseFolderFile = z.infer<typeof baseFolderFileSchema>
 export type BaseShortcutFile = z.infer<typeof baseShortcutFileSchema>

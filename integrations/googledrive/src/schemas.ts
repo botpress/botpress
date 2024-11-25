@@ -38,7 +38,7 @@ export const fileTypesUnionSchema = z.union([
 /* Used to represent a generic file, closer to what is received by the API.
 Type is added to enable discrimination and remove/add access to properties
 depending on file type. */
-export const baseGenericFileSchema = z.discriminatedUnion('type', [
+export const baseDiscriminatedFileSchema = z.discriminatedUnion('type', [
   baseNormalFileSchema.extend({ type: z.literal(_fileTypes.normal) }),
   baseFolderFileSchema.extend({ type: z.literal(_fileTypes.folder) }),
   baseShortcutFileSchema.extend({ type: z.literal(_fileTypes.shortcut) }),

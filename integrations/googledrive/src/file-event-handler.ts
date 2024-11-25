@@ -1,7 +1,7 @@
 import { Client as DriveClient } from './client'
 import { FileChannelsCache } from './file-channels-cache'
 import { FilesCache } from './files-cache'
-import { BaseGenericFile, GenericFile } from './types'
+import { BaseDiscriminatedFile, GenericFile } from './types'
 import { Client } from '.botpress'
 
 export class FileEventHandler {
@@ -13,7 +13,7 @@ export class FileEventHandler {
   ) {}
 
   public async handleFileCreated(file: GenericFile) {
-    this._filesCache.set(file) // GenericFile is compatible with BaseGenericFile
+    this._filesCache.set(file) // GenericFile is compatible with BaseDiscriminatedFile
     const channel = await this._driveClient.tryWatch(file.id)
     if (channel) {
       this._fileChannelsCache.set(channel)
@@ -31,8 +31,8 @@ export class FileEventHandler {
     }
   }
 
-  // Work with BaseGenericFile, at this point the only file info available is in the cache
-  public async handleFileDeleted(baseFile: BaseGenericFile) {
+  // Work with BaseDiscriminatedFile, at this point the only file info available is in the cache
+  public async handleFileDeleted(baseFile: BaseDiscriminatedFile) {
     this._fileChannelsCache.remove(baseFile.id) // No need to unwatch as resource is already deleted
     this._filesCache.remove(baseFile.id)
 

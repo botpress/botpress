@@ -9,7 +9,7 @@ type FileChannelsArray = FileChannel[]
 export class FileChannelsCache {
   private _channels: FileChannels
 
-  public constructor(private _client: bp.Client, private _ctx: bp.Context, private _logger: bp.Logger) {
+  public constructor(private _client: bp.Client, private _ctx: bp.Context) {
     this._channels = FileChannelsCache._getEmpty()
   }
 
@@ -17,18 +17,17 @@ export class FileChannelsCache {
     this._channels = FileChannelsCache._getEmpty()
   }
 
-  public static async load({ client, ctx, logger }: { client: bp.Client; ctx: bp.Context; logger: bp.Logger }) {
+  public static async load({ client, ctx }: { client: bp.Client; ctx: bp.Context }) {
     const getStateResponse = await client.getOrSetState({
       id: ctx.integrationId,
       type: 'integration',
-      name: 'filesChannels',
+      name: 'filesChannelsCache',
       payload: {
-        filesChannels: this._serializeChannels(this._getEmpty()),
+        filesChannelsCache: this._getEmpty(),
       },
     })
-    const serializedChannels = getStateResponse.state.payload.filesChannels
-    const fileChannels = new FileChannelsCache(client, ctx, logger)
-    fileChannels._channels = fileChannels._deserializeChannels(serializedChannels) ?? this._getEmpty()
+    const fileChannels = new FileChannelsCache(client, ctx)
+    fileChannels._channels = getStateResponse.state.payload.filesChannelsCache
     return fileChannels
   }
 
@@ -36,32 +35,11 @@ export class FileChannelsCache {
     return await this._client.setState({
       id: this._ctx.integrationId,
       type: 'integration',
-      name: 'filesChannels',
+      name: 'filesChannelsCache',
       payload: {
-        filesChannels: FileChannelsCache._serializeChannels(this._channels),
+        filesChannelsCache: this._channels,
       },
     })
-  }
-
-  private static _serializeChannels(channels: FileChannels): string {
-    return JSON.stringify(channels)
-  }
-
-  private _deserializeChannels(serializedChannels: string): FileChannels | undefined {
-    let deserializedObject
-    try {
-      deserializedObject = JSON.parse(serializedChannels)
-    } catch (e) {
-      this._logger.forBot().error(`Error parsing files channels JSON: ${e}`)
-      return undefined
-    }
-
-    const parseResult = fileChannelsSchema.safeParse(deserializedObject)
-    if (parseResult.error) {
-      this._logger.forBot().error(`Error parsing files channels Object: ${parseResult.error.toString()}`)
-      return undefined
-    }
-    return parseResult.data
   }
 
   private static _getEmpty(): FileChannels {

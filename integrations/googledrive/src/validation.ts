@@ -3,7 +3,7 @@ import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE } from './mime
 import { baseFolderFileSchema, baseNormalFileSchema, baseShortcutFileSchema } from './schemas'
 import {
   BaseFolderFile,
-  BaseGenericFile,
+  BaseDiscriminatedFile,
   BaseNormalFile,
   BaseShortcutFile,
   CommonFileAttr,
@@ -11,31 +11,7 @@ import {
   FileType,
   UnvalidatedGoogleDriveChannel,
   BaseFileChannel,
-  File,
-  GenericFile,
 } from './types'
-
-// TODO: Find a way to generalize conversion to generic file
-export const convertNormalToGeneric = (file: File): GenericFile => {
-  return {
-    type: 'normal',
-    ...file,
-  }
-}
-
-export const convertBaseNormalToBaseGeneric = (file: BaseNormalFile): BaseGenericFile => {
-  return {
-    type: 'normal',
-    ...file,
-  }
-}
-
-export const convertBaseFolderToBaseGeneric = (file: BaseFolderFile): BaseGenericFile => {
-  return {
-    type: 'folder',
-    ...file,
-  }
-}
 
 export const parseChannel = (channel: UnvalidatedGoogleDriveChannel): BaseFileChannel => {
   const { id, resourceId } = channel
@@ -64,13 +40,13 @@ export const getFileTypeFromMimeType = (mimeType: string): FileType => {
   }
 }
 
-export const parseBaseGenerics = (files: UnvalidatedGoogleDriveFile[]): BaseGenericFile[] => {
+export const parseBaseGenerics = (files: UnvalidatedGoogleDriveFile[]): BaseDiscriminatedFile[] => {
   return files.map((f) => parseBaseGeneric(f))
 }
 
-export const parseBaseGeneric = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseGenericFile => {
+export const parseBaseGeneric = (unvalidatedFile: UnvalidatedGoogleDriveFile): BaseDiscriminatedFile => {
   const { mimeType } = parseCommonFileAttr(unvalidatedFile)
-  let file: BaseGenericFile
+  let file: BaseDiscriminatedFile
   const type = getFileTypeFromMimeType(mimeType)
   switch (type) {
     case 'folder':

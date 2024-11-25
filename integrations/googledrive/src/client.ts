@@ -2,12 +2,12 @@ import { RuntimeError } from '@botpress/sdk'
 import { Readable, Stream } from 'stream'
 import { v4 as uuidv4 } from 'uuid'
 import { getAuthenticatedGoogleClient } from './auth'
-import { wrapWithTryCatchNotFound, wrapWithTryCatchRateLimit } from './error-handling'
+import { handleNotFoundError, handleRateLimitError } from './error-handling'
 import { serializeToken } from './file-notification-token'
 import { FilesCache } from './files-cache'
 import { APP_GOOGLE_FOLDER_MIMETYPE, APP_GOOGLE_SHORTCUT_MIMETYPE, INDEXABLE_MIMETYPES } from './mime-types'
 import {
-  BaseGenericFile,
+  BaseDiscriminatedFile,
   GoogleDriveClient,
   BaseNormalFile,
   File,
@@ -25,8 +25,6 @@ import {
 } from './types'
 import { listItemsAndProcess, ListFunction, streamToBuffer, ListItemsInputWithArgs, listAllItems } from './utils'
 import {
-  convertBaseFolderToBaseGeneric,
-  convertBaseNormalToBaseGeneric,
   getFileTypeFromMimeType,
   parseChannel,
   parseBaseGeneric,
@@ -81,7 +79,7 @@ export class Client {
       client,
       ctx,
     })
-    const filesCache = new FilesCache(client, ctx, logger)
+    const filesCache = new FilesCache(client, ctx)
     return new Client(ctx, googleClient, filesCache, logger)
   }
 
@@ -171,7 +169,7 @@ export class Client {
       },
     })
     const file = parseBaseNormal(response.data)
-    this._filesCache.set(convertBaseNormalToBaseGeneric(file))
+    this._filesCache.set({ type: 'normal', ...file })
     return await this._getCompleteFileFromBaseFile(file)
   }
 
@@ -199,7 +197,7 @@ export class Client {
       },
     })
     const file = parseBaseNormal(response.data)
-    this._filesCache.set(convertBaseNormalToBaseGeneric(file))
+    this._filesCache.set({ type: 'normal', ...file })
     return await this._getCompleteFileFromBaseFile(file)
   }
 
@@ -248,13 +246,25 @@ export class Client {
     return output
   }
 
+  private _getRateLimitErrorHandler(): (error: unknown) => Promise<undefined> {
+    return async (error: unknown) => {
+      return handleRateLimitError(error, this._logger)
+    }
+  }
+
+  private _getNotFoundErrorHandler(): (error: unknown) => Promise<undefined> {
+    return async (error: unknown) => {
+      return handleNotFoundError(error, this._logger)
+    }
+  }
+
   private async _tryWatchAllListableGenericFiles<T extends BaseGenericFileUnion>(
     listFn: ListFunction<T>
   ): Promise<TryWatchAllOutput> {
     const fileChannels: FileChannel[] = []
     let hasError = false
     await listItemsAndProcess(listFn, async (item) => {
-      const channel = await wrapWithTryCatchRateLimit(() => this._watch(item), this._logger)
+      const channel = await this._watch(item).catch(this._getRateLimitErrorHandler())
       if (channel) {
         fileChannels.push(channel)
       } else {
@@ -276,7 +286,7 @@ export class Client {
    * @returns Channel if successful, undefined if the subscription rate limit is exceeded
    */
   public async tryWatch(id: string): Promise<FileChannel | undefined> {
-    return await wrapWithTryCatchRateLimit(() => this.watch(id), this._logger)
+    return await this.watch(id).catch(this._getRateLimitErrorHandler())
   }
 
   private async _watch(file: BaseGenericFileUnion): Promise<FileChannel> {
@@ -339,7 +349,7 @@ export class Client {
   }
 
   public async tryUnwatch(channels: FileChannel | FileChannel[]) {
-    await wrapWithTryCatchNotFound(() => this.unwatch(channels), this._logger)
+    await this.unwatch(channels).catch(this._getNotFoundErrorHandler())
   }
 
   /**
@@ -353,7 +363,7 @@ export class Client {
       name,
       parentId,
       size,
-      path: await this._getFilePath(convertBaseNormalToBaseGeneric(file)),
+      path: await this._getFilePath({ type: 'normal', ...file }),
     }
   }
 
@@ -367,11 +377,11 @@ export class Client {
       mimeType,
       name,
       parentId,
-      path: await this._getFilePath(convertBaseFolderToBaseGeneric(file)),
+      path: await this._getFilePath({ type: 'folder', ...file }),
     }
   }
 
-  private async _getCompleteFile(file: BaseGenericFile): Promise<GenericFile> {
+  private async _getCompleteFile(file: BaseDiscriminatedFile): Promise<GenericFile> {
     return {
       ...file,
       path: await this._getFilePath(file),
@@ -381,7 +391,7 @@ export class Client {
   private async _listBaseGenericFiles({
     nextToken,
     args,
-  }: ListItemsInputWithArgs<{ searchQuery?: string }>): Promise<ListItemsOutput<BaseGenericFile>> {
+  }: ListItemsInputWithArgs<{ searchQuery?: string }>): Promise<ListItemsOutput<BaseDiscriminatedFile>> {
     const searchQuery = args?.searchQuery
     const listResponse = await this._googleClient.files.list({
       corpora: 'user',
@@ -409,7 +419,7 @@ export class Client {
     }
   }
 
-  private async _getOrFetchFile(id: string): Promise<BaseGenericFile> {
+  private async _getOrFetchFile(id: string): Promise<BaseDiscriminatedFile> {
     let file = this._filesCache.find(id)
     if (!file) {
       file = await this._fetchFile(id)
@@ -417,7 +427,7 @@ export class Client {
     return file
   }
 
-  private async _fetchFile(id: string): Promise<BaseGenericFile> {
+  private async _fetchFile(id: string): Promise<BaseDiscriminatedFile> {
     const response = await this._googleClient.files.get({
       fileId: id,
       fields: GOOGLE_API_FILE_FIELDS,
@@ -479,7 +489,7 @@ export class Client {
     return indexableContentType ?? defaultContentType
   }
 
-  private _getFilePath = async (file: BaseGenericFile): Promise<string[]> => {
+  private _getFilePath = async (file: BaseDiscriminatedFile): Promise<string[]> => {
     if (!file.parentId) {
       return [file.name]
     }

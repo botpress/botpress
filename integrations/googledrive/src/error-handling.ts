@@ -16,8 +16,9 @@ type ErrorDetail = z.infer<typeof errorDetailSchema>
 // field which contains the actual error messages. This type is a workaround
 // to properly type the error object.
 export type AggregateGAxiosError = Common.GaxiosError & { errors: ErrorDetail[] }
-export const isGaxiosError = (error: Error): error is AggregateGAxiosError => {
+export const isGaxiosError = (error: unknown): error is AggregateGAxiosError => {
   return (
+    error instanceof Error &&
     'errors' in error &&
     Array.isArray(error['errors']) &&
     error['errors'].every((err) => errorDetailSchema.safeParse(err).success)
@@ -26,7 +27,7 @@ export const isGaxiosError = (error: Error): error is AggregateGAxiosError => {
 
 export type SubscriptionRateLimitError = AggregateGAxiosError // No discriminant
 const SUBSCRIPTION_RATE_LIMIT_ERR_REASON = 'subscriptionRateLimitExceeded'
-export const isSubscriptionRateLimitError = (error: Error): error is SubscriptionRateLimitError => {
+export const isSubscriptionRateLimitError = (error: unknown): error is SubscriptionRateLimitError => {
   if (!isGaxiosError(error)) {
     return false
   }
@@ -34,45 +35,29 @@ export const isSubscriptionRateLimitError = (error: Error): error is Subscriptio
 }
 
 export type NotFoundError = AggregateGAxiosError // No discriminant
-export const isNotFoundError = (error: Error): error is NotFoundError => {
+export const isNotFoundError = (error: unknown): error is NotFoundError => {
   if (!isGaxiosError(error)) {
     return false
   }
   return error.status === 404
 }
 
-export const wrapWithTryCatchCallback = async <T, WrappedFn extends () => Promise<T>>(
-  fn: WrappedFn,
-  onCatch: (error: any) => Promise<void>
-): Promise<T | undefined> => {
-  let result: Awaited<T> | undefined
-  try {
-    result = await fn()
-  } catch (e: any) {
-    await onCatch(e)
-    result = undefined
+export const handleRateLimitError = async (e: unknown, logger?: bp.Logger): Promise<undefined> => {
+  if (!isSubscriptionRateLimitError(e)) {
+    throw e
   }
-  return result
+  if (logger) {
+    logger.forBot().warn('Subscription rate limit exceeded. Retry operation later.')
+  }
+  return undefined
 }
 
-export const wrapWithTryCatchRateLimit = <T>(fn: () => Promise<T>, logger?: bp.Logger): Promise<T | undefined> => {
-  return wrapWithTryCatchCallback(fn, async (e) => {
-    if (!isSubscriptionRateLimitError(e)) {
-      throw e
-    }
-    if (logger) {
-      logger.forBot().warn('Subscription rate limit exceeded. Retry operation later.')
-    }
-  })
-}
-
-export const wrapWithTryCatchNotFound = <T>(fn: () => Promise<T>, logger?: bp.Logger): Promise<T | undefined> => {
-  return wrapWithTryCatchCallback(fn, async (e) => {
-    if (!isNotFoundError(e)) {
-      throw e
-    }
-    if (logger) {
-      logger.forBot().error(e.errors.map((err) => err.message).join('\n'))
-    }
-  })
+export const handleNotFoundError = async (e: unknown, logger?: bp.Logger): Promise<undefined> => {
+  if (!isNotFoundError(e)) {
+    throw e
+  }
+  if (logger) {
+    logger.forBot().error(e.errors.map((err) => err.message).join('\n'))
+  }
+  return undefined
 }
