@@ -1,8 +1,10 @@
 import * as client from '@botpress/client'
+import semver from 'semver'
 import type { Logger } from '../logger'
-import { formatPackageRef, ApiPackageRef, NamePackageRef } from '../package-ref'
+import { formatPackageRef, ApiPackageRef, NamePackageRef, isLatest } from '../package-ref'
 import { findPreviousIntegrationVersion } from './find-previous-version'
 import * as paging from './paging'
+
 import {
   ApiClientProps,
   PublicIntegration,
@@ -103,10 +105,26 @@ export class ApiClient {
         .then((r) => r.interface)
         .catch(this._returnUndefinedOnError('ResourceNotFound'))
     }
+
+    if (isLatest(ref)) {
+      // TODO: handle latest keyword in backend
+      return this._findLatestInterfaceVersion(ref)
+    }
+
     return this.client
       .getInterfaceByName(ref)
       .then((r) => r.interface)
       .catch(this._returnUndefinedOnError('ResourceNotFound'))
+  }
+
+  private _findLatestInterfaceVersion = async ({ name }: NamePackageRef): Promise<Interface | undefined> => {
+    const { interfaces: allVersions } = await this.client.listInterfaces({ name })
+    const sorted = allVersions.sort((a, b) => semver.compare(b.version, a.version))
+    const latestVersion = sorted[0]
+    if (!latestVersion) {
+      return
+    }
+    return this.client.getInterface({ id: latestVersion.id }).then((r) => r.interface)
   }
 
   public async testLogin(): Promise<void> {
