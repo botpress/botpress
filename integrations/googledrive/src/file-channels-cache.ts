@@ -8,6 +8,7 @@ type FileChannels = z.infer<typeof fileChannelsSchema>
 type FileChannelsArray = FileChannel[]
 export class FileChannelsCache {
   private _channels: FileChannels
+  private _dirty = false
 
   public constructor(private _client: bp.Client, private _ctx: bp.Context) {
     this._channels = FileChannelsCache._getEmpty()
@@ -15,6 +16,7 @@ export class FileChannelsCache {
 
   public clear() {
     this._channels = FileChannelsCache._getEmpty()
+    this._dirty = true
   }
 
   public static async load({ client, ctx }: { client: bp.Client; ctx: bp.Context }) {
@@ -28,10 +30,16 @@ export class FileChannelsCache {
     })
     const fileChannels = new FileChannelsCache(client, ctx)
     fileChannels._channels = getStateResponse.state.payload.filesChannelsCache
+    fileChannels._dirty = false
     return fileChannels
   }
 
   public async save() {
+    if (!this._dirty) {
+      return
+    }
+
+    this._dirty = false
     return await this._client.setState({
       id: this._ctx.integrationId,
       type: 'integration',
@@ -49,6 +57,7 @@ export class FileChannelsCache {
   public remove(fileId: string): FileChannel | undefined {
     const channel = this._channels[fileId]
     delete this._channels[fileId]
+    this._dirty = true
     return channel
   }
 
@@ -58,6 +67,7 @@ export class FileChannelsCache {
   public set(channel: FileChannel): FileChannel | undefined {
     const oldChannel = this._channels[channel.fileId]
     this._channels[channel.fileId] = channel
+    this._dirty = true
     return oldChannel
   }
 
@@ -68,6 +78,7 @@ export class FileChannelsCache {
     const newChannels = Object.fromEntries(channels.map((channel) => [channel.fileId, channel]))
     const oldChannels = { ...this._channels }
     this._channels = newChannels
+    this._dirty = true
     return Object.values(oldChannels)
   }
 
