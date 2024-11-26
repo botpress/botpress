@@ -5,15 +5,40 @@ import { PluginTypingsModule } from '../../plugin-implementation/plugin-typings'
 
 type PluginInstance = NonNullable<sdk.BotDefinition['plugins']>[string]
 
-class ImplementationModule extends Module {
-  private _content: string
-  public constructor(props: ModuleProps & { content: string }) {
-    super(props)
-    this._content = props.content
+class BundleJsModule extends Module {
+  private _indexJs: string
+  public constructor(plugin: PluginInstance) {
+    super({
+      path: 'bundle.js',
+      exportName: 'default',
+    })
+    this._indexJs = plugin.implementation.toString()
   }
 
   public async getContent() {
-    return this._content
+    return this._indexJs
+  }
+}
+
+class BundleDtsModule extends Module {
+  public constructor(private _typingsModule: PluginTypingsModule) {
+    super({
+      path: 'bundle.d.ts',
+      exportName: 'default',
+    })
+  }
+
+  public async getContent() {
+    const typingsImport = this._typingsModule.import(this)
+
+    return [
+      consts.GENERATED_HEADER,
+      'import * as sdk from "@botpress/sdk"',
+      `import * as ${this._typingsModule.name} from "./${typingsImport}"`,
+      `type TPlugin = sdk.DefaultPlugin<${this._typingsModule.name}.${this._typingsModule.exportName}>`,
+      'export default new sdk.Plugin<TPlugin>({})',
+      '',
+    ].join('\n')
   }
 }
 
@@ -33,7 +58,8 @@ class PluginConfigModule extends Module {
 
 export class BotPluginModule extends Module {
   private _typingsModule: PluginTypingsModule
-  private _implementationModule: ImplementationModule
+  private _bundleJsModule: BundleJsModule
+  private _bundleDtsModule: BundleDtsModule
   private _configModule: PluginConfigModule
 
   public readonly pluginName: string
@@ -41,7 +67,7 @@ export class BotPluginModule extends Module {
   public constructor(plugin: PluginInstance) {
     super({
       exportName: 'default',
-      path: consts.INDEX_DECLARATION_FILE,
+      path: consts.INDEX_FILE,
     })
 
     this.pluginName = plugin.definition.name
@@ -50,12 +76,11 @@ export class BotPluginModule extends Module {
     this._typingsModule.unshift('typings')
     this.pushDep(this._typingsModule)
 
-    this._implementationModule = new ImplementationModule({
-      path: 'index.js',
-      exportName: 'default',
-      content: plugin.implementation.toString('base64'),
-    })
-    this.pushDep(this._implementationModule)
+    this._bundleJsModule = new BundleJsModule(plugin)
+    this.pushDep(this._bundleJsModule)
+
+    this._bundleDtsModule = new BundleDtsModule(this._typingsModule)
+    this.pushDep(this._bundleDtsModule)
 
     this._configModule = new PluginConfigModule({
       path: 'config.ts',
@@ -66,20 +91,18 @@ export class BotPluginModule extends Module {
   }
 
   public async getContent() {
-    const typingsImport = this._typingsModule.import(this)
     const configImport = this._configModule.import(this)
-
+    const typingsImport = this._typingsModule.import(this)
     return [
       consts.GENERATED_HEADER,
       'import * as sdk from "@botpress/sdk"',
+      'import bundle from "./bundle"',
       `import * as ${this._typingsModule.name} from "./${typingsImport}"`,
       `import * as ${this._configModule.name} from "./${configImport}"`,
       '',
-      `export * from "./${typingsImport}"`,
+      `export type TPlugin = sdk.DefaultPlugin<${this._typingsModule.name}.${this._typingsModule.exportName}>`,
       '',
-      `type TPlugin = sdk.DefaultPlugin<${this._typingsModule.name}.${this._typingsModule.exportName}>`,
-      '',
-      `export default new sdk.Plugin<TPlugin>().initialize(${this._configModule.name}.${this._configModule.exportName})`,
+      `export default bundle.initialize(${this._configModule.name}.${this._configModule.exportName})`,
       '',
     ].join('\n')
   }
