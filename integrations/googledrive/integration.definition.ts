@@ -187,5 +187,8 @@ export default new IntegrationDefinition({
     CLIENT_SECRET: {
       description: 'The client secret associated with your client ID',
     },
+    WEBHOOK_SECRET: {
+      description: 'The secret used to sign webhook tokens. Should be a high-entropy string that only Botpress knows',
+    },
   },
 })

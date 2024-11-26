@@ -15,10 +15,12 @@
     "axios": "^1.7.7",
     "google-auth-library": "^9.0.0",
     "googleapis": "^144.0.0",
+    "jsonwebtoken": "^9.0.2",
     "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
+    "@types/jsonwebtoken": "^9.0.3",
     "@types/node": "^18.11.17",
     "@types/uuid": "^9.0.1"
   }
