@@ -24,7 +24,7 @@ export const installAllInterfaces: Test = {
       'deletable',
       'hitl',
       'listable',
-      // 'llm',
+      'llm',
       'readable',
       'speechToText',
       'textToImage',
