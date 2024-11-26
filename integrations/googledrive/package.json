@@ -21,6 +21,7 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
+    "@sentry/cli": "^2.39.1",
     "@types/jsonwebtoken": "^9.0.3",
     "@types/node": "^18.11.17",
     "@types/uuid": "^9.0.1"
