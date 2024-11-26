@@ -22,12 +22,17 @@ export const handler: bp.IntegrationProps['handler'] = async (props) => {
     }
   }
 
+  const notification = notifParseResult.data
+  if (!NotificationHandler.isSupported(notification)) {
+    return
+  }
+
   const driveClient = await Client.create({ client, ctx, logger })
   const filesCache = await FilesCache.load({ client, ctx })
   const fileChannelsCache = await FileChannelsCache.load({ client, ctx })
   const fileEventHandler = new FileEventHandler(client, driveClient, filesCache, fileChannelsCache)
   const notificationHandler = new NotificationHandler(driveClient, filesCache, fileEventHandler)
-  await notificationHandler.handle(notifParseResult.data)
+  await notificationHandler.handle(notification)
   await filesCache.save()
   await fileChannelsCache.save()
 }

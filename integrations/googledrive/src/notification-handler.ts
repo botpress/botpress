@@ -12,6 +12,11 @@ export class NotificationHandler {
     private _fileEventHandler: FileEventHandler
   ) {}
 
+  public static isSupported(notification: Notification): boolean {
+    const type = notification.headers['x-goog-resource-state']
+    return type === 'update' || type === 'remove'
+  }
+
   public async handle(notification: Notification): Promise<void> {
     const type = notification.headers['x-goog-resource-state']
     const changes = notification.headers['x-goog-changed']
