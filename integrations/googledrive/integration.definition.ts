@@ -1,4 +1,5 @@
 import { IntegrationDefinition, z } from '@botpress/sdk'
+import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import {
   fileSchema,
   createFileArgSchema,
@@ -181,6 +182,7 @@ export default new IntegrationDefinition({
     },
   },
   secrets: {
+    ...sentryHelpers.COMMON_SECRET_NAMES,
     CLIENT_ID: {
       description: 'The client ID in your Google Cloud Credentials',
     },

@@ -39,7 +39,7 @@ jobs:
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}
-          googledrive_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_GOOGLEDRIVE_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_GOOGLEDRIVE_CLIENT_SECRET }} --secrets WEBHOOK_SECRET=${{ secrets.STAGING_GOOGLEDRIVE_WEBHOOK_SECRET }}'
+          googledrive_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_GDRIVE_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_GDRIVE_CLIENT_SECRET }} --secrets WEBHOOK_SECRET=${{ secrets.STAGING_GDRIVE_WEBHOOK_SECRET }}'
           gmail_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_GMAIL_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_GMAIL_CLIENT_SECRET }} --secrets TOPIC_NAME=${{ secrets.STAGING_GMAIL_TOPIC_NAME }} --secrets WEBHOOK_SHARED_SECRET=${{ secrets.STAGING_GMAIL_WEBHOOK_SHARED_SECRET }} --secrets WEBHOOK_SERVICE_ACCOUNT=${{ secrets.STAGING_GMAIL_WEBHOOK_SERVICE_ACCOUNT }}'
           gsheets_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_GSHEETS_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_GSHEETS_CLIENT_SECRET }}'
           googlecalendar_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_GOOGLECALENDAR_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_GOOGLECALENDAR_CLIENT_SECRET }}'
