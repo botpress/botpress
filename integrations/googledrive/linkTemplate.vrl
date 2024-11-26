@@ -1,5 +1,6 @@
 webhookId = to_string!(.webhookId)
 webhookUrl = to_string!(.webhookUrl)
+env = to_string!(.env)
 
 clientId = "941322101941-derr0eqa571ubdb4oruinad4mds5lj5l.apps.googleusercontent.com"
 
