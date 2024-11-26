@@ -7,6 +7,7 @@ const json = false
 const allowDeprecated = false
 const isPublic = false
 const minify = true
+const isBotpressWorkspace = undefined
 export default {
   minify,
   noBuild,
@@ -16,5 +17,6 @@ export default {
   confirm,
   json,
   allowDeprecated,
+  isBotpressWorkspace,
   public: isPublic,
 }
