@@ -35,7 +35,7 @@ jobs:
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.PRODUCTION_CLOUD_OPS_WORKSPACE_ID }}
-          extra_filter: "-F '!googledrive'"
+          googledrive_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_GDRIVE_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_GDRIVE_CLIENT_SECRET }} --secrets WEBHOOK_SECRET=${{ secrets.PRODUCTION_GDRIVE_WEBHOOK_SECRET }}'
           gmail_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_GMAIL_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_GMAIL_CLIENT_SECRET }} --secrets TOPIC_NAME=${{ secrets.PRODUCTION_GMAIL_TOPIC_NAME }} --secrets WEBHOOK_SHARED_SECRET=${{ secrets.PRODUCTION_GMAIL_WEBHOOK_SHARED_SECRET }} --secrets WEBHOOK_SERVICE_ACCOUNT=${{ secrets.PRODUCTION_GMAIL_WEBHOOK_SERVICE_ACCOUNT }}'
           gsheets_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_GSHEETS_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_GSHEETS_CLIENT_SECRET }}'
           googlecalendar_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_GOOGLECALENDAR_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_GOOGLECALENDAR_CLIENT_SECRET }}'
