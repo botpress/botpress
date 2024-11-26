@@ -27,6 +27,8 @@ export class ApiClient {
   public readonly token: string
   public readonly workspaceId: string
 
+  private _isBotpressWorkspace: boolean | undefined
+
   public static newClient = (props: ApiClientProps, logger: Logger) => new ApiClient(props, logger)
 
   public constructor(props: ApiClientProps, private _logger: Logger) {
@@ -35,9 +37,13 @@ export class ApiClient {
     this.url = apiUrl
     this.token = token
     this.workspaceId = workspaceId
+    this._isBotpressWorkspace = props.isBotpressWorkspace
   }
 
   public get isBotpressWorkspace(): boolean {
+    if (this._isBotpressWorkspace !== undefined) {
+      return this._isBotpressWorkspace
+    }
     return [
       '6a76fa10-e150-4ff6-8f59-a300feec06c1',
       '95de33eb-1551-4af9-9088-e5dcb02efd09',

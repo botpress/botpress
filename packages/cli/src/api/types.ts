@@ -6,6 +6,7 @@ export type ApiClientProps = {
   apiUrl: string
   token: string
   workspaceId: string
+  isBotpressWorkspace?: boolean
 }
 
 export type ApiClientFactory = {
