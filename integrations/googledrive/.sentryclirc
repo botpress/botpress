@@ -1,0 +1,5 @@
+[defaults]
+project=integration-gdrive
+
+[auth]
+dsn=https://bc5f70c41c32d53adb940255537bf675@o363631.ingest.us.sentry.io/4508366096302080

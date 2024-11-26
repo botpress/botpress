@@ -586,6 +586,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
+      '@botpress/sdk-addons':
+        specifier: workspace:^
+        version: link:../../packages/sdk-addons
       axios:
         specifier: ^1.7.7
         version: 1.7.7
