@@ -2,6 +2,7 @@ import { executeConversationAssignment } from './events/conversationAssignment'
 import { executeConversationResolution } from './events/conversationResolution'
 import { executeMessageCreate } from './events/messageCreate'
 import * as bp from '.botpress'
+import { FreshchatEvent } from './definitions/freshchat-events'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ ctx, req, logger, client }) => {
   if (!req.body) {

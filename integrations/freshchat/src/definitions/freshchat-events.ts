@@ -18,7 +18,7 @@ type Actor = {
 }
 
 // Generic Event type that all specific event types will extend
-type FreshchatEvent<T> = {
+export type FreshchatEvent<T> = {
   actor: Actor
   action: 'message_create' | 'conversation_assignment' | 'conversation_resolution' | 'conversation_reopen'
   action_time: string
