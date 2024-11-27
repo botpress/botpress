@@ -71,23 +71,25 @@ export class MetaClient {
 
   public async subscribeToWebhooks(accessToken: string) {
     try {
-      const { data } = await axios.post(
+      const response = await axios.post(
         `${this._baseGraphApiUrl}/me/subscribed_apps?access_token=${accessToken}`,
         {
           subscribed_fields: ['messages', 'messaging_postbacks'],
         }
       )
 
-      if (!data.success) {
-        throw new Error('No Success')
+      console.log('Subscribe response', { response })
+
+      if (!response?.data?.success) {
+        throw new RuntimeError('No Success subscribing')
       }
     } catch (e: any) {
       this._logger
         .forBot()
         .error(
-          `(OAuth registration) Error subscribing to webhooks: ${e.message} -> ${e.response?.data}`
+          `(OAuth registration) Error subscribing to webhooks: ${e.message} -> ${e?.response?.data}`
         )
-      throw new Error('Issue subscribing to Webhooks for Page, please try again.')
+      throw new RuntimeError('Issue subscribing to Webhooks for Page, please try again.')
     }
   }
 
@@ -99,9 +101,11 @@ export class MetaClient {
 
     const url = `${this._baseGraphApiUrl}/${this._version}/${instagramId}?${query.toString()}`
 
-    console.log('querying user', { url, query})
+    console.log('querying user v2', { url, query})
 
     const response = await axios.get<{ id: string; name: string; username: string } & Record<string, any>>(url)
+
+    console.log('Response to getUserProfile', response)
 
     return response.data
   }
@@ -212,7 +216,7 @@ export async function getCredentials(
   const { state } = await client.getState({ type: 'integration', name: 'oauth', id: ctx.integrationId })
 
   if (!state.payload.accessToken) {
-    throw new Error('There is no access token, please reauthorize')
+    throw new RuntimeError('There is no access token, please reauthorize')
   }
 
   return {
