@@ -13,7 +13,7 @@ export const states = {
   freshchat: {
     type: 'integration',
     schema: z.object({
-      channelId: z.string(),
+      channelId: z.string().title('Channel Id').describe('Id from the channel topic'),
     }),
   },
 } satisfies IntegrationDefinitionProps['states']
