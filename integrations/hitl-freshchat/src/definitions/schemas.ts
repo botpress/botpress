@@ -12,9 +12,9 @@ export type FreshchatConfiguration = z.infer<typeof FreshchatConfigurationSchema
 
 export const FreshchatConfigurationSchema = z
 .object({
-  channel_id: z.string().describe('Internal uuid (36 chars) from the Topic of the Webchat channel'),
-  token: z.string().describe('API key from Freshchat, get at https://YOUR_COMPANY.freshworks.com/crm/sales/personal-settings/api-settings'),
-  domain: z.string().describe('Your Freshchat domain from the chat URL, get at https://YOUR_COMPANY.freshworks.com/crm/sales/personal-settings/api-settings (example: botpress-5b321a95b1dfee217185497)')
+  topic_name: z.string().title('Topic name').describe('Name from the default topic that is going to be used for HITL'),
+  token: z.string().title('Api Key').describe('API key from Freshchat'),
+  domain: z.string().title('Domain Name').describe('Your Freshchat domain from the Freshchat chat URL (example: yourcompany-5b321a95b1dfee217185497)')
 })
 
 //Freshchat API Schemas
@@ -42,6 +42,30 @@ export const FreshchatUserSchema = z.object({
   properties: z.array(FreshchatPropertySchema).optional(), // Optional as it's not stated if mandatory
   reference_id: z.string().optional(),
   restore_id: z.string().optional(),
+})
+
+export const FreshchatChannelSchema = z.object({
+  id: z.string().uuid(),
+  icon: z.object({}).optional(), // Adjust schema for `icon` if it contains specific properties
+  updated_time: z.string().datetime(),
+  enabled: z.boolean(),
+  public: z.boolean(),
+  name: z.string(),
+  tags: z.array(z.string()), // Assuming `tags` is an array of strings
+  welcome_message: z.object({
+    message_parts: z.array(
+      z.object({
+        text: z.object({
+          content: z.string(),
+        }),
+      })
+    ),
+    message_type: z.enum(["normal"]), // Adjust if there are other valid message types
+    restrictResponse: z.boolean(),
+    botsPrivateNote: z.boolean(),
+    isBotsInput: z.boolean(),
+  }),
+  source: z.literal("FRESHCHAT"), // Assuming "FRESHCHAT" is the only valid value
 })
 
 export const FreshchatAgentSchema = z.object({
@@ -89,6 +113,7 @@ export type FreshchatConversation = z.infer<typeof FreshchatConversationSchema>
 
 export type FreshchatUser = z.infer<typeof FreshchatUserSchema>
 export type FreshchatAgent =  z.infer<typeof FreshchatAgentSchema>
+export type FreshchatChannel = z.infer<typeof FreshchatChannelSchema>
 
 
 // Extended Botpress User/Conversation Schemas

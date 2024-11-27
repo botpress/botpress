@@ -17,6 +17,12 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
 
     const { title, description , messageHistory } = input
 
+    const { state: { payload: { channelId } } } = await client.getState({
+      type: 'integration',
+      id: ctx.integrationId,
+      name: 'freshchat',
+    })
+
     const messages: any[] = [
       {
         message_parts: [{
@@ -28,7 +34,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
             `
           }
         }],
-        channel_id: ctx.configuration.channel_id,
+        channel_id: channelId,
         message_type: 'normal',
         actor_type: 'user',
         actor_id: user.tags.id
@@ -41,20 +47,24 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
         text: {
           content: `Transcript:
             ${messageHistory?.map( message => {
+              let text =  ''
+
               if(message.type !== 'text') {
-               message.payload.text = message.type
+                text = `(Event: ${message.type})`
+              } else {
+                text = message.payload.text
               }
 
               const origin = message.source.type == 'bot' ? 'Bot: ' : (
                 message.source.userId === user.id ? 'User: ' : ''
               )
 
-              return `${origin}${message.payload.text}`
+              return `${origin}${text}`
             }).join('\n') || '-'}
           `
         }
       }],
-      channel_id: ctx.configuration.channel_id,
+      channel_id: channelId,
       message_type: 'normal',
       actor_type: 'user',
       actor_id: user.tags.id
@@ -62,7 +72,8 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
 
     const freshchatConversation = await freshchatClient.createConversation({
       userId: user.tags.id as string,
-      messages
+      messages,
+      channelId
     })
 
     const { conversation } = await client.getOrCreateConversation({

@@ -1,4 +1,4 @@
-import { IntegrationDefinitionProps } from '@botpress/sdk'
+import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 import { FreshchatConfigurationSchema } from './schemas'
 
 export { channels } from './channels'
@@ -10,6 +10,12 @@ export const configuration = {
 } satisfies IntegrationDefinitionProps['configuration']
 
 export const states = {
+  freshchat: {
+    type: 'integration',
+    schema: z.object({
+      channelId: z.string()
+    }),
+  },
 } satisfies IntegrationDefinitionProps['states']
 
 export const user = {

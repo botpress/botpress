@@ -1,6 +1,9 @@
 import axios, { Axios } from 'axios'
 import * as bp from '.botpress'
-import { FreshchatAgent, FreshchatConfiguration, FreshchatUser } from './definitions/schemas'
+import { FreshchatAgent, FreshchatChannel, FreshchatConfiguration, FreshchatUser } from './definitions/schemas'
+import { RuntimeError } from '@botpress/client'
+
+// API docs: https://developers.freshchat.com/api/
 
 class FreshchatClient {
   private client: Axios
@@ -20,9 +23,9 @@ class FreshchatClient {
     })
   }
 
-  public async createConversation(args: { userId: string; messages: any[] }): Promise<{conversation_id: string; channel_id: string}> {
+  public async createConversation(args: { userId: string; messages: any[]; channelId: string }): Promise<{conversation_id: string; channel_id: string}> {
     const { data } = await this.client.post('/conversations', {
-      channel_id: this._config.channel_id,
+      channel_id: args.channelId,
       messages: args.messages,
       users: [{
         id: args.userId
@@ -48,8 +51,27 @@ class FreshchatClient {
       const result = await this.client.get('/users?email=' + email)
       return result?.data?.users[0]
     } catch(e: any) {
-      this._logger.forBot().error('Failed to get user by email: ' + email, e.message, e?.response?.data, this.client.defaults.baseURL, this._config)
-      throw e
+      this._logger.forBot().error('Failed to get user by email: ' + email, e.message, e?.response?.data)
+      throw new RuntimeError('Failed to get user by email ' + e.message)
+    }
+  }
+
+  public async getChannels(): Promise<FreshchatChannel[]> {
+    try {
+      const result = await this.client.get<{ channels: FreshchatChannel[] }>('/channels?items_per_page=9999')
+      return result?.data?.channels
+    } catch(e: any) {
+      this._logger.forBot().error('Failed to get channels : ' + e.message, e?.response?.data)
+      throw new RuntimeError('Failed to get channels: ' + e.message)
+    }
+  }
+
+  public async verifyToken(): Promise<boolean> {
+    try {
+      const result = await this.client.get<{ organisation_id: number }>('/accounts/configuration')
+      return !!result?.data?.organisation_id;
+    } catch(e: any) {
+      return false
     }
   }
 
