@@ -1,7 +1,7 @@
 {
-  "name": "freshchat-hitl",
+  "name": "@botpresshub/freshchat",
   "version": "0.0.1",
-  "description": "Integration for Freshchat HITL",
+  "description": "Integration for Freshchat",
   "private": true,
   "scripts": {
     "check:type": "tsc --noEmit",

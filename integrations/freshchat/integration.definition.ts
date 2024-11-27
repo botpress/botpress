@@ -5,7 +5,7 @@ import { events, configuration, channels, states, user } from './src/definitions
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  title: 'Freshchat HITL',
+  title: 'Freshchat',
   version: '1.0.1',
   icon: 'icon.svg',
   description: 'This integration allows your bot to use Freshchat as a HITL Provider',
