@@ -75,7 +75,6 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
     const token = await cache.get('token')
     const workspaceId = credentials.workspaceId ?? (await cache.get('workspaceId'))
     const apiUrl = credentials.apiUrl ?? (await cache.get('apiUrl'))
-    const isBotpressWorkspace = credentials.isBotpressWorkspace ?? false
 
     if (!(token && workspaceId && apiUrl)) {
       throw new errors.NotLoggedInError()
@@ -90,7 +89,6 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
         apiUrl,
         token,
         workspaceId,
-        isBotpressWorkspace,
       },
       this.logger
     )

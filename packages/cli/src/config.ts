@@ -128,10 +128,6 @@ const credentialsSchema = {
   apiUrl,
   workspaceId,
   token,
-  isBotpressWorkspace: {
-    type: 'boolean',
-    description: 'Whether the workspace is a Botpress workspace',
-  },
 } satisfies CommandSchema
 
 const secretsSchema = {

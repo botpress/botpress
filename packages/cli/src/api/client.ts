@@ -1,5 +1,6 @@
 import * as client from '@botpress/client'
 import semver from 'semver'
+import yn from 'yn'
 import type { Logger } from '../logger'
 import { formatPackageRef, ApiPackageRef, NamePackageRef, isLatest } from '../package-ref'
 import { findPreviousIntegrationVersion } from './find-previous-version'
@@ -27,8 +28,6 @@ export class ApiClient {
   public readonly token: string
   public readonly workspaceId: string
 
-  private _isBotpressWorkspace: boolean | undefined
-
   public static newClient = (props: ApiClientProps, logger: Logger) => new ApiClient(props, logger)
 
   public constructor(props: ApiClientProps, private _logger: Logger) {
@@ -37,12 +36,13 @@ export class ApiClient {
     this.url = apiUrl
     this.token = token
     this.workspaceId = workspaceId
-    this._isBotpressWorkspace = props.isBotpressWorkspace
   }
 
   public get isBotpressWorkspace(): boolean {
-    if (this._isBotpressWorkspace !== undefined) {
-      return this._isBotpressWorkspace
+    // this environment variable is undocumented and only used internally for dev purposes
+    const isBotpressWorkspace = yn(process.env.BP_IS_BOTPRESS_WORKSPACE)
+    if (isBotpressWorkspace !== undefined) {
+      return isBotpressWorkspace
     }
     return [
       '6a76fa10-e150-4ff6-8f59-a300feec06c1',

@@ -1841,6 +1841,9 @@ importers:
       winston:
         specifier: ^3.8.2
         version: 3.9.0
+      yn:
+        specifier: ^4.0.0
+        version: 4.0.0
     devDependencies:
       '@bpinternal/log4bot':
         specifier: ^0.0.4
