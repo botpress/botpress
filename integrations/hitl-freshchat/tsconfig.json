@@ -1,0 +1,10 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "target": "es2017",
+    "baseUrl": ".",
+    "outDir": "dist",
+    "checkJs": false
+  },
+  "include": [".botpress/**/*", "src/**/*"]
+}
