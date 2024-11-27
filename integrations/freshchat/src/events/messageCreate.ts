@@ -1,7 +1,6 @@
 import { MessageCreateFreshchatEvent } from '../definitions/freshchat-events'
 import * as bp from '.botpress'
 
-
 export const executeMessageCreate = async ({
   freshchatEvent,
   client,
