@@ -84,14 +84,7 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
       this.logger.log(`Using custom url ${apiUrl}`, { prefix: '🔗' })
     }
 
-    return this.api.newClient(
-      {
-        apiUrl,
-        token,
-        workspaceId,
-      },
-      this.logger
-    )
+    return this.api.newClient({ apiUrl, token, workspaceId }, this.logger)
   }
 
   private _notifyUpdateCli = async (): Promise<void> => {
