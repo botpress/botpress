@@ -156,45 +156,80 @@ export type ActionHandlers<TBot extends types.BaseBot> = {
   ) => Promise<TBot['actions'][K]['output']>
 }
 
+type BaseHookDefinition = { stoppable?: boolean; data: any }
+type HookDefinition<THookDef extends BaseHookDefinition = BaseHookDefinition> = THookDef
+
 /**
- * TODO:
- * - add concept of stoppable / un-stoppable hooks (e.g. before_incoming_message  Vs before_outgoing_message)
- * - add "before_register", "after_register", "before_state_expired", "after_state_expired", "before_incoming_call_action", "after_incoming_call_action" hooks
+ * TODO: add hooks for:
+ *   - before_register
+ *   - after_register
+ *   - before_state_expired
+ *   - after_state_expired
+ *   - before_incoming_call_action
+ *   - after_incoming_call_action
  */
 export type HookDefinitions<TBot extends types.BaseBot> = {
-  before_incoming_event: _IncomingEvents<TBot> & { '*': AnyIncomingEvent<TBot> }
-  before_incoming_message: _IncomingMessages<TBot> & { '*': AnyIncomingMessage<TBot> }
-  before_outgoing_message: _OutgoingMessageRequests<TBot> & { '*': AnyOutgoingMessageRequest<TBot> }
-  before_outgoing_call_action: _OutgoingCallActionRequests<TBot> & { '*': AnyOutgoingCallActionRequest<TBot> }
-  after_incoming_event: _IncomingEvents<TBot> & { '*': AnyIncomingEvent<TBot> }
-  after_incoming_message: _IncomingMessages<TBot> & { '*': AnyIncomingMessage<TBot> }
-  after_outgoing_message: _OutgoingMessageResponses<TBot> & { '*': AnyOutgoingMessageResponse<TBot> }
-  after_outgoing_call_action: _OutgoingCallActionResponses<TBot> & { '*': AnyOutgoingCallActionResponse<TBot> }
+  before_incoming_event: HookDefinition<{
+    stoppable: true
+    data: _IncomingEvents<TBot> & { '*': AnyIncomingEvent<TBot> }
+  }>
+  before_incoming_message: HookDefinition<{
+    stoppable: true
+    data: _IncomingMessages<TBot> & { '*': AnyIncomingMessage<TBot> }
+  }>
+  before_outgoing_message: HookDefinition<{
+    stoppable: false
+    data: _OutgoingMessageRequests<TBot> & { '*': AnyOutgoingMessageRequest<TBot> }
+  }>
+  before_outgoing_call_action: HookDefinition<{
+    stoppable: false
+    data: _OutgoingCallActionRequests<TBot> & { '*': AnyOutgoingCallActionRequest<TBot> }
+  }>
+  after_incoming_event: HookDefinition<{
+    stoppable: true
+    data: _IncomingEvents<TBot> & { '*': AnyIncomingEvent<TBot> }
+  }>
+  after_incoming_message: HookDefinition<{
+    stoppable: true
+    data: _IncomingMessages<TBot> & { '*': AnyIncomingMessage<TBot> }
+  }>
+  after_outgoing_message: HookDefinition<{
+    stoppable: false
+    data: _OutgoingMessageResponses<TBot> & { '*': AnyOutgoingMessageResponse<TBot> }
+  }>
+  after_outgoing_call_action: HookDefinition<{
+    stoppable: false
+    data: _OutgoingCallActionResponses<TBot> & { '*': AnyOutgoingCallActionResponse<TBot> }
+  }>
+}
+
+export type HookData<TBot extends types.BaseBot> = {
+  [H in keyof HookDefinitions<TBot>]: {
+    [T in keyof HookDefinitions<TBot>[H]['data']]: HookDefinitions<TBot>[H]['data'][T]
+  }
 }
 
 export type HookInputs<TBot extends types.BaseBot> = {
-  [H in keyof HookDefinitions<TBot>]: {
-    [T in keyof HookDefinitions<TBot>[H]]: {
+  [H in keyof HookData<TBot>]: {
+    [T in keyof HookData<TBot>[H]]: {
       client: BotClient<TBot>
       ctx: BotContext
-      data: HookDefinitions<TBot>[H][T]
+      data: HookData<TBot>[H][T]
     }
   }
 }
 
 export type HookOutputs<TBot extends types.BaseBot> = {
-  [H in keyof HookDefinitions<TBot>]: {
-    [T in keyof HookDefinitions<TBot>[H]]: {
-      data: HookDefinitions<TBot>[H][T]
-    }
+  [H in keyof HookData<TBot>]: {
+    [T in keyof HookData<TBot>[H]]: {
+      data?: HookData<TBot>[H][T]
+    } & (HookDefinitions<TBot>[H]['stoppable'] extends true ? { stop?: boolean } : {})
   }
 }
 
 export type HookHandlers<TBot extends types.BaseBot> = {
-  [H in keyof HookDefinitions<TBot>]: {
-    [T in keyof HookDefinitions<TBot>[H]]: (
-      input: HookInputs<TBot>[H][T]
-    ) => Promise<HookOutputs<TBot>[H][T] | undefined | void>
+  [H in keyof HookData<TBot>]: {
+    [T in keyof HookData<TBot>[H]]: (input: HookInputs<TBot>[H][T]) => Promise<HookOutputs<TBot>[H][T] | undefined>
   }
 }
 
@@ -211,8 +246,8 @@ export type StateExpiredHandlersMap<TBot extends types.BaseBot> = {
 }
 
 export type HookHandlersMap<TBot extends types.BaseBot> = {
-  [H in keyof HookDefinitions<TBot>]: {
-    [T in keyof HookDefinitions<TBot>[H]]?: HookHandlers<TBot>[H][T][]
+  [H in keyof HookData<TBot>]: {
+    [T in keyof HookData<TBot>[H]]?: HookHandlers<TBot>[H][T][]
   }
 }
 

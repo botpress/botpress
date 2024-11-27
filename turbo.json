@@ -595,6 +595,19 @@
         "@botpresshub/personality#add:integrations"
       ]
     },
+    "@botpresshub/knowledge#add:integrations": {
+      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+    },
+    "@botpresshub/knowledge#build": {
+      "inputs": ["plugin.definition.ts", "src/**"],
+      "outputs": [".botpress/**"],
+      "dependsOn": [
+        "@botpress/client#build",
+        "@botpress/sdk#build",
+        "@botpress/cli#build",
+        "@botpresshub/knowledge#add:integrations"
+      ]
+    },
     "@bp-bots/bugbuster#add:integrations": {
       "cache": false,
       "dependsOn": [
@@ -626,6 +639,19 @@
       "cache": false,
       "dependsOn": [
         "@bp-bots/hello-world#add:integrations",
+        "@botpress/client#build",
+        "@botpress/sdk#build",
+        "@botpress/cli#build"
+      ]
+    },
+    "@bp-bots/knowledgiani#add:integrations": {
+      "cache": false,
+      "dependsOn": ["@botpress/cli#build", "@botpresshub/telegram#build", "@botpresshub/knowledge#build"]
+    },
+    "@bp-bots/knowledgiani#build": {
+      "cache": false,
+      "dependsOn": [
+        "@bp-bots/knowledgiani#add:integrations",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"

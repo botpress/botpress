@@ -1,5 +1,5 @@
 {
-  "name": "@botpresshub/personality",
+  "name": "@botpresshub/knowledge",
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp build",
