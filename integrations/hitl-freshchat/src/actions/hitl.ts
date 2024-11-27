@@ -11,7 +11,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
       id: input.userId,
     })
 
-    if(user.tags.id?.length) {
+    if(!user.tags.id?.length) {
       throw new RuntimeError('Input user doesn\'t have a Freshchat User Id')
     }
 
