@@ -2061,6 +2061,40 @@ importers:
         specifier: ^8.0.1
         version: 8.0.1
 
+  plugins/knowledge:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      dedent:
+        specifier: ^1.5.3
+        version: 1.5.3
+      json5:
+        specifier: ^2.2.3
+        version: 2.2.3
+      jsonrepair:
+        specifier: ^3.10.0
+        version: 3.10.0
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@bpinternal/genenv':
+        specifier: 0.0.1
+        version: 0.0.1
+      '@types/node':
+        specifier: ^18.11.17
+        version: 18.19.50
+      execa:
+        specifier: ^8.0.1
+        version: 8.0.1
+
   plugins/logger:
     dependencies:
       '@botpress/client':
@@ -2103,9 +2137,6 @@ importers:
       jsonrepair:
         specifier: ^3.10.0
         version: 3.10.0
-      openai:
-        specifier: ^4.53.0
-        version: 4.53.0
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*

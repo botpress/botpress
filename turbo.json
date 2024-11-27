@@ -595,6 +595,19 @@
         "@botpresshub/personality#add:integrations"
       ]
     },
+    "@botpresshub/knowledge#add:integrations": {
+      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+    },
+    "@botpresshub/knowledge#build": {
+      "inputs": ["plugin.definition.ts", "src/**"],
+      "outputs": [".botpress/**"],
+      "dependsOn": [
+        "@botpress/client#build",
+        "@botpress/sdk#build",
+        "@botpress/cli#build",
+        "@botpresshub/knowledge#add:integrations"
+      ]
+    },
     "@bp-bots/bugbuster#add:integrations": {
       "cache": false,
       "dependsOn": [
