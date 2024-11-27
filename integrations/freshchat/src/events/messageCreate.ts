@@ -1,13 +1,13 @@
 import * as bp from '.botpress'
 
-export const executeMessageCreate = async ({ freshchatEvent,
-                                              client,
-                                            }: {
+export const executeMessageCreate = async ({
+  freshchatEvent,
+  client,
+}: {
   freshchatEvent: MessageCreateFreshchatEvent
   client: bp.Client
 }) => {
-
-  if(freshchatEvent.actor.actor_type === 'user') {
+  if (freshchatEvent.actor.actor_type === 'user') {
     return
   }
 
@@ -24,14 +24,13 @@ export const executeMessageCreate = async ({ freshchatEvent,
     },
   })
 
-  for(const messagePart of freshchatEvent.data.message.message_parts) {
+  for (const messagePart of freshchatEvent.data.message.message_parts) {
     await client.createMessage({
       tags: {},
       type: 'text',
       userId: user?.id as string,
       conversationId: conversation.id,
-      payload: { text: messagePart.text.content  },
+      payload: { text: messagePart.text.content },
     })
   }
-
 }

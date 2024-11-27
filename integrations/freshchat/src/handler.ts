@@ -12,7 +12,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ ctx, req, logger
   logger.forBot().debug('Handler received request from Freshchat with payload:', req.body)
 
   //https://crmsupport.freshworks.com/en/support/solutions/articles/50000004461-freshchat-webhooks-payload-structure-and-authentication
-  const freshchatEvent= JSON.parse(req.body) as FreshchatEvent<any>
+  const freshchatEvent = JSON.parse(req.body) as FreshchatEvent<any>
 
   switch (freshchatEvent.action) {
     case 'message_create':

@@ -9,19 +9,19 @@ export default new bp.Integration({
   register: async ({ client, ctx, logger }) => {
     const freshchatClient = getFreshchatClient({ ...ctx.configuration }, logger)
 
-    if(!await freshchatClient.verifyToken()) {
+    if (!(await freshchatClient.verifyToken())) {
       throw new RuntimeError(`Invalid API token or domain name`)
     }
 
     const channels = await freshchatClient.getChannels()
 
-    if(!ctx.configuration?.topic_name?.length) {
+    if (!ctx.configuration?.topic_name?.length) {
       throw new RuntimeError(`Topic name required`)
     }
 
-    const channel = channels.find( channel => channel.name == ctx.configuration.topic_name)
+    const channel = channels.find((channel) => channel.name == ctx.configuration.topic_name)
 
-    if(!channel) {
+    if (!channel) {
       throw new RuntimeError(`Topic with name '${ctx.configuration.topic_name}' doesn't exist on your account`)
     }
 
@@ -30,13 +30,12 @@ export default new bp.Integration({
       id: ctx.integrationId,
       name: 'freshchat',
       payload: {
-        channelId: channel.id
-      }
+        channelId: channel.id,
+      },
     })
-
   },
   unregister: async () => {},
   actions,
   channels,
-  handler
+  handler,
 })

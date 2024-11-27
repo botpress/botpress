@@ -6,8 +6,8 @@ export const channels = {
     messages: {}, // defined by the integration
     conversation: {
       tags: {
-        id: { title: 'Freshchat Conversation Id', description: 'Freshchat Conversation Id' }
-      }
-    }
+        id: { title: 'Freshchat Conversation Id', description: 'Freshchat Conversation Id' },
+      },
+    },
   },
 } satisfies IntegrationDefinitionProps['channels']

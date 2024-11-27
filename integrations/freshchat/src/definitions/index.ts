@@ -13,7 +13,7 @@ export const states = {
   freshchat: {
     type: 'integration',
     schema: z.object({
-      channelId: z.string()
+      channelId: z.string(),
     }),
   },
 } satisfies IntegrationDefinitionProps['states']
@@ -21,5 +21,5 @@ export const states = {
 export const user = {
   tags: {
     id: { description: 'Freshchat User Id', title: 'Freshchat User Id' },
-  }
+  },
 } satisfies IntegrationDefinitionProps['user']

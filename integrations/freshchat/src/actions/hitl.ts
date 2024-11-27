@@ -11,13 +11,17 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
       id: input.userId,
     })
 
-    if(!user.tags.id?.length) {
-      throw new RuntimeError('Input user doesn\'t have a Freshchat User Id')
+    if (!user.tags.id?.length) {
+      throw new RuntimeError("Input user doesn't have a Freshchat User Id")
     }
 
-    const { title, description , messageHistory } = input
+    const { title, description, messageHistory } = input
 
-    const { state: { payload: { channelId } } } = await client.getState({
+    const {
+      state: {
+        payload: { channelId },
+      },
+    } = await client.getState({
       type: 'integration',
       id: ctx.integrationId,
       name: 'freshchat',
@@ -25,55 +29,61 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
 
     const messages: any[] = [
       {
-        message_parts: [{
-          text: {
-            content: `New Conversation Started
+        message_parts: [
+          {
+            text: {
+              content: `New Conversation Started
 
               Title: ${title}
               Description: ${description}
-            `
-          }
-        }],
+            `,
+            },
+          },
+        ],
         channel_id: channelId,
         message_type: 'normal',
         actor_type: 'user',
-        actor_id: user.tags.id
-      }
+        actor_id: user.tags.id,
+      },
     ]
 
-
     messages.push({
-      message_parts: [{
-        text: {
-          content: `Transcript:
-            ${messageHistory?.map( message => {
-              let text =  ''
+      message_parts: [
+        {
+          text: {
+            content: `Transcript:
+            ${
+              messageHistory
+                ?.map((message) => {
+                  let text = ''
 
-              if(message.type !== 'text') {
-                text = `(Event: ${message.type})`
-              } else {
-                text = message.payload.text
-              }
+                  if (message.type !== 'text') {
+                    text = `(Event: ${message.type})`
+                  } else {
+                    text = message.payload.text
+                  }
 
-              const origin = message.source.type == 'bot' ? 'Bot: ' : (
-                message.source.userId === user.id ? 'User: ' : ''
-              )
+                  const origin =
+                    message.source.type == 'bot' ? 'Bot: ' : message.source.userId === user.id ? 'User: ' : ''
 
-              return `${origin}${text}`
-            }).join('\n') || '-'}
-          `
-        }
-      }],
+                  return `${origin}${text}`
+                })
+                .join('\n') || '-'
+            }
+          `,
+          },
+        },
+      ],
       channel_id: channelId,
       message_type: 'normal',
       actor_type: 'user',
-      actor_id: user.tags.id
+      actor_id: user.tags.id,
     })
 
     const freshchatConversation = await freshchatClient.createConversation({
       userId: user.tags.id as string,
       messages,
-      channelId
+      channelId,
     })
 
     const { conversation } = await client.getOrCreateConversation({
@@ -86,7 +96,6 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
     return {
       conversationId: conversation.id,
     }
-
   } catch (error: any) {
     logger.forBot().error('Error Starting Freshchat Hitl: ' + error.message, error?.response?.data)
     throw new RuntimeError(error.message)
@@ -106,19 +115,23 @@ export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ ctx
 
   const freshchatClient = getFreshchatClient({ ...ctx.configuration }, logger)
 
-  void freshchatClient.sendMessage(null, freshchatConversationId, 'Botpress HITL terminated with reason: ' + input.reason)
+  void freshchatClient.sendMessage(
+    null,
+    freshchatConversationId,
+    'Botpress HITL terminated with reason: ' + input.reason
+  )
 
   return {}
 }
 
 // create a user in both platforms
-export const createUser: bp.IntegrationProps['actions']['createUser']  = async ({ client, input, ctx, logger }) => {
+export const createUser: bp.IntegrationProps['actions']['createUser'] = async ({ client, input, ctx, logger }) => {
   try {
     const freshchatClient = getFreshchatClient({ ...ctx.configuration }, logger)
 
     const { name, email, pictureUrl } = input
 
-    if(!email) {
+    if (!email) {
       logger.forBot().error('Email necessary for HITL')
       throw new RuntimeError('Email necessary for HITL')
     }
@@ -126,17 +139,17 @@ export const createUser: bp.IntegrationProps['actions']['createUser']  = async (
     let freshchatUser = await freshchatClient.getUserByEmail(email)
 
     // Create a user on the agent handoff platform
-    if(!freshchatUser) {
+    if (!freshchatUser) {
       logger.forBot().info(`User with email ${email} not Found on Freshchat, creating a new one`)
 
       freshchatUser = await freshchatClient.createUser({
         email,
         first_name: name,
-        reference_id: email
+        reference_id: email,
       })
     }
 
-    if(!freshchatUser.id) {
+    if (!freshchatUser.id) {
       logger.forBot().error('Failed to create/get Freshchat User')
       throw new RuntimeError('Failed to create/get Freshchat User')
     }

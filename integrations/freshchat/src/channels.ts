@@ -14,13 +14,17 @@ export const channels = {
         const freshchatUserId = user.tags.id
         const freshchatConversationId = conversation.tags.id
 
-        if(!freshchatConversationId?.length) {
+        if (!freshchatConversationId?.length) {
           logger.forBot().error('No Freshchat Conversation Id')
           return
         }
 
-        return await freshchatClient.sendMessage(freshchatUserId as string, freshchatConversationId as string, userMessage)
+        return await freshchatClient.sendMessage(
+          freshchatUserId as string,
+          freshchatConversationId as string,
+          userMessage
+        )
       },
-    }
+    },
   },
 } satisfies bp.IntegrationProps['channels']

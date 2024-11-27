@@ -1,20 +1,21 @@
 import { z } from '@botpress/sdk'
 
-export const CreateConversationResponseSchema = z
-  .object({
-    conversation_id: z.string(),
-    channel_id: z.string(),
-  })
+export const CreateConversationResponseSchema = z.object({
+  conversation_id: z.string(),
+  channel_id: z.string(),
+})
 
 export type CreateConversationResponse = z.output<typeof CreateConversationResponseSchema>
 
 export type FreshchatConfiguration = z.infer<typeof FreshchatConfigurationSchema>
 
-export const FreshchatConfigurationSchema = z
-.object({
+export const FreshchatConfigurationSchema = z.object({
   topic_name: z.string().title('Topic name').describe('Name from the default topic that is going to be used for HITL'),
   token: z.string().title('Api Key').describe('API key from Freshchat'),
-  domain: z.string().title('Domain Name').describe('Your Freshchat domain from the Freshchat chat URL (example: yourcompany-5b321a95b1dfee217185497)')
+  domain: z
+    .string()
+    .title('Domain Name')
+    .describe('Your Freshchat domain from the Freshchat chat URL (example: yourcompany-5b321a95b1dfee217185497)'),
 })
 
 //Freshchat API Schemas
@@ -60,25 +61,29 @@ export const FreshchatChannelSchema = z.object({
         }),
       })
     ),
-    message_type: z.enum(["normal"]), // Adjust if there are other valid message types
+    message_type: z.enum(['normal']), // Adjust if there are other valid message types
     restrictResponse: z.boolean(),
     botsPrivateNote: z.boolean(),
     isBotsInput: z.boolean(),
   }),
-  source: z.literal("FRESHCHAT"), // Assuming "FRESHCHAT" is the only valid value
+  source: z.literal('FRESHCHAT'), // Assuming "FRESHCHAT" is the only valid value
 })
 
 export const FreshchatAgentSchema = z.object({
   id: z.string().uuid().optional(),
   created_time: z.string().datetime().optional(),
   agent_capacity: z.number().optional(),
-  agent_status: z.object({
-    name: z.string()
-  }).optional(),
+  agent_status: z
+    .object({
+      name: z.string(),
+    })
+    .optional(),
   availability_status: z.enum(['AVAILABLE', 'UNAVAILABLE', 'AWAY', 'BUSY']).optional(),
-  avatar: z.object({
-    url: z.string().url()
-  }).optional(),
+  avatar: z
+    .object({
+      url: z.string().url(),
+    })
+    .optional(),
   biography: z.string().optional(),
   email: z.string().email().optional(),
   first_name: z.string().optional(),
@@ -96,25 +101,27 @@ export const FreshchatAgentSchema = z.object({
   role_name: z.string().optional(),
   routing_type: z.enum(['INTELLIASSIGN', 'MANUAL']).optional(),
   skill_id: z.string().uuid().optional(),
-  social_profiles: z.array(z.object({
-    type: z.string(),
-    id: z.string()
-  })).optional(),
-  timezone: z.string().optional()
-});
+  social_profiles: z
+    .array(
+      z.object({
+        type: z.string(),
+        id: z.string(),
+      })
+    )
+    .optional(),
+  timezone: z.string().optional(),
+})
 
 export const FreshchatConversationSchema = z.object({
   conversation_id: z.string().optional(),
   channel_id: z.string().optional(),
-  user_id: z.string().optional()
+  user_id: z.string().optional(),
 })
 export type FreshchatConversation = z.infer<typeof FreshchatConversationSchema>
 
-
 export type FreshchatUser = z.infer<typeof FreshchatUserSchema>
-export type FreshchatAgent =  z.infer<typeof FreshchatAgentSchema>
+export type FreshchatAgent = z.infer<typeof FreshchatAgentSchema>
 export type FreshchatChannel = z.infer<typeof FreshchatChannelSchema>
-
 
 // Extended Botpress User/Conversation Schemas
 

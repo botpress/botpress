@@ -14,6 +14,5 @@ export default new IntegrationDefinition({
   states,
   channels,
   events,
-  user
+  user,
 }).extend(hitl, () => ({}))
-
