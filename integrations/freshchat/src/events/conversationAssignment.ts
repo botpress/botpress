@@ -1,5 +1,6 @@
-import * as bp from '.botpress'
 import { getFreshchatClient } from '../client'
+import { ConversationAssignmentFreshchatEvent } from '../definitions/freshchat-events'
+import * as bp from '.botpress'
 
 export const executeConversationAssignment = async ({
   freshchatEvent,

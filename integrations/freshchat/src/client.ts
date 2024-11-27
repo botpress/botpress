@@ -1,19 +1,19 @@
-import axios, { Axios } from 'axios'
-import * as bp from '.botpress'
-import { FreshchatAgent, FreshchatChannel, FreshchatConfiguration, FreshchatUser } from './definitions/schemas'
 import { RuntimeError } from '@botpress/client'
+import axios, { Axios } from 'axios'
+import { FreshchatAgent, FreshchatChannel, FreshchatConfiguration, FreshchatUser } from './definitions/schemas'
+import * as bp from '.botpress'
 
 // API docs: https://developers.freshchat.com/api/
 
 class FreshchatClient {
-  private client: Axios
+  private _client: Axios
 
   public constructor(private _config: FreshchatConfiguration, private _logger: bp.Logger) {
-    this.client = axios.create({
+    this._client = axios.create({
       baseURL: `https://${this._config.domain}.freshchat.com/v2`,
     })
 
-    this.client.interceptors.request.use((axionsConfig) => {
+    this._client.interceptors.request.use((axionsConfig) => {
       // @ts-ignore
       axionsConfig.headers = {
         ...axionsConfig.headers,
@@ -28,7 +28,7 @@ class FreshchatClient {
     messages: any[]
     channelId: string
   }): Promise<{ conversation_id: string; channel_id: string }> {
-    const { data } = await this.client.post('/conversations', {
+    const { data } = await this._client.post('/conversations', {
       channel_id: args.channelId,
       messages: args.messages,
       users: [
@@ -41,7 +41,7 @@ class FreshchatClient {
   }
 
   public async sendMessage(fromUserId: string | null, freshchatConversationId: string, message: string) {
-    await this.client.post(`/conversations/${freshchatConversationId}/messages`, {
+    await this._client.post(`/conversations/${freshchatConversationId}/messages`, {
       message_parts: [{ text: { content: message } }],
       message_type: 'normal',
       user_id: fromUserId,
@@ -52,7 +52,7 @@ class FreshchatClient {
 
   public async getUserByEmail(email: string): Promise<FreshchatUser | undefined> {
     try {
-      const result = await this.client.get('/users?email=' + email)
+      const result = await this._client.get('/users?email=' + email)
       return result?.data?.users[0]
     } catch (e: any) {
       this._logger.forBot().error('Failed to get user by email: ' + email, e.message, e?.response?.data)
@@ -62,7 +62,7 @@ class FreshchatClient {
 
   public async getChannels(): Promise<FreshchatChannel[]> {
     try {
-      const result = await this.client.get<{ channels: FreshchatChannel[] }>('/channels?items_per_page=9999')
+      const result = await this._client.get<{ channels: FreshchatChannel[] }>('/channels?items_per_page=9999')
       return result?.data?.channels
     } catch (e: any) {
       this._logger.forBot().error('Failed to get channels : ' + e.message, e?.response?.data)
@@ -72,7 +72,7 @@ class FreshchatClient {
 
   public async verifyToken(): Promise<boolean> {
     try {
-      const result = await this.client.get<{ organisation_id: number }>('/accounts/configuration')
+      const result = await this._client.get<{ organisation_id: number }>('/accounts/configuration')
       return !!result?.data?.organisation_id
     } catch (e: any) {
       return false
@@ -81,7 +81,7 @@ class FreshchatClient {
 
   public async getAgentById(id: string): Promise<FreshchatAgent | undefined> {
     try {
-      const result = await this.client.get('/agents/' + id)
+      const result = await this._client.get('/agents/' + id)
       return result?.data
     } catch (e: any) {
       this._logger.forBot().error('Failed to get user by id: ' + id, e.message, e?.response?.data)
@@ -90,7 +90,7 @@ class FreshchatClient {
   }
 
   public async createUser(newUser: FreshchatUser): Promise<FreshchatUser> {
-    const result = await this.client.post('/users', newUser)
+    const result = await this._client.post('/users', newUser)
     return result.data
   }
 }

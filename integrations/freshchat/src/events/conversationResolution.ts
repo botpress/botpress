@@ -1,4 +1,6 @@
+import { ConversationResolutionFreshchatEvent } from '../definitions/freshchat-events'
 import * as bp from '.botpress'
+
 
 export const executeConversationResolution = async ({
   freshchatEvent,

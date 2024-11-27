@@ -123,7 +123,7 @@ type Avatar = {
 }
 
 // Event type instances
-type MessageCreateFreshchatEvent = FreshchatEvent<MessageCreateData>
-type ConversationReopenFreshchatEvent = FreshchatEvent<ReopenData>
-type ConversationResolutionFreshchatEvent = FreshchatEvent<ResolveData>
-type ConversationAssignmentFreshchatEvent = FreshchatEvent<AssignmentData>
+export type MessageCreateFreshchatEvent = FreshchatEvent<MessageCreateData>
+export type ConversationReopenFreshchatEvent = FreshchatEvent<ReopenData>
+export type ConversationResolutionFreshchatEvent = FreshchatEvent<ResolveData>
+export type ConversationAssignmentFreshchatEvent = FreshchatEvent<AssignmentData>

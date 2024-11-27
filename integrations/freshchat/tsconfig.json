@@ -6,5 +6,5 @@
     "outDir": "dist",
     "checkJs": false
   },
-  "include": [".botpress/**/*", "src/**/*"]
+  "include": [".botpress/**/*", "src/**/*", "integration.definition.ts"]
 }

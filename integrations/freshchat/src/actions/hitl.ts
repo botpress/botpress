@@ -64,7 +64,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
                   }
 
                   const origin =
-                    message.source.type == 'bot' ? 'Bot: ' : message.source.userId === user.id ? 'User: ' : ''
+                    message.source.type === 'bot' ? 'Bot: ' : message.source.userId === user.id ? 'User: ' : ''
 
                   return `${origin}${text}`
                 })
