@@ -2,6 +2,7 @@ import type { Server } from 'node:http'
 import { BasePlugin, PluginImplementation } from '../plugin'
 import { serve } from '../serve'
 import * as utils from '../utils'
+import { mergeBots } from './merge-bots'
 import {
   botHandler,
   MessageHandlersMap,
@@ -46,7 +47,8 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
 
   public constructor(public readonly props: BotImplementationProps<TBot, TPlugins>) {
     this.actionHandlers = props.actions as ActionHandlers<TBot>
-    for (const plugin of Object.values(props.plugins)) {
+    const plugins = utils.records.values(props.plugins)
+    for (const plugin of plugins) {
       this._use(plugin)
     }
   }
@@ -145,63 +147,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
   }
 
   private readonly _use = (botLike: BotHandlers<any>): void => {
-    type AnyActionHandler = utils.types.ValueOf<ActionHandlers<BaseBot>>
-    type AnyEventHandler = utils.types.ValueOf<EventHandlers<BaseBot>>
-    type AnyMessageHandler = utils.types.ValueOf<MessageHandlers<BaseBot>>
-    type AnyStateExpiredHandler = utils.types.ValueOf<StateExpiredHandlers<BaseBot>>
-    type AnyHookHandler = utils.types.ValueOf<utils.types.ValueOf<HookHandlers<BaseBot>>>
-
-    type AnyActionHandlers = Record<string, AnyActionHandler>
-    type AnyEventHandlers = Record<string, AnyEventHandler[] | undefined>
-    type AnyMessageHandlers = Record<string, AnyMessageHandler[] | undefined>
-    type AnyStateExpiredHandlers = Record<string, AnyStateExpiredHandler[] | undefined>
-    type AnyHookHandlers = Record<string, Record<string, AnyHookHandler[] | undefined>>
-
-    const thisActionHandlers = this.actionHandlers as unknown as AnyActionHandlers // TODO: rm this unknown cast
-    const thisEventHandlers = this.eventHandlers as AnyEventHandlers
-    const thisMessageHandlers = this.messageHandlers as AnyMessageHandlers
-    const thisStateExpiredHandlers = this.stateExpiredHandlers as AnyStateExpiredHandlers
-    const thisHookHandlers = this.hookHandlers as AnyHookHandlers
-
-    const thatActionHandlers = botLike.actionHandlers as AnyActionHandlers
-    const thatEventHandlers = botLike.eventHandlers as AnyEventHandlers
-    const thatMessageHandlers = botLike.messageHandlers as AnyMessageHandlers
-    const thatStateExpiredHandlers = botLike.stateExpiredHandlers as AnyStateExpiredHandlers
-    const thatHookHandlers = botLike.hookHandlers as AnyHookHandlers
-
-    for (const [type, actionHandler] of Object.entries(thatActionHandlers)) {
-      thisActionHandlers[type] = actionHandler
-    }
-
-    for (const [type, handlers] of Object.entries(thatEventHandlers)) {
-      if (!handlers) {
-        continue
-      }
-      thisEventHandlers[type] = utils.arrays.safePush(thisEventHandlers[type], ...handlers)
-    }
-
-    for (const [type, handlers] of Object.entries(thatMessageHandlers)) {
-      if (!handlers) {
-        continue
-      }
-      thisMessageHandlers[type] = utils.arrays.safePush(thisMessageHandlers[type], ...handlers)
-    }
-
-    for (const [type, handlers] of Object.entries(thatStateExpiredHandlers)) {
-      if (!handlers) {
-        continue
-      }
-      thisStateExpiredHandlers[type] = utils.arrays.safePush(thisStateExpiredHandlers[type], ...handlers)
-    }
-
-    for (const [hook, types] of Object.entries(thatHookHandlers)) {
-      for (const [type, handlers] of Object.entries(types)) {
-        if (!handlers) {
-          continue
-        }
-        thisHookHandlers[hook]![type] = utils.arrays.safePush(thisHookHandlers[hook]![type], ...handlers)
-      }
-    }
+    mergeBots(this, botLike)
   }
 
   public readonly handler = botHandler(this as BotHandlers<any>)

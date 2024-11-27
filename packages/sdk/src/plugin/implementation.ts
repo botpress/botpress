@@ -55,7 +55,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
   public get config(): PluginRuntimeProps<TPlugin> {
     if (!this._runtimeProps) {
       throw new Error(
-        'Plugin not correctly initialized. This is likely a bug with code generation that you have no control over. Please contact the dev team.'
+        'Plugin not correctly initialized. This is likely because you access your plugin config outside of an handler.'
       )
     }
     return this._runtimeProps

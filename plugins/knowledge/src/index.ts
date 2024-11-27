@@ -6,17 +6,21 @@ const plugin = new bp.Plugin({
   actions: {},
 })
 
-const integrationName = plugin.config.interfaces.llm.name
-
 plugin.hook.beforeIncomingMessage('*', async ({ data: message, client, ctx }) => {
+  const integrationName = plugin.config.interfaces.llm.name
+
   if (message.type !== 'text') {
+    console.debug('Ignoring non-text message')
     return
   }
 
   const text: string = message.payload.text
   if (!text) {
+    console.debug('Ignoring empty message')
     return
   }
+
+  console.debug('Extracting questions from:', text)
 
   const llmInput = questions.prompt({ text, line: 'L1' })
   const llmOutput = await gen.generateContent({
@@ -27,25 +31,31 @@ plugin.hook.beforeIncomingMessage('*', async ({ data: message, client, ctx }) =>
 
   const { success, json } = gen.parseLLMOutput(llmOutput)
   if (!success) {
+    console.debug('Failed to extract questions')
     return
   }
 
   const parsedResult = questions.OutputFormat.safeParse(json)
   if (!parsedResult.success) {
+    console.debug('Failed to extract questions')
     return
   }
 
   const { data } = parsedResult
   if (!data.hasQuestions || !data.questions?.length) {
+    console.debug('No questions extracted')
     return
   }
 
   const canonicalQuestion = data.questions.map((question) => question.resolved_question).join(' ')
+
+  console.debug('Searching for:', canonicalQuestion)
   const { passages } = await client.searchFiles({
     query: canonicalQuestion,
   })
 
   if (!passages.length) {
+    console.debug('No passages found')
     return
   }
 

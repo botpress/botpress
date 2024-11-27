@@ -8,17 +8,20 @@ const plugin = new bp.Plugin({
 
 plugin.hook.beforeOutgoingMessage('*', async ({ data: message, client }) => {
   if (message.type !== 'text') {
-    return { data: message }
+    console.debug('Ignoring non-text message')
+    return
   }
 
-  const messageText = message.payload.text as string
+  console.debug('Rewriting message:', message.payload.text)
+
+  const text = message.payload.text as string
 
   const { model, personality } = plugin.config.configuration
 
   const prompt = rewrite.prompt({
     model,
     personality,
-    payload: messageText,
+    payload: text,
   })
   const output = await gen.generateContent({
     integrationName: plugin.config.interfaces.llm.name,
@@ -30,7 +33,7 @@ plugin.hook.beforeOutgoingMessage('*', async ({ data: message, client }) => {
 
   const parseResult = rewrite.responseSchema.safeParse(json)
   if (!success || !parseResult.success) {
-    console.error('Failed to rewrite message')
+    console.debug('Failed to rewrite message')
     return { data: message }
   }
 
