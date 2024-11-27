@@ -124,6 +124,9 @@ const onEventReceived = async ({ ctx, req, client, self }: ServerProps): Promise
         data: message,
       })
       message = hookOutput?.data ?? message
+      if (hookOutput?.stop) {
+        return SUCCESS_RESPONSE
+      }
     }
 
     const messagePayload: utils.ValueOf<types.MessagePayloads<common.BaseBot>> = {
@@ -154,6 +157,9 @@ const onEventReceived = async ({ ctx, req, client, self }: ServerProps): Promise
         data: message,
       })
       message = hookOutput?.data ?? message
+      if (hookOutput?.stop) {
+        return SUCCESS_RESPONSE
+      }
     }
 
     return SUCCESS_RESPONSE
@@ -184,6 +190,9 @@ const onEventReceived = async ({ ctx, req, client, self }: ServerProps): Promise
       data: event,
     })
     event = hookOutput?.data ?? event
+    if (hookOutput?.stop) {
+      return SUCCESS_RESPONSE
+    }
   }
 
   const eventPayload = { event }
@@ -207,6 +216,9 @@ const onEventReceived = async ({ ctx, req, client, self }: ServerProps): Promise
       data: event,
     })
     event = hookOutput?.data ?? event
+    if (hookOutput?.stop) {
+      return SUCCESS_RESPONSE
+    }
   }
 
   return SUCCESS_RESPONSE

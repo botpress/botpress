@@ -7,7 +7,7 @@ import {
   StateExpiredHandlersMap,
   StateExpiredHandlers,
   HookHandlersMap,
-  HookDefinitions,
+  HookData,
   HookHandlers,
   ActionHandlers,
   BotHandlers,
@@ -83,7 +83,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
   }
 
   public readonly hook = {
-    beforeIncomingEvent: <T extends keyof HookDefinitions<TPlugin>['before_incoming_event']>(
+    beforeIncomingEvent: <T extends keyof HookData<TPlugin>['before_incoming_event']>(
       type: T,
       handler: HookHandlers<TPlugin>['before_incoming_event'][T]
     ) => {
@@ -92,7 +92,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         handler
       )
     },
-    beforeIncomingMessage: <T extends keyof HookDefinitions<TPlugin>['before_incoming_message']>(
+    beforeIncomingMessage: <T extends keyof HookData<TPlugin>['before_incoming_message']>(
       type: T,
       handler: HookHandlers<TPlugin>['before_incoming_message'][T]
     ) => {
@@ -101,7 +101,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         handler
       )
     },
-    beforeOutgoingMessage: <T extends keyof HookDefinitions<TPlugin>['before_outgoing_message']>(
+    beforeOutgoingMessage: <T extends keyof HookData<TPlugin>['before_outgoing_message']>(
       type: T,
       handler: HookHandlers<TPlugin>['before_outgoing_message'][T]
     ) => {
@@ -110,7 +110,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         handler
       )
     },
-    beforeOutgoingCallAction: <T extends keyof HookDefinitions<TPlugin>['before_outgoing_call_action']>(
+    beforeOutgoingCallAction: <T extends keyof HookData<TPlugin>['before_outgoing_call_action']>(
       type: T,
       handler: HookHandlers<TPlugin>['before_outgoing_call_action'][T]
     ) => {
@@ -119,7 +119,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         handler
       )
     },
-    afterIncomingEvent: <T extends keyof HookDefinitions<TPlugin>['after_incoming_event']>(
+    afterIncomingEvent: <T extends keyof HookData<TPlugin>['after_incoming_event']>(
       type: T,
       handler: HookHandlers<TPlugin>['after_incoming_event'][T]
     ) => {
@@ -128,7 +128,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         handler
       )
     },
-    afterIncomingMessage: <T extends keyof HookDefinitions<TPlugin>['after_incoming_message']>(
+    afterIncomingMessage: <T extends keyof HookData<TPlugin>['after_incoming_message']>(
       type: T,
       handler: HookHandlers<TPlugin>['after_incoming_message'][T]
     ) => {
@@ -137,7 +137,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         handler
       )
     },
-    afterOutgoingMessage: <T extends keyof HookDefinitions<TPlugin>['after_outgoing_message']>(
+    afterOutgoingMessage: <T extends keyof HookData<TPlugin>['after_outgoing_message']>(
       type: T,
       handler: HookHandlers<TPlugin>['after_outgoing_message'][T]
     ) => {
@@ -146,7 +146,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         handler
       )
     },
-    afterOutgoingCallAction: <T extends keyof HookDefinitions<TPlugin>['after_outgoing_call_action']>(
+    afterOutgoingCallAction: <T extends keyof HookData<TPlugin>['after_outgoing_call_action']>(
       type: T,
       handler: HookHandlers<TPlugin>['after_outgoing_call_action'][T]
     ) => {

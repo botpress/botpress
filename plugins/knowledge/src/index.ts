@@ -62,8 +62,7 @@ plugin.hook.beforeIncomingMessage('*', async ({ data: message, client, ctx }) =>
     type: 'text',
   })
 
-  // TODO: allow stopping propagation for before_incoming_* hooks
-  return
+  return { stop: true }
 })
 
 export default plugin

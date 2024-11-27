@@ -11,7 +11,7 @@ import {
   StateExpiredHandlersMap,
   StateExpiredHandlers,
   HookHandlersMap,
-  HookDefinitions,
+  HookData,
   HookHandlers,
   ActionHandlers,
   BotHandlers,
@@ -70,7 +70,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
   }
 
   public readonly hook = {
-    beforeIncomingEvent: <T extends keyof HookDefinitions<TBot>['before_incoming_event']>(
+    beforeIncomingEvent: <T extends keyof HookData<TBot>['before_incoming_event']>(
       type: T,
       handler: HookHandlers<TBot>['before_incoming_event'][T]
     ) => {
@@ -79,7 +79,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
         handler
       )
     },
-    beforeIncomingMessage: <T extends keyof HookDefinitions<TBot>['before_incoming_message']>(
+    beforeIncomingMessage: <T extends keyof HookData<TBot>['before_incoming_message']>(
       type: T,
       handler: HookHandlers<TBot>['before_incoming_message'][T]
     ) => {
@@ -88,7 +88,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
         handler
       )
     },
-    beforeOutgoingMessage: <T extends keyof HookDefinitions<TBot>['before_outgoing_message']>(
+    beforeOutgoingMessage: <T extends keyof HookData<TBot>['before_outgoing_message']>(
       type: T,
       handler: HookHandlers<TBot>['before_outgoing_message'][T]
     ) => {
@@ -97,7 +97,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
         handler
       )
     },
-    beforeOutgoingCallAction: <T extends keyof HookDefinitions<TBot>['before_outgoing_call_action']>(
+    beforeOutgoingCallAction: <T extends keyof HookData<TBot>['before_outgoing_call_action']>(
       type: T,
       handler: HookHandlers<TBot>['before_outgoing_call_action'][T]
     ) => {
@@ -106,7 +106,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
         handler
       )
     },
-    afterIncomingEvent: <T extends keyof HookDefinitions<TBot>['after_incoming_event']>(
+    afterIncomingEvent: <T extends keyof HookData<TBot>['after_incoming_event']>(
       type: T,
       handler: HookHandlers<TBot>['after_incoming_event'][T]
     ) => {
@@ -115,7 +115,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
         handler
       )
     },
-    afterIncomingMessage: <T extends keyof HookDefinitions<TBot>['after_incoming_message']>(
+    afterIncomingMessage: <T extends keyof HookData<TBot>['after_incoming_message']>(
       type: T,
       handler: HookHandlers<TBot>['after_incoming_message'][T]
     ) => {
@@ -124,7 +124,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
         handler
       )
     },
-    afterOutgoingMessage: <T extends keyof HookDefinitions<TBot>['after_outgoing_message']>(
+    afterOutgoingMessage: <T extends keyof HookData<TBot>['after_outgoing_message']>(
       type: T,
       handler: HookHandlers<TBot>['after_outgoing_message'][T]
     ) => {
@@ -133,7 +133,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
         handler
       )
     },
-    afterOutgoingCallAction: <T extends keyof HookDefinitions<TBot>['after_outgoing_call_action']>(
+    afterOutgoingCallAction: <T extends keyof HookData<TBot>['after_outgoing_call_action']>(
       type: T,
       handler: HookHandlers<TBot>['after_outgoing_call_action'][T]
     ) => {
