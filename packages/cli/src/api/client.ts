@@ -1,5 +1,6 @@
 import * as client from '@botpress/client'
 import semver from 'semver'
+import yn from 'yn'
 import type { Logger } from '../logger'
 import { formatPackageRef, ApiPackageRef, NamePackageRef, isLatest } from '../package-ref'
 import { findPreviousIntegrationVersion } from './find-previous-version'
@@ -38,6 +39,11 @@ export class ApiClient {
   }
 
   public get isBotpressWorkspace(): boolean {
+    // this environment variable is undocumented and only used internally for dev purposes
+    const isBotpressWorkspace = yn(process.env.BP_IS_BOTPRESS_WORKSPACE)
+    if (isBotpressWorkspace !== undefined) {
+      return isBotpressWorkspace
+    }
     return [
       '6a76fa10-e150-4ff6-8f59-a300feec06c1',
       '95de33eb-1551-4af9-9088-e5dcb02efd09',
