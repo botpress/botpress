@@ -29,7 +29,7 @@ export default new IntegrationDefinition({
       },
       message: { tags: { id: {}, chatId: {} } },
       conversation: {
-        tags: { id: {}, fromUserId: {}, fromUserName: {}, chatId: {} },
+        tags: { id: {}, fromUserId: {}, fromUserUsername: {}, fromUserName: {}, chatId: {} },
         creation: { enabled: true, requiredTags: ['id'] },
       },
     },

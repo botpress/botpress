@@ -177,13 +177,15 @@ const integration = new bp.Integration({
     ok(userId, 'Handler received message with empty "from.id" value')
     ok(messageId, 'Handler received an empty message id')
 
-    const userName = getUserNameFromTelegramUser(message.from as User)
+    const fromUser = message.from as User
+    const userName = getUserNameFromTelegramUser(fromUser)
 
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
         id: conversationId.toString(),
         fromUserId: userId.toString(),
+        fromUserUsername: fromUser.username,
         fromUserName: userName,
         chatId: conversationId.toString(),
       },
