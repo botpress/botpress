@@ -50,6 +50,6 @@ export const handleOAuth = async ({ req, client, ctx }: bp.HandlerProps) => {
 
   // Done in order to correctly display the authorization status in the UI (not used for webhooks)
   client.configureIntegration({
-    identifier: ctx.botId,
+    identifier: ctx.webhookId,
   })
 }
