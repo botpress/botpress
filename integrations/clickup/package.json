@@ -7,14 +7,15 @@
     "deploy": "bp deploy"
   },
   "private": true,
-  "dependencies": { 
-    "@botpress/client": "0.35.0",
-    "@botpress/sdk": "1.6.1",
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "axios": "^1.7.7",
     "zod": "^3.23.8"
   },
   "devDependencies": {
-    "@botpress/cli": "^1.6.2",
+    "@botpress/common": "workspace:*",
     "@types/node": "^18.11.17",
     "nodemon": "^3.1.7",
     "ts-node": "^10.9.1",
