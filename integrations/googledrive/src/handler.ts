@@ -48,7 +48,7 @@ export const handleOAuth = async ({ req, client, ctx }: bp.HandlerProps) => {
 
   await updateRefreshTokenFromAuthorizationCode({ authorizationCode, client, ctx })
 
-  // Done in order to correctly display the authorization status in the UI
+  // Done in order to correctly display the authorization status in the UI (not used for webhooks)
   client.configureIntegration({
     identifier: ctx.botId,
   })
