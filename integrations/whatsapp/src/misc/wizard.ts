@@ -1,5 +1,6 @@
 import { Response, z } from '@botpress/sdk'
 import queryString from 'query-string'
+import { trackIntegrationEvent } from 'src/tracking'
 import { getSubpath } from 'src/util'
 import * as bp from '../../.botpress'
 import { getOAuthConfigId } from '../../integration.definition'
@@ -44,12 +45,14 @@ export const handleWizard = async (props: WizardHandlerProps): Promise<Response>
 }
 
 const handleWizardStartConfirm = async (props: WizardStepHandlerProps): Promise<Response> => {
+  const { ctx } = props
+  await trackWizardStep(ctx, 'start-confirm', 'started')
   return generateButtonDialog({
     title: 'Reset Configuration',
     description:
       'This wizard will reset your configuration, so the bot will stop working on WhatsApp until a new configuration is put in place, continue?',
     buttons: [
-      { display: 'Yes', type: 'primary', action: 'NAVIGATE', payload: getWizardStepUrl(props.ctx, 'setup') },
+      { display: 'Yes', type: 'primary', action: 'NAVIGATE', payload: getWizardStepUrl(ctx, 'setup') },
       { display: 'No', type: 'secondary', action: 'CLOSE_WINDOW' },
     ],
   })
@@ -57,6 +60,7 @@ const handleWizardStartConfirm = async (props: WizardStepHandlerProps): Promise<
 
 const handleWizardSetup = async (props: WizardStepHandlerProps): Promise<Response> => {
   const { client, ctx } = props
+  await trackWizardStep(ctx, 'setup', 'setup-started')
   await client.configureIntegration({ identifier: ctx.webhookId }) // TODO: Not necessary if we use state param with webhookId (should work only under OAuth path)
   // Clean current state to start a fresh wizard
   const credentials = { accessToken: undefined, wabaId: undefined, phoneNumberId: undefined }
@@ -78,6 +82,7 @@ const handleWizardSetup = async (props: WizardStepHandlerProps): Promise<Respons
 
 const handleWizardGetAccessToken = async (props: WizardStepHandlerProps): Promise<Response> => {
   const { req, client, ctx, logger, credentials } = props
+  await trackWizardStep(ctx, 'get-access-token', 'started')
   const code = z.string().safeParse(queryString.parse(req.query)['code']).data
   if (!code) {
     throw new Error('Error extracting code from url in OAuth handler')
@@ -117,6 +122,7 @@ const getWizardStepUrl = (ctx: bp.Context, step: WizardStep) => {
 
 const doStepVerifyWaba = async (props: WizardStepHandlerProps, wabaId?: string, force?: boolean): Promise<Response> => {
   const { client, ctx, logger, credentials } = props
+  await trackWizardStep(ctx, 'verify-waba')
   const { accessToken } = credentials
   if (!accessToken) {
     throw new Error(ACCESS_TOKEN_UNAVAILABLE_ERROR)
@@ -155,6 +161,7 @@ const doStepVerifyNumber = async (
   force?: boolean
 ): Promise<Response> => {
   const { client, ctx, logger, credentials } = props
+  await trackWizardStep(ctx, 'verify-number')
   const { accessToken, wabaId } = credentials
   if (!accessToken) {
     throw new Error(ACCESS_TOKEN_UNAVAILABLE_ERROR)
@@ -195,7 +202,8 @@ const doStepVerifyNumber = async (
 }
 
 const doStepWrapUp = async (props: WizardStepHandlerProps): Promise<Response> => {
-  const { client, logger, credentials } = props
+  const { client, ctx, logger, credentials } = props
+  await trackWizardStep(ctx, 'wrap-up', 'completed')
   const { accessToken, wabaId, phoneNumberId } = credentials
   if (!accessToken) {
     throw new Error(ACCESS_TOKEN_UNAVAILABLE_ERROR)
@@ -215,6 +223,13 @@ const doStepWrapUp = async (props: WizardStepHandlerProps): Promise<Response> =>
   await oauthClient.subscribeToWebhooks(wabaId, accessToken)
 
   return redirectTo(getInterstitialUrl(true))
+}
+
+const trackWizardStep = async (ctx: bp.Context, step: WizardStep, status?: string) => {
+  await trackIntegrationEvent(ctx.botId, 'oauthSetupStep', {
+    step,
+    status,
+  })
 }
 
 // client.patchState is not working correctly
