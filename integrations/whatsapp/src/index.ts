@@ -1,5 +1,5 @@
 import { RuntimeError } from '@botpress/client'
-import { Request } from '@botpress/sdk'
+import { Request, Response } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import { channel, INTEGRATION_NAME } from 'integration.definition'
 import * as crypto from 'node:crypto'
@@ -18,6 +18,7 @@ import { getAccessToken, getPhoneNumberId, getSecret } from './misc/whatsapp'
 import { handleWizard } from './misc/wizard'
 import * as outgoing from './outgoing-message'
 import { identifyBot, trackIntegrationEvent } from './tracking'
+import { getSubpath } from './util'
 import { WhatsAppPayload } from './whatsapp-types'
 import * as bp from '.botpress'
 
@@ -160,19 +161,14 @@ const integration = new bp.Integration({
       },
     },
   },
-  handler: async ({ req, client, ctx, logger }) => {
+  handler: async (props) => {
+    const { req, client, ctx, logger } = props
     if (detectIdentifierIssue(req, ctx)) {
       return redirectTo(getInterstitialUrl(false, 'Not allowed'))
     }
 
-    if (req.query?.includes('code') || req.query?.includes('wizard-step')) {
-      try {
-        return await handleWizard(req, client, ctx, logger)
-      } catch (err: any) {
-        const errorMessage = '(OAuth registration) Error: ' + err.message
-        logger.forBot().error(errorMessage)
-        return redirectTo(getInterstitialUrl(false, errorMessage))
-      }
+    if (req.path.startsWith('/oauth')) {
+      return await handleOAuth(props)
     }
 
     if (req.body) {
@@ -274,6 +270,27 @@ const integration = new bp.Integration({
   },
 })
 
+const handleOAuth = async (props: bp.HandlerProps): Promise<Response> => {
+  const { req, logger } = props
+  let response: Response
+  const oauthSubpath = getSubpath(req.path)
+  try {
+    if (oauthSubpath?.startsWith('/wizard')) {
+      response = await handleWizard({ ...props, wizardPath: oauthSubpath })
+    } else {
+      response = {
+        status: 404,
+        body: 'Invalid OAuth endpoint',
+      }
+    }
+  } catch (err: any) {
+    const errorMessage = '(OAuth registration) Error: ' + err.message
+    logger.forBot().error(errorMessage)
+    response = redirectTo(getInterstitialUrl(false, errorMessage))
+  }
+  return response
+}
+
 export default sentryHelpers.wrapIntegration(integration, {
   dsn: bp.secrets.SENTRY_DSN,
   environment: bp.secrets.SENTRY_ENVIRONMENT,
@@ -288,7 +305,7 @@ export const detectIdentifierIssue = (req: Request, ctx: bp.Context) => {
   /* because of the wizard, we need to accept the query param "state" as an identifier
    * but we need to prevent anyone of using anything other than the webhookId there for security reasons
    */
-
+  // TODO: Is this needed? If you send a request to a static webhook you still have to know the webhookId or another identifier for it to be routed to the right bot
   const query = queryString.parse(req.query)
 
   return !!(query['state']?.length && query['state'] !== ctx.webhookId)
