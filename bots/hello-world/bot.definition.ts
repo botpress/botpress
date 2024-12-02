@@ -28,7 +28,7 @@ export default new sdk.BotDefinition({
     enabled: true,
     configuration: {},
   })
-  .plug(logger, {
+  .add(logger, {
     configuration: {},
     interfaces: {},
   })

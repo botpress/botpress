@@ -15,4 +15,4 @@ export default new sdk.PluginDefinition({
         ),
     }),
   },
-}).addInterface(llm)
+}).dependency(llm)

@@ -7,9 +7,6 @@ import {
   ConversationDefinition,
   MessageDefinition,
   ActionDefinition,
-  IntegrationConfigInstance,
-  IntegrationInstance,
-  InterfaceInstance,
 } from '../bot/definition'
 import { IntegrationPackage, InterfacePackage } from '../package'
 import { Writable } from '../utils/type-utils'
@@ -40,10 +37,10 @@ export type PluginDefinitionProps<
   name: string
   version: string
   integrations?: {
-    [K: string]: IntegrationInstance
+    [K: string]: IntegrationPackage
   }
   interfaces?: {
-    [K: string]: InterfaceInstance
+    [K: string]: InterfacePackage
   }
   user?: UserDefinition
   conversation?: ConversationDefinition
@@ -95,28 +92,25 @@ export class PluginDefinition<
     this.actions = props.actions
   }
 
-  public addIntegration<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this {
+  public dependency(pkg: IntegrationPackage | InterfacePackage): this {
     const self = this as Writable<PluginDefinition>
-    if (!self.integrations) {
-      self.integrations = {}
+
+    if (pkg.type === 'integration') {
+      if (!self.integrations) {
+        self.integrations = {}
+      }
+      self.integrations[pkg.definition.name] = pkg
+      return this
     }
 
-    self.integrations[integrationPkg.definition.name] = {
-      enabled: config.enabled,
-      ...integrationPkg,
-      configurationType: config.configurationType as string,
-      configuration: config.configuration,
-    }
-    return this
-  }
-
-  public addInterface<I extends InterfacePackage>(interfacePkg: I): this {
-    const self = this as Writable<PluginDefinition>
-    if (!self.interfaces) {
-      self.interfaces = {}
+    if (pkg.type === 'interface') {
+      if (!self.interfaces) {
+        self.interfaces = {}
+      }
+      self.interfaces[pkg.definition.name] = pkg
+      return this
     }
 
-    self.interfaces[interfacePkg.definition.name] = interfacePkg
     return this
   }
 }
