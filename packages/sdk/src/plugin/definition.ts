@@ -22,14 +22,15 @@ export {
   MessageDefinition,
   ActionDefinition,
   IntegrationConfigInstance,
-  IntegrationInstance as IntegrationInstance,
 } from '../bot/definition'
 
+type BaseConfig = AnyZodObject
 type BaseStates = Record<string, AnyZodObject>
 type BaseEvents = Record<string, AnyZodObject>
 type BaseActions = Record<string, AnyZodObject>
 
 export type PluginDefinitionProps<
+  TConfig extends BaseConfig = BaseConfig,
   TStates extends BaseStates = BaseStates,
   TEvents extends BaseEvents = BaseEvents,
   TActions extends BaseActions = BaseActions
@@ -48,7 +49,7 @@ export type PluginDefinitionProps<
   states?: {
     [K in keyof TStates]: StateDefinition<TStates[K]>
   }
-  configuration?: ConfigurationDefinition
+  configuration?: ConfigurationDefinition<TConfig>
   events?: {
     [K in keyof TEvents]: EventDefinition<TEvents[K]>
   }
@@ -59,6 +60,7 @@ export type PluginDefinitionProps<
 }
 
 export class PluginDefinition<
+  TConfig extends BaseConfig = BaseConfig,
   TStates extends BaseStates = BaseStates,
   TEvents extends BaseEvents = BaseEvents,
   TActions extends BaseActions = BaseActions
@@ -77,7 +79,7 @@ export class PluginDefinition<
   public readonly events: this['props']['events']
   public readonly recurringEvents: this['props']['recurringEvents']
   public readonly actions: this['props']['actions']
-  public constructor(public readonly props: PluginDefinitionProps<TStates, TEvents, TActions>) {
+  public constructor(public readonly props: PluginDefinitionProps<TConfig, TStates, TEvents, TActions>) {
     this.name = props.name
     this.version = props.version
     this.integrations = props.integrations

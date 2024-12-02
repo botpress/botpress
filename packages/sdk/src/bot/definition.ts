@@ -3,6 +3,7 @@ import { SchemaDefinition } from '../schema'
 import { ValueOf, Writable } from '../utils/type-utils'
 import z, { AnyZodObject } from '../zui'
 
+type BaseConfig = AnyZodObject
 type BaseStates = Record<string, AnyZodObject>
 type BaseEvents = Record<string, AnyZodObject>
 type BaseActions = Record<string, AnyZodObject>
@@ -29,7 +30,7 @@ export type RecurringEventDefinition<TEvents extends BaseEvents = BaseEvents> = 
 
 export type EventDefinition<TEvent extends BaseEvents[string] = BaseEvents[string]> = SchemaDefinition<TEvent>
 
-export type ConfigurationDefinition = SchemaDefinition
+export type ConfigurationDefinition<TConfig extends BaseConfig = BaseConfig> = SchemaDefinition<TConfig>
 
 export type UserDefinition = {
   tags?: Record<string, TagDefinition>
