@@ -123,6 +123,18 @@ export type FreshchatUser = z.infer<typeof FreshchatUserSchema>
 export type FreshchatAgent = z.infer<typeof FreshchatAgentSchema>
 export type FreshchatChannel = z.infer<typeof FreshchatChannelSchema>
 
+export type FreshchatMessage = {
+  message_parts: {
+    text: {
+      content: string
+    }
+  }[]
+  channel_id: string
+  message_type: string
+  actor_type: string
+  actor_id: string
+}
+
 // Extended Botpress User/Conversation Schemas
 
 export const UserSchema = z.object({ id: z.string() })

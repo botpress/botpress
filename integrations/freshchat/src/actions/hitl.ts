@@ -27,7 +27,7 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
       name: 'freshchat',
     })
 
-    const messages: any[] = [
+    const messages = [
       {
         message_parts: [
           {

@@ -1,6 +1,12 @@
 import { RuntimeError } from '@botpress/client'
 import axios, { Axios } from 'axios'
-import { FreshchatAgent, FreshchatChannel, FreshchatConfiguration, FreshchatUser } from './definitions/schemas'
+import {
+  FreshchatMessage,
+  FreshchatAgent,
+  FreshchatChannel,
+  FreshchatConfiguration,
+  FreshchatUser
+} from './definitions/schemas'
 import * as bp from '.botpress'
 
 // API docs: https://developers.freshchat.com/api/
@@ -25,7 +31,7 @@ class FreshchatClient {
 
   public async createConversation(args: {
     userId: string
-    messages: any[]
+    messages: FreshchatMessage[]
     channelId: string
   }): Promise<{ conversation_id: string; channel_id: string }> {
     const { data } = await this._client.post('/conversations', {

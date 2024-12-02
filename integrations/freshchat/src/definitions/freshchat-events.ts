@@ -1,15 +1,8 @@
 // Enum for actor types
-enum ActorType {
-  User = 'user',
-  Agent = 'agent',
-  System = 'system',
-}
+type ActorType = 'user' | 'agent' | 'system'
 
 // Enum for message types
-enum MessageType {
-  Normal = 'normal',
-  Private = 'private',
-}
+type MessageType = 'normal' | 'private'
 
 // Actor definition
 type Actor = {
