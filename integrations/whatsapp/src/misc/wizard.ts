@@ -52,7 +52,7 @@ const handleWizardStartConfirm = async (props: WizardStepHandlerProps): Promise<
     description:
       'This wizard will reset your configuration, so the bot will stop working on WhatsApp until a new configuration is put in place, continue?',
     buttons: [
-      { display: 'Yes', type: 'primary', action: 'NAVIGATE', payload: getWizardStepUrl(ctx, 'setup') },
+      { display: 'Yes', type: 'primary', action: 'NAVIGATE', payload: getWizardStepUrl('setup', ctx) },
       { display: 'No', type: 'secondary', action: 'CLOSE_WINDOW' },
     ],
   })
@@ -69,7 +69,7 @@ const handleWizardSetup = async (props: WizardStepHandlerProps): Promise<Respons
       'client_id=' +
       bp.secrets.CLIENT_ID +
       '&redirect_uri=' +
-      getWizardStepUrl(ctx, 'get-access-token', true) +
+      getOAuthRedirectUri() +
       '&state=' +
       ctx.webhookId +
       '&config_id=' +
@@ -87,7 +87,7 @@ const handleWizardGetAccessToken = async (props: WizardStepHandlerProps): Promis
     throw new Error('Error extracting code from url in OAuth handler')
   }
   const oauthClient = new MetaOauthClient(logger)
-  const redirectUri = getWizardStepUrl(ctx, 'get-access-token', true) // Needs to be the same as the one used to get the code
+  const redirectUri = getOAuthRedirectUri() // Needs to be the same as the one used to get the code
   const accessToken = await oauthClient.getAccessToken(code, redirectUri)
   if (!accessToken) {
     throw new Error(ACCESS_TOKEN_UNAVAILABLE_ERROR)
@@ -111,17 +111,17 @@ const handleWizardVerifyNumber = async (props: WizardStepHandlerProps): Promise<
   return await doStepVerifyNumber(props, phoneNumberId, force)
 }
 
-const getIntegrationInstanceUrl = (ctx: bp.Context) => {
-  return `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
+const getWizardStepUrl = (step: WizardStep, ctx?: bp.Context) => {
+  let url = `${process.env.BP_WEBHOOK_URL}/oauth/wizard/${step}`
+  if (ctx) {
+    url += `?state=${ctx.webhookId}`
+  }
+  return url
 }
 
-const getGlobalUrl = () => {
-  return process.env.BP_WEBHOOK_URL
-}
-
-const getWizardStepUrl = (ctx: bp.Context, step: WizardStep, global?: boolean) => {
-  const baseUrl = global ? getGlobalUrl() : getIntegrationInstanceUrl(ctx)
-  return `${baseUrl}/oauth/wizard/${step}`
+const getOAuthRedirectUri = () => {
+  // Identifier (state) specified in the OAuth request instead of URI
+  return getWizardStepUrl('get-access-token', undefined)
 }
 
 const doStepVerifyWaba = async (props: WizardStepHandlerProps, wabaId?: string, force?: boolean): Promise<Response> => {
@@ -140,11 +140,12 @@ const doStepVerifyWaba = async (props: WizardStepHandlerProps, wabaId?: string, 
       return generateSelectDialog({
         title: 'Select Business',
         description: 'Choose a WhatsApp Business Account to use in this bot:',
-        settings: { targetUrl: getWizardStepUrl(ctx, 'verify-waba') },
+        settings: { targetUrl: getWizardStepUrl('verify-waba', ctx) },
         select: {
           key: 'wabaId',
           options: businesses.map((business) => ({ id: business.id, display: business.name })),
         },
+        additionalData: [{ key: 'state', value: ctx.webhookId }],
       })
     }
   }
@@ -182,7 +183,7 @@ const doStepVerifyNumber = async (
       return generateSelectDialog({
         title: 'Select the default number',
         description: 'Choose a phone number from the current WhatsApp Business Account to use as default:',
-        settings: { targetUrl: getWizardStepUrl(ctx, 'verify-number') },
+        settings: { targetUrl: getWizardStepUrl('verify-number', ctx) },
         select: {
           key: 'phoneNumberId',
           options: phoneNumbers.map((phoneNumber) => ({
@@ -190,6 +191,7 @@ const doStepVerifyNumber = async (
             display: `${phoneNumber.displayPhoneNumber} (${phoneNumber.verifiedName})`,
           })),
         },
+        additionalData: [{ key: 'state', value: ctx.webhookId }],
       })
     }
   }
