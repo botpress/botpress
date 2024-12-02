@@ -635,6 +635,20 @@
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
+    },
+    "@botpresshub/freshchat#add:interfaces": {
+      "cache": false,
+      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+    },
+    "@botpresshub/freshchat#build": {
+      "inputs": ["integration.definition.ts", "src/**"],
+      "outputs": [".botpress/**"],
+      "dependsOn": [
+        "@botpresshub/freshchat#add:interfaces",
+        "@botpress/client#build",
+        "@botpress/sdk#build",
+        "@botpress/cli#build"
+      ]
     }
   }
 }
