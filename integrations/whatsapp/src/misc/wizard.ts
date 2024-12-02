@@ -99,15 +99,17 @@ const handleWizardGetAccessToken = async (props: WizardStepHandlerProps): Promis
 
 const handleWizardVerifyWaba = async (props: WizardStepHandlerProps): Promise<Response> => {
   const { req } = props
-  const wabaId = z.string().safeParse(queryString.parse(req.query)['wabaId']).data
-  const force = z.boolean().safeParse(queryString.parse(req.query)['force-step']).data
+  const parsedQueryString = queryString.parse(req.query)
+  const wabaId = z.string().safeParse(parsedQueryString['wabaId']).data
+  const force = !!parsedQueryString['force-step']
   return await doStepVerifyWaba(props, wabaId, force)
 }
 
 const handleWizardVerifyNumber = async (props: WizardStepHandlerProps): Promise<Response> => {
   const { req } = props
-  const phoneNumberId = z.string().safeParse(queryString.parse(req.query)['phoneNumberId']).data
-  const force = z.boolean().safeParse(queryString.parse(req.query)['force-step']).data
+  const parsedQueryString = queryString.parse(req.query)
+  const phoneNumberId = z.string().safeParse(parsedQueryString['phoneNumberId']).data
+  const force = !!parsedQueryString['force-step']
   return await doStepVerifyNumber(props, phoneNumberId, force)
 }
 
@@ -124,8 +126,13 @@ const getOAuthRedirectUri = () => {
   return getWizardStepUrl('get-access-token', undefined)
 }
 
-const doStepVerifyWaba = async (props: WizardStepHandlerProps, wabaId?: string, force?: boolean): Promise<Response> => {
+const doStepVerifyWaba = async (
+  props: WizardStepHandlerProps,
+  inWabaId?: string,
+  force?: boolean
+): Promise<Response> => {
   const { client, ctx, logger, credentials } = props
+  let wabaId = inWabaId || credentials.wabaId
   await trackWizardStep(ctx, 'verify-waba')
   const { accessToken } = credentials
   if (!accessToken) {
@@ -161,10 +168,11 @@ const doStepVerifyWaba = async (props: WizardStepHandlerProps, wabaId?: string, 
 
 const doStepVerifyNumber = async (
   props: WizardStepHandlerProps,
-  phoneNumberId?: string,
+  inPhoneNumberId?: string,
   force?: boolean
 ): Promise<Response> => {
   const { client, ctx, logger, credentials } = props
+  let phoneNumberId = inPhoneNumberId || credentials.phoneNumberId
   await trackWizardStep(ctx, 'verify-number')
   const { accessToken, wabaId } = credentials
   if (!accessToken) {
