@@ -9,7 +9,6 @@ import {
   ActionDefinition,
 } from '../bot/definition'
 import { IntegrationPackage, InterfacePackage } from '../package'
-import { Writable } from '../utils/type-utils'
 import { AnyZodObject } from '../zui'
 
 export {
@@ -28,20 +27,26 @@ type BaseConfig = AnyZodObject
 type BaseStates = Record<string, AnyZodObject>
 type BaseEvents = Record<string, AnyZodObject>
 type BaseActions = Record<string, AnyZodObject>
+type BaseInterfaces = Record<string, any>
+type BaseIntegrations = Record<string, any>
 
 export type PluginDefinitionProps<
+  TName extends string = string,
+  TVersion extends string = string,
   TConfig extends BaseConfig = BaseConfig,
   TStates extends BaseStates = BaseStates,
   TEvents extends BaseEvents = BaseEvents,
-  TActions extends BaseActions = BaseActions
+  TActions extends BaseActions = BaseActions,
+  TInterfaces extends BaseInterfaces = BaseInterfaces,
+  TIntegrations extends BaseIntegrations = BaseIntegrations
 > = {
-  name: string
-  version: string
+  name: TName
+  version: TVersion
   integrations?: {
-    [K: string]: IntegrationPackage
+    [K in keyof TIntegrations]: IntegrationPackage
   }
   interfaces?: {
-    [K: string]: InterfacePackage
+    [K in keyof TInterfaces]: InterfacePackage
   }
   user?: UserDefinition
   conversation?: ConversationDefinition
@@ -60,10 +65,14 @@ export type PluginDefinitionProps<
 }
 
 export class PluginDefinition<
+  TName extends string = string,
+  TVersion extends string = string,
   TConfig extends BaseConfig = BaseConfig,
   TStates extends BaseStates = BaseStates,
   TEvents extends BaseEvents = BaseEvents,
-  TActions extends BaseActions = BaseActions
+  TActions extends BaseActions = BaseActions,
+  TInterfaces extends BaseInterfaces = BaseInterfaces,
+  TIntegrations extends BaseIntegrations = BaseIntegrations
 > {
   public readonly name: this['props']['name']
   public readonly version: this['props']['version']
@@ -79,7 +88,19 @@ export class PluginDefinition<
   public readonly events: this['props']['events']
   public readonly recurringEvents: this['props']['recurringEvents']
   public readonly actions: this['props']['actions']
-  public constructor(public readonly props: PluginDefinitionProps<TConfig, TStates, TEvents, TActions>) {
+
+  public constructor(
+    public readonly props: PluginDefinitionProps<
+      TName,
+      TVersion,
+      TConfig,
+      TStates,
+      TEvents,
+      TActions,
+      TInterfaces,
+      TIntegrations
+    >
+  ) {
     this.name = props.name
     this.version = props.version
     this.integrations = props.integrations
@@ -92,27 +113,5 @@ export class PluginDefinition<
     this.events = props.events
     this.recurringEvents = props.recurringEvents
     this.actions = props.actions
-  }
-
-  public dependency(pkg: IntegrationPackage | InterfacePackage): this {
-    const self = this as Writable<PluginDefinition>
-
-    if (pkg.type === 'integration') {
-      if (!self.integrations) {
-        self.integrations = {}
-      }
-      self.integrations[pkg.definition.name] = pkg
-      return this
-    }
-
-    if (pkg.type === 'interface') {
-      if (!self.interfaces) {
-        self.interfaces = {}
-      }
-      self.interfaces[pkg.definition.name] = pkg
-      return this
-    }
-
-    return this
   }
 }
