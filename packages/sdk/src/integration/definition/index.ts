@@ -28,6 +28,8 @@ export type InterfaceExtension = InterfacePackage & {
 }
 
 export type IntegrationDefinitionProps<
+  TName extends string = string,
+  TVersion extends string = string,
   TConfig extends BaseConfig = BaseConfig,
   TConfigs extends BaseConfigs = BaseConfigs,
   TEvents extends BaseEvents = BaseEvents,
@@ -36,8 +38,8 @@ export type IntegrationDefinitionProps<
   TStates extends BaseStates = BaseStates,
   TEntities extends BaseEntities = BaseEntities
 > = {
-  name: string
-  version: string
+  name: TName
+  version: TVersion
 
   title?: string
   description?: string
@@ -94,6 +96,8 @@ type ExtensionBuilder<TIntegrationEntities extends BaseEntities, TInterfaceEntit
 ) => ExtensionBuilderOutput<TInterfaceEntities>
 
 export class IntegrationDefinition<
+  TName extends string = string,
+  TVersion extends string = string,
   TConfig extends BaseConfig = BaseConfig,
   TConfigs extends BaseConfigs = BaseConfigs,
   TEvents extends BaseEvents = BaseEvents,
@@ -121,6 +125,8 @@ export class IntegrationDefinition<
   public readonly interfaces: this['props']['interfaces']
   public constructor(
     public readonly props: IntegrationDefinitionProps<
+      TName,
+      TVersion,
       TConfig,
       TConfigs,
       TEvents,

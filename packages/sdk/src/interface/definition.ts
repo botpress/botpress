@@ -38,13 +38,15 @@ type GenericActionDefinition<
 }
 
 export type InterfaceDefinitionProps<
+  TName extends string = string,
+  TVersion extends string = string,
   TEntities extends BaseEntities = BaseEntities,
   TActions extends BaseActions = BaseActions,
   TEvents extends BaseEntities = BaseEntities,
   TChannels extends BaseChannels = BaseChannels
 > = {
-  name: string
-  version: string
+  name: TName
+  version: TVersion
 
   entities?: {
     [K in keyof TEntities]: EntityDefinition<TEntities[K]>
@@ -64,6 +66,8 @@ export type InterfaceDefinitionProps<
 }
 
 export class InterfaceDefinition<
+  TName extends string = string,
+  TVersion extends string = string,
   TEntities extends BaseEntities = BaseEntities,
   TActions extends BaseActions = BaseActions,
   TEvents extends BaseEvents = BaseEvents,
@@ -79,7 +83,9 @@ export class InterfaceDefinition<
 
   public readonly templateName: this['props']['templateName']
 
-  public constructor(public readonly props: InterfaceDefinitionProps<TEntities, TActions, TEvents, TChannels>) {
+  public constructor(
+    public readonly props: InterfaceDefinitionProps<TName, TVersion, TEntities, TActions, TEvents, TChannels>
+  ) {
     this.name = props.name
     this.version = props.version
     this.entities = props.entities ?? ({} as this['entities'])

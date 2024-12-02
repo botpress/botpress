@@ -16,7 +16,7 @@ export default new sdk.BotDefinition({})
     enabled: true,
     configuration: {},
   })
-  .plug(personality, {
+  .add(personality, {
     configuration: {
       model: 'gpt-3.5-turbo-0125',
       personality: 'Respond as if you were Mario the famous video game character of Nintendo',
@@ -25,7 +25,7 @@ export default new sdk.BotDefinition({})
       llm: openai.definition,
     },
   })
-  .plug(knowledge, {
+  .add(knowledge, {
     configuration: {},
     interfaces: {
       llm: openai.definition,

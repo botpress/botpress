@@ -15,4 +15,7 @@ export default new sdk.PluginDefinition({
         ),
     }),
   },
-}).addInterface(llm)
+  interfaces: {
+    llm,
+  },
+})

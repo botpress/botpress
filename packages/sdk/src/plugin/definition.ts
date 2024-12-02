@@ -7,12 +7,8 @@ import {
   ConversationDefinition,
   MessageDefinition,
   ActionDefinition,
-  IntegrationConfigInstance,
-  IntegrationInstance,
-  InterfaceInstance,
 } from '../bot/definition'
 import { IntegrationPackage, InterfacePackage } from '../package'
-import { Writable } from '../utils/type-utils'
 import { AnyZodObject } from '../zui'
 
 export {
@@ -25,25 +21,32 @@ export {
   MessageDefinition,
   ActionDefinition,
   IntegrationConfigInstance,
-  IntegrationInstance as IntegrationInstance,
 } from '../bot/definition'
 
+type BaseConfig = AnyZodObject
 type BaseStates = Record<string, AnyZodObject>
 type BaseEvents = Record<string, AnyZodObject>
 type BaseActions = Record<string, AnyZodObject>
+type BaseInterfaces = Record<string, any>
+type BaseIntegrations = Record<string, any>
 
 export type PluginDefinitionProps<
+  TName extends string = string,
+  TVersion extends string = string,
+  TConfig extends BaseConfig = BaseConfig,
   TStates extends BaseStates = BaseStates,
   TEvents extends BaseEvents = BaseEvents,
-  TActions extends BaseActions = BaseActions
+  TActions extends BaseActions = BaseActions,
+  TInterfaces extends BaseInterfaces = BaseInterfaces,
+  TIntegrations extends BaseIntegrations = BaseIntegrations
 > = {
-  name: string
-  version: string
+  name: TName
+  version: TVersion
   integrations?: {
-    [K: string]: IntegrationInstance
+    [K in keyof TIntegrations]: IntegrationPackage
   }
   interfaces?: {
-    [K: string]: InterfaceInstance
+    [K in keyof TInterfaces]: InterfacePackage
   }
   user?: UserDefinition
   conversation?: ConversationDefinition
@@ -51,7 +54,7 @@ export type PluginDefinitionProps<
   states?: {
     [K in keyof TStates]: StateDefinition<TStates[K]>
   }
-  configuration?: ConfigurationDefinition
+  configuration?: ConfigurationDefinition<TConfig>
   events?: {
     [K in keyof TEvents]: EventDefinition<TEvents[K]>
   }
@@ -62,9 +65,14 @@ export type PluginDefinitionProps<
 }
 
 export class PluginDefinition<
+  TName extends string = string,
+  TVersion extends string = string,
+  TConfig extends BaseConfig = BaseConfig,
   TStates extends BaseStates = BaseStates,
   TEvents extends BaseEvents = BaseEvents,
-  TActions extends BaseActions = BaseActions
+  TActions extends BaseActions = BaseActions,
+  TInterfaces extends BaseInterfaces = BaseInterfaces,
+  TIntegrations extends BaseIntegrations = BaseIntegrations
 > {
   public readonly name: this['props']['name']
   public readonly version: this['props']['version']
@@ -80,7 +88,19 @@ export class PluginDefinition<
   public readonly events: this['props']['events']
   public readonly recurringEvents: this['props']['recurringEvents']
   public readonly actions: this['props']['actions']
-  public constructor(public readonly props: PluginDefinitionProps<TStates, TEvents, TActions>) {
+
+  public constructor(
+    public readonly props: PluginDefinitionProps<
+      TName,
+      TVersion,
+      TConfig,
+      TStates,
+      TEvents,
+      TActions,
+      TInterfaces,
+      TIntegrations
+    >
+  ) {
     this.name = props.name
     this.version = props.version
     this.integrations = props.integrations
@@ -93,30 +113,5 @@ export class PluginDefinition<
     this.events = props.events
     this.recurringEvents = props.recurringEvents
     this.actions = props.actions
-  }
-
-  public addIntegration<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this {
-    const self = this as Writable<PluginDefinition>
-    if (!self.integrations) {
-      self.integrations = {}
-    }
-
-    self.integrations[integrationPkg.definition.name] = {
-      enabled: config.enabled,
-      ...integrationPkg,
-      configurationType: config.configurationType as string,
-      configuration: config.configuration,
-    }
-    return this
-  }
-
-  public addInterface<I extends InterfacePackage>(interfacePkg: I): this {
-    const self = this as Writable<PluginDefinition>
-    if (!self.interfaces) {
-      self.interfaces = {}
-    }
-
-    self.interfaces[interfacePkg.definition.name] = interfacePkg
-    return this
   }
 }

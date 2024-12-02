@@ -1,8 +1,9 @@
-import { IntegrationPackage, InterfacePackage, PluginPackage } from '../package'
+import { IntegrationPackage, PluginPackage } from '../package'
 import { SchemaDefinition } from '../schema'
 import { ValueOf, Writable } from '../utils/type-utils'
 import z, { AnyZodObject } from '../zui'
 
+type BaseConfig = AnyZodObject
 type BaseStates = Record<string, AnyZodObject>
 type BaseEvents = Record<string, AnyZodObject>
 type BaseActions = Record<string, AnyZodObject>
@@ -29,7 +30,7 @@ export type RecurringEventDefinition<TEvents extends BaseEvents = BaseEvents> = 
 
 export type EventDefinition<TEvent extends BaseEvents[string] = BaseEvents[string]> = SchemaDefinition<TEvent>
 
-export type ConfigurationDefinition = SchemaDefinition
+export type ConfigurationDefinition<TConfig extends BaseConfig = BaseConfig> = SchemaDefinition<TConfig>
 
 export type UserDefinition = {
   tags?: Record<string, TagDefinition>
@@ -75,7 +76,6 @@ export type PluginConfigInstance<P extends PluginPackage = PluginPackage> = {
 
 export type IntegrationInstance = IntegrationPackage & IntegrationConfigInstance
 export type PluginInstance = PluginPackage & PluginConfigInstance
-export type InterfaceInstance = InterfacePackage
 
 export type BotDefinitionProps<
   TStates extends BaseStates = BaseStates,
@@ -132,7 +132,17 @@ export class BotDefinition<
     this.actions = props.actions
   }
 
-  public add<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this {
+  public add<P extends PluginPackage>(pluginPkg: P, config: PluginConfigInstance<P>): this
+  public add<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this
+  public add(pkg: PluginPackage | IntegrationPackage, config: PluginConfigInstance | IntegrationConfigInstance): this {
+    if (pkg.type === 'plugin') {
+      return this._addPlugin(pkg as PluginPackage, config as PluginConfigInstance)
+    } else {
+      return this._addIntegration(pkg as IntegrationPackage, config as IntegrationConfigInstance)
+    }
+  }
+
+  public _addIntegration<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this {
     const self = this as Writable<BotDefinition>
     if (!self.integrations) {
       self.integrations = {}
@@ -147,7 +157,7 @@ export class BotDefinition<
     return this
   }
 
-  public plug<P extends PluginPackage>(pluginPkg: P, config: PluginConfigInstance<P>): this {
+  private _addPlugin<P extends PluginPackage>(pluginPkg: P, config: PluginConfigInstance<P>): this {
     const self = this as Writable<BotDefinition>
     if (!self.plugins) {
       self.plugins = {}
