@@ -61,20 +61,19 @@ const handleWizardStartConfirm = async (props: WizardStepHandlerProps): Promise<
 const handleWizardSetup = async (props: WizardStepHandlerProps): Promise<Response> => {
   const { client, ctx } = props
   await trackWizardStep(ctx, 'setup', 'setup-started')
-  await client.configureIntegration({ identifier: ctx.webhookId }) // TODO: Not necessary if we use state param with webhookId (should work only under OAuth path)
   // Clean current state to start a fresh wizard
   const credentials = { accessToken: undefined, wabaId: undefined, phoneNumberId: undefined }
-  await patchCredentialsState(client, ctx, credentials) // TODO: Difference between {} and { accessToken: undefined, wabaId: undefined, phoneNumberId: undefined }?
+  await patchCredentialsState(client, ctx, credentials)
   return redirectTo(
     'https://www.facebook.com/v19.0/dialog/oauth?' +
       'client_id=' +
       bp.secrets.CLIENT_ID +
       '&redirect_uri=' +
-      getWizardStepUrl(ctx, 'get-access-token') + // TODO: See WhatsApp app to know if redirect_uri needs to be static (if so add logic to route to the correct handler)
+      getWizardStepUrl(ctx, 'get-access-token', true) +
       '&state=' +
       ctx.webhookId +
       '&config_id=' +
-      getOAuthConfigId() + // TODO: See WhatsApp app to know what this is
+      getOAuthConfigId() +
       '&override_default_response_type=true' +
       '&response_type=code'
   )
@@ -88,11 +87,11 @@ const handleWizardGetAccessToken = async (props: WizardStepHandlerProps): Promis
     throw new Error('Error extracting code from url in OAuth handler')
   }
   const oauthClient = new MetaOauthClient(logger)
-  const accessToken = await oauthClient.getAccessToken(code)
+  const redirectUri = getWizardStepUrl(ctx, 'get-access-token', true) // Needs to be the same as the one used to get the code
+  const accessToken = await oauthClient.getAccessToken(code, redirectUri)
   if (!accessToken) {
     throw new Error(ACCESS_TOKEN_UNAVAILABLE_ERROR)
   }
-
   const newCredentials = { ...credentials, accessToken }
   await patchCredentialsState(client, ctx, newCredentials)
   return await doStepVerifyWaba({ ...props, credentials: newCredentials })
@@ -116,8 +115,13 @@ const getIntegrationInstanceUrl = (ctx: bp.Context) => {
   return `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}`
 }
 
-const getWizardStepUrl = (ctx: bp.Context, step: WizardStep) => {
-  return `${getIntegrationInstanceUrl(ctx)}/oauth/wizard/${step}`
+const getGlobalUrl = () => {
+  return process.env.BP_WEBHOOK_URL
+}
+
+const getWizardStepUrl = (ctx: bp.Context, step: WizardStep, global?: boolean) => {
+  const baseUrl = global ? getGlobalUrl() : getIntegrationInstanceUrl(ctx)
+  return `${baseUrl}/oauth/wizard/${step}`
 }
 
 const doStepVerifyWaba = async (props: WizardStepHandlerProps, wabaId?: string, force?: boolean): Promise<Response> => {
@@ -141,7 +145,6 @@ const doStepVerifyWaba = async (props: WizardStepHandlerProps, wabaId?: string, 
           key: 'wabaId',
           options: businesses.map((business) => ({ id: business.id, display: business.name })),
         },
-        additionalData: [{ key: 'wizard-step', value: 'verify-waba' }], // TODO: Necessary?
       })
     }
   }
@@ -187,7 +190,6 @@ const doStepVerifyNumber = async (
             display: `${phoneNumber.displayPhoneNumber} (${phoneNumber.verifiedName})`,
           })),
         },
-        additionalData: [{ key: 'wizard-step', value: 'verify-number' }], // TODO: Necessary?
       })
     }
   }
@@ -214,7 +216,6 @@ const doStepWrapUp = async (props: WizardStepHandlerProps): Promise<Response> =>
   if (!phoneNumberId) {
     throw new Error(PHONE_NUMBER_ID_UNAVAILABLE_ERROR)
   }
-
   const oauthClient = new MetaOauthClient(logger)
   await client.configureIntegration({
     identifier: wabaId,
