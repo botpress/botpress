@@ -305,7 +305,6 @@ export const detectIdentifierIssue = (req: Request, ctx: bp.Context) => {
   /* because of the wizard, we need to accept the query param "state" as an identifier
    * but we need to prevent anyone of using anything other than the webhookId there for security reasons
    */
-  // TODO: Is this needed? If you send a request to a static webhook you still have to know the webhookId or another identifier for it to be routed to the right bot
   const query = queryString.parse(req.query)
 
   return !!(query['state']?.length && query['state'] !== ctx.webhookId)
