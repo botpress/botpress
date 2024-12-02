@@ -5,7 +5,7 @@ import {
   FreshchatAgent,
   FreshchatChannel,
   FreshchatConfiguration,
-  FreshchatUser
+  FreshchatUser,
 } from './definitions/schemas'
 import * as bp from '.botpress'
 
