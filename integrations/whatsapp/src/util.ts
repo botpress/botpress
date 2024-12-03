@@ -44,3 +44,11 @@ export async function getWhatsAppMediaUrl(
   const media = await whatsapp.retrieveMedia(whatsappMediaId)
   return (media as Exclude<ServerMediaRetrieveResponse, ServerErrorResponse>).url
 }
+
+export function getSubpath(path: string) {
+  let subpath = '/' + path.split('/').slice(2).join('/')
+  if (subpath.slice(-1) === '/') {
+    subpath = subpath.slice(0, -1)
+  }
+  return subpath ? subpath : undefined
+}
