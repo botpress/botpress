@@ -4,8 +4,8 @@ import { listIssues } from './list-issues'
 import * as listeners from './listeners'
 import * as bp from '.botpress'
 
-bot.event('github:issueOpened', handleNewIssue)
-bot.event('syncIssuesRequest', handleSyncIssuesRequest)
+bot.on.event('github:issueOpened', handleNewIssue)
+bot.on.event('syncIssuesRequest', handleSyncIssuesRequest)
 
 const respond = async (props: bp.MessageHandlerProps, text: string) => {
   const { client, ctx, message } = props
@@ -20,7 +20,7 @@ const respond = async (props: bp.MessageHandlerProps, text: string) => {
   })
 }
 
-bot.message('*', async (props) => {
+bot.on.message('*', async (props) => {
   const { conversation, message, client, ctx } = props
   if (conversation.integration !== 'slack') {
     console.info(`Ignoring message from ${conversation.integration}`)

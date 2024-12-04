@@ -61,28 +61,19 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     return this._runtimeProps
   }
 
-  public readonly message = <T extends keyof MessageHandlersMap<TPlugin>>(
-    type: T,
-    handler: MessageHandlers<TPlugin>[T]
-  ): void => {
-    this.messageHandlers[type] = utils.arrays.safePush(this.messageHandlers[type], handler)
-  }
-
-  public readonly event = <T extends keyof EventHandlersMap<TPlugin>>(
-    type: T,
-    handler: EventHandlers<TPlugin>[T]
-  ): void => {
-    this.eventHandlers[type] = utils.arrays.safePush(this.eventHandlers[type], handler)
-  }
-
-  public readonly stateExpired = <T extends keyof StateExpiredHandlersMap<TPlugin>>(
-    type: T,
-    handler: StateExpiredHandlers<TPlugin>[T]
-  ): void => {
-    this.stateExpiredHandlers[type] = utils.arrays.safePush(this.stateExpiredHandlers[type], handler)
-  }
-
-  public readonly hook = {
+  public readonly on = {
+    message: <T extends keyof MessageHandlersMap<TPlugin>>(type: T, handler: MessageHandlers<TPlugin>[T]): void => {
+      this.messageHandlers[type] = utils.arrays.safePush(this.messageHandlers[type], handler)
+    },
+    event: <T extends keyof EventHandlersMap<TPlugin>>(type: T, handler: EventHandlers<TPlugin>[T]): void => {
+      this.eventHandlers[type] = utils.arrays.safePush(this.eventHandlers[type], handler)
+    },
+    stateExpired: <T extends keyof StateExpiredHandlersMap<TPlugin>>(
+      type: T,
+      handler: StateExpiredHandlers<TPlugin>[T]
+    ): void => {
+      this.stateExpiredHandlers[type] = utils.arrays.safePush(this.stateExpiredHandlers[type], handler)
+    },
     beforeIncomingEvent: <T extends keyof HookData<TPlugin>['before_incoming_event']>(
       type: T,
       handler: HookHandlers<TPlugin>['before_incoming_event'][T]

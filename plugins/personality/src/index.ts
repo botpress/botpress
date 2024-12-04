@@ -6,7 +6,7 @@ const plugin = new bp.Plugin({
   actions: {},
 })
 
-plugin.hook.beforeOutgoingMessage('*', async ({ data: message, client }) => {
+plugin.on.beforeOutgoingMessage('*', async ({ data: message, client }) => {
   if (message.type !== 'text') {
     console.debug('Ignoring non-text message')
     return

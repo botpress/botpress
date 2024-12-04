@@ -6,7 +6,7 @@ const plugin = new bp.Plugin({
   actions: {},
 })
 
-plugin.hook.beforeIncomingMessage('*', async ({ data: message, client, ctx }) => {
+plugin.on.beforeIncomingMessage('*', async ({ data: message, client, ctx }) => {
   const integrationName = plugin.config.interfaces.llm.name
 
   if (message.type !== 'text') {

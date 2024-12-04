@@ -4,7 +4,7 @@ const bot = new bp.Bot({
   actions: {},
 })
 
-bot.message('text', async (props) => {
+bot.on.message('text', async (props) => {
   console.info('Received text message:', props.message.payload.text)
   await props.client.createMessage({
     conversationId: props.message.conversationId,
@@ -25,7 +25,7 @@ const fileKey = (url: string) => {
   return fileName
 }
 
-bot.message('file', async (props) => {
+bot.on.message('file', async (props) => {
   console.info('Received file message:', props.message.payload.fileUrl)
 
   const { fileUrl } = props.message.payload
