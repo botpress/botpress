@@ -45,11 +45,18 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     after_outgoing_call_action: {},
   }
 
+  /**
+   * alias for actionHandlers
+   */
+  public get actions() {
+    return this.actionHandlers
+  }
+
   public constructor(public readonly props: BotImplementationProps<TBot, TPlugins>) {
     this.actionHandlers = props.actions as ActionHandlers<TBot>
     const plugins = utils.records.values(props.plugins)
     for (const plugin of plugins) {
-      this._use(plugin)
+      this._use(plugin as BotHandlers<any>)
     }
   }
 
@@ -141,7 +148,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
   }
 
   private readonly _use = (botLike: BotHandlers<any>): void => {
-    mergeBots(this, botLike)
+    mergeBots(this as BotHandlers<any>, botLike)
   }
 
   public readonly handler = botHandler(this as BotHandlers<any>)

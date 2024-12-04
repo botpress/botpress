@@ -14,9 +14,9 @@ const bot = new bp.Bot({
 })
 
 bot.on.message('*', async (props) => {
-  const { message, client, ctx, self } = props
+  const { message, client, ctx } = props
 
-  const { message: response } = await self.actionHandlers.sayHello({ ...props, input: {} })
+  const { message: response } = await bot.actions.sayHello({ ...props, input: {} })
   await client.createMessage({
     conversationId: message.conversationId,
     userId: ctx.botId,
