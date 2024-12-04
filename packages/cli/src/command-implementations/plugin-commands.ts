@@ -3,6 +3,7 @@ import chalk from 'chalk'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import { parsePackageRef } from '../package-ref'
+import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
 
 export type GetPluginCommandDefinition = typeof commandDefinitions.plugins.subcommands.get
@@ -18,10 +19,10 @@ export class GetPluginCommand extends GlobalCommand<GetPluginCommandDefinition> 
     }
 
     try {
-      const intrface = await api.findPublicPlugin(parsedRef)
-      if (intrface) {
+      const plugin = await api.findPublicPlugin(parsedRef)
+      if (plugin) {
         this.logger.success(`Plugin ${chalk.bold(this.argv.pluginRef)}:`)
-        this.logger.json(intrface)
+        this.logger.json(utils.object.omit(plugin, 'code'))
         return
       }
     } catch (thrown) {
@@ -62,19 +63,19 @@ export class DeletePluginCommand extends GlobalCommand<DeletePluginCommandDefini
       throw new errors.BotpressCLIError('Cannot delete local plugin')
     }
 
-    let intrface: client.Plugin | undefined
+    let plugin: client.Plugin | undefined
     try {
-      intrface = await api.findPublicPlugin(parsedRef)
+      plugin = await api.findPublicPlugin(parsedRef)
     } catch (thrown) {
       throw errors.BotpressCLIError.wrap(thrown, `Could not get plugin ${this.argv.pluginRef}`)
     }
 
-    if (!intrface) {
+    if (!plugin) {
       throw new errors.BotpressCLIError(`Plugin ${this.argv.pluginRef} not found`)
     }
 
     try {
-      await api.client.deletePlugin({ id: intrface.id })
+      await api.client.deletePlugin({ id: plugin.id })
     } catch (thrown) {
       throw errors.BotpressCLIError.wrap(thrown, `Could not delete plugin ${this.argv.pluginRef}`)
     }
