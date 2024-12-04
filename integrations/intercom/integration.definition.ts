@@ -12,7 +12,7 @@ export default new IntegrationDefinition({
   configuration: {
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
-      // required: true,  // TODO: What does this do?
+      required: true,
     },
     schema: z.object({
       adminId: z.string().min(1).describe('The admin ID of the Bot'),
