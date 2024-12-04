@@ -1,1 +1,1 @@
-parse_json!(.body).data.item.admin_assignee_id
+to_string!(parse_json!(.body).data.item.admin_assignee_id)
