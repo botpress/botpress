@@ -392,7 +392,7 @@ function verifyRequest(req: Request, ctx: bp.Context): VerifyResult {
   }
 
   const parsedNotification = parsedBody.data
-  if (parsedNotification.topic !== 'conversation.admin.replied') {
+  if (parsedNotification.topic === 'conversation.admin.replied') {
     // Ignore admin replies, since the bot is an admin we don't want to reply to ourselves
     return { result: 'ignore', isError: false }
   }
