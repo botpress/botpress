@@ -16,7 +16,7 @@ type IntercomMessage = z.infer<typeof conversationSourceSchema>
 type VerifyResult =
   | { result: 'success'; isError: false; parsedNotification: z.infer<typeof webhookNotificationSchema> }
   | { result: 'error'; isError: true; message: string }
-  | { result: 'ignore'; isError: false }
+  | { result: 'ignore'; isError: false; message?: string }
 
 const conversationSourceSchema = z.object({
   id: z.string(),
@@ -199,6 +199,7 @@ const integration = new bp.Integration({
     if (verifyResult.isError) {
       throw new RuntimeError(`Invalid request received: ${verifyResult.message}`)
     } else if (verifyResult.result === 'ignore') {
+      console.info(`Handler ignored request: ${verifyResult.message ?? 'Unknown reason'}`)
       return
     }
 
@@ -366,6 +367,15 @@ function formatGoogleMapLink(payload: Location) {
   return `https://www.google.com/maps/search/?api=1&query=${payload.latitude},${payload.longitude}`
 }
 
+function extractSignature(req: Request) {
+  const signatureKv = req.headers['x-hub-signature']
+  if (!signatureKv) {
+    return undefined
+  }
+  const signature = signatureKv.split('=')[1]
+  return signature
+}
+
 function isSignatureValid(signature: string, body: string, secret: string) {
   const hash = crypto.createHmac('sha1', secret).update(body).digest('hex')
   return hash === signature
@@ -375,7 +385,7 @@ function verifyRequest(req: Request, ctx: bp.Context): VerifyResult {
   if (!req.body) {
     return { result: 'error', isError: true, message: 'Handler received an empty body' }
   }
-  const signature = req.headers['x-hub-signature']
+  const signature = extractSignature(req)
   if (!signature || !isSignatureValid(signature, req.body, bp.secrets.CLIENT_SECRET)) {
     return { result: 'error', isError: true, message: 'Handler received request with invalid signature' }
   }
@@ -394,12 +404,12 @@ function verifyRequest(req: Request, ctx: bp.Context): VerifyResult {
   const parsedNotification = parsedBody.data
   if (parsedNotification.topic === 'conversation.admin.replied') {
     // Ignore admin replies, since the bot is an admin we don't want to reply to ourselves
-    return { result: 'ignore', isError: false }
+    return { result: 'ignore', isError: false, message: 'Ignoring admin replies' }
   }
 
   if (ctx.configuration.adminId !== parsedNotification.data.item.admin_assignee_id) {
     // Ignore conversations not assigned to the bot
-    return { result: 'ignore', isError: false }
+    return { result: 'ignore', isError: false, message: 'Ignoring conversations not assigned to the bot' }
   }
 
   return { result: 'success', isError: false, parsedNotification }
