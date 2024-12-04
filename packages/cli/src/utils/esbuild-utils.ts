@@ -1,6 +1,6 @@
 import { build as esbuild, LogLevel, Platform, BuildResult, OutputFile } from 'esbuild'
 
-type BaseProps<W extends boolean> = {
+type BaseProps<W extends boolean = true> = {
   cwd: string
   outfile: string
   minify?: boolean
@@ -11,11 +11,11 @@ type BaseProps<W extends boolean> = {
   platform?: Platform
 }
 
-export type BuildCodeProps<W extends boolean> = BaseProps<W> & {
+export type BuildCodeProps<W extends boolean = true> = BaseProps<W> & {
   code: string
 }
 
-export type BuildEntrypointProps<W extends boolean> = BaseProps<W> & {
+export type BuildEntrypointProps<W extends boolean = true> = BaseProps<W> & {
   entrypoint: string
 }
 

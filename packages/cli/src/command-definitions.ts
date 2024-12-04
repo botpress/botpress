@@ -29,6 +29,14 @@ export default {
       list: { description: 'List interfaces', schema: config.schemas.listInterfaces, alias: 'ls' },
     },
   },
+  plugins: {
+    description: 'Plugin related commands',
+    subcommands: {
+      get: { description: 'Get plugin', schema: config.schemas.getPlugin },
+      delete: { description: 'Delete plugin', schema: config.schemas.deletePlugin, alias: 'rm' },
+      list: { description: 'List plugins', schema: config.schemas.listPlugins, alias: 'ls' },
+    },
+  },
   init: { description: 'Initialize a new project', schema: config.schemas.init },
   generate: { description: 'Generate typings for intellisense', schema: config.schemas.generate, alias: 'gen' },
   bundle: { description: 'Bundle a botpress project', schema: config.schemas.bundle },
