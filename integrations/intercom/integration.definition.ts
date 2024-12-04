@@ -12,6 +12,7 @@ export default new IntegrationDefinition({
   configuration: {
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
+      // required: true,  // TODO: What does this do?
     },
     schema: z.object({
       adminId: z.string().min(1).describe('The admin ID of the Bot'),
@@ -46,7 +47,7 @@ export default new IntegrationDefinition({
         tags: {
           id: {},
         },
-        //creation: { enabled: true, requiredTags: ['id'] }, // TODO: Required?
+        creation: { enabled: true, requiredTags: ['id'] },
       },
     },
   },
@@ -62,7 +63,7 @@ export default new IntegrationDefinition({
   },
   user: {
     tags: { id: {}, email: {} },
-    // creation: { enabled: true, requiredTags: ['id'] }, // TODO: Required?
+    creation: { enabled: true, requiredTags: ['id'] },
   },
   states: {
     credentials: {
