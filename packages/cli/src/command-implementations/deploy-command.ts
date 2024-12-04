@@ -11,6 +11,7 @@ import {
   prepareCreateIntegrationBody,
 } from '../api/integration-body'
 import { CreateInterfaceBody, prepareCreateInterfaceBody, prepareUpdateInterfaceBody } from '../api/interface-body'
+import { prepareCreatePluginBody, prepareUpdatePluginBody } from '../api/plugin-body'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import { getImplementationStatements } from '../sdk'
@@ -34,6 +35,9 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
     if (projectDef.type === 'interface') {
       return this._deployInterface(api, projectDef.definition)
+    }
+    if (projectDef.type === 'plugin') {
+      return this._deployPlugin(api, projectDef.definition)
     }
     if (projectDef.type === 'bot') {
       return this._deployBot(api, projectDef.definition, this.argv.botId, this.argv.createNewBot)
@@ -205,6 +209,62 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       line.started(startedMessage)
       await api.client.createInterface(createBody).catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, `Could not create interface "${name}"`)
+      })
+      line.success(successMessage)
+    }
+  }
+
+  private async _deployPlugin(api: ApiClient, pluginDef: sdk.PluginDefinition) {
+    const outfile = this.projectPaths.abs.outFile
+    const code = await fs.promises.readFile(outfile, 'utf-8')
+
+    const { name, version } = pluginDef
+
+    const plugin = await api.findPublicPlugin({ type: 'name', name, version })
+
+    let message: string
+    if (plugin) {
+      this.logger.warn('Plugin already exists. If you decide to deploy, it will override the existing one.')
+      message = `Are you sure you want to override plugin ${name} v${version}?`
+    } else {
+      message = `Are you sure you want to deploy plugin ${name} v${version}?`
+    }
+
+    const confirm = await this.prompt.confirm(message)
+    if (!confirm) {
+      this.logger.log('Aborted')
+      return
+    }
+
+    this.logger.debug('Preparing plugin request body...')
+
+    const createBody = {
+      ...(await prepareCreatePluginBody(pluginDef)),
+      code,
+    }
+
+    const startedMessage = `Deploying plugin ${chalk.bold(name)} v${version}...`
+    const successMessage = 'Plugin deployed'
+    if (plugin) {
+      const updateBody = prepareUpdatePluginBody(
+        {
+          id: plugin.id,
+          ...createBody,
+        },
+        plugin
+      )
+
+      const line = this.logger.line()
+      line.started(startedMessage)
+      await api.client.updatePlugin(updateBody).catch((thrown) => {
+        throw errors.BotpressCLIError.wrap(thrown, `Could not update plugin "${name}"`)
+      })
+      line.success(successMessage)
+    } else {
+      const line = this.logger.line()
+      line.started(startedMessage)
+      await api.client.createPlugin(createBody).catch((thrown) => {
+        throw errors.BotpressCLIError.wrap(thrown, `Could not create plugin "${name}"`)
       })
       line.success(successMessage)
     }

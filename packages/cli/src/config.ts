@@ -76,6 +76,11 @@ const interfaceRef = {
   description: 'The interface ID or name and version. Ex: llm@5.1.0',
 } satisfies CommandOption
 
+const pluginRef = {
+  ...packageRef,
+  description: 'The plugin ID or name and version. Ex: knowledge@0.0.1',
+} satisfies CommandOption
+
 const sourceMap = { type: 'boolean', description: 'Generate sourcemaps', default: false } satisfies CommandOption
 
 const minify = { type: 'boolean', description: 'Minify the bundled code', default: true } satisfies CommandOption
@@ -282,6 +287,23 @@ const deleteInterfaceSchema = {
   interfaceRef,
 } satisfies CommandSchema
 
+const getPluginSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+  pluginRef,
+} satisfies CommandSchema
+
+const listPluginsSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+} satisfies CommandSchema
+
+const deletePluginSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+  pluginRef,
+} satisfies CommandSchema
+
 const initSchema = {
   ...globalSchema,
   workDir,
@@ -313,6 +335,9 @@ export const schemas = {
   getInterface: getInterfaceSchema,
   listInterfaces: listInterfacesSchema,
   deleteInterface: deleteInterfaceSchema,
+  getPlugin: getPluginSchema,
+  listPlugins: listPluginsSchema,
+  deletePlugin: deletePluginSchema,
   init: initSchema,
   generate: generateSchema,
   bundle: bundleSchema,

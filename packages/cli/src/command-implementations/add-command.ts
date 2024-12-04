@@ -91,6 +91,12 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         return { type: 'interface', name: intrface.name, pkg: { source: 'remote', interface: intrface } }
       }
     }
+    if (this._pkgCouldBe('plugin')) {
+      const plugin = await api.findPublicPlugin(ref)
+      if (plugin) {
+        return { type: 'plugin', name: plugin.name, pkg: { source: 'remote', plugin } }
+      }
+    }
     return
   }
 

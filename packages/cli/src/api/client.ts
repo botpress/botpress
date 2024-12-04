@@ -11,6 +11,7 @@ import {
   Requests,
   Responses,
   Interface,
+  Plugin,
   BotSummary,
 } from './types'
 
@@ -106,6 +107,19 @@ export class ApiClient {
     return this.client
       .getInterfaceByName(ref)
       .then((r) => r.interface)
+      .catch(this._returnUndefinedOnError('ResourceNotFound'))
+  }
+
+  public async findPublicPlugin(ref: ApiPackageRef): Promise<Plugin | undefined> {
+    if (ref.type === 'id') {
+      return this.client
+        .getPlugin(ref)
+        .then((r) => r.plugin)
+        .catch(this._returnUndefinedOnError('ResourceNotFound'))
+    }
+    return this.client
+      .getPluginByName(ref)
+      .then((r) => r.plugin)
       .catch(this._returnUndefinedOnError('ResourceNotFound'))
   }
 
