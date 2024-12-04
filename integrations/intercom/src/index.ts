@@ -45,11 +45,15 @@ const conversationSchema = z.object({
   }),
 })
 
+const pingSchema = z.object({
+  type: z.literal('ping'),
+})
+
 const webhookNotificationSchema = z.object({
   type: z.literal('notification_event'),
   topic: z.string(),
   data: z.object({
-    item: conversationSchema,
+    item: z.union([conversationSchema, pingSchema]),
   }),
 })
 
@@ -203,6 +207,12 @@ const integration = new bp.Integration({
       return
     }
 
+    const notification = verifyResult.parsedNotification
+    if (notification.data.item.type === 'ping') {
+      console.info('Handler received a ping event')
+      return
+    }
+
     const {
       topic,
       data: {
@@ -212,7 +222,7 @@ const integration = new bp.Integration({
           source: firstConversationPart,
         },
       },
-    } = verifyResult.parsedNotification
+    } = notification
 
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
@@ -406,6 +416,11 @@ function verifyRequest(req: Request, ctx: bp.Context): VerifyResult {
   if (parsedNotification.topic === 'conversation.admin.replied') {
     // Ignore admin replies, since the bot is an admin we don't want to reply to ourselves
     return { result: 'ignore', isError: false, message: 'Ignoring admin replies' }
+  }
+
+  if (parsedNotification.data.item.type === 'ping') {
+    // No further validation for ping events
+    return { result: 'success', isError: false, parsedNotification }
   }
 
   if (ctx.configuration.adminId !== parsedNotification.data.item.admin_assignee_id) {
