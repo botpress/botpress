@@ -1,18 +1,24 @@
+import { Response } from '@botpress/sdk'
 import { render } from 'preact-render-to-string'
 import ButtonDialogPage from './pages/button-dialog'
 import SelectDialogPage from './pages/select-dialog'
 
 export const generateHtml = ({
-  header,
+  htmlHeader,
   body,
   options,
+  httpHeaders,
 }: {
-  header?: string
+  htmlHeader?: string
   body?: string
   options?: { title?: string }
-}) => {
+  httpHeaders?: Record<string, string>
+}): Response => {
   return {
-    headers: { 'content-type': 'text/html' },
+    headers: {
+      'content-type': 'text/html',
+      ...httpHeaders,
+    },
     body: `
       <!DOCTYPE html>
       <html lang="en">
@@ -27,7 +33,7 @@ export const generateHtml = ({
             height: 100%;
           }
         </style>
-        ${header || ''}
+        ${htmlHeader || ''}
       </head>
       <body>
         ${body || ''}
@@ -37,15 +43,16 @@ export const generateHtml = ({
   }
 }
 
-export const redirectTo = async (url: string) => {
+export const redirectTo = (url: string) => {
   return generateHtml({
-    header: `
+    htmlHeader: `
       <script>
         window.location = "${encodeURI(url)}"
       </script>
     `,
     body: '<p>You are being redirected, please wait...</p>',
     options: { title: 'Redirecting' },
+    httpHeaders: { 'x-bp-disable-interstitial': 'true' },
   })
 }
 
@@ -53,6 +60,7 @@ export const generateButtonDialog = (props: Parameters<typeof ButtonDialogPage>[
   return generateHtml({
     body: render(ButtonDialogPage(props)),
     options: { title: props.title },
+    httpHeaders: { 'x-bp-disable-interstitial': 'true' },
   })
 }
 
@@ -60,6 +68,7 @@ export const generateSelectDialog = (props: Parameters<typeof SelectDialogPage>[
   return generateHtml({
     body: render(SelectDialogPage(props)),
     options: { title: props.title },
+    httpHeaders: { 'x-bp-disable-interstitial': 'true' },
   })
 }
 

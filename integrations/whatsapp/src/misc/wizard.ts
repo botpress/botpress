@@ -1,179 +1,246 @@
-import { Request } from '@botpress/sdk'
+import { Response, z } from '@botpress/sdk'
 import queryString from 'query-string'
 import { trackIntegrationEvent } from 'src/tracking'
+import { getSubpath } from 'src/util'
 import * as bp from '../../.botpress'
 import { getOAuthConfigId } from '../../integration.definition'
-import { getGlobalWebhookUrl } from '../index'
 import { generateButtonDialog, generateSelectDialog, getInterstitialUrl, redirectTo } from './html-utils'
 import { MetaOauthClient } from './whatsapp'
 
-export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Context, logger: bp.Logger) => {
-  const query = queryString.parse(req.query)
+export type WizardHandlerProps = bp.HandlerProps & { wizardPath: string }
+type Credentials = Awaited<ReturnType<typeof getCredentialsState>>
+type WizardStepHandlerProps = WizardHandlerProps & { credentials: Credentials }
+type WizardStep = 'start-confirm' | 'setup' | 'get-access-token' | 'verify-waba' | 'verify-number' | 'wrap-up'
 
-  let wizardStep = query['wizard-step'] || (query['code'] && 'get-access-token') || 'get-access-token'
+const ACCESS_TOKEN_UNAVAILABLE_ERROR = 'Access token unavailable, please try again.'
+const WABA_ID_UNAVAILABLE_ERROR = 'Whatsapp Business Account ID unavailable, please try again.'
+const PHONE_NUMBER_ID_UNAVAILABLE_ERROR = 'Phone number ID unavailable, please try again.'
+const INVALID_WIZARD_STEP_ERROR = 'Invalid wizard step'
 
-  let { accessToken, wabaId, phoneNumberId } = await getCredentialsState(client, ctx)
+export const handleWizard = async (props: WizardHandlerProps): Promise<Response> => {
+  const { wizardPath, client, ctx } = props
+  const credentials = await getCredentialsState(client, ctx)
+  const stepHandlerProps = { ...props, credentials }
 
-  if (wizardStep === 'start-confirm') {
-    // Tracking the reset confirmation step
-    await trackIntegrationEvent(ctx.botId, 'oauthSetupStep', {
-      step: wizardStep,
-      status: 'started',
-    })
-
-    return generateButtonDialog({
-      title: 'Reset Configuration',
-      description:
-        'This wizard will reset your configuration, so the bot will stop working on WhatsApp until a new configuration is put in place, continue?',
-      buttons: [
-        { display: 'Yes', type: 'primary', action: 'NAVIGATE', payload: `${req.path}?wizard-step=setup` },
-        { display: 'No', type: 'secondary', action: 'CLOSE_WINDOW' },
-      ],
-    })
-  } else {
-    await trackIntegrationEvent(ctx.botId, 'oauthSetupStep', {
-      step: wizardStep,
-    })
+  const wizardSubpath = getSubpath(wizardPath)
+  let handlerResponse: Response | undefined = undefined
+  if (!wizardSubpath || wizardSubpath.startsWith('/start-confirm')) {
+    handlerResponse = await handleWizardStartConfirm(stepHandlerProps)
+  } else if (wizardSubpath.startsWith('/setup')) {
+    handlerResponse = await handleWizardSetup(stepHandlerProps)
+  } else if (wizardSubpath.startsWith('/get-access-token')) {
+    handlerResponse = await handleWizardGetAccessToken(stepHandlerProps)
+  } else if (wizardSubpath.startsWith('/verify-waba')) {
+    handlerResponse = await handleWizardVerifyWaba(stepHandlerProps)
+  } else if (wizardSubpath.startsWith('/verify-number')) {
+    handlerResponse = await handleWizardVerifyNumber(stepHandlerProps)
   }
 
-  if (wizardStep === 'setup') {
-    // Tracking the setup step
-    await trackIntegrationEvent(ctx.botId, 'oauthSetupStep', {
-      step: wizardStep,
-      status: 'setup-started',
-    })
+  return (
+    handlerResponse || {
+      status: 404,
+      body: INVALID_WIZARD_STEP_ERROR,
+    }
+  )
+}
 
-    await client.configureIntegration({
-      identifier: ctx.webhookId,
-    })
+const handleWizardStartConfirm = async (props: WizardStepHandlerProps): Promise<Response> => {
+  const { ctx } = props
+  await trackWizardStep(ctx, 'start-confirm', 'started')
+  return generateButtonDialog({
+    title: 'Reset Configuration',
+    description:
+      'This wizard will reset your configuration, so the bot will stop working on WhatsApp until a new configuration is put in place, continue?',
+    buttons: [
+      { display: 'Yes', type: 'primary', action: 'NAVIGATE', payload: getWizardStepUrl('setup', ctx) },
+      { display: 'No', type: 'secondary', action: 'CLOSE_WINDOW' },
+    ],
+  })
+}
 
-    // Clean current state to start a fresh wizard
-    await patchCredentialsState(client, ctx, { accessToken: undefined, wabaId: undefined, phoneNumberId: undefined })
+const handleWizardSetup = async (props: WizardStepHandlerProps): Promise<Response> => {
+  const { client, ctx } = props
+  await trackWizardStep(ctx, 'setup', 'setup-started')
+  // Clean current state to start a fresh wizard
+  const credentials = { accessToken: undefined, wabaId: undefined, phoneNumberId: undefined }
+  await patchCredentialsState(client, ctx, credentials)
+  return redirectTo(
+    'https://www.facebook.com/v19.0/dialog/oauth?' +
+      'client_id=' +
+      bp.secrets.CLIENT_ID +
+      '&redirect_uri=' +
+      getOAuthRedirectUri() +
+      '&state=' +
+      ctx.webhookId +
+      '&config_id=' +
+      getOAuthConfigId() +
+      '&override_default_response_type=true' +
+      '&response_type=code'
+  )
+}
 
-    return redirectTo(
-      'https://www.facebook.com/v19.0/dialog/oauth?' +
-        'client_id=' +
-        bp.secrets.CLIENT_ID +
-        '&redirect_uri=' +
-        getGlobalWebhookUrl() +
-        '&state=' +
-        ctx.webhookId +
-        '&config_id=' +
-        getOAuthConfigId() +
-        '&override_default_response_type=true' +
-        '&response_type=code'
-    )
+const handleWizardGetAccessToken = async (props: WizardStepHandlerProps): Promise<Response> => {
+  const { req, client, ctx, logger, credentials } = props
+  await trackWizardStep(ctx, 'get-access-token', 'started')
+  const code = z.string().safeParse(queryString.parse(req.query)['code']).data
+  if (!code) {
+    throw new Error('Error extracting code from url in OAuth handler')
   }
-
   const oauthClient = new MetaOauthClient(logger)
-
-  if (wizardStep === 'get-access-token') {
-    await trackIntegrationEvent(ctx.botId, 'oauthSetupStep', {
-      step: wizardStep,
-    })
-    const code = query['code'] as string
-    if (code) {
-      accessToken = await oauthClient.getAccessToken(code)
-      await patchCredentialsState(client, ctx, { accessToken })
-    }
-
-    wizardStep = 'verify-waba'
-  }
-
+  const redirectUri = getOAuthRedirectUri() // Needs to be the same as the one used to get the code
+  const accessToken = await oauthClient.getAccessToken(code, redirectUri)
   if (!accessToken) {
-    throw new Error('Access token not available, please try again.')
+    throw new Error(ACCESS_TOKEN_UNAVAILABLE_ERROR)
   }
+  const newCredentials = { ...credentials, accessToken }
+  await patchCredentialsState(client, ctx, newCredentials)
+  return await doStepVerifyWaba({ ...props, credentials: newCredentials })
+}
 
-  if (wizardStep === 'verify-waba') {
-    wabaId = (query['wabaId'] as string) || wabaId
+const handleWizardVerifyWaba = async (props: WizardStepHandlerProps): Promise<Response> => {
+  const { req } = props
+  const parsedQueryString = queryString.parse(req.query)
+  const wabaId = z.string().safeParse(parsedQueryString['wabaId']).data
+  const force = !!parsedQueryString['force-step']
+  return await doStepVerifyWaba(props, wabaId, force)
+}
 
-    // Tracking WABA selection
-    await trackIntegrationEvent(ctx.botId, 'oauthSetupStep', {
-      step: wizardStep,
-    })
+const handleWizardVerifyNumber = async (props: WizardStepHandlerProps): Promise<Response> => {
+  const { req } = props
+  const parsedQueryString = queryString.parse(req.query)
+  const phoneNumberId = z.string().safeParse(parsedQueryString['phoneNumberId']).data
+  const force = !!parsedQueryString['force-step']
+  return await doStepVerifyNumber(props, phoneNumberId, force)
+}
 
-    if (!wabaId || query['force-step']) {
-      const businesses = await oauthClient.getWhatsappBusinessesFromToken(accessToken)
-      if (businesses.length === 1) {
-        wabaId = businesses[0]?.id
-      } else {
-        return generateSelectDialog({
-          title: 'Select Business',
-          description: 'Choose a WhatsApp Business Account to use in this bot:',
-          settings: { targetUrl: `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}` },
-          select: {
-            key: 'wabaId',
-            options: businesses.map((business) => ({ id: business.id, display: business.name })),
-          },
-          additionalData: [{ key: 'wizard-step', value: 'verify-waba' }],
-        })
-      }
+const getWizardStepUrl = (step: WizardStep, ctx?: bp.Context) => {
+  let url = `${process.env.BP_WEBHOOK_URL}/oauth/wizard/${step}`
+  if (ctx) {
+    url += `?state=${ctx.webhookId}`
+  }
+  return url
+}
+
+const getOAuthRedirectUri = () => {
+  // Identifier (state) specified in the OAuth request instead of URI
+  return getWizardStepUrl('get-access-token', undefined)
+}
+
+const doStepVerifyWaba = async (
+  props: WizardStepHandlerProps,
+  inWabaId?: string,
+  force?: boolean
+): Promise<Response> => {
+  const { client, ctx, logger, credentials } = props
+  let wabaId = inWabaId || credentials.wabaId
+  await trackWizardStep(ctx, 'verify-waba')
+  const { accessToken } = credentials
+  if (!accessToken) {
+    throw new Error(ACCESS_TOKEN_UNAVAILABLE_ERROR)
+  }
+  const oauthClient = new MetaOauthClient(logger)
+  if (!wabaId || force) {
+    const businesses = await oauthClient.getWhatsappBusinessesFromToken(accessToken)
+    if (businesses.length === 1) {
+      wabaId = businesses[0]?.id
+    } else {
+      return generateSelectDialog({
+        title: 'Select Business',
+        description: 'Choose a WhatsApp Business Account to use in this bot:',
+        settings: { targetUrl: getWizardStepUrl('verify-waba', ctx) },
+        select: {
+          key: 'wabaId',
+          options: businesses.map((business) => ({ id: business.id, display: business.name })),
+        },
+        additionalData: [{ key: 'state', value: ctx.webhookId }],
+      })
     }
-
-    await patchCredentialsState(client, ctx, { wabaId })
-
-    wizardStep = 'verify-number'
   }
 
   if (!wabaId) {
-    throw new Error("Couldn't get the Whatsapp Business Account")
+    throw new Error(WABA_ID_UNAVAILABLE_ERROR)
   }
 
-  if (wizardStep === 'verify-number') {
-    phoneNumberId = (query['phoneNumberId'] as string) || phoneNumberId
+  const newCredentials = { ...credentials, wabaId }
+  await patchCredentialsState(client, ctx, newCredentials)
+  return await doStepVerifyNumber({ ...props, credentials: newCredentials })
+}
 
-    // Tracking number verification
-    await trackIntegrationEvent(ctx.botId, 'oauthSetupStep', {
-      step: wizardStep,
-    })
+const doStepVerifyNumber = async (
+  props: WizardStepHandlerProps,
+  inPhoneNumberId?: string,
+  force?: boolean
+): Promise<Response> => {
+  const { client, ctx, logger, credentials } = props
+  let phoneNumberId = inPhoneNumberId || credentials.phoneNumberId
+  await trackWizardStep(ctx, 'verify-number')
+  const { accessToken, wabaId } = credentials
+  if (!accessToken) {
+    throw new Error(ACCESS_TOKEN_UNAVAILABLE_ERROR)
+  }
+  if (!wabaId) {
+    throw new Error(WABA_ID_UNAVAILABLE_ERROR)
+  }
 
-    if (!phoneNumberId || query['force-step']) {
-      const phoneNumbers = await oauthClient.getWhatsappNumbersFromBusiness(wabaId, accessToken)
-      if (phoneNumbers.length === 1) {
-        phoneNumberId = phoneNumbers[0]?.id
-      } else {
-        return generateSelectDialog({
-          title: 'Select the default number',
-          description: 'Choose a phone number from the current WhatsApp Business Account to use as default:',
-          settings: { targetUrl: `${process.env.BP_WEBHOOK_URL}/${ctx.webhookId}` },
-          select: {
-            key: 'phoneNumberId',
-            options: phoneNumbers.map((phoneNumber) => ({
-              id: phoneNumber.id,
-              display: `${phoneNumber.displayPhoneNumber} (${phoneNumber.verifiedName})`,
-            })),
-          },
-          additionalData: [{ key: 'wizard-step', value: 'verify-number' }],
-        })
-      }
+  const oauthClient = new MetaOauthClient(logger)
+  if (!phoneNumberId || force) {
+    const phoneNumbers = await oauthClient.getWhatsappNumbersFromBusiness(wabaId, accessToken)
+    if (phoneNumbers.length === 1) {
+      phoneNumberId = phoneNumbers[0]?.id
+    } else {
+      return generateSelectDialog({
+        title: 'Select the default number',
+        description: 'Choose a phone number from the current WhatsApp Business Account to use as default:',
+        settings: { targetUrl: getWizardStepUrl('verify-number', ctx) },
+        select: {
+          key: 'phoneNumberId',
+          options: phoneNumbers.map((phoneNumber) => ({
+            id: phoneNumber.id,
+            display: `${phoneNumber.displayPhoneNumber} (${phoneNumber.verifiedName})`,
+          })),
+        },
+        additionalData: [{ key: 'state', value: ctx.webhookId }],
+      })
     }
-
-    await patchCredentialsState(client, ctx, { phoneNumberId })
-
-    wizardStep = 'wrap-up'
   }
 
   if (!phoneNumberId) {
-    throw new Error("Couldn't get the Default Number")
+    throw new Error(PHONE_NUMBER_ID_UNAVAILABLE_ERROR)
   }
 
-  if (wizardStep === 'wrap-up') {
-    // Tracking completion
-    await trackIntegrationEvent(ctx.botId, 'oauthSetupStep', {
-      step: 'wrap-up',
-      status: 'completed',
-    })
+  const newCredentials = { ...credentials, phoneNumberId }
+  await patchCredentialsState(client, ctx, newCredentials)
+  return await doStepWrapUp({ ...props, credentials: newCredentials })
+}
 
-    await client.configureIntegration({
-      identifier: wabaId,
-    })
-    await oauthClient.registerNumber(phoneNumberId, accessToken)
-    await oauthClient.subscribeToWebhooks(wabaId, accessToken)
-
-    return redirectTo(getInterstitialUrl(true))
+const doStepWrapUp = async (props: WizardStepHandlerProps): Promise<Response> => {
+  const { client, ctx, logger, credentials } = props
+  await trackWizardStep(ctx, 'wrap-up', 'completed')
+  const { accessToken, wabaId, phoneNumberId } = credentials
+  if (!accessToken) {
+    throw new Error(ACCESS_TOKEN_UNAVAILABLE_ERROR)
   }
+  if (!wabaId) {
+    throw new Error(WABA_ID_UNAVAILABLE_ERROR)
+  }
+  if (!phoneNumberId) {
+    throw new Error(PHONE_NUMBER_ID_UNAVAILABLE_ERROR)
+  }
+  const oauthClient = new MetaOauthClient(logger)
+  await client.configureIntegration({
+    identifier: wabaId,
+  })
+  await oauthClient.registerNumber(phoneNumberId, accessToken)
+  await oauthClient.subscribeToWebhooks(wabaId, accessToken)
 
-  throw new Error('Failed to wrap up')
+  return redirectTo(getInterstitialUrl(true))
+}
+
+const trackWizardStep = async (ctx: bp.Context, step: WizardStep, status?: string) => {
+  await trackIntegrationEvent(ctx.botId, 'oauthSetupStep', {
+    step,
+    status,
+  })
 }
 
 // client.patchState is not working correctly

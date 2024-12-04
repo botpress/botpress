@@ -41,7 +41,7 @@ export const MessageSchema = z.object({
         })
       )
     )
-    .optional()
+    // .optional() // cannot be optional because there is a bug in "@bpinternal/zui" that prevents it - Fleur
     .nullable()
     .describe(
       'Required unless `type` is "tool_call". If `type` is "multipart", this field must be an array of content objects. If `type` is "tool_result" then this field should be the result of the tool call (a plain string or a JSON-encoded array or object). If `type` is "tool_call" then the `toolCalls` field should be used instead.'
