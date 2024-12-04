@@ -3,6 +3,7 @@ import * as utils from '../../utils'
 import * as consts from '../consts'
 import * as mod from '../module'
 import * as types from '../typings'
+import { PluginPackageDefinitionModule } from './plugin-package-definition'
 
 class ImplementationModule extends mod.Module {
   public constructor(private _implementationCode: string) {
@@ -66,6 +67,7 @@ class LocalPluginModule extends mod.Module {
 
 class RemotePluginModule extends mod.Module {
   private _implModule: ImplementationModule
+  private _defModule: PluginPackageDefinitionModule
 
   public constructor(private _pkg: Extract<types.PluginInstallablePackage, { source: 'remote' }>) {
     super({
@@ -75,22 +77,26 @@ class RemotePluginModule extends mod.Module {
 
     this._implModule = new ImplementationModule(this._pkg.plugin.code)
     this.pushDep(this._implModule)
+
+    this._defModule = new PluginPackageDefinitionModule(this._pkg.plugin)
+    this._defModule.unshift('definition')
+    this.pushDep(this._defModule)
   }
 
   public async getContent(): Promise<string> {
     const implImport = this._implModule.import(this)
-    const definitionImport: string = './definition'
+    const defImport = this._defModule.import(this)
 
     return [
       consts.GENERATED_HEADER,
       'import * as sdk from "@botpress/sdk"',
       '',
-      `import definition from "${definitionImport}"`,
-      `import implementation from "${implImport}"`,
+      `import definition from "./${defImport}"`,
+      `import implementation from "./${implImport}"`,
       '',
       'export default {',
       '  type: "plugin",',
-      `  id: "${this._pkg.plugin.id}"`,
+      `  id: "${this._pkg.plugin.id}",`,
       '  definition,',
       '  implementation,',
       '} satisfies sdk.PluginPackage',
