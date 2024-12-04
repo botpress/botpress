@@ -5,7 +5,8 @@
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
     "check:type": "tsc --noEmit",
-    "add:interfaces": "bp add ../../interfaces/llm -y && bp add ../../interfaces/speech-to-text -y && bp add ../../interfaces/text-to-image -y"
+    "check:bplint": "pnpm exec bp lint",
+    "add:interfaces": "ts-node -T ./interfaces.ts"
   },
   "private": true,
   "dependencies": {

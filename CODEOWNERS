@@ -6,28 +6,32 @@
 
 # Client, SDK, CLI
 /packages @botpress/cloud-services
+/packages/cli/src/linter @pascal-botpress @botpress/cloud-services
 
 # Bots
 /packages/bots @franklevasseur
 
 # Integrations
+/integrations/browser @allardy @botpress/cloud-services
 /integrations/charts @allardy @botpress/cloud-services
-/integrations/pdf-generator @lakshya0246 @botpress/cloud-services
 /integrations/dalle @franklevasseur @botpress/cloud-services
-/integrations/gmail @michaelmass @botpress/cloud-services
-/integrations/googlecalendar @franklevasseur @botpress/cloud-services
+/integrations/github @pascal-botpress @botpress/cloud-services
+/integrations/gmail @michaelmass @pascal-botpress @botpress/cloud-services
+/integrations/googlecalendar @franklevasseur @pascal-botpress @botpress/cloud-services
 /integrations/groq @AbrahamLopez10 @botpress/cloud-services
-/integrations/gsheets @franklevasseur @botpress/cloud-services
+/integrations/gsheets @franklevasseur @pascal-botpress @botpress/cloud-services
 /integrations/intercom @chsir17 @ptrckbp @botpress/cloud-services
 /integrations/linear @allardy @botpress/cloud-services
 /integrations/notion @lakshya0246 @botpress/cloud-services
 /integrations/openai @AbrahamLopez10 @botpress/cloud-services
-/integrations/slack @michaelmass @botpress/cloud-services
+/integrations/pdf-generator @lakshya0246 @botpress/cloud-services
+/integrations/slack @michaelmass @pascal-botpress @botpress/cloud-services
 /integrations/teams @franklevasseur @botpress/cloud-services
 /integrations/telegram @franklevasseur @botpress/cloud-services
+/integrations/trello @pascal-botpress @botpress/cloud-services
 /integrations/twilio @AbrahamLopez10 @botpress/cloud-services
-/integrations/browser @allardy @botpress/cloud-services
 /integrations/webhook @franklevasseur @botpress/cloud-services
 /integrations/whatsapp @AbrahamLopez10 @botpress/cloud-services
 /integrations/zapier @AbrahamLopez10 @botpress/cloud-services
 /integrations/zendesk @davidvitora @franklevasseur @botpress/cloud-services
+/integrations/freshchat @davidvitora

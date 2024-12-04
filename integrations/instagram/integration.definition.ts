@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
@@ -7,7 +8,7 @@ export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   version: '2.0.0',
   title: 'Instagram',
-  description: 'This integration allows your bot to interact with Instagram.',
+  description: 'Automate interactions, manage comments, and send/receive messages all in real-time.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
@@ -58,7 +59,7 @@ export default new IntegrationDefinition({
   },
   channels: {
     channel: {
-      messages: messages.defaults,
+      messages: { ...messages.defaults, markdown: messages.markdown },
       message: { tags: { id: {}, messageId: {}, senderId: {}, recipientId: {} } },
       conversation: {
         tags: { id: {}, recipientId: {}, senderId: {} },

@@ -1,3 +1,4 @@
+/* bplint-disable */
 import * as sdk from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
@@ -7,10 +8,10 @@ import { actions, events, configuration, configurations, channels, user, secrets
 export default new sdk.IntegrationDefinition({
   name: INTEGRATION_NAME,
   title: 'GitHub',
-  version: '1.1.2',
+  version: '1.1.5',
   icon: 'icon.svg',
   readme: 'hub.md',
-  description: 'Github integration for Botpress',
+  description: 'Manage GitHub issues, pull requests, and repositories.',
   configuration,
   configurations,
   actions,

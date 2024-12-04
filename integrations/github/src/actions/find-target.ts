@@ -15,8 +15,9 @@ const fuse = new Fuse<Target>([], {
   keys: ['displayName'],
 })
 
-export const findTarget = wrapActionAndInjectOctokit('findTarget', {
-  async action({ octokit, owner }, { repo, query, channel }) {
+export const findTarget = wrapActionAndInjectOctokit(
+  { actionName: 'findTarget', errorMessage: 'Failed to find target' },
+  async ({ octokit, owner }, { repo, query, channel }) => {
     const targets: Target[] = []
 
     const queryPullRequests = async () => {
@@ -88,7 +89,5 @@ export const findTarget = wrapActionAndInjectOctokit('findTarget', {
     return {
       targets,
     }
-  },
-
-  errorMessage: 'Failed to find the target',
-})
+  }
+)

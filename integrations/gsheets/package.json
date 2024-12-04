@@ -2,6 +2,7 @@
   "name": "@botpresshub/gsheets",
   "scripts": {
     "check:type": "tsc --noEmit",
+    "check:bplint": "pnpm exec bp lint",
     "build": "pnpm bp build",
     "add:interfaces": "echo 'no interfaces to add'"
   },
@@ -11,12 +12,15 @@
   "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "google-auth-library": "^9.0.0",
-    "googleapis": "^126.0.1"
+    "@botpress/sdk-addons": "workspace:*",
+    "googleapis": "^144.0.0"
   },
   "devDependencies": {
-    "@types/node": "^18.11.17",
+    "@botpress/common": "workspace:*",
+    "@sentry/cli": "^2.18.1",
+    "@types/node": "^18.19.10",
     "ts-node": "^10.9.1",
     "typescript": "^4.9.4"
   }

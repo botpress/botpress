@@ -47,12 +47,12 @@ export const getImplementationStatements = (
   integration: sdk.IntegrationDefinition
 ): Record<string, InterfaceImplStatement> => {
   const self = integration as utils.types.Writable<sdk.IntegrationDefinition>
-  if (!self.props.interfaces) {
+  if (!self.interfaces) {
     return {}
   }
 
   const statements: Record<string, InterfaceImplStatement> = {}
-  for (const [interfaceKey, intrface] of Object.entries(self.props.interfaces)) {
+  for (const [interfaceKey, intrface] of Object.entries(self.interfaces)) {
     const { statement } = _resolveInterface(intrface)
     statements[interfaceKey] = statement
   }

@@ -10,15 +10,13 @@ export {
 } from '@botpress/client'
 
 export {
+  DefaultIntegration,
   IntegrationDefinition,
   IntegrationDefinitionProps,
   IntegrationImplementation as Integration,
   IntegrationImplementationProps as IntegrationProps,
-  IntegrationContext,
   IntegrationLogger,
   IntegrationSpecificClient,
-  InterfaceDeclaration,
-  InterfaceDeclarationProps,
   TagDefinition,
   ConfigurationDefinition,
   AdditionalConfigurationDefinition,
@@ -33,6 +31,14 @@ export {
 } from './integration'
 
 export {
+  /**
+   * @deprecated use Context exported from '.botpress' instead
+   */
+  IntegrationContext,
+} from './integration/server'
+
+export {
+  DefaultBot,
   BotDefinition,
   BotDefinitionProps,
   BotImplementation as Bot,
@@ -47,7 +53,14 @@ export {
   UserDefinition as BotUserDefinition,
   ConversationDefinition as BotConversationDefinition,
   MessageDefinition as BotMessageDefinition,
+  ActionDefinition as BotActionDefinition,
 } from './bot'
+
+export {
+  //
+  InterfaceDeclaration,
+  InterfaceDeclarationProps,
+} from './interface'
 
 export {
   //

@@ -16,21 +16,13 @@ type SchemaDefinition = {
   ui?: Record<string, SchemaOptions | undefined>
 }
 
-export type ZodToJsonOptions = {
-  dereference?: boolean
-}
-
 const isObjectSchema = (schema: JsonSchema): schema is ObjectJsonSchema => schema.type === 'object'
 
 export async function mapZodToJsonSchema(
-  definition: SchemaDefinition,
-  options: ZodToJsonOptions = {}
+  definition: SchemaDefinition
 ): Promise<ReturnType<typeof transforms.zuiToJsonSchema>> {
   let schema = transforms.zuiToJsonSchema(definition.schema, { target: 'jsonSchema7' })
-
-  if (options.dereference) {
-    schema = (await dereference(schema)) as typeof schema
-  }
+  schema = (await dereferenceSchema(schema)) as typeof schema
 
   if (!isObjectSchema(schema) || !definition.ui) {
     return schema

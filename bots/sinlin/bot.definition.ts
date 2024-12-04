@@ -11,14 +11,18 @@ export default new sdk.BotDefinition({
     issue: {
       type: 'bot',
       schema: sdk.z.object({
-        nextToken: sdk.z.string().optional(),
-        tableCreated: sdk.z.boolean(),
+        nextToken: sdk.z
+          .string()
+          .optional()
+          .title('Next Page Token')
+          .describe('Token to fetch the next page of issues'),
+        tableCreated: sdk.z.boolean().title('Table Created').describe('Whether the table has been created'),
       }),
     },
   },
   events: {
     syncIssues: {
-      schema: sdk.z.object({}),
+      schema: sdk.z.object({}).title('Sync Issues').describe('Sync issues from Linear to Airtable'),
     },
   },
   recurringEvents: {

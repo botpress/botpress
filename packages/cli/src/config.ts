@@ -121,8 +121,6 @@ const globalSchema = {
 
 const projectSchema = {
   ...globalSchema,
-  entryPoint: { type: 'string', description: 'The entry point of the project', default: consts.defaultEntrypoint },
-  outDir: { type: 'string', description: 'The output directory', default: consts.defaultOutputFolder },
   workDir,
 } satisfies CommandSchema
 
@@ -202,7 +200,7 @@ const addSchema = {
   packageType,
   installPath: {
     type: 'string',
-    description: 'The path where to install the integration',
+    description: 'The path where to install the package',
     default: consts.defaultInstallPath,
   },
 } satisfies CommandSchema

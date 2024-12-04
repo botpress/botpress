@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
@@ -32,9 +33,9 @@ export const INTEGRATION_NAME = 'whatsapp'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.0.8',
+  version: '2.1.2',
   title: 'WhatsApp',
-  description: 'This integration allows your bot to interact with WhatsApp.',
+  description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
@@ -77,7 +78,15 @@ export default new IntegrationDefinition({
   },
   channels: {
     [channel]: {
-      messages: messages.defaults,
+      messages: {
+        ...messages.defaults,
+        markdown: messages.markdown,
+        file: {
+          schema: messages.defaults.file.schema.extend({
+            filename: z.string().optional(),
+          }),
+        },
+      },
       message: {
         tags: {
           id: {},
@@ -142,6 +151,10 @@ export default new IntegrationDefinition({
     },
     NUMBER_PIN: {
       description: '6 Digits Pin used for phone number registration',
+    },
+    SEGMENT_KEY: {
+      description: 'Tracking key for general product analytics',
+      optional: true,
     },
   },
 })

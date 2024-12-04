@@ -67,6 +67,11 @@ export type WhatsAppMessage = {
     id: string
     voice: boolean
   }
+  video?: {
+    mime_type: string
+    sha256: string
+    id: string
+  }
   errors?: {
     code: number
     title: string

@@ -1,11 +1,12 @@
+/* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'line',
-  version: '0.4.4',
+  version: '0.4.6',
   title: 'Line',
-  description: 'This integration allows your bot to interact with Line.',
+  description: 'Interact with customers using a rich set of features.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
@@ -16,7 +17,7 @@ export default new IntegrationDefinition({
   },
   channels: {
     channel: {
-      messages: messages.defaults,
+      messages: { ...messages.defaults, markdown: messages.markdown },
       message: {
         tags: { msgId: {} },
       },

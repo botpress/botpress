@@ -117,6 +117,10 @@ The development environment requires the following tools to be installed:
 - [`node`](https://nodejs.org/en/): Node.js® is a JavaScript runtime built on Chrome's V8 JavaScript engine.
 - [`pnpm`](https://pnpm.io/): PNPM is a fast, disk space efficient package manager.
 
+#### Windows-specific prerequisites
+
+- [Microsoft Visual C++ Redistributable for Visual Studio 2015-2022](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist#visual-studio-2015-2017-2019-and-2022)
+
 ### Building from sources
 
 ```sh

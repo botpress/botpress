@@ -5,6 +5,7 @@ type ChannelDef = NonNullable<IntegrationDefinitionProps['channels']>[string]
 
 const messages = {
   ...baseMessages.defaults,
+  markdown: baseMessages.markdown,
   text: {
     schema: textSchema,
   },

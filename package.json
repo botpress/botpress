@@ -5,13 +5,15 @@
     "build": "turbo build",
     "bump": "depsynky bump && pnpm -w install",
     "test": "pnpm vitest --run",
-    "check:type": "pnpm -r --stream check:type",
-    "check:format": "prettier --check .",
-    "fix:format": "prettier --write .",
-    "check:lint": "eslint ./ --ext .ts --ext .tsx",
-    "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx",
+    "check:bplint": "pnpm -r --stream check:bplint",
     "check:dep": "depsynky check",
+    "check:format": "prettier --check .",
+    "check:eslint": "eslint ./ --ext .ts --ext .tsx",
+    "check:lint": "pnpm run check:bplint && pnpm run check:eslint",
+    "check:type": "pnpm -r --stream check:type",
     "fix:dep": "depsynky sync",
+    "fix:format": "prettier --write .",
+    "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx",
     "check": "pnpm check:dep && pnpm check:format && pnpm check:lint && pnpm check:type",
     "fix": "pnpm fix:dep && pnpm fix:format && pnpm fix:lint"
   },
@@ -32,8 +34,8 @@
     "retry-cli": "^0.7.0",
     "ts-node": "^10.9.1",
     "turbo": "^1.13.3",
-    "typescript": "^4.9.4",
-    "vitest": "^0.33.0"
+    "typescript": "^5.6.3",
+    "vitest": "^2.1.4"
   },
   "packageManager": "pnpm@8.6.2"
 }

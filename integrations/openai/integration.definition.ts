@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { IntegrationDefinition, z } from '@botpress/sdk'
 import llm from './bp_modules/llm'
 import stt from './bp_modules/speech-to-text'
@@ -15,7 +16,9 @@ export const TextToSpeechPricePer1MCharacters: Record<TextToSpeechModel, number>
 export default new IntegrationDefinition({
   name: 'openai',
   title: 'OpenAI',
-  version: '6.6.1',
+  description:
+    'Gain access to OpenAI models for text generation, speech synthesis, audio transcription, and image generation.',
+  version: '8.1.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {

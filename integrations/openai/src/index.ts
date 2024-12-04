@@ -152,14 +152,21 @@ export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
-    generateContent: async ({ input, logger }) => {
-      return await llm.openai.generateContent<LanguageModelId>(<llm.GenerateContentInput>input, openAIClient, logger, {
-        provider,
-        models: languageModels,
-        defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
-      })
+    generateContent: async ({ input, logger, metadata }) => {
+      const output = await llm.openai.generateContent<LanguageModelId>(
+        <llm.GenerateContentInput>input,
+        openAIClient,
+        logger,
+        {
+          provider,
+          models: languageModels,
+          defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
+        }
+      )
+      metadata.setCost(output.botpress.cost)
+      return output
     },
-    generateImage: async ({ input, client }) => {
+    generateImage: async ({ input, client, metadata }) => {
       const imageModelId = (input.model?.id ?? DEFAULT_IMAGE_MODEL_ID) as ImageModelId
       const imageModel = imageModels[imageModelId]
       if (!imageModel) {
@@ -197,7 +204,7 @@ export default new bp.Integration({
         throw new Error('No image was returned by OpenAI')
       }
 
-      const expiresAt = input.expiration
+      const expiresAt: string | undefined = input.expiration
         ? new Date(Date.now() + input.expiration * SECONDS_IN_A_DAY * 1000).toISOString()
         : undefined
 
@@ -208,29 +215,36 @@ export default new bp.Integration({
         contentType: 'image/png',
         accessPolicies: ['public_content'],
         tags: {
-          source: 'integration:openai:generateImage',
+          source: 'integration',
+          integration: 'openai',
+          action: 'generateImage',
         },
         expiresAt,
         publicContentImmediatelyAccessible: true,
       })
 
+      const cost = imageModel.costPerImage
+      metadata.setCost(cost)
       return {
         model: imageModelId,
         imageUrl: file.url,
-        cost: imageModel.costPerImage, // DEPRECATED
+        cost, // DEPRECATED
         botpress: {
-          cost: imageModel.costPerImage,
+          cost, // DEPRECATED
         },
       }
     },
-    transcribeAudio: async ({ input, logger }) => {
-      return await speechToText.openai.transcribeAudio(input, openAIClient, logger, {
+    transcribeAudio: async ({ input, logger, metadata }) => {
+      const output = await speechToText.openai.transcribeAudio(input, openAIClient, logger, {
         provider,
         models: speechToTextModels,
         defaultModel: 'whisper-1',
       })
+
+      metadata.setCost(output.botpress.cost)
+      return output
     },
-    generateSpeech: async ({ input, client }) => {
+    generateSpeech: async ({ input, client, metadata }) => {
       const model = input.model ?? 'tts-1'
 
       const params: SpeechCreateParams = {
@@ -255,16 +269,20 @@ export default new bp.Integration({
         accessPolicies: ['public_content'],
         publicContentImmediatelyAccessible: true,
         tags: {
-          source: 'integration:openai:generateSpeech',
+          source: 'integration',
+          integration: 'openai',
+          action: 'generateSpeech',
         },
         expiresAt,
       })
 
       const cost = (input.input.length / 1_000_000) * TextToSpeechPricePer1MCharacters[model]
-
+      metadata.setCost(cost)
       return {
         audioUrl: file.url,
-        botpress: { cost },
+        botpress: {
+          cost, // DEPRECATED
+        },
       }
     },
     listLanguageModels: async ({}) => {

@@ -19,23 +19,28 @@ import {
   getListById,
   getListsInBoard,
   getMemberByIdOrUsername,
+  cardList,
+  cardRead,
+  cardCreate,
+  cardUpdate,
+  cardDelete,
+  listList,
+  listRead,
+  boardList,
+  boardRead,
+  cardMemberList,
+  cardMemberRead,
+  boardMemberList,
+  boardMemberRead,
+  getAllCardMembers,
 } from './actions'
-import { textMessagePublish } from './channels/cardComments/text'
-import { WebhookEventConsumer } from './webhookEventConsumer'
-import { WebhookLifecycleManager } from './webhookLifecycleManager'
+import { channels } from './channels/publisher-dispatcher'
+import { handler } from './webhook-events'
+import { WebhookLifecycleManager } from './webhook-events/webhook-lifecycle-manager'
 
 const integration = new bp.Integration({
-  async register({ ctx, webhookUrl, client, logger }) {
-    const webhookLifecycleManager = new WebhookLifecycleManager(ctx, client, logger)
-
-    await webhookLifecycleManager.registerTrelloWebhookIfNotExists(webhookUrl)
-  },
-
-  async unregister({ ctx, client, logger }) {
-    const webhookLifecycleManager = new WebhookLifecycleManager(ctx, client, logger)
-
-    await webhookLifecycleManager.unregisterTrelloWebhookIfExists()
-  },
+  register: WebhookLifecycleManager.registerTrelloWebhookIfNotExists,
+  unregister: WebhookLifecycleManager.unregisterTrelloWebhookIfExists,
 
   actions: {
     addCardComment,
@@ -56,20 +61,26 @@ const integration = new bp.Integration({
     moveCardToList,
     moveCardUp,
     updateCard,
+    getAllCardMembers,
+
+    // interfaces:
+    cardList,
+    cardRead,
+    cardCreate,
+    cardUpdate,
+    cardDelete,
+    listList,
+    listRead,
+    boardList,
+    boardRead,
+    cardMemberList,
+    cardMemberRead,
+    boardMemberList,
+    boardMemberRead,
   },
 
-  channels: {
-    cardComments: {
-      messages: {
-        text: textMessagePublish,
-      },
-    },
-  },
-
-  async handler(handlerProps) {
-    const consumer = new WebhookEventConsumer(handlerProps)
-    await consumer.consumeWebhookEvent()
-  },
+  channels,
+  handler,
 })
 
 export default sentryHelpers.wrapIntegration(integration, {

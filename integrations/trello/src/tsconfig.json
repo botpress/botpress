@@ -3,7 +3,9 @@
   "compilerOptions": {
     "baseUrl": "..",
     "outDir": "../dist",
-    "noPropertyAccessFromIndexSignature": true
+    "noPropertyAccessFromIndexSignature": true,
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true
   },
   "include": ["**/*", "../integration.definition.ts", "../definitions/**/*"]
 }

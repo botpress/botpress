@@ -7,6 +7,7 @@
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
     "check:type": "tsc --noEmit",
+    "check:bplint": "pnpm exec bp lint",
     "add:interfaces": "echo 'no interfaces to add'"
   },
   "keywords": [],
@@ -16,6 +17,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
+    "@segment/analytics-node": "^2.2.0",
     "axios": "^1.6.2",
     "preact": "^10.23.1",
     "preact-render-to-string": "^6.5.7",
@@ -29,6 +31,6 @@
     "esbuild": "^0.15.18",
     "nodemon": "^2.0.20",
     "ts-node": "^10.9.1",
-    "typescript": "^4.9.5"
+    "@botpress/common": "workspace:*"
   }
 }

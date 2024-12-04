@@ -2,6 +2,7 @@
   "name": "@botpresshub/dalle",
   "scripts": {
     "check:type": "tsc --noEmit",
+    "check:bplint": "pnpm exec bp lint",
     "version": "bp --version",
     "login": "bp login",
     "build": "bp build",
@@ -23,6 +24,6 @@
     "@botpress/cli": "workspace:*",
     "@types/node": "^18.19.10",
     "ts-node": "^10.9.2",
-    "typescript": "^4.9.5"
+    "@botpress/common": "workspace:*"
   }
 }

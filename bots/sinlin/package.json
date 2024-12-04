@@ -4,8 +4,9 @@
   "scripts": {
     "postinstall": "genenv -o ./.genenv/index.ts -e SINLIN_TELEGRAM_BOT_TOKEN -e SINLIN_LINEAR_API_KEY -e SINLIN_LINEAR_WEBHOOK_SIGNING_SECRET",
     "check:type": "tsc --noEmit",
+    "check:bplint": "pnpm exec bp lint",
     "build": "bp build",
-    "add:integrations": "bp add ../../integrations/linear -y && bp add ../../integrations/telegram -y"
+    "add:integrations": "ts-node -T ./integrations.ts"
   },
   "private": true,
   "dependencies": {
@@ -19,6 +20,6 @@
     "@types/lodash": "^4.14.191",
     "@types/node": "^18.11.17",
     "execa": "^8.0.1",
-    "typescript": "^4.9.4"
+    "@botpress/common": "workspace:*"
   }
 }

@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
@@ -27,8 +28,8 @@ const sharedConfig = {
 export default new IntegrationDefinition({
   name: 'slack',
   title: 'Slack',
-  description: 'This integration allows your bot to interact with Slack.',
-  version: '1.0.2',
+  description: 'Automate interactions with your team.',
+  version: '1.0.4',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

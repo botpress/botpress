@@ -5,6 +5,7 @@
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
     "check:type": "tsc --noEmit",
+    "check:bplint": "pnpm exec bp lint",
     "add:interfaces": "echo 'no interfaces to add'"
   },
   "keywords": [],
@@ -20,6 +21,6 @@
     "@botpress/cli": "workspace:*",
     "@types/node": "^18.19.10",
     "ts-node": "^10.9.2",
-    "typescript": "^4.9.5"
+    "@botpress/common": "workspace:*"
   }
 }

@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { z, AnyZodObject, messages, InterfaceDeclaration } from '@botpress/sdk'
 
 const withUserId = <S extends z.AnyZodObject>(s: { schema: S }) => ({
@@ -13,8 +14,13 @@ const messageSourceSchema = z.union([
   z.object({ type: z.literal('bot') }),
 ])
 
+const allMessages = {
+  ...messages.defaults,
+  markdown: messages.markdown,
+} satisfies Record<string, { schema: AnyZodObject }>
+
 type Tuple<T> = [T, T, ...T[]]
-const messagePayloadSchemas: AnyZodObject[] = Object.entries(messages.defaults).map(([k, v]) =>
+const messagePayloadSchemas: AnyZodObject[] = Object.entries(allMessages).map(([k, v]) =>
   z.object({
     source: messageSourceSchema,
     type: z.literal(k),

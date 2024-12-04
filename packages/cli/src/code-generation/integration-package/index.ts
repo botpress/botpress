@@ -7,12 +7,13 @@ const generateIntegrationPackageModule = (
   definitionImport: string,
   pkg: types.IntegrationInstallablePackage
 ): string => {
-  const refLine = pkg.source === 'local' ? `uri: "${pkg.path}"` : `id: "${pkg.integration.id}"`
+  const refLine =
+    pkg.source === 'local' ? `uri: "${utils.path.win32.escapeBackslashes(pkg.path)}"` : `id: "${pkg.integration.id}"`
   return [
     consts.GENERATED_HEADER,
     'import * as sdk from "@botpress/sdk"',
     '',
-    `import definition from "${definitionImport}"`,
+    `import definition from "${utils.path.win32.escapeBackslashes(definitionImport)}"`,
     '',
     'export default {',
     '  type: "integration",',
