@@ -108,7 +108,6 @@ export type BotClient<TBot extends types.BaseBot> = TBot['unknownDefinitions'] e
 export type CommonHandlerProps<TBot extends types.BaseBot> = {
   ctx: BotContext
   client: BotClient<TBot>
-  self: BotHandlers<TBot>
 }
 
 export type MessagePayloads<TBot extends types.BaseBot> = {
@@ -211,9 +210,7 @@ export type HookData<TBot extends types.BaseBot> = {
 
 export type HookInputs<TBot extends types.BaseBot> = {
   [H in keyof HookData<TBot>]: {
-    [T in keyof HookData<TBot>[H]]: {
-      client: BotClient<TBot>
-      ctx: BotContext
+    [T in keyof HookData<TBot>[H]]: CommonHandlerProps<TBot> & {
       data: HookData<TBot>[H][T]
     }
   }
@@ -251,12 +248,17 @@ export type HookHandlersMap<TBot extends types.BaseBot> = {
   }
 }
 
+export type BotActionHandlers<TBot extends types.BaseBot> = ActionHandlers<TBot>
+export type BotMessageHandlers<TBot extends types.BaseBot> = MessageHandlersMap<TBot>
+export type BotEventHandlers<TBot extends types.BaseBot> = EventHandlersMap<TBot>
+export type BotStateExpiredHandlers<TBot extends types.BaseBot> = StateExpiredHandlersMap<TBot>
+export type BotHookHandlers<TBot extends types.BaseBot> = HookHandlersMap<TBot>
 export type BotHandlers<TBot extends types.BaseBot> = {
-  actionHandlers: ActionHandlers<TBot>
-  messageHandlers: MessageHandlersMap<TBot>
-  eventHandlers: EventHandlersMap<TBot>
-  stateExpiredHandlers: StateExpiredHandlersMap<TBot>
-  hookHandlers: HookHandlersMap<TBot>
+  actionHandlers: BotActionHandlers<TBot>
+  messageHandlers: BotMessageHandlers<TBot>
+  eventHandlers: BotEventHandlers<TBot>
+  stateExpiredHandlers: BotStateExpiredHandlers<TBot>
+  hookHandlers: BotHookHandlers<TBot>
 }
 
 // plugins

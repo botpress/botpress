@@ -13,10 +13,10 @@ const bot = new bp.Bot({
   },
 })
 
-bot.message('*', async (props) => {
-  const { message, client, ctx, self } = props
+bot.on.message('*', async (props) => {
+  const { message, client, ctx } = props
 
-  const { message: response } = await self.actionHandlers.sayHello({ ...props, input: {} })
+  const { message: response } = await bot.actions.sayHello({ ...props, input: {} })
   await client.createMessage({
     conversationId: message.conversationId,
     userId: ctx.botId,
@@ -28,7 +28,7 @@ bot.message('*', async (props) => {
   })
 })
 
-bot.event('webhook:event', async ({ event }) => {
+bot.on.event('webhook:event', async ({ event }) => {
   const { body, method, path, query } = event.payload
   const queryString = qs.stringify(query)
   const fullPath = queryString ? `${path}?${queryString}` : path

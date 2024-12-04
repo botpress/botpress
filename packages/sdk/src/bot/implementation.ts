@@ -45,33 +45,34 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     after_outgoing_call_action: {},
   }
 
+  /**
+   * alias for actionHandlers
+   */
+  public get actions() {
+    return this.actionHandlers
+  }
+
   public constructor(public readonly props: BotImplementationProps<TBot, TPlugins>) {
     this.actionHandlers = props.actions as ActionHandlers<TBot>
     const plugins = utils.records.values(props.plugins)
     for (const plugin of plugins) {
-      this._use(plugin)
+      this._use(plugin as BotHandlers<any>)
     }
   }
 
-  public readonly message = <T extends keyof MessageHandlersMap<TBot>>(
-    type: T,
-    handler: MessageHandlers<TBot>[T]
-  ): void => {
-    this.messageHandlers[type] = utils.arrays.safePush(this.messageHandlers[type], handler)
-  }
-
-  public readonly event = <T extends keyof EventHandlersMap<TBot>>(type: T, handler: EventHandlers<TBot>[T]): void => {
-    this.eventHandlers[type] = utils.arrays.safePush(this.eventHandlers[type], handler)
-  }
-
-  public readonly stateExpired = <T extends keyof StateExpiredHandlersMap<TBot>>(
-    type: T,
-    handler: StateExpiredHandlers<TBot>[T]
-  ): void => {
-    this.stateExpiredHandlers[type] = utils.arrays.safePush(this.stateExpiredHandlers[type], handler)
-  }
-
-  public readonly hook = {
+  public readonly on = {
+    message: <T extends keyof MessageHandlersMap<TBot>>(type: T, handler: MessageHandlers<TBot>[T]): void => {
+      this.messageHandlers[type] = utils.arrays.safePush(this.messageHandlers[type], handler)
+    },
+    event: <T extends keyof EventHandlersMap<TBot>>(type: T, handler: EventHandlers<TBot>[T]): void => {
+      this.eventHandlers[type] = utils.arrays.safePush(this.eventHandlers[type], handler)
+    },
+    stateExpired: <T extends keyof StateExpiredHandlersMap<TBot>>(
+      type: T,
+      handler: StateExpiredHandlers<TBot>[T]
+    ): void => {
+      this.stateExpiredHandlers[type] = utils.arrays.safePush(this.stateExpiredHandlers[type], handler)
+    },
     beforeIncomingEvent: <T extends keyof HookData<TBot>['before_incoming_event']>(
       type: T,
       handler: HookHandlers<TBot>['before_incoming_event'][T]
@@ -147,7 +148,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
   }
 
   private readonly _use = (botLike: BotHandlers<any>): void => {
-    mergeBots(this, botLike)
+    mergeBots(this as BotHandlers<any>, botLike)
   }
 
   public readonly handler = botHandler(this as BotHandlers<any>)

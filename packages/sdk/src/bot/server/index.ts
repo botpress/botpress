@@ -12,6 +12,7 @@ export * from './types'
 
 type ServerProps = types.CommonHandlerProps<common.BaseBot> & {
   req: Request
+  self: types.BotHandlers<common.BaseBot>
 }
 
 const SUCCESS_RESPONSE = { status: 200 }
@@ -171,7 +172,6 @@ const onEventReceived = async ({ ctx, req, client, self }: ServerProps): Promise
         ...messagePayload,
         client,
         ctx,
-        self,
       })
     }
 
@@ -204,7 +204,6 @@ const onEventReceived = async ({ ctx, req, client, self }: ServerProps): Promise
         ...statePayload,
         client,
         ctx,
-        self,
       })
     }
     return SUCCESS_RESPONSE
@@ -236,7 +235,6 @@ const onEventReceived = async ({ ctx, req, client, self }: ServerProps): Promise
       ...eventPayload,
       client,
       ctx,
-      self,
     })
   }
 
@@ -272,7 +270,7 @@ const onActionTriggered = async ({ ctx, req, client, self }: ServerProps): Promi
     throw new Error(`Action ${type} not found`)
   }
 
-  const output = await action({ ctx, input, client, type, self })
+  const output = await action({ ctx, input, client, type })
 
   const response = { output }
   return {
