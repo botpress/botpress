@@ -3,7 +3,7 @@ import { Request, z } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import * as crypto from 'crypto'
 import { ReplyToConversationMessageType } from 'intercom-client'
-import { getAuthenticatedIntercomClient, handleOAuth } from './auth'
+import { getAuthenticatedIntercomClient, getSignatureSecret, handleOAuth } from './auth'
 import * as html from './html.utils'
 import * as types from './types'
 import * as bp from '.botpress'
@@ -386,7 +386,8 @@ function verifyRequest(req: Request, ctx: bp.Context): VerifyResult {
     return { result: 'error', isError: true, message: 'Handler received an empty body' }
   }
   const signature = extractSignature(req)
-  if (!signature || !isSignatureValid(signature, req.body, bp.secrets.CLIENT_SECRET)) {
+  const secret = getSignatureSecret(ctx)
+  if (!signature || !isSignatureValid(signature, req.body, secret)) {
     return { result: 'error', isError: true, message: 'Handler received request with invalid signature' }
   }
 

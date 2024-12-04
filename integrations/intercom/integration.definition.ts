@@ -13,19 +13,26 @@ export default new IntegrationDefinition({
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
     },
-    schema: z
-      .object({
-        adminId: z.string().min(1),
-        useManualConfiguration: z.boolean().optional().default(false),
-        accessToken: z.string().min(1).optional(),
-      })
-      .hidden((formData) => {
-        const hideManualConfig = !formData?.useManualConfiguration
-        return {
-          adminId: false,
-          accessToken: hideManualConfig,
-        }
+    schema: z.object({
+      adminId: z.string().min(1).describe('The admin ID of the Bot'),
+    }),
+  },
+  configurations: {
+    manual: {
+      title: 'Manual Configuration',
+      description: 'Manual configuration, use your own Intercom app (for advanced use cases only)',
+      schema: z.object({
+        adminId: z.string().min(1).describe('The admin ID of the Bot'),
+        accessToken: z.string().min(1).describe('The access token of the Intercom app'),
+        clientSecret: z
+          .string()
+          .min(1)
+          .secret()
+          .describe(
+            'The client secret of the Intercom app. Required for event signature validation, even if not authenticated by OAuth'
+          ),
       }),
+    },
   },
   channels: {
     channel: {
@@ -61,7 +68,7 @@ export default new IntegrationDefinition({
     credentials: {
       type: 'integration',
       schema: z.object({
-        accessToken: z.string().min(1),
+        accessToken: z.string().min(1).describe('The access token obtained from OAuth'),
       }),
     },
   },

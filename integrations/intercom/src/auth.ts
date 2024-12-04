@@ -4,10 +4,7 @@ import { Client as IntercomClient } from 'intercom-client'
 import * as bp from '.botpress'
 
 export const getAuthenticatedIntercomClient = async (client: bp.Client, ctx: bp.Context): Promise<IntercomClient> => {
-  if (ctx.configuration.useManualConfiguration) {
-    if (!ctx.configuration.accessToken) {
-      throw new RuntimeError('Access token is not provided but manual configuration is enabled')
-    }
+  if (ctx.configurationType === 'manual') {
     return new IntercomClient({ tokenAuth: { token: ctx.configuration.accessToken } })
   }
 
@@ -43,6 +40,13 @@ const exchangeCodeForAccessToken = async (code: string): Promise<string> => {
     throw new RuntimeError('Failed to exchange code for access token')
   }
   return accessToken
+}
+
+export const getSignatureSecret = (ctx: bp.Context): string => {
+  if (ctx.configurationType === 'manual') {
+    return ctx.configuration.clientSecret
+  }
+  return bp.secrets.CLIENT_SECRET
 }
 
 export const handleOAuth = async ({ client, ctx, req }: bp.HandlerProps): Promise<void> => {
