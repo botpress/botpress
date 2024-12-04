@@ -217,7 +217,7 @@ const integration = new bp.Integration({
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
-        id: `${conversationId}`,
+        id: conversationId,
       },
     })
 
@@ -244,13 +244,13 @@ const integration = new bp.Integration({
 
       const { user } = await client.getOrCreateUser({
         tags: {
-          id: `${authorId}`,
-          email: `${email}`,
+          id: authorId,
+          email: email ?? '',
         },
       })
 
       await client.createMessage({
-        tags: { id: `${messageId}` },
+        tags: { id: messageId },
         type: 'text',
         userId: user.id,
         conversationId: conversation.id,
@@ -279,7 +279,7 @@ const integration = new bp.Integration({
     const contact = await intercomClient.contacts.find({ id: userId })
 
     const { user } = await client.getOrCreateUser({
-      tags: { id: `${contact.id}`, email: `${contact.email}` },
+      tags: { id: contact.id, email: contact.email },
     })
 
     return {
@@ -299,7 +299,7 @@ const integration = new bp.Integration({
 
     const { conversation } = await client.getOrCreateConversation({
       channel,
-      tags: { id: `${chat.id}` },
+      tags: { id: chat.id },
     })
 
     return {
