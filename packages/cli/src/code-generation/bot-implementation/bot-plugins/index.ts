@@ -16,7 +16,7 @@ export class BotPluginsIndexModule extends mod.Module {
     const pluginsModules: BotPluginModule[] = []
     for (const plugin of Object.values(sdkBotDefinition.plugins ?? {})) {
       const pluginModule = new BotPluginModule(plugin)
-      pluginModule.unshift(plugin.definition.name)
+      pluginModule.unshift(plugin.name)
       this.pushDep(pluginModule)
       pluginsModules.push(pluginModule)
     }

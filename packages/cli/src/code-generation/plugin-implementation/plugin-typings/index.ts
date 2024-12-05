@@ -1,15 +1,16 @@
 import * as sdk from '@botpress/sdk'
+import * as utils from '../../../utils'
 import * as consts from '../../consts'
 import { IntegrationTypingsModule } from '../../integration-implementation/integration-typings'
 import { InterfaceTypingsModule } from '../../interface-implementation'
-import { Module, ReExportTypeModule } from '../../module'
+import { Module, ReExportTypeModule, SingleFileModule } from '../../module'
 import { ActionsModule } from './actions-module'
 import { DefaultConfigurationModule } from './configuration-module'
 import { EventsModule } from './events-module'
 import { StatesModule } from './states-module'
 
 class PluginIntegrationsModule extends ReExportTypeModule {
-  public constructor(plugin: sdk.PluginDefinition | sdk.PluginPackage['definition']) {
+  public constructor(plugin: sdk.PluginDefinition) {
     super({
       exportName: 'Integrations',
     })
@@ -23,7 +24,7 @@ class PluginIntegrationsModule extends ReExportTypeModule {
 }
 
 class PluginInterfacesModule extends ReExportTypeModule {
-  public constructor(plugin: sdk.PluginDefinition | sdk.PluginPackage['definition']) {
+  public constructor(plugin: sdk.PluginDefinition) {
     super({
       exportName: 'Interfaces',
     })
@@ -45,6 +46,13 @@ type PluginTypingsIndexDependencies = {
   actionsModule: ActionsModule
 }
 
+type _assertPropsInPluginDefinition = utils.types.AssertKeyOf<'props', sdk.PluginDefinition>
+const _isLocalPluginDefinition = (
+  plugin: sdk.PluginDefinition | sdk.PluginPackage['definition']
+): plugin is sdk.PluginDefinition => {
+  return 'props' in plugin
+}
+
 export class PluginTypingsModule extends Module {
   private _dependencies: PluginTypingsIndexDependencies
 
@@ -54,11 +62,23 @@ export class PluginTypingsModule extends Module {
       path: consts.INDEX_FILE,
     })
 
-    const integrationsModule = new PluginIntegrationsModule(plugin)
+    const integrationsModule = _isLocalPluginDefinition(plugin)
+      ? new PluginIntegrationsModule(plugin)
+      : new SingleFileModule({
+          path: consts.INDEX_FILE,
+          exportName: 'Integrations',
+          content: 'export type Integrations = {}',
+        })
     integrationsModule.unshift('integrations')
     this.pushDep(integrationsModule)
 
-    const interfacesModule = new PluginInterfacesModule(plugin)
+    const interfacesModule = _isLocalPluginDefinition(plugin)
+      ? new PluginInterfacesModule(plugin)
+      : new SingleFileModule({
+          path: consts.INDEX_FILE,
+          exportName: 'Interfaces',
+          content: 'export type Interfaces = {}',
+        })
     interfacesModule.unshift('interfaces')
     this.pushDep(interfacesModule)
 

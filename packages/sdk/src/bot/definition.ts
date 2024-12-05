@@ -148,7 +148,7 @@ export class BotDefinition<
       self.integrations = {}
     }
 
-    self.integrations[integrationPkg.definition.name] = {
+    self.integrations[integrationPkg.name] = {
       enabled: config.enabled,
       ...integrationPkg,
       configurationType: config.configurationType as string,
@@ -163,7 +163,7 @@ export class BotDefinition<
       self.plugins = {}
     }
 
-    self.plugins[pluginPkg.definition.name] = {
+    self.plugins[pluginPkg.name] = {
       ...pluginPkg,
       configuration: config.configuration,
       interfaces: config.interfaces,

@@ -73,7 +73,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const { remoteInstances, localInstances } = this._splitApiAndLocalIntegrationInstances(integrationList)
 
     const fetchedInstances: RemoteIntegrationInstance[] = await bluebird.map(localInstances, async (instance) => {
-      const ref: PackageRef = { type: 'name', name: instance.definition.name, version: instance.definition.version }
+      const ref: PackageRef = { type: 'name', name: instance.name, version: instance.version }
       const integration = await api.findIntegration(ref)
       if (!integration) {
         const formattedRef = formatPackageRef(ref)
@@ -99,8 +99,9 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     const remoteInstances: RemoteIntegrationInstance[] = []
     const localInstances: LocalIntegrationInstance[] = []
     for (const instance of instances) {
-      if ('id' in instance) {
-        remoteInstances.push(instance)
+      const { id } = instance
+      if (id) {
+        remoteInstances.push({ ...instance, id })
       } else {
         localInstances.push(instance)
       }

@@ -164,7 +164,7 @@ export class IntegrationDefinition<
     if (unbrandedEntity) {
       // this means the user tried providing a plain schema without referencing an entity from the integration
       throw new Error(
-        `Cannot extend interface "${interfacePkg.definition.name}" with entity "${unbrandedEntity[0]}"; the provided schema is not part of the integration's entities.`
+        `Cannot extend interface "${interfacePkg.name}" with entity "${unbrandedEntity[0]}"; the provided schema is not part of the integration's entities.`
       )
     }
 
@@ -178,10 +178,7 @@ export class IntegrationDefinition<
 
     const entityNames = Object.values(interfaceTypeArguments).map((e) => e.name)
 
-    const key =
-      entityNames.length === 0
-        ? interfacePkg.definition.name
-        : `${interfacePkg.definition.name}<${entityNames.join(',')}>`
+    const key = entityNames.length === 0 ? interfacePkg.name : `${interfacePkg.name}<${entityNames.join(',')}>`
 
     self.interfaces[key] = {
       ...interfacePkg,

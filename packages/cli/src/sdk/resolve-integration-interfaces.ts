@@ -97,10 +97,8 @@ const _mergeMessage = (a: sdk.MessageDefinition, b: sdk.MessageDefinition): sdk.
 const _resolveInterface = (
   intrface: InterfaceExtension
 ): { resolved: ResolvedInterface; statement: InterfaceImplStatement } => {
-  const id = 'id' in intrface ? intrface.id : undefined
-  const {
-    definition: { name, version },
-  } = intrface
+  const { id } = intrface
+  const { name, version } = intrface
 
   const resolved: ResolvedInterface = { actions: {}, events: {}, channels: {} }
   const statement: InterfaceImplStatement = {

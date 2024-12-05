@@ -27,25 +27,25 @@ export const validateBotDefinition = (b: sdk.BotDefinition): void => {
   for (const [pluginName, plugin] of Object.entries(b.plugins ?? {})) {
     const integrationDependencies = plugin.definition.integrations ?? {}
     for (const dep of Object.values(integrationDependencies)) {
-      if (!_hasIntegrationDependency(b, dep.definition)) {
+      if (!_hasIntegrationDependency(b, dep)) {
         throw new errors.BotpressCLIError(
-          `Plugin "${pluginName}" has a dependency on integration "${dep.definition.name}@${dep.definition.version}", but it is not present in the bot definition. Please install it.`
+          `Plugin "${pluginName}" has a dependency on integration "${dep.name}@${dep.version}", but it is not present in the bot definition. Please install it.`
         )
       }
     }
 
     const interfaceDepdencies = plugin.definition.interfaces ?? {}
     for (const dep of Object.values(interfaceDepdencies)) {
-      const interfaceImpl = plugin.interfaces[dep.definition.name]
+      const interfaceImpl = plugin.interfaces[dep.name]
       if (!interfaceImpl) {
         throw new errors.BotpressCLIError(
-          `Plugin "${pluginName}" has a dependency on interface "${dep.definition.name}@${dep.definition.version}", but the bot does not specify an implementation for it.`
+          `Plugin "${pluginName}" has a dependency on interface "${dep.name}@${dep.version}", but the bot does not specify an implementation for it.`
         )
       }
 
       if (!_hasIntegrationDependency(b, interfaceImpl)) {
         throw new errors.BotpressCLIError(
-          `Integration "${interfaceImpl.name}@${interfaceImpl.version}" is not installed in the bot, but specified as an implementation for interface "${dep.definition.name}@${dep.definition.version}"`
+          `Integration "${interfaceImpl.name}@${interfaceImpl.version}" is not installed in the bot, but specified as an implementation for interface "${dep.name}@${dep.version}"`
         )
       }
     }
@@ -56,6 +56,8 @@ const _nonCamelCaseKeys = (obj: Record<string, any>): string[] =>
   Object.keys(obj).filter((k) => !utils.casing.is.camelCase(k))
 
 const _hasIntegrationDependency = (b: sdk.BotDefinition, dep: PackageRef): boolean => {
-  const integrationEntries = Object.entries(b.integrations ?? {}).map(([_, { definition }]) => definition)
-  return integrationEntries.some((integration) => integration.name === dep.name && integration.version === dep.version)
+  const integrationInstances = Object.entries(b.integrations ?? {}).map(([_k, v]) => v)
+  return integrationInstances.some(
+    (integration) => integration.name === dep.name && integration.version === dep.version
+  )
 }
