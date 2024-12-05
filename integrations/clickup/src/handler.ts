@@ -1,5 +1,6 @@
 import { ClickUpClient } from './client'
 import * as bp from '.botpress'
+import { executeCommentReceived } from './events/executeCommentReceived'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
   if (!req.body) {
@@ -8,31 +9,25 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
 
   const clickup = new ClickUpClient(ctx.configuration.apiKey, ctx.configuration.teamId)
 
-  const body = JSON.parse(req.body)
-  if (body.event === 'taskCommentPosted') {
-    const botUser = await clickup.getUser()
-
-    for (const historyItem of body.history_items) {
-      if (botUser.id === historyItem.user.id) {
-        continue
-      }
-
-      const { user } = await client.getOrCreateUser({ tags: { id: historyItem.user.id.toString() } })
-      const { conversation } = await client.getOrCreateConversation({
-        tags: { taskId: body.task_id.toString() },
-        channel: 'comment',
-      })
-      const { message } = await client.getOrCreateMessage({
-        conversationId: conversation.id,
-        userId: user.id,
-        type: 'text',
-        payload: { text: historyItem.comment.text_content },
-        tags: { id: historyItem.comment.id.toString() },
-      })
-
-      logger.forBot().info('Message created', message.payload.text)
+  let parsedBody: any
+  try {
+    parsedBody = JSON.parse(req.body)
+  } catch (thrown) {
+    return {
+      status: 400,
+      body: JSON.stringify({ error: 'Invalid JSON Body' }),
     }
-  } else if (['taskCreated', 'taskUpdated', 'taskDeleted'].includes(body.event)) {
-    await client.createEvent({ type: body.event, payload: { id: body.task_id.toString() } })
+  }
+
+  switch (parsedBody.event) {
+    case 'taskCommentPosted':
+      return executeCommentReceived({ clickup, body: parsedBody, client, logger })
+    case 'taskCreated':
+    case 'taskUpdated':
+    case 'taskDeleted':
+      await client.createEvent({ type: parsedBody.event, payload: { id: parsedBody.task_id.toString() } })
+      return
+    default:
+      return
   }
 }

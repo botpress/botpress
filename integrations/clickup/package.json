@@ -1,6 +1,5 @@
 {
-  "name": "clickup",
-  "integrationName": "@botpresshub/clickup",
+  "name": "@botpresshub/clickup",
   "scripts": {
     "login": "bp login",
     "start": "nodemon --watch \"./*\" --ext \"ts\" --exec \"bp deploy -y\"",
