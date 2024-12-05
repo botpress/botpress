@@ -47,7 +47,12 @@ const webhookNotificationSchema = z.object({
 })
 
 const integration = new bp.Integration({
-  register: async () => {},
+  register: async ({ client, ctx }) => {
+    client.updateUser({
+      id: ctx.botId,
+      tags: { id: ctx.configuration.adminId },
+    })
+  },
   unregister: async () => {},
   actions: {},
   channels: {
@@ -187,6 +192,8 @@ const integration = new bp.Integration({
       return // ignore admin replies, since the bot is an admin we don't want to reply to ourselves
     }
 
+    // TODO: Ignore topics that are not conversation.user.created or conversation.user.replied
+
     const {
       data: {
         item: {
@@ -241,7 +248,7 @@ const integration = new bp.Integration({
         },
       })
 
-      await client.createMessage({
+      await client.getOrCreateMessage({
         tags: { id: `${messageId}` },
         type: 'text',
         userId: user.id,
