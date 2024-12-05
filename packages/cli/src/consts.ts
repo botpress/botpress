@@ -15,6 +15,7 @@ export const defaultTunnelUrl = 'https://tunnel.botpress.cloud'
 
 export const cliRootDir = CLI_ROOT_DIR
 export const emptyBotDirName = 'empty-bot'
+export const emptyPluginDirName = 'empty-plugin'
 export const emptyIntegrationDirName = 'empty-integration'
 export const helloWorldIntegrationDirName = 'hello-world'
 export const webhookMessageIntegrationDirName = 'webhook-message'
@@ -24,6 +25,7 @@ export const distDirName = 'dist'
 
 export const fromCliRootDir = {
   emptyBotTemplate: pathlib.join('templates', emptyBotDirName),
+  emptyPluginTemplate: pathlib.join('templates', emptyPluginDirName),
   emptyIntegrationTemplate: pathlib.join('templates', emptyIntegrationDirName),
   helloWorldIntegrationTemplate: pathlib.join('templates', helloWorldIntegrationDirName),
   webhookMessageIntegrationTemplate: pathlib.join('templates', webhookMessageIntegrationDirName),
