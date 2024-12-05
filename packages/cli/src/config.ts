@@ -307,7 +307,7 @@ const deletePluginSchema = {
 const initSchema = {
   ...globalSchema,
   workDir,
-  type: { type: 'string', choices: ['bot', 'integration'] as const },
+  type: { type: 'string', choices: ['bot', 'integration', 'plugin'] as const },
   name: { type: 'string', description: 'The name of the project' },
 } satisfies CommandSchema
 
