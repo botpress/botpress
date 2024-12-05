@@ -19,7 +19,7 @@ export default new sdk.BotDefinition({
     },
   },
 })
-  .add(gsheets, {
+  .addIntegration(gsheets, {
     enabled: true,
     configurationType: 'serviceAccountKey',
     configuration: {
@@ -28,7 +28,7 @@ export default new sdk.BotDefinition({
       spreadsheetId: genenv.SHEETZY_GSHEETS_SPREADSHEET_ID,
     },
   })
-  .add(telegram, {
+  .addIntegration(telegram, {
     enabled: true,
     configuration: {
       botToken: genenv.SHEETZY_TELEGRAM_BOT_TOKEN,

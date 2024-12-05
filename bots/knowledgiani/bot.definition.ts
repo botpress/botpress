@@ -6,17 +6,17 @@ import personality from './bp_modules/personality'
 import telegram from './bp_modules/telegram'
 
 export default new sdk.BotDefinition({})
-  .add(telegram, {
+  .addIntegration(telegram, {
     enabled: true,
     configuration: {
       botToken: env.KNOWLEDGIANI_TELEGRAM_BOT_TOKEN,
     },
   })
-  .add(openai, {
+  .addIntegration(openai, {
     enabled: true,
     configuration: {},
   })
-  .add(personality, {
+  .addPlugin(personality, {
     configuration: {
       model: 'gpt-3.5-turbo-0125',
       personality: 'Respond as if you were Mario the famous video game character of Nintendo',
@@ -25,7 +25,7 @@ export default new sdk.BotDefinition({})
       llm: openai.definition,
     },
   })
-  .add(knowledge, {
+  .addPlugin(knowledge, {
     configuration: {},
     interfaces: {
       llm: openai.definition,

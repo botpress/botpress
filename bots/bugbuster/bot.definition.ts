@@ -25,7 +25,7 @@ export default new sdk.BotDefinition({
     },
   },
 })
-  .add(github, {
+  .addIntegration(github, {
     enabled: true,
     configurationType: 'manualPAT',
     configuration: {
@@ -33,7 +33,7 @@ export default new sdk.BotDefinition({
       githubWebhookSecret: genenv.BUGBUSTER_GITHUB_WEBHOOK_SECRET,
     },
   })
-  .add(slack, {
+  .addIntegration(slack, {
     enabled: true,
     configurationType: 'botToken',
     configuration: {
