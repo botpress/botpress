@@ -13,17 +13,14 @@ import { ProjectCommand, ProjectCommandDefinition, ProjectDefinition } from './p
 type InstallablePackage =
   | {
       type: 'integration'
-      name: string
       pkg: codegen.IntegrationInstallablePackage
     }
   | {
       type: 'interface'
-      name: string
       pkg: codegen.InterfaceInstallablePackage
     }
   | {
       type: 'plugin'
-      name: string
       pkg: codegen.PluginInstallablePackage
     }
 
@@ -45,7 +42,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       throw new errors.BotpressCLIError(notFoundMessage)
     }
 
-    const packageName = targetPackage.name // TODO: eventually replace name by alias (with argv --alias)
+    const packageName = targetPackage.pkg.name // TODO: eventually replace name by alias (with argv --alias)
     const baseInstallPath = utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath)
     const packageDirName = utils.casing.to.kebabCase(packageName)
     const installPath = utils.path.join(baseInstallPath, consts.installDirName, packageDirName)
@@ -82,19 +79,22 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     if (this._pkgCouldBe('integration')) {
       const integration = await api.findIntegration(ref)
       if (integration) {
-        return { type: 'integration', name: integration.name, pkg: { source: 'remote', integration } }
+        const { name, version } = integration
+        return { type: 'integration', pkg: { source: 'remote', integration, name, version } }
       }
     }
     if (this._pkgCouldBe('interface')) {
       const intrface = await api.findPublicInterface(ref)
       if (intrface) {
-        return { type: 'interface', name: intrface.name, pkg: { source: 'remote', interface: intrface } }
+        const { name, version } = intrface
+        return { type: 'interface', pkg: { source: 'remote', interface: intrface, name, version } }
       }
     }
     if (this._pkgCouldBe('plugin')) {
       const plugin = await api.findPublicPlugin(ref)
       if (plugin) {
-        return { type: 'plugin', name: plugin.name, pkg: { source: 'remote', plugin } }
+        const { name, version } = plugin
+        return { type: 'plugin', pkg: { source: 'remote', plugin, name, version } }
       }
     }
     return
@@ -104,18 +104,18 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     const absPath = utils.path.absoluteFrom(utils.path.cwd(), ref.path)
     const { definition: projectDefinition, implementation: projectImplementation } = await this._readProject(absPath)
     if (this._pkgCouldBe('integration') && projectDefinition?.type === 'integration') {
+      const { name, version } = projectDefinition.definition
       return {
         type: 'integration',
-        name: projectDefinition.definition.name,
-        pkg: { source: 'local', path: absPath },
+        pkg: { source: 'local', path: absPath, name, version },
       }
     }
 
     if (this._pkgCouldBe('interface') && projectDefinition?.type === 'interface') {
+      const { name, version } = projectDefinition.definition
       return {
         type: 'interface',
-        name: projectDefinition.definition.name,
-        pkg: { source: 'local', path: absPath },
+        pkg: { source: 'local', path: absPath, name, version },
       }
     }
 
@@ -126,13 +126,15 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         )
       }
 
+      const { name, version } = projectDefinition.definition
       return {
         type: 'plugin',
-        name: projectDefinition.definition.name,
         pkg: {
           source: 'local',
           path: absPath,
           implementationCode: projectImplementation,
+          name,
+          version,
         },
       }
     }

@@ -1,4 +1,5 @@
 import * as sdk from '@botpress/sdk'
+import * as utils from '../../../utils'
 import * as consts from '../../consts'
 import { IntegrationTypingsModule } from '../../integration-implementation/integration-typings'
 import { InterfaceTypingsModule } from '../../interface-implementation'
@@ -45,6 +46,13 @@ type PluginTypingsIndexDependencies = {
   actionsModule: ActionsModule
 }
 
+type _assertPropsInPluginDefinition = utils.types.AssertKeyOf<'props', sdk.PluginDefinition>
+const _isLocalPluginDefinition = (
+  plugin: sdk.PluginDefinition | sdk.PluginPackage['definition']
+): plugin is sdk.PluginDefinition => {
+  return 'props' in plugin
+}
+
 export class PluginTypingsModule extends Module {
   private _dependencies: PluginTypingsIndexDependencies
 
@@ -54,23 +62,23 @@ export class PluginTypingsModule extends Module {
       path: consts.INDEX_FILE,
     })
 
-    // TODO: uncomment and fix this
-    // const integrationsModule = new PluginIntegrationsModule(plugin)
-    const integrationsModule = new SingleFileModule({
-      path: consts.INDEX_FILE,
-      exportName: 'Integrations',
-      content: 'export type Integrations = {}',
-    })
+    const integrationsModule = _isLocalPluginDefinition(plugin)
+      ? new PluginIntegrationsModule(plugin)
+      : new SingleFileModule({
+          path: consts.INDEX_FILE,
+          exportName: 'Integrations',
+          content: 'export type Integrations = {}',
+        })
     integrationsModule.unshift('integrations')
     this.pushDep(integrationsModule)
 
-    // TODO: uncomment and fix this
-    // const interfacesModule = new PluginInterfacesModule(plugin)
-    const interfacesModule = new SingleFileModule({
-      path: consts.INDEX_FILE,
-      exportName: 'Interfaces',
-      content: 'export type Interfaces = {}',
-    })
+    const interfacesModule = _isLocalPluginDefinition(plugin)
+      ? new PluginInterfacesModule(plugin)
+      : new SingleFileModule({
+          path: consts.INDEX_FILE,
+          exportName: 'Interfaces',
+          content: 'export type Interfaces = {}',
+        })
     interfacesModule.unshift('interfaces')
     this.pushDep(interfacesModule)
 
