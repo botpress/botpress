@@ -59,7 +59,7 @@ export async function startConversation(
       logForBotAndThrow(
         `Value provided for Template Variables JSON isn't valid JSON (error: ${
           (err as Error)?.message ?? ''
-        }). Received: ${templateVariablesJson}})`,
+        }). Received: ${templateVariablesJson}`,
         logger
       )
     }
@@ -67,7 +67,7 @@ export async function startConversation(
     const validationResult = TemplateVariablesSchema.safeParse(templateVariablesRaw)
     if (!validationResult.success) {
       logForBotAndThrow(
-        `Template variables should be an array of strings or numbers (error: ${validationResult.error}))`,
+        `Template variables should be an array of strings or numbers (error: ${validationResult.error})`,
         logger
       )
     }
