@@ -1,12 +1,12 @@
 import { ActionDefinition, ChannelDefinition, EntityDefinition, EventDefinition } from '../integration/definition'
 import * as utils from '../utils'
-import z, { AnyZodObject, GenericZuiSchema, ZodRef } from '../zui'
+import z, { ZuiObjectSchema, GenericZuiSchema, ZodRef } from '../zui'
 
-type BaseEvents = Record<string, AnyZodObject>
-type BaseActions = Record<string, AnyZodObject>
-type BaseMessages = Record<string, AnyZodObject>
+type BaseEvents = Record<string, ZuiObjectSchema>
+type BaseActions = Record<string, ZuiObjectSchema>
+type BaseMessages = Record<string, ZuiObjectSchema>
 type BaseChannels = Record<string, BaseMessages>
-type BaseEntities = Record<string, AnyZodObject>
+type BaseEntities = Record<string, ZuiObjectSchema>
 
 type EntityReferences<TEntities extends BaseEntities> = {
   [K in keyof TEntities]: ZodRef
@@ -34,7 +34,7 @@ type GenericActionDefinition<
   billable?: boolean
   cacheable?: boolean
   input: { schema: GenericZuiSchema<EntityReferences<TEntities>, TAction> }
-  output: { schema: GenericZuiSchema<EntityReferences<TEntities>, AnyZodObject> }
+  output: { schema: GenericZuiSchema<EntityReferences<TEntities>, ZuiObjectSchema> }
 }
 
 export type InterfaceDefinitionProps<

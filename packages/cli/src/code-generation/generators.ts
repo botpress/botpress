@@ -4,7 +4,7 @@ import * as prettier from 'prettier'
 import * as utils from '../utils'
 import * as consts from './consts'
 
-export const zuiSchemaToTypeScriptType = async (zuiSchema: sdk.z.AnyZodObject, name: string): Promise<string> => {
+export const zuiSchemaToTypeScriptType = async (zuiSchema: sdk.z.Schema, name: string): Promise<string> => {
   let code = zuiSchema.toTypescript()
   code = `export type ${name} = ${code}`
   code = prettier.format(code, { parser: 'typescript' })

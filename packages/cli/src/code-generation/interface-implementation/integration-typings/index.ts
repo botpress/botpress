@@ -25,10 +25,11 @@ export class InterfaceTypingsModule extends Module {
 
     const references: Record<string, sdk.z.Schema> = _.mapValues(_interface.entities, (e) => e.schema)
 
-    const derefObject = (obj: { schema: sdk.z.ZodObject }) => {
+    type ZodObjectSchema = sdk.z.ZodObject | sdk.z.ZodRecord
+    const derefObject = (obj: { schema: ZodObjectSchema }) => {
       return {
         ...obj,
-        schema: obj.schema.dereference(references) as sdk.z.ZodObject,
+        schema: obj.schema.dereference(references) as ZodObjectSchema,
       }
     }
 

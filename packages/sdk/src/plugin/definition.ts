@@ -9,7 +9,7 @@ import {
   ActionDefinition,
 } from '../bot/definition'
 import { IntegrationPackage, InterfacePackage } from '../package'
-import { AnyZodObject } from '../zui'
+import { ZuiObjectSchema } from '../zui'
 
 export {
   StateDefinition,
@@ -23,10 +23,10 @@ export {
   IntegrationConfigInstance,
 } from '../bot/definition'
 
-type BaseConfig = AnyZodObject
-type BaseStates = Record<string, AnyZodObject>
-type BaseEvents = Record<string, AnyZodObject>
-type BaseActions = Record<string, AnyZodObject>
+type BaseConfig = ZuiObjectSchema
+type BaseStates = Record<string, ZuiObjectSchema>
+type BaseEvents = Record<string, ZuiObjectSchema>
+type BaseActions = Record<string, ZuiObjectSchema>
 type BaseInterfaces = Record<string, any>
 type BaseIntegrations = Record<string, any>
 
