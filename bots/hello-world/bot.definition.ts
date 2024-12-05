@@ -18,17 +18,17 @@ export default new sdk.BotDefinition({
     },
   },
 })
-  .add(telegram, {
+  .addIntegration(telegram, {
     enabled: true,
     configuration: {
       botToken: env.HELLO_WORLD_TELEGRAM_BOT_TOKEN,
     },
   })
-  .add(webhook, {
+  .addIntegration(webhook, {
     enabled: true,
     configuration: {},
   })
-  .add(logger, {
+  .addPlugin(logger, {
     configuration: {},
     interfaces: {},
   })

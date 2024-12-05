@@ -132,17 +132,7 @@ export class BotDefinition<
     this.actions = props.actions
   }
 
-  public add<P extends PluginPackage>(pluginPkg: P, config: PluginConfigInstance<P>): this
-  public add<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this
-  public add(pkg: PluginPackage | IntegrationPackage, config: PluginConfigInstance | IntegrationConfigInstance): this {
-    if (pkg.type === 'plugin') {
-      return this._addPlugin(pkg as PluginPackage, config as PluginConfigInstance)
-    } else {
-      return this._addIntegration(pkg as IntegrationPackage, config as IntegrationConfigInstance)
-    }
-  }
-
-  public _addIntegration<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this {
+  public addIntegration<I extends IntegrationPackage>(integrationPkg: I, config: IntegrationConfigInstance<I>): this {
     const self = this as Writable<BotDefinition>
     if (!self.integrations) {
       self.integrations = {}
@@ -157,7 +147,7 @@ export class BotDefinition<
     return this
   }
 
-  private _addPlugin<P extends PluginPackage>(pluginPkg: P, config: PluginConfigInstance<P>): this {
+  public addPlugin<P extends PluginPackage>(pluginPkg: P, config: PluginConfigInstance<P>): this {
     const self = this as Writable<BotDefinition>
     if (!self.plugins) {
       self.plugins = {}

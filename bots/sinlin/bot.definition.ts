@@ -35,7 +35,7 @@ export default new sdk.BotDefinition({
     },
   },
 })
-  .add(linear, {
+  .addIntegration(linear, {
     enabled: true,
     configurationType: 'apiKey',
     configuration: {
@@ -43,7 +43,7 @@ export default new sdk.BotDefinition({
       webhookSigningSecret: genenv.SINLIN_LINEAR_WEBHOOK_SIGNING_SECRET,
     },
   })
-  .add(telegram, {
+  .addIntegration(telegram, {
     enabled: true,
     configuration: { botToken: genenv.SINLIN_TELEGRAM_BOT_TOKEN },
   })
