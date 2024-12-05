@@ -18,6 +18,8 @@ type InterfaceImplStatement = {
   channels: Record<string, { name: string }>
 }
 
+type ZodObjectSchema = sdk.z.ZodObject | sdk.z.ZodRecord
+
 export const resolveInterfaces = (integration: sdk.IntegrationDefinition): sdk.IntegrationDefinition => {
   const self = integration as utils.types.Writable<sdk.IntegrationDefinition>
   if (!self.interfaces) {
@@ -63,10 +65,10 @@ const _mergeActions = (a: sdk.ActionDefinition, b: sdk.ActionDefinition): sdk.Ac
     ...a,
     ...b,
     input: {
-      schema: a.input.schema.merge(b.input.schema),
+      schema: _mergeObjectSchemas(a.input.schema, b.input.schema),
     },
     output: {
-      schema: a.output.schema.merge(b.output.schema),
+      schema: _mergeObjectSchemas(a.input.schema, b.output.schema),
     },
   }
 }
@@ -75,7 +77,7 @@ const _mergeEvents = (a: sdk.EventDefinition, b: sdk.EventDefinition): sdk.Event
   return {
     ...a,
     ...b,
-    schema: a.schema.merge(b.schema),
+    schema: _mergeObjectSchemas(a.schema, b.schema),
   }
 }
 
@@ -90,7 +92,7 @@ const _mergeChannels = (a: sdk.ChannelDefinition, b: sdk.ChannelDefinition): sdk
 
 const _mergeMessage = (a: sdk.MessageDefinition, b: sdk.MessageDefinition): sdk.MessageDefinition => {
   return {
-    schema: a.schema.merge(b.schema),
+    schema: _mergeObjectSchemas(a.schema, b.schema),
   }
 }
 
@@ -158,4 +160,15 @@ const _rename = (intrface: InterfaceExtension, name: string) => {
   const { entities } = intrface
   const templateProps = _.mapValues(entities, (entity) => entity.name)
   return utils.template.formatHandleBars(intrface.definition.templateName, { ...templateProps, name })
+}
+
+const _mergeObjectSchemas = (a: ZodObjectSchema, b: ZodObjectSchema): ZodObjectSchema => {
+  if (a instanceof sdk.z.ZodObject && b instanceof sdk.z.ZodObject) {
+    return a.merge(b)
+  }
+  if (a instanceof sdk.z.ZodRecord && b instanceof sdk.z.ZodRecord) {
+    return sdk.z.record(sdk.z.intersection(a.valueSchema, b.valueSchema))
+  }
+  // TODO: adress this case
+  throw new Error('Cannot merge object schemas with record schemas')
 }

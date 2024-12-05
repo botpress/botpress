@@ -1,12 +1,12 @@
 import { IntegrationPackage, PluginPackage } from '../package'
 import { SchemaDefinition } from '../schema'
 import { ValueOf, Writable } from '../utils/type-utils'
-import z, { AnyZodObject } from '../zui'
+import z, { ZuiObjectSchema } from '../zui'
 
-type BaseConfig = AnyZodObject
-type BaseStates = Record<string, AnyZodObject>
-type BaseEvents = Record<string, AnyZodObject>
-type BaseActions = Record<string, AnyZodObject>
+type BaseConfig = ZuiObjectSchema
+type BaseStates = Record<string, ZuiObjectSchema>
+type BaseEvents = Record<string, ZuiObjectSchema>
+type BaseActions = Record<string, ZuiObjectSchema>
 
 export type TagDefinition = {
   title?: string
@@ -48,7 +48,7 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   title?: string
   description?: string
   input: SchemaDefinition<TAction>
-  output: SchemaDefinition<AnyZodObject> // cannot infer both input and output types (typescript limitation)
+  output: SchemaDefinition<ZuiObjectSchema> // cannot infer both input and output types (typescript limitation)
 }
 
 export type IntegrationConfigInstance<I extends IntegrationPackage = IntegrationPackage> = {
