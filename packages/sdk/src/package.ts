@@ -3,20 +3,17 @@ import * as intrface from './interface'
 import * as plugin from './plugin'
 import * as utils from './utils'
 
-type PackageReference =
-  | {
-      id: string // package installed from the botpress api
-    }
-  | {
-      uri?: string // package installed locally or from npm
-    }
-
-type PackageDefinitionReference = {
+type NameVersion = {
   name: string
   version: string
 }
 
-type IntegrationPackageDefinition = PackageDefinitionReference & {
+type PackageReference = NameVersion & {
+  id?: string
+  uri?: string
+}
+
+type IntegrationPackageDefinition = NameVersion & {
   configuration?: integration.ConfigurationDefinition
   configurations?: Record<string, integration.AdditionalConfigurationDefinition>
   events?: Record<string, integration.EventDefinition>
@@ -26,10 +23,10 @@ type IntegrationPackageDefinition = PackageDefinitionReference & {
   user?: integration.UserDefinition
   secrets?: Record<string, integration.SecretDefinition>
   entities?: Record<string, integration.EntityDefinition>
-  interfaces?: Record<string, { definition: PackageDefinitionReference }>
+  interfaces?: Record<string, PackageReference>
 }
 
-type InterfacePackageDefinition = PackageDefinitionReference & {
+type InterfacePackageDefinition = NameVersion & {
   templateName?: string
   entities?: Record<string, integration.EntityDefinition>
   events?: Record<string, integration.EventDefinition>
@@ -37,9 +34,9 @@ type InterfacePackageDefinition = PackageDefinitionReference & {
   channels?: Record<string, integration.ChannelDefinition>
 }
 
-type PluginPackageDefinition = PackageDefinitionReference & {
-  integrations?: Record<string, { definition: PackageDefinitionReference }>
-  interfaces?: Record<string, { definition: PackageDefinitionReference }>
+type PluginPackageDefinition = NameVersion & {
+  integrations?: Record<string, PackageReference>
+  interfaces?: Record<string, PackageReference>
   user?: plugin.UserDefinition
   conversation?: plugin.ConversationDefinition
   message?: plugin.MessageDefinition

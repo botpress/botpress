@@ -2,14 +2,14 @@ import * as sdk from '@botpress/sdk'
 import * as consts from '../../consts'
 import { IntegrationTypingsModule } from '../../integration-implementation/integration-typings'
 import { InterfaceTypingsModule } from '../../interface-implementation'
-import { Module, ReExportTypeModule } from '../../module'
+import { Module, ReExportTypeModule, SingleFileModule } from '../../module'
 import { ActionsModule } from './actions-module'
 import { DefaultConfigurationModule } from './configuration-module'
 import { EventsModule } from './events-module'
 import { StatesModule } from './states-module'
 
 class PluginIntegrationsModule extends ReExportTypeModule {
-  public constructor(plugin: sdk.PluginDefinition | sdk.PluginPackage['definition']) {
+  public constructor(plugin: sdk.PluginDefinition) {
     super({
       exportName: 'Integrations',
     })
@@ -23,7 +23,7 @@ class PluginIntegrationsModule extends ReExportTypeModule {
 }
 
 class PluginInterfacesModule extends ReExportTypeModule {
-  public constructor(plugin: sdk.PluginDefinition | sdk.PluginPackage['definition']) {
+  public constructor(plugin: sdk.PluginDefinition) {
     super({
       exportName: 'Interfaces',
     })
@@ -54,11 +54,23 @@ export class PluginTypingsModule extends Module {
       path: consts.INDEX_FILE,
     })
 
-    const integrationsModule = new PluginIntegrationsModule(plugin)
+    // TODO: uncomment and fix this
+    // const integrationsModule = new PluginIntegrationsModule(plugin)
+    const integrationsModule = new SingleFileModule({
+      path: consts.INDEX_FILE,
+      exportName: 'Integrations',
+      content: 'export type Integrations = {}',
+    })
     integrationsModule.unshift('integrations')
     this.pushDep(integrationsModule)
 
-    const interfacesModule = new PluginInterfacesModule(plugin)
+    // TODO: uncomment and fix this
+    // const interfacesModule = new PluginInterfacesModule(plugin)
+    const interfacesModule = new SingleFileModule({
+      path: consts.INDEX_FILE,
+      exportName: 'Interfaces',
+      content: 'export type Interfaces = {}',
+    })
     interfacesModule.unshift('interfaces')
     this.pushDep(interfacesModule)
 

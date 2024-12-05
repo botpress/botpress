@@ -1,6 +1,7 @@
 import _ from 'lodash'
 import * as utils from '../../utils'
 import * as consts from '../consts'
+import * as gen from '../generators'
 import * as mod from '../module'
 import * as types from '../typings'
 import { PluginPackageDefinitionModule } from './plugin-package-definition'
@@ -42,11 +43,17 @@ class LocalPluginModule extends mod.Module {
   public async getContent(): Promise<string> {
     const implImport = this._implModule.import(this)
 
+    const id = undefined
     const uri = utils.path.win32.escapeBackslashes(this._pkg.path)
 
     const definitionImport = utils.path.rmExtension(
       utils.path.join(this._pkg.path, consts.fromWorkDir.pluginDefinition)
     )
+
+    const tsId = gen.primitiveToTypescriptValue(id)
+    const tsUri = gen.primitiveToTypescriptValue(uri)
+    const tsName = gen.primitiveToTypescriptValue(this._pkg.name)
+    const tsVersion = gen.primitiveToTypescriptValue(this._pkg.version)
 
     return [
       consts.GENERATED_HEADER,
@@ -57,7 +64,10 @@ class LocalPluginModule extends mod.Module {
       '',
       'export default {',
       '  type: "plugin",',
-      `  uri: "${uri}",`,
+      `  id: ${tsId},`,
+      `  uri: ${tsUri},`,
+      `  name: ${tsName},`,
+      `  version: ${tsVersion},`,
       '  definition,',
       '  implementation,',
       '} satisfies sdk.PluginPackage',
@@ -87,6 +97,14 @@ class RemotePluginModule extends mod.Module {
     const implImport = this._implModule.import(this)
     const defImport = this._defModule.import(this)
 
+    const id = this._pkg.plugin.id
+    const uri = undefined
+
+    const tsId = gen.primitiveToTypescriptValue(id)
+    const tsUri = gen.primitiveToTypescriptValue(uri)
+    const tsName = gen.primitiveToTypescriptValue(this._pkg.name)
+    const tsVersion = gen.primitiveToTypescriptValue(this._pkg.version)
+
     return [
       consts.GENERATED_HEADER,
       'import * as sdk from "@botpress/sdk"',
@@ -96,7 +114,10 @@ class RemotePluginModule extends mod.Module {
       '',
       'export default {',
       '  type: "plugin",',
-      `  id: "${this._pkg.plugin.id}",`,
+      `  id: ${tsId},`,
+      `  uri: ${tsUri},`,
+      `  name: ${tsName},`,
+      `  version: ${tsVersion},`,
       '  definition,',
       '  implementation,',
       '} satisfies sdk.PluginPackage',

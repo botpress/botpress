@@ -70,7 +70,7 @@ export class BotPluginModule extends Module {
       path: consts.INDEX_FILE,
     })
 
-    this.pluginName = plugin.definition.name
+    this.pluginName = plugin.name
 
     this._typingsModule = new PluginTypingsModule(plugin.definition)
     this._typingsModule.unshift('typings')

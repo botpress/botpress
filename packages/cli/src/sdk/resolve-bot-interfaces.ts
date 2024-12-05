@@ -2,10 +2,10 @@ import * as sdk from '@botpress/sdk'
 import { resolveInterfaces } from './resolve-integration-interfaces'
 
 type IntegrationPackageDefinition = sdk.IntegrationPackage['definition']
-type InterfaceNameVersionReference = NonNullable<IntegrationPackageDefinition['interfaces']>[string]['definition']
+type InterfaceReference = NonNullable<IntegrationPackageDefinition['interfaces']>[string]
 
 const _isLocalInterfaceDef = (
-  intrface: sdk.InterfaceDefinition | InterfaceNameVersionReference
+  intrface: sdk.InterfaceDefinition | InterfaceReference
 ): intrface is sdk.InterfaceDefinition => {
   return 'props' in intrface
 }
@@ -13,7 +13,7 @@ const _isLocalInterfaceDef = (
 const _isLocalIntegrationDef = (
   integration: sdk.IntegrationDefinition | IntegrationPackageDefinition
 ): integration is sdk.IntegrationDefinition => {
-  return Object.entries(integration.interfaces ?? {}).some(([_, intrface]) => _isLocalInterfaceDef(intrface.definition))
+  return Object.entries(integration.interfaces ?? {}).some(([_, intrface]) => _isLocalInterfaceDef(intrface))
 }
 
 export const resolveBotInterfaces = (bot: sdk.BotDefinition): sdk.BotDefinition => {
