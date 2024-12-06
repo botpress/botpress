@@ -17,17 +17,17 @@ export default new IntegrationDefinition({
     taskCreated: {
       title: 'Task Created',
       description: 'Triggered when a task is created',
-      schema: z.object({ id: z.string().describe('ID of the created task') }),
+      schema: z.object({ id: z.string().title('Task ID').describe('ID of the created task') }),
     },
     taskUpdated: {
       title: 'Task Updated',
       description: 'Triggered when a task is updated',
-      schema: z.object({ id: z.string().describe('ID of the updated task') }),
+      schema: z.object({ id: z.string().title('Task ID').describe('ID of the updated task') }),
     },
     taskDeleted: {
       title: 'Task Deleted',
       description: 'Triggered when a task is deleted',
-      schema: z.object({ id: z.string().describe('ID of the deleted task') }),
+      schema: z.object({ id: z.string().title('Task ID').describe('ID of the deleted task') }),
     },
   },
 
