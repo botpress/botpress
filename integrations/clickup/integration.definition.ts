@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { IntegrationDefinition, z } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
@@ -10,25 +9,25 @@ export default new IntegrationDefinition({
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
-      apiKey: z.string().describe('API Key for Click Up'),
-      teamId: z.string().describe('Team ID to use for Click Up'),
+      apiKey: z.string().title('API Key').describe('API Key for Click Up'),
+      teamId: z.string().title('Team ID').describe('Team ID to use for Click Up'),
     }),
   },
   events: {
     taskCreated: {
       title: 'Task Created',
       description: 'Triggered when a task is created',
-      schema: z.object({ id: z.string() }),
+      schema: z.object({ id: z.string().title('Task ID').describe('ID of the created task') }),
     },
     taskUpdated: {
       title: 'Task Updated',
       description: 'Triggered when a task is updated',
-      schema: z.object({ id: z.string() }),
+      schema: z.object({ id: z.string().title('Task ID').describe('ID of the updated task') }),
     },
     taskDeleted: {
       title: 'Task Deleted',
       description: 'Triggered when a task is deleted',
-      schema: z.object({ id: z.string() }),
+      schema: z.object({ id: z.string().title('Task ID').describe('ID of the deleted task') }),
     },
   },
 
@@ -38,18 +37,22 @@ export default new IntegrationDefinition({
       description: 'Create a new task in a list',
       input: {
         schema: z.object({
-          listId: z.string().describe('ID of the list to create the task in'),
-          name: z.string().describe('Name of the task to be created'),
-          description: z.string().optional().describe('Description of the task to be created'),
-          status: z.string().optional().describe('Status of the task to be created'),
-          assignees: z.array(z.number()).optional().describe('IDs of the assignees of the task to be created'),
-          dueDate: z.string().datetime().optional().describe('Due date of the task to be created'),
-          tags: z.array(z.string()).optional().describe('Tags of the task to be created'),
+          listId: z.string().title('List ID').describe('ID of the list to create the task in'),
+          name: z.string().title('Name').describe('Name of the task to be created'),
+          description: z.string().title('Description').optional().describe('Description of the task to be created'),
+          status: z.string().optional().title('Status').describe('Status of the task to be created'),
+          assignees: z
+            .array(z.number())
+            .optional()
+            .title('Assignees')
+            .describe('IDs of the assignees of the task to be created'),
+          dueDate: z.string().datetime().optional().title('Due date').describe('Due date of the task to be created'),
+          tags: z.array(z.string()).optional().title('Tags').describe('Tags of the task to be created'),
         }),
       },
       output: {
         schema: z.object({
-          taskId: z.string().describe('Id of the task created'),
+          taskId: z.string().title('Task ID').describe('Id of the task created'),
         }),
       },
     },
@@ -58,19 +61,27 @@ export default new IntegrationDefinition({
       description: 'Update the details of a task',
       input: {
         schema: z.object({
-          taskId: z.string().describe('ID of the task to be updated'),
-          name: z.string().optional().describe('New name of the task'),
-          description: z.string().optional().describe('New description of the task'),
-          status: z.string().optional().describe('New status of the task'),
-          archived: z.boolean().optional().describe('New archived status of the task'),
-          assigneesToAdd: z.array(z.number()).optional().describe('Members to add to the task'),
-          assigneesToRemove: z.array(z.number()).optional().describe('Members to remove from the task'),
-          dueDate: z.string().datetime().optional().describe('New due date of the task'),
+          taskId: z.string().title('Task ID').describe('ID of the task to be updated'),
+          name: z.string().optional().title('Name').describe('New name of the task'),
+          description: z.string().optional().title('Description').describe('New description of the task'),
+          status: z.string().optional().title('Status').describe('New status of the task'),
+          archived: z.boolean().optional().title('Archived').describe('New archived status of the task'),
+          assigneesToAdd: z
+            .array(z.number())
+            .optional()
+            .title('Assignees to add')
+            .describe('Members to add to the task'),
+          assigneesToRemove: z
+            .array(z.number())
+            .optional()
+            .title('Assignees to remove')
+            .describe('Members to remove from the task'),
+          dueDate: z.string().datetime().optional().title('Due date').describe('New due date of the task'),
         }),
       },
       output: {
         schema: z.object({
-          taskId: z.string().describe('Id of the task updated'),
+          taskId: z.string().title('Task ID').describe('Id of the task updated'),
         }),
       },
     },
@@ -79,7 +90,7 @@ export default new IntegrationDefinition({
       description: 'Delete a task',
       input: {
         schema: z.object({
-          taskId: z.string().describe('ID of the task to be deleted'),
+          taskId: z.string().title('Task ID').describe('ID of the task to be deleted'),
         }),
       },
       output: {
@@ -91,7 +102,7 @@ export default new IntegrationDefinition({
       description: 'Get all the members of a list',
       input: {
         schema: z.object({
-          listId: z.string().describe('ID of the list to get the members of'),
+          listId: z.string().title('List ID').describe('ID of the list to get the members of'),
         }),
       },
       output: {
@@ -99,11 +110,12 @@ export default new IntegrationDefinition({
           members: z
             .array(
               z.object({
-                id: z.number().describe('ID of the member'),
-                username: z.string().describe('Username of the member'),
-                email: z.string().describe('Email of the member'),
+                id: z.number().title('Member ID').describe('ID of the member'),
+                username: z.string().title('Username').describe('Username of the member'),
+                email: z.string().title('Email').describe('Email of the member'),
               })
             )
+            .title('Members')
             .describe('Members of the list'),
         }),
       },
@@ -116,7 +128,7 @@ export default new IntegrationDefinition({
       description: 'Comments on a task',
       messages: {
         text: {
-          schema: z.object({ text: z.string().describe('Content of the comment') }),
+          schema: z.object({ text: z.string().title('Text').describe('Content of the comment') }),
         },
       },
       message: {
