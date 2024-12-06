@@ -1,5 +1,4 @@
-/* bplint-disable */
-import { IntegrationDefinition, z } from '@botpress/sdk'
+mport { IntegrationDefinition, z } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
   name: 'clickup',
