@@ -1,5 +1,5 @@
 import { Conversation } from '@botpress/client'
-import { MessageHandler } from '../types'
+import { MessageHandlers } from '../types'
 import { agentMessageHandler } from './from-agent'
 import { patientMessageHandler } from './from-patient'
 
@@ -11,7 +11,7 @@ const getMessageSource = (conversation: Conversation): MessageSource => {
   return 'from_patient'
 }
 
-export const messageHandler: MessageHandler = async (props) => {
+export const messageHandler: MessageHandlers['*'] = async (props) => {
   const source = getMessageSource(props.conversation)
   if (source === 'from_agent') {
     await agentMessageHandler(props)

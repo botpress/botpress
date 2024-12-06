@@ -54,7 +54,7 @@ const packageType = {
   type: 'string',
   description:
     'Either an integration or an interface; helps disambiguate the package type in case both an integration and an interface have the same reference.',
-  choices: ['integration', 'interface'] as const,
+  choices: ['integration', 'interface', 'plugin'] as const,
 } satisfies CommandOption
 
 const packageRef = {
@@ -74,6 +74,11 @@ const integrationRef = {
 const interfaceRef = {
   ...packageRef,
   description: 'The interface ID or name and version. Ex: llm@5.1.0',
+} satisfies CommandOption
+
+const pluginRef = {
+  ...packageRef,
+  description: 'The plugin ID or name and version. Ex: knowledge@0.0.1',
 } satisfies CommandOption
 
 const sourceMap = { type: 'boolean', description: 'Generate sourcemaps', default: false } satisfies CommandOption
@@ -282,10 +287,27 @@ const deleteInterfaceSchema = {
   interfaceRef,
 } satisfies CommandSchema
 
+const getPluginSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+  pluginRef,
+} satisfies CommandSchema
+
+const listPluginsSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+} satisfies CommandSchema
+
+const deletePluginSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+  pluginRef,
+} satisfies CommandSchema
+
 const initSchema = {
   ...globalSchema,
   workDir,
-  type: { type: 'string', choices: ['bot', 'integration'] as const },
+  type: { type: 'string', choices: ['bot', 'integration', 'plugin'] as const },
   name: { type: 'string', description: 'The name of the project' },
 } satisfies CommandSchema
 
@@ -313,6 +335,9 @@ export const schemas = {
   getInterface: getInterfaceSchema,
   listInterfaces: listInterfacesSchema,
   deleteInterface: deleteInterfaceSchema,
+  getPlugin: getPluginSchema,
+  listPlugins: listPluginsSchema,
+  deletePlugin: deletePluginSchema,
   init: initSchema,
   generate: generateSchema,
   bundle: bundleSchema,

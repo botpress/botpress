@@ -14,6 +14,7 @@ import {
   Requests,
   Responses,
   Interface,
+  Plugin,
   BotSummary,
 } from './types'
 
@@ -123,6 +124,25 @@ export class ApiClient {
       .catch(this._returnUndefinedOnError('ResourceNotFound'))
   }
 
+  public async findPublicPlugin(ref: ApiPackageRef): Promise<Plugin | undefined> {
+    if (ref.type === 'id') {
+      return this.client
+        .getPlugin(ref)
+        .then((r) => r.plugin)
+        .catch(this._returnUndefinedOnError('ResourceNotFound'))
+    }
+
+    if (isLatest(ref)) {
+      // TODO: handle latest keyword in backend
+      return this._findLatestPluginVersion(ref)
+    }
+
+    return this.client
+      .getPluginByName(ref)
+      .then((r) => r.plugin)
+      .catch(this._returnUndefinedOnError('ResourceNotFound'))
+  }
+
   private _findLatestInterfaceVersion = async ({ name }: NamePackageRef): Promise<Interface | undefined> => {
     const { interfaces: allVersions } = await this.client.listInterfaces({ name })
     const sorted = allVersions.sort((a, b) => semver.compare(b.version, a.version))
@@ -131,6 +151,16 @@ export class ApiClient {
       return
     }
     return this.client.getInterface({ id: latestVersion.id }).then((r) => r.interface)
+  }
+
+  private _findLatestPluginVersion = async ({ name }: NamePackageRef): Promise<Plugin | undefined> => {
+    const { plugins: allVersions } = await this.client.listPlugins({ name })
+    const sorted = allVersions.sort((a, b) => semver.compare(b.version, a.version))
+    const latestVersion = sorted[0]
+    if (!latestVersion) {
+      return
+    }
+    return this.client.getPlugin({ id: latestVersion.id }).then((r) => r.plugin)
   }
 
   public async testLogin(): Promise<void> {

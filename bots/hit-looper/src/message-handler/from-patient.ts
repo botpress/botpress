@@ -1,6 +1,6 @@
 import { mkRespond } from 'src/api-utils'
 import { getOrCreateFlow, setFlow } from '../flow-state'
-import { Client, ClientOutputs, MessageHandler } from '../types'
+import { Client, ClientOutputs, MessageHandlers } from '../types'
 import * as bp from '.botpress'
 
 type User = ClientOutputs['getUser']['user']
@@ -65,7 +65,7 @@ class UserLinker {
   }
 }
 
-export const patientMessageHandler: MessageHandler = async (props) => {
+export const patientMessageHandler: MessageHandlers['*'] = async (props) => {
   if (props.message.type !== 'text') {
     return
   }
