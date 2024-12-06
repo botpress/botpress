@@ -1,8 +1,10 @@
 {
   "name": "@botpresshub/clickup",
   "scripts": {
-    "login": "bp login",
-    "deploy": "bp deploy"
+    "check:type": "tsc --noEmit",
+    "check:bplint": "pnpm exec bp lint",
+    "build": "pnpm bp build",
+    "add:interfaces": "echo 'no interfaces to add'"
   },
   "private": true,
   "dependencies": {
