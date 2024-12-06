@@ -76,6 +76,20 @@
         "@botpress/cli#build"
       ]
     },
+    "@botpresshub/clickup#add:interfaces": {
+      "cache": false,
+      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
+    },
+    "@botpresshub/clickup#build": {
+      "inputs": ["integration.definition.ts", "src/**"],
+      "outputs": [".botpress/**"],
+      "dependsOn": [
+        "@botpresshub/clickup#add:interfaces",
+        "@botpress/client#build",
+        "@botpress/sdk#build",
+        "@botpress/cli#build"
+      ]
+    },
     "@botpresshub/pdf-generator#add:interfaces": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
