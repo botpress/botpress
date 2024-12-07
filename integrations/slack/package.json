@@ -2,15 +2,10 @@
   "name": "@botpresshub/slack",
   "private": true,
   "scripts": {
-    "start": "pnpm bp serve",
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
-    "check:format": "prettier --check .",
-    "fix:format": "prettier --write .",
-    "check:lint": "eslint ./ --ext .ts --ext .tsx",
-    "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx",
     "bpadd": "echo 'no interfaces to add'"
   },
   "keywords": [],

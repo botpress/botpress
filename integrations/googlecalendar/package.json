@@ -2,7 +2,6 @@
   "name": "@botpresshub/googlecalendar",
   "private": true,
   "scripts": {
-    "start": "pnpm bp serve",
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
     "check:type": "tsc --noEmit",

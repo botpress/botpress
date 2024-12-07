@@ -1,10 +1,8 @@
 {
   "name": "@botpresshub/todoist",
   "scripts": {
-    "start": "pnpm bp serve",
     "build": "pnpm bp build",
     "deploy": "pnpm bp deploy",
-    "login": "pnpm bp login",
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
     "bpadd": "ts-node -T ./add.ts"

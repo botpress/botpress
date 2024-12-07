@@ -3,9 +3,7 @@
   "description": "Zapier integration for Botpress",
   "private": true,
   "scripts": {
-    "start": "pnpm bp serve",
     "build": "pnpm bp build",
-    "login": "pnpm bp login",
     "deploy": "pnpm bp deploy",
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
