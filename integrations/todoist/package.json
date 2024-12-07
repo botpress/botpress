@@ -7,7 +7,7 @@
     "login": "pnpm bp login",
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
-    "add:interfaces": "ts-node -T ./interfaces.ts"
+    "add:interfaces": "pnpm bp add -y"
   },
   "private": true,
   "dependencies": {
@@ -23,5 +23,8 @@
     "nodemon": "^3.1.4",
     "ts-node": "^10.9.1",
     "@botpress/common": "workspace:*"
+  },
+  "bpDependencies": {
+    "creatable": "../../interfaces/creatable"
   }
 }

@@ -75,4 +75,5 @@ export {
   IntegrationPackage,
   InterfacePackage,
   PluginPackage,
+  Package,
 } from './package'

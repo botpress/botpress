@@ -7,7 +7,7 @@
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
     "build": "pnpm bp build",
-    "add:interfaces": "ts-node -T ./interfaces.ts",
+    "add:interfaces": "pnpm bp add -y",
     "eslint": "eslint ./ --ext .ts --ext .tsx --fix"
   },
   "keywords": [],
@@ -28,5 +28,8 @@
     "@types/lodash": "^4.14.191",
     "@types/node": "^18.11.17",
     "typescript": "^4.9.5"
+  },
+  "bpDependencies": {
+    "hitl": "../../interfaces/hitl"
   }
 }

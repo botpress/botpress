@@ -9,7 +9,7 @@
     "login": "pnpm bp login",
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
-    "add:interfaces": "ts-node -T ./interfaces.ts"
+    "add:interfaces": "pnpm bp add -y"
   },
   "keywords": [],
   "author": "",
@@ -31,5 +31,8 @@
     "nodemon": "^2.0.20",
     "ts-node": "^10.9.1",
     "@botpress/common": "workspace:*"
+  },
+  "bpDependencies": {
+    "typing-indicator": "../../interfaces/typing-indicator"
   }
 }

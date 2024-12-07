@@ -10,7 +10,7 @@
     "fix:format": "prettier --write .",
     "check:lint": "eslint ./ --ext .ts --ext .tsx",
     "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx",
-    "add:interfaces": "ts-node -T ./interfaces.ts"
+    "add:interfaces": "pnpm bp add -y"
   },
   "private": true,
   "dependencies": {
@@ -35,5 +35,12 @@
     "@types/node": "^18.19.50",
     "ts-node": "^10.9.2",
     "@botpress/common": "workspace:*"
+  },
+  "bpDependencies": {
+    "creatable": "../../interfaces/creatable",
+    "deletable": "../../interfaces/deletable",
+    "listable": "../../interfaces/listable",
+    "readable": "../../interfaces/readable",
+    "updatable": "../../interfaces/updatable"
   }
 }

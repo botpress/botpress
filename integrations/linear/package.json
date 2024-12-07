@@ -7,7 +7,7 @@
     "login": "pnpm bp login",
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
-    "add:interfaces": "ts-node -T ./interfaces.ts"
+    "add:interfaces": "pnpm bp add -y"
   },
   "keywords": [],
   "author": "",
@@ -26,5 +26,8 @@
     "@sentry/cli": "^2.18.1",
     "@types/node": "^18.11.17",
     "@botpress/common": "workspace:*"
+  },
+  "bpDependencies": {
+    "listable": "../../interfaces/listable"
   }
 }

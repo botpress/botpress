@@ -61,7 +61,6 @@ const packageRef = {
   type: 'string',
   description:
     'The package ID or name with optional version. The package can be either an integration or an interface. Ex: teams, teams@0.2.0, llm@5.1.0',
-  demandOption: true,
   positional: true,
   idx: 0,
 } satisfies CommandOption
@@ -199,7 +198,7 @@ const devSchema = {
 } satisfies CommandSchema
 
 const addSchema = {
-  ...globalSchema,
+  ...projectSchema,
   ...credentialsSchema,
   packageRef,
   packageType,
