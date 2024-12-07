@@ -28,6 +28,7 @@
   },
   "bpDependencies": {
     "telegram": "../../integrations/telegram",
-    "webhook": "../../integrations/webhook"
+    "webhook": "../../integrations/webhook",
+    "logger": "../../plugins/logger"
   }
 }
