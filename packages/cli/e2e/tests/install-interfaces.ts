@@ -37,7 +37,6 @@ export const installAllInterfaces: Test = {
       await impl
         .add({
           ...argv,
-          workDir: baseDir,
           packageRef: iface,
           packageType: 'interface',
           installPath: baseDir,

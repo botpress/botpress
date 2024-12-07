@@ -8,6 +8,7 @@ import * as consts from '../consts'
 import * as errors from '../errors'
 import * as pkgRef from '../package-ref'
 import * as utils from '../utils'
+import { GlobalCommand } from './global-command'
 import { ProjectCommand, ProjectCommandDefinition, ProjectDefinition } from './project-command'
 
 type InstallablePackage =
@@ -25,15 +26,16 @@ type InstallablePackage =
     }
 
 export type AddCommandDefinition = typeof commandDefinitions.add
-export class AddCommand extends ProjectCommand<AddCommandDefinition> {
+export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   public async run(): Promise<void> {
     const ref = this._parseArgvRef()
     if (ref) {
       return await this._addSinglePackage(ref)
     }
 
-    const pkgJson = await this.readPackageJsonFromFS()
+    const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
     if (!pkgJson) {
+      this.logger.warn('No package.json found in the install path')
       return
     }
 

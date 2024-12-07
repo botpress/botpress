@@ -110,15 +110,6 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return { remoteInstances, localInstances }
   }
 
-  protected async readPackageJsonFromFS(): Promise<utils.pkgJson.PackageJson | undefined> {
-    const { abs } = this.projectPaths
-    const packageJson = await utils.pkgJson.readPackageJson(abs.workDir)
-    if (!packageJson) {
-      this.logger.debug(`Could not find package.json at "${abs.workDir}"`)
-    }
-    return packageJson
-  }
-
   protected async readProjectDefinitionFromFS(): Promise<ProjectDefinition> {
     const projectPaths = this.projectPaths
     try {
@@ -410,8 +401,10 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     try {
       this.logger.debug('Checking if sdk is up to date')
 
-      const projectPkgJson = await this.readPackageJsonFromFS()
+      const { workDir } = this.projectPaths.abs
+      const projectPkgJson = await utils.pkgJson.readPackageJson(workDir)
       if (!projectPkgJson) {
+        this.logger.debug(`Could not find package.json at "${workDir}"`)
         return
       }
 

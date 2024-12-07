@@ -201,7 +201,7 @@ const devSchema = {
 } satisfies CommandSchema
 
 const addSchema = {
-  ...projectSchema,
+  ...globalSchema,
   ...credentialsSchema,
   packageRef,
   packageType,
