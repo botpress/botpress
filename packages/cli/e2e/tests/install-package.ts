@@ -140,6 +140,7 @@ export const addIntegration: Test = {
       await impl
         .add({
           ...argv,
+          workDir: botDir,
           packageType: undefined,
           installPath: botDir,
           packageRef: integration.id,
