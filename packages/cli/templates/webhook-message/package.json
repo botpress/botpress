@@ -6,8 +6,8 @@
   },
   "private": true,
   "dependencies": {
-    "@botpress/client": "0.36.1",
-    "@botpress/sdk": "2.0.0",
+    "@botpress/client": "0.36.2",
+    "@botpress/sdk": "2.0.1",
     "axios": "^1.6.8"
   },
   "devDependencies": {
