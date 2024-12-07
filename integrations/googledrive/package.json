@@ -5,7 +5,7 @@
     "login": "bp login",
     "deploy": "bp deploy",
     "build": "bp build",
-    "add:interfaces": "echo 'no interfaces to add'"
+    "bpadd": "echo 'no interfaces to add'"
   },
   "private": true,
   "dependencies": {

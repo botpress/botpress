@@ -20,7 +20,7 @@
       "outputs": ["dist/**", "templates/*/.botpress"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build"]
     },
-    "@botpresshub/airtable#add:interfaces": {
+    "@botpresshub/airtable#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -28,13 +28,13 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/airtable#add:interfaces",
+        "@botpresshub/airtable#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/anthropic#add:interfaces": {
+    "@botpresshub/anthropic#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -42,41 +42,31 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/anthropic#add:interfaces",
+        "@botpresshub/anthropic#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/asana#add:interfaces": {
+    "@botpresshub/asana#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/asana#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/asana#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/asana#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/charts#add:interfaces": {
+    "@botpresshub/charts#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/charts#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/charts#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/charts#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/clickup#add:interfaces": {
+    "@botpresshub/clickup#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -84,13 +74,13 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/clickup#add:interfaces",
+        "@botpresshub/clickup#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/pdf-generator#add:interfaces": {
+    "@botpresshub/pdf-generator#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -98,27 +88,22 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/pdf-generator#add:interfaces",
+        "@botpresshub/pdf-generator#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/dalle#add:interfaces": {
+    "@botpresshub/dalle#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/dalle#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/dalle#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/dalle#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/fireworks-ai#add:interfaces": {
+    "@botpresshub/fireworks-ai#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -126,13 +111,13 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/fireworks-ai#add:interfaces",
+        "@botpresshub/fireworks-ai#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/cerebras#add:interfaces": {
+    "@botpresshub/cerebras#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -140,41 +125,31 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/cerebras#add:interfaces",
+        "@botpresshub/cerebras#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/github#add:interfaces": {
+    "@botpresshub/github#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/github#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/github#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/github#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/gmail#add:interfaces": {
+    "@botpresshub/gmail#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/gmail#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/gmail#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/gmail#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/googlecalendar#add:interfaces": {
+    "@botpresshub/googlecalendar#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -182,13 +157,13 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/googlecalendar#add:interfaces",
+        "@botpresshub/googlecalendar#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/google-ai#add:interfaces": {
+    "@botpresshub/google-ai#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -196,13 +171,13 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/google-ai#add:interfaces",
+        "@botpresshub/google-ai#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/googledrive#add:interfaces": {
+    "@botpresshub/googledrive#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -210,27 +185,22 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/googledrive#add:interfaces",
+        "@botpresshub/googledrive#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/groq#add:interfaces": {
+    "@botpresshub/groq#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/groq#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/groq#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/groq#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/gsheets#add:interfaces": {
+    "@botpresshub/gsheets#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -238,13 +208,13 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/gsheets#add:interfaces",
+        "@botpresshub/gsheets#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/instagram#add:interfaces": {
+    "@botpresshub/instagram#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -252,13 +222,13 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/instagram#add:interfaces",
+        "@botpresshub/instagram#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/intercom#add:interfaces": {
+    "@botpresshub/intercom#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -266,41 +236,31 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/intercom#add:interfaces",
+        "@botpresshub/intercom#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/line#add:interfaces": {
+    "@botpresshub/line#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/line#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/line#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/line#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/linear#add:interfaces": {
+    "@botpresshub/linear#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/linear#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/linear#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/linear#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/mailchimp#add:interfaces": {
+    "@botpresshub/mailchimp#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -308,27 +268,22 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/mailchimp#add:interfaces",
+        "@botpresshub/mailchimp#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/make#add:interfaces": {
+    "@botpresshub/make#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/make#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/make#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/make#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/messenger#add:interfaces": {
+    "@botpresshub/messenger#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -336,97 +291,67 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/messenger#add:interfaces",
+        "@botpresshub/messenger#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/notion#add:interfaces": {
+    "@botpresshub/notion#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/notion#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/notion#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/notion#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/openai#add:interfaces": {
+    "@botpresshub/openai#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/openai#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/openai#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/openai#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/slack#add:interfaces": {
+    "@botpresshub/slack#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/slack#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/slack#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/slack#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/stripe#add:interfaces": {
+    "@botpresshub/stripe#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/stripe#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/stripe#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/stripe#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/sunco#add:interfaces": {
+    "@botpresshub/sunco#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/sunco#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/sunco#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/sunco#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/teams#add:interfaces": {
+    "@botpresshub/teams#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/teams#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/teams#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/teams#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/telegram#add:interfaces": {
+    "@botpresshub/telegram#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -434,13 +359,13 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/telegram#add:interfaces",
+        "@botpresshub/telegram#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/todoist#add:interfaces": {
+    "@botpresshub/todoist#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -448,69 +373,49 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/todoist#add:interfaces",
+        "@botpresshub/todoist#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/trello#add:interfaces": {
+    "@botpresshub/trello#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/trello#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/trello#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/trello#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/twilio#add:interfaces": {
+    "@botpresshub/twilio#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/twilio#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/twilio#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/twilio#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/viber#add:interfaces": {
+    "@botpresshub/viber#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/viber#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/viber#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/viber#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/vonage#add:interfaces": {
+    "@botpresshub/vonage#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/vonage#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/vonage#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/vonage#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/browser#add:interfaces": {
+    "@botpresshub/browser#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -518,13 +423,13 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/browser#add:interfaces",
+        "@botpresshub/browser#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/webhook#add:interfaces": {
+    "@botpresshub/webhook#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -532,13 +437,13 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/webhook#add:interfaces",
+        "@botpresshub/webhook#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/whatsapp#add:interfaces": {
+    "@botpresshub/whatsapp#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -546,27 +451,22 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/whatsapp#add:interfaces",
+        "@botpresshub/whatsapp#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/zapier#add:interfaces": {
+    "@botpresshub/zapier#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/zapier#build": {
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
-      "dependsOn": [
-        "@botpresshub/zapier#add:interfaces",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@botpresshub/zapier#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/zendesk#add:interfaces": {
+    "@botpresshub/zendesk#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -574,13 +474,13 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/zendesk#add:interfaces",
+        "@botpresshub/zendesk#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@botpresshub/logger#add:integrations": {
+    "@botpresshub/logger#bpadd": {
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/logger#build": {
@@ -588,7 +488,7 @@
       "outputs": [".botpress/**"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/analytics#add:integrations": {
+    "@botpresshub/analytics#bpadd": {
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/analytics#build": {
@@ -596,7 +496,7 @@
       "outputs": [".botpress/**"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/personality#add:integrations": {
+    "@botpresshub/personality#bpadd": {
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/personality#build": {
@@ -606,10 +506,10 @@
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build",
-        "@botpresshub/personality#add:integrations"
+        "@botpresshub/personality#bpadd"
       ]
     },
-    "@botpresshub/knowledge#add:integrations": {
+    "@botpresshub/knowledge#bpadd": {
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
     "@botpresshub/knowledge#build": {
@@ -619,10 +519,10 @@
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build",
-        "@botpresshub/knowledge#add:integrations"
+        "@botpresshub/knowledge#bpadd"
       ]
     },
-    "@bp-bots/bugbuster#add:integrations": {
+    "@bp-bots/bugbuster#bpadd": {
       "cache": false,
       "dependsOn": [
         "@botpress/cli#build",
@@ -633,14 +533,9 @@
     },
     "@bp-bots/bugbuster#build": {
       "cache": false,
-      "dependsOn": [
-        "@bp-bots/bugbuster#add:integrations",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@bp-bots/bugbuster#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@bp-bots/hello-world#add:integrations": {
+    "@bp-bots/hello-world#bpadd": {
       "cache": false,
       "dependsOn": [
         "@botpress/cli#build",
@@ -652,65 +547,50 @@
     "@bp-bots/hello-world#build": {
       "cache": false,
       "dependsOn": [
-        "@bp-bots/hello-world#add:integrations",
+        "@bp-bots/hello-world#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@bp-bots/knowledgiani#add:integrations": {
+    "@bp-bots/knowledgiani#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/cli#build", "@botpresshub/telegram#build", "@botpresshub/knowledge#build"]
     },
     "@bp-bots/knowledgiani#build": {
       "cache": false,
       "dependsOn": [
-        "@bp-bots/knowledgiani#add:integrations",
+        "@bp-bots/knowledgiani#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"
       ]
     },
-    "@bp-bots/hit-looper#add:integrations": {
+    "@bp-bots/hit-looper#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/cli#build", "@botpresshub/telegram#build", "@botpresshub/zendesk#build"]
     },
     "@bp-bots/hit-looper#build": {
       "cache": false,
-      "dependsOn": [
-        "@bp-bots/hit-looper#add:integrations",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@bp-bots/hit-looper#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@bp-bots/sheetzy#add:integrations": {
+    "@bp-bots/sheetzy#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/cli#build", "@botpresshub/telegram#build", "@botpresshub/gsheets#build"]
     },
     "@bp-bots/sheetzy#build": {
       "cache": false,
-      "dependsOn": [
-        "@bp-bots/sheetzy#add:integrations",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@bp-bots/sheetzy#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@bp-bots/sinlin#add:integrations": {
+    "@bp-bots/sinlin#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/cli#build", "@botpresshub/telegram#build", "@botpresshub/linear#build"]
     },
     "@bp-bots/sinlin#build": {
       "cache": false,
-      "dependsOn": [
-        "@bp-bots/sinlin#add:integrations",
-        "@botpress/client#build",
-        "@botpress/sdk#build",
-        "@botpress/cli#build"
-      ]
+      "dependsOn": ["@bp-bots/sinlin#bpadd", "@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
-    "@botpresshub/freshchat#add:interfaces": {
+    "@botpresshub/freshchat#bpadd": {
       "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build", "@botpress/cli#build"]
     },
@@ -718,7 +598,7 @@
       "inputs": ["integration.definition.ts", "src/**"],
       "outputs": [".botpress/**"],
       "dependsOn": [
-        "@botpresshub/freshchat#add:interfaces",
+        "@botpresshub/freshchat#bpadd",
         "@botpress/client#build",
         "@botpress/sdk#build",
         "@botpress/cli#build"

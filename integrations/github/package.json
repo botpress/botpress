@@ -7,7 +7,7 @@
     "deploy": "pnpm bp deploy",
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
-    "add:interfaces": "echo 'no interfaces to add'"
+    "bpadd": "echo 'no interfaces to add'"
   },
   "keywords": [],
   "author": "",

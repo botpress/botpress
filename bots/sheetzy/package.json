@@ -5,7 +5,7 @@
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
     "build": "bp build",
-    "add:integrations": "ts-node -T ./integrations.ts"
+    "bpadd": "ts-node -T ./add.ts"
   },
   "keywords": [],
   "private": true,

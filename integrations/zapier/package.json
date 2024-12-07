@@ -10,7 +10,7 @@
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
     "test": "jest",
-    "add:interfaces": "echo 'no interfaces to add'"
+    "bpadd": "echo 'no interfaces to add'"
   },
   "keywords": [],
   "author": "",

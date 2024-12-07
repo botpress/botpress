@@ -7,7 +7,7 @@
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
     "build": "pnpm bp build",
-    "add:interfaces": "ts-node -T ./interfaces.ts",
+    "bpadd": "ts-node -T ./add.ts",
     "eslint": "eslint ./ --ext .ts --ext .tsx --fix"
   },
   "keywords": [],

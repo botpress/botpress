@@ -3,7 +3,7 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp build",
-    "add:integrations": "ts-node -T ./integrations.ts"
+    "bpadd": "ts-node -T ./add.ts"
   },
   "private": true,
   "dependencies": {

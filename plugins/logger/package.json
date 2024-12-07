@@ -3,7 +3,7 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp build",
-    "add:integrations": "echo 'no integrations to add'"
+    "bpadd": "echo 'no integrations to add'"
   },
   "private": true,
   "dependencies": {
