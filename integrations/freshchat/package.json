@@ -6,8 +6,7 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
-    "build": "pnpm bp build",
-    "add:interfaces": "pnpm bp add -y",
+    "build": "bp add -y && bp build",
     "eslint": "eslint ./ --ext .ts --ext .tsx --fix"
   },
   "keywords": [],

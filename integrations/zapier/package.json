@@ -4,13 +4,12 @@
   "private": true,
   "scripts": {
     "start": "pnpm bp serve",
-    "build": "pnpm bp build",
+    "build": "bp add -y && bp build",
     "login": "pnpm bp login",
     "deploy": "pnpm bp deploy",
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
-    "test": "jest",
-    "add:interfaces": "pnpm bp add -y"
+    "test": "jest"
   },
   "keywords": [],
   "author": "",

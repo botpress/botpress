@@ -3,8 +3,7 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
-    "build": "pnpm bp build",
-    "add:interfaces": "pnpm bp add -y"
+    "build": "bp add -y && bp build"
   },
   "private": true,
   "dependencies": {

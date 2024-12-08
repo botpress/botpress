@@ -2,11 +2,10 @@
   "name": "@botpresshub/google-ai",
   "scripts": {
     "start": "pnpm bp serve",
-    "build": "pnpm bp build",
+    "build": "bp add -y && bp build",
     "deploy": "pnpm bp deploy",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
-    "add:interfaces": "pnpm bp add -y"
+    "check:bplint": "pnpm exec bp lint"
   },
   "private": true,
   "dependencies": {

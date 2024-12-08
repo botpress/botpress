@@ -4,8 +4,7 @@
     "postinstall": "genenv -o ./.genenv/index.ts -e SHEETZY_TELEGRAM_BOT_TOKEN -e SHEETZY_GSHEETS_CLIENT_EMAIL -e SHEETZY_GSHEETS_PRIVATE_KEY -e SHEETZY_GSHEETS_SPREADSHEET_ID",
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
-    "build": "bp build",
-    "add:integrations": "pnpm bp add -y"
+    "build": "bp add -y && bp build"
   },
   "keywords": [],
   "private": true,

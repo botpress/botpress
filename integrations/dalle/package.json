@@ -5,11 +5,10 @@
     "check:bplint": "pnpm exec bp lint",
     "version": "bp --version",
     "login": "bp login",
-    "build": "bp build",
+    "build": "bp add -y && bp build",
     "dev": "bp dev",
     "gen": "bp gen",
-    "deploy": "bp deploy",
-    "add:interfaces": "pnpm bp add -y"
+    "deploy": "bp deploy"
   },
   "keywords": [],
   "private": true,

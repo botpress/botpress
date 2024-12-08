@@ -2,8 +2,7 @@
   "name": "@botpresshub/personality",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "build": "bp build",
-    "add:integrations": "pnpm bp add -y"
+    "build": "bp add -y && bp build"
   },
   "private": true,
   "dependencies": {
