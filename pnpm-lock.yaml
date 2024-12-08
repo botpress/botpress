@@ -78,6 +78,12 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/github':
+        specifier: workspace:*
+        version: link:../../integrations/github
+      '@botpresshub/slack':
+        specifier: workspace:*
+        version: link:../../integrations/slack
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
@@ -106,6 +112,15 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/logger':
+        specifier: workspace:*
+        version: link:../../plugins/logger
+      '@botpresshub/telegram':
+        specifier: workspace:*
+        version: link:../../integrations/telegram
+      '@botpresshub/webhook':
+        specifier: workspace:*
+        version: link:../../integrations/webhook
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
@@ -143,6 +158,12 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/telegram':
+        specifier: workspace:*
+        version: link:../../integrations/telegram
+      '@botpresshub/zendesk':
+        specifier: workspace:*
+        version: link:../../integrations/zendesk
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
@@ -174,6 +195,18 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/knowledge':
+        specifier: workspace:*
+        version: link:../../plugins/knowledge
+      '@botpresshub/openai':
+        specifier: workspace:*
+        version: link:../../integrations/openai
+      '@botpresshub/personality':
+        specifier: workspace:*
+        version: link:../../plugins/personality
+      '@botpresshub/telegram':
+        specifier: workspace:*
+        version: link:../../integrations/telegram
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
@@ -211,6 +244,12 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/gsheets':
+        specifier: workspace:*
+        version: link:../../integrations/gsheets
+      '@botpresshub/telegram':
+        specifier: workspace:*
+        version: link:../../integrations/telegram
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
@@ -239,6 +278,12 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/linear':
+        specifier: workspace:*
+        version: link:../../integrations/linear
+      '@botpresshub/telegram':
+        specifier: workspace:*
+        version: link:../../integrations/telegram
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
@@ -289,6 +334,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
     devDependencies:
+      '@botpresshub/llm':
+        specifier: workspace:*
+        version: link:../../interfaces/llm
       '@types/node':
         specifier: ^18.11.17
         version: 18.19.10
@@ -367,6 +415,9 @@ importers:
         specifier: ^4.53.0
         version: 4.53.0
     devDependencies:
+      '@botpresshub/llm':
+        specifier: workspace:*
+        version: link:../../interfaces/llm
       '@types/node':
         specifier: ^18.11.17
         version: 18.19.10
@@ -470,6 +521,12 @@ importers:
         specifier: ^4.53.0
         version: 4.53.0
     devDependencies:
+      '@botpresshub/llm':
+        specifier: workspace:*
+        version: link:../../interfaces/llm
+      '@botpresshub/speech-to-text':
+        specifier: workspace:*
+        version: link:../../interfaces/speech-to-text
       '@types/node':
         specifier: ^18.11.17
         version: 18.19.10
@@ -507,6 +564,9 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/hitl':
+        specifier: workspace:*
+        version: link:../../interfaces/hitl
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.39.1
@@ -648,6 +708,9 @@ importers:
         specifier: ^0.21.0
         version: 0.21.0
     devDependencies:
+      '@botpresshub/llm':
+        specifier: workspace:*
+        version: link:../../interfaces/llm
       '@types/node':
         specifier: ^18.11.17
         version: 18.19.50
@@ -679,6 +742,21 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpresshub/creatable':
+        specifier: workspace:*
+        version: link:../../interfaces/creatable
+      '@botpresshub/deletable':
+        specifier: workspace:*
+        version: link:../../interfaces/deletable
+      '@botpresshub/listable':
+        specifier: workspace:*
+        version: link:../../interfaces/listable
+      '@botpresshub/readable':
+        specifier: workspace:*
+        version: link:../../interfaces/readable
+      '@botpresshub/updatable':
+        specifier: workspace:*
+        version: link:../../interfaces/updatable
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.36.1
@@ -753,6 +831,12 @@ importers:
         specifier: ^4.53.0
         version: 4.53.0
     devDependencies:
+      '@botpresshub/llm':
+        specifier: workspace:*
+        version: link:../../interfaces/llm
+      '@botpresshub/speech-to-text':
+        specifier: workspace:*
+        version: link:../../interfaces/speech-to-text
       '@types/node':
         specifier: ^18.11.17
         version: 18.19.10
@@ -941,6 +1025,9 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/listable':
+        specifier: workspace:*
+        version: link:../../interfaces/listable
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -1096,6 +1183,15 @@ importers:
         specifier: ^4.53.0
         version: 4.53.0
     devDependencies:
+      '@botpresshub/llm':
+        specifier: workspace:*
+        version: link:../../interfaces/llm
+      '@botpresshub/speech-to-text':
+        specifier: workspace:*
+        version: link:../../interfaces/speech-to-text
+      '@botpresshub/text-to-image':
+        specifier: workspace:*
+        version: link:../../interfaces/text-to-image
       '@types/node':
         specifier: ^18.11.17
         version: 18.19.10
@@ -1312,6 +1408,9 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/typing-indicator':
+        specifier: workspace:*
+        version: link:../../interfaces/typing-indicator
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -1355,6 +1454,9 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/creatable':
+        specifier: workspace:*
+        version: link:../../interfaces/creatable
       '@types/node':
         specifier: ^18.11.17
         version: 18.19.10
@@ -1413,6 +1515,21 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
+      '@botpresshub/creatable':
+        specifier: workspace:*
+        version: link:../../interfaces/creatable
+      '@botpresshub/deletable':
+        specifier: workspace:*
+        version: link:../../interfaces/deletable
+      '@botpresshub/listable':
+        specifier: workspace:*
+        version: link:../../interfaces/listable
+      '@botpresshub/readable':
+        specifier: workspace:*
+        version: link:../../interfaces/readable
+      '@botpresshub/updatable':
+        specifier: workspace:*
+        version: link:../../interfaces/updatable
       '@sentry/cli':
         specifier: ^2.36.1
         version: 2.36.1
@@ -1711,6 +1828,9 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/hitl':
+        specifier: workspace:*
+        version: link:../../interfaces/hitl
       '@sentry/cli':
         specifier: ^2.18.1
         version: 2.18.1
@@ -2239,6 +2359,9 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/llm':
+        specifier: workspace:*
+        version: link:../../interfaces/llm
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
@@ -2298,6 +2421,9 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/llm':
+        specifier: workspace:*
+        version: link:../../interfaces/llm
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1

@@ -30,7 +30,8 @@
     "esbuild": "^0.15.18",
     "nodemon": "^2.0.20",
     "ts-node": "^10.9.1",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@botpresshub/typing-indicator": "workspace:*"
   },
   "bpDependencies": {
     "typing-indicator": "../../interfaces/typing-indicator"

@@ -34,7 +34,12 @@
     "@sentry/cli": "^2.36.1",
     "@types/node": "^18.19.50",
     "ts-node": "^10.9.2",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@botpresshub/creatable": "workspace:*",
+    "@botpresshub/deletable": "workspace:*",
+    "@botpresshub/listable": "workspace:*",
+    "@botpresshub/readable": "workspace:*",
+    "@botpresshub/updatable": "workspace:*"
   },
   "bpDependencies": {
     "creatable": "../../interfaces/creatable",

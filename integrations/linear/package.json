@@ -25,7 +25,8 @@
     "@botpress/cli": "workspace:*",
     "@sentry/cli": "^2.18.1",
     "@types/node": "^18.11.17",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@botpresshub/listable": "workspace:*"
   },
   "bpDependencies": {
     "listable": "../../interfaces/listable"
