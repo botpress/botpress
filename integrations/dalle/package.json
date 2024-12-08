@@ -2,13 +2,9 @@
   "name": "@botpresshub/dalle",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
+    "check:bplint": "bp lint",
     "version": "bp --version",
-    "login": "bp login",
-    "build": "bp add -y && bp build",
-    "dev": "bp dev",
-    "gen": "bp gen",
-    "deploy": "bp deploy"
+    "build": "bp add -y && bp build"
   },
   "keywords": [],
   "private": true,

@@ -3,12 +3,9 @@
   "description": "Telegram integration for Botpress",
   "private": true,
   "scripts": {
-    "start": "pnpm bp serve",
     "build": "bp add -y && bp build",
-    "deploy": "pnpm bp deploy",
-    "login": "pnpm bp login",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint"
+    "check:bplint": "bp lint"
   },
   "keywords": [],
   "author": "",

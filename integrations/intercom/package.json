@@ -3,11 +3,9 @@
   "description": "Intercom integration for Botpress",
   "private": true,
   "scripts": {
-    "start": "pnpm bp serve --port 7009",
     "build": "bp add -y && bp build",
-    "deploy": "pnpm bp deploy",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint"
+    "check:bplint": "bp lint"
   },
   "keywords": [],
   "author": "",

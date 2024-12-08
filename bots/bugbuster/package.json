@@ -3,7 +3,7 @@
   "scripts": {
     "postinstall": "genenv -o ./.genenv/index.ts -e BUGBUSTER_GITHUB_TOKEN -e BUGBUSTER_GITHUB_WEBHOOK_SECRET -e BUGBUSTER_SLACK_BOT_TOKEN -e BUGBUSTER_SLACK_SIGNING_SECRET",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
+    "check:bplint": "bp lint",
     "build": "bp add -y && bp build"
   },
   "private": true,

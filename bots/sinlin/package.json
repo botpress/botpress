@@ -4,7 +4,7 @@
   "scripts": {
     "postinstall": "genenv -o ./.genenv/index.ts -e SINLIN_TELEGRAM_BOT_TOKEN -e SINLIN_LINEAR_API_KEY -e SINLIN_LINEAR_WEBHOOK_SIGNING_SECRET",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
+    "check:bplint": "bp lint",
     "build": "bp add -y && bp build"
   },
   "private": true,

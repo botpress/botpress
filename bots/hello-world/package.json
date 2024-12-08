@@ -5,7 +5,7 @@
   "scripts": {
     "postinstall": "genenv -o ./.genenv/index.ts -e HELLO_WORLD_TELEGRAM_BOT_TOKEN",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
+    "check:bplint": "bp lint",
     "build": "bp add -y && bp build"
   },
   "dependencies": {

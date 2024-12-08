@@ -2,8 +2,6 @@
   "name": "@botpresshub/googledrive",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "login": "bp login",
-    "deploy": "bp deploy",
     "build": "bp add -y && bp build"
   },
   "private": true,

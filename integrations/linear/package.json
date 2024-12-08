@@ -2,11 +2,9 @@
   "name": "@botpresshub/linear",
   "private": true,
   "scripts": {
-    "start": "pnpm bp serve",
     "build": "bp add -y && bp build",
-    "login": "pnpm bp login",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint"
+    "check:bplint": "bp lint"
   },
   "keywords": [],
   "author": "",
