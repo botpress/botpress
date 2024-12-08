@@ -17,6 +17,6 @@
   },
   "devDependencies": {
     "@botpress/common": "workspace:*",
-    "@sentry/cli": "^2.18.1"
+    "@sentry/cli": "^2.39.1"
   }
 }

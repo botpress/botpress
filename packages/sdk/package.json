@@ -18,7 +18,7 @@
     "@bpinternal/zui": "0.12.0"
   },
   "devDependencies": {
-    "esbuild": "^0.16.10",
+    "esbuild": "^0.16.12",
     "tsup": "^8.0.2"
   }
 }

@@ -20,7 +20,7 @@
     "@botpresshub/telegram": "workspace:*",
     "@botpresshub/webhook": "workspace:*",
     "@bpinternal/genenv": "0.0.1",
-    "@types/json-schema": "^7.0.11",
+    "@types/json-schema": "^7.0.12",
     "@types/qs": "^6.9.7"
   },
   "bpDependencies": {

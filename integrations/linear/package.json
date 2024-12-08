@@ -19,7 +19,7 @@
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
     "@botpresshub/listable": "workspace:*",
-    "@sentry/cli": "^2.18.1"
+    "@sentry/cli": "^2.39.1"
   },
   "bpDependencies": {
     "listable": "../../interfaces/listable"

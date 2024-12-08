@@ -16,7 +16,7 @@
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
     "@botpress/common": "workspace:*",
-    "@sentry/cli": "^2.18.1",
+    "@sentry/cli": "^2.39.1",
     "@types/asana": "^0.18.12"
   }
 }

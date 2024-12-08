@@ -20,7 +20,7 @@
     "@botpresshub/listable": "workspace:*",
     "@botpresshub/readable": "workspace:*",
     "@botpresshub/updatable": "workspace:*",
-    "@sentry/cli": "^2.18.1"
+    "@sentry/cli": "^2.39.1"
   },
   "bpDependencies": {
     "creatable": "../../interfaces/creatable",

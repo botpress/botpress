@@ -125,7 +125,7 @@ importers:
         specifier: 0.0.1
         version: 0.0.1
       '@types/json-schema':
-        specifier: ^7.0.11
+        specifier: ^7.0.12
         version: 7.0.12
       '@types/qs':
         specifier: ^6.9.7
@@ -193,7 +193,7 @@ importers:
         specifier: 0.0.1
         version: 0.0.1
       '@types/json-schema':
-        specifier: ^7.0.11
+        specifier: ^7.0.12
         version: 7.0.12
       '@types/qs':
         specifier: ^6.9.7
@@ -315,8 +315,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
       '@types/asana':
         specifier: ^0.18.12
         version: 0.18.12
@@ -453,7 +453,7 @@ importers:
         specifier: workspace:*
         version: link:../../interfaces/hitl
       '@sentry/cli':
-        specifier: ^2.18.1
+        specifier: ^2.39.1
         version: 2.39.1
       '@types/lodash':
         specifier: ^4.14.191
@@ -490,8 +490,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/client
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
 
   integrations/gmail:
     dependencies:
@@ -539,8 +539,8 @@ importers:
         version: 18.3.1(react@18.3.1)
     devDependencies:
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
       '@types/nodemailer':
         specifier: ^6.4.4
         version: 6.4.8
@@ -607,8 +607,8 @@ importers:
         specifier: workspace:*
         version: link:../../interfaces/updatable
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.36.1
+        specifier: ^2.39.1
+        version: 2.39.1
 
   integrations/googledrive:
     dependencies:
@@ -694,8 +694,8 @@ importers:
         version: 144.0.0
     devDependencies:
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.36.1
+        specifier: ^2.39.1
+        version: 2.39.1
 
   integrations/instagram:
     dependencies:
@@ -722,8 +722,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
 
   integrations/intercom:
     dependencies:
@@ -747,8 +747,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
 
   integrations/line:
     dependencies:
@@ -775,8 +775,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
 
   integrations/linear:
     dependencies:
@@ -812,8 +812,8 @@ importers:
         specifier: workspace:*
         version: link:../../interfaces/listable
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
 
   integrations/mailchimp:
     dependencies:
@@ -890,8 +890,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
 
   integrations/notion:
     dependencies:
@@ -993,8 +993,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
       '@types/lodash':
         specifier: ^4.14.191
         version: 4.14.195
@@ -1040,8 +1040,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
 
   integrations/teams:
     dependencies:
@@ -1074,8 +1074,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
       '@types/jsonwebtoken':
         specifier: ^9.0.3
         version: 9.0.3
@@ -1108,8 +1108,8 @@ importers:
         specifier: workspace:*
         version: link:../../interfaces/typing-indicator
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
       '@types/lodash':
         specifier: ^4.14.191
         version: 4.14.195
@@ -1179,8 +1179,8 @@ importers:
         specifier: workspace:*
         version: link:../../interfaces/updatable
       '@sentry/cli':
-        specifier: ^2.36.1
-        version: 2.36.1
+        specifier: ^2.39.1
+        version: 2.39.1
 
   integrations/twilio:
     dependencies:
@@ -1207,8 +1207,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
 
   integrations/viber:
     dependencies:
@@ -1232,8 +1232,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
 
   integrations/vonage:
     dependencies:
@@ -1257,8 +1257,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
 
   integrations/webhook:
     dependencies:
@@ -1285,8 +1285,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
       '@types/qs':
         specifier: ^6.9.7
         version: 6.9.7
@@ -1328,8 +1328,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
 
   integrations/zapier:
     dependencies:
@@ -1356,8 +1356,8 @@ importers:
         specifier: workspace:*
         version: link:../../packages/common
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
       '@types/jest':
         specifier: ^29.5.0
         version: 29.5.2
@@ -1402,8 +1402,8 @@ importers:
         specifier: workspace:*
         version: link:../../interfaces/hitl
       '@sentry/cli':
-        specifier: ^2.18.1
-        version: 2.18.1
+        specifier: ^2.39.1
+        version: 2.39.1
       '@types/lodash':
         specifier: ^4.14.191
         version: 4.14.195
@@ -1574,8 +1574,8 @@ importers:
         specifier: ^16.4.4
         version: 16.4.4
       esbuild:
-        specifier: ^0.15.18
-        version: 0.15.18
+        specifier: ^0.16.12
+        version: 0.16.17
       handlebars:
         specifier: ^4.7.8
         version: 4.7.8
@@ -1777,7 +1777,7 @@ importers:
         version: 0.12.0(react@18.3.1)
     devDependencies:
       esbuild:
-        specifier: ^0.16.10
+        specifier: ^0.16.12
         version: 0.16.17
       tsup:
         specifier: ^8.0.2
@@ -2638,7 +2638,6 @@ packages:
     cpu: [arm64]
     os: [android]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/android-arm64@0.18.12:
@@ -2667,22 +2666,12 @@ packages:
     requiresBuild: true
     optional: true
 
-  /@esbuild/android-arm@0.15.18:
-    resolution: {integrity: sha512-5GT+kcs2WVGjVs7+boataCkO5Fg0y4kCjzkB5bAip7H4jfnOS3dA6KPiww9W1OEKTKeAcUVhdZGvgI65OXmUnw==}
-    engines: {node: '>=12'}
-    cpu: [arm]
-    os: [android]
-    requiresBuild: true
-    dev: false
-    optional: true
-
   /@esbuild/android-arm@0.16.17:
     resolution: {integrity: sha512-N9x1CMXVhtWEAMS7pNNONyA14f71VPQN9Cnavj1XQh6T7bskqiLLrSca4O0Vr8Wdcga943eThxnVp3JLnBMYtw==}
     engines: {node: '>=12'}
     cpu: [arm]
     os: [android]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/android-arm@0.18.12:
@@ -2717,7 +2706,6 @@ packages:
     cpu: [x64]
     os: [android]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/android-x64@0.18.12:
@@ -2752,7 +2740,6 @@ packages:
     cpu: [arm64]
     os: [darwin]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/darwin-arm64@0.18.12:
@@ -2787,7 +2774,6 @@ packages:
     cpu: [x64]
     os: [darwin]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/darwin-x64@0.18.12:
@@ -2822,7 +2808,6 @@ packages:
     cpu: [arm64]
     os: [freebsd]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/freebsd-arm64@0.18.12:
@@ -2857,7 +2842,6 @@ packages:
     cpu: [x64]
     os: [freebsd]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/freebsd-x64@0.18.12:
@@ -2892,7 +2876,6 @@ packages:
     cpu: [arm64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/linux-arm64@0.18.12:
@@ -2927,7 +2910,6 @@ packages:
     cpu: [arm]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/linux-arm@0.18.12:
@@ -2962,7 +2944,6 @@ packages:
     cpu: [ia32]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/linux-ia32@0.18.12:
@@ -2991,22 +2972,12 @@ packages:
     requiresBuild: true
     optional: true
 
-  /@esbuild/linux-loong64@0.15.18:
-    resolution: {integrity: sha512-L4jVKS82XVhw2nvzLg/19ClLWg0y27ulRwuP7lcyL6AbUWB5aPglXY3M21mauDQMDfRLs8cQmeT03r/+X3cZYQ==}
-    engines: {node: '>=12'}
-    cpu: [loong64]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
   /@esbuild/linux-loong64@0.16.17:
     resolution: {integrity: sha512-dTzNnQwembNDhd654cA4QhbS9uDdXC3TKqMJjgOWsC0yNCbpzfWoXdZvp0mY7HU6nzk5E0zpRGGx3qoQg8T2DQ==}
     engines: {node: '>=12'}
     cpu: [loong64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/linux-loong64@0.18.12:
@@ -3041,7 +3012,6 @@ packages:
     cpu: [mips64el]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/linux-mips64el@0.18.12:
@@ -3076,7 +3046,6 @@ packages:
     cpu: [ppc64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/linux-ppc64@0.18.12:
@@ -3111,7 +3080,6 @@ packages:
     cpu: [riscv64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/linux-riscv64@0.18.12:
@@ -3146,7 +3114,6 @@ packages:
     cpu: [s390x]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/linux-s390x@0.18.12:
@@ -3181,7 +3148,6 @@ packages:
     cpu: [x64]
     os: [linux]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/linux-x64@0.18.12:
@@ -3216,7 +3182,6 @@ packages:
     cpu: [x64]
     os: [netbsd]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/netbsd-x64@0.18.12:
@@ -3251,7 +3216,6 @@ packages:
     cpu: [x64]
     os: [openbsd]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/openbsd-x64@0.18.12:
@@ -3286,7 +3250,6 @@ packages:
     cpu: [x64]
     os: [sunos]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/sunos-x64@0.18.12:
@@ -3321,7 +3284,6 @@ packages:
     cpu: [arm64]
     os: [win32]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/win32-arm64@0.18.12:
@@ -3356,7 +3318,6 @@ packages:
     cpu: [ia32]
     os: [win32]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/win32-ia32@0.18.12:
@@ -3391,7 +3352,6 @@ packages:
     cpu: [x64]
     os: [win32]
     requiresBuild: true
-    dev: true
     optional: true
 
   /@esbuild/win32-x64@0.18.12:
@@ -4721,14 +4681,6 @@ packages:
       tslib: 1.14.1
     dev: false
 
-  /@sentry/cli-darwin@2.36.1:
-    resolution: {integrity: sha512-JOHQjVD8Kqxm1jUKioAP5ohLOITf+Dh6+DBz4gQjCNdotsvNW5m63TKROwq2oB811p+Jzv5304ujmN4cAqW1Ww==}
-    engines: {node: '>=10'}
-    os: [darwin]
-    requiresBuild: true
-    dev: true
-    optional: true
-
   /@sentry/cli-darwin@2.39.1:
     resolution: {integrity: sha512-kiNGNSAkg46LNGatfNH5tfsmI/kCAaPA62KQuFZloZiemTNzhy9/6NJP8HZ/GxGs8GDMxic6wNrV9CkVEgFLJQ==}
     engines: {node: '>=10'}
@@ -4737,28 +4689,10 @@ packages:
     dev: true
     optional: true
 
-  /@sentry/cli-linux-arm64@2.36.1:
-    resolution: {integrity: sha512-R//3ZEkbzvoStr3IA7nxBZNiBYyxOljOqAhgiTnejXHmnuwDzM3TBA2n5vKPE/kBFxboEBEw0UTzTIRb1T0bgw==}
-    engines: {node: '>=10'}
-    cpu: [arm64]
-    os: [linux, freebsd]
-    requiresBuild: true
-    dev: true
-    optional: true
-
   /@sentry/cli-linux-arm64@2.39.1:
     resolution: {integrity: sha512-5VbVJDatolDrWOgaffsEM7znjs0cR8bHt9Bq0mStM3tBolgAeSDHE89NgHggfZR+DJ2VWOy4vgCwkObrUD6NQw==}
     engines: {node: '>=10'}
     cpu: [arm64]
-    os: [linux, freebsd]
-    requiresBuild: true
-    dev: true
-    optional: true
-
-  /@sentry/cli-linux-arm@2.36.1:
-    resolution: {integrity: sha512-gvEOKN0fWL2AVqUBKHNXPRZfJNvKTs8kQhS8cQqahZGgZHiPCI4BqW45cKMq+ZTt1UUbLmt6khx5Dz7wi+0i5A==}
-    engines: {node: '>=10'}
-    cpu: [arm]
     os: [linux, freebsd]
     requiresBuild: true
     dev: true
@@ -4773,28 +4707,10 @@ packages:
     dev: true
     optional: true
 
-  /@sentry/cli-linux-i686@2.36.1:
-    resolution: {integrity: sha512-R7sW5Vk/HacVy2YgQoQB+PwccvFYf2CZVPSFSFm2z7MEfNe77UYHWUq+sjJ4vxWG6HDWGVmaX0fjxyDkE01JRA==}
-    engines: {node: '>=10'}
-    cpu: [x86, ia32]
-    os: [linux, freebsd]
-    requiresBuild: true
-    dev: true
-    optional: true
-
   /@sentry/cli-linux-i686@2.39.1:
     resolution: {integrity: sha512-pXWVoKXCRrY7N8vc9H7mETiV9ZCz+zSnX65JQCzZxgYrayQPJTc+NPRnZTdYdk5RlAupXaFicBI2GwOCRqVRkg==}
     engines: {node: '>=10'}
     cpu: [x86, ia32]
-    os: [linux, freebsd]
-    requiresBuild: true
-    dev: true
-    optional: true
-
-  /@sentry/cli-linux-x64@2.36.1:
-    resolution: {integrity: sha512-UMr3ik8ksA7zQfbzsfwCb+ztenLnaeAbX94Gp+bzANZwPfi/vVHf2bLyqsBs4OyVt9SPlN1bbM/RTGfMjZ3JOw==}
-    engines: {node: '>=10'}
-    cpu: [x64]
     os: [linux, freebsd]
     requiresBuild: true
     dev: true
@@ -4809,28 +4725,10 @@ packages:
     dev: true
     optional: true
 
-  /@sentry/cli-win32-i686@2.36.1:
-    resolution: {integrity: sha512-CflvhnvxPEs5GWQuuDtYSLqPrBaPbcSJFlBuUIb+8WNzRxvVfjgw1qzfZmkQqABqiy/YEsEekllOoMFZAvCcVA==}
-    engines: {node: '>=10'}
-    cpu: [x86, ia32]
-    os: [win32]
-    requiresBuild: true
-    dev: true
-    optional: true
-
   /@sentry/cli-win32-i686@2.39.1:
     resolution: {integrity: sha512-NglnNoqHSmE+Dz/wHeIVRnV2bLMx7tIn3IQ8vXGO5HWA2f8zYJGktbkLq1Lg23PaQmeZLPGlja3gBQfZYSG10Q==}
     engines: {node: '>=10'}
     cpu: [x86, ia32]
-    os: [win32]
-    requiresBuild: true
-    dev: true
-    optional: true
-
-  /@sentry/cli-win32-x64@2.36.1:
-    resolution: {integrity: sha512-wWqht2xghcK3TGnooHZSzA3WSjdtno/xFjZLvWmw38rblGwgKMxLZnlxV6uDyS+OJ6CbfDTlCRay/0TIqA0N8g==}
-    engines: {node: '>=10'}
-    cpu: [x64]
     os: [win32]
     requiresBuild: true
     dev: true
@@ -4844,46 +4742,6 @@ packages:
     requiresBuild: true
     dev: true
     optional: true
-
-  /@sentry/cli@2.18.1:
-    resolution: {integrity: sha512-lc/dX/cvcmznWNbLzDbzxn224vwY5zLIDBe3yOO6Usg3CDgkZZ3xfjN4AIUZwkiTEPIOELodrOfdoMxqpXyYDw==}
-    engines: {node: '>= 10'}
-    hasBin: true
-    requiresBuild: true
-    dependencies:
-      https-proxy-agent: 5.0.1
-      node-fetch: 2.6.11
-      progress: 2.0.3
-      proxy-from-env: 1.1.0
-      which: 2.0.2
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-    dev: true
-
-  /@sentry/cli@2.36.1:
-    resolution: {integrity: sha512-gzK5uQKDWKhyH5udoB5+oaUNrS//urWyaXgKvHKz4gFfl744HuKY9dpLPP2nMnf0zLGmGM6xJnMXLqILq0mtxw==}
-    engines: {node: '>= 10'}
-    hasBin: true
-    requiresBuild: true
-    dependencies:
-      https-proxy-agent: 5.0.1
-      node-fetch: 2.7.0
-      progress: 2.0.3
-      proxy-from-env: 1.1.0
-      which: 2.0.2
-    optionalDependencies:
-      '@sentry/cli-darwin': 2.36.1
-      '@sentry/cli-linux-arm': 2.36.1
-      '@sentry/cli-linux-arm64': 2.36.1
-      '@sentry/cli-linux-i686': 2.36.1
-      '@sentry/cli-linux-x64': 2.36.1
-      '@sentry/cli-win32-i686': 2.36.1
-      '@sentry/cli-win32-x64': 2.36.1
-    transitivePeerDependencies:
-      - encoding
-      - supports-color
-    dev: true
 
   /@sentry/cli@2.39.1:
     resolution: {integrity: sha512-JIb3e9vh0+OmQ0KxmexMXg9oZsR/G7HMwxt5BUIKAXZ9m17Xll4ETXTRnRUBT3sf7EpNGAmlQk1xEmVN9pYZYQ==}
@@ -7675,216 +7533,6 @@ packages:
       es6-symbol: 3.1.3
     dev: true
 
-  /esbuild-android-64@0.15.18:
-    resolution: {integrity: sha512-wnpt3OXRhcjfIDSZu9bnzT4/TNTDsOUvip0foZOUBG7QbSt//w3QV4FInVJxNhKc/ErhUxc5z4QjHtMi7/TbgA==}
-    engines: {node: '>=12'}
-    cpu: [x64]
-    os: [android]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-android-arm64@0.15.18:
-    resolution: {integrity: sha512-G4xu89B8FCzav9XU8EjsXacCKSG2FT7wW9J6hOc18soEHJdtWu03L3TQDGf0geNxfLTtxENKBzMSq9LlbjS8OQ==}
-    engines: {node: '>=12'}
-    cpu: [arm64]
-    os: [android]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-darwin-64@0.15.18:
-    resolution: {integrity: sha512-2WAvs95uPnVJPuYKP0Eqx+Dl/jaYseZEUUT1sjg97TJa4oBtbAKnPnl3b5M9l51/nbx7+QAEtuummJZW0sBEmg==}
-    engines: {node: '>=12'}
-    cpu: [x64]
-    os: [darwin]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-darwin-arm64@0.15.18:
-    resolution: {integrity: sha512-tKPSxcTJ5OmNb1btVikATJ8NftlyNlc8BVNtyT/UAr62JFOhwHlnoPrhYWz09akBLHI9nElFVfWSTSRsrZiDUA==}
-    engines: {node: '>=12'}
-    cpu: [arm64]
-    os: [darwin]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-freebsd-64@0.15.18:
-    resolution: {integrity: sha512-TT3uBUxkteAjR1QbsmvSsjpKjOX6UkCstr8nMr+q7zi3NuZ1oIpa8U41Y8I8dJH2fJgdC3Dj3CXO5biLQpfdZA==}
-    engines: {node: '>=12'}
-    cpu: [x64]
-    os: [freebsd]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-freebsd-arm64@0.15.18:
-    resolution: {integrity: sha512-R/oVr+X3Tkh+S0+tL41wRMbdWtpWB8hEAMsOXDumSSa6qJR89U0S/PpLXrGF7Wk/JykfpWNokERUpCeHDl47wA==}
-    engines: {node: '>=12'}
-    cpu: [arm64]
-    os: [freebsd]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-linux-32@0.15.18:
-    resolution: {integrity: sha512-lphF3HiCSYtaa9p1DtXndiQEeQDKPl9eN/XNoBf2amEghugNuqXNZA/ZovthNE2aa4EN43WroO0B85xVSjYkbg==}
-    engines: {node: '>=12'}
-    cpu: [ia32]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-linux-64@0.15.18:
-    resolution: {integrity: sha512-hNSeP97IviD7oxLKFuii5sDPJ+QHeiFTFLoLm7NZQligur8poNOWGIgpQ7Qf8Balb69hptMZzyOBIPtY09GZYw==}
-    engines: {node: '>=12'}
-    cpu: [x64]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-linux-arm64@0.15.18:
-    resolution: {integrity: sha512-54qr8kg/6ilcxd+0V3h9rjT4qmjc0CccMVWrjOEM/pEcUzt8X62HfBSeZfT2ECpM7104mk4yfQXkosY8Quptug==}
-    engines: {node: '>=12'}
-    cpu: [arm64]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-linux-arm@0.15.18:
-    resolution: {integrity: sha512-UH779gstRblS4aoS2qpMl3wjg7U0j+ygu3GjIeTonCcN79ZvpPee12Qun3vcdxX+37O5LFxz39XeW2I9bybMVA==}
-    engines: {node: '>=12'}
-    cpu: [arm]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-linux-mips64le@0.15.18:
-    resolution: {integrity: sha512-Mk6Ppwzzz3YbMl/ZZL2P0q1tnYqh/trYZ1VfNP47C31yT0K8t9s7Z077QrDA/guU60tGNp2GOwCQnp+DYv7bxQ==}
-    engines: {node: '>=12'}
-    cpu: [mips64el]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-linux-ppc64le@0.15.18:
-    resolution: {integrity: sha512-b0XkN4pL9WUulPTa/VKHx2wLCgvIAbgwABGnKMY19WhKZPT+8BxhZdqz6EgkqCLld7X5qiCY2F/bfpUUlnFZ9w==}
-    engines: {node: '>=12'}
-    cpu: [ppc64]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-linux-riscv64@0.15.18:
-    resolution: {integrity: sha512-ba2COaoF5wL6VLZWn04k+ACZjZ6NYniMSQStodFKH/Pu6RxzQqzsmjR1t9QC89VYJxBeyVPTaHuBMCejl3O/xg==}
-    engines: {node: '>=12'}
-    cpu: [riscv64]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-linux-s390x@0.15.18:
-    resolution: {integrity: sha512-VbpGuXEl5FCs1wDVp93O8UIzl3ZrglgnSQ+Hu79g7hZu6te6/YHgVJxCM2SqfIila0J3k0csfnf8VD2W7u2kzQ==}
-    engines: {node: '>=12'}
-    cpu: [s390x]
-    os: [linux]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-netbsd-64@0.15.18:
-    resolution: {integrity: sha512-98ukeCdvdX7wr1vUYQzKo4kQ0N2p27H7I11maINv73fVEXt2kyh4K4m9f35U1K43Xc2QGXlzAw0K9yoU7JUjOg==}
-    engines: {node: '>=12'}
-    cpu: [x64]
-    os: [netbsd]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-openbsd-64@0.15.18:
-    resolution: {integrity: sha512-yK5NCcH31Uae076AyQAXeJzt/vxIo9+omZRKj1pauhk3ITuADzuOx5N2fdHrAKPxN+zH3w96uFKlY7yIn490xQ==}
-    engines: {node: '>=12'}
-    cpu: [x64]
-    os: [openbsd]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-sunos-64@0.15.18:
-    resolution: {integrity: sha512-On22LLFlBeLNj/YF3FT+cXcyKPEI263nflYlAhz5crxtp3yRG1Ugfr7ITyxmCmjm4vbN/dGrb/B7w7U8yJR9yw==}
-    engines: {node: '>=12'}
-    cpu: [x64]
-    os: [sunos]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-windows-32@0.15.18:
-    resolution: {integrity: sha512-o+eyLu2MjVny/nt+E0uPnBxYuJHBvho8vWsC2lV61A7wwTWC3jkN2w36jtA+yv1UgYkHRihPuQsL23hsCYGcOQ==}
-    engines: {node: '>=12'}
-    cpu: [ia32]
-    os: [win32]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-windows-64@0.15.18:
-    resolution: {integrity: sha512-qinug1iTTaIIrCorAUjR0fcBk24fjzEedFYhhispP8Oc7SFvs+XeW3YpAKiKp8dRpizl4YYAhxMjlftAMJiaUw==}
-    engines: {node: '>=12'}
-    cpu: [x64]
-    os: [win32]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild-windows-arm64@0.15.18:
-    resolution: {integrity: sha512-q9bsYzegpZcLziq0zgUi5KqGVtfhjxGbnksaBFYmWLxeV/S1fK4OLdq2DFYnXcLMjlZw2L0jLsk1eGoB522WXQ==}
-    engines: {node: '>=12'}
-    cpu: [arm64]
-    os: [win32]
-    requiresBuild: true
-    dev: false
-    optional: true
-
-  /esbuild@0.15.18:
-    resolution: {integrity: sha512-x/R72SmW3sSFRm5zrrIjAhCeQSAWoni3CmHEqfQrZIQTM3lVCdehdwuIqaOtfC2slvpdlLa62GYoN8SxT23m6Q==}
-    engines: {node: '>=12'}
-    hasBin: true
-    requiresBuild: true
-    optionalDependencies:
-      '@esbuild/android-arm': 0.15.18
-      '@esbuild/linux-loong64': 0.15.18
-      esbuild-android-64: 0.15.18
-      esbuild-android-arm64: 0.15.18
-      esbuild-darwin-64: 0.15.18
-      esbuild-darwin-arm64: 0.15.18
-      esbuild-freebsd-64: 0.15.18
-      esbuild-freebsd-arm64: 0.15.18
-      esbuild-linux-32: 0.15.18
-      esbuild-linux-64: 0.15.18
-      esbuild-linux-arm: 0.15.18
-      esbuild-linux-arm64: 0.15.18
-      esbuild-linux-mips64le: 0.15.18
-      esbuild-linux-ppc64le: 0.15.18
-      esbuild-linux-riscv64: 0.15.18
-      esbuild-linux-s390x: 0.15.18
-      esbuild-netbsd-64: 0.15.18
-      esbuild-openbsd-64: 0.15.18
-      esbuild-sunos-64: 0.15.18
-      esbuild-windows-32: 0.15.18
-      esbuild-windows-64: 0.15.18
-      esbuild-windows-arm64: 0.15.18
-    dev: false
-
   /esbuild@0.16.17:
     resolution: {integrity: sha512-G8LEkV0XzDMNwXKgM0Jwu3nY3lSTwSGY6XbxM9cr9+s0T/qSV1q1JVPBGzm3dcjhCic9+emZDmMffkwgPeOeLg==}
     engines: {node: '>=12'}
@@ -7913,7 +7561,6 @@ packages:
       '@esbuild/win32-arm64': 0.16.17
       '@esbuild/win32-ia32': 0.16.17
       '@esbuild/win32-x64': 0.16.17
-    dev: true
 
   /esbuild@0.18.12:
     resolution: {integrity: sha512-XuOVLDdtsDslXStStduT41op21Ytmf4/BDS46aa3xPJ7X5h2eMWBF1oAe3QjUH3bDksocNXgzGUZ7XHIBya6Tg==}
@@ -10934,6 +10581,7 @@ packages:
         optional: true
     dependencies:
       whatwg-url: 5.0.0
+    dev: false
 
   /node-fetch@2.7.0:
     resolution: {integrity: sha512-c4FRfUm/dbcWZ7U+1Wq0AwCyFL+3nt2bEw05wfxSz+DWpWsitgmSgYmy2dQdWyKC1694ELPqMs/YzUSNozLt8A==}
