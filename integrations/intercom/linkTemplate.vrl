@@ -1,0 +1,10 @@
+env = to_string!(.env)
+webhookId = to_string!(.webhookId)
+
+clientId = "5eba547d-60b2-4ca6-91bf-053a37bd7710"
+
+if env == "production" {
+  clientId = "f153fcea-a0db-48a0-8575-bbd2a7cfc05e"
+}
+
+"https://app.intercom.com/oauth?client_id={{ clientId }}&state={{ webhookId }}"
