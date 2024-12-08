@@ -10,11 +10,9 @@
     "@botpress/client": "workspace:*",
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "axios": "^1.7.7",
-    "zod": "^3.23.8"
+    "axios": "^1.7.7"
   },
   "devDependencies": {
-    "@botpress/common": "workspace:*",
-    "nodemon": "^3.1.7"
+    "@botpress/common": "workspace:*"
   }
 }

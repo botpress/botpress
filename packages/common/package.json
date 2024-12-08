@@ -9,6 +9,5 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "openai": "^4.53.0"
-  },
-  "devDependencies": {}
+  }
 }

@@ -22,9 +22,7 @@
     "@botpresshub/telegram": "workspace:*",
     "@bpinternal/genenv": "0.0.1",
     "@types/json-schema": "^7.0.11",
-    "@types/qs": "^6.9.7",
-    "esbuild": "^0.15.18",
-    "nodemon": "^2.0.20"
+    "@types/qs": "^6.9.7"
   },
   "bpDependencies": {
     "telegram": "../../integrations/telegram",

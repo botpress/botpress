@@ -16,8 +16,6 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
-    "@sentry/cli": "^2.18.1",
-    "esbuild": "^0.15.18",
-    "nodemon": "^2.0.20"
+    "@sentry/cli": "^2.18.1"
   }
 }

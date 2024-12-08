@@ -13,8 +13,6 @@
     "@notionhq/client": "^2.2.7"
   },
   "devDependencies": {
-    "@botpress/common": "workspace:*",
-    "@tsconfig/node18-strictest": "^1.0.0",
-    "vitest": "^0.33.0"
+    "@botpress/common": "workspace:*"
   }
 }
