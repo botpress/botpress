@@ -3,14 +3,10 @@
   "scripts": {
     "postinstall": "genenv -o ./.genenv/index.ts -e HITLOOPER_TELEGRAM_BOT_TOKEN -e HITLOOPER_ZENDESK_API_TOKEN -e HITLOOPER_ZENDESK_EMAIL -e HITLOOPER_ZENDESK_ORGANIZATION_SUBDOMAIN",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
-    "build": "bp build",
-    "add:integrations": "pnpm bp add -y"
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build"
   },
-  "keywords": [],
   "private": true,
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*"
@@ -19,7 +15,9 @@
     "@bpinternal/genenv": "0.0.1",
     "@types/node": "^18.11.17",
     "execa": "^8.0.1",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@botpresshub/telegram": "workspace:*",
+    "@botpresshub/zendesk": "workspace:*"
   },
   "bpDependencies": {
     "telegram": "../../integrations/telegram",

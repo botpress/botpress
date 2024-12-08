@@ -2,20 +2,14 @@
   "name": "@botpresshub/slack",
   "private": true,
   "scripts": {
-    "start": "pnpm bp serve",
-    "build": "pnpm bp build",
-    "deploy": "pnpm bp deploy",
+    "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
+    "check:bplint": "bp lint",
     "check:format": "prettier --check .",
     "fix:format": "prettier --write .",
     "check:lint": "eslint ./ --ext .ts --ext .tsx",
-    "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx",
-    "add:interfaces": "pnpm bp add -y"
+    "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",

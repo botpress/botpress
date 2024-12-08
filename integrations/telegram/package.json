@@ -3,17 +3,10 @@
   "description": "Telegram integration for Botpress",
   "private": true,
   "scripts": {
-    "start": "pnpm bp serve",
-    "build": "pnpm bp build",
-    "deploy": "pnpm bp deploy",
-    "login": "pnpm bp login",
+    "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
-    "add:interfaces": "pnpm bp add -y"
+    "check:bplint": "bp lint"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
@@ -30,7 +23,8 @@
     "esbuild": "^0.15.18",
     "nodemon": "^2.0.20",
     "ts-node": "^10.9.1",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@botpresshub/typing-indicator": "workspace:*"
   },
   "bpDependencies": {
     "typing-indicator": "../../interfaces/typing-indicator"

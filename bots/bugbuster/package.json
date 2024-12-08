@@ -3,9 +3,8 @@
   "scripts": {
     "postinstall": "genenv -o ./.genenv/index.ts -e BUGBUSTER_GITHUB_TOKEN -e BUGBUSTER_GITHUB_WEBHOOK_SECRET -e BUGBUSTER_SLACK_BOT_TOKEN -e BUGBUSTER_SLACK_SIGNING_SECRET",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
-    "build": "bp build",
-    "add:integrations": "pnpm bp add -y"
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build"
   },
   "private": true,
   "dependencies": {
@@ -17,7 +16,9 @@
     "@bpinternal/genenv": "0.0.1",
     "@types/node": "^18.11.17",
     "execa": "^8.0.1",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@botpresshub/github": "workspace:*",
+    "@botpresshub/slack": "workspace:*"
   },
   "bpDependencies": {
     "github": "../../integrations/github",
