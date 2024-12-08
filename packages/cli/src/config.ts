@@ -61,23 +61,25 @@ const packageRef = {
   type: 'string',
   description:
     'The package ID or name with optional version. The package can be either an integration or an interface. Ex: teams, teams@0.2.0, llm@5.1.0',
-  demandOption: true,
   positional: true,
   idx: 0,
 } satisfies CommandOption
 
 const integrationRef = {
   ...packageRef,
+  demandOption: true,
   description: 'The integration ID or name with optional version. Ex: teams or teams@0.2.0',
 } satisfies CommandOption
 
 const interfaceRef = {
   ...packageRef,
+  demandOption: true,
   description: 'The interface ID or name and version. Ex: llm@5.1.0',
 } satisfies CommandOption
 
 const pluginRef = {
   ...packageRef,
+  demandOption: true,
   description: 'The plugin ID or name and version. Ex: knowledge@0.0.1',
 } satisfies CommandOption
 

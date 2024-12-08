@@ -9,7 +9,7 @@
     "login": "pnpm bp login",
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
-    "add:interfaces": "echo 'no interfaces to add'"
+    "add:interfaces": "pnpm bp add -y"
   },
   "keywords": [],
   "author": "",

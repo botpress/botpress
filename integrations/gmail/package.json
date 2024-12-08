@@ -12,7 +12,7 @@
     "fix:format": "prettier --write .",
     "check:lint": "eslint ./ --ext .ts --ext .tsx",
     "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx",
-    "add:interfaces": "echo 'no interfaces to add'"
+    "add:interfaces": "pnpm bp add -y"
   },
   "keywords": [],
   "author": "",

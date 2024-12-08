@@ -4,7 +4,7 @@
     "check:type": "tsc --noEmit",
     "check:bplint": "pnpm exec bp lint",
     "build": "pnpm bp build",
-    "add:interfaces": "ts-node -T ./interfaces.ts"
+    "add:interfaces": "pnpm bp add -y"
   },
   "keywords": [],
   "private": true,
@@ -25,5 +25,8 @@
     "@types/node": "^18.11.17",
     "ts-node": "^10.9.1",
     "@botpress/common": "workspace:*"
+  },
+  "bpDependencies": {
+    "hitl": "../../interfaces/hitl"
   }
 }

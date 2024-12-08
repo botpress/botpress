@@ -3,7 +3,7 @@
   "scripts": {
     "check:type": "tsc --noEmit",
     "build": "bp build",
-    "add:integrations": "ts-node -T ./integrations.ts"
+    "add:integrations": "pnpm bp add -y"
   },
   "private": true,
   "dependencies": {
@@ -19,5 +19,8 @@
     "@bpinternal/genenv": "0.0.1",
     "@types/node": "^18.11.17",
     "execa": "^8.0.1"
+  },
+  "bpDependencies": {
+    "llm": "../../interfaces/llm"
   }
 }
