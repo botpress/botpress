@@ -11,8 +11,6 @@
     "axios": "^1.7.2"
   },
   "devDependencies": {
-    "@types/node": "^18.11.17",
-    "ts-node": "^10.9.1",
     "@botpress/common": "workspace:*"
   }
 }

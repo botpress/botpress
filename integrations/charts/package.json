@@ -11,9 +11,7 @@
     "axios": "^1.7.2"
   },
   "devDependencies": {
-    "@types/node": "^18.11.17",
-    "chart.js": "^3.9.1",
-    "ts-node": "^10.9.1",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "chart.js": "^3.9.1"
   }
 }

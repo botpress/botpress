@@ -15,10 +15,9 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
+    "@botpresshub/llm": "workspace:*",
     "@bpinternal/genenv": "0.0.1",
-    "@types/node": "^18.11.17",
-    "execa": "^8.0.1",
-    "@botpresshub/llm": "workspace:*"
+    "execa": "^8.0.1"
   },
   "bpDependencies": {
     "llm": "../../interfaces/llm"

@@ -15,11 +15,9 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@types/node": "^18.11.17",
-    "nodemon": "^3.1.4",
-    "ts-node": "^10.9.1",
     "@botpress/common": "workspace:*",
-    "@botpresshub/creatable": "workspace:*"
+    "@botpresshub/creatable": "workspace:*",
+    "nodemon": "^3.1.4"
   },
   "bpDependencies": {
     "creatable": "../../interfaces/creatable"

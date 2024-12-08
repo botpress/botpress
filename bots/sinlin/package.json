@@ -15,13 +15,12 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpresshub/linear": "workspace:*",
+    "@botpresshub/telegram": "workspace:*",
     "@bpinternal/genenv": "0.0.1",
     "@types/lodash": "^4.14.191",
-    "@types/node": "^18.11.17",
-    "execa": "^8.0.1",
-    "@botpress/common": "workspace:*",
-    "@botpresshub/telegram": "workspace:*",
-    "@botpresshub/linear": "workspace:*"
+    "execa": "^8.0.1"
   },
   "bpDependencies": {
     "telegram": "../../integrations/telegram",

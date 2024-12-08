@@ -13,12 +13,10 @@
     "asana": "^1.0.2"
   },
   "devDependencies": {
-    "@sentry/cli": "^2.18.1",
-    "@types/asana": "^0.18.12",
-    "@types/node": "^18.11.17",
-    "ts-node": "^10.9.1",
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@sentry/cli": "^2.18.1",
+    "@types/asana": "^0.18.12"
   }
 }

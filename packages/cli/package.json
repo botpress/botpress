@@ -31,7 +31,6 @@
     "@stoplight/spectral-functions": "^1.9.0",
     "@stoplight/spectral-parsers": "^1.0.4",
     "@types/lodash": "^4.14.191",
-    "@types/node": "^18.11.17",
     "@types/verror": "^1.10.6",
     "axios": "^1.4.0",
     "bluebird": "^3.7.2",
@@ -62,8 +61,7 @@
     "@types/uuid": "^9.0.1",
     "find-process": "^1.4.7",
     "glob": "^9.3.4",
-    "tmp": "^0.2.1",
-    "ts-node": "^10.9.1"
+    "tmp": "^0.2.1"
   },
   "engines": {
     "node": ">=18"

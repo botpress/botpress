@@ -12,7 +12,6 @@
     "stripe": "^13.5.0"
   },
   "devDependencies": {
-    "@types/node": "^18.11.17",
     "@botpress/common": "workspace:*"
   }
 }

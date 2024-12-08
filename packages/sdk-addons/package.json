@@ -6,7 +6,7 @@
     "check:type": "tsc --noEmit"
   },
   "dependencies": {
-    "@sentry/node": "^7.53.1",
-    "@botpress/sdk": "workspace:*"
+    "@botpress/sdk": "workspace:*",
+    "@sentry/node": "^7.53.1"
   }
 }
