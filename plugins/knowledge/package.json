@@ -2,8 +2,7 @@
   "name": "@botpresshub/knowledge",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "build": "bp build",
-    "add:integrations": "pnpm bp add -y"
+    "build": "bp add -y && bp build"
   },
   "private": true,
   "dependencies": {
@@ -18,7 +17,8 @@
     "@botpress/common": "workspace:*",
     "@bpinternal/genenv": "0.0.1",
     "@types/node": "^18.11.17",
-    "execa": "^8.0.1"
+    "execa": "^8.0.1",
+    "@botpresshub/llm": "workspace:*"
   },
   "bpDependencies": {
     "llm": "../../interfaces/llm"

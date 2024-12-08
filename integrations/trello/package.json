@@ -2,15 +2,13 @@
   "name": "@botpresshub/trello",
   "integrationName": "trello",
   "scripts": {
-    "build": "pnpm bp build",
-    "deploy": "pnpm bp deploy",
+    "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
+    "check:bplint": "bp lint",
     "check:format": "prettier --check .",
     "fix:format": "prettier --write .",
     "check:lint": "eslint ./ --ext .ts --ext .tsx",
-    "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx",
-    "add:interfaces": "pnpm bp add -y"
+    "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx"
   },
   "private": true,
   "dependencies": {
@@ -34,7 +32,12 @@
     "@sentry/cli": "^2.36.1",
     "@types/node": "^18.19.50",
     "ts-node": "^10.9.2",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@botpresshub/creatable": "workspace:*",
+    "@botpresshub/deletable": "workspace:*",
+    "@botpresshub/listable": "workspace:*",
+    "@botpresshub/readable": "workspace:*",
+    "@botpresshub/updatable": "workspace:*"
   },
   "bpDependencies": {
     "creatable": "../../interfaces/creatable",

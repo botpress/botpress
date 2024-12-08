@@ -2,14 +2,10 @@
   "name": "@botpresshub/gsheets",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
-    "build": "pnpm bp build",
-    "add:interfaces": "pnpm bp add -y"
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build"
   },
-  "keywords": [],
   "private": true,
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/common": "workspace:*",

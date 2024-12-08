@@ -2,14 +2,10 @@
   "name": "@botpresshub/zendesk",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
-    "build": "pnpm bp build",
-    "add:interfaces": "pnpm bp add -y"
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build"
   },
-  "keywords": [],
   "private": true,
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
@@ -24,7 +20,8 @@
     "@types/lodash": "^4.14.191",
     "@types/node": "^18.11.17",
     "ts-node": "^10.9.1",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@botpresshub/hitl": "workspace:*"
   },
   "bpDependencies": {
     "hitl": "../../interfaces/hitl"

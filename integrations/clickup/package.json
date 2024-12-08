@@ -2,9 +2,8 @@
   "name": "@botpresshub/clickup",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
-    "build": "pnpm bp build",
-    "add:interfaces": "pnpm bp add -y"
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build"
   },
   "private": true,
   "dependencies": {

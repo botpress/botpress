@@ -3,16 +3,10 @@
   "description": "Vonage integration for Botpress",
   "private": true,
   "scripts": {
-    "start": "pnpm bp serve",
-    "build": "pnpm bp build",
-    "deploy": "pnpm bp deploy",
+    "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
-    "add:interfaces": "pnpm bp add -y"
+    "check:bplint": "bp lint"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
