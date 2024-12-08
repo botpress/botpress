@@ -7,9 +7,6 @@
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/sdk": "workspace:*",
     "airtable": "^0.12.2",

@@ -5,10 +5,7 @@
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint"
   },
-  "keywords": [],
   "private": true,
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",

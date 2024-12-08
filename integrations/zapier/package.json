@@ -8,9 +8,6 @@
     "check:bplint": "bp lint",
     "test": "jest"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",

@@ -5,10 +5,7 @@
     "check:bplint": "bp lint",
     "build": "bp add -y && bp build"
   },
-  "keywords": [],
   "private": true,
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/common": "workspace:*",

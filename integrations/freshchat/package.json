@@ -9,9 +9,6 @@
     "build": "bp add -y && bp build",
     "eslint": "eslint ./ --ext .ts --ext .tsx --fix"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
