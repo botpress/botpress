@@ -16,8 +16,7 @@
     "@botpress/common": "workspace:*",
     "@botpresshub/github": "workspace:*",
     "@botpresshub/slack": "workspace:*",
-    "@bpinternal/genenv": "0.0.1",
-    "execa": "^8.0.1"
+    "@bpinternal/genenv": "0.0.1"
   },
   "bpDependencies": {
     "github": "../../integrations/github",

@@ -13,7 +13,6 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
-    "@bpinternal/genenv": "0.0.1",
-    "execa": "^8.0.1"
+    "@bpinternal/genenv": "0.0.1"
   }
 }

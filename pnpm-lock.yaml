@@ -90,9 +90,6 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
 
   bots/hello-world:
     dependencies:
@@ -152,9 +149,6 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
 
   bots/knowledgiani:
     dependencies:
@@ -220,9 +214,6 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
 
   bots/sinlin:
     dependencies:
@@ -254,9 +245,6 @@ importers:
       '@types/lodash':
         specifier: ^4.14.191
         version: 4.14.195
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
 
   integrations/airtable:
     dependencies:
@@ -1810,9 +1798,6 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
 
   plugins/knowledge:
     dependencies:
@@ -1844,9 +1829,6 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
 
   plugins/logger:
     dependencies:
@@ -1866,9 +1848,6 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
 
   plugins/personality:
     dependencies:
@@ -1900,9 +1879,6 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
-      execa:
-        specifier: ^8.0.1
-        version: 8.0.1
 
 packages:
 
