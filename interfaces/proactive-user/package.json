@@ -1,6 +1,6 @@
 {
-  "name": "@botpresshub/hitl",
-  "description": "HITL interface for Botpress",
+  "name": "@botpresshub/proactive-user",
+  "description": "interface that allows the bot to proactively create a user in the integration",
   "private": true,
   "scripts": {
     "check:type": "tsc --noEmit",
