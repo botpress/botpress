@@ -3,22 +3,22 @@
   "scripts": {
     "postinstall": "genenv -o ./.genenv/index.ts -e SHEETZY_TELEGRAM_BOT_TOKEN -e SHEETZY_GSHEETS_CLIENT_EMAIL -e SHEETZY_GSHEETS_PRIVATE_KEY -e SHEETZY_GSHEETS_SPREADSHEET_ID",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
-    "build": "bp build",
-    "add:integrations": "ts-node -T ./integrations.ts"
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build"
   },
-  "keywords": [],
   "private": true,
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
-    "@bpinternal/genenv": "0.0.1",
-    "@types/node": "^18.11.17",
-    "execa": "^8.0.1",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@botpresshub/gsheets": "workspace:*",
+    "@botpresshub/telegram": "workspace:*",
+    "@bpinternal/genenv": "0.0.1"
+  },
+  "bpDependencies": {
+    "telegram": "../../integrations/telegram",
+    "gsheets": "../../integrations/gsheets"
   }
 }

@@ -1,3 +1,4 @@
+import * as sdk from '@botpress/sdk'
 import * as fslib from 'fs'
 import * as pathlib from 'path'
 import { ApiClient } from '../api'
@@ -27,22 +28,75 @@ type InstallablePackage =
 export type AddCommandDefinition = typeof commandDefinitions.add
 export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   public async run(): Promise<void> {
-    const parsedRef = pkgRef.parsePackageRef(this.argv.packageRef)
-    if (!parsedRef) {
+    const ref = this._parseArgvRef()
+    if (ref) {
+      return await this._addSinglePackage(ref)
+    }
+
+    const pkgJson = await utils.pkgJson.readPackageJson(this.argv.installPath)
+    if (!pkgJson) {
+      this.logger.warn('No package.json found in the install path')
+      return
+    }
+
+    const { bpDependencies } = pkgJson
+    if (!bpDependencies) {
+      this.logger.log('No bp dependencies found in package.json')
+      return
+    }
+
+    const bpDependenciesSchema = sdk.z.record(sdk.z.string())
+    const parseResults = bpDependenciesSchema.safeParse(bpDependencies)
+    if (!parseResults.success) {
+      throw new errors.BotpressCLIError('Invalid bpDependencies found in package.json')
+    }
+
+    for (const [pkgAlias, pkgRefStr] of Object.entries(parseResults.data)) {
+      const parsed = pkgRef.parsePackageRef(pkgRefStr)
+      if (!parsed) {
+        throw new errors.InvalidPackageReferenceError(pkgRefStr)
+      }
+
+      await this._addSinglePackage({ ...parsed, alias: pkgAlias })
+    }
+  }
+
+  private _parseArgvRef = (): pkgRef.PackageRef | undefined => {
+    if (!this.argv.packageRef) {
+      return
+    }
+
+    const parsed = pkgRef.parsePackageRef(this.argv.packageRef)
+    if (!parsed) {
       throw new errors.InvalidPackageReferenceError(this.argv.packageRef)
     }
 
-    const targetPackage =
-      parsedRef.type === 'path' ? await this._findLocalPackage(parsedRef) : await this._findRemotePackage(parsedRef)
-
-    if (!targetPackage) {
-      const notFoundMessage = this.argv.packageType
-        ? `Could not find package "${this.argv.packageRef}" of type "${this.argv.packageType}"`
-        : `Could not find package "${this.argv.packageRef}"`
-      throw new errors.BotpressCLIError(notFoundMessage)
+    if (parsed.type !== 'name') {
+      return parsed
     }
 
-    const packageName = targetPackage.pkg.name // TODO: eventually replace name by alias (with argv --alias)
+    const argvPkgType = this.argv.packageType
+    if (!argvPkgType) {
+      return parsed
+    }
+
+    const ref = { ...parsed, pkg: argvPkgType }
+
+    const strRef = pkgRef.formatPackageRef(ref)
+    this.logger.warn(`argument --packageType is deprecated; please use the package reference format "${strRef}"`)
+
+    return ref
+  }
+
+  private async _addSinglePackage(ref: pkgRef.PackageRef & { alias?: string }): Promise<void> {
+    const targetPackage = ref.type === 'path' ? await this._findLocalPackage(ref) : await this._findRemotePackage(ref)
+
+    if (!targetPackage) {
+      const strRef = pkgRef.formatPackageRef(ref)
+      throw new errors.BotpressCLIError(`Could not find package "${strRef}"`)
+    }
+
+    const packageName = ref.alias ?? targetPackage.pkg.name
     const baseInstallPath = utils.path.absoluteFrom(utils.path.cwd(), this.argv.installPath)
     const packageDirName = utils.casing.to.kebabCase(packageName)
     const installPath = utils.path.join(baseInstallPath, consts.installDirName, packageDirName)
@@ -76,21 +130,21 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
   private async _findRemotePackage(ref: pkgRef.ApiPackageRef): Promise<InstallablePackage | undefined> {
     const api = await this.ensureLoginAndCreateClient(this.argv)
-    if (this._pkgCouldBe('integration')) {
+    if (this._pkgCouldBe(ref, 'integration')) {
       const integration = await api.findIntegration(ref)
       if (integration) {
         const { name, version } = integration
         return { type: 'integration', pkg: { source: 'remote', integration, name, version } }
       }
     }
-    if (this._pkgCouldBe('interface')) {
+    if (this._pkgCouldBe(ref, 'interface')) {
       const intrface = await api.findPublicInterface(ref)
       if (intrface) {
         const { name, version } = intrface
         return { type: 'interface', pkg: { source: 'remote', interface: intrface, name, version } }
       }
     }
-    if (this._pkgCouldBe('plugin')) {
+    if (this._pkgCouldBe(ref, 'plugin')) {
       const plugin = await api.findPublicPlugin(ref)
       if (plugin) {
         const { name, version } = plugin
@@ -103,7 +157,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   private async _findLocalPackage(ref: pkgRef.LocalPackageRef): Promise<InstallablePackage | undefined> {
     const absPath = utils.path.absoluteFrom(utils.path.cwd(), ref.path)
     const { definition: projectDefinition, implementation: projectImplementation } = await this._readProject(absPath)
-    if (this._pkgCouldBe('integration') && projectDefinition?.type === 'integration') {
+    if (projectDefinition?.type === 'integration') {
       const { name, version } = projectDefinition.definition
       return {
         type: 'integration',
@@ -111,7 +165,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       }
     }
 
-    if (this._pkgCouldBe('interface') && projectDefinition?.type === 'interface') {
+    if (projectDefinition?.type === 'interface') {
       const { name, version } = projectDefinition.definition
       return {
         type: 'interface',
@@ -119,7 +173,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       }
     }
 
-    if (this._pkgCouldBe('plugin') && projectDefinition?.type === 'plugin') {
+    if (projectDefinition?.type === 'plugin') {
       if (!projectImplementation) {
         throw new errors.BotpressCLIError(
           'Plugin implementation not found; Please build the plugin project before installing'
@@ -201,10 +255,14 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     return { definition, implementation }
   }
 
-  private _pkgCouldBe = (pkgType: InstallablePackage['type']) => {
-    if (!this.argv.packageType) {
+  private _pkgCouldBe = (ref: pkgRef.ApiPackageRef, pkgType: InstallablePackage['type']) => {
+    if (ref.type === 'id') {
+      // TODO: use ULID prefixes to determine the type of the package
       return true
     }
-    return this.argv.packageType === pkgType
+    if (!ref.pkg) {
+      return true // ref does not specify the package type
+    }
+    return ref.pkg === pkgType
   }
 }

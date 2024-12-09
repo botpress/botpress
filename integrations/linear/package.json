@@ -2,16 +2,10 @@
   "name": "@botpresshub/linear",
   "private": true,
   "scripts": {
-    "start": "pnpm bp serve",
-    "build": "pnpm bp build",
-    "login": "pnpm bp login",
+    "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
-    "add:interfaces": "ts-node -T ./interfaces.ts"
+    "check:bplint": "bp lint"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
@@ -23,8 +17,11 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@sentry/cli": "^2.18.1",
-    "@types/node": "^18.11.17",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@botpresshub/listable": "workspace:*",
+    "@sentry/cli": "^2.39.1"
+  },
+  "bpDependencies": {
+    "listable": "../../interfaces/listable"
   }
 }
