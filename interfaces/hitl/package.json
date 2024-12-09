@@ -6,12 +6,10 @@
     "check:type": "tsc --noEmit",
     "check:bplint": "bp lint"
   },
-  "license": "MIT",
   "dependencies": {
     "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
-    "@botpress/cli": "workspace:*",
-    "@botpresshub/proactive-user": "workspace:*"
+    "@botpress/cli": "workspace:*"
   }
 }

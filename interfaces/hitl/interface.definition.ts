@@ -1,6 +1,5 @@
 /* bplint-disable */
 import { z, AnyZodObject, messages, InterfaceDefinition } from '@botpress/sdk'
-import proactiveUser from '@botpresshub/proactive-user/interface.definition'
 
 const withUserId = <S extends z.AnyZodObject>(s: { schema: S }) => ({
   ...s,
@@ -51,14 +50,21 @@ export default new InterfaceDefinition({
     },
   },
   actions: {
-    // TODO: allow for an interface to extend another interface instead
+    // TODO: allow for an interface to extend 'proactiveUser' and reuse its actions
     createUser: {
-      ...proactiveUser.actions.createUser,
       input: {
-        schema: () => proactiveUser.actions.createUser.input.schema,
+        schema: () =>
+          z.object({
+            name: z.string().optional(),
+            pictureUrl: z.string().optional(),
+            email: z.string().optional(),
+          }),
       },
       output: {
-        schema: () => proactiveUser.actions.createUser.output.schema,
+        schema: () =>
+          z.object({
+            userId: z.string(),
+          }),
       },
     },
     startHitl: {

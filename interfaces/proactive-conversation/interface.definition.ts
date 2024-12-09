@@ -3,16 +3,19 @@ import { z, InterfaceDefinition } from '@botpress/sdk'
 export default new InterfaceDefinition({
   name: 'proactiveConversation',
   version: '0.0.1',
+  entities: {
+    conversation: {
+      title: 'Conversation',
+      description: 'The conversation object fields',
+      schema: z.object({}).title('Conversation').describe('The conversation object fields'),
+    },
+  },
   actions: {
     createConversation: {
       input: {
-        schema: () =>
+        schema: ({ conversation }) =>
           z.object({
-            tags: z
-              .record(z.string())
-              .optional()
-              .title('Tags')
-              .describe('The tags to set the conversation when creating'),
+            conversation: conversation.title('Conversation').describe('The conversation object fields'),
           }),
       },
       output: {
