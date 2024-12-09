@@ -1,0 +1,23 @@
+{
+  "name": "@botpress/chat-api",
+  "version": "0.0.0",
+  "private": true,
+  "main": "src/index.ts",
+  "types": "src/index.ts",
+  "scripts": {
+    "check:type": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@types/json-schema": "^7.0.12",
+    "@types/lodash": "^4.14.191",
+    "@types/tmp": "^0.2.3",
+    "esbuild": "^0.16.12"
+  },
+  "dependencies": {
+    "@botpress/api": "0.53.0",
+    "@bpinternal/opapi": "0.10.20",
+    "lodash": "^4.17.21",
+    "zod": "^3.20.6",
+    "zod-to-json-schema": "^3.21.4"
+  }
+}
