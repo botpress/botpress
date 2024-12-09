@@ -1,6 +1,6 @@
 import { ClickUpClient } from './client'
-import * as bp from '.botpress'
 import { executeCommentReceived } from './events/executeCommentReceived'
+import * as bp from '.botpress'
 
 export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client, logger }) => {
   if (!req.body) {
