@@ -4,7 +4,7 @@ import * as prettier from 'prettier'
 import * as utils from '../utils'
 import * as consts from './consts'
 
-export const zuiSchemaToTypeScriptType = async (zuiSchema: sdk.z.AnyZodObject, name: string): Promise<string> => {
+export const zuiSchemaToTypeScriptType = async (zuiSchema: sdk.z.Schema, name: string): Promise<string> => {
   let code = zuiSchema.toTypescript()
   code = `export type ${name} = ${code}`
   code = prettier.format(code, { parser: 'typescript' })
@@ -36,4 +36,11 @@ export const jsonSchemaToTypescriptZuiSchema = async (
 
 export const stringifySingleLine = (x: object): string => {
   return JSON.stringify(x, null, 1).replace(/\n */g, ' ')
+}
+
+export function primitiveToTypescriptValue(x: string | number | boolean | null | undefined): string {
+  if (typeof x === 'undefined') {
+    return 'undefined'
+  }
+  return JSON.stringify(x)
 }

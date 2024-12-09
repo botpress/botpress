@@ -1,8 +1,8 @@
 import { mkRespond } from '../api-utils'
 import { getOrCreateFlow, setFlow } from '../flow-state'
-import { MessageHandler } from '../types'
+import { MessageHandlers } from '../types'
 
-export const agentMessageHandler: MessageHandler = async (props) => {
+export const agentMessageHandler: MessageHandlers['*'] = async (props) => {
   if (props.message.type !== 'text') {
     return
   }

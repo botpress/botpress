@@ -4,15 +4,13 @@
   "private": true,
   "scripts": {
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
-    "deploy": "pnpm bp deploy"
+    "check:bplint": "bp lint"
   },
   "license": "MIT",
   "dependencies": {
     "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
-    "@botpress/cli": "workspace:*",
-    "typescript": "^4.9.4"
+    "@botpress/cli": "workspace:*"
   }
 }

@@ -79,7 +79,7 @@ const sync = async (
   await setIssueState(props, newState)
 }
 
-bot.event(async (props) => {
+bot.on.event('*', async (props) => {
   const dataSource = new LinearIssueSource(props)
   const state = await getIssueState(props)
 
@@ -101,7 +101,7 @@ bot.event(async (props) => {
   }
 })
 
-bot.message(async (props) => {
+bot.on.message('*', async (props) => {
   const { conversation, message } = props
   if (conversation.integration !== 'telegram') {
     console.info(`Ignoring message from ${conversation.integration}`)

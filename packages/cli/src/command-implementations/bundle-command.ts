@@ -28,10 +28,15 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
       return await this._bundle(line)
     }
 
+    if (projectDef.type === 'plugin') {
+      line.started('Bundling plugin...')
+      return await this._bundle(line)
+    }
+
     throw new errors.UnsupportedProjectType()
   }
 
-  private async _bundle(line: SingleLineLogger) {
+  private async _bundle(line: SingleLineLogger, props: Partial<utils.esbuild.BuildCodeProps> = {}) {
     const logLevel = this.argv.verbose ? 'info' : 'silent'
     const abs = this.projectPaths.abs
     const rel = this.projectPaths.rel('workDir')
@@ -51,6 +56,7 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
       write: true,
       sourcemap: this.argv.sourceMap,
       minify: this.argv.minify,
+      ...props,
     })
 
     line.success(`Bundle available at ${chalk.grey(rel.outDir)}`)

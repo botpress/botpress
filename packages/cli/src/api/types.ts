@@ -20,6 +20,7 @@ export type IntegrationSummary = client.ClientOutputs['listIntegrations']['integ
 export type BotSummary = client.ClientOutputs['listBots']['bots'][number]
 
 export type Interface = client.Interface
+export type Plugin = client.Plugin
 
 export type BaseOperation = (...args: any[]) => Promise<any>
 export type Operations = {

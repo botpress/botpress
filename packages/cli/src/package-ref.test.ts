@@ -92,6 +92,44 @@ describe('parsePackageRef', () => {
     const expected: PackageRef = { type: 'name', name, version: 'latest' }
     expect(result).toEqual(expected)
   })
+
+  test('parse with a package type and a name should return the pkg, name and latest', () => {
+    // arrange
+    const ref = `integration:${name}`
+    // act
+    const result = parsePackageRef(ref)
+    // assert
+    const expected: PackageRef = { type: 'name', name, version: 'latest', pkg: 'integration' }
+    expect(result).toEqual(expected)
+  })
+
+  test('parse with a package type, a name and a version should return all', () => {
+    // arrange
+    const ref = `integration:${name}@1.0.0`
+    // act
+    const result = parsePackageRef(ref)
+    // assert
+    const expected: PackageRef = { type: 'name', name, version: '1.0.0', pkg: 'integration' }
+    expect(result).toEqual(expected)
+  })
+
+  test('parse with a package type and a version should return undefined', () => {
+    // arrange
+    const ref = `plugin:@1.0.0`
+    // act
+    const result = parsePackageRef(ref)
+    // assert
+    expect(result).toBeUndefined()
+  })
+
+  test('parse with an invalid package type should return undefined', () => {
+    // arrange
+    const ref = `bot:${name}@1.0.0`
+    // act
+    const result = parsePackageRef(ref)
+    // assert
+    expect(result).toBeUndefined()
+  })
 })
 
 describe('formatPackageRef', () => {

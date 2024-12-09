@@ -1,0 +1,24 @@
+{
+  "name": "@botpresshub/personality",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "build": "bp add -y && bp build"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "dedent": "^1.5.3",
+    "json5": "^2.2.3",
+    "jsonrepair": "^3.10.0"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpresshub/llm": "workspace:*",
+    "@bpinternal/genenv": "0.0.1"
+  },
+  "bpDependencies": {
+    "llm": "../../interfaces/llm"
+  }
+}
