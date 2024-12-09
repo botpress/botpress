@@ -42,13 +42,13 @@ export default new sdk.BotDefinition({
     },
   },
 })
-  .add(telegram, {
+  .addIntegration(telegram, {
     enabled: true,
     configuration: {
       botToken: genenv.HITLOOPER_TELEGRAM_BOT_TOKEN,
     },
   })
-  .add(zendesk, {
+  .addIntegration(zendesk, {
     enabled: true,
     configuration: {
       apiToken: genenv.HITLOOPER_ZENDESK_API_TOKEN,

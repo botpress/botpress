@@ -1,6 +1,8 @@
 import fs from 'fs'
 import pathlib from 'path'
 
+type JSON = string | number | boolean | null | JSON[] | { [key: string]: JSON }
+
 export type PackageJson = {
   name: string
   version?: string
@@ -9,6 +11,8 @@ export type PackageJson = {
   dependencies?: Record<string, string>
   devDependencies?: Record<string, string>
   peerDependencies?: Record<string, string>
+} & {
+  [key: string]: JSON
 }
 
 const FILE_NAME = 'package.json'

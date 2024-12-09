@@ -19,6 +19,7 @@ import * as interfaces from './interface-commands'
 import { LintCommand } from './lint-command'
 import { LoginCommand } from './login-command'
 import { LogoutCommand } from './logout-command'
+import * as plugins from './plugin-commands'
 import { ReadCommand } from './read-command'
 import { ServeCommand } from './serve-command'
 
@@ -57,6 +58,13 @@ export default {
       get: getHandler(interfaces.GetInterfaceCommand),
       list: getHandler(interfaces.ListInterfacesCommand),
       delete: getHandler(interfaces.DeleteInterfaceCommand),
+    },
+  },
+  plugins: {
+    subcommands: {
+      get: getHandler(plugins.GetPluginCommand),
+      list: getHandler(plugins.ListPluginsCommand),
+      delete: getHandler(plugins.DeletePluginCommand),
     },
   },
   init: getHandler(InitCommand),

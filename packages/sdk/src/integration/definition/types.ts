@@ -1,5 +1,5 @@
 import { SchemaDefinition } from '../../schema'
-import { AnyZodObject } from '../../zui'
+import { ZuiObjectSchema } from '../../zui'
 import {
   BaseConfig,
   BaseEvents,
@@ -61,7 +61,7 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   title?: string
   description?: string
   input: SchemaDefinition<TAction>
-  output: SchemaDefinition<AnyZodObject> // cannot infer both input and output types (typescript limitation)
+  output: SchemaDefinition<ZuiObjectSchema> // cannot infer both input and output types (typescript limitation)
   billable?: boolean
   cacheable?: boolean
 }

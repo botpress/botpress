@@ -3,16 +3,10 @@
   "description": "Intercom integration for Botpress",
   "private": true,
   "scripts": {
-    "start": "pnpm bp serve --port 7009",
-    "build": "pnpm bp build",
-    "deploy": "pnpm bp deploy",
+    "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
-    "add:interfaces": "echo 'no interfaces to add'"
+    "check:bplint": "bp lint"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
@@ -23,10 +17,6 @@
   },
   "devDependencies": {
     "@botpress/common": "workspace:*",
-    "@sentry/cli": "^2.18.1",
-    "@types/node": "^18.11.17",
-    "esbuild": "^0.15.18",
-    "nodemon": "^2.0.20",
-    "ts-node": "^10.9.1"
+    "@sentry/cli": "^2.39.1"
   }
 }

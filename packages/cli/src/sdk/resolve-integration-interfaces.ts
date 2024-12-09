@@ -2,7 +2,7 @@ import * as sdk from '@botpress/sdk'
 import _ from 'lodash'
 import * as utils from '../utils'
 
-type InterfaceInstance = NonNullable<sdk.IntegrationDefinition['interfaces']>[number]
+type InterfaceExtension = NonNullable<sdk.IntegrationDefinition['interfaces']>[string]
 type ResolvedInterface = {
   actions: Record<string, sdk.ActionDefinition>
   events: Record<string, sdk.EventDefinition>
@@ -18,10 +18,10 @@ type InterfaceImplStatement = {
   channels: Record<string, { name: string }>
 }
 
-export const resolveInterfaces = <I extends sdk.IntegrationDefinition | sdk.IntegrationPackage['definition']>(
-  integration: I
-): I => {
-  const self = integration as utils.types.Writable<I>
+type ZodObjectSchema = sdk.z.ZodObject | sdk.z.ZodRecord
+
+export const resolveInterfaces = (integration: sdk.IntegrationDefinition): sdk.IntegrationDefinition => {
+  const self = integration as utils.types.Writable<sdk.IntegrationDefinition>
   if (!self.interfaces) {
     return integration
   }
@@ -65,10 +65,10 @@ const _mergeActions = (a: sdk.ActionDefinition, b: sdk.ActionDefinition): sdk.Ac
     ...a,
     ...b,
     input: {
-      schema: a.input.schema.merge(b.input.schema),
+      schema: _mergeObjectSchemas(a.input.schema, b.input.schema),
     },
     output: {
-      schema: a.output.schema.merge(b.output.schema),
+      schema: _mergeObjectSchemas(a.input.schema, b.output.schema),
     },
   }
 }
@@ -77,7 +77,7 @@ const _mergeEvents = (a: sdk.EventDefinition, b: sdk.EventDefinition): sdk.Event
   return {
     ...a,
     ...b,
-    schema: a.schema.merge(b.schema),
+    schema: _mergeObjectSchemas(a.schema, b.schema),
   }
 }
 
@@ -92,17 +92,15 @@ const _mergeChannels = (a: sdk.ChannelDefinition, b: sdk.ChannelDefinition): sdk
 
 const _mergeMessage = (a: sdk.MessageDefinition, b: sdk.MessageDefinition): sdk.MessageDefinition => {
   return {
-    schema: a.schema.merge(b.schema),
+    schema: _mergeObjectSchemas(a.schema, b.schema),
   }
 }
 
 const _resolveInterface = (
-  intrface: InterfaceInstance
+  intrface: InterfaceExtension
 ): { resolved: ResolvedInterface; statement: InterfaceImplStatement } => {
-  const id = 'id' in intrface ? intrface.id : undefined
-  const {
-    definition: { name, version },
-  } = intrface
+  const { id } = intrface
+  const { name, version } = intrface
 
   const resolved: ResolvedInterface = { actions: {}, events: {}, channels: {} }
   const statement: InterfaceImplStatement = {
@@ -155,11 +153,22 @@ const _resolveInterface = (
   return { resolved, statement }
 }
 
-const _rename = (intrface: InterfaceInstance, name: string) => {
+const _rename = (intrface: InterfaceExtension, name: string) => {
   if (!intrface.definition.templateName) {
     return name
   }
   const { entities } = intrface
   const templateProps = _.mapValues(entities, (entity) => entity.name)
   return utils.template.formatHandleBars(intrface.definition.templateName, { ...templateProps, name })
+}
+
+const _mergeObjectSchemas = (a: ZodObjectSchema, b: ZodObjectSchema): ZodObjectSchema => {
+  if (a instanceof sdk.z.ZodObject && b instanceof sdk.z.ZodObject) {
+    return a.merge(b)
+  }
+  if (a instanceof sdk.z.ZodRecord && b instanceof sdk.z.ZodRecord) {
+    return sdk.z.record(sdk.z.intersection(a.valueSchema, b.valueSchema))
+  }
+  // TODO: adress this case
+  throw new Error('Cannot merge object schemas with record schemas')
 }

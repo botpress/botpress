@@ -6,21 +6,37 @@ export type CreateBotBody = Parameters<client.Client['createBot']>[0]
 export type UpdateBotBody = Parameters<client.Client['updateBot']>[0]
 
 export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<CreateBotBody> => ({
-  ...bot.props,
-  configuration: bot.props.configuration
+  user: bot.user,
+  conversation: bot.conversation,
+  message: bot.message,
+  recurringEvents: bot.recurringEvents,
+  actions: bot.actions
+    ? await utils.records.mapValuesAsync(bot.actions, async (action) => ({
+        ...action,
+        input: {
+          ...action.input,
+          schema: await utils.schema.mapZodToJsonSchema(action.input),
+        },
+        output: {
+          ...action.output,
+          schema: await utils.schema.mapZodToJsonSchema(action.output),
+        },
+      }))
+    : undefined,
+  configuration: bot.configuration
     ? {
-        ...bot.props.configuration,
-        schema: await utils.schema.mapZodToJsonSchema(bot.props.configuration),
+        ...bot.configuration,
+        schema: await utils.schema.mapZodToJsonSchema(bot.configuration),
       }
     : undefined,
-  events: bot.props.events
-    ? await utils.records.mapValuesAsync(bot.props.events, async (event) => ({
+  events: bot.events
+    ? await utils.records.mapValuesAsync(bot.events, async (event) => ({
         ...event,
         schema: await utils.schema.mapZodToJsonSchema(event),
       }))
     : undefined,
-  states: bot.props.states
-    ? await utils.records.mapValuesAsync(bot.props.states, async (state) => ({
+  states: bot.states
+    ? await utils.records.mapValuesAsync(bot.states, async (state) => ({
         ...state,
         schema: await utils.schema.mapZodToJsonSchema(state),
       }))

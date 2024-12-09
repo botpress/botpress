@@ -1,4 +1,4 @@
-import { type IntegrationDefinition, type BotDefinition, type InterfaceDeclaration } from '@botpress/sdk'
+import { type IntegrationDefinition, type BotDefinition, type InterfaceDefinition } from '@botpress/sdk'
 import { prepareCreateBotBody } from '../api/bot-body'
 import { prepareCreateIntegrationBody } from '../api/integration-body'
 import { prepareCreateInterfaceBody } from '../api/interface-body'
@@ -29,11 +29,11 @@ export class LintCommand extends ProjectCommand<LintCommandDefinition> {
       case 'interface':
         return this._runLintForInterface(projectDef.definition)
       default:
-        throw new errors.BotpressCLIError('Unsupported project type')
+        throw new errors.UnsupportedProjectType()
     }
   }
 
-  private async _runLintForInterface(definition: InterfaceDeclaration): Promise<void> {
+  private async _runLintForInterface(definition: InterfaceDefinition): Promise<void> {
     const parsedInterfaceDefinition = await prepareCreateInterfaceBody(definition)
     const linter = new InterfaceLinter(parsedInterfaceDefinition)
 

@@ -1,10 +1,10 @@
 /* bplint-disable */
-import { z, InterfaceDeclaration } from '@botpress/sdk'
+import { z, InterfaceDefinition } from '@botpress/sdk'
 
 const baseItem = z.object({ id: z.string() })
 const templateName = '{{camelCase item}}{{pascalCase name}}'
 
-export default new InterfaceDeclaration({
+export default new InterfaceDefinition({
   name: 'deletable',
   version: '0.0.1',
   entities: {

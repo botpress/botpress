@@ -53,6 +53,7 @@ export class Client extends gen.Client implements types.IClient {
     accessPolicies,
     content,
     url,
+    indexing,
     expiresAt,
     publicContentImmediatelyAccessible,
   }: types.ClientInputs['uploadFile']): Promise<types.ClientOutputs['uploadFile']> => {
@@ -104,6 +105,7 @@ export class Client extends gen.Client implements types.IClient {
       contentType,
       size,
       expiresAt,
+      indexing,
       publicContentImmediatelyAccessible,
     })
 

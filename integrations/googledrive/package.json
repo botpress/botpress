@@ -2,10 +2,7 @@
   "name": "@botpresshub/googledrive",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "login": "bp login",
-    "deploy": "bp deploy",
-    "build": "bp build",
-    "add:interfaces": "echo 'no interfaces to add'"
+    "build": "bp add -y && bp build"
   },
   "private": true,
   "dependencies": {
@@ -23,7 +20,6 @@
     "@botpress/cli": "workspace:*",
     "@sentry/cli": "^2.39.1",
     "@types/jsonwebtoken": "^9.0.3",
-    "@types/node": "^18.11.17",
     "@types/uuid": "^9.0.1"
   }
 }

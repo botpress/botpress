@@ -6,6 +6,14 @@ inputs:
     type: string
     description: 'packages to build'
     required: false
+  turbo_team:
+    type: string
+    description: 'Turbo team'
+    required: false
+  turbo_token:
+    type: string
+    description: 'Turbo token'
+    required: false
 
 runs:
   using: 'composite'
@@ -22,6 +30,9 @@ runs:
       run: pnpm i --frozen-lockfile
     - name: Build
       shell: bash
+      env:
+        TURBO_TEAM: ${{ inputs.turbo_team }}
+        TURBO_TOKEN: ${{ inputs.turbo_token }}
       run: |
         filter="${{ inputs.filter }}"
         if [ -z "$filter" ]; then

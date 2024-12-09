@@ -1,7 +1,10 @@
+import { prepareCreateBotBody } from '../api/bot-body'
 import { prepareCreateIntegrationBody } from '../api/integration-body'
 import { prepareCreateInterfaceBody } from '../api/interface-body'
+import { prepareCreatePluginBody } from '../api/plugin-body'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
+import * as utils from '../utils'
 import { ProjectCommand } from './project-command'
 
 export type ReadCommandDefinition = typeof commandDefinitions.read
@@ -19,7 +22,18 @@ export class ReadCommand extends ProjectCommand<ReadCommandDefinition> {
       this.logger.json(parsed)
       return
     }
+    if (projectDef.type === 'bot') {
+      const parsed = await prepareCreateBotBody(projectDef.definition)
+      this.logger.json(parsed)
+      return
+    }
+    if (projectDef.type === 'plugin') {
+      const parsed = await prepareCreatePluginBody(projectDef.definition)
+      this.logger.json(parsed)
+      return
+    }
 
-    throw new errors.BotpressCLIError('A bot project has no definition to read')
+    type _assertion = utils.types.AssertNever<typeof projectDef>
+    throw new errors.BotpressCLIError('Unsupported project type')
   }
 }

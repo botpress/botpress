@@ -1,24 +1,17 @@
 {
   "name": "@botpresshub/stripe",
   "scripts": {
-    "start": "pnpm bp serve",
-    "build": "pnpm bp build",
-    "deploy": "pnpm bp deploy",
+    "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
-    "add:interfaces": "echo 'no interfaces to add'"
+    "check:bplint": "bp lint"
   },
-  "keywords": [],
   "private": true,
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "stripe": "^13.5.0"
   },
   "devDependencies": {
-    "@types/node": "^18.11.17",
     "@botpress/common": "workspace:*"
   }
 }
