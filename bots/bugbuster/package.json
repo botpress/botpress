@@ -13,12 +13,10 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@bpinternal/genenv": "0.0.1",
-    "@types/node": "^18.11.17",
-    "execa": "^8.0.1",
     "@botpress/common": "workspace:*",
     "@botpresshub/github": "workspace:*",
-    "@botpresshub/slack": "workspace:*"
+    "@botpresshub/slack": "workspace:*",
+    "@bpinternal/genenv": "0.0.1"
   },
   "bpDependencies": {
     "github": "../../integrations/github",

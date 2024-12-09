@@ -4,11 +4,7 @@
   "scripts": {
     "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "bp lint",
-    "check:format": "prettier --check .",
-    "fix:format": "prettier --write .",
-    "check:lint": "eslint ./ --ext .ts --ext .tsx",
-    "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx"
+    "check:bplint": "bp lint"
   },
   "private": true,
   "dependencies": {
@@ -16,28 +12,17 @@
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "@typescript-eslint/eslint-plugin": "^5.62.0",
-    "@typescript-eslint/parser": "^5.62.0",
-    "eslint": "^8.57.1",
-    "eslint-config-prettier": "^8.10.0",
-    "eslint-plugin-import": "^2.30.0",
-    "eslint-plugin-jsdoc": "^39.9.1",
-    "eslint-plugin-prettier": "^4.2.1",
-    "eslint-plugin-unused-imports": "^2.0.0",
-    "prettier": "^2.8.8",
     "trello.js": "^1.2.7"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@sentry/cli": "^2.36.1",
-    "@types/node": "^18.19.50",
-    "ts-node": "^10.9.2",
     "@botpress/common": "workspace:*",
     "@botpresshub/creatable": "workspace:*",
     "@botpresshub/deletable": "workspace:*",
     "@botpresshub/listable": "workspace:*",
     "@botpresshub/readable": "workspace:*",
-    "@botpresshub/updatable": "workspace:*"
+    "@botpresshub/updatable": "workspace:*",
+    "@sentry/cli": "^2.39.1"
   },
   "bpDependencies": {
     "creatable": "../../interfaces/creatable",

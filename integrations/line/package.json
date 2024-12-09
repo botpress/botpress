@@ -16,11 +16,7 @@
     "crypto": "^1.0.1"
   },
   "devDependencies": {
-    "@sentry/cli": "^2.18.1",
-    "@types/node": "^18.14.1",
-    "esbuild": "^0.15.18",
-    "nodemon": "^2.0.20",
-    "ts-node": "^10.9.1",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@sentry/cli": "^2.39.1"
   }
 }

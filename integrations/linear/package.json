@@ -17,10 +17,9 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@sentry/cli": "^2.18.1",
-    "@types/node": "^18.11.17",
     "@botpress/common": "workspace:*",
-    "@botpresshub/listable": "workspace:*"
+    "@botpresshub/listable": "workspace:*",
+    "@sentry/cli": "^2.39.1"
   },
   "bpDependencies": {
     "listable": "../../interfaces/listable"

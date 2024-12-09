@@ -24,10 +24,9 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
-    "@sentry/cli": "^2.18.1",
+    "@botpress/common": "workspace:*",
+    "@sentry/cli": "^2.39.1",
     "@types/lodash": "^4.14.191",
-    "@types/node": "^18.11.17",
-    "@types/verror": "^1.10.6",
-    "@botpress/common": "workspace:*"
+    "@types/verror": "^1.10.6"
   }
 }

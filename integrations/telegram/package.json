@@ -11,20 +11,15 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "@sentry/node": "7.53.1",
     "lodash": "^4.17.21",
     "telegraf": "^4.16.3"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@sentry/cli": "^2.18.1",
-    "@types/lodash": "^4.14.191",
-    "@types/node": "^18.11.17",
-    "esbuild": "^0.15.18",
-    "nodemon": "^2.0.20",
-    "ts-node": "^10.9.1",
     "@botpress/common": "workspace:*",
-    "@botpresshub/typing-indicator": "workspace:*"
+    "@botpresshub/typing-indicator": "workspace:*",
+    "@sentry/cli": "^2.39.1",
+    "@types/lodash": "^4.14.191"
   },
   "bpDependencies": {
     "typing-indicator": "../../interfaces/typing-indicator"

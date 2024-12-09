@@ -18,12 +18,8 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@sentry/cli": "^2.18.1",
-    "@types/jsonwebtoken": "^9.0.3",
-    "@types/node": "^18.11.17",
-    "esbuild": "^0.15.18",
-    "nodemon": "^2.0.20",
-    "ts-node": "^10.9.1",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@sentry/cli": "^2.39.1",
+    "@types/jsonwebtoken": "^9.0.3"
   }
 }
