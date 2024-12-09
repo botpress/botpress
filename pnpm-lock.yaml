@@ -727,6 +727,9 @@ importers:
       '@botpress/sdk-addons':
         specifier: workspace:*
         version: link:../../packages/sdk-addons
+      axios:
+        specifier: ^1.7.8
+        version: 1.7.8
       intercom-client:
         specifier: ^4.0.0
         version: 4.0.0

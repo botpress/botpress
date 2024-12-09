@@ -76,6 +76,9 @@ input:
   github_secrets:
     description: 'Github secrets'
     required: false
+  intercom_secrets:
+    description: 'Intercom secrets'
+    required: false
 
 runs:
   using: 'composite'
@@ -164,6 +167,8 @@ runs:
                 base_command="$base_command ${{ inputs.github_secrets }}"
             elif [ $integration == "google-ai" ]; then
                 base_command="$base_command ${{ inputs.google_ai_secrets }}"
+            elif [ $integration == "intercom" ]; then
+                base_command="$base_command ${{ inputs.intercom_secrets }} --allowDeprecated"
             fi
 
             if [ $exists -eq 0 ]; then
