@@ -18,6 +18,8 @@ jobs:
         uses: ./.github/actions/setup
         with:
           filter: '@botpress/client'
+          turbo_team: ${{ secrets.TURBO_TEAM }}
+          turbo_token: ${{ secrets.TURBO_TOKEN }}
       - run: |
           # pnpm -F client exec puppeteer browsers install chrome
           pnpm -F client run test:e2e
