@@ -12,10 +12,15 @@ jobs:
     timeout-minutes: 15
     env:
       NODE_OPTIONS: '--max_old_space_size=8192'
+      TURBO_TEAM: ${{ secrets.TURBO_TEAM }}
+      TURBO_TOKEN: ${{ secrets.TURBO_TOKEN }}
     steps:
       - uses: actions/checkout@v2
       - name: Setup
         uses: ./.github/actions/setup
+        with:
+          turbo_team: ${{ secrets.TURBO_TEAM }}
+          turbo_token: ${{ secrets.TURBO_TOKEN }}
       - run: pnpm run check:dep
       - run: pnpm run check:sherif
       - run: pnpm run check:format

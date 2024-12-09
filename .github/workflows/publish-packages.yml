@@ -22,6 +22,8 @@ jobs:
         uses: ./.github/actions/setup
         with:
           filter: '@botpress/*'
+          turbo_team: ${{ secrets.TURBO_TEAM }}
+          turbo_token: ${{ secrets.TURBO_TOKEN }}
       - name: Publish Client
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:
