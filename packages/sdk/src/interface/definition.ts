@@ -31,6 +31,8 @@ type GenericActionDefinition<
   TEntities extends BaseEntities,
   TAction extends BaseActions[string] = BaseActions[string]
 > = {
+  title?: string
+  description?: string
   billable?: boolean
   cacheable?: boolean
   input: { schema: GenericZuiSchema<EntityReferences<TEntities>, TAction> }
