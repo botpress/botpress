@@ -4,7 +4,7 @@ import { z } from '@botpress/sdk'
 export default new sdk.IntegrationDefinition({
   name: 'chat',
   title: 'Chat',
-  version: '0.3.0',
+  version: '0.3.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Chat integration for Botpress; Allows interacting with your bot using HTTP requests.',
