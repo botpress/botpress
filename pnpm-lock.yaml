@@ -1428,9 +1428,6 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:../../packages/cli
-      '@botpresshub/proactive-user':
-        specifier: workspace:*
-        version: link:../proactive-user
 
   interfaces/listable:
     dependencies:
