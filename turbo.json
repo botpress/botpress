@@ -5,6 +5,10 @@
       "outputs": ["src/gen/**"],
       "dependsOn": ["^generate"]
     },
+    "build": {
+      "outputs": ["bp_modules/**", ".botpress/**"],
+      "dependsOn": ["generate", "^build"]
+    },
     "@botpress/client#build": {
       "outputs": ["dist/**"],
       "dependsOn": ["generate"]
@@ -20,10 +24,6 @@
     "@botpress/cli#build": {
       "outputs": ["dist/**", "templates/*/.botpress/**"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build"]
-    },
-    "build": {
-      "outputs": ["bp_modules/**", ".botpress/**"],
-      "dependsOn": ["generate", "^build"]
     },
     "check:type": {},
     "check:bplint": {}
