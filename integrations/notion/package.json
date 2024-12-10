@@ -13,6 +13,7 @@
     "@notionhq/client": "^2.2.7"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*"
   }
 }

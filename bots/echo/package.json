@@ -9,6 +9,7 @@
   },
   "private": true,
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpresshub/chat": "workspace:*"
   },

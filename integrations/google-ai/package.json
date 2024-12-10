@@ -13,6 +13,7 @@
     "@google/generative-ai": "^0.21.0"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
     "@botpresshub/llm": "workspace:*"
   },
   "bpDependencies": {

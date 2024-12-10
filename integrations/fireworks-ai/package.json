@@ -13,6 +13,7 @@
     "openai": "^4.53.0"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
     "@botpresshub/llm": "workspace:*",
     "@botpresshub/speech-to-text": "workspace:*"
   },

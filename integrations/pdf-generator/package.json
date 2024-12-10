@@ -12,6 +12,7 @@
     "marked": "^13.0.2"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*"
   }
 }

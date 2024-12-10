@@ -12,6 +12,7 @@
     "@botpress/sdk": "workspace:*"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
     "@botpresshub/gsheets": "workspace:*",
     "@botpresshub/telegram": "workspace:*",
