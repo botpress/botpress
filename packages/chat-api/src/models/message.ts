@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-var-requires */
 import { schema } from '@bpinternal/opapi'
 import z from 'zod'
 
