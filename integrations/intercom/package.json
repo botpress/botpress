@@ -16,6 +16,7 @@
     "intercom-client": "^4.0.0"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
     "@sentry/cli": "^2.39.1"
   }

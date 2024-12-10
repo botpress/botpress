@@ -96,6 +96,9 @@ importers:
 
   bots/echo:
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
@@ -149,6 +152,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
@@ -214,6 +220,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
@@ -270,6 +279,9 @@ importers:
         specifier: ^1.5.0
         version: 1.6.7
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
@@ -289,6 +301,9 @@ importers:
         specifier: workspace:*
         version: link:../../packages/sdk
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpresshub/llm':
         specifier: workspace:*
         version: link:../../interfaces/llm
@@ -330,6 +345,9 @@ importers:
         specifier: ^1.7.2
         version: 1.7.2
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
@@ -349,6 +367,9 @@ importers:
         specifier: ^4.53.0
         version: 4.53.0
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpresshub/llm':
         specifier: workspace:*
         version: link:../../interfaces/llm
@@ -362,6 +383,9 @@ importers:
         specifier: ^1.7.2
         version: 1.7.2
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
@@ -405,6 +429,9 @@ importers:
       '@botpress/chat-api':
         specifier: workspace:*
         version: link:../../packages/chat-api
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@types/json-schema':
         specifier: ^7.0.12
         version: 7.0.12
@@ -435,6 +462,10 @@ importers:
       axios:
         specifier: ^1.7.7
         version: 1.7.7
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
 
   integrations/dalle:
     dependencies:
@@ -470,6 +501,9 @@ importers:
         specifier: ^4.53.0
         version: 4.53.0
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpresshub/llm':
         specifier: workspace:*
         version: link:../../interfaces/llm
@@ -618,6 +652,9 @@ importers:
         specifier: ^0.21.0
         version: 0.21.0
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpresshub/llm':
         specifier: workspace:*
         version: link:../../interfaces/llm
@@ -720,6 +757,9 @@ importers:
         specifier: ^4.53.0
         version: 4.53.0
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpresshub/llm':
         specifier: workspace:*
         version: link:../../interfaces/llm
@@ -745,6 +785,9 @@ importers:
         specifier: ^144.0.0
         version: 144.0.0
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
@@ -882,6 +925,9 @@ importers:
         specifier: ^3.0.80
         version: 3.0.80
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
@@ -963,6 +1009,9 @@ importers:
         specifier: ^2.2.7
         version: 2.2.7
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
@@ -982,6 +1031,9 @@ importers:
         specifier: ^4.53.0
         version: 4.53.0
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpresshub/llm':
         specifier: workspace:*
         version: link:../../interfaces/llm
@@ -1004,6 +1056,9 @@ importers:
         specifier: ^13.0.2
         version: 13.0.2
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
@@ -1069,6 +1124,9 @@ importers:
         specifier: ^13.5.0
         version: 13.11.0
     devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
@@ -1651,7 +1709,7 @@ importers:
         version: 3.22.4
     devDependencies:
       '@botpress/chat-api':
-        specifier: workspace:*
+        specifier: 0.0.0
         version: link:../chat-api
       '@types/event-source-polyfill':
         specifier: ^1.0.2

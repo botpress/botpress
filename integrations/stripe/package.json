@@ -12,6 +12,7 @@
     "stripe": "^13.5.0"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*"
   }
 }
