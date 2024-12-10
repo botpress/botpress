@@ -350,7 +350,8 @@ async function sendMessage(
     attachmentUrls,
   })
 
-  await ack({ tags: { id: conversationParts.at(-1)?.id ?? '' } })
+  const lastMessageId = conversationParts.at(-1)?.id
+  await ack({ tags: { id: lastMessageId } })
 }
 
 function composeMessage(...parts: string[]) {
