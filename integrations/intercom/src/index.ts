@@ -58,7 +58,13 @@ const webhookNotificationSchema = z.object({
 })
 
 const integration = new bp.Integration({
-  register: async () => {},
+  register: async ({ client, ctx }) => {
+    const adminId = ctx.configuration.adminId
+    await client.updateUser({
+      id: ctx.botUserId,
+      tags: { id: adminId },
+    })
+  },
   unregister: async () => {},
   actions: {},
   channels: {
@@ -252,14 +258,12 @@ const integration = new bp.Integration({
         return // ignore bot messages
       }
 
-      const { user } = await client.getOrCreateUser({
-        tags: {
-          id: authorId,
-          email: email ?? '',
-        },
+      const user = await getOrCreateUserAndUpdate(client, {
+        id: authorId,
+        email,
       })
 
-      await client.createMessage({
+      await client.getOrCreateMessage({
         tags: { id: messageId },
         type: 'text',
         userId: user.id,
@@ -286,10 +290,10 @@ const integration = new bp.Integration({
     }
 
     const intercomClient = await getAuthenticatedIntercomClient(client, ctx)
-    const contact = await intercomClient.contacts.find({ id: userId })
-
-    const { user } = await client.getOrCreateUser({
-      tags: { id: contact.id, email: contact.email },
+    const { id, email } = await intercomClient.contacts.find({ id: userId })
+    const user = await getOrCreateUserAndUpdate(client, {
+      id,
+      email,
     })
 
     return {
@@ -346,7 +350,8 @@ async function sendMessage(
     attachmentUrls,
   })
 
-  await ack({ tags: { id: `${conversationParts.at(-1)?.id ?? ''}` } })
+  const lastMessageId = conversationParts.at(-1)?.id
+  await ack({ tags: { id: lastMessageId } })
 }
 
 function composeMessage(...parts: string[]) {
@@ -413,14 +418,14 @@ function verifyRequest(req: Request, ctx: bp.Context): VerifyResult {
   }
 
   const parsedNotification = parsedBody.data
-  if (parsedNotification.topic === 'conversation.admin.replied') {
-    // Ignore admin replies, since the bot is an admin we don't want to reply to ourselves
-    return { result: 'ignore', isError: false, message: 'Ignoring admin replies' }
-  }
-
   if (parsedNotification.data.item.type === 'ping') {
     // No further validation for ping events
     return { result: 'success', isError: false, parsedNotification }
+  }
+
+  const SUBSCRIBED_TOPICS = ['conversation.user.created', 'conversation.user.replied']
+  if (!SUBSCRIBED_TOPICS.includes(parsedNotification.topic)) {
+    return { result: 'ignore', isError: false, message: `Ignoring topic: ${parsedNotification.topic}` }
   }
 
   if (ctx.configuration.adminId !== parsedNotification.data.item.admin_assignee_id) {
@@ -429,4 +434,18 @@ function verifyRequest(req: Request, ctx: bp.Context): VerifyResult {
   }
 
   return { result: 'success', isError: false, parsedNotification }
+}
+
+const getOrCreateUserAndUpdate = async (client: bp.Client, { id, email }: { id: string; email?: string | null }) => {
+  let { user } = await client.getOrCreateUser({
+    tags: { id },
+  })
+  if (email && email !== user.tags.email) {
+    const updateResponse = await client.updateUser({
+      id: user.id,
+      tags: { email },
+    })
+    user = updateResponse.user
+  }
+  return user
 }
