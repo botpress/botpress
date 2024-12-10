@@ -1,22 +1,24 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
-    "@botpress/client#generate": {
-      "inputs": ["package.json", "openapi.ts"],
-      "outputs": ["src/gen/**"]
+    "generate": {
+      "outputs": ["src/gen/**"],
+      "dependsOn": ["^generate"]
     },
     "@botpress/client#build": {
-      "inputs": ["src/**", "build.ts"],
       "outputs": ["dist/**"],
       "dependsOn": ["@botpress/client#generate"]
     },
+    "@botpress/chat#build": {
+      "outputs": ["dist/**"],
+      "dependsOn": ["@botpress/chat#generate"]
+    },
     "@botpress/sdk#build": {
-      "inputs": ["src/**", "build.ts"],
       "outputs": ["dist/**"],
       "dependsOn": ["@botpress/client#build"]
     },
     "@botpress/cli#build": {
-      "outputs": ["dist/**", "templates/*/.botpress"],
+      "outputs": ["dist/**", "templates/*/.botpress/**"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build"]
     },
     "build": {
