@@ -1,8 +1,9 @@
 {
   "$schema": "https://turbo.build/schema.json",
   "tasks": {
-    "@botpress/client#generate": {
-      "outputs": ["src/gen/**"]
+    "generate": {
+      "outputs": ["src/gen/**"],
+      "dependsOn": ["^generate"]
     },
     "@botpress/client#build": {
       "inputs": ["src/**", "build.ts"],
@@ -22,10 +23,6 @@
     "@botpress/cli#build": {
       "outputs": ["dist/**", "templates/*/.botpress"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build"]
-    },
-    "generate": {
-      "outputs": ["src/gen/**"],
-      "dependsOn": ["@botpress/cli#build", "^generate"]
     },
     "build": {
       "outputs": ["bp_modules/**", ".botpress/**"],

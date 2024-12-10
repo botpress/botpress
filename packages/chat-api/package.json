@@ -15,7 +15,6 @@
   },
   "dependencies": {
     "@botpress/api": "0.53.0",
-    "@botpress/sdk": "workspace:*",
     "@bpinternal/opapi": "0.10.20",
     "lodash": "^4.17.21",
     "zod": "^3.20.6",

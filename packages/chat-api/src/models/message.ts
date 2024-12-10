@@ -2,47 +2,92 @@
 import { schema } from '@bpinternal/opapi'
 import z from 'zod'
 
-type MessageType =
-  | 'audio'
-  | 'card'
-  | 'carousel'
-  | 'choice'
-  | 'dropdown'
-  | 'file'
-  | 'image'
-  | 'location'
-  | 'text'
-  | 'video'
+const NonEmptyString = z.string().min(1)
 
-type BpSdk = {
-  messages: {
-    defaults: Record<
-      MessageType,
-      {
-        schema: z.AnyZodObject
-      }
-    >
-    markdown: { schema: z.AnyZodObject }
-  }
+const textMessageSchema = z.object({
+  text: NonEmptyString,
+})
+
+const markdownMessageSchema = z.object({
+  markdown: NonEmptyString,
+})
+
+const imageMessageSchema = z.object({
+  imageUrl: NonEmptyString,
+})
+
+const audioMessageSchema = z.object({
+  audioUrl: NonEmptyString,
+})
+
+const videoMessageSchema = z.object({
+  videoUrl: NonEmptyString,
+})
+
+const fileMessageSchema = z.object({
+  fileUrl: NonEmptyString,
+  title: NonEmptyString.optional(),
+})
+
+const locationMessageSchema = z.object({
+  latitude: z.number(),
+  longitude: z.number(),
+  address: z.string().optional(),
+  title: z.string().optional(),
+})
+
+const cardMessageSchema = z.object({
+  title: NonEmptyString,
+  subtitle: NonEmptyString.optional(),
+  imageUrl: NonEmptyString.optional(),
+  actions: z.array(
+    z.object({
+      action: z.enum(['postback', 'url', 'say']),
+      label: NonEmptyString,
+      value: NonEmptyString,
+    })
+  ),
+})
+
+const choiceMessageSchema = z.object({
+  text: NonEmptyString,
+  options: z.array(
+    z.object({
+      label: NonEmptyString,
+      value: NonEmptyString,
+    })
+  ),
+})
+
+const carouselMessageSchema = z.object({
+  items: z.array(cardMessageSchema),
+})
+
+const messages = {
+  text: { schema: textMessageSchema },
+  image: { schema: imageMessageSchema },
+  audio: { schema: audioMessageSchema },
+  video: { schema: videoMessageSchema },
+  file: { schema: fileMessageSchema },
+  location: { schema: locationMessageSchema },
+  carousel: { schema: carouselMessageSchema },
+  card: { schema: cardMessageSchema },
+  dropdown: { schema: choiceMessageSchema },
+  choice: { schema: choiceMessageSchema },
+  markdown: { schema: markdownMessageSchema },
 }
 
-/**
- * lib "@botpress/sdk" uses "@bpinternal/zui"
- * which is incompatible with "@bpinternal/opapi"
- */
-const { messages } = require('@botpress/sdk') as BpSdk
-
 export const messagePayloadSchema = z.union([
-  messages.defaults.audio.schema.extend({ type: z.literal('audio') }),
-  messages.defaults.card.schema.extend({ type: z.literal('card') }),
-  messages.defaults.carousel.schema.extend({ type: z.literal('carousel') }),
-  messages.defaults.choice.schema.extend({ type: z.literal('choice') }),
-  messages.defaults.dropdown.schema.extend({ type: z.literal('dropdown') }),
-  messages.defaults.file.schema.extend({ type: z.literal('file') }),
-  messages.defaults.image.schema.extend({ type: z.literal('image') }),
-  messages.defaults.location.schema.extend({ type: z.literal('location') }),
-  messages.defaults.text.schema.extend({ type: z.literal('text') }),
-  messages.defaults.video.schema.extend({ type: z.literal('video') }),
+  messages.audio.schema.extend({ type: z.literal('audio') }),
+  messages.card.schema.extend({ type: z.literal('card') }),
+  messages.carousel.schema.extend({ type: z.literal('carousel') }),
+  messages.choice.schema.extend({ type: z.literal('choice') }),
+  messages.dropdown.schema.extend({ type: z.literal('dropdown') }),
+  messages.file.schema.extend({ type: z.literal('file') }),
+  messages.image.schema.extend({ type: z.literal('image') }),
+  messages.location.schema.extend({ type: z.literal('location') }),
+  messages.text.schema.extend({ type: z.literal('text') }),
+  messages.video.schema.extend({ type: z.literal('video') }),
   messages.markdown.schema.extend({ type: z.literal('markdown') }),
 ])
 
