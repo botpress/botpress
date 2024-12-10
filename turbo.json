@@ -11,19 +11,19 @@
     },
     "@botpress/client#build": {
       "outputs": ["dist/**"],
-      "dependsOn": ["generate"]
+      "dependsOn": ["generate", "^build"]
     },
     "@botpress/chat#build": {
       "outputs": ["dist/**"],
-      "dependsOn": ["generate"]
+      "dependsOn": ["generate", "^build"]
     },
     "@botpress/sdk#build": {
       "outputs": ["dist/**"],
-      "dependsOn": ["@botpress/client#build"]
+      "dependsOn": ["generate", "^build"]
     },
     "@botpress/cli#build": {
       "outputs": ["dist/**", "templates/*/.botpress/**"],
-      "dependsOn": ["@botpress/client#build", "@botpress/sdk#build"]
+      "dependsOn": ["generate", "^build"]
     },
     "check:type": {},
     "check:bplint": {}
