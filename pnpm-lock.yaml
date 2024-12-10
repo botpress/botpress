@@ -1452,6 +1452,26 @@ importers:
         specifier: workspace:*
         version: link:../../packages/cli
 
+  interfaces/proactive-conversation:
+    dependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
+  interfaces/proactive-user:
+    dependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+
   interfaces/readable:
     dependencies:
       '@botpress/sdk':

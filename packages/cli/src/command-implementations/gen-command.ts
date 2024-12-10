@@ -62,7 +62,8 @@ export class GenerateCommand extends ProjectCommand<GenerateCommandDefinition> {
   private async _generatePlugin(pluginDefinition: sdk.PluginDefinition): Promise<void> {
     const line = this.logger.line()
 
-    line.started('Generating typings for plugin...')
+    const { name } = pluginDefinition
+    line.started(`Generating typings for plugin ${chalk.bold(name)}...`)
 
     const fromWorkDir = this.projectPaths.rel('workDir')
 

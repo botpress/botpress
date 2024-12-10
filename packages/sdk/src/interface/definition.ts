@@ -31,6 +31,8 @@ type GenericActionDefinition<
   TEntities extends BaseEntities,
   TAction extends BaseActions[string] = BaseActions[string]
 > = {
+  title?: string
+  description?: string
   billable?: boolean
   cacheable?: boolean
   input: { schema: GenericZuiSchema<EntityReferences<TEntities>, TAction> }
@@ -141,10 +143,21 @@ export class InterfaceDefinition<
     this.channels = channels as this['channels']
   }
 
-  private _getEntityReference = (entities: this['entities']): EntityReferences<TEntities> => {
+  private _getEntityReference = (entities: Record<string, EntityDefinition>): EntityReferences<TEntities> => {
     const entityReferences: Record<string, ZodRef> = {} as EntityReferences<TEntities>
-    for (const entityName of Object.keys(entities)) {
-      entityReferences[entityName] = z.ref(entityName)
+    for (const [entityName, entityDef] of Object.entries(entities)) {
+      const title = entityDef.schema._def['x-zui']?.title
+      const description = entityDef.schema._def.description
+
+      const refSchema = z.ref(entityName)
+      if (title) {
+        refSchema.title(title)
+      }
+      if (description) {
+        refSchema.describe(description)
+      }
+
+      entityReferences[entityName] = refSchema
     }
     return entityReferences as EntityReferences<TEntities>
   }

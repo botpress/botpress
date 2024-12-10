@@ -6,17 +6,16 @@
       "outputs": ["src/gen/**"]
     },
     "@botpress/client#build": {
-      "inputs": ["src/**"],
+      "inputs": ["src/**", "build.ts"],
       "outputs": ["dist/**"],
       "dependsOn": ["@botpress/client#generate"]
     },
     "@botpress/sdk#build": {
-      "inputs": ["src/**"],
+      "inputs": ["src/**", "build.ts"],
       "outputs": ["dist/**"],
       "dependsOn": ["@botpress/client#build"]
     },
     "@botpress/cli#build": {
-      "inputs": ["src/**", "templates/**"],
       "outputs": ["dist/**", "templates/*/.botpress"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build"]
     },

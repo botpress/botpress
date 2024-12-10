@@ -50,6 +50,7 @@ export default new InterfaceDefinition({
     },
   },
   actions: {
+    // TODO: allow for an interface to extend 'proactiveUser' and reuse its actions
     createUser: {
       input: {
         schema: () =>
