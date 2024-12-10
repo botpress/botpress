@@ -21,7 +21,7 @@
       "dependsOn": ["@botpress/client#build"]
     },
     "@botpress/cli#build": {
-      "outputs": ["dist/**", "templates/*/.botpress"],
+      "cache": false,
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build"]
     },
     "build": {
