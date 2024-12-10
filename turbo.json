@@ -6,22 +6,19 @@
       "dependsOn": ["^generate"]
     },
     "@botpress/client#build": {
-      "inputs": ["src/**", "build.ts"],
       "outputs": ["dist/**"],
       "dependsOn": ["@botpress/client#generate"]
     },
     "@botpress/chat#build": {
-      "inputs": ["src/**"],
       "outputs": ["dist/**"],
       "dependsOn": ["@botpress/chat#generate"]
     },
     "@botpress/sdk#build": {
-      "inputs": ["src/**", "build.ts"],
       "outputs": ["dist/**"],
       "dependsOn": ["@botpress/client#build"]
     },
     "@botpress/cli#build": {
-      "cache": false,
+      "outputs": ["dist/**", "templates/*/.botpress/**"],
       "dependsOn": ["@botpress/client#build", "@botpress/sdk#build"]
     },
     "build": {
