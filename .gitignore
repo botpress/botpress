@@ -14,3 +14,4 @@ __snapshots__
 .turbo
 .genenv/
 .genenv.*
+tilt_config.json
