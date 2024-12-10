@@ -219,8 +219,6 @@ const integration = new bp.Integration({
       return
     }
 
-    // TODO: Ignore topics that are not conversation.user.created or conversation.user.replied
-
     const {
       topic,
       data: {
