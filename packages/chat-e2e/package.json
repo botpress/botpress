@@ -1,0 +1,21 @@
+{
+  "name": "chat-e2e",
+  "description": "Chat E2E Tests",
+  "main": "./src/index.ts",
+  "private": true,
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "start": "vitest run"
+  },
+  "dependencies": {
+    "@botpress/chat": "workspace:*",
+    "jsonwebtoken": "^9.0.2",
+    "lodash": "^4.17.21",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@types/jsonwebtoken": "^9.0.3",
+    "@types/lodash": "^4.14.191",
+    "@types/uuid": "^9.0.1"
+  }
+}

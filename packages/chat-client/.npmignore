@@ -1,0 +1,8 @@
+node_modules
+src/
+tsconfig.json
+build.ts
+openapi.ts
+readme.md
+*.tsbuildinfo
+.ignore.me.*
