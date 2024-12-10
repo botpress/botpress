@@ -1706,7 +1706,7 @@ importers:
         version: 3.22.4
     devDependencies:
       '@botpress/chat-api':
-        specifier: workspace:*
+        specifier: 0.0.0
         version: link:../chat-api
       '@types/event-source-polyfill':
         specifier: ^1.0.2
