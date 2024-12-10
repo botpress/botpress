@@ -91,6 +91,15 @@ importers:
         specifier: 0.0.1
         version: 0.0.1
 
+  bots/echo:
+    devDependencies:
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      '@botpresshub/chat':
+        specifier: workspace:*
+        version: link:../../integrations/chat
+
   bots/hello-world:
     dependencies:
       '@botpress/cli':
