@@ -21,7 +21,7 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@botpress/sdk": "workspace:^",
+    "@botpress/sdk": "workspace:*",
     "@bpinternal/depsynky": "^0.0.2",
     "@types/node": "^18.19.67",
     "@typescript-eslint/eslint-plugin": "^5.47.0",

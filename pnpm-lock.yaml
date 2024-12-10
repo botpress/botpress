@@ -12,7 +12,7 @@ importers:
         specifier: workspace:*
         version: link:packages/cli
       '@botpress/sdk':
-        specifier: workspace:^
+        specifier: workspace:*
         version: link:packages/sdk
       '@bpinternal/depsynky':
         specifier: ^0.0.2
@@ -362,6 +362,9 @@ importers:
       '@aws-sdk/client-dynamodb':
         specifier: ^3.564.0
         version: 3.564.0
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
       ajv:
         specifier: ^8.12.0
         version: 8.17.1
@@ -1582,6 +1585,9 @@ importers:
       '@botpress/api':
         specifier: 0.53.0
         version: 0.53.0(openapi-types@12.1.3)
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../sdk
       '@bpinternal/opapi':
         specifier: 0.10.20
         version: 0.10.20(openapi-types@12.1.3)

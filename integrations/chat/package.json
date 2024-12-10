@@ -8,6 +8,7 @@
   },
   "private": true,
   "dependencies": {
+    "@botpress/sdk": "workspace:*",
     "@aws-sdk/client-dynamodb": "^3.564.0",
     "ajv": "^8.12.0",
     "axios": "1.2.5",
