@@ -20,6 +20,7 @@
     "query-string": "^6.14.1"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
     "@sentry/cli": "^2.39.1"
   }

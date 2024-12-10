@@ -15,6 +15,7 @@
     "qs": "^6.11.0"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
     "@botpresshub/knowledge": "workspace:*",
     "@botpresshub/openai": "workspace:*",

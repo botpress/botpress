@@ -12,6 +12,7 @@
     "@mailchimp/mailchimp_marketing": "^3.0.80"
   },
   "devDependencies": {
+    "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
     "@types/mailchimp__mailchimp_marketing": "3.0.10"
   }
