@@ -1,6 +1,6 @@
 {
   "name": "@botpress/sdk",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Botpress SDK",
   "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
@@ -14,7 +14,7 @@
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@botpress/client": "0.36.2",
+    "@botpress/client": "0.37.0",
     "@bpinternal/zui": "0.12.0"
   },
   "devDependencies": {
