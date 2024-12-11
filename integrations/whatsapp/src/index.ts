@@ -1,12 +1,13 @@
 import { RuntimeError } from '@botpress/client'
 import { Request, Response } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { channel, INTEGRATION_NAME } from 'integration.definition'
+import { INTEGRATION_NAME } from 'integration.definition'
 import * as crypto from 'node:crypto'
 import queryString from 'query-string'
+import actions from 'src/actions'
 import WhatsAppAPI from 'whatsapp-api-js'
 import { Audio, Document, Image, Location, Text, Video } from 'whatsapp-api-js/messages'
-import { createConversationHandler as createConversation, startConversation } from './conversation'
+import { createConversationHandler as createConversation } from './conversation'
 import { handleIncomingMessage } from './incoming-message'
 import * as card from './message-types/card'
 import * as carousel from './message-types/carousel'
@@ -14,7 +15,7 @@ import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
 import { checkManualConfiguration } from './misc/check-manual-config'
 import { getInterstitialUrl, redirectTo } from './misc/html-utils'
-import { getAccessToken, getPhoneNumberId, getSecret } from './misc/whatsapp'
+import { getAccessToken, getSecret } from './misc/whatsapp'
 import { handleWizard } from './misc/wizard'
 import * as outgoing from './outgoing-message'
 import { identifyBot, trackIntegrationEvent } from './tracking'
@@ -54,31 +55,7 @@ const integration = new bp.Integration({
     }
   },
   unregister: async () => {},
-  actions: {
-    startConversation: async ({ ctx, input, client, logger }) => {
-      const phoneNumberId: string | undefined = input.senderPhoneNumberId || (await getPhoneNumberId(client, ctx))
-
-      if (!phoneNumberId) {
-        throw new Error('phoneNumberId is required')
-      }
-
-      const conversation = await startConversation(
-        {
-          channel,
-          phoneNumberId,
-          userPhone: input.userPhone,
-          templateName: input.templateName,
-          templateLanguage: input.templateLanguage,
-          templateVariablesJson: input.templateVariablesJson,
-        },
-        { client, ctx, logger }
-      )
-
-      return {
-        conversationId: conversation.id,
-      }
-    },
-  },
+  actions,
   createConversation, // This is not needed for the `startConversation` action above, it's only for allowing bots to start conversations by calling `client.createConversation()` directly.
   channels: {
     channel: {
