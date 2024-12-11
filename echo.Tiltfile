@@ -23,6 +23,8 @@ ECHO_BOT_DEV_ID_PATH = "%s/echo-bot-dev-id" % LOCAL_GEN_DIR
 CHAT_WEBHOOK_PATH = "%s/chat-webhook" % LOCAL_GEN_DIR
 LOCAL_AWS_ACCESS_KEY_ID = "FOO"
 LOCAL_AWS_SECRET_ACCESS_KEY = "BAR"
+CHAT_INTEGRATION_CACHE_PATH = "%s/integrations/chat/.botpress/project.cache.json" % WORK_DIR
+ECHO_BOT_CACHE_PATH = "%s/bots/echo/.botpress/project.cache.json" % WORK_DIR
 
 CONV_FID_STORE = struct(
   table_name='chat-integration-conversation-fid-store',
@@ -146,6 +148,13 @@ dc_resource(name='run-dynamodb', labels=['run'])
 
 # 3. ressources
 
+# 3.0. watchers
+
+watch_file(CHAT_INTEGRATION_CACHE_PATH)
+watch_file(ECHO_BOT_CACHE_PATH)
+chat_dev_id = read_json(CHAT_INTEGRATION_CACHE_PATH, {}).get('devId', '')
+echo_dev_id = read_json(ECHO_BOT_CACHE_PATH, {}).get('devId', '')
+
 ## 3.1. utils
 
 local_resource(
@@ -266,42 +275,19 @@ local_resource(
   readiness_probe=probe(http_get=http_get_action(port=CHAT_INTEGRATION_PORT, path='/health'), period_secs=1, failure_threshold=10),
 )
 
-# local_resource(
-#   name='get-chat-dev-id',
-#   cmd='bash ./scripts/read-dev-id.sh ./packages/chat-integration > %s' % CHAT_DEV_ID_PATH,
-#   resource_deps=['run-chat-integration'],
-#   deps=['./packages/chat-integration/src'],
-#   labels=['scripts'],
-# )
-
-# local_resource(
-#   name='get-webchat-dev-id',
-#   cmd='bash ./scripts/read-dev-id.sh ./packages/webchat-integration > %s' % WEBCHAT_DEV_ID_PATH,
-#   resource_deps=['run-webchat-integration'],
-#   labels=['scripts'],
-# )
-
-# local_resource(
-#   name='run-echo-bot',
-#   serve_cmd=" && ".join([
-#     "pnpm -F echo exec bp add $(cat %s) -y" % CHAT_DEV_ID_PATH,
-#     "pnpm -F echo exec bp add $(cat %s) -y" % WEBCHAT_DEV_ID_PATH,
-#     "pnpm -F echo exec bp dev -y --tunnel-url %s --port %s" % (BP_TUNNEL_URL, ECHO_BOT_PORT),
-#   ]),
-#   serve_env={
-#     BP_HOME_ENV.key: BP_HOME_ENV.value,
-#   },
-#   resource_deps=['login-botpress', 'run-chat-integration', 'run-webchat-integration', 'get-chat-dev-id', 'get-webchat-dev-id'],
-#   labels=['run'],
-#   readiness_probe=probe(http_get=http_get_action(port=ECHO_BOT_PORT, path='/health'), period_secs=1, failure_threshold=10),
-# )
-
-# local_resource(
-#   name='get-echo-bot-dev-id',
-#   cmd='bash ./scripts/read-dev-id.sh ./packages/echo-bot > %s' % ECHO_BOT_DEV_ID_PATH,
-#   resource_deps=['run-echo-bot'],
-#   labels=['scripts'],
-# )
+local_resource(
+  name='run-echo-bot',
+  serve_cmd=" && ".join([
+    "pnpm -F echo exec bp add %s -y" % chat_dev_id,
+    "pnpm -F echo exec bp dev -y --tunnel-url %s --port %s" % (API.bp_tunnel_url, ECHO_BOT_PORT),
+  ]),
+  serve_env={
+    BP_HOME_ENV.key: BP_HOME_ENV.value,
+  },
+  resource_deps=['login-botpress', 'run-chat-integration'],
+  labels=['run'],
+  readiness_probe=probe(http_get=http_get_action(port=ECHO_BOT_PORT, path='/health'), period_secs=1, failure_threshold=10),
+)
 
 # local_resource(
 #   name='get-chat-webhook',
@@ -311,15 +297,7 @@ local_resource(
 #   resource_deps=['run-chat-integration', 'run-echo-bot', 'get-chat-dev-id', 'get-echo-bot-dev-id'],
 # )
 
-# local_resource(
-#   name='get-webchat-webhook',
-#   cmd='bash ./scripts/fetch-wh.sh $(cat %s) $(cat %s) > %s' % (ECHO_BOT_DEV_ID_PATH, WEBCHAT_DEV_ID_PATH, WEBCHAT_WEBHOOK_PATH),
-#   env=BP_HOME_ENV.env,
-#   labels=['scripts'],
-#   resource_deps=['run-webchat-integration', 'run-echo-bot', 'get-webchat-dev-id', 'get-echo-bot-dev-id'],
-# )
-
-# ## 3.3. test
+## 3.3. test
 
 # local_resource(
 #   name='test-chat-integration',
