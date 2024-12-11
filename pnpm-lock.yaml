@@ -1650,8 +1650,8 @@ importers:
   packages/chat-api:
     dependencies:
       '@botpress/api':
-        specifier: 0.53.0
-        version: 0.53.0(openapi-types@12.1.3)
+        specifier: 0.55.0
+        version: 0.55.0(openapi-types@12.1.3)
       '@bpinternal/opapi':
         specifier: 0.10.20
         version: 0.10.20(openapi-types@12.1.3)
@@ -3157,16 +3157,6 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.53.0(openapi-types@12.1.3):
-    resolution: {integrity: sha512-NVwgeIgyn5Y+LYUmQgTLaJtAdAew0hhTHxmHBj68iSUm05YGjvi+bbt1OYzE/m0ipDWkwEmH+yhBAWVAQDHjDg==}
-    dependencies:
-      '@bpinternal/opapi': 0.10.22(openapi-types@12.1.3)
-    transitivePeerDependencies:
-      - debug
-      - openapi-types
-      - supports-color
-    dev: false
-
   /@botpress/api@0.55.0(openapi-types@12.1.3):
     resolution: {integrity: sha512-/EEzy63IjE+dieoSC8mJqcgWrzgLBvMF1zDRUe0O364qgetMuCRSiIVpMY+WNQrhnyO0w9Dmz/UW7xgEvEEt4A==}
     dependencies:
@@ -3175,7 +3165,6 @@ packages:
       - debug
       - openapi-types
       - supports-color
-    dev: true
 
   /@botpress/client@0.14.2:
     resolution: {integrity: sha512-hHtwGbqg4mTN2V5fQjSCZtp80JJt7W541wFs9bFphAbFuWmLHk40Y502oHsb3JLlJHgFdFaJloE5ZmEhHckKLg==}
