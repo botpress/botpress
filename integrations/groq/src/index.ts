@@ -12,10 +12,24 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
   // Reference:
   //  https://console.groq.com/docs/models
   //  https://wow.groq.com/
-  'llama-3.2-1b-preview': {
-    name: 'LLaMA 3.2 1B (Preview)',
+  'llama-3.3-70b-versatile': {
+    name: 'LLaMA 3.3 70B',
     description:
-      '[BETA preview version] The Llama 3.2 instruction-tuned, text-only models are optimized for multilingual dialogue use cases, including agentic retrieval and summarization tasks.',
+      'The Meta Llama 3.3 multilingual large language model (LLM) is a pretrained and instruction tuned generative model in 70B (text in/text out). The Llama 3.3 instruction tuned text only model is optimized for multilingual dialogue use cases and outperforms many of the available open source and closed chat models on common industry benchmarks.',
+    tags: ['recommended', 'general-purpose', 'coding'],
+    input: {
+      costPer1MTokens: 0.04,
+      maxTokens: 128_000,
+    },
+    output: {
+      costPer1MTokens: 0.04,
+      maxTokens: 8192,
+    },
+  },
+  'llama-3.2-1b-preview': {
+    name: 'LLaMA 3.2 1B',
+    description:
+      'The Llama 3.2 instruction-tuned, text-only models are optimized for multilingual dialogue use cases, including agentic retrieval and summarization tasks.',
     tags: ['low-cost'],
     input: {
       costPer1MTokens: 0.04,
@@ -27,9 +41,9 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
     },
   },
   'llama-3.2-3b-preview': {
-    name: 'LLaMA 3.2 3B (Preview)',
+    name: 'LLaMA 3.2 3B',
     description:
-      '[BETA preview version] The Llama 3.2 instruction-tuned, text-only models are optimized for multilingual dialogue use cases, including agentic retrieval and summarization tasks.',
+      'The Llama 3.2 instruction-tuned, text-only models are optimized for multilingual dialogue use cases, including agentic retrieval and summarization tasks.',
     tags: ['low-cost', 'general-purpose'],
     input: {
       costPer1MTokens: 0.06,
@@ -41,9 +55,9 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
     },
   },
   'llama-3.2-11b-vision-preview': {
-    name: 'LLaMA 3.2 11B Vision (Preview)',
+    name: 'LLaMA 3.2 11B Vision',
     description:
-      '[BETA preview version] The Llama 3.2-Vision instruction-tuned models are optimized for visual recognition, image reasoning, captioning, and answering general questions about an image.',
+      'The Llama 3.2-Vision instruction-tuned models are optimized for visual recognition, image reasoning, captioning, and answering general questions about an image.',
     tags: ['low-cost', 'vision', 'general-purpose'],
     input: {
       costPer1MTokens: 0.18,
@@ -55,9 +69,9 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
     },
   },
   'llama-3.2-90b-vision-preview': {
-    name: 'LLaMA 3.2 90B Vision (Preview)',
+    name: 'LLaMA 3.2 90B Vision',
     description:
-      '[BETA preview version] The Llama 3.2-Vision instruction-tuned models are optimized for visual recognition, image reasoning, captioning, and answering general questions about an image.',
+      'The Llama 3.2-Vision instruction-tuned models are optimized for visual recognition, image reasoning, captioning, and answering general questions about an image.',
     tags: ['recommended', 'vision', 'general-purpose'],
     input: {
       costPer1MTokens: 0.9,
@@ -134,20 +148,6 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
     output: {
       costPer1MTokens: 0.24,
       maxTokens: 32768,
-    },
-  },
-  'gemma-7b-it': {
-    name: 'Gemma 7B',
-    description:
-      'Gemma is a family of lightweight, state-of-the-art open models from Google, built from the same research and technology used to create the Gemini models. They are text-to-text, decoder-only large language models, available in English, with open weights, pre-trained variants, and instruction-tuned variants. Gemma models are well-suited for a variety of text generation tasks, including question answering, summarization, and reasoning.',
-    tags: ['deprecated', 'low-cost'],
-    input: {
-      costPer1MTokens: 0.07,
-      maxTokens: 8192,
-    },
-    output: {
-      costPer1MTokens: 0.07,
-      maxTokens: 8192,
     },
   },
   'gemma2-9b-it': {
