@@ -187,84 +187,84 @@ local_resource(
   resource_deps=readiness_deps,
 )
 
-## 3.2. utils
+# 3.2. utils
 
-# local_resource(
-#   name='create-conv-fid-store',
-#   cmd='bash ./scripts/create-fid-store.sh',
-#   env={
-#     'AWS_REGION': "localhost",
-#     'AWS_ACCESS_KEY_ID': LOCAL_AWS_ACCESS_KEY_ID,
-#     'AWS_SECRET_ACCESS_KEY': LOCAL_AWS_SECRET_ACCESS_KEY,
-#     'endpoint': "http://localhost:%s" % DYNAMO_DB_PORT,
-#     'table_name': CONV_FID_STORE.table_name,
-#     'index_name': CONV_FID_STORE.index_name,
-#     'partition_key': CONV_FID_STORE.partition_key,
-#     'sort_key': CONV_FID_STORE.sort_key,
-#     'index_sort_key': CONV_FID_STORE.index_sort_key,
-#   },
-#   labels=['scripts'],
-#   resource_deps=['readiness'],
-# )
+local_resource(
+  name='create-conv-fid-store',
+  cmd='pnpm ts-node -T ./scripts/dynamodb-create-table.ts',
+  env={
+    'AWS_REGION': "localhost",
+    'AWS_ACCESS_KEY_ID': LOCAL_AWS_ACCESS_KEY_ID,
+    'AWS_SECRET_ACCESS_KEY': LOCAL_AWS_SECRET_ACCESS_KEY,
+    'endpoint': "http://localhost:%s" % DYNAMO_DB_PORT,
+    'table_name': CONV_FID_STORE.table_name,
+    'index_name': CONV_FID_STORE.index_name,
+    'partition_key': CONV_FID_STORE.partition_key,
+    'sort_key': CONV_FID_STORE.sort_key,
+    'index_sort_key': CONV_FID_STORE.index_sort_key,
+  },
+  labels=['scripts'],
+  resource_deps=['readiness'],
+)
 
-# local_resource(
-#   name='create-user-fid-store',
-#   cmd='bash ./scripts/create-fid-store.sh',
-#   env={
-#     'AWS_REGION': "localhost",
-#     'AWS_ACCESS_KEY_ID': LOCAL_AWS_ACCESS_KEY_ID,
-#     'AWS_SECRET_ACCESS_KEY': LOCAL_AWS_SECRET_ACCESS_KEY,
-#     'endpoint': "http://localhost:%s" % DYNAMO_DB_PORT,
-#     'table_name': USER_FID_STORE.table_name,
-#     'index_name': USER_FID_STORE.index_name,
-#     'partition_key': USER_FID_STORE.partition_key,
-#     'sort_key': USER_FID_STORE.sort_key,
-#     'index_sort_key': USER_FID_STORE.index_sort_key,
-#   },
-#   labels=['scripts'],
-#   resource_deps=['readiness'],
-# )
+local_resource(
+  name='create-user-fid-store',
+  cmd='pnpm ts-node -T ./scripts/dynamodb-create-table.ts',
+  env={
+    'AWS_REGION': "localhost",
+    'AWS_ACCESS_KEY_ID': LOCAL_AWS_ACCESS_KEY_ID,
+    'AWS_SECRET_ACCESS_KEY': LOCAL_AWS_SECRET_ACCESS_KEY,
+    'endpoint': "http://localhost:%s" % DYNAMO_DB_PORT,
+    'table_name': USER_FID_STORE.table_name,
+    'index_name': USER_FID_STORE.index_name,
+    'partition_key': USER_FID_STORE.partition_key,
+    'sort_key': USER_FID_STORE.sort_key,
+    'index_sort_key': USER_FID_STORE.index_sort_key,
+  },
+  labels=['scripts'],
+  resource_deps=['readiness'],
+)
 
 ## 3.3. run
 
-# local_resource(
-#   name='run-chat-integration',
-#   serve_cmd=" ".join([
-#     "pnpm -F @botpresshub/chat exec bp dev",
-#     "--secrets SIGNAL_URL=http://localhost:%s" % PUSHPIN_PRIVATE_PORT,
-#     "--secrets AUTH_ENCRYPTION_KEY=%s" % AUTH_ENCRYPTION_KEY,
-#     '--secrets FID_STORE_CONFIG="%s"' % encode_base64(encode_json({
-#       "strategy": "dynamo-db",
-#       "endpoint": "http://localhost:%s" % DYNAMO_DB_PORT,
-#       "region": "localhost",
-#       "accessKeyId": LOCAL_AWS_ACCESS_KEY_ID,
-#       "secretAccessKey": LOCAL_AWS_SECRET_ACCESS_KEY,
-#       "conversationTable": {
-#         "tableName": CONV_FID_STORE.table_name,
-#         "indexName": CONV_FID_STORE.index_name,
-#         "partitionKey": CONV_FID_STORE.partition_key,
-#         "sortKey": CONV_FID_STORE.sort_key,
-#         "indexSortKey": CONV_FID_STORE.index_sort_key,
-#       },
-#       "userTable": {
-#         "tableName": USER_FID_STORE.table_name,
-#         "indexName": USER_FID_STORE.index_name,
-#         "partitionKey": USER_FID_STORE.partition_key,
-#         "sortKey": USER_FID_STORE.sort_key,
-#         "indexSortKey": USER_FID_STORE.index_sort_key,
-#       }
-#     }))
-#   ]),
-#   serve_env={
-#     BP_HOME_ENV.key: BP_HOME_ENV.value,
-#     'BP_CONFIRM': 'true',
-#     'BP_TUNNEL_URL': BP_TUNNEL_URL,
-#     'BP_PORT': str(CHAT_INTEGRATION_PORT),
-#   },
-#   resource_deps=['login-botpress', 'readiness', 'run-pushpin', 'create-conv-fid-store', 'create-user-fid-store'],
-#   labels=['run'],
-#   readiness_probe=probe(http_get=http_get_action(port=CHAT_INTEGRATION_PORT, path='/health'), period_secs=1, failure_threshold=10),
-# )
+local_resource(
+  name='run-chat-integration',
+  serve_cmd=" ".join([
+    "pnpm -F @botpresshub/chat exec bp dev",
+    "--secrets SIGNAL_URL=http://localhost:%s" % PUSHPIN_PRIVATE_PORT,
+    "--secrets AUTH_ENCRYPTION_KEY=%s" % AUTH_ENCRYPTION_KEY,
+    '--secrets FID_STORE_CONFIG="%s"' % encode_base64(encode_json({
+      "strategy": "dynamo-db",
+      "endpoint": "http://localhost:%s" % DYNAMO_DB_PORT,
+      "region": "localhost",
+      "accessKeyId": LOCAL_AWS_ACCESS_KEY_ID,
+      "secretAccessKey": LOCAL_AWS_SECRET_ACCESS_KEY,
+      "conversationTable": {
+        "tableName": CONV_FID_STORE.table_name,
+        "indexName": CONV_FID_STORE.index_name,
+        "partitionKey": CONV_FID_STORE.partition_key,
+        "sortKey": CONV_FID_STORE.sort_key,
+        "indexSortKey": CONV_FID_STORE.index_sort_key,
+      },
+      "userTable": {
+        "tableName": USER_FID_STORE.table_name,
+        "indexName": USER_FID_STORE.index_name,
+        "partitionKey": USER_FID_STORE.partition_key,
+        "sortKey": USER_FID_STORE.sort_key,
+        "indexSortKey": USER_FID_STORE.index_sort_key,
+      }
+    }))
+  ]),
+  serve_env={
+    BP_HOME_ENV.key: BP_HOME_ENV.value,
+    'BP_CONFIRM': 'true',
+    'BP_TUNNEL_URL': API.bp_tunnel_url,
+    'BP_PORT': str(CHAT_INTEGRATION_PORT),
+  },
+  resource_deps=['login-botpress', 'readiness', 'run-pushpin', 'create-conv-fid-store', 'create-user-fid-store'],
+  labels=['run'],
+  readiness_probe=probe(http_get=http_get_action(port=CHAT_INTEGRATION_PORT, path='/health'), period_secs=1, failure_threshold=10),
+)
 
 # local_resource(
 #   name='get-chat-dev-id',
