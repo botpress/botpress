@@ -1,5 +1,5 @@
 {
-  "name": "echo",
+  "name": "@bp-bots/echo",
   "description": "Echo bot used by the chat-e2e test suite",
   "main": "src/index.ts",
   "scripts": {

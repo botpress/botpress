@@ -40,6 +40,7 @@ export const installAllInterfaces: Test = {
           packageRef: iface,
           packageType: 'interface',
           installPath: baseDir,
+          useDev: false,
         })
         .then(utils.handleExitCode)
       // TODO: also run a type check on the installed interface

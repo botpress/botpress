@@ -1,10 +1,10 @@
 import { state } from '@botpress/api'
 import { OpenApi } from '@bpinternal/opapi'
-import { version } from '../package.json'
 import { conversationSchema } from './models/conversation'
 import { eventSchema } from './models/event'
 import { messageSchema } from './models/message'
 import { userSchema } from './models/user'
+import { apiVersion } from './version'
 
 export const { errors } = state
 
@@ -36,7 +36,7 @@ export const chatApi = (): ChatApi =>
         title: 'Chat API',
         description: 'API for the Chat Integration',
         server: 'https://chat.botpress.cloud/',
-        version,
+        version: apiVersion,
       },
       sections,
       schemas,

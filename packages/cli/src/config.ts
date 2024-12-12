@@ -210,6 +210,11 @@ const addSchema = {
     description: 'The path where to install the package',
     default: consts.defaultInstallPath,
   },
+  useDev: {
+    type: 'boolean',
+    description: 'If a dev version of the package is found, use it',
+    default: false,
+  },
 } satisfies CommandSchema
 
 const loginSchema = {
