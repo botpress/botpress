@@ -19,8 +19,6 @@ BOTPRESS_HOME_DIR = "%s/.botpresshome.echo" % WORK_DIR
 PUSHPIN_CONFIG_PATH="%s/pushpin.conf" % WORK_DIR
 LOCAL_AWS_ACCESS_KEY_ID = "FOO"
 LOCAL_AWS_SECRET_ACCESS_KEY = "BAR"
-CHAT_INTEGRATION_CACHE_PATH = "%s/integrations/chat/.botpress/project.cache.json" % WORK_DIR
-ECHO_BOT_CACHE_PATH = "%s/bots/echo/.botpress/project.cache.json" % WORK_DIR
 
 CONV_FID_STORE = struct(
   table_name='chat-integration-conversation-fid-store',
@@ -137,24 +135,6 @@ dc_resource(name='run-pushpin', labels=['run'])
 dc_resource(name='run-dynamodb', labels=['run'])
 
 # 3. ressources
-
-# 3.0. watchers
-
-watch_file(CHAT_INTEGRATION_CACHE_PATH)
-watch_file(ECHO_BOT_CACHE_PATH)
-chat_dev_id = read_json(CHAT_INTEGRATION_CACHE_PATH, {}).get('devId', None)
-echo_dev_id = read_json(ECHO_BOT_CACHE_PATH, {}).get('devId', None)
-chat_wh_id = decode_json(local(
-  command='pnpm ts-node -T ./scripts/fetch-wh-ids.ts',
-  env={
-    'BP_API_URL': API.bp_api_url,
-    'BP_TOKEN': CONFIG.bp_token,
-    'BP_WORKSPACE_ID': CONFIG.bp_workspace_id,
-    'BP_BOT_ID': echo_dev_id,
-  },
-  quiet=True,
-  echo_off=True,
-)).get('chat', None) if chat_dev_id else None
 
 ## 3.1. utils
 
