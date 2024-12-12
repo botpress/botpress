@@ -19,6 +19,8 @@ BOTPRESS_HOME_DIR = "%s/.botpresshome.echo" % WORK_DIR
 PUSHPIN_CONFIG_PATH="%s/pushpin.conf" % WORK_DIR
 LOCAL_AWS_ACCESS_KEY_ID = "FOO"
 LOCAL_AWS_SECRET_ACCESS_KEY = "BAR"
+ECHO_BOT_PATH = "%s/bots/echo" % WORK_DIR
+CHAT_INT_PATH = "%s/integrations/chat" % WORK_DIR
 
 CONV_FID_STORE = struct(
   table_name='chat-integration-conversation-fid-store',
@@ -263,10 +265,8 @@ local_resource(
 
 local_resource(
   name='run-echo-bot',
-  serve_cmd=" && ".join([
-    "pnpm -F echo exec bp add --use-dev -y",
-    "pnpm -F echo exec bp dev -y --tunnel-url %s --port %s" % (API.bp_tunnel_url, ECHO_BOT_PORT),
-  ]),
+  cmd="pnpm -F echo exec bp add --use-dev -y",
+  serve_cmd="pnpm -F echo exec bp dev -y --tunnel-url %s --port %s" % (API.bp_tunnel_url, ECHO_BOT_PORT),
   serve_env={
     BP_HOME_ENV.key: BP_HOME_ENV.value,
   },
@@ -275,17 +275,27 @@ local_resource(
   readiness_probe=probe(http_get=http_get_action(port=ECHO_BOT_PORT, path='/health'), period_secs=1, failure_threshold=10),
 )
 
-# ## 3.3. test
+## 3.3. test
 
-# local_resource(
-#   name='test-chat-integration',
-#   cmd='pnpm run -F chat-e2e start',
-#   env={
-#     "ENCRYPTION_KEY": "%s" % AUTH_ENCRYPTION_KEY,
-#     'API_URL': 'http://localhost:%s/%s' % (PUSHPIN_PUBLIC_PORT, chat_wh_id)
-#   },
-#   resource_deps=['run-chat-integration', 'run-echo-bot'],
-#   labels=['test'],
-# )
+# TODO: find a way to make this work without bash specific syntax
+local_resource(
+  name='test-chat-integration',
+  cmd=" ".join([
+    'wh_id=$(pnpm ts-node -T ./scripts/fetch-chat-wh.ts);',
+    'API_URL=http://localhost:%s/$wh_id' % PUSHPIN_PUBLIC_PORT,
+    'pnpm run -F chat-e2e start'
+  ]),
+  env={
+    BP_HOME_ENV.key: BP_HOME_ENV.value,
+    'BP_API_URL': API.bp_api_url,
+    'BP_TOKEN': CONFIG.bp_token,
+    'BP_WORKSPACE_ID': CONFIG.bp_workspace_id,
+    'ECHO_PATH': ECHO_BOT_PATH,
+    'CHAT_PATH': CHAT_INT_PATH,
+    'ENCRYPTION_KEY': AUTH_ENCRYPTION_KEY,   
+  },
+  resource_deps=['run-chat-integration', 'run-echo-bot'],
+  labels=['test'],
+)
 
 
