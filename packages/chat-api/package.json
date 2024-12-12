@@ -1,6 +1,5 @@
 {
   "name": "@botpress/chat-api",
-  "version": "0.0.0",
   "private": true,
   "main": "src/index.ts",
   "types": "src/index.ts",
@@ -15,7 +14,7 @@
   },
   "dependencies": {
     "@botpress/api": "0.56.0",
-    "@bpinternal/opapi": "0.10.20",
+    "@bpinternal/opapi": "0.10.30",
     "lodash": "^4.17.21",
     "zod": "^3.20.6",
     "zod-to-json-schema": "^3.21.4"

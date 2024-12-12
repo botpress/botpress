@@ -1,10 +1,11 @@
 import * as sdk from '@botpress/sdk'
 import { z } from '@botpress/sdk'
+import { apiVersion } from './src/gen/version'
 
 export default new sdk.IntegrationDefinition({
   name: 'chat',
   title: 'Chat',
-  version: '0.3.1',
+  version: apiVersion,
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Chat integration for Botpress; Allows interacting with your bot using HTTP requests.',
