@@ -18,5 +18,8 @@
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
     "@sentry/cli": "^2.39.1"
+  },
+  "bpDependencies": {
+    "typing-indicator": "../../interfaces/typing-indicator"
   }
 }
