@@ -156,13 +156,22 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
   private async _findLocalPackage(ref: pkgRef.LocalPackageRef): Promise<InstallablePackage | undefined> {
     const absPath = utils.path.absoluteFrom(utils.path.cwd(), ref.path)
-    const { definition: projectDefinition, implementation: projectImplementation } = await this._readProject(absPath)
+    const {
+      definition: projectDefinition,
+      implementation: projectImplementation,
+      devId: projectDevId,
+    } = await this._readProject(absPath)
 
     if (projectDefinition?.type === 'integration') {
       const { name, version } = projectDefinition.definition
+      let devId: string | undefined
+      if (this.argv.useDev && projectDevId) {
+        this.logger.warn(`Installing integration "${name}" with dev version "${projectDevId}"`)
+        devId = projectDevId
+      }
       return {
         type: 'integration',
-        pkg: { source: 'local', path: absPath, name, version },
+        pkg: { source: 'local', path: absPath, devId, name, version },
       }
     }
 
