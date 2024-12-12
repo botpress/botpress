@@ -39,3 +39,8 @@ jobs:
         with:
           path: './packages/cli'
           token: '${{ secrets.NPM_ACCESS_TOKEN }}'
+      - name: Publish Chat Client
+        uses: botpress/gh-actions/publish-if-not-exists@master
+        with:
+          path: './packages/chat-client'
+          token: '${{ secrets.NPM_ACCESS_TOKEN }}'
