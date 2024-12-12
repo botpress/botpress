@@ -21,7 +21,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          filter: '@botpress/*'
+          extra_filters: "-F '@botpress/*'"
           turbo_team: ${{ secrets.TURBO_TEAM }}
           turbo_token: ${{ secrets.TURBO_TOKEN }}
       - name: Publish Client
