@@ -9,7 +9,7 @@ import * as errors from '../errors'
 import * as pkgRef from '../package-ref'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
-import { ProjectCommand, ProjectCommandDefinition, ProjectDefinition } from './project-command'
+import { ProjectCache, ProjectCommand, ProjectCommandDefinition, ProjectDefinition } from './project-command'
 
 type InstallablePackage =
   | {
@@ -157,6 +157,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   private async _findLocalPackage(ref: pkgRef.LocalPackageRef): Promise<InstallablePackage | undefined> {
     const absPath = utils.path.absoluteFrom(utils.path.cwd(), ref.path)
     const { definition: projectDefinition, implementation: projectImplementation } = await this._readProject(absPath)
+
     if (projectDefinition?.type === 'integration') {
       const { name, version } = projectDefinition.definition
       return {
@@ -222,6 +223,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
   private async _readProject(workDir: utils.path.AbsolutePath): Promise<{
     definition?: ProjectDefinition
     implementation?: string
+    devId?: string
   }> {
     // this is a hack to avoid refactoring the project command class
     class AnyProjectCommand extends ProjectCommand<ProjectCommandDefinition> {
@@ -231,6 +233,10 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
 
       public async readProjectDefinitionFromFS(): Promise<ProjectDefinition> {
         return super.readProjectDefinitionFromFS()
+      }
+
+      public get projectCache(): utils.cache.FSKeyValueCache<ProjectCache> {
+        return super.projectCache
       }
     }
 
@@ -246,13 +252,15 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       throw thrown
     })
 
+    const devId = await cmd.projectCache.get('devId')
+
     const implementationAbsPath = utils.path.join(workDir, consts.fromWorkDir.outFile)
     if (!fslib.existsSync(implementationAbsPath)) {
-      return { definition }
+      return { definition, devId }
     }
 
     const implementation = await fslib.promises.readFile(implementationAbsPath, 'utf8')
-    return { definition, implementation }
+    return { definition, implementation, devId }
   }
 
   private _pkgCouldBe = (ref: pkgRef.ApiPackageRef, pkgType: InstallablePackage['type']) => {

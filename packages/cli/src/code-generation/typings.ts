@@ -12,6 +12,7 @@ export type IntegrationInstallablePackage = NameVersion &
       }
     | {
         source: 'local'
+        devId?: string
         path: utils.path.AbsolutePath
       }
   )
