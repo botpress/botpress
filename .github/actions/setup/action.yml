@@ -2,9 +2,8 @@ name: Setup
 description: install dependencies and build
 
 inputs:
-  filter:
-    type: string
-    description: 'packages to build'
+  extra_filters:
+    description: 'Turbo additional filters to select packages to build'
     required: false
   turbo_team:
     type: string
@@ -34,9 +33,9 @@ runs:
         TURBO_TEAM: ${{ inputs.turbo_team }}
         TURBO_TOKEN: ${{ inputs.turbo_token }}
       run: |
-        filter="${{ inputs.filter }}"
+        filter="${{ inputs.extra_filters }}"
         if [ -z "$filter" ]; then
           pnpm build
         else
-          pnpm build --filter $filter
+          pnpm build $filter
         fi
