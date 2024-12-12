@@ -17,10 +17,6 @@ AUTH_ENCRYPTION_KEY = "allo"
 WORK_DIR = os.path.dirname(__file__)
 BOTPRESS_HOME_DIR = "%s/.botpresshome.echo" % WORK_DIR
 PUSHPIN_CONFIG_PATH="%s/pushpin.conf" % WORK_DIR
-LOCAL_GEN_DIR = "%s/local/gen" % WORK_DIR
-CHAT_DEV_ID_PATH = "%s/chat-dev-id" % LOCAL_GEN_DIR
-ECHO_BOT_DEV_ID_PATH = "%s/echo-bot-dev-id" % LOCAL_GEN_DIR
-CHAT_WEBHOOK_PATH = "%s/chat-webhook" % LOCAL_GEN_DIR
 LOCAL_AWS_ACCESS_KEY_ID = "FOO"
 LOCAL_AWS_SECRET_ACCESS_KEY = "BAR"
 CHAT_INTEGRATION_CACHE_PATH = "%s/integrations/chat/.botpress/project.cache.json" % WORK_DIR
@@ -44,12 +40,6 @@ USER_FID_STORE = struct(
 
 ## 0.3. utils
 
-def create_env(key, value):
-  return struct(key=key, value=value, env={ key: value })
-
-def qs(params):
-  return '?' + '&'.join(['%s=%s' % (k, v) for k, v in params.items()])
-
 def encode_base64(content):
     return str(local(
         command=['base64'],
@@ -60,7 +50,7 @@ def encode_base64(content):
 
 # 0.4. env
 
-BP_HOME_ENV = create_env(key='BP_BOTPRESS_HOME', value=BOTPRESS_HOME_DIR)
+BP_HOME_ENV = struct(key='BP_BOTPRESS_HOME', value=BOTPRESS_HOME_DIR)
 
 # 1. config
 
@@ -152,8 +142,19 @@ dc_resource(name='run-dynamodb', labels=['run'])
 
 watch_file(CHAT_INTEGRATION_CACHE_PATH)
 watch_file(ECHO_BOT_CACHE_PATH)
-chat_dev_id = read_json(CHAT_INTEGRATION_CACHE_PATH, {}).get('devId', '')
-echo_dev_id = read_json(ECHO_BOT_CACHE_PATH, {}).get('devId', '')
+chat_dev_id = read_json(CHAT_INTEGRATION_CACHE_PATH, {}).get('devId', None)
+echo_dev_id = read_json(ECHO_BOT_CACHE_PATH, {}).get('devId', None)
+chat_wh_id = decode_json(local(
+  command='pnpm ts-node -T ./scripts/fetch-wh-ids.ts',
+  env={
+    'BP_API_URL': API.bp_api_url,
+    'BP_TOKEN': CONFIG.bp_token,
+    'BP_WORKSPACE_ID': CONFIG.bp_workspace_id,
+    'BP_BOT_ID': echo_dev_id,
+  },
+  quiet=True,
+  echo_off=True,
+)).get('chat', None) if chat_dev_id else None
 
 ## 3.1. utils
 
@@ -172,8 +173,13 @@ local_resource(
 
 local_resource(
   name='login-botpress',
-  cmd='pnpm bp login --api-url %s --token %s --workspace-id %s' % (API.bp_api_url, CONFIG.bp_token, CONFIG.bp_workspace_id),
-  env=BP_HOME_ENV.env,
+  cmd='pnpm bp login',
+  env={
+    BP_HOME_ENV.key: BP_HOME_ENV.value,
+    'BP_API_URL': API.bp_api_url,
+    'BP_TOKEN': CONFIG.bp_token,
+    'BP_WORKSPACE_ID': CONFIG.bp_workspace_id,
+  },
   resource_deps=['pnpm-install', 'pnpm-build'],
   labels=['utils'],
 )
@@ -289,24 +295,17 @@ local_resource(
   readiness_probe=probe(http_get=http_get_action(port=ECHO_BOT_PORT, path='/health'), period_secs=1, failure_threshold=10),
 )
 
-# local_resource(
-#   name='get-chat-webhook',
-#   cmd='bash ./scripts/fetch-wh.sh $(cat %s) $(cat %s) > %s' % (ECHO_BOT_DEV_ID_PATH, CHAT_DEV_ID_PATH, CHAT_WEBHOOK_PATH),
-#   env=BP_HOME_ENV.env,
-#   labels=['scripts'],
-#   resource_deps=['run-chat-integration', 'run-echo-bot', 'get-chat-dev-id', 'get-echo-bot-dev-id'],
-# )
-
 ## 3.3. test
 
-# local_resource(
-#   name='test-chat-integration',
-#   cmd='API_URL=http://localhost:%s/$(cat %s) pnpm run -F chat-e2e start' % (PUSHPIN_PUBLIC_PORT, CHAT_WEBHOOK_PATH),
-#   env={
-#     "ENCRYPTION_KEY": "%s" % AUTH_ENCRYPTION_KEY
-#   },
-#   resource_deps=['run-chat-integration', 'run-echo-bot'],
-#   labels=['test'],
-# )
+local_resource(
+  name='test-chat-integration',
+  cmd='pnpm run -F chat-e2e start',
+  env={
+    "ENCRYPTION_KEY": "%s" % AUTH_ENCRYPTION_KEY,
+    'API_URL': 'http://localhost:%s/%s' % (PUSHPIN_PUBLIC_PORT, chat_wh_id)
+  },
+  resource_deps=['run-chat-integration', 'run-echo-bot'],
+  labels=['test'],
+)
 
 

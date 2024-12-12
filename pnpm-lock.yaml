@@ -14,6 +14,9 @@ importers:
       '@botpress/cli':
         specifier: workspace:*
         version: link:packages/cli
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:packages/client
       '@botpress/sdk':
         specifier: workspace:*
         version: link:packages/sdk
