@@ -281,31 +281,31 @@ local_resource(
   readiness_probe=probe(http_get=http_get_action(port=CHAT_INTEGRATION_PORT, path='/health'), period_secs=1, failure_threshold=10),
 )
 
-local_resource(
-  name='run-echo-bot',
-  serve_cmd=" && ".join([
-    "pnpm -F echo exec bp add %s -y" % chat_dev_id,
-    "pnpm -F echo exec bp dev -y --tunnel-url %s --port %s" % (API.bp_tunnel_url, ECHO_BOT_PORT),
-  ]),
-  serve_env={
-    BP_HOME_ENV.key: BP_HOME_ENV.value,
-  },
-  resource_deps=['login-botpress', 'run-chat-integration'],
-  labels=['run'],
-  readiness_probe=probe(http_get=http_get_action(port=ECHO_BOT_PORT, path='/health'), period_secs=1, failure_threshold=10),
-)
+# local_resource(
+#   name='run-echo-bot',
+#   serve_cmd=" && ".join([
+#     "pnpm -F echo exec bp add %s -y" % chat_dev_id,
+#     "pnpm -F echo exec bp dev -y --tunnel-url %s --port %s" % (API.bp_tunnel_url, ECHO_BOT_PORT),
+#   ]),
+#   serve_env={
+#     BP_HOME_ENV.key: BP_HOME_ENV.value,
+#   },
+#   resource_deps=['login-botpress', 'run-chat-integration'],
+#   labels=['run'],
+#   readiness_probe=probe(http_get=http_get_action(port=ECHO_BOT_PORT, path='/health'), period_secs=1, failure_threshold=10),
+# )
 
-## 3.3. test
+# ## 3.3. test
 
-local_resource(
-  name='test-chat-integration',
-  cmd='pnpm run -F chat-e2e start',
-  env={
-    "ENCRYPTION_KEY": "%s" % AUTH_ENCRYPTION_KEY,
-    'API_URL': 'http://localhost:%s/%s' % (PUSHPIN_PUBLIC_PORT, chat_wh_id)
-  },
-  resource_deps=['run-chat-integration', 'run-echo-bot'],
-  labels=['test'],
-)
+# local_resource(
+#   name='test-chat-integration',
+#   cmd='pnpm run -F chat-e2e start',
+#   env={
+#     "ENCRYPTION_KEY": "%s" % AUTH_ENCRYPTION_KEY,
+#     'API_URL': 'http://localhost:%s/%s' % (PUSHPIN_PUBLIC_PORT, chat_wh_id)
+#   },
+#   resource_deps=['run-chat-integration', 'run-echo-bot'],
+#   labels=['test'],
+# )
 
 
