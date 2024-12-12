@@ -8,7 +8,7 @@ const generateIntegrationPackageModule = (
   definitionImport: string,
   pkg: types.IntegrationInstallablePackage
 ): string => {
-  const id = pkg.source === 'remote' ? pkg.integration.id : undefined
+  const id = pkg.source === 'remote' ? pkg.integration.id : pkg.devId
   const uri = pkg.source === 'local' ? utils.path.win32.escapeBackslashes(pkg.path) : undefined
 
   const tsId = gen.primitiveToTypescriptValue(id)
