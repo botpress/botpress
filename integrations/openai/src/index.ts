@@ -34,6 +34,20 @@ const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
       maxTokens: 16_384,
     },
   },
+  'gpt-4o-2024-11-20': {
+    name: 'GPT-4o (November 2024)',
+    description:
+      "GPT-4o (“o” for “omni”) is OpenAI's most advanced model. It is multimodal (accepting text or image inputs and outputting text), and it has the same high intelligence as GPT-4 Turbo but is cheaper and more efficient.",
+    tags: ['recommended', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
+    input: {
+      costPer1MTokens: 2.5,
+      maxTokens: 128_000,
+    },
+    output: {
+      costPer1MTokens: 10,
+      maxTokens: 16_384,
+    },
+  },
   'gpt-4o-2024-08-06': {
     name: 'GPT-4o (August 2024)',
     description:

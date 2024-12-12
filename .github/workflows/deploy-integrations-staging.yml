@@ -38,7 +38,6 @@ jobs:
         uses: ./.github/actions/deploy-integrations
         with:
           environment: 'staging'
-          extra_filter: "-F '!chat'"
           force: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.force == 'true' }}
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}

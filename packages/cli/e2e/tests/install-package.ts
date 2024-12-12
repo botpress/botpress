@@ -143,6 +143,7 @@ export const addIntegration: Test = {
           packageType: undefined,
           installPath: botDir,
           packageRef: integration.id,
+          useDev: false,
         })
         .then(utils.handleExitCode)
 

@@ -21,7 +21,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          filter: '@botpress/*'
+          extra_filters: "-F '@botpress/*'"
           turbo_team: ${{ secrets.TURBO_TEAM }}
           turbo_token: ${{ secrets.TURBO_TOKEN }}
       - name: Publish Client
@@ -38,4 +38,9 @@ jobs:
         uses: botpress/gh-actions/publish-if-not-exists@master
         with:
           path: './packages/cli'
+          token: '${{ secrets.NPM_ACCESS_TOKEN }}'
+      - name: Publish Chat Client
+        uses: botpress/gh-actions/publish-if-not-exists@master
+        with:
+          path: './packages/chat-client'
           token: '${{ secrets.NPM_ACCESS_TOKEN }}'
