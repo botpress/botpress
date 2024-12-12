@@ -10,6 +10,7 @@ export const defaultInstallPath = process.cwd()
 export const defaultBotpressApiUrl = 'https://api.botpress.cloud'
 export const defaultBotpressAppUrl = 'https://app.botpress.cloud'
 export const defaultTunnelUrl = 'https://tunnel.botpress.cloud'
+export const defaultChatUrl = 'https://chat.botpress.cloud'
 
 // not configurable
 

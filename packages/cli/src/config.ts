@@ -324,6 +324,12 @@ const lintSchema = {
 
 const chatSchema = {
   ...globalSchema,
+  ...credentialsSchema,
+  chatUrl: {
+    type: 'string',
+    description: 'The URL of the chat server',
+    default: consts.defaultChatUrl,
+  },
   botId: {
     type: 'string',
     positional: true,
