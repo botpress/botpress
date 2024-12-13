@@ -33,7 +33,7 @@ export class ChatCommand extends GlobalCommand<ChatCommandDefinition> {
     }
 
     const { webhookId } = chatIntegrationInstance.instance
-    const chatApiUrl = `${this.argv.chatUrl}/${webhookId}`
+    const chatApiUrl = `${this.argv.chatUrl}/${webhookId}` // TODO: infer chatUrl from the apiUrl (to prevent user errors in staging)
 
     const chatClient = await chat.Client.connect({ apiUrl: chatApiUrl })
     await this._chat(chatClient)
