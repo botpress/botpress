@@ -17,6 +17,10 @@ type IntegrationInstance = {
 export type ChatCommandDefinition = typeof commandDefinitions.chat
 export class ChatCommand extends GlobalCommand<ChatCommandDefinition> {
   public async run(): Promise<void> {
+    if (process.platform === 'win32') {
+      this.logger.warn('The chat command was not tested on Windows and may not work as expected')
+    }
+
     const api = await this.ensureLoginAndCreateClient(this.argv)
     const botId = this.argv.botId ?? (await this._selectBot(api))
     const { bot } = await api.client.getBot({ id: botId }).catch((thrown) => {
