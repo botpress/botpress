@@ -1,9 +1,9 @@
 import * as chat from '@botpress/chat'
 import semver from 'semver'
 import { ApiClient } from 'src/api'
+import { Chat } from '../chat'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
-import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
 
 export type ChatCommandDefinition = typeof commandDefinitions.chat
@@ -42,68 +42,11 @@ export class ChatCommand extends GlobalCommand<ChatCommandDefinition> {
   private _chat = async (client: chat.AuthenticatedClient): Promise<void> => {
     const convLine = this.logger.line()
     convLine.started('Creating a conversation...')
-    // TODO: handle cases where the status is 200, but the response payload contains an error
     const { conversation } = await client.createConversation({})
     convLine.success(`Conversation created with id "${conversation.id}"`)
 
-    const listener = await client.listenConversation({
-      id: conversation.id,
-    })
-
-    listener.on('message_created', (m) => {
-      const text = this._renderMessage(m)
-      console.info(`[${m.userId}] ${text}`)
-    })
-
-    while (true) {
-      const text = await this.prompt.text('>> ')
-      if (text === undefined) {
-        continue
-      }
-
-      // TODO: handle exit in a better way
-      if (text === 'exit') {
-        break
-      }
-
-      await client.createMessage({
-        conversationId: conversation.id,
-        payload: {
-          type: 'text',
-          text,
-        },
-      })
-    }
-  }
-
-  private _renderMessage = (message: chat.Message): string => {
-    switch (message.payload.type) {
-      case 'audio':
-        return message.payload.audioUrl
-      case 'card':
-        return '<card>' // TODO: implement something better
-      case 'carousel':
-        return '<carousel>' // TODO: implement something better
-      case 'choice':
-        return [message.payload.text, ...message.payload.options.map((o) => `  - ${o.label} (${o.value})`)].join('\n')
-      case 'dropdown':
-        return [message.payload.text, ...message.payload.options.map((o) => `  - ${o.label} (${o.value})`)].join('\n')
-      case 'file':
-        return message.payload.fileUrl
-      case 'image':
-        return message.payload.imageUrl
-      case 'location':
-        return `${message.payload.latitude},${message.payload.longitude} (${message.payload.address})`
-      case 'text':
-        return message.payload.text
-      case 'video':
-        return message.payload.videoUrl
-      case 'markdown':
-        return message.payload.markdown
-      default:
-        type _assertion = utils.types.AssertNever<typeof message.payload>
-        return '<unknown>'
-    }
+    const chat = await Chat.launch({ client, conversationId: conversation.id })
+    await chat.wait()
   }
 
   private _selectBot = async (api: ApiClient): Promise<string> => {
