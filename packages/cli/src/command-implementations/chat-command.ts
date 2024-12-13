@@ -45,7 +45,7 @@ export class ChatCommand extends GlobalCommand<ChatCommandDefinition> {
     const { conversation } = await client.createConversation({})
     convLine.success(`Conversation created with id "${conversation.id}"`)
 
-    const chat = await Chat.launch({ client, conversationId: conversation.id })
+    const chat = Chat.launch({ client, conversationId: conversation.id })
     await chat.wait()
   }
 

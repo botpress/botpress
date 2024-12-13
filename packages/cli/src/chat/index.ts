@@ -8,18 +8,23 @@ export type ChatProps = {
   conversationId: string
 }
 
-export type ChatState = {
-  running: boolean
-  messages: chat.Message[]
-}
+export type ChatState =
+  | {
+      status: 'stopped'
+    }
+  | {
+      status: 'running'
+      messages: chat.Message[]
+      connection: chat.SignalListener
+      keyboard: readline.Interface
+    }
 
 export class Chat {
   private _events = new utils.emitter.EventEmitter<{ state: ChatState }>()
-  private _state: ChatState = { running: false, messages: [] }
+  private _state: ChatState = { status: 'stopped' }
 
-  public static async launch(props: ChatProps): Promise<Chat> {
+  public static launch(props: ChatProps): Chat {
     const instance = new Chat(props)
-    instance._setState({ running: true })
     void instance._run()
     return instance
   }
@@ -27,58 +32,78 @@ export class Chat {
   private constructor(private _props: ChatProps) {}
 
   private async _run() {
-    const listener = await this._props.client.listenConversation({ id: this._props.conversationId })
-    listener.on('message_created', (message) => {
-      if (message.userId === this._props.client.user.id) {
-        return
-      }
-      this._setState({ messages: [...this._state.messages, message] })
-      this._renderMessages()
-    })
+    this._switchAlternateScreenBuffer()
+    this._events.on('state', this._renderMessages)
 
-    const rl = readline.createInterface({
+    const connection = await this._props.client.listenConversation({ id: this._props.conversationId })
+    const keyboard = readline.createInterface({
       input: process.stdin,
       output: process.stdout,
     })
 
-    const exit = async () => {
-      await listener.disconnect()
-      listener.cleanup()
-      rl.close()
-    }
-
-    this._renderMessages()
-
-    rl.on('line', (line) => {
-      if (line === 'exit') {
-        void exit()
-        this._setState({ running: false })
-        return
+    connection.on('message_created', (m) => void this._onMessageReceived(m))
+    keyboard.on('line', (l) => void this._onKeyboardInput(l))
+    process.stdin.on('keypress', (_, key) => {
+      if (key.name === 'escape') {
+        void this._onExit()
       }
-      if (!line) {
-        this._renderMessages()
-        return
-      }
-      void this._props.client.createMessage({
-        conversationId: this._props.conversationId,
-        payload: { type: 'text', text: line },
-      })
-      this._setState({ messages: [...this._state.messages, this._textToMessage(line)] })
-      this._renderMessages()
-      return
     })
+
+    this._setState({ status: 'running', messages: [], connection, keyboard })
   }
 
-  private _setState(state: Partial<ChatState>) {
-    const newState = { ...this._state, ...state }
+  private _setState = (newState: ChatState) => {
     this._state = newState
     this._events.emit('state', this._state)
+  }
+
+  private _onMessageReceived = async (message: chat.Message) => {
+    if (this._state.status === 'stopped') {
+      return
+    }
+    if (message.userId === this._props.client.user.id) {
+      return
+    }
+    this._setState({ ...this._state, messages: [...this._state.messages, message] })
+  }
+
+  private _onKeyboardInput = async (line: string) => {
+    if (this._state.status === 'stopped') {
+      return
+    }
+
+    if (line === 'exit') {
+      await this._onExit()
+      return
+    }
+
+    if (!line) {
+      this._setState({ ...this._state })
+      return
+    }
+
+    const message = this._textToMessage(line)
+    this._setState({ ...this._state, messages: [...this._state.messages, message] })
+    await this._props.client.createMessage(message)
+  }
+
+  private _onExit = async () => {
+    if (this._state.status === 'stopped') {
+      return
+    }
+    const { connection, keyboard } = this._state
+    await connection.disconnect()
+    connection.cleanup()
+    keyboard.close()
+    this._setState({ status: 'stopped' })
+    this._clearStdOut()
+    this._restoreOriginalScreenBuffer()
   }
 
   public wait(): Promise<void> {
     return new Promise<void>((resolve) => {
       const cb = (state: ChatState) => {
-        if (!state.running) {
+        if (state.status === 'stopped') {
           this._events.off('state', cb)
           resolve()
         }
@@ -87,16 +112,30 @@ export class Chat {
     })
   }
 
-  private _renderMessages() {
+  private _renderMessages = () => {
+    if (this._state.status === 'stopped') {
+      return
+    }
+
     this._clearStdOut()
     for (const message of this._state.messages) {
       process.stdout.write(`[${message.userId}] ${this._messageToText(message)}\n`)
     }
-    process.stdout.write('>> ')
+
+    this._state.keyboard.setPrompt('>> ')
+    this._state.keyboard.prompt(true) // Redisplay the prompt and maintain current input
   }
 
-  private _clearStdOut() {
-    process.stdout.write('\x1Bc')
+  private _switchAlternateScreenBuffer = () => {
+    process.stdout.write('\x1B[?1049h')
+  }
+
+  private _restoreOriginalScreenBuffer = () => {
+    process.stdout.write('\x1B[?1049l')
+  }
+
+  private _clearStdOut = () => {
+    process.stdout.write('\x1B[2J\x1B[0;0H')
   }
 
   private _messageToText = (message: chat.Message): string => {
