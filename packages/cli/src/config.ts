@@ -325,10 +325,9 @@ const lintSchema = {
 const chatSchema = {
   ...globalSchema,
   ...credentialsSchema,
-  chatUrl: {
+  chatApiUrl: {
     type: 'string',
     description: 'The URL of the chat server',
-    default: consts.defaultChatUrl,
   },
   botId: {
     type: 'string',

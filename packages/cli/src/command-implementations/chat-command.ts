@@ -4,7 +4,9 @@ import semver from 'semver'
 import { ApiClient } from '../api'
 import { Chat } from '../chat'
 import type commandDefinitions from '../command-definitions'
+import * as consts from '../consts'
 import * as errors from '../errors'
+import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
 
 type IntegrationInstance = {
@@ -34,8 +36,10 @@ export class ChatCommand extends GlobalCommand<ChatCommandDefinition> {
     }
 
     const { webhookId } = chatIntegrationInstance.instance
-    const chatApiUrl = `${this.argv.chatUrl}/${webhookId}` // TODO: infer chatUrl from the apiUrl (to prevent user errors in staging)
+    const chatApiBaseUrl = this._getChatApiUrl(api)
+    this.logger.debug(`using chat api url: "${chatApiBaseUrl}"`)
 
+    const chatApiUrl = `${chatApiBaseUrl}/${webhookId}`
     const chatClient = await chat.Client.connect({ apiUrl: chatApiUrl })
     await this._chat(chatClient)
   }
@@ -49,6 +53,25 @@ export class ChatCommand extends GlobalCommand<ChatCommandDefinition> {
 
     const chat = Chat.launch({ client, conversationId: conversation.id })
     await chat.wait()
+  }
+
+  private _getChatApiUrl = (api: ApiClient): string => {
+    if (this.argv.chatApiUrl) {
+      return this.argv.chatApiUrl
+    }
+
+    const parseResult = utils.url.parse(api.url)
+    if (parseResult.status === 'error') {
+      return consts.defaultChatApiUrl
+    }
+
+    const { host, ...url } = parseResult.url
+    if (!host.startsWith('api.')) {
+      return consts.defaultChatApiUrl
+    }
+
+    const newHost = host.replace('api.', 'chat.')
+    return utils.url.format({ ...url, host: newHost })
   }
 
   private _selectBot = async (api: ApiClient): Promise<string> => {
