@@ -23,6 +23,22 @@ const USER_ICONS: Record<MessageSource, string> = {
   other: '👥',
 }
 
+const MESSAGE_ICONS: Record<chat.Message['payload']['type'], string> = {
+  audio: '🎵',
+  card: '🃏',
+  carousel: '🎠',
+  choice: '🔽',
+  dropdown: '🔽',
+  file: '📁',
+  image: '🌅',
+  location: '📍',
+  text: '',
+  video: '🎥',
+  markdown: '',
+}
+
+const EXIT_KEYWORDS = ['exit', '.exit']
+
 export type ChatProps = {
   client: chat.AuthenticatedClient
   conversationId: string
@@ -82,7 +98,7 @@ export class Chat {
       return
     }
 
-    if (line === 'exit') {
+    if (EXIT_KEYWORDS.includes(line)) {
       await this._onExit()
       return
     }
@@ -159,29 +175,36 @@ export class Chat {
   }
 
   private _messageToText = (message: chat.Message): string => {
+    const prefix = MESSAGE_ICONS[message.payload.type]
     switch (message.payload.type) {
       case 'audio':
-        return message.payload.audioUrl
+        return prefix + message.payload.audioUrl
       case 'card':
-        return '<card>' // TODO: implement something better
+        return prefix + JSON.stringify(message.payload)
       case 'carousel':
-        return '<carousel>' // TODO: implement something better
+        return prefix + JSON.stringify(message.payload)
       case 'choice':
-        return [message.payload.text, ...message.payload.options.map((o) => `  - ${o.label} (${o.value})`)].join('\n')
+        return (
+          prefix +
+          [message.payload.text, ...message.payload.options.map((o) => `  - ${o.label} (${o.value})`)].join('\n')
+        )
       case 'dropdown':
-        return [message.payload.text, ...message.payload.options.map((o) => `  - ${o.label} (${o.value})`)].join('\n')
+        return (
+          prefix +
+          [message.payload.text, ...message.payload.options.map((o) => `  - ${o.label} (${o.value})`)].join('\n')
+        )
       case 'file':
-        return message.payload.fileUrl
+        return prefix + message.payload.fileUrl
       case 'image':
-        return message.payload.imageUrl
+        return prefix + message.payload.imageUrl
       case 'location':
-        return `${message.payload.latitude},${message.payload.longitude} (${message.payload.address})`
+        return prefix + `${message.payload.latitude},${message.payload.longitude} (${message.payload.address})`
       case 'text':
-        return message.payload.text
+        return prefix + message.payload.text
       case 'video':
-        return message.payload.videoUrl
+        return prefix + message.payload.videoUrl
       case 'markdown':
-        return message.payload.markdown
+        return prefix + message.payload.markdown
       default:
         type _assertion = utils.types.AssertNever<typeof message.payload>
         return '<unknown>'
