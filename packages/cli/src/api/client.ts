@@ -56,8 +56,13 @@ export class ApiClient {
     return this.client.getWorkspace({ id: this.workspaceId })
   }
 
-  public async listWorkspaces(): Promise<Awaited<Responses['listWorkspaces']>['workspaces']> {
-    return paging.listAllPages(this.client.listWorkspaces, (r) => r.workspaces)
+  public async findWorkspaceByHandle(handle: string): Promise<Responses['getWorkspace'] | undefined> {
+    const workspaces = await paging.listAllPages(this.client.listWorkspaces, (r) => r.workspaces)
+    return workspaces.find((w) => w.handle === handle)
+  }
+
+  public switchWorkspace(workspaceId: string): ApiClient {
+    return ApiClient.newClient({ apiUrl: this.url, token: this.token, workspaceId }, this._logger)
   }
 
   public async updateWorkspace(props: Omit<Requests['updateWorkspace'], 'id'>): Promise<Responses['updateWorkspace']> {

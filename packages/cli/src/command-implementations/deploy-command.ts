@@ -56,7 +56,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const { integration: updatedIntegrationDef, workspaceId } = await this._manageWorkspaceHandle(api, integrationDef)
     integrationDef = updatedIntegrationDef
     if (workspaceId) {
-      api = await this.createClient({ apiUrl: api.url, token: api.token, workspaceId })
+      api = api.switchWorkspace(workspaceId)
     }
 
     const { name, version, icon: iconRelativeFilePath, readme: readmeRelativeFilePath, identifier } = integrationDef
@@ -454,14 +454,12 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     if (localHandle && remoteHandle) {
       let workspaceId: string | undefined = undefined
       if (localHandle !== remoteHandle) {
-        const availableWorkspace = await api.listWorkspaces().catch((thrown) => {
+        const remoteWorkspace = await api.findWorkspaceByHandle(localHandle).catch((thrown) => {
           throw errors.BotpressCLIError.wrap(thrown, 'Could not list workspaces')
         })
-        const remoteWorkspace = availableWorkspace.find((w) => w.handle === localHandle)
         if (!remoteWorkspace) {
-          const availableHandlesStr = availableWorkspace.map((w) => w.handle).join(', ')
           throw new errors.BotpressCLIError(
-            `The integration handle "${localHandle}" is not associated with any of your workspaces. Available handles: ${availableHandlesStr}`
+            `The integration handle "${localHandle}" is not associated with any of your workspaces.`
           )
         }
         const confirmUseAlternateWorkspace = await this.prompt.confirm(
