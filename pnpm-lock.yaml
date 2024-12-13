@@ -1773,7 +1773,7 @@ importers:
         specifier: ^11.7.0
         version: 11.7.0
       '@botpress/chat':
-        specifier: workspace:*
+        specifier: 0.4.4
         version: link:../chat-client
       '@botpress/client':
         specifier: 0.37.1
