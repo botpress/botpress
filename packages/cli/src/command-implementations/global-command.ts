@@ -80,10 +80,23 @@ export abstract class GlobalCommand<C extends GlobalCommandDefinition> extends B
       throw new errors.NotLoggedInError()
     }
 
-    if (apiUrl !== consts.defaultBotpressApiUrl) {
+    return this.createClient({ apiUrl, token, workspaceId, logOnCustomUrl: true })
+  }
+
+  protected async createClient({
+    apiUrl,
+    token,
+    workspaceId,
+    logOnCustomUrl,
+  }: {
+    apiUrl: string
+    token: string
+    workspaceId: string
+    logOnCustomUrl?: boolean
+  }) {
+    if (logOnCustomUrl && apiUrl !== consts.defaultBotpressApiUrl) {
       this.logger.log(`Using custom url ${apiUrl}`, { prefix: '🔗' })
     }
-
     return this.api.newClient({ apiUrl, token, workspaceId }, this.logger)
   }
 

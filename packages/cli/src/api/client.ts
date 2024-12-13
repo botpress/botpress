@@ -56,6 +56,10 @@ export class ApiClient {
     return this.client.getWorkspace({ id: this.workspaceId })
   }
 
+  public async listWorkspaces(): Promise<Awaited<Responses['listWorkspaces']>['workspaces']> {
+    return paging.listAllPages(this.client.listWorkspaces, (r) => r.workspaces)
+  }
+
   public async updateWorkspace(props: Omit<Requests['updateWorkspace'], 'id'>): Promise<Responses['updateWorkspace']> {
     return this.client.updateWorkspace({ id: this.workspaceId, ...props })
   }
