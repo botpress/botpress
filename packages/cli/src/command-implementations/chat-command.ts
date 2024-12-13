@@ -1,10 +1,16 @@
 import * as chat from '@botpress/chat'
+import * as client from '@botpress/client'
 import semver from 'semver'
-import { ApiClient } from 'src/api'
+import { ApiClient } from '../api'
 import { Chat } from '../chat'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import { GlobalCommand } from './global-command'
+
+type IntegrationInstance = {
+  id: string
+  instance: client.Bot['integrations'][string]
+}
 
 export type ChatCommandDefinition = typeof commandDefinitions.chat
 export class ChatCommand extends GlobalCommand<ChatCommandDefinition> {
@@ -15,21 +21,16 @@ export class ChatCommand extends GlobalCommand<ChatCommandDefinition> {
       throw errors.BotpressCLIError.wrap(thrown, `Could not fetch bot "${botId}"`)
     })
 
-    const integrationInstances = Object.entries(bot.integrations).map(([integrationId, integrationInstance]) => ({
-      id: integrationId,
-      instance: integrationInstance,
-    }))
-
-    const targetChatVersion = this._getChatApiVersionRange()
-    const chatIntegrationInstance = integrationInstances.find(
-      (i) => i.instance.name === 'chat' && semver.satisfies(i.instance.version, targetChatVersion)
-    )
+    const targetChatVersion = this._getChatApiTargetVersionRange()
+    let chatIntegrationInstance = this._findChatInstance(bot)
 
     if (!chatIntegrationInstance) {
-      // TODO: prompt to install it
-      throw new errors.BotpressCLIError(
-        `Chat integration with version ${targetChatVersion} is not installed in the selected bot`
-      )
+      this.logger.log(`Chat integration with version ${targetChatVersion} is not installed in the selected bot`)
+      const confirmInstall = await this.prompt.confirm('Do you wish to install it now?')
+      if (!confirmInstall) {
+        throw new errors.BotpressCLIError('Chat integration is required to proceed')
+      }
+      chatIntegrationInstance = await this._installChatIntegration(api, botId)
     }
 
     const { webhookId } = chatIntegrationInstance.instance
@@ -44,6 +45,7 @@ export class ChatCommand extends GlobalCommand<ChatCommandDefinition> {
     convLine.started('Creating a conversation...')
     const { conversation } = await client.createConversation({})
     convLine.success(`Conversation created with id "${conversation.id}"`)
+    convLine.commit()
 
     const chat = Chat.launch({ client, conversationId: conversation.id })
     await chat.wait()
@@ -71,10 +73,51 @@ export class ChatCommand extends GlobalCommand<ChatCommandDefinition> {
     return prompted
   }
 
-  private _getChatApiVersionRange = (): string => {
-    const dummyClient = new chat.Client({ apiUrl: '' })
-    const targetApiVersion = dummyClient.apiVersion
+  private _installChatIntegration = async (api: ApiClient, botId: string): Promise<IntegrationInstance> => {
+    const line = this.logger.line()
+    line.started('Installing chat integration...')
+
+    const { integration } = await api.client.getPublicIntegration({
+      name: 'chat',
+      version: this._getChatApiTargetVersion(),
+    })
+
+    const { bot } = await api.client.updateBot({
+      id: botId,
+      integrations: {
+        [integration.id]: {
+          enabled: true,
+          configuration: {}, // empty object will always be a valid chat integration configuration
+        },
+      },
+    })
+
+    line.success('Chat integration installed')
+    line.commit()
+
+    return this._findChatInstance(bot)!
+  }
+
+  private _findChatInstance = (bot: client.Bot): IntegrationInstance | undefined => {
+    const integrationInstances = Object.entries(bot.integrations).map(([integrationId, integrationInstance]) => ({
+      id: integrationId,
+      instance: integrationInstance,
+    }))
+
+    const targetChatVersion = this._getChatApiTargetVersionRange()
+    return integrationInstances.find(
+      (i) => i.instance.name === 'chat' && semver.satisfies(i.instance.version, targetChatVersion)
+    )
+  }
+
+  private _getChatApiTargetVersionRange = (): string => {
+    const targetApiVersion = this._getChatApiTargetVersion()
     const nextMajor = semver.inc(targetApiVersion, 'major')
     return `>=${targetApiVersion} <${nextMajor}`
+  }
+
+  private _getChatApiTargetVersion = (): string => {
+    const dummyClient = new chat.Client({ apiUrl: '' })
+    return dummyClient.apiVersion
   }
 }
