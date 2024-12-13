@@ -462,8 +462,11 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
             `The integration handle "${localHandle}" is not associated with any of your workspaces.`
           )
         }
+        this.logger.warn(
+          `Your are logged in to workspace "${workspaceName}" but integration handle "${localHandle}" belongs to "${remoteWorkspace.name}".`
+        )
         const confirmUseAlternateWorkspace = await this.prompt.confirm(
-          `Your are logged in to workspace "${workspaceName}" but integration handle "${localHandle}" belongs to "${remoteWorkspace.name}". Deploy integration on this workspace instead?`
+          'Do you want to deploy integration on this workspace instead?'
         )
         if (!confirmUseAlternateWorkspace) {
           throw new errors.BotpressCLIError(
