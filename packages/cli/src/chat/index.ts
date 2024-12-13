@@ -1,23 +1,32 @@
 import * as chat from '@botpress/chat'
+import * as chalk from 'chalk'
 import * as readline from 'readline'
 import * as uuid from 'uuid'
 import * as utils from '../utils'
 
-export type ChatProps = {
-  client: chat.AuthenticatedClient
-  conversationId: string
-}
-
-export type ChatState =
+type MessageSource = 'myself' | 'bot' | 'other'
+type ChatMessage = chat.Message & { source: MessageSource }
+type ChatState =
   | {
       status: 'stopped'
     }
   | {
       status: 'running'
-      messages: chat.Message[]
+      messages: ChatMessage[]
       connection: chat.SignalListener
       keyboard: readline.Interface
     }
+
+const USER_ICONS: Record<MessageSource, string> = {
+  myself: '👤',
+  bot: '🤖',
+  other: '👥',
+}
+
+export type ChatProps = {
+  client: chat.AuthenticatedClient
+  conversationId: string
+}
 
 export class Chat {
   private _events = new utils.emitter.EventEmitter<{ state: ChatState }>()
@@ -57,14 +66,15 @@ export class Chat {
     this._events.emit('state', this._state)
   }
 
-  private _onMessageReceived = async (message: chat.Message) => {
+  private _onMessageReceived = async (message: chat.Signals['message_created']) => {
     if (this._state.status === 'stopped') {
       return
     }
     if (message.userId === this._props.client.user.id) {
       return
     }
-    this._setState({ ...this._state, messages: [...this._state.messages, message] })
+    const source: MessageSource = message.isBot ? 'bot' : 'other'
+    this._setState({ ...this._state, messages: [...this._state.messages, { ...message, source }] })
   }
 
   private _onKeyboardInput = async (line: string) => {
@@ -118,12 +128,22 @@ export class Chat {
     }
 
     this._clearStdOut()
+    this._printHeader()
+
     for (const message of this._state.messages) {
-      process.stdout.write(`[${message.userId}] ${this._messageToText(message)}\n`)
+      const prefix = USER_ICONS[message.source]
+      const text = this._messageToText(message)
+      const coloredText = message.source === 'bot' ? text : chalk.gray(text)
+      process.stdout.write(`${prefix} ${coloredText}\n`)
     }
 
     this._state.keyboard.setPrompt('>> ')
     this._state.keyboard.prompt(true) // Redisplay the prompt and maintain current input
+  }
+
+  private _printHeader = () => {
+    process.stdout.write(chalk.bold('Botpress Chat\n'))
+    process.stdout.write(chalk.gray('Type "exit" or press ESC key to quit\n'))
   }
 
   private _switchAlternateScreenBuffer = () => {
@@ -168,10 +188,11 @@ export class Chat {
     }
   }
 
-  private _textToMessage = (text: string): chat.Message => {
+  private _textToMessage = (text: string): ChatMessage => {
     return {
       id: uuid.v4(),
       userId: this._props.client.user.id,
+      source: 'myself',
       conversationId: this._props.conversationId,
       createdAt: new Date().toISOString(),
       payload: { type: 'text', text },
