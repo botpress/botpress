@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   run-cli-tests:
-    runs-on: ubuntu-latest
+    runs-on: [ubuntu-latest, windows-latest]
     timeout-minutes: 15
     env:
       NODE_OPTIONS: '--max_old_space_size=8192'

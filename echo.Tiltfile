@@ -277,12 +277,16 @@ local_resource(
 
 ## 3.3. test
 
-# TODO: find a way to make this work without bash specific syntax
 local_resource(
   name='test-chat-integration',
   cmd=" ".join([
     'wh_id=$(pnpm ts-node -T ./scripts/fetch-chat-wh.ts);',
     'API_URL=http://localhost:%s/$wh_id' % PUSHPIN_PUBLIC_PORT,
+    'pnpm run -F chat-e2e start'
+  ]),
+  cmd_bat=" ".join([
+    'set wh_id=$(pnpm ts-node -T ./scripts/fetch-chat-wh.ts)',
+    'set API_URL=http://localhost:%s/%wh_id' % PUSHPIN_PUBLIC_PORT,
     'pnpm run -F chat-e2e start'
   ]),
   env={
