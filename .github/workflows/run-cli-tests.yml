@@ -10,10 +10,7 @@ permissions:
 
 jobs:
   run-cli-tests:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    runs-on: windows-latest
     timeout-minutes: 15
     env:
       NODE_OPTIONS: '--max_old_space_size=8192'
@@ -25,7 +22,8 @@ jobs:
           extra_filters: '-F @botpress/cli'
           turbo_team: ${{ secrets.TURBO_TEAM }}
           turbo_token: ${{ secrets.TURBO_TOKEN }}
-      - run: |
+      - shell: pwsh
+        run: |
           pnpm run -F cli test:e2e -v \
             --api-url https://api.botpress.dev \
             --workspace-id ${{ secrets.STAGING_E2E_TESTS_WORKSPACE_ID }} \

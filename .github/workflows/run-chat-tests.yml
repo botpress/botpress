@@ -8,10 +8,7 @@ permissions:
 
 jobs:
   run-chat-tests:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    runs-on: windows-latest
     timeout-minutes: 15
     env:
       NODE_OPTIONS: '--max_old_space_size=8192'
@@ -26,6 +23,7 @@ jobs:
       - name: Install tilt
         run: curl -k -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash
       - name: Run Tilt
+        shell: pwsh
         run: |
           tilt ci -f ./echo.Tiltfile -- \
             --skip-install \

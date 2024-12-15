@@ -280,15 +280,11 @@ local_resource(
 local_resource(
   name='test-chat-integration',
   cmd=" ".join([
-    'wh_id=$(pnpm ts-node -T ./scripts/fetch-chat-wh.ts);',
-    'API_URL=http://localhost:%s/$wh_id' % PUSHPIN_PUBLIC_PORT,
+    'WH_ID=$(pnpm ts-node -T ./scripts/fetch-chat-wh.ts);',
+    'API_URL=http://localhost:%s/$WH_ID' % PUSHPIN_PUBLIC_PORT,
     'pnpm run -F chat-e2e start'
   ]),
-  cmd_bat=" ".join([
-    'set wh_id=$(pnpm ts-node -T ./scripts/fetch-chat-wh.ts)',
-    'set API_URL=http://localhost:%s/%wh_id' % PUSHPIN_PUBLIC_PORT,
-    'pnpm run -F chat-e2e start'
-  ]),
+  cmd_bat=""
   env={
     BP_HOME_ENV.key: BP_HOME_ENV.value,
     'BP_API_URL': API.bp_api_url,

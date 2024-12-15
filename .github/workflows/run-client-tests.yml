@@ -8,10 +8,7 @@ permissions:
 
 jobs:
   run-client-tests:
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+    runs-on: windows-latest
     timeout-minutes: 15
     env:
       NODE_OPTIONS: '--max_old_space_size=8192'
@@ -23,6 +20,7 @@ jobs:
           extra_filters: '-F @botpress/client'
           turbo_team: ${{ secrets.TURBO_TEAM }}
           turbo_token: ${{ secrets.TURBO_TOKEN }}
-      - run: |
+      - shell: pwsh
+        run: |
           # pnpm -F client exec puppeteer browsers install chrome
           pnpm -F client run test:e2e
