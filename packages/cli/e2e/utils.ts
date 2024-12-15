@@ -57,6 +57,7 @@ export const runCommand = async (cmd: string, { workDir }: RunCommandOptions): P
   const { error, status } = childprocess.spawnSync(program, args, {
     cwd: workDir,
     stdio: 'inherit',
+    shell: 'powershell.exe',
   })
   if (error) {
     throw error
