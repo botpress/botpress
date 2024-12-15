@@ -22,6 +22,9 @@ jobs:
           extra_filters: '-F @botpress/cli'
           turbo_team: ${{ secrets.TURBO_TEAM }}
           turbo_token: ${{ secrets.TURBO_TOKEN }}
+      - name: CHMOD
+        run: |
+          icacls "." /grant Everyone:(F) /T /C
       - shell: pwsh
         run: |
           pnpm run -F cli test:e2e -v `
