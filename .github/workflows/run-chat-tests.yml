@@ -25,9 +25,9 @@ jobs:
       - name: Run Tilt
         shell: pwsh
         run: |
-          tilt ci -f ./echo.Tiltfile -- \
-            --skip-install \
-            --skip-build \
-            --bp-domain 'botpress.dev' \
-            --bp-workspace-id '95de33eb-1551-4af9-9088-e5dcb02efd09' \
+          tilt ci -f ./echo.Tiltfile -- `
+            --skip-install `
+            --skip-build `
+            --bp-domain 'botpress.dev' `
+            --bp-workspace-id '95de33eb-1551-4af9-9088-e5dcb02efd09' `
             --bp-token ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}

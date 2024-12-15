@@ -284,7 +284,11 @@ local_resource(
     'API_URL=http://localhost:%s/$WH_ID' % PUSHPIN_PUBLIC_PORT,
     'pnpm run -F chat-e2e start'
   ]),
-  cmd_bat=""
+  cmd_bat=";".join([
+    '$WH_ID=$(pnpm ts-node -T ./scripts/fetch-chat-wh.ts)',
+    '$env:API_URL = "http://localhost:%s/$WH_ID"' % PUSHPIN_PUBLIC_PORT,
+    'pnpm run -F chat-e2e start'
+  ]),
   env={
     BP_HOME_ENV.key: BP_HOME_ENV.value,
     'BP_API_URL': API.bp_api_url,
