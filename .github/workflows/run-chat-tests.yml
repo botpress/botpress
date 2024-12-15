@@ -24,7 +24,7 @@ jobs:
         run: curl -k -fsSL https://raw.githubusercontent.com/tilt-dev/tilt/master/scripts/install.sh | bash
       - name: Run Tilt
         run: |
-          tilt ci -- \
+          tilt ci -f ./echo.Tiltfile -- \
             --skip-install \
             --skip-build \
             --bp-domain 'botpress.dev' \
