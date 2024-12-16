@@ -1,4 +1,3 @@
-import util from 'util'
 import { BaseLogger } from '../../base-logger'
 
 type IntegrationLogOptions = {

@@ -5,6 +5,7 @@ import { IntegrationSpecificClient } from '../client'
 import { BaseIntegration } from '../types'
 import { ActionMetadataStore } from './action-metadata'
 import { extractContext } from './context'
+import { IntegrationLogger } from './integration-logger'
 import {
   CommonHandlerProps,
   IntegrationHandlers,
@@ -16,7 +17,6 @@ import {
   UnregisterPayload,
   CreateConversationPayload,
 } from './types'
-import { IntegrationLogger } from './integration-logger'
 
 export * from './types'
 export * from './integration-logger'

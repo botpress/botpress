@@ -12,26 +12,26 @@ export abstract class BaseLogger<TOptions extends object> {
   public abstract with(options: TOptions): BaseLogger<TOptions>
 
   public info(...args: Parameters<typeof console.info>) {
-    this.log('info', args)
+    this._log('info', args)
   }
 
   public debug(...args: Parameters<typeof console.debug>) {
-    this.log('debug', args)
+    this._log('debug', args)
   }
 
   public warn(...args: Parameters<typeof console.warn>) {
-    this.log('warn', args)
+    this._log('warn', args)
   }
 
   public error(...args: Parameters<typeof console.error>) {
-    this.log('error', args)
+    this._log('error', args)
   }
 
-  private log(level: LogLevel, args: Parameters<typeof console.info>) {
-    this.getConsoleMethod(level)(this.serializeMessage(args))
+  private _log(level: LogLevel, args: Parameters<typeof console.info>) {
+    this._getConsoleMethod(level)(this._serializeMessage(args))
   }
 
-  private serializeMessage(args: Parameters<typeof console.info>) {
+  private _serializeMessage(args: Parameters<typeof console.info>) {
     const msg = util.format(...args)
     if (process.env['BP_LOG_FORMAT'] === 'json') {
       return this.getJsonMessage(msg)
@@ -44,7 +44,7 @@ export abstract class BaseLogger<TOptions extends object> {
     return JSON.stringify({ msg, options: this.defaultOptions })
   }
 
-  private getConsoleMethod(level: LogLevel): (...args: any[]) => void {
+  private _getConsoleMethod(level: LogLevel): (...args: any[]) => void {
     switch (level) {
       case 'debug':
         return console.debug
@@ -52,7 +52,7 @@ export abstract class BaseLogger<TOptions extends object> {
         return console.warn
       case 'error':
         return console.error
-      case 'info':
+      default:
         return console.info
     }
   }
