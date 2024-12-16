@@ -28,6 +28,7 @@ const getPageContent = async ({
     'https://api.firecrawl.dev/v0/scrape',
     {
       url,
+      // https://docs.firecrawl.dev/v0/api-reference/endpoint/scrape
       pageOptions: {
         onlyMainContent: true,
         waitFor,
