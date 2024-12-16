@@ -9,6 +9,7 @@ import type { BaseCommand } from './base-command'
 import * as bots from './bot-commands'
 import { BuildCommand } from './build-command'
 import { BundleCommand } from './bundle-command'
+import { ChatCommand } from './chat-command'
 import { DeployCommand } from './deploy-command'
 import { DevCommand } from './dev-command'
 import { GenerateCommand } from './gen-command'
@@ -77,4 +78,5 @@ export default {
   add: getHandler(AddCommand),
   dev: getHandler(DevCommand),
   lint: getHandler(LintCommand),
+  chat: getHandler(ChatCommand),
 } satisfies ImplementationTree<typeof commandDefinitions>
