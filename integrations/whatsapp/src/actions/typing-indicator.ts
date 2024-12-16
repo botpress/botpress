@@ -14,8 +14,8 @@ export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIn
   const { conversationId, messageId } = input
   const { phoneNumberId, userPhone } = await getConversationInfos(client, conversationId)
   const { whatsappMessageId } = await getMessageInfos(client, messageId)
-  await whatsapp.markAsRead(phoneNumberId, whatsappMessageId) //TODO: Keep here?
-  await whatsapp.sendMessage(phoneNumberId, userPhone, new Reaction(whatsappMessageId, '👀')) // TODO: Hourglass? Keep reaction?
+  await whatsapp.markAsRead(phoneNumberId, whatsappMessageId)
+  await whatsapp.sendMessage(phoneNumberId, userPhone, new Reaction(whatsappMessageId, '👀'))
   return {}
 }
 
@@ -29,7 +29,7 @@ export const stopTypingIndicator: bp.IntegrationProps['actions']['stopTypingIndi
   const { conversationId, messageId } = input
   const { phoneNumberId, userPhone } = await getConversationInfos(client, conversationId)
   const { whatsappMessageId } = await getMessageInfos(client, messageId)
-  await whatsapp.sendMessage(phoneNumberId, userPhone, new Reaction(whatsappMessageId, '')) // TODO: Confirmation reaction?
+  await whatsapp.sendMessage(phoneNumberId, userPhone, new Reaction(whatsappMessageId, ''))
   return {}
 }
 
