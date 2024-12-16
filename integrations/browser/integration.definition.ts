@@ -13,13 +13,14 @@ export default new IntegrationDefinition({
   actions: actionDefinitions,
   configuration: {
     schema: z.object({
-      waitFor: z
+       renderWaitTime: z
         .number()
         .min(0)
         .max(10_000)
         .optional()
         .default(0)
-        .describe('Wait x amount of milliseconds for the page to load to fetch content'),
+        .title('Render Wait Time')
+        .describe('Defines the wait time in milliseconds for the page to render before fetching content. Adjust for pages with heavy or dynamic elements.'),
     }),
   },
   secrets: {
