@@ -3,6 +3,7 @@ import * as plugin from '../../plugin'
 import * as utils from '../../utils/type-utils'
 import { BotSpecificClient } from '../client'
 import * as types from '../types'
+import { type BotLogger } from '../bot-logger'
 
 export type BotOperation = 'event_received' | 'register' | 'unregister' | 'ping' | 'action_triggered'
 export type BotContext = {
@@ -107,6 +108,7 @@ export type BotClient<TBot extends types.BaseBot> = TBot['unknownDefinitions'] e
 
 export type CommonHandlerProps<TBot extends types.BaseBot> = {
   ctx: BotContext
+  logger: BotLogger
   client: BotClient<TBot>
 }
 

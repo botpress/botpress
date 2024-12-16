@@ -19,6 +19,7 @@ import {
   UnimplementedActionHandlers,
 } from './server'
 import { BaseBot } from './types'
+import { BotLogger } from './bot-logger'
 
 export type BotImplementationProps<TBot extends BaseBot = BaseBot, TPlugins extends Record<string, BasePlugin> = {}> = {
   actions: UnimplementedActionHandlers<TBot, TPlugins>
@@ -45,6 +46,8 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     after_outgoing_call_action: {},
   }
 
+  private readonly logger: BotLogger
+
   /**
    * alias for actionHandlers
    */
@@ -58,6 +61,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     for (const plugin of plugins) {
       this._use(plugin as BotHandlers<any>)
     }
+    this.logger = new BotLogger()
   }
 
   public readonly on = {

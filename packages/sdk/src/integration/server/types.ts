@@ -3,7 +3,7 @@ import { Request, Response } from '../../serve'
 import { Cast, Merge, ValueOf } from '../../utils/type-utils'
 import { IntegrationSpecificClient } from '../client'
 import { BaseIntegration, ToTags } from '../types'
-import { IntegrationLogger } from './logger'
+import { type IntegrationLogger } from './integration-logger'
 
 type IntegrationOperation =
   | 'webhook_received'
