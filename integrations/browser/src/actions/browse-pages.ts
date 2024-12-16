@@ -51,7 +51,7 @@ export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async 
 
   try {
     const pageContentPromises = await Promise.allSettled(
-      input.urls.map((url) => getPageContent({ url, logger, waitFor: ctx.configuration.waitFor }))
+      input.urls.map((url) => getPageContent({ url, logger, waitFor: ctx.configuration.renderWaitTime }))
     )
 
     return {
