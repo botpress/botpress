@@ -1773,13 +1773,13 @@ importers:
         specifier: ^11.7.0
         version: 11.7.0
       '@botpress/chat':
-        specifier: 0.4.4
+        specifier: 0.4.5
         version: link:../chat-client
       '@botpress/client':
-        specifier: 0.38.0
+        specifier: 0.38.1
         version: link:../client
       '@botpress/sdk':
-        specifier: 2.0.4
+        specifier: 2.0.5
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1897,10 +1897,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.38.0
+        specifier: 0.38.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 2.0.4
+        specifier: 2.0.5
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1913,10 +1913,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.38.0
+        specifier: 0.38.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 2.0.4
+        specifier: 2.0.5
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1929,7 +1929,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 2.0.4
+        specifier: 2.0.5
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1942,10 +1942,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 0.38.0
+        specifier: 0.38.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 2.0.4
+        specifier: 2.0.5
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1958,10 +1958,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 0.38.0
+        specifier: 0.38.1
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 2.0.4
+        specifier: 2.0.5
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2023,7 +2023,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.38.0
+        specifier: 0.38.1
         version: link:../client
       '@bpinternal/zui':
         specifier: 0.12.0
