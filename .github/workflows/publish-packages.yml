@@ -21,7 +21,7 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          extra_filters: "-F '@botpress/*'"
+          extra_filters: '-F @botpress/*'
 
       - name: Publish Client
         uses: botpress/gh-actions/publish-if-not-exists@master
