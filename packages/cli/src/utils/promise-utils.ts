@@ -3,3 +3,5 @@ export const awaitRecord = async <T>(record: Record<string, Promise<T>>): Promis
   const values = await Promise.all(Object.values(record))
   return keys.reduce((acc, key, index) => ({ ...acc, [key]: values[index] }), {})
 }
+
+export const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
