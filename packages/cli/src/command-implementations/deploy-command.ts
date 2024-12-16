@@ -53,7 +53,11 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const outfile = this.projectPaths.abs.outFile
     const code = await fs.promises.readFile(outfile, 'utf-8')
 
-    integrationDef = await this._manageWorkspaceHandle(api, integrationDef)
+    const { integration: updatedIntegrationDef, workspaceId } = await this._manageWorkspaceHandle(api, integrationDef)
+    integrationDef = updatedIntegrationDef
+    if (workspaceId) {
+      api = api.switchWorkspace(workspaceId)
+    }
 
     const { name, version, icon: iconRelativeFilePath, readme: readmeRelativeFilePath, identifier } = integrationDef
 
@@ -433,11 +437,14 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   private async _manageWorkspaceHandle(
     api: ApiClient,
     integration: sdk.IntegrationDefinition
-  ): Promise<sdk.IntegrationDefinition> {
+  ): Promise<{
+    integration: sdk.IntegrationDefinition
+    workspaceId?: string // Set if user opted to deploy on another available workspace
+  }> {
     const { name: localName, workspaceHandle: localHandle } = this._parseIntegrationName(integration.name)
     if (!localHandle && api.isBotpressWorkspace) {
       this.logger.debug('Botpress workspace detected; workspace handle omitted')
-      return integration // botpress has the right to omit workspace handle
+      return { integration } // botpress has the right to omit workspace handle
     }
 
     const { handle: remoteHandle, name: workspaceName } = await api.getWorkspace().catch((thrown) => {
@@ -445,12 +452,31 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     })
 
     if (localHandle && remoteHandle) {
+      let workspaceId: string | undefined = undefined
       if (localHandle !== remoteHandle) {
-        throw new errors.BotpressCLIError(
-          `Your current workspace handle is "${remoteHandle}" but the integration handle is "${localHandle}".`
+        const remoteWorkspace = await api.findWorkspaceByHandle(localHandle).catch((thrown) => {
+          throw errors.BotpressCLIError.wrap(thrown, 'Could not list workspaces')
+        })
+        if (!remoteWorkspace) {
+          throw new errors.BotpressCLIError(
+            `The integration handle "${localHandle}" is not associated with any of your workspaces.`
+          )
+        }
+        this.logger.warn(
+          `Your are logged in to workspace "${workspaceName}" but integration handle "${localHandle}" belongs to "${remoteWorkspace.name}".`
         )
+        const confirmUseAlternateWorkspace = await this.prompt.confirm(
+          'Do you want to deploy integration on this workspace instead?'
+        )
+        if (!confirmUseAlternateWorkspace) {
+          throw new errors.BotpressCLIError(
+            `Cannot deploy integration with handle "${localHandle}" on workspace "${workspaceName}"`
+          )
+        }
+
+        workspaceId = remoteWorkspace.id
       }
-      return integration
+      return { integration, workspaceId }
     }
 
     const workspaceHandleIsMandatoryMsg = 'Cannot deploy integration without workspace handle'
@@ -463,7 +489,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         throw new errors.BotpressCLIError(workspaceHandleIsMandatoryMsg)
       }
       const newName = `${remoteHandle}/${localName}`
-      return new sdk.IntegrationDefinition({ ...integration, name: newName })
+      return { integration: new sdk.IntegrationDefinition({ ...integration, name: newName }) }
     }
 
     if (localHandle && !remoteHandle) {
@@ -487,7 +513,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       })
 
       this.logger.success(`Handle "${localHandle}" is now yours!`)
-      return integration
+      return { integration }
     }
 
     this.logger.warn("It seems you don't have a workspace handle yet.")
@@ -512,7 +538,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     this.logger.success(`Handle "${claimedHandle}" is yours!`)
     const newName = `${claimedHandle}/${localName}`
-    return new sdk.IntegrationDefinition({ ...integration, name: newName })
+    return { integration: new sdk.IntegrationDefinition({ ...integration, name: newName }) }
   }
 
   private _parseIntegrationName = (integrationName: string): { name: string; workspaceHandle?: string } => {
