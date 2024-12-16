@@ -14,7 +14,15 @@ type FireCrawlResponse = {
   returnCode: number
 }
 
-const getPageContent = async (url: string, logger: any): Promise<{ content: string; url: string }> => {
+const getPageContent = async ({
+  url,
+  waitFor = 0,
+  logger,
+}: {
+  url: string
+  waitFor?: number
+  logger: any
+}): Promise<{ content: string; url: string }> => {
   const startTime = Date.now()
   const { data } = await axios.post<FireCrawlResponse>(
     'https://api.firecrawl.dev/v0/scrape',
@@ -22,6 +30,7 @@ const getPageContent = async (url: string, logger: any): Promise<{ content: stri
       url,
       pageOptions: {
         onlyMainContent: true,
+        waitFor,
       },
     },
     {
@@ -36,11 +45,13 @@ const getPageContent = async (url: string, logger: any): Promise<{ content: stri
   return { content: data.data.content, url }
 }
 
-export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async ({ input, logger }) => {
+export const browsePages: bp.IntegrationProps['actions']['browsePages'] = async ({ input, logger, ctx }) => {
   const startTime = Date.now()
 
   try {
-    const pageContentPromises = await Promise.allSettled(input.urls.map((url) => getPageContent(url, logger)))
+    const pageContentPromises = await Promise.allSettled(
+      input.urls.map((url) => getPageContent({ url, logger, waitFor: ctx.configuration.waitFor }))
+    )
 
     return {
       results: pageContentPromises
