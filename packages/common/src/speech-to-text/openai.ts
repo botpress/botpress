@@ -1,4 +1,4 @@
-import { InvalidPayloadError } from '@botpress/client'
+import { InvalidPayloadError, UpstreamProviderError } from '@botpress/client'
 import { IntegrationLogger } from '@botpress/sdk'
 import OpenAI from 'openai'
 import * as stt from '.'
@@ -40,12 +40,11 @@ export async function transcribeAudio<M extends string>(
   } catch (err: any) {
     if (err instanceof OpenAI.APIError) {
       logger.forBot().error(`${props.provider} error: ${err.message}`)
-      throw err
+    } else {
+      logger.forBot().error(err.message)
     }
 
-    // Fallback
-    logger.forBot().error(err.message)
-    throw err
+    throw new UpstreamProviderError(`${props.provider} error: ${err.message}`, err)
   }
 
   // Note: OpenAI client doesn't have typings for the verbose JSON response format
