@@ -1,4 +1,4 @@
-import { InvalidPayloadError, RuntimeError } from '@botpress/client'
+import { InvalidPayloadError, UpstreamProviderError } from '@botpress/client'
 import { z, IntegrationLogger } from '@botpress/sdk'
 import assert from 'assert'
 import OpenAI from 'openai'
@@ -108,12 +108,11 @@ export async function generateContent<M extends string>(
           parsedError.data.error?.message ?? err.message
         }`
 
-        throw new RuntimeError(message)
+        throw new UpstreamProviderError(message, err)
       }
     }
 
-    // Fallback
-    throw new RuntimeError(err.message)
+    throw new UpstreamProviderError(`${props.provider} error: ${err.message}`, err)
   } finally {
     if (input.debug && response) {
       logger.forBot().info(`Response received from ${props.provider}: ` + JSON.stringify(response, null, 2))
