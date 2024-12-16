@@ -5,7 +5,7 @@ import { IntegrationSpecificClient } from '../client'
 import { BaseIntegration } from '../types'
 import { ActionMetadataStore } from './action-metadata'
 import { extractContext } from './context'
-import { integrationLogger } from './logger'
+import { IntegrationLogger } from './integration-logger'
 import {
   CommonHandlerProps,
   IntegrationHandlers,
@@ -19,7 +19,7 @@ import {
 } from './types'
 
 export * from './types'
-export * from './logger'
+export * from './integration-logger'
 
 type ServerProps = CommonHandlerProps<BaseIntegration> & {
   req: Request
@@ -37,12 +37,13 @@ export const integrationHandler =
       retry: retryConfig,
     })
     const client = new IntegrationSpecificClient<BaseIntegration>(vanillaClient)
+    const logger = new IntegrationLogger()
 
     const props = {
       ctx,
       req,
       client,
-      logger: integrationLogger,
+      logger,
       instance,
     }
 
@@ -80,7 +81,7 @@ export const integrationHandler =
     } catch (thrown) {
       if (isApiError(thrown)) {
         const runtimeError = new RuntimeError(thrown.message, thrown)
-        integrationLogger.forBot().error(runtimeError.message)
+        logger.forBot().error(runtimeError.message)
 
         return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
       }
@@ -91,7 +92,7 @@ export const integrationHandler =
       const runtimeError = new RuntimeError(
         'An unexpected error occurred in the integration. Bot owners: Check logs for more informations. Integration owners: throw a RuntimeError to return a custom error message instead.'
       )
-      integrationLogger.forBot().error(runtimeError.message)
+      logger.forBot().error(runtimeError.message)
       return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
     }
   }

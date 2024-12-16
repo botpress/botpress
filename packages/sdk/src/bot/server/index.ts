@@ -3,6 +3,7 @@ import { log } from '../../log'
 import { retryConfig } from '../../retry'
 import { Request, Response, parseBody } from '../../serve'
 import * as utils from '../../utils/type-utils'
+import { BotLogger } from '../bot-logger'
 import { BotSpecificClient } from '../client'
 import * as common from '../types'
 import { extractContext } from './context'
@@ -21,6 +22,7 @@ export const botHandler =
   (bot: types.BotHandlers<common.BaseBot>) =>
   async (req: Request): Promise<Response | void> => {
     const ctx = extractContext(req.headers)
+    const logger = new BotLogger()
 
     const vanillaClient = new client.Client({
       botId: ctx.botId,
@@ -39,6 +41,7 @@ export const botHandler =
             const hookOutput = await handler({
               client: new BotSpecificClient(vanillaClient),
               ctx,
+              logger,
               data: req,
             })
             req = hookOutput?.data ?? req
@@ -56,6 +59,7 @@ export const botHandler =
             const hookOutput = await handler({
               client: new BotSpecificClient(vanillaClient),
               ctx,
+              logger,
               data: req,
             })
             req = hookOutput?.data ?? req
@@ -72,6 +76,7 @@ export const botHandler =
             const hookOutput = await handler({
               client: new BotSpecificClient(vanillaClient),
               ctx,
+              logger,
               data: res,
             })
             res = hookOutput?.data ?? res
@@ -90,6 +95,7 @@ export const botHandler =
             const hookOutput = await handler({
               client: new BotSpecificClient(vanillaClient),
               ctx,
+              logger,
               data: res,
             })
             res = hookOutput?.data ?? res
@@ -102,6 +108,7 @@ export const botHandler =
     const props: ServerProps = {
       req,
       ctx,
+      logger,
       client: botClient,
       self: bot,
     }
@@ -131,7 +138,7 @@ const onRegister = async (_: ServerProps): Promise<Response> => SUCCESS_RESPONSE
 
 const onUnregister = async (_: ServerProps): Promise<Response> => SUCCESS_RESPONSE
 
-const onEventReceived = async ({ ctx, req, client, self }: ServerProps): Promise<Response> => {
+const onEventReceived = async ({ ctx, logger, req, client, self }: ServerProps): Promise<Response> => {
   log.debug(`Received event ${ctx.type}`)
 
   type AnyEventPayload = utils.ValueOf<types.EventPayloads<common.BaseBot>>
@@ -147,6 +154,7 @@ const onEventReceived = async ({ ctx, req, client, self }: ServerProps): Promise
       const hookOutput = await handler({
         client,
         ctx,
+        logger,
         data: message,
       })
       message = hookOutput?.data ?? message
@@ -172,6 +180,7 @@ const onEventReceived = async ({ ctx, req, client, self }: ServerProps): Promise
         ...messagePayload,
         client,
         ctx,
+        logger,
       })
     }
 
@@ -183,6 +192,7 @@ const onEventReceived = async ({ ctx, req, client, self }: ServerProps): Promise
         client,
         ctx,
         data: message,
+        logger,
       })
       message = hookOutput?.data ?? message
       if (hookOutput?.stop) {
@@ -204,6 +214,7 @@ const onEventReceived = async ({ ctx, req, client, self }: ServerProps): Promise
         ...statePayload,
         client,
         ctx,
+        logger,
       })
     }
     return SUCCESS_RESPONSE
@@ -218,6 +229,7 @@ const onEventReceived = async ({ ctx, req, client, self }: ServerProps): Promise
       client,
       ctx,
       data: event,
+      logger,
     })
     event = hookOutput?.data ?? event
     if (hookOutput?.stop) {
@@ -235,6 +247,7 @@ const onEventReceived = async ({ ctx, req, client, self }: ServerProps): Promise
       ...eventPayload,
       client,
       ctx,
+      logger,
     })
   }
 
@@ -246,6 +259,7 @@ const onEventReceived = async ({ ctx, req, client, self }: ServerProps): Promise
       client,
       ctx,
       data: event,
+      logger,
     })
     event = hookOutput?.data ?? event
     if (hookOutput?.stop) {
@@ -256,7 +270,7 @@ const onEventReceived = async ({ ctx, req, client, self }: ServerProps): Promise
   return SUCCESS_RESPONSE
 }
 
-const onActionTriggered = async ({ ctx, req, client, self }: ServerProps): Promise<Response> => {
+const onActionTriggered = async ({ ctx, logger, req, client, self }: ServerProps): Promise<Response> => {
   type AnyActionPayload = utils.ValueOf<types.ActionHandlerPayloads<common.BaseBot>>
   const { input, type } = parseBody<AnyActionPayload>(req)
 
@@ -270,7 +284,7 @@ const onActionTriggered = async ({ ctx, req, client, self }: ServerProps): Promi
     throw new Error(`Action ${type} not found`)
   }
 
-  const output = await action({ ctx, input, client, type })
+  const output = await action({ ctx, logger, input, client, type })
 
   const response = { output }
   return {

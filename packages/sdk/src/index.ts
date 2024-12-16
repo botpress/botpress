@@ -55,6 +55,7 @@ export {
   ConversationDefinition as BotConversationDefinition,
   MessageDefinition as BotMessageDefinition,
   ActionDefinition as BotActionDefinition,
+  BotLogger,
 } from './bot'
 
 export {
