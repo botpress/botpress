@@ -322,6 +322,21 @@ const lintSchema = {
   ...projectSchema,
 } satisfies CommandSchema
 
+const chatSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+  chatApiUrl: {
+    type: 'string',
+    description: 'The URL of the chat server',
+  },
+  botId: {
+    type: 'string',
+    positional: true,
+    idx: 0,
+    description: 'The bot ID to chat with',
+  },
+} satisfies CommandSchema
+
 // exports
 
 export const schemas = {
@@ -329,7 +344,6 @@ export const schemas = {
   project: projectSchema,
   credentials: credentialsSchema,
   secrets: secretsSchema,
-
   login: loginSchema,
   logout: logoutSchema,
   createBot: createBotSchema,
@@ -355,4 +369,5 @@ export const schemas = {
   add: addSchema,
   dev: devSchema,
   lint: lintSchema,
+  chat: chatSchema,
 } as const
