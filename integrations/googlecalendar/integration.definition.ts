@@ -22,18 +22,23 @@ export default new sdk.IntegrationDefinition({
   secrets,
   states,
 })
-  .extend(listable, (entities) => ({
-    item: entities.event,
+  .extend(listable, ({ entities }) => ({
+    entities: { item: entities.event },
+    actions: { list: { name: 'eventList' } },
   }))
-  .extend(creatable, (entities) => ({
-    item: entities.event,
+  .extend(creatable, ({ entities }) => ({
+    entities: { item: entities.event },
+    actions: { create: { name: 'eventCreate' } },
   }))
-  .extend(readable, (entities) => ({
-    item: entities.event,
+  .extend(readable, ({ entities }) => ({
+    entities: { item: entities.event },
+    actions: { read: { name: 'eventRead' } },
   }))
-  .extend(updatable, (entities) => ({
-    item: entities.event,
+  .extend(updatable, ({ entities }) => ({
+    entities: { item: entities.event },
+    actions: { update: { name: 'eventUpdate' } },
   }))
-  .extend(deletable, (entities) => ({
-    item: entities.event,
+  .extend(deletable, ({ entities }) => ({
+    entities: { item: entities.event },
+    actions: { delete: { name: 'eventDelete' } },
   }))

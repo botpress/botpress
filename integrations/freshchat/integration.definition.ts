@@ -15,4 +15,4 @@ export default new IntegrationDefinition({
   channels,
   events,
   user,
-}).extend(hitl, () => ({}))
+}).extend(hitl, () => ({ entities: {} }))

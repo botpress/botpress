@@ -165,4 +165,9 @@ export default new IntegrationDefinition({
       }),
     },
   },
-}).extend(creatable, ({ task }) => ({ item: task }))
+}).extend(creatable, ({ entities: { task } }) => ({
+  entities: { item: task },
+  actions: {
+    create: { name: 'taskCreate' },
+  },
+}))

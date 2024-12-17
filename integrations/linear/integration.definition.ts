@@ -35,6 +35,9 @@ export default new IntegrationDefinition({
     },
     ...sentryHelpers.COMMON_SECRET_NAMES,
   },
-}).extend(listable, (entities) => ({
-  item: entities.issue,
+}).extend(listable, ({ entities }) => ({
+  entities: { item: entities.issue },
+  actions: {
+    list: { name: 'issueList' },
+  },
 }))
