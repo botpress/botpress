@@ -88,22 +88,57 @@ type EntitiesOfPackage<TPackage extends InterfacePackage> = {
   [K in keyof TPackage['definition']['entities']]: NonNullable<TPackage['definition']['entities']>[K]['schema']
 }
 
-type ExtensionBuilderInput<TIntegrationEntities extends BaseEntities> = {
+type ActionsOfPackage<TPackage extends InterfacePackage> = {
+  [K in keyof TPackage['definition']['actions']]: NonNullable<TPackage['definition']['actions']>[K]['input']['schema']
+}
+
+type EventsOfPackage<TPackage extends InterfacePackage> = {
+  [K in keyof TPackage['definition']['events']]: NonNullable<TPackage['definition']['events']>[K]['schema']
+}
+
+type ChannelsOfPackage<TPackage extends InterfacePackage> = {
+  [K in keyof TPackage['definition']['channels']]: {
+    [M in keyof NonNullable<TPackage['definition']['channels']>[K]['messages']]: NonNullable<
+      NonNullable<TPackage['definition']['channels']>[K]['messages']
+    >[M]['schema']
+  }
+}
+
+type ExtensionBuilderInput<
+  TIntegrationEntities extends BaseEntities,
+  _TIntegrationActions extends BaseActions,
+  _TIntegrationEvents extends BaseEvents,
+  _TIntegrationChannels extends BaseChannels
+> = {
   entities: SchemaStore<TIntegrationEntities>
 }
 
-type ExtensionBuilderOutput<TInterfaceEntities extends BaseEntities> = {
+type ExtensionBuilderOutput<
+  TInterfaceEntities extends BaseEntities,
+  TInterfaceActions extends BaseActions,
+  TInterfaceEvents extends BaseEvents,
+  TInterfaceChannels extends BaseChannels
+> = {
   entities: {
     [K in keyof TInterfaceEntities]: BrandedSchema<z.ZodSchema<z.infer<TInterfaceEntities[K]>>>
   }
-  actions?: { [K: string]: { name: string } }
-  events?: { [K: string]: { name: string } }
-  channels?: { [K: string]: { name: string } }
+  actions?: { [K in keyof TInterfaceActions]: { name: string } }
+  events?: { [K in keyof TInterfaceEvents]: { name: string } }
+  channels?: { [K in keyof TInterfaceChannels]: { name: string } }
 }
 
-type ExtensionBuilder<TIntegrationEntities extends BaseEntities, TInterfaceEntities extends BaseEntities> = (
-  input: ExtensionBuilderInput<TIntegrationEntities>
-) => ExtensionBuilderOutput<TInterfaceEntities>
+type ExtensionBuilder<
+  TIntegrationEntities extends BaseEntities,
+  TIntegrationActions extends BaseActions,
+  TIntegrationEvents extends BaseEvents,
+  TIntegrationChannels extends BaseChannels,
+  TInterfaceEntities extends BaseEntities,
+  TInterfaceActions extends BaseActions,
+  TInterfaceEvents extends BaseEvents,
+  TInterfaceChannels extends BaseChannels
+> = (
+  input: ExtensionBuilderInput<TIntegrationEntities, TIntegrationActions, TIntegrationEvents, TIntegrationChannels>
+) => ExtensionBuilderOutput<TInterfaceEntities, TInterfaceActions, TInterfaceEvents, TInterfaceChannels>
 
 type TypeArgument = { name: string; schema: z.AnyZodObject }
 
@@ -169,7 +204,16 @@ export class IntegrationDefinition<
 
   public extend<P extends InterfacePackage>(
     interfacePkg: P,
-    builder: ExtensionBuilder<TEntities, EntitiesOfPackage<P>>
+    builder: ExtensionBuilder<
+      TEntities,
+      TActions,
+      TEvents,
+      TChannels,
+      EntitiesOfPackage<P>,
+      ActionsOfPackage<P>,
+      EventsOfPackage<P>,
+      ChannelsOfPackage<P>
+    >
   ): this {
     const { entities, actions, events, channels } = this._callBuilder(interfacePkg, builder)
 
@@ -207,7 +251,16 @@ export class IntegrationDefinition<
 
   private _callBuilder<P extends InterfacePackage>(
     interfacePkg: P,
-    builder: ExtensionBuilder<TEntities, EntitiesOfPackage<P>>
+    builder: ExtensionBuilder<
+      TEntities,
+      TActions,
+      TEvents,
+      TChannels,
+      EntitiesOfPackage<P>,
+      ActionsOfPackage<P>,
+      EventsOfPackage<P>,
+      ChannelsOfPackage<P>
+    >
   ): {
     entities: Record<string, TypeArgument>
     actions: Aliases
@@ -215,7 +268,9 @@ export class IntegrationDefinition<
     channels: Aliases
   } {
     const entityStore = createStore(this.entities)
-    const extensionBuilderInput: ExtensionBuilderInput<TEntities> = { entities: entityStore }
+    const extensionBuilderInput: ExtensionBuilderInput<TEntities, TActions, TEvents, TChannels> = {
+      entities: entityStore,
+    }
     const extensionBuilderOutput = builder(extensionBuilderInput)
     const unbrandedEntity = utils.records.pairs(extensionBuilderOutput.entities).find(([_k, e]) => !isBranded(e))
     if (unbrandedEntity) {
