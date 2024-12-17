@@ -22,4 +22,4 @@ export default new IntegrationDefinition({
       description: 'Google AI API key',
     },
   },
-}).extend(llm, ({ modelRef }) => ({ modelRef }))
+}).extend(llm, ({ entities: { modelRef } }) => ({ entities: { modelRef } }))

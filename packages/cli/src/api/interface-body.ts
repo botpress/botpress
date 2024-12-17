@@ -42,12 +42,6 @@ export const prepareCreateInterfaceBody = async (intrface: sdk.InterfaceDefiniti
         })),
       }))
     : {},
-  nameTemplate: intrface.templateName
-    ? {
-        script: intrface.templateName,
-        language: 'handlebars',
-      }
-    : undefined,
 })
 
 export const prepareUpdateInterfaceBody = (

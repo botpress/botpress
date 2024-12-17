@@ -87,7 +87,7 @@ export default new IntegrationDefinition({
   user: {
     tags: { id: {} },
   },
-}).extend(typingIndicator, () => ({}))
+}).extend(typingIndicator, () => ({ entities: {} }))
 
 export const getOAuthConfigId = () => {
   if (process.env.BP_WEBHOOK_URL?.includes('dev')) {

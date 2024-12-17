@@ -163,7 +163,7 @@ export default new IntegrationDefinition({
       optional: true,
     },
   },
-}).extend(typingIndicator, () => ({}))
+}).extend(typingIndicator, () => ({ entities: {} }))
 
 export const getOAuthConfigId = () => {
   if (process.env.BP_WEBHOOK_URL?.includes('dev')) {

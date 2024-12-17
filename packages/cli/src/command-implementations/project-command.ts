@@ -12,7 +12,7 @@ import type * as config from '../config'
 import * as consts from '../consts'
 import * as errors from '../errors'
 import { formatPackageRef, PackageRef } from '../package-ref'
-import { validateIntegrationDefinition, resolveInterfaces, resolveBotInterfaces, validateBotDefinition } from '../sdk'
+import { validateIntegrationDefinition, validateBotDefinition } from '../sdk'
 import type { CommandArgv, CommandDefinition } from '../typings'
 import * as utils from '../utils'
 import { GlobalCommand } from './global-command'
@@ -161,8 +161,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       throw new errors.BotpressCLIError('Could not read integration definition')
     }
 
-    let { default: definition } = utils.require.requireJsCode<{ default: sdk.IntegrationDefinition }>(artifact.text)
-    definition = resolveInterfaces(definition)
+    const { default: definition } = utils.require.requireJsCode<{ default: sdk.IntegrationDefinition }>(artifact.text)
     validateIntegrationDefinition(definition)
     return { definition, bpLintDisabled }
   }
@@ -222,8 +221,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       throw new errors.BotpressCLIError('Could not read bot definition')
     }
 
-    let { default: definition } = utils.require.requireJsCode<{ default: sdk.BotDefinition }>(artifact.text)
-    definition = resolveBotInterfaces(definition)
+    const { default: definition } = utils.require.requireJsCode<{ default: sdk.BotDefinition }>(artifact.text)
     validateBotDefinition(definition)
     return { definition, bpLintDisabled }
   }

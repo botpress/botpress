@@ -62,3 +62,5 @@ export type DeepPartial<T> = T extends (...args: infer A) => infer R
   : T extends object
   ? DeepPartialObject<T>
   : T
+
+export type SafeOmit<T, K extends keyof T> = Omit<T, K>

@@ -27,7 +27,6 @@ type IntegrationPackageDefinition = NameVersion & {
 }
 
 type InterfacePackageDefinition = NameVersion & {
-  templateName?: string
   entities?: Record<string, integration.EntityDefinition>
   events?: Record<string, integration.EventDefinition>
   actions?: Record<string, integration.ActionDefinition>

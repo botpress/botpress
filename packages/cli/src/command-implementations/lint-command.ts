@@ -14,7 +14,6 @@ import * as errors from '../errors'
 import { BotLinter } from '../linter/bot-linter'
 import { IntegrationLinter } from '../linter/integration-linter'
 import { InterfaceLinter } from '../linter/interface-linter'
-import { getImplementationStatements } from '../sdk'
 import { ProjectCommand } from './project-command'
 
 export type LintCommandDefinition = typeof commandDefinitions.lint
@@ -113,7 +112,7 @@ export class LintCommand extends ProjectCommand<LintCommandDefinition> {
     const actionNames = new Set<string>()
     const eventNames = new Set<string>()
 
-    const interfacesStatements = getImplementationStatements(definition)
+    const interfacesStatements = definition.interfaces ?? {}
     for (const iface of Object.values(interfacesStatements)) {
       for (const actionDefinition of Object.values(iface.actions)) {
         actionNames.add(actionDefinition.name)

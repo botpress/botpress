@@ -19,4 +19,4 @@ export default new IntegrationDefinition({
   actions,
   events,
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
-}).extend(hitl, () => ({}))
+}).extend(hitl, () => ({ entities: {} }))

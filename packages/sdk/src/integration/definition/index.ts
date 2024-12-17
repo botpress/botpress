@@ -1,6 +1,7 @@
+import { resolveInterface } from 'src/interface/resolve'
 import { InterfacePackage } from '../../package'
 import * as utils from '../../utils'
-import { z } from '../../zui'
+import { mergeObjectSchemas, z } from '../../zui'
 import { SchemaStore, BrandedSchema, createStore, isBranded, getName } from './branded-schema'
 import { BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates, BaseEntities, BaseConfigs } from './generic'
 import {
@@ -13,18 +14,20 @@ import {
   SecretDefinition,
   EntityDefinition,
   AdditionalConfigurationDefinition,
+  MessageDefinition,
 } from './types'
 
 export * from './types'
 
-export type InterfaceExtension = InterfacePackage & {
-  entities: Record<
-    string,
-    {
-      name: string
-      schema: z.AnyZodObject
-    }
-  >
+type Aliases = Record<string, { name: string }>
+export type InterfaceExtension = {
+  id?: string
+  name: string
+  version: string
+  entities: Aliases
+  events: Aliases
+  actions: Aliases
+  channels: Aliases
 }
 
 export type IntegrationDefinitionProps<
@@ -85,15 +88,59 @@ type EntitiesOfPackage<TPackage extends InterfacePackage> = {
   [K in keyof TPackage['definition']['entities']]: NonNullable<TPackage['definition']['entities']>[K]['schema']
 }
 
-type ExtensionBuilderInput<TIntegrationEntities extends BaseEntities> = SchemaStore<TIntegrationEntities>
-
-type ExtensionBuilderOutput<TInterfaceEntities extends BaseEntities> = {
-  [K in keyof TInterfaceEntities]: BrandedSchema<z.ZodSchema<z.infer<TInterfaceEntities[K]>>>
+type ActionsOfPackage<TPackage extends InterfacePackage> = {
+  [K in keyof TPackage['definition']['actions']]: NonNullable<TPackage['definition']['actions']>[K]['input']['schema']
 }
 
-type ExtensionBuilder<TIntegrationEntities extends BaseEntities, TInterfaceEntities extends BaseEntities> = (
-  input: ExtensionBuilderInput<TIntegrationEntities>
-) => ExtensionBuilderOutput<TInterfaceEntities>
+type EventsOfPackage<TPackage extends InterfacePackage> = {
+  [K in keyof TPackage['definition']['events']]: NonNullable<TPackage['definition']['events']>[K]['schema']
+}
+
+type ChannelsOfPackage<TPackage extends InterfacePackage> = {
+  [K in keyof TPackage['definition']['channels']]: {
+    [M in keyof NonNullable<TPackage['definition']['channels']>[K]['messages']]: NonNullable<
+      NonNullable<TPackage['definition']['channels']>[K]['messages']
+    >[M]['schema']
+  }
+}
+
+type ExtensionBuilderInput<
+  TIntegrationEntities extends BaseEntities,
+  _TIntegrationActions extends BaseActions,
+  _TIntegrationEvents extends BaseEvents,
+  _TIntegrationChannels extends BaseChannels
+> = {
+  entities: SchemaStore<TIntegrationEntities>
+}
+
+type ExtensionBuilderOutput<
+  TInterfaceEntities extends BaseEntities,
+  TInterfaceActions extends BaseActions,
+  TInterfaceEvents extends BaseEvents,
+  TInterfaceChannels extends BaseChannels
+> = {
+  entities: {
+    [K in keyof TInterfaceEntities]: BrandedSchema<z.ZodSchema<z.infer<TInterfaceEntities[K]>>>
+  }
+  actions?: { [K in keyof TInterfaceActions]: { name: string } }
+  events?: { [K in keyof TInterfaceEvents]: { name: string } }
+  channels?: { [K in keyof TInterfaceChannels]: { name: string } }
+}
+
+type ExtensionBuilder<
+  TIntegrationEntities extends BaseEntities,
+  TIntegrationActions extends BaseActions,
+  TIntegrationEvents extends BaseEvents,
+  TIntegrationChannels extends BaseChannels,
+  TInterfaceEntities extends BaseEntities,
+  TInterfaceActions extends BaseActions,
+  TInterfaceEvents extends BaseEvents,
+  TInterfaceChannels extends BaseChannels
+> = (
+  input: ExtensionBuilderInput<TIntegrationEntities, TIntegrationActions, TIntegrationEvents, TIntegrationChannels>
+) => ExtensionBuilderOutput<TInterfaceEntities, TInterfaceActions, TInterfaceEvents, TInterfaceChannels>
+
+type TypeArgument = { name: string; schema: z.AnyZodObject }
 
 export class IntegrationDefinition<
   TName extends string = string,
@@ -157,34 +204,126 @@ export class IntegrationDefinition<
 
   public extend<P extends InterfacePackage>(
     interfacePkg: P,
-    builder: ExtensionBuilder<TEntities, EntitiesOfPackage<P>>
+    builder: ExtensionBuilder<
+      TEntities,
+      TActions,
+      TEvents,
+      TChannels,
+      EntitiesOfPackage<P>,
+      ActionsOfPackage<P>,
+      EventsOfPackage<P>,
+      ChannelsOfPackage<P>
+    >
   ): this {
-    const extensionBuilderOutput = builder(createStore(this.entities))
-    const unbrandedEntity = utils.records.pairs(extensionBuilderOutput).find(([_k, e]) => !isBranded(e))
+    const { entities, actions, events, channels } = this._callBuilder(interfacePkg, builder)
+
+    const self = this as utils.types.Writable<IntegrationDefinition>
+    self.interfaces ??= {}
+
+    const entityNames = Object.values(entities).map((e) => e.name)
+
+    const key = entityNames.length === 0 ? interfacePkg.name : `${interfacePkg.name}<${entityNames.join(',')}>`
+
+    const { resolved, statement } = resolveInterface({
+      ...interfacePkg,
+      entities,
+      actions,
+      events,
+      channels,
+    })
+
+    /**
+     * If an action is defined both in the integration and the interface; we merge both.
+     * This allows setting more specific properties in the integration, while staying compatible with the interface.
+     * Same goes for channels and events.
+     */
+    self.actions = utils.records.mergeRecords(self.actions ?? {}, resolved.actions, this._mergeActions)
+    self.channels = utils.records.mergeRecords(self.channels ?? {}, resolved.channels, this._mergeChannels)
+    self.events = utils.records.mergeRecords(self.events ?? {}, resolved.events, this._mergeEvents)
+
+    self.interfaces[key] = {
+      id: interfacePkg.id,
+      ...statement,
+    }
+
+    return this
+  }
+
+  private _callBuilder<P extends InterfacePackage>(
+    interfacePkg: P,
+    builder: ExtensionBuilder<
+      TEntities,
+      TActions,
+      TEvents,
+      TChannels,
+      EntitiesOfPackage<P>,
+      ActionsOfPackage<P>,
+      EventsOfPackage<P>,
+      ChannelsOfPackage<P>
+    >
+  ): {
+    entities: Record<string, TypeArgument>
+    actions: Aliases
+    events: Aliases
+    channels: Aliases
+  } {
+    const entityStore = createStore(this.entities)
+    const extensionBuilderInput: ExtensionBuilderInput<TEntities, TActions, TEvents, TChannels> = {
+      entities: entityStore,
+    }
+    const extensionBuilderOutput = builder(extensionBuilderInput)
+    const unbrandedEntity = utils.records.pairs(extensionBuilderOutput.entities).find(([_k, e]) => !isBranded(e))
     if (unbrandedEntity) {
       // this means the user tried providing a plain schema without referencing an entity from the integration
       throw new Error(
         `Cannot extend interface "${interfacePkg.name}" with entity "${unbrandedEntity[0]}"; the provided schema is not part of the integration's entities.`
       )
     }
-
-    const self = this as utils.types.Writable<IntegrationDefinition>
-    self.interfaces ??= {}
-
-    const interfaceTypeArguments = utils.records.mapValues(extensionBuilderOutput, (e) => ({
+    const entities = utils.records.mapValues(extensionBuilderOutput.entities, (e) => ({
       name: getName(e),
       schema: e.schema as z.AnyZodObject,
     }))
-
-    const entityNames = Object.values(interfaceTypeArguments).map((e) => e.name)
-
-    const key = entityNames.length === 0 ? interfacePkg.name : `${interfacePkg.name}<${entityNames.join(',')}>`
-
-    self.interfaces[key] = {
-      ...interfacePkg,
-      entities: interfaceTypeArguments,
+    return {
+      entities,
+      actions: extensionBuilderOutput.actions ?? {},
+      events: extensionBuilderOutput.events ?? {},
+      channels: extensionBuilderOutput.channels ?? {},
     }
+  }
 
-    return this
+  private _mergeActions = (a: ActionDefinition, b: ActionDefinition): ActionDefinition => {
+    return {
+      ...a,
+      ...b,
+      input: {
+        schema: mergeObjectSchemas(a.input.schema, b.input.schema),
+      },
+      output: {
+        schema: mergeObjectSchemas(a.input.schema, b.output.schema),
+      },
+    }
+  }
+
+  private _mergeEvents = (a: EventDefinition, b: EventDefinition): EventDefinition => {
+    return {
+      ...a,
+      ...b,
+      schema: mergeObjectSchemas(a.schema, b.schema),
+    }
+  }
+
+  private _mergeChannels = (a: ChannelDefinition, b: ChannelDefinition): ChannelDefinition => {
+    const messages = utils.records.mergeRecords(a.messages, b.messages, this._mergeMessage)
+    return {
+      ...a,
+      ...b,
+      messages,
+    }
+  }
+
+  private _mergeMessage = (a: MessageDefinition, b: MessageDefinition): MessageDefinition => {
+    return {
+      schema: mergeObjectSchemas(a.schema, b.schema),
+    }
   }
 }
