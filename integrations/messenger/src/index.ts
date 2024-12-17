@@ -3,6 +3,7 @@ import { Request } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import queryString from 'query-string'
 import { INTEGRATION_NAME } from '../integration.definition'
+import actions from '../src/actions'
 import { getInterstitialUrl, redirectTo } from './misc/html-utils'
 import { handleMessage } from './misc/incoming-message'
 import { sendMessage } from './misc/outgoing-message'
@@ -14,7 +15,7 @@ import * as bp from '.botpress'
 const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
-  actions: {},
+  actions,
   channels: {
     channel: {
       messages: {
