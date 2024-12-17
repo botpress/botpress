@@ -53,7 +53,7 @@ export default new IntegrationDefinition({
     },
     schema: z
       .object({
-        typingInficatorEmoji: z
+        typingIndicatorEmoji: z
           .boolean()
           .default(false)
           .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
