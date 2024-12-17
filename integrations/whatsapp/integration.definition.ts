@@ -34,7 +34,7 @@ export const INTEGRATION_NAME = 'whatsapp'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.2.0',
+  version: '2.3.0',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -53,6 +53,10 @@ export default new IntegrationDefinition({
     },
     schema: z
       .object({
+        typingInficatorEmoji: z
+          .boolean()
+          .default(false)
+          .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
         useManualConfiguration: z.boolean().optional().describe('Skip oAuth and supply details from a Meta App'),
         verifyToken: z.string().optional().describe('Token used for verification when subscribing to webhooks'),
         accessToken: z
@@ -66,6 +70,7 @@ export default new IntegrationDefinition({
         const showConfig = !formData?.useManualConfiguration
 
         return {
+          typingInficatorEmoji: false,
           verifyToken: showConfig,
           accessToken: showConfig,
           clientSecret: showConfig,

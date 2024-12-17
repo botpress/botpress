@@ -15,7 +15,9 @@ export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIn
   const { phoneNumberId, userPhone } = await getConversationInfos(client, conversationId)
   const { whatsappMessageId } = await getMessageInfos(client, messageId)
   await whatsapp.markAsRead(phoneNumberId, whatsappMessageId)
-  await whatsapp.sendMessage(phoneNumberId, userPhone, new Reaction(whatsappMessageId, '👀'))
+  if (ctx.configuration.typingInficatorEmoji) {
+    await whatsapp.sendMessage(phoneNumberId, userPhone, new Reaction(whatsappMessageId, '👀'))
+  }
   return {}
 }
 
@@ -29,7 +31,7 @@ export const stopTypingIndicator: bp.IntegrationProps['actions']['stopTypingIndi
   const { conversationId, messageId } = input
   const { phoneNumberId, userPhone } = await getConversationInfos(client, conversationId)
   const { whatsappMessageId } = await getMessageInfos(client, messageId)
-  await whatsapp.sendMessage(phoneNumberId, userPhone, new Reaction(whatsappMessageId, ''))
+  await whatsapp.sendMessage(phoneNumberId, userPhone, new Reaction(whatsappMessageId))
   return {}
 }
 
