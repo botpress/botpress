@@ -1,4 +1,3 @@
-/* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import typingIndicator from 'bp_modules/typing-indicator'
@@ -7,7 +6,7 @@ export const INTEGRATION_NAME = 'messenger'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.1.0',
+  version: '2.1.1',
   title: 'Messenger',
   description: 'Give your bot access to one of the world’s largest messaging platform.',
   icon: 'icon.svg',
