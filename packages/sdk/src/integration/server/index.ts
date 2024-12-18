@@ -78,16 +78,21 @@ export const integrationHandler =
           throw new Error(`Unknown operation ${ctx.operation}`)
       }
       return response ? { ...response, status: response.status ?? 200 } : { status: 200 }
-    } catch (thrown) {
-      if (isApiError(thrown)) {
-        const runtimeError = new RuntimeError(thrown.message, thrown)
+    } catch (error) {
+      if (isApiError(error)) {
+        if (error.type === 'UpstreamProvider') {
+          logger.forBot().error(error.message)
+          return { status: error.code, body: JSON.stringify(error.toJSON()) }
+        }
+
+        const runtimeError = new RuntimeError(error.message, error)
         logger.forBot().error(runtimeError.message)
 
         return { status: runtimeError.code, body: JSON.stringify(runtimeError.toJSON()) }
       }
 
       // prints the error in the integration logs
-      console.error(thrown)
+      console.error(error)
 
       const runtimeError = new RuntimeError(
         'An unexpected error occurred in the integration. Bot owners: Check logs for more informations. Integration owners: throw a RuntimeError to return a custom error message instead.'
