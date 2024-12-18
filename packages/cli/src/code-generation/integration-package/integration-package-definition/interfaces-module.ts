@@ -4,9 +4,8 @@ import * as types from './typings'
 
 export class InterfaceModule extends Module {
   public constructor(name: string, private _interface: types.ApiInterfaceExtension) {
-    const interfaceName = strings.importAlias(name)
-    const exportName = strings.varName(interfaceName)
-    super({ path: `${interfaceName}.ts`, exportName })
+    const exportName = strings.varName(name)
+    super({ path: `${name}.ts`, exportName })
   }
 
   public async getContent() {

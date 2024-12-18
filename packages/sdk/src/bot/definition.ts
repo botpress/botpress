@@ -1,3 +1,4 @@
+import { InterfaceExtension } from '../integration'
 import { IntegrationPackage, PluginPackage } from '../package'
 import { SchemaDefinition } from '../schema'
 import { ValueOf, Writable } from '../utils/type-utils'
@@ -69,8 +70,7 @@ export type IntegrationConfigInstance<I extends IntegrationPackage = Integration
 export type PluginConfigInstance<P extends PluginPackage = PluginPackage> = {
   configuration: z.infer<NonNullable<P['definition']['configuration']>['schema']>
   interfaces: {
-    // TODO: this configuration should be strongly typed so that only the integrations that implement the interface are allowed
-    [I in keyof NonNullable<P['definition']['interfaces']>]: { name: string; version: string }
+    [I in keyof NonNullable<P['definition']['interfaces']>]: InterfaceExtension
   }
 }
 

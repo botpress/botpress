@@ -22,12 +22,28 @@ export default new sdk.BotDefinition({})
       personality: 'Respond as if you were Mario the famous video game character of Nintendo',
     },
     interfaces: {
-      llm: openai.definition,
+      llm: {
+        id: openai.id,
+        name: openai.name,
+        version: openai.version,
+        entities: openai.definition.interfaces!['llm<modelRef>'].entities,
+        actions: openai.definition.interfaces!['llm<modelRef>'].actions,
+        events: openai.definition.interfaces!['llm<modelRef>'].events,
+        channels: openai.definition.interfaces!['llm<modelRef>'].channels,
+      },
     },
   })
   .addPlugin(knowledge, {
     configuration: {},
     interfaces: {
-      llm: openai.definition,
+      llm: {
+        id: openai.id,
+        name: openai.name,
+        version: openai.version,
+        entities: openai.definition.interfaces!['llm<modelRef>'].entities,
+        actions: openai.definition.interfaces!['llm<modelRef>'].actions,
+        events: openai.definition.interfaces!['llm<modelRef>'].events,
+        channels: openai.definition.interfaces!['llm<modelRef>'].channels,
+      },
     },
   })
