@@ -101,3 +101,22 @@ export type ResolvedInterface<
   events: { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
   channels: { [K in keyof TChannels]: ChannelDefinition<TChannels[K]> }
 }
+
+/**
+ * A.K.A. Interface Implementation Statetement
+ * Used by an integration to explicitly declare that it implements an interface
+ */
+export type InterfaceExtension<
+  TEntities extends BaseEntities = BaseEntities,
+  TActions extends BaseActions = BaseActions,
+  TEvents extends BaseEvents = BaseEvents,
+  TChannels extends BaseChannels = BaseChannels
+> = {
+  id?: string // id of the interface to implement
+  name: string // name of the interface to implement
+  version: string // version of the interface to implement
+  entities: { [K in keyof TEntities]: { name: string } }
+  actions: { [K in keyof TActions]: { name: string } }
+  events: { [K in keyof TEvents]: { name: string } }
+  channels: { [K in keyof TChannels]: { name: string } }
+}

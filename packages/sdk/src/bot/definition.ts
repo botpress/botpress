@@ -1,5 +1,5 @@
-import { InterfaceExtension } from '../integration'
 import { IntegrationPackage, PluginPackage } from '../package'
+import { PluginInterfaceExtension } from '../plugin'
 import { SchemaDefinition } from '../schema'
 import { ValueOf, Writable } from '../utils/type-utils'
 import z, { ZuiObjectSchema } from '../zui'
@@ -70,7 +70,7 @@ export type IntegrationConfigInstance<I extends IntegrationPackage = Integration
 export type PluginConfigInstance<P extends PluginPackage = PluginPackage> = {
   configuration: z.infer<NonNullable<P['definition']['configuration']>['schema']>
   interfaces: {
-    [I in keyof NonNullable<P['definition']['interfaces']>]: InterfaceExtension
+    [I in keyof NonNullable<P['definition']['interfaces']>]: PluginInterfaceExtension
   }
 }
 

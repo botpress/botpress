@@ -1,4 +1,3 @@
-import { InterfaceExtension } from '../integration'
 import * as utils from '../utils'
 import {
   MessageHandlersMap,
@@ -13,6 +12,7 @@ import {
   ActionHandlers,
   BotHandlers,
 } from './server/types'
+import { PluginInterfaceExtension } from './types'
 import { BasePlugin } from './types/generic'
 
 export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> = {
@@ -22,12 +22,7 @@ export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> =
 export type PluginRuntimeProps<TPlugin extends BasePlugin = BasePlugin> = {
   configuration: TPlugin['configuration']
   interfaces: {
-    [K in keyof TPlugin['interfaces']]: InterfaceExtension<
-      TPlugin['interfaces'][K]['entities'],
-      TPlugin['interfaces'][K]['actions'],
-      TPlugin['interfaces'][K]['events'],
-      TPlugin['interfaces'][K]['channels']
-    >
+    [K in keyof TPlugin['interfaces']]: PluginInterfaceExtension<TPlugin['interfaces'][K]>
   }
 }
 

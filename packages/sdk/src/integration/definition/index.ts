@@ -2,7 +2,6 @@ import { resolveInterface } from 'src/interface/resolve'
 import { InterfacePackage } from '../../package'
 import * as utils from '../../utils'
 import { mergeObjectSchemas, z } from '../../zui'
-import { InterfaceExtension } from '../types'
 import { SchemaStore, BrandedSchema, createStore, isBranded, getName } from './branded-schema'
 import { BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates, BaseEntities, BaseConfigs } from './generic'
 import {
@@ -16,6 +15,7 @@ import {
   EntityDefinition,
   AdditionalConfigurationDefinition,
   MessageDefinition,
+  InterfaceExtension,
 } from './types'
 
 export * from './types'
