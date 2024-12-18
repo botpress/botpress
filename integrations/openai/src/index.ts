@@ -194,7 +194,7 @@ export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
-    generateContent: async ({}) => {
+    generateContent: async ({ input, logger, metadata }) => {
       const output = await llm.openai.generateContent<LanguageModelId>(
         <llm.GenerateContentInput>input,
         openAIClient,
