@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cli",
-  "version": "2.1.7",
+  "version": "2.1.8",
   "description": "Botpress CLI",
   "scripts": {
     "build": "pnpm run bundle && pnpm run template:gen",
@@ -22,8 +22,8 @@
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^11.7.0",
     "@botpress/chat": "0.4.6",
-    "@botpress/client": "0.38.2",
-    "@botpress/sdk": "2.1.1",
+    "@botpress/client": "0.39.0",
+    "@botpress/sdk": "2.2.0",
     "@bpinternal/const": "^0.0.20",
     "@bpinternal/tunnel": "^0.1.1",
     "@bpinternal/yargs-extra": "^0.0.3",
