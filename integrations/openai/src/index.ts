@@ -20,6 +20,34 @@ const DEFAULT_IMAGE_MODEL_ID: ImageModelId = 'dall-e-3-standard-1024'
 //  https://openai.com/api/pricing/
 const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
   // IMPORTANT: Only full model names should be supported here, as the short model names can be pointed by OpenAI at any time to a newer model with different pricing.
+  'o1-2024-12-17': {
+    name: 'GPT o1',
+    description:
+      'The o1 model is designed to solve hard problems across domains. The o1 series of models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user.',
+    tags: ['reasoning', 'vision', 'general-purpose'],
+    input: {
+      costPer1MTokens: 15,
+      maxTokens: 200_000,
+    },
+    output: {
+      costPer1MTokens: 60,
+      maxTokens: 100_000,
+    },
+  },
+  'o1-mini-2024-09-12': {
+    name: 'GPT o1-mini',
+    description:
+      'The o1-mini model is a fast and affordable reasoning model for specialized tasks. The o1 series of models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user.',
+    tags: ['reasoning', 'vision', 'general-purpose'],
+    input: {
+      costPer1MTokens: 3,
+      maxTokens: 128_000,
+    },
+    output: {
+      costPer1MTokens: 12,
+      maxTokens: 65_536,
+    },
+  },
   'gpt-4o-mini-2024-07-18': {
     name: 'GPT-4o Mini',
     description:
