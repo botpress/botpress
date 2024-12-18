@@ -101,17 +101,3 @@ export type ResolvedInterface<
   events: { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
   channels: { [K in keyof TChannels]: ChannelDefinition<TChannels[K]> }
 }
-
-export type InterfaceImplementationStatement<
-  TEntities extends BaseEntities = BaseEntities,
-  TActions extends BaseActions = BaseActions,
-  TEvents extends BaseEvents = BaseEvents,
-  TChannels extends BaseChannels = BaseChannels
-> = {
-  name: string
-  version: string
-  entities: { [K in keyof TEntities]: { name: string } }
-  actions: { [K in keyof TActions]: { name: string } }
-  events: { [K in keyof TEvents]: { name: string } }
-  channels: { [K in keyof TChannels]: { name: string } }
-}

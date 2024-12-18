@@ -13,7 +13,7 @@ export class ReadCommand extends ProjectCommand<ReadCommandDefinition> {
     const projectDef = await this.readProjectDefinitionFromFS()
     if (projectDef.type === 'integration') {
       const parsed = await prepareCreateIntegrationBody(projectDef.definition)
-      // TODO: maybe display interface implementation statements here
+      // TODO: display interface implementation statements here
       this.logger.json(parsed)
       return
     }

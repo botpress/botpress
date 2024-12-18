@@ -1,7 +1,7 @@
 import * as integration from './integration'
 import * as intrface from './interface'
 import * as plugin from './plugin'
-import * as utils from './utils'
+import * as utils from './utils/type-utils'
 
 type NameVersion = {
   name: string
@@ -13,6 +13,7 @@ type PackageReference = NameVersion & {
   uri?: string
 }
 
+type IntegrationPackageDefinitionInterface = utils.Merge<PackageReference, integration.InterfaceExtension>
 type IntegrationPackageDefinition = NameVersion & {
   configuration?: integration.ConfigurationDefinition
   configurations?: Record<string, integration.AdditionalConfigurationDefinition>
@@ -23,7 +24,7 @@ type IntegrationPackageDefinition = NameVersion & {
   user?: integration.UserDefinition
   secrets?: Record<string, integration.SecretDefinition>
   entities?: Record<string, integration.EntityDefinition>
-  interfaces?: Record<string, PackageReference>
+  interfaces?: Record<string, IntegrationPackageDefinitionInterface>
 }
 
 type InterfacePackageDefinition = NameVersion & {
@@ -66,17 +67,17 @@ export type PluginPackage = PackageReference & {
 
 export type Package = IntegrationPackage | InterfacePackage | PluginPackage
 
-type _test_expect_integration_definition_to_be_valid_package = utils.types.AssertExtends<
+type _test_expect_integration_definition_to_be_valid_package = utils.AssertExtends<
   integration.IntegrationDefinition,
   IntegrationPackageDefinition
 >
 
-type _test_expect_interface_definition_to_be_valid_package = utils.types.AssertExtends<
+type _test_expect_interface_definition_to_be_valid_package = utils.AssertExtends<
   intrface.InterfaceDefinition,
   InterfacePackageDefinition
 >
 
-type _test_expect_plugin_definition_to_be_valid_package = utils.types.AssertExtends<
+type _test_expect_plugin_definition_to_be_valid_package = utils.AssertExtends<
   plugin.PluginDefinition,
   PluginPackageDefinition
 >

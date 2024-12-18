@@ -2,6 +2,7 @@ import { resolveInterface } from 'src/interface/resolve'
 import { InterfacePackage } from '../../package'
 import * as utils from '../../utils'
 import { mergeObjectSchemas, z } from '../../zui'
+import { InterfaceExtension } from '../types'
 import { SchemaStore, BrandedSchema, createStore, isBranded, getName } from './branded-schema'
 import { BaseConfig, BaseEvents, BaseActions, BaseChannels, BaseStates, BaseEntities, BaseConfigs } from './generic'
 import {
@@ -18,17 +19,6 @@ import {
 } from './types'
 
 export * from './types'
-
-type Aliases = Record<string, { name: string }>
-export type InterfaceExtension = {
-  id?: string
-  name: string
-  version: string
-  entities: Aliases
-  events: Aliases
-  actions: Aliases
-  channels: Aliases
-}
 
 export type IntegrationDefinitionProps<
   TName extends string = string,
@@ -263,9 +253,9 @@ export class IntegrationDefinition<
     >
   ): {
     entities: Record<string, TypeArgument>
-    actions: Aliases
-    events: Aliases
-    channels: Aliases
+    actions: Record<string, { name: string }>
+    events: Record<string, { name: string }>
+    channels: Record<string, { name: string }>
   } {
     const entityStore = createStore(this.entities)
     const extensionBuilderInput: ExtensionBuilderInput<TEntities, TActions, TEvents, TChannels> = {

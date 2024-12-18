@@ -101,7 +101,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     let createBody: CreateIntegrationBody = await prepareCreateIntegrationBody(integrationDef)
     createBody = {
       ...createBody,
-      interfaces: await this._formatInterfacesImplStatements(api, integrationDef),
+      interfaces: await this.fetchIntegrationInterfaceInstances(integrationDef, api),
       code,
       icon: iconFileContent,
       readme: readmeFileContent,
@@ -553,33 +553,5 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
     const [name] = parts as [string]
     return { name }
-  }
-
-  private _formatInterfacesImplStatements = async (
-    api: ApiClient,
-    integration: sdk.IntegrationDefinition
-  ): Promise<CreateIntegrationBody['interfaces']> => {
-    const interfaces: NonNullable<CreateIntegrationBody['interfaces']> = {}
-    for (const [key, i] of Object.entries(integration.interfaces ?? {})) {
-      const { name, version, entities, actions, events, channels } = i
-      const id = await this._getInterfaceId(api, { id: i.id, name, version })
-      interfaces[key] = { id, entities, actions, events, channels }
-    }
-
-    return interfaces
-  }
-
-  private _getInterfaceId = async (
-    api: ApiClient,
-    ref: { id?: string; name: string; version: string }
-  ): Promise<string> => {
-    if (ref.id) {
-      return ref.id
-    }
-    const intrface = await api.findPublicInterface({ type: 'name', name: ref.name, version: ref.version })
-    if (!intrface) {
-      throw new errors.BotpressCLIError(`Could not find interface "${ref.name}@${ref.version}"`)
-    }
-    return intrface.id
   }
 }

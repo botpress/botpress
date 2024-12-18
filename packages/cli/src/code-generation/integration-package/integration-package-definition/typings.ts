@@ -7,3 +7,4 @@ export type ApiConfigurationDefinition = ApiIntegrationDefinition['configuration
 export type ApiEntityDefinition = ApiIntegrationDefinition['entities'][string]
 export type ApiEventDefinition = ApiIntegrationDefinition['events'][string]
 export type ApiStateDefinition = ApiIntegrationDefinition['states'][string]
+export type ApiInterfaceExtension = ApiIntegrationDefinition['interfaces'][string]

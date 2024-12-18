@@ -7,7 +7,7 @@ const plugin = new bp.Plugin({
 })
 
 plugin.on.beforeIncomingMessage('*', async ({ data: message, client, ctx }) => {
-  const integrationName = plugin.config.interfaces.llm.name
+  const integrationName = plugin.runtime.interfaces.llm.name
 
   if (message.type !== 'text') {
     console.debug('Ignoring non-text message')
