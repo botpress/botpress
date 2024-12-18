@@ -195,19 +195,18 @@ export default new bp.Integration({
   unregister: async () => {},
   actions: {
     generateContent: async ({}) => {
-      throw new UpstreamProviderError('Fake upstream error')
-      // const output = await llm.openai.generateContent<LanguageModelId>(
-      //   <llm.GenerateContentInput>input,
-      //   openAIClient,
-      //   logger,
-      //   {
-      //     provider,
-      //     models: languageModels,
-      //     defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
-      //   }
-      // )
-      // metadata.setCost(output.botpress.cost)
-      // return output
+      const output = await llm.openai.generateContent<LanguageModelId>(
+        <llm.GenerateContentInput>input,
+        openAIClient,
+        logger,
+        {
+          provider,
+          models: languageModels,
+          defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
+        }
+      )
+      metadata.setCost(output.botpress.cost)
+      return output
     },
     generateImage: async ({ input, client, metadata }) => {
       const imageModelId = (input.model?.id ?? DEFAULT_IMAGE_MODEL_ID) as ImageModelId
