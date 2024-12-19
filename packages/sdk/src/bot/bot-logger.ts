@@ -23,13 +23,13 @@ export class BotLogger extends BaseLogger<BotLogOptions> {
     })
   }
 
-  public withConversationID(conversationId: string) {
+  public withConversationId(conversationId: string) {
     return this.with({
       conversationId,
     })
   }
 
-  public withWorkflowID(workflowId: string) {
+  public withWorkflowId(workflowId: string) {
     return this.with({
       workflowId,
     })

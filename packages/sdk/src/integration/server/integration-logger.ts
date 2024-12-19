@@ -24,7 +24,7 @@ export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
     })
   }
 
-  public withConversationID(conversationId: string) {
+  public withConversationId(conversationId: string) {
     return this.with({
       conversationId,
     })
