@@ -2,8 +2,6 @@ import * as utils from '../../utils/type-utils'
 
 export type BaseChannel = {
   messages: Record<string, any>
-  message: any
-  conversation: any
 }
 
 export type BaseUser = {
