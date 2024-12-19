@@ -11,13 +11,17 @@ export type LLMChoice = LLMOutput['choices'][number]
 export type GenerateContentProps = {
   client: bp.Client
   input: LLMInput
-  integrationName: string
+  runtime: bp.PluginRuntimeProps
 }
 
 export const generateContent = async (props: GenerateContentProps): Promise<LLMOutput> => {
-  const { client, input, integrationName } = props
+  const { client, input, runtime } = props
+
+  const llmExtension = runtime.interfaces.llm
+  const type = `${llmExtension.name}:${llmExtension.actions.generateContent.name}`
+
   const response = await client.callAction({
-    type: `${integrationName}:generateContent`,
+    type,
     input,
   })
   return response.output

@@ -16,7 +16,8 @@ plugin.on.beforeOutgoingMessage('*', async ({ data: message, client }) => {
 
   const text = message.payload.text as string
 
-  const { model, personality } = plugin.runtime.configuration
+  const { runtime } = plugin
+  const { model, personality } = runtime.configuration
 
   const prompt = rewrite.prompt({
     model,
@@ -24,7 +25,7 @@ plugin.on.beforeOutgoingMessage('*', async ({ data: message, client }) => {
     payload: text,
   })
   const output = await gen.generateContent({
-    integrationName: plugin.runtime.interfaces.llm.name,
+    runtime,
     client,
     input: prompt,
   })

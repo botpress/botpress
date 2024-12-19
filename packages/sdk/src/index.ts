@@ -68,7 +68,10 @@ export {
   //
   DefaultPlugin,
   PluginDefinition,
+  PluginDefinitionProps,
   PluginImplementation as Plugin,
+  PluginImplementationProps as PluginProps,
+  PluginRuntimeProps,
 } from './plugin'
 
 export {

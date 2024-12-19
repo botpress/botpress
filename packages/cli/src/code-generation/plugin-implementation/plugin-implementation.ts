@@ -30,6 +30,8 @@ export class PluginImplementationModule extends Module {
       '',
       'export class Plugin extends sdk.Plugin<TPlugin> {}',
       '',
+      'export type PluginRuntimeProps = sdk.PluginRuntimeProps<TPlugin>',
+      '',
       '// extra types',
       '',
       'type AsyncFunction = (...args: any[]) => Promise<any>',
