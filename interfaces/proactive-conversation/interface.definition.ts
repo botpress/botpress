@@ -1,8 +1,10 @@
 import { z, InterfaceDefinition } from '@botpress/sdk'
 
+const templateName = '{{camelCase name}}{{pascalCase conversation}}'
+
 export default new InterfaceDefinition({
   name: 'proactiveConversation',
-  version: '0.0.1',
+  version: '0.0.2',
   entities: {
     conversation: {
       title: 'Conversation',
@@ -11,7 +13,7 @@ export default new InterfaceDefinition({
     },
   },
   actions: {
-    createConversation: {
+    getOrCreateConversation: {
       input: {
         schema: ({ conversation }) =>
           z.object({
@@ -26,4 +28,5 @@ export default new InterfaceDefinition({
       },
     },
   },
+  templateName, // getOrCreateConversationTicket, getOrCreateConversationIssue, getOrCreateConversationPullRequest
 })
