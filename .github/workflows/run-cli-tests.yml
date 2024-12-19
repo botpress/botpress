@@ -19,9 +19,9 @@ jobs:
       - name: Setup
         uses: ./.github/actions/setup
         with:
-          extra_filters: '-F @botpress/cli'
           turbo_team: ${{ secrets.TURBO_TEAM }}
           turbo_token: ${{ secrets.TURBO_TOKEN }}
+          extra_filters: '-F @botpress/cli'
       - run: |
           pnpm run -F cli test:e2e -v \
             --api-url https://api.botpress.dev \

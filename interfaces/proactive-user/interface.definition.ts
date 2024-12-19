@@ -2,7 +2,7 @@ import { z, InterfaceDefinition } from '@botpress/sdk'
 
 export default new InterfaceDefinition({
   name: 'proactiveUser',
-  version: '0.0.1',
+  version: '0.0.2',
   entities: {
     user: {
       title: 'User',
@@ -11,8 +11,8 @@ export default new InterfaceDefinition({
     },
   },
   actions: {
-    createUser: {
-      title: 'Create User',
+    getOrCreateUser: {
+      title: 'Get or Create a User',
       description: 'Proactively create a user from a bot',
       input: {
         schema: ({ user }) =>
