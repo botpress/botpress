@@ -29,6 +29,13 @@ type RemoteIntegrationInstance = utils.types.Merge<IntegrationInstance, { id: st
 type LocalIntegrationInstance = utils.types.Merge<IntegrationInstance, { uri?: string }>
 type BotIntegrationRequest = NonNullable<NonNullable<client.ClientInputs['updateBot']['integrations']>[string]>
 
+type InterfaceExtension = NonNullable<sdk.IntegrationDefinition['interfaces']>[string]
+type RemoteInterfaceExtension = utils.types.Merge<InterfaceExtension, { id: string }>
+type LocalInterfaceExtension = utils.types.Merge<InterfaceExtension, { uri?: string }>
+type IntegrationInterfaceRequest = NonNullable<
+  NonNullable<client.ClientInputs['updateIntegration']['interfaces']>[string]
+>
+
 type LintIgnoredConfig = { bpLintDisabled?: boolean }
 
 export type ProjectType = ProjectDefinition['type']
@@ -92,12 +99,53 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
       .value()
   }
 
+  protected async fetchIntegrationInterfaceInstances(
+    integrationDefinition: sdk.IntegrationDefinition,
+    api: ApiClient
+  ): Promise<Record<string, IntegrationInterfaceRequest>> {
+    const interfaceList = _(integrationDefinition.interfaces).values().filter(utils.guards.is.defined).value()
+
+    const { remoteInstances, localInstances } = this._splitApiAndLocalInterfaceInstances(interfaceList)
+
+    const fetchedInstances: RemoteInterfaceExtension[] = await bluebird.map(localInstances, async (instance) => {
+      const ref: PackageRef = { type: 'name', name: instance.name, version: instance.version }
+      const interfaceInstance = await api.findPublicInterface(ref)
+      if (!interfaceInstance) {
+        const formattedRef = formatPackageRef(ref)
+        throw new errors.BotpressCLIError(`Interface "${formattedRef}" not found`)
+      }
+      return { ...instance, id: interfaceInstance.id }
+    })
+
+    return _([...fetchedInstances, ...remoteInstances])
+      .keyBy((i) => i.id)
+      .value()
+  }
+
   private _splitApiAndLocalIntegrationInstances(instances: IntegrationInstance[]): {
     remoteInstances: RemoteIntegrationInstance[]
     localInstances: LocalIntegrationInstance[]
   } {
     const remoteInstances: RemoteIntegrationInstance[] = []
     const localInstances: LocalIntegrationInstance[] = []
+    for (const instance of instances) {
+      const { id } = instance
+      if (id) {
+        remoteInstances.push({ ...instance, id })
+      } else {
+        localInstances.push(instance)
+      }
+    }
+
+    return { remoteInstances, localInstances }
+  }
+
+  private _splitApiAndLocalInterfaceInstances(instances: InterfaceExtension[]): {
+    remoteInstances: RemoteInterfaceExtension[]
+    localInstances: LocalInterfaceExtension[]
+  } {
+    const remoteInstances: RemoteInterfaceExtension[] = []
+    const localInstances: LocalInterfaceExtension[] = []
     for (const instance of instances) {
       const { id } = instance
       if (id) {

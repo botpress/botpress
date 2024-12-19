@@ -12,6 +12,7 @@ import {
   ActionHandlers,
   BotHandlers,
 } from './server/types'
+import { PluginInterfaceExtension } from './types'
 import { BasePlugin } from './types/generic'
 
 export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> = {
@@ -21,7 +22,7 @@ export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> =
 export type PluginRuntimeProps<TPlugin extends BasePlugin = BasePlugin> = {
   configuration: TPlugin['configuration']
   interfaces: {
-    [K in keyof TPlugin['interfaces']]: { name: string; version: string }
+    [K in keyof TPlugin['interfaces']]: PluginInterfaceExtension<TPlugin['interfaces'][K]>
   }
 }
 
@@ -52,7 +53,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     return this
   }
 
-  public get config(): PluginRuntimeProps<TPlugin> {
+  public get runtime(): PluginRuntimeProps<TPlugin> {
     if (!this._runtimeProps) {
       throw new Error(
         'Plugin not correctly initialized. This is likely because you access your plugin config outside of an handler.'

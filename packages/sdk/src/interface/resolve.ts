@@ -1,27 +1,21 @@
-import { ActionDefinition, EventDefinition, ChannelDefinition, InterfaceExtension } from '../integration'
+import { InterfaceExtension, ResolvedInterface } from '../integration'
 import { InterfacePackage } from '../package'
 import * as utils from '../utils'
 import z, { ZuiObjectSchema } from '../zui'
 
-type InterfaceExtensionInput = InterfacePackage & {
+type ResolveInterfaceInput = InterfacePackage & {
   entities: Record<string, { name: string; schema: ZuiObjectSchema }>
   actions: Record<string, { name: string }>
   events: Record<string, { name: string }>
   channels: Record<string, { name: string }>
 }
 
-type ResolvedInterface = {
-  actions: Record<string, ActionDefinition>
-  events: Record<string, EventDefinition>
-  channels: Record<string, ChannelDefinition>
-}
-
-type InterfaceExtensionOutput = {
+type ResolveInterfaceOutput = {
   resolved: ResolvedInterface
   statement: InterfaceExtension
 }
 
-export const resolveInterface = (intrface: InterfaceExtensionInput): InterfaceExtensionOutput => {
+export const resolveInterface = (intrface: ResolveInterfaceInput): ResolveInterfaceOutput => {
   const { name, version } = intrface
 
   const resolved: ResolvedInterface = { actions: {}, events: {}, channels: {} }

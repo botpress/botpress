@@ -2,10 +2,11 @@ import * as client from '@botpress/client'
 import * as utils from '../../utils/type-utils'
 import * as common from '../types'
 
+type BaseChannelDefinition = common.BaseIntegration['channels'][string]
 type GetChannelByName<
   TIntegration extends common.BaseIntegration,
   TChannelName extends keyof TIntegration['channels']
-> = utils.Cast<TIntegration['channels'][TChannelName], common.ChannelDefinition>
+> = utils.Cast<TIntegration['channels'][TChannelName], BaseChannelDefinition>
 
 /**
  * @deprecated Integration's should no longer use their name as prefix for event types or tags.

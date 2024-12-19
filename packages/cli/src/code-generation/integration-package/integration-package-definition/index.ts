@@ -7,6 +7,7 @@ import { DefaultConfigurationModule } from './configuration-module'
 import { ConfigurationsModule } from './configurations-module'
 import { EntitiesModule } from './entities-module'
 import { EventsModule } from './events-module'
+import { InterfacesModule } from './interfaces-module'
 import { StatesModule } from './states-module'
 import * as types from './typings'
 
@@ -18,6 +19,7 @@ type IntegrationPackageModuleDependencies = {
   eventsModule: EventsModule
   statesModule: StatesModule
   entitiesModule: EntitiesModule
+  interfacesModule: InterfacesModule
 }
 
 export class IntegrationPackageDefinitionModule extends Module {
@@ -50,6 +52,9 @@ export class IntegrationPackageDefinitionModule extends Module {
     const entitiesModule = new EntitiesModule(_integration.entities ?? {})
     entitiesModule.unshift('entities')
 
+    const interfacesModule = new InterfacesModule(_integration.interfaces ?? {})
+    interfacesModule.unshift('interfaces')
+
     this._dependencies = {
       defaultConfigModule,
       configurationsModule,
@@ -58,6 +63,7 @@ export class IntegrationPackageDefinitionModule extends Module {
       eventsModule,
       statesModule,
       entitiesModule,
+      interfacesModule,
     }
 
     for (const dep of Object.values(this._dependencies)) {
@@ -76,6 +82,7 @@ export class IntegrationPackageDefinitionModule extends Module {
       eventsModule,
       statesModule,
       entitiesModule,
+      interfacesModule,
     } = this._dependencies
 
     const defaultConfigImport = defaultConfigModule.import(this)
@@ -85,6 +92,7 @@ export class IntegrationPackageDefinitionModule extends Module {
     const eventsImport = eventsModule.import(this)
     const statesImport = statesModule.import(this)
     const entitiesImport = entitiesModule.import(this)
+    const interfacesImport = interfacesModule.import(this)
 
     const user = {
       tags: this._integration.user?.tags ?? {},
@@ -102,6 +110,7 @@ export class IntegrationPackageDefinitionModule extends Module {
       `import * as ${eventsModule.name} from "./${eventsImport}"`,
       `import * as ${statesModule.name} from "./${statesImport}"`,
       `import * as ${entitiesModule.name} from "./${entitiesImport}"`,
+      `import * as ${interfacesModule.name} from "./${interfacesImport}"`,
       `export * as ${defaultConfigModule.name} from "./${defaultConfigImport}"`,
       `export * as ${configurationsModule.name} from "./${configurationsImport}"`,
       `export * as ${actionsModule.name} from "./${actionsImport}"`,
@@ -109,6 +118,7 @@ export class IntegrationPackageDefinitionModule extends Module {
       `export * as ${eventsModule.name} from "./${eventsImport}"`,
       `export * as ${statesModule.name} from "./${statesImport}"`,
       `export * as ${entitiesModule.name} from "./${entitiesImport}"`,
+      `export * as ${interfacesModule.name} from "./${interfacesImport}"`,
       '',
       'export default {',
       `  name: "${this._integration.name}",`,
@@ -121,6 +131,7 @@ export class IntegrationPackageDefinitionModule extends Module {
       `  events: ${eventsModule.name}.${eventsModule.exportName},`,
       `  states: ${statesModule.name}.${statesModule.exportName},`,
       `  entities: ${entitiesModule.name}.${entitiesModule.exportName},`,
+      `  interfaces: ${interfacesModule.name}.${interfacesModule.exportName},`,
       '} satisfies sdk.IntegrationPackage["definition"]',
     ].join('\n')
 

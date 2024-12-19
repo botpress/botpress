@@ -15,20 +15,10 @@ import {
   EntityDefinition,
   AdditionalConfigurationDefinition,
   MessageDefinition,
+  InterfaceExtension,
 } from './types'
 
 export * from './types'
-
-type Aliases = Record<string, { name: string }>
-export type InterfaceExtension = {
-  id?: string
-  name: string
-  version: string
-  entities: Aliases
-  events: Aliases
-  actions: Aliases
-  channels: Aliases
-}
 
 export type IntegrationDefinitionProps<
   TName extends string = string,
@@ -263,9 +253,9 @@ export class IntegrationDefinition<
     >
   ): {
     entities: Record<string, TypeArgument>
-    actions: Aliases
-    events: Aliases
-    channels: Aliases
+    actions: Record<string, { name: string }>
+    events: Record<string, { name: string }>
+    channels: Record<string, { name: string }>
   } {
     const entityStore = createStore(this.entities)
     const extensionBuilderInput: ExtensionBuilderInput<TEntities, TActions, TEvents, TChannels> = {
