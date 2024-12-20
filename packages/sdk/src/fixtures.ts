@@ -65,7 +65,49 @@ type _FooBarBazIntegration = {
   }
 }
 
+type _TotoTutuTataInterface = {
+  actions: {
+    doToto: {
+      input: {
+        inputToto: string
+      }
+      output: {
+        outputToto: string
+      }
+    }
+    doTutu: {
+      input: {
+        inputTutu: number
+      }
+      output: {
+        outputTutu: number
+      }
+    }
+    doTata: {
+      input: {
+        inputTata: boolean
+      }
+      output: {
+        outputTata: boolean
+      }
+    }
+  }
+  events: {
+    onToto: {
+      eventToto: string
+    }
+    onTutu: {
+      eventTutu: number
+    }
+    onTata: {
+      eventTata: boolean
+    }
+  }
+}
+
 export type FooBarBazIntegration = DefaultIntegration<_FooBarBazIntegration>
+
+export type TotoTutuTataIntegration = DefaultIntegration<_TotoTutuTataInterface>
 
 export type FooBarBazBot = DefaultBot<{
   integrations: {
@@ -86,6 +128,9 @@ export type FooBarBazBot = DefaultBot<{
 export type FooBarBazPlugin = DefaultPlugin<{
   integrations: {
     fooBarBaz: _FooBarBazIntegration
+  }
+  interfaces: {
+    totoTutuTata: _TotoTutuTataInterface
   }
   actions: {
     act: {
