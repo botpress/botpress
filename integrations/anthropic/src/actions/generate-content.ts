@@ -1,7 +1,8 @@
 import Anthropic from '@anthropic-ai/sdk'
 import { MessageCreateParams, MessageCreateParamsNonStreaming } from '@anthropic-ai/sdk/resources/messages'
-import { InvalidPayloadError, UpstreamProviderError } from '@botpress/client'
+import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
+import { upstreamProviderFailedError } from '@botpress/common/src/llm/errors'
 import { z, IntegrationLogger } from '@botpress/sdk'
 import assert from 'assert'
 
@@ -86,14 +87,14 @@ export async function generateContent<M extends string>(
     if (err instanceof Anthropic.APIError) {
       const parsedInnerError = AnthropicInnerErrorSchema.safeParse(err.error)
       if (parsedInnerError.success) {
-        throw new UpstreamProviderError(
-          `Anthropic error ${err.status} (${parsedInnerError.data.error.type}) - ${parsedInnerError.data.error.message}`,
-          err
+        throw upstreamProviderFailedError(
+          err,
+          `Anthropic error ${err.status} (${parsedInnerError.data.error.type}) - ${parsedInnerError.data.error.message}`
         )
       }
     }
 
-    throw new UpstreamProviderError(err.message, err)
+    throw upstreamProviderFailedError(err)
   } finally {
     if (input.debug && response) {
       logger.forBot().info('Response received from Anthropic: ' + JSON.stringify(response, null, 2))
