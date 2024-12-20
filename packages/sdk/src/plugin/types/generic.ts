@@ -23,7 +23,7 @@ export type DefaultPlugin<B extends utils.DeepPartial<BasePlugin>> = {
   events: utils.Default<B['events'], BasePlugin['events']>
   states: utils.Default<B['states'], BasePlugin['states']>
   actions: utils.Default<B['actions'], BasePlugin['actions']>
-  unknownDefinitions: utils.Default<B['unknownDefinitions'], BasePlugin['unknownDefinitions']>
+  unknownDefinitions: utils.Default<B['unknownDefinitions'], true>
   integrations: undefined extends B['integrations']
     ? BasePlugin['integrations']
     : {

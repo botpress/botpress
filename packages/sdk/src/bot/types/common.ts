@@ -1,9 +1,6 @@
 import { Join, UnionToIntersection, Split, Cast } from '../../utils/type-utils'
 import { BaseBot } from './generic'
 
-export type EventDefinition = BaseBot['events'][string]
-export type StateDefinition = BaseBot['states'][string]
-
 export type IntegrationInstanceDefinition = BaseBot['integrations'][string]
 export type IntegrationInstanceConfigurationDefinition = IntegrationInstanceDefinition['configuration']
 export type IntegrationInstanceActionDefinition = IntegrationInstanceDefinition['actions'][string]

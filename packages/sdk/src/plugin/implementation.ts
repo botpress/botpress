@@ -12,8 +12,7 @@ import {
   ActionHandlers,
   BotHandlers,
 } from './server/types'
-import { PluginInterfaceExtension } from './types'
-import { BasePlugin } from './types/generic'
+import { BasePlugin, PluginInterfaceExtension } from './types'
 
 export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> = {
   actions: ActionHandlers<TPlugin>

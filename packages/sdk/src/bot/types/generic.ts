@@ -29,7 +29,7 @@ export type DefaultBot<B extends InputBaseBot> = {
   events: utils.Default<B['events'], BaseBot['events']>
   states: utils.Default<B['states'], BaseBot['states']>
   actions: utils.Default<B['actions'], BaseBot['actions']>
-  unknownDefinitions: utils.Default<B['unknownDefinitions'], BaseBot['unknownDefinitions']>
+  unknownDefinitions: utils.Default<B['unknownDefinitions'], false>
   integrations: undefined extends B['integrations']
     ? BaseBot['integrations']
     : {
