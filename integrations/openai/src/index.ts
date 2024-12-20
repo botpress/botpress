@@ -1,4 +1,4 @@
-import { InvalidPayloadError, UpstreamProviderError } from '@botpress/client'
+import { InvalidPayloadError } from '@botpress/client'
 import { llm, speechToText, textToImage } from '@botpress/common'
 import crypto from 'crypto'
 import { TextToSpeechPricePer1MCharacters } from 'integration.definition'
@@ -309,7 +309,7 @@ export default new bp.Integration({
       try {
         response = await openAIClient.audio.speech.create(params)
       } catch (err: any) {
-        throw new UpstreamProviderError(err.message, err)
+        throw llm.createUpstreamProviderFailedError(err)
       }
 
       const key = generateFileKey('openai-generateSpeech-', input, `.${params.response_format}`)
