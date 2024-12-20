@@ -1,6 +1,6 @@
-/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import typingIndicator from 'bp_modules/typing-indicator'
 
 import {
   addReaction,
@@ -23,13 +23,17 @@ const sharedConfig = {
     .title('Bot avatar URL')
     .describe("URL for the image used as the Slack bot's avatar"),
   botName: z.string().optional().title('Bot name').describe('Name displayed as the sender in Slack conversations'),
+  typingIndicatorEmoji: z
+    .boolean()
+    .default(false)
+    .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
 }
 
 export default new IntegrationDefinition({
   name: 'slack',
   title: 'Slack',
   description: 'Automate interactions with your team.',
-  version: '1.0.4',
+  version: '1.1.0',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
@@ -223,4 +227,4 @@ export default new IntegrationDefinition({
     extractScript: 'extract.vrl',
     fallbackHandlerScript: 'fallbackHandler.vrl',
   },
-})
+}).extend(typingIndicator, () => ({}))
