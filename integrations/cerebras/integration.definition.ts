@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   title: 'Cerebras',
   description:
     'Get access to a curated list of Cerebras models for content generation and chat completions within your bot.',
-  version: '2.3.0',
+  version: '2.3.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
