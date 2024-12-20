@@ -1,6 +1,5 @@
 import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
-import { upstreamProviderFailedError } from '@botpress/common/src/llm/errors'
 import { IntegrationLogger } from '@botpress/sdk'
 import {
   Content,
@@ -44,7 +43,7 @@ export async function generateContent<M extends string>(
   try {
     ;({ response } = await googleAIModel.generateContent(request))
   } catch (err: any) {
-    throw upstreamProviderFailedError(err, `Google AI error: ${err.message}`)
+    throw llm.createUpstreamProviderFailedError(err, `Google AI error: ${err.message}`)
   } finally {
     if (input.debug && response) {
       logger.forBot().info('Response received from Google AI: ' + JSON.stringify(response, null, 2))

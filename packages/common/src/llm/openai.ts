@@ -16,7 +16,7 @@ import {
   ChatCompletionUserMessageParam,
 } from 'openai/resources'
 import { GenerateContentInput, GenerateContentOutput, ToolCall, Message, ModelDetails } from './types'
-import { upstreamProviderFailedError } from './errors'
+import { createUpstreamProviderFailedError } from './errors'
 
 const OpenAIErrorSchema = z
   .object({
@@ -114,11 +114,11 @@ export async function generateContent<M extends string>(
           parsedError.data.error?.message ?? err.message
         }`
 
-        throw upstreamProviderFailedError(err, message)
+        throw createUpstreamProviderFailedError(err, message)
       }
     }
 
-    throw upstreamProviderFailedError(err, `${props.provider} error: ${err.message}`)
+    throw createUpstreamProviderFailedError(err, `${props.provider} error: ${err.message}`)
   } finally {
     if (input.debug && response) {
       logger.forBot().info(`Response received from ${props.provider}: ` + JSON.stringify(response, null, 2))
