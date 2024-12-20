@@ -203,6 +203,13 @@ export default new bp.Integration({
           provider,
           models: languageModels,
           defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
+          overrideRequest: (request) => {
+            if (input.model?.id.startsWith('o1-')) {
+              // The o1 models don't allow setting temperature
+              delete request.temperature
+            }
+            return request
+          },
         }
       )
       metadata.setCost(output.botpress.cost)

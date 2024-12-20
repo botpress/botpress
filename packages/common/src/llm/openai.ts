@@ -40,6 +40,7 @@ export async function generateContent<M extends string>(
     provider: string
     models: Record<M, ModelDetails>
     defaultModel: M
+    overrideRequest?: (request: ChatCompletionCreateParamsNonStreaming) => ChatCompletionCreateParamsNonStreaming
   }
 ): Promise<GenerateContentOutput> {
   const modelId = (input.model?.id || props.defaultModel) as M
@@ -76,7 +77,7 @@ export async function generateContent<M extends string>(
 
   let response: OpenAI.Chat.Completions.ChatCompletion | undefined
 
-  const request: ChatCompletionCreateParamsNonStreaming = {
+  let request: ChatCompletionCreateParamsNonStreaming = {
     model: modelId,
     max_tokens: input.maxTokens || undefined, // note: ignore a zero value as the Studio doesn't support empty number inputs and is defaulting this to 0
     temperature: input.temperature,
@@ -88,6 +89,10 @@ export async function generateContent<M extends string>(
     messages,
     tool_choice: mapToOpenAIToolChoice(input.toolChoice),
     tools: mapToOpenAITools(input.tools),
+  }
+
+  if (props.overrideRequest) {
+    request = props.overrideRequest(request)
   }
 
   if (input.debug) {
