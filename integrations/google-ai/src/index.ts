@@ -1,10 +1,22 @@
 import { llm } from '@botpress/common'
-import { GoogleGenerativeAI } from '@google/generative-ai'
+import { VertexAI } from '@google-cloud/vertexai'
 import { generateContent } from './actions/generate-content'
 import { LanguageModelId } from './schemas'
 import * as bp from '.botpress'
+import fs from 'fs'
 
-const googleAIClient = new GoogleGenerativeAI(bp.secrets.GOOGLE_AI_API_KEY)
+const VERTEX_AI_SERVICE_ACCOUNT_KEY_PATH = '/tmp/vertex-ai-service-account-key.json'
+
+if (!fs.existsSync(VERTEX_AI_SERVICE_ACCOUNT_KEY_PATH)) {
+  fs.writeFileSync(VERTEX_AI_SERVICE_ACCOUNT_KEY_PATH, bp.secrets.VERTEX_AI_SERVICE_ACCOUNT_KEY_JSON)
+}
+
+const googleAIClient = new VertexAI({
+  project: bp.secrets.GOOGLE_CLOUD_PROJECT_ID,
+  googleAuthOptions: {
+    keyFilename: VERTEX_AI_SERVICE_ACCOUNT_KEY_PATH,
+  },
+})
 
 const DEFAULT_LANGUAGE_MODEL_ID: LanguageModelId = 'models/gemini-1.5-flash-002'
 

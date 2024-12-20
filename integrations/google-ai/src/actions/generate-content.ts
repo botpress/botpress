@@ -2,6 +2,7 @@ import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
 import { IntegrationLogger } from '@botpress/sdk'
 import {
+  VertexAI,
   Content,
   FinishReason,
   FunctionCall,
@@ -11,16 +12,15 @@ import {
   GenerateContentCandidate,
   GenerateContentRequest,
   GenerateContentResponse,
-  GoogleGenerativeAI,
   Part,
   Tool,
   ToolConfig,
-} from '@google/generative-ai'
+} from '@google-cloud/vertexai'
 import crypto from 'crypto'
 
 export async function generateContent<M extends string>(
   input: llm.GenerateContentInput,
-  googleAIClient: GoogleGenerativeAI,
+  vertexAIClient: VertexAI,
   logger: IntegrationLogger,
   params: {
     models: Record<M, llm.ModelDetails>
@@ -30,7 +30,7 @@ export async function generateContent<M extends string>(
   const modelId = (input.model?.id || params.defaultModel) as M
   const model = params.models[modelId]
 
-  const googleAIModel = googleAIClient.getGenerativeModel({ model: modelId })
+  const googleAIModel = vertexAIClient.getGenerativeModel({ model: modelId })
 
   const request = await buildGenerateContentRequest(input)
 
@@ -342,7 +342,7 @@ function mapCandidate(candidate: GenerateContentCandidate, index: number): Choic
 function mapFinishReason(finishReason: FinishReason | undefined): Choice['stopReason'] {
   switch (finishReason) {
     case FinishReason.SAFETY:
-    case FinishReason.LANGUAGE:
+    case FinishReason.PROHIBITED_CONTENT:
       return 'content_filter'
     case FinishReason.MAX_TOKENS:
       return 'max_tokens'

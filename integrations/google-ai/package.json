@@ -10,7 +10,7 @@
     "@botpress/client": "workspace:*",
     "@botpress/common": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "@google/generative-ai": "^0.21.0"
+    "@google-cloud/vertexai": "^1.9.2"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",

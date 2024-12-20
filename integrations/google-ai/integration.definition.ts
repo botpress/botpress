@@ -18,8 +18,11 @@ export default new IntegrationDefinition({
     },
   },
   secrets: {
-    GOOGLE_AI_API_KEY: {
-      description: 'Google AI API key',
+    GOOGLE_CLOUD_PROJECT_ID: {
+      description: 'Google Cloud Project ID',
+    },
+    VERTEX_AI_SERVICE_ACCOUNT_KEY_JSON: {
+      description: 'JSON contents of Vertex AI Service Account Key',
     },
   },
 }).extend(llm, ({ modelRef }) => ({ modelRef }))
