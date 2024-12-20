@@ -17,7 +17,6 @@ export const startTypingIndicator = wrapActionAndInjectSlackClient('startTypingI
       input,
     })
     await markAsSeen({ props, input })
-    // TODO: Send ... and update once real message is sent? Tag the attached message with the typing indicator Slack message ID
     return {}
   },
   errorMessage: 'Failed to start typing indicator',
