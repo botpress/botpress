@@ -36,7 +36,7 @@ export const stopTypingIndicator = wrapActionAndInjectSlackClient('stopTypingInd
 })
 
 const markAsSeen = async ({
-  props: { client, logger, slackClient },
+  props: { client, ctx, logger, slackClient },
   input: { conversationId, messageId },
 }: {
   props: InjectedProps
@@ -58,6 +58,12 @@ const markAsSeen = async ({
     channel,
     ts,
   }
+  await SlackScopes.ensureHasAllScopes({
+    client,
+    ctx,
+    requiredScopes: ['channels:manage', 'groups:write', 'im:write', 'mpim:write'],
+    operation: 'conversations.mark',
+  })
   await slackClient.conversations.mark(markAsSeenArgs)
 }
 
