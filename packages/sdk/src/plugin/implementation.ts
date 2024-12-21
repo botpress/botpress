@@ -10,7 +10,7 @@ import {
   HookData,
   HookHandlers,
   ActionHandlers,
-  BotHandlers,
+  PluginHandlers,
 } from './server/types'
 import { BasePlugin, PluginInterfaceExtension } from './types'
 
@@ -25,7 +25,7 @@ export type PluginRuntimeProps<TPlugin extends BasePlugin = BasePlugin> = {
   }
 }
 
-export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> implements BotHandlers<TPlugin> {
+export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> implements PluginHandlers<TPlugin> {
   private _runtimeProps: PluginRuntimeProps<TPlugin> | undefined
 
   public readonly actionHandlers: ActionHandlers<TPlugin>
