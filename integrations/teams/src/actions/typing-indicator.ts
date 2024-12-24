@@ -23,6 +23,8 @@ export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIn
 }
 
 export const stopTypingIndicator: bp.IntegrationProps['actions']['stopTypingIndicator'] = async () => {
-  // Deleting the activity is not supported on all bot framework channels
+  // Deleting the activity is not supported on all bot framework channels.
+  // Further testing in Teams will be required to determine if deleting the
+  // typing indicator is supported, should we want to stop it early.
   return {}
 }
