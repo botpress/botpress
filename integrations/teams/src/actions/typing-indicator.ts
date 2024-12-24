@@ -26,5 +26,6 @@ export const stopTypingIndicator: bp.IntegrationProps['actions']['stopTypingIndi
   // Deleting the activity is not supported on all bot framework channels.
   // Further testing in Teams will be required to determine if deleting the
   // typing indicator is supported, should we want to stop it early.
+  // Do nothing for now (typing indicator still stops on new message and after timeout)
   return {}
 }
