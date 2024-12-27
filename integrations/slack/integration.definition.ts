@@ -26,6 +26,7 @@ const sharedConfig = {
   typingIndicatorEmoji: z
     .boolean()
     .default(false)
+    .title('Typing Indicator Emoji')
     .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
 }
 
@@ -132,14 +133,17 @@ export default new IntegrationDefinition({
       title: 'Reaction Removed',
       description: 'Triggered when a reaction is removed from a message',
       schema: z.object({
-        reaction: z.string(),
-        userId: z.string().optional(),
-        conversationId: z.string().optional(),
-        targets: z.object({
-          dm: z.record(z.string()).optional(),
-          channel: z.record(z.string()).optional(),
-          thread: z.record(z.string()).optional(),
-        }),
+        reaction: z.string().title('Reaction').describe('The reaction that was removed'),
+        userId: z.string().optional().title('User ID').describe('The ID of the user who removed the reaction'),
+        conversationId: z.string().optional().title('Conversation ID').describe('The ID of the conversation'),
+        targets: z
+          .object({
+            dm: z.record(z.string()).optional(),
+            channel: z.record(z.string()).optional(),
+            thread: z.record(z.string()).optional(),
+          })
+          .title('Targets')
+          .describe('The targets of the reaction'),
       }),
     },
     memberJoinedWorkspace: {
@@ -178,15 +182,21 @@ export default new IntegrationDefinition({
           .optional()
           .title('Botpress Inviter User ID')
           .describe('The Botpress ID of the user who invited the new member'),
-        targets: z.object({
-          slackUserId: z.string().title('Slack User ID').describe('The Slack ID of the user who joined the channel'),
-          slackChannelId: z.string().title('Slack Channel ID').describe('The Slack ID of the channel the user joined'),
-          slackInviterId: z
-            .string()
-            .optional()
-            .title('Slack Inviter ID')
-            .describe('The Slack ID of the user who invited the new member'),
-        }),
+        targets: z
+          .object({
+            slackUserId: z.string().title('Slack User ID').describe('The Slack ID of the user who joined the channel'),
+            slackChannelId: z
+              .string()
+              .title('Slack Channel ID')
+              .describe('The Slack ID of the channel the user joined'),
+            slackInviterId: z
+              .string()
+              .optional()
+              .title('Slack Inviter ID')
+              .describe('The Slack ID of the user who invited the new member'),
+          })
+          .title('Targets')
+          .describe('Slack IDs of the user, channel and inviter'),
       }),
     },
     memberLeftChannel: {
@@ -201,10 +211,13 @@ export default new IntegrationDefinition({
           .string()
           .title('Botpress Channel ID')
           .describe('The Botpress ID of the channel the user left'),
-        targets: z.object({
-          slackUserId: z.string().title('Slack User ID').describe('The Slack ID of the user who left the channel'),
-          slackChannelId: z.string().title('Slack Channel ID').describe('The Slack ID of the channel the user left'),
-        }),
+        targets: z
+          .object({
+            slackUserId: z.string().title('Slack User ID').describe('The Slack ID of the user who left the channel'),
+            slackChannelId: z.string().title('Slack Channel ID').describe('The Slack ID of the channel the user left'),
+          })
+          .title('Targets')
+          .describe('Slack IDs of the user and channel'),
       }),
     },
   },
