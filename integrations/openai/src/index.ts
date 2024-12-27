@@ -1,4 +1,4 @@
-import { InvalidPayloadError, UpstreamProviderError } from '@botpress/client'
+import { InvalidPayloadError } from '@botpress/client'
 import { llm, speechToText, textToImage } from '@botpress/common'
 import crypto from 'crypto'
 import { TextToSpeechPricePer1MCharacters } from 'integration.definition'
@@ -20,6 +20,34 @@ const DEFAULT_IMAGE_MODEL_ID: ImageModelId = 'dall-e-3-standard-1024'
 //  https://openai.com/api/pricing/
 const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
   // IMPORTANT: Only full model names should be supported here, as the short model names can be pointed by OpenAI at any time to a newer model with different pricing.
+  'o1-2024-12-17': {
+    name: 'GPT o1',
+    description:
+      'The o1 model is designed to solve hard problems across domains. The o1 series of models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user.',
+    tags: ['reasoning', 'vision', 'general-purpose'],
+    input: {
+      costPer1MTokens: 15,
+      maxTokens: 200_000,
+    },
+    output: {
+      costPer1MTokens: 60,
+      maxTokens: 100_000,
+    },
+  },
+  'o1-mini-2024-09-12': {
+    name: 'GPT o1-mini',
+    description:
+      'The o1-mini model is a fast and affordable reasoning model for specialized tasks. The o1 series of models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user.',
+    tags: ['reasoning', 'vision', 'general-purpose'],
+    input: {
+      costPer1MTokens: 3,
+      maxTokens: 128_000,
+    },
+    output: {
+      costPer1MTokens: 12,
+      maxTokens: 65_536,
+    },
+  },
   'gpt-4o-mini-2024-07-18': {
     name: 'GPT-4o Mini',
     description:
@@ -175,6 +203,13 @@ export default new bp.Integration({
           provider,
           models: languageModels,
           defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
+          overrideRequest: (request) => {
+            if (input.model?.id.startsWith('o1-')) {
+              // The o1 models don't allow setting temperature
+              delete request.temperature
+            }
+            return request
+          },
         }
       )
       metadata.setCost(output.botpress.cost)
@@ -274,7 +309,7 @@ export default new bp.Integration({
       try {
         response = await openAIClient.audio.speech.create(params)
       } catch (err: any) {
-        throw new UpstreamProviderError(err.message, err)
+        throw llm.createUpstreamProviderFailedError(err)
       }
 
       const key = generateFileKey('openai-generateSpeech-', input, `.${params.response_format}`)
