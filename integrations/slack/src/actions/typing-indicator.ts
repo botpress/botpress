@@ -10,12 +10,14 @@ type ActionInput = Parameters<WrapActionAction>[1]
 
 export const startTypingIndicator = wrapActionAndInjectSlackClient('startTypingIndicator', {
   async action(props, input) {
-    await modifyReaction({
-      reactionName: 'eyes',
-      type: 'add',
-      props,
-      input,
-    })
+    if (props.ctx.configuration.typingIndicatorEmoji) {
+      await modifyReaction({
+        reactionName: 'eyes',
+        type: 'add',
+        props,
+        input,
+      })
+    }
     await markAsSeen({ props, input })
     return {}
   },
@@ -24,6 +26,10 @@ export const startTypingIndicator = wrapActionAndInjectSlackClient('startTypingI
 
 export const stopTypingIndicator = wrapActionAndInjectSlackClient('stopTypingIndicator', {
   async action(props, input) {
+    if (!(await checkHasReaction({ reactionName: 'eyes', input, props }))) {
+      props.logger.forBot().debug('No typing indicator to stop')
+      return {}
+    }
     await modifyReaction({
       reactionName: 'eyes',
       type: 'remove',
@@ -65,6 +71,39 @@ const markAsSeen = async ({
     operation: 'conversations.mark',
   })
   await slackClient.conversations.mark(markAsSeenArgs)
+}
+
+const checkHasReaction = async ({
+  reactionName,
+  input: { conversationId, messageId },
+  props: { client, slackClient, ctx, logger },
+}: {
+  reactionName: string
+  input: ActionInput
+  props: InjectedProps
+}): Promise<boolean> => {
+  const { message } = await client.getMessage({ id: messageId })
+  const { conversation } = await client.getConversation({ id: conversationId })
+  const reactionArgs: Parameters<typeof slackClient.reactions.get>[0] = {
+    channel: conversation.tags.id,
+    timestamp: message.tags.ts,
+    full: true,
+  }
+
+  const operation = 'reactions.get'
+  await SlackScopes.ensureHasAllScopes({
+    client,
+    ctx,
+    requiredScopes: ['reactions:read'],
+    operation,
+  })
+  logger
+    .forBot()
+    .debug(
+      `Checking if reaction is present in Slack message ${messageId} in conversation ${conversationId} (typing indicator): ${reactionName}`
+    )
+  const { message: slackMessage } = await slackClient.reactions.get(reactionArgs)
+  return !!slackMessage?.reactions?.some((reaction) => reaction.name === reactionName)
 }
 
 const modifyReaction = async ({
