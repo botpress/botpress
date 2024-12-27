@@ -1,8 +1,8 @@
 import { BaseLogger } from '../../base-logger'
 
 type IntegrationLogOptions = {
-  userID?: string
-  conversationID?: string
+  userId?: string
+  conversationId?: string
   visibleToBotOwners?: boolean
 }
 
@@ -18,15 +18,15 @@ export class IntegrationLogger extends BaseLogger<IntegrationLogOptions> {
     return new IntegrationLogger({ ...this.defaultOptions, ...options })
   }
 
-  public withUserID(userID: string) {
+  public withUserId(userId: string) {
     return this.with({
-      userID,
+      userId,
     })
   }
 
-  public withConversationID(conversationID: string) {
+  public withConversationId(conversationId: string) {
     return this.with({
-      conversationID,
+      conversationId,
     })
   }
 

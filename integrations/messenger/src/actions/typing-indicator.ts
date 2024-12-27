@@ -4,31 +4,28 @@ import { getMessengerClient } from 'src/misc/utils'
 import * as bp from '.botpress'
 
 export const startTypingIndicator: bp.IntegrationProps['actions']['startTypingIndicator'] = async (props) => {
-  await sendTypingIndicator({ props, action: 'typing_on' })
+  await sendSenderActions({ props, actions: ['typing_on', 'mark_seen'] })
   return {}
 }
 
 export const stopTypingIndicator: bp.IntegrationProps['actions']['stopTypingIndicator'] = async (props) => {
-  await sendTypingIndicator({ props, action: 'typing_off' })
+  await sendSenderActions({ props, actions: ['typing_off'] })
   return {}
 }
 
-const sendTypingIndicator = async ({
+const sendSenderActions = async ({
   props: { client, ctx, input },
-  action,
+  actions,
 }: {
   props: bp.AnyActionProps
-  action: MessengerTypes.SenderAction
+  actions: MessengerTypes.SenderAction[]
 }) => {
   const { conversationId } = input
   const messengerClient = await getMessengerClient(client, ctx)
   const { conversation } = await client.getConversation({ id: conversationId })
   const recipientId = getRecipientId(conversation)
-  await messengerClient.sendSenderAction(recipientId, action)
+  for (const action of actions) {
+    await messengerClient.sendSenderAction(recipientId, action)
+  }
   return {}
-}
-
-export default {
-  startTypingIndicator,
-  stopTypingIndicator,
 }
