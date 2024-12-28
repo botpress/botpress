@@ -1,35 +1,37 @@
 import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import * as line from '@line/bot-sdk'
+import { messagingApi as lineMessagingApi } from '@line/bot-sdk'
 import crypto from 'crypto'
 import * as bp from '.botpress'
 
 type MessageHandlerProps = bp.AnyMessageProps
 type ReplyLineProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'client' | 'ack'>
 
-const replyLineMessage = async (props: ReplyLineProps, messageObj: line.Message) => {
+const replyLineMessage = async (props: ReplyLineProps, message: lineMessagingApi.Message) => {
   const { ctx, conversation, client, ack } = props
   const config = {
     channelAccessToken: ctx.configuration.channelAccessToken,
-    channelSecret: ctx.configuration.channelSecret,
   }
 
-  const lineClient = new line.Client(config)
+  const lineClient = new lineMessagingApi.MessagingApiClient(config)
 
   const stateRes = await client.getState({
     id: conversation.id,
     name: 'conversation',
     type: 'conversation',
   })
-
   try {
-    const lineResponse = await lineClient.replyMessage(stateRes.state.payload.replyToken, messageObj)
+    const lineResponse = await lineClient.replyMessage({
+      replyToken: stateRes.state.payload.replyToken,
+      messages: [message],
+    })
 
-    if (lineResponse?.['x-line-request-id']) {
-      await ack({ tags: { msgId: lineResponse['x-line-request-id'] } })
+    const sentMessage = lineResponse.sentMessages[0]
+    if (sentMessage) {
+      await ack({ tags: { msgId: sentMessage.id } })
     }
   } catch (e: any) {
-    console.error(`Error: ${e.originalError.message}`)
+    console.error(`Error: ${e}`)
   }
 }
 
@@ -68,7 +70,6 @@ const integration = new bp.Integration({
             }
           )
         },
-
         // TODO: fix audio, its not working
         audio: async ({ payload, ctx, conversation, ack, client }) => {
           await replyLineMessage(
@@ -82,7 +83,6 @@ const integration = new bp.Integration({
         },
         video: async ({ payload, ctx, conversation, ack, client }) => {
           //TODO: Upload the thumbnail so it is ready to be passed as URL to Line
-
           await replyLineMessage(
             { ctx, conversation, client, ack },
             {
@@ -97,29 +97,27 @@ const integration = new bp.Integration({
             'Documents & files are not supported by Line - https://developers.line.biz/en/reference/messaging-api'
           )
         },
-
-        // TODO: fix location, its not working
         location: async ({ payload, ctx, conversation, ack, client }) => {
           await replyLineMessage(
             { ctx, conversation, client, ack },
             {
               type: 'location',
-              title: '', // TODO: fix this
+              title: payload.title ?? '',
               latitude: payload.latitude,
               longitude: payload.longitude,
-              address: '', // TODO: fix this
+              address: payload.address ?? '',
             }
           )
         },
         carousel: async ({ payload, ctx, conversation, ack, client }) => {
-          const sections: line.FlexBubble[] = []
+          const sections: lineMessagingApi.FlexBubble[] = []
           for (let indexS = 0; indexS < payload.items.length; indexS++) {
             const item = payload.items[indexS]
             if (!item) {
               continue //just to pass the build validation
             }
 
-            const buttons: line.FlexButton[] = []
+            const buttons: lineMessagingApi.FlexButton[] = []
             for (let indexR = 0; indexR < item.actions.length; indexR++) {
               const action = item.actions[indexR]
 
@@ -198,7 +196,7 @@ const integration = new bp.Integration({
           )
         },
         card: async ({ payload, ctx, conversation, ack, client }) => {
-          const buttons: line.FlexButton[] = []
+          const buttons: lineMessagingApi.FlexButton[] = []
           for (let index = 0; index < payload.actions.length; index++) {
             const action = payload.actions[index]
 
@@ -264,7 +262,7 @@ const integration = new bp.Integration({
           )
         },
         dropdown: async ({ payload, ctx, conversation, ack, client }) => {
-          const buttons: line.FlexButton[] = []
+          const buttons: lineMessagingApi.FlexButton[] = []
           for (let index = 0; index < payload.options.length; index++) {
             const choice = payload.options[index]
 
@@ -312,7 +310,7 @@ const integration = new bp.Integration({
           )
         },
         choice: async ({ payload, ctx, conversation, ack, client }) => {
-          const buttons: line.FlexButton[] = []
+          const buttons: lineMessagingApi.FlexButton[] = []
           for (let index = 0; index < payload.options.length; index++) {
             const choice = payload.options[index]
             if (!choice) {
@@ -329,7 +327,7 @@ const integration = new bp.Integration({
             })
           }
 
-          const contents: line.FlexBubble = {
+          const contents: lineMessagingApi.FlexBubble = {
             type: 'bubble',
             body: {
               type: 'box',
@@ -351,7 +349,7 @@ const integration = new bp.Integration({
             type: 'flex',
             altText: payload.text,
             contents,
-          } satisfies line.FlexMessage)
+          } satisfies lineMessagingApi.FlexMessage)
         },
         bloc: () => {
           throw new RuntimeError('Not implemented')
@@ -405,9 +403,8 @@ const integration = new bp.Integration({
       return
     }
 
-    const lineClient = new line.Client({
+    const lineClient = new lineMessagingApi.MessagingApiClient({
       channelAccessToken: ctx.configuration.channelAccessToken,
-      channelSecret: ctx.configuration.channelSecret,
     })
     const profile = await lineClient.getProfile(userId)
 
@@ -426,9 +423,8 @@ const integration = new bp.Integration({
       return
     }
 
-    const lineClient = new line.Client({
+    const lineClient = new lineMessagingApi.MessagingApiClient({
       channelAccessToken: ctx.configuration.channelAccessToken,
-      channelSecret: ctx.configuration.channelSecret,
     })
     const profile = await lineClient.getProfile(usrId)
 
