@@ -8,7 +8,6 @@ export const modelId = z
     'llama-3.2-11b-vision-preview',
     'llama-3.2-90b-vision-preview',
     'llama-3.1-8b-instant',
-    'llama-3.1-70b-versatile',
     'llama3-8b-8192',
     'llama3-70b-8192',
     'mixtral-8x7b-32768',
