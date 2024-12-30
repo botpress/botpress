@@ -11,18 +11,42 @@ export default new IntegrationDefinition({
   readme: 'hub.md',
   configuration: {
     schema: z.object({
-      channelAccessToken: z.string().min(1),
-      channelSecret: z.string().min(1),
+      channelAccessToken: z
+        .string()
+        .min(1)
+        .title('Channel Access Token')
+        .describe('Token used to authenticate the bot with the Line API'),
+      channelSecret: z
+        .string()
+        .min(1)
+        .title('Channel Secret')
+        .describe('Secret used to verify the signature of webhook events'),
     }),
   },
   channels: {
     channel: {
+      title: 'Line conversation',
+      description: 'Channel for a Line conversation',
       messages: { ...messages.defaults, markdown: messages.markdown },
       message: {
-        tags: { msgId: {} },
+        tags: {
+          msgId: {
+            title: 'Message ID',
+            description: 'Line message ID',
+          },
+        },
       },
       conversation: {
-        tags: { usrId: {}, destId: {} },
+        tags: {
+          usrId: {
+            title: 'User ID',
+            description: 'Line user ID taking part in the conversation',
+          },
+          destId: {
+            title: 'Destination ID',
+            description: 'Line user ID of the bot',
+          },
+        },
         creation: { enabled: true, requiredTags: ['usrId', 'destId'] },
       },
     },
@@ -33,14 +57,21 @@ export default new IntegrationDefinition({
     conversation: {
       type: 'conversation',
       schema: z.object({
-        replyToken: z.string().optional(),
+        replyToken: z
+          .string()
+          .optional()
+          .title('Reply Token')
+          .describe('Token used to reply to a message received as a request on the webhook'),
       }),
     },
   },
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
   user: {
     tags: {
-      usrId: {},
+      usrId: {
+        title: 'User ID',
+        description: 'Line user ID',
+      },
     },
     creation: { enabled: true, requiredTags: ['usrId'] },
   },
