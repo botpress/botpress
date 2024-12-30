@@ -1,5 +1,6 @@
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import typingIndicator from 'bp_modules/typing-indicator'
 
 export default new IntegrationDefinition({
   name: 'line',
@@ -43,4 +44,4 @@ export default new IntegrationDefinition({
     },
     creation: { enabled: true, requiredTags: ['usrId'] },
   },
-})
+}).extend(typingIndicator, () => ({}))

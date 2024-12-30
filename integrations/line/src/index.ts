@@ -5,9 +5,13 @@ import crypto from 'crypto'
 import * as bp from '.botpress'
 
 type MessageHandlerProps = bp.AnyMessageProps
-type ReplyLineProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'client' | 'ack'>
+type SendOrReplyLineProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'client' | 'ack'>
 
-const replyOrSendLineMessage = async (props: ReplyLineProps, message: lineMessagingApi.Message) => {
+const DEFAULT_TIMEOUT_MS = 5000
+const LOADING_TIMEOUT_MULTIPLE = 5
+const MAX_TIMEOUT_SECONDS = 60
+
+const replyOrSendLineMessage = async (props: SendOrReplyLineProps, message: lineMessagingApi.Message) => {
   const { ctx, conversation, client, ack } = props
   const config = {
     channelAccessToken: ctx.configuration.channelAccessToken,
@@ -57,7 +61,31 @@ const replyOrSendLineMessage = async (props: ReplyLineProps, message: lineMessag
 const integration = new bp.Integration({
   register: async () => {},
   unregister: async () => {},
-  actions: {},
+  actions: {
+    startTypingIndicator: async ({ client, ctx, input }) => {
+      const config = {
+        channelAccessToken: ctx.configuration.channelAccessToken,
+      }
+      const lineClient = new lineMessagingApi.MessagingApiClient(config)
+      const { conversationId, timeout } = input
+      const { conversation } = await client.getConversation({ id: conversationId })
+      const lineUserId = conversation.tags.usrId
+      if (!lineUserId) {
+        throw new RuntimeError('No user id found in conversation tags')
+      }
+      const timeoutSeconds = Math.ceil((timeout ?? DEFAULT_TIMEOUT_MS) / 1000)
+      const loadingSeconds = Math.min(
+        Math.ceil(timeoutSeconds / LOADING_TIMEOUT_MULTIPLE) * LOADING_TIMEOUT_MULTIPLE,
+        MAX_TIMEOUT_SECONDS
+      )
+      await lineClient.showLoadingAnimation({
+        chatId: lineUserId,
+        loadingSeconds,
+      })
+      return {}
+    },
+    stopTypingIndicator: async () => ({}),
+  },
   channels: {
     channel: {
       messages: {
