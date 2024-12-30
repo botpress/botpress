@@ -28,5 +28,8 @@
     "@sentry/cli": "^2.39.1",
     "@types/lodash": "^4.14.191",
     "@types/verror": "^1.10.6"
+  },
+  "bpDependencies": {
+    "typing-indicator": "../../interfaces/typing-indicator"
   }
 }
