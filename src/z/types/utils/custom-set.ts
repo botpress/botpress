@@ -1,11 +1,11 @@
-import _ from 'lodash'
+import { isEqual } from 'lodash-es'
 
 export type CustomSetOptions<T> = {
   compare: (a: T, b: T) => boolean
 }
 
 const DEFAULT_OPTIONS: CustomSetOptions<any> = {
-  compare: _.isEqual,
+  compare: isEqual,
 }
 
 export class CustomSet<T> {

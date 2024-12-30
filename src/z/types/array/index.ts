@@ -15,7 +15,7 @@ import {
   ParseReturnType,
   ParseStatus,
 } from '../index'
-import isEqual from 'lodash/isEqual'
+import { isEqual } from 'lodash-es'
 
 export interface ZodArrayDef<T extends ZodTypeAny = ZodTypeAny> extends ZodTypeDef {
   type: T

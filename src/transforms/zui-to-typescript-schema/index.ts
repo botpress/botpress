@@ -1,4 +1,5 @@
-import mapValues from 'lodash/mapValues'
+import { mapValues } from 'lodash-es'
+
 import z, { util } from '../../z'
 import { primitiveToTypescriptValue, getMultilineComment, unknownToTypescriptValue } from '../common/utils'
 import * as errors from '../common/errors'

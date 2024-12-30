@@ -4,11 +4,6 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
-dependencies:
-  lodash:
-    specifier: ^4.17.21
-    version: 4.17.21
-
 devDependencies:
   '@testing-library/jest-dom':
     specifier: ^6.4.2
@@ -28,9 +23,9 @@ devDependencies:
   '@types/json-schema':
     specifier: ^7.0.15
     version: 7.0.15
-  '@types/lodash':
-    specifier: ^4.17.13
-    version: 4.17.13
+  '@types/lodash-es':
+    specifier: ^4.17.12
+    version: 4.17.12
   '@types/node':
     specifier: ^20.12.6
     version: 20.12.6
@@ -55,6 +50,9 @@ devDependencies:
   local-ref-resolver:
     specifier: ^0.2.0
     version: 0.2.0
+  lodash-es:
+    specifier: ^4.17.21
+    version: 4.17.21
   prettier:
     specifier: ^3.3.3
     version: 3.4.1
@@ -1326,6 +1324,12 @@ packages:
 
   /@types/json-schema@7.0.15:
     resolution: {integrity: sha512-5+fP8P8MFNC+AyZCDxrB2pkZFPGzqQWUzpSeuuVLvm8VMcorNYavBqoFcxK8bQz4Qsbn4oUEEem4wDLfcysGHA==}
+    dev: true
+
+  /@types/lodash-es@4.17.12:
+    resolution: {integrity: sha512-0NgftHUcV4v34VhXm8QBSftKVXtbkBG3ViCjs6+eJ5a6y6Mi/jiFGPc1sC7QK+9BFhWrURE3EOggmWaSxL9OzQ==}
+    dependencies:
+      '@types/lodash': 4.17.13
     dev: true
 
   /@types/lodash@4.17.13:
@@ -2609,12 +2613,17 @@ packages:
     resolution: {integrity: sha512-Qwrp+Ng1WgbvvS73+eco3MtQitSphQKCus4umweCoiWFFWQjQ1i0Aez+Mcg/EBTFMKG9rgxRV86M1pmQUzsaQg==}
     dev: true
 
+  /lodash-es@4.17.21:
+    resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
+    dev: true
+
   /lodash.sortby@4.7.0:
     resolution: {integrity: sha512-HDWXG8isMntAyRF5vZ7xKuEvOhT4AhlRt/3czTSjvGUxjYCBVRQY48ViDHyfYz9VIoBkW4TMGQNapx+l3RUwdA==}
     dev: true
 
   /lodash@4.17.21:
     resolution: {integrity: sha512-v2kDEe57lecTulaDIuNTPy3Ry4gLGJ6Z1O3vE1krgXZNrsQ+LFTGHVxVjcXPs17LhbZVGedAJv8XZ1tvj5FvSg==}
+    dev: true
 
   /loose-envify@1.4.0:
     resolution: {integrity: sha512-lyuxPGr/Wfhrlem2CL/UcnUc1zcqKAImBDzukY7Y5F/yQiNdko6+fRLevlw1HgMySw7f611UIY408EtxRSoK3Q==}
