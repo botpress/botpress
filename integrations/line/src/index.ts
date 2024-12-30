@@ -7,7 +7,7 @@ import * as bp from '.botpress'
 type MessageHandlerProps = bp.AnyMessageProps
 type ReplyLineProps = Pick<MessageHandlerProps, 'ctx' | 'conversation' | 'client' | 'ack'>
 
-const replyLineMessage = async (props: ReplyLineProps, message: lineMessagingApi.Message) => {
+const replyOrSendLineMessage = async (props: ReplyLineProps, message: lineMessagingApi.Message) => {
   const { ctx, conversation, client, ack } = props
   const config = {
     channelAccessToken: ctx.configuration.channelAccessToken,
@@ -15,16 +15,35 @@ const replyLineMessage = async (props: ReplyLineProps, message: lineMessagingApi
 
   const lineClient = new lineMessagingApi.MessagingApiClient(config)
 
-  const stateRes = await client.getState({
+  const { state } = await client.getState({
     id: conversation.id,
     name: 'conversation',
     type: 'conversation',
   })
+  const replyToken = state.payload.replyToken
   try {
-    const lineResponse = await lineClient.replyMessage({
-      replyToken: stateRes.state.payload.replyToken,
-      messages: [message],
-    })
+    let lineResponse: lineMessagingApi.ReplyMessageResponse | lineMessagingApi.PushMessageResponse
+    if (replyToken) {
+      await client.setState({
+        id: conversation.id,
+        name: 'conversation',
+        type: 'conversation',
+        payload: { replyToken: undefined },
+      })
+      lineResponse = await lineClient.replyMessage({
+        replyToken,
+        messages: [message],
+      })
+    } else {
+      const usrId = conversation.tags.usrId
+      if (!usrId) {
+        throw new RuntimeError('No user id found in conversation tags')
+      }
+      lineResponse = await lineClient.pushMessage({
+        to: usrId,
+        messages: [message],
+      })
+    }
 
     const sentMessage = lineResponse.sentMessages[0]
     if (sentMessage) {
@@ -43,7 +62,7 @@ const integration = new bp.Integration({
     channel: {
       messages: {
         text: async ({ payload, ctx, conversation, ack, client }) => {
-          await replyLineMessage(
+          await replyOrSendLineMessage(
             { ctx, conversation, client, ack },
             {
               type: 'text',
@@ -52,7 +71,7 @@ const integration = new bp.Integration({
           )
         },
         image: async ({ payload, ctx, conversation, ack, client }) => {
-          await replyLineMessage(
+          await replyOrSendLineMessage(
             { ctx, conversation, client, ack },
             {
               type: 'image',
@@ -62,7 +81,7 @@ const integration = new bp.Integration({
           )
         },
         markdown: async ({ payload, ctx, conversation, ack, client }) => {
-          await replyLineMessage(
+          await replyOrSendLineMessage(
             { ctx, conversation, client, ack },
             {
               type: 'text',
@@ -72,7 +91,7 @@ const integration = new bp.Integration({
         },
         // TODO: fix audio, its not working
         audio: async ({ payload, ctx, conversation, ack, client }) => {
-          await replyLineMessage(
+          await replyOrSendLineMessage(
             { ctx, conversation, client, ack },
             {
               type: 'audio',
@@ -83,7 +102,7 @@ const integration = new bp.Integration({
         },
         video: async ({ payload, ctx, conversation, ack, client }) => {
           //TODO: Upload the thumbnail so it is ready to be passed as URL to Line
-          await replyLineMessage(
+          await replyOrSendLineMessage(
             { ctx, conversation, client, ack },
             {
               type: 'video',
@@ -98,7 +117,7 @@ const integration = new bp.Integration({
           )
         },
         location: async ({ payload, ctx, conversation, ack, client }) => {
-          await replyLineMessage(
+          await replyOrSendLineMessage(
             { ctx, conversation, client, ack },
             {
               type: 'location',
@@ -183,7 +202,7 @@ const integration = new bp.Integration({
             }
           }
 
-          await replyLineMessage(
+          await replyOrSendLineMessage(
             { ctx, conversation, client, ack },
             {
               type: 'flex',
@@ -225,7 +244,7 @@ const integration = new bp.Integration({
             }
           }
 
-          await replyLineMessage(
+          await replyOrSendLineMessage(
             { ctx, conversation, client, ack },
             {
               type: 'flex',
@@ -280,7 +299,7 @@ const integration = new bp.Integration({
             })
           }
 
-          await replyLineMessage(
+          await replyOrSendLineMessage(
             { ctx, conversation, client, ack },
             {
               type: 'flex',
@@ -345,7 +364,7 @@ const integration = new bp.Integration({
             },
           }
 
-          await replyLineMessage({ ctx, conversation, client, ack }, {
+          await replyOrSendLineMessage({ ctx, conversation, client, ack }, {
             type: 'flex',
             altText: payload.text,
             contents,

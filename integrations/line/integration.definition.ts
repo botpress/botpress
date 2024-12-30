@@ -32,7 +32,7 @@ export default new IntegrationDefinition({
     conversation: {
       type: 'conversation',
       schema: z.object({
-        replyToken: z.string(),
+        replyToken: z.string().optional(),
       }),
     },
   },
