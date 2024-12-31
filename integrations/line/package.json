@@ -12,12 +12,15 @@
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "@line/bot-sdk": "^7.5.2",
+    "@line/bot-sdk": "^9.5.0",
     "crypto": "^1.0.1"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
     "@sentry/cli": "^2.39.1"
+  },
+  "bpDependencies": {
+    "typingIndicator": "../../interfaces/typing-indicator"
   }
 }
