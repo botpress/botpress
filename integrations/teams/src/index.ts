@@ -2,6 +2,7 @@ import { RuntimeError } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 import axios, { isAxiosError } from 'axios'
+import actions from './actions'
 import { channels } from './channels'
 import { handler } from './handler'
 import * as bp from '.botpress'
@@ -24,7 +25,7 @@ const integration = new bp.Integration({
     })
   },
   unregister: async () => {},
-  actions: {},
+  actions,
   channels,
   handler,
 })

@@ -21,5 +21,8 @@
     "@botpress/common": "workspace:*",
     "@sentry/cli": "^2.39.1",
     "@types/jsonwebtoken": "^9.0.3"
+  },
+  "bpDependencies": {
+    "typing-indicator": "../../interfaces/typing-indicator"
   }
 }

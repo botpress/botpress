@@ -2,16 +2,14 @@ import { RuntimeError } from '@botpress/client'
 import {
   Activity,
   ConversationReference,
-  BotFrameworkAdapter,
   CardFactory,
   CardAction,
   ActionTypes,
   Attachment,
   MessageFactory,
 } from 'botbuilder'
+import { getAdapter } from './utils'
 import * as bp from '.botpress'
-
-type TeamsConfig = bp.configuration.Configuration
 
 type Choice = bp.channels.channel.choice.Choice
 type Alternative = Choice['options'][number]
@@ -19,13 +17,6 @@ type Alternative = Choice['options'][number]
 type Card = bp.channels.channel.card.Card
 type Action = Card['actions'][number]
 type ActionType = Action['action']
-
-const getAdapter = (config: TeamsConfig) =>
-  new BotFrameworkAdapter({
-    channelAuthTenant: config.tenantId,
-    appId: config.appId,
-    appPassword: config.appPassword,
-  })
 
 const renderTeams = async ({ ctx, ack, conversation, client }: bp.AnyMessageProps, activity: Partial<Activity>) => {
   const { configuration } = ctx
