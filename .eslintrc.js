@@ -89,7 +89,7 @@ module.exports = {
     "@typescript-eslint/no-misused-promises": "error",
     '@typescript-eslint/semi': ['error', 'never'],
     '@typescript-eslint/type-annotation-spacing': 'error',
-    'brace-style': ['error', '1tbs'],
+    'brace-style': 'off',
     curly: 'error',
     'eol-last': 'error',
     eqeqeq: ['error', 'smart'],

@@ -1,12 +1,13 @@
 import { RuntimeError } from '@botpress/client'
-import { Request } from '@botpress/sdk'
+import { Request, Response } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
-import { channel, INTEGRATION_NAME } from 'integration.definition'
+import { INTEGRATION_NAME } from 'integration.definition'
 import * as crypto from 'node:crypto'
 import queryString from 'query-string'
+import actions from 'src/actions'
 import WhatsAppAPI from 'whatsapp-api-js'
 import { Audio, Document, Image, Location, Text, Video } from 'whatsapp-api-js/messages'
-import { createConversationHandler as createConversation, startConversation } from './conversation'
+import { createConversationHandler as createConversation } from './conversation'
 import { handleIncomingMessage } from './incoming-message'
 import * as card from './message-types/card'
 import * as carousel from './message-types/carousel'
@@ -14,10 +15,11 @@ import * as choice from './message-types/choice'
 import * as dropdown from './message-types/dropdown'
 import { checkManualConfiguration } from './misc/check-manual-config'
 import { getInterstitialUrl, redirectTo } from './misc/html-utils'
-import { getAccessToken, getPhoneNumberId, getSecret } from './misc/whatsapp'
+import { getAccessToken, getSecret } from './misc/whatsapp'
 import { handleWizard } from './misc/wizard'
 import * as outgoing from './outgoing-message'
 import { identifyBot, trackIntegrationEvent } from './tracking'
+import { getSubpath } from './util'
 import { WhatsAppPayload } from './whatsapp-types'
 import * as bp from '.botpress'
 
@@ -53,31 +55,7 @@ const integration = new bp.Integration({
     }
   },
   unregister: async () => {},
-  actions: {
-    startConversation: async ({ ctx, input, client, logger }) => {
-      const phoneNumberId: string | undefined = input.senderPhoneNumberId || (await getPhoneNumberId(client, ctx))
-
-      if (!phoneNumberId) {
-        throw new Error('phoneNumberId is required')
-      }
-
-      const conversation = await startConversation(
-        {
-          channel,
-          phoneNumberId,
-          userPhone: input.userPhone,
-          templateName: input.templateName,
-          templateLanguage: input.templateLanguage,
-          templateVariablesJson: input.templateVariablesJson,
-        },
-        { client, ctx, logger }
-      )
-
-      return {
-        conversationId: conversation.id,
-      }
-    },
-  },
+  actions,
   createConversation, // This is not needed for the `startConversation` action above, it's only for allowing bots to start conversations by calling `client.createConversation()` directly.
   channels: {
     channel: {
@@ -160,19 +138,14 @@ const integration = new bp.Integration({
       },
     },
   },
-  handler: async ({ req, client, ctx, logger }) => {
+  handler: async (props) => {
+    const { req, client, ctx, logger } = props
     if (detectIdentifierIssue(req, ctx)) {
       return redirectTo(getInterstitialUrl(false, 'Not allowed'))
     }
 
-    if (req.query?.includes('code') || req.query?.includes('wizard-step')) {
-      try {
-        return await handleWizard(req, client, ctx, logger)
-      } catch (err: any) {
-        const errorMessage = '(OAuth registration) Error: ' + err.message
-        logger.forBot().error(errorMessage)
-        return redirectTo(getInterstitialUrl(false, errorMessage))
-      }
+    if (req.path.startsWith('/oauth')) {
+      return await handleOAuth(props)
     }
 
     if (req.body) {
@@ -274,6 +247,27 @@ const integration = new bp.Integration({
   },
 })
 
+const handleOAuth = async (props: bp.HandlerProps): Promise<Response> => {
+  const { req, logger } = props
+  let response: Response
+  const oauthSubpath = getSubpath(req.path)
+  try {
+    if (oauthSubpath?.startsWith('/wizard')) {
+      response = await handleWizard({ ...props, wizardPath: oauthSubpath })
+    } else {
+      response = {
+        status: 404,
+        body: 'Invalid OAuth endpoint',
+      }
+    }
+  } catch (err: any) {
+    const errorMessage = '(OAuth registration) Error: ' + err.message
+    logger.forBot().error(errorMessage)
+    response = redirectTo(getInterstitialUrl(false, errorMessage))
+  }
+  return response
+}
+
 export default sentryHelpers.wrapIntegration(integration, {
   dsn: bp.secrets.SENTRY_DSN,
   environment: bp.secrets.SENTRY_ENVIRONMENT,
@@ -288,7 +282,6 @@ export const detectIdentifierIssue = (req: Request, ctx: bp.Context) => {
   /* because of the wizard, we need to accept the query param "state" as an identifier
    * but we need to prevent anyone of using anything other than the webhookId there for security reasons
    */
-
   const query = queryString.parse(req.query)
 
   return !!(query['state']?.length && query['state'] !== ctx.webhookId)

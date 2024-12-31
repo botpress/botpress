@@ -10,7 +10,7 @@ export type IsEquivalent<X, Y> = IsExtend<X, Y> extends true ? IsExtend<Y, X> : 
 export type IsIdentical<X, Y> = (<T>() => T extends X ? 1 : 2) extends <T>() => T extends Y ? 1 : 2 ? true : false
 export type IsEqual<X, Y> = IsIdentical<Normalize<X>, Normalize<Y>>
 
-export type AssertExtends<A, _B extends A> = true
+export type AssertExtends<_A extends B, B> = true
 export type AssertTrue<_T extends true> = true
 export type AssertAll<_T extends true[]> = true
 
@@ -33,14 +33,32 @@ export type ToSealedRecord<R extends Record<string, any>> = {
   [K in keyof R as string extends K ? never : K]: R[K]
 }
 
+type NormalizeObject<T extends object> = T extends infer O ? { [K in keyof O]: Normalize<O[K]> } : never
 export type Normalize<T> = T extends (...args: infer A) => infer R
   ? (...args: Normalize<A>) => Normalize<R>
+  : T extends Array<infer E>
+  ? Array<Normalize<E>>
+  : T extends ReadonlyArray<infer E>
+  ? ReadonlyArray<Normalize<E>>
   : T extends Promise<infer R>
   ? Promise<Normalize<R>>
   : T extends Buffer
   ? Buffer
   : T extends object
-  ? T extends infer O
-    ? { [K in keyof O]: Normalize<O[K]> }
-    : never
+  ? NormalizeObject<T>
+  : T
+
+type DeepPartialObject<T extends object> = T extends infer O ? { [K in keyof O]?: DeepPartial<O[K]> } : never
+export type DeepPartial<T> = T extends (...args: infer A) => infer R
+  ? (...args: DeepPartial<A>) => DeepPartial<R>
+  : T extends Array<infer E>
+  ? Array<DeepPartial<E>>
+  : T extends ReadonlyArray<infer E>
+  ? ReadonlyArray<DeepPartial<E>>
+  : T extends Promise<infer R>
+  ? Promise<DeepPartial<R>>
+  : T extends Buffer
+  ? Buffer
+  : T extends object
+  ? DeepPartialObject<T>
   : T

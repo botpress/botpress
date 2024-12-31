@@ -1,6 +1,7 @@
-import { z, InterfaceDeclaration } from '@botpress/sdk'
+/* bplint-disable */
+import { z, InterfaceDefinition } from '@botpress/sdk'
 
-export default new InterfaceDeclaration({
+export default new InterfaceDefinition({
   name: 'typingIndicator',
   version: '0.0.1',
   entities: {},

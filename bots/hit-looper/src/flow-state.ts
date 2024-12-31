@@ -1,7 +1,7 @@
 import { ResourceNotFoundError } from '@botpress/client'
-import { MessageHandlerProps, BotStates } from './types'
+import { MessageHandlerProps, states } from './types'
 
-type FlowState = BotStates['flow']
+type FlowState = states.flow.Flow
 export const findFlow = async (
   props: Pick<MessageHandlerProps, 'client'> & { conversationId: string }
 ): Promise<FlowState | undefined> => {

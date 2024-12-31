@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import {
   createRecordInputSchema,
@@ -15,7 +16,9 @@ import {
 export default new IntegrationDefinition({
   name: 'airtable',
   title: 'Airtable',
-  version: '0.0.2',
+  description:
+    'Access and manage Airtable data to allow your chatbot to retrieve details, update records, and organize information.',
+  version: '0.0.3',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {

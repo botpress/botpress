@@ -10,6 +10,7 @@ export {
 } from '@botpress/client'
 
 export {
+  DefaultIntegration,
   IntegrationDefinition,
   IntegrationDefinitionProps,
   IntegrationImplementation as Integration,
@@ -37,11 +38,13 @@ export {
 } from './integration/server'
 
 export {
+  DefaultBot,
   BotDefinition,
   BotDefinitionProps,
   BotImplementation as Bot,
   BotImplementationProps as BotProps,
   BotSpecificClient,
+  BotHandlers,
   TagDefinition as BotTagDefinition,
   StateType as BotStateType,
   StateDefinition as BotStateDefinition,
@@ -51,16 +54,27 @@ export {
   UserDefinition as BotUserDefinition,
   ConversationDefinition as BotConversationDefinition,
   MessageDefinition as BotMessageDefinition,
+  ActionDefinition as BotActionDefinition,
+  BotLogger,
 } from './bot'
 
 export {
   //
-  InterfaceDeclaration,
-  InterfaceDeclarationProps,
+  InterfaceDefinition,
+  InterfaceDefinitionProps,
 } from './interface'
+
+export {
+  //
+  DefaultPlugin,
+  PluginDefinition,
+  PluginImplementation as Plugin,
+} from './plugin'
 
 export {
   //
   IntegrationPackage,
   InterfacePackage,
+  PluginPackage,
+  Package,
 } from './package'

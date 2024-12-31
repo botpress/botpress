@@ -1,4 +1,4 @@
-import { createAsyncFnWrapperWithErrorRedaction } from '@botpress/common'
+import { createAsyncFnWrapperWithErrorRedaction, createErrorHandlingDecorator } from '@botpress/common'
 import * as sdk from '@botpress/sdk'
 
 export const wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction((error: Error, customMessage: string) => {
@@ -13,16 +13,7 @@ export const wrapAsyncFnWithTryCatch = createAsyncFnWrapperWithErrorRedaction((e
   return new sdk.RuntimeError(redactedMessage)
 })
 
-type AsyncMethod = (...args: unknown[]) => Promise<unknown>
-
-export const handleErrorsDecorator =
-  (errorMessage: string) =>
-  (_target: unknown, _propertyKey: string, descriptor: PropertyDescriptor): void => {
-    const _originalMethod: AsyncMethod = descriptor.value
-    descriptor.value = function (...args: unknown[]) {
-      return wrapAsyncFnWithTryCatch(_originalMethod.bind(this), errorMessage).apply(this, args)
-    }
-  }
+export const handleErrorsDecorator = createErrorHandlingDecorator(wrapAsyncFnWithTryCatch)
 
 const _extractGoogleApiError = (error: Error) =>
   'errors' in error && Array.isArray(error['errors'])

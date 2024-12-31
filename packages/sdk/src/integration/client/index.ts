@@ -1,3 +1,4 @@
+/* eslint-disable brace-style */
 import * as client from '@botpress/client'
 import * as common from '../types'
 import * as types from './types'
@@ -7,7 +8,9 @@ export * from './types'
 /**
  * Just like the regular botpress client, but typed with the integration's properties.
  */
-export class IntegrationSpecificClient<TIntegration extends common.BaseIntegration> {
+export class IntegrationSpecificClient<TIntegration extends common.BaseIntegration>
+  implements types.ClientOperations<TIntegration>
+{
   public constructor(private readonly _client: client.Client) {}
 
   public createConversation: types.CreateConversation<TIntegration> = ((x) =>

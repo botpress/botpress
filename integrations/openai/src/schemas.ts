@@ -2,7 +2,10 @@ import { z } from '@botpress/sdk'
 
 export const languageModelId = z
   .enum([
+    'o1-2024-12-17',
+    'o1-mini-2024-09-12',
     'gpt-4o-mini-2024-07-18',
+    'gpt-4o-2024-11-20',
     'gpt-4o-2024-08-06',
     'gpt-4o-2024-05-13',
     'gpt-4-turbo-2024-04-09',

@@ -1,11 +1,17 @@
 import * as utils from '../../utils'
 import * as consts from '../consts'
+import * as gen from '../generators'
 import * as types from '../typings'
 import { InterfacePackageDefinitionModule } from './interface-package-definition'
 
 const generateInterfacePackageModule = (definitionImport: string, pkg: types.InterfaceInstallablePackage): string => {
-  const refLine =
-    pkg.source === 'local' ? `uri: "${utils.path.win32.escapeBackslashes(pkg.path)}"` : `id: "${pkg.interface.id}"`
+  const id = pkg.source === 'remote' ? pkg.interface.id : undefined
+  const uri = pkg.source === 'local' ? utils.path.win32.escapeBackslashes(pkg.path) : undefined
+
+  const tsId = gen.primitiveToTypescriptValue(id)
+  const tsUri = gen.primitiveToTypescriptValue(uri)
+  const tsName = gen.primitiveToTypescriptValue(pkg.name)
+  const tsVersion = gen.primitiveToTypescriptValue(pkg.version)
   return [
     consts.GENERATED_HEADER,
     'import * as sdk from "@botpress/sdk"',
@@ -14,7 +20,10 @@ const generateInterfacePackageModule = (definitionImport: string, pkg: types.Int
     '',
     'export default {',
     '  type: "interface",',
-    `  ${refLine},`,
+    `  id: ${tsId},`,
+    `  uri: ${tsUri},`,
+    `  name: ${tsName},`,
+    `  version: ${tsVersion},`,
     '  definition,',
     '} satisfies sdk.InterfacePackage',
   ].join('\n')

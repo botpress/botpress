@@ -17,7 +17,7 @@
 /integrations/dalle @franklevasseur @botpress/cloud-services
 /integrations/github @pascal-botpress @botpress/cloud-services
 /integrations/gmail @michaelmass @pascal-botpress @botpress/cloud-services
-/integrations/googlecalendar @franklevasseur @botpress/cloud-services
+/integrations/googlecalendar @franklevasseur @pascal-botpress @botpress/cloud-services
 /integrations/groq @AbrahamLopez10 @botpress/cloud-services
 /integrations/gsheets @franklevasseur @pascal-botpress @botpress/cloud-services
 /integrations/intercom @chsir17 @ptrckbp @botpress/cloud-services
@@ -34,3 +34,4 @@
 /integrations/whatsapp @AbrahamLopez10 @botpress/cloud-services
 /integrations/zapier @AbrahamLopez10 @botpress/cloud-services
 /integrations/zendesk @davidvitora @franklevasseur @botpress/cloud-services
+/integrations/freshchat @davidvitora

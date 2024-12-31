@@ -1,9 +1,10 @@
+/* bplint-disable */
 import * as common from '@botpress/common'
-import { z, InterfaceDeclaration } from '@botpress/sdk'
+import { z, InterfaceDefinition } from '@botpress/sdk'
 
-export default new InterfaceDeclaration({
+export default new InterfaceDefinition({
   name: 'llm',
-  version: '5.1.0',
+  version: '7.1.0',
   entities: {
     modelRef: {
       schema: common.llm.schemas.ModelRefSchema,

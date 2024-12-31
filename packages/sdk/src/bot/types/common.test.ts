@@ -1,85 +1,12 @@
-import { MakeChannel, MakeIntegration } from '../../integration/types/generic'
+import { DefaultChannel, DefaultIntegration } from '../../integration/types/generic'
 import { test } from 'vitest'
 import * as utils from '../../utils/type-utils'
-import { BaseBot, MakeBot } from './generic'
+import { BaseBot, DefaultBot } from './generic'
 import * as types from './common'
-
-type FooBarBazIntegration = MakeIntegration<{
-  actions: {
-    doFoo: {
-      input: {
-        inputFoo: string
-      }
-      output: {
-        outputFoo: string
-      }
-    }
-    doBar: {
-      input: {
-        inputBar: number
-      }
-      output: {
-        outputBar: number
-      }
-    }
-    doBaz: {
-      input: {
-        inputBaz: boolean
-      }
-      output: {
-        outputBaz: boolean
-      }
-    }
-  }
-  events: {
-    onFoo: {
-      eventFoo: string
-    }
-    onBar: {
-      eventBar: number
-    }
-    onBaz: {
-      eventBaz: boolean
-    }
-  }
-  channels: {
-    channelFoo: MakeChannel<{
-      messages: {
-        messageFoo: {
-          foo: string
-        }
-      }
-    }>
-    channelBar: MakeChannel<{
-      messages: {
-        messageBar: {
-          bar: number
-        }
-      }
-    }>
-    channelBaz: MakeChannel<{
-      messages: {
-        messageBaz: {
-          baz: boolean
-        }
-      }
-    }>
-  }
-}>
-
-type FooBot = MakeBot<{
-  integrations: {
-    fooBarBaz: FooBarBazIntegration
-  }
-}>
-type EmptyBot = MakeBot<{
-  integrations: {}
-  events: {}
-  states: {}
-}>
+import { FooBarBazBot, EmptyBot, FooBarBazIntegration } from '../../fixtures'
 
 test('EnumerateActions should enumerate actions', () => {
-  type Actual = types.EnumerateActions<FooBot>
+  type Actual = types.EnumerateActions<FooBarBazBot>
   type Expected = {
     'fooBarBaz:doFoo': FooBarBazIntegration['actions']['doFoo']
     'fooBarBaz:doBar': FooBarBazIntegration['actions']['doBar']
@@ -125,7 +52,7 @@ test('EnumerateActions should return record if TBot is BaseBot', () => {
 })
 
 test('EnumerateActionInputs should enumerate action inputs', () => {
-  type Actual = types.EnumerateActionInputs<FooBot>
+  type Actual = types.EnumerateActionInputs<FooBarBazBot>
   type Expected = {
     'fooBarBaz:doFoo': FooBarBazIntegration['actions']['doFoo']['input']
     'fooBarBaz:doBar': FooBarBazIntegration['actions']['doBar']['input']
@@ -143,7 +70,7 @@ test('EnumerateActionInputs should enumerate action inputs', () => {
 })
 
 test('EnumerateActionOutputs should enumerate action inputs', () => {
-  type Actual = types.EnumerateActionOutputs<FooBot>
+  type Actual = types.EnumerateActionOutputs<FooBarBazBot>
   type Expected = {
     'fooBarBaz:doFoo': FooBarBazIntegration['actions']['doFoo']['output']
     'fooBarBaz:doBar': FooBarBazIntegration['actions']['doBar']['output']
@@ -161,7 +88,7 @@ test('EnumerateActionOutputs should enumerate action inputs', () => {
 })
 
 test('EnumerateEvents should enumerate events', () => {
-  type Bot = MakeBot<{
+  type Bot = DefaultBot<{
     integrations: {
       fooBarBaz: FooBarBazIntegration
     }
@@ -190,7 +117,7 @@ test('EnumerateEvents should enumerate events', () => {
 })
 
 test('EnumerateEvents with only integration events should enumerate only integration events', () => {
-  type Bot = MakeBot<{
+  type Bot = DefaultBot<{
     integrations: {
       fooBarBaz: FooBarBazIntegration
     }
@@ -214,7 +141,7 @@ test('EnumerateEvents with only integration events should enumerate only integra
 })
 
 test('EnumerateEvents with only bot events should enumerate only bot events', () => {
-  type Bot = MakeBot<{
+  type Bot = DefaultBot<{
     integrations: {}
     events: {
       onQux: {
@@ -266,7 +193,7 @@ test('EnumerateEvents should return record if TBot is BaseBot', () => {
 })
 
 test('EnumerateChannels should enumerate channels', () => {
-  type Actual = types.EnumerateChannels<FooBot>
+  type Actual = types.EnumerateChannels<FooBarBazBot>
   type Expected = {
     'fooBarBaz:channelFoo': FooBarBazIntegration['channels']['channelFoo']
     'fooBarBaz:channelBar': FooBarBazIntegration['channels']['channelBar']
@@ -312,7 +239,7 @@ test('EnumerateChannels should return record if TBot is BaseBot', () => {
 })
 
 test('EnumerateMessages should enumerate messages', () => {
-  type Actual = types.EnumerateMessages<FooBot>
+  type Actual = types.EnumerateMessages<FooBarBazBot>
   type Expected = {
     'fooBarBaz:channelFoo:messageFoo': FooBarBazIntegration['channels']['channelFoo']['messages']['messageFoo']
     'fooBarBaz:channelBar:messageBar': FooBarBazIntegration['channels']['channelBar']['messages']['messageBar']
@@ -358,23 +285,23 @@ test('EnumerateMessages should return record if TBot is BaseBot', () => {
 })
 
 test('GetMessages should return union of all channels per message', () => {
-  type Bot = MakeBot<{
+  type Bot = DefaultBot<{
     integrations: {
-      toto: MakeIntegration<{
+      toto: DefaultIntegration<{
         channels: {
-          a: MakeChannel<{
+          a: DefaultChannel<{
             messages: {
               a: null
               x: string
             }
           }>
-          b: MakeChannel<{
+          b: DefaultChannel<{
             messages: {
               b: null
               x: number
             }
           }>
-          c: MakeChannel<{
+          c: DefaultChannel<{
             messages: {
               c: null
               x: boolean
@@ -415,3 +342,5 @@ test('GetMessages should return record if TBot is BaseBot', () => {
     ]
   >
 })
+
+test('EnumerateInterfaces should enumerate interfaces', () => {})

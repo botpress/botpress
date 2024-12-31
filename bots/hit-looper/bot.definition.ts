@@ -11,7 +11,7 @@ export default new sdk.BotDefinition({
     flow: {
       type: 'conversation',
       schema: sdk.z.object({
-        hitlEnabled: sdk.z.boolean(),
+        hitlEnabled: sdk.z.boolean().title('HITL Enabled').describe('Whether the bot is in HITL mode'),
       }),
     },
   },
@@ -42,13 +42,13 @@ export default new sdk.BotDefinition({
     },
   },
 })
-  .add(telegram, {
+  .addIntegration(telegram, {
     enabled: true,
     configuration: {
       botToken: genenv.HITLOOPER_TELEGRAM_BOT_TOKEN,
     },
   })
-  .add(zendesk, {
+  .addIntegration(zendesk, {
     enabled: true,
     configuration: {
       apiToken: genenv.HITLOOPER_ZENDESK_API_TOKEN,

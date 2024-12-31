@@ -2,7 +2,7 @@ import { bot } from './bot'
 import { CommandError, commands } from './commands'
 import { ApiUtils } from './utils'
 
-bot.message(async (props) => {
+bot.on.message('*', async (props) => {
   const utils = new ApiUtils(props)
 
   if (props.message.type !== 'text') {

@@ -54,26 +54,33 @@ const packageType = {
   type: 'string',
   description:
     'Either an integration or an interface; helps disambiguate the package type in case both an integration and an interface have the same reference.',
-  choices: ['integration', 'interface'] as const,
+  choices: ['integration', 'interface', 'plugin'] as const,
 } satisfies CommandOption
 
 const packageRef = {
   type: 'string',
   description:
     'The package ID or name with optional version. The package can be either an integration or an interface. Ex: teams, teams@0.2.0, llm@5.1.0',
-  demandOption: true,
   positional: true,
   idx: 0,
 } satisfies CommandOption
 
 const integrationRef = {
   ...packageRef,
+  demandOption: true,
   description: 'The integration ID or name with optional version. Ex: teams or teams@0.2.0',
 } satisfies CommandOption
 
 const interfaceRef = {
   ...packageRef,
+  demandOption: true,
   description: 'The interface ID or name and version. Ex: llm@5.1.0',
+} satisfies CommandOption
+
+const pluginRef = {
+  ...packageRef,
+  demandOption: true,
+  description: 'The plugin ID or name and version. Ex: knowledge@0.0.1',
 } satisfies CommandOption
 
 const sourceMap = { type: 'boolean', description: 'Generate sourcemaps', default: false } satisfies CommandOption
@@ -203,6 +210,11 @@ const addSchema = {
     description: 'The path where to install the package',
     default: consts.defaultInstallPath,
   },
+  useDev: {
+    type: 'boolean',
+    description: 'If a dev version of the package is found, use it',
+    default: false,
+  },
 } satisfies CommandSchema
 
 const loginSchema = {
@@ -282,15 +294,47 @@ const deleteInterfaceSchema = {
   interfaceRef,
 } satisfies CommandSchema
 
+const getPluginSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+  pluginRef,
+} satisfies CommandSchema
+
+const listPluginsSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+} satisfies CommandSchema
+
+const deletePluginSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+  pluginRef,
+} satisfies CommandSchema
+
 const initSchema = {
   ...globalSchema,
   workDir,
-  type: { type: 'string', choices: ['bot', 'integration'] as const },
+  type: { type: 'string', choices: ['bot', 'integration', 'plugin'] as const },
   name: { type: 'string', description: 'The name of the project' },
 } satisfies CommandSchema
 
 const lintSchema = {
   ...projectSchema,
+} satisfies CommandSchema
+
+const chatSchema = {
+  ...globalSchema,
+  ...credentialsSchema,
+  chatApiUrl: {
+    type: 'string',
+    description: 'The URL of the chat server',
+  },
+  botId: {
+    type: 'string',
+    positional: true,
+    idx: 0,
+    description: 'The bot ID to chat with',
+  },
 } satisfies CommandSchema
 
 // exports
@@ -300,7 +344,6 @@ export const schemas = {
   project: projectSchema,
   credentials: credentialsSchema,
   secrets: secretsSchema,
-
   login: loginSchema,
   logout: logoutSchema,
   createBot: createBotSchema,
@@ -313,6 +356,9 @@ export const schemas = {
   getInterface: getInterfaceSchema,
   listInterfaces: listInterfacesSchema,
   deleteInterface: deleteInterfaceSchema,
+  getPlugin: getPluginSchema,
+  listPlugins: listPluginsSchema,
+  deletePlugin: deletePluginSchema,
   init: initSchema,
   generate: generateSchema,
   bundle: bundleSchema,
@@ -323,4 +369,5 @@ export const schemas = {
   add: addSchema,
   dev: devSchema,
   lint: lintSchema,
+  chat: chatSchema,
 } as const

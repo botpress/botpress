@@ -1,13 +1,9 @@
 {
   "name": "@botpresshub/todoist",
   "scripts": {
-    "start": "pnpm bp serve",
-    "build": "pnpm bp build",
-    "deploy": "pnpm bp deploy",
-    "login": "pnpm bp login",
+    "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
-    "add:interfaces": "ts-node -T ./interfaces.ts"
+    "check:bplint": "bp lint"
   },
   "private": true,
   "dependencies": {
@@ -19,9 +15,10 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@types/node": "^18.11.17",
-    "nodemon": "^3.1.4",
-    "ts-node": "^10.9.1",
-    "@botpress/common": "workspace:*"
+    "@botpress/common": "workspace:*",
+    "@botpresshub/creatable": "workspace:*"
+  },
+  "bpDependencies": {
+    "creatable": "../../interfaces/creatable"
   }
 }

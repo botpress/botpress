@@ -1,8 +1,11 @@
 import * as client from '@botpress/client'
+import semver from 'semver'
+import yn from 'yn'
 import type { Logger } from '../logger'
-import { formatPackageRef, ApiPackageRef, NamePackageRef } from '../package-ref'
+import { formatPackageRef, ApiPackageRef, NamePackageRef, isLatest } from '../package-ref'
 import { findPreviousIntegrationVersion } from './find-previous-version'
 import * as paging from './paging'
+
 import {
   ApiClientProps,
   PublicIntegration,
@@ -11,6 +14,7 @@ import {
   Requests,
   Responses,
   Interface,
+  Plugin,
   BotSummary,
 } from './types'
 
@@ -36,6 +40,11 @@ export class ApiClient {
   }
 
   public get isBotpressWorkspace(): boolean {
+    // this environment variable is undocumented and only used internally for dev purposes
+    const isBotpressWorkspace = yn(process.env.BP_IS_BOTPRESS_WORKSPACE)
+    if (isBotpressWorkspace !== undefined) {
+      return isBotpressWorkspace
+    }
     return [
       '6a76fa10-e150-4ff6-8f59-a300feec06c1',
       '95de33eb-1551-4af9-9088-e5dcb02efd09',
@@ -45,6 +54,15 @@ export class ApiClient {
 
   public async getWorkspace(): Promise<Responses['getWorkspace']> {
     return this.client.getWorkspace({ id: this.workspaceId })
+  }
+
+  public async findWorkspaceByHandle(handle: string): Promise<Responses['getWorkspace'] | undefined> {
+    const workspaces = await paging.listAllPages(this.client.listWorkspaces, (r) => r.workspaces)
+    return workspaces.find((w) => w.handle === handle)
+  }
+
+  public switchWorkspace(workspaceId: string): ApiClient {
+    return ApiClient.newClient({ apiUrl: this.url, token: this.token, workspaceId }, this._logger)
   }
 
   public async updateWorkspace(props: Omit<Requests['updateWorkspace'], 'id'>): Promise<Responses['updateWorkspace']> {
@@ -103,10 +121,55 @@ export class ApiClient {
         .then((r) => r.interface)
         .catch(this._returnUndefinedOnError('ResourceNotFound'))
     }
+
+    if (isLatest(ref)) {
+      // TODO: handle latest keyword in backend
+      return this._findLatestInterfaceVersion(ref)
+    }
+
     return this.client
       .getInterfaceByName(ref)
       .then((r) => r.interface)
       .catch(this._returnUndefinedOnError('ResourceNotFound'))
+  }
+
+  public async findPublicPlugin(ref: ApiPackageRef): Promise<Plugin | undefined> {
+    if (ref.type === 'id') {
+      return this.client
+        .getPlugin(ref)
+        .then((r) => r.plugin)
+        .catch(this._returnUndefinedOnError('ResourceNotFound'))
+    }
+
+    if (isLatest(ref)) {
+      // TODO: handle latest keyword in backend
+      return this._findLatestPluginVersion(ref)
+    }
+
+    return this.client
+      .getPluginByName(ref)
+      .then((r) => r.plugin)
+      .catch(this._returnUndefinedOnError('ResourceNotFound'))
+  }
+
+  private _findLatestInterfaceVersion = async ({ name }: NamePackageRef): Promise<Interface | undefined> => {
+    const { interfaces: allVersions } = await this.client.listInterfaces({ name })
+    const sorted = allVersions.sort((a, b) => semver.compare(b.version, a.version))
+    const latestVersion = sorted[0]
+    if (!latestVersion) {
+      return
+    }
+    return this.client.getInterface({ id: latestVersion.id }).then((r) => r.interface)
+  }
+
+  private _findLatestPluginVersion = async ({ name }: NamePackageRef): Promise<Plugin | undefined> => {
+    const { plugins: allVersions } = await this.client.listPlugins({ name })
+    const sorted = allVersions.sort((a, b) => semver.compare(b.version, a.version))
+    const latestVersion = sorted[0]
+    if (!latestVersion) {
+      return
+    }
+    return this.client.getPlugin({ id: latestVersion.id }).then((r) => r.plugin)
   }
 
   public async testLogin(): Promise<void> {

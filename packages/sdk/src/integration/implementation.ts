@@ -47,6 +47,6 @@ export class IntegrationImplementation<TIntegration extends BaseIntegration = Ba
     this.webhook = props.handler
   }
 
-  public readonly handler = integrationHandler<TIntegration>(this)
+  public readonly handler = integrationHandler(this as IntegrationImplementation<any>)
   public readonly start = (port?: number): Promise<Server> => serve(this.handler, port)
 }

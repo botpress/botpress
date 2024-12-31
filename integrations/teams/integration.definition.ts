@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { IntegrationDefinition } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
@@ -5,9 +6,9 @@ import { configuration, channels, user, states } from './src/definitions'
 
 export default new IntegrationDefinition({
   name: 'teams',
-  version: '0.3.5',
+  version: '0.3.6',
   title: 'Microsoft Teams',
-  description: 'This integration allows your bot to interact with Microsoft Teams.',
+  description: 'Interact with users, deliver notifications, and perform actions within Microsoft Teams.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration,

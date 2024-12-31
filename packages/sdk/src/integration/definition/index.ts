@@ -17,7 +17,7 @@ import {
 
 export * from './types'
 
-export type InterfaceInstance = InterfacePackage & {
+export type InterfaceExtension = InterfacePackage & {
   entities: Record<
     string,
     {
@@ -28,6 +28,8 @@ export type InterfaceInstance = InterfacePackage & {
 }
 
 export type IntegrationDefinitionProps<
+  TName extends string = string,
+  TVersion extends string = string,
   TConfig extends BaseConfig = BaseConfig,
   TConfigs extends BaseConfigs = BaseConfigs,
   TEvents extends BaseEvents = BaseEvents,
@@ -36,8 +38,8 @@ export type IntegrationDefinitionProps<
   TStates extends BaseStates = BaseStates,
   TEntities extends BaseEntities = BaseEntities
 > = {
-  name: string
-  version: string
+  name: TName
+  version: TVersion
 
   title?: string
   description?: string
@@ -76,7 +78,7 @@ export type IntegrationDefinitionProps<
     [K in keyof TEntities]: EntityDefinition<TEntities[K]>
   }
 
-  interfaces?: Record<string, InterfaceInstance>
+  interfaces?: Record<string, InterfaceExtension>
 }
 
 type EntitiesOfPackage<TPackage extends InterfacePackage> = {
@@ -94,6 +96,8 @@ type ExtensionBuilder<TIntegrationEntities extends BaseEntities, TInterfaceEntit
 ) => ExtensionBuilderOutput<TInterfaceEntities>
 
 export class IntegrationDefinition<
+  TName extends string = string,
+  TVersion extends string = string,
   TConfig extends BaseConfig = BaseConfig,
   TConfigs extends BaseConfigs = BaseConfigs,
   TEvents extends BaseEvents = BaseEvents,
@@ -121,6 +125,8 @@ export class IntegrationDefinition<
   public readonly interfaces: this['props']['interfaces']
   public constructor(
     public readonly props: IntegrationDefinitionProps<
+      TName,
+      TVersion,
       TConfig,
       TConfigs,
       TEvents,
@@ -158,7 +164,7 @@ export class IntegrationDefinition<
     if (unbrandedEntity) {
       // this means the user tried providing a plain schema without referencing an entity from the integration
       throw new Error(
-        `Cannot extend interface "${interfacePkg.definition.name}" with entity "${unbrandedEntity[0]}"; the provided schema is not part of the integration's entities.`
+        `Cannot extend interface "${interfacePkg.name}" with entity "${unbrandedEntity[0]}"; the provided schema is not part of the integration's entities.`
       )
     }
 
@@ -172,10 +178,7 @@ export class IntegrationDefinition<
 
     const entityNames = Object.values(interfaceTypeArguments).map((e) => e.name)
 
-    const key =
-      entityNames.length === 0
-        ? interfacePkg.definition.name
-        : `${interfacePkg.definition.name}<${entityNames.join(',')}>`
+    const key = entityNames.length === 0 ? interfacePkg.name : `${interfacePkg.name}<${entityNames.join(',')}>`
 
     self.interfaces[key] = {
       ...interfacePkg,

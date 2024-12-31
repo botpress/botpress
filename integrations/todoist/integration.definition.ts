@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import creatable from './bp_modules/creatable'
 
@@ -11,7 +12,9 @@ const ItemDefinition = z.object({
 
 export default new IntegrationDefinition({
   name: 'todoist',
-  version: '0.0.2',
+  title: 'Todoist',
+  description: 'Create and modify tasks, post comments and more.',
+  version: '0.0.4',
   readme: 'README.md',
   icon: 'icon.svg',
   channels: {

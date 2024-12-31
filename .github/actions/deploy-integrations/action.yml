@@ -28,11 +28,17 @@ input:
   cloud_ops_workspace_id:
     description: 'Cloud Ops workspace id'
     required: true
+  googledrive_secrets:
+    description: 'Google Drive secrets'
+    required: false
   gmail_secrets:
     description: 'Gmail secrets'
     required: false
   gsheets_secrets:
     description: 'Google Sheets secrets'
+    required: false
+  googlecalendar_secrets:
+    description: 'Google Calendar secrets'
     required: false
   linear_secrets:
     description: 'Linear secrets'
@@ -69,6 +75,9 @@ input:
     required: false
   github_secrets:
     description: 'Github secrets'
+    required: false
+  intercom_secrets:
+    description: 'Intercom secrets'
     required: false
 
 runs:
@@ -111,7 +120,7 @@ runs:
         # deploy
 
         redeploy=${{ inputs.force == 'true' && 1 || 0 }}
-        all_filters="-F '{integrations/*}' -F '!asana' -F '!trello' ${{ inputs.extra_filter }}"
+        all_filters="-F '{integrations/*}' -F '!asana' ${{ inputs.extra_filter }}"
         list_integrations_cmd="pnpm list $all_filters --json"
         integration_paths=$(eval $list_integrations_cmd | jq -r "map(".path") | .[]")
 
@@ -120,10 +129,14 @@ runs:
             exists=$(./.github/scripts/integration-exists.sh $integration)
 
             base_command="bp deploy -v -y --noBuild --public"
-            if [ $integration == "gmail" ]; then
+            if [ $integration == "googledrive" ]; then
+                base_command="$base_command ${{ inputs.googledrive_secrets }}"
+            elif [ $integration == "gmail" ]; then
                 base_command="$base_command ${{ inputs.gmail_secrets }}"
             elif [ $integration == "gsheets" ]; then
                 base_command="$base_command ${{ inputs.gsheets_secrets }}"
+            elif [ $integration == "googlecalendar" ]; then
+                base_command="$base_command ${{ inputs.googlecalendar_secrets }}"
             elif [ $integration == "linear" ]; then
                 base_command="$base_command ${{ inputs.linear_secrets }}"
             elif [ $integration == "slack" ]; then
@@ -154,14 +167,16 @@ runs:
                 base_command="$base_command ${{ inputs.github_secrets }}"
             elif [ $integration == "google-ai" ]; then
                 base_command="$base_command ${{ inputs.google_ai_secrets }}"
+            elif [ $integration == "intercom" ]; then
+                base_command="$base_command ${{ inputs.intercom_secrets }} --allowDeprecated"
             fi
 
             if [ $exists -eq 0 ]; then
                 echo -e "\nDeploying integration: ### $integration ###\n"
-                pnpm retry -n 2 -- pnpm -F $integration -c exec -- "$base_command"
+                pnpm retry -n 2 -- pnpm -F "@botpresshub/$integration" -c exec -- "$base_command"
             elif [ $redeploy -eq 1 ]; then
                 echo -e "\nRe-deploying integration: ### $integration ###\n"
-                pnpm retry -n 2 -- pnpm -F $integration -c exec -- "$base_command"
+                pnpm retry -n 2 -- pnpm -F "@botpresshub/$integration" -c exec -- "$base_command"
             else
                 echo -e "\nSkipping integration: ### $integration ###\n"
             fi

@@ -1,10 +1,6 @@
 import { Join, UnionToIntersection, Split, Cast } from '../../utils/type-utils'
 import { BaseBot } from './generic'
 
-/**
- * 0. Definitions
- */
-
 export type EventDefinition = BaseBot['events'][string]
 export type StateDefinition = BaseBot['states'][string]
 
@@ -16,10 +12,6 @@ export type IntegrationInstanceMessageDefinition = IntegrationInstanceChannelDef
 export type IntegrationInstanceEventDefinition = IntegrationInstanceDefinition['events'][string]
 export type IntegrationInstanceStateDefinition = IntegrationInstanceDefinition['states'][string]
 export type IntegrationInstanceUserDefinition = IntegrationInstanceDefinition['user']
-
-/**
- * 1. Enumerations
- */
 
 type ActionKey<TIntegrationName extends string, TActionName extends string> = string extends TIntegrationName
   ? string

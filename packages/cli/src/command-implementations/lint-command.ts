@@ -1,4 +1,11 @@
-import { type IntegrationDefinition, type BotDefinition, type InterfaceDeclaration } from '@botpress/sdk'
+import {
+  type IntegrationDefinition,
+  type BotDefinition,
+  type InterfaceDefinition,
+  ActionDefinition,
+  z,
+  EventDefinition,
+} from '@botpress/sdk'
 import { prepareCreateBotBody } from '../api/bot-body'
 import { prepareCreateIntegrationBody } from '../api/integration-body'
 import { prepareCreateInterfaceBody } from '../api/interface-body'
@@ -14,6 +21,12 @@ export type LintCommandDefinition = typeof commandDefinitions.lint
 export class LintCommand extends ProjectCommand<LintCommandDefinition> {
   public async run(): Promise<void> {
     const projectDef = await this.readProjectDefinitionFromFS()
+    if (projectDef.bpLintDisabled) {
+      this.logger.warn(
+        'Linting is disabled for this project because of a bplint directive. To enable linting, remove the "bplint-disable" directive from the project definition file'
+      )
+      return
+    }
 
     switch (projectDef.type) {
       case 'integration':
@@ -23,11 +36,19 @@ export class LintCommand extends ProjectCommand<LintCommandDefinition> {
       case 'interface':
         return this._runLintForInterface(projectDef.definition)
       default:
-        throw new errors.BotpressCLIError('Unsupported project type')
+        throw new errors.UnsupportedProjectType()
     }
   }
 
-  private async _runLintForInterface(definition: InterfaceDeclaration): Promise<void> {
+  private async _runLintForInterface(definition: InterfaceDefinition): Promise<void> {
+    for (const [actionName, actionDef] of Object.entries(definition.actions)) {
+      definition.actions[actionName] = this._dereferenceActionDefinition(actionDef)
+    }
+
+    for (const [eventName, eventDef] of Object.entries(definition.events)) {
+      definition.events[eventName] = this._dereferenceEventDefinition(eventDef)
+    }
+
     const parsedInterfaceDefinition = await prepareCreateInterfaceBody(definition)
     const linter = new InterfaceLinter(parsedInterfaceDefinition)
 
@@ -104,4 +125,29 @@ export class LintCommand extends ProjectCommand<LintCommandDefinition> {
 
     return { actionNames, eventNames } as const
   }
+
+  private _dereferenceActionDefinition = (actionDef: ActionDefinition): ActionDefinition => {
+    const inputRefs = actionDef.input.schema.getReferences()
+    const outputRefs = actionDef.output.schema.getReferences()
+
+    const inputRefSchemas = Object.fromEntries(inputRefs.map((ref) => [ref, this._replaceRef(ref)]))
+    const outputRefSchemas = Object.fromEntries(outputRefs.map((ref) => [ref, this._replaceRef(ref)]))
+
+    actionDef.input.schema = actionDef.input.schema.dereference(inputRefSchemas) as z.ZodObject
+    actionDef.output.schema = actionDef.output.schema.dereference(outputRefSchemas) as z.ZodObject
+
+    return actionDef
+  }
+
+  private _dereferenceEventDefinition = (eventDef: EventDefinition): EventDefinition => {
+    const refs = eventDef.schema.getReferences()
+
+    const refSchemas = Object.fromEntries(refs.map((ref) => [ref, this._replaceRef(ref)]))
+
+    eventDef.schema = eventDef.schema.dereference(refSchemas) as z.ZodObject
+
+    return eventDef
+  }
+
+  private _replaceRef = (refUri: string): z.ZodObject => z.object({}).title(refUri).describe(refUri)
 }

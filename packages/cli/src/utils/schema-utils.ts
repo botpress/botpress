@@ -11,8 +11,9 @@ type SchemaOptions = {
   examples?: any[]
 }
 
+type ZodObjectSchema = z.ZodObject | z.ZodRecord
 type SchemaDefinition = {
-  schema: z.ZodObject<any>
+  schema: ZodObjectSchema
   ui?: Record<string, SchemaOptions | undefined>
 }
 

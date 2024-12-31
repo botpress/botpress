@@ -27,6 +27,21 @@ type MessageResponse<
   }>
 }
 
+type StateResponse<
+  TBot extends common.BaseBot,
+  TState extends keyof TBot['states'] = keyof TBot['states']
+> = utils.Merge<
+  Awaited<Res<client.Client['getState']>>,
+  {
+    state: utils.Merge<
+      Awaited<Res<client.Client['getState']>>['state'],
+      {
+        payload: TBot['states'][TState]
+      }
+    >
+  }
+>
+
 export type CreateConversation<_TBot extends common.BaseBot> = client.Client['createConversation']
 export type GetConversation<_TBot extends common.BaseBot> = client.Client['getConversation']
 export type ListConversations<_TBot extends common.BaseBot> = client.Client['listConversations']
@@ -87,14 +102,7 @@ export type GetState<TBot extends common.BaseBot> = <TState extends keyof TBot['
       name: utils.Cast<TState, string> // TODO: use state name to infer state type
     }
   >
-) => Promise<{
-  state: utils.Merge<
-    Awaited<Res<client.Client['getState']>>['state'],
-    {
-      payload: TBot['states'][TState]
-    }
-  >
-}>
+) => Promise<StateResponse<TBot, TState>>
 
 export type SetState<TBot extends common.BaseBot> = <TState extends keyof TBot['states']>(
   x: utils.Merge<
@@ -104,14 +112,7 @@ export type SetState<TBot extends common.BaseBot> = <TState extends keyof TBot['
       payload: TBot['states'][TState] | null
     }
   >
-) => Promise<{
-  state: utils.Merge<
-    Awaited<Res<client.Client['setState']>>['state'],
-    {
-      payload: TBot['states'][TState]
-    }
-  >
-}>
+) => Promise<StateResponse<TBot, TState>>
 
 export type GetOrSetState<TBot extends common.BaseBot> = <TState extends keyof TBot['states']>(
   x: utils.Merge<
@@ -121,14 +122,7 @@ export type GetOrSetState<TBot extends common.BaseBot> = <TState extends keyof T
       payload: TBot['states'][TState]
     }
   >
-) => Promise<{
-  state: utils.Merge<
-    Awaited<Res<client.Client['getOrSetState']>>['state'],
-    {
-      payload: TBot['states'][TState]
-    }
-  >
-}>
+) => Promise<StateResponse<TBot, TState>>
 
 export type PatchState<TBot extends common.BaseBot> = <TState extends keyof TBot['states']>(
   x: utils.Merge<
@@ -155,9 +149,17 @@ export type CallAction<TBot extends common.BaseBot> = <ActionType extends keyof 
       input: utils.Cast<common.EnumerateActions<TBot>[ActionType], common.IntegrationInstanceActionDefinition>['input']
     }
   >
-) => Promise<{
-  output: utils.Cast<common.EnumerateActions<TBot>[ActionType], common.IntegrationInstanceActionDefinition>['output']
-}>
+) => Promise<
+  utils.Merge<
+    Awaited<Res<client.Client['callAction']>>,
+    {
+      output: utils.Cast<
+        common.EnumerateActions<TBot>[ActionType],
+        common.IntegrationInstanceActionDefinition
+      >['output']
+    }
+  >
+>
 
 export type UploadFile<_TBot extends common.BaseBot> = client.Client['uploadFile']
 export type UpsertFile<_TBot extends common.BaseBot> = client.Client['upsertFile']
@@ -166,6 +168,8 @@ export type ListFiles<_TBot extends common.BaseBot> = client.Client['listFiles']
 export type GetFile<_TBot extends common.BaseBot> = client.Client['getFile']
 export type UpdateFileMetadata<_TBot extends common.BaseBot> = client.Client['updateFileMetadata']
 export type SearchFiles<_TBot extends common.BaseBot> = client.Client['searchFiles']
+
+export type TrackAnalytics<_TBot extends common.BaseBot> = client.Client['trackAnalytics']
 
 export type ClientOperations<TBot extends common.BaseBot> = {
   getConversation: GetConversation<TBot>
@@ -200,6 +204,7 @@ export type ClientOperations<TBot extends common.BaseBot> = {
   getFile: GetFile<TBot>
   updateFileMetadata: UpdateFileMetadata<TBot>
   searchFiles: SearchFiles<TBot>
+  trackAnalytics: TrackAnalytics<TBot>
 }
 
 export type ClientInputs<TBot extends common.BaseBot> = {
@@ -208,4 +213,17 @@ export type ClientInputs<TBot extends common.BaseBot> = {
 
 export type ClientOutputs<TBot extends common.BaseBot> = {
   [K in keyof ClientOperations<TBot>]: Awaited<Res<ClientOperations<TBot>[K]>>
+}
+
+type ClientHooksBefore = {
+  [K in client.Operation]?: (x: client.ClientInputs[K]) => Promise<client.ClientInputs[K]>
+}
+
+type ClientHooksAfter = {
+  [K in client.Operation]?: (x: client.ClientOutputs[K]) => Promise<client.ClientOutputs[K]>
+}
+
+export type ClientHooks = {
+  before: ClientHooksBefore
+  after: ClientHooksAfter
 }

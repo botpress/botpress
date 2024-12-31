@@ -2,9 +2,8 @@
   "name": "@botpresshub/pdf-generator",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
-    "build": "pnpm bp build",
-    "add:interfaces": "echo 'no interfaces to add'"
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build"
   },
   "private": true,
   "dependencies": {
@@ -13,8 +12,7 @@
     "marked": "^13.0.2"
   },
   "devDependencies": {
-    "@types/node": "^18.11.17",
-    "ts-node": "^10.9.1",
+    "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*"
   }
 }

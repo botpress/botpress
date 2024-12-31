@@ -1,11 +1,12 @@
+/* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export default new IntegrationDefinition({
   name: 'vonage',
-  version: '0.4.5',
+  version: '0.4.6',
   title: 'Vonage',
-  description: 'This integration allows your bot to interact with Vonage.',
+  description: 'Send and receive SMS messages.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {

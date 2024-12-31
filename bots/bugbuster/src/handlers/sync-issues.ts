@@ -1,12 +1,12 @@
 import { listIssues } from '../list-issues'
 import * as listeners from '../listeners'
-import { Handler } from './typings'
+import * as bp from '.botpress'
 
 /**
  * checks if all issues in GitHub are assigned to someone
  * if not, sends a DM to listeners of the bot
  */
-export const handleSyncIssuesRequest: Handler<'syncIssuesRequest'> = async (props) => {
+export const handleSyncIssuesRequest: bp.EventHandlers['syncIssuesRequest'] = async (props) => {
   try {
     const githubIssues = await listIssues(props)
 

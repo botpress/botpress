@@ -29,6 +29,14 @@ export default {
       list: { description: 'List interfaces', schema: config.schemas.listInterfaces, alias: 'ls' },
     },
   },
+  plugins: {
+    description: 'Plugin related commands',
+    subcommands: {
+      get: { description: 'Get plugin', schema: config.schemas.getPlugin },
+      delete: { description: 'Delete plugin', schema: config.schemas.deletePlugin, alias: 'rm' },
+      list: { description: 'List plugins', schema: config.schemas.listPlugins, alias: 'ls' },
+    },
+  },
   init: { description: 'Initialize a new project', schema: config.schemas.init },
   generate: { description: 'Generate typings for intellisense', schema: config.schemas.generate, alias: 'gen' },
   bundle: { description: 'Bundle a botpress project', schema: config.schemas.bundle },
@@ -39,4 +47,5 @@ export default {
   add: { description: 'Install a package; could be an integration or an interface', schema: config.schemas.add },
   dev: { description: 'Run your project in dev mode', schema: config.schemas.dev },
   lint: { description: 'EXPERIMENTAL: Lint an integration definition', schema: config.schemas.lint },
+  chat: { description: 'EXPERIMENTAL: Chat with a bot directly from the CLI', schema: config.schemas.chat },
 } satisfies DefinitionTree

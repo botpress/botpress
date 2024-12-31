@@ -8,7 +8,7 @@ export type RangeIndices = {
 }
 
 export class InvalidA1NotationError extends sdk.RuntimeError {
-  constructor(message: string) {
+  public constructor(message: string) {
     super(`Error while parsing A1 notation: ${message}`)
   }
 }

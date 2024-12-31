@@ -125,7 +125,7 @@ export const addIntegration: Test = {
         [
           'import * as sdk from "@botpress/sdk"',
           `import anIntegration from "./bp_modules/${workspaceHandle}-${name}"`,
-          'export default new sdk.BotDefinition({}).add(anIntegration, {',
+          'export default new sdk.BotDefinition({}).addIntegration(anIntegration, {',
           '  enabled: true,',
           '  configurationType: null,',
           '  configuration: {},',
@@ -143,6 +143,7 @@ export const addIntegration: Test = {
           packageType: undefined,
           installPath: botDir,
           packageRef: integration.id,
+          useDev: false,
         })
         .then(utils.handleExitCode)
 

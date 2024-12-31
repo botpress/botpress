@@ -21,8 +21,9 @@ export abstract class Module {
    */
   public get name(): string {
     const basename = pathlib.basename(this.path)
-    if (basename === consts.INDEX_FILE) {
-      const dirname = pathlib.basename(pathlib.dirname(this.path))
+    if (basename === consts.INDEX_FILE || basename === consts.INDEX_DECLARATION_FILE) {
+      const dirPath = pathlib.dirname(this.path)
+      const dirname = pathlib.basename(dirPath)
       return dirname
     }
     const withoutExtension = utils.path.rmExtension(basename)
@@ -148,5 +149,17 @@ export class ReExportVariableModule extends Module {
     content += '\n'
 
     return content
+  }
+}
+
+export class SingleFileModule extends Module {
+  private _content: string
+  public constructor(def: ModuleProps & { content: string }) {
+    super(def)
+    this._content = def.content
+  }
+
+  public async getContent(): Promise<string> {
+    return this._content
   }
 }
