@@ -834,6 +834,9 @@ importers:
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
+      '@types/qs':
+        specifier: ^6.9.7
+        version: 6.9.7
 
   integrations/intercom:
     dependencies:
