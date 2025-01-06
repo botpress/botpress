@@ -2,7 +2,7 @@ import sdk, { z } from '@botpress/sdk'
 
 export const configuration = {
   schema: z.object({
-    apiToken: z.string().optional(),
+    apiToken: z.string().optional().title('API Token').describe('The API token to authenticate with the Todoist API'),
   }),
   identifier: {
     linkTemplateScript: 'linkTemplate.vrl',

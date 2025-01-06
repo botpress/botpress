@@ -1,4 +1,5 @@
 import sdk, { z } from '@botpress/sdk'
+import { Task, Project } from './entities'
 
 export const actions = {
   changeTaskPriority: {
@@ -6,8 +7,8 @@ export const actions = {
     description: 'Change the priority of a task',
     input: {
       schema: z.object({
-        taskId: z.string(),
-        priority: z.number(),
+        taskId: Task.schema.shape.id,
+        priority: Task.schema.shape.priority,
       }),
     },
     output: {
@@ -19,12 +20,14 @@ export const actions = {
     description: 'Get the ID of the first task matching the given name',
     input: {
       schema: z.object({
-        name: z.string(),
+        name: z.string().title('Name').describe('The name of the task to search for'),
+        // NOTE: this actually refers to the `content` property of the Task
+        //       entity: the `name` property does not exist
       }),
     },
     output: {
       schema: z.object({
-        taskId: z.string().nullable(),
+        taskId: Task.schema.shape.id.nullable(),
       }),
     },
   },
@@ -33,12 +36,12 @@ export const actions = {
     description: 'Get the ID of the project',
     input: {
       schema: z.object({
-        name: z.string(),
+        name: Project.schema.shape.name,
       }),
     },
     output: {
       schema: z.object({
-        projectId: z.string().nullable(),
+        projectId: Project.schema.shape.id.nullable(),
       }),
     },
   },
