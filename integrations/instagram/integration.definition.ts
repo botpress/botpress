@@ -23,13 +23,16 @@ export default new IntegrationDefinition({
     schema: z
       .object({
         useManualConfiguration: z.boolean().optional().describe('Skip oAuth and supply details from a Meta App'),
-        verifyToken: z.string().optional().describe('Token used for verification for the Callback URL at API setup View'),
-        accessToken: z
+        verifyToken: z
           .string()
           .optional()
-          .describe('Access Token from the Instagram Account from the API setup View'),
+          .describe('Token used for verification for the Callback URL at API setup View'),
+        accessToken: z.string().optional().describe('Access Token from the Instagram Account from the API setup View'),
         clientId: z.string().optional().describe('Instagram App Id from API setup View'),
-        clientSecret: z.string().optional().describe('Instagram App secret from API setup View used for webhook signature check'),
+        clientSecret: z
+          .string()
+          .optional()
+          .describe('Instagram App secret from API setup View used for webhook signature check'),
         instagramId: z.string().optional().describe('Instagram Account Id from API setup View'),
       })
       .hidden((formData) => {
@@ -42,7 +45,7 @@ export default new IntegrationDefinition({
           clientSecret: showConfig,
           instagramId: showConfig,
         }
-      })
+      }),
   },
   states: {
     oauth: {
@@ -76,7 +79,7 @@ export default new IntegrationDefinition({
     },
     CLIENT_SECRET: {
       description: 'The client secret of your Meta app.',
-    }
+    },
   },
   user: {
     tags: { id: {} },

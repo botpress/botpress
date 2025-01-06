@@ -2,9 +2,12 @@ import {
   Card,
   Carousel,
   Choice,
-  Dropdown, GenericTemplateElement, GenericTemplateMessage,
+  Dropdown,
+  GenericTemplateElement,
+  GenericTemplateMessage,
   InstagramAction,
-  Location, TextMessageWithQuickReplies
+  Location,
+  TextMessageWithQuickReplies,
 } from './types'
 
 export function formatCardElement(payload: Card): GenericTemplateElement {
@@ -60,7 +63,6 @@ export function getCarouselMessage(payload: Carousel): GenericTemplateMessage {
     },
   }
 }
-
 
 export function getChoiceMessage(payload: Choice | Dropdown): TextMessageWithQuickReplies {
   if (!payload.options.length) {

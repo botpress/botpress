@@ -19,7 +19,7 @@ const integration = new bp.Integration({
   channels: {
     channel: {
       messages: {
-        text: async ({ payload, ...props}) =>
+        text: async ({ payload, ...props }) =>
           sendMessage(props, async (client, recipientId) => {
             props.logger.forBot().debug('Sending text message from bot to Instagram:', payload.text)
             return client.sendTextMessage(recipientId, payload.text)
@@ -96,8 +96,8 @@ const integration = new bp.Integration({
       } catch (err: any) {
         let errorMessage = '(OAuth registration) Error: ' + err.message
 
-        console.log({err, data: err.response.data})
-        if(err.response) {
+        console.log({ err, data: err.response.data })
+        if (err.response) {
           errorMessage += '\n Data: ' + JSON.stringify(err.response.data)
         }
         logger.forBot().error(errorMessage)
@@ -152,7 +152,7 @@ const integration = new bp.Integration({
 
       for (const { messaging } of data.entry) {
         for (const message of messaging) {
-          if(message.message?.is_echo) {
+          if (message.message?.is_echo) {
             continue
           }
           await handleMessage(message, { client, ctx, logger })

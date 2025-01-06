@@ -28,31 +28,30 @@ export class MetaClient {
 
     console.log('Getting short lived token with: ', { formData })
 
-    let res = await axios.post('https://api.instagram.com/oauth/access_token',
-      qs.stringify(formData),
-      {
-        headers: {
-          'Content-Type': 'application/x-www-form-urlencoded',
-        }
-      }
-    )
+    let res = await axios.post('https://api.instagram.com/oauth/access_token', qs.stringify(formData), {
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+      },
+    })
 
     console.log('Short lived request', { res })
 
     const shortLivedTokenData = z
       .object({
-        access_token: z.string()
+        access_token: z.string(),
       })
       .parse(res.data)
-
 
     const query = new URLSearchParams({
       grant_type: 'ig_exchange_token',
       client_secret: this._clientSecret,
-      access_token: shortLivedTokenData.access_token
+      access_token: shortLivedTokenData.access_token,
     })
 
-    console.log('Will ask long with data: ', { query, url: `${this._baseGraphApiUrl}/access_token?${query.toString()}` })
+    console.log('Will ask long with data: ', {
+      query,
+      url: `${this._baseGraphApiUrl}/access_token?${query.toString()}`,
+    })
 
     res = await axios.get(`${this._baseGraphApiUrl}/access_token?${query.toString()}`)
 
@@ -64,19 +63,16 @@ export class MetaClient {
       })
       .parse(res.data)
 
-    console.log('returning long lived access token:', { long: longLivedTokenData.access_token  })
+    console.log('returning long lived access token:', { long: longLivedTokenData.access_token })
 
     return longLivedTokenData.access_token
   }
 
   public async subscribeToWebhooks(accessToken: string) {
     try {
-      const response = await axios.post(
-        `${this._baseGraphApiUrl}/me/subscribed_apps?access_token=${accessToken}`,
-        {
-          subscribed_fields: ['messages', 'messaging_postbacks'],
-        }
-      )
+      const response = await axios.post(`${this._baseGraphApiUrl}/me/subscribed_apps?access_token=${accessToken}`, {
+        subscribed_fields: ['messages', 'messaging_postbacks'],
+      })
 
       console.log('Subscribe response', { response })
 
@@ -86,9 +82,7 @@ export class MetaClient {
     } catch (e: any) {
       this._logger
         .forBot()
-        .error(
-          `(OAuth registration) Error subscribing to webhooks: ${e.message} -> ${e?.response?.data}`
-        )
+        .error(`(OAuth registration) Error subscribing to webhooks: ${e.message} -> ${e?.response?.data}`)
       throw new RuntimeError('Issue subscribing to Webhooks for Page, please try again.')
     }
   }
@@ -96,12 +90,12 @@ export class MetaClient {
   public async getUserProfile(instagramId: string, additionalFields: string[] = []) {
     const query = new URLSearchParams({
       access_token: this._getAccessToken(),
-      fields: ['id','name','username', ...additionalFields].join(),
+      fields: ['id', 'name', 'username', ...additionalFields].join(),
     })
 
     const url = `${this._baseGraphApiUrl}/${this._version}/${instagramId}?${query.toString()}`
 
-    console.log('querying user v2', { url, query})
+    console.log('querying user v2', { url, query })
 
     const response = await axios.get<{ id: string; name: string; username: string } & Record<string, any>>(url)
 
@@ -110,21 +104,20 @@ export class MetaClient {
     return response.data
   }
 
-
   public setAuthConfig(newConfig: InstagramClientConfig) {
     this._authConfig = { ...this._authConfig, ...newConfig }
   }
 
-  private _getAccessToken () {
-    if(!this._authConfig?.accessToken) {
+  private _getAccessToken() {
+    if (!this._authConfig?.accessToken) {
       throw new RuntimeError('The Instagram meta client is messing the accessToken')
     }
 
     return this._authConfig.accessToken
   }
 
-  private _getInstagramId () {
-    if(!this._authConfig?.instagramId) {
+  private _getInstagramId() {
+    if (!this._authConfig?.instagramId) {
       throw new RuntimeError('The Instagram meta client is messing the instagramId')
     }
 
@@ -134,23 +127,27 @@ export class MetaClient {
   public async sendMessage(toInstagramId: string, message: any) {
     const url = `${this._baseGraphApiUrl}/${this._version}/${this._getInstagramId()}/messages`
 
-    const response = await axios.post<{recipient_id: string; message_id: string}>(url, {
-      recipient:{
-        id: toInstagramId
+    const response = await axios.post<{ recipient_id: string; message_id: string }>(
+      url,
+      {
+        recipient: {
+          id: toInstagramId,
+        },
+        message,
       },
-      message
-    }, {
-      headers: {
-        'Authorization': 'Bearer ' + this._getAccessToken()
+      {
+        headers: {
+          Authorization: 'Bearer ' + this._getAccessToken(),
+        },
       }
-    })
+    )
 
     return response.data
   }
 
   public async sendTextMessage(toInstagramId: string, text: string) {
     return this.sendMessage(toInstagramId, {
-      text
+      text,
     })
   }
 
@@ -159,9 +156,9 @@ export class MetaClient {
       attachment: {
         type: 'image',
         payload: {
-          url: imageUrl
-        }
-      }
+          url: imageUrl,
+        },
+      },
     })
   }
 
@@ -170,9 +167,9 @@ export class MetaClient {
       attachment: {
         type: 'audio',
         payload: {
-          url: audioUrl
-        }
-      }
+          url: audioUrl,
+        },
+      },
     })
   }
 
@@ -181,9 +178,9 @@ export class MetaClient {
       attachment: {
         type: 'video',
         payload: {
-          url: videoUrl
-        }
-      }
+          url: videoUrl,
+        },
+      },
     })
   }
 
@@ -192,9 +189,9 @@ export class MetaClient {
       attachment: {
         type: 'file',
         payload: {
-          url: fileUrl
-        }
-      }
+          url: fileUrl,
+        },
+      },
     })
   }
 }

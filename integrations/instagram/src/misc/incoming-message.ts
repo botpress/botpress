@@ -39,7 +39,7 @@ export async function handleMessage(
       }
     }
 
-    console.log('Will Create Message', {message, user, conversation})
+    console.log('Will Create Message', { message, user, conversation })
 
     await client.createMessage({
       type: 'text',

@@ -10,8 +10,8 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
 
   let wizardStep = query['wizard-step'] || (query['code'] && 'get-access-token') || 'get-access-token'
 
-  let instagramId = (query['instagramId'] as string)
-  let { accessToken} = await getCredentialsState(client, ctx)
+  let instagramId = query['instagramId'] as string
+  let { accessToken } = await getCredentialsState(client, ctx)
 
   if (wizardStep === 'start-confirm') {
     return generateButtonDialog({
@@ -45,7 +45,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
     )
   }
 
-  const metaClient = new MetaClient(logger,  { accessToken, instagramId })
+  const metaClient = new MetaClient(logger, { accessToken, instagramId })
 
   if (wizardStep === 'get-access-token') {
     const code = query['code'] as string
@@ -81,7 +81,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
     console.log('Will subscribe')
     await metaClient.subscribeToWebhooks(accessToken)
     await client.configureIntegration({
-      identifier: instagramId
+      identifier: instagramId,
     })
     console.log('subscribed')
     return redirectTo(getInterstitialUrl(true))
