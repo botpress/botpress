@@ -1,5 +1,5 @@
 import { MessengerClient } from 'messaging-api-messenger'
-import { getMessengerClient } from './utils'
+import { getBotInstagramUserId, getMessengerClient } from './utils'
 import * as bp from '.botpress'
 
 type Channels = bp.Integration['channels']
@@ -19,6 +19,8 @@ export async function sendMessage(
   await ack({
     tags: {
       id: message.messageId,
+      senderId: getBotInstagramUserId(ctx),
+      recipientId,
     },
   })
 }
