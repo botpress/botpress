@@ -14,7 +14,7 @@ export default new IntegrationDefinition({
     schema: z.object({
       appId: z.string().min(1).title('App ID').describe('The Meta App ID'),
       appSecret: z.string().min(1).title('App Secret').describe('The Meta App Secret'),
-      verifyToken: z.string().min(1).title('Verify Token').describe('The verify token used to verify webhook requests'),
+      verifyToken: z.string().min(1).title('Verify Token').describe('The token used to verify webhook requests'),
       pageId: z.string().min(1).title('Page ID').describe('The Facebook page ID linked to the Instagram account'),
       accessToken: z
         .string()
