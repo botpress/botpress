@@ -1,5 +1,6 @@
 import * as utils from '../../utils'
 import * as consts from '../consts'
+import * as gen from '../generators'
 import * as types from '../typings'
 import { IntegrationPackageDefinitionModule } from './integration-package-definition'
 
@@ -7,8 +8,14 @@ const generateIntegrationPackageModule = (
   definitionImport: string,
   pkg: types.IntegrationInstallablePackage
 ): string => {
-  const refLine =
-    pkg.source === 'local' ? `uri: "${utils.path.win32.escapeBackslashes(pkg.path)}"` : `id: "${pkg.integration.id}"`
+  const id = pkg.source === 'remote' ? pkg.integration.id : pkg.devId
+  const uri = pkg.source === 'local' ? utils.path.win32.escapeBackslashes(pkg.path) : undefined
+
+  const tsId = gen.primitiveToTypescriptValue(id)
+  const tsUri = gen.primitiveToTypescriptValue(uri)
+  const tsName = gen.primitiveToTypescriptValue(pkg.name)
+  const tsVersion = gen.primitiveToTypescriptValue(pkg.version)
+
   return [
     consts.GENERATED_HEADER,
     'import * as sdk from "@botpress/sdk"',
@@ -17,7 +24,10 @@ const generateIntegrationPackageModule = (
     '',
     'export default {',
     '  type: "integration",',
-    `  ${refLine},`,
+    `  id: ${tsId},`,
+    `  uri: ${tsUri},`,
+    `  name: ${tsName},`,
+    `  version: ${tsVersion},`,
     '  definition,',
     '} satisfies sdk.IntegrationPackage',
   ].join('\n')

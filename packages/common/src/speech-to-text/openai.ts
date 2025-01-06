@@ -3,6 +3,7 @@ import { IntegrationLogger } from '@botpress/sdk'
 import OpenAI from 'openai'
 import * as stt from '.'
 import { SpeechToTextModelDetails, TranscribeAudioInput, TranscribeAudioOutput } from './types'
+import { createUpstreamProviderFailedError } from '../llm'
 
 export async function transcribeAudio<M extends string>(
   input: TranscribeAudioInput,
@@ -40,12 +41,11 @@ export async function transcribeAudio<M extends string>(
   } catch (err: any) {
     if (err instanceof OpenAI.APIError) {
       logger.forBot().error(`${props.provider} error: ${err.message}`)
-      throw err
+    } else {
+      logger.forBot().error(err.message)
     }
 
-    // Fallback
-    logger.forBot().error(err.message)
-    throw err
+    throw createUpstreamProviderFailedError(err, `${props.provider} error: ${err.message}`)
   }
 
   // Note: OpenAI client doesn't have typings for the verbose JSON response format

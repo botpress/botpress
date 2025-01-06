@@ -2,20 +2,14 @@
   "name": "@botpresshub/slack",
   "private": true,
   "scripts": {
-    "start": "pnpm bp serve",
-    "build": "pnpm bp build",
-    "deploy": "pnpm bp deploy",
+    "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
+    "check:bplint": "bp lint",
     "check:format": "prettier --check .",
     "fix:format": "prettier --write .",
     "check:lint": "eslint ./ --ext .ts --ext .tsx",
-    "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx",
-    "add:interfaces": "echo 'no interfaces to add'"
+    "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
@@ -30,10 +24,12 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
-    "@sentry/cli": "^2.18.1",
+    "@botpress/common": "workspace:*",
+    "@sentry/cli": "^2.39.1",
     "@types/lodash": "^4.14.191",
-    "@types/node": "^18.11.17",
-    "@types/verror": "^1.10.6",
-    "@botpress/common": "workspace:*"
+    "@types/verror": "^1.10.6"
+  },
+  "bpDependencies": {
+    "typing-indicator": "../../interfaces/typing-indicator"
   }
 }

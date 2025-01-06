@@ -76,6 +76,9 @@ input:
   github_secrets:
     description: 'Github secrets'
     required: false
+  intercom_secrets:
+    description: 'Intercom secrets'
+    required: false
 
 runs:
   using: 'composite'
@@ -164,14 +167,16 @@ runs:
                 base_command="$base_command ${{ inputs.github_secrets }}"
             elif [ $integration == "google-ai" ]; then
                 base_command="$base_command ${{ inputs.google_ai_secrets }}"
+            elif [ $integration == "intercom" ]; then
+                base_command="$base_command ${{ inputs.intercom_secrets }} --allowDeprecated"
             fi
 
             if [ $exists -eq 0 ]; then
                 echo -e "\nDeploying integration: ### $integration ###\n"
-                pnpm retry -n 2 -- pnpm -F $integration -c exec -- "$base_command"
+                pnpm retry -n 2 -- pnpm -F "@botpresshub/$integration" -c exec -- "$base_command"
             elif [ $redeploy -eq 1 ]; then
                 echo -e "\nRe-deploying integration: ### $integration ###\n"
-                pnpm retry -n 2 -- pnpm -F $integration -c exec -- "$base_command"
+                pnpm retry -n 2 -- pnpm -F "@botpresshub/$integration" -c exec -- "$base_command"
             else
                 echo -e "\nSkipping integration: ### $integration ###\n"
             fi

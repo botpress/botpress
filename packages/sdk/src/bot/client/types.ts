@@ -169,6 +169,8 @@ export type GetFile<_TBot extends common.BaseBot> = client.Client['getFile']
 export type UpdateFileMetadata<_TBot extends common.BaseBot> = client.Client['updateFileMetadata']
 export type SearchFiles<_TBot extends common.BaseBot> = client.Client['searchFiles']
 
+export type TrackAnalytics<_TBot extends common.BaseBot> = client.Client['trackAnalytics']
+
 export type ClientOperations<TBot extends common.BaseBot> = {
   getConversation: GetConversation<TBot>
   listConversations: ListConversations<TBot>
@@ -202,6 +204,7 @@ export type ClientOperations<TBot extends common.BaseBot> = {
   getFile: GetFile<TBot>
   updateFileMetadata: UpdateFileMetadata<TBot>
   searchFiles: SearchFiles<TBot>
+  trackAnalytics: TrackAnalytics<TBot>
 }
 
 export type ClientInputs<TBot extends common.BaseBot> = {

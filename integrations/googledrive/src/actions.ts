@@ -108,12 +108,13 @@ const uploadFileData: bp.IntegrationProps['actions']['uploadFileData'] = wrapWit
 const downloadFileData: bp.IntegrationProps['actions']['downloadFileData'] = wrapWithTryCatch(async (baseProps) => {
   const props = await createActionPropsAndTools(baseProps)
   const { driveClient, input } = props
-  const { id } = input
+  const { id, index } = input
   const content = await driveClient.downloadFileData({ id })
   const { mimeType, dataSize, dataType, data } = content
   const uploadParams = {
     key: id,
     contentType: mimeType,
+    index,
   }
   let bpFileId: string
   if (dataType === 'stream') {

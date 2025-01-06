@@ -1,6 +1,6 @@
 {
   "name": "@botpress/cli",
-  "version": "1.7.2",
+  "version": "2.1.10",
   "description": "Botpress CLI",
   "scripts": {
     "build": "pnpm run bundle && pnpm run template:gen",
@@ -21,8 +21,9 @@
   "main": "dist/index.js",
   "dependencies": {
     "@apidevtools/json-schema-ref-parser": "^11.7.0",
-    "@botpress/client": "0.36.0",
-    "@botpress/sdk": "1.6.2",
+    "@botpress/chat": "0.4.6",
+    "@botpress/client": "0.40.0",
+    "@botpress/sdk": "2.3.1",
     "@bpinternal/const": "^0.0.20",
     "@bpinternal/tunnel": "^0.1.1",
     "@bpinternal/yargs-extra": "^0.0.3",
@@ -31,7 +32,6 @@
     "@stoplight/spectral-functions": "^1.9.0",
     "@stoplight/spectral-parsers": "^1.0.4",
     "@types/lodash": "^4.14.191",
-    "@types/node": "^18.11.17",
     "@types/verror": "^1.10.6",
     "axios": "^1.4.0",
     "bluebird": "^3.7.2",
@@ -39,11 +39,11 @@
     "chalk": "^4.1.2",
     "chokidar": "^3.5.3",
     "dotenv": "^16.4.4",
-    "esbuild": "^0.15.18",
+    "esbuild": "^0.16.12",
     "handlebars": "^4.7.8",
     "latest-version": "5.1.0",
     "lodash": "^4.17.21",
-    "prettier": "2.8.8",
+    "prettier": "^2.8.8",
     "prompts": "^2.4.2",
     "radash": "^9.5.0",
     "semver": "^7.3.8",
@@ -62,8 +62,7 @@
     "@types/uuid": "^9.0.1",
     "find-process": "^1.4.7",
     "glob": "^9.3.4",
-    "tmp": "^0.2.1",
-    "ts-node": "^10.9.1"
+    "tmp": "^0.2.1"
   },
   "engines": {
     "node": ">=18"

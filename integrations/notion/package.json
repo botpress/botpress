@@ -2,14 +2,10 @@
   "name": "@botpresshub/notion",
   "scripts": {
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
-    "build": "pnpm bp build",
-    "add:interfaces": "echo 'no interfaces to add'"
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build"
   },
-  "keywords": [],
   "private": true,
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
@@ -17,10 +13,7 @@
     "@notionhq/client": "^2.2.7"
   },
   "devDependencies": {
-    "@tsconfig/node18-strictest": "^1.0.0",
-    "@types/node": "^18.11.17",
-    "ts-node": "^10.9.1",
-    "vitest": "^0.33.0",
+    "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*"
   }
 }

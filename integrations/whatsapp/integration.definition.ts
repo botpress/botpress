@@ -1,6 +1,7 @@
 /* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import typingIndicator from 'bp_modules/typing-indicator'
 
 export const channel = 'channel' // TODO: Rename to "whatsapp" once support for integration versioning is finished.
 
@@ -33,7 +34,7 @@ export const INTEGRATION_NAME = 'whatsapp'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '2.1.2',
+  version: '2.3.0',
   title: 'WhatsApp',
   description: 'Send and receive messages through WhatsApp.',
   icon: 'icon.svg',
@@ -52,6 +53,10 @@ export default new IntegrationDefinition({
     },
     schema: z
       .object({
+        typingIndicatorEmoji: z
+          .boolean()
+          .default(false)
+          .describe('Temporarily add an emoji to received messages to indicate when bot is processing message'),
         useManualConfiguration: z.boolean().optional().describe('Skip oAuth and supply details from a Meta App'),
         verifyToken: z.string().optional().describe('Token used for verification when subscribing to webhooks'),
         accessToken: z
@@ -65,6 +70,7 @@ export default new IntegrationDefinition({
         const showConfig = !formData?.useManualConfiguration
 
         return {
+          typingInficatorEmoji: false,
           verifyToken: showConfig,
           accessToken: showConfig,
           clientSecret: showConfig,
@@ -157,7 +163,7 @@ export default new IntegrationDefinition({
       optional: true,
     },
   },
-})
+}).extend(typingIndicator, () => ({}))
 
 export const getOAuthConfigId = () => {
   if (process.env.BP_WEBHOOK_URL?.includes('dev')) {

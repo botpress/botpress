@@ -9,6 +9,7 @@ import type { BaseCommand } from './base-command'
 import * as bots from './bot-commands'
 import { BuildCommand } from './build-command'
 import { BundleCommand } from './bundle-command'
+import { ChatCommand } from './chat-command'
 import { DeployCommand } from './deploy-command'
 import { DevCommand } from './dev-command'
 import { GenerateCommand } from './gen-command'
@@ -19,6 +20,7 @@ import * as interfaces from './interface-commands'
 import { LintCommand } from './lint-command'
 import { LoginCommand } from './login-command'
 import { LogoutCommand } from './logout-command'
+import * as plugins from './plugin-commands'
 import { ReadCommand } from './read-command'
 import { ServeCommand } from './serve-command'
 
@@ -59,6 +61,13 @@ export default {
       delete: getHandler(interfaces.DeleteInterfaceCommand),
     },
   },
+  plugins: {
+    subcommands: {
+      get: getHandler(plugins.GetPluginCommand),
+      list: getHandler(plugins.ListPluginsCommand),
+      delete: getHandler(plugins.DeletePluginCommand),
+    },
+  },
   init: getHandler(InitCommand),
   generate: getHandler(GenerateCommand),
   bundle: getHandler(BundleCommand),
@@ -69,4 +78,5 @@ export default {
   add: getHandler(AddCommand),
   dev: getHandler(DevCommand),
   lint: getHandler(LintCommand),
+  chat: getHandler(ChatCommand),
 } satisfies ImplementationTree<typeof commandDefinitions>

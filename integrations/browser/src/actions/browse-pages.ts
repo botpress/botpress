@@ -20,6 +20,9 @@ const getPageContent = async (url: string, logger: any): Promise<{ content: stri
     'https://api.firecrawl.dev/v0/scrape',
     {
       url,
+      pageOptions: {
+        onlyMainContent: true,
+      },
     },
     {
       headers: {

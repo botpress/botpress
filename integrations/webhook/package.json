@@ -3,17 +3,10 @@
   "description": "Webhook integration for Botpress",
   "private": true,
   "scripts": {
-    "start": "pnpm bp serve",
-    "build": "pnpm bp build",
-    "deploy": "pnpm bp deploy",
-    "login": "pnpm bp login",
+    "build": "bp add -y && bp build",
     "check:type": "tsc --noEmit",
-    "check:bplint": "pnpm exec bp lint",
-    "add:interfaces": "echo 'no interfaces to add'"
+    "check:bplint": "bp lint"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
@@ -23,12 +16,9 @@
     "qs": "^6.11.0"
   },
   "devDependencies": {
-    "@sentry/cli": "^2.18.1",
-    "@types/node": "^18.11.17",
-    "@types/qs": "^6.9.7",
-    "esbuild": "^0.15.18",
-    "nodemon": "^2.0.20",
-    "ts-node": "^10.9.1",
-    "@botpress/common": "workspace:*"
+    "@botpress/cli": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@sentry/cli": "^2.39.1",
+    "@types/qs": "^6.9.7"
   }
 }

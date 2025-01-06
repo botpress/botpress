@@ -1,18 +1,19 @@
 import * as integration from './integration'
 import * as intrface from './interface'
+import * as plugin from './plugin'
 import * as utils from './utils'
 
-type PackageReference =
-  | {
-      id: string // package installed from the botpress api
-    }
-  | {
-      uri?: string // package installed locally or from npm
-    }
-
-type IntegrationPackageDefinition = {
+type NameVersion = {
   name: string
   version: string
+}
+
+type PackageReference = NameVersion & {
+  id?: string
+  uri?: string
+}
+
+type IntegrationPackageDefinition = NameVersion & {
   configuration?: integration.ConfigurationDefinition
   configurations?: Record<string, integration.AdditionalConfigurationDefinition>
   events?: Record<string, integration.EventDefinition>
@@ -22,17 +23,28 @@ type IntegrationPackageDefinition = {
   user?: integration.UserDefinition
   secrets?: Record<string, integration.SecretDefinition>
   entities?: Record<string, integration.EntityDefinition>
-  interfaces?: Record<string, integration.InterfaceInstance>
+  interfaces?: Record<string, PackageReference>
 }
 
-type InterfacePackageDefinition = {
-  name: string
-  version: string
+type InterfacePackageDefinition = NameVersion & {
   templateName?: string
   entities?: Record<string, integration.EntityDefinition>
   events?: Record<string, integration.EventDefinition>
   actions?: Record<string, integration.ActionDefinition>
   channels?: Record<string, integration.ChannelDefinition>
+}
+
+type PluginPackageDefinition = NameVersion & {
+  integrations?: Record<string, PackageReference>
+  interfaces?: Record<string, PackageReference>
+  user?: plugin.UserDefinition
+  conversation?: plugin.ConversationDefinition
+  message?: plugin.MessageDefinition
+  states?: Record<string, plugin.StateDefinition>
+  configuration?: plugin.ConfigurationDefinition
+  events?: Record<string, plugin.EventDefinition>
+  recurringEvents?: Record<string, plugin.RecurringEventDefinition>
+  actions?: Record<string, plugin.ActionDefinition>
 }
 
 export type IntegrationPackage = PackageReference & {
@@ -47,11 +59,25 @@ export type InterfacePackage = PackageReference & {
   implementation?: null
 }
 
-export type Package = IntegrationPackage | InterfacePackage
+export type PluginPackage = PackageReference & {
+  type: 'plugin'
+  definition: PluginPackageDefinition
+  implementation: Buffer
+}
 
-type _test_expect_integration_definition_to_be_valid_package = utils.types.AssertTrue<
-  utils.types.AssertExtends<integration.IntegrationDefinition, IntegrationPackageDefinition>
+export type Package = IntegrationPackage | InterfacePackage | PluginPackage
+
+type _test_expect_integration_definition_to_be_valid_package = utils.types.AssertExtends<
+  integration.IntegrationDefinition,
+  IntegrationPackageDefinition
 >
-type _test_expect_interface_definition_to_be_valid_package = utils.types.AssertTrue<
-  utils.types.AssertExtends<intrface.InterfaceDeclaration, InterfacePackageDefinition>
+
+type _test_expect_interface_definition_to_be_valid_package = utils.types.AssertExtends<
+  intrface.InterfaceDefinition,
+  InterfacePackageDefinition
+>
+
+type _test_expect_plugin_definition_to_be_valid_package = utils.types.AssertExtends<
+  plugin.PluginDefinition,
+  PluginPackageDefinition
 >

@@ -1,8 +1,8 @@
 import { RuntimeError } from '@botpress/client'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import qs from 'qs'
-import * as bp from '.botpress'
 import { getCorsHeaders } from './cors'
+import * as bp from '.botpress'
 
 type EventEvent = bp.events.event.Event
 type Method = EventEvent['method']

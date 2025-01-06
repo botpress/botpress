@@ -1,8 +1,8 @@
 import * as listener from '../listeners'
-import { Handler } from './typings'
+import * as bp from '.botpress'
 
-export const handleNewIssue: Handler<'github:issueOpened'> = async (props, event): Promise<void> => {
-  const githubIssue = event.payload
+export const handleNewIssue: bp.EventHandlers['github:issueOpened'] = async (props): Promise<void> => {
+  const githubIssue = props.event.payload
 
   console.info('Received GitHub issue', githubIssue)
 
