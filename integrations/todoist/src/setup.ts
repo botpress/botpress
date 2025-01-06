@@ -1,5 +1,5 @@
-import * as bp from '.botpress'
 import { TodoistClient } from './todoist-api'
+import * as bp from '.botpress'
 
 export const register: bp.IntegrationProps['register'] = async ({ logger, client, ctx }) => {
   logger.forBot().info('Registering Todoist integration')

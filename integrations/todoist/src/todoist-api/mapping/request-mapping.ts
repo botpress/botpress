@@ -1,6 +1,6 @@
-import { Task as TodoistTask, AddTaskArgs, UpdateTaskArgs, AddCommentArgs } from '@doist/todoist-api-typescript'
-import { reverseScale } from './common/math-utils'
+import { Task as TodoistTask, AddTaskArgs, UpdateTaskArgs } from '@doist/todoist-api-typescript'
 import { CreateTaskRequest, Task, UpdateTaskRequest } from '../types'
+import { reverseScale } from './common/math-utils'
 
 export namespace RequestMapping {
   const MAX_PRIORITY = 1

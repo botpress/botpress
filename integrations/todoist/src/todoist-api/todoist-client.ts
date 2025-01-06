@@ -1,10 +1,10 @@
-import { handleErrorsDecorator as handleErrors, handleErrorsDecorator } from './error-handling'
-import { RequestMapping, ResponseMapping } from './mapping'
 import { TodoistApi } from '@doist/todoist-api-typescript'
-import * as bp from '.botpress'
+import { handleErrorsDecorator as handleErrors } from './error-handling'
+import { RequestMapping, ResponseMapping } from './mapping'
+import { exchangeAuthCodeAndSaveRefreshToken, getAccessToken } from './oauth-client'
 import { TodoistSyncClient } from './sync-client'
 import { CreateTaskRequest, Project, Task, UpdateTaskRequest } from './types'
-import { exchangeAuthCodeAndSaveRefreshToken, getAccessToken } from './oauth-client'
+import * as bp from '.botpress'
 
 export class TodoistClient {
   private readonly _todoistRestClient: TodoistApi

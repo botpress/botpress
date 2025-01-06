@@ -4,8 +4,8 @@ import {
   Comment as TodoistComment,
 } from '@doist/todoist-api-typescript'
 import * as entities from 'definitions/entities'
-import { reverseScale } from './common/math-utils'
 import { Task, Project, Comment, PickRequired } from '../types'
+import { reverseScale } from './common/math-utils'
 
 export namespace ResponseMapping {
   const MAX_PRIORITY = 4

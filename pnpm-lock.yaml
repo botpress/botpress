@@ -1254,12 +1254,6 @@ importers:
       '@botpresshub/creatable':
         specifier: workspace:*
         version: link:../../interfaces/creatable
-      '@types/node':
-        specifier: ^18.19.10
-        version: 18.19.67
-      ts-node:
-        specifier: ^10.9.1
-        version: 10.9.2(@types/node@18.19.67)(typescript@5.6.3)
 
   integrations/trello:
     dependencies:

@@ -1,5 +1,5 @@
-import * as bp from '.botpress'
 import { TaskCommentPublisher } from './publishers/task-comment'
+import * as bp from '.botpress'
 
 export const channels = {
   comments: {

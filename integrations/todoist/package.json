@@ -15,9 +15,7 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
-    "@botpresshub/creatable": "workspace:*",
-    "@types/node": "^18.19.10",
-    "ts-node": "^10.9.1"
+    "@botpresshub/creatable": "workspace:*"
   },
   "bpDependencies": {
     "creatable": "../../interfaces/creatable"

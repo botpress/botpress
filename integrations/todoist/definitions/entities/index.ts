@@ -1,12 +1,12 @@
 import sdk from '@botpress/sdk'
 
+import { Color } from './color'
 import { Comment } from './comment'
 import { PersonalLabel } from './personal-label'
 import { Project } from './project'
 import { Section } from './section'
 import { SharedLabel } from './shared-label'
 import { Task } from './task'
-import { Color } from './color'
 
 export { Comment, PersonalLabel, Project, Section, SharedLabel, Task, Color }
 

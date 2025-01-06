@@ -1,11 +1,10 @@
-import { oauthCallbackHandler } from './handlers/oauth-callback'
-import * as bp from '.botpress'
-import { eventSchema } from './schemas'
 import { handleCommentAddedEvent, isCommentAddedEvent } from './handlers/comment-added'
-import { handleTaskCreatedEvent, isTaskCreatedEvent } from './handlers/task-created'
+import { oauthCallbackHandler } from './handlers/oauth-callback'
 import { handlePriorityChangedEvent, isPriorityChangedEvent } from './handlers/priority-changed'
 import { handleTaskCompletedEvent, isTaskCompletedEvent } from './handlers/task-completed'
-import { Event } from './schemas'
+import { handleTaskCreatedEvent, isTaskCreatedEvent } from './handlers/task-created'
+import { eventSchema, Event } from './schemas'
+import * as bp from '.botpress'
 
 type WebhookEventHandlerEntry<T extends Event> = Readonly<
   [(event: Event) => event is T, (todoistEvent: T, props: bp.HandlerProps) => Promise<void> | void]
@@ -25,9 +24,11 @@ export const handler: bp.IntegrationProps['handler'] = async (props: bp.HandlerP
     return await oauthCallbackHandler(props)
   }
 
-  if (!req.body) return
+  if (!req.body) {
+    return
+  }
 
-  console.log(req)
+  console.debug(req)
 
   await _dispatchEvent(props)
 }
