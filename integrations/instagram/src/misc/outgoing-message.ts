@@ -1,3 +1,5 @@
+import { MessengerClient } from 'messaging-api-messenger'
+import { getBotInstagramUserId, getMessengerClient } from './utils'
 import * as bp from '.botpress'
 import { getCredentials, MetaClient } from './client'
 import { RuntimeError } from '@botpress/client'
@@ -28,6 +30,8 @@ export async function sendMessage(
   await ack({
     tags: {
       id: message_id,
+      senderId: getBotInstagramUserId(ctx),
+      recipientId,
     },
   })
 }

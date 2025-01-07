@@ -1,6 +1,7 @@
-/* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import proactiveConversation from 'bp_modules/proactive-conversation'
+import proactiveUser from 'bp_modules/proactive-user'
 
 export const INTEGRATION_NAME = 'instagram'
 
@@ -62,11 +63,32 @@ export default new IntegrationDefinition({
   },
   channels: {
     channel: {
+      title: 'Direct Message',
+      description: 'Direct message conversation between an Instagram user and the bot',
       messages: { ...messages.defaults, markdown: messages.markdown },
-      message: { tags: { id: {}, messageId: {}, senderId: {}, recipientId: {} } },
+      message: {
+        tags: {
+          id: {
+            title: 'Message ID',
+            description: 'The Instagram message ID',
+          },
+          senderId: {
+            title: 'Sender ID',
+            description: 'The Instagram user ID of the message sender',
+          },
+          recipientId: {
+            title: 'Recipient ID',
+            description: 'The Instagram user ID of the message recipient',
+          },
+        },
+      },
       conversation: {
-        tags: { id: {}, recipientId: {}, senderId: {} },
-        creation: { enabled: true, requiredTags: ['id'] },
+        tags: {
+          id: {
+            title: 'Conversation ID',
+            description: 'The Instagram user ID of the user in the conversation',
+          },
+        },
       },
     },
   },
@@ -82,7 +104,39 @@ export default new IntegrationDefinition({
     },
   },
   user: {
-    tags: { id: {} },
-    creation: { enabled: true, requiredTags: ['id'] },
+    tags: {
+      id: {
+        title: 'User ID',
+        description: 'The Instagram user ID',
+      },
+    },
+  },
+  entities: {
+    user: {
+      title: 'User',
+      description: 'An Instagram user',
+      schema: z
+        .object({
+          id: z.string().title('ID').describe('The Instagram user ID'),
+        })
+        .title('User')
+        .describe('The user object fields'),
+    },
+    dm: {
+      title: 'Direct Message',
+      description: 'An Instagram direct message conversation',
+      schema: z
+        .object({
+          id: z.string().title('User ID').describe('The Instagram user ID of the user in the conversation'),
+        })
+        .title('Conversation')
+        .describe('The conversation object fields'),
+    },
   },
 })
+  .extend(proactiveUser, ({ user }) => ({
+    user,
+  }))
+  .extend(proactiveConversation, ({ dm }) => ({
+    conversation: dm,
+  }))
