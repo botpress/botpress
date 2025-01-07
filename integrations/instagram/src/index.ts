@@ -4,13 +4,41 @@ import queryString from 'query-string'
 import { handleMessage } from './misc/incoming-message'
 import { sendMessage } from './misc/outgoing-message'
 import { InstagramPayload } from './misc/types'
-import { formatGoogleMapLink, getCarouselMessage, getChoiceMessage, getMessengerClient } from './misc/utils'
+import {
+  formatGoogleMapLink,
+  getBotInstagramUserId,
+  getCarouselMessage,
+  getChoiceMessage,
+  getMessengerClient,
+} from './misc/utils'
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({
-  register: async () => {},
+  register: async ({ client, ctx }) => {
+    await client.updateUser({
+      id: ctx.botUserId,
+      tags: { id: getBotInstagramUserId(ctx) },
+    })
+  },
   unregister: async () => {},
-  actions: {},
+  actions: {
+    getOrCreateUser: async ({ client, ctx, input }) => {
+      const messengerClient = getMessengerClient(ctx.configuration)
+      const profile = await messengerClient.getUserProfile(input.user.id, {
+        fields: ['id'],
+      })
+      const { user } = await client.getOrCreateUser({ tags: { id: profile.id } })
+      return { userId: user.id }
+    },
+    getOrCreateConversationDm: async ({ client, ctx, input }) => {
+      const messengerClient = getMessengerClient(ctx.configuration)
+      const profile = await messengerClient.getUserProfile(input.conversation.id, {
+        fields: ['id'],
+      })
+      const { conversation } = await client.getOrCreateConversation({ channel: 'channel', tags: { id: profile.id } })
+      return { conversationId: conversation.id }
+    },
+  },
   channels: {
     channel: {
       messages: {
@@ -142,43 +170,6 @@ const integration = new bp.Integration({
     }
 
     return
-  },
-  createUser: async ({ client, tags, ctx }) => {
-    const userId = tags.id
-    if (!userId) {
-      return
-    }
-
-    const messengerClient = getMessengerClient(ctx.configuration)
-    const profile = await messengerClient.getUserProfile(userId)
-
-    const { user } = await client.getOrCreateUser({ tags: { id: `${profile.id}` } })
-
-    return {
-      body: JSON.stringify({ user: { id: user.id } }),
-      headers: {},
-      statusCode: 200,
-    }
-  },
-  createConversation: async ({ client, channel, tags, ctx }) => {
-    const userId = tags.id
-    if (!userId) {
-      return
-    }
-
-    const messengerClient = getMessengerClient(ctx.configuration)
-    const profile = await messengerClient.getUserProfile(userId)
-
-    const { conversation } = await client.getOrCreateConversation({
-      channel,
-      tags: { id: `${profile.id}` },
-    })
-
-    return {
-      body: JSON.stringify({ conversation: { id: conversation.id } }),
-      headers: {},
-      statusCode: 200,
-    }
   },
 })
 
