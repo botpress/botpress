@@ -123,6 +123,9 @@ export type FooBarBazBot = DefaultBot<{
       }
     }
   }
+  states: {
+    currentUser: { name: string; age: number }
+  }
 }>
 
 export type FooBarBazPlugin = DefaultPlugin<{

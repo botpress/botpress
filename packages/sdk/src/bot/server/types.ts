@@ -31,6 +31,13 @@ type _IncomingMessages<TBot extends types.BaseBot> = {
   >
 }
 
+type _IncomingStates<TBot extends types.BaseBot> = {
+  [K in keyof types.EnumerateStates<TBot>]: utils.Merge<
+    client.State,
+    { name: K; payload: types.EnumerateStates<TBot>[K] }
+  >
+}
+
 type _OutgoingMessageRequests<TBot extends types.BaseBot> = {
   [K in keyof types.GetMessages<TBot>]: utils.Merge<
     client.ClientInputs['createMessage'],
@@ -76,7 +83,7 @@ export type IncomingEvents<TBot extends types.BaseBot> = _IncomingEvents<TBot> &
 export type IncomingMessages<TBot extends types.BaseBot> = _IncomingMessages<TBot> & {
   '*': AnyIncomingMessage<TBot>
 }
-export type IncomingStates<_TBot extends types.BaseBot> = {
+export type IncomingStates<_TBot extends types.BaseBot> = _IncomingStates<_TBot> & {
   '*': client.State
 }
 export type OutgoingMessageRequests<TBot extends types.BaseBot> = _OutgoingMessageRequests<TBot> & {

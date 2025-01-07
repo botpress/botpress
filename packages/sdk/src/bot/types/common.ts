@@ -100,3 +100,7 @@ export type EnumerateMessages<TBot extends BaseBot> = UnionToIntersection<
 export type GetMessages<TBot extends BaseBot> = {
   [K in keyof EnumerateMessages<TBot> as Cast<Split<K, ':'>[2], string>]: EnumerateMessages<TBot>[K]
 }
+
+export type EnumerateStates<TBot extends BaseBot> = {
+  [K in keyof TBot['states']]: TBot['states'][K]
+}

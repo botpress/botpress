@@ -29,6 +29,13 @@ type _IncomingMessages<TPlugin extends types.BasePlugin> = {
   >
 }
 
+type _IncomingStates<TPlugin extends types.BasePlugin> = {
+  [K in keyof bot.EnumerateStates<TPlugin>]: utils.Merge<
+    client.State,
+    { name: K; payload: bot.EnumerateStates<TPlugin>[K] }
+  >
+}
+
 type _OutgoingMessageRequests<TPlugin extends types.BasePlugin> = {
   [K in keyof bot.GetMessages<TPlugin>]: utils.Merge<
     client.ClientInputs['createMessage'],
@@ -72,7 +79,7 @@ export type IncomingEvents<TPlugin extends types.BasePlugin> = _IncomingEvents<T
 export type IncomingMessages<TPlugin extends types.BasePlugin> = _IncomingMessages<TPlugin> & {
   '*': AnyIncomingMessage<TPlugin>
 }
-export type IncomingStates<_TPlugin extends types.BasePlugin> = {
+export type IncomingStates<TPlugin extends types.BasePlugin> = _IncomingStates<TPlugin> & {
   '*': client.State
 }
 export type OutgoingMessageRequests<TPlugin extends types.BasePlugin> = _OutgoingMessageRequests<TPlugin> & {
