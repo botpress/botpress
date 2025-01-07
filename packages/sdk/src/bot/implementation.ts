@@ -45,13 +45,6 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     after_outgoing_call_action: {},
   }
 
-  /**
-   * alias for actionHandlers
-   */
-  public get actions() {
-    return this.actionHandlers
-  }
-
   public constructor(public readonly props: BotImplementationProps<TBot, TPlugins>) {
     this.actionHandlers = props.actions as ActionHandlers<TBot>
     const plugins = utils.records.values(props.plugins)
