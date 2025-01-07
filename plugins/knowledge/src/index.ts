@@ -6,7 +6,7 @@ const plugin = new bp.Plugin({
   actions: {},
 })
 
-plugin.on.beforeIncomingMessage('*', async ({ data: message, client, ctx, configuration, interfaces }) => {
+plugin.on.beforeIncomingMessage('*', async ({ data: message, client, ctx, actions }) => {
   if (message.type !== 'text') {
     console.debug('Ignoring non-text message')
     return
@@ -21,11 +21,7 @@ plugin.on.beforeIncomingMessage('*', async ({ data: message, client, ctx, config
   console.debug('Extracting questions from:', text)
 
   const llmInput = questions.prompt({ text, line: 'L1' })
-  const llmOutput = await gen.generateContent({
-    client,
-    input: llmInput,
-    runtime: { configuration, interfaces },
-  })
+  const llmOutput = await actions.llm.generateContent(llmInput)
 
   const { success, json } = gen.parseLLMOutput(llmOutput)
   if (!success) {

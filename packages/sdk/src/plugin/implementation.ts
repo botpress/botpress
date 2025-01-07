@@ -1,3 +1,4 @@
+import { Client } from '@botpress/client'
 import {
   MessageHandlersMap as BotMessageHandlersMap,
   EventHandlersMap as BotEventHandlersMap,
@@ -7,6 +8,7 @@ import {
   BotHandlers,
 } from '../bot'
 import * as utils from '../utils'
+import { ActionProxy, proxy } from './action-proxy'
 import {
   MessageHandlersMap,
   MessageHandlers,
@@ -18,18 +20,23 @@ import {
   HookData,
   HookHandlers,
   ActionHandlers,
+  PluginConfiguration,
 } from './server/types'
-import { BasePlugin, PluginInterfaceExtension } from './types'
+import { BasePlugin, PluginInterfaceExtensions } from './types'
 
 export type PluginImplementationProps<TPlugin extends BasePlugin = BasePlugin> = {
   actions: ActionHandlers<TPlugin>
 }
 
 export type PluginRuntimeProps<TPlugin extends BasePlugin = BasePlugin> = {
-  configuration: TPlugin['configuration']
-  interfaces: {
-    [K in keyof TPlugin['interfaces']]: PluginInterfaceExtension<TPlugin['interfaces'][K]>
-  }
+  configuration: PluginConfiguration<TPlugin>
+  interfaces: PluginInterfaceExtensions<TPlugin>
+}
+
+type Tools<TPlugin extends BasePlugin = BasePlugin> = {
+  configuration: PluginConfiguration<TPlugin>
+  interfaces: PluginInterfaceExtensions<TPlugin>
+  actions: ActionProxy<TPlugin>
 }
 
 export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> implements BotHandlers<TPlugin> {
@@ -59,13 +66,20 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     return this
   }
 
-  private get _tools(): PluginRuntimeProps<TPlugin> {
+  private get _tools(): Tools {
     if (!this._runtimeProps) {
       throw new Error(
         'Plugin not correctly initialized. This is likely because you access your plugin config outside of an handler.'
       )
     }
-    return this._runtimeProps
+    const { configuration, interfaces } = this._runtimeProps
+    const client = new Client()
+    const actions = proxy(client, interfaces) as ActionProxy<BasePlugin>
+    return {
+      configuration,
+      interfaces,
+      actions,
+    }
   }
 
   public get actionHandlers(): BotActionHandlers<TPlugin> {

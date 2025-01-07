@@ -6,7 +6,7 @@ const plugin = new bp.Plugin({
   actions: {},
 })
 
-plugin.on.beforeOutgoingMessage('*', async ({ data: message, client, configuration, interfaces }) => {
+plugin.on.beforeOutgoingMessage('*', async ({ data: message, configuration, actions }) => {
   if (message.type !== 'text') {
     console.debug('Ignoring non-text message')
     return
@@ -18,16 +18,12 @@ plugin.on.beforeOutgoingMessage('*', async ({ data: message, client, configurati
 
   const { model, personality } = configuration
 
-  const prompt = rewrite.prompt({
+  const input = rewrite.prompt({
     model,
     personality,
     payload: text,
   })
-  const output = await gen.generateContent({
-    client,
-    runtime: { configuration, interfaces },
-    input: prompt,
-  })
+  const output = await actions.llm.generateContent(input)
 
   const { success, json } = gen.parseLLMOutput(output)
 

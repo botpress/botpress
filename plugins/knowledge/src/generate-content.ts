@@ -8,24 +8,7 @@ export type LLMOutput = bp.interfaces.llm.actions.generateContent.output.Output
 export type LLMMessage = LLMInput['messages'][number]
 export type LLMChoice = LLMOutput['choices'][number]
 
-export type GenerateContentProps = {
-  client: bp.Client
-  input: LLMInput
-  runtime: bp.PluginRuntimeProps
-}
-
-export const generateContent = async (props: GenerateContentProps): Promise<LLMOutput> => {
-  const { client, input, runtime } = props
-  const llmExtension = runtime.interfaces.llm
-  const type = `${llmExtension.name}:${llmExtension.actions.generateContent.name}`
-  const response = await client.callAction({
-    type,
-    input,
-  })
-  return response.output
-}
-
-export type PredictResponse = {
+type PredictResponse = {
   success: boolean
   json: object
 }

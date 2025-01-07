@@ -1,6 +1,7 @@
 import * as client from '@botpress/client'
 import * as bot from '../../bot'
 import * as utils from '../../utils/type-utils'
+import * as proxy from '../action-proxy'
 import * as types from '../types'
 
 type _IncomingEvents<TPlugin extends types.BasePlugin> = {
@@ -95,6 +96,7 @@ export type CommonHandlerProps<TPlugin extends types.BasePlugin> = {
   client: PluginClient<TPlugin>
   configuration: PluginConfiguration<TPlugin>
   interfaces: types.PluginInterfaceExtensions<TPlugin>
+  actions: proxy.ActionProxy<TPlugin>
 }
 
 export type MessagePayloads<TPlugin extends types.BasePlugin> = {
