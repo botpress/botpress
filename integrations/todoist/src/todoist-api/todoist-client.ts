@@ -34,8 +34,12 @@ export class TodoistClient {
   }
 
   @handleErrors('Failed to retrieve authenticated user')
-  public getAuthenticatedUserId() {
-    return this._todoistSyncClient.getAuthenticatedUserId()
+  public getAuthenticatedUserIdentity() {
+    return this._todoistSyncClient.getAuthenticatedUserIdentity()
+  }
+
+  public static getUserAvatarUrl({ imageId }: { imageId: string }) {
+    return `https://dcff1xvirvpfp.cloudfront.net/${imageId}_medium.jpg`
   }
 
   @handleErrors('Failed to find task by name')

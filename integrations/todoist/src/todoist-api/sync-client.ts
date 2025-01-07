@@ -11,28 +11,56 @@ export class TodoistSyncClient {
     }
   }
 
-  public async getAuthenticatedUserId() {
-    const { id } = await this._post({ endpoint: 'user', responseSchema: { id: z.string() } })
-    return id
+  public async getAuthenticatedUserIdentity() {
+    const identity = await this._post({
+      endpoint: 'user',
+      responseSchema: {
+        id: z.string(),
+        avatar_medium: z.string(),
+        full_name: z.string(),
+      },
+    })
+
+    return {
+      id: identity.id,
+      pictureUrl: identity.avatar_medium,
+      name: identity.full_name,
+    }
   }
 
   private async _post<T extends ZodRawShape>({
     endpoint,
-    body,
+    params,
     responseSchema,
   }: {
     endpoint: string
     responseSchema: T
-    body?: Record<string, any>
+    params?: Record<string, any>
   }): Promise<z.infer<ZodObject<T, 'strip'>>> {
-    const response = await this._fetch(`https://api.todoist.com/sync/v9/${endpoint}`, {
-      method: 'POST',
-      body: JSON.stringify(body),
-      headers: { 'Content-Type': 'application/json' },
+    return this._sendRequest({
+      endpoint,
+      init: {
+        method: 'POST',
+        body: JSON.stringify(params),
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      },
+      responseSchema,
     })
+  }
+
+  private async _sendRequest<T extends ZodRawShape>({
+    endpoint,
+    init,
+    responseSchema,
+  }: {
+    endpoint: string
+    init: RequestInit
+    responseSchema: T
+  }): Promise<z.infer<ZodObject<T, 'strip'>>> {
+    const response = await this._fetch(`https://api.todoist.com/sync/v9/${endpoint}`, init)
 
     if (!response.ok) {
-      throw new Error(`Failed to send POST request to sync endpoint /${endpoint}: ${response.statusText}`)
+      throw new Error(`Failed to send ${init.method} request to sync endpoint /${endpoint}: ${response.statusText}`)
     }
 
     return z.object(responseSchema).parse(await response.json())
