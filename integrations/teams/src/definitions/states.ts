@@ -11,13 +11,16 @@ const channelAccount = z.object({
 })
 
 const convReference = z.object({
-  activityId: z.string().optional(),
-  user: channelAccount.optional(),
-  locale: z.string().optional(),
-  bot: channelAccount,
-  conversation: z.any(), // botbuilder typings are deceiving
-  channelId: z.string(),
-  serviceUrl: z.string(),
+  activityId: z.string().optional().title('Activity ID').describe('The activity ID'),
+  user: channelAccount.optional().title('User').describe('User account of the user conversing with the bot'),
+  locale: z.string().optional().title('Locale').describe('The locale of the conversation'),
+  bot: channelAccount.title('Bot').describe('Bot account of the bot'),
+  conversation: z.any().title('Conversation').describe('Conversation reference'), // botbuilder typings are deceiving
+  channelId: z.string().title('Channel ID').describe('The channel ID of the conversation'),
+  serviceUrl: z
+    .string()
+    .title('Service URL')
+    .describe('Service endpoint where the operations concerning the conversation are performed'),
 })
 
 const convStateSchema = convReference.partial()
