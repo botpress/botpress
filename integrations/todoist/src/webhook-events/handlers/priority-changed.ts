@@ -2,7 +2,10 @@ import { ResponseMapping } from 'src/todoist-api/mapping'
 import { ItemUpdatedEvent, Event } from '../schemas'
 import * as bp from '.botpress'
 
-export const isPriorityChangedEvent = (event: Event): event is ItemUpdatedEvent => event.event_name === 'item:updated'
+export const isPriorityChangedEvent = (event: Event): event is ItemUpdatedEvent =>
+  event.event_name === 'item:updated' &&
+  event.event_data_extra?.update_intent === 'item_updated' &&
+  event.event_data_extra?.old_item?.priority !== event.event_data.priority
 
 export const handlePriorityChangedEvent = async (event: ItemUpdatedEvent, { client }: bp.HandlerProps) => {
   const newPriority = event.event_data.priority
