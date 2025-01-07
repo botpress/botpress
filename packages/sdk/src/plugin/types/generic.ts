@@ -14,7 +14,6 @@ export type BasePlugin = {
   events: Record<string, any>
   states: Record<string, any>
   actions: Record<string, BaseAction>
-  unknownDefinitions: true
 }
 
 export type InputBasePlugin = utils.DeepPartial<BasePlugin>
@@ -33,5 +32,4 @@ export type DefaultPlugin<B extends utils.DeepPartial<BasePlugin>> = {
     : {
         [K in keyof B['interfaces']]: DefaultInterface<utils.Cast<B['interfaces'][K], InputBaseInterface>>
       }
-  unknownDefinitions: true
 }

@@ -6,7 +6,7 @@ const plugin = new bp.Plugin({
   actions: {},
 })
 
-plugin.on.beforeIncomingMessage('*', async ({ data: message, client, ctx }) => {
+plugin.on.beforeIncomingMessage('*', async ({ data: message, client, ctx, configuration, interfaces }) => {
   if (message.type !== 'text') {
     console.debug('Ignoring non-text message')
     return
@@ -24,7 +24,7 @@ plugin.on.beforeIncomingMessage('*', async ({ data: message, client, ctx }) => {
   const llmOutput = await gen.generateContent({
     client,
     input: llmInput,
-    runtime: plugin.runtime,
+    runtime: { configuration, interfaces },
   })
 
   const { success, json } = gen.parseLLMOutput(llmOutput)

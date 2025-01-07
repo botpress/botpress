@@ -13,15 +13,6 @@ export type BaseBot = {
   events: Record<string, any>
   states: Record<string, any>
   actions: Record<string, BaseAction>
-
-  /**
-   * In a bot, all events, actions, states, and integrations definitions are known.
-   * This mean the Bot typings should not allow for unknown types.
-   *
-   * In a plugin, we don't known about extra definitions of the bot that installed the plugin.
-   * This mean the Plugin typings should allow for unknown types.
-   */
-  unknownDefinitions: boolean
 }
 
 export type InputBaseBot = utils.DeepPartial<BaseBot>
@@ -34,6 +25,4 @@ export type DefaultBot<B extends InputBaseBot> = {
     : {
         [K in keyof B['integrations']]: DefaultIntegration<utils.Cast<B['integrations'][K], InputBaseIntegration>>
       }
-
-  unknownDefinitions: false
 }
