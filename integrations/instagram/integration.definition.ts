@@ -27,7 +27,7 @@ export default new IntegrationDefinition({
         .optional()
         .title('Instagram Business Account ID')
         .describe(
-          'The Instagram Business Account ID of the Instagram profile connected to the Facebook page. Set this value if it is different from the Facebook page ID.'
+          'The Instagram Business Account ID of the Instagram profile connected to the Facebook page. Set this if it differs from the Facebook page ID.'
         ),
     }),
   },
@@ -56,7 +56,7 @@ export default new IntegrationDefinition({
         tags: {
           id: {
             title: 'Conversation ID',
-            description: 'The Instagram user ID of the user taking part in the conversation',
+            description: 'The Instagram user ID of the user in the conversation',
           },
         },
       },
@@ -89,20 +89,16 @@ export default new IntegrationDefinition({
       description: 'An Instagram direct message conversation',
       schema: z
         .object({
-          id: z.string().title('User ID').describe('The Instagram user ID of the user taking part in the conversation'),
+          id: z.string().title('User ID').describe('The Instagram user ID of the user in the conversation'),
         })
         .title('Conversation')
         .describe('The conversation object fields'),
     },
   },
 })
-  .extend(proactiveUser, ({ user }) => {
-    return {
-      user,
-    }
-  })
-  .extend(proactiveConversation, ({ dm }) => {
-    return {
-      conversation: dm,
-    }
-  })
+  .extend(proactiveUser, ({ user }) => ({
+    user,
+  }))
+  .extend(proactiveConversation, ({ dm }) => ({
+    conversation: dm,
+  }))
