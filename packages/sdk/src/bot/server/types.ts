@@ -109,7 +109,9 @@ export type OutgoingCallActionResponses<TBot extends types.BaseBot> = _OutgoingC
   '*': AnyOutgoingCallActionResponse<TBot>
 }
 
-export type BotClient<TBot extends types.BaseBot> = BotSpecificClient<TBot>
+export type BotClient<TBot extends types.BaseBot> = TBot['unknownDefinitions'] extends true
+  ? BotSpecificClient<types.BaseBot>
+  : BotSpecificClient<TBot>
 
 export type CommonHandlerProps<TBot extends types.BaseBot> = {
   ctx: BotContext
