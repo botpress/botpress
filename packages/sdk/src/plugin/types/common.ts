@@ -1,4 +1,5 @@
 import { BaseInterface } from '../../interface'
+import { BasePlugin } from './generic'
 
 /**
  * Used by a bot to tell the plugin what integration should be used to implement an interface.
@@ -11,4 +12,8 @@ export type PluginInterfaceExtension<TInterface extends BaseInterface = BaseInte
   actions: { [K in keyof TInterface['actions']]: { name: string } }
   events: { [K in keyof TInterface['events']]: { name: string } }
   channels: { [K in keyof TInterface['channels']]: { name: string } }
+}
+
+export type PluginInterfaceExtensions<TPlugin extends BasePlugin = BasePlugin> = {
+  [K in keyof TPlugin['interfaces']]: PluginInterfaceExtension<TPlugin['interfaces'][K]>
 }

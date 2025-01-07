@@ -31,6 +31,13 @@ type _IncomingMessages<TBot extends types.BaseBot> = {
   >
 }
 
+type _IncomingStates<TBot extends types.BaseBot> = {
+  [K in keyof types.EnumerateStates<TBot>]: utils.Merge<
+    client.State,
+    { name: K; payload: types.EnumerateStates<TBot>[K] }
+  >
+}
+
 type _OutgoingMessageRequests<TBot extends types.BaseBot> = {
   [K in keyof types.GetMessages<TBot>]: utils.Merge<
     client.ClientInputs['createMessage'],
@@ -61,24 +68,14 @@ type _OutgoingCallActionResponses<TBot extends types.BaseBot> = {
   >
 }
 
-export type AnyIncomingEvent<TBot extends types.BaseBot> = TBot['unknownDefinitions'] extends true
-  ? client.Event
-  : utils.ValueOf<_IncomingEvents<TBot>>
-export type AnyIncomingMessage<TBot extends types.BaseBot> = TBot['unknownDefinitions'] extends true
-  ? client.Message
-  : utils.ValueOf<_IncomingMessages<TBot>>
-export type AnyOutgoingMessageRequest<TBot extends types.BaseBot> = TBot['unknownDefinitions'] extends true
-  ? client.ClientInputs['createMessage']
-  : utils.ValueOf<_OutgoingMessageRequests<TBot>>
-export type AnyOutgoingMessageResponse<TBot extends types.BaseBot> = TBot['unknownDefinitions'] extends true
-  ? client.ClientOutputs['createMessage']
-  : utils.ValueOf<_OutgoingMessageResponses<TBot>>
-export type AnyOutgoingCallActionRequest<TBot extends types.BaseBot> = TBot['unknownDefinitions'] extends true
-  ? client.ClientInputs['callAction']
-  : utils.ValueOf<_OutgoingCallActionRequests<TBot>>
-export type AnyOutgoingCallActionResponse<TBot extends types.BaseBot> = TBot['unknownDefinitions'] extends true
-  ? client.ClientOutputs['callAction']
-  : utils.ValueOf<_OutgoingCallActionResponses<TBot>>
+export type AnyIncomingEvent<TBot extends types.BaseBot> = utils.ValueOf<_IncomingEvents<TBot>>
+export type AnyIncomingMessage<TBot extends types.BaseBot> = utils.ValueOf<_IncomingMessages<TBot>>
+export type AnyOutgoingMessageRequest<TBot extends types.BaseBot> = utils.ValueOf<_OutgoingMessageRequests<TBot>>
+export type AnyOutgoingMessageResponse<TBot extends types.BaseBot> = utils.ValueOf<_OutgoingMessageResponses<TBot>>
+export type AnyOutgoingCallActionRequest<TBot extends types.BaseBot> = utils.ValueOf<_OutgoingCallActionRequests<TBot>>
+export type AnyOutgoingCallActionResponse<TBot extends types.BaseBot> = utils.ValueOf<
+  _OutgoingCallActionResponses<TBot>
+>
 
 export type IncomingEvents<TBot extends types.BaseBot> = _IncomingEvents<TBot> & {
   '*': AnyIncomingEvent<TBot>
@@ -86,7 +83,7 @@ export type IncomingEvents<TBot extends types.BaseBot> = _IncomingEvents<TBot> &
 export type IncomingMessages<TBot extends types.BaseBot> = _IncomingMessages<TBot> & {
   '*': AnyIncomingMessage<TBot>
 }
-export type IncomingStates<_TBot extends types.BaseBot> = {
+export type IncomingStates<_TBot extends types.BaseBot> = _IncomingStates<_TBot> & {
   '*': client.State
 }
 export type OutgoingMessageRequests<TBot extends types.BaseBot> = _OutgoingMessageRequests<TBot> & {
@@ -102,9 +99,7 @@ export type OutgoingCallActionResponses<TBot extends types.BaseBot> = _OutgoingC
   '*': AnyOutgoingCallActionResponse<TBot>
 }
 
-export type BotClient<TBot extends types.BaseBot> = TBot['unknownDefinitions'] extends true
-  ? BotSpecificClient<types.BaseBot>
-  : BotSpecificClient<TBot>
+export type BotClient<TBot extends types.BaseBot> = BotSpecificClient<TBot>
 
 export type CommonHandlerProps<TBot extends types.BaseBot> = {
   ctx: BotContext

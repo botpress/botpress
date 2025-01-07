@@ -5,6 +5,22 @@ import { BaseBot, DefaultBot } from './generic'
 import * as types from './common'
 import { FooBarBazBot, EmptyBot, FooBarBazIntegration } from '../../fixtures'
 
+test('EnumerateStates should enumerate states', () => {
+  type Actual = types.EnumerateStates<FooBarBazBot>
+  type Expected = {
+    currentUser: FooBarBazBot['states']['currentUser']
+  }
+
+  type _assertion = utils.AssertAll<
+    [
+      //
+      utils.AssertExtends<Actual, Expected>,
+      utils.AssertExtends<Expected, Actual>,
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+    ]
+  >
+})
+
 test('EnumerateActions should enumerate actions', () => {
   type Actual = types.EnumerateActions<FooBarBazBot>
   type Expected = {

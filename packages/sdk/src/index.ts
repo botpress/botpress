@@ -72,6 +72,7 @@ export {
   PluginImplementation as Plugin,
   PluginImplementationProps as PluginProps,
   PluginRuntimeProps,
+  PluginHandlers,
 } from './plugin'
 
 export {
