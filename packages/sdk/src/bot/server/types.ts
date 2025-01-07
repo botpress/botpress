@@ -68,14 +68,24 @@ type _OutgoingCallActionResponses<TBot extends types.BaseBot> = {
   >
 }
 
-export type AnyIncomingEvent<TBot extends types.BaseBot> = utils.ValueOf<_IncomingEvents<TBot>>
-export type AnyIncomingMessage<TBot extends types.BaseBot> = utils.ValueOf<_IncomingMessages<TBot>>
-export type AnyOutgoingMessageRequest<TBot extends types.BaseBot> = utils.ValueOf<_OutgoingMessageRequests<TBot>>
-export type AnyOutgoingMessageResponse<TBot extends types.BaseBot> = utils.ValueOf<_OutgoingMessageResponses<TBot>>
-export type AnyOutgoingCallActionRequest<TBot extends types.BaseBot> = utils.ValueOf<_OutgoingCallActionRequests<TBot>>
-export type AnyOutgoingCallActionResponse<TBot extends types.BaseBot> = utils.ValueOf<
-  _OutgoingCallActionResponses<TBot>
->
+export type AnyIncomingEvent<TBot extends types.BaseBot> = TBot['unknownDefinitions'] extends true
+  ? client.Event
+  : utils.ValueOf<_IncomingEvents<TBot>>
+export type AnyIncomingMessage<TBot extends types.BaseBot> = TBot['unknownDefinitions'] extends true
+  ? client.Message
+  : utils.ValueOf<_IncomingMessages<TBot>>
+export type AnyOutgoingMessageRequest<TBot extends types.BaseBot> = TBot['unknownDefinitions'] extends true
+  ? client.ClientInputs['createMessage']
+  : utils.ValueOf<_OutgoingMessageRequests<TBot>>
+export type AnyOutgoingMessageResponse<TBot extends types.BaseBot> = TBot['unknownDefinitions'] extends true
+  ? client.ClientOutputs['createMessage']
+  : utils.ValueOf<_OutgoingMessageResponses<TBot>>
+export type AnyOutgoingCallActionRequest<TBot extends types.BaseBot> = TBot['unknownDefinitions'] extends true
+  ? client.ClientInputs['callAction']
+  : utils.ValueOf<_OutgoingCallActionRequests<TBot>>
+export type AnyOutgoingCallActionResponse<TBot extends types.BaseBot> = TBot['unknownDefinitions'] extends true
+  ? client.ClientOutputs['callAction']
+  : utils.ValueOf<_OutgoingCallActionResponses<TBot>>
 
 export type IncomingEvents<TBot extends types.BaseBot> = _IncomingEvents<TBot> & {
   '*': AnyIncomingEvent<TBot>
