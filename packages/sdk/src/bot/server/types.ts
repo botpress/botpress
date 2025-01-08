@@ -245,6 +245,11 @@ export type HookHandlersMap<TBot extends types.BaseBot> = {
   }
 }
 
+/**
+ * TODO:
+ * the consumer of this type shouldnt be able to access "*" directly;
+ * "*" is meant the user who registers an handler, not for the user who calls the handler
+ */
 export type BotLike<TBot extends types.BaseBot> = {
   actionHandlers: ActionHandlers<TBot>
   messageHandlers: MessageHandlersMap<TBot>
