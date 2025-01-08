@@ -35,12 +35,14 @@ export const writeListeners = async (props: Props, state: BotListeners) => {
 export const notifyListeners = async (props: Props, message: Message) => {
   const state = await readListeners(props)
   console.info(`Sending message to ${state.conversationIds.length} conversation(s)`)
-  for (const conversationId of state.conversationIds) {
-    await props.client.createMessage({
-      conversationId,
-      userId: props.ctx.botId,
-      tags: {},
-      ...message,
-    })
-  }
+  await Promise.all(
+    state.conversationIds.map((conversationId) =>
+      props.client.createMessage({
+        conversationId,
+        userId: props.ctx.botId,
+        tags: {},
+        ...message,
+      })
+    )
+  )
 }

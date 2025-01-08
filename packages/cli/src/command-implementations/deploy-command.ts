@@ -518,6 +518,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     this.logger.warn("It seems you don't have a workspace handle yet.")
     let claimedHandle: string | undefined = undefined
+    // eslint-disable no-await-in-loop -- we must prompt the user sequentially
     do {
       const prompted = await this.prompt.text('Please enter a workspace handle')
       if (!prompted) {
@@ -535,6 +536,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         throw errors.BotpressCLIError.wrap(thrown, `Could not claim handle "${claimedHandle}"`)
       })
     } while (!claimedHandle)
+    // eslint-enable no-await-in-loop
 
     this.logger.success(`Handle "${claimedHandle}" is yours!`)
     const newName = `${claimedHandle}/${localName}`
@@ -562,11 +564,13 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   ): Promise<CreateIntegrationBody['interfaces']> => {
     const interfacesStatements = getImplementationStatements(integration)
     const interfaces: NonNullable<CreateIntegrationBody['interfaces']> = {}
-    for (const [key, i] of Object.entries(interfacesStatements)) {
-      const { name, version, entities, actions, events, channels } = i
-      const id = await this._getInterfaceId(api, { id: i.id, name, version })
-      interfaces[key] = { id, entities, actions, events, channels }
-    }
+    await Promise.all(
+      Object.entries(interfacesStatements).map(async ([key, i]) => {
+        const { name, version, entities, actions, events, channels } = i
+        const id = await this._getInterfaceId(api, { id: i.id, name, version })
+        interfaces[key] = { id, entities, actions, events, channels }
+      })
+    )
 
     return interfaces
   }

@@ -21,8 +21,8 @@ export async function sendCard(payload: Card, client: Telegraf<Context<Update>>,
       item.action === 'url'
         ? Markup.button.url(item.label, item.value)
         : item.action === 'postback'
-          ? Markup.button.callback(item.label, `postback:${item.value}`)
-          : Markup.button.callback(item.label, `say:${item.value}`)
+        ? Markup.button.callback(item.label, `postback:${item.value}`)
+        : Markup.button.callback(item.label, `say:${item.value}`)
     )
   if (payload.imageUrl) {
     const message = await client.telegram.sendPhoto(chat, payload.imageUrl, {

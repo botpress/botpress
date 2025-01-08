@@ -15,14 +15,12 @@ test('api prevents creating user with an invalid fid', async () => {
     `invalid_${userFid}_${userFid}_${userFid}_${userFid}`, // too long
   ]
 
-  for (const id of invalidUserIds) {
-    await expect(client.createUser({ id })).rejects.toThrow(chat.InvalidPayloadError)
-  }
-
-  for (const id of invalidUserIds) {
-    const key = utils.getUserKey(id)
-    await expect(client.getOrCreateUser({ 'x-user-key': key })).rejects.toThrow(chat.InvalidPayloadError)
-  }
+  await Promise.all(
+    invalidUserIds.flatMap((id) => [
+      expect(client.createUser({ id })).rejects.toThrow(chat.InvalidPayloadError),
+      expect(client.getOrCreateUser({ 'x-user-key': utils.getUserKey(id) })).rejects.toThrow(chat.InvalidPayloadError),
+    ])
+  )
 })
 
 test('api prevents creating multiple users with the same foreign id', async () => {

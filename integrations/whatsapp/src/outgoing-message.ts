@@ -97,12 +97,14 @@ export async function sendMany({
   logger,
 }: Omit<SendMessageProps, 'message'> & { generator: Generator<OutgoingMessage, void, unknown> }) {
   try {
+    // eslint-disable no-await-in-loop -- we must send messages sequentially
     for (const message of generator) {
       // Sending multiple messages in sequence does not guarantee delivery order on the client-side.
       // In order for messages to appear in order on the client side, adding some sleep in between each seems to work.
       await sleep(1000)
       await send({ ctx, conversation, ack, message, logger, client })
     }
+    // eslint-enable no-await-in-loop
   } catch (err) {
     logger.forBot().error('Failed to generate messages for sending to Whatsapp. Reason:', err)
   }

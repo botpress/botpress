@@ -37,10 +37,11 @@ export const register: bp.IntegrationProps['register'] = async ({ client, ctx, w
   const triggersCreated: string[] = []
 
   try {
-    for (const trigger of Triggers) {
-      const triggerId = await zendeskClient.createTrigger(trigger.name, subscriptionId, trigger.conditions)
-      triggersCreated.push(triggerId)
-    }
+    triggersCreated.push(
+      ...(await Promise.all(
+        Triggers.map((trigger) => zendeskClient.createTrigger(trigger.name, subscriptionId, trigger.conditions))
+      ))
+    )
   } finally {
     await client.setState({
       type: 'integration',
@@ -78,22 +79,26 @@ export const unregister: bp.IntegrationProps['unregister'] = async ({ ctx, clien
   }
 
   if (state.payload.triggerIds?.length) {
-    for (const trigger of state.payload.triggerIds) {
-      await zendeskClient.deleteTrigger(trigger).catch((err) => {
-        logger.forBot().error('Could not delete trigger', err)
-      })
-    }
+    await Promise.all(
+      state.payload.triggerIds.map((trigger) =>
+        zendeskClient.deleteTrigger(trigger).catch((err) => {
+          logger.forBot().error('Could not delete trigger', err)
+        })
+      )
+    )
   }
 
   const articleWebhooks = await zendeskClient.findWebhooks({
     'filter[name_contains]': `bpc_article_event_${ctx.webhookId}`,
   })
 
-  for (const articleWebhook of articleWebhooks) {
-    await zendeskClient.deleteWebhook(articleWebhook.id).catch((err) => {
-      logger.forBot().error('Could not delete article webhook', err)
-    })
-  }
+  await Promise.all(
+    articleWebhooks.map((webhook) =>
+      zendeskClient.deleteWebhook(webhook.id).catch((err) => {
+        logger.forBot().error('Could not delete article webhook', err)
+      })
+    )
+  )
 
   if (ctx.configuration.syncKnowledgeBaseWithBot) {
     if (!ctx.configuration.knowledgeBaseId) {

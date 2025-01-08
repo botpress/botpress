@@ -24,8 +24,6 @@ const sendSenderActions = async ({
   const messengerClient = await getMessengerClient(client, ctx)
   const { conversation } = await client.getConversation({ id: conversationId })
   const recipientId = getRecipientId(conversation)
-  for (const action of actions) {
-    await messengerClient.sendSenderAction(recipientId, action)
-  }
+  await Promise.all(actions.map((action) => messengerClient.sendSenderAction(recipientId, action)))
   return {}
 }

@@ -34,7 +34,5 @@ export const deleteKbArticles = async (kbId: string, client: bp.Client): Promise
     },
   })
 
-  for (const file of files) {
-    await client.deleteFile({ id: file.id })
-  }
+  await Promise.all(files.map((file) => client.deleteFile({ id: file.id })))
 }

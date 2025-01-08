@@ -56,6 +56,7 @@ export async function generateContent<M extends string>(
   const messages: Anthropic.MessageParam[] = []
 
   for (const message of input.messages) {
+    // eslint-disable no-await-in-loop -- messages must be mapped sequentially to preserve order
     messages.push(await mapToAnthropicMessage(message))
   }
 
@@ -202,6 +203,7 @@ async function mapMultipartMessageContentToAnthropicContent(
 
   const anthropicContent: Anthropic.MessageParam['content'] = []
 
+  // eslint-disable no-await-in-loop -- we must handle message parts sequentially
   for (const part of content) {
     if (part.type === 'text') {
       anthropicContent.push(<Anthropic.TextBlockParam>{
@@ -238,6 +240,7 @@ async function mapMultipartMessageContentToAnthropicContent(
       })
     }
   }
+  // eslint-enable no-await-in-loop
 
   return anthropicContent
 }

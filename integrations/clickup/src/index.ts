@@ -23,17 +23,19 @@ async function setWebhook(clickup: ClickUpClient, webhookUrl: string) {
   const webhooks = await clickup.listWebhooks()
   const events = ['taskCommentPosted', 'taskCreated', 'taskUpdated', 'taskDeleted']
 
-  for (const webhook of webhooks) {
-    if (webhook.endpoint === webhookUrl) {
-      await clickup.updateWebhook({
-        endpoint: webhookUrl,
-        status: 'active',
-        webhookId: webhook.id,
-        events,
-      })
-      return
-    }
-  }
+  await Promise.all(
+    webhooks
+      .filter((webhook: any) => webhook.endpoint === webhookUrl)
+      .map((webhook: any) =>
+        clickup.updateWebhook({
+          endpoint: webhookUrl,
+          status: 'active',
+          webhookId: webhook.id,
+          events,
+        })
+      )
+  )
+
   await clickup.createWebhook({
     endpoint: webhookUrl,
     events,

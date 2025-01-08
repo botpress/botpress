@@ -276,9 +276,7 @@ const integration = new bp.Integration({
       await createMessage(firstConversationPart) // important, intercom keeps the first message in a separate object
     }
 
-    for (const part of conversation_parts) {
-      await createMessage(part)
-    }
+    await Promise.all(conversation_parts.map((part) => createMessage(part)))
 
     console.info('Handler finished processing request')
     return

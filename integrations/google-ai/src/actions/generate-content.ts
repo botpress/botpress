@@ -112,9 +112,11 @@ async function buildContents(input: llm.GenerateContentInput): Promise<Content[]
         throw new InvalidPayloadError('`content` property is required when message type is "text" or "multipart"')
       }
       if (typeof message.content === 'string') {
+        // eslint-disable-next-line no-await-in-loop -- parts must be pushed sequentially
         parts.push(await buildContentPart(message.content))
       } else if (Array.isArray(message.content)) {
         for (const content of message.content) {
+          // eslint-disable-next-line no-await-in-loop -- parts must be pushed sequentially
           parts.push(await buildContentPart(content))
         }
       } else {

@@ -6,11 +6,13 @@ export async function listAllPages<R extends object, M>(lister: PageLister<R>, m
   let nextToken: string | undefined
   const all: R[] = []
 
+  // eslint-disable no-await-in-loop -- paging must be done sequentially
   do {
     const { meta, ...r } = await lister({ nextToken })
     all.push(r as R)
     nextToken = meta.nextToken
   } while (nextToken)
+  // eslint-enable no-await-in-loop
 
   if (!mapper) {
     return all

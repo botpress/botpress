@@ -26,6 +26,7 @@ export const executeMessageCreate = async ({
   })
 
   for (const messagePart of freshchatEvent.data.message.message_parts) {
+    // eslint-disable-next-line no-await-in-loop -- we must send messages sequentially
     await client.createMessage({
       tags: {},
       type: 'text',

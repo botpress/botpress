@@ -438,6 +438,7 @@ const integration = new bp.Integration({
 
     for (const event of data.events) {
       if (event.type === 'message') {
+        // eslint-disable-next-line no-await-in-loop -- we need to handle messages sequentially
         await handleMessage(event, data.destination, client)
       }
     }

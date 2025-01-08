@@ -70,10 +70,12 @@ export abstract class Module {
   public async flatten(): Promise<File[]> {
     const self = await this.toFile()
     const allFiles: File[] = [self]
-    for (const dep of this._localDependencies) {
-      const depFiles = await dep.flatten()
-      allFiles.push(...depFiles)
-    }
+    await Promise.all(
+      this._localDependencies.map(async (dep) => {
+        const depFiles = await dep.flatten()
+        allFiles.push(...depFiles)
+      })
+    )
     return allFiles
   }
 

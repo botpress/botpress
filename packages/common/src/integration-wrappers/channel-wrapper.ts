@@ -90,10 +90,9 @@ export const createChannelWrapper =
     channelImpl: (props: CFUNCPROPS & InferToolsFromToolset<TOOLSET, IP, TIntegration>) => Promise<void>
   ): CFUNC =>
     (async (props: CFUNCPROPS) => {
-      const tools: Record<string, any> = {}
-      for (const [tool, factory] of Object.entries(toolFactories)) {
-        tools[tool] = await factory(props)
-      }
+      const tools: Record<string, any> = Object.fromEntries(
+        await Promise.all(Object.entries(toolFactories).map(async ([tool, factory]) => [tool, await factory(props)]))
+      )
 
       await channelImpl({
         ...props,

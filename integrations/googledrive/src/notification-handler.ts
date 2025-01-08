@@ -27,11 +27,9 @@ export class NotificationHandler {
       return
     }
     if (type === 'update') {
-      for (const change of changes) {
-        if (change === 'children') {
-          await this._handleUpdateChildrenNotif(token)
-        }
-      }
+      await Promise.all(
+        changes.filter((change) => change === 'children').map(() => this._handleUpdateChildrenNotif(token))
+      )
     } else if (type === 'remove') {
       await this._handleRemoveNotif(token)
     }
@@ -42,11 +40,11 @@ export class NotificationHandler {
       return
     }
     const currentChildren = await this._driveClient.getChildren(token.fileId)
-    for (const child of currentChildren) {
-      if (!this._filesCache.find(child.id)) {
-        await this._fileEventHandler.handleFileCreated(child)
-      }
-    }
+    await Promise.all(
+      currentChildren
+        .filter((child) => this._filesCache.find(child.id))
+        .map((child) => this._fileEventHandler.handleFileCreated(child))
+    )
   }
 
   private async _handleRemoveNotif(token: Token) {

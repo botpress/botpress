@@ -191,6 +191,7 @@ bot.on.message('*', async (args) => {
       })
       break
     case 'loop':
+      // eslint-disable no-await-in-loop -- this for-loop is blocking on purpose
       for (let i = 0; i < 20; i++) {
         await sleep(1000)
         await api.respond({ type: 'text', text: `Message ${i}` })

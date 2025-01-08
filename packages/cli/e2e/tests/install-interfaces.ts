@@ -32,18 +32,20 @@ export const installAllInterfaces: Test = {
       'updatable',
     ]
 
-    for (const iface of interfaces) {
-      logger.info(`Installing interface: ${iface}`)
-      await impl
-        .add({
-          ...argv,
-          packageRef: iface,
-          packageType: 'interface',
-          installPath: baseDir,
-          useDev: false,
-        })
-        .then(utils.handleExitCode)
-      // TODO: also run a type check on the installed interface
-    }
+    await Promise.all(
+      interfaces.map(async (iface) => {
+        logger.info(`Installing interface: ${iface}`)
+        await impl
+          .add({
+            ...argv,
+            packageRef: iface,
+            packageType: 'interface',
+            installPath: baseDir,
+            useDev: false,
+          })
+          .then(utils.handleExitCode)
+        // TODO: also run a type check on the installed interface
+      })
+    )
   },
 }

@@ -38,6 +38,7 @@ export const botHandler =
             ...globalBeforeOutgoingMessageHooks,
           ]
           for (const handler of beforeOutgoingMessageHooks) {
+            // eslint-disable-next-line no-await-in-loop -- handlers must be called sequentially
             const hookOutput = await handler({
               client: new BotSpecificClient(vanillaClient),
               ctx,
@@ -56,6 +57,7 @@ export const botHandler =
             ...globalBeforeOutgoingCallActionHooks,
           ]
           for (const handler of beforeOutgoingCallActionHooks) {
+            // eslint-disable-next-line no-await-in-loop -- handlers must be called sequentially
             const hookOutput = await handler({
               client: new BotSpecificClient(vanillaClient),
               ctx,
@@ -73,6 +75,7 @@ export const botHandler =
           const globalAfterOutgoingMessageHooks = bot.hookHandlers.after_outgoing_message['*'] ?? []
           const afterOutgoingMessageHooks = [...specificAfterOutgoingMessageHooks, ...globalAfterOutgoingMessageHooks]
           for (const handler of afterOutgoingMessageHooks) {
+            // eslint-disable-next-line no-await-in-loop -- handlers must be called sequentially
             const hookOutput = await handler({
               client: new BotSpecificClient(vanillaClient),
               ctx,
@@ -92,6 +95,7 @@ export const botHandler =
             ...globalAfterOutgoingCallActionHooks,
           ]
           for (const handler of afterOutgoingCallActionHooks) {
+            // eslint-disable-next-line no-await-in-loop -- handlers must be called sequentially
             const hookOutput = await handler({
               client: new BotSpecificClient(vanillaClient),
               ctx,
@@ -151,6 +155,7 @@ const onEventReceived = async ({ ctx, logger, req, client, self }: ServerProps):
     const globalBeforeIncomingMessageHooks = self.hookHandlers.before_incoming_message['*'] ?? []
     const beforeIncomingMessageHooks = [...specificBeforeIncomingMessageHooks, ...globalBeforeIncomingMessageHooks]
     for (const handler of beforeIncomingMessageHooks) {
+      // eslint-disable-next-line no-await-in-loop -- hooks must be called sequentially
       const hookOutput = await handler({
         client,
         ctx,
@@ -176,6 +181,7 @@ const onEventReceived = async ({ ctx, logger, req, client, self }: ServerProps):
     const messageHandlers = [...specificMessageHandlers, ...globalMessageHandlers]
 
     for (const handler of messageHandlers) {
+      // eslint-disable-next-line no-await-in-loop -- handlers must be called sequentially
       await handler({
         ...messagePayload,
         client,
@@ -188,6 +194,7 @@ const onEventReceived = async ({ ctx, logger, req, client, self }: ServerProps):
     const globalAfterIncomingMessageHooks = self.hookHandlers.after_incoming_message['*'] ?? []
     const afterIncomingMessageHooks = [...specificAfterIncomingMessageHooks, ...globalAfterIncomingMessageHooks]
     for (const handler of afterIncomingMessageHooks) {
+      // eslint-disable-next-line no-await-in-loop -- hooks must be called sequentially
       const hookOutput = await handler({
         client,
         ctx,
@@ -210,6 +217,7 @@ const onEventReceived = async ({ ctx, logger, req, client, self }: ServerProps):
 
     const stateHandlers = self.stateExpiredHandlers['*'] ?? []
     for (const handler of stateHandlers) {
+      // eslint-disable-next-line no-await-in-loop -- handlers must be called sequentially
       await handler({
         ...statePayload,
         client,
@@ -225,6 +233,7 @@ const onEventReceived = async ({ ctx, logger, req, client, self }: ServerProps):
   const globalBeforeIncomingEventHooks = self.hookHandlers.before_incoming_event['*'] ?? []
   const beforeIncomingEventHooks = [...sepcificBeforeIncomingEventHooks, ...globalBeforeIncomingEventHooks]
   for (const handler of beforeIncomingEventHooks) {
+    // eslint-disable-next-line no-await-in-loop -- hooks must be called sequentially
     const hookOutput = await handler({
       client,
       ctx,
@@ -243,6 +252,7 @@ const onEventReceived = async ({ ctx, logger, req, client, self }: ServerProps):
   const globalEventHandlers = self.eventHandlers['*'] ?? []
   const eventHandlers = [...specificEventHandlers, ...globalEventHandlers]
   for (const handler of eventHandlers) {
+    // eslint-disable-next-line no-await-in-loop -- handlers must be called sequentially
     await handler({
       ...eventPayload,
       client,
@@ -255,6 +265,7 @@ const onEventReceived = async ({ ctx, logger, req, client, self }: ServerProps):
   const globalAfterIncomingEventHooks = self.hookHandlers.after_incoming_event['*'] ?? []
   const afterIncomingEventHooks = [...specificAfterIncomingEventHooks, ...globalAfterIncomingEventHooks]
   for (const handler of afterIncomingEventHooks) {
+    // eslint-disable-next-line no-await-in-loop -- hooks must be called sequentially
     const hookOutput = await handler({
       client,
       ctx,

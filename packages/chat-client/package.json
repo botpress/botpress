@@ -25,7 +25,6 @@
     "zod": "^3.21.4"
   },
   "devDependencies": {
-    "@botpress/chat-api": "0.0.0",
     "@types/event-source-polyfill": "^1.0.2",
     "@types/eventsource": "^1.1.12",
     "@types/json-schema": "^7.0.12",

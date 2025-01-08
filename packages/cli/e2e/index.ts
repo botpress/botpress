@@ -84,32 +84,36 @@ const main = async (argv: YargsConfig<typeof configSchema>): Promise<never> => {
     string | undefined
   >
 
-  for (const { name, handler } of filteredTests) {
-    const logLine = `### Running test: "${name}" ###`
-    const logPad = '#'.repeat(logLine.length)
-    logger.info(logPad)
-    logger.info(logLine)
-    logger.info(logPad + '\n')
+  await Promise.all(
+    filteredTests.map(({ name, handler }) =>
+      (async () => {
+        const logLine = `### Running test: "${name}" ###`
+        const logPad = '#'.repeat(logLine.length)
+        logger.info(logPad)
+        logger.info(logLine)
+        logger.info(logPad + '\n')
 
-    const loggerNamespace = name.replace(/ /g, '_').replace(/[^a-zA-Z0-9_]/g, '')
+        const loggerNamespace = name.replace(/ /g, '_').replace(/[^a-zA-Z0-9_]/g, '')
 
-    const tmpDir = TmpDirectory.create()
-    try {
-      const t0 = Date.now()
-      await Promise.race([
-        handler({ tmpDir: tmpDir.path, dependencies, logger: logger.sub(loggerNamespace), ...argv }),
-        timeout(argv.timeout),
-      ])
-      const t1 = Date.now()
-      logger.info(`SUCCESS: "${name}" (${t1 - t0}ms)`)
-    } catch (thrown) {
-      const err = thrown instanceof Error ? thrown : new Error(`${thrown}`)
-      logger.attachError(err).error(`FAILURE: "${name}"`)
-      process.exit(1)
-    } finally {
-      tmpDir.cleanup()
-    }
-  }
+        const tmpDir = TmpDirectory.create()
+        try {
+          const t0 = Date.now()
+          await Promise.race([
+            handler({ tmpDir: tmpDir.path, dependencies, logger: logger.sub(loggerNamespace), ...argv }),
+            timeout(argv.timeout),
+          ])
+          const t1 = Date.now()
+          logger.info(`SUCCESS: "${name}" (${t1 - t0}ms)`)
+        } catch (thrown) {
+          const err = thrown instanceof Error ? thrown : new Error(`${thrown}`)
+          logger.attachError(err).error(`FAILURE: "${name}"`)
+          process.exit(1)
+        } finally {
+          tmpDir.cleanup()
+        }
+      })()
+    )
+  )
 
   logger.info('All tests passed')
   process.exit(0)

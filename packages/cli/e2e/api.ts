@@ -5,6 +5,7 @@ export const fetchAllBots = async (client: Client): Promise<ApiBot[]> => {
   let allBots: ApiBot[] = []
   let nextToken: string | undefined
   do {
+    // eslint-disable-next-line no-await-in-loop -- paging must be done sequentially
     const { bots, meta } = await client.listBots({ nextToken })
     allBots = [...allBots, ...bots]
     nextToken = meta.nextToken
@@ -17,6 +18,7 @@ export const fetchAllIntegrations = async (client: Client): Promise<ApiIntegrati
   let allIntegrations: ApiIntegration[] = []
   let nextToken: string | undefined
   do {
+    // eslint-disable-next-line no-await-in-loop -- paging must be done sequentially
     const { integrations, meta } = await client.listIntegrations({ nextToken })
     allIntegrations = [...allIntegrations, ...integrations]
     nextToken = meta.nextToken

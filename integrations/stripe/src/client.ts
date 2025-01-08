@@ -32,6 +32,7 @@ export class StripeApi {
       return { id: product.id, name: product.name }
     })
     while (products.has_more) {
+      // eslint-disable-next-line no-await-in-loop -- paging must be done sequentially
       products = await this.listProducts(productsBasic[productsBasic.length - 1]?.id)
       for (const product of products.data) {
         productsBasic.push({ id: product.id, name: product.name })
@@ -90,6 +91,7 @@ export class StripeApi {
       }
     })
     while (prices.has_more) {
+      // eslint-disable-next-line no-await-in-loop -- paging must be done sequentially
       prices = await this.listPrices(productId, isExpand, pricesBasic[pricesBasic.length - 1]?.id)
       for (const price of prices.data) {
         pricesBasic.push({
@@ -129,6 +131,7 @@ export class StripeApi {
       return { id: paymentLink.id, url: paymentLink.url }
     })
     while (paymentLinks.has_more) {
+      // eslint-disable-next-line no-await-in-loop -- paging must be done sequentially
       paymentLinks = await this.listPaymentLink(paymentLinksBasic[paymentLinksBasic.length - 1]?.id)
       for (const paymentLink of paymentLinks.data) {
         paymentLinksBasic.push({ id: paymentLink.id, url: paymentLink.url })
@@ -179,6 +182,7 @@ export class StripeApi {
       }
     })
     while (customers.has_more) {
+      // eslint-disable-next-line no-await-in-loop -- paging must be done sequentially
       customers = await this.listCustomer(email, customersBasic[customersBasic.length - 1]?.id)
       for (const customer of customers.data) {
         customersBasic.push({
@@ -222,6 +226,7 @@ export class StripeApi {
     const customers = response.data
     while (response.has_more) {
       const page = response.next_page || undefined
+      // eslint-disable-next-line no-await-in-loop -- paging must be done sequentially
       response = await this._stripe.customers.search({
         query,
         limit,
@@ -260,6 +265,7 @@ export class StripeApi {
       }
     })
     while (webhooks.has_more) {
+      // eslint-disable-next-line no-await-in-loop -- paging must be done sequentially
       webhooks = await this.listWebhooks(webhooksBasic[webhooksBasic.length - 1]?.id)
       for (const webhook of webhooks.data) {
         webhooksBasic.push({

@@ -34,6 +34,7 @@ const integration = new bp.Integration({
           } = props
           const total = items.length
           for (const [i, card] of items.entries()) {
+            // eslint-disable-next-line no-await-in-loop -- carousel entries must be sent sequentially
             await sendMessage({ ...props, text: renderCard(card, `${i + 1}/${total}`), mediaUrl: card.imageUrl })
           }
         },

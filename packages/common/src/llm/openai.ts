@@ -15,8 +15,8 @@ import {
   ChatCompletionToolMessageParam,
   ChatCompletionUserMessageParam,
 } from 'openai/resources'
-import { GenerateContentInput, GenerateContentOutput, ToolCall, Message, ModelDetails } from './types'
 import { createUpstreamProviderFailedError } from './errors'
+import { GenerateContentInput, GenerateContentOutput, ToolCall, Message, ModelDetails } from './types'
 
 const OpenAIErrorSchema = z
   .object({
@@ -66,6 +66,7 @@ export async function generateContent<M extends string>(
 
   const messages: ChatCompletionMessageParam[] = []
   for (const message of input.messages) {
+    // eslint-disable-next-line no-await-in-loop -- messages must be processed sequentially
     messages.push(await mapToOpenAIMessage(message))
   }
 
@@ -243,6 +244,7 @@ async function mapMultipartMessageToOpenAIMessageParts(
 
   const parts: ChatCompletionContentPart[] = []
 
+  // eslint-disable no-await-in-loop -- message parts must be processed sequentially
   for (const contentPart of content) {
     switch (contentPart.type) {
       case 'text':
@@ -287,6 +289,7 @@ async function mapMultipartMessageToOpenAIMessageParts(
         throw new InvalidPayloadError(`Content type "${contentPart.type}" is not supported`)
     }
   }
+  // eslint-enable no-await-in-loop
 
   return parts
 }

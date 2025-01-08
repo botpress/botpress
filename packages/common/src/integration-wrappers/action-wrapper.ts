@@ -87,10 +87,9 @@ export const createActionWrapper =
     ) => VoidIfEmptyRecord<ReturnType<AFUNC>>
   ): AFUNC =>
     (async (props: APROPS) => {
-      const tools: Record<string, any> = {}
-      for (const [tool, factory] of Object.entries(toolFactories)) {
-        tools[tool] = await factory(props)
-      }
+      const tools: Record<string, any> = Object.fromEntries(
+        await Promise.all(Object.entries(toolFactories).map(async ([tool, factory]) => [tool, await factory(props)]))
+      )
 
       return (
         (await actionImpl(

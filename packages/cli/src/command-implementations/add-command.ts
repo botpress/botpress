@@ -51,14 +51,16 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       throw new errors.BotpressCLIError('Invalid bpDependencies found in package.json')
     }
 
-    for (const [pkgAlias, pkgRefStr] of Object.entries(parseResults.data)) {
-      const parsed = pkgRef.parsePackageRef(pkgRefStr)
-      if (!parsed) {
-        throw new errors.InvalidPackageReferenceError(pkgRefStr)
-      }
+    await Promise.all(
+      Object.entries(parseResults.data).map(async ([pkgAlias, pkgRefStr]) => {
+        const parsed = pkgRef.parsePackageRef(pkgRefStr)
+        if (!parsed) {
+          throw new errors.InvalidPackageReferenceError(pkgRefStr)
+        }
 
-      await this._addSinglePackage({ ...parsed, alias: pkgAlias })
-    }
+        await this._addSinglePackage({ ...parsed, alias: pkgAlias })
+      })
+    )
   }
 
   private _parseArgvRef = (): pkgRef.PackageRef | undefined => {
@@ -213,12 +215,14 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     const line = this.logger.line()
     line.started(`Installing ${files.length} files to "${installPath}"`)
     try {
-      for (const file of files) {
-        const filePath = utils.path.absoluteFrom(installPath, file.path)
-        const dirPath = pathlib.dirname(filePath)
-        await fslib.promises.mkdir(dirPath, { recursive: true })
-        await fslib.promises.writeFile(filePath, file.content)
-      }
+      await Promise.all(
+        files.map(async (file) => {
+          const filePath = utils.path.absoluteFrom(installPath, file.path)
+          const dirPath = pathlib.dirname(filePath)
+          await fslib.promises.mkdir(dirPath, { recursive: true })
+          await fslib.promises.writeFile(filePath, file.content)
+        })
+      )
       line.success(`Installed ${files.length} files to "${installPath}"`)
     } finally {
       line.commit()

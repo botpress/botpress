@@ -41,6 +41,7 @@ const integration = new bp.Integration({
         carousel: async (props) => {
           const payloads = formatCarouselPayload(props.payload)
           for (const payload of payloads) {
+            // eslint-disable-next-line no-await-in-loop -- carousel entries must be sent sequentially
             await sendMessage(props, payload)
           }
         },

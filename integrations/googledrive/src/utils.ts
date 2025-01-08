@@ -33,6 +33,7 @@ export const listItemsAndProcess = async <T, U>(
   processFn: (item: T) => Promise<void>,
   args?: U
 ) => {
+  // eslint-disable no-await-in-loop -- paging must be done sequentially
   let nextToken: string | undefined = undefined
   do {
     const { items, meta } = await listFn({ nextToken, args })
@@ -41,15 +42,18 @@ export const listItemsAndProcess = async <T, U>(
     }
     nextToken = meta.nextToken
   } while (nextToken)
+  // eslint-enable no-await-in-loop
 }
 
 export const listAllItems = async <T, U>(listFn: ListFunctionWithArgs<T, U>, args?: U): Promise<T[]> => {
   const items: T[] = []
+  // eslint-disable no-await-in-loop -- paging must be done sequentially
   let nextToken: string | undefined = undefined
   do {
     const { items: currentItems, meta } = await listFn({ nextToken, args })
     items.push(...currentItems)
     nextToken = meta.nextToken
   } while (nextToken)
+  // eslint-enable no-await-in-loop
   return items
 }

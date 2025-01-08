@@ -35,18 +35,20 @@ export const uploadArticlesToKb = async (props: { ctx: Context; client: Client; 
   }
 
   try {
-    for (const article of fetchedArticles) {
-      if (article.draft || !article.body) {
-        logger.forBot().info(`Article "${article.title}" is either unpublished or empty. Skipping...`)
-        continue
-      }
+    await Promise.all(
+      fetchedArticles.map(async (article) => {
+        if (article.draft || !article.body) {
+          logger.forBot().info(`Article "${article.title}" is either unpublished or empty. Skipping...`)
+          return
+        }
 
-      const payload = getUploadArticlePayload({ kbId, article })
+        const payload = getUploadArticlePayload({ kbId, article })
 
-      await client.uploadFile(payload)
+        await client.uploadFile(payload)
 
-      logger.forBot().info(`Successfully uploaded article ${article.title} to BP KB`)
-    }
+        logger.forBot().info(`Successfully uploaded article ${article.title} to BP KB`)
+      })
+    )
   } catch (error) {
     logger
       .forBot()

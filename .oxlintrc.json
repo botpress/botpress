@@ -11,7 +11,6 @@
   "rules": {
     "eslint/max-classes-per-file": "off",
     "eslint/max-lines": "off",
-    "eslint/no-await-in-loop": "off",
     "eslint/no-case-declarations": "off",
     "eslint/no-else-return": "off",
     "eslint/no-empty-pattern": "off",
@@ -30,6 +29,7 @@
     "import/namespace": "off",
     "import/no-named-as-default-member": "off",
     "import/no-named-as-default": "off",
+    "jest/no-standalone-expect": "off",
     "jest/valid-title": "off",
     "oxc/no-accumulating-spread": "off",
     "typescript/ban-ts-comment": "off",

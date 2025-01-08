@@ -26,8 +26,8 @@ export function renderCard(payload: Card): ChatPostMessageArguments['blocks'] {
         item.action === 'say'
           ? renderButtonSay(item)
           : item.action === 'postback'
-            ? renderButtonPostback(item)
-            : renderButtonUrl(item)
+          ? renderButtonPostback(item)
+          : renderButtonUrl(item)
       ),
     },
   ]

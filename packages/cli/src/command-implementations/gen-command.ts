@@ -75,12 +75,14 @@ export class GenerateCommand extends ProjectCommand<GenerateCommandDefinition> {
   }
 
   private async _writeGeneratedFilesToOutFolder(files: codegen.File[]) {
-    for (const file of files) {
-      const filePath = utils.path.absoluteFrom(this.projectPaths.abs.outDir, file.path)
-      const dirPath = pathlib.dirname(filePath)
-      await fslib.promises.mkdir(dirPath, { recursive: true })
-      await fslib.promises.writeFile(filePath, file.content)
-    }
+    await Promise.all(
+      files.map(async (file) => {
+        const filePath = utils.path.absoluteFrom(this.projectPaths.abs.outDir, file.path)
+        const dirPath = pathlib.dirname(filePath)
+        await fslib.promises.mkdir(dirPath, { recursive: true })
+        await fslib.promises.writeFile(filePath, file.content)
+      })
+    )
   }
 
   private _validateSecrets(integrationDef: sdk.IntegrationDefinition): void {

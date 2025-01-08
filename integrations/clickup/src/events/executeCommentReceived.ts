@@ -19,19 +19,22 @@ export const executeCommentReceived = async ({
       continue
     }
 
-    const { user } = await client.getOrCreateUser({ tags: { id: historyItem.user.id.toString() } })
-    const { conversation } = await client.getOrCreateConversation({
-      tags: { taskId: body.task_id.toString() },
-      channel: 'comment',
-    })
-    const { message } = await client.getOrCreateMessage({
-      conversationId: conversation.id,
-      userId: user.id,
-      type: 'text',
-      payload: { text: historyItem.comment.text_content },
-      tags: { id: historyItem.comment.id.toString() },
-    })
+    // eslint-disable-next-line no-await-in-loop -- we need to handle messages sequentially
+    await (async () => {
+      const { user } = await client.getOrCreateUser({ tags: { id: historyItem.user.id.toString() } })
+      const { conversation } = await client.getOrCreateConversation({
+        tags: { taskId: body.task_id.toString() },
+        channel: 'comment',
+      })
+      const { message } = await client.getOrCreateMessage({
+        conversationId: conversation.id,
+        userId: user.id,
+        type: 'text',
+        payload: { text: historyItem.comment.text_content },
+        tags: { id: historyItem.comment.id.toString() },
+      })
 
-    logger.forBot().info('Message created', message.payload.text)
+      logger.forBot().info('Message created', message.payload.text)
+    })()
   }
 }

@@ -159,11 +159,11 @@ const integration = new bp.Integration({
     try {
       const data = JSON.parse(req.body) as InstagramPayload
 
-      for (const { messaging } of data.entry) {
-        for (const message of messaging) {
-          await handleMessage(message, { client, ctx, logger })
-        }
-      }
+      await Promise.all(
+        data.entry.flatMap(({ messaging }) =>
+          messaging.map((message) => handleMessage(message, { client, ctx, logger }))
+        )
+      )
     } catch (e: any) {
       logger.forBot().error('Error while handling request:', e)
       logger.forBot().debug('Request body received:', req.body)

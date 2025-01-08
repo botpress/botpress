@@ -146,6 +146,8 @@ const integration = new bp.Integration({
         continue
       }
 
+      // eslint-disable no-await-in-loop -- messages must be sent sequentially
+
       const { conversation } = await client.getOrCreateConversation({
         channel: 'channel',
         tags: {
@@ -166,6 +168,8 @@ const integration = new bp.Integration({
         conversationId: conversation.id,
         payload: { text: payload.message.content.text },
       })
+
+      // eslint-enable no-await-in-loop
     }
   },
   createUser: async ({ client, tags, ctx }) => {

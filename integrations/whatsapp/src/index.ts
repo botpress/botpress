@@ -218,6 +218,9 @@ const integration = new bp.Integration({
     try {
       const data = JSON.parse(req.body) as WhatsAppPayload
 
+      const accessToken = await getAccessToken(client, ctx)
+      const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
+
       for (const { changes } of data.entry) {
         for (const change of changes) {
           if (!change.value.messages) {
@@ -226,15 +229,13 @@ const integration = new bp.Integration({
           }
 
           for (const message of change.value.messages) {
-            const accessToken = await getAccessToken(client, ctx)
-
-            const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
-
             const phoneNumberId = change.value.metadata.phone_number_id
 
-            await whatsapp.markAsRead(phoneNumberId, message.id)
-
-            await handleIncomingMessage(message, change.value, ctx, client, logger)
+            // eslint-disable-next-line no-await-in-loop -- we must process messages sequentially
+            await Promise.all([
+              whatsapp.markAsRead(phoneNumberId, message.id),
+              handleIncomingMessage(message, change.value, ctx, client, logger),
+            ])
           }
         }
       }

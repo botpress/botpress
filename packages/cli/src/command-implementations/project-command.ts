@@ -304,6 +304,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
 
     const values: Record<string, string | null> = {}
+    // eslint-disable no-await-in-loop -- secrets are prompted sequentially
     for (const [secretName, { optional }] of Object.entries(secretDefinitions)) {
       const argvSecret = secretArgv[secretName]
       if (argvSecret) {
@@ -348,6 +349,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
         values[secretName] = null
       }
     }
+    // eslint-enable no-await-in-loop
 
     if (!formatEnv) {
       return values

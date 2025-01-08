@@ -17,28 +17,28 @@ const integration = new bp.Integration({
 
       console.info(`Notifying ${subscribers.length} Zapier trigger REST hooks`)
 
-      for (const { url: zapierHookUrl } of subscribers) {
-        const request: TriggerRequestBody = {
-          botId: ctx.botId,
-          data: input.data,
-          correlationId: input.correlationId,
-        }
+      await Promise.all(
+        subscribers.map(({ url: zapierHookUrl }) =>
+          axios
+            .post(zapierHookUrl, {
+              botId: ctx.botId,
+              data: input.data,
+              correlationId: input.correlationId,
+            })
+            .then(() => {
+              console.info(`Successfully notified Zapier trigger REST hook: ${zapierHookUrl}`)
+            })
+            .catch(async (e) => {
+              logger.forBot().warn(`Failed to notify Zapier trigger REST hook: ${zapierHookUrl} (Error: ${e.message})`)
+              console.warn(`Failed to notify Zapier trigger REST hook: ${zapierHookUrl} (Error: ${e.message})`)
 
-        await axios
-          .post(zapierHookUrl, request)
-          .then(() => {
-            console.info(`Successfully notified Zapier trigger REST hook: ${zapierHookUrl}`)
-          })
-          .catch(async (e) => {
-            logger.forBot().warn(`Failed to notify Zapier trigger REST hook: ${zapierHookUrl} (Error: ${e.message})`)
-            console.warn(`Failed to notify Zapier trigger REST hook: ${zapierHookUrl} (Error: ${e.message})`)
-
-            if (isAxiosError(e) && e.response?.status === constants.HTTP_STATUS_GONE) {
-              // Zapier REST hooks will send back a HTTP 410 Gone error if the hook is no longer valid.
-              await unsubscribeZapierHook(zapierHookUrl, ctx, client)
-            }
-          })
-      }
+              if (isAxiosError(e) && e.response?.status === constants.HTTP_STATUS_GONE) {
+                // Zapier REST hooks will send back a HTTP 410 Gone error if the hook is no longer valid.
+                await unsubscribeZapierHook(zapierHookUrl, ctx, client)
+              }
+            })
+        )
+      )
 
       return {}
     },

@@ -97,6 +97,7 @@ export const patientMessageHandler: MessageHandlers['*'] = async (props) => {
       upstreamMessages.reverse() // TODO: use createdAt to sort instead of reverse
 
       const messageHistory: MessageHistoryElement[] = []
+      // eslint-disable no-await-in-loop -- we must handle messages sequentially
       for (const message of upstreamMessages) {
         const source =
           message.direction === 'outgoing'
@@ -111,6 +112,7 @@ export const patientMessageHandler: MessageHandlers['*'] = async (props) => {
           payload: message.payload,
         } as MessageHistoryElement)
       }
+      // eslint-enable no-await-in-loop
 
       const {
         output: { conversationId: downstreamConversationId },

@@ -128,13 +128,13 @@ const _handleInvalidSignature = async ({ req: { headers, body }, logger }: bp.Ha
 
 const _dispatchEvent = async (props: bp.HandlerProps) => {
   const event: WebhookEvent = JSON.parse(props.req.body ?? '')
+  const [eventGuard, fireEvent] = EVENT_HANDLERS.find(([eventGuard]) => eventGuard(event)) ?? []
 
-  for (const [eventGuard, fireEvent] of EVENT_HANDLERS) {
-    if (eventGuard(event)) {
-      props.logger.forBot().debug(`Event matched with ${eventGuard.name}: firing handler ${fireEvent.name}`)
-      return await fireEvent({ ...props, githubEvent: event })
-    }
+  if (!eventGuard || !fireEvent) {
+    console.warn('Unsupported github event', event)
+    return
   }
 
-  console.warn('Unsupported github event', event)
+  props.logger.forBot().debug(`Event matched with ${eventGuard.name}: firing handler ${fireEvent.name}`)
+  await fireEvent({ ...props, githubEvent: event })
 }

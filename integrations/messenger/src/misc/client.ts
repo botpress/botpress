@@ -124,6 +124,7 @@ export class MetaClient {
 
     try {
       while (url) {
+        // eslint-disable-next-line no-await-in-loop -- the API call MUST be done sequentially
         const response = await axios.get(url)
 
         // Add the pages to the allPages array

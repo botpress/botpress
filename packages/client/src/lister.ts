@@ -15,6 +15,7 @@ class AsyncCollection<T> {
   public async *[Symbol.asyncIterator]() {
     let nextToken: string | undefined
     do {
+      // eslint-disable-next-line no-await-in-loop -- the paging MUST be done sequentially
       const { items, meta } = await this._list({ nextToken })
       nextToken = meta.nextToken
       for (const item of items) {

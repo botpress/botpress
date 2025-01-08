@@ -47,11 +47,9 @@ export const mapValuesAsync = async <A, B>(
   record: Record<string, A>,
   fn: (value: A, key: string) => Promise<B>
 ): Promise<Record<string, B>> => {
-  const newRecord: Record<string, B> = {}
+  const entries = await Promise.all(Object.entries(record).map(async ([key, value]) => [key, await fn(value, key)]))
 
-  for (const [key, value] of Object.entries(record)) {
-    newRecord[key] = await fn(value, key)
-  }
+  const newRecord: Record<string, B> = Object.fromEntries(entries)
 
   return newRecord
 }

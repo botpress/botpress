@@ -15,15 +15,12 @@ test('api prevents creating conversation with an invalid fid', async () => {
     `invalid_${convFid}_${convFid}_${convFid}`, // too long
   ]
 
-  for (const id of invalidUserIds) {
-    const promise = client.createConversation({ id })
-    await expect(promise).rejects.toThrow(chat.InvalidPayloadError)
-  }
-
-  for (const id of invalidUserIds) {
-    const promise = client.getOrCreateConversation({ id })
-    await expect(promise).rejects.toThrow(chat.InvalidPayloadError)
-  }
+  await Promise.all(
+    invalidUserIds.flatMap((id) => [
+      expect(client.createConversation({ id })).rejects.toThrow(chat.InvalidPayloadError),
+      expect(client.getOrCreateConversation({ id })).rejects.toThrow(chat.InvalidPayloadError),
+    ])
+  )
 })
 
 test('api prevents creating multiple conversations with the same foreign id', async () => {

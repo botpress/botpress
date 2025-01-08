@@ -39,19 +39,21 @@ export const syncMembers = wrapActionAndInjectSlackClient('syncMembers', {
 
     logger.forBot().debug(`Found ${membersToSync.length}/${allMembers.length} members to sync in Slack workspace`)
 
-    for (const slackMember of membersToSync) {
-      logger
-        .forBot()
-        .debug('Syncing Slack user to Botpress...', { user: slackMember.name, updated: slackMember.updated })
-      try {
-        const user = await syncSlackUserToBotpressUser(slackMember, client)
-        logger.forBot().debug(`Synced Slack user ${user.name} (${user.id})`)
-        usersLastSyncTs = Math.max(usersLastSyncTs ?? 0, slackMember.updated ?? 0)
-        await saveSyncState(client, ctx, { usersLastSyncTs })
-      } catch (err) {
-        logger.forBot().error(`Failed to sync Slack user ${slackMember.name}`, err)
-      }
-    }
+    await Promise.all(
+      membersToSync.map(async (slackMember) => {
+        logger
+          .forBot()
+          .debug('Syncing Slack user to Botpress...', { user: slackMember.name, updated: slackMember.updated })
+        try {
+          const user = await syncSlackUserToBotpressUser(slackMember, client)
+          logger.forBot().debug(`Synced Slack user ${user.name} (${user.id})`)
+          usersLastSyncTs = Math.max(usersLastSyncTs ?? 0, slackMember.updated ?? 0)
+          await saveSyncState(client, ctx, { usersLastSyncTs })
+        } catch (err) {
+          logger.forBot().error(`Failed to sync Slack user ${slackMember.name}`, err)
+        }
+      })
+    )
 
     logger.forBot().debug(`Synced ${membersToSync.length} Slack users to Botpress`)
 
