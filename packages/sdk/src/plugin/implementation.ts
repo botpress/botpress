@@ -5,7 +5,7 @@ import {
   StateExpiredHandlersMap as BotStateExpiredHandlersMap,
   HookHandlersMap as BotHookHandlersMap,
   ActionHandlers as BotActionHandlers,
-  BotHandlers,
+  BotLike,
 } from '../bot'
 import * as utils from '../utils'
 import { ActionProxy, proxy } from './action-proxy'
@@ -39,7 +39,7 @@ type Tools<TPlugin extends BasePlugin = BasePlugin> = {
   actions: ActionProxy<TPlugin>
 }
 
-export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> implements BotHandlers<TPlugin> {
+export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> implements BotLike<TPlugin> {
   private _runtimeProps: PluginRuntimeProps<TPlugin> | undefined
 
   private _actionHandlers: ActionHandlers<TPlugin>

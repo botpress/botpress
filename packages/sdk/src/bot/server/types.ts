@@ -245,17 +245,12 @@ export type HookHandlersMap<TBot extends types.BaseBot> = {
   }
 }
 
-export type BotActionHandlers<TBot extends types.BaseBot> = ActionHandlers<TBot>
-export type BotMessageHandlers<TBot extends types.BaseBot> = MessageHandlersMap<TBot>
-export type BotEventHandlers<TBot extends types.BaseBot> = EventHandlersMap<TBot>
-export type BotStateExpiredHandlers<TBot extends types.BaseBot> = StateExpiredHandlersMap<TBot>
-export type BotHookHandlers<TBot extends types.BaseBot> = HookHandlersMap<TBot>
-export type BotHandlers<TBot extends types.BaseBot> = {
-  actionHandlers: BotActionHandlers<TBot>
-  messageHandlers: BotMessageHandlers<TBot>
-  eventHandlers: BotEventHandlers<TBot>
-  stateExpiredHandlers: BotStateExpiredHandlers<TBot>
-  hookHandlers: BotHookHandlers<TBot>
+export type BotLike<TBot extends types.BaseBot> = {
+  actionHandlers: ActionHandlers<TBot>
+  messageHandlers: MessageHandlersMap<TBot>
+  eventHandlers: EventHandlersMap<TBot>
+  stateExpiredHandlers: StateExpiredHandlersMap<TBot>
+  hookHandlers: HookHandlersMap<TBot>
 }
 
 // plugins

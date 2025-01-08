@@ -1,7 +1,7 @@
 import * as utils from '../utils'
-import { BotHandlers } from './server'
+import { BotLike } from './server'
 
-export const mergeBots = (dest: BotHandlers<any>, src: BotHandlers<any>) => {
+export const mergeBots = (dest: BotLike<any>, src: BotLike<any>) => {
   for (const [type, actionHandler] of Object.entries(src.actionHandlers)) {
     dest.actionHandlers[type] = actionHandler
   }

@@ -13,13 +13,13 @@ export * from './types'
 
 type ServerProps = types.CommonHandlerProps<common.BaseBot> & {
   req: Request
-  self: types.BotHandlers<common.BaseBot>
+  self: types.BotLike<common.BaseBot>
 }
 
 const SUCCESS_RESPONSE = { status: 200 }
 
 export const botHandler =
-  (bot: types.BotHandlers<common.BaseBot>) =>
+  (bot: types.BotLike<common.BaseBot>) =>
   async (req: Request): Promise<Response | void> => {
     const ctx = extractContext(req.headers)
     const logger = new BotLogger()
@@ -31,12 +31,7 @@ export const botHandler =
     const botClient = new BotSpecificClient<common.BaseBot>(vanillaClient, {
       before: {
         createMessage: async (req) => {
-          const specificBeforeOutgoingMessageHooks = bot.hookHandlers.before_outgoing_message[req.type] ?? []
-          const globalBeforeOutgoingMessageHooks = bot.hookHandlers.before_outgoing_message['*'] ?? []
-          const beforeOutgoingMessageHooks = [
-            ...specificBeforeOutgoingMessageHooks,
-            ...globalBeforeOutgoingMessageHooks,
-          ]
+          const beforeOutgoingMessageHooks = bot.hookHandlers.before_outgoing_message[req.type] ?? []
           for (const handler of beforeOutgoingMessageHooks) {
             const hookOutput = await handler({
               client: new BotSpecificClient(vanillaClient),
@@ -49,12 +44,7 @@ export const botHandler =
           return req
         },
         callAction: async (req) => {
-          const specificBeforeOutgoingCallActionHooks = bot.hookHandlers.before_outgoing_call_action[req.type] ?? []
-          const globalBeforeOutgoingCallActionHooks = bot.hookHandlers.before_outgoing_call_action['*'] ?? []
-          const beforeOutgoingCallActionHooks = [
-            ...specificBeforeOutgoingCallActionHooks,
-            ...globalBeforeOutgoingCallActionHooks,
-          ]
+          const beforeOutgoingCallActionHooks = bot.hookHandlers.before_outgoing_call_action[req.type] ?? []
           for (const handler of beforeOutgoingCallActionHooks) {
             const hookOutput = await handler({
               client: new BotSpecificClient(vanillaClient),
@@ -69,9 +59,7 @@ export const botHandler =
       },
       after: {
         createMessage: async (res) => {
-          const specificAfterOutgoingMessageHooks = bot.hookHandlers.after_outgoing_message[res.message.type] ?? []
-          const globalAfterOutgoingMessageHooks = bot.hookHandlers.after_outgoing_message['*'] ?? []
-          const afterOutgoingMessageHooks = [...specificAfterOutgoingMessageHooks, ...globalAfterOutgoingMessageHooks]
+          const afterOutgoingMessageHooks = bot.hookHandlers.after_outgoing_message[res.message.type] ?? []
           for (const handler of afterOutgoingMessageHooks) {
             const hookOutput = await handler({
               client: new BotSpecificClient(vanillaClient),
@@ -84,13 +72,7 @@ export const botHandler =
           return res
         },
         callAction: async (res) => {
-          const specificAfterOutgoingCallActionHooks =
-            bot.hookHandlers.after_outgoing_call_action[res.output.type] ?? []
-          const globalAfterOutgoingCallActionHooks = bot.hookHandlers.after_outgoing_call_action['*'] ?? []
-          const afterOutgoingCallActionHooks = [
-            ...specificAfterOutgoingCallActionHooks,
-            ...globalAfterOutgoingCallActionHooks,
-          ]
+          const afterOutgoingCallActionHooks = bot.hookHandlers.after_outgoing_call_action[res.output.type] ?? []
           for (const handler of afterOutgoingCallActionHooks) {
             const hookOutput = await handler({
               client: new BotSpecificClient(vanillaClient),
@@ -147,9 +129,7 @@ const onEventReceived = async ({ ctx, logger, req, client, self }: ServerProps):
   if (ctx.type === 'message_created') {
     const event = body.event
     let message: client.Message = event.payload.message
-    const specificBeforeIncomingMessageHooks = self.hookHandlers.before_incoming_message[message.type] ?? []
-    const globalBeforeIncomingMessageHooks = self.hookHandlers.before_incoming_message['*'] ?? []
-    const beforeIncomingMessageHooks = [...specificBeforeIncomingMessageHooks, ...globalBeforeIncomingMessageHooks]
+    const beforeIncomingMessageHooks = self.hookHandlers.before_incoming_message[message.type] ?? []
     for (const handler of beforeIncomingMessageHooks) {
       const hookOutput = await handler({
         client,
@@ -171,10 +151,7 @@ const onEventReceived = async ({ ctx, logger, req, client, self }: ServerProps):
       event,
     }
 
-    const specificMessageHandlers = self.messageHandlers[message.type] ?? []
-    const globalMessageHandlers = self.messageHandlers['*'] ?? []
-    const messageHandlers = [...specificMessageHandlers, ...globalMessageHandlers]
-
+    const messageHandlers = self.messageHandlers[message.type] ?? []
     for (const handler of messageHandlers) {
       await handler({
         ...messagePayload,
@@ -184,9 +161,7 @@ const onEventReceived = async ({ ctx, logger, req, client, self }: ServerProps):
       })
     }
 
-    const specificAfterIncomingMessageHooks = self.hookHandlers.after_incoming_message[message.type] ?? []
-    const globalAfterIncomingMessageHooks = self.hookHandlers.after_incoming_message['*'] ?? []
-    const afterIncomingMessageHooks = [...specificAfterIncomingMessageHooks, ...globalAfterIncomingMessageHooks]
+    const afterIncomingMessageHooks = self.hookHandlers.after_incoming_message[message.type] ?? []
     for (const handler of afterIncomingMessageHooks) {
       const hookOutput = await handler({
         client,
@@ -239,9 +214,7 @@ const onEventReceived = async ({ ctx, logger, req, client, self }: ServerProps):
 
   const eventPayload = { event }
 
-  const specificEventHandlers = self.eventHandlers[event.type] ?? []
-  const globalEventHandlers = self.eventHandlers['*'] ?? []
-  const eventHandlers = [...specificEventHandlers, ...globalEventHandlers]
+  const eventHandlers = self.eventHandlers[event.type] ?? []
   for (const handler of eventHandlers) {
     await handler({
       ...eventPayload,
@@ -251,9 +224,7 @@ const onEventReceived = async ({ ctx, logger, req, client, self }: ServerProps):
     })
   }
 
-  const specificAfterIncomingEventHooks = self.hookHandlers.after_incoming_event[event.type] ?? []
-  const globalAfterIncomingEventHooks = self.hookHandlers.after_incoming_event['*'] ?? []
-  const afterIncomingEventHooks = [...specificAfterIncomingEventHooks, ...globalAfterIncomingEventHooks]
+  const afterIncomingEventHooks = self.hookHandlers.after_incoming_event[event.type] ?? []
   for (const handler of afterIncomingEventHooks) {
     const hookOutput = await handler({
       client,
