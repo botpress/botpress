@@ -16,25 +16,34 @@ export default new IntegrationDefinition({
     identifier: {
       linkTemplateScript: 'linkTemplate.vrl',
     },
-    ui: {
-      useManualConfiguration: {
-        title: 'Use Manual Configuration',
-      },
-    },
     schema: z
       .object({
-        useManualConfiguration: z.boolean().optional().describe('Skip oAuth and supply details from a Meta App'),
+        useManualConfiguration: z
+          .boolean()
+          .optional()
+          .title('Use manual configuration')
+          .describe('Skip oAuth and supply details from a Meta App'),
         verifyToken: z
           .string()
           .optional()
+          .title('Verify Token')
           .describe('Token used for verification for the Callback URL at API setup View'),
-        accessToken: z.string().optional().describe('Access Token from the Instagram Account from the API setup View'),
-        clientId: z.string().optional().describe('Instagram App Id from API setup View'),
+        accessToken: z
+          .string()
+          .optional()
+          .title('Access token')
+          .describe('Access Token from the Instagram Account from the API setup View'),
+        clientId: z.string().optional().title('Client ID').describe('Instagram App Id from API setup View'),
         clientSecret: z
           .string()
           .optional()
+          .title('Client Secret')
           .describe('Instagram App secret from API setup View used for webhook signature check'),
-        instagramId: z.string().optional().describe('Instagram Account Id from API setup View'),
+        instagramId: z
+          .string()
+          .optional()
+          .title('Instagram account ID')
+          .describe('Instagram Account Id from API setup View'),
       })
       .hidden((formData) => {
         const showConfig = !formData?.useManualConfiguration
@@ -52,8 +61,16 @@ export default new IntegrationDefinition({
     oauth: {
       type: 'integration',
       schema: z.object({
-        accessToken: z.string().optional(),
-        instagramId: z.string().optional(),
+        accessToken: z
+          .string()
+          .optional()
+          .title('Access token')
+          .describe('Access token used to authenticate requests to the Instagram API'),
+        instagramId: z
+          .string()
+          .optional()
+          .title('Instagram account ID')
+          .describe('The Instagram account ID associated with the access token'),
       }),
     },
   },
