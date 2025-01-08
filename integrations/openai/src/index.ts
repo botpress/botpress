@@ -302,9 +302,9 @@ export default new bp.Integration({
       metadata.setCost(output.botpress.cost)
       return output
     },
-    generateSpeech: async ({ input, client, metadata }) => {
+    generateSpeech: async ({ input, client, metadata, ctx }) => {
       const model = input.model ?? 'tts-1'
-
+      const openAIClient = getOpenAIClient(ctx)
       const params: SpeechCreateParams = {
         model,
         input: input.input,
