@@ -2,6 +2,7 @@ import { Client } from '@botpress/client'
 import { BotSpecificClient } from '../../bot'
 import { BasePlugin, PluginInterfaceExtensions } from '../types'
 import { ActionProxy } from './types'
+import { resolveAction, formatActionRef } from '../interface-resolution'
 
 export const proxy = <TPlugin extends BasePlugin>(
   client: BotSpecificClient<TPlugin> | Client,
@@ -38,20 +39,15 @@ type CallActionsProps = {
   input: Record<string, any>
 }
 const _callAction = async ({ client, interfaces, integrationOrInterfaceName, methodName, input }: CallActionsProps) => {
-  const interfaceExtension = interfaces[integrationOrInterfaceName] ?? {
-    name: integrationOrInterfaceName,
-    version: '0.0.0',
-    entities: {},
-    actions: {},
-    events: {},
-    channels: {},
-  }
-
-  const prefix = interfaceExtension.name
-  const suffix = interfaceExtension.actions[methodName]?.name ?? methodName
-  const fullActionName = `${prefix}:${suffix}`
+  const resolvedAction = resolveAction(
+    {
+      namespace: integrationOrInterfaceName,
+      actionName: methodName,
+    },
+    interfaces
+  )
   const response = await client.callAction({
-    type: fullActionName,
+    type: formatActionRef(resolvedAction),
     input,
   })
   return response.output
