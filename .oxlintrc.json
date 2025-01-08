@@ -1,6 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": ["unicorn", "typescript", "oxc", "oxc-security", "import", "promise"],
+  "plugins": ["unicorn", "typescript", "oxc", "oxc-security", "import", "promise", "n", "vitest"],
   "env": {
     "browser": true,
     "es2024": true,
@@ -32,6 +32,7 @@
     "import/namespace": "off",
     "import/no-named-as-default-member": "off",
     "import/no-named-as-default": "off",
+    "jest/valid-title": "off",
     "oxc/no-accumulating-spread": "off",
     "typescript/ban-ts-comment": "off",
     "typescript/ban-types": "off",
@@ -59,7 +60,11 @@
     "unicorn/prefer-set-has": "off",
     "unicorn/prefer-string-replace-all": "off",
     "unicorn/prefer-string-slice": "off",
-    "unicorn/prefer-type-error": "off"
+    "unicorn/prefer-type-error": "off",
+    "vitest/expect-expect": "off",
+    "vitest/no-conditional-expect": "off",
+    "vitest/no-conditional-in-test": "off",
+    "vitest/valid-expect": "off"
   },
   "overrides": [],
   "categories": {
