@@ -15,7 +15,7 @@ import {
   HookData,
   HookHandlers,
   ActionHandlers,
-  BotLike,
+  BotHandlers,
   UnimplementedActionHandlers,
 } from './server'
 import { BaseBot } from './types'
@@ -28,7 +28,7 @@ export type BotImplementationProps<TBot extends BaseBot = BaseBot, TPlugins exte
 }
 
 export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends Record<string, BasePlugin> = {}>
-  implements BotLike<TBot>
+  implements BotHandlers<TBot>
 {
   private _actionHandlers: ActionHandlers<any>
   private _messageHandlers: MessageHandlersMap<any> = {}
@@ -49,7 +49,7 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     this._actionHandlers = props.actions as ActionHandlers<TBot>
     const plugins = utils.records.values(props.plugins)
     for (const plugin of plugins) {
-      this._use(plugin as BotLike<any>)
+      this._use(plugin as BotHandlers<any>)
     }
   }
 
@@ -215,11 +215,11 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     },
   }
 
-  private readonly _use = (botLike: BotLike<any>): void => {
-    mergeBots(this as BotLike<any>, botLike)
+  private readonly _use = (botLike: BotHandlers<any>): void => {
+    mergeBots(this as BotHandlers<any>, botLike)
   }
 
-  public readonly handler = botHandler(this as BotLike<any>)
+  public readonly handler = botHandler(this as BotHandlers<any>)
 
   public readonly start = (port?: number): Promise<Server> => serve(this.handler, port)
 }

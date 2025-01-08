@@ -44,7 +44,7 @@ export {
   BotImplementation as Bot,
   BotImplementationProps as BotProps,
   BotSpecificClient,
-  BotLike as BotHandlers,
+  BotHandlers,
   TagDefinition as BotTagDefinition,
   StateType as BotStateType,
   StateDefinition as BotStateDefinition,

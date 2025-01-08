@@ -100,7 +100,7 @@ export type CommonHandlerProps<TPlugin extends types.BasePlugin> = {
 }
 
 export type MessagePayloads<TPlugin extends types.BasePlugin> = {
-  [K in keyof IncomingMessages<TPlugin>]: {
+  [K in keyof IncomingMessages<TPlugin>]: CommonHandlerProps<TPlugin> & {
     message: IncomingMessages<TPlugin>[K]
     user: client.User
     conversation: client.Conversation
@@ -115,36 +115,32 @@ export type MessagePayloads<TPlugin extends types.BasePlugin> = {
 }
 
 export type MessageHandlers<TPlugin extends types.BasePlugin> = {
-  [K in keyof IncomingMessages<TPlugin>]: (
-    args: CommonHandlerProps<TPlugin> & MessagePayloads<TPlugin>[K]
-  ) => Promise<void>
+  [K in keyof IncomingMessages<TPlugin>]: (args: MessagePayloads<TPlugin>[K]) => Promise<void>
 }
 
 export type EventPayloads<TPlugin extends types.BasePlugin> = {
-  [K in keyof IncomingEvents<TPlugin>]: { event: IncomingEvents<TPlugin>[K] }
+  [K in keyof IncomingEvents<TPlugin>]: CommonHandlerProps<TPlugin> & { event: IncomingEvents<TPlugin>[K] }
 }
 
 export type EventHandlers<TPlugin extends types.BasePlugin> = {
-  [K in keyof IncomingEvents<TPlugin>]: (args: CommonHandlerProps<TPlugin> & EventPayloads<TPlugin>[K]) => Promise<void>
+  [K in keyof IncomingEvents<TPlugin>]: (args: EventPayloads<TPlugin>[K]) => Promise<void>
 }
 
 export type StateExpiredPayloads<TPlugin extends types.BasePlugin> = {
-  [K in keyof IncomingStates<TPlugin>]: { state: IncomingStates<TPlugin>[K] }
+  [K in keyof IncomingStates<TPlugin>]: CommonHandlerProps<TPlugin> & { state: IncomingStates<TPlugin>[K] }
 }
 
 export type StateExpiredHandlers<TPlugin extends types.BasePlugin> = {
-  [K in keyof IncomingStates<TPlugin>]: (
-    args: CommonHandlerProps<TPlugin> & StateExpiredPayloads<TPlugin>[K]
-  ) => Promise<void>
+  [K in keyof IncomingStates<TPlugin>]: (args: StateExpiredPayloads<TPlugin>[K]) => Promise<void>
 }
 
 export type ActionHandlerPayloads<TPlugin extends types.BasePlugin> = {
-  [K in keyof TPlugin['actions']]: { type?: K; input: TPlugin['actions'][K]['input'] }
+  [K in keyof TPlugin['actions']]: CommonHandlerProps<TPlugin> & { type?: K; input: TPlugin['actions'][K]['input'] }
 }
 
 export type ActionHandlers<TPlugin extends types.BasePlugin> = {
   [K in keyof TPlugin['actions']]: (
-    props: CommonHandlerProps<TPlugin> & ActionHandlerPayloads<TPlugin>[K]
+    props: ActionHandlerPayloads<TPlugin>[K]
   ) => Promise<TPlugin['actions'][K]['output']>
 }
 
@@ -160,6 +156,9 @@ type HookDefinition<THookDef extends BaseHookDefinition = BaseHookDefinition> = 
  *   - before_incoming_call_action
  *   - after_incoming_call_action
  */
+
+export type HookDefinitionType = keyof HookDefinitions<types.BasePlugin>
+
 export type HookDefinitions<TPlugin extends types.BasePlugin> = {
   before_incoming_event: HookDefinition<{
     stoppable: true
@@ -243,16 +242,10 @@ export type HookHandlersMap<TPlugin extends types.BasePlugin> = {
   }
 }
 
-export type PluginActionHandlers<TPlugin extends types.BasePlugin> = ActionHandlers<TPlugin>
-export type PluginMessageHandlers<TPlugin extends types.BasePlugin> = MessageHandlersMap<TPlugin>
-export type PluginEventHandlers<TPlugin extends types.BasePlugin> = EventHandlersMap<TPlugin>
-export type PluginStateExpiredHandlers<TPlugin extends types.BasePlugin> = StateExpiredHandlersMap<TPlugin>
-export type PluginHookHandlers<TPlugin extends types.BasePlugin> = HookHandlersMap<TPlugin>
-
 export type PluginHandlers<TPlugin extends types.BasePlugin> = {
-  actionHandlers: PluginActionHandlers<TPlugin>
-  messageHandlers: PluginMessageHandlers<TPlugin>
-  eventHandlers: PluginEventHandlers<TPlugin>
-  stateExpiredHandlers: PluginStateExpiredHandlers<TPlugin>
-  hookHandlers: PluginHookHandlers<TPlugin>
+  actionHandlers: ActionHandlers<TPlugin>
+  messageHandlers: MessageHandlersMap<TPlugin>
+  eventHandlers: EventHandlersMap<TPlugin>
+  stateExpiredHandlers: StateExpiredHandlersMap<TPlugin>
+  hookHandlers: HookHandlersMap<TPlugin>
 }
