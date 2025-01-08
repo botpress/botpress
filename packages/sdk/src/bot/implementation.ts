@@ -2,7 +2,6 @@ import type { Server } from 'node:http'
 import { BasePlugin, PluginImplementation } from '../plugin'
 import { serve } from '../serve'
 import * as utils from '../utils'
-import { mergeBots } from './merge-bots'
 import {
   botHandler,
   MessageHandlersMap,
@@ -47,9 +46,8 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
 
   public constructor(public readonly props: BotImplementationProps<TBot, TPlugins>) {
     this._actionHandlers = props.actions as ActionHandlers<TBot>
-    const plugins = utils.records.values(props.plugins)
-    for (const plugin of plugins) {
-      this._use(plugin as BotHandlers<any>)
+    for (const plugin of utils.records.values(props.plugins)) {
+      this.use(plugin)
     }
   }
 
@@ -215,8 +213,101 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     },
   }
 
-  private readonly _use = (botLike: BotHandlers<any>): void => {
-    mergeBots(this as BotHandlers<any>, botLike)
+  public readonly use = (src: BotHandlers<any>): void => {
+    const dest = this as BotHandlers<any>
+    for (const [type, actionHandler] of Object.entries(src.actionHandlers)) {
+      dest.actionHandlers[type] = actionHandler
+    }
+    for (const [type, handlers] of Object.entries(src.eventHandlers)) {
+      if (!handlers) {
+        continue
+      }
+      dest.eventHandlers[type] = utils.arrays.safePush(dest.eventHandlers[type], ...handlers)
+    }
+    for (const [type, handlers] of Object.entries(src.messageHandlers)) {
+      if (!handlers) {
+        continue
+      }
+      dest.messageHandlers[type] = utils.arrays.safePush(dest.messageHandlers[type], ...handlers)
+    }
+    for (const [type, handlers] of Object.entries(src.stateExpiredHandlers)) {
+      if (!handlers) {
+        continue
+      }
+      dest.stateExpiredHandlers[type] = utils.arrays.safePush(dest.stateExpiredHandlers[type], ...handlers)
+    }
+    for (const [type, handlers] of Object.entries(src.hookHandlers.before_incoming_event)) {
+      if (!handlers) {
+        continue
+      }
+      dest.hookHandlers.before_incoming_event[type] = utils.arrays.safePush(
+        dest.hookHandlers.before_incoming_event[type],
+        ...handlers
+      )
+    }
+    for (const [type, handlers] of Object.entries(src.hookHandlers.before_incoming_message)) {
+      if (!handlers) {
+        continue
+      }
+      dest.hookHandlers.before_incoming_message[type] = utils.arrays.safePush(
+        dest.hookHandlers.before_incoming_message[type],
+        ...handlers
+      )
+    }
+    for (const [type, handlers] of Object.entries(src.hookHandlers.before_outgoing_message)) {
+      if (!handlers) {
+        continue
+      }
+      dest.hookHandlers.before_outgoing_message[type] = utils.arrays.safePush(
+        dest.hookHandlers.before_outgoing_message[type],
+        ...handlers
+      )
+    }
+    for (const [type, handlers] of Object.entries(src.hookHandlers.before_outgoing_call_action)) {
+      if (!handlers) {
+        continue
+      }
+      dest.hookHandlers.before_outgoing_call_action[type] = utils.arrays.safePush(
+        dest.hookHandlers.before_outgoing_call_action[type],
+        ...handlers
+      )
+    }
+    for (const [type, handlers] of Object.entries(src.hookHandlers.after_incoming_event)) {
+      if (!handlers) {
+        continue
+      }
+      dest.hookHandlers.after_incoming_event[type] = utils.arrays.safePush(
+        dest.hookHandlers.after_incoming_event[type],
+        ...handlers
+      )
+    }
+    for (const [type, handlers] of Object.entries(src.hookHandlers.after_incoming_message)) {
+      if (!handlers) {
+        continue
+      }
+      dest.hookHandlers.after_incoming_message[type] = utils.arrays.safePush(
+        dest.hookHandlers.after_incoming_message[type],
+        ...handlers
+      )
+    }
+    for (const [type, handlers] of Object.entries(src.hookHandlers.after_outgoing_message)) {
+      if (!handlers) {
+        continue
+      }
+      dest.hookHandlers.after_outgoing_message[type] = utils.arrays.safePush(
+        dest.hookHandlers.after_outgoing_message[type],
+        ...handlers
+      )
+    }
+    for (const [type, handlers] of Object.entries(src.hookHandlers.after_outgoing_call_action)) {
+      if (!handlers) {
+        continue
+      }
+      dest.hookHandlers.after_outgoing_call_action[type] = utils.arrays.safePush(
+        dest.hookHandlers.after_outgoing_call_action[type],
+        ...handlers
+      )
+    }
   }
 
   public readonly handler = botHandler(this as BotHandlers<any>)
