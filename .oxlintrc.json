@@ -9,7 +9,6 @@
   "globals": {},
   "settings": {},
   "rules": {
-    "eslint/eqeqeq": "off",
     "eslint/max-classes-per-file": "off",
     "eslint/max-lines": "off",
     "eslint/no-await-in-loop": "off",

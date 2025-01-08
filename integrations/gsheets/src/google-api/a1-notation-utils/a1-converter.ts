@@ -19,10 +19,10 @@ export namespace A1Converter {
   }
 
   const _isEmptyRange = (range: GridRange): boolean =>
-    range.startColumnIndex == null &&
-    range.startRowIndex == null &&
-    range.endColumnIndex == null &&
-    range.endRowIndex == null
+    range.startColumnIndex === null &&
+    range.startRowIndex === null &&
+    range.endColumnIndex === null &&
+    range.endRowIndex === null
 
   const _getStartReference = (range: GridRange): string =>
     _buildCellReference(range.startColumnIndex, range.startRowIndex)
