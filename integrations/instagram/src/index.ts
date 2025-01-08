@@ -8,38 +8,25 @@ import { getInterstitialUrl, redirectTo } from './misc/html-utils'
 import { handleMessage } from './misc/incoming-message'
 import { sendMessage } from './misc/outgoing-message'
 import { InstagramPayload } from './misc/types'
-import {
-  formatGoogleMapLink,
-  getBotInstagramUserId,
-  getCarouselMessage,
-  getChoiceMessage,
-  getMessengerClient,
-} from './misc/utils'
+import { formatGoogleMapLink, getCarouselMessage, getChoiceMessage } from './misc/utils'
 import { handleWizard } from './misc/wizard'
 import * as bp from '.botpress'
 
 const integration = new bp.Integration({
-  register: async ({ client, ctx }) => {
-    await client.updateUser({
-      id: ctx.botUserId,
-      tags: { id: getBotInstagramUserId(ctx) },
-    })
-  },
+  register: async () => {},
   unregister: async () => {},
   actions: {
-    getOrCreateUser: async ({ client, ctx, input }) => {
-      const messengerClient = getMessengerClient(ctx.configuration)
-      const profile = await messengerClient.getUserProfile(input.user.id, {
-        fields: ['id'],
-      })
+    getOrCreateUser: async ({ client, ctx, input, logger }) => {
+      const credentials = await getCredentials(client, ctx)
+      const metaClient = new MetaClient(logger, credentials)
+      const profile = await metaClient.getUserProfile(input.user.id)
       const { user } = await client.getOrCreateUser({ tags: { id: profile.id } })
       return { userId: user.id }
     },
-    getOrCreateConversationDm: async ({ client, ctx, input }) => {
-      const messengerClient = getMessengerClient(ctx.configuration)
-      const profile = await messengerClient.getUserProfile(input.conversation.id, {
-        fields: ['id'],
-      })
+    getOrCreateConversationDm: async ({ client, ctx, input, logger }) => {
+      const credentials = await getCredentials(client, ctx)
+      const metaClient = new MetaClient(logger, credentials)
+      const profile = await metaClient.getUserProfile(input.conversation.id)
       const { conversation } = await client.getOrCreateConversation({ channel: 'channel', tags: { id: profile.id } })
       return { conversationId: conversation.id }
     },
@@ -192,45 +179,6 @@ const integration = new bp.Integration({
     }
 
     return
-  },
-  createUser: async ({ client, tags, ctx, logger }) => {
-    const userId = tags.id
-    if (!userId) {
-      return
-    }
-
-    const credentials = await getCredentials(client, ctx)
-    const metaClient = new MetaClient(logger)
-    const userProfile = await metaClient.getUserProfile(credentials.accessToken, userId)
-
-    const { user } = await client.getOrCreateUser({ tags: { id: `${userProfile.id}` } })
-
-    return {
-      body: JSON.stringify({ user: { id: user.id } }),
-      headers: {},
-      statusCode: 200,
-    }
-  },
-  createConversation: async ({ client, channel, tags, ctx, logger }) => {
-    const userId = tags.id
-    if (!userId) {
-      return
-    }
-
-    const credentials = await getCredentials(client, ctx)
-    const metaClient = new MetaClient(logger)
-    const userProfile = await metaClient.getUserProfile(credentials.accessToken, userId)
-
-    const { conversation } = await client.getOrCreateConversation({
-      channel,
-      tags: { id: `${userProfile.id}` },
-    })
-
-    return {
-      body: JSON.stringify({ conversation: { id: conversation.id } }),
-      headers: {},
-      statusCode: 200,
-    }
   },
 })
 

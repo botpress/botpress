@@ -1,4 +1,3 @@
-import { MessengerTypes } from 'messaging-api-messenger'
 import * as bp from '.botpress'
 
 export type InstagramPayload = {
@@ -29,9 +28,6 @@ export type InstagramMessage = {
     title: string
   }
 }
-
-export type IntegrationLogger = bp.Logger
-export type InstagramUserProfile = MessengerTypes.User & { username: string }
 
 export type Carousel = bp.channels.channel.carousel.Carousel
 export type Card = bp.channels.channel.card.Card

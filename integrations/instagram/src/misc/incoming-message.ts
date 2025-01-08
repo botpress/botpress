@@ -1,19 +1,14 @@
 import { getCredentials, MetaClient } from './client'
-import { InstagramMessage, IntegrationLogger } from './types'
-import { getBotInstagramUserId, getUserProfile } from './utils'
+import { InstagramMessage } from './types'
 import * as bp from '.botpress'
 
 export async function handleMessage(
   message: InstagramMessage,
-  { client, ctx, logger }: { client: bp.Client; ctx: bp.Context; logger: IntegrationLogger }
+  { client, ctx, logger }: { client: bp.Client; ctx: bp.Context; logger: bp.Logger }
 ) {
   if (message?.message?.text) {
     logger.forBot().debug('Received text message from Instagram:', message.message.text)
-    const botInstagramUserId = getBotInstagramUserId(ctx)
-    if (message.sender.id === botInstagramUserId) {
-      logger.forBot().debug('Ignoring message from bot')
-      return
-    }
+
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
@@ -42,6 +37,8 @@ export async function handleMessage(
         logger.forBot().error('Error while fetching user profile from Instagram', error)
       }
     }
+
+    console.log('Will Create Message', { message, user, conversation })
 
     await client.getOrCreateMessage({
       type: 'text',

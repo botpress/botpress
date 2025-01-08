@@ -1,8 +1,8 @@
 import { RuntimeError, z } from '@botpress/sdk'
 import axios from 'axios'
-import { getGlobalWebhookUrl } from '../index'
-import * as bp from '.botpress'
 import qs from 'qs'
+import { getGlobalOauthWebhookUrl } from './utils'
+import * as bp from '.botpress'
 
 type InstagramClientConfig = { accessToken?: string; instagramId?: string }
 
@@ -22,7 +22,7 @@ export class MetaClient {
       client_id: this._clientId,
       client_secret: this._clientSecret,
       grant_type: 'authorization_code',
-      redirect_uri: getGlobalWebhookUrl(),
+      redirect_uri: getGlobalOauthWebhookUrl(),
       code,
     }
 

@@ -1,9 +1,9 @@
 import { Request, RuntimeError } from '@botpress/sdk'
 import queryString from 'query-string'
 import * as bp from '../../.botpress'
-import { getGlobalWebhookUrl } from '../index'
 import { MetaClient } from './client'
 import { generateButtonDialog, getInterstitialUrl, redirectTo } from './html-utils'
+import { getGlobalOauthWebhookUrl } from './utils'
 
 export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Context, logger: bp.Logger) => {
   const query = queryString.parse(req.query)
@@ -38,7 +38,7 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
         '&client_id=' +
         bp.secrets.CLIENT_ID +
         '&redirect_uri=' +
-        getGlobalWebhookUrl() +
+        getGlobalOauthWebhookUrl() +
         '&state=' +
         ctx.webhookId +
         '&response_type=code&scope=instagram_business_basic,instagram_business_manage_messages'
@@ -82,6 +82,10 @@ export const handleWizard = async (req: Request, client: bp.Client, ctx: bp.Cont
     await metaClient.subscribeToWebhooks(accessToken)
     await client.configureIntegration({
       identifier: instagramId,
+    })
+    await client.updateUser({
+      id: ctx.botUserId,
+      tags: { id: instagramId },
     })
     console.log('subscribed')
     return redirectTo(getInterstitialUrl(true))
