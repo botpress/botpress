@@ -43,7 +43,7 @@
     "handlebars": "^4.7.8",
     "latest-version": "5.1.0",
     "lodash": "^4.17.21",
-    "prettier": "^2.8.8",
+    "prettier": "^3.4.2",
     "prompts": "^2.4.2",
     "radash": "^9.5.0",
     "semver": "^7.3.8",
