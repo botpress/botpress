@@ -7,7 +7,7 @@ module.exports = {
   parserOptions: {
     project: './tsconfig.json',
   },
-  extends: ['prettier'],
+  extends: ['prettier', 'plugin:oxlint/recommended'],
   parser: '@typescript-eslint/parser',
   ignorePatterns: ['*.d.ts', '*.test.ts', '*.js', 'cdk.out/', 'dist/', 'node_modules/', 'bp_modules', '.botpress/', '**/src/gen/'],
   plugins: [
