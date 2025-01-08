@@ -21,5 +21,5 @@ export namespace SharedLabel {
   } as const
 
   export const schema = z.object(_fields)
-  export type inferredType = z.infer<typeof schema>
+  export type InferredType = z.infer<typeof schema>
 }

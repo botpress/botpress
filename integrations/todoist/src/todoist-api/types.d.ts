@@ -1,13 +1,13 @@
 import { Task as TaskEntity, Project as ProjectEntity, Comment as CommentEntity } from 'definitions'
 
 // Entities:
-type Task = TaskEntity.inferredType
+type Task = TaskEntity.InferredType
 type BareMinimumTask = PartialExcept<Task, 'content'>
 
-type Project = ProjectEntity.inferredType
+type Project = ProjectEntity.InferredType
 type BareMinimumProject = PartialExcept<Project, 'name'>
 
-type Comment = CommentEntity.inferredType
+type Comment = CommentEntity.InferredType
 type BareMinimumComment = PartialExcept<Comment, 'content'>
 
 // Action requests:
