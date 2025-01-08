@@ -70,7 +70,7 @@ const set: Command = async (props, args) => {
     type: 'gsheets:updateValues',
     input: {
       range,
-      values,
+      values: _stringifyValues(values),
     },
   })
 
@@ -98,7 +98,7 @@ const append: Command = async (props, args) => {
     type: 'gsheets:appendValues',
     input: {
       range,
-      values,
+      values: _stringifyValues(values),
     },
   })
 
@@ -140,6 +140,9 @@ const addSheet: Command = async (props, args) => {
 
   await utils.respond('Done')
 }
+
+const _stringifyValues = (values: any[][]): string[][] =>
+  values.map((majorDimension) => majorDimension.map((cell) => cell.toString()))
 
 export const commands = {
   '/help': help,

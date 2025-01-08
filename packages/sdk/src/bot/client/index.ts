@@ -1,76 +1,93 @@
-import { Client } from '@botpress/client'
-import { BaseBot } from '../generic'
-import * as routes from './routes'
+import * as client from '@botpress/client'
+import * as common from '../types'
+import * as types from './types'
+
+export * from './types'
 
 /**
  * Just like the regular botpress client, but typed with the bot's properties.
  */
-export class BotSpecificClient<TBot extends BaseBot> {
-  public constructor(private readonly client: Client) {}
+export class BotSpecificClient<TBot extends common.BaseBot> implements types.ClientOperations<TBot> {
+  public constructor(private _client: client.Client, private _hooks: types.ClientHooks = { before: {}, after: {} }) {}
 
-  public getConversation: routes.GetConversation<TBot> = (x) => this.client.getConversation(x)
-  public listConversations: routes.ListConversations<TBot> = (x) => this.client.listConversations(x)
-  public updateConversation: routes.UpdateConversation<TBot> = (x) => this.client.updateConversation(x)
-  public deleteConversation: routes.DeleteConversation<TBot> = (x) => this.client.deleteConversation(x)
-
-  public listParticipants: routes.ListParticipants<TBot> = (x) => this.client.listParticipants(x)
-  public addParticipant: routes.AddParticipant<TBot> = (x) => this.client.addParticipant(x)
-  public getParticipant: routes.GetParticipant<TBot> = (x) => this.client.getParticipant(x)
-  public removeParticipant: routes.RemoveParticipant<TBot> = (x) => this.client.removeParticipant(x)
-
-  public getEvent: routes.GetEvent<TBot> = ((x) => this.client.getEvent(x)) as routes.GetEvent<TBot>
-  public listEvents: routes.ListEvents<TBot> = ((x) => this.client.listEvents(x)) as routes.ListEvents<TBot>
-
-  public createMessage: routes.CreateMessage<TBot> = ((x) => this.client.createMessage(x)) as routes.CreateMessage<TBot>
-  public getOrCreateMessage: routes.GetOrCreateMessage<TBot> = ((x) =>
-    this.client.getOrCreateMessage(x)) as routes.GetOrCreateMessage<TBot>
-  public getMessage: routes.GetMessage<TBot> = ((x) => this.client.getMessage(x)) as routes.GetMessage<TBot>
-  public updateMessage: routes.UpdateMessage<TBot> = ((x) => this.client.updateMessage(x)) as routes.UpdateMessage<TBot>
-  public listMessages: routes.ListMessages<TBot> = ((x) => this.client.listMessages(x)) as routes.ListMessages<TBot>
-  public deleteMessage: routes.DeleteMessage<TBot> = ((x) => this.client.deleteMessage(x)) as routes.DeleteMessage<TBot>
-
-  public getUser: routes.GetUser<TBot> = (x) => this.client.getUser(x)
-  public listUsers: routes.ListUsers<TBot> = (x) => this.client.listUsers(x)
-  public updateUser: routes.UpdateUser<TBot> = (x) => this.client.updateUser(x)
-  public deleteUser: routes.DeleteUser<TBot> = (x) => this.client.deleteUser(x)
-
-  public getState: routes.GetState<TBot> = ((x) =>
-    this.client.getState(x).then((y) => ({ state: { ...y.state, payload: y.state.payload } }))) as routes.GetState<TBot>
-  public setState: routes.SetState<TBot> = ((x) =>
-    this.client.setState(x).then((y) => ({ state: { ...y.state, payload: y.state.payload } }))) as routes.SetState<TBot>
-  public getOrSetState: routes.GetOrSetState<TBot> = ((x) =>
-    this.client
-      .getOrSetState(x)
-      .then((y) => ({ state: { ...y.state, payload: y.state.payload } }))) as routes.GetOrSetState<TBot>
-  public patchState: routes.PatchState<TBot> = ((x) =>
-    this.client
-      .patchState(x)
-      .then((y) => ({ state: { ...y.state, payload: y.state.payload } }))) as routes.PatchState<TBot>
-
-  public callAction: routes.CallAction<TBot> = (x) => this.client.callAction(x)
-
-  public uploadFile: routes.UploadFile<TBot> = (x) => this.client.uploadFile(x)
-  public upsertFile: routes.UpsertFile<TBot> = (x) => this.client.upsertFile(x)
-  public deleteFile: routes.DeleteFile<TBot> = (x) => this.client.deleteFile(x)
-  public listFiles: routes.ListFiles<TBot> = (x) => this.client.listFiles(x)
-  public getFile: routes.GetFile<TBot> = (x) => this.client.getFile(x)
-  public updateFileMetadata: routes.UpdateFileMetadata<TBot> = (x) => this.client.updateFileMetadata(x)
-  public searchFiles: routes.SearchFiles<TBot> = (x) => this.client.searchFiles(x)
+  public getConversation: types.GetConversation<TBot> = ((x) =>
+    this._run('getConversation', x)) as types.GetConversation<TBot>
+  public listConversations: types.ListConversations<TBot> = ((x) =>
+    this._run('listConversations', x)) as types.ListConversations<TBot>
+  public updateConversation: types.UpdateConversation<TBot> = ((x) =>
+    this._run('updateConversation', x)) as types.UpdateConversation<TBot>
+  public deleteConversation: types.DeleteConversation<TBot> = ((x) =>
+    this._run('deleteConversation', x)) as types.DeleteConversation<TBot>
+  public listParticipants: types.ListParticipants<TBot> = ((x) =>
+    this._run('listParticipants', x)) as types.ListParticipants<TBot>
+  public addParticipant: types.AddParticipant<TBot> = ((x) =>
+    this._run('addParticipant', x)) as types.AddParticipant<TBot>
+  public getParticipant: types.GetParticipant<TBot> = ((x) =>
+    this._run('getParticipant', x)) as types.GetParticipant<TBot>
+  public removeParticipant: types.RemoveParticipant<TBot> = ((x) =>
+    this._run('removeParticipant', x)) as types.RemoveParticipant<TBot>
+  public getEvent: types.GetEvent<TBot> = ((x) => this._run('getEvent', x)) as types.GetEvent<TBot>
+  public listEvents: types.ListEvents<TBot> = ((x) => this._run('listEvents', x)) as types.ListEvents<TBot>
+  public createMessage: types.CreateMessage<TBot> = ((x) => this._run('createMessage', x)) as types.CreateMessage<TBot>
+  public getOrCreateMessage: types.GetOrCreateMessage<TBot> = ((x) =>
+    this._run('getOrCreateMessage', x)) as types.GetOrCreateMessage<TBot>
+  public getMessage: types.GetMessage<TBot> = ((x) => this._run('getMessage', x)) as types.GetMessage<TBot>
+  public updateMessage: types.UpdateMessage<TBot> = ((x) => this._run('updateMessage', x)) as types.UpdateMessage<TBot>
+  public listMessages: types.ListMessages<TBot> = ((x) => this._run('listMessages', x)) as types.ListMessages<TBot>
+  public deleteMessage: types.DeleteMessage<TBot> = ((x) => this._run('deleteMessage', x)) as types.DeleteMessage<TBot>
+  public getUser: types.GetUser<TBot> = ((x) => this._run('getUser', x)) as types.GetUser<TBot>
+  public listUsers: types.ListUsers<TBot> = ((x) => this._run('listUsers', x)) as types.ListUsers<TBot>
+  public updateUser: types.UpdateUser<TBot> = ((x) => this._run('updateUser', x)) as types.UpdateUser<TBot>
+  public deleteUser: types.DeleteUser<TBot> = ((x) => this._run('deleteUser', x)) as types.DeleteUser<TBot>
+  public getState: types.GetState<TBot> = ((x) => this._run('getState', x)) as types.GetState<TBot>
+  public setState: types.SetState<TBot> = ((x) => this._run('setState', x)) as types.SetState<TBot>
+  public getOrSetState: types.GetOrSetState<TBot> = ((x) => this._run('getOrSetState', x)) as types.GetOrSetState<TBot>
+  public patchState: types.PatchState<TBot> = ((x) => this._run('patchState', x)) as types.PatchState<TBot>
+  public callAction: types.CallAction<TBot> = ((x) => this._run('callAction', x)) as types.CallAction<TBot>
+  public uploadFile: types.UploadFile<TBot> = ((x) => this._run('uploadFile', x)) as types.UploadFile<TBot>
+  public upsertFile: types.UpsertFile<TBot> = ((x) => this._run('upsertFile', x)) as types.UpsertFile<TBot>
+  public deleteFile: types.DeleteFile<TBot> = ((x) => this._run('deleteFile', x)) as types.DeleteFile<TBot>
+  public listFiles: types.ListFiles<TBot> = ((x) => this._run('listFiles', x)) as types.ListFiles<TBot>
+  public getFile: types.GetFile<TBot> = ((x) => this._run('getFile', x)) as types.GetFile<TBot>
+  public updateFileMetadata: types.UpdateFileMetadata<TBot> = ((x) =>
+    this._run('updateFileMetadata', x)) as types.UpdateFileMetadata<TBot>
+  public searchFiles: types.SearchFiles<TBot> = ((x) => this._run('searchFiles', x)) as types.SearchFiles<TBot>
+  public trackAnalytics: types.TrackAnalytics<TBot> = ((x) =>
+    this._run('trackAnalytics', x)) as types.TrackAnalytics<TBot>
 
   /**
    * @deprecated Use `callAction` to delegate the conversation creation to an integration.
    */
-  public createConversation: routes.CreateConversation<TBot> = (x) => this.client.createConversation(x)
+  public createConversation: types.CreateConversation<TBot> = (x) => this._client.createConversation(x)
   /**
    * @deprecated Use `callAction` to delegate the conversation creation to an integration.
    */
-  public getOrCreateConversation: routes.GetOrCreateConversation<TBot> = (x) => this.client.getOrCreateConversation(x)
+  public getOrCreateConversation: types.GetOrCreateConversation<TBot> = (x) => this._client.getOrCreateConversation(x)
   /**
    * @deprecated Use `callAction` to delegate the user creation to an integration.
    */
-  public createUser: routes.CreateUser<TBot> = (x) => this.client.createUser(x)
+  public createUser: types.CreateUser<TBot> = (x) => this._client.createUser(x)
   /**
    * @deprecated Use `callAction` to delegate the user creation to an integration.
    */
-  public getOrCreateUser: routes.GetOrCreateUser<TBot> = (x) => this.client.getOrCreateUser(x)
+  public getOrCreateUser: types.GetOrCreateUser<TBot> = (x) => this._client.getOrCreateUser(x)
+
+  private _run = async <K extends client.Operation>(
+    operation: K,
+    req: client.ClientInputs[K]
+  ): Promise<client.ClientOutputs[K]> => {
+    const before = this._hooks.before[operation]
+    if (before) {
+      req = await before(req)
+    }
+
+    let res = (await this._client[operation](req as any)) as client.ClientOutputs[K]
+
+    const after = this._hooks.after[operation]
+    if (after) {
+      res = await after(res)
+    }
+
+    return res
+  }
 }

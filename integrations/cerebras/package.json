@@ -1,0 +1,22 @@
+{
+  "name": "@botpresshub/cerebras",
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "openai": "^4.53.0"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpresshub/llm": "workspace:*"
+  },
+  "bpDependencies": {
+    "llm": "../../interfaces/llm"
+  }
+}

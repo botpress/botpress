@@ -92,7 +92,7 @@ const BOX_OPTIONS: boxen.Options = {
 export abstract class BaseLogger {
   protected opts: LoggerOptions
 
-  constructor(opts: Partial<LoggerOptions> = {}) {
+  public constructor(opts: Partial<LoggerOptions> = {}) {
     this.opts = { ...DEFAULT_OPTIONS, ...opts }
   }
 

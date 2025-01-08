@@ -1,8 +1,9 @@
+/* bplint-disable */
 import { IntegrationDefinition, z } from '@botpress/sdk'
 
 export default new IntegrationDefinition({
   name: 'pdf-generator',
-  version: '0.0.1',
+  version: '0.0.2',
   readme: 'hub.md',
   icon: 'icon.svg',
   description: 'Converts markdown content to PDF using PDFShift',

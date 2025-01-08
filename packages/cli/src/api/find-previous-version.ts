@@ -1,16 +1,16 @@
 import * as client from '@botpress/client'
 import semver from 'semver'
-import { NameIntegrationRef } from '../integration-ref'
+import { NamePackageRef } from '../package-ref'
 import * as paging from './paging'
 import { IntegrationSummary } from './types'
 
 export const findPreviousIntegrationVersion = async (
   client: client.Client,
-  ref: NameIntegrationRef
+  ref: NamePackageRef
 ): Promise<IntegrationSummary | undefined> => {
   const { name, version: targetVersion } = ref
   const allVersions = await paging.listAllPages(
-    async () => client.listIntegrations({ name }),
+    async ({ nextToken }) => client.listIntegrations({ name, nextToken }),
     (r) => r.integrations
   )
 

@@ -1,5 +1,5 @@
 import type * as client from '@botpress/client'
-import type * as sdk from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 import chalk from 'chalk'
 import * as fs from 'fs'
 import semver from 'semver'
@@ -11,8 +11,10 @@ import {
   prepareCreateIntegrationBody,
 } from '../api/integration-body'
 import { CreateInterfaceBody, prepareCreateInterfaceBody, prepareUpdateInterfaceBody } from '../api/interface-body'
+import { prepareCreatePluginBody, prepareUpdatePluginBody } from '../api/plugin-body'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
+import { getImplementationStatements } from '../sdk'
 import * as utils from '../utils'
 import { BuildCommand } from './build-command'
 import { ProjectCommand } from './project-command'
@@ -34,7 +36,13 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     if (projectDef.type === 'interface') {
       return this._deployInterface(api, projectDef.definition)
     }
-    return this._deployBot(api, this.argv.botId, this.argv.createNewBot)
+    if (projectDef.type === 'plugin') {
+      return this._deployPlugin(api, projectDef.definition)
+    }
+    if (projectDef.type === 'bot') {
+      return this._deployBot(api, projectDef.definition, this.argv.botId, this.argv.createNewBot)
+    }
+    throw new errors.UnsupportedProjectType()
   }
 
   private async _runBuild() {
@@ -45,16 +53,13 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const outfile = this.projectPaths.abs.outFile
     const code = await fs.promises.readFile(outfile, 'utf-8')
 
-    integrationDef = await this._manageWorkspaceHandle(api, integrationDef)
+    const { integration: updatedIntegrationDef, workspaceId } = await this._manageWorkspaceHandle(api, integrationDef)
+    integrationDef = updatedIntegrationDef
+    if (workspaceId) {
+      api = api.switchWorkspace(workspaceId)
+    }
 
-    const {
-      name,
-      version,
-      icon: iconRelativeFilePath,
-      readme: readmeRelativeFilePath,
-      identifier,
-      configuration,
-    } = integrationDef
+    const { name, version, icon: iconRelativeFilePath, readme: readmeRelativeFilePath, identifier } = integrationDef
 
     if (iconRelativeFilePath && !iconRelativeFilePath.toLowerCase().endsWith('.svg')) {
       throw new errors.BotpressCLIError('Icon must be an SVG file')
@@ -62,9 +67,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     const iconFileContent = await this._readMediaFile('icon', iconRelativeFilePath)
     const readmeFileContent = await this._readMediaFile('readme', readmeRelativeFilePath)
-    const identifierExtractScriptFileContent = await this._readFile(identifier?.extractScript)
-    const fallbackHandlerScriptFileContent = await this._readFile(identifier?.fallbackHandlerScript)
-    const identifierLinkTemplateFileContent = await this._readFile(configuration?.identifier?.linkTemplateScript)
+    const identifierExtractScriptFileContent = await this.readProjectFile(identifier?.extractScript)
+    const fallbackHandlerScriptFileContent = await this.readProjectFile(identifier?.fallbackHandlerScript)
 
     const integration = await api.findIntegration({ type: 'name', name, version })
     if (integration && integration.workspaceId !== api.workspaceId) {
@@ -93,20 +97,19 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       return
     }
 
-    let createBody: CreateIntegrationBody = prepareCreateIntegrationBody(integrationDef)
+    this.logger.debug('Preparing integration request body...')
+
+    let createBody: CreateIntegrationBody = await prepareCreateIntegrationBody(integrationDef)
     createBody = {
       ...createBody,
       interfaces: await this._formatInterfacesImplStatements(api, integrationDef),
       code,
       icon: iconFileContent,
       readme: readmeFileContent,
-      configuration: {
-        ...createBody.configuration,
-        identifier: {
-          ...(createBody.configuration?.identifier ?? {}),
-          linkTemplateScript: identifierLinkTemplateFileContent,
-        },
-      },
+      configuration: await this.readIntegrationConfigDefinition(createBody.configuration),
+      configurations: await utils.promises.awaitRecord(
+        utils.records.mapValues(createBody.configurations ?? {}, this.readIntegrationConfigDefinition.bind(this))
+      ),
       identifier: {
         extractScript: identifierExtractScriptFileContent,
         fallbackHandlerScript: fallbackHandlerScriptFileContent,
@@ -137,7 +140,15 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       })
       line.success(successMessage)
     } else {
+      this.logger.debug(`looking for previous version of integration "${name}"`)
       const previousVersion = await api.findPreviousIntegrationVersion({ type: 'name', name, version })
+
+      if (previousVersion) {
+        this.logger.debug(`previous version found: ${previousVersion.version}`)
+      } else {
+        this.logger.debug('no previous version found')
+      }
+
       const knownSecrets = previousVersion?.secrets
 
       const createSecrets = await this.promptSecrets(integrationDef, this.argv, { knownSecrets })
@@ -156,7 +167,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
   }
 
-  private async _deployInterface(api: ApiClient, interfaceDeclaration: sdk.InterfaceDeclaration) {
+  private async _deployInterface(api: ApiClient, interfaceDeclaration: sdk.InterfaceDefinition) {
     if (!api.isBotpressWorkspace) {
       throw new errors.BotpressCLIError('Your workspace is not allowed to deploy interfaces.')
     }
@@ -178,7 +189,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       return
     }
 
-    const createBody: CreateInterfaceBody = prepareCreateInterfaceBody(interfaceDeclaration)
+    const createBody: CreateInterfaceBody = await prepareCreateInterfaceBody(interfaceDeclaration)
 
     const startedMessage = `Deploying interface ${chalk.bold(name)} v${version}...`
     const successMessage = 'Interface deployed'
@@ -202,6 +213,62 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       line.started(startedMessage)
       await api.client.createInterface(createBody).catch((thrown) => {
         throw errors.BotpressCLIError.wrap(thrown, `Could not create interface "${name}"`)
+      })
+      line.success(successMessage)
+    }
+  }
+
+  private async _deployPlugin(api: ApiClient, pluginDef: sdk.PluginDefinition) {
+    const outfile = this.projectPaths.abs.outFile
+    const code = await fs.promises.readFile(outfile, 'utf-8')
+
+    const { name, version } = pluginDef
+
+    const plugin = await api.findPublicPlugin({ type: 'name', name, version })
+
+    let message: string
+    if (plugin) {
+      this.logger.warn('Plugin already exists. If you decide to deploy, it will override the existing one.')
+      message = `Are you sure you want to override plugin ${name} v${version}?`
+    } else {
+      message = `Are you sure you want to deploy plugin ${name} v${version}?`
+    }
+
+    const confirm = await this.prompt.confirm(message)
+    if (!confirm) {
+      this.logger.log('Aborted')
+      return
+    }
+
+    this.logger.debug('Preparing plugin request body...')
+
+    const createBody = {
+      ...(await prepareCreatePluginBody(pluginDef)),
+      code,
+    }
+
+    const startedMessage = `Deploying plugin ${chalk.bold(name)} v${version}...`
+    const successMessage = 'Plugin deployed'
+    if (plugin) {
+      const updateBody = prepareUpdatePluginBody(
+        {
+          id: plugin.id,
+          ...createBody,
+        },
+        plugin
+      )
+
+      const line = this.logger.line()
+      line.started(startedMessage)
+      await api.client.updatePlugin(updateBody).catch((thrown) => {
+        throw errors.BotpressCLIError.wrap(thrown, `Could not update plugin "${name}"`)
+      })
+      line.success(successMessage)
+    } else {
+      const line = this.logger.line()
+      line.started(startedMessage)
+      await api.client.createPlugin(createBody).catch((thrown) => {
+        throw errors.BotpressCLIError.wrap(thrown, `Could not create plugin "${name}"`)
       })
       line.success(successMessage)
     }
@@ -258,17 +325,6 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
   }
 
-  private _readFile = async (filePath: string | undefined): Promise<string | undefined> => {
-    if (!filePath) {
-      return undefined
-    }
-
-    const absoluteFilePath = utils.path.absoluteFrom(this.projectPaths.abs.workDir, filePath)
-    return fs.promises.readFile(absoluteFilePath, 'utf-8').catch((thrown) => {
-      throw errors.BotpressCLIError.wrap(thrown, `Could not read file "${absoluteFilePath}"`)
-    })
-  }
-
   private _readMediaFile = async (
     filePurpose: 'icon' | 'readme',
     filePath: string | undefined
@@ -283,10 +339,14 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     })
   }
 
-  private async _deployBot(api: ApiClient, argvBotId: string | undefined, argvCreateNew: boolean | undefined) {
+  private async _deployBot(
+    api: ApiClient,
+    botDefinition: sdk.BotDefinition,
+    argvBotId: string | undefined,
+    argvCreateNew: boolean | undefined
+  ) {
     const outfile = this.projectPaths.abs.outFile
     const code = await fs.promises.readFile(outfile, 'utf-8')
-    const { default: botImpl } = utils.require.requireJsFile<{ default: sdk.Bot }>(outfile)
 
     let bot: client.Bot
     if (argvBotId && argvCreateNew) {
@@ -312,10 +372,11 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying bot ${chalk.bold(bot.name)}...`)
 
-    const integrationInstances = await this.fetchBotIntegrationInstances(botImpl, api)
+    const integrationInstances = await this.fetchBotIntegrationInstances(botDefinition, api)
+    const createBotBody = await prepareCreateBotBody(botDefinition)
     const updateBotBody = prepareUpdateBotBody(
       {
-        ...prepareCreateBotBody(botImpl),
+        ...createBotBody,
         id: bot.id,
         code,
         integrations: integrationInstances,
@@ -376,11 +437,14 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   private async _manageWorkspaceHandle(
     api: ApiClient,
     integration: sdk.IntegrationDefinition
-  ): Promise<sdk.IntegrationDefinition> {
+  ): Promise<{
+    integration: sdk.IntegrationDefinition
+    workspaceId?: string // Set if user opted to deploy on another available workspace
+  }> {
     const { name: localName, workspaceHandle: localHandle } = this._parseIntegrationName(integration.name)
     if (!localHandle && api.isBotpressWorkspace) {
       this.logger.debug('Botpress workspace detected; workspace handle omitted')
-      return integration // botpress has the right to omit workspace handle
+      return { integration } // botpress has the right to omit workspace handle
     }
 
     const { handle: remoteHandle, name: workspaceName } = await api.getWorkspace().catch((thrown) => {
@@ -388,12 +452,31 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     })
 
     if (localHandle && remoteHandle) {
+      let workspaceId: string | undefined = undefined
       if (localHandle !== remoteHandle) {
-        throw new errors.BotpressCLIError(
-          `Your current workspace handle is "${remoteHandle}" but the integration handle is "${localHandle}".`
+        const remoteWorkspace = await api.findWorkspaceByHandle(localHandle).catch((thrown) => {
+          throw errors.BotpressCLIError.wrap(thrown, 'Could not list workspaces')
+        })
+        if (!remoteWorkspace) {
+          throw new errors.BotpressCLIError(
+            `The integration handle "${localHandle}" is not associated with any of your workspaces.`
+          )
+        }
+        this.logger.warn(
+          `Your are logged in to workspace "${workspaceName}" but integration handle "${localHandle}" belongs to "${remoteWorkspace.name}".`
         )
+        const confirmUseAlternateWorkspace = await this.prompt.confirm(
+          'Do you want to deploy integration on this workspace instead?'
+        )
+        if (!confirmUseAlternateWorkspace) {
+          throw new errors.BotpressCLIError(
+            `Cannot deploy integration with handle "${localHandle}" on workspace "${workspaceName}"`
+          )
+        }
+
+        workspaceId = remoteWorkspace.id
       }
-      return integration
+      return { integration, workspaceId }
     }
 
     const workspaceHandleIsMandatoryMsg = 'Cannot deploy integration without workspace handle'
@@ -406,7 +489,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
         throw new errors.BotpressCLIError(workspaceHandleIsMandatoryMsg)
       }
       const newName = `${remoteHandle}/${localName}`
-      return integration.clone({ name: newName })
+      return { integration: new sdk.IntegrationDefinition({ ...integration, name: newName }) }
     }
 
     if (localHandle && !remoteHandle) {
@@ -430,7 +513,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       })
 
       this.logger.success(`Handle "${localHandle}" is now yours!`)
-      return integration
+      return { integration }
     }
 
     this.logger.warn("It seems you don't have a workspace handle yet.")
@@ -455,7 +538,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     this.logger.success(`Handle "${claimedHandle}" is yours!`)
     const newName = `${claimedHandle}/${localName}`
-    return integration.clone({ name: newName })
+    return { integration: new sdk.IntegrationDefinition({ ...integration, name: newName }) }
   }
 
   private _parseIntegrationName = (integrationName: string): { name: string; workspaceHandle?: string } => {
@@ -477,23 +560,28 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     api: ApiClient,
     integration: sdk.IntegrationDefinition
   ): Promise<CreateIntegrationBody['interfaces']> => {
-    const interfacesEntries = Object.entries(integration.interfaces)
-    if (!interfacesEntries.length) {
-      return undefined
-    }
-
+    const interfacesStatements = getImplementationStatements(integration)
     const interfaces: NonNullable<CreateIntegrationBody['interfaces']> = {}
-    for (const [key, i] of interfacesEntries) {
-      const { name, version, entities, actions, events } = i
-      const intrface = await api.findPublicInterface({ type: 'name', name, version })
-      if (!intrface) {
-        throw new errors.BotpressCLIError(`Could not find interface "${name}@${version}"`)
-      }
-      const { id } = intrface
-
-      interfaces[key] = { id, entities, actions, events }
+    for (const [key, i] of Object.entries(interfacesStatements)) {
+      const { name, version, entities, actions, events, channels } = i
+      const id = await this._getInterfaceId(api, { id: i.id, name, version })
+      interfaces[key] = { id, entities, actions, events, channels }
     }
 
     return interfaces
+  }
+
+  private _getInterfaceId = async (
+    api: ApiClient,
+    ref: { id?: string; name: string; version: string }
+  ): Promise<string> => {
+    if (ref.id) {
+      return ref.id
+    }
+    const intrface = await api.findPublicInterface({ type: 'name', name: ref.name, version: ref.version })
+    if (!intrface) {
+      throw new errors.BotpressCLIError(`Could not find interface "${ref.name}@${ref.version}"`)
+    }
+    return intrface.id
   }
 }

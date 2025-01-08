@@ -2,9 +2,16 @@ name: Setup
 description: install dependencies and build
 
 inputs:
-  filter:
+  extra_filters:
+    description: 'Turbo additional filters to select packages to build'
+    required: false
+  turbo_team:
     type: string
-    description: 'packages to build'
+    description: 'Turbo team'
+    required: false
+  turbo_token:
+    type: string
+    description: 'Turbo token'
     required: false
 
 runs:
@@ -22,10 +29,13 @@ runs:
       run: pnpm i --frozen-lockfile
     - name: Build
       shell: bash
+      env:
+        TURBO_TEAM: ${{ inputs.turbo_team }}
+        TURBO_TOKEN: ${{ inputs.turbo_token }}
       run: |
-        filter="${{ inputs.filter }}"
+        filter="${{ inputs.extra_filters }}"
         if [ -z "$filter" ]; then
           pnpm build
         else
-          pnpm build --filter $filter
+          pnpm build $filter
         fi

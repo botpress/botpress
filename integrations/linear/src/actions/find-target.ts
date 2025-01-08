@@ -1,6 +1,6 @@
 import { IssueConnection } from '@linear/sdk'
 
-import { Target } from '../definitions/actions'
+import { Target } from '../../definitions/actions'
 import { getLinearClient } from '../misc/utils'
 import * as bp from '.botpress'
 
@@ -20,10 +20,11 @@ const findIssues = async (issues: IssueConnection, targets: Target[]) => {
   }
 }
 
-export const findTarget: bp.IntegrationProps['actions']['findTarget'] = async ({ input, client, ctx }) => {
+export const findTarget: bp.IntegrationProps['actions']['findTarget'] = async (args) => {
   const targets: Target[] = []
 
-  const linearClient = await getLinearClient(client, ctx.integrationId)
+  const { input, ctx } = args
+  const linearClient = await getLinearClient(args, ctx.integrationId)
   const issues = await linearClient.issues({
     filter: {
       or: [

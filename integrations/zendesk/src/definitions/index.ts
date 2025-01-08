@@ -3,7 +3,25 @@ import { z, IntegrationDefinitionProps } from '@botpress/sdk'
 export { actions } from './actions'
 export { channels } from './channels'
 
-export const events = {} satisfies IntegrationDefinitionProps['events']
+export const events = {
+  articlePublished: {
+    title: 'Article Published',
+    description: 'Triggered when an article is published',
+    schema: z.object({
+      articleId: z.string(),
+      articleTitle: z.string(),
+    }),
+    ui: {},
+  },
+  articleUnpublished: {
+    title: 'Article Unpublished',
+    description: 'Triggered when an article is unpublished',
+    schema: z.object({
+      articleId: z.string(),
+    }),
+    ui: {},
+  },
+} satisfies IntegrationDefinitionProps['events']
 
 export const configuration = {
   schema: z.object({
@@ -22,6 +40,16 @@ export const configuration = {
         description: 'Zendesk API Token',
       })
       .min(1),
+    syncKnowledgeBaseWithBot: z
+      .boolean({
+        description: 'Would you like to sync Zendesk Knowledge Base into Bot Knowledge Base?',
+      })
+      .optional(),
+    knowledgeBaseId: z
+      .string({
+        description: 'ID of the Knowledge Base you wish to synchronize with your Zendesk KB',
+      })
+      .optional(),
   }),
 } satisfies IntegrationDefinitionProps['configuration']
 

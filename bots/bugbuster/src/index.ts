@@ -1,19 +1,13 @@
-import { MessageHandlerProps, bot } from './bot'
+import { bot } from './bot'
 import { handleNewIssue, handleSyncIssuesRequest } from './handlers'
+import { listIssues } from './list-issues'
 import * as listeners from './listeners'
+import * as bp from '.botpress'
 
-bot.event(async (props) => {
-  const { event } = props
-  if (event.type === 'github:issueOpened') {
-    return handleNewIssue(props, event)
-  }
+bot.on.event('github:issueOpened', handleNewIssue)
+bot.on.event('syncIssuesRequest', handleSyncIssuesRequest)
 
-  if (event.type === 'syncIssuesRequest') {
-    return handleSyncIssuesRequest(props, event)
-  }
-})
-
-const respond = async (props: MessageHandlerProps, text: string) => {
+const respond = async (props: bp.MessageHandlerProps, text: string) => {
   const { client, ctx, message } = props
   await client.createMessage({
     type: 'text',
@@ -26,7 +20,7 @@ const respond = async (props: MessageHandlerProps, text: string) => {
   })
 }
 
-bot.message(async (props) => {
+bot.on.message('*', async (props) => {
   const { conversation, message, client, ctx } = props
   if (conversation.integration !== 'slack') {
     console.info(`Ignoring message from ${conversation.integration}`)
@@ -47,6 +41,10 @@ bot.message(async (props) => {
     state.conversationIds = state.conversationIds.filter((id) => id !== message.conversationId)
     await listeners.writeListeners(props, state)
     return await respond(props, 'Stopped listening.')
+  } else if (message.type === 'text' && message.payload.text === '#list') {
+    const githubIssues = await listIssues(props)
+    const message = ['Here are the issues in GitHub:', ...githubIssues.map((i) => `\t${i.displayName}`)].join('\n')
+    return await respond(props, message)
   }
 
   await client.createMessage({

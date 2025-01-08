@@ -1,0 +1,19 @@
+{
+  "name": "@botpresshub/airtable",
+  "description": "Airtable integration for Botpress",
+  "private": true,
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint"
+  },
+  "dependencies": {
+    "@botpress/sdk": "workspace:*",
+    "airtable": "^0.12.2",
+    "axios": "^1.5.0"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/common": "workspace:*"
+  }
+}

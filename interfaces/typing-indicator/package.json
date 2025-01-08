@@ -1,0 +1,16 @@
+{
+  "name": "@botpresshub/typing-indicator",
+  "description": "Typing indicator interface for Botpress",
+  "private": true,
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "@botpress/sdk": "workspace:*"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*"
+  }
+}

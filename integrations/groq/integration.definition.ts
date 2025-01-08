@@ -1,9 +1,14 @@
-import { IntegrationDefinition, interfaces, z } from '@botpress/sdk'
+/* bplint-disable */
+import { IntegrationDefinition, z } from '@botpress/sdk'
 import { modelId } from 'src/schemas'
+import llm from './bp_modules/llm'
+import stt from './bp_modules/speech-to-text'
 
 export default new IntegrationDefinition({
   name: 'groq',
-  version: '6.1.0',
+  title: 'Groq',
+  description: 'Gain access to Groq models for content generation, chat responses, and audio transcription.',
+  version: '11.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -24,7 +29,7 @@ export default new IntegrationDefinition({
     },
   },
 })
-  .extend(interfaces.llm, ({ modelRef }) => ({
+  .extend(llm, ({ modelRef }) => ({
     modelRef,
   }))
-  .extend(interfaces.speechToText, ({ speechToTextModelRef }) => ({ speechToTextModelRef }))
+  .extend(stt, ({ speechToTextModelRef }) => ({ speechToTextModelRef }))

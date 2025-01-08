@@ -1,0 +1,24 @@
+{
+  "name": "@botpresshub/todoist",
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/sdk": "workspace:*",
+    "@doist/todoist-api-typescript": "^3.0.3",
+    "axios": "^1.7.4",
+    "query-string": "^9.1.0",
+    "verror": "^1.10.1"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpresshub/creatable": "workspace:*"
+  },
+  "bpDependencies": {
+    "creatable": "../../interfaces/creatable"
+  }
+}

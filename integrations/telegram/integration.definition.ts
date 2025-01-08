@@ -1,11 +1,13 @@
+/* bplint-disable */
 import { z, IntegrationDefinition, messages } from '@botpress/sdk'
 import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import typingIndicator from './bp_modules/typing-indicator'
 
 export default new IntegrationDefinition({
   name: 'telegram',
-  version: '0.4.5',
+  version: '0.6.0',
   title: 'Telegram',
-  description: 'This integration allows your bot to interact with Telegram.',
+  description: 'Engage with your audience in real-time.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
@@ -15,10 +17,19 @@ export default new IntegrationDefinition({
   },
   channels: {
     channel: {
-      messages: messages.defaults,
+      messages: {
+        ...messages.defaults,
+        markdown: messages.markdown,
+        audio: {
+          ...messages.defaults.audio,
+          schema: messages.defaults.audio.schema.extend({
+            caption: z.string().optional().describe('The caption/transcription of the audio message'),
+          }),
+        },
+      },
       message: { tags: { id: {}, chatId: {} } },
       conversation: {
-        tags: { id: {}, fromUserId: {}, fromUserName: {}, chatId: {} },
+        tags: { id: {}, fromUserId: {}, fromUserUsername: {}, fromUserName: {}, chatId: {} },
         creation: { enabled: true, requiredTags: ['id'] },
       },
     },
@@ -32,4 +43,4 @@ export default new IntegrationDefinition({
     },
     creation: { enabled: true, requiredTags: ['id'] },
   },
-})
+}).extend(typingIndicator, () => ({}))

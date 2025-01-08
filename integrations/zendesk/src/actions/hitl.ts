@@ -1,3 +1,4 @@
+import * as sdk from '@botpress/sdk'
 import { getZendeskClient } from '../client'
 import * as bp from '.botpress'
 
@@ -7,18 +8,26 @@ export const startHitl: bp.IntegrationProps['actions']['startHitl'] = async ({ c
   const { user } = await client.getUser({
     id: input.userId,
   })
+  const zendeskAuthorId = user.tags.id
+  if (!zendeskAuthorId) {
+    throw new sdk.RuntimeError(`User ${user.id} not linked in Zendesk`)
+  }
 
-  const ticket = await zendeskClient.createTicket(input.title, input.description ?? '...', {
-    name: user.name ?? '',
-    email: user.tags.email ?? '',
-  })
+  const ticket = await zendeskClient.createTicket(
+    input.title ?? 'Untitled Ticket',
+    input.description ?? 'Someone opened a ticket using your Botpress chatbot',
+    { id: zendeskAuthorId }
+  )
 
+  const zendeskTicketId = `${ticket.id}`
   const { conversation } = await client.getOrCreateConversation({
     channel: 'hitl',
     tags: {
-      id: `${ticket.id}`,
+      id: zendeskTicketId,
     },
   })
+
+  // TODO: possibly display the message history
 
   return {
     conversationId: conversation.id,
@@ -36,15 +45,19 @@ export const stopHitl: bp.IntegrationProps['actions']['stopHitl'] = async ({ ctx
   }
 
   const zendeskClient = getZendeskClient(ctx.configuration)
-  const originalTicket = await zendeskClient.getTicket(ticketId)
 
-  await zendeskClient.updateTicket(ticketId, {
-    comment: {
-      body: input.reason,
-      author_id: originalTicket.requester_id,
-    },
-    status: 'closed',
-  })
-
-  return {}
+  try {
+    const originalTicket = await zendeskClient.getTicket(ticketId)
+    await zendeskClient.updateTicket(ticketId, {
+      comment: {
+        body: input.reason,
+        author_id: originalTicket.requester_id,
+      },
+      status: 'closed',
+    })
+    return {}
+  } catch (err) {
+    console.error('Could not close ticket', err)
+    throw new sdk.RuntimeError(`Failed to close ticket: ${err}`)
+  }
 }

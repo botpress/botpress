@@ -1,22 +1,43 @@
-import { Integration } from '@botpress/client'
+import * as client from '@botpress/client'
+import * as utils from '../utils'
 
 export type File = { path: string; content: string }
 
-export type IntegrationDefinition = Pick<
-  Integration,
-  'name' | 'version' | 'channels' | 'states' | 'events' | 'actions' | 'user' | 'entities'
-> & {
-  id: string | null
-  configuration: Omit<Integration['configuration'], 'identifier'>
-}
+type NameVersion = { name: string; version: string }
+export type IntegrationInstallablePackage = NameVersion &
+  (
+    | {
+        source: 'remote'
+        integration: client.Integration
+      }
+    | {
+        source: 'local'
+        devId?: string
+        path: utils.path.AbsolutePath
+      }
+  )
 
-type Def<T> = NonNullable<T>
+export type InterfaceInstallablePackage = NameVersion &
+  (
+    | {
+        source: 'remote'
+        interface: client.Interface
+      }
+    | {
+        source: 'local'
+        path: utils.path.AbsolutePath
+      }
+  )
 
-export type ConfigurationDefinition = Def<IntegrationDefinition['configuration']>
-export type ChannelDefinition = Def<IntegrationDefinition['channels']>[string]
-export type MessageDefinition = Def<ChannelDefinition['messages']>[string]
-export type ActionDefinition = Def<IntegrationDefinition['actions']>[string]
-export type EventDefinition = Def<IntegrationDefinition['events']>[string]
-export type StateDefinition = Def<IntegrationDefinition['states']>[string]
-export type UserDefinition = Def<IntegrationDefinition['user']>
-export type EntityDefinition = Def<IntegrationDefinition['entities']>[string]
+export type PluginInstallablePackage = NameVersion &
+  (
+    | {
+        source: 'local'
+        path: utils.path.AbsolutePath
+        implementationCode: string
+      }
+    | {
+        source: 'remote'
+        plugin: client.Plugin
+      }
+  )

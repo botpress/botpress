@@ -4,23 +4,31 @@ export { states } from './states'
 
 export const configuration = {
   schema: z.object({
-    appId: z.string().min(1),
-    appPassword: z.string().min(1),
-    tenantId: z.string().optional(),
+    appId: z.string().min(1).title('App ID').describe('Teams application ID'),
+    appPassword: z.string().min(1).title('App Password').describe('Teams application password'),
+    tenantId: z.string().optional().title('Tenant ID').describe('Teams tenant ID'),
   }),
 } satisfies IntegrationDefinitionProps['configuration']
 
 export const channels = {
   channel: {
-    messages: messages.defaults,
+    title: 'Channel',
+    description: 'Teams conversation channel',
+    messages: { ...messages.defaults, markdown: messages.markdown },
     message: {
       tags: {
-        id: {},
+        id: {
+          title: 'ID',
+          description: 'Teams activity ID',
+        },
       },
     },
     conversation: {
       tags: {
-        id: {},
+        id: {
+          title: 'ID',
+          description: 'Teams conversation ID',
+        },
       },
     },
   },
@@ -28,6 +36,9 @@ export const channels = {
 
 export const user = {
   tags: {
-    id: {},
+    id: {
+      title: 'ID',
+      description: 'Teams user ID',
+    },
   },
 } satisfies IntegrationDefinitionProps['user']

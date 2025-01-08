@@ -24,6 +24,9 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup
         uses: ./.github/actions/setup
+        with:
+          turbo_team: ${{ secrets.TURBO_TEAM }}
+          turbo_token: ${{ secrets.TURBO_TOKEN }}
       - name: Deploy Interfaces
         uses: ./.github/actions/deploy-interfaces
         with:
@@ -39,14 +42,23 @@ jobs:
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           token_cloud_ops_account: ${{ secrets.STAGING_TOKEN_CLOUD_OPS_ACCOUNT }}
           cloud_ops_workspace_id: ${{ secrets.STAGING_CLOUD_OPS_WORKSPACE_ID }}
-          gmail_secrets: '' # secrets should already exist
-          linear_secrets: '' # secrets should already exst
-          slack_secrets: '' # secrets should already exist
+          googledrive_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_GDRIVE_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_GDRIVE_CLIENT_SECRET }} --secrets WEBHOOK_SECRET=${{ secrets.STAGING_GDRIVE_WEBHOOK_SECRET }}'
+          gmail_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_GMAIL_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_GMAIL_CLIENT_SECRET }} --secrets TOPIC_NAME=${{ secrets.STAGING_GMAIL_TOPIC_NAME }} --secrets WEBHOOK_SHARED_SECRET=${{ secrets.STAGING_GMAIL_WEBHOOK_SHARED_SECRET }} --secrets WEBHOOK_SERVICE_ACCOUNT=${{ secrets.STAGING_GMAIL_WEBHOOK_SERVICE_ACCOUNT }}'
+          gsheets_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_GSHEETS_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_GSHEETS_CLIENT_SECRET }}'
+          googlecalendar_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_GOOGLECALENDAR_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_GOOGLECALENDAR_CLIENT_SECRET }}'
+          linear_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_LINEAR_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_LINEAR_CLIENT_SECRET }} --secrets WEBHOOK_SIGNING_SECRET=${{ secrets.STAGING_LINEAR_WEBHOOK_SIGNING_SECRET }}'
+          slack_secrets: --secrets CLIENT_ID=${{ secrets.STAGING_SLACK_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_SLACK_CLIENT_SECRET }} --secrets SIGNING_SECRET=${{ secrets.STAGING_SLACK_SIGNING_SECRET }}
           charts_secrets: '--secrets QUICKCHARTS_API_KEY=${{ secrets.QUICKCHARTS_API_KEY }}'
-          whatsapp_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_WHATSAPP_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_WHATSAPP_CLIENT_SECRET }} --secrets ACCESS_TOKEN=${{ secrets.STAGING_WHATSAPP_ACCESS_TOKEN }} --secrets NUMBER_PIN=${{ secrets.STAGING_WHATSAPP_NUMBER_PIN }}'
+          whatsapp_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_WHATSAPP_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_WHATSAPP_CLIENT_SECRET }} --secrets ACCESS_TOKEN=${{ secrets.STAGING_WHATSAPP_ACCESS_TOKEN }} --secrets NUMBER_PIN=${{ secrets.STAGING_WHATSAPP_NUMBER_PIN }} --secrets SEGMENT_KEY=${{ secrets.STAGING_WHATSAPP_SEGMENT_KEY }}'
           pdf_secrets: '--secrets PDFSHIFT_API_KEY=${{ secrets.PDFSHIFT_API_KEY }}'
           browser_secrets: '--secrets FIRECRAWL_API_KEY=${{ secrets.FIRECRAWL_API_KEY }} --secrets SCREENSHOT_API_KEY=${{ secrets.SCREENSHOT_API_KEY }}'
           openai_secrets: '--secrets OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}'
           groq_secrets: '--secrets GROQ_API_KEY=${{ secrets.GROQ_API_KEY }}'
           anthropic_secrets: '--secrets ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}'
           fireworks_ai_secrets: '--secrets FIREWORKS_AI_API_KEY=${{ secrets.FIREWORKS_AI_API_KEY }}'
+          todoist_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_TODOIST_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_TODOIST_CLIENT_SECRET }}'
+          cerebras_secrets: '--secrets CEREBRAS_API_KEY=${{ secrets.CEREBRAS_API_KEY }}'
+          messenger_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_MESSENGER_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_MESSENGER_CLIENT_SECRET  }} --secrets ACCESS_TOKEN=${{ secrets.STAGING_MESSENGER_ACCESS_TOKEN  }}'
+          github_secrets: "--secrets GITHUB_APP_ID=${{ secrets.STAGING_GITHUB_APP_ID }} --secrets 'GITHUB_PRIVATE_KEY=${{ secrets.STAGING_GITHUB_PRIVATE_KEY }}' --secrets GITHUB_WEBHOOK_SECRET=${{ secrets.STAGING_GITHUB_WEBHOOK_SECRET }}"
+          google_ai_secrets: '--secrets GOOGLE_AI_API_KEY=${{ secrets.GOOGLE_AI_API_KEY }}'
+          intercom_secrets: '--secrets CLIENT_ID=${{ secrets.STAGING_INTERCOM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.STAGING_INTERCOM_CLIENT_SECRET }}'

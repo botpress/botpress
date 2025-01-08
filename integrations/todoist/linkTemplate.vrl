@@ -1,0 +1,16 @@
+webhookId = to_string!(.webhookId)
+env = to_string!(.env)
+
+clientId = "b3d967c0a27f4f08aaa64a5e4ac3cc62"
+
+if env == "production" {
+  clientId = "58baef132a1d4eff9c4afaafdca85299"
+}
+
+scopes = [
+  "data:read_write",
+  "data:delete",
+]
+scopesStr = encode_percent(join!(scopes, ","))
+
+"https://todoist.com/oauth/authorize?client_id={{ clientId }}&state={{ webhookId }}&scope={{ scopesStr }}"

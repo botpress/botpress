@@ -65,7 +65,7 @@ _This step can be executed in any directory and git repository of your choice. Y
 
 You can then modify both the definition and implementation of your integration respectively located in the `integration.definition.ts` and `src/index.ts` files.
 
-For more information on how to develop an integration, please refer to the [Documentation](https://botpress.com/docs/developers/).
+For more information on how to develop an integration, please refer to the [Documentation](https://botpress.com/docs/getting-started-1).
 
 ### Integration Deployment
 
@@ -116,6 +116,10 @@ The development environment requires the following tools to be installed:
 - [`git`](https://git-scm.com/): Git is a free and open source distributed version control system.
 - [`node`](https://nodejs.org/en/): Node.js® is a JavaScript runtime built on Chrome's V8 JavaScript engine.
 - [`pnpm`](https://pnpm.io/): PNPM is a fast, disk space efficient package manager.
+
+#### Windows-specific prerequisites
+
+- [Microsoft Visual C++ Redistributable for Visual Studio 2015-2022](https://learn.microsoft.com/en-us/cpp/windows/latest-supported-vc-redist#visual-studio-2015-2017-2019-and-2022)
 
 ### Building from sources
 

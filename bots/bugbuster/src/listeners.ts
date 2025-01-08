@@ -1,6 +1,9 @@
-import { BotListeners, EventHandlerProps } from './bot'
+import * as bp from '.botpress'
 
-type Props = Omit<EventHandlerProps, 'event'>
+type Props = Omit<bp.EventHandlerProps, 'event'>
+type Message = Pick<bp.ClientInputs['createMessage'], 'type' | 'payload'>
+type BotListeners = bp.states.listeners.Listeners
+
 const emptyListeners: BotListeners = {
   conversationIds: [],
 }
@@ -27,4 +30,17 @@ export const writeListeners = async (props: Props, state: BotListeners) => {
     name: 'listeners',
     payload: state,
   })
+}
+
+export const notifyListeners = async (props: Props, message: Message) => {
+  const state = await readListeners(props)
+  console.info(`Sending message to ${state.conversationIds.length} conversation(s)`)
+  for (const conversationId of state.conversationIds) {
+    await props.client.createMessage({
+      conversationId,
+      userId: props.ctx.botId,
+      tags: {},
+      ...message,
+    })
+  }
 }

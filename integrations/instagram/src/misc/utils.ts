@@ -111,3 +111,8 @@ export const getUserProfile = async (
     })) as InstagramUserProfile
   }
 }
+
+export const getBotInstagramUserId = (ctx: bp.Context) => {
+  const { instagramBusinessAccountId, pageId } = ctx.configuration
+  return instagramBusinessAccountId ?? pageId
+}

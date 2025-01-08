@@ -1,9 +1,15 @@
-import { IntegrationDefinition, interfaces, z } from '@botpress/sdk'
+/* bplint-disable */
+import { IntegrationDefinition, z } from '@botpress/sdk'
 import { languageModelId } from 'src/schemas'
+import llm from './bp_modules/llm'
+import stt from './bp_modules/speech-to-text'
 
 export default new IntegrationDefinition({
   name: 'fireworks-ai',
-  version: '0.2.0',
+  title: 'Fireworks AI',
+  description:
+    'Choose from curated Fireworks AI models for content generation, chat completions, and audio transcription.',
+  version: '4.0.0',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {
@@ -24,5 +30,5 @@ export default new IntegrationDefinition({
     },
   },
 })
-  .extend(interfaces.llm, ({ modelRef }) => ({ modelRef }))
-  .extend(interfaces.speechToText, ({ speechToTextModelRef }) => ({ speechToTextModelRef }))
+  .extend(llm, ({ modelRef }) => ({ modelRef }))
+  .extend(stt, ({ speechToTextModelRef }) => ({ speechToTextModelRef }))

@@ -1,4 +1,4 @@
-import { GenericMessageEvent } from '@slack/bolt'
+import { AllMessageEvents } from '@slack/types'
 import { Client, IntegrationCtx, IntegrationLogger } from '../misc/types'
 import { getAccessToken, getSlackUserProfile, getUserAndConversation } from '../misc/utils'
 
@@ -8,12 +8,17 @@ export const executeMessageReceived = async ({
   ctx,
   logger,
 }: {
-  slackEvent: GenericMessageEvent
+  slackEvent: AllMessageEvents
   client: Client
   ctx: IntegrationCtx
   logger: IntegrationLogger
 }) => {
-  // prevents the bot from answering itself
+  // do not handle notification-type messages such as channel_join, channel_leave, etc:
+  if (slackEvent.subtype) {
+    return
+  }
+
+  // Prevent the bot from answering to other Slack bots:
   if (slackEvent.bot_id) {
     return
   }

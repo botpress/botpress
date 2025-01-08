@@ -1,15 +1,31 @@
-import { IntegrationDefinition } from '@botpress/sdk'
+import * as sdk from '@botpress/sdk'
 
-import { INTEGRATION_NAME } from './src/const'
-import { configuration, actions } from './src/definitions'
+import {
+  actions,
+  channels,
+  configuration,
+  configurations,
+  events,
+  identifier,
+  secrets,
+  states,
+  user,
+} from './definitions'
 
-export default new IntegrationDefinition({
-  name: INTEGRATION_NAME,
-  version: '0.3.3',
-  description: 'Seamlessly connect your Botpress chatbot with Google Sheets for easy data writing and retrieval',
+export default new sdk.IntegrationDefinition({
+  name: 'gsheets',
+  version: '1.1.1',
+  description: 'Access, update, and append Google Sheets data.',
   title: 'Google Sheets',
   readme: 'hub.md',
   icon: 'icon.svg',
-  configuration,
   actions,
+  channels,
+  configuration,
+  configurations,
+  events,
+  identifier,
+  secrets,
+  states,
+  user,
 })

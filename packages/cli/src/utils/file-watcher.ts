@@ -35,18 +35,18 @@ export class FileWatcher {
   }
 
   private constructor(
-    private subscription: watcher.AsyncSubscription,
-    private errorEmitter: EventEmitter<FileWatcherEvent>
+    private _subscription: watcher.AsyncSubscription,
+    private _errorEmitter: EventEmitter<FileWatcherEvent>
   ) {}
 
   public async close() {
-    await this.subscription.unsubscribe()
-    this.errorEmitter.emit('close', {})
+    await this._subscription.unsubscribe()
+    this._errorEmitter.emit('close', {})
   }
 
   public wait = () =>
     new Promise((resolve, reject) => {
-      this.errorEmitter.once('error', reject)
-      this.errorEmitter.once('close', resolve)
+      this._errorEmitter.once('error', reject)
+      this._errorEmitter.once('close', resolve)
     })
 }

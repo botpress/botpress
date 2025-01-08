@@ -2,18 +2,18 @@
   "name": "@botpresshub/slack",
   "private": true,
   "scripts": {
-    "start": "pnpm bp serve",
-    "build": "pnpm bp build",
-    "deploy": "pnpm bp deploy",
-    "check:type": "tsc --noEmit"
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "check:format": "prettier --check .",
+    "fix:format": "prettier --write .",
+    "check:lint": "eslint ./ --ext .ts --ext .tsx",
+    "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "@slack/bolt": "^3.13.1",
+    "@slack/types": "^2.13.1",
     "@slack/web-api": "^6.8.0",
     "axios": "^1.3.4",
     "fuse.js": "^6.6.2",
@@ -24,10 +24,12 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/client": "workspace:*",
-    "@sentry/cli": "^2.18.1",
+    "@botpress/common": "workspace:*",
+    "@sentry/cli": "^2.39.1",
     "@types/lodash": "^4.14.191",
-    "@types/node": "^18.11.17",
-    "@types/verror": "^1.10.6",
-    "typescript": "^4.9.4"
+    "@types/verror": "^1.10.6"
+  },
+  "bpDependencies": {
+    "typing-indicator": "../../interfaces/typing-indicator"
   }
 }

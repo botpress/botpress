@@ -1,4 +1,6 @@
+import { dereference } from '@apidevtools/json-schema-ref-parser'
 import { z, transforms } from '@botpress/sdk'
+import { JSONSchema7 } from 'json-schema'
 
 type ZuiToJsonSchema = typeof transforms.zuiToJsonSchema
 type JsonSchema = ReturnType<ZuiToJsonSchema>
@@ -9,15 +11,20 @@ type SchemaOptions = {
   examples?: any[]
 }
 
+type ZodObjectSchema = z.ZodObject | z.ZodRecord
 type SchemaDefinition = {
-  schema: z.ZodObject<any>
+  schema: ZodObjectSchema
   ui?: Record<string, SchemaOptions | undefined>
 }
 
 const isObjectSchema = (schema: JsonSchema): schema is ObjectJsonSchema => schema.type === 'object'
 
-export function mapZodToJsonSchema(definition: SchemaDefinition): ReturnType<typeof transforms.zuiToJsonSchema> {
-  const schema = transforms.zuiToJsonSchema(definition.schema, { target: 'jsonSchema7' })
+export async function mapZodToJsonSchema(
+  definition: SchemaDefinition
+): Promise<ReturnType<typeof transforms.zuiToJsonSchema>> {
+  let schema = transforms.zuiToJsonSchema(definition.schema, { target: 'jsonSchema7' })
+  schema = (await dereferenceSchema(schema)) as typeof schema
+
   if (!isObjectSchema(schema) || !definition.ui) {
     return schema
   }
@@ -39,4 +46,14 @@ export function mapZodToJsonSchema(definition: SchemaDefinition): ReturnType<typ
   }
 
   return schema
+}
+
+export const dereferenceSchema = async (schema: JSONSchema7): Promise<JSONSchema7> => {
+  return dereference(schema, {
+    resolve: {
+      external: false,
+      file: false,
+      http: false,
+    },
+  })
 }

@@ -1,22 +1,14 @@
+import { listIssues } from '../list-issues'
 import * as listeners from '../listeners'
-import { Handler } from './typings'
+import * as bp from '.botpress'
 
 /**
  * checks if all issues in GitHub are assigned to someone
  * if not, sends a DM to listeners of the bot
  */
-export const handleSyncIssuesRequest: Handler<'syncIssuesRequest'> = async (props) => {
+export const handleSyncIssuesRequest: bp.EventHandlers['syncIssuesRequest'] = async (props) => {
   try {
-    const { client, ctx } = props
-    const {
-      output: { targets: githubIssues },
-    } = await client.callAction({
-      type: 'github:findTarget',
-      input: {
-        channel: 'issue',
-        query: '',
-      },
-    })
+    const githubIssues = await listIssues(props)
 
     const unassignedIssues = githubIssues
       .map((issue) =>
@@ -42,20 +34,12 @@ export const handleSyncIssuesRequest: Handler<'syncIssuesRequest'> = async (prop
     ].join('\n')
     console.info(message)
 
-    const state = await listeners.readListeners(props)
-    console.info(`Sending message to ${state.conversationIds.length} conversation(s)`)
-
-    for (const conversationId of state.conversationIds) {
-      await client.createMessage({
-        conversationId,
-        userId: ctx.botId,
-        tags: {},
-        type: 'text',
-        payload: {
-          text: message,
-        },
-      })
-    }
+    await listeners.notifyListeners(props, {
+      type: 'text',
+      payload: {
+        text: message,
+      },
+    })
   } catch (thrown) {
     // If recurring event fails to many times, bridge stops sending it... We don't want that
     const err = thrown instanceof Error ? thrown : new Error(`${thrown}`)

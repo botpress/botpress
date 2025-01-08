@@ -2,7 +2,7 @@ import Anthropic from '@anthropic-ai/sdk'
 import { MessageCreateParams, MessageCreateParamsNonStreaming } from '@anthropic-ai/sdk/resources/messages'
 import { InvalidPayloadError } from '@botpress/client'
 import { llm } from '@botpress/common'
-import { z, IntegrationLogger, interfaces } from '@botpress/sdk'
+import { z, IntegrationLogger } from '@botpress/sdk'
 import assert from 'assert'
 
 // Reference: https://docs.anthropic.com/en/api/errors
@@ -16,7 +16,7 @@ export async function generateContent<M extends string>(
   anthropic: Anthropic,
   logger: IntegrationLogger,
   params: {
-    models: Record<M, interfaces.llm.ModelDetails>
+    models: Record<M, llm.ModelDetails>
     defaultModel: M
   }
 ): Promise<llm.GenerateContentOutput> {
@@ -86,18 +86,14 @@ export async function generateContent<M extends string>(
     if (err instanceof Anthropic.APIError) {
       const parsedInnerError = AnthropicInnerErrorSchema.safeParse(err.error)
       if (parsedInnerError.success) {
-        logger
-          .forBot()
-          .error(
-            `Anthropic error ${err.status} (${parsedInnerError.data.error.type}) - ${parsedInnerError.data.error.message}`
-          )
-        throw err
+        throw llm.createUpstreamProviderFailedError(
+          err,
+          `Anthropic error ${err.status} (${parsedInnerError.data.error.type}) - ${parsedInnerError.data.error.message}`
+        )
       }
     }
 
-    // Fallback
-    logger.forBot().error(err.message)
-    throw err
+    throw llm.createUpstreamProviderFailedError(err)
   } finally {
     if (input.debug && response) {
       logger.forBot().info('Response received from Anthropic: ' + JSON.stringify(response, null, 2))
@@ -105,13 +101,16 @@ export async function generateContent<M extends string>(
   }
 
   const { input_tokens: inputTokens, output_tokens: outputTokens } = response.usage
+  const inputCost = calculateTokenCost(model.input.costPer1MTokens, inputTokens)
+  const outputCost = calculateTokenCost(model.output.costPer1MTokens, outputTokens)
+  const cost = inputCost + outputCost
 
   const content = response.content
     .filter((x): x is Anthropic.TextBlock => x.type === 'text') // Claude models only return "text" or "tool_use" blocks at the moment.
     .map((content) => content.text)
     .join('\n\n')
 
-  return <llm.GenerateContentOutput>{
+  return {
     id: response.id,
     provider: 'anthropic',
     model: response.model,
@@ -128,9 +127,12 @@ export async function generateContent<M extends string>(
     ],
     usage: {
       inputTokens,
-      inputCost: calculateTokenCost(model.input.costPer1MTokens, inputTokens),
+      inputCost,
       outputTokens,
-      outputCost: calculateTokenCost(model.output.costPer1MTokens, outputTokens),
+      outputCost,
+    },
+    botpress: {
+      cost, // DEPRECATED
     },
   }
 }

@@ -3,33 +3,35 @@
   "description": "Gmail integration for Botpress",
   "private": true,
   "scripts": {
-    "start": "pnpm bp serve",
-    "build": "pnpm bp build",
-    "deploy": "pnpm bp deploy",
-    "check:type": "tsc --noEmit"
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "check:format": "prettier --check .",
+    "fix:format": "prettier --write .",
+    "check:lint": "eslint ./ --ext .ts --ext .tsx",
+    "fix:lint": "eslint --fix ./ --ext .ts --ext .tsx"
   },
-  "keywords": [],
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/cli": "workspace:*",
-    "@botpress/sdk": "workspace:*",
     "@botpress/client": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpress/sdk": "workspace:*",
     "@botpress/sdk-addons": "workspace:*",
-    "cheerio": "1.0.0-rc.12",
+    "@react-email/components": "0.0.25",
     "gmail-api-parse-message": "^2.1.2",
     "googleapis": "^112.0.0",
     "js-base64": "^3.7.5",
+    "node-html-parser": "^6",
     "nodemailer": "^6.7.2",
-    "query-string": "^6.14.1"
+    "query-string": "^6.14.1",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
-    "@sentry/cli": "^2.18.1",
-    "@types/node": "^18.11.17",
+    "@botpress/cli": "workspace:*",
+    "@sentry/cli": "^2.39.1",
     "@types/nodemailer": "^6.4.4",
-    "esbuild": "^0.15.18",
-    "nodemon": "^2.0.20",
-    "ts-node": "^10.9.1",
-    "typescript": "^4.9.4"
+    "@types/react": "^18.3.11",
+    "@types/react-dom": "^18.3.1"
   }
 }

@@ -1,14 +1,15 @@
+/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 
 const INTEGRATION_NAME = 'make'
 
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
-  version: '0.3.2',
+  version: '0.3.4',
   title: 'Make.com (Deprecated)',
   icon: 'icon.svg',
   description:
-    'Seamlessly connect your Botpress chatbot with Make.com to unlock a world of possibilities. Automate tasks, sync data across multiple applications, and enhance the capabilities of your chatbot like never before',
+    'Automate tasks, sync data across multiple applications, and enhance the capabilities of your chatbot like never before.',
   readme: 'hub.md',
   configuration: {
     schema: z

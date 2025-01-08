@@ -8,9 +8,9 @@ type ConfigFieldProps<Z extends z.ZodTypeAny> = {
 }
 
 class ConfigField<Z extends z.ZodTypeAny> {
-  public constructor(private props: ConfigFieldProps<Z>) {}
+  public constructor(private _props: ConfigFieldProps<Z>) {}
   public safeParse(args: ActionArgs, value: unknown): z.infer<Z> {
-    const { default: defaultValue, name, schema } = this.props
+    const { default: defaultValue, name, schema } = this._props
     const parseResult = schema.safeParse(value)
     if (parseResult.success) {
       return parseResult.data

@@ -2,7 +2,7 @@ import { addCommentToDiscussion, addCommentToPage, addPageToDb, deleteBlock, get
 import * as bp from '.botpress'
 
 class NotImplementedError extends Error {
-  constructor() {
+  public constructor() {
     super('Not implemented')
   }
 }

@@ -1,0 +1,19 @@
+{
+  "name": "@bp-bots/echo",
+  "description": "Echo bot used by the chat-e2e test suite",
+  "main": "src/index.ts",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint",
+    "build": "bp add -y && bp build"
+  },
+  "private": true,
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "@botpresshub/chat": "workspace:*"
+  },
+  "bpDependencies": {
+    "chat": "../../integrations/chat"
+  }
+}

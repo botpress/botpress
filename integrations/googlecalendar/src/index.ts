@@ -1,22 +1,19 @@
-import actions from './actions'
-import { getClient } from './client'
+import { sentry as sentryHelpers } from '@botpress/sdk-addons'
+import { actions } from './actions'
+import { register, unregister } from './setup'
+import { handler } from './webhook-events'
 import * as bp from '.botpress'
 
-export default new bp.Integration({
-  register: async ({ logger, ctx }) => {
-    logger.forBot().info('Registering Google Calendar integration')
-    try {
-      const { auth } = await getClient(ctx.configuration)
-      await auth.authorize()
-
-      logger.forBot().info('Successfully connected and authenticated with Google Calendar')
-    } catch (err) {
-      logger.forBot().error('Failed to connect to Google Calendar', err)
-      return
-    }
-  },
-  unregister: async () => {},
+const integration = new bp.Integration({
+  register,
+  unregister,
   actions,
   channels: {},
-  handler: async () => {},
+  handler,
+})
+
+export default sentryHelpers.wrapIntegration(integration, {
+  dsn: bp.secrets.SENTRY_DSN,
+  environment: bp.secrets.SENTRY_ENVIRONMENT,
+  release: bp.secrets.SENTRY_RELEASE,
 })

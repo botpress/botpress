@@ -1,0 +1,11 @@
+webhookId = to_string!(.webhookId)
+webhookUrl = to_string!(.webhookUrl)
+env = to_string!(.env)
+
+clientId = "941322101941-derr0eqa571ubdb4oruinad4mds5lj5l.apps.googleusercontent.com"
+
+if env == "production" {
+  clientId = "33594073319-v5184rnc5m7rfsupek24frk6h7j30r24.apps.googleusercontent.com"
+}
+
+"https://accounts.google.com/o/oauth2/v2/auth?scope=https%3A//www.googleapis.com/auth/drive&access_type=offline&include_granted_scopes=true&response_type=code&prompt=consent&state={{ webhookId }}&redirect_uri={{ webhookUrl }}/oauth&client_id={{ clientId }}"

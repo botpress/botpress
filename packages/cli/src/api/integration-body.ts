@@ -11,7 +11,9 @@ type UpdateIntegrationChannelBody = UpdateIntegrationChannelsBody[string]
 type Channels = Integration['channels']
 type Channel = Integration['channels'][string]
 
-export const prepareCreateIntegrationBody = (integration: sdk.IntegrationDefinition): CreateIntegrationBody => ({
+export const prepareCreateIntegrationBody = async (
+  integration: sdk.IntegrationDefinition
+): Promise<CreateIntegrationBody> => ({
   name: integration.name,
   version: integration.version,
   title: integration.title,
@@ -25,47 +27,53 @@ export const prepareCreateIntegrationBody = (integration: sdk.IntegrationDefinit
   configuration: integration.configuration
     ? {
         ...integration.configuration,
-        schema: utils.schema.mapZodToJsonSchema(integration.configuration),
+        schema: await utils.schema.mapZodToJsonSchema(integration.configuration),
       }
     : undefined,
+  configurations: integration.configurations
+    ? await utils.records.mapValuesAsync(integration.configurations, async (configuration) => ({
+        ...configuration,
+        schema: await utils.schema.mapZodToJsonSchema(configuration),
+      }))
+    : undefined,
   events: integration.events
-    ? utils.records.mapValues(integration.events, (event) => ({
+    ? await utils.records.mapValuesAsync(integration.events, async (event) => ({
         ...event,
-        schema: utils.schema.mapZodToJsonSchema(event),
+        schema: await utils.schema.mapZodToJsonSchema(event),
       }))
     : undefined,
   actions: integration.actions
-    ? utils.records.mapValues(integration.actions, (action) => ({
+    ? await utils.records.mapValuesAsync(integration.actions, async (action) => ({
         ...action,
         input: {
           ...action.input,
-          schema: utils.schema.mapZodToJsonSchema(action.input),
+          schema: await utils.schema.mapZodToJsonSchema(action.input),
         },
         output: {
           ...action.output,
-          schema: utils.schema.mapZodToJsonSchema(action.output),
+          schema: await utils.schema.mapZodToJsonSchema(action.output),
         },
       }))
     : undefined,
   channels: integration.channels
-    ? utils.records.mapValues(integration.channels, (channel) => ({
+    ? await utils.records.mapValuesAsync(integration.channels, async (channel) => ({
         ...channel,
-        messages: utils.records.mapValues(channel.messages, (message) => ({
+        messages: await utils.records.mapValuesAsync(channel.messages, async (message) => ({
           ...message,
-          schema: utils.schema.mapZodToJsonSchema(message),
+          schema: await utils.schema.mapZodToJsonSchema(message),
         })),
       }))
     : undefined,
   states: integration.states
-    ? utils.records.mapValues(integration.states, (state) => ({
+    ? await utils.records.mapValuesAsync(integration.states, async (state) => ({
         ...state,
-        schema: utils.schema.mapZodToJsonSchema(state),
+        schema: await utils.schema.mapZodToJsonSchema(state),
       }))
     : undefined,
   entities: integration.entities
-    ? utils.records.mapValues(integration.entities, (entity) => ({
+    ? await utils.records.mapValuesAsync(integration.entities, async (entity) => ({
         ...entity,
-        schema: utils.schema.mapZodToJsonSchema(entity),
+        schema: await utils.schema.mapZodToJsonSchema(entity),
       }))
     : undefined,
 })
@@ -87,6 +95,11 @@ export const prepareUpdateIntegrationBody = (
 
   const interfaces = utils.records.setNullOnMissingValues(localIntegration.interfaces, remoteIntegration.interfaces)
 
+  const configurations = utils.records.setNullOnMissingValues(
+    localIntegration.configurations,
+    remoteIntegration.configurations
+  )
+
   return {
     ...localIntegration,
     actions,
@@ -96,6 +109,7 @@ export const prepareUpdateIntegrationBody = (
     user,
     channels,
     interfaces,
+    configurations,
   }
 }
 

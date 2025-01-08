@@ -1,39 +1,21 @@
-import { Handler } from './typings'
+import * as listener from '../listeners'
+import * as bp from '.botpress'
 
-export const handleNewIssue: Handler<'github:issueOpened'> = async ({ client, ctx }, event): Promise<void> => {
-  const githubIssue = event.payload
+export const handleNewIssue: bp.EventHandlers['github:issueOpened'] = async (props): Promise<void> => {
+  const githubIssue = props.event.payload
 
   console.info('Received GitHub issue', githubIssue)
 
-  const { output } = await client.callAction({
-    type: 'linear:createIssue',
-    input: {
-      title: githubIssue.title,
-      description: githubIssue.content ?? 'No content...',
-      teamName: 'Cloud Services',
-      labels: ['origin/github'],
-    },
-  })
+  const message = [
+    'The following issue was just created in GitHub:',
+    githubIssue.issue.name,
+    githubIssue.issue.body,
+  ].join('\n')
 
-  const { issue } = output
-
-  const { conversation } = await client.getOrCreateConversation({
-    integrationName: 'linear',
-    channel: 'issue',
-    tags: {
-      ['linear:id']: issue.id,
-    },
-  })
-
-  const issueUrl = `https://github.com/${githubIssue.repositoryOwner}/${githubIssue.repositoryName}/issues/${githubIssue.number}`
-
-  await client.createMessage({
+  await listener.notifyListeners(props, {
     type: 'text',
-    conversationId: conversation.id,
-    userId: ctx.botId,
-    tags: {},
     payload: {
-      text: `Automatically created from GitHub issue: ${issueUrl}`,
+      text: message,
     },
   })
 }

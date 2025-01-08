@@ -1,8 +1,10 @@
 import { InvalidPayloadError } from '@botpress/client'
-import { llm, textToSpeech } from '@botpress/common'
-import { interfaces } from '@botpress/sdk'
+import { llm, speechToText, textToImage } from '@botpress/common'
+import crypto from 'crypto'
+import { TextToSpeechPricePer1MCharacters } from 'integration.definition'
 import { AzureOpenAI } from 'openai'
 import { ImageGenerateParams, Images } from 'openai/resources'
+import { SpeechCreateParams } from 'openai/resources/audio/speech'
 import { LanguageModelId, ImageModelId, SpeechToTextModelId } from './schemas'
 import * as bp from '.botpress'
 
@@ -19,8 +21,36 @@ const getOpenAIClient = (ctx: bp.Context): AzureOpenAI =>
 // References:
 //  https://platform.openai.com/docs/models
 //  https://openai.com/api/pricing/
-const languageModels: Record<LanguageModelId, interfaces.llm.ModelDetails> = {
+const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
   // IMPORTANT: Only full model names should be supported here, as the short model names can be pointed by OpenAI at any time to a newer model with different pricing.
+  'o1-2024-12-17': {
+    name: 'GPT o1',
+    description:
+      'The o1 model is designed to solve hard problems across domains. The o1 series of models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user.',
+    tags: ['reasoning', 'vision', 'general-purpose'],
+    input: {
+      costPer1MTokens: 15,
+      maxTokens: 200_000,
+    },
+    output: {
+      costPer1MTokens: 60,
+      maxTokens: 100_000,
+    },
+  },
+  'o1-mini-2024-09-12': {
+    name: 'GPT o1-mini',
+    description:
+      'The o1-mini model is a fast and affordable reasoning model for specialized tasks. The o1 series of models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user.',
+    tags: ['reasoning', 'vision', 'general-purpose'],
+    input: {
+      costPer1MTokens: 3,
+      maxTokens: 128_000,
+    },
+    output: {
+      costPer1MTokens: 12,
+      maxTokens: 65_536,
+    },
+  },
   'gpt-4o-mini-2024-07-18': {
     name: 'GPT-4o Mini',
     description:
@@ -32,6 +62,20 @@ const languageModels: Record<LanguageModelId, interfaces.llm.ModelDetails> = {
     },
     output: {
       costPer1MTokens: 0.6,
+      maxTokens: 16_384,
+    },
+  },
+  'gpt-4o-2024-11-20': {
+    name: 'GPT-4o (November 2024)',
+    description:
+      "GPT-4o (“o” for “omni”) is OpenAI's most advanced model. It is multimodal (accepting text or image inputs and outputting text), and it has the same high intelligence as GPT-4 Turbo but is cheaper and more efficient.",
+    tags: ['recommended', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
+    input: {
+      costPer1MTokens: 2.5,
+      maxTokens: 128_000,
+    },
+    output: {
+      costPer1MTokens: 10,
       maxTokens: 16_384,
     },
   },
@@ -93,7 +137,7 @@ const languageModels: Record<LanguageModelId, interfaces.llm.ModelDetails> = {
   },
 }
 
-const imageModels: Record<ImageModelId, interfaces.textToImage.ImageModelDetails> = {
+const imageModels: Record<ImageModelId, textToImage.ImageModelDetails> = {
   'dall-e-3-standard-1024': {
     name: 'DALL-E 3 Standard 1024',
     costPerImage: 0.04,
@@ -138,12 +182,14 @@ const imageModels: Record<ImageModelId, interfaces.textToImage.ImageModelDetails
   },
 }
 
-const speechToTextModels: Record<SpeechToTextModelId, interfaces.speechToText.SpeechToTextModelDetails> = {
+const speechToTextModels: Record<SpeechToTextModelId, speechToText.SpeechToTextModelDetails> = {
   'whisper-1': {
     name: 'Whisper V2',
     costPerMinute: 0.006,
   },
 }
+
+const SECONDS_IN_A_DAY = 24 * 60 * 60
 
 const provider = 'OpenAI'
 
@@ -151,16 +197,30 @@ export default new bp.Integration({
   register: async () => {},
   unregister: async () => {},
   actions: {
-    generateContent: async ({ input, logger, ctx }) => {
+    generateContent: async ({ input, logger, metadata, ctx }) => {
       const openAIClient = getOpenAIClient(ctx)
 
-      return await llm.openai.generateContent<LanguageModelId>(<llm.GenerateContentInput>input, openAIClient, logger, {
-        provider,
-        models: languageModels,
-        defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
-      })
+      const output = await llm.openai.generateContent<LanguageModelId>(
+        <llm.GenerateContentInput>input,
+        openAIClient,
+        logger,
+        {
+          provider,
+          models: languageModels,
+          defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
+          overrideRequest: (request) => {
+            if (input.model?.id.startsWith('o1-')) {
+              // The o1 models don't allow setting temperature
+              delete request.temperature
+            }
+            return request
+          },
+        }
+      )
+      metadata.setCost(output.botpress.cost)
+      return output
     },
-    generateImage: async ({ input, client, ctx }) => {
+    generateImage: async ({ input, client, ctx, metadata }) => {
       const openAIClient = getOpenAIClient(ctx)
 
       const imageModelId = (input.model?.id ?? DEFAULT_IMAGE_MODEL_ID) as ImageModelId
@@ -200,32 +260,94 @@ export default new bp.Integration({
         throw new Error('No image was returned by OpenAI')
       }
 
+      const expiresAt: string | undefined = input.expiration
+        ? new Date(Date.now() + input.expiration * SECONDS_IN_A_DAY * 1000).toISOString()
+        : undefined
+
       // File storage is billed to the workspace of the bot that called this action.
       const { file } = await client.uploadFile({
-        key: temporaryImageUrl,
+        key: generateFileKey('openai-generateImage-', input, '.png'),
         url: temporaryImageUrl,
         contentType: 'image/png',
         accessPolicies: ['public_content'],
         tags: {
-          source: 'integration:openai',
+          source: 'integration',
+          integration: 'openai',
+          action: 'generateImage',
         },
-        // TODO: set a user-defined file expiry once it's supported so storage costs are minimized, if desired expiry is short enough we can also just directly pass the temporary URL provided by OpenAI
+        expiresAt,
+        publicContentImmediatelyAccessible: true,
       })
 
+      const cost = imageModel.costPerImage
+      metadata.setCost(cost)
       return {
         model: imageModelId,
         imageUrl: file.url,
-        cost: imageModel.costPerImage,
+        cost, // DEPRECATED
+        botpress: {
+          cost, // DEPRECATED
+        },
       }
     },
-    transcribeAudio: async ({ input, logger, ctx }) => {
+    transcribeAudio: async ({ input, logger, metadata, ctx }) => {
       const openAIClient = getOpenAIClient(ctx)
 
-      return await textToSpeech.openai.transcribeAudio(input, openAIClient, logger, {
+      const output = await speechToText.openai.transcribeAudio(input, openAIClient, logger, {
         provider,
         models: speechToTextModels,
         defaultModel: 'whisper-1',
       })
+
+      metadata.setCost(output.botpress.cost)
+      return output
+    },
+    generateSpeech: async ({ input, client, metadata }) => {
+      const model = input.model ?? 'tts-1'
+
+      const params: SpeechCreateParams = {
+        model,
+        input: input.input,
+        voice: input.voice ?? 'alloy',
+        response_format: input.format ?? 'mp3',
+        speed: input.speed ?? 1,
+      }
+
+      let response: Response
+
+      try {
+        response = await openAIClient.audio.speech.create(params)
+      } catch (err: any) {
+        throw llm.createUpstreamProviderFailedError(err)
+      }
+
+      const key = generateFileKey('openai-generateSpeech-', input, `.${params.response_format}`)
+
+      const expiresAt = input.expiration
+        ? new Date(Date.now() + input.expiration * SECONDS_IN_A_DAY * 1000).toISOString()
+        : undefined
+
+      const { file } = await client.uploadFile({
+        key,
+        content: await response.arrayBuffer(),
+        accessPolicies: ['public_content'],
+        publicContentImmediatelyAccessible: true,
+        tags: {
+          source: 'integration',
+          integration: 'openai',
+          action: 'generateSpeech',
+        },
+        expiresAt,
+      })
+
+      const cost = (input.input.length / 1_000_000) * TextToSpeechPricePer1MCharacters[model]
+      metadata.setCost(cost)
+      return {
+        audioUrl: file.url,
+        botpress: {
+          cost, // DEPRECATED
+        },
+      }
     },
     listLanguageModels: async ({}) => {
       return {
@@ -246,6 +368,16 @@ export default new bp.Integration({
   channels: {},
   handler: async () => {},
 })
+
+function generateFileKey(prefix: string, input: object, suffix?: string) {
+  const json = JSON.stringify(input)
+  const hash = crypto.createHash('sha1')
+
+  hash.update(json)
+  const hexHash = hash.digest('hex')
+
+  return prefix + Date.now() + '_' + hexHash + suffix
+}
 
 function getOpenAIImageGenerationParams(modelId: ImageModelId): {
   model: Images.ImageGenerateParams['model']

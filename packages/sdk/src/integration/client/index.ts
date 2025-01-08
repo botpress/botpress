@@ -1,77 +1,82 @@
-import { Client } from '@botpress/client'
-import { BaseIntegration } from '../generic'
-import * as routes from './routes'
+/* eslint-disable brace-style */
+import * as client from '@botpress/client'
+import * as common from '../types'
+import * as types from './types'
+
+export * from './types'
 
 /**
  * Just like the regular botpress client, but typed with the integration's properties.
  */
-export class IntegrationSpecificClient<TIntegration extends BaseIntegration> {
-  public constructor(private readonly client: Client) {}
+export class IntegrationSpecificClient<TIntegration extends common.BaseIntegration>
+  implements types.ClientOperations<TIntegration>
+{
+  public constructor(private readonly _client: client.Client) {}
 
-  public createConversation: routes.CreateConversation<TIntegration> = ((x) =>
-    this.client.createConversation(x)) as routes.CreateConversation<TIntegration>
-  public getConversation: routes.GetConversation<TIntegration> = ((x) =>
-    this.client.getConversation(x)) as routes.GetConversation<TIntegration>
-  public listConversations: routes.ListConversations<TIntegration> = ((x) =>
-    this.client.listConversations(x)) as routes.ListConversations<TIntegration>
-  public getOrCreateConversation: routes.GetOrCreateConversation<TIntegration> = ((x) =>
-    this.client.getOrCreateConversation(x)) as routes.GetOrCreateConversation<TIntegration>
-  public updateConversation: routes.UpdateConversation<TIntegration> = ((x) =>
-    this.client.updateConversation(x)) as routes.UpdateConversation<TIntegration>
-  public deleteConversation: routes.DeleteConversation<TIntegration> = ((x) =>
-    this.client.deleteConversation(x)) as routes.DeleteConversation<TIntegration>
+  public createConversation: types.CreateConversation<TIntegration> = ((x) =>
+    this._client.createConversation(x)) as types.CreateConversation<TIntegration>
+  public getConversation: types.GetConversation<TIntegration> = ((x) =>
+    this._client.getConversation(x)) as types.GetConversation<TIntegration>
+  public listConversations: types.ListConversations<TIntegration> = ((x) =>
+    this._client.listConversations(x)) as types.ListConversations<TIntegration>
+  public getOrCreateConversation: types.GetOrCreateConversation<TIntegration> = ((x) =>
+    this._client.getOrCreateConversation(x)) as types.GetOrCreateConversation<TIntegration>
+  public updateConversation: types.UpdateConversation<TIntegration> = ((x) =>
+    this._client.updateConversation(x)) as types.UpdateConversation<TIntegration>
+  public deleteConversation: types.DeleteConversation<TIntegration> = ((x) =>
+    this._client.deleteConversation(x)) as types.DeleteConversation<TIntegration>
 
-  public listParticipants: routes.ListParticipants<TIntegration> = ((x) =>
-    this.client.listParticipants(x)) as routes.ListParticipants<TIntegration>
-  public addParticipant: routes.AddParticipant<TIntegration> = ((x) =>
-    this.client.addParticipant(x)) as routes.AddParticipant<TIntegration>
-  public getParticipant: routes.GetParticipant<TIntegration> = ((x) =>
-    this.client.getParticipant(x)) as routes.GetParticipant<TIntegration>
-  public removeParticipant: routes.RemoveParticipant<TIntegration> = ((x) =>
-    this.client.removeParticipant(x)) as routes.RemoveParticipant<TIntegration>
+  public listParticipants: types.ListParticipants<TIntegration> = ((x) =>
+    this._client.listParticipants(x)) as types.ListParticipants<TIntegration>
+  public addParticipant: types.AddParticipant<TIntegration> = ((x) =>
+    this._client.addParticipant(x)) as types.AddParticipant<TIntegration>
+  public getParticipant: types.GetParticipant<TIntegration> = ((x) =>
+    this._client.getParticipant(x)) as types.GetParticipant<TIntegration>
+  public removeParticipant: types.RemoveParticipant<TIntegration> = ((x) =>
+    this._client.removeParticipant(x)) as types.RemoveParticipant<TIntegration>
 
-  public createEvent: routes.CreateEvent<TIntegration> = ((x) =>
-    this.client.createEvent(x)) as routes.CreateEvent<TIntegration>
-  public getEvent: routes.GetEvent<TIntegration> = ((x) => this.client.getEvent(x)) as routes.GetEvent<TIntegration>
-  public listEvents: routes.ListEvents<TIntegration> = ((x) =>
-    this.client.listEvents(x)) as routes.ListEvents<TIntegration>
+  public createEvent: types.CreateEvent<TIntegration> = ((x) =>
+    this._client.createEvent(x)) as types.CreateEvent<TIntegration>
+  public getEvent: types.GetEvent<TIntegration> = ((x) => this._client.getEvent(x)) as types.GetEvent<TIntegration>
+  public listEvents: types.ListEvents<TIntegration> = ((x) =>
+    this._client.listEvents(x)) as types.ListEvents<TIntegration>
 
-  public createMessage: routes.CreateMessage<TIntegration> = ((x) =>
-    this.client.createMessage(x)) as routes.CreateMessage<TIntegration>
-  public getOrCreateMessage: routes.GetOrCreateMessage<TIntegration> = ((x) =>
-    this.client.getOrCreateMessage(x)) as routes.GetOrCreateMessage<TIntegration>
-  public getMessage: routes.GetMessage<TIntegration> = ((x) =>
-    this.client.getMessage(x)) as routes.GetMessage<TIntegration>
-  public updateMessage: routes.UpdateMessage<TIntegration> = ((x) =>
-    this.client.updateMessage(x)) as routes.UpdateMessage<TIntegration>
-  public listMessages: routes.ListMessages<TIntegration> = ((x) =>
-    this.client.listMessages(x)) as routes.ListMessages<TIntegration>
-  public deleteMessage: routes.DeleteMessage<TIntegration> = ((x) =>
-    this.client.deleteMessage(x)) as routes.DeleteMessage<TIntegration>
+  public createMessage: types.CreateMessage<TIntegration> = ((x) =>
+    this._client.createMessage(x)) as types.CreateMessage<TIntegration>
+  public getOrCreateMessage: types.GetOrCreateMessage<TIntegration> = ((x) =>
+    this._client.getOrCreateMessage(x)) as types.GetOrCreateMessage<TIntegration>
+  public getMessage: types.GetMessage<TIntegration> = ((x) =>
+    this._client.getMessage(x)) as types.GetMessage<TIntegration>
+  public updateMessage: types.UpdateMessage<TIntegration> = ((x) =>
+    this._client.updateMessage(x)) as types.UpdateMessage<TIntegration>
+  public listMessages: types.ListMessages<TIntegration> = ((x) =>
+    this._client.listMessages(x)) as types.ListMessages<TIntegration>
+  public deleteMessage: types.DeleteMessage<TIntegration> = ((x) =>
+    this._client.deleteMessage(x)) as types.DeleteMessage<TIntegration>
 
-  public createUser: routes.CreateUser<TIntegration> = ((x) =>
-    this.client.createUser(x)) as routes.CreateUser<TIntegration>
-  public getUser: routes.GetUser<TIntegration> = ((x) => this.client.getUser(x)) as routes.GetUser<TIntegration>
-  public listUsers: routes.ListUsers<TIntegration> = (x) => this.client.listUsers(x)
-  public getOrCreateUser: routes.GetOrCreateUser<TIntegration> = ((x) =>
-    this.client.getOrCreateUser(x)) as routes.GetOrCreateUser<TIntegration>
-  public updateUser: routes.UpdateUser<TIntegration> = ((x) =>
-    this.client.updateUser(x)) as routes.UpdateUser<TIntegration>
-  public deleteUser: routes.DeleteUser<TIntegration> = (x) => this.client.deleteUser(x)
+  public createUser: types.CreateUser<TIntegration> = ((x) =>
+    this._client.createUser(x)) as types.CreateUser<TIntegration>
+  public getUser: types.GetUser<TIntegration> = ((x) => this._client.getUser(x)) as types.GetUser<TIntegration>
+  public listUsers: types.ListUsers<TIntegration> = (x) => this._client.listUsers(x)
+  public getOrCreateUser: types.GetOrCreateUser<TIntegration> = ((x) =>
+    this._client.getOrCreateUser(x)) as types.GetOrCreateUser<TIntegration>
+  public updateUser: types.UpdateUser<TIntegration> = ((x) =>
+    this._client.updateUser(x)) as types.UpdateUser<TIntegration>
+  public deleteUser: types.DeleteUser<TIntegration> = (x) => this._client.deleteUser(x)
 
-  public getState: routes.GetState<TIntegration> = ((x) => this.client.getState(x)) as routes.GetState<TIntegration>
-  public setState: routes.SetState<TIntegration> = ((x) => this.client.setState(x)) as routes.SetState<TIntegration>
-  public getOrSetState: routes.GetOrSetState<TIntegration> = ((x) =>
-    this.client.getOrSetState(x)) as routes.GetOrSetState<TIntegration>
-  public patchState: routes.PatchState<TIntegration> = ((x) =>
-    this.client.patchState(x)) as routes.PatchState<TIntegration>
+  public getState: types.GetState<TIntegration> = ((x) => this._client.getState(x)) as types.GetState<TIntegration>
+  public setState: types.SetState<TIntegration> = ((x) => this._client.setState(x)) as types.SetState<TIntegration>
+  public getOrSetState: types.GetOrSetState<TIntegration> = ((x) =>
+    this._client.getOrSetState(x)) as types.GetOrSetState<TIntegration>
+  public patchState: types.PatchState<TIntegration> = ((x) =>
+    this._client.patchState(x)) as types.PatchState<TIntegration>
 
-  public configureIntegration: routes.ConfigureIntegration<TIntegration> = (x) => this.client.configureIntegration(x)
+  public configureIntegration: types.ConfigureIntegration<TIntegration> = (x) => this._client.configureIntegration(x)
 
-  public uploadFile: routes.UploadFile<TIntegration> = (x) => this.client.uploadFile(x)
-  public upsertFile: routes.UpsertFile<TIntegration> = (x) => this.client.upsertFile(x)
-  public deleteFile: routes.DeleteFile<TIntegration> = (x) => this.client.deleteFile(x)
-  public listFiles: routes.ListFiles<TIntegration> = (x) => this.client.listFiles(x)
-  public getFile: routes.GetFile<TIntegration> = (x) => this.client.getFile(x)
-  public updateFileMetadata: routes.UpdateFileMetadata<TIntegration> = (x) => this.client.updateFileMetadata(x)
+  public uploadFile: types.UploadFile<TIntegration> = (x) => this._client.uploadFile(x)
+  public upsertFile: types.UpsertFile<TIntegration> = (x) => this._client.upsertFile(x)
+  public deleteFile: types.DeleteFile<TIntegration> = (x) => this._client.deleteFile(x)
+  public listFiles: types.ListFiles<TIntegration> = (x) => this._client.listFiles(x)
+  public getFile: types.GetFile<TIntegration> = (x) => this._client.getFile(x)
+  public updateFileMetadata: types.UpdateFileMetadata<TIntegration> = (x) => this._client.updateFileMetadata(x)
 }

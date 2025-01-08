@@ -1,5 +1,5 @@
 import { InvalidPayloadError } from '@botpress/client'
-import { z, IntegrationLogger, interfaces } from '@botpress/sdk'
+import { z, IntegrationLogger } from '@botpress/sdk'
 import assert from 'assert'
 import OpenAI, { AzureOpenAI } from 'openai'
 import {
@@ -15,7 +15,8 @@ import {
   ChatCompletionToolMessageParam,
   ChatCompletionUserMessageParam,
 } from 'openai/resources'
-import { GenerateContentInput, GenerateContentOutput, ToolCall, Message } from './types'
+import { GenerateContentInput, GenerateContentOutput, ToolCall, Message, ModelDetails } from './types'
+import { createUpstreamProviderFailedError } from './errors'
 
 const OpenAIErrorSchema = z
   .object({
@@ -38,8 +39,9 @@ export async function generateContent<M extends string>(
   logger: IntegrationLogger,
   props: {
     provider: string
-    models: Record<M, interfaces.llm.ModelDetails>
+    models: Record<M, ModelDetails>
     defaultModel: M
+    overrideRequest?: (request: ChatCompletionCreateParamsNonStreaming) => ChatCompletionCreateParamsNonStreaming
   }
 ): Promise<GenerateContentOutput> {
   const modelId = (input.model?.id || props.defaultModel) as M
@@ -76,7 +78,7 @@ export async function generateContent<M extends string>(
 
   let response: OpenAI.Chat.Completions.ChatCompletion | undefined
 
-  const request: ChatCompletionCreateParamsNonStreaming = {
+  let request: ChatCompletionCreateParamsNonStreaming = {
     model: modelId,
     max_tokens: input.maxTokens || undefined, // note: ignore a zero value as the Studio doesn't support empty number inputs and is defaulting this to 0
     temperature: input.temperature,
@@ -88,6 +90,10 @@ export async function generateContent<M extends string>(
     messages,
     tool_choice: mapToOpenAIToolChoice(input.toolChoice),
     tools: mapToOpenAITools(input.tools),
+  }
+
+  if (props.overrideRequest) {
+    request = props.overrideRequest(request)
   }
 
   if (input.debug) {
@@ -107,24 +113,26 @@ export async function generateContent<M extends string>(
         const message = `${props.provider} error ${err.status} (${err.type}:${err.code}): ${
           parsedError.data.error?.message ?? err.message
         }`
-        logger.forBot().error(message)
 
-        throw err
+        throw createUpstreamProviderFailedError(err, message)
       }
     }
 
-    // Fallback
-    logger.forBot().error(err.message)
-    throw err
+    throw createUpstreamProviderFailedError(err, `${props.provider} error: ${err.message}`)
   } finally {
     if (input.debug && response) {
       logger.forBot().info(`Response received from ${props.provider}: ` + JSON.stringify(response, null, 2))
     }
   }
 
-  const { inputTokens, outputTokens } = getTokenUsage(response, logger, props.provider)
+  const inputTokens = response.usage?.prompt_tokens || 0
+  const outputTokens = response.usage?.completion_tokens || 0
 
-  return <GenerateContentOutput>{
+  const inputCost = calculateTokenCost(model.input.costPer1MTokens, inputTokens)
+  const outputCost = calculateTokenCost(model.output.costPer1MTokens, outputTokens)
+  const cost = inputCost + outputCost
+
+  return {
     id: response.id,
     provider: props.provider,
     model: response.model,
@@ -138,31 +146,13 @@ export async function generateContent<M extends string>(
     })),
     usage: {
       inputTokens,
-      inputCost: calculateTokenCost(model.input.costPer1MTokens, inputTokens),
+      inputCost,
       outputTokens,
-      outputCost: calculateTokenCost(model.output.costPer1MTokens, outputTokens),
+      outputCost,
     },
-  }
-}
-
-function getTokenUsage(
-  response: { usage?: { prompt_tokens?: number; completion_tokens?: number } },
-  logger: IntegrationLogger,
-  provider: string
-) {
-  const inputTokens = response.usage?.prompt_tokens
-  if (!inputTokens) {
-    logger.forBot().error(`Received invalid input token count of "${inputTokens}" from ${provider}`)
-  }
-
-  const outputTokens = response.usage?.completion_tokens
-  if (!outputTokens) {
-    logger.forBot().error(`Received invalid output token count of "${outputTokens}" from ${provider}`)
-  }
-
-  return {
-    inputTokens: inputTokens || 0,
-    outputTokens: outputTokens || 0,
+    botpress: {
+      cost, // DEPRECATED
+    },
   }
 }
 

@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 import {
   addCustomerToCampaignInputSchema,
@@ -17,11 +18,10 @@ const INTEGRATION_NAME = 'mailchimp'
 export default new IntegrationDefinition({
   name: INTEGRATION_NAME,
   title: 'Mailchimp',
-  version: '0.3.4',
+  version: '0.3.6',
   readme: 'hub.md',
   icon: 'icon.svg',
-  description:
-    "Elevate your bot's email marketing abilities with Mailchimp. Access and add customers to campaigns and lists and send mass email campaigns from within your workflows",
+  description: 'Send mass email campaigns from within your workflows. Manage customers, campaigns, lists and more.',
   channels: {},
   configuration: {
     schema: z.object({

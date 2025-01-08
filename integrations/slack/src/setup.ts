@@ -1,24 +1,70 @@
+import { RuntimeError } from '@botpress/client'
 import { WebClient } from '@slack/web-api'
+import { SlackScopes } from './misc/slack-scopes'
 import { CreateConversationFunction, CreateUserFunction, RegisterFunction, UnregisterFunction } from './misc/types'
-import { getAccessToken, getDirectMessageForUser, isUserId, saveConfig } from './misc/utils'
+import { getAccessToken, saveConfig, saveCredentials, updateBotpressBotNameAndAvatar } from './misc/utils'
+import { Client, Context } from '.botpress'
 
 export type SyncState = { usersLastSyncTs?: number }
 export type Configuration = { botUserId?: string }
 
 export const register: RegisterFunction = async ({ client, ctx, logger }) => {
   logger.forBot().debug('Registering Slack integration')
+
+  if (ctx.configurationType === 'botToken') {
+    if (!ctx.configuration.botToken || !ctx.configuration.signingSecret) {
+      throw new RuntimeError(
+        'Missing configuration: the Bot Token and Signing Secret are both required when using manual configuration'
+      )
+    }
+    await saveCredentials(client, ctx, {
+      accessToken: ctx.configuration.botToken,
+      signingSecret: ctx.configuration.signingSecret,
+    })
+  }
+
   const accessToken = await getAccessToken(client, ctx)
 
   if (!accessToken) {
     return
   }
 
-  const slack = new WebClient(accessToken)
-  const identity = await slack.auth.test()
+  const slackClient = new WebClient(accessToken)
+  const identity = await slackClient.auth.test()
+
+  const grantedScopes = identity.response_metadata?.scopes ?? []
+  await SlackScopes.saveScopes({ client, ctx, scopes: grantedScopes })
+  await SlackScopes.ensureHasAllScopes({
+    client,
+    ctx,
+    requiredScopes: [
+      'channels:history',
+      'channels:manage',
+      'channels:read',
+      'chat:write',
+      'groups:history',
+      'groups:read',
+      'groups:write',
+      'im:history',
+      'im:read',
+      'im:write',
+      'mpim:history',
+      'mpim:read',
+      'mpim:write',
+      'reactions:read',
+      'reactions:write',
+      'team:read',
+      'users.profile:read',
+      'users:read',
+    ],
+    operation: 'auth.test',
+  })
 
   const configuration: Configuration = { botUserId: identity.user_id }
 
   await saveConfig(client, ctx, configuration)
+
+  await updateBotpressBotNameAndAvatar(client, ctx)
 }
 
 export const unregister: UnregisterFunction = async () => {
@@ -32,8 +78,15 @@ export const createUser: CreateUserFunction = async ({ client, tags, ctx }) => {
   }
 
   const accessToken = await getAccessToken(client, ctx)
-  const slack = new WebClient(accessToken)
-  const member = await slack.users.info({ user: userId })
+  const slackClient = new WebClient(accessToken)
+
+  await SlackScopes.ensureHasAllScopes({
+    client,
+    ctx,
+    requiredScopes: ['users:read'],
+    operation: 'users.info',
+  })
+  const member = await slackClient.users.info({ user: userId })
 
   if (!member.user?.id) {
     return
@@ -56,15 +109,20 @@ export const createConversation: CreateConversationFunction = async ({ client, c
     return
   }
 
-  const accessToken = await getAccessToken(client, ctx)
+  const slackClient = new WebClient(await getAccessToken(client, ctx))
 
-  if (isUserId(conversationId)) {
-    const channelId = await getDirectMessageForUser(conversationId, accessToken)
+  if (_isUserId(conversationId)) {
+    const channelId = await _getDirectMessageForUser({ userId: conversationId, slackClient, client, ctx })
     conversationId = channelId || conversationId
   }
 
-  const slack = new WebClient(accessToken)
-  const response = await slack.conversations.info({ channel: conversationId })
+  await SlackScopes.ensureHasAllScopes({
+    client,
+    ctx,
+    requiredScopes: ['im:read', 'channels:read', 'groups:read', 'mpim:read'],
+    operation: 'conversations.info',
+  })
+  const response = await slackClient.conversations.info({ channel: conversationId })
 
   if (!response.channel?.id) {
     return
@@ -85,4 +143,23 @@ export const createConversation: CreateConversationFunction = async ({ client, c
     headers: {},
     statusCode: 200,
   }
+}
+
+const _isUserId = (id: string) => id.startsWith('U')
+
+const _getDirectMessageForUser = async ({
+  userId,
+  slackClient,
+  client,
+  ctx,
+}: {
+  userId: string
+  slackClient: WebClient
+  client: Client
+  ctx: Context
+}) => {
+  await SlackScopes.ensureHasAllScopes({ client, ctx, requiredScopes: ['im:write'], operation: 'conversations.open' })
+  const conversation = await slackClient.conversations.open({ users: userId })
+
+  return conversation.channel?.id
 }

@@ -4,7 +4,7 @@ import { getAccessToken } from './misc/whatsapp'
 import { IntegrationCtx, Client } from './types'
 
 export class UnreachableCaseError extends Error {
-  constructor(val: never) {
+  public constructor(val: never) {
     super(`Unreachable case: ${val}`)
   }
 }
@@ -43,4 +43,12 @@ export async function getWhatsAppMediaUrl(
   const whatsapp = new WhatsAppAPI({ token: accessToken, secure: false })
   const media = await whatsapp.retrieveMedia(whatsappMediaId)
   return (media as Exclude<ServerMediaRetrieveResponse, ServerErrorResponse>).url
+}
+
+export function getSubpath(path: string) {
+  let subpath = '/' + path.split('/').slice(2).join('/')
+  if (subpath.slice(-1) === '/') {
+    subpath = subpath.slice(0, -1)
+  }
+  return subpath ? subpath : undefined
 }

@@ -1,9 +1,11 @@
 import * as client from '@botpress/client'
-import _ from 'lodash'
-import { formatIntegrationRef, ApiIntegrationRef as IntegrationRef, NameIntegrationRef } from '../integration-ref'
+import semver from 'semver'
+import yn from 'yn'
 import type { Logger } from '../logger'
+import { formatPackageRef, ApiPackageRef, NamePackageRef, isLatest } from '../package-ref'
 import { findPreviousIntegrationVersion } from './find-previous-version'
 import * as paging from './paging'
+
 import {
   ApiClientProps,
   PublicIntegration,
@@ -12,6 +14,7 @@ import {
   Requests,
   Responses,
   Interface,
+  Plugin,
   BotSummary,
 } from './types'
 
@@ -37,6 +40,11 @@ export class ApiClient {
   }
 
   public get isBotpressWorkspace(): boolean {
+    // this environment variable is undocumented and only used internally for dev purposes
+    const isBotpressWorkspace = yn(process.env.BP_IS_BOTPRESS_WORKSPACE)
+    if (isBotpressWorkspace !== undefined) {
+      return isBotpressWorkspace
+    }
     return [
       '6a76fa10-e150-4ff6-8f59-a300feec06c1',
       '95de33eb-1551-4af9-9088-e5dcb02efd09',
@@ -48,12 +56,21 @@ export class ApiClient {
     return this.client.getWorkspace({ id: this.workspaceId })
   }
 
+  public async findWorkspaceByHandle(handle: string): Promise<Responses['getWorkspace'] | undefined> {
+    const workspaces = await paging.listAllPages(this.client.listWorkspaces, (r) => r.workspaces)
+    return workspaces.find((w) => w.handle === handle)
+  }
+
+  public switchWorkspace(workspaceId: string): ApiClient {
+    return ApiClient.newClient({ apiUrl: this.url, token: this.token, workspaceId }, this._logger)
+  }
+
   public async updateWorkspace(props: Omit<Requests['updateWorkspace'], 'id'>): Promise<Responses['updateWorkspace']> {
     return this.client.updateWorkspace({ id: this.workspaceId, ...props })
   }
 
-  public async findIntegration(ref: IntegrationRef): Promise<Integration | undefined> {
-    const formatted = formatIntegrationRef(ref)
+  public async findIntegration(ref: ApiPackageRef): Promise<Integration | undefined> {
+    const formatted = formatPackageRef(ref)
 
     const privateIntegration = await this.findPrivateIntegration(ref)
     if (privateIntegration) {
@@ -70,32 +87,89 @@ export class ApiClient {
     return
   }
 
-  public async findPrivateIntegration(ref: IntegrationRef): Promise<PrivateIntegration | undefined> {
+  public async findPrivateIntegration(ref: ApiPackageRef): Promise<PrivateIntegration | undefined> {
     const { workspaceId } = this
     if (ref.type === 'id') {
-      return this.validateStatus(
-        () => this.client.getIntegration(ref).then((r) => ({ ...r.integration, workspaceId })),
-        404
-      )
+      return this.client
+        .getIntegration(ref)
+        .then((r) => ({ ...r.integration, workspaceId }))
+        .catch(this._returnUndefinedOnError('ResourceNotFound'))
     }
-    return this.validateStatus(
-      () => this.client.getIntegrationByName(ref).then((r) => ({ ...r.integration, workspaceId })),
-      404
-    )
+    return this.client
+      .getIntegrationByName(ref)
+      .then((r) => ({ ...r.integration, workspaceId }))
+      .catch(this._returnUndefinedOnError('ResourceNotFound'))
   }
 
-  public async findPublicIntegration(ref: IntegrationRef): Promise<PublicIntegration | undefined> {
+  public async findPublicIntegration(ref: ApiPackageRef): Promise<PublicIntegration | undefined> {
     if (ref.type === 'id') {
-      return this.validateStatus(() => this.client.getPublicIntegrationById(ref).then((r) => r.integration), 404)
+      return this.client
+        .getPublicIntegrationById(ref)
+        .then((r) => r.integration)
+        .catch(this._returnUndefinedOnError('ResourceNotFound'))
     }
-    return this.validateStatus(() => this.client.getPublicIntegration(ref).then((r) => r.integration), 404)
+    return this.client
+      .getPublicIntegration(ref)
+      .then((r) => r.integration)
+      .catch(this._returnUndefinedOnError('ResourceNotFound'))
   }
 
-  public async findPublicInterface(ref: IntegrationRef): Promise<Interface | undefined> {
+  public async findPublicInterface(ref: ApiPackageRef): Promise<Interface | undefined> {
     if (ref.type === 'id') {
-      return this.validateStatus(() => this.client.getInterface(ref).then((r) => r.interface), 404)
+      return this.client
+        .getInterface(ref)
+        .then((r) => r.interface)
+        .catch(this._returnUndefinedOnError('ResourceNotFound'))
     }
-    return this.validateStatus(() => this.client.getInterfaceByName(ref).then((r) => r.interface), 404)
+
+    if (isLatest(ref)) {
+      // TODO: handle latest keyword in backend
+      return this._findLatestInterfaceVersion(ref)
+    }
+
+    return this.client
+      .getInterfaceByName(ref)
+      .then((r) => r.interface)
+      .catch(this._returnUndefinedOnError('ResourceNotFound'))
+  }
+
+  public async findPublicPlugin(ref: ApiPackageRef): Promise<Plugin | undefined> {
+    if (ref.type === 'id') {
+      return this.client
+        .getPlugin(ref)
+        .then((r) => r.plugin)
+        .catch(this._returnUndefinedOnError('ResourceNotFound'))
+    }
+
+    if (isLatest(ref)) {
+      // TODO: handle latest keyword in backend
+      return this._findLatestPluginVersion(ref)
+    }
+
+    return this.client
+      .getPluginByName(ref)
+      .then((r) => r.plugin)
+      .catch(this._returnUndefinedOnError('ResourceNotFound'))
+  }
+
+  private _findLatestInterfaceVersion = async ({ name }: NamePackageRef): Promise<Interface | undefined> => {
+    const { interfaces: allVersions } = await this.client.listInterfaces({ name })
+    const sorted = allVersions.sort((a, b) => semver.compare(b.version, a.version))
+    const latestVersion = sorted[0]
+    if (!latestVersion) {
+      return
+    }
+    return this.client.getInterface({ id: latestVersion.id }).then((r) => r.interface)
+  }
+
+  private _findLatestPluginVersion = async ({ name }: NamePackageRef): Promise<Plugin | undefined> => {
+    const { plugins: allVersions } = await this.client.listPlugins({ name })
+    const sorted = allVersions.sort((a, b) => semver.compare(b.version, a.version))
+    const latestVersion = sorted[0]
+    if (!latestVersion) {
+      return
+    }
+    return this.client.getPlugin({ id: latestVersion.id }).then((r) => r.plugin)
   }
 
   public async testLogin(): Promise<void> {
@@ -104,21 +178,7 @@ export class ApiClient {
 
   public listAllPages = paging.listAllPages
 
-  public async validateStatus<V>(fn: () => Promise<V>, allowedStatuses: number | number[]): Promise<V | undefined> {
-    try {
-      const v = await fn()
-      return v
-    } catch (err) {
-      const allowedStatusesArray = _.isArray(allowedStatuses) ? allowedStatuses : [allowedStatuses]
-      const isAllowed = client.isApiError(err) && err.code && allowedStatusesArray.includes(err.code)
-      if (isAllowed) {
-        return
-      }
-      throw err
-    }
-  }
-
-  public async findPreviousIntegrationVersion(ref: NameIntegrationRef): Promise<Integration | undefined> {
+  public async findPreviousIntegrationVersion(ref: NamePackageRef): Promise<Integration | undefined> {
     const previous = await findPreviousIntegrationVersion(this.client, ref)
     if (!previous) {
       return
@@ -131,4 +191,13 @@ export class ApiClient {
     const allBots = await this.listAllPages(this.client.listBots, (r) => r.bots)
     return allBots.find((b) => b.name === name)
   }
+
+  private _returnUndefinedOnError =
+    (type: client.ApiError['type']) =>
+    (thrown: any): undefined => {
+      if (client.isApiError(thrown) && thrown.type === type) {
+        return
+      }
+      throw thrown
+    }
 }

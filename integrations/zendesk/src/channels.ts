@@ -1,7 +1,8 @@
 import * as sdk from '@botpress/sdk'
-import { IntegrationLogger } from '@botpress/sdk/dist/integration/logger'
 import { getZendeskClient } from './client'
 import * as bp from '.botpress'
+
+type IntegrationLogger = bp.Logger
 
 class Tags<T extends Record<string, string>> {
   private constructor(private _t: { tags: T }, private _logger: IntegrationLogger) {}
@@ -28,7 +29,7 @@ class Tags<T extends Record<string, string>> {
 export default {
   hitl: {
     messages: {
-      text: async ({ client, ...props }: bp.AnyMessageProps) => {
+      text: async ({ client, ...props }) => {
         const { text, userId } = props.payload
 
         const conversationTags = Tags.of(props.conversation, props.logger)

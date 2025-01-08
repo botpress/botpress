@@ -1,4 +1,5 @@
 import { axios } from '@botpress/client'
+import { Response, RuntimeError } from '@botpress/sdk'
 import { AssertionError, ok } from 'assert'
 import _ from 'lodash'
 import { Context, Markup, Telegraf, Telegram } from 'telegraf'
@@ -48,10 +49,20 @@ export function getChat(conversation: MessageHandlerProps['conversation']): stri
   const chat = conversation.tags.chatId
 
   if (!chat) {
-    throw Error(`No chat found for conversation ${conversation.id}`)
+    throw new RuntimeError(`No chat found for conversation ${conversation.id}`)
   }
 
   return chat
+}
+
+export function getMessageId(message: MessageHandlerProps['message']): number {
+  const messageId = message.tags.id
+
+  if (!messageId) {
+    throw new RuntimeError(`No message ID found for message ${message.id}`)
+  }
+
+  return Number(messageId)
 }
 
 export const getUserNameFromTelegramUser = (telegramUser: User) => {
@@ -209,25 +220,20 @@ export const convertTelegramMessageToBotpressMessage = async ({
   throw new Error('Unsupported message type')
 }
 
-type Webhook = bp.Integration['webhook']
-type AugmentedWebhook = (arg: Parameters<Webhook>[0]) => ReturnType<Webhook>
-
-export class WebhookAssertionError extends Error {}
-
+type Handler = bp.IntegrationProps['handler']
 export const wrapHandler =
-  (handler: AugmentedWebhook) =>
-  async (...props: Parameters<Webhook>) => {
-    const args = props[0]
-
+  (handler: Handler): Handler =>
+  async (args: bp.HandlerProps): Promise<Response | void> => {
     try {
-      return handler({
+      return await handler({
         ...args,
       })
     } catch (err) {
       if (err instanceof AssertionError) {
         args.logger.forBot().error('Assertion Error:', err.message)
-      } else {
-        throw err
+        return { status: 200 }
       }
+
+      throw err
     }
   }

@@ -1,15 +1,11 @@
 {
   "name": "@botpresshub/make",
   "scripts": {
-    "start": "pnpm bp serve",
-    "build": "pnpm bp build",
-    "deploy": "pnpm bp deploy",
-    "check:type": "tsc --noEmit"
+    "build": "bp add -y && bp build",
+    "check:type": "tsc --noEmit",
+    "check:bplint": "bp lint"
   },
-  "keywords": [],
   "private": true,
-  "author": "",
-  "license": "MIT",
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
@@ -17,8 +13,6 @@
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
-    "@types/node": "^18.19.10",
-    "ts-node": "^10.9.2",
-    "typescript": "^4.9.5"
+    "@botpress/common": "workspace:*"
   }
 }

@@ -14,6 +14,7 @@ import {
   ackMessage,
   convertTelegramMessageToBotpressMessage,
   wrapHandler,
+  getMessageId,
 } from './misc/utils'
 import * as bp from '.botpress'
 
@@ -26,7 +27,33 @@ const integration = new bp.Integration({
     const telegraf = new Telegraf(ctx.configuration.botToken)
     await telegraf.telegram.deleteWebhook({ drop_pending_updates: true })
   },
-  actions: {},
+  actions: {
+    startTypingIndicator: async ({ input, ctx, client }) => {
+      const telegraf = new Telegraf(ctx.configuration.botToken)
+      const { conversation } = await client.getConversation({ id: input.conversationId })
+      const { message } = await client.getMessage({ id: input.messageId })
+
+      const chat = getChat(conversation)
+      const messageId = getMessageId(message)
+
+      await telegraf.telegram.sendChatAction(chat, 'typing')
+      await telegraf.telegram.setMessageReaction(chat, messageId, [{ type: 'emoji', emoji: '👀' }])
+
+      return {}
+    },
+    stopTypingIndicator: async ({ input, ctx, client }) => {
+      const telegraf = new Telegraf(ctx.configuration.botToken)
+      const { conversation } = await client.getConversation({ id: input.conversationId })
+      const { message } = await client.getMessage({ id: input.messageId })
+
+      const chat = getChat(conversation)
+      const messageId = getMessageId(message)
+
+      await telegraf.telegram.setMessageReaction(chat, messageId, [])
+
+      return {}
+    },
+  },
   channels: {
     channel: {
       messages: {
@@ -57,9 +84,15 @@ const integration = new bp.Integration({
         audio: async ({ payload, ctx, conversation, ack, logger }) => {
           const client = new Telegraf(ctx.configuration.botToken)
           const chat = getChat(conversation)
-          logger.forBot().debug(`Sending audio message to Telegram chat ${chat}:`, payload.audioUrl)
-          const message = await client.telegram.sendAudio(chat, payload.audioUrl)
-          await ackMessage(message, ack)
+          logger.forBot().debug(`Sending audio voice to Telegram chat ${chat}:`, payload.audioUrl)
+          try {
+            const message = await client.telegram.sendVoice(chat, payload.audioUrl, { caption: payload.caption })
+            await ackMessage(message, ack)
+          } catch (error) {
+            // If the audio file is too large to be voice, Telegram should send it as an audio file, but if for some reason it doesn't, we can send it as an audio file
+            const message = await client.telegram.sendAudio(chat, payload.audioUrl, { caption: payload.caption })
+            await ackMessage(message, ack)
+          }
         },
         video: async ({ payload, ctx, conversation, ack, logger }) => {
           const client = new Telegraf(ctx.configuration.botToken)
@@ -144,13 +177,15 @@ const integration = new bp.Integration({
     ok(userId, 'Handler received message with empty "from.id" value')
     ok(messageId, 'Handler received an empty message id')
 
-    const userName = getUserNameFromTelegramUser(message.from as User)
+    const fromUser = message.from as User
+    const userName = getUserNameFromTelegramUser(fromUser)
 
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
         id: conversationId.toString(),
         fromUserId: userId.toString(),
+        fromUserUsername: fromUser.username,
         fromUserName: userName,
         chatId: conversationId.toString(),
       },

@@ -1,6 +1,15 @@
 import { SchemaDefinition } from '../../schema'
-import { AnyZodObject } from '../../type-utils'
-import { BaseConfig, BaseEvents, BaseActions, BaseMessages, BaseChannels, BaseStates, BaseEntities } from './generic'
+import { ZuiObjectSchema } from '../../zui'
+import {
+  BaseConfig,
+  BaseEvents,
+  BaseActions,
+  BaseMessages,
+  BaseChannels,
+  BaseStates,
+  BaseEntities,
+  BaseConfigs,
+} from './generic'
 
 export type TagDefinition = {
   title?: string
@@ -13,6 +22,12 @@ export type ConfigurationDefinition<TConfig extends BaseConfig = BaseConfig> = S
     linkTemplateScript?: string
   }
 }
+
+export type AdditionalConfigurationDefinition<TConfig extends BaseConfigs[string] = BaseConfigs[string]> =
+  ConfigurationDefinition<TConfig> & {
+    title?: string
+    description?: string
+  }
 
 export type EventDefinition<TEvent extends BaseEvents[string] = BaseEvents[string]> = SchemaDefinition<TEvent> & {
   title?: string
@@ -46,7 +61,9 @@ export type ActionDefinition<TAction extends BaseActions[string] = BaseActions[s
   title?: string
   description?: string
   input: SchemaDefinition<TAction>
-  output: SchemaDefinition<AnyZodObject> // cannot infer both input and output types (typescript limitation)
+  output: SchemaDefinition<ZuiObjectSchema> // cannot infer both input and output types (typescript limitation)
+  billable?: boolean
+  cacheable?: boolean
 }
 
 export type StateDefinition<TState extends BaseStates[string] = BaseStates[string]> = SchemaDefinition<TState> & {
@@ -85,10 +102,16 @@ export type ResolvedInterface<
   channels: { [K in keyof TChannels]: ChannelDefinition<TChannels[K]> }
 }
 
-export type InterfaceImplementationStatement = {
+export type InterfaceImplementationStatement<
+  TEntities extends BaseEntities = BaseEntities,
+  TActions extends BaseActions = BaseActions,
+  TEvents extends BaseEvents = BaseEvents,
+  TChannels extends BaseChannels = BaseChannels
+> = {
   name: string
   version: string
-  entities: Record<string, { name: string }>
-  actions: Record<string, { name: string }>
-  events: Record<string, { name: string }>
+  entities: { [K in keyof TEntities]: { name: string } }
+  actions: { [K in keyof TActions]: { name: string } }
+  events: { [K in keyof TEvents]: { name: string } }
+  channels: { [K in keyof TChannels]: { name: string } }
 }

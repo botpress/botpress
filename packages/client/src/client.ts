@@ -1,10 +1,12 @@
 import axios, { AxiosError } from 'axios'
+import axiosRetry from 'axios-retry'
 import { isNode } from 'browser-or-node'
 import http from 'http'
 import https from 'https'
 import * as config from './config'
 import * as errors from './errors'
 import * as gen from './gen'
+import { Lister } from './lister'
 import * as types from './types'
 
 const _100mb = 100 * 1024 * 1024
@@ -29,7 +31,15 @@ export class Client extends gen.Client implements types.IClient {
     })
     super(axiosInstance)
 
+    if (clientProps.retry) {
+      axiosRetry(axiosInstance, clientProps.retry)
+    }
+
     this.config = clientConfig
+  }
+
+  public get list() {
+    return new Lister(this)
   }
 
   /**
@@ -43,6 +53,9 @@ export class Client extends gen.Client implements types.IClient {
     accessPolicies,
     content,
     url,
+    indexing,
+    expiresAt,
+    publicContentImmediatelyAccessible,
   }: types.ClientInputs['uploadFile']): Promise<types.ClientOutputs['uploadFile']> => {
     if (url && content) {
       throw new errors.UploadFileError('Cannot provide both content and URL, please provide only one of them')
@@ -91,19 +104,33 @@ export class Client extends gen.Client implements types.IClient {
       accessPolicies,
       contentType,
       size,
+      expiresAt,
+      indexing,
+      publicContentImmediatelyAccessible,
     })
+
+    const headers: Record<string, string> = {
+      'Content-Type': file.contentType,
+    }
+
+    if (publicContentImmediatelyAccessible) {
+      headers['x-amz-tagging'] = 'public=true'
+    }
 
     try {
       await axios.put(file.uploadUrl, buffer, {
         maxBodyLength: Infinity,
-        headers: {
-          'Content-Type': file.contentType,
-        },
+        headers,
       })
     } catch (err: any) {
       throw new errors.UploadFileError(`Failed to upload file: ${err.message}`, <AxiosError>err, file)
     }
 
-    return { file }
+    return {
+      file: {
+        ...file,
+        size,
+      },
+    }
   }
 }

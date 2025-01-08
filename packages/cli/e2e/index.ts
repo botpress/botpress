@@ -4,6 +4,8 @@ import * as consts from '../src/consts'
 import { createDeployBot } from './tests/create-deploy-bot'
 import { createDeployIntegration } from './tests/create-deploy-integration'
 import { devBot } from './tests/dev-bot'
+import { installAllInterfaces } from './tests/install-interfaces'
+import { addIntegration } from './tests/install-package'
 import { requiredSecrets } from './tests/integration-secrets'
 import { prependWorkspaceHandle, enforceWorkspaceHandle } from './tests/manage-workspace-handle'
 import { Test } from './typings'
@@ -16,6 +18,8 @@ const tests: Test[] = [
   requiredSecrets,
   prependWorkspaceHandle,
   enforceWorkspaceHandle,
+  addIntegration,
+  installAllInterfaces,
 ]
 
 const timeout = (ms: number) =>
@@ -23,7 +27,7 @@ const timeout = (ms: number) =>
     throw new Error(`Timeout after ${ms}ms`)
   })
 
-const TIMEOUT = 30_000
+const TIMEOUT = 45_000
 
 const configSchema = {
   timeout: {

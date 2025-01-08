@@ -1,3 +1,4 @@
+/* bplint-disable */
 import { z, IntegrationDefinition } from '@botpress/sdk'
 
 const sizeDescription =
@@ -7,10 +8,10 @@ const modelDescription = 'Model to use for image generation. Defaults to "dall-e
 
 export default new IntegrationDefinition({
   name: 'dalle',
-  version: '0.3.2',
+  version: '0.3.4',
   icon: 'icon.svg',
   title: 'DALL-E (Deprecated)',
-  description: 'Integrate DALL-E to generate stunning and unique images directly within your chatbot conversations',
+  description: 'Integrate DALL-E to generate images directly within your chatbot conversations.',
   readme: 'hub.md',
   configuration: {
     schema: z.object({
