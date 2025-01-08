@@ -22,18 +22,13 @@ export function renderCard(payload: Card): ChatPostMessageArguments['blocks'] {
     },
     {
       type: 'actions',
-      elements: payload.actions.map((item) => {
-        switch (item.action) {
-          case 'say':
-            return renderButtonSay(item)
-          case 'postback':
-            return renderButtonPostback(item)
-          case 'url':
-            return renderButtonUrl(item)
-          default:
-            throw Error(`Unknown action type ${item.action}`)
-        }
-      }),
+      elements: payload.actions.map((item) =>
+        item.action === 'say'
+          ? renderButtonSay(item)
+          : item.action === 'postback'
+            ? renderButtonPostback(item)
+            : renderButtonUrl(item)
+      ),
     },
   ]
 }

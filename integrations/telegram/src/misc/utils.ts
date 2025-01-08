@@ -17,18 +17,13 @@ export async function sendCard(payload: Card, client: Telegraf<Context<Update>>,
   const text = `*${payload.title}*${payload.subtitle ? '\n' + payload.subtitle : ''}`
   const buttons = payload.actions
     .filter((item) => item.value && item.label)
-    .map((item) => {
-      switch (item.action) {
-        case 'url':
-          return Markup.button.url(item.label, item.value)
-        case 'postback':
-          return Markup.button.callback(item.label, `postback:${item.value}`)
-        case 'say':
-          return Markup.button.callback(item.label, `say:${item.value}`)
-        default:
-          throw new Error(`Unknown action type: ${item.action}`)
-      }
-    })
+    .map((item) =>
+      item.action === 'url'
+        ? Markup.button.url(item.label, item.value)
+        : item.action === 'postback'
+          ? Markup.button.callback(item.label, `postback:${item.value}`)
+          : Markup.button.callback(item.label, `say:${item.value}`)
+    )
   if (payload.imageUrl) {
     const message = await client.telegram.sendPhoto(chat, payload.imageUrl, {
       caption: text,

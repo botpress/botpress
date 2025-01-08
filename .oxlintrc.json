@@ -9,7 +9,6 @@
   "globals": {},
   "settings": {},
   "rules": {
-    "eslint/array-callback-return": "off",
     "eslint/eqeqeq": "off",
     "eslint/max-classes-per-file": "off",
     "eslint/max-lines": "off",
