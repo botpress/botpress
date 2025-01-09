@@ -1,6 +1,9 @@
 import sdk from '@botpress/sdk'
+import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 
 export const secrets = {
+  ...sentryHelpers.COMMON_SECRET_NAMES,
+
   CLIENT_ID: {
     optional: false,
     description: 'Client ID in the App Management page of your Todoist app',
