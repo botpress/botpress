@@ -81,12 +81,6 @@ importers:
         specifier: ^2.1.4
         version: 2.1.4(@types/node@18.19.67)
 
-  .ignore.me.lol:
-    dependencies:
-      '@botpress/chat':
-        specifier: workspace:^
-        version: link:../packages/chat-client
-
   bots/bugbuster:
     dependencies:
       '@botpress/client':
