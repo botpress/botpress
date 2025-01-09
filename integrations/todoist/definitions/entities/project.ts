@@ -22,7 +22,7 @@ export namespace Project {
     numberOfComments: z
       .number()
       .title('Number of Comments')
-      .positive()
+      .nonnegative()
       .describe('The number of comments on the project.'),
     isShared: z.boolean().title('Is Shared?').describe('Whether the project is shared or not.'),
     isFavorite: z.boolean().title('Is Favorite?').describe('Whether the project is marked as favorite or not.'),

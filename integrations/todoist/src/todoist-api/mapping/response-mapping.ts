@@ -2,9 +2,10 @@ import {
   Task as TodoistTask,
   Project as TodoistProject,
   Comment as TodoistComment,
+  Section as TodoistSection,
 } from '@doist/todoist-api-typescript'
 import * as entities from 'definitions/entities'
-import { Task, Project, Comment, PickRequired } from '../types'
+import { Task, Project, Comment, PickRequired, Section } from '../types'
 import { reverseScale } from './common/math-utils'
 
 export namespace ResponseMapping {
@@ -45,6 +46,13 @@ export namespace ResponseMapping {
     isTeamInbox: todoistProject.isTeamInbox,
     numberOfComments: todoistProject.commentCount,
     webUrl: todoistProject.url,
+  })
+
+  export const mapSection = (todoistSection: TodoistSection): Section => ({
+    id: todoistSection.id,
+    name: todoistSection.name,
+    projectId: todoistSection.projectId,
+    positionWithinParent: todoistSection.order,
   })
 
   export const mapTaskComment = (todoistComment: TodoistComment): Comment & PickRequired<Comment, 'taskId'> => ({

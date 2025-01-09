@@ -18,7 +18,5 @@
     "@botpress/common": "workspace:*",
     "@botpresshub/creatable": "workspace:*"
   },
-  "bpDependencies": {
-    "creatable": "../../interfaces/creatable"
-  }
+  "bpDependencies": {}
 }

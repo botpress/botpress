@@ -1,5 +1,4 @@
 import * as sdk from '@botpress/sdk'
-import creatable from './bp_modules/creatable'
 import {
   actions,
   channels,
@@ -30,4 +29,4 @@ export default new sdk.IntegrationDefinition({
   secrets,
   states,
   user,
-}).extend(creatable, ({ task }) => ({ item: task }))
+})

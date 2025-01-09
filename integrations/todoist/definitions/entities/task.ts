@@ -69,7 +69,7 @@ export namespace Task {
     numberOfComments: z
       .number()
       .title('Number of Comments')
-      .positive()
+      .nonnegative()
       .describe('The number of comments associated with the task (read-only).'),
     createdAt: z.string().title('Created At').describe('The date when the task was created (read-only).'),
     createdBy: z.string().title('Created By ID').describe('The ID of the user who created the task (read-only).'),
