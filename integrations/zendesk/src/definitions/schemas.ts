@@ -14,7 +14,7 @@ export const ticketSchema = z.object({
   tags: z.array(z.string()),
 })
 
-const zdTicketSchema = ticketSchema.transform((data) => ({
+const _zdTicketSchema = ticketSchema.transform((data) => ({
   ...omit(data, ['requesterId', 'assigneeId', 'createdAt', 'updatedAt']),
   created_at: data.createdAt,
   updated_at: data.updatedAt,
@@ -22,7 +22,7 @@ const zdTicketSchema = ticketSchema.transform((data) => ({
   assignee_id: data.assigneeId,
 }))
 
-export type ZendeskTicket = z.output<typeof zdTicketSchema>
+export type ZendeskTicket = z.output<typeof _zdTicketSchema>
 export type Ticket = z.input<typeof ticketSchema>
 
 export const transformTicket = (ticket: ZendeskTicket): Ticket => {
@@ -49,7 +49,7 @@ export const userSchema = z.object({
   userFields: z.record(z.string()).optional(),
 })
 
-const zdUserSchema = userSchema.transform((data) => ({
+const _zdUserSchema = userSchema.transform((data) => ({
   ...omit(data, ['createdAt', 'updatedAt', 'externalId', 'userFields']),
   created_at: data.createdAt,
   updated_at: data.updatedAt,
@@ -57,7 +57,7 @@ const zdUserSchema = userSchema.transform((data) => ({
   user_fields: data.userFields,
 }))
 
-export type ZendeskUser = z.output<typeof zdUserSchema>
+export type ZendeskUser = z.output<typeof _zdUserSchema>
 export type User = z.input<typeof userSchema>
 
 export const transformUser = (ticket: ZendeskUser): User => {

@@ -1,6 +1,6 @@
-const PROTOCOLS = ['http', 'https', 'ws', 'wss'] as const
+const _PROTOCOLS = ['http', 'https', 'ws', 'wss'] as const
 
-export type Protocol = (typeof PROTOCOLS)[number]
+export type Protocol = (typeof _PROTOCOLS)[number]
 
 export type Path = `/${string}`
 

@@ -10,7 +10,7 @@ export const deleteBlock: bp.IntegrationProps['actions']['deleteBlock'] = async 
     } else {
       return {}
     }
-  } catch (error) {
+  } catch {
     return {}
   }
 }

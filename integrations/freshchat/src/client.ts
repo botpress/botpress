@@ -83,7 +83,7 @@ class FreshchatClient {
     try {
       const result = await this._client.get<{ organisation_id: number }>('/accounts/configuration')
       return !!result?.data?.organisation_id
-    } catch (e: any) {
+    } catch {
       return false
     }
   }

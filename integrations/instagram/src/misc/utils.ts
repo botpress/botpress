@@ -103,7 +103,7 @@ export const getUserProfile = async (
       // username is an available field for instagram ids -> https://developers.facebook.com/docs/instagram-basic-display-api/guides/getting-profiles-and-media
       fields: ['id', 'name', 'profile_pic', 'username'] as any,
     })) as InstagramUserProfile
-  } catch (error) {
+  } catch {
     logger.forBot().debug("profile_pic can't be fetched from instagram, trying without it")
     // if the user is not a business instagram user, this will fail because of profile_pic
     return (await messengerClient.getUserProfile(userId, {

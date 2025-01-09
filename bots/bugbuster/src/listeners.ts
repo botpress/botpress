@@ -18,7 +18,7 @@ export const readListeners = async (props: Props): Promise<BotListeners> => {
       name: 'listeners',
     })
     return listeners
-  } catch (err) {
+  } catch {
     return emptyListeners
   }
 }

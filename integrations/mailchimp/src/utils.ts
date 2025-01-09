@@ -24,12 +24,7 @@ export const getValidCustomer = (validatedInput: Customer) => ({
 })
 
 export const isMailchimpError = (error: any): error is MailchimpAPIError => {
-  if ('status' in error && 'response' in error) {
-    if ('body' in error.response) {
-      return true
-    }
-  }
-  return false
+  return 'status' in error && 'response' in error && 'body' in error.response
 }
 
 export const isZodError = (error: any): error is ZodError => {

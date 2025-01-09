@@ -110,7 +110,7 @@ const _getOctokitForApp = async ({ ctx, client }: { ctx: types.Context; client: 
   try {
     const octokitApp = new OctokitApp({ appId, privateKey })
     return await octokitApp.getInstallationOctokit(await installationId)
-  } catch (_) {
+  } catch {
     throw new sdk.RuntimeError('Failed to authenticate with GitHub. Please check your credentials and try again.')
   }
 }
