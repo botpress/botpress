@@ -11,7 +11,7 @@ export namespace PersonalLabel {
     orderWithinList: z
       .number()
       .title('Order Within List')
-      .positive()
+      .nonnegative()
       .describe("Numerical index indicating label's order within the user's label list."),
     isFavorite: z.boolean().title('Is Favorite?').describe('Whether the label is marked as favorite or not.'),
   } as const
