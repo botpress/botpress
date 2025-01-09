@@ -9,4 +9,8 @@ export const secrets = {
     optional: false,
     description: 'Client Secret in the App Management page of your Todoist app',
   },
+  WEBHOOK_SHARED_SECRET: {
+    optional: false,
+    description: 'Webhook shared secret',
+  },
 } as const satisfies sdk.IntegrationDefinitionProps['secrets']
