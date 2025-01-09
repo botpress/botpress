@@ -1,0 +1,31 @@
+{
+  "name": "@botpresshub/synchronizer",
+  "scripts": {
+    "check:type": "tsc --noEmit",
+    "build": "bp add -y && bp build"
+  },
+  "private": true,
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "dedent": "^1.5.3",
+    "json5": "^2.2.3",
+    "jsonrepair": "^3.10.0"
+  },
+  "devDependencies": {
+    "@botpress/cli": "workspace:*",
+    "@botpress/common": "workspace:*",
+    "@botpresshub/creatable": "workspace:*",
+    "@botpresshub/deletable": "workspace:*",
+    "@botpresshub/listable": "workspace:*",
+    "@botpresshub/readable": "workspace:*",
+    "@botpresshub/updatable": "workspace:*"
+  },
+  "bpDependencies": {
+    "listable": "../../interfaces/listable",
+    "creatable": "../../interfaces/creatable",
+    "readable": "../../interfaces/readable",
+    "updatable": "../../interfaces/updatable",
+    "deletable": "../../interfaces/deletable"
+  }
+}

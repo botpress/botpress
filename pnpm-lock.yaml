@@ -2145,6 +2145,46 @@ importers:
         specifier: 0.0.1
         version: 0.0.1
 
+  plugins/synchronizer:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      dedent:
+        specifier: ^1.5.3
+        version: 1.5.3
+      json5:
+        specifier: ^2.2.3
+        version: 2.2.3
+      jsonrepair:
+        specifier: ^3.10.0
+        version: 3.10.0
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpresshub/creatable':
+        specifier: workspace:*
+        version: link:../../interfaces/creatable
+      '@botpresshub/deletable':
+        specifier: workspace:*
+        version: link:../../interfaces/deletable
+      '@botpresshub/listable':
+        specifier: workspace:*
+        version: link:../../interfaces/listable
+      '@botpresshub/readable':
+        specifier: workspace:*
+        version: link:../../interfaces/readable
+      '@botpresshub/updatable':
+        specifier: workspace:*
+        version: link:../../interfaces/updatable
+
 packages:
 
   /@ampproject/remapping@2.2.1:
