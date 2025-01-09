@@ -8,13 +8,12 @@
   "dependencies": {
     "@botpress/client": "workspace:*",
     "@botpress/sdk": "workspace:*",
-    "dedent": "^1.5.3",
-    "json5": "^2.2.3",
-    "jsonrepair": "^3.10.0"
+    "lodash": "^4.17.21"
   },
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
+    "@types/lodash": "^4.14.191",
     "@botpresshub/creatable": "workspace:*",
     "@botpresshub/deletable": "workspace:*",
     "@botpresshub/listable": "workspace:*",

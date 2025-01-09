@@ -2153,15 +2153,9 @@ importers:
       '@botpress/sdk':
         specifier: workspace:*
         version: link:../../packages/sdk
-      dedent:
-        specifier: ^1.5.3
-        version: 1.5.3
-      json5:
-        specifier: ^2.2.3
-        version: 2.2.3
-      jsonrepair:
-        specifier: ^3.10.0
-        version: 3.10.0
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
     devDependencies:
       '@botpress/cli':
         specifier: workspace:*
@@ -2184,6 +2178,9 @@ importers:
       '@botpresshub/updatable':
         specifier: workspace:*
         version: link:../../interfaces/updatable
+      '@types/lodash':
+        specifier: ^4.14.191
+        version: 4.14.195
 
 packages:
 

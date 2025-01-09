@@ -9,7 +9,9 @@ export default new sdk.PluginDefinition({
   name: 'synchronizer',
   version: '0.0.1',
   configuration: {
-    schema: sdk.z.object({}),
+    schema: sdk.z.object({
+      tableName: sdk.z.string(),
+    }),
   },
   events: {
     listItems: {
