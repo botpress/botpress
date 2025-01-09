@@ -13,7 +13,7 @@ export default new InterfaceDefinition({
   events: {},
   actions: {
     generateContent: {
-      billable: true,
+      billable: false, // TODO: Set to false in the integration definition instead when the SDK will support overriding it
       cacheable: true,
       input: {
         schema: ({ modelRef }) => common.llm.schemas.GenerateContentInputSchema(modelRef),

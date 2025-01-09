@@ -35,7 +35,7 @@ const OpenAIErrorSchema = z
 
 export async function generateContent<M extends string>(
   input: GenerateContentInput,
-  openAIClient: OpenAI | AzureOpenAI,
+  openAIClient: OpenAI,
   logger: IntegrationLogger,
   props: {
     provider: string

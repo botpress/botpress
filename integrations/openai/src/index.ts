@@ -1,213 +1,79 @@
-import { InvalidPayloadError } from '@botpress/client'
-import { llm, speechToText, textToImage } from '@botpress/common'
+import { InvalidPayloadError, RuntimeError } from '@botpress/client'
+import { llm, speechToText } from '@botpress/common'
 import crypto from 'crypto'
 import { TextToSpeechPricePer1MCharacters } from 'integration.definition'
-import { AzureOpenAI } from 'openai'
+import OpenAI, { AzureOpenAI } from 'openai'
 import { ImageGenerateParams, Images } from 'openai/resources'
 import { SpeechCreateParams } from 'openai/resources/audio/speech'
-import { LanguageModelId, ImageModelId, SpeechToTextModelId } from './schemas'
+import { LanguageModelId, ImageModelId } from './schemas'
 import * as bp from '.botpress'
 
-const DEFAULT_LANGUAGE_MODEL_ID: LanguageModelId = 'gpt-4o-mini-2024-07-18'
-const DEFAULT_IMAGE_MODEL_ID: ImageModelId = 'dall-e-3-standard-1024'
+type ArrayElement<A> = A extends readonly (infer T)[] ? T : never
+type LanguageModel = ArrayElement<Awaited<ReturnType<bp.IntegrationProps['actions']['listLanguageModels']>>['models']>
+type ImageModel = ArrayElement<Awaited<ReturnType<bp.IntegrationProps['actions']['listImageModels']>>['models']>
+type SttModel = ArrayElement<Awaited<ReturnType<bp.IntegrationProps['actions']['listSpeechToTextModels']>>['models']>
 
-const getOpenAIClient = (ctx: bp.Context): AzureOpenAI =>
+const getOpenAIClient = (ctx: bp.Context): OpenAI =>
   new AzureOpenAI({
     endpoint: ctx.configuration.url,
     apiKey: ctx.configuration.apiKey,
     apiVersion: ctx.configuration.apiVersion,
   })
 
-// References:
-//  https://platform.openai.com/docs/models
-//  https://openai.com/api/pricing/
-const languageModels: Record<LanguageModelId, llm.ModelDetails> = {
-  // IMPORTANT: Only full model names should be supported here, as the short model names can be pointed by OpenAI at any time to a newer model with different pricing.
-  'o1-2024-12-17': {
-    name: 'GPT o1',
-    description:
-      'The o1 model is designed to solve hard problems across domains. The o1 series of models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user.',
-    tags: ['reasoning', 'vision', 'general-purpose'],
-    input: {
-      costPer1MTokens: 15,
-      maxTokens: 200_000,
-    },
-    output: {
-      costPer1MTokens: 60,
-      maxTokens: 100_000,
-    },
-  },
-  'o1-mini-2024-09-12': {
-    name: 'GPT o1-mini',
-    description:
-      'The o1-mini model is a fast and affordable reasoning model for specialized tasks. The o1 series of models are trained with reinforcement learning to perform complex reasoning. o1 models think before they answer, producing a long internal chain of thought before responding to the user.',
-    tags: ['reasoning', 'vision', 'general-purpose'],
-    input: {
-      costPer1MTokens: 3,
-      maxTokens: 128_000,
-    },
-    output: {
-      costPer1MTokens: 12,
-      maxTokens: 65_536,
-    },
-  },
-  'gpt-4o-mini-2024-07-18': {
-    name: 'GPT-4o Mini',
-    description:
-      "GPT-4o mini (“o” for “omni”) is OpenAI's most advanced model in the small models category, and their cheapest model yet. It is multimodal (accepting text or image inputs and outputting text), has higher intelligence than gpt-3.5-turbo but is just as fast. It is meant to be used for smaller tasks, including vision tasks. It's recommended to choose gpt-4o-mini where you would have previously used gpt-3.5-turbo as this model is more capable and cheaper.",
-    tags: ['recommended', 'vision', 'low-cost', 'general-purpose', 'function-calling'],
-    input: {
-      costPer1MTokens: 0.15,
-      maxTokens: 128_000,
-    },
-    output: {
-      costPer1MTokens: 0.6,
-      maxTokens: 16_384,
-    },
-  },
-  'gpt-4o-2024-11-20': {
-    name: 'GPT-4o (November 2024)',
-    description:
-      "GPT-4o (“o” for “omni”) is OpenAI's most advanced model. It is multimodal (accepting text or image inputs and outputting text), and it has the same high intelligence as GPT-4 Turbo but is cheaper and more efficient.",
-    tags: ['recommended', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
-    input: {
-      costPer1MTokens: 2.5,
-      maxTokens: 128_000,
-    },
-    output: {
-      costPer1MTokens: 10,
-      maxTokens: 16_384,
-    },
-  },
-  'gpt-4o-2024-08-06': {
-    name: 'GPT-4o (August 2024)',
-    description:
-      "GPT-4o (“o” for “omni”) is OpenAI's most advanced model. It is multimodal (accepting text or image inputs and outputting text), and it has the same high intelligence as GPT-4 Turbo but is cheaper and more efficient.",
-    tags: ['recommended', 'vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
-    input: {
-      costPer1MTokens: 2.5,
-      maxTokens: 128_000,
-    },
-    output: {
-      costPer1MTokens: 10,
-      maxTokens: 16_384,
-    },
-  },
-  'gpt-4o-2024-05-13': {
-    name: 'GPT-4o (May 2024)',
-    description:
-      "GPT-4o (“o” for “omni”) is OpenAI's most advanced model. It is multimodal (accepting text or image inputs and outputting text), and it has the same high intelligence as GPT-4 Turbo but is cheaper and more efficient.",
-    tags: ['vision', 'general-purpose', 'coding', 'agents', 'function-calling'],
-    input: {
-      costPer1MTokens: 5,
-      maxTokens: 128_000,
-    },
-    output: {
-      costPer1MTokens: 15,
-      maxTokens: 4096,
-    },
-  },
-  'gpt-4-turbo-2024-04-09': {
-    name: 'GPT-4 Turbo',
-    description:
-      'GPT-4 is a large multimodal model (accepting text or image inputs and outputting text) that can solve difficult problems with greater accuracy than any of our previous models, thanks to its broader general knowledge and advanced reasoning capabilities.',
-    tags: ['deprecated', 'general-purpose', 'coding', 'agents', 'function-calling'],
-    input: {
-      costPer1MTokens: 10,
-      maxTokens: 128_000,
-    },
-    output: {
-      costPer1MTokens: 30,
-      maxTokens: 4096,
-    },
-  },
-  'gpt-3.5-turbo-0125': {
-    name: 'GPT-3.5 Turbo',
-    description:
-      'GPT-3.5 Turbo can understand and generate natural language or code and has been optimized for chat but works well for non-chat tasks as well.',
-    tags: ['deprecated', 'general-purpose', 'low-cost'],
-    input: {
-      costPer1MTokens: 0.5,
-      maxTokens: 128_000,
-    },
-    output: {
-      costPer1MTokens: 1.5,
-      maxTokens: 4096,
-    },
-  },
+const getCustomLanguageModels = (ctx: bp.Context) => {
+  let models: LanguageModel[] = []
+  for (const model of ctx.configuration.customLanguageModels) {
+    models.push({
+      id: model.key,
+      name: model.name,
+      description: model.description || '',
+      tags: ['general-purpose'],
+      input: {
+        costPer1MTokens: 0,
+        maxTokens: model.maxInputTokens,
+      },
+      output: {
+        costPer1MTokens: 0,
+        maxTokens: model.maxOutputTokens,
+      },
+    })
+  }
+  return models
 }
 
-const imageModels: Record<ImageModelId, textToImage.ImageModelDetails> = {
-  'dall-e-3-standard-1024': {
-    name: 'DALL-E 3 Standard 1024',
-    costPerImage: 0.04,
-    sizes: ['1024x1024'],
-    defaultSize: '1024x1024',
-  },
-  'dall-e-3-standard-1792': {
-    name: 'DALL-E 3 Standard 1792',
-    costPerImage: 0.08,
-    sizes: ['1024x1792', '1792x1024'],
-    defaultSize: '1024x1792',
-  },
-  'dall-e-3-hd-1024': {
-    name: 'DALL-E 3 HD 1024',
-    costPerImage: 0.08,
-    sizes: ['1024x1024'],
-    defaultSize: '1024x1024',
-  },
-  'dall-e-3-hd-1792': {
-    name: 'DALL-E 3 HD 1792',
-    costPerImage: 0.12,
-    sizes: ['1024x1792', '1792x1024'],
-    defaultSize: '1024x1792',
-  },
-  'dall-e-2-256': {
-    name: 'DALL-E 2 256',
-    costPerImage: 0.016,
-    sizes: ['256x256'],
-    defaultSize: '256x256',
-  },
-  'dall-e-2-512': {
-    name: 'DALL-E 2 512',
-    costPerImage: 0.018,
-    sizes: ['512x512'],
-    defaultSize: '512x512',
-  },
-  'dall-e-2-1024': {
-    name: 'DALL-E 2 1024',
-    costPerImage: 0.02,
-    sizes: ['1024x1024'],
-    defaultSize: '1024x1024',
-  },
-}
+// TODO: Add custom configs for Image and STT
+const getCustomImageModels = (_ctx: bp.Context): ImageModel[] => []
+const getCustomSttModels = (_ctx: bp.Context): SttModel[] => []
 
-const speechToTextModels: Record<SpeechToTextModelId, speechToText.SpeechToTextModelDetails> = {
-  'whisper-1': {
-    name: 'Whisper V2',
-    costPerMinute: 0.006,
-  },
+const converModelsArrayToRecord = <T extends { id: string }>(models: T[]): Record<string, T> => {
+  return Object.fromEntries(models.map((model) => [model.id, model]))
 }
 
 const SECONDS_IN_A_DAY = 24 * 60 * 60
 
-const provider = 'OpenAI'
+const provider = 'OpenAI (Azure)'
 
 export default new bp.Integration({
-  register: async () => {},
+  register: async ({ ctx }) => {
+    const { customLanguageModels, defaultLanguageModel } = ctx.configuration
+    const customLanguageModelsIds = customLanguageModels.map((model) => model.key)
+    if (!customLanguageModelsIds.includes(defaultLanguageModel)) {
+      throw new RuntimeError('The default language model must be one of the custom language models')
+    }
+  },
   unregister: async () => {},
   actions: {
     generateContent: async ({ input, logger, metadata, ctx }) => {
       const openAIClient = getOpenAIClient(ctx)
-
+      const models = converModelsArrayToRecord(getCustomLanguageModels(ctx))
       const output = await llm.openai.generateContent<LanguageModelId>(
         <llm.GenerateContentInput>input,
         openAIClient,
         logger,
         {
           provider,
-          models: languageModels,
-          defaultModel: DEFAULT_LANGUAGE_MODEL_ID,
+          models,
+          defaultModel: ctx.configuration.defaultLanguageModel,
           overrideRequest: (request) => {
             if (input.model?.id.startsWith('o1-')) {
               // The o1 models don't allow setting temperature
@@ -223,7 +89,10 @@ export default new bp.Integration({
     generateImage: async ({ input, client, ctx, metadata }) => {
       const openAIClient = getOpenAIClient(ctx)
 
+      // TODO: Add default image model to configuration
+      const DEFAULT_IMAGE_MODEL_ID = 'dall-e-3-standard-1024'
       const imageModelId = (input.model?.id ?? DEFAULT_IMAGE_MODEL_ID) as ImageModelId
+      const imageModels = converModelsArrayToRecord(getCustomImageModels(ctx))
       const imageModel = imageModels[imageModelId]
       if (!imageModel) {
         throw new InvalidPayloadError(
@@ -292,10 +161,10 @@ export default new bp.Integration({
     },
     transcribeAudio: async ({ input, logger, metadata, ctx }) => {
       const openAIClient = getOpenAIClient(ctx)
-
+      const models = converModelsArrayToRecord(getCustomSttModels(ctx))
       const output = await speechToText.openai.transcribeAudio(input, openAIClient, logger, {
         provider,
-        models: speechToTextModels,
+        models,
         defaultModel: 'whisper-1',
       })
 
@@ -303,6 +172,7 @@ export default new bp.Integration({
       return output
     },
     generateSpeech: async ({ input, client, metadata, ctx }) => {
+      // TODO: Add default TTS model to configuration
       const model = input.model ?? 'tts-1'
       const openAIClient = getOpenAIClient(ctx)
       const params: SpeechCreateParams = {
@@ -349,19 +219,19 @@ export default new bp.Integration({
         },
       }
     },
-    listLanguageModels: async ({}) => {
+    listLanguageModels: async ({ ctx }) => {
       return {
-        models: Object.entries(languageModels).map(([id, model]) => ({ id: <LanguageModelId>id, ...model })),
+        models: getCustomLanguageModels(ctx),
       }
     },
-    listImageModels: async ({}) => {
+    listImageModels: async ({ ctx }) => {
       return {
-        models: Object.entries(imageModels).map(([id, model]) => ({ id: <ImageModelId>id, ...model })),
+        models: getCustomImageModels(ctx),
       }
     },
-    listSpeechToTextModels: async ({}) => {
+    listSpeechToTextModels: async ({ ctx }) => {
       return {
-        models: Object.entries(speechToTextModels).map(([id, model]) => ({ id: <ImageModelId>id, ...model })),
+        models: getCustomSttModels(ctx),
       }
     },
   },
@@ -383,6 +253,7 @@ function getOpenAIImageGenerationParams(modelId: ImageModelId): {
   model: Images.ImageGenerateParams['model']
   quality?: Images.ImageGenerateParams['quality']
 } {
+  // TODO: Return configs of custom image models
   switch (modelId) {
     case 'dall-e-3-standard-1024':
       return { model: 'dall-e-3', quality: 'standard' }

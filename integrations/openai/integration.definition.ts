@@ -14,18 +14,31 @@ export const TextToSpeechPricePer1MCharacters: Record<TextToSpeechModel, number>
 }
 
 export default new IntegrationDefinition({
-  name: 'openai',
-  title: 'OpenAI',
+  name: 'azureopenai',
+  title: 'Azure OpenAI',
   description:
     'Gain access to OpenAI models for text generation, speech synthesis, audio transcription, and image generation.',
-  version: '10.1.0',
+  version: '0.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   configuration: {
     schema: z.object({
-      url: z.string().describe('Base URL for the Azure OpenAI API'),
-      apiKey: z.string().describe('Azure OpenAI API key'),
+      url: z.string().describe('Base URL for the Azure API'),
+      apiKey: z.string().describe('Azure API key'),
       apiVersion: z.string().describe('Azure API version'),
+      defaultLanguageModel: z.string().describe('The ID of the default language model to use'),
+      customLanguageModels: z
+        .array(
+          z.object({
+            key: z.string().min(1),
+            name: z.string().min(1),
+            description: z.string().optional(),
+            maxInputTokens: z.number().describe('Context Window'),
+            maxOutputTokens: z.number().describe('Max Output Tokens'),
+          })
+        )
+        .describe('Add new language models'),
+      // TODO: Add custom configs for Image and STT
     }),
   },
   entities: {
@@ -54,12 +67,9 @@ export default new IntegrationDefinition({
       }),
     },
   },
-  secrets: {
-    OPENAI_API_KEY: {
-      description: 'OpenAI API key',
-    },
-  },
+  secrets: {},
   actions: {
+    // TODO: Override generateContent from the llm interface to set billable to 'false' when the SDK will support overriding it
     generateSpeech: {
       billable: true,
       cacheable: true,
