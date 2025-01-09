@@ -1,9 +1,8 @@
-import assert from 'assert'
+import * as sdk from '@botpress/sdk'
 import { Dropbox, DropboxAuth, DropboxResponse, files } from 'dropbox'
-import { handler } from './webhook-events/handler'
 import * as bp from '.botpress'
 
-async function createActionPropsAndTools<T extends bp.AnyActionProps>(props: T) {
+async function createActionPropsAndTools<T extends { ctx: bp.Context }>(props: T) {
   const { ctx } = props
   const dbxAuth = new DropboxAuth({
     clientId: ctx.configuration.dropboxAppKey,
@@ -25,7 +24,7 @@ export default new bp.Integration({
       query: 'botpress',
     })
     if (test.status !== 200) {
-      throw new Error('Dropbox authentication failed')
+      throw new sdk.RuntimeError('Dropbox authentication failed')
     }
   },
   unregister: async () => {},
@@ -41,7 +40,7 @@ export default new bp.Integration({
         id: res.result.id,
         name: res.result.name,
         path: res.result.path_display!,
-        created: res.result.server_modified,
+        serverModified: res.result.server_modified,
         revision: res.result.rev,
         size: res.result.size,
         fileHash: res.result.content_hash!,
@@ -56,7 +55,7 @@ export default new bp.Integration({
       })
       const entry = res.result
       if (entry['.tag'] === 'deleted') {
-        throw new Error('File was deleted')
+        throw new sdk.RuntimeError('File was deleted')
       }
       const out = dropboxEntryMetadataTransform(entry)
       return { result: out }
@@ -64,7 +63,7 @@ export default new bp.Integration({
     listItemsInFolder: async (baseProps) => {
       const props = await createActionPropsAndTools(baseProps)
       const { input, dbxClient } = props
-      let res
+      let res: DropboxResponse<files.ListFolderResult>
       if (input.nextToken) {
         res = await dbxClient.filesListFolderContinue({
           cursor: input.nextToken,
@@ -82,8 +81,7 @@ export default new bp.Integration({
         .map(dropboxEntryMetadataTransform)
       return {
         entries,
-        nextToken: res.result.cursor,
-        hasMore: res.result.has_more,
+        nextToken: res.result.has_more ? res.result.cursor : undefined,
       }
     },
     deleteItem: async (baseProps) => {
@@ -92,7 +90,7 @@ export default new bp.Integration({
       const res = await dbxClient.filesDeleteV2({ path: input.path })
       const entry = res.result.metadata
       if (entry['.tag'] === 'deleted') {
-        throw new Error('File was already deleted')
+        throw new sdk.RuntimeError('File was already deleted')
       }
       const out = dropboxEntryMetadataTransform(entry)
       return { result: out }
@@ -144,93 +142,99 @@ export default new bp.Integration({
       const out = dropboxEntryMetadataTransform(res.result.metadata)
       return { result: out }
     },
-    deleteBatch: async (baseProps) => {
-      const props = await createActionPropsAndTools(baseProps)
-      const { dbxClient, input } = props
-      const res = await dbxClient.filesDeleteBatch({
-        entries: input.paths.map((path) => ({ path })),
-      })
-      if (res.result['.tag'] !== 'async_job_id') {
-        throw new Error('Unexpected response: ' + JSON.stringify(res.result))
-      }
-      const jobId = res.result.async_job_id
-      const jobRes = await pollAsyncJob(
-        () => dbxClient.filesDeleteBatchCheck({ async_job_id: jobId }),
-        'Batch deletion failed'
-      )
-      assert(jobRes !== undefined && jobRes.result['.tag'] === 'complete')
-      return {
-        '.tag': jobRes.result['.tag'],
-        entries: jobRes.result.entries.map((entry) => {
-          return {
-            '.tag': entry['.tag'],
-            metadata: entry['.tag'] === 'failure' ? entry.failure : dropboxEntryMetadataTransform(entry.metadata),
-          }
-        }),
-      }
-    },
-    batchCopyItems: async (baseProps) => {
-      const props = await createActionPropsAndTools(baseProps)
-      const { dbxClient, input } = props
-      const res = await dbxClient.filesCopyBatchV2({
-        entries: input.entries.map((item) => ({ from_path: item.fromPath, to_path: item.toPath })),
-      })
-      if (res.result['.tag'] !== 'async_job_id') {
-        throw new Error('Unexpected response: ' + JSON.stringify(res.result))
-      }
-      const jobId = res.result.async_job_id
-      const jobRes = await pollAsyncJob(
-        () => dbxClient.filesCopyBatchCheckV2({ async_job_id: jobId }),
-        'Batch copy failed'
-      )
-      assert(jobRes !== undefined && jobRes.result['.tag'] === 'complete')
-      return {
-        '.tag': jobRes.result['.tag'],
-        entries: jobRes.result.entries.map((entry) => {
-          return {
-            '.tag': entry['.tag'],
-            metadata: entry['.tag'] !== 'success' ? entry : dropboxEntryMetadataTransform(entry.success),
-          }
-        }),
-      }
-    },
-    batchMoveItems: async (baseProps) => {
-      const props = await createActionPropsAndTools(baseProps)
-      const { dbxClient, input } = props
-      const res = await dbxClient.filesMoveBatchV2({
-        entries: input.entries.map((item) => ({ from_path: item.fromPath, to_path: item.toPath })),
-      })
-      if (res.result['.tag'] !== 'async_job_id') {
-        throw new Error('Unexpected response: ' + JSON.stringify(res.result))
-      }
-      const jobId = res.result.async_job_id
-      const jobRes = await pollAsyncJob(
-        () => dbxClient.filesMoveBatchCheckV2({ async_job_id: jobId }),
-        'Batch move failed'
-      )
-      assert(jobRes !== undefined && jobRes.result['.tag'] === 'complete')
-      return {
-        '.tag': jobRes.result['.tag'],
-        entries: jobRes.result.entries.map((entry) => {
-          return {
-            '.tag': entry['.tag'],
-            metadata: entry['.tag'] !== 'success' ? entry : dropboxEntryMetadataTransform(entry.success),
-          }
-        }),
-      }
-    },
+    // TODO: Implement async actions before adding batch operations
+    // deleteBatch: async (baseProps) => {
+    //   const props = await createActionPropsAndTools(baseProps)
+    //   const { dbxClient, input } = props
+    //   const res = await dbxClient.filesDeleteBatch({
+    //     entries: input.paths.map((path) => ({ path })),
+    //   })
+    //   if (res.result['.tag'] !== 'async_job_id') {
+    //     throw new sdk.RuntimeError('Unexpected response: ' + JSON.stringify(res.result))
+    //   }
+    //   const jobId = res.result.async_job_id
+    //   const jobRes = await pollAsyncJob(
+    //     () => dbxClient.filesDeleteBatchCheck({ async_job_id: jobId }),
+    //     'Batch deletion failed'
+    //   )
+    //   assert(jobRes !== undefined && jobRes.result['.tag'] === 'complete')
+    //   return {
+    //     '.tag': jobRes.result['.tag'],
+    //     entries: jobRes.result.entries.map((entry) => {
+    //       return {
+    //         '.tag': entry['.tag'],
+    //         metadata: entry['.tag'] === 'failure' ? entry.failure : dropboxEntryMetadataTransform(entry.metadata),
+    //       }
+    //     }),
+    //   }
+    // },
+    // batchCopyItems: async (baseProps) => {
+    //   const props = await createActionPropsAndTools(baseProps)
+    //   const { dbxClient, input } = props
+    //   const res = await dbxClient.filesCopyBatchV2({
+    //     entries: input.entries.map((item) => ({ from_path: item.fromPath, to_path: item.toPath })),
+    //   })
+    //   if (res.result['.tag'] !== 'async_job_id') {
+    //     throw new sdk.RuntimeError('Unexpected response: ' + JSON.stringify(res.result))
+    //   }
+    //   const jobId = res.result.async_job_id
+    //   const jobRes = await pollAsyncJob(
+    //     () => dbxClient.filesCopyBatchCheckV2({ async_job_id: jobId }),
+    //     'Batch copy failed'
+    //   )
+    //   assert(jobRes !== undefined && jobRes.result['.tag'] === 'complete')
+    //   return {
+    //     '.tag': jobRes.result['.tag'],
+    //     entries: jobRes.result.entries.map((entry) => {
+    //       return {
+    //         '.tag': entry['.tag'],
+    //         metadata: entry['.tag'] !== 'success' ? entry : dropboxEntryMetadataTransform(entry.success),
+    //       }
+    //     }),
+    //   }
+    // },
+    // batchMoveItems: async (baseProps) => {
+    //   const props = await createActionPropsAndTools(baseProps)
+    //   const { dbxClient, input } = props
+    //   const res = await dbxClient.filesMoveBatchV2({
+    //     entries: input.entries.map((item) => ({ from_path: item.fromPath, to_path: item.toPath })),
+    //   })
+    //   if (res.result['.tag'] !== 'async_job_id') {
+    //     throw new sdk.RuntimeError('Unexpected response: ' + JSON.stringify(res.result))
+    //   }
+    //   const jobId = res.result.async_job_id
+    //   const jobRes = await pollAsyncJob(
+    //     () => dbxClient.filesMoveBatchCheckV2({ async_job_id: jobId }),
+    //     'Batch move failed'
+    //   )
+    //   assert(jobRes !== undefined && jobRes.result['.tag'] === 'complete')
+    //   return {
+    //     '.tag': jobRes.result['.tag'],
+    //     entries: jobRes.result.entries.map((entry) => {
+    //       return {
+    //         '.tag': entry['.tag'],
+    //         metadata: entry['.tag'] !== 'success' ? entry : dropboxEntryMetadataTransform(entry.success),
+    //       }
+    //     }),
+    //   }
+    // },
   },
   channels: {},
-  handler,
+  handler: async (props: bp.HandlerProps) => {
+    const { req, logger } = props
+    logger.forBot().info('Got request: ' + JSON.stringify(req))
+  },
 })
 function dropboxEntryMetadataTransform(
   entry: files.FileMetadataReference | files.FolderMetadataReference | files.DeletedMetadataReference
 ) {
   if (entry['.tag'] === 'deleted') {
-    throw new Error('File was deleted')
+    throw new sdk.RuntimeError('File was deleted')
   }
-  let out
-  out = {
+  let out:
+    | bp.actions.deleteItem.output.Output['result']
+    | bp.actions.readItemMetadata.output.Output['result']
+    | bp.actions.listItemsInFolder.output.Output['entries'][0] = {
     '.tag': entry['.tag'],
     id: entry.id,
     name: entry.name,
@@ -249,30 +253,30 @@ function dropboxEntryMetadataTransform(
   }
   return out
 }
+// TODO: Implement async actions before adding batch operations
+// type BatchResponseStatus = files.RelocationBatchV2JobStatus | files.DeleteBatchJobStatus
+// async function pollAsyncJob<T extends BatchResponseStatus>(
+//   checkFn: () => Promise<DropboxResponse<T>>,
+//   failMessage: string
+// ): Promise<DropboxResponse<T>> {
+//   let jobRes
+//   let jobStatus = ''
+//   let retriesLeft = 3
 
-type BatchResponseStatus = files.RelocationBatchV2JobStatus | files.DeleteBatchJobStatus
-async function pollAsyncJob<T extends BatchResponseStatus>(
-  checkFn: () => Promise<DropboxResponse<T>>,
-  failMessage: string
-): Promise<DropboxResponse<T>> {
-  let jobRes
-  let jobStatus = ''
-  let retriesLeft = 3
+//   while (jobStatus !== 'complete') {
+//     jobRes = await checkFn()
+//     jobStatus = jobRes.result['.tag']
+//     if (jobStatus === 'failed') {
+//       throw new sdk.RuntimeError(failMessage)
+//     }
+//     if (jobStatus !== 'complete' && retriesLeft-- > 0) {
+//       await sleep(1000)
+//     }
+//   }
 
-  while (jobStatus !== 'complete') {
-    jobRes = await checkFn()
-    jobStatus = jobRes.result['.tag']
-    if (jobStatus === 'failed') {
-      throw new Error(failMessage)
-    }
-    if (jobStatus !== 'complete' && retriesLeft-- > 0) {
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-    }
-  }
-
-  if (jobStatus !== 'complete') {
-    throw new Error('Batch operation in progress on dropbox, but timed out')
-  }
-  assert(jobRes !== undefined)
-  return jobRes
-}
+//   if (jobStatus !== 'complete') {
+//     throw new sdk.RuntimeError('Batch operation in progress on dropbox, but timed out')
+//   }
+//   assert(jobRes !== undefined)
+//   return jobRes
+// }

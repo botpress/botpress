@@ -34,7 +34,7 @@ const itemMetadataFetchedOutputSchema = z.union([fileMetadataFetchedOutputSchema
 
 const fileCreatedOutputSchema = commonFileMetadataOutputSchema
   .extend({
-    created: z.string().min(1).describe("The file's creation date"),
+    serverModified: z.string().min(1).describe("The file's creation date"),
   })
   .omit({
     '.tag': true,
@@ -51,8 +51,8 @@ const listItemsOutputSchema = z.object({
   entries: z.array(itemMetadataFetchedOutputSchema).describe('The list of files and folders in the folder'),
   nextToken: z
     .string()
-    .describe("The cursor to use for pagination. It's used to fetch the next page if the hasMore field is true."),
-  hasMore: z.boolean().describe('Whether there are more items to fetch'),
+    .optional()
+    .describe("The cursor to use for pagination. It's used to fetch the next page if the hasMore field is true.")
 })
 
 const itemMoveInputSchema = z.object({
@@ -63,25 +63,74 @@ const itemMoveInputSchema = z.object({
 const itemMoveOutputSchema = z.object({
   result: itemMetadataFetchedOutputSchema.describe("The new item's metadata"),
 })
+// TODO: Implement async actions before adding batch operations
+// function buildItemBatchOperationOutputSchema(tag: string) {
+//   return z.object({
+//     '.tag': z.string().describe(`The status of the ${tag}. It should always be 'complete'`),
+//     entries: z
+//       .array(
+//         z.object({
+//           '.tag': z.string().describe(`The item's ${tag} status.`),
+//           metadata: z
+//             .union([itemMetadataFetchedOutputSchema, z.any().describe(`${tag} failure`)])
+//             .describe('The item metadata'),
+//         })
+//       )
+//       .describe(`The ${tag} results`),
+//   })
+// }
+// const batchDeleteOutputSchema = buildItemBatchOperationOutputSchema('deletion')
+// const batchMoveItemsOutputSchema = buildItemBatchOperationOutputSchema('move')
+// const batchCopyItemsOutputSchema = buildItemBatchOperationOutputSchema('copy')
 
-function buildItemBatchOperationOutputSchema(tag: string) {
-  return z.object({
-    '.tag': z.string().describe(`The status of the ${tag}. It should always be 'complete'`),
-    entries: z
-      .array(
-        z.object({
-          '.tag': z.string().describe(`The item's ${tag} status.`),
-          metadata: z
-            .union([itemMetadataFetchedOutputSchema, z.any().describe(`${tag} failure`)])
-            .describe('The item metadata'),
-        })
-      )
-      .describe(`The ${tag} results`),
-  })
-}
-const batchDeleteOutputSchema = buildItemBatchOperationOutputSchema('deletion')
-const batchMoveItemsOutputSchema = buildItemBatchOperationOutputSchema('move')
-const batchCopyItemsOutputSchema = buildItemBatchOperationOutputSchema('copy')
+const readItemMetadataInputSchema = z.object({
+  path: z.string().min(1).describe("The item's path"),
+})
+
+const readItemMetadataOutputSchema = z.object({
+  result: itemMetadataFetchedOutputSchema,
+})
+
+const deleteItemInputSchema = z.object({
+  path: z.string().min(1).describe("The item's path to delete"),
+})
+
+const deleteItemOutputSchema = z.object({
+  result: itemMetadataFetchedOutputSchema.describe('The metadata of the deleted item'),
+})
+
+const downloadFileInputSchema = z.object({
+  path: z.string().min(1).describe("The file's path to download"),
+})
+
+const downloadFileOutputSchema = z.object({
+  fileUrl: z.string().describe('The url to download the file from'),
+})
+
+const downloadFolderInputSchema = z.object({
+  path: z.string().min(1).describe("The folder's path to download"),
+})
+
+const downloadFolderOutputSchema = z.object({
+  zipUrl: z.string().describe('The url to download the folder as a zip file'),
+})
+
+const createFolderInputSchema = z.object({
+  path: z.string().min(1).describe("The folder's path"),
+})
+
+const createFolderOutputSchema = folderMetadataFetchedOutputSchema.omit({
+  '.tag': true,
+})
+
+// TODO: Implement async actions before adding batch operations
+// const batchCopyItemsInputSchema = z.object({
+//   entries: z.array(itemMoveInputSchema).min(2).describe('The items to copy'),
+// })
+
+// const batchMoveItemsInputSchema = z.object({
+//   entries: z.array(itemMoveInputSchema).min(2).describe('The items to move'),
+// })
 
 export const actions = {
   listItemsInFolder: {
@@ -108,82 +157,50 @@ export const actions = {
     title: 'Read item metadata',
     description: "Read a file or item's metadata in dropbox",
     input: {
-      schema: z.object({
-        path: z.string().min(1).describe("The item's path"),
-      }),
+      schema: readItemMetadataInputSchema,
     },
     output: {
-      schema: z.object({
-        result: itemMetadataFetchedOutputSchema,
-      }),
+      schema: readItemMetadataOutputSchema,
     },
   },
   deleteItem: {
     title: 'Delete Item',
     description: 'Deletes a file or folder from dropbox',
     input: {
-      schema: z.object({
-        path: z.string().min(1).describe("The item's path to delete"),
-      }),
+      schema: deleteItemInputSchema,
     },
     output: {
-      schema: z.object({
-        result: itemMetadataFetchedOutputSchema.describe('The metadata of the deleted item'),
-      }),
-    },
-  },
-  deleteBatch: {
-    title: 'Batch Delete',
-    description: 'Delete multiple files or folders from dropbox',
-    input: {
-      schema: z.object({
-        paths: z.array(z.string()).min(1).describe('The paths of the items to delete'),
-      }),
-    },
-    output: {
-      schema: batchDeleteOutputSchema,
+      schema: deleteItemOutputSchema,
     },
   },
   downloadFile: {
     title: 'Download File',
     description: 'Download a file from dropbox',
     input: {
-      schema: z.object({
-        path: z.string().min(1).describe("The file's path to download"),
-      }),
+      schema: downloadFileInputSchema,
     },
     output: {
-      schema: z.object({
-        fileUrl: z.string().describe('The url to download the file from'),
-      }),
+      schema: downloadFileOutputSchema,
     },
   },
   downloadFolder: {
     title: 'Download Folder',
     description: 'Download a folder from dropbox',
     input: {
-      schema: z.object({
-        path: z.string().min(1).describe("The folder's path to download"),
-      }),
+      schema: downloadFolderInputSchema,
     },
     output: {
-      schema: z.object({
-        zipUrl: z.string().describe('The url to download the folder as a zip file'),
-      }),
+      schema: downloadFolderOutputSchema,
     },
   },
   createFolder: {
     title: 'Create Folder',
     description: 'Create a folder in dropbox',
     input: {
-      schema: z.object({
-        path: z.string().min(1).describe("The folder's path"),
-      }),
+      schema: createFolderInputSchema,
     },
     output: {
-      schema: folderMetadataFetchedOutputSchema.omit({
-        '.tag': true,
-      }),
+      schema: createFolderOutputSchema,
     },
   },
   copyItem: {
@@ -196,18 +213,6 @@ export const actions = {
       schema: itemMoveOutputSchema,
     },
   },
-  batchCopyItems: {
-    title: 'Batch Copy Items',
-    description: 'Copy multiple files or folders in dropbox',
-    input: {
-      schema: z.object({
-        entries: z.array(itemMoveInputSchema).min(2).describe('The items to copy'),
-      }),
-    },
-    output: {
-      schema: batchCopyItemsOutputSchema,
-    },
-  },
   moveItem: {
     title: 'Move Item',
     description: 'Move a file or folder in dropbox',
@@ -218,16 +223,37 @@ export const actions = {
       schema: itemMoveOutputSchema,
     },
   },
-  batchMoveItems: {
-    title: 'Batch Move Items',
-    description: 'Move multiple files or folders in dropbox',
-    input: {
-      schema: z.object({
-        entries: z.array(itemMoveInputSchema).min(2).describe('The items to move'),
-      }),
-    },
-    output: {
-      schema: batchMoveItemsOutputSchema,
-    },
-  },
+  // TODO: Implement async actions before adding batch operations
+  // batchCopyItems: {
+  //   title: 'Batch Copy Items',
+  //   description: 'Copy multiple files or folders in dropbox',
+  //   input: {
+  //     schema: batchCopyItemsInputSchema,
+  //   },
+  //   output: {
+  //     schema: batchCopyItemsOutputSchema,
+  //   },
+  // },
+  // batchMoveItems: {
+  //   title: 'Batch Move Items',
+  //   description: 'Move multiple files or folders in dropbox',
+  //   input: {
+  //     schema: batchMoveItemsInputSchema,
+  //   },
+  //   output: {
+  //     schema: batchMoveItemsOutputSchema,
+  //   },
+  // },
+  // deleteBatch: {
+  //   title: 'Batch Delete',
+  //   description: 'Delete multiple files or folders from dropbox',
+  //   input: {
+  //     schema: z.object({
+  //       paths: z.array(z.string()).min(1).describe('The paths of the items to delete'),
+  //     }),
+  //   },
+  //   output: {
+  //     schema: batchDeleteOutputSchema,
+  //   },
+  // },
 } as const satisfies sdk.IntegrationDefinitionProps['actions']
