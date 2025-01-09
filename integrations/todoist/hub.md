@@ -1,23 +1,22 @@
-# Description
-
 Integrate your chatbot with Todoist to create and modify tasks, post comments, and more.
 
-# Installation and configuration
+## Migrating from version `0.x` to `1.x`
 
-Follow these instructions to set up Todoist integration for your Botpress bot.
+If you are migrating from version `0.x` to `1.x`, please note the following breaking changes:
 
-If you are authenticating your Botpress bot with OAuth, follow these steps:
+> The "Task Create" action has been replaced with the "Create New Task" action.
 
-1. Botpress Todoist App installation.
-   - Install the Botpress Todoist integration in [Todoist](https://app.todoist.com/app/settings/integrations/browse).
-2. Todoist Botpress integration configuration
-   - Install the Todoist integration in your Botpress bot.
-   - Click on the authorization button.
-   - When redirected, agree with the permissions given to the bot by Todoist and either:
-     - Log in with your user account if you want the bot actions and comments to appear as yours;
-     - Log in with a user account you created for your bot specifically. You will have to invite the bot's user to a shared project for it to be able to post comment, do actions, etc.
+## Configuration
 
-If you wish to connect your bot with your personnal API token, follow these steps
+### Automatic configuration with OAuth
+
+To set up the Todoist integration using OAuth, click the authorization button and follow the on-screen instructions to connect your Botpress chatbot to Todoist.
+
+When configuring your bot with OAuth, you can either log in with your user account or with a user account you created specifically for your bot.
+Please keep in mind that if you log in with your user account, the bot actions and comments will appear as yours.
+For most use cases, it is recommended to create a user account specifically for your bot. You will have to invite the bot's user to a shared project for it to be able to post comment, do actions, etc.
+
+### Manual configuration using a personal API token
 
 1. Todoist App creation
    - Create an app in the [App Management page](https://developer.todoist.com/appconsole.html).
@@ -37,3 +36,9 @@ If you wish to connect your bot with your personnal API token, follow these step
      - _item:completed_;
      - _note:added_.
    - Save the Webhook configuration.
+
+## Limitations
+
+Standard Todoist API limitations apply to the Todoist integration in Botpress. These limitations include rate limits, payload size restrictions, and other constraints imposed by Todoist. Ensure that your chatbot adheres to these limitations to maintain optimal performance and reliability.
+
+More details are available in the [Todoist Developer Documentation](https://developer.todoist.com/rest/v2/#request-limits).
