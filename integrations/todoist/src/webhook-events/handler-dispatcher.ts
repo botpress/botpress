@@ -1,6 +1,6 @@
-import { TodoistClient } from '../todoist-api'
 import sdk from '@botpress/sdk'
 import * as crypto from 'crypto'
+import { TodoistClient } from '../todoist-api'
 import { handleCommentAddedEvent, isCommentAddedEvent } from './handlers/comment-added'
 import { oauthCallbackHandler } from './handlers/oauth-callback'
 import { handlePriorityChangedEvent, isPriorityChangedEvent } from './handlers/priority-changed'

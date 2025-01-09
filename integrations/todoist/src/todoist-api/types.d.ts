@@ -1,4 +1,9 @@
-import { Task as TaskEntity, Project as ProjectEntity, Comment as CommentEntity } from 'definitions'
+import {
+  Task as TaskEntity,
+  Project as ProjectEntity,
+  Comment as CommentEntity,
+  Section as SectionEntity,
+} from 'definitions'
 
 // Entities:
 type Task = TaskEntity.InferredType
@@ -6,6 +11,9 @@ type BareMinimumTask = PartialExcept<Task, 'content'>
 
 type Project = ProjectEntity.InferredType
 type BareMinimumProject = PartialExcept<Project, 'name'>
+
+type Section = SectionEntity.InferredType
+type BareMinimumSection = PartialExcept<Section, 'name'>
 
 type Comment = CommentEntity.InferredType
 type BareMinimumComment = PartialExcept<Comment, 'content'>
@@ -29,6 +37,11 @@ type UpdateTaskRequest = Omit<
   | 'createdBy'
   | 'assigner'
 >
+type GetAllTasksRequest = {
+  projectId?: string
+  sectionId?: string
+  labelName?: string
+}
 
 // Type utilities:
 
