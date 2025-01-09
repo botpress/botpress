@@ -95,7 +95,7 @@ export type EntityDefinition<TEntity extends BaseEntities[string] = BaseEntities
 export type ResolvedInterface<
   TEvents extends BaseEvents = BaseEvents,
   TActions extends BaseActions = BaseActions,
-  TChannels extends BaseChannels = BaseChannels
+  TChannels extends BaseChannels = BaseChannels,
 > = {
   actions: { [K in keyof TActions]: ActionDefinition<TActions[K]> }
   events: { [K in keyof TEvents]: EventDefinition<TEvents[K]> }
@@ -106,7 +106,7 @@ export type InterfaceImplementationStatement<
   TEntities extends BaseEntities = BaseEntities,
   TActions extends BaseActions = BaseActions,
   TEvents extends BaseEvents = BaseEvents,
-  TChannels extends BaseChannels = BaseChannels
+  TChannels extends BaseChannels = BaseChannels,
 > = {
   name: string
   version: string

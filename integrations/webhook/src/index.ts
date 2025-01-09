@@ -53,7 +53,7 @@ const integration = new bp.Integration({
     let body = {}
     try {
       body = JSON.parse(req.body ?? '{}')
-    } catch (err) {}
+    } catch {}
 
     await client.createEvent({
       type: 'webhook:event',

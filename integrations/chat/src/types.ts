@@ -5,14 +5,14 @@ export type ValueOf<T> = T[keyof T]
 export type Simplify<T> = T extends (...args: infer A) => infer R
   ? (...args: Simplify<A>) => Simplify<R>
   : T extends Buffer
-  ? Buffer
-  : T extends Promise<infer R>
-  ? Promise<Simplify<R>>
-  : T extends object
-  ? T extends infer O
-    ? { [K in keyof O]: Simplify<O[K]> }
-    : never
-  : T
+    ? Buffer
+    : T extends Promise<infer R>
+      ? Promise<Simplify<R>>
+      : T extends object
+        ? T extends infer O
+          ? { [K in keyof O]: Simplify<O[K]> }
+          : never
+        : T
 
 export type DeepPartial<T> = {
   [P in keyof T]?: DeepPartial<T[P]>

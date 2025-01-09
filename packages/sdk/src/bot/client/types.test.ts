@@ -29,7 +29,7 @@ describe('ClientInputs', () => {
         //
         utils.AssertExtends<Actual, Expected>,
         utils.AssertExtends<Expected, Actual>,
-        utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+        utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
       ]
     >
   })
@@ -41,7 +41,7 @@ describe('ClientInputs', () => {
         //
         utils.AssertExtends<Actual, Expected>,
         utils.AssertExtends<Expected, Actual>,
-        utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+        utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
       ]
     >
   })
@@ -53,7 +53,7 @@ describe('ClientInputs', () => {
         //
         utils.AssertExtends<Actual, Expected>,
         utils.AssertExtends<Expected, Actual>,
-        utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+        utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
       ]
     >
   })
@@ -77,7 +77,7 @@ describe('ClientOutputs', () => {
         //
         utils.AssertExtends<Actual, Expected>,
         utils.AssertExtends<Expected, Actual>,
-        utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+        utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
       ]
     >
   })
@@ -91,7 +91,7 @@ describe('ClientOutputs', () => {
         //
         utils.AssertExtends<Actual, Expected>,
         utils.AssertExtends<Expected, Actual>,
-        utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+        utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
       ]
     >
   })
@@ -105,7 +105,7 @@ describe('ClientOutputs', () => {
         //
         utils.AssertExtends<Actual, Expected>,
         utils.AssertExtends<Expected, Actual>,
-        utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+        utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
       ]
     >
   })

@@ -5,13 +5,13 @@ const ENTITY = (name: string = 'entity') =>
     id: z.number().title('ID').describe(`Unique identifier of the ${name}`),
     nodeId: z.string().title('Global Node ID').describe('Node ID for GraphQL'),
     url: z.string().title('URL').describe(`URL of the ${name}`),
-  } as const)
+  }) as const
 
 const NAMED_ENTITY = (name: string = 'entity') =>
   ({
     ...ENTITY(name),
     name: z.string().title('Name').describe(`Name of the ${name}`),
-  } as const)
+  }) as const
 
 const USER_OR_ORG = (name: string = 'user') =>
   ({
@@ -21,7 +21,7 @@ const USER_OR_ORG = (name: string = 'user') =>
       .string()
       .title('Botpress User ID')
       .describe(`The ID of the Botpress user corresponding to this ${name}`),
-  } as const)
+  }) as const
 
 const USER = USER_OR_ORG('user')
 
@@ -46,7 +46,7 @@ const REPOSITORY_SUBENTITY = (name: string = 'entity') =>
     number: z.number().title('Number').describe(`The ${name} number`),
     labels: z.array(z.object(LABEL)).title('Labels').describe(`The labels associated with the ${name}`),
     author: z.object(USER_OR_ORG('author')).title('Author').describe(`The author of the ${name}`),
-  } as const)
+  }) as const
 
 const ISSUE_OR_PR = (name: string = 'issue') =>
   ({
@@ -55,7 +55,7 @@ const ISSUE_OR_PR = (name: string = 'issue') =>
       .array(z.object(USER_OR_ORG('assignee')))
       .title('Assignees')
       .describe(`The assignees of the ${name}`),
-  } as const)
+  }) as const
 
 const ISSUE = ISSUE_OR_PR('issue')
 

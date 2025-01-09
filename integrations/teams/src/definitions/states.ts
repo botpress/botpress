@@ -23,8 +23,8 @@ const convReference = z.object({
     .describe('Service endpoint where the operations concerning the conversation are performed'),
 })
 
-const convStateSchema = convReference.partial()
-type ConvStateSchema = z.infer<typeof convStateSchema>
+const _convStateSchema = convReference.partial()
+type ConvStateSchema = z.infer<typeof _convStateSchema>
 
 // this builds only if the state schema is the same type as ConversationReference from 'botbuilder'
 type A = ConvStateSchema

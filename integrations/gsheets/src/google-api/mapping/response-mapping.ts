@@ -7,7 +7,7 @@ export namespace ResponseMapping {
       range: response.range ?? '',
       majorDimension: response.majorDimension === 'COLUMNS' ? 'COLUMNS' : 'ROWS',
       values: _stringifyValues(response.values ?? []),
-    } as const)
+    }) as const
 
   export const mapUpdateValues = (response: sheets_v4.Schema$UpdateValuesResponse) =>
     ({
@@ -16,26 +16,26 @@ export namespace ResponseMapping {
       updatedRows: response.updatedRows ?? 0,
       updatedColumns: response.updatedColumns ?? 0,
       updatedCells: response.updatedCells ?? 0,
-    } as const)
+    }) as const
 
   export const mapAppendValues = (response: sheets_v4.Schema$AppendValuesResponse) =>
     ({
       spreadsheetId: response.spreadsheetId ?? '',
       tableRange: response.tableRange ?? '',
       updates: mapUpdateValues(response.updates ?? {}),
-    } as const)
+    }) as const
 
   export const mapClearValues = (response: sheets_v4.Schema$ClearValuesResponse) =>
     ({
       spreadsheetId: response.spreadsheetId ?? '',
       clearedRange: response.clearedRange ?? '',
-    } as const)
+    }) as const
 
   export const mapAddSheet = (response: sheets_v4.Schema$BatchUpdateSpreadsheetResponse) =>
     ({
       spreadsheetId: response.spreadsheetId ?? '',
       newSheet: mapSheet(response.replies?.[0]?.addSheet ?? {}),
-    } as const)
+    }) as const
 
   export const mapSheet = (sheet: sheets_v4.Schema$Sheet) =>
     ({
@@ -45,7 +45,7 @@ export namespace ResponseMapping {
       isHidden: sheet.properties?.hidden ?? false,
       hasProtectedRanges: (sheet.protectedRanges?.length ?? 0) > 0,
       isFullyProtected: sheet.protectedRanges?.every((range) => range.unprotectedRanges === undefined) ?? false,
-    } as const)
+    }) as const
 
   export const mapNamedRange = (namedRange: sheets_v4.Schema$NamedRange) =>
     ({
@@ -53,7 +53,7 @@ export namespace ResponseMapping {
       name: namedRange.name ?? '',
       range: A1Converter.gridRangeToA1(namedRange.range ?? {}),
       sheetId: namedRange.range?.sheetId ?? 0,
-    } as const)
+    }) as const
 
   export const mapProtectedRange = (protectedRange: sheets_v4.Schema$ProtectedRange) =>
     ({
@@ -64,7 +64,7 @@ export namespace ResponseMapping {
       description: protectedRange.description ?? '',
       warningOnly: protectedRange.warningOnly ?? false,
       requestingUserCanEdit: protectedRange.requestingUserCanEdit ?? false,
-    } as const)
+    }) as const
 }
 
 const _stringifyValues = (values: any[][]) => values.map((majorDimension) => majorDimension.map(String))

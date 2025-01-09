@@ -38,7 +38,7 @@ export type PluginDefinitionProps<
   TEvents extends BaseEvents = BaseEvents,
   TActions extends BaseActions = BaseActions,
   TInterfaces extends BaseInterfaces = BaseInterfaces,
-  TIntegrations extends BaseIntegrations = BaseIntegrations
+  TIntegrations extends BaseIntegrations = BaseIntegrations,
 > = {
   name: TName
   version: TVersion
@@ -72,7 +72,7 @@ export class PluginDefinition<
   TEvents extends BaseEvents = BaseEvents,
   TActions extends BaseActions = BaseActions,
   TInterfaces extends BaseInterfaces = BaseInterfaces,
-  TIntegrations extends BaseIntegrations = BaseIntegrations
+  TIntegrations extends BaseIntegrations = BaseIntegrations,
 > {
   public readonly name: this['props']['name']
   public readonly version: this['props']['version']

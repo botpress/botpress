@@ -9,5 +9,5 @@ export const getConversationFromTags = async <E extends keyof types.Channels>(
     tags,
   })
 
-  return conversations.length === 1 ? conversations[0] ?? null : null
+  return conversations.length === 1 ? (conversations[0] ?? null) : null
 }

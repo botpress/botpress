@@ -1,2 +1,3 @@
 * text=auto
 text eol=lf
+.oxlintrc.json linguist-language=jsonc gitlab-language=jsonc

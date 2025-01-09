@@ -133,7 +133,7 @@ const isValidUrl = (str: string) => {
   try {
     new URL(str)
     return true
-  } catch (err) {
+  } catch {
     return false
   }
 }
@@ -395,7 +395,7 @@ export class SlackEventSignatureValidator {
         Buffer.from(mySignature, 'utf8'),
         Buffer.from(this._request.headers['x-slack-signature'] as string, 'utf8')
       )
-    } catch (error) {
+    } catch {
       this._logger.forBot().error('An error occurred while verifying the request signature')
       return false
     }

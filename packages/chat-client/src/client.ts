@@ -134,6 +134,7 @@ export class Client implements IClient {
       url: this.props.apiUrl,
       conversationId: id,
       userKey,
+      debug: this.props.debug ?? false,
     })
     return signalListener
   }
@@ -158,7 +159,10 @@ export class Client implements IClient {
 }
 
 export class AuthenticatedClient implements IAuthenticatedClient {
-  private constructor(private _client: Client, public readonly user: types.AuthenticatedUser) {}
+  private constructor(
+    private _client: Client,
+    public readonly user: types.AuthenticatedUser
+  ) {}
 
   // can not be instantiated outside of this module
   public static [_createAuthClient] = (client: Client, user: types.AuthenticatedUser) => {

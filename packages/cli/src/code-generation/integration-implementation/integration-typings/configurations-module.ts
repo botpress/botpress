@@ -4,7 +4,10 @@ import { Module, ReExportTypeModule } from '../../module'
 import * as strings from '../../strings'
 
 export class ConfigurationModule extends Module {
-  public constructor(name: string, private _configuration: sdk.ConfigurationDefinition) {
+  public constructor(
+    name: string,
+    private _configuration: sdk.ConfigurationDefinition
+  ) {
     const configurationName = name
     const exportName = strings.typeName(`${configurationName}Config`)
     super({
