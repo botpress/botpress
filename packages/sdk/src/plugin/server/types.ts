@@ -4,10 +4,13 @@ import * as utils from '../../utils/type-utils'
 import * as proxy from '../action-proxy'
 import * as types from '../types'
 
+type EnumeratePluginEvents<TPlugin extends types.BasePlugin> = bot.EnumerateEvents<TPlugin> &
+  types.EnumerateInterfaceEvents<TPlugin>
+
 type _IncomingEvents<TPlugin extends types.BasePlugin> = {
-  [K in keyof bot.EnumerateEvents<TPlugin>]: utils.Merge<
+  [K in keyof EnumeratePluginEvents<TPlugin>]: utils.Merge<
     client.Event,
-    { type: K; payload: bot.EnumerateEvents<TPlugin>[K] }
+    { type: K; payload: EnumeratePluginEvents<TPlugin>[K] }
   >
 }
 
