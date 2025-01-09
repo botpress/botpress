@@ -80,7 +80,7 @@ export type PluginInstance = PluginPackage & PluginConfigInstance
 export type BotDefinitionProps<
   TStates extends BaseStates = BaseStates,
   TEvents extends BaseEvents = BaseEvents,
-  TActions extends BaseActions = BaseActions
+  TActions extends BaseActions = BaseActions,
 > = {
   integrations?: {
     [K: string]: IntegrationInstance
@@ -107,7 +107,7 @@ export type BotDefinitionProps<
 export class BotDefinition<
   TStates extends BaseStates = BaseStates,
   TEvents extends BaseEvents = BaseEvents,
-  TActions extends BaseActions = BaseActions
+  TActions extends BaseActions = BaseActions,
 > {
   public readonly integrations: this['props']['integrations']
   public readonly plugins: this['props']['plugins']

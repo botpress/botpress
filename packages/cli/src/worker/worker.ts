@@ -16,7 +16,11 @@ export class Worker {
 
   private _state = new WorkerStateObserver({ status: 'dead', murdered: false })
 
-  private constructor(private _config: Config, private _logger: Logger, private _props: Partial<WorkerProps> = {}) {}
+  private constructor(
+    private _config: Config,
+    private _logger: Logger,
+    private _props: Partial<WorkerProps> = {}
+  ) {}
 
   /**
    * Used to determine if the worker can be killed

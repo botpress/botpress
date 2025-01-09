@@ -1,8 +1,8 @@
-const configKeys = ['API_URL', 'ENCRYPTION_KEY'] as const
+const _configKeys = ['API_URL', 'ENCRYPTION_KEY'] as const
 
 const values: Partial<Record<ConfigKey, string>> = {}
 
-export type ConfigKey = (typeof configKeys)[number]
+export type ConfigKey = (typeof _configKeys)[number]
 export const get = (key: ConfigKey): string => {
   const cached = values[key]
   if (cached) {

@@ -16,7 +16,7 @@ test('MessageRequest with implemented bot should be strict type', () => {
     [
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -28,7 +28,7 @@ test('MessageRequest with empty bot should be never', () => {
     [
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -40,7 +40,7 @@ test('MessageRequest with base bot should be any record', () => {
     [
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -73,7 +73,7 @@ test('Bot should only require to implement actions that are not already implemen
   type _assertion = utils.AssertAll<
     [
       utils.AssertTrue<utils.IsEqual<keyof ActualImplementedActions, ExpectedImplementedActions>>,
-      utils.AssertTrue<utils.IsEqual<keyof ActualUnimplementedActions, ExpectedUnimplementedActions>>
+      utils.AssertTrue<utils.IsEqual<keyof ActualUnimplementedActions, ExpectedUnimplementedActions>>,
     ]
   >
 })

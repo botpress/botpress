@@ -12,7 +12,7 @@ export const handler: bp.IntegrationProps['handler'] = async ({ req, ctx, client
   let parsedBody: any
   try {
     parsedBody = JSON.parse(req.body)
-  } catch (thrown) {
+  } catch {
     return {
       status: 400,
       body: JSON.stringify({ error: 'Invalid JSON Body' }),

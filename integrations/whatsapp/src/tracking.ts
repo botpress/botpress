@@ -9,7 +9,7 @@ try {
     throw new Error('Missing Segment key')
   }
   analytics = new Analytics({ writeKey: bp.secrets.SEGMENT_KEY, flushAt: 1, httpRequestTimeout: 2000 })
-} catch (error) {
+} catch {
   console.error('Could not initialize Segment analytics instance.')
 }
 
