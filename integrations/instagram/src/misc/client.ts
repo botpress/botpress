@@ -12,7 +12,10 @@ export class MetaClient {
   private _version: string = 'v21.0'
   private _baseGraphApiUrl = 'https://graph.instagram.com'
 
-  public constructor(private _logger: bp.Logger, private _authConfig?: InstagramClientConfig) {
+  public constructor(
+    private _logger: bp.Logger,
+    private _authConfig?: InstagramClientConfig
+  ) {
     this._clientId = bp.secrets.CLIENT_ID
     this._clientSecret = bp.secrets.CLIENT_SECRET
   }
