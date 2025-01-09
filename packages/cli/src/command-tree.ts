@@ -19,8 +19,8 @@ export type ImplementationTreeNode<N extends DefinitionTreeNode = DefinitionTree
   N extends typings.CommandDefinition
     ? typings.CommandImplementation<N>
     : N extends DefinitionSubTree
-    ? ImplementationSubTree<N>
-    : never
+      ? ImplementationSubTree<N>
+      : never
 
 export type ImplementationTree<D extends DefinitionTree = DefinitionTree> = {
   [K in keyof D]: ImplementationTreeNode<D[K]>
@@ -34,8 +34,8 @@ export type CommandSubTree<D extends DefinitionSubTree = DefinitionSubTree> = {
 export type CommandTreeNode<N extends DefinitionTreeNode = DefinitionTreeNode> = N extends typings.CommandDefinition
   ? typings.CommandLeaf<N>
   : N extends DefinitionSubTree
-  ? CommandSubTree<N>
-  : never
+    ? CommandSubTree<N>
+    : never
 
 export type CommandTree<D extends DefinitionTree = DefinitionTree> = {
   [K in keyof D]: CommandTreeNode<D[K]>

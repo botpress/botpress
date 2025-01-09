@@ -94,7 +94,10 @@ export class ChildProcessWrapper {
   }
 
   private _exited = false
-  private constructor(private _child: childProcess.ChildProcess, private _exitPromise: Promise<ChildOutput>) {}
+  private constructor(
+    private _child: childProcess.ChildProcess,
+    private _exitPromise: Promise<ChildOutput>
+  ) {}
 
   public async kill(): Promise<ChildOutput> {
     if (this._exited) {

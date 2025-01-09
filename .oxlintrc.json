@@ -1,15 +1,6 @@
 {
   "$schema": "./node_modules/oxlint/configuration_schema.json",
-  "plugins": [
-    "unicorn",
-    "typescript",
-    "oxc",
-    "oxc-security",
-    "import",
-    "promise",
-    "n",
-    "vitest"
-  ],
+  "plugins": ["unicorn", "typescript", "oxc", "oxc-security", "import", "promise", "n", "vitest"],
   "env": {
     "browser": true,
     "es2024": true,
@@ -81,10 +72,7 @@
     "eslint/no-var": "error",
     // "eslint/prefer-const": "warn",
     "eslint/no-duplicate-imports": "error",
-    "typescript/consistent-type-definitions": [
-      "error",
-      "type"
-    ],
+    "typescript/consistent-type-definitions": ["error", "type"],
     // "eslint/member-delimiter-style": [
     //   "error",
     //   {
@@ -116,10 +104,7 @@
     // "eslint/brace-style": "off",
     // "eslint/curly": "error",
     // "eslint/eol-last": "error",
-    "eslint/eqeqeq": [
-      "error",
-      "smart"
-    ],
+    "eslint/eqeqeq": ["error", "smart"],
     // "typescript/no-shadow": "off",
     // "import/order": [
     //   "warn",

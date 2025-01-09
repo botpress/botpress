@@ -7,18 +7,18 @@ type ValueOf<T> = T[Extract<keyof T, string>]
 
 type CommonActionProps<
   IP extends sdk.IntegrationProps<TIntegration>,
-  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never
+  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never,
 > = Parameters<ValueOf<IP['actions']>>[0]
 type ToolFactory<
   ReturnType,
   IP extends sdk.IntegrationProps<TIntegration>,
-  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never
+  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never,
 > = (props: CommonActionProps<IP, TIntegration>) => ReturnType | Promise<ReturnType>
 
 type InferToolsFromToolset<
   Toolset,
   IP extends sdk.IntegrationProps<TIntegration>,
-  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never
+  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never,
 > = {
   [Tool in Extract<keyof Toolset, string>]: Toolset[Tool] extends ToolFactory<infer ReturnType, IP, TIntegration>
     ? Awaited<ReturnType>
@@ -59,7 +59,7 @@ export const createActionWrapper =
   <
     IP extends sdk.IntegrationProps<TIntegration>,
     TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never,
-    ACTIONS extends IP['actions'] = IP['actions']
+    ACTIONS extends IP['actions'] = IP['actions'],
   >() =>
   <TOOLSET extends Record<string, ToolFactory<any, IP, TIntegration>>, EXTRAMETA extends Record<string, any> = {}>({
     toolFactories,

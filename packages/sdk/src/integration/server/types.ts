@@ -66,7 +66,7 @@ export type ActionPayload<T extends string, I> = { type: T; input: I; metadata: 
 export type ActionHandlerProps<
   TIntegration extends BaseIntegration,
   T extends string,
-  I
+  I,
 > = CommonHandlerProps<TIntegration> & ActionPayload<T, I>
 export type ActionHandlers<TIntegration extends BaseIntegration> = {
   [ActionType in keyof TIntegration['actions']]: (
@@ -85,7 +85,7 @@ export type CreateUserHandler<TIntegration extends BaseIntegration> = (
 
 export type CreateConversationPayload<
   TIntegration extends BaseIntegration,
-  TChannel extends keyof TIntegration['channels'] = keyof TIntegration['channels']
+  TChannel extends keyof TIntegration['channels'] = keyof TIntegration['channels'],
 > = {
   channel: TChannel
   tags: ToTags<keyof TIntegration['channels'][TChannel]['conversation']['tags']>
@@ -99,7 +99,7 @@ export type CreateConversationHandler<TIntegration extends BaseIntegration> = (
 export type MessagePayload<
   TIntegration extends BaseIntegration,
   TChannel extends keyof TIntegration['channels'],
-  TMessage extends keyof TIntegration['channels'][TChannel]['messages']
+  TMessage extends keyof TIntegration['channels'][TChannel]['messages'],
 > = {
   type: TMessage
   payload: TIntegration['channels'][TChannel]['messages'][TMessage]
@@ -126,7 +126,7 @@ export type MessagePayload<
 export type MessageHandlerProps<
   TIntegration extends BaseIntegration,
   TChannel extends keyof TIntegration['channels'],
-  TMessage extends keyof TIntegration['channels'][TChannel]['messages']
+  TMessage extends keyof TIntegration['channels'][TChannel]['messages'],
 > = CommonHandlerProps<TIntegration> &
   MessagePayload<TIntegration, TChannel, TMessage> & {
     ack: (props: { tags: ToTags<keyof TIntegration['channels'][TChannel]['message']['tags']> }) => Promise<void>

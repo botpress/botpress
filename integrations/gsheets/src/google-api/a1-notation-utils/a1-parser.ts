@@ -86,10 +86,10 @@ export namespace A1NotationParser {
     !end
       ? ranges
       : _isColumnOnlyRange(start, end)
-      ? _extractColumnRange(ranges)
-      : _isRowOnlyRange(start, end)
-      ? _extractRowRange(ranges)
-      : _applyOpenEndedRule(end, ranges)
+        ? _extractColumnRange(ranges)
+        : _isRowOnlyRange(start, end)
+          ? _extractRowRange(ranges)
+          : _applyOpenEndedRule(end, ranges)
 
   const _isColumnOnlyRange = (start: string, end: string): boolean =>
     COLUMN_PATTERN.test(start) && COLUMN_PATTERN.test(end)

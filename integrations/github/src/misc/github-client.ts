@@ -18,7 +18,10 @@ type AuthenticatedEntity = Readonly<{
 export class GitHubClient {
   private _authenticatedEntity: AuthenticatedEntity | null = null
 
-  private constructor(private readonly _octokit: Octokit, private readonly _isApp: boolean) {}
+  private constructor(
+    private readonly _octokit: Octokit,
+    private readonly _isApp: boolean
+  ) {}
 
   public static async create({ ctx, client }: { ctx: types.Context; client: types.Client }) {
     const octokit = await _getOctokit({ ctx, client })

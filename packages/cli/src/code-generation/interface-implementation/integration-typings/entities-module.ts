@@ -4,7 +4,10 @@ import { Module, ReExportTypeModule } from '../../module'
 import * as strings from '../../strings'
 
 export class EntityModule extends Module {
-  public constructor(name: string, private _entity: sdk.EntityDefinition) {
+  public constructor(
+    name: string,
+    private _entity: sdk.EntityDefinition
+  ) {
     const entityName = name
     const exportName = strings.typeName(entityName)
     super({ path: `${name}.ts`, exportName })

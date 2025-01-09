@@ -8,7 +8,10 @@ type FilesMap = z.infer<typeof filesMapSchema>
 
 export class FilesCache {
   private _map: FilesMap
-  public constructor(private _client: bp.Client, private _ctx: bp.Context) {
+  public constructor(
+    private _client: bp.Client,
+    private _ctx: bp.Context
+  ) {
     this._map = {}
   }
 

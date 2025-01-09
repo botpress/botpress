@@ -10,7 +10,10 @@ export class FileChannelsCache {
   private _channels: FileChannels
   private _dirty = false
 
-  public constructor(private _client: bp.Client, private _ctx: bp.Context) {
+  public constructor(
+    private _client: bp.Client,
+    private _ctx: bp.Context
+  ) {
     this._channels = FileChannelsCache._getEmpty()
   }
 

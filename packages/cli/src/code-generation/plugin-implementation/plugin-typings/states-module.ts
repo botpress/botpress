@@ -4,7 +4,10 @@ import { Module, ReExportTypeModule } from '../../module'
 import * as strings from '../../strings'
 
 export class StateModule extends Module {
-  public constructor(name: string, private _state: sdk.BotStateDefinition) {
+  public constructor(
+    name: string,
+    private _state: sdk.BotStateDefinition
+  ) {
     super({
       path: `${name}.ts`,
       exportName: strings.typeName(name),

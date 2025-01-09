@@ -89,7 +89,7 @@ const integration = new bp.Integration({
         },
         file: async ({ payload, ...props }) => {
           const url = new URL(payload.fileUrl.trim())
-          const extension = url.pathname.includes('.') ? url.pathname.split('.').pop()?.toLowerCase() ?? '' : ''
+          const extension = url.pathname.includes('.') ? (url.pathname.split('.').pop()?.toLowerCase() ?? '') : ''
           const filename = 'file' + (extension ? `.${extension}` : '')
 
           await outgoing.send({

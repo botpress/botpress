@@ -82,7 +82,6 @@ function wrapFunction(fn: Function) {
       Sentry.captureException(err)
       const drained = await Sentry.close()
       if (!drained) {
-        // eslint-disable-next-line no-console
         console.error('sentry: failed to drain')
       }
       throw err
