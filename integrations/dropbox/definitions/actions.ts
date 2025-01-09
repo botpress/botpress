@@ -9,9 +9,9 @@ const fileUploadInputSchema = z.object({
 
 const commonMetadataOutputSchema = z.object({
   '.tag': z.string().describe("The item's tag (file or folder)"),
-  id: z.string().min(1).describe("The file's unique identifier"),
-  name: z.string().min(1).describe("The file's name"),
-  path: z.string().min(1).describe("The file's full path"),
+  id: z.string().min(1).describe("The item's unique identifier"),
+  name: z.string().min(1).describe("The item's name"),
+  path: z.string().min(1).describe("The item's full path"),
 })
 
 const commonFileMetadataOutputSchema = commonMetadataOutputSchema.extend({
@@ -51,6 +51,27 @@ const listItemsOutputSchema = z.object({
   hasMore: z.boolean().describe('Whether there are more items to fetch'),
 })
 
+const batchDeleteOutputSchema = z.object({
+  '.tag': z.string().describe("The status of the deletion. It should always be 'complete'"),
+  entries: z.array(
+    z.object({
+      '.tag': z.string().describe("The item's deletion status."),
+      metadata: z
+        .union([commonMetadataOutputSchema, commonFileMetadataOutputSchema, z.any().describe('Deletion failure')])
+        .describe('The item metadata'),
+    })
+  ),
+})
+
+const itemMoveInputSchema = z.object({
+  fromPath: z.string().min(1).describe("The item's source path"),
+  toPath: z.string().min(1).describe("The item's destination path"),
+})
+
+const itemMoveOutputSchema = z.object({
+  result: z.union([commonMetadataOutputSchema, commonFileMetadataOutputSchema]).describe("The new item's metadata"),
+})
+
 export const actions = {
   listItemsInFolder: {
     title: 'List items in a folder',
@@ -87,19 +108,31 @@ export const actions = {
     },
   },
   deleteFile: {
-    title: 'Delete Files',
-    description: 'Deletes files from dropbox',
+    title: 'Delete File',
+    description: 'Deletes a file or folder from dropbox',
     input: {
       schema: z.object({
-        path: z.string().min(1).describe("The file's path to delete"),
+        path: z.string().min(1).describe("The item's path to delete"),
       }),
     },
     output: {
       schema: z.object({
         result: z
           .union([commonMetadataOutputSchema, commonFileMetadataOutputSchema])
-          .describe('The metadata of the deleted file'),
+          .describe('The metadata of the deleted item'),
       }),
+    },
+  },
+  deleteBatch: {
+    title: 'Batch Delete',
+    description: 'Delete multiple items from dropbox',
+    input: {
+      schema: z.object({
+        paths: z.array(z.string()).min(1).describe('The paths of the items to delete'),
+      }),
+    },
+    output: {
+      schema: batchDeleteOutputSchema,
     },
   },
   downloadFile: {
@@ -114,6 +147,54 @@ export const actions = {
       schema: z.object({
         fileUrl: z.string().describe('The url to download the file from'),
       }),
+    },
+  },
+  downloadFolder: {
+    title: 'Download Folder',
+    description: 'Download a folder from dropbox',
+    input: {
+      schema: z.object({
+        path: z.string().min(1).describe("The folder's path to download"),
+      }),
+    },
+    output: {
+      schema: z.object({
+        zipUrl: z.string().describe('The url to download the folder as a zip file'),
+      }),
+    },
+  },
+  createFolder: {
+    title: 'Create Folder',
+    description: 'Create a folder in dropbox',
+    input: {
+      schema: z.object({
+        path: z.string().min(1).describe("The folder's path"),
+      }),
+    },
+    output: {
+      schema: commonMetadataOutputSchema.omit({
+        '.tag': true,
+      }),
+    },
+  },
+  copyItem: {
+    title: 'Copy Item',
+    description: 'Copy an item in dropbox',
+    input: {
+      schema: itemMoveInputSchema,
+    },
+    output: {
+      schema: itemMoveOutputSchema,
+    },
+  },
+  moveItem: {
+    title: 'Move Item',
+    description: 'Move an item in dropbox',
+    input: {
+      schema: itemMoveInputSchema,
+    },
+    output: {
+      schema: itemMoveOutputSchema,
     },
   },
 } as const satisfies sdk.IntegrationDefinitionProps['actions']
