@@ -136,6 +136,7 @@ export class SignalListener extends EventEmitter<Events> {
       const parsedData = this._safeJsonParse(data)
       const parseResult = schema.safeParse(parsedData)
       if (parseResult.success) {
+        this._debug('parsing successfull', schemaName, parseResult.data)
         return parseResult.data
       }
     }
