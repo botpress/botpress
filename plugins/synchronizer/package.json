@@ -13,12 +13,12 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
-    "@types/lodash": "^4.14.191",
     "@botpresshub/creatable": "workspace:*",
     "@botpresshub/deletable": "workspace:*",
     "@botpresshub/listable": "workspace:*",
     "@botpresshub/readable": "workspace:*",
-    "@botpresshub/updatable": "workspace:*"
+    "@botpresshub/updatable": "workspace:*",
+    "@types/lodash": "^4.14.191"
   },
   "bpDependencies": {
     "listable": "../../interfaces/listable",
