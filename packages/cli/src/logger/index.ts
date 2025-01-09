@@ -42,6 +42,7 @@ export class SingleLineLogger extends BaseLogger {
       return
     }
     this._commited = true
+    console.info()
   }
 
   protected print(message: string, props: Partial<{ prefix: string }> = {}): void {
