@@ -2,7 +2,6 @@ import type { Server } from 'node:http'
 import { BasePlugin, PluginImplementation } from '../plugin'
 import { serve } from '../serve'
 import * as utils from '../utils'
-import { mergeBots } from './merge-bots'
 import {
   botHandler,
   MessageHandlersMap,
@@ -30,11 +29,11 @@ export type BotImplementationProps<TBot extends BaseBot = BaseBot, TPlugins exte
 export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends Record<string, BasePlugin> = {}>
   implements BotHandlers<TBot>
 {
-  public readonly actionHandlers: ActionHandlers<TBot>
-  public readonly messageHandlers: MessageHandlersMap<TBot> = {}
-  public readonly eventHandlers: EventHandlersMap<TBot> = {}
-  public readonly stateExpiredHandlers: StateExpiredHandlersMap<TBot> = {}
-  public readonly hookHandlers: HookHandlersMap<TBot> = {
+  private _actionHandlers: ActionHandlers<any>
+  private _messageHandlers: MessageHandlersMap<any> = {}
+  private _eventHandlers: EventHandlersMap<any> = {}
+  private _stateExpiredHandlers: StateExpiredHandlersMap<any> = {}
+  private _hookHandlers: HookHandlersMap<any> = {
     before_incoming_event: {},
     before_incoming_message: {},
     before_outgoing_message: {},
@@ -46,102 +45,269 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
   }
 
   public constructor(public readonly props: BotImplementationProps<TBot, TPlugins>) {
-    this.actionHandlers = props.actions as ActionHandlers<TBot>
-    const plugins = utils.records.values(props.plugins)
-    for (const plugin of plugins) {
-      this._use(plugin as BotHandlers<any>)
+    this._actionHandlers = props.actions as ActionHandlers<TBot>
+    for (const plugin of utils.records.values(props.plugins)) {
+      this.use(plugin)
     }
+  }
+
+  public get actionHandlers(): ActionHandlers<TBot> {
+    return this._actionHandlers as ActionHandlers<TBot>
+  }
+
+  public get messageHandlers(): MessageHandlersMap<TBot> {
+    return new Proxy(
+      {},
+      {
+        /** returns both the message handlers for the target type but global as well */
+        get: (_, prop) => {
+          const specificHandlers = this._messageHandlers[prop as keyof MessageHandlersMap<TBot>] ?? []
+          const globalHandlers = this._messageHandlers['*'] ?? []
+          return [...specificHandlers, ...globalHandlers]
+        },
+      }
+    ) as MessageHandlersMap<TBot>
+  }
+
+  public get eventHandlers(): EventHandlersMap<TBot> {
+    return new Proxy(
+      {},
+      {
+        /** returns both the event handlers for the target type but global as well */
+        get: (_, prop) => {
+          const specificHandlers = this._eventHandlers[prop as keyof EventHandlersMap<TBot>] ?? []
+          const globalHandlers = this._eventHandlers['*'] ?? []
+          return [...specificHandlers, ...globalHandlers]
+        },
+      }
+    ) as EventHandlersMap<TBot>
+  }
+
+  public get stateExpiredHandlers(): StateExpiredHandlersMap<TBot> {
+    return new Proxy(
+      {},
+      {
+        /** returns both the state expired handlers for the target type but global as well */
+        get: (_, prop) => {
+          const specificHandlers = this._stateExpiredHandlers[prop as keyof StateExpiredHandlersMap<TBot>] ?? []
+          const globalHandlers = this._stateExpiredHandlers['*'] ?? []
+          return [...specificHandlers, ...globalHandlers]
+        },
+      }
+    ) as StateExpiredHandlersMap<TBot>
+  }
+
+  public get hookHandlers(): HookHandlersMap<TBot> {
+    return new Proxy(
+      {},
+      {
+        get: (_, prop1) =>
+          new Proxy(
+            {},
+            {
+              get: (_, prop2) => {
+                const hooks = this._hookHandlers[prop1 as keyof HookHandlersMap<TBot>] ?? {}
+                const specificHandlers = hooks[prop2 as keyof HookData<TBot>] ?? []
+                const globalHandlers = hooks['*'] ?? []
+                return [...specificHandlers, ...globalHandlers]
+              },
+            }
+          ),
+      }
+    ) as HookHandlersMap<TBot>
   }
 
   public readonly on = {
     message: <T extends keyof MessageHandlersMap<TBot>>(type: T, handler: MessageHandlers<TBot>[T]): void => {
-      this.messageHandlers[type] = utils.arrays.safePush(this.messageHandlers[type], handler)
+      this._messageHandlers[type as string] = utils.arrays.safePush(
+        this._messageHandlers[type as string],
+        handler as MessageHandlers<any>[string]
+      )
     },
     event: <T extends keyof EventHandlersMap<TBot>>(type: T, handler: EventHandlers<TBot>[T]): void => {
-      this.eventHandlers[type] = utils.arrays.safePush(this.eventHandlers[type], handler)
+      this._eventHandlers[type as string] = utils.arrays.safePush(
+        this._eventHandlers[type as string],
+        handler as EventHandlers<any>[string]
+      )
     },
     stateExpired: <T extends keyof StateExpiredHandlersMap<TBot>>(
       type: T,
       handler: StateExpiredHandlers<TBot>[T]
     ): void => {
-      this.stateExpiredHandlers[type] = utils.arrays.safePush(this.stateExpiredHandlers[type], handler)
+      this._stateExpiredHandlers[type as string] = utils.arrays.safePush(
+        this._stateExpiredHandlers[type as string],
+        handler as StateExpiredHandlers<any>[string]
+      )
     },
     beforeIncomingEvent: <T extends keyof HookData<TBot>['before_incoming_event']>(
       type: T,
       handler: HookHandlers<TBot>['before_incoming_event'][T]
     ) => {
-      this.hookHandlers.before_incoming_event[type] = utils.arrays.safePush(
-        this.hookHandlers.before_incoming_event[type],
-        handler
+      this._hookHandlers.before_incoming_event[type as string] = utils.arrays.safePush(
+        this._hookHandlers.before_incoming_event[type as string],
+        handler as HookHandlers<any>['before_incoming_event'][string]
       )
     },
     beforeIncomingMessage: <T extends keyof HookData<TBot>['before_incoming_message']>(
       type: T,
       handler: HookHandlers<TBot>['before_incoming_message'][T]
     ) => {
-      this.hookHandlers.before_incoming_message[type] = utils.arrays.safePush(
-        this.hookHandlers.before_incoming_message[type],
-        handler
+      this._hookHandlers.before_incoming_message[type as string] = utils.arrays.safePush(
+        this._hookHandlers.before_incoming_message[type as string],
+        handler as HookHandlers<any>['before_incoming_message'][string]
       )
     },
     beforeOutgoingMessage: <T extends keyof HookData<TBot>['before_outgoing_message']>(
       type: T,
       handler: HookHandlers<TBot>['before_outgoing_message'][T]
     ) => {
-      this.hookHandlers.before_outgoing_message[type] = utils.arrays.safePush(
-        this.hookHandlers.before_outgoing_message[type],
-        handler
+      this._hookHandlers.before_outgoing_message[type as string] = utils.arrays.safePush(
+        this._hookHandlers.before_outgoing_message[type as string],
+        handler as HookHandlers<any>['before_outgoing_message'][string]
       )
     },
     beforeOutgoingCallAction: <T extends keyof HookData<TBot>['before_outgoing_call_action']>(
       type: T,
       handler: HookHandlers<TBot>['before_outgoing_call_action'][T]
     ) => {
-      this.hookHandlers.before_outgoing_call_action[type] = utils.arrays.safePush(
-        this.hookHandlers.before_outgoing_call_action[type],
-        handler
+      this._hookHandlers.before_outgoing_call_action[type as string] = utils.arrays.safePush(
+        this._hookHandlers.before_outgoing_call_action[type as string],
+        handler as HookHandlers<any>['before_outgoing_call_action'][string]
       )
     },
     afterIncomingEvent: <T extends keyof HookData<TBot>['after_incoming_event']>(
       type: T,
       handler: HookHandlers<TBot>['after_incoming_event'][T]
     ) => {
-      this.hookHandlers.after_incoming_event[type] = utils.arrays.safePush(
-        this.hookHandlers.after_incoming_event[type],
-        handler
+      this._hookHandlers.after_incoming_event[type as string] = utils.arrays.safePush(
+        this._hookHandlers.after_incoming_event[type as string],
+        handler as HookHandlers<any>['after_incoming_event'][string]
       )
     },
     afterIncomingMessage: <T extends keyof HookData<TBot>['after_incoming_message']>(
       type: T,
       handler: HookHandlers<TBot>['after_incoming_message'][T]
     ) => {
-      this.hookHandlers.after_incoming_message[type] = utils.arrays.safePush(
-        this.hookHandlers.after_incoming_message[type],
-        handler
+      this._hookHandlers.after_incoming_message[type as string] = utils.arrays.safePush(
+        this._hookHandlers.after_incoming_message[type as string],
+        handler as HookHandlers<any>['after_incoming_message'][string]
       )
     },
     afterOutgoingMessage: <T extends keyof HookData<TBot>['after_outgoing_message']>(
       type: T,
       handler: HookHandlers<TBot>['after_outgoing_message'][T]
     ) => {
-      this.hookHandlers.after_outgoing_message[type] = utils.arrays.safePush(
-        this.hookHandlers.after_outgoing_message[type],
-        handler
+      this._hookHandlers.after_outgoing_message[type as string] = utils.arrays.safePush(
+        this._hookHandlers.after_outgoing_message[type as string],
+        handler as HookHandlers<any>['after_outgoing_message'][string]
       )
     },
     afterOutgoingCallAction: <T extends keyof HookData<TBot>['after_outgoing_call_action']>(
       type: T,
       handler: HookHandlers<TBot>['after_outgoing_call_action'][T]
     ) => {
-      this.hookHandlers.after_outgoing_call_action[type] = utils.arrays.safePush(
-        this.hookHandlers.after_outgoing_call_action[type],
-        handler
+      this._hookHandlers.after_outgoing_call_action[type as string] = utils.arrays.safePush(
+        this._hookHandlers.after_outgoing_call_action[type as string],
+        handler as HookHandlers<any>['after_outgoing_call_action'][string]
       )
     },
   }
 
-  private readonly _use = (botLike: BotHandlers<any>): void => {
-    mergeBots(this as BotHandlers<any>, botLike)
+  public readonly use = (src: BotHandlers<any>): void => {
+    const dest = this as BotHandlers<any>
+    for (const [type, actionHandler] of Object.entries(src.actionHandlers)) {
+      dest.actionHandlers[type] = actionHandler
+    }
+    for (const [type, handlers] of Object.entries(src.eventHandlers)) {
+      if (!handlers) {
+        continue
+      }
+      dest.eventHandlers[type] = utils.arrays.safePush(dest.eventHandlers[type], ...handlers)
+    }
+    for (const [type, handlers] of Object.entries(src.messageHandlers)) {
+      if (!handlers) {
+        continue
+      }
+      dest.messageHandlers[type] = utils.arrays.safePush(dest.messageHandlers[type], ...handlers)
+    }
+    for (const [type, handlers] of Object.entries(src.stateExpiredHandlers)) {
+      if (!handlers) {
+        continue
+      }
+      dest.stateExpiredHandlers[type] = utils.arrays.safePush(dest.stateExpiredHandlers[type], ...handlers)
+    }
+    for (const [type, handlers] of Object.entries(src.hookHandlers.before_incoming_event)) {
+      if (!handlers) {
+        continue
+      }
+      dest.hookHandlers.before_incoming_event[type] = utils.arrays.safePush(
+        dest.hookHandlers.before_incoming_event[type],
+        ...handlers
+      )
+    }
+    for (const [type, handlers] of Object.entries(src.hookHandlers.before_incoming_message)) {
+      if (!handlers) {
+        continue
+      }
+      dest.hookHandlers.before_incoming_message[type] = utils.arrays.safePush(
+        dest.hookHandlers.before_incoming_message[type],
+        ...handlers
+      )
+    }
+    for (const [type, handlers] of Object.entries(src.hookHandlers.before_outgoing_message)) {
+      if (!handlers) {
+        continue
+      }
+      dest.hookHandlers.before_outgoing_message[type] = utils.arrays.safePush(
+        dest.hookHandlers.before_outgoing_message[type],
+        ...handlers
+      )
+    }
+    for (const [type, handlers] of Object.entries(src.hookHandlers.before_outgoing_call_action)) {
+      if (!handlers) {
+        continue
+      }
+      dest.hookHandlers.before_outgoing_call_action[type] = utils.arrays.safePush(
+        dest.hookHandlers.before_outgoing_call_action[type],
+        ...handlers
+      )
+    }
+    for (const [type, handlers] of Object.entries(src.hookHandlers.after_incoming_event)) {
+      if (!handlers) {
+        continue
+      }
+      dest.hookHandlers.after_incoming_event[type] = utils.arrays.safePush(
+        dest.hookHandlers.after_incoming_event[type],
+        ...handlers
+      )
+    }
+    for (const [type, handlers] of Object.entries(src.hookHandlers.after_incoming_message)) {
+      if (!handlers) {
+        continue
+      }
+      dest.hookHandlers.after_incoming_message[type] = utils.arrays.safePush(
+        dest.hookHandlers.after_incoming_message[type],
+        ...handlers
+      )
+    }
+    for (const [type, handlers] of Object.entries(src.hookHandlers.after_outgoing_message)) {
+      if (!handlers) {
+        continue
+      }
+      dest.hookHandlers.after_outgoing_message[type] = utils.arrays.safePush(
+        dest.hookHandlers.after_outgoing_message[type],
+        ...handlers
+      )
+    }
+    for (const [type, handlers] of Object.entries(src.hookHandlers.after_outgoing_call_action)) {
+      if (!handlers) {
+        continue
+      }
+      dest.hookHandlers.after_outgoing_call_action[type] = utils.arrays.safePush(
+        dest.hookHandlers.after_outgoing_call_action[type],
+        ...handlers
+      )
+    }
   }
 
   public readonly handler = botHandler(this as BotHandlers<any>)

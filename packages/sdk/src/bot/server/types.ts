@@ -108,7 +108,7 @@ export type CommonHandlerProps<TBot extends types.BaseBot> = {
 }
 
 export type MessagePayloads<TBot extends types.BaseBot> = {
-  [K in keyof IncomingMessages<TBot>]: {
+  [K in keyof IncomingMessages<TBot>]: CommonHandlerProps<TBot> & {
     message: IncomingMessages<TBot>[K]
     user: client.User
     conversation: client.Conversation
@@ -123,33 +123,31 @@ export type MessagePayloads<TBot extends types.BaseBot> = {
 }
 
 export type MessageHandlers<TBot extends types.BaseBot> = {
-  [K in keyof IncomingMessages<TBot>]: (args: CommonHandlerProps<TBot> & MessagePayloads<TBot>[K]) => Promise<void>
+  [K in keyof IncomingMessages<TBot>]: (args: MessagePayloads<TBot>[K]) => Promise<void>
 }
 
 export type EventPayloads<TBot extends types.BaseBot> = {
-  [K in keyof IncomingEvents<TBot>]: { event: IncomingEvents<TBot>[K] }
+  [K in keyof IncomingEvents<TBot>]: CommonHandlerProps<TBot> & { event: IncomingEvents<TBot>[K] }
 }
 
 export type EventHandlers<TBot extends types.BaseBot> = {
-  [K in keyof IncomingEvents<TBot>]: (args: CommonHandlerProps<TBot> & EventPayloads<TBot>[K]) => Promise<void>
+  [K in keyof IncomingEvents<TBot>]: (args: EventPayloads<TBot>[K]) => Promise<void>
 }
 
 export type StateExpiredPayloads<TBot extends types.BaseBot> = {
-  [K in keyof IncomingStates<TBot>]: { state: IncomingStates<TBot>[K] }
+  [K in keyof IncomingStates<TBot>]: CommonHandlerProps<TBot> & { state: IncomingStates<TBot>[K] }
 }
 
 export type StateExpiredHandlers<TBot extends types.BaseBot> = {
-  [K in keyof IncomingStates<TBot>]: (args: CommonHandlerProps<TBot> & StateExpiredPayloads<TBot>[K]) => Promise<void>
+  [K in keyof IncomingStates<TBot>]: (args: StateExpiredPayloads<TBot>[K]) => Promise<void>
 }
 
 export type ActionHandlerPayloads<TBot extends types.BaseBot> = {
-  [K in keyof TBot['actions']]: { type?: K; input: TBot['actions'][K]['input'] }
+  [K in keyof TBot['actions']]: CommonHandlerProps<TBot> & { type?: K; input: TBot['actions'][K]['input'] }
 }
 
 export type ActionHandlers<TBot extends types.BaseBot> = {
-  [K in keyof TBot['actions']]: (
-    props: CommonHandlerProps<TBot> & ActionHandlerPayloads<TBot>[K]
-  ) => Promise<TBot['actions'][K]['output']>
+  [K in keyof TBot['actions']]: (props: ActionHandlerPayloads<TBot>[K]) => Promise<TBot['actions'][K]['output']>
 }
 
 type BaseHookDefinition = { stoppable?: boolean; data: any }
@@ -245,17 +243,17 @@ export type HookHandlersMap<TBot extends types.BaseBot> = {
   }
 }
 
-export type BotActionHandlers<TBot extends types.BaseBot> = ActionHandlers<TBot>
-export type BotMessageHandlers<TBot extends types.BaseBot> = MessageHandlersMap<TBot>
-export type BotEventHandlers<TBot extends types.BaseBot> = EventHandlersMap<TBot>
-export type BotStateExpiredHandlers<TBot extends types.BaseBot> = StateExpiredHandlersMap<TBot>
-export type BotHookHandlers<TBot extends types.BaseBot> = HookHandlersMap<TBot>
+/**
+ * TODO:
+ * the consumer of this type shouldnt be able to access "*" directly;
+ * "*" is meant the user who registers an handler, not for the user who calls the handler
+ */
 export type BotHandlers<TBot extends types.BaseBot> = {
-  actionHandlers: BotActionHandlers<TBot>
-  messageHandlers: BotMessageHandlers<TBot>
-  eventHandlers: BotEventHandlers<TBot>
-  stateExpiredHandlers: BotStateExpiredHandlers<TBot>
-  hookHandlers: BotHookHandlers<TBot>
+  actionHandlers: ActionHandlers<TBot>
+  messageHandlers: MessageHandlersMap<TBot>
+  eventHandlers: EventHandlersMap<TBot>
+  stateExpiredHandlers: StateExpiredHandlersMap<TBot>
+  hookHandlers: HookHandlersMap<TBot>
 }
 
 // plugins
