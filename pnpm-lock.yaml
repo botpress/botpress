@@ -1263,6 +1263,9 @@ importers:
       '@botpresshub/creatable':
         specifier: workspace:*
         version: link:../../interfaces/creatable
+      '@sentry/cli':
+        specifier: ^2.39.1
+        version: 2.39.1
 
   integrations/trello:
     dependencies:
