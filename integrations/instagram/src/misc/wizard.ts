@@ -120,7 +120,7 @@ const getCredentialsState = async (client: bp.Client, ctx: bp.Context) => {
         })
       )?.state?.payload || {}
     )
-  } catch (e) {
+  } catch {
     return {}
   }
 }
