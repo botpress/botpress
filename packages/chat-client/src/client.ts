@@ -134,6 +134,7 @@ export class Client implements IClient {
       url: this.props.apiUrl,
       conversationId: id,
       userKey,
+      debug: this.props.debug ?? false,
     })
     return signalListener
   }
