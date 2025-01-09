@@ -4,7 +4,7 @@ import { resolveAction, formatActionRef } from '../interface-resolution'
 import { BasePlugin, PluginInterfaceExtensions } from '../types'
 import { ActionProxy } from './types'
 
-export const proxy = <TPlugin extends BasePlugin>(
+export const proxyActions = <TPlugin extends BasePlugin>(
   client: BotSpecificClient<TPlugin> | Client,
   interfaces: PluginInterfaceExtensions<TPlugin>
 ): ActionProxy<TPlugin> =>

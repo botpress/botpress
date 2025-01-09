@@ -8,7 +8,8 @@ import {
   BotHandlers,
 } from '../bot'
 import * as utils from '../utils'
-import { ActionProxy, proxy } from './action-proxy'
+import { ActionProxy, proxyActions } from './action-proxy'
+import { formatEventRef, parseEventRef, resolveEvent } from './interface-resolution'
 import {
   MessageHandlersMap,
   MessageHandlers,
@@ -76,7 +77,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     }
     const { configuration, interfaces } = this._runtimeProps
     const client = new Client()
-    const actions = proxy(client, interfaces) as ActionProxy<BasePlugin>
+    const actions = proxyActions(client, interfaces) as ActionProxy<BasePlugin>
     return {
       configuration,
       interfaces,
@@ -115,11 +116,15 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     return new Proxy(
       {},
       {
-        get: (_, prop) => {
-          const specificHandlers = this._eventHandlers[prop as string] ?? []
+        get: (_, prop: string) => {
+          // if prop is "github:prOpened", included both "github:prOpened" and "creatable:itemCreated"
+          const specificHandlers = Object.entries(this._eventHandlers)
+            .filter(([e]) => this._eventResolvesTo(e, prop))
+            .flatMap(([, handlers]) => handlers ?? [])
+
           const globalHandlers = this._eventHandlers['*'] ?? []
-          // TODO: happend relevant interfaces handlers
           const allHandlers = [...specificHandlers, ...globalHandlers]
+
           return allHandlers.map(
             (handler) => (input: MessagePayloads<any>[string]) => handler({ ...input, ...this._tools })
           )
@@ -261,5 +266,18 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
         handler as HookHandlers<BasePlugin>['after_outgoing_call_action'][string]
       )
     },
+  }
+
+  /**
+   * checks if the actual event resolves to the target event
+   */
+  private _eventResolvesTo = (actualEventRef: string, targetEventRef: string) => {
+    const parsedRef = parseEventRef(actualEventRef)
+    if (!parsedRef) {
+      return false
+    }
+    const resolvedRef = resolveEvent(parsedRef, this._tools.interfaces)
+    const formattedRef = formatEventRef(resolvedRef)
+    return formattedRef === targetEventRef
   }
 }
