@@ -1,0 +1,5 @@
+[defaults]
+project=integration-todoist
+
+[auth]
+dsn=https://fa68fcfce70bce07a62093f6c7298634@o363631.ingest.us.sentry.io/4508602637221888

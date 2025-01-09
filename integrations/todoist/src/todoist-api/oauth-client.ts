@@ -25,7 +25,7 @@ export const exchangeAuthCodeAndSaveRefreshToken = async ({
 }
 
 export const getAccessToken = async ({ client, ctx }: { client: bp.Client; ctx: bp.Context }) =>
-  ctx.configuration.apiToken ?? (await _getOAuthAccessToken({ client, ctx }))
+  ctx.configurationType === 'apiToken' ? ctx.configuration.apiToken : await _getOAuthAccessToken({ client, ctx })
 
 async function _getOAuthAccessToken({ client, ctx }: { client: bp.Client; ctx: bp.Context }) {
   const { state } = await client.getState({
