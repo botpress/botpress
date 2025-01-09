@@ -1,0 +1,18 @@
+{
+  "dependencies": {
+    "@botpress/client": "workspace:*",
+    "@botpress/sdk": "workspace:*",
+    "dropbox": "^10.34.0"
+  },
+  "devDependencies": {
+    "@types/node": "^22.10.5",
+    "typescript": "^5.6.3"
+  },
+  "integrationName": "@botpresshub/dropbox",
+  "private": true,
+  "scripts": {
+    "build": "bp add -y && bp build",
+    "check:bplint": "bp lint",
+    "check:type": "tsc --noEmit"
+  }
+}
