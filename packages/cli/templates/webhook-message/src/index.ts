@@ -70,7 +70,7 @@ export default new bp.Integration({
     let parsedBody: unknown
     try {
       parsedBody = JSON.parse(body)
-    } catch (thrown) {
+    } catch {
       return {
         status: 400,
         body: JSON.stringify({ error: 'Invalid JSON Body' }),

@@ -17,8 +17,8 @@ export type AssertAll<_T extends true[]> = true
 export type Join<S extends (string | number | symbol)[]> = S extends [infer H, ...infer T]
   ? `${Cast<H, string>}${Join<Cast<T, string[]>>}`
   : S extends [infer H]
-  ? Cast<H, string>
-  : ''
+    ? Cast<H, string>
+    : ''
 
 export type Split<S extends string | number | symbol, D extends string> = S extends `${infer H}${D}${infer T}`
   ? [H, ...Split<Cast<T, string>, D>]
@@ -37,28 +37,28 @@ type NormalizeObject<T extends object> = T extends infer O ? { [K in keyof O]: N
 export type Normalize<T> = T extends (...args: infer A) => infer R
   ? (...args: Normalize<A>) => Normalize<R>
   : T extends Array<infer E>
-  ? Array<Normalize<E>>
-  : T extends ReadonlyArray<infer E>
-  ? ReadonlyArray<Normalize<E>>
-  : T extends Promise<infer R>
-  ? Promise<Normalize<R>>
-  : T extends Buffer
-  ? Buffer
-  : T extends object
-  ? NormalizeObject<T>
-  : T
+    ? Array<Normalize<E>>
+    : T extends ReadonlyArray<infer E>
+      ? ReadonlyArray<Normalize<E>>
+      : T extends Promise<infer R>
+        ? Promise<Normalize<R>>
+        : T extends Buffer
+          ? Buffer
+          : T extends object
+            ? NormalizeObject<T>
+            : T
 
 type DeepPartialObject<T extends object> = T extends infer O ? { [K in keyof O]?: DeepPartial<O[K]> } : never
 export type DeepPartial<T> = T extends (...args: infer A) => infer R
   ? (...args: DeepPartial<A>) => DeepPartial<R>
   : T extends Array<infer E>
-  ? Array<DeepPartial<E>>
-  : T extends ReadonlyArray<infer E>
-  ? ReadonlyArray<DeepPartial<E>>
-  : T extends Promise<infer R>
-  ? Promise<DeepPartial<R>>
-  : T extends Buffer
-  ? Buffer
-  : T extends object
-  ? DeepPartialObject<T>
-  : T
+    ? Array<DeepPartial<E>>
+    : T extends ReadonlyArray<infer E>
+      ? ReadonlyArray<DeepPartial<E>>
+      : T extends Promise<infer R>
+        ? Promise<DeepPartial<R>>
+        : T extends Buffer
+          ? Buffer
+          : T extends object
+            ? DeepPartialObject<T>
+            : T

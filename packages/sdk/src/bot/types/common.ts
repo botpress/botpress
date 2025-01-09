@@ -16,8 +16,8 @@ export type IntegrationInstanceUserDefinition = IntegrationInstanceDefinition['u
 type ActionKey<TIntegrationName extends string, TActionName extends string> = string extends TIntegrationName
   ? string
   : string extends TActionName
-  ? string
-  : Join<[TIntegrationName, ':', TActionName]>
+    ? string
+    : Join<[TIntegrationName, ':', TActionName]>
 
 export type EnumerateActions<TBot extends BaseBot> = UnionToIntersection<
   {
@@ -41,8 +41,8 @@ export type EnumerateActionOutputs<TBot extends BaseBot> = {
 type EventKey<TIntegrationName extends string, TEventName extends string> = string extends TIntegrationName
   ? string
   : string extends TEventName
-  ? string
-  : Join<[TIntegrationName, ':', TEventName]>
+    ? string
+    : Join<[TIntegrationName, ':', TEventName]>
 
 export type EnumerateEvents<TBot extends BaseBot> = UnionToIntersection<
   {
@@ -60,8 +60,8 @@ export type EnumerateEvents<TBot extends BaseBot> = UnionToIntersection<
 type ChannelKey<TIntegrationName extends string, TChannelName extends string> = string extends TIntegrationName
   ? string
   : string extends TChannelName
-  ? string
-  : Join<[TIntegrationName, ':', TChannelName]>
+    ? string
+    : Join<[TIntegrationName, ':', TChannelName]>
 
 export type EnumerateChannels<TBot extends BaseBot> = UnionToIntersection<
   {
@@ -77,14 +77,14 @@ export type EnumerateChannels<TBot extends BaseBot> = UnionToIntersection<
 type MessageKey<
   TIntegrationName extends string,
   TChannelName extends string,
-  TMessageName extends string
+  TMessageName extends string,
 > = string extends TIntegrationName
   ? string
   : string extends TChannelName
-  ? string
-  : string extends TMessageName
-  ? string
-  : Join<[TIntegrationName, ':', TChannelName, ':', TMessageName]>
+    ? string
+    : string extends TMessageName
+      ? string
+      : Join<[TIntegrationName, ':', TChannelName, ':', TMessageName]>
 
 export type EnumerateMessages<TBot extends BaseBot> = UnionToIntersection<
   {

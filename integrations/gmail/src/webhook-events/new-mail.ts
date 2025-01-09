@@ -193,7 +193,7 @@ const _fakeHistoryId = (historyId: string) => `${+historyId - 100}`
 const _extractNameAndEmailFromSender = (sender: string) => {
   const [nameAndWhitespaces, potentialEmail] = sender.trim().split('<')
   const name = nameAndWhitespaces?.trimEnd() ?? ''
-  const email = potentialEmail ? potentialEmail.split('>')[0] ?? '' : name
+  const email = potentialEmail ? (potentialEmail.split('>')[0] ?? '') : name
 
   return { name: name || email, email }
 }

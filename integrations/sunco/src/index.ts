@@ -87,8 +87,7 @@ const integration = new bp.Integration({
             // 400 errors can be sent if file has unsupported type
             // See: https://docs.smooch.io/guide/validating-files/#rejections
             if (err.status === 400 && err.response?.text) {
-              // eslint-disable-next-line no-console
-              console.log(err.response.text)
+              console.info(err.response.text)
             }
             throw e
           }

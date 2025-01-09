@@ -13,7 +13,7 @@ test('MessageRequest with implemented plugin should be loose type', () => {
     [
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -25,7 +25,7 @@ test('MessageRequest with empty plugin should be loose type', () => {
     [
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })
@@ -37,7 +37,7 @@ test('MessageRequest with base plugin should be loose type', () => {
     [
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })

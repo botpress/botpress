@@ -8,69 +8,169 @@
   },
   "globals": {},
   "settings": {},
+  "ignorePatterns": [
+    ".git/",
+    "**/*.d.ts",
+    "**/*.test.ts",
+    "**/*.js",
+    "**/cdk.out/",
+    "**/dist/",
+    "**/node_modules/",
+    "**/bp_modules/",
+    "**/.botpress/",
+    "**/gen/",
+    "**/bp_modules/",
+    "**/.turbo/",
+    "**/.genenv/"
+  ],
   "rules": {
-    "eslint/array-callback-return": "off",
-    "eslint/eqeqeq": "off",
-    "eslint/max-classes-per-file": "off",
-    "eslint/max-lines": "off",
-    "eslint/no-await-in-loop": "off",
-    "eslint/no-case-declarations": "off",
-    "eslint/no-else-return": "off",
-    "eslint/no-empty-pattern": "off",
-    "eslint/no-extra-boolean-cast": "off",
-    "eslint/no-inner-declarations": "off",
-    "eslint/no-irregular-whitespace": "off",
-    "eslint/no-negated-condition": "off",
-    "eslint/no-new": "off",
-    "eslint/no-redeclare": "off",
+    // Rules that have yet to be implemented in oxlint are commented out.
+    // The full list of rules can be found at https://oxc.rs/docs/guide/usage/linter/rules
+    //
+    "eslint/no-console": [
+      "warn",
+      {
+        "allow": [
+          "warn",
+          "dir",
+          "time",
+          "timeEnd",
+          "timeLog",
+          "trace",
+          "assert",
+          "clear",
+          "count",
+          "countReset",
+          "group",
+          "groupEnd",
+          "table",
+          "debug",
+          "info",
+          "dirxml",
+          "error",
+          "groupCollapsed",
+          "Console",
+          "profile",
+          "profileEnd",
+          "timeStamp",
+          "context"
+        ]
+      }
+    ],
+    // "eslint/complexity": ["off"],
+    "eslint/no-cond-assign": "error",
+    "eslint/no-const-assign": "error",
+    "eslint/no-debugger": "error",
+    "eslint/no-sparse-arrays": "error",
+    "eslint/no-unreachable": "error",
+    // "eslint/max-lines-per-function": "off",
+    "eslint/default-case": "error",
+    "eslint/default-case-last": "error",
+    "eslint/max-depth": "error",
+    "eslint/no-eval": "error",
+    "eslint/no-return-assign": "error",
+    "eslint/no-var": "error",
+    // "eslint/prefer-const": "warn",
+    "eslint/no-duplicate-imports": "error",
+    "typescript/consistent-type-definitions": ["error", "type"],
+    // "eslint/member-delimiter-style": [
+    //   "error",
+    //   {
+    //     "multiline": {
+    //       "delimiter": "none",
+    //       "requireLast": true
+    //     },
+    //     "singleline": {
+    //       "delimiter": "semi",
+    //       "requireLast": false
+    //     }
+    //   }
+    // ],
+    "typescript/prefer-namespace-keyword": "error",
+    // "eslint/quotes": [
+    //   "error",
+    //   "single",
+    //   {
+    //     "avoidEscape": true
+    //   }
+    // ],
+    // "typescript/no-floating-promises": "error",
+    // "typescript/no-misused-promises": "error",
+    // "eslint/semi": [
+    //   "error",
+    //   "never"
+    // ],
+    // "eslint/type-annotation-spacing": "error",
+    // "eslint/brace-style": "off",
+    // "eslint/curly": "error",
+    // "eslint/eol-last": "error",
+    "eslint/eqeqeq": ["error", "smart"],
+    // "typescript/no-shadow": "off",
+    // "import/order": [
+    //   "warn",
+    //   {
+    //     "groups": [
+    //       [
+    //         "builtin",
+    //         "external"
+    //       ],
+    //       "parent",
+    //       "index",
+    //       "sibling"
+    //     ],
+    //     // TODO: Eventually enable this in the future for consistency
+    //     // 'newlines-between': 'always',
+    //     "alphabetize": {
+    //       "order": "asc",
+    //       "caseInsensitive": true
+    //     },
+    //     "pathGroupsExcludedImportTypes": [
+    //       "builtin"
+    //     ]
+    //   }
+    // ],
+    "import/no-unresolved": "off",
+    // "jsdoc/check-alignment": "error",
+    // "eslint/linebreak-style": [
+    //   "error",
+    //   "unix"
+    // ],
+    // "eslint/no-trailing-spaces": "error",
+    // "eslint/object-shorthand": "error",
     "eslint/no-unused-vars": "off",
-    "eslint/no-useless-constructor": "off",
-    "eslint/no-useless-escape": "off",
-    "eslint/radix": "off",
-    "eslint/require-await": "off",
-    "import/max-dependencies": "off",
-    "import/namespace": "off",
-    "import/no-named-as-default-member": "off",
-    "import/no-named-as-default": "off",
-    "jest/valid-title": "off",
-    "oxc/no-accumulating-spread": "off",
-    "typescript/ban-ts-comment": "off",
-    "typescript/ban-types": "off",
-    "typescript/no-non-null-asserted-optional-chain": "off",
-    "typescript/no-unsafe-function-type": "off",
-    "typescript/no-wrapper-object-types": "off",
-    "typescript/prefer-ts-expect-error": "off",
-    "unicorn/consistent-function-scoping": "off",
-    "unicorn/explicit-length-check": "off",
-    "unicorn/new-for-builtins": "off",
-    "unicorn/no-empty-file": "off",
-    "unicorn/no-hex-escape": "off",
-    "unicorn/no-lonely-if": "off",
-    "unicorn/no-object-as-default-parameter": "off",
-    "unicorn/no-thenable": "off",
-    "unicorn/no-typeof-undefined": "off",
-    "unicorn/no-useless-fallback-in-spread": "off",
-    "unicorn/no-useless-spread": "off",
-    "unicorn/no-useless-switch-case": "off",
-    "unicorn/no-useless-undefined": "off",
-    "unicorn/prefer-add-event-listener": "off",
-    "unicorn/prefer-array-some": "off",
-    "unicorn/prefer-code-point": "off",
-    "unicorn/prefer-event-target": "off",
-    "unicorn/prefer-set-has": "off",
-    "unicorn/prefer-string-replace-all": "off",
-    "unicorn/prefer-string-slice": "off",
-    "unicorn/prefer-type-error": "off",
-    "vitest/expect-expect": "off",
-    "vitest/no-conditional-expect": "off",
-    "vitest/no-conditional-in-test": "off",
-    "vitest/valid-expect": "off"
+    "typescript/no-unused-vars": "off",
+    // "unused-imports/no-unused-imports": "error",
+    // "unused-imports/no-unused-vars": [
+    //   "error",
+    //   {
+    //     "vars": "all",
+    //     "varsIgnorePattern": "^_",
+    //     "args": "after-used",
+    //     "argsIgnorePattern": "^_"
+    //   }
+    // ],
+    // "typescript/naming-convention": [
+    //   "warn",
+    //   {
+    //     "selector": "memberLike",
+    //     "modifiers": [
+    //       "private"
+    //     ],
+    //     "format": [
+    //       "camelCase"
+    //     ],
+    //     "leadingUnderscore": "require"
+    //   }
+    // ],
+    // "typescript/explicit-member-accessibility": "warn",
+    "unicorn/no-empty-file": "error",
+    "unicorn/no-lonely-if": "warn"
   },
   "overrides": [],
   "categories": {
-    "correctness": "error",
-    "pedantic": "error",
-    "perf": "error",
-    "suspicious": "error"
+    "correctness": "off",
+    "pedantic": "off",
+    "perf": "off",
+    "suspicious": "off"
   }
 }

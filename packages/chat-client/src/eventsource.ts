@@ -35,7 +35,6 @@ export type Props = {
 
 const makeEventSource = (url: string, props: Props = {}) => {
   if (isBrowser) {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const module: typeof EventSourceBrowser = require('event-source-polyfill')
     const ctor = module.EventSourcePolyfill
     const source = new ctor(url, { headers: props.headers })
@@ -48,7 +47,6 @@ const makeEventSource = (url: string, props: Props = {}) => {
       source,
     }
   } else {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
     const module: typeof EventSourceNodeJs = require('eventsource')
     const source = new module(url, { headers: props.headers })
     const emitter = new EventEmitter<Events>()

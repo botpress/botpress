@@ -7,7 +7,7 @@ import * as consts from './consts'
 export const zuiSchemaToTypeScriptType = async (zuiSchema: sdk.z.Schema, name: string): Promise<string> => {
   let code = zuiSchema.toTypescript()
   code = `export type ${name} = ${code}`
-  code = prettier.format(code, { parser: 'typescript' })
+  code = await prettier.format(code, { parser: 'typescript' })
   return [
     //
     consts.GENERATED_HEADER,
@@ -30,7 +30,7 @@ export const jsonSchemaToTypescriptZuiSchema = async (
     `  schema: ${zuiSchema.toTypescriptSchema()}`,
     '}',
   ].join('\n')
-  code = prettier.format(code, { parser: 'typescript' })
+  code = await prettier.format(code, { parser: 'typescript' })
   return code
 }
 

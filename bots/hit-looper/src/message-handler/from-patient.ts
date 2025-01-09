@@ -8,7 +8,10 @@ type StartHitlInput = bp.integrations.zendesk.actions.startHitl.input.Input
 type MessageHistoryElement = NonNullable<StartHitlInput['messageHistory']>[number]
 
 class UserLinker {
-  public constructor(private _users: Record<string, User>, private _client: Client) {}
+  public constructor(
+    private _users: Record<string, User>,
+    private _client: Client
+  ) {}
 
   public async getDownstreamUserId(upstreamUserId: string): Promise<string> {
     let upstreamUser = this._users[upstreamUserId]

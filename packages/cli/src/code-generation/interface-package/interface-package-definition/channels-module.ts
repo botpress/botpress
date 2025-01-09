@@ -5,7 +5,10 @@ import * as strings from '../../strings'
 import * as types from './typings'
 
 class MessageModule extends Module {
-  public constructor(name: string, private _message: types.ApiMessageDefinition) {
+  public constructor(
+    name: string,
+    private _message: types.ApiMessageDefinition
+  ) {
     super({
       path: `${name}.ts`,
       exportName: strings.varName(name),
@@ -30,7 +33,10 @@ class MessagesModule extends ReExportVariableModule {
 class ChannelModule extends Module {
   private _messagesModule: MessagesModule
 
-  public constructor(channelName: string, private _channel: types.ApiChannelDefinition) {
+  public constructor(
+    channelName: string,
+    private _channel: types.ApiChannelDefinition
+  ) {
     super({
       path: INDEX_FILE,
       exportName: strings.varName(channelName),
