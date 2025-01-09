@@ -5,15 +5,13 @@ export const register: bp.IntegrationProps['register'] = async ({ logger, client
   logger.forBot().info('Registering Todoist integration')
 
   const todoistClient = await TodoistClient.create({ client, ctx })
-  const userId = await todoistClient.getAuthenticatedUserId()
+  const userIdentity = await todoistClient.getAuthenticatedUserIdentity()
 
-  await client.setState({
-    id: ctx.integrationId,
-    type: 'integration',
-    name: 'configuration',
-    payload: {
-      botUserId: userId,
-    },
+  await client.updateUser({
+    id: ctx.botUserId,
+    name: userIdentity.name,
+    pictureUrl: userIdentity.pictureUrl,
+    tags: { id: userIdentity.id },
   })
 }
 

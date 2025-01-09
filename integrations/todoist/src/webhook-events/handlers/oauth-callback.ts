@@ -17,24 +17,18 @@ export const oauthCallbackHandler = async ({ client, ctx, req, logger }: bp.Hand
 
   const todoistClient = await TodoistClient.create({ client, ctx })
 
-  const userId = await todoistClient.getAuthenticatedUserId()
+  const userIdentity = await todoistClient.getAuthenticatedUserIdentity()
+
   client.configureIntegration({
-    identifier: userId,
+    identifier: userIdentity.id,
   })
 
   await client.updateUser({
     id: ctx.botUserId,
+    name: userIdentity.name,
+    pictureUrl: userIdentity.pictureUrl,
     tags: {
-      id: userId,
-    },
-  })
-
-  await client.setState({
-    type: 'integration',
-    name: 'configuration',
-    id: ctx.integrationId,
-    payload: {
-      botUserId: userId,
+      id: userIdentity.id,
     },
   })
 

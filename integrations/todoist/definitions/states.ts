@@ -10,6 +10,8 @@ export const states = {
         .describe('The access token used to communicate with the Todoist API'),
     }),
   },
+
+  // TODO: This state is unused. Delete it in the next major version.
   configuration: {
     type: 'integration',
     schema: z.object({

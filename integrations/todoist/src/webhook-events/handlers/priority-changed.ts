@@ -1,13 +1,17 @@
 import { ResponseMapping } from 'src/todoist-api/mapping'
-import { ItemUpdatedEvent, Event } from '../schemas'
-import * as bp from '.botpress'
+import type { WebhookEventHandler } from '../handler-dispatcher'
+import type { ItemUpdatedEvent, Event } from '../schemas'
 
 export const isPriorityChangedEvent = (event: Event): event is ItemUpdatedEvent =>
   event.event_name === 'item:updated' &&
   event.event_data_extra?.update_intent === 'item_updated' &&
   event.event_data_extra?.old_item?.priority !== event.event_data.priority
 
-export const handlePriorityChangedEvent = async (event: ItemUpdatedEvent, { client }: bp.HandlerProps) => {
+export const handlePriorityChangedEvent: WebhookEventHandler<ItemUpdatedEvent> = async ({
+  event,
+  client,
+  initiatorUserId,
+}) => {
   const newPriority = event.event_data.priority
   const oldPriority = event.event_data_extra?.old_item.priority
 
@@ -25,6 +29,7 @@ export const handlePriorityChangedEvent = async (event: ItemUpdatedEvent, { clie
         oldPriority: oldPriority ? ResponseMapping.mapPriority(oldPriority) : undefined,
       },
       conversationId: conversation.id,
+      userId: initiatorUserId,
     })
   }
 }
