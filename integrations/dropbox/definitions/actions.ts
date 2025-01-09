@@ -21,7 +21,6 @@ const commonFileMetadataOutputSchema = commonMetadataOutputSchema.extend({
   isDownloadable: z.boolean().describe('Whether the file is downloadable'),
 })
 
-
 const fileMetadataFetchedOutputSchema = commonFileMetadataOutputSchema.extend({
   clientModified: z.string().min(1).describe("The file's last modified date"),
   serverModified: z.string().min(1).describe("The file's last server modified date"),
@@ -56,18 +55,6 @@ const listItemsOutputSchema = z.object({
   hasMore: z.boolean().describe('Whether there are more items to fetch'),
 })
 
-const batchDeleteOutputSchema = z.object({
-  '.tag': z.string().describe("The status of the deletion. It should always be 'complete'"),
-  entries: z.array(
-    z.object({
-      '.tag': z.string().describe("The item's deletion status."),
-      metadata: z
-        .union([itemMetadataFetchedOutputSchema, z.any().describe('Deletion failure')])
-        .describe('The item metadata'),
-    })
-  ),
-})
-
 const itemMoveInputSchema = z.object({
   fromPath: z.string().min(1).describe("The item's source path"),
   toPath: z.string().min(1).describe("The item's destination path"),
@@ -76,6 +63,25 @@ const itemMoveInputSchema = z.object({
 const itemMoveOutputSchema = z.object({
   result: itemMetadataFetchedOutputSchema.describe("The new item's metadata"),
 })
+
+function buildItemBatchOperationOutputSchema(tag: string) {
+  return z.object({
+    '.tag': z.string().describe(`The status of the ${tag}. It should always be 'complete'`),
+    entries: z
+      .array(
+        z.object({
+          '.tag': z.string().describe(`The item's ${tag} status.`),
+          metadata: z
+            .union([itemMetadataFetchedOutputSchema, z.any().describe(`${tag} failure`)])
+            .describe('The item metadata'),
+        })
+      )
+      .describe(`The ${tag} results`),
+  })
+}
+const batchDeleteOutputSchema = buildItemBatchOperationOutputSchema('deletion')
+const batchMoveItemsOutputSchema = buildItemBatchOperationOutputSchema('move')
+const batchCopyItemsOutputSchema = buildItemBatchOperationOutputSchema('copy')
 
 export const actions = {
   listItemsInFolder: {
@@ -190,6 +196,18 @@ export const actions = {
       schema: itemMoveOutputSchema,
     },
   },
+  batchCopyItems: {
+    title: 'Batch Copy Items',
+    description: 'Copy multiple files or folders in dropbox',
+    input: {
+      schema: z.object({
+        entries: z.array(itemMoveInputSchema).min(2).describe('The items to copy'),
+      }),
+    },
+    output: {
+      schema: batchCopyItemsOutputSchema,
+    },
+  },
   moveItem: {
     title: 'Move Item',
     description: 'Move a file or folder in dropbox',
@@ -198,6 +216,18 @@ export const actions = {
     },
     output: {
       schema: itemMoveOutputSchema,
+    },
+  },
+  batchMoveItems: {
+    title: 'Batch Move Items',
+    description: 'Move multiple files or folders in dropbox',
+    input: {
+      schema: z.object({
+        entries: z.array(itemMoveInputSchema).min(2).describe('The items to move'),
+      }),
+    },
+    output: {
+      schema: batchMoveItemsOutputSchema,
     },
   },
 } as const satisfies sdk.IntegrationDefinitionProps['actions']

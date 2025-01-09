@@ -1,5 +1,5 @@
 import assert from 'assert'
-import { Dropbox, DropboxAuth, files } from 'dropbox'
+import { Dropbox, DropboxAuth, DropboxResponse, files } from 'dropbox'
 import { handler } from './webhook-events/handler'
 import * as bp from '.botpress'
 
@@ -97,45 +97,6 @@ export default new bp.Integration({
       const out = dropboxEntryMetadataTransform(entry)
       return { result: out }
     },
-    deleteBatch: async (baseProps) => {
-      const props = await createActionPropsAndTools(baseProps)
-      const { dbxClient, input } = props
-      const res = await dbxClient.filesDeleteBatch({
-        entries: input.paths.map((path) => ({ path })),
-      })
-      if (res.result['.tag'] !== 'async_job_id') {
-        throw new Error('Unexpected response: ' + JSON.stringify(res.result))
-      }
-      const jobId = res.result.async_job_id
-      let jobStatus = ''
-      let jobRes
-      let retriesLeft = 3
-      while (jobStatus !== 'complete') {
-        jobRes = await dbxClient.filesDeleteBatchCheck({
-          async_job_id: jobId,
-        })
-        jobStatus = jobRes.result['.tag']
-        if (jobStatus === 'failed') {
-          throw new Error('Batch deletion failed')
-        }
-        if (jobStatus !== 'complete' && retriesLeft-- > 0) {
-          await new Promise((resolve) => setTimeout(resolve, 1000))
-        }
-      }
-      if (jobStatus !== 'complete') {
-        throw new Error('Batch deletion in progress on dropbox, but timed out waiting for its completion')
-      }
-      assert(jobRes !== undefined && jobRes.result['.tag'] === 'complete')
-      return {
-        '.tag': jobRes.result['.tag'],
-        entries: jobRes.result.entries.map((entry) => {
-          return {
-            '.tag': entry['.tag'],
-            metadata: entry['.tag'] === 'failure' ? entry.failure : dropboxEntryMetadataTransform(entry.metadata),
-          }
-        }),
-      }
-    },
     downloadFile: async (baseProps) => {
       const props = await createActionPropsAndTools(baseProps)
       const { dbxClient, input } = props
@@ -183,6 +144,81 @@ export default new bp.Integration({
       const out = dropboxEntryMetadataTransform(res.result.metadata)
       return { result: out }
     },
+    deleteBatch: async (baseProps) => {
+      const props = await createActionPropsAndTools(baseProps)
+      const { dbxClient, input } = props
+      const res = await dbxClient.filesDeleteBatch({
+        entries: input.paths.map((path) => ({ path })),
+      })
+      if (res.result['.tag'] !== 'async_job_id') {
+        throw new Error('Unexpected response: ' + JSON.stringify(res.result))
+      }
+      const jobId = res.result.async_job_id
+      const jobRes = await pollAsyncJob(
+        () => dbxClient.filesDeleteBatchCheck({ async_job_id: jobId }),
+        'Batch deletion failed'
+      )
+      assert(jobRes !== undefined && jobRes.result['.tag'] === 'complete')
+      return {
+        '.tag': jobRes.result['.tag'],
+        entries: jobRes.result.entries.map((entry) => {
+          return {
+            '.tag': entry['.tag'],
+            metadata: entry['.tag'] === 'failure' ? entry.failure : dropboxEntryMetadataTransform(entry.metadata),
+          }
+        }),
+      }
+    },
+    batchCopyItems: async (baseProps) => {
+      const props = await createActionPropsAndTools(baseProps)
+      const { dbxClient, input } = props
+      const res = await dbxClient.filesCopyBatchV2({
+        entries: input.entries.map((item) => ({ from_path: item.fromPath, to_path: item.toPath })),
+      })
+      if (res.result['.tag'] !== 'async_job_id') {
+        throw new Error('Unexpected response: ' + JSON.stringify(res.result))
+      }
+      const jobId = res.result.async_job_id
+      const jobRes = await pollAsyncJob(
+        () => dbxClient.filesCopyBatchCheckV2({ async_job_id: jobId }),
+        'Batch copy failed'
+      )
+      assert(jobRes !== undefined && jobRes.result['.tag'] === 'complete')
+      return {
+        '.tag': jobRes.result['.tag'],
+        entries: jobRes.result.entries.map((entry) => {
+          return {
+            '.tag': entry['.tag'],
+            metadata: entry['.tag'] !== 'success' ? entry : dropboxEntryMetadataTransform(entry.success),
+          }
+        }),
+      }
+    },
+    batchMoveItems: async (baseProps) => {
+      const props = await createActionPropsAndTools(baseProps)
+      const { dbxClient, input } = props
+      const res = await dbxClient.filesMoveBatchV2({
+        entries: input.entries.map((item) => ({ from_path: item.fromPath, to_path: item.toPath })),
+      })
+      if (res.result['.tag'] !== 'async_job_id') {
+        throw new Error('Unexpected response: ' + JSON.stringify(res.result))
+      }
+      const jobId = res.result.async_job_id
+      const jobRes = await pollAsyncJob(
+        () => dbxClient.filesMoveBatchCheckV2({ async_job_id: jobId }),
+        'Batch move failed'
+      )
+      assert(jobRes !== undefined && jobRes.result['.tag'] === 'complete')
+      return {
+        '.tag': jobRes.result['.tag'],
+        entries: jobRes.result.entries.map((entry) => {
+          return {
+            '.tag': entry['.tag'],
+            metadata: entry['.tag'] !== 'success' ? entry : dropboxEntryMetadataTransform(entry.success),
+          }
+        }),
+      }
+    },
   },
   channels: {},
   handler,
@@ -212,4 +248,31 @@ function dropboxEntryMetadataTransform(
     }
   }
   return out
+}
+
+type BatchResponseStatus = files.RelocationBatchV2JobStatus | files.DeleteBatchJobStatus
+async function pollAsyncJob<T extends BatchResponseStatus>(
+  checkFn: () => Promise<DropboxResponse<T>>,
+  failMessage: string
+): Promise<DropboxResponse<T>> {
+  let jobRes
+  let jobStatus = ''
+  let retriesLeft = 3
+
+  while (jobStatus !== 'complete') {
+    jobRes = await checkFn()
+    jobStatus = jobRes.result['.tag']
+    if (jobStatus === 'failed') {
+      throw new Error(failMessage)
+    }
+    if (jobStatus !== 'complete' && retriesLeft-- > 0) {
+      await new Promise((resolve) => setTimeout(resolve, 1000))
+    }
+  }
+
+  if (jobStatus !== 'complete') {
+    throw new Error('Batch operation in progress on dropbox, but timed out')
+  }
+  assert(jobRes !== undefined)
+  return jobRes
 }
