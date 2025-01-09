@@ -6,7 +6,7 @@ import * as chat from '@botpress/chat/src'
 const apiUrl = config.get('API_URL')
 
 test('api allows sending and receiving custom events', async () => {
-  const client = await chat.Client.connect({ apiUrl })
+  const client = await chat.Client.connect({ apiUrl, debug: true })
 
   const {
     conversation: { id: conversationId },

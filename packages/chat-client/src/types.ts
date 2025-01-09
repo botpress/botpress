@@ -21,6 +21,7 @@ export type ClientProps = {
   apiUrl: string
   timeout?: number
   headers?: Headers
+  debug?: boolean
 }
 
 export type ConnectProps = ClientProps & {
