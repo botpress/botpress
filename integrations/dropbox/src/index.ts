@@ -19,7 +19,15 @@ async function createActionPropsAndTools<T extends bp.AnyActionProps>(props: T) 
 }
 
 export default new bp.Integration({
-  register: async () => {},
+  register: async (props) => {
+    const { dbxClient } = await createActionPropsAndTools(props as any as bp.AnyActionProps)
+    const test = await dbxClient.checkApp({
+      query: 'botpress',
+    })
+    if (test.status !== 200) {
+      throw new Error('Dropbox authentication failed')
+    }
+  },
   unregister: async () => {},
   actions: {
     createFile: async (baseProps) => {
@@ -78,7 +86,7 @@ export default new bp.Integration({
         hasMore: res.result.has_more,
       }
     },
-    deleteFile: async (baseProps) => {
+    deleteItem: async (baseProps) => {
       const props = await createActionPropsAndTools(baseProps)
       const { dbxClient, input } = props
       const res = await dbxClient.filesDeleteV2({ path: input.path })

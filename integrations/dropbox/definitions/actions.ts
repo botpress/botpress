@@ -21,6 +21,18 @@ const commonFileMetadataOutputSchema = commonMetadataOutputSchema.extend({
   isDownloadable: z.boolean().describe('Whether the file is downloadable'),
 })
 
+
+const fileMetadataFetchedOutputSchema = commonFileMetadataOutputSchema.extend({
+  clientModified: z.string().min(1).describe("The file's last modified date"),
+  serverModified: z.string().min(1).describe("The file's last server modified date"),
+})
+
+const folderMetadataFetchedOutputSchema = commonMetadataOutputSchema
+
+// Union of file and folder metadata
+// Differentiation can be done through the `.tag` field, which is either 'file' or 'folder'
+const itemMetadataFetchedOutputSchema = z.union([fileMetadataFetchedOutputSchema, folderMetadataFetchedOutputSchema])
+
 const fileCreatedOutputSchema = commonFileMetadataOutputSchema
   .extend({
     created: z.string().min(1).describe("The file's creation date"),
@@ -28,11 +40,6 @@ const fileCreatedOutputSchema = commonFileMetadataOutputSchema
   .omit({
     '.tag': true,
   })
-
-const fileMetadataFetchedOutputSchema = commonFileMetadataOutputSchema.extend({
-  clientModified: z.string().min(1).describe("The file's last modified date"),
-  serverModified: z.string().min(1).describe("The file's last server modified date"),
-})
 
 const listItemsInputSchema = z.object({
   path: z.string().describe("The folder's path. If the path is the root, use an empty string"),
@@ -42,9 +49,7 @@ const listItemsInputSchema = z.object({
 })
 
 const listItemsOutputSchema = z.object({
-  entries: z
-    .array(z.union([commonMetadataOutputSchema, fileMetadataFetchedOutputSchema]))
-    .describe('The list of files and folders in the folder'),
+  entries: z.array(itemMetadataFetchedOutputSchema).describe('The list of files and folders in the folder'),
   nextToken: z
     .string()
     .describe("The cursor to use for pagination. It's used to fetch the next page if the hasMore field is true."),
@@ -57,7 +62,7 @@ const batchDeleteOutputSchema = z.object({
     z.object({
       '.tag': z.string().describe("The item's deletion status."),
       metadata: z
-        .union([commonMetadataOutputSchema, commonFileMetadataOutputSchema, z.any().describe('Deletion failure')])
+        .union([itemMetadataFetchedOutputSchema, z.any().describe('Deletion failure')])
         .describe('The item metadata'),
     })
   ),
@@ -69,7 +74,7 @@ const itemMoveInputSchema = z.object({
 })
 
 const itemMoveOutputSchema = z.object({
-  result: z.union([commonMetadataOutputSchema, commonFileMetadataOutputSchema]).describe("The new item's metadata"),
+  result: itemMetadataFetchedOutputSchema.describe("The new item's metadata"),
 })
 
 export const actions = {
@@ -95,20 +100,20 @@ export const actions = {
   },
   readItemMetadata: {
     title: 'Read item metadata',
-    description: "Read a file's metadata in dropbox",
+    description: "Read a file or item's metadata in dropbox",
     input: {
       schema: z.object({
-        path: z.string().min(1).describe("The file's path"),
+        path: z.string().min(1).describe("The item's path"),
       }),
     },
     output: {
       schema: z.object({
-        result: z.union([commonMetadataOutputSchema, fileMetadataFetchedOutputSchema]),
+        result: itemMetadataFetchedOutputSchema,
       }),
     },
   },
-  deleteFile: {
-    title: 'Delete File',
+  deleteItem: {
+    title: 'Delete Item',
     description: 'Deletes a file or folder from dropbox',
     input: {
       schema: z.object({
@@ -117,15 +122,13 @@ export const actions = {
     },
     output: {
       schema: z.object({
-        result: z
-          .union([commonMetadataOutputSchema, commonFileMetadataOutputSchema])
-          .describe('The metadata of the deleted item'),
+        result: itemMetadataFetchedOutputSchema.describe('The metadata of the deleted item'),
       }),
     },
   },
   deleteBatch: {
     title: 'Batch Delete',
-    description: 'Delete multiple items from dropbox',
+    description: 'Delete multiple files or folders from dropbox',
     input: {
       schema: z.object({
         paths: z.array(z.string()).min(1).describe('The paths of the items to delete'),
@@ -172,14 +175,14 @@ export const actions = {
       }),
     },
     output: {
-      schema: commonMetadataOutputSchema.omit({
+      schema: folderMetadataFetchedOutputSchema.omit({
         '.tag': true,
       }),
     },
   },
   copyItem: {
     title: 'Copy Item',
-    description: 'Copy an item in dropbox',
+    description: 'Copy a file or folder in dropbox',
     input: {
       schema: itemMoveInputSchema,
     },
@@ -189,7 +192,7 @@ export const actions = {
   },
   moveItem: {
     title: 'Move Item',
-    description: 'Move an item in dropbox',
+    description: 'Move a file or folder in dropbox',
     input: {
       schema: itemMoveInputSchema,
     },
