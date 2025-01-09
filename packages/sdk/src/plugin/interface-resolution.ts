@@ -17,7 +17,7 @@ export const parseActionRef = (actionRef: string): ParsedActionRef | null => {
   if (!namespace || !method) {
     return null
   }
-  return { namespace: namespace, actionName: method }
+  return { namespace, actionName: method }
 }
 
 export const parseEventRef = (eventRef: string): ParsedEventRef | null => {
@@ -25,7 +25,7 @@ export const parseEventRef = (eventRef: string): ParsedEventRef | null => {
   if (!namespace || !event) {
     return null
   }
-  return { namespace: namespace, eventName: event }
+  return { namespace, eventName: event }
 }
 
 export const formatActionRef = (actionRef: ParsedActionRef): string => {
