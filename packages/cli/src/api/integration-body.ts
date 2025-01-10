@@ -91,8 +91,8 @@ export const inferIntegrationResponseBody = (
       integration.interfaces ?? {},
       (i): types.InferredIntegrationResponseBody['interfaces'][string] => ({
         id: i.id,
-        name: '', // TODO: this data should be available here
-        version: '', // TODO: this data should be available here
+        name: i.name,
+        version: i.version,
         entities: i.entities ?? {},
         actions: i.actions ?? {},
         channels: i.channels ?? {},

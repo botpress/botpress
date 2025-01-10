@@ -77,15 +77,18 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const { remoteInstances, localInstances } = this._splitApiAndLocalIntegrationInstances(integrationList)
 
-    const fetchedInstances: RemoteIntegrationInstance[] = await bluebird.map(localInstances, async (instance) => {
-      const ref: PackageRef = { type: 'name', name: instance.name, version: instance.version }
-      const integration = await api.findIntegration(ref)
-      if (!integration) {
-        const formattedRef = formatPackageRef(ref)
-        throw new errors.BotpressCLIError(`Integration "${formattedRef}" not found`)
+    const fetchedInstances: RemoteIntegrationInstance[] = await bluebird.map(
+      localInstances,
+      async (instance): Promise<RemoteIntegrationInstance> => {
+        const ref: PackageRef = { type: 'name', name: instance.name, version: instance.version }
+        const integration = await api.findIntegration(ref)
+        if (!integration) {
+          const formattedRef = formatPackageRef(ref)
+          throw new errors.BotpressCLIError(`Integration "${formattedRef}" not found`)
+        }
+        return { ...instance, id: integration.id }
       }
-      return { ...instance, id: integration.id }
-    })
+    )
 
     return _([...fetchedInstances, ...remoteInstances])
       .keyBy((i) => i.id)
@@ -105,15 +108,18 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
     const { remoteInstances, localInstances } = this._splitApiAndLocalInterfaceInstances(interfaceList)
 
-    const fetchedInstances: RemoteInterfaceExtension[] = await bluebird.map(localInstances, async (instance) => {
-      const ref: PackageRef = { type: 'name', name: instance.name, version: instance.version }
-      const interfaceInstance = await api.findPublicInterface(ref)
-      if (!interfaceInstance) {
-        const formattedRef = formatPackageRef(ref)
-        throw new errors.BotpressCLIError(`Interface "${formattedRef}" not found`)
+    const fetchedInstances: RemoteInterfaceExtension[] = await bluebird.map(
+      localInstances,
+      async (instance): Promise<RemoteInterfaceExtension> => {
+        const ref: PackageRef = { type: 'name', name: instance.name, version: instance.version }
+        const interfaceInstance = await api.findPublicInterface(ref)
+        if (!interfaceInstance) {
+          const formattedRef = formatPackageRef(ref)
+          throw new errors.BotpressCLIError(`Interface "${formattedRef}" not found`)
+        }
+        return { ...instance, id: interfaceInstance.id }
       }
-      return { ...instance, id: interfaceInstance.id }
-    })
+    )
 
     return _([...fetchedInstances, ...remoteInstances])
       .keyBy((i) => i.id)
