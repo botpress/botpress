@@ -27,14 +27,12 @@ type AllProjectPaths = ConfigurableProjectPaths & ConstantProjectPaths
 type IntegrationInstance = NonNullable<sdk.BotDefinition['integrations']>[string]
 type RemoteIntegrationInstance = utils.types.Merge<IntegrationInstance, { id: string }>
 type LocalIntegrationInstance = utils.types.Merge<IntegrationInstance, { uri?: string }>
-type BotIntegrationRequest = NonNullable<NonNullable<client.ClientInputs['updateBot']['integrations']>[string]>
+type BotIntegrationRequest = NonNullable<NonNullable<apiUtils.UpdateBotRequestBody['integrations']>[string]>
 
 type InterfaceExtension = NonNullable<sdk.IntegrationDefinition['interfaces']>[string]
 type RemoteInterfaceExtension = utils.types.Merge<InterfaceExtension, { id: string }>
 type LocalInterfaceExtension = utils.types.Merge<InterfaceExtension, { uri?: string }>
-type IntegrationInterfaceRequest = NonNullable<
-  NonNullable<client.ClientInputs['updateIntegration']['interfaces']>[string]
->
+type IntegrationInterfaceRequest = NonNullable<NonNullable<apiUtils.UpdateIntegrationRequestBody['interfaces']>[string]>
 
 type LintIgnoredConfig = { bpLintDisabled?: boolean }
 
@@ -405,7 +403,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   protected async prepareCreateIntegrationBody(
     integrationDef: sdk.IntegrationDefinition
-  ): Promise<client.ClientInputs['createIntegration']> {
+  ): Promise<apiUtils.CreateIntegrationRequestBody> {
     const partialBody = await apiUtils.prepareCreateIntegrationBody(integrationDef)
     const code = await this.readProjectFile(this.projectPaths.abs.outFile)
     const icon = await this.readProjectFile(integrationDef.icon)

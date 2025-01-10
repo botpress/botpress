@@ -1,12 +1,11 @@
 import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
 import * as utils from '../utils'
+import * as types from './types'
 
-export type CreateInterfaceBody = client.ClientInputs['createInterface']
-export type InferredInterfaceResponseBody = utils.types.Merge<client.Interface, { id?: string | undefined }>
-export type UpdateInterfaceBody = client.ClientInputs['updateInterface']
-
-export const prepareCreateInterfaceBody = async (intrface: sdk.InterfaceDefinition): Promise<CreateInterfaceBody> => ({
+export const prepareCreateInterfaceBody = async (
+  intrface: sdk.InterfaceDefinition
+): Promise<types.CreateInterfaceRequestBody> => ({
   name: intrface.name,
   version: intrface.version,
   entities: intrface.entities
@@ -48,7 +47,9 @@ export const prepareCreateInterfaceBody = async (intrface: sdk.InterfaceDefiniti
 /**
  * Guess the server's response body for an interface based on the request payload
  */
-export const inferInterfaceResponseBody = (intrface: CreateInterfaceBody): InferredInterfaceResponseBody => {
+export const inferInterfaceResponseBody = (
+  intrface: types.CreateInterfaceRequestBody
+): types.InferredInterfaceResponseBody => {
   const now = new Date().toISOString()
   return {
     id: undefined,
@@ -64,14 +65,14 @@ export const inferInterfaceResponseBody = (intrface: CreateInterfaceBody): Infer
 }
 
 export const prepareUpdateInterfaceBody = (
-  localInterface: CreateInterfaceBody & { id: string },
+  localInterface: types.CreateInterfaceRequestBody & { id: string },
   remoteInterface: client.Interface
-): UpdateInterfaceBody => {
+): types.UpdateInterfaceRequestBody => {
   const actions = utils.records.setNullOnMissingValues(localInterface.actions, remoteInterface.actions)
   const events = utils.records.setNullOnMissingValues(localInterface.events, remoteInterface.events)
   const entities = utils.records.setNullOnMissingValues(localInterface.entities, remoteInterface.entities)
 
-  const currentChannels: UpdateInterfaceBody['channels'] = localInterface.channels
+  const currentChannels: types.UpdateInterfaceRequestBody['channels'] = localInterface.channels
     ? utils.records.mapValues(localInterface.channels, (channel, channelName) => ({
         ...channel,
         messages: utils.records.setNullOnMissingValues(

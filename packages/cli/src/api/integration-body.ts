@@ -1,14 +1,11 @@
-import type * as client from '@botpress/client'
-import type * as sdk from '@botpress/sdk'
+import * as client from '@botpress/client'
+import * as sdk from '@botpress/sdk'
 import * as utils from '../utils'
-
-export type CreateIntegrationBody = client.ClientInputs['createIntegration']
-export type UpdateIntegrationBody = client.ClientInputs['updateIntegration']
-export type InferredIntegrationResponseBody = utils.types.Merge<client.Integration, { id?: string | undefined }>
+import * as types from './types'
 
 export const prepareCreateIntegrationBody = async (
   integration: sdk.IntegrationDefinition
-): Promise<CreateIntegrationBody> => ({
+): Promise<types.CreateIntegrationRequestBody> => ({
   name: integration.name,
   version: integration.version,
   title: integration.title,
@@ -60,8 +57,8 @@ export const prepareCreateIntegrationBody = async (
  * Guess the server's response body for an integration based on the request payload
  */
 export const inferIntegrationResponseBody = (
-  integration: client.ClientInputs['createIntegration']
-): InferredIntegrationResponseBody => {
+  integration: types.CreateIntegrationRequestBody
+): types.InferredIntegrationResponseBody => {
   const now = new Date().toISOString()
   return {
     id: undefined,
@@ -92,7 +89,7 @@ export const inferIntegrationResponseBody = (
     secrets: Object.keys(integration.secrets ?? []),
     interfaces: utils.records.mapValues(
       integration.interfaces ?? {},
-      (i): InferredIntegrationResponseBody['interfaces'][string] => ({
+      (i): types.InferredIntegrationResponseBody['interfaces'][string] => ({
         id: i.id,
         name: '', // TODO: this data should be available here
         version: '', // TODO: this data should be available here
@@ -113,7 +110,7 @@ export const inferIntegrationResponseBody = (
     },
     configurations: utils.records.mapValues(
       integration.configurations ?? {},
-      (configuration): InferredIntegrationResponseBody['configurations'][string] => ({
+      (configuration): types.InferredIntegrationResponseBody['configurations'][string] => ({
         title: configuration.title ?? '',
         description: configuration.description ?? '',
         identifier: {
@@ -125,7 +122,7 @@ export const inferIntegrationResponseBody = (
     ),
     channels: utils.records.mapValues(
       integration.channels ?? {},
-      (channel): InferredIntegrationResponseBody['channels'][string] => ({
+      (channel): types.InferredIntegrationResponseBody['channels'][string] => ({
         title: channel.title ?? '',
         description: channel.description ?? '',
         conversation: {
@@ -140,7 +137,7 @@ export const inferIntegrationResponseBody = (
         },
         messages: utils.records.mapValues(
           channel.messages ?? {},
-          (message): InferredIntegrationResponseBody['channels'][string]['messages'][string] => ({
+          (message): types.InferredIntegrationResponseBody['channels'][string]['messages'][string] => ({
             schema: message.schema ?? {},
           })
         ),
@@ -149,14 +146,14 @@ export const inferIntegrationResponseBody = (
   }
 }
 
-type UpdateIntegrationChannelsBody = NonNullable<UpdateIntegrationBody['channels']>
+type UpdateIntegrationChannelsBody = NonNullable<types.UpdateIntegrationRequestBody['channels']>
 type UpdateIntegrationChannelBody = UpdateIntegrationChannelsBody[string]
 type Channels = client.Integration['channels']
 type Channel = client.Integration['channels'][string]
 export const prepareUpdateIntegrationBody = (
-  localIntegration: UpdateIntegrationBody,
+  localIntegration: types.UpdateIntegrationRequestBody,
   remoteIntegration: client.Integration
-): UpdateIntegrationBody => {
+): types.UpdateIntegrationRequestBody => {
   const actions = utils.records.setNullOnMissingValues(localIntegration.actions, remoteIntegration.actions)
   const events = utils.records.setNullOnMissingValues(localIntegration.events, remoteIntegration.events)
   const states = utils.records.setNullOnMissingValues(localIntegration.states, remoteIntegration.states)

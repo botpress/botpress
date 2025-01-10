@@ -1,14 +1,11 @@
 import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
 import * as utils from '../utils'
+import * as types from './types'
 
-type NoCode<T extends { code: string }> = utils.types.SafeOmit<T, 'code'>
-
-export type CreatePluginBody = NoCode<client.ClientInputs['createPlugin']>
-export type InferredPluginResponseBody = NoCode<utils.types.Merge<client.Plugin, { id?: string | undefined }>>
-export type UpdatePluginBody = client.ClientInputs['updatePlugin']
-
-export const prepareCreatePluginBody = async (plugin: sdk.PluginDefinition): Promise<CreatePluginBody> => ({
+export const prepareCreatePluginBody = async (
+  plugin: sdk.PluginDefinition
+): Promise<types.CreatePluginRequestBody> => ({
   name: plugin.name,
   version: plugin.version,
   user: {
@@ -50,7 +47,7 @@ export const prepareCreatePluginBody = async (plugin: sdk.PluginDefinition): Pro
 /**
  * Guess the server's response body for a plugin based on the request payload
  */
-export const inferPluginResponseBody = (plugin: CreatePluginBody): InferredPluginResponseBody => {
+export const inferPluginResponseBody = (plugin: types.CreatePluginRequestBody): types.InferredPluginResponseBody => {
   const now = new Date().toISOString()
   return {
     id: undefined,
@@ -73,9 +70,9 @@ export const inferPluginResponseBody = (plugin: CreatePluginBody): InferredPlugi
 }
 
 export const prepareUpdatePluginBody = (
-  localPlugin: UpdatePluginBody,
+  localPlugin: types.UpdatePluginRequestBody,
   remotePlugin: client.Plugin
-): UpdatePluginBody => {
+): types.UpdatePluginRequestBody => {
   const actions = utils.records.setNullOnMissingValues(localPlugin.actions, remotePlugin.actions)
   const events = utils.records.setNullOnMissingValues(localPlugin.events, remotePlugin.events)
   const states = utils.records.setNullOnMissingValues(localPlugin.states, remotePlugin.states)
