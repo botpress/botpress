@@ -1,0 +1,4 @@
+webhookId = to_string!(.webhookId)
+webhookUrl = to_string!(.webhookUrl)
+
+"{{ webhookUrl }}/{{ webhookId }}?wizard-step=start-confirm"

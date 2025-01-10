@@ -79,6 +79,9 @@ input:
   intercom_secrets:
     description: 'Intercom secrets'
     required: false
+  instagram_secrets:
+    description: 'Instagram secrets'
+    required: false
 
 runs:
   using: 'composite'
@@ -171,6 +174,8 @@ runs:
                 base_command="$base_command ${{ inputs.intercom_secrets }} --allowDeprecated"
             elif [ $integration == "line" ]; then
                 base_command="$base_command --allowDeprecated"
+            elif [ $integration == "instagram" ]; then
+                base_command="$base_command ${{ inputs.instagram_secrets }}"
             fi
 
             if [ $exists -eq 0 ]; then

@@ -3,33 +3,80 @@ import { sentry as sentryHelpers } from '@botpress/sdk-addons'
 import proactiveConversation from 'bp_modules/proactive-conversation'
 import proactiveUser from 'bp_modules/proactive-user'
 
+export const INTEGRATION_NAME = 'instagram'
+
 export default new IntegrationDefinition({
-  name: 'instagram',
-  version: '1.0.0',
+  name: INTEGRATION_NAME,
+  version: '2.0.0',
   title: 'Instagram',
   description: 'Automate interactions, manage comments, and send/receive messages all in real-time.',
   icon: 'icon.svg',
   readme: 'hub.md',
   configuration: {
-    schema: z.object({
-      appId: z.string().min(1).title('App ID').describe('The Meta App ID'),
-      appSecret: z.string().min(1).title('App Secret').describe('The Meta App Secret'),
-      verifyToken: z.string().min(1).title('Verify Token').describe('The token used to verify webhook requests'),
-      pageId: z.string().min(1).title('Page ID').describe('The Facebook page ID linked to the Instagram account'),
-      accessToken: z
-        .string()
-        .min(1)
-        .title('Access Token')
-        .describe('The access token of the Facebook page to your Meta App'),
-      instagramBusinessAccountId: z
-        .string()
-        .min(1)
-        .optional()
-        .title('Instagram Business Account ID')
-        .describe(
-          'The Instagram Business Account ID of the Instagram profile connected to the Facebook page. Set this if it differs from the Facebook page ID.'
-        ),
-    }),
+    identifier: {
+      linkTemplateScript: 'linkTemplate.vrl',
+    },
+    schema: z
+      .object({
+        useManualConfiguration: z
+          .boolean()
+          .optional()
+          .title('Use manual configuration')
+          .describe('Skip oAuth and supply details from a Meta App'),
+        verifyToken: z
+          .string()
+          .optional()
+          .title('Verify Token')
+          .describe('Token used for verification for the Callback URL at API setup View'),
+        accessToken: z
+          .string()
+          .optional()
+          .title('Access token')
+          .describe('Access Token from the Instagram Account from the API setup View'),
+        clientId: z.string().optional().title('Client ID').describe('Instagram App Id from API setup View'),
+        clientSecret: z
+          .string()
+          .optional()
+          .title('Client Secret')
+          .describe('Instagram App secret from API setup View used for webhook signature check'),
+        instagramId: z
+          .string()
+          .optional()
+          .title('Instagram account ID')
+          .describe('Instagram Account Id from API setup View'),
+      })
+      .hidden((formData) => {
+        const showConfig = !formData?.useManualConfiguration
+
+        return {
+          verifyToken: showConfig,
+          accessToken: showConfig,
+          clientId: showConfig,
+          clientSecret: showConfig,
+          instagramId: showConfig,
+        }
+      }),
+  },
+  states: {
+    oauth: {
+      type: 'integration',
+      schema: z.object({
+        accessToken: z
+          .string()
+          .optional()
+          .title('Access token')
+          .describe('Access token used to authenticate requests to the Instagram API'),
+        instagramId: z
+          .string()
+          .optional()
+          .title('Instagram account ID')
+          .describe('The Instagram account ID associated with the access token'),
+      }),
+    },
+  },
+  identifier: {
+    extractScript: 'extract.vrl',
+    fallbackHandlerScript: 'fallbackHandler.vrl',
   },
   channels: {
     channel: {
@@ -64,7 +111,15 @@ export default new IntegrationDefinition({
   },
   actions: {},
   events: {},
-  secrets: sentryHelpers.COMMON_SECRET_NAMES,
+  secrets: {
+    ...sentryHelpers.COMMON_SECRET_NAMES,
+    CLIENT_ID: {
+      description: 'The client ID of your Meta app.',
+    },
+    CLIENT_SECRET: {
+      description: 'The client secret of your Meta app.',
+    },
+  },
   user: {
     tags: {
       id: {

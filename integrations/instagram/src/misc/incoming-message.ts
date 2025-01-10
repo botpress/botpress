@@ -1,18 +1,14 @@
-import { InstagramMessage, IntegrationLogger } from './types'
-import { getBotInstagramUserId, getUserProfile } from './utils'
+import { getCredentials, MetaClient } from './client'
+import { InstagramMessage } from './types'
 import * as bp from '.botpress'
 
 export async function handleMessage(
   message: InstagramMessage,
-  { client, ctx, logger }: { client: bp.Client; ctx: bp.Context; logger: IntegrationLogger }
+  { client, ctx, logger }: { client: bp.Client; ctx: bp.Context; logger: bp.Logger }
 ) {
   if (message?.message?.text) {
     logger.forBot().debug('Received text message from Instagram:', message.message.text)
-    const botInstagramUserId = getBotInstagramUserId(ctx)
-    if (message.sender.id === botInstagramUserId) {
-      logger.forBot().debug('Ignoring message from bot')
-      return
-    }
+
     const { conversation } = await client.getOrCreateConversation({
       channel: 'channel',
       tags: {
@@ -26,23 +22,23 @@ export async function handleMessage(
       },
     })
 
-    if (!user.pictureUrl || !user.name) {
+    if (!user.name || !user.pictureUrl) {
       try {
-        const userProfile = await getUserProfile(message.sender.id, ctx.configuration, logger)
+        const { accessToken } = await getCredentials(client, ctx)
+        const metaClient = new MetaClient(logger, { accessToken })
+        const userProfile = await metaClient.getUserProfile(message.sender.id, ['profile_pic'])
 
         logger.forBot().debug('Fetched latest Instagram user profile: ', userProfile)
 
-        const fieldsToUpdate = {
-          pictureUrl: userProfile?.profilePic,
-          name: userProfile?.name || userProfile?.username,
-        }
-        if (fieldsToUpdate.pictureUrl || fieldsToUpdate.name) {
-          await client.updateUser({ ...user, ...fieldsToUpdate })
+        if (userProfile?.name) {
+          await client.updateUser({ ...user, name: userProfile?.name, pictureUrl: userProfile?.profile_pic })
         }
       } catch (error) {
         logger.forBot().error('Error while fetching user profile from Instagram', error)
       }
     }
+
+    console.log('Will Create Message', { message, user, conversation })
 
     await client.getOrCreateMessage({
       type: 'text',
