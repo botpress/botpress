@@ -1,5 +1,5 @@
 import * as client from '@botpress/client'
-import * as log from '../logger'
+import { Logger } from '../logger'
 import { SafeOmit, Merge } from '../utils/type-utils'
 import { ApiClient } from './client'
 
@@ -10,7 +10,7 @@ export type ApiClientProps = {
 }
 
 export type ApiClientFactory = {
-  newClient: (props: ApiClientProps, logger: log.Logger) => ApiClient
+  newClient: (props: ApiClientProps, logger: Logger) => ApiClient
 }
 
 export type PublicIntegration = client.Integration
