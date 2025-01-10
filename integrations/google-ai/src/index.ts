@@ -9,13 +9,15 @@ const VERTEX_AI_SERVICE_ACCOUNT_KEY_PATH = '/tmp/vertex-ai-service-account-key.j
 
 if (!fs.existsSync(VERTEX_AI_SERVICE_ACCOUNT_KEY_PATH)) {
   fs.writeFileSync(VERTEX_AI_SERVICE_ACCOUNT_KEY_PATH, bp.secrets.VERTEX_AI_SERVICE_ACCOUNT_KEY_JSON)
+  console.debug(
+    `Wrote Vertex AI service account key to ${VERTEX_AI_SERVICE_ACCOUNT_KEY_PATH} - byte length: ${bp.secrets.VERTEX_AI_SERVICE_ACCOUNT_KEY_JSON.length}`
+  )
 }
+
+process.env.GOOGLE_APPLICATION_CREDENTIALS = VERTEX_AI_SERVICE_ACCOUNT_KEY_PATH
 
 const googleAIClient = new VertexAI({
   project: bp.secrets.GOOGLE_CLOUD_PROJECT_ID,
-  googleAuthOptions: {
-    keyFilename: VERTEX_AI_SERVICE_ACCOUNT_KEY_PATH,
-  },
 })
 
 const DEFAULT_LANGUAGE_MODEL_ID: LanguageModelId = 'models/gemini-1.5-flash-002'
