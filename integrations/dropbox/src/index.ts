@@ -35,7 +35,6 @@ export default new bp.Integration({
         contents: props.input.contents,
         path: props.input.path,
       })
-      props.logger.info(`Created file: ${JSON.stringify(res.result)}`)
       return {
         id: res.result.id,
         name: res.result.name,
@@ -141,6 +140,54 @@ export default new bp.Integration({
       const res = await dbxClient.filesMoveV2({ from_path: input.fromPath, to_path: input.toPath })
       const out = dropboxEntryMetadataTransform(res.result.metadata)
       return { result: out }
+    },
+    searchItems: async (baseProps) => {
+      const props = await createActionPropsAndTools(baseProps)
+      const { dbxClient, input } = props
+      let res: DropboxResponse<files.SearchV2Result>
+      if (input.nextToken) {
+        res = await dbxClient.filesSearchContinueV2({ cursor: input.nextToken })
+      } else {
+        res = await dbxClient.filesSearchV2({
+          query: input.query,
+          options: input.options && {
+            path: input.options.path,
+            max_results: input.options.limit,
+            order_by: input.options.orderBy && {
+              '.tag': input.options.orderBy,
+            },
+            file_status: input.options.fileStatus && {
+              '.tag': input.options.fileStatus,
+            },
+            filename_only: input.options.fileNameOnly,
+            file_extensions: input.options.fileExtensions,
+            file_categories: input.options.fileCategories?.map((cat) => ({ '.tag': cat })),
+            account_id: input.options.accountId,
+          },
+          match_field_options: input.matchFieldOptions && {
+            include_highlights: input.matchFieldOptions.includeHighlights,
+          },
+        })
+      }
+      if (res.status !== 200) {
+        throw new sdk.RuntimeError('Search failed: ' + JSON.stringify(res.result))
+      }
+      return {
+        matches: res.result.matches.map((match) => {
+          if (match.metadata['.tag'] === 'other') {
+            throw new sdk.RuntimeError('Unexpected metadata type: ' + JSON.stringify(match.metadata))
+          }
+          return {
+            metadata: dropboxEntryMetadataTransform(match.metadata.metadata),
+            matchType: match.match_type?.['.tag'],
+            highlightSpans: match.highlight_spans?.map((span) => ({
+              highlightString: span.highlight_str,
+              isHighlighted: span.is_highlighted,
+            })),
+          }
+        }),
+        nextToken: res.result.has_more ? res.result.cursor : undefined,
+      }
     },
     // TODO: Implement async actions before adding batch operations
     // deleteBatch: async (baseProps) => {

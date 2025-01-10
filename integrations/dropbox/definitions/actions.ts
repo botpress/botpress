@@ -52,7 +52,7 @@ const listItemsOutputSchema = z.object({
   nextToken: z
     .string()
     .optional()
-    .describe("The cursor to use for pagination. It's used to fetch the next page if the hasMore field is true.")
+    .describe("The cursor to use for pagination. It's used to fetch the next page if the hasMore field is true."),
 })
 
 const itemMoveInputSchema = z.object({
@@ -121,6 +121,73 @@ const createFolderInputSchema = z.object({
 
 const createFolderOutputSchema = folderMetadataFetchedOutputSchema.omit({
   '.tag': true,
+})
+
+const searchItemInputSchema = z.object({
+  query: z.string().min(1).describe('The search query'),
+  options: z
+    .object({
+      path: z.string().optional().describe('The path to search in'),
+      limit: z.number().optional().describe('The maximum number of results to return per page'),
+      orderBy: z.enum(['relevance', 'last_modified_time', 'other']).optional().describe('How to sort the results'),
+      fileStatus: z.enum(['active', 'deleted']).optional().default('active').describe('The file status to search for'),
+      fileNameOnly: z.boolean().optional().default(false).describe('Whether to search only in file names'),
+      fileExtensions: z.array(z.string()).min(1).optional().describe('The file extensions to search for'),
+      fileCategories: z
+        .array(
+          z.enum([
+            'image',
+            'document',
+            'pdf',
+            'spreadsheet',
+            'presentation',
+            'audio',
+            'video',
+            'folder',
+            'paper',
+            'others',
+          ])
+        )
+        .min(1)
+        .optional()
+        .describe('The file categories to search for'),
+      accountId: z.string().optional().describe('The account ID to search in'),
+    })
+    .optional()
+    .describe('Additional options to customize the search'),
+  matchFieldOptions: z
+    .object({
+      includeHighlights: z
+        .boolean()
+        .optional()
+        .default(false)
+        .describe('Whether to include highlights in the search results'),
+    })
+    .optional()
+    .describe('Options for search results match fields.'),
+  nextToken: z.string().min(1).optional().describe('The cursor to continue the pagination'),
+})
+
+const searchItemOutputSchema = z.object({
+  matches: z
+    .array(
+      z.object({
+        metadata: itemMetadataFetchedOutputSchema,
+        matchType: z
+          .enum(['filename', 'file_content', 'filename_and_content', 'image_content', 'metadata', 'other'])
+          .optional(),
+        highlightSpans: z
+          .array(
+            z.object({
+              highlightString: z.string(),
+              isHighlighted: z.boolean(),
+            })
+          )
+          .optional(),
+      })
+    )
+    .describe('A list of matches for the query'),
+  nextToken: z.string().optional().describe('The cursor to continue the pagination'),
 })
 
 // TODO: Implement async actions before adding batch operations
@@ -221,6 +288,16 @@ export const actions = {
     },
     output: {
       schema: itemMoveOutputSchema,
+    },
+  },
+  searchItems: {
+    title: 'Search Items',
+    description: 'Search for files and folders in dropbox',
+    input: {
+      schema: searchItemInputSchema,
+    },
+    output: {
+      schema: searchItemOutputSchema,
     },
   },
   // TODO: Implement async actions before adding batch operations
