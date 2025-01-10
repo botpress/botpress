@@ -7,11 +7,7 @@ import * as pathlib from 'path'
 import * as uuid from 'uuid'
 import { prepareCreateBotBody, prepareUpdateBotBody } from '../api/bot-body'
 import type { ApiClient } from '../api/client'
-import {
-  prepareUpdateIntegrationBody,
-  CreateIntegrationBody,
-  prepareCreateIntegrationBody,
-} from '../api/integration-body'
+import { prepareUpdateIntegrationBody } from '../api/integration-body'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import * as utils from '../utils'
@@ -247,17 +243,11 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying dev integration ${chalk.bold(integrationDef.name)}...`)
 
-    let createIntegrationBody: CreateIntegrationBody = await prepareCreateIntegrationBody(integrationDef)
+    let createIntegrationBody = await this.prepareCreateIntegrationBody(integrationDef)
     createIntegrationBody = {
       ...createIntegrationBody,
+      interfaces: await this.fetchIntegrationInterfaceInstances(integrationDef, api),
       url: externalUrl,
-      configuration: await this.readIntegrationConfigDefinition(createIntegrationBody.configuration),
-      configurations: await utils.promises.awaitRecord(
-        utils.records.mapValues(
-          createIntegrationBody.configurations ?? {},
-          this.readIntegrationConfigDefinition.bind(this)
-        )
-      ),
     }
 
     if (integration) {
@@ -324,9 +314,10 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     updateLine.started('Deploying dev bot...')
 
     const integrationInstances = await this.fetchBotIntegrationInstances(botDef, api)
+    const createBotBody = await prepareCreateBotBody(botDef)
     const updateBotBody = prepareUpdateBotBody(
       {
-        ...(await prepareCreateBotBody(botDef)),
+        ...createBotBody,
         id: bot.id,
         url: externalUrl,
         integrations: integrationInstances,

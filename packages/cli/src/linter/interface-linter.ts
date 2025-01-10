@@ -1,4 +1,4 @@
-import { type CreateInterfaceBody } from '../api/interface-body'
+import { CreateInterfaceBody } from '../api'
 import { BaseLinter } from './base-linter'
 import { INTERFACE_RULESET } from './rulesets/interface.ruleset'
 

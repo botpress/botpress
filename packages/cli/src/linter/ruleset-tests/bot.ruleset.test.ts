@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
 import { BOT_RULESET } from '../rulesets/bot.ruleset'
 import { createDescribeRule, type RecursivePartial } from './common'
-import { type CreateBotBody } from '../../api/bot-body'
+import { CreateBotBody } from '../../api'
 
 type PartialDefinition = RecursivePartial<CreateBotBody>
 const describeRule = createDescribeRule<CreateBotBody>()(BOT_RULESET)

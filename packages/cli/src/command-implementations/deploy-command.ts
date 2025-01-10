@@ -3,15 +3,7 @@ import * as sdk from '@botpress/sdk'
 import chalk from 'chalk'
 import * as fs from 'fs'
 import semver from 'semver'
-import { prepareCreateBotBody, prepareUpdateBotBody } from '../api/bot-body'
-import type { ApiClient } from '../api/client'
-import {
-  CreateIntegrationBody,
-  prepareUpdateIntegrationBody,
-  prepareCreateIntegrationBody,
-} from '../api/integration-body'
-import { CreateInterfaceBody, prepareCreateInterfaceBody, prepareUpdateInterfaceBody } from '../api/interface-body'
-import { prepareCreatePluginBody, prepareUpdatePluginBody } from '../api/plugin-body'
+import * as apiUtils from '../api'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import * as utils from '../utils'
@@ -48,26 +40,22 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     return new BuildCommand(this.api, this.prompt, this.logger, this.argv).run()
   }
 
-  private async _deployIntegration(api: ApiClient, integrationDef: sdk.IntegrationDefinition) {
-    const outfile = this.projectPaths.abs.outFile
-    const code = await fs.promises.readFile(outfile, 'utf-8')
-
+  private async _deployIntegration(api: apiUtils.ApiClient, integrationDef: sdk.IntegrationDefinition) {
     const { integration: updatedIntegrationDef, workspaceId } = await this._manageWorkspaceHandle(api, integrationDef)
     integrationDef = updatedIntegrationDef
     if (workspaceId) {
       api = api.switchWorkspace(workspaceId)
     }
 
-    const { name, version, icon: iconRelativeFilePath, readme: readmeRelativeFilePath, identifier } = integrationDef
+    const { name, version } = integrationDef
 
-    if (iconRelativeFilePath && !iconRelativeFilePath.toLowerCase().endsWith('.svg')) {
+    if (integrationDef.icon && !integrationDef.icon.toLowerCase().endsWith('.svg')) {
       throw new errors.BotpressCLIError('Icon must be an SVG file')
     }
 
-    const iconFileContent = await this._readMediaFile('icon', iconRelativeFilePath)
-    const readmeFileContent = await this._readMediaFile('readme', readmeRelativeFilePath)
-    const identifierExtractScriptFileContent = await this.readProjectFile(identifier?.extractScript)
-    const fallbackHandlerScriptFileContent = await this.readProjectFile(identifier?.fallbackHandlerScript)
+    if (integrationDef.readme && !integrationDef.readme.toLowerCase().endsWith('.md')) {
+      throw new errors.BotpressCLIError('Readme must be a Markdown file')
+    }
 
     const integration = await api.findIntegration({ type: 'name', name, version })
     if (integration && integration.workspaceId !== api.workspaceId) {
@@ -98,32 +86,20 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     this.logger.debug('Preparing integration request body...')
 
-    let createBody: CreateIntegrationBody = await prepareCreateIntegrationBody(integrationDef)
+    let createBody = await this.prepareCreateIntegrationBody(integrationDef)
     createBody = {
       ...createBody,
       interfaces: await this.fetchIntegrationInterfaceInstances(integrationDef, api),
-      code,
-      icon: iconFileContent,
-      readme: readmeFileContent,
-      configuration: await this.readIntegrationConfigDefinition(createBody.configuration),
-      configurations: await utils.promises.awaitRecord(
-        utils.records.mapValues(createBody.configurations ?? {}, this.readIntegrationConfigDefinition.bind(this))
-      ),
-      identifier: {
-        extractScript: identifierExtractScriptFileContent,
-        fallbackHandlerScript: fallbackHandlerScriptFileContent,
-      },
       public: this.argv.public,
     }
 
     const startedMessage = `Deploying integration ${chalk.bold(name)} v${version}...`
     const successMessage = 'Integration deployed'
     if (integration) {
-      const updateBody = prepareUpdateIntegrationBody(
+      const updateBody = apiUtils.prepareUpdateIntegrationBody(
         {
           id: integration.id,
           ...createBody,
-          public: this.argv.public,
         },
         integration
       )
@@ -166,7 +142,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
   }
 
-  private async _deployInterface(api: ApiClient, interfaceDeclaration: sdk.InterfaceDefinition) {
+  private async _deployInterface(api: apiUtils.ApiClient, interfaceDeclaration: sdk.InterfaceDefinition) {
     if (!api.isBotpressWorkspace) {
       throw new errors.BotpressCLIError('Your workspace is not allowed to deploy interfaces.')
     }
@@ -188,12 +164,12 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
       return
     }
 
-    const createBody: CreateInterfaceBody = await prepareCreateInterfaceBody(interfaceDeclaration)
+    const createBody = await apiUtils.prepareCreateInterfaceBody(interfaceDeclaration)
 
     const startedMessage = `Deploying interface ${chalk.bold(name)} v${version}...`
     const successMessage = 'Interface deployed'
     if (intrface) {
-      const updateBody = prepareUpdateInterfaceBody(
+      const updateBody = apiUtils.prepareUpdateInterfaceBody(
         {
           id: intrface.id,
           ...createBody,
@@ -217,7 +193,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
   }
 
-  private async _deployPlugin(api: ApiClient, pluginDef: sdk.PluginDefinition) {
+  private async _deployPlugin(api: apiUtils.ApiClient, pluginDef: sdk.PluginDefinition) {
     const outfile = this.projectPaths.abs.outFile
     const code = await fs.promises.readFile(outfile, 'utf-8')
 
@@ -242,14 +218,14 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     this.logger.debug('Preparing plugin request body...')
 
     const createBody = {
-      ...(await prepareCreatePluginBody(pluginDef)),
+      ...(await apiUtils.prepareCreatePluginBody(pluginDef)),
       code,
     }
 
     const startedMessage = `Deploying plugin ${chalk.bold(name)} v${version}...`
     const successMessage = 'Plugin deployed'
     if (plugin) {
-      const updateBody = prepareUpdatePluginBody(
+      const updateBody = apiUtils.prepareUpdatePluginBody(
         {
           id: plugin.id,
           ...createBody,
@@ -339,7 +315,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private async _deployBot(
-    api: ApiClient,
+    api: apiUtils.ApiClient,
     botDefinition: sdk.BotDefinition,
     argvBotId: string | undefined,
     argvCreateNew: boolean | undefined
@@ -372,8 +348,8 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     line.started(`Deploying bot ${chalk.bold(bot.name)}...`)
 
     const integrationInstances = await this.fetchBotIntegrationInstances(botDefinition, api)
-    const createBotBody = await prepareCreateBotBody(botDefinition)
-    const updateBotBody = prepareUpdateBotBody(
+    const createBotBody = await apiUtils.prepareCreateBotBody(botDefinition)
+    const updateBotBody = apiUtils.prepareUpdateBotBody(
       {
         ...createBotBody,
         id: bot.id,
@@ -390,7 +366,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     this.displayWebhookUrls(updatedBot)
   }
 
-  private async _createNewBot(api: ApiClient): Promise<client.Bot> {
+  private async _createNewBot(api: apiUtils.ApiClient): Promise<client.Bot> {
     const line = this.logger.line()
     const { bot: createdBot } = await api.client.createBot({}).catch((thrown) => {
       throw errors.BotpressCLIError.wrap(thrown, 'Could not create bot')
@@ -400,7 +376,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     return createdBot
   }
 
-  private async _getExistingBot(api: ApiClient, botId: string | undefined): Promise<client.Bot> {
+  private async _getExistingBot(api: apiUtils.ApiClient, botId: string | undefined): Promise<client.Bot> {
     const promptedBotId = await this.projectCache.sync('botId', botId, async (defaultId) => {
       const userBots = await api
         .listAllPages(api.client.listBots, (r) => r.bots)
@@ -434,7 +410,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
   }
 
   private async _manageWorkspaceHandle(
-    api: ApiClient,
+    api: apiUtils.ApiClient,
     integration: sdk.IntegrationDefinition
   ): Promise<{
     integration: sdk.IntegrationDefinition

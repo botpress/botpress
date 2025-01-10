@@ -1,7 +1,7 @@
 import { test, expect } from 'vitest'
 import { INTERFACE_RULESET } from '../rulesets/interface.ruleset'
 import { createDescribeRule, type RecursivePartial } from './common'
-import { type CreateInterfaceBody } from '../../api/interface-body'
+import { CreateInterfaceBody } from '../../api/interface-body'
 
 type PartialInterface = RecursivePartial<CreateInterfaceBody>
 const describeRule = createDescribeRule<CreateInterfaceBody>()(INTERFACE_RULESET)

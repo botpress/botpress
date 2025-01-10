@@ -1,5 +1,5 @@
 import * as sdk from '@botpress/sdk'
-import { type CreateIntegrationBody } from '../api/integration-body'
+import { CreateIntegrationBody } from '../api'
 import { BaseLinter } from './base-linter'
 import { INTEGRATION_RULESET } from './rulesets/integration.ruleset'
 

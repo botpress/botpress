@@ -1,9 +1,10 @@
-import type { Client, Interface } from '@botpress/client'
-import type * as sdk from '@botpress/sdk'
+import * as client from '@botpress/client'
+import * as sdk from '@botpress/sdk'
 import * as utils from '../utils'
 
-export type CreateInterfaceBody = Parameters<Client['createInterface']>[0]
-export type UpdateInterfaceBody = Parameters<Client['updateInterface']>[0]
+export type CreateInterfaceBody = client.ClientInputs['createInterface']
+export type InferredInterfaceResponseBody = utils.types.Merge<client.Interface, { id?: string | undefined }>
+export type UpdateInterfaceBody = client.ClientInputs['updateInterface']
 
 export const prepareCreateInterfaceBody = async (intrface: sdk.InterfaceDefinition): Promise<CreateInterfaceBody> => ({
   name: intrface.name,
@@ -44,9 +45,27 @@ export const prepareCreateInterfaceBody = async (intrface: sdk.InterfaceDefiniti
     : {},
 })
 
+/**
+ * Guess the server's response body for an interface based on the request payload
+ */
+export const inferInterfaceResponseBody = (intrface: CreateInterfaceBody): InferredInterfaceResponseBody => {
+  const now = new Date().toISOString()
+  return {
+    id: undefined,
+    name: intrface.name,
+    version: intrface.version,
+    createdAt: now,
+    updatedAt: now,
+    actions: intrface.actions ?? {},
+    events: intrface.events ?? {},
+    channels: intrface.channels ?? {},
+    entities: intrface.entities ?? {},
+  }
+}
+
 export const prepareUpdateInterfaceBody = (
   localInterface: CreateInterfaceBody & { id: string },
-  remoteInterface: Interface
+  remoteInterface: client.Interface
 ): UpdateInterfaceBody => {
   const actions = utils.records.setNullOnMissingValues(localInterface.actions, remoteInterface.actions)
   const events = utils.records.setNullOnMissingValues(localInterface.events, remoteInterface.events)

@@ -6,7 +6,7 @@ import chalk from 'chalk'
 import fs from 'fs'
 import _ from 'lodash'
 import semver from 'semver'
-import { ApiClient } from '../api/client'
+import * as apiUtils from '../api'
 import * as codegen from '../code-generation'
 import type * as config from '../config'
 import * as consts from '../consts'
@@ -73,7 +73,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   protected async fetchBotIntegrationInstances(
     botDefinition: sdk.BotDefinition,
-    api: ApiClient
+    api: apiUtils.ApiClient
   ): Promise<Record<string, BotIntegrationRequest>> {
     const integrationList = _(botDefinition.integrations).values().filter(utils.guards.is.defined).value()
 
@@ -101,7 +101,7 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   protected async fetchIntegrationInterfaceInstances(
     integrationDefinition: sdk.IntegrationDefinition,
-    api: ApiClient
+    api: apiUtils.ApiClient
   ): Promise<Record<string, IntegrationInterfaceRequest>> {
     const interfaceList = _(integrationDefinition.interfaces).values().filter(utils.guards.is.defined).value()
 
@@ -403,18 +403,46 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return envVariables
   }
 
-  protected async readIntegrationConfigDefinition<C extends client.ClientInputs['createIntegration']['configuration']>(
-    config: C
-  ): Promise<C> {
-    if (!config?.identifier) {
-      return config
-    }
+  protected async prepareCreateIntegrationBody(
+    integrationDef: sdk.IntegrationDefinition
+  ): Promise<client.ClientInputs['createIntegration']> {
+    const partialBody = await apiUtils.prepareCreateIntegrationBody(integrationDef)
+    const code = await this.readProjectFile(this.projectPaths.abs.outFile)
+    const icon = await this.readProjectFile(integrationDef.icon)
+    const readme = await this.readProjectFile(integrationDef.readme)
+    const extractScript = await this.readProjectFile(integrationDef.identifier?.extractScript)
+    const fallbackHandlerScript = await this.readProjectFile(integrationDef.identifier?.fallbackHandlerScript)
     return {
-      ...config,
+      ...partialBody,
+      code,
+      icon,
+      readme,
       identifier: {
-        ...config.identifier,
-        linkTemplateScript: await this.readProjectFile(config.identifier.linkTemplateScript),
+        extractScript,
+        fallbackHandlerScript,
       },
+      configuration: integrationDef.configuration
+        ? {
+            schema: await utils.schema.mapZodToJsonSchema(integrationDef.configuration),
+            identifier: {
+              required: integrationDef.configuration.identifier?.required,
+              linkTemplateScript: await this.readProjectFile(
+                integrationDef.configuration.identifier?.linkTemplateScript
+              ),
+            },
+          }
+        : undefined,
+      configurations: integrationDef.configurations
+        ? await utils.records.mapValuesAsync(integrationDef.configurations, async (configuration) => ({
+            title: configuration.title,
+            description: configuration.description,
+            schema: await utils.schema.mapZodToJsonSchema(configuration),
+            identifier: {
+              required: configuration.identifier?.required,
+              linkTemplateScript: await this.readProjectFile(configuration.identifier?.linkTemplateScript),
+            },
+          }))
+        : undefined,
     }
   }
 

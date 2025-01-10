@@ -2,8 +2,8 @@ import type * as client from '@botpress/client'
 import type * as sdk from '@botpress/sdk'
 import * as utils from '../utils'
 
-export type CreateBotBody = Parameters<client.Client['createBot']>[0]
-export type UpdateBotBody = Parameters<client.Client['updateBot']>[0]
+export type CreateBotBody = client.ClientInputs['createBot']
+export type UpdateBotBody = client.ClientInputs['updateBot']
 
 export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<CreateBotBody> => ({
   user: bot.user,

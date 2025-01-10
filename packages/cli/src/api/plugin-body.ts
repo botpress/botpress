@@ -1,14 +1,12 @@
-import type { Client, Plugin } from '@botpress/client'
-import type * as sdk from '@botpress/sdk'
+import * as client from '@botpress/client'
+import * as sdk from '@botpress/sdk'
 import * as utils from '../utils'
 
-export type CreatePluginBody = utils.types.Merge<
-  Parameters<Client['createPlugin']>[0],
-  {
-    code?: string
-  }
->
-export type UpdatePluginBody = Parameters<Client['updatePlugin']>[0]
+type NoCode<T extends { code: string }> = utils.types.SafeOmit<T, 'code'>
+
+export type CreatePluginBody = NoCode<client.ClientInputs['createPlugin']>
+export type InferredPluginResponseBody = NoCode<utils.types.Merge<client.Plugin, { id?: string | undefined }>>
+export type UpdatePluginBody = client.ClientInputs['updatePlugin']
 
 export const prepareCreatePluginBody = async (plugin: sdk.PluginDefinition): Promise<CreatePluginBody> => ({
   name: plugin.name,
@@ -49,7 +47,35 @@ export const prepareCreatePluginBody = async (plugin: sdk.PluginDefinition): Pro
     : undefined,
 })
 
-export const prepareUpdatePluginBody = (localPlugin: UpdatePluginBody, remotePlugin: Plugin): UpdatePluginBody => {
+/**
+ * Guess the server's response body for a plugin based on the request payload
+ */
+export const inferPluginResponseBody = (plugin: CreatePluginBody): InferredPluginResponseBody => {
+  const now = new Date().toISOString()
+  return {
+    id: undefined,
+    name: plugin.name,
+    version: plugin.version,
+    createdAt: now,
+    updatedAt: now,
+    actions: plugin.actions ?? {},
+    events: plugin.events ?? {},
+    states: plugin.states ?? {},
+    configuration: {
+      title: plugin.configuration?.title ?? '',
+      description: plugin.configuration?.description ?? '',
+      schema: plugin.configuration?.schema ?? {},
+    },
+    user: {
+      tags: plugin.user?.tags ?? {},
+    },
+  }
+}
+
+export const prepareUpdatePluginBody = (
+  localPlugin: UpdatePluginBody,
+  remotePlugin: client.Plugin
+): UpdatePluginBody => {
   const actions = utils.records.setNullOnMissingValues(localPlugin.actions, remotePlugin.actions)
   const events = utils.records.setNullOnMissingValues(localPlugin.events, remotePlugin.events)
   const states = utils.records.setNullOnMissingValues(localPlugin.states, remotePlugin.states)

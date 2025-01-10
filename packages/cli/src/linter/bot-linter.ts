@@ -1,4 +1,4 @@
-import { type CreateBotBody } from '../api/bot-body'
+import { CreateBotBody } from '../api'
 import { BaseLinter } from './base-linter'
 import { BOT_RULESET } from './rulesets/bot.ruleset'
 
