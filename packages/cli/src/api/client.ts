@@ -3,6 +3,7 @@ import semver from 'semver'
 import yn from 'yn'
 import type { Logger } from '../logger'
 import { formatPackageRef, ApiPackageRef, NamePackageRef, isLatest } from '../package-ref'
+import * as utils from '../utils'
 import { findPreviousIntegrationVersion } from './find-previous-version'
 import * as paging from './paging'
 
@@ -11,8 +12,6 @@ import {
   PublicIntegration,
   PrivateIntegration,
   Integration,
-  Requests,
-  Responses,
   Interface,
   Plugin,
   BotSummary,
@@ -52,11 +51,11 @@ export class ApiClient {
     ].includes(this.workspaceId)
   }
 
-  public async getWorkspace(): Promise<Responses['getWorkspace']> {
+  public async getWorkspace(): Promise<client.ClientOutputs['getWorkspace']> {
     return this.client.getWorkspace({ id: this.workspaceId })
   }
 
-  public async findWorkspaceByHandle(handle: string): Promise<Responses['getWorkspace'] | undefined> {
+  public async findWorkspaceByHandle(handle: string): Promise<client.ClientOutputs['getWorkspace'] | undefined> {
     const workspaces = await paging.listAllPages(this.client.listWorkspaces, (r) => r.workspaces)
     return workspaces.find((w) => w.handle === handle)
   }
@@ -65,7 +64,9 @@ export class ApiClient {
     return ApiClient.newClient({ apiUrl: this.url, token: this.token, workspaceId }, this._logger)
   }
 
-  public async updateWorkspace(props: Omit<Requests['updateWorkspace'], 'id'>): Promise<Responses['updateWorkspace']> {
+  public async updateWorkspace(
+    props: utils.types.SafeOmit<client.ClientInputs['updateWorkspace'], 'id'>
+  ): Promise<client.ClientOutputs['updateWorkspace']> {
     return this.client.updateWorkspace({ id: this.workspaceId, ...props })
   }
 

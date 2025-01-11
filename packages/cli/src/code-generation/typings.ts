@@ -1,4 +1,4 @@
-import * as client from '@botpress/client'
+import * as apiUtils from '../api'
 import * as utils from '../utils'
 
 export type File = { path: string; content: string }
@@ -8,7 +8,7 @@ export type IntegrationInstallablePackage = NameVersion &
   (
     | {
         source: 'remote'
-        integration: client.Integration
+        integration: apiUtils.InferredIntegrationResponseBody
       }
     | {
         source: 'local'
@@ -21,7 +21,7 @@ export type InterfaceInstallablePackage = NameVersion &
   (
     | {
         source: 'remote'
-        interface: client.Interface
+        interface: apiUtils.InferredInterfaceResponseBody
       }
     | {
         source: 'local'
@@ -32,12 +32,12 @@ export type InterfaceInstallablePackage = NameVersion &
 export type PluginInstallablePackage = NameVersion &
   (
     | {
+        source: 'remote'
+        plugin: apiUtils.InferredPluginResponseBody & { code: string }
+      }
+    | {
         source: 'local'
         path: utils.path.AbsolutePath
         implementationCode: string
-      }
-    | {
-        source: 'remote'
-        plugin: client.Plugin
       }
   )

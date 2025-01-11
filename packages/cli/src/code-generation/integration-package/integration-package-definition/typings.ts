@@ -1,5 +1,5 @@
-import * as client from '@botpress/client'
-export type ApiIntegrationDefinition = client.Integration
+import * as apiUtils from '../../../api'
+export type ApiIntegrationDefinition = apiUtils.InferredIntegrationResponseBody
 export type ApiActionDefinition = ApiIntegrationDefinition['actions'][string]
 export type ApiChannelDefinition = ApiIntegrationDefinition['channels'][string]
 export type ApiMessageDefinition = ApiChannelDefinition['messages'][string]

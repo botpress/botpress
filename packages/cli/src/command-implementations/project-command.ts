@@ -6,7 +6,7 @@ import chalk from 'chalk'
 import fs from 'fs'
 import _ from 'lodash'
 import semver from 'semver'
-import { ApiClient } from '../api/client'
+import * as apiUtils from '../api'
 import * as codegen from '../code-generation'
 import type * as config from '../config'
 import * as consts from '../consts'
@@ -27,14 +27,12 @@ type AllProjectPaths = ConfigurableProjectPaths & ConstantProjectPaths
 type IntegrationInstance = NonNullable<sdk.BotDefinition['integrations']>[string]
 type RemoteIntegrationInstance = utils.types.Merge<IntegrationInstance, { id: string }>
 type LocalIntegrationInstance = utils.types.Merge<IntegrationInstance, { uri?: string }>
-type BotIntegrationRequest = NonNullable<NonNullable<client.ClientInputs['updateBot']['integrations']>[string]>
+type BotIntegrationRequest = NonNullable<NonNullable<apiUtils.UpdateBotRequestBody['integrations']>[string]>
 
 type InterfaceExtension = NonNullable<sdk.IntegrationDefinition['interfaces']>[string]
 type RemoteInterfaceExtension = utils.types.Merge<InterfaceExtension, { id: string }>
 type LocalInterfaceExtension = utils.types.Merge<InterfaceExtension, { uri?: string }>
-type IntegrationInterfaceRequest = NonNullable<
-  NonNullable<client.ClientInputs['updateIntegration']['interfaces']>[string]
->
+type IntegrationInterfaceRequest = NonNullable<NonNullable<apiUtils.UpdateIntegrationRequestBody['interfaces']>[string]>
 
 type LintIgnoredConfig = { bpLintDisabled?: boolean }
 
@@ -73,21 +71,24 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   protected async fetchBotIntegrationInstances(
     botDefinition: sdk.BotDefinition,
-    api: ApiClient
+    api: apiUtils.ApiClient
   ): Promise<Record<string, BotIntegrationRequest>> {
     const integrationList = _(botDefinition.integrations).values().filter(utils.guards.is.defined).value()
 
     const { remoteInstances, localInstances } = this._splitApiAndLocalIntegrationInstances(integrationList)
 
-    const fetchedInstances: RemoteIntegrationInstance[] = await bluebird.map(localInstances, async (instance) => {
-      const ref: PackageRef = { type: 'name', name: instance.name, version: instance.version }
-      const integration = await api.findIntegration(ref)
-      if (!integration) {
-        const formattedRef = formatPackageRef(ref)
-        throw new errors.BotpressCLIError(`Integration "${formattedRef}" not found`)
+    const fetchedInstances: RemoteIntegrationInstance[] = await bluebird.map(
+      localInstances,
+      async (instance): Promise<RemoteIntegrationInstance> => {
+        const ref: PackageRef = { type: 'name', name: instance.name, version: instance.version }
+        const integration = await api.findIntegration(ref)
+        if (!integration) {
+          const formattedRef = formatPackageRef(ref)
+          throw new errors.BotpressCLIError(`Integration "${formattedRef}" not found`)
+        }
+        return { ...instance, id: integration.id }
       }
-      return { ...instance, id: integration.id }
-    })
+    )
 
     return _([...fetchedInstances, ...remoteInstances])
       .keyBy((i) => i.id)
@@ -101,21 +102,24 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
 
   protected async fetchIntegrationInterfaceInstances(
     integrationDefinition: sdk.IntegrationDefinition,
-    api: ApiClient
+    api: apiUtils.ApiClient
   ): Promise<Record<string, IntegrationInterfaceRequest>> {
     const interfaceList = _(integrationDefinition.interfaces).values().filter(utils.guards.is.defined).value()
 
     const { remoteInstances, localInstances } = this._splitApiAndLocalInterfaceInstances(interfaceList)
 
-    const fetchedInstances: RemoteInterfaceExtension[] = await bluebird.map(localInstances, async (instance) => {
-      const ref: PackageRef = { type: 'name', name: instance.name, version: instance.version }
-      const interfaceInstance = await api.findPublicInterface(ref)
-      if (!interfaceInstance) {
-        const formattedRef = formatPackageRef(ref)
-        throw new errors.BotpressCLIError(`Interface "${formattedRef}" not found`)
+    const fetchedInstances: RemoteInterfaceExtension[] = await bluebird.map(
+      localInstances,
+      async (instance): Promise<RemoteInterfaceExtension> => {
+        const ref: PackageRef = { type: 'name', name: instance.name, version: instance.version }
+        const interfaceInstance = await api.findPublicInterface(ref)
+        if (!interfaceInstance) {
+          const formattedRef = formatPackageRef(ref)
+          throw new errors.BotpressCLIError(`Interface "${formattedRef}" not found`)
+        }
+        return { ...instance, id: interfaceInstance.id }
       }
-      return { ...instance, id: interfaceInstance.id }
-    })
+    )
 
     return _([...fetchedInstances, ...remoteInstances])
       .keyBy((i) => i.id)
@@ -403,27 +407,58 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     return envVariables
   }
 
-  protected async readIntegrationConfigDefinition<C extends client.ClientInputs['createIntegration']['configuration']>(
-    config: C
-  ): Promise<C> {
-    if (!config?.identifier) {
-      return config
-    }
+  protected async prepareCreateIntegrationBody(
+    integrationDef: sdk.IntegrationDefinition
+  ): Promise<apiUtils.CreateIntegrationRequestBody> {
+    const partialBody = await apiUtils.prepareCreateIntegrationBody(integrationDef)
+    const code = await this.readProjectFile(this.projectPaths.abs.outFile)
+    const icon = await this.readProjectFile(integrationDef.icon, 'base64')
+    const readme = await this.readProjectFile(integrationDef.readme, 'base64')
+    const extractScript = await this.readProjectFile(integrationDef.identifier?.extractScript)
+    const fallbackHandlerScript = await this.readProjectFile(integrationDef.identifier?.fallbackHandlerScript)
     return {
-      ...config,
+      ...partialBody,
+      code,
+      icon,
+      readme,
       identifier: {
-        ...config.identifier,
-        linkTemplateScript: await this.readProjectFile(config.identifier.linkTemplateScript),
+        extractScript,
+        fallbackHandlerScript,
       },
+      configuration: integrationDef.configuration
+        ? {
+            schema: await utils.schema.mapZodToJsonSchema(integrationDef.configuration),
+            identifier: {
+              required: integrationDef.configuration.identifier?.required,
+              linkTemplateScript: await this.readProjectFile(
+                integrationDef.configuration.identifier?.linkTemplateScript
+              ),
+            },
+          }
+        : undefined,
+      configurations: integrationDef.configurations
+        ? await utils.records.mapValuesAsync(integrationDef.configurations, async (configuration) => ({
+            title: configuration.title,
+            description: configuration.description,
+            schema: await utils.schema.mapZodToJsonSchema(configuration),
+            identifier: {
+              required: configuration.identifier?.required,
+              linkTemplateScript: await this.readProjectFile(configuration.identifier?.linkTemplateScript),
+            },
+          }))
+        : undefined,
     }
   }
 
-  protected readProjectFile = async (filePath: string | undefined): Promise<string | undefined> => {
+  protected readProjectFile = async (
+    filePath: string | undefined,
+    encoding: BufferEncoding = 'utf-8'
+  ): Promise<string | undefined> => {
     if (!filePath) {
       return undefined
     }
     const absoluteFilePath = utils.path.absoluteFrom(this.projectPaths.abs.workDir, filePath)
-    return fs.promises.readFile(absoluteFilePath, 'utf-8').catch((thrown) => {
+    return fs.promises.readFile(absoluteFilePath, encoding).catch((thrown) => {
       throw errors.BotpressCLIError.wrap(thrown, `Could not read file "${absoluteFilePath}"`)
     })
   }

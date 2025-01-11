@@ -1,11 +1,9 @@
-import type * as client from '@botpress/client'
-import type * as sdk from '@botpress/sdk'
+import * as client from '@botpress/client'
+import * as sdk from '@botpress/sdk'
 import * as utils from '../utils'
+import * as types from './types'
 
-export type CreateBotBody = Parameters<client.Client['createBot']>[0]
-export type UpdateBotBody = Parameters<client.Client['updateBot']>[0]
-
-export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<CreateBotBody> => ({
+export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<types.CreateBotRequestBody> => ({
   user: bot.user,
   conversation: bot.conversation,
   message: bot.message,
@@ -43,7 +41,10 @@ export const prepareCreateBotBody = async (bot: sdk.BotDefinition): Promise<Crea
     : undefined,
 })
 
-export const prepareUpdateBotBody = (localBot: UpdateBotBody, remoteBot: client.Bot): UpdateBotBody => ({
+export const prepareUpdateBotBody = (
+  localBot: types.UpdateBotRequestBody,
+  remoteBot: client.Bot
+): types.UpdateBotRequestBody => ({
   ...localBot,
   states: utils.records.setNullOnMissingValues(localBot.states, remoteBot.states),
   recurringEvents: utils.records.setNullOnMissingValues(localBot.recurringEvents, remoteBot.recurringEvents),

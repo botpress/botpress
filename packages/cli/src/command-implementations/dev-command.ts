@@ -5,13 +5,7 @@ import axios, { AxiosRequestConfig, AxiosResponse } from 'axios'
 import chalk from 'chalk'
 import * as pathlib from 'path'
 import * as uuid from 'uuid'
-import { prepareCreateBotBody, prepareUpdateBotBody } from '../api/bot-body'
-import type { ApiClient } from '../api/client'
-import {
-  prepareUpdateIntegrationBody,
-  CreateIntegrationBody,
-  prepareCreateIntegrationBody,
-} from '../api/integration-body'
+import * as apiUtils from '../api'
 import type commandDefinitions from '../command-definitions'
 import * as errors from '../errors'
 import * as utils from '../utils'
@@ -157,7 +151,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     }
   }
 
-  private _restart = async (api: ApiClient, worker: Worker, tunnelUrl: string) => {
+  private _restart = async (api: apiUtils.ApiClient, worker: Worker, tunnelUrl: string) => {
     try {
       await this._runBuild()
     } catch (thrown) {
@@ -170,7 +164,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     await worker.reload()
   }
 
-  private _deploy = async (api: ApiClient, tunnelUrl: string) => {
+  private _deploy = async (api: apiUtils.ApiClient, tunnelUrl: string) => {
     const projectDef = await this.readProjectDefinitionFromFS()
 
     if (projectDef.type === 'interface') {
@@ -222,7 +216,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
   }
 
   private async _deployDevIntegration(
-    api: ApiClient,
+    api: apiUtils.ApiClient,
     externalUrl: string,
     integrationDef: sdk.IntegrationDefinition
   ): Promise<void> {
@@ -247,21 +241,15 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     const line = this.logger.line()
     line.started(`Deploying dev integration ${chalk.bold(integrationDef.name)}...`)
 
-    let createIntegrationBody: CreateIntegrationBody = await prepareCreateIntegrationBody(integrationDef)
+    let createIntegrationBody = await this.prepareCreateIntegrationBody(integrationDef)
     createIntegrationBody = {
       ...createIntegrationBody,
+      interfaces: await this.fetchIntegrationInterfaceInstances(integrationDef, api),
       url: externalUrl,
-      configuration: await this.readIntegrationConfigDefinition(createIntegrationBody.configuration),
-      configurations: await utils.promises.awaitRecord(
-        utils.records.mapValues(
-          createIntegrationBody.configurations ?? {},
-          this.readIntegrationConfigDefinition.bind(this)
-        )
-      ),
     }
 
     if (integration) {
-      const updateIntegrationBody = prepareUpdateIntegrationBody(
+      const updateIntegrationBody = apiUtils.prepareUpdateIntegrationBody(
         { ...createIntegrationBody, id: integration.id },
         integration
       )
@@ -283,7 +271,7 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     await this.projectCache.set('devId', integration.id)
   }
 
-  private async _deployDevBot(api: ApiClient, externalUrl: string, botDef: sdk.BotDefinition): Promise<void> {
+  private async _deployDevBot(api: apiUtils.ApiClient, externalUrl: string, botDef: sdk.BotDefinition): Promise<void> {
     const devId = await this.projectCache.get('devId')
 
     let bot: client.Bot | undefined = undefined
@@ -324,9 +312,10 @@ export class DevCommand extends ProjectCommand<DevCommandDefinition> {
     updateLine.started('Deploying dev bot...')
 
     const integrationInstances = await this.fetchBotIntegrationInstances(botDef, api)
-    const updateBotBody = prepareUpdateBotBody(
+    const createBotBody = await apiUtils.prepareCreateBotBody(botDef)
+    const updateBotBody = apiUtils.prepareUpdateBotBody(
       {
-        ...(await prepareCreateBotBody(botDef)),
+        ...createBotBody,
         id: bot.id,
         url: externalUrl,
         integrations: integrationInstances,
