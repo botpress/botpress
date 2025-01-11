@@ -169,7 +169,6 @@ const updateIssue = {
       labels: z
         .array(z.string())
         .optional()
-        .default(['type/dx'])
         .title('Set labels')
         .describe('One or multiple labels to assign to this issue'),
       project: z.string().optional().title('Associate to project...').describe('A project to associate to this issue'),

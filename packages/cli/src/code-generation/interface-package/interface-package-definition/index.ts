@@ -56,9 +56,6 @@ export class InterfacePackageDefinitionModule extends Module {
     const eventsImport = eventsModule.import(this)
     const entitiesImport = entitiesModule.import(this)
 
-    const templateName =
-      this._interface.nameTemplate === undefined ? 'undefined' : `"${this._interface.nameTemplate.script}"`
-
     content += [
       consts.GENERATED_HEADER,
       'import * as sdk from "@botpress/sdk"',
@@ -79,7 +76,6 @@ export class InterfacePackageDefinitionModule extends Module {
       `  channels: ${channelsModule.name}.${channelsModule.exportName},`,
       `  events: ${eventsModule.name}.${eventsModule.exportName},`,
       `  entities: ${entitiesModule.name}.${entitiesModule.exportName},`,
-      `  templateName: ${templateName},`,
       '} satisfies sdk.InterfacePackage["definition"]',
     ].join('\n')
 

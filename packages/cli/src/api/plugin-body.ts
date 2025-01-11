@@ -1,5 +1,6 @@
 import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
+import * as jsonSchema from 'json-schema'
 import * as utils from '../utils'
 import * as types from './types'
 
@@ -61,7 +62,7 @@ export const inferPluginResponseBody = (plugin: types.CreatePluginRequestBody): 
     configuration: {
       title: plugin.configuration?.title ?? '',
       description: plugin.configuration?.description ?? '',
-      schema: plugin.configuration?.schema ?? {},
+      schema: plugin.configuration?.schema ?? ({ type: 'object', properties: {} } satisfies jsonSchema.JSONSchema7),
     },
     user: {
       tags: plugin.user?.tags ?? {},

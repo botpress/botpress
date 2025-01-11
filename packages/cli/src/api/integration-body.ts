@@ -1,7 +1,10 @@
 import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
+import * as jsonSchema from 'json-schema'
 import * as utils from '../utils'
 import * as types from './types'
+
+const DEFAULT_SCHEMA = { type: 'object', properties: {} } satisfies jsonSchema.JSONSchema7
 
 export const prepareCreateIntegrationBody = async (
   integration: sdk.IntegrationDefinition
@@ -102,7 +105,7 @@ export const inferIntegrationResponseBody = (
     configuration: {
       title: integration.configuration?.title ?? '',
       description: integration.configuration?.description ?? '',
-      schema: integration.configuration?.schema ?? {},
+      schema: integration.configuration?.schema ?? DEFAULT_SCHEMA,
       identifier: {
         required: integration.configuration?.identifier?.required ?? false,
         linkTemplateScript: integration.configuration?.identifier?.linkTemplateScript ?? '',
@@ -117,7 +120,7 @@ export const inferIntegrationResponseBody = (
           required: configuration.identifier?.required ?? false,
           linkTemplateScript: configuration.identifier?.linkTemplateScript ?? '',
         },
-        schema: configuration.schema ?? {},
+        schema: configuration.schema ?? DEFAULT_SCHEMA,
       })
     ),
     channels: utils.records.mapValues(
@@ -138,7 +141,7 @@ export const inferIntegrationResponseBody = (
         messages: utils.records.mapValues(
           channel.messages ?? {},
           (message): types.InferredIntegrationResponseBody['channels'][string]['messages'][string] => ({
-            schema: message.schema ?? {},
+            schema: message.schema ?? DEFAULT_SCHEMA,
           })
         ),
       })
