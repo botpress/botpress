@@ -144,7 +144,12 @@ const mockLogger = {
 const lintDefinition = async (definition: IntegrationDefinitionProps) => {
   const integrationDefinition = new IntegrationDefinition(definition)
   const integrationBody = await prepareCreateIntegrationBody(integrationDefinition)
-  const linter = new IntegrationLinter({ ...integrationBody, secrets: integrationDefinition.secrets })
+  const linter = new IntegrationLinter({
+    ...integrationBody,
+    readme: integrationDefinition.readme,
+    icon: integrationDefinition.icon,
+    secrets: integrationDefinition.secrets,
+  })
   await linter.lint()
   return linter
 }

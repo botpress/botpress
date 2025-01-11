@@ -300,20 +300,6 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
     }
   }
 
-  private _readMediaFile = async (
-    filePurpose: 'icon' | 'readme',
-    filePath: string | undefined
-  ): Promise<string | undefined> => {
-    if (!filePath) {
-      return undefined
-    }
-
-    const absoluteFilePath = utils.path.absoluteFrom(this.projectPaths.abs.workDir, filePath)
-    return fs.promises.readFile(absoluteFilePath, 'base64').catch((thrown) => {
-      throw errors.BotpressCLIError.wrap(thrown, `Could not read ${filePurpose} file "${absoluteFilePath}"`)
-    })
-  }
-
   private async _deployBot(
     api: apiUtils.ApiClient,
     botDefinition: sdk.BotDefinition,

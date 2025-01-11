@@ -412,8 +412,8 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
   ): Promise<apiUtils.CreateIntegrationRequestBody> {
     const partialBody = await apiUtils.prepareCreateIntegrationBody(integrationDef)
     const code = await this.readProjectFile(this.projectPaths.abs.outFile)
-    const icon = await this.readProjectFile(integrationDef.icon)
-    const readme = await this.readProjectFile(integrationDef.readme)
+    const icon = await this.readProjectFile(integrationDef.icon, 'base64')
+    const readme = await this.readProjectFile(integrationDef.readme, 'base64')
     const extractScript = await this.readProjectFile(integrationDef.identifier?.extractScript)
     const fallbackHandlerScript = await this.readProjectFile(integrationDef.identifier?.fallbackHandlerScript)
     return {
@@ -450,12 +450,15 @@ export abstract class ProjectCommand<C extends ProjectCommandDefinition> extends
     }
   }
 
-  protected readProjectFile = async (filePath: string | undefined): Promise<string | undefined> => {
+  protected readProjectFile = async (
+    filePath: string | undefined,
+    encoding: BufferEncoding = 'utf-8'
+  ): Promise<string | undefined> => {
     if (!filePath) {
       return undefined
     }
     const absoluteFilePath = utils.path.absoluteFrom(this.projectPaths.abs.workDir, filePath)
-    return fs.promises.readFile(absoluteFilePath, 'utf-8').catch((thrown) => {
+    return fs.promises.readFile(absoluteFilePath, encoding).catch((thrown) => {
       throw errors.BotpressCLIError.wrap(thrown, `Could not read file "${absoluteFilePath}"`)
     })
   }
