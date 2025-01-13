@@ -16,7 +16,7 @@ type InterfacePackageModuleDependencies = {
 export class InterfacePackageDefinitionModule extends Module {
   private _dependencies: InterfacePackageModuleDependencies
 
-  public constructor(private _interface: types.ApiInterfaceDefinition) {
+  public constructor(private _interface: types.InterfaceDefinition) {
     super({
       path: consts.INDEX_FILE,
       exportName: consts.DEFAULT_EXPORT_NAME,

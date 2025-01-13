@@ -25,13 +25,13 @@ type IntegrationPackageModuleDependencies = {
 export class IntegrationPackageDefinitionModule extends Module {
   private _dependencies: IntegrationPackageModuleDependencies
 
-  public constructor(private _integration: types.ApiIntegrationDefinition) {
+  public constructor(private _integration: types.IntegrationDefinition) {
     super({
       path: consts.INDEX_FILE,
       exportName: consts.DEFAULT_EXPORT_NAME,
     })
 
-    const defaultConfigModule = new DefaultConfigurationModule(_integration.configuration)
+    const defaultConfigModule = new DefaultConfigurationModule(_integration.configuration ?? {})
     defaultConfigModule.unshift('configuration')
 
     const configurationsModule = new ConfigurationsModule(_integration.configurations ?? {})

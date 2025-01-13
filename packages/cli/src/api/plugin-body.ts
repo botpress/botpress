@@ -1,6 +1,5 @@
 import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
-import * as jsonSchema from 'json-schema'
 import * as utils from '../utils'
 import * as types from './types'
 
@@ -44,31 +43,6 @@ export const prepareCreatePluginBody = async (
       }))
     : undefined,
 })
-
-/**
- * Guess the server's response body for a plugin based on the request payload
- */
-export const inferPluginResponseBody = (plugin: types.CreatePluginRequestBody): types.InferredPluginResponseBody => {
-  const now = new Date().toISOString()
-  return {
-    id: undefined,
-    name: plugin.name,
-    version: plugin.version,
-    createdAt: now,
-    updatedAt: now,
-    actions: plugin.actions ?? {},
-    events: plugin.events ?? {},
-    states: plugin.states ?? {},
-    configuration: {
-      title: plugin.configuration?.title ?? '',
-      description: plugin.configuration?.description ?? '',
-      schema: plugin.configuration?.schema ?? ({ type: 'object', properties: {} } satisfies jsonSchema.JSONSchema7),
-    },
-    user: {
-      tags: plugin.user?.tags ?? {},
-    },
-  }
-}
 
 export const prepareUpdatePluginBody = (
   localPlugin: types.UpdatePluginRequestBody,

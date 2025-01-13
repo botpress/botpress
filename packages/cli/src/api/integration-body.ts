@@ -1,10 +1,7 @@
 import * as client from '@botpress/client'
 import * as sdk from '@botpress/sdk'
-import * as jsonSchema from 'json-schema'
 import * as utils from '../utils'
 import * as types from './types'
-
-const DEFAULT_SCHEMA = { type: 'object', properties: {} } satisfies jsonSchema.JSONSchema7
 
 export const prepareCreateIntegrationBody = async (
   integration: sdk.IntegrationDefinition
@@ -55,99 +52,6 @@ export const prepareCreateIntegrationBody = async (
       }))
     : undefined,
 })
-
-/**
- * Guess the server's response body for an integration based on the request payload
- */
-export const inferIntegrationResponseBody = (
-  integration: types.CreateIntegrationRequestBody
-): types.InferredIntegrationResponseBody => {
-  const now = new Date().toISOString()
-  return {
-    id: undefined,
-    name: integration.name,
-    version: integration.version,
-    createdAt: now,
-    updatedAt: now,
-    iconUrl: '',
-    readmeUrl: '',
-    public: false,
-    dev: false,
-    url: '',
-    verificationStatus: 'unapproved',
-    title: integration.title ?? '',
-    description: integration.description ?? '',
-    identifier: integration.identifier ?? {},
-    events: integration.events ?? {},
-    actions: integration.actions ?? {},
-    states: integration.states ?? {},
-    entities: integration.entities ?? {},
-    user: {
-      creation: {
-        enabled: integration.user?.creation?.enabled ?? false,
-        requiredTags: integration.user?.creation?.requiredTags ?? [],
-      },
-      tags: integration.user?.tags ?? {},
-    },
-    secrets: Object.keys(integration.secrets ?? []),
-    interfaces: utils.records.mapValues(
-      integration.interfaces ?? {},
-      (i): types.InferredIntegrationResponseBody['interfaces'][string] => ({
-        id: i.id,
-        name: i.name,
-        version: i.version,
-        entities: i.entities ?? {},
-        actions: i.actions ?? {},
-        channels: i.channels ?? {},
-        events: i.events ?? {},
-      })
-    ),
-    configuration: {
-      title: integration.configuration?.title ?? '',
-      description: integration.configuration?.description ?? '',
-      schema: integration.configuration?.schema ?? DEFAULT_SCHEMA,
-      identifier: {
-        required: integration.configuration?.identifier?.required ?? false,
-        linkTemplateScript: integration.configuration?.identifier?.linkTemplateScript ?? '',
-      },
-    },
-    configurations: utils.records.mapValues(
-      integration.configurations ?? {},
-      (configuration): types.InferredIntegrationResponseBody['configurations'][string] => ({
-        title: configuration.title ?? '',
-        description: configuration.description ?? '',
-        identifier: {
-          required: configuration.identifier?.required ?? false,
-          linkTemplateScript: configuration.identifier?.linkTemplateScript ?? '',
-        },
-        schema: configuration.schema ?? DEFAULT_SCHEMA,
-      })
-    ),
-    channels: utils.records.mapValues(
-      integration.channels ?? {},
-      (channel): types.InferredIntegrationResponseBody['channels'][string] => ({
-        title: channel.title ?? '',
-        description: channel.description ?? '',
-        conversation: {
-          creation: {
-            enabled: channel.conversation?.creation?.enabled ?? false,
-            requiredTags: channel.conversation?.creation?.requiredTags ?? [],
-          },
-          tags: channel.conversation?.tags ?? {},
-        },
-        message: {
-          tags: channel.message?.tags ?? {},
-        },
-        messages: utils.records.mapValues(
-          channel.messages ?? {},
-          (message): types.InferredIntegrationResponseBody['channels'][string]['messages'][string] => ({
-            schema: message.schema ?? DEFAULT_SCHEMA,
-          })
-        ),
-      })
-    ),
-  }
-}
 
 type UpdateIntegrationChannelsBody = NonNullable<types.UpdateIntegrationRequestBody['channels']>
 type UpdateIntegrationChannelBody = UpdateIntegrationChannelsBody[string]

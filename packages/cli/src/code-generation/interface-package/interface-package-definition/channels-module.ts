@@ -5,7 +5,7 @@ import * as strings from '../../strings'
 import * as types from './typings'
 
 class MessageModule extends Module {
-  public constructor(name: string, private _message: types.ApiMessageDefinition) {
+  public constructor(name: string, private _message: types.MessageDefinition) {
     super({
       path: `${name}.ts`,
       exportName: strings.varName(name),
@@ -18,7 +18,7 @@ class MessageModule extends Module {
 }
 
 class MessagesModule extends ReExportVariableModule {
-  public constructor(channel: types.ApiChannelDefinition) {
+  public constructor(channel: types.ChannelDefinition) {
     super({ exportName: strings.varName('messages') })
     for (const [messageName, message] of Object.entries(channel.messages ?? {})) {
       const module = new MessageModule(messageName, message)
@@ -30,7 +30,7 @@ class MessagesModule extends ReExportVariableModule {
 class ChannelModule extends Module {
   private _messagesModule: MessagesModule
 
-  public constructor(channelName: string, private _channel: types.ApiChannelDefinition) {
+  public constructor(channelName: string, private _channel: types.ChannelDefinition) {
     super({
       path: INDEX_FILE,
       exportName: strings.varName(channelName),
@@ -57,7 +57,7 @@ class ChannelModule extends Module {
 }
 
 export class ChannelsModule extends ReExportVariableModule {
-  public constructor(channels: Record<string, types.ApiChannelDefinition>) {
+  public constructor(channels: Record<string, types.ChannelDefinition>) {
     super({ exportName: strings.varName('channels') })
     for (const [channelName, channel] of Object.entries(channels)) {
       const module = new ChannelModule(channelName, channel)

@@ -3,8 +3,8 @@ import { Module, ReExportVariableModule } from '../../module'
 import * as strings from '../../strings'
 import * as types from './typings'
 
-type ActionInput = types.ApiActionDefinition['input']
-type ActionOutput = types.ApiActionDefinition['output']
+type ActionInput = types.ActionDefinition['input']
+type ActionOutput = types.ActionDefinition['output']
 
 export class ActionInputModule extends Module {
   public constructor(private _input: ActionInput) {
@@ -31,7 +31,7 @@ export class ActionOutputModule extends Module {
 }
 
 export class ActionModule extends ReExportVariableModule {
-  public constructor(actionName: string, action: types.ApiActionDefinition) {
+  public constructor(actionName: string, action: types.ActionDefinition) {
     super({ exportName: strings.varName(actionName) })
 
     const inputModule = new ActionInputModule(action.input)
@@ -43,7 +43,7 @@ export class ActionModule extends ReExportVariableModule {
 }
 
 export class ActionsModule extends ReExportVariableModule {
-  public constructor(actions: Record<string, types.ApiActionDefinition>) {
+  public constructor(actions: Record<string, types.ActionDefinition>) {
     super({ exportName: strings.varName('actions') })
     for (const [actionName, action] of Object.entries(actions)) {
       const module = new ActionModule(actionName, action)

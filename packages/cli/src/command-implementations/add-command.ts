@@ -178,20 +178,18 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
           ...i,
         })),
       }
-      const createIntegrationResBody = apiUtils.inferIntegrationResponseBody(createIntegrationReqBody)
       return {
         type: 'integration',
-        pkg: { path: absPath, devId, name, version, integration: createIntegrationResBody },
+        pkg: { path: absPath, devId, name, version, integration: createIntegrationReqBody },
       }
     }
 
     if (projectDefinition?.type === 'interface') {
       const { name, version } = projectDefinition.definition
       const createInterfaceReqBody = await apiUtils.prepareCreateInterfaceBody(projectDefinition.definition)
-      const createInterfaceResBody = apiUtils.inferInterfaceResponseBody(createInterfaceReqBody)
       return {
         type: 'interface',
-        pkg: { path: absPath, name, version, interface: createInterfaceResBody },
+        pkg: { path: absPath, name, version, interface: createInterfaceReqBody },
       }
     }
 
@@ -206,14 +204,13 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       const code = projectImplementation
 
       const createPluginReqBody = await apiUtils.prepareCreatePluginBody(projectDefinition.definition)
-      const createPluginResBody = apiUtils.inferPluginResponseBody(createPluginReqBody)
       return {
         type: 'plugin',
         pkg: {
           path: absPath,
           name,
           version,
-          plugin: { ...createPluginResBody, code },
+          plugin: { ...createPluginReqBody, code },
         },
       }
     }

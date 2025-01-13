@@ -4,7 +4,7 @@ import * as strings from '../../strings'
 import * as types from './typings'
 
 export class StateModule extends Module {
-  public constructor(name: string, private _state: types.ApiStateDefinition) {
+  public constructor(name: string, private _state: types.StateDefinition) {
     super({
       path: `${name}.ts`,
       exportName: strings.varName(name),
@@ -19,7 +19,7 @@ export class StateModule extends Module {
 }
 
 export class StatesModule extends ReExportVariableModule {
-  public constructor(states: Record<string, types.ApiStateDefinition>) {
+  public constructor(states: Record<string, types.StateDefinition>) {
     super({ exportName: strings.varName('states') })
     for (const [stateName, state] of Object.entries(states)) {
       const module = new StateModule(stateName, state)
