@@ -2,15 +2,13 @@ import * as client from '@botpress/client'
 import * as utils from '../utils'
 
 type NameVersion = { name: string; version: string }
+type PackageRef = { id?: string; name: string; version: string }
 type Schema = Record<string, any>
 type Aliases = Record<string, { name: string }>
 
 export type File = { path: string; content: string }
 
-export type IntegrationDefinition = {
-  id?: string
-  name: string
-  version: string
+export type IntegrationDefinition = PackageRef & {
   interfaces?: Record<
     string,
     {
@@ -75,10 +73,7 @@ export type IntegrationDefinition = {
   }
 }
 
-export type InterfaceDefinition = {
-  id?: string
-  name: string
-  version: string
+export type InterfaceDefinition = PackageRef & {
   entities?: Record<string, { schema: Schema }>
   events?: Record<string, { schema: Schema }>
   actions?: Record<
@@ -93,18 +88,17 @@ export type InterfaceDefinition = {
   channels?: Record<string, { messages: Record<string, { schema: Schema }> }>
 }
 
-export type PluginDefinition = {
-  id?: string
-  name: string
-  version: string
+export type PluginDefinition = PackageRef & {
   configuration?: { schema?: Schema }
+  code: string
+  user?: { tags: Record<string, {}> }
   states?: Record<string, { type: client.State['type']; schema: Schema }>
   events?: Record<string, { schema: Schema }>
   actions?: Record<string, { input: { schema: Schema }; output: { schema: Schema } }>
-  user?: {
-    tags: Record<string, {}>
+  dependencies?: {
+    interfaces?: Record<string, PackageRef>
+    integrations?: Record<string, PackageRef>
   }
-  code: string
 }
 
 export type IntegrationInstallablePackage = NameVersion & {

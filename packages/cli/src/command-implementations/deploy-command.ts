@@ -217,7 +217,7 @@ export class DeployCommand extends ProjectCommand<DeployCommandDefinition> {
 
     this.logger.debug('Preparing plugin request body...')
 
-    const createBody = {
+    const createBody: apiUtils.CreatePluginRequestBody & { code: string } = {
       ...(await apiUtils.prepareCreatePluginBody(pluginDef)),
       code,
     }

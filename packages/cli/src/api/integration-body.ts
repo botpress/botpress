@@ -4,12 +4,12 @@ import * as utils from '../utils'
 import * as types from './types'
 
 export const prepareCreateIntegrationBody = async (
-  integration: sdk.IntegrationDefinition
+  integration: sdk.IntegrationDefinition | sdk.IntegrationPackage['definition']
 ): Promise<types.CreateIntegrationRequestBody> => ({
   name: integration.name,
   version: integration.version,
-  title: integration.title,
-  description: integration.description,
+  title: 'title' in integration ? integration.title : undefined,
+  description: 'description' in integration ? integration.description : undefined,
   user: integration.user,
   events: integration.events
     ? await utils.records.mapValuesAsync(integration.events, async (event) => ({

@@ -146,9 +146,17 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     }
     if (this._pkgCouldBe(ref, 'plugin')) {
       const plugin = await api.findPublicPlugin(ref)
+
       if (plugin) {
         const { name, version } = plugin
-        return { type: 'plugin', pkg: { plugin, name, version } }
+        return {
+          type: 'plugin',
+          pkg: {
+            name,
+            version,
+            plugin,
+          },
+        }
       }
     }
     return
@@ -210,7 +218,24 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
           path: absPath,
           name,
           version,
-          plugin: { ...createPluginReqBody, code },
+          plugin: {
+            ...createPluginReqBody,
+            code,
+            dependencies: {
+              interfaces: await utils.promises.awaitRecord(
+                utils.records.mapValues(
+                  projectDefinition.definition.interfaces ?? {},
+                  apiUtils.prepareCreateInterfaceBody
+                )
+              ),
+              integrations: await utils.promises.awaitRecord(
+                utils.records.mapValues(
+                  projectDefinition.definition.integrations ?? {},
+                  apiUtils.prepareCreateIntegrationBody
+                )
+              ),
+            },
+          },
         },
       }
     }
