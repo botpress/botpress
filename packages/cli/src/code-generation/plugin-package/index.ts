@@ -1,5 +1,4 @@
 import _ from 'lodash'
-import * as utils from '../../utils'
 import * as consts from '../consts'
 import * as gen from '../generators'
 import * as mod from '../module'
@@ -27,59 +26,11 @@ class ImplementationModule extends mod.Module {
   }
 }
 
-class LocalPluginModule extends mod.Module {
-  private _implModule: ImplementationModule
-
-  public constructor(private _pkg: Extract<types.PluginInstallablePackage, { source: 'local' }>) {
-    super({
-      path: consts.INDEX_FILE,
-      exportName: consts.DEFAULT_EXPORT_NAME,
-    })
-
-    this._implModule = new ImplementationModule(this._pkg.implementationCode)
-    this.pushDep(this._implModule)
-  }
-
-  public async getContent(): Promise<string> {
-    const implImport = this._implModule.import(this)
-
-    const id = undefined
-    const uri = utils.path.win32.escapeBackslashes(this._pkg.path)
-
-    const definitionImport = utils.path.rmExtension(
-      utils.path.join(this._pkg.path, consts.fromWorkDir.pluginDefinition)
-    )
-
-    const tsId = gen.primitiveToTypescriptValue(id)
-    const tsUri = gen.primitiveToTypescriptValue(uri)
-    const tsName = gen.primitiveToTypescriptValue(this._pkg.name)
-    const tsVersion = gen.primitiveToTypescriptValue(this._pkg.version)
-
-    return [
-      consts.GENERATED_HEADER,
-      'import * as sdk from "@botpress/sdk"',
-      '',
-      `import definition from "${definitionImport}"`,
-      `import implementation from "./${implImport}"`,
-      '',
-      'export default {',
-      '  type: "plugin",',
-      `  id: ${tsId},`,
-      `  uri: ${tsUri},`,
-      `  name: ${tsName},`,
-      `  version: ${tsVersion},`,
-      '  definition,',
-      '  implementation,',
-      '} satisfies sdk.PluginPackage',
-    ].join('\n')
-  }
-}
-
-class RemotePluginModule extends mod.Module {
+class PluginModule extends mod.Module {
   private _implModule: ImplementationModule
   private _defModule: PluginPackageDefinitionModule
 
-  public constructor(private _pkg: Extract<types.PluginInstallablePackage, { source: 'remote' }>) {
+  public constructor(private _pkg: types.PluginInstallablePackage) {
     super({
       path: consts.INDEX_FILE,
       exportName: consts.DEFAULT_EXPORT_NAME,
@@ -98,7 +49,7 @@ class RemotePluginModule extends mod.Module {
     const defImport = this._defModule.import(this)
 
     const id = this._pkg.plugin.id
-    const uri = undefined
+    const uri = this._pkg.path
 
     const tsId = gen.primitiveToTypescriptValue(id)
     const tsUri = gen.primitiveToTypescriptValue(uri)
@@ -126,6 +77,6 @@ class RemotePluginModule extends mod.Module {
 }
 
 export const generatePluginPackage = async (pkg: types.PluginInstallablePackage): Promise<types.File[]> => {
-  const module = pkg.source === 'local' ? new LocalPluginModule(pkg) : new RemotePluginModule(pkg)
+  const module = new PluginModule(pkg)
   return module.flatten()
 }

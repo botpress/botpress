@@ -1,6 +1,6 @@
 import * as client from '@botpress/client'
 import { Logger } from '../logger'
-import { SafeOmit, Merge } from '../utils/type-utils'
+import { SafeOmit } from '../utils/type-utils'
 import { ApiClient } from './client'
 
 export type ApiClientProps = {
@@ -28,44 +28,5 @@ export type UpdateInterfaceRequestBody = client.ClientInputs['updateInterface']
 export type CreatePluginRequestBody = SafeOmit<client.ClientInputs['createPlugin'], 'code'>
 export type UpdatePluginRequestBody = client.ClientInputs['updatePlugin']
 
-/**
- * Actual createIntegration request body, but interfaces have name and version
- */
-export type CreateIntegrationRequestBody = Merge<
-  client.ClientInputs['createIntegration'],
-  {
-    interfaces?: Record<
-      string,
-      Merge<
-        NonNullable<client.ClientInputs['createIntegration']['interfaces']>[string],
-        {
-          name: string
-          version: string
-        }
-      >
-    >
-  }
->
-
-/**
- * Actual updateIntegration request body, but interfaces have name and version
- */
-export type UpdateIntegrationRequestBody = Merge<
-  client.ClientInputs['updateIntegration'],
-  {
-    interfaces?: Record<
-      string,
-      null | Merge<
-        NonNullable<NonNullable<client.ClientInputs['updateIntegration']['interfaces']>[string]>,
-        {
-          name: string
-          version: string
-        }
-      >
-    >
-  }
->
-
-export type InferredIntegrationResponseBody = Merge<client.Integration, { id?: string | undefined }>
-export type InferredInterfaceResponseBody = Merge<client.Interface, { id?: string | undefined }>
-export type InferredPluginResponseBody = SafeOmit<Merge<client.Plugin, { id?: string | undefined }>, 'code'>
+export type CreateIntegrationRequestBody = client.ClientInputs['createIntegration']
+export type UpdateIntegrationRequestBody = client.ClientInputs['updateIntegration']

@@ -1,43 +1,124 @@
-import * as apiUtils from '../api'
+import * as client from '@botpress/client'
 import * as utils from '../utils'
+
+type NameVersion = { name: string; version: string }
+type Schema = Record<string, any>
+type Aliases = Record<string, { name: string }>
 
 export type File = { path: string; content: string }
 
-type NameVersion = { name: string; version: string }
-export type IntegrationInstallablePackage = NameVersion &
-  (
-    | {
-        source: 'remote'
-        integration: apiUtils.InferredIntegrationResponseBody
+export type IntegrationDefinition = {
+  id?: string
+  name: string
+  version: string
+  interfaces?: Record<
+    string,
+    {
+      id?: string
+      entities?: Aliases
+      actions?: Aliases
+      events?: Aliases
+      channels?: Aliases
+    }
+  >
+  configuration?: {
+    schema?: Schema
+  }
+  configurations?: Record<
+    string,
+    {
+      schema?: Schema
+    }
+  >
+  channels?: Record<
+    string,
+    {
+      messages: Record<string, { schema: Schema }>
+      conversation?: {
+        tags?: Record<string, {}>
+        creation?: {
+          enabled: boolean
+          requiredTags: string[]
+        }
       }
-    | {
-        source: 'local'
-        devId?: string
-        path: utils.path.AbsolutePath
+      message?: {
+        tags?: Record<string, {}>
       }
-  )
+    }
+  >
+  states?: Record<
+    string,
+    {
+      type: client.State['type']
+      schema: Schema
+    }
+  >
+  events?: Record<string, { schema: Schema }>
+  actions?: Record<
+    string,
+    {
+      input: {
+        schema: Schema
+      }
+      output: {
+        schema: Schema
+      }
+    }
+  >
+  entities?: Record<string, { schema: Schema }>
+  user?: {
+    tags?: Record<string, {}>
+    creation?: {
+      enabled: boolean
+      requiredTags: string[]
+    }
+  }
+}
 
-export type InterfaceInstallablePackage = NameVersion &
-  (
-    | {
-        source: 'remote'
-        interface: apiUtils.InferredInterfaceResponseBody
+export type InterfaceDefinition = {
+  id?: string
+  name: string
+  version: string
+  entities?: Record<string, { schema: Schema }>
+  events?: Record<string, { schema: Schema }>
+  actions?: Record<
+    string,
+    {
+      input: { schema: Schema }
+      output: {
+        schema: Schema
       }
-    | {
-        source: 'local'
-        path: utils.path.AbsolutePath
-      }
-  )
+    }
+  >
+  channels?: Record<string, { messages: Record<string, { schema: Schema }> }>
+}
 
-export type PluginInstallablePackage = NameVersion &
-  (
-    | {
-        source: 'remote'
-        plugin: apiUtils.InferredPluginResponseBody & { code: string }
-      }
-    | {
-        source: 'local'
-        path: utils.path.AbsolutePath
-        implementationCode: string
-      }
-  )
+export type PluginDefinition = {
+  id?: string
+  name: string
+  version: string
+  configuration?: { schema?: Schema }
+  states?: Record<string, { type: client.State['type']; schema: Schema }>
+  events?: Record<string, { schema: Schema }>
+  actions?: Record<string, { input: { schema: Schema }; output: { schema: Schema } }>
+  user?: {
+    tags: Record<string, {}>
+  }
+  code: string
+}
+
+export type IntegrationInstallablePackage = NameVersion & {
+  integration: IntegrationDefinition
+  devId?: string
+  path?: utils.path.AbsolutePath
+}
+
+export type InterfaceInstallablePackage = NameVersion & {
+  interface: InterfaceDefinition
+  path?: utils.path.AbsolutePath
+}
+
+export type PluginInstallablePackage = NameVersion & {
+  plugin: PluginDefinition & { code: string }
+  path?: utils.path.AbsolutePath
+}

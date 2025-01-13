@@ -1,7 +1,7 @@
 import * as sdk from '@botpress/sdk'
 import * as fslib from 'fs'
 import * as pathlib from 'path'
-import { ApiClient } from '../api'
+import * as apiUtils from '../api'
 import * as codegen from '../code-generation'
 import type commandDefinitions from '../command-definitions'
 import * as consts from '../consts'
@@ -134,21 +134,21 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       const integration = await api.findIntegration(ref)
       if (integration) {
         const { name, version } = integration
-        return { type: 'integration', pkg: { source: 'remote', integration, name, version } }
+        return { type: 'integration', pkg: { integration, name, version } }
       }
     }
     if (this._pkgCouldBe(ref, 'interface')) {
       const intrface = await api.findPublicInterface(ref)
       if (intrface) {
         const { name, version } = intrface
-        return { type: 'interface', pkg: { source: 'remote', interface: intrface, name, version } }
+        return { type: 'interface', pkg: { interface: intrface, name, version } }
       }
     }
     if (this._pkgCouldBe(ref, 'plugin')) {
       const plugin = await api.findPublicPlugin(ref)
       if (plugin) {
         const { name, version } = plugin
-        return { type: 'plugin', pkg: { source: 'remote', plugin, name, version } }
+        return { type: 'plugin', pkg: { plugin, name, version } }
       }
     }
     return
@@ -169,17 +169,27 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         this.logger.warn(`Installing integration "${name}" with dev version "${projectDevId}"`)
         devId = projectDevId
       }
+
+      let createIntegrationReqBody = await apiUtils.prepareCreateIntegrationBody(projectDefinition.definition)
+      createIntegrationReqBody = {
+        ...createIntegrationReqBody,
+        interfaces: utils.records.mapValues(projectDefinition.definition.interfaces ?? {}, (i) => ({
+          id: '', // TODO: do this better
+          ...i,
+        })),
+      }
       return {
         type: 'integration',
-        pkg: { source: 'local', path: absPath, devId, name, version },
+        pkg: { path: absPath, devId, name, version, integration: createIntegrationReqBody },
       }
     }
 
     if (projectDefinition?.type === 'interface') {
       const { name, version } = projectDefinition.definition
+      const createInterfaceReqBody = await apiUtils.prepareCreateInterfaceBody(projectDefinition.definition)
       return {
         type: 'interface',
-        pkg: { source: 'local', path: absPath, name, version },
+        pkg: { path: absPath, name, version, interface: createInterfaceReqBody },
       }
     }
 
@@ -191,14 +201,16 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       }
 
       const { name, version } = projectDefinition.definition
+      const code = projectImplementation
+
+      const createPluginReqBody = await apiUtils.prepareCreatePluginBody(projectDefinition.definition)
       return {
         type: 'plugin',
         pkg: {
-          source: 'local',
           path: absPath,
-          implementationCode: projectImplementation,
           name,
           version,
+          plugin: { ...createPluginReqBody, code },
         },
       }
     }
@@ -249,7 +261,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       }
     }
 
-    const cmd = new AnyProjectCommand(ApiClient, this.prompt, this.logger, {
+    const cmd = new AnyProjectCommand(apiUtils.ApiClient, this.prompt, this.logger, {
       ...this.argv,
       workDir,
     })

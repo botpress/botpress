@@ -3,7 +3,7 @@ import * as strings from '../../strings'
 import * as types from './typings'
 
 export class InterfaceModule extends Module {
-  public constructor(name: string, private _interface: types.ApiInterfaceExtension) {
+  public constructor(name: string, private _interface: types.InterfaceExtension) {
     const exportName = strings.varName(name)
     super({ path: `${name}.ts`, exportName })
   }
@@ -14,7 +14,7 @@ export class InterfaceModule extends Module {
 }
 
 export class InterfacesModule extends ReExportVariableModule {
-  public constructor(interfaces: Record<string, types.ApiInterfaceExtension>) {
+  public constructor(interfaces: Record<string, types.InterfaceExtension>) {
     super({ exportName: strings.varName('interfaces') })
     for (const [interfaceName, intrface] of Object.entries(interfaces)) {
       const module = new InterfaceModule(interfaceName, intrface)

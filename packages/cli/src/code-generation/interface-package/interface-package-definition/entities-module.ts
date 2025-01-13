@@ -4,7 +4,7 @@ import * as strings from '../../strings'
 import * as types from './typings'
 
 export class EntityModule extends Module {
-  public constructor(name: string, private _entity: types.ApiEntityDefinition) {
+  public constructor(name: string, private _entity: types.EntityDefinition) {
     const entityName = name
     const exportName = strings.varName(entityName)
     super({ path: `${name}.ts`, exportName })
@@ -16,7 +16,7 @@ export class EntityModule extends Module {
 }
 
 export class EntitiesModule extends ReExportVariableModule {
-  public constructor(entities: Record<string, types.ApiEntityDefinition>) {
+  public constructor(entities: Record<string, types.EntityDefinition>) {
     super({ exportName: strings.varName('entities') })
 
     for (const [entityName, entity] of Object.entries(entities)) {

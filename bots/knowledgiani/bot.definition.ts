@@ -5,6 +5,8 @@ import openai from './bp_modules/openai'
 import personality from './bp_modules/personality'
 import telegram from './bp_modules/telegram'
 
+const openAiLLM = openai.definition.interfaces['llm<modelRef>']
+
 export default new sdk.BotDefinition({})
   .addIntegration(telegram, {
     enabled: true,
@@ -26,10 +28,10 @@ export default new sdk.BotDefinition({})
         id: openai.id,
         name: openai.name,
         version: openai.version,
-        entities: openai.definition.interfaces!['llm<modelRef>'].entities,
-        actions: openai.definition.interfaces!['llm<modelRef>'].actions,
-        events: openai.definition.interfaces!['llm<modelRef>'].events,
-        channels: openai.definition.interfaces!['llm<modelRef>'].channels,
+        entities: openAiLLM.entities,
+        actions: openAiLLM.actions,
+        events: openAiLLM.events,
+        channels: openAiLLM.channels,
       },
     },
   })
@@ -40,10 +42,10 @@ export default new sdk.BotDefinition({})
         id: openai.id,
         name: openai.name,
         version: openai.version,
-        entities: openai.definition.interfaces!['llm<modelRef>'].entities,
-        actions: openai.definition.interfaces!['llm<modelRef>'].actions,
-        events: openai.definition.interfaces!['llm<modelRef>'].events,
-        channels: openai.definition.interfaces!['llm<modelRef>'].channels,
+        entities: openAiLLM.entities,
+        actions: openAiLLM.actions,
+        events: openAiLLM.events,
+        channels: openAiLLM.channels,
       },
     },
   })

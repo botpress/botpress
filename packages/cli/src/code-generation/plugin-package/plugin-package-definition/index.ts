@@ -17,13 +17,13 @@ type PluginPackageModuleDependencies = {
 export class PluginPackageDefinitionModule extends Module {
   private _dependencies: PluginPackageModuleDependencies
 
-  public constructor(private _plugin: types.ApiPluginDefinition) {
+  public constructor(private _plugin: types.PluginDefinition) {
     super({
       path: consts.INDEX_FILE,
       exportName: consts.DEFAULT_EXPORT_NAME,
     })
 
-    const defaultConfigModule = new DefaultConfigurationModule(_plugin.configuration)
+    const defaultConfigModule = new DefaultConfigurationModule(_plugin.configuration ?? {})
     defaultConfigModule.unshift('configuration')
 
     const actionsModule = new ActionsModule(_plugin.actions ?? {})

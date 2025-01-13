@@ -44,26 +44,6 @@ export const prepareCreateInterfaceBody = async (
     : {},
 })
 
-/**
- * Guess the server's response body for an interface based on the request payload
- */
-export const inferInterfaceResponseBody = (
-  intrface: types.CreateInterfaceRequestBody
-): types.InferredInterfaceResponseBody => {
-  const now = new Date().toISOString()
-  return {
-    id: undefined,
-    name: intrface.name,
-    version: intrface.version,
-    createdAt: now,
-    updatedAt: now,
-    actions: intrface.actions ?? {},
-    events: intrface.events ?? {},
-    channels: intrface.channels ?? {},
-    entities: intrface.entities ?? {},
-  }
-}
-
 export const prepareUpdateInterfaceBody = (
   localInterface: types.CreateInterfaceRequestBody & { id: string },
   remoteInterface: client.Interface

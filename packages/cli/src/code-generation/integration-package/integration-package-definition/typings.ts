@@ -1,10 +1,10 @@
-import * as apiUtils from '../../../api'
-export type ApiIntegrationDefinition = apiUtils.InferredIntegrationResponseBody
-export type ApiActionDefinition = ApiIntegrationDefinition['actions'][string]
-export type ApiChannelDefinition = ApiIntegrationDefinition['channels'][string]
-export type ApiMessageDefinition = ApiChannelDefinition['messages'][string]
-export type ApiConfigurationDefinition = ApiIntegrationDefinition['configurations'][string]
-export type ApiEntityDefinition = ApiIntegrationDefinition['entities'][string]
-export type ApiEventDefinition = ApiIntegrationDefinition['events'][string]
-export type ApiStateDefinition = ApiIntegrationDefinition['states'][string]
-export type ApiInterfaceExtension = ApiIntegrationDefinition['interfaces'][string]
+import * as types from '../../typings'
+export type IntegrationDefinition = types.IntegrationDefinition
+export type ActionDefinition = NonNullable<IntegrationDefinition['actions']>[string]
+export type ChannelDefinition = NonNullable<IntegrationDefinition['channels']>[string]
+export type MessageDefinition = NonNullable<ChannelDefinition['messages']>[string]
+export type ConfigurationDefinition = NonNullable<IntegrationDefinition['configurations']>[string]
+export type EntityDefinition = NonNullable<IntegrationDefinition['entities']>[string]
+export type EventDefinition = NonNullable<IntegrationDefinition['events']>[string]
+export type StateDefinition = NonNullable<IntegrationDefinition['states']>[string]
+export type InterfaceExtension = NonNullable<IntegrationDefinition['interfaces']>[string]

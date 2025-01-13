@@ -15,7 +15,7 @@
   "license": "MIT",
   "dependencies": {
     "@botpress/client": "0.38.1",
-    "@bpinternal/zui": "0.12.0"
+    "@bpinternal/zui": "0.13.4"
   },
   "devDependencies": {
     "esbuild": "^0.16.12",
