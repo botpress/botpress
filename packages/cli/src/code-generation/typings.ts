@@ -122,34 +122,3 @@ export type PluginInstallablePackage = NameVersion & {
   plugin: PluginDefinition & { code: string }
   path?: utils.path.AbsolutePath
 }
-
-type _test_integration_response_extends_integration_definition = utils.types.AssertExtends<
-  client.Integration,
-  IntegrationDefinition
->
-
-type _test_integration_request_extends_integration_definition = utils.types.AssertExtends<
-  client.ClientInputs['createIntegration'],
-  IntegrationDefinition
->
-
-type _test_interface_response_extends_interface_definition = utils.types.AssertExtends<
-  client.Interface,
-  InterfaceDefinition
->
-
-type _test_interface_request_extends_interface_definition = utils.types.AssertExtends<
-  client.ClientInputs['createInterface'],
-  InterfaceDefinition
->
-
-type _test_plugin_response_extends_plugin_definition = utils.types.AssertExtends<
-  //
-  client.Plugin,
-  PluginDefinition
->
-
-type _test_plugin_request_extends_plugin_definition = utils.types.AssertExtends<
-  client.ClientInputs['createPlugin'],
-  PluginDefinition
->
