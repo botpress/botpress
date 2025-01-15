@@ -16,7 +16,7 @@ test('EnumerateStates should enumerate states', () => {
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })

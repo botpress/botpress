@@ -4,7 +4,10 @@ import * as strings from '../../strings'
 import * as types from './typings'
 
 export class EventModule extends Module {
-  public constructor(name: string, private _event: types.EventDefinition) {
+  public constructor(
+    name: string,
+    private _event: types.EventDefinition
+  ) {
     const eventName = name
     const exportName = strings.varName(eventName)
     super({ path: `${name}.ts`, exportName })

@@ -4,7 +4,10 @@ import * as strings from '../../strings'
 import * as types from './typings'
 
 export class StateModule extends Module {
-  public constructor(name: string, private _state: types.StateDefinition) {
+  public constructor(
+    name: string,
+    private _state: types.StateDefinition
+  ) {
     super({
       path: `${name}.ts`,
       exportName: strings.varName(name),

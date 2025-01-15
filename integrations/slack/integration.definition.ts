@@ -240,4 +240,6 @@ export default new IntegrationDefinition({
     extractScript: 'extract.vrl',
     fallbackHandlerScript: 'fallbackHandler.vrl',
   },
-}).extend(typingIndicator, () => ({}))
+}).extend(typingIndicator, () => ({
+  entities: {},
+}))

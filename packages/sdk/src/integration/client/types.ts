@@ -5,7 +5,7 @@ import * as common from '../types'
 type BaseChannelDefinition = common.BaseIntegration['channels'][string]
 type GetChannelByName<
   TIntegration extends common.BaseIntegration,
-  TChannelName extends keyof TIntegration['channels']
+  TChannelName extends keyof TIntegration['channels'],
 > = utils.Cast<TIntegration['channels'][TChannelName], BaseChannelDefinition>
 
 /**
@@ -27,7 +27,7 @@ type AllChannels<TIntegration extends common.BaseIntegration> = utils.ValueOf<TI
 
 type ConversationResponse<
   TIntegration extends common.BaseIntegration,
-  ChannelName extends keyof TIntegration['channels'] = keyof TIntegration['channels']
+  ChannelName extends keyof TIntegration['channels'] = keyof TIntegration['channels'],
 > = {
   conversation: utils.Merge<
     Awaited<Res<client.Client['getConversation']>>['conversation'],
@@ -39,7 +39,7 @@ type ConversationResponse<
 }
 
 export type CreateConversation<TIntegration extends common.BaseIntegration> = <
-  ChannelName extends keyof TIntegration['channels']
+  ChannelName extends keyof TIntegration['channels'],
 >(x: {
   channel: utils.Cast<ChannelName, string>
   tags: common.ToTags<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags']>
@@ -50,7 +50,7 @@ export type GetConversation<TIntegration extends common.BaseIntegration> = (
 ) => Promise<ConversationResponse<TIntegration>>
 
 export type ListConversations<TIntegration extends common.BaseIntegration> = <
-  ChannelName extends keyof TIntegration['channels']
+  ChannelName extends keyof TIntegration['channels'],
 >(
   x: utils.Merge<
     Arg<client.Client['listConversations']>,
@@ -62,7 +62,7 @@ export type ListConversations<TIntegration extends common.BaseIntegration> = <
 ) => Res<client.Client['listConversations']> // TODO: response should contain the tags
 
 export type GetOrCreateConversation<TIntegration extends common.BaseIntegration> = <
-  ChannelName extends keyof TIntegration['channels']
+  ChannelName extends keyof TIntegration['channels'],
 >(x: {
   channel: utils.Cast<ChannelName, string>
   tags: common.ToTags<keyof GetChannelByName<TIntegration, ChannelName>['conversation']['tags']>
@@ -122,7 +122,7 @@ export type ListEvents<TIntegration extends common.BaseIntegration> = (
 type MessageResponse<
   TIntegration extends common.BaseIntegration,
   TChannel extends keyof TIntegration['channels'],
-  TMessage extends keyof TIntegration['channels'][TChannel]['messages']
+  TMessage extends keyof TIntegration['channels'][TChannel]['messages'],
 > = {
   message: utils.Merge<
     Awaited<Res<client.Client['createMessage']>>['message'],
@@ -136,7 +136,7 @@ type MessageResponse<
 
 export type CreateMessage<TIntegration extends common.BaseIntegration> = <
   TChannel extends keyof TIntegration['channels'],
-  TMessage extends keyof TIntegration['channels'][TChannel]['messages']
+  TMessage extends keyof TIntegration['channels'][TChannel]['messages'],
 >(
   x: utils.Merge<
     Arg<client.Client['createMessage']>,
@@ -150,7 +150,7 @@ export type CreateMessage<TIntegration extends common.BaseIntegration> = <
 
 export type GetOrCreateMessage<TIntegration extends common.BaseIntegration> = <
   TChannel extends keyof TIntegration['channels'],
-  TMessage extends keyof TIntegration['channels'][TChannel]['messages']
+  TMessage extends keyof TIntegration['channels'][TChannel]['messages'],
 >(
   x: utils.Merge<
     Arg<client.Client['getOrCreateMessage']>,

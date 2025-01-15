@@ -5,8 +5,8 @@ import { BasePlugin } from './generic'
 type EventKey<TIntegrationName extends string, TEventName extends string> = string extends TIntegrationName
   ? string
   : string extends TEventName
-  ? string
-  : Join<[TIntegrationName, ':', TEventName]>
+    ? string
+    : Join<[TIntegrationName, ':', TEventName]>
 
 export type EnumerateInterfaceEvents<TPlugin extends BasePlugin> = UnionToIntersection<
   {

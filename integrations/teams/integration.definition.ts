@@ -18,4 +18,4 @@ export default new IntegrationDefinition({
   events: {},
   states,
   secrets: sentryHelpers.COMMON_SECRET_NAMES,
-}).extend(typingIndicator, () => ({}))
+}).extend(typingIndicator, () => ({ entities: {} }))

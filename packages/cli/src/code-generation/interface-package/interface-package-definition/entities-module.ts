@@ -4,7 +4,10 @@ import * as strings from '../../strings'
 import * as types from './typings'
 
 export class EntityModule extends Module {
-  public constructor(name: string, private _entity: types.EntityDefinition) {
+  public constructor(
+    name: string,
+    private _entity: types.EntityDefinition
+  ) {
     const entityName = name
     const exportName = strings.varName(entityName)
     super({ path: `${name}.ts`, exportName })

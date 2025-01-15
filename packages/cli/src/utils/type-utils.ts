@@ -17,13 +17,13 @@ type NormalizeObject<T extends object> = T extends infer O ? { [K in keyof O]: N
 export type Normalize<T> = T extends (...args: infer A) => infer R
   ? (...args: Normalize<A>) => Normalize<R>
   : T extends Array<infer E>
-  ? Array<Normalize<E>>
-  : T extends ReadonlyArray<infer E>
-  ? ReadonlyArray<Normalize<E>>
-  : T extends Promise<infer R>
-  ? Promise<Normalize<R>>
-  : T extends Buffer
-  ? Buffer
-  : T extends object
-  ? NormalizeObject<T>
-  : T
+    ? Array<Normalize<E>>
+    : T extends ReadonlyArray<infer E>
+      ? ReadonlyArray<Normalize<E>>
+      : T extends Promise<infer R>
+        ? Promise<Normalize<R>>
+        : T extends Buffer
+          ? Buffer
+          : T extends object
+            ? NormalizeObject<T>
+            : T

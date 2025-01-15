@@ -3,7 +3,10 @@ import * as strings from '../../strings'
 import * as types from './typings'
 
 export class InterfaceModule extends Module {
-  public constructor(name: string, private _interface: types.InterfaceExtension) {
+  public constructor(
+    name: string,
+    private _interface: types.InterfaceExtension
+  ) {
     const exportName = strings.varName(name)
     super({ path: `${name}.ts`, exportName })
   }

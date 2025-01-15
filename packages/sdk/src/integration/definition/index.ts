@@ -98,7 +98,7 @@ type ExtensionBuilderInput<
   TIntegrationEntities extends BaseEntities,
   _TIntegrationActions extends BaseActions,
   _TIntegrationEvents extends BaseEvents,
-  _TIntegrationChannels extends BaseChannels
+  _TIntegrationChannels extends BaseChannels,
 > = {
   entities: SchemaStore<TIntegrationEntities>
 }
@@ -107,7 +107,7 @@ type ExtensionBuilderOutput<
   TInterfaceEntities extends BaseEntities,
   TInterfaceActions extends BaseActions,
   TInterfaceEvents extends BaseEvents,
-  TInterfaceChannels extends BaseChannels
+  TInterfaceChannels extends BaseChannels,
 > = {
   entities: {
     [K in keyof TInterfaceEntities]: BrandedSchema<z.ZodSchema<z.infer<TInterfaceEntities[K]>>>
@@ -125,7 +125,7 @@ type ExtensionBuilder<
   TInterfaceEntities extends BaseEntities,
   TInterfaceActions extends BaseActions,
   TInterfaceEvents extends BaseEvents,
-  TInterfaceChannels extends BaseChannels
+  TInterfaceChannels extends BaseChannels,
 > = (
   input: ExtensionBuilderInput<TIntegrationEntities, TIntegrationActions, TIntegrationEvents, TIntegrationChannels>
 ) => ExtensionBuilderOutput<TInterfaceEntities, TInterfaceActions, TInterfaceEvents, TInterfaceChannels>

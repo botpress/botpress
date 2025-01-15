@@ -75,4 +75,4 @@ export default new IntegrationDefinition({
     },
     creation: { enabled: true, requiredTags: ['usrId'] },
   },
-}).extend(typingIndicator, () => ({}))
+}).extend(typingIndicator, ({}) => ({ entities: {} }))
