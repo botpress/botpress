@@ -8,7 +8,7 @@ export default new IntegrationDefinition({
   name: 'groq',
   title: 'Groq',
   description: 'Gain access to Groq models for content generation, chat responses, and audio transcription.',
-  version: '11.0.0',
+  version: '11.0.1',
   readme: 'hub.md',
   icon: 'icon.svg',
   entities: {

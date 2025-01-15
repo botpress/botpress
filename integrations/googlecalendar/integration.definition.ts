@@ -8,7 +8,7 @@ import { actions, entities, configuration, configurations, identifier, events, s
 
 export default new sdk.IntegrationDefinition({
   name: 'googlecalendar',
-  version: '1.0.1',
+  version: '1.0.2',
   description: 'Sync with your calendar to manage events, appointments, and schedules directly within the chatbot.',
   title: 'Google Calendar',
   readme: 'hub.md',
