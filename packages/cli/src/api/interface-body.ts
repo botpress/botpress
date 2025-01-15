@@ -4,7 +4,7 @@ import * as utils from '../utils'
 import * as types from './types'
 
 export const prepareCreateInterfaceBody = async (
-  intrface: sdk.InterfaceDefinition
+  intrface: sdk.InterfaceDefinition | sdk.InterfacePackage['definition']
 ): Promise<types.CreateInterfaceRequestBody> => ({
   name: intrface.name,
   version: intrface.version,

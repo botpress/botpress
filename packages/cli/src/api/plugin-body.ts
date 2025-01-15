@@ -4,7 +4,7 @@ import * as utils from '../utils'
 import * as types from './types'
 
 export const prepareCreatePluginBody = async (
-  plugin: sdk.PluginDefinition
+  plugin: sdk.PluginDefinition | sdk.PluginPackage['definition']
 ): Promise<types.CreatePluginRequestBody> => ({
   name: plugin.name,
   version: plugin.version,

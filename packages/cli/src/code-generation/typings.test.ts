@@ -1,3 +1,4 @@
+import * as apiUtils from '../api'
 import * as client from '@botpress/client'
 import * as utils from '../utils'
 import { IntegrationDefinition, InterfaceDefinition, PluginDefinition } from './typings'
@@ -34,7 +35,7 @@ test('plugin response extends plugin definition', () => {
 })
 
 test('plugin request extends plugin definition', () => {
-  type Actual = client.ClientInputs['createPlugin']
+  type Actual = apiUtils.CreatePluginRequestBody & { code: string }
   type Expected = PluginDefinition
   type _assertion = utils.types.AssertExtends<Actual, Expected>
 })
