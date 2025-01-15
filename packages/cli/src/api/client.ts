@@ -30,7 +30,10 @@ export class ApiClient {
 
   public static newClient = (props: ApiClientProps, logger: Logger) => new ApiClient(props, logger)
 
-  public constructor(props: ApiClientProps, private _logger: Logger) {
+  public constructor(
+    props: ApiClientProps,
+    private _logger: Logger
+  ) {
     const { apiUrl, token, workspaceId } = props
     this.client = new client.Client({ apiUrl, token, workspaceId })
     this.url = apiUrl

@@ -18,7 +18,10 @@ type AuthenticatedEntity = Readonly<{
 export class GitHubClient {
   private _authenticatedEntity: AuthenticatedEntity | null = null
 
-  private constructor(private readonly _octokit: Octokit, private readonly _isApp: boolean) {}
+  private constructor(
+    private readonly _octokit: Octokit,
+    private readonly _isApp: boolean
+  ) {}
 
   public static async create({ ctx, client }: { ctx: types.Context; client: types.Client }) {
     const octokit = await _getOctokit({ ctx, client })
@@ -107,7 +110,7 @@ const _getOctokitForApp = async ({ ctx, client }: { ctx: types.Context; client: 
   try {
     const octokitApp = new OctokitApp({ appId, privateKey })
     return await octokitApp.getInstallationOctokit(await installationId)
-  } catch (_) {
+  } catch {
     throw new sdk.RuntimeError('Failed to authenticate with GitHub. Please check your credentials and try again.')
   }
 }

@@ -3,14 +3,17 @@ import { fileChannelSchema } from './schemas'
 import { FileChannel } from './types'
 import * as bp from '.botpress'
 
-const fileChannelsSchema = z.record(z.string(), fileChannelSchema)
-type FileChannels = z.infer<typeof fileChannelsSchema>
+const _fileChannelsSchema = z.record(z.string(), fileChannelSchema)
+type FileChannels = z.infer<typeof _fileChannelsSchema>
 type FileChannelsArray = FileChannel[]
 export class FileChannelsCache {
   private _channels: FileChannels
   private _dirty = false
 
-  public constructor(private _client: bp.Client, private _ctx: bp.Context) {
+  public constructor(
+    private _client: bp.Client,
+    private _ctx: bp.Context
+  ) {
     this._channels = FileChannelsCache._getEmpty()
   }
 

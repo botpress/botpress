@@ -16,7 +16,7 @@ type EventResponse<TBot extends common.BaseBot> = {
 
 type MessageResponse<
   TBot extends common.BaseBot,
-  TMessage extends keyof common.GetMessages<TBot> = keyof common.GetMessages<TBot>
+  TMessage extends keyof common.GetMessages<TBot> = keyof common.GetMessages<TBot>,
 > = {
   // TODO: use bot definiton message property to infer allowed tags
   message: utils.ValueOf<{
@@ -29,7 +29,7 @@ type MessageResponse<
 
 type StateResponse<
   TBot extends common.BaseBot,
-  TState extends keyof TBot['states'] = keyof TBot['states']
+  TState extends keyof TBot['states'] = keyof TBot['states'],
 > = utils.Merge<
   Awaited<Res<client.Client['getState']>>,
   {

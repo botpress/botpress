@@ -1,9 +1,9 @@
 import { BaseLogger } from '../base-logger'
 
 type BotLogOptions = {
-  userID?: string
-  conversationID?: string
-  workflowID?: string
+  userId?: string
+  conversationId?: string
+  workflowId?: string
 }
 
 export class BotLogger extends BaseLogger<BotLogOptions> {
@@ -17,21 +17,21 @@ export class BotLogger extends BaseLogger<BotLogOptions> {
     return new BotLogger({ ...this.defaultOptions, ...options })
   }
 
-  public withUserID(userID: string) {
+  public withUserId(userId: string) {
     return this.with({
-      userID,
+      userId,
     })
   }
 
-  public withConversationID(conversationID: string) {
+  public withConversationId(conversationId: string) {
     return this.with({
-      conversationID,
+      conversationId,
     })
   }
 
-  public withWorkflowID(workflowID: string) {
+  public withWorkflowId(workflowId: string) {
     return this.with({
-      workflowID,
+      workflowId,
     })
   }
 }

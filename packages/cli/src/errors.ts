@@ -76,7 +76,10 @@ export class ExclusiveIntegrationFeatureError extends BotpressCLIError {
 }
 
 export class HTTPError extends BotpressCLIError {
-  public constructor(public readonly status: number | undefined, message: string) {
+  public constructor(
+    public readonly status: number | undefined,
+    message: string
+  ) {
     super(message)
   }
 

@@ -21,7 +21,7 @@ export function fieldsStringToArray(fieldsString: string) {
         name,
       }
     })
-  } catch (error) {
+  } catch {
     return []
   }
 }

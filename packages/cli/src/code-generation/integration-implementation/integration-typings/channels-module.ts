@@ -5,7 +5,10 @@ import { Module, ReExportTypeModule } from '../../module'
 import * as strings from '../../strings'
 
 class MessageModule extends Module {
-  public constructor(name: string, private _message: sdk.MessageDefinition) {
+  public constructor(
+    name: string,
+    private _message: sdk.MessageDefinition
+  ) {
     super({
       path: `${name}.ts`,
       exportName: strings.typeName(name),
@@ -30,7 +33,10 @@ class MessagesModule extends ReExportTypeModule {
 class ChannelModule extends Module {
   private _messagesModule: MessagesModule
 
-  public constructor(channelName: string, private _channel: sdk.ChannelDefinition) {
+  public constructor(
+    channelName: string,
+    private _channel: sdk.ChannelDefinition
+  ) {
     super({
       path: INDEX_FILE,
       exportName: strings.typeName(channelName),

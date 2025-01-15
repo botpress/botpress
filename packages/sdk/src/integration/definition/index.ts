@@ -29,7 +29,7 @@ export type IntegrationDefinitionProps<
   TActions extends BaseActions = BaseActions,
   TChannels extends BaseChannels = BaseChannels,
   TStates extends BaseStates = BaseStates,
-  TEntities extends BaseEntities = BaseEntities
+  TEntities extends BaseEntities = BaseEntities,
 > = {
   name: TName
   version: TVersion
@@ -141,7 +141,7 @@ export class IntegrationDefinition<
   TActions extends BaseActions = BaseActions,
   TChannels extends BaseChannels = BaseChannels,
   TStates extends BaseStates = BaseStates,
-  TEntities extends BaseEntities = BaseEntities
+  TEntities extends BaseEntities = BaseEntities,
 > {
   public readonly name: this['props']['name']
   public readonly version: this['props']['version']

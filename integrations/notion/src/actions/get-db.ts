@@ -16,7 +16,7 @@ export const getDb: bp.IntegrationProps['actions']['getDb'] = async ({ ctx, inpu
     } else {
       return defaultResponse
     }
-  } catch (error) {
+  } catch {
     return defaultResponse
   }
 }

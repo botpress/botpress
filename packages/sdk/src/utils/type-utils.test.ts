@@ -9,7 +9,7 @@ test('SafeCast should not cast if T extends U', () => {
       //
       utils.AssertExtends<A, B>,
       utils.AssertExtends<B, A>,
-      utils.AssertTrue<utils.IsEqual<A, B>>
+      utils.AssertTrue<utils.IsEqual<A, B>>,
     ]
   >
 })
@@ -22,7 +22,7 @@ test('SafeCast should not cast to U is T is not U', () => {
       //
       utils.AssertExtends<A, B>,
       utils.AssertExtends<B, A>,
-      utils.AssertTrue<utils.IsEqual<A, B>>
+      utils.AssertTrue<utils.IsEqual<A, B>>,
     ]
   >
 })
@@ -35,7 +35,7 @@ test('SafeCast should cast to U if T is never', () => {
       //
       utils.AssertExtends<A, B>,
       utils.AssertExtends<B, A>,
-      utils.AssertTrue<utils.IsEqual<A, B>>
+      utils.AssertTrue<utils.IsEqual<A, B>>,
     ]
   >
 })
@@ -48,7 +48,7 @@ test('join should concatenate strings', () => {
       //
       utils.AssertExtends<A, B>,
       utils.AssertExtends<B, A>,
-      utils.AssertTrue<utils.IsEqual<A, B>>
+      utils.AssertTrue<utils.IsEqual<A, B>>,
     ]
   >
 })
@@ -61,7 +61,7 @@ test('split should split strings', () => {
       //
       utils.AssertExtends<A, B>,
       utils.AssertExtends<B, A>,
-      utils.AssertTrue<utils.IsEqual<A, B>>
+      utils.AssertTrue<utils.IsEqual<A, B>>,
     ]
   >
 })
@@ -84,7 +84,7 @@ test('union to intersection should merge unions', () => {
       //
       utils.AssertExtends<A, B>,
       utils.AssertExtends<B, A>,
-      utils.AssertTrue<utils.IsEqual<A, B>>
+      utils.AssertTrue<utils.IsEqual<A, B>>,
     ]
   >
 })
@@ -104,7 +104,7 @@ test('stricten record should remove string index signature', () => {
       //
       utils.AssertExtends<A, B>,
       utils.AssertExtends<B, A>,
-      utils.AssertTrue<utils.IsEqual<A, B>>
+      utils.AssertTrue<utils.IsEqual<A, B>>,
     ]
   >
 })
@@ -117,7 +117,7 @@ test('default should return value if defined', () => {
       //
       utils.AssertExtends<A, B>,
       utils.AssertExtends<B, A>,
-      utils.AssertTrue<utils.IsEqual<A, B>>
+      utils.AssertTrue<utils.IsEqual<A, B>>,
     ]
   >
 })
@@ -130,7 +130,7 @@ test('default should return default value if undefined', () => {
       //
       utils.AssertExtends<A, B>,
       utils.AssertExtends<B, A>,
-      utils.AssertTrue<utils.IsEqual<A, B>>
+      utils.AssertTrue<utils.IsEqual<A, B>>,
     ]
   >
 })
@@ -159,7 +159,7 @@ test('deep partial should make all properties optional', () => {
       //
       utils.AssertExtends<Actual, Expected>,
       utils.AssertExtends<Expected, Actual>,
-      utils.AssertTrue<utils.IsEqual<Actual, Expected>>
+      utils.AssertTrue<utils.IsEqual<Actual, Expected>>,
     ]
   >
 })

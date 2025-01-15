@@ -84,7 +84,7 @@ export class ChildProcessWrapper {
 
     const instance = new ChildProcessWrapper(child, childExitPromise)
 
-    childExitPromise.finally(() => {
+    void childExitPromise.finally(() => {
       instance._exited = true
     })
 
@@ -94,7 +94,10 @@ export class ChildProcessWrapper {
   }
 
   private _exited = false
-  private constructor(private _child: childProcess.ChildProcess, private _exitPromise: Promise<ChildOutput>) {}
+  private constructor(
+    private _child: childProcess.ChildProcess,
+    private _exitPromise: Promise<ChildOutput>
+  ) {}
 
   public async kill(): Promise<ChildOutput> {
     if (this._exited) {

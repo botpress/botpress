@@ -16,7 +16,7 @@ type PredictResponse = {
 const tryParseJson = (str: string) => {
   try {
     return JSON5.parse(jsonrepair(str))
-  } catch (err) {
+  } catch {
     return str
   }
 }

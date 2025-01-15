@@ -25,7 +25,10 @@ type TextOptions = Partial<{
 }>
 
 export class CLIPrompt {
-  public constructor(private _props: CLIPromptsProps, private _logger: Logger) {}
+  public constructor(
+    private _props: CLIPromptsProps,
+    private _logger: Logger
+  ) {}
 
   public async confirm(message: string): Promise<boolean> {
     if (this._props.confirm) {

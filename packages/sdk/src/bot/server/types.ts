@@ -260,7 +260,7 @@ export type BotHandlers<TBot extends types.BaseBot> = {
 
 type ImplementedActions<
   _TBot extends types.BaseBot,
-  TPlugins extends Record<string, plugin.BasePlugin>
+  TPlugins extends Record<string, plugin.BasePlugin>,
 > = utils.UnionToIntersection<
   utils.ValueOf<{
     [K in keyof TPlugins]: TPlugins[K]['actions']
@@ -274,14 +274,14 @@ type UnimplementedActions<TBot extends types.BaseBot, TPlugins extends Record<st
 
 export type ImplementedActionHandlers<
   TBot extends types.BaseBot,
-  TPlugins extends Record<string, plugin.BasePlugin>
+  TPlugins extends Record<string, plugin.BasePlugin>,
 > = {
   [K in keyof ImplementedActions<TBot, TPlugins>]: ActionHandlers<TBot>[utils.Cast<K, keyof ActionHandlers<TBot>>]
 }
 
 export type UnimplementedActionHandlers<
   TBot extends types.BaseBot,
-  TPlugins extends Record<string, plugin.BasePlugin>
+  TPlugins extends Record<string, plugin.BasePlugin>,
 > = {
   [K in keyof UnimplementedActions<TBot, TPlugins>]: ActionHandlers<TBot>[utils.Cast<K, keyof ActionHandlers<TBot>>]
 }

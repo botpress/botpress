@@ -20,6 +20,9 @@ jobs:
       - uses: actions/checkout@v2
       - name: Setup
         uses: ./.github/actions/setup
+        with:
+          turbo_team: ${{ secrets.TURBO_TEAM }}
+          turbo_token: ${{ secrets.TURBO_TOKEN }}
       - name: Deploy Interfaces
         uses: ./.github/actions/deploy-interfaces
         with:
@@ -31,7 +34,7 @@ jobs:
         uses: ./.github/actions/deploy-integrations
         with:
           environment: 'production'
-          extra_filter: "-F '!intercom'"
+          extra_filter: "-F '!intercom' -F '!instagram'"
           force: ${{ github.event.inputs.force == 'true' }}
           sentry_auth_token: ${{ secrets.SENTRY_AUTH_TOKEN }}
           token_cloud_ops_account: ${{ secrets.PRODUCTION_TOKEN_CLOUD_OPS_ACCOUNT }}
@@ -50,9 +53,10 @@ jobs:
           whatsapp_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_WHATSAPP_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_WHATSAPP_CLIENT_SECRET }} --secrets ACCESS_TOKEN=${{ secrets.PRODUCTION_WHATSAPP_ACCESS_TOKEN }} --secrets NUMBER_PIN=${{ secrets.PRODUCTION_WHATSAPP_NUMBER_PIN }} --secrets SEGMENT_KEY=${{ secrets.PRODUCTION_WHATSAPP_SEGMENT_KEY }}'
           anthropic_secrets: '--secrets ANTHROPIC_API_KEY=${{ secrets.ANTHROPIC_API_KEY }}'
           fireworks_ai_secrets: '--secrets FIREWORKS_AI_API_KEY=${{ secrets.FIREWORKS_AI_API_KEY }}'
-          todoist_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_TODOIST_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_TODOIST_CLIENT_SECRET }}'
+          todoist_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_TODOIST_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_TODOIST_CLIENT_SECRET }} --secrets WEBHOOK_SHARED_SECRET=${{ secrets.PRODUCTION_TODOIST_WEBHOOK_SHARED_SECRET }}'
           cerebras_secrets: '--secrets CEREBRAS_API_KEY=${{ secrets.CEREBRAS_API_KEY }}'
           messenger_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_MESSENGER_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_MESSENGER_CLIENT_SECRET  }} --secrets ACCESS_TOKEN=${{ secrets.PRODUCTION_MESSENGER_ACCESS_TOKEN  }}'
           github_secrets: "--secrets GITHUB_APP_ID=${{ secrets.PRODUCTION_GITHUB_APP_ID }} --secrets 'GITHUB_PRIVATE_KEY=${{ secrets.PRODUCTION_GITHUB_PRIVATE_KEY }}' --secrets GITHUB_WEBHOOK_SECRET=${{ secrets.PRODUCTION_GITHUB_WEBHOOK_SECRET }}"
           google_ai_secrets: '--secrets GOOGLE_AI_API_KEY=${{ secrets.GOOGLE_AI_API_KEY }}'
           intercom_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_INTERCOM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_INTERCOM_CLIENT_SECRET }}'
+          instagram_secrets: '--secrets CLIENT_ID=${{ secrets.PRODUCTION_INSTAGRAM_CLIENT_ID }} --secrets CLIENT_SECRET=${{ secrets.PRODUCTION_INSTAGRAM_CLIENT_SECRET }}'

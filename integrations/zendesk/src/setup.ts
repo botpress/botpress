@@ -7,7 +7,7 @@ import * as bp from '.botpress'
 export const register: bp.IntegrationProps['register'] = async ({ client, ctx, webhookUrl, logger }) => {
   try {
     await unregister({ ctx, client, webhookUrl, logger })
-  } catch (err) {
+  } catch {
     // silent catch since if it's the first time, there's nothing to unregister
   }
 

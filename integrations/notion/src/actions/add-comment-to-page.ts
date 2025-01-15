@@ -10,7 +10,7 @@ export const addCommentToPage: bp.IntegrationProps['actions']['addCommentToPage'
     } else {
       return {}
     }
-  } catch (error) {
+  } catch {
     return {}
   }
 }

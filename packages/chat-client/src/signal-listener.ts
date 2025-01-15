@@ -43,6 +43,7 @@ export type SignalListenerProps = {
   url: string
   userKey: string
   conversationId: string
+  debug: boolean
 }
 
 export class SignalListener extends EventEmitter<Events> {
@@ -130,10 +131,12 @@ export class SignalListener extends EventEmitter<Events> {
   }
 
   private _parseSignal = (data: unknown): ValueOf<_Signals> => {
-    for (const schema of Object.values(signals)) {
+    for (const [schemaName, schema] of Object.entries(signals)) {
+      this._debug('trying to parse', schemaName)
       const parsedData = this._safeJsonParse(data)
       const parseResult = schema.safeParse(parsedData)
       if (parseResult.success) {
+        this._debug('parsing successfull', schemaName, parseResult.data)
         return parseResult.data
       }
     }
@@ -170,5 +173,12 @@ export class SignalListener extends EventEmitter<Events> {
     } catch {
       return new Error(DEFAULT_ERROR_MESSAGE)
     }
+  }
+
+  private _debug = (...args: any[]) => {
+    if (!this._props.debug) {
+      return
+    }
+    console.info(...args)
   }
 }

@@ -40,7 +40,7 @@ export namespace CardCommentHandler {
       messageAuthorId: cardCommentEvent.action.memberCreator.id,
       messageAuthorName: cardCommentEvent.action.memberCreator.fullName,
       messageAuthorAvatar: cardCommentEvent.action.memberCreator.avatarUrl + '/50.png',
-    } as const satisfies TrelloMessageData)
+    }) as const satisfies TrelloMessageData
 
   const _getOrCreateConversation = async (client: bp.HandlerProps['client'], messageData: TrelloMessageData) => {
     const { conversation } = await client.getOrCreateConversation({

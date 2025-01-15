@@ -15,7 +15,10 @@ type DynamoDbMapProps = {
 }
 
 class DynamoDbMap implements types.IdMap {
-  public constructor(protected _client: dynamodb.DynamoDBClient, private _props: DynamoDbMapProps) {}
+  public constructor(
+    protected _client: dynamodb.DynamoDBClient,
+    private _props: DynamoDbMapProps
+  ) {}
 
   public async find(src: string): Promise<string | undefined> {
     const { botId, tableName, indexName, partitionKey, srcKeyName, destKeyName } = this._props
@@ -54,7 +57,10 @@ class DynamoDbMap implements types.IdMap {
 }
 
 class IncomingDynamoDbMap extends DynamoDbMap implements types.IncomingIdMap {
-  public constructor(client: dynamodb.DynamoDBClient, private _args: DynamoDbChatIdStoreProps) {
+  public constructor(
+    client: dynamodb.DynamoDBClient,
+    private _args: DynamoDbChatIdStoreProps
+  ) {
     const { botId, tableName, partitionKey, sortKey, indexSortKey } = _args
     super(client, {
       botId,
@@ -108,7 +114,10 @@ class IncomingDynamoDbMap extends DynamoDbMap implements types.IncomingIdMap {
 }
 
 class OutgoingDynamoDbMap extends DynamoDbMap implements types.OutoingIdMap {
-  public constructor(client: dynamodb.DynamoDBClient, private _args: DynamoDbChatIdStoreProps) {
+  public constructor(
+    client: dynamodb.DynamoDBClient,
+    private _args: DynamoDbChatIdStoreProps
+  ) {
     const { botId, tableName, indexName, partitionKey, sortKey, indexSortKey } = _args
     super(client, {
       botId,

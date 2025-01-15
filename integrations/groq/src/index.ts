@@ -95,19 +95,6 @@ const languageModels: Record<ModelId, llm.ModelDetails> = {
       maxTokens: 8192,
     },
   },
-  'llama-3.1-70b-versatile': {
-    name: 'LLaMA 3.1 70B',
-    description: 'The Llama 3.1 instruction-tuned, text-only models are optimized for multilingual dialogue use cases.',
-    tags: ['recommended', 'general-purpose'],
-    input: {
-      costPer1MTokens: 0.59,
-      maxTokens: 128_000,
-    },
-    output: {
-      costPer1MTokens: 0.79,
-      maxTokens: 8192,
-    },
-  },
   'llama3-8b-8192': {
     name: 'LLaMA 3 8B',
     description:

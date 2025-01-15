@@ -7,19 +7,19 @@ type ValueOf<T> = T[Extract<keyof T, string>]
 
 type CommonChannelProps<
   IP extends sdk.IntegrationProps<TIntegration>,
-  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never
+  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never,
 > = Parameters<ValueOf<ValueOf<IP['channels']>['messages']>>[0]
 
 type ToolFactory<
   ReturnType,
   IP extends sdk.IntegrationProps<TIntegration>,
-  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never
+  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never,
 > = (props: CommonChannelProps<IP, TIntegration>) => ReturnType | Promise<ReturnType>
 
 type InferToolsFromToolset<
   Toolset,
   IP extends sdk.IntegrationProps<TIntegration>,
-  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never
+  TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never,
 > = {
   [Tool in Extract<keyof Toolset, string>]: Toolset[Tool] extends ToolFactory<infer ReturnType, IP, TIntegration>
     ? Awaited<ReturnType>
@@ -60,7 +60,7 @@ export const createChannelWrapper =
   <
     IP extends sdk.IntegrationProps<TIntegration>,
     TIntegration extends BaseIntegration = IP extends sdk.IntegrationProps<infer TI> ? TI : never,
-    CHANNELS extends IP['channels'] = IP['channels']
+    CHANNELS extends IP['channels'] = IP['channels'],
   >() =>
   <TOOLSET extends Record<string, ToolFactory<any, IP, TIntegration>>, EXTRAMETA extends Record<string, any> = {}>({
     toolFactories,
@@ -84,7 +84,7 @@ export const createChannelWrapper =
     CNAME extends Extract<keyof CHANNELS, string>,
     MTYPE extends Extract<keyof CHANNELS[CNAME]['messages'], string>,
     CFUNC extends CHANNELS[CNAME]['messages'][MTYPE],
-    CFUNCPROPS extends Parameters<CFUNC>[0]
+    CFUNCPROPS extends Parameters<CFUNC>[0],
   >(
     _metadata: { channelName: CNAME; messageType: MTYPE } & EXTRAMETA,
     channelImpl: (props: CFUNCPROPS & InferToolsFromToolset<TOOLSET, IP, TIntegration>) => Promise<void>

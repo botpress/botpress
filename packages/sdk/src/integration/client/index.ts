@@ -1,4 +1,3 @@
-/* eslint-disable brace-style */
 import * as client from '@botpress/client'
 import * as common from '../types'
 import * as types from './types'

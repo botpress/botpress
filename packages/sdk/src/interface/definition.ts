@@ -18,7 +18,7 @@ type GenericEventDefinition<TEntities extends BaseEntities, TEvent extends BaseE
 
 type GenericChannelDefinition<
   TEntities extends BaseEntities,
-  TChannel extends BaseChannels[string] = BaseChannels[string]
+  TChannel extends BaseChannels[string] = BaseChannels[string],
 > = {
   messages: {
     [K in keyof TChannel]: {
@@ -29,7 +29,7 @@ type GenericChannelDefinition<
 
 type GenericActionDefinition<
   TEntities extends BaseEntities,
-  TAction extends BaseActions[string] = BaseActions[string]
+  TAction extends BaseActions[string] = BaseActions[string],
 > = {
   title?: string
   description?: string
@@ -45,7 +45,7 @@ export type InterfaceDefinitionProps<
   TEntities extends BaseEntities = BaseEntities,
   TActions extends BaseActions = BaseActions,
   TEvents extends BaseEntities = BaseEntities,
-  TChannels extends BaseChannels = BaseChannels
+  TChannels extends BaseChannels = BaseChannels,
 > = {
   name: TName
   version: TVersion
@@ -71,7 +71,7 @@ export class InterfaceDefinition<
   TEntities extends BaseEntities = BaseEntities,
   TActions extends BaseActions = BaseActions,
   TEvents extends BaseEvents = BaseEvents,
-  TChannels extends BaseChannels = BaseChannels
+  TChannels extends BaseChannels = BaseChannels,
 > {
   public readonly name: this['props']['name']
   public readonly version: this['props']['version']
