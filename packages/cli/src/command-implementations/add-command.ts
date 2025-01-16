@@ -178,7 +178,9 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
         devId = projectDevId
       }
 
-      let createIntegrationReqBody = await apiUtils.prepareCreateIntegrationBody(projectDefinition.definition)
+      let createIntegrationReqBody = await this._getProjectCmd(ref.path).prepareCreateIntegrationBody(
+        projectDefinition.definition
+      )
       createIntegrationReqBody = {
         ...createIntegrationReqBody,
         interfaces: utils.records.mapValues(projectDefinition.definition.interfaces ?? {}, (i) => ({
@@ -271,25 +273,7 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
     implementation?: string
     devId?: string
   }> {
-    // this is a hack to avoid refactoring the project command class
-    class AnyProjectCommand extends ProjectCommand<ProjectCommandDefinition> {
-      public async run(): Promise<void> {
-        throw new errors.BotpressCLIError('Not implemented')
-      }
-
-      public async readProjectDefinitionFromFS(): Promise<ProjectDefinition> {
-        return super.readProjectDefinitionFromFS()
-      }
-
-      public get projectCache(): utils.cache.FSKeyValueCache<ProjectCache> {
-        return super.projectCache
-      }
-    }
-
-    const cmd = new AnyProjectCommand(apiUtils.ApiClient, this.prompt, this.logger, {
-      ...this.argv,
-      workDir,
-    })
+    const cmd = this._getProjectCmd(workDir)
 
     const definition = await cmd.readProjectDefinitionFromFS().catch((thrown) => {
       if (thrown instanceof errors.ProjectDefinitionNotFoundError) {
@@ -318,5 +302,33 @@ export class AddCommand extends GlobalCommand<AddCommandDefinition> {
       return true // ref does not specify the package type
     }
     return ref.pkg === pkgType
+  }
+
+  private _getProjectCmd(workDir: string): _AnyProjectCommand {
+    return new _AnyProjectCommand(apiUtils.ApiClient, this.prompt, this.logger, {
+      ...this.argv,
+      workDir,
+    })
+  }
+}
+
+// this is a hack to avoid refactoring the project command class
+class _AnyProjectCommand extends ProjectCommand<ProjectCommandDefinition> {
+  public async run(): Promise<void> {
+    throw new errors.BotpressCLIError('Not implemented')
+  }
+
+  public async readProjectDefinitionFromFS(): Promise<ProjectDefinition> {
+    return super.readProjectDefinitionFromFS()
+  }
+
+  public async prepareCreateIntegrationBody(
+    integrationDef: sdk.IntegrationDefinition
+  ): Promise<apiUtils.CreateIntegrationRequestBody> {
+    return super.prepareCreateIntegrationBody(integrationDef)
+  }
+
+  public get projectCache(): utils.cache.FSKeyValueCache<ProjectCache> {
+    return super.projectCache
   }
 }
