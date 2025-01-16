@@ -166,7 +166,9 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
             {},
             {
               get: (_, prop2) => {
-                const handlers = hooks[prop2 as string] ?? []
+                const specificHandlers = hooks[prop2 as string] ?? []
+                const globalHandlers = hooks['*'] ?? []
+                const handlers = [...specificHandlers, ...globalHandlers]
                 return handlers.map((handler) => (input: any) => handler({ ...input, ...this._getTools(input.client) }))
               },
             }
