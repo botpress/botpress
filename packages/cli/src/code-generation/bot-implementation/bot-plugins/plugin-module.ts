@@ -102,6 +102,9 @@ export class BotPluginModule extends Module {
       '',
       `export type TPlugin = sdk.DefaultPlugin<${this._typingsModule.name}.${this._typingsModule.exportName}>`,
       '',
+      `export const configuration = ${this._configModule.name}.${this._configModule.exportName}.configuration`,
+      `export const interfaces = ${this._configModule.name}.${this._configModule.exportName}.interfaces`,
+      '',
       `export default bundle.initialize(${this._configModule.name}.${this._configModule.exportName})`,
       '',
     ].join('\n')

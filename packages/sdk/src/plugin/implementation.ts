@@ -1,4 +1,3 @@
-import { Client } from '@botpress/client'
 import {
   MessageHandlersMap as BotMessageHandlersMap,
   EventHandlersMap as BotEventHandlersMap,
@@ -6,6 +5,7 @@ import {
   HookHandlersMap as BotHookHandlersMap,
   ActionHandlers as BotActionHandlers,
   BotHandlers,
+  BotSpecificClient,
 } from '../bot'
 import * as utils from '../utils'
 import { ActionProxy, proxyActions } from './action-proxy'
@@ -69,14 +69,17 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     return this
   }
 
-  private get _tools(): Tools {
+  private get _runtime() {
     if (!this._runtimeProps) {
       throw new Error(
         'Plugin not correctly initialized. This is likely because you access your plugin config outside of an handler.'
       )
     }
-    const { configuration, interfaces } = this._runtimeProps
-    const client = new Client()
+    return this._runtimeProps
+  }
+
+  private _getTools(client: BotSpecificClient<any>): Tools {
+    const { configuration, interfaces } = this._runtime
     const actions = proxyActions(client, interfaces) as ActionProxy<BasePlugin>
     return {
       configuration,
@@ -90,7 +93,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     const botHandlers: BotActionHandlers<any> = {}
     for (const [name, handler] of utils.records.pairs(pluginHandlers)) {
       botHandlers[name] = async (input) => {
-        return handler({ ...input, ...this._tools })
+        return handler({ ...input, ...this._getTools(input.client) })
       }
     }
     return botHandlers
@@ -105,7 +108,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
           const globalHandlers = this._messageHandlers['*'] ?? []
           const allHandlers = [...specificHandlers, ...globalHandlers]
           return allHandlers.map(
-            (handler) => (input: MessagePayloads<any>[string]) => handler({ ...input, ...this._tools })
+            (handler) => (input: MessagePayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) })
           )
         },
       }
@@ -126,7 +129,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
           const allHandlers = [...specificHandlers, ...globalHandlers]
 
           return allHandlers.map(
-            (handler) => (input: MessagePayloads<any>[string]) => handler({ ...input, ...this._tools })
+            (handler) => (input: MessagePayloads<any>[string]) => handler({ ...input, ...this._getTools(input.client) })
           )
         },
       }
@@ -142,7 +145,8 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
           const globalHandlers = this._stateExpiredHandlers['*'] ?? []
           const allHandlers = [...specificHandlers, ...globalHandlers]
           return allHandlers.map(
-            (handler) => (input: StateExpiredPayloads<any>[string]) => handler({ ...input, ...this._tools })
+            (handler) => (input: StateExpiredPayloads<any>[string]) =>
+              handler({ ...input, ...this._getTools(input.client) })
           )
         },
       }
@@ -163,7 +167,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
             {
               get: (_, prop2) => {
                 const handlers = hooks[prop2 as string] ?? []
-                return handlers.map((handler) => (input: any) => handler({ ...input, ...this._tools }))
+                return handlers.map((handler) => (input: any) => handler({ ...input, ...this._getTools(input.client) }))
               },
             }
           )
@@ -176,13 +180,13 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     message: <T extends keyof MessageHandlersMap<TPlugin>>(type: T, handler: MessageHandlers<TPlugin>[T]): void => {
       this._messageHandlers[type as string] = utils.arrays.safePush(
         this._messageHandlers[type as string],
-        handler as MessageHandlers<BasePlugin>[string]
+        handler as MessageHandlers<any>[string]
       )
     },
     event: <T extends keyof EventHandlersMap<TPlugin>>(type: T, handler: EventHandlers<TPlugin>[T]): void => {
       this._eventHandlers[type as string] = utils.arrays.safePush(
         this._eventHandlers[type as string],
-        handler as EventHandlers<BasePlugin>[string]
+        handler as EventHandlers<any>[string]
       )
     },
     stateExpired: <T extends keyof StateExpiredHandlersMap<TPlugin>>(
@@ -191,7 +195,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ): void => {
       this._stateExpiredHandlers[type as string] = utils.arrays.safePush(
         this._stateExpiredHandlers[type as string],
-        handler as StateExpiredHandlers<BasePlugin>[string]
+        handler as StateExpiredHandlers<any>[string]
       )
     },
     beforeIncomingEvent: <T extends keyof HookData<TPlugin>['before_incoming_event']>(
@@ -200,7 +204,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) => {
       this._hookHandlers.before_incoming_event[type as string] = utils.arrays.safePush(
         this._hookHandlers.before_incoming_event[type as string],
-        handler as HookHandlers<BasePlugin>['before_incoming_event'][string]
+        handler as HookHandlers<any>['before_incoming_event'][string]
       )
     },
     beforeIncomingMessage: <T extends keyof HookData<TPlugin>['before_incoming_message']>(
@@ -209,7 +213,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) => {
       this._hookHandlers.before_incoming_message[type as string] = utils.arrays.safePush(
         this._hookHandlers.before_incoming_message[type as string],
-        handler as HookHandlers<BasePlugin>['before_incoming_message'][string]
+        handler as HookHandlers<any>['before_incoming_message'][string]
       )
     },
     beforeOutgoingMessage: <T extends keyof HookData<TPlugin>['before_outgoing_message']>(
@@ -218,7 +222,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) => {
       this._hookHandlers.before_outgoing_message[type as string] = utils.arrays.safePush(
         this._hookHandlers.before_outgoing_message[type as string],
-        handler as HookHandlers<BasePlugin>['before_outgoing_message'][string]
+        handler as HookHandlers<any>['before_outgoing_message'][string]
       )
     },
     beforeOutgoingCallAction: <T extends keyof HookData<TPlugin>['before_outgoing_call_action']>(
@@ -227,7 +231,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) => {
       this._hookHandlers.before_outgoing_call_action[type as string] = utils.arrays.safePush(
         this._hookHandlers.before_outgoing_call_action[type as string],
-        handler as HookHandlers<BasePlugin>['before_outgoing_call_action'][string]
+        handler as HookHandlers<any>['before_outgoing_call_action'][string]
       )
     },
     afterIncomingEvent: <T extends keyof HookData<TPlugin>['after_incoming_event']>(
@@ -236,7 +240,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) => {
       this._hookHandlers.after_incoming_event[type as string] = utils.arrays.safePush(
         this._hookHandlers.after_incoming_event[type as string],
-        handler as HookHandlers<BasePlugin>['after_incoming_event'][string]
+        handler as HookHandlers<any>['after_incoming_event'][string]
       )
     },
     afterIncomingMessage: <T extends keyof HookData<TPlugin>['after_incoming_message']>(
@@ -245,7 +249,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) => {
       this._hookHandlers.after_incoming_message[type as string] = utils.arrays.safePush(
         this._hookHandlers.after_incoming_message[type as string],
-        handler as HookHandlers<BasePlugin>['after_incoming_message'][string]
+        handler as HookHandlers<any>['after_incoming_message'][string]
       )
     },
     afterOutgoingMessage: <T extends keyof HookData<TPlugin>['after_outgoing_message']>(
@@ -254,7 +258,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) => {
       this._hookHandlers.after_outgoing_message[type as string] = utils.arrays.safePush(
         this._hookHandlers.after_outgoing_message[type as string],
-        handler as HookHandlers<BasePlugin>['after_outgoing_message'][string]
+        handler as HookHandlers<any>['after_outgoing_message'][string]
       )
     },
     afterOutgoingCallAction: <T extends keyof HookData<TPlugin>['after_outgoing_call_action']>(
@@ -263,7 +267,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     ) => {
       this._hookHandlers.after_outgoing_call_action[type as string] = utils.arrays.safePush(
         this._hookHandlers.after_outgoing_call_action[type as string],
-        handler as HookHandlers<BasePlugin>['after_outgoing_call_action'][string]
+        handler as HookHandlers<any>['after_outgoing_call_action'][string]
       )
     },
   }
@@ -276,7 +280,7 @@ export class PluginImplementation<TPlugin extends BasePlugin = BasePlugin> imple
     if (!parsedRef) {
       return false
     }
-    const resolvedRef = resolveEvent(parsedRef, this._tools.interfaces)
+    const resolvedRef = resolveEvent(parsedRef, this._runtime.interfaces)
     const formattedRef = formatEventRef(resolvedRef)
     return formattedRef === targetEventRef
   }

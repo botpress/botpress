@@ -46,8 +46,9 @@ const _callAction = async ({ client, interfaces, integrationOrInterfaceName, met
     },
     interfaces
   )
+  const type = formatActionRef(resolvedAction)
   const response = await client.callAction({
-    type: formatActionRef(resolvedAction),
+    type,
     input,
   })
   return response.output
