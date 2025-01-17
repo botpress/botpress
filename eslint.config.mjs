@@ -8,21 +8,26 @@ import tseslint from 'typescript-eslint';
 import stylistic from '@stylistic/eslint-plugin'
 import oxlint from 'eslint-plugin-oxlint';
 
+const ignores = [
+    ".git/",
+    "**/*.{d.ts,test.ts,js,cjs,mjs,jsx}",
+    "**/cdk.out/",
+    "**/dist/",
+    "node_modules/",
+    "**/node_modules/",
+    "**/bp_modules/",
+    "**/.botpress/",
+    "**/gen/",
+    "**/.turbo/",
+    "**/.genenv/",
+];
+
 export default [{
-    ignores: [
-        ".git/",
-        "**/*.d.ts",
-        "**/*.test.ts",
-        "**/*.js",
-        "**/cdk.out/", "**/cdk.out/*", "**/cdk.out/**",
-        "**/dist/", "**/dist/*", "**/dist/**",
-        "**/node_modules/", "**/node_modules/*", "**/node_modules/**",
-        "**/bp_modules/", "**/bp_modules/*", "**/bp_modules/**",
-        "**/.botpress/", "**/.botpress/*", "**/.botpress/**",
-        "**/gen/", "**/gen/*", "**/gen/**",
-        "**/.turbo/", "**/.turbo/*", "**/.turbo/**",
-        "**/.genenv/", "**/.genenv/*", "**/.genenv/**",
-    ],
+    ignores,
+    // ^  DO NOT REMOVE THIS LINE - this is necessary for the ignores
+    // pattern to be treated as a "global ignores"
+}, {
+    ignores,
     files: ["**/*.{ts,tsx}"],
     plugins: {
         jsdoc,
