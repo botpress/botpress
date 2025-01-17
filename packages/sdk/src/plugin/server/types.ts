@@ -89,6 +89,7 @@ export type OutgoingCallActionResponses<TPlugin extends types.BasePlugin> = _Out
   '*': AnyOutgoingCallActionResponse<TPlugin>
 }
 
+// TODO: some ressources should be strongly type while leaving room for unknown definitions
 export type PluginClient<_TPlugin extends types.BasePlugin> = bot.BotSpecificClient<types.BasePlugin>
 
 export type PluginConfiguration<TPlugin extends types.BasePlugin> = TPlugin['configuration']

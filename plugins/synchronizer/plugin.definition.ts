@@ -1,36 +1,49 @@
 import * as sdk from '@botpress/sdk'
-import creatable from './bp_modules/creatable'
-import deletable from './bp_modules/deletable'
 import listable from './bp_modules/listable'
-import readable from './bp_modules/readable'
-import updatable from './bp_modules/updatable'
 
 export default new sdk.PluginDefinition({
   name: 'synchronizer',
   version: '0.0.1',
   configuration: {
     schema: sdk.z.object({
-      tableName: sdk.z.string(),
+      tableName: sdk.z.string().title('Table Name').describe('The name of the table to store items'),
     }),
+  },
+  actions: {
+    synchronize: {
+      title: 'Synchronize',
+      description: 'Manually synchronize a page of items without waiting for the cron job',
+      input: { schema: sdk.z.object({}) },
+      output: { schema: sdk.z.object({ itemsLeft: sdk.z.boolean() }) },
+    },
+    clear: {
+      title: 'Clear',
+      description: 'Clear the table',
+      input: { schema: sdk.z.object({}) },
+      output: { schema: sdk.z.object({}) },
+    },
+  },
+  states: {
+    table: {
+      type: 'bot',
+      schema: sdk.z.object({
+        tableCreated: sdk.z.boolean().optional().title('Table Created').describe('Whether the table has been created'),
+      }),
+    },
+    job: {
+      type: 'bot',
+      schema: sdk.z.object({
+        nextToken: sdk.z
+          .string()
+          .optional()
+          .title('Next Token')
+          .describe('The token to use to get the next page of items'),
+      }),
+    },
   },
   events: {
     listItems: {
-      schema: sdk.z.object({ nextToken: sdk.z.string().optional() }),
-    },
-    rowInserted: {
-      schema: sdk.z.object({
-        item: creatable.definition.entities.item.schema,
-      }),
-    },
-    rowUpdated: {
-      schema: sdk.z.object({
-        item: updatable.definition.entities.item.schema,
-      }),
-    },
-    rowDeleted: {
-      schema: sdk.z.object({
-        item: deletable.definition.entities.item.schema,
-      }),
+      schema: sdk.z.object({}),
     },
   },
   recurringEvents: {
@@ -38,15 +51,11 @@ export default new sdk.PluginDefinition({
       type: 'listItems',
       payload: {},
       schedule: {
-        cron: '0 * * * *',
+        cron: '* * * * *', // every minute
       },
     },
   },
   interfaces: {
     listable,
-    creatable,
-    readable,
-    updatable,
-    deletable,
   },
 })

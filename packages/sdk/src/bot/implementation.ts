@@ -44,11 +44,11 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     after_outgoing_call_action: {},
   }
 
+  private _plugins: Record<string, PluginImplementation<any>> = {}
+
   public constructor(public readonly props: BotImplementationProps<TBot, TPlugins>) {
     this._actionHandlers = props.actions as ActionHandlers<TBot>
-    for (const plugin of utils.records.values(props.plugins)) {
-      this.use(plugin)
-    }
+    this._plugins = props.plugins
   }
 
   public get actionHandlers(): ActionHandlers<TBot> {
@@ -60,10 +60,12 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
       {},
       {
         /** returns both the message handlers for the target type but global as well */
-        get: (_, prop) => {
-          const specificHandlers = this._messageHandlers[prop as keyof MessageHandlersMap<TBot>] ?? []
-          const globalHandlers = this._messageHandlers['*'] ?? []
-          return [...specificHandlers, ...globalHandlers]
+        get: (_, prop: string) => {
+          const selfSpecificHandlers = this._messageHandlers[prop as keyof MessageHandlersMap<TBot>] ?? []
+          const selfGlobalHandlers = this._messageHandlers['*'] ?? []
+          const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
+          const pluginHandlers = Object.values(this._plugins).flatMap((plugin) => plugin.messageHandlers[prop] ?? [])
+          return [...selfHandlers, ...pluginHandlers]
         },
       }
     ) as MessageHandlersMap<TBot>
@@ -74,10 +76,12 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
       {},
       {
         /** returns both the event handlers for the target type but global as well */
-        get: (_, prop) => {
-          const specificHandlers = this._eventHandlers[prop as keyof EventHandlersMap<TBot>] ?? []
-          const globalHandlers = this._eventHandlers['*'] ?? []
-          return [...specificHandlers, ...globalHandlers]
+        get: (_, prop: string) => {
+          const selfSpecificHandlers = this._eventHandlers[prop as keyof EventHandlersMap<TBot>] ?? []
+          const selfGlobalHandlers = this._eventHandlers['*'] ?? []
+          const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
+          const pluginHandlers = Object.values(this._plugins).flatMap((plugin) => plugin.eventHandlers[prop] ?? [])
+          return [...selfHandlers, ...pluginHandlers]
         },
       }
     ) as EventHandlersMap<TBot>
@@ -88,10 +92,14 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
       {},
       {
         /** returns both the state expired handlers for the target type but global as well */
-        get: (_, prop) => {
-          const specificHandlers = this._stateExpiredHandlers[prop as keyof StateExpiredHandlersMap<TBot>] ?? []
-          const globalHandlers = this._stateExpiredHandlers['*'] ?? []
-          return [...specificHandlers, ...globalHandlers]
+        get: (_, prop: string) => {
+          const selfSpecificHandlers = this._stateExpiredHandlers[prop as keyof StateExpiredHandlersMap<TBot>] ?? []
+          const selfGlobalHandlers = this._stateExpiredHandlers['*'] ?? []
+          const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
+          const pluginHandlers = Object.values(this._plugins).flatMap(
+            (plugin) => plugin.stateExpiredHandlers[prop] ?? []
+          )
+          return [...selfHandlers, ...pluginHandlers]
         },
       }
     ) as StateExpiredHandlersMap<TBot>
@@ -101,18 +109,27 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
     return new Proxy(
       {},
       {
-        get: (_, prop1) =>
-          new Proxy(
+        get: (_, prop1: string) => {
+          return new Proxy(
             {},
             {
-              get: (_, prop2) => {
-                const hooks = this._hookHandlers[prop1 as keyof HookHandlersMap<TBot>] ?? {}
-                const specificHandlers = hooks[prop2 as keyof HookData<TBot>] ?? []
-                const globalHandlers = hooks['*'] ?? []
-                return [...specificHandlers, ...globalHandlers]
+              get: (_, prop2: string) => {
+                const hookType = prop1 as keyof HookHandlersMap<TBot>
+
+                const selfHooks = this._hookHandlers[hookType] ?? {}
+                const selfSpecificHandlers = selfHooks[prop2] ?? []
+                const selfGlobalHandlers = selfHooks['*'] ?? []
+                const selfHandlers = [...selfSpecificHandlers, ...selfGlobalHandlers]
+
+                const pluginHandlers = Object.values(this._plugins).flatMap(
+                  (plugin) => (plugin.hookHandlers[hookType]?.[prop2] ?? []) as typeof selfHandlers
+                )
+
+                return [...selfHandlers, ...pluginHandlers]
               },
             }
-          ),
+          )
+        },
       }
     ) as HookHandlersMap<TBot>
   }
@@ -211,103 +228,6 @@ export class BotImplementation<TBot extends BaseBot = BaseBot, TPlugins extends 
         handler as HookHandlers<any>['after_outgoing_call_action'][string]
       )
     },
-  }
-
-  public readonly use = (src: BotHandlers<any>): void => {
-    const dest = this as BotHandlers<any>
-    for (const [type, actionHandler] of Object.entries(src.actionHandlers)) {
-      dest.actionHandlers[type] = actionHandler
-    }
-    for (const [type, handlers] of Object.entries(src.eventHandlers)) {
-      if (!handlers) {
-        continue
-      }
-      dest.eventHandlers[type] = utils.arrays.safePush(dest.eventHandlers[type], ...handlers)
-    }
-    for (const [type, handlers] of Object.entries(src.messageHandlers)) {
-      if (!handlers) {
-        continue
-      }
-      dest.messageHandlers[type] = utils.arrays.safePush(dest.messageHandlers[type], ...handlers)
-    }
-    for (const [type, handlers] of Object.entries(src.stateExpiredHandlers)) {
-      if (!handlers) {
-        continue
-      }
-      dest.stateExpiredHandlers[type] = utils.arrays.safePush(dest.stateExpiredHandlers[type], ...handlers)
-    }
-    for (const [type, handlers] of Object.entries(src.hookHandlers.before_incoming_event)) {
-      if (!handlers) {
-        continue
-      }
-      dest.hookHandlers.before_incoming_event[type] = utils.arrays.safePush(
-        dest.hookHandlers.before_incoming_event[type],
-        ...handlers
-      )
-    }
-    for (const [type, handlers] of Object.entries(src.hookHandlers.before_incoming_message)) {
-      if (!handlers) {
-        continue
-      }
-      dest.hookHandlers.before_incoming_message[type] = utils.arrays.safePush(
-        dest.hookHandlers.before_incoming_message[type],
-        ...handlers
-      )
-    }
-    for (const [type, handlers] of Object.entries(src.hookHandlers.before_outgoing_message)) {
-      if (!handlers) {
-        continue
-      }
-      dest.hookHandlers.before_outgoing_message[type] = utils.arrays.safePush(
-        dest.hookHandlers.before_outgoing_message[type],
-        ...handlers
-      )
-    }
-    for (const [type, handlers] of Object.entries(src.hookHandlers.before_outgoing_call_action)) {
-      if (!handlers) {
-        continue
-      }
-      dest.hookHandlers.before_outgoing_call_action[type] = utils.arrays.safePush(
-        dest.hookHandlers.before_outgoing_call_action[type],
-        ...handlers
-      )
-    }
-    for (const [type, handlers] of Object.entries(src.hookHandlers.after_incoming_event)) {
-      if (!handlers) {
-        continue
-      }
-      dest.hookHandlers.after_incoming_event[type] = utils.arrays.safePush(
-        dest.hookHandlers.after_incoming_event[type],
-        ...handlers
-      )
-    }
-    for (const [type, handlers] of Object.entries(src.hookHandlers.after_incoming_message)) {
-      if (!handlers) {
-        continue
-      }
-      dest.hookHandlers.after_incoming_message[type] = utils.arrays.safePush(
-        dest.hookHandlers.after_incoming_message[type],
-        ...handlers
-      )
-    }
-    for (const [type, handlers] of Object.entries(src.hookHandlers.after_outgoing_message)) {
-      if (!handlers) {
-        continue
-      }
-      dest.hookHandlers.after_outgoing_message[type] = utils.arrays.safePush(
-        dest.hookHandlers.after_outgoing_message[type],
-        ...handlers
-      )
-    }
-    for (const [type, handlers] of Object.entries(src.hookHandlers.after_outgoing_call_action)) {
-      if (!handlers) {
-        continue
-      }
-      dest.hookHandlers.after_outgoing_call_action[type] = utils.arrays.safePush(
-        dest.hookHandlers.after_outgoing_call_action[type],
-        ...handlers
-      )
-    }
   }
 
   public readonly handler = botHandler(this as BotHandlers<any>)

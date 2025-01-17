@@ -1,58 +1,55 @@
-import { Client } from '@botpress/client'
-import * as esc from './escape'
+import * as table from './table'
+import * as vanilla from './vanilla-client'
 import * as bp from '.botpress'
 
-const plugin = new bp.Plugin({
-  actions: {},
-})
+const synchronize = async (props: bp.EventHandlerProps | bp.ActionHandlerProps): Promise<{ nextToken?: string }> => {
+  const { state } = await props.client.getOrSetState({
+    type: 'bot',
+    id: props.ctx.botId,
+    name: 'job',
+    payload: { nextToken: undefined },
+  })
 
-const getVanillaClient = (client: bp.Client): Client => {
-  // TODO: add table methods on vanilla client
-  return (client as any)._client
+  const { nextToken } = state.payload
+  props.logger.info('Synchronizing...', nextToken)
+
+  const { client, configuration, actions } = props
+
+  const nextPage = await actions.listable.list({ nextToken })
+
+  await table.createTableIfNotExist(props, nextPage.items[0])
+
+  await vanilla.clientFrom(client).upsertTableRows({
+    table: configuration.tableName,
+    rows: nextPage.items.map(table.escapeObject),
+    keyColumn: table.PRIMARY_KEY,
+  })
+
+  await props.client.setState({
+    type: 'bot',
+    id: props.ctx.botId,
+    name: 'job',
+    payload: { nextToken: nextPage.meta.nextToken },
+  })
+
+  return { nextToken: nextPage.meta.nextToken }
 }
 
-plugin.on.event('creatable:created', async ({ client, event, configuration }) => {
-  await getVanillaClient(client).upsertTableRows({
-    table: configuration.tableName,
-    rows: [esc.escapeObject(event.payload.item)],
-    keyColumn: esc.PRIMARY_KEY,
-  })
+const plugin = new bp.Plugin({
+  actions: {
+    synchronize: async (props) => {
+      const { nextToken } = await synchronize(props)
+      return { itemsLeft: !!nextToken }
+    },
+    clear: async (props) => {
+      await table.deleteTableIfExist(props)
+      return {}
+    },
+  },
 })
 
-plugin.on.event('updatable:updated', async ({ client, event, configuration }) => {
-  await getVanillaClient(client).upsertTableRows({
-    table: configuration.tableName,
-    rows: [esc.escapeObject(event.payload.item)],
-    keyColumn: esc.PRIMARY_KEY,
-  })
-})
-
-plugin.on.event('deletable:deleted', async ({ client, event, configuration }) => {
-  await getVanillaClient(client).deleteTableRows({
-    table: configuration.tableName,
-    filter: { [esc.PRIMARY_KEY]: { $eq: event.id } },
-  })
-})
-
-plugin.on.event('listItems', async ({ client, event, configuration, actions }) => {
-  const _nextPage = await actions.listable.list({ nextToken: event.payload.nextToken })
-  await getVanillaClient(client).upsertTableRows({
-    table: configuration.tableName,
-    rows: _nextPage.items.map(esc.escapeObject),
-    keyColumn: esc.PRIMARY_KEY,
-  })
-})
-
-plugin.on.event('rowInserted', async ({ event, actions }) => {
-  await actions.creatable.create({ item: event.payload.item })
-})
-
-plugin.on.event('rowUpdated', async ({ event, actions }) => {
-  await actions.updatable.update({ id: event.payload.item.id, item: event.payload.item })
-})
-
-plugin.on.event('rowDeleted', async ({ event, actions }) => {
-  await actions.deletable.delete({ id: event.payload.item.id })
+plugin.on.event('listItems', async (props) => {
+  await synchronize(props)
 })
 
 export default plugin
