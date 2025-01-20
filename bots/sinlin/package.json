@@ -18,12 +18,12 @@
     "@botpress/common": "workspace:*",
     "@botpresshub/linear": "workspace:*",
     "@botpresshub/synchronizer": "workspace:*",
-    "@botpresshub/telegram": "workspace:*",
+    "@botpresshub/chat": "workspace:*",
     "@bpinternal/genenv": "0.0.1",
     "@types/lodash": "^4.14.191"
   },
   "bpDependencies": {
-    "telegram": "../../integrations/telegram",
+    "chat": "../../integrations/chat",
     "linear": "../../integrations/linear",
     "synchronizer": "../../plugins/synchronizer"
   }

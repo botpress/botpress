@@ -75,11 +75,7 @@ const commands: Record<string, Command> = {
 }
 
 bot.on.message('*', async (props) => {
-  const { conversation, message } = props
-  if (conversation.integration !== 'telegram') {
-    console.info(`Ignoring message from ${conversation.integration}`)
-    return
-  }
+  const { message } = props
 
   if (message.type !== 'text') {
     await reply(props, 'I only understand text messages')

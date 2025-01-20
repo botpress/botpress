@@ -19,9 +19,11 @@
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
     "@botpresshub/listable": "workspace:*",
+    "@botpresshub/deletable": "workspace:*",
     "@sentry/cli": "^2.39.1"
   },
   "bpDependencies": {
-    "listable": "../../interfaces/listable"
+    "listable": "../../interfaces/listable",
+    "deletable": "../../interfaces/deletable"
   }
 }

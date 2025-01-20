@@ -1,9 +1,9 @@
 /* bplint-disable */
 import * as sdk from '@botpress/sdk'
 import * as genenv from './.genenv'
+import chat from './bp_modules/chat'
 import linear from './bp_modules/linear'
 import synchronizer from './bp_modules/synchronizer'
-import telegram from './bp_modules/telegram'
 
 const linearIssue = linear.definition.interfaces['listable<issue>']
 
@@ -16,9 +16,9 @@ export default new sdk.BotDefinition({})
       webhookSigningSecret: genenv.SINLIN_LINEAR_WEBHOOK_SIGNING_SECRET,
     },
   })
-  .addIntegration(telegram, {
+  .addIntegration(chat, {
     enabled: true,
-    configuration: { botToken: genenv.SINLIN_TELEGRAM_BOT_TOKEN },
+    configuration: {},
   })
   .addPlugin(synchronizer, {
     configuration: {

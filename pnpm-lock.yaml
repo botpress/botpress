@@ -278,15 +278,15 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/chat':
+        specifier: workspace:*
+        version: link:../../integrations/chat
       '@botpresshub/linear':
         specifier: workspace:*
         version: link:../../integrations/linear
       '@botpresshub/synchronizer':
         specifier: workspace:*
         version: link:../../plugins/synchronizer
-      '@botpresshub/telegram':
-        specifier: workspace:*
-        version: link:../../integrations/telegram
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
@@ -945,6 +945,9 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
+      '@botpresshub/creatable':
+        specifier: workspace:*
+        version: link:../../interfaces/creatable
       '@botpresshub/listable':
         specifier: workspace:*
         version: link:../../interfaces/listable
