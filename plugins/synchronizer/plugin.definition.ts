@@ -1,5 +1,8 @@
 import * as sdk from '@botpress/sdk'
+import deletable from './bp_modules/deletable'
 import listable from './bp_modules/listable'
+
+const itemSchema = listable.definition.entities.item.schema
 
 export default new sdk.PluginDefinition({
   name: 'synchronizer',
@@ -45,6 +48,15 @@ export default new sdk.PluginDefinition({
     listItems: {
       schema: sdk.z.object({}),
     },
+    rowInserted: {
+      schema: sdk.z.object({ row: itemSchema }),
+    },
+    rowUpdated: {
+      schema: sdk.z.object({ row: itemSchema }),
+    },
+    rowDeleted: {
+      schema: sdk.z.object({ row: itemSchema.pick({ id: true }) }),
+    },
   },
   recurringEvents: {
     runListItem: {
@@ -57,5 +69,6 @@ export default new sdk.PluginDefinition({
   },
   interfaces: {
     listable,
+    deletable,
   },
 })

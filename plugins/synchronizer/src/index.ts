@@ -49,7 +49,24 @@ const plugin = new bp.Plugin({
 })
 
 plugin.on.event('listItems', async (props) => {
+  const { event, logger } = props
+  logger.info(`### Event "${event.type}"`, event.payload)
   await synchronize(props)
+})
+
+plugin.on.event('rowDeleted', async (props) => {
+  const { actions, event, logger } = props
+  logger.info(`### Event "${event.type}"`, event.payload)
+  await actions.deletable.delete({ id: props.event.payload.row.id })
+})
+
+plugin.on.event('deletable:deleted', async (props) => {
+  const { client, configuration, event, logger } = props
+  logger.info(`### Event "${event.type}"`, event.payload)
+  await vanilla.clientFrom(client).deleteTableRows({
+    table: configuration.tableName,
+    filter: { [table.PRIMARY_KEY]: { $eq: props.event.payload.id } },
+  })
 })
 
 export default plugin

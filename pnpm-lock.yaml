@@ -945,9 +945,9 @@ importers:
       '@botpress/common':
         specifier: workspace:*
         version: link:../../packages/common
-      '@botpresshub/creatable':
+      '@botpresshub/deletable':
         specifier: workspace:*
-        version: link:../../interfaces/creatable
+        version: link:../../interfaces/deletable
       '@botpresshub/listable':
         specifier: workspace:*
         version: link:../../interfaces/listable
