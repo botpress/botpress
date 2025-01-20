@@ -1,11 +1,12 @@
 /* bplint-disable */
 import * as sdk from '@botpress/sdk'
 import * as genenv from './.genenv'
+import chat from './bp_modules/chat'
 import linear from './bp_modules/linear'
 import synchronizer from './bp_modules/synchronizer'
-import telegram from './bp_modules/telegram'
 
-const linearIssue = linear.definition.interfaces['listable<issue>']
+const linearListableIssue = linear.definition.interfaces['listable<issue>']
+const linearDeletableIssue = linear.definition.interfaces['deletable<issue>']
 
 export default new sdk.BotDefinition({})
   .addIntegration(linear, {
@@ -16,9 +17,9 @@ export default new sdk.BotDefinition({})
       webhookSigningSecret: genenv.SINLIN_LINEAR_WEBHOOK_SIGNING_SECRET,
     },
   })
-  .addIntegration(telegram, {
+  .addIntegration(chat, {
     enabled: true,
-    configuration: { botToken: genenv.SINLIN_TELEGRAM_BOT_TOKEN },
+    configuration: {},
   })
   .addPlugin(synchronizer, {
     configuration: {
@@ -29,10 +30,19 @@ export default new sdk.BotDefinition({})
         id: linear.id,
         name: linear.name,
         version: linear.version,
-        entities: linearIssue.entities,
-        actions: linearIssue.actions,
-        channels: linearIssue.channels,
-        events: linearIssue.events,
+        entities: linearListableIssue.entities,
+        actions: linearListableIssue.actions,
+        channels: linearListableIssue.channels,
+        events: linearListableIssue.events,
+      },
+      deletable: {
+        id: linear.id,
+        name: linear.name,
+        version: linear.version,
+        entities: linearDeletableIssue.entities,
+        actions: linearDeletableIssue.actions,
+        channels: linearDeletableIssue.channels,
+        events: linearDeletableIssue.events,
       },
     },
   })
