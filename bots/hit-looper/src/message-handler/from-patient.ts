@@ -92,29 +92,28 @@ export const patientMessageHandler: MessageHandlers['*'] = async (props) => {
     if (message.payload.text.trim() === '/start_hitl') {
       respond({ conversationId: upstreamConversation.id, text: 'Transferring you to a human agent...' })
 
+      // const { messages: upstreamMessages } = await client.listMessages({
+      //   conversationId: upstreamConversation.id,
+      // })
+      // upstreamMessages.reverse() // TODO: use createdAt to sort instead of reverse
+
+      // const messageHistory: MessageHistoryElement[] = []
+      // for (const message of upstreamMessages) {
+      //   const source =
+      //     message.direction === 'outgoing'
+      //       ? { type: 'bot' }
+      //       : {
+      //           type: 'user',
+      //           userId: await users.getDownstreamUserId(message.userId),
+      //         }
+      //   messageHistory.push({
+      //     source,
+      //     type: message.type,
+      //     payload: message.payload,
+      //   } as MessageHistoryElement)
+      // }
+
       const downstreamUserId = await users.getDownstreamUserId(upstreamUser.id)
-
-      const { messages: upstreamMessages } = await client.listMessages({
-        conversationId: upstreamConversation.id,
-      })
-      upstreamMessages.reverse() // TODO: use createdAt to sort instead of reverse
-
-      const messageHistory: MessageHistoryElement[] = []
-      for (const message of upstreamMessages) {
-        const source =
-          message.direction === 'outgoing'
-            ? { type: 'bot' }
-            : {
-                type: 'user',
-                userId: await users.getDownstreamUserId(message.userId),
-              }
-        messageHistory.push({
-          source,
-          type: message.type,
-          payload: message.payload,
-        } as MessageHistoryElement)
-      }
-
       const {
         output: { conversationId: downstreamConversationId },
       } = await client.callAction({
@@ -123,7 +122,6 @@ export const patientMessageHandler: MessageHandlers['*'] = async (props) => {
           title: `Hitl request ${Date.now()}`,
           description: 'I need help.',
           userId: downstreamUserId,
-          messageHistory,
         },
       })
 

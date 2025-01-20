@@ -564,7 +564,7 @@ importers:
         version: link:../../packages/common
       '@botpresshub/hitl':
         specifier: workspace:*
-        version: link:../../interfaces/hitl
+        version: link:../../plugins/hitl
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
@@ -1555,7 +1555,7 @@ importers:
         version: link:../../packages/common
       '@botpresshub/hitl':
         specifier: workspace:*
-        version: link:../../interfaces/hitl
+        version: link:../../plugins/hitl
       '@sentry/cli':
         specifier: ^2.39.1
         version: 2.39.1
@@ -2135,6 +2135,31 @@ importers:
       '@bpinternal/genenv':
         specifier: 0.0.1
         version: 0.0.1
+
+  plugins/hitl:
+    dependencies:
+      '@botpress/client':
+        specifier: workspace:*
+        version: link:../../packages/client
+      '@botpress/sdk':
+        specifier: workspace:*
+        version: link:../../packages/sdk
+      lodash:
+        specifier: ^4.17.21
+        version: 4.17.21
+    devDependencies:
+      '@botpress/cli':
+        specifier: workspace:*
+        version: link:../../packages/cli
+      '@botpress/common':
+        specifier: workspace:*
+        version: link:../../packages/common
+      '@botpresshub/hitl':
+        specifier: workspace:*
+        version: 'link:'
+      '@types/lodash':
+        specifier: ^4.14.191
+        version: 4.14.195
 
   plugins/knowledge:
     dependencies:
