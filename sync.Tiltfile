@@ -1,5 +1,9 @@
+# constants
+
 LINEAR_PORT = 3793
 SINLIN_PORT = 3794
+
+# resources
 
 local_resource(
   name='run-linear',
@@ -26,3 +30,14 @@ local_resource(
   resource_deps=['build-synchronizer', 'run-linear'],
   readiness_probe=probe(http_get=http_get_action(port=SINLIN_PORT, path='/health'), period_secs=1, failure_threshold=10),
 )
+
+botId = read_json('./bots/sinlin/.botpress/project.cache.json')['devId']
+cmd = "bp chat %s" % botId
+print("\n".join([
+  "",
+  "#######################################################",
+  "###       To chat with your bot, run command:       ###",
+  "### >> %s ###" % cmd,
+  "#######################################################",
+  "",
+]))

@@ -18,8 +18,8 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
-    "@botpresshub/listable": "workspace:*",
     "@botpresshub/deletable": "workspace:*",
+    "@botpresshub/listable": "workspace:*",
     "@sentry/cli": "^2.39.1"
   },
   "bpDependencies": {

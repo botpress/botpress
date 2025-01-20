@@ -16,9 +16,9 @@
   "devDependencies": {
     "@botpress/cli": "workspace:*",
     "@botpress/common": "workspace:*",
+    "@botpresshub/chat": "workspace:*",
     "@botpresshub/linear": "workspace:*",
     "@botpresshub/synchronizer": "workspace:*",
-    "@botpresshub/chat": "workspace:*",
     "@bpinternal/genenv": "0.0.1",
     "@types/lodash": "^4.14.191"
   },
