@@ -43,6 +43,13 @@ When a model or a provider is down, cognitive will:
 
 The model is marked as degraded for a duration of 5 minutes.
 
+### Ranking Heuristic
+
+When no model preferences are passed, the default ranking heuristic will be used to rank available models automatically for `best` and `fast` presets.
+It will look at the tags, price and vendor to score each models and rank them.
+
+See `src/models.ts` for more information on this heuristic.
+
 ### Aborting the request
 
 ```ts
@@ -60,6 +67,9 @@ await cognitive.generateContent({
 If no provider is passed to Cognitive, we default to `RemoteModelProvider`, which uses the File API to store preferences and fetches models using the Botpress Client (`getBot` and `listLanguageModels` on each installed integrations).
 
 You can pass your own Provider, simply create a class that extends our base provider.
+
+This method is recommended if you need to instanciate the Cognitive client frequently (say in a serverless), as retrieving preferences incurs an initial ~500ms latency.
+For serverless environments, we recommend you provide a static list of models or use caching.
 
 ```ts
 import { Cognitive, ModelProvider } from '@botpress/cognitive'
@@ -84,4 +94,21 @@ export class CustomModelProvider extends ModelProvider {
 
 const provider = new CustomModelProvider()
 const cognitive = new Cognitive({ client: new Client(), provider })
+```
+
+## Events
+
+## Extensions
+
+We provide two extension points (hooks) for cognitive that allows you to change the input or output of requests.
+Hooks can be asynchronous and run sequentially when calling `next(err, value)`.
+You can also shortcircuit the execution by calling `done(err, value)`.
+
+```ts
+const cognitive = new Cognitive({ client: new Client() })
+
+cognitive.interceptors.request.use(async (err, req, next, done) => {
+  // do whatever here
+  next(null, req)
+})
 ```
