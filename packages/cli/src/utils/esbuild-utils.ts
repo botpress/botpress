@@ -1,4 +1,4 @@
-import { build as esbuild, LogLevel, Platform, BuildResult, OutputFile } from 'esbuild'
+import { build as esbuild, LogLevel, Platform, BuildResult, OutputFile, type Format } from 'esbuild'
 
 type BaseProps<W extends boolean = true> = {
   cwd: string
@@ -9,6 +9,8 @@ type BaseProps<W extends boolean = true> = {
   logLevel?: LogLevel
   write: W
   platform?: Platform
+  external?: string[]
+  format?: Format
 }
 
 export type BuildCodeProps<W extends boolean = true> = BaseProps<W> & {
@@ -33,6 +35,8 @@ export function buildCode<W extends boolean>({
   code,
   write,
   platform = 'node',
+  external,
+  format,
 }: BuildCodeProps<W>) {
   return esbuild({
     stdin: {
@@ -43,6 +47,8 @@ export function buildCode<W extends boolean>({
     logOverride: {
       'equals-negative-zero': 'silent',
     },
+    format,
+    external,
     platform,
     target: 'es2020',
     sourcemap,

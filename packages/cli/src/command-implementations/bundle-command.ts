@@ -30,7 +30,25 @@ export class BundleCommand extends ProjectCommand<BundleCommandDefinition> {
 
     if (projectDef.type === 'plugin') {
       line.started('Bundling plugin...')
-      return await this._bundle(line)
+      return await this._bundle(line, {
+        platform: 'browser',
+        format: 'esm',
+        minify: false,
+        external: [
+          // 'http',
+          // 'https',
+          // 'util',
+          // 'zlib',
+          // 'stream',
+          // 'events',
+          // 'form-data',
+          // 'url',
+          // 'assert',
+          // 'crypto',
+          'node:http',
+          // 'browser-or-node',
+        ],
+      })
     }
 
     throw new errors.UnsupportedProjectType()

@@ -11,6 +11,12 @@
     "http": false,
     "https": false
   },
+  "exports": {
+    ".": {
+      "require": "./dist/index.cjs",
+      "import": "./dist/index.mjs"
+    }
+  },
   "scripts": {
     "check:type": "tsc --noEmit",
     "build:type": "tsup ./src/index.ts --dts-resolve --dts-only",

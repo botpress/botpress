@@ -2064,7 +2064,13 @@ importers:
       '@bpinternal/zui':
         specifier: 0.13.4
         version: 0.13.4(react@18.3.1)
+      format-util:
+        specifier: ^1.0.5
+        version: 1.0.5
     devDependencies:
+      '@types/format-util':
+        specifier: ^1.0.4
+        version: 1.0.4
       esbuild:
         specifier: ^0.16.12
         version: 0.16.17
@@ -7480,6 +7486,10 @@ packages:
       '@types/serve-static': 1.15.1
     dev: false
 
+  /@types/format-util@1.0.4:
+    resolution: {integrity: sha512-xrCYOdHh5zA3LUrn6CvspYwlzSWxPso11Lx32WnAG6KvLCRecKZ/Rh21PLXUkzUFsQmrGcx/traJAFjR6dVS5Q==}
+    dev: true
+
   /@types/glob@7.2.0:
     resolution: {integrity: sha512-ZUxbzKl0IfJILTS6t7ip5fQQM/J3TJYubDm3nMbgubNNYS62eXeUpoLUC8/7fJNiFYHTrGPQn7hspDUzIHX3UA==}
     dependencies:
@@ -10803,6 +10813,10 @@ packages:
       asynckit: 0.4.0
       combined-stream: 1.0.8
       mime-types: 2.1.35
+
+  /format-util@1.0.5:
+    resolution: {integrity: sha512-varLbTj0e0yVyRpqQhuWV+8hlePAgaoFRhNFj50BNjEIrw1/DphHSObtqwskVCPWNgzwPoQrZAbfa/SBiicNeg==}
+    dev: false
 
   /formdata-node@4.4.1:
     resolution: {integrity: sha512-0iirZp3uVDjVGt9p49aTaqjk84TrglENEDuqfdlZQ1roC9CWlPk6Avf8EEnZNcAqPonwkG35x4n3ww/1THYAeQ==}

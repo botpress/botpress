@@ -1,4 +1,4 @@
-import util from 'util'
+import format from 'format-util'
 
 type LogLevel = 'info' | 'debug' | 'warn' | 'error'
 
@@ -32,7 +32,7 @@ export abstract class BaseLogger<TOptions extends object> {
   }
 
   private _serializeMessage(args: Parameters<typeof console.info>) {
-    const msg = util.format(...args)
+    const msg = format(...args)
     if (process.env['BP_LOG_FORMAT'] === 'json') {
       return this.getJsonMessage(msg)
     } else {

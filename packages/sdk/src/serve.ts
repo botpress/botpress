@@ -1,4 +1,4 @@
-import { createServer, IncomingMessage, Server } from 'node:http'
+import { type IncomingMessage, type Server } from 'node:http'
 import { log } from './log'
 
 export type Request = {
@@ -29,6 +29,8 @@ export async function serve(
   port: number = 8072,
   callback: (port: number) => void = defaultCallback
 ): Promise<Server> {
+  const { createServer } = await import('node:http')
+
   /* eslint-disable @typescript-eslint/no-misused-promises */
   const server = createServer(async (req, res) => {
     try {
