@@ -1686,8 +1686,8 @@ importers:
   packages/chat-api:
     dependencies:
       '@botpress/api':
-        specifier: 0.59.0
-        version: 0.59.0(openapi-types@12.1.3)
+        specifier: 0.62.0
+        version: 0.62.0(openapi-types@12.1.3)
       '@bpinternal/opapi':
         specifier: 0.12.0
         version: 0.12.0(openapi-types@12.1.3)
@@ -1803,10 +1803,10 @@ importers:
         specifier: 0.4.7
         version: link:../chat-client
       '@botpress/client':
-        specifier: 0.40.0
+        specifier: 0.41.0
         version: link:../client
       '@botpress/sdk':
-        specifier: 2.3.1
+        specifier: 2.4.0
         version: link:../sdk
       '@bpinternal/const':
         specifier: ^0.0.20
@@ -1924,10 +1924,10 @@ importers:
   packages/cli/templates/empty-bot:
     dependencies:
       '@botpress/client':
-        specifier: 0.40.0
+        specifier: 0.41.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 2.3.1
+        specifier: 2.4.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1940,10 +1940,10 @@ importers:
   packages/cli/templates/empty-integration:
     dependencies:
       '@botpress/client':
-        specifier: 0.40.0
+        specifier: 0.41.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 2.3.1
+        specifier: 2.4.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1956,7 +1956,7 @@ importers:
   packages/cli/templates/empty-plugin:
     dependencies:
       '@botpress/sdk':
-        specifier: 2.3.1
+        specifier: 2.4.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1969,10 +1969,10 @@ importers:
   packages/cli/templates/hello-world:
     dependencies:
       '@botpress/client':
-        specifier: 0.40.0
+        specifier: 0.41.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 2.3.1
+        specifier: 2.4.0
         version: link:../../../sdk
     devDependencies:
       '@types/node':
@@ -1985,10 +1985,10 @@ importers:
   packages/cli/templates/webhook-message:
     dependencies:
       '@botpress/client':
-        specifier: 0.40.0
+        specifier: 0.41.0
         version: link:../../../client
       '@botpress/sdk':
-        specifier: 2.3.1
+        specifier: 2.4.0
         version: link:../../../sdk
       axios:
         specifier: ^1.6.8
@@ -2020,8 +2020,8 @@ importers:
         version: 3.11.1
     devDependencies:
       '@botpress/api':
-        specifier: 0.59.0
-        version: 0.59.0(openapi-types@12.1.3)
+        specifier: 0.62.0
+        version: 0.62.0(openapi-types@12.1.3)
       '@types/qs':
         specifier: ^6.9.7
         version: 6.9.7
@@ -2090,7 +2090,7 @@ importers:
   packages/sdk:
     dependencies:
       '@botpress/client':
-        specifier: 0.40.0
+        specifier: 0.41.0
         version: link:../client
       '@bpinternal/zui':
         specifier: 0.12.0
@@ -3730,8 +3730,8 @@ packages:
     resolution: {integrity: sha512-0hYQ8SB4Db5zvZB4axdMHGwEaQjkZzFjQiN9LVYvIFB2nSUHW9tYpxWriPrWDASIxiaXax83REcLxuSdnGPZtw==}
     dev: true
 
-  /@botpress/api@0.59.0(openapi-types@12.1.3):
-    resolution: {integrity: sha512-YHH95BFVRmqYFQNKw47udjktKnE4NfRNfjkc2Bwi/LPpJtKIznRRvroYQtSXhgU0M4YKnQISgtLWmkC540nl8g==}
+  /@botpress/api@0.62.0(openapi-types@12.1.3):
+    resolution: {integrity: sha512-h6aRuwpypYS3r98gfVEnuLxGRHjXA9RfgD6dkhZx5Np+8abu1Btc4jmUIiGhNnRqy7WeLFXfEiEEzEPhhrYQcg==}
     dependencies:
       '@bpinternal/opapi': 0.12.0(openapi-types@12.1.3)
     transitivePeerDependencies:
@@ -8802,10 +8802,10 @@ packages:
     resolution: {integrity: sha512-GHTSNSYICQ7scH7sZ+M2rFopRoLh8t2bLSW6BbgrtLsahOIB5iyAVJf9GjWK3cYTDaMj4XdBpM1cA6pIS0Kv2w==}
     engines: {node: '>= 0.4'}
     dependencies:
-      es-define-property: 1.0.0
+      es-define-property: 1.0.1
       es-errors: 1.3.0
       function-bind: 1.1.2
-      get-intrinsic: 1.2.4
+      get-intrinsic: 1.2.7
       set-function-length: 1.2.2
 
   /call-bind@1.0.8:
@@ -8813,8 +8813,8 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       call-bind-apply-helpers: 1.0.1
-      es-define-property: 1.0.0
-      get-intrinsic: 1.2.4
+      es-define-property: 1.0.1
+      get-intrinsic: 1.2.7
       set-function-length: 1.2.2
 
   /call-bound@1.0.3:
@@ -9641,19 +9641,19 @@ packages:
       data-view-buffer: 1.0.1
       data-view-byte-length: 1.0.1
       data-view-byte-offset: 1.0.0
-      es-define-property: 1.0.0
+      es-define-property: 1.0.1
       es-errors: 1.3.0
       es-object-atoms: 1.0.0
       es-set-tostringtag: 2.0.3
       es-to-primitive: 1.2.1
       function.prototype.name: 1.1.6
-      get-intrinsic: 1.2.4
+      get-intrinsic: 1.2.7
       get-symbol-description: 1.0.2
       globalthis: 1.0.3
-      gopd: 1.0.1
+      gopd: 1.2.0
       has-property-descriptors: 1.0.2
       has-proto: 1.0.3
-      has-symbols: 1.0.3
+      has-symbols: 1.1.0
       hasown: 2.0.2
       internal-slot: 1.0.7
       is-array-buffer: 3.0.4
@@ -9665,7 +9665,7 @@ packages:
       is-string: 1.0.7
       is-typed-array: 1.1.13
       is-weakref: 1.0.2
-      object-inspect: 1.13.2
+      object-inspect: 1.13.3
       object-keys: 1.1.1
       object.assign: 4.1.5
       regexp.prototype.flags: 1.5.2
@@ -9751,12 +9751,6 @@ packages:
       has-property-descriptors: 1.0.2
       set-function-name: 2.0.2
     dev: false
-
-  /es-define-property@1.0.0:
-    resolution: {integrity: sha512-jxayLKShrEqqzJ0eumQbVhTYQM27CfT1T35+gCgDFoL82JLsXqTJ76zv6A0YLOgEnLUMvLzsDsGIrl8NFpT2gQ==}
-    engines: {node: '>= 0.4'}
-    dependencies:
-      get-intrinsic: 1.2.7
 
   /es-define-property@1.0.1:
     resolution: {integrity: sha512-e3nRfgfUZ4rNGL232gUgX06QNyyez04KdjFrF+LTRoOXmrOgFKDg4BCdsjW8EnT69eqdYGmRpJwiPVYNrCaW3g==}
@@ -10854,7 +10848,7 @@ packages:
       es-errors: 1.3.0
       function-bind: 1.1.2
       has-proto: 1.0.3
-      has-symbols: 1.0.3
+      has-symbols: 1.1.0
       hasown: 2.0.2
 
   /get-intrinsic@1.2.7:
@@ -11135,12 +11129,6 @@ packages:
       - supports-color
     dev: false
 
-  /gopd@1.0.1:
-    resolution: {integrity: sha512-d65bNlIadxvpb/A2abVdlqKqV563juRnZ1Wtk6s1sIR8uNsXR70xqIzVqxVf1eTqDunwT2MkczEeaezCKTZhwA==}
-    dependencies:
-      get-intrinsic: 1.2.7
-    dev: true
-
   /gopd@1.2.0:
     resolution: {integrity: sha512-ZUKRh6/kUFoAiTAtTYPZJ3hw9wNxx+BIBOijnlG9PnrJsCcSjs1wyyD6vJpaYtgnzDrKYRSqf3OO6Rfa93xsRg==}
     engines: {node: '>= 0.4'}
@@ -11259,10 +11247,6 @@ packages:
     engines: {node: '>= 0.4'}
     dependencies:
       dunder-proto: 1.0.1
-
-  /has-symbols@1.0.3:
-    resolution: {integrity: sha512-l3LCuF6MgDNwTDKkdYGEihYjt5pRPbEg46rtlmnSPlUbgmB8LOIrKJbYYFBSbnPaJexMKtiPO8hmeRjRz2Td+A==}
-    engines: {node: '>= 0.4'}
 
   /has-symbols@1.1.0:
     resolution: {integrity: sha512-1cDNdwJ2Jaohmb3sg4OmKaMBwuC48sYni5HUw2DvsC8LjGTLK9h+eb1X6RyuOHe4hT0ULCW68iomhjUoKUqlPQ==}
@@ -11488,7 +11472,7 @@ packages:
     dependencies:
       es-errors: 1.3.0
       hasown: 2.0.2
-      side-channel: 1.0.6
+      side-channel: 1.1.0
     dev: true
 
   /internal-slot@1.1.0:
@@ -13291,6 +13275,7 @@ packages:
   /object-inspect@1.13.2:
     resolution: {integrity: sha512-IRZSRuzJiynemAXPYtPe5BoI/RESNYR7TYm50MC5Mqbd3Jmw5y790sErYw3V6SryFJD64b74qQQs9wn5Bg/k3g==}
     engines: {node: '>= 0.4'}
+    dev: false
 
   /object-inspect@1.13.3:
     resolution: {integrity: sha512-kDCGIbxkDSXE3euJZZXzc6to7fCrKHNI/hSRQnRuQ+BWjFNzZwiFF8fj/6o2t2G9/jTj8PSIYTfCLelLZEeRpA==}
@@ -14643,16 +14628,6 @@ packages:
       get-intrinsic: 1.2.4
       object-inspect: 1.13.2
     dev: false
-
-  /side-channel@1.0.6:
-    resolution: {integrity: sha512-fDW/EZ6Q9RiO8eFG8Hj+7u/oW+XrPTIChwCOM2+th2A6OblDtYYIpve9m+KvI9Z4C9qSEXlaGR6bTEYHReuglA==}
-    engines: {node: '>= 0.4'}
-    dependencies:
-      call-bind: 1.0.8
-      es-errors: 1.3.0
-      get-intrinsic: 1.2.7
-      object-inspect: 1.13.3
-    dev: true
 
   /side-channel@1.1.0:
     resolution: {integrity: sha512-ZX99e6tRweoUXqR+VBrslhda51Nh5MTQwou5tnUDgbtyM0dBgmhEDtWGP/xbKn6hqfPRHujUNwz5fy/wbbhnpw==}
