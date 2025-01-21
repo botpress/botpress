@@ -17,10 +17,9 @@ import { Client } from '@botpress/client'
 import { Cognitive } from '@botpress/cognitive'
 
 const token = 'your-token'
-const workspaceId = 'your-workspace-id'
 const botId = 'your-bot-id'
 
-const client = new Client({ token, workspaceId, botId })
+const client = new Client({ token, botId })
 
 const cognitive = new Cognitive({ client })
 
