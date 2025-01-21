@@ -25,6 +25,10 @@
       "outputs": ["dist/**", "templates/*/.botpress/**"],
       "dependsOn": ["generate", "^build"]
     },
+    "@botpress/cognitive#build": {
+      "outputs": ["dist/**"],
+      "dependsOn": ["^build"]
+    },
     "check:type": {},
     "check:bplint": {}
   }
