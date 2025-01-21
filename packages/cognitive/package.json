@@ -11,9 +11,19 @@
     "generate-types": "ts-node -T ./types.ts",
     "build:type": "tsup ./src/index.ts --dts-resolve --dts-only --clean",
     "build:neutral": "ts-node -T ./build.ts --neutral",
-    "build": "pnpm generate-types && pnpm build:type && pnpm build:neutral",
+    "build": "pnpm generate-types && pnpm build:type && pnpm build:neutral && size-limit",
     "test": "vitest"
   },
+  "size-limit": [
+    {
+      "limit": "50 kB",
+      "path": "dist/index.cjs"
+    },
+    {
+      "limit": "50 kB",
+      "path": "dist/index.mjs"
+    }
+  ],
   "dependencies": {
     "exponential-backoff": "^3.1.1",
     "nanoevents": "^9.1.0"
@@ -22,11 +32,13 @@
     "@botpress/client": "workspace:^",
     "@botpress/common": "workspace:^",
     "@bpinternal/zui": "0.12.0",
+    "@size-limit/file": "^11.1.6",
     "@types/axios": "^0.14.4",
     "@types/debug": "^4.1.12",
     "axios": "^1.7.9",
     "dotenv": "^16.4.4",
     "esbuild": "^0.16.12",
+    "size-limit": "^11.1.6",
     "tsup": "^8.0.2"
   }
 }
